@@ -183,8 +183,6 @@ public:
     void Iso2Norm(const MapPoint &pos);
     void Norm2Iso(const MapPoint &pos);
 
-	void Serialize(CivArchive &archive) ;
-
 	static sint32 GetSquaredDistance(const MapPoint &uPos, const MapPoint &pos);
 
 	void xy2rc(const MapPoint & xy_pos, const MapPoint & map_size);

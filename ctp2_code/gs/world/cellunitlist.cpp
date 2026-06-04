@@ -841,15 +841,6 @@ bool CellUnitList::IsIgnoresZOC() const
     return true;
 }
 
-void CellUnitList::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		archive.StoreChunk((uint8*)&m_array[0], (uint8*)&m_nElements + sizeof(m_nElements));
-	} else {
-		archive.LoadChunk((uint8*)&m_array[0], (uint8*)&m_nElements + sizeof(m_nElements));
-	}
-}
-
 CellUnitList::CellUnitList(const DynamicArray<Unit> &copyme)
 {
 	Assert(copyme.Num() < k_MAX_ARMY_SIZE);

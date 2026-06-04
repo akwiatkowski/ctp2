@@ -78,11 +78,9 @@ public:
 	// year. Callers compute these from session-state sources (profile DB +
 	// difficulty record); we don't reach for globals from inside Init.
 	TurnCount(sint32 numPlayers, sint32 initialYear);
-	TurnCount(CivArchive &archive);
 	~TurnCount();
 
 	void Init(sint32 numPlayers, sint32 initialYear);
-	void Init(CivArchive &archive);
 
 	void ChooseNextActivePlayer();
 	void EndThisTurn();
@@ -118,8 +116,6 @@ public:
 	BOOL SimultaneousMode() const;
 	void SetSimultaneousMode(BOOL on);
 	void NetworkEndTurn(BOOL force = FALSE);
-
-	void Serialize(CivArchive &archive) ;
 
 	void CountActivePlayers();
 	void PlayerDead(PLAYER_INDEX player);

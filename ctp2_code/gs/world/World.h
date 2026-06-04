@@ -203,7 +203,6 @@ public:
 	A_Star_Heuristic_Cost * A_star_heuristic;
 
     World(const MapPoint & m, const int xw, const int yw);
-    World(CivArchive &archive, BOOL fromMapFile = FALSE);
     void CreateTheWorld(MapPoint player_start_list[k_MAX_PLAYERS],
 						sint32 player_start_score[k_MAX_PLAYERS]);
     virtual ~World();
@@ -609,9 +608,6 @@ public:
     bool IsFort(const MapPoint &point) const;
 	bool IsUrban(const MapPoint &point) const; //added by E
 	bool IsWonder(const MapPoint &point) const; //added by E
-
-    void Serialize(CivArchive &archive) ;
-    void SerializeJustMap(CivArchive &archive);
 
     TileInfo *GetTileInfo(const MapPoint &pos) { return GetTileInfoStoragePtr(pos); }
 

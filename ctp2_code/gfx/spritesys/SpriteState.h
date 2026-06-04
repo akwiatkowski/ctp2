@@ -29,12 +29,9 @@ protected:
 public:
 
 	SpriteState(sint32 index) { m_index = index; };
-	SpriteState(CivArchive &archive) ;
 
 	sint32		GetIndex() { return m_index; };
 	void		SetIndex(sint32 index) { m_index = index; };
-
-	void Serialize(CivArchive &archive) ;
 
 };
 

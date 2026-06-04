@@ -111,27 +111,6 @@ GoodActor & GoodActor::operator=(GoodActor const & rhs) {
   return *this;
 }
 
-GoodActor::GoodActor(CivArchive &archive) :
-    Actor(SpriteStatePtr()),
-    m_facing(0),
-    m_frame(0),
-    m_transparency(TRANSPARENCY_DEFAULT),
-    m_index(0),
-    m_pos(),
-    m_goodSpriteGroup(nullptr),
-    m_curGoodAction(GOODACTION_IDLE),
-    m_loadType(LOADTYPE_BASIC) {
-  Serialize(archive);
-
-  Assert(g_goodSpriteGroupList);
-  if (g_goodSpriteGroupList) {
-    m_goodSpriteGroup = (GoodSpriteGroup *)
-      g_goodSpriteGroupList->GetSprite(m_index, GROUPTYPE_GOOD, GetLoadType(), (GAME_ACTION)0);
-  }
-
-  AddIdle();
-}
-
 GoodActor::~GoodActor() {
   m_curAction.reset();
   m_actionQueue.Clear();
@@ -418,14 +397,4 @@ void GoodActor::GetBoundingRect(RECT *rect) const {
   OffsetRect(rect, m_x + xoff, m_y + yoff);
 }
 
-void GoodActor::Serialize(CivArchive &archive) {
-  CHECKSERIALIZE
 
-    if (archive.IsStoring()) {
-      archive << m_index;
-      m_pos.Serialize(archive);
-    } else {
-      archive >> m_index;
-      m_pos.Serialize(archive);
-    }
-}

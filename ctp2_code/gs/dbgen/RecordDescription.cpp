@@ -509,13 +509,11 @@ void RecordDescription::ExportData(FILE *outfile)
 void RecordDescription::ExportMethods(FILE *outfile)
 {
 	fprintf(outfile, "    %sRecord() { Init(); };\n", m_name);
-	fprintf(outfile, "    %sRecord(CivArchive &archive) { Serialize(archive); };\n", m_name);
 	fprintf(outfile, "    %sRecord(%sRecord const & rval) { Init(); *this = rval; }\n", m_name, m_name);
 	fprintf(outfile, "    ~%sRecord();\n", m_name);
 	fprintf(outfile, "    %sRecord const & operator = (%sRecord const & rval);\n\n", m_name, m_name);
 
-	fprintf(outfile, "    void Init();\n");
-	fprintf(outfile, "    void Serialize(CivArchive &archive);\n\n");
+	fprintf(outfile, "    void Init();\n\n");
 
 	fprintf(outfile, "    void CheckRequiredFields(DBLexer *lex);\n");
 	fprintf(outfile, "    sint32 Parse(DBLexer *lex, sint32 numRecords);\n\n");
@@ -677,48 +675,6 @@ void RecordDescription::ExportManagement(FILE *outfile)
 
 	fprintf(outfile, "    //GovMod Specific flag initialization\n");
 	fprintf(outfile, "    m_hasGovernmentsModified = %s;\n", AsString(m_hasGovernmentsModified));
-	fprintf(outfile, "}\n\n");
-
-	// Serialize()
-	fprintf(outfile, "void %sRecord::Serialize(CivArchive &archive)\n", m_name);
-	fprintf(outfile, "{\n");
-	fprintf(outfile, "    if(archive.IsStoring()) {\n");
-
-	fprintf(outfile, "        archive << m_index;\n");
-	fprintf(outfile, "        if(m_name >= 0){\n");
-	fprintf(outfile, "            archive << GetIDText();\n");
-	fprintf(outfile, "        }\n");
-	fprintf(outfile, "        else{\n");
-	fprintf(outfile, "            archive << static_cast<MBCHAR*>(NULL);\n");
-	fprintf(outfile, "        }\n");
-	for(i = 0; i  < FlagCount(); i++)
-	{
-		fprintf(outfile, "        archive << m_flags%d;\n", i);
-	}
-	for (walk.SetList(&m_datumList); walk.IsValid(); walk.Next())
-	{
-		walk.GetObj()->ExportSerializationStoring(outfile);
-	}
-	fprintf(outfile, "    } else {\n");
-	fprintf(outfile, "        //GovMod Specific flag initialization\n");
-	fprintf(outfile, "        m_hasGovernmentsModified = %s;\n\n", AsString(m_hasGovernmentsModified));
-	fprintf(outfile, "        archive >> m_index;\n");
-	fprintf(outfile, "        {\n");
-	fprintf(outfile, "            MBCHAR* tmpStr = NULL;\n");
-	fprintf(outfile, "            archive >> tmpStr;\n");
-	fprintf(outfile, "            g_theStringDB->GetStringID(tmpStr, m_name);\n");
-	fprintf(outfile, "            SetTextName(g_theStringDB->GetNameStr(m_name));\n");
-	fprintf(outfile, "        }\n");
-	for(i = 0; i  < FlagCount(); i++) {
-		fprintf(outfile, "        archive >> m_flags%d;\n", i);
-	}
-
-	for (walk.SetList(&m_datumList); walk.IsValid(); walk.Next())
-	{
-		walk.GetObj()->ExportSerializationLoading(outfile);
-	}
-
-	fprintf(outfile, "    }\n");
 	fprintf(outfile, "}\n\n");
 
     // Destructor

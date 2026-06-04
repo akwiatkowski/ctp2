@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - SnipEndUntilCanEnter is now base on the army's ability to enter cell
-//   and not based on its movement type. (8-Feb-2008 Martin Gühmann)
+//   and not based on its movement type. (8-Feb-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -311,25 +311,6 @@ void Path::ConcatReturnPath()
 				break;
 		}
 	}
-}
-
-void Path::Serialize(CivArchive &archive)
-{
-	m_current.Serialize(archive);
-
-	if (archive.IsStoring())
-	{
-		archive << m_next;
-		archive << m_next_dir;
-	}
-	else
-	{
-		archive >> m_next;
-		archive >> m_next_dir;
-	}
-
-	m_start.Serialize(archive);
-	m_step.Serialize(archive);
 }
 
 void Path::InsertFront(const MapPoint &pos)

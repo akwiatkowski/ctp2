@@ -103,12 +103,6 @@ TurnCount::TurnCount(sint32 numPlayers, sint32 initialYear)
 	Init(numPlayers, initialYear);
 }
 
-TurnCount::TurnCount(CivArchive &archive)
-{
-	m_sliceList = new SimpleDynamicArray<sint32>;
-	Serialize(archive);
-}
-
 TurnCount::~TurnCount()
 {
 	delete m_sliceList;
@@ -130,62 +124,10 @@ void TurnCount::Init(sint32 numPlayers, sint32 initialYear)
 	m_sentGameOverMessage = FALSE;
 }
 
-void TurnCount::Init(CivArchive &archive)
-
-{
-	archive >> m_turn;
-	archive >> m_round;
-}
-
 void TurnCount::SkipToRound(sint32 round)
 {
 	m_round = round;
 	m_year = diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), m_round);
-}
-
-void TurnCount::Serialize(CivArchive &archive)
-{
-	CHECKSERIALIZE
-
-	if(archive.IsStoring()) {
-		archive << m_turn;
-		archive << m_round;
-		archive << m_year;
-		archive << static_cast<sint32>(m_simultaneousMode);
-		archive << m_activePlayers;
-		archive << m_lastBeginTurn;
-		archive.PutUINT8(static_cast<uint8>(m_isEmail));
-		archive.PutUINT8(static_cast<uint8>(m_isHotSeat));
-		archive << m_happinessPlayer;
-
-		uint8 tmp = NewTurnCount::m_sentGameOverMessage;
-		archive << tmp;
-
-		tmp = NewTurnCount::m_sentGameAlmostOverMessage;
-		archive << tmp;
-	} else {
-		archive >> m_turn;  // Unused always -4000 or what you have in const.txt
-		archive >> m_round; // Unused always 0
-		archive >> m_year;  // Unused
-        sint32  sim;
-		archive >> sim;
-		m_simultaneousMode = sim;
-		archive >> m_activePlayers; // Seems to be number of players at the start
-		archive >> m_lastBeginTurn; // Unused always -1
-		m_isEmail = (BOOL)archive.GetUINT8();
-		m_isHotSeat = (BOOL)archive.GetUINT8();
-		archive >> m_happinessPlayer; // Unused always 0
-
-		uint8 tmp;
-		archive >> tmp;
-		NewTurnCount::m_sentGameOverMessage = (tmp != 0);
-		m_sentGameOverMessage = (tmp != 0);
-
-		archive >> tmp;
-		NewTurnCount::m_sentGameAlmostOverMessage = (tmp != 0);
-		m_sentGameAlmostOverMessage = (tmp != 0);
-	}
-	m_sliceList->Serialize(archive);
 }
 
 void TurnCount::InformNetwork()

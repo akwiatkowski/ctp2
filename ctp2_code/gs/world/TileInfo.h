@@ -80,7 +80,6 @@ class TileInfo
 public:
 	TileInfo();
 	TileInfo(TileInfo *copy);
-	TileInfo(CivArchive &archive);
 	~TileInfo();
 
 	uint8 GetTerrainType() const { return m_terrainType; }
@@ -112,8 +111,6 @@ public:
 
 	uint8 GetMega() { return m_megaInfo; }
 	void SetMega(uint8 m) { m_megaInfo = m; }
-
-	void Serialize(CivArchive &archive);
 
 private:
 

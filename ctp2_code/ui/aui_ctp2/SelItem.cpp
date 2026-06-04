@@ -234,63 +234,9 @@ SelectedItem::SelectedItem(sint32 nPlayers)
 	Init();
 }
 
-SelectedItem::SelectedItem(CivArchive &archive)
-{
-	for(auto & m_select_po : m_select_pos)
-	{
-		m_select_po = MapPoint(0,0); // Find something better, like the first unit or the capital
-	}
-
-	Serialize(archive);
-
-	SetPlayerOnScreen(m_current_player);
-
-	//Added by Martin G�hmann
-	//To make sure that save games saved with other players than
-	//player one can be continued without using the cheat editor.
-	NewTurnCount::SetStopPlayer(m_current_player);
-}
-
 SelectedItem::~SelectedItem()
 {
 	delete m_good_path;
-}
-
-void SelectedItem::Serialize(CivArchive &archive)
-{
-	CHECKSERIALIZE
-
-	if (archive.IsStoring())
-	{
-		for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
-		{
-			archive.PutSINT32(m_select_state[i]);
-			m_selected_army[i].Serialize(archive);
-			m_selected_city[i].Serialize(archive);
-			archive.PutSINT32(m_is_at_start[i]);
-			archive.PutSINT32(m_next_player[i]);
-			archive.PutSINT32(m_remote_owner[i]);
-			m_select_pos[i].Serialize(archive);
-		}
-
-		archive.PutSINT32(m_current_player);
-	}
-	else
-	{
-		for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
-		{
-			m_select_state[i] = SELECT_TYPE(archive.GetSINT32());
-			m_selected_army[i].Serialize(archive);
-			m_selected_city[i].Serialize(archive);
-			m_is_at_start[i] = archive.GetSINT32();
-			m_next_player[i] = PLAYER_INDEX (archive.GetSINT32());
-			m_remote_owner[i] = archive.GetSINT32();
-			m_select_pos[i].Serialize(archive);
-		}
-
-		m_current_player = PLAYER_INDEX(archive.GetSINT32());
-		Init();
-	}
 }
 
 void SelectedItem::Init()

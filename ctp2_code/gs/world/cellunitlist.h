@@ -92,7 +92,6 @@ public:
 	CellUnitList() {m_nElements = 0;}
 	CellUnitList(const sint32 size) {Assert(size == k_MAX_ARMY_SIZE); m_nElements = 0;}
 	CellUnitList(const DynamicArray<Unit> &copyme);
-	void Serialize(CivArchive &archive);
 
 	virtual bool Insert(Unit id);
 	sint32 Del(const Unit &delme);

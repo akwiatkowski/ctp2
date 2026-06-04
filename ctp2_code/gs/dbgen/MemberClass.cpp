@@ -220,7 +220,6 @@ void MemberClass::ExportMethods(FILE *outfile)
 
 	// Constructors
 	fprintf(outfile,     "        %s();\n", m_name);
-	fprintf(outfile,     "        %s(CivArchive & archive){ Serialize(archive); };\n", m_name);
 	/// @todo Check copy constructor
 	// Destructor
 	fprintf(outfile,     "        ~%s();\n", m_name);
@@ -273,7 +272,6 @@ void MemberClass::ExportMethods(FILE *outfile)
 	}
 
 	// Specials
-	fprintf(outfile,     "        void Serialize(CivArchive &archive);\n");
 	fprintf(outfile,     "        sint32 Parse(DBLexer *lex);\n");
 	if(canParseSequentially) {
 		fprintf(outfile, "        sint32 ParseSequential(DBLexer *lex);\n");
@@ -375,35 +373,6 @@ void MemberClass::ExportInitialization(FILE *outfile, char *recordName)
         // No action: use compiler provided default
     }
 
-	fprintf(outfile, "void %sRecord::%s::Serialize(CivArchive &archive)\n", recordName, m_name);
-	fprintf(outfile, "{\n");
-
-	fprintf(outfile, "    if(archive.IsStoring()) {\n");
-
-	for(i = 0; i < FlagCount(); ++i)
-    {
-		fprintf(outfile, "        archive << m_flags%d;\n", i);
-	}
-
-	for (walk.SetList(&m_datumList); walk.IsValid(); walk.Next())
-    {
-		walk.GetObj()->ExportSerializationStoring(outfile);
-	}
-
-	fprintf(outfile, "    } else {\n");
-
-	for(i = 0; i  < FlagCount(); i++) {
-		fprintf(outfile, "        archive >> m_flags%d;\n", i);
-	}
-
-	for (walk.SetList(&m_datumList); walk.IsValid(); walk.Next())
-	{
-		walk.GetObj()->ExportSerializationLoading(outfile);
-	}
-
-	fprintf(outfile, "    }\n");
-
-	fprintf(outfile, "}\n\n");
 }
 
 void MemberClass::ExportParser(FILE *outfile, char *recordName)

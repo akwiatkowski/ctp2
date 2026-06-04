@@ -61,37 +61,6 @@ GameEventArgument::GameEventArgument(GAME_EVENT_ARGUMENT type, ...)
 	va_end(vl);
 }
 
-GameEventArgument::GameEventArgument(CivArchive &archive)
-{
-	Serialize(archive);
-}
-
-void GameEventArgument::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		archive.PutUINT32(m_type);
-		switch(m_type) {
-			case GEA_Path:
-				((Path *)(m_data.m_ptr))->Serialize(archive);
-				break;
-			default:
-				archive.Store((uint8*)&m_data, sizeof(m_data));
-				break;
-		}
-	} else {
-		m_type = (GAME_EVENT_ARGUMENT)archive.GetUINT32();
-		switch(m_type) {
-			case GEA_Path:
-				m_data.m_ptr = new Path;
-				((Path *)(m_data.m_ptr))->Serialize(archive);
-				break;
-			default:
-				archive.Load((uint8*)&m_data, sizeof(m_data));
-				break;
-		}
-	}
-}
-
 void GameEventArgument::Init(GAME_EVENT_ARGUMENT type, va_list *vl, bool isAlwaysValid)
 {
 	m_IsAlwaysValid = isAlwaysValid;

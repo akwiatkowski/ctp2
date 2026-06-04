@@ -113,7 +113,6 @@ public:
         m_percentComplete   (percentComplete)
     {};
 
-	UnseenImprovementInfo(CivArchive &archive);
 	UnseenImprovementInfo(UnseenImprovementInfo *copy) {
 		*this = *copy;
 	}
@@ -131,7 +130,6 @@ public:
         m_visibility        (visibility)
     {	};
 
-	UnseenInstallationInfo(CivArchive &archive);
 	UnseenInstallationInfo(UnseenInstallationInfo *copy)
 	{
 		*this = *copy;
@@ -203,7 +201,6 @@ public:
 	UnseenCell(const MapPoint &point);
 	UnseenCell();
 	UnseenCell(UnseenCell *old);
-	UnseenCell(CivArchive &archive);
 	~UnseenCell();
 
 
@@ -270,7 +267,6 @@ public:
 	sint32  GetGoldFromTerrain     () const;
 	sint32  GetGoldProduced        () const;
 
-	void    Serialize(CivArchive &archive);
 };
 
 class UnseenCellCarton

@@ -24,9 +24,6 @@ public:
 	STDMETHODIMP_(ULONG) AddRef() override;
 	STDMETHODIMP_(ULONG) Release() override;
 
-	C3Rand(CivArchive &archive);
-	void Serialize(CivArchive &archive);
-
 	STDMETHODIMP_(sint32) Next(sint32 range) override;
 };
 
@@ -58,9 +55,6 @@ public:
 	virtual uint32 AddRef();
 	virtual uint32 Release();
 #endif
-
-	C3Rand(CivArchive &archive);
-	void Serialize(CivArchive &archive);
 
 #ifndef USE_COM_REPLACEMENT
 	STDMETHODIMP_(sint32) Next(sint32 range);

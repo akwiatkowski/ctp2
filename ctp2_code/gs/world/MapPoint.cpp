@@ -121,26 +121,6 @@ MapPoint & MapPoint::operator += (const MapPointData &rhs)
 	return *this;
 }
 
-void MapPoint::Serialize(CivArchive &archive)
-{
-	if (archive.IsStoring())
-		{
-		archive<<x;
-		archive<<y;
-#if !defined(_SMALL_MAPPOINTS)
-		archive << z;
-#endif
-		}
-	else
-		{
-		archive>>x;
-		archive>>y;
-#if !defined(_SMALL_MAPPOINTS)
-		archive >> z;
-#endif
-		}
-}
-
 bool MapPoint::operator == (const MapPoint &test_me) const
 {
 	return ((x == test_me.x) && (y == test_me.y));

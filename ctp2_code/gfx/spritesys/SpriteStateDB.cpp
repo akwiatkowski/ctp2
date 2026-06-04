@@ -29,12 +29,6 @@ SpriteStateDB::SpriteStateDB ()
 
 
 
-SpriteStateDB::SpriteStateDB(CivArchive &archive)
-	{
-	m_map = nullptr ;
-	Serialize(archive) ;
-	}
-
 SpriteStateDB::~SpriteStateDB ()
 
 {
@@ -105,25 +99,6 @@ void SpriteStateDB::SetVal(sint32 index, sint32 val)
 
 
 
-
-void SpriteStateDB::Serialize(CivArchive &archive)
-{
-    CHECKSERIALIZE
-
-	if (archive.IsStoring()) {
-		archive<<m_size ;
-    	archive.Store((uint8 *)m_map, sizeof(SpriteNameNode) * m_size) ;
-
-	} else {
-		archive>>m_size ;
-		
-			delete m_map ;
-
-		m_map = new SpriteNameNode[m_size];
-        archive.Load((uint8 *)m_map, sizeof(SpriteNameNode) * m_size) ;
-	}
-
-}
 
 sint32 SpriteStateDB::ParseASpriteState (Token *spriteToken, sint32 count)
 {

@@ -54,7 +54,6 @@ struct Direction {
 	sint8 operator=(sint8 val) { return dir = val; }
 	sint8 operator=(WORLD_DIRECTION val) { return dir = sint8(val); }
 
-	void Serialize(CivArchive &archive);
 };
 
 class Path
@@ -97,7 +96,6 @@ public:
 	void ConcatReturnPath();
 	void Concat(Path const & otherpath);
 
-	void Serialize(CivArchive &archive);
 	void InsertFront(const MapPoint &pos);
 	void PrependDir (sint32 dir);
 	void AddDir(const WORLD_DIRECTION d);

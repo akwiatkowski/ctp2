@@ -269,9 +269,6 @@ public:
 	sint32 GetNumImprovements() const;
 	TerrainImprovement AccessImprovement(sint32 index);
 
-	void Serialize(CivArchive &archive) ;
-
-
 	bool IsDead() const;
 	void Kill();
 

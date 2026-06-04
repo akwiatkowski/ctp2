@@ -22,23 +22,8 @@ class BitMask {
 		memset(m_bytes, 0, SIZE_IN_BYTES(m_sizeInBits) * sizeof(uint8));
 	}
 
-	BitMask(CivArchive &archive) {
-		Serialize(archive);
-	}
-
 	~BitMask() {
 		delete [] m_bytes;
-	}
-
-	void Serialize(CivArchive &archive) {
-		if(archive.IsStoring()) {
-			archive << m_sizeInBits;
-			archive.Store(m_bytes, SIZE_IN_BYTES(m_sizeInBits));
-		} else {
-			archive >> m_sizeInBits;
-			m_bytes = new uint8[SIZE_IN_BYTES(m_sizeInBits)];
-			archive.Load(m_bytes, SIZE_IN_BYTES(m_sizeInBits));
-		}
 	}
 
 	void SetBit(sint32 bit) {

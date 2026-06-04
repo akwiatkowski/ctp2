@@ -61,18 +61,6 @@ TileInfo::TileInfo(TileInfo *copy)
     // else: already set in *this = *copy;
 }
 
-TileInfo::TileInfo(CivArchive &archive)
-:
-    m_riverPiece    (-1),
-    m_megaInfo      (0),
-    m_terrainType   (0),
-    m_transform     (0),
-    m_tileNum       (0),
-    m_goodActor     (nullptr)
-{
-	Serialize(archive);
-}
-
 TileInfo::~TileInfo()
 {
 	delete m_goodActor;
@@ -123,42 +111,4 @@ void TileInfo::DeleteGoodActor()
 	m_goodActor = nullptr;
 }
 
-void TileInfo::Serialize(CivArchive &archive)
-{
-	sint32 hasGoodActor;
 
-	if(archive.IsStoring()) {
-		DPRINTF(k_DBG_GRAPHICS, ("%d,%d,%d,%d, %d,%d,%d,%d\n",
-								 m_riverPiece, m_megaInfo,
-								 m_terrainType, m_tileNum,
-								 m_transitions[0], m_transitions[1],
-								 m_transitions[2], m_transitions[3]));
-		archive << m_riverPiece;
-		archive << m_megaInfo;
-		archive << m_terrainType;
-		archive << m_tileNum;
-		archive << m_transform;
-		for (unsigned char m_transition : m_transitions)
-        {
-			archive << m_transition;
-		}
-		hasGoodActor = (m_goodActor != nullptr);
-		archive << hasGoodActor;
-		if(m_goodActor)
-			m_goodActor->Serialize(archive);
-	} else {
-		archive >> m_riverPiece;
-		archive >> m_megaInfo;
-		archive >> m_terrainType;
-		archive >> m_tileNum;
-		archive >> m_transform;
-		for (unsigned char & m_transition : m_transitions)
-        {
-			archive >> m_transition;
-		}
-		archive >> hasGoodActor;
-
-        delete m_goodActor;
-        m_goodActor = (hasGoodActor) ? new GoodActor(archive) : nullptr;
-	}
-}

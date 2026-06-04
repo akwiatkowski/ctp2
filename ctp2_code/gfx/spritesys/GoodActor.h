@@ -81,7 +81,6 @@ class GoodActor : public Actor
 public:
     GoodActor(sint32 index, MapPoint const & pos);
     GoodActor(GoodActor const & rhs);
-    GoodActor(CivArchive & archive);
 
     virtual ~GoodActor();
     GoodActor & operator = (GoodActor const & rhs);
@@ -109,8 +108,6 @@ public:
 	uint16			GetHeight() const;
 	POINT			GetHotpoint() const;
 	void			GetBoundingRect(RECT *rect) const;
-
-	void            Serialize(CivArchive &archive);
 
 	LOADTYPE		GetLoadType() const { return m_loadType; }
 	void			SetLoadType(LOADTYPE type) { m_loadType = type; }

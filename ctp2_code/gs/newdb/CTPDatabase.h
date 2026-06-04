@@ -42,8 +42,8 @@
 // - Removed some completely unused code.
 // - Modernised some code: e.g. implemented the modified records list as a
 //   std::vector, so we don't have to do the memory management ourselves.
-// - Added Serialize method for datachecks. (Aug 23rd 2005 Martin Gühmann)
-// - Parser for struct ADVANCE_CHANCES of DiffDB.txt can now be generated. (Jan 3rd 2006 Martin Gühmann)
+// - Added Serialize method for datachecks. (Aug 23rd 2005 Martin Gï¿½hmann)
+// - Parser for struct ADVANCE_CHANCES of DiffDB.txt can now be generated. (Jan 3rd 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -79,16 +79,6 @@ public:
 	:   m_governmentModified(a_governmentModified),
 	    m_modifiedRecord(a_modifiedRecord)
 	{ };
-	void Serialize(CivArchive &archive){
-		if(archive.IsStoring()) {
-			archive << m_governmentModified;
-			archive << m_modifiedRecord;
-	} else {
-			archive >> m_governmentModified;
-			archive >> m_modifiedRecord;
-		}
-	}
-
 	sint32 m_governmentModified;
 	sint32 m_modifiedRecord;
 };
@@ -111,8 +101,6 @@ public:
 
 	CTPDatabase();
 	virtual ~CTPDatabase();
-
-	void Serialize(CivArchive &archive);
 
 	bool Parse(DBLexer *lex);
 	bool Parse(const C3DIR & c3dir, const char *filename);

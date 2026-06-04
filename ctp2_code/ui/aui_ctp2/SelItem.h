@@ -132,10 +132,8 @@ public:
 	friend class NetUnit;
 
 	SelectedItem(const sint32 nPlayers);
-	SelectedItem(CivArchive &archive);
 	~SelectedItem();
 
-	void Serialize(CivArchive &archive);
 	void Init();
 
 	void Deselect(PLAYER_INDEX player);

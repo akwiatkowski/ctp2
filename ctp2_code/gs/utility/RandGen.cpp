@@ -9,12 +9,6 @@ RandomGenerator::RandomGenerator(sint32 seed)
 	Initialize(seed);
 }
 
-RandomGenerator::RandomGenerator(CivArchive &archive)
-
-{
-    Serialize(archive);
-}
-
 RandomGenerator::RandomGenerator(RandomGenerator &copyme)
 {
 	m_start_seed = copyme.m_start_seed;
@@ -23,38 +17,6 @@ RandomGenerator::RandomGenerator(RandomGenerator &copyme)
 	m_secondp = &(m_buffer[copyme.m_secondp - copyme.m_buffer]);
 	m_endp = &(m_buffer[56]);
 	m_callCount = copyme.m_callCount;
-}
-
-void RandomGenerator::Serialize(CivArchive &archive)
-
-{
-    sint32 tmp ;
-#define RNDGEN_MAGIC 0x51E97599
-
-    CHECKSERIALIZE
-
-    if (archive.IsStoring()) {
-		archive.PerformMagic(RNDGEN_MAGIC) ;
-		archive<<m_start_seed ;
-		archive.Store((uint8 *)m_buffer, 56 * sizeof(sint32)) ;
-        tmp = m_firstp - m_buffer;
-        archive<<tmp;
-        tmp = m_secondp - m_buffer;
-        archive<<tmp;
-		archive << m_callCount;
-    } else {
-		archive.TestMagic(RNDGEN_MAGIC) ;
-		archive>>m_start_seed ;
-   		archive.Load((uint8 *)m_buffer, 56 * sizeof(sint32)) ;
-        archive>>tmp;
-        m_firstp = m_buffer + tmp;
-        archive>>tmp;
-        m_secondp = m_buffer + tmp;
-        m_endp = &(m_buffer[56]);
-		if(save_file_version_Get() >= 56) {
-			archive >> m_callCount;
-		}
-    }
 }
 
 void RandomGenerator::Initialize(sint32 seed)

@@ -59,9 +59,7 @@ class GameEventArgument
 public:
 	GameEventArgument(GAME_EVENT_ARGUMENT type, va_list *vl, bool isAlwaysValid = false);
 	GameEventArgument(GAME_EVENT_ARGUMENT type, ...);
-	GameEventArgument(CivArchive &archive);
 	~GameEventArgument();
-	void Serialize(CivArchive &archive);
 
 	void Init(GAME_EVENT_ARGUMENT type, va_list *vl,  bool isAlwaysValid = false);
 

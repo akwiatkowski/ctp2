@@ -30,14 +30,12 @@ class SpriteStateDB {
 public:
 
 	SpriteStateDB ();
-	SpriteStateDB(CivArchive &archive) ;
 	~SpriteStateDB ();
 	void SetSize(sint32 size);
 	sint32 FindTypeIndex(char *str) const;
 	sint32 GetDefaultVal(sint32 index) const;
     void SetName(sint32 count, char str[_MAX_PATH]);
     void SetVal(sint32 count, sint32 val);
-	void Serialize(CivArchive &archive) ;
 
 	sint32 ParseASpriteState (Token *spriteToken, sint32 count);
 	sint32 Parse(char *filename);

@@ -70,7 +70,6 @@ struct CityInfo {
 	COLOR		cityBlinkColor;
 	uint32		cityBlinkTime;
 
-	virtual void Serialize(CivArchive &archive) {}
 	virtual void Castrate() {}
     virtual void DelPointers() {}
 };

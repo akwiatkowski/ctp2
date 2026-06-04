@@ -196,66 +196,6 @@ UnitActor::UnitActor(SpriteStatePtr ss,
   Initialize();
 }
 
-UnitActor::UnitActor(CivArchive& archive)
-    : Actor(nullptr),
-      m_refCount(1),
-      m_pos(),
-      m_unitID(),
-      m_unitDBIndex(CTPRecord::INDEX_INVALID),
-      m_playerNum(PLAYER_UNASSIGNED),
-      m_nextPop(0),
-      m_unitSpriteGroup(nullptr),
-      m_loadType(LOADTYPE_NONE),
-      m_facing(k_DEFAULTSPRITEFACING),
-      m_lastMoveFacing(k_DEFAULTSPRITEFACING),
-      m_frame(0),
-      //	uint16				m_transparency;
-      m_curUnitAction(UNITACTION_NONE),
-      //	RECT				m_heraldRect;
-      m_unitVisibility(0),
-      m_unitSaveVisibility(0),
-      m_directionalAttack(false),
-      m_needsToDie(false),
-      m_needsToVictor(false),
-      m_killNow(false),
-      m_unitVisionRange(0.0),
-      m_newUnitVisionRange(0.0),
-      m_bVisSpecial(false),
-      m_moveActors(NULL),
-      m_numOActors(0),
-      m_hidden(false),
-      m_hiddenUnderStack(false),
-      m_isTransported(false),
-      //	sint32
-      //m_holdingCurAnimPos[UNITACTION_MAX]; 	sint32
-      //m_holdingCurAnimDelayEnd[UNITACTION_MAX]; 	sint32
-      //m_holdingCurAnimElapsed[UNITACTION_MAX]; 	sint32
-      //m_holdingCurAnimLastFrameTime[UNITACTION_MAX]; 	sint32
-      //m_holdingCurAnimSpecialDelayProcess;
-      m_size(0),
-      m_isUnseenCellActor(false),
-      //	GROUPTYPE			m_type;
-      //	sint32				m_spriteID;
-      //	uint32				m_shieldFlashOnTime;
-      //	uint32				m_shieldFlashOffTime;
-      //	sint32				m_activeListRef;
-      //	double				m_healthPercent;
-      m_tempStackSize(0)
-#ifdef _ACTOR_DRAW_OPTIMIZATION
-//	sint32				m_oldFacing;
-//	BOOL				m_oldIsFortified;
-//	BOOL				m_oldIsFortifying;
-//	BOOL				m_oldHasCityWalls;
-//	BOOL				m_oldHasForceField;
-//	BOOL				m_oldDrawShield;
-//	BOOL				m_oldDrawSelectionBrackets;
-//	uint16				m_oldFlags;
-#endif
-{
-  Serialize(archive);
-  Initialize();
-}
-
 void UnitActor::Initialize() {
   RECT tmpRect = {0, 0, 10, 16};
 
@@ -2089,66 +2029,6 @@ void UnitActor::GetBoundingRect(RECT* rect) const {
   rect->top = y;
   rect->right = x + (sint32)((double)GetWidth() * scale);
   rect->bottom = y + (sint32)((double)GetHeight() * scale);
-}
-
-void UnitActor::Serialize(CivArchive& archive) {
-  if (archive.IsStoring()) {
-    EndTurnProcess();
-
-    if (m_unitID.IsValid() && m_unitID.IsCity()) {
-      m_unitID.GetPop(m_size);
-    }
-
-    archive << m_facing;
-    archive << m_lastMoveFacing;
-    archive << m_size;
-    archive.PutUINT8((uint8)m_isUnseenCellActor);
-
-    archive.PutUINT8((uint8)m_type);
-    // G-4: USE_FORMAT_67 collapsed to the CTP0066-and-earlier shape;
-    // CTP0067 was never released.  m_spriteID + m_unitDBIndex are
-    // truncated to uint8 here, matching the binary format we actually
-    // produce.  (The JSON path persists the full sint32 width.)
-    archive.PutUINT8((uint8)m_spriteID);
-    archive.PutUINT8((uint8)m_playerNum);
-    archive.PutUINT32((uint32)m_unitID);
-    archive.PutUINT8((uint8)m_unitDBIndex);
-    archive << m_unitVisionRange;
-    archive << m_unitVisibility;
-
-    m_pos.Serialize(archive);
-    m_spriteState->Serialize(archive);
-  } else {
-    archive >> m_facing;
-    archive >> m_lastMoveFacing;
-    archive >> m_size;
-
-    m_isUnseenCellActor = (BOOL)archive.GetUINT8();
-
-    m_type = (GROUPTYPE)archive.GetUINT8();
-
-    if (save_file_version_Get() >= 67) {
-      archive >> m_spriteID;
-    } else {
-      m_spriteID = (sint32)archive.GetUINT8();
-    }
-
-    m_playerNum = (sint32)archive.GetUINT8();
-    m_unitID = Unit(archive.GetUINT32());
-
-    if (save_file_version_Get() >= 67) {
-      archive >> m_unitDBIndex;
-    } else {
-      m_unitDBIndex = (sint32)archive.GetUINT8();
-    }
-
-    archive >> m_unitVisionRange;
-    archive >> m_unitVisibility;
-
-    m_pos.Serialize(archive);
-    m_spriteState;
-    m_spriteState = std::make_shared<SpriteState>(archive);
-  }
 }
 
 LOADTYPE UnitActor::GetLoadType() const {

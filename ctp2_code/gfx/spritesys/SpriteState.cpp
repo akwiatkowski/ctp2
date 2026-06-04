@@ -14,10 +14,6 @@
 
 
 
-SpriteState::SpriteState(CivArchive &archive)
-	{
-	Serialize(archive) ;
-	}
 
 
 
@@ -30,11 +26,5 @@ SpriteState::SpriteState(CivArchive &archive)
 
 
 
-void SpriteState::Serialize(CivArchive &archive)
-	{
-	if (archive.IsStoring())
-		archive<<m_index ;
-	else
-		archive>>m_index ;
 
-	}
+

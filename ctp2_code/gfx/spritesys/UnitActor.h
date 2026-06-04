@@ -86,8 +86,6 @@ class UnitActor : public Actor {
             BOOL isUnseenCellActor,
             double visionRange,
             sint32 citySprite);
-  explicit UnitActor(CivArchive& archive);
-
   ~UnitActor();
 
   void GetIDAndType(sint32 owner,
@@ -270,8 +268,6 @@ class UnitActor : public Actor {
   void AddActiveListRef() { m_activeListRef++; }
   sint32 ReleaseActiveListRef() { return --m_activeListRef; }
   sint32 GetActiveListRef() const { return m_activeListRef; }
-
-  void Serialize(CivArchive& archive);
 
 #ifdef _DEBUG
   void DumpActor();

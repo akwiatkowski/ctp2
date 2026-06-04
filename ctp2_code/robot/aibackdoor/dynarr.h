@@ -129,8 +129,6 @@ public:
     void KillList();
 	void FastKillList();
 
-    void Serialize(CivArchive &archive) ;
-
 };
 
 
@@ -616,28 +614,6 @@ template <class T> void DynamicArray<T>::FastKillList()
     }
 
     m_nElements = 0;
-}
-
-template <class T> void DynamicArray<T>::Serialize(CivArchive &archive)
-{
-    if (archive.IsStoring())
-    {
-		archive << m_maxElements;
-		archive << m_nElements;
-    }
-    else
-    {
-		archive >> m_maxElements;
-		m_maxElements = std::max<sint32>(1, m_maxElements);
-		archive >> m_nElements;
-		delete [] m_array;
-		m_array = new T[m_maxElements];
-    }
-
-    for (int i = 0; i < m_nElements; ++i)
-    {
-		m_array[i].Serialize(archive);
-    }
 }
 
 #endif

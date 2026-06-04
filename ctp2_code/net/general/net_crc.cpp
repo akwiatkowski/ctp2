@@ -157,22 +157,6 @@ NetCRC::NetCRC()
 // Remark(s)  : Database must be serializable
 //
 //----------------------------------------------------------------------------
-#define CHECKDB(db) \
-	if(dbnum < m_startAt || dbnum > m_stopAt) { \
-		dbnum++; \
-	} else { \
-		Assert(dbnum < k_MAX_DBS); \
-		archive = new CivArchive; \
-		check = new CheckSum; \
-		archive->SetStore(); \
-		db->Serialize(*archive); \
-		check->AddData(archive->GetStream(), archive->StreamLen()); \
-		check->Done(m_db_crc[dbnum][0], m_db_crc[dbnum][1], m_db_crc[dbnum][2], m_db_crc[dbnum][3]); \
-		delete archive; \
-		delete check; \
-		dbnum++; \
-		numchecked++; \
-	}
 
 //----------------------------------------------------------------------------
 //

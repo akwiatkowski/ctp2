@@ -76,6 +76,7 @@
 #include "FeatRecord.h"                    // g_theFeatDB (dbgen-built)
 #include "BuildingRecord.h"                // g_theBuildingDB (dbgen-built)
 #include "gs/gameobj/gaiacontroller.h"
+#include "ai/ctpai.h"                  // CtpAi::Resize (LoadJson tail)
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/diplomacy/Foreigner.h"
@@ -625,6 +626,16 @@ void from_json(nlohmann::json const &j, World &w)
     // Database size changed: the binary path calls
     // ComputeGoodsValues() here.  Phase C-2 leaves m_goodValue alone
     // for the JSON path — Phase D's player + city deps will revisit.
+
+    // Continent-size arrays (m_land_size / m_water_size) are zeroed by
+    // AllocateMap.  Without re-populating them, GetLandContinentSize()
+    // reads off the end of an empty DynamicArray — caught by ASan as a
+    // heap-buffer-overflow in MapAnalysis::BeginTurn after a fresh load
+    // (the saved cells have valid continent numbers but the per-
+    // continent size cache is empty).  FindContinentSize walks cells +
+    // accumulates sizes from existing m_continent_number values; no
+    // renumbering, so this is a pure cache rebuild.
+    w.FindContinentSize();
 }
 
 // --- Player-layer leaf bridges (Phase D-1) -----------------------------
@@ -5318,6 +5329,23 @@ bool LoadJson(char const *path)
             if (ai.contains("agreements"))
                 ai["agreements"].get_to(AgreementMatrix::s_agreements);
         }
+
+        // Re-sync per-player AI structures with the post-load g_player
+        // state.  gameinit_Initialize sized MapAnalysis/Scheduler/
+        // Governor/Diplomat to ProfileDB::NumPlayers (6 by default from
+        // profile.txt) BEFORE LoadJson ran; after we delete the dead
+        // slots above, MapAnalysis::m_threatGrid still has 6 entries
+        // but Diplomat has been shrunk to the save's player count.
+        // ASan + libc++ hardening catch the mismatch when
+        // MapAnalysis::GetEnemyGrid iterates m_threatGrid.size() and
+        // queries Diplomat::ComputeEffectiveRegard with an opponent id
+        // that's beyond m_foreigners.  CtpAi::Resize walks g_player to
+        // recompute s_maxPlayers and resizes all dependent subsystems
+        // consistently.  Gated on world_Get() because some unit-test
+        // fixtures call LoadJson without going through gameinit, leaving
+        // world_Get() == nullptr (MapAnalysis::Resize would deref it).
+        if (world_Get())
+            CtpAi::Resize();
     }
     catch (nlohmann::json::exception const &e)
     {

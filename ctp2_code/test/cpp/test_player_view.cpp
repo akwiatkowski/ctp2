@@ -112,7 +112,12 @@ constexpr std::size_t AI_NET_CPP_BASELINE = 9;
 // Ratchet baselines — total `#include "ai/..."` lines in gs/ .cpp files.
 // gs/ includes ai/ headers for AI backdoor interfaces and strategy types.
 // Ratcheting locks the current count so future work can only reduce it.
-constexpr std::size_t GS_AI_CPP_BASELINE = 38;
+// Bumped 38 -> 39: json_save.cpp pulls in ai/ctpai.h for the CtpAi::Resize
+// re-sync call added after the LoadJson player-deletion fix.  Crossing this
+// layer boundary is necessary — LoadJson must reconcile gs/ player state
+// with the ai/ per-player containers (MapAnalysis grids, Diplomats) or the
+// load-then-resave path runs off the end of m_threatGrid/m_foreigners.
+constexpr std::size_t GS_AI_CPP_BASELINE = 39;
 
 // slic/ is a subset of gs/.  Wave 7 cleared all gfx/ includes from
 // slic/; this ratchet locks that at 0 so the SLIC interpreter never

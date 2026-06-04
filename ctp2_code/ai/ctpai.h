@@ -106,9 +106,15 @@ public:
 
 	static void ComputeCityGarrisons(const PLAYER_INDEX player);
 
+	// Re-syncs s_maxPlayers + all per-player AI containers
+	// (Scheduler / AgreementMatrix / MapAnalysis / Diplomat / Governor)
+	// with the current g_player array.  Called internally by
+	// Initialize(); LoadJson also needs it to repair size mismatches
+	// after deleting Players the save marks dead.
+	static void Resize();
+
 private:
 
-	static void Resize();
 
 	static void AddExploreTargets(const PLAYER_INDEX player);
 

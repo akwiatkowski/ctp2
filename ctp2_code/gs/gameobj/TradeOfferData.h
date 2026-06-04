@@ -81,8 +81,6 @@ public:
 
 	TradeOfferData(const ID id) : GameObj(id.m_id) {}
 
-	TradeOfferData(CivArchive &archive) : GameObj(0) { Serialize(archive); };
-
 	PLAYER_INDEX GetOwner() const { return m_owner; }
 	Unit GetFromCity() const { return m_fromCity; }
 	Unit GetToCity() const { return m_toCity; }
@@ -93,9 +91,6 @@ public:
 	sint32 GetAskingResource() const { return m_askingResource; }
 
 	BOOL Accept(PLAYER_INDEX player, const Unit &sourceCity, Unit const &destCity);
-
-
-	void Serialize(CivArchive &archive) override;
 };
 
 #endif

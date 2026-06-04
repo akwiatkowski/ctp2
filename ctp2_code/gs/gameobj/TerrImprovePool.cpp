@@ -52,12 +52,6 @@ TerrainImprovementPool::TerrainImprovementPool()
 {
 }
 
-TerrainImprovementPool::TerrainImprovementPool(CivArchive &archive)
-	: ObjPool(k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT)
-{
-	Serialize(archive);
-}
-
 //----------------------------------------------------------------------------
 //
 // Name       : TerrainImprovementPool::Create
@@ -142,47 +136,6 @@ TerrainImprovementPool::Create
 	}
 
 	return newImprovement;
-}
-
-void
-TerrainImprovementPool::Serialize(CivArchive &archive)
-{
-	TerrainImprovementData *data;
-	sint32	i,
-			count = 0 ;
-
-#define TERRIMPROVEPOOL_MAGIC 0x11223344
-
-	CHECKSERIALIZE
-
-	if(archive.IsStoring())
-	{
-		archive.PerformMagic(TERRIMPROVEPOOL_MAGIC);
-		ObjPool::Serialize(archive);
-
-		for (i=0; i<k_OBJ_POOL_TABLE_SIZE; i++)
-			if(m_table[i])
-				count++;
-
-		archive<<count;
-		for(i = 0; i < k_OBJ_POOL_TABLE_SIZE; i++)
-		{
-			if(m_table[i])
-				((TerrainImprovementData*)(m_table[i]))->Serialize(archive);
-		}
-	}
-	else
-	{
-		archive.TestMagic(TERRIMPROVEPOOL_MAGIC);
-		ObjPool::Serialize(archive);
-
-		archive>>count;
-		for (i=0; i<count; i++)
-		{
-			data = new TerrainImprovementData(archive);
-			Insert(data);
-		}
-	}
 }
 
 //not implemented??? E 4-7-2006

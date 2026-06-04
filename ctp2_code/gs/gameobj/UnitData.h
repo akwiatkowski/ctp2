@@ -133,7 +133,6 @@ public:
 		m_array_index ^= (1 << player);
 	}
 
-	void Serialize(CivArchive &archive);
 private:
 	uint32 m_array[k_DEFAULT_VIS_DURATION_SIZE];
 	uint32 m_array_index;
@@ -305,8 +304,6 @@ public:
 	            const PLAYER_INDEX o);
 	void Place(const MapPoint &center);
 
-	UnitData(CivArchive &archive);
-
 	// JSON load — counterpart to the CivArchive ctor.  Same null-init
 	// of pointer-typed members + from_json (see json_save.cpp).
 	explicit UnitData(nlohmann::json const &j);
@@ -393,7 +390,6 @@ public:
 	CityData* GetCityData() const { return m_city_data; }
 	void InitializeCityData(sint32 settlerType = -1);
 
-	void Serialize(CivArchive &archive) override;
 #ifdef _DEBUG
 	char const * GetText() const;
 	void SetText(char const * str);

@@ -94,15 +94,6 @@ Wormhole::Wormhole(sint32 discoverer, MapPoint &startPos, sint32 currentRound)
 	m_actor = goodactor_factory_create(id, m_pos);
 }
 
-Wormhole::Wormhole(CivArchive &archive)
-{
-	m_entries = new PointerList<EntryRecord>;
-	Serialize(archive);
-
-	sint32 id = g_theResourceDB->Get(g_theResourceDB->FindRecordNameIndex(k_WORMHOLE_GOOD_ID_STR))->GetSpriteID();
-	m_actor = goodactor_factory_create(id, m_pos);
-}
-
 Wormhole::~Wormhole()
 {
 	if(m_entries) {
@@ -111,25 +102,6 @@ Wormhole::~Wormhole()
 	}
 
 	goodactor_factory_destroy(m_actor);
-}
-
-void Wormhole::Serialize(CivArchive &archive)
-{
-	sint32 i;
-	sint32 c;
-	if(archive.IsStoring()) {
-	} else {
-		if(save_file_version_Get() < 55) {
-			archive.LoadChunk((uint8*)&m_pos, (uint8*)((uint8*)&m_discoveredAt + sizeof(m_discoveredAt)));
-			archive >> c;
-			for(i = 0; i < c; i++) {
-				EntryRecord *rec = new EntryRecord();
-				rec->m_unit.Serialize(archive);
-				archive >> rec->m_round;
-				m_entries->AddTail(rec);
-			}
-		}
-	}
 }
 
 BOOL Wormhole::CheckEnter(const Unit &unit, sint32 currentRound)

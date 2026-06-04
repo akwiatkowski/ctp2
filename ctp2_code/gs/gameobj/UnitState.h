@@ -66,10 +66,6 @@ public:
     // LIVE to SNAPSHOT later by simply clearing m_unit_id.
     void SetPos(MapPoint pnt) { m_pos = pnt; }
 
-    // Phase 1 placeholder.  Real serialization populates as fields are
-    // migrated.  Renderer state is NOT serialized (transient).
-    void Serialize(CivArchive &archive);
-
     // JSON savegame bridge.  Currently serialises just unit_id + pos
     // — matches the binary path's Phase 1 placeholder (nothing
     // serialised yet).  Subsequent migration phases that move fields

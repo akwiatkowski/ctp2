@@ -62,11 +62,9 @@ private :
 public:
 
 	TopTen() ;
-	TopTen(CivArchive &archive) ;
 	~TopTen() ;
 
 	void Clear();
-	void Serialize(CivArchive &archive) ;
 	void CalculateBiggestCities() ;
 	BOOL FindCity(const Unit &c, TopEntry *list, sint32 &pos) ;
 	void EndTurn() ;

@@ -78,11 +78,6 @@ TerrainImprovementData::TerrainImprovementData(ID id,
 {
 }
 
-TerrainImprovementData::TerrainImprovementData(CivArchive &archive) : GameObj(0)
-{
-	Serialize(archive);
-}
-
 BOOL TerrainImprovementData::Complete()
 {
 	TerrainImprovement imp(m_id);
@@ -196,38 +191,6 @@ BOOL TerrainImprovementData::AddTurn(sint32 turns)
 
 	}
 	return FALSE;
-}
-
-void TerrainImprovementData::Serialize(CivArchive &archive)
-{
-	uint8 hasChild;
-
-	if(archive.IsStoring()) {
-		GameObj::Serialize(archive);
-		archive.StoreChunk((uint8 *)&m_owner, ((uint8 *)&m_isBuilding)+sizeof(m_isBuilding));
-
-		hasChild = m_lesser != nullptr;
-		archive << hasChild;
-		if (m_lesser)
-			((TerrainImprovementData *)(m_lesser))->Serialize(archive) ;
-
-		hasChild = m_greater != nullptr;
-		archive << hasChild;
-		if (m_greater)
-			((TerrainImprovementData *)(m_greater))->Serialize(archive) ;
-
-	} else {
-		GameObj::Serialize(archive);
-		archive.LoadChunk((uint8 *)&m_owner, ((uint8 *)&m_isBuilding)+sizeof(m_isBuilding));
-
-		archive >> hasChild;
-		if(hasChild) m_lesser = new TerrainImprovementData(archive);
-		else m_lesser = nullptr;
-
-		archive >> hasChild;
-		if(hasChild) m_greater = new TerrainImprovementData(archive);
-		else m_greater = nullptr;
-	}
 }
 
 //----------------------------------------------------------------------------

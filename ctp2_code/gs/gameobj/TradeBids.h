@@ -63,8 +63,6 @@ private:
 			m_toCity = toCity;
 			m_price = price;
 		}
-		Bid(CivArchive &archive) { Serialize(archive); }
-		void Serialize(CivArchive &archive);
 	};
 
 	sint32 m_nextId[k_MAX_PLAYERS];
@@ -73,9 +71,7 @@ private:
 
 public:
 	TradeBids();
-	TradeBids(CivArchive &archive) { Serialize(archive); }
 	~TradeBids();
-	void Serialize(CivArchive &archive);
 
 	uint32 AddBid(sint32 owner,
 				  const Unit &fromCity,

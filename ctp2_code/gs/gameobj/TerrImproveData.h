@@ -98,7 +98,6 @@ public:
 						   MapPoint pnt,
 						   sint32 type,
 						   sint32 extraData);
-	TerrainImprovementData(CivArchive &archive);
 	TerrainImprovementData(ID id) : GameObj(id.m_id) {}
 
 	sint32 GetType() const { return m_type; }
@@ -115,8 +114,6 @@ public:
 	bool IsBuilding() const { return m_isBuilding; }
 
 	void StartBuilding();
-
-	void Serialize(CivArchive &archive) override;
 
 	// JSON bridge — mirrors TerrainImprovementData::Serialize.  Persists
 	// GameObj id + 8 fields (owner, type, point, turns_to_complete,

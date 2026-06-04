@@ -38,20 +38,6 @@ void TopTen::Clear()
 
 
 
-TopTen::TopTen(CivArchive &archive)
-{
-	Serialize(archive) ;
-}
-
-
-
-
-
-
-
-
-
-
 TopTen::~TopTen()
 = default;
 
@@ -65,30 +51,6 @@ TopTen::~TopTen()
 
 
 
-
-void TopTen::Serialize(CivArchive &archive)
-{
-    CHECKSERIALIZE
-
-#define TOPTEN_MAGIC 0x32657099
-	if (archive.IsStoring())
-	{
-	}
-	else
-	{
-		if (save_file_version_Get() < 55)
-        {
-			archive.TestMagic(TOPTEN_MAGIC) ;
-			for (sint32 i = 0; i < TOPTEN_LIST_SIZE; i++)
-			{
-				m_biggestCities[i].unit.Serialize(archive) ;
-				archive>>m_biggestCities[i].value ;
-				m_happiestCities[i].unit.Serialize(archive) ;
-				archive>>m_happiestCities[i].value ;
-			}
-		}
-	}
-}
 
 BOOL TopTen::InsertCity(TopEntry *cityList, const Unit &c, const sint32 value, sint32 &pos)
 {

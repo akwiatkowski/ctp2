@@ -11,13 +11,6 @@ TradeOfferPool::TradeOfferPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_TRADE_OFFER)
 	m_all_offers = new DynamicArray<TradeOffer>;
 }
 
-TradeOfferPool::TradeOfferPool(CivArchive &archive)
-	: ObjPool(k_BIT_GAME_OBJ_TYPE_TRADE_OFFER)
-{
-	m_all_offers = new DynamicArray<TradeOffer>;
-	Serialize(archive);
-}
-
 TradeOfferPool::~TradeOfferPool()
 {
 	
@@ -54,35 +47,6 @@ void TradeOfferPool::Remove(TradeOffer offer)
 {
 	m_all_offers->Del(offer);
 	Del(offer);
-}
-
-void TradeOfferPool::Serialize(CivArchive &archive)
-{
-	TradeOfferData* offerData;
-	sint32	i,
-			count = 0 ;
-
-#define TRADEOFFERPOOL_MAGIC 0x99FF0011
-
-    CHECKSERIALIZE
-
-	if(archive.IsStoring()) {
-		Assert(FALSE);
-	} else {
-		if(save_file_version_Get() < 55) {
-			archive.TestMagic(TRADEOFFERPOOL_MAGIC) ;
-			ObjPool::Serialize(archive);
-
-			archive>>count;
-			for (i=0; i<count; i++) {
-				offerData = new TradeOfferData(archive);
-				Insert(offerData);
-			}
-		}
-	}
-	if(save_file_version_Get() < 55 && !archive.IsStoring()) {
-		m_all_offers->Serialize(archive);
-	}
 }
 
 sint32 TradeOfferPool::GetNumTradeOffers()

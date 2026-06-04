@@ -56,7 +56,6 @@ class UnitPool : public ObjPool
 {
 public:
 	UnitPool();
-	UnitPool(CivArchive &archive) ;
 
 	Unit Create (sint32 t, const PLAYER_INDEX owner, const MapPoint &pos, const Unit hc, std::shared_ptr<UnitActor> actor = std::shared_ptr<UnitActor>());
 	Unit Create (sint32 t, const PLAYER_INDEX owner, const MapPoint &actor_pos);
@@ -66,7 +65,6 @@ public:
 
 	const UnitRecord * GetDBRec(const Unit id) const;
 
-	void Serialize(CivArchive &archive) override ;
 	void RebuildQuadTree();
 
 	// JSON bridge — mirrors UnitPool::Serialize at UnitPool.cpp:129.

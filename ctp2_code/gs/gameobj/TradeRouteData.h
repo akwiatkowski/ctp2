@@ -118,7 +118,6 @@ public:
 				   PLAYER_INDEX paying_for,
 				   sint32 gold_in_return);
 	TradeRouteData(const TradeRoute route);
-	TradeRouteData(CivArchive &archive);
 	TradeRouteData(TradeRouteData* copyme, uint32 new_id);
 	~TradeRouteData() override;
 
@@ -184,7 +183,6 @@ public:
 	sint32 GetGoldInReturn() const { return m_gold_in_return; }
 
 	StringId GetResourceName() const;
-	void Serialize(CivArchive &archive) override;
 
 	void DontAdjustPointsWhenKilled();
 	BOOL GetDontAdjustPoints() const { return m_dontAdjustPointsWhenKilled; }

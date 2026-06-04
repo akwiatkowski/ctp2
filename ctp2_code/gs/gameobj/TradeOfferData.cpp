@@ -39,43 +39,6 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 
-void TradeOfferData::Serialize(CivArchive &archive)
-{
-	uint8 haveChild;
-
-	if(archive.IsStoring()) {
-		GameObj::Serialize(archive);
-		archive.StoreChunk((uint8 *)&m_owner, ((uint8 *)&m_toCity)+sizeof(m_toCity));
-
-		haveChild = (m_lesser != nullptr);
-		archive << haveChild;
-		if (m_lesser)
-			((TradeOfferData *)(m_lesser))->Serialize(archive) ;
-
-		haveChild = (m_greater != nullptr);
-		archive << haveChild;
-		if (m_greater)
-			((TradeOfferData *)(m_greater))->Serialize(archive) ;
-
-	} else {
-		GameObj::Serialize(archive);
-		archive.LoadChunk((uint8 *)&m_owner, ((uint8 *)&m_toCity)+sizeof(m_toCity));
-		archive >> haveChild;
-		if(haveChild) {
-			m_lesser = new TradeOfferData(archive);
-		} else {
-			m_lesser = nullptr;
-		}
-
-		archive >> haveChild;
-		if(haveChild) {
-			m_greater = new TradeOfferData(archive);
-		} else {
-			m_greater = nullptr;
-		}
-	}
-}
-
 BOOL TradeOfferData::Accept(PLAYER_INDEX player,
                             const Unit &sourceCity,
                             Unit const & destCity)

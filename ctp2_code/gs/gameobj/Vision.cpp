@@ -676,58 +676,6 @@ void Vision::Copy(const Vision *copy)
 	}
 }
 
-void Vision::Serialize(CivArchive &archive)
-{
-	CHECKSERIALIZE
-
-	if(archive.IsStoring())
-	{
-		archive.StoreChunk((uint8 *)&m_width, ((uint8 *)&m_amOnScreen)+sizeof(m_amOnScreen));
-
-		for (sint32 x = 0; x < m_width; x++)
-		{
-			archive.Store((uint8 *)m_array[x], sizeof(m_array[0][0]) * m_height) ;
-		}
-		DynamicArray<UnseenCellCarton> array;
-		m_unseenCells->BuildList(array);
-		sint32 n = array.Num();
-		archive << n;
-		for (sint32 i = 0; i < n; i++)
-		{
-			array[i].m_unseenCell->Serialize(archive);
-		}
-	}
-	else
-	{
-		for (sint16 x = 0; x < m_width; x++)
-		{
-			delete [] m_array[x];
-		}
-		delete [] m_array;
-		DeleteUnseenCells();
-		delete m_unseenCells;
-
-		archive.LoadChunk((uint8 *)&m_width, ((uint8 *)&m_amOnScreen)+sizeof(m_amOnScreen));
-
-		m_array         = new uint16*[m_width];
-		for (sint16 y = 0; y < m_width; y++)
-		{
-			m_array[y] = new uint16[m_height];
-			archive.Load((uint8 *)m_array[y], sizeof(m_array[0][0]) * m_height) ;
-		}
-
-		m_unseenCells   = new UnseenCellQuadTree(m_width, m_height, m_isYwrap);
-		sint32 n;
-		archive >> n;
-		for (sint32 i = 0; i < n; i++)
-		{
-			UnseenCell *ucell = new UnseenCell(archive);
-			UnseenCellCarton uc(ucell);
-			m_unseenCells->Insert(uc);
-		}
-	}
-}
-
 void Vision::CopyCircle(Vision *src, const MapPoint &center, sint32 radius)
 {
 	m_mergeFrom = src;

@@ -38,17 +38,6 @@
 // g_theTradeBids is defined in gameinit.cpp (where the lifecycle lives);
 // this TU reaches it via tradebids_Get() declared in TradeBids.h.
 
-void TradeBids::Bid::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		Assert(FALSE);
-	} else {
-		if(save_file_version_Get() < 55) {
-			archive.LoadChunk((uint8*)&m_id, (uint8*)&m_price + sizeof(m_price));
-		}
-	}
-}
-
 TradeBids::TradeBids()
 {
 	sint32 i;
@@ -64,26 +53,6 @@ TradeBids::~TradeBids()
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
 		m_table[i]->DeleteAll();
 		delete m_table[i];
-	}
-}
-
-void TradeBids::Serialize(CivArchive &archive)
-{
-	sint32 i;
-	sint32 j;
-	sint32 c;
-	if(archive.IsStoring()) {
-	} else {
-		if(save_file_version_Get() < 55) {
-			archive.LoadChunk((uint8*)m_nextId, (uint8*)m_nextId + sizeof(m_nextId));
-			for(i = 0; i < k_MAX_PLAYERS; i++) {
-				m_table[i] = new PointerList<Bid>;
-				archive >> c;
-				for(j = 0; j < c; j++) {
-					m_table[i]->AddTail(new Bid(archive));
-				}
-			}
-		}
 	}
 }
 

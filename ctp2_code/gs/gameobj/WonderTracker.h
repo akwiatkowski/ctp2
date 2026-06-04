@@ -52,8 +52,6 @@ private:
 
 public:
 	WonderTracker();
-	WonderTracker(CivArchive &archive) { Serialize(archive); }
-	void Serialize(CivArchive &archive);
 
 	uint64 GetBuiltWonders() const { return m_builtWonders; }
 

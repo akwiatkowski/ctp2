@@ -41,11 +41,4 @@ MapPoint UnitState::GetPos() const
     return m_pos;
 }
 
-void UnitState::Serialize(CivArchive &archive)
-{
-    // Phase 1: nothing to serialize yet — m_unit_id is recoverable from
-    // the owning UnitData on load and doesn't need to be persisted
-    // separately.  Subsequent phases add fields here as they are
-    // migrated from UnitActor.
-    (void)archive;
-}
+

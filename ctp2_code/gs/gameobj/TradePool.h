@@ -44,7 +44,6 @@ public:
 	}
 
 	TradePool();
-	TradePool(CivArchive &archive);
 	~TradePool() override;
 
 	TradeRoute Create(Unit sourceCity, Unit destCity, PLAYER_INDEX owner,
@@ -55,7 +54,6 @@ public:
 	TradeRoute GetRouteIndex(sint32 index);
 
 	void Draw(aui_Surface* surface);
-	void Serialize(CivArchive &archive) override;
 	void RecreateActors();
 
 	// JSON bridge — mirrors TradePool::Serialize.  Persists ObjPool key

@@ -374,29 +374,6 @@ void UnitData::Create(const sint32 t,
 	m_exploreTarget = MapPoint(0, 0);
 }
 
-UnitData::UnitData(CivArchive &archive) : GameObj(0)
-{
-#ifdef _DEBUG
-	m_text[0] = 0;
-#endif
-
-	m_cargo_list = nullptr;
-	m_city_data = nullptr;
-	m_actor = nullptr;
-	m_sprite_state = nullptr;
-	m_lesser = nullptr;
-	m_greater = nullptr;
-
-	Serialize(archive);
-
-	// Phase 2/3 of the UnitActor split — m_id is now valid after Serialize.
-	m_state.SetUnitID(Unit(m_id));
-	// Serialize() reconstructed m_actor from the archive (see the
-	// `m_actor.reset(new UnitActor(archive))` site).  Wire state now.
-	// NotifyUnitSpawned fires from UnitPool::Serialize after Insert (slice 7a).
-	if (m_actor) m_actor->SetState(&m_state);
-}
-
 UnitData::UnitData(nlohmann::json const &j) : GameObj(0)
 {
 #ifdef _DEBUG
@@ -2307,135 +2284,6 @@ void UnitData::GamestateDebug()
 }
 
 #endif
-
-void UnitData::Serialize(CivArchive &archive)
-{
-	CHECKSERIALIZE
-
-	if (archive.IsStoring())
-	{
-		archive<<m_id;
-		archive.PutSINT32(m_owner);
-		archive<<m_fuel;
-		archive<<m_hp;
-		archive<<m_movement_points;
-
-		archive<<m_type;
-		archive<<m_visibility;
-		archive<<m_temp_visibility;
-		archive<<m_radar_visibility;
-		archive<<m_ever_visible;
-
-		archive << m_flags;
-
-		m_army.Serialize(archive);
-		m_pos.Serialize(archive);
-
-		if (m_cargo_list)
-		{
-			archive<<(uint8)(true);
-			m_cargo_list->Serialize(archive);
-		}
-		else
-			archive<<(uint8)(false);
-
-		if (m_city_data)
-		{
-			archive<<(uint8)(true);
-			m_city_data->Serialize(archive);
-		}
-		else
-			archive<<(uint8)(false);
-
-		m_actor->Serialize(archive);
-
-		m_temp_visibility_array.Serialize(archive);
-		m_transport.Serialize(archive);
-
-		m_roundTheWorldMask->Serialize(archive);
-
-		m_target_city.Serialize(archive);
-
-		archive << (uint8)(m_isExploring ? 1 : 0);
-		m_exploreTarget.Serialize(archive);
-
-		archive << (uint32)(m_lesser != nullptr);
-
-		if (m_lesser)
-			((UnitData *)(m_lesser))->Serialize(archive);
-
-		archive << (uint32)(m_greater != nullptr);
-
-		if (m_greater)
-			((UnitData *)(m_greater))->Serialize(archive);
-
-	}
-	else
-	{
-		uint8	tmp;
-
-		archive>>m_id;
-		m_owner = (PLAYER_INDEX)archive.GetSINT32();
-		archive>>m_fuel;
-		archive>>m_hp;
-		archive>>m_movement_points;
-
-		archive>>m_type;
-		archive>>m_visibility;
-		archive>>m_temp_visibility;
-		archive>>m_radar_visibility;
-		archive>>m_ever_visible;
-
-		archive >> m_flags;
-
-		m_army.Serialize(archive);
-		m_pos.Serialize(archive);
-
-#ifdef _DEBUG
-		m_text[0] = 0;
-#endif
-
-		archive>>tmp;
-		delete m_cargo_list;
-		if (tmp)
-		{
-			m_cargo_list = new UnitDynamicArray();
-			m_cargo_list->Serialize(archive);
-		}
-		else
-			m_cargo_list=nullptr;
-
-		archive >> tmp ;
-		delete m_city_data;
-    m_city_data = (tmp) ? new CityData(archive) : nullptr;
-
-		m_actor = std::make_shared<UnitActor>(archive);
-
-		m_sprite_state = m_actor->GetSpriteState();
-
-		m_temp_visibility_array.Serialize(archive);
-		m_transport.Serialize(archive);
-
-		m_roundTheWorldMask = new BitMask(archive);
-
-		m_target_city.Serialize(archive);
-
-		uint8 isExploringByte;
-		archive >> isExploringByte;
-		m_isExploring = (isExploringByte != 0);
-		m_exploreTarget.Serialize(archive);
-
-		uint32 hasOld;
-
-		archive >> hasOld;
-		delete m_lesser;
-		m_lesser = (hasOld) ? new UnitData(archive) : nullptr;
-
-		archive >> hasOld;
-		delete m_greater;
-		m_greater = (hasOld) ? new UnitData(archive) : nullptr;
-	}
-}
 
 uint32 UnitData_UnitData_GetVersion()
 {
@@ -5160,17 +5008,6 @@ void UnitData::ForceVisibleDuration(const PLAYER_INDEX to_me, sint32 duration)
 	Assert(duration >= 0);
 	m_temp_visibility_array.SetVisibleDuration(to_me, duration);
 	m_temp_visibility |= (1 << to_me);
-}
-
-void VisibilityDurationArray::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		archive << m_array_index;
-		archive.Store((uint8*)m_array, k_DEFAULT_VIS_DURATION_SIZE * sizeof(uint32));
-	} else {
-		archive >> m_array_index;
-		archive.Load((uint8*)m_array, k_DEFAULT_VIS_DURATION_SIZE * sizeof(uint32));
-	}
 }
 
 bool UnitData::IsNanoInfected() const

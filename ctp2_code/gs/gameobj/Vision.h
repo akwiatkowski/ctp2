@@ -183,8 +183,6 @@ public:
 	bool MergePoint(sint32 x, sint32 y);
 	void ModifyPoint(Vision *src, sint32 x, sint32 y);
 
-	void Serialize(CivArchive &archive);
-
 	void DeleteUnseenCells();
 	void ClearUnseen();
 

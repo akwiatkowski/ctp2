@@ -62,11 +62,6 @@ UnitPool::UnitPool () : ObjPool (k_BIT_GAME_OBJ_TYPE_UNIT)
 {
 }
 
-UnitPool::UnitPool(CivArchive &archive) : ObjPool(k_BIT_GAME_OBJ_TYPE_UNIT)
-{
-	Serialize(archive);
-}
-
 Unit UnitPool::Create (
     const sint32 t,
     const PLAYER_INDEX owner,
@@ -124,55 +119,6 @@ Unit UnitPool::Create (
 	// Phase 3 slice 7a: fire spawn event AFTER pool insertion (see above).
 	if (gameobservers_Get()) gameobservers_Get()->NotifyUnitSpawned(id, ptr->GetState());
 	return id;
-}
-
-void UnitPool::Serialize(CivArchive &archive)
-{
-	UnitData *unitData;
-
-	sint32    i;
-	sint32    count = 0;
-
-#define UNITPOOL_MAGIC 0xA4D27DED
-
-	CHECKSERIALIZE
-
-	if (archive.IsStoring())
-	{
-		archive.PerformMagic(UNITPOOL_MAGIC);
-		ObjPool::Serialize(archive);
-
-		for (i=0; i<k_OBJ_POOL_TABLE_SIZE; i++)
-			if(m_table[i])
-				count++;
-
-		archive<<count;
-		for (i=0; i<k_OBJ_POOL_TABLE_SIZE; i++)
-			if (m_table[i])
-				((UnitData *)(m_table[i]))->Serialize(archive);
-	}
-	else
-	{
-		unitpool_log->debug("UnitPool::Serialize: entered load path");
-		archive.TestMagic(UNITPOOL_MAGIC);
-		unitpool_log->debug("UnitPool::Serialize: TestMagic passed");
-		ObjPool::Serialize(archive);
-		unitpool_log->debug("UnitPool::Serialize: ObjPool::Serialize done");
-
-		archive>>count;
-		unitpool_log->debug("UnitPool::Serialize: loading {} units", count);
-		for (i=0; i<count; i++)
-		{
-			unitpool_log->trace("UnitPool::Serialize: loading unit {}/{}", i, count);
-			unitData = new UnitData(archive);
-			Insert(unitData);
-			// Phase 3 slice 7a: fire spawn event AFTER pool insertion so
-			// observers can look up the freshly-loaded unit.
-			if (gameobservers_Get())
-				gameobservers_Get()->NotifyUnitSpawned(Unit(unitData->m_id), unitData->GetState());
-		}
-		unitpool_log->debug("UnitPool::Serialize: loaded all {} units", count);
-	}
 }
 
 void UnitPool::RebuildQuadTree()

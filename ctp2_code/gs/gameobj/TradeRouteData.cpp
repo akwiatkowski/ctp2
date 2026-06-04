@@ -114,13 +114,6 @@ TradeRouteData::TradeRouteData
 	       );
 }
 
-TradeRouteData::TradeRouteData(CivArchive &archive) : GameObj(0)
-{
-	m_astarPath = new Path;
-	m_dontAdjustPointsWhenKilled = FALSE;
-	Serialize(archive);
-}
-
 TradeRouteData::TradeRouteData(TradeRouteData* copyme, uint32 new_id)
 	: GameObj(new_id)
 {
@@ -369,94 +362,6 @@ BOOL
 TradeRouteData::CrossesWater() const
 {
 	return m_crossesWater;
-}
-
-void
-TradeRouteData::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		archive << m_id;
-		archive << m_transportCost;
-		archive << m_owner;
-		archive.PutSINT32(m_sourceRouteType);
-		archive << m_sourceResource;
-		archive.Store((uint8 *)m_passesThrough, sizeof(m_passesThrough)) ;
-		archive.PutSINT32(m_crossesWater) ;
-		archive.PutSINT8(static_cast<sint8>(m_isActive));
-		archive.PutUINT32(m_color);
-		archive.PutUINT32(m_outline);
-		archive.PutSINT32(m_selectedIndex);
-		archive.PutSINT32(m_path_selection_state);
-		archive.PutSINT32(m_valid);
-		archive << m_payingFor;
-		archive << m_gold_in_return;
-
-		m_sourceCity.Serialize(archive);
-		m_destinationCity.Serialize(archive);
-		m_recip.Serialize(archive);
-		m_path.Serialize(archive);
-		m_wayPoints.Serialize(archive) ;
-		m_selectedPath.Serialize(archive);
-		m_selectedWayPoints.Serialize(archive);
-		m_astarPath->Serialize(archive);
-
-		m_setPath.Serialize(archive);
-		m_setWayPoints.Serialize(archive);
-
-		uint8 hasChild;
-		hasChild = m_lesser != nullptr;
-		archive << hasChild;
-		if (m_lesser) {
-			((TradeRouteData *)(m_lesser))->Serialize(archive) ;
-		}
-
-		hasChild = m_greater != nullptr;
-		archive << hasChild;
-		if (m_greater)
-			((TradeRouteData *)(m_greater))->Serialize(archive) ;
-
-	} else {
-		archive >> m_id;
-		archive >> m_transportCost;
-		archive >> m_owner;
-		m_sourceRouteType = (ROUTE_TYPE)(archive.GetSINT32()) ;
-		archive >> m_sourceResource;
-		archive.Load((uint8 *)m_passesThrough, sizeof(m_passesThrough)) ;
-		m_crossesWater = (BOOL)(archive.GetSINT32()) ;
-		m_isActive = (BOOL)(archive.GetSINT8());
-		m_color = archive.GetUINT32();
-		m_outline = archive.GetUINT32();
-		m_selectedIndex = archive.GetSINT32();
-		m_path_selection_state = archive.GetSINT32();
-		m_valid = archive.GetSINT32();
-		archive >> m_payingFor;
-		archive >> m_gold_in_return;
-
-		m_sourceCity.Serialize(archive);
-		m_destinationCity.Serialize(archive);
-		m_recip.Serialize(archive);
-		m_path.Serialize(archive);
-		m_wayPoints.Serialize(archive) ;
-		m_selectedPath.Serialize(archive);
-		m_selectedWayPoints.Serialize(archive);
-		m_astarPath->Serialize(archive);
-		m_setPath.Serialize(archive);
-		m_setWayPoints.Serialize(archive);
-
-		uint8 hasChild;
-		archive >> hasChild;
-		if (hasChild) {
-			m_lesser = new TradeRouteData(archive);
-		} else {
-			m_lesser = nullptr;
-		}
-
-		archive >> hasChild;
-		if (hasChild)
-			m_greater = new TradeRouteData(archive);
-		else
-			m_greater = nullptr;
-	}
 }
 
 StringId TradeRouteData::GetResourceName() const

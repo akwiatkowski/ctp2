@@ -19,12 +19,6 @@ TradePool::TradePool() : ObjPool(k_BIT_GAME_OBJ_TYPE_TRADE_ROUTE)
 	m_all_routes = new TradeDynamicArray;
 }
 
-TradePool::TradePool(CivArchive &archive) : ObjPool(k_BIT_GAME_OBJ_TYPE_TRADE_ROUTE)
-{
-	m_all_routes = new TradeDynamicArray;
-	Serialize(archive);
-}
-
 TradePool::~TradePool()
 {
 	sint32 i;
@@ -80,43 +74,6 @@ TradeRoute TradePool::GetRouteIndex(sint32 index)
 }
 
 // TradePool::Draw() body moved to ui/aui_ctp2/trade_pool_draw.cpp.
-
-void TradePool::Serialize(CivArchive &archive)
-{
-	TradeRouteData *tradeData;
-	sint32	i,
-			count = 0 ;
-
-#define TRADEPOOL_MAGIC 0xFEDBACFE
-
-    CHECKSERIALIZE
-
-	if(archive.IsStoring()) {
-		archive.PerformMagic(TRADEPOOL_MAGIC) ;
-		ObjPool::Serialize(archive);
-
-		for (i=0; i<k_OBJ_POOL_TABLE_SIZE; i++)
-			if(m_table[i])
-				count++;
-
-		archive<<count;
-		for(i = 0; i < k_OBJ_POOL_TABLE_SIZE; i++) {
-			if(m_table[i])
-				((TradeRouteData*)(m_table[i]))->Serialize(archive);
-		}
-		m_all_routes->Serialize(archive);
-	} else {
-		archive.TestMagic(TRADEPOOL_MAGIC) ;
-		ObjPool::Serialize(archive);
-
-		archive>>count;
-		for (i=0; i<count; i++) {
-			tradeData = new TradeRouteData(archive);
-			Insert(tradeData);
-		}
-		m_all_routes->Serialize(archive);
-	}
-}
 
 void TradePool::RecreateActors()
 {

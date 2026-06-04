@@ -46,10 +46,7 @@ public:
 	Wormhole(sint32 discoverer, sint32 currentRound);
 	Wormhole(sint32 discoverer, MapPoint &startPos, sint32 currentRound);
 
-	Wormhole(CivArchive &archive);
 	~Wormhole();
-
-	void Serialize(CivArchive &archive);
 
 	BOOL IsVisible(sint32 player, sint32 currentRound) const;
 

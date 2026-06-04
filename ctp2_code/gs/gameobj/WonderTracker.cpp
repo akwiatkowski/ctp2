@@ -60,33 +60,6 @@ WonderTracker::WonderTracker()
 		m_buildingWonders[i] = (uint64) 0x0;
 }
 
-void WonderTracker::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		archive << m_builtWonders;
-		archive.Store((uint8*)m_buildingWonders, k_MAX_PLAYERS * sizeof(uint64));
-		archive << m_globeSatFlags;
-	} else {
-		archive >> m_builtWonders;
-
-		if (save_file_version_Get() >= 58) {
-			archive.Load((uint8*)m_buildingWonders, k_MAX_PLAYERS * sizeof(uint64));
-			if(save_file_version_Get() >= 63) {
-				archive >> m_globeSatFlags;
-			} else {
-				m_globeSatFlags = 0;
-			}
-		}
-		else {
-
-			sint32 tmp[k_MAX_PLAYERS];
-			archive.Load((uint8*)tmp, k_MAX_PLAYERS * sizeof(sint32));
-			for(unsigned long long & m_buildingWonder : m_buildingWonders)
-				m_buildingWonder = (uint64) 0x0;
-		}
-	}
-}
-
 bool WonderTracker::HasWonderBeenBuilt(sint32 which)
 {
 	return (m_builtWonders & safe_shift_left_u64(which)) != 0;

@@ -22,7 +22,6 @@ private:
 
 public:
 	TradeOfferPool();
-	TradeOfferPool(CivArchive &archive);
 	~TradeOfferPool() override;
 
 	TradeOfferData* AccessTradeOffer(const TradeOffer id)
@@ -46,7 +45,6 @@ public:
 	void ReRegisterOffers();
 
 	void RemoveTradeOffersFromCity(Unit &city);
-	void Serialize(CivArchive &archive) override;
 	void AddFromNetwork(const TradeOffer &offer);
 
 	friend void to_json(nlohmann::json &j, TradeOfferPool const &p);

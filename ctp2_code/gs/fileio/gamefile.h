@@ -172,11 +172,9 @@ public:
 	GameFile();
 
 	uint32 SaveDB(CivArchive &archive);
-	// Phase 0.C-2: SaveLegacyBinary deleted; SaveGame always writes JSON.
-	// RestoreLegacyBinary still present so existing .c2g binary scenarios
-	// can be loaded (auto-detected by GameFile::Restore).  Deletion of
-	// the restore side is Phase 0.C-3.
-	uint32 RestoreLegacyBinary(MBCHAR const * filepath);
+	// Phase 0.C-3: SaveLegacyBinary + RestoreLegacyBinary both deleted;
+	// SaveGame writes JSON, RestoreGame reads JSON.  Old binary .c2g
+	// scenarios are no longer loadable.
 
 	static bool LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info);
 	static bool LoadBasicGameInfo(FILE *saveFile, SaveInfo *info);

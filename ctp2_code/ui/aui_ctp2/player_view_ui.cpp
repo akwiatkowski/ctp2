@@ -55,13 +55,6 @@ void UIInit(sint32 nPlayers)
 	selitem_Set(new SelectedItem(nPlayers));
 }
 
-void UIInitFromArchive(CivArchive *archive)
-{
-	// Phase 0.C-4: CivArchive ctor on SelectedItem is gone.  Fresh-init
-	// fallback; archive-load goes through json_save::LoadJson now.
-	(void)archive;
-	selitem_Set(new SelectedItem(1));
-}
 
 void UICleanup()
 {
@@ -345,23 +338,8 @@ bool UICityWindowAddShieldsIfShowing(const Unit &city, sint32 amount)
 
 // --- Wave F (2026-05-29) save/load of SelectedItem state ---
 
-void UISerializeSelectionVersion(CivArchive &archive)
-{
-	archive << SelectedItem_GetVersion();
-}
 
-bool UIDeserializeSelectionVersion(CivArchive &archive)
-{
-	uint32 ver = 0;
-	archive >> ver;
-	return ver == SelectedItem_GetVersion();
-}
 
-void UISerializeSelection(CivArchive &archive)
-{
-	// Phase 0.C-4: SelectedItem::Serialize is gone. No-op.
-	(void)archive;
-}
 
 } // anonymous namespace
 
@@ -371,7 +349,6 @@ void RegisterUIPlayerView()
 	player_view::RegisterCurPlayer(&UICurPlayer);
 	player_view::RegisterPlayerAfter(&UIPlayerAfter);
 	player_view::RegisterInit(&UIInit);
-	player_view::RegisterInitFromArchive(&UIInitFromArchive);
 	player_view::RegisterCleanup(&UICleanup);
 	player_view::RegisterSetCurrentPlayer(&UISetCurrentPlayer);
 	player_view::RegisterSetVisiblePlayer(&UISetVisiblePlayer);
@@ -407,7 +384,4 @@ void RegisterUIPlayerView()
 	player_view::RegisterEditQueueSyncShieldstore(&UIEditQueueSyncShieldstore);
 	player_view::RegisterEditQueueSyncBuildCategory(&UIEditQueueSyncBuildCategory);
 	player_view::RegisterCityWindowAddShieldsIfShowing(&UICityWindowAddShieldsIfShowing);
-	player_view::RegisterSerializeSelectionVersion(&UISerializeSelectionVersion);
-	player_view::RegisterDeserializeSelectionVersion(&UIDeserializeSelectionVersion);
-	player_view::RegisterSerializeSelection(&UISerializeSelection);
 }

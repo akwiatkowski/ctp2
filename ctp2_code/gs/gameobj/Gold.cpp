@@ -26,7 +26,7 @@
 //
 // - Do not trigger a warning when rushbuying causes a negative cashflow.
 // - Merged the constructors.
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -87,44 +87,6 @@ Gold & Gold::operator= (const Gold &copyMe)
 
 
 
-void Gold::Serialize(CivArchive &archive)
-	{
-
-    CHECKSERIALIZE
-
-	if (archive.IsStoring())
-		{
-		archive<<m_level ;
-		archive<<m_owner;
-
-        archive << m_income_this_turn;
-        archive << m_gross_income;
-        archive << m_lost_to_cleric;
-        archive << m_wages_this_turn;
-        archive << m_maintenance_this_turn;
-        archive << m_science_this_turn;
-        archive << m_level_last_turn;
-        archive << m_delta_last_turn;
-        archive << m_lost_to_crime;
-        archive << m_lost_to_rushbuy;
-		}
-	else
-		{
-		archive>>m_level ;
-		archive>>m_owner;
-
-        archive >> m_income_this_turn;
-        archive >> m_gross_income;
-        archive >> m_lost_to_cleric;
-        archive >> m_wages_this_turn;
-        archive >> m_maintenance_this_turn;
-        archive >> m_science_this_turn;
-        archive >> m_level_last_turn;
-        archive >> m_delta_last_turn;
-        archive >> m_lost_to_crime;
-        archive >> m_lost_to_rushbuy;
-		}
-	}
 
 
 

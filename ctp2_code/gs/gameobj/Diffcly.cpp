@@ -22,8 +22,8 @@
 //
 //----------------------------------------------------------------------------
 //
-// - Moved some functionality from DiffDB to create the diffutils. (April 29th 2006 Martin G�hmann)
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin G�hmann)
+// - Moved some functionality from DiffDB to create the diffutils. (April 29th 2006 Martin GÃ¯Â¿Â½hmann)
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin GÃ¯Â¿Â½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -84,14 +84,6 @@ Difficulty::Difficulty(sint32 diff_level, PLAYER_INDEX owner, BOOL isHuman)
 	}
 }
 
-void Difficulty::Serialize(CivArchive &archive)
-{
-	if (archive.IsStoring())
-		archive.Store((uint8 *)this, sizeof(Difficulty)) ;
-	else
-		archive.Load((uint8 *)this, sizeof(Difficulty)) ;
-
-}
 
 double diffutil_GetAiAdjustment(const sint32 diff,
                                 const sint32 playerId,

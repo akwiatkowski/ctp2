@@ -24,7 +24,7 @@
 // Modifications from the original Activision code:
 //
 // - Added Resize method for loading of savegames with different
-//   number of goods than in the database. - May 28th 2005 Martin Gühmann
+//   number of goods than in the database. - May 28th 2005 Martin GÃ¼hmann
 //
 //----------------------------------------------------------------------------
 
@@ -67,20 +67,6 @@ Resources::Resources(const Resources &copyme)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void Resources::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		archive << m_numGoods;
-		archive.Store((uint8*)m_supply, m_numGoods * sizeof(sint32));
-		archive << m_totalResources;
-	} else {
-		archive >> m_numGoods;
-		delete [] m_supply;
-		m_supply = new sint32[m_numGoods];
-		archive.Load((uint8*)m_supply, m_numGoods * sizeof(sint32));
-		archive >> m_totalResources;
-	}
-}
 
 Resources & Resources::operator = (Resources &copyme)
 {

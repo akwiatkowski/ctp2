@@ -42,14 +42,14 @@
 // - Removed double warning disable pragma.
 // - Standardised list import.
 // - Removed unused memory reservation.
-// - New matches are now always added if a new army has been created. (30-Jun-2008 Martin Gühmann)
-// - USE_LOGGING now works in a final version. (30-Jun-2008 Martin Gühmann)
-// - Redesigned AI, so that the matching algorithm is now a greedy algorithm. (13-Aug-2008 Martin Gühmann)
+// - New matches are now always added if a new army has been created. (30-Jun-2008 Martin GÃ¼hmann)
+// - USE_LOGGING now works in a final version. (30-Jun-2008 Martin GÃ¼hmann)
+// - Redesigned AI, so that the matching algorithm is now a greedy algorithm. (13-Aug-2008 Martin GÃ¼hmann)
 // - Now the goals are used for the matching process, the goal match value
 //   is the avarage match value of the matches needed for the goal.
 // - Simplified the design the number of committed agents and number of
-//   agents are now calculated inside the Match_Resources method. (21-Aug-2008 Martin Gühmann)
-// - Fixed unit garrison assignment. (23-Jan-2009 Martin Gühmann)
+//   agents are now calculated inside the Match_Resources method. (21-Aug-2008 Martin GÃ¼hmann)
+// - Fixed unit garrison assignment. (23-Jan-2009 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -134,23 +134,8 @@ void Scheduler::ResizeAll(const PLAYER_INDEX & newMaxPlayerId)
 
 /*
 // no longer used "Reason: should be able to regenerate state from game objects."
-void Scheduler::LoadAll(CivArchive & archive)
-{
-	AI_DPRINTF(k_DBG_AI, m_playerId, -1, -1, ("\n\ncalling Scheduler::LoadAll\n\n"));
-	for(size_t i = 0; i < s_theSchedulers.size(); i++)
-	{
-		s_theSchedulers[i].Load(archive);
-	}
-}
 
 // no longer used "Reason: should be able to regenerate state from game objects."
-void Scheduler::SaveAll(CivArchive & archive)
-{
-	for(size_t i = 0; i < s_theSchedulers.size(); i++)
-	{
-		s_theSchedulers[i].Save(archive);
-	}
-}
 */
 
 //////////////////////////////
@@ -308,16 +293,8 @@ void Scheduler::Cleanup()
 
 #if 0
 /// No longer used "Reason: should be able to regenerate state from game objects."
-void Scheduler::Load(CivArchive & archive)
-{
-	// Nice reason but that could be more difficult than thought.
-}
 
 /// No longer used "Reason: should be able to regenerate state from game objects."
-void Scheduler::Save(CivArchive & archive)
-{
-	// Nice reason but that could be more difficult than thought.
-}
 #endif
 
 void Scheduler::Initialize()

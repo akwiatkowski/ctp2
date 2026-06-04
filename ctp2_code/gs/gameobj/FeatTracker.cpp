@@ -26,7 +26,7 @@
 //
 // - Memory leak repaired.
 // - Propagate feat accomplishments.
-// - Initialized local variables. (Sep 9th 2005 Martin G�hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin GÃ¯Â¿Â½hmann)
 // - Added HasFeat to check if a feat has been achieved by E 5-11-2006
 //
 //----------------------------------------------------------------------------
@@ -91,25 +91,10 @@ Feat::Feat(sint32 type, sint32 player, sint32 round)
 	          : round;
 }
 
-Feat::Feat(CivArchive &archive)
-{
-	Serialize(archive);
-}
 
 Feat::~Feat()
 = default;
 
-void Feat::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring())
-	{
-		archive.StoreChunk((uint8*)this, ((uint8 *)&m_round) + sizeof(m_round));
-	}
-	else
-	{
-		archive.LoadChunk((uint8*)this, ((uint8 *)&m_round) + sizeof(m_round));
-	}
-}
 
 FeatTracker::FeatTracker()
 {
@@ -129,17 +114,6 @@ FeatTracker::FeatTracker()
 	FindBuildingFeats();
 }
 
-FeatTracker::FeatTracker(CivArchive &archive)
-{
-	m_activeList = new PointerList<Feat>;
-
-	for(sint32 i = FEAT_EFFECT_NONE + 1; i < FEAT_EFFECT_MAX; i++)
-	{
-		m_effectList[i] = nullptr;
-	}
-
-	Serialize(archive);
-}
 
 FeatTracker::~FeatTracker()
 {
@@ -168,73 +142,6 @@ FeatTracker::~FeatTracker()
 	}
 }
 
-void FeatTracker::Serialize(CivArchive & archive)
-{
-	sint32 count;
-
-	if(archive.IsStoring())
-	{
-		count = m_activeList->GetCount();
-		archive << count;
-
-		PointerList<Feat>::Walker walk(m_activeList);
-		while(walk.IsValid()) {
-			walk.GetObj()->Serialize(archive);
-			walk.Next();
-		}
-
-		count = g_theFeatDB->NumRecords();
-		archive << count;
-		archive.Store((uint8*)m_achieved, count * sizeof(bool));
-
-		count = g_theBuildingDB->NumRecords();
-		archive << count;
-		archive.Store((uint8*)m_buildingFeat, count * sizeof(bool));
-
-	}
-	else
-	{
-		archive >> count;
-		sint32 i;
-		for(i = 0; i < count; i++)
-		{
-			Feat *feat = new Feat(archive);
-			m_activeList->AddTail(feat);
-		}
-
-		archive >> count;
-		m_achieved = new bool[count];
-		archive.Load((uint8*)m_achieved, count * sizeof(bool));
-
-		if(count != g_theFeatDB->NumRecords())
-		{
-			delete m_achieved;
-			m_achieved = new bool[g_theFeatDB->NumRecords()];
-			memset(m_achieved, 0, g_theFeatDB->NumRecords() * sizeof(bool));
-		}
-
-		archive >> count;
-		m_buildingFeat = new bool[count];
-		archive.Load((uint8*)m_buildingFeat, count * sizeof(bool));
-
-		if(count != g_theBuildingDB->NumRecords())
-		{
-			delete [] m_buildingFeat;
-			m_buildingFeat = new bool[g_theBuildingDB->NumRecords()];
-			memset(m_buildingFeat, 0, g_theBuildingDB->NumRecords() * sizeof(bool));
-		}
-
-		PointerList<Feat>::Walker walk(m_activeList);
-		while(walk.IsValid())
-		{
-			Feat *feat = walk.GetObj();
-			AddFeatToEffectLists(feat);
-			walk.Next();
-		}
-
-		FindBuildingFeats();
-	}
-}
 
 #define CHECK_FEAT_LIST(func, eff) \
 if(rec->func()) { \

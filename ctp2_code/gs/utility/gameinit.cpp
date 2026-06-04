@@ -2341,4 +2341,3 @@ void gameinit_ResetMapSize()
     // Let the UI (if any) re-render tileset, radar window, background, etc.
     if (gameobservers_Get()) gameobservers_Get()->NotifyMapResized();
 }
-// touch

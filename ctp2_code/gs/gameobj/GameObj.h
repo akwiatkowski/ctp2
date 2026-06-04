@@ -58,7 +58,8 @@ public:
 
 	void SetKillMeSoon(){ m_killMeSoon = true; };
 	bool KillMeSoon(){ return m_killMeSoon; };
-	virtual void Serialize(CivArchive &archive) ;
+	// Phase 0.C-5: virtual Serialize(CivArchive&) deleted; CivArchive
+	// binary save path is gone.  JSON path lives in json_save.cpp.
 
 	friend GameObj * GameObj_Access(GameObj *p, const uint32 i);
 	friend const GameObj *GameObj_Get(GameObj *p, const uint32 i);

@@ -39,7 +39,7 @@
 // - Set explore resolution (an Explore goal every 4 tiles is a good compromise)
 // - Undid the last change as I still think it reduces game speed maybe
 //   something else has to be improved to avaoid the long pauses caused
-//   by some AIs. - Martin G�hmann
+//   by some AIs. - Martin Gï¿½hmann
 // - force to move the transport units out of city (12 units isn't much, and
 //   their is problems when a group want to enter in a transport that is in
 //   town(example : 5 - units group cannot enter transport if it is in a city
@@ -48,29 +48,29 @@
 //   (for example seige force) - Calvitix
 // - Cleaned up data of dead player.
 // - Improved Diplomat cleanup.
-// - The explore resolution is now a constant. - Feb. 21st 2005 Martin G�hmann
+// - The explore resolution is now a constant. - Feb. 21st 2005 Martin Gï¿½hmann
 // - Set back explore resolution to five and set roads are now every second
-//   turn computed, tileimps every fifth turn. - Feb. 21st 2005 Martin G�hmann
+//   turn computed, tileimps every fifth turn. - Feb. 21st 2005 Martin Gï¿½hmann
 // - UnGroupGarrisionUnits and MoveOutofCityTransportUnits disabled,
 //   at least the later must be reconsidered as I got the feeling that we have
 //   in the city units that are waiting for being moved out.
-//    - Feb. 21st 2005 Martin G�hmann
-// - Improved AI sliders optimization. - Jul 18th 2005 Martin G�hmann
-// - Removed unused local variables. (Sep 9th 2005 Martin G�hmann)
-// - Moved settle_water check inside the GetSettleTargets method. (May 20th 2006 Martin G�hmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin G�hmann)
+//    - Feb. 21st 2005 Martin Gï¿½hmann
+// - Improved AI sliders optimization. - Jul 18th 2005 Martin Gï¿½hmann
+// - Removed unused local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Moved settle_water check inside the GetSettleTargets method. (May 20th 2006 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 // - The AI checks now all cities for rush buying even if there was a city
-//   where the item to rush buy was to expensive. (30-Jan-2008 Martin G�hmann)
+//   where the item to rush buy was to expensive. (30-Jan-2008 Martin Gï¿½hmann)
 // - The player's cargo capacity is now calculated before the AI uses its
-//   units and not afterwards. (3-Feb-2008 Martin G�hmann)
-// - Corrected unit garrison calculation for slave guarding. (8-Feb-2008 Martin G�hmann)
-// - Standartized army strength computation. (30-Apr-2008 Martin G�hmann)
-// - The AI can settle more than one city per round. (30-Jun-2008 Martin G�hmann)
-// - USE_LOGGING now works in a final version. (30-Jun-2008 Martin G�hmann)
+//   units and not afterwards. (3-Feb-2008 Martin Gï¿½hmann)
+// - Corrected unit garrison calculation for slave guarding. (8-Feb-2008 Martin Gï¿½hmann)
+// - Standartized army strength computation. (30-Apr-2008 Martin Gï¿½hmann)
+// - The AI can settle more than one city per round. (30-Jun-2008 Martin Gï¿½hmann)
+// - USE_LOGGING now works in a final version. (30-Jun-2008 Martin Gï¿½hmann)
 // - Moved the startegic state calculation before everthing else, so that
-//   each turn has the right startegy even after a reload. (13-Aug-2008 Martin G�hmann)
-// - Redesigned AI, so that the matching algorithm is now a greedy algorithm. (13-Aug-2008 Martin G�hmann)
-// - Fixed unit garrison assignment. (23-Jan-2009 Martin G�hmann)
+//   each turn has the right startegy even after a reload. (13-Aug-2008 Martin Gï¿½hmann)
+// - Redesigned AI, so that the matching algorithm is now a greedy algorithm. (13-Aug-2008 Martin Gï¿½hmann)
+// - Fixed unit garrison assignment. (23-Jan-2009 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -731,7 +731,7 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 
 	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
 
-	// Modified by Martin G�hmann so that this can be exposed to const.txt
+	// Modified by Martin Gï¿½hmann so that this can be exposed to const.txt
 	if ( cycle < g_theConstDB->Get(0)->GetMaxMatchListCycles() + diff_cycles || Scheduler::s_needAnotherCycle)
 	{
 		Scheduler::s_needAnotherCycle = false;
@@ -1053,63 +1053,7 @@ void CtpAi::Initialize(bool initDiplomat)
 #endif
 }
 
-void CtpAi::Load(CivArchive & archive)
-{
-	Initialize(false);
 
-	SPLASH_STRING("Load Diplomacy...");
-	Diplomat::LoadAll(archive);
-
-	SPLASH_STRING("Compute good values...");
-	world_Get()->ComputeGoodsValues();
-
-	SPLASH_STRING("Assign goals...");
-	for (PLAYER_INDEX playerId = 0; playerId < s_maxPlayers; playerId++)
-	{
-		Player *    player_ptr  = player_Get(playerId);
-		if (player_ptr == nullptr)
-			continue;
-
-		MapAnalysis::GetMapAnalysis().CalcEmpireCenter(playerId);
-
-		sint32      num_cities  = player_ptr->m_all_cities->Num();
-		for (sint32 cityIndex = 0; cityIndex < num_cities; ++cityIndex)
-		{
-			Unit city = player_ptr->m_all_cities->Access(cityIndex);
-			Assert(city.IsValid() && city->GetCityData());
-
-			for (PLAYER_INDEX foreignerId = 0; foreignerId < CtpAi::s_maxPlayers; foreignerId++)
-			{
-				if (foreignerId != city.GetOwner())
-				{
-					AddForeignerGoalsForCity(city, foreignerId);
-				}
-			}
-			AddOwnerGoalsForCity(city, city.GetOwner());
-
-			SettleMap::s_settleMap.HandleCityGrowth(city);
-
-			city.CD()->AdjustSizeIndices();
-		}
-
-		sint32      num_armies  = player_ptr->m_all_armies->Num();
-		for (sint32 armyIndex = 0; armyIndex < num_armies; ++armyIndex)
-		{
-			Army army = player_ptr->m_all_armies->Access(armyIndex);
-			Assert(army.IsValid());
-
-			AddGoalsForArmy(army);
-		}
-	}
-
-	SPLASH_STRING("Analyse Map...");
-	MapAnalysis::GetMapAnalysis().BeginTurn();
-}
-
-void CtpAi::Save(CivArchive & archive)
-{
-	Diplomat::SaveAll(archive);
-}
 
 //----------------------------------------------------------------------------
 //
@@ -1747,7 +1691,7 @@ void CtpAi::AddExploreTargets(const PLAYER_INDEX playerId)
 	Player *player_ptr = player_Get(playerId);
 	Assert(player_ptr);
 
-	//Added by Martin G�hmann explore resolution is now constant
+	//Added by Martin Gï¿½hmann explore resolution is now constant
 	sint16 explore_res = EXPLORE_RESOLUTION;
 	for (sint16 goal_element = 0; goal_element < strategy.GetNumGoalElement(); goal_element++)
 	{
@@ -2421,7 +2365,7 @@ void CtpAi::SpendGoldToRushBuy(const PLAYER_INDEX player)
 		rush_buy.first = city.CD()->HowMuchLonger();
 		// HowMuchLonger() returns INT_MAX as a sentinel for "no production"
 		// (empty queue or non-positive net production). Adding the threat
-		// adjustment below would overflow sint32, so skip such cities entirely —
+		// adjustment below would overflow sint32, so skip such cities entirely â
 		// there's nothing meaningful to rush-buy.
 		if(rush_buy.first > 1 && rush_buy.first < std::numeric_limits<sint32>::max())
 		{

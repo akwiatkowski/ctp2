@@ -16,7 +16,6 @@ static VisiblePlayerFn    s_visiblePlayer    = nullptr;
 static CurPlayerFn        s_curPlayer        = nullptr;
 static PlayerAfterFn      s_playerAfter      = nullptr;
 static InitFn             s_init             = nullptr;
-static InitFromArchiveFn  s_initFromArchive  = nullptr;
 static CleanupFn          s_cleanup          = nullptr;
 static SetCurrentPlayerFn s_setCurrentPlayer = nullptr;
 static SetVisiblePlayerFn s_setVisiblePlayer = nullptr;
@@ -52,15 +51,11 @@ static GetScenarioEditorCityStyleFn    s_getScenarioEditorCityStyle    = nullptr
 static EditQueueSyncShieldstoreFn      s_editQueueSyncShieldstore      = nullptr;
 static EditQueueSyncBuildCategoryFn    s_editQueueSyncBuildCategory    = nullptr;
 static CityWindowAddShieldsIfShowingFn s_cityWindowAddShieldsIfShowing = nullptr;
-static SerializeSelectionVersionFn     s_serializeSelectionVersion     = nullptr;
-static DeserializeSelectionVersionFn   s_deserializeSelectionVersion   = nullptr;
-static SerializeSelectionFn            s_serializeSelection            = nullptr;
 
 void RegisterVisiblePlayer(VisiblePlayerFn fn)        { s_visiblePlayer    = fn; }
 void RegisterCurPlayer(CurPlayerFn fn)                { s_curPlayer        = fn; }
 void RegisterPlayerAfter(PlayerAfterFn fn)            { s_playerAfter      = fn; }
 void RegisterInit(InitFn fn)                          { s_init             = fn; }
-void RegisterInitFromArchive(InitFromArchiveFn fn)    { s_initFromArchive  = fn; }
 void RegisterCleanup(CleanupFn fn)                    { s_cleanup          = fn; }
 void RegisterSetCurrentPlayer(SetCurrentPlayerFn fn)  { s_setCurrentPlayer = fn; }
 void RegisterSetVisiblePlayer(SetVisiblePlayerFn fn)  { s_setVisiblePlayer = fn; }
@@ -96,9 +91,6 @@ void RegisterGetScenarioEditorCityStyle(GetScenarioEditorCityStyleFn fn)       {
 void RegisterEditQueueSyncShieldstore(EditQueueSyncShieldstoreFn fn)           { s_editQueueSyncShieldstore      = fn; }
 void RegisterEditQueueSyncBuildCategory(EditQueueSyncBuildCategoryFn fn)       { s_editQueueSyncBuildCategory    = fn; }
 void RegisterCityWindowAddShieldsIfShowing(CityWindowAddShieldsIfShowingFn fn) { s_cityWindowAddShieldsIfShowing = fn; }
-void RegisterSerializeSelectionVersion(SerializeSelectionVersionFn fn)         { s_serializeSelectionVersion     = fn; }
-void RegisterDeserializeSelectionVersion(DeserializeSelectionVersionFn fn)     { s_deserializeSelectionVersion   = fn; }
-void RegisterSerializeSelection(SerializeSelectionFn fn)                       { s_serializeSelection            = fn; }
 
 sint32 VisiblePlayer()
 {
@@ -119,11 +111,6 @@ sint32 PlayerAfter(sint32 player)
 void Init(sint32 nPlayers)
 {
 	if (s_init) s_init(nPlayers);
-}
-
-void InitFromArchive(CivArchive *archive)
-{
-	if (s_initFromArchive) s_initFromArchive(archive);
 }
 
 void Cleanup()
@@ -318,21 +305,7 @@ bool CityWindowAddShieldsIfShowing(const Unit &city, sint32 amount)
 	     : false;
 }
 
-void SerializeSelectionVersion(CivArchive &archive)
-{
-	if (s_serializeSelectionVersion) s_serializeSelectionVersion(archive);
-}
-
-bool DeserializeSelectionVersion(CivArchive &archive)
-{
-	// Default: no bytes consumed; treat as "matches" so headless load
-	// flows past this point without reading anything.
-	return s_deserializeSelectionVersion ? s_deserializeSelectionVersion(archive) : true;
-}
-
-void SerializeSelection(CivArchive &archive)
-{
-	if (s_serializeSelection) s_serializeSelection(archive);
-}
+// Phase 0.C-5: SerializeSelectionVersion / DeserializeSelectionVersion /
+// SerializeSelection deleted — CivArchive binary save path is gone.
 
 } // namespace player_view

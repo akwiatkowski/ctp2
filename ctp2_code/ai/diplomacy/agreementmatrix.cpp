@@ -88,34 +88,7 @@ void AgreementMatrix::Resize(const PLAYER_INDEX & newMaxPlayers)
 	}
 }
 
-void AgreementMatrix::Load(CivArchive & archive)
-{
-	archive >> m_maxPlayers;
 
-	uint16	count;
-	archive >> count;
-	m_agreements.resize(count);
-
-	for (size_t i = 0; i < count; ++i)
-	{
-		archive.Load(reinterpret_cast<uint8 *>(&(m_agreements[i])),
-					 sizeof(ai::Agreement)
-					);
-	}
-}
-
-void AgreementMatrix::Save(CivArchive & archive) const
-{
-	archive << m_maxPlayers;
-
-	Assert(m_agreements.size() < 0x10000);	// Report when it is too large.
-	archive << static_cast<uint16>(m_agreements.size());
-
-	for (const auto & m_agreement : m_agreements)
-	{
-		archive.Store((uint8 *) &m_agreement, sizeof(ai::Agreement));
-	}
-}
 
 const ai::Agreement & AgreementMatrix::GetAgreement( const PLAYER_INDEX sender_player,
 													 const PLAYER_INDEX receiver_player,

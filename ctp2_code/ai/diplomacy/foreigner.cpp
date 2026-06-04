@@ -26,8 +26,8 @@
 //
 // - Marked MS version specific code.
 // - Standardised <list> import.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin GÃ¼hmann)
+// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -101,141 +101,7 @@ void Foreigner::Initialize()
 	m_embargo = false;
 }
 
-void Foreigner::Load(CivArchive & archive)
-{
-	sint16 i;
-	sint16 size;
-	sint16 buf_size;
-	sint8 val;
-	RegardEvent event;
-	uint8 name_str [1024];
 
-	archive >> m_trustworthiness;
-	archive >> val;
-	m_hasInitiative = (val?true:false);
-	archive >> m_lastIncursion;
-
-	for (auto & type : m_regardEventList)
-	{
-		type.clear();
-
-		archive >> size;
-
-		for (i = 0; i < size; i++)
-		{
-			if (save_file_version_Get() >= 57)
-			{
-				archive >> event.regard;
-				archive >> event.turn;
-				archive >> event.duration;
-
-				archive >> buf_size;
-				if (buf_size > 0)
-				{
-					Assert(buf_size < 256);
-					archive.Load((uint8 *) &name_str[0], buf_size);
-					stringdb_Get()->GetStringID((char*)name_str, event.explainStrId);
-				}
-				else
-				{
-					event.explainStrId = -1;
-				}
-			}
-			else
-			{
-				archive.Load((uint8 *) &event, sizeof(RegardEvent));
-				event.explainStrId = -1;
-			}
-			type.push_back(event);
-		}
-	}
-
-	archive >> size;
-	NegotiationEvent negotiation;
-	m_negotiationEvents.clear();
-	for (i = 0; i < size; i++)
-	{
-		if (save_file_version_Get() >= 60)
-		{
-			archive.Load((uint8 *) &negotiation, sizeof(NegotiationEvent));
-		}
-		else
-		{
-			OldNegotiationEvent oldnegotiation;
-			archive.Load((uint8 *) &oldnegotiation, sizeof(OldNegotiationEvent));
-			negotiation.proposal = oldnegotiation.proposal;
-			negotiation.response = oldnegotiation.response;
-			negotiation.agreement = oldnegotiation.agreement;
-			negotiation.threat = oldnegotiation.threat;
-			negotiation.round = 0;
-		}
-		m_negotiationEvents.push_back(negotiation);
-	}
-
-	archive >> m_hotwarAttackedMe;
-	archive >> m_coldwarAttackedMe;
-	archive >> m_greetingTurn;
-
-	if (save_file_version_Get() >= 51)
-	{
-		archive >> val;
-		m_embargo = (val?true:false);
-	}
-	else
-		m_embargo = false;
-}
-
-void Foreigner::Save(CivArchive & archive) const
-{
-	RegardEventList::const_iterator event_iter;
-	const MBCHAR *name_str;
-
-	archive << m_trustworthiness;
-	archive << (sint8)(m_hasInitiative?1:0);
-	archive << m_lastIncursion;
-
-	for (const auto & type : m_regardEventList) {
-
-		archive << (sint16) type.size();
-
-		for (event_iter = type.begin();
-			 event_iter != type.end();
-			 ++event_iter)
-		{
-			archive << (ai::Regard) event_iter->regard;
-			archive << (sint16) event_iter->turn;
-			archive << (sint16) event_iter->duration;
-			if (event_iter->explainStrId != -1)
-			{
-				name_str = stringdb_Get()->GetIdStr(event_iter->explainStrId);
-				archive << (sint16) (strlen(name_str)+1);
-				archive.Store((uint8*)name_str, strlen(name_str)+1);
-			}
-			else
-			{
-
-				archive << (sint16) 0;
-			}
-
-
-		}
-
-	}
-
-	archive << (sint16) m_negotiationEvents.size();
-	NegotiationEventList::const_iterator negotiation_iter;
-	for (negotiation_iter = m_negotiationEvents.begin();
-		 negotiation_iter != m_negotiationEvents.end();
-		 ++negotiation_iter)
-	{
-		archive.Store((uint8 *) &(*negotiation_iter), sizeof(NegotiationEvent));
-	}
-
-	archive << m_hotwarAttackedMe;
-	archive << m_coldwarAttackedMe;
-	archive << m_greetingTurn;
-	archive << (sint8)(m_embargo?1:0);
-}
 
 void Foreigner::BeginTurn()
 {

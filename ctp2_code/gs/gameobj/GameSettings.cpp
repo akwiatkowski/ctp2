@@ -69,20 +69,6 @@ GameSettings::GameSettings()
 	m_endingAge = g_network.GetEndingAge();
 }
 
-GameSettings::GameSettings(CivArchive &archive)
-{
-	Serialize(archive);
-
-	if (g_setDifficultyUponLaunch)
-	{
-		m_difficulty	= g_difficultyToSetUponLaunch;
-	}
-
-	if (g_setBarbarianRiskUponLaunch)
-	{
-		m_risk			= g_barbarianRiskUponLaunch;
-	}
-}
 
 void GameSettings::SetKeepScore( BOOL keepScore )
 {
@@ -94,14 +80,6 @@ void GameSettings::SetPollution( BOOL pollution )
 	m_pollution = pollution;
 }
 
-void GameSettings::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		archive.StoreChunk((uint8*)&m_difficulty, (uint8*)&m_pollution + sizeof(m_pollution));
-	} else {
-		archive.LoadChunk((uint8*)&m_difficulty, (uint8*)&m_pollution + sizeof(m_pollution));
-	}
-}
 
 void GameSettings::SetAlienEndGameWon(sint32 player)
 {

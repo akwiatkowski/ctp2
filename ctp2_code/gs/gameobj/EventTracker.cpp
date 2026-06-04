@@ -13,11 +13,6 @@ EventTracker::EventTracker()
 	m_dataList=new PointerList<EventData>;
 }
 
-EventTracker::EventTracker(CivArchive &archive)
-{
-	m_dataList=new PointerList<EventData>;
-	Serialize(archive);
-}
 
 EventTracker::~EventTracker()
 {
@@ -61,41 +56,6 @@ EventData *EventTracker::GetEvents(BOOL Reset)
 	}
 }
 
-void EventTracker::Serialize(CivArchive &archive)
-{
-	sint32 i;
-	if(archive.IsStoring())
-	{
-		archive << m_dataList->GetCount();
-		PointerList<EventData>::PointerListNode *curDataPtr;
-		curDataPtr=m_dataList->GetHeadNode();
-		while(curDataPtr)
-		{
-			archive << (sint32)curDataPtr->GetObj()->m_type;
-			archive << curDataPtr->GetObj()->m_playerNum;
-			archive << curDataPtr->GetObj()->m_turn;
-			archive << curDataPtr->GetObj()->m_dbIndex;
-			curDataPtr = curDataPtr->GetNext();
-		}
-	}
-	else
-	{
-		sint32 Items;
-		sint32 type;
-		sint32 playerNum;
-		sint32 turn;
-		sint32 dbIndex;
-		archive >> Items;
-		for(i=0; i<Items; i++)
-		{
-			archive >> type;
-			archive >> playerNum;
-			archive >> turn;
-			archive >> dbIndex;
-			AddEvent((EVENT_TYPE)type,playerNum,turn,dbIndex);
-		}
-	}
-}
 
 int EventTracker::GetEventCount()
 {

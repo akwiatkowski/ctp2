@@ -57,21 +57,18 @@ sint32 PlayerAfter(sint32 player);
 // created/destroyed at the right points in game init/cleanup.  Headless
 // leaves these unregistered (no-op).
 using InitFn            = void (*)(sint32 nPlayers);
-using InitFromArchiveFn = void (*)(CivArchive *archive);
 using CleanupFn         = void (*)();
 using SetCurrentPlayerFn = void (*)(sint32 player);
 using SetVisiblePlayerFn = void (*)(sint32 player);
 using RefreshFn         = void (*)();
 
 void RegisterInit(InitFn fn);
-void RegisterInitFromArchive(InitFromArchiveFn fn);
 void RegisterCleanup(CleanupFn fn);
 void RegisterSetCurrentPlayer(SetCurrentPlayerFn fn);
 void RegisterSetVisiblePlayer(SetVisiblePlayerFn fn);
 void RegisterRefresh(RefreshFn fn);
 
 void Init(sint32 nPlayers);
-void InitFromArchive(CivArchive *archive);
 void Cleanup();
 void SetCurrentPlayer(sint32 player);
 void SetVisiblePlayer(sint32 player);
@@ -136,9 +133,6 @@ using CityWindowAddShieldsIfShowingFn = bool   (*)(const Unit &city, sint32 amou
 //     caller can raise LOAD_INCORRECT_VERSION_INFO.  SerializeSelection
 //     writes the full SelectedItem state; InitFromArchive (already
 //     present in this header above) reads it on load.
-using SerializeSelectionVersionFn   = void (*)(CivArchive &archive);
-using DeserializeSelectionVersionFn = bool (*)(CivArchive &archive);
-using SerializeSelectionFn          = void (*)(CivArchive &archive);
 
 void RegisterSetSelectUnit(SetSelectUnitFn fn);
 void RegisterSetSelectCity(SetSelectCityFn fn);
@@ -171,9 +165,6 @@ void RegisterGetScenarioEditorCityStyle(GetScenarioEditorCityStyleFn fn);
 void RegisterEditQueueSyncShieldstore(EditQueueSyncShieldstoreFn fn);
 void RegisterEditQueueSyncBuildCategory(EditQueueSyncBuildCategoryFn fn);
 void RegisterCityWindowAddShieldsIfShowing(CityWindowAddShieldsIfShowingFn fn);
-void RegisterSerializeSelectionVersion(SerializeSelectionVersionFn fn);
-void RegisterDeserializeSelectionVersion(DeserializeSelectionVersionFn fn);
-void RegisterSerializeSelection(SerializeSelectionFn fn);
 
 void SetSelectUnit(const Unit &unit);
 void SetSelectCity(const Unit &city);
@@ -237,8 +228,5 @@ bool   CityWindowAddShieldsIfShowing(const Unit &city, sint32 amount);
 // The headless build therefore produces a save file that is symmetric
 // with its own load path — but a UI-saved file CANNOT be loaded by
 // headless and vice versa (the byte count diverges).
-void SerializeSelectionVersion(CivArchive &archive);
-bool DeserializeSelectionVersion(CivArchive &archive);
-void SerializeSelection(CivArchive &archive);
 
 } // namespace player_view

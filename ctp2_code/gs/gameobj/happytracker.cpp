@@ -32,18 +32,6 @@ HappyTracker::HappyTracker()
     }
 }
 
-HappyTracker::HappyTracker(CivArchive &archive)
-{
-    std::fill(m_happinessAmounts, m_happinessAmounts + HAPPY_REASON_MAX, 0.0);
-    std::fill(m_tempSaveHappiness, m_tempSaveHappiness + HAPPY_REASON_MAX, 0.0);
-
-    Serialize(archive);
-
-    if (!s_refCount++)
-    {
-        RefreshStringIds();
-    }
-}
 
 HappyTracker::~HappyTracker()
 {
@@ -92,37 +80,6 @@ void HappyTracker::RefreshStringIds()
 /// \param archive  The archive to use
 /// \remarks    The HAPPY_REASON_SECTHAPPY item can not be stored without
 ///             causing a save game incompatibility.
-void HappyTracker::Serialize(CivArchive &archive)
-{
-    if (archive.IsStoring())
-    {
-        archive.Store((uint8*) m_happinessAmounts,
-                      sizeof(double) * HAPPY_REASON_MAX_VERSION_66
-                     );
-    }
-    else
-    {
-        if (save_file_version_Get() <= 64)
-        {
-            // Apparently HAPPY_REASON_FEATS was middle-inserted by Activision
-            // in version 65, requiring a shift of all items with higher index.
-            archive.Load((uint8*) m_happinessAmounts,
-                         sizeof(double) * HAPPY_REASON_MAX_VERSION_64
-                        );
-            for (int i = HAPPY_REASON_FEATS + 1; i < HAPPY_REASON_MAX; ++i)
-            {
-                 m_happinessAmounts[i] = m_happinessAmounts[i - 1];
-	        }
-		    m_happinessAmounts[HAPPY_REASON_FEATS] = 0.0;
-        }
-        else if (save_file_version_Get() <= 66)
-        {
-            archive.Load((uint8*) m_happinessAmounts,
-                         sizeof(double) * HAPPY_REASON_MAX_VERSION_66
-                        );
-	    }
-    }
-}
 
 void HappyTracker::GetHappiness
 (

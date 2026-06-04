@@ -475,11 +475,3 @@ SlicSymbolData *SlicStructInstance::GetDataSymbol()
 	return m_dataSymbol;
 }
 
-void SlicStructMemberData::SerializeMemberReference(CivArchive &archive)
-{
-	Assert(archive.IsStoring());
-	archive.PutSINT32((sint32)m_parent->GetDescription()->GetType());
-	sint32 index = m_parent->GetMemberSymbolIndex(this);
-	Assert(index >= 0);
-	archive.PutSINT32(index);
-}

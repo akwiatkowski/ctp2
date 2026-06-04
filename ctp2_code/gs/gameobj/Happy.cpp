@@ -27,9 +27,9 @@
 // - Standardised min/max usage.
 // - Reimplemented m_timedChanges as std::list, to prevent Asserts
 // - Added Copy method to copy data from another instance into this
-//   instance, savely. - Jul 7th 2005 Martin G�hmann
+//   instance, savely. - Jul 7th 2005 Martin GÃ¯Â¿Â½hmann
 // - Added happiness boni for players civilisation and city's city style.
-//   (Oct 7th 2005 Martin G�hmann)
+//   (Oct 7th 2005 Martin GÃ¯Â¿Â½hmann)
 // - Added GoodHappinessIncrease if a good give a happy bonus then if the city
 //   is buying or collecting then it will add to that city's happiness (4-27-2006 by E)
 // - Aded SectarianHappiness modifier by E 5-24-2006
@@ -37,8 +37,8 @@
 // - Added profile option for NoAICityLimit and NoCityLimit
 // - Added comment for wonders
 // - Outcommented sectarian happiness
-// - Replaced old const database by new one. (5-Aug-2007 Martin G�hmann)
-// - Wages, rations, and work day give now happiness boni as supposed. (07-Sep-2008 Martin G�hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin GÃ¯Â¿Â½hmann)
+// - Wages, rations, and work day give now happiness boni as supposed. (07-Sep-2008 Martin GÃ¯Â¿Â½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -153,41 +153,6 @@ Happy::~Happy()
 	delete m_tracker;
 }
 
-void Happy::Serialize (CivArchive &archive)
-{
-	CHECKSERIALIZE
-
-	if (archive.IsStoring())
-	{
-		archive.StoreChunk((uint8 *)&m_happiness, ((uint8 *)&m_crime)+sizeof(m_crime));
-
-		archive << static_cast<uint32>(m_timedChanges.size());
-		for
-		(auto & m_timedChange : m_timedChanges)
-		{
-			m_timedChange.Serialize(archive);
-		}
-		m_tracker->Serialize(archive);
-	}
-	else
-	{
-		archive.LoadChunk((uint8 *)&m_happiness, ((uint8 *)&m_crime)+sizeof(m_crime));
-
-		uint32 num;
-		archive >> num;
-
-		m_timedChanges.clear();
-		HappyTimer	item;
-		for (uint32 i = 0; i < num; ++i)
-		{
-			item.Serialize(archive);
-			m_timedChanges.push_back(item);
-		}
-
-		delete m_tracker;
-		m_tracker = new HappyTracker(archive);
-	}
-}
 
 double Happy::CalcBase(Player *p)
 {
@@ -791,21 +756,6 @@ void Happy::ClearTimedChanges()
 
 
 
-void HappyTimer::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		archive << m_turnsRemaining;
-		archive << m_adjustment;
-
-		archive.PutSINT32(m_reason);
-	} else {
-		archive >> m_turnsRemaining;
-		archive >> m_adjustment;
-
-		m_reason = (HAPPY_REASON)archive.GetSINT32();
-
-	}
-}
 
 
 

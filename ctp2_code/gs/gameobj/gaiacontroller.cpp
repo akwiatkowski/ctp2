@@ -22,7 +22,7 @@
 // Modifications from the original Activision code:
 //
 // - Fixed neutral tile improvment bug by preventing the game
-//   from reading invalid memory, by Martin G�hmann.
+//   from reading invalid memory, by Martin GÃ¯Â¿Â½hmann.
 //
 //----------------------------------------------------------------------------
 
@@ -74,31 +74,6 @@ GaiaController::GaiaController(const PLAYER_INDEX player)
 	Initialize();
 }
 
-void GaiaController::Serialize(CivArchive &archive)
-{
-	double tmp_val;
-	if(archive.IsStoring()) {
-		archive << m_playerId;
-		archive << m_numMainframes;
-		archive << m_numSatellites;
-		archive << m_numWondersBuilt;
-		archive << m_numTowersBuilt;
-		tmp_val = m_percentCoverage;
-		archive << tmp_val;
-		archive << m_completedTurn;
-	} else {
-		Initialize();
-		archive >> m_playerId;
-		archive >> m_numMainframes;
-		archive >> m_numSatellites;
-		archive >> m_numWondersBuilt;
-		archive >> m_numTowersBuilt;
-		archive >> tmp_val;
-		m_percentCoverage = (float) tmp_val;
-		archive >> m_completedTurn;
-	}
-	m_coveredCells.Serialize(archive);
-}
 
 void GaiaController::InitializeStatics()
 {
@@ -333,7 +308,7 @@ STDEHANDLER(GaiaController_CutImprovements)
 	Cell *cell = world_Get()->GetCell(pos);
 	owner = cell->GetOwner();
 
-	//Added by Martin G�hmann to prevent
+	//Added by Martin GÃ¯Â¿Â½hmann to prevent
 	//the game from accessing an invalid
 	//area of memory, plain arrays don't
 	//have out of bounds array, so accessing
@@ -378,7 +353,7 @@ STDEHANDLER(GaiaController_ImprovementComplete)
 	if(!args->GetInt(0, type))
 		return GEV_HD_Continue;
 
-	//Added by Martin G�hmann to prevent
+	//Added by Martin GÃ¯Â¿Â½hmann to prevent
 	//the game from accessing an invalid
 	//area of memory, plain arrays don't
 	//have out of bounds array, so accessing

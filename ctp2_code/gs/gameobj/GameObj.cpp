@@ -204,14 +204,6 @@ void GameObj_Delete(GameObj **p, uint32 id)
    }
 }
 
-void GameObj::Serialize(CivArchive &archive)
-{
-	if (archive.IsStoring()) {
-		archive << m_id;
-	} else {
-		archive >> m_id;
-	}
-}
 
 uint32 GameObj_GameObj_GetVersion()
 {

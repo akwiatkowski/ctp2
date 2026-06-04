@@ -41,15 +41,15 @@
 // - Prevented crash on incorrect input (personality typo).
 // - Improved CleanupAll.
 // - Some agreements have limited duration, PFT 05 MAR 05
-// - Replaced old civilisation database by new civilisation database. (Aug 20th 2005 Martin G�hmann)
-// - Initialized local variables. (Sep 9th 2005 Martin G�hmann)
-// - Standardized code (May 21st 2006 Martin G�hmann)
+// - Replaced old civilisation database by new civilisation database. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standardized code (May 21st 2006 Martin Gï¿½hmann)
 // - Made limited duration optional.
-// - Added war over message. (Feb 4th 2007 Martin G�hmann)
-// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin G�hmann)
+// - Added war over message. (Feb 4th 2007 Martin Gï¿½hmann)
+// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gï¿½hmann)
 // - Seperated the NewProposal event from the Response event so that the
-//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin G�hmann)
-// - The player's default strategy is restored after save reloading. (13-Jun-2008 Martin G�hmann)
+//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin Gï¿½hmann)
+// - The player's default strategy is restored after save reloading. (13-Jun-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -268,27 +268,7 @@ void Diplomat::InitializeAll()
 	}
 }
 
-void Diplomat::LoadAll(CivArchive & archive)
-{
-	archive >> s_nextId;
-	AgreementMatrix::s_agreements.Load(archive);
 
-	for (auto & s_theDiplomat : s_theDiplomats)
-	{
-		s_theDiplomat.Load(archive);
-	}
-}
-
-void Diplomat::SaveAll(CivArchive & archive)
-{
-	archive << s_nextId;
-	AgreementMatrix::s_agreements.Save(archive);
-
-	for (const auto & s_theDiplomat : s_theDiplomats)
-	{
-		s_theDiplomat.Save(archive);
-	}
-}
 
 void Diplomat::DebugStatusAll()
 {
@@ -505,141 +485,7 @@ void Diplomat::Resize(const PLAYER_INDEX & newMaxPlayerId)
 	m_desireWarWith.resize(newMaxPlayerId);
 }
 
-void Diplomat::Load(CivArchive & archive)
-{
-	uint16	count;
-	size_t	i;
-	Threat  threat;
-	AiState ai_state;
 
-	Initialize();
-
-	archive >> count;
-	char * str  = new char [count+1];
-	archive.Load((uint8 *) str, count);
-	str[count] = '\0';
-	if(count > 0)
-		SetPersonalityName(str);
-	delete [] str;
-
-	archive >> count;
-	for (i = 0; i < count; i++)
-	{
-		archive.Load((uint8 *)&ai_state, sizeof(AiState));
-		m_bestStrategicStates.push_back(ai_state);
-	}
-
-	SetDefaultStrategy();
-	ComputeCurrentStrategy();
-
-	archive >> count;
-	for (i = 0; i < count; i++)
-	{
-		archive.Load((uint8 *)&threat, sizeof(Threat));
-		m_threats.push_back(threat);
-	}
-
-	archive >> count;
-
-	Assert(count == CtpAi::s_maxPlayers);
-
-	if (count > CtpAi::s_maxPlayers)
-	{
-		Resize(count);
-	}
-
-	for (size_t foreigner = 0; foreigner < m_foreigners.size(); ++foreigner)
-	{
-		m_lastMotivation[foreigner] = m_motivations.end();
-		if (foreigner < count)
-		{
-			m_foreigners[foreigner].Load(archive);
-			archive.Load((uint8 *)&ai_state, sizeof(AiState));
-		}
-		else
-		{
-			m_foreigners[foreigner].Initialize();
-			ai_state.dbIndex = -1;
-		}
-
-		PLAYER_INDEX const  foreignerId = static_cast<PLAYER_INDEX>(foreigner);
-
-		if (    player_Get(m_playerId)
-		     && player_Get(foreigner)
-		     && (m_playerId != foreignerId)
-		    )
-		{
-			ChangeDiplomacy(foreignerId, ai_state.dbIndex);
-			UpdateRegard(foreignerId);
-		}
-	}
-
-	archive >> m_diplomcyVictoryCompleteTurn;
-	archive >> m_nuclearAttackTarget;
-
-	if (save_file_version_Get() >= 59)
-	{
-		archive >> m_lastParty;
-	}
-
-	if (save_file_version_Get() >= 61)
-	{
-		uint8 val;
-		archive >> val;
-		m_launchedNukes = (val?true:false) ;
-		archive >> val;
-		m_launchedNanoAttack = (val?true:false) ;
-	}
-
-	m_desireWarWith.resize(m_foreigners.size());
-
-	// Diplomats even exist for dead players.
-	// Nothing to do if we are already dead.
-	if(player_Get(m_playerId) == nullptr)
-		return;
-
-	ComputeAllDesireWarWith();
-	ComputeIncursionPermission();
-}
-
-void Diplomat::Save(CivArchive & archive) const
-{
-	archive << static_cast<uint16>(m_personalityName.size());
-	archive.Store((uint8 *) m_personalityName.c_str(), m_personalityName.size());
-
-	archive << static_cast<uint16>(m_bestStrategicStates.size());
-	AiStateList::const_iterator ai_state_iter = m_bestStrategicStates.begin();
-	while (ai_state_iter != m_bestStrategicStates.end())
-	{
-		archive.Store((uint8 *) &(*ai_state_iter), sizeof(AiState));
-		ai_state_iter++;
-	}
-
-	archive << static_cast<uint16>(m_threats.size());
-	ThreatList::const_iterator threat_iter = m_threats.begin();
-	while (threat_iter != m_threats.end())
-	{
-		archive.Store((uint8 *) &(*threat_iter), sizeof(Threat));
-		threat_iter++;
-	}
-
-	archive << static_cast<uint16>(m_foreigners.size());
-	for (uint32 foreigner=0; foreigner < m_foreigners.size(); foreigner++)
-	{
-		m_foreigners[foreigner].Save(archive);
-
-		archive.Store((uint8 *) &(m_diplomaticStates[foreigner]), sizeof(AiState));
-	}
-	archive << m_diplomcyVictoryCompleteTurn;
-	archive << m_nuclearAttackTarget;
-	archive << m_lastParty;
-
-	uint8 val = (m_launchedNukes?1:0);
-	archive << val;
-
-	val = (m_launchedNanoAttack?1:0);
-	archive << val;
-}
 
 void Diplomat::Cleanup()
 {

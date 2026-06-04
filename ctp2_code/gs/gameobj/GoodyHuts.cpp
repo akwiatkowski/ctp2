@@ -26,7 +26,7 @@
 //
 // - Update the display (rush buy buttons) when receiving gold.
 // - Speeded up goody hut advance and unit selection.
-// - Replaced old risk database by new one. (Aug 29th 2005 Martin G�hmann)
+// - Replaced old risk database by new one. (Aug 29th 2005 Martin GÃ¯Â¿Â½hmann)
 // - GoodyHutExcluded added to unit radomizer to prevent some units from appearing
 //   by E 8-MAR-2006
 //
@@ -568,15 +568,3 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 
 }
 
-void GoodyHut::Serialize(CivArchive &archive)
-{
-	CHECKSERIALIZE
-
-	if(archive.IsStoring()) {
-		archive.StoreChunk((uint8 *)&m_value, ((uint8 *)&m_typeValue)+sizeof(m_typeValue));
-
-	} else {
-		archive.LoadChunk((uint8 *)&m_value, ((uint8 *)&m_typeValue)+sizeof(m_typeValue));
-
-	}
-}

@@ -3744,10 +3744,7 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 		strcat(fullpath, filename);
 
 		is_scenario_Set(FALSE);
-		// Route through the public SaveGame dispatcher so the JSON
-		// default (g_useJsonSave) applies to autosave too.  The UTF-8
-		// cleanliness bug that previously kept this on the binary path
-		// is fixed by utf8_safe() in json_save.cpp.
+		// SaveGame always writes JSON (Phase 0.C-1).
 		GameFile::SaveGame(fullpath, nullptr);
 	}
 	else

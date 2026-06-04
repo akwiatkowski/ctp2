@@ -261,7 +261,7 @@ TEST_CASE("Phase G converter: binary save → JSON save via --load-game --json-s
         char cmd[1024];
         std::snprintf(cmd, sizeof(cmd),
                       "%s --new-game --turns 3 --players 3 --seed 42 "
-                      "--legacy-binary-save --save-game %s 2>&1", bin, binpath);
+                      "--save-game %s 2>&1", bin, binpath);
         std::FILE *pipe = popen(cmd, "r");
         REQUIRE(pipe != nullptr);
         char buf[512];
@@ -350,7 +350,7 @@ TEST_CASE("Phase G-2: GameFile::Restore auto-detects JSON vs binary save format"
         REQUIRE(WIFEXITED(rc));
         REQUIRE(WEXITSTATUS(rc) == 0);
     };
-    run("--legacy-binary-save --save-game", binpath);
+    run("--save-game", binpath);
     run("--json-save", jsonpath);
 
     // Both files should now be loadable via --load-game alone.
@@ -385,11 +385,10 @@ TEST_CASE("Phase G-2: GameFile::Restore auto-detects JSON vs binary save format"
 
 TEST_CASE("Phase G-3: --save-game writes JSON by default")
 {
-    // G-3: GameFile::SaveGame defaults to the JSON format (via
-    // g_useJsonSave = true at module init).  This test verifies that
-    // --save-game (which calls GameFile::SaveGame) produces a file
-    // that starts with the JSON object marker rather than the legacy
-    // CTP0XXX magic header.
+    // Phase 0.C-1: GameFile::SaveGame is JSON-only — the legacy binary
+    // write path was deleted.  This test verifies that --save-game (which
+    // calls GameFile::SaveGame) produces a file that starts with the JSON
+    // object marker rather than the legacy CTP0XXX magic header.
     const char *bin = find_headless();
     REQUIRE(bin);
 

@@ -387,7 +387,6 @@ public:
 
 	Player(const PLAYER_INDEX o, sint32 d, PLAYER_TYPE pt);
 	Player(const PLAYER_INDEX o, sint32 d, PLAYER_TYPE pt, const sint32 civ, GENDER gender) ;
-	Player(CivArchive &archive) ;
 	~Player();
 
 	void InitPlayer(const PLAYER_INDEX o, sint32 d, PLAYER_TYPE pt) ;
@@ -757,8 +756,6 @@ public:
 	void BuildEndGame(sint32 type, Unit city);
 
 	bool ChangeCurrentlyBuildingItem(Unit city, sint32 category, sint32 item_type);
-
-	void Serialize(CivArchive &archive) ;
 
 	void BeginTurnProduction();
 

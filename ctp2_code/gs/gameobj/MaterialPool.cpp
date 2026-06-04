@@ -39,22 +39,6 @@
 
 extern BOOL g_powerPointsMode;
 
-void MaterialPool::Serialize(CivArchive &archive)
-{
-    CHECKSERIALIZE
-
-#define MATERIALPOOL_MAGIC 0x5432FFFF
-	if(archive.IsStoring()) {
-		archive.PerformMagic(MATERIALPOOL_MAGIC) ;
-		archive.StoreChunk((uint8 *)&m_level, ((uint8 *)&m_cap)+sizeof(m_cap));
-
-	} else {
-		archive.TestMagic(MATERIALPOOL_MAGIC) ;
-		archive.LoadChunk((uint8 *)&m_level, ((uint8 *)&m_cap)+sizeof(m_cap));
-
-	}
-}
-
 void MaterialPool::AddMaterials(sint32 amt)
 {
 	if(m_level > 0 && amt > 0 && (m_level + amt) < 0) {

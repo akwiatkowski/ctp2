@@ -163,7 +163,6 @@ public:
 	void    Del(GameObj * p);
 	void    Del(const ID & id);
 	sint32  Num() const;
-	virtual void Serialize(CivArchive &archive);
 
 };
 

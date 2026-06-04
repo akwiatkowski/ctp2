@@ -25,7 +25,6 @@ private:
 public:
 	InstallationData(ID id, sint32 owner, MapPoint &pnt,
 					 sint32 type);
-	InstallationData(CivArchive &archive);
 	InstallationData(ID id) : GameObj(id.m_id) {}
 
 	sint32 GetOwner() const { return m_owner; }
@@ -40,7 +39,6 @@ public:
 	static sint32 GetDistance(InstallationData *inst1, InstallationData *inst2,
 							  sint32 wrap);
 
-	void Serialize(CivArchive &archive) override;
 	void RebuildQuadTree();
 
 	void UseAirfield(sint32 currentRound);

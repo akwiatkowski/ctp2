@@ -112,7 +112,6 @@ public:
 		return m_id >= val.m_id;
 	};
 
-	void Serialize(CivArchive &archive) ;
 };
 
 uint32 ID_ID_GetVersion() ;

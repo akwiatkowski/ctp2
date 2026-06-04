@@ -143,11 +143,6 @@ Order::Order(UNIT_ORDER_TYPE order, Path *path, const MapPoint &point, sint32 ar
 	m_eventType = GEV_MAX;
 }
 
-Order::Order(CivArchive &archive)
-{
-	Serialize(archive);
-}
-
 Order::~Order()
 {
 	if(m_path) {
@@ -158,51 +153,6 @@ Order::~Order()
 	if(m_gameEventArgs) {
 		delete m_gameEventArgs;
 		m_gameEventArgs = nullptr;
-	}
-}
-
-void Order::Serialize(CivArchive &archive)
-{
-	uint8 hasPath;
-	uint8 hasArgs;
-
-	m_point.Serialize(archive);
-
-	if(archive.IsStoring()) {
-		archive.PutSINT32(m_order);
-		archive.PutSINT32(m_round);
-		archive.PutSINT32(m_argument);
-		archive.PutSINT32(m_eventType);
-
-		hasPath = m_path != nullptr;
-		archive << hasPath;
-		if(hasPath)
-			m_path->Serialize(archive);
-
-		hasArgs = m_gameEventArgs != nullptr;
-		archive << hasArgs;
-		if(hasArgs)
-			m_gameEventArgs->Serialize(archive);
-
-	} else {
-		m_order = (UNIT_ORDER_TYPE)archive.GetSINT32();
-		m_round = archive.GetSINT32();
-		m_argument = archive.GetSINT32();
-		m_eventType = (GAME_EVENT)archive.GetSINT32();
-
-		archive >> hasPath;
-		if(hasPath) {
-			m_path = new Path();
-			m_path->Serialize(archive);
-		} else
-			m_path = nullptr;
-
-		archive >> hasArgs;
-		if(hasArgs) {
-			m_gameEventArgs = new GameEventArgList(archive);
-		} else {
-			m_gameEventArgs = nullptr;
-		}
 	}
 }
 

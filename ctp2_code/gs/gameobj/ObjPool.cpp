@@ -122,14 +122,4 @@ uint32 ObjPool_ObjPool_GetVersion()
 	return (k_OBJPOOL_VERSION_MAJOR<<16 | k_OBJPOOL_VERSION_MINOR);
 }
 
-void ObjPool::Serialize(CivArchive &archive)
-{
-	if (archive.IsStoring())
-	{
-		archive.StoreChunk((uint8 *)&m_id_type, ((uint8 *)&m_nObjs)+sizeof(m_nObjs));
-	}
-	else
-	{
-		archive.LoadChunk((uint8 *)&m_id_type, ((uint8 *)&m_nObjs)+sizeof(m_nObjs));
-	}
-}
+

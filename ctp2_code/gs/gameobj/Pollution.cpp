@@ -78,31 +78,8 @@ Pollution::Pollution()
 	m_next_level = 1;
 }
 
-Pollution::Pollution(CivArchive &archive)
-{
-	Serialize(archive);
-}
-
 Pollution::~Pollution()
 = default;
-
-void Pollution::Serialize(CivArchive &archive)
-{
-
-	CHECKSERIALIZE
-
-#define POLLUTION_MAGIC 0x32675109
-	if(archive.IsStoring())
-	{
-		archive.PerformMagic(POLLUTION_MAGIC) ;
-		archive.StoreChunk((uint8 *)&m_eventTriggerNextRound, ((uint8 *)&m_next_level)+sizeof(m_next_level));
-	}
-	else
-	{
-		archive.TestMagic(POLLUTION_MAGIC) ;
-		archive.LoadChunk((uint8 *)&m_eventTriggerNextRound, ((uint8 *)&m_next_level)+sizeof(m_next_level));
-	}
-}
 
 //----------------------------------------------------------------------------
 //

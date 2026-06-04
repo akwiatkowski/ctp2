@@ -152,7 +152,6 @@ class MessageData : public GameObj
 
 	public:
 		MessageData(const ID id, sint32 currentYear);
-		MessageData(CivArchive &archive);
 		MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_INDEX sender, const MESSAGE_TYPE type, MBCHAR *s, sint32 currentYear);
 		MessageData(const ID id, MessageData *copy);
 		~MessageData() override;
@@ -222,7 +221,6 @@ class MessageData : public GameObj
 		SlicEyePoint *GetEyePoint(sint32 index);
 
 		void Dump(const sint32 i) ;
-		void Serialize(CivArchive &archive) override ;
 
 		void SetSelectedAdvance(AdvanceType adv);
 		AdvanceType GetSelectedAdvance() const;

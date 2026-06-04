@@ -103,14 +103,12 @@ public:
 	static uint32 GetPollutionAtRound(const PLAYER_INDEX player, const sint32 round);
 
 	Pollution();
-	Pollution(CivArchive &archive);
 	~Pollution();
 
 	sint32 GetHistory() { return (m_history[0]); }
 	void   SetHistory(sint32 pollution) { m_history[0] = pollution; }
 	sint32 GetRoundsToNextDisaster();
 
-	void   Serialize(CivArchive &archive);
 	void   WarnPlayers();
 	sint32 AtTriggerLevel();
 	sint32 GetNextTrigger();

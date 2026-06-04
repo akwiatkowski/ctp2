@@ -15,7 +15,6 @@ class InstallationPool : public ObjPool
 {
 public:
 	InstallationPool();
-	InstallationPool(CivArchive &archive);
 
 	InstallationData *AccessInstallation(const Installation id)
 	{
@@ -32,7 +31,6 @@ public:
 						sint32 type);
 	void Remove(Installation id);
 
-	void Serialize(CivArchive &archive) override;
 	void RebuildQuadTree();
 
 	// JSON bridge — mirrors InstallationPool::Serialize.  Persists

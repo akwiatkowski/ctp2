@@ -77,43 +77,6 @@ InstallationData::InstallationData(ID id,
 	ENQUEUE();
 }
 
-InstallationData::InstallationData(CivArchive &archive) : GameObj(0)
-{
-	Serialize(archive);
-}
-
-void InstallationData::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		GameObj::Serialize(archive);
-		archive.StoreChunk((uint8 *)&m_owner, ((uint8 *)&m_visibility)+sizeof(m_visibility));
-
-		archive<<(uint32)(m_lesser != nullptr);
-		if (m_lesser)
-			((InstallationData *)(m_lesser))->Serialize(archive) ;
-
-		archive<<(uint32)(m_greater != nullptr);
-		if (m_greater)
-			((InstallationData *)(m_greater))->Serialize(archive) ;
-
-	} else {
-		GameObj::Serialize(archive);
-		archive.LoadChunk((uint8 *)&m_owner, ((uint8 *)&m_visibility)+sizeof(m_visibility));
-
-		uint32	hasOld;
-
-		archive>>hasOld;
-
-		if (hasOld)
-			m_lesser = new InstallationData(archive);
-
-		archive>>hasOld;
-		if (hasOld)
-			m_greater = new InstallationData(archive);
-	}
-}
-
-
 void InstallationData::DoVision()
 {
 	MapPoint topleft = m_point;

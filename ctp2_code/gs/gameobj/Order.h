@@ -67,7 +67,6 @@ public:
 
 	Order(UNIT_ORDER_TYPE order, Path *path, const MapPoint &point,
 		  sint32 argument, sint32 currentRound);
-	Order(CivArchive &archive);
 	Order()
 	{
 		m_order = UNIT_ORDER_NONE;
@@ -88,8 +87,6 @@ public:
 
 	void *operator new(size_t size);
 	void operator delete (void *ptr);
-
-	void Serialize(CivArchive &archive);
 
 	static bool IsSpecialAttack(UNIT_ORDER_TYPE order);
 	static GAME_EVENT OrderToEvent(UNIT_ORDER_TYPE order);

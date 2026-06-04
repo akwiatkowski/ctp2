@@ -31,14 +31,12 @@ public:
 			}
 
 		MessagePool() ;
-		MessagePool(CivArchive &archive) ;
 
 		Message Create(PLAYER_INDEX owner, PLAYER_INDEX sender, MESSAGE_TYPE type, MBCHAR *msg) ;
 		Message Create(PLAYER_INDEX owner, MBCHAR *msg) ;
 		Message Create(PLAYER_INDEX owner, MessageData *copy);
 		Message Recreate(PLAYER_INDEX owner, MBCHAR *msg, MBCHAR *title);
 		Message ServerCreate();
-		void Serialize(CivArchive &archive) override ;
 		void DoNetwork(MessageData *newData);
 
 		void NotifySlicReload();

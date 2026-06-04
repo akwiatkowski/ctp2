@@ -47,6 +47,9 @@
 #include "gs/gameobj/DiplomaticRequestPool.h"
 #include "gs/gameobj/AgreementPool.h"
 #include "gs/gameobj/TradeOfferPool.h"
+#include "gs/gameobj/Vision.h"
+#include "gs/world/UnseenCellQuadTree.h"
+#include "gs/world/UnseenCell.h"
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/DiplomaticRequest.h"
 #include "gs/gameobj/installation.h"
@@ -2357,6 +2360,96 @@ void from_json(nlohmann::json const &j, TradeOfferPool &p)
     }
 }
 
+// Phase 0.B — Vision
+//
+// Mirrors Vision::Serialize at Vision.cpp:679.  Scalars + flattened
+// uint16 array (width*height row-major) + UnseenCell list (via
+// existing UnseenCell JSON bridge).  Width/height drive both
+// allocation and read sizes, so they're persisted first.
+
+void to_json(nlohmann::json &j, Vision const &v)
+{
+    sint32 const wh = static_cast<sint32>(v.m_width) * static_cast<sint32>(v.m_height);
+    nlohmann::json grid = nlohmann::json::array();
+    if (v.m_array)
+    {
+        for (sint16 x = 0; x < v.m_width; ++x)
+        {
+            for (sint16 y = 0; y < v.m_height; ++y)
+                grid.push_back(v.m_array[x][y]);
+        }
+    }
+
+    nlohmann::json unseen_cells = nlohmann::json::array();
+    if (v.m_unseenCells)
+    {
+        DynamicArray<UnseenCellCarton> array;
+        v.m_unseenCells->BuildList(array);
+        for (sint32 i = 0; i < array.Num(); ++i)
+        {
+            if (array[i].m_unseenCell)
+                unseen_cells.push_back(*array[i].m_unseenCell);
+        }
+    }
+
+    j = nlohmann::json{
+        {"width",         v.m_width},
+        {"height",        v.m_height},
+        {"owner",         v.m_owner},
+        {"xy_conversion", v.m_xyConversion},
+        {"is_y_wrap",     static_cast<bool>(v.m_isYwrap)},
+        {"am_on_screen",  static_cast<bool>(v.m_amOnScreen)},
+        {"grid",          std::move(grid)},
+        {"unseen_cells",  std::move(unseen_cells)},
+    };
+    (void)wh; // explicit size capture available for future schema checks
+}
+
+void from_json(nlohmann::json const &j, Vision &v)
+{
+    // Tear down existing storage (matches Vision::Serialize's load branch).
+    if (v.m_array)
+    {
+        for (sint16 x = 0; x < v.m_width; ++x)
+            delete[] v.m_array[x];
+        delete[] v.m_array;
+        v.m_array = nullptr;
+    }
+    v.DeleteUnseenCells();
+    delete v.m_unseenCells;
+    v.m_unseenCells = nullptr;
+
+    j.at("width")        .get_to(v.m_width);
+    j.at("height")       .get_to(v.m_height);
+    j.at("owner")        .get_to(v.m_owner);
+    j.at("xy_conversion").get_to(v.m_xyConversion);
+    v.m_isYwrap    = j.at("is_y_wrap")   .get<bool>() ? TRUE : FALSE;
+    v.m_amOnScreen = j.at("am_on_screen").get<bool>() ? TRUE : FALSE;
+
+    v.m_array = new uint16 *[v.m_width];
+    auto const &grid = j.at("grid");
+    sint32 expected = static_cast<sint32>(v.m_width) * static_cast<sint32>(v.m_height);
+    if (static_cast<sint32>(grid.size()) != expected)
+        throw nlohmann::json::other_error::create(
+            501, "Vision grid size mismatch", &j);
+    sint32 idx = 0;
+    for (sint16 x = 0; x < v.m_width; ++x)
+    {
+        v.m_array[x] = new uint16[v.m_height];
+        for (sint16 y = 0; y < v.m_height; ++y)
+            grid[idx++].get_to(v.m_array[x][y]);
+    }
+
+    v.m_unseenCells = new UnseenCellQuadTree(v.m_width, v.m_height, v.m_isYwrap);
+    for (auto const &entry : j.at("unseen_cells"))
+    {
+        UnseenCell *uc = new UnseenCell(MapPoint(0, 0));
+        entry.get_to(*uc);
+        UnseenCellCarton carton(uc);
+        v.m_unseenCells->Insert(carton);
+    }
+}
+
 // Phase F-7 — SlicConst (smallest Slic-family leaf, no other Slic deps).
 // Mirrors SlicConst::Serialize at gs/slic/SlicConst.cpp:23.  Persists
 // the (length-prefixed) name string and integer value.
@@ -2945,14 +3038,11 @@ void from_json(nlohmann::json const &j, CityData &c)
 //     have no backing ArmyData/UnitData post-load.
 //
 // OMITTED with reason (Phase F pool work):
-//   - m_vision (Vision),
-//     m_tradeOffers / m_terrainImprovements / m_messages / m_requests /
-//     m_agreed / m_allInstallations / m_allRadarInstallations are
-//     per-player DynamicArray<Handle> views into the corresponding
-//     global pools. The pools themselves now save/load via SaveJson/
-//     LoadJson (DiplomaticRequestPool, AgreementPool, TradeOfferPool
-//     added Phase 0.B); the per-player ID arrays still need bridges
-//     analogous to ids_from_armies/ids_from_units.
+//   (Phase 0.B completed: m_vision via Vision bridge; m_tradeOffers /
+//    m_terrainImprovements / m_messages / m_requests / m_agreed /
+//    m_allInstallations / m_allRadarInstallations are emitted as
+//    pool-handle ID arrays via ids_from_handles, restored after pool
+//    drain via load_handles.)
 //   - m_capitol (Unit*) — serialised as Unit ID (already bridgeable
 //     via ID base).
 //
@@ -2960,7 +3050,8 @@ void from_json(nlohmann::json const &j, CityData &c)
 //   - m_science (Science), m_tax_rate (TaxRate), m_advances (Advances),
 //     m_global_happiness (Happy), m_readiness (MilitaryReadiness),
 //     m_regard (Regard), m_strengths (Strengths), m_gold (Gold),
-//     m_difficulty (Difficulty), m_materialPool (MaterialPool).
+//     m_difficulty (Difficulty), m_materialPool (MaterialPool),
+//     m_vision (Vision).
 
 void to_json(nlohmann::json &j, Player const &p)
 {
@@ -3110,6 +3201,7 @@ void to_json(nlohmann::json &j, Player const &p)
         {"gold",             p.m_gold             ? nlohmann::json(*p.m_gold)            : nlohmann::json(nullptr)},
         {"difficulty",       p.m_difficulty       ? nlohmann::json(*p.m_difficulty)      : nlohmann::json(nullptr)},
         {"material_pool",    p.m_materialPool     ? nlohmann::json(*p.m_materialPool)    : nlohmann::json(nullptr)},
+        {"vision",           p.m_vision           ? nlohmann::json(*p.m_vision)          : nlohmann::json(nullptr)},
         // m_capitol via ID
         {"capitol",          p.m_capitol          ? nlohmann::json(static_cast<ID const &>(*p.m_capitol)) : nlohmann::json(nullptr)},
         // Per-player object-id lists (see comment above to_json).
@@ -3263,6 +3355,7 @@ void from_json(nlohmann::json const &j, Player &p)
     if (!j.at("gold")             .is_null() && p.m_gold)             j.at("gold")            .get_to(*p.m_gold);
     if (!j.at("difficulty")       .is_null() && p.m_difficulty)       j.at("difficulty")      .get_to(*p.m_difficulty);
     if (!j.at("material_pool")    .is_null() && p.m_materialPool)     j.at("material_pool")   .get_to(*p.m_materialPool);
+    if (!j.at("vision")           .is_null() && p.m_vision)           j.at("vision")          .get_to(*p.m_vision);
 
     // m_capitol (Unit*) — null in JSON skips
     if (!j.at("capitol").is_null() && p.m_capitol)

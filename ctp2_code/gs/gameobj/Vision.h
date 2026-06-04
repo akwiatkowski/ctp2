@@ -47,6 +47,8 @@
 // Export overview
 //----------------------------------------------------------------------------
 
+#include <nlohmann/json.hpp>
+
 class Vision;
 
 #define k_EXPLORED_BIT 0x8000
@@ -189,6 +191,9 @@ public:
 	sint32 GetOwner() const { return m_owner; }
 
 	void SetAmOnScreen(bool amOnScreen) { m_amOnScreen = amOnScreen; };
+
+	friend void to_json(nlohmann::json &j, Vision const &v);
+	friend void from_json(nlohmann::json const &j, Vision &v);
 };
 
 #endif

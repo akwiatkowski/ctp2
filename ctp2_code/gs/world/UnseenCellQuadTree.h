@@ -22,7 +22,7 @@ public:
 	override = default;
 };
 
-void UnseenCellQuadTree::Clear()
+inline void UnseenCellQuadTree::Clear()
 {
 	DynamicArray<UnseenCellCarton> array;
 	BuildList(array);

@@ -171,7 +171,6 @@ class GameFile
 public:
 	GameFile();
 
-	uint32 SaveDB(CivArchive &archive);
 	// Phase 0.C-3: SaveLegacyBinary + RestoreLegacyBinary both deleted;
 	// SaveGame writes JSON, RestoreGame reads JSON.  Old binary .c2g
 	// scenarios are no longer loadable.

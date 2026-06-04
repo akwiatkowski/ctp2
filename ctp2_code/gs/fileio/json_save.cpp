@@ -5257,13 +5257,17 @@ bool LoadJson(char const *path)
         if (TradePool *tp = tradepool_Get()) tp->RecreateActors();
         if (slicengine_Get())          slicengine_Get()->PostSerialize();
 
-        // Players: per-slot in-place from_json (F-20).  Requires that
-        // gameinit_Initialize already allocated a Player at each slot
-        // that's marked alive in the save.  Slots dead in the save
-        // but alive in-memory (or vice versa) are left untouched —
-        // proper construction/teardown lands in a follow-up.
+        // Players: per-slot in-place from_json (F-20).
+        //
+        // gameinit_Initialize allocates Players based on
+        // ProfileDB::GetNPlayers(), which on --load-game inherits from
+        // userprofile.txt / profile.txt (NumPlayers=6 by default), not
+        // from the save.  So before restoring data, we delete any slot
+        // the save marks dead — otherwise the in-memory state drifts
+        // from the save (extra Players appear out of thin air).
         if (doc.contains("players") && player_arr_Get())
         {
+            Player **g_players = player_arr_Get();
             auto const &players = doc.at("players");
             sint32 const n = std::min(static_cast<sint32>(players.size()),
                                       static_cast<sint32>(k_MAX_PLAYERS));
@@ -5271,10 +5275,24 @@ bool LoadJson(char const *path)
             {
                 auto const &slot = players[i];
                 bool const alive = slot.value("alive", false);
-                if (alive && player_Get(i) && slot.contains("data"))
+                if (!alive)
                 {
-                    slot.at("data").get_to(*player_Get(i));
+                    // Save says this slot is dead — clear any Player
+                    // that gameinit speculatively allocated.
+                    delete g_players[i];
+                    g_players[i] = nullptr;
                 }
+                else if (g_players[i] && slot.contains("data"))
+                {
+                    slot.at("data").get_to(*g_players[i]);
+                }
+            }
+            // Slots past the save's player array (rare: save had fewer
+            // total slots than k_MAX_PLAYERS) — treat as dead.
+            for (sint32 i = n; i < k_MAX_PLAYERS; ++i)
+            {
+                delete g_players[i];
+                g_players[i] = nullptr;
             }
         }
 

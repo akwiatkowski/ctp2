@@ -209,15 +209,20 @@ TEST_CASE("Long-turn sanity: AI expands past the capital by turn 50")
     INFO("max non-barbarian cities at turn 50 = " << max_cities);
     CHECK(max_cities >= 2);
 
-    // Total cities should be meaningfully more than the player count.
-    // 4 players + at least one expansion = >= 5.
+    // Total cities = each civ's starting settler founded + at least one
+    // expansion.  '--players 4' allocates 4 slots: barbarian (idx 0) +
+    // 3 civs.  So a healthy expansion picture at turn 50 is >= 4
+    // (3 civs founded their capital + the one expansion verified above).
+    // Settled empirically across seeds 1, 7, 42 with the current AI;
+    // higher thresholds drift between runs.  If this drops to <= 3, an
+    // initial settler stopped settling — that's the regression to catch.
     int non_barb_total = 0;
     for (const auto &kv : cities_by_player) {
         if (kv.first == 0) continue;
         non_barb_total += kv.second;
     }
     INFO("total non-barbarian cities at turn 50 = " << non_barb_total);
-    CHECK(non_barb_total >= 5);
+    CHECK(non_barb_total >= 4);
 }
 
 TEST_CASE("Long-turn sanity: city populations grow past 1 by turn 50")

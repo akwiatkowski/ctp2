@@ -24,11 +24,11 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added serilization method export. (Aug 24th 2005 Martin Gühmann)
+// - Added serilization method export. (Aug 24th 2005 Martin Gï¿½hmann)
 // - Added alias names and the possibility to have default values from
-//   other entries. (Aug 26th 2005 Martin Gühmann)
+//   other entries. (Aug 26th 2005 Martin Gï¿½hmann)
 // - Added support for default values taken from other databases like the
-//   Const database. (9-Dec-2007 Martin Gühmann)
+//   Const database. (9-Dec-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -106,13 +106,9 @@ public:
 	void ExportDataCode(FILE *outfile, char *recordName);
 
 	void ExportInitialization(FILE *outfile);
-	void ExportSerializationStoring(FILE *outfile);
-	void ExportSerializationLoading(FILE *outfile);
 	void ExportDestructor(FILE *outfile);
 	void ExportOperatorAssignment(FILE *outfile);
 	void ExportOperatorEqual(FILE *outfile);
-	void ExportBitPairSerializationStoring(FILE *outfile);
-	void ExportBitPairSerializationLoading(FILE *outfile);
 	void ExportBitPairInitialization(FILE *outfile);
 	void ExportParseBitPairCase(FILE *outfile, char *recordName);
 	void ExportBitPairAccessorProto(FILE *outfile, sint32 indent, char *recordName);

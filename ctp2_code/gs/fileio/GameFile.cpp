@@ -58,7 +58,6 @@
 #include "gs/gameobj/citydata.h"
 #include "ctp/civ3_main.h"
 #include "ctp/civapp.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/CivilisationPool.h"       // civilisationpool_Get()
 #include "CivilisationRecord.h"
 #include "gs/fileio/CivPaths.h"               // civpaths_Get()
@@ -213,7 +212,7 @@ MBCHAR * scenario_name_buf() { return g_scenarioName; }
 // old binary .c2g now fails with GAMEFILE_ERR_LOAD_FAILED.
 static uint32 DispatchRestore(MBCHAR const *filepath)
 {
-	civapp_Get()->InitializeGame(nullptr);
+	civapp_Get()->InitializeGame();
 	bool const ok = json_save::LoadJson(filepath);
 	return ok ? GAMEFILE_ERR_LOAD_OK : GAMEFILE_ERR_LOAD_FAILED;
 }

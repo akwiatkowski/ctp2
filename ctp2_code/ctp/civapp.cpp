@@ -149,7 +149,6 @@
 #include "CityStyleRecord.h"
 #include "ui/interface/citywindow.h"
 #include "ctp/civ3_main.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "CivilisationRecord.h"
 #include "gs/fileio/CivPaths.h"
 #include "gs/fileio/civscenarios.h"
@@ -1850,7 +1849,7 @@ sint32 CivApp::InitializeGameUI()
 
 
 
-sint32 CivApp::InitializeGame(CivArchive *archive)
+sint32 CivApp::InitializeGame()
 {
 	// Headless: c3ui_Get() is null and every helper below (c3windows_*,
 	// ChatBox, GrabItem, MainControlPanel, director_Get()->*, scenario UI
@@ -1858,7 +1857,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	// the headless path which does only the game-state restore +
 	// minimal subsystem init (AI, gevManager).  Both --new-game and
 	// --load-game share this entry point now.
-	if (!c3ui_Get()) return InitializeGameHeadless(archive);
+	if (!c3ui_Get()) return InitializeGameHeadless();
 
 #ifndef _NO_GAME_WATCH
 	SPLASH_STRING("Initializing Game Watch...");
@@ -1942,42 +1941,12 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	g_fog_toggle = FALSE;
 	g_god = FALSE;
 
-	if (!gameinit_Initialize(-1, -1, archive)) {
+	if (!gameinit_Initialize(-1, -1)) {
 		m_game->GetEventsPtr()->Resume();
 		return FALSE;
 	}
 
 	ProgressTo( 610 );
-
-	if(is_scenario_Get() && (archive != nullptr &&
-	   (start_info_type_Get() != STARTINFOTYPE_NONE ||
-		save_file_version_Get() < gamefile_CurrentVersion()))) {
-
-		for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-			if(player_Get(i)) {
-				player_Get(i)->m_messages->Clear();
-			}
-		}
-
-        // SetMessagesPtr(new) deletes the previous via reset() — no
-        // manual delete first, would double-free.
-        m_game->SetMessagesPtr(new MessagePool());
-
-		SlicEngine::Reload(g_slic_filename);
-
-		if(g_scenarioUsePlayerNumber > 0 && player_Get(g_scenarioUsePlayerNumber) &&
-		   player_Get(g_scenarioUsePlayerNumber)->m_civilisation &&
-		   g_theCivilisationDB && profiledb_Get()) {
-			Player *        p       = player_Get(g_scenarioUsePlayerNumber);
-			StringId        id      =
-                (p->m_civilisation->GetDBRec())->GetLeaderNameMale();
-			const MBCHAR *name = stringdb_Get()->GetNameStr(id);
-			if(name) {
-				p->m_civilisation->AccessData()->SetLeaderName(name);
-				profiledb_Get()->SetLeaderName(name);
-			}
-		}
-	}
 
 	ProgressTo( 620 );
 
@@ -2018,7 +1987,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	GraphicsOptions::Initialize();
 
 	SPLASH_STRING("Initializing Tile Engine...");
-	tile_Initialize(archive != nullptr);
+	tile_Initialize(false);
 
 	ProgressTo( 660 );
 
@@ -2060,33 +2029,18 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	if(!g_network.IsActive() && !g_network.IsNetworkLaunch())
 	{
-		if ((archive == nullptr) ||										// launch button
-			((start_info_type_Get() != STARTINFOTYPE_NONE) && is_scenario_Get())	// scenario start
-		   )
-		{
-			m_game->GetEventsPtr()->AddEvent(GEV_INSERT_Tail,
-				GEV_BeginTurn,
-				GEA_Player, selitem_Get()->GetCurPlayer(),
-				GEA_Int, player_Get(selitem_Get()->GetCurPlayer())->m_current_round,
-				GEA_End);
-		}
+		m_game->GetEventsPtr()->AddEvent(GEV_INSERT_Tail,
+			GEV_BeginTurn,
+			GEA_Player, selitem_Get()->GetCurPlayer(),
+			GEA_Int, player_Get(selitem_Get()->GetCurPlayer())->m_current_round,
+			GEA_End);
 	}
 
 	ProgressTo( 720 );
 
 	if(!g_network.IsActive()) {
-		if (archive == nullptr ||
-			(save_file_version_Get() >= 42 &&
-
-
-
-
-
-			(is_scenario_Get() && start_info_type_Get() != STARTINFOTYPE_NOLOCS)))
-        {
-			if (director_Get())
-				director_Get()->AddCopyVision();
-		}
+		if (director_Get())
+			director_Get()->AddCopyVision();
 	}
 
 	ProgressTo( 730 );
@@ -2094,18 +2048,6 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	director_Get()->ReloadAllSprites();
 
 	ProgressTo( 740 );
-
-	if(turn_Get()->IsEmail() && archive != nullptr) {
-		selitem_Get()->KeyboardSelectFirstUnit();
-		if(selitem_Get()->GetState() != SELECT_TYPE_LOCAL_ARMY &&
-		   (player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Num() > 0)) {
-			selitem_Get()->SetSelectCity(player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Access(0));
-			director_Get()->AddCenterMap(player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Access(0).RetPos());
-		}
-		director_Get()->AddCenterMap(selitem_Get()->GetCurSelectPos());
-
-		m_game->GetSlicPtr()->CheckPendingResearch();
-	}
 
 	ProgressTo( 750 );
 
@@ -2118,17 +2060,9 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 760 );
 
-	if ((archive) && turn_Get()->IsHotSeat())
+	if (selitem_Get())
     {
-	    // Indicate the resuming player when loading a saved hotseat game
-	    turn_Get()->SendNextPlayerMessage();
-    }
-	else if (selitem_Get())
-    {
-        if (!archive)
-        {
-            selitem_Get()->Refresh();
-        }
+        selitem_Get()->Refresh();
 
 		if (director_Get())
 			director_Get()->AddCenterMap(selitem_Get()->GetCurSelectPos());
@@ -2267,7 +2201,7 @@ sint32 InitializeSpriteEditorUI()
 
 
 
-sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
+sint32 CivApp::InitializeSpriteEditor()
 {
 	ProgressWindow::BeginProgress(
 		g_theProgressWindow,
@@ -2322,14 +2256,6 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 	ProgressTo( 720 );
 
-	if (    (archive != nullptr)
-         && (start_info_type_Get() != STARTINFOTYPE_NONE ||
-		     save_file_version_Get() < gamefile_CurrentVersion()
-            )
-       )
-    {
-        SlicEngine::Reload(g_slic_filename);
-	}
 	m_game->GetSlicPtr()->RunTrigger(TRIGGER_LIST_GAME_LOADED, ST_END);
 
 	ProgressTo( 730 );
@@ -2347,7 +2273,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 	ProgressTo( 750 );
 
 	SPLASH_STRING("Initializing Tile Engine...");
-	tile_Initialize(archive != nullptr);
+	tile_Initialize(false);
 
 	ProgressTo( 760 );
 
@@ -2374,41 +2300,15 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 	turn_Get()->BeginNewTurn(FALSE);
 
 	if(!g_network.IsActive()) {
-		if (archive == nullptr ||
-			(save_file_version_Get() >= 42 &&
-
-
-
-
-
-			(is_scenario_Get() && start_info_type_Get() != STARTINFOTYPE_NOLOCS))) {
-
-
-
-
-
-			if(g_scenarioUsePlayerNumber == 0 && !turn_Get()->IsHotSeat() &&
-				!turn_Get()->IsEmail()) {
-				selitem_Get()->SetPlayerOnScreen(1);
-			}
-			if (director_Get())
-				director_Get()->AddCopyVision();
+		if(g_scenarioUsePlayerNumber == 0 && !turn_Get()->IsHotSeat() &&
+			!turn_Get()->IsEmail()) {
+			selitem_Get()->SetPlayerOnScreen(1);
 		}
-    }
+		if (director_Get())
+			director_Get()->AddCopyVision();
+	}
 
 	ProgressTo( 800 );
-
-	if(turn_Get()->IsEmail() && archive != nullptr) {
-		selitem_Get()->KeyboardSelectFirstUnit();
-		if(selitem_Get()->GetState() != SELECT_TYPE_LOCAL_ARMY &&
-		   (player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Num() > 0)) {
-			selitem_Get()->SetSelectCity(player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Access(0));
-			director_Get()->AddCenterMap(player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Access(0).RetPos());
-		}
-		director_Get()->AddCenterMap(selitem_Get()->GetCurSelectPos());
-
-		m_game->GetSlicPtr()->CheckPendingResearch();
-	}
 
 	ProgressTo( 810 );
 
@@ -3459,13 +3359,12 @@ sint32 CivApp::Process()
 
 sint32 CivApp::StartGame()
 {
-	return InitializeGame(nullptr);
+	return InitializeGame();
 }
 
-sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
+sint32 CivApp::InitializeGameHeadless()
 {
-	civapp_log->info("InitializeGameHeadless: started (archive={})",
-	          archive ? "load" : "new");
+	civapp_log->info("InitializeGameHeadless: started");
 
 	civapp_log->debug("calling sprite_Initialize()");
 	sprite_Initialize();
@@ -3479,8 +3378,8 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	civapp_log->debug("calling events_Initialize()");
 	events_Initialize();
 
-	civapp_log->debug("calling gameinit_Initialize(archive={})", (void*)archive);
-	if (!gameinit_Initialize(-1, -1, archive)) {
+	civapp_log->debug("calling gameinit_Initialize");
+	if (!gameinit_Initialize(-1, -1)) {
 		m_game->GetEventsPtr()->Resume();
 		civapp_log->error("InitializeGameHeadless: gameinit_Initialize failed");
 		return FALSE;
@@ -3525,7 +3424,7 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 
 sint32 CivApp::StartSpriteEditor()
 {
-	return InitializeSpriteEditor(nullptr);
+	return InitializeSpriteEditor();
 }
 
 

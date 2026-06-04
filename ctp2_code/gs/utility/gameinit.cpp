@@ -1510,10 +1510,10 @@ sint32 gameinit_GetCivForSlot(sint32 slot)
 }
 
 
-sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
+sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 {
-	gameinit_log->info("gameinit_Initialize: started (archive={}, w={}, h={})",
-	                   archive ? "load" : "new", mWidth, mHeight);
+	gameinit_log->info("gameinit_Initialize: started (w={}, h={})",
+	                   mWidth, mHeight);
 
 	// (Legacy g_debugWindow->SetDebugMask(k_DBG_AI) dropped — modern code
 	// uses DPRINTF(k_DBG_AI, ...) directly with no UI filtering.)
@@ -1631,13 +1631,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			}
 		}
 
-	gameinit_log->debug("step: player_view::Init / InitFromArchive ({})", nPlayers);
-	// Wave F: symmetric with GameFile::SaveGame's player_view::SerializeSelection
-	// call.  When loading a saved game (archive && loadEverything), the
-	// SelectedItem state is reconstructed from the archive bytes; when
-	// starting fresh, a default-initialized SelectedItem is created.
-	// Each save-side write has a matching load-side read so the archive
-	// position stays consistent across the rest of the load path.
+	gameinit_log->debug("step: player_view::Init ({})", nPlayers);
 		player_view::Init(nPlayers);
 
 
@@ -1950,7 +1944,6 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	tradeofferpool_Get()->ReRegisterOffers();
 
-	if (!(archive))
 	{
 		sint32 numPlaced = 0;
 #ifdef _DEBUG
@@ -1975,48 +1968,6 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 				g_player[n] = nullptr;
 			}
 		}
-	}
-    else if (is_scenario_Get() && (start_info_type_Get() != STARTINFOTYPE_NOLOCS))
-    {
-		sint32 landSettler = -1;
-		sint32 seaSettler = -1;
-		sint32 spaceSettler = -1;
-
-		sint32 n = g_theUnitDB->NumRecords();
-		for (i=0; i<n; i++) {
-			if (g_theUnitDB->Get(i)->GetSettleLand() && landSettler < 0) {
-
-				landSettler = i;
-			} else if(g_theUnitDB->Get(i)->GetSettleWater()) {
-				seaSettler = i;
-			} else if(g_theUnitDB->Get(i)->GetSettleSpace()) {
-				spaceSettler = i;
-			}
-		}
-
-		if (landSettler == -1 && seaSettler == -1 && spaceSettler == -1) {
-			c3errors_FatalDialog("gameinit", "Could not find a land settler");
-		}
-
-		for(i = 1; i < k_MAX_PLAYERS; i++) {
-			if(g_player[i]) {
-				MapPoint point = world_Get()->GetStartingPoint(g_player[i]->m_starting_index);
-				sint32 settler;
-				if(world_Get()->IsWater(point) || world_Get()->IsShallowWater(point)) {
-					settler = seaSettler;
-				}
-	else
-	{
-					settler = landSettler;
-				}
-				g_player[i]->CreateUnit(settler, point, Unit(),
-										FALSE, CAUSE_NEW_ARMY_INITIAL);
-			}
-		}
-
-		turn_Get()->CountActivePlayers();
-
-		render_observer::AddCopyVision();
 	}
 
 
@@ -2099,7 +2050,6 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		g_scenarioUsePlayerNumber = 0;
 	}
 
-	if (!(archive) || is_scenario_Get())
 	{
 		if (gameinit_IsHotseatGame() || gameinit_IsEmailGame())
 		{

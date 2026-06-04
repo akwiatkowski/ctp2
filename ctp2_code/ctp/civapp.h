@@ -99,11 +99,10 @@ public:
     sint32		InitializeApp(HINSTANCE hInstance, int iCmdShow);
 	sint32		InitializeEngine();
 	bool		InitializeAppDB();
-	// archive == NULL means new game; non-null means restore from save.
-	// Used directly by headless_main for --new-game; also called from
-	// InitializeGame() when c3ui_Get() is null (i.e. headless save-load).
-	sint32		InitializeGameHeadless(CivArchive *archive = nullptr);
-	sint32		InitializeGame(CivArchive *archive);
+	// Used directly by headless_main; also called from InitializeGame()
+	// when c3ui_Get() is null (i.e. headless save-load).
+	sint32		InitializeGameHeadless();
+	sint32		InitializeGame();
 
    	bool		IsGameLoaded() const
     {
@@ -168,7 +167,7 @@ private:
 	void		CleanupGameUI();
 	void 		InitializeAppUI();
 	sint32  	InitializeGameUI();
-	sint32		InitializeSpriteEditor(CivArchive *archive);
+	sint32		InitializeSpriteEditor();
 	void		PostLoadSaveGameMapAction(MBCHAR const *);
 	sint32      ProcessAI();
 	sint32      ProcessNet(const uint32 target_milliseconds, uint32 &used_milliseconds);

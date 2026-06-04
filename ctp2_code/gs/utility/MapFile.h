@@ -2,8 +2,7 @@
 //
 // Project      : Call To Power 2
 // File type    : C++ header
-// Description  : Map file handling
-// Id           : $Id$
+// Description  : Scenario .MAP file handling
 //
 //----------------------------------------------------------------------------
 //
@@ -16,13 +15,13 @@
 //
 //----------------------------------------------------------------------------
 //
-// Modifications from the original Activision code:
-// - Added comments, updated dependencies, made items private
-//
-//----------------------------------------------------------------------------
-//
 /// \file   gs/utility/MapFile.h
-/// \brief  Map file handling (declarations)
+/// \brief  Scenario .MAP file handling (declarations)
+///
+/// Phase 0.C-5 / MapFile JSON port: the legacy CivArchive-based binary
+/// format is replaced by nlohmann::json.  Scenario .MAP files written
+/// before this change are not loadable.  Single-purpose: the scenario
+/// editor + slicfunc map-load/save triggers.
 
 #ifdef HAVE_PRAGMA_ONCE
 #pragma once
@@ -31,117 +30,56 @@
 #ifndef __MAPFILE_H__
 #define __MAPFILE_H__
 
-//----------------------------------------------------------------------------
-// Library dependencies
-//----------------------------------------------------------------------------
+#include <vector>
 
-#include <cstdio>       // FILE
-#include <cstring>      // strlen
+#include <nlohmann/json.hpp>
 
-//----------------------------------------------------------------------------
-// Export overview
-//----------------------------------------------------------------------------
-
-class MapFile;
-
-//----------------------------------------------------------------------------
-// Project dependencies
-//----------------------------------------------------------------------------
-
-#include "ctp/c3types.h"        // MBCHAR, uintN, sintN
-#include "robot/aibackdoor/civarchive.h"	    // CivArchive
-#include "gs/database/StrDB.h"          // g_theStringDB
-
-template <class T> class CTPDatabase;
-
-//----------------------------------------------------------------------------
-// Class declarations
-//----------------------------------------------------------------------------
+#include "ctp/c3types.h"        // MBCHAR, sintN, uintN
 
 class MapFile
 {
 public:
-	MapFile();
-	~MapFile();
+	MapFile() = default;
+	~MapFile() = default;
 
-	bool Load(const MBCHAR * filename);
-	bool Save(const MBCHAR * filename);
+	bool Load(MBCHAR const * filename);
+	bool Save(MBCHAR const * filename);
 
 private:
-    /// Common part for all information blocks: type and size
-    class Chunk
-    {
-    public:
-	    uint32 m_id;
-	    uint32 m_size;
+	// Type-index remap tables.  The save stores types by DB-name (string);
+	// on load we resolve names back to current DB indices and stash the
+	// per-index mapping here so the later cell/player sections can rewrite
+	// the indices.  Populated by Load{Unit,Improvement,Advance}Types,
+	// consumed by the corresponding ref-section loaders.
+	std::vector<sint32> m_unitTypeMap;
+	std::vector<sint32> m_improvementTypeMap;
+	std::vector<sint32> m_advanceTypeMap;
 
-	    bool Save(FILE * outfile);
-    };
+	// Save helpers — each builds a sub-object into the top-level doc.
+	void SaveTerrain      (nlohmann::json & doc) const;
+	void SaveTerrainEnv   (nlohmann::json & doc) const;
+	void SaveCities       (nlohmann::json & doc) const;
+	void SaveUnits        (nlohmann::json & doc) const;
+	void SaveImprovements (nlohmann::json & doc) const;
+	void SaveVision       (nlohmann::json & doc) const;
+	void SaveAdvances     (nlohmann::json & doc) const;
+	void SaveHuts         (nlohmann::json & doc) const;
+	void SaveCivilizations(nlohmann::json & doc) const;
 
-	Chunk       m_chunk;
-
-	sint32 *    m_unitTypeMap;
-	sint32 *    m_improvementTypeMap;
-	sint32 *    m_advanceTypeMap;
-
-	bool LoadMap(FILE * infile);
-	bool LoadTerrain(uint8 *buf, sint32 size);
-	bool LoadTerrainEnv(uint8 *buf, sint32 size);
-	bool LoadUnits(uint8 *buf, sint32 size);
-	bool LoadUnitTypes(uint8 *buf, sint32 size);
-	bool LoadCities(uint8 *buf, sint32 size);
-	bool LoadOldCities(uint8 *buf, sint32 size);
-	bool LoadImprovements(uint8 *buf, sint32 size);
-	bool LoadImprovementTypes(uint8 *buf, sint32 size);
-	bool LoadVision(uint8 *buf, sint32 size);
-	bool LoadAdvanceNames(uint8 *buf, sint32 size);
-	bool LoadAdvances(uint8 *buf, sint32 size);
-	bool LoadHuts(uint8 *buf, sint32 size);
-	bool LoadCivilizations(uint8 *buf, sint32 size);
-
-	bool SaveMap(FILE * outfile);
-	bool SaveTerrain(FILE *);
-	bool SaveTerrainEnv(FILE *);
-	bool SaveCities(FILE *);
-	bool SaveUnits(FILE *);
-	bool SaveImprovements(FILE *);
-	bool SaveVision(FILE *file);
-	bool SaveAdvances(FILE *file);
-	bool SaveHuts(FILE *file);
-	bool SaveCivilizations(FILE *file);
-
-	template <class T> bool SaveDBNames(FILE *outfile, uint32 chunkId, CTPDatabase<T> *theDB)
-	{
-		CivArchive archive;
-		archive.SetStore();
-		archive.PutSINT32(theDB->NumRecords());
-
-		for (sint32 i = 0; i < theDB->NumRecords(); i++)
-        {
-			const char *idStr;
-			if(theDB->Get(i)->GetName() < 0) {
-				idStr = theDB->Get(i)->GetNameText();
-			} else {
-				idStr = g_theStringDB->GetIdStr(theDB->Get(i)->GetName());
-			}
-			Assert(idStr);
-			if(idStr) {
-				uint16 len = static_cast<uint16>(strlen(idStr));
-				Assert(len > 0);
-				archive << len;
-				archive.Store((uint8*)idStr, len);
-			}
-		}
-
-		m_chunk.m_id = chunkId;
-		m_chunk.m_size = archive.StreamLen();
-
-		return m_chunk.Save(outfile) &&
-               (fwrite(archive.GetStream(), 1, archive.StreamLen(), outfile) ==
-                    archive.StreamLen()
-               );
-	}
-
+	// Load helpers — each consumes a sub-object from the top-level doc.
+	// Type-table loaders must run before any ref-loader that uses the map.
+	bool LoadTerrain      (nlohmann::json const & doc);
+	bool LoadTerrainEnv   (nlohmann::json const & doc);
+	bool LoadUnitTypes    (nlohmann::json const & doc);
+	bool LoadUnits        (nlohmann::json const & doc);
+	bool LoadImprovementTypes(nlohmann::json const & doc);
+	bool LoadImprovements (nlohmann::json const & doc);
+	bool LoadCities       (nlohmann::json const & doc);
+	bool LoadVision       (nlohmann::json const & doc);
+	bool LoadAdvanceTypes (nlohmann::json const & doc);
+	bool LoadAdvances     (nlohmann::json const & doc);
+	bool LoadHuts         (nlohmann::json const & doc);
+	bool LoadCivilizations(nlohmann::json const & doc);
 };
 
 #endif

@@ -2,8 +2,7 @@
 //
 // Project      : Call To Power 2
 // File type    : C++ source
-// Description  : Map file handling
-// Id           : $Id$
+// Description  : Scenario .MAP file handling — JSON format
 //
 //----------------------------------------------------------------------------
 //
@@ -15,1248 +14,701 @@
 // Source Code Project. Contact the authors at ctp2source@apolyton.net.
 //
 //----------------------------------------------------------------------------
-//
-// Compiler flags
-//
-// - None
-//
-//----------------------------------------------------------------------------
-//
-// Modifications from the original Activision code:
-//
-// - Replaced non-standard sizeof(enum) occurrences
-// - Corrected invalid index in LoadAdvances
-// - Repaired memory leaks
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin G�hmann)
-//
-//----------------------------------------------------------------------------
-//
+///
 /// \file   gs/utility/MapFile.cpp
-/// \brief  Map file handling (definitions)
+/// \brief  Scenario .MAP file handling (definitions)
+///
+/// Phase 0.C-5 / MapFile JSON port.  The original binary chunk format
+/// (TERR/TENV/NCTY/UTYP/UNIT/ITYP/IMPS/VISN/ATYP/PADV/HUTS/CIVS) is
+/// replaced with a single nlohmann::json document.  Field semantics are
+/// preserved 1:1 with the old chunks; the encoding changes:
+///   - terrain / terrain_env / vision / huts: dense JSON arrays of ints
+///   - unit_types / improvement_types / advance_types: arrays of
+///     DB name strings; on load we resolve to current DB indices
+///   - cities / units / improvements / advances / civilizations:
+///     arrays of structured per-cell or per-player objects
+///   - improvements/wonders bitmasks (uint64) are written as hex strings
+///     to keep portability with JSON's 53-bit safe integer range
 
 #include "ctp/c3.h"
 #include "gs/utility/MapFile.h"
 
-#include "AdvanceRecord.h"              // g_theAdvanceDB
-#include <algorithm>
+#include <fstream>
+#include <sstream>
 #include <vector>
+
+#include <nlohmann/json.hpp>
+
+#include "AdvanceRecord.h"              // g_theAdvanceDB
+#include "TerrainImprovementRecord.h"   // g_theTerrainImprovementDB
+#include "UnitRecord.h"                 // g_theUnitDB
 #include "gs/outcom/AICause.h"
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gs/newdb/CTPDatabase.h"
-#include "gs/database/dbtypes.h"                    // k_MAX_NAME_LEN
-#include "gs/core/render_observer.h"
-#include "net/io/net_util.h"                   // PULL/PUSH macros
-#include "gs/gameobj/Player.h"                     // player_Get()
-#include "gs/database/profileDB.h"
-#include "TerrainImprovementRecord.h"
+#include "gs/gameobj/Player.h"          // player_Get()
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/UnitData.h"
-#include "UnitRecord.h"
 #include "gs/gameobj/unitutil.h"
 #include "gs/gameobj/Vision.h"
-#include "gs/world/World.h"                      // world_Get()
+#include "gs/world/World.h"
+#include "gs/database/profileDB.h"
+#include "gs/database/dbtypes.h"
+#include "gs/core/render_observer.h"
+#include "gs/newdb/CTPDatabase.h"
+#include "gs/database/StrDB.h"          // g_theStringDB
 
-#define k_TERRAIN_HEADER 'TERR'
-#define k_TERRAIN_ENV_HEADER 'TENV'
-#define k_CITIES_HEADER 'CITY'
-#define k_NEW_CITIES_HEADER 'NCTY'
-#define k_UNIT_TYPES_HEADER 'UTYP'
-#define k_UNITS_HEADER 'UNIT'
-#define k_IMPROVEMENT_TYPES_HEADER 'ITYP'
-#define k_IMPROVEMENTS_HEADER 'IMPS'
-#define k_VISION_HEADER 'VISN'
-#define k_ADVANCE_TYPES_HEADER 'ATYP'
-#define k_PLAYER_ADVANCES_HEADER 'PADV'
-#define k_HUTS_HEADER 'HUTS'
-#define k_CIVS_HEADER 'CIVS'
+extern sint32 g_isCheatModeOn;
+extern void   gameinit_ResetMapSize();
 
-namespace
+namespace {
+
+constexpr char const * kMagic         = "CTP2-MAP";
+constexpr int          kSchemaVersion = 1;
+
+// Serialise a uint64 as a hex string ("0x...") — JSON numbers don't
+// reliably round-trip 64-bit integers through stdlib parsers.
+std::string u64_to_hex(uint64 v)
 {
-size_t const    k_MAPFILE_NAME_LEN  = 32;
-size_t const    k_CIVS_BLOCK_LENGTH =
-    k_MAX_PLAYERS * (sizeof(uint32) + k_MAPFILE_NAME_LEN);
+	std::ostringstream os;
+	os << "0x" << std::hex << v;
+	return os.str();
+}
 
-class MapFileCityData
+uint64 hex_to_u64(std::string const & s)
 {
-public:
-    explicit MapFileCityData(Unit city)
-    :
-        m_size              (city.PopCount()),
-        m_improvements      (city.GetImprovements()),
-        m_wonders           (city.GetData()->GetCityData()->GetBuiltWonders()),
-        m_owner             (static_cast<uint8>(city.GetOwner()))
-    {
-		strncpy(m_name, city.GetName(), k_MAPFILE_NAME_LEN);
-    }
+	return std::stoull(s, nullptr, 0);
+}
 
-	void Serialize(CivArchive &archive)
-    {
-		uint32 len;
-
-		if (archive.IsStoring())
-        {
-			archive << m_size;
-			archive << m_improvements;
-			archive << m_wonders;
-			archive << m_owner;
-
-			len = strlen(m_name) + 1;
-			archive << len;
-			archive.Store((uint8*)m_name, len * sizeof(MBCHAR));
-		}
-        else
-        {
-			archive >> m_size;
-			archive >> m_improvements;
-			archive >> m_wonders;
-			archive >> m_owner;
-
-			archive >> len;
-			archive.Load((uint8*)m_name, len * sizeof(MBCHAR));
-		}
+// DB id-string lookup mirrors the old SaveDBNames helper: prefer the
+// record's GetName() StringDB id; fall back to GetNameText() raw.
+template <class T>
+std::vector<std::string> collect_db_names(CTPDatabase<T> * db)
+{
+	std::vector<std::string> names;
+	names.reserve(db->NumRecords());
+	for (sint32 i = 0; i < db->NumRecords(); ++i)
+	{
+		char const * id;
+		if (db->Get(i)->GetName() < 0)
+			id = db->Get(i)->GetNameText();
+		else
+			id = g_theStringDB->GetIdStr(db->Get(i)->GetName());
+		Assert(id);
+		names.emplace_back(id ? id : "");
 	}
-
-private:
-	sint32  m_size;
-	uint64  m_improvements;
-	uint64  m_wonders;
-	uint8   m_owner;
-	MBCHAR  m_name[k_MAX_NAME_LEN];
-};
+	return names;
+}
 
 } // namespace
 
-bool MapFile::Chunk::Save(FILE * outfile)
+//----------------------------------------------------------------------------
+// Top-level Save / Load
+//----------------------------------------------------------------------------
+
+bool MapFile::Save(MBCHAR const * filename)
 {
-	bool res = true;
-	if (fwrite((uint8*)&m_id, 1, sizeof(m_id), outfile) != sizeof(m_id))
-		res = false;
-	fflush(outfile);
+	std::ofstream out(filename);
+	if (!out) return false;
 
-	if (fwrite((uint8*)&m_size, 1, sizeof(m_size), outfile) != sizeof(m_size))
-		res = false;
-	fflush(outfile);
+	nlohmann::json doc;
+	doc["magic"]          = kMagic;
+	doc["schema_version"] = kSchemaVersion;
 
-	return res;
+	SaveTerrain      (doc);
+	SaveVision       (doc);
+	SaveTerrainEnv   (doc);
+	SaveUnits        (doc);
+	SaveCities       (doc);
+	SaveImprovements (doc);
+	SaveAdvances     (doc);
+	SaveHuts         (doc);
+	SaveCivilizations(doc);
+
+	out << doc.dump(2);
+	return out.good();
 }
 
-MapFile::MapFile()
-:
-    m_chunk                 (),
-    m_unitTypeMap           (nullptr),
-    m_improvementTypeMap    (nullptr),
-    m_advanceTypeMap        (nullptr)
+bool MapFile::Load(MBCHAR const * filename)
 {
-}
+	std::ifstream in(filename);
+	if (!in) return false;
 
-MapFile::~MapFile()
-{
-    delete [] m_unitTypeMap;
-    delete [] m_improvementTypeMap;
-    delete [] m_advanceTypeMap;
-}
-
-bool MapFile::Load(const MBCHAR *filename)
-{
-	FILE *infile = fopen(filename, "rb");
-	if(!infile)
-		return false;
-
-	bool res = LoadMap(infile);
-
-	fclose(infile);
-
-	return res;
-}
-
-bool MapFile::Save(const MBCHAR *filename)
-{
-	FILE *outfile = fopen(filename, "wb");
-	if(!outfile)
-		return false;
-
-	bool res = SaveMap(outfile);
-
-	fclose(outfile);
-
-	return res;
-}
-
-bool MapFile::SaveMap(FILE *outfile)
-{
-	if(!SaveTerrain(outfile)) return false;
-	if(!SaveVision(outfile)) return false;
-	if(!SaveTerrainEnv(outfile)) return false;
-	if(!SaveUnits(outfile)) return false;
-	if(!SaveCities(outfile)) return false;
-	if(!SaveImprovements(outfile)) return false;
-	if(!SaveAdvances(outfile)) return false;
-
-	if(!SaveHuts(outfile)) return false;
-	if (!SaveCivilizations(outfile)) return false;
-
-	return true;
-}
-
-bool MapFile::SaveTerrain(FILE *outfile)
-{
-    Assert(world_Get());
-    size_t const  xSize = world_Get()->GetXWidth();
-    size_t const  ySize = world_Get()->GetYHeight();
-
-    m_chunk.m_size      = (xSize * ySize) + sizeof(uint16) * 2;
-    m_chunk.m_id        = k_TERRAIN_HEADER;
-
-    std::vector<uint8> terrain(xSize * ySize);
-    uint8 * tptr        = terrain.data();
-    for (size_t y = 0; y < ySize; ++y)
-    {
-        for (size_t x = 0; x < xSize; ++x)
-        {
-            *tptr++ = static_cast<uint8>(world_Get()->GetCell(x, y)->GetTerrain());
-        }
-    }
-
-    if (!m_chunk.Save(outfile))
-    {
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
-		return false;
-    }
-
-    uint16 value        = static_cast<uint16>(xSize);
-    if (fwrite(&value, sizeof(value), 1, outfile) != 1)
-    {
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
-		return false;
-    }
-
-    value = static_cast<uint16>(ySize);
-    if (fwrite(&value, sizeof(value), 1, outfile) != 1)
-    {
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
-		return false;
-    }
-
-    if (fwrite(terrain.data(), 1, xSize * ySize, outfile) != xSize * ySize)
-    {
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
-		return false;
-    }
-
-    return true;
-}
-
-bool MapFile::SaveTerrainEnv(FILE *outfile)
-{
-	m_chunk.m_size = ((world_Get()->GetXWidth() * world_Get()->GetYHeight()) * sizeof(uint32)) + sizeof(sint16) * 2;
-	m_chunk.m_id = k_TERRAIN_ENV_HEADER;
-
-	uint32 *env = new uint32[m_chunk.m_size];
-	uint32 *eptr = env;
-	sint16 x;
-	sint16 y;
-	for(y = 0; y < world_Get()->GetYHeight(); y++) {
-		for(x = 0; x < world_Get()->GetXWidth(); x++) {
-			*eptr = world_Get()->GetCell(x, y)->GetEnv();
-			eptr++;
-		}
-	}
-
-    if (!m_chunk.Save(outfile))
-    {
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain env.\n"));
-		delete [] env;
-		return false;
-	}
-
-	x = (sint16)world_Get()->GetXWidth();
-	if(fwrite(&x, sizeof(x), 1, outfile) != 1)
+	nlohmann::json doc;
+	try { in >> doc; }
+	catch (nlohmann::json::exception const & e)
 	{
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain env.\n"));
-		delete [] env;
+		DPRINTF(k_DBG_GAMESTATE,
+		        ("Error loading map: JSON parse failed: %s\n", e.what()));
 		return false;
 	}
 
-	y = (sint16)world_Get()->GetYHeight();
-	if(fwrite(&y, sizeof(y), 1, outfile) != 1)
+	if (!doc.contains("magic") || doc["magic"] != kMagic)
 	{
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain env.\n"));
-		delete [] env;
+		DPRINTF(k_DBG_GAMESTATE, ("Error loading map: bad/missing magic\n"));
 		return false;
 	}
 
-	if(fwrite(env, 1, x * y * sizeof(uint32), outfile) != (uint32)((x * y) * sizeof(uint32)))
-    {
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain env.\n"));
-		delete [] env;
-		return false;
-	}
-
-	delete [] env;
-	return true;
-}
-
-bool MapFile::SaveCities(FILE *outfile)
-{
-	m_chunk.m_id = k_NEW_CITIES_HEADER;
-	CivArchive archive;
-	archive.SetStore();
-	sint32 cityCount = 0;
-
-	sint16 x;
-	sint16 y;
-	for(y = 0; y < world_Get()->GetYHeight(); y++) {
-		for(x = 0; x < world_Get()->GetXWidth(); x++) {
-			Cell *cell = world_Get()->GetCell(x, y);
-			if (cell->HasCity())
-            {
-				archive << x;
-				archive << y;
-				MapFileCityData cd  = MapFileCityData(cell->GetCity());
-				cd.Serialize(archive);
-				cityCount++;
-			}
-		}
-	}
-	if(cityCount < 1) {
-
-		return true;
-	}
-	m_chunk.m_size = archive.StreamLen() + sizeof(cityCount);
-	if(!m_chunk.Save(outfile))
+	try
 	{
-
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving cities.\n"));
-		return false;
+		// Order matches the old SaveMap dispatch + type-table-before-refs
+		// invariant: each *_types section populates a map consumed by its
+		// ref section.
+		if (doc.contains("terrain"))           if (!LoadTerrain        (doc)) return false;
+		if (doc.contains("terrain_env"))       if (!LoadTerrainEnv     (doc)) return false;
+		if (doc.contains("unit_types"))        if (!LoadUnitTypes      (doc)) return false;
+		if (doc.contains("units"))             if (!LoadUnits          (doc)) return false;
+		if (doc.contains("improvement_types")) if (!LoadImprovementTypes(doc)) return false;
+		if (doc.contains("improvements"))      if (!LoadImprovements   (doc)) return false;
+		if (doc.contains("cities"))            if (!LoadCities         (doc)) return false;
+		if (doc.contains("vision"))            if (!LoadVision         (doc)) return false;
+		if (doc.contains("advance_types"))     if (!LoadAdvanceTypes   (doc)) return false;
+		if (doc.contains("advances"))          if (!LoadAdvances       (doc)) return false;
+		if (doc.contains("huts"))              if (!LoadHuts           (doc)) return false;
+		if (doc.contains("civilizations"))     if (!LoadCivilizations  (doc)) return false;
 	}
-
-	if(fwrite(&cityCount, sizeof(cityCount), 1, outfile) != 1)
+	catch (nlohmann::json::exception const & e)
 	{
-
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving cities.\n"));
-		return false;
-	}
-
-	if(fwrite(archive.GetStream(), 1, archive.StreamLen(), outfile) != archive.StreamLen())
-	{
-
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving cities.\n"));
+		DPRINTF(k_DBG_GAMESTATE,
+		        ("Error loading map: deserialisation failed: %s\n", e.what()));
 		return false;
 	}
 
 	return true;
 }
 
-bool MapFile::SaveUnits(FILE *outfile)
+//----------------------------------------------------------------------------
+// Save side
+//----------------------------------------------------------------------------
+
+void MapFile::SaveTerrain(nlohmann::json & doc) const
 {
+	sint32 const w = world_Get()->GetXWidth();
+	sint32 const h = world_Get()->GetYHeight();
 
-	if(!(SaveDBNames(outfile, k_UNIT_TYPES_HEADER, g_theUnitDB)))
-	{
+	nlohmann::json cells = nlohmann::json::array();
+	cells.get_ptr<nlohmann::json::array_t *>()->reserve(static_cast<size_t>(w) * h);
+	for (sint32 y = 0; y < h; ++y)
+		for (sint32 x = 0; x < w; ++x)
+			cells.push_back(static_cast<int>(world_Get()->GetCell(x, y)->GetTerrain()));
 
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving units.\n"));
-		return false;
-	}
-
-	sint32 numCellsWithUnits = 0;
-	CivArchive archive;
-	archive.SetStore();
-
-	for (int y = 0; y < world_Get()->GetYHeight(); y++)
-    {
-		for (int x = 0; x < world_Get()->GetXWidth(); x++)
-        {
-			Cell *cell = world_Get()->GetCell(x, y);
-			CellUnitList *units = cell->UnitArmy();
-			if(units) {
-				archive << static_cast<uint16>(x);
-				archive << static_cast<uint16>(y);
-				archive << static_cast<uint32>(units->Num());
-                for (sint32 i = 0; i < units->Num(); i++) {
-					archive.PutUINT8((uint8)units->Access(i).GetOwner());
-					archive << static_cast<sint32>(units->Access(i).GetType());
-				}
-				numCellsWithUnits++;
-			}
-		}
-	}
-
-	m_chunk.m_id = k_UNITS_HEADER;
-	m_chunk.m_size = archive.StreamLen() + sizeof(numCellsWithUnits);
-	if(!m_chunk.Save(outfile))
-	{
-
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving units.\n"));
-		return false;
-	}
-
-	if(fwrite(&numCellsWithUnits, sizeof(numCellsWithUnits), 1, outfile) != 1)
-	{
-
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving units.\n"));
-		return false;
-	}
-
-	if(fwrite(archive.GetStream(), 1, archive.StreamLen(), outfile) != archive.StreamLen())
-	{
-
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving units.\n"));
-		return false;
-	}
-
-	return true;
+	doc["terrain"] = { {"width", w}, {"height", h}, {"cells", std::move(cells)} };
 }
 
-bool MapFile::SaveImprovements(FILE *outfile)
+void MapFile::SaveTerrainEnv(nlohmann::json & doc) const
 {
+	sint32 const w = world_Get()->GetXWidth();
+	sint32 const h = world_Get()->GetYHeight();
 
-	if(!SaveDBNames(outfile, k_IMPROVEMENT_TYPES_HEADER, g_theTerrainImprovementDB))
-	{
+	nlohmann::json cells = nlohmann::json::array();
+	cells.get_ptr<nlohmann::json::array_t *>()->reserve(static_cast<size_t>(w) * h);
+	for (sint32 y = 0; y < h; ++y)
+		for (sint32 x = 0; x < w; ++x)
+			cells.push_back(world_Get()->GetCell(x, y)->GetEnv());
 
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving improvements.\n"));
-		return false;
-	}
-
-	sint32 numCells = 0;
-	CivArchive archive;
-	archive.SetStore();
-
-	for (int y = 0; y < world_Get()->GetYHeight(); y++)
-    {
-		for (int x = 0; x < world_Get()->GetXWidth(); x++)
-        {
-			Cell *cell = world_Get()->GetCell(x, y);
-			if (cell->GetNumDBImprovements() > 0)
-            {
-				archive << static_cast<uint16>(x);
-				archive << static_cast<uint16>(y);
-				archive.PutUINT8((uint8)cell->GetNumDBImprovements());
-				for (sint32 i = 0; i < cell->GetNumDBImprovements(); i++)
-                {
-					archive << static_cast<sint32>(cell->GetDBImprovement(i));
-				}
-				numCells++;
-			}
-		}
-	}
-
-	m_chunk.m_id = k_IMPROVEMENTS_HEADER;
-	m_chunk.m_size = archive.StreamLen() + sizeof(numCells);
-	if(!m_chunk.Save(outfile))
-	{
-
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving improvements.\n"));
-		return false;
-	}
-
-	if(fwrite(&numCells, sizeof(numCells), 1, outfile) != 1)
-	{
-
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving improvements.\n"));
-		return false;
-	}
-
-	if(fwrite(archive.GetStream(), 1, archive.StreamLen(), outfile) != archive.StreamLen())
-	{
-
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving improvements.\n"));
-		return false;
-	}
-
-	return true;
+	doc["terrain_env"] = { {"width", w}, {"height", h}, {"cells", std::move(cells)} };
 }
 
-bool MapFile::SaveVision(FILE *outfile)
+void MapFile::SaveCities(nlohmann::json & doc) const
 {
-	m_chunk.m_size = (world_Get()->GetXWidth() * world_Get()->GetYHeight() * sizeof(uint16)) + sizeof(sint16) * 2 + sizeof(sint8);
-	m_chunk.m_id = k_VISION_HEADER;
-	for (uint8 p = 0; p < k_MAX_PLAYERS; p++)
-    {
-		if(!player_Get(p)) continue;
-
-		if(!m_chunk.Save(outfile))
+	nlohmann::json arr = nlohmann::json::array();
+	sint32 const w = world_Get()->GetXWidth();
+	sint32 const h = world_Get()->GetYHeight();
+	for (sint32 y = 0; y < h; ++y)
+	{
+		for (sint32 x = 0; x < w; ++x)
 		{
+			Cell * cell = world_Get()->GetCell(x, y);
+			if (!cell->HasCity()) continue;
 
-			DPRINTF(k_DBG_GAMESTATE, ("Error saving vision.\n"));
-			return false;
-		}
-
-		if(fwrite(&p, sizeof(uint8), 1, outfile) != 1)
-		{
-
-			DPRINTF(k_DBG_GAMESTATE, ("Error saving vision.\n"));
-			return false;
-		}
-
-		sint16 w = (sint16)world_Get()->GetXWidth();
-		sint16 h = (sint16)world_Get()->GetYHeight();
-		if(fwrite(&w, sizeof(sint16), 1, outfile) != 1)
-		{
-
-			DPRINTF(k_DBG_GAMESTATE, ("Error saving vision.\n"));
-			return false;
-		}
-
-		if(fwrite(&h, sizeof(sint16), 1, outfile) != 1)
-		{
-
-			DPRINTF(k_DBG_GAMESTATE, ("Error saving vision.\n"));
-			return false;
-		}
-
-		for(int x = 0; x < w; x++)
-        {
-			for(int y = 0; y < h; y++)
-            {
-				if(fwrite(&player_Get(p)->m_vision->m_array[x][y], 1, sizeof(uint16), outfile) != sizeof(uint16))
-				{
-
-					DPRINTF(k_DBG_GAMESTATE, ("Error saving vision.\n"));
-					return false;
-				}
-			}
+			Unit city = cell->GetCity();
+			arr.push_back({
+				{"x",            x},
+				{"y",            y},
+				{"size",         city.PopCount()},
+				{"improvements", u64_to_hex(city.GetImprovements())},
+				{"wonders",      u64_to_hex(city.GetData()->GetCityData()->GetBuiltWonders())},
+				{"owner",        static_cast<int>(city.GetOwner())},
+				{"name",         city.GetName() ? city.GetName() : ""},
+			});
 		}
 	}
-	return true;
+	doc["cities"] = std::move(arr);
 }
 
-bool MapFile::SaveAdvances(FILE *outfile)
+void MapFile::SaveUnits(nlohmann::json & doc) const
 {
-    if (!SaveDBNames(outfile, k_ADVANCE_TYPES_HEADER, g_theAdvanceDB))
-    {
-        DPRINTF(k_DBG_GAMESTATE, ("Error saving advances.\n"));
-        return false;
-    }
+	doc["unit_types"] = collect_db_names(g_theUnitDB);
 
-    m_chunk.m_size = sizeof(uint8) + sizeof(uint16) + g_theAdvanceDB->NumRecords();
-    m_chunk.m_id = k_PLAYER_ADVANCES_HEADER;
+	nlohmann::json cells = nlohmann::json::array();
+	sint32 const w = world_Get()->GetXWidth();
+	sint32 const h = world_Get()->GetYHeight();
+	for (sint32 y = 0; y < h; ++y)
+	{
+		for (sint32 x = 0; x < w; ++x)
+		{
+			CellUnitList * units = world_Get()->GetCell(x, y)->UnitArmy();
+			if (!units) continue;
 
-    uint16 na = static_cast<uint16>(g_theAdvanceDB->NumRecords());
+			nlohmann::json stack = nlohmann::json::array();
+			for (sint32 i = 0; i < units->Num(); ++i)
+			{
+				stack.push_back({
+					{"owner", static_cast<int>(units->Access(i).GetOwner())},
+					{"type",  static_cast<int>(units->Access(i).GetType())},
+				});
+			}
+			cells.push_back({{"x", x}, {"y", y}, {"stack", std::move(stack)}});
+		}
+	}
+	doc["units"] = std::move(cells);
+}
 
-    for (uint8 p = 0; p < k_MAX_PLAYERS; p++)
-    {
+void MapFile::SaveImprovements(nlohmann::json & doc) const
+{
+	doc["improvement_types"] = collect_db_names(g_theTerrainImprovementDB);
+
+	nlohmann::json cells = nlohmann::json::array();
+	sint32 const w = world_Get()->GetXWidth();
+	sint32 const h = world_Get()->GetYHeight();
+	for (sint32 y = 0; y < h; ++y)
+	{
+		for (sint32 x = 0; x < w; ++x)
+		{
+			Cell * cell = world_Get()->GetCell(x, y);
+			if (cell->GetNumDBImprovements() <= 0) continue;
+
+			nlohmann::json types = nlohmann::json::array();
+			for (sint32 i = 0; i < cell->GetNumDBImprovements(); ++i)
+				types.push_back(cell->GetDBImprovement(i));
+
+			cells.push_back({{"x", x}, {"y", y}, {"types", std::move(types)}});
+		}
+	}
+	doc["improvements"] = std::move(cells);
+}
+
+void MapFile::SaveVision(nlohmann::json & doc) const
+{
+	sint32 const w = world_Get()->GetXWidth();
+	sint32 const h = world_Get()->GetYHeight();
+
+	nlohmann::json arr = nlohmann::json::array();
+	for (sint32 p = 0; p < k_MAX_PLAYERS; ++p)
+	{
 		if (!player_Get(p)) continue;
 
-		if (!m_chunk.Save(outfile))
-		{
-			DPRINTF(k_DBG_GAMESTATE, ("Error saving advances.\n"));
-			return false;
-		}
+		nlohmann::json fog = nlohmann::json::array();
+		fog.get_ptr<nlohmann::json::array_t *>()->reserve(static_cast<size_t>(w) * h);
+		for (sint32 x = 0; x < w; ++x)
+			for (sint32 y = 0; y < h; ++y)
+				fog.push_back(player_Get(p)->m_vision->m_array[x][y]);
 
-		if (fwrite(&p, sizeof(uint8), 1, outfile) != 1)
-		{
-			DPRINTF(k_DBG_GAMESTATE, ("Error saving advances.\n"));
-			return false;
-		}
-
-		if (fwrite(&na, sizeof(uint16), 1, outfile) != 1)
-		{
-			DPRINTF(k_DBG_GAMESTATE, ("Error saving advances.\n"));
-			return false;
-		}
-
-            for (sint32 a = 0; a < static_cast<sint32>(na); a++)
-            {
-			uint8 hasAdv = player_Get(p)->HasAdvance(a);
-			if (fwrite(&hasAdv, sizeof(uint8), 1, outfile) != 1)
-			{
-				DPRINTF(k_DBG_GAMESTATE, ("Error saving advances.\n"));
-				return false;
-			}
-		}
+		arr.push_back({
+			{"player", p}, {"width", w}, {"height", h}, {"fog", std::move(fog)},
+		});
 	}
-
-	return true;
+	doc["vision"] = std::move(arr);
 }
 
-
-bool MapFile::SaveHuts(FILE *outfile)
+void MapFile::SaveAdvances(nlohmann::json & doc) const
 {
-	m_chunk.m_size = world_Get()->GetXWidth() * world_Get()->GetYHeight() * sizeof(uint8) + sizeof(sint16) * 2;
-	m_chunk.m_id = k_HUTS_HEADER;
+	doc["advance_types"] = collect_db_names(g_theAdvanceDB);
 
-	std::vector<uint8> terrain(m_chunk.m_size);
-	uint8 *tptr = terrain.data();
-	sint16 x;
-	sint16 y;
-	MapPoint mappoint;
-	uint8 zero = 0;
-	uint8 one = 1;
-	for (y = 0; y < world_Get()->GetYHeight(); y++)
-    {
-		for (x = 0; x < world_Get()->GetXWidth(); x++)
-        {
-			mappoint.Set(x,y);
-            *tptr++ = world_Get()->GetGoodyHut(mappoint) ? one : zero;
-		}
-	}
-
-	if(!m_chunk.Save(outfile)) {
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
-		return false;
-	}
-
-	x = (sint16)world_Get()->GetXWidth();
-	if(fwrite(&x, sizeof(x), 1, outfile) != 1)
+	nlohmann::json arr = nlohmann::json::array();
+	sint32 const numAdv = g_theAdvanceDB->NumRecords();
+	for (sint32 p = 0; p < k_MAX_PLAYERS; ++p)
 	{
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
-		return false;
-	}
+		if (!player_Get(p)) continue;
 
-	y = (sint16)world_Get()->GetYHeight();
-	if(fwrite(&y, sizeof(y), 1, outfile) != 1)
-	{
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
-		return false;
-	}
+		nlohmann::json has = nlohmann::json::array();
+		has.get_ptr<nlohmann::json::array_t *>()->reserve(numAdv);
+		for (sint32 a = 0; a < numAdv; ++a)
+			has.push_back(static_cast<bool>(player_Get(p)->HasAdvance(a)));
 
-	if(fwrite(terrain.data(), 1, x * y, outfile) != (uint32)x * y) {
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
-		return false;
+		arr.push_back({{"player", p}, {"has", std::move(has)}});
 	}
-
-	return true;
+	doc["advances"] = std::move(arr);
 }
 
-bool MapFile::SaveCivilizations(FILE *outfile)
+void MapFile::SaveHuts(nlohmann::json & doc) const
 {
-	m_chunk.m_size = k_CIVS_BLOCK_LENGTH;
-	m_chunk.m_id = k_CIVS_HEADER;
+	sint32 const w = world_Get()->GetXWidth();
+	sint32 const h = world_Get()->GetYHeight();
 
-	std::vector<uint8> civs(m_chunk.m_size);
-	uint8 *ptr = civs.data();
-
-	for (int i = 0; i < k_MAX_PLAYERS; i++)
+	nlohmann::json cells = nlohmann::json::array();
+	cells.get_ptr<nlohmann::json::array_t *>()->reserve(static_cast<size_t>(w) * h);
+	for (sint32 y = 0; y < h; ++y)
 	{
-		uint32 * longPtr = (uint32 *)ptr;
+		for (sint32 x = 0; x < w; ++x)
+		{
+			MapPoint mp(x, y);
+			cells.push_back(static_cast<bool>(world_Get()->GetGoodyHut(mp)));
+		}
+	}
+	doc["huts"] = { {"width", w}, {"height", h}, {"cells", std::move(cells)} };
+}
 
+void MapFile::SaveCivilizations(nlohmann::json & doc) const
+{
+	// Always emit k_MAX_PLAYERS entries to keep slot indices stable;
+	// empty slots get civ=0 and an empty leader string.
+	nlohmann::json arr = nlohmann::json::array();
+	for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+	{
 		if (player_Get(i))
 		{
-			*longPtr = player_Get(i)->m_civilisation->GetCivilisation();
+			arr.push_back({
+				{"civ",    static_cast<uint32>(player_Get(i)->m_civilisation->GetCivilisation())},
+				{"leader", player_Get(i)->GetLeaderName() ? player_Get(i)->GetLeaderName() : ""},
+			});
 		}
 		else
 		{
-
-			*longPtr = 0;
-		}
-		ptr += sizeof(uint32);
-
-		size_t length;
-		if (player_Get(i))
-		{
-			MBCHAR const * pName = player_Get(i)->GetLeaderName();
-			length = strlen(pName);
-			for (size_t j = 0; j < length; j++)
-			{
-				*ptr++ = pName[j];
-			}
-		}
-		else
-		{
-			length = 0;
-		}
-
-
-		for(uint32 j = 0; j < (k_MAPFILE_NAME_LEN - length); j++)
-		{
-			*ptr++ = (uint8)0;
+			arr.push_back({{"civ", 0}, {"leader", ""}});
 		}
 	}
-
-
-	if (!m_chunk.Save(outfile)) {
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving civilizations.\n"));
-		return false;
-	}
-
-	if (fwrite(civs.data(), 1, k_CIVS_BLOCK_LENGTH, outfile) != k_CIVS_BLOCK_LENGTH)
-	{
-		DPRINTF(k_DBG_GAMESTATE, ("Error saving civilizations.\n"));
-		return false;
-	}
-
-	return true;
+	doc["civilizations"] = std::move(arr);
 }
 
+//----------------------------------------------------------------------------
+// Load side
+//----------------------------------------------------------------------------
 
-
-
-
-
-bool MapFile::LoadMap(FILE *infile)
+bool MapFile::LoadTerrain(nlohmann::json const & doc)
 {
-    while (!feof(infile))
-    {
-		uint32 chunkId;
-		sint32 r = fread(&chunkId, 1, sizeof(chunkId), infile);
-		if(r != sizeof(chunkId))
-			return feof(infile) ? true : false;
-
-		sint32 chunkSize;
-		r = fread(&chunkSize, 1, sizeof(chunkSize), infile);
-		if(r != sizeof(chunkSize))
-		{
-			DPRINTF(k_DBG_GAMESTATE, ("Error loading map: can't read chunksize.\n"));
-			return false;
-		}
-
-		if (chunkSize < 0 || chunkSize > 1024*1024*100) {
-			Assert(chunkSize > 0 && chunkSize <= 1024*1024*100);
-			return false;
-		}
-		std::vector<uint8> buf(chunkSize);
-#define LoadMapStop()	{ return false; }
-
-		r = fread(buf.data(), 1, chunkSize, infile);
-		if (r != chunkSize)
-		{
-
-			if (feof(infile))
-			{
-				DPRINTF(k_DBG_GAMESTATE, ("Error loading mapfile. Unexpected end of file found.\n"));
-			}
-			if (ferror(infile))
-			{
-				DPRINTF(k_DBG_GAMESTATE, ("Error loading mapfile. File error occurred.\n"));
-			}
-
- 			LoadMapStop();
-		}
-
-		switch(chunkId) {
-			case k_TERRAIN_HEADER:           if(!LoadTerrain(buf.data(), chunkSize)) LoadMapStop(); break;
-			case k_TERRAIN_ENV_HEADER:       if(!LoadTerrainEnv(buf.data(), chunkSize)) LoadMapStop(); break;
-			case k_UNITS_HEADER:             if(!LoadUnits(buf.data(), chunkSize)) LoadMapStop(); break;
-			case k_UNIT_TYPES_HEADER:        if(!LoadUnitTypes(buf.data(), chunkSize)) LoadMapStop(); break;
-			case k_NEW_CITIES_HEADER:        if(!LoadCities(buf.data(), chunkSize)) LoadMapStop(); break;
-			case k_CITIES_HEADER:            if(!LoadOldCities(buf.data(), chunkSize)) LoadMapStop(); break;
-			case k_IMPROVEMENT_TYPES_HEADER: if(!LoadImprovementTypes(buf.data(), chunkSize)) LoadMapStop(); break;
-			case k_IMPROVEMENTS_HEADER:      if(!LoadImprovements(buf.data(), chunkSize)) LoadMapStop(); break;
-			case k_VISION_HEADER:            if(!LoadVision(buf.data(), chunkSize)) LoadMapStop(); break;
-			case k_ADVANCE_TYPES_HEADER:     if(!LoadAdvanceNames(buf.data(), chunkSize)) LoadMapStop(); break;
-			case k_PLAYER_ADVANCES_HEADER:   if(!LoadAdvances(buf.data(), chunkSize)) LoadMapStop(); break;
-
-			case k_HUTS_HEADER:				 if(!LoadHuts(buf.data(), chunkSize)) LoadMapStop(); break;
-			case k_CIVS_HEADER:		     if(!LoadCivilizations(buf.data(), chunkSize)) LoadMapStop(); break;
-			default:
-				Assert("Unknown chunk type" == nullptr);
-				break;
-		}
-
-#undef LoadMapStop
-	}
-
-	return true;
-}
-
-extern sint32 g_isCheatModeOn;
-extern void gameinit_ResetMapSize();
-
-bool MapFile::LoadTerrain(uint8 *buf, sint32 size)
-{
-	sint32 pos = 0;
-	sint16 x;
-	sint16 y;
-	sint16 w = (sint16)world_Get()->GetXWidth();
-	sint16 h = (sint16)world_Get()->GetYHeight();
-
+	// Wipe the current world of units/cities/improvements so the
+	// freshly-loaded terrain isn't sitting under stale objects.
 	g_isCheatModeOn = TRUE;
-
-	for(y = 0; y < h; y++) {
-		for(x = 0; x < w; x++) {
-			Cell *cell = world_Get()->GetCell(x,y);
-			while(cell->GetNumUnits() > 0) {
-				cell->AccessUnit(0).Kill(CAUSE_REMOVE_ARMY_UNKNOWN, -1);
-			}
-
-			if(cell->GetCity().m_id != 0) {
-				cell->GetCity().Kill(CAUSE_REMOVE_ARMY_UNKNOWN, -1);
-			}
-
-			while(cell->GetNumImprovements() > 0) {
-				cell->AccessImprovement(0).Kill();
-			}
-
-			while(cell->GetNumDBImprovements() > 0) {
-				cell->RemoveDBImprovement(cell->GetDBImprovement(0));
+	{
+		sint32 const w0 = world_Get()->GetXWidth();
+		sint32 const h0 = world_Get()->GetYHeight();
+		for (sint32 y = 0; y < h0; ++y)
+		{
+			for (sint32 x = 0; x < w0; ++x)
+			{
+				Cell * cell = world_Get()->GetCell(x, y);
+				while (cell->GetNumUnits() > 0)
+					cell->AccessUnit(0).Kill(CAUSE_REMOVE_ARMY_UNKNOWN, -1);
+				if (cell->GetCity().m_id != 0)
+					cell->GetCity().Kill(CAUSE_REMOVE_ARMY_UNKNOWN, -1);
+				while (cell->GetNumImprovements() > 0)
+					cell->AccessImprovement(0).Kill();
+				while (cell->GetNumDBImprovements() > 0)
+					cell->RemoveDBImprovement(cell->GetDBImprovement(0));
 			}
 		}
 	}
-
-	sint32 i;
-	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(player_Get(i)) {
+	for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+		if (player_Get(i))
 			player_Get(i)->m_vision->SetTheWholeWorldUnexplored();
-		}
 
-	}
 	render_observer::AddCopyVision();
 	render_observer::CatchUp();
-
 	g_isCheatModeOn = FALSE;
 
-	PULLSHORT(w);
-	PULLSHORT(h);
+	auto const & sec = doc.at("terrain");
+	sint32 const w   = sec.at("width").get<sint32>();
+	sint32 const h   = sec.at("height").get<sint32>();
+	auto const & cells = sec.at("cells");
 
-	bool yWrapOk = (h % w == 0);
+	bool const yWrapOk = (h % w == 0);
+	world_Get()->Reset(w, h,
+	                   yWrapOk ? profiledb_Get()->IsYWrap() : FALSE,
+	                   profiledb_Get()->IsXWrap());
 
-	world_Get()->Reset(w, h, yWrapOk ? profiledb_Get()->IsYWrap() : FALSE, profiledb_Get()->IsXWrap());
-
-	if(size != (sint32)((w * h) + (sizeof(sint16) * 2)))
+	if (static_cast<sint32>(cells.size()) != w * h)
 	{
-
-		DPRINTF(k_DBG_GAMESTATE, ("Error loading terrain.\n"));
+		DPRINTF(k_DBG_GAMESTATE, ("Error loading terrain: cell count mismatch\n"));
 		return false;
 	}
 
-	for(y = 0; y < h; y++) {
-		for(x = 0; x < w; x++) {
-			uint8 terr;
-			PULLBYTE(terr);
-			world_Get()->GetCell(x, y)->SetTerrain((sint32)terr);
-		}
-	}
+	sint32 idx = 0;
+	for (sint32 y = 0; y < h; ++y)
+		for (sint32 x = 0; x < w; ++x)
+			world_Get()->GetCell(x, y)->SetTerrain(cells[idx++].get<sint32>());
 
 	gameinit_ResetMapSize();
 	return true;
 }
 
-bool MapFile::LoadTerrainEnv(uint8 *buf, sint32 size)
+bool MapFile::LoadTerrainEnv(nlohmann::json const & doc)
 {
-	sint32 pos = 0;
-	sint16 w;
-	sint16 h;
-	PULLSHORT(w);
-	PULLSHORT(h);
+	auto const & sec = doc.at("terrain_env");
+	sint32 const w   = sec.at("width").get<sint32>();
+	sint32 const h   = sec.at("height").get<sint32>();
+	auto const & cells = sec.at("cells");
 
-
-	if(size != (sint32)((w * h * sizeof(uint32)) + (sizeof(sint16) * 2)))
+	if (static_cast<sint32>(cells.size()) != w * h)
 	{
-
-		DPRINTF(k_DBG_GAMESTATE, ("Error loading terrain env.\n"));
+		DPRINTF(k_DBG_GAMESTATE, ("Error loading terrain_env: cell count mismatch\n"));
 		return false;
 	}
 
-	sint16 x;
-	sint16 y;
-	for(y = 0; y < h; y++) {
-		for(x = 0; x < w; x++) {
-			uint32 env;
-			PULLLONG(env);
+	sint32 idx = 0;
+	for (sint32 y = 0; y < h; ++y)
+	{
+		for (sint32 x = 0; x < w; ++x)
+		{
+			uint32 env = cells[idx++].get<uint32>();
 			env &= ~(k_MASK_ENV_CITY | k_MASK_ENV_CITY_RADIUS);
 			world_Get()->GetCell(x, y)->SetEnv(env);
 		}
 	}
 
-	for(y = 0; y < h; y++) {
-		for(x = 0; x < w; x++) {
+	for (sint32 y = 0; y < h; ++y)
+	{
+		for (sint32 x = 0; x < w; ++x)
+		{
 			world_Get()->GetCell(x, y)->CalcMovementType();
 			world_Get()->GetCell(x, y)->CalcTerrainMoveCost();
 		}
 	}
-
 	world_Get()->NumberContinents();
 	return true;
 }
 
-bool MapFile::LoadUnits(uint8 *buf, sint32 size)
+bool MapFile::LoadUnitTypes(nlohmann::json const & doc)
 {
-	sint32 numCellsWithUnits;
-	sint32 pos = 0;
+	auto const & names = doc.at("unit_types");
+	m_unitTypeMap.assign(names.size(), CTPRecord::INDEX_INVALID);
 
-	PULLLONG(numCellsWithUnits);
-	sint32 i;
-	sint32 j;
-	for(i = 0; i < numCellsWithUnits; i++) {
-		sint16 x;
-		sint16 y;
-		sint32 numUnits;
-		PULLSHORT(x);
-		PULLSHORT(y);
-		PULLLONG(numUnits);
-		for(j = 0; j < numUnits; j++) {
-			uint8 owner;
-			sint32 type;
-			PULLBYTE(owner);
-			PULLLONG(type);
-			if(!player_Get(owner)) {
-				DPRINTF(k_DBG_GAMESTATE, ("WARNING: Player %d does not exist, can't create unit"));
-			} else {
-				if(m_unitTypeMap[type] >= 0) {
-					MapPoint pos(x,y);
-					player_Get(owner)->CreateUnit(m_unitTypeMap[type], pos, Unit(), FALSE, CAUSE_NEW_ARMY_CHEAT);
-				}
-			}
-		}
-	}
-
-	return true;
-}
-
-bool MapFile::LoadUnitTypes(uint8 *buf, sint32 size)
-{
-    sint32 pos = 0;
-
-    sint32 numTypes;
-    PULLLONG(numTypes);
-    delete [] m_unitTypeMap;
-    m_unitTypeMap = new sint32[numTypes];
-    std::fill(m_unitTypeMap, m_unitTypeMap + numTypes, CTPRecord::INDEX_INVALID);
-
-    char dbName[k_MAX_NAME_LEN];
-    for (sint32 i = 0; i < numTypes; i++)
-    {
-        PULLSTRING(dbName);
-        sint32 strId;
-        if (!g_theStringDB->GetStringID(dbName, strId))
-        {
-            DPRINTF(k_DBG_GAMESTATE, ("WARNING: Unit %s does not exist in string DB\n", dbName));
-        }
-        else if (!g_theUnitDB->GetNamedItem(strId, m_unitTypeMap[i]))
-        {
-            DPRINTF(k_DBG_GAMESTATE, ("WARNING: Unit %s does not exist\n", dbName));
-        }
-    }
-
-    return true;
-}
-
-bool MapFile::LoadCities(uint8 *buf, sint32 size)
-{
-	sint32 pos = 0;
-	sint32 numCities;
-	PULLLONG(numCities);
-	sint32 i;
-	for(i = 0; i < numCities; i++) {
-		sint16 x;
-		sint16 y;
-		sint32 citySize;
-		uint64 improvements;
-		uint64 wonders;
-		sint32 citytype;
-		uint8 owner;
-
-		PULLSHORT(x);
-		PULLSHORT(y);
-		PULLLONG(citySize);
-		PULLLONG64(improvements);
-		PULLLONG64(wonders);
-		PULLBYTE(owner);
-
-		sint32 len;
-		MBCHAR name[k_MAPFILE_NAME_LEN + 1];
-		PULLLONG(len);
-		for (int j = 0; j < len; j++)
+	for (size_t i = 0; i < names.size(); ++i)
+	{
+		std::string const & name = names[i].get_ref<std::string const &>();
+		sint32 strId;
+		if (!g_theStringDB->GetStringID(name.c_str(), strId))
 		{
-			PULLBYTE(name[j]);
+			DPRINTF(k_DBG_GAMESTATE,
+			        ("WARNING: Unit %s missing from string DB\n", name.c_str()));
 		}
-
-		if(world_Get()->IsLand(x, y)) {
-			citytype = unitutil_GetLandCity();
-		} else {
-			citytype = unitutil_GetSeaCity();
+		else if (!g_theUnitDB->GetNamedItem(strId, m_unitTypeMap[i]))
+		{
+			DPRINTF(k_DBG_GAMESTATE,
+			        ("WARNING: Unit %s missing from Unit DB\n", name.c_str()));
 		}
-
-		if(!player_Get(owner))
-			continue;
-
-		MapPoint pos(x,y);
-		Unit city = player_Get(owner)->CreateCity(citytype, pos, CAUSE_NEW_CITY_CHEAT, nullptr, -1);
-		city.CD()->ChangePopulation(citySize - city.CD()->PopCount());
-		city.CD()->SetImprovements(improvements);
-		city.CD()->SetWonders(wonders);
-
-		city.CD()->SetName(name);
-
-		player_Get(owner)->m_builtWonders |= wonders;
-
 	}
-
 	return true;
 }
 
-bool MapFile::LoadOldCities(uint8 *buf, sint32 size)
+bool MapFile::LoadUnits(nlohmann::json const & doc)
 {
-	sint32 x;
-	sint32 y;
-	for(x = 0; x < world_Get()->GetXWidth(); x++) {
-		for(y = 0; y < world_Get()->GetYHeight(); y++) {
-			Cell *cell = world_Get()->GetCell(x, y);
-			cell->SetEnv(cell->GetEnv() & ~(k_MASK_ENV_CITY | k_MASK_ENV_CITY_RADIUS));
-		}
-	}
-
-	sint32 pos = 0;
-	sint32 numCities;
-	PULLLONG(numCities);
-	sint32 i;
-	for(i = 0; i < numCities; i++) {
-		sint16 x;
-		sint16 y;
-		sint32 citySize;
-		uint64 improvements;
-		uint64 wonders;
-		sint32 citytype;
-		uint8 owner;
-
-		PULLSHORT(x);
-		PULLSHORT(y);
-		PULLLONG(citySize);
-		PULLLONG64(improvements);
-		PULLLONG64(wonders);
-		PULLBYTE(owner);
-
-		if(world_Get()->IsLand(x, y)) {
-			citytype = unitutil_GetLandCity();
-		} else {
-			citytype = unitutil_GetSeaCity();
-		}
-
-		if(!player_Get(owner))
-			continue;
-
-		MapPoint pos(x,y);
-		Unit city = player_Get(owner)->CreateCity(citytype, pos, CAUSE_NEW_CITY_CHEAT, nullptr, -1);
-		Assert(city.IsValid());
-		if(city.IsValid()) {
-			city.CD()->ChangePopulation(citySize - city.CD()->PopCount());
-			city.CD()->SetImprovements(improvements);
-			city.CD()->SetWonders(wonders);
-		}
-
-		player_Get(owner)->m_builtWonders |= wonders;
-
-	}
-
-	return true;
-}
-
-bool MapFile::LoadImprovements(uint8 *buf, sint32 size)
-{
-	sint32 numCells;
-	sint32 pos = 0;
-	PULLLONG(numCells);
-
-	sint32 i;
-	for(i = 0; i < numCells; i++) {
-		sint16 x;
-		sint16 y;
-		uint8 numImprovements;
-		PULLSHORT(x);
-		PULLSHORT(y);
-		PULLBYTE(numImprovements);
-
-		uint8 j;
-		for(j = 0; j < numImprovements; j++) {
-			sint32 type;
-			PULLLONG(type);
-			if(m_improvementTypeMap[type] < 0)
+	for (auto const & cell : doc.at("units"))
+	{
+		sint32 const x = cell.at("x").get<sint32>();
+		sint32 const y = cell.at("y").get<sint32>();
+		for (auto const & u : cell.at("stack"))
+		{
+			sint32 const owner = u.at("owner").get<sint32>();
+			sint32 const type  = u.at("type").get<sint32>();
+			if (!player_Get(owner))
+			{
+				DPRINTF(k_DBG_GAMESTATE,
+				        ("WARNING: Player %d does not exist, can't create unit\n", owner));
 				continue;
+			}
+			if (type < 0 || static_cast<size_t>(type) >= m_unitTypeMap.size()) continue;
+			if (m_unitTypeMap[type] < 0) continue;
+			MapPoint pos(x, y);
+			player_Get(owner)->CreateUnit(m_unitTypeMap[type], pos, Unit(),
+			                              FALSE, CAUSE_NEW_ARMY_CHEAT);
+		}
+	}
+	return true;
+}
 
+bool MapFile::LoadImprovementTypes(nlohmann::json const & doc)
+{
+	auto const & names = doc.at("improvement_types");
+	m_improvementTypeMap.assign(names.size(), CTPRecord::INDEX_INVALID);
+
+	for (size_t i = 0; i < names.size(); ++i)
+	{
+		std::string const & name = names[i].get_ref<std::string const &>();
+		if (!g_theTerrainImprovementDB->GetNamedItem(name.c_str(),
+		                                             m_improvementTypeMap[i]))
+		{
+			DPRINTF(k_DBG_GAMESTATE,
+			        ("WARNING: Improvement %s missing from DB\n", name.c_str()));
+		}
+	}
+	return true;
+}
+
+bool MapFile::LoadImprovements(nlohmann::json const & doc)
+{
+	for (auto const & cell : doc.at("improvements"))
+	{
+		sint32 const x = cell.at("x").get<sint32>();
+		sint32 const y = cell.at("y").get<sint32>();
+		for (auto const & t : cell.at("types"))
+		{
+			sint32 const type = t.get<sint32>();
+			if (type < 0 || static_cast<size_t>(type) >= m_improvementTypeMap.size())
+				continue;
+			if (m_improvementTypeMap[type] < 0) continue;
 			world_Get()->GetCell(x, y)->InsertDBImprovement(m_improvementTypeMap[type]);
 		}
 	}
-
 	return true;
 }
 
-bool MapFile::LoadImprovementTypes(uint8 *buf, sint32 size)
+bool MapFile::LoadCities(nlohmann::json const & doc)
 {
-    sint32 pos = 0;
+	for (auto const & c : doc.at("cities"))
+	{
+		sint32 const x        = c.at("x").get<sint32>();
+		sint32 const y        = c.at("y").get<sint32>();
+		sint32 const citySize = c.at("size").get<sint32>();
+		uint64 const improvements = hex_to_u64(
+		    c.at("improvements").get_ref<std::string const &>());
+		uint64 const wonders      = hex_to_u64(
+		    c.at("wonders").get_ref<std::string const &>());
+		sint32 const owner    = c.at("owner").get<sint32>();
+		std::string const & name = c.at("name").get_ref<std::string const &>();
 
-    sint32 numTypes;
-    PULLLONG(numTypes);
-    delete [] m_improvementTypeMap;
-    m_improvementTypeMap = new sint32[numTypes];
-    std::fill(m_improvementTypeMap, m_improvementTypeMap + numTypes, CTPRecord::INDEX_INVALID);
+		if (!player_Get(owner)) continue;
 
-    char dbName[k_MAX_NAME_LEN];
-    for (sint32 i = 0; i < numTypes; i++)
-    {
-        PULLSTRING(dbName);
-        if(!g_theTerrainImprovementDB->GetNamedItem(dbName, m_improvementTypeMap[i]))
-        {
-            DPRINTF(k_DBG_GAMESTATE, ("WARNING: Improvement %s does not exist\n", dbName));
-        }
-    }
-
-    return true;
+		sint32 const cityType = world_Get()->IsLand(x, y)
+		                         ? unitutil_GetLandCity()
+		                         : unitutil_GetSeaCity();
+		MapPoint pos(x, y);
+		Unit city = player_Get(owner)->CreateCity(cityType, pos,
+		                                          CAUSE_NEW_CITY_CHEAT, nullptr, -1);
+		if (!city.IsValid()) continue;
+		city.CD()->ChangePopulation(citySize - city.CD()->PopCount());
+		city.CD()->SetImprovements(improvements);
+		city.CD()->SetWonders(wonders);
+		if (!name.empty())
+			city.CD()->SetName(name.c_str());
+		player_Get(owner)->m_builtWonders |= wonders;
+	}
+	return true;
 }
 
-bool MapFile::LoadVision(uint8 *buf, sint32 size)
+bool MapFile::LoadVision(nlohmann::json const & doc)
 {
-	uint8 p;
-	sint16 w;
-	sint16 h;
-	sint32 pos = 0;
+	for (auto const & entry : doc.at("vision"))
+	{
+		sint32 const p = entry.at("player").get<sint32>();
+		sint32 const w = entry.at("width").get<sint32>();
+		sint32 const h = entry.at("height").get<sint32>();
+		Assert(w == world_Get()->GetXWidth());
+		Assert(h == world_Get()->GetYHeight());
 
-	PULLBYTE(p);
-	PULLSHORT(w);
-	PULLSHORT(h);
-	Assert(w == world_Get()->GetXWidth());
-	Assert(h == world_Get()->GetYHeight());
+		if (!player_Get(p)) continue;
 
-	if(!player_Get(p))
-		return true;
-
-	sint32 x;
-	sint32 y;
-	for(x = 0; x < w; x++) {
-		for(y = 0; y < h; y++) {
-			PULLSHORT(player_Get(p)->m_vision->m_array[x][y]);
-			player_Get(p)->m_vision->m_array[x][y] &= 0x8000;
+		auto const & fog = entry.at("fog");
+		if (static_cast<sint32>(fog.size()) != w * h)
+		{
+			DPRINTF(k_DBG_GAMESTATE,
+			        ("Error loading vision: fog cell count mismatch\n"));
+			return false;
 		}
+
+		sint32 idx = 0;
+		for (sint32 x = 0; x < w; ++x)
+			for (sint32 y = 0; y < h; ++y)
+			{
+				player_Get(p)->m_vision->m_array[x][y] =
+				    static_cast<uint16>(fog[idx++].get<uint32>() & 0x8000);
+			}
 	}
 
 	render_observer::AddCopyVision();
 	render_observer::CatchUp();
-
 	return true;
 }
 
-bool MapFile::LoadAdvanceNames(uint8 *buf, sint32 size)
+bool MapFile::LoadAdvanceTypes(nlohmann::json const & doc)
 {
-    sint32 pos = 0; // Used in PULL macros
+	auto const & names = doc.at("advance_types");
+	m_advanceTypeMap.assign(names.size(), CTPRecord::INDEX_INVALID);
 
-    sint32 numTypes;
-    PULLLONG(numTypes);
-
-    delete [] m_advanceTypeMap;
-    m_advanceTypeMap = new sint32[numTypes];
-    std::fill(m_advanceTypeMap, m_advanceTypeMap + numTypes, CTPRecord::INDEX_INVALID);
-
-    char dbName[k_MAX_NAME_LEN];
-    for (sint32 i = 0; i < numTypes; i++)
-    {
-        PULLSTRING(dbName);
-
-        sint32 strId;
-        if (!g_theStringDB->GetStringID(dbName, strId))
-        {
-            DPRINTF(k_DBG_GAMESTATE, ("WARNING: Advance %s does not exist in string db\n", dbName));
-        }
-        else if (!g_theAdvanceDB->GetNamedItem(strId, m_advanceTypeMap[i]))
-        {
-            DPRINTF(k_DBG_GAMESTATE, ("WARNING: Advance %s does not exist\n", dbName));
-        }
-    }
-
-    return true;
-}
-
-/// Load advances of a single player
-/// @param buf Input stream from file
-/// @param a_Size Size of input stream
-bool MapFile::LoadAdvances(uint8 * buf, sint32 a_Size)
-{
-    sint32 pos = 0; // Used in PULL macros
-
-    uint8 p;
-    PULLBYTE(p);
-
-    Assert(player_Get(p));
-    if (!player_Get(p))
-        return true;
-
-    Assert(!player_Get(p)->m_disableChooseResearch);
-    player_Get(p)->m_disableChooseResearch = TRUE;
-
-    uint16 na;
-    PULLSHORT(na);
-    for (size_t i = 0; i < na; ++i)
-    {
-        uint8 hasAdv;
-        PULLBYTE(hasAdv);
-        if (hasAdv && (m_advanceTypeMap[i] >= 0))
-        {
-            player_Get(p)->m_advances->SetHasAdvance(m_advanceTypeMap[i]);
-        }
-    }
-
-    player_Get(p)->m_disableChooseResearch = FALSE;
-
-    Assert(pos <= a_Size);
-    return true;
-}
-
-bool MapFile::LoadHuts(uint8 *buf, sint32 size)
-{
-
-	sint32 pos = 0;
-	sint16 w;
-	sint16 h;
-	PULLSHORT(w);
-	PULLSHORT(h);
-
-	if(size != (sint32)((w * h * sizeof(uint8)) + 2 * sizeof(sint16)))
+	for (size_t i = 0; i < names.size(); ++i)
 	{
+		std::string const & name = names[i].get_ref<std::string const &>();
+		sint32 strId;
+		if (!g_theStringDB->GetStringID(name.c_str(), strId))
+		{
+			DPRINTF(k_DBG_GAMESTATE,
+			        ("WARNING: Advance %s missing from string DB\n", name.c_str()));
+		}
+		else if (!g_theAdvanceDB->GetNamedItem(strId, m_advanceTypeMap[i]))
+		{
+			DPRINTF(k_DBG_GAMESTATE,
+			        ("WARNING: Advance %s missing from Advance DB\n", name.c_str()));
+		}
+	}
+	return true;
+}
 
-		DPRINTF(k_DBG_GAMESTATE, ("Error loading huts.\n"));
+bool MapFile::LoadAdvances(nlohmann::json const & doc)
+{
+	for (auto const & entry : doc.at("advances"))
+	{
+		sint32 const p = entry.at("player").get<sint32>();
+		if (!player_Get(p)) continue;
+
+		Assert(!player_Get(p)->m_disableChooseResearch);
+		player_Get(p)->m_disableChooseResearch = TRUE;
+
+		auto const & has = entry.at("has");
+		for (size_t i = 0; i < has.size(); ++i)
+		{
+			if (i >= m_advanceTypeMap.size()) break;
+			if (!has[i].get<bool>()) continue;
+			if (m_advanceTypeMap[i] < 0) continue;
+			player_Get(p)->m_advances->SetHasAdvance(m_advanceTypeMap[i]);
+		}
+		player_Get(p)->m_disableChooseResearch = FALSE;
+	}
+	return true;
+}
+
+bool MapFile::LoadHuts(nlohmann::json const & doc)
+{
+	auto const & sec = doc.at("huts");
+	sint32 const w   = sec.at("width").get<sint32>();
+	sint32 const h   = sec.at("height").get<sint32>();
+	auto const & cells = sec.at("cells");
+
+	if (static_cast<sint32>(cells.size()) != w * h)
+	{
+		DPRINTF(k_DBG_GAMESTATE, ("Error loading huts: cell count mismatch\n"));
 		return false;
 	}
 
-	sint16 x;
-	sint16 y;
-	for(y = 0; y < h; y++) {
-		for(x = 0; x < w; x++) {
-			uint8 isHut;
-			PULLBYTE(isHut);
-			if (isHut)
-			{
+	sint32 idx = 0;
+	for (sint32 y = 0; y < h; ++y)
+		for (sint32 x = 0; x < w; ++x)
+			if (cells[idx++].get<bool>())
 				world_Get()->GetCell(x, y)->CreateGoodyHut();
-			}
-		}
-	}
 	return true;
 }
 
-bool MapFile::LoadCivilizations(uint8 *buf, sint32 size)
+bool MapFile::LoadCivilizations(nlohmann::json const & doc)
 {
-	sint32 pos = 0;
-	uint32 currNation;
+	auto const & arr = doc.at("civilizations");
+	sint32 const n = std::min<sint32>(arr.size(), k_MAX_PLAYERS);
 
-	if (size != k_CIVS_BLOCK_LENGTH)
+	for (sint32 i = 0; i < n; ++i)
 	{
+		auto const & entry = arr[i];
+		uint32 const currNation =
+		    entry.value("civ", static_cast<uint32>(0));
+		std::string const leader = entry.value("leader", std::string{});
 
-		DPRINTF(k_DBG_GAMESTATE, ("Error loading civilizations.\n"));
-		return false;
-	}
+		if (!player_Get(i)) continue;
 
-	for (int i = 0; i < k_MAX_PLAYERS; i++)
-	{
-
-		PULLLONG(currNation);
-		if (player_Get(i))
+		player_Get(i)->m_civilisation->ResetCiv(
+		    currNation, player_Get(i)->m_civilisation->GetGender());
+		if (!leader.empty())
 		{
-			player_Get(i)->m_civilisation->ResetCiv(currNation, player_Get(i)->m_civilisation->GetGender());
-			MBCHAR name[k_MAPFILE_NAME_LEN];
-			for (char & j : name)
-			{
-				PULLBYTE(j);
-			}
-
-
-			if (name[0])
-			{
-				player_Get(i)->m_civilisation->AccessData()->SetLeaderName(name);
-
-				if(i == profiledb_Get()->GetPlayerIndex()) {
-					profiledb_Get()->SetLeaderName(name);
-				}
-			}
-
-		}
-		else
-		{
-			for (int j = 0; j < k_MAPFILE_NAME_LEN + 4; j++)
-			{
-				uint8 foo;
-				PULLBYTE(foo);
-			}
+			player_Get(i)->m_civilisation->AccessData()->SetLeaderName(leader.c_str());
+			if (i == profiledb_Get()->GetPlayerIndex())
+				profiledb_Get()->SetLeaderName(leader.c_str());
 		}
 	}
-
 	return true;
 }

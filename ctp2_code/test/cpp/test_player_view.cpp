@@ -90,8 +90,8 @@ constexpr std::size_t AI_SOUND_HEADER_BASELINE = 0;
 // Phase 0.C-5: removed ~80 dead `#include "robot/aibackdoor/civarchive.h"`
 // lines + dead Load/Save(CivArchive&) decls in ai/ headers.  Counts
 // dropped: gs .cpp 118->39, gs .h 25->11, ai .cpp 13->10, ai .h 7->3.
-constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 38;
-constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 11;
+constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 37;
+constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 10;
 
 // ai/ files include robot/ headers for pathing and backdoor access.
 // Ratcheting locks the current counts so future work can only reduce them.
@@ -102,7 +102,7 @@ constexpr std::size_t AI_ROBOT_HEADER_BASELINE = 3;
 // gs/ historically depends on net/ for multiplayer and network file I/O.
 // Ratcheting locks the current count so future decoupling work can only
 // reduce it.
-constexpr std::size_t NET_INCLUDES_GS_CPP_BASELINE = 134;
+constexpr std::size_t NET_INCLUDES_GS_CPP_BASELINE = 133;
 
 // Ratchet baselines — total `#include "net/..."` lines in ai/ .cpp files.
 // ai/ includes net/ headers for multiplayer backdoor and message types.

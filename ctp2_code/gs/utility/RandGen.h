@@ -6,8 +6,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
-
 #define k_RAND_MBIG 1000000000
 #define k_RAND_MSEED 161803398
 #define k_RAND_MZ 0
@@ -41,7 +39,6 @@ class RandomGenerator
 
 public:
     RandomGenerator(sint32 seed);
-    RandomGenerator(CivArchive &archive);
 	RandomGenerator(RandomGenerator &copyme);
     void Initialize(sint32 seed);
 
@@ -73,7 +70,6 @@ public:
     }
 
     sint32 GetSeed() const { return m_start_seed; }
-    void Serialize (CivArchive &archive);
 };
 
 // (g_rand extern declared at the top of this header, before the class def.)

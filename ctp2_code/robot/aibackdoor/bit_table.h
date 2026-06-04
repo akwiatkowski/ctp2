@@ -42,6 +42,9 @@
 
 #include <algorithm>    // std::copy, std::fill_n
 
+#include "os/include/ctp2_inttypes.h"   // sint32
+#include "os/nowin32/windows.h"         // BOOL
+
 //----------------------------------------------------------------------------
 // Export overview
 //----------------------------------------------------------------------------
@@ -51,8 +54,6 @@ class Bit_Table;
 //----------------------------------------------------------------------------
 // Project dependencies
 //----------------------------------------------------------------------------
-
-#include "robot/aibackdoor/civarchive.h" // CivArchive
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -89,16 +90,6 @@ public:
 			m_data = new sint32[m_total_len];
 			std::copy(rhs.m_data, rhs.m_data + static_cast<size_t>(m_total_len), m_data);
 		}
-	};
-
-	Bit_Table(CivArchive &archive)
-	:   y_col_len   (0),
-	    m_total_len (0),
-	    max_x       (0),
-	    max_y       (0),
-	    m_data      (nullptr)
-	{
-		Serialize(archive);
 	};
 
 	~Bit_Table()
@@ -138,40 +129,6 @@ public:
 		if (m_total_len > 0)
 		{
 			std::fill_n(m_data, m_total_len, (start_val) ? 0xffff : 0);
-		}
-	}
-
-	void Serialize (CivArchive &archive)
-	{
-		if (archive.IsStoring())
-		{
-			archive << y_col_len;
-			archive << m_total_len;
-			archive << max_x;
-			archive << max_y;
-
-			if (m_total_len > 0)
-			{
-				archive.Store((uint8*)m_data, m_total_len *sizeof(sint32));
-			}
-		}
-		else
-		{
-			archive >> y_col_len;
-			archive >> m_total_len;
-			archive >> max_x;
-			archive >> max_y;
-
-			delete [] m_data;
-			if (m_total_len > 0)
-			{
-				m_data = new sint32[m_total_len];
-				archive.Load((uint8*)m_data, m_total_len * sizeof(sint32));
-			}
-			else
-			{
-				m_data = nullptr;
-			}
 		}
 	}
 

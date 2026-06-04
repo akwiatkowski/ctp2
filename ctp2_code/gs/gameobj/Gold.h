@@ -56,6 +56,7 @@ class	Gold;
 #include "ctp/c3types.h"			// MBCHAR, sint..., uint...
 #include "robot/aibackdoor/civarchive.h"			// CivArchive
 #include "gs/utility/gstypes.h"			// PLAYER_INDEX
+#include <nlohmann/json.hpp>
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -144,7 +145,10 @@ public:
 	double GetConsiderForScience() const { return m_consider_for_science; }
 	void SetConsiderForScience(double cfs) { m_consider_for_science = cfs; }
 
+	friend void to_json(nlohmann::json &j, Gold const &g);
+	friend void from_json(nlohmann::json const &j, Gold &g);
 };
+
 
 uint32 Gold_Gold_GetVersion() ;
 #endif

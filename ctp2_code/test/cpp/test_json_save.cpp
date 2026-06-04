@@ -21,6 +21,8 @@
 #include "gs/gameobj/Score.h"
 #include "gs/gameobj/Regard.h"
 #include "gs/gameobj/TaxRate.h"
+#include "gs/gameobj/Gold.h"
+#include "gs/gameobj/Diffcly.h"
 #include "gs/gameobj/Sci.h"
 #include "gs/gameobj/Readiness.h"
 #include "gs/gameobj/pollution.h"
@@ -612,6 +614,88 @@ TEST_CASE("json round-trip: TaxRate preserves both doubles")
 
     // Round back out matches.
     nlohmann::json j2 = t;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: Gold preserves all 13 fields")
+{
+    nlohmann::json j{
+        {"level",                 1234},
+        {"income_this_turn",      55},
+        {"gross_income",          77},
+        {"lost_to_cleric",        3},
+        {"lost_to_crime",         5},
+        {"lost_to_rushbuy",       11},
+        {"wages_this_turn",       20},
+        {"maintenance_this_turn", 30},
+        {"science_this_turn",     40},
+        {"level_last_turn",       1100},
+        {"delta_last_turn",       134},
+        {"consider_for_science",  0.625},
+        {"owner",                 2},
+    };
+    Gold g;
+    j.get_to(g);
+
+    CHECK(g.GetLevel() == 1234);
+    CHECK(g.GetIncome() == 55);
+    CHECK(g.GetGrossIncome() == 77);
+    CHECK(g.GetScience() == 40);
+    CHECK(g.GetOwner() == 2);
+    CHECK(g.GetConsiderForScience() == doctest::Approx(0.625));
+
+    nlohmann::json j2 = g;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: Difficulty preserves all 32 fields")
+{
+    nlohmann::json j{
+        {"big_city_scale",                  1.5},
+        {"big_city_offset",                 -0.25},
+        {"pollution_multiplier",            1.1},
+        {"riot_chance",                     0.05},
+        {"feats_factor",                    1.0},
+        {"advances_factor",                 2.0},
+        {"wonders_factor",                  3.0},
+        {"population_factor",               4.0},
+        {"rank_factor",                     5.0},
+        {"allies_factor",                   6.0},
+        {"opponents_conquered_factor",      7.0},
+        {"cities0to30_factor",              8.0},
+        {"cities30to100_factor",            9.0},
+        {"cities100to500_factor",           10.0},
+        {"cities500plus_factor",            11.0},
+        {"cities_recaptured_factor",        12.0},
+        {"allied_victory_bonus",            13.0},
+        {"solo_victory_bonus",              14.0},
+        {"wonder_victory_bonus",            15.0},
+        {"distance_from_capitol_adjustment", 0.5},
+        {"starvation_effect",               0.75},
+        {"owner",                           3},
+        {"base_contentment",                4},
+        {"max_martial_law_units",           5},
+        {"martial_law_effect",              6},
+        {"content_in_the_field",            7},
+        {"in_the_field_effect",             8},
+        {"science_handicap",                9},
+        {"starting_gold",                   500},
+        {"base_score",                      1000},
+        {"vision_bonus",                    2},
+        {"pad",                             0},
+    };
+    // Difficulty's only ctor pulls from g_theDifficultyDB which isn't loaded
+    // in unit tests; from_json overwrites every member so a raw buffer is
+    // sufficient (no ctor/dtor call).
+    alignas(Difficulty) unsigned char buf[sizeof(Difficulty)];
+    Difficulty &d = *reinterpret_cast<Difficulty *>(buf);
+    j.get_to(d);
+
+    CHECK(d.GetBigCityScale() == doctest::Approx(1.5));
+    CHECK(d.GetStartingGold() == 500);
+    CHECK(d.GetBaseScore() == 1000);
+
+    nlohmann::json j2 = d;
     CHECK(j2 == j);
 }
 

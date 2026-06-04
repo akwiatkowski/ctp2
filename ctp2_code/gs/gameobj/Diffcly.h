@@ -22,8 +22,8 @@
 //
 //----------------------------------------------------------------------------
 //
-// - Moved some functionality from DiffDB to create the diffutils. (April 29th 2006 Martin Gühmann)
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gühmann)
+// - Moved some functionality from DiffDB to create the diffutils. (April 29th 2006 Martin Gï¿½hmann)
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -36,6 +36,7 @@
 class Difficulty;
 
 #include "gs/gameobj/Player.h" // PLAYER_INDEX
+#include <nlohmann/json.hpp>
 class CivArchive;
 
 #define k_DIFFICULTY_VERSION_MAJOR	0
@@ -115,6 +116,8 @@ public:
 
 	void Serialize(CivArchive &archive) ;
 
+	friend void to_json(nlohmann::json &j, Difficulty const &d);
+	friend void from_json(nlohmann::json const &j, Difficulty &d);
 };
 
 double diffutil_GetAiAdjustment(const sint32 diff,

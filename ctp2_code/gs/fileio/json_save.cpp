@@ -40,6 +40,8 @@
 #include "gs/gameobj/Score.h"
 #include "gs/gameobj/Regard.h"
 #include "gs/gameobj/TaxRate.h"
+#include "gs/gameobj/Gold.h"
+#include "gs/gameobj/Diffcly.h"
 #include "gs/gameobj/Sci.h"               // Science
 #include "gs/gameobj/Readiness.h"         // MilitaryReadiness
 #include "gs/gameobj/pollution.h"
@@ -677,6 +679,116 @@ void from_json(nlohmann::json const &j, TaxRate &t)
 {
     j.at("science")               .get_to(t.m_science);
     j.at("science_before_anarchy").get_to(t.m_science_before_anarchy);
+}
+
+void to_json(nlohmann::json &j, Gold const &g)
+{
+    j = nlohmann::json{
+        {"level",                  g.m_level},
+        {"income_this_turn",       g.m_income_this_turn},
+        {"gross_income",           g.m_gross_income},
+        {"lost_to_cleric",         g.m_lost_to_cleric},
+        {"lost_to_crime",          g.m_lost_to_crime},
+        {"lost_to_rushbuy",        g.m_lost_to_rushbuy},
+        {"wages_this_turn",        g.m_wages_this_turn},
+        {"maintenance_this_turn",  g.m_maintenance_this_turn},
+        {"science_this_turn",      g.m_science_this_turn},
+        {"level_last_turn",        g.m_level_last_turn},
+        {"delta_last_turn",        g.m_delta_last_turn},
+        {"consider_for_science",   g.m_consider_for_science},
+        {"owner",                  g.m_owner},
+    };
+}
+
+void from_json(nlohmann::json const &j, Gold &g)
+{
+    j.at("level")                 .get_to(g.m_level);
+    j.at("income_this_turn")      .get_to(g.m_income_this_turn);
+    j.at("gross_income")          .get_to(g.m_gross_income);
+    j.at("lost_to_cleric")        .get_to(g.m_lost_to_cleric);
+    j.at("lost_to_crime")         .get_to(g.m_lost_to_crime);
+    j.at("lost_to_rushbuy")       .get_to(g.m_lost_to_rushbuy);
+    j.at("wages_this_turn")       .get_to(g.m_wages_this_turn);
+    j.at("maintenance_this_turn") .get_to(g.m_maintenance_this_turn);
+    j.at("science_this_turn")     .get_to(g.m_science_this_turn);
+    j.at("level_last_turn")       .get_to(g.m_level_last_turn);
+    j.at("delta_last_turn")       .get_to(g.m_delta_last_turn);
+    j.at("consider_for_science")  .get_to(g.m_consider_for_science);
+    j.at("owner")                 .get_to(g.m_owner);
+}
+
+void to_json(nlohmann::json &j, Difficulty const &d)
+{
+    j = nlohmann::json{
+        {"big_city_scale",                  d.m_big_city_scale},
+        {"big_city_offset",                 d.m_big_city_offset},
+        {"pollution_multiplier",            d.m_pollution_multiplier},
+        {"riot_chance",                     d.m_riot_chance},
+        {"feats_factor",                    d.m_feats_factor},
+        {"advances_factor",                 d.m_advances_factor},
+        {"wonders_factor",                  d.m_wonders_factor},
+        {"population_factor",               d.m_population_factor},
+        {"rank_factor",                     d.m_rank_factor},
+        {"allies_factor",                   d.m_allies_factor},
+        {"opponents_conquered_factor",      d.m_opponents_conquered_factor},
+        {"cities0to30_factor",              d.m_cities0to30_factor},
+        {"cities30to100_factor",            d.m_cities30to100_factor},
+        {"cities100to500_factor",           d.m_cities100to500_factor},
+        {"cities500plus_factor",            d.m_cities500plus_factor},
+        {"cities_recaptured_factor",        d.m_cities_recaptured_factor},
+        {"allied_victory_bonus",            d.m_allied_victory_bonus},
+        {"solo_victory_bonus",              d.m_solo_victory_bonus},
+        {"wonder_victory_bonus",            d.m_wonder_victory_bonus},
+        {"distance_from_capitol_adjustment", d.m_distance_from_capitol_adjustment},
+        {"starvation_effect",               d.m_starvation_effect},
+        {"owner",                           d.m_owner},
+        {"base_contentment",                d.m_base_contentment},
+        {"max_martial_law_units",           d.m_max_martial_law_units},
+        {"martial_law_effect",              d.m_martial_law_effect},
+        {"content_in_the_field",            d.m_content_in_the_field},
+        {"in_the_field_effect",             d.m_in_the_field_effect},
+        {"science_handicap",                d.m_science_handicap},
+        {"starting_gold",                   d.m_starting_gold},
+        {"base_score",                      d.m_base_score},
+        {"vision_bonus",                    d.m_vision_bonus},
+        {"pad",                             d.m_pad},
+    };
+}
+
+void from_json(nlohmann::json const &j, Difficulty &d)
+{
+    j.at("big_city_scale")                  .get_to(d.m_big_city_scale);
+    j.at("big_city_offset")                 .get_to(d.m_big_city_offset);
+    j.at("pollution_multiplier")            .get_to(d.m_pollution_multiplier);
+    j.at("riot_chance")                     .get_to(d.m_riot_chance);
+    j.at("feats_factor")                    .get_to(d.m_feats_factor);
+    j.at("advances_factor")                 .get_to(d.m_advances_factor);
+    j.at("wonders_factor")                  .get_to(d.m_wonders_factor);
+    j.at("population_factor")               .get_to(d.m_population_factor);
+    j.at("rank_factor")                     .get_to(d.m_rank_factor);
+    j.at("allies_factor")                   .get_to(d.m_allies_factor);
+    j.at("opponents_conquered_factor")      .get_to(d.m_opponents_conquered_factor);
+    j.at("cities0to30_factor")              .get_to(d.m_cities0to30_factor);
+    j.at("cities30to100_factor")            .get_to(d.m_cities30to100_factor);
+    j.at("cities100to500_factor")           .get_to(d.m_cities100to500_factor);
+    j.at("cities500plus_factor")            .get_to(d.m_cities500plus_factor);
+    j.at("cities_recaptured_factor")        .get_to(d.m_cities_recaptured_factor);
+    j.at("allied_victory_bonus")            .get_to(d.m_allied_victory_bonus);
+    j.at("solo_victory_bonus")              .get_to(d.m_solo_victory_bonus);
+    j.at("wonder_victory_bonus")            .get_to(d.m_wonder_victory_bonus);
+    j.at("distance_from_capitol_adjustment").get_to(d.m_distance_from_capitol_adjustment);
+    j.at("starvation_effect")               .get_to(d.m_starvation_effect);
+    j.at("owner")                           .get_to(d.m_owner);
+    j.at("base_contentment")                .get_to(d.m_base_contentment);
+    j.at("max_martial_law_units")           .get_to(d.m_max_martial_law_units);
+    j.at("martial_law_effect")              .get_to(d.m_martial_law_effect);
+    j.at("content_in_the_field")            .get_to(d.m_content_in_the_field);
+    j.at("in_the_field_effect")             .get_to(d.m_in_the_field_effect);
+    j.at("science_handicap")                .get_to(d.m_science_handicap);
+    j.at("starting_gold")                   .get_to(d.m_starting_gold);
+    j.at("base_score")                      .get_to(d.m_base_score);
+    j.at("vision_bonus")                    .get_to(d.m_vision_bonus);
+    j.at("pad")                             .get_to(d.m_pad);
 }
 
 void to_json(nlohmann::json &j, Science const &s)
@@ -2670,7 +2782,7 @@ void from_json(nlohmann::json const &j, CityData &c)
 //     have no backing ArmyData/UnitData post-load.
 //
 // OMITTED with reason (Phase F pool work):
-//   - m_gold (Gold), m_difficulty (Difficulty), m_vision (Vision),
+//   - m_vision (Vision),
 //     m_tradeOffers (TradeOfferPool), m_terrainImprovements
 //     (TerrainImprovementPool), m_materialPool (MaterialPool),
 //     m_messages (MessagePool), m_allRadarInstallations,
@@ -2682,7 +2794,8 @@ void from_json(nlohmann::json const &j, CityData &c)
 // INCLUDED via existing bridges:
 //   - m_science (Science), m_tax_rate (TaxRate), m_advances (Advances),
 //     m_global_happiness (Happy), m_readiness (MilitaryReadiness),
-//     m_regard (Regard), m_strengths (Strengths).
+//     m_regard (Regard), m_strengths (Strengths), m_gold (Gold),
+//     m_difficulty (Difficulty).
 
 void to_json(nlohmann::json &j, Player const &p)
 {
@@ -2823,6 +2936,8 @@ void to_json(nlohmann::json &j, Player const &p)
         {"readiness",        p.m_readiness        ? nlohmann::json(*p.m_readiness)       : nlohmann::json(nullptr)},
         {"regard",           p.m_regard           ? nlohmann::json(*p.m_regard)          : nlohmann::json(nullptr)},
         {"strengths",        p.m_strengths        ? nlohmann::json(*p.m_strengths)       : nlohmann::json(nullptr)},
+        {"gold",             p.m_gold             ? nlohmann::json(*p.m_gold)            : nlohmann::json(nullptr)},
+        {"difficulty",       p.m_difficulty       ? nlohmann::json(*p.m_difficulty)      : nlohmann::json(nullptr)},
         // m_capitol via ID
         {"capitol",          p.m_capitol          ? nlohmann::json(static_cast<ID const &>(*p.m_capitol)) : nlohmann::json(nullptr)},
         // Per-player object-id lists (see comment above to_json).
@@ -2966,6 +3081,8 @@ void from_json(nlohmann::json const &j, Player &p)
     if (!j.at("readiness")        .is_null() && p.m_readiness)        j.at("readiness")       .get_to(*p.m_readiness);
     if (!j.at("regard")           .is_null() && p.m_regard)           j.at("regard")          .get_to(*p.m_regard);
     if (!j.at("strengths")        .is_null() && p.m_strengths)        j.at("strengths")       .get_to(*p.m_strengths);
+    if (!j.at("gold")             .is_null() && p.m_gold)             j.at("gold")            .get_to(*p.m_gold);
+    if (!j.at("difficulty")       .is_null() && p.m_difficulty)       j.at("difficulty")      .get_to(*p.m_difficulty);
 
     // m_capitol (Unit*) — null in JSON skips
     if (!j.at("capitol").is_null() && p.m_capitol)

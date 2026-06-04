@@ -92,13 +92,9 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     if (player_arr_Get()) m_playerArr = player_arr_Get();
 }
 
-void Game::LoadGame(CivArchive& archive) {
-    m_turn = std::make_unique<TurnCount>(archive);
-}
-
-void Game::SaveGame(CivArchive& /*archive*/) {
-    // TODO: move save logic here
-}
+// Game::LoadGame / Game::SaveGame deleted (Phase 0.C-4): never called
+// externally; CivArchive-binary path is gone.  JSON path lives in
+// json_save.cpp.
 
 void Game::Cleanup() {
     // Reverse-dependency-order destruction.

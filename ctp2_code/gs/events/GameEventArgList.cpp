@@ -68,10 +68,6 @@ GameEventArgList::GameEventArgList(va_list *vl, GAME_EVENT eventType)
 	}
 }
 
-GameEventArgList::GameEventArgList(CivArchive &archive)
-{
-	Serialize(archive);
-}
 
 GameEventArgList::~GameEventArgList()
 {
@@ -85,44 +81,6 @@ GameEventArgList::~GameEventArgList()
 	}
 }
 
-void GameEventArgList::Serialize(CivArchive &archive)
-{
-	uint8 numArgs;
-	if(archive.IsStoring()) {
-		GAME_EVENT_ARGUMENT arg;
-		for(arg = GEA_Null; arg < GEA_End; arg = (GAME_EVENT_ARGUMENT)(sint32(arg) + 1)) {
-			if(!m_argLists[arg]) {
-				numArgs = 0;
-			} else {
-				numArgs = (uint8)m_argLists[arg]->GetCount();
-			}
-
-			archive << numArgs;
-
-			if(numArgs > 0) {
-				PointerList<GameEventArgument>::Walker walk(m_argLists[arg]);
-				while(walk.IsValid()) {
-					walk.GetObj()->Serialize(archive);
-					walk.Next();
-				}
-			}
-		}
-	} else {
-		GAME_EVENT_ARGUMENT arg;
-		for(arg = GEA_Null; arg < GEA_End; arg = (GAME_EVENT_ARGUMENT)(sint32(arg) + 1)) {
-			archive >> numArgs;
-			if(numArgs <= 0) {
-				m_argLists[arg] = nullptr;
-			} else {
-				m_argLists[arg] = new PointerList<GameEventArgument>;
-				sint32 i;
-				for(i = 0; i < numArgs; i++) {
-					m_argLists[arg]->AddTail(new GameEventArgument(archive));
-				}
-			}
-		}
-	}
-}
 
 void GameEventArgList::Add(GameEventArgument *arg)
 {

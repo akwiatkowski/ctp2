@@ -78,7 +78,6 @@ class DiplomaticRequestData : public GameObj
 
 	public:
 		DiplomaticRequestData(const ID id, sint32 currentRound) ;
-		DiplomaticRequestData(CivArchive &archive) : GameObj(0) { Serialize(archive) ; }
 		DiplomaticRequestData(const ID id, PLAYER_INDEX sender, PLAYER_INDEX recipient, REQUEST_TYPE request, sint32 currentRound) ;
 
 		void MakeRequest(const PLAYER_INDEX owner, const PLAYER_INDEX recipient, const REQUEST_TYPE request) ;
@@ -111,7 +110,6 @@ class DiplomaticRequestData : public GameObj
 		void InterpretString(MBCHAR *ip, MBCHAR *op) ;
 		void GetRequestString(MBCHAR *s) ;
 		void Reject(BOOL fromServer = FALSE) ;
-		void Serialize(CivArchive &archive) override ;
 		ATTITUDE_TYPE GetAttitude(PLAYER_INDEX p1, PLAYER_INDEX p2) ;
 		MBCHAR *GetRequestString() ;
 

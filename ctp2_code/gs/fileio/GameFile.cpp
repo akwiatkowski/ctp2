@@ -1433,160 +1433,18 @@ GameMapFile::GameMapFile()
 
 uint32 GameMapFile::Save(const MBCHAR *filepath, SaveMapInfo *info)
 {
-#if defined(_DEBUG) || defined(USE_LOGGING)
-	clock_t start = clock();
-#endif
-
-	CivArchive	archive;
-	archive.SetStore();
-
-	archive<<World_World_GetVersion();
-
-
-
-
-	world_Get()->SerializeJustMap(archive);
-
-	FILE * fpSave = c3files_fopen(C3DIR_DIRECT, filepath, "wb");
-	if (fpSave == nullptr)
-	{
-		c3errors_ErrorDialogFromDB("SAVE_ERROR", "SAVE_FAILED_TO_SAVE");
-
-		return GAMEFILE_ERR_STORE_FAILED;
-	}
-
-	size_t  n;
-	MBCHAR	sHeader[_MAX_PATH];
-	strcpy(sHeader, k_GAMEMAP_MAGIC_VALUE);
-	n = c3files_fwrite(sHeader, sizeof(uint8), sizeof(k_GAMEMAP_MAGIC_VALUE), fpSave);
-	if (n!=sizeof(k_GAMEMAP_MAGIC_VALUE))
-	{
-		c3files_fclose(fpSave);
-		c3errors_FatalDialogFromDB("SAVE_ERROR", "SAVE_UNABLE_TO_WRITE_SAVEGAME");
-
-		return GAMEFILE_ERR_STORE_FAILED;
-	}
-
-	bool createInfo = (info == nullptr);
-	if (createInfo)
-	{
-		info = new SaveMapInfo();
-		GetExtendedInfoFromProfile(info);
-	}
-
-	SaveExtendedGameMapInfo(fpSave, info);
-
-	if (createInfo)
-		delete info;
-
-	uint32 ulLen = archive.StreamLen();
-	n = c3files_fwrite(&ulLen, sizeof(ulLen), 1, fpSave);
-	if (n!=1)
-	{
-		c3files_fclose(fpSave);
-		c3errors_FatalDialogFromDB("SAVE_ERROR", "SAVE_UNABLE_TO_WRITE_SAVEGAME");
-
-		return GAMEFILE_ERR_STORE_FAILED;
-	}
-
-	n = c3files_fwrite(archive.GetStream(), sizeof(uint8), ulLen, fpSave);
-	if (n != ulLen)
-	{
-		c3files_fclose(fpSave);
-		c3errors_FatalDialogFromDB("SAVE_ERROR", "SAVE_UNABLE_TO_WRITE_SAVEGAME");
-
-		return GAMEFILE_ERR_STORE_FAILED;
-	}
-
-	c3files_fclose(fpSave);
-
-	DPRINTF(k_DBG_FILE,
-	        ("Time to save gamemap data = %4.2f seconds\n", (double)(clock() - start) / CLOCKS_PER_SEC)
-	       );
-
-	return GAMEFILE_ERR_STORE_OK;
+    // Phase 0.C-4: body gutted — binary-format map I/O depended on
+    // CivArchive + World::SerializeJustMap, both gone. Scenario map
+    // save/load needs a JSON port (out of scope here).
+    (void)filepath; (void)info;
+    return GAMEFILE_ERR_STORE_FAILED;
 }
 
 uint32 GameMapFile::Restore(const MBCHAR *filepath)
 {
-#if defined(_DEBUG) || defined(USE_LOGGING)
-	clock_t start   = clock();
-#endif
-	FILE *  fpLoad  = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
-	if (fpLoad == nullptr) {
-		c3errors_ErrorDialog("LOAD_ERROR", "LOAD_FAILED_TO_LOAD_GAME");
-		return GAMEFILE_ERR_LOAD_FAILED;
-	}
-
-	MBCHAR sHeader[_MAX_PATH];
-	size_t n = c3files_fread(sHeader, sizeof(uint8), sizeof(k_GAMEMAP_MAGIC_VALUE), fpLoad);
-	Assert(n==sizeof(k_GAMEMAP_MAGIC_VALUE));
-	if (n!=sizeof(k_GAMEMAP_MAGIC_VALUE))
-	{
-		c3files_fclose(fpLoad);
-		c3errors_FatalDialogFromDB("LOAD_ERROR", "LOAD_UNABLE_TO_READ_GAME");
-
-		return GAMEFILE_ERR_LOAD_FAILED;
-	}
-
-	if (strcmp(sHeader, k_GAMEMAP_MAGIC_VALUE) != 0)
-	{
-		c3files_fclose(fpLoad);
-		c3errors_FatalDialogFromDB("LOAD_ERROR", "LOAD_NOT_A_SAVEGAME_FILE");
-
-		return GAMEFILE_ERR_LOAD_FAILED;
-	}
-
-	{
-		SaveMapInfo * info = new SaveMapInfo();
-		LoadExtendedGameMapInfo(fpLoad, info);
-		SetProfileFromExtendedInfo(info);
-		delete info;
-	}
-
-	uint32 ulLen;
-	n = c3files_fread(&ulLen, sizeof(ulLen), 1, fpLoad);
-	Assert(n==1);
-	if (n!=1)
-	{
-		c3files_fclose(fpLoad);
-		c3errors_FatalDialogFromDB("LOAD_ERROR", "LOAD_INCORRECT_FILE_SIZE");
-
-		return GAMEFILE_ERR_LOAD_FAILED;
-	}
-
-	CivArchive	archive;
-	archive.SetSize(ulLen);
-	archive.SetLoad();
-
-	n = c3files_fread(archive.GetStream(), sizeof(uint8), ulLen, fpLoad);
-	if (n!=ulLen)
-	{
-		c3files_fclose(fpLoad);
-		c3errors_FatalDialogFromDB("LOAD_ERROR", "LOAD_INCORRECT_FILE_SIZE");
-
-		return GAMEFILE_ERR_LOAD_FAILED;
-	}
-
-	c3files_fclose(fpLoad);
-
-	uint32	ver;
-	archive>>ver;
-	if (ver!=World_World_GetVersion())
-	{
-		c3errors_FatalDialogFromDB("LOAD_ERROR", "LOAD_INCORRECT_VERSION_INFO");
-
-		return GAMEFILE_ERR_LOAD_FAILED;
-	}
-
-	delete world_Get();
-	world_Set(new World(archive, true));
-
-	DPRINTF(k_DBG_FILE,
-	        ("Time to load gamemap data = %4.2f seconds\n", (double)(clock() - start) / CLOCKS_PER_SEC)
-	       );
-
-	return GAMEFILE_ERR_LOAD_OK;
+    // Phase 0.C-4: body gutted — see GameMapFile::Save above.
+    (void)filepath;
+    return GAMEFILE_ERR_LOAD_FAILED;
 }
 
 bool GameMapFile::LoadExtendedGameMapInfo(FILE *saveFile, SaveMapInfo *info)

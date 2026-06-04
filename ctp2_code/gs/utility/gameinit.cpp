@@ -519,8 +519,8 @@ sint32 gameinit_PlaceInitalUnits(sint32 nPlayers, MapPoint player_start_list[k_M
 			if (nUnits < 1 && i != PLAYER_INDEX_VANDALS)
 				nUnits = 1;
 		}
-		else
-		{
+	else
+	{
 			if((gameinit_IsHotseatGame() || gameinit_IsEmailGame()) &&
 			   g_hsPlayerSetup[i].isHuman)
 			{
@@ -591,7 +591,9 @@ void gameinit_SpewUnits(sint32 player, MapPoint &pos)
 			}
 		}
 		pos.x++;
-	} else {
+	}
+	else
+	{
 		fscanf(uFile, "%ld\n", &n);
 
 		sint32 *uids = new sint32[n];
@@ -1341,8 +1343,8 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 									 CIV_INDEX_RANDOM,
 									 GENDER_RANDOM);
 		}
-		else
-		{
+	else
+	{
 			g_player[i] = new Player(PLAYER_INDEX(i), diff, PLAYER_TYPE_HUMAN, CIV_INDEX_RANDOM, GENDER_RANDOM);
 		}
 		s_networkSettlers[i] = 1;
@@ -1477,7 +1479,9 @@ sint32 gameinit_GetCivForSlot(sint32 slot)
 			if(nsaipi) {
 				return nsaipi->m_civ;
 			}
-		} else {
+		}
+	else
+	{
 
 			NSPlayerInfo *nspi = g_network.GetNSPlayerInfo(slot - 1);
 			if(nspi)
@@ -1495,7 +1499,9 @@ sint32 gameinit_GetCivForSlot(sint32 slot)
 
 			if (slot-1 >= world_Get()->GetNumStartingPositions()) {
 				return CIV_INDEX_RANDOM;
-			} else {
+			}
+	else
+	{
 				return world_Get()->GetStartingPointCiv(slot - 1);
 			}
 		default:
@@ -1534,16 +1540,14 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	// Removed the auto-tutorial on low difficulty, since it causes
 	// more problems than it solves - JJB
 
-	if (archive) {
-		gameinit_log->debug("step: new RandomGenerator(archive)");
-		rand_ptr_Set(new RandomGenerator(*archive));
-	} else {
 #ifdef _DEBUG
 	FILE * fin = fopen ("dbgseed.txt", "r");
 
 	if (fin) {
 		fscanf (fin, "%d", &seed);
-	} else {
+	}
+	else
+	{
 
 		seed = g_oldRandSeed ? g_oldRandSeed : GetTickCount();
 
@@ -1561,7 +1565,6 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	srand(seed);
 
 	rand_ptr_Set(new RandomGenerator(seed));
-	}
 
 
 
@@ -1574,12 +1577,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 
 
-	if(archive) {
-		gameinit_log->debug("step: new GameSettings(archive)");
-		gamesettings_Set(new GameSettings(*archive));
-	} else {
 		gamesettings_Set(new GameSettings());
-	}
 
 	SPLASH_STRING("Initializing the Map...");
 
@@ -1588,23 +1586,6 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	gameinit_log->debug("loadEverything={}, is_scenario_Get()={}, g_startInfoType={}",
 	           loadEverything, (bool)is_scenario_Get(), (int)start_info_type_Get());
 
-	if (archive) {
-		gameinit_log->debug("step: new World(archive)");
-		world_Set(new World(*archive)) ;
-		if(
-
-			(is_scenario_Get() && start_info_type_Get() != STARTINFOTYPE_NOLOCS)) {
-			sint32 x;
-			sint32 y;
-			for(x = 0; x < world_Get()->GetXWidth(); x++) {
-				for(y = 0; y < world_Get()->GetYHeight(); y++) {
-					world_Get()->GetCell(x,y)->ClearUnitsNStuff();
-				}
-			}
-		}
-
-		world_Get()->NumberContinents();
-	} else {
 		// (custommapscreen_setValues call dropped — same rationale as above.)
 
 		MapPoint	mapSize;
@@ -1637,15 +1618,10 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		}
 		g_theProfileDB->SetNPlayers(nPlayers);
 
-	}
 
 	Assert(world_Get());
 
 	gameinit_log->debug("step: post-World, before TurnCount");
-	if (archive && loadEverything){
-		gameinit_log->debug("step: new TurnCount(archive)");
-		turn_Set(new TurnCount(*archive));
-	} else {
 		turn_Set(new TurnCount(g_theProfileDB->GetNPlayers(),
 			diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)));
 		if(g_network.IsActive() || g_network.IsNetworkLaunch()) {
@@ -1654,7 +1630,6 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 				turn_Get()->SkipToRound(0 );
 			}
 		}
-	}
 
 	gameinit_log->debug("step: player_view::Init / InitFromArchive ({})", nPlayers);
 	// Wave F: symmetric with GameFile::SaveGame's player_view::SerializeSelection
@@ -1663,11 +1638,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	// starting fresh, a default-initialized SelectedItem is created.
 	// Each save-side write has a matching load-side read so the archive
 	// position stays consistent across the rest of the load path.
-	if (archive && loadEverything) {
-		player_view::InitFromArchive(archive);
-	} else {
 		player_view::Init(nPlayers);
-	}
 
 
 
@@ -1686,82 +1657,27 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	                                                 sint16(world_Get()->GetYHeight()),
 	                                                 world_Get()->IsYwrap());
 
-	if (archive && loadEverything) {
-		gameinit_log->debug("step: new UnitPool(archive)");
-		unitpool_Set(new UnitPool(*archive));
-	} else {
 		unitpool_Set(new UnitPool());
-	}
 	Assert(unitpool_Get());
 
-	if(archive && loadEverything) {
-		gameinit_log->debug("step: new ArmyPool(archive)");
-		armypool_Set(new ArmyPool(*archive));
-	} else {
 		armypool_Set(new ArmyPool());
-	}
 	Assert(armypool_Get());
 
-	if(archive && loadEverything) {
-		gameinit_log->debug("step: RebuildQuadTree");
-		unitpool_Get()->RebuildQuadTree();
-	}
 
-	if(archive && loadEverything) {
-		tradepool_Set(new TradePool(*archive));
-
-		if(g_numGoods != g_theResourceDB->NumRecords()){
-			sint32 i;
-			sint32 resource;
-			ROUTE_TYPE routeType;
-			for(i = 0; i < tradepool_Get()->Num(); ++i){
-				tradepool_Get()->GetRouteIndex(i)->GetSourceResource(routeType, resource);
-				tradepool_Get()->GetRouteIndex(i)->SetSourceResource(g_newGoods[resource]);
-			}
-		}
-
-		tradepool_Get()->RecreateActors();
-	}
-	else
-		tradepool_Set(new TradePool());
+	tradepool_Set(new TradePool());
 
     // 55 is probably the last save game version for CTP1
-	if (archive && loadEverything && (save_file_version_Get() < 55))
-    {
-		tradeofferpool_Set(new TradeOfferPool(*archive));
-	}
-    else
-    {
 		tradeofferpool_Set(new TradeOfferPool());
-    }
 	Assert(tradeofferpool_Get());
 
-	if (archive && loadEverything)
-		pollution_Set(new Pollution(*archive));
-	else
 		pollution_Set(new Pollution());
 	Assert(pollution_Get());
 
-	if (archive && loadEverything && (save_file_version_Get() < 55))
-    {
-		topten_Set(new TopTen(*archive));
-	}
-    else
-    {
 		topten_Set(new TopTen());
-    }
 	Assert(topten_Get());
 
 	SPLASH_STRING("Initializing SLIC Engine...");
 
-	if (archive)
-    {
-        delete slicengine_Get();
-        slicengine_Set(new SlicEngine(*archive));
-		slicengine_Get()->PostSerialize();
-	}
-    else
-    {
         if (!SlicEngine::Reload(g_slic_filename))
         {
 			return FALSE;
@@ -1785,49 +1701,25 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 				g_theProfileDB->SetNonRandomCivs(TRUE);
 			}
 		}
-        else
-        {
+	else
+	{
 			g_theProfileDB->SetTutorialAdvice(FALSE);
 		}
-	}
 
 	SPLASH_STRING("Initializing Object Pools...");
 
-	if(archive && loadEverything)
-		terrimprovepool_Set(new TerrainImprovementPool(*archive));
-	else
 		terrimprovepool_Set(new TerrainImprovementPool());
 	Assert(terrimprovepool_Get()) ;
 
-	if (archive && loadEverything && (save_file_version_Get() < 55))
-    {
-		diplomaticrequestpool_Set(new DiplomaticRequestPool(*archive)) ;
-	}
-    else
-    {
 		diplomaticrequestpool_Set(new DiplomaticRequestPool()) ;
-	}
 	Assert(diplomaticrequestpool_Get()) ;
 
-	if (archive && loadEverything)
-		civilisationpool_Set(new CivilisationPool(*archive)) ;
-	else
 		civilisationpool_Set(new CivilisationPool()) ;
 	Assert(civilisationpool_Get()) ;
 
-	if (archive && loadEverything && (save_file_version_Get() < 55))
-    {
-		agreementpool_Set(new AgreementPool(*archive)) ;
-	}
-    else
-    {
 		agreementpool_Set(new AgreementPool()) ;
-    }
 	Assert(agreementpool_Get()) ;
 
-	if (archive && loadEverything)
-		messagepool_Set(new MessagePool(*archive)) ;
-	else
 		messagepool_Set(new MessagePool()) ;
 	Assert(messagepool_Get()) ;
 
@@ -1835,73 +1727,24 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	g_theCriticalMessagesPrefs = new CriticalMessagesPrefs() ;
 	Assert(g_theCriticalMessagesPrefs) ;
 
-	if(archive && loadEverything)
-		installationpool_Set(new InstallationPool(*archive));
-	else
 		installationpool_Set(new InstallationPool());
 	Assert(installationpool_Get()) ;
 
 	installationpool_Get()->RebuildQuadTree();
 
-	if (archive && loadEverything && (save_file_version_Get() < 55))
-    {
-		sint32 wormholeExists;
-		*archive >> wormholeExists;
-        g_wormhole = (wormholeExists) ? new Wormhole(*archive) : nullptr;
-	}
-    else
-    {
 		g_wormhole = nullptr;
-	}
 
-	if(archive && loadEverything) {
-		wonder_tracker_Set(new WonderTracker(*archive));
-	} else {
 		wonder_tracker_Set(new WonderTracker());
-	}
 
-	if(archive && loadEverything && (save_file_version_Get() < 55))
-    {
-		achievementtracker_Set(new AchievementTracker(*archive));
-	}
-    else
-    {
 		achievementtracker_Set(new AchievementTracker());
-	}
 
-	if (archive)
-    {
-		delete exclusions_Get();
-		exclusions_Set(new Exclusions(*archive));
-	}
-    else
-    {
 	    // Exclusions not used
-	}
 
-	if(archive && loadEverything) {
-		feattracker_Set(new FeatTracker(*archive));
-	} else {
 		feattracker_Set(new FeatTracker());
-	}
 
-	if(archive && loadEverything && (save_file_version_Get() < 55))
-    {
-		tradebids_Set(new TradeBids(*archive));
-	}
-    else
-    {
 		tradebids_Set(new TradeBids());
-	}
 
-	if(archive && loadEverything)
-	{
-		eventtracker_Set(new EventTracker(*archive));
-	}
-	else
-	{
 		eventtracker_Set(new EventTracker());
-	}
 
 	SPLASH_STRING("Setting Up Players...");
 
@@ -1916,176 +1759,6 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	sint32 i;
 	sint32 j;
-	if (archive)
-	{
-		for (i = 0; i < k_MAX_PLAYERS; i++)
-		{
-			*archive >> playerAlive;
-			if (playerAlive)
-			{
-				g_player[i] = new Player(*archive);
-
-				numPlayersLoaded++;
-			}
-		}
-
-		sint32 num;
-		*archive >> num;
-		for (i = 0; i < num; i++)
-		{
-			g_deadPlayer->AddTail(new Player(*archive));
-		}
-
-		if (is_scenario_Get() && start_info_type_Get() != STARTINFOTYPE_NOLOCS)
-		{
-			CreateBarbarians(diff);
-
-			switch (start_info_type_Get())
-			{
-			default:
-			// case STARTINFOTYPE_NONE:
-				break;
-
-			case STARTINFOTYPE_CIVS:
-				{
-					sint32 const	positionCount	=
-						world_Get()->GetNumStartingPositions();
-
-					Assert(numPlayersLoaded == 0);
-
-					Assert(g_theProfileDB->GetPlayerIndex() <= positionCount);
-					if (g_theProfileDB->GetPlayerIndex() > positionCount)
-					{
-						// Should have been prevented in the game setup screen
-						g_theProfileDB->SetPlayerIndex(positionCount);
-					}
-
-					// Add the human player
-					sint32 const	humanIndex	= g_theProfileDB->GetPlayerIndex();
-					sint32		civ			= gameinit_GetCivForSlot(humanIndex);
-					if (civ == CIV_INDEX_RANDOM)
-					{
-						civ = g_theProfileDB->GetCivIndex();
-					}
-
-					sint32 safePositionCount = (positionCount > k_MAX_START_POINTS) ? k_MAX_START_POINTS : positionCount;
-					sint32 usedPositions[k_MAX_START_POINTS];
-					sint32 usedCivs = 0;
-					memset(usedPositions, 0, sizeof(usedPositions));
-
-					for (j = 0; j < safePositionCount; ++j)
-					{
-						if (world_Get()->GetStartingPointCiv(j) == civ)
-						{
-							usedPositions[j] = 1;
-							usedCivs++;
-							break;
-						}
-					}
-					Assert(j < safePositionCount);
-					if (j >= safePositionCount)
-					{
-						civ = world_Get()->GetStartingPointCiv(0);
-						usedPositions[0] = 1;
-						usedCivs++;
-						j = 0;
-					}
-
-					CreateInitialHuman(diff, humanIndex, civ);
-					g_player[humanIndex]->m_starting_index = j;
-
-					// Add robots
-					Assert(scenario_civs_Get() <= safePositionCount);
-					for (i = 1; (i <= scenario_civs_Get()) && (i < safePositionCount); ++i)
-					{
-						if (i != humanIndex)
-						{
-							civ				= gameinit_GetCivForSlot(i);
-							sint32 whichCiv = (civ == CIV_INDEX_RANDOM) ? safePositionCount : 0;
-
-							for (; whichCiv < safePositionCount; ++whichCiv)
-							{
-								if (usedPositions[whichCiv])
-									continue;
-
-								if (world_Get()->GetStartingPointCiv(whichCiv) == civ)
-									break;
-							}
-
-							if (whichCiv >= safePositionCount)
-							{
-								// Random, or position already assigned.
-								// Find an(other) unassigned random position.
-								whichCiv = civrand().Next(safePositionCount);
-								while (usedPositions[whichCiv])
-								{
-									whichCiv++;
-									if (whichCiv >= safePositionCount)
-										whichCiv = 0;
-								}
-
-								// Prevent identical civ assignments
-								sint32 const	locationCiv	=
-									world_Get()->GetStartingPointCiv(whichCiv);
-								civ	= (locationCiv < 0)
-									  ? CIV_INDEX_RANDOM
-									  : locationCiv;
-							}
-
-							g_player[i] = new Player(PLAYER_INDEX(i),
-													 diff,
-													 PLAYER_TYPE_ROBOT,
-													 civ,
-													 GENDER_RANDOM
-													);
-							g_player[i]->m_starting_index = whichCiv;
-							usedPositions[whichCiv] = 1;
-							++usedCivs;
-						}
-					}
-				}
-				break;
-
-			case STARTINFOTYPE_CIVSFIXED:
-			case STARTINFOTYPE_POSITIONSFIXED:
-// Added by Martin G�hmann
-// No difference between STARTINFOTYPE_CIVSFIXED and STARTINFOTYPE_POSITIONSFIXED
-				{
-					Assert(numPlayersLoaded == 0);
-					Assert(scenario_civs_Get() <= world_Get()->GetNumStartingPositions());
-
-					Assert(g_theProfileDB->GetPlayerIndex() <= scenario_civs_Get());
-					if(g_theProfileDB->GetPlayerIndex() > scenario_civs_Get()){
-						g_theProfileDB->SetPlayerIndex(scenario_civs_Get());
-					}
-
-					// Add the human player first, to prevent civ reassignment.
-					sint32 const	humanIndex	= g_theProfileDB->GetPlayerIndex();
-					sint32		civ			= gameinit_GetCivForSlot(humanIndex);
-					CreateInitialHuman(diff, humanIndex, civ);
-
-					for (i = 1; i <= scenario_civs_Get(); ++i)
-					{
-						if (i != humanIndex)
-						{
-							civ	= gameinit_GetCivForSlot(i);
-							g_player[i] = new Player(PLAYER_INDEX(i),
-													 diff,
-													 PLAYER_TYPE_ROBOT,
-													 civ,
-													 GENDER_RANDOM
-													);
-						}
-
-						g_player[i]->m_starting_index = i;
-					}
-				}
-				break;
-			} // switch
-		}
-	}
-    else
-    {
 		//
 		//	Normal game code
 		CreateBarbarians(diff);
@@ -2114,8 +1787,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 					SetLeaderName(nspi->m_name);
 			}
 		}
-		else
-		{
+	else
+	{
 			s_networkSettlers[humanIndex] = 1;
 			if ((strlen(g_theProfileDB->GetLeaderName()) > 0) &&
 				!g_theProfileDB->IsTutorialAdvice()
@@ -2153,7 +1826,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 					g_player[i]->m_networkGroup = nsaipi->m_group;
 					g_player[i]->m_gold->SetLevel(nsaipi->m_civpoints);
 					s_networkSettlers[i] = nsaipi->m_settlers;
-				} else {
+				}
+	else
+	{
 					g_player[i] = new Player(PLAYER_INDEX(i),
 											 diff,
 											 PLAYER_TYPE_ROBOT,
@@ -2161,11 +1836,15 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 											 GENDER_RANDOM);
 					s_networkSettlers[i] = 1;
 				}
-			} else {
+			}
+	else
+	{
 				if(!g_network.IsLaunchHost()) {
 					g_player[i] = new Player(PLAYER_INDEX(i), diff, PLAYER_TYPE_HUMAN, CIV_INDEX_RANDOM, GENDER_RANDOM);
 					s_networkSettlers[i] = 1;
-				} else {
+				}
+	else
+	{
 					NSPlayerInfo *nspi = g_network.GetNSPlayerInfo(netIndex++);
 
 					civ = nspi ? nspi->m_civ : CIV_INDEX_RANDOM;
@@ -2185,7 +1864,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 							g_player[i]->m_civilisation->AccessData()->
 								SetLeaderName(nspi->m_name);
 						}
-					} else {
+					}
+	else
+	{
 						s_networkSettlers[i] = 1;
 					}
 
@@ -2213,7 +1894,6 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 				}
 			}
 		}
-	}
 
 #ifdef _DEBUG
 	if (g_theProfileDB->IsDiplomacyLogOn())
@@ -2230,27 +1910,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	roboinit_Initalize(archive);
 	CtpAi::Cleanup();
 
-	if (archive && loadEverything)
-	{
-		world_Get()->SetAllMoveCost();
-		world_Get()->A_star_heuristic->Update();
-		SPLASH_STRING("Load AI data elements...");
-
-		CtpAi::Load(*archive);
-		createRobotInterface = false;
-		if(!g_theProfileDB->IsAIOn()) {
-
-			for(i = 0; i < k_MAX_PLAYERS; i++) {
-				if(g_player[i])
-					g_player[i]->m_playerType = PLAYER_TYPE_HUMAN;
-			}
-		}
-	}
-	else
-	{
 		SPLASH_STRING("Initialize AI data elements...");
 		CtpAi::Initialize();
-	}
 
 	SPLASH_STRING("Load AI data elements done...");
 
@@ -2277,8 +1938,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 				g_theProfileDB->SetAI(TRUE);
 			}
 		}
-		else
-		{
+	else
+	{
 			for(i = 0; i < k_MAX_PLAYERS; i++)
 			{
 				if(g_player[i])
@@ -2300,8 +1961,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 			gameinit_PlaceInitalUnits();
 		}
-		else
-		{
+	else
+	{
 			numPlaced = gameinit_PlaceInitalUnits(g_theProfileDB->GetNPlayers(), g_player_start_list);
 		}
 #else
@@ -2343,7 +2004,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 				sint32 settler;
 				if(world_Get()->IsWater(point) || world_Get()->IsShallowWater(point)) {
 					settler = seaSettler;
-				} else {
+				}
+	else
+	{
 					settler = landSettler;
 				}
 				g_player[i]->CreateUnit(settler, point, Unit(),
@@ -2356,66 +2019,6 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		render_observer::AddCopyVision();
 	}
 
-	if(archive)
-	{
-		SPLASH_STRING("Set all move costs...");
-		world_Get()->SetAllMoveCost();
-
-  #if defined(USE_TEST_MP_AS_SP)
-		if (g_network.IsActive() || g_network.IsNetworkLaunch() ||
-			turn_Get()->IsEmail()	 || turn_Get()->IsHotSeat()
-		   )
-		{
-			// No action: keep current setup.
-		}
-		else
-		{
-			// Convert MP game to SP game for testing.
-			for (size_t i = 0; i < k_MAX_PLAYERS; ++i)
-			{
-				if (g_player[i])
-				{
-					if (i == g_theProfileDB->GetPlayerIndex())
-					{
-						g_player[i]->SetPlayerType(PLAYER_TYPE_HUMAN);
-						player_view::SetCurrentPlayer(i);
-						NewTurnCount::SetStopPlayer(i);
-					}
-
-					else
-					{
-						g_player[i]->SetPlayerType(PLAYER_TYPE_ROBOT);
-					}
-				}
-				else
-				{
-					if (i == g_theProfileDB->GetPlayerIndex())
-					{
-						// Selected a non-existing player.
-						c3errors_ErrorDialog("MP to SP", "Invalid index selected");
-					}
-				}
-			}
-		}
-  #endif  // USE_TEST_MP_AS_SP
-
-		g_aPlayerIsDead = FALSE;
-		for(i = 0; i < k_MAX_PLAYERS; i++) {
-
-			if(g_player[i]) {
-				if(g_player[i]->IsHuman()) {
-					g_player[i]->RecreateMessageIcons();
-				}
-				if(g_player[i]->m_isDead) {
-					g_aPlayerIsDead = TRUE;
-				}
-			}
-
-			if(g_player[i]) {
-				g_player[i]->m_hasGlobalRadar = wonderutil_GetGlobalRadar(g_player[i]->m_builtWonders);
-			}
-		}
-	}
 
 	{
 		sint32 visible = player_view::VisiblePlayer();
@@ -2459,18 +2062,6 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	}
 
 	SPLASH_STRING("Reset vision...");
-	if(archive && loadEverything) {
-		for(i = 0; i < k_MAX_PLAYERS; i++) {
-			if(g_player[i]) {
-				g_player[i]->ResetVision();
-
-				if (g_player[i]->m_isDead &&
-					g_player[i]->m_all_cities->Num() > 0) {
-					g_player[i]->m_isDead = FALSE;
-				}
-			}
-		}
-	}
 	render_observer::AddCopyVision();
 
 	if(!g_network.IsActive() && !g_network.IsNetworkLaunch())
@@ -2502,7 +2093,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		//into the stop player.
 		NewTurnCount::SetStopPlayer(g_scenarioUsePlayerNumber);
 
-	} else {
+	}
+	else
+	{
 		g_scenarioUsePlayerNumber = 0;
 	}
 
@@ -2748,3 +2341,4 @@ void gameinit_ResetMapSize()
     // Let the UI (if any) re-render tileset, radar window, background, etc.
     if (gameobservers_Get()) gameobservers_Get()->NotifyMapResized();
 }
+// touch

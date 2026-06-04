@@ -253,11 +253,6 @@ GoodyHut::GoodyHut(uint32 type, uint32 value)
     m_value     = value;
 }
 
-GoodyHut::GoodyHut(CivArchive &archive)
-{
-	Serialize(archive); // sets m_typeValue and m_value
-}
-
 //----------------------------------------------------------------------------
 //
 // Name       : GoodyHut::ChooseType

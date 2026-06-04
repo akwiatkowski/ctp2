@@ -34,38 +34,12 @@ EndGame::EndGame(PLAYER_INDEX owner)
 	Init();
 }
 
-EndGame::EndGame(CivArchive &archive)
-{
-	Serialize(archive);
-}
-
 EndGame::~EndGame()
 {
 	
 		delete [] m_numBuilt;
 	
 		delete [] m_savedNumBuilt;
-}
-
-void EndGame::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		archive.StoreChunk((uint8*)&m_owner, (uint8*)&m_currentStageBegan + sizeof(m_currentStageBegan));
-		archive.Store((uint8*)m_numBuilt, endgamedb_Get()->m_nRec * sizeof(sint32));
-		archive.Store((uint8*)m_savedNumBuilt, endgamedb_Get()->m_nRec * sizeof(sint32));
-	} else {
-		archive.LoadChunk((uint8*)&m_owner, (uint8*)&m_currentStageBegan + sizeof(m_currentStageBegan));
-
-
-		
-			delete [] m_numBuilt;
-		
-			delete [] m_savedNumBuilt;
-		m_numBuilt = new sint32[endgamedb_Get()->m_nRec];
-		m_savedNumBuilt = new sint32[endgamedb_Get()->m_nRec];
-		archive.Load((uint8*)m_numBuilt, endgamedb_Get()->m_nRec * sizeof(sint32));
-		archive.Load((uint8*)m_savedNumBuilt, endgamedb_Get()->m_nRec * sizeof(sint32));
-	}
 }
 
 void EndGame::Init()

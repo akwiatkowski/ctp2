@@ -33,9 +33,7 @@ private:
 
 public:
 	EndGame(PLAYER_INDEX owner);
-	EndGame(CivArchive &archive);
 	~EndGame();
-	void Serialize(CivArchive &archive);
 	void Init();
 
 	void AddObject(sint32 type);

@@ -79,7 +79,6 @@ class GoodyHut
 public:
 	GoodyHut();
 	GoodyHut(uint32 type, uint32 value);
-	GoodyHut(CivArchive &archive);
 
 	void OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point);
 	void Serialize(CivArchive & archive);

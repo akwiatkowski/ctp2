@@ -47,6 +47,11 @@
 #include "gs/gameobj/DiplomaticRequestPool.h"
 #include "gs/gameobj/AgreementPool.h"
 #include "gs/gameobj/TradeOfferPool.h"
+#include "gs/gameobj/Agreement.h"
+#include "gs/gameobj/DiplomaticRequest.h"
+#include "gs/gameobj/installation.h"
+#include "gs/gameobj/TerrImprove.h"
+#include "gs/gameobj/message.h"
 #include "gs/gameobj/Sci.h"               // Science
 #include "gs/gameobj/Readiness.h"         // MilitaryReadiness
 #include "gs/gameobj/pollution.h"
@@ -3009,6 +3014,12 @@ void to_json(nlohmann::json &j, Player const &p)
             arr.push_back(static_cast<uint32>(u->Access(i).m_id));
         return arr;
     };
+    auto ids_from_handles = [](auto const *arr) {
+        nlohmann::json out = nlohmann::json::array();
+        if (arr) for (sint32 i = 0; i < arr->Num(); ++i)
+            out.push_back(static_cast<uint32>(arr->Access(i).m_id));
+        return out;
+    };
 
     j = nlohmann::json{
         // StoreChunk block
@@ -3106,6 +3117,13 @@ void to_json(nlohmann::json &j, Player const &p)
         {"all_cities",       ids_from_units(p.m_all_cities)},
         {"all_units",        ids_from_units(p.m_all_units)},
         {"trader_units",     ids_from_units(p.m_traderUnits)},
+        {"messages",                ids_from_handles(p.m_messages)},
+        {"trade_offers",            ids_from_handles(p.m_tradeOffers)},
+        {"requests",                ids_from_handles(p.m_requests)},
+        {"agreed",                  ids_from_handles(p.m_agreed)},
+        {"all_installations",       ids_from_handles(p.m_allInstallations)},
+        {"all_radar_installations", ids_from_handles(p.m_allRadarInstallations)},
+        {"terrain_improvements",    ids_from_handles(p.m_terrainImprovements)},
     };
 }
 
@@ -3280,6 +3298,26 @@ void from_json(nlohmann::json const &j, Player &p)
     load_unit_ids("all_cities",   p.m_all_cities);
     load_unit_ids("all_units",    p.m_all_units);
     load_unit_ids("trader_units", p.m_traderUnits);
+
+    // Per-player DynamicArray<Handle> ID arrays for pool-backed handles.
+    // Handles construct from uint32. Backing pools are restored earlier
+    // in LoadJson, so the IDs resolve to live data on first dereference.
+    auto load_handles = [&j]<typename Arr>(char const *key, Arr *dst) {
+        if (!dst || !j.contains(key)) return;
+        dst->Clear();
+        using HandleT = std::remove_reference_t<decltype(dst->Access(0))>;
+        for (auto const &v : j.at(key)) {
+            HandleT h(v.template get<uint32>());
+            dst->Insert(h);
+        }
+    };
+    load_handles("messages",                p.m_messages);
+    load_handles("trade_offers",            p.m_tradeOffers);
+    load_handles("requests",                p.m_requests);
+    load_handles("agreed",                  p.m_agreed);
+    load_handles("all_installations",       p.m_allInstallations);
+    load_handles("all_radar_installations", p.m_allRadarInstallations);
+    load_handles("terrain_improvements",    p.m_terrainImprovements);
 }
 
 // Phase D — Foreigner

@@ -23,6 +23,7 @@
 #include "gs/gameobj/TaxRate.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/Diffcly.h"
+#include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/Sci.h"
 #include "gs/gameobj/Readiness.h"
 #include "gs/gameobj/pollution.h"
@@ -696,6 +697,24 @@ TEST_CASE("json round-trip: Difficulty preserves all 32 fields")
     CHECK(d.GetBaseScore() == 1000);
 
     nlohmann::json j2 = d;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: MaterialPool preserves all 3 fields")
+{
+    MaterialPool orig(/*owner*/2);
+    orig.SetLevel(750);
+    orig.SetCap(2000);
+
+    nlohmann::json j = orig;
+    alignas(MaterialPool) unsigned char buf[sizeof(MaterialPool)];
+    MaterialPool &round = *reinterpret_cast<MaterialPool *>(buf);
+    j.get_to(round);
+
+    CHECK(round.GetMaterials() == 750);
+    CHECK(round.GetCap() == 2000);
+
+    nlohmann::json j2 = round;
     CHECK(j2 == j);
 }
 

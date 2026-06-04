@@ -7,6 +7,7 @@
 #include "gs/gameobj/ObjPool.h"
 
 #include "gs/gameobj/DiplomaticRequest.h"
+#include <nlohmann/json.hpp>
 
 enum REQUEST_TYPE ;
 
@@ -50,6 +51,8 @@ class DiplomaticRequestPool : public ObjPool
 					 MessageDynamicArray &msgExpired);
 		void Serialize(CivArchive &archive) override ;
 
+		friend void to_json(nlohmann::json &j, DiplomaticRequestPool const &p);
+		friend void from_json(nlohmann::json const &j, DiplomaticRequestPool &p);
 	} ;
 
 // Lifecycle (new / archive-load / Cleanup) lives in

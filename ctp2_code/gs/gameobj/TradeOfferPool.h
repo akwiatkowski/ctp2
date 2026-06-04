@@ -8,6 +8,8 @@
 
 #include "gs/gameobj/TradeOffer.h"
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 template <class T> class DynamicArray;
 
@@ -46,6 +48,9 @@ public:
 	void RemoveTradeOffersFromCity(Unit &city);
 	void Serialize(CivArchive &archive) override;
 	void AddFromNetwork(const TradeOffer &offer);
+
+	friend void to_json(nlohmann::json &j, TradeOfferPool const &p);
+	friend void from_json(nlohmann::json const &j, TradeOfferPool &p);
 };
 
 // g_theTradeOfferPool's lifecycle (new / archive-load / Cleanup) lives

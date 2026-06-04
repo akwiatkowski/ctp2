@@ -45,6 +45,7 @@ class CivArchive;
 
 #include "gs/gameobj/DiplomaticTypes.h"
 #include "gs/gameobj/Player.h"
+#include <nlohmann/json.hpp>
 
 class DiplomaticRequestData : public GameObj
 	{
@@ -72,6 +73,8 @@ class DiplomaticRequestData : public GameObj
 
 		friend class NetDiplomaticRequest;
 		friend class NetAction;
+		friend void to_json(nlohmann::json &j, DiplomaticRequestData const &d);
+		friend void from_json(nlohmann::json const &j, DiplomaticRequestData &d);
 
 	public:
 		DiplomaticRequestData(const ID id, sint32 currentRound) ;

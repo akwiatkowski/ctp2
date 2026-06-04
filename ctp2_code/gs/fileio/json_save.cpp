@@ -42,6 +42,11 @@
 #include "gs/gameobj/TaxRate.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/Diffcly.h"
+#include "gs/gameobj/MaterialPool.h"
+#include "gs/gameobj/DiplomaticRequestData.h"
+#include "gs/gameobj/DiplomaticRequestPool.h"
+#include "gs/gameobj/AgreementPool.h"
+#include "gs/gameobj/TradeOfferPool.h"
 #include "gs/gameobj/Sci.h"               // Science
 #include "gs/gameobj/Readiness.h"         // MilitaryReadiness
 #include "gs/gameobj/pollution.h"
@@ -715,6 +720,22 @@ void from_json(nlohmann::json const &j, Gold &g)
     j.at("delta_last_turn")       .get_to(g.m_delta_last_turn);
     j.at("consider_for_science")  .get_to(g.m_consider_for_science);
     j.at("owner")                 .get_to(g.m_owner);
+}
+
+void to_json(nlohmann::json &j, MaterialPool const &m)
+{
+    j = nlohmann::json{
+        {"level", m.m_level},
+        {"owner", m.m_owner},
+        {"cap",   m.m_cap},
+    };
+}
+
+void from_json(nlohmann::json const &j, MaterialPool &m)
+{
+    j.at("level").get_to(m.m_level);
+    j.at("owner").get_to(m.m_owner);
+    j.at("cap")  .get_to(m.m_cap);
 }
 
 void to_json(nlohmann::json &j, Difficulty const &d)
@@ -2194,6 +2215,143 @@ void from_json(nlohmann::json const &j, TerrainImprovementPool &p)
     }
 }
 
+// Phase 0.B — DiplomaticRequestData + DiplomaticRequestPool + AgreementPool + TradeOfferPool
+//
+// All three pools follow the UnitPool / ArmyPool template: store next_key
+// + array of live entries; on load drain + restore next_key + reinsert.
+
+void to_json(nlohmann::json &j, DiplomaticRequestData const &d)
+{
+    j = nlohmann::json{
+        {"id",                  d.m_id},
+        {"round",               d.m_round},
+        {"owner",               d.m_owner},
+        {"recipient",           d.m_recipient},
+        {"third_party",         d.m_thirdParty},
+        {"request",             static_cast<sint32>(d.m_request)},
+        {"response",            static_cast<sint32>(d.m_response)},
+        {"tone",                d.m_tone},
+        {"advance",             d.m_advance},
+        {"reciprocal_advance",  d.m_reciprocalAdvance},
+        {"target_city",         static_cast<ID const &>(d.m_targetCity)},
+        {"reciprocal_city",     static_cast<ID const &>(d.m_reciprocalCity)},
+        {"amount",              d.m_amount},
+    };
+}
+
+void from_json(nlohmann::json const &j, DiplomaticRequestData &d)
+{
+    j.at("id")                .get_to(d.m_id);
+    j.at("round")             .get_to(d.m_round);
+    j.at("owner")             .get_to(d.m_owner);
+    j.at("recipient")         .get_to(d.m_recipient);
+    j.at("third_party")       .get_to(d.m_thirdParty);
+    d.m_request  = static_cast<REQUEST_TYPE>(j.at("request").get<sint32>());
+    d.m_response = static_cast<REQUEST_RESPONSE_TYPE>(j.at("response").get<sint32>());
+    j.at("tone")              .get_to(d.m_tone);
+    j.at("advance")           .get_to(d.m_advance);
+    j.at("reciprocal_advance").get_to(d.m_reciprocalAdvance);
+    ID tmp(0);
+    j.at("target_city")       .get_to(tmp);
+    d.m_targetCity = Unit(tmp.m_id);
+    j.at("reciprocal_city")   .get_to(tmp);
+    d.m_reciprocalCity = Unit(tmp.m_id);
+    j.at("amount")            .get_to(d.m_amount);
+}
+
+void to_json(nlohmann::json &j, DiplomaticRequestPool const &p)
+{
+    nlohmann::json requests = nlohmann::json::array();
+    for (auto i : p.m_table)
+    {
+        if (i)
+            requests.push_back(
+                *reinterpret_cast<DiplomaticRequestData const *>(i));
+    }
+    j = nlohmann::json{
+        {"next_key", const_cast<DiplomaticRequestPool &>(p).HackGetKey()},
+        {"requests", std::move(requests)},
+    };
+}
+
+void from_json(nlohmann::json const &j, DiplomaticRequestPool &p)
+{
+    for (auto & i : p.m_table)
+    {
+        while (i)
+            p.Del(i);
+    }
+    p.HackSetKey(j.at("next_key").get<uint32>());
+    for (auto const &entry : j.at("requests"))
+    {
+        DiplomaticRequestData *data = new DiplomaticRequestData(ID(0), /*currentRound*/0);
+        entry.get_to(*data);
+        p.Insert(data);
+    }
+}
+
+void to_json(nlohmann::json &j, AgreementPool const &p)
+{
+    nlohmann::json agreements = nlohmann::json::array();
+    for (auto i : p.m_table)
+    {
+        if (i)
+            agreements.push_back(
+                *reinterpret_cast<AgreementData const *>(i));
+    }
+    j = nlohmann::json{
+        {"next_key",   const_cast<AgreementPool &>(p).HackGetKey()},
+        {"agreements", std::move(agreements)},
+    };
+}
+
+void from_json(nlohmann::json const &j, AgreementPool &p)
+{
+    for (auto & i : p.m_table)
+    {
+        while (i)
+            p.Del(i);
+    }
+    p.HackSetKey(j.at("next_key").get<uint32>());
+    for (auto const &entry : j.at("agreements"))
+    {
+        AgreementData *data = new AgreementData(ID(0));
+        entry.get_to(*data);
+        p.Insert(data);
+    }
+}
+
+void to_json(nlohmann::json &j, TradeOfferPool const &p)
+{
+    nlohmann::json offers = nlohmann::json::array();
+    for (auto i : p.m_table)
+    {
+        if (i)
+            offers.push_back(
+                *reinterpret_cast<TradeOfferData const *>(i));
+    }
+    j = nlohmann::json{
+        {"next_key", const_cast<TradeOfferPool &>(p).HackGetKey()},
+        {"offers",   std::move(offers)},
+    };
+}
+
+void from_json(nlohmann::json const &j, TradeOfferPool &p)
+{
+    for (auto & i : p.m_table)
+    {
+        while (i)
+            p.Del(i);
+    }
+    p.HackSetKey(j.at("next_key").get<uint32>());
+    for (auto const &entry : j.at("offers"))
+    {
+        TradeOfferData *data = new TradeOfferData(ID(0));
+        entry.get_to(*data);
+        p.Insert(data);
+    }
+}
+
 // Phase F-7 — SlicConst (smallest Slic-family leaf, no other Slic deps).
 // Mirrors SlicConst::Serialize at gs/slic/SlicConst.cpp:23.  Persists
 // the (length-prefixed) name string and integer value.
@@ -2783,11 +2941,13 @@ void from_json(nlohmann::json const &j, CityData &c)
 //
 // OMITTED with reason (Phase F pool work):
 //   - m_vision (Vision),
-//     m_tradeOffers (TradeOfferPool), m_terrainImprovements
-//     (TerrainImprovementPool), m_materialPool (MaterialPool),
-//     m_messages (MessagePool), m_allRadarInstallations,
-//     m_allInstallations (InstallationPool), m_requests, m_agreed —
-//     each needs its own bridge in Phase F.
+//     m_tradeOffers / m_terrainImprovements / m_messages / m_requests /
+//     m_agreed / m_allInstallations / m_allRadarInstallations are
+//     per-player DynamicArray<Handle> views into the corresponding
+//     global pools. The pools themselves now save/load via SaveJson/
+//     LoadJson (DiplomaticRequestPool, AgreementPool, TradeOfferPool
+//     added Phase 0.B); the per-player ID arrays still need bridges
+//     analogous to ids_from_armies/ids_from_units.
 //   - m_capitol (Unit*) — serialised as Unit ID (already bridgeable
 //     via ID base).
 //
@@ -2795,7 +2955,7 @@ void from_json(nlohmann::json const &j, CityData &c)
 //   - m_science (Science), m_tax_rate (TaxRate), m_advances (Advances),
 //     m_global_happiness (Happy), m_readiness (MilitaryReadiness),
 //     m_regard (Regard), m_strengths (Strengths), m_gold (Gold),
-//     m_difficulty (Difficulty).
+//     m_difficulty (Difficulty), m_materialPool (MaterialPool).
 
 void to_json(nlohmann::json &j, Player const &p)
 {
@@ -2938,6 +3098,7 @@ void to_json(nlohmann::json &j, Player const &p)
         {"strengths",        p.m_strengths        ? nlohmann::json(*p.m_strengths)       : nlohmann::json(nullptr)},
         {"gold",             p.m_gold             ? nlohmann::json(*p.m_gold)            : nlohmann::json(nullptr)},
         {"difficulty",       p.m_difficulty       ? nlohmann::json(*p.m_difficulty)      : nlohmann::json(nullptr)},
+        {"material_pool",    p.m_materialPool     ? nlohmann::json(*p.m_materialPool)    : nlohmann::json(nullptr)},
         // m_capitol via ID
         {"capitol",          p.m_capitol          ? nlohmann::json(static_cast<ID const &>(*p.m_capitol)) : nlohmann::json(nullptr)},
         // Per-player object-id lists (see comment above to_json).
@@ -3083,6 +3244,7 @@ void from_json(nlohmann::json const &j, Player &p)
     if (!j.at("strengths")        .is_null() && p.m_strengths)        j.at("strengths")       .get_to(*p.m_strengths);
     if (!j.at("gold")             .is_null() && p.m_gold)             j.at("gold")            .get_to(*p.m_gold);
     if (!j.at("difficulty")       .is_null() && p.m_difficulty)       j.at("difficulty")      .get_to(*p.m_difficulty);
+    if (!j.at("material_pool")    .is_null() && p.m_materialPool)     j.at("material_pool")   .get_to(*p.m_materialPool);
 
     // m_capitol (Unit*) — null in JSON skips
     if (!j.at("capitol").is_null() && p.m_capitol)
@@ -4796,6 +4958,9 @@ bool SaveJson(char const *path)
     if (CivilisationPool *cp = civilisationpool_Get()) doc["civilisation_pool"] = *cp;
     if (MessagePool *mp = messagepool_Get()) doc["message_pool"] = *mp;
     if (InstallationPool *ip = installationpool_Get()) doc["installation_pool"] = *ip;
+    if (DiplomaticRequestPool *dp = diplomaticrequestpool_Get()) doc["diplomatic_request_pool"] = *dp;
+    if (AgreementPool *agp = agreementpool_Get()) doc["agreement_pool"] = *agp;
+    if (TradeOfferPool *top = tradeofferpool_Get()) doc["trade_offer_pool"] = *top;
 
     // --- Trackers + exclusions (GameFile::Save:474-503) --------------
     if (wonder_tracker_Get())  doc["wonder_tracker"]            = *wonder_tracker_Get();
@@ -4933,6 +5098,9 @@ bool LoadJson(char const *path)
         if (CivilisationPool *cp = civilisationpool_Get(); doc.contains("civilisation_pool") && cp) doc.at("civilisation_pool").get_to(*cp);
         if (MessagePool *mp = messagepool_Get(); doc.contains("message_pool") && mp) doc.at("message_pool").get_to(*mp);
         if (InstallationPool *ip = installationpool_Get(); doc.contains("installation_pool") && ip) doc.at("installation_pool").get_to(*ip);
+        if (DiplomaticRequestPool *dp = diplomaticrequestpool_Get(); doc.contains("diplomatic_request_pool") && dp) doc.at("diplomatic_request_pool").get_to(*dp);
+        if (AgreementPool *agp = agreementpool_Get(); doc.contains("agreement_pool") && agp) doc.at("agreement_pool").get_to(*agp);
+        if (TradeOfferPool *top = tradeofferpool_Get(); doc.contains("trade_offer_pool") && top) doc.at("trade_offer_pool").get_to(*top);
 
         // Trackers
         if (doc.contains("wonder_tracker") && wonder_tracker_Get()) doc.at("wonder_tracker").get_to(*wonder_tracker_Get());

@@ -8,6 +8,7 @@
 #define k_DEFAULT_MATERIALS_TAX 0.2
 
 class CivArchive;
+#include <nlohmann/json.hpp>
 
 class MaterialPool
 {
@@ -34,6 +35,9 @@ public:
 	void SetCap(sint32 cap) { m_cap = cap; }
 	sint32 GetCap() { return m_cap; }
 	void Serialize(CivArchive &archive);
+
+	friend void to_json(nlohmann::json &j, MaterialPool const &m);
+	friend void from_json(nlohmann::json const &j, MaterialPool &m);
 };
 
 #endif

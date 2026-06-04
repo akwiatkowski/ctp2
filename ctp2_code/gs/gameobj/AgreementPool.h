@@ -7,6 +7,7 @@
 class AgreementPool;
 
 #include "gs/gameobj/ObjPool.h"
+#include <nlohmann/json.hpp>
 
 class AgreementData;
 class Agreement;
@@ -26,6 +27,9 @@ public:
 	void EndRound();
 
 	void Serialize(CivArchive &archive) override;
+
+	friend void to_json(nlohmann::json &j, AgreementPool const &p);
+	friend void from_json(nlohmann::json const &j, AgreementPool &p);
 };
 
 // Lifecycle in gs/utility/gameinit.cpp; backing static there.  External

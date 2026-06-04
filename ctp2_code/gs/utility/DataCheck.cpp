@@ -38,90 +38,13 @@
 
 #include "ctp/c3.h"                        // Precompiled header
 #include "gs/utility/DataCheck.h"
-#include "gs/core/text_observer.h"
-#include "gs/utility/Checksum.h"
+#include "gs/core/text_observer.h"         // text_observer::DrawText
 
-#include "gs/utility/RandGen.h"
-
-// Database includes
-#include "gs/database/StrDB.h"
-#include "gs/database/profileDB.h"
-
-#include "AdvanceRecord.h"
-#include "AdvanceBranchRecord.h"
-#include "AdvanceListRecord.h"
-#include "AgeRecord.h"
-#include "AgeCityStyleRecord.h"
-#include "BuildingRecord.h"
-#include "BuildingBuildListRecord.h"
-#include "BuildListSequenceRecord.h"
-#include "CitySizeRecord.h"
-#include "CityStyleRecord.h"
-#include "CivilisationRecord.h"
-#include "ConstRecord.h"
-#include "DifficultyRecord.h"
-#include "DiplomacyRecord.h"
-#include "DiplomacyProposalRecord.h"
-#include "DiplomacyThreatRecord.h"
-#include "EndGameObjectRecord.h"
-#include "FeatRecord.h"
-#include "GlobalWarmingRecord.h"
-#include "GoalRecord.h"
-#include "GovernmentRecord.h"
-#include "IconRecord.h"
-#include "ImprovementListRecord.h"
-#include "MapIconRecord.h"
-#include "MapRecord.h"
-#include "OrderRecord.h"
-#include "gs/database/UVDB.h"                      // Ozone database
-#include "PersonalityRecord.h"
-#include "PollutionRecord.h"
-#include "PopRecord.h"
-#include "ResourceRecord.h"
-#include "RiskRecord.h"
-#include "SoundRecord.h"
-#include "SpecialAttackInfoRecord.h"
-#include "SpecialEffectRecord.h"
-#include "TerrainRecord.h"
-#include "SpriteRecord.h"
-#include "StrategyRecord.h"
-#include "TerrainRecord.h"
-#include "TerrainImprovementRecord.h"
-#include "UnitRecord.h"
-#include "UnitBuildListRecord.h"
-#include "WonderRecord.h"
-#include "WonderBuildListRecord.h"
-
-// Pool includes
-#include "gs/gameobj/AgreementPool.h"
-#include "gs/gameobj/CivilisationPool.h"
-#include "gs/gameobj/DiplomaticRequestPool.h"
-#include "gs/gameobj/MessagePool.h"
-#include "gs/gameobj/TerrImprovePool.h"
-#include "gs/gameobj/TradePool.h"
-#include "gs/gameobj/TradeOfferPool.h"
-#include "gs/gameobj/UnitPool.h"
-
-// Other includes
-#include "gs/gameobj/pollution.h"
-#include "gs/gameobj/TopTen.h"
-#include "gs/world/World.h"
-#include "gs/gameobj/Player.h"
-
-
-// The Databases
-;
-extern  OzoneDatabase           *g_theUVDB ;
-
-// The Pools
-#include "gs/gameobj/AgreementPool.h"     // agreementpool_Get()
-#include "gs/gameobj/CivilisationPool.h"  // civilisationpool_Get()
-#include "gs/gameobj/DiplomaticRequestPool.h"   // diplomaticrequestpool_Get()
-#include "gs/gameobj/MessagePool.h"       // messagepool_Get()
-#include "gs/gameobj/TerrImprovePool.h"  // terrimprovepool_Get()
-#include "gs/gameobj/TradePool.h"        // tradepool_Get()
-#include "gs/gameobj/TradeOfferPool.h"   // tradeofferpool_Get()
-// Others
+// Phase 0.C-5: ~50 database/pool/world includes dropped — they were
+// needed by the old CivArchive Serialize loop in BeginTurn (gutted in
+// Phase 0.C-4) and the CHECK_DB macro (removed alongside it).  The
+// surviving CRC-display code only touches m_crc[] / m_old_crc[] and
+// the CRC_TYPE_* enum.
 
 static DataCheck                *g_dataCheck = nullptr;
 

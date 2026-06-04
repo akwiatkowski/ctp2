@@ -41,6 +41,7 @@ class DiplomaticRequestPool : public ObjPool
 			}
 
 		DiplomaticRequestPool() ;
+		DiplomaticRequestPool(CivArchive &archive) ;
 
 		DiplomaticRequest Create(PLAYER_INDEX owner, PLAYER_INDEX recipient, REQUEST_TYPE request) ;
 		DiplomaticRequestData *CreateData();
@@ -48,6 +49,7 @@ class DiplomaticRequestPool : public ObjPool
 		void EndTurn(const PLAYER_INDEX sender) ;
 		void EndTurn(DiplomaticRequestData *top, const PLAYER_INDEX sender,
 					 MessageDynamicArray &msgExpired);
+		void Serialize(CivArchive &archive) override ;
 
 		friend void to_json(nlohmann::json &j, DiplomaticRequestPool const &p);
 		friend void from_json(nlohmann::json const &j, DiplomaticRequestPool &p);

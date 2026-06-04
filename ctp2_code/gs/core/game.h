@@ -56,6 +56,8 @@ public:
     // profiledb_Get()/gamesettings_Get from inside the subsystems, so
     // the class is constructible in isolation (e.g. from unit tests).
     void NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed = 0);
+    void LoadGame(CivArchive& archive);
+    void SaveGame(CivArchive& archive);
     void Cleanup();
 
     // Accessors

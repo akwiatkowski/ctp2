@@ -192,9 +192,53 @@ NetCRC::NetCRC()
 //----------------------------------------------------------------------------
 sint32 NetCRC::SerializeDBs()
 {
-    // Phase 0.C-4: body gutted — used CivArchive to serialize every DB.
-    // Net code is disabled and CivArchive is going away.
-    return 0;
+	CivArchive *archive;
+	CheckSum *check;
+	sint32 dbnum = 0;
+	sint32 numchecked = 0;
+
+	CHECKDB(g_theAdvanceDB);           //  0
+	CHECKDB(g_theAdvanceBranchDB);     //  1
+	CHECKDB(g_theAdvanceListDB);       //  2
+	CHECKDB(g_theAgeDB);               //  3
+	CHECKDB(g_theAgeCityStyleDB);      //  4
+	CHECKDB(g_theBuildListSequenceDB); //  5
+	CHECKDB(g_theBuildingDB);          //  6
+	CHECKDB(g_theBuildingBuildListDB); //  7
+	CHECKDB(g_theCitySizeDB);          //  8
+	CHECKDB(g_theCityStyleDB);         //  9
+	CHECKDB(g_theCivilisationDB);      // 10
+	CHECKDB(g_theConstDB);             // 11
+	CHECKDB(g_theDifficultyDB);        // 12
+	CHECKDB(g_theDiplomacyDB);         // 13
+	CHECKDB(g_theDiplomacyProposalDB); // 14
+	CHECKDB(g_theDiplomacyThreatDB);   // 15
+	CHECKDB(g_theEndGameObjectDB);     // 16
+	CHECKDB(g_theFeatDB);              // 17
+	CHECKDB(g_theGlobalWarmingDB);     // 18
+	CHECKDB(g_theGoalDB);              // 19
+	CHECKDB(g_theGovernmentDB);        // 20
+	CHECKDB(g_theIconDB);              // 21
+	CHECKDB(g_theImprovementListDB);   // 22
+	CHECKDB(g_theOrderDB);             // 23
+	CHECKDB(g_theUVDB);                // 24
+	CHECKDB(g_thePersonalityDB);       // 25
+	CHECKDB(g_thePollutionDB);         // 26
+	CHECKDB(g_thePopDB);               // 27
+	CHECKDB(g_theResourceDB);          // 28
+	CHECKDB(g_theRiskDB);              // 29
+	CHECKDB(g_theSoundDB);             // 30
+	CHECKDB(g_theSpecialAttackInfoDB); // 31
+	CHECKDB(g_theSpecialEffectDB);     // 32
+	CHECKDB(g_theSpriteDB);            // 33
+	CHECKDB(g_theStrategyDB);          // 34
+	CHECKDB(g_theTerrainDB);           // 35
+	CHECKDB(g_theUnitDB);              // 36
+	CHECKDB(g_theUnitBuildListDB);     // 37
+	CHECKDB(g_theWonderDB);            // 38
+	CHECKDB(g_theWonderBuildListDB);   // 39
+
+	return numchecked;
 }
 
 //----------------------------------------------------------------------------

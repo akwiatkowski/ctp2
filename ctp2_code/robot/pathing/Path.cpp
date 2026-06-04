@@ -40,6 +40,16 @@
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
 
+void Direction::Serialize(CivArchive &archive)
+
+{
+     if (archive.IsStoring()) {
+        archive << dir;
+     } else {
+         archive >> dir;
+     }
+}
+
 Path::Path()
 :
     m_next_dir          (0),

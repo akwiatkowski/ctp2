@@ -55,7 +55,9 @@ class GameEventArgList
 {
 public:
 	GameEventArgList(va_list * vl = nullptr, GAME_EVENT eventType = GEV_MAX);
+	GameEventArgList(CivArchive &archive);
 	~GameEventArgList();
+	void Serialize(CivArchive &archive);
 
 	void Add(GameEventArgument *arg);
 

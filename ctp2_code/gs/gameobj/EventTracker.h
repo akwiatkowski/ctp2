@@ -8,8 +8,6 @@
 void trackerevent_Initialize();
 void trackerevent_Cleanup();
 
-class CivArchive;
-
 enum EVENT_TYPE
 {
 	EVENT_TYPE_NONE = -1,
@@ -49,12 +47,10 @@ class EventTracker
 {
 public:
 	EventTracker();
-	EventTracker(CivArchive &archive);
 	~EventTracker();
 	void AddEvent(EVENT_TYPE type, sint32 playerNum, sint32 turn, sint32 dbIndex);
 	void ResetList();
 	EventData *GetEvents(BOOL Reset);
-	void Serialize(CivArchive &archive);
 	int GetEventCount();
 public:
 	PointerList<EventData> *m_dataList;

@@ -54,7 +54,6 @@ class	Gold;
 //----------------------------------------------------------------------------
 
 #include "ctp/c3types.h"			// MBCHAR, sint..., uint...
-#include "robot/aibackdoor/civarchive.h"			// CivArchive
 #include "gs/utility/gstypes.h"			// PLAYER_INDEX
 #include <nlohmann/json.hpp>
 
@@ -122,8 +121,6 @@ public:
 	BOOL GiveGold(const sint32 amount);
 
 	Gold & operator= (const Gold &copyMe) ;
-
-	void Serialize(CivArchive &archive) ;
 
     void GetGoldLevels(sint32 *income, sint32 *lost_to_cleric,
         sint32 *lost_to_crime, sint32 *maintenance, sint32 *wages,

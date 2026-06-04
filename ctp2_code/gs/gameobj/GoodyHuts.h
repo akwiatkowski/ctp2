@@ -66,7 +66,6 @@ enum GOODY
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
 class MapPoint;
 class NetCellList;
 
@@ -81,7 +80,6 @@ public:
 	GoodyHut(uint32 type, uint32 value);
 
 	void OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point);
-	void Serialize(CivArchive & archive);
 
 private:
 //----------------------------------------------------------------------------

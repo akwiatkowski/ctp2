@@ -35,8 +35,6 @@
 #ifndef __GAME_OBJ_H__
 #define __GAME_OBJ_H__ 1
 
-class CivArchive;
-
 #define k_GAMEOBJ_VERSION_MAJOR	0
 #define k_GAMEOBJ_VERSION_MINOR	0
 
@@ -58,8 +56,6 @@ public:
 
 	void SetKillMeSoon(){ m_killMeSoon = true; };
 	bool KillMeSoon(){ return m_killMeSoon; };
-	// Phase 0.C-5: virtual Serialize(CivArchive&) deleted; CivArchive
-	// binary save path is gone.  JSON path lives in json_save.cpp.
 
 	friend GameObj * GameObj_Access(GameObj *p, const uint32 i);
 	friend const GameObj *GameObj_Get(GameObj *p, const uint32 i);
@@ -75,6 +71,5 @@ const GameObj * GameObj_Get(GameObj *p, const uint32 i);
 bool GameObj_Valid(GameObj *p, uint32 id);
 void GameObj_Insert(GameObj **p, GameObj *ins);
 void GameObj_Delete(GameObj **p, uint32 i);
-void GameObj_Slurp(CivArchive &archive, GameObj *p) ;
 
 #endif

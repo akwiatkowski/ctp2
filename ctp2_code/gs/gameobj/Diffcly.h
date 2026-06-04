@@ -37,7 +37,6 @@ class Difficulty;
 
 #include "gs/gameobj/Player.h" // PLAYER_INDEX
 #include <nlohmann/json.hpp>
-class CivArchive;
 
 #define k_DIFFICULTY_VERSION_MAJOR	0
 #define k_DIFFICULTY_VERSION_MINOR	0
@@ -113,8 +112,6 @@ public:
 	sint32 GetVisionBonus() const {return m_vision_bonus; }
 	sint32 GetBaseScore() const {return m_base_score; }
 	double GetDistanceFromCapitolAdjustment() const { return m_distance_from_capitol_adjustment; }
-
-	void Serialize(CivArchive &archive) ;
 
 	friend void to_json(nlohmann::json &j, Difficulty const &d);
 	friend void from_json(nlohmann::json const &j, Difficulty &d);

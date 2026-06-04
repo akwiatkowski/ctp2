@@ -9,7 +9,6 @@ template <class T> class DynamicArray;
 
 class Army;
 
-class CivArchive;
 class UnitDynamicArray;
 
 class PlayerHappiness {
@@ -64,8 +63,6 @@ public:
     double GetWarDiscontent() { return m_warDiscontent; }
 
     void DisplayWWR();
-
-    void Serialize (CivArchive &archive);
 };
 
 #endif

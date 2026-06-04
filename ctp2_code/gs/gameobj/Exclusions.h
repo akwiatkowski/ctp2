@@ -6,8 +6,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
-
 class Exclusions
 {
 	friend void to_json(nlohmann::json &j, Exclusions const &e);
@@ -24,10 +22,7 @@ private:
 
 public:
 	Exclusions();
-	Exclusions(CivArchive &archive) { Serialize(archive); }
 	~Exclusions();
-
-	void Serialize(CivArchive &archive);
 
 	sint32 IsUnitExcluded(sint32 type) { return m_units[type]; }
 	sint32 IsBuildingExcluded(sint32 type) { return m_buildings[type]; }

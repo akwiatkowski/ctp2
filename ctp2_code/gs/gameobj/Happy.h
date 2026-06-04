@@ -60,7 +60,6 @@ class HappyTimer;
 #include <nlohmann/json.hpp>
 
 class CityData;
-class CivArchive;
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -86,8 +85,6 @@ public:
 	    m_adjustment        (adjust),
 	    m_reason            (reason)
 	{ ; };
-
-	void Serialize(CivArchive &archive);
 };
 
 class Happy
@@ -219,7 +216,6 @@ class Happy
 		double GetGreedyPopHappiness(CityData &cd);
 
 		void SetFullHappinessTurns(sint32 turns);
-		void Serialize(CivArchive &archive);
 
 		void ForceRevolt();
 		void CountAffectivePop(CityData &cd);

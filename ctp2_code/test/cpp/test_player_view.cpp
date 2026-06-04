@@ -88,7 +88,7 @@ constexpr std::size_t AI_SOUND_HEADER_BASELINE = 0;
 // Phase F-5: json_save.cpp adds #include "robot/pathing/Path.h" for
 // TradeRouteData's embedded Path bridge (+1).
 constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 118;
-constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 27;
+constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 25;
 
 // ai/ files include robot/ headers for pathing and backdoor access.
 // Ratcheting locks the current counts so future work can only reduce them.

@@ -56,7 +56,6 @@ class GaiaController {
 
 
 	~GaiaController();
-	void Serialize(CivArchive &archive);
 
 	static void InitializeStatics();
 

@@ -106,7 +106,6 @@ public:
 	virtual SlicSymbolData *CreateDataSymbol();
 
 	friend class SlicStructInstance;
-	friend SlicSymbolData *slicsymbol_Load(CivArchive &archive);
 private:
 	std::string m_name;
 	SLIC_BUILTIN m_type;
@@ -146,7 +145,6 @@ public:
 
 	~SlicStructMemberData() override = default;
 
-	void SerializeMemberReference(CivArchive &archive);
 	SLIC_SYM_SERIAL_TYPE GetSerializeType() override { return SLIC_SYM_SERIAL_MEMBER; }
 	SLIC_SYM GetType() const override { return SLIC_SYM_STRUCT_MEMBER; }
 	SlicStructInstance *GetParent() { return m_parent; }

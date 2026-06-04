@@ -71,7 +71,6 @@ sint32 const	USE_CURRENT_ROUND			= -1;
 //----------------------------------------------------------------------------
 
 #include "ctp/c3types.h"			// MBCHAR, sint32
-#include "robot/aibackdoor/civarchive.h"			// CivArchive
 #include "ctp/ctp2_utils/pointerlist.h"		// PointerList
 #include "gs/gameobj/Unit.h"				// Unit
 
@@ -86,9 +85,7 @@ class Feat
   public:
 	Feat(sint32 type, sint32 player, sint32 round = USE_CURRENT_ROUND);
 
-	Feat(CivArchive &archive);
 	~Feat();
-	void Serialize(CivArchive &archive);
 
 	sint32 GetPlayer() { return m_player; }
 	sint32 GetType() { return m_type; }
@@ -119,9 +116,7 @@ class FeatTracker {
 
   public:
 	FeatTracker();
-	FeatTracker(CivArchive &archive);
 	~FeatTracker();
-	void Serialize(CivArchive &archive);
 
 	static void Initialize();
 	static void Cleanup();

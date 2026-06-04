@@ -244,14 +244,3 @@ void PlayerHappiness::DisplayWWR()
 
 }
 
-void PlayerHappiness::Serialize (CivArchive &archive)
-
-{
-    CHECKSERIALIZE
-
-    if (archive.IsStoring()) {
-		archive.Store((uint8 *)this, sizeof(PlayerHappiness)) ;
-    } else {
-		archive.Load((uint8 *)this, sizeof(PlayerHappiness)) ;
-    }
-}

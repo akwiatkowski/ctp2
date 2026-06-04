@@ -7,8 +7,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
-
 class GameSettings {
 private:
 
@@ -30,7 +28,6 @@ private:
 
 public:
 	GameSettings();
-	GameSettings(CivArchive &archive);
 
 	void SetKeepScore( BOOL keepScore );
 	void SetPollution( BOOL pollution );
@@ -45,8 +42,6 @@ public:
 	BOOL GetPollution() const { return m_pollution; }
 	sint32 GetStartingAge() const { return m_startingAge; }
 	sint32 GetEndingAge() const { return m_endingAge; }
-
-	void Serialize(CivArchive &archive);
 };
 
 // Lifecycle in gs/utility/gameinit.cpp; backing static there.

@@ -12,8 +12,6 @@ class TradeOfferData;
 #include "gs/gameobj/ID.h"
 #include "gs/gameobj/TradeRouteData.h"
 
-class CivArchive;
-
 class TradeOfferData : public GAMEOBJ {
 private:
 
@@ -41,16 +39,11 @@ public:
 
 	TradeOfferData(const ID id) : GAMEOBJ(id.m_id) {}
 
-	TradeOfferData(CivArchive &archive) : GAMEOBJ(0) { Serialize(archive); };
-
 	Unit GetFromCity() const { return m_fromCity; }
 	ROUTE_TYPE GetOfferType() const { return m_offerType; }
 	sint32 GetOfferResource() const { return m_offerResource; }
 	ROUTE_TYPE GetAskingType() const { return m_askingType; }
 	sint32 GetAskingResource() const { return m_askingResource; }
-
-
-	void Serialize(CivArchive &archive);
 };
 
 #endif

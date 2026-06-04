@@ -21,12 +21,6 @@
 // _DEBUG
 // - Generate debug version when set.
 //
-// _SLOW_BUT_SAFE
-// - Define 2 other symbols (PROJECTED_CHECK_START and PROJECTED_CHECK_END)
-//   when set. But the defined symbols are never used, so this doesn't do
-//   anything at all. This makes preprocessing and compilation slower, but
-//   should be safe.
-//
 //----------------------------------------------------------------------------
 //
 // Modifications from the original Activision code:

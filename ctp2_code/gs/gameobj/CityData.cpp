@@ -21,12 +21,6 @@
 // _DEBUG
 // - Generate debug version when set.
 //
-// _SLOW_BUT_SAFE
-// - Define 2 other symbols (PROJECTED_CHECK_START and PROJECTED_CHECK_END)
-//   when set. But the defined symbols are never used, so this doesn't do
-//   anything at all. This makes preprocessing and compilation slower, but
-//   should be safe.
-//
 // USE_LOGGING
 // - Enable logging when set, even when not building a debug version.
 //
@@ -306,14 +300,6 @@ typedef std::shared_ptr<UnitActor> UnitActorPtr;
 
 
 
-// Phase 0.C-5: HackCityArchive + PROJECTED_CHECK_{START,END} macros
-// previously round-tripped CityData through a CivArchive to assert CRC
-// stability across an operation.  Guarded by _SLOW_BUT_SAFE which is
-// never defined; CityData::Serialize(CivArchive&) is gone anyway.
-// Macros expand to empty so existing PROJECTED_CHECK_START/END call
-// sites compile to nothing.
-#define PROJECTED_CHECK_START
-#define PROJECTED_CHECK_END
 
 //----------------------------------------------------------------------------
 //

@@ -738,12 +738,6 @@ void print_dip_details(FILE *dipFile, const DiplomacyProposalRecord::StrengthStr
 }
 #endif
 
-// Old style interface - parameter not used any more
-sint32 CivApp::InitializeAppDB(CivArchive & /* archive */)
-{
-	return InitializeAppDB() ? TRUE : FALSE;
-}
-
 /// Initialize databases
 bool CivApp::InitializeAppDB()
 {
@@ -2347,7 +2341,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 	ProgressTo( 740 );
 
 	SPLASH_STRING("Initializing AI...");
-	roboinit_Initalize(archive);
+	roboinit_Initalize();
 	CtpAi::Initialize();
 
 	ProgressTo( 750 );
@@ -3522,7 +3516,7 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	// and CtpAi::Initialize(); the headless path must do the same or the AI
 	// never makes decisions (settlers never settle, score stays flat).
 	civapp_log->debug("calling roboinit_Initalize / CtpAi::Initialize");
-	roboinit_Initalize(nullptr);
+	roboinit_Initalize();
 	CtpAi::Initialize();
 
 	civapp_log->info("InitializeGameHeadless: done (game loaded)");

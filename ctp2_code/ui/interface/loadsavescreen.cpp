@@ -631,7 +631,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 			}
 
 			civapp_Get()->CleanupAppDB();
-			civapp_Get()->InitializeAppDB((*(CivArchive *)nullptr));
+			civapp_Get()->InitializeAppDB();
 		}
 	}
 

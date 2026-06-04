@@ -103,7 +103,6 @@ public:
 	// Used directly by headless_main for --new-game; also called from
 	// InitializeGame() when c3ui_Get() is null (i.e. headless save-load).
 	sint32		InitializeGameHeadless(CivArchive *archive = nullptr);
-	sint32		InitializeAppDB(CivArchive &archive);
 	sint32		InitializeGame(CivArchive *archive);
 
    	bool		IsGameLoaded() const

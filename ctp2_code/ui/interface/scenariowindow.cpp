@@ -616,7 +616,7 @@ void ScenarioWindow::SetProfileFromScenario( )
 			strcpy(scenario_name_buf(), s_ScenarioWindow->GetScenario()->m_name);
 
 			civapp_Get()->CleanupAppDB();
-			civapp_Get()->InitializeAppDB((*(CivArchive *)nullptr));
+			civapp_Get()->InitializeAppDB();
 
 
 

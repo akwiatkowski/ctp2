@@ -1907,7 +1907,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	bool createRobotInterface = true;
 
 	SPLASH_STRING("Initializing A-star Pathing...");
-	roboinit_Initalize(archive);
+	roboinit_Initalize();
 	CtpAi::Cleanup();
 
 		SPLASH_STRING("Initialize AI data elements...");

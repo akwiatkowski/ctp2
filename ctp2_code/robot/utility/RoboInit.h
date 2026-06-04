@@ -4,9 +4,7 @@
 #ifndef ROBO_INIT_H
 #define ROBO_INIT_H 1
 
-#include "robot/aibackdoor/civarchive.h"
-
-extern void roboinit_Initalize(CivArchive *a);
+extern void roboinit_Initalize();
 extern void roboinit_Cleanup();
 
 #endif

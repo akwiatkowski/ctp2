@@ -38,52 +38,6 @@ DiplomaticRequestPool::DiplomaticRequestPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_DIP
 
 
 
-DiplomaticRequestPool::DiplomaticRequestPool(CivArchive &archive) : ObjPool(k_BIT_GAME_OBJ_TYPE_DIPLOMATIC_REQUEST)
-	{
-	Serialize(archive) ;
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-void DiplomaticRequestPool::Serialize(CivArchive &archive)
-{
-	DiplomaticRequestData	*newData ;
-
-	sint32	 i;
-	sint32	 count = 0 ;
-
-    CHECKSERIALIZE
-
-#define DIPREQPOOL_MAGIC 0xEEFFAADD
-	if (archive.IsStoring())
-		{
-		}
-	else
-	{
-		if(save_file_version_Get() < 55)
-		{
-			archive.TestMagic(DIPREQPOOL_MAGIC) ;
-			archive>>count;
-			for (i=0; i<count; i++)
-			{
-				newData = new DiplomaticRequestData(archive) ;
-				Insert(newData) ;
-			}
-
-		}
-
-	}
-}
-
 
 
 

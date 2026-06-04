@@ -57,7 +57,10 @@ void UIInit(sint32 nPlayers)
 
 void UIInitFromArchive(CivArchive *archive)
 {
-	selitem_Set(new SelectedItem(*archive));
+	// Phase 0.C-4: CivArchive ctor on SelectedItem is gone.  Treat
+	// archive-init as fresh-init using the headless default of 1 player.
+	(void)archive;
+	selitem_Set(new SelectedItem(1));
 }
 
 void UICleanup()
@@ -356,10 +359,8 @@ bool UIDeserializeSelectionVersion(CivArchive &archive)
 
 void UISerializeSelection(CivArchive &archive)
 {
-	if (selitem_Get())
-	{
-		selitem_Get()->Serialize(archive);
-	}
+	// Phase 0.C-4: SelectedItem::Serialize is gone.  No-op.
+	(void)archive;
 }
 
 } // anonymous namespace

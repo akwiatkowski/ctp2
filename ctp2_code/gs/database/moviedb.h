@@ -30,7 +30,6 @@ class MovieDB {
 public:
 
 	MovieDB();
-	MovieDB(CivArchive &archive);
 	~MovieDB();
 
 	void	SetSize(sint32 size);
@@ -39,8 +38,6 @@ public:
 	MBCHAR	*GetMovieFilename(sint32 index) const;
     void	SetName(sint32 count, char str[_MAX_PATH]);
     void	SetMovieFilename(sint32 count, MBCHAR *s);
-
-	void	Serialize(CivArchive &archive) ;
 
 	sint32	ParseAMovie(Token *iconToken, sint32 count);
 	sint32	Parse(char *filename);

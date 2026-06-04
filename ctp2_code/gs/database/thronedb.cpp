@@ -37,14 +37,6 @@ ThroneDB::ThroneDB()
 	Initialize();
 }
 
-ThroneDB::ThroneDB(CivArchive &archive)
-{
-
-	Initialize();
-
-	Serialize(archive);
-}
-
 ThroneDB::~ThroneDB()
 {
 
@@ -244,26 +236,4 @@ sint32 ThroneDB::ParseAThrone(Token *throneToken, ThroneInfo *throneInfo)
 	return TRUE;
 }
 
-void ThroneDB::Serialize(CivArchive &archive)
-{
 
-	CHECKSERIALIZE;
-
-	if (archive.IsStoring()) {
-
-		archive << m_nThroneTypes;
-		archive << m_nThroneLevels;
-
-    	archive.Store((uint8 *)m_throneInfo, sizeof(ThroneInfo) * m_nThroneTypes * m_nThroneLevels) ;
-	} else {
-
-		archive >> m_nThroneTypes;
-		archive >> m_nThroneLevels;
-
-		delete m_throneInfo;
-
-		m_throneInfo = new ThroneInfo[(m_nThroneTypes * m_nThroneLevels)];
-
-        archive.Load((uint8 *)m_throneInfo, sizeof(ThroneInfo) * m_nThroneTypes * m_nThroneLevels) ;
-	}
-}

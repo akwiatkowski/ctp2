@@ -100,7 +100,6 @@ class OzoneDatabase
 	public:
 
 		OzoneDatabase() ;
-		OzoneDatabase(CivArchive &archive) ;
 		~OzoneDatabase() ;
 
 		sint32 Initialise(char *filename, C3DIR dir) ;
@@ -133,7 +132,6 @@ class OzoneDatabase
 		sint32 ParseUVDeadResourcesRecord(Token *uvToken) ;
 		sint32 ParseDeadTileNumbers(Token *uvToken, sint32 &food, sint32 &shield, sint32 &trade) ;
 		sint32 ParseDeadResourceNumbers(Token *uvToken, sint32 &food, sint32 &shield, sint32 &trade, sint32 &gold) ;
-		void Serialize(CivArchive &archive) ;
 
 	} ;
 

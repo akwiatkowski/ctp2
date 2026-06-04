@@ -1050,20 +1050,4 @@ sint32 UVRecord::ParseDeadResourceNumbers(Token *uvToken, sint32 &food, sint32 &
 
 
 
-void UVRecord::Serialize(CivArchive &archive)
-	{
-	if (archive.IsStoring())
-		{
-		Record::Serialize(archive);
-		archive.StoreChunk((uint8 *)&m_meridian_prob, ((uint8 *)&m_dead_gold)+sizeof(m_dead_gold));
-
-		}
-	else
-		{
-		Record::Serialize(archive);
-		archive.LoadChunk((uint8 *)&m_meridian_prob, ((uint8 *)&m_dead_gold)+sizeof(m_dead_gold));
-
-		}
-
-	}
 #endif

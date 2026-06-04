@@ -35,8 +35,6 @@ public:
 
 	ThroneDB();
 
-	ThroneDB(CivArchive &archive);
-
 	~ThroneDB();
 
 	void Initialize();
@@ -44,8 +42,6 @@ public:
 	sint32 Init(MBCHAR *filename);
 
 	ThroneInfo *GetThroneInfo( sint32 type, sint32 level ) const;
-
-	void Serialize(CivArchive &archive);
 
 protected:
 

@@ -38,7 +38,6 @@ public:
 
 
    Database();
-   Database(CivArchive &archive) ;
   ~Database();
    void SetSize(const sint32 n);
    void SetSizeAll(const sint32 n);
@@ -63,8 +62,6 @@ public:
    sint32 GetNamedItem (const StringId id, sint32 &index) const;
 
 	sint32 GetNamedItemID (sint32 index, StringId &id ) const;
-
-	void Serialize(CivArchive &archive) ;
 };
 
 #endif

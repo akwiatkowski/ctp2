@@ -7,12 +7,9 @@ class PlayListDB
 {
 public:
 	PlayListDB();
-	PlayListDB(CivArchive &archive);
 	~PlayListDB();
 
 	BOOL Parse(MBCHAR *filename);
-
-	void Serialize(CivArchive &archive);
 
 	sint32		GetNumSongs() { return m_numSongs; }
 	sint32		GetSong(sint32 songNum) { return m_playList[songNum]; }

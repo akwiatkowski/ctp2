@@ -62,15 +62,4 @@ sint32 Record::GetNumObsolete() const
 
 
 
-void Record::Serialize(CivArchive &archive)
-{
-	if (archive.IsStoring()) {
-		archive << m_enable;
-		archive << m_nObsolete;
-		archive.StoreArray(m_obsolete, m_nObsolete);
-	}
-	else {
-		BOOL ThisDoesntReallyWorkAnyMore = FALSE;
-		Assert(ThisDoesntReallyWorkAnyMore);
-	}
-}
+

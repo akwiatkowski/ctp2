@@ -23,12 +23,6 @@ MovieDB::MovieDB ()
 
 
 
-MovieDB::MovieDB(CivArchive &archive)
-	{
-	m_map = nullptr ;
-	Serialize(archive) ;
-	}
-
 MovieDB::~MovieDB ()
 
 {
@@ -83,25 +77,6 @@ void MovieDB::SetMovieFilename(sint32 index, MBCHAR *s)
     Assert(m_map);
 
     strcpy(m_map[index].m_movieFilename, s);
-}
-
-void MovieDB::Serialize(CivArchive &archive)
-{
-	CHECKSERIALIZE;
-
-	if (archive.IsStoring()) {
-		archive<<m_size ;
-    	archive.Store((uint8 *)m_map, sizeof(MovieNameNode) * m_size) ;
-
-	} else {
-		archive>>m_size ;
-		
-			delete m_map ;
-
-		m_map = new MovieNameNode[m_size];
-        archive.Load((uint8 *)m_map, sizeof(MovieNameNode) * m_size) ;
-	}
-
 }
 
 sint32 MovieDB::ParseAMovie(Token *movieToken, sint32 count)

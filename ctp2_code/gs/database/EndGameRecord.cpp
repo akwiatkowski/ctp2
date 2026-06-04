@@ -35,11 +35,6 @@ EndGameRecord::EndGameRecord()
 	m_requiresLab = FALSE;
 }
 
-EndGameRecord::EndGameRecord(CivArchive &archive)
-{
-	Serialize(archive);
-}
-
 EndGameRecord::~EndGameRecord()
 {
 	
@@ -47,40 +42,6 @@ EndGameRecord::~EndGameRecord()
 
 	
 		delete [] m_turnsPerStage;
-}
-
-void EndGameRecord::Serialize(CivArchive &archive)
-{
-	sint32 i;
-	Record::Serialize(archive);
-	if(archive.IsStoring()) {
-		archive.StoreChunk((uint8*)&m_cost, (uint8*)&m_scoreBonusOverMinimum + sizeof(m_scoreBonusOverMinimum));
-		for(i = 0; i < m_numStages; i++) {
-			archive << m_requiredForStage[i];
-		}
-		for(i = 0; i < m_maxAllowed; i++) {
-			archive << m_turnsPerStage[i];
-		}
-	} else {
-		archive.LoadChunk((uint8*)&m_cost, (uint8*)&m_scoreBonusOverMinimum + sizeof(m_scoreBonusOverMinimum));
-		if(m_numStages > 0) {
-			m_requiredForStage = new sint32[m_numStages];
-			for(i = 0; i < m_numStages; i++) {
-				archive >> m_requiredForStage[i];
-			}
-		} else {
-			m_requiredForStage = nullptr;
-		}
-
-		if(m_maxAllowed > 0) {
-			m_turnsPerStage = new sint32[m_maxAllowed];
-			for(i = 0; i < m_maxAllowed; i++) {
-				archive >> m_turnsPerStage[i];
-			}
-		} else {
-			m_turnsPerStage = nullptr;
-		}
-	}
 }
 
 BOOL EndGameRecord::ParseNumber(Token *token, sint32 &val)

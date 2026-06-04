@@ -147,7 +147,6 @@ class UVRecord : public Record
 		sint32 ParseUVDeadResourcesRecord(Token *uvToken) ;
 		sint32 ParseDeadTileNumbers(Token *uvToken, sint32 &food, sint32 &shield, sint32 &trade) ;
 		sint32 ParseDeadResourceNumbers(Token *uvToken, sint32 &food, sint32 &shield, sint32 &trade, sint32 &gold) ;
-		void Serialize(CivArchive &archive) ;
 
 	} ;
 

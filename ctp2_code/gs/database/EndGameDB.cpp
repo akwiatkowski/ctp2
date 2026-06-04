@@ -36,22 +36,6 @@ EndGameDatabase::EndGameDatabase()
 	m_numStages = 0;
 }
 
-EndGameDatabase::EndGameDatabase(CivArchive &archive)
-{
-	Serialize(archive);
-}
-
-void EndGameDatabase::Serialize(CivArchive &archive)
-{
-	Database<EndGameRecord>::Serialize(archive);
-
-	if(archive.IsStoring()) {
-		archive << m_numStages;
-	} else {
-		archive >> m_numStages;
-	}
-}
-
 BOOL EndGameDatabase::Initialize(char *filename, C3DIR dir)
 {
 	m_abort_parse = FALSE;

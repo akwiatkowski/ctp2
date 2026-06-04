@@ -18,8 +18,6 @@ public:
 	sint32 m_numStages;
 
 	EndGameDatabase();
-	EndGameDatabase(CivArchive &archive);
-	void Serialize(CivArchive &archive);
 
 	BOOL Initialize(char *filename, C3DIR dir);
 	BOOL ParseAnEndGameObject(Token *token, sint32 index);

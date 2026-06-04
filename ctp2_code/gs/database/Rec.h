@@ -59,8 +59,6 @@ public:
     sint32 GetEnabling() const;
     sint32 GetObsolete(sint32 index) const;
 	sint32 GetNumObsolete() const;
-
-	void Serialize(CivArchive &archive) ;
 };
 
 #endif

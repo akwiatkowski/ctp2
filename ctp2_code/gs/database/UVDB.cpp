@@ -115,19 +115,6 @@ sint32 OzoneDatabase::Initialise(char *filename, C3DIR dir)
 
 
 
-OzoneDatabase::OzoneDatabase(CivArchive &archive)
-	{
-	Serialize(archive) ;
-	}
-
-
-
-
-
-
-
-
-
 TokenData	g_UVDB_token_data[TOKEN_UV_POLLUTION_MAX_VAL] =
 	{
 		{TOKEN_OZONE_TRIGGER, "OZONE_TRIGGER"},
@@ -1247,19 +1234,4 @@ sint32 OzoneDatabase::ParseDeadResourceNumbers(Token *uvToken, sint32 &food, sin
 
 
 
-void OzoneDatabase::Serialize(CivArchive &archive)
-{
-#define UVDB_MAGIC	0x52139876
-	if (archive.IsStoring()) {
-		archive.PerformMagic(UVDB_MAGIC) ;
-		 archive.StoreArrayString(m_meridian_prob, k_NUM_MERIDIANS + 1);
-		 archive.StoreArrayString(m_meridian_phase_bonus, k_NUM_MERIDIANS+1);
 
-		archive.StoreArray(m_dead_food, k_MAX_RESOURCES);
-		archive.StoreArray(m_dead_shield, k_MAX_RESOURCES);
-		archive.StoreArray(m_dead_trade, k_MAX_RESOURCES);
-		archive.StoreArray(m_dead_gold, k_MAX_RESOURCES);
-	}
-	else {
-	}
-}

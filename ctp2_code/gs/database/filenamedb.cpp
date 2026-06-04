@@ -23,12 +23,6 @@ FilenameDB::FilenameDB ()
 
 
 
-FilenameDB::FilenameDB(CivArchive &archive)
-	{
-	m_map = nullptr ;
-	Serialize(archive) ;
-	}
-
 FilenameDB::~FilenameDB ()
 
 {
@@ -85,25 +79,6 @@ void FilenameDB::SetFilename(sint32 index, MBCHAR *s)
     Assert(m_map);
 
     strcpy(m_map[index].m_filename, s);
-}
-
-void FilenameDB::Serialize(CivArchive &archive)
-{
-	CHECKSERIALIZE;
-
-	if (archive.IsStoring()) {
-		archive<<m_size ;
-    	archive.Store((uint8 *)m_map, sizeof(FilenameNode) * m_size) ;
-
-	} else {
-		archive>>m_size ;
-		
-			delete m_map ;
-
-		m_map = new FilenameNode[m_size];
-        archive.Load((uint8 *)m_map, sizeof(FilenameNode) * m_size) ;
-	}
-
 }
 
 sint32 FilenameDB::ParseAFilename(Token *token, sint32 count)

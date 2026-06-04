@@ -51,15 +51,6 @@ template <class T> Database<T>::Database()
 	m_alphaToIndex = nullptr;
 }
 
-template <class T> Database<T>::Database(CivArchive &archive)
-	{
-	m_nRec=m_max_nRec=0;
-	m_rec=nullptr;
-	m_indexToAlpha = nullptr;
-	m_alphaToIndex = nullptr;
-	Serialize(archive);
-	}
-
 template <class T> Database<T>::~Database()
 
 {
@@ -261,30 +252,5 @@ template <class T> sint32 Database<T>::GetNamedItemID
 
 
 
-
-template <class T> void Database<T>::Serialize(CivArchive &archive)
-{
-	int i;
-
-	if (archive.IsStoring()) {
-		archive<<m_nRec;
-		archive<<m_max_nRec;
-		for (i=0; i<m_nRec; i++)
-		{
-			m_rec[i].Serialize(archive);
-
-
-
-
-
-
-		}
-
-	} else {
-		BOOL Database_Serialize_Doesnt_Work = FALSE;
-		Assert(Database_Serialize_Doesnt_Work);
-		return;
-	}
-}
 
 template class Database<EndGameRecord>;

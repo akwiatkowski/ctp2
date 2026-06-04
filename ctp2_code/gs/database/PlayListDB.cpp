@@ -54,14 +54,6 @@ PlayListDB::PlayListDB()
 	m_playList = nullptr;
 }
 
-PlayListDB::PlayListDB(CivArchive &archive)
-{
-	m_numSongs = 0;
-	m_playList = nullptr;
-
-	Serialize(archive);
-}
-
 PlayListDB::~PlayListDB()
 {
 	
@@ -125,20 +117,4 @@ BOOL PlayListDB::Parse(MBCHAR *filename)
 	return TRUE;
 }
 
-void PlayListDB::Serialize(CivArchive &archive)
-{
-	sint32		i;
 
-	if (archive.IsStoring()) {
-		archive << m_numSongs;
-		for (i=0; i<m_numSongs; i++) {
-			archive << m_playList[i];
-		}
-	} else {
-		archive >> m_numSongs;
-		m_playList = new sint32[m_numSongs];
-		for (i=0; i<m_numSongs; i++) {
-			archive >> m_playList[i];
-		}
-	}
-}

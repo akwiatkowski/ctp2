@@ -69,68 +69,9 @@ CivilisationPool::CivilisationPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_CIVILISATION)
 
 
 
-CivilisationPool::CivilisationPool(CivArchive &archive) : ObjPool(k_BIT_GAME_OBJ_TYPE_CIVILISATION)
-{
-	m_usedCivs = new SimpleDynamicArray<sint32>;
-	Serialize(archive) ;
-}
-
 CivilisationPool::~CivilisationPool()
 {
 	delete m_usedCivs;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-void CivilisationPool::Serialize(CivArchive &archive)
-{
-	CivilisationData	*newData ;
-
-	sint32	 i;
-	sint32	 count = 0 ;
-
-	CHECKSERIALIZE
-
-#define CIVPOOL_MAGIC 0xBCDE0123
-	if (archive.IsStoring())
-	{
-		archive.PerformMagic(CIVPOOL_MAGIC) ;
-		ObjPool::Serialize(archive);
-
-		for (i=0; i<k_OBJ_POOL_TABLE_SIZE; i++)
-			if(m_table[i])
-				count++;
-
-		archive<<count;
-		for(i = 0; i < k_OBJ_POOL_TABLE_SIZE; i++)
-			if(m_table[i])
-				((CivilisationData *)(m_table[i]))->Serialize(archive) ;
-		m_usedCivs->Serialize(archive);
-	}
-	else
-	{
-		archive.TestMagic(CIVPOOL_MAGIC) ;
-		ObjPool::Serialize(archive);
-
-		archive>>count;
-		for (i=0; i<count; i++)
-		{
-			newData = new CivilisationData(archive) ;
-			Insert(newData) ;
-		}
-
-		m_usedCivs->Serialize(archive);
-	}
-
 }
 
 

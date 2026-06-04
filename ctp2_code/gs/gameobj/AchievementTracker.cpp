@@ -12,17 +12,6 @@
 // lives); reachable via achievementtracker_Get() declared in
 // AchievementTracker.h.
 
-void AchievementTracker::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-
-	} else {
-		if(save_file_version_Get() < 55) {
-			archive >> m_achievements;
-		}
-	}
-}
-
 BOOL AchievementTracker::HasAchieved(sint32 which)
 {
 	return (m_achievements & safe_shift_left_u64(which)) != 0;

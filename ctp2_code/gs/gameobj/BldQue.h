@@ -169,7 +169,6 @@ public:
 	void RawInsertTail(sint32 cat, sint32 t, sint32 cost);
 	bool InsertTail(sint32 cat, sint32 t, sint32 cost);
 	void ReplaceHead(sint32 cat, sint32 item_type, sint32 cost);
-	void Serialize(CivArchive &archive) ;
 
 	BuildNode *GetHead();
 	PointerList<BuildNode> *GetList() const { return m_list; }

@@ -442,27 +442,6 @@ ArmyData::ArmyData(const Army &army)
 {
 }
 
-ArmyData::ArmyData(CivArchive &archive)
-:   GameObj                 (0),
-    m_tempKillList          (nullptr),
-    m_attackedByDefenders   (new UnitDynamicArray),
-    m_orders                (new PointerList<Order>),
-    m_owner                 (-1),
-    m_pos                   (),
-    m_removeCause           (CAUSE_REMOVE_ARMY_UNKNOWN),
-    m_killer                (-1),
-    m_hasBeenAdded          (false),
-    m_isPirating            (false),
-    m_reentryTurn           (-1),
-    m_reentryPos            (),
-    m_debugStringColor      (0),
-    m_killMeSoon            (new PointerList<KillRecord>),
-    m_dontKillCount         (0),
-    m_needToKill            (false)
-{
-    Serialize(archive);
-}
-
 ArmyData::~ArmyData()
 {
     if (m_orders)
@@ -478,93 +457,6 @@ ArmyData::~ArmyData()
 
     delete m_attackedByDefenders;
     delete m_tempKillList;
-}
-
-void ArmyData::Serialize(CivArchive &archive)
-{
-    GameObj::Serialize(archive);
-    CellUnitList::Serialize(archive);
-    m_attackedByDefenders->Serialize(archive);
-    m_pos.Serialize(archive);
-
-    sint32 ocount;
-    sint32 i;
-    uint8 hasChild;
-
-    if(archive.IsStoring()) {
-        archive << m_owner;
-        archive << m_killer;
-        archive.PutSINT32(m_removeCause);
-        archive.PutUINT8(m_dontKillCount);
-        archive.PutUINT8(m_needToKill);
-        archive.PutUINT8(m_hasBeenAdded);
-        archive.PutUINT8(m_isPirating);
-
-        ocount = m_orders->GetCount();
-        archive << ocount;
-        PointerList<Order>::Walker walk(m_orders);
-        while(walk.IsValid()) {
-            walk.GetObj()->Serialize(archive);
-            walk.Next();
-        }
-
-        sint32 len = m_name.size();
-        archive << len;
-        if(len > 0) {
-            archive.Store((uint8*)m_name.c_str(), len);
-        }
-
-        hasChild = m_lesser != nullptr;
-        archive << hasChild;
-        if(hasChild) {
-            m_lesser->Serialize(archive);
-        }
-
-        hasChild = m_greater != nullptr;
-        archive << hasChild;
-        if(hasChild) {
-            m_greater->Serialize(archive);
-        }
-
-    } else {
-        archive >> m_owner;
-        archive >> m_killer;
-        m_removeCause = (CAUSE_REMOVE_ARMY)archive.GetSINT32();
-        m_dontKillCount = archive.GetUINT8();
-        m_needToKill    = archive.GetUINT8() != 0;
-        m_hasBeenAdded  = archive.GetUINT8() != 0;
-        m_isPirating    = archive.GetUINT8() != 0;
-
-        archive >> ocount;
-        for(i = 0; i < ocount; i++) {
-            Order *newOrder = new Order(archive);
-            m_orders->AddTail(newOrder);
-        }
-
-        sint32 len;
-        archive >> len;
-        if(len <= 0)
-            m_name.clear();
-        else {
-            std::vector<MBCHAR> buf(len);
-            archive.Load((uint8*)buf.data(), len);
-            m_name.assign(buf.data(), len);
-        }
-
-        archive >> hasChild;
-        if(hasChild) {
-            m_lesser = new ArmyData(archive);
-        } else {
-            m_lesser = nullptr;
-        }
-
-        archive >> hasChild;
-        if(hasChild) {
-            m_greater = new ArmyData(archive);
-        } else {
-            m_greater = nullptr;
-        }
-    }
 }
 
 //----------------------------------------------------------------------------

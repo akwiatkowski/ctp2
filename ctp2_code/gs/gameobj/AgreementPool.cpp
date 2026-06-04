@@ -26,59 +26,6 @@ AgreementPool::AgreementPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_AGREEMENT)
 
 
 
-AgreementPool::AgreementPool(CivArchive &archive) : ObjPool(k_BIT_GAME_OBJ_TYPE_AGREEMENT)
-	{
-	Serialize(archive) ;
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-void AgreementPool::Serialize(CivArchive &archive)
-	{
-	AgreementData	*newData ;
-
-	sint32	 i;
-	sint32	 count = 0 ;
-
-    CHECKSERIALIZE
-
-#define AGREEMENTPOOL_MAGIC 0x28400399
-	if (archive.IsStoring())
-		{
-		}
-	else
-		{
-			if(save_file_version_Get() < 55) {
-				archive.TestMagic(AGREEMENTPOOL_MAGIC) ;
-				archive>>count;
-				for (i=0; i<count; i++)
-				{
-					newData = new AgreementData(archive) ;
-					Insert(newData) ;
-				}
-			}
-
-		}
-
-	}
-
-
-
-
-
-
-
-
-
 Agreement AgreementPool::Create(PLAYER_INDEX owner, PLAYER_INDEX recipient, AGREEMENT_TYPE request)
 	{
 	AgreementData* newData;

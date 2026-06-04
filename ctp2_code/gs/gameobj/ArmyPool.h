@@ -48,10 +48,7 @@ public:
 	}
 
 	ArmyPool();
-	ArmyPool(CivArchive &archive);
 	~ArmyPool() override;
-
-	void Serialize(CivArchive &archive) override;
 
 	Army Create(UnitDynamicArray &units);
 	Army Create(CellUnitList &units);

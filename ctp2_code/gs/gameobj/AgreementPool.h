@@ -21,12 +21,9 @@ public:
 	AgreementData* GetAgreement(const Agreement id) const;
 
 	AgreementPool();
-	AgreementPool(CivArchive &archive);
 
 	Agreement Create(PLAYER_INDEX owner, PLAYER_INDEX recipient, AGREEMENT_TYPE request);
 	void EndRound();
-
-	void Serialize(CivArchive &archive) override;
 
 	friend void to_json(nlohmann::json &j, AgreementPool const &p);
 	friend void from_json(nlohmann::json const &j, AgreementPool &p);

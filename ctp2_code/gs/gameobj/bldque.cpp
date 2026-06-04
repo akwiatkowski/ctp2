@@ -132,51 +132,6 @@ BuildQueue::~BuildQueue()
 	}
 }
 
-void BuildQueue::Serialize(CivArchive &archive)
-{
-	if (archive.IsStoring())
-    {
-		archive.StoreChunk((uint8*)&m_owner, (uint8*)&m_name + sizeof(m_name));
-		archive << m_wonderComplete;
-		sint32 c = m_list->GetCount();
-        Assert(c >= 0);
-		archive << c;
-		PointerList<BuildNode>::Walker walk(m_list);
-		while(walk.IsValid()) {
-			archive.Store((uint8*)walk.GetObj(), sizeof(BuildNode));
-			walk.Next();
-		}
-	}
-    else
-    {
-		archive.LoadChunk((uint8*)&m_owner, (uint8*)&m_name + sizeof(m_name));
-		if(save_file_version_Get() >= 62) {
-			archive >> m_wonderComplete;
-		} else {
-			m_wonderComplete = NOTHING_THIS_TURN;
-		}
-
-        uint32 c;
-		archive >> c;
-
-		m_list->DeleteAll();
-		for (uint32 i = 0; i < c; ++i)
-        {
-			BuildNode *node = new BuildNode;
-			archive.Load((uint8*)node, sizeof(BuildNode));
-			m_list->AddTail(node);
-		}
-	}
-}
-
-
-
-
-
-
-
-
-
 uint32 BldQue_BuildQueue_GetVersion()
 {
 	return (k_BUILDQUEUE_VERSION_MAJOR<<16 | k_BUILDQUEUE_VERSION_MINOR) ;

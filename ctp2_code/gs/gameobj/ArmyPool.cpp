@@ -10,11 +10,6 @@ ArmyPool::ArmyPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_ARMY)
 {
 }
 
-ArmyPool::ArmyPool(CivArchive &archive) : ObjPool(k_BIT_GAME_OBJ_TYPE_ARMY)
-{
-	Serialize(archive);
-}
-
 ArmyPool::~ArmyPool()
 = default;
 
@@ -63,33 +58,4 @@ void ArmyPool::Remove(Army army)
 	Del(army);
 }
 
-void ArmyPool::Serialize(CivArchive &archive)
-{
-	sint32 count, i;
 
-#define ARMYPOOL_MAGIC 0xBeefCafe
-	if(archive.IsStoring()) {
-		archive.PerformMagic(ARMYPOOL_MAGIC);
-		ObjPool::Serialize(archive);
-
-		count = 0;
-		for(i = 0; i < k_OBJ_POOL_TABLE_SIZE; i++) {
-			if(m_table[i])
-				count++;
-		}
-
-		archive << count;
-		for(i = 0; i < k_OBJ_POOL_TABLE_SIZE; i++) {
-			if(m_table[i])
-				((ArmyData*)(m_table[i]))->Serialize(archive);
-		}
-	} else {
-		archive.TestMagic(ARMYPOOL_MAGIC);
-		ObjPool::Serialize(archive);
-		archive >> count;
-		for(i = 0; i < count; i++) {
-			ArmyData *data = new ArmyData(archive);
-			Insert(data);
-		}
-	}
-}

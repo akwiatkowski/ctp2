@@ -113,9 +113,6 @@ public:
 public:
 	CivilisationData(const ID &id);
 	CivilisationData(const ID &id, PLAYER_INDEX owner, sint32 civ, GENDER gender);
-	CivilisationData(CivArchive &archive);
-
-	void Serialize(CivArchive &archive) override;
 
 	PLAYER_INDEX GetOwner() const { return m_owner; }
 	sint32 GetCivilisation() const { return m_civ; }

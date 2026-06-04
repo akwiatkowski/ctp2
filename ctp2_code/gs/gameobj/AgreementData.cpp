@@ -123,12 +123,6 @@ AgreementData::AgreementData(const ID id, const PLAYER_INDEX owner,
 	ENQUEUE();
 }
 
-AgreementData::AgreementData(CivArchive &archive) : GameObj(0)
-{
-    Init();
-    Serialize(archive);
-}
-
 void AgreementData::Init()
 {
     m_owner = -1;
@@ -144,74 +138,6 @@ void AgreementData::Init()
 
 
 
-
-
-
-
-
-
-
-
-
-void AgreementData::Serialize(CivArchive &archive)
-{
-    CHECKSERIALIZE
-
-    GameObj::Serialize(archive);
-	uint8 hasChild;
-
-	if (archive.IsStoring())
-		{
-		archive.PutSINT32(m_owner) ;
-		archive.PutSINT32(m_recipient) ;
-		archive.PutSINT32(m_thirdParty) ;
-
-		archive.PutSINT32(m_agreement) ;
-
-		archive<<m_round ;
-		archive<<m_expires ;
-		archive.PutSINT32(m_isBroken);
-
-		m_targetCity.Serialize(archive) ;
-
-
-		hasChild = m_lesser != nullptr;
-		archive << hasChild;
-		if (m_lesser)
-			((AgreementData *)(m_lesser))->Serialize(archive) ;
-
-		hasChild = m_greater != nullptr;
-		archive << hasChild;
-		if (m_greater)
-			((AgreementData *)(m_greater))->Serialize(archive) ;
-
-		}
-	else
-		{
-		m_owner = (PLAYER_INDEX)(archive.GetSINT32()) ;
-		m_recipient = (PLAYER_INDEX)(archive.GetSINT32()) ;
-		m_thirdParty = (PLAYER_INDEX)(archive.GetSINT32()) ;
-
-		m_agreement = (AGREEMENT_TYPE)(archive.GetSINT32()) ;
-
-		archive>>m_round ;
-		archive>>m_expires ;
-		m_isBroken = (BOOL)(archive.GetSINT32());
-
-		m_targetCity.Serialize(archive) ;
-
-		archive >> hasChild;
-		if(hasChild)
-			m_lesser = new AgreementData(archive);
-		else
-			m_greater = nullptr;
-		archive >> hasChild;
-		if(hasChild)
-			m_greater = new AgreementData(archive);
-		else
-			m_greater = nullptr;
-		}
-}
 
 
 

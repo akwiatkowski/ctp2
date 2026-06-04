@@ -125,62 +125,6 @@ CivilisationData::CivilisationData(const ID &id)
 
 
 
-CivilisationData::CivilisationData(CivArchive &archive) : GameObj(0)
-{
-	Serialize(archive);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-void CivilisationData::Serialize(CivArchive &archive)
-{
-
-	CHECKSERIALIZE
-
-	uint8 hasChild;
-	if (archive.IsStoring()) {
-		GameObj::Serialize(archive);
-		archive.StoreChunk((uint8 *)&m_owner, ((uint8 *)&m_singular_name)+sizeof(m_singular_name));
-
-		hasChild = m_lesser != nullptr;
-		archive << hasChild;
-		if(m_lesser) {
-			((CivilisationData*)(m_lesser))->Serialize(archive);
-		}
-		hasChild = m_greater != nullptr;
-		archive << hasChild;
-		if(m_greater) {
-			((CivilisationData*)(m_greater))->Serialize(archive);
-		}
-
-	} else {
-		GameObj::Serialize(archive);
-		archive.LoadChunk((uint8 *)&m_owner, ((uint8 *)&m_singular_name)+sizeof(m_singular_name));
-
-		archive >> hasChild;
-		if(hasChild) {
-			m_lesser = new CivilisationData(archive);
-		} else {
-			m_lesser = nullptr;
-		}
-		archive >> hasChild;
-		if(hasChild) {
-			m_greater = new CivilisationData(archive);
-		} else {
-			m_greater = nullptr;
-		}
-	}
-}
-
 bool cityNameIsUsedByPlayer(const char *strName, sint32 player)
 {
 

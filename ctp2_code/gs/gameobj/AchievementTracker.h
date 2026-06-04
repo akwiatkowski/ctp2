@@ -19,8 +19,6 @@ private:
 	uint64 m_achievements;
 public:
 	AchievementTracker() { m_achievements = 0; }
-	AchievementTracker(CivArchive &archive) { Serialize(archive); }
-	void Serialize(CivArchive &archive);
     void SetData(uint64 data) { m_achievements = data; }
 	uint64 GetData() const { return m_achievements; }
 

@@ -362,13 +362,11 @@ private:
 
 public:
 
-	CityData(CivArchive &archive);
 	CityData(PLAYER_INDEX o, Unit hc, const MapPoint &center_pos);
 	CityData(CityData *copy);
 	virtual ~CityData();
 
 	void Copy(CityData *copy);
-	void Serialize(CivArchive &archive);
 
 	void Initialize(sint32 settlerType);
 	void NetworkInitialize();

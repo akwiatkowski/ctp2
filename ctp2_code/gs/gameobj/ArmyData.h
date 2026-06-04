@@ -149,11 +149,7 @@ public:
     ArmyData(const Army &army, const CellUnitList &units);
     ArmyData(const Army &army, Unit &unit);
     ArmyData(const Army &army);
-
-    ArmyData(CivArchive &archive);
     ~ArmyData() override;
-
-    void Serialize(CivArchive &archive) override;
 
     PLAYER_INDEX GetOwner() const override { return m_owner; }
     void SetOwner(PLAYER_INDEX p);

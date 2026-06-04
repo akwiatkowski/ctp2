@@ -1073,43 +1073,6 @@ Advances::DebugDumpTree()
 }
 #endif
 
-void
-Advances::Serialize(CivArchive& archive)
-{
-    CHECKSERIALIZE
-
-	if(archive.IsStoring()) {
-		archive.StoreChunk((uint8 *)&m_owner, ((uint8 *)&m_discovered)+sizeof(m_discovered));
-
-		archive.Store(m_hasAdvance.data(), m_size * sizeof(uint8));
-		archive.Store(m_canResearch.data(), m_size * sizeof(uint8));
-		archive.Store(reinterpret_cast<uint8*>(m_turnsSinceOffered.data()), m_size * sizeof(uint16));
-	} else {
-		archive.LoadChunk((uint8 *)&m_owner, ((uint8 *)&m_discovered)+sizeof(m_discovered));
-
-        Assert(m_size);
-        m_hasAdvance.resize(m_size);
-        m_canResearch.resize(m_size);
-        m_turnsSinceOffered.resize(m_size);
-		archive.Load(m_hasAdvance.data(), m_size * sizeof(uint8));
-		archive.Load(m_canResearch.data(), m_size * sizeof(uint8));
-		archive.Load(reinterpret_cast<uint8*>(m_turnsSinceOffered.data()), m_size * sizeof(uint16));
-	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 uint32 Advances_Advances_GetVersion()
 {
 	return (k_ADVANCES_VERSION_MAJOR<<16 | k_ADVANCES_VERSION_MINOR) ;

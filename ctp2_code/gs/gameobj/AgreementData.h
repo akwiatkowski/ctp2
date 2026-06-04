@@ -97,8 +97,6 @@ public:
 				  PLAYER_INDEX recipient,
 				  AGREEMENT_TYPE agreement,
 				  sint32 currentRound) ;
-	AgreementData(CivArchive &archive);
-
 	void Init();
 
 	AGREEMENT_TYPE GetAgreement() const { return (m_agreement) ; }
@@ -140,7 +138,6 @@ public:
 	void ToString(MBCHAR *s) ;
 
 	void Dump(const sint32 i) ;
-	void Serialize(CivArchive &archive) override ;
 
 	BOOL IsBroken() const { return m_isBroken; }
 	void Break();

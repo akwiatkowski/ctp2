@@ -159,7 +159,6 @@ public:
 
 	void AddAlienLifeAdvance();
 
-	void Serialize(CivArchive &archive);
 	double FractionComplete(AdvanceType adv) const;
 	double FractionComplete() const;
 };

@@ -88,6 +88,7 @@ class CityData;
 
 #include "CitySizeRecord.h"
 #include <nlohmann/json.hpp>
+#include <vector>
 
 #define k_CITYDATA_VERSION_MAJOR    0
 #define k_CITYDATA_VERSION_MINOR    0
@@ -262,20 +263,20 @@ private:
 
 	MBCHAR    m_name[k_MAX_NAME_LEN] ;
 
-	sint32    *m_distanceToGood;
+	std::vector<sint32> m_distanceToGood;
 
 	double    m_defensiveBonus;
 
-	sint32    *m_ringFood;
-	sint32    *m_ringProd;
-	sint32    *m_ringGold;
-	sint32    *m_ringSizes;
+	std::vector<sint32> m_ringFood;
+	std::vector<sint32> m_ringProd;
+	std::vector<sint32> m_ringGold;
+	std::vector<sint32> m_ringSizes;
 
 #if defined(NEW_RESOURCE_PROCESS)
-	double    *m_farmersEff;
-	double    *m_laborersEff;
-	double    *m_merchantsEff;
-	double    *m_scientistsEff;
+	std::vector<double> m_farmersEff;
+	std::vector<double> m_laborersEff;
+	std::vector<double> m_merchantsEff;
+	std::vector<double> m_scientistsEff;
 
 	double    m_max_processed_terrain_food;
 	double    m_max_processed_terrain_prod;

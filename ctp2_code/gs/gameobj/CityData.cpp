@@ -483,7 +483,9 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	m_bonusProdCoeff                    (0.0),
 	m_bonusProd                         (0.0),
 	m_bonusGoldCoeff                    (0.0),
-	m_bonusGold                         (0.0)
+	m_bonusGold                         (0.0),
+	m_bonusScieCoeff                    (0.0),
+	m_bonusScie                         (0.0)
 
 #ifdef _DEBUG
   , m_ignore_happiness                  (false)
@@ -509,18 +511,18 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 
 	ResetStarvationTurns();
 
-	m_distanceToGood    = new sint32[g_theResourceDB->NumRecords()];
+	m_distanceToGood.assign(g_theResourceDB->NumRecords(), 0);
 
-	m_ringFood          = new sint32[g_theCitySizeDB->NumRecords()];
-	m_ringProd          = new sint32[g_theCitySizeDB->NumRecords()];
-	m_ringGold          = new sint32[g_theCitySizeDB->NumRecords()];
-	m_ringSizes         = new sint32[g_theCitySizeDB->NumRecords()];
+	m_ringFood.assign(g_theCitySizeDB->NumRecords(), 0);
+	m_ringProd.assign(g_theCitySizeDB->NumRecords(), 0);
+	m_ringGold.assign(g_theCitySizeDB->NumRecords(), 0);
+	m_ringSizes.assign(g_theCitySizeDB->NumRecords(), 0);
 
 #if defined(NEW_RESOURCE_PROCESS)
-	m_farmersEff        = new double[g_theCitySizeDB->NumRecords()];
-	m_laborersEff       = new double[g_theCitySizeDB->NumRecords()];
-	m_merchantsEff      = new double[g_theCitySizeDB->NumRecords()];
-	m_scientistsEff     = new double[g_theCitySizeDB->NumRecords()];
+	m_farmersEff.assign(g_theCitySizeDB->NumRecords(), 0.0);
+	m_laborersEff.assign(g_theCitySizeDB->NumRecords(), 0.0);
+	m_merchantsEff.assign(g_theCitySizeDB->NumRecords(), 0.0);
+	m_scientistsEff.assign(g_theCitySizeDB->NumRecords(), 0.0);
 #endif
 }
 
@@ -541,21 +543,6 @@ CityData::~CityData()
 	}
 
 	delete m_happy;
-	// Ring/resource arrays are `new sint32[N]` at CityData.cpp:512+ and
-	// 857+ — destructor was using non-array delete (UB).  delete[] matches
-	// the array allocation form.
-	delete [] m_distanceToGood;
-	delete [] m_ringFood;
-	delete [] m_ringProd;
-	delete [] m_ringGold;
-	delete [] m_ringSizes;
-
-#if defined(NEW_RESOURCE_PROCESS)
-	delete [] m_farmersEff;
-	delete [] m_laborersEff;
-	delete [] m_merchantsEff;
-	delete [] m_scientistsEff;
-#endif
 }
 
 // Global to fix trade routes
@@ -857,20 +844,7 @@ void CityData::NetworkInitialize()
 
 CityData::CityData(CityData *copy)
 {
-	m_distanceToGood = new sint32[g_theResourceDB->NumRecords()];
 	m_happy = new Happy;
-
-	m_ringFood  = new sint32[g_theCitySizeDB->NumRecords()];
-	m_ringProd  = new sint32[g_theCitySizeDB->NumRecords()];
-	m_ringGold  = new sint32[g_theCitySizeDB->NumRecords()];
-	m_ringSizes = new sint32[g_theCitySizeDB->NumRecords()];
-
-#if defined(NEW_RESOURCE_PROCESS)
-	m_farmersEff    = new double[g_theCitySizeDB->NumRecords()];
-	m_laborersEff   = new double[g_theCitySizeDB->NumRecords()];
-	m_merchantsEff  = new double[g_theCitySizeDB->NumRecords()];
-	m_scientistsEff = new double[g_theCitySizeDB->NumRecords()];
-#endif
 
 	//m_secthappy = 0; //emod - this set all sectarian happiness to 0 this is initializer?
 
@@ -931,20 +905,20 @@ void CityData::Copy(CityData *copy)
 	m_happy->Copy(copy->m_happy);
 
 	memcpy(m_name, copy->m_name, (strlen(copy->m_name) + 1) * sizeof(MBCHAR));
-	memcpy(m_distanceToGood, copy->m_distanceToGood, sizeof(sint32) * g_theResourceDB->NumRecords());
+	m_distanceToGood = copy->m_distanceToGood;
 	m_defensiveBonus = copy->m_defensiveBonus;
 
 	m_shieldstore = copy->m_shieldstore;
 
-	memcpy(m_ringFood,  copy->m_ringFood,  sizeof(sint32) * g_theCitySizeDB->NumRecords());
-	memcpy(m_ringProd,  copy->m_ringProd,  sizeof(sint32) * g_theCitySizeDB->NumRecords());
-	memcpy(m_ringGold,  copy->m_ringGold,  sizeof(sint32) * g_theCitySizeDB->NumRecords());
-	memcpy(m_ringSizes, copy->m_ringSizes, sizeof(sint32) * g_theCitySizeDB->NumRecords());
+	m_ringFood  = copy->m_ringFood;
+	m_ringProd  = copy->m_ringProd;
+	m_ringGold  = copy->m_ringGold;
+	m_ringSizes = copy->m_ringSizes;
 #if defined(NEW_RESOURCE_PROCESS)
-	memcpy(m_farmersEff,    copy->m_farmersEff,    sizeof(double) * g_theCitySizeDB->NumRecords());
-	memcpy(m_laborersEff,   copy->m_laborersEff,   sizeof(double) * g_theCitySizeDB->NumRecords());
-	memcpy(m_merchantsEff,  copy->m_merchantsEff,  sizeof(double) * g_theCitySizeDB->NumRecords());
-	memcpy(m_scientistsEff, copy->m_scientistsEff, sizeof(double) * g_theCitySizeDB->NumRecords());
+	m_farmersEff    = copy->m_farmersEff;
+	m_laborersEff   = copy->m_laborersEff;
+	m_merchantsEff  = copy->m_merchantsEff;
+	m_scientistsEff = copy->m_scientistsEff;
 
 	memcpy(&m_max_processed_terrain_food, &copy->m_max_processed_terrain_food, (uint32)&copy->m_science_lost_to_crime + sizeof(copy->m_science_lost_to_crime) - (uint32)&copy->m_max_processed_terrain_food);
 #endif
@@ -1941,16 +1915,16 @@ void CityData::CollectResources()
 	m_collectingResources.Clear();
 	size_t const    maxRing = static_cast<size_t>(g_theCitySizeDB->NumRecords());
 
-	std::fill(m_ringFood,       m_ringFood      + maxRing,  0);
-	std::fill(m_ringProd,       m_ringProd      + maxRing,  0);
-	std::fill(m_ringGold,       m_ringGold      + maxRing,  0);
-	std::fill(m_ringSizes,      m_ringSizes     + maxRing,  0);
+	std::fill(m_ringFood.begin(),       m_ringFood.end(),       0);
+	std::fill(m_ringProd.begin(),       m_ringProd.end(),       0);
+	std::fill(m_ringGold.begin(),       m_ringGold.end(),       0);
+	std::fill(m_ringSizes.begin(),      m_ringSizes.end(),      0);
 
 #if defined(NEW_RESOURCE_PROCESS)
-	std::fill(m_farmersEff,     m_farmersEff    + maxRing,  0);
-	std::fill(m_laborersEff,    m_laborersEff   + maxRing,  0);
-	std::fill(m_merchantsEff,   m_merchantsEff  + maxRing,  0);
-	std::fill(m_scientistsEff,  m_scientistsEff + maxRing,  0);
+	std::fill(m_farmersEff.begin(),     m_farmersEff.end(),     0.0);
+	std::fill(m_laborersEff.begin(),    m_laborersEff.end(),    0.0);
+	std::fill(m_merchantsEff.begin(),   m_merchantsEff.end(),   0.0);
+	std::fill(m_scientistsEff.begin(),  m_scientistsEff.end(),  0.0);
 #endif
 
 // Add if city has building GetEnablesGood >0 then that good will be added to the city for trade

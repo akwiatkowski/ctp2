@@ -269,3 +269,12 @@ nstrnsprt.cfg
 # macOS temp files
 .!*
 logs\\oldseed.txt
+
+# Local CI daemon runtime artifacts (.ci/ scripts are tracked, output is not)
+.ci/state.json
+.ci/last_head
+.ci/daemon.pid
+.ci/STATUS_RED
+.ci/log/
+.ci/failures/
+.ci/metrics/

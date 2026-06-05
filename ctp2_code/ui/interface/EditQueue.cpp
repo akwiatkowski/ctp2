@@ -90,6 +90,8 @@
 #include "ai/CityManagement/governor.h"
 #include "gs/gameobj/buildingutil.h"
 #include "gs/gameobj/wonderutil.h"
+#include "gs/gameobj/BuildingEvaluator.h"
+#include "ui/aui_ctp2/ctp2_hypertextbox.h"
 #include "ai/mapanalysis/mapanalysis.h"
 
 static EditQueue *s_editQueue = nullptr;
@@ -955,6 +957,8 @@ void EditQueue::UpdateQueueList()
 					item->SetUserData((void *)bn);
 				}
 
+				// Custom-mode queue has no city; tooltip needs city context to
+				// compute deltas, so this path is skipped intentionally.
 				m_queueList->AddItem(item);
 			}
 			walk.Next();
@@ -1914,6 +1918,23 @@ void EditQueue::ShowSelectedInfo()
 
 	CityWindow::SetItemDescription(icon, sc, nullptr, s_editQueue->m_itemDescription,
 								   s_editQueue->m_window, s_editQueue->m_itemImageButton);
+
+	// P6: append city-specific evaluation to the description for buildings
+	// and wonders. Requires a city context (m_cityData); skipped otherwise.
+	if (s_editQueue->m_cityData && s_editQueue->m_itemDescription
+	 && (category == k_GAME_OBJ_TYPE_IMPROVEMENT || category == k_GAME_OBJ_TYPE_WONDER))
+	{
+		Ctp2::BuildingEvaluation eval = (category == k_GAME_OBJ_TYPE_IMPROVEMENT)
+			? Ctp2::BuildingEvaluator::Evaluate(type, *s_editQueue->m_cityData)
+			: Ctp2::WonderEvaluator::Evaluate(type, *s_editQueue->m_cityData);
+		const std::string evalText = Ctp2::FormatEvaluationTooltip(eval);
+		if (!evalText.empty())
+		{
+			std::string block = "\n\n--- Evaluation ---\n";
+			block += evalText;
+			s_editQueue->m_itemDescription->AppendHyperText(block.c_str());
+		}
+	}
 }
 
 void EditQueue::Close(aui_Control *control, uint32 action, uint32 data, void *cookie)

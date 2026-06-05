@@ -147,7 +147,7 @@ AUI_ERRCODE spnewgamescreen_Initialize( )
 	if (!g_spNewGameWindow)
 	{
 		MBCHAR windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-		strcpy(windowBlock, "SPNewGameWindow");
+		strlcpy(windowBlock, "SPNewGameWindow", sizeof(windowBlock));
 
 		g_spNewGameWindow= new SPNewGameWindow(&errcode, aui_UniqueId(), windowBlock, 16 );
 		Assert(AUI_NEWOK(g_spNewGameWindow, errcode));
@@ -400,13 +400,13 @@ void spnewgamescreen_scenarioExitCallback(aui_Control *control, uint32 action, u
 
 		SaveInfo *saveInfo = new SaveInfo;
 
-		strcpy(saveInfo->fileName, k_SCENARIO_DEFAULT_SAVED_GAME_NAME);
+		strlcpy(saveInfo->fileName, k_SCENARIO_DEFAULT_SAVED_GAME_NAME, sizeof(saveInfo->fileName));
 
-		strcpy(saveInfo->pathName, tempPath);
+		strlcpy(saveInfo->pathName, tempPath, sizeof(saveInfo->pathName));
 
 		if (GameFile::FetchExtendedSaveInfo(tempPath, saveInfo)) {
 			MBCHAR scenPath[_MAX_PATH];
-			strcpy(scenPath, civpaths_Get()->GetCurScenarioPath());
+			strlcpy(scenPath, civpaths_Get()->GetCurScenarioPath(), sizeof(scenPath));
 			start_info_type_Set(saveInfo->startInfoType);
 			loadsavescreen_BeginLoadProcess(saveInfo, scenPath);
 		}
@@ -818,8 +818,10 @@ void spnewgamescreen_HotseatCallback(sint32 launch, sint32 player,
 		delete [] hs_player_setup_buf()[player].name;
 		delete [] hs_player_setup_buf()[player].email;
 		hs_player_setup_buf()[player].name = new MBCHAR[strlen(name) + 1];
+		// TODO(phase-2): strcpy → strlcpy — dst is `MBCHAR *`, capacity unknown at call site
 		strcpy(hs_player_setup_buf()[player].name, name);
 		hs_player_setup_buf()[player].email = new MBCHAR[strlen(email) + 1];
+		// TODO(phase-2): strcpy → strlcpy — dst is `MBCHAR *`, capacity unknown at call site
 		strcpy(hs_player_setup_buf()[player].email, email);
 	}
 }

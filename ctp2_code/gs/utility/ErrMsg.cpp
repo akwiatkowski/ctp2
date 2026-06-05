@@ -17,15 +17,13 @@ ErrorMsg::ErrorMsg()
 ErrGSParse::ErrGSParse (char *str1)
 
 {
-    strncpy(msg, str1, sizeof(msg) - 1);
-    msg[sizeof(msg) - 1] = '\0';
+    strlcpy(msg, str1, sizeof(msg));
 }
 
 ErrGSParse::ErrGSParse (char *str1, char *str2)
 
 {
-   strncpy(msg, str1, sizeof(msg) - 1);
-   msg[sizeof(msg) - 1] = '\0';
+   strlcpy(msg, str1, sizeof(msg));
    strncat(msg, str2, sizeof(msg) - strlen(msg) - 1);
 }
 
@@ -33,8 +31,7 @@ ErrGSParse::ErrGSParse (char *str1, char *str2, sint32 x)
 {
    char tmp [2 * _MAX_PATH];
 
-   strncpy(msg, str1, sizeof(msg) - 1);
-   msg[sizeof(msg) - 1] = '\0';
+   strlcpy(msg, str1, sizeof(msg));
    snprintf (tmp, sizeof(tmp), str2, x);
    strncat(msg, tmp, sizeof(msg) - strlen(msg) - 1);
 }
@@ -44,8 +41,7 @@ ErrGSParse::ErrGSParse (char *str1, char *str2, char *val1)
 {
    char tmp [2 * _MAX_PATH];
 
-   strncpy(msg, str1, sizeof(msg) - 1);
-   msg[sizeof(msg) - 1] = '\0';
+   strlcpy(msg, str1, sizeof(msg));
    snprintf (tmp, sizeof(tmp), str2, val1);
    strncat(msg, tmp, sizeof(msg) - strlen(msg) - 1);
 }
@@ -55,8 +51,7 @@ ErrGSParse::ErrGSParse (char *str1, char *str2, char *val1, char *val2)
 {
    char tmp [2 * _MAX_PATH];
 
-   strncpy(msg, str1, sizeof(msg) - 1);
-   msg[sizeof(msg) - 1] = '\0';
+   strlcpy(msg, str1, sizeof(msg));
    snprintf (tmp, sizeof(tmp), str2, val1, val2);
    strncat(msg, tmp, sizeof(msg) - strlen(msg) - 1);
 }

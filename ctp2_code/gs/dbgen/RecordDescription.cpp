@@ -1000,8 +1000,8 @@ void RecordDescription::ExportParser(FILE *outfile)
 		fprintf(outfile, "        DBERROR((\"Record must start with name\"));\n");
 		fprintf(outfile, "        return 0;\n");
 		fprintf(outfile, "    }\n");
-		fprintf(outfile, "    m_NameText = new char[strlen(lex->GetTokenText()) + 1];\n");
-		fprintf(outfile, "    strcpy(m_NameText, lex->GetTokenText());\n");
+		// m_NameText is std::string (scalar string field — see Datum::IsScalarString).
+		fprintf(outfile, "    m_NameText = lex->GetTokenText();\n");
 
 		switch (m_baseType)
 		{

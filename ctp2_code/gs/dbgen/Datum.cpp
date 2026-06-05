@@ -190,6 +190,18 @@ bool Datum::IsUnboundedPodArray() const
 	}
 }
 
+// Phase 2 dbgen polish: scalar (non-array, non-bit-pair) DATUM_STRING/FILE
+// fields now emit as std::string instead of char*.  Generated getter still
+// returns `char const *` via .c_str() so external API is preserved.
+// Array-of-string and bit-pair-string remain legacy for now.
+bool Datum::IsScalarString() const
+{
+	// Scalar = "not an array".  Default Datum m_maxSize is -1; explicit
+	// scalars set 0; arrays use positive values or k_MAX_SIZE_VARIABLE.
+	if (m_maxSize > 0 || m_maxSize == k_MAX_SIZE_VARIABLE) return false;
+	return m_type == DATUM_STRING || m_type == DATUM_FILE;
+}
+
 void Datum::ExportVariable(FILE *outfile, sint32 indent)
 {
 	if (m_type == DATUM_BIT_PAIR)
@@ -212,6 +224,12 @@ void Datum::ExportVariable(FILE *outfile, sint32 indent)
 		// Vector form: type + name, no m_num companion (size lives in the vector).
 		fprintf(outfile, "%sstd::vector<%s> m_%s;%s\n",
 		        ind, VarTypeString(), m_name, comment);
+		return;
+	}
+
+	if (IsScalarString()) {
+		// String form: std::string instead of char*; no manual lifetime.
+		fprintf(outfile, "%sstd::string       m_%s;%s\n", ind, m_name, comment);
 		return;
 	}
 
@@ -269,20 +287,32 @@ void Datum::ExportBitPairAccessorProto(FILE *outfile, sint32 indent, char *recor
 	case DATUM_INT:
 	case DATUM_STRING:
 	case DATUM_STRINGID:
+	{
+		// bit-pair scalar STRING/FILE migrated to std::string; needs .c_str() at the boundary.
+		bool const bp_is_string = m_bitPairDatum->IsScalarString();
 		if(!m_hasValue){
 			fprintf(outfile, "%sbool Get%s(%s & value) const\n", ind, m_name, BitPairTypeString());
 			fprintf(outfile, "%s{\n", ind);
 			fprintf(outfile, "%s    if (m_flags%d & k_%s_%s_Bit)\n", ind, wordIndex, recordName, m_name);
 			fprintf(outfile, "%s    {\n", ind);
-			fprintf(outfile, "%s        value = m_%s;\n", ind, m_bitPairDatum->m_name);
+			if (bp_is_string) {
+				fprintf(outfile, "%s        value = m_%s.c_str();\n", ind, m_bitPairDatum->m_name);
+			} else {
+				fprintf(outfile, "%s        value = m_%s;\n", ind, m_bitPairDatum->m_name);
+			}
 			fprintf(outfile, "%s    }\n", ind);
 			fprintf(outfile, "%s    return (m_flags%d & k_%s_%s_Bit) != 0;\n", ind, wordIndex, recordName, m_name);
 			fprintf(outfile, "%s}\n", ind);
 		}
 		else{
-			fprintf(outfile, "%s%s Get%s() const { return m_%s; }\n", ind, BitPairTypeString(), m_name, m_bitPairDatum->m_name);
+			if (bp_is_string) {
+				fprintf(outfile, "%s%s Get%s() const { return m_%s.c_str(); }\n", ind, BitPairTypeString(), m_name, m_bitPairDatum->m_name);
+			} else {
+				fprintf(outfile, "%s%s Get%s() const { return m_%s; }\n", ind, BitPairTypeString(), m_name, m_bitPairDatum->m_name);
+			}
 		}
 		break;
+	}
 
 	case DATUM_RECORD:
 		fprintf(outfile, "%sbool Get%sIndex(sint32 & index) const\n", ind, m_name);
@@ -345,7 +375,12 @@ void Datum::ExportAccessor(FILE *outfile, sint32 indent, char *recordName)
 		case DATUM_INT:
 		case DATUM_STRING:
 		case DATUM_STRINGID:
-			fprintf(outfile, "%s%s Get%s() const { return m_%s; }\n", ind, ReturnTypeString(), m_name, m_name);
+			if (IsScalarString()) {
+				// std::string storage, char const * API.
+				fprintf(outfile, "%s%s Get%s() const { return m_%s.c_str(); }\n", ind, ReturnTypeString(), m_name, m_name);
+			} else {
+				fprintf(outfile, "%s%s Get%s() const { return m_%s; }\n", ind, ReturnTypeString(), m_name, m_name);
+			}
 			break;
 
 		case DATUM_BIT:
@@ -509,14 +544,17 @@ void Datum::ExportBitPairInitialization(FILE *outfile)
 			break;
 		case DATUM_FILE:
 		case DATUM_STRING:
-			if (m_hasValue)
-			{
+			if (m_bitPairDatum->IsScalarString()) {
+				// std::string: default-constructs empty; assign if a default value exists.
+				if (m_hasValue) {
+					fprintf(outfile, "    m_%s = \"%s\";\n", m_bitPairDatum->m_name, val.textValue);
+				}
+				// else: empty string is fine
+			} else if (m_hasValue) {
 				fprintf(outfile, "    m_%s = new char[%zu];\n", m_bitPairDatum->m_name, strlen(val.textValue) + 1);
 				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				fprintf(outfile, "    strcpy(m_%s, \"%s\");\n", m_bitPairDatum->m_name, val.textValue);
-			}
-			else
-			{
+			} else {
 				fprintf(outfile, "    m_%s = NULL;\n", m_bitPairDatum->m_name);
 			}
 			break;
@@ -596,6 +634,14 @@ void Datum::ExportInitialization(FILE *outfile)
 		// std::vector default-constructs empty; nothing to do.
 		return;
 	}
+	if (IsScalarString()) {
+		// std::string default-constructs empty.  If a default value
+		// is declared in the schema, assign it; otherwise nothing.
+		if (m_hasValue) {
+			fprintf(outfile, "    m_%s = \"%s\";\n", m_name, val.textValue);
+		}
+		return;
+	}
 	if(m_maxSize == k_MAX_SIZE_VARIABLE) {
 		fprintf(outfile, "    m_%s = NULL;\n", m_name);
 		fprintf(outfile, "    m_num%s = 0;\n", m_name);
@@ -648,8 +694,8 @@ void Datum::ExportInitialization(FILE *outfile)
 
 void Datum::ExportDestructor(FILE *outfile)
 {
-	if (IsUnboundedPodArray()) {
-		// std::vector handles its own cleanup.
+	if (IsUnboundedPodArray() || IsScalarString()) {
+		// std::vector / std::string handle their own cleanup.
 		return;
 	}
 	if (m_maxSize == k_MAX_SIZE_VARIABLE)
@@ -679,12 +725,12 @@ void Datum::ExportDestructor(FILE *outfile)
 
 		case DATUM_FILE:
 		case DATUM_STRING:
-			// Fields are allocated via `new char[...]` (see emitter at
-			// Datum.cpp ~484/587 + RecordDescription:1003); the matching
-			// delete is delete[].  Operator= correctly uses delete[];
-			// the destructor used to emit non-array delete — UB on
-			// every record class.
-			fprintf(outfile, "    delete [] m_%s;\n", m_bitPairDatum->m_name );
+			if (m_bitPairDatum->IsScalarString()) {
+				// std::string handles its own cleanup; no emit needed.
+			} else {
+				// Legacy char* allocated via `new char[...]`; matching delete[].
+				fprintf(outfile, "    delete [] m_%s;\n", m_bitPairDatum->m_name );
+			}
 			break;
 		}
 	}
@@ -704,8 +750,8 @@ void Datum::ExportOperatorAssignment(FILE *outfile)
 {
 	char const ind []   = "        ";
 
-	if (IsUnboundedPodArray()) {
-		// std::vector copy assignment handles dtor + alloc + copy in one line.
+	if (IsUnboundedPodArray() || IsScalarString()) {
+		// std::vector / std::string copy assignment handles dtor + alloc + copy.
 		fprintf(outfile, "%sm_%s = rval.m_%s;\n\n", ind, m_name, m_name);
 		return;
 	}
@@ -816,16 +862,22 @@ void Datum::ExportOperatorAssignment(FILE *outfile)
 
 		case DATUM_FILE:
 		case DATUM_STRING:
-			fprintf(outfile, "%s{\n", ind);
-			fprintf(outfile, "%s    delete [] m_%s;\n", ind, m_bitPairDatum->m_name );
-			fprintf(outfile, "%s    m_%s = new char[strlen(rval.m_%s)+1];\n",
-			        ind, m_bitPairDatum->m_name, m_bitPairDatum->m_name
-			       );
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-			fprintf(outfile, "%s    strcpy(m_%s, rval.m_%s);\n",
-			        ind, m_bitPairDatum->m_name, m_bitPairDatum->m_name
-			       );
-			fprintf(outfile, "%s}\n\n", ind);
+			if (m_bitPairDatum->IsScalarString()) {
+				// std::string copy assignment
+				fprintf(outfile, "%sm_%s = rval.m_%s;\n\n",
+				        ind, m_bitPairDatum->m_name, m_bitPairDatum->m_name);
+			} else {
+				fprintf(outfile, "%s{\n", ind);
+				fprintf(outfile, "%s    delete [] m_%s;\n", ind, m_bitPairDatum->m_name );
+				fprintf(outfile, "%s    m_%s = new char[strlen(rval.m_%s)+1];\n",
+				        ind, m_bitPairDatum->m_name, m_bitPairDatum->m_name
+				       );
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+				fprintf(outfile, "%s    strcpy(m_%s, rval.m_%s);\n",
+				        ind, m_bitPairDatum->m_name, m_bitPairDatum->m_name
+				       );
+				fprintf(outfile, "%s}\n\n", ind);
+			}
 			break;
 		}
 	}
@@ -1051,12 +1103,17 @@ void Datum::ExportMerge(FILE *outfile, char *recordName)
 					m_bitNum / 32, recordName, m_name
 			       );
 					fprintf(outfile, "    {\n");
-					fprintf(outfile, "        delete m_%s;\n", m_bitPairDatum->m_name);
-					fprintf(outfile, "        m_%s = new char[strlen(rval.m_%s)+1];\n",
-							m_bitPairDatum->m_name, m_bitPairDatum->m_name);
-					// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-					fprintf(outfile, "        strcpy(m_%s, rval.m_%s);\n",
-							m_bitPairDatum->m_name, m_bitPairDatum->m_name);
+					if (m_bitPairDatum->IsScalarString()) {
+						fprintf(outfile, "        m_%s = rval.m_%s;\n",
+						        m_bitPairDatum->m_name, m_bitPairDatum->m_name);
+					} else {
+						fprintf(outfile, "        delete m_%s;\n", m_bitPairDatum->m_name);
+						fprintf(outfile, "        m_%s = new char[strlen(rval.m_%s)+1];\n",
+								m_bitPairDatum->m_name, m_bitPairDatum->m_name);
+						// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+						fprintf(outfile, "        strcpy(m_%s, rval.m_%s);\n",
+								m_bitPairDatum->m_name, m_bitPairDatum->m_name);
+					}
 					fprintf(outfile, "    }\n\n");
 					break;
 				}

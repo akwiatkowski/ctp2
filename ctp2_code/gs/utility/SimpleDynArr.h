@@ -5,6 +5,8 @@
 #ifndef SIMPLEDYNARR_H__
 #define SIMPLEDYNARR_H__
 
+#include <memory>
+
 template <class T> class SimpleDynamicArray;
 
 #include "os/include/ctp2_inttypes.h"  // sint32
@@ -49,7 +51,7 @@ public:
 
 private:
     /// Stored data items
-    T *     m_array;
+    std::unique_ptr<T[]> m_array;
     /// Number of stored data items
     sint32  m_nElements;
     /// Allocated size for storage.
@@ -62,24 +64,20 @@ private:
 
 template <class T> SimpleDynamicArray<T>::SimpleDynamicArray()
 :
-    m_array        (new T[1]),
+    m_array        (std::make_unique<T[]>(1)),
     m_nElements    (0),
     m_arraySize    (1)
 {
 }
 
-template <class T> SimpleDynamicArray<T>::~SimpleDynamicArray()
-{
-    delete [] m_array;
-}
+template <class T> SimpleDynamicArray<T>::~SimpleDynamicArray() = default;
 
 template <class T> void SimpleDynamicArray<T>::Grow()
 {
-    T * oldarray = m_array;
-    m_array = new T[m_arraySize * 2];
-    memcpy(m_array, oldarray, m_arraySize * sizeof(T));
+    auto oldarray = std::move(m_array);
+    m_array = std::make_unique<T[]>(m_arraySize * 2);
+    memcpy(m_array.get(), oldarray.get(), m_arraySize * sizeof(T));
     m_arraySize *= 2;
-    delete [] oldarray;
 }
 
 template <class T> void SimpleDynamicArray<T>::Insert(const T &val)

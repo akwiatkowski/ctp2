@@ -223,6 +223,7 @@ AUI_ERRCODE aui_TextField::InitCommon(
 	if (text == nullptr)
 		*m_Text = '\0';
 	else
+		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strncpy(m_Text, text, m_maxFieldLen);
         //printf("%s L%d: aui_textfield text assigned: %s!\n", __FILE__, __LINE__, m_Text);
 
@@ -293,6 +294,7 @@ sint32 aui_TextField::GetFieldText( MBCHAR *text, sint32 maxCount )
 	sint32 n = std::min(m_maxFieldLen,maxCount);
 	if (n <= 0)
 		return 0;
+	// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 	strncpy(text, m_Text, n-1);
 	text[n] = '\0';
 	return strlen(text);
@@ -313,6 +315,7 @@ BOOL aui_TextField::SetFieldText( const MBCHAR *text )
 	return success;
 #else
 	if (!m_Text) return FALSE;
+	// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 	strncpy(m_Text, text, m_maxFieldLen);
 	// strncpy does not null-terminate when src length >= n; re-assert the
 	// sentinel byte at m_maxFieldLen in case it was clobbered by a prior bug.
@@ -386,6 +389,7 @@ sint32 aui_TextField::SetMaxFieldLen( sint32 maxFieldLen )
 	{
 		MBCHAR *newText = new MBCHAR[m_maxFieldLen + 1];
 		newText[m_maxFieldLen] = '\0';
+		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strncpy(newText, m_Text, m_maxFieldLen);
 		delete[] m_Text;
 		m_Text = newText;

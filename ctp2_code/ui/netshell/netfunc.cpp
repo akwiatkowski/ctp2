@@ -211,6 +211,7 @@ void NETFunc::StringMix(int c, char *mix, char *msg, ...) {
 			char *tmp = strdup(next + strlen(str));
 			// TODO(phase-2): strcpy → strlcpy — dst is expression (`next + strlen(arg)`), capacity unknown at call site
 			strcpy(next + strlen(arg), tmp);
+			// TODO(phase-2): strncpy → strlcpy — non-standard length argument, requires manual review
 			strncpy(next, arg, strlen(arg));
 			free(tmp);
 		}
@@ -581,7 +582,7 @@ NETFunc::ContactList::~ContactList() = default;
 NETFunc::Port::Port(commPortName_t *p, int b, char *i) {
 	port = *p;
 	baud	= b;
-	strncpy(init, i, nf_PORTINITLEN);
+	strlcpy(init, i, sizeof(init));
 }
 
 NETFunc::Port::Port() = default;
@@ -927,8 +928,7 @@ char *NETFunc::AIPlayer::GetName() {
 }
 
 void NETFunc::AIPlayer::SetName(char *n) {
-	strncpy(name, n, dp_PNAMELEN - 1);
-	name[dp_PNAMELEN - 1] = 0;
+	strlcpy(name, n, sizeof(name));
 }
 
 unsigned char NETFunc::AIPlayer::GetGroup() {
@@ -1209,8 +1209,7 @@ char *NETFunc::PlayerStat::GetName() {
 }
 
 void NETFunc::PlayerStat::SetName(char *n) {
-	strncpy(name, n, dp_PNAMELEN - 1);
-	name[dp_PNAMELEN - 1] = 0;
+	strlcpy(name, n, sizeof(name));
 }
 
 unsigned char NETFunc::PlayerStat::GetGroup() {
@@ -1361,8 +1360,7 @@ NETFunc::PlayerSetup::PlayerSetup() {
 NETFunc::PlayerSetup::~PlayerSetup() = default;
 
 void NETFunc::PlayerSetup::SetName(char *n) {
-	strncpy(player.name, n, dp_PNAMELEN);
-	player.name[dp_PNAMELEN - 1] = 0;
+	strlcpy(player.name, n, sizeof(player.name));
 }
 
 void NETFunc::PlayerSetup::SetBlob(char *b) {
@@ -1385,7 +1383,7 @@ char *NETFunc::PlayerSetup::GetDescription() {
 }
 
 void NETFunc::PlayerSetup::SetDescription(char *d) {
-	strncpy(description, d, nf_PLAYERDESCLEN);
+	strlcpy(description, d, sizeof(description));
 }
 
 void NETFunc::PlayerSetup::SetGroup(char group) {
@@ -1631,7 +1629,7 @@ void NETFunc::Game::SetHostile(bool h) {
 
 
 NETFunc::Lobby::Lobby(): Session(), bad(false) {
-	strncpy(session.sessionName, LobbyName, dp_SNAMELEN);
+	strlcpy(session.sessionName, LobbyName, sizeof(session.sessionName));
 	session.flags |= dp_SESSION_FLAGS_ISLOBBY;
 }
 
@@ -1788,7 +1786,7 @@ char *NETFunc::GameSetup::GetDescription() {
 }
 
 void NETFunc::GameSetup::SetDescription(char *d) {
-	strncpy(description, d, nf_GAMEDESCLEN);
+	strlcpy(description, d, sizeof(description));
 }
 
 void NETFunc::GameSetup::SetGroups(char groups) {
@@ -1797,11 +1795,11 @@ void NETFunc::GameSetup::SetGroups(char groups) {
 }
 
 void NETFunc::GameSetup::SetName(char *n) {
-	strncpy(session.sessionName, n, dp_SNAMELEN);
+	strlcpy(session.sessionName, n, sizeof(session.sessionName));
 }
 
 void NETFunc::GameSetup::SetPassword(char *p) {
-	strncpy(session.szPassword, p, dp_PASSWORDLEN);
+	strlcpy(session.szPassword, p, sizeof(session.szPassword));
 }
 
 void NETFunc::GameSetup::SetSize(short s) {
@@ -2551,8 +2549,7 @@ NETFunc::STATUS NETFunc::SetServer(Server *s) {
 			return ERR;
 		status = LOGIN;
 
-		strncpy(servername, s->GetName(), sizeof(servername));
-		servername[sizeof(servername) - 1] = '\0';
+		strlcpy(servername, s->GetName(), sizeof(servername));
 		return OK;
 	}
 	return ERR;
@@ -2666,10 +2663,8 @@ NETFunc::STATUS NETFunc::Connect(dp_t *d, PlayerStats *stats, bool h) {
 
 	host = h;
 
-	strncpy(player.player.name, playername, dp_PNAMELEN);
-	player.player.name[dp_PNAMELEN - 1] = '\0';
-	strncpy(session.session.sessionName, sessionname, dp_SNAMELEN);
-	session.session.sessionName[dp_SNAMELEN - 1] = '\0';
+	strlcpy(player.player.name, playername, sizeof(player.player.name));
+	strlcpy(session.session.sessionName, sessionname, sizeof(session.session.sessionName));
 
 	if(stats) {
 		playerStats = new PlayerStats();
@@ -3265,8 +3260,7 @@ NETFunc::SessionCallBack(dp_session_t *s, long *pTimeout, long flags, void *cont
 		NETFunc::session.SetKey();
 		NETFunc::session.flags = 0;
 
-		strncpy(sessionname, s->sessionName, sizeof(sessionname));
-		sessionname[sizeof(sessionname) - 1] = '\0';
+		strlcpy(sessionname, s->sessionName, sizeof(sessionname));
 		EnumSessions(false);
 		if(NETFunc::session.session.flags & dp_SESSION_FLAGS_ISLOBBY)
 			EnumSessions(true);
@@ -3294,14 +3288,12 @@ NETFunc::PlayerCallBack(dpid_t id, dp_char_t *n, long flags, void *context) {
 
 	if(n) {
 
-		strncpy(NETFunc::player.player.name, n, dp_PNAMELEN);
-		NETFunc::player.player.name[dp_PNAMELEN - 1] = '\0';
+		strlcpy(NETFunc::player.player.name, n, sizeof(NETFunc::player.player.name));
 		NETFunc::player.player.id = id;
 		NETFunc::player.SetKey();
 		NETFunc::status = OK;
 
-		strncpy(playername, n, sizeof(playername));
-		playername[sizeof(playername) - 1] = '\0';
+		strlcpy(playername, n, sizeof(playername));
 
 		if(NETFunc::session.IsLobby())
 			PushMessage(new Message(Message::ENTERLOBBY, NETFunc::session.GetKey(), sizeof(KeyStruct)));

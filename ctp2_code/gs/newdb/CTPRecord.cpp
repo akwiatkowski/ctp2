@@ -38,6 +38,8 @@
 #include "gs/newdb/DBTokens.h"
 #include "gs/database/StrDB.h"
 
+#include <vector>
+
 sint32 const CTPRecord::INDEX_INVALID;
 
 bool CTPRecord::ParseIntInArray(DBLexer *lex, sint32 **array, sint32 *numElements)
@@ -51,12 +53,14 @@ bool CTPRecord::ParseIntInArray(DBLexer *lex, sint32 **array, sint32 *numElement
 		lex->GetToken();
 		sint32 value = atoi(lex->GetTokenText());
 		if(*numElements > 0) {
+			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 			sint32 *oldArray = *array;
 			*array = new sint32[*numElements + 1];
 			memcpy(*array, oldArray, (*numElements) * sizeof(sint32));
 			delete [] oldArray;
 		} else {
             delete [] *array;
+			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 			*array = new sint32[1];
 		}
 		(*array)[*numElements] = value;
@@ -76,12 +80,14 @@ bool CTPRecord::ParseFloatInArray(DBLexer *lex, double **array, sint32 *numEleme
 		lex->GetToken();
 		double value = atof(lex->GetTokenText());
 		if(*numElements > 0) {
+			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 			double *oldArray = *array;
 			*array = new double[*numElements + 1];
 			memcpy(*array, oldArray, (*numElements) * sizeof(double));
 			delete [] oldArray;
 		} else {
             delete [] *array;
+			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 			*array = new double[1];
 		}
 		(*array)[*numElements] = value;
@@ -102,14 +108,17 @@ bool CTPRecord::ParseFileInArray(DBLexer *lex, char ***array, sint32 *numElement
 		const char * value = lex->GetTokenText();
 
 		if(*numElements > 0) {
+			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 			char **oldArray = *array;
 			*array = new char *[*numElements + 1];
 			memcpy(*array, oldArray, (*numElements) * sizeof(char *));
 			delete [] oldArray;
 		} else {
             delete [] *array;
+			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 			*array = new char *[1];
 		}
+		// TODO(phase-2): ownership transfer out of function — needs separate strategy
 		(*array)[*numElements] = new char[strlen(value) + 1];
 		strcpy((*array)[*numElements], value);
 		*numElements += 1;
@@ -129,12 +138,14 @@ bool CTPRecord::ParseStringIdInArray(DBLexer *lex, sint32 **array, sint32 *numEl
 		const char * value = lex->GetTokenText();
 
 		if(*numElements > 0) {
+			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 			sint32 *oldArray = *array;
 			*array = new sint32[(*numElements) + 1];
 			memcpy(*array, oldArray, (*numElements) * sizeof(sint32));
 			delete [] oldArray;
 		} else {
             delete [] *array;
+			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 			*array = new sint32[1];
 		}
 		sint32 id;
@@ -205,6 +216,7 @@ bool CTPRecord::ParseFileInArray(DBLexer *lex, char **array, sint32 *numElements
 			DBERROR(("Too many entries"));
 			return false;
 		}
+		// TODO(phase-2): ownership transfer out of function — needs separate strategy
 		array[*numElements] = new char[strlen(value) + 1];
 		strcpy(array[*numElements], value);
 		*numElements += 1;
@@ -246,6 +258,7 @@ void CTPRecord::SetTextName(const char *text)
     {
 	    m_name      = INDEX_INVALID;
         delete [] m_textName;
+	    // TODO(phase-2): class-member assignment — migrate in wave 3
 	    m_textName  = new char[strlen(text) + 1];
 	    strcpy(m_textName, text);
     }

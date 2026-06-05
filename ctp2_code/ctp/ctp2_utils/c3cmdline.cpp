@@ -5036,104 +5036,104 @@ void TileTypeCommand::Execute(sint32 argc, char** argv)
 	switch (c->GetTerrainType())
 		{
 		case TERRAIN_NULL :
-			strcpy(terrainName, "NULL");
+			strlcpy(terrainName, "NULL", sizeof(terrainName));
 			break;
 
 		case TERRAIN_FOREST :
-			strcpy(terrainName, "Forest");
+			strlcpy(terrainName, "Forest", sizeof(terrainName));
 			break;
 
 		case TERRAIN_PLAINS :
-			strcpy(terrainName, "Plains");
+			strlcpy(terrainName, "Plains", sizeof(terrainName));
 			break;
 
 		case TERRAIN_TUNDRA :
-			strcpy(terrainName, "Tundra");
+			strlcpy(terrainName, "Tundra", sizeof(terrainName));
 			break;
 
 		case TERRAIN_GLACIER :
-			strcpy(terrainName, "Glacier");
+			strlcpy(terrainName, "Glacier", sizeof(terrainName));
 			break;
 
 		case TERRAIN_GRASSLAND :
-			strcpy(terrainName, "Grassland");
+			strlcpy(terrainName, "Grassland", sizeof(terrainName));
 			break;
 
 		case TERRAIN_DESERT:
-			strcpy(terrainName, "Desert");
+			strlcpy(terrainName, "Desert", sizeof(terrainName));
 			break;
 
 		case TERRAIN_SWAMP:
-			strcpy(terrainName, "Swamp");
+			strlcpy(terrainName, "Swamp", sizeof(terrainName));
 			break;
 
 		case TERRAIN_JUNGLE:
-			strcpy(terrainName, "Jungle");
+			strlcpy(terrainName, "Jungle", sizeof(terrainName));
 			break;
 
 		case TERRAIN_MOUNTAIN :
-			strcpy(terrainName, "Mountain");
+			strlcpy(terrainName, "Mountain", sizeof(terrainName));
 			break;
 
 		case TERRAIN_HILL :
-			strcpy(terrainName, "Hill");
+			strlcpy(terrainName, "Hill", sizeof(terrainName));
 			break;
 
 		case TERRAIN_WATER_SHALLOW :
-			strcpy(terrainName, "Shallow Water");
+			strlcpy(terrainName, "Shallow Water", sizeof(terrainName));
 			break;
 
 		case TERRAIN_WATER_DEEP :
-			strcpy(terrainName, "Deep Water");
+			strlcpy(terrainName, "Deep Water", sizeof(terrainName));
 			break;
 
 		case TERRAIN_WATER_VOLCANO :
-			strcpy(terrainName, "Water Volcano");
+			strlcpy(terrainName, "Water Volcano", sizeof(terrainName));
 			break;
 
 		case TERRAIN_SPACE :
-			strcpy(terrainName, "Space");
+			strlcpy(terrainName, "Space", sizeof(terrainName));
 			break;
 
 		case TERRAIN_WATER_BEACH :
-			strcpy(terrainName, "Water Beach");
+			strlcpy(terrainName, "Water Beach", sizeof(terrainName));
 			break;
 
 		case TERRAIN_WATER_SHELF :
-			strcpy(terrainName, "Water Shelf");
+			strlcpy(terrainName, "Water Shelf", sizeof(terrainName));
 			break;
 
 		case TERRAIN_WATER_TRENCH :
-			strcpy(terrainName, "Water Trench");
+			strlcpy(terrainName, "Water Trench", sizeof(terrainName));
 			break;
 
 		case TERRAIN_WATER_RIFT :
-			strcpy(terrainName, "Water Rift");
+			strlcpy(terrainName, "Water Rift", sizeof(terrainName));
 			break;
 
 		case TERRAIN_DEAD :
-			strcpy(terrainName, "Dead");
+			strlcpy(terrainName, "Dead", sizeof(terrainName));
 			break;
 
 		case TERRAIN_BROWN_HILL :
-			strcpy(terrainName, "Brown Hill");
+			strlcpy(terrainName, "Brown Hill", sizeof(terrainName));
 			break;
 		case TERRAIN_BROWN_MOUNTAIN :
-			strcpy(terrainName, "Brown Mountain");
+			strlcpy(terrainName, "Brown Mountain", sizeof(terrainName));
 			break;
 		case TERRAIN_WHITE_HILL :
-			strcpy(terrainName, "White Hill");
+			strlcpy(terrainName, "White Hill", sizeof(terrainName));
 			break;
 		case TERRAIN_WHITE_MOUNTAIN :
-			strcpy(terrainName, "White Mountain");
+			strlcpy(terrainName, "White Mountain", sizeof(terrainName));
 			break;
 
 		case TERRAIN_UNEXPLORED :
-			strcpy(terrainName, "Unexplored");
+			strlcpy(terrainName, "Unexplored", sizeof(terrainName));
 			break;
 
 		default :
-			strcpy(terrainName, "Unknown");
+			strlcpy(terrainName, "Unknown", sizeof(terrainName));
 
 		}
 

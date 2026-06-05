@@ -338,18 +338,12 @@ sint32 GreatLibraryWindow::SetTechMode ( sint32 theMode, DATABASE theDatabase )
 
 	if (iconRec)
     {
-		strncpy( m_still_file, iconRec->GetFirstFrame(), sizeof(m_still_file) - 1 );
-		m_still_file[sizeof(m_still_file) - 1] = '\0';
-		strncpy( m_movie_file, iconRec->GetMovie(), sizeof(m_movie_file) - 1 );
-		m_movie_file[sizeof(m_movie_file) - 1] = '\0';
-		strncpy( m_gameplay_file, iconRec->GetGameplay(), sizeof(m_gameplay_file) - 1 );
-		m_gameplay_file[sizeof(m_gameplay_file) - 1] = '\0';
-		strncpy( m_history_file, iconRec->GetHistorical(), sizeof(m_history_file) - 1 );
-		m_history_file[sizeof(m_history_file) - 1] = '\0';
-		strncpy( m_requirement_file, iconRec->GetPrereq(), sizeof(m_requirement_file) - 1 );
-		m_requirement_file[sizeof(m_requirement_file) - 1] = '\0';
-		strncpy( m_variable_file, iconRec->GetVari(), sizeof(m_variable_file) - 1 );
-		m_variable_file[sizeof(m_variable_file) - 1] = '\0';
+		strlcpy( m_still_file, iconRec->GetFirstFrame(), sizeof(m_still_file) );
+		strlcpy( m_movie_file, iconRec->GetMovie(), sizeof(m_movie_file) );
+		strlcpy( m_gameplay_file, iconRec->GetGameplay(), sizeof(m_gameplay_file) );
+		strlcpy( m_history_file, iconRec->GetHistorical(), sizeof(m_history_file) );
+		strlcpy( m_requirement_file, iconRec->GetPrereq(), sizeof(m_requirement_file) );
+		strlcpy( m_variable_file, iconRec->GetVari(), sizeof(m_variable_file) );
 	}
 
 	return TRUE;

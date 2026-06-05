@@ -348,7 +348,7 @@ bool c3files_getfilelist(C3SAVEDIR dirID, MBCHAR *ext, PointerList<MBCHAR> *list
 
 #ifdef _WIN32
 	if (ext) snprintf(strbuf, sizeof(strbuf), "*.%s", ext);
-	else { strncpy(strbuf, "*.*", sizeof(strbuf) - 1); strbuf[sizeof(strbuf) - 1] = '\0'; }
+	else { strlcpy(strbuf, "*.*", sizeof(strbuf)); }
 
 	strncat(path, strbuf, sizeof(path) - strlen(path) - 1);
 
@@ -411,7 +411,7 @@ bool c3files_getfilelist_ex(C3SAVEDIR dirID, MBCHAR *ext, PointerList<WIN32_FIND
 	civpaths_Get()->GetSavePath(dirID, path);
 
 	if (ext) snprintf(strbuf, sizeof(strbuf), "*.%s", ext);
-	else { strncpy(strbuf, "*.*", sizeof(strbuf) - 1); strbuf[sizeof(strbuf) - 1] = '\0'; }
+	else { strlcpy(strbuf, "*.*", sizeof(strbuf)); }
 
 	strncat(path, strbuf, sizeof(path) - strlen(path) - 1);
 

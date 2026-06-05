@@ -69,7 +69,7 @@ void SingleListItem::Update()
 	c3_Static * subItem = (c3_Static *)GetChildByIndex(0);
 
 	MBCHAR name[ 256 + 1 ];
-	strncpy( name, m_name, 256 );
+	strlcpy(name, m_name, sizeof(name));
 
 	if ( !subItem->GetTextFont() )
 		subItem->TextReloadFont();

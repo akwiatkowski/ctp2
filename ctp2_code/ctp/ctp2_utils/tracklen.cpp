@@ -408,14 +408,12 @@ DWORD *tracklen_LoadEncryptedKey( DWORD *trackLenBuf, const char *szFile )
 			strcat(szTemp, FILE_SEP);
 			strcat(szTemp, szFile);
 		} else {
-			strncpy(szTemp, szFile, sizeof(szTemp));
-			szTemp[sizeof(szTemp) - 1] = '\0';
+			strlcpy(szTemp, szFile, sizeof(szTemp));
 		}
 #endif
 	}
 	else {
-		strncpy( szTemp, szFile, sizeof(szTemp) );
-		szTemp[sizeof(szTemp) - 1] = '\0';
+		strlcpy(szTemp, szFile, sizeof(szTemp));
 	}
 
 #ifdef WIN32
@@ -523,6 +521,7 @@ BYTE tracklen_CheckTrackLengths( char *szVersionInfoBuffer )
 #endif
 
 	if( szVersionPtr && szVersionInfoBuffer )
+		// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 		strncpy( szVersionInfoBuffer, szVersionPtr, CHRVERSIONINFOLEN );
 
 #ifdef tracklen_LOGGING

@@ -241,6 +241,7 @@ void UIGetCurrentYearString(char *out, size_t cap)
 	const MBCHAR *src = TurnYearStatus::GetCurrentYear();
 	if (src)
 	{
+		// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 		strncpy(out, src, cap - 1);
 		out[cap - 1] = '\0';
 	}
@@ -264,6 +265,7 @@ void UIGetBuildQueueHeadName(const CityData *city, char *out, size_t cap)
 	const MBCHAR *name = CityControlPanel::GetBuildName(head);
 	if (name)
 	{
+		// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 		strncpy(out, name, cap - 1);
 		out[cap - 1] = '\0';
 	}

@@ -518,8 +518,7 @@ void AddSearchPacks
 void InitDataIncludePath()
 {
 	MBCHAR                  ruleSets[MAX_PATH];
-	strncpy(ruleSets, profiledb_Get()->GetRuleSets(), MAX_PATH - 1);
-	ruleSets[MAX_PATH - 1] = '\0';
+	strlcpy(ruleSets, profiledb_Get()->GetRuleSets(), sizeof(ruleSets));
 
 	std::vector<MBCHAR *>   pathStarts;
 	MBCHAR *                nextPath    = ruleSets;
@@ -3616,6 +3615,7 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 	MBCHAR const *  autosaveName    = stringdb_Get()->GetNameStr(autosaveItem);
 
 	MBCHAR			leaderName[k_MAX_NAME_LEN];
+	// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 	strncpy(leaderName, profiledb_Get()->GetLeaderName(), SAVE_LEADER_NAME_SIZE);
 	leaderName[SAVE_LEADER_NAME_SIZE] = '\0';
 	c3files_StripSpaces(leaderName);
@@ -3680,8 +3680,7 @@ void CivApp::PostLoadQuickSaveAction(sint32 player)
 	}
 
 	MBCHAR			leaderName[SAVE_LEADER_NAME_SIZE + 1];
-	strncpy(leaderName, profiledb_Get()->GetLeaderName(), SAVE_LEADER_NAME_SIZE);
-	leaderName[SAVE_LEADER_NAME_SIZE] = '\0';
+	strlcpy(leaderName, profiledb_Get()->GetLeaderName(), sizeof(leaderName));
 	c3files_StripSpaces(leaderName);
 
 	MBCHAR			filename[_MAX_PATH];

@@ -6569,6 +6569,7 @@ CommandLine::Parse()
 		case 0:
 			if(isspace(m_buf[p])) {
 				m_argv[m_argc] = new char[argpos + 1];
+				// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 				strncpy(m_argv[m_argc], curarg, argpos);
 				m_argv[m_argc][argpos] = 0;
 				m_argc++;
@@ -6598,6 +6599,7 @@ CommandLine::Parse()
 	}
 	if((state == 0 || state == 2) && argpos > 0) {
 		m_argv[m_argc] = new char[argpos + 1];
+		// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 		strncpy(m_argv[m_argc], curarg, argpos);
 		m_argv[m_argc][argpos] = 0;
 		m_argc++;

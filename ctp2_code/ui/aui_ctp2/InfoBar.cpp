@@ -175,7 +175,7 @@ AUI_ERRCODE InfoBar::DrawText(aui_Surface *surface,
 void InfoBar::SetText(const char *str)
 {
 	m_textFromMap = false;
-	strncpy(m_str, str, k_MAX_INFOBAR_TEXT);
+	strlcpy(m_str, str, sizeof(m_str));
 	DrawThis();
 }
 

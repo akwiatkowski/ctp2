@@ -1137,7 +1137,7 @@ void ParseCommandLine(PSTR szCmdLine)
 	char szCmdLine[k_MAX_CMD_LINE] = { '\0' };
 	char tmp[k_MAX_CMD_LINE] = { '\0' };
 	for (int i=1; i<argc; i++) {
-		strncpy(tmp, szCmdLine, k_MAX_CMD_LINE-1);
+		strlcpy(tmp, szCmdLine, sizeof(tmp));
 		snprintf(szCmdLine, k_MAX_CMD_LINE-1, "%s %s", tmp, argv[i]);
 	}
 	szCmdLine[k_MAX_CMD_LINE-1]='\0';

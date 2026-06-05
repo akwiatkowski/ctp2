@@ -177,6 +177,7 @@ AUI_ERRCODE TargaImageFormat::LoadRIM(MBCHAR const * filename, aui_Image *image)
     }
 
     char rname[1 + BASE_LEN_MAX];
+    // TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
     strncpy(rname, basename, rlen - 3);
     rname[rlen - 3] = 'r';
     rname[rlen - 2] = 'i';

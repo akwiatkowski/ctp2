@@ -207,6 +207,7 @@ KEYMAP::KEYMAP(BOOL useDefault)
 			continue;
 		if(space - line > 79)
 			continue;
+		// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 		strncpy(keystr, line, space - line);
 		keystr[space - line] = 0;
 

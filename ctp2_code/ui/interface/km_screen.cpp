@@ -25,7 +25,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -372,7 +372,7 @@ AUI_ERRCODE km_screen_Initialize( )
 
 	if ( s_km_screen ) return AUI_ERRCODE_OK;
 
-	strcpy(windowBlock, "KmScreen");
+	strlcpy(windowBlock, "KmScreen", sizeof(windowBlock));
 
 	{
 		s_km_screen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING );
@@ -641,13 +641,13 @@ MBCHAR const * km_GetKeyName(uint32 code)
 	const char *ctrl = stringdb_Get()->GetNameStr("str_control_key");
 
 	switch(code) {
-		case '\t' + 128: strcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_TAB")); break;
-		case '\r' + 128: strcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_ENTER"));  break;
-		case ' ': strcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_SPACE"));   break;
-		case 8 + 128:   strcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_BACKSPACE")); break;
-		case '0' + 128: strcpy(str, "F10"); break;
-		case '!' + 128: strcpy(str, "F11"); break;
-		case '@' + 128: strcpy(str, "F12"); break;
+		case '\t' + 128: strlcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_TAB"), sizeof(str)); break;
+		case '\r' + 128: strlcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_ENTER"), sizeof(str));  break;
+		case ' ': strlcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_SPACE"), sizeof(str));   break;
+		case 8 + 128:   strlcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_BACKSPACE"), sizeof(str)); break;
+		case '0' + 128: strlcpy(str, "F10", sizeof(str)); break;
+		case '!' + 128: strlcpy(str, "F11", sizeof(str)); break;
+		case '@' + 128: strlcpy(str, "F12", sizeof(str)); break;
 		default:
 			if(code >= ('1' | 0x80) && code <= ('9' | 0x80))
 			{

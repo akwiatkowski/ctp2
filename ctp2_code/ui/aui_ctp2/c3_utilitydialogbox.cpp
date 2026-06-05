@@ -350,8 +350,8 @@ c3_UtilityCityListPopup::c3_UtilityCityListPopup( c3_UtilityCityListCallback *ca
 {
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	if (ldlBlock) strcpy(windowBlock,ldlBlock);
-	else strcpy(windowBlock,"DefaultUtilityCityListPopup");
+	if (ldlBlock) strlcpy(windowBlock, ldlBlock, sizeof(windowBlock));
+	else strlcpy(windowBlock, "DefaultUtilityCityListPopup", sizeof(windowBlock));
 
 	{
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -456,12 +456,12 @@ sint32 c3_UtilityCityListPopup::UpdateData( )
 
 	UnitDynamicArray *cityList = player_Get(curPlayer)->GetAllCitiesList();
 
-	strcpy(ldlBlock,"SingleListItem");
+	strlcpy(ldlBlock, "SingleListItem", sizeof(ldlBlock));
 	m_list->Clear();
 
 	for ( sint32 i = 0 ; i < cityList->Num() ; i++ )
 	{
-		strcpy(strbuf, (*cityList)[i].GetData()->GetCityData()->GetName());
+		strlcpy(strbuf, (*cityList)[i].GetData()->GetCityData()->GetName(), sizeof(strbuf));
 		m_list->AddItem(new SingleListItem(&retval, strbuf, i, ldlBlock));
 	}
 
@@ -482,8 +482,8 @@ c3_PiracyPopup::c3_PiracyPopup( c3_PiracyCallback *callback, MBCHAR *ldlBlock )
 {
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	if (ldlBlock) strcpy(windowBlock,ldlBlock);
-	else strcpy(windowBlock,"DefaultPiracyPopup");
+	if (ldlBlock) strlcpy(windowBlock, ldlBlock, sizeof(windowBlock));
+	else strlcpy(windowBlock, "DefaultPiracyPopup", sizeof(windowBlock));
 
 	{
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -581,13 +581,13 @@ sint32 c3_PiracyPopup::UpdateData( )
 
 	UnitDynamicArray *cityList = player_Get(curPlayer)->GetAllCitiesList();
 
-	strcpy(ldlBlock,"PiracyListItem");
+	strlcpy(ldlBlock, "PiracyListItem", sizeof(ldlBlock));
 
     m_list->Clear();
 
 	for ( sint32 i = 0 ; i < cityList->Num() ; i++ )
 	{
-		strcpy(strbuf, (*cityList)[i].GetData()->GetCityData()->GetName());
+		strlcpy(strbuf, (*cityList)[i].GetData()->GetCityData()->GetName(), sizeof(strbuf));
 		m_list->AddItem(new SingleListItem(&retval, strbuf, i, ldlBlock));
 	}
 
@@ -608,8 +608,8 @@ c3_ExpelPopup::c3_ExpelPopup( c3_ExpelCallback *callback, MBCHAR *ldlBlock )
 {
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-    if (ldlBlock) strcpy(windowBlock,ldlBlock);
-	else strcpy(windowBlock,"DefaultExpelPopup");
+    if (ldlBlock) strlcpy(windowBlock, ldlBlock, sizeof(windowBlock));
+	else strlcpy(windowBlock, "DefaultExpelPopup", sizeof(windowBlock));
 
 	{
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -715,8 +715,8 @@ c3_UtilityTextFieldPopup::c3_UtilityTextFieldPopup
 {
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-    if (ldlBlock) strcpy(windowBlock,ldlBlock);
-	else strcpy(windowBlock,"DefaultUtilityTextFieldPopup");
+    if (ldlBlock) strlcpy(windowBlock, ldlBlock, sizeof(windowBlock));
+	else strlcpy(windowBlock, "DefaultUtilityTextFieldPopup", sizeof(windowBlock));
 
 	{
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -858,15 +858,15 @@ c3_UtilityTextMessagePopup::c3_UtilityTextMessagePopup
 
 	if (ldlBlock)
     {
-        strcpy(windowBlock,ldlBlock);
+        strlcpy(windowBlock, ldlBlock, sizeof(windowBlock));
     }
 	else if (type)
     {
-        strcpy(windowBlock,"DefaultUtilityTextMessagePopup");
+        strlcpy(windowBlock, "DefaultUtilityTextMessagePopup", sizeof(windowBlock));
     }
     else
     {
-        strcpy(windowBlock,"DefaultUtilityTextMessageOkPopup");
+        strlcpy(windowBlock, "DefaultUtilityTextMessageOkPopup", sizeof(windowBlock));
 	}
 
 	{
@@ -1100,11 +1100,11 @@ c3_UtilityAbortPopup::c3_UtilityAbortPopup( MBCHAR const *text, sint32 type, c3_
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	if (ldlBlock) strcpy(windowBlock,ldlBlock);
+	if (ldlBlock) strlcpy(windowBlock, ldlBlock, sizeof(windowBlock));
 	else
 	{
-		if (type == k_UTILITY_ABORT) strcpy(windowBlock,"DefaultUtilityAbortPopup");
-		else strcpy(windowBlock,"DefaultUtilityAbortProgressPopup");
+		if (type == k_UTILITY_ABORT) strlcpy(windowBlock, "DefaultUtilityAbortPopup", sizeof(windowBlock));
+		else strlcpy(windowBlock, "DefaultUtilityAbortProgressPopup", sizeof(windowBlock));
 	}
 
 	{
@@ -1232,8 +1232,8 @@ c3_UtilityPlayerListPopup::c3_UtilityPlayerListPopup( c3_UtilityPlayerListCallba
 {
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	if (ldlBlock) strcpy(windowBlock,ldlBlock);
-	else strcpy(windowBlock,"DefaultUtilityPlayerListPopup");
+	if (ldlBlock) strlcpy(windowBlock, ldlBlock, sizeof(windowBlock));
+	else strlcpy(windowBlock, "DefaultUtilityPlayerListPopup", sizeof(windowBlock));
 
 	{
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -1336,7 +1336,7 @@ void c3_UtilityPlayerListPopup::kh_Close()
 sint32 c3_UtilityPlayerListPopup::UpdateData( )
 {
 	MBCHAR ldlBlock[k_AUI_LDL_MAXBLOCK + 1];
-	strcpy(ldlBlock, "DoubleListItem");
+	strlcpy(ldlBlock, "DoubleListItem", sizeof(ldlBlock));
 
 	MBCHAR strbuf[256];
 	AUI_ERRCODE		retval;
@@ -1347,7 +1347,7 @@ sint32 c3_UtilityPlayerListPopup::UpdateData( )
 	{
 		if (player_arr_Get()[i])
         {
-			strcpy(strbuf, player_Get(i)->GetLeaderName());
+			strlcpy(strbuf, player_Get(i)->GetLeaderName(), sizeof(strbuf));
             m_list->AddItem(new DoubleListItem
                                 (&retval,
                                  strbuf,
@@ -1420,14 +1420,14 @@ AUI_ERRCODE DoubleListItem::InitCommonLdl(MBCHAR *name, sint32 value, MBCHAR *te
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		retval;
 
-	strcpy(m_name, name);
+	strlcpy(m_name, name, sizeof(m_name));
 	m_value = value;
 
 	if ( text ) {
-		strcpy( m_text, text );
+		strlcpy( m_text, text, sizeof(m_text) );
 	}
 	else {
-		strcpy( m_text, "" );
+		strlcpy( m_text, "", sizeof(m_text) );
 	}
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
@@ -1475,10 +1475,10 @@ sint32 DoubleListItem::Compare(c3_ListItem *item2, uint32 column)
 		    c3_Static * i1 = (c3_Static *)this->GetChildByIndex(column);
 		    c3_Static * i2 = (c3_Static *)item2->GetChildByIndex(column);
 
-	        MBCHAR			strbuf1[256];
-		    strcpy(strbuf1,i1->GetText());
-	        MBCHAR			strbuf2[256];
-		    strcpy(strbuf2,i2->GetText());
+	    MBCHAR			strbuf1[256];
+	    strlcpy(strbuf1, i1->GetText(), sizeof(strbuf1));
+        MBCHAR			strbuf2[256];
+	    strlcpy(strbuf2, i2->GetText(), sizeof(strbuf2));
 
 		    return (strbuf1[0] - strbuf2[0]);
         }
@@ -1523,7 +1523,7 @@ void c3_utilitydialogbox_NameCity(Unit city)
 
 	s_unit = city;
 
-	strcpy(nameText, city.GetData()->GetCityData()->GetName());
+	strlcpy(nameText, city.GetData()->GetCityData()->GetName(), sizeof(nameText));
 
 	if ( !s_nameTheCityPopup ) {
 

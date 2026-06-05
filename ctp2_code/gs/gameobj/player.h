@@ -58,6 +58,7 @@
 //----------------------------------------------------------------------------
 
 #include <memory>
+#include <vector>
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -344,7 +345,7 @@ public:
 	Strengths                        *m_strengths;                // Serialized
 	Score                            *m_score;                    // Serialized
 	EndGame                          *m_endGame;                  // Serialized
-	sint32                           *m_goodSalePrices;
+	std::vector<sint32>               m_goodSalePrices;
 	MBCHAR                           *m_email;                    // Serialized
 	GaiaController                   *m_gaiaController;           // Serialized
 

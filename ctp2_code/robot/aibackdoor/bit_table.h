@@ -41,6 +41,7 @@
 //----------------------------------------------------------------------------
 
 #include <algorithm>    // std::copy, std::fill_n
+#include <memory>       // std::unique_ptr, std::make_unique
 
 #include "os/include/ctp2_inttypes.h"   // sint32
 #include "os/nowin32/windows.h"         // BOOL
@@ -66,7 +67,7 @@ class Bit_Table
 	sint32 max_x;
 	sint32 max_y;
 
-	sint32 *m_data;
+	std::unique_ptr<sint32[]> m_data;
 
 public:
 
@@ -87,20 +88,16 @@ public:
 	{
 		if (rhs.m_data)
 		{
-			m_data = new sint32[m_total_len];
-			std::copy(rhs.m_data, rhs.m_data + static_cast<size_t>(m_total_len), m_data);
+			m_data = std::make_unique<sint32[]>(m_total_len);
+			std::copy(rhs.m_data.get(), rhs.m_data.get() + static_cast<size_t>(m_total_len), m_data.get());
 		}
 	};
 
-	~Bit_Table()
-	{
-		delete [] m_data;
-	}
+	~Bit_Table() = default;
 
 	void Cleanup()
 	{
-		delete[] m_data;
-		m_data      = nullptr;
+		m_data.reset();
 		y_col_len   = 0;
 		m_total_len = 0;
 		max_x       = 0;
@@ -112,11 +109,10 @@ public:
 		y_col_len = 1 + (my>>5);
 		m_total_len = mx * y_col_len;
 
-		delete [] m_data;
 		if (m_total_len > 0)
-			m_data = new sint32[m_total_len];
+			m_data = std::make_unique<sint32[]>(m_total_len);
 		else
-			m_data = nullptr;
+			m_data.reset();
 
 		max_x = mx;
 		max_y = my;
@@ -128,7 +124,7 @@ public:
 	{
 		if (m_total_len > 0)
 		{
-			std::fill_n(m_data, m_total_len, (start_val) ? 0xffff : 0);
+			std::fill_n(m_data.get(), m_total_len, (start_val) ? 0xffff : 0);
 		}
 	}
 
@@ -163,12 +159,11 @@ public:
 	{
 		if (this != &rhs)
 		{
-			/// @todo Add delete+new for m_data when this assert fails
 			Assert(m_total_len == rhs.m_total_len);
 			Assert(y_col_len == rhs.y_col_len);
 			if (m_total_len > 0)
 			{
-				std::copy(rhs.m_data, rhs.m_data + static_cast<size_t>(m_total_len), m_data);
+				std::copy(rhs.m_data.get(), rhs.m_data.get() + static_cast<size_t>(m_total_len), m_data.get());
 			}
 		}
 

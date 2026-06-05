@@ -118,6 +118,13 @@ void TurnCount::Init(sint32 numPlayers, sint32 initialYear)
 	m_lastBeginTurn = -1;
 	m_isHotSeat = FALSE;
 	m_isEmail = FALSE;
+	// ChooseHappinessPlayer does m_happinessPlayer++; if the field is
+	// uninitialized garbage (MALLOC_PERTURB / fresh allocation), the
+	// increment cascades into bad pointer arithmetic in player_Get.
+	// Seed to 0 before the search so the increment lands at index 1
+	// (the slot the search would settle on anyway when player 0 is the
+	// barbarian).  Caught by ASan in HeavyCityDataFixture.
+	m_happinessPlayer = 0;
 	ChooseHappinessPlayer();
 	m_sentGameAlmostOverMessage = FALSE;
 	m_sentGameOverMessage = FALSE;

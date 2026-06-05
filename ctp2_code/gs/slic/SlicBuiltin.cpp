@@ -278,6 +278,7 @@ class UnitSymbol_Name : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetUnit(u);
 		Assert(res);
 		if(u.IsValid()) {
+			// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 			strncpy(text, u.GetName(), maxLen);
 			return TRUE;
 		}
@@ -355,6 +356,7 @@ class CitySymbol_Name : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
 		Assert(res);
 		if(city.IsValid()) {
+			// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 			strncpy(text, city.GetName(), maxLen);
 			return TRUE;
 		}
@@ -447,6 +449,7 @@ class CitySymbol_Building : public SlicStructMemberData {
 			}
 			else
 			{
+				// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strncpy(text, stringdb_Get()->GetNameStr("str_ldl_Building_Nothing_Label"),maxLen);
 			}
 			return TRUE;
@@ -677,6 +680,7 @@ class PlayerSymbol_Capital : public SlicStructMemberData {
             text[0] = 0;
             if (capitol.IsValid())
             {
+			    // TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 			    strncpy(text, capitol->GetCityData()->GetName(), maxLen);
             }
 		}
@@ -714,6 +718,7 @@ class PlayerSymbol_LargestCity : public SlicStructMemberData {
             text[0] = 0;
             if (largestCity.IsValid())
             {
+			    // TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 			    strncpy(text, largestCity->GetCityData()->GetName(), maxLen);
 			}
 		}
@@ -765,6 +770,7 @@ class PlayerSymbol_Researching : public SlicStructMemberData {
 		Assert(res);
 		if (pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=nullptr)
 		{
+			// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 			strncpy(text, g_theAdvanceDB->Get(player_Get(pl)->m_advances->GetResearching())->GetNameText(), maxLen);
 			return TRUE;
 		}
@@ -803,15 +809,18 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 		{
 			switch(player_Get(pl)->GetReadinessLevel())
 			{
-				case READINESS_LEVEL_PEACE:
-					strncpy(text, stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_PEACE"), maxLen);
-					break;
-				case READINESS_LEVEL_ALERT:
-					strncpy(text, stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_ALERT"), maxLen);
-					break;
-				case READINESS_LEVEL_WAR:
-					strncpy(text, stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_WAR"), maxLen);
-					break;
+			case READINESS_LEVEL_PEACE:
+				// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
+				strncpy(text, stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_PEACE"), maxLen);
+				break;
+			case READINESS_LEVEL_ALERT:
+				// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
+				strncpy(text, stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_ALERT"), maxLen);
+				break;
+			case READINESS_LEVEL_WAR:
+				// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
+				strncpy(text, stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_WAR"), maxLen);
+				break;
 				default:
 					Assert(false);
 					break;
@@ -868,9 +877,15 @@ class PlayerSymbol_LeaderPersonality : public SlicStructMemberData {
 		{
 			StringId description = Diplomat::GetDiplomat(pl).GetPersonality()->GetDescription();
 			if (description != -1)
+			{
+				// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strncpy(text, stringdb_Get()->GetNameStr(description) , maxLen);
+			}
 			else
+			{
+				// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strncpy(text, Diplomat::GetDiplomat(pl).GetPersonalityName().c_str(), maxLen);
+			}
 			return TRUE;
 		}
 		return FALSE;
@@ -900,6 +915,7 @@ class PlayerSymbol_GovtType : public SlicStructMemberData {
 		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=nullptr)
 		{
 
+			// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 			strncpy(text, g_theGovernmentDB->Get(player_Get(pl)->m_government_type)->GetNameText(), maxLen);
 			return TRUE;
 		}
@@ -1415,6 +1431,7 @@ class AdvanceSymbol_Name : public SlicStructMemberData {
 	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 adv;
 		if(m_parent->GetDataSymbol()->GetIntValue(adv)) {
+			// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 			strncpy(text, g_theAdvanceDB->Get(adv)->GetNameText(), maxLen);
 			return TRUE;
 		} else {
@@ -1510,6 +1527,7 @@ class BuildingSymbol_Name : public SlicStructMemberData {
 			type = 0;
 		}
 
+		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strncpy(text, stringdb_Get()->GetNameStr(g_theBuildingDB->Get(type)->GetName()), maxLen);
 		return TRUE;
 	}
@@ -1554,6 +1572,7 @@ class WonderSymbol_Name : public SlicStructMemberData {
 			type = 0;
 		}
 
+		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strncpy(text, stringdb_Get()->GetNameStr(g_theWonderDB->Get(type)->GetName()), maxLen);
 		return TRUE;
 	}
@@ -1597,6 +1616,7 @@ class UnitRecordSymbol_Name : public SlicStructMemberData {
 		if(!res)
 			type = 0;
 
+		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strncpy(text, g_theUnitDB->Get(type)->GetNameText(), maxLen);
 		return TRUE;
 	}
@@ -1727,6 +1747,7 @@ class GoodSymbol_Name : public SlicStructMemberData {
 		if(!res)
 			type = 0;
 
+		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strncpy(text, g_theResourceDB->Get(type)->GetNameText(), maxLen);
 		return TRUE;
 	}

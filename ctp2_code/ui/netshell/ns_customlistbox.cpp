@@ -726,7 +726,7 @@ void ns_GPlayerListBox::UpdateHPlayerItem(
 		SetImage( player->IsReadyToLaunch() ? netshell_Get()->GetTrueBmp() : nullptr );
 
 	MBCHAR name[ dp_PNAMELEN + 1 ];
-	strncpy( name, player->GetName(), dp_PNAMELEN );
+	strlcpy( name, player->GetName(), sizeof(name) );
 
 	if ( !item->GetNameItem()->GetTextFont() )
 		item->GetNameItem()->TextReloadFont();
@@ -783,8 +783,8 @@ AUI_ERRCODE ns_ListBox<NETFunc::Player, ns_Player>::StoreAppropriateData(
 		{
 		case ns_Accessor<NETFunc::Player>::STRING:
 			{
-				MBCHAR name[dp_PNAMELEN + 1];
-				strncpy(name, * reinterpret_cast<MBCHAR const * *>(dataPtr), dp_PNAMELEN);
+			MBCHAR name[dp_PNAMELEN + 1];
+			strlcpy(name, * reinterpret_cast<MBCHAR const * *>(dataPtr), sizeof(name));
 
 				if (!item->GetTextFont())
 				{
@@ -984,7 +984,7 @@ void ns_AIPlayerListBox::UpdateHPlayerItem(
 		SetImage( netshell_Get()->GetTrueBmp() );
 
 	MBCHAR name[ dp_PNAMELEN + 1 ];
-	strncpy( name, player->GetName(), dp_PNAMELEN );
+	strlcpy( name, player->GetName(), sizeof(name) );
 
 	if ( !item->GetNameItem()->GetTextFont() )
 		item->GetNameItem()->TextReloadFont();

@@ -56,6 +56,7 @@ char* _fullpath(char* absolute, const char* relative, size_t bufsize)
 	}
 
 	if(ret) {
+		// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 		strncpy(absolute, ret, bufsize);
 		absolute[bufsize - 1] = '\0';
 		free(ret);

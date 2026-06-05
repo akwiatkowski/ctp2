@@ -241,11 +241,9 @@ void NetCRC::Error(char *buf)
 	const char *str = stringdb_Get()->GetNameStr("str_ldl_mp_dbase_out_of_synch");
 	char nonConstStr[1024];
 	if (str) {
-		strncpy(nonConstStr, str, sizeof(nonConstStr) - 1);
-		nonConstStr[sizeof(nonConstStr) - 1] = '\0';
+		strlcpy(nonConstStr, str, sizeof(nonConstStr));
 	} else {
-		strncpy(nonConstStr, "Databases out of sync, returning to lobby", sizeof(nonConstStr) - 1);
-		nonConstStr[sizeof(nonConstStr) - 1] = '\0';
+		strlcpy(nonConstStr, "Databases out of sync, returning to lobby", sizeof(nonConstStr));
 	}
 	c3_RemoveAbortMessage();
 	civapp_Get()->ProcessGraphicsCallback();

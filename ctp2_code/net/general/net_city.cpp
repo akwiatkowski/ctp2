@@ -297,8 +297,7 @@ void NetCityName::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 			}
 		} else {
-			strncpy(home_city.GetData()->GetCityData()->m_name, name, k_MAX_NAME_LEN - 1);
-			home_city.GetData()->GetCityData()->m_name[k_MAX_NAME_LEN - 1] = '\0';
+			strlcpy(home_city.GetData()->GetCityData()->m_name, name, sizeof(home_city.GetData()->GetCityData()->m_name));
 			if(network_Get().IsHost()) {
 				network_Get().Block(home_city.GetOwner());
 				network_Get().SendCityName(home_city.GetData()->GetCityData());

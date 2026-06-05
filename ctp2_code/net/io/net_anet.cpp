@@ -287,8 +287,7 @@ ActivNetIO::Host(char* sessionName)
 	memset(&sess, 0, sizeof(sess));
 	sess.sessionType = CIV3_SPECIES;
 	sess.maxPlayers = (uint16)16 - 1;
-	strncpy(sess.sessionName, sessionName, dp_SNAMELEN);
-	sess.sessionName[dp_SNAMELEN - 1] = 0;
+	strlcpy(sess.sessionName, sessionName, sizeof(sess.sessionName));
 	sess.flags = dp_SESSION_FLAGS_CREATESESSION;
 	sess.dwUser1 = 0;
 

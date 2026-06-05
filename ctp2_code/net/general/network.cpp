@@ -543,9 +543,9 @@ void Network::InitFromNetFunc()
 			const char *str = stringdb_Get()->GetNameStr("NETWORK_WAITING_FOR_DATA");
 			char nonConstStr[1024];
 			if(str) {
-				strcpy(nonConstStr, str);
-			} else {
-				strcpy(nonConstStr, "Waiting on data");
+			strlcpy(nonConstStr, str, sizeof(nonConstStr));
+		} else {
+			strlcpy(nonConstStr, "Waiting on data", sizeof(nonConstStr));
 			}
 			c3_AbortMessage(nonConstStr, k_UTILITY_PROGRESS_ABORT, network_AbortCallback);
 		}
@@ -1104,6 +1104,7 @@ void Network::RemovePlayer(uint16 id)
 
 	if(m_playerData[index]) {
 		char *name = new char[strlen(m_playerData[index]->m_name) + 1];
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(name, m_playerData[index]->m_name);
 
 		delete m_playerData[index];
@@ -1210,9 +1211,9 @@ void Network::ChangeHost(uint16 id)
 	const char *str = stringdb_Get()->GetNameStr("NETWORK_WAITING_FOR_DATA");
 	char nonConstStr[1024];
 	if(str) {
-		strcpy(nonConstStr, str);
+		strlcpy(nonConstStr, str, sizeof(nonConstStr));
 	} else {
-		strcpy(nonConstStr, "Waiting on data");
+		strlcpy(nonConstStr, "Waiting on data", sizeof(nonConstStr));
 	}
 	c3_AbortMessage(nonConstStr, k_UTILITY_PROGRESS_ABORT, network_AbortCallback );
 }
@@ -2806,6 +2807,7 @@ PlayerData::PlayerData(char* name, uint16 id) :
 {
 	if(name) {
 		m_name = new char[strlen(name) + 1];
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(m_name, name);
 	} else {
 		m_name = new char[1];
@@ -3529,9 +3531,9 @@ void Network::SetProgress(sint32 progress)
 
 		char nonConstStr[1024];
 		if(str) {
-			strcpy(nonConstStr, str);
+			strlcpy(nonConstStr, str, sizeof(nonConstStr));
 	} else {
-			strcpy(nonConstStr, "Waiting on players");
+			strlcpy(nonConstStr, "Waiting on players", sizeof(nonConstStr));
 		}
 		c3_AbortUpdateData(nonConstStr, 100);
 	} else {
@@ -3770,9 +3772,9 @@ void Network::StartResync()
 	const char *str = stringdb_Get()->GetNameStr("NETWORK_RESYNCING");
 	char nonConstStr[1024];
 	if(str) {
-		strcpy(nonConstStr, str);
+		strlcpy(nonConstStr, str, sizeof(nonConstStr));
 	} else {
-		strcpy(nonConstStr, "Resyncing");
+		strlcpy(nonConstStr, "Resyncing", sizeof(nonConstStr));
 	}
 	c3_AbortMessage(nonConstStr, k_UTILITY_PROGRESS_ABORT, network_AbortCallback );
 
@@ -3810,9 +3812,9 @@ void Network::RequestResync(RESYNC_REASON reason)
 	const char *str = stringdb_Get()->GetNameStr("NETWORK_RESYNCING");
 	char nonConstStr[1024];
 	if(str) {
-		strcpy(nonConstStr, str);
+		strlcpy(nonConstStr, str, sizeof(nonConstStr));
 	} else {
-		strcpy(nonConstStr, "Resyncing");
+		strlcpy(nonConstStr, "Resyncing", sizeof(nonConstStr));
 	}
 	c3_AbortMessage(nonConstStr, k_UTILITY_PROGRESS_ABORT, network_AbortCallback);
 
@@ -3877,14 +3879,14 @@ MBCHAR *Network::GetStatusString(sint32 player)
 	if(!player_arr_Get() || !player_Get(player))
 		return nullptr;
 	if(player_Get(player)->IsHuman()) {
-		strcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_HUMAN"));
+		strlcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_HUMAN"), sizeof(strbuf));
 	} else if(player_Get(player)->IsNetwork()) {
-		strcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_CONNECTED"));
+		strlcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_CONNECTED"), sizeof(strbuf));
 	} else {
 		if(player_Get(player)->m_openForNetwork) {
-			strcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_AI_OPEN"));
+			strlcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_AI_OPEN"), sizeof(strbuf));
 		} else {
-			strcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_AI_CLOSED"));
+			strlcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_AI_CLOSED"), sizeof(strbuf));
 		}
 	}
 	return strbuf;

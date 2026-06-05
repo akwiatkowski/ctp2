@@ -326,8 +326,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	m_regard = new Regard() ;
 	m_strengths = new Strengths(o);
 
-	m_goodSalePrices = new sint32[g_theResourceDB->NumRecords()];
-	memset(m_goodSalePrices, 0, sizeof(sint32) * g_theResourceDB->NumRecords());
+	m_goodSalePrices.assign(g_theResourceDB->NumRecords(), 0);
 
 	m_oversea_lost_unit_count = 0;
 	m_home_lost_unit_count = 0;
@@ -617,7 +616,6 @@ Player::~Player()
 	delete m_score;
 	delete m_regard;
 	delete m_strengths;
-	delete [] m_goodSalePrices;
 	delete m_global_happiness;
 
 	if (m_civilisation)

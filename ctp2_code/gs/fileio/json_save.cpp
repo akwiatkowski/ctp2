@@ -3092,7 +3092,7 @@ void to_json(nlohmann::json &j, Player const &p)
 
     // m_goodSalePrices (variable-length, sized by ResourceDB)
     nlohmann::json good_sale_prices = nlohmann::json::array();
-    if (p.m_goodSalePrices && g_theResourceDB)
+    if (!p.m_goodSalePrices.empty() && g_theResourceDB)
     {
         for (sint32 i = 0; i < g_theResourceDB->NumRecords(); ++i)
         {
@@ -3347,7 +3347,7 @@ void from_json(nlohmann::json const &j, Player &p)
 
     // m_goodSalePrices: variable-length, sized by ResourceDB
     auto const &good_sale_prices = j.at("good_sale_prices");
-    if (p.m_goodSalePrices && g_theResourceDB
+    if (!p.m_goodSalePrices.empty() && g_theResourceDB
         && static_cast<sint32>(good_sale_prices.size()) == g_theResourceDB->NumRecords())
     {
         for (sint32 i = 0; i < g_theResourceDB->NumRecords(); ++i)

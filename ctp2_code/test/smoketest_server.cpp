@@ -87,7 +87,7 @@ static int smoke_server_thread(void* /*data*/)
     struct sockaddr_un addr;
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, g_smoke_socket_path, sizeof(addr.sun_path) - 1);
+    strlcpy(addr.sun_path, g_smoke_socket_path, sizeof(addr.sun_path));
 
     if (bind(g_smoke_listen_fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
         fprintf(stderr, "[SMOKE] Failed to bind socket to %s\n", g_smoke_socket_path);
@@ -138,8 +138,7 @@ static int smoke_server_thread(void* /*data*/)
             // Hand off to main thread
             SDL_LockMutex(g_smoke_mutex);
 
-            strncpy(g_smoke_command, cmd, sizeof(g_smoke_command) - 1);
-            g_smoke_command[sizeof(g_smoke_command) - 1] = '\0';
+            strlcpy(g_smoke_command, cmd, sizeof(g_smoke_command));
             g_smoke_has_command = 1;
             g_smoke_has_response = 0;
 
@@ -225,6 +224,7 @@ int smoketest_poll_command(char* out_cmd, int max_len)
         return 0;
     }
 
+    // TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
     strncpy(out_cmd, g_smoke_command, max_len - 1);
     out_cmd[max_len - 1] = '\0';
 

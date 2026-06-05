@@ -284,7 +284,7 @@ WatchListItem::WatchListItem(AUI_ERRCODE *retval, sint32 index,
 	m_index = index;
 	m_break = false;
 
-	strncpy(m_line, line, k_MAX_WATCH_LINE);
+	strlcpy(m_line, line, sizeof(m_line));
 	m_watching = new PointerList<SlicSymbolData>;
 
 	Assert(AUI_SUCCESS(*retval));

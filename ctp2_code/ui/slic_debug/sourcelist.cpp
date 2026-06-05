@@ -418,7 +418,7 @@ SourceListItem::SourceListItem(AUI_ERRCODE *retval, sint32 index,
 {
 	m_index = index;
 	m_segment = segment;
-	strncpy(m_line, line, k_MAX_SOURCE_LINE);
+	strlcpy(m_line, line, sizeof(m_line));
 	m_lineNumber = lineNumber;
 
 	m_break = m_segment->LineHasBreak(m_lineNumber, m_conditional);

@@ -2770,7 +2770,7 @@ void to_json(nlohmann::json &j, CityData const &c)
     }
 
     nlohmann::json distance_to_good = nlohmann::json::array();
-    if (!c.m_distanceToGood.empty() && g_theResourceDB)
+    if (c.m_distanceToGood && g_theResourceDB)
     {
         for (sint32 i = 0; i < g_theResourceDB->NumRecords(); ++i)
         {
@@ -3020,7 +3020,8 @@ void from_json(nlohmann::json const &j, CityData &c)
     if (g_theResourceDB
         && static_cast<sint32>(distance_to_good.size()) == g_theResourceDB->NumRecords())
     {
-        c.m_distanceToGood.assign(g_theResourceDB->NumRecords(), 0);
+        delete[] c.m_distanceToGood;
+        c.m_distanceToGood = new sint32[g_theResourceDB->NumRecords()];
         for (sint32 i = 0; i < g_theResourceDB->NumRecords(); ++i)
         {
             distance_to_good[i].get_to(c.m_distanceToGood[i]);

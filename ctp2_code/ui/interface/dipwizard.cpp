@@ -1068,7 +1068,7 @@ void DipWizard::UpdateExchangeStage()
 	bool changeTab = false;
 	sint32 shown = -1;
 	char labelStrName[k_MAX_NAME_LEN];
-	strcpy(labelStrName, "str_ldl_DipWizSelect");
+	strlcpy(labelStrName, "str_ldl_DipWizSelect", sizeof(labelStrName));
 
 	tab[0] = (ctp2_Tab *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage2.Tabs.Request");
 	if(tab[0])
@@ -1394,7 +1394,7 @@ void DipWizard::UpdateDetails()
 							stringutils_Interpret(stringdb_Get()->GetNameStr(threatDetail), so, text);
 						} else {
 
-							strcpy(text, "");
+							strlcpy(text, "", sizeof(text));
 						}
 					}
 				}
@@ -1412,7 +1412,7 @@ void DipWizard::UpdateDetails()
 							stringutils_Interpret(stringdb_Get()->GetNameStr(threatDetail), so, text);
 						} else {
 
-							strcpy(text, "");
+							strlcpy(text, "", sizeof(text));
 						}
 					}
 				} else {
@@ -1440,16 +1440,16 @@ void DipWizard::UpdateDetails()
 							if(AddThreatData(so, threatDBIndex, m_viewThreatArg)) {
 								stringutils_Interpret(stringdb_Get()->GetNameStr(threatDetail), so, text);
 							} else {
-								strcpy(text, stringdb_Get()->GetNameStr(threatDetail));
+								strlcpy(text, stringdb_Get()->GetNameStr(threatDetail), sizeof(text));
 							}
 						}
 						break;
 					}
 					case RESPONSE_ACCEPT:
-						strcpy(text, stringdb_Get()->GetNameStr("str_dip_ResponseAccept"));
+						strlcpy(text, stringdb_Get()->GetNameStr("str_dip_ResponseAccept"), sizeof(text));
 						break;
 					case RESPONSE_REJECT:
-						strcpy(text, stringdb_Get()->GetNameStr("str_dip_ResponseReject"));
+						strlcpy(text, stringdb_Get()->GetNameStr("str_dip_ResponseReject"), sizeof(text));
 						break;
 					default:
 

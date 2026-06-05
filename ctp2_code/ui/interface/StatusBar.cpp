@@ -35,35 +35,21 @@
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
 
-MBCHAR *StatusBar::m_text = nullptr;
+std::string StatusBar::m_text;
 std::list<StatusBar*> StatusBar::m_list;
-sint32 StatusBar::m_allocatedLen = 0;
 const aui_Control *StatusBar::m_owner = nullptr;
 
 void StatusBar::SetText(const MBCHAR *text, const aui_Control *owner)
 {
-	if(m_text && (unsigned) m_allocatedLen < strlen(text) + 1) {
-
-		delete [] m_text;
-		m_text = nullptr;
+	if (text) {
+		if (m_text == text) return;   // identical content — no observers to wake
+		m_text = text;
 	}
-
-	if(text && !m_text) {
-		m_text = new char[strlen(text) + 1];
-		m_allocatedLen = strlen(text) + 1;
-		m_text[0] = 0;
-	}
-
-	if(text) {
-		if(strcmp(m_text, text) == 0)
-			return;
-
-		strcpy(m_text, text);
-	}
-
+	// Note: original logic only repainted on text != nullptr; preserve that
+	// (a nullptr 'text' call still updates m_owner + dispatches Update()).
 	m_owner = owner;
 
-	for(auto & i : m_list)
+	for (auto & i : m_list)
 		i->Update();
 }
 
@@ -86,10 +72,5 @@ StatusBar::~StatusBar()
 
 void StatusBar::Update()
 {
-
-	if(m_text)
-		m_statusBar->SetText(m_text);
-	else
-		m_statusBar->SetText("");
-
+	m_statusBar->SetText(m_text.c_str());
 }

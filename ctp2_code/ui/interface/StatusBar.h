@@ -21,7 +21,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added CleanUp function for m_text, by Martin Gühmann.
+// - Added CleanUp function for m_text, by Martin Gï¿½hmann.
 //
 //----------------------------------------------------------------------------
 #ifdef HAVE_PRAGMA_ONCE
@@ -31,6 +31,7 @@
 #define ___BMH_STATUS_BAR_HEADER
 
 #include <list>
+#include <string>
 
 class aui_Control;
 class ctp2_Static;
@@ -44,11 +45,10 @@ public:
 
 	StatusBar(MBCHAR *ldlBlock);
 
+	// std::string self-clears; this entry point is kept for the existing
+	// 'shutdown' call sites but no longer touches a raw buffer.
 	static void CleanUp(){
-		if(m_text){
-			delete m_text;
-			m_text = nullptr;
-		}
+		m_text.clear();
 	}
 
 	~StatusBar();
@@ -57,8 +57,10 @@ private:
 
 	void Update();
 
-	static MBCHAR *m_text;
-	static sint32 m_allocatedLen;
+	// Was raw 'MBCHAR *m_text' + 'sint32 m_allocatedLen' growing-buffer
+	// management.  std::string handles all of it; CleanUp's old
+	// 'delete m_text;' was a delete-vs-new[] mismatch (UB).
+	static std::string m_text;
 
 	static std::list<StatusBar*> m_list;
 

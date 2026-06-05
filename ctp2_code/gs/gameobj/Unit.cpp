@@ -316,7 +316,14 @@ void Unit::FastKill()
 
 bool Unit::IsValid() const
 {
-	return unitpool_Get()->IsValid(*this);
+	// Unit-test fixtures (e.g. BuildQueueFixture) construct Unit values
+	// without going through gameinit_Initialize, so unitpool may be null.
+	// A Unit can't be "valid" if the pool that would track it doesn't
+	// exist; treat that as not-valid rather than dereferencing null.
+	// Caught by UBSan as "member call on null pointer of type ObjPool"
+	// during BuildQueue::RawInsertTail in test_buildqueue.
+	UnitPool *pool = unitpool_Get();
+	return pool && pool->IsValid(*this);
 }
 
 sint32 Unit::GetGoldHunger() const  //EMOD

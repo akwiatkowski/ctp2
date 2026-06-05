@@ -50,12 +50,17 @@ class TradeOfferData : public GameObj {
 
 private:
 
-	PLAYER_INDEX m_owner;
+	// Default-init enum fields so a TradeOfferData constructed via the
+	// id-only ctor (line 81) doesn't read uninitialized garbage in
+	// to_json — UBSan flagged 'load of value 10, which is not a valid
+	// value for type ROUTE_TYPE' at json_save.cpp:1374.  Resource ints
+	// also default to a sentinel for symmetry.
+	PLAYER_INDEX m_owner          = PLAYER_UNASSIGNED;
 	Unit m_fromCity;
-	ROUTE_TYPE m_offerType;
-	sint32 m_offerResource;
-	ROUTE_TYPE m_askingType;
-	sint32 m_askingResource;
+	ROUTE_TYPE m_offerType        = ROUTE_TYPE_RESOURCE;
+	sint32 m_offerResource        = -1;
+	ROUTE_TYPE m_askingType       = ROUTE_TYPE_GOLD;
+	sint32 m_askingResource       = -1;
 	Unit m_toCity;
 
 	friend class NetTradeOffer;

@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <vector>
 
 #include "gs/utility/Globals.h"
 
@@ -145,7 +146,7 @@ Pixel16 *tileutils_TGA2mem(char *filename, uint16 *width, uint16 *height)
 		return nullptr;
 	}
 
-	Pixel16 *   buffer = new Pixel16[w * h];
+	Pixel16 *   buffer = new Pixel16[w * h]; // TODO(phase-2): ownership transfer out of function
 	Load_TGA_File(filename, (uint8 *)buffer, (int)w*sizeof(Pixel16), w, h, nullptr, FALSE);
 
 	*width = (uint16)w;
@@ -378,8 +379,10 @@ char tileutils_EncodeScanline(Pixel32 *scanline, int width, Pixel16 **outBufPtr)
 Pixel16 *tileutils_EncodeTile(Pixel32 *buf, uint16 width, uint16 height, uint32 *size)
 {
 	Pixel32	*               srcPixel            = buf;
-	Pixel16	*               outBuf              = new Pixel16[width * height * 2];
-	Pixel16	*               table               =  new Pixel16[height + 2];
+	std::vector<Pixel16>    outBuf_vec          (width * height * 2);
+	Pixel16	*               outBuf              = outBuf_vec.data();
+	std::vector<Pixel16>    table_vec           (height + 2);
+	Pixel16	*               table               = table_vec.data();
 	Pixel16 *               startDataPtr;
 	char				    empty               = FALSE;
 	int					    lastNonEmpty        = -1;
@@ -430,7 +433,7 @@ Pixel16 *tileutils_EncodeTile(Pixel32 *buf, uint16 width, uint16 height, uint32 
 
 	int dataSize = (dataPtr - outBuf) * 2;
 
-	char *returnBuf = new char[dataSize+tableSize];
+	char *returnBuf = new char[dataSize+tableSize]; // TODO(phase-2): ownership transfer out of function
 
 	memcpy(returnBuf, tableStart, tableSize);
 	memcpy(returnBuf+tableSize, outBuf, dataSize);
@@ -675,8 +678,10 @@ Pixel16 *tileutils_EncodeTile16(Pixel16 *buf, uint16 width, uint16 height, uint3
 								sint32 pitch)
 {
 	Pixel16				*srcPixel = buf;
-	Pixel16				*outBuf = new Pixel16[width * height * 2];
-	Pixel16				*table =  new Pixel16[height + 2];
+	std::vector<Pixel16>    outBuf_vec(width * height * 2);
+	Pixel16				*outBuf = outBuf_vec.data();
+	std::vector<Pixel16>    table_vec(height + 2);
+	Pixel16				*table = table_vec.data();
 	Pixel16				*startDataPtr;
 	char				empty = FALSE;
 	int					lastNonEmpty = -1;
@@ -736,15 +741,13 @@ Pixel16 *tileutils_EncodeTile16(Pixel16 *buf, uint16 width, uint16 height, uint3
 
 	int dataSize = (dataPtr - outBuf) * 2;
 
-	char *returnBuf = new char[dataSize+tableSize];
+	char *returnBuf = new char[dataSize+tableSize]; // TODO(phase-2): ownership transfer out of function
 
 	memcpy(returnBuf, tableStart, tableSize);
 	memcpy(returnBuf+tableSize, outBuf, dataSize);
 
 	*size = (dataSize + tableSize);
 
-	delete[] outBuf;
-	delete[] tableStart;
 
 	return (Pixel16 *)returnBuf;
 }
@@ -1025,7 +1028,7 @@ void tileutils_LoadStencil()
 
 Pixel16 *tileutils_CreateBorkBork()
 {
-	Pixel16		*bork = new Pixel16[48*94];
+	Pixel16		*bork = new Pixel16[48*94]; // TODO(phase-2): ownership transfer out of function
 	sint32		 i;
 	sint32		 j;
 	sint32		pixelX;
@@ -1084,7 +1087,7 @@ Pixel16 *tileutils_ExtractUpperRight(char *tif, uint16 width, uint16 height, sin
 	uint32		accum;
 	uint32		*image = (uint32 *)tif;
 
-	Pixel16		*data = new Pixel16[g_stencilSize];
+	Pixel16		*data = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
 	Pixel16		*dataPtr = data;
 	Pixel32		pix32;
 	Pixel16		pix16;
@@ -1128,7 +1131,7 @@ Pixel16 *tileutils_ExtractLowerLeft(char *tif, uint16 width, uint16 height, sint
 	uint32		accum;
 	uint32		*image = (uint32 *)tif;
 
-	Pixel16		*data = new Pixel16[g_stencilSize];
+	Pixel16		*data = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
 	Pixel16		*dataPtr = data;
 	Pixel32		pix32;
 	Pixel16		pix16;
@@ -1165,7 +1168,7 @@ Pixel16 *tileutils_ExtractLowerLeft(char *tif, uint16 width, uint16 height, sint
 
 Pixel16 *tileutils_LoadStencilImage(uint16 from, uint16 to)
 {
-	Pixel16		*data = new Pixel16[g_stencilSize];
+	Pixel16		*data = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
 	MBCHAR		fname[_MAX_PATH];
 	snprintf(fname, sizeof(fname), "output" FILE_SEP "xitions" FILE_SEP "gtft%.2d%.2d.bin", from, to);
 
@@ -1187,7 +1190,7 @@ Pixel16 *tileutils_MakeTransition1(Pixel16 *sourceStencil)
 	uint16		off;
 	sint32		rowIndex;
 
-	Pixel16 *   data    = new Pixel16[g_stencilSize];
+	Pixel16 *   data    = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
 	Pixel16 *   dataPtr = data;
 	sint32      bottom  = k_TILE_PIXEL_HEIGHT-1;
 
@@ -1221,7 +1224,7 @@ Pixel16 *tileutils_MakeTransition2(Pixel16 *sourceStencil)
 	uint16		off;
 	sint32		rowIndex;
 
-	Pixel16	*   data    = new Pixel16[g_stencilSize];
+	Pixel16	*   data    = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
 	Pixel16 *   dataPtr = data;
 	sint32      bottom  = k_TILE_PIXEL_HEIGHT-1;
 
@@ -1263,7 +1266,7 @@ Pixel16 *tileutils_MakeTransition3(Pixel16 *sourceStencil)
 	uint16		off;
 	sint32		rowIndex;
 
-	Pixel16 *   data    = new Pixel16[g_stencilSize];
+	Pixel16 *   data    = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
 	Pixel16 *   dataPtr = data;
 
 	for (i=0; i<k_TILE_PIXEL_HEIGHT; i++) {
@@ -1435,7 +1438,7 @@ sint32 tileutils_ExtractStencils(sint16 fromType, sint16 toType)
 
 uint16 *tileutils_GenerateAllWaterTable(uint16 width, uint16 height, uint16 x, uint16 y)
 {
-	uint16		*waterTable = new uint16[(height-y) * 2];
+	uint16		*waterTable = new uint16[(height-y) * 2]; // TODO(phase-2): ownership transfer out of function
 	uint16		i;
 	uint16		 start;
 	uint16		 end;
@@ -1458,7 +1461,7 @@ uint16 *tileutils_GenerateAllWaterTable(uint16 width, uint16 height, uint16 x, u
 
 uint16 *tileutils_ExtractWaterTable(Pixel32 *image, uint16 width, uint16 height, uint16 x, uint16 y)
 {
-	uint16		*waterTable = new uint16[(height-y) * 2];
+	uint16		*waterTable = new uint16[(height-y) * 2]; // TODO(phase-2): ownership transfer out of function
 	BOOL		anyWater = FALSE;
 	Pixel16		 r;
 	Pixel16		 g;
@@ -1551,7 +1554,8 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 	}
 
 	uint32      tileDataLen = (k_TILE_PIXEL_WIDTH * k_TILE_PIXEL_HEIGHT)/2 + k_TILE_PIXEL_HEIGHT;
-	Pixel16 *   tileData    = new Pixel16[tileDataLen];
+	std::vector<Pixel16> tileData_vec(tileDataLen);
+	Pixel16 *   tileData    = tileData_vec.data();
 	Pixel16 *   tileDataPtr = tileData;
 
 	sint32 len = 0;
@@ -1639,7 +1643,7 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 	Assert(len >= 0);
 	baseTile->SetTileDataLen(static_cast<uint16>(len*2));
 
-	Pixel16		*dataCopy = new Pixel16[len];
+	Pixel16		*dataCopy = new Pixel16[len]; // TODO(phase-2): ownership transfer out of function
 	memcpy(dataCopy, tileData, len*2);
 	baseTile->SetTileData(dataCopy);
 
@@ -1775,8 +1779,8 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 {
 	MBCHAR			scriptName[_MAX_PATH];
 	BOOL			done = FALSE;
-	sint16			*transforms[k_MAX_TRANSFORMS];
-	sint16			*riverTransforms[k_MAX_RIVER_TRANSFORMS];
+	std::vector<sint16> transforms[k_MAX_TRANSFORMS];
+	std::vector<sint16> riverTransforms[k_MAX_RIVER_TRANSFORMS];
 	Pixel16			*riverData[k_MAX_RIVER_TRANSFORMS];
 	uint32			riverDataLen[k_MAX_RIVER_TRANSFORMS];
 	uint16			megaTileLengths[k_MAX_MEGATILES];
@@ -1915,16 +1919,13 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 				if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
 
-				sint16	*   transform = new sint16[k_TRANSFORM_SIZE];
+				transforms[numTransforms].assign(k_TRANSFORM_SIZE, k_TRANSFORM_TO_LIST_ID);
 
 				size_t      i;
-				for (i=0; i<k_TRANSFORM_SIZE; i++)
-					transform[i] = k_TRANSFORM_TO_LIST_ID;
-
 				for (i=0; i<k_TRANSFORM_TO_INDEX; i++) {
 					theToken->Next();
 					theToken->GetNumber(tmp);
-					transform[i] = (sint16)tmp;
+					transforms[numTransforms][i] = (sint16)tmp;
 				}
 
 				switch (theToken->Next()) {
@@ -1933,22 +1934,20 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 							theToken->Next();
 							theToken->GetNumber(tmp);
 
-							transform[k_TRANSFORM_TO_INDEX] = (sint16)tmp;
+							transforms[numTransforms][k_TRANSFORM_TO_INDEX] = (sint16)tmp;
 						break;
 
 					case TOKEN_TILESET_TRANSFORM_TO_LIST :
 
-							transform[k_TRANSFORM_TO_INDEX] = k_TRANSFORM_TO_LIST_ID;
+							transforms[numTransforms][k_TRANSFORM_TO_INDEX] = k_TRANSFORM_TO_LIST_ID;
 
 							for (i=0; i<k_MAX_TRANSFORM_TO_LIST; i++) {
 								theToken->Next();
 								theToken->GetNumber(tmp);
-								transform[k_TRANSFORM_TO_LIST_FIRST+i] = (sint16)tmp;
+								transforms[numTransforms][k_TRANSFORM_TO_LIST_FIRST+i] = (sint16)tmp;
 							}
 						break;
 				}
-
-				transforms[numTransforms] = transform;
 
 				if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
 
@@ -1986,15 +1985,15 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 			{
 				if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
 
-				sint16	*transform = new sint16[k_RIVER_TRANSFORM_SIZE];
+				riverTransforms[numRiverTransforms].resize(k_RIVER_TRANSFORM_SIZE);
 				for (size_t i = 0; i<k_RIVER_TRANSFORM_SIZE-1; i++) {
 					theToken->Next();
 					theToken->GetNumber(tmp);
-					transform[i] = (sint16)tmp;
+					riverTransforms[numRiverTransforms][i] = (sint16)tmp;
 				}
 
 				if (!token_ParseValNext(theToken, TOKEN_TILESET_RIVER_PIECE, tmp)) return FALSE;
-				transform[k_RIVER_TRANSFORM_SIZE-1] = (sint16)tmp;
+				riverTransforms[numRiverTransforms][k_RIVER_TRANSFORM_SIZE-1] = (sint16)tmp;
 
 				if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
 
@@ -2015,7 +2014,6 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 				riverDataLen[numRiverTransforms] = dataLen;
 
-				riverTransforms[numRiverTransforms] = transform;
 
 				numRiverTransforms++;
 			}
@@ -2048,10 +2046,8 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 			for (size_t i = 0; i < numTransforms; i++)
             {
-				fwrite((void *)transforms[i], 1, sizeof(sint16)*k_TRANSFORM_SIZE, tfile);
+				fwrite((void *)transforms[i].data(), 1, sizeof(sint16)*k_TRANSFORM_SIZE, tfile);
 
-				delete[] transforms[i];
-				transforms[i] = nullptr;
 			}
 
 			printf("...Transforms");
@@ -2173,7 +2169,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 		if (numRiverTransforms > 0) {
 
 			for (size_t i = 0; i < numRiverTransforms; i++) {
-				fwrite((void *)riverTransforms[i], 1, sizeof(sint16)*k_RIVER_TRANSFORM_SIZE, tfile);
+				fwrite((void *)riverTransforms[i].data(), 1, sizeof(sint16)*k_RIVER_TRANSFORM_SIZE, tfile);
 
 				fwrite((void *)&riverDataLen[i], 1, sizeof(uint32), tfile);
 
@@ -2181,10 +2177,8 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 					fwrite((void *)riverData[i], 1, riverDataLen[i], tfile);
 				}
 
-				delete[] riverTransforms[i];
 				delete[] riverData[i];
 
-				riverTransforms[i] = nullptr;
 				riverData[i] = nullptr;
 			}
 

@@ -1097,8 +1097,7 @@ void TurnCount::SendNextPlayerMessageEvent()
 		MBCHAR *c;
 		MBCHAR *startc;
 		MBCHAR *fc;
-		strncpy(fullPath, civpaths_Get()->GetDesktopPath(), sizeof(fullPath));
-		fullPath[sizeof(fullPath) - 1] = '\0';
+		strlcpy(fullPath, civpaths_Get()->GetDesktopPath(), sizeof(fullPath));
 		// JJB changed this from CTP to CTP2 to avoid confusion between the two games
 		strncat(fullPath, "\\CTP2 Email To ", sizeof(fullPath) - strlen(fullPath) - 1);
 

@@ -5,7 +5,7 @@
 
 SlicConditional::SlicConditional(const char *expression)
 {
-	strncpy(m_expression, expression, k_MAX_SLIC_CONDITIONAL);
+	strlcpy(m_expression, expression, sizeof(m_expression));
 }
 
 SlicConditional::~SlicConditional()
@@ -23,5 +23,5 @@ sint32 SlicConditional::Eval()
 
 void SlicConditional::SetExpression(const char *expression)
 {
-	strncpy(m_expression, expression, k_MAX_SLIC_CONDITIONAL);
+	strlcpy(m_expression, expression, sizeof(m_expression));
 }

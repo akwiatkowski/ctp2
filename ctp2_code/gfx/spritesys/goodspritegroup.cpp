@@ -197,10 +197,12 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 			MBCHAR			name[k_MAX_NAME_LENGTH];
 
 			snprintf(name, sizeof(name), "%sGG%.2dS.%zu.tif", prefixStr, id, i+idleSprite->GetFirstFrame());
+			// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 			strncpy(shadowNames[i], name, k_MAX_NAME_LENGTH - 1);
 			shadowNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 
 			snprintf(name, sizeof(name), "%sGG%.2dA.%zu.tif", prefixStr, id, i+idleSprite->GetFirstFrame());
+			// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 			strncpy(imageNames[i], name, k_MAX_NAME_LENGTH - 1);
 			imageNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 		}

@@ -506,8 +506,7 @@ int ProjectFile::addPath_ZFS(char const * path)
     int pathnum = m_num_paths;
 
     m_paths[pathnum].type   = PRJFILE_PATH_ZFS;
-    strncpy(m_paths[pathnum].dos_path, path, sizeof(m_paths[pathnum].dos_path) - 1);
-    m_paths[pathnum].dos_path[sizeof(m_paths[pathnum].dos_path) - 1] = '\0';
+    strlcpy(m_paths[pathnum].dos_path, path, sizeof(m_paths[pathnum].dos_path));
     m_paths[pathnum].zfs_fp = fp;
 
     m_num_paths++;

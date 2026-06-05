@@ -6087,7 +6087,7 @@ void CityData::ResetCityOwner(sint32 owner)
 void CityData::SetName(const MBCHAR *name)
 {
 	Assert(strlen(name)<k_MAX_NAME_LEN);
-	strncpy(m_name, name, k_MAX_NAME_LEN);
+	strlcpy(m_name, name, sizeof(m_name));
 	if(network_Get().IsHost()) {
 		network_Get().SendCityName(this);
 	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {

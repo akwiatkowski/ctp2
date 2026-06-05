@@ -200,6 +200,7 @@ void CivilisationData::GetCityName(const sint32 name, MBCHAR *s) const
 	if (m_cityname_count[name] > 0) {
 		snprintf(s, k_MAX_NAME_LEN, "%s%d", stringdb_Get()->GetNameStr(strId), m_cityname_count[name]);
 	} else {
+		// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 		strncpy(s, stringdb_Get()->GetNameStr(strId), k_MAX_NAME_LEN - 1);
 		s[k_MAX_NAME_LEN - 1] = '\0';
 	}
@@ -233,8 +234,7 @@ void CivilisationData::UseCityName(const sint32 name)
 		if (m_cityname_count[name] > 0) {
 			snprintf(s, sizeof(s), "%s%d", stringdb_Get()->GetNameStr(strId), m_cityname_count[name]);
 		} else {
-			strncpy(s, stringdb_Get()->GetNameStr(strId), sizeof(s) - 1);
-			s[sizeof(s) - 1] = '\0';
+			strlcpy(s, stringdb_Get()->GetNameStr(strId), sizeof(s));
 		}
 
 		DPRINTF(k_DBG_INFO, ("City Name %s used\n", s));
@@ -269,8 +269,7 @@ void CivilisationData::ReleaseCityName(const sint32 name)
 		if (m_cityname_count[name] > 0) {
 			snprintf(s, sizeof(s), "%s%d", stringdb_Get()->GetNameStr(strId), m_cityname_count[name]);
 		} else {
-			strncpy(s, stringdb_Get()->GetNameStr(strId), sizeof(s) - 1);
-			s[sizeof(s) - 1] = '\0';
+			strlcpy(s, stringdb_Get()->GetNameStr(strId), sizeof(s));
 		}
 
 		DPRINTF(k_DBG_INFO, ("City Name %s release\n", s));

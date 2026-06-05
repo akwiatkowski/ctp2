@@ -116,7 +116,7 @@ RecordDescription::RecordDescription(char const * name, bool allowsSingleRecord)
 	m_preBody                   (false),
 	m_allowsSingleRecord        (allowsSingleRecord)
 {
-	strncpy(m_name, name, k_MAX_RECORD_NAME);
+	strlcpy(m_name, name, sizeof(m_name));
 }
 
 RecordDescription::~RecordDescription()

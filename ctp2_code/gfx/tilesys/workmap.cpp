@@ -1103,8 +1103,7 @@ void WorkMap::DrawLabels( aui_Surface *surface )
 		DrawALabel( surface, goldStr, k_OFFSET_WIDTH, offsetHeight, goldWidth, goldHeight );
 
 		MBCHAR tiStr[_MAX_PATH];
-		strncpy( tiStr, stringdb_Get()->GetNameStr("str_ldl_TILE_RESOURCES_Colon"), sizeof(tiStr) - 1 );
-		tiStr[sizeof(tiStr) - 1] = '\0';
+		strlcpy( tiStr, stringdb_Get()->GetNameStr("str_ldl_TILE_RESOURCES_Colon"), sizeof(tiStr) );
 		sint32 tiLabelWidth = tiledmap_Get()->GetFont()->GetStringWidth(tiStr);
 		RECT rect = {0, 0, tiLabelWidth, tiledmap_Get()->GetFont()->GetMaxHeight()};
 

@@ -890,8 +890,7 @@ void GameFile::SetProfileFromExtendedInfo(SaveInfo *info)
 	if (g_isScenario)
     {
 		MBCHAR	name[SAVE_LEADER_NAME_SIZE + 1];
-		strncpy(name, profiledb_Get()->GetLeaderName(), SAVE_LEADER_NAME_SIZE);
-		name[SAVE_LEADER_NAME_SIZE] = 0;
+		strlcpy(name, profiledb_Get()->GetLeaderName(), sizeof(name));
 		// TODO: check if this is OK for japanese.
 		profiledb_Get()->SetGameName(name);
 	}

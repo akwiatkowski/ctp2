@@ -115,6 +115,7 @@ void stringutils_Interpret
 			continue;
 		}
 
+		// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 		strncpy(expression, input + 1, closeBrace - input - 1);
 		expression[closeBrace - input - 1] = 0;
 
@@ -132,6 +133,7 @@ void stringutils_Interpret
 				*output++ = *input++;
 				continue;
 			}
+			// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 			strncpy(catString, catStrPtr, closeBrace - catStrPtr);
 			catString[closeBrace - catStrPtr] = 0;
 		} else {

@@ -200,7 +200,7 @@ bool copy_file(char const * srcFName, char const * dstFName)
 void db_set_output_dir(const char *dir)
 {
     memset(s_output_dir, '\0', sizeof(s_output_dir));
-	strncpy(s_output_dir, dir, PATH_MAX);
+	strlcpy(s_output_dir, dir, sizeof(s_output_dir));
 }
 
 static const char *db_get_code_directory()

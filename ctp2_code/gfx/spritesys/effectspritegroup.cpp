@@ -190,10 +190,12 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 		{
 
 			snprintf(name, sizeof(name), "%sGX%.2dES.%zu.tif", prefixStr,  id, i+effectSprite->GetFirstFrame());
+			// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 			strncpy(shadowNames[i], name, k_MAX_NAME_LENGTH - 1);
 			shadowNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 
 			snprintf(name, sizeof(name), "%sGX%.2dEA.%zu.tif", prefixStr, id, i+effectSprite->GetFirstFrame());
+			// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 			strncpy(imageNames[i], name, k_MAX_NAME_LENGTH - 1);
 			imageNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 		}
@@ -234,6 +236,7 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 		for(i=0; i<flashNumFrames; i++)
 		{
 			snprintf(name, sizeof(name), "%sGX%.2dFA.%zu.tif", prefixStr, id, i+flashSprite->GetFirstFrame());
+			// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 			strncpy(imageNames[i], name, k_MAX_NAME_LENGTH - 1);
 			imageNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 

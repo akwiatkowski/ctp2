@@ -218,7 +218,7 @@ Token::Token
 {
 	Assert(ValidateAllTokens());
 
-	strcpy(m_filename, fn);
+	strlcpy(m_filename, fn, sizeof(m_filename));
 
 	if (m_fin)
 	{
@@ -259,7 +259,7 @@ Token::Token
 {
 	Assert(ValidateAllTokens());
 
-	strcpy(m_filename, fn);
+	strlcpy(m_filename, fn, sizeof(m_filename));
 
 	if (m_fin)
 	{
@@ -354,7 +354,7 @@ void Token::NextString()
 
 	if (searching) {
 		m_current_type = TOKEN_STRING;
-		strcpy (m_val_string, m_buf);
+		strlcpy(m_val_string, m_buf, sizeof(m_val_string));
 		m_val_string_len = strlen(m_val_string);
 	}
 }
@@ -373,8 +373,8 @@ bool Token::HandleImport()
 	g_saved_parse_line = g_parse_line;
 	g_parse_line = 0;
 
-	strcpy(m_savedFilename, m_filename);
-	strcpy(m_filename, fileName);
+	strlcpy(m_savedFilename, m_filename, sizeof(m_savedFilename));
+	strlcpy(m_filename, fileName, sizeof(m_filename));
 
 	m_savedFin = m_fin;
 	m_importFile = c3files_fopen(m_dir, fileName, "r", m_checkScenario);
@@ -397,7 +397,7 @@ void Token::CloseImport()
 	m_fin = m_savedFin;
 	m_savedFin   = nullptr;	// for safe destruction
 	m_importFile = nullptr;
-	strcpy(m_filename, m_savedFilename);
+	strlcpy(m_filename, m_savedFilename, sizeof(m_filename));
 	g_parse_line = g_saved_parse_line;
 	g_saved_parse_line = 0;
 }

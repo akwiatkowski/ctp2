@@ -36,6 +36,7 @@
 #include "ui/aui_ctp2/linegraph.h"
 
 #include <memory>
+#include <vector>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -515,17 +516,22 @@ void LineGraph::SetLineData(sint32 numLines, sint32 numSamples, double **data, s
 		}
 		delete [] m_lineData;
 	}
+	// TODO(phase-2): class-member assignment — needs wave-3 migration
 	m_lineData  = new double *[numLines*3];
 	m_numLines	= numLines;
 
 	delete [] m_data;
+	// TODO(phase-2): class-member assignment — needs wave-3 migration
 	m_data = new LineGraphData[numLines];
 
 	sint32 defaultColor = (sint32)COLOR_RED;
 
 	for (i=0; i<numLines; i++) {
+		// TODO(phase-2): class-member assignment — needs wave-3 migration
 		m_lineData[i] = new double[numSamples];
+		// TODO(phase-2): class-member assignment — needs wave-3 migration
 		m_lineData[i+numLines] = new double[numSamples];
+		// TODO(phase-2): class-member assignment — needs wave-3 migration
 		m_lineData[i+numLines*2] = new double[numSamples];
 
 		m_data[i].array = m_lineData[i];
@@ -576,6 +582,7 @@ void LineGraph::SetXAxisName(MBCHAR *name)
 	if (!name) return;
 
 	delete [] m_xAxisName;
+	// TODO(phase-2): class-member assignment — needs wave-3 migration
 	m_xAxisName = new MBCHAR[strlen(name)+1];
 	strcpy(m_xAxisName, name);
 }
@@ -586,6 +593,7 @@ void LineGraph::SetYAxisName(MBCHAR *name)
 	if (!name) return;
 
 	delete[] m_yAxisName;
+	// TODO(phase-2): class-member assignment — needs wave-3 migration
 	m_yAxisName = new MBCHAR[strlen(name)+1];
 	strcpy(m_yAxisName, name);
 }
@@ -621,7 +629,7 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 		}
 	}
 
-	sint32* color = new sint32[infoYCount + g_deadPlayer->GetCount()];
+	std::vector<sint32> color(infoYCount + g_deadPlayer->GetCount());
 
 	infoYCount = 0;
 
@@ -654,10 +662,12 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 	infoYCount = std::max<sint32>(1, infoYCount);
 
 	Assert(!*infoGraphData);
+	// TODO(phase-2): ownership transfer out of function — needs separate strategy
 	*infoGraphData = new double *[infoYCount];
 
 	for (i = 0 ; i < infoYCount; i++)
 	{
+		// TODO(phase-2): ownership transfer out of function — needs separate strategy
 		(*infoGraphData)[i] = new double[infoXCount];
 		std::fill((*infoGraphData)[i], (*infoGraphData)[i] + infoXCount, 0.0);
 	}
@@ -701,9 +711,7 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 
 	Assert(playerCount == infoYCount);
 
-	SetLineData(infoYCount, infoXCount, (*infoGraphData), color);
+	SetLineData(infoYCount, infoXCount, (*infoGraphData), color.data());
 	SetGraphBounds(minRound, curRound, minPower, maxPower);
 	RenderGraph();
-
-	delete [] color;
 }

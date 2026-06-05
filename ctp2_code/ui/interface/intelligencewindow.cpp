@@ -297,19 +297,19 @@ void IntelligenceWindow::Update(ctp2_ListBox *theList)
 
 			if (relativeStrength < DIPLOMATIC_STRENGTH_WEAK)
 			{
-				strcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_VWEK_BUTTON"));
+				strlcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_VWEK_BUTTON"), sizeof(buf));
 			}
 			else if(relativeStrength < DIPLOMATIC_STRENGTH_AVERAGE)
 			{
-				strcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_WEAK_BUTTON"));
+				strlcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_WEAK_BUTTON"), sizeof(buf));
 			}
 			else if(relativeStrength < DIPLOMATIC_STRENGTH_STRONG)
 			{
-				strcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_AVG_BUTTON"));
+				strlcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_AVG_BUTTON"), sizeof(buf));
 			}
 			else
 			{
-				strcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_STRN_BUTTON"));
+				strlcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_STRN_BUTTON"), sizeof(buf));
 			}
 
 			((aui_TipWindow *)strength->GetTipWindow())->SetTipText(buf);

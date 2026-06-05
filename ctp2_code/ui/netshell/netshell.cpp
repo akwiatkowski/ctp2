@@ -231,7 +231,7 @@ NetShell::NetShell()
 		nsunits_Set(new ns_Units);
 		nsimprovements_Set(new ns_Improvements);
 		nswonders_Set(new ns_Wonders);
-		strncpy( g_serverName, "", 100 );
+		strlcpy( g_serverName, "", sizeof(g_serverName) );
 	}
 
 }

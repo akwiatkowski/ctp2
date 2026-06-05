@@ -509,7 +509,7 @@ AUI_ERRCODE LobbyWindow::Idle( )
 			aui_Control *item = m_controls[ CONTROL_CURRENTSERVERTEXTFIELD ];
 
 			MBCHAR servern[ 100 + 1 ];
-			strncpy( servern, NETFunc::servername, 100 );
+			strlcpy( servern, NETFunc::servername, sizeof(servern) );
 
 			if ( !item->GetTextFont() ) item->TextReloadFont();
 
@@ -687,7 +687,7 @@ void LobbyWindow::PasswordScreenDone( MBCHAR *password )
 			MBCHAR temp[ dp_PASSWORDLEN + 1 ] = "";
 			if ( password )
 			{
-				strncpy( temp, password, dp_PASSWORDLEN );
+				strlcpy( temp, password, sizeof(temp) );
 				for (size_t i = 0; i < strlen(temp); ++i)
 				{
 					temp[i] = static_cast<MBCHAR>(tolower(temp[i]));

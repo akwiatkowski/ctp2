@@ -39,7 +39,9 @@ class ctp2_Menu {
 
 
 
-		~Item() { delete m_shortcut; }
+		// m_shortcut is allocated via 'new MBCHAR[strlen(s)+1]' in
+		// ctp2_Menu.cpp:189 — needs delete[], not delete (UB).
+		~Item() { delete [] m_shortcut; }
 
 		ctp2_ListItem *m_item;
 		MBCHAR *m_shortcut;

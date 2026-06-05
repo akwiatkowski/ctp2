@@ -482,6 +482,7 @@ bool LoadSaveWindow::CreateSaveInfoIfNeeded( SaveInfo *&info )
 				if (player_Get(currentCiv)->HasContactWith(i)) {
 					player_Get(i)->GetSingularCivName(s) ;
 
+					// TODO(phase-2): strcpy → strlcpy — dst is `array[i]` expression, capacity unknown at call site
 					strcpy(info->civList[numCivs], s);
 					numCivs++;
 				}
@@ -916,12 +917,12 @@ void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 	{
 		if (start_info_type_Get() == STARTINFOTYPE_CIVS ||
 			start_info_type_Get() == STARTINFOTYPE_POSITIONSFIXED) {
-			strcpy(theGameName, profiledb_Get()->GetGameName());
+			strlcpy(theGameName, profiledb_Get()->GetGameName(), sizeof(theGameName));
 		} else {
-			strcpy(theGameName, profiledb_Get()->GetLeaderName());
+			strlcpy(theGameName, profiledb_Get()->GetLeaderName(), sizeof(theGameName));
 		}
 	} else {
-		strcpy(theGameName, gameName);
+		strlcpy(theGameName, gameName, sizeof(theGameName));
 	}
 #if !defined(_JAPANESE)
 	theGameName[SAVE_LEADER_NAME_SIZE] = '\0';
@@ -937,7 +938,7 @@ void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 	if (start_info_type_Get() == STARTINFOTYPE_CIVS ||
 		start_info_type_Get() == STARTINFOTYPE_POSITIONSFIXED) {
 		MBCHAR tempName[k_MAX_NAME_LEN];
-		strcpy(tempName, profiledb_Get()->GetLeaderName());
+		strlcpy(tempName, profiledb_Get()->GetLeaderName(), sizeof(tempName));
 #if !defined(_JAPANESE)
 		tempName[SAVE_LEADER_NAME_SIZE] = '\0';
 		c3files_StripSpaces(tempName);
@@ -952,6 +953,7 @@ void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 #endif
 	}
 
+	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 	strcpy(name, saveName);
 
 	SetSaveName(saveName);

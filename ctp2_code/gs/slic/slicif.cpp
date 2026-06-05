@@ -249,6 +249,7 @@ void slicif_add_object(struct PSlicObject *obj)
 	obj->m_from_file     = s_file_num;
 	const char *filename = slicif_get_filename();
 	obj->m_filename      = (char *)malloc(strlen(filename) + 1);
+	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 	strcpy(obj->m_filename, filename);
 
 	g_slicObjectArray[g_slicNumEntries] = obj;
@@ -648,7 +649,7 @@ void slicif_add_op(SOP op, ...)
 					yyerror(errbuf);
 				}
 			} else {
-				strcpy(internalName, "_");
+				strlcpy(internalName, "_", sizeof(internalName));
 				strcat(internalName, name);
 				if(!slicengine_Get()->GetFunction(internalName)) {
 					snprintf(errbuf, sizeof(errbuf), "No function named %s", name);
@@ -1773,13 +1774,14 @@ void slicif_add_region_to_complex(char *name)
 void slicif_start_segment(char *name)
 {
 	s_inSegment = 1;
-	strcpy(s_current_segment_name, name);
+	strlcpy(s_current_segment_name, name, sizeof(s_current_segment_name));
 	slicif_register_line(slic_line_number_Get(), -1);
 }
 
 char *slicif_get_segment_name_copy()
 {
 	char *name = (char *)malloc(strlen(s_current_segment_name) + 1);
+	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 	strcpy(name, s_current_segment_name);
 	return name;
 }

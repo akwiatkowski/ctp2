@@ -232,7 +232,7 @@ AUI_ERRCODE aui_TextBase::InitCommon(
 
 	m_textreload = TRUE;
 	memset( m_textttffile, 0, sizeof( m_textttffile ) );
-	strncpy( m_textttffile, fontname, MAX_PATH );
+	strlcpy( m_textttffile, fontname, sizeof(m_textttffile) );
 	m_textpointsize = fontsize;
 	m_textbold = bold;
 	m_textitalic = italic;
@@ -250,6 +250,7 @@ AUI_ERRCODE aui_TextBase::InitCommon(
 
 		memset( m_text, '\0', m_maxLength + 1 );
 
+		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strncpy( m_text, text, m_maxLength );
 	}
 	else
@@ -290,6 +291,7 @@ AUI_ERRCODE aui_TextBase::SetText(
 	memset( m_text, '\0', m_maxLength + 1 );
 
 	if ( maxlen > m_maxLength ) maxlen = m_maxLength;
+	// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 	strncpy( m_text, text, maxlen );
 
 	m_curLength = strlen( m_text );
@@ -344,7 +346,7 @@ AUI_ERRCODE aui_TextBase::AppendText(MBCHAR const * text)
 void aui_TextBase::SetTextFont(MBCHAR const * ttffile)
 {
 	if ( !ttffile ) return;
-	strncpy( m_textttffile, ttffile, MAX_PATH );
+	strlcpy( m_textttffile, ttffile, sizeof(m_textttffile) );
 	m_textreload = TRUE;
 }
 

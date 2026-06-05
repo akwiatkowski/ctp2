@@ -97,6 +97,7 @@ public:
 	void SetValue(union dbvalue &v);
 	void SetDBRefValue(struct defaultDBField &d);
 
+	bool IsUnboundedPodArray() const;
 	void ExportVariable(FILE *outfile, sint32 indent);
 	void ExportRangeDefines(FILE *outfile);
 	void ExportAccessor(FILE *outfile, sint32 indent, char *recordName);

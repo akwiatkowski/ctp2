@@ -1097,13 +1097,13 @@ void RecordDescription::ExportTokenCases(FILE *outfile)
 
 			switch(dat->m_type) {
 				case DATUM_INT:
-					fprintf(outfile, "                if(!CTPRecord::ParseIntInArray(lex, &m_%s, &m_num%s))\n", dat->m_name, dat->m_name);
+					fprintf(outfile, "                if(!CTPRecord::ParseIntInArray(lex, m_%s))\n", dat->m_name);
 					break;
 				case DATUM_STRINGID:
-					fprintf(outfile, "                if(!CTPRecord::ParseStringIdInArray(lex, &m_%s, &m_num%s))\n", dat->m_name, dat->m_name);
+					fprintf(outfile, "                if(!CTPRecord::ParseStringIdInArray(lex, m_%s))\n", dat->m_name);
 					break;
 				case DATUM_FLOAT:
-					fprintf(outfile, "                if(!CTPRecord::ParseFloatInArray(lex, &m_%s, &m_num%s))\n", dat->m_name, dat->m_name);
+					fprintf(outfile, "                if(!CTPRecord::ParseFloatInArray(lex, m_%s))\n", dat->m_name);
 					break;
 				case DATUM_STRING:
 				case DATUM_FILE:
@@ -1225,15 +1225,15 @@ void RecordDescription::ExportDefaultToken(FILE *outfile)
 		switch(dat->m_type) {
 			case DATUM_INT:
 				fprintf(outfile, "                Assert(false)\n");
-				fprintf(outfile, "                if(!CTPRecord::ParseIntInArray(lex, &m_%s, &m_num%s)) {\n", dat->m_name, dat->m_name);
+				fprintf(outfile, "                if(!CTPRecord::ParseIntInArray(lex, m_%s)) {\n", dat->m_name);
 				break;
 			case DATUM_STRINGID:
 				fprintf(outfile, "                Assert(false)\n");
-				fprintf(outfile, "                if(!CTPRecord::ParseStringIdInArray(lex, m_%s, &m_num%s)) {\n", dat->m_name, dat->m_name);
+				fprintf(outfile, "                if(!CTPRecord::ParseStringIdInArray(lex, m_%s)) {\n", dat->m_name);
 				break;
 			case DATUM_FLOAT:
 				fprintf(outfile, "                Assert(false)\n");
-				fprintf(outfile, "                if(!CTPRecord::ParseFloatInArray(lex, &m_%s, &m_num%s)) {\n", dat->m_name, dat->m_name);
+				fprintf(outfile, "                if(!CTPRecord::ParseFloatInArray(lex, m_%s)) {\n", dat->m_name);
 				break;
 			case DATUM_STRING:
 			case DATUM_FILE:

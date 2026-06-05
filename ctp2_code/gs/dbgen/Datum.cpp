@@ -172,6 +172,24 @@ void Datum::ExportBitGroupParser(FILE *outfile, char *recordName)
 	fprintf(outfile, "}\n\n");
 }
 
+// Phase 2 dbgen polish: unbounded-grow POD arrays of scalar types now emit
+// as std::vector<T> + use the vector-based CTPRecord::Parse*InArray API.
+// FILE/STRING unbounded arrays remain raw char* (separate S migration).
+// RECORD and STRUCT have their own per-class parse helpers that still take
+// T**+count; they stay legacy until those helpers migrate too.
+bool Datum::IsUnboundedPodArray() const
+{
+	if (m_maxSize != k_MAX_SIZE_VARIABLE) return false;
+	switch (m_type) {
+	case DATUM_INT:
+	case DATUM_FLOAT:
+	case DATUM_STRINGID:
+		return true;
+	default:
+		return false;
+	}
+}
+
 void Datum::ExportVariable(FILE *outfile, sint32 indent)
 {
 	if (m_type == DATUM_BIT_PAIR)
@@ -180,10 +198,25 @@ void Datum::ExportVariable(FILE *outfile, sint32 indent)
 		return;
 	}
 
-	char sizestring[50];
 	char comment[k_MAX_STRING];
-	char notFixedStar = ' ';
 	comment[0] = 0;
+	if (m_type == DATUM_RECORD) {
+		sprintf(comment, " // Index into %s database", m_subType);
+	} else if (m_type == DATUM_BIT) {
+		Assert(false);
+	}
+
+	char const *ind = indent ? "        " : "    ";
+
+	if (IsUnboundedPodArray()) {
+		// Vector form: type + name, no m_num companion (size lives in the vector).
+		fprintf(outfile, "%sstd::vector<%s> m_%s;%s\n",
+		        ind, VarTypeString(), m_name, comment);
+		return;
+	}
+
+	char sizestring[50];
+	char notFixedStar = ' ';
 
 	if(m_maxSize == k_MAX_SIZE_VARIABLE) {
 		sizestring[0] = 0;
@@ -194,27 +227,12 @@ void Datum::ExportVariable(FILE *outfile, sint32 indent)
 		sizestring[0] = 0;
 	}
 
-	switch (m_type)
-	{
-	default:
-		break;
-
-	case DATUM_BIT:
-		Assert(false);
-		break;
-
-	case DATUM_RECORD:
-		sprintf(comment, " // Index into %s database", m_subType);
-		break;
-	}
-
-	fprintf(outfile, "%s", indent ? "        " : "    ");
-	fprintf(outfile, "%-15s %c m_%s%s;%s\n", VarTypeString(), notFixedStar, m_name, sizestring, comment);
+	fprintf(outfile, "%s%-15s %c m_%s%s;%s\n",
+	        ind, VarTypeString(), notFixedStar, m_name, sizestring, comment);
 
 	if ((m_maxSize > 0) || (m_maxSize == k_MAX_SIZE_VARIABLE))
 	{
-		fprintf(outfile, "%s", indent ? "        ": "    ");
-		fprintf(outfile, "sint32            m_num%s;\n", m_name);
+		fprintf(outfile, "%ssint32            m_num%s;\n", ind, m_name);
 	}
 }
 
@@ -387,15 +405,25 @@ void Datum::ExportAccessor(FILE *outfile, sint32 indent, char *recordName)
 			fprintf(outfile, "%sconst %s * Get%s(sint32 index) const;\n", ind, m_subType, m_name);
 			break;
 		}
-		fprintf(outfile, "%ssint32 GetNum%s() const { return m_num%s;}\n", ind, m_name, m_name);
+		if (IsUnboundedPodArray()) {
+			fprintf(outfile, "%ssint32 GetNum%s() const { return static_cast<sint32>(m_%s.size()); }\n",
+			        ind, m_name, m_name);
+		} else {
+			fprintf(outfile, "%ssint32 GetNum%s() const { return m_num%s;}\n", ind, m_name, m_name);
+		}
 	}
 }
 
 void Datum::ExportRangeCheck(FILE *outfile)
 {
 	fprintf(outfile, "    Assert(index >= 0);\n");
-	fprintf(outfile, "    Assert(index < m_num%s);\n", m_name);
-	fprintf(outfile, "    if((index < 0) || (index >= m_num%s)) {\n", m_name);
+	if (IsUnboundedPodArray()) {
+		fprintf(outfile, "    Assert(static_cast<size_t>(index) < m_%s.size());\n", m_name);
+		fprintf(outfile, "    if((index < 0) || (static_cast<size_t>(index) >= m_%s.size())) {\n", m_name);
+	} else {
+		fprintf(outfile, "    Assert(index < m_num%s);\n", m_name);
+		fprintf(outfile, "    if((index < 0) || (index >= m_num%s)) {\n", m_name);
+	}
 	fprintf(outfile, "        return 0;\n");
 	fprintf(outfile, "    }\n");
 }
@@ -564,6 +592,10 @@ void Datum::ExportBitPairDirectParse(FILE *outfile, char *recordName)
 
 void Datum::ExportInitialization(FILE *outfile)
 {
+	if (IsUnboundedPodArray()) {
+		// std::vector default-constructs empty; nothing to do.
+		return;
+	}
 	if(m_maxSize == k_MAX_SIZE_VARIABLE) {
 		fprintf(outfile, "    m_%s = NULL;\n", m_name);
 		fprintf(outfile, "    m_num%s = 0;\n", m_name);
@@ -616,6 +648,10 @@ void Datum::ExportInitialization(FILE *outfile)
 
 void Datum::ExportDestructor(FILE *outfile)
 {
+	if (IsUnboundedPodArray()) {
+		// std::vector handles its own cleanup.
+		return;
+	}
 	if (m_maxSize == k_MAX_SIZE_VARIABLE)
 	{
 		switch (m_type)
@@ -667,6 +703,12 @@ void Datum::ExportOperatorEqual(FILE *outfile) // == not implemented
 void Datum::ExportOperatorAssignment(FILE *outfile)
 {
 	char const ind []   = "        ";
+
+	if (IsUnboundedPodArray()) {
+		// std::vector copy assignment handles dtor + alloc + copy in one line.
+		fprintf(outfile, "%sm_%s = rval.m_%s;\n\n", ind, m_name, m_name);
+		return;
+	}
 
 	if (m_maxSize == k_MAX_SIZE_VARIABLE)
 	{
@@ -885,6 +927,13 @@ void Datum::ExportResolver(FILE  *outfile)
 
 void Datum::ExportMerge(FILE *outfile, char *recordName)
 {
+	if (IsUnboundedPodArray()) {
+		// std::vector copy assignment replaces the manual resize+copy block.
+		fprintf(outfile, "    // replace array m_%s\n", m_name);
+		fprintf(outfile, "    m_%s = rval.m_%s;\n\n", m_name, m_name);
+		return;
+	}
+
 	if (m_maxSize > 0) {
 		switch (m_type)
 			{

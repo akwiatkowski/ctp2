@@ -29,6 +29,8 @@
 #include "gs/gameobj/EndGame.h"
 #include "gs/utility/TurnCnt.h"                // g_turn
 
+#include <vector>
+
 #include "ui/aui_ctp2/keypress.h"
 
 #define k_C3_BLEND_MAXBLEND					32
@@ -922,6 +924,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	Assert(m_background);
 
 	m_numberOfBackgroundAnims = datablock->GetInt(k_LDL_ENDGAME_BACKANIM_COUNT);
+	// TODO(phase-2): class-member array allocation — wave 3 migration
 	m_backgroundAnim = new c3_Animation *[m_numberOfBackgroundAnims];
 
 	for(index = 0; index < m_numberOfBackgroundAnims; index++) {
@@ -950,6 +953,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_embryoGlow->HideThis();
 
 	m_numberOfStages = datablock->GetInt(k_LDL_ENDGAME_STAGE_COUNT);
+	// TODO(phase-2): class-member array allocation — wave 3 migration
 	m_embryoStage = new c3_Blend *[m_numberOfStages];
 
 	for(index = 0; index < m_numberOfStages; index++) {
@@ -960,6 +964,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	}
 
 	m_numberOfContainmentFields = datablock->GetInt(k_LDL_ENDGAME_CONTAIN_COUNT);
+	// TODO(phase-2): class-member array allocation — wave 3 migration
 	m_containmentField = new c3_Blend *[m_numberOfContainmentFields];
 
 	for(index = 0; index < m_numberOfContainmentFields; index++) {
@@ -970,6 +975,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	}
 
 	m_numberOfECDs = datablock->GetInt(k_LDL_ENDGAME_ECD_COUNT);
+	// TODO(phase-2): class-member array allocation — wave 3 migration
 	m_ECD = new c3_Blend *[m_numberOfECDs];
 
 	for(index = 0; index < m_numberOfECDs; index++) {
@@ -980,6 +986,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	}
 
 	m_numberOfSplicers = datablock->GetInt(k_LDL_ENDGAME_SPLICER_COUNT);
+	// TODO(phase-2): class-member array allocation — wave 3 migration
 	m_splicer = new c3_Blend *[m_numberOfSplicers];
 
 
@@ -1000,6 +1007,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	Assert(m_darkenArea);
 
 	m_numberOfLabels = datablock->GetInt(k_LDL_ENDGAME_FB_LABEL_COUNT);
+	// TODO(phase-2): class-member array allocation — wave 3 migration
 	m_labels = new aui_Static *[m_numberOfLabels];
 
 	for(index = 0; index < m_numberOfLabels; index++) {
@@ -1009,6 +1017,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	}
 
 	m_numberOfStageLights = datablock->GetInt(k_LDL_ENDGAME_FB_LIGHT_COUNT);
+	// TODO(phase-2): class-member array allocation — wave 3 migration
 	m_stageLights = new c3_ColoredStatic *[m_numberOfStageLights];
 
 	for(index = 0; index < m_numberOfStageLights; index++) {

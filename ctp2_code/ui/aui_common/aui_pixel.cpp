@@ -4,6 +4,8 @@
 
 #include "ui/aui_common/aui_pixel.h"
 
+#include <vector>
+
 namespace
 {
     uint16 ColorCode555(uint8 red, uint8 green, uint8 blue)
@@ -37,9 +39,9 @@ uint16 aui_Pixel::Get16BitRGB( uint8 red, uint8 green, uint8 blue )
 uint8 aui_Pixel::GetPaletteIndexedColor(uint8 red, uint8 green, uint8 blue, HPALETTE *hpal)
 {
 #ifdef __AUI_USE_DIRECTX__
-	PALETTEENTRY *  pe              = new PALETTEENTRY[256];
+	std::vector<PALETTEENTRY> pe(256);
 	size_t const    paletteCount    =
-        static_cast<size_t>(GetPaletteEntries(*hpal, 0, 256, pe));
+        static_cast<size_t>(GetPaletteEntries(*hpal, 0, 256, pe.data()));
     Assert(paletteCount == 256);
 
 	uint16          valMain         = ColorCode555(red, green, blue);
@@ -58,7 +60,6 @@ uint8 aui_Pixel::GetPaletteIndexedColor(uint8 red, uint8 green, uint8 blue, HPAL
 		}
 	}
 
-	delete [] pe;
 	return color;
 #else
 	// TODO: 8bit modes wanted?
@@ -101,24 +102,12 @@ AUI_ERRCODE aui_Pixel::Convert24To16Dither(
 {
     m_edge = MakeEdge(buf24, cols, rows);
 
-    sint32 *    thisrerr = new sint32[ cols + 2 ];
-	sint32 *    thisgerr = new sint32[ cols + 2 ];
-    sint32 *    thisberr = new sint32[ cols + 2 ];
-    sint32 *    nextrerr = new sint32[ cols + 2 ];
-    sint32 *    nextgerr = new sint32[ cols + 2 ];
-    sint32 *    nextberr = new sint32[ cols + 2 ];
-
-	if (!thisrerr || !thisgerr || !thisberr ||
-		!nextrerr || !nextgerr || !nextberr)
-    {
-		delete [] thisrerr;
-		delete [] thisgerr;
-		delete [] thisberr;
-		delete [] nextrerr;
-		delete [] nextgerr;
-		delete [] nextberr;
-		return AUI_ERRCODE_LOADFAILED;
-	}
+    std::vector<sint32> thisrerr(cols + 2);
+	std::vector<sint32> thisgerr(cols + 2);
+    std::vector<sint32> thisberr(cols + 2);
+    std::vector<sint32> nextrerr(cols + 2);
+    std::vector<sint32> nextgerr(cols + 2);
+    std::vector<sint32> nextberr(cols + 2);
 
     SeedRandom(GetTickCount());
 
@@ -141,12 +130,11 @@ AUI_ERRCODE aui_Pixel::Convert24To16Dither(
     sint32 tb;
     uint8 *fp;
     uint16 *tp;
-	sint32 *temperr;
 
     for (uint32 row = 0; row < rows; ++row ) {
-        memset(nextrerr, 0, (cols+2) * sizeof(sint32));
-        memset(nextgerr, 0, (cols+2) * sizeof(sint32));
-        memset(nextberr, 0, (cols+2) * sizeof(sint32));
+        memset(nextrerr.data(), 0, (cols+2) * sizeof(sint32));
+        memset(nextgerr.data(), 0, (cols+2) * sizeof(sint32));
+        memset(nextberr.data(), 0, (cols+2) * sizeof(sint32));
         if ( fs_direction ) {
             col = 0;
             limitcol = cols;
@@ -163,7 +151,6 @@ AUI_ERRCODE aui_Pixel::Convert24To16Dither(
             uint32 fb = fp[0];
             uint32 fg = fp[1];
             uint32 fr = fp[2];
-
 
 
 
@@ -240,24 +227,11 @@ AUI_ERRCODE aui_Pixel::Convert24To16Dither(
             }
 	    } while ( col != limitcol );
 
-	    temperr = thisrerr;
-	    thisrerr = nextrerr;
-	    nextrerr = temperr;
-	    temperr = thisgerr;
-	    thisgerr = nextgerr;
-	    nextgerr = temperr;
-	    temperr = thisberr;
-	    thisberr = nextberr;
-	    nextberr = temperr;
+	    std::swap(thisrerr, nextrerr);
+	    std::swap(thisgerr, nextgerr);
+	    std::swap(thisberr, nextberr);
 	    fs_direction = ! fs_direction;
 	}
-
-    delete [] thisrerr;
-    delete [] thisgerr;
-    delete [] thisberr;
-    delete [] nextrerr;
-    delete [] nextgerr;
-    delete [] nextberr;
 
     Free2D(m_edge);
 
@@ -293,10 +267,12 @@ sint32 aui_Pixel::ScaleRandom()
 }
 double **aui_Pixel::Alloc2D(sint32 width, sint32 height)
 {
+   // TODO(phase-2): ownership transfer out of function — needs separate strategy
    double ** d2 = (double **) new double *[height];
    if (d2 == nullptr)
        return nullptr;
 
+   // TODO(phase-2): ownership transfer out of function — needs separate strategy
    double * d1 = (double *) new double[width*height];
    if (d1 == nullptr)
    {

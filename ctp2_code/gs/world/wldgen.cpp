@@ -294,11 +294,13 @@ void World::AllocateMap()
     AllocateTileInfoStorage();
 
     delete [] m_cellArray;
+	// TODO(phase-2): class-member array — deferred to wave 3
 	m_cellArray = new Cell[m_size.x * m_size.y];
 
     Assert (2 * k_MAP_WRAPAROUND <= m_size.x);
     Assert (2 * k_MAP_WRAPAROUND <= m_size.y);
 
+	// TODO(phase-2): CellYarray nested array — skipped per file rule
     CellYarray *    tmpx = new CellYarray[m_size.x + 2 * k_MAP_WRAPAROUND];
 	m_tmpx = tmpx;
 
@@ -310,11 +312,13 @@ void World::AllocateMap()
     {
 		if (m_isYwrap)
         {
+			// TODO(phase-2): CellPtr nested array — skipped per file rule
 			CellPtr * tmpy = new CellPtr[m_size.y + 2 * k_MAP_WRAPAROUND];
 			m_map[x] = &(tmpy[k_MAP_WRAPAROUND]);
 		}
         else
         {
+			// TODO(phase-2): CellPtr nested array + class-member assignment — skipped per file rule
 			m_map[x] = new CellPtr[m_size.y];
 		}
 
@@ -828,6 +832,7 @@ void World::ComputeGoodsValues()
     delete [] m_goodValue;
     if (newGoodCount > 0)
     {
+        // TODO(phase-2): class-member array — deferred to wave 3
         m_goodValue = new double[newGoodCount];
     }
     else
@@ -1764,12 +1769,14 @@ void World::FindPlayerStart(MapPoint player_start[k_MAX_PLAYERS],
 		s_actualMinContinentStartSize = g_theConstDB->Get(0)->GetMinContinentStartSize();
 	}
 
-    float ** raw_score = new float*[m_size.x];
-    float ** cum_score = new float*[m_size.x];
+    std::vector<float> raw_score_flat(m_size.x * m_size.y);
+    std::vector<float> cum_score_flat(m_size.x * m_size.y);
+    std::vector<float*> raw_score(m_size.x);
+    std::vector<float*> cum_score(m_size.x);
 
     for (x=0; x<m_size.x; x++) {
-        raw_score[x] = new float [m_size.y];
-        cum_score[x] = new float [m_size.y];
+        raw_score[x] = raw_score_flat.data() + x * m_size.y;
+        cum_score[x] = cum_score_flat.data() + x * m_size.y;
         for (y=0; y<m_size.y; y++) {
             CalcRawScore(x, y, raw_score[x][y]);
         }
@@ -1779,7 +1786,7 @@ void World::FindPlayerStart(MapPoint player_start[k_MAX_PLAYERS],
 
     for (x=0; x<m_size.x; x++) {
         for (y=0; y<m_size.y; y++) {
-            CalcCumScore(d, x, y, cum_score[x][y], raw_score);
+            CalcCumScore(d, x, y, cum_score[x][y], raw_score.data());
         }
     }
 
@@ -1822,7 +1829,7 @@ void World::FindPlayerStart(MapPoint player_start[k_MAX_PLAYERS],
     d = profiledb_Get()->SetupRadius() * 2 - 1;
 	numStartsFound = 0;
     for (i=0; i<k_MAX_PLAYERS; i++) {
-        if(!FindMaxCumScore(d, cum_score, maxx, maxy,
+        if(!FindMaxCumScore(d, cum_score.data(), maxx, maxy,
 							player_start, i,
 							minDistance, maxDistance,
 							ignoreTutorialRules)) {
@@ -1843,13 +1850,6 @@ void World::FindPlayerStart(MapPoint player_start[k_MAX_PLAYERS],
             }
         }
     }
-
-    for (x=0; x<m_size.x; x++) {
-        delete[] cum_score[x];
-        delete[] raw_score[x];
-    }
-    delete[] cum_score;
-    delete[] raw_score;
 }
 
 double World::CalcTerrainFreightCost(const MapPoint &pos)
@@ -1891,7 +1891,7 @@ void World::MapDump(MBCHAR *mapName, sint8 *mapData, sint16 width, sint16 height
 	int y_scale = 2;
 	int x_scale = 4;
 
-	int *mapColor = new int[(width*x_scale) * (height*y_scale)];
+	std::vector<int> mapColor((width*x_scale) * (height*y_scale));
 
 	for (int y=0; y<height*y_scale; y+=y_scale) {
 		for (int a=0; a<y_scale; a++) {
@@ -1904,9 +1904,8 @@ void World::MapDump(MBCHAR *mapName, sint8 *mapData, sint16 width, sint16 height
 		}
 	}
 
-	bmp_write (mapName, width*x_scale, height*y_scale, mapColor, mapColor, mapColor);
+	bmp_write (mapName, width*x_scale, height*y_scale, mapColor.data(), mapColor.data(), mapColor.data());
 
-	delete [] mapColor;
 #endif
 }
 
@@ -1918,7 +1917,7 @@ void World::TerrainDump (MBCHAR *mapName, sint8 *mapData, sint16 width,
 	int y_scale = 2;
 	int x_scale = 4;
 
-	int *mapColor = new int[(width*x_scale) * (height*y_scale)];
+	std::vector<int> mapColor((width*x_scale) * (height*y_scale));
 
 	for (int y=0; y<height*y_scale; y+=y_scale) {
 		for (int a=0; a<y_scale; a++) {
@@ -1937,9 +1936,8 @@ void World::TerrainDump (MBCHAR *mapName, sint8 *mapData, sint16 width,
 		}
 	}
 
-	bmp_write (mapName, width*x_scale, height*y_scale, mapColor, mapColor, mapColor);
+	bmp_write (mapName, width*x_scale, height*y_scale, mapColor.data(), mapColor.data(), mapColor.data());
 
-	delete [] mapColor;
 #endif
 }
 
@@ -2342,6 +2340,7 @@ void World::AllocateTileInfoStorage()
 	sint32			height = m_size.y;
 
 	delete [] m_tileInfoStorage;
+	// TODO(phase-2): class-member array — deferred to wave 3
 	m_tileInfoStorage = new TileInfo[width*height];
 }
 

@@ -232,8 +232,8 @@ const char *diffutil_GetYearStringFromTurn(sint32 diff, sint32 turn)
 	}
 
 	const MBCHAR *suffix = (year < 0)
-		? g_theStringDB->GetNameStr("str_tbl_ldl_BC")
-		: g_theStringDB->GetNameStr("str_tbl_ldl_AD");
+		? stringdb_Get()->GetNameStr("str_tbl_ldl_BC")
+		: stringdb_Get()->GetNameStr("str_tbl_ldl_AD");
 
 	if(!suffix)
 		suffix = (year < 0) ? "BC" : "AD";

@@ -906,18 +906,18 @@ void RecordDescription::ExportParser(FILE *outfile)
 		fprintf(outfile, "    if(tok != k_Token_Name) {\n");
 		fprintf(outfile, "        char newName[256];\n");
 		fprintf(outfile, "        sprintf(newName, \"%s_%s\", numRecords);\n", uppName, "%i");
-		fprintf(outfile, "        if(!g_theStringDB->GetStringID(newName, m_name)) {\n");
+		fprintf(outfile, "        if(!stringdb_Get()->GetStringID(newName, m_name)) {\n");
 
-		fprintf(outfile, "            g_theStringDB->InsertStr(newName, newName);\n");
-		fprintf(outfile, "            if(!g_theStringDB->GetStringID(newName, m_name))\n");
+		fprintf(outfile, "            stringdb_Get()->InsertStr(newName, newName);\n");
+		fprintf(outfile, "            if(!stringdb_Get()->GetStringID(newName, m_name))\n");
 		fprintf(outfile, "                SetTextName(newName);\n");
 		fprintf(outfile, "        }\n");
 		fprintf(outfile, "    }\n");
 		fprintf(outfile, "    else{\n");
-		fprintf(outfile, "        if(!g_theStringDB->GetStringID(lex->GetTokenText(), m_name)) {\n");
+		fprintf(outfile, "        if(!stringdb_Get()->GetStringID(lex->GetTokenText(), m_name)) {\n");
 
-		fprintf(outfile, "            g_theStringDB->InsertStr(lex->GetTokenText(), lex->GetTokenText());\n");
-		fprintf(outfile, "            if(!g_theStringDB->GetStringID(lex->GetTokenText(), m_name))\n");
+		fprintf(outfile, "            stringdb_Get()->InsertStr(lex->GetTokenText(), lex->GetTokenText());\n");
+		fprintf(outfile, "            if(!stringdb_Get()->GetStringID(lex->GetTokenText(), m_name))\n");
 		fprintf(outfile, "                SetTextName(lex->GetTokenText());\n");
 		fprintf(outfile, "        }\n");
 		fprintf(outfile, "        tok = lex->GetToken();\n");

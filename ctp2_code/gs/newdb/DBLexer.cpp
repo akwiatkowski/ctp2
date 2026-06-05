@@ -267,7 +267,7 @@ bool DBLexer::GetStringIdAssignment(sint32 &strId)
 	if(tok != k_Token_Name)
 		return false;
 
-	return g_theStringDB->GetStringID(GetTokenText(), strId) != 0;
+	return stringdb_Get()->GetStringID(GetTokenText(), strId) != 0;
 }
 
 bool DBLexer::GetStringId(sint32 &strId)
@@ -276,7 +276,7 @@ bool DBLexer::GetStringId(sint32 &strId)
 	if(tok != k_Token_Name)
 		return false;
 
-	return g_theStringDB->GetStringID(GetTokenText(), strId) != 0;
+	return stringdb_Get()->GetStringID(GetTokenText(), strId) != 0;
 }
 
 bool DBLexer::GetFileAssignment(std::string &filename)

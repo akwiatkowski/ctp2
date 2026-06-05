@@ -4695,13 +4695,13 @@ bool CityData::BuildUnit(sint32 type)
 	if(player_Get(m_owner)->HasAdvance(rec->GetEnableAdvanceIndex()))
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("City: Building %s\n",
-								  g_theStringDB->GetNameStr(rec->m_name)));
+								  stringdb_Get()->GetNameStr(rec->m_name)));
 		return m_build_queue.InsertTail(k_GAME_OBJ_TYPE_UNIT, type, rec->GetShieldCost());
 	}
 	else
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("City: Can't build %s until %s is discovered\n",
-		                          g_theStringDB->GetNameStr(rec->m_name),
+		                          stringdb_Get()->GetNameStr(rec->m_name),
 		                          g_theAdvanceDB->GetNameStr(rec->GetEnableAdvanceIndex())));
 		return false;
 	}
@@ -4733,7 +4733,7 @@ bool CityData::BuildImprovement(sint32 type)
 
 	if(player_Get(m_owner)->HasAdvance(irec->GetEnableAdvanceIndex())) {
 		DPRINTF(k_DBG_GAMESTATE, ("City: Building improvement %s\n",
-		                          g_theStringDB->GetNameStr(irec->GetName())));
+		                          stringdb_Get()->GetNameStr(irec->GetName())));
 
 		//ProductionCostPopModifier m_city.CD()->PopCount()
 			//EMOD ProductionCostPopModifier  10-10-2006
@@ -4751,7 +4751,7 @@ bool CityData::BuildImprovement(sint32 type)
 		return m_build_queue.InsertTail(k_GAME_OBJ_TYPE_IMPROVEMENT, type, cost);
 	} else {
 		DPRINTF(k_DBG_GAMESTATE, ("City: Can't build %s until %s is discovered\n",
-		                          g_theStringDB->GetNameStr(irec->GetName()),
+		                          stringdb_Get()->GetNameStr(irec->GetName()),
 		                          g_theAdvanceDB->GetNameStr(irec->GetEnableAdvanceIndex())));
 		return false;
 	}
@@ -4793,7 +4793,7 @@ bool CityData::BuildWonder(sint32 type)
 		return false;
 
 	DPRINTF(k_DBG_GAMESTATE, ("City %lx: building wonder %s\n", (uint32)m_home_city,
-	                          g_theStringDB->GetNameStr(rec->m_name)));
+	                          stringdb_Get()->GetNameStr(rec->m_name)));
 
 	if(player_Get(m_owner)->HasAdvance(rec->GetEnableAdvanceIndex())) {
 		return m_build_queue.InsertTail(k_GAME_OBJ_TYPE_WONDER, type, rec->GetProductionCost());
@@ -6181,7 +6181,7 @@ void CityData::BuildWhat() const
 		if((p->m_advances->HasAdvance(enable) || (enable < 0)) &&
 		   ((!p->m_advances->HasAdvance(obsolete)) || (obsolete < 0))) {
 			DPRINTF(k_DBG_GAMESTATE, ("  %d(%s)\n", i,
-			                          g_theStringDB->GetNameStr(g_theUnitDB->Get(i)->m_name)));
+			                          stringdb_Get()->GetNameStr(g_theUnitDB->Get(i)->m_name)));
 		}
 	}
 
@@ -6193,7 +6193,7 @@ void CityData::BuildWhat() const
 		if((p->m_advances->HasAdvance(enable) || (enable < 0)) &&
 		   ((!p->m_advances->HasAdvance(obsolete)) || (obsolete < 0))) {
 			DPRINTF(k_DBG_GAMESTATE, ("  %d(%s)\n", i,
-			                          g_theStringDB->GetNameStr(buildingutil_Get(i, m_owner)->m_name)));
+			                          stringdb_Get()->GetNameStr(buildingutil_Get(i, m_owner)->m_name)));
 		}
 	}
 
@@ -6206,7 +6206,7 @@ void CityData::BuildWhat() const
 		if((p->m_advances->HasAdvance(enable) || (enable < 0)) &&
 		   ((!p->m_advances->HasAdvance(obsolete)) || (obsolete < 0))) {
 			DPRINTF(k_DBG_GAMESTATE, ("  %d(%s)\n", i,
-			                          g_theStringDB->GetNameStr(rec->m_name)));
+			                          stringdb_Get()->GetNameStr(rec->m_name)));
 		}
 	}
 #endif

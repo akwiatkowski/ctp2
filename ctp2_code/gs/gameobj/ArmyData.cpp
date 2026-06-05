@@ -2491,7 +2491,7 @@ ORDER_RESULT ArmyData::CauseUnhappiness(const MapPoint &point,
 	c.SetWatchful();
 
     char unitName[256];
-    strcpy(unitName, g_theStringDB->
+    strcpy(unitName, stringdb_Get()->
            GetIdStr(g_theUnitDB->GetName(u.GetData()->GetType())));
 
 	if(civrand().Next(100) >= sint32(chance * 100.0)) {
@@ -5384,7 +5384,7 @@ bool ArmyData::BombardCity(const MapPoint &point, bool doAnimations)
 			{
 				c.CD()->ChangePopulation(-1);
 				StringId strId;
-				g_theStringDB->GetStringID("REGARD_EVENT_ATTACKED_CIVILIANS", strId);
+				stringdb_Get()->GetStringID("REGARD_EVENT_ATTACKED_CIVILIANS", strId);
 				cell_diplomat.LogRegardEvent
 				    (m_owner, regardcost, REGARD_EVENT_MILITARY_POWER, strId);
 			}
@@ -6440,7 +6440,7 @@ void ArmyData::InformAI(const UNIT_ORDER_TYPE order_type, const MapPoint &pos)
 		// CreateParkRegardCost since there's no 'StealTechologyRegardCost'
 
 		StringId strId;
-		g_theStringDB->GetStringID("REGARD_EVENT_STEAL_TECHNOLOGY", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_STEAL_TECHNOLOGY", strId);
 		city_diplomat.LogRegardEvent( m_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -8879,7 +8879,7 @@ void ArmyData::Disband()
 			    (newunit, m_pos, Unit(), false, CAUSE_NEW_ARMY_INITIAL);
 
 			StringId strId;
-			g_theStringDB->GetStringID("REGARD_EVENT_UNITS_GIFTED", strId);
+			stringdb_Get()->GetStringID("REGARD_EVENT_UNITS_GIFTED", strId);
 			cell_diplomat.LogRegardEvent
 			    (m_owner, regardcost, REGARD_EVENT_GOLD, strId);
 		}
@@ -10805,7 +10805,7 @@ const MBCHAR * ArmyData::GetName() const
 	{
 		/// @todo Check possible reentrancy problems
 		static MBCHAR buf[40];
-		snprintf(buf, sizeof(buf), "%s%d", g_theStringDB->GetNameStr("ARMY_NAME_PREFIX"), m_id & (0x0fffffff));
+		snprintf(buf, sizeof(buf), "%s%d", stringdb_Get()->GetNameStr("ARMY_NAME_PREFIX"), m_id & (0x0fffffff));
 		return buf;
 	}
 }

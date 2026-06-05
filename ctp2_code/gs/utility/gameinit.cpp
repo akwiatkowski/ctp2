@@ -183,7 +183,9 @@ static Wormhole             *g_wormhole=nullptr;
 Wormhole * wormhole_Get()    { return g_wormhole; }
 void       wormhole_Set(Wormhole *w) { g_wormhole = w; }
 
-StringDB                    *g_theStringDB=nullptr;
+// File-static: outside callers must use stringdb_Get / stringdb_Set.
+// Was 'extern StringDB *g_theStringDB' declared in StrDB.h.
+static StringDB             *g_theStringDB = nullptr;
 
 StringDB * stringdb_Get()        { return g_theStringDB; }
 void       stringdb_Set(StringDB *p) { g_theStringDB = p; }

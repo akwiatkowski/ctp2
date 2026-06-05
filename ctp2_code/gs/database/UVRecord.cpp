@@ -73,8 +73,6 @@ enum TOKEN_UV_POLLUTION
     TOKEN_UV_POLLUTION_MAX_VAL
 	} ;
 
-	extern	StringDB	*g_theStringDB ;
-
 	extern	AdvanceDB	*g_theAdvanceDB ;
 
 

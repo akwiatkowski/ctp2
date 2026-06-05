@@ -371,7 +371,7 @@ bool BuildQueue::BuildFrontUnit(bool forceFinish)
 			SlicObject *so = new SlicObject("106CantBuildUnitCellIsFull");
 			so->AddCity(m_city);
 			so->AddRecipient(m_owner);
-			so->AddAction(g_theStringDB->GetNameStr(g_theUnitDB->Get(m_list->GetHead()->m_type)->m_name));
+			so->AddAction(stringdb_Get()->GetNameStr(g_theUnitDB->Get(m_list->GetHead()->m_type)->m_name));
 			slicengine_Get()->Execute(so);
 			return false;
 		}
@@ -407,7 +407,7 @@ bool BuildQueue::BuildFrontUnit(bool forceFinish)
 
 		DPRINTF(k_DBG_GAMESTATE, ("City %lx building unit: %s\n",
 								  (uint32)cd->GetHomeCity(),
-								  g_theStringDB->GetNameStr(g_theUnitDB->Get(m_list->GetHead()->m_type)->m_name)));
+								  stringdb_Get()->GetNameStr(g_theUnitDB->Get(m_list->GetHead()->m_type)->m_name)));
 
 		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 							   GEV_CreateUnit,
@@ -429,7 +429,7 @@ bool BuildQueue::BuildFrontBuilding()
 		DPRINTF(k_DBG_GAMESTATE, (
 				  "City %lx built improvement: %s\n",
 				  (uint32)m_city,
-				  g_theStringDB->GetNameStr(g_theBuildingDB->Get(m_list->GetHead()->m_type)->m_name)));
+				  stringdb_Get()->GetNameStr(g_theBuildingDB->Get(m_list->GetHead()->m_type)->m_name)));
 
 		m_list->GetHead()->m_flags |= k_BUILD_NODE_FLAG_ALREADY_BUILT;
 		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateBuilding,
@@ -454,7 +454,7 @@ bool BuildQueue::BuildFrontWonder()
 	if(m_list->GetHead()->m_cost <= m_city.CD()->GetStoredCityProduction()) {
 		DPRINTF(k_DBG_GAMESTATE, ("City %lx built wonder: %s\n",
 								  (uint32)m_city,
-								  g_theStringDB->GetNameStr(g_theWonderDB->Get(m_list->GetHead()->m_type)->GetName())));
+								  stringdb_Get()->GetNameStr(g_theWonderDB->Get(m_list->GetHead()->m_type)->GetName())));
 
 		m_list->GetHead()->m_flags |= k_BUILD_NODE_FLAG_ALREADY_BUILT;
 		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateWonder,
@@ -661,7 +661,7 @@ void BuildQueue::FinishBuildFront(Unit &u)
 					} else {
 						so = new SlicObject("38EndgameBuilt");
 					}
-	//				so->AddAction(g_theStringDB->GetNameStr(g_theEndGameDB->Get(m_list->GetHead()->m_type)->m_name));
+	//				so->AddAction(stringdb_Get()->GetNameStr(g_theEndGameDB->Get(m_list->GetHead()->m_type)->m_name));
 					break;
 				default:
 					Assert(FALSE);
@@ -692,27 +692,27 @@ void BuildQueue::FinishBuildFront(Unit &u)
 
 				switch(next->m_category) {
 					case k_GAME_OBJ_TYPE_UNIT:
-						so->AddAction(g_theStringDB->GetNameStr(g_theUnitDB->Get(next->m_type)->m_name));
+						so->AddAction(stringdb_Get()->GetNameStr(g_theUnitDB->Get(next->m_type)->m_name));
 						break;
 					case k_GAME_OBJ_TYPE_IMPROVEMENT:
-						so->AddAction(g_theStringDB->GetNameStr(g_theBuildingDB->Get(next->m_type)->m_name));
+						so->AddAction(stringdb_Get()->GetNameStr(g_theBuildingDB->Get(next->m_type)->m_name));
 						break;
 					case k_GAME_OBJ_TYPE_WONDER:
-						so->AddAction(g_theStringDB->GetNameStr(g_theWonderDB->Get(next->m_type)->m_name));
+						so->AddAction(stringdb_Get()->GetNameStr(g_theWonderDB->Get(next->m_type)->m_name));
 						break;
 					case k_GAME_OBJ_TYPE_ENDGAME_OBJECT:
-//						so->AddAction(g_theStringDB->GetNameStr(g_theEndGameDB->Get(next->m_type)->m_name));
+//						so->AddAction(stringdb_Get()->GetNameStr(g_theEndGameDB->Get(next->m_type)->m_name));
 						break;
 					case k_GAME_OBJ_TYPE_CAPITALIZATION:
-						so->AddAction(g_theStringDB->GetNameStr("CAPITALIZATION"));
+						so->AddAction(stringdb_Get()->GetNameStr("CAPITALIZATION"));
 						break;
 					case k_GAME_OBJ_TYPE_INFRASTRUCTURE:
-						so->AddAction(g_theStringDB->GetNameStr("INFRASTRUCTURE"));
+						so->AddAction(stringdb_Get()->GetNameStr("INFRASTRUCTURE"));
 						break;
 				}
 			} else if(m_list->GetHead()->m_category == k_GAME_OBJ_TYPE_UNIT &&
 					  !g_theUnitDB->Get(m_list->GetHead()->m_type)->GetOnlyBuildOne()) {
-				so->AddAction(g_theStringDB->GetNameStr(g_theUnitDB->Get(m_list->GetHead()->m_type)->m_name));
+				so->AddAction(stringdb_Get()->GetNameStr(g_theUnitDB->Get(m_list->GetHead()->m_type)->m_name));
 			}
 
 			if(u.IsValid())
@@ -1311,7 +1311,7 @@ void BuildQueue::Dump(const sint32 shieldstore, MBCHAR *s)
         switch (node->m_category)
 			{
 			case k_GAME_OBJ_TYPE_UNIT :
-				strcat(s, g_theStringDB->GetNameStr(g_theUnitDB->Get(node->m_type)->m_name)) ;
+				strcat(s, stringdb_Get()->GetNameStr(g_theUnitDB->Get(node->m_type)->m_name)) ;
 				break ;
 
 			case k_GAME_OBJ_TYPE_POP :
@@ -1319,14 +1319,14 @@ void BuildQueue::Dump(const sint32 shieldstore, MBCHAR *s)
 				break ;
 
 			case k_GAME_OBJ_TYPE_IMPROVEMENT :
-				strcat(s, g_theStringDB->GetNameStr(g_theBuildingDB->Get(node->m_type)->m_name)) ;
+				strcat(s, stringdb_Get()->GetNameStr(g_theBuildingDB->Get(node->m_type)->m_name)) ;
 				break ;
 
 			case k_GAME_OBJ_TYPE_WONDER :
-				strcat(s, g_theStringDB->GetNameStr(wonderutil_Get(node->m_type)->m_name)) ;
+				strcat(s, stringdb_Get()->GetNameStr(wonderutil_Get(node->m_type)->m_name)) ;
 				break ;
 			case k_GAME_OBJ_TYPE_ENDGAME_OBJECT:
-//				strcat(s, g_theStringDB->GetNameStr(g_theEndGameDB->Get(node->m_type)->m_name));
+//				strcat(s, stringdb_Get()->GetNameStr(g_theEndGameDB->Get(node->m_type)->m_name));
 //				break;
 
 			default :

@@ -1006,7 +1006,10 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 //   g_ui file-static in their defining TUs; externs dropped from
 //   colorset.h and aui_ui.h.  ~140 consumer files routed through
 //   colorset_Get() and aui_ui_Get().
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 2;
+// Lowered 2 -> 1: g_theStringDB demoted to file-static in gameinit.cpp;
+// remaining extern is g_network (in disabled net code, will go when the
+// multiplayer protocol gets rewritten).
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 1;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

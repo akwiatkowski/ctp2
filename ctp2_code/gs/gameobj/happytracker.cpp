@@ -39,40 +39,40 @@ HappyTracker::~HappyTracker()
 
 void HappyTracker::RefreshStringIds()
 {
-	if (!g_theStringDB)
+	if (!stringdb_Get())
 		return;
 
-	g_theStringDB->GetStringID("HAPPY_REASON_CITY_SIZE", sm_happinessNames[HAPPY_REASON_CITY_SIZE]);
-	g_theStringDB->GetStringID("HAPPY_REASON_DISTANCE_FROM_CAPITOL", sm_happinessNames[HAPPY_REASON_DISTANCE_FROM_CAPITOL]);
-	g_theStringDB->GetStringID("HAPPY_REASON_ENEMY_ACTION", sm_happinessNames[HAPPY_REASON_ENEMY_ACTION]);
-	g_theStringDB->GetStringID("HAPPY_REASON_POLLUTION", sm_happinessNames[HAPPY_REASON_POLLUTION]);
-	g_theStringDB->GetStringID("HAPPY_REASON_STARVATION", sm_happinessNames[HAPPY_REASON_STARVATION]);
-	g_theStringDB->GetStringID("HAPPY_REASON_PEACE_MOVEMENT", sm_happinessNames[HAPPY_REASON_PEACE_MOVEMENT]);
-	g_theStringDB->GetStringID("HAPPY_REASON_WORKDAY", sm_happinessNames[HAPPY_REASON_WORKDAY]);
-	g_theStringDB->GetStringID("HAPPY_REASON_WAGES", sm_happinessNames[HAPPY_REASON_WAGES]);
-	g_theStringDB->GetStringID("HAPPY_REASON_RATIONS", sm_happinessNames[HAPPY_REASON_RATIONS]);
-	g_theStringDB->GetStringID("HAPPY_REASON_MARTIAL_LAW", sm_happinessNames[HAPPY_REASON_MARTIAL_LAW]);
-	g_theStringDB->GetStringID("HAPPY_REASON_ENTERTAINERS", sm_happinessNames[HAPPY_REASON_ENTERTAINERS]);
-	g_theStringDB->GetStringID("HAPPY_REASON_BUILDINGS", sm_happinessNames[HAPPY_REASON_BUILDINGS]);
-	g_theStringDB->GetStringID("HAPPY_REASON_WONDERS", sm_happinessNames[HAPPY_REASON_WONDERS]);
-	g_theStringDB->GetStringID("HAPPY_REASON_CRIME", sm_happinessNames[HAPPY_REASON_CRIME]);
-	g_theStringDB->GetStringID("HAPPY_REASON_CONQUEST_DISTRESS", sm_happinessNames[HAPPY_REASON_CONQUEST_DISTRESS]);
-	g_theStringDB->GetStringID("HAPPY_REASON_FEATS", sm_happinessNames[HAPPY_REASON_FEATS]);
-	g_theStringDB->GetStringID("HAPPY_REASON_NUM_CITIES", sm_happinessNames[HAPPY_REASON_NUM_CITIES]);
-	g_theStringDB->GetStringID("HAPPY_REASON_HAPPINESS_ATTACK", sm_happinessNames[HAPPY_REASON_HAPPINESS_ATTACK]);
-	g_theStringDB->GetStringID("HAPPY_REASON_SLAVES_TAKEN", sm_happinessNames[HAPPY_REASON_SLAVES_TAKEN]);
-	g_theStringDB->GetStringID("HAPPY_REASON_INDULGENCES", sm_happinessNames[HAPPY_REASON_INDULGENCES]);
-	g_theStringDB->GetStringID("HAPPY_REASON_BIO_INFECTION", sm_happinessNames[HAPPY_REASON_BIO_INFECTION]);
-	g_theStringDB->GetStringID("HAPPY_REASON_REFORMATION", sm_happinessNames[HAPPY_REASON_REFORMATION]);
-	g_theStringDB->GetStringID("HAPPY_REASON_POP_TYPE_REMOVED", sm_happinessNames[HAPPY_REASON_POP_TYPE_REMOVED]);
-	g_theStringDB->GetStringID("HAPPY_REASON_POP_TYPE_ADDED", sm_happinessNames[HAPPY_REASON_POP_TYPE_ADDED]);
-	g_theStringDB->GetStringID("HAPPY_REASON_SOOTHSAY", sm_happinessNames[HAPPY_REASON_SOOTHSAY]);
-	g_theStringDB->GetStringID("HAPPY_REASON_EMANCIPATION", sm_happinessNames[HAPPY_REASON_EMANCIPATION]);
-	g_theStringDB->GetStringID("HAPPY_REASON_POST_REVOULTION_BLISS", sm_happinessNames[HAPPY_REASON_POST_REVOULTION_BLISS]);
-	g_theStringDB->GetStringID("HAPPY_REASON_WONDER_TURNS_REMAINING", sm_happinessNames[HAPPY_REASON_WONDER_TURNS_REMAINING]);
-	g_theStringDB->GetStringID("HAPPY_REASON_ATTACKED_CONVERTER", sm_happinessNames[HAPPY_REASON_ATTACKED_CONVERTER]);
-	g_theStringDB->GetStringID("HAPPY_REASON_ASSASSINATION", sm_happinessNames[HAPPY_REASON_ASSASSINATION]);
-	g_theStringDB->GetStringID("HAPPY_REASON_SECTHAPPY", sm_happinessNames[HAPPY_REASON_SECTHAPPY]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_CITY_SIZE", sm_happinessNames[HAPPY_REASON_CITY_SIZE]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_DISTANCE_FROM_CAPITOL", sm_happinessNames[HAPPY_REASON_DISTANCE_FROM_CAPITOL]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_ENEMY_ACTION", sm_happinessNames[HAPPY_REASON_ENEMY_ACTION]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_POLLUTION", sm_happinessNames[HAPPY_REASON_POLLUTION]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_STARVATION", sm_happinessNames[HAPPY_REASON_STARVATION]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_PEACE_MOVEMENT", sm_happinessNames[HAPPY_REASON_PEACE_MOVEMENT]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_WORKDAY", sm_happinessNames[HAPPY_REASON_WORKDAY]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_WAGES", sm_happinessNames[HAPPY_REASON_WAGES]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_RATIONS", sm_happinessNames[HAPPY_REASON_RATIONS]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_MARTIAL_LAW", sm_happinessNames[HAPPY_REASON_MARTIAL_LAW]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_ENTERTAINERS", sm_happinessNames[HAPPY_REASON_ENTERTAINERS]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_BUILDINGS", sm_happinessNames[HAPPY_REASON_BUILDINGS]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_WONDERS", sm_happinessNames[HAPPY_REASON_WONDERS]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_CRIME", sm_happinessNames[HAPPY_REASON_CRIME]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_CONQUEST_DISTRESS", sm_happinessNames[HAPPY_REASON_CONQUEST_DISTRESS]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_FEATS", sm_happinessNames[HAPPY_REASON_FEATS]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_NUM_CITIES", sm_happinessNames[HAPPY_REASON_NUM_CITIES]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_HAPPINESS_ATTACK", sm_happinessNames[HAPPY_REASON_HAPPINESS_ATTACK]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_SLAVES_TAKEN", sm_happinessNames[HAPPY_REASON_SLAVES_TAKEN]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_INDULGENCES", sm_happinessNames[HAPPY_REASON_INDULGENCES]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_BIO_INFECTION", sm_happinessNames[HAPPY_REASON_BIO_INFECTION]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_REFORMATION", sm_happinessNames[HAPPY_REASON_REFORMATION]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_POP_TYPE_REMOVED", sm_happinessNames[HAPPY_REASON_POP_TYPE_REMOVED]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_POP_TYPE_ADDED", sm_happinessNames[HAPPY_REASON_POP_TYPE_ADDED]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_SOOTHSAY", sm_happinessNames[HAPPY_REASON_SOOTHSAY]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_EMANCIPATION", sm_happinessNames[HAPPY_REASON_EMANCIPATION]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_POST_REVOULTION_BLISS", sm_happinessNames[HAPPY_REASON_POST_REVOULTION_BLISS]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_WONDER_TURNS_REMAINING", sm_happinessNames[HAPPY_REASON_WONDER_TURNS_REMAINING]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_ATTACKED_CONVERTER", sm_happinessNames[HAPPY_REASON_ATTACKED_CONVERTER]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_ASSASSINATION", sm_happinessNames[HAPPY_REASON_ASSASSINATION]);
+	stringdb_Get()->GetStringID("HAPPY_REASON_SECTHAPPY", sm_happinessNames[HAPPY_REASON_SECTHAPPY]);
 }
 
 /// Store/load the happiness information to/from an archive
@@ -130,7 +130,7 @@ void HappyTracker::Dump()
     for (int i = 0; i < HAPPY_REASON_MAX; ++i)
     {
         DPRINTF(k_DBG_GAMESTATE, ("  %20s: %.2lf\n",
-						 g_theStringDB->GetNameStr(sm_happinessNames[i]),
+						 stringdb_Get()->GetNameStr(sm_happinessNames[i]),
 						 m_happinessAmounts[i]
                                  )
                );

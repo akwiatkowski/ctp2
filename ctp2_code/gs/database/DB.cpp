@@ -149,11 +149,11 @@ template <class T> void Database<T>::AddRec(const StringId sid, sint32 &i)
 
 	m_rec[m_nRec].SetName(sid);
 	{
-		const MBCHAR *str = g_theStringDB->GetNameStr( sid );
+		const MBCHAR *str = stringdb_Get()->GetNameStr( sid );
 		sint32 a;
 		for (a = 0; a < m_nRec; ++a )
 		{
-			if ( _stricoll( str, g_theStringDB->GetNameStr(
+			if ( _stricoll( str, stringdb_Get()->GetNameStr(
 				m_rec[ m_alphaToIndex[ a ] ].GetName() ) ) < 0 )
 			{
 

@@ -2280,7 +2280,7 @@ void UnitData::SetText(char const * str)
 
 void UnitData::GamestateDebug()
 {
-	strcpy(m_text, g_theStringDB->GetIdStr(GetDBRec()->GetName()));
+	strcpy(m_text, stringdb_Get()->GetIdStr(GetDBRec()->GetName()));
 }
 
 #endif
@@ -5159,7 +5159,7 @@ bool UnitData::GetCurrentOrderString(StringId &id) const
 		name = "UNIT_ORDER_NONE";
 	}
 
-	return name && g_theStringDB->GetStringID(name, id);
+	return name && stringdb_Get()->GetStringID(name, id);
 }
 
 #if 0

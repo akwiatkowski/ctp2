@@ -180,7 +180,7 @@ BOOL EndGameRecord::ParseFlags(Token *token)
 				m_enable = -1;
 			} else {
 				token->GetString(str);
-				if(!g_theStringDB->GetStringID(str, str_id)) {
+				if(!stringdb_Get()->GetStringID(str, str_id)) {
 					c3errors_ErrorDialog(token->ErrStr(), "%s not in string database", str);
 					s_abort_endgame_parse = TRUE;
 					return FALSE;

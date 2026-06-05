@@ -515,7 +515,7 @@ void World::ShowCellOwners()
 const char * World::GetTerrainName (const MapPoint &pos)
 {
 	StringId id = g_theTerrainDB->Get(GetCell(pos)->m_terrain_type)->m_name;
-	return g_theStringDB->GetNameStr(id);
+	return stringdb_Get()->GetNameStr(id);
 }
 
 #if 0

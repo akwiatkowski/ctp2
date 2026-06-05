@@ -246,7 +246,7 @@ void Advances::SetHasAdvance(AdvanceType advance, const bool init)
 		player_Get(m_owner)->m_can_use_terra_tab = TRUE;
 	}
 
-	if (strcmp(g_theStringDB->GetIdStr(g_theAdvanceDB->Get(advance)->m_name),
+	if (strcmp(stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(advance)->m_name),
 	           "ADVANCE_AERODYNAMICS") == 0)
 	{
 		QuickSlic("42IAAirportTip", m_owner);
@@ -266,7 +266,7 @@ Advances::GrantAdvance()
 		return;
 
 	DPRINTF(k_DBG_GAMESTATE, ("Advance: Player %d discovered %s\n", m_owner,
-							  g_theStringDB->GetNameStr(g_theAdvanceDB->Get(m_researching)->GetName())));
+							  stringdb_Get()->GetNameStr(g_theAdvanceDB->Get(m_researching)->GetName())));
 
 	m_discovered++;
 

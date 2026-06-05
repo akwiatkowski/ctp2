@@ -82,7 +82,7 @@ BOOL EndGameDatabase::ParseAnEndGameObject(Token *token, sint32 index)
 	}
 
 	token->GetString(str);
-	if(!g_theStringDB->GetStringID(str, str_id)) {
+	if(!stringdb_Get()->GetStringID(str, str_id)) {
 		c3errors_ErrorDialog(token->ErrStr(), "%s is not in the string database", str);
 		m_abort_parse = TRUE;
 		return FALSE;

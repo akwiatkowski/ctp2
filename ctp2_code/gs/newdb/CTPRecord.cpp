@@ -138,7 +138,7 @@ bool CTPRecord::ParseStringIdInArray(DBLexer *lex, sint32 **array, sint32 *numEl
 			*array = new sint32[1];
 		}
 		sint32 id;
-		if(!g_theStringDB->GetStringID(value, id)) {
+		if(!stringdb_Get()->GetStringID(value, id)) {
 			DBERROR(("%s not in string database", value));
 			return false;
 		}
@@ -229,7 +229,7 @@ bool CTPRecord::ParseStringIdInArray(DBLexer *lex, sint32 *array, sint32 *numEle
 		}
 
 		sint32 id;
-		if(!g_theStringDB->GetStringID(value, id)) {
+		if(!stringdb_Get()->GetStringID(value, id)) {
 			DBERROR(("%s not in string database. Token: %i, TokenName: %i, Next: %i", value, tok, k_Token_Name, lex->PeekAhead()));
 			return false;
 		}
@@ -254,10 +254,10 @@ void CTPRecord::SetTextName(const char *text)
 const char *CTPRecord::GetIDText() const
 {
 	Assert(m_name >= 0);
-    return (m_name >= 0) ? g_theStringDB->GetIdStr(m_name) : "NO_ID";
+    return (m_name >= 0) ? stringdb_Get()->GetIdStr(m_name) : "NO_ID";
 }
 
 const char *CTPRecord::GetNameText() const
 {
-    return (m_textName) ? m_textName : g_theStringDB->GetNameStr(m_name);
+    return (m_textName) ? m_textName : stringdb_Get()->GetNameStr(m_name);
 }

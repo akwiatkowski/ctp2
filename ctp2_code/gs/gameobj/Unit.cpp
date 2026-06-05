@@ -362,7 +362,7 @@ const MBCHAR * Unit::GetName() const
 		return GetData()->GetCityData()->GetName();
 	}
 	StringId id = GetDBRec()->m_name;
-	return g_theStringDB->GetNameStr(id);
+	return stringdb_Get()->GetNameStr(id);
 }
 
 //----------------------------------------------------------------------------
@@ -394,7 +394,7 @@ std::string Unit::GetDisplayName() const
 	}
 	else
 	{
-		std::string	unitName(g_theStringDB->GetNameStr(info->m_name));
+		std::string	unitName(stringdb_Get()->GetNameStr(info->m_name));
 		return info->GetLeader()
 			   ? unitName + " " + player_Get(GetOwner())->GetLeaderName()
 			   : unitName;

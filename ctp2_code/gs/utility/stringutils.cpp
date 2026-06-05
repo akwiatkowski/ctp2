@@ -166,7 +166,7 @@ void stringutils_SetStaticStringId(StringId & stringId, char * stringName)
 	if (stringId < 0)
 		{
 			BOOL found =
-				g_theStringDB->GetStringID(stringName, stringId);
+				stringdb_Get()->GetStringID(stringName, stringId);
 			Assert(found);
 		}
 }

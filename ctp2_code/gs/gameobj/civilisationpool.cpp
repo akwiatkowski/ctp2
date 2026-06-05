@@ -128,17 +128,17 @@ Civilisation CivilisationPool::Create(const PLAYER_INDEX owner, sint32 requiredC
 						? g_theCivilisationDB->Get(civ)->GetLeaderNameMale()
 						: g_theCivilisationDB->Get(civ)->GetLeaderNameFemale();
 
-	newData->SetLeaderName(g_theStringDB->GetNameStr(strId));
+	newData->SetLeaderName(stringdb_Get()->GetNameStr(strId));
 
 	strId = g_theCivilisationDB->Get(civ)->GetPersonalityDescription();
-	newData->SetPersonalityDescription(g_theStringDB->GetNameStr(strId));
+	newData->SetPersonalityDescription(stringdb_Get()->GetNameStr(strId));
 
 	strId = g_theCivilisationDB->Get(civ)->GetPluralCivName();
-	newData->SetPluralCivName(g_theStringDB->GetNameStr(strId));
+	newData->SetPluralCivName(stringdb_Get()->GetNameStr(strId));
 	strId = g_theCivilisationDB->Get(civ)->GetCountryName();
-	newData->SetCountryName(g_theStringDB->GetNameStr(strId));
+	newData->SetCountryName(stringdb_Get()->GetNameStr(strId));
 	strId = g_theCivilisationDB->Get(civ)->GetSingularCivName();
-	newData->SetSingularCivName(g_theStringDB->GetNameStr(strId));
+	newData->SetSingularCivName(stringdb_Get()->GetNameStr(strId));
 
 	newData->SetCityStyle(g_theCivilisationDB->Get(civ)->GetCityStyleIndex());
 

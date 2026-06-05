@@ -314,7 +314,7 @@ template <class T> const char *CTPDatabase<T>::GetNameStr(sint32 index)
 	if((index < 0) || (index >= m_numRecords))
 		return nullptr;
 
-	return g_theStringDB->GetNameStr(m_records[index]->m_name);
+	return stringdb_Get()->GetNameStr(m_records[index]->m_name);
 }
 
 //----------------------------------------------------------------------------
@@ -410,7 +410,7 @@ template <class T> bool CTPDatabase<T>::GetRecordFromLexer(DBLexer * lex, sint32
 	}
 
 	sint32 strId;
-	if(!g_theStringDB->GetStringID(lex->GetTokenText(), strId)) {
+	if(!stringdb_Get()->GetStringID(lex->GetTokenText(), strId)) {
 
 		sint32 i;
 		for(i = 0; i < m_numRecords; i++) {
@@ -420,8 +420,8 @@ template <class T> bool CTPDatabase<T>::GetRecordFromLexer(DBLexer * lex, sint32
 			}
 		}
 
-		g_theStringDB->InsertStr(lex->GetTokenText(), lex->GetTokenText());
-		if(g_theStringDB->GetStringID(lex->GetTokenText(), strId)) {
+		stringdb_Get()->InsertStr(lex->GetTokenText(), lex->GetTokenText());
+		if(stringdb_Get()->GetStringID(lex->GetTokenText(), strId)) {
 			index = strId | 0x80000000;
 			return true;
 		} else {
@@ -452,7 +452,7 @@ template <class T> bool CTPDatabase<T>::GetCurrentRecordFromLexer(DBLexer *lex, 
 	}
 
 	sint32 strId;
-	if(!g_theStringDB->GetStringID(lex->GetTokenText(), strId)) {
+	if(!stringdb_Get()->GetStringID(lex->GetTokenText(), strId)) {
 
 		sint32 i;
 		for(i = 0; i < m_numRecords; i++) {
@@ -462,8 +462,8 @@ template <class T> bool CTPDatabase<T>::GetCurrentRecordFromLexer(DBLexer *lex, 
 			}
 		}
 
-		g_theStringDB->InsertStr(lex->GetTokenText(), lex->GetTokenText());
-		if(g_theStringDB->GetStringID(lex->GetTokenText(), strId)) {
+		stringdb_Get()->InsertStr(lex->GetTokenText(), lex->GetTokenText());
+		if(stringdb_Get()->GetStringID(lex->GetTokenText(), strId)) {
 			index = strId | 0x80000000;
 			return true;
 		} else {
@@ -499,7 +499,7 @@ template <class T> bool CTPDatabase<T>::ParseRecordInArray(DBLexer *lex, sint32 
 	sint32 i;
 	for(i = 0; i < m_numRecords; i++) {
 		if(((m_records[i]->m_name >= 0) &&
-			(!strcmp(g_theStringDB->GetIdStr(m_records[i]->m_name), lex->GetTokenText()))) ||
+			(!strcmp(stringdb_Get()->GetIdStr(m_records[i]->m_name), lex->GetTokenText()))) ||
 		   ((m_records[i]->m_name < 0) &&
 			(!strcmp(m_records[i]->GetNameText(), lex->GetTokenText())))) {
 				(*array)[*numElements] = i;
@@ -510,11 +510,11 @@ template <class T> bool CTPDatabase<T>::ParseRecordInArray(DBLexer *lex, sint32 
 
 
 	sint32 strId;
-	if(!g_theStringDB->GetStringID(lex->GetTokenText(), strId)) {
-		g_theStringDB->InsertStr(lex->GetTokenText(), lex->GetTokenText());
+	if(!stringdb_Get()->GetStringID(lex->GetTokenText(), strId)) {
+		stringdb_Get()->InsertStr(lex->GetTokenText(), lex->GetTokenText());
 	}
 
-	if(g_theStringDB->GetStringID(lex->GetTokenText(), strId)) {
+	if(stringdb_Get()->GetStringID(lex->GetTokenText(), strId)) {
 		(*array)[*numElements] = (strId | 0x80000000);
 		*numElements += 1;
 		return true;
@@ -539,7 +539,7 @@ template <class T> bool CTPDatabase<T>::ParseRecordInArray(DBLexer *lex, sint32 
 	sint32 i;
 	for(i = 0; i < m_numRecords; i++) {
 		if(((m_records[i]->m_name >= 0) &&
-			(!strcmp(g_theStringDB->GetIdStr(m_records[i]->m_name), lex->GetTokenText()))) ||
+			(!strcmp(stringdb_Get()->GetIdStr(m_records[i]->m_name), lex->GetTokenText()))) ||
 		   ((m_records[i]->m_name < 0) &&
 			(!strcmp(m_records[i]->GetNameText(), lex->GetTokenText())))) {
 			array[*numElements] = i;
@@ -549,11 +549,11 @@ template <class T> bool CTPDatabase<T>::ParseRecordInArray(DBLexer *lex, sint32 
 	}
 
 	sint32 strId;
-	if(!g_theStringDB->GetStringID(lex->GetTokenText(), strId)) {
-		g_theStringDB->InsertStr(lex->GetTokenText(), lex->GetTokenText());
+	if(!stringdb_Get()->GetStringID(lex->GetTokenText(), strId)) {
+		stringdb_Get()->InsertStr(lex->GetTokenText(), lex->GetTokenText());
 	}
 
-	if(g_theStringDB->GetStringID(lex->GetTokenText(), strId)) {
+	if(stringdb_Get()->GetStringID(lex->GetTokenText(), strId)) {
 		array[*numElements] = (strId | 0x80000000);
 		*numElements += 1;
 		return true;
@@ -577,7 +577,7 @@ template <class T> bool CTPDatabase<T>::GetNamedItem(sint32 name, sint32 &index)
 template <class T> bool CTPDatabase<T>::GetNamedItem(const char *name, sint32 &index)
 {
 	sint32 strId;
-	if(g_theStringDB->GetStringID(name, strId)) {
+	if(stringdb_Get()->GetStringID(name, strId)) {
 		return GetNamedItem(strId, index);
 	}
 

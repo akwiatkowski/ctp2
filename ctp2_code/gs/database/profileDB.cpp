@@ -468,8 +468,8 @@ void ProfileDB::DefaultSettings()
 	StringId    leaderNameId = g_theCivilisationDB->Get(m_civIndex)->GetLeaderNameMale();
 	StringId    civNameId = g_theCivilisationDB->Get(m_civIndex)->GetPluralCivName();
 
-	strcpy(m_leaderName, g_theStringDB->GetNameStr(leaderNameId));
-	strcpy(m_civName, g_theStringDB->GetNameStr(civNameId));
+	strcpy(m_leaderName, stringdb_Get()->GetNameStr(leaderNameId));
+	strcpy(m_civName, stringdb_Get()->GetNameStr(civNameId));
 }
 
 ProfileDB::~ProfileDB()

@@ -55,10 +55,8 @@
 
 class	StringDB;
 
-// App-singleton accessor pair.  g_theStringDB is defined in
-// gs/utility/gameinit.cpp; the consolidating commit makes it file-static
-// and drops this extern once all consumers are routed.
-extern	StringDB *	g_theStringDB;
+// App-singleton accessor pair.  Storage is file-static in
+// gs/utility/gameinit.cpp; outside callers must go through these.
 StringDB * stringdb_Get();
 void       stringdb_Set(StringDB *p);
 

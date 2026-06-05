@@ -432,26 +432,26 @@ const MBCHAR *Score::GetPartialScoreItemized(SCORE_CATEGORY cat)
 const MBCHAR *Score::GetScoreString(SCORE_CATEGORY cat)
 {
 	switch(cat) {
-		case SCORE_CAT_FEATS: return g_theStringDB->GetNameStr("SCORE_CAT_FEATS");
-		case SCORE_CAT_ADVANCES: return g_theStringDB->GetNameStr("SCORE_CAT_ADVANCES");
-		case SCORE_CAT_WONDERS: return g_theStringDB->GetNameStr("SCORE_CAT_WONDERS");
-		case SCORE_CAT_POPULATION: return g_theStringDB->GetNameStr("SCORE_CAT_POPULATION");
-		case SCORE_CAT_RANK: return g_theStringDB->GetNameStr("SCORE_CAT_RANK");
-		case SCORE_CAT_CITIES0TO30: return g_theStringDB->GetNameStr("SCORE_CAT_CITIES0TO30");
-		case SCORE_CAT_CITIES30TO100: return g_theStringDB->GetNameStr("SCORE_CAT_CITIES30TO100");
-		case SCORE_CAT_CITIES100TO500: return g_theStringDB->GetNameStr("SCORE_CAT_CITIES100TO500");
-		case SCORE_CAT_CITIES500PLUS: return g_theStringDB->GetNameStr("SCORE_CAT_CITIES500PLUS");
-		case SCORE_CAT_CITIES_RECAPTURED: return g_theStringDB->GetNameStr("SCORE_CAT_CITIES_RECAPTURED");
-		case SCORE_CAT_OPPONENTS_CONQUERED: return g_theStringDB->GetNameStr("SCORE_CAT_OPPONENTS_CONQUERED");
+		case SCORE_CAT_FEATS: return stringdb_Get()->GetNameStr("SCORE_CAT_FEATS");
+		case SCORE_CAT_ADVANCES: return stringdb_Get()->GetNameStr("SCORE_CAT_ADVANCES");
+		case SCORE_CAT_WONDERS: return stringdb_Get()->GetNameStr("SCORE_CAT_WONDERS");
+		case SCORE_CAT_POPULATION: return stringdb_Get()->GetNameStr("SCORE_CAT_POPULATION");
+		case SCORE_CAT_RANK: return stringdb_Get()->GetNameStr("SCORE_CAT_RANK");
+		case SCORE_CAT_CITIES0TO30: return stringdb_Get()->GetNameStr("SCORE_CAT_CITIES0TO30");
+		case SCORE_CAT_CITIES30TO100: return stringdb_Get()->GetNameStr("SCORE_CAT_CITIES30TO100");
+		case SCORE_CAT_CITIES100TO500: return stringdb_Get()->GetNameStr("SCORE_CAT_CITIES100TO500");
+		case SCORE_CAT_CITIES500PLUS: return stringdb_Get()->GetNameStr("SCORE_CAT_CITIES500PLUS");
+		case SCORE_CAT_CITIES_RECAPTURED: return stringdb_Get()->GetNameStr("SCORE_CAT_CITIES_RECAPTURED");
+		case SCORE_CAT_OPPONENTS_CONQUERED: return stringdb_Get()->GetNameStr("SCORE_CAT_OPPONENTS_CONQUERED");
 		case SCORE_CAT_TYPE_OF_VICTORY:
 		{
 			switch (m_victory_type)
 			{
-			case kScoreDefeat: return g_theStringDB->GetNameStr("SCORE_CAT_DEFEAT");
-			case kScoreGameInProgress: return g_theStringDB->GetNameStr("SCORE_CAT_IN_PROGRESS");
-			case kScoreWonderVictory: return g_theStringDB->GetNameStr("SCORE_CAT_WONDER_VICTORY");
-			case kScoreAlliedVictory: return g_theStringDB->GetNameStr("SCORE_CAT_ALLIED_VICTORY");
-			case kScoreSoloVictory: return g_theStringDB->GetNameStr("SCORE_CAT_SOLO_VICTORY");
+			case kScoreDefeat: return stringdb_Get()->GetNameStr("SCORE_CAT_DEFEAT");
+			case kScoreGameInProgress: return stringdb_Get()->GetNameStr("SCORE_CAT_IN_PROGRESS");
+			case kScoreWonderVictory: return stringdb_Get()->GetNameStr("SCORE_CAT_WONDER_VICTORY");
+			case kScoreAlliedVictory: return stringdb_Get()->GetNameStr("SCORE_CAT_ALLIED_VICTORY");
+			case kScoreSoloVictory: return stringdb_Get()->GetNameStr("SCORE_CAT_SOLO_VICTORY");
 			}
 		}
 
@@ -468,6 +468,6 @@ const MBCHAR *Score::GetScoreString(SCORE_CATEGORY cat)
 
 		default:
 			Assert(FALSE);
-			return g_theStringDB->GetNameStr("SCORE_CAT_UNKNOWN");
+			return stringdb_Get()->GetNameStr("SCORE_CAT_UNKNOWN");
 	}
 }

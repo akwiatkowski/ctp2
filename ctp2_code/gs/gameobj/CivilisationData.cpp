@@ -198,9 +198,9 @@ void CivilisationData::GetCityName(const sint32 name, MBCHAR *s) const
 	Assert(name < g_theCivilisationDB->Get(m_civ)->GetNumCityName());
 	strId = g_theCivilisationDB->Get(m_civ)->GetCityName(name);
 	if (m_cityname_count[name] > 0) {
-		snprintf(s, k_MAX_NAME_LEN, "%s%d", g_theStringDB->GetNameStr(strId), m_cityname_count[name]);
+		snprintf(s, k_MAX_NAME_LEN, "%s%d", stringdb_Get()->GetNameStr(strId), m_cityname_count[name]);
 	} else {
-		strncpy(s, g_theStringDB->GetNameStr(strId), k_MAX_NAME_LEN - 1);
+		strncpy(s, stringdb_Get()->GetNameStr(strId), k_MAX_NAME_LEN - 1);
 		s[k_MAX_NAME_LEN - 1] = '\0';
 	}
 }
@@ -231,9 +231,9 @@ void CivilisationData::UseCityName(const sint32 name)
 
 		strId = g_theCivilisationDB->Get(m_civ)->GetCityName(name);
 		if (m_cityname_count[name] > 0) {
-			snprintf(s, sizeof(s), "%s%d", g_theStringDB->GetNameStr(strId), m_cityname_count[name]);
+			snprintf(s, sizeof(s), "%s%d", stringdb_Get()->GetNameStr(strId), m_cityname_count[name]);
 		} else {
-			strncpy(s, g_theStringDB->GetNameStr(strId), sizeof(s) - 1);
+			strncpy(s, stringdb_Get()->GetNameStr(strId), sizeof(s) - 1);
 			s[sizeof(s) - 1] = '\0';
 		}
 
@@ -267,9 +267,9 @@ void CivilisationData::ReleaseCityName(const sint32 name)
 
 		strId = g_theCivilisationDB->Get(m_civ)->GetCityName(name);
 		if (m_cityname_count[name] > 0) {
-			snprintf(s, sizeof(s), "%s%d", g_theStringDB->GetNameStr(strId), m_cityname_count[name]);
+			snprintf(s, sizeof(s), "%s%d", stringdb_Get()->GetNameStr(strId), m_cityname_count[name]);
 		} else {
-			strncpy(s, g_theStringDB->GetNameStr(strId), sizeof(s) - 1);
+			strncpy(s, stringdb_Get()->GetNameStr(strId), sizeof(s) - 1);
 			s[sizeof(s) - 1] = '\0';
 		}
 
@@ -377,19 +377,19 @@ void CivilisationData::ResetCiv(sint32 newCivIndex, GENDER gender)
 	else
 		strId = g_theCivilisationDB->Get(newCivIndex)->GetLeaderNameFemale();
 
-	SetLeaderName(g_theStringDB->GetNameStr(strId));
+	SetLeaderName(stringdb_Get()->GetNameStr(strId));
 
 	strId = g_theCivilisationDB->Get(newCivIndex)->GetPersonalityDescription();
-	SetPersonalityDescription(g_theStringDB->GetNameStr(strId));
+	SetPersonalityDescription(stringdb_Get()->GetNameStr(strId));
 
 	strId = g_theCivilisationDB->Get(newCivIndex)->GetPluralCivName();
-	SetPluralCivName(g_theStringDB->GetNameStr(strId));
+	SetPluralCivName(stringdb_Get()->GetNameStr(strId));
 
 	strId = g_theCivilisationDB->Get(newCivIndex)->GetCountryName();
-	SetCountryName(g_theStringDB->GetNameStr(strId));
+	SetCountryName(stringdb_Get()->GetNameStr(strId));
 
 	strId = g_theCivilisationDB->Get(newCivIndex)->GetSingularCivName();
-	SetSingularCivName(g_theStringDB->GetNameStr(strId));
+	SetSingularCivName(stringdb_Get()->GetNameStr(strId));
 
 	m_cityStyle = g_theCivilisationDB->Get(newCivIndex)->GetCityStyleIndex();
 }
@@ -397,15 +397,15 @@ void CivilisationData::ResetCiv(sint32 newCivIndex, GENDER gender)
 void CivilisationData::ResetStrings()
 {
 	if(m_gender == GENDER_MALE) {
-		SetLeaderName(g_theStringDB->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetLeaderNameMale()));
+		SetLeaderName(stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetLeaderNameMale()));
 	} else if(m_gender == GENDER_FEMALE) {
-		SetLeaderName(g_theStringDB->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetLeaderNameFemale()));
+		SetLeaderName(stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetLeaderNameFemale()));
 	}
 
-	SetPersonalityDescription(g_theStringDB->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetPersonalityDescription()));
-	SetPluralCivName(g_theStringDB->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetPluralCivName()));
-	SetCountryName(g_theStringDB->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetCountryName()));
-	SetSingularCivName(g_theStringDB->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetSingularCivName()));
+	SetPersonalityDescription(stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetPersonalityDescription()));
+	SetPluralCivName(stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetPluralCivName()));
+	SetCountryName(stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetCountryName()));
+	SetSingularCivName(stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetSingularCivName()));
 }
 
 //----------------------------------------------------------------------------

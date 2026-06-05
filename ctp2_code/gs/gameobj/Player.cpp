@@ -956,7 +956,7 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 
 	m_totalArmiesCreated++;
 	static MBCHAR buf[40];
-	snprintf(buf, sizeof(buf), "%s%d", g_theStringDB->GetNameStr("ARMY_NAME_PREFIX"), m_totalArmiesCreated);
+	snprintf(buf, sizeof(buf), "%s%d", stringdb_Get()->GetNameStr("ARMY_NAME_PREFIX"), m_totalArmiesCreated);
 	army->SetName(buf);
 
 	AddArmy(army, cause, FALSE, Unit());
@@ -3525,7 +3525,7 @@ void Player::ObsoleteNotices(AdvanceType advance)
 		{
 			if (rec->GetObsoleteAdvanceIndex(j) == advance)
 			{
-				so->AddAction(g_theStringDB->GetNameStr(rec->m_name));
+				so->AddAction(stringdb_Get()->GetNameStr(rec->m_name));
 				num_found++;
 				break;
 			}
@@ -3559,7 +3559,7 @@ void Player::BuildResearchDialog(AdvanceType advance)
 	if(m_disableChooseResearch)
 		return;
 
-	dstring = g_theStringDB->GetNameStr("PICK_NEW_DISCOVERY");
+	dstring = stringdb_Get()->GetNameStr("PICK_NEW_DISCOVERY");
 
 	if (dstring) {
 	sc.AddAdvance(advance);
@@ -6736,7 +6736,7 @@ MBCHAR *Player::GenerateDescriptionString(bool is_winner)
     SlicContext sc;
     sc.AddCivilisation(m_owner);
     stringutils_Interpret
-        (g_theStringDB->GetNameStr(ptag), sc, m_descrip_string, sizeof(m_descrip_string));
+        (stringdb_Get()->GetNameStr(ptag), sc, m_descrip_string, sizeof(m_descrip_string));
 
     return m_descrip_string;
 }

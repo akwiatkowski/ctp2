@@ -93,7 +93,7 @@ std::vector<std::string> collect_db_names(CTPDatabase<T> * db)
 		if (db->Get(i)->GetName() < 0)
 			id = db->Get(i)->GetNameText();
 		else
-			id = g_theStringDB->GetIdStr(db->Get(i)->GetName());
+			id = stringdb_Get()->GetIdStr(db->Get(i)->GetName());
 		Assert(id);
 		names.emplace_back(id ? id : "");
 	}
@@ -477,7 +477,7 @@ bool MapFile::LoadUnitTypes(nlohmann::json const & doc)
 	{
 		std::string const & name = names[i].get_ref<std::string const &>();
 		sint32 strId;
-		if (!g_theStringDB->GetStringID(name.c_str(), strId))
+		if (!stringdb_Get()->GetStringID(name.c_str(), strId))
 		{
 			DPRINTF(k_DBG_GAMESTATE,
 			        ("WARNING: Unit %s missing from string DB\n", name.c_str()));
@@ -629,7 +629,7 @@ bool MapFile::LoadAdvanceTypes(nlohmann::json const & doc)
 	{
 		std::string const & name = names[i].get_ref<std::string const &>();
 		sint32 strId;
-		if (!g_theStringDB->GetStringID(name.c_str(), strId))
+		if (!stringdb_Get()->GetStringID(name.c_str(), strId))
 		{
 			DPRINTF(k_DBG_GAMESTATE,
 			        ("WARNING: Advance %s missing from string DB\n", name.c_str()));

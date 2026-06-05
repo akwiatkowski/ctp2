@@ -3002,7 +3002,7 @@ bool World::ImportMap(MBCHAR const * filename)
 	// Add here a file does not exist message
 	if (!infile)
 	{
-		const char *str = g_theStringDB->GetNameStr("str_FileDoesNotExist");
+		const char *str = stringdb_Get()->GetNameStr("str_FileDoesNotExist");
 		if(str == nullptr)
 		{
 			str = "File does not exist: ";
@@ -3020,7 +3020,7 @@ bool World::ImportMap(MBCHAR const * filename)
 	MapPoint size (width, height);
 
 	if (size != m_size) {
-		const char *str = g_theStringDB->GetNameStr("str_MapSizesDiffer");
+		const char *str = stringdb_Get()->GetNameStr("str_MapSizesDiffer");
 		if(str == nullptr)
 		{
 			str = "The new map does not have the same size as the loaded map.\n The map sizes must fit. Map size old/new: ";

@@ -824,7 +824,7 @@ void Datum::ExportResolver(FILE  *outfile)
 			fprintf(outfile, "            if(m_%s[i] & 0x80000000) {\n", m_name);
 			fprintf(outfile, "                sint32 id = m_%s[i] & 0x7fffffff;\n", m_name);
 			fprintf(outfile, "                if(!g_the%sDB->GetNamedItem(id, m_%s[i])) {\n", m_subType, m_name);
-			fprintf(outfile, "                    c3errors_ErrorDialog(\"DB\", \"%%s not found in %s database\", g_theStringDB->GetNameStr(id));\n",
+			fprintf(outfile, "                    c3errors_ErrorDialog(\"DB\", \"%%s not found in %s database\", stringdb_Get()->GetNameStr(id));\n",
 					m_subType);
 			fprintf(outfile, "                }\n");
 			fprintf(outfile, "            } else if(m_%s[i] == 0x7fffffff){\n", m_name);
@@ -838,7 +838,7 @@ void Datum::ExportResolver(FILE  *outfile)
 			fprintf(outfile, "    if(m_%s & 0x80000000) {\n", m_name);
 			fprintf(outfile, "        sint32 id = m_%s & 0x7fffffff;\n", m_name);
 			fprintf(outfile, "        if(!g_the%sDB->GetNamedItem(id, m_%s)) {\n", m_subType, m_name);
-			fprintf(outfile, "            c3errors_ErrorDialog(\"DB\", \"%%s not found in %s database\", g_theStringDB->GetNameStr(id));\n",
+			fprintf(outfile, "            c3errors_ErrorDialog(\"DB\", \"%%s not found in %s database\", stringdb_Get()->GetNameStr(id));\n",
 					m_subType);
 			fprintf(outfile, "        }\n");
 			fprintf(outfile, "    } else if(m_%s == 0x7fffffff) {\n", m_name);

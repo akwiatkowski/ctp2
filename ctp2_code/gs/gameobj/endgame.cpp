@@ -324,7 +324,7 @@ BOOL EndGame::HaveEnoughECDs()
     sint32 i;
     for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
         const EndGameRecord *egrec = endgamedb_Get()->Get(i);
-		if(strcmp(g_theStringDB->GetIdStr(egrec->m_name), "ET_COMMUNICATION_DEVICE") != 0)
+		if(strcmp(stringdb_Get()->GetIdStr(egrec->m_name), "ET_COMMUNICATION_DEVICE") != 0)
 			continue;
 
         if(egrec->RequiredToAdvanceFromStage(m_currentStage) > m_numBuilt[i]) {
@@ -339,7 +339,7 @@ BOOL EndGame::HaveEnoughFields()
     sint32 i;
     for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
         const EndGameRecord *egrec = endgamedb_Get()->Get(i);
-		if(strcmp(g_theStringDB->GetIdStr(egrec->m_name), "CONTAINMENT_FIELD") != 0)
+		if(strcmp(stringdb_Get()->GetIdStr(egrec->m_name), "CONTAINMENT_FIELD") != 0)
 			continue;
 
         if(egrec->RequiredToAdvanceFromStage(m_currentStage) > m_numBuilt[i]) {
@@ -354,7 +354,7 @@ BOOL EndGame::HaveMaxSplicers()
     sint32 i;
     for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
         const EndGameRecord *egrec = endgamedb_Get()->Get(i);
-		if(strcmp(g_theStringDB->GetIdStr(egrec->m_name), "GENE_SEQUENCER") != 0)
+		if(strcmp(stringdb_Get()->GetIdStr(egrec->m_name), "GENE_SEQUENCER") != 0)
 			continue;
 
         if(m_numBuilt[i] < egrec->GetMaxAllowed()) {

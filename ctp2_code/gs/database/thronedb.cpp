@@ -161,7 +161,7 @@ sint32 ThroneDB::ParseAThrone(Token *throneToken, ThroneInfo *throneInfo)
 
 	throneToken->GetString(str);
 
-	if(!g_theStringDB->GetStringID(str, str_id)) {
+	if(!stringdb_Get()->GetStringID(str, str_id)) {
 		c3errors_ErrorDialog (throneToken->ErrStr(), "Could not find %s in string database", str);
 		g_abort_parse = TRUE;
 		return FALSE;
@@ -202,7 +202,7 @@ sint32 ThroneDB::ParseAThrone(Token *throneToken, ThroneInfo *throneInfo)
 			if(!CheckToken(throneToken, TOKEN_STRING, "Upgrade sound ID missing")) return(FALSE);
 			throneToken->GetString(str);
 
-			if(!g_theStringDB->GetStringID(str, str_id)) {
+			if(!stringdb_Get()->GetStringID(str, str_id)) {
 				c3errors_ErrorDialog (throneToken->ErrStr(), "Could not find %s in string database", str);
 				g_abort_parse = TRUE;
 				return FALSE;

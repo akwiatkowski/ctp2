@@ -178,7 +178,7 @@ void TurnYearStatus::BuildTurnLengthOverride()
 				{
 					fscanf(fp, "%d,%[^'\n']\n", &(s_pTurnLengthOverride[i].turn), &dummy);
 					memset(s_pTurnLengthOverride[i].text, 0, 32);
-					strncpy(s_pTurnLengthOverride[i].text, dummy, 31);
+					strlcpy(s_pTurnLengthOverride[i].text, dummy, sizeof(s_pTurnLengthOverride[i].text));
 				}
 			}
 

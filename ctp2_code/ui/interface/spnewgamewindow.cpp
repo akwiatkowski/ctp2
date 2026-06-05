@@ -25,11 +25,11 @@
 // Modifications from the original Activision code:
 //
 // - Fixed crash when the game tries to display invalid text strings,
-//   by Martin Gühmann.
+//   by Martin Gï¿½hmann.
 // - Tribe index check updated.
 // - Allowed for a number of players less than 3 to be displayed
 //   - JJB 2005/06/28
-// - Replaced old civilisation database by new one. (Aug 21st 2005 Martin Gühmann)
+// - Replaced old civilisation database by new one. (Aug 21st 2005 Martin Gï¿½hmann)
 // - Added setting up of single-player start and end age values. (11-Apr-2009 Maq)
 // - Ensure agesscreen::s_numAges is set when selecting a scenario directly.
 //
@@ -256,7 +256,7 @@ void SPNewGameWindow::Update( )
 	}
 
 	index = profiledb_Get()->GetDifficulty();
-//Added by Martin Gühmann
+//Added by Martin Gï¿½hmann
 //Makes sure that the game doesn't crash if the according map size string is invalid.
 	snprintf(s, sizeof(s), "%s", m_string->GetString(SP_NEWGAME_STR_CHIEFTAIN + index) );
 	m_spDifficulty->SetText( s );
@@ -292,13 +292,13 @@ void SPNewGameWindow::Update( )
 
 
 
-//Added by Martin Gühmann
+//Added by Martin Gï¿½hmann
 //Makes sure that the game doesn't crash if the according map size string is invalid.
 	snprintf(s, sizeof(s), "%s", m_string->GetString(SP_NEWGAME_STR_SMALL + index) );
 	m_spMapSize->SetText( s );
 
 	sint32 shape = profiledb_Get()->GetWorldShape();
-//Added by Martin Gühmann
+//Added by Martin Gï¿½hmann
 //Makes sure that the game doesn't crash if the according world shape string is invalid.
 	snprintf(s, sizeof(s), "%s", m_string->GetString(SP_NEWGAME_STR_EARTH + shape) );
 	m_worldShapeButton->SetText( s );
@@ -662,8 +662,8 @@ TwoChoiceButton::TwoChoiceButton(
 {
 		Assert(onoff == 1 || onoff == 0 );
 	m_choice = onoff;
-	strncpy(m_choices[0],choiceOff,k_AUI_LDL_MAXBLOCK);
-	strncpy(m_choices[1],choiceOn,k_AUI_LDL_MAXBLOCK);
+	strlcpy(m_choices[0], choiceOff, sizeof(m_choices[0]));
+	strlcpy(m_choices[1], choiceOn, sizeof(m_choices[1]));
 	SetText(m_choices[m_choice]);
 }
 

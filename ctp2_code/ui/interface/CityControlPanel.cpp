@@ -517,8 +517,7 @@ void CityControlPanel::UpdateBuildItem()
 	}
 
 	MBCHAR tempStr[100];
-	strncpy(tempStr, GetBuildName(head), 99);
-	tempStr[99] = 0;
+	strlcpy(tempStr, GetBuildName(head), sizeof(tempStr));
 	m_buildItemLabel->GetTextFont()->TruncateString(tempStr, m_buildItemLabel->Width());
 	m_buildItemLabel->SetText(tempStr);
 

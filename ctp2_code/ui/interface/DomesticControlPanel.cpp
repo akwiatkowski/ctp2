@@ -312,8 +312,7 @@ void DomesticControlPanel::UpdateScience()
 	}
 
 	MBCHAR tempStr[100];
-	strncpy(tempStr,currentAdvanceRecord->GetNameText(),99);
-	tempStr[99]=0;
+	strlcpy(tempStr, currentAdvanceRecord->GetNameText(), sizeof(tempStr));
 	m_scienceLabel->GetTextFont()->TruncateString(tempStr, m_scienceLabel->Width());
 	m_scienceLabel->SetText(tempStr);
 

@@ -437,7 +437,7 @@ AUI_ERRCODE HotseatListItem::InitCommonLdl(sint32 civ,
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		retval;
 
-	strncpy(m_email, email, 256);
+	strlcpy(m_email, email, sizeof(m_email));
 	m_civ = civ;
 	m_isHuman = isHuman;
 

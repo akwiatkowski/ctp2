@@ -222,7 +222,7 @@ void ScienceManagementDialog::UpdateScience()
 	}
 
 	MBCHAR tempStr[257];
-	strncpy(tempStr, currentAdvanceRecord->GetNameText(), 256);
+	strlcpy(tempStr, currentAdvanceRecord->GetNameText(), sizeof(tempStr));
 	m_scienceLabel->GetTextFont()->TruncateString(tempStr, m_scienceLabel->Width());
 	m_scienceLabel->SetText(tempStr);
 

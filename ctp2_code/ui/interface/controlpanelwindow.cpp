@@ -2262,7 +2262,7 @@ void ControlPanelWindow::AddMessage(Message &message,bool initializing)
 
 	MBCHAR tempStr[k_MAX_MSG_LEN];
 	memset((char *)tempStr, 0, k_MAX_MSG_LEN);
-	strncpy(tempStr, message.GetText(), k_MAX_MSG_LEN-1);
+	strlcpy(tempStr, message.GetText(), sizeof(tempStr));
 
 	MBCHAR *begin;
 	MBCHAR *end;
@@ -3735,8 +3735,7 @@ void cpw_NumberToCommas( uint64 number, MBCHAR *s )
 	temp -= (uint64)thousand * k_CPW_THOUSAND;
 
 	MBCHAR c[_MAX_PATH];
-	strncpy( c, stringdb_Get()->GetNameStr("str_ldl_comma"), sizeof(c) - 1 );
-	c[sizeof(c) - 1] = '\0';
+	strlcpy( c, stringdb_Get()->GetNameStr("str_ldl_comma"), sizeof(c) );
 
 	if ( trillion ) {
 		sprintf(s, "%ld%s%.3ld%s%.3ld%s%.3ld%s%.3" PRIu64, trillion, c, billion, c, million, c, thousand, c, temp );

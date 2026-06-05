@@ -47,7 +47,7 @@ void ui_TruncateString( aui_Control *control, MBCHAR *str )
 {
 
 	MBCHAR name[ _MAX_PATH + 1 ];
-	strncpy( name, str, _MAX_PATH );
+	strlcpy( name, str, sizeof(name) );
 
 	if ( !control->GetTextFont() )
 		control->TextReloadFont();

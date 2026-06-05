@@ -2645,7 +2645,7 @@ void EditQueue::OpenNationalManager(aui_Control *control, uint32 action, uint32 
 class ConfirmOverwriteQueueAction:public aui_Action
 {
   public:
-	ConfirmOverwriteQueueAction(MBCHAR *saveFileName, const MBCHAR *text) { m_saveFileName = saveFileName; strncpy(m_text, text, 256); m_text[256] = 0; }
+	ConfirmOverwriteQueueAction(MBCHAR *saveFileName, const MBCHAR *text) { m_saveFileName = saveFileName; 	strlcpy(m_text, text, sizeof(m_text)); }
 
 	void	Execute
 	(

@@ -1564,7 +1564,7 @@ void InfoBigListItem::Update()
 	subItem = (c3_Static *)GetChildByIndex(0);
 
 	MBCHAR name[ 80 + 1 ];
-	strncpy( name, m_name, 80 );
+	strlcpy( name, m_name, sizeof(name) );
 
 	if ( !subItem->GetTextFont() )
 		subItem->TextReloadFont();

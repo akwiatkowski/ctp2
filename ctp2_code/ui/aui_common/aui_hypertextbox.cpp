@@ -90,7 +90,7 @@ AUI_ERRCODE aui_HyperTextBox::InitCommon( )
 
 
 	memset( m_hyperTtffile, 0, sizeof( m_hyperTtffile ) );
-	strncpy( m_hyperTtffile, m_textttffile, MAX_PATH );
+	strlcpy( m_hyperTtffile, m_textttffile, sizeof( m_hyperTtffile ) );
 	m_hyperPointSize = m_textpointsize;
 	m_hyperBold = m_textbold;
 	m_hyperItalic = m_textitalic;

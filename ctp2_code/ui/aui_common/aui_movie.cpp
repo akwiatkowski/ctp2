@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -119,7 +119,7 @@ AUI_ERRCODE aui_Movie::SetFilename( MBCHAR const *filename )
 
 	if ( !filename ) return AUI_ERRCODE_INVALIDPARAM;
 
-	strncpy( m_filename, filename, MAX_PATH );
+	strlcpy( m_filename, filename, sizeof( m_filename ) );
 
 	m_format = (aui_MovieFormat *)
 		aui_ui_Get()->TheMemMap()->GetFileFormat( m_filename );

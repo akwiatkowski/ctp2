@@ -198,6 +198,7 @@ AUI_ERRCODE aui_Region::InitCommonLdl(MBCHAR const * ldlBlock)
 		{
 			MBCHAR tempStr[k_AUI_LDL_MAXBLOCK];
 
+			// TODO(phase-2): strncpy → strlcpy — non-standard length argument, requires manual review
 			strncpy(tempStr, ldlBlock, (lastDot - ldlBlock));
 			tempStr[lastDot - ldlBlock ] = '\0';
 

@@ -53,7 +53,7 @@ AUI_ERRCODE aui_Font::SetDescriptor( MBCHAR *descriptor )
 
 	if ( !descriptor ) return AUI_ERRCODE_INVALIDPARAM;
 
-	strncpy( m_descriptor, descriptor, MAX_PATH );
+	strlcpy( m_descriptor, descriptor, sizeof( m_descriptor ) );
 
 	return SetVariablesFromDescriptor();
 }

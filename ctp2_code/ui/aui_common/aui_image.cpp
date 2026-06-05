@@ -80,7 +80,7 @@ AUI_ERRCODE aui_Image::SetFilename( MBCHAR const *filename )
 
 	if ( !filename ) return AUI_ERRCODE_INVALIDPARAM;
 
-	strncpy( m_filename, filename, MAX_PATH );
+	strlcpy( m_filename, filename, sizeof( m_filename ) );
 
 	if (aui_ui_Get() && aui_ui_Get()->TheMemMap())
 	{

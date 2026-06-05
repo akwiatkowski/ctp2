@@ -165,9 +165,9 @@ registration_start:
 		 {
 			EU_Debug("FATAL AUDIO ERROR: No EAR DLL found!\n");
 
-			strcpy(message,
-				   "You need to install the EAR audio engine onto your system\n"\
-				   "(check your manual for instructions).");
+		strlcpy(message,
+			   "You need to install the EAR audio engine onto your system\n"\
+			   "(check your manual for instructions).", sizeof(message));
 
 		 }
 
@@ -185,10 +185,10 @@ registration_start:
 			if (EAR_AAA_Validate == 0)
 			 {	EU_Debug("FATAL AUDIO ERROR: EAR DLL found, but can't find EAR code!\n");
 
-				strcpy(message,
-					   "The EAR audio engine components on your system"\
-					   " are corrupt;\n try re-installing the audio package"\
-					   " that came with your hardware.");
+			strlcpy(message,
+				   "The EAR audio engine components on your system"\
+				   " are corrupt;\n try re-installing the audio package"\
+				   " that came with your hardware.", sizeof(message));
 
 			 }
 
@@ -196,10 +196,10 @@ registration_start:
 			 {	EU_Debug("FATAL AUDIO ERROR: EAR DLL found, but PROC handles in ear.h/ear_proc.cpp "\
 				         "not match those in the dll!\n");
 
-				strcpy(message,
-					   "There is a version mis-match between this software"\
-					   " and the audio engine on your system. Check your"\
-					   " manual for the right version numbers.");
+			strlcpy(message,
+				   "There is a version mis-match between this software"\
+				   " and the audio engine on your system. Check your"\
+				   " manual for the right version numbers.", sizeof(message));
 
 			 }
 
@@ -235,9 +235,9 @@ registration_start:
 		EAR_AAA_Validate(EAR_VALIDATION_NUMBER);
 #endif
 
-		strcpy(message,
+		strlcpy(message,
 			   "This program is unable to validate the audio engine"\
-			   " on your machine.");
+			   " on your machine.", sizeof(message));
 
 		goto startup_failed;
 
@@ -262,8 +262,8 @@ registration_start:
 
 		EU_Debug("FATAL AUDIO: Cannot find main window... make sure it has been created!\n");
 
-		strcpy(message, "The audio engine cannot find the program's main window.\n"\
-			   "Try closing other applications and restarting.");
+		strlcpy(message, "The audio engine cannot find the program's main window.\n"\
+			   "Try closing other applications and restarting.", sizeof(message));
 
 		goto startup_failed;
 
@@ -324,7 +324,7 @@ registration_start:
 			 }
 
 			else if (result == EAR_ERR_USERCANCELLED)
-			 {	strcpy(message, "Audio engine did not load.");
+			 {				strlcpy(message, "Audio engine did not load.", sizeof(message));
 				goto startup_failed;
 			 }
 
@@ -338,7 +338,7 @@ registration_start:
 
 
 		else
-		 {	strcpy(message, "Some unknown error occurred while loading the audio engine.");
+		 {				strlcpy(message, "Some unknown error occurred while loading the audio engine.", sizeof(message));
 			goto startup_failed;
 
 		 }

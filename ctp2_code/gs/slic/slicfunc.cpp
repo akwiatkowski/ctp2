@@ -461,6 +461,7 @@ SlicFunc::SlicFunc(char const * name, SLIC_FUNC_RET_TYPE type)
 	m_type = type;
 	m_name = new char[strlen(name) + 2];
 	m_name[0] = '_';
+	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 	strcpy(m_name + 1, name);
 	m_result.m_int = 0;
 }
@@ -549,9 +550,9 @@ SFN_ERROR Slic_AddMessage::Call(SlicArgList *args)
 	if(!(args->m_argValue[1].m_segment)) {
 		SlicSymbolData *sym = args->m_argValue[1].m_symbol;
 		if(sym) {
-			strcpy(g_missingSegment, sym->GetName());
+			strlcpy(g_missingSegment, sym->GetName(), sizeof(g_missingSegment));
 		} else {
-			strcpy(g_missingSegment, "???");
+			strlcpy(g_missingSegment, "???", sizeof(g_missingSegment));
 		}
 		return SFN_ERROR_NOT_SEGMENT;
 	}
@@ -589,9 +590,9 @@ SFN_ERROR Slic_Message::Call(SlicArgList *args)
 	if(!(args->m_argValue[1].m_segment)) {
 		SlicSymbolData *sym = args->m_argValue[1].m_symbol;
 		if(sym) {
-			strcpy(g_missingSegment, sym->GetName());
+			strlcpy(g_missingSegment, sym->GetName(), sizeof(g_missingSegment));
 		} else {
-			strcpy(g_missingSegment, "???");
+			strlcpy(g_missingSegment, "???", sizeof(g_missingSegment));
 		}
 		return SFN_ERROR_NOT_SEGMENT;
 	}
@@ -703,9 +704,9 @@ SFN_ERROR Slic_EyePoint::Call(SlicArgList *args)
 		if(!(args->m_argValue[2].m_segment)) {
 			SlicSymbolData *sym = args->m_argValue[2].m_symbol;
 			if(sym) {
-				strcpy(g_missingSegment, sym->GetName());
+				strlcpy(g_missingSegment, sym->GetName(), sizeof(g_missingSegment));
 			} else {
-				strcpy(g_missingSegment, "???");
+				strlcpy(g_missingSegment, "???", sizeof(g_missingSegment));
 			}
 			return SFN_ERROR_NOT_SEGMENT;
 		}
@@ -2606,9 +2607,9 @@ SFN_ERROR Slic_KillMessages::Call(SlicArgList *args)
 	if(!(args->m_argValue[1].m_segment)) {
 		SlicSymbolData *sym = args->m_argValue[1].m_symbol;
 		if(sym) {
-			strcpy(g_missingSegment, sym->GetName());
+			strlcpy(g_missingSegment, sym->GetName(), sizeof(g_missingSegment));
 		} else {
-			strcpy(g_missingSegment, "???");
+			strlcpy(g_missingSegment, "???", sizeof(g_missingSegment));
 		}
 		return SFN_ERROR_NOT_SEGMENT;
 	}
@@ -3054,9 +3055,9 @@ SFN_ERROR Slic_EnableCloseMessage::Call(SlicArgList *args)
 	if(!(args->m_argValue[1].m_segment)) {
 		SlicSymbolData *sym = args->m_argValue[1].m_symbol;
 		if(sym) {
-			strcpy(g_missingSegment, sym->GetName());
+			strlcpy(g_missingSegment, sym->GetName(), sizeof(g_missingSegment));
 		} else {
-			strcpy(g_missingSegment, "???");
+			strlcpy(g_missingSegment, "???", sizeof(g_missingSegment));
 		}
 		return SFN_ERROR_NOT_SEGMENT;
 	}

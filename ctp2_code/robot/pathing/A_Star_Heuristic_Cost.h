@@ -36,6 +36,8 @@
 
 
 
+#include <memory>
+
 struct MapPointData;
 #include "gs/world/MapPoint.h"
 #include "gs/gameobj/XY_Coordinates.h"
@@ -65,10 +67,10 @@ class A_Star_Heuristic_Cost
 
 private:
 
-	double * raw_min_movement_costs;
+	std::unique_ptr<double[]> raw_min_movement_costs;
 
 
-	double * relaxed_min_movement_costs;
+	std::unique_ptr<double[]> relaxed_min_movement_costs;
 
 	sint32 rows;
 	sint32 columns;

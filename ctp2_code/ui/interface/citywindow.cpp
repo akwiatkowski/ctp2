@@ -889,7 +889,7 @@ void CityWindow::UpdateBuildTabs()
 		&& m_cityData->GetBuildQueue()->GetHead()->m_category != k_GAME_OBJ_TYPE_INFRASTRUCTURE)
 			snprintf(buf, sizeof(buf), "%d", turns);
 		else
-			strcpy(buf, "---");
+			strlcpy(buf, "---", sizeof(buf));
 		turnCountButton->SetText(buf);
 	}
 
@@ -1595,7 +1595,7 @@ void CityWindow::BuildListSelect(aui_Control *control, uint32 action, uint32 dat
 		}
 		else
 		{
-			strcpy(buf, "---");
+			strlcpy(buf, "---", sizeof(buf));
 		}
 		turnCountButton->SetText(buf);
 	}
@@ -1758,12 +1758,13 @@ void CityWindow::PopulateQueueList(CityData *cd, ctp2_ListBox *lb, char *itemBlo
 				//Added by Martin G�hmann to remove number of turn
 				//display in the Build Manager and City Manager
 				//if infrastructure or capilization is displayed.
-				if(turns < 0 || turns == 0x7fffffff
-				|| bn->m_category == k_GAME_OBJ_TYPE_INFRASTRUCTURE
-				|| bn->m_category == k_GAME_OBJ_TYPE_CAPITALIZATION)
-				{
-					strcpy(buf, "---");
-				}
+			if(turns < 0 || turns == 0x7fffffff
+			|| bn->m_category == k_GAME_OBJ_TYPE_INFRASTRUCTURE
+			|| bn->m_category == k_GAME_OBJ_TYPE_CAPITALIZATION
+			)
+			{
+				strlcpy(buf, "---", sizeof(buf));
+			}
 				else
 				{
 					snprintf(buf, sizeof(buf), "%d", turns);
@@ -2102,9 +2103,9 @@ void CityWindow::SetItemDescription(const IconRecord *icon, SlicContext &sc, ctp
 	if(icon) {
 		MBCHAR dammit[1024];
 		if(!icon->GetLargeIcon() || stricmp(icon->GetLargeIcon(), "null") == 0) {
-			strcpy(dammit, icon->GetIcon());
+			strlcpy(dammit, icon->GetIcon(), sizeof(dammit));
 		} else {
-			strcpy(dammit, icon->GetLargeIcon());
+			strlcpy(dammit, icon->GetLargeIcon(), sizeof(dammit));
 		}
 		if(imageBox) {
 			imageBox->SetImage(dammit);
@@ -2149,9 +2150,9 @@ void CityWindow::SetItemDescription(const IconRecord *icon, SlicContext &sc, ctp
 			stringutils_Interpret(allocatedText, sc, interpText);
 			delete [] allocatedText;
 		} else if(gltext) {
-			strcpy(interpText, gltext);
+			strlcpy(interpText, gltext, sizeof(interpText));
 		} else {
-			strcpy(interpText, icon->GetStatText());
+			strlcpy(interpText, icon->GetStatText(), sizeof(interpText));
 		}
 
 		hyperTextBox->SetHyperText(interpText);
@@ -2178,9 +2179,9 @@ void CityWindow::SetItemIconOnly(const IconRecord *icon, SlicContext &sc, ctp2_S
 	if(icon) {
 		MBCHAR dammit[1024];
 		if(!icon->GetLargeIcon() || stricmp(icon->GetLargeIcon(), "null") == 0) {
-			strcpy(dammit, icon->GetIcon());
+			strlcpy(dammit, icon->GetIcon(), sizeof(dammit));
 		} else {
-			strcpy(dammit, icon->GetLargeIcon());
+			strlcpy(dammit, icon->GetLargeIcon(), sizeof(dammit));
 		}
 		if(imageBox) {
 			imageBox->SetImage(dammit);

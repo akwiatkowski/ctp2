@@ -58,27 +58,33 @@ class TradeRouteData : public GameObj,
 {
 private:
 
-	double m_transportCost;
-	PLAYER_INDEX m_owner;
-	PLAYER_INDEX m_payingFor;
+	// Default-init enum + scalar fields.  to_json reads every field;
+	// if a TradeRouteData is constructed without going through one of
+	// the value-setting ctors (e.g. the id-only restore path), the
+	// enum reads tripped UBSan with 'load of value N, which is not a
+	// valid value for type ROUTE_TYPE' — same pattern as TradeOfferData
+	// (commit 097428f4).
+	double m_transportCost              = 0.0;
+	PLAYER_INDEX m_owner                = PLAYER_UNASSIGNED;
+	PLAYER_INDEX m_payingFor            = PLAYER_UNASSIGNED;
 	Army m_piratingArmy;
 
-	ROUTE_TYPE m_sourceRouteType;
-	sint32 m_sourceResource;
-	BOOL m_passesThrough[k_MAX_PLAYERS];
-	BOOL m_crossesWater;
-	BOOL m_isActive;
+	ROUTE_TYPE m_sourceRouteType        = ROUTE_TYPE_RESOURCE;
+	sint32 m_sourceResource             = -1;
+	BOOL m_passesThrough[k_MAX_PLAYERS] = {};
+	BOOL m_crossesWater                 = FALSE;
+	BOOL m_isActive                     = FALSE;
 
-	uint32	m_color;
-	uint32	m_outline;
+	uint32	m_color                     = 0;
+	uint32	m_outline                   = 0;
 
-	sint32	m_selectedIndex;
+	sint32	m_selectedIndex             = -1;
 
-	BOOL m_valid;
+	BOOL m_valid                        = FALSE;
 
-	sint32 m_gold_in_return;
+	sint32 m_gold_in_return             = 0;
 
-	sint32	m_path_selection_state;
+	sint32	m_path_selection_state      = 0;
 
 
 

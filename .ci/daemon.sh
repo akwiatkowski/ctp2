@@ -33,6 +33,7 @@ POLL_INTERVAL="${POLL_INTERVAL:-3}"
 TIER_A_DEBOUNCE="${TIER_A_DEBOUNCE:-5}"
 ENABLE_TIER_B="${ENABLE_TIER_B:-1}"
 ENABLE_TIER_C="${ENABLE_TIER_C:-1}"
+ENABLE_TIER_D="${ENABLE_TIER_D:-1}"
 
 mkdir -p "$CI_ROOT/log"
 
@@ -58,7 +59,7 @@ log() {
 
 last_tier_a_run=0
 
-log "daemon started (PID $$ POLL=$POLL_INTERVAL TIER_A_DEBOUNCE=$TIER_A_DEBOUNCE ENABLE_TIER_B=$ENABLE_TIER_B ENABLE_TIER_C=$ENABLE_TIER_C)"
+log "daemon started (PID $$ POLL=$POLL_INTERVAL TIER_A_DEBOUNCE=$TIER_A_DEBOUNCE ENABLE_TIER_B=$ENABLE_TIER_B ENABLE_TIER_C=$ENABLE_TIER_C ENABLE_TIER_D=$ENABLE_TIER_D)"
 
 while :; do
     cd "$CTP2_ROOT"
@@ -84,6 +85,18 @@ while :; do
                     "$CI_ROOT/tiers/tier-c.sh" >> "$LOG_FILE" 2>&1
                 else
                     log "tier-b status=$tier_b_status; skipping tier-c"
+                fi
+            fi
+            if [[ "$ENABLE_TIER_D" == "1" && -x "$CI_ROOT/tiers/tier-d.sh" ]]; then
+                # Tier D runs even if Tier C went red — UBSan catches a
+                # different bug class and the two findings are independent.
+                # But still gate on Tier B (no point under a broken build).
+                tier_b_status="$(jq -r '.tier_b.status // "unknown"' "$CI_ROOT/state.json" 2>/dev/null)"
+                if [[ "$tier_b_status" == "green" ]]; then
+                    log "tier-b green; running tier-d (UBSan)"
+                    "$CI_ROOT/tiers/tier-d.sh" >> "$LOG_FILE" 2>&1
+                else
+                    log "tier-b status=$tier_b_status; skipping tier-d"
                 fi
             fi
             echo "$current_head" > "$LAST_HEAD_FILE"

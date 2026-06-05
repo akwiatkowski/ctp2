@@ -2,7 +2,7 @@
 # Atomically merge a tier result into .ci/state.json.
 #
 # Usage:
-#   update_state.py --tier {a|b|c} --result <path-to-tier-result.json>
+#   update_state.py --tier {a|b|c|d} --result <path-to-tier-result.json>
 #       [--head-sha <sha>] [--head-subject <text>] [--duration-s <float>]
 #       [--status {green|red|running}] [--running-tier {A|B|C}]
 #       [--clear-running] [--failure-context-path <path>]
@@ -52,6 +52,7 @@ def load_state():
         "tier_a": None,
         "tier_b": None,
         "tier_c": None,
+        "tier_d": None,
     }
 
 
@@ -68,7 +69,7 @@ def atomic_write_json(path: Path, payload: dict):
 
 def recompute_overall_status(state):
     statuses = []
-    for tier in ("tier_a", "tier_b", "tier_c"):
+    for tier in ("tier_a", "tier_b", "tier_c", "tier_d"):
         t = state.get(tier)
         if t is None:
             continue
@@ -92,7 +93,7 @@ def update_status_red_sentinel(overall):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tier", choices=["a", "b", "c"])
+    ap.add_argument("--tier", choices=["a", "b", "c", "d"])
     ap.add_argument("--result", help="path to JSON file produced by parse_doctest_xml.py")
     ap.add_argument("--head-sha")
     ap.add_argument("--head-subject")

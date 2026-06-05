@@ -269,7 +269,7 @@ sint32 victorywin_Initialize( sint32 type )
 		return 0;
 	}
 
-	strcpy(windowBlock, "VictoryWindow");
+	strlcpy(windowBlock, "VictoryWindow", sizeof(windowBlock));
 
 	g_victoryWindow = new VictoryWindow(&errcode);
 	Assert( AUI_NEWOK(g_victoryWindow, errcode) );
@@ -667,7 +667,7 @@ sint32 victorywin_UpdateData( sint32 type )
 
 
 
-	strcpy(strbuf, pl->GetDescriptionString());
+	strlcpy(strbuf, pl->GetDescriptionString(), sizeof(strbuf));
 
 
 	if (s_highScoreWin) {
@@ -728,7 +728,7 @@ AUI_ERRCODE HighScoreListItem::InitCommonLdl(MBCHAR *name, sint32 score, MBCHAR 
 
 	m_score = score;
 
-	strcpy(m_name,name);
+	strlcpy(m_name, name, sizeof(m_name));
 
 	c3_Static		*subItem;
 
@@ -794,7 +794,7 @@ HighScoreWindowPopup::HighScoreWindowPopup( sint32 type )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	strcpy(windowBlock, "HighScoreWindowPopup");
+	strlcpy(windowBlock, "HighScoreWindowPopup", sizeof(windowBlock));
 
 	{
 		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
@@ -923,7 +923,7 @@ sint32 HighScoreWindowPopup::UpdateData( )
 	AUI_ERRCODE		retval;
 
 	m_list->Clear();
-	strcpy(ldlBlock,"HighScoreListItem");
+	strlcpy(ldlBlock, "HighScoreListItem", sizeof(ldlBlock));
 	HighScoreListItem *item = nullptr;
 	HighScoreInfo *info = nullptr;
 
@@ -953,10 +953,11 @@ sint32 victorywin_GetWonderFilename( sint32 index, MBCHAR *name )
 
 	if ( index < 0 ) return FALSE;
 
-	strcpy(filename,g_theWonderDB->Get(index)->GetDefaultIcon()->GetIcon());
+	strlcpy(filename, g_theWonderDB->Get(index)->GetDefaultIcon()->GetIcon(), sizeof(filename));
 
 	if (civpaths_Get()->FindFile(C3DIR_PICTURES, filename, strbuf))
 	{
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(name, filename);
 		return TRUE;
 	}
@@ -981,7 +982,7 @@ sint32 victorywin_LoadGraphData( )
 
 
 	s_graphList->Clear();
-	strcpy(ldlBlock,"VictoryPlayerListItem");
+	strlcpy(ldlBlock, "VictoryPlayerListItem", sizeof(ldlBlock));
 	InfoPlayerListItem *pItem = nullptr;
 
 
@@ -1059,7 +1060,7 @@ sint32 victorywin_LoadScoreData( )
 	sint32 curPlayer =  selitem_Get()->GetVisiblePlayer();
 
 	s_scoreList->Clear();
-	strcpy(ldlBlock,"VictoryScoreListItem");
+	strlcpy(ldlBlock, "VictoryScoreListItem", sizeof(ldlBlock));
 	InfoScoreListItem *item = nullptr;
 	InfoScoreLabelListItem *label = nullptr;
 
@@ -1209,31 +1210,32 @@ sint32 victorywin_GetRankName( sint32 player, MBCHAR *name, sint32 gameResult )
 
 	MBCHAR strbuf[256];
 
-	strcpy(strbuf,"NULL");
+	strlcpy(strbuf, "NULL", sizeof(strbuf));
 
 	sint32 curScore = infowin_GetCivScore(player);
 
 	if (gameResult == k_VICWIN_DEFEAT)
 	{
 
-		if (curScore <= 5) strcpy(strbuf,s_stringTable->GetString(9));
-		else if ((curScore > 5) && (curScore <= 10)) strcpy(strbuf,s_stringTable->GetString(10));
-		else if ((curScore > 10) && (curScore <= 15)) strcpy(strbuf,s_stringTable->GetString(11));
-		else if ((curScore > 15) && (curScore <= 20)) strcpy(strbuf,s_stringTable->GetString(12));
-		else if ((curScore > 20) && (curScore <= 25)) strcpy(strbuf,s_stringTable->GetString(13));
-		else if (curScore >= 26) strcpy(strbuf,s_stringTable->GetString(14));
+		if (curScore <= 5) strlcpy(strbuf, s_stringTable->GetString(9), sizeof(strbuf));
+		else if ((curScore > 5) && (curScore <= 10)) strlcpy(strbuf, s_stringTable->GetString(10), sizeof(strbuf));
+		else if ((curScore > 10) && (curScore <= 15)) strlcpy(strbuf, s_stringTable->GetString(11), sizeof(strbuf));
+		else if ((curScore > 15) && (curScore <= 20)) strlcpy(strbuf, s_stringTable->GetString(12), sizeof(strbuf));
+		else if ((curScore > 20) && (curScore <= 25)) strlcpy(strbuf, s_stringTable->GetString(13), sizeof(strbuf));
+		else if (curScore >= 26) strlcpy(strbuf, s_stringTable->GetString(14), sizeof(strbuf));
 	}
 	else
 	{
 
-		if (curScore <= 20) strcpy(strbuf,s_stringTable->GetString(15));
-		else if ((curScore > 20) && (curScore <= 40)) strcpy(strbuf,s_stringTable->GetString(16));
-		else if ((curScore > 40) && (curScore <= 60)) strcpy(strbuf,s_stringTable->GetString(17));
-		else if ((curScore > 60) && (curScore <= 80)) strcpy(strbuf,s_stringTable->GetString(18));
-		else if ((curScore > 80) && (curScore <= 100)) strcpy(strbuf,s_stringTable->GetString(19));
-		else if (curScore > 100) strcpy(strbuf,s_stringTable->GetString(20));
+		if (curScore <= 20) strlcpy(strbuf, s_stringTable->GetString(15), sizeof(strbuf));
+		else if ((curScore > 20) && (curScore <= 40)) strlcpy(strbuf, s_stringTable->GetString(16), sizeof(strbuf));
+		else if ((curScore > 40) && (curScore <= 60)) strlcpy(strbuf, s_stringTable->GetString(17), sizeof(strbuf));
+		else if ((curScore > 60) && (curScore <= 80)) strlcpy(strbuf, s_stringTable->GetString(18), sizeof(strbuf));
+		else if ((curScore > 80) && (curScore <= 100)) strlcpy(strbuf, s_stringTable->GetString(19), sizeof(strbuf));
+		else if (curScore > 100) strlcpy(strbuf, s_stringTable->GetString(20), sizeof(strbuf));
 	}
 
+	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 	strcpy(name, strbuf);
 	return 0;
 }

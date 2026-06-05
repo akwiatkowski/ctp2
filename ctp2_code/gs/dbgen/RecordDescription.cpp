@@ -548,7 +548,8 @@ void RecordDescription::ExportMethods(FILE *outfile)
 	fprintf(outfile, "    bool GetHasGovernmentsModified() const { return m_hasGovernmentsModified; }\n");
 	if (m_hasGovernmentsModified)
     {
-	    fprintf(outfile, "    sint32 GenericGetNumGovernmentsModified() const { return m_numGovernmentsModified; }\n");
+	    // m_GovernmentsModified is now std::vector<sint32> via dbgen V migration.
+	    fprintf(outfile, "    sint32 GenericGetNumGovernmentsModified() const { return static_cast<sint32>(m_GovernmentsModified.size()); }\n");
 	    fprintf(outfile, "    sint32 GenericGetGovernmentsModifiedIndex(sint32 index) const {");
 		fprintf(outfile," return GetGovernmentsModifiedIndex(index); }\n");
     }
@@ -933,7 +934,7 @@ void RecordDescription::ExportParser(FILE *outfile)
 		fprintf(outfile, "                DBERROR((\"Modified record invalid- must be Government identifier or description.  No quotes, No spaces.\"));\n");
 		fprintf(outfile, "                return 0;\n");
 		fprintf(outfile, "            }\n");
-		fprintf(outfile, "            g_theGovernmentDB->ParseRecordInArray(lex, (sint32 **)&m_GovernmentsModified, &m_numGovernmentsModified);\n");
+		fprintf(outfile, "            g_theGovernmentDB->ParseRecordInArray(lex, m_GovernmentsModified);\n");
 		fprintf(outfile, "            tok = lex->GetToken();\n");
 		fprintf(outfile, "        } while (tok == k_Token_ModifiedDelimiter);\n");
 		fprintf(outfile, "    }\n");
@@ -1110,7 +1111,7 @@ void RecordDescription::ExportTokenCases(FILE *outfile)
 					fprintf(outfile, "                if(!CTPRecord::ParseFileInArray(lex, &m_%s, &m_num%s))\n", dat->m_name, dat->m_name);
 					break;
 				case DATUM_RECORD:
-					fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, (sint32 **)&m_%s, &m_num%s))\n", dat->m_subType, dat->m_name, dat->m_name);
+					fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, m_%s))\n", dat->m_subType, dat->m_name);
 					break;
 				case DATUM_STRUCT:
 					fprintf(outfile, "                if(!%sRecord::%s::ParseInArray(lex, &m_%s, &m_num%s))\n", m_name, dat->m_subType, dat->m_name, dat->m_name);
@@ -1242,7 +1243,7 @@ void RecordDescription::ExportDefaultToken(FILE *outfile)
 				break;
 			case DATUM_RECORD:
 				fprintf(outfile, "                Assert(false)\n");
-				fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, &m_%s, &m_num%s)) {\n", dat->m_subType, dat->m_name, dat->m_name);
+				fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, m_%s)) {\n", dat->m_subType, dat->m_name);
 				break;
 			case DATUM_STRUCT:
 				fprintf(outfile, "                if(!%sRecord::%s::ParseInArray(lex, &m_%s, &m_num%s)) {\n", m_name, dat->m_subType, dat->m_name, dat->m_name);

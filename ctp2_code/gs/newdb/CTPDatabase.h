@@ -134,6 +134,9 @@ public:
 
 	bool GetRecordFromLexer(DBLexer *lex, sint32 &index);
 	bool GetCurrentRecordFromLexer(DBLexer *lex, sint32 &index);
+	// Vector-based primary form for unbounded grow.
+	bool ParseRecordInArray(DBLexer *lex, std::vector<sint32> &array);
+	// Legacy T**+count adapter; thin wrapper kept while consumer code migrates.
 	bool ParseRecordInArray(DBLexer *lex, sint32 **array, sint32 *numElements);
 	bool ParseRecordInArray(DBLexer *lex, sint32 *array, sint32 *numElements, sint32 maxSize);
 	bool ResolveReferences();

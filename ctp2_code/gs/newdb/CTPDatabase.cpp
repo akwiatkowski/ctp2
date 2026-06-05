@@ -479,21 +479,13 @@ template <class T> bool CTPDatabase<T>::GetCurrentRecordFromLexer(DBLexer *lex, 
 	}
 }
 
-template <class T> bool CTPDatabase<T>::ParseRecordInArray(DBLexer *lex, sint32 **array, sint32 *numElements)
+// Vector-based primary form for unbounded grow.
+template <class T> bool CTPDatabase<T>::ParseRecordInArray(DBLexer *lex, std::vector<sint32> &array)
 {
 	sint32 tok = lex->GetToken();
 	if(tok != k_Token_Name) {
 		DBERROR(("Expected record name"));
 		return false;
-	}
-
-	if(*numElements > 0) {
-		sint32 *oldArray = *array;
-		*array = new sint32[*numElements + 1];
-		memcpy(*array, oldArray, (*numElements) * sizeof(sint32));
-		delete oldArray;
-	} else {
-		*array = new sint32[1];
 	}
 
 	sint32 i;
@@ -502,12 +494,10 @@ template <class T> bool CTPDatabase<T>::ParseRecordInArray(DBLexer *lex, sint32 
 			(!strcmp(stringdb_Get()->GetIdStr(m_records[i]->m_name), lex->GetTokenText()))) ||
 		   ((m_records[i]->m_name < 0) &&
 			(!strcmp(m_records[i]->GetNameText(), lex->GetTokenText())))) {
-				(*array)[*numElements] = i;
-				*numElements += 1;
+				array.push_back(i);
 				return true;
 			}
 	}
-
 
 	sint32 strId;
 	if(!stringdb_Get()->GetStringID(lex->GetTokenText(), strId)) {
@@ -515,12 +505,23 @@ template <class T> bool CTPDatabase<T>::ParseRecordInArray(DBLexer *lex, sint32 
 	}
 
 	if(stringdb_Get()->GetStringID(lex->GetTokenText(), strId)) {
-		(*array)[*numElements] = (strId | 0x80000000);
-		*numElements += 1;
+		array.push_back(strId | 0x80000000);
 		return true;
 	} else {
 		return false;
 	}
+}
+
+// Legacy T**+count adapter — copies into vector, delegates, copies out.
+template <class T> bool CTPDatabase<T>::ParseRecordInArray(DBLexer *lex, sint32 **array, sint32 *numElements)
+{
+	std::vector<sint32> tmp(*array, *array + *numElements);
+	if(!ParseRecordInArray(lex, tmp)) return false;
+	delete [] *array;
+	*array = new sint32[tmp.size()];
+	std::copy(tmp.begin(), tmp.end(), *array);
+	*numElements = static_cast<sint32>(tmp.size());
+	return true;
 }
 
 template <class T> bool CTPDatabase<T>::ParseRecordInArray(DBLexer *lex, sint32 *array, sint32 *numElements, sint32 maxSize)

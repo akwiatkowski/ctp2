@@ -690,7 +690,7 @@ void MemberClass::ExportTokenCases(FILE *outfile, char *recordName)
 					fprintf(outfile, "                if(!CTPRecord::ParseFileInArray(lex, &m_%s, &m_num%s)) {\n", dat->m_name, dat->m_name);
 					break;
 				case DATUM_RECORD:
-					fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, &m_%s, &m_num%s)) {\n", dat->m_subType, dat->m_name, dat->m_name);
+					fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, m_%s)) {\n", dat->m_subType, dat->m_name);
 					break;
 				case DATUM_STRUCT:
 					fprintf(outfile, "                if(!%sRecord::%s::ParseInArray(lex, &m_%s, &m_num%s)) {\n", recordName, dat->m_subType, dat->m_name, dat->m_name);
@@ -815,7 +815,7 @@ void MemberClass::ExportDefaultToken(FILE *outfile, char *recordName)
 				break;
 			case DATUM_RECORD:
 				fprintf(outfile, "                Assert(false)\n");
-				fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, &m_%s, &m_num%s)) {\n", dat->m_subType, dat->m_name, dat->m_name);
+				fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, m_%s)) {\n", dat->m_subType, dat->m_name);
 				break;
 			case DATUM_STRUCT:
 				fprintf(outfile, "                if(!%sRecord::%s::ParseInArraySequential(lex, &m_%s, &m_num%s)) {\n", recordName, dat->m_subType, dat->m_name, dat->m_name);

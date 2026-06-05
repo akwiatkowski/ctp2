@@ -184,6 +184,7 @@ bool Datum::IsUnboundedPodArray() const
 	case DATUM_INT:
 	case DATUM_FLOAT:
 	case DATUM_STRINGID:
+	case DATUM_RECORD:    // stored as sint32 index — same vector form
 		return true;
 	default:
 		return false;
@@ -918,11 +919,16 @@ void Datum::ExportResolver(FILE  *outfile)
 {
 	if(m_type == DATUM_RECORD)
 	{
-		if(m_maxSize >= 0)
+		if(m_maxSize >= 0 || m_maxSize == k_MAX_SIZE_VARIABLE)
 		{
+			char const *count = IsUnboundedPodArray()
+				? "static_cast<sint32>(m_%s.size())"
+				: "m_num%s";
 			fprintf(outfile, "    {\n");
 			fprintf(outfile, "        sint32 i;\n");
-			fprintf(outfile, "        for(i = 0; i < m_num%s; i++) {\n", m_name);
+			fprintf(outfile, "        for(i = 0; i < ");
+			fprintf(outfile, count, m_name);
+			fprintf(outfile, "; i++) {\n");
 			fprintf(outfile, "            if(m_%s[i] & 0x80000000) {\n", m_name);
 			fprintf(outfile, "                sint32 id = m_%s[i] & 0x7fffffff;\n", m_name);
 			fprintf(outfile, "                if(!g_the%sDB->GetNamedItem(id, m_%s[i])) {\n", m_subType, m_name);

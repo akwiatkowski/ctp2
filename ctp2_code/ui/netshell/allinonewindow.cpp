@@ -1738,10 +1738,10 @@ BOOL AllinoneWindow::SetScenarioInfo(SaveInfo *info)
 
 	m_scenInfo.isScenario = (uint8)info->isScenario;
 	m_scenInfo.m_haveSavedGame = TRUE;
-	strcpy(m_scenInfo.m_fileName, info->fileName);
-	strcpy(m_scenInfo.m_gameName, scenario_name_buf());
+	strlcpy(m_scenInfo.m_fileName, info->fileName, sizeof(m_scenInfo.m_fileName));
+	strlcpy(m_scenInfo.m_gameName, scenario_name_buf(), sizeof(m_scenInfo.m_gameName));
 	if(info->isScenario && !info->scenarioName.empty()) {
-		strcpy(m_scenInfo.m_scenarioName, info->scenarioName.c_str());
+		strlcpy(m_scenInfo.m_scenarioName, info->scenarioName.c_str(), sizeof(m_scenInfo.m_scenarioName));
 		ScenarioPack *pack;
 		Scenario *scen;
 		if(!civscenarios_Get()->FindScenario(m_scenInfo.m_scenarioName,
@@ -1798,7 +1798,7 @@ BOOL AllinoneWindow::SetScenarioInfo(SaveInfo *info)
 void AllinoneWindow::SetupNewScenario()
 {
 	m_scenInfo.isScenario = TRUE;
-	strcpy(m_scenInfo.m_gameName, scenario_name_buf());
+	strlcpy(m_scenInfo.m_gameName, scenario_name_buf(), sizeof(m_scenInfo.m_gameName));
 	m_scenInfo.m_fileName[0] = 0;
 	m_scenInfo.m_startInfoType = STARTINFOTYPE_NONE;
 	m_scenInfo.m_haveSavedGame = FALSE;
@@ -2396,6 +2396,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 
 						ScenarioPack *pack;
 						Scenario *scen;
+						// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 						strcpy(scenario_name_buf(), m_scenInfo.m_gameName);
 						if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 														&pack, &scen)) {
@@ -2416,6 +2417,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 						UpdateTribeSwitches();
 
 					} else if(m_scenInfo.m_scenarioName[0] != 0) {
+						// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 						strcpy(scenario_name_buf(), m_scenInfo.m_scenarioName);
 						ScenarioPack *pack;
 						Scenario *scen;
@@ -3913,6 +3915,7 @@ void AllinoneWindow_SetupGameForLaunch( )
 
 		ScenarioPack *pack;
 		Scenario *scen;
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(scenario_name_buf(), scenInfo->m_gameName);
 		if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 										&pack, &scen)) {
@@ -3922,6 +3925,7 @@ void AllinoneWindow_SetupGameForLaunch( )
 		}
 	} else {
 		if(scenInfo->m_scenarioName[0] != 0) {
+			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 			strcpy(scenario_name_buf(), scenInfo->m_scenarioName);
 			ScenarioPack *pack;
 			Scenario *scen;

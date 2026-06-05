@@ -299,14 +299,14 @@ void CivilisationData::SetLeaderName(const MBCHAR *s)
 {
 	Assert(s[0]!=0) ;
 	Assert(s!=nullptr) ;
-	strcpy(m_leader_name, s) ;
+	strlcpy(m_leader_name, s, sizeof(m_leader_name));
 }
 
 void CivilisationData::SetPersonalityDescription(const MBCHAR* s)
 {
 	Assert(s[0] != 0) ;
 	Assert(s != nullptr) ;
-	strcpy(m_personality_description, s) ;
+	strlcpy(m_personality_description, s, sizeof(m_personality_description));
 }
 
 MBCHAR* CivilisationData::GetPersonalityDescription()
@@ -317,6 +317,7 @@ MBCHAR* CivilisationData::GetPersonalityDescription()
 void CivilisationData::GetPluralCivName(MBCHAR *s)
 {
 	Assert(s!=nullptr) ;
+	// TODO(phase-2): strcpy -> strlcpy - dst is `char *`, capacity unknown at call site
 	strcpy(s, m_civilisation_name) ;
 }
 
@@ -324,12 +325,13 @@ void CivilisationData::SetPluralCivName(const MBCHAR *s)
 {
 	Assert(s[0]!=0) ;
 	Assert(s!=nullptr) ;
-	strcpy(m_civilisation_name, s) ;
+	strlcpy(m_civilisation_name, s, sizeof(m_civilisation_name));
 }
 
 void CivilisationData::GetCountryName(MBCHAR *s)
 {
 	Assert(s!=nullptr) ;
+	// TODO(phase-2): strcpy -> strlcpy - dst is `char *`, capacity unknown at call site
 	strcpy(s, m_country_name) ;
 }
 
@@ -337,12 +339,13 @@ void CivilisationData::SetCountryName(const MBCHAR *s)
 {
 	Assert(s[0]!=0) ;
 	Assert(s!=nullptr) ;
-	strcpy(m_country_name, s) ;
+	strlcpy(m_country_name, s, sizeof(m_country_name));
 }
 
 void CivilisationData::GetSingularCivName(MBCHAR *s)
 {
 	Assert(s!=nullptr) ;
+	// TODO(phase-2): strcpy -> strlcpy - dst is `char *`, capacity unknown at call site
 	strcpy(s, m_singular_name) ;
 }
 
@@ -350,7 +353,7 @@ void CivilisationData::SetSingularCivName(const MBCHAR *s)
 {
 	Assert(s[0]!=0) ;
 	Assert(s!=nullptr) ;
-	strcpy(m_singular_name, s) ;
+	strlcpy(m_singular_name, s, sizeof(m_singular_name));
 }
 
 sint32 CivilisationData::GetCapitalName() const

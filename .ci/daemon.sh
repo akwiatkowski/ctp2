@@ -32,6 +32,7 @@ LAST_HEAD_FILE="$CI_ROOT/last_head"
 POLL_INTERVAL="${POLL_INTERVAL:-3}"
 TIER_A_DEBOUNCE="${TIER_A_DEBOUNCE:-5}"
 ENABLE_TIER_B="${ENABLE_TIER_B:-1}"
+ENABLE_TIER_C="${ENABLE_TIER_C:-1}"
 
 mkdir -p "$CI_ROOT/log"
 
@@ -57,7 +58,7 @@ log() {
 
 last_tier_a_run=0
 
-log "daemon started (PID $$ POLL=$POLL_INTERVAL TIER_A_DEBOUNCE=$TIER_A_DEBOUNCE ENABLE_TIER_B=$ENABLE_TIER_B)"
+log "daemon started (PID $$ POLL=$POLL_INTERVAL TIER_A_DEBOUNCE=$TIER_A_DEBOUNCE ENABLE_TIER_B=$ENABLE_TIER_B ENABLE_TIER_C=$ENABLE_TIER_C)"
 
 while :; do
     cd "$CTP2_ROOT"
@@ -72,6 +73,18 @@ while :; do
                 "$CI_ROOT/tiers/tier-b.sh" >> "$LOG_FILE" 2>&1
             else
                 log "tier-b.sh not yet installed; skipping (just recording HEAD)"
+            fi
+            # Tier C piggy-backs on tier-b's green: only run if B passed
+            # so ASan output isn't polluted by build/test failures we
+            # already know about.
+            if [[ "$ENABLE_TIER_C" == "1" && -x "$CI_ROOT/tiers/tier-c.sh" ]]; then
+                tier_b_status="$(jq -r '.tier_b.status // "unknown"' "$CI_ROOT/state.json" 2>/dev/null)"
+                if [[ "$tier_b_status" == "green" ]]; then
+                    log "tier-b green; running tier-c (ASan)"
+                    "$CI_ROOT/tiers/tier-c.sh" >> "$LOG_FILE" 2>&1
+                else
+                    log "tier-b status=$tier_b_status; skipping tier-c"
+                fi
             fi
             echo "$current_head" > "$LAST_HEAD_FILE"
             last_tier_a_run=$(date +%s)  # treat post-B as fresh; suppress immediate A

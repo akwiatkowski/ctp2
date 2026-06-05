@@ -68,7 +68,7 @@ def atomic_write_json(path: Path, payload: dict):
 
 def recompute_overall_status(state):
     statuses = []
-    for tier in ("tier_a", "tier_b"):
+    for tier in ("tier_a", "tier_b", "tier_c"):
         t = state.get(tier)
         if t is None:
             continue

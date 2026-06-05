@@ -995,6 +995,7 @@ class PlayerSymbol_LeaderName : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
+			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 			strcpy(text, player_Get(pl)->GetLeaderName());
 			return TRUE;
 		}
@@ -1054,8 +1055,10 @@ class PlayerSymbol_He : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HE_MALE"));
 			} else {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HE_FEMALE"));
 			}
 			return TRUE;
@@ -1072,8 +1075,10 @@ class PlayerSymbol_Him : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIM_MALE"));
 			} else {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIM_FEMALE"));
 			}
 			return TRUE;
@@ -1090,8 +1095,10 @@ class PlayerSymbol_His : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIS_MALE"));
 			} else {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIS_FEMALE"));
 			}
 			return TRUE;
@@ -1108,8 +1115,10 @@ class PlayerSymbol_HeCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HE_MALE_CAP"));
 			} else {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HE_FEMALE_CAP"));
 			}
 			return TRUE;
@@ -1126,8 +1135,10 @@ class PlayerSymbol_HimCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIM_MALE_CAP"));
 			} else {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIM_FEMALE_CAP"));
 			}
 			return TRUE;
@@ -1144,8 +1155,10 @@ class PlayerSymbol_HisCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIS_MALE_CAP"));
 			} else {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIS_FEMALE_CAP"));
 			}
 			return TRUE;
@@ -1162,8 +1175,10 @@ class PlayerSymbol_Sir : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_MALE"));
 			} else {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_FEMALE"));
 			}
 			return TRUE;
@@ -1180,8 +1195,10 @@ class PlayerSymbol_SirCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_MALE_CAP"));
 			} else {
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_FEMALE_CAP"));
 			}
 			return TRUE;

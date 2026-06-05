@@ -206,7 +206,7 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 		}
 		break;
 	case k_DEBUG_OWNER_NETWORK_CHAT:
-		g_network.DisplayChat(surface);
+		network_Get().DisplayChat(surface);
 		tiledmap_Get()->InvalidateMix();
 		break;
 #endif

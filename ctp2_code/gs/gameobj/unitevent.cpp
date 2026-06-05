@@ -733,10 +733,10 @@ STDEHANDLER(SetUnloadMovementUnitEvent)
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 
 	u.SetMovementPoints(0.0);
-	if(g_network.IsHost()) {
-		g_network.Block(u.GetOwner());
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_SET_MOVEMENT_TO_ZERO, u.m_id));
-		g_network.Unblock(u.GetOwner());
+	if(network_Get().IsHost()) {
+		network_Get().Block(u.GetOwner());
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_MOVEMENT_TO_ZERO, u.m_id));
+		network_Get().Unblock(u.GetOwner());
 	}
 	return GEV_HD_Continue;
 }

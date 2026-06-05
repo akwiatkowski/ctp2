@@ -77,7 +77,7 @@ void NetTradeRoute::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	TradeRoute route(getlong(&buf[2]));
 
-	g_network.CheckReceivedObject((uint32)route);
+	network_Get().CheckReceivedObject((uint32)route);
 
 	if(!tradepool_Get()->IsValid(route)) {
 		m_routeData = new TradeRouteData(route);

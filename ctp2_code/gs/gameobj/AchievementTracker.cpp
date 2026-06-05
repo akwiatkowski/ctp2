@@ -19,8 +19,8 @@ BOOL AchievementTracker::HasAchieved(sint32 which)
 void AchievementTracker::AddAchievement(sint32 which)
 {
 	m_achievements |= safe_shift_left_u64(which);
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ACHIEVEMENTS,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ACHIEVEMENTS,
 									  (uint32)(m_achievements & 0xffffffff),
 									  (uint32)(m_achievements >> 32)));
 	}

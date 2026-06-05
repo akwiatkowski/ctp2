@@ -41,7 +41,7 @@ NetChat::NetChat(uint32 destmask, MBCHAR const * str, size_t len)
 	memcpy(m_str, str, len * sizeof(MBCHAR));
 	m_str[len] = 0;
 	m_len = static_cast<sint16>(len);
-	m_from = (uint8)g_network.GetPlayerIndex();
+	m_from = (uint8)network_Get().GetPlayerIndex();
 }
 
 NetChat::~NetChat()
@@ -72,9 +72,9 @@ NetChat::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLLONG(m_destmask);
 	PULLSHORT(m_len);
 	PULLBYTE(m_from);
-	if(g_network.IsHost()) {
-		Assert(m_from == g_network.IdToIndex(id));
-		m_from = (uint8)g_network.IdToIndex(id);
+	if(network_Get().IsHost()) {
+		Assert(m_from == network_Get().IdToIndex(id));
+		m_from = (uint8)network_Get().IdToIndex(id);
 	}
 	
 		delete [] m_str;
@@ -84,22 +84,22 @@ NetChat::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	m_str[m_len] = 0;
 	pos += m_len * sizeof(MBCHAR);
 
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 		for(sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 			if(!player_Get(p)) continue;
 
-			if(m_destmask & (1 << p) && p != g_network.GetPlayerIndex() &&
-			   p != g_network.IdToIndex(id) &&
+			if(m_destmask & (1 << p) && p != network_Get().GetPlayerIndex() &&
+			   p != network_Get().IdToIndex(id) &&
 			   player_Get(p)->IsNetwork()) {
-				g_network.QueuePacket(g_network.IndexToId(p), this);
+				network_Get().QueuePacket(network_Get().IndexToId(p), this);
 			}
 		}
 	}
-	if(m_destmask & ((uint32)1 << (uint32)g_network.GetPlayerIndex())) {
-		if(m_destmask == ((uint32)1 << (uint32)g_network.GetPlayerIndex())) {
-			g_network.AddChatText(m_str, (sint32)m_len, m_from, TRUE);
+	if(m_destmask & ((uint32)1 << (uint32)network_Get().GetPlayerIndex())) {
+		if(m_destmask == ((uint32)1 << (uint32)network_Get().GetPlayerIndex())) {
+			network_Get().AddChatText(m_str, (sint32)m_len, m_from, TRUE);
 		} else {
-			g_network.AddChatText(m_str, (sint32)m_len, m_from, FALSE);
+			network_Get().AddChatText(m_str, (sint32)m_len, m_from, FALSE);
 		}
 	}
 }

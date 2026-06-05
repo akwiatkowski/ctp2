@@ -368,8 +368,8 @@ void SlicObject::Finish()
 				if(m_aborted)
 					continue;
 
-				if(!g_network.IsActive() ||
-				   g_network.IsLocalPlayer(m_recipientList[i]) ||
+				if(!network_Get().IsActive() ||
+				   network_Get().IsLocalPlayer(m_recipientList[i]) ||
 				   (m_request && m_request->m_id != 0)) {
 
 					if(!player_Get(m_recipientList[i]))

@@ -81,7 +81,7 @@ void NetCivilization::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	PULLLONGTYPE(cid, Civilisation);
 
-	g_network.CheckReceivedObject((uint32)cid);
+	network_Get().CheckReceivedObject((uint32)cid);
 
 	if(!civilisationpool_Get())
 		return;

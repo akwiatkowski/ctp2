@@ -49,19 +49,19 @@ void MaterialPool::AddMaterials(sint32 amt)
 
 void MaterialPool::CheatAddMaterials(sint32 amt)
 {
-	if((g_network.IsActive() && g_network.SetupMode()) || g_powerPointsMode) {
+	if((network_Get().IsActive() && network_Get().SetupMode()) || g_powerPointsMode) {
 		sint32 pointCost = sint32(double(amt) * g_theConstDB->Get(0)->GetPowerPointsToMaterials());
 		if(player_Get(m_owner)->GetPoints() < pointCost)
 			return;
 		player_Get(m_owner)->DeductPoints(pointCost);
 
-		if(g_network.IsHost()) {
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
+		if(network_Get().IsHost()) {
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
 										  m_owner, player_Get(m_owner)->GetPoints()));
 		}
 	}
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_CHEAT_ADD_MATERIALS,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_CHEAT_ADD_MATERIALS,
 										   amt));
 	}
 	AddMaterials(amt);
@@ -69,17 +69,17 @@ void MaterialPool::CheatAddMaterials(sint32 amt)
 
 sint32 MaterialPool::CheatSubtractMaterials(sint32 amt)
 {
-	if((g_network.IsActive() && g_network.SetupMode()) | g_powerPointsMode) {
+	if((network_Get().IsActive() && network_Get().SetupMode()) | g_powerPointsMode) {
 		sint32 pointCost = sint32(double(amt) * g_theConstDB->Get(0)->GetPowerPointsToMaterials());
 		player_Get(m_owner)->AddPoints(pointCost);
 
-		if(g_network.IsHost()) {
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
+		if(network_Get().IsHost()) {
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
 										  m_owner, player_Get(m_owner)->GetPoints()));
 		}
 	}
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_CHEAT_SUB_MATERIALS,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_CHEAT_SUB_MATERIALS,
 										   amt));
 	}
 	SubtractMaterials(amt);

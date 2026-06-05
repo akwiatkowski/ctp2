@@ -28,23 +28,23 @@ void NetReport::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	switch(m_type) {
 		case NET_REPORT_READY_FOR_DATA:
 		{
-			BOOL wasReady = g_network.ReadyToStart();
+			BOOL wasReady = network_Get().ReadyToStart();
 
-			g_network.ProcessNewPlayer(id);
-
-
+			network_Get().ProcessNewPlayer(id);
 
 
-			if(!wasReady && g_network.ReadyToStart()) {
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_ALL_PLAYERS_READY));
+
+
+			if(!wasReady && network_Get().ReadyToStart()) {
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ALL_PLAYERS_READY));
 			}
 
 			break;
 		}
 		case NET_REPORT_ACK_RESYNC:
 		{
-			DPRINTF(k_DBG_NET, ("Client %d acks resync\n", g_network.IdToIndex(id)));
-			g_network.AckResync(g_network.IdToIndex(id));
+			DPRINTF(k_DBG_NET, ("Client %d acks resync\n", network_Get().IdToIndex(id)));
+			network_Get().AckResync(network_Get().IdToIndex(id));
 			break;
 		}
 		default:

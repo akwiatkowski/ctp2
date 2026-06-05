@@ -64,10 +64,10 @@ STDEHANDLER(CutImprovementsEvent)
 
 	tiledmap_observer::RedrawTile(pos);
 
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
 		Cell *cell = world_Get()->GetCell(pos);
-		g_network.Enqueue(cell, pos.x, pos.y);
+		network_Get().Enqueue(cell, pos.x, pos.y);
 	}
 
 	static CellUnitList units;

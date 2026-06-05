@@ -523,16 +523,16 @@ STDEHANDLER(NukeCityEvent)
 		}
 	}
 
-	if(g_network.IsHost() && nuker == player_view::CurPlayer()) {
+	if(network_Get().IsHost() && nuker == player_view::CurPlayer()) {
 
-		g_network.Block(nuker);
+		network_Get().Block(nuker);
 	}
 
 	UnitDynamicArray killList;
 	c.GetNuked(killList);
 
-	if(g_network.IsHost() && nuker == player_view::CurPlayer()) {
-		g_network.Unblock(nuker);
+	if(network_Get().IsHost() && nuker == player_view::CurPlayer()) {
+		network_Get().Unblock(nuker);
 	}
 
 	sint32 j;
@@ -758,11 +758,11 @@ STDEHANDLER(CreateWonderEvent)
 		}
 
 	}
-	if(g_network.IsHost()) {
-		g_network.Block(c.GetOwner());
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_WONDER_BUILT,
+	if(network_Get().IsHost()) {
+		network_Get().Block(c.GetOwner());
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_WONDER_BUILT,
 									  c.CD()->GetBuildQueue()->GetHead()->m_type, (uint32)c.m_id));
-		g_network.Unblock(c.GetOwner());
+		network_Get().Unblock(c.GetOwner());
 	}
 
 	Unit u;

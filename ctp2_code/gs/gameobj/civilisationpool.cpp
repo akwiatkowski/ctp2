@@ -145,8 +145,8 @@ Civilisation CivilisationPool::Create(const PLAYER_INDEX owner, sint32 requiredC
 	Insert(newData);
 	DPRINTF(k_DBG_INFO, ("Civilisation %d is in use\n", civ));
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(newData);
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(newData);
 	}
 
 	return (newCivilisation);

@@ -277,7 +277,7 @@ bool CellUnitList::IsAtLeastOneMoveMountain() const
 bool CellUnitList::IsEnemy(PLAYER_INDEX owner) const
 {
 	sint32 myOwner = GetOwner();
-	if(g_network.IsActive() && g_network.TeamsEnabled() &&
+	if(network_Get().IsActive() && network_Get().TeamsEnabled() &&
 	   player_Get(myOwner) && player_Get(owner) &&
 	   player_Get(myOwner)->m_networkGroup == player_Get(owner)->m_networkGroup) {
 		return false;
@@ -432,7 +432,7 @@ bool CellUnitList::GetTopVisibleUnitOfMoveType
 		}
 		else if (!isResyncReported)
 		{
-			g_network.RequestResync(RESYNC_INVALID_UNIT);
+			network_Get().RequestResync(RESYNC_INVALID_UNIT);
 			isResyncReported = true;
 		}
     }
@@ -452,7 +452,7 @@ bool CellUnitList::GetTopVisibleUnitOfMoveType
 Unit CellUnitList::GetTopVisibleUnit(PLAYER_INDEX const looker) const
 {
     uint32	move_union			= 0x0000;
-	bool	stopResyncReport	= !g_network.IsClient();
+	bool	stopResyncReport	= !network_Get().IsClient();
 
     for (sint32 i = 0; i < m_nElements; ++i)
 	{
@@ -466,7 +466,7 @@ Unit CellUnitList::GetTopVisibleUnit(PLAYER_INDEX const looker) const
 
 			if (!stopResyncReport)
 			{
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 				stopResyncReport = false;
 			}
 		}
@@ -586,8 +586,8 @@ void CellUnitList::DoVictoryEnslavement(sint32 origOwner)
 				if (!hc.IsValid())
 					break;
 
-				if(g_network.IsHost()) {
-					g_network.Block(hc.GetOwner());
+				if(network_Get().IsHost()) {
+					network_Get().Block(hc.GetOwner());
 				}
 
 				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
@@ -597,8 +597,8 @@ void CellUnitList::DoVictoryEnslavement(sint32 origOwner)
 
 				slicengine_Get()->RunVictoryEnslavementTriggers(m_array[i],
 															origOwner, hc);
-				if(g_network.IsHost()) {
-					g_network.Unblock(hc.GetOwner());
+				if(network_Get().IsHost()) {
+					network_Get().Unblock(hc.GetOwner());
 				}
 				break;
 			}

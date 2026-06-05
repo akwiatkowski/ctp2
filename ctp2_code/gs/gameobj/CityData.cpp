@@ -636,8 +636,8 @@ void CityData::Initialize(sint32 settlerType)
 {
 	MapPoint center_point(m_home_city.RetPos());
 
-	if (g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.AddCreatedObject(m_home_city.AccessData());
+	if (network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().AddCreatedObject(m_home_city.AccessData());
 	}
 
 	FindBestSpecialists();
@@ -751,7 +751,7 @@ void CityData::Initialize(sint32 settlerType)
 	}
 	tiledmap_observer::RedrawTile(center_point);
 
-	g_network.Enqueue(world_Get()->GetCell(center_point),
+	network_Get().Enqueue(world_Get()->GetCell(center_point),
 					  center_point.x, center_point.y);
 
 	MBCHAR s[k_MAX_NAME_LEN];
@@ -785,7 +785,7 @@ void CityData::Initialize(sint32 settlerType)
 	}
 
 	// Gives all starting age buildings to a new city.
-	if(g_network.IsActive() && g_network.GetStartingAge() > 0)
+	if(network_Get().IsActive() && network_Get().GetStartingAge() > 0)
 	{
 		for(sint32 i = 0; i < g_theBuildingDB->NumRecords() && i < 64; i++)
 		{
@@ -796,7 +796,7 @@ void CityData::Initialize(sint32 settlerType)
 				continue;
 
 			sint32 enable = buildingutil_Get(i, m_owner)->GetEnableAdvanceIndex();
-			if(g_theAdvanceDB->Get(enable, player_Get(m_owner)->GetGovernmentType())->GetAgeIndex() < g_network.GetStartingAge())
+			if(g_theAdvanceDB->Get(enable, player_Get(m_owner)->GetGovernmentType())->GetAgeIndex() < network_Get().GetStartingAge())
 			{
 				m_built_improvements |= safe_shift_left_u64(i);
 			}
@@ -896,7 +896,7 @@ CityData::CityData(CityData *copy)
 void CityData::Copy(CityData *copy)
 {
 
-	if(g_network.IsActive()) {
+	if(network_Get().IsActive()) {
 
 		sint32 i;
 		for(i = copy->m_tradeSourceList.Num() - 1; i >= 0; i--) {
@@ -952,10 +952,10 @@ void CityData::Copy(CityData *copy)
 	m_secthappy = 0; //emod - didn't crash but always set to 0 at -1 it showed up but begin turn didn't work nor did it process
 
 	if(this == m_home_city.CD()) {
-		if(g_network.IsHost()) {
-			g_network.Enqueue(this);
-		} else if(g_network.IsClient()) {
-			g_network.SendCity(this);
+		if(network_Get().IsHost()) {
+			network_Get().Enqueue(this);
+		} else if(network_Get().IsClient()) {
+			network_Get().SendCity(this);
 		}
 	}
 
@@ -1159,8 +1159,8 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 
 	m_home_city.GetPos(city_pos);
 
-	if(!causeIsExternal && g_network.IsActive()) {
-		g_network.Block(m_owner);
+	if(!causeIsExternal && network_Get().IsActive()) {
+		network_Get().Block(m_owner);
 	}
 
 	PLAYER_INDEX        newowner    = PLAYER_UNASSIGNED;
@@ -1204,14 +1204,14 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 
 	if (orgowner != newowner)
 	{
-		if(g_network.IsHost())
+		if(network_Get().IsHost())
 		{
-			g_network.Block(orgowner);
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_REVOLT_NOTICES,
+			network_Get().Block(orgowner);
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REVOLT_NOTICES,
 			                              orgowner, newowner,
 			                              m_home_city.m_id,
 			                              joined_egalatarians));
-			g_network.Unblock(orgowner);
+			network_Get().Unblock(orgowner);
 		}
 
 		// Need to fix script.slc and info.txt though
@@ -1236,8 +1236,8 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 		}
 	}
 
-	if(!causeIsExternal && g_network.IsActive()) {
-		g_network.Unblock(m_owner);
+	if(!causeIsExternal && network_Get().IsActive()) {
+		network_Get().Unblock(m_owner);
 	}
 
 	m_home_city.ResetCityOwner(newowner, false, CAUSE_REMOVE_CITY_HAPPINESS_REVOLT);
@@ -3778,9 +3778,9 @@ void CityData::CalculateTradeRoutes(bool projectedOnly)
 		TradeRoute route = m_tradeSourceList[i];
 		if(!tradepool_Get()->IsValid(route))
 		{
-			if(g_network.IsClient())
+			if(network_Get().IsClient())
 			{
-				g_network.RequestResync(RESYNC_BAD_TRADE_ROUTE);
+				network_Get().RequestResync(RESYNC_BAD_TRADE_ROUTE);
 			}
 			continue;
 		}
@@ -3832,9 +3832,9 @@ void CityData::CalculateTradeRoutes(bool projectedOnly)
 		TradeRoute route = m_tradeDestinationList[i];
 		if(!tradepool_Get()->IsValid(route))
 		{
-			if(g_network.IsClient())
+			if(network_Get().IsClient())
 			{
-				g_network.RequestResync(RESYNC_BAD_TRADE_ROUTE);
+				network_Get().RequestResync(RESYNC_BAD_TRADE_ROUTE);
 			}
 			continue;
 		}
@@ -4675,16 +4675,16 @@ bool CityData::BuildUnit(sint32 type)
 	m_buildInfrastructure = FALSE;
 	m_buildCapitalization = FALSE;
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner))
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner))
 	{
-		g_network.SendAction(new NetAction(NET_ACTION_BUILD, type, m_home_city));
+		network_Get().SendAction(new NetAction(NET_ACTION_BUILD, type, m_home_city));
 	}
-	else if(g_network.IsHost())
+	else if(network_Get().IsHost())
 	{
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BUILDING_UNIT,
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILDING_UNIT,
 		                  type, (uint32)m_home_city));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	const UnitRecord* rec = g_theUnitDB->Get(type, player_Get(m_owner)->GetGovernmentType());
@@ -4716,14 +4716,14 @@ bool CityData::BuildImprovement(sint32 type)
 	m_buildInfrastructure = FALSE;
 	m_buildCapitalization = FALSE;
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_BUILD_IMP, type,
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_BUILD_IMP, type,
 		                     m_home_city));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BUILD_IMP, m_owner, type,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILD_IMP, m_owner, type,
 		                  m_home_city));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	const BuildingRecord* irec = buildingutil_Get(type, m_owner);
@@ -4777,14 +4777,14 @@ bool CityData::BuildWonder(sint32 type)
 	m_buildInfrastructure = FALSE;
 	m_buildCapitalization = FALSE;
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_BUILD_WONDER,
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_BUILD_WONDER,
 		                     (uint32)m_home_city, type));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BUILD_WONDER,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILD_WONDER,
 		                  (uint32)m_home_city, type));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	const WonderRecord* rec = wonderutil_Get(type, m_owner);
@@ -4879,16 +4879,16 @@ bool CityData::ChangeCurrentlyBuildingItem(sint32 category, sint32 item_type)
 	m_buildInfrastructure = FALSE;
 	m_buildCapitalization = FALSE;
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_CHANGE_BUILD,
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_CHANGE_BUILD,
 										   (uint32)m_home_city, category,
 										   item_type));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_CHANGE_BUILD,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CHANGE_BUILD,
 									  m_owner, (uint32)m_home_city,
 									  category, item_type));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	sint32 cost;
@@ -5252,10 +5252,10 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 					}
 					tiledmap_observer::RedrawTile(pos);
 
-					if(g_network.IsHost()) {
-						g_network.Block(m_owner);
-						g_network.Enqueue(world_Get()->GetCell(pos), pos.x, pos.y);
-						g_network.Unblock(m_owner);
+					if(network_Get().IsHost()) {
+						network_Get().Block(m_owner);
+						network_Get().Enqueue(world_Get()->GetCell(pos), pos.x, pos.y);
+						network_Get().Unblock(m_owner);
 					}
 				}
 			}
@@ -5577,11 +5577,11 @@ void CityData::FinishUprising(Army &sa, UPRISING_CAUSE cause)
 	Cell *cell = world_Get()->GetCell(m_home_city.RetPos());
 	sint32 numPossibleDefenders = cell->GetNumUnits();
 
-	if (g_network.IsHost())
+	if (network_Get().IsHost())
     {
-		g_network.Block(oldOwner);
-		g_network.Enqueue(armypool_Get()->AccessArmy(sa));
-		g_network.Unblock(oldOwner);
+		network_Get().Block(oldOwner);
+		network_Get().Enqueue(armypool_Get()->AccessArmy(sa));
+		network_Get().Unblock(oldOwner);
 	}
 
 	bool startedBattle = false;
@@ -5661,11 +5661,11 @@ void CityData::CleanupUprising(Army &sa)
 				player_Get(sa.GetOwner())->InsertUnitReference(sa[i],
 												  CAUSE_NEW_ARMY_UPRISING,
 												  m_home_city);
-				if(g_network.IsHost()) {
-					g_network.Block(oldOwner);
-					g_network.Enqueue(new NetInfo(NET_INFO_CODE_MAKE_UNIT_PERMANENT,
+				if(network_Get().IsHost()) {
+					network_Get().Block(oldOwner);
+					network_Get().Enqueue(new NetInfo(NET_INFO_CODE_MAKE_UNIT_PERMANENT,
 												  sa[i].m_id));
-					g_network.Unblock(oldOwner);
+					network_Get().Unblock(oldOwner);
 				}
 			}
 		}
@@ -6022,9 +6022,9 @@ void CityData::ResetCityOwner(sint32 owner)
 	for(it.Start(); !it.End(); it.Next()) {
 		world_Get()->GetCell(it.Pos())->SetCityOwner(m_home_city);
 		world_Get()->GetCell(it.Pos())->SetOwner(owner);
-		g_network.Block(owner);
-		g_network.Enqueue(world_Get()->GetCell(it.Pos()), it.Pos().x, it.Pos().y);
-		g_network.Unblock(owner);
+		network_Get().Block(owner);
+		network_Get().Enqueue(world_Get()->GetCell(it.Pos()), it.Pos().x, it.Pos().y);
+		network_Get().Unblock(owner);
 	}
 
 	RemoveBorders();
@@ -6088,10 +6088,10 @@ void CityData::SetName(const MBCHAR *name)
 {
 	Assert(strlen(name)<k_MAX_NAME_LEN);
 	strncpy(m_name, name, k_MAX_NAME_LEN);
-	if(g_network.IsHost()) {
-		g_network.SendCityName(this);
-	} else if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendCityName(this);
+	if(network_Get().IsHost()) {
+		network_Get().SendCityName(this);
+	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendCityName(this);
 	}
 }
 
@@ -6142,8 +6142,8 @@ bool CityData::BuyFront()
 		return true;
 	}
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_BUY_FRONT,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_BUY_FRONT,
 		                     (uint32)m_home_city));
 	}
 
@@ -6288,13 +6288,13 @@ void CityData::SellBuilding(sint32 which, bool byChoice)
 			if(buildingutil_Get(which, m_owner)->GetCantSell())
 				return;
 
-			if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-				g_network.SendAction(new NetAction(NET_ACTION_SELL_BUILDING,
+			if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+				network_Get().SendAction(new NetAction(NET_ACTION_SELL_BUILDING,
 					(uint32)m_home_city,
 					which));
-			} else if(g_network.IsHost()) {
-				g_network.Block(m_owner);
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_SOLD_BUILDING,
+			} else if(network_Get().IsHost()) {
+				network_Get().Block(m_owner);
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SOLD_BUILDING,
 											  (uint32)m_home_city, which));
 			}
 
@@ -6320,8 +6320,8 @@ void CityData::SellBuilding(sint32 which, bool byChoice)
 		// Selling a building may impact the defensive bonus
 		buildingutil_GetDefendersBonus(GetEffectiveBuildings(), m_defensiveBonus, m_owner);
 
-		if(byChoice && g_network.IsHost()) {
-			g_network.Unblock(m_owner);
+		if(byChoice && network_Get().IsHost()) {
+			network_Get().Unblock(m_owner);
 		}
 	}
 
@@ -6347,8 +6347,8 @@ void CityData::SetRoad() const
 	cell->SetEnv(cell->GetEnv() | (roadLevel << k_SHIFT_ENV_ROAD));
 
 	if(cell->GetEnv() != oenv) {
-		if(g_network.IsHost()) {
-			g_network.Enqueue(cell, pos.x, pos.y);
+		if(network_Get().IsHost()) {
+			network_Get().Enqueue(cell, pos.x, pos.y);
 		}
 	}
 #endif
@@ -7430,8 +7430,8 @@ sint32 CityData::GetOutgoingTrade() const
 
 void CityData::FinishBuilding()
 {
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_FINISH_BUILDING,
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_FINISH_BUILDING,
 		                     m_home_city.m_id));
 	}
 
@@ -7523,12 +7523,12 @@ void CityData::BuildInfrastructure()
 	if(!CanBuildInfrastructure())
 		return;
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_BUILD_INFRASTRUCTURE, m_home_city.m_id));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BUILD_INFRASTRUCTURE, m_home_city));
-		g_network.Unblock(m_owner);
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_BUILD_INFRASTRUCTURE, m_home_city.m_id));
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILD_INFRASTRUCTURE, m_home_city));
+		network_Get().Unblock(m_owner);
 	}
 
 	m_buildInfrastructure = TRUE;
@@ -7547,12 +7547,12 @@ void CityData::BuildCapitalization()
 	if(!CanBuildCapitalization())
 		return;
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_BUILD_CAPITALIZATION, m_home_city.m_id));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BUILD_CAPITALIZATION, m_home_city));
-		g_network.Unblock(m_owner);
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_BUILD_CAPITALIZATION, m_home_city.m_id));
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILD_CAPITALIZATION, m_home_city));
+		network_Get().Unblock(m_owner);
 	}
 	m_buildInfrastructure = FALSE;
 	m_buildCapitalization = TRUE;
@@ -7648,8 +7648,8 @@ void CityData::Disband()
 	if(player_Get(m_owner)->m_all_cities->Num() < 2)
 		return;
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_DISBAND_CITY,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_DISBAND_CITY,
 										   (uint32)m_home_city));
 	}
 
@@ -7680,11 +7680,11 @@ void CityData::Disband()
 			s.ClearFlag(k_UDF_FIRST_MOVE);
 			s.SetMovementPoints(0);
 			//possible solution for bug #14
-			if (g_network.IsHost())
+			if (network_Get().IsHost())
 			{
-				g_network.Block(s.GetOwner());
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_DISBANDED_CITY_SETTLER, s.m_id));
-				g_network.Unblock(s.GetOwner());
+				network_Get().Block(s.GetOwner());
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_DISBANDED_CITY_SETTLER, s.m_id));
+				network_Get().Unblock(s.GetOwner());
 			}
 		}
 	}
@@ -7915,14 +7915,14 @@ void CityData::ChangeSpecialists(POP_TYPE type, sint32 delta)
 
 	AdjustSizeIndices();
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(this);
-		g_network.Unblock(m_owner);
-	} else if(g_network.IsClient()) {
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(this);
+		network_Get().Unblock(m_owner);
+	} else if(network_Get().IsClient()) {
 
 		if(this == m_home_city.CD()) {
-			g_network.SendAction(new NetAction(NET_ACTION_SET_SPECIALISTS, m_home_city.m_id, type, m_numSpecialists[type]));
+			network_Get().SendAction(new NetAction(NET_ACTION_SET_SPECIALISTS, m_home_city.m_id, type, m_numSpecialists[type]));
 		}
 	}
 }
@@ -8070,10 +8070,10 @@ void CityData::AdjustSizeIndices()
 	}
 
 	if(oldSizeIndex != m_sizeIndex) {
-		if(g_network.IsHost()) {
-			g_network.Block(m_owner);
-			g_network.Enqueue(m_home_city.AccessData(), this);
-			g_network.Unblock(m_owner);
+		if(network_Get().IsHost()) {
+			network_Get().Block(m_owner);
+			network_Get().Enqueue(m_home_city.AccessData(), this);
+			network_Get().Unblock(m_owner);
 		}
 	}
 }
@@ -8105,10 +8105,10 @@ void CityData::ChangePopulation(sint32 delta)
 
 	UpdateSprite();
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(m_home_city.AccessData(), this);
-		g_network.Unblock(m_owner);
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(m_home_city.AccessData(), this);
+		network_Get().Unblock(m_owner);
 	}
 
 	if(m_population <= 0) {
@@ -8212,13 +8212,13 @@ void CityData::SetUseGovernor(const bool &value)
 {
 	m_useGovernor = value;
 	if(!IsACopy()) {
-		if(g_network.IsHost()) {
-			g_network.Block(m_owner);
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
-			g_network.Unblock(m_owner);
-		} else if(g_network.IsClient()) {
-			if(g_network.IsLocalPlayer(m_owner))
-				g_network.SendAction(new NetAction(NET_ACTION_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
+		if(network_Get().IsHost()) {
+			network_Get().Block(m_owner);
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
+			network_Get().Unblock(m_owner);
+		} else if(network_Get().IsClient()) {
+			if(network_Get().IsLocalPlayer(m_owner))
+				network_Get().SendAction(new NetAction(NET_ACTION_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
 		}
 	}
 }
@@ -8232,13 +8232,13 @@ void CityData::SetBuildListSequenceIndex(const sint32 &value)
 {
 	m_buildListSequenceIndex = value;
 	if(!IsACopy()) {
-		if(g_network.IsHost()) {
-			g_network.Block(m_owner);
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
-			g_network.Unblock(m_owner);
-		} else if(g_network.IsClient()) {
-			if(g_network.IsLocalPlayer(m_owner))
-				g_network.SendAction(new NetAction(NET_ACTION_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
+		if(network_Get().IsHost()) {
+			network_Get().Block(m_owner);
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
+			network_Get().Unblock(m_owner);
+		} else if(network_Get().IsClient()) {
+			if(network_Get().IsLocalPlayer(m_owner))
+				network_Get().SendAction(new NetAction(NET_ACTION_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
 		}
 	}
 }

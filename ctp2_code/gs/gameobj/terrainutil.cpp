@@ -1362,9 +1362,9 @@ void terrainutil_RemoveBorders(const MapPoint &center, sint32 owner, sint32 intR
 			cell->SetOwner(PLAYER_UNASSIGNED);
 		}
 
-		g_network.Block(owner);
-		g_network.Enqueue(cell, it.Pos().x, it.Pos().y);
-		g_network.Unblock(owner);
+		network_Get().Block(owner);
+		network_Get().Enqueue(cell, it.Pos().x, it.Pos().y);
+		network_Get().Unblock(owner);
 
 	}
 	tiledmap_observer::Refresh();

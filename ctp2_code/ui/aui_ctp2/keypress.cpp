@@ -278,7 +278,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 #ifdef _PLAYTEST
     int i;
 #endif
-	BOOL isMyTurn = !g_network.IsActive() || g_network.IsMyTurn();
+	BOOL isMyTurn = !network_Get().IsActive() || network_Get().IsMyTurn();
 	Unit city;
 
 	if ( g_isKMScreen) {
@@ -735,8 +735,8 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	break;
 
 	case KEY_FUNCTION_SAVE_GAME:
-		if(g_network.IsActive()) {
-			if(g_network.IsHost()) {
+		if(network_Get().IsActive()) {
+			if(network_Get().IsHost()) {
 
 				is_scenario_Set(FALSE);
 				loadsavescreen_displayMyWindow(LSS_SAVE_MP);
@@ -749,7 +749,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case KEY_FUNCTION_LOAD_GAME:
-		if(!g_network.IsActive()) {
+		if(!network_Get().IsActive()) {
 			loadsavescreen_displayMyWindow(LSS_LOAD_GAME);
 		}
 		break;
@@ -771,9 +771,9 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 #if 0
 	case KEY_FUNCTION_ENDSLICE:
-		if(g_network.IsActive()) {
-			if(g_network.IsMyTurn() ||
-			   (g_network.IsHost() &&
+		if(network_Get().IsActive()) {
+			if(network_Get().IsMyTurn() ||
+			   (network_Get().IsHost() &&
 				player_Get(selitem_Get()->GetCurPlayer())->IsRobot())) {
 				turn_Get()->EndThisSliceBeginNewSlice();
 			}
@@ -788,7 +788,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
         if (selitem_Get()->GetCurPlayer() != selitem_Get()->GetVisiblePlayer())
            break;
 
-		if(g_network.IsActive()) {
+		if(network_Get().IsActive()) {
 			turn_Get()->NetworkEndTurn();
 		} else {
             selitem_Get()->Deselect(selitem_Get()->GetCurPlayer());
@@ -850,7 +850,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
         break;
 
     case KEY_FUNCTION_SAVE_WORLD :
-		if (civapp_Get()->IsGameLoaded() && !g_network.IsClient()) {
+		if (civapp_Get()->IsGameLoaded() && !network_Get().IsClient()) {
 			civapp_Get()->AutoSave(selitem_Get()->GetVisiblePlayer(), true);
 
 
@@ -863,7 +863,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break ;
 
     case KEY_FUNCTION_LOAD_WORLD :
-		if (civapp_Get()->IsGameLoaded() && !g_network.IsActive()) {
+		if (civapp_Get()->IsGameLoaded() && !network_Get().IsActive()) {
 			{
 				civapp_Get()->PostLoadQuickSaveAction(selitem_Get()->GetVisiblePlayer());
 
@@ -896,7 +896,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	{
 		Army a;
 		if(selitem_Get()->GetSelectedArmy(a)) {
-			if(g_network.IsClient())
+			if(network_Get().IsClient())
             {
 				CellUnitList units;
 				Cell *cell = world_Get()->GetCell(a->RetPos());
@@ -906,7 +906,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 					}
 				}
 				if(units.Num() > 0) {
-					g_network.SendGroupRequest(units, a);
+					network_Get().SendGroupRequest(units, a);
 				}
 			} else {
 				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_GroupOrder,
@@ -922,8 +922,8 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	{
 		Army a;
 		if(selitem_Get()->GetSelectedArmy(a)) {
-			if(g_network.IsClient()) {
-				g_network.SendUngroupRequest(a, *a.AccessData());
+			if(network_Get().IsClient()) {
+				network_Get().SendUngroupRequest(a, *a.AccessData());
 			} else {
 				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
 									   GEA_Army, a.m_id,
@@ -970,7 +970,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 #if defined(CTP1_HAS_RISEN_FROM_THE_GRAVE)
 	case KEY_FUNCTION_TOGGLE_SPACE:
 	{
-		if(!g_network.IsActive()) {
+		if(!network_Get().IsActive()) {
 			extern sint32 g_fog_toggle;
 			g_fog_toggle = !g_fog_toggle;
 			void WhackScreen();
@@ -1031,10 +1031,10 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			g_networkPlayersScreen = new c3_UtilityPlayerListPopup((c3_UtilityPlayerListCallback *)network_PlayerListCallback);
 		}
 		g_networkPlayersScreen->DisplayWindow();
-		if ( g_network.IsHost() ) {
+		if ( network_Get().IsHost() ) {
 			g_networkPlayersScreen->EnableButtons();
 		}
-		else if ( g_network.IsClient() ) {
+		else if ( network_Get().IsClient() ) {
 			g_networkPlayersScreen->DisableButtons();
 		}
 
@@ -1304,7 +1304,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		if(!g_modalWindow
 		&& !profiledb_Get()->IsScenario()
 		&& !is_scenario_Get()
-		&& !g_network.IsActive()
+		&& !network_Get().IsActive()
 		&& !turn_Get()->IsHotSeat()
 		&& !turn_Get()->IsEmail()
 		) {

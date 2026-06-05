@@ -64,8 +64,8 @@ GameSettings::GameSettings()
 	m_pollution = profiledb_Get()->IsPollutionRule();
 	m_keepScore = TRUE;
 
-	m_startingAge = g_network.GetStartingAge();
-	m_endingAge = g_network.GetEndingAge();
+	m_startingAge = network_Get().GetStartingAge();
+	m_endingAge = network_Get().GetEndingAge();
 }
 
 
@@ -99,7 +99,7 @@ void GameSettings::SetAlienEndGameWon(sint32 player)
 
 BOOL GameSettings::GetAlienEndGame() const
 {
-	if(g_network.IsActive())
+	if(network_Get().IsActive())
 		return FALSE;
 	return m_alienEndGame;
 }

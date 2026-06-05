@@ -82,11 +82,11 @@ void NetMessage::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Message realmsg;
 	PULLLONGTYPE(msg, Message);
 
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 		realmsg = messagepool_Get()->ServerCreate();
 		m_data = realmsg.AccessData();
 	} else {
-		g_network.CheckReceivedObject((uint32)msg);
+		network_Get().CheckReceivedObject((uint32)msg);
 		if(messagepool_Get()->IsValid(msg)) {
 			m_data = messagepool_Get()->AccessMessage(msg);
 		} else {
@@ -117,16 +117,16 @@ void NetMessage::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 			PULLLONGTYPE(m_data->m_cityList->Access(i), Unit);
 		}
 	}
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 		if(realmsg == msg) {
-			g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
+			network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
 												  (uint32)msg));
 		} else {
-			g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
+			network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
 												  (uint32)msg, (uint32)realmsg));
 		}
 		player_Get(m_data->m_owner)->AddMessage(realmsg);
-		g_network.Enqueue(m_data);
+		network_Get().Enqueue(m_data);
 	} else if(!messagepool_Get()->IsValid(msg)) {
 		messagepool_Get()->HackSetKey(((uint32)msg & k_ID_KEY_MASK)+1);
 		messagepool_Get()->Insert(m_data);
@@ -166,13 +166,13 @@ void NetInfoMessage::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	switch(m_msg) {
 		case NET_MSG_PLAYER_JOINED:
-			g_network.SendJoinedMessage(name, m_player);
+			network_Get().SendJoinedMessage(name, m_player);
 			break;
 		case NET_MSG_PLAYER_LEFT:
-			g_network.SendLeftMessage(name, m_player);
+			network_Get().SendLeftMessage(name, m_player);
 			break;
 		case NET_MSG_NEW_HOST:
-			g_network.SendNewHostMessage(name, m_player);
+			network_Get().SendNewHostMessage(name, m_player);
 			break;
 		default:
 			Assert(FALSE);

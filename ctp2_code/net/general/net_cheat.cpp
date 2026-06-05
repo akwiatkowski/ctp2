@@ -81,7 +81,7 @@ NetCheat::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		PULLLONG(m_data[i]);
 	}
 	Assert(size == pos);
-	sint32 index = g_network.IdToIndex(id);
+	sint32 index = network_Get().IdToIndex(id);
 
 	switch(m_cheat) {
 		case NET_CHEAT_CREATE_UNIT:
@@ -146,7 +146,7 @@ NetCheat::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 			uint64 built_improvements = city.AccessData()->GetCityData()->GetImprovements();
 			if (m_data[1] >= 0 && m_data[1] < 64)
 				city.AccessData()->GetCityData()->SetImprovements(built_improvements | ((uint64)1 << m_data[1]));
-			g_network.Enqueue(city.AccessData(), city.AccessData()->GetCityData());
+			network_Get().Enqueue(city.AccessData(), city.AccessData()->GetCityData());
 			break;
 		}
 		default:

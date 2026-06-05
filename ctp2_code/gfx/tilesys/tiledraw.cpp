@@ -4964,9 +4964,9 @@ void TiledMap::DrawChatText()
 
 			RECT timeRect = { x, 100, x, 100 + height};
 			char timebuf[256];
-			if(g_network.IsActive()) {
-				if(g_network.IsSpeedStyle() && selitem_Get()->GetCurPlayer() == selitem_Get()->GetVisiblePlayer()) {
-					time_t const timeleft = g_network.GetTurnEndsAt() - time(nullptr);
+			if(network_Get().IsActive()) {
+				if(network_Get().IsSpeedStyle() && selitem_Get()->GetCurPlayer() == selitem_Get()->GetVisiblePlayer()) {
+					time_t const timeleft = network_Get().GetTurnEndsAt() - time(nullptr);
 					snprintf(timebuf, sizeof(timebuf), "%s: %" PRId64, stringdb_Get()->GetNameStr("NETWORK_TIME_LEFT"), timeleft);
 					timeRect.right = timeRect.left + m_font->GetStringWidth(timebuf);
 					m_font->DrawString(tempSurf, &timeRect, &timeRect, timebuf, 0, GetColorRef(COLOR_BLACK), 0);
@@ -4988,7 +4988,7 @@ void TiledMap::DrawChatText()
 				}
 			}
 
-			PointerList<ChatText>::Walker walk(&g_network.GetChatList()->m_list);
+			PointerList<ChatText>::Walker walk(&network_Get().GetChatList()->m_list);
 			for(; walk.IsValid() && c < k_NUM_CHAT_LINES; walk.Next(), c++)
 			{
 				rect.right = rect.left + m_font->GetStringWidth(walk.GetObj()->m_text);

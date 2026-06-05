@@ -178,7 +178,7 @@ void NetCity::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 		Assert(unitData->m_city_data != nullptr);
 		if(unitData->m_city_data == nullptr) {
-			g_network.RequestResync(RESYNC_INVALID_UNIT);
+			network_Get().RequestResync(RESYNC_INVALID_UNIT);
 			return;
 		}
 
@@ -199,14 +199,14 @@ void NetCity::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 		bool resync = false;
 
-#define PLCHK(x) { sint32 tmp = x; PULLLONG(x); if(cityData->GetOwner() == g_network.GetPlayerIndex() && !m_isInitialPacket) { Assert(tmp == x); if(tmp != x) resync = true; }}
-#define PSCHK(x) { sint16 tmp = x; PULLSHORT(x); if(cityData->GetOwner() == g_network.GetPlayerIndex() && !m_isInitialPacket) { Assert(tmp == x); if(tmp != x) resync = true; }}
-#define PL32CHK(x) { uint32 tmp = x; PULLLONG(x); if(cityData->GetOwner() == g_network.GetPlayerIndex() && !m_isInitialPacket) { Assert(tmp == x); if(tmp != x) resync = true; }}
-#define PL64CHK(x) { uint64 tmp = x; PULLLONG64(x); if(cityData->GetOwner() == g_network.GetPlayerIndex() && !m_isInitialPacket) { Assert(tmp == x); if(tmp != x) resync = true; }}
+#define PLCHK(x) { sint32 tmp = x; PULLLONG(x); if(cityData->GetOwner() == network_Get().GetPlayerIndex() && !m_isInitialPacket) { Assert(tmp == x); if(tmp != x) resync = true; }}
+#define PSCHK(x) { sint16 tmp = x; PULLSHORT(x); if(cityData->GetOwner() == network_Get().GetPlayerIndex() && !m_isInitialPacket) { Assert(tmp == x); if(tmp != x) resync = true; }}
+#define PL32CHK(x) { uint32 tmp = x; PULLLONG(x); if(cityData->GetOwner() == network_Get().GetPlayerIndex() && !m_isInitialPacket) { Assert(tmp == x); if(tmp != x) resync = true; }}
+#define PL64CHK(x) { uint64 tmp = x; PULLLONG64(x); if(cityData->GetOwner() == network_Get().GetPlayerIndex() && !m_isInitialPacket) { Assert(tmp == x); if(tmp != x) resync = true; }}
 		PL32CHK(cityData->m_slaveBits);
 		sint32 shieldstore;
 		PULLLONG(shieldstore);
-		if(cityData->GetOwner() != g_network.GetPlayerIndex() || m_isInitialPacket) {
+		if(cityData->GetOwner() != network_Get().GetPlayerIndex() || m_isInitialPacket) {
 			cityData->m_shieldstore = shieldstore;
 		}
 		PLCHK(cityData->m_shieldstore_at_begin_turn);
@@ -256,7 +256,7 @@ void NetCity::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		cityData->UpdateSprite();
 
 		if(resync)
-			g_network.RequestResync(RESYNC_CITY_STATS);
+			network_Get().RequestResync(RESYNC_CITY_STATS);
 		else if (oldVision != cityData->GetVisionRadius())
 		{
 			unitData->RemoveOldUnitVision(oldVision);
@@ -291,18 +291,18 @@ void NetCityName::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 
 
-			if(g_network.IsHost()) {
-				g_network.Resync(g_network.IdToIndex(id));
+			if(network_Get().IsHost()) {
+				network_Get().Resync(network_Get().IdToIndex(id));
 			} else {
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 			}
 		} else {
 			strncpy(home_city.GetData()->GetCityData()->m_name, name, k_MAX_NAME_LEN - 1);
 			home_city.GetData()->GetCityData()->m_name[k_MAX_NAME_LEN - 1] = '\0';
-			if(g_network.IsHost()) {
-				g_network.Block(home_city.GetOwner());
-				g_network.SendCityName(home_city.GetData()->GetCityData());
-				g_network.Unblock(home_city.GetOwner());
+			if(network_Get().IsHost()) {
+				network_Get().Block(home_city.GetOwner());
+				network_Get().SendCityName(home_city.GetData()->GetCityData());
+				network_Get().Unblock(home_city.GetOwner());
 			}
 
 			if(home_city.GetOwner() == selitem_Get()->GetVisiblePlayer()) {
@@ -405,11 +405,11 @@ void NetCity2::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	m_data = home_city.AccessData()->GetCityData();
 
 	if(!m_data) {
-		if(g_network.IsClient()) {
-			g_network.RequestResync(RESYNC_INVALID_UNIT);
+		if(network_Get().IsClient()) {
+			network_Get().RequestResync(RESYNC_INVALID_UNIT);
 			return;
 		} else {
-			g_network.Resync(g_network.IdToIndex(id));
+			network_Get().Resync(network_Get().IdToIndex(id));
 			return;
 		}
 	}
@@ -484,7 +484,7 @@ void NetCity2::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 						m_data->m_convertedBy));
 #endif
 
-	if(m_data->m_owner == g_network.GetPlayerIndex() &&
+	if(m_data->m_owner == network_Get().GetPlayerIndex() &&
 		!isInitialPacket) {
 		Assert(oldgross == m_data->m_gross_food);
 		Assert(oldLostToCrime == m_data->m_food_lost_to_crime);
@@ -497,7 +497,7 @@ void NetCity2::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		   oldproduced != m_data->m_net_food ||
 		   oldconsumed != m_data->m_food_consumed_this_turn ||
 		   oldaccum != m_data->m_accumulated_food) {
-			g_network.RequestResync(RESYNC_CITY_STATS);
+			network_Get().RequestResync(RESYNC_CITY_STATS);
 		}
 	}
 
@@ -554,11 +554,11 @@ void NetCityBuildQueue::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		m_cityData->m_build_queue.m_list->AddTail(bn);
 	}
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_cityData->m_owner);
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_cityData->m_owner);
 
-		g_network.Enqueue(m_cityData);
-		g_network.Unblock(m_cityData->m_owner);
+		network_Get().Enqueue(m_cityData);
+		network_Get().Unblock(m_cityData->m_owner);
 	}
 }
 

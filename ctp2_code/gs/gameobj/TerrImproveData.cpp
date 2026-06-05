@@ -148,9 +148,9 @@ BOOL TerrainImprovementData::Complete()
 	}
 
 	tiledmap_observer::RedrawTile(m_point);
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
-		g_network.Enqueue(theCell, m_point.x, m_point.y);
+		network_Get().Enqueue(theCell, m_point.x, m_point.y);
 	}
 
 	world_Get()->GetCell(m_point)->SetColor(1000);
@@ -172,9 +172,9 @@ BOOL TerrainImprovementData::AddTurn(sint32 turns)
 // add turn here can be used to make tile imps grow?
 
 	m_turnsToComplete -= turns;
-	g_network.Block(m_owner);
+	network_Get().Block(m_owner);
 	ENQUEUE();
-	g_network.Unblock(m_owner);
+	network_Get().Unblock(m_owner);
 
 // Added by Martin G�hmann to update the tileimprovement graphics,
 // to indicate increasing completeness.

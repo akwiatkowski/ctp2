@@ -114,9 +114,9 @@ void MilitaryReadiness::BeginTurn(sint32 gov)
 		}
 	}
 
-	g_network.Block(m_owner);
+	network_Get().Block(m_owner);
 	ENQUEUE();
-	g_network.Unblock(m_owner);
+	network_Get().Unblock(m_owner);
 }
 
 double MilitaryReadiness::GetHPModifier() const
@@ -146,9 +146,9 @@ void MilitaryReadiness::SupportUnit(const Unit &u, sint32 gov)
 {
 	m_cost += GetSupportCost(u);
 
-	g_network.Block(m_owner);
+	network_Get().Block(m_owner);
 	ENQUEUE();
-	g_network.Unblock(m_owner);
+	network_Get().Unblock(m_owner);
 }
 
 #if 0
@@ -159,9 +159,9 @@ void MilitaryReadiness::SupportUnitGold(const Unit &u, sint32 gov)
 
 	m_costGold += unitCostGold;
 
-	g_network.Block(m_owner);
+	network_Get().Block(m_owner);
 	ENQUEUE();
-	g_network.Unblock(m_owner);
+	network_Get().Unblock(m_owner);
 }
 #endif
 
@@ -237,9 +237,9 @@ void MilitaryReadiness::UnsupportUnit(const Unit &u, sint32 gov)
 
 	m_cost -= GetSupportCost(u);
 
-	g_network.Block(m_owner);
+	network_Get().Block(m_owner);
 	ENQUEUE();
-	g_network.Unblock(m_owner);
+	network_Get().Unblock(m_owner);
 }
 
 void MilitaryReadiness::SetLevel(sint32 gov, DynamicArray<Army> &all_armies,

@@ -167,15 +167,15 @@ void DiplomaticRequestData::SetGold(const Gold &amount)
 {
 	m_amount = amount ;
 #if 0
-	if(g_network.IsClient())
+	if(network_Get().IsClient())
 	{
-		g_network.SendAction(new NetAction(NET_ACTION_SET_REQUEST_GOLD,
+		network_Get().SendAction(new NetAction(NET_ACTION_SET_REQUEST_GOLD,
 										   (uint32)m_id,
 										   (uint32)m_amount.GetLevel()));
 	}
 	else
 	{
-		g_network.Enqueue(this);
+		network_Get().Enqueue(this);
 	}
 #endif
 }
@@ -305,28 +305,28 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
     }
 #endif // _DEBUG
 
-	if(g_network.IsClient() && !fromCurPlayer) {
-		g_network.SendAction(new NetAction(NET_ACTION_ENACT_REQUEST,
+	if(network_Get().IsClient() && !fromCurPlayer) {
+		network_Get().SendAction(new NetAction(NET_ACTION_ENACT_REQUEST,
 										   (uint32)m_id));
 		DiplomaticRequest me(m_id);
-		if(!g_network.IsLocalPlayer(player_view::CurPlayer()))
-			g_network.AddEnact(me);
+		if(!network_Get().IsLocalPlayer(player_view::CurPlayer()))
+			network_Get().AddEnact(me);
 
-		if(!g_network.IsMyTurn())
+		if(!network_Get().IsMyTurn())
 			return;
-	} else if(g_network.IsHost()) {
-		if(!fromCurPlayer && !g_network.IsLocalPlayer(player_view::CurPlayer())) {
-			g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
+	} else if(network_Get().IsHost()) {
+		if(!fromCurPlayer && !network_Get().IsLocalPlayer(player_view::CurPlayer())) {
+			network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
 								  new NetInfo(NET_INFO_CODE_ENACT_REQUEST_NEED_ACK,
 											  (uint32)m_id));
 			DiplomaticRequest me(m_id);
-			g_network.AddEnact(me);
+			network_Get().AddEnact(me);
 			return;
 		} else {
-			g_network.Block(player_view::CurPlayer());
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_ENACT_REQUEST,
+			network_Get().Block(player_view::CurPlayer());
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ENACT_REQUEST,
 										  (uint32)m_id));
-			g_network.Unblock(player_view::CurPlayer());
+			network_Get().Unblock(player_view::CurPlayer());
 		}
 	}
 
@@ -639,14 +639,14 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 {
 	SlicObject	*so = nullptr;
 
-	if(g_network.IsClient() && !fromServer) {
-		g_network.SendAction(new NetAction(NET_ACTION_REJECT_REQUEST,
+	if(network_Get().IsClient() && !fromServer) {
+		network_Get().SendAction(new NetAction(NET_ACTION_REJECT_REQUEST,
 										   (uint32)m_id));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_recipient);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_REJECT_REQUEST,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_recipient);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REJECT_REQUEST,
 									  (uint32)m_id));
-		g_network.Unblock(m_recipient);
+		network_Get().Unblock(m_recipient);
 	}
 
 	if(!player_Get(m_owner) || player_Get(m_owner)->m_isDead ||
@@ -981,11 +981,11 @@ void DiplomaticRequestData::Complete()
     }
 #endif // _DEBUG
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(this);
-	} else if(g_network.IsClient()) {
-		g_network.AddCreatedObject(this);
-		g_network.SendDiplomaticRequest(this);
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(this);
+	} else if(network_Get().IsClient()) {
+		network_Get().AddCreatedObject(this);
+		network_Get().SendDiplomaticRequest(this);
 	}
 }
 

@@ -222,8 +222,8 @@ void HighScoreWinButtonActionCallback( aui_Control *control, uint32 action, uint
 	else if ((ctp2_Button*)control == popup->m_quitButton)
 	{
 		popup->RemoveWindow();
-		if(g_network.IsActive()
-		|| g_network.IsNetworkLaunch()
+		if(network_Get().IsActive()
+		|| network_Get().IsNetworkLaunch()
 		){
 			civapp_Get()->PostQuitToLobbyAction();
 		}

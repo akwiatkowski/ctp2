@@ -90,10 +90,10 @@ bool ExpandBorders(const MapPoint &center, MapPoint curPos, sint32 player, sint3
 	cell->SetOwner(player);
 
 	if(player >= 0)
-		g_network.Block(player);
-	g_network.Enqueue(cell, curPos.x, curPos.y);
+		network_Get().Block(player);
+	network_Get().Enqueue(cell, curPos.x, curPos.y);
 	if(player >= 0)
-		g_network.Unblock(player);
+		network_Get().Unblock(player);
 
 	MapPoint nextPos;
 
@@ -145,9 +145,9 @@ bool ExpandInfluence(Unit &city, const MapPoint &centerPos, MapPoint curPos,
 
 	if(newOwner >= 0)
 	{
-		g_network.Block(newOwner);
-		g_network.Enqueue(cell, curPos.x, curPos.y);
-		g_network.Unblock(newOwner);
+		network_Get().Block(newOwner);
+		network_Get().Enqueue(cell, curPos.x, curPos.y);
+		network_Get().Unblock(newOwner);
 	}
 
 	MapPoint nextPos;
@@ -308,9 +308,9 @@ void GenerateBorders(const MapPoint &cpos, sint32 player, sint32 intRadius, sint
 	cell->SetOwner(player);
 	cell->SetScratch(1);
 
-	g_network.Block(player);
-	g_network.Enqueue(cell, cpos.x, cpos.y);
-	g_network.Unblock(player);
+	network_Get().Block(player);
+	network_Get().Enqueue(cell, cpos.x, cpos.y);
+	network_Get().Unblock(player);
 
 	if(cpos.GetNeighborPosition(NORTHEAST, cur)) ExpandBorders(cpos, cur, player, squaredRadius);
 	if(cpos.GetNeighborPosition(SOUTHEAST, cur)) ExpandBorders(cpos, cur, player, squaredRadius);

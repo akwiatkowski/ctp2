@@ -37,9 +37,9 @@ void DiplomaticRequest::KillRequest()
 
 void DiplomaticRequest::RemoveAllReferences()
 	{
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 		{
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_KILL_DIP_REQUEST,
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_DIP_REQUEST,
 									  (uint32)m_id));
 		}
     sint32 r = GetRecipient();

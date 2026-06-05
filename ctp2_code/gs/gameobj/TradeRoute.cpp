@@ -83,10 +83,10 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 
 
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_KILL_TRADE_ROUTE, (uint32)*this, (uint32)cause));
-	} else if(g_network.IsClient()) {
-		g_network.AddDeadUnit(m_id);
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_TRADE_ROUTE, (uint32)*this, (uint32)cause));
+	} else if(network_Get().IsClient()) {
+		network_Get().AddDeadUnit(m_id);
 	}
 
 	tradepool_Get()->Remove(*this);

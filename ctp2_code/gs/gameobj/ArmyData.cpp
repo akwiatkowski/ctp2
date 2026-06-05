@@ -1115,8 +1115,8 @@ void ArmyData::GroupAllUnits()
         for(i = 0; i < ul->Num(); i++) {
             if(ul->Access(i).GetArmy() != Army(m_id)) {
                 if(!ul->Access(i).GetArmy().IsValid()) {
-                    if(g_network.IsClient()) {
-                        g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
+                    if(network_Get().IsClient()) {
+                        network_Get().RequestResync(RESYNC_INVALID_ARMY_OTHER);
                         return;
                     }
                 }
@@ -1171,13 +1171,13 @@ void ArmyData::GroupUnit(Unit unit)
     Assert(unit.IsValid());
     if (!unit.IsValid())
     {
-        if (g_network.IsHost() && !g_network.IsLocalPlayer(m_owner))
+        if (network_Get().IsHost() && !network_Get().IsLocalPlayer(m_owner))
         {
-            g_network.Resync(m_owner);
+            network_Get().Resync(m_owner);
         }
-        else if (g_network.IsClient())
+        else if (network_Get().IsClient())
         {
-            g_network.RequestResync(RESYNC_INVALID_UNIT);
+            network_Get().RequestResync(RESYNC_INVALID_UNIT);
         }
         return;
     }
@@ -1575,10 +1575,10 @@ void ArmyData::BeginTurn()
 
     if(m_flags & k_CULF_IN_SPACE) {
         if(turn_Get()->GetSessionRound() >= m_reentryTurn) {
-            if(g_network.IsHost()) {
-                g_network.Block(m_owner);
-                g_network.Enqueue(new NetInfo(NET_INFO_CODE_REENTER, m_id));
-                g_network.Unblock(m_owner);
+            if(network_Get().IsHost()) {
+                network_Get().Block(m_owner);
+                network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REENTER, m_id));
+                network_Get().Unblock(m_owner);
             }
             gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_Reentry,
                                    GEA_Army, m_id,
@@ -1759,8 +1759,8 @@ ORDER_RESULT ArmyData::StealTechnology(const MapPoint &point)
             if(num > 0) {
 
                 if(player_Get(m_owner)->IsRobot()
-                &&(!g_network.IsClient()
-                || !g_network.IsLocalPlayer(m_owner))
+                &&(!network_Get().IsClient()
+                || !network_Get().IsLocalPlayer(m_owner))
                 ){
                     return m_array[i].StealTechnology(c, -1);
                 }
@@ -2510,9 +2510,9 @@ ORDER_RESULT ArmyData::CauseUnhappiness(const MapPoint &point,
 	DPRINTF(k_DBG_GAMESTATE, ("City 0x%lx will be %d less happy for %d turns\n",
 							  uint32(c), amount, timer));
 
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_HAPPINESS_ATTACK,
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_HAPPINESS_ATTACK,
 									  (uint32)c,
 									  timer,
 									  amount));
@@ -4795,8 +4795,8 @@ ORDER_RESULT ArmyData::CreatePark(const MapPoint &point)
 		return ORDER_RESULT_ILLEGAL;
 
 	if(!player_Get(m_owner)->IsRobot()
-	||  g_network.IsClient()
-	&& g_network.IsLocalPlayer(m_owner))
+	||  network_Get().IsClient()
+	&& network_Get().IsLocalPlayer(m_owner))
 		if(!VerifyAttack(UNIT_ORDER_CREATE_PARK, point,
 						 c.GetOwner()))
 			return ORDER_RESULT_ILLEGAL;
@@ -4909,8 +4909,8 @@ ORDER_RESULT ArmyData::Pillage(bool test_ownership)
 
 
 	if(!player_Get(m_owner)->IsRobot()
-	|| (g_network.IsClient()
-	&&  g_network.IsLocalPlayer(m_owner))
+	|| (network_Get().IsClient()
+	&&  network_Get().IsLocalPlayer(m_owner))
 	)
 		if(test_ownership
 		&& !VerifyAttack(UNIT_ORDER_PILLAGE_UNCONDITIONALLY, m_pos, cellOwner)
@@ -5315,8 +5315,8 @@ bool ArmyData::BombardCity(const MapPoint &point, bool doAnimations)
 			// Do not remove this, there are always people who do not
 			// know what there are doing.
 			if(!player_Get(m_owner)->IsRobot()
-			|| (g_network.IsClient()
-			&&  g_network.IsLocalPlayer(m_owner))
+			|| (network_Get().IsClient()
+			&&  network_Get().IsLocalPlayer(m_owner))
 			){
 				if(!VerifyAttack(UNIT_ORDER_BOMBARD, point, c.GetOwner())
 				){
@@ -5528,8 +5528,8 @@ ORDER_RESULT ArmyData::Bombard(const MapPoint &orderPoint)
 	// Do not remove: There are always people who do not
 	// know what they are doing.
 	if(!player_Get(m_owner)->IsRobot()
-	|| (g_network.IsClient()
-	&&  g_network.IsLocalPlayer(m_owner)))
+	|| (network_Get().IsClient()
+	&&  network_Get().IsLocalPlayer(m_owner)))
 		if(!VerifyAttack(UNIT_ORDER_BOMBARD, point, defender.GetOwner()))
 			return ORDER_RESULT_ILLEGAL;
 
@@ -5770,8 +5770,8 @@ ORDER_RESULT ArmyData::InterceptTrade()
 			m_array[i].CanPerformSpecialAction())
 		{
 			if(!player_Get(m_owner)->IsRobot()
-			||(g_network.IsClient()
-			&& g_network.IsLocalPlayer(m_owner))
+			||(network_Get().IsClient()
+			&& network_Get().IsLocalPlayer(m_owner))
 			){
 				Cell *cell = world_Get()->GetCell(m_pos);
 				for (sint32 j = 0; j < cell->GetNumTradeRoutes(); j++)
@@ -5988,8 +5988,8 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 {
 	bool execute = true;
 
-	if(g_network.IsActive() && g_network.IsLocalPlayer(m_owner) &&
-	   !g_network.IsMyTurn() && player_view::CurPlayer() == m_owner &&
+	if(network_Get().IsActive() && network_Get().IsLocalPlayer(m_owner) &&
+	   !network_Get().IsMyTurn() && player_view::CurPlayer() == m_owner &&
 	   player_view::VisiblePlayer() == m_owner) {
 		
 			delete path;
@@ -6036,7 +6036,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 	}
 	else
 	{
-		if(g_network.IsActive() && order == UNIT_ORDER_ADD_EVENT) {
+		if(network_Get().IsActive() && order == UNIT_ORDER_ADD_EVENT) {
 
 		}
 		else
@@ -6062,17 +6062,17 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 	StopPirating();
 
 	Order *o = m_orders->GetTail();
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetOrder(m_owner, Army(m_id),
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetOrder(m_owner, Army(m_id),
 									   o->m_order,
 									   o->m_path,
 									   o->m_point,
 									   o->m_argument,
 									   o->m_eventType));
-		g_network.Unblock(m_owner);
-	} else if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendOrder(m_owner,
+		network_Get().Unblock(m_owner);
+	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendOrder(m_owner,
 							Army(m_id),
 							o->m_order,
 							o->m_path,
@@ -6082,7 +6082,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 	}
 
 	if(order == UNIT_ORDER_VICTORY_MOVE) {
-		if((!g_network.IsActive() || g_network.IsLocalPlayer(m_owner))) {
+		if((!network_Get().IsActive() || network_Get().IsLocalPlayer(m_owner))) {
 
 			ExecuteOrders();
 		}
@@ -6095,7 +6095,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 
 			if(m_owner == player_view::CurPlayer() ||
 			   (m_nElements == 1 && m_array[0].Flag(k_UDF_MAD_LAUNCHED))) {
-					if(!g_network.IsActive() || g_network.IsLocalPlayer(m_owner))
+					if(!network_Get().IsActive() || network_Get().IsLocalPlayer(m_owner))
 						ExecuteOrders();
 			}
 		}
@@ -6122,16 +6122,16 @@ void ArmyData::ClearOrders()
 	if(m_orders->GetHead())
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx clearing orders\n", m_id));
-		if(g_network.IsHost())
+		if(network_Get().IsHost())
 		{
-			g_network.Block(m_owner);
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_CLEAR_ORDERS,
+			network_Get().Block(m_owner);
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CLEAR_ORDERS,
 										  (uint32)m_id));
-			g_network.Unblock(m_owner);
+			network_Get().Unblock(m_owner);
 		}
-		else if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner))
+		else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner))
 		{
-			g_network.SendAction(new NetAction(NET_ACTION_CLEAR_ORDERS,
+			network_Get().SendAction(new NetAction(NET_ACTION_CLEAR_ORDERS,
 											   (uint32)m_id));
 		}
 		m_orders->DeleteAll();
@@ -6191,26 +6191,26 @@ bool ArmyData::ExecuteOrders(bool propagate)
 	Army me(m_id);
 	if(m_orders->GetHead()->m_order != UNIT_ORDER_EXPEL_TO) {
 
-		if(g_network.IsActive() && m_owner == player_view::VisiblePlayer() &&
-		   !g_network.IsMyTurn()) {
+		if(network_Get().IsActive() && m_owner == player_view::VisiblePlayer() &&
+		   !network_Get().IsMyTurn()) {
 		   return false;
 		}
 	}
 
 	m_dontKillCount++;
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
 		if(propagate) {
-			g_network.SendAction(new NetAction(NET_ACTION_EXECUTE_ORDERS,
+			network_Get().SendAction(new NetAction(NET_ACTION_EXECUTE_ORDERS,
 											   (uint32)m_id));
 		}
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
 //		UNIT_ORDER_TYPE type = m_orders->GetHead()->m_order;
 
 		if(propagate) {
 			if(m_orders->GetHead()->m_order != UNIT_ORDER_EXPEL_TO) {
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_EXECUTE_ORDERS,
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_EXECUTE_ORDERS,
 											  (uint32)m_id));
 			}
 		}
@@ -6354,8 +6354,8 @@ bool ArmyData::ExecuteOrders(bool propagate)
 			if(completedOrder) {
 				delete m_orders->RemoveHead();
 #ifdef NETWORK_PARANOID
-				if(g_network.IsClient() && m_nElements > 0 && !m_needToKill) {
-					g_network.SendAction(new NetAction(NET_ACTION_VERIFY_POS,
+				if(network_Get().IsClient() && m_nElements > 0 && !m_needToKill) {
+					network_Get().SendAction(new NetAction(NET_ACTION_VERIFY_POS,
 													   m_id,
 													   (sint32)m_pos.x,
 													   (sint32)m_pos.y));
@@ -6369,8 +6369,8 @@ bool ArmyData::ExecuteOrders(bool propagate)
 			keepGoing = false;
 		}
 	}
-	if(g_network.IsHost()) {
-		g_network.Unblock(owner);
+	if(network_Get().IsHost()) {
+		network_Get().Unblock(owner);
 
 	}
 
@@ -6510,13 +6510,13 @@ bool ArmyData::ExecuteMoveOrder(Order *order)
 	if(NOWHERE == d)
 	{
 		// Something is not right
-		if (g_network.IsClient())
+		if (network_Get().IsClient())
 		{
-			g_network.RequestResync(RESYNC_ARMY_POS);
+			network_Get().RequestResync(RESYNC_ARMY_POS);
 		}
-		else if (g_network.IsHost() && !g_network.IsLocalPlayer(m_owner))
+		else if (network_Get().IsHost() && !network_Get().IsLocalPlayer(m_owner))
 		{
-			g_network.Resync(m_owner);
+			network_Get().Resync(m_owner);
 		}
 	}
 	else
@@ -6659,8 +6659,8 @@ bool ArmyData::Move(WORLD_DIRECTION d, Order *order)
 
 				if(player_Get(m_owner)->IsRobot())
 				{
-					if(g_network.IsClient()
-					&& g_network.IsLocalPlayer(m_owner)
+					if(network_Get().IsClient()
+					&& network_Get().IsLocalPlayer(m_owner)
 					){
 						return false;
 					}
@@ -6704,10 +6704,10 @@ bool ArmyData::Move(WORLD_DIRECTION d, Order *order)
 			if(m_orders->GetHead() == order) {
 				m_orders->RemoveHead();
 			}
-			if(g_network.IsHost()) {
-				g_network.Block(m_owner);
-				g_network.SyncRand();
-				g_network.Unblock(m_owner);
+			if(network_Get().IsHost()) {
+				network_Get().Block(m_owner);
+				network_Get().SyncRand();
+				network_Get().Unblock(m_owner);
 			}
 			if(player_Get(m_owner)->IsRobot())
 			{
@@ -6864,8 +6864,8 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 				if(m_array[i].GetDBRec()->HasNuclearAttack()) {
 
 					if(!player_Get(m_owner)->IsRobot()
-					||(g_network.IsClient()
-					&& g_network.IsLocalPlayer(m_owner)))
+					||(network_Get().IsClient()
+					&& network_Get().IsLocalPlayer(m_owner)))
 						if(!VerifyAttack(UNIT_ORDER_MOVE_TO, pos,
 										 city.GetOwner()))
 							return true;
@@ -6954,8 +6954,8 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 					}
 
 					if(!player_Get(m_owner)->IsRobot()
-					||(g_network.IsClient()
-					&& g_network.IsLocalPlayer(m_owner)))
+					||(network_Get().IsClient()
+					&& network_Get().IsLocalPlayer(m_owner)))
 						if(!VerifyAttack(UNIT_ORDER_MOVE_TO, pos,
 										 defender->GetOwner()))
 							return true;
@@ -7226,8 +7226,8 @@ bool ArmyData::VerifyAttack(UNIT_ORDER_TYPE order, const MapPoint &pos,
 
 	// Modified to catch accidental attacks
 	SlicObject *so;
-	if (    g_network.IsActive()
-	     && g_network.TeamsEnabled()
+	if (    network_Get().IsActive()
+	     && network_Get().TeamsEnabled()
 	     && (player_Get(m_owner)->m_networkGroup ==
 	            player_Get(defense_owner)->m_networkGroup
 	        )
@@ -7714,22 +7714,22 @@ void ArmyData::MoveUnits(const MapPoint &pos)
 					notReported = false;
 				}
 #endif
-				if( !g_network.IsActive()
+				if( !network_Get().IsActive()
 				&&  player_Get(m_owner)->IsHuman()
 				){
 					ClearOrders();
 				}
-				else if(g_network.IsHost())
+				else if(network_Get().IsHost())
 				{
-					if( !g_network.IsLocalPlayer(m_owner)
+					if( !network_Get().IsLocalPlayer(m_owner)
 					||  m_owner == player_view::VisiblePlayer()
 					){
 						ClearOrders();
 					}
 				}
-				else if(g_network.IsClient())
+				else if(network_Get().IsClient())
 				{
-					if(g_network.IsLocalPlayer(m_owner))
+					if(network_Get().IsLocalPlayer(m_owner))
 					{
 						ClearOrders();
 					}
@@ -7809,9 +7809,9 @@ void ArmyData::CheckTerrainEvents()
 			}
 		}
 
-		if(g_network.IsHost())
+		if(network_Get().IsHost())
 		{
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_REMOVE_HUT,
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REMOVE_HUT,
 										  m_pos.x, m_pos.y));
 		}
 	}
@@ -8024,11 +8024,11 @@ bool ArmyData::MoveIntoTransport(const MapPoint &pos, CellUnitList &transports)
 					}
 				}
 
-				if (g_network.IsHost())
+				if (network_Get().IsHost())
 				{
-					g_network.Block(m_owner);
-					g_network.Enqueue(transports[j].AccessData());
-					g_network.Unblock(m_owner);
+					network_Get().Block(m_owner);
+					network_Get().Enqueue(transports[j].AccessData());
+					network_Get().Unblock(m_owner);
 				}
 
 				break;
@@ -8810,10 +8810,10 @@ void ArmyData::SetUnloadMovementPoints()
 		if (!m_array[i].CanBeachAssault() &&
 			!m_array[i].GetMovementTypeAir()) {
 			m_array[i].SetMovementPoints(0.0);
-			if(g_network.IsHost()) {
-				g_network.Block(m_owner);
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_SET_MOVEMENT_TO_ZERO, (uint32)m_array[i]));
-				g_network.Unblock(m_owner);
+			if(network_Get().IsHost()) {
+				network_Get().Block(m_owner);
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_MOVEMENT_TO_ZERO, (uint32)m_array[i]));
+				network_Get().Unblock(m_owner);
 			}
 		}
 	}
@@ -9738,8 +9738,8 @@ bool ArmyData::DoLeaveOurLandsCheck(const MapPoint &newPos,
 			if(agreementpool_Get()->IsValid(ag) && ag.GetRecipient() == m_owner) {
 
 				if(!player_Get(m_owner)->IsRobot()
-				|| (g_network.IsClient()
-				&&  g_network.IsLocalPlayer(m_owner))
+				|| (network_Get().IsClient()
+				&&  network_Get().IsLocalPlayer(m_owner))
 				){
 					char turnBuf[32];
 					snprintf(turnBuf, sizeof(turnBuf), "%d", ag.GetTurns() + 1);
@@ -9961,7 +9961,7 @@ bool ArmyData::CanPerformSpecialAction() const
 //----------------------------------------------------------------------------
 void ArmyData::CheckAddEventOrder()
 {
-	if(g_network.IsClient() && !g_network.IsLocalPlayer(m_owner)) {
+	if(network_Get().IsClient() && !network_Get().IsLocalPlayer(m_owner)) {
 		return;
 	}
 

@@ -2483,7 +2483,7 @@ void Network::SendChatText(MBCHAR *str, sint32 len)
 					}
 					if(dest > 0 && dest < k_MAX_PLAYERS && player_Get(dest)) {
 						NetChat *chatPacket = new NetChat(1 << dest, c, len - (c - str));
-						if(g_network.IsHost()) {
+						if(network_Get().IsHost()) {
 							QueuePacket(IndexToId(dest), chatPacket);
 						} else {
 							QueuePacket(m_hostId, chatPacket);
@@ -2511,7 +2511,7 @@ void Network::SendChatText(MBCHAR *str, sint32 len)
 		}
 #endif
 
-		if(g_network.IsHost()) {
+		if(network_Get().IsHost()) {
 			for(sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 				if(!player_Get(p)) continue;
 				if(m_chatMask & (1 << p) && !player_Get(p)->IsRobot() &&
@@ -3850,17 +3850,17 @@ void network_PlayerListCallback(sint32 player, sint32 val, sint32 action)
 	if(val) {
 		switch(action) {
 			case PLAYER_ACTION_KICK:
-				if(player != g_network.GetPlayerIndex())
-					g_network.KickPlayer(player);
+				if(player != network_Get().GetPlayerIndex())
+					network_Get().KickPlayer(player);
 				break;
 			case PLAYER_ACTION_OPEN:
 
-					g_network.OpenPlayer(player);
+					network_Get().OpenPlayer(player);
 
 				break;
 			case PLAYER_ACTION_CLOSE:
 
-					g_network.ClosePlayer(player);
+					network_Get().ClosePlayer(player);
 
 				break;
 		}
@@ -4000,7 +4000,7 @@ void Network::SendCity(CityData *cd)
 
 void Network::NotifyDiplomacyResponse(Response &response, sint32 p1, sint32 p2)
 {
-	if(!g_network.IsActive()) return;
+	if(!network_Get().IsActive()) return;
 
 	if(IsHost()) {
 		QueuePacketToAll(new NetDipResponse(response, p1, p2));
@@ -4033,7 +4033,7 @@ void network_VerifyGameData()
 
 		for(u = 0; u < player_Get(p)->m_all_units->Num(); u++) {
 			if(!player_Get(p)->m_all_units->Access(u).IsValid()) {
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 				return;
 			}
 		}
@@ -4041,7 +4041,7 @@ void network_VerifyGameData()
 		sint32 a;
 		for(a = 0; a < player_Get(p)->m_all_armies->Num(); a++) {
 			if(!player_Get(p)->m_all_armies->Access(a).IsValid()) {
-				g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
+				network_Get().RequestResync(RESYNC_INVALID_ARMY_OTHER);
 				return;
 			}
 		}
@@ -4049,7 +4049,7 @@ void network_VerifyGameData()
 		sint32 c;
 		for(c = 0; c < player_Get(p)->m_all_cities->Num(); c++) {
 			if(!player_Get(p)->m_all_cities->Access(c).IsValid()) {
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 				return;
 			}
 		}
@@ -4062,11 +4062,11 @@ void network_VerifyGameData()
 			Cell *cell = world_Get()->GetCell(x, y);
 			for(u = 0; u < cell->GetNumUnits(); u++) {
 				if(!cell->AccessUnit(u).IsValid()) {
-					g_network.RequestResync(RESYNC_INVALID_UNIT);
+					network_Get().RequestResync(RESYNC_INVALID_UNIT);
 					return;
 				}
 				if(cell->GetCity().m_id != 0 && !cell->GetCity().IsValid()) {
-					g_network.RequestResync(RESYNC_INVALID_UNIT);
+					network_Get().RequestResync(RESYNC_INVALID_UNIT);
 					return;
 				}
 			}

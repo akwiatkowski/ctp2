@@ -732,16 +732,16 @@ void ArmyManagerWindow::AddSelectedUnits()
 		}
 	}
 
-	if(g_network.IsClient()) {
+	if(network_Get().IsClient()) {
 		if(node->m_army.m_id != 0) {
 			Assert(node->m_army.IsValid());
 			if(!node->m_army.IsValid()) {
-				g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
+				network_Get().RequestResync(RESYNC_INVALID_ARMY_OTHER);
 			} else {
-				g_network.SendGroupRequest(units, node->m_army);
+				network_Get().SendGroupRequest(units, node->m_army);
 			}
 		} else {
-			g_network.SendGroupRequest(units, Army());
+			network_Get().SendGroupRequest(units, Army());
 		}
 		return;
 	}
@@ -844,7 +844,7 @@ void ArmyManagerWindow::RemoveSelectedUnits()
 			Assert(m_inArmy[i].IsValid());
 			Assert(m_inArmy[i].GetArmy() == theArmy);
 			if(m_inArmy[i].IsValid()) {
-				if(g_network.IsClient()) {
+				if(network_Get().IsClient()) {
 
 
 					units.Insert(m_inArmy[i]);
@@ -859,8 +859,8 @@ void ArmyManagerWindow::RemoveSelectedUnits()
 		}
 	}
 
-	if(g_network.IsClient()) {
-		g_network.SendUngroupRequest(theArmy, units);
+	if(network_Get().IsClient()) {
+		network_Get().SendUngroupRequest(theArmy, units);
 		return;
 	}
 

@@ -278,7 +278,7 @@ AUI_ERRCODE EditQueue::Initialize()
 
 AUI_ERRCODE EditQueue::Display(CityData *city)
 {
-	if(g_network.IsClient() && g_network.GetSensitiveUIBlocked()) {
+	if(network_Get().IsClient() && network_Get().GetSensitiveUIBlocked()) {
 
 		return AUI_ERRCODE_OK;
 	}

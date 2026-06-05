@@ -21,7 +21,7 @@ DomesticManagementDialog * domesticmanagementdialog_Get()
 
 void DomesticManagementDialog::Open()
 {
-	if(g_network.IsClient() && g_network.GetSensitiveUIBlocked())
+	if(network_Get().IsClient() && network_Get().GetSensitiveUIBlocked())
 		return;
 
 	if(!g_domesticManagementDialog) {

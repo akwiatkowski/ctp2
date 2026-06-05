@@ -106,7 +106,7 @@ sint32	optionsscreen_displayMyWindow( sint32 from )
 
 
 	g_optionsWindow->SaveGameButton()->Enable(
-		!(netfunc_Get() && !g_network.IsHost()) &&
+		!(netfunc_Get() && !network_Get().IsHost()) &&
 		from &&
 		!g_isCheatModeOn );
 
@@ -116,7 +116,7 @@ sint32	optionsscreen_displayMyWindow( sint32 from )
 		&& from
 		);
 
-	if ( !g_network.IsActive() &&
+	if ( !network_Get().IsActive() &&
 		from &&
 		!turn_Get()->IsHotSeat() && !turn_Get()->IsEmail())
 	{
@@ -258,7 +258,7 @@ void optionsscreen_savegamePress(aui_Control *control, uint32 action, uint32 dat
 
 	uint32 type = LSS_SAVE_GAME;
 
-	if ( g_network.IsActive() )
+	if ( network_Get().IsActive() )
 		type = LSS_SAVE_MP;
 
 
@@ -335,7 +335,7 @@ void optionsscreen_mapeditorPress(aui_Control *control, uint32 action, uint32 da
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	if(g_network.IsActive())
+	if(network_Get().IsActive())
 
 		return;
 

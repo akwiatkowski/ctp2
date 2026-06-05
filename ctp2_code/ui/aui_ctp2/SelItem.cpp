@@ -599,15 +599,15 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 	sint32 player = GetVisiblePlayer();
 	Player *p = player_Get(player);
 
-	if(!g_network.IsActive())
+	if(!network_Get().IsActive())
 	{
 		if(!player_Get(GetCurPlayer())->IsHuman())
 			return;
 	}
 	else
 	{
-		if(!g_network.IsLocalPlayer(GetCurPlayer())
-		|| !g_network.ReadyToStart()
+		if(!network_Get().IsLocalPlayer(GetCurPlayer())
+		|| !network_Get().ReadyToStart()
 		||  player_Get(GetCurPlayer())->IsRobot()
 		){
 			return;
@@ -622,7 +622,7 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 		return;
 	}
 
-	if(profiledb_Get()->IsAutoTurnCycle() && !g_network.IsActive())
+	if(profiledb_Get()->IsAutoTurnCycle() && !network_Get().IsActive())
 	{
 		bool endTurn = true;
 
@@ -773,17 +773,17 @@ void SelectedItem::SetCurPlayer(PLAYER_INDEX p)
 	m_auto_unload = false;
 	m_current_player = p;
 
-	if(g_network.IsActive())
+	if(network_Get().IsActive())
 	{
-		if(g_network.GetPlayerIndex() == p
-		||(g_network.IsHost()
+		if(network_Get().GetPlayerIndex() == p
+		||(network_Get().IsHost()
 		&& !player_Get(p)->IsNetwork())
 		){
 			// Do nothing for whatever reason
 		}
 		else
 		{
-			g_network.SetMyTurn(false);
+			network_Get().SetMyTurn(false);
 		}
 	}
 	ClearCycle();
@@ -1562,18 +1562,18 @@ void SelectedItem::SelectTradeRoute( const MapPoint &pos )
 
 sint32 SelectedItem::GetVisiblePlayer() const
 {
-	if (m_player_on_screen != -1 && !g_network.IsActive())
+	if (m_player_on_screen != -1 && !network_Get().IsActive())
 		return m_player_on_screen;
 
-	if(!g_network.IsActive())
+	if(!network_Get().IsActive())
 	{
 		return m_current_player;
 	}
 	else
 	{
-		if(g_network.IsClient())
+		if(network_Get().IsClient())
 		{
-			return g_network.GetPlayerIndex();
+			return network_Get().GetPlayerIndex();
 		}
 		else
 		{
@@ -1585,13 +1585,13 @@ sint32 SelectedItem::GetVisiblePlayer() const
 			}
 			else
 			{
-				if(!player_Get(g_network.GetPlayerIndex()))
+				if(!player_Get(network_Get().GetPlayerIndex()))
 				{
 					return m_current_player;
 				}
 				else
 				{
-					return g_network.GetPlayerIndex();
+					return network_Get().GetPlayerIndex();
 				}
 			}
 		}
@@ -1821,7 +1821,7 @@ void SelectedItem::Settle()
 	PLAYER_INDEX    s_player;
 	ID			    s_item;
 	SELECT_TYPE     s_state;
-	bool		    isMyTurn = !g_network.IsActive() || g_network.IsMyTurn();
+	bool		    isMyTurn = !network_Get().IsActive() || network_Get().IsMyTurn();
 
 	GetTopCurItem(s_player, s_item, s_state);
 

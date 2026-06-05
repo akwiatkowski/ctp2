@@ -181,8 +181,8 @@ void World::CreateTheWorld(MapPoint player_start_list[k_MAX_PLAYERS],
 		worldIsGood = true;
 
 		if(numFound < 3 ||
-		   (g_network.IsNetworkLaunch() && g_network.IsLaunchHost() &&
-			numFound < g_network.GetNumHumanPlayers())) {
+		   (network_Get().IsNetworkLaunch() && network_Get().IsLaunchHost() &&
+			numFound < network_Get().GetNumHumanPlayers())) {
 			if(profiledb_Get()->IsTutorialAdvice() && !ignoreTutorialRules) {
 				Reset(m_size.x, m_size.y, m_isYwrap, m_isXwrap);
 				ignoreTutorialRules = true;
@@ -1662,7 +1662,7 @@ BOOL World::FindMaxCumScore(sint32 d, float **cum_score, sint32 &maxx, sint32 &m
 				if(dist < minDist) {
 					dontUse = TRUE;
 				}
-				if(index == 1 && !g_network.IsNetworkLaunch() && !g_network.IsActive()) {
+				if(index == 1 && !network_Get().IsNetworkLaunch() && !network_Get().IsActive()) {
 					if(dist > maxDist) {
 						dontUse = TRUE;
 					}

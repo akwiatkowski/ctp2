@@ -276,8 +276,8 @@ sint32 InstallationData::AirfieldLastUsed() const
 
 void InstallationData::ChangeOwner(sint32 toOwner)
 {
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_CHANGE_INSTALLATION_OWNER,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CHANGE_INSTALLATION_OWNER,
 									  m_id, m_owner, toOwner));
 	}
 

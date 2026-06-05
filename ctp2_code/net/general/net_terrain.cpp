@@ -118,7 +118,7 @@ void NetTerrainImprovement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	TerrainImprovement imp;
 	PULLLONGTYPE(imp, TerrainImprovement);
 
-	g_network.CheckReceivedObject((uint32)imp);
+	network_Get().CheckReceivedObject((uint32)imp);
 
 	if(!terrimprovepool_Get()->IsValid(imp)) {
 		m_data = new TerrainImprovementData(imp);

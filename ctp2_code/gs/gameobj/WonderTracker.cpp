@@ -83,8 +83,8 @@ sint32 WonderTracker::WhoOwnsWonder(sint32 which)
 void WonderTracker::AddBuilt(sint32 which)
 {
 	m_builtWonders |= safe_shift_left_u64(which);
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BUILT_WONDERS,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILT_WONDERS,
 									  (uint32)(m_builtWonders & 0xffffffff),
 									  (uint32)(m_builtWonders >> (uint64)32)));
 	}

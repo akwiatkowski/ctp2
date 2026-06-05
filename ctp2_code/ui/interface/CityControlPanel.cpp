@@ -270,7 +270,7 @@ void CityControlPanel::EditBuildQueueButtonActionCallback(aui_Control *control,
 	if (selectedItem >= numberOfItems)
 		selectedItem = numberOfItems - 1;
 
-	if(g_network.IsClient() && g_network.GetSensitiveUIBlocked()) {
+	if(network_Get().IsClient() && network_Get().GetSensitiveUIBlocked()) {
 	} else {
 		EditQueue::Display(CityWindow::GetCityData(player->GetCityFromIndex(selectedItem)));
 	}
@@ -405,7 +405,7 @@ void CityControlPanel::CitySelectActionCallback(aui_Control *control,
 
 			}
 		}
-		if(!g_network.IsClient()) {
+		if(!network_Get().IsClient()) {
 			CityWindow::Project(cd);  // Update calculated fields of the city
 		}
 	}
@@ -813,7 +813,7 @@ void CityControlPanel::SelectedCity()
 	CityData *oldCityData = GetSelectedCity();
 	if(oldCityData && oldCityData->GetHomeCity().m_id == newCity.m_id) {
 
-		if(!g_network.IsClient()) {
+		if(!network_Get().IsClient()) {
 			CityWindow::Project(oldCityData);
 		}
 		return;

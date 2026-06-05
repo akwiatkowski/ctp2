@@ -1696,7 +1696,7 @@ void CivApp::CleanupApp()
 {
 	if (m_appLoaded)
 	{
-		g_network.Cleanup();
+		network_Get().Cleanup();
 		GreatLibrary::Shutdown_Great_Library_Data();
 		Splash::Cleanup();
 		messagewin_Cleanup();
@@ -1717,7 +1717,7 @@ void CivApp::CleanupApp()
 		ui_events_Cleanup();
 		events_Cleanup();
 		gameEventManager_Cleanup();
-		g_network.Cleanup();
+		network_Get().Cleanup();
 		CursorManager::Cleanup();
 		sharedsurface_Cleanup();
 		CleanupAppUI();
@@ -2027,7 +2027,7 @@ sint32 CivApp::InitializeGame()
 
 	ProgressTo( 710 );
 
-	if(!g_network.IsActive() && !g_network.IsNetworkLaunch())
+	if(!network_Get().IsActive() && !network_Get().IsNetworkLaunch())
 	{
 		m_game->GetEventsPtr()->AddEvent(GEV_INSERT_Tail,
 			GEV_BeginTurn,
@@ -2038,7 +2038,7 @@ sint32 CivApp::InitializeGame()
 
 	ProgressTo( 720 );
 
-	if(!g_network.IsActive()) {
+	if(!network_Get().IsActive()) {
 		if (director_Get())
 			director_Get()->AddCopyVision();
 	}
@@ -2299,7 +2299,7 @@ sint32 CivApp::InitializeSpriteEditor()
 
 	turn_Get()->BeginNewTurn(FALSE);
 
-	if(!g_network.IsActive()) {
+	if(!network_Get().IsActive()) {
 		if(g_scenarioUsePlayerNumber == 0 && !turn_Get()->IsHotSeat() &&
 			!turn_Get()->IsEmail()) {
 			selitem_Get()->SetPlayerOnScreen(1);
@@ -2423,7 +2423,7 @@ void CivApp::CleanupGame(bool keepScenInfo)
 	uint32 used_milliseconds;
 	ProcessUI(target_milliseconds, used_milliseconds);
 
-	g_network.Cleanup();
+	network_Get().Cleanup();
 
 	radarwindow_Cleanup();
 
@@ -2555,7 +2555,7 @@ void CivApp::ProcessGraphicsCallback()
 	background_Get()->Draw();
 	c3ui_Get()->Process();
 
-	if (!g_network.IsActive() || g_network.ReadyToStart())
+	if (!network_Get().IsActive() || network_Get().ReadyToStart())
     {
 		director_Get()->Process();
     }
@@ -2594,8 +2594,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 			return 0;
 		}
 
-		bool netGameLoading = (g_network.IsNetworkLaunch() || g_network.IsActive())
-			                  && !g_network.ReadyToStart();
+		bool netGameLoading = (network_Get().IsNetworkLaunch() || network_Get().IsActive())
+			                  && !network_Get().ReadyToStart();
 
 		if (m_gameLoaded && !g_modalWindow) {
 			if (!netGameLoading && ui_CheckForScroll()) {
@@ -3180,8 +3180,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 
 sint32 CivApp::ProcessAI()
 {
-	if((g_network.IsActive() || g_network.IsNetworkLaunch()) &&
-		!g_network.ReadyToStart())
+	if((network_Get().IsActive() || network_Get().IsNetworkLaunch()) &&
+		!network_Get().ReadyToStart())
 		return 0;
 
 	if(victorywin_IsOnScreen())
@@ -3200,8 +3200,8 @@ sint32 CivApp::ProcessAI()
 
 sint32 CivApp::ProcessRobot(const uint32 target_milliseconds, uint32 &used_milliseconds)
 {
-	if((g_network.IsActive() || g_network.IsNetworkLaunch()) &&
-		!g_network.ReadyToStart())
+	if((network_Get().IsActive() || network_Get().IsNetworkLaunch()) &&
+		!network_Get().ReadyToStart())
 		return 0;
 
 	if(victorywin_IsOnScreen())
@@ -3227,7 +3227,7 @@ sint32 CivApp::ProcessNet(const uint32 target_milliseconds, uint32 &used_millise
 
 	if (m_gameLoaded)
 	{
-		g_network.Process();
+		network_Get().Process();
 	}
 
 	used_milliseconds   = Os::GetTicks() - start_time;
@@ -3609,7 +3609,7 @@ void CivApp::QuitGame()
 
 void CivApp::AutoSave(sint32 player, bool isQuickSave)
 {
-	if ((g_network.IsActive() && !g_network.IsHost()) || g_network.IsNetworkLaunch())
+	if ((network_Get().IsActive() && !network_Get().IsHost()) || network_Get().IsNetworkLaunch())
 		return;
 
 	MBCHAR const *  autosaveItem    = (isQuickSave) ? "QUICKSAVE_NAME" : "AUTOSAVE_NAME";
@@ -3623,7 +3623,7 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 	MBCHAR			filename[_MAX_PATH];
 	snprintf(filename, sizeof(filename), "%s-%s", autosaveName, leaderName);
 
-	C3SAVEDIR       dir = (g_network.IsActive()) ? C3SAVEDIR_MP : C3SAVEDIR_GAME;
+	C3SAVEDIR       dir = (network_Get().IsActive()) ? C3SAVEDIR_MP : C3SAVEDIR_GAME;
 
 	MBCHAR			path[_MAX_PATH];
 	civpaths_Get()->GetSavePath(dir, path);
@@ -3672,9 +3672,9 @@ void CivApp::PostLoadSaveGameAction(MBCHAR const * name)
 
 void CivApp::PostLoadQuickSaveAction(sint32 player)
 {
-	/// @todo Check g_network.IsHost? See AutoSave. Otherwise, the dir assignment
+	/// @todo Check network_Get().IsHost? See AutoSave. Otherwise, the dir assignment
 	///       becomes constant.
-	if (g_network.IsActive())
+	if (network_Get().IsActive())
 	{
 		return;
 	}
@@ -3687,7 +3687,7 @@ void CivApp::PostLoadQuickSaveAction(sint32 player)
 	MBCHAR			filename[_MAX_PATH];
 	snprintf(filename, sizeof(filename), "%s-%s", stringdb_Get()->GetNameStr("QUICKSAVE_NAME"), leaderName);
 
-	C3SAVEDIR       dir = (g_network.IsActive()) ? C3SAVEDIR_MP : C3SAVEDIR_GAME;
+	C3SAVEDIR       dir = (network_Get().IsActive()) ? C3SAVEDIR_MP : C3SAVEDIR_GAME;
 
 	MBCHAR			path[_MAX_PATH];
 	civpaths_Get()->GetSavePath(dir, path);

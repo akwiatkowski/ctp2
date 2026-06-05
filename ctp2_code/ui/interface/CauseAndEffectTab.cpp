@@ -377,7 +377,7 @@ m_summaryCommerceConversionsGold(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ld
 void CauseAndEffectTab::Update()
 {
 
-	if(g_network.GetSensitiveUIBlocked())
+	if(network_Get().GetSensitiveUIBlocked())
 		return;
 
 	UpdateCities();

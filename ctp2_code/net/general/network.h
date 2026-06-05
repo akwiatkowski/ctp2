@@ -117,7 +117,7 @@ class CellUnitList;
 class aui_Surface;
 #endif
 
-#define ENQUEUE() { if(g_network.IsActive() && g_network.IsHost()) g_network.Enqueue(this); }
+#define ENQUEUE() { if(network_Get().IsActive() && network_Get().IsHost()) network_Get().Enqueue(this); }
 
 void network_PlayerListCallback(sint32 player, sint32 val, sint32 action);
 
@@ -586,6 +586,7 @@ private:
 #endif
 };
 
-extern Network g_network;
+// Storage is file-static in ctp/civ3_main.cpp; reach it via this accessor.
+Network & network_Get();
 
 #endif

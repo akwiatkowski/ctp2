@@ -121,8 +121,8 @@ void NewTurnCount::StartNextPlayer(bool stop)
 
 	PLAYER_INDEX current_player = player_view::CurPlayer();
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_END_TURN));
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_END_TURN));
 		return;
 	}
 
@@ -132,7 +132,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 
 	if((player_Get(current_player)->IsHuman()
 	|| (player_Get(current_player)->IsNetwork()
-	&&  g_network.IsLocalPlayer(current_player)))
+	&&  network_Get().IsLocalPlayer(current_player)))
 	&&  player_view::CurPlayer() == player_view::VisiblePlayer()
 	){
 		player_Get(current_player)->m_endingTurn = TRUE;
@@ -142,7 +142,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 #endif
 
 	extern BOOL g_aPlayerIsDead;
-	if(!g_network.IsClient() && g_aPlayerIsDead) {
+	if(!network_Get().IsClient() && g_aPlayerIsDead) {
 		Player::RemoveDeadPlayers();
 	}
 
@@ -170,14 +170,14 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	}
 
 	if (stop ||
-		(g_network.IsActive() &&
-		 (g_network.IsClient() || !player_Get(next_player)->IsRobot())))
+		(network_Get().IsActive() &&
+		 (network_Get().IsClient() || !player_Get(next_player)->IsRobot())))
 	{
 		NewTurnCount::SetStopPlayer(next_player);
 		render_observer::NextPlayer();
 	}
 
-	if(g_network.IsHost() && GetStopPlayer() == next_player)
+	if(network_Get().IsHost() && GetStopPlayer() == next_player)
 	{
 		if(player_Get(next_player)->IsRobot())
 		{
@@ -200,9 +200,9 @@ void NewTurnCount::StartNextPlayer(bool stop)
 		NewTurnCount::StartNewYear();
 	}
 
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
-		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_TURN, next_player));
+		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_TURN, next_player));
 	}
 
 	if((turn_Get()->IsHotSeat() || turn_Get()->IsEmail())
@@ -216,7 +216,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 		}
 	}
 
-	if(!g_network.IsHost() || g_network.IsLocalPlayer(next_player))
+	if(!network_Get().IsHost() || network_Get().IsLocalPlayer(next_player))
 	{
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginTurn,
 		                       GEA_Player,      next_player,
@@ -323,9 +323,9 @@ void NewTurnCount::RunNewYearMessages()
 					}
 				}
 			}
-			if(g_network.IsHost())
+			if(network_Get().IsHost())
 			{
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_GAME_OVER_OUT_OF_TIME,
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_GAME_OVER_OUT_OF_TIME,
 				                              highPlayer));
 			}
 
@@ -355,9 +355,9 @@ void NewTurnCount::RunNewYearMessages()
 void NewTurnCount::SendMsgEndOfGameEarlyWarning()
 {
 	SendMsgToAllPlayers("73EndOfGameTimeIsRunningOut") ;
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_TIMES_ALMOST_UP));
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TIMES_ALMOST_UP));
 	}
 }
 
@@ -386,7 +386,7 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 		return(TRUE);
 	}
 
-	if(g_network.IsActive() && (g_network.IsSpeedStyle() || g_network.IsTimedStyle())) {
+	if(network_Get().IsActive() && (network_Get().IsSpeedStyle() || network_Get().IsTimedStyle())) {
 		return TRUE;
 	}
 

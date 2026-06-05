@@ -145,7 +145,7 @@ void NetCellList::Packetize(uint8* buf, uint16& size)
 	PUSHID(k_PACKET_CELL_LIST_ID);
 
 	MapPoint pos(m_x, m_y);
-	PUSHLONG(g_network.PackedPos(pos));
+	PUSHLONG(network_Get().PackedPos(pos));
 	PUSHBYTE(m_cells);
 
 	size_t cells = 0;
@@ -212,7 +212,7 @@ void NetCellList::Unpacketize(uint16 id, uint8* buf, uint16 len)
 	uint32 packedPos;
 	PULLLONG(packedPos);
 	MapPoint mapPos;
-	g_network.UnpackedPos(packedPos, mapPos);
+	network_Get().UnpackedPos(packedPos, mapPos);
 	m_x = mapPos.x;
 	m_y = mapPos.y;
 	PULLBYTE(m_cells);

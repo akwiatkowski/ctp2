@@ -265,7 +265,7 @@ void ChatWindow::ChatCallback(aui_Control *control, uint32 action, uint32 data, 
 		return;
 	}
 
-	g_network.SendChatText(str, strlen(str));
+	network_Get().SendChatText(str, strlen(str));
 }
 
 BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
@@ -283,7 +283,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	}
 
 	// Sets the game on auto-endturn for the given number of turns
-	else if (!strncmp(s, "/rnd", 4) && !g_network.IsActive())
+	else if (!strncmp(s, "/rnd", 4) && !network_Get().IsActive())
 	{
 		extern BOOL gDone;
 #ifdef __AUI_USE_DIRECTX__
@@ -336,12 +336,12 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		return TRUE;
 	}
 #if 0
-	else if (!strcmp(s, "/A") && !g_network.IsActive())
+	else if (!strcmp(s, "/A") && !network_Get().IsActive())
 	{
 		if (selitem_Get()->GetCurPlayer() != selitem_Get()->GetVisiblePlayer())
 			return TRUE;
 
-		if(g_network.IsActive())
+		if(network_Get().IsActive())
 		{
 			turn_Get()->NetworkEndTurn();
 		}
@@ -367,7 +367,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 #endif
 
 	// Sets the whole world for all players unexplored
-	else if (!strcmp(s, "/resetlos") && !g_network.IsActive())
+	else if (!strcmp(s, "/resetlos") && !network_Get().IsActive())
 	{
 		for (sint32 i = 0; i < k_MAX_PLAYERS; i++)
 		{
@@ -379,7 +379,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		director_Get()->AddCopyVision();
 	}
 #if 0
-	else if(!strcmp(s, "/goodmode") && !g_network.IsActive())
+	else if(!strcmp(s, "/goodmode") && !network_Get().IsActive())
 	{
 		extern sint32 g_placeGoodsMode;
 		g_placeGoodsMode = !g_placeGoodsMode;
@@ -387,7 +387,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 #endif
 
 	// Removes all the messages of a player and reloads the slic engine
-	else if (!strcmp(s, "/reloadslic") && !g_network.IsActive())
+	else if (!strcmp(s, "/reloadslic") && !network_Get().IsActive())
 	{
 		for (sint32 p = 0; p < k_MAX_PLAYERS; p++)
 		{
@@ -419,7 +419,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	}
 
 	// Turns the given player into a robot player
-	else if(!strncmp(s, "/attach", 7) && !g_network.IsActive())
+	else if(!strncmp(s, "/attach", 7) && !network_Get().IsActive())
 	{
 		MBCHAR *arg = s + 7;
 		while(isspace(*arg))
@@ -428,12 +428,12 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		if (isdigit(*arg))
 		{
 			sint32 player = atoi(arg);
-			if(g_network.IsActive()) {
-				Assert(g_network.IsLocalPlayer(player));
-				if(!g_network.IsLocalPlayer(player))
+			if(network_Get().IsActive()) {
+				Assert(network_Get().IsLocalPlayer(player));
+				if(!network_Get().IsLocalPlayer(player))
 					return FALSE;
 
-				if(g_network.IsClient() && !g_network.IsMyTurn())
+				if(network_Get().IsClient() && !network_Get().IsMyTurn())
 					return FALSE;
 			}
 
@@ -443,7 +443,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	}
 
 	// Turns the given player into a human player
-	else if(!strncmp(s, "/detach", 7) && !g_network.IsActive())
+	else if(!strncmp(s, "/detach", 7) && !network_Get().IsActive())
 	{
 		MBCHAR *arg = s + 7;
 		while(isspace(*arg))
@@ -452,14 +452,14 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		if(isdigit(*arg))
 		{
 			sint32 player = atoi(arg);
-			if(g_network.IsActive())
+			if(network_Get().IsActive())
 			{
-				Assert(g_network.IsLocalPlayer(player));
-				if(!g_network.IsLocalPlayer(player))
+				Assert(network_Get().IsLocalPlayer(player));
+				if(!network_Get().IsLocalPlayer(player))
 					return FALSE;
 
 				player_Get(player)->m_playerType =
-				    g_network.IsHost() ? PLAYER_TYPE_HUMAN : PLAYER_TYPE_NETWORK;
+				    network_Get().IsHost() ? PLAYER_TYPE_HUMAN : PLAYER_TYPE_NETWORK;
 			}
 			else
 			{
@@ -469,7 +469,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		}
 	}
 #if 0
-    else if (!strncmp(s, "/demo", 5) && !g_network.IsActive())
+    else if (!strncmp(s, "/demo", 5) && !network_Get().IsActive())
     {
 		sint32 i, n;
 		extern BOOL gDone;
@@ -524,7 +524,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	}
 
 	// Displays the army names on the map
-	else if(!strncmp(s, "/ArmyName", 8)  && !g_network.IsActive())
+	else if(!strncmp(s, "/ArmyName", 8)  && !network_Get().IsActive())
 	{
 		if(graphicsoptions_Get()->IsArmyNameOn())
 		{
@@ -537,7 +537,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	}
 
 	// Displays the army goals on the map
-	else if(!strncmp(s, "/debugai", 8)  && !g_network.IsActive())
+	else if(!strncmp(s, "/debugai", 8)  && !network_Get().IsActive())
 	{
 		if(graphicsoptions_Get()->IsArmyTextOn())
 		{
@@ -550,7 +550,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	}
 
 	// Displays the AI settle value of a cell on the map
-	else if(!strncmp(s, "/debugcells", 11)  && !g_network.IsActive())
+	else if(!strncmp(s, "/debugcells", 11)  && !network_Get().IsActive())
 	{
 		if(graphicsoptions_Get()->IsCellTextOn())
 		{
@@ -562,7 +562,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		}
 	}
 
-	else if(!strncmp(s, "/beginscheduler", 15)  && !g_network.IsActive())
+	else if(!strncmp(s, "/beginscheduler", 15)  && !network_Get().IsActive())
 	{
 		MBCHAR *arg = s + 15;
 		while(isspace(*arg))
@@ -571,12 +571,12 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		if (isdigit(*arg))
 		{
 			sint32 player = atoi(arg);
-			if(g_network.IsActive()) {
-				Assert(g_network.IsLocalPlayer(player));
-				if(!g_network.IsLocalPlayer(player))
+			if(network_Get().IsActive()) {
+				Assert(network_Get().IsLocalPlayer(player));
+				if(!network_Get().IsLocalPlayer(player))
 					return FALSE;
 
-				if(g_network.IsClient() && !g_network.IsMyTurn())
+				if(network_Get().IsClient() && !network_Get().IsMyTurn())
 					return FALSE;
 			}
 
@@ -594,7 +594,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 
 #if defined (_DEBUG) || defined(USE_LOGGING)
 	// Sets the debug logging player
-	else if(!strncmp(s, "/debugplayer", 12) && !g_network.IsActive())
+	else if(!strncmp(s, "/debugplayer", 12) && !network_Get().IsActive())
 	{
 		MBCHAR *arg = s + 12;
 		while(isspace(*arg))

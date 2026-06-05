@@ -168,15 +168,15 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 
 	DPRINTF(k_DBG_GAMESTATE, ("Unit::RemoveAllReferences: id: 0x%lx\n",
 							  m_id));
-	if(g_network.IsActive())
+	if(network_Get().IsActive())
 	{
-		if(g_network.IsHost())
+		if(network_Get().IsHost())
 		{
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_KILL_UNIT, m_id));
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_UNIT, m_id));
 		}
 		else
 		{
-			g_network.AddDeadUnit(m_id);
+			network_Get().AddDeadUnit(m_id);
 		}
 	}
 
@@ -252,9 +252,9 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 
 		world_Get()->CutImprovements(pos);
 
-		if(g_network.IsHost())
+		if(network_Get().IsHost())
 		{
-			g_network.Enqueue(cell, pos.x, pos.y);
+			network_Get().Enqueue(cell, pos.x, pos.y);
 		}
 
 		tradeofferpool_Get()->RemoveTradeOffersFromCity(*this);
@@ -1057,15 +1057,15 @@ void Unit::ResetCityOwner(const PLAYER_INDEX newo, sint32 is_conquest,
 {
 	AccessData()->ResetCityOwner(*this, newo, is_conquest, cause);
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_RESET_CITY_OWNER,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_RESET_CITY_OWNER,
 		                              (uint32)m_id,
 		                              (uint32)newo,
 		                              (uint32)is_conquest,
 		                              (uint32)cause));
-		g_network.Enqueue(AccessData(), AccessData()->GetCityData(), TRUE);
+		network_Get().Enqueue(AccessData(), AccessData()->GetCityData(), TRUE);
 
-		g_network.AddResetCityOwnerHack(Unit(m_id));
+		network_Get().AddResetCityOwnerHack(Unit(m_id));
 	}
 }
 
@@ -1081,16 +1081,16 @@ void Unit::ResetCityOwner(const PLAYER_INDEX newo, sint32 is_conquest,
 void Unit::ResetUnitOwner(const PLAYER_INDEX newo,
                           CAUSE_REMOVE_ARMY rem_cause)
 {
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_RESET_UNIT_OWNER,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_RESET_UNIT_OWNER,
 		                              (uint32)m_id,
 		                              (uint32)newo,
 		                              (uint32)rem_cause));
 	}
 	AccessData()->ResetUnitOwner(*this, newo, rem_cause);
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(AccessData());
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(AccessData());
 	}
 
 }

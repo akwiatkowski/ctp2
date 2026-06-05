@@ -326,14 +326,14 @@ void BuildQueue::EndTurn()
 
 void BuildQueue::Clear(bool fromServer)
 {
-	if(!fromServer && g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_CLEAR_QUEUE,
+	if(!fromServer && network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_CLEAR_QUEUE,
 										   (uint32)m_city));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_CLEAR_QUEUE,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CLEAR_QUEUE,
 									  (uint32)m_city));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
     HandleProductionStop();
@@ -344,13 +344,13 @@ void BuildQueue::ClearAllButHead(bool fromServer)
 {
 	if (m_list->GetCount() > 1)
     {
-	    if(!fromServer && g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		    g_network.SendAction(new NetAction(NET_ACTION_CLEAR_QUEUE_EXCEPT_HEAD));
-	    } else if(g_network.IsHost()) {
-		    g_network.Block(m_owner);
-		    g_network.Enqueue(new NetInfo(NET_INFO_CODE_CLEAR_QUEUE_EXCEPT_HEAD,
+	    if(!fromServer && network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		    network_Get().SendAction(new NetAction(NET_ACTION_CLEAR_QUEUE_EXCEPT_HEAD));
+	    } else if(network_Get().IsHost()) {
+		    network_Get().Block(m_owner);
+		    network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CLEAR_QUEUE_EXCEPT_HEAD,
 									      (uint32)m_city));
-		    g_network.Unblock(m_owner);
+		    network_Get().Unblock(m_owner);
 	    }
 
 	    BuildNode * head = m_list->RemoveHead();
@@ -381,8 +381,8 @@ bool BuildQueue::BuildFrontUnit(bool forceFinish)
 		&&!forceFinish
 		){
 			if(!player_Get(m_owner)->IsRobot()
-			|| (g_network.IsClient()
-			&&  g_network.IsLocalPlayer(m_owner))
+			|| (network_Get().IsClient()
+			&&  network_Get().IsLocalPlayer(m_owner))
 			){
 				m_settler_pending = true;   // This gets "sent" to CityEvent::CityBuildFrontEvent and all it does is trigger a slic object, why doesn't just work like above?
 				return false;
@@ -396,8 +396,8 @@ bool BuildQueue::BuildFrontUnit(bool forceFinish)
 		&&!forceFinish
 		){
 			if(!player_Get(m_owner)->IsRobot()
-			|| (g_network.IsClient()
-			&&  g_network.IsLocalPlayer(m_owner))
+			|| (network_Get().IsClient()
+			&&  network_Get().IsLocalPlayer(m_owner))
 			){
 				m_popcoststobuild_pending  = true;
 				return false;
@@ -470,12 +470,12 @@ bool BuildQueue::BuildFrontWonder()
 		if(m_city.CD()->HowMuchLonger() <= 3 &&
 		   !(m_list->GetHead()->m_flags & k_BUILD_NODE_FLAG_ALMOST_DONE)) {
 			m_list->GetHead()->m_flags |= k_BUILD_NODE_FLAG_ALMOST_DONE;
-			if(g_network.IsHost()) {
-				g_network.Block(m_owner);
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_WONDER_ALMOST_DONE,
+			if(network_Get().IsHost()) {
+				network_Get().Block(m_owner);
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_WONDER_ALMOST_DONE,
 											  m_owner, m_list->GetHead()->m_type,
 											  m_city.m_id));
-				g_network.Unblock(m_owner);
+				network_Get().Unblock(m_owner);
 			}
 
 			SlicObject *so = new SlicObject("45WonderAlmostFinished");
@@ -560,7 +560,7 @@ bool BuildQueue::BuildFront(sint32 &shieldstore, CityData *cd, const MapPoint &p
 								  m_city.m_id));
 
         if (!Player::IsThisPlayerARobot(m_owner) ||
-			(g_network.IsClient() && g_network.IsLocalPlayer(m_owner))) {
+			(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner))) {
 			// Cities with empty queues lose the same switch penalty % of their shield store
 			// each turn they are empty.
 
@@ -615,12 +615,12 @@ void BuildQueue::FinishBuildFront(Unit &u)
 			if (isEmpty                                                 &&
                 (m_list->GetHead()->m_category == k_GAME_OBJ_TYPE_UNIT) &&
 				Player::IsThisPlayerARobot(m_owner)                     &&
-			    g_network.IsClient()                                    &&
-                g_network.IsLocalPlayer(m_owner)                        &&
+			    network_Get().IsClient()                                    &&
+                network_Get().IsLocalPlayer(m_owner)                        &&
 			    !g_theUnitDB->Get(m_list->GetHead()->m_type)->GetOnlyBuildOne()
                )
             {
-				g_network.SendAction(new NetAction(NET_ACTION_REMOVE_BUILD_ITEM,
+				network_Get().SendAction(new NetAction(NET_ACTION_REMOVE_BUILD_ITEM,
 												   (uint32)m_city, 0,
 												   CAUSE_REMOVE_BUILD_ITEM_BUILT));
 			}
@@ -736,11 +736,11 @@ void BuildQueue::FinishBuildFront(Unit &u)
     // Check special actions for the (new) first item
     HandleProductionStart();
 
-	if(g_network.IsHost()) {
-		g_network.Block(cd->GetHomeCity().GetOwner());
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BUILT_FRONT,
+	if(network_Get().IsHost()) {
+		network_Get().Block(cd->GetHomeCity().GetOwner());
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILT_FRONT,
 									  (uint32)cd->GetHomeCity()));
-		g_network.Unblock(cd->GetHomeCity().GetOwner());
+		network_Get().Unblock(cd->GetHomeCity().GetOwner());
 	}
 
 	//DPRINTF(k_DBG_GAMESTATE, ("Setting shieldstore to 0 for %lx\n", m_city.m_id));
@@ -951,11 +951,11 @@ void BuildQueue::SendMsgWonderCompleteEveryone(CityData *cd, sint32 wonder)
 
 void BuildQueue::SendMsgWonderStopped(sint32 type)
 {
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_WONDER_STOPPED,
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_WONDER_STOPPED,
 									  m_owner, type));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	SlicObject *    so = new SlicObject("44aWonderStopped") ;
@@ -976,11 +976,11 @@ void BuildQueue::SendMsgWonderAlmostComplete()
 
 void BuildQueue::SendMsgWonderStarted(sint32 type)
 {
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_WONDER_STARTED,
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_WONDER_STARTED,
 									  m_owner, type));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	SlicObject *    so = new SlicObject("44WonderStarted") ;
@@ -1070,7 +1070,7 @@ void BuildQueue::RawInsertTail(sint32 cat, sint32 t, sint32 cost)
 	}
 	sint32 o = m_city.GetOwner();
 	if(player_Get(o)->IsRobot() &&
-		!(g_network.IsClient() && g_network.IsLocalPlayer(o))) {
+		!(network_Get().IsClient() && network_Get().IsLocalPlayer(o))) {
 		sint32 age = 0;
 		cost = static_cast<sint32>(static_cast<double>(cost) *
 			diffutil_GetAiProductionCostAdjustment(gamesettings_Get()->GetDifficulty(), o, age));
@@ -1098,7 +1098,7 @@ void BuildQueue::ReplaceHead(sint32 cat, sint32 t, sint32 cost)
 
 		sint32 o = m_city.GetOwner();
 		if(player_Get(o)->IsRobot() &&
-			!(g_network.IsClient() && g_network.IsLocalPlayer(o))) {
+			!(network_Get().IsClient() && network_Get().IsLocalPlayer(o))) {
 			sint32 age = 0;
 			cost = static_cast<sint32>(static_cast<double>(cost) *
 				diffutil_GetAiProductionCostAdjustment(gamesettings_Get()->GetDifficulty(), o, age));
@@ -1397,17 +1397,17 @@ bool BuildQueue::RemoveNode( BuildNode *node, CAUSE_REMOVE_BUILD_ITEM cause )
 	}
 
 	if(found && cause == CAUSE_REMOVE_BUILD_ITEM_MANUAL) {
-		if(g_network.IsClient()) {
-			if(g_network.IsLocalPlayer(m_city.GetOwner())) {
-				g_network.SendAction(new NetAction(NET_ACTION_REMOVE_BUILD_ITEM,
+		if(network_Get().IsClient()) {
+			if(network_Get().IsLocalPlayer(m_city.GetOwner())) {
+				network_Get().SendAction(new NetAction(NET_ACTION_REMOVE_BUILD_ITEM,
 												   (uint32)m_city, index,
 												   cause));
 			}
-		} else if(g_network.IsHost()) {
-			g_network.Block(m_city.GetOwner());
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_REMOVE_BUILD_ITEM,
+		} else if(network_Get().IsHost()) {
+			network_Get().Block(m_city.GetOwner());
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REMOVE_BUILD_ITEM,
 										  (uint32)m_city, index));
-			g_network.Unblock(m_city.GetOwner());
+			network_Get().Unblock(m_city.GetOwner());
 		}
 	}
 
@@ -1477,10 +1477,10 @@ bool BuildQueue::RemoveNodeByIndex(sint32 index,
 	}
 
 	if(!found) {
-		if(g_network.IsHost() && !g_network.IsLocalPlayer(m_owner)) {
-			g_network.Resync(m_owner);
-		} else if(g_network.IsClient()) {
-			g_network.RequestResync(RESYNC_BAD_BUILD_NODE);
+		if(network_Get().IsHost() && !network_Get().IsLocalPlayer(m_owner)) {
+			network_Get().Resync(m_owner);
+		} else if(network_Get().IsClient()) {
+			network_Get().RequestResync(RESYNC_BAD_BUILD_NODE);
 		}
 		return false;
 	}
@@ -1511,9 +1511,9 @@ void BuildQueue::RemoveObjectsOfType(sint32 cat, sint32 type,
 
 void BuildQueue::RemoveIllegalItems(bool isClientAck)
 {
-	if(g_network.IsHost() && !g_network.IsLocalPlayer(m_owner) &&
+	if(network_Get().IsHost() && !network_Get().IsLocalPlayer(m_owner) &&
 	   !isClientAck) {
-		g_network.QueuePacket(g_network.IndexToId(m_owner),
+		network_Get().QueuePacket(network_Get().IndexToId(m_owner),
 							  new NetInfo(NET_INFO_CODE_REMOVE_ILLEGAL_ITEMS,
 										  m_city.m_id));
 		return;
@@ -1656,9 +1656,9 @@ void BuildQueue::FinishCreatingUnit(Unit &u)
 		const UnitRecord *rec = u.GetDBRec();
 
 		if(  !player_Get(m_owner)->IsRobot()
-		|| (  g_network.IsClient()
-		&&    g_network.IsLocalPlayer(m_owner)
-		||  (!g_network.IsActive()
+		|| (  network_Get().IsClient()
+		&&    network_Get().IsLocalPlayer(m_owner)
+		||  (!network_Get().IsActive()
 		&&   !profiledb_Get()->AIPopCheat()
 		    )
 		   )
@@ -1858,13 +1858,13 @@ BuildQueue & BuildQueue::operator = (BuildQueue const & copy)
 //----------------------------------------------------------------------------
 void BuildQueue::SynchroniseNetworkData() const
 {
-	if (g_network.IsHost())
+	if (network_Get().IsHost())
 	{
-		g_network.Enqueue(m_city.AccessData()->GetCityData());
+		network_Get().Enqueue(m_city.AccessData()->GetCityData());
 	}
-	else if(g_network.IsClient())
+	else if(network_Get().IsClient())
 	{
-		g_network.SendBuildQueue(m_city.AccessData()->GetCityData());
+		network_Get().SendBuildQueue(m_city.AccessData()->GetCityData());
 	}
 	// else: No action: Single player game.
 }

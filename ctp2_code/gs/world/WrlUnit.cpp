@@ -174,7 +174,7 @@ BOOL World::IsMoveZOC(PLAYER_INDEX owner, const MapPoint &start,
 	}
 
 	if((player_Get(owner)->IsRobot() &&
-		!(g_network.IsClient() && g_network.IsLocalPlayer(owner))) ||
+		!(network_Get().IsClient() && network_Get().IsLocalPlayer(owner))) ||
 	   !is_check_only_visible) {
 
 		return TRUE;
@@ -457,9 +457,9 @@ bool World::GetTopRadarUnit(const MapPoint &pos, Unit &top) const
 	{
 		if(!c->AccessUnit(i).IsValid())
 		{
-			if(g_network.IsClient())
+			if(network_Get().IsClient())
 			{
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 				return false;
 			}
 			Assert(false);

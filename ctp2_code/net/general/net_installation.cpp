@@ -34,7 +34,7 @@ void NetInstallation::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Installation inst;
 	PULLLONGTYPE(inst, Installation);
 
-	g_network.CheckReceivedObject((uint32)inst);
+	network_Get().CheckReceivedObject((uint32)inst);
 
 	if(!installationpool_Get()->IsValid(inst)) {
 		m_data = new InstallationData(inst);

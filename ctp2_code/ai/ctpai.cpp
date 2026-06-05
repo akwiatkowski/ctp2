@@ -290,12 +290,12 @@ STDEHANDLER(CtpAi_SettleEvent)
 	static sint32 last_settle = turn_Get()->GetSessionRound();
 	static sint32 last_player = PLAYER_UNASSIGNED;
 
-	if (!g_network.IsActive())
+	if (!network_Get().IsActive())
 	{
 		if( player_ptr->IsRobot()
-		&&!(g_network.IsClient()
-		&&  g_network.IsLocalPlayer(owner))
-		&&!(g_network.IsHost()
+		&&!(network_Get().IsClient()
+		&&  network_Get().IsLocalPlayer(owner))
+		&&!(network_Get().IsHost()
 		&&  owner == player_view::VisiblePlayer())
 		&&  last_settle == turn_Get()->GetSessionRound()
 		&& last_player == owner
@@ -588,7 +588,7 @@ STDEHANDLER(CtpAi_StartNegotiationsEvent)
 
 	if(!found)
 	{
-		if(!g_network.IsClient())
+		if(!network_Get().IsClient())
 		{
 			render_observer::AddBeginScheduler(playerId);
 		}
@@ -609,7 +609,7 @@ STDEHANDLER(CtpAi_ConsiderNuclearWar)
 	Player *player_ptr = player_Get(playerId);
 
 	if(!player_ptr->IsRobot() ||
-	   (g_network.IsActive() && playerId == player_view::VisiblePlayer())) {
+	   (network_Get().IsActive() && playerId == player_view::VisiblePlayer())) {
 		return GEV_HD_Continue;
 	}
 
@@ -762,7 +762,7 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 		}
 
 		if(player_ptr->IsRobot() &&
-		   (!g_network.IsClient() || g_network.IsLocalPlayer(playerId)))
+		   (!network_Get().IsClient() || network_Get().IsLocalPlayer(playerId)))
 		{
 			for(sint32 i = 0; i < player_ptr->m_all_armies->Num(); i++)
 			{
@@ -777,10 +777,10 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 			Assert(playerId == player_view::CurPlayer());
 			if (playerId == player_view::CurPlayer())
 			{
-				if(!g_network.IsActive() || g_network.IsLocalPlayer(playerId))
+				if(!network_Get().IsActive() || network_Get().IsLocalPlayer(playerId))
 				{
-					if(!g_network.IsClient() ||
-						(g_network.IsClient() && player_ptr->IsRobot()))
+					if(!network_Get().IsClient() ||
+						(network_Get().IsClient() && player_ptr->IsRobot()))
 					{
 						DPRINTF(k_DBG_GAMESTATE, ("AI End turn, %d\n", playerId));
 						render_observer::AddEndTurn();
@@ -1182,7 +1182,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 
 	if (player_ptr != nullptr &&
 		player_ptr->IsRobot() &&
-		!g_network.IsClient())
+		!network_Get().IsClient())
 	{
 		sint32 government_type = Governor::GetGovernor(player).ComputeBestGovernment();
 		if (government_type >= 0 && government_type != player_ptr->GetGovernmentType())
@@ -1202,7 +1202,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 
 	if (player_ptr &&
 		player_ptr->IsRobot() &&
-		!g_network.IsClient())
+		!network_Get().IsClient())
 	{
 		sint32 pw_percent   = 0;
 		sint32 sci_percent  = 0;
@@ -1247,7 +1247,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 	Governor::GetGovernor(player).PlaceTileImprovements();
 	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
 
-	if (player_ptr->IsRobot() && !g_network.IsClient())
+	if (player_ptr->IsRobot() && !network_Get().IsClient())
 	{
 		t1 = GetTickCount();
 		DPRINTF(k_DBG_AI, (LOG_SECTION_START));
@@ -1550,7 +1550,7 @@ void CtpAi::FinishBeginTurn(const PLAYER_INDEX player)
 	if (!player_Get(player))
 		return;
 
-	if (g_network.IsActive() && !g_network.IsLocalPlayer(player))
+	if (network_Get().IsActive() && !network_Get().IsLocalPlayer(player))
 		return;
 
 	sint32 round = player_Get(player)->GetCurRound();
@@ -1592,7 +1592,7 @@ void CtpAi::FinishBeginTurn(const PLAYER_INDEX player)
 
 void CtpAi::NetworkClientBeginTurn(PLAYER_INDEX player)
 {
-	if(g_network.IsClient() && g_network.IsLocalPlayer(player) &&
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(player) &&
 	   Player::IsThisPlayerARobot(player)) {
 		Player *player_ptr = player_Get(player);
 

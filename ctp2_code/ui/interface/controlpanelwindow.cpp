@@ -618,7 +618,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 			if(haveCity) CityWindow::Display(city.CD());
 			break;
 		case k_CONTEXT_CITY_BUILD:
-			if(g_network.IsClient() && g_network.GetSensitiveUIBlocked()) {
+			if(network_Get().IsClient() && network_Get().GetSensitiveUIBlocked()) {
 
 			} else {
 				EditQueue::Display(CityWindow::GetCityData(city));
@@ -689,7 +689,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 					case k_UNIT_CONTEXT_GROUP_ALL:
 					{
 						if(a.IsValid()) {
-							if(g_network.IsClient()) {
+							if(network_Get().IsClient()) {
 								CellUnitList units;
 								sint32 i;
 								Cell *cell = world_Get()->GetCell(a->RetPos());
@@ -699,7 +699,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 									}
 								}
 								if(units.Num() > 0) {
-									g_network.SendGroupRequest(units, a);
+									network_Get().SendGroupRequest(units, a);
 								}
 							} else {
 								gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_GroupOrder,
@@ -712,8 +712,8 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 					case k_UNIT_CONTEXT_UNGROUP_ALL:
 					{
 						if(a.IsValid()) {
-							if(g_network.IsClient()) {
-								g_network.SendUngroupRequest(a, *a.AccessData());
+							if(network_Get().IsClient()) {
+								network_Get().SendUngroupRequest(a, *a.AccessData());
 							} else {
 								gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
 													   GEA_Army, a.m_id,
@@ -793,13 +793,13 @@ void CityMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIndex
 	{
 		case CP_MENU_ITEM_0:
 			if(selitem_Get()->GetSelectedCity(city)) {
-				if(g_network.IsClient() && g_network.GetSensitiveUIBlocked()) {
+				if(network_Get().IsClient() && network_Get().GetSensitiveUIBlocked()) {
 
 				} else {
 					EditQueue::Display(CityWindow::GetCityData(city));
 				}
 			} else if(player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Num() > 0) {
-				if(g_network.IsClient() && g_network.GetSensitiveUIBlocked()) {
+				if(network_Get().IsClient() && network_Get().GetSensitiveUIBlocked()) {
 				} else {
 					EditQueue::Display(CityWindow::GetCityData(player_Get(selitem_Get()->GetVisiblePlayer())->
 															   m_all_cities->Access(0)));
@@ -871,7 +871,7 @@ void DiplomacyMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 item
 			if(DipWizard::CanInitiateRightNow()) {
 				DipWizard::Display();
 			} else {
-				Assert(g_network.IsActive());
+				Assert(network_Get().IsActive());
 				MessageBoxDialog::Information("str_code_CantInitiateDiplomacyNow", "WhyNoDiplomacy", nullptr, nullptr, "str_ldl_MB_OK", false);
 			}
 
@@ -983,20 +983,20 @@ void OptionsMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 
 			break;
    	case	CP_MENU_ITEM_5:
-		    if (!g_network.IsClient())
+		    if (!network_Get().IsClient())
             {
-                uint32 type = (g_network.IsActive()) ? LSS_SAVE_MP : LSS_SAVE_GAME;
+                uint32 type = (network_Get().IsActive()) ? LSS_SAVE_MP : LSS_SAVE_GAME;
 				is_scenario_Set(FALSE);
 				loadsavescreen_displayMyWindow( type );
 			}
 			break;
 	case	CP_MENU_ITEM_6:
-		    if(!g_network.IsClient()) {
+		    if(!network_Get().IsClient()) {
 				optionwarningscreen_displayMyWindow(OWS_LOAD);
 			}
 			break;
 	case	CP_MENU_ITEM_7:
-		    if(!g_network.IsActive()) {
+		    if(!network_Get().IsActive()) {
 				optionwarningscreen_displayMyWindow(OWS_RESTART);
 			}
 			break;
@@ -3807,7 +3807,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerBeginProgress(sint32 currentPlayer)
 	sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
 
 
-	if(currentPlayer == visiblePlayer || g_network.IsActive()) {
+	if(currentPlayer == visiblePlayer || network_Get().IsActive()) {
 
 
 
@@ -3844,7 +3844,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 		for(int i = 0; i < k_MAX_PLAYERS; i++)
 			if(player_Get(i)) s_totalPlayers++;
 
-		if(false && !g_network.IsActive()) {
+		if(false && !network_Get().IsActive()) {
 
 			ProgressWindow::BeginProgress(
 				g_theProgressWindow,
@@ -3871,7 +3871,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 		m_currentProgress++;
 
 
-		if(g_theProgressWindow && false && !g_network.IsActive()) {
+		if(g_theProgressWindow && false && !network_Get().IsActive()) {
 			g_theProgressWindow->StartCountingTo(m_currentProgress);
 		}
 	}
@@ -3880,7 +3880,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 
 
 
-	if(false && !g_network.IsActive()) {
+	if(false && !network_Get().IsActive()) {
 		if (selitem_Get()->GetCurPlayer() == NewTurnCount::GetStopPlayer()) {
 			ProgressWindow::EndProgress( g_theProgressWindow );
 

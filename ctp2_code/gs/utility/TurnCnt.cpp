@@ -138,7 +138,7 @@ void TurnCount::SkipToRound(sint32 round)
 
 void TurnCount::InformNetwork()
 {
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 		if(m_lastBeginTurn == player_view::CurPlayer())
 			return;
 
@@ -146,31 +146,31 @@ void TurnCount::InformNetwork()
 
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
-		g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
+		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
 		                                          new NetRand());
-		g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
+		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
 		                                          new NetInfo(NET_INFO_CODE_GOLD,
 		                                          player_view::CurPlayer(),
 		                                          player_Get(player_view::CurPlayer())->m_gold->GetLevel()));
-		g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
+		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
 		                                          new NetReadiness(player_Get(player_view::CurPlayer())->m_readiness));
 			// propagate PW each turn update
-		g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
+		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
 		                                          new NetInfo(NET_INFO_CODE_MATERIALS,
 		                                          player_view::CurPlayer(),
 		                                          player_Get(player_view::CurPlayer())->m_materialPool->GetMaterials()));
 		}
-		g_network.BeginTurn(player_view::CurPlayer());
+		network_Get().BeginTurn(player_view::CurPlayer());
 		NetInfo* netInfo = new NetInfo(NET_INFO_CODE_BEGIN_TURN,
 		                               player_view::CurPlayer());
-		g_network.QueuePacketToAll(netInfo);
+		network_Get().QueuePacketToAll(netInfo);
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
-			g_network.SetMyTurn(FALSE);
+			network_Get().SetMyTurn(FALSE);
 		}
 		else
 		{
-			g_network.SetMyTurn(TRUE);
+			network_Get().SetMyTurn(TRUE);
 		}
 	}
 }
@@ -182,21 +182,21 @@ void TurnCount::InformMessages()
 
 void TurnCount::SliceInformNetwork()
 {
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
-			g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
+			network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
 													  new NetRand());
 		}
-		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_SLICE,
+		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_SLICE,
 											   player_view::CurPlayer()));
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
-			g_network.SetMyTurn(FALSE);
+			network_Get().SetMyTurn(FALSE);
 		}
 		else
 		{
-			g_network.SetMyTurn(TRUE);
+			network_Get().SetMyTurn(TRUE);
 		}
 	}
 }
@@ -234,13 +234,13 @@ void TurnCount::EndThisTurn()
 		m_activePlayers--;
 	}
 
-	if(g_network.IsActive()) {
-		g_network.DoResetCityOwnerHack();
+	if(network_Get().IsActive()) {
+		network_Get().DoResetCityOwnerHack();
 	}
 
-	Assert(!g_network.IsClient());
+	Assert(!network_Get().IsClient());
 	extern BOOL g_aPlayerIsDead;
-	if(!g_network.IsClient() && g_aPlayerIsDead) {
+	if(!network_Get().IsClient() && g_aPlayerIsDead) {
 		Player::RemoveDeadPlayers();
 	}
 
@@ -286,8 +286,8 @@ void TurnCount::BeginNewRound()
 	m_year += diffutil_GetYearIncrementFromTurn(gamesettings_Get()->GetDifficulty(), m_round);
 
 	RunNewYearMessages() ;
-	if(g_network.IsHost()) {
-		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_YEAR, m_round, m_year));
+	if(network_Get().IsHost()) {
+		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_YEAR, m_round, m_year));
 	}
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
 		if(player_Get(i))
@@ -299,7 +299,7 @@ void TurnCount::BeginNewRound()
 	pollution_Get()->EndRound();
 	slicengine_Get()->RunYearlyTriggers();
 
-	if(m_simultaneousMode && g_network.IsHost()) {
+	if(m_simultaneousMode && network_Get().IsHost()) {
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
 			if(player_Get(i)) {
 				player_view::SetCurrentPlayer(i);
@@ -384,7 +384,7 @@ void TurnCount::BeginNewTurn(BOOL clientVerification)
 	}
 #endif // _DEBUG
 
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 
 
 
@@ -427,7 +427,7 @@ void TurnCount::EndThisTurnBeginNewTurn(BOOL clientRequest)
 {
 	if (clientRequest)
     {
-		if (g_network.CurrentPlayerAckedBeginTurn())
+		if (network_Get().CurrentPlayerAckedBeginTurn())
         {
 		    EndThisTurnBeginNewTurn(FALSE);
 		}
@@ -445,8 +445,8 @@ void TurnCount::EndThisTurnBeginNewTurn(BOOL clientRequest)
 		    BeginNewTurn(FALSE);
 	    }
 
-	    if (!g_network.IsActive() ||
-            player_view::CurPlayer() == g_network.GetPlayerIndex()
+	    if (!network_Get().IsActive() ||
+            player_view::CurPlayer() == network_Get().GetPlayerIndex()
            )
         {
 		    player_view::Refresh();
@@ -477,7 +477,7 @@ BOOL TurnCount::BeginNewSlice()
 
 	if(player_Get(curPlayer)->GetCurRound() != m_round) {
 		BeginNewTurn(FALSE);
-	} else if(g_network.IsHost() &&
+	} else if(network_Get().IsHost() &&
 						  player_view::CurPlayer() == player_view::VisiblePlayer()) {
 
 
@@ -495,31 +495,31 @@ BOOL TurnCount::BeginNewSlice()
 	}
 
 	if(m_simultaneousMode) {
-		if((g_network.IsHost() && !player_Get(curPlayer)->IsNetwork()) ||
-		   g_network.GetPlayerIndex() == curPlayer) {
+		if((network_Get().IsHost() && !player_Get(curPlayer)->IsNetwork()) ||
+		   network_Get().GetPlayerIndex() == curPlayer) {
 			player_Get(curPlayer)->ProcessUnitOrders(TRUE);
 		}
 	}
 
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
-		g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
+		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
 												  new NetRand());
 		}
-		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_SLICE,
+		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_SLICE,
 											   player_view::CurPlayer()));
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
-			g_network.SetMyTurn(FALSE);
+			network_Get().SetMyTurn(FALSE);
 		}
 		else
 		{
-			g_network.SetMyTurn(TRUE);
+			network_Get().SetMyTurn(TRUE);
 		}
 		if(m_sliceList->Num() > 0)
 		{
-			g_network.QueuePacket(g_network.IndexToId(
+			network_Get().QueuePacket(network_Get().IndexToId(
 				player_view::CurPlayer()),
 								  new NetInfo(NET_INFO_CODE_REQUEST_SLICE));
 		}
@@ -527,17 +527,17 @@ BOOL TurnCount::BeginNewSlice()
 	}
 
 
-	if(g_network.IsActive()) {
-		g_network.UnitsMoved(-g_network.GetUnitMovesUsed());
+	if(network_Get().IsActive()) {
+		network_Get().UnitsMoved(-network_Get().GetUnitMovesUsed());
 	}
 	return TRUE;
 }
 
 void TurnCount::EndThisSliceBeginNewSlice()
 {
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_END_SLICE));
-		g_network.SetMyTurn(FALSE);
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_END_SLICE));
+		network_Get().SetMyTurn(FALSE);
 		return;
 	}
 
@@ -563,8 +563,8 @@ void TurnCount::SetSliceTo(sint32 player)
 void TurnCount::QueueSliceFor(sint32 player)
 {
 	m_sliceList->Insert(player);
-	if(g_network.IsHost()) {
-		g_network.QueuePacket(g_network.IndexToId(
+	if(network_Get().IsHost()) {
+		network_Get().QueuePacket(network_Get().IndexToId(
 			player_view::CurPlayer()),
 			new NetInfo(NET_INFO_CODE_REQUEST_SLICE));
 	}
@@ -679,18 +679,18 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 
 void TurnCount::NetworkEndTurn(BOOL force)
 {
-	Assert(!g_network.SetupMode());
-	if(g_network.SetupMode())
+	Assert(!network_Get().SetupMode());
+	if(network_Get().SetupMode())
 		return;
 
 	if (!VerifyEndTurn(force))
 		return;
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_END_TURN));
-		g_network.SetMyTurn(FALSE);
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_END_TURN));
+		network_Get().SetMyTurn(FALSE);
 		return;
-	} else if(g_network.IsHost()) {
+	} else if(network_Get().IsHost()) {
 		render_observer::AddEndTurn();
 		return;
 	}
@@ -757,8 +757,8 @@ void TurnCount::RunNewYearMessages()
 					}
 				}
 			}
-			if(g_network.IsHost()) {
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_GAME_OVER_OUT_OF_TIME,
+			if(network_Get().IsHost()) {
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_GAME_OVER_OUT_OF_TIME,
 				                              highPlayer));
 			}
 
@@ -780,8 +780,8 @@ void TurnCount::RunNewYearMessages()
 void TurnCount::SendMsgEndOfGameEarlyWarning()
 {
 	SendMsgToAllPlayers("73EndOfGameTimeIsRunningOut") ;
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_TIMES_ALMOST_UP));
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TIMES_ALMOST_UP));
 	}
 }
 
@@ -880,12 +880,12 @@ sint32 finite_count=0;
 		sint32 curPlayer = player_view::CurPlayer();
 		if((player_Get(curPlayer)->IsHuman() ||
 			(player_Get(curPlayer)->IsNetwork() &&
-			 g_network.IsLocalPlayer(curPlayer))) &&
+			 network_Get().IsLocalPlayer(curPlayer))) &&
 		   player_view::CurPlayer() == player_view::VisiblePlayer()) {
 			player_Get(player_view::CurPlayer())->ProcessUnitOrders();
 		}
 
-		if(g_network.IsActive())
+		if(network_Get().IsActive())
 		{
 			NetworkEndTurn();
 			return;

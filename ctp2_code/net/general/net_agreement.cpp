@@ -73,7 +73,7 @@ void NetAgreement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	PULLLONGTYPE(ag, Agreement);
 
-	g_network.CheckReceivedObject((uint32)ag);
+	network_Get().CheckReceivedObject((uint32)ag);
 	if(!agreementpool_Get()->IsValid(ag)) {
 		m_data = new AgreementData(ag);
 	} else {
@@ -119,18 +119,18 @@ void NetClientAgreement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	NetAgreement::UnpacketizeData(m_data, buf, pos, size);
 
-	g_network.Block(g_network.IdToIndex(id));
+	network_Get().Block(network_Get().IdToIndex(id));
 
 	Agreement createdAgreement =
 		agreementpool_Get()->Create(m_data->m_owner, m_data->m_recipient,
 								   m_data->m_agreement);
-	g_network.Unblock(g_network.IdToIndex(id));
+	network_Get().Unblock(network_Get().IdToIndex(id));
 
 	if(createdAgreement == ag) {
-		g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
+		network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
 													  uint32(ag)));
 	} else {
-		g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
+		network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
 											  uint32(ag), uint32(createdAgreement)));
 	}
 
@@ -146,6 +146,6 @@ void NetClientAgreement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	cdata->m_targetCity = m_data->m_targetCity;
 
 
-	g_network.Enqueue(cdata);
+	network_Get().Enqueue(cdata);
 	delete m_data;
 }

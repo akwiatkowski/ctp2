@@ -744,8 +744,8 @@ void IntelligenceWindow::SelectItem(aui_Control *control, uint32 action, uint32 
 void intelligence_DeclareWarCallback(bool response, void *cookie)
 {
 	if(response) {
-		if(g_network.IsClient()) {
-			g_network.SendAction(new NetAction(NET_ACTION_DECLARE_WAR, (intptr_t)cookie));
+		if(network_Get().IsClient()) {
+			network_Get().SendAction(new NetAction(NET_ACTION_DECLARE_WAR, (intptr_t)cookie));
 		}
 		Diplomat::GetDiplomat(selitem_Get()->GetVisiblePlayer()).DeclareWar((intptr_t)cookie);
 		DiplomacyWindow::EnableButtons(TRUE, reinterpret_cast<intptr_t>(cookie));
@@ -822,7 +822,7 @@ void IntelligenceWindow::SendMessageToSelected()
 		DipWizard::Display();
 		DipWizard::SetNation(player);
 	} else {
-		Assert(g_network.IsActive());
+		Assert(network_Get().IsActive());
 		MessageBoxDialog::Information("str_code_CantInitiateDiplomacyNow", "WhyNoDiplomacy", nullptr, nullptr, "str_ldl_MB_OK", false);
 	}
 }

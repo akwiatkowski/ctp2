@@ -56,13 +56,13 @@ BOOL TradeOfferData::Accept(PLAYER_INDEX player,
 	so->AddGood(m_offerResource);
 	slicengine_Get()->Execute(so);
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_SEND_OFFER_ACCEPT_MESSAGE,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SEND_OFFER_ACCEPT_MESSAGE,
 									  m_fromCity.m_id, destCity.m_id, m_offerResource));
 	}
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_ACCEPT_TRADE_OFFER,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_ACCEPT_TRADE_OFFER,
 										   m_id,
 										   player,
 										   (uint32)sourceCity,

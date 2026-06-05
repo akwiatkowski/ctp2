@@ -1009,7 +1009,11 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 // Lowered 2 -> 1: g_theStringDB demoted to file-static in gameinit.cpp;
 // remaining extern is g_network (in disabled net code, will go when the
 // multiplayer protocol gets rewritten).
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 1;
+// 2026-06-05: lowered 1 -> 0.  g_network demoted to file-static in
+// ctp/civ3_main.cpp (storage `static Network s_network`); all 125
+// consumers across net/, ui/, gs/, ai/ route through network_Get().
+// The codebase now has zero `extern g_*` declarations.
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 0;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

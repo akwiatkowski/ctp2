@@ -250,5 +250,5 @@ void NetCRC::Error(char *buf)
 	c3_RemoveAbortMessage();
 	civapp_Get()->ProcessGraphicsCallback();
 	c3_AbortMessage(nonConstStr, k_UTILITY_ABORT, network_AbortCallback );
-	g_network.SetCRCError();
+	network_Get().SetCRCError();
 }

@@ -1204,7 +1204,7 @@ STDEHANDLER(CheckOrdersEvent)
 	if(!args->GetArmy(0, a))
 		return GEV_HD_Continue;
 
-	if(!g_network.IsActive() || g_network.IsLocalPlayer(a.GetOwner()))
+	if(!network_Get().IsActive() || network_Get().IsLocalPlayer(a.GetOwner()))
 	{
 		a->CheckAddEventOrder();
 
@@ -1296,8 +1296,8 @@ STDEHANDLER(MoveUnitsEvent)
 			if(!a->IsEnemy(city_owner))
 			{
 				SlicObject *so;
-				if(g_network.IsActive()
-				&& g_network.TeamsEnabled()
+				if(network_Get().IsActive()
+				&& network_Get().TeamsEnabled()
 				&& player_Get(a->GetOwner())->m_networkGroup == player_Get(city_owner)->m_networkGroup
 				){
 					so = new SlicObject("110aCantAttackTeammates");
@@ -1326,14 +1326,14 @@ STDEHANDLER(MoveUnitsEvent)
 												   GEA_City, c.m_id,
 												   GEA_End);
 #if 0
-							if(g_network.IsHost())
+							if(network_Get().IsHost())
 							{
-								g_network.Block(a.GetOwner());
+								network_Get().Block(a.GetOwner());
 							}
 							c.CD()->ChangePopulation(-1);
-							if(g_network.IsHost())
+							if(network_Get().IsHost())
 							{
-								g_network.Unblock(a.GetOwner());
+								network_Get().Unblock(a.GetOwner());
 							}
 #endif
 						}

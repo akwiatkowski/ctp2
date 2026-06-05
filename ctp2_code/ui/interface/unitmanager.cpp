@@ -220,7 +220,7 @@ void UnitManager::Cleanup()
 
 AUI_ERRCODE UnitManager::Display()
 {
-	if(g_network.IsClient() && g_network.GetSensitiveUIBlocked())
+	if(network_Get().IsClient() && network_Get().GetSensitiveUIBlocked())
 		return AUI_ERRCODE_OK;
 
 	if(!s_unitManager) {
@@ -1019,8 +1019,8 @@ void UnitManager::DisbandSelected()
 			Unit u; u.m_id = (uintptr_t)item->GetUserData();
 
 			m_lastDisbandedUnit = u.m_id;
-			if(g_network.IsClient()) {
-				g_network.SendAction(new NetAction(NET_ACTION_DISBAND_UNIT, u.m_id));
+			if(network_Get().IsClient()) {
+				network_Get().SendAction(new NetAction(NET_ACTION_DISBAND_UNIT, u.m_id));
 			}
 			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisbandUnit,
 								   GEA_Unit, u.m_id,
@@ -1038,8 +1038,8 @@ void UnitManager::DisbandSelected()
 				if(u.GetType() == unitType) {
 
 					m_lastDisbandedUnit = u.m_id;
-					if(g_network.IsClient()) {
-						g_network.SendAction(new NetAction(NET_ACTION_DISBAND_UNIT, u.m_id));
+					if(network_Get().IsClient()) {
+						network_Get().SendAction(new NetAction(NET_ACTION_DISBAND_UNIT, u.m_id));
 					}
 					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisbandUnit,
 										   GEA_Unit, u.m_id,

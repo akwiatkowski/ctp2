@@ -568,18 +568,18 @@ STDEHANDLER(AccomplishFeat)
 
 	feattracker_Get()->AddFeat(featIndex, player);
 
-	if (g_network.IsHost())
+	if (network_Get().IsHost())
 	{
 		// Propagate the information to the clients.
 		// Remark: player_Get(player) has been verified in GetPlayer.
-		g_network.Block(player);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ACCOMPLISHED_FEAT,
+		network_Get().Block(player);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ACCOMPLISHED_FEAT,
 									  featIndex,
 									  player,
 									  safe_player(player)->GetCurRound()
 									 )
 						 );
-		g_network.Unblock(player);
+		network_Get().Unblock(player);
 	}
 
 	return GEV_HD_Continue;

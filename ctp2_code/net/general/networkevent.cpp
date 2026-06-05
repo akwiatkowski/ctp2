@@ -62,17 +62,17 @@ STDEHANDLER(NetBeginTurnEvent)
 
 
 
-	if(g_network.IsActive()) {
-		if(pl == g_network.GetPlayerIndex())
-			g_network.SetMyTurn(TRUE);
+	if(network_Get().IsActive()) {
+		if(pl == network_Get().GetPlayerIndex())
+			network_Get().SetMyTurn(TRUE);
 		else
-			g_network.SetMyTurn(FALSE);
+			network_Get().SetMyTurn(FALSE);
 
-		Diplomat::GetDiplomat(g_network.GetPlayerIndex()).ClearInitiatives();
+		Diplomat::GetDiplomat(network_Get().GetPlayerIndex()).ClearInitiatives();
 	}
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(pl)) {
-		g_network.SendAction(new NetAction(NET_ACTION_ACK_BEGIN_TURN));
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(pl)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_ACK_BEGIN_TURN));
 	}
 
 	return GEV_HD_Continue;
@@ -104,7 +104,7 @@ STDEHANDLER(NetStartMovePhaseEvent)
 	sint32 pl;
 	if(!args->GetPlayer(0, pl)) return GEV_HD_Continue;
 
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 
 		PointerList<Packetizer> cityPackets;
 		PointerList<Packetizer> buildQueuePackets;
@@ -114,13 +114,13 @@ STDEHANDLER(NetStartMovePhaseEvent)
 			if(!player_Get(p))
 				continue;
 
-			if(p == g_network.GetPlayerIndex())
+			if(p == network_Get().GetPlayerIndex())
 				continue;
 
 			if(!player_Get(p)->IsNetwork())
 				continue;
 
-			uint16 id = g_network.IndexToId(p);
+			uint16 id = network_Get().IndexToId(p);
 			if(id != 0xffff) {
 
 				sint32 i;
@@ -137,15 +137,15 @@ STDEHANDLER(NetStartMovePhaseEvent)
 
 				}
 
-				g_network.ChunkList(id, &cityPackets);
+				network_Get().ChunkList(id, &cityPackets);
 				if(p != pl) {
 
-					g_network.ChunkList(id, &buildQueuePackets);
+					network_Get().ChunkList(id, &buildQueuePackets);
 				}
 			}
 		}
 
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_CITIES_DONE, pl));
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CITIES_DONE, pl));
 	}
 
 	return GEV_HD_Continue;
@@ -159,9 +159,9 @@ STDEHANDLER(NetAIFinishBeginTurnEvent)
 
 
 
-	if(g_network.IsHost() && !g_network.IsLocalPlayer(pl)) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_FINISH_AI_TURN, pl));
-	} else if(g_network.IsClient() && g_network.IsLocalPlayer(pl) && player_Get(pl)->IsRobot()) {
+	if(network_Get().IsHost() && !network_Get().IsLocalPlayer(pl)) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_FINISH_AI_TURN, pl));
+	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(pl) && player_Get(pl)->IsRobot()) {
 
 	}
 
@@ -174,7 +174,7 @@ STDEHANDLER(NetAIFinishBeginTurnEvent)
 
 STDEHANDLER(NetNewProposalEvent)
 {
-	if(!g_network.IsActive()) return GEV_HD_Continue;
+	if(!network_Get().IsActive()) return GEV_HD_Continue;
 
 	sint32 sender;
 	sint32 receiver;
@@ -184,12 +184,12 @@ STDEHANDLER(NetNewProposalEvent)
 	NewProposal prop = Diplomat::GetDiplomat(sender).GetMyLastNewProposal(receiver);
 	if(prop == Diplomat::s_badNewProposal) return GEV_HD_Continue;
 
-	if(g_network.IsHost()) {
-		g_network.Block(prop.senderId);
-		g_network.QueuePacketToAll(new NetDipProposal(prop));
-		g_network.Unblock(prop.senderId);
-	} else if(g_network.IsLocalPlayer(sender)) {
-		g_network.SendToServer(new NetDipProposal(prop));
+	if(network_Get().IsHost()) {
+		network_Get().Block(prop.senderId);
+		network_Get().QueuePacketToAll(new NetDipProposal(prop));
+		network_Get().Unblock(prop.senderId);
+	} else if(network_Get().IsLocalPlayer(sender)) {
+		network_Get().SendToServer(new NetDipProposal(prop));
 	}
 
 	return GEV_HD_Continue;
@@ -202,13 +202,13 @@ STDEHANDLER(NetResponseEvent)
 
 STDEHANDLER(NetEndAIClientTurnEvent)
 {
-	if(!g_network.IsClient()) return GEV_HD_Stop;
+	if(!network_Get().IsClient()) return GEV_HD_Stop;
 
 	sint32 p;
 	if(!args->GetPlayer(0, p)) return GEV_HD_Continue;
 
-	Assert(g_network.IsLocalPlayer(p));
-	if(!g_network.IsLocalPlayer(p))
+	Assert(network_Get().IsLocalPlayer(p));
+	if(!network_Get().IsLocalPlayer(p))
 		return GEV_HD_Continue;
 
 	if(player_Get(p)->IsRobot()) {
@@ -223,7 +223,7 @@ STDEHANDLER(NetCreatedWonderEvent)
 {
 	return GEV_HD_Continue;
 #if 0   // Unreachable: CtP1 code?
-	if(!g_network.IsHost()) return GEV_HD_Continue;
+	if(!network_Get().IsHost()) return GEV_HD_Continue;
 
 	Unit city;
 	sint32 type;
@@ -231,9 +231,9 @@ STDEHANDLER(NetCreatedWonderEvent)
 	if(!args->GetCity(0, city)) return GEV_HD_Continue;
 	if(!args->GetInt(0, type)) return GEV_HD_Continue;
 
-	g_network.Block(city.GetOwner());
-	g_network.Enqueue(new NetInfo(NET_INFO_CODE_CREATED_WONDER, city.m_id, type));
-	g_network.Unblock(city.GetOwner());
+	network_Get().Block(city.GetOwner());
+	network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CREATED_WONDER, city.m_id, type));
+	network_Get().Unblock(city.GetOwner());
 
 	return GEV_HD_Continue;
 #endif

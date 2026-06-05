@@ -1280,8 +1280,8 @@ void AgreementData::BeginTurnOwner(sint32 currentRound)
 						}
 
 						m_round = now;
-						if(g_network.IsHost())
-							g_network.Enqueue(this);
+						if(network_Get().IsHost())
+							network_Get().Enqueue(this);
 					}
 				}
 			}
@@ -1417,8 +1417,8 @@ void AgreementData::BeginTurnRecipient(sint32 currentRound)
 						}
 
 						m_round = now;
-						if(g_network.IsHost())
-							g_network.Enqueue(this);
+						if(network_Get().IsHost())
+							network_Get().Enqueue(this);
 					}
 				}
 			}

@@ -125,9 +125,9 @@ void NetDipProposal::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		execute = false;
 	}
 
-	if(g_network.IsClient() &&
-	   !g_network.IsLocalPlayer(m_prop.senderId) &&
-	   !g_network.IsLocalPlayer(m_prop.receiverId)) {
+	if(network_Get().IsClient() &&
+	   !network_Get().IsLocalPlayer(m_prop.senderId) &&
+	   !network_Get().IsLocalPlayer(m_prop.receiverId)) {
 		execute = false;
 	}
 
@@ -201,19 +201,19 @@ void NetDipResponse::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		execute = false;
 	}
 
-	if(g_network.IsClient() &&
-	   !g_network.IsLocalPlayer(m_resp.senderId) &&
-	   !g_network.IsLocalPlayer(m_resp.receiverId)) {
+	if(network_Get().IsClient() &&
+	   !network_Get().IsLocalPlayer(m_resp.senderId) &&
+	   !network_Get().IsLocalPlayer(m_resp.receiverId)) {
 		execute = false;
 	}
 
 	Diplomat::GetDiplomat(m_executor).SetMyLastResponse(m_executor == m_resp.receiverId ? m_resp.senderId : m_resp.receiverId, m_resp);
 	if(execute) {
-		g_network.Block(m_executor);
+		network_Get().Block(m_executor);
 		gevmanager_Get()->Pause();
 		Diplomat::GetDiplomat(m_executor).ExecuteResponse(m_resp);
 		gevmanager_Get()->Resume();
-		g_network.Unblock(m_executor);
+		network_Get().Unblock(m_executor);
 
 
 

@@ -159,7 +159,7 @@ void NetWormhole::Packetize(uint8 *buf, uint16 &size)
 	}
 
 	PUSHLONG(wh->m_discoverer);
-	sint32 packpos = g_network.PackedPos(wh->m_pos);
+	sint32 packpos = network_Get().PackedPos(wh->m_pos);
 	PUSHLONG(packpos);
 
 	PUSHBYTE(wh->m_curDir);
@@ -218,7 +218,7 @@ void NetWormhole::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLLONG(discoverer);
 	sint32 packpos;
 	PULLLONG(packpos);
-	g_network.UnpackedPos(packpos, wpos);
+	network_Get().UnpackedPos(packpos, wpos);
 
 	Wormhole *wh = wormhole_Get();
 	if(!wh) {

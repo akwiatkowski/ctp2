@@ -1352,7 +1352,7 @@ sint32 c3_UtilityPlayerListPopup::UpdateData( )
                                 (&retval,
                                  strbuf,
                                  i,
-                                 g_network.GetStatusString(i),
+                                 network_Get().GetStatusString(i),
                                  ldlBlock
                                 )
                            );

@@ -292,7 +292,8 @@ int CivMain(int argc, char **argv);
 int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow);
 #endif
 
-Network g_network;
+static Network s_network;
+Network & network_Get() { return s_network; }
 
 BOOL g_letUIProcess = FALSE;
 BOOL g_useDDBlit = TRUE;

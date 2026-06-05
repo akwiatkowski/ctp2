@@ -123,7 +123,7 @@ NetHappy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	PULLBYTE(m_isInitialPacket);
 
-    bool const  isCheck = !m_isInitialPacket && (cd->GetOwner() == g_network.GetPlayerIndex());
+    bool const  isCheck = !m_isInitialPacket && (cd->GetOwner() == network_Get().GetPlayerIndex());
 	bool        resync  = false;
 
 	m_data = cd->m_happy;
@@ -232,7 +232,7 @@ NetHappy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	if (resync)
     {
-		g_network.RequestResync(RESYNC_CITY_STATS);
+		network_Get().RequestResync(RESYNC_CITY_STATS);
 	}
 }
 
@@ -284,7 +284,7 @@ NetPlayerHappy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	m_playerHappiness = player_Get(m_owner)->m_global_happiness;
 	PULLBYTE(m_isInitialPacket);
 
-#define PDCHK2(x) {double tmp = x; PULLDOUBLE(x); if((m_owner == g_network.GetPlayerIndex()) && !m_isInitialPacket) { Assert(tmp == x); }}
+#define PDCHK2(x) {double tmp = x; PULLDOUBLE(x); if((m_owner == network_Get().GetPlayerIndex()) && !m_isInitialPacket) { Assert(tmp == x); }}
 
     PDCHK2(m_playerHappiness->m_workday_per_person);
     PULLLONG(m_playerHappiness->m_unitless_workday);

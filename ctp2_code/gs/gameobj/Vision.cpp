@@ -640,10 +640,10 @@ void Vision::AddUnseen(const MapPoint &point)
 		{
 			return;
 		}
-		if(g_network.IsHost())
+		if(network_Get().IsHost())
 		{
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADD_UNSEEN,
-										  m_owner, g_network.PackedPos(point)));
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADD_UNSEEN,
+										  m_owner, network_Get().PackedPos(point)));
 		}
 
 		UnseenCellCarton unseen(new UnseenCell(point)); // Memory leak?

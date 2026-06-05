@@ -1697,10 +1697,10 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 	AgreementMatrix::s_agreements.
 		CancelAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE);
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_playerId);
-		g_network.QueuePacketToAll(new NetAgreementMatrix());
-		g_network.Unblock(m_playerId);
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_playerId);
+		network_Get().QueuePacketToAll(new NetAgreementMatrix());
+		network_Get().Unblock(m_playerId);
 	}
 
     tradepool_Get()->BreakOffTrade(m_playerId, foreignerId);
@@ -2481,7 +2481,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 
 
 		diplomacy_observer::NotifyResponse(response, m_playerId, other_player);
-		g_network.NotifyDiplomacyResponse(response, m_playerId, other_player);
+		network_Get().NotifyDiplomacyResponse(response, m_playerId, other_player);
 
 		Diplomat::GetDiplomat(sender).AddAgreement(receiver);
 
@@ -2507,7 +2507,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 		if (other_response == RESPONSE_COUNTER)
 		{
 			diplomacy_observer::NotifyResponse(response, m_playerId, other_player);
-			g_network.NotifyDiplomacyResponse(response, m_playerId, other_player);
+			network_Get().NotifyDiplomacyResponse(response, m_playerId, other_player);
 		}
 
 		Diplomat::GetDiplomat(sender).AddRejection(receiver);
@@ -2519,7 +2519,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 
 		return;
 	} else {
-		g_network.NotifyDiplomacyResponse(response, m_playerId, other_player);
+		network_Get().NotifyDiplomacyResponse(response, m_playerId, other_player);
 	}
 
 	const Response & sender_response =
@@ -2534,7 +2534,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 		DPRINTF(k_DBG_DIPLOMACY, ("    (new threat created)\n\n"));
 
 		diplomacy_observer::NotifyThreatRejected(response, sender_response, m_playerId, other_player);
-		g_network.NotifyDiplomacyThreatRejected(response, sender_response, m_playerId, other_player);
+		network_Get().NotifyDiplomacyThreatRejected(response, sender_response, m_playerId, other_player);
 
 		Diplomat::GetDiplomat(sender).AddThreat(receiver);
 
@@ -2817,8 +2817,8 @@ void Diplomat::ContinueDiplomacy(const PLAYER_INDEX & foreignerId) {
 
 		if (m_outstandingProposals == 0)
 		{
-			if(!g_network.IsActive() ||
-			   (g_network.IsHost() && g_network.IsLocalPlayer(m_playerId))) {
+			if(!network_Get().IsActive() ||
+			   (network_Get().IsHost() && network_Get().IsLocalPlayer(m_playerId))) {
 				render_observer::AddBeginScheduler(m_playerId);
 			}
 		}
@@ -2836,7 +2836,7 @@ bool Diplomat::StartNegotiations(const PLAYER_INDEX hotseat_foreignerId)
 
 	m_outstandingProposals = 0;
 
-	if (g_network.IsHost() && !g_network.IsLocalPlayer(m_playerId)) {
+	if (network_Get().IsHost() && !network_Get().IsLocalPlayer(m_playerId)) {
 
 		return false;
 	}
@@ -3693,8 +3693,8 @@ void Diplomat::SetDiplomaticState(const PLAYER_INDEX & foreignerId, const AiStat
 
 	if(    player_Get(m_playerId)
 	&& (   player_Get(m_playerId)->IsRobot()
-	&&  ( !g_network.IsActive()
-	||     g_network.IsLocalPlayer(m_playerId)
+	&&  ( !network_Get().IsActive()
+	||     network_Get().IsLocalPlayer(m_playerId)
 	    )
 	   )
 	  )
@@ -3737,8 +3737,8 @@ void Diplomat::SetDiplomaticState(const PLAYER_INDEX & foreignerId, const AiStat
 
 			if (declare_war)
 			{
-				if(g_network.IsClient() && g_network.IsLocalPlayer(m_playerId)) {
-					g_network.SendAction(new NetAction(NET_ACTION_DECLARE_WAR, foreignerId));
+				if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_playerId)) {
+					network_Get().SendAction(new NetAction(NET_ACTION_DECLARE_WAR, foreignerId));
 				}
 
 				DeclareWar(foreignerId);

@@ -332,32 +332,32 @@ STDEHANDLER(FinishBeginTurnEvent)
 
 	gameobservers_Get()->NotifyUpdateScienceWindow(p->m_owner);
 
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
-		g_network.Block(p->m_owner);
-		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_GOLD,
+		network_Get().Block(p->m_owner);
+		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_GOLD,
 		                                       p->m_owner, p->m_gold->GetLevel()));
 		// propagate PW each turn update
-		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_MATERIALS,
+		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_MATERIALS,
 		                                       p->m_owner, p->m_materialPool->GetMaterials()));
-		g_network.Unblock(p->m_owner);
+		network_Get().Unblock(p->m_owner);
 	}
 
 	// Auto-select first unit — only meaningful when UI is present.
 	if ((p->IsHuman() ||
-	     (p->IsNetwork() && g_network.IsLocalPlayer(p->m_owner))) &&
+	     (p->IsNetwork() && network_Get().IsLocalPlayer(p->m_owner))) &&
 	    gameobservers_Get())
 	{
 		gameobservers_Get()->NotifyAutoSelectFirstUnit(p->m_owner);
 	}
 
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
-		g_network.SyncRand();
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_TURN_SYNC));
+		network_Get().SyncRand();
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TURN_SYNC));
 	}
 
-	if(!g_network.IsClient())
+	if(!network_Get().IsClient())
 	{
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_FinishBuildPhase,
 		                       GEA_Player, player,
@@ -522,8 +522,8 @@ STDEHANDLER(SendGoodEvent)
 	if(!args->GetCity(0, sourceCity)) return GEV_HD_Continue;
 	if(!args->GetCity(1, destCity)) return GEV_HD_Continue;
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_REQUEST_TRADE_ROUTE,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_REQUEST_TRADE_ROUTE,
 		                                   resIndex, sourceCity.m_id, destCity.m_id));
 	} else {
 		player_Get(sourceCity.GetOwner())->CreateTradeRoute(sourceCity, ROUTE_TYPE_RESOURCE,
@@ -609,7 +609,7 @@ STDEHANDLER(FinishBuildPhaseEvent)
 	||  player_view::VisiblePlayer() == player
 	){
 		if (profiledb_Get()->IsAutoSave() &&
-			(!g_network.IsActive() || g_network.IsHost())
+			(!network_Get().IsActive() || network_Get().IsHost())
 		   )
 		{
 			civapp_Get()->AutoSave(player);
@@ -624,7 +624,7 @@ STDEHANDLER(FinishBuildPhaseEvent)
 	                       GEA_Player, player,
 	                       GEA_End);
 
-	if(g_network.IsActive()) {
+	if(network_Get().IsActive()) {
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_NetworkTurnSync,
 		                       GEA_Player, player,
 		                       GEA_End);
@@ -639,11 +639,11 @@ STDEHANDLER(StartMovePhaseEvent)
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 
 	if(safe_player(player)->IsRobot()
-	&& (!g_network.IsActive() || g_network.IsHost())
+	&& (!network_Get().IsActive() || network_Get().IsHost())
 	){
 	}
 
-	if(!g_network.IsClient()) {
+	if(!network_Get().IsClient()) {
 
 
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AIFinishBeginTurn,

@@ -876,7 +876,7 @@ void Director::CatchUp() {
 
   GarbageCollectItems();
 
-  if (!g_network.IsActive()) {
+  if (!network_Get().IsActive()) {
     KillAllActiveEffects();
     if (soundmgr_Get())
       soundmgr_Get()->TerminateAllLoopingSounds(SOUNDTYPE_SFX);
@@ -1090,7 +1090,7 @@ uint32 Director::KillAllActiveEffects() {
 void Director::NextPlayer(BOOL forcedUpdate) {
 #ifdef _PLAYTEST
   if (!g_doingFastRounds &&
-      (!g_network.IsActive() ||
+      (!network_Get().IsActive() ||
        player_Get(selitem_Get()->GetVisiblePlayer())->IsRobot())) {
     return;
   }
@@ -1118,7 +1118,7 @@ void Director::NextPlayer(BOOL forcedUpdate) {
     item->m_handler(item->m_action, item->getSequence(), DHEXECUTE_NORMAL);
   }
 
-  if (!g_network.IsActive() || forcedUpdate) {
+  if (!network_Get().IsActive() || forcedUpdate) {
     m_activeUnitList.erase(
         std::remove_if(m_activeUnitList.begin(), m_activeUnitList.end(),
                        [](UnitActorPtr a) { return a->WillDie(); }),
@@ -1129,7 +1129,7 @@ void Director::NextPlayer(BOOL forcedUpdate) {
     }
   }
 
-  if (!g_network.IsActive()) {
+  if (!network_Get().IsActive()) {
     if (tiledmap_Get())
       tiledmap_Get()->NextPlayer();
 
@@ -1922,8 +1922,8 @@ void Director::DecrementPendingGameActions() {
     m_pendingGameActions = 0;
     if (m_endTurnRequested) {
       Player* pl = player_Get(selitem_Get()->GetCurPlayer());
-      if (pl && (!g_network.IsActive() ||
-                 (g_network.IsLocalPlayer(selitem_Get()->GetCurPlayer())))) {
+      if (pl && (!network_Get().IsActive() ||
+                 (network_Get().IsLocalPlayer(selitem_Get()->GetCurPlayer())))) {
         m_endTurnRequested = false;
         DPRINTF(k_DBG_GAMESTATE,
                 ("Adding from DecrementPendingGameActions, %d\n",

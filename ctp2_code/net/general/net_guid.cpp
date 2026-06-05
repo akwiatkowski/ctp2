@@ -30,7 +30,7 @@ void NetGuid::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	GUID guid;
 	memcpy((uint8*)&guid, &buf[pos], sizeof(GUID));
 	pos += sizeof(GUID);
-	g_network.SetGuid(id, &guid);
+	network_Get().SetGuid(id, &guid);
 	Assert(pos == size);
 }
 

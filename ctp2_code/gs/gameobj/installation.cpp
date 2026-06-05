@@ -40,8 +40,8 @@ Installation::RemoveAllReferences()
 		}
 	}
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_KILL_INSTALLATION,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_INSTALLATION,
 									  uint32(*this)));
 	}
 	installationpool_Get()->Del(*this);

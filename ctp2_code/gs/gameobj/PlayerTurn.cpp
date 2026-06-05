@@ -96,16 +96,16 @@ void Player::BeginTurn()
 
 	m_end_turn_soon = FALSE;
 
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_SET_ROUND, m_owner, m_current_round));
-		g_network.Unblock(m_owner);
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_ROUND, m_owner, m_current_round));
+		network_Get().Unblock(m_owner);
 	}
 
 	DPRINTF(k_DBG_GAMESTATE, ("\n"));
 
-	if(!g_network.IsActive() || g_network.IsHost() || (m_owner == g_network.GetPlayerIndex()))
+	if(!network_Get().IsActive() || network_Get().IsHost() || (m_owner == network_Get().GetPlayerIndex()))
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Player[%d]::BeginTurn: running\n", m_owner));
 
@@ -205,12 +205,12 @@ void Player::BeginTurn()
 		                       GEA_End);
 
 		m_strengths->Calculate();
-		if(g_network.IsHost())
+		if(network_Get().IsHost())
 		{
-			g_network.Block(m_owner);
-			g_network.QueuePacketToAll(new NetStrengths(m_owner));
-			g_network.QueuePacketToAll(new NetScores(m_owner));
-			g_network.Unblock(m_owner);
+			network_Get().Block(m_owner);
+			network_Get().QueuePacketToAll(new NetStrengths(m_owner));
+			network_Get().QueuePacketToAll(new NetScores(m_owner));
+			network_Get().Unblock(m_owner);
 		}
 	}
 	else
@@ -218,7 +218,7 @@ void Player::BeginTurn()
 		DPRINTF(k_DBG_GAMESTATE, ("Player[%d]::BeginTurn: not running\n", m_owner));
 	}
 
-	if(!g_network.IsClient())
+	if(!network_Get().IsClient())
 	{
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_FinishBeginTurn,

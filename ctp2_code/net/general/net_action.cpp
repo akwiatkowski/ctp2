@@ -314,7 +314,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	Assert(buf[0] == 'A' && buf[1] == 'A');
 	sint32 pos = 2;
 
-	Assert(g_network.IsHost());
+	Assert(network_Get().IsHost());
 
 	PULLSHORTTYPE(m_action, NET_ACTION);
 	if(m_action < 0 || m_action >= NET_ACTION_NULL) return;
@@ -322,9 +322,9 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		PULLLONG(m_data[i]);
 	}
 
-	sint32 index = g_network.IdToIndex(id);
+	sint32 index = network_Get().IdToIndex(id);
 
-	if(g_network.SentResync(index)) {
+	if(network_Get().SentResync(index)) {
 
 
 		return;
@@ -342,7 +342,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_END_TURN:
 		{
-			int curPlayerIndex = g_network.IdToIndex(id);
+			int curPlayerIndex = network_Get().IdToIndex(id);
 
 			if(curPlayerIndex != selitem_Get()->GetCurPlayer()) {
 				if(turn_Get()->SimultaneousMode()) {
@@ -351,11 +351,11 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				}
 				break;
 			} else {
-				if(g_network.ShouldAckBeginTurn()) {
+				if(network_Get().ShouldAckBeginTurn()) {
 					DPRINTF(k_DBG_NET, ("NET_ACTION_END_TURN, %d\n", curPlayerIndex));
 
-					Assert(g_network.m_playerData[index]->m_createdArmies.Num() == 0);
-					Assert(g_network.m_playerData[index]->m_createdUnits.Num() == 0);
+					Assert(network_Get().m_playerData[index]->m_createdArmies.Num() == 0);
+					Assert(network_Get().m_playerData[index]->m_createdUnits.Num() == 0);
 
 					if(BattleViewWindow *bvw = battleviewwindow_Get(); bvw && c3ui_Get()->GetWindow(bvw->Id())) {
 						battleview_ExitButtonActionCallback(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
@@ -371,7 +371,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 
 				} else {
-					g_network.SetEndTurnWhenClear();
+					network_Get().SetEndTurnWhenClear();
 				}
 			}
 			break;
@@ -381,12 +381,12 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: settling unit %lx, client created city %lx\n", m_data[0], 0xdeadbeef));
 			Unit unit(m_data[0]);
 			if(!unit.IsValid()) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
 
 			if(selitem_Get()->GetCurPlayer() == index) {
-				g_network.Bookmark(id);
+				network_Get().Bookmark(id);
 				unit.Settle();
 
 
@@ -400,7 +400,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 
 
-				g_network.Unfreeze(id);
+				network_Get().Unfreeze(id);
 			} else {
 			}
 			break;
@@ -443,7 +443,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			TradeRoute route;
 			if(player_Get(index)) {
-				g_network.Block(index);
+				network_Get().Block(index);
 				route =
 					player_Get(index)->CreateTradeRoute(
 					    Unit(m_data[0]),
@@ -452,22 +452,22 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 						Unit(m_data[3]),
 						m_data[5],
 						m_data[6]);
-				g_network.Unblock(index);
+				network_Get().Unblock(index);
 				Assert(route.IsValid());
 			}
 
 			if((uint32)route != m_data[4]) {
-				g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
+				network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
 													  m_data[4], (uint32)route));
 				TradeRoute otherRoute(m_data[4]);
 				if(tradepool_Get()->IsValid(otherRoute))
-					g_network.QueuePacket(id, new NetTradeRoute(otherRoute.AccessData(), true));
+					network_Get().QueuePacket(id, new NetTradeRoute(otherRoute.AccessData(), true));
 
 				if (route.IsValid()) {
-					g_network.QueuePacket(id, new NetTradeRoute(route.AccessData(), true));
+					network_Get().QueuePacket(id, new NetTradeRoute(route.AccessData(), true));
 				}
 			} else {
-				g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
+				network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
 													  m_data[4]));
 			}
 			break;
@@ -493,7 +493,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								m_data[0], m_data[1], m_data[2],
 								m_data[3], m_data[4]));
 			if(player_Get(index)) {
-				g_network.Bookmark(id);
+				network_Get().Bookmark(id);
 				TradeOffer offer = player_Get(index)->CreateTradeOffer(
 				    Unit(m_data[0]),
 					ROUTE_TYPE(m_data[1]),
@@ -503,13 +503,13 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					Unit(m_data[5])
 					);
 				if((uint32)offer != m_data[6]) {
-					g_network.QueuePacketBookmark(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
+					network_Get().QueuePacketBookmark(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
 																  m_data[6], (uint32)offer));
 				} else {
-					g_network.QueuePacketBookmark(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
+					network_Get().QueuePacketBookmark(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
 																  m_data[6]));
 				}
-				g_network.Unfreeze(id);
+				network_Get().Unfreeze(id);
 			}
 			break;
 		}
@@ -529,23 +529,23 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: client %d created Unit %lx\n",
 								index, m_data[0]));
 
-			if(!g_network.m_playerData[index])
+			if(!network_Get().m_playerData[index])
 				break;
 
-			PlayerData *pd = g_network.m_playerData[index];
+			PlayerData *pd = network_Get().m_playerData[index];
 			Assert(pd->m_createdUnits.Num() > 0);
 			if(pd->m_createdUnits.Num() <= 0) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
 
 
 			if(pd->m_createdUnits[0] == Unit(m_data[0])) {
-				g_network.QueuePacket(id,
+				network_Get().QueuePacket(id,
 									  new NetInfo(NET_INFO_CODE_ACK_OBJECT,
 												  m_data[0]));
 			} else {
-				g_network.QueuePacket(id,
+				network_Get().QueuePacket(id,
 									  new NetInfo(NET_INFO_CODE_NAK_OBJECT,
 												  m_data[0], (uint32)pd->m_createdUnits[0]));
 			}
@@ -570,29 +570,29 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Player %d creating terrain improvement\n", index));
 			MapPoint pnt(m_data[1], m_data[2]);
 			if(player_Get(index)) {
-				g_network.Block(index);
+				network_Get().Block(index);
 				TerrainImprovement imp = player_Get(index)->CreateImprovement(
 				    (TERRAIN_IMPROVEMENT)m_data[0],
 					pnt, (TERRAIN_TYPES)m_data[3]);
-				g_network.Unblock(index);
+				network_Get().Unblock(index);
 				if((uint32)imp != m_data[4]) {
 					TerrainImprovement oops(m_data[4]);
-					g_network.QueuePacket(id, new NetInfo(
+					network_Get().QueuePacket(id, new NetInfo(
 														  NET_INFO_CODE_NAK_OBJECT, m_data[4], (uint32)imp));
 
 
 					if(terrimprovepool_Get()->IsValid(oops)) {
-						g_network.QueuePacket(id,
+						network_Get().QueuePacket(id,
 											  new NetTerrainImprovement(oops.AccessData()));
 					}
 
 					if(terrimprovepool_Get()->IsValid(imp)) {
 
-						g_network.QueuePacket(id,
+						network_Get().QueuePacket(id,
 											  new NetTerrainImprovement(imp.AccessData()));
 					}
 				} else {
-					g_network.QueuePacket(id, new NetInfo(
+					network_Get().QueuePacket(id, new NetInfo(
 														  NET_INFO_CODE_ACK_OBJECT, m_data[4]));
 				}
 			}
@@ -608,17 +608,17 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Installation inst(m_data[3]);
 			MapPoint rpnt;
 			if(!installationpool_Get()->IsValid(inst)) {
-				g_network.QueuePacket(id, new NetInfo(
+				network_Get().QueuePacket(id, new NetInfo(
 					NET_INFO_CODE_NAK_OBJECT, m_data[3], 0));
 				return;
 			}
 
 			inst.GetPos(rpnt);
 			if(inst.GetOwner() == index && rpnt == pnt && inst.GetType() == (sint32)m_data[0]) {
-				g_network.QueuePacket(id, new NetInfo(
+				network_Get().QueuePacket(id, new NetInfo(
 					NET_INFO_CODE_ACK_OBJECT, m_data[3]));
 			} else {
-				g_network.QueuePacket(id, new NetInfo(
+				network_Get().QueuePacket(id, new NetInfo(
 					NET_INFO_CODE_NAK_OBJECT, m_data[3], (uint32)inst));
 			}
 			break;
@@ -716,30 +716,30 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Player %d set workday to %d\n", index, m_data[0]));
 			if(player_Get(index)) {
 				player_Get(index)->SetWorkdayLevel(m_data[0]);
-				g_network.Block(index);
-				g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_WORKDAY_LEVEL,
+				network_Get().Block(index);
+				network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_WORKDAY_LEVEL,
 													   index, m_data[0]));
-				g_network.Unblock(index);
+				network_Get().Unblock(index);
 			}
 			break;
 		case NET_ACTION_WAGES_LEVEL:
 			DPRINTF(k_DBG_NET, ("Player %d set wages to %d\n", index, m_data[0]));
 			if(player_Get(index)) {
 				player_Get(index)->SetWagesLevel(m_data[0]);
-				g_network.Block(index);
-				g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_WAGES_LEVEL,
+				network_Get().Block(index);
+				network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_WAGES_LEVEL,
 													   index, m_data[0]));
-				g_network.Unblock(index);
+				network_Get().Unblock(index);
 			}
 			break;
 		case NET_ACTION_RATIONS_LEVEL:
 			DPRINTF(k_DBG_NET, ("Player %d set rations to %d\n", index, m_data[0]));
 			if(player_Get(index)) {
 				player_Get(index)->SetRationsLevel(m_data[0]);
-				g_network.Block(index);
-				g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_RATIONS_LEVEL,
+				network_Get().Block(index);
+				network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_RATIONS_LEVEL,
 													   index, m_data[0]));
-				g_network.Unblock(index);
+				network_Get().Unblock(index);
 			}
 			break;
 		case NET_ACTION_CREATED_CIV:
@@ -755,17 +755,17 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: Player %d created diplomatic request %lx to player %d, type %d\n",
 								m_data[0], m_data[3], m_data[1], m_data[2]));
-			g_network.Bookmark(id);
+			network_Get().Bookmark(id);
 			DiplomaticRequest req = diplomaticrequestpool_Get()->Create(
 							   m_data[0], m_data[1], REQUEST_TYPE(m_data[2]));
 			if(req != DiplomaticRequest(m_data[3])) {
-				g_network.QueuePacketBookmark(id, new NetInfo(
+				network_Get().QueuePacketBookmark(id, new NetInfo(
 							  NET_INFO_CODE_NAK_OBJECT, m_data[3], (uint32)req));
 			} else {
-				g_network.QueuePacketBookmark(id, new NetInfo(
+				network_Get().QueuePacketBookmark(id, new NetInfo(
 							  NET_INFO_CODE_ACK_OBJECT, m_data[3]));
 			}
-			g_network.Unfreeze(id);
+			network_Get().Unfreeze(id);
 			break;
 		}
 
@@ -780,7 +780,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Unit unit(m_data[1]);
 			DPRINTF(k_DBG_NET, ("Server: client grouping unit 0x%lx into army 0x%lx\n", unit.m_id, army.m_id));
 			if(!army.IsValid() || !unit.IsValid()) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
 			army->GroupUnit(unit);
@@ -830,11 +830,11 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Unit city(m_data[1]);
 			sint32 advance = sint32(m_data[2]);
 			if(!unitpool_Get()->IsValid(u)) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
 			if(!unitpool_Get()->IsValid(city)) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
 
@@ -1065,10 +1065,10 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Assert(index == message.GetOwner());
 			if(index != message.GetOwner())
 				return;
-			g_network.Block(index);
+			network_Get().Block(index);
 			message.Reject();
 			message.Kill();
-			g_network.Unblock(index);
+			network_Get().Unblock(index);
 			break;
 		}
 		case NET_ACTION_ACCEPT_MESSAGE:
@@ -1080,10 +1080,10 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Assert(index == message.GetOwner());
 			if(index != message.GetOwner())
 				return;
-			g_network.Block(index);
+			network_Get().Block(index);
 			message.Accept();
 			message.Kill();
-			g_network.Unblock(index);
+			network_Get().Unblock(index);
 			break;
 		}
 
@@ -1202,9 +1202,9 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_RESEARCH:
 		{
 			if(player_Get(index)) {
-				g_network.Block(index);
+				network_Get().Block(index);
 				player_Get(index)->SetResearching(m_data[0]);
-				g_network.Unblock(index);
+				network_Get().Unblock(index);
 			}
 			break;
 		}
@@ -1233,7 +1233,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_END_SLICE:
 		{
-			int curPlayerIndex = g_network.IdToIndex(id);
+			int curPlayerIndex = network_Get().IdToIndex(id);
 
 			Assert(curPlayerIndex == selitem_Get()->GetCurPlayer());
 			if(curPlayerIndex != selitem_Get()->GetCurPlayer())
@@ -1264,17 +1264,17 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DiplomaticRequest req(m_data[0]);
 
 			if(!diplomaticrequestpool_Get()->IsValid(req)) {
-				g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_ENACT,
+				network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_ENACT,
 													  m_data[0]));
 				break;
 			}
 			Assert(req.GetRecipient() == index);
 			if(req.GetRecipient() != index) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
 			req.Enact(selitem_Get()->GetCurPlayer() == index &&
-					  g_network.CurrentPlayerAckedBeginTurn());
+					  network_Get().CurrentPlayerAckedBeginTurn());
 
 			break;
 		}
@@ -1287,13 +1287,13 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				break;
 			Assert(req.GetRecipient() == index);
 			if(req.GetRecipient() != index) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
-			g_network.Block(index);
+			network_Get().Block(index);
 			req.Reject();
 			req.Kill();
-			g_network.Unblock(index);
+			network_Get().Unblock(index);
 			break;
 		}
 		case NET_ACTION_CREATE_UNIT_CHEAT:
@@ -1320,7 +1320,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			break;
 		}
 		case NET_ACTION_DONE_SETTING_UP:
-			g_network.SignalSetupDone(index);
+			network_Get().SignalSetupDone(index);
 			break;
 
 		case NET_ACTION_ADVANCE_CHEAT:
@@ -1352,8 +1352,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 #ifdef _DEBUG
 			MapPoint pnt(m_data[1], m_data[2]);
-			Assert(g_network.CanStillSetup(index));
-			if(!g_network.CanStillSetup(index))
+			Assert(network_Get().CanStillSetup(index));
+			if(!network_Get().CanStillSetup(index))
 				return;
 			if(player_Get(index))
 				player_Get(index)->CreateImprovement((TERRAIN_IMPROVEMENT)m_data[0], pnt,
@@ -1364,8 +1364,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_SELL_UNITS:
 		{
 			MapPoint pnt(m_data[0], m_data[1]);
-			Assert(g_network.CanStillSetup(index));
-			if(!g_network.CanStillSetup(index))
+			Assert(network_Get().CanStillSetup(index));
+			if(!network_Get().CanStillSetup(index))
 				return;
 			if(player_Get(index))
 				player_Get(index)->TradeUnitsForPoints(pnt);
@@ -1375,8 +1375,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_SELL_ONE_UNIT:
 		{
 			Unit unit(m_data[0]);
-			Assert(g_network.CanStillSetup(index));
-			if(!g_network.CanStillSetup(index))
+			Assert(network_Get().CanStillSetup(index));
+			if(!network_Get().CanStillSetup(index))
 				return;
 			if(player_Get(index))
 				player_Get(index)->TradeUnitForPoints(unit);
@@ -1386,8 +1386,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_SELL_IMPROVEMENTS:
 		{
 			MapPoint pnt(m_data[0], m_data[1]);
-			Assert(g_network.CanStillSetup(index));
-			if(!g_network.CanStillSetup(index))
+			Assert(network_Get().CanStillSetup(index));
+			if(!network_Get().CanStillSetup(index))
 				return;
 			if(player_Get(index))
 				player_Get(index)->TradeImprovementsForPoints(pnt);
@@ -1413,7 +1413,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			Assert(index == selitem_Get()->GetCurPlayer());
 			if(index == selitem_Get()->GetCurPlayer()) {
-				g_network.AckBeginTurn(index);
+				network_Get().AckBeginTurn(index);
 			}
 			break;
 		}
@@ -1425,20 +1425,20 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 
 
-				UnitDynamicArray *cityList = g_network.GetCreatedCities(index);
+				UnitDynamicArray *cityList = network_Get().GetCreatedCities(index);
 				if(cityList) {
 					Assert(cityList->Num() > 0);
 					if(cityList->Num() > 0 && uint32(cityList->Get(0)) == m_data[0]) {
-						g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
+						network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
 															  m_data[0]));
 						cityList->DelIndex(0);
 					} else if(cityList->Num() > 0){
-						g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
+						network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
 															  m_data[0],
 															  uint32(cityList->Get(0))));
 						cityList->DelIndex(0);
 					} else {
-						g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
+						network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
 															  m_data[0], 0));
 					}
 				}
@@ -1500,7 +1500,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				BOOL res = army->ExecuteOrders();
 				Assert(res);
 				if(!res) {
-					g_network.Resync(index);
+					network_Get().Resync(index);
 				}
 				gevmanager_Get()->Resume();
 			} else {
@@ -1514,10 +1514,10 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								index, m_data[0], m_data[1]));
 
 			CAUSE_NEW_ARMY cause = (CAUSE_NEW_ARMY)m_data[1];
-			PlayerData *pd = g_network.m_playerData[index];
+			PlayerData *pd = network_Get().m_playerData[index];
 			Assert((pd && pd->m_createdArmies.Num() > 0) || (cause == CAUSE_NEW_ARMY_UNGROUPING) || (cause == CAUSE_NEW_ARMY_GROUPING));
 			if((!pd || pd->m_createdArmies.Num() <= 0) && (cause != CAUSE_NEW_ARMY_UNGROUPING) && (cause != CAUSE_NEW_ARMY_GROUPING)) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
 
@@ -1526,12 +1526,12 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			}
 
 			if(pd->m_createdArmies[0] == Army(m_data[0])) {
-				g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
+				network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
 													  m_data[0]));
 			} else {
 				c3errors_ErrorDialog("NET TESTING", "NAK: Army 0x%lx should be 0x%lx",
 					m_data[0], pd->m_createdArmies[0].m_id);
-				g_network.QueuePacket(id,
+				network_Get().QueuePacket(id,
 									  new NetInfo(NET_INFO_CODE_NAK_OBJECT,
 												  m_data[0], (uint32)pd->m_createdArmies[0]));
 			}
@@ -1615,7 +1615,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d NAK'ed begin turn, trying again\n", index));
 			Assert(selitem_Get()->GetCurPlayer() == index);
 			if(selitem_Get()->GetCurPlayer() == index) {
-				g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_BEGIN_TURN,
+				network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_BEGIN_TURN,
 													  index));
 			}
 			break;
@@ -1746,13 +1746,13 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_REQUEST_RESYNC:
 		{
 			DPRINTF(k_DBG_NET, ("Client %d requests resync, reason %d\n", index, m_data[0]));
-			g_network.Resync(index);
+			network_Get().Resync(index);
 			break;
 		}
 		case NET_ACTION_ACK_RESYNC:
 		{
 			DPRINTF(k_DBG_NET, ("Client %d acks resync\n", index));
-			g_network.AckResync(index);
+			network_Get().AckResync(index);
 			break;
 		}
 
@@ -1771,11 +1771,11 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				if(apos.x != (sint16)m_data[1] ||
 					apos.y != (sint16)m_data[2]) {
 					DPRINTF(k_DBG_NET, ("It's actually at (%d,%d)\n",apos.x, apos.y));
-					g_network.Resync(index);
+					network_Get().Resync(index);
 				}
 			} else {
 				DPRINTF(k_DBG_NET, ("But it isn't even a valid army\n"));
-				g_network.Resync(index);
+				network_Get().Resync(index);
 			}
 			break;
 		}
@@ -1797,9 +1797,9 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(unitpool_Get()->IsValid(city)) {
 				Assert(index == city.GetOwner());
 				if(index == city.GetOwner()) {
-					g_network.Block(index);
+					network_Get().Block(index);
 					city.GetData()->GetCityData()->KillAllTradeRoutes();
-					g_network.Unblock(index);
+					network_Get().Unblock(index);
 				}
 			}
 			break;
@@ -1809,7 +1809,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Player %d acked enact of request %lx\n",
 								index, m_data[0]));
 			DiplomaticRequest req(m_data[0]);
-			g_network.RemoveEnact(req);
+			network_Get().RemoveEnact(req);
 			break;
 		}
 		case NET_ACTION_ACK_REMOVE_ILLEGAL:
@@ -1846,7 +1846,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				if(ag.GetRecipient() == index) {
 					ag.AccessData()->RecipientIsViolating(ag.GetOwner(), TRUE, turn_Get()->GetRound());
 				} else {
-					g_network.Resync(index);
+					network_Get().Resync(index);
 				}
 			}
 			break;
@@ -1855,7 +1855,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Client %d says offer %d/%d rejected\n",
 								index, m_data[0], m_data[1]));
-			g_network.QueuePacket(g_network.IndexToId(m_data[0]),
+			network_Get().QueuePacket(network_Get().IndexToId(m_data[0]),
 								  new NetInfo(NET_INFO_CODE_OFFER_REJECTED_MESSAGE,
 											  m_data[0], m_data[1]));
 			if(player_Get(m_data[0]) &&
@@ -1887,7 +1887,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(unitpool_Get()->IsValid(city)) {
 				if(city.GetOwner() == index) {
 					if(!city.GetData()->GetCityData()->CapturedThisTurn()) {
-						g_network.Resync(index);
+						network_Get().Resync(index);
 					} else {
 						city.FreeSlaves();
 					}
@@ -1921,14 +1921,14 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			TradeRoute route(m_data[0]);
 
 			if(!tradepool_Get()->IsValid(route)) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 			} else {
 				ROUTE_TYPE	routeType;
 				sint32		resIndex = 0;
 
 				Unit sourceCity = route.GetSource();
 				if(!unitpool_Get()->IsValid(sourceCity)) {
-					g_network.Resync(index);
+					network_Get().Resync(index);
 					return;
 				}
 
@@ -1937,7 +1937,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 				Unit destCity = route.GetDestination();
 				if(!unitpool_Get()->IsValid(destCity)) {
-					g_network.Resync(index);
+					network_Get().Resync(index);
 					return;
 				}
 
@@ -1955,7 +1955,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d set city 0x%lx mayor to %d,%d\n", index, m_data[0], m_data[1], m_data[2]));
 			Unit city(m_data[0]);
 			if(!city.IsValid()) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 			} else {
 				city.CD()->SetUseGovernor(m_data[2] != 0);
 				city.CD()->SetBuildListSequenceIndex(m_data[1]);
@@ -1968,7 +1968,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								index, m_data[1], m_data[0], m_data[2]));
 			Unit city(m_data[0]);
 			if(!city.IsValid()) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 			} else {
 				sint32 oldValue = city.CD()->SpecialistCount((POP_TYPE)m_data[1]);
 				city.CD()->ChangeSpecialists((POP_TYPE)m_data[1], (sint32)m_data[2] - oldValue);
@@ -1997,12 +1997,12 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d wants a trade route from %lx(%d) to %lx(%d) carrying %d\n",
 								index, m_data[1], src.IsValid(), m_data[2], dest.IsValid(), m_data[0]));
 			if(!player_Get(index)) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
 
 			if(!src.IsValid() || !dest.IsValid()) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
 
@@ -2014,12 +2014,12 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			Unit u(m_data[0]);
 			if(!u.IsValid()) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
 
 			if(u.GetOwner() != index) {
-				g_network.Resync(index);
+				network_Get().Resync(index);
 				break;
 			}
 

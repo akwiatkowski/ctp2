@@ -151,9 +151,9 @@ void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner)
 	player_arr_Get()[pi] = new Player
 	    (PLAYER_INDEX(pi), 0, PLAYER_TYPE_ROBOT, CIV_INDEX_RANDOM, GENDER_RANDOM);
 
-	if (g_network.IsActive())
+	if (network_Get().IsActive())
 	{
-		g_network.AddCivilization
+		network_Get().AddCivilization
 		    (pi, PLAYER_TYPE_ROBOT, player_Get(pi)->GetCivilisation()->GetCivilisation());
 	}
 
@@ -171,17 +171,17 @@ void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner)
 
 	CtpAi::AddPlayer(pi);
 
-	if (g_network.IsHost())
+	if (network_Get().IsHost())
 	{
-		g_network.Block(old_owner);
-		g_network.QueuePacketToAll(new NetPlayer(player_Get(pi)));
+		network_Get().Block(old_owner);
+		network_Get().QueuePacketToAll(new NetPlayer(player_Get(pi)));
 
 		for (uint16 y = 0; y < world_Get()->GetYHeight(); y += k_VISION_STEP)
 		{
-			g_network.QueuePacketToAll(new NetVision(pi, y, k_VISION_STEP));
+			network_Get().QueuePacketToAll(new NetVision(pi, y, k_VISION_STEP));
 		}
 
-		g_network.Unblock(old_owner);
+		network_Get().Unblock(old_owner);
 	}
 }
 

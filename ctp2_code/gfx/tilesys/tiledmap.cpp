@@ -5156,8 +5156,8 @@ void TiledMap::CopyVision()
 //----------------------------------------------------------------------------
 bool TiledMap::ReadyToDraw() const
 {
-	if ((g_network.IsActive() || g_network.IsNetworkLaunch()) &&
-	    !g_network.ReadyToStart()
+	if ((network_Get().IsActive() || network_Get().IsNetworkLaunch()) &&
+	    !network_Get().ReadyToStart()
        )
     {
 		return false;

@@ -75,17 +75,17 @@ void World::CityRadiusFunc(const MapPoint &pos)
 
 			if(GetCell(pos)->GetOwner() < 0) {
 				GetCell(pos)->SetOwner(m_insertCityOwner);
-				if(g_network.IsHost()) {
-					uint32 packpos = g_network.PackedPos(pos);
-					g_network.Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
+				if(network_Get().IsHost()) {
+					uint32 packpos = network_Get().PackedPos(pos);
+					network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
 												  packpos, m_insertCityOwner));
 				}
 			} else if(!IsInsideCityRadiusOfPlayerOtherThan(pos, m_insertCityOwner,
 														   Unit(m_ignoreCity))) {
 				GetCell(pos)->SetOwner((sint8)m_insertCityOwner);
-				if(g_network.IsHost()) {
-					uint32 packpos = g_network.PackedPos(pos);
-					g_network.Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
+				if(network_Get().IsHost()) {
+					uint32 packpos = network_Get().PackedPos(pos);
+					network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
 												  packpos, m_insertCityOwner));
 				}
 			}
@@ -146,16 +146,16 @@ bool World::InsertCity(const MapPoint &pos, Unit u)
 	} else {
 		c->SetCity(u);
 
-		if(!g_network.IsClient() || g_network.ReadyToStart()) {
+		if(!network_Get().IsClient() || network_Get().ReadyToStart()) {
 			PLAYER_INDEX owner = u.GetOwner();
 			m_radiusOp = WORLD_RADIUS_OP_SET_RADIUS;
 			m_ignoreCity = u.m_id;
 			m_insertCityOwner = owner;
 
 			c->SetOwner(owner);
-			if(g_network.IsHost()) {
-				uint32 packpos = g_network.PackedPos(pos);
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
+			if(network_Get().IsHost()) {
+				uint32 packpos = network_Get().PackedPos(pos);
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
 											  packpos, owner));
 			}
 

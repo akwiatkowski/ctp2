@@ -72,7 +72,7 @@ STDEHANDLER(BeginTurnEvent)
 
 	render_observer::NextPlayer();
 
-	if(profiledb_Get()->IsAIOn() && (!g_network.IsClient()))
+	if(profiledb_Get()->IsAIOn() && (!network_Get().IsClient()))
 	{
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginMapAnalysis,
 		                       GEA_Player,      player,
@@ -82,7 +82,7 @@ STDEHANDLER(BeginTurnEvent)
 
 	CtpAi::BeginDiplomacy(player, round);
 
-	if(profiledb_Get()->IsAIOn() && (!g_network.IsClient()))
+	if(profiledb_Get()->IsAIOn() && (!network_Get().IsClient()))
 	{
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginTurn,
 		                       GEA_Player,      player,

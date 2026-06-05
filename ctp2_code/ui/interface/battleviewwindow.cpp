@@ -383,7 +383,7 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 
 	if (combat_Get()->GetAttacker() ==
 		    selitem_Get()->GetVisiblePlayer()
-	    && !g_network.IsActive()
+	    && !network_Get().IsActive()
        )
     {
 		m_retreatButton->Show();

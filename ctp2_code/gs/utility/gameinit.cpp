@@ -514,7 +514,7 @@ sint32 gameinit_PlaceInitalUnits(sint32 nPlayers, MapPoint player_start_list[k_M
 			break;
 
 		sint32 nUnits = 1;
-		if(g_network.IsLaunchHost())
+		if(network_Get().IsLaunchHost())
 		{
 			nUnits = s_networkSettlers[i];
 
@@ -1331,11 +1331,11 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 	for (i=2; i<nPlayers; i++)
 	{
 		if (g_theProfileDB->IsAIOn() &&
-			((!g_network.IsNetworkLaunch() ||
-			i > g_network.GetNumHumanPlayers()) ||
-			(g_network.IsNetworkLaunch() &&
+			((!network_Get().IsNetworkLaunch() ||
+			i > network_Get().GetNumHumanPlayers()) ||
+			(network_Get().IsNetworkLaunch() &&
 			g_theProfileDB->NoHumanPlayersOnHost() &&
-			i==g_network.GetNumHumanPlayers())))
+			i==network_Get().GetNumHumanPlayers())))
 		{
 
 
@@ -1368,7 +1368,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	SPLASH_STRING("Creating AI Interface's...");
 
-	if (g_theProfileDB->IsAIOn() || g_network.IsNetworkLaunch())
+	if (g_theProfileDB->IsAIOn() || network_Get().IsNetworkLaunch())
 	{
 		PLAYER_INDEX ai_players[k_MAX_PLAYERS];
 		sint32 next = 0;
@@ -1377,7 +1377,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 			if(g_player[i] && g_player[i]->IsRobot())
 				ai_players[next++] = PLAYER_INDEX(i);
 
-		if(!g_theProfileDB->IsAIOn() && g_network.IsNetworkLaunch())
+		if(!g_theProfileDB->IsAIOn() && network_Get().IsNetworkLaunch())
 			g_theProfileDB->SetAI(TRUE);
 	}
 	else
@@ -1473,11 +1473,11 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 sint32 gameinit_GetCivForSlot(sint32 slot)
 {
 
-	if(g_network.IsLaunchHost()) {
+	if(network_Get().IsLaunchHost()) {
 
-		if(slot > g_network.GetNumHumanPlayers()) {
-			sint32 firstRobot = g_network.GetNumHumanPlayers() + 1;
-			NSAIPlayerInfo *nsaipi = g_network.GetNSAIPlayerInfo(slot - firstRobot);
+		if(slot > network_Get().GetNumHumanPlayers()) {
+			sint32 firstRobot = network_Get().GetNumHumanPlayers() + 1;
+			NSAIPlayerInfo *nsaipi = network_Get().GetNSAIPlayerInfo(slot - firstRobot);
 			if(nsaipi) {
 				return nsaipi->m_civ;
 			}
@@ -1485,7 +1485,7 @@ sint32 gameinit_GetCivForSlot(sint32 slot)
 	else
 	{
 
-			NSPlayerInfo *nspi = g_network.GetNSPlayerInfo(slot - 1);
+			NSPlayerInfo *nspi = network_Get().GetNSPlayerInfo(slot - 1);
 			if(nspi)
 				return nspi->m_civ;
 		}
@@ -1523,7 +1523,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 	uint32 seed;
 
 	// Reduced min players from 4 to 2 - JJB
-	if(!g_network.IsNetworkLaunch() && g_theProfileDB->GetNPlayers() < 2) {
+	if(!network_Get().IsNetworkLaunch() && g_theProfileDB->GetNPlayers() < 2) {
 		g_theProfileDB->SetNPlayers(2);
 	}
 	sint32 nPlayers = g_theProfileDB->GetNPlayers();
@@ -1532,8 +1532,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 	g_theOrderPond = new Pool<Order>(INITIAL_CHUNK_LIST_SIZE);
 	g_theUnseenPond = new Pool<UnseenCell>(INITIAL_CHUNK_LIST_SIZE);
 
-	if(g_network.IsActive()
-	|| g_network.IsNetworkLaunch()
+	if(network_Get().IsActive()
+	|| network_Get().IsNetworkLaunch()
 	|| gameinit_IsHotseatGame()
 	|| gameinit_IsEmailGame()
 	){
@@ -1601,7 +1601,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 		                           g_player_start_score);
 
 #ifdef _DEBUG
-		if (!g_network.IsActive()) {
+		if (!network_Get().IsActive()) {
 			Assert(g_player_start_list[1].x >= 0);
 		}
 #endif
@@ -1626,8 +1626,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 	gameinit_log->debug("step: post-World, before TurnCount");
 		turn_Set(new TurnCount(g_theProfileDB->GetNPlayers(),
 			diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)));
-		if(g_network.IsActive() || g_network.IsNetworkLaunch()) {
-			sint32 startAge = g_network.GetStartingAge();
+		if(network_Get().IsActive() || network_Get().IsNetworkLaunch()) {
+			sint32 startAge = network_Get().GetStartingAge();
 			if(startAge != 0) {
 				turn_Get()->SkipToRound(0 );
 			}
@@ -1679,7 +1679,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 			return FALSE;
 		}
 
-		if (!g_network.IsActive() && !g_network.IsNetworkLaunch())
+		if (!network_Get().IsActive() && !network_Get().IsNetworkLaunch())
         {
 			slicengine_Get()->SetTutorialActive(g_theProfileDB->IsTutorialAdvice());
 			slicengine_Get()->SetTutorialPlayer(g_theProfileDB->GetPlayerIndex());
@@ -1762,8 +1762,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 		sint32 netIndex = 0;
 		NSPlayerInfo *nspi = nullptr;
 		sint32 civ = g_theProfileDB->GetCivIndex();
-		if(g_network.IsLaunchHost()) {
-			nspi = g_network.GetNSPlayerInfo(netIndex++);
+		if(network_Get().IsLaunchHost()) {
+			nspi = network_Get().GetNSPlayerInfo(netIndex++);
 			if(nspi) {
 				civ = nspi->m_civ;
 			}
@@ -1802,16 +1802,16 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 		  if (i != humanIndex)
 		  {
 			if (g_theProfileDB->IsAIOn() &&
-				((!g_network.IsNetworkLaunch() || i > g_network.GetNumHumanPlayers()) ||
-				 (g_network.IsNetworkLaunch() && g_theProfileDB->NoHumanPlayersOnHost() && i==g_network.GetNumHumanPlayers()))) {
+				((!network_Get().IsNetworkLaunch() || i > network_Get().GetNumHumanPlayers()) ||
+				 (network_Get().IsNetworkLaunch() && g_theProfileDB->NoHumanPlayersOnHost() && i==network_Get().GetNumHumanPlayers()))) {
 
 
 				NSAIPlayerInfo *nsaipi = nullptr;
-				if(g_network.IsLaunchHost()) {
+				if(network_Get().IsLaunchHost()) {
 					if(firstRobot < 0)
 						firstRobot = i;
 
-					nsaipi = g_network.GetNSAIPlayerInfo(i - firstRobot);
+					nsaipi = network_Get().GetNSAIPlayerInfo(i - firstRobot);
 				}
 				if(nsaipi) {
 					g_player[i] = new Player(PLAYER_INDEX(i),
@@ -1835,13 +1835,13 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 			}
 	else
 	{
-				if(!g_network.IsLaunchHost()) {
+				if(!network_Get().IsLaunchHost()) {
 					g_player[i] = new Player(PLAYER_INDEX(i), diff, PLAYER_TYPE_HUMAN, CIV_INDEX_RANDOM, GENDER_RANDOM);
 					s_networkSettlers[i] = 1;
 				}
 	else
 	{
-					NSPlayerInfo *nspi = g_network.GetNSPlayerInfo(netIndex++);
+					NSPlayerInfo *nspi = network_Get().GetNSPlayerInfo(netIndex++);
 
 					civ = nspi ? nspi->m_civ : CIV_INDEX_RANDOM;
 
@@ -1871,7 +1871,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 		  } // if (i != humanIndex)
 		} // for
 
-		if(g_network.IsLaunchHost() && g_network.TeamsEnabled()) {
+		if(network_Get().IsLaunchHost() && network_Get().TeamsEnabled()) {
 			for(i = 1; i < k_MAX_PLAYERS; i++) {
 				if(g_player[i]) {
 					sint32 j;
@@ -1915,7 +1915,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 	{
 		SPLASH_STRING("Create Robot Interface...");
 
-		if(g_theProfileDB->IsAIOn() || g_network.IsNetworkLaunch() )
+		if(g_theProfileDB->IsAIOn() || network_Get().IsNetworkLaunch() )
 		{
 			PLAYER_INDEX ai_players[k_MAX_PLAYERS];
 
@@ -1929,7 +1929,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 				}
 			}
 
-			if(!g_theProfileDB->IsAIOn() && g_network.IsNetworkLaunch())
+			if(!g_theProfileDB->IsAIOn() && network_Get().IsNetworkLaunch())
 			{
 				g_theProfileDB->SetAI(TRUE);
 			}
@@ -2017,7 +2017,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 	SPLASH_STRING("Reset vision...");
 	render_observer::AddCopyVision();
 
-	if(!g_network.IsActive() && !g_network.IsNetworkLaunch())
+	if(!network_Get().IsActive() && !network_Get().IsNetworkLaunch())
 	{
 		SPLASH_STRING("Check for Lemur...");
 

@@ -94,16 +94,16 @@ STDEHANDLER(General_NewProposalEvent)
 
 		bool execute = false;
 		if(sender != player_view::VisiblePlayer()) {
-			if(g_network.IsActive() && !g_network.IsLocalPlayer(sender)) {
+			if(network_Get().IsActive() && !network_Get().IsLocalPlayer(sender)) {
 				execute = false;
-			} else if(g_network.IsActive()) {
-				execute = player_Get(sender)->IsRobot() && g_network.IsLocalPlayer(sender);
+			} else if(network_Get().IsActive()) {
+				execute = player_Get(sender)->IsRobot() && network_Get().IsLocalPlayer(sender);
 			} else {
 				execute = true;
 			}
 		}
 		if(!execute && player_Get(sender)->IsRobot()) {
-			if(!g_network.IsActive() || g_network.IsLocalPlayer(sender)) {
+			if(!network_Get().IsActive() || network_Get().IsLocalPlayer(sender)) {
 				execute = true;
 			}
 		}
@@ -113,7 +113,7 @@ STDEHANDLER(General_NewProposalEvent)
 		}
 
 		else {
-			if(!g_network.IsClient()) {
+			if(!network_Get().IsClient()) {
 				render_observer::AddBeginScheduler(sender);
 			}
 		}

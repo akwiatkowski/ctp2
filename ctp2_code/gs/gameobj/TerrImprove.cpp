@@ -18,13 +18,13 @@ void TerrainImprovement::RemoveAllReferences()
 {
 	player_Get(GetOwner())->RemoveImprovementReferences(*this);
 	world_Get()->RemoveImprovement(*this, GetLocation());
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 		if(player_view::CurPlayer() == GetOwner())
-			g_network.Block(GetOwner());
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_KILL_IMPROVEMENT,
+			network_Get().Block(GetOwner());
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_IMPROVEMENT,
 									  uint32(*this)));
 		if(player_view::CurPlayer() == GetOwner())
-			g_network.Unblock(GetOwner());
+			network_Get().Unblock(GetOwner());
 	}
 
 	terrimprovepool_Get()->Del(*this);

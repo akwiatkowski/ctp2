@@ -279,9 +279,9 @@ void Pollution::BeginTurn()
 	else
 		m_eventTriggerNextRound-- ;
 
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
-		g_network.EnqueuePollution();
+		network_Get().EnqueuePollution();
 	}
 }
 
@@ -313,9 +313,9 @@ void Pollution::EndRound()
 
 	m_trend = CalcTrend(m_history, k_MAX_GLOBAL_POLLUTION_RECORD_TURNS, offset, slope);
 
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
-		g_network.EnqueuePollution();
+		network_Get().EnqueuePollution();
 	}
 
 	DPRINTF(k_DBG_FIX, ("Global Pollution Level: %ld\n", pollution));
@@ -434,9 +434,9 @@ void pollution_NukeCell(MapPoint &pos, Cell *cell)
 																k_MASK_ENV_MINE |
 																k_MASK_ENV_INSTALLATION |
 																k_MASK_ENV_CANAL_TUNNEL));
-		if(g_network.IsHost())
+		if(network_Get().IsHost())
 		{
-			g_network.Enqueue(world_Get()->GetCell(pos), pos.x, pos.y);
+			network_Get().Enqueue(world_Get()->GetCell(pos), pos.x, pos.y);
 		}
 
 		cell->CalcTerrainMoveCost();

@@ -1889,8 +1889,8 @@ void ResyncCommand::Execute(sint32 argc, char **argv)
 	if(argc != 2)
 		return;
 
-	if(g_network.IsHost()) {
-		g_network.Resync(atoi(argv[1]));
+	if(network_Get().IsHost()) {
+		network_Get().Resync(atoi(argv[1]));
 	}
 }
 
@@ -2005,12 +2005,12 @@ void AttachCommand::Execute(sint32 argc, char **argv)
 		player = atoi(argv[1]);
 	}
 
-	if(g_network.IsActive()) {
-		Assert(g_network.IsLocalPlayer(player));
-		if(!g_network.IsLocalPlayer(player))
+	if(network_Get().IsActive()) {
+		Assert(network_Get().IsLocalPlayer(player));
+		if(!network_Get().IsLocalPlayer(player))
 			return;
 
-		if(g_network.IsClient() && !g_network.IsMyTurn())
+		if(network_Get().IsClient() && !network_Get().IsMyTurn())
 			return;
 	}
 
@@ -2030,11 +2030,11 @@ void DetachCommand::Execute(sint32 argc, char **argv)
 		player = atoi(argv[1]);
 	}
 
-	if(g_network.IsActive()) {
-		Assert(g_network.IsLocalPlayer(player));
-		if(!g_network.IsLocalPlayer(player))
+	if(network_Get().IsActive()) {
+		Assert(network_Get().IsLocalPlayer(player));
+		if(!network_Get().IsLocalPlayer(player))
 			return;
-		if(!g_network.IsHost())
+		if(!network_Get().IsHost())
 			player_Get(player)->m_playerType = PLAYER_TYPE_NETWORK;
 		else
 			player_Get(player)->m_playerType = PLAYER_TYPE_HUMAN;
@@ -2237,8 +2237,8 @@ void SellUnitsCommand::Execute(sint32 argc, char **argv)
 
 void ReadyCommand::Execute(sint32 argc, char **argv)
 {
-	if(g_network.IsActive()) {
-		g_network.SignalSetupDone(selitem_Get()->GetVisiblePlayer());
+	if(network_Get().IsActive()) {
+		network_Get().SignalSetupDone(selitem_Get()->GetVisiblePlayer());
 	} else {
 		g_powerPointsMode = FALSE;
 	}
@@ -2246,9 +2246,9 @@ void ReadyCommand::Execute(sint32 argc, char **argv)
 
 void SetupModeCommand::Execute(sint32 argc, char **argv)
 {
-	if(!g_network.IsActive() || g_network.IsHost()) {
-		g_network.EnterSetupMode();
-		if(!g_network.IsHost() && !g_network.IsClient()) {
+	if(!network_Get().IsActive() || network_Get().IsHost()) {
+		network_Get().EnterSetupMode();
+		if(!network_Get().IsHost() && !network_Get().IsClient()) {
 			g_powerPointsMode = TRUE;
 			player_Get(selitem_Get()->GetVisiblePlayer())->m_doneSettingUp = FALSE;
 			player_Get(selitem_Get()->GetVisiblePlayer())->SetPoints(profiledb_Get()->PowerPoints());
@@ -2258,8 +2258,8 @@ void SetupModeCommand::Execute(sint32 argc, char **argv)
 
 void SetCarryoverStyleCommand::Execute(sint32 argc, char **argv)
 {
-	if(!g_network.IsActive() || g_network.IsHost()) {
-		g_network.SetCarryoverStyle(TRUE);
+	if(!network_Get().IsActive() || network_Get().IsHost()) {
+		network_Get().SetCarryoverStyle(TRUE);
 	}
 }
 
@@ -2276,8 +2276,8 @@ void SetTimedStyleCommand::Execute(sint32 argc, char **argv)
 		s = atoi(argv[2]);
 	}
 
-	if(!g_network.IsActive() || g_network.IsHost()) {
-		g_network.SetTimedStyle(TRUE, m * 60 + s);
+	if(!network_Get().IsActive() || network_Get().IsHost()) {
+		network_Get().SetTimedStyle(TRUE, m * 60 + s);
 	}
 }
 
@@ -2293,15 +2293,15 @@ void SetSpeedStyleCommand::Execute(sint32 argc, char **argv)
 	} else {
 		perCity = 0;
 	}
-	if(!g_network.IsActive() || g_network.IsHost()) {
-		g_network.SetSpeedStyle(TRUE, atoi(argv[1]), FALSE, perCity);
+	if(!network_Get().IsActive() || network_Get().IsHost()) {
+		network_Get().SetSpeedStyle(TRUE, atoi(argv[1]), FALSE, perCity);
 	}
 }
 
 void SetClassicStyleCommand::Execute(sint32 argc, char **argv)
 {
-	if(!g_network.IsActive() || g_network.IsHost()) {
-		g_network.SetClassicStyle();
+	if(!network_Get().IsActive() || network_Get().IsHost()) {
+		network_Get().SetClassicStyle();
 	}
 }
 
@@ -2311,8 +2311,8 @@ void SetUnitMovesStyleCommand::Execute(sint32 argc, char **argv)
 	if(argc != 2)
 		return;
 
-	if(!g_network.IsActive() || g_network.IsHost()) {
-		g_network.SetUnitMovesStyle(TRUE, atoi(argv[1]));
+	if(!network_Get().IsActive() || network_Get().IsHost()) {
+		network_Get().SetUnitMovesStyle(TRUE, atoi(argv[1]));
 	}
 }
 
@@ -2865,8 +2865,8 @@ void GrantAdvanceCommand::Execute(sint32 argc, char **argv)
 	if(argc != 2)
 		return;
 
-	if(g_network.IsClient()) {
-		g_network.SendCheat(new NetCheat(NET_CHEAT_GRANT_ADVANCE,
+	if(network_Get().IsClient()) {
+		network_Get().SendCheat(new NetCheat(NET_CHEAT_GRANT_ADVANCE,
 		                                 atoi(argv[1])));
 	}
 
@@ -2877,8 +2877,8 @@ void GrantAllCommand::Execute(sint32 argc, char **argv)
 {
 	Assert(argc == 1);
 
-	if(g_network.IsClient()) {
-		g_network.SendCheat(new NetCheat(NET_CHEAT_GRANT_ALL));
+	if(network_Get().IsClient()) {
+		network_Get().SendCheat(new NetCheat(NET_CHEAT_GRANT_ALL));
 	}
 
 	for(sint32 i = 0; i < g_theAdvanceDB->NumRecords(); i++) {
@@ -2890,8 +2890,8 @@ void GrantManyCommand::Execute(sint32 argc, char **argv)
 {
 	Assert(argc == 1);
 
-	Assert(!g_network.IsActive());
-	if(g_network.IsActive())
+	Assert(!network_Get().IsActive());
+	if(network_Get().IsActive())
 		return;
 
 
@@ -2964,11 +2964,11 @@ void CreateImprovementCommand::Execute(sint32 argc, char **argv)
 
 	Unit c(item);
 	c.AccessData()->m_city_data->m_built_improvements |= ((uint64)1 << atoi(argv[1]));
-	if(g_network.IsClient()) {
-		g_network.SendCheat(new NetCheat(NET_CHEAT_CREATE_IMPROVEMENT,
+	if(network_Get().IsClient()) {
+		network_Get().SendCheat(new NetCheat(NET_CHEAT_CREATE_IMPROVEMENT,
 		                                 (uint32)c, atoi(argv[1])));
-	} else if(g_network.IsHost()) {
-		g_network.Enqueue(c.AccessData(), c.AccessData()->m_city_data);
+	} else if(network_Get().IsHost()) {
+		network_Get().Enqueue(c.AccessData(), c.AccessData()->m_city_data);
 	}
 
 }
@@ -3020,7 +3020,7 @@ void PopCommand::Execute(sint32 argc, char **argv)
 void ShowNetworkStatsCommand::Execute(sint32 argc, char **argv)
 {
 #ifdef _DEBUG
-	g_network.TogglePacketLog();
+	network_Get().TogglePacketLog();
 #endif
 }
 
@@ -3060,7 +3060,7 @@ void ChatMaskCommand::Execute(sint32 argc, char **argv)
 		mask |= (1 << atoi(argv[i]));
 	}
 
-	g_network.SetChatMask(mask);
+	network_Get().SetChatMask(mask);
 }
 
 void ChatCommand::Execute(sint32 argc, char **argv)
@@ -3076,7 +3076,7 @@ void ChatCommand::Execute(sint32 argc, char **argv)
 		str[pos++] = ' ';
 	}
 	str[pos] = 0;
-	g_network.SendChatText(str, strlen(str));
+	network_Get().SendChatText(str, strlen(str));
 }
 
 void ReadinessCommand::Execute(sint32 argc, char **argv)
@@ -4707,8 +4707,8 @@ void BequeathGoldCommand::Execute(sint32 argc, char **argv)
 	if (argc != 2)
 		return;
 
-	if(g_network.IsClient() && !g_network.SetupMode()) {
-		g_network.SendCheat(new NetCheat(NET_CHEAT_ADD_GOLD,
+	if(network_Get().IsClient() && !network_Get().SetupMode()) {
+		network_Get().SendCheat(new NetCheat(NET_CHEAT_ADD_GOLD,
 										 selitem_Get()->GetVisiblePlayer(),
 										 atoi(argv[1])));
 	}
@@ -4969,8 +4969,8 @@ void FloodCommand::Execute(sint32 argc, char **argv)
 	if (argc != 2)
 		return;
 
-	if(g_network.IsClient()) {
-		g_network.SendCheat(new NetCheat(NET_CHEAT_GLOBAL_WARMING,
+	if(network_Get().IsClient()) {
+		network_Get().SendCheat(new NetCheat(NET_CHEAT_GLOBAL_WARMING,
 										 atoi(argv[1])));
 	} else {
 		world_Get()->GlobalWarming(atoi(argv[1]));
@@ -4992,8 +4992,8 @@ void OzoneCommand::Execute(sint32 argc, char **argv)
 	if (argc != 2)
 		return;
 
-	if(g_network.IsClient()) {
-		g_network.SendCheat(new NetCheat(NET_CHEAT_OZONE_DEPLETION,
+	if(network_Get().IsClient()) {
+		network_Get().SendCheat(new NetCheat(NET_CHEAT_OZONE_DEPLETION,
 										 atoi(argv[1])));
 	} else {
 		world_Get()->OzoneDepletion();
@@ -5542,8 +5542,8 @@ void CreateCommand::Execute(sint32 argc, char** argv)
     sint32 i;
 
     for (i=0; i<num_new_units; i++) {
-        if(g_network.IsClient()) {
-	        g_network.SendCheat(new NetCheat(NET_CHEAT_CREATE_UNIT,
+        if(network_Get().IsClient()) {
+	        network_Get().SendCheat(new NetCheat(NET_CHEAT_CREATE_UNIT,
 									         city_idx, type, player,
 									         pos.x, pos.y));
 	        return;
@@ -5734,8 +5734,8 @@ void AddMaterialsCommand::Execute(sint32 argc, char **argv)
 	if(argc != 2)
 		return;
 
-	if(g_network.IsClient() && !g_network.SetupMode()) {
-		g_network.SendCheat(new NetCheat(NET_CHEAT_ADD_MATERIALS,
+	if(network_Get().IsClient() && !network_Get().SetupMode()) {
+		network_Get().SendCheat(new NetCheat(NET_CHEAT_ADD_MATERIALS,
 										 selitem_Get()->GetVisiblePlayer(),
 										 atoi(argv[1])));
 	}

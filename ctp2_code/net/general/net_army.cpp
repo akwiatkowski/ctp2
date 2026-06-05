@@ -63,9 +63,9 @@ void NetNewArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	Assert(pos == size);
 
-	if(g_network.IsHost()) {
-		Assert(m_player == g_network.IdToIndex(id));
-		if(m_player != g_network.IdToIndex(id))
+	if(network_Get().IsHost()) {
+		Assert(m_player == network_Get().IdToIndex(id));
+		if(m_player != network_Get().IdToIndex(id))
 			return;
 	}
 
@@ -135,9 +135,9 @@ void NetRemoveArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		PULLLONG(m_unitId[i]);
 	}
 
-	if(g_network.IsHost()) {
-		Assert(m_player == g_network.IdToIndex(id));
-		if(m_player != g_network.IdToIndex(id))
+	if(network_Get().IsHost()) {
+		Assert(m_player == network_Get().IdToIndex(id));
+		if(m_player != network_Get().IdToIndex(id))
 			return;
 	}
 
@@ -197,7 +197,7 @@ void NetArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Army army;
 	PULLLONGTYPE(army, Army);
 
-	g_network.CheckReceivedObject((uint32)army);
+	network_Get().CheckReceivedObject((uint32)army);
 
 	if(armypool_Get()->IsValid(army)) {
 		m_data = armypool_Get()->AccessArmy(army);
@@ -253,7 +253,7 @@ void NetGroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 {
 	sint32 pos = 0;
 	uint16 packid;
-	sint32 pl = g_network.IdToIndex(id);
+	sint32 pl = network_Get().IdToIndex(id);
 
 	PULLID(packid);
 	Assert(packid == k_PACKET_GROUP_REQUEST_ID);
@@ -265,13 +265,13 @@ void NetGroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(m_armyId != 0) {
 		Assert(armypool_Get()->IsValid(m_armyId));
 		if(!armypool_Get()->IsValid(m_armyId)) {
-			g_network.Resync(g_network.IdToIndex(id));
+			network_Get().Resync(network_Get().IdToIndex(id));
 			return;
 		}
 		theArmy.m_id = m_armyId;
 	} else {
 		theArmy = player_Get(pl)->GetNewArmy(CAUSE_NEW_ARMY_REMOTE_GROUPING);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, pl, CAUSE_NEW_ARMY_REMOTE_GROUPING, theArmy.m_id));
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, pl, CAUSE_NEW_ARMY_REMOTE_GROUPING, theArmy.m_id));
 	}
 
 	uint8 n;
@@ -283,7 +283,7 @@ void NetGroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		PULLLONG(uid);
 		m_units.Insert(uid);
 		theArmy->GroupUnit(m_units[i]);
-		g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_REMOTE_GROUP, theArmy, m_units[i].m_id));
+		network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_REMOTE_GROUP, theArmy, m_units[i].m_id));
 	}
 }
 
@@ -311,7 +311,7 @@ void NetUngroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 {
 	sint32 pos = 0;
 	uint16 packid;
-	sint32 pl = g_network.IdToIndex(id);
+	sint32 pl = network_Get().IdToIndex(id);
 
 	PULLID(packid);
 	Assert(packid == k_PACKET_UNGROUP_REQUEST_ID);
@@ -321,7 +321,7 @@ void NetUngroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Army theArmy(m_armyId);
 	Assert(theArmy.IsValid());
 	if(!theArmy.IsValid()) {
-		g_network.Resync(pl);
+		network_Get().Resync(pl);
 		return;
 	}
 
@@ -330,12 +330,12 @@ void NetUngroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLBYTE(n);
 	for(i = 0; i < n; i++) {
 		Army newArmy = player_Get(pl)->GetNewArmy(CAUSE_NEW_ARMY_REMOTE_UNGROUPING);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, pl, CAUSE_NEW_ARMY_REMOTE_UNGROUPING, newArmy.m_id));
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, pl, CAUSE_NEW_ARMY_REMOTE_UNGROUPING, newArmy.m_id));
 
 		uint32 unitId;
 		PULLLONG(unitId);
 		m_units.Insert(Unit(unitId));
 		m_units[i].ChangeArmy(newArmy, CAUSE_NEW_ARMY_REMOTE_UNGROUPING);
 	}
-	g_network.Enqueue(new NetInfo(NET_INFO_CODE_REMOTE_UNGROUP, theArmy, pl));
+	network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REMOTE_UNGROUP, theArmy, pl));
 }

@@ -25,7 +25,7 @@ void NetPlayer::Packetize(uint8* buf, uint16& size)
 	size = 0;
 	PUSHID(k_PACKET_PLAYER_ID);
 	PUSHLONG(m_player->m_owner);
-	if(g_network.GetPlayerIndex() == m_player->m_owner) {
+	if(network_Get().GetPlayerIndex() == m_player->m_owner) {
 		PUSHLONG(PLAYER_TYPE_HUMAN);
 	} else {
 		PUSHLONG(m_player->m_playerType);
@@ -218,6 +218,6 @@ void NetAddPlayer::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	MBCHAR name[1024];
 	PULLSTRING(name);
 
-	g_network.AddPlayer(m_id, name);
+	network_Get().AddPlayer(m_id, name);
 	Assert(pos == size);
 }

@@ -130,11 +130,11 @@ void NetOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	if(!armypool_Get()->IsValid(m_army)) {
 		DPRINTF(k_DBG_NET, ("Received order for invalid army %lx\n", m_army.m_id));
-		if(g_network.IsHost()) {
-			g_network.Resync(g_network.IdToIndex(id));
+		if(network_Get().IsHost()) {
+			network_Get().Resync(network_Get().IdToIndex(id));
 			return;
 		} else {
-			g_network.RequestResync(RESYNC_INVALID_ARMY_ORDER);
+			network_Get().RequestResync(RESYNC_INVALID_ARMY_ORDER);
 			return;
 		}
 	}
@@ -212,6 +212,6 @@ void NetOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 
 
-	g_network.GetSliceFor(m_owner);
+	network_Get().GetSliceFor(m_owner);
 	Assert(size == pos);
 }

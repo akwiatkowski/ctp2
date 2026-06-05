@@ -65,11 +65,11 @@ void EndGame::AddObject(sint32 type)
 		so->AddCivilisation(m_owner);
 		slicengine_Get()->Execute(so);
 
-		if(g_network.IsHost()) {
-			g_network.Block(m_owner);
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_OTHER_CIV_LAB_MSG,
+		if(network_Get().IsHost()) {
+			network_Get().Block(m_owner);
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_OTHER_CIV_LAB_MSG,
 										  m_owner));
-			g_network.Unblock(m_owner);
+			network_Get().Unblock(m_owner);
 		}
 
 		so = new SlicObject("308EndGameFinishedXLab");
@@ -79,10 +79,10 @@ void EndGame::AddObject(sint32 type)
 
 	m_numBuilt[type]++;
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.QueuePacketToAll(new NetEndGame(m_owner));
-		g_network.Unblock(m_owner);
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().QueuePacketToAll(new NetEndGame(m_owner));
+		network_Get().Unblock(m_owner);
 	}
 
 	if(m_owner == player_view::VisiblePlayer()) {
@@ -118,8 +118,8 @@ BOOL EndGame::BeginSequence(sint32 currentRound)
 	so->AddCivilisation(m_owner);
 	slicengine_Get()->Execute(so);
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_OTHER_CIV_SEQUENCE_MSG,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_OTHER_CIV_SEQUENCE_MSG,
 									  m_owner));
 	}
 
@@ -191,17 +191,17 @@ void EndGame::BeginTurn(sint32 currentRound)
 			so->AddCivilisation(m_owner);
 			slicengine_Get()->Execute(so);
 
-			if(g_network.IsHost()) {
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_ALIEN_ALMOST_DONE_OTHERS_MSG,
+			if(network_Get().IsHost()) {
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ALIEN_ALMOST_DONE_OTHERS_MSG,
 											  m_owner));
 			}
 		}
 	}
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.QueuePacketToAll(new NetEndGame(m_owner));
-		g_network.Unblock(m_owner);
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().QueuePacketToAll(new NetEndGame(m_owner));
+		network_Get().Unblock(m_owner);
 	}
 }
 
@@ -226,11 +226,11 @@ void EndGame::AdvanceStage(sint32 currentRound)
 		so->AddAllRecipientsBut(m_owner);
 		so->AddCivilisation(m_owner);
 		slicengine_Get()->Execute(so);
-		if(g_network.IsHost()) {
-			g_network.Block(m_owner);
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_WON_END_GAME,
+		if(network_Get().IsHost()) {
+			network_Get().Block(m_owner);
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_WON_END_GAME,
 										  m_owner));
-			g_network.Unblock(m_owner);
+			network_Get().Unblock(m_owner);
 		}
 
 		player_Get(m_owner)->m_score->SetWonByWonder();
@@ -262,8 +262,8 @@ void EndGame::AdvanceStage(sint32 currentRound)
 		  so->AddCivilisation(m_owner);
 		  slicengine_Get()->Execute(so);
 
-		  if(g_network.IsHost()) {
-			  g_network.Enqueue(new NetInfo(NET_INFO_CODE_ALIEN_SCRAPPED_OWNER,
+		  if(network_Get().IsHost()) {
+			  network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ALIEN_SCRAPPED_OWNER,
 											m_owner));
 		  }
 		  break;
@@ -414,8 +414,8 @@ void EndGame::Cataclysm()
 	so->AddCivilisation(m_owner);
 	slicengine_Get()->Execute(so);
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_CATACLYSM_OTHER,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CATACLYSM_OTHER,
 									  m_owner));
 	}
 

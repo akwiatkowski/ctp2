@@ -83,13 +83,13 @@ DiplomaticRequest DiplomaticRequestPool::Create(PLAYER_INDEX owner, PLAYER_INDEX
 #endif // _DEBUG
 
 #if 0
-	if(g_network.IsClient())
+	if(network_Get().IsClient())
 		{
-		Assert(owner == g_network.GetPlayerIndex());
-		if(owner == g_network.GetPlayerIndex())
+		Assert(owner == network_Get().GetPlayerIndex());
+		if(owner == network_Get().GetPlayerIndex())
 			{
-			g_network.AddCreatedObject(newData);
-			g_network.SendAction(new NetAction(NET_ACTION_CREATE_DIP_REQUEST,
+			network_Get().AddCreatedObject(newData);
+			network_Get().SendAction(new NetAction(NET_ACTION_CREATE_DIP_REQUEST,
 											   (uint32)owner,
 											   (uint32)recipient,
 											   (uint32)request,

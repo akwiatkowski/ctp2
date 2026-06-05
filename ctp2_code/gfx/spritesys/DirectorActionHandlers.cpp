@@ -1390,13 +1390,13 @@ void dh_beginScheduler(DQAction* itemAction,
   }
 #endif
 
-  if (g_network.IsHost()) {
-    g_network.Enqueue(
+  if (network_Get().IsHost()) {
+    network_Get().Enqueue(
         new NetInfo(NET_INFO_CODE_BEGIN_SCHEDULER, action->player));
   }
 
   Assert(director_Get()->m_holdSchedulerSequence.expired());
-  if (!g_network.IsActive() || g_network.IsLocalPlayer(action->player)) {
+  if (!network_Get().IsActive() || network_Get().IsLocalPlayer(action->player)) {
     director_Get()->SetHoldSchedulerSequence(seq);
   } else {
     director_Get()->SetHoldSchedulerSequence(SequenceWeakPtr());

@@ -128,21 +128,21 @@ void MessagePool::DoNetwork(MessageData *newData)
 {
 
 	#if 0   // Unreachable
-    if(g_network.IsClient()) {
-		Assert(newData->GetSender() == g_network.GetPlayerIndex() ||
+    if(network_Get().IsClient()) {
+		Assert(newData->GetSender() == network_Get().GetPlayerIndex() ||
 			   newData->GetSender() == PLAYER_INDEX_INVALID);
-		if(newData->GetSender() == g_network.GetPlayerIndex() ||
+		if(newData->GetSender() == network_Get().GetPlayerIndex() ||
 			newData->GetSender() == PLAYER_INDEX_INVALID) {
-			g_network.AddCreatedObject(newData);
-			g_network.SendMessage(newData);
+			network_Get().AddCreatedObject(newData);
+			network_Get().SendMessage(newData);
 		}
-	} else if(g_network.IsHost()) {
+	} else if(network_Get().IsHost()) {
 		if(newData->GetSender() != PLAYER_INDEX_INVALID) {
-			g_network.Block(newData->GetSender());
+			network_Get().Block(newData->GetSender());
 		}
-		g_network.Enqueue(newData);
+		network_Get().Enqueue(newData);
 		if(newData->GetSender() != PLAYER_INDEX_INVALID) {
-			g_network.Unblock(newData->GetSender());
+			network_Get().Unblock(newData->GetSender());
 		}
 	}
 #endif

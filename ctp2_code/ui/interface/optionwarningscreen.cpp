@@ -214,7 +214,7 @@ void optionwarningscreen_but1Press(aui_Control *control, uint32 action, uint32 d
 		optionsscreen_removeMyWindow(action);
 		if(optionwarningscreen_removeMyWindow(action))
 		{
-			if ( netfunc_Get() || g_network.IsActive() || g_network.IsNetworkLaunch() )
+			if ( netfunc_Get() || network_Get().IsActive() || network_Get().IsNetworkLaunch() )
 				civapp_Get()->PostQuitToLobbyAction();
 			else
 				civapp_Get()->PostQuitToSPShellAction();
@@ -230,7 +230,7 @@ void optionwarningscreen_but2Press(aui_Control *control, uint32 action, uint32 d
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	if(g_network.IsClient())
+	if(network_Get().IsClient())
 		return;
 
 	if(optionwarningscreen_removeMyWindow(action)) {

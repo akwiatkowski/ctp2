@@ -43,7 +43,7 @@ void LaunchGame( )
 	case AllinoneWindow::CONTINUE_JOIN:
 
 		{
-			g_network.SetLaunchFromNetFunc(TRUE);
+			network_Get().SetLaunchFromNetFunc(TRUE);
 			loadsavescreen_LoadMPGame();
 		}
 
@@ -56,7 +56,7 @@ void LaunchGame( )
 
 	case AllinoneWindow::CREATE:
 
-		g_network.SetLaunchFromNetFunc(FALSE);
+		network_Get().SetLaunchFromNetFunc(FALSE);
 
 		if(w->IsScenarioGame()) {
 			if(w->GetScenarioInfo()->m_haveSavedGame) {
@@ -77,7 +77,7 @@ void LaunchGame( )
 		break;
 
 	case AllinoneWindow::JOIN:
-		g_network.SetLaunchFromNetFunc(FALSE);
+		network_Get().SetLaunchFromNetFunc(FALSE);
 		civapp_Get()->PostStartGameAction();
 		break;
 

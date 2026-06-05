@@ -826,8 +826,8 @@ void TradeManager::CreateRoute(aui_Control *control, uint32 action, uint32 uidat
 							   GEA_Int, CAUSE_KILL_TRADE_ROUTE_SENDER_KILLED,
 							   GEA_End);
 
-		if(g_network.IsClient()) {
-			g_network.SendAction(new NetAction(NET_ACTION_CANCEL_TRADE_ROUTE,
+		if(network_Get().IsClient()) {
+			network_Get().SendAction(new NetAction(NET_ACTION_CANCEL_TRADE_ROUTE,
 											   (uint32)route));
 		}
 	}

@@ -194,7 +194,7 @@ STDEHANDLER(InterfacePreBeginTurn)
 			soundmgr_Get()->TerminateAllLoopingSounds(SOUNDTYPE_VOICE);
 		}
 
-		if(g_network.IsHost() && g_network.GetPlayerIndex() == pl) {
+		if(network_Get().IsHost() && network_Get().GetPlayerIndex() == pl) {
 
 			if (soundmgr_Get()) {
 				soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)0,

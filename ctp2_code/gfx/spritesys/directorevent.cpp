@@ -72,7 +72,7 @@ STDEHANDLER(DirectorMoveUnitsEvent)
 
 	if (selitem_Get()->GetPlayerOnScreen() != -1 &&
 		selitem_Get()->GetPlayerOnScreen() != selitem_Get()->GetVisiblePlayer() &&
-		!g_network.IsActive())
+		!network_Get().IsActive())
 
 			return GEV_HD_Continue;
 

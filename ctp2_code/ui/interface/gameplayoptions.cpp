@@ -123,7 +123,7 @@ sint32 gameplayoptions_updateData()
 	GameSettings *gs = gamesettings_Get();
 	sint32 diff = gs ? gs->GetDifficulty() : profiledb_Get()->GetDifficulty();
 
-	if(diff >= 2 || g_network.IsActive()) {
+	if(diff >= 2 || network_Get().IsActive()) {
 		s_tutorialadvice->SetState(0);
 		s_tutorialadvice->Enable(FALSE);
 	} else {

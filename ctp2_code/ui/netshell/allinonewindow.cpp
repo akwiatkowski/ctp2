@@ -2120,7 +2120,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 
 				sint32 i;
 				for(i = 0; i < k_MAX_PLAYERS; i++) {
-					if(m_civGuids[i].guid == *g_network.GetGuid()) {
+					if(m_civGuids[i].guid == *network_Get().GetGuid()) {
 						success = AssignTribe(
 							m_civGuids[i].civIndex + 1,
 							*(uint16 *)playersetup_Get().GetKey()->buf,
@@ -2372,7 +2372,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 
 						sint32 i;
 						for(i = 0; i < k_MAX_PLAYERS; i++) {
-							if(m_civGuids[i].guid == *g_network.GetGuid()) {
+							if(m_civGuids[i].guid == *network_Get().GetGuid()) {
 								RequestTribe( m_civGuids[ i ].civIndex + 1 );
 								break;
 							}
@@ -2599,7 +2599,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 				sint32 i;
 
 				for (i = 0; i < k_MAX_PLAYERS; i++) {
-					if(m_civGuids[i].guid == *g_network.GetGuid()) {
+					if(m_civGuids[i].guid == *network_Get().GetGuid()) {
 						RequestTribe( m_civGuids[ i ].civIndex + 1 );
 						break;
 					}
@@ -3635,21 +3635,21 @@ void AllinoneWindow::OKButtonAction::Execute(
 			Assert( FALSE );
 
 		case 0:
-			g_network.SetClassicStyle();
+			network_Get().SetClassicStyle();
 			break;
 		case 1:
-			g_network.SetSpeedStyle( TRUE, playStyleValue, FALSE, 0 );
+			network_Get().SetSpeedStyle( TRUE, playStyleValue, FALSE, 0 );
 
 			profiledb_Get()->SetZoomedCombatAlways( FALSE );
 			profiledb_Get()->SetThroneRoom( FALSE );
 
 			break;
 		case 2:
-			g_network.SetSpeedStyle(TRUE, playStyleValue, FALSE, 0);
-			g_network.SetCarryoverStyle( TRUE );
+			network_Get().SetSpeedStyle(TRUE, playStyleValue, FALSE, 0);
+			network_Get().SetCarryoverStyle( TRUE );
 			break;
 		case 3:
-			g_network.SetSpeedStyle(TRUE, playStyleValue, FALSE, playStyleValue);
+			network_Get().SetSpeedStyle(TRUE, playStyleValue, FALSE, playStyleValue);
 			break;
 
 
@@ -3853,12 +3853,12 @@ void AllinoneWindow_SetupGameForLaunch( )
 					tribe--;
 
 				if(gamesetup_Get().GetHandicapping()) {
-					g_network.SetNSAIPlayerInfo(tribe,
+					network_Get().SetNSAIPlayerInfo(tribe,
 												aiPlayer->GetGroup(),
 												aiPlayer->GetCivPoints(),
 												aiPlayer->GetPwPoints());
 				} else {
-					g_network.SetNSAIPlayerInfo(tribe,
+					network_Get().SetNSAIPlayerInfo(tribe,
 												aiPlayer->GetGroup(),
 												gamesetup_Get().GetCivPoints(),
 												gamesetup_Get().GetPwPoints());
@@ -3876,14 +3876,14 @@ void AllinoneWindow_SetupGameForLaunch( )
 				tribe--;
 
 			if(gamesetup_Get().GetHandicapping()) {
-				g_network.SetNSPlayerInfo(nfPlayer->GetId(),
+				network_Get().SetNSPlayerInfo(nfPlayer->GetId(),
 										  nfPlayer->GetName(),
 										  tribe,
 										  playersetup.GetGroup(),
 										  playersetup.GetCivPoints(),
 										  playersetup.GetPwPoints());
 			} else {
-				g_network.SetNSPlayerInfo(nfPlayer->GetId(),
+				network_Get().SetNSPlayerInfo(nfPlayer->GetId(),
 										  nfPlayer->GetName(),
 										  tribe,
 										  playersetup.GetGroup(),
@@ -3895,9 +3895,9 @@ void AllinoneWindow_SetupGameForLaunch( )
 
 	profiledb_Get()->SetAI(NETFunc::IsHost());
 
-	g_network.SetStartingAge(agesscreen_getStartAge());
-	g_network.SetEndingAge(agesscreen_getEndAge());
-	g_network.SetDynamicJoin(gamesetup_Get().GetDynamicJoin());
+	network_Get().SetStartingAge(agesscreen_getStartAge());
+	network_Get().SetEndingAge(agesscreen_getEndAge());
+	network_Get().SetDynamicJoin(gamesetup_Get().GetDynamicJoin());
 	ns_ScenarioInfo *scenInfo = g_allinoneWindow->GetScenarioInfo();
 
 	if(scenInfo->isScenario) {

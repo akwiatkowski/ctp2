@@ -122,7 +122,7 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	delete installation_tree_Get();
 	installation_tree_Set(nullptr);
 
-	g_network.ClearDeadUnits();
+	network_Get().ClearDeadUnits();
 
 
 
@@ -167,11 +167,11 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 													 (sint16)world_Get()->GetYHeight(),
 													 world_Get()->IsYwrap()));
 
-	g_network.SetStyleFromServer(m_gameStyle, m_movesPerSlice, m_totalTime, m_turnTime, m_cityTime);
+	network_Get().SetStyleFromServer(m_gameStyle, m_movesPerSlice, m_totalTime, m_turnTime, m_cityTime);
 
 	tiledmap_Get()->CopyVision();
 
 	gameinit_ResetForNetwork();
 
-	g_network.SetLoop(TRUE);
+	network_Get().SetLoop(TRUE);
 }

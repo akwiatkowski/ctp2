@@ -153,8 +153,8 @@ void Wormhole::BeginTurn(sint32 player)
 		}
 #endif
 	}
-	if(g_network.IsHost()) {
-		g_network.QueuePacketToAll(new NetWormhole());
+	if(network_Get().IsHost()) {
+		network_Get().QueuePacketToAll(new NetWormhole());
 	}
 }
 

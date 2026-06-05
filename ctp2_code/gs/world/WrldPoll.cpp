@@ -170,9 +170,9 @@ void World::FloodImprovements(sint32 x, sint32 y, Cell *c)
 	if (cell->GetNumDBImprovements() > 0 || cell->GetNumImprovements() > 0)
 	{
 		world_Get()->CutImprovements(pos);
-		if(g_network.IsHost())
+		if(network_Get().IsHost())
 		{
-			g_network.Enqueue(c, pos.x, pos.y);
+			network_Get().Enqueue(c, pos.x, pos.y);
 		}
 
 		DynamicArray<Installation> instArray;
@@ -339,7 +339,7 @@ void world_AddUnseenForHumans(sint32 x, sint32 y)
 		if(!player_Get(i)) continue;
 
 		if(!player_Get(i)->IsRobot() ||
-		   (g_network.IsClient() && g_network.IsLocalPlayer(i))) {
+		   (network_Get().IsClient() && network_Get().IsLocalPlayer(i))) {
 			MapPoint pos(x, y);
 			player_Get(i)->m_vision->AddUnseen(pos);
 		}
@@ -449,10 +449,10 @@ void World::GlobalWarming(const sint32 phase)
 // Only called by the event
 void World::GlobalWarmingEvent(const sint32 phase)
 {
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
-		g_network.SyncRand();
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_GLOBAL_WARMING, phase));
+		network_Get().SyncRand();
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_GLOBAL_WARMING, phase));
 	}
 
 	InformPlayersOfFloodingCatastrophe();
@@ -632,11 +632,11 @@ void World::OzoneDepletion()
 // Only called by the event
 void World::OzoneDepletionEvent()
 {
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
 		sint32  phase   = 0;
-		g_network.SyncRand();
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_OZONE_DEPLETION,
+		network_Get().SyncRand();
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_OZONE_DEPLETION,
 									  phase));
 	}
 

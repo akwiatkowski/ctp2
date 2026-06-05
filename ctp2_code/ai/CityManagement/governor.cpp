@@ -3794,7 +3794,7 @@ void Governor::FillEmptyBuildQueues(bool noWarChange)
 	m_canBuildLandSettlers = SettleMap::s_settleMap.HasSettleTargets(m_playerId, false);
 	m_canBuildSeaSettlers  = SettleMap::s_settleMap.HasSettleTargets(m_playerId, true );
 
-	if (g_network.IsActive() && !g_network.IsLocalPlayer(m_playerId))
+	if (network_Get().IsActive() && !network_Get().IsLocalPlayer(m_playerId))
 		return;
 
 	bool first_turn_of_war = Diplomat::GetDiplomat(m_playerId).FirstTurnOfWar();
@@ -5134,8 +5134,8 @@ void Governor::ManageGoodsTradeRoutes()
 						GEA_TradeRoute, curDestRoute.m_id,
 						GEA_Int, CAUSE_KILL_TRADE_ROUTE_SENDER_KILLED,
 						GEA_End);
-					if(g_network.IsClient()) {
-						g_network.SendAction(new NetAction(NET_ACTION_CANCEL_TRADE_ROUTE,
+					if(network_Get().IsClient()) {
+						network_Get().SendAction(new NetAction(NET_ACTION_CANCEL_TRADE_ROUTE,
 														   (uint32)curDestRoute));
 					}
 				}

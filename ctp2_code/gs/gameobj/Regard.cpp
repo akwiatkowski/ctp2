@@ -44,7 +44,7 @@ REGARD_TYPE Regard::GetUpdatedRegard(const PLAYER_INDEX me,
     Assert(0<=him);
     Assert(him<k_MAX_PLAYERS);
 
-    if (Player::IsThisPlayerARobot(me) && !g_network.IsClient()) {
+    if (Player::IsThisPlayerARobot(me) && !network_Get().IsClient()) {
 
 
 

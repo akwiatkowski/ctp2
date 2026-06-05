@@ -336,11 +336,11 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	switch(m_type) {
 		case NET_INFO_CODE_PLAYER_INDEX:
 
-			g_network.SetPlayerIndex(m_data, (uint16)m_data2);
+			network_Get().SetPlayerIndex(m_data, (uint16)m_data2);
 			break;
 		case NET_INFO_CODE_BEGIN_TURN:
 
-			g_network.SetLoop(FALSE);
+			network_Get().SetLoop(FALSE);
 			DPRINTF(k_DBG_NET, ("Starting turn for player %d\n", m_data));
 			selitem_Get()->SetCurPlayer(PLAYER_INDEX(m_data));
 			if(m_data == 0) {
@@ -349,8 +349,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			MainControlPanel::UpdatePlayer(m_data);
 
-			if(selitem_Get()->GetCurPlayer() == g_network.GetPlayerIndex()) {
-				if(g_network.ShouldAckBeginTurn()) {
+			if(selitem_Get()->GetCurPlayer() == network_Get().GetPlayerIndex()) {
+				if(network_Get().ShouldAckBeginTurn()) {
 
 
 
@@ -365,7 +365,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					DomesticManagementDialog::Close();
 					UnitManager::Hide();
 
-					g_network.SetSensitiveUIBlocked(true);
+					network_Get().SetSensitiveUIBlocked(true);
 
 					gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 										   GEV_BeginTurn,
@@ -381,20 +381,20 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					selitem_Get()->Refresh();
 				} else {
 
-					g_network.SendAction(new NetAction(NET_ACTION_NAK_BEGIN_TURN));
+					network_Get().SendAction(new NetAction(NET_ACTION_NAK_BEGIN_TURN));
 				}
 			} else {
-				g_network.SetMyTurn(FALSE);
+				network_Get().SetMyTurn(FALSE);
 			}
 			break;
 		case NET_INFO_CODE_SET_TURN:
-			g_network.SetLoop(FALSE);
+			network_Get().SetLoop(FALSE);
 			DPRINTF(k_DBG_NET, ("It's already player %d's turn\n", m_data));
 			selitem_Get()->SetCurPlayer(PLAYER_INDEX(m_data));
-			if(m_data == (uint32)g_network.GetPlayerIndex()) {
-				g_network.SetMyTurn(TRUE);
+			if(m_data == (uint32)network_Get().GetPlayerIndex()) {
+				network_Get().SetMyTurn(TRUE);
 			} else {
-				g_network.SetMyTurn(FALSE);
+				network_Get().SetMyTurn(FALSE);
 			}
 			break;
 		case NET_INFO_CODE_MAP_DONE:
@@ -438,7 +438,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			background_Get()->Draw();
 
-			g_network.SetLoop(FALSE);
+			network_Get().SetLoop(FALSE);
 			break;
 		}
 		case NET_INFO_CODE_START_UNITS:
@@ -455,7 +455,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				}
 			}
 			unit_tree_Get()->Clear();
-			g_network.ClearDeadUnits();
+			network_Get().ClearDeadUnits();
 
 			CtpAi::Initialize();
 			break;
@@ -468,7 +468,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 
 
-			g_network.ClearDeadUnits();
+			network_Get().ClearDeadUnits();
 
 			director_Get()->NextPlayer();
 
@@ -488,14 +488,14 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_KILL_UNIT:
 		{
-			if(g_network.DeadUnit(m_data)) {
-				g_network.RemoveDeadUnit(m_data);
+			if(network_Get().DeadUnit(m_data)) {
+				network_Get().RemoveDeadUnit(m_data);
 			} else {
 				Unit unit(m_data);
 				if(unit.IsValid()) {
 					unit.KillUnit(CAUSE_REMOVE_ARMY_UNKNOWN, -1);
 
-					g_network.RemoveDeadUnit(m_data);
+					network_Get().RemoveDeadUnit(m_data);
 				}
 			}
 			break;
@@ -557,14 +557,14 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Net: Killing trade route %d\n", m_data));
 
 
-			if(g_network.DeadUnit(m_data)) {
-				g_network.RemoveDeadUnit(m_data);
+			if(network_Get().DeadUnit(m_data)) {
+				network_Get().RemoveDeadUnit(m_data);
 			} else {
 				TradeRoute route(m_data);
 				if(tradepool_Get()->IsValid(route)) {
 					route.KillRoute(CAUSE_KILL_TRADE_ROUTE(m_data2));
 
-					g_network.RemoveDeadUnit(m_data);
+					network_Get().RemoveDeadUnit(m_data);
 				}
 			}
 			break;
@@ -583,26 +583,26 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_KILL_TRADE_OFFER:
 		{
 			DPRINTF(k_DBG_NET, ("Net: Killing trade offer %d\n", m_data));
-			if(g_network.DeadUnit(m_data)) {
-				g_network.RemoveDeadUnit(m_data);
+			if(network_Get().DeadUnit(m_data)) {
+				network_Get().RemoveDeadUnit(m_data);
 			} else {
 				TradeOffer offer(m_data);
 				Assert(tradeofferpool_Get()->IsValid(offer));
 				if(tradeofferpool_Get()->IsValid(offer)) {
 					offer.KillOffer();
 				}
-				g_network.RemoveDeadUnit(m_data);
+				network_Get().RemoveDeadUnit(m_data);
 			}
 			break;
 		}
 		case NET_INFO_CODE_ACK_OBJECT:
 			DPRINTF(k_DBG_NET, ("Net: Object %lx ACKed\n", m_data));
-			g_network.HandleObjectACK(m_data);
+			network_Get().HandleObjectACK(m_data);
 			break;
 		case NET_INFO_CODE_NAK_OBJECT:
 			DPRINTF(k_DBG_NET, ("Net: Object %lx NAKed, should be %lx\n",
 								m_data, m_data2));
-			g_network.HandleObjectNAK(m_data, m_data2);
+			network_Get().HandleObjectNAK(m_data, m_data2);
 			break;
 		case NET_INFO_CODE_KILL_IMPROVEMENT:
 		{
@@ -703,7 +703,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server says kill dip request %lx\n", m_data));
 			DiplomaticRequest request(m_data);
 
-			g_network.RemoveEnact(request);
+			network_Get().RemoveEnact(request);
 			if(!diplomaticrequestpool_Get()->IsValid(request))
 				return;
 			request.Kill();
@@ -773,7 +773,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				Assert(city.GetOwner() == (PLAYER_INDEX)m_data);
 				city.BuildImprovement(m_data2);
 			} else {
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 			}
 			break;
 		}
@@ -784,7 +784,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(city.IsValid()) {
 				city.ChangeCurrentlyBuildingItem(m_data3, m_data4);
 			} else {
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 			}
 			break;
 		}
@@ -798,14 +798,14 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			DPRINTF(k_DBG_NET, ("Starting slice for player %d\n", m_data));
 			selitem_Get()->SetCurPlayer(PLAYER_INDEX(m_data));
-			if(selitem_Get()->GetCurPlayer() == g_network.GetPlayerIndex()) {
-				if (soundmgr_Get() && !g_network.IsMyTurn())
+			if(selitem_Get()->GetCurPlayer() == network_Get().GetPlayerIndex()) {
+				if (soundmgr_Get() && !network_Get().IsMyTurn())
 					soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)0,
 												gamesounds_GetGameSoundID(GAMESOUNDS_NET_YOUR_TURN),
 												0,
 												0);
-				g_network.SetMyTurn(TRUE);
-				g_network.UnitsMoved(-g_network.GetUnitMovesUsed());
+				network_Get().SetMyTurn(TRUE);
+				network_Get().UnitsMoved(-network_Get().GetUnitMovesUsed());
 				turn_Get()->BeginNewSlice();
 
 
@@ -815,13 +815,13 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 
 			} else {
-				g_network.SetMyTurn(FALSE);
+				network_Get().SetMyTurn(FALSE);
 			}
 			break;
 		case NET_INFO_CODE_REQUEST_SLICE:
-			Assert(selitem_Get()->GetCurPlayer() == g_network.GetPlayerIndex());
-			g_network.SetMyTurn(FALSE);
-			g_network.SendAction(new NetAction(NET_ACTION_END_SLICE));
+			Assert(selitem_Get()->GetCurPlayer() == network_Get().GetPlayerIndex());
+			network_Get().SetMyTurn(FALSE);
+			network_Get().SendAction(new NetAction(NET_ACTION_END_SLICE));
 			break;
 		case NET_INFO_CODE_SET_GOVERNMENT:
 			DPRINTF(k_DBG_NET, ("Server: Player %d's governement is now %d\n",
@@ -835,10 +835,10 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Diplomatic request %lx enacted\n",
 								m_data));
 			DiplomaticRequest req(m_data);
-			g_network.RemoveEnact(req);
+			network_Get().RemoveEnact(req);
 
 			if(m_type == NET_INFO_CODE_ENACT_REQUEST_NEED_ACK) {
-				g_network.SendAction(new NetAction(NET_ACTION_ACK_ENACT,
+				network_Get().SendAction(new NetAction(NET_ACTION_ACK_ENACT,
 												   req.m_id));
 			}
 			if(!diplomaticrequestpool_Get()->IsValid(req))
@@ -860,44 +860,44 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_CLASSIC_STYLE:
 			DPRINTF(k_DBG_NET, ("Server: game is now classic style\n"));
-			g_network.SetClassicStyle(TRUE);
+			network_Get().SetClassicStyle(TRUE);
 			break;
 		case NET_INFO_CODE_UNIT_MOVES_STYLE:
 			DPRINTF(k_DBG_NET, ("Server: unit moves style %s, moves=%d\n",
 								m_data ? "ON" : "OFF", m_data2));
-			g_network.SetUnitMovesStyle(m_data, m_data2, TRUE);
+			network_Get().SetUnitMovesStyle(m_data, m_data2, TRUE);
 			break;
 		case NET_INFO_CODE_SPEED_STYLE:
 			DPRINTF(k_DBG_NET, ("Server: speed style %s, time per turn=%d seconds\n",
 								m_data ? "ON" : "OFF", m_data2));
-			g_network.SetSpeedStyle(m_data, m_data2, TRUE, m_data3);
+			network_Get().SetSpeedStyle(m_data, m_data2, TRUE, m_data3);
 			break;
 		case NET_INFO_CODE_TIMED_STYLE:
 			DPRINTF(k_DBG_NET, ("Server: timed style %s, time per game=%d seconds\n",
 								m_data ? "ON" : "OFF", m_data2));
-			g_network.SetTimedStyle(m_data, m_data2, TRUE);
+			network_Get().SetTimedStyle(m_data, m_data2, TRUE);
 			break;
 		case NET_INFO_CODE_SIMULTANEOUS_STYLE:
 			DPRINTF(k_DBG_NET, ("Server: simultaneous style %s\n",
 								m_data ? "ON" : "OFF"));
-			g_network.SetSimultaneousStyle(m_data, TRUE);
+			network_Get().SetSimultaneousStyle(m_data, TRUE);
 			break;
 		case NET_INFO_CODE_TURN_SYNC:
 			DPRINTF(k_DBG_NET, ("Server: turn sync\n"));
-			g_network.TurnSync();
+			network_Get().TurnSync();
 			break;
 		case NET_INFO_CODE_CARRYOVER_STYLE:
 			DPRINTF(k_DBG_NET, ("Server: Carryover style %s\n",
 								m_data ? "ON" : "OFF"));
-			g_network.SetCarryoverStyle(m_data, TRUE);
+			network_Get().SetCarryoverStyle(m_data, TRUE);
 			break;
 		case NET_INFO_CODE_SET_SETUP_MODE:
 			DPRINTF(k_DBG_NET, ("Server: Setup mode %s\n",
 								m_data ? "ON" : "OFF"));
 			if(m_data) {
-				g_network.EnterSetupMode();
+				network_Get().EnterSetupMode();
 			} else {
-				g_network.ExitSetupMode();
+				network_Get().ExitSetupMode();
 			}
 			break;
 		case NET_INFO_CODE_SET_SETUP_AREA:
@@ -905,20 +905,20 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Set setup area for %d to (%d,%d)x%d\n",
 								m_data, m_data2, m_data3, m_data4));
 			MapPoint pnt(m_data2, m_data3);
-			g_network.SetSetupArea(m_data, pnt, m_data4);
+			network_Get().SetSetupArea(m_data, pnt, m_data4);
 			break;
 		}
 		case NET_INFO_CODE_POWER_POINTS:
 		{
 			DPRINTF(k_DBG_NET, ("Server: Player %d has %d power points\n",
 								m_data, m_data2));
-			g_network.SetPowerPoints(m_data, m_data2);
+			network_Get().SetPowerPoints(m_data, m_data2);
 			break;
 		}
 		case NET_INFO_CODE_CHOOSE_RESEARCH:
 			DPRINTF(k_DBG_NET, ("Server: Can choose new research\n"));
-			if(player_Get(g_network.GetPlayerIndex())) {
-				player_Get(g_network.GetPlayerIndex())->BuildResearchDialog(m_data);
+			if(player_Get(network_Get().GetPlayerIndex())) {
+				player_Get(network_Get().GetPlayerIndex())->BuildResearchDialog(m_data);
 			}
 			break;
 		case NET_INFO_CODE_END_TURN_FOR:
@@ -1016,7 +1016,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								m_data, m_data3, m_data2));
 			Army army(m_data3);
 			if(!army.IsValid()) {
-				g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
+				network_Get().RequestResync(RESYNC_INVALID_ARMY_OTHER);
 				break;
 			}
 
@@ -1033,7 +1033,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(unit.IsValid()) {
 				unit.SetMovementPoints(0.0);
 			} else {
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 			}
 			break;
 		}
@@ -1043,16 +1043,16 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Unit %lx now belongs to Army %lx\n",
 								m_data, m_data2));
 			Unit unit(m_data);
-			Assert(unitpool_Get()->IsValid(unit) || g_network.DeadUnit(unit.m_id));
+			Assert(unitpool_Get()->IsValid(unit) || network_Get().DeadUnit(unit.m_id));
 			if(unitpool_Get()->IsValid(unit)) {
 				if(!armypool_Get()->IsValid(m_data2)) {
-					g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
+					network_Get().RequestResync(RESYNC_INVALID_ARMY_OTHER);
 				} else {
 					unit.SetArmy(m_data2);
 				}
 			} else {
-				if(!g_network.DeadUnit(unit.m_id)) {
-					g_network.RequestResync(RESYNC_INVALID_UNIT);
+				if(!network_Get().DeadUnit(unit.m_id)) {
+					network_Get().RequestResync(RESYNC_INVALID_UNIT);
 				}
 			}
 			break;
@@ -1064,7 +1064,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					m_data, m_data3, m_data2));
 			Unit unit(m_data);
 			if(!unit.IsValid()) {
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 				break;
 			}
 
@@ -1074,11 +1074,11 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(unit.GetArmy() != oldArmy && unit.GetArmy() != newArmy) {
 
 
-				g_network.RequestResync(RESYNC_INVALID_POP);
+				network_Get().RequestResync(RESYNC_INVALID_POP);
 			}
 			if(unit.GetArmy() != newArmy) {
 				if(!newArmy.IsValid()) {
-					g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
+					network_Get().RequestResync(RESYNC_INVALID_ARMY_OTHER);
 				} else {
 					unit.ChangeArmy(newArmy, CAUSE_NEW_ARMY_NETWORK);
 				}
@@ -1120,7 +1120,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				Unit fromCity(m_data2);
 				Unit toCity(m_data4);
 				if(!fromCity.IsValid() || !toCity.IsValid()) {
-					g_network.RequestResync(RESYNC_INVALID_UNIT);
+					network_Get().RequestResync(RESYNC_INVALID_UNIT);
 				} else {
 					player_Get(m_data)->SendTradeBid(fromCity, m_data3, toCity, m_data5);
 				}
@@ -1178,7 +1178,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_PROGRESS:
 		{
-			g_network.SetProgress(m_data);
+			network_Get().SetProgress(m_data);
 			break;
 		}
 		case NET_INFO_CODE_TAKE_TRADE_OFFER:
@@ -1243,7 +1243,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_RESYNC:
 		{
-			g_network.StartResync();
+			network_Get().StartResync();
 			break;
 		}
 		case NET_INFO_CODE_WONDER_BUILT:
@@ -1290,7 +1290,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Player %d is a non-robot\n", m_data));
 			if (player_Get(m_data)) {
-				if (static_cast<sint32>(m_data) == g_network.GetPlayerIndex()) {
+				if (static_cast<sint32>(m_data) == network_Get().GetPlayerIndex()) {
 					player_Get(m_data)->m_playerType = PLAYER_TYPE_HUMAN;
 				} else {
 					player_Get(m_data)->m_playerType = PLAYER_TYPE_NETWORK;
@@ -1323,7 +1323,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_CELL_OWNER:
 		{
 			MapPoint pos;
-			g_network.UnpackedPos(m_data, pos);
+			network_Get().UnpackedPos(m_data, pos);
 			DPRINTF(k_DBG_NET, ("Cell (%d,%d)'s new owner is %d\n",
 								pos.x, pos.y, m_data2));
 			world_Get()->GetCell(pos)->SetOwner(m_data2);
@@ -1333,7 +1333,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Enact of %lx NAKed\n", m_data));
 			DiplomaticRequest req(m_data);
-			g_network.RemoveEnact(req);
+			network_Get().RemoveEnact(req);
 			break;
 		}
 		case NET_INFO_CODE_REMOVE_ILLEGAL_ITEMS:
@@ -1344,7 +1344,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(unitpool_Get()->IsValid(city)) {
 				city.GetData()->GetCityData()->GetBuildQueue()->RemoveIllegalItems();
 			}
-			g_network.SendAction(new NetAction(NET_ACTION_ACK_REMOVE_ILLEGAL,
+			network_Get().SendAction(new NetAction(NET_ACTION_ACK_REMOVE_ILLEGAL,
 											   m_data));
 			break;
 		}
@@ -1355,7 +1355,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Unit unit(m_data);
 			if(unitpool_Get()->IsValid(unit)) {
 				if(!player_Get(unit.GetOwner())) {
-					g_network.RequestResync(RESYNC_BAD_PLAYER);
+					network_Get().RequestResync(RESYNC_BAD_PLAYER);
 					break;
 				}
 				unit.SetTempSlaveUnit(FALSE);
@@ -1398,7 +1398,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				so = new SlicObject("44WonderStarted");
 				so->AddCivilisation(m_data);
 				so->AddWonder(m_data2);
-				so->AddRecipient(g_network.GetPlayerIndex());
+				so->AddRecipient(network_Get().GetPlayerIndex());
 				slicengine_Get()->Execute(so);
 			}
 			break;
@@ -1408,7 +1408,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Wonder %d obsoleted by advance %d\n",
 								m_data2, m_data));
 			SlicObject *so = new SlicObject("097aWonderObsolete");
-			so->AddRecipient(g_network.GetPlayerIndex());
+			so->AddRecipient(network_Get().GetPlayerIndex());
 			so->AddAdvance(m_data);
 			so->AddWonder(m_data2);
 			slicengine_Get()->Execute(so);
@@ -1449,7 +1449,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_ALL_PLAYERS_READY:
 			DPRINTF(k_DBG_NET, ("All players ready\n"));
-			g_network.SetAllPlayersReady();
+			network_Get().SetAllPlayersReady();
 			break;
 		case NET_INFO_CODE_SET_FRANCHISE_PRODUCTION:
 		{
@@ -1487,7 +1487,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_ADD_UNSEEN:
 		{
 			MapPoint p;
-			g_network.UnpackedPos(m_data2, p);
+			network_Get().UnpackedPos(m_data2, p);
 			if(player_Get(m_data))
 			{
 				player_Get(m_data)->m_vision->AddUnseen(p);
@@ -1619,7 +1619,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("set city 0x%lx mayor to %d,%d\n", m_data, m_data2, m_data3));
 			Unit city(m_data);
 			if(!city.IsValid()) {
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 			} else {
 				city.CD()->SetUseGovernor(m_data3 != 0);
 				city.CD()->SetBuildListSequenceIndex(m_data2);
@@ -1629,7 +1629,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_FINISH_AI_TURN:
 		{
 			DPRINTF(k_DBG_NET, ("Server says run AIFinishBeginTurn for player %d\n", m_data));
-			if(g_network.IsLocalPlayer(m_data)) {
+			if(network_Get().IsLocalPlayer(m_data)) {
 
 
 
@@ -1646,7 +1646,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_CITIES_DONE:
 		{
 			DPRINTF(k_DBG_NET, ("Server says all initial city states sent for player %d\n", m_data));
-			if(g_network.IsLocalPlayer(m_data)) {
+			if(network_Get().IsLocalPlayer(m_data)) {
 				if(player_Get(m_data)->IsRobot()) {
 					CtpAi::NetworkClientBeginTurn(m_data);
 				}
@@ -1658,10 +1658,10 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 										   GEA_End
 										  );
 				}
-				g_network.SetSensitiveUIBlocked(false);
+				network_Get().SetSensitiveUIBlocked(false);
 			}
 			MainControlPanel::SelectedCity();
-			if (static_cast<sint32>(m_data) == g_network.GetPlayerIndex())
+			if (static_cast<sint32>(m_data) == network_Get().GetPlayerIndex())
             {
 				network_VerifyGameData();
 			}
@@ -1678,7 +1678,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_BEGIN_SCHEDULER:
 		{
 			DPRINTF(k_DBG_NET, ("Server says ok to begin scheduler for player %d now\n", m_data));
-			if(m_data >= 0 && m_data < k_MAX_PLAYERS && player_Get(m_data) && g_network.IsLocalPlayer(m_data)) {
+			if(m_data >= 0 && m_data < k_MAX_PLAYERS && player_Get(m_data) && network_Get().IsLocalPlayer(m_data)) {
 				director_Get()->AddBeginScheduler(m_data);
 			}
 			break;
@@ -1688,12 +1688,12 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			DPRINTF(k_DBG_NET, ("Server says group unit %lx into army %lx\n", m_data2, m_data));
 			if(!armypool_Get()->IsValid(m_data)) {
-				g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
+				network_Get().RequestResync(RESYNC_INVALID_ARMY_OTHER);
 				break;
 			}
 
 			if(!unitpool_Get()->IsValid(m_data2)) {
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 				break;
 			}
 
@@ -1730,7 +1730,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Reentry for army %lx\n", m_data));
 			if(!armypool_Get()->IsValid(m_data)) {
-				g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
+				network_Get().RequestResync(RESYNC_INVALID_ARMY_OTHER);
 			} else {
 				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_Reentry,
 									   GEA_Army, m_data,
@@ -1742,7 +1742,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Player %d trade points: %d/%d\n", m_data, m_data2, m_data3));
 			if(!player_Get(m_data)) {
-				g_network.RequestResync(RESYNC_BAD_PLAYER);
+				network_Get().RequestResync(RESYNC_BAD_PLAYER);
 				break;
 			}
 
@@ -1756,7 +1756,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server says city %lx created wonder %d\n", m_data, m_data2));
 			Unit city(m_data);
 			if(!city.IsValid()) {
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 			} else {
 				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CreateWonder,
 									   GEA_City, m_data,
@@ -1811,7 +1811,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			}
 			else
 			{
-				g_network.RequestResync(RESYNC_INVALID_UNIT);
+				network_Get().RequestResync(RESYNC_INVALID_UNIT);
 			}
 			break;
 		}

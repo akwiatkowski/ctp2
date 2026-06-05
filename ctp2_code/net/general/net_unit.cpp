@@ -131,7 +131,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	PULLLONGTYPE(uid, Unit);
 	PULLLONGTYPE(m_actorId, Unit);
 
-	g_network.CheckReceivedObject(uid.m_id);
+	network_Get().CheckReceivedObject(uid.m_id);
 
 	uint16 unitSize;
 	if (uid.IsValid())
@@ -212,7 +212,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			m_unitData->m_army.ResetPos();
 		}
 	} else {
-		if(g_network.DeadUnit(uint32(uid))) {
+		if(network_Get().DeadUnit(uint32(uid))) {
 			return;
 		}
 

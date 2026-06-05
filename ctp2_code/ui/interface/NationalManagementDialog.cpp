@@ -1322,7 +1322,7 @@ void NationalManagementDialog::BuildQueueButtonActionCallback(aui_Control *contr
 		cities.Insert(city);
 	}
 
-	if (g_network.IsClient() && g_network.GetSensitiveUIBlocked())
+	if (network_Get().IsClient() && network_Get().GetSensitiveUIBlocked())
     {
         // No action: display is locked
     }
@@ -1379,7 +1379,7 @@ void NationalManagementDialog::CityManagerButtonActionCallback(aui_Control *cont
 		    static_cast<ctp2_ListItem*>(visibleList->GetItemByIndex(
 		    selectedList->GetAtIndex(0)
 		    ))->GetUserData());
-		if(!(g_network.IsClient() && g_network.GetSensitiveUIBlocked())) {
+		if(!(network_Get().IsClient() && network_Get().GetSensitiveUIBlocked())) {
 			CityWindow::Display(CityWindow::GetCityData(city));
 		}
 	}

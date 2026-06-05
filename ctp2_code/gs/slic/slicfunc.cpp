@@ -1759,13 +1759,13 @@ SFN_ERROR Slic_DontAcceptTradeOffer::Call(SlicArgList *args)
 
 
 
-	if(g_network.IsHost()) {
-		g_network.QueuePacket(g_network.IndexToId(player),
+	if(network_Get().IsHost()) {
+		network_Get().QueuePacket(network_Get().IndexToId(player),
 							  new NetInfo(NET_INFO_CODE_OFFER_REJECTED_MESSAGE,
 										  player,
 										  context->GetRecipient(0)));
-	} else if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_OFFER_REJECTED_MESSAGE,
+	} else if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_OFFER_REJECTED_MESSAGE,
 										   player, context->GetRecipient(0)));
 	}
 
@@ -1806,9 +1806,9 @@ SFN_ERROR Slic_StealRandomAdvance::Call(SlicArgList *args)
 	Unit u = context->GetUnit(0);
 	sint32 owner = u.GetOwner();
 
-	if(g_network.IsClient()) {
+	if(network_Get().IsClient()) {
 		if(owner == player_view::VisiblePlayer()) {
-			g_network.SendAction(new NetAction(NET_ACTION_STEAL_TECHNOLOGY,
+			network_Get().SendAction(new NetAction(NET_ACTION_STEAL_TECHNOLOGY,
 										   u.m_id, context->GetCity(0).m_id,
 										   -1));
 		}
@@ -1855,9 +1855,9 @@ SFN_ERROR Slic_StealSpecificAdvance::Call(SlicArgList *args)
 	Unit u = context->GetUnit(0);
 	sint32 owner = u.GetOwner();
 
-	if(g_network.IsClient()) {
+	if(network_Get().IsClient()) {
 		if(u.GetOwner() == player_view::VisiblePlayer()) {
-			g_network.SendAction(new NetAction(NET_ACTION_STEAL_TECHNOLOGY,
+			network_Get().SendAction(new NetAction(NET_ACTION_STEAL_TECHNOLOGY,
 										   u.m_id, context->GetCity(0).m_id,
 										   adv));
 		}
@@ -1991,7 +1991,7 @@ SFN_ERROR Slic_OpenCityTab::Call(SlicArgList *args)
 
 SFN_ERROR Slic_ExitToShell::Call(SlicArgList *args)
 {
-	if (g_network.IsActive() || g_network.IsNetworkLaunch()) {
+	if (network_Get().IsActive() || network_Get().IsNetworkLaunch()) {
 		civapp_Get()->PostQuitToLobbyAction();
 	} else {
 		civapp_Get()->PostEndGameAction();
@@ -2312,14 +2312,14 @@ SFN_ERROR Slic_DoFreeSlaves::Call(SlicArgList *args)
 	}
 
 	if(!city.GetData()->GetCityData()->CapturedThisTurn()) {
-		if(g_network.IsClient()) {
-			g_network.RequestResync(RESYNC_PROBABLE_CHEATER);
+		if(network_Get().IsClient()) {
+			network_Get().RequestResync(RESYNC_PROBABLE_CHEATER);
 		}
 		return SFN_ERROR_OK;
 	}
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
 	}
 
     city.FreeSlaves();
@@ -2729,7 +2729,7 @@ SFN_ERROR Slic_NetworkAccept::Call(SlicArgList *args)
 	if(!args->GetPlayer(0, player))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_network.ResetGuid(player);
+	network_Get().ResetGuid(player);
 	return SFN_ERROR_OK;
 }
 
@@ -2742,7 +2742,7 @@ SFN_ERROR Slic_NetworkEject::Call(SlicArgList *args)
 	if(!args->GetPlayer(0, player))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_network.KickPlayer(player);
+	network_Get().KickPlayer(player);
 	return SFN_ERROR_OK;
 }
 
@@ -2870,15 +2870,15 @@ SFN_ERROR Slic_IsHumanPlayer::Call(SlicArgList *args)
 	if(!args->GetPlayer(0, player))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(g_network.IsNetworkLaunch()
-	&&!g_network.IsActive()
+	if(network_Get().IsNetworkLaunch()
+	&&!network_Get().IsActive()
 	){
 		m_result.m_int = 0;
 	}
-	else if(g_network.IsActive())
+	else if(network_Get().IsActive())
 	{
-		if( player == g_network.GetPlayerIndex()
-		|| (g_network.IsHost()
+		if( player == network_Get().GetPlayerIndex()
+		|| (network_Get().IsHost()
 		&&  player_Get(player)->IsNetwork())
 		){
 			m_result.m_int = 1;
@@ -3372,8 +3372,8 @@ SFN_ERROR Slic_DetachRobot::Call(SlicArgList *args)
 	if(!args->GetInt(0, index))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_network.IsActive()
-	|| (g_network.IsHost()
+	if(!network_Get().IsActive()
+	|| (network_Get().IsHost()
 	&& !player_Get(index)->IsNetwork())
 	){
 		player_Get(index)->m_playerType = PLAYER_TYPE_HUMAN;
@@ -3390,8 +3390,8 @@ SFN_ERROR Slic_AttachRobot::Call(SlicArgList *args)
 	if(!args->GetInt(0, index))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_network.IsActive()
-	|| (g_network.IsHost()
+	if(!network_Get().IsActive()
+	|| (network_Get().IsHost()
 	&& !player_Get(index)->IsNetwork())
 	){
 		player_Get(index)->m_playerType = PLAYER_TYPE_ROBOT;
@@ -4470,11 +4470,11 @@ SFN_ERROR Slic_BreakLeaveOurLands::Call(SlicArgList *args)
 		if(agreementpool_Get()->IsValid(ag) &&
 		   ag.GetRecipient() == unitOwner &&
 		   ag.GetAgreement() == AGREEMENT_TYPE_DEMAND_LEAVE_OUR_LANDS) {
-			if(g_network.IsClient()) {
-				g_network.SendAction(new NetAction(NET_ACTION_VIOLATE_AGREEMENT,
+			if(network_Get().IsClient()) {
+				network_Get().SendAction(new NetAction(NET_ACTION_VIOLATE_AGREEMENT,
 												   ag.m_id));
-			} else if(g_network.IsHost()) {
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_VIOLATE_AGREEMENT,
+			} else if(network_Get().IsHost()) {
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_VIOLATE_AGREEMENT,
 											  ag.m_id, unitOwner));
 			}
 
@@ -4517,8 +4517,8 @@ SFN_ERROR Slic_BreakNoPiracy::Call(SlicArgList *args)
 		   ag.GetRecipient() == pirate &&
 		   ag.GetOwner() == victim &&
 		   ag.GetAgreement() == AGREEMENT_TYPE_NO_PIRACY) {
-			if(g_network.IsClient()) {
-				g_network.SendAction(new NetAction(NET_ACTION_VIOLATE_AGREEMENT,
+			if(network_Get().IsClient()) {
+				network_Get().SendAction(new NetAction(NET_ACTION_VIOLATE_AGREEMENT,
 												   ag.m_id));
 			}
 
@@ -6890,9 +6890,9 @@ SFN_ERROR Slic_FreeAllSlaves::Call(SlicArgList *args)
 		return SFN_ERROR_OK;
 	}
 
-	if(g_network.IsClient())
+	if(network_Get().IsClient())
 	{
-		g_network.SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
 	}
 
 	city.FreeSlaves();
@@ -7303,14 +7303,14 @@ SFN_ERROR Slic_KillCity::Call(SlicArgList *args)
 	}
 
 	if(!city.GetData()->GetCityData()->CapturedThisTurn()) {
-		if(g_network.IsClient()) {
-			g_network.RequestResync(RESYNC_PROBABLE_CHEATER);
+		if(network_Get().IsClient()) {
+			network_Get().RequestResync(RESYNC_PROBABLE_CHEATER);
 		}
 		return SFN_ERROR_OK;
 	}
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
 	}
 	CityData *cd = city.GetData()->GetCityData();
 	sint32 PCount = cd->PopCount();
@@ -7333,14 +7333,14 @@ SFN_ERROR Slic_Pillage::Call(SlicArgList *args)
 	}
 
 	if(!city.GetData()->GetCityData()->CapturedThisTurn()) {
-		if(g_network.IsClient()) {
-			g_network.RequestResync(RESYNC_PROBABLE_CHEATER);
+		if(network_Get().IsClient()) {
+			network_Get().RequestResync(RESYNC_PROBABLE_CHEATER);
 		}
 		return SFN_ERROR_OK;
 	}
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
 	}
 
 	sint32 pl;
@@ -7411,14 +7411,14 @@ SFN_ERROR Slic_Plunder::Call(SlicArgList *args)
 		return SFN_ERROR_DEAD_PLAYER;
 
 	if(!city.GetData()->GetCityData()->CapturedThisTurn()) {
-		if(g_network.IsClient()) {
-			g_network.RequestResync(RESYNC_PROBABLE_CHEATER);
+		if(network_Get().IsClient()) {
+			network_Get().RequestResync(RESYNC_PROBABLE_CHEATER);
 		}
 		return SFN_ERROR_OK;
 	}
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
 	}
 
 	sint32 p = 0;
@@ -7462,14 +7462,14 @@ SFN_ERROR Slic_Liberate::Call(SlicArgList *args)
 	}
 
 	if(!city.GetData()->GetCityData()->CapturedThisTurn()) {
-		if(g_network.IsClient()) {
-			g_network.RequestResync(RESYNC_PROBABLE_CHEATER);
+		if(network_Get().IsClient()) {
+			network_Get().RequestResync(RESYNC_PROBABLE_CHEATER);
 		}
 		return SFN_ERROR_OK;
 	}
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
 	}
 
 	//if(!args->GetInt(0, cause))

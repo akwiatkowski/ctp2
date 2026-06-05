@@ -703,9 +703,9 @@ void World::ChangeOwner(const MapPoint &point, sint32 fromOwner, sint32 toOwner)
 	if(thisCell->GetOwner() == fromOwner) {
 		thisCell->SetOwner(toOwner);
 
-		if(g_network.IsHost()) {
-			uint32 packpos = g_network.PackedPos(point);
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
+		if(network_Get().IsHost()) {
+			uint32 packpos = network_Get().PackedPos(point);
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
 										  packpos, toOwner));
 		}
 
@@ -718,7 +718,7 @@ void World::ChangeOwner(const MapPoint &point, sint32 fromOwner, sint32 toOwner)
 				instArray[i].ChangeOwner(toOwner);
 			}
 		}
-		g_network.Enqueue(thisCell, point.x, point.y);
+		network_Get().Enqueue(thisCell, point.x, point.y);
 
 		sint32 d;
 		for(d = (sint32)NORTH; d < (sint32)NOWHERE; d++) {
@@ -784,9 +784,9 @@ void World::CutImprovements(const MapPoint &point)
 	tiledmap_observer::PostProcessTile(pos, GetTileInfo(point));
 	tiledmap_observer::RedrawTile(pos);
 
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
-		g_network.Enqueue(thisCell, point.x, point.y);
+		network_Get().Enqueue(thisCell, point.x, point.y);
 	}
 
 #if 0
@@ -794,8 +794,8 @@ void World::CutImprovements(const MapPoint &point)
 
 		sint32 fromOwner = thisCell->GetOwner();
 		thisCell->SetOwner(-1);
-		uint32 packpos = g_network.PackedPos(point);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
+		uint32 packpos = network_Get().PackedPos(point);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
 									  packpos, -1));
 
 		sint32 d;

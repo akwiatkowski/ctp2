@@ -272,8 +272,8 @@ Advances::GrantAdvance()
 
 	m_total_cost = m_total_cost + g_theAdvanceDB->Get(m_researching)->GetCost();
 
-	if(g_network.IsActive() && g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADVANCE,
+	if(network_Get().IsActive() && network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADVANCE,
 									  m_owner, m_researching, m_discovered,
 									  player_Get(m_owner)->m_science->GetLevel()));
 	}
@@ -296,7 +296,7 @@ void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
 		return;
 	}
 
-	if (g_network.IsActive() && g_network.SetupMode())
+	if (network_Get().IsActive() && network_Get().SetupMode())
 	{
 		// Multiplayer game setup
 
@@ -305,10 +305,10 @@ void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
 		if (player_Get(m_owner)->GetPoints() < pointCost)
 			return; // Too expensive
 
-		if (g_network.IsClient() && m_owner != player_view::VisiblePlayer())
+		if (network_Get().IsClient() && m_owner != player_view::VisiblePlayer())
 			return; // Not for me
 
-		if (g_network.IsHost())
+		if (network_Get().IsHost())
 		{
 			if (!fromClient && m_owner != player_view::VisiblePlayer())
 				return; // Not for me
@@ -316,9 +316,9 @@ void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
 
 		player_Get(m_owner)->DeductPoints(pointCost);
 
-		if (g_network.IsClient())
+		if (network_Get().IsClient())
 		{
-			g_network.SendAction(new NetAction(NET_ACTION_ADVANCE_CHEAT, adv));
+			network_Get().SendAction(new NetAction(NET_ACTION_ADVANCE_CHEAT, adv));
 		}
 	}
 
@@ -327,9 +327,9 @@ void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
 	++m_discovered;
 	m_total_cost += g_theAdvanceDB->Get(adv)->GetCost();
 
-	if (g_network.IsActive() && g_network.IsHost())
+	if (network_Get().IsActive() && network_Get().IsHost())
 	{
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADVANCE,
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADVANCE,
 		                              m_owner, adv, m_discovered,
 		                              player_Get(m_owner)->m_science->GetLevel()
 		                             )
@@ -359,12 +359,12 @@ void Advances::TakeAdvance(AdvanceType adv)
 	if(!m_hasAdvance[adv])
 		return;
 
-	if(g_network.IsActive() && g_network.SetupMode())
+	if(network_Get().IsActive() && network_Get().SetupMode())
 	{
 		sint32 pointCost = g_theAdvanceDB->Get(adv)->GetPowerPoints();
 		player_Get(m_owner)->AddPoints(pointCost);
-		if(g_network.IsClient()) {
-			g_network.SendAction(new NetAction(NET_ACTION_TAKE_ADVANCE_CHEAT,
+		if(network_Get().IsClient()) {
+			network_Get().SendAction(new NetAction(NET_ACTION_TAKE_ADVANCE_CHEAT,
 											   adv));
 		}
 	}
@@ -388,8 +388,8 @@ void Advances::InitialAdvance(AdvanceType adv)
 
 	m_total_cost += g_theAdvanceDB->Get(adv)->GetCost();
 
-	if(g_network.IsActive() && g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADVANCE,
+	if(network_Get().IsActive() && network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADVANCE,
 									  m_owner, adv, m_discovered));
 	}
 }
@@ -424,8 +424,8 @@ void Advances::ResetCanResearch(sint32 justGot)
 			uint8 canResearch = TRUE;
 			BOOL  justEnabled = FALSE;
 
-			if((g_network.IsActive() && rec->GetAgeIndex() > gamesettings_Get()->GetEndingAge())
-				|| (!g_network.IsActive() && profiledb_Get()->GetSPEndingAge() >= 0
+			if((network_Get().IsActive() && rec->GetAgeIndex() > gamesettings_Get()->GetEndingAge())
+				|| (!network_Get().IsActive() && profiledb_Get()->GetSPEndingAge() >= 0
 			    && rec->GetAgeIndex() > profiledb_Get()->GetSPEndingAge()))
 			{
 				canResearch = FALSE;
@@ -952,7 +952,7 @@ sint32 Advances::GetCost(const AdvanceType adv) const
 	///////////////////////////////////////////////
 
 	if(player_Get(m_owner)->IsRobot() &&
-	   !(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)))
+	   !(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)))
 	{
 		sint32 age = 0;
 
@@ -1200,7 +1200,7 @@ sint32 Advances::GetProjectedScience() const
 		s += cities->Access(i).CD()->GetProjectedScience();
 	}
 
-	if(m_owner == player_view::VisiblePlayer() && !g_network.IsClient())
+	if(m_owner == player_view::VisiblePlayer() && !network_Get().IsClient())
 	{
 		if (gameobservers_Get()) gameobservers_Get()->NotifySelectedCity(m_owner);
 	}

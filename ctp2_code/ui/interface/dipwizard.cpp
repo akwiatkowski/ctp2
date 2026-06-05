@@ -347,7 +347,7 @@ AUI_ERRCODE DipWizard::Display()
 		return AUI_ERRCODE_HACK;
 	}
 
-	if(g_network.IsActive() && player_Get(selitem_Get()->GetVisiblePlayer()) &&
+	if(network_Get().IsActive() && player_Get(selitem_Get()->GetVisiblePlayer()) &&
 	   player_Get(selitem_Get()->GetVisiblePlayer())->IsRobot()) {
 
 		return AUI_ERRCODE_OK;
@@ -396,12 +396,12 @@ AUI_ERRCODE DipWizard::Hide()
 
 bool DipWizard::CanInitiateRightNow()
 {
-	if(!g_network.IsActive()) {
+	if(!network_Get().IsActive()) {
 
 		return true;
 	}
 
-	if(!g_network.IsMyTurn()) {
+	if(!network_Get().IsMyTurn()) {
 
 		return false;
 	}
@@ -1681,7 +1681,7 @@ void DipWizard::SendCallback(aui_Control *control, uint32 action, uint32 data, v
 		resp.threat.type = diplomacyutil_GetThreatType(m_threat);
 		resp.threat.arg = m_threatArg;
 		resp.priority=9999;
-		if(g_network.IsActive()) {
+		if(network_Get().IsActive()) {
 			SetStage(DIP_WIZ_STAGE_RECIPIENT);
 		}
 

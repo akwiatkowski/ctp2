@@ -149,7 +149,7 @@ void PlayerHappiness::CalcPeaceMovement(Player *p,
 	}
 
 	if(p->IsRobot() &&
-	   !(g_network.IsClient() && g_network.IsLocalPlayer(p->m_owner))) {
+	   !(network_Get().IsClient() && network_Get().IsLocalPlayer(p->m_owner))) {
 		militaryUnitsOutOfCities = 0;
 	}
 

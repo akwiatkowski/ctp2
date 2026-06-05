@@ -468,8 +468,8 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	}
 
 	sint32 startAge = 0;
-	if(g_network.IsActive() || g_network.IsNetworkLaunch()) {
-		startAge = g_network.GetStartingAge();
+	if(network_Get().IsActive() || network_Get().IsNetworkLaunch()) {
+		startAge = network_Get().GetStartingAge();
 	} else {
 		startAge = profiledb_Get()->GetSPStartingAge();
 	}
@@ -536,7 +536,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 		m_last_attacked[i] = -1;
 	}
 
-	if(!g_network.IsClient()) {
+	if(!network_Get().IsClient()) {
 
 
 		SetWorkdayLevel((sint32)GetWorkdayExpectation());
@@ -660,15 +660,15 @@ Unit Player::CreateUnitNoPosition(const sint32 t,
 	DPRINTF(k_DBG_GAMESTATE, ("Player::CreateUnitNoPosition(t=%d) : newunit=%x\n",
 	                          u.GetType(), (uint32)u));
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(oldOwner)) {
-		g_network.AddCreatedObject(u.AccessData());
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(oldOwner)) {
+		network_Get().AddCreatedObject(u.AccessData());
 
-		g_network.SendAction(new NetAction(NET_ACTION_CREATED_UNIT, (uint32)u));
-	} else if(g_network.IsHost()) {
-		g_network.Block(oldOwner);
-		g_network.Enqueue(u.AccessData());
-		g_network.Unblock(oldOwner);
-		g_network.AddNewUnit(oldOwner, u);
+		network_Get().SendAction(new NetAction(NET_ACTION_CREATED_UNIT, (uint32)u));
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(oldOwner);
+		network_Get().Enqueue(u.AccessData());
+		network_Get().Unblock(oldOwner);
+		network_Get().AddNewUnit(oldOwner, u);
 	}
 	army.Insert(u);
 	return u;
@@ -697,14 +697,14 @@ Unit Player::CreateUnit(const sint32 t,
 	}
 
 	if(cause == CAUSE_NEW_ARMY_CHEAT &&
-	   (g_network.IsActive() || g_powerPointsMode)) {
+	   (network_Get().IsActive() || g_powerPointsMode)) {
 
-		if(!g_network.SetupMode() && !g_powerPointsMode) {
+		if(!network_Get().SetupMode() && !g_powerPointsMode) {
 
 			return {};
 		}
 
-		if(!g_network.IsInSetupArea(m_owner, pos)) {
+		if(!network_Get().IsInSetupArea(m_owner, pos)) {
 
 			return {};
 		}
@@ -718,9 +718,9 @@ Unit Player::CreateUnit(const sint32 t,
 		m_powerPoints -= pointsNeeded;
 		m_lastActionCost = pointsNeeded;
 
-		if(g_network.IsClient()) {
+		if(network_Get().IsClient()) {
 
-			g_network.SendAction(new NetAction(NET_ACTION_CREATE_UNIT_CHEAT,
+			network_Get().SendAction(new NetAction(NET_ACTION_CREATE_UNIT_CHEAT,
 			                                   t, pos.x, pos.y,
 			                                   (uint32)hc));
 			return {};
@@ -738,30 +738,30 @@ Unit Player::CreateUnit(const sint32 t,
 		}
 	}
 
-	if(g_network.IsHost() && IsNetwork() && !g_network.SetupMode())
+	if(network_Get().IsHost() && IsNetwork() && !network_Get().SetupMode())
 	{
 		if(cause != CAUSE_NEW_ARMY_INITIAL)
 		{
-			g_network.Block(m_owner);
+			network_Get().Block(m_owner);
 		}
 	}
 
 	Unit u = unitpool_Get()->Create (t, m_owner, pos, hc, nullptr);
 
-	if(g_network.IsHost() && IsNetwork() &&
-	   cause != CAUSE_NEW_ARMY_INITIAL && !g_network.SetupMode()) {
-		g_network.Unblock(m_owner);
+	if(network_Get().IsHost() && IsNetwork() &&
+	   cause != CAUSE_NEW_ARMY_INITIAL && !network_Get().SetupMode()) {
+		network_Get().Unblock(m_owner);
 	}
 
 	DPRINTF(k_DBG_GAMESTATE, ("Player::CreateUnit(t=%d, pos=(%d,%d), hc=0x%x) : newunit=0x%x\n",
 	                           u.GetType(), pos.x, pos.y, hc.m_id, u.m_id));
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.AddCreatedObject(u.AccessData());
-		g_network.SendAction(new NetAction(NET_ACTION_CREATED_UNIT, (uint32)u));
-	} else if(g_network.IsHost() && IsNetwork() &&
-			  cause != CAUSE_NEW_ARMY_INITIAL && !g_network.SetupMode()) {
-		g_network.AddNewUnit(m_owner, u);
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().AddCreatedObject(u.AccessData());
+		network_Get().SendAction(new NetAction(NET_ACTION_CREATED_UNIT, (uint32)u));
+	} else if(network_Get().IsHost() && IsNetwork() &&
+			  cause != CAUSE_NEW_ARMY_INITIAL && !network_Get().SetupMode()) {
+		network_Get().AddNewUnit(m_owner, u);
 	}
 
 	if(rec->GetIsTrader())
@@ -777,11 +777,11 @@ Unit Player::CreateUnit(const sint32 t,
 
 		sint32 r = u.SetPosition(pos, revealed);
 
-		if(g_network.IsHost())
+		if(network_Get().IsHost())
 		{
-			g_network.Block(m_owner);
-			g_network.Enqueue(u.AccessData());
-			g_network.Unblock(m_owner);
+			network_Get().Block(m_owner);
+			network_Get().Enqueue(u.AccessData());
+			network_Get().Unblock(m_owner);
 		}
 
 		Assert(r);
@@ -851,22 +851,22 @@ Unit Player::InsertUnitReference(const Unit &u,  const CAUSE_NEW_ARMY cause,
 			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
 								   GEA_Unit, u,
 								   GEA_Army, army,
-								   GEA_Int, g_network.IsClient() && cause == CAUSE_NEW_ARMY_INITIAL ? CAUSE_NEW_ARMY_NETWORK : cause,
+								   GEA_Int, network_Get().IsClient() && cause == CAUSE_NEW_ARMY_INITIAL ? CAUSE_NEW_ARMY_NETWORK : cause,
 								   GEA_End);
 
 #if 0
-			if(g_network.IsHost() && IsNetwork() &&
-			   cause != CAUSE_NEW_ARMY_INITIAL && !g_network.SetupMode()) {
-				g_network.AddNewArmy(m_owner, army);
-				g_network.Unblock(m_owner);
-			} else if(g_network.IsHost() && IsNetwork() &&
+			if(network_Get().IsHost() && IsNetwork() &&
+			   cause != CAUSE_NEW_ARMY_INITIAL && !network_Get().SetupMode()) {
+				network_Get().AddNewArmy(m_owner, army);
+				network_Get().Unblock(m_owner);
+			} else if(network_Get().IsHost() && IsNetwork() &&
 					  cause == CAUSE_NEW_ARMY_INITIAL) {
 
-				g_network.Enqueue(army.AccessData());
-			} else if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner) &&
+				network_Get().Enqueue(army.AccessData());
+			} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner) &&
 					  cause != CAUSE_NEW_ARMY_INITIAL) {
-				g_network.AddCreatedObject(armypool_Get()->AccessArmy(army));
-				g_network.SendAction(new NetAction(NET_ACTION_CREATED_ARMY,
+				network_Get().AddCreatedObject(armypool_Get()->AccessArmy(army));
+				network_Get().SendAction(new NetAction(NET_ACTION_CREATED_ARMY,
 												   army));
 			}
 #endif
@@ -890,12 +890,12 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] GetNewArmy: player=%d cause=%d\n", m_owner, cause);
 	#endif
-	if(g_network.IsHost() && IsNetwork() &&
+	if(network_Get().IsHost() && IsNetwork() &&
 	   ((cause != CAUSE_NEW_ARMY_INITIAL) &&
 		(cause != CAUSE_NEW_ARMY_REMOTE_GROUPING) &&
 		(cause != CAUSE_NEW_ARMY_REMOTE_UNGROUPING)) &&
-	   !g_network.SetupMode()) {
-		g_network.Block(m_owner);
+	   !network_Get().SetupMode()) {
+		network_Get().Block(m_owner);
 	}
 
 	#ifdef CTP2_DEBUG_LOGGING
@@ -907,34 +907,34 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 	#endif
 	army.SetOwner(m_owner);
 
-	if(g_network.IsHost() && IsNetwork() &&
+	if(network_Get().IsHost() && IsNetwork() &&
 	   cause != CAUSE_NEW_ARMY_INITIAL &&
 	   cause != CAUSE_NEW_ARMY_REMOTE_GROUPING &&
 	   cause != CAUSE_NEW_ARMY_REMOTE_UNGROUPING &&
-	   !g_network.SetupMode()) {
-		g_network.AddNewArmy(m_owner, army);
-		g_network.Unblock(m_owner);
-	} else if(g_network.IsHost() && IsNetwork() &&
+	   !network_Get().SetupMode()) {
+		network_Get().AddNewArmy(m_owner, army);
+		network_Get().Unblock(m_owner);
+	} else if(network_Get().IsHost() && IsNetwork() &&
 			  (cause == CAUSE_NEW_ARMY_INITIAL ||
 			   cause == CAUSE_NEW_ARMY_REMOTE_GROUPING ||
 			   cause == CAUSE_NEW_ARMY_REMOTE_UNGROUPING)) {
 
-		g_network.Enqueue(army.AccessData());
-	} else if(g_network.IsHost() && cause != CAUSE_NEW_ARMY_TRANSPORTED) {
-		g_network.Enqueue(army.AccessData());
-	} else if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner) &&
+		network_Get().Enqueue(army.AccessData());
+	} else if(network_Get().IsHost() && cause != CAUSE_NEW_ARMY_TRANSPORTED) {
+		network_Get().Enqueue(army.AccessData());
+	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner) &&
 		cause != CAUSE_NEW_ARMY_INITIAL) {
-		g_network.AddCreatedObject(armypool_Get()->AccessArmy(army));
-		g_network.SendAction(new NetAction(NET_ACTION_CREATED_ARMY,
+		network_Get().AddCreatedObject(armypool_Get()->AccessArmy(army));
+		network_Get().SendAction(new NetAction(NET_ACTION_CREATED_ARMY,
 			army.m_id, cause));
 	}
 #if 0
-	if(g_network.IsHost() && IsNetwork()) {
-		g_network.AddNewArmy(m_owner, army);
-		g_network.Unblock(m_owner);
-	} else if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.AddCreatedObject(armypool_Get()->AccessArmy(army));
-		g_network.SendAction(new NetAction(NET_ACTION_CREATED_ARMY,
+	if(network_Get().IsHost() && IsNetwork()) {
+		network_Get().AddNewArmy(m_owner, army);
+		network_Get().Unblock(m_owner);
+	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().AddCreatedObject(armypool_Get()->AccessArmy(army));
+		network_Get().SendAction(new NetAction(NET_ACTION_CREATED_ARMY,
 										   (uint32)army));
 	}
 #endif
@@ -969,7 +969,7 @@ void Player::AddArmy(const Army &army,
 					 const Unit &whereBuilt)
 {
 	if(m_all_armies->IsPresent(army)) {
-		Assert(g_network.IsActive());
+		Assert(network_Get().IsActive());
 		return;
 	}
 
@@ -977,18 +977,18 @@ void Player::AddArmy(const Army &army,
 
 	m_all_armies->Insert(army);
 
-	if(g_network.IsHost() && cause != CAUSE_NEW_ARMY_PARADROP && cause != CAUSE_NEW_ARMY_TRANSPORTED) {
+	if(network_Get().IsHost() && cause != CAUSE_NEW_ARMY_PARADROP && cause != CAUSE_NEW_ARMY_TRANSPORTED) {
 		if(cause != CAUSE_NEW_ARMY_INITIAL)
-			g_network.Block(m_owner);
+			network_Get().Block(m_owner);
 
-		g_network.Enqueue(armypool_Get()->AccessArmy(army));
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY,
+		network_Get().Enqueue(armypool_Get()->AccessArmy(army));
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY,
 									  (uint32)m_owner,
 									  (uint32)cause,
 									  (uint32)army,
 									  (uint32)whereBuilt));
 		if(cause != CAUSE_NEW_ARMY_INITIAL)
-			g_network.Unblock(m_owner);
+			network_Get().Unblock(m_owner);
 	}
 }
 
@@ -1139,14 +1139,14 @@ Unit Player::CreateCity(
 	}
 
 	if(cause == CAUSE_NEW_CITY_CHEAT &&
-	   (g_network.IsActive() || g_powerPointsMode)) {
+	   (network_Get().IsActive() || g_powerPointsMode)) {
 
-		if(!g_network.SetupMode() && !g_powerPointsMode)
+		if(!network_Get().SetupMode() && !g_powerPointsMode)
 		{
 			return {};
 		}
 
-		if(!g_network.IsInSetupArea(m_owner, pos))
+		if(!network_Get().IsInSetupArea(m_owner, pos))
 		{
 			return {};
 		}
@@ -1160,9 +1160,9 @@ Unit Player::CreateCity(
 		m_powerPoints -= pointsNeeded;
 		m_lastActionCost = pointsNeeded;
 
-		if(g_network.IsClient())
+		if(network_Get().IsClient())
 		{
-			g_network.SendAction(new NetAction(NET_ACTION_CREATE_CITY_CHEAT,
+			network_Get().SendAction(new NetAction(NET_ACTION_CREATE_CITY_CHEAT,
 			                                   t, pos.x, pos.y));
 			return {};
 		}
@@ -1178,13 +1178,13 @@ Unit Player::CreateCity(
 
 	Unit u = unitpool_Get()->Create(t, m_owner, pos, Unit(), actor);
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner))
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner))
 	{
-		g_network.SendAction(new NetAction(NET_ACTION_CREATED_CITY, (uint32)u));
+		network_Get().SendAction(new NetAction(NET_ACTION_CREATED_CITY, (uint32)u));
 	}
-	else if(g_network.IsHost() && !g_network.IsLocalPlayer(m_owner))
+	else if(network_Get().IsHost() && !network_Get().IsLocalPlayer(m_owner))
 	{
-		g_network.AddCreatedCity(m_owner, u);
+		network_Get().AddCreatedCity(m_owner, u);
 	}
 
 	bool r = world_Get()->InsertCity(pos, u);
@@ -1223,17 +1223,17 @@ Unit Player::CreateCity(
 	double threat = MapAnalysis::GetMapAnalysis().GetThreat(m_owner, pos) * threatFactor;
 	cityData->SetNeededGarrisonStrength(threat);
 
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
 		if(cause != CAUSE_NEW_CITY_CHEAT)
 		{
-			g_network.Block(m_owner);
+			network_Get().Block(m_owner);
 		}
 
-		g_network.Enqueue(u.AccessData(), cityData);
+		network_Get().Enqueue(u.AccessData(), cityData);
 		if(cause != CAUSE_NEW_CITY_CHEAT)
 		{
-			g_network.Unblock(m_owner);
+			network_Get().Unblock(m_owner);
 		}
 	}
 
@@ -1405,8 +1405,8 @@ void Player::ResetAllMovement()
 	sint32 i;
 	UnitDynamicArray   dead;
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
 	}
 
 	for (i=0; i<m_all_units->Num(); i++) {
@@ -1416,8 +1416,8 @@ void Player::ResetAllMovement()
 	}
 
 	dead.KillList(CAUSE_REMOVE_ARMY_OUTOFFUEL, -1);
-	if(g_network.IsHost()) {
-		g_network.Unblock(m_owner);
+	if(network_Get().IsHost()) {
+		network_Get().Unblock(m_owner);
 	}
 }
 
@@ -1748,11 +1748,11 @@ void Player::BeginTurnImprovements()  //this might only be for tileimps under co
 
 void Player::BeginTurnEnemyUnits()
 {
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BEGIN_TURN_ENEMY_UNITS,
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BEGIN_TURN_ENEMY_UNITS,
 									  m_owner));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	sint32 i;
@@ -1762,9 +1762,9 @@ void Player::BeginTurnEnemyUnits()
 			continue;
 		if(!player_Get(p)) continue;
 
-		if(g_network.IsHost()) {
-			g_network.Block(p);
-			g_network.Block(m_owner);
+		if(network_Get().IsHost()) {
+			network_Get().Block(p);
+			network_Get().Block(m_owner);
 		}
 
 		n = player_Get(p)->m_all_units->Num();
@@ -1786,9 +1786,9 @@ void Player::BeginTurnEnemyUnits()
 								   GEA_End);
 
 		}
-		if(g_network.IsHost()) {
-			g_network.Unblock(p);
-			g_network.Unblock(m_owner);
+		if(network_Get().IsHost()) {
+			network_Get().Unblock(p);
+			network_Get().Unblock(m_owner);
 		}
 	}
 }
@@ -1799,8 +1799,8 @@ void Player::BeginTurnUnits()
 
 	m_can_use_sea_tab = FALSE;
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
 	}
 	sint32 n = m_all_units->Num();
 	for(i = 0; i < n; i++) {
@@ -1820,8 +1820,8 @@ void Player::BeginTurnUnits()
 
 	}
 
-	if(g_network.IsHost()) {
-		g_network.Unblock(m_owner);
+	if(network_Get().IsHost()) {
+		network_Get().Unblock(m_owner);
 	}
 }
 
@@ -2062,7 +2062,7 @@ void Player::BeginTurn()
 	m_current_round = turn_Get()->GetSessionRound();
 	m_end_turn_soon = FALSE;
 
-	if(!g_network.IsActive() || g_network.IsHost() || (m_owner == g_network.GetPlayerIndex())) {
+	if(!network_Get().IsActive() || network_Get().IsHost() || (m_owner == network_Get().GetPlayerIndex())) {
 		DPRINTF(k_DBG_GAMESTATE, ("Player[%d]::BeginTurn: running\n", m_owner));
 
 		m_civRevoltingCitiesShouldJoin = -1;
@@ -2102,10 +2102,10 @@ void Player::BeginTurn()
 
 		ResetAllMovement();
 
-		if(g_network.IsHost()) {
-			g_network.Block(m_owner);
-			g_network.Enqueue((uint8)m_owner, m_global_happiness);
-			g_network.Unblock(m_owner);
+		if(network_Get().IsHost()) {
+			network_Get().Block(m_owner);
+			network_Get().Enqueue((uint8)m_owner, m_global_happiness);
+			network_Get().Unblock(m_owner);
 		}
 
 		m_oversea_lost_unit_count = 0;
@@ -2118,8 +2118,8 @@ void Player::BeginTurn()
 			AttemptRevolt() ;
 
 		for(i = 0; i < m_all_cities->Num(); i++) {
-			if(g_network.IsHost()) {
-				g_network.Enqueue(m_all_cities->Access(i).AccessData(),
+			if(network_Get().IsHost()) {
+				network_Get().Enqueue(m_all_cities->Access(i).AccessData(),
 								  m_all_cities->Access(i).AccessData()->GetCityData());
 			}
 		}
@@ -2130,13 +2130,13 @@ void Player::BeginTurn()
 		if(g_endgameWindow && (m_owner == player_view::VisiblePlayer()))
 			g_endgameWindow->UpdateTurn(m_endGame);
 
-		if(g_network.IsHost()) {
-			g_network.SyncRand();
-			g_network.Block(m_owner);
+		if(network_Get().IsHost()) {
+			network_Get().SyncRand();
+			network_Get().Block(m_owner);
 		}
 		BeginTurnUnits();
-		if(g_network.IsHost()) {
-			g_network.Unblock(m_owner);
+		if(network_Get().IsHost()) {
+			network_Get().Unblock(m_owner);
 		}
 
 		if(m_change_government_turn == GetCurRound()) {
@@ -2150,11 +2150,11 @@ void Player::BeginTurn()
 
 		CheckResourcesForTutorial();
 
-		if(g_network.IsHost()) {
+		if(network_Get().IsHost()) {
 
 
-			g_network.SyncRand();
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_TURN_SYNC));
+			network_Get().SyncRand();
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TURN_SYNC));
 
 			if(IsHuman())
 			{
@@ -2165,10 +2165,10 @@ void Player::BeginTurn()
 		DPRINTF(k_DBG_GAMESTATE, ("Player[%d]::BeginTurn: not running\n", m_owner));
 	}
 
-	if(!g_network.IsActive() || g_network.IsHost()) {
+	if(!network_Get().IsActive() || network_Get().IsHost()) {
 		m_strengths->Calculate();
-		if(g_network.IsHost()) {
-			g_network.QueuePacketToAll(new NetStrengths(m_owner));
+		if(network_Get().IsHost()) {
+			network_Get().QueuePacketToAll(new NetStrengths(m_owner));
 		}
 	}
 
@@ -2217,18 +2217,18 @@ void Player::BeginTurn()
 		}
 	}
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_GOLD,
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_GOLD,
 											   m_owner, m_gold->GetLevel()));
 		// propagate PW each turn update
-		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_MATERIALS,
+		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_MATERIALS,
 											   m_owner, m_materialPool->GetMaterials()));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	if((IsHuman() ||
-		IsNetwork() && g_network.IsLocalPlayer(m_owner)) &&
+		IsNetwork() && network_Get().IsLocalPlayer(m_owner)) &&
 	   m_owner == player_view::VisiblePlayer() &&
 	   profiledb_Get()->IsAutoSelectFirstUnit()) {
 		if(selitem_Get()->GetState() == SELECT_TYPE_NONE) {
@@ -2258,8 +2258,8 @@ void Player::EndTurn()
 	int i;
 	sint32 n;
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_END_TURN_FOR,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_END_TURN_FOR,
 						              m_owner));
 	}
 
@@ -2284,7 +2284,7 @@ void Player::EndTurn()
 		g_specialAttackMode = 0;
 	}
 
-	if(g_network.IsClient() && m_owner != g_network.GetPlayerIndex())
+	if(network_Get().IsClient() && m_owner != network_Get().GetPlayerIndex())
 		return;
 
 	diplomaticrequestpool_Get()->EndTurn(m_owner) ;
@@ -2305,8 +2305,8 @@ void Player::EndTurn()
 		slicengine_Get()->Execute(so) ;
 	}
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
 	}
 
 	UnitDynamicArray	tmpUnits(*m_all_units);
@@ -2319,9 +2319,9 @@ void Player::EndTurn()
 		}
 	}
 
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	if (!profiledb_Get()->DontKillMessages())
@@ -2339,7 +2339,7 @@ void Player::EndTurn()
 
 	EndTurnPollution();
 
-	if (!g_network.IsActive() && GetGaiaController()->TurnsToComplete() == 0)
+	if (!network_Get().IsActive() && GetGaiaController()->TurnsToComplete() == 0)
 	{
 		GameOver(GAME_OVER_WON_SCIENCE, -1);
 	}
@@ -2905,7 +2905,7 @@ TradeRoute Player::PayForTrade(TradeRoute &newRoute)
 	if((m_usedTradeTransportPoints > m_tradeTransportPoints &&
 		!wonderutil_GetFreeTradeRoutes(m_builtWonders)) ||
 	   !newRoute.GetData()->IsValid()) {
-		if(g_network.IsClient()) {
+		if(network_Get().IsClient()) {
 
 
 			tradepool_Get()->HackSetKey((uint32)newRoute & k_ID_KEY_MASK);
@@ -2913,12 +2913,12 @@ TradeRoute Player::PayForTrade(TradeRoute &newRoute)
 
 		newRoute.KillRoute(CAUSE_KILL_TRADE_ROUTE_NO_INITIAL_CARAVANS);
 		return {};
-	} else if(g_network.IsClient()) {
+	} else if(network_Get().IsClient()) {
 		ROUTE_TYPE type;
 		sint32 resource;
 		newRoute.GetSourceResource(type, resource);
-		g_network.AddCreatedObject(newRoute.AccessData());
-		g_network.SendAction(new NetAction(NET_ACTION_CREATE_TRADE_ROUTE,
+		network_Get().AddCreatedObject(newRoute.AccessData());
+		network_Get().SendAction(new NetAction(NET_ACTION_CREATE_TRADE_ROUTE,
 										   (uint32)newRoute.GetSource(),
 										   (uint32)type,
 										   (uint32)resource,
@@ -2948,8 +2948,8 @@ void Player::RemoveTransportPoints(sint32 delta)
 		tradebids_Get()->CancelBidsFrom(m_owner);
 	}
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_PLAYER_TRADE_DATA,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_PLAYER_TRADE_DATA,
 									  m_owner, m_usedTradeTransportPoints, m_tradeTransportPoints));
 	}
 
@@ -2969,8 +2969,8 @@ void Player::AddUsedTransportPoints(sint32 delta)
 void Player::RemoveUsedTransportPoints(sint32 delta)
 {
 	m_usedTradeTransportPoints -= delta;
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_PLAYER_TRADE_DATA,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_PLAYER_TRADE_DATA,
 									  m_owner, m_usedTradeTransportPoints, m_tradeTransportPoints));
 	}
 	if (gameobservers_Get()) gameobservers_Get()->NotifyTradeChanged();
@@ -3011,8 +3011,8 @@ void Player::CancelTradeRoute(TradeRoute route)
 		route.KillRoute(CAUSE_KILL_TRADE_ROUTE_RECIPIENT_KILLED);
 	}
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_CANCEL_TRADE_ROUTE,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_CANCEL_TRADE_ROUTE,
 										(uint32)route));
 	}
 }
@@ -3030,8 +3030,8 @@ void Player::InterceptTrade(sint32 army_index)
 	u.GetPos(pnt);
 	u.InterceptTrade();
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_INTERCEPT_TRADE,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_INTERCEPT_TRADE,
 										   army_index));
 	}
 }
@@ -3063,16 +3063,16 @@ TradeOffer Player::CreateTradeOffer(Unit fromCity,
 			SetLastSalePrice(offerResource, askingResource);
 		}
 
-		if(g_network.IsClient()) {
-			g_network.AddCreatedObject(offer.AccessData());
-			g_network.SendAction(new NetAction(NET_ACTION_CREATE_TRADE_OFFER,
+		if(network_Get().IsClient()) {
+			network_Get().AddCreatedObject(offer.AccessData());
+			network_Get().SendAction(new NetAction(NET_ACTION_CREATE_TRADE_OFFER,
 											   (uint32)fromCity,
 											   offerType, offerResource,
 											   askingType, askingResource,
 											   (uint32)toCity,
 											   (uint32)offer));
-		} else if(g_network.IsHost()) {
-			g_network.Enqueue(offer.AccessData());
+		} else if(network_Get().IsHost()) {
+			network_Get().Enqueue(offer.AccessData());
 		}
 	}
 	return offer;
@@ -3103,8 +3103,8 @@ void Player::WithdrawTradeOffer(TradeOffer offer)
 
 	Assert(offer.GetFromCity().GetOwner() == m_owner);
 	offer.KillOffer();
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_WITHDRAW_TRADE_OFFER,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_WITHDRAW_TRADE_OFFER,
 										   (uint32)offer));
 	}
 }
@@ -3115,19 +3115,19 @@ void Player::AcceptTradeOffer(TradeOffer offer, Unit &sourceCity, Unit &destCity
 	if(!player_Get(sender))
 		return;
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_TAKE_TRADE_OFFER,
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_TAKE_TRADE_OFFER,
 										   (uint32)offer,
 										   (uint32)sourceCity,
 										   (uint32)destCity));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_TAKE_TRADE_OFFER,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TAKE_TRADE_OFFER,
 									  m_owner,
 									  (uint32)offer,
 									  (uint32)sourceCity,
 									  (uint32)destCity));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	if(player_Get(sender)->IsRobot())
@@ -3203,17 +3203,17 @@ void Player::SendTradeBid(const Unit &fromCity, sint32 resource, const Unit &toC
 	if(toCity.GetOwner() != m_owner)
 		return;
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_SEND_TRADE_BID,
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_SEND_TRADE_BID,
 										   m_owner,
 										   fromCity.m_id, resource, toCity.m_id,
 										   price));
-	} else if(g_network.IsHost()) {
-		g_network.Block(toCity.GetOwner());
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_SEND_TRADE_BID,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(toCity.GetOwner());
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SEND_TRADE_BID,
 									  m_owner,
 									  fromCity, resource, toCity, price));
-		g_network.Unblock(toCity.GetOwner());
+		network_Get().Unblock(toCity.GetOwner());
 	}
 
 	uint32 bidId = tradebids_Get()->AddBid(m_owner,
@@ -3245,8 +3245,8 @@ void Player::AcceptTradeBid(const Unit &fromCity, sint32 resource, const Unit &t
 	so->AddGold(price);
 	slicengine_Get()->Execute(so);
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_ACCEPT_TRADE_BID,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_ACCEPT_TRADE_BID,
 										   m_owner,
 										   fromCity.m_id, resource, toCity.m_id,
 										   price));
@@ -3270,8 +3270,8 @@ void Player::RejectTradeBid(const Unit &fromCity, sint32 resource, const Unit &t
 	so->AddGold(price);
 	slicengine_Get()->Execute(so);
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_REJECT_TRADE_BID,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_REJECT_TRADE_BID,
 										   m_owner,
 										   fromCity.m_id, resource, toCity.m_id,
 										   price));
@@ -3310,13 +3310,13 @@ void Player::BuildUnit(sint32 type, Unit city)
 
 #if 0
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_BUILD, type, city));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BUILDING_UNIT,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_BUILD, type, city));
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILDING_UNIT,
 									  type, (uint32)city));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 #endif
 	city.BuildUnit(type);
@@ -3330,13 +3330,13 @@ void Player::BuildImprovement(sint32 type, Unit city)
 
 #if 0
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_BUILD_IMP, type, city));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BUILD_IMP, m_owner, type,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_BUILD_IMP, type, city));
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILD_IMP, m_owner, type,
 									  city));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 #endif
 	city.BuildImprovement(type);
@@ -3360,8 +3360,8 @@ void Player::SetTaxes(double s)
 		s = g_theGovernmentDB->Get(m_government_type)->GetMaxScienceRate();
 
 #if 0
-    if(g_network.IsActive() && g_network.IsClient()) {
-        g_network.SendAction(new NetAction(NET_ACTION_TAX_RATES,
+    if(network_Get().IsActive() && network_Get().IsClient()) {
+        network_Get().SendAction(new NetAction(NET_ACTION_TAX_RATES,
             (sint32)(s * 100000.),
             0,
             0));
@@ -3369,8 +3369,8 @@ void Player::SetTaxes(double s)
 #endif
 	m_tax_rate->SetTaxRates(s, m_owner);
 #if 0
-	if(g_network.IsActive() && g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_TAX_RATE,
+	if(network_Get().IsActive() && network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TAX_RATE,
 									  m_owner,
 									  (sint32)(s * 100000.),
                                       0, 0));
@@ -3389,13 +3389,13 @@ void Player::SetMaterialsTax(double m)
 
 	m_materialsTax = double(rounded) / 100.0;
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_MATERIALS_TAX,
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_MATERIALS_TAX,
 									  m_owner, (sint32)((m_materialsTax + 0.001) * 100.)));
-		g_network.Unblock(m_owner);
-	} else if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_SET_MATERIALS_TAX,
+		network_Get().Unblock(m_owner);
+	} else if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_SET_MATERIALS_TAX,
 										   (uint32)((m_materialsTax + 0.001) * 100.)));
 	}
 
@@ -3500,7 +3500,7 @@ void Player::GovernmentDiscoveryNotices(AdvanceType advance)
 	}
 
 	if(IsRobot()
-	&&!g_network.IsClient()
+	&&!network_Get().IsClient()
 	){
 		sint32 government_type = Governor::GetGovernor(GetOwner()).ComputeBestGovernment();
 		if (government_type >= 0 && government_type != GetGovernmentType())
@@ -3553,7 +3553,7 @@ void Player::BuildResearchDialog(AdvanceType advance)
 	if(IsRobot())
 		return;
 
-	if (g_network.IsActive() && !(g_network.IsLocalPlayer(m_owner)))
+	if (network_Get().IsActive() && !(network_Get().IsLocalPlayer(m_owner)))
 		return;
 
 	if(m_disableChooseResearch)
@@ -3607,22 +3607,22 @@ void Player::StartResearching(sint32 adv)
 	SetResearching(adv);
 #if 0
 	m_advances->SetResearching(adv);
-	if(g_network.IsClient() && m_owner == g_network.GetPlayerIndex())
+	if(network_Get().IsClient() && m_owner == network_Get().GetPlayerIndex())
 	{
-		g_network.SendAction(new NetAction(NET_ACTION_RESEARCH, adv));
+		network_Get().SendAction(new NetAction(NET_ACTION_RESEARCH, adv));
 	}
-	else if(g_network.IsHost())
+	else if(network_Get().IsHost())
 	{
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_RESEARCH, m_owner, adv));
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_RESEARCH, m_owner, adv));
 	}
 #endif
 }
 
 void Player::SetResearching(AdvanceType advance)
 {
-	if(!g_network.IsActive() || g_network.IsHost() || g_network.IsLocalPlayer(m_owner)) {
+	if(!network_Get().IsActive() || network_Get().IsHost() || network_Get().IsLocalPlayer(m_owner)) {
 		if(IsHuman() || IsNetwork() ||
-			(g_network.IsClient() && g_network.IsLocalPlayer(m_owner))) {
+			(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner))) {
 
 
 			if(!IsRobot())
@@ -3636,12 +3636,12 @@ void Player::SetResearching(AdvanceType advance)
 		}
 	}
 	m_advances->SetResearching(advance);
-	if(g_network.IsClient() && m_owner == g_network.GetPlayerIndex()) {
-		g_network.SendAction(new NetAction(NET_ACTION_RESEARCH, advance));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_RESEARCH, m_owner, advance));
-		g_network.Unblock(m_owner);
+	if(network_Get().IsClient() && m_owner == network_Get().GetPlayerIndex()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_RESEARCH, advance));
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_RESEARCH, m_owner, advance));
+		network_Get().Unblock(m_owner);
 	}
 }
 
@@ -3948,14 +3948,14 @@ void Player::BreakAlliance(PLAYER_INDEX ally)
 		return;
 	}
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_BREAK_ALLIANCE,
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_BREAK_ALLIANCE,
 										   m_owner, ally));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BREAK_ALLIANCE,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BREAK_ALLIANCE,
 									  m_owner, ally));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	player_Get(ally)->ClearAlliance(m_owner) ;
@@ -4280,8 +4280,8 @@ void Player::MakeShortCeaseFire(PLAYER_INDEX other_player, AGREEMENT_TYPE agreem
 
 	if(agreement == AGREEMENT_TYPE_DEMAND_STOP_TRADE) {
 		a.SetThirdParty(third_party);
-		if(g_network.IsHost()) {
-			g_network.Enqueue(a.AccessData());
+		if(network_Get().IsHost()) {
+			network_Get().Enqueue(a.AccessData());
 		}
 	}
 
@@ -4327,14 +4327,14 @@ void Player::MakeCeaseFire(PLAYER_INDEX other_player)
 
 void Player::BreakCeaseFire(PLAYER_INDEX other_player, bool sendMessages)
 {
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_BREAK_CEASE_FIRE,
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_BREAK_CEASE_FIRE,
 										   m_owner, other_player, sendMessages));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BREAK_CEASE_FIRE,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BREAK_CEASE_FIRE,
 									  m_owner, other_player, sendMessages));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	Agreement	a;
@@ -5004,8 +5004,8 @@ extern sint32 g_robotMessages;
 
 void Player::AddMessage(Message &msg)
 	{
-	if(!g_network.IsActive() ||
-	   g_network.GetPlayerIndex() == m_owner ||
+	if(!network_Get().IsActive() ||
+	   network_Get().GetPlayerIndex() == m_owner ||
 	   !IsNetwork())
 	{
 		m_messages->Insert(msg) ;
@@ -5101,7 +5101,7 @@ void Player::SendTestMessage()
 
 const MBCHAR *Player::GetLeaderName()
 {
-	if(!g_network.IsActive()
+	if(!network_Get().IsActive()
 	&& !slicengine_Get()->GetTutorialActive()
 	&& profiledb_Get()->GetPlayerIndex() == m_owner
 	){
@@ -5278,9 +5278,9 @@ TerrainImprovement Player::CreateImprovement(sint32 dbIndex,
 														 extraData);
 
 	if(terrimprovepool_Get()->IsValid(theImprovement.m_id)) {
-		if(g_network.IsClient()) {
-			g_network.AddCreatedObject(theImprovement.AccessData());
-			g_network.SendAction(new NetAction(NET_ACTION_TERRAIN_IMPROVEMENT,
+		if(network_Get().IsClient()) {
+			network_Get().AddCreatedObject(theImprovement.AccessData());
+			network_Get().SendAction(new NetAction(NET_ACTION_TERRAIN_IMPROVEMENT,
 											   dbIndex,
 											   (sint32)point.x, (sint32)point.y,
 											   extraData,
@@ -5313,9 +5313,9 @@ TerrainImprovement Player::CreateSpecialImprovement(sint32 dbIndex,
 														 extraData);
 
 	if(terrimprovepool_Get()->IsValid(theImprovement.m_id)) {
-		if(g_network.IsClient()) {
-			g_network.AddCreatedObject(theImprovement.AccessData());
-			g_network.SendAction(new NetAction(NET_ACTION_TERRAIN_IMPROVEMENT,
+		if(network_Get().IsClient()) {
+			network_Get().AddCreatedObject(theImprovement.AccessData());
+			network_Get().SendAction(new NetAction(NET_ACTION_TERRAIN_IMPROVEMENT,
 											   dbIndex,
 											   (sint32)point.x, (sint32)point.y,
 											   extraData,
@@ -5352,23 +5352,23 @@ void Player::RemoveImprovementReferences(TerrainImprovement imp)
 Installation Player::CreateInstallation(sint32 type,
 										MapPoint &point)
 {
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
 	}
 	Installation theInst = installationpool_Get()->Create(m_owner,
 														 point,
 														 type);
 	if (theInst.m_id != 0) {
-		if(g_network.IsClient()) {
-			g_network.AddCreatedObject(theInst.AccessData());
-			g_network.SendAction(new NetAction(NET_ACTION_CREATE_INSTALLATION,
+		if(network_Get().IsClient()) {
+			network_Get().AddCreatedObject(theInst.AccessData());
+			network_Get().SendAction(new NetAction(NET_ACTION_CREATE_INSTALLATION,
 											   (sint32)type,
 											   point.x, point.y,
 											   (uint32)theInst));
 		}
 	}
-	if(g_network.IsHost()) {
-		g_network.Unblock(m_owner);
+	if(network_Get().IsHost()) {
+		network_Get().Unblock(m_owner);
 	}
 
 	return theInst;
@@ -5442,8 +5442,8 @@ sint32 Player::GetReadinessCost() const
 void Player::SetReadinessLevel(READINESS_LEVEL level, bool immediate)
 {
 	m_readiness->SetLevel(m_government_type, *m_all_armies, level, turn_Get()->GetRound(), immediate);
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_SET_READINESS, (sint32)level, (BOOL)immediate));
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_SET_READINESS, (sint32)level, (BOOL)immediate));
 	}
 }
 
@@ -5465,8 +5465,8 @@ void Player::BuildWonder(sint32 wonder, Unit city)
 
 #if 0
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_BUILD_WONDER,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_BUILD_WONDER,
 										   (uint32)city, wonder));
 	}
 #endif
@@ -5490,7 +5490,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 	sint32 polluters;
 	if (wrec->GetPollutersToParks(polluters))
 	{
-		if(!g_network.IsClient() || g_network.IsLocalPlayer(m_owner))
+		if(!network_Get().IsClient() || network_Get().IsLocalPlayer(m_owner))
 		{
 			Unit *ua = new Unit[polluters];
 			for(sint32 i = 0; i < polluters; i++) {
@@ -5789,8 +5789,8 @@ void Player::Entrench(sint32 army_idx)
 
 	m_all_armies->Access(army_idx).ClearOrders();
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_ENTRENCH, (uint32)army_idx));
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_ENTRENCH, (uint32)army_idx));
 	}
 }
 
@@ -5988,14 +5988,14 @@ void Player::SetWorkdayLevel (sint32 w)
     Assert(m_global_happiness);
 	m_global_happiness->SetWorkdayLevel(w);
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_WORKDAY_LEVEL,
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_WORKDAY_LEVEL,
 										   w));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_WORKDAY_LEVEL,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_WORKDAY_LEVEL,
 											   m_owner, w));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 }
 
@@ -6020,14 +6020,14 @@ double Player::GetUnitlessWorkday ()
 void Player::SetWagesLevel (sint32 w)
 {
 	m_global_happiness->SetWagesLevel (w);
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_WAGES_LEVEL,
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_WAGES_LEVEL,
 										   w));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_WAGES_LEVEL,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_WAGES_LEVEL,
 											   m_owner, w));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 }
 
@@ -6038,14 +6038,14 @@ double Player::GetUnitlessWages () { return m_global_happiness->GetUnitlessWages
 void Player::SetRationsLevel (sint32 w)
 {
 	m_global_happiness->SetRationsLevel (w);
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_RATIONS_LEVEL,
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_RATIONS_LEVEL,
 										   w));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_RATIONS_LEVEL,
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_RATIONS_LEVEL,
 											   m_owner, w));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 }
 double Player::GetRationsPerPerson () const { return m_global_happiness->GetRationsPerPerson (); }
@@ -6282,11 +6282,11 @@ bool Player::GetCapitolPos(MapPoint &pos) const
     if (m_capitol->m_id == (0)) {
 		return false;
 	} else {
-		if(!g_network.IsActive() || g_network.ReadyToStart()) {
+		if(!network_Get().IsActive() || network_Get().ReadyToStart()) {
 			Assert(unitpool_Get()->IsValid(*m_capitol));
 		}
         if(!unitpool_Get()->IsValid(*m_capitol)) {
-			if(!g_network.IsActive() || g_network.ReadyToStart()) {
+			if(!network_Get().IsActive() || network_Get().ReadyToStart()) {
 				m_capitol->m_id = (0);
 			}
 			return false;
@@ -6318,15 +6318,15 @@ bool Player::SetGovernmentType(sint32 type)
 		return false;
 	}
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner))
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner))
 	{
-		g_network.SendAction(new NetAction(NET_ACTION_SET_GOVERNMENT, type));
+		network_Get().SendAction(new NetAction(NET_ACTION_SET_GOVERNMENT, type));
 	}
-	else if(g_network.IsHost())
+	else if(network_Get().IsHost())
 	{
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_SET_GOVERNMENT, m_owner, type));
-		g_network.Unblock(m_owner);
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_GOVERNMENT, m_owner, type));
+		network_Get().Unblock(m_owner);
 	}
 
 	if(m_government_type == 0)
@@ -6378,12 +6378,12 @@ bool Player::ActuallySetGovernment(sint32 type)
 
 	DPRINTF(k_DBG_GAMESTATE, ("Player[%d]::ActuallySetGovernment to %d.\n", m_owner, type));
 
-	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_ACTUALLY_SET_GOVERNMENT, type));
-	} else if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ACTUALLY_SET_GOVERNMENT, m_owner, type));
-		g_network.Unblock(m_owner);
+	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_ACTUALLY_SET_GOVERNMENT, type));
+	} else if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ACTUALLY_SET_GOVERNMENT, m_owner, type));
+		network_Get().Unblock(m_owner);
 	}
 
 	sint32 i;
@@ -6529,16 +6529,16 @@ sint32 Player::GetTimedHappiness()
 void Player::EstablishEmbassy(sint32 player)
 {
 	m_embassies |= (1 << player);
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_SET_EMBASSIES, m_owner, m_embassies));
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_EMBASSIES, m_owner, m_embassies));
 	}
 }
 
 void Player::CloseEmbassy(sint32 player)
 {
 	m_embassies &= ~(1 << player);
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_SET_EMBASSIES, m_owner, m_embassies));
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_EMBASSIES, m_owner, m_embassies));
 	}
 }
 
@@ -6578,9 +6578,9 @@ sint32 Player::GetProductionFromFranchises()
 void Player::AddProductionFromFranchise(sint32 amt)
 {
 	m_productionFromFranchises += amt;
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_SET_FRANCHISE_PRODUCTION,
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_FRANCHISE_PRODUCTION,
 									  m_owner, m_productionFromFranchises));
 	}
 }
@@ -6782,7 +6782,7 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
 
 
 
-					if(!g_network.IsClient()) {
+					if(!network_Get().IsClient()) {
 
 						player_Get(i)->GameOver(GAME_OVER_LOST_DIPLOMACY, -1);
 					}
@@ -6791,7 +6791,7 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
 			break;
 
 		case GAME_OVER_WON_SCIENCE:
-			if (!g_network.IsActive()) {
+			if (!network_Get().IsActive()) {
 				GenerateDescriptionString(true);
 				m_hasWonTheGame = TRUE;
 				for(i = 1; i < k_MAX_PLAYERS; i++) {
@@ -6801,7 +6801,7 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
 
 
 
-						if(!g_network.IsClient()) {
+						if(!network_Get().IsClient()) {
 
 							player_Get(i)->GameOver(GAME_OVER_LOST_SCIENCE, -1);
 						}
@@ -6827,7 +6827,7 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
 				}
 			}
 			if(count == 1) {
-				if(!g_network.IsClient()) {
+				if(!network_Get().IsClient()) {
 
 					player_Get(aPlayer)->GameOver(GAME_OVER_WON_CONQUERED_WORLD, -1);
 				}
@@ -6846,11 +6846,11 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
             break;
 	}
 
-	if(g_network.IsHost()) {
+	if(network_Get().IsHost()) {
 		if(reason == GAME_OVER_WON_OUT_OF_TIME || reason == GAME_OVER_LOST_OUT_OF_TIME) {
 
 		} else {
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_GAME_OVER, reason, m_owner, data));
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_GAME_OVER, reason, m_owner, data));
 		}
 	}
 
@@ -6890,8 +6890,8 @@ void Player::StartDeath(GAME_OVER reason, sint32 data)
 						   GEA_Player, data,
 						   GEA_End);
 
-	if(g_network.IsActive()) {
-		g_network.KillPlayer(m_owner, reason, data);
+	if(network_Get().IsActive()) {
+		network_Get().KillPlayer(m_owner, reason, data);
 	}
 
     SlicObject *so = new SlicObject("77YouLose") ;
@@ -6953,8 +6953,8 @@ void Player::StartDeath(GAME_OVER reason, sint32 data)
 
 void Player::RemoveDeadPlayers()
 {
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_REMOVE_DEAD_PLAYERS));
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REMOVE_DEAD_PLAYERS));
 	}
 
 	sint32 i;
@@ -7333,7 +7333,7 @@ ATTITUDE_TYPE Player::GetAttitude(PLAYER_INDEX him) const
         break;
     }
 
-	if(!IsRobot() || g_network.IsClient()) {
+	if(!IsRobot() || network_Get().IsClient()) {
 		switch(m_diplomatic_state[him]) {
 			case DIPLOMATIC_STATE_WAR:
 				if(is_weak) {
@@ -7594,8 +7594,8 @@ sint32 Player::DeductPoints(sint32 p)
 	Assert(m_powerPoints >= p);
 	if(m_powerPoints >= p)
 		m_powerPoints -= p;
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
 									  m_owner, m_powerPoints));
 	}
 	return m_powerPoints;
@@ -7604,8 +7604,8 @@ sint32 Player::DeductPoints(sint32 p)
 sint32 Player::AddPoints(sint32 p)
 {
 	m_powerPoints += p;
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
 									  m_owner, m_powerPoints));
 	}
 	return m_powerPoints;
@@ -7613,8 +7613,8 @@ sint32 Player::AddPoints(sint32 p)
 
 sint32 Player::SetPoints(sint32 p)
 {
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
 									  m_owner, m_powerPoints));
 	}
 	return(m_powerPoints = p);
@@ -7622,7 +7622,7 @@ sint32 Player::SetPoints(sint32 p)
 
 void Player::TradeUnitsForPoints(const MapPoint &pnt)
 {
-	if(!(g_network.IsActive() && g_network.SetupMode()) &&
+	if(!(network_Get().IsActive() && network_Get().SetupMode()) &&
 	   !g_powerPointsMode)
 		return;
 
@@ -7630,8 +7630,8 @@ void Player::TradeUnitsForPoints(const MapPoint &pnt)
 
 		return;
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_SELL_UNITS,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_SELL_UNITS,
 										   pnt.x, pnt.y));
 		return;
 	}
@@ -7656,7 +7656,7 @@ void Player::TradeUnitsForPoints(const MapPoint &pnt)
 
 void Player::TradeUnitForPoints(Unit &unit)
 {
-	if(!(g_network.IsActive() && g_network.SetupMode()) &&
+	if(!(network_Get().IsActive() && network_Get().SetupMode()) &&
 	   !g_powerPointsMode)
 		return;
 
@@ -7667,8 +7667,8 @@ void Player::TradeUnitForPoints(Unit &unit)
 	if(unit.GetOwner() != m_owner)
 		return;
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_SELL_ONE_UNIT,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_SELL_ONE_UNIT,
 										   (uint32)unit));
 		return;
 	}
@@ -7680,7 +7680,7 @@ void Player::TradeUnitForPoints(Unit &unit)
 
 void Player::TradeCityForPoints(Unit &city)
 {
-	if(!(g_network.IsActive() && g_network.SetupMode()) &&
+	if(!(network_Get().IsActive() && network_Get().SetupMode()) &&
 	   !g_powerPointsMode)
 		return;
 
@@ -7692,7 +7692,7 @@ void Player::TradeCityForPoints(Unit &city)
 
 void Player::TradeImprovementsForPoints(const MapPoint &pnt)
 {
-	if(!(g_network.IsActive() && g_network.SetupMode()) &&
+	if(!(network_Get().IsActive() && network_Get().SetupMode()) &&
 	   !g_powerPointsMode)
 		return;
 
@@ -7703,8 +7703,8 @@ void Player::TradeImprovementsForPoints(const MapPoint &pnt)
 	if(cell->AccessImprovement(0).GetOwner() != m_owner)
 		return;
 
-	if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_SELL_IMPROVEMENTS,
+	if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_SELL_IMPROVEMENTS,
 										   pnt.x, pnt.y));
 		return;
 	}
@@ -7884,8 +7884,8 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
 
         if (GetCurRound() > 1) {
 
-            if(g_network.IsHost() && !g_network.IsLocalPlayer(wowner)) {
-                g_network.QueuePacket(g_network.IndexToId(wowner),
+            if(network_Get().IsHost() && !network_Get().IsLocalPlayer(wowner)) {
+                network_Get().QueuePacket(network_Get().IndexToId(wowner),
                                       new NetInfo(NET_INFO_CODE_WONDER_OBSOLETE,
                                                   advance, i));
             }
@@ -7953,11 +7953,11 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 		CheckWonderObsoletions(advance);
 
 		sint32 feat;
-		if(!g_network.IsNetworkLaunch()
+		if(!network_Get().IsNetworkLaunch()
 		&& player_Get(player_view::CurPlayer())
 		&& advRec->GetTriggerFeatIndex(feat)
 		){
-			if(!g_network.IsActive() || g_network.ReadyToStart())
+			if(!network_Get().IsActive() || network_Get().ReadyToStart())
 			{
 				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
 									   GEA_Int, feat,
@@ -7993,7 +7993,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 	{
 		if (GetCurRound() > 1 && !init)
 		{
-			if(!g_network.IsClient() || g_network.ReadyToStart())
+			if(!network_Get().IsClient() || network_Get().ReadyToStart())
 			{
 				SpecialDiscoveryNotices(advance);
 				GovernmentDiscoveryNotices(advance);
@@ -8025,13 +8025,13 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 				}
 			}
 
-			if(g_network.IsHost() && !g_network.IsLocalPlayer(m_owner))
+			if(network_Get().IsHost() && !network_Get().IsLocalPlayer(m_owner))
 			{
-				g_network.QueuePacketToAll(new NetResearch(m_advances));
-				g_network.QueuePacket(g_network.IndexToId(m_owner),
+				network_Get().QueuePacketToAll(new NetResearch(m_advances));
+				network_Get().QueuePacket(network_Get().IndexToId(m_owner),
 									  new NetInfo(NET_INFO_CODE_CHOOSE_RESEARCH, advance));
 			}
-			if(!g_network.IsActive() || (g_network.IsHost() && g_network.IsLocalPlayer(m_owner)))
+			if(!network_Get().IsActive() || (network_Get().IsHost() && network_Get().IsLocalPlayer(m_owner)))
 			{
 				BuildResearchDialog(advance);
 			}
@@ -8478,11 +8478,11 @@ void Player::ReconsiderCostOfTrade()
 
 void Player::RecoveredProbe(const Unit &city)
 {
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_RECOVERED_PROBE,
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_RECOVERED_PROBE,
 									  m_owner, city.m_id));
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	m_advances->AddAlienLifeAdvance();
@@ -8540,13 +8540,13 @@ void Player::SetDiplomaticState(const PLAYER_INDEX p, const DIPLOMATIC_STATE s)
 		}
 	}
 
-	if(g_network.IsHost()) {
-		g_network.Block(m_owner);
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_SET_DIP_STATE,
+	if(network_Get().IsHost()) {
+		network_Get().Block(m_owner);
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_DIP_STATE,
 									  m_owner, p, realState));
-		g_network.Unblock(m_owner);
-	} else if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.SendAction(new NetAction(NET_ACTION_SET_DIP_STATE,
+		network_Get().Unblock(m_owner);
+	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
+		network_Get().SendAction(new NetAction(NET_ACTION_SET_DIP_STATE,
 										   p, realState));
 	}
 }
@@ -8639,8 +8639,8 @@ void player_ActivateSpaceButton(sint32 owner)
 {
 	player_Get(owner)->m_can_use_space_button = TRUE;
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ACTIVATE_SPACE_BUTTON,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ACTIVATE_SPACE_BUTTON,
 									  owner));
 	}
 }
@@ -8805,8 +8805,8 @@ void Player::EnterNewAge(sint32 age)
 	const AgeRecord *rec = g_theAgeDB->Get(age);
 	if(!rec) return;
 
-	if(!g_network.IsNetworkLaunch() && player_Get(player_view::CurPlayer())) {
-		if(!g_network.IsActive() || g_network.ReadyToStart()) {
+	if(!network_Get().IsNetworkLaunch() && player_Get(player_view::CurPlayer())) {
+		if(!network_Get().IsActive() || network_Get().ReadyToStart()) {
 
 			SlicObject *so = new SlicObject((char *)rec->GetSlicObject());
 			so->AddRecipient(m_owner);
@@ -8817,7 +8817,7 @@ void Player::EnterNewAge(sint32 age)
 	for(i = 0; i < m_all_cities->Num(); i++) {
 		m_all_cities->Access(i).CD()->UpdateSprite();
 	}
-	if(!g_network.IsNetworkLaunch()) {
+	if(!network_Get().IsNetworkLaunch()) {
 		eventtracker_Get()->AddEvent(EVENT_TYPE_AGES,m_owner,turn_Get()->GetSessionRound(),age);
 	}
 }
@@ -8967,22 +8967,22 @@ bool Player::RecursivelyStartResearching(sint32 advance)
 void Player::SetPlayerType(PLAYER_TYPE pt)
 {
 	m_playerType = pt;
-	if(g_network.IsHost())
+	if(network_Get().IsHost())
 	{
 		if(IsRobot())
 		{
-			if(m_owner != g_network.GetPlayerIndex())
+			if(m_owner != network_Get().GetPlayerIndex())
 			{
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_ATTACH_ROBOT, m_owner));
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ATTACH_ROBOT, m_owner));
 			}
 			else
 			{
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_DETACH_ROBOT, m_owner));
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_DETACH_ROBOT, m_owner));
 			}
 		}
 		else
 		{
-			g_network.Enqueue(new NetInfo(NET_INFO_CODE_DETACH_ROBOT, m_owner));
+			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_DETACH_ROBOT, m_owner));
 		}
 	}
 }
@@ -9274,11 +9274,11 @@ void Player::CreateLeader()
 			so->AddRecipient(m_owner);
 			slicengine_Get()->Execute(so);
 
-			if (g_network.IsHost())
+			if (network_Get().IsHost())
 			{
-				g_network.Block(ldr.GetOwner());
-				g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, ldr.m_id));
-				g_network.Unblock(ldr.GetOwner());
+				network_Get().Block(ldr.GetOwner());
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, ldr.m_id));
+				network_Get().Unblock(ldr.GetOwner());
 			}
 		}
 	}

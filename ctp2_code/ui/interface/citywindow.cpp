@@ -493,7 +493,7 @@ AUI_ERRCODE CityWindow::Cleanup()
 
 AUI_ERRCODE CityWindow::Display(CityData *city)
 {
-	if(g_network.IsClient() && g_network.GetSensitiveUIBlocked()) {
+	if(network_Get().IsClient() && network_Get().GetSensitiveUIBlocked()) {
 
 		return AUI_ERRCODE_OK;
 	}

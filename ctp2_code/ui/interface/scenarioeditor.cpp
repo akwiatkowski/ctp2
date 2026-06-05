@@ -550,7 +550,7 @@ AUI_ERRCODE ScenarioEditor::Cleanup()
 
 AUI_ERRCODE ScenarioEditor::Display()
 {
-	if(g_network.IsActive())
+	if(network_Get().IsActive())
 
 		return AUI_ERRCODE_OK;
 

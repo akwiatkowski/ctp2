@@ -46,11 +46,11 @@ void Agreement::RemoveAllReferences()
 		o->RemoveAgreementReferences(*this) ;
 	}
 
-	if(g_network.IsHost()) {
-		g_network.Enqueue(new NetInfo(NET_INFO_CODE_KILL_AGREEMENT,
+	if(network_Get().IsHost()) {
+		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_AGREEMENT,
 									  m_id));
-	} else if(g_network.IsClient()) {
-		g_network.SendAction(new NetAction(NET_ACTION_KILL_AGREEMENT,
+	} else if(network_Get().IsClient()) {
+		network_Get().SendAction(new NetAction(NET_ACTION_KILL_AGREEMENT,
 										   m_id));
 	}
 

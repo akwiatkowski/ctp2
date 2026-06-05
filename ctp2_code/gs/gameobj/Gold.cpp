@@ -125,10 +125,10 @@ void Gold::AddGold(const sint32 delta)
 		m_level = newval;
 	}
 
-	if (m_owner != PLAYER_INDEX_INVALID && g_network.IsHost()) {
-		g_network.Block(m_owner);
+	if (m_owner != PLAYER_INDEX_INVALID && network_Get().IsHost()) {
+		network_Get().Block(m_owner);
 		ENQUEUE() ;
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 }
 
@@ -141,10 +141,10 @@ void Gold::SubGold(const sint32 delta)
 		Assert(0);
 		m_level = 0;
 	}
-	if(m_owner != PLAYER_INDEX_INVALID && g_network.IsHost()) {
-		g_network.Block(m_owner);
+	if(m_owner != PLAYER_INDEX_INVALID && network_Get().IsHost()) {
+		network_Get().Block(m_owner);
 		ENQUEUE();
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 }
 
@@ -156,10 +156,10 @@ BOOL Gold::GiveGold(const sint32 amount)
 
 	m_level -= amount ;
 
-	if (m_owner != PLAYER_INDEX_INVALID && g_network.IsHost()) {
-		g_network.Block(m_owner);
+	if (m_owner != PLAYER_INDEX_INVALID && network_Get().IsHost()) {
+		network_Get().Block(m_owner);
 		ENQUEUE() ;
-		g_network.Unblock(m_owner);
+		network_Get().Unblock(m_owner);
 	}
 
 	return (TRUE) ;

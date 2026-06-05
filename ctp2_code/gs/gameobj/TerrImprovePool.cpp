@@ -112,9 +112,9 @@ TerrainImprovementPool::Create
 	TerrainImprovementData *	newData =
 		new TerrainImprovementData(newImprovement, owner, point, type, extraData);
 
-	if (g_network.IsActive() && g_network.IsHost())
+	if (network_Get().IsActive() && network_Get().IsHost())
 	{
-		g_network.Enqueue(newData);
+		network_Get().Enqueue(newData);
 	}
 
 	Insert(newData);

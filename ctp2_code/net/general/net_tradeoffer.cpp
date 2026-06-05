@@ -39,7 +39,7 @@ void NetTradeOffer::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	Assert(MAKE_CIV3_ID(buf[0], buf[1]) == k_PACKET_TRADE_OFFER_ID);
 	TradeOffer offer(getlong(&buf[2]));
 
-	g_network.CheckReceivedObject((uint32)offer);
+	network_Get().CheckReceivedObject((uint32)offer);
 
 	if(!tradeofferpool_Get()->IsValid(offer)) {
 		m_offerData = new TradeOfferData(offer);

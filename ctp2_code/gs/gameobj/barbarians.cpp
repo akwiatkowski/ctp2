@@ -85,11 +85,11 @@ bool SomeoneCanHave(const UnitRecord *rec)
 //How do I get it so feat only affects one player?
 
 		sint32 feat;
-		if(!g_network.IsNetworkLaunch()
+		if(!network_Get().IsNetworkLaunch()
 		&& player_Get(selitem_Get()->GetCurPlayer())
 		&& advRec->GetTriggerFeatIndex(feat)
 		){
-			if(!g_network.IsActive() || g_network.ReadyToStart()) {
+			if(!network_Get().IsActive() || network_Get().ReadyToStart()) {
 				feattracker_Get()->AddFeat(feat, m_owner);
 			}
 		}
@@ -171,7 +171,7 @@ bool Barbarians::AddBarbarians(const MapPoint &point, PLAYER_INDEX meat,
 	//add spontaneous barb bool?
 	//add bools for barbarian spawn?
 	//and sint for # of barbs if all bools are false?
-	if(g_network.IsClient() && !g_network.IsLocalPlayer(meat))
+	if(network_Get().IsClient() && !network_Get().IsLocalPlayer(meat))
 		return false;
 
 	if(!InBarbarianPeriod(currentRound))
@@ -330,7 +330,7 @@ sint32 Barbarians::ChooseSeaUnitType()
 bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
                             bool fromGoodyHut, sint32 currentRound)
 {
-	if(g_network.IsClient() && !g_network.IsLocalPlayer(meat))
+	if(network_Get().IsClient() && !network_Get().IsLocalPlayer(meat))
 		return false;
 
 	if(!InBarbarianPeriod(currentRound))
@@ -474,7 +474,7 @@ bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
 bool Barbarians::AddInsurgents(const MapPoint &point, PLAYER_INDEX meat,
 							   BOOL fromGoodyHut, sint32 currentRound)
 {
-	if(g_network.IsClient() && !g_network.IsLocalPlayer(meat))
+	if(network_Get().IsClient() && !network_Get().IsLocalPlayer(meat))
 		return FALSE;
 
 	if(currentRound < g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetBarbarianFirstTurn() ||

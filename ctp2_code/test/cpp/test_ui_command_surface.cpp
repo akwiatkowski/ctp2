@@ -36,7 +36,7 @@
 // CTP2's network code is currently disabled but kept in the tree.
 // Existing wrappers like `Player::SendTradeBid` and `CityData::AddBuyFront`
 // already contain inactive multiplayer branches guarded by
-// `g_network.IsClient()` / `g_network.IsHost()`.  When network is
+// `network_Get().IsClient()` / `network_Get().IsHost()`.  When network is
 // re-enabled:
 //   - The ratchet here does NOT need to change — UI still goes through
 //     the same wrapper methods regardless of multiplayer state.

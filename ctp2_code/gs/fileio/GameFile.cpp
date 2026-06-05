@@ -847,7 +847,7 @@ void GameFile::SaveExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 
 	if(strlen(g_scenarioName) > 0) // Problem in Multiplayer
 	{
-		strcpy(name, g_scenarioName);
+		strlcpy(name, g_scenarioName, sizeof(name));
 	}
 
 	n = c3files_fwrite(name, sizeof(MBCHAR), k_SCENARIO_NAME_MAX, saveFile);
@@ -955,7 +955,7 @@ void GameFile::SetProfileFromExtendedInfo(SaveInfo *info)
 	if(g_saveFileVersion >= 42) {
         if(!info->isScenario){// exclude starting new scenarios
             if (!info->scenarioName.empty()) {//same as in beginloadprocess
-		        strcpy(g_scenarioName, info->scenarioName.c_str());
+		        strlcpy(g_scenarioName, info->scenarioName.c_str(), sizeof(g_scenarioName));
 			}
 		}
 		g_isScenario = info->isScenario;
@@ -980,10 +980,10 @@ void GameFile::GetExtendedInfoFromProfile(SaveInfo *info)
 	Assert(info && profiledb_Get());
 	if (!info || !profiledb_Get()) return;
 
-	strcpy(info->gameName, profiledb_Get()->GetGameName());
-	strcpy(info->leaderName, profiledb_Get()->GetLeaderName());
-	strcpy(info->civName, profiledb_Get()->GetCivName());
-	strcpy(info->note, profiledb_Get()->GetSaveNote());
+	strlcpy(info->gameName, profiledb_Get()->GetGameName(), sizeof(info->gameName));
+	strlcpy(info->leaderName, profiledb_Get()->GetLeaderName(), sizeof(info->leaderName));
+	strlcpy(info->civName, profiledb_Get()->GetCivName(), sizeof(info->civName));
+	strlcpy(info->note, profiledb_Get()->GetSaveNote(), sizeof(info->note));
 
 	info->gameSetup = gamesetup_Get();
 
@@ -1180,7 +1180,7 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 
 			gameInfo = new GameInfo();
 
-			strcpy(gameInfo->name, name);
+			strlcpy(gameInfo->name, name, sizeof(gameInfo->name));
 
 			snprintf(gameInfo->path, sizeof(gameInfo->path), "%s%s%s", dirPath, FILE_SEP, name);
 
@@ -1219,7 +1219,7 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 
 					SaveInfo		*saveInfo = new SaveInfo();
 
-					strcpy(saveInfo->fileName, name);
+					strlcpy(saveInfo->fileName, name, sizeof(saveInfo->fileName));
 
 					snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
 
@@ -1610,7 +1610,7 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 			if (!strcmp(name, "..")) continue;
 
 			gameInfo = new GameMapInfo();
-			strcpy(gameInfo->name, name);
+			strlcpy(gameInfo->name, name, sizeof(gameInfo->name));
 			snprintf(gameInfo->path, sizeof(gameInfo->path), "%s%s%s", dirPath, FILE_SEP, name);
 			gameInfo->files = new PointerList<SaveMapInfo>;
 
@@ -1646,7 +1646,7 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 #endif
 					SaveMapInfo		*saveInfo = new SaveMapInfo();
 
-					strcpy(saveInfo->fileName, name);
+					strlcpy(saveInfo->fileName, name, sizeof(saveInfo->fileName));
 
 					snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
 

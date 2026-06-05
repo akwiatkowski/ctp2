@@ -182,6 +182,7 @@ void CivScenarios::LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath)
 #endif
 		if (!r) {
 			MBCHAR *scenarioPath = new MBCHAR[strlen(scenPath)+1];
+			// TODO(phase-2): strcpy → strlcpy — dst is `MBCHAR *`, capacity unknown at call site
 			strcpy(scenarioPath, scenPath);
 			scenList->AddTail(scenarioPath);
 		}
@@ -198,7 +199,7 @@ void CivScenarios::LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath)
 
 		i=0;
 		while (walker.IsValid()) {
-			strcpy(pack->m_scenarios[i].m_path, walker.GetObj());
+			strlcpy(pack->m_scenarios[i].m_path, walker.GetObj(), sizeof(pack->m_scenarios[i].m_path));
 			LoadScenarioData(&pack->m_scenarios[i], walker.GetObj());
 
 			walker.Next();
@@ -270,6 +271,7 @@ void CivScenarios::LoadData()
 			if (!r) {
 				fileListFileName = new MBCHAR[strlen(name)+1];
 
+				// TODO(phase-2): strcpy → strlcpy — dst is `MBCHAR *`, capacity unknown at call site
 				strcpy(fileListFileName, name);
 
 				packList->AddTail(fileListFileName);
@@ -301,7 +303,7 @@ void CivScenarios::LoadData()
 
 		snprintf(packPath, sizeof(packPath), "%s%s%s", rootPath, FILE_SEP, walker->GetObj());
 
-		strcpy(m_scenarioPacks[i].m_path, packPath);
+		strlcpy(m_scenarioPacks[i].m_path, packPath, sizeof(m_scenarioPacks[i].m_path));
 		m_scenarioPacks[i].m_index = i;
 		LoadScenarioPackData(&m_scenarioPacks[i], packPath);
 
@@ -391,7 +393,7 @@ BOOL CivScenarios::FindScenario(MBCHAR *scenarioName, ScenarioPack **pack, Scena
 BOOL CivScenarios::FindScenarioFromSaveFile(MBCHAR *saveName, ScenarioPack **pack, Scenario **scen)
 {
 	MBCHAR path[_MAX_PATH];
-	strcpy(path, saveName);
+	strlcpy(path, saveName, sizeof(path));
 	MBCHAR *lastBackslash = strrchr(path, FILE_SEPC);
 	if(!lastBackslash)
 		return FALSE;

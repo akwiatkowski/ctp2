@@ -375,7 +375,7 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	Assert( AUI_NEWOK(s_bottomRightBox, errcode) );
 	if ( !AUI_NEWOK(s_bottomRightBox, errcode) ) return -1;
 
-	strcpy(controlSubBlock, controlBlock);
+	strlcpy(controlSubBlock, controlBlock, sizeof(controlSubBlock));
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", controlSubBlock, "BottomRightImage" );
 	s_bottomRightImage = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_bottomRightImage, errcode) );
@@ -622,7 +622,7 @@ sint32 infowin_UpdateBigList( )
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	s_infoBigList->Clear();
-	strcpy(ldlBlock,"InfoBigListItem");
+	strlcpy(ldlBlock, "InfoBigListItem", sizeof(ldlBlock));
 
 	for (sint32 i = 0 ; i < 5 ; i++ )
 	{
@@ -660,7 +660,7 @@ sint32 infowin_UpdateScoreList( )
 
 
 	s_infoScoreList->Clear();
-	strcpy(ldlBlock,"InfoScoreListItem");
+	strlcpy(ldlBlock, "InfoScoreListItem", sizeof(ldlBlock));
 	InfoScoreListItem *item = nullptr;
 	InfoScoreLabelListItem *label = nullptr;
 
@@ -761,7 +761,7 @@ sint32 infowin_UpdateScoreList( )
 		sint32 totalValue = score->GetTotalScore();
 		snprintf(strbuf, sizeof(strbuf),"%d",totalValue);
 	} else {
-		strcpy(strbuf, "0");
+		strlcpy(strbuf, "0", sizeof(strbuf));
 	}
 
 	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(4), strbuf, ldlBlock);
@@ -781,7 +781,7 @@ sint32 infowin_UpdateWonderList( )
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	s_infoWonderList->Clear();
-	strcpy(ldlBlock,"InfoWonderListItem");
+	strlcpy(ldlBlock, "InfoWonderListItem", sizeof(ldlBlock));
 	InfoWonderListItem *wItem = nullptr;
 	Unit city;
 
@@ -1032,7 +1032,7 @@ sint32 infowin_UpdatePlayerList( )
 	MBCHAR strbuf[256];
 
 	s_infoPlayerList->Clear();
-	strcpy(ldlBlock,"InfoPlayerListItem");
+	strlcpy(ldlBlock, "InfoPlayerListItem", sizeof(ldlBlock));
 
     sint32 color = 0;
 
@@ -1103,7 +1103,7 @@ sint32 infowin_UpdatePollutionData( )
 	MBCHAR strbuf[256];
 
 	s_pollutionList->Clear();
-	strcpy(ldlBlock, "InfoPlayerListItem");
+	strlcpy(ldlBlock, "InfoPlayerListItem", sizeof(ldlBlock));
 
 
 	sint32 color = 0;
@@ -1136,7 +1136,7 @@ sint32 infowin_UpdatePollutionData( )
 
 	if ((turnsLeft < 0) || (turnsLeft >= Pollution::ROUNDS_COUNT_IMMEASURABLE))
 	{
-		strcpy(strbuf, "-");
+		strlcpy(strbuf, "-", sizeof(strbuf));
 		percent	= 0;
 	}
 	else
@@ -1407,10 +1407,12 @@ sint32 infowin_GetWonderCityName( sint32 index, MBCHAR *name)
 
 	if (wonder_tracker_Get()->GetCityWithWonder( index, city ))
 	{
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(name, city.GetData()->GetCityData()->GetName());
 	}
 	else
 	{
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(name, "NULL");
 	}
 
@@ -1471,7 +1473,7 @@ AUI_ERRCODE InfoBigListItem::InitCommonLdl(Unit *city, sint32 index, MBCHAR *ldl
 	m_index = index;
 
 	CityData *cd = m_city.GetData()->GetCityData();
-	strcpy(m_name,cd->GetName());
+	strlcpy(m_name, cd->GetName(), sizeof(m_name));
 
 	m_size = cd->PopCount();
 
@@ -1500,7 +1502,7 @@ AUI_ERRCODE InfoBigListItem::InitCommonLdl(Unit *city, sint32 index, MBCHAR *ldl
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	strcpy(subBlock,block);
+	strlcpy(subBlock, block, sizeof(subBlock));
 	snprintf(block, sizeof(block), "%s.%s", subBlock, "CountBlock1");
 	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->AddChild(iconItem);
@@ -1685,7 +1687,7 @@ void InfoWonderListItem::Update()
 	MBCHAR civName[256];
 
 	subItem = (c3_Static *)GetChildByIndex(0);
-	strcpy(strbuf,stringdb_Get()->GetNameStr(g_theWonderDB->Get(m_index)->m_name));
+	strlcpy(strbuf, stringdb_Get()->GetNameStr(g_theWonderDB->Get(m_index)->m_name), sizeof(strbuf));
 	subItem->SetText(strbuf);
 
 	Player *p = player_Get(m_player);
@@ -1794,7 +1796,7 @@ void InfoScoreListItem::Update()
 	Score *score = pl->m_score;
 
 	subItem = (c3_Static *)GetChildByIndex(0);
-	strcpy(strbuf,score->GetScoreString((SCORE_CATEGORY)m_index));
+	strlcpy(strbuf, score->GetScoreString((SCORE_CATEGORY)m_index), sizeof(strbuf));
 	subItem->SetText(strbuf);
 
 	m_value = score->GetPartialScore((SCORE_CATEGORY)m_index);
@@ -1830,9 +1832,9 @@ AUI_ERRCODE InfoScoreLabelListItem::InitCommonLdl(MBCHAR *label, MBCHAR *text, M
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		retval;
 
-	strcpy(m_label,label);
-	if (!text) strcpy(m_text,"");
-	else strcpy(m_text,text);
+	strlcpy(m_label, label, sizeof(m_label));
+	if (!text) strlcpy(m_text, "", sizeof(m_text));
+	else strlcpy(m_text, text, sizeof(m_text));
 
 	c3_Static		*subItem;
 
@@ -1892,7 +1894,7 @@ AUI_ERRCODE InfoPlayerListItem::InitCommonLdl(MBCHAR *name, sint32 index, MBCHAR
 	AUI_ERRCODE		retval;
 
 	m_index = index;
-	strcpy(m_name, name);
+	strlcpy(m_name, name, sizeof(m_name));
 
 	c3_Static		*subItem;
 

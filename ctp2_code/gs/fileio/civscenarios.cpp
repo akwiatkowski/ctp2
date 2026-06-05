@@ -305,7 +305,7 @@ void CivScenarios::LoadData()
 		m_scenarioPacks[i].m_index = i;
 		LoadScenarioPackData(&m_scenarioPacks[i], packPath);
 
-		delete fileListFileName;
+		delete [] fileListFileName;
 
 		walker->Next();
 	}

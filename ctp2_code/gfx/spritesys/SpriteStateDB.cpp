@@ -31,7 +31,7 @@ SpriteStateDB::SpriteStateDB ()
 SpriteStateDB::~SpriteStateDB ()
 
 {
-	delete m_map;
+	delete [] m_map;
 }
 
 void SpriteStateDB::SetSize(sint32 s)

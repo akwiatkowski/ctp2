@@ -705,5 +705,5 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 	SetGraphBounds(minRound, curRound, minPower, maxPower);
 	RenderGraph();
 
-	delete color;
+	delete [] color;
 }

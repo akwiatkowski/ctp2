@@ -56,7 +56,7 @@ PlayListDB::PlayListDB()
 PlayListDB::~PlayListDB()
 {
 	
-		delete m_playList;
+		delete [] m_playList;
 }
 
 BOOL PlayListDB::Parse(MBCHAR *filename)

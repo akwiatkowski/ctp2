@@ -560,7 +560,7 @@ void HotseatListItem::EnterEmail()
 
 void hotseatlist_ClearOptions()
 {
-	delete s_legalCivList;
+	delete [] s_legalCivList;
 	s_legalCivList = new bool[g_theCivilisationDB->NumRecords()];
 
 	std::fill(s_hotseatCivList, s_hotseatCivList + k_MAX_PLAYERS, 0);

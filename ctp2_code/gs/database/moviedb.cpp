@@ -25,7 +25,7 @@ MovieDB::MovieDB ()
 MovieDB::~MovieDB ()
 
 {
-	delete m_map;
+	delete [] m_map;
 }
 
 void MovieDB::SetSize(sint32 s)

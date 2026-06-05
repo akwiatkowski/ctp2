@@ -25,7 +25,7 @@ FilenameDB::FilenameDB ()
 FilenameDB::~FilenameDB ()
 
 {
-	delete m_map;
+	delete [] m_map;
 }
 
 void FilenameDB::SetSize(sint32 s)

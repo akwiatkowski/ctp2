@@ -275,7 +275,7 @@ void SpriteEditWindow_Cleanup()
 	    c3ui_Get()->RemoveWindow(g_spriteEditWindow->Id());
     }
 
-	delete g_compression_buff;
+	delete [] g_compression_buff;
     g_compression_buff = nullptr;
 
 	delete g_spriteEditWindow;

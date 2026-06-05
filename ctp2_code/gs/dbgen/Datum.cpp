@@ -639,13 +639,20 @@ void Datum::ExportDestructor(FILE *outfile)
 
 		case DATUM_FILE:
 		case DATUM_STRING:
-			fprintf(outfile, "    delete m_%s;\n", m_bitPairDatum->m_name );
+			// Fields are allocated via `new char[...]` (see emitter at
+			// Datum.cpp ~484/587 + RecordDescription:1003); the matching
+			// delete is delete[].  Operator= correctly uses delete[];
+			// the destructor used to emit non-array delete — UB on
+			// every record class.
+			fprintf(outfile, "    delete [] m_%s;\n", m_bitPairDatum->m_name );
 			break;
 		}
 	}
 	else if ( m_type == DATUM_FILE || m_type == DATUM_STRING )
 	{
-		fprintf(outfile, "    delete m_%s;\n", m_name );
+		// Same array-vs-non-array fix as above.  See operator=
+		// emitter; that one already used delete[].
+		fprintf(outfile, "    delete [] m_%s;\n", m_name );
 	}
 }
 

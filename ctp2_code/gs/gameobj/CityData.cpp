@@ -541,17 +541,20 @@ CityData::~CityData()
 	}
 
 	delete m_happy;
-	delete m_distanceToGood;
-	delete m_ringFood;
-	delete m_ringProd;
-	delete m_ringGold;
-	delete m_ringSizes;
+	// Ring/resource arrays are `new sint32[N]` at CityData.cpp:512+ and
+	// 857+ — destructor was using non-array delete (UB).  delete[] matches
+	// the array allocation form.
+	delete [] m_distanceToGood;
+	delete [] m_ringFood;
+	delete [] m_ringProd;
+	delete [] m_ringGold;
+	delete [] m_ringSizes;
 
 #if defined(NEW_RESOURCE_PROCESS)
-	delete m_farmersEff;
-	delete m_laborersEff;
-	delete m_merchantsEff;
-	delete m_scientistsEff;
+	delete [] m_farmersEff;
+	delete [] m_laborersEff;
+	delete [] m_merchantsEff;
+	delete [] m_scientistsEff;
 #endif
 }
 

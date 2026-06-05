@@ -200,7 +200,7 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 	if ( !AUI_SUCCESS(errcode) )
 	{
 		aui_ui_Get()->TheMemMap()->ReleaseFileBits( filebits );
-		if ( rgbq ) delete rgbq;
+		if ( rgbq ) delete [] rgbq;
 		return AUI_ERRCODE_LOADFAILED;
 	}
 
@@ -268,7 +268,7 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 		break;
 	}
 
-	if ( rgbq ) delete rgbq;
+	if ( rgbq ) delete [] rgbq;
 	aui_ui_Get()->TheMemMap()->ReleaseFileBits( filebits );
 
 	if ( bih.biHeight > 0 )

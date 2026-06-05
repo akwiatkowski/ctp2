@@ -48,6 +48,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <string>
 #if defined(WIN32)
 #include <windows.h>
 #else
@@ -132,9 +133,9 @@ void MemberClass::AddBitPair(struct namelist *nameInfo, sint32 minSize, sint32 m
 	dat->m_bitNum = m_numBits;
 	m_numBits++;
 
-	char * l_Name = (char *) malloc(strlen(nameInfo->name) + strlen("Value") + 1);
-	strcpy(l_Name, nameInfo->name);
-	strcat(l_Name, "Value");
+	// Datum copies its name arg into its own m_Name (std::string); the
+	// previous raw malloc here leaked on every bit-pair member.
+	std::string const l_Name = std::string(nameInfo->name) + "Value";
 	Datum * pairDat = new Datum(l_Name, (DATUM_TYPE) pairtype->type);
 	pairDat->m_subType = (char *) pairtype->extraData;
 

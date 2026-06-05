@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <cctype>
 #include <SDL2/SDL_timer.h>
+#include <string>
 
 #include "os/nowin32/windows.h"
 
@@ -34,21 +35,18 @@ char* _fullpath(char* absolute, const char* relative, size_t bufsize)
 			if(c == '.') hasPoint = true;
 		}
 		if(i > 0 && hasPoint) {
-			const char * path = strndup(relative, i);
-			const char * filename = strdup(relative + i + 1);
+			// Previously strdup/strndup, leaked on every path-not-found.
+			std::string const path(relative, i);
+			std::string const filename(relative + i + 1);
 
-			DIR * dir = opendir(path);
+			DIR * dir = opendir(path.c_str());
 			if (dir) {
 				struct dirent * entry;
 				while ((entry = readdir(dir))) {
-					if (!strcasecmp(filename, entry->d_name)) {
-						size_t plen = strlen(path);
-						size_t nlen = strlen(entry->d_name);
-						char target[plen + nlen + 2];
-						strncpy(target, path, plen);
-						target[plen] = FILE_SEPC;
-						strncpy(target + plen + 1, entry->d_name, nlen + 1);
-						ret = realpath(target, nullptr);
+					if (!strcasecmp(filename.c_str(), entry->d_name)) {
+						std::string const target =
+						    path + FILE_SEPC + entry->d_name;
+						ret = realpath(target.c_str(), nullptr);
 						break;
 					}
 				}

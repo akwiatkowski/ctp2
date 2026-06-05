@@ -648,7 +648,11 @@ bool StringDB::Parse(MBCHAR * filename)
 void StringDB::Export(MBCHAR * file)
 {
 	char buff[_MAX_PATH];
-	MBCHAR *path = new MBCHAR[_MAX_PATH];
+	// Was: 'new MBCHAR[_MAX_PATH]' followed by a 'delete path;' — array
+	// allocated with new[] but freed with non-array delete (UB).  Lived
+	// for years because the Export path is rarely exercised.  Stack
+	// buffer is the same shape as the sibling 'buff' a line above.
+	MBCHAR path[_MAX_PATH];
 	civpaths_Get()->GetSpecificPath(C3DIR_GAMEDATA, path, TRUE);
 	snprintf(buff, sizeof(buff), "%s%s%s", path, FILE_SEP, file);
 
@@ -665,5 +669,4 @@ void StringDB::Export(MBCHAR * file)
 	}
 
 	c3files_fclose(fout);
-	delete path;
 }

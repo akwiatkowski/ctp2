@@ -76,6 +76,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <string>
 
 #if defined(WIN32)
 // Do not define the min and max *macros* in <windows.h>.
@@ -390,9 +391,9 @@ void RecordDescription::AddBitPair(struct namelist *nameInfo, sint32 minSize, si
 	dat->m_bitNum = m_numBits;
 	m_numBits++;
 
-	char * nameValue = (char *) malloc(strlen(dat->m_name) + strlen("Value") + 1);
-	strcpy(nameValue, nameInfo->name);
-	strcat(nameValue, "Value");
+	// Datum's ctor takes std::string by const ref and copies into m_Name;
+	// the raw malloc'd buffer that used to live here leaked on every bit-pair.
+	std::string const nameValue = std::string(nameInfo->name) + "Value";
 	Datum *pairDat = new Datum(nameValue, (DATUM_TYPE) pairtype->type);
 	pairDat->m_subType = (char *)pairtype->extraData;
 

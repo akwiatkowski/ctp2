@@ -219,8 +219,13 @@ bool Order::IsSpecialAttack(UNIT_ORDER_TYPE order)
 
 static GAME_EVENT s_orderToEventMap[UNIT_ORDER_MAX];
 
-GAME_EVENT Order::OrderToEvent(UNIT_ORDER_TYPE order)
+GAME_EVENT Order::OrderToEvent(sint32 order)
 {
+	// Parameter is the underlying-int type, not UNIT_ORDER_TYPE, so the
+	// out-of-range sentinels test_bugfixes.cpp passes (-1, UNIT_ORDER_MAX+100)
+	// don't materialise an enum value with a bit pattern outside the
+	// declared constants — UBSan would flag that as 'load of value N,
+	// which is not a valid value for type UNIT_ORDER_TYPE'.
 	if (order < 0 || order >= UNIT_ORDER_MAX)
 		return GEV_MAX;
 	return s_orderToEventMap[order];

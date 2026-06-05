@@ -88,7 +88,10 @@ public:
 	void operator delete (void *ptr);
 
 	static bool IsSpecialAttack(UNIT_ORDER_TYPE order);
-	static GAME_EVENT OrderToEvent(UNIT_ORDER_TYPE order);
+	// Parameter is plain sint32 (not UNIT_ORDER_TYPE) so out-of-range
+	// sentinels like -1 don't trip UBSan via an enum-load of a bit
+	// pattern with no declared constant.  Range-checked inside.
+	static GAME_EVENT OrderToEvent(sint32 order);
 	static void AssociateEventsWithOrders();
 
 	static sint32 GetCursor(OrderRecord *order);          // cursor id (CURSORINDEX enum value, cast at call site)

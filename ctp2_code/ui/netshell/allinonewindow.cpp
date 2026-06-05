@@ -1621,10 +1621,7 @@ BOOL AllinoneWindow::AssignTribe(
 					g_theCivilisationDB->Get(civ)->GetLeaderNameFemale():
 					g_theCivilisationDB->Get(civ)->GetLeaderNameMale();
 				MBCHAR leader[ dp_PNAMELEN + 1 ];
-				strncpy( leader, stringdb_Get()->GetNameStr( sid ), dp_PNAMELEN);
-
-
-				leader[dp_PNAMELEN] = 0;
+				strlcpy( leader, stringdb_Get()->GetNameStr( sid ), sizeof(leader));
 				aiplayer->SetName( leader );
 			}
 
@@ -4159,7 +4156,7 @@ void AllinoneWindow::SpitOutGameSetup( )
 	{
 		static ns_String excludedUnitInfo( "strings.excludedunitinfo" );
 
-		strncpy( temp, excludedUnitInfo.GetString(), biglen );
+		strlcpy( temp, excludedUnitInfo.GetString(), sizeof(temp) );
 
 		moreinfo[ len - 2 ] = '\0';
 		strcat( temp, moreinfo );
@@ -4184,7 +4181,7 @@ void AllinoneWindow::SpitOutGameSetup( )
 		static ns_String excludedImprovementInfo(
 			"strings.excludedimprovementinfo" );
 
-		strncpy( temp, excludedImprovementInfo.GetString(), biglen );
+		strlcpy( temp, excludedImprovementInfo.GetString(), sizeof(temp) );
 
 		moreinfo[ len - 2 ] = '\0';
 		strcat( temp, moreinfo );
@@ -4208,7 +4205,7 @@ void AllinoneWindow::SpitOutGameSetup( )
 	{
 		static ns_String excludedWonderInfo( "strings.excludedwonderinfo" );
 
-		strncpy( temp, excludedWonderInfo.GetString(), biglen );
+		strlcpy( temp, excludedWonderInfo.GetString(), sizeof(temp) );
 
 		moreinfo[ len - 2 ] = '\0';
 		strcat( temp, moreinfo );

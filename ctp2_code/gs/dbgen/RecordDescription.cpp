@@ -1114,7 +1114,7 @@ void RecordDescription::ExportTokenCases(FILE *outfile)
 					fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, m_%s))\n", dat->m_subType, dat->m_name);
 					break;
 				case DATUM_STRUCT:
-					fprintf(outfile, "                if(!%sRecord::%s::ParseInArray(lex, &m_%s, &m_num%s))\n", m_name, dat->m_subType, dat->m_name, dat->m_name);
+					fprintf(outfile, "                if(!%sRecord::%s::ParseInArray(lex, m_%s))\n", m_name, dat->m_subType, dat->m_name);
 					break;
 				default:
 					Assert(0);
@@ -1246,7 +1246,7 @@ void RecordDescription::ExportDefaultToken(FILE *outfile)
 				fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, m_%s)) {\n", dat->m_subType, dat->m_name);
 				break;
 			case DATUM_STRUCT:
-				fprintf(outfile, "                if(!%sRecord::%s::ParseInArray(lex, &m_%s, &m_num%s)) {\n", m_name, dat->m_subType, dat->m_name, dat->m_name);
+				fprintf(outfile, "                if(!%sRecord::%s::ParseInArray(lex, m_%s)) {\n", m_name, dat->m_subType, dat->m_name);
 				break;
 			default:
 				Assert(0);

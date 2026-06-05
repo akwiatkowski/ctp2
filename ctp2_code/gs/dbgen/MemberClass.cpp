@@ -281,9 +281,11 @@ void MemberClass::ExportMethods(FILE *outfile)
 	if(m_parseNum > 0){
 		fprintf(outfile, "        sint32 ParseNum(DBLexer *lex);\n");
 	}
+	fprintf(outfile,     "        static sint32 ParseInArray(DBLexer *lex, std::vector<%s> &array);\n", m_name);
 	fprintf(outfile,     "        static sint32 ParseInArray(DBLexer *lex, %s **array, sint32 *numElements);\n", m_name);
 	fprintf(outfile,     "        static sint32 ParseInArray(DBLexer *lex, %s *array, sint32 *numElements, sint32 maxSize);\n", m_name);
 	if(canParseSequentially) {
+		fprintf(outfile, "        static sint32 ParseInArraySequential(DBLexer *lex, std::vector<%s> &array);\n", m_name);
 		fprintf(outfile, "        static sint32 ParseInArraySequential(DBLexer *lex, %s **array, sint32 *numElements);\n", m_name);
 		fprintf(outfile, "        static sint32 ParseInArraySequential(DBLexer *lex, %s *array, sint32 *numElements, sint32 maxSize);\n", m_name);
 	}
@@ -570,20 +572,27 @@ void MemberClass::ExportParser(FILE *outfile, char *recordName)
 	fprintf(outfile, "    return result;\n");
 	fprintf(outfile, "}\n\n");
 
+	// Vector-based primary form.
+	fprintf(outfile, "sint32 %sRecord::%s::ParseInArray(DBLexer *lex, std::vector<%s> &array)\n",
+			recordName, m_name, m_name);
+	fprintf(outfile, "{\n");
+	fprintf(outfile, "    array.emplace_back();\n");
+	fprintf(outfile, "    array.back().Parse(lex);\n");
+	fprintf(outfile, "    return 1;\n");
+	fprintf(outfile, "}\n\n");
+
+	// Legacy T**+count adapter — copies through a vector, transfers ownership back.
 	fprintf(outfile, "sint32 %sRecord::%s::ParseInArray(DBLexer *lex, %s **array, sint32 *numElements)\n",
 			recordName, m_name, m_name);
 	fprintf(outfile, "{\n");
-	fprintf(outfile, "    if(*numElements > 0) {\n");
-	fprintf(outfile, "        %s *oldArray = *array;\n", m_name);
-	fprintf(outfile, "        *array = new %s[(*numElements) + 1];\n", m_name);
-	fprintf(outfile, "        for (int i=0; i < (*numElements); i++)\n");
-	fprintf(outfile, "             (*array)[i] = oldArray[i];\n");
-	fprintf(outfile, "        delete [] oldArray;\n");
-	fprintf(outfile, "    } else {\n");
-	fprintf(outfile, "        *array = new %s[1];\n", m_name);
-	fprintf(outfile, "    }\n");
-	fprintf(outfile, "    (*array)[*numElements].Parse(lex);\n");
-	fprintf(outfile, "    *numElements += 1;\n");
+	fprintf(outfile, "    std::vector<%s> tmp;\n", m_name);
+	fprintf(outfile, "    tmp.reserve((*numElements) + 1);\n");
+	fprintf(outfile, "    for (sint32 i=0; i < (*numElements); ++i) tmp.push_back((*array)[i]);\n");
+	fprintf(outfile, "    if (!ParseInArray(lex, tmp)) return 0;\n");
+	fprintf(outfile, "    delete [] *array;\n");
+	fprintf(outfile, "    *array = new %s[tmp.size()];\n", m_name);
+	fprintf(outfile, "    for (size_t i=0; i < tmp.size(); ++i) (*array)[i] = tmp[i];\n");
+	fprintf(outfile, "    *numElements = static_cast<sint32>(tmp.size());\n");
 	fprintf(outfile, "    return 1;\n");
 	fprintf(outfile, "}\n\n");
 
@@ -599,20 +608,27 @@ void MemberClass::ExportParser(FILE *outfile, char *recordName)
 	fprintf(outfile, "}\n\n");
 
 	if(canParseSequentially) {
+		// Vector-based primary form.
+		fprintf(outfile, "sint32 %sRecord::%s::ParseInArraySequential(DBLexer *lex, std::vector<%s> &array)\n",
+				recordName, m_name, m_name);
+		fprintf(outfile, "{\n");
+		fprintf(outfile, "    array.emplace_back();\n");
+		fprintf(outfile, "    array.back().ParseFullySequential(lex);\n");
+		fprintf(outfile, "    return 1;\n");
+		fprintf(outfile, "}\n\n");
+
+		// Legacy T**+count adapter.
 		fprintf(outfile, "sint32 %sRecord::%s::ParseInArraySequential(DBLexer *lex, %s **array, sint32 *numElements)\n",
 				recordName, m_name, m_name);
 		fprintf(outfile, "{\n");
-		fprintf(outfile, "    if(*numElements > 0) {\n");
-		fprintf(outfile, "        %s *oldArray = *array;\n", m_name);
-		fprintf(outfile, "        *array = new %s[(*numElements) + 1];\n", m_name);
-		fprintf(outfile, "        for (int i=0; i < (*numElements); i++)\n");
-		fprintf(outfile, "             (*array)[i] = oldArray[i];\n");
-		fprintf(outfile, "        delete [] oldArray;\n");
-		fprintf(outfile, "    } else {\n");
-		fprintf(outfile, "        *array = new %s[1];\n", m_name);
-		fprintf(outfile, "    }\n");
-		fprintf(outfile, "    (*array)[*numElements].ParseFullySequential(lex);\n");
-		fprintf(outfile, "    *numElements += 1;\n");
+		fprintf(outfile, "    std::vector<%s> tmp;\n", m_name);
+		fprintf(outfile, "    tmp.reserve((*numElements) + 1);\n");
+		fprintf(outfile, "    for (sint32 i=0; i < (*numElements); ++i) tmp.push_back((*array)[i]);\n");
+		fprintf(outfile, "    if (!ParseInArraySequential(lex, tmp)) return 0;\n");
+		fprintf(outfile, "    delete [] *array;\n");
+		fprintf(outfile, "    *array = new %s[tmp.size()];\n", m_name);
+		fprintf(outfile, "    for (size_t i=0; i < tmp.size(); ++i) (*array)[i] = tmp[i];\n");
+		fprintf(outfile, "    *numElements = static_cast<sint32>(tmp.size());\n");
 		fprintf(outfile, "    return 1;\n");
 		fprintf(outfile, "}\n\n");
 
@@ -693,7 +709,7 @@ void MemberClass::ExportTokenCases(FILE *outfile, char *recordName)
 					fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, m_%s)) {\n", dat->m_subType, dat->m_name);
 					break;
 				case DATUM_STRUCT:
-					fprintf(outfile, "                if(!%sRecord::%s::ParseInArray(lex, &m_%s, &m_num%s)) {\n", recordName, dat->m_subType, dat->m_name, dat->m_name);
+					fprintf(outfile, "                if(!%sRecord::%s::ParseInArray(lex, m_%s)) {\n", recordName, dat->m_subType, dat->m_name);
 					break;
 				default:
 					Assert(0);
@@ -818,7 +834,7 @@ void MemberClass::ExportDefaultToken(FILE *outfile, char *recordName)
 				fprintf(outfile, "                if(!g_the%sDB->ParseRecordInArray(lex, m_%s)) {\n", dat->m_subType, dat->m_name);
 				break;
 			case DATUM_STRUCT:
-				fprintf(outfile, "                if(!%sRecord::%s::ParseInArraySequential(lex, &m_%s, &m_num%s)) {\n", recordName, dat->m_subType, dat->m_name, dat->m_name);
+				fprintf(outfile, "                if(!%sRecord::%s::ParseInArraySequential(lex, m_%s)) {\n", recordName, dat->m_subType, dat->m_name);
 				break;
 			default:
 				Assert(0);

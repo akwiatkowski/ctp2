@@ -185,6 +185,7 @@ bool Datum::IsUnboundedPodArray() const
 	case DATUM_FLOAT:
 	case DATUM_STRINGID:
 	case DATUM_RECORD:    // stored as sint32 index — same vector form
+	case DATUM_STRUCT:    // generated struct with default ctor + copy — std::vector compatible
 		return true;
 	default:
 		return false;
@@ -956,11 +957,16 @@ void Datum::ExportResolver(FILE  *outfile)
 	}
 	else if(m_type == DATUM_STRUCT)
 	{
-		if(m_maxSize >= 0)
+		if(m_maxSize >= 0 || m_maxSize == k_MAX_SIZE_VARIABLE)
 		{
+			char const *count = IsUnboundedPodArray()
+				? "static_cast<sint32>(m_%s.size())"
+				: "m_num%s";
 			fprintf(outfile, "    {\n");
 			fprintf(outfile, "        sint32 i;\n");
-			fprintf(outfile, "        for(i = 0; i < m_num%s; i++) {\n", m_name);
+			fprintf(outfile, "        for(i = 0; i < ");
+			fprintf(outfile, count, m_name);
+			fprintf(outfile, "; i++) {\n");
 			fprintf(outfile, "            m_%s[i].ResolveDBReferences();\n", m_name);
 			fprintf(outfile, "        }\n");
 			fprintf(outfile, "    }\n");

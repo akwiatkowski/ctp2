@@ -32,6 +32,8 @@
 //
 //----------------------------------------------------------------------------
 
+#include <vector>
+
 #include "ctp/c3.h"
 #include "gfx/tilesys/tileset.h"
 
@@ -315,6 +317,7 @@ void TileSet::LoadTransitions(FILE *file)
 
 		for (size_t k = 0; k < k_TRANSITIONS_PER_TILE; ++k)
         {
+			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 	        Pixel16	* xData = new Pixel16[transitionSize/2];
 			count = c3files_fread((void *)xData, 1, transitionSize, file);
 			if (count != transitionSize) goto Error;
@@ -337,11 +340,13 @@ void TileSet::LoadTransforms(FILE *file)
 	    uint16		numTransforms;
 		c3files_fread((void *)&numTransforms, 1, sizeof(numTransforms), file);
 
+		// TODO(phase-2): class-member buffer — wave 3 migration (nested T** pointer array)
 		m_transforms    = new sint16*[numTransforms];
 		m_numTransforms = numTransforms;
 
 		for (uint16 i = 0; i < numTransforms; ++i)
         {
+			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 	        sint16 * transform = new sint16[k_TRANSFORM_SIZE];
 			c3files_fread((void *)transform, 1, sizeof(sint16)*k_TRANSFORM_SIZE, file);
 			m_transforms[i] = transform;
@@ -357,12 +362,15 @@ void TileSet::LoadRiverTransforms(FILE *file)
 		c3files_fread((void *)&numRiverTransforms, 1, sizeof(numRiverTransforms), file);
 
 		if (numRiverTransforms > 0) {
+			// TODO(phase-2): class-member buffer — wave 3 migration (nested T** pointer array)
 			m_riverTransforms = new sint16*[numRiverTransforms];
 			m_numRiverTransforms = numRiverTransforms;
+			// TODO(phase-2): class-member buffer — wave 3 migration (nested T** pointer array)
 			m_riverData = new Pixel16*[numRiverTransforms];
 
 			for (uint16 i = 0; i < numRiverTransforms; ++i)
             {
+				// TODO(phase-2): ownership transfer out of function — needs separate strategy
 	            sint16 *    transform = new sint16[k_RIVER_TRANSFORM_SIZE];
 				c3files_fread((void *)transform, 1, sizeof(sint16)*k_RIVER_TRANSFORM_SIZE, file);
 				m_riverTransforms[i] = transform;
@@ -372,7 +380,8 @@ void TileSet::LoadRiverTransforms(FILE *file)
 
 				if (len > 0)
                 {
-	                Pixel16	* riverData = new Pixel16[len/2];
+                	// TODO(phase-2): ownership transfer out of function — needs separate strategy
+                	Pixel16	* riverData = new Pixel16[len/2];
 					c3files_fread((void *)riverData, 1, len, file);
 					m_riverData[i] = riverData;
 				}
@@ -402,6 +411,7 @@ void TileSet::LoadImprovements(FILE *file)
 
 			if (len > 0)
             {
+				// TODO(phase-2): ownership transfer out of function — needs separate strategy
 				Pixel16	*   impData = new Pixel16[len/2];
 				c3files_fread((void *)impData, 1, len, file);
 				m_improvementData[impNum] = impData;
@@ -460,7 +470,9 @@ void TileSet::LoadMapIcons()
 	Pixel16		*tga;
 	Pixel16		*data;
 
+	// TODO(phase-2): class-member buffer — wave 3 migration (nested T** pointer array)
 	m_mapIcons          = new Pixel16*[g_theMapIconDB->NumRecords()];
+	// TODO(phase-2): class-member buffer — wave 3 migration
 	m_mapIconDimensions = new POINT[g_theMapIconDB->NumRecords()];
 	for (sint32 i = 0; i < g_theMapIconDB->NumRecords(); ++i)
 	{
@@ -774,6 +786,7 @@ void TileSet::QuickLoad()
 
 			if (c3files_fseek(file, 0, SEEK_SET)) goto Error;
 
+			// TODO(phase-2): class-member buffer — wave 3 migration
 			m_tileSetData = new uint8[fileSize];
 		}
         else

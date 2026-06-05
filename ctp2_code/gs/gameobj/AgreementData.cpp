@@ -480,6 +480,7 @@ void AgreementData::ExtractPlayer(sint32 indexId, sint32 memberId, MBCHAR *sExpa
 	switch (memberId)
 		{
 		case 0 :
+			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 			strcpy(sExpanded, civ->GetLeaderName()) ;
 			break ;
 
@@ -752,6 +753,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 
 			if (!pInput) {
 				c3errors_ErrorDialog("error", "malformed class string") ;
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(sInterpreted, msg);
 				return;
 			}
@@ -776,6 +778,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 				*p = 0 ;
 				if (!pToken) {
 					c3errors_ErrorDialog("error", "malformed class string") ;
+					// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 					strcpy(sInterpreted, msg);
 					return;
 				}
@@ -785,7 +788,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 			else
 				sNum[0] = 0 ;
 
-			strcpy(sMember, pToken) ;
+			strlcpy(sMember, pToken, sizeof(sMember)) ;
 
 			for (classId=0; varList[classId].sClass && stricmp(varList[classId].sClass, sClass) != 0; classId++)
 				;
@@ -793,6 +796,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 			Assert(varList[classId].sClass) ;
 			if (!varList[classId].sClass) {
 				c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "MESSAGE_UNKNOWN_VARIABLE") ;
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(sInterpreted, msg);
 				return;
 			}
@@ -803,6 +807,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 
 				if (*p) {
 					c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "AGREEMENT_ERROR_INDEX_OUT_OF_BOUNDS") ;
+					// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 					strcpy(sInterpreted, msg);
 					return;
 				}
@@ -812,6 +817,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 				indexId-- ;
 				if (indexId<0) {
 					c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "AGREEMENT_ERROR_INDEX_OUT_OF_BOUNDS") ;
+					// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 					strcpy(sInterpreted, msg);
 					return;
 				}
@@ -826,6 +832,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 
 			if (!varList[memberId].sMember)	{
 				c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "MESSAGE_UNKNOWN_VARIABLE") ;
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(sInterpreted, msg);
 				return;
 			}
@@ -857,12 +864,14 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 
 					break ;
 
-				default :
-					c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "AGREEMENT_ERROR_UNKNOWN_VARIABLE") ;
-					strcpy(sInterpreted, msg);
-					return;
+			default :
+				c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "AGREEMENT_ERROR_UNKNOWN_VARIABLE") ;
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+				strcpy(sInterpreted, msg);
+				return;
 				}
 
+			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 			strcpy(pOutput, sExpanded) ;
 
 			pOutput += strlen(sExpanded) ;
@@ -892,85 +901,86 @@ void AgreementData::ToString(MBCHAR *s)
 	switch (m_agreement)
 		{
 		case AGREEMENT_TYPE_DEMAND_ADVANCE :
-			strcpy(msg, "DIPxxx3_AGREEMENT_DEMAND_ADVANCE") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_DEMAND_ADVANCE", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_DEMAND_CITY :
-			strcpy(msg, "DIPxxx3_AGREEMENT_DEMAND_CITY") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_DEMAND_CITY", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_DEMAND_MAP :
-			strcpy(msg, "DIPxxx3_AGREEMENT_DEMAND_MAP") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_DEMAND_MAP", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_DEMAND_GOLD :
-			strcpy(msg, "DIPxxx3_AGREEMENT_DEMAND_GOLD") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_DEMAND_GOLD", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_DEMAND_ATTACK_ENEMY :
-			strcpy(msg, "DIPxxx3_AGREEMENT_DEMAND_ATTACK_ENEMY") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_DEMAND_ATTACK_ENEMY", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_OFFER_ADVANCE :
-			strcpy(msg, "DIPxxx3_AGREEMENT_OFFER_ADVANCE") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_OFFER_ADVANCE", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_OFFER_CITY :
-			strcpy(msg, "DIPxxx3_AGREEMENT_OFFER_CITY") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_OFFER_CITY", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_OFFER_MAP :
-			strcpy(msg, "DIPxxx3_AGREEMENT_OFFER_MAP") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_OFFER_MAP", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_OFFER_GOLD :
-			strcpy(msg, "DIPxxx3_AGREEMENT_OFFER_GOLD") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_OFFER_GOLD", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_EXCHANGE_ADVANCE :
-			strcpy(msg, "DIPxxx3_AGREEMENT_EXCHANGE_ADVANCE") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_EXCHANGE_ADVANCE", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_EXCHANGE_CITY :
-			strcpy(msg, "DIPxxx3_AGREEMENT_EXCHANGE_CITY") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_EXCHANGE_CITY", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_EXCHANGE_MAP :
-			strcpy(msg, "DIPxxx3_AGREEMENT_EXCHANGE_MAP") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_EXCHANGE_MAP", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_NO_PIRACY :
-			strcpy(msg, "DIPxxx3_AGREEMENT_NO_PIRACY") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_NO_PIRACY", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_DEMAND_STOP_TRADE :
-			strcpy(msg, "DIPxxx1_AGREEMENT_STOP_TRADING_WITH") ;
+			strlcpy(msg, "DIPxxx1_AGREEMENT_STOP_TRADING_WITH", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_DEMAND_LEAVE_OUR_LANDS :
-			strcpy(msg, "DIPxxx2_AGREEMENT_LEAVE_OUR_LANDS") ;
+			strlcpy(msg, "DIPxxx2_AGREEMENT_LEAVE_OUR_LANDS", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_REDUCE_POLLUTION :
-			strcpy(msg, "DIPxxx3_AGREEMENT_REDUCE_POLLUTION") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_REDUCE_POLLUTION", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_CEASE_FIRE :
-			strcpy(msg, "DIPxxx3_AGREEMENT_CEASE_FIRE") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_CEASE_FIRE", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_PACT_CAPTURE_CITY :
-			strcpy(msg, "DIPxxx3_AGREEMENT_CAPTURE_CITY") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_CAPTURE_CITY", sizeof(msg)) ;
 			break ;
 
 		case AGREEMENT_TYPE_PACT_END_POLLUTION :
-			strcpy(msg, "DIPxxx3_AGREEMENT_END_POLLUTION") ;
+			strlcpy(msg, "DIPxxx3_AGREEMENT_END_POLLUTION", sizeof(msg)) ;
 			break ;
 
 		default :
 			Assert(FALSE) ;
 
 			c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "AGREEMENT_ERROR_UNKNOWN_AGREEMENT") ;
+			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 			strcpy(s, "Unknown diplomatic agreement type") ;
 			break ;
 

@@ -423,6 +423,7 @@ void SpriteFile::ReadSpriteDataBasic(Sprite *s)
 	}
 
 	size        = msizes[0];
+	// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
 	ActualData  = (Pixel16 *)new uint8[size];
 	ReadData((void *)ActualData, size);
 
@@ -495,6 +496,7 @@ void SpriteFile::ReadSpriteDataFull(Sprite *s)
 	for (i=0; i<s->GetNumFrames(); i++)
 	{
 		uint32      size        = msizes[i];
+		// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
 		Pixel16 *   ActualData  = (Pixel16 *) new uint8[size];
 		ReadData((void *)ActualData, size);
 		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth()/2, s->GetHeight()/2, size);
@@ -609,6 +611,7 @@ void SpriteFile::ReadFacedSpriteDataBasic(FacedSprite *s)
 
 	      // Read small size sprites (zoomed out)
 		size = msizes[j][0];
+		// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
 		ActualData = (Pixel16 *)new uint8[size];
 		ReadData((void *)ActualData, size);
 		spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth()/2, s->GetHeight()/2, size);
@@ -683,6 +686,7 @@ void SpriteFile::ReadFacedSpriteDataFull(FacedSprite *s)
 		for (i=0; i<s->GetNumFrames(); i++)
 		{
 			uint32 size = msizes[j][i];
+			// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
 			ActualData= (Pixel16 *) new uint8[size];
 			ReadData((void *)ActualData, size);
 			spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth()/2, s->GetHeight()/2, size);
@@ -780,6 +784,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 			uint32 size = ssizes[j][i];
 			if(size != 0)
 			{
+				// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
 				data = (Pixel16 *) new uint8[size];
 				ReadData((void *)data, size);
 					spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth(), s->GetHeight(), size);
@@ -796,6 +801,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 	        uint32  size = msizes[j][i];
 			if(size != 0)
 			{
+				// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
 				data = (Pixel16 *) new uint8[size];
 				ReadData((void *)data, size);
 				spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth()/2, s->GetHeight()/2, size);
@@ -814,6 +820,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 				uint32 size = sh_ssizes[j][i];
 				if(size != 0)
 				{
+					// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
 					data = (Pixel16 *) new uint8[size];
 					ReadData((void *)data, size);
 					spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth(), s->GetHeight(), size);
@@ -830,6 +837,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 				uint32 size = sh_msizes[j][i];
 				if(size != 0)
 				{
+					// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
 					data = (Pixel16 *) new uint8[size];
 					ReadData((void *)data, size);
 					spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth()/2, s->GetHeight()/2, size);
@@ -2305,6 +2313,7 @@ SpriteFile::DeCompressData(void *Data, size_t CompressedLen, size_t ActualLen)
 uint8 *
 SpriteFile::CompressData_Default  (void *Data, size_t &DataLen)
 {
+	// TODO(phase-2): ownership transfer out of function — needs separate strategy
 	uint8 *ReturnVal = new uint8[DataLen];
 
 	memcpy((void *)ReturnVal,Data,DataLen);
@@ -2315,6 +2324,7 @@ SpriteFile::CompressData_Default  (void *Data, size_t &DataLen)
 uint8 *
 SpriteFile::DeCompressData_Default(void *Data, size_t CompressedLen, size_t ActualLen)
 {
+  // TODO(phase-2): ownership transfer out of function — needs separate strategy
   uint8 *ReturnVal = new uint8[ActualLen];
 
   memcpy((void *)ReturnVal,Data,ActualLen);
@@ -2441,6 +2451,7 @@ overrun: memcpy(p_dst_first+LZW1_FLAG_BYTES,p_src_first,src_len);
 
 end_of_compression:
 
+    // TODO(phase-2): ownership transfer out of function — needs separate strategy
     uint8 * retval  = new uint8[p_dst_len];
     DataLen = p_dst_len;
     memcpy(retval, g_compression_buff, DataLen);
@@ -2455,6 +2466,7 @@ SpriteFile::DeCompressData_LZW1(void *Data, size_t CompressedLen, size_t ActualL
  size_t  src_len=CompressedLen;
  size_t  dst_len=ActualLen;
 
+ // TODO(phase-2): ownership transfer out of function — needs separate strategy
  uint8  *ReturnVal  = new uint8[ActualLen];
  uint8  *p_src_first=(uint8 *)Data;
  uint8  *p_dst_first=ReturnVal;

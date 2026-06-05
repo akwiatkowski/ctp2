@@ -37,6 +37,7 @@
 
 class CTPRecord;
 
+#include <vector>
 #include "os/include/ctp2_inttypes.h"      // sint32
 #include "gs/database/dbtypes.h"            // StringId
 class DBLexer;
@@ -72,6 +73,15 @@ public:
 	virtual const char *GetNameText() const;
 	void SetTextName(const char *text);
 
+	// Vector-based API — preferred for dynamically-grown arrays.
+	// Caller passes a vector; we append parsed values.  No manual new[]/delete[].
+	bool ParseIntInArray(DBLexer *lex, std::vector<sint32> &array);
+	bool ParseFloatInArray(DBLexer *lex, std::vector<double> &array);
+	bool ParseFileInArray(DBLexer *lex, std::vector<char *> &array);
+	bool ParseStringIdInArray(DBLexer *lex, std::vector<sint32> &array);
+
+	// Legacy T** + count API — thin wrappers over the vector form.
+	// Kept for generated record code that hasn't migrated yet.
 	bool ParseIntInArray(DBLexer *lex, sint32 **array, sint32 *numElements);
 	bool ParseFloatInArray(DBLexer *lex, double **array, sint32 *numElements);
 	bool ParseFileInArray(DBLexer *lex, char ***array, sint32 *numElements);

@@ -42,120 +42,111 @@
 
 sint32 const CTPRecord::INDEX_INVALID;
 
-bool CTPRecord::ParseIntInArray(DBLexer *lex, sint32 **array, sint32 *numElements)
+// Vector-based primary form.
+bool CTPRecord::ParseIntInArray(DBLexer *lex, std::vector<sint32> &array)
 {
 	if(lex->PeekAhead() != k_Token_Int) {
 		DBERROR(("Expected integer"));
 		return false;
 	}
-
-	do{
+	do {
 		lex->GetToken();
-		sint32 value = atoi(lex->GetTokenText());
-		if(*numElements > 0) {
-			// TODO(phase-2): ownership transfer out of function — needs separate strategy
-			sint32 *oldArray = *array;
-			*array = new sint32[*numElements + 1];
-			memcpy(*array, oldArray, (*numElements) * sizeof(sint32));
-			delete [] oldArray;
-		} else {
-            delete [] *array;
-			// TODO(phase-2): ownership transfer out of function — needs separate strategy
-			*array = new sint32[1];
-		}
-		(*array)[*numElements] = value;
-		*numElements += 1;
-	}while(lex->PeekAhead() == k_Token_Int);
+		array.push_back(atoi(lex->GetTokenText()));
+	} while(lex->PeekAhead() == k_Token_Int);
 	return true;
 }
 
-bool CTPRecord::ParseFloatInArray(DBLexer *lex, double **array, sint32 *numElements)
+// Legacy T**+count adapter — copies into a vector, delegates, copies out.
+// Generated record code still uses this form; safe internally via the vector.
+bool CTPRecord::ParseIntInArray(DBLexer *lex, sint32 **array, sint32 *numElements)
+{
+	std::vector<sint32> tmp(*array, *array + *numElements);
+	if(!ParseIntInArray(lex, tmp)) return false;
+	delete [] *array;
+	*array = new sint32[tmp.size()];
+	std::copy(tmp.begin(), tmp.end(), *array);
+	*numElements = static_cast<sint32>(tmp.size());
+	return true;
+}
+
+bool CTPRecord::ParseFloatInArray(DBLexer *lex, std::vector<double> &array)
 {
 	if(lex->PeekAhead() != k_Token_Int && lex->PeekAhead() != k_Token_Float) {
 		DBERROR(("Expected number"));
 		return false;
 	}
-
-	do{
+	do {
 		lex->GetToken();
-		double value = atof(lex->GetTokenText());
-		if(*numElements > 0) {
-			// TODO(phase-2): ownership transfer out of function — needs separate strategy
-			double *oldArray = *array;
-			*array = new double[*numElements + 1];
-			memcpy(*array, oldArray, (*numElements) * sizeof(double));
-			delete [] oldArray;
-		} else {
-            delete [] *array;
-			// TODO(phase-2): ownership transfer out of function — needs separate strategy
-			*array = new double[1];
-		}
-		(*array)[*numElements] = value;
-		*numElements += 1;
-	}while(lex->PeekAhead() == k_Token_Int || lex->PeekAhead()== k_Token_Float);
+		array.push_back(atof(lex->GetTokenText()));
+	} while(lex->PeekAhead() == k_Token_Int || lex->PeekAhead() == k_Token_Float);
 	return true;
 }
 
-bool CTPRecord::ParseFileInArray(DBLexer *lex, char ***array, sint32 *numElements)
+bool CTPRecord::ParseFloatInArray(DBLexer *lex, double **array, sint32 *numElements)
+{
+	std::vector<double> tmp(*array, *array + *numElements);
+	if(!ParseFloatInArray(lex, tmp)) return false;
+	delete [] *array;
+	*array = new double[tmp.size()];
+	std::copy(tmp.begin(), tmp.end(), *array);
+	*numElements = static_cast<sint32>(tmp.size());
+	return true;
+}
+
+bool CTPRecord::ParseFileInArray(DBLexer *lex, std::vector<char *> &array)
 {
 	if(lex->PeekAhead() != k_Token_String) {
 		DBERROR(("Expected filename"));
 		return false;
 	}
-
-	do{
+	do {
 		lex->GetToken();
-		const char * value = lex->GetTokenText();
-
-		if(*numElements > 0) {
-			// TODO(phase-2): ownership transfer out of function — needs separate strategy
-			char **oldArray = *array;
-			*array = new char *[*numElements + 1];
-			memcpy(*array, oldArray, (*numElements) * sizeof(char *));
-			delete [] oldArray;
-		} else {
-            delete [] *array;
-			// TODO(phase-2): ownership transfer out of function — needs separate strategy
-			*array = new char *[1];
-		}
-		// TODO(phase-2): ownership transfer out of function — needs separate strategy
-		(*array)[*numElements] = new char[strlen(value) + 1];
-		strcpy((*array)[*numElements], value);
-		*numElements += 1;
-	}while(lex->PeekAhead() == k_Token_String);
+		const char *value = lex->GetTokenText();
+		char *owned = new char[strlen(value) + 1];
+		strcpy(owned, value);
+		array.push_back(owned);
+	} while(lex->PeekAhead() == k_Token_String);
 	return true;
 }
 
-bool CTPRecord::ParseStringIdInArray(DBLexer *lex, sint32 **array, sint32 *numElements)
+bool CTPRecord::ParseFileInArray(DBLexer *lex, char ***array, sint32 *numElements)
+{
+	std::vector<char *> tmp(*array, *array + *numElements);
+	if(!ParseFileInArray(lex, tmp)) return false;
+	delete [] *array;
+	*array = new char *[tmp.size()];
+	std::copy(tmp.begin(), tmp.end(), *array);
+	*numElements = static_cast<sint32>(tmp.size());
+	return true;
+}
+
+bool CTPRecord::ParseStringIdInArray(DBLexer *lex, std::vector<sint32> &array)
 {
 	if(lex->PeekAhead() != k_Token_Name) {
 		DBERROR(("Expected stringid"));
 		return false;
 	}
-
-	do{
+	do {
 		lex->GetToken();
-		const char * value = lex->GetTokenText();
-
-		if(*numElements > 0) {
-			// TODO(phase-2): ownership transfer out of function — needs separate strategy
-			sint32 *oldArray = *array;
-			*array = new sint32[(*numElements) + 1];
-			memcpy(*array, oldArray, (*numElements) * sizeof(sint32));
-			delete [] oldArray;
-		} else {
-            delete [] *array;
-			// TODO(phase-2): ownership transfer out of function — needs separate strategy
-			*array = new sint32[1];
-		}
+		const char *value = lex->GetTokenText();
 		sint32 id;
 		if(!stringdb_Get()->GetStringID(value, id)) {
 			DBERROR(("%s not in string database", value));
 			return false;
 		}
-		(*array)[*numElements] = id;
-		*numElements += 1;
-	}while(lex->PeekAhead() == k_Token_Name);
+		array.push_back(id);
+	} while(lex->PeekAhead() == k_Token_Name);
+	return true;
+}
+
+bool CTPRecord::ParseStringIdInArray(DBLexer *lex, sint32 **array, sint32 *numElements)
+{
+	std::vector<sint32> tmp(*array, *array + *numElements);
+	if(!ParseStringIdInArray(lex, tmp)) return false;
+	delete [] *array;
+	*array = new sint32[tmp.size()];
+	std::copy(tmp.begin(), tmp.end(), *array);
+	*numElements = static_cast<sint32>(tmp.size());
 	return true;
 }
 

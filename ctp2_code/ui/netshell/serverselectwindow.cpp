@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -274,7 +274,7 @@ void ServerSelectWindow::OKButtonAction::Execute(
 
 	if(item) {
 
-		strncpy( g_serverName, item->GetText(), 100 );
+		strlcpy( g_serverName, item->GetText(), sizeof(g_serverName) );
 
 		NETFunc::Server *server = item->GetNetShellObject()->GetNETFuncObject();
 		netfunc_Get()->SetServer(server);
@@ -284,7 +284,7 @@ void ServerSelectWindow::OKButtonAction::Execute(
 	}
 	else {
 
-		strncpy( g_serverName, "", 100 );
+		strlcpy( g_serverName, "", sizeof(g_serverName) );
 	}
 }
 
@@ -295,7 +295,7 @@ void ServerSelectWindow::CancelButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	strncpy( g_serverName, "", 100 );
+	strlcpy( g_serverName, "", sizeof(g_serverName) );
 
 	netfunc_Get()->Disconnect();
 }

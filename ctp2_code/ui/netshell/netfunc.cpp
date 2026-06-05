@@ -197,6 +197,7 @@ int adialup_willdial()
 void NETFunc::StringMix(int c, char *mix, char *msg, ...) {
 	va_list al;
 	va_start(al, msg);
+	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 	strcpy(mix, msg);
 
 	char * arg = va_arg(al, char *);
@@ -208,6 +209,7 @@ void NETFunc::StringMix(int c, char *mix, char *msg, ...) {
 		char * next = strstr(mix, str);
 		if(next) {
 			char *tmp = strdup(next + strlen(str));
+			// TODO(phase-2): strcpy → strlcpy — dst is expression (`next + strlen(arg)`), capacity unknown at call site
 			strcpy(next + strlen(arg), tmp);
 			strncpy(next, arg, strlen(arg));
 			free(tmp);
@@ -221,6 +223,7 @@ void NETFunc::StringMix(int c, char *mix, char *msg, ...) {
 
 
 char *NETFunc::StringDup(char *s) {
+    // TODO(phase-2): strcpy → strlcpy — dst is expression (`new char[...]`), capacity unknown at call site
     return (s) ? strcpy(new char[strlen(s) + 1], s) : nullptr;
 }
 
@@ -790,7 +793,7 @@ NETFunc::Transport::TYPE NETFunc::GetTransportType(const comm_driverInfo_t *c) {
 
 NETFunc::TransportList::TransportList() {
 	dp_transport_t transport;
-	strcpy (transport.fname, DllPath);
+	strlcpy(transport.fname, DllPath, sizeof(transport.fname));
 	memset(&key, 0, sizeof(KeyStruct));
 	key.len = 1;
 	result = dpEnumTransports(&transport, CallBack, this);

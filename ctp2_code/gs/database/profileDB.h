@@ -448,11 +448,11 @@ public:
     //Added by Martin G�hmann to avoid an assert if NumPlayer is under the maximum supported players.
     void SetNPlayers(uint32 n)                          { Assert((n > 1) && (n <= k_MAX_PLAYERS)); m_nPlayers = n; }
 
-    void SetLeaderName(MBCHAR const *name)              { strcpy(m_leaderName, name); }
-    void SetCivName(MBCHAR const *name)                 { strcpy(m_civName, name); }
-    void SetSaveNote(MBCHAR const * note)               { strcpy(m_saveNote, note); }
+    void SetLeaderName(MBCHAR const *name)              { strlcpy(m_leaderName, name, sizeof(m_leaderName)); }
+    void SetCivName(MBCHAR const *name)                 { strlcpy(m_civName, name, sizeof(m_civName)); }
+    void SetSaveNote(MBCHAR const * note)               { strlcpy(m_saveNote, note, sizeof(m_saveNote)); }
     void SetIsSaved(BOOL isSaved)                       { m_isSaved = isSaved; }
-    void SetGameName(MBCHAR const * name)               { strcpy(m_gameName, name); }
+    void SetGameName(MBCHAR const * name)               { strlcpy(m_gameName, name, sizeof(m_gameName)); }
 
     void SetCivIndex(sint32 civ)                        { m_civIndex = civ; }
     void SetPlayerIndex(PLAYER_INDEX index)             { m_playerNumber = index; }
@@ -523,7 +523,7 @@ public:
 
     void SetAttackEveryone(BOOL on)                     { m_attackEveryone = on; }
     void SetAutoSelectFirstUnit(BOOL on)                { m_autoSelectFirstUnit = on; }
-    void SetGameWatchDirectory(MBCHAR *dir)             { strcpy(m_gameWatchDirectory, dir); }
+    void SetGameWatchDirectory(MBCHAR *dir)             { strlcpy(m_gameWatchDirectory, dir, sizeof(m_gameWatchDirectory)); }
     void SetAutoTurnCycle(BOOL on)                      { m_autoTurnCycle = on; }
     void SetNonRandomCivs(BOOL on)                      { m_nonRandomCivs = on; } //2
 

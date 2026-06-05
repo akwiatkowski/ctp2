@@ -996,7 +996,7 @@ LSCivsListItem::LSCivsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, const MBCH
 	if(m_myItem) {
 
 		MBCHAR tempName[ _MAX_PATH + 1 ];
-		strncpy( tempName, name, _MAX_PATH );
+		strlcpy(tempName, name, sizeof(tempName));
 
 		if ( !m_myItem->GetTextFont() )
 			m_myItem->TextReloadFont();
@@ -1041,7 +1041,7 @@ LSGamesListItem::LSGamesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, GameInfo
 		m_itemText->Move(m_itemIcon->Width()+5, m_itemText->Y());
 
 		MBCHAR name[ _MAX_PATH + 1 ];
-		strncpy( name, info->name, _MAX_PATH );
+		strlcpy(name, info->name, sizeof(name));
 
 		if ( !m_itemText->GetTextFont() )
 			m_itemText->TextReloadFont();
@@ -1092,7 +1092,7 @@ LSSavesListItem::LSSavesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, SaveInfo
 		m_itemText->Move(m_itemIcon->Width()+5, m_itemText->Y());
 
 		MBCHAR name[ _MAX_PATH + 1 ];
-		strncpy( name, info->fileName, _MAX_PATH );
+		strlcpy(name, info->fileName, sizeof(name));
 
 		if ( !m_itemText->GetTextFont() )
 			m_itemText->TextReloadFont();

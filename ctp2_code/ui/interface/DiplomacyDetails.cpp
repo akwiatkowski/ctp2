@@ -332,7 +332,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 
 			MBCHAR needEmbassy[k_MAX_NAME_LEN];
 			needEmbassy[0]=0;
-			strcpy(needEmbassy,stringdb_Get()->GetNameStr("str_ldl_DipDetails_NoEmbassy"));
+			strlcpy(needEmbassy,stringdb_Get()->GetNameStr("str_ldl_DipDetails_NoEmbassy"), sizeof(needEmbassy));
 
 			interp[0] = 0;
 			snprintf(interp, sizeof(interp), stringdb_Get()->GetNameStr("str_ldl_DipDetails_Pollution"), player_Get(detailPlayer)->GetPollutionLevel());
@@ -466,7 +466,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 			else
 			{
 				interp[0] = 0;
-				strcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_EmpireSize"));
+				strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_EmpireSize"), sizeof(interp));
 
 				if(strchr(interp, '{'))
 					*strchr(interp,'{')=0;
@@ -475,7 +475,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				st->SetText(interp);
 
 				interp[0] = 0;
-				strcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_Population"));
+				strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_Population"), sizeof(interp));
 				if(strchr(interp, '%'))
 					*strchr(interp,'%')=0;
 				strcat(interp,needEmbassy);
@@ -499,7 +499,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				else
 				{
 					interp[0] = 0;
-					strcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_Capital"));
+					strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_Capital"), sizeof(interp));
 					if(strchr(interp, '{'))
 						*strchr(interp,'{')=0;
 					strcat(interp,needEmbassy);
@@ -508,7 +508,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				}
 
 				interp[0] = 0;
-				strcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_LargestCity"));
+				strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_LargestCity"), sizeof(interp));
 				if(strchr(interp, '{'))
 					*strchr(interp,'{')=0;
 				strcat(interp,needEmbassy);
@@ -516,7 +516,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				st->SetText(interp);
 
 				interp[0] = 0;
-				strcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_MilitaryState"));
+				strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_MilitaryState"), sizeof(interp));
 				if(strchr(interp, '{'))
 					*strchr(interp,'{')=0;
 				strcat(interp,needEmbassy);
@@ -524,7 +524,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				st->SetText(interp);
 
 				interp[0] = 0;
-				strcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_GovType"));
+				strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_GovType"), sizeof(interp));
 				if(strchr(interp, '{'))
 					*strchr(interp,'{')=0;
 				strcat(interp,needEmbassy);
@@ -532,7 +532,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				st->SetText(interp);
 
 				interp[0] = 0;
-				strcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_NowResearching"));
+				strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_NowResearching"), sizeof(interp));
 				if(strchr(interp, '{'))
 					*strchr(interp,'{')=0;
 
@@ -565,7 +565,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				}
 
 				needEmbassy[0]=0;
-				strcpy(needEmbassy,stringdb_Get()->GetNameStr("str_ldl_DipDetails_EmbassyReq"));
+				strlcpy(needEmbassy,stringdb_Get()->GetNameStr("str_ldl_DipDetails_EmbassyReq"), sizeof(needEmbassy));
 
 				sm_list = (ctp2_ListBox *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab3.TabPanel.ForAdvancesList");
 				if(sm_list)

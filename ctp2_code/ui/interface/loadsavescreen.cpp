@@ -157,7 +157,7 @@ AUI_ERRCODE loadsavescreen_Initialize( aui_Control::ControlActionCallback *callb
 	if ( g_loadsaveWindow ) return AUI_ERRCODE_OK;
 
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	strcpy(windowBlock, "LoadSaveWindow");
+	strlcpy(windowBlock, "LoadSaveWindow", sizeof(windowBlock));
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	g_loadsaveWindow= new LoadSaveWindow(&errcode, aui_UniqueId(), windowBlock, 16 , AUI_WINDOW_TYPE_STANDARD);
@@ -267,8 +267,10 @@ void loadsavescreen_HotseatCallback(sint32 launch, sint32 player,
 		delete [] hs_player_setup_buf()[player].name;
 		delete [] hs_player_setup_buf()[player].email;
 		hs_player_setup_buf()[player].name = new MBCHAR[strlen(name) + 1];
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(hs_player_setup_buf()[player].name, name);
 		hs_player_setup_buf()[player].email = new MBCHAR[strlen(email) + 1];
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(hs_player_setup_buf()[player].email, email);
 	}
 }
@@ -584,6 +586,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 				civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 				profiledb_Get()->SetIsScenario(TRUE);
 
+				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 				strcpy(scenario_name_buf(), saveInfo->scenarioName.c_str());
 			} else {
 
@@ -646,7 +649,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 
 
 
-		strcpy(s_tempPath, path);
+		strlcpy(s_tempPath, path, sizeof(s_tempPath));
 		allocated::reassign(s_tempSaveInfo, new SaveInfo(saveInfo));
 
 		if (s_tempSaveInfo->numPositions <= 3 || saveInfo->startInfoType == STARTINFOTYPE_NOLOCS)
@@ -702,7 +705,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 	if (strlen(saveInfo->gameName) == 0) {
 
 		if (g_loadsaveWindow->GetGameInfo() != nullptr) {
-			strcpy(saveInfo->gameName, g_loadsaveWindow->GetGameInfo()->name);
+			strlcpy(saveInfo->gameName, g_loadsaveWindow->GetGameInfo()->name, sizeof(saveInfo->gameName));
 		} else {
 			g_loadsaveWindow->BuildDefaultSaveName(nullptr, saveInfo->gameName);
 			saveInfo->gameName[SAVE_LEADER_NAME_SIZE] = '\0';
@@ -748,7 +751,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 	MBCHAR	fullPath[_MAX_PATH];
 
 	if(usePath) {
-		strcpy(path, usePath);
+		strlcpy(path, usePath, sizeof(path));
 	} else {
 		if (!civpaths_Get()->GetSavePath(C3SAVEDIR_GAME, path)) return;
 	}
@@ -802,7 +805,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 		snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", fullPath, FILE_SEP, saveInfo->fileName);
 	} else {
 		snprintf(fullPath, sizeof(fullPath), "%s", path);
-		strcpy(saveInfo->fileName, useName);
+		strlcpy(saveInfo->fileName, useName, sizeof(saveInfo->fileName));
 		snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", fullPath, FILE_SEP, useName);
 	}
 
@@ -874,7 +877,7 @@ void loadsavescreen_SaveMPGame()
 	if (strlen(saveInfo->gameName) == 0) {
 		// Empty game name in the save info, copy it over from the game info
 		if (g_loadsaveWindow->GetGameInfo() != nullptr) {
-			strcpy(saveInfo->gameName, g_loadsaveWindow->GetGameInfo()->name);
+			strlcpy(saveInfo->gameName, g_loadsaveWindow->GetGameInfo()->name, sizeof(saveInfo->gameName));
 		} else {
 			g_loadsaveWindow->BuildDefaultSaveName(nullptr, saveInfo->gameName);
 			saveInfo->gameName[SAVE_LEADER_NAME_SIZE] = '\0';
@@ -967,7 +970,7 @@ void loadsavescreen_SaveSCENGame()
 	if (strlen(saveInfo->gameName) == 0) {
 		// Empty game name in the save info, copy it over from the game info
 		if (g_loadsaveWindow->GetGameInfo() != nullptr) {
-			strcpy(saveInfo->gameName, g_loadsaveWindow->GetGameInfo()->name);
+			strlcpy(saveInfo->gameName, g_loadsaveWindow->GetGameInfo()->name, sizeof(saveInfo->gameName));
 		} else {
 			g_loadsaveWindow->BuildDefaultSaveName(nullptr, saveInfo->gameName);
 			saveInfo->gameName[SAVE_LEADER_NAME_SIZE] = '\0';

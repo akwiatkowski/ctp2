@@ -323,48 +323,27 @@ void Diplomacy_Log::LogBrokenAgreement(const sint32 owner, const sint32 recipien
 void Diplomacy_Log::Request2String(REQUEST_TYPE request, char astr[80])
 {
     switch (request) {
-    // TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-    case REQUEST_TYPE_GREETING: strcpy (astr, "REQUEST_TYPE_GREETING"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_DEMAND_ADVANCE: strcpy (astr, "REQUEST_TYPE_DEMAND_ADVANCE"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_DEMAND_CITY: strcpy (astr, "REQUEST_TYPE_DEMAND_CITY"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_DEMAND_MAP: strcpy (astr, "REQUEST_TYPE_DEMAND_MAP"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_DEMAND_GOLD: strcpy (astr, "REQUEST_TYPE_DEMAND_GOLD"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_DEMAND_STOP_TRADE: strcpy (astr, "REQUEST_TYPE_DEMAND_STOP_TRADE"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_DEMAND_ATTACK_ENEMY: strcpy (astr, "REQUEST_TYPE_DEMAND_ATTACK_ENEMY"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_DEMAND_LEAVE_OUR_LANDS: strcpy (astr, "REQUEST_TYPE_DEMAND_LEAVE_OUR_LANDS"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_DEMAND_REDUCE_POLLUTION: strcpy (astr, "REQUEST_TYPE_DEMAND_REDUCE_POLLUTION"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_OFFER_ADVANCE: strcpy (astr, "REQUEST_TYPE_OFFER_ADVANCE"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_OFFER_CITY: strcpy (astr, "REQUEST_TYPE_OFFER_CITY"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_OFFER_MAP: strcpy (astr, "REQUEST_TYPE_OFFER_MAP"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_OFFER_GOLD: strcpy (astr, "REQUEST_TYPE_OFFER_GOLD"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_OFFER_CEASE_FIRE: strcpy (astr, "REQUEST_TYPE_OFFER_CEASE_FIRE"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_OFFER_PERMANENT_ALLIANCE: strcpy (astr, "REQUEST_TYPE_OFFER_PERMANENT_ALLIANCE"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_OFFER_PACT_CAPTURE_CITY: strcpy (astr, "REQUEST_TYPE_OFFER_PACT_CAPTURE_CITY"); break;
-    // TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-    case REQUEST_TYPE_OFFER_PACT_END_POLLUTION: strcpy (astr, "REQUEST_TYPE_OFFER_PACT_END_POLLUTION"); break;
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	case REQUEST_TYPE_EXCHANGE_ADVANCE: strcpy (astr, "REQUEST_TYPE_EXCHANGE_ADVANCE"); break;
-    // TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-    case REQUEST_TYPE_EXCHANGE_CITY: strcpy (astr, "REQUEST_TYPE_EXCHANGE_CITY"); break;
-    // TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-    case REQUEST_TYPE_EXCHANGE_MAP: strcpy (astr, "REQUEST_TYPE_EXCHANGE_MAP"); break;
-    // TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-    case REQUEST_TYPE_DEMAND_NO_PIRACY: strcpy (astr, "REQUEST_TYPE_DEMAND_NO_PIRACY"); break;
+        case REQUEST_TYPE_GREETING: strlcpy(astr, "REQUEST_TYPE_GREETING", 80); break;
+	case REQUEST_TYPE_DEMAND_ADVANCE: strlcpy(astr, "REQUEST_TYPE_DEMAND_ADVANCE", 80); break;
+	case REQUEST_TYPE_DEMAND_CITY: strlcpy(astr, "REQUEST_TYPE_DEMAND_CITY", 80); break;
+	case REQUEST_TYPE_DEMAND_MAP: strlcpy(astr, "REQUEST_TYPE_DEMAND_MAP", 80); break;
+	case REQUEST_TYPE_DEMAND_GOLD: strlcpy(astr, "REQUEST_TYPE_DEMAND_GOLD", 80); break;
+	case REQUEST_TYPE_DEMAND_STOP_TRADE: strlcpy(astr, "REQUEST_TYPE_DEMAND_STOP_TRADE", 80); break;
+	case REQUEST_TYPE_DEMAND_ATTACK_ENEMY: strlcpy(astr, "REQUEST_TYPE_DEMAND_ATTACK_ENEMY", 80); break;
+	case REQUEST_TYPE_DEMAND_LEAVE_OUR_LANDS: strlcpy(astr, "REQUEST_TYPE_DEMAND_LEAVE_OUR_LANDS", 80); break;
+	case REQUEST_TYPE_DEMAND_REDUCE_POLLUTION: strlcpy(astr, "REQUEST_TYPE_DEMAND_REDUCE_POLLUTION", 80); break;
+	case REQUEST_TYPE_OFFER_ADVANCE: strlcpy(astr, "REQUEST_TYPE_OFFER_ADVANCE", 80); break;
+	case REQUEST_TYPE_OFFER_CITY: strlcpy(astr, "REQUEST_TYPE_OFFER_CITY", 80); break;
+	case REQUEST_TYPE_OFFER_MAP: strlcpy(astr, "REQUEST_TYPE_OFFER_MAP", 80); break;
+	case REQUEST_TYPE_OFFER_GOLD: strlcpy(astr, "REQUEST_TYPE_OFFER_GOLD", 80); break;
+	case REQUEST_TYPE_OFFER_CEASE_FIRE: strlcpy(astr, "REQUEST_TYPE_OFFER_CEASE_FIRE", 80); break;
+	case REQUEST_TYPE_OFFER_PERMANENT_ALLIANCE: strlcpy(astr, "REQUEST_TYPE_OFFER_PERMANENT_ALLIANCE", 80); break;
+	case REQUEST_TYPE_OFFER_PACT_CAPTURE_CITY: strlcpy(astr, "REQUEST_TYPE_OFFER_PACT_CAPTURE_CITY", 80); break;
+        case REQUEST_TYPE_OFFER_PACT_END_POLLUTION: strlcpy(astr, "REQUEST_TYPE_OFFER_PACT_END_POLLUTION", 80); break;
+	case REQUEST_TYPE_EXCHANGE_ADVANCE: strlcpy(astr, "REQUEST_TYPE_EXCHANGE_ADVANCE", 80); break;
+        case REQUEST_TYPE_EXCHANGE_CITY: strlcpy(astr, "REQUEST_TYPE_EXCHANGE_CITY", 80); break;
+        case REQUEST_TYPE_EXCHANGE_MAP: strlcpy(astr, "REQUEST_TYPE_EXCHANGE_MAP", 80); break;
+        case REQUEST_TYPE_DEMAND_NO_PIRACY: strlcpy(astr, "REQUEST_TYPE_DEMAND_NO_PIRACY", 80); break;
     default:
         {
             sint32 unknown_request=0;

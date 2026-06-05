@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin G�hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin G�hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -95,6 +95,7 @@ AUI_ERRCODE aui_HyperTextBase::InitCommon(
 
 		memset( m_hyperText, '\0', m_hyperMaxLen + 1 );
 
+		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strncpy( m_hyperText, hyperText, m_hyperMaxLen );
 	}
 	else
@@ -115,7 +116,7 @@ AUI_ERRCODE aui_HyperTextBase::InitCommon(
 	if ( !m_hyperStaticList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	memset( m_hyperTtffile, 0, sizeof( m_hyperTtffile ) );
-	strncpy( m_hyperTtffile, "arial.ttf", MAX_PATH );
+	strlcpy( m_hyperTtffile, "arial.ttf", sizeof( m_hyperTtffile ) );
 	m_hyperPointSize = 12;
 	m_hyperBold = 0;
 	m_hyperItalic = 0;
@@ -152,6 +153,7 @@ AUI_ERRCODE aui_HyperTextBase::SetHyperText
 
 	if (hyperText)
     {
+        // TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
         strncpy(m_hyperText, hyperText, std::min(maxlen, m_hyperMaxLen));
         m_hyperCurLen = std::min((size_t) m_hyperMaxLen, strlen(m_hyperText));
     	return AddHyperStatics(nullptr);

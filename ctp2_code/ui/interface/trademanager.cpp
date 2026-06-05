@@ -432,10 +432,9 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 
 						if (ctp2_Static * origin = (ctp2_Static *)item->GetChildByIndex(k_CITY_COL_INDEX))
                         {
-							MBCHAR name[k_MAX_NAME_LEN + 1];
-							strncpy(name, city.GetName(), k_MAX_NAME_LEN);
-							name[k_MAX_NAME_LEN] = 0;
-							origin->TextReloadFont();
+						MBCHAR name[k_MAX_NAME_LEN + 1];
+						strlcpy(name, city.GetName(), sizeof(name));
+						origin->TextReloadFont();
 							origin->GetTextFont()->TruncateString(name, origin->Width());
 							origin->SetText(name);
 						}
@@ -461,10 +460,9 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 
 						if (ctp2_Static * dest = (ctp2_Static *)item->GetChildByIndex(k_TOCITY_COL_INDEX))
                         {
-							MBCHAR name[k_MAX_NAME_LEN + 1];
-							strncpy(name, maxCity[i].GetName(), k_MAX_NAME_LEN);
-							name[k_MAX_NAME_LEN] = 0;
-							dest->TextReloadFont();
+						MBCHAR name[k_MAX_NAME_LEN + 1];
+						strlcpy(name, maxCity[i].GetName(), sizeof(name));
+						dest->TextReloadFont();
 							dest->GetTextFont()->TruncateString(name, dest->Width());
 							dest->SetText(name);
 						}
@@ -678,8 +676,7 @@ void TradeManager::UpdateSummaryList()
 			if (ctp2_Static * origin = (ctp2_Static *)item->GetChildByIndex(k_CITY_COL_SUM_INDEX))
             {
 				MBCHAR name[k_MAX_NAME_LEN + 1];
-				strncpy(name, city.GetName(), k_MAX_NAME_LEN);
-				name[k_MAX_NAME_LEN] = 0;
+				strlcpy(name, city.GetName(), sizeof(name));
 				origin->TextReloadFont();
 				origin->GetTextFont()->TruncateString(name, origin->Width());
 				origin->SetText(name);
@@ -721,8 +718,7 @@ void TradeManager::UpdateSummaryList()
             {
 				MBCHAR name[k_MAX_NAME_LEN + 1];
 				Unit dCity = route.GetDestination();
-				strncpy(name, dCity.GetName(), k_MAX_NAME_LEN);
-				name[k_MAX_NAME_LEN] = 0;
+				strlcpy(name, dCity.GetName(), sizeof(name));
 				dest->TextReloadFont();
 				dest->GetTextFont()->TruncateString(name, dest->Width());
 				dest->SetText(name);

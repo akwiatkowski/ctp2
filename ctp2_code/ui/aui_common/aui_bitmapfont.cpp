@@ -223,6 +223,7 @@ AUI_ERRCODE aui_BitmapFont::SetFilename( MBCHAR const * descriptor )
 
 	if ( !descriptor ) return AUI_ERRCODE_INVALIDPARAM;
 
+	// TODO(phase-2): strncpy → strlcpy — non-standard length argument, requires manual review
 	strncpy( m_descriptor, descriptor, MAX_PATH );
 
 	return AUI_ERRCODE_OK;
@@ -236,7 +237,7 @@ AUI_ERRCODE aui_BitmapFont::Load( )
 
 	static MBCHAR fullPath[ MAX_PATH + 1 ];
 	if ( aui_ui_Get()->GetBitmapFontResource()->FindFile( fullPath, m_ttffile ) )
-		strncpy( m_ttffile, fullPath, MAX_PATH );
+		strlcpy( m_ttffile, fullPath, sizeof( m_ttffile ) );
 
 	sint32 error = TT_Open_Face(s_ttEngine, m_ttffile, &m_ttFace);
 	Assert( error == 0 );
@@ -316,7 +317,7 @@ AUI_ERRCODE aui_BitmapFont::SetTTFFile( MBCHAR const * ttffile )
 
 	if ( !ttffile ) return AUI_ERRCODE_INVALIDPARAM;
 
-	strncpy( m_ttffile, ttffile, MAX_PATH );
+	strlcpy( m_ttffile, ttffile, sizeof( m_ttffile ) );
 
 	return AUI_ERRCODE_OK;
 }
@@ -804,6 +805,7 @@ AUI_ERRCODE aui_BitmapFont::DrawString(
 
 		// copy string to wrapped
 		static MBCHAR wrapped[ k_AUI_BITMAPFONT_MAXSTRLEN + 1 ];
+		// TODO(phase-2): strncpy → strlcpy — non-standard length argument, requires manual review
 		strncpy( wrapped, string, len );
 
 		MBCHAR *staticPtr = wrapped;

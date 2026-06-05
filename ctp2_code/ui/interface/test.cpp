@@ -29,32 +29,32 @@ void Button1Action::Execute( aui_Control *control, uint32 action, uint32 data )
 	if ( action != ( uint32 )AUI_BUTTON_ACTION_EXECUTE ) return;
 
 	if ( bInsult ) {
-		strcpy( string, "hey, i don't have to take that kind of crap from any lame diplomatic messages!" );
+		strlcpy( string, "hey, i don't have to take that kind of crap from any lame diplomatic messages!", sizeof(string) );
 		bInsult = FALSE;
 	} else {
 
 		switch( count++ )
 		{
 		case 0:
-			strcpy( string, "Temporary 'Event' type message .. " );
+			strlcpy( string, "Temporary 'Event' type message .. ", sizeof(string) );
 			break;
 		case 1:
-			strcpy( string, "Well, that's pretty nifty.  Here's another 'event' type message." );
+			strlcpy( string, "Well, that's pretty nifty.  Here's another 'event' type message.", sizeof(string) );
 			break;
 		case 2:
-			strcpy( string, "hmm .. i wonder how many of these event-messages we could fit on the screen?" );
+			strlcpy( string, "hmm .. i wonder how many of these event-messages we could fit on the screen?", sizeof(string) );
 			break;
 		case 3:
-			strcpy( string, "boy, wont it be great when we have art for these event messages! .. it'll add so much to it!" );
+			strlcpy( string, "boy, wont it be great when we have art for these event messages! .. it'll add so much to it!", sizeof(string) );
 			break;
 		case 4:
-			strcpy( string, "ho hum .. la-de-dah .. what to do what to do .. " );
+			strlcpy( string, "ho hum .. la-de-dah .. what to do what to do .. ", sizeof(string) );
 			break;
 		case 5:
-			strcpy( string, "Annal-nathrak uthvas-bethod donnel dokdienthe" );
+			strlcpy( string, "Annal-nathrak uthvas-bethod donnel dokdienthe", sizeof(string) );
 			break;
 		case 6:
-			strcpy( string, "okay .. that's enough, i'm going to loop through these messages." );
+			strlcpy( string, "okay .. that's enough, i'm going to loop through these messages.", sizeof(string) );
 			count = 0;
 			break;
 		}

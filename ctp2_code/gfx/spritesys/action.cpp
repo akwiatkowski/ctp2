@@ -270,7 +270,7 @@ uint16 Action::GetTransparency() const
 
 	if (m_curAnim != nullptr && m_animPos < m_curAnim->GetNumFrames()) {
 		transparencies = m_curAnim->GetTransparencies();
-		if (transparencies) {
+		if (m_curAnim->GetNumFrames() > 0) {
 			trans = transparencies[m_animPos];
 		}
 

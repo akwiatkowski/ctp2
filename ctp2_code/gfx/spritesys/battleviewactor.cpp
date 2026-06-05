@@ -248,22 +248,20 @@ Anim * BattleViewActor::MakeFakeDeath()
 {
     Anim *      anim        = new Anim();
 
-    uint16 *    frames      = new uint16[k_FAKE_DEATH_FRAMES];
-    std::fill(frames, frames + k_FAKE_DEATH_FRAMES, 0);
-	anim->SetFrames(frames);
+    std::vector<uint16> frames(k_FAKE_DEATH_FRAMES, 0);
+	anim->SetFrames(frames.data(), frames.size());
 	anim->SetNumFrames(k_FAKE_DEATH_FRAMES);
 
-    POINT *     moveDeltas  = new POINT[k_FAKE_DEATH_FRAMES];
     POINT       pt          = {0,0};
-    std::fill(moveDeltas, moveDeltas + k_FAKE_DEATH_FRAMES, pt);
-	anim->SetDeltas(moveDeltas);
+    std::vector<POINT> moveDeltas(k_FAKE_DEATH_FRAMES, pt);
+	anim->SetDeltas(moveDeltas.data(), moveDeltas.size());
 
-    uint16 *    transparencies = new uint16[k_FAKE_DEATH_FRAMES];
+    std::vector<uint16> transparencies(k_FAKE_DEATH_FRAMES);
     for (uint16 i = 0; i < k_FAKE_DEATH_FRAMES; ++i)
     {
         transparencies[i] = (uint16) (k_FAKE_DEATH_FRAMES - i);
     }
-	anim->SetTransparencies(transparencies);
+	anim->SetTransparencies(transparencies.data(), transparencies.size());
 
 	anim->SetPlaybackTime(k_FAKE_DEATH_DURATION);
 	anim->SetType(ANIMTYPE_SEQUENTIAL);

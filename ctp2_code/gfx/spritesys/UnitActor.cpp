@@ -876,24 +876,22 @@ Anim* UnitActor::CreateAnim(UNITACTION action) {
 #define k_FAKE_DEATH_DURATION 1500
 
 Anim* UnitActor::MakeFakeDeath() {
-  uint16* frames = new uint16[k_FAKE_DEATH_FRAMES];
-  std::fill(frames, frames + k_FAKE_DEATH_FRAMES, 0);
+  std::vector<uint16> frames(k_FAKE_DEATH_FRAMES, 0);
 
   POINT pt = {0, 0};
-  POINT* moveDeltas = new POINT[k_FAKE_DEATH_FRAMES];
-  std::fill(moveDeltas, moveDeltas + k_FAKE_DEATH_FRAMES, pt);
+  std::vector<POINT> moveDeltas(k_FAKE_DEATH_FRAMES, pt);
 
-  uint16* transparencies = new uint16[k_FAKE_DEATH_FRAMES];
+  std::vector<uint16> transparencies(k_FAKE_DEATH_FRAMES);
   for (int i = 0; i < k_FAKE_DEATH_FRAMES; i++) {
     transparencies[i] = (uint16)(15 - i);
   }
 
   Anim* anim = new Anim();
   anim->SetNumFrames(k_FAKE_DEATH_FRAMES);
-  anim->SetFrames(frames);
+  anim->SetFrames(frames.data(), frames.size());
   anim->SetPlaybackTime(k_FAKE_DEATH_DURATION);
-  anim->SetDeltas(moveDeltas);
-  anim->SetTransparencies(transparencies);
+  anim->SetDeltas(moveDeltas.data(), moveDeltas.size());
+  anim->SetTransparencies(transparencies.data(), transparencies.size());
   anim->SetType(ANIMTYPE_SEQUENTIAL);
 
   return anim;
@@ -903,22 +901,19 @@ Anim* UnitActor::MakeFakeDeath() {
 #define k_FACEOFF_DURATION 1000
 
 Anim* UnitActor::MakeFaceoff() {
-  uint16* frames = new uint16[k_FACEOFF_FRAMES];
-  std::fill(frames, frames + k_FACEOFF_FRAMES, 0);
+  std::vector<uint16> frames(k_FACEOFF_FRAMES, 0);
 
   POINT pt = {0, 0};
-  POINT* moveDeltas = new POINT[k_FACEOFF_FRAMES];
-  std::fill(moveDeltas, moveDeltas + k_FACEOFF_FRAMES, pt);
+  std::vector<POINT> moveDeltas(k_FACEOFF_FRAMES, pt);
 
-  uint16* transparencies = new uint16[k_FACEOFF_FRAMES];
-  std::fill(transparencies, transparencies + k_FACEOFF_FRAMES, 15);
+  std::vector<uint16> transparencies(k_FACEOFF_FRAMES, 15);
 
   Anim* anim = new Anim();
   anim->SetNumFrames(k_FACEOFF_FRAMES);
-  anim->SetFrames(frames);
+  anim->SetFrames(frames.data(), frames.size());
   anim->SetPlaybackTime(k_FACEOFF_DURATION);
-  anim->SetDeltas(moveDeltas);
-  anim->SetTransparencies(transparencies);
+  anim->SetDeltas(moveDeltas.data(), moveDeltas.size());
+  anim->SetTransparencies(transparencies.data(), transparencies.size());
   anim->SetType(ANIMTYPE_LOOPED);
 
   return anim;

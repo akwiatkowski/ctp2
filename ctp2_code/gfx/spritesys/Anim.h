@@ -42,6 +42,7 @@
 #include <windows.h>    // BOOL, FILE, POINT
 
 #include <memory>
+#include <vector>
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -77,7 +78,7 @@ public:
 
 	uint16		GetType() { return m_type; }
 	uint16		GetNumFrames() { return m_numFrames; }
-	uint16		*GetFrames() { return m_frames; }
+	uint16		*GetFrames() { return m_frames.data(); }
 	uint16		GetPlaybackTime();
 	uint16		GetDelay() { return m_delay; }
 	void		AdjustDelay(uint32 val)
@@ -85,15 +86,19 @@ public:
         m_delay = static_cast<uint16>(m_delay + val);
     };
 
-	POINT		*GetDeltas() { return m_moveDeltas; }
-	uint16		*GetTransparencies() { return m_transparencies; }
+	POINT		*GetDeltas() { return m_moveDeltas.data(); }
+	uint16		*GetTransparencies() { return m_transparencies.data(); }
 	void		SetType(uint16 type) { m_type = type; }
 	void		SetNumFrames(uint16 frames) { m_numFrames = frames; }
 	void		SetPlaybackTime(uint16 time) { m_playbackTime = time; }
 	void		SetDelay(uint16 time) { m_delay = time; }
-	void		SetFrames(uint16 *frames) { m_frames = frames; }
-	void		SetDeltas(POINT *deltas) { m_moveDeltas = deltas; }
-	void		SetTransparencies(uint16 *t) { m_transparencies = t; }
+	void		SetFrames(const uint16 *frames, size_t n) { m_frames.assign(frames, frames + n); }
+	void		SetDeltas(const POINT *deltas, size_t n) { m_moveDeltas.assign(deltas, deltas + n); }
+	void		SetTransparencies(const uint16 *t, size_t n) { m_transparencies.assign(t, t + n); }
+
+	void		ResizeFrames(size_t n) { m_frames.resize(n); }
+	void		ResizeDeltas(size_t n) { m_moveDeltas.resize(n); }
+	void		ResizeTransparencies(size_t n) { m_transparencies.resize(n); }
 
 	uint16		GetFrame(sint32 animPos);
 	uint32		GetDelayEnd() {return m_delayEnd; }
@@ -120,9 +125,9 @@ public:
 protected:
 	uint16		m_type;
 	uint16		m_numFrames;
-	uint16		*m_frames;
-	POINT		*m_moveDeltas;
-	uint16		*m_transparencies;
+	std::vector<uint16>		m_frames;
+	std::vector<POINT>		m_moveDeltas;
+	std::vector<uint16>		m_transparencies;
 
 	uint16		m_playbackTime;
 	uint16		m_delay;

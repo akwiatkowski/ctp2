@@ -36,9 +36,6 @@ Anim::Anim()
 :
 	m_type              (ANIMTYPE_SEQUENTIAL),
 	m_numFrames         (0),
-	m_frames            (nullptr),
-	m_moveDeltas        (nullptr),
-	m_transparencies    (nullptr),
 	m_playbackTime      (0),
 	m_delay             (0),
 	m_delayEnd          (0),
@@ -54,9 +51,9 @@ Anim::Anim(Anim const & copy)
 :
 	m_type              (copy.m_type),
 	m_numFrames         (copy.m_numFrames),
-	m_frames            (nullptr),
-	m_moveDeltas        (nullptr),
-	m_transparencies    (nullptr),
+	m_frames            (copy.m_frames),
+	m_moveDeltas        (copy.m_moveDeltas),
+	m_transparencies    (copy.m_transparencies),
 	m_playbackTime      (copy.m_playbackTime),
 	m_delay             (copy.m_delay),
 	m_delayEnd          (copy.m_delayEnd),
@@ -67,57 +64,26 @@ Anim::Anim(Anim const & copy)
 	m_weAreInDelay      (copy.m_weAreInDelay),
 	m_noIdleJustDelay   (copy.m_noIdleJustDelay)
 {
-    if (m_numFrames > 0)
-    {
-        m_frames            = new uint16[m_numFrames];
-        m_transparencies    = new uint16[m_numFrames];
-        m_moveDeltas        = new POINT [m_numFrames];
-
-        std::copy(copy.m_frames, copy.m_frames + m_numFrames, m_frames);
-        std::copy(copy.m_transparencies, copy.m_transparencies + m_numFrames, m_transparencies);
-        std::copy(copy.m_moveDeltas, copy.m_moveDeltas + m_numFrames, m_moveDeltas);
-    }
 }
 
 Anim const & Anim::operator = (Anim const & copy)
 {
     if (this != &copy)
     {
-        if (m_numFrames != copy.m_numFrames)
-        {
-            delete [] m_frames;
-            delete [] m_transparencies;
-            delete [] m_moveDeltas;
-        }
-
         m_type              = copy.m_type;
         m_numFrames         = copy.m_numFrames;
-    	m_playbackTime      = copy.m_playbackTime;
-	    m_delay             = copy.m_delay;
-	    m_delayEnd          = copy.m_delayEnd;
-	    m_lastFrameTime     = copy.m_lastFrameTime;
-	    m_elapsed           = copy.m_elapsed;
-	    m_loopFinished      = copy.m_loopFinished;
-	    m_finished          = copy.m_finished;
-	    m_weAreInDelay      = copy.m_weAreInDelay;
-	    m_noIdleJustDelay   = copy.m_noIdleJustDelay;
-
-        if (m_numFrames > 0)
-        {
-            m_frames            = new uint16[m_numFrames];
-            m_transparencies    = new uint16[m_numFrames];
-            m_moveDeltas        = new POINT [m_numFrames];
-
-            std::copy(copy.m_frames, copy.m_frames + m_numFrames, m_frames);
-            std::copy(copy.m_transparencies, copy.m_transparencies + m_numFrames, m_transparencies);
-            std::copy(copy.m_moveDeltas, copy.m_moveDeltas + m_numFrames, m_moveDeltas);
-        }
-        else
-        {
-            m_frames            = nullptr;
-            m_transparencies    = nullptr;
-            m_moveDeltas        = nullptr;
-        }
+        m_frames            = copy.m_frames;
+        m_moveDeltas        = copy.m_moveDeltas;
+        m_transparencies    = copy.m_transparencies;
+        m_playbackTime      = copy.m_playbackTime;
+        m_delay             = copy.m_delay;
+        m_delayEnd          = copy.m_delayEnd;
+        m_lastFrameTime     = copy.m_lastFrameTime;
+        m_elapsed           = copy.m_elapsed;
+        m_loopFinished      = copy.m_loopFinished;
+        m_finished          = copy.m_finished;
+        m_weAreInDelay      = copy.m_weAreInDelay;
+        m_noIdleJustDelay   = copy.m_noIdleJustDelay;
     }
 
     return *this;
@@ -125,9 +91,6 @@ Anim const & Anim::operator = (Anim const & copy)
 
 Anim::~Anim()
 {
-	delete [] m_frames;
-	delete [] m_moveDeltas;
-	delete [] m_transparencies;
 }
 
 uint16 Anim::GetFrame(sint32 animPos)
@@ -342,7 +305,7 @@ sint32 Anim::ParseFromTokens(Token *theToken)
 	if (!token_ParseValNext(theToken, TOKEN_ANIM_DELAY, tmp)) return FALSE;
 	m_delay = (uint16)tmp;
 
-	m_frames = new uint16[m_numFrames];
+	m_frames.resize(m_numFrames);
 	if (!token_ParseKeywordNext(theToken, TOKEN_ANIM_FRAME_DATA)) return FALSE;
 	for (i=0; i<m_numFrames; i++)
 	{
@@ -351,7 +314,7 @@ sint32 Anim::ParseFromTokens(Token *theToken)
 		m_frames[i] = (uint16)tmp;
 	}
 
-	m_moveDeltas = new POINT[m_numFrames];
+	m_moveDeltas.resize(m_numFrames);
 	for (i=0; i<m_numFrames; i++)
 	{
 		POINT p = {0,0};
@@ -380,7 +343,7 @@ sint32 Anim::ParseFromTokens(Token *theToken)
 		if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
 	}
 
-	m_transparencies = new uint16[m_numFrames];
+	m_transparencies.resize(m_numFrames);
 	for (i=0; i<m_numFrames; i++)
 	{
 		m_transparencies[i] = 15;

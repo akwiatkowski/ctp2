@@ -71,7 +71,7 @@ DBLexer::DBLexer(const C3DIR & c3dir, const char *file)
 
 	m_tokenHash = new StringHash<DBToken>(SIZE_HASH_TABLE);
 
-	strcpy(m_filename, file);
+	strlcpy(m_filename, file, sizeof(m_filename));
 	m_file = c3files_fopen(c3dir, m_filename, "r");
 	Assert(m_file);
 
@@ -178,9 +178,11 @@ sint32 DBLexer::GetToken()
 	m_tokenLine[nextTokenText] = g_dblexerLineNumber;
 
 	if(m_nextToken != k_Token_String) {
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(m_tokenText[nextTokenText], dbltext);
 	} else {
 
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(m_tokenText[nextTokenText], dbltext + 1);
 
 		m_tokenText[nextTokenText][strlen(m_tokenText[nextTokenText]) - 1] = 0;
@@ -296,6 +298,7 @@ bool DBLexer::GetFileAssignment(char *&filename)
 	if (result) {
 		delete [] filename;
 		filename = new char[temp.size() + 1];
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(filename, temp.c_str());
 	}
 	return result;
@@ -318,6 +321,7 @@ bool DBLexer::GetFile(char *&filename)
 	if (result) {
 		delete [] filename;
 		filename = new char[temp.size() + 1];
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(filename, temp.c_str());
 	}
 	return result;

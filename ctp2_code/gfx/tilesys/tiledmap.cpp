@@ -263,7 +263,7 @@ TiledMap::TiledMap(MapPoint &size)
 		m_font->SetPointSize(atoi(fontSizeString));
 
 		MBCHAR *    fString         = stringTable->GetString(2);
-		strncpy(m_fortifyString, fString, 3);
+		strlcpy(m_fortifyString, fString, sizeof(m_fortifyString));
 	}
 
 	delete stringTable;
@@ -2454,9 +2454,7 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 
 
 
-
-				strncpy(text, city.GetName(), sizeof(text) - 1);
-			text[sizeof(text) - 1] = '\0';
+				strlcpy(text, city.GetName(), sizeof(text));
 
 				DrawSomeText(TRUE, text, tx, ty+10,
 								colorset_Get()->GetColorRef(COLOR_YELLOW),
@@ -2473,9 +2471,7 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 
 
 
-
-				strncpy(text, al->Access(0).GetName(), sizeof(text) - 1);
-			text[sizeof(text) - 1] = '\0';
+				strlcpy(text, al->Access(0).GetName(), sizeof(text));
 
 				DrawSomeText(TRUE, text, tx, ty,
 					colorset_Get()->GetColorRef(COLOR_BLACK),

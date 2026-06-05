@@ -415,14 +415,15 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 				sint32 trunclen = dp_SNAMELEN -
 					( strlen( truncname ) + ( strlen( format.GetString() ) - 2  ) );
 
-				if ( trunclen < 0 )
-				{
-					memset( truncname, 0, sizeof( truncname ) );
-					strncpy(
-						truncname,
-						playersetup_Get().GetName(),
-						strlen( truncname ) + trunclen );
-				}
+			if ( trunclen < 0 )
+			{
+				memset( truncname, 0, sizeof( truncname ) );
+				// TODO(phase-2): strncpy → strlcpy — non-standard length argument, requires manual review
+				strncpy(
+					truncname,
+					playersetup_Get().GetName(),
+					strlen( truncname ) + trunclen );
+			}
 
 				snprintf(name, sizeof(name), format.GetString(), truncname );
 
@@ -479,7 +480,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 		MBCHAR temp[ dp_PASSWORDLEN + 1 ] = "";
 		if ( password )
 		{
-			strncpy( temp, password, dp_PASSWORDLEN );
+			strlcpy( temp, password, sizeof( temp ) );
 			for ( size_t i = 0; i < strlen( temp ); i++ )
 			{
 				temp[i] = static_cast<MBCHAR>(tolower(temp[i]));
@@ -732,6 +733,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 		if ( trunclen < 0 )
 		{
 			memset( truncname, 0, sizeof( truncname ) );
+			// TODO(phase-2): strncpy → strlcpy — non-standard length argument, requires manual review
 			strncpy(
 				truncname,
 				playersetup_Get().GetName(),
@@ -741,7 +743,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 		snprintf(name, sizeof(name), format.GetString(), truncname );
 
 		char test[ dp_SNAMELEN + 1 ];
-		strncpy( test, name, dp_SNAMELEN );
+		strlcpy( test, name, sizeof( test ) );
 		sint32 num = 2;
 		while ( true )
 		{
@@ -759,7 +761,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 
 			if ( i == listbox->NumItems() )
 			{
-				strncpy( name, test, dp_SNAMELEN );
+				strlcpy( name, test, sizeof( name ) );
 				break;
 			}
 
@@ -856,6 +858,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 		if ( trunclen < 0 )
 		{
 			memset( truncname, 0, sizeof( truncname ) );
+			// TODO(phase-2): strncpy → strlcpy — non-standard length argument, requires manual review
 			strncpy(
 				truncname,
 				playersetup_Get().GetName(),
@@ -865,7 +868,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 		snprintf(name, sizeof(name), format.GetString(), truncname );
 
 		char test[ dp_SNAMELEN + 1 ];
-		strncpy( test, name, dp_SNAMELEN );
+		strlcpy( test, name, sizeof( test ) );
 		sint32 num = 2;
 		while ( true )
 		{
@@ -883,7 +886,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 
 			if ( i == listbox->NumItems() )
 			{
-				strncpy( name, test, dp_SNAMELEN );
+				strlcpy( name, test, sizeof( name ) );
 				break;
 			}
 

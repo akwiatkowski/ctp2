@@ -325,6 +325,7 @@ void c3files_StripSpaces(MBCHAR * s)
 
     if (0 == copied)
     {
+        // TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
         strcpy(s, "-");
     }
     else
@@ -357,12 +358,14 @@ bool c3files_getfilelist(C3SAVEDIR dirID, MBCHAR *ext, PointerList<MBCHAR> *list
 	if (lpFileList ==  INVALID_HANDLE_VALUE) return false;
 
 	MBCHAR *lpFileName = new MBCHAR[256];
+	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 	strcpy(lpFileName,fileData.cFileName);
 	list->AddTail(lpFileName);
 
 	while (FindNextFile(lpFileList,&fileData))
 	{
 		lpFileName = new MBCHAR[256];
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(lpFileName,fileData.cFileName);
 		list->AddTail(lpFileName);
 	}
@@ -388,6 +391,7 @@ bool c3files_getfilelist(C3SAVEDIR dirID, MBCHAR *ext, PointerList<MBCHAR> *list
 			continue;
 		}
 		MBCHAR *lpFileName = new char[NAME_MAX];
+		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
 		strcpy(lpFileName, dent->d_name);
 		list->AddTail(lpFileName);
 	}
@@ -539,7 +543,7 @@ void c3files_GetCDDrives()
 {
 #ifdef _WIN32 // #ifndef USE_SDL
 	MBCHAR          drivepath[4];   // letter + : + dir seperator + zero
-	strcpy(drivepath, " :" FILE_SEP);
+	strlcpy(drivepath, " :" FILE_SEP, sizeof(drivepath));
 
 	uint32 const    all_drives = GetLogicalDrives();
 
@@ -586,7 +590,7 @@ MBCHAR const * c3files_GetVolumeName(DriveIdType id)
 {
 #ifdef WIN32
 	MBCHAR          drivepath[4];   // letter + : + dir seperator + zero
-	strcpy(drivepath, " :" FILE_SEP);
+	strlcpy(drivepath, " :" FILE_SEP, sizeof(drivepath));
 	drivepath[0] = id;
 
 	MBCHAR  FSName[32];

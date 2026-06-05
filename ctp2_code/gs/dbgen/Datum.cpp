@@ -50,6 +50,8 @@
 #include "os/nowin32/windows.h"
 #endif
 
+#include <vector>
+
 #include "gs/dbgen/ctpdb.h"
 #include "gs/dbgen/RecordDescription.h"
 

@@ -4,6 +4,8 @@
 #ifndef __SPRITE_STATE_DB_H__
 #define __SPRITE_STATE_DB_H__ 1
 
+#include <memory>
+
 class Token;
 
 struct SpriteNameNode {
@@ -23,7 +25,7 @@ class SpriteStateDB {
 
 
 
-	SpriteNameNode *m_map;
+	std::unique_ptr<SpriteNameNode[]> m_map;
 
 
 public:

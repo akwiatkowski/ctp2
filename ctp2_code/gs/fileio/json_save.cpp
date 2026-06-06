@@ -2562,9 +2562,9 @@ void to_json(nlohmann::json &j, EndGame const &g)
     std::vector<sint32> num_built;
     std::vector<sint32> saved_num_built;
     if (g.m_numBuilt)
-        num_built.assign(g.m_numBuilt, g.m_numBuilt + nRec);
+        num_built.assign(g.m_numBuilt.get(), g.m_numBuilt.get() + nRec);
     if (g.m_savedNumBuilt)
-        saved_num_built.assign(g.m_savedNumBuilt, g.m_savedNumBuilt + nRec);
+        saved_num_built.assign(g.m_savedNumBuilt.get(), g.m_savedNumBuilt.get() + nRec);
 
     j = nlohmann::json{
         {"owner",                 g.m_owner},
@@ -2588,12 +2588,18 @@ void from_json(nlohmann::json const &j, EndGame &g)
     j.at("num_built")      .get_to(num_built);
     j.at("saved_num_built").get_to(saved_num_built);
 
-    delete[] g.m_numBuilt;
-    delete[] g.m_savedNumBuilt;
-    g.m_numBuilt      = num_built.empty()       ? nullptr : new sint32[num_built.size()];
-    g.m_savedNumBuilt = saved_num_built.empty() ? nullptr : new sint32[saved_num_built.size()];
-    for (size_t i = 0; i < num_built.size();       ++i) g.m_numBuilt[i]      = num_built[i];
-    for (size_t i = 0; i < saved_num_built.size(); ++i) g.m_savedNumBuilt[i] = saved_num_built[i];
+    if (!num_built.empty()) {
+        g.m_numBuilt = std::make_unique<sint32[]>(num_built.size());
+        for (size_t i = 0; i < num_built.size(); ++i) g.m_numBuilt[i] = num_built[i];
+    } else {
+        g.m_numBuilt.reset();
+    }
+    if (!saved_num_built.empty()) {
+        g.m_savedNumBuilt = std::make_unique<sint32[]>(saved_num_built.size());
+        for (size_t i = 0; i < saved_num_built.size(); ++i) g.m_savedNumBuilt[i] = saved_num_built[i];
+    } else {
+        g.m_savedNumBuilt.reset();
+    }
 }
 
 // Phase F-1 — CivilisationPool

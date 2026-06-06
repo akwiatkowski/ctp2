@@ -4,6 +4,8 @@
 #ifndef __ENDGAME_H__
 #define __ENDGAME_H__
 
+#include <memory>
+
 #include "gs/utility/gstypes.h"
 
 #include <nlohmann/json.hpp>
@@ -18,10 +20,10 @@ private:
 
 	sint32 m_currentStageBegan;
 
-	sint32 *m_numBuilt;
+	std::unique_ptr<sint32[]> m_numBuilt;
 
 
-	sint32 *m_savedNumBuilt;
+	std::unique_ptr<sint32[]> m_savedNumBuilt;
 
 	friend class NetEndGame;
 

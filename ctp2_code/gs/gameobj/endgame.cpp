@@ -33,21 +33,15 @@ EndGame::EndGame(PLAYER_INDEX owner)
 	Init();
 }
 
-EndGame::~EndGame()
-{
-	
-		delete [] m_numBuilt;
-	
-		delete [] m_savedNumBuilt;
-}
+EndGame::~EndGame() = default;
 
 void EndGame::Init()
 {
 	m_currentStage = -1;
 	m_currentStageBegan = -1;
 
-	m_numBuilt = new sint32[endgamedb_Get()->m_nRec];
-	m_savedNumBuilt = new sint32[endgamedb_Get()->m_nRec];
+	m_numBuilt = std::make_unique<sint32[]>(endgamedb_Get()->m_nRec);
+	m_savedNumBuilt = std::make_unique<sint32[]>(endgamedb_Get()->m_nRec);
 
     sint32 i;
     for (i=0; i < endgamedb_Get()->m_nRec; i++) {

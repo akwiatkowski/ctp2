@@ -172,20 +172,15 @@ public:
 
 class SlicUITrigger {
   private:
-	char *m_name;
+	std::string m_name;
 	SlicSegment *m_segment;
 
   public:
-	SlicUITrigger(char *name, SlicSegment *seg) {
-		m_name = new char[strlen(name) + 1];
-		strcpy(m_name, name);
-		m_segment = seg;
-	}
-	~SlicUITrigger() {
-		delete [] m_name;
-	}
+	SlicUITrigger(char *name, SlicSegment *seg)
+		: m_name(name), m_segment(seg) {}
+	~SlicUITrigger() = default;
 
-	const MBCHAR *GetName() { return m_name; }
+	const MBCHAR *GetName() { return m_name.c_str(); }
 	SlicSegment *GetSegment() { return m_segment; }
 };
 

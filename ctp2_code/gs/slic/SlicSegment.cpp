@@ -449,11 +449,10 @@ void SlicSegmentHash::LinkTriggerSymbols(StringHash<SlicUITrigger> *uiHash)
 
 void SlicSegmentHash::SetSize(sint32 size)
 {
-	delete [] m_segments;
 	m_numSegments = size;
 	m_nextSegment = 0;
-	m_segments = new SlicSegment *[m_numSegments ? m_numSegments : 1];
-	memset(m_segments, 0, sizeof(SlicSegment *) * m_numSegments);
+	m_segments = std::make_unique<SlicSegment *[]>(m_numSegments ? m_numSegments : 1);
+	memset(m_segments.get(), 0, sizeof(SlicSegment *) * m_numSegments);
 }
 
 void SlicSegmentHash::Add(const char *name, SlicSegment *seg)

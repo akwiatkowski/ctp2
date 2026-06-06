@@ -154,19 +154,16 @@ class SlicSegmentHash : public StringHash<SlicSegment>
 {
 private:
 	sint32 m_numSegments;
-	SlicSegment **m_segments;
+	std::unique_ptr<SlicSegment *[]> m_segments;
 	sint32 m_nextSegment;
 	friend class SegmentList;
 
 public:
 	SlicSegmentHash(sint32 size) : StringHash<SlicSegment>(size) {
 		m_numSegments = 0;
-		m_segments = nullptr;
 		m_nextSegment = 0;
 	}
-	~SlicSegmentHash() override {
-		delete [] m_segments;
-	}
+	~SlicSegmentHash() override = default;
 
 	void SetSize(sint32 size);
 	void LinkTriggerSymbols(StringHash<SlicUITrigger> *uiHash);

@@ -10,7 +10,6 @@ extern sint32 g_abort_parse;
 MovieDB::MovieDB ()
 
 {
-	m_map = nullptr;
 }
 
 
@@ -22,17 +21,13 @@ MovieDB::MovieDB ()
 
 
 
-MovieDB::~MovieDB ()
-
-{
-	delete [] m_map;
-}
+MovieDB::~MovieDB () = default;
 
 void MovieDB::SetSize(sint32 s)
 
 {
 	m_size = s;
-	m_map = new MovieNameNode[m_size];
+	m_map = std::make_unique<MovieNameNode[]>(m_size);
 }
 
 sint32 MovieDB::FindTypeIndex(char *str) const

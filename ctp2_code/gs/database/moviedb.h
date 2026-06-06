@@ -4,6 +4,8 @@
 #ifndef __MOVIE_DB_H__
 #define __MOVIE_DB_H__ 1
 
+#include <memory>
+
 class Token;
 
 struct MovieNameNode {
@@ -23,7 +25,7 @@ class MovieDB {
 
 
 
-	MovieNameNode *m_map;
+	std::unique_ptr<MovieNameNode[]> m_map;
 
 
 public:

@@ -1589,6 +1589,7 @@ cpp_test_sources = [
   'test/cpp/test_headless_determinism.cpp',
   'test/cpp/test_globals_cleanup_smoke.cpp',
   'test/cpp/test_save_determinism.cpp',
+  'test/cpp/test_slic_string.cpp',
   'test/cpp/test_json_save.cpp',
   'test/cpp/test_json_save_integration.cpp',
   'test/cpp/test_json_world.cpp',

@@ -2365,7 +2365,7 @@ Network::ProcessNewPlayer(uint16 id)
 	}
 }
 
-void Network::AddChatText(MBCHAR *str, sint32 len, uint8 from, BOOL priv)
+void Network::AddChatText(const MBCHAR *str, sint32 len, uint8 from, BOOL priv)
 {
 
 

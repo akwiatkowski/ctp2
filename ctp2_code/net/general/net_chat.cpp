@@ -35,18 +35,11 @@
 #include "gs/gameobj/Player.h"
 
 NetChat::NetChat(uint32 destmask, MBCHAR const * str, size_t len)
+	: m_destmask(destmask)
+	, m_str(str, len)
+	, m_len(static_cast<sint16>(len))
+	, m_from(static_cast<uint8>(network_Get().GetPlayerIndex()))
 {
-	m_destmask = destmask;
-	m_str = new MBCHAR[len+1];
-	memcpy(m_str, str, len * sizeof(MBCHAR));
-	m_str[len] = 0;
-	m_len = static_cast<sint16>(len);
-	m_from = (uint8)network_Get().GetPlayerIndex();
-}
-
-NetChat::~NetChat()
-{
-	delete [] m_str;
 }
 
 void
@@ -59,7 +52,7 @@ NetChat::Packetize(uint8 *buf, uint16 &size)
 	PUSHLONG(m_destmask);
 	PUSHSHORT(m_len);
 	PUSHBYTE(m_from);
-	memcpy(&buf[size], m_str, m_len * sizeof(MBCHAR));
+	memcpy(&buf[size], m_str.data(), m_len * sizeof(MBCHAR));
 	size += m_len * sizeof(MBCHAR);
 }
 
@@ -76,12 +69,8 @@ NetChat::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		Assert(m_from == network_Get().IdToIndex(id));
 		m_from = (uint8)network_Get().IdToIndex(id);
 	}
-	
-		delete [] m_str;
 
-	m_str = new MBCHAR[m_len + 1];
-	memcpy(m_str, &buf[pos], m_len);
-	m_str[m_len] = 0;
+	m_str.assign(reinterpret_cast<MBCHAR *>(&buf[pos]), m_len);
 	pos += m_len * sizeof(MBCHAR);
 
 	if(network_Get().IsHost()) {
@@ -97,9 +86,9 @@ NetChat::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	}
 	if(m_destmask & ((uint32)1 << (uint32)network_Get().GetPlayerIndex())) {
 		if(m_destmask == ((uint32)1 << (uint32)network_Get().GetPlayerIndex())) {
-			network_Get().AddChatText(m_str, (sint32)m_len, m_from, TRUE);
+			network_Get().AddChatText(m_str.c_str(), (sint32)m_len, m_from, TRUE);
 		} else {
-			network_Get().AddChatText(m_str, (sint32)m_len, m_from, FALSE);
+			network_Get().AddChatText(m_str.c_str(), (sint32)m_len, m_from, FALSE);
 		}
 	}
 }

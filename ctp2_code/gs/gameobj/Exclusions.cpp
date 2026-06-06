@@ -45,18 +45,13 @@ Exclusions::Exclusions()
 	m_numBuildings = g_theBuildingDB->NumRecords();
 	m_numWonders = g_theWonderDB->NumRecords();
 
-	m_units = new sint32[g_theUnitDB->NumRecords()];
-	memset(m_units, 0, sizeof(sint32) * m_numUnits);
-	m_buildings = new sint32[g_theBuildingDB->NumRecords()];
-	memset(m_buildings, 0, sizeof(sint32) * m_numBuildings);
-	m_wonders = new sint32[g_theWonderDB->NumRecords()];
-	memset(m_wonders, 0, sizeof(sint32) * m_numWonders);
+	m_units = std::make_unique<sint32[]>(g_theUnitDB->NumRecords());
+	memset(m_units.get(), 0, sizeof(sint32) * m_numUnits);
+	m_buildings = std::make_unique<sint32[]>(g_theBuildingDB->NumRecords());
+	memset(m_buildings.get(), 0, sizeof(sint32) * m_numBuildings);
+	m_wonders = std::make_unique<sint32[]>(g_theWonderDB->NumRecords());
+	memset(m_wonders.get(), 0, sizeof(sint32) * m_numWonders);
 }
 
-Exclusions::~Exclusions()
-{
-	delete [] m_units;
-	delete [] m_buildings;
-	delete [] m_wonders;
-}
+Exclusions::~Exclusions() = default;
 

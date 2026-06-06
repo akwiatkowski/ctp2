@@ -4,6 +4,7 @@
 #ifndef __EXCLUSIONS_H__
 #define __EXCLUSIONS_H__
 
+#include <memory>
 #include <nlohmann/json.hpp>
 
 class Exclusions
@@ -15,9 +16,9 @@ private:
 	sint32 m_numBuildings;
 	sint32 m_numWonders;
 
-	sint32 *m_units;
-	sint32 *m_buildings;
-	sint32 *m_wonders;
+	std::unique_ptr<sint32[]> m_units;
+	std::unique_ptr<sint32[]> m_buildings;
+	std::unique_ptr<sint32[]> m_wonders;
 	friend class NetExclusions;
 
 public:

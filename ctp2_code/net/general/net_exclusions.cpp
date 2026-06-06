@@ -3,6 +3,8 @@
 #include "gs/gameobj/Exclusions.h"
 #include "net/io/net_util.h"
 
+#include <memory>
+
 void NetExclusions::Packetize(uint8 *buf, uint16 &size)
 {
 	PUSHID(k_PACKET_EXCLUSIONS_ID);
@@ -57,16 +59,12 @@ void NetExclusions::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLLONG(exclusions_Get()->m_numBuildings);
 	PULLLONG(exclusions_Get()->m_numWonders);
 
-	delete [] exclusions_Get()->m_units;
-	delete [] exclusions_Get()->m_buildings;
-	delete [] exclusions_Get()->m_wonders;
-
-	exclusions_Get()->m_units = new sint32[exclusions_Get()->m_numUnits];
-	exclusions_Get()->m_buildings = new sint32[exclusions_Get()->m_numBuildings];
-	exclusions_Get()->m_wonders = new sint32[exclusions_Get()->m_numWonders];
-	memset(exclusions_Get()->m_units, 0, sizeof(sint32) * exclusions_Get()->m_numUnits);
-	memset(exclusions_Get()->m_buildings, 0, sizeof(sint32) * exclusions_Get()->m_numBuildings);
-	memset(exclusions_Get()->m_wonders, 0, sizeof(sint32) * exclusions_Get()->m_numWonders);
+	exclusions_Get()->m_units = std::make_unique<sint32[]>(exclusions_Get()->m_numUnits);
+	exclusions_Get()->m_buildings = std::make_unique<sint32[]>(exclusions_Get()->m_numBuildings);
+	exclusions_Get()->m_wonders = std::make_unique<sint32[]>(exclusions_Get()->m_numWonders);
+	memset(exclusions_Get()->m_units.get(), 0, sizeof(sint32) * exclusions_Get()->m_numUnits);
+	memset(exclusions_Get()->m_buildings.get(), 0, sizeof(sint32) * exclusions_Get()->m_numBuildings);
+	memset(exclusions_Get()->m_wonders.get(), 0, sizeof(sint32) * exclusions_Get()->m_numWonders);
 
 	sint32 i;
 	sint32 bitPos;

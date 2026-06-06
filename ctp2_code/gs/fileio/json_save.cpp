@@ -1103,12 +1103,9 @@ void from_json(nlohmann::json const &j, Exclusions &e)
             531, "exclusions arrays must match their num_* counts", &j);
     }
 
-    delete[] e.m_units;
-    delete[] e.m_buildings;
-    delete[] e.m_wonders;
-    e.m_units     = new sint32[e.m_numUnits];
-    e.m_buildings = new sint32[e.m_numBuildings];
-    e.m_wonders   = new sint32[e.m_numWonders];
+    e.m_units     = std::make_unique<sint32[]>(e.m_numUnits);
+    e.m_buildings = std::make_unique<sint32[]>(e.m_numBuildings);
+    e.m_wonders   = std::make_unique<sint32[]>(e.m_numWonders);
 
     for (sint32 i = 0; i < e.m_numUnits;     ++i) units    [i].get_to(e.m_units[i]);
     for (sint32 i = 0; i < e.m_numBuildings; ++i) buildings[i].get_to(e.m_buildings[i]);

@@ -457,18 +457,10 @@ GameEventArgList *SlicArgList::CreateGameEventArgs(GAME_EVENT ev)
 }
 
 SlicFunc::SlicFunc(char const * name, SLIC_FUNC_RET_TYPE type)
+	: m_name(std::string("_") + name)
+	, m_type(type)
 {
-	m_type = type;
-	m_name = new char[strlen(name) + 2];
-	m_name[0] = '_';
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	strcpy(m_name + 1, name);
 	m_result.m_int = 0;
-}
-
-SlicFunc::~SlicFunc()
-{
-	delete [] m_name;
 }
 
 //----------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 
 #include "gs/slic/SlicConst.h"
 #include "gs/slic/SlicNamedSymbol.h"
+#include "gs/slic/SlicFunc.h"
 
 TEST_CASE("SlicConst stores name and value")
 {
@@ -51,4 +52,18 @@ TEST_CASE("SlicNamedSymbol DelName clears name")
     sym.DelName();
 
     CHECK(std::string(sym.GetName()) == "");
+}
+
+TEST_CASE("SlicFunc prefixes name with underscore")
+{
+    SlicFunc func("MyFunction", SFR_VOID);
+
+    CHECK(std::string(func.GetName()) == "_MyFunction");
+}
+
+TEST_CASE("SlicFunc empty name is safe")
+{
+    SlicFunc func("", SFR_INT);
+
+    CHECK(std::string(func.GetName()) == "_");
 }

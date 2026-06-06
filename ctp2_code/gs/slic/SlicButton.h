@@ -1,10 +1,10 @@
 #ifdef HAVE_PRAGMA_ONCE
 #pragma once
 #endif
-
 #ifndef __SLIC_BUTTON_H__
 #define __SLIC_BUTTON_H__
 
+#include <string>
 #include <nlohmann/json.hpp>
 
 typedef sint32 StringId;
@@ -24,7 +24,7 @@ private:
 	Message *m_message;
 	SlicObject *m_context;
 	SlicSegment *m_segment;
-	char *m_segmentName;
+	std::string m_segmentName;
 
 	friend void to_json(nlohmann::json &j, SlicButton const &b);
 	friend void from_json(nlohmann::json const &j, SlicButton &b);

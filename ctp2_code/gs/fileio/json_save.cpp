@@ -4775,8 +4775,7 @@ void to_json(nlohmann::json &j, SlicButton const &b)
     else
         j["context"]  = SlicObject();
     j["segment_name"] = b.m_segment ? std::string(b.m_segment->GetName())
-                         : (b.m_segmentName ? std::string(b.m_segmentName)
-                                            : std::string());
+                         : b.m_segmentName;
 }
 
 void from_json(nlohmann::json const &j, SlicButton &b)
@@ -4797,11 +4796,7 @@ void from_json(nlohmann::json const &j, SlicButton &b)
     b.m_context = newContext;
 
     std::string segName = j.at("segment_name").get<std::string>();
-    if (b.m_segmentName)
-    {
-        delete[] b.m_segmentName;
-        b.m_segmentName = nullptr;
-    }
+    b.m_segmentName.clear();
     b.m_segment = nullptr;
     if (!segName.empty() && slicengine_Get())
     {
@@ -4809,8 +4804,7 @@ void from_json(nlohmann::json const &j, SlicButton &b)
     }
     if (!b.m_segment && !segName.empty())
     {
-        b.m_segmentName = new char[segName.size() + 1];
-        std::strcpy(b.m_segmentName, segName.c_str());
+        b.m_segmentName = segName;
     }
 }
 

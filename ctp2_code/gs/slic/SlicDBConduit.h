@@ -26,8 +26,8 @@
 //
 // - Added two new functions for better slic error
 //   messages and for access on the number of entries
-//   in a database, addion by Martin Gühmann.
-// - Added database array access. (Sep 16th 2005 Martin Gühmann)
+//   in a database, addion by Martin Gï¿½hmann.
+// - Added database array access. (Sep 16th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 #ifdef HAVE_PRAGMA_ONCE
@@ -46,7 +46,7 @@ public:
 	virtual const MBCHAR *GetRecordNameByIndex(sint32 index) = 0;
 	virtual sint32 GetRecordNameID(const char *id) = 0;
 	virtual sint32 GetRecordNameIDByIndex(sint32 index) = 0;
-//Added by Martin Gühmann to get the number of records in a database via slic
+//Added by Martin Gï¿½hmann to get the number of records in a database via slic
 	virtual sint32 GetNumRecords() = 0;
 	virtual bool IsTokenInDB(const char *valname) { return false; }
 	virtual ~SlicDBInterface() = default;
@@ -57,18 +57,10 @@ template <class T> class CTPDatabase;
 template <class T, class AccessorInfo> class SlicDBConduit : public SlicDBInterface
 {
 public:
-	SlicDBConduit(const char *slicname, CTPDatabase<T> *db, AccessorInfo *acc, const char **tokens, sint32 numTokens) {
-		m_slicname = new char[strlen(slicname) + 1];
-		strcpy(m_slicname, slicname);
-		m_db = db;
-		m_accessors = acc;
-		m_tokens = tokens;
-		m_numTokens = numTokens;
-	}
+	SlicDBConduit(const char *slicname, CTPDatabase<T> *db, AccessorInfo *acc, const char **tokens, sint32 numTokens)
+		: m_db(db), m_slicname(slicname), m_accessors(acc), m_tokens(tokens), m_numTokens(numTokens) {}
 
-	~SlicDBConduit() override {
-		delete [] m_slicname;
-	}
+	~SlicDBConduit() override = default;
 
 	sint32 GetIndex(const char *name) override {
 		sint32 index;
@@ -77,12 +69,12 @@ public:
 		else
 			return -1;
 	}
-	const char *GetName() override { return m_slicname; }
+	const char *GetName() override { return m_slicname.c_str(); }
 
 	sint32 GetValue(sint32 index, const char *valname) override {
 		const T *rec = m_db->Get(index);
 		Assert(rec);
-		if(!rec)return 0; //Added by Martin Gühmann to avoid an access violation
+		if(!rec)return 0; //Added by Martin Gï¿½hmann to avoid an access violation
 		sint32 i;
 		for(i = 0; i < m_numTokens; i++) {
 			if(stricmp(valname, m_tokens[i]) == 0) {
@@ -160,7 +152,7 @@ public:
 		}
 	}
 
-//Added by Martin Gühmann to get the number of records in a database via slic
+//Added by Martin Gï¿½hmann to get the number of records in a database via slic
 
 //----------------------------------------------------------------------------
 //
@@ -211,7 +203,7 @@ public:
 
 private:
 	CTPDatabase<T> *m_db;
-	char *m_slicname;
+	std::string m_slicname;
 	AccessorInfo *m_accessors;
 	const char **m_tokens;
 	sint32 m_numTokens;

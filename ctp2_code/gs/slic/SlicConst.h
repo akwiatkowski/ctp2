@@ -9,18 +9,12 @@
 
 class SlicConst {
 public:
-	SlicConst(const MBCHAR *name, sint32 value) {
-		m_name = new MBCHAR[strlen(name) * sizeof(MBCHAR) + 1];
-		strcpy(m_name, name);
-		m_value = value;
-	}
+	SlicConst(const MBCHAR *name, sint32 value)
+		: m_name(name), m_value(value) {}
 
-	~SlicConst() {
-		
-			delete [] m_name;
-	}
+	~SlicConst() = default;
 
-	const MBCHAR *GetName() { return m_name; }
+	const MBCHAR *GetName() { return m_name.c_str(); }
 	const sint32 GetValue() { return m_value; }
 
 	// JSON bridge — mirrors SlicConst::Serialize.  Persists the
@@ -30,7 +24,7 @@ public:
 	friend void from_json(nlohmann::json const &j, SlicConst &c);
 
 private:
-	char *m_name;
+	std::string m_name;
 	sint32 m_value;
 };
 

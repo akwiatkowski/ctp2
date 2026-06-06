@@ -2465,17 +2465,14 @@ void from_json(nlohmann::json const &j, Vision &v)
 void to_json(nlohmann::json &j, SlicConst const &c)
 {
     j = nlohmann::json{
-        {"name",  c.m_name ? std::string(c.m_name) : std::string()},
+        {"name",  c.m_name},
         {"value", c.m_value},
     };
 }
 
 void from_json(nlohmann::json const &j, SlicConst &c)
 {
-    std::string name = j.at("name").get<std::string>();
-    delete[] c.m_name;
-    c.m_name = new char[name.size() + 1];
-    std::memcpy(c.m_name, name.c_str(), name.size() + 1);
+    j.at("name").get_to(c.m_name);
     j.at("value").get_to(c.m_value);
 }
 
@@ -3816,7 +3813,7 @@ void to_json(nlohmann::json &j, SlicNamedSymbol const &s)
 {
     to_json(j, static_cast<SlicSymbolData const &>(s));
     j["serial_type"] = "named";
-    j["name"]        = s.m_name ? std::string(s.m_name) : std::string();
+    j["name"]        = s.m_name;
     j["index"]       = s.m_index;
     j["from_file"]   = s.m_fromFile;
 }
@@ -3825,11 +3822,7 @@ void from_json(nlohmann::json const &j, SlicNamedSymbol &s)
 {
     from_json(j, static_cast<SlicSymbolData &>(s));
 
-    std::string name = j.at("name").get<std::string>();
-    delete[] s.m_name;
-    s.m_name = new char[name.size() + 1];
-    std::memcpy(s.m_name, name.c_str(), name.size() + 1);
-
+    j.at("name").get_to(s.m_name);
     j.at("index").get_to(s.m_index);
     j.at("from_file").get_to(s.m_fromFile);
 }

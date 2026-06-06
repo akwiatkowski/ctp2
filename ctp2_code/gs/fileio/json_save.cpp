@@ -3990,7 +3990,7 @@ void from_json(nlohmann::json const &j, SlicArray &a)
         for (size_t i = 0; i < a.m_allocatedSize; ++i)
             delete a.m_array[i].m_sym;
     }
-    delete[] a.m_array;
+    a.m_array.reset();
 
     a.m_type     = ssTypeFromName(j.at("type").get<std::string>());
     a.m_varType  = slicSymTypeFromName(j.at("var_type").get<std::string>());
@@ -4020,8 +4020,8 @@ void from_json(nlohmann::json const &j, SlicArray &a)
     if (a.m_allocatedSize == 0)
         a.m_allocatedSize = 1;  // matches k_DEFAULT_SLICARRAY_SIZE
 
-    a.m_array = new SlicStackValue[a.m_allocatedSize];
-    std::memset(a.m_array, 0, a.m_allocatedSize * sizeof(SlicStackValue));
+    a.m_array = std::make_unique<SlicStackValue[]>(a.m_allocatedSize);
+    std::memset(a.m_array.get(), 0, a.m_allocatedSize * sizeof(SlicStackValue));
 
     if (a.m_type == SS_TYPE_INT)
     {

@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Moved graph functionality from other places (30-Sep-2007 Martin Gühmann)
+// - Moved graph functionality from other places (30-Sep-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 #ifdef HAVE_PRAGMA_ONCE
@@ -64,6 +64,8 @@ enum eRankingCategories
 
 class  LineGraph;
 struct LineGraphData;
+
+#include <string>
 
 #include "ui/aui_common/aui_control.h"
 #include "os/include/ctp2_inttypes.h"
@@ -159,8 +161,8 @@ private:
 	bool			m_hasIndicator;
 	double			m_indicatorValue;
 
-	MBCHAR			*m_xAxisName;
-	MBCHAR			*m_yAxisName;
+	std::string			m_xAxisName;
+	std::string			m_yAxisName;
 
 	aui_Surface *   m_surface;
 

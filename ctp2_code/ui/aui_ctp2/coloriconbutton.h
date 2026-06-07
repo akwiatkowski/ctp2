@@ -34,6 +34,8 @@
 #ifndef __COLORICONBUTTON_H__
 #define __COLORICONBUTTON_H__
 
+#include <string>
+
 #include "ui/aui_ctp2/c3_button.h"
 
 
@@ -85,7 +87,7 @@ public:
 		sint32 y = 0 ) override;
 
 protected:
-	MBCHAR		*m_filename;
+	std::string		m_filename;
 	BOOL		m_shrinkToFit;
 	RECT		m_pictureRect;
 

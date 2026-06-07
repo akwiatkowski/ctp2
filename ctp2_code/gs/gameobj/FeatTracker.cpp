@@ -104,11 +104,9 @@ FeatTracker::FeatTracker()
 		m_effectList[i] = nullptr;
 	}
 
-	m_achieved = new bool[g_theFeatDB->NumRecords()];
-	memset(m_achieved, 0, sizeof(bool) * g_theFeatDB->NumRecords());
+	m_achieved.assign(g_theFeatDB->NumRecords(), 0);
 
-	m_buildingFeat = new bool[g_theBuildingDB->NumRecords()];
-	memset(m_buildingFeat, 0, sizeof(bool) * g_theBuildingDB->NumRecords());
+	m_buildingFeat.assign(g_theBuildingDB->NumRecords(), 0);
 
 	FindBuildingFeats();
 }
@@ -128,17 +126,7 @@ FeatTracker::~FeatTracker()
 		}
 	}
 
-	if(m_achieved)
-	{
-		delete [] m_achieved;
-		m_achieved = nullptr;
-	}
-
-	if(m_buildingFeat)
-	{
-		delete [] m_buildingFeat;
-		m_buildingFeat = nullptr;
-	}
+	// m_achieved and m_buildingFeat are std::vector<bool>, auto-freed
 }
 
 

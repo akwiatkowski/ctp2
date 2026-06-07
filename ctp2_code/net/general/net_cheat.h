@@ -1,6 +1,8 @@
 #ifndef __NET_CHEAT_H__
 #define __NET_CHEAT_H__
 
+#include <vector>
+
 #include "net/general/net_packet.h"
 
 enum NET_CHEAT {
@@ -19,14 +21,14 @@ class NetCheat : public Packetizer
 {
 public:
 	NetCheat(NET_CHEAT cheat, ...);
-	NetCheat() : m_data(NULL) {}
+	NetCheat() {}
 	~NetCheat();
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
 private:
 	NET_CHEAT m_cheat;
-	uint32 *m_data;
+	std::vector<uint32>		m_data;
 	static const uint32 m_args[NET_CHEAT_MAX];
 };
 

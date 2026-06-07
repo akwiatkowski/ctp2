@@ -39,7 +39,7 @@ c3_ColorIconButton::c3_ColorIconButton(
 	c3_Button( retval, id, x, y, width, height, pattern, ActionFunc, cookie )
 {
 	m_shrinkToFit = FALSE;
-	m_filename = nullptr;
+	// m_filename default constructed (empty)
 
 	SetRect(&m_pictureRect, 0, 0, 0, 0);
 
@@ -58,7 +58,7 @@ c3_ColorIconButton::c3_ColorIconButton(
 	c3_Button( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	m_shrinkToFit = FALSE;
-	m_filename = nullptr;
+	// m_filename default constructed (empty)
 
 	SetRect(&m_pictureRect, 0, 0, 0, 0);
 
@@ -126,15 +126,10 @@ void c3_ColorIconButton::SetIcon(MBCHAR *name)
 {
 	if (name == nullptr) return;
 
-	delete[] m_filename;
+	m_filename = name;
 
-	m_filename = new MBCHAR[_MAX_PATH];
-
-
-	strcpy(m_filename, name);
-
-	if (strcmp(m_filename, "") != 0)
-		SetImage(m_filename, 0);
+	if (!m_filename.empty())
+		SetImage(m_filename.c_str(), 0);
 	else
 		SetImage(nullptr, 0);
 
@@ -172,7 +167,7 @@ AUI_ERRCODE c3_ColorIconButton::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
 
 c3_ColorIconButton::~c3_ColorIconButton()
 {
-	delete [] m_filename;
+	// m_filename is std::string, auto-freed
 }
 
 AUI_ERRCODE c3_ColorIconButton::DrawThis( aui_Surface *surface, sint32 x, sint32 y )

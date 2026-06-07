@@ -26,7 +26,7 @@
 //
 // - Event handlers declared in a notation that is more standard C++.
 // - Prevented crash in destructor after using the default constructor.
-// - Added a constom status bar text for orders. (13-Sep-2008 Martin Gühmann)
+// - Added a constom status bar text for orders. (13-Sep-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -40,6 +40,7 @@
 #include "ui/aui_common/aui_keyboard.h"
 #include "ui/aui_common/aui_joystick.h"
 
+#include <string>
 #include <utility>
 
 class aui_ImageList;
@@ -280,7 +281,7 @@ protected:
 private:
 
 	const MBCHAR *m_statusText;
-	MBCHAR *m_statusTextCopy;
+	std::string m_statusTextCopy;
 
 
 

@@ -100,8 +100,8 @@ aui_Control::aui_Control
 	m_numberOfLayers        (0),
 	m_imagesPerLayer        (0),
 	m_imageLayerList        (nullptr),
-	m_layerRenderFlags      (nullptr),
-	m_statusTextCopy        (nullptr)
+	m_layerRenderFlags      (nullptr)
+	// m_statusTextCopy default constructed (empty)
 {
 	if (AUI_SUCCESS(*retval))
 	{
@@ -133,8 +133,8 @@ aui_Control::aui_Control
 	m_imagesPerLayer        (0),
 	m_imageLayerList        (nullptr),
 	m_layerRenderFlags      (nullptr),
-	m_renderFlags           (k_AUI_CONTROL_LAYER_FLAG_ALWAYS),
-	m_statusTextCopy        (nullptr)
+	m_renderFlags           (k_AUI_CONTROL_LAYER_FLAG_ALWAYS)
+	// m_statusTextCopy default constructed (empty)
 {
 	if (AUI_SUCCESS(*retval))
 	{
@@ -266,7 +266,7 @@ aui_Control::~aui_Control()
 	delete m_imageLayerList;
 	delete [] m_layerRenderFlags;
 	// m_statusText: reference only
-	delete [] m_statusTextCopy;
+	// m_statusTextCopy is std::string, auto-freed
 }
 
 
@@ -820,9 +820,9 @@ void aui_Control::MouseMoveOver( aui_MouseEvent *mouseData )
 			{
 				StatusBar::SetText(m_statusText, this);
 			}
-			else if(m_statusTextCopy)
+			else if(!m_statusTextCopy.empty())
 			{
-				StatusBar::SetText(m_statusTextCopy, this);
+				StatusBar::SetText(m_statusTextCopy.c_str(), this);
 			}
 
 			if ( m_mouseCode == AUI_ERRCODE_UNHANDLED )
@@ -1726,11 +1726,10 @@ void aui_Control::SetStatusText(const MBCHAR *text)
 {
 	m_statusText = text;
 
-	if(m_statusTextCopy != nullptr)
+	if(!m_statusTextCopy.empty())
 	{
 		StatusBar::SetText("", nullptr);
-		delete [] m_statusTextCopy;
-		m_statusTextCopy = nullptr;
+		m_statusTextCopy.clear();
 	}
 }
 
@@ -1738,11 +1737,9 @@ void aui_Control::SetStatusTextCopy(const MBCHAR *text)
 {
 	m_statusText = nullptr;
 
-	if(m_statusTextCopy != nullptr)
+	m_statusTextCopy = text;
+	if(!m_statusTextCopy.empty())
 	{
-		delete [] m_statusTextCopy;
 		StatusBar::SetText("", nullptr);
 	}
-	m_statusTextCopy = new MBCHAR[strlen(text)+1];
-	strcpy(m_statusTextCopy, text);
 }

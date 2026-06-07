@@ -9,9 +9,11 @@ class MessageResponseListItem;
 class MessageResponseStandard;
 class MessageResponseDropdown;
 
-#include "ui/aui_common/auitypes.h"       // AUI_ERRCODE
-#include "ui/aui_ctp2/c3_listitem.h"    // c3_ListItem
-#include "os/include/ctp2_inttypes.h"  // sint32
+#include <string>
+
+#include "ui/aui_common/auitypes.h"		// AUI_ERRCODE
+#include "ui/aui_ctp2/c3_listitem.h"	// c3_ListItem
+#include "os/include/ctp2_inttypes.h"	// sint32
 #include "ui/aui_common/tech_wllist.h"
 
 class c3_DropDown;
@@ -69,7 +71,7 @@ private:
 	tech_WLList<MessageResponseAction *>	*m_messageResponseAction;
 
 	ctp2_Button		*m_dontShowButton;
-	char *m_identifier;
+	std::string		m_identifier;
 };
 
 

@@ -177,7 +177,7 @@ AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow
 	}
 
 	m_dontShowButton=nullptr;
-	m_identifier=nullptr;
+	// m_identifier default constructed (empty)
 	if(((MessageData*)window->GetMessage()->GetData())->GetSlicSegment())
 	{
 		if(critical_messages_prefs_Get()->IsEnabled(((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName())>0)
@@ -186,8 +186,7 @@ AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow
 			m_dontShowButton = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock );
 			Assert( AUI_NEWOK( m_dontShowButton, errcode ));
 			m_dontShowButton->SetActionFuncAndCookie(	DontShowButtonActionCallback, this);
-			m_identifier=new MBCHAR[strlen(((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName())+1];
-			strcpy(m_identifier,((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName());
+			m_identifier = ((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName();
 
 			window->AddControl(m_dontShowButton);
 		}
@@ -234,11 +233,7 @@ MessageResponseStandard::~MessageResponseStandard()
 		delete m_messageResponseButton;
 		m_messageResponseButton = nullptr;
 	}
-	if(m_identifier)
-	{
-		delete [] m_identifier;
-		m_identifier=nullptr;
-	}
+	// m_identifier is std::string, auto-freed
 
 	delete m_dontShowButton;
 }
@@ -362,5 +357,5 @@ void MessageResponseStandard::DontShowButtonActionCallback(aui_Control *control,
 		static_cast<MessageResponseStandard*>(cookie);
 
 	dialog->m_dontShowButton->SetToggleState(!dialog->m_dontShowButton->GetToggleState());
-	critical_messages_prefs_Get()->SetEnabled(dialog->m_identifier,!dialog->m_dontShowButton->GetToggleState());
+	critical_messages_prefs_Get()->SetEnabled(dialog->m_identifier.c_str(),!dialog->m_dontShowButton->GetToggleState());
 }

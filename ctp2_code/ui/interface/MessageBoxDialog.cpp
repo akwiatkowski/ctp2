@@ -161,12 +161,11 @@ m_userData(userData)
 
 	if(id)
 	{
-		m_identifier=new MBCHAR[strlen(id)+1];
-		strcpy(m_identifier,id);
+		m_identifier = id;
 	}
 	else
 	{
-		m_identifier=nullptr;
+		m_identifier.clear();
 		m_dontShowButton->Hide();
 	}
 	m_closing = false;
@@ -178,11 +177,7 @@ MessageBoxDialog::~MessageBoxDialog()
 	m_window->Hide();
 	c3ui_Get()->RemoveWindow(m_window->Id());
 	aui_Ldl::DeleteHierarchyFromRoot("MessageBoxDialog");
-	if(m_identifier)
-	{
-		delete [] m_identifier;
-		m_identifier=nullptr;
-	}
+	// m_identifier is std::string, auto-freed
 }
 
 class DismissMessageBoxAction : public aui_Action
@@ -239,9 +234,9 @@ void MessageBoxDialog::LeftButtonActionCallback(aui_Control *control,
 			cb(true, dialog->m_userData);
 		}
 	}
-	if(!dialog->m_isTextQuery && dialog->m_dontShowButton->GetToggleState() && dialog->m_identifier)
+	if(!dialog->m_isTextQuery && dialog->m_dontShowButton->GetToggleState() && !dialog->m_identifier.empty())
 	{
-		critical_messages_prefs_Get()->SetEnabled(dialog->m_identifier,!dialog->m_dontShowButton->GetToggleState());
+		critical_messages_prefs_Get()->SetEnabled(dialog->m_identifier.c_str(),!dialog->m_dontShowButton->GetToggleState());
 	}
 }
 
@@ -277,9 +272,9 @@ void MessageBoxDialog::RightButtonActionCallback(aui_Control *control,
 		}
 	}
 
-	if(!dialog->m_isTextQuery && dialog->m_dontShowButton->GetToggleState() && dialog->m_identifier)
+	if(!dialog->m_isTextQuery && dialog->m_dontShowButton->GetToggleState() && !dialog->m_identifier.empty())
 	{
-		critical_messages_prefs_Get()->SetEnabled(dialog->m_identifier,!dialog->m_dontShowButton->GetToggleState());
+		critical_messages_prefs_Get()->SetEnabled(dialog->m_identifier.c_str(),!dialog->m_dontShowButton->GetToggleState());
 	}
 }
 

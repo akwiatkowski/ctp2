@@ -42,6 +42,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 class aui_ImageList;
 class aui_Window;
@@ -112,12 +113,12 @@ protected:
 		m_stringTable       (nullptr),
 		m_allocatedTip      (false),
 		m_statusText        (nullptr),
-		m_statusTextCopy    (nullptr),
 		m_numberOfLayers    (0),
 		m_imagesPerLayer    (0),
 		m_imageLayerList    (nullptr),
-		m_layerRenderFlags  (nullptr),
 		m_renderFlags       (k_AUI_CONTROL_LAYER_FLAG_ALWAYS)
+		// m_statusTextCopy default constructed (empty)
+		// m_layerRenderFlags default constructed (empty)
 	{};
 
 	AUI_ERRCODE InitCommonLdl(
@@ -443,7 +444,7 @@ private:
 
 	aui_ImageList *m_imageLayerList;
 
-	sint32 *m_layerRenderFlags;
+	std::vector<sint32> m_layerRenderFlags;
 
 	sint32 m_renderFlags;
 

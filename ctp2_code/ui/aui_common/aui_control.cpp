@@ -99,8 +99,8 @@ aui_Control::aui_Control
 	m_statusText            (nullptr),
 	m_numberOfLayers        (0),
 	m_imagesPerLayer        (0),
-	m_imageLayerList        (nullptr),
-	m_layerRenderFlags      (nullptr)
+	m_imageLayerList        (nullptr)
+	// m_layerRenderFlags default constructed (empty)
 	// m_statusTextCopy default constructed (empty)
 {
 	if (AUI_SUCCESS(*retval))
@@ -132,8 +132,8 @@ aui_Control::aui_Control
 	m_numberOfLayers        (0),
 	m_imagesPerLayer        (0),
 	m_imageLayerList        (nullptr),
-	m_layerRenderFlags      (nullptr),
 	m_renderFlags           (k_AUI_CONTROL_LAYER_FLAG_ALWAYS)
+	// m_layerRenderFlags default constructed (empty)
 	// m_statusTextCopy default constructed (empty)
 {
 	if (AUI_SUCCESS(*retval))
@@ -264,7 +264,7 @@ aui_Control::~aui_Control()
 	}
 
 	delete m_imageLayerList;
-	delete [] m_layerRenderFlags;
+	// m_layerRenderFlags is std::vector, auto-freed
 	// m_statusText: reference only
 	// m_statusTextCopy is std::string, auto-freed
 }
@@ -1109,8 +1109,7 @@ bool aui_Control::AllocateImageLayers(ldl_datablock *theBlock)
 
 	m_imageLayerList = new aui_ImageList(m_numberOfLayers, m_imagesPerLayer);
 
-	if(!m_layerRenderFlags)
-		m_layerRenderFlags = new sint32[m_numberOfLayers];
+	m_layerRenderFlags.resize(m_numberOfLayers);
 
 	return(true);
 }
@@ -1679,7 +1678,7 @@ void aui_Control::BaseResetCurrentRenderFlags()
 void aui_Control::InitializeImageLayers(ldl_datablock *theBlock)
 {
 
-	bool initializeFlags = (m_layerRenderFlags == nullptr);
+	bool initializeFlags = m_layerRenderFlags.empty();
 
 
 	if(!AllocateImageLayers(theBlock))

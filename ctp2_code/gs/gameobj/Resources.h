@@ -24,7 +24,7 @@
 // Modifications from the original Activision code:
 //
 // - Added GetNum and Resize methods for loading of savegames with different
-//   number of goods in than in the database. - May 28th 2005 Martin Gühmann
+//   number of goods in than in the database. - May 28th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -35,12 +35,14 @@
 #ifndef _RESOURCES_H_
 #define _RESOURCES_H_
 
+#include <vector>
+
 class CivArchive;
 
 class Resources {
 private:
 	sint32 m_numGoods;
-	sint32 *m_supply;
+	std::vector<sint32> m_supply;
 	sint32 m_totalResources;
 
 	friend class NetCity;
@@ -50,12 +52,12 @@ public:
 	Resources(const Resources &copyme);
 	virtual ~Resources()
     {
-		delete [] m_supply;
+		// m_supply is std::vector, auto-freed
 	}
 
 	void Clear()
 	{
-		memset(m_supply, 0, m_numGoods * sizeof(sint32));
+		std::fill(m_supply.begin(), m_supply.end(), 0);
 		m_totalResources = 0;
 	}
 

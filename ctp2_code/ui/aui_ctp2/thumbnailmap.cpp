@@ -124,7 +124,7 @@ void ThumbnailMap::InitCommon()
 
 	m_cityList = nullptr;
 
-	m_mapOverlay = nullptr;
+	// m_mapOverlay default constructed (empty)
 
 	m_cityFilterProc = nullptr;
 
@@ -212,18 +212,14 @@ void ThumbnailMap::SetCityBlink(Unit city, BOOL blink, COLOR blinkColor)
 
 void ThumbnailMap::ClearMapOverlay()
 {
-	delete[] m_mapOverlay;
-	m_mapOverlay = nullptr;
+	m_mapOverlay.clear();
 }
 
 void ThumbnailMap::SetMapOverlayCell(MapPoint &pos, COLOR color)
 {
-	if (m_mapOverlay == nullptr) {
+	if (m_mapOverlay.empty()) {
 		sint32 len = m_mapSize->x * m_mapSize->y;
-		m_mapOverlay = new COLOR[len];
-
-		for (sint32 i=0; i<len; i++)
-			m_mapOverlay[i] = COLOR_MAX;
+		m_mapOverlay.resize(len, COLOR_MAX);
 	}
 
 	m_mapOverlay[pos.x + (pos.y * m_mapSize->x)] = color;
@@ -313,7 +309,7 @@ void ThumbnailMap::RenderMap(aui_Surface *surf)
 
 			if (vision->IsExplored(pos))
             {
-				if (m_displayOverlay && m_mapOverlay && m_mapOverlay[i*m_mapSize->x + j] != COLOR_MAX)
+				if (m_displayOverlay && !m_mapOverlay.empty() && m_mapOverlay[i*m_mapSize->x + j] != COLOR_MAX)
                 {
 					color = static_cast<Pixel16>(m_mapOverlay[i*m_mapSize->x + j]);
 				}

@@ -50,6 +50,8 @@ enum    C3_THUMBNAIL_ACTION
 
 #define k_THUMBNAIL_CITY_BLINK_RATE		1000
 
+#include <vector>
+
 #include "ui/aui_ctp2/patternbase.h"
 #include "ui/aui_common/aui_control.h"
 #include "gfx/gfx_utils/colorset.h"				// COLOR
@@ -146,7 +148,7 @@ public:
 private:
 	aui_Surface						*m_mapSurface;
 	MapPoint						*m_mapSize;
-	COLOR							*m_mapOverlay;
+	std::vector<COLOR>					m_mapOverlay;
 
 	sint32							m_centerX,
 									m_centerY;

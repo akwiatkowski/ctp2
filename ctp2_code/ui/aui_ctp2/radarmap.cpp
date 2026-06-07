@@ -182,7 +182,7 @@ void RadarMap::InitCommon()
 	m_displayCapitols = profiledb_Get()->GetDisplayCapitols() != FALSE;
 	m_displayRelations = profiledb_Get()->GetDisplayRelations() != FALSE;
 
-	m_mapOverlay = nullptr;
+	// m_mapOverlay default constructed (empty)
 
 	MapPoint resetPos (0,0);
 	m_lastCenteredPoint = resetPos;
@@ -216,8 +216,7 @@ void RadarMap::InitCommon()
 //---------------------------------------------------------------------------
 void RadarMap::ClearMapOverlay()
 {
-	delete [] m_mapOverlay;
-	m_mapOverlay = nullptr;
+	m_mapOverlay.clear();
 }
 
 //---------------------------------------------------------------------------
@@ -231,12 +230,9 @@ void RadarMap::ClearMapOverlay()
 //---------------------------------------------------------------------------
 void RadarMap::SetMapOverlayCell(MapPoint const & pos, COLOR color)
 {
-	if (m_mapOverlay == nullptr) {
+	if (m_mapOverlay.empty()) {
 		sint32 len = m_mapSize->x * m_mapSize->y;
-		m_mapOverlay = new COLOR[len];
-
-		for (sint32 i=0; i<len; i++)
-			m_mapOverlay[i] = COLOR_MAX;
+		m_mapOverlay.resize(len, COLOR_MAX);
 	}
 
 	m_mapOverlay[pos.x + (pos.y * m_mapSize->x)] = color;
@@ -384,7 +380,7 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 			flags = 1;
 		}
 
-		if(m_displayOverlay && m_mapOverlay)
+		if(m_displayOverlay && !m_mapOverlay.empty())
 		{
 			COLOR color = m_mapOverlay[worldpos.y * m_mapSize->x + worldpos.x];
 			if(color != COLOR_MAX)

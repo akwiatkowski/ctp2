@@ -7346,19 +7346,19 @@ void ArmyData::UpdateZOCForMove(const MapPoint &pos, WORLD_DIRECTION d)
 			case NORTHWEST:  dirs = S_F | SE_F | E_F; break;
 		}
 
-	    DynamicArray<MapPoint> points;
+	    std::vector<MapPoint> points;
 		for(dd = 0; dd < (sint32)NOWHERE; dd++) {
 			if(dirs & (1 << dd)) {
 				if(m_pos.GetNeighborPosition((WORLD_DIRECTION)dd, chk)) {
 					world_Get()->RemoveZOC(chk, m_owner);
-					points.Insert(chk);
+					points.push_back(chk);
 				}
 			}
 		}
 
 
 		sint32 mp;
-		for(mp = points.Num() - 1; mp >= 0; mp--) {
+		for(mp = static_cast<sint32>(points.size()) - 1; mp >= 0; mp--) {
 			world_Get()->AddOtherArmyZOC(points[mp], m_owner, me, Unit());
 		}
 	}

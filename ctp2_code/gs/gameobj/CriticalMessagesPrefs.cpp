@@ -46,7 +46,7 @@
 //
 //----------------------------------------------------------------------------
 CriticalMessagesData::CriticalMessagesData()
-:	m_messageName(nullptr),
+:	// m_messageName default constructed (empty)
 	m_messageEnabled(false)
 {};
 
@@ -67,7 +67,7 @@ CriticalMessagesData::CriticalMessagesData()
 //----------------------------------------------------------------------------
 CriticalMessagesData::~CriticalMessagesData()
 {
-	delete [] m_messageName;	// new [] in CriticalMessagesPrefs::SetEnabled
+	// m_messageName is std::string, auto-freed
 };
 
 CriticalMessagesPrefs::CriticalMessagesPrefs()
@@ -112,8 +112,7 @@ void CriticalMessagesPrefs::SetEnabled(const char *name, bool enable)
 	else
 	{
 		CriticalMessagesData *newdata=new CriticalMessagesData;
-		newdata->m_messageName=new MBCHAR[strlen(name)+1];
-		strcpy(newdata->m_messageName,name);
+		newdata->m_messageName = name;
 		newdata->m_messageEnabled=enable;
 		m_messagesList->AddTail(newdata);
 		Save();
@@ -171,7 +170,7 @@ void CriticalMessagesPrefs::Save()
 		curDataPtr=m_messagesList->GetHeadNode();
 		while(curDataPtr)
 		{
-			fprintf(filePtr,"%s:%i\n",curDataPtr->GetObj()->m_messageName,
+			fprintf(filePtr,"%s:%i\n",curDataPtr->GetObj()->m_messageName.c_str(),
 				curDataPtr->GetObj()->m_messageEnabled);
 			curDataPtr = curDataPtr->GetNext();
 		}
@@ -188,7 +187,7 @@ PointerList<CriticalMessagesData>::PointerListNode *CriticalMessagesPrefs::FindM
 		curDataPtr=m_messagesList->GetHeadNode();
 		while(curDataPtr)
 		{
-			if(stricmp(name, curDataPtr->GetObj()->m_messageName)==0)
+			if(stricmp(name, curDataPtr->GetObj()->m_messageName.c_str())==0)
 			{
 				return curDataPtr;
 			}

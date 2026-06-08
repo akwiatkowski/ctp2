@@ -28,6 +28,8 @@
 #ifndef CRITICALMESSAGESPREFS_H
 #define CRITICALMESSAGESPREFS_H
 
+#include <string>
+
 #include "ctp/ctp2_utils/pointerlist.h"
 
 struct CriticalMessagesData
@@ -35,7 +37,7 @@ struct CriticalMessagesData
 	CriticalMessagesData();
 	virtual ~CriticalMessagesData();
 
-	MBCHAR *m_messageName;
+	std::string m_messageName;
 	bool m_messageEnabled;
 };
 

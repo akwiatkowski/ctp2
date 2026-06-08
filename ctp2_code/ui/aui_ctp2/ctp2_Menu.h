@@ -1,6 +1,7 @@
 #ifndef CTP2_MENU_H__
 #define CTP2_MENU_H__
 
+#include <string>
 
 #include "ui/aui_ctp2/ctp2_listitem.h"
 
@@ -30,21 +31,10 @@ class ctp2_Menu {
 	class Item {
 	public:
 
-		Item() : m_item(nullptr), m_shortcut(nullptr), m_cookie(nullptr) { }
-
-
-
-
-
-
-
-
-		// m_shortcut is allocated via 'new MBCHAR[strlen(s)+1]' in
-		// ctp2_Menu.cpp:189 — needs delete[], not delete (UB).
-		~Item() { delete [] m_shortcut; }
+		Item() : m_item(nullptr), m_cookie(nullptr) {}
 
 		ctp2_ListItem *m_item;
-		MBCHAR *m_shortcut;
+		std::string m_shortcut;
 		void *m_cookie;
 	};
 

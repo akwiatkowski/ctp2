@@ -40,10 +40,7 @@ aui_ImageList::aui_ImageListInfo::~aui_ImageListInfo()
 		m_image = nullptr;
 	}
 
-	if(m_imageName) {
-		delete [] m_imageName;
-		m_imageName = nullptr;
-	}
+	// m_imageName is std::string, auto-freed
 }
 
 void aui_ImageList::aui_ImageListInfo::Load()
@@ -52,19 +49,18 @@ void aui_ImageList::aui_ImageListInfo::Load()
 	if(m_image)
 		return;
 
-	if(m_imageName) {
+	if(!m_imageName.empty()) {
 
-		m_image = aui_ui_Get()->LoadImage(m_imageName);
+		m_image = aui_ui_Get()->LoadImage(m_imageName.c_str());
 		Assert(m_image);
 
 		if(m_image) {
 			m_image->SetChromakey(m_chromaRed,m_chromaGreen,m_chromaBlue);
-			delete [] m_imageName;
-			m_imageName = nullptr;
+			m_imageName.clear();
 		}
 		else
 		{
-			aui_ui_Get()->UnloadImage(m_imageName);
+			aui_ui_Get()->UnloadImage(m_imageName.c_str());
 		}
 	}
 }
@@ -139,10 +135,7 @@ void aui_ImageList::ExchangeImage(sint32 state, sint32 imageIndex,
 	aui_Image *oldImage = info->m_image;
 	info->m_image = nullptr;
 
-	if(info->m_imageName) {
-		delete [] info->m_imageName;
-		info->m_imageName = nullptr;
-	}
+	info->m_imageName.clear();
 
 	if(!imageFileName) {
 		if(oldImage)
@@ -153,8 +146,7 @@ void aui_ImageList::ExchangeImage(sint32 state, sint32 imageIndex,
 
 	if(m_loadOnDemand) {
 
-		info->m_imageName = new char[strlen(imageFileName) + 1];
-		strcpy(info->m_imageName, imageFileName);
+		info->m_imageName = imageFileName;
 	} else {
 
 		aui_Image *theImage = aui_ui_Get()->LoadImage(const_cast<char*>(imageFileName));
@@ -191,7 +183,7 @@ aui_Image *aui_ImageList::GetImage(sint32 state, sint32 imageIndex)
 
 	if(!info->m_image) {
 
-		if(!info->m_imageName)
+		if(info->m_imageName.empty())
 			return nullptr;
 
 		info->Load();
@@ -210,7 +202,7 @@ aui_ImageList::aui_ImageListInfo *aui_ImageList::GetImageInfo(sint32 state, sint
 	aui_ImageListInfo *info = &m_images[state][imageIndex];
 
 	if(!info->m_image) {
-		if(info->m_imageName) {
+		if(!info->m_imageName.empty()) {
 			info->Load();
 			Assert(info->m_image);
 		}

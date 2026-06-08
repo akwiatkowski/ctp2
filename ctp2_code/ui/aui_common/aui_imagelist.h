@@ -1,6 +1,8 @@
 #ifndef __AUI_IMAGELIST_H__
 #define __AUI_IMAGELIST_H__
 
+#include <string>
+
 #include "ui/aui_common/aui_image.h"
 #include "ui/aui_common/aui_imagebase.h"
 
@@ -48,8 +50,7 @@ private:
 	{
 	public:
 
-		aui_ImageListInfo() : m_imageName(nullptr),
-			m_image(nullptr), m_bltType(AUI_IMAGEBASE_BLTTYPE_COPY),
+		aui_ImageListInfo() : m_image(nullptr), m_bltType(AUI_IMAGEBASE_BLTTYPE_COPY),
 			m_bltFlag(AUI_IMAGEBASE_BLTFLAG_COPY),
 			m_chromaRed(k_DEFAULT_CHROMA_RED),
 			m_chromaGreen(k_DEFAULT_CHROMA_GREEN),
@@ -60,7 +61,7 @@ private:
 
 		void Load();
 
-		MBCHAR *m_imageName;
+		std::string m_imageName;
 
 		aui_Image *m_image;
 

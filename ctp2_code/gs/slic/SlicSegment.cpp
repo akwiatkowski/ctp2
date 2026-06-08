@@ -96,7 +96,7 @@ SlicSegment::SlicSegment()
     m_filename                  (nullptr),
     m_trigger_symbols_indices   (nullptr),
     m_trigger_symbols           (nullptr),
-    m_parameter_indices         (nullptr),
+
     m_parameter_symbols         (nullptr),
     m_poolIndex                 (NOT_IN_USE)
 {
@@ -141,7 +141,7 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
     m_filename                  (nullptr),
     m_trigger_symbols_indices   (nullptr),
     m_trigger_symbols           (nullptr),
-    m_parameter_indices         (nullptr),
+
     m_parameter_symbols         (nullptr),
     m_poolIndex                 (slicifIndex)
 {
@@ -169,8 +169,9 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 	{
 		if (pobj->m_num_parameters > 0)
 		{
-			m_parameter_indices = new sint32[pobj->m_num_parameters];
-			memcpy(m_parameter_indices, pobj->m_parameters, pobj->m_num_parameters * sizeof(sint32));
+			m_parameter_indices.assign(
+				pobj->m_parameters,
+				pobj->m_parameters + pobj->m_num_parameters);
 		}
 		m_num_parameters = pobj->m_num_parameters;
 		free(pobj->m_parameters);
@@ -277,7 +278,6 @@ SlicSegment::~SlicSegment()
 
 	delete [] m_trigger_symbols_indices;
 	delete [] m_trigger_symbols;
-	delete [] m_parameter_indices;
 	delete [] m_parameter_symbols;
 
 	// Has to be set to NULL, because SlicSegments are deleted twice,
@@ -285,7 +285,6 @@ SlicSegment::~SlicSegment()
 	// not a very nice design, but with this extra stuff it should be harmless.
 	m_trigger_symbols_indices = nullptr;
 	m_trigger_symbols         = nullptr;
-	m_parameter_indices       = nullptr;
 	m_parameter_symbols       = nullptr;
 }
 

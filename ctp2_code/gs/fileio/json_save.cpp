@@ -4438,7 +4438,7 @@ void to_json(nlohmann::json &j, SlicSegment const &s)
         if (s.m_parameter_symbols)
             paramIdx.push_back(
                 static_cast<SlicParameterSymbol *>(s.m_parameter_symbols[i])->GetIndex());
-        else if (s.m_parameter_indices)
+        else if (!s.m_parameter_indices.empty())
             paramIdx.push_back(s.m_parameter_indices[i]);
         else
             paramIdx.push_back(-1);
@@ -4454,13 +4454,12 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
     free(s.m_uiComponent);
     free(s.m_filename);
     delete[] s.m_trigger_symbols_indices;
-    delete[] s.m_parameter_indices;
     s.m_id = nullptr;
     s.m_code = nullptr;
     s.m_uiComponent = nullptr;
     s.m_filename = nullptr;
     s.m_trigger_symbols_indices = nullptr;
-    s.m_parameter_indices = nullptr;
+    s.m_parameter_indices.clear();
     s.m_trigger_symbols = nullptr;
     s.m_parameter_symbols = nullptr;
 
@@ -4513,7 +4512,7 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
     auto paramIdx = j.at("parameter_indices").get<std::vector<sint32>>();
     if (s.m_num_parameters > 0)
     {
-        s.m_parameter_indices = new sint32[s.m_num_parameters];
+        s.m_parameter_indices.resize(s.m_num_parameters);
         for (sint32 i = 0; i < s.m_num_parameters
                             && i < static_cast<sint32>(paramIdx.size()); ++i)
             s.m_parameter_indices[i] = paramIdx[i];

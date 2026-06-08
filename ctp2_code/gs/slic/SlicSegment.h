@@ -31,6 +31,8 @@
 #ifndef __SLIC_SEGMENT_H__
 #define __SLIC_SEGMENT_H__
 
+#include <vector>
+
 #include "gs/slic/slicif.h"
 #include "gs/slic/StringHash.h"
 #include "gs/events/GameEventHook.h"
@@ -84,7 +86,7 @@ private:
 	sint32 *m_trigger_symbols_indices;
 	SlicSymbolData **m_trigger_symbols;
 
-	sint32 *m_parameter_indices;
+	std::vector<sint32> m_parameter_indices;
 	SlicSymbolData **m_parameter_symbols;
 
 	int m_poolIndex;

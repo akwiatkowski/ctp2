@@ -11,11 +11,8 @@ ActorPath::ActorPath(uint16 numPoints)
 
 	m_numPoints = numPoints;
 
-	m_points = new POINT[numPoints];
-	m_pos = new POINT[numPoints];
-
-	Assert(m_points != nullptr && m_pos != nullptr);
-	if (m_points == nullptr || m_pos == nullptr) return;
+	m_points.resize(numPoints);
+	m_pos.resize(numPoints);
 
 	m_finished = FALSE;
 }
@@ -24,11 +21,8 @@ ActorPath::ActorPath(sint32 x1, sint32 y1, sint32 x2, sint32 y2)
 {
 	m_numPoints = POINTSPOSTYPE_MAX;
 
-	m_points = new POINT[m_numPoints];
-	m_pos = new POINT[m_numPoints];
-
-	Assert(m_points != nullptr && m_pos != nullptr);
-	if (m_points == nullptr || m_pos == nullptr) return;
+	m_points.resize(m_numPoints);
+	m_pos.resize(m_numPoints);
 
 	m_pos[POINTSPOSTYPE_STARTPOS].x = x1;
 	m_pos[POINTSPOSTYPE_STARTPOS].y = y1;
@@ -40,8 +34,6 @@ ActorPath::ActorPath(sint32 x1, sint32 y1, sint32 x2, sint32 y2)
 
 ActorPath::~ActorPath()
 {
-	delete [] m_points;
-	delete [] m_pos;
 }
 
 
@@ -71,8 +63,8 @@ void ActorPath::CalcPosition(sint32 start, sint32 end, sint32 current, POINT *po
 		return;
 	}
 
-	Assert(m_points != nullptr && m_pos != nullptr);
-	if (m_points == nullptr || m_pos == nullptr) return;
+	Assert(!m_points.empty() && !m_pos.empty());
+	if (m_points.empty() || m_pos.empty()) return;
 
 	maputils_MapXY2PixelXY(m_pos[POINTSPOSTYPE_STARTPOS].x,
                            m_pos[POINTSPOSTYPE_STARTPOS].y,

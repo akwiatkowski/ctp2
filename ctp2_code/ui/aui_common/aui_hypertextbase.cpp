@@ -76,39 +76,17 @@ AUI_ERRCODE aui_HyperTextBase::InitCommon(
 	MBCHAR *hyperText,
 	uint32 hyperMaxLen )
 {
-	m_hyperText = nullptr,
 	m_hyperMaxLen = hyperMaxLen ?
 		hyperMaxLen :
-		k_AUI_HYPERTEXTBASE_DEFAULT_MAXLEN,
+		k_AUI_HYPERTEXTBASE_DEFAULT_MAXLEN;
 	m_hyperCurLen = 0;
 
 	if ( hyperText )
 	{
-		m_hyperCurLen = strlen( hyperText );
-
-		if ( m_hyperCurLen > m_hyperMaxLen )
-			m_hyperCurLen = m_hyperMaxLen;
-
-		m_hyperText = new MBCHAR[ m_hyperMaxLen + 1 ];
-		Assert( m_hyperText != nullptr );
-		if ( !m_hyperText ) return AUI_ERRCODE_MEMALLOCFAILED;
-
-		memset( m_hyperText, '\0', m_hyperMaxLen + 1 );
-
-		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strncpy( m_hyperText, hyperText, m_hyperMaxLen );
-	}
-	else
-	{
-		if ( m_hyperMaxLen )
-		{
-
-			m_hyperText = new MBCHAR[ m_hyperMaxLen + 1 ];
-			Assert( m_hyperText != nullptr );
-			if ( !m_hyperText ) return AUI_ERRCODE_MEMALLOCFAILED;
-
-			memset( m_hyperText, '\0', m_hyperMaxLen + 1 );
-		}
+		m_hyperText = hyperText;
+		if (m_hyperText.length() > m_hyperMaxLen)
+			m_hyperText.resize(m_hyperMaxLen);
+		m_hyperCurLen = m_hyperText.length();
 	}
 
 	m_hyperStaticList = new tech_WLList<aui_Static *>;
@@ -133,7 +111,7 @@ AUI_ERRCODE aui_HyperTextBase::InitCommon(
 
 aui_HyperTextBase::~aui_HyperTextBase()
 {
-	delete [] m_hyperText;
+	// m_hyperText is std::string, auto-freed
 
 	if (m_hyperStaticList)
 	{
@@ -149,13 +127,14 @@ AUI_ERRCODE aui_HyperTextBase::SetHyperText
 	uint32          maxlen
 )
 {
-	memset(m_hyperText, '\0', m_hyperMaxLen + 1);
+	m_hyperText.clear();
 
 	if (hyperText)
     {
-        // TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
-        strncpy(m_hyperText, hyperText, std::min(maxlen, m_hyperMaxLen));
-        m_hyperCurLen = std::min((size_t) m_hyperMaxLen, strlen(m_hyperText));
+        m_hyperText = hyperText;
+        if (m_hyperText.length() > m_hyperMaxLen)
+            m_hyperText.resize(m_hyperMaxLen);
+        m_hyperCurLen = m_hyperText.length();
     	return AddHyperStatics(nullptr);
     }
     else
@@ -171,10 +150,11 @@ AUI_ERRCODE aui_HyperTextBase::AppendHyperText( const MBCHAR *hyperText )
 	Assert( hyperText != nullptr );
 	if ( !hyperText ) return AUI_ERRCODE_INVALIDPARAM;
 
+	m_hyperText.append(hyperText);
+	if (m_hyperText.length() > m_hyperMaxLen)
+		m_hyperText.resize(m_hyperMaxLen);
 
-	strncat( m_hyperText, hyperText, m_hyperMaxLen - m_hyperCurLen );
-
-	m_hyperCurLen = strlen( m_hyperText );
+	m_hyperCurLen = m_hyperText.length();
 
 	return AddHyperStatics( hyperText );
 }
@@ -185,7 +165,7 @@ AUI_ERRCODE aui_HyperTextBase::AddHyperStatics( const MBCHAR *hyperText )
 	if ( !hyperText )
 	{
 		RemoveHyperStatics();
-		hyperText = m_hyperText;
+		hyperText = m_hyperText.c_str();
 	}
 
 	sint32 len = strlen( hyperText );

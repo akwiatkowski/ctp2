@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -230,7 +230,7 @@ AUI_ERRCODE c3_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 		m_curStaticPos.x = 0;
 		m_curStaticPos.y = 0;
 		m_virtualHeight = 0;
-		hyperText = m_hyperText;
+		hyperText = m_hyperText.c_str();
 	}
 
 	uint32 len = strlen( hyperText );

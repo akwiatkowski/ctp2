@@ -6216,7 +6216,7 @@ bool ArmyData::ExecuteOrders(bool propagate)
 		}
 	}
 
-	DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx Executing order %s @ (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name, m_pos.x, m_pos.y, player_Get(m_owner)->m_current_round));
+	DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx Executing order %s @ (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name.c_str(), m_pos.x, m_pos.y, player_Get(m_owner)->m_current_round));
 
 	while(keepGoing && m_nElements > 0 &&
 		  (order = m_orders->GetHead()) != nullptr) {
@@ -7434,7 +7434,7 @@ bool ArmyData::MoveIntoCell(const MapPoint &pos, UNIT_ORDER_TYPE order, WORLD_DI
 
 	if(!CanMoveIntoCell(pos, zocViolation, ignoreZoc, alliedCity))
 	{
-		DPRINTF(k_DBG_GAMESTATE, ("Move Failure: Army 0x%lx Executing order %s @ (%d,%d) to (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name, m_pos.x, m_pos.y, pos.x, pos.y, player_Get(m_owner)->m_current_round));
+		DPRINTF(k_DBG_GAMESTATE, ("Move Failure: Army 0x%lx Executing order %s @ (%d,%d) to (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name.c_str(), m_pos.x, m_pos.y, pos.x, pos.y, player_Get(m_owner)->m_current_round));
 
 		if(zocViolation)
 		{

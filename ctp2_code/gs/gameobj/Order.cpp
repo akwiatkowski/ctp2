@@ -243,7 +243,7 @@ void Order::AssociateEventsWithOrders()
 	for (sint32 order_index = 0; order_index < g_numOrderInfo; order_index++)
 	{
 		sint32 dbIndex;
-		if(g_theOrderDB->GetNamedItem(g_orderInfo[order_index].m_name, dbIndex)) {
+		if(g_theOrderDB->GetNamedItem(g_orderInfo[order_index].m_name.c_str(), dbIndex)) {
 			event_name = g_theOrderDB->Get(dbIndex)->GetEventName();
 			if (strlen(event_name) > 0)
 				s_orderToEventMap[g_orderInfo[order_index].m_type] = GameEventManager::GetEventIndex(event_name);

@@ -92,7 +92,6 @@ TileSet::TileSet()
     m_quick                 (false),
 	m_mapped                (false),
 	m_mapIcons              (nullptr),
-	m_mapIconDimensions     (nullptr),
 #ifdef WIN32
 	m_fileHandle            (INVALID_HANDLE_VALUE),
 	m_mappedFileHandle      (INVALID_HANDLE_VALUE)
@@ -168,8 +167,7 @@ void TileSet::CleanupQuick()
 	}
 	delete[] m_mapIcons;
 	m_mapIcons = nullptr;
-	delete[] m_mapIconDimensions;
-	m_mapIconDimensions = nullptr;
+	m_mapIconDimensions.clear();
 
 	delete[] m_tileSetData;
 	m_tileSetData = nullptr;
@@ -201,8 +199,7 @@ void TileSet::CleanupMapped()
 	}
 	delete[] m_mapIcons;
 	m_mapIcons = nullptr;
-	delete[] m_mapIconDimensions;
-	m_mapIconDimensions = nullptr;
+	m_mapIconDimensions.clear();
 
 #ifdef WIN32
 	UnmapViewOfFile(m_tileSetData);
@@ -473,7 +470,7 @@ void TileSet::LoadMapIcons()
 	// TODO(phase-2): class-member buffer — wave 3 migration (nested T** pointer array)
 	m_mapIcons          = new Pixel16*[g_theMapIconDB->NumRecords()];
 	// TODO(phase-2): class-member buffer — wave 3 migration
-	m_mapIconDimensions = new POINT[g_theMapIconDB->NumRecords()];
+	m_mapIconDimensions.resize(g_theMapIconDB->NumRecords());
 	for (sint32 i = 0; i < g_theMapIconDB->NumRecords(); ++i)
 	{
 

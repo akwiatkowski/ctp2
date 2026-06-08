@@ -65,16 +65,13 @@ void CivScenarios::Cleanup()
 
 CivScenarios::CivScenarios()
 {
-	m_numScenarioPacks = 0;
-	m_scenarioPacks = nullptr;
-
 	LoadData();
 }
 
 
 CivScenarios::~CivScenarios()
 {
-	if (m_scenarioPacks)
+	if (!m_scenarioPacks.empty())
 		ClearData();
 }
 
@@ -128,8 +125,7 @@ void CivScenarios::LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath)
 	struct stat		tmpstat;
 #endif
 
-	pack->m_numScenarios = 0;
-	pack->m_scenarios = nullptr;
+	pack->m_scenarios.clear();
 	pack->m_name[0] = '\0';
 	pack->m_description[0] = '\0';
 
@@ -192,8 +188,7 @@ void CivScenarios::LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath)
 	{
 		numScenarios = scenList->GetCount();
 
-		pack->m_numScenarios = numScenarios;
-		pack->m_scenarios = new Scenario[pack->m_numScenarios];
+		pack->m_scenarios.resize(numScenarios);
 
 		PointerList<MBCHAR>::Walker walker(scenList);
 
@@ -291,12 +286,12 @@ void CivScenarios::LoadData()
 		return;
 	}
 
-	m_numScenarioPacks = packList->GetCount();
-	m_scenarioPacks = new ScenarioPack[m_numScenarioPacks];
+	sint32 numScenarioPacks = packList->GetCount();
+	m_scenarioPacks.resize(numScenarioPacks);
 
 	PointerList<MBCHAR>::Walker *walker = new PointerList<MBCHAR>::Walker(packList);
 
-	for (i=0; i<m_numScenarioPacks; i++) {
+	for (i=0; i<numScenarioPacks; i++) {
 		MBCHAR		packPath[_MAX_PATH];
 
 		fileListFileName = walker->GetObj();
@@ -320,22 +315,13 @@ void CivScenarios::LoadData()
 
 void CivScenarios::ClearData()
 {
-	sint32		i;
-
-	for (i=0; i<m_numScenarioPacks; i++) {
-		delete[] m_scenarioPacks[i].m_scenarios;
-	}
-
-	delete[] m_scenarioPacks;
-
-	m_numScenarioPacks = 0;
-	m_scenarioPacks = nullptr;
+	m_scenarioPacks.clear();
 }
 
 
 void CivScenarios::ReloadData()
 {
-	if (m_scenarioPacks) {
+	if (!m_scenarioPacks.empty()) {
 		ClearData();
 	}
 
@@ -344,8 +330,9 @@ void CivScenarios::ReloadData()
 
 ScenarioPack *CivScenarios::GetScenarioPack(sint32 which)
 {
-	Assert(which >= 0 && which < m_numScenarioPacks);
-	if (which < 0 || which >= m_numScenarioPacks) return nullptr;
+	sint32 numScenarioPacks = static_cast<sint32>(m_scenarioPacks.size());
+	Assert(which >= 0 && which < numScenarioPacks);
+	if (which < 0 || which >= numScenarioPacks) return nullptr;
 
 	return &m_scenarioPacks[which];
 }
@@ -353,7 +340,8 @@ ScenarioPack *CivScenarios::GetScenarioPack(sint32 which)
 ScenarioPack *CivScenarios::GetScenarioPackByPath(const MBCHAR *path)
 {
 	sint32 p;
-	for(p = 0; p < m_numScenarioPacks; p++) {
+	sint32 numScenarioPacks = static_cast<sint32>(m_scenarioPacks.size());
+	for(p = 0; p < numScenarioPacks; p++) {
 		if(!stricmp(path, m_scenarioPacks[p].m_path)) {
 			return &m_scenarioPacks[p];
 		}
@@ -365,12 +353,14 @@ ScenarioPack *CivScenarios::GetScenarioPackByPath(const MBCHAR *path)
 BOOL CivScenarios::FindScenario(MBCHAR *scenarioName, ScenarioPack **pack, Scenario **scen)
 {
 
-	for (sint32 i=0; i<m_numScenarioPacks; i++) {
+	sint32 numScenarioPacks = static_cast<sint32>(m_scenarioPacks.size());
+	for (sint32 i=0; i<numScenarioPacks; i++) {
 		ScenarioPack *scenarioPack = &m_scenarioPacks[i];
 
 		if (!scenarioPack) continue;
 
-		for (sint32 j=0; j<scenarioPack->m_numScenarios; j++) {
+		sint32 numScenarios = static_cast<sint32>(scenarioPack->m_scenarios.size());
+		for (sint32 j=0; j<numScenarios; j++) {
 			Scenario *scenario = &scenarioPack->m_scenarios[j];
 
 			if (!scenario) continue;
@@ -507,7 +497,7 @@ CIV_SCEN_ERR CivScenarios::UpdatePacklist(ScenarioPack *pack)
 
 	fprintf(packList, "%s\n", pack->m_name);
 	fprintf(packList, "%s\n", pack->m_description);
-	fprintf(packList, "%d\n", pack->m_numScenarios);
+	fprintf(packList, "%d\n", static_cast<sint32>(pack->m_scenarios.size()));
 
 	fclose(packList);
 
@@ -523,7 +513,8 @@ CIV_SCEN_ERR CivScenarios::MakeNewScenario(ScenarioPack *pack, MBCHAR *scenName,
 #endif
 
 	MBCHAR scenPath[_MAX_PATH];
-	snprintf(scenPath, sizeof(scenPath), "%s%sscen%04d", pack->m_path, FILE_SEP, pack->m_numScenarios);
+	sint32 nextScenarioIndex = static_cast<sint32>(pack->m_scenarios.size());
+	snprintf(scenPath, sizeof(scenPath), "%s%sscen%04d", pack->m_path, FILE_SEP, nextScenarioIndex);
 #ifdef WIN32
 	if(!_stat(scenPath, &tmpstat)) {
 #else
@@ -564,7 +555,7 @@ CIV_SCEN_ERR CivScenarios::MakeNewScenario(ScenarioPack *pack, MBCHAR *scenName,
 	fprintf(script, "// Scenario script for %s\n", scenName);
 	fclose(script);
 
-	pack->m_numScenarios++;
+	pack->m_scenarios.resize(pack->m_scenarios.size() + 1);
 	UpdatePacklist(pack);
 
 	ReloadData();

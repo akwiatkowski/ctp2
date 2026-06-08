@@ -143,7 +143,7 @@ void ScenarioWindow::FillListWithScenarios(ctp2_ListBox *available)
 	scenPack = m_scenarioPack;
 
 	if ( scenPack ) {
-		for (i=0; i<scenPack->m_numScenarios; i++) {
+		for (i=0; i<static_cast<sint32>(scenPack->m_scenarios.size()); i++) {
 			Scenario *scen = &scenPack->m_scenarios[i];
 
 			ctp2_ListItem	*item=nullptr;

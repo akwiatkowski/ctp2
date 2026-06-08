@@ -4453,12 +4453,11 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
     free(s.m_code);
     free(s.m_uiComponent);
     free(s.m_filename);
-    delete[] s.m_trigger_symbols_indices;
     s.m_id = nullptr;
     s.m_code = nullptr;
     s.m_uiComponent = nullptr;
     s.m_filename = nullptr;
-    s.m_trigger_symbols_indices = nullptr;
+    s.m_trigger_symbols_indices.clear();
     s.m_parameter_indices.clear();
     s.m_trigger_symbols = nullptr;
     s.m_parameter_symbols = nullptr;
@@ -4491,7 +4490,7 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
     auto trigIdx = j.at("trigger_symbol_indices").get<std::vector<sint32>>();
     if (s.m_num_trigger_symbols > 0)
     {
-        s.m_trigger_symbols_indices = new sint32[s.m_num_trigger_symbols];
+        s.m_trigger_symbols_indices.resize(s.m_num_trigger_symbols);
         for (sint32 i = 0; i < s.m_num_trigger_symbols
                             && i < static_cast<sint32>(trigIdx.size()); ++i)
             s.m_trigger_symbols_indices[i] = trigIdx[i];

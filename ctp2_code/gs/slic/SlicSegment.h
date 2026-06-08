@@ -83,7 +83,7 @@ private:
 	char *m_uiComponent;
 	char *m_filename;
 
-	sint32 *m_trigger_symbols_indices;
+	std::vector<sint32> m_trigger_symbols_indices;
 	SlicSymbolData **m_trigger_symbols;
 
 	std::vector<sint32> m_parameter_indices;

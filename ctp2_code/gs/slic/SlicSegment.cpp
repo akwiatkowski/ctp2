@@ -94,7 +94,6 @@ SlicSegment::SlicSegment()
     m_code                      (nullptr),
     m_uiComponent               (nullptr),
     m_filename                  (nullptr),
-    m_trigger_symbols_indices   (nullptr),
     m_trigger_symbols           (nullptr),
 
     m_parameter_symbols         (nullptr),
@@ -139,7 +138,6 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
     m_code                      (nullptr),
     m_uiComponent               (nullptr),
     m_filename                  (nullptr),
-    m_trigger_symbols_indices   (nullptr),
     m_trigger_symbols           (nullptr),
 
     m_parameter_symbols         (nullptr),
@@ -276,14 +274,12 @@ SlicSegment::~SlicSegment()
 		m_filename = nullptr;
 	}
 
-	delete [] m_trigger_symbols_indices;
 	delete [] m_trigger_symbols;
 	delete [] m_parameter_symbols;
 
 	// Has to be set to NULL, because SlicSegments are deleted twice,
 	// first from the StringHashNode and then from the pool. Actuially,
 	// not a very nice design, but with this extra stuff it should be harmless.
-	m_trigger_symbols_indices = nullptr;
 	m_trigger_symbols         = nullptr;
 	m_parameter_symbols       = nullptr;
 }

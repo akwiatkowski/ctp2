@@ -363,7 +363,14 @@ void gameinit_SetHotseatGame(BOOL v)    { g_startHotseatGame = v; }
 static HotseatPlayerSetup g_hsPlayerSetup[k_MAX_PLAYERS];
 
 HotseatPlayerSetup * hs_player_setup_buf() { return g_hsPlayerSetup; }
-void hs_player_setup_Clear() { memset(g_hsPlayerSetup, 0, sizeof(g_hsPlayerSetup)); }
+void hs_player_setup_Clear() {
+	for (sint32 i = 0; i < k_MAX_PLAYERS; i++) {
+		g_hsPlayerSetup[i].civ = 0;
+		g_hsPlayerSetup[i].isHuman = 0;
+		g_hsPlayerSetup[i].name.clear();
+		g_hsPlayerSetup[i].email.clear();
+	}
+}
 
 //----------------------------------------------------------------------------
 
@@ -2078,15 +2085,15 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 				g_player[i]->m_civilisation->ResetCiv(g_hsPlayerSetup[i].civ, g_player[i]->m_civilisation->GetGender());
 				if(g_player[i]->IsHuman())
 				{
-					if(strlen(g_hsPlayerSetup[i].name) > 0)
-						g_player[i]->m_civilisation->AccessData()->SetLeaderName(g_hsPlayerSetup[i].name);
+				if(!g_hsPlayerSetup[i].name.empty())
+					g_player[i]->m_civilisation->AccessData()->SetLeaderName(g_hsPlayerSetup[i].name.c_str());
 
-					if (i == 1)
-					{
-						g_theProfileDB->SetLeaderName(g_hsPlayerSetup[i].name);
-					}
-					g_player[i]->m_email = new MBCHAR[strlen(g_hsPlayerSetup[i].email) + 1];
-					strcpy(g_player[i]->m_email, g_hsPlayerSetup[i].email);
+				if (i == 1)
+				{
+					g_theProfileDB->SetLeaderName(g_hsPlayerSetup[i].name.c_str());
+				}
+				g_player[i]->m_email = new MBCHAR[g_hsPlayerSetup[i].email.length() + 1];
+				strcpy(g_player[i]->m_email, g_hsPlayerSetup[i].email.c_str());
 				}
 			}
 		}

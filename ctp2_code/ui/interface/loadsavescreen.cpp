@@ -264,14 +264,8 @@ void loadsavescreen_HotseatCallback(sint32 launch, sint32 player,
 
 		hs_player_setup_buf()[player].civ = civ;
 		hs_player_setup_buf()[player].isHuman = human;
-		delete [] hs_player_setup_buf()[player].name;
-		delete [] hs_player_setup_buf()[player].email;
-		hs_player_setup_buf()[player].name = new MBCHAR[strlen(name) + 1];
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strcpy(hs_player_setup_buf()[player].name, name);
-		hs_player_setup_buf()[player].email = new MBCHAR[strlen(email) + 1];
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strcpy(hs_player_setup_buf()[player].email, email);
+		hs_player_setup_buf()[player].name = name;
+		hs_player_setup_buf()[player].email = email;
 	}
 }
 

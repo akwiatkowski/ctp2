@@ -40,24 +40,21 @@
 SlicStack::SlicStack()
 {
 	m_sptr = 0;
-	m_stack = new uint8[k_INITIAL_STACK_SIZE];
+	m_stack.resize(k_INITIAL_STACK_SIZE);
 	m_stackSize = k_INITIAL_STACK_SIZE;
 }
 
 SlicStack::~SlicStack()
 {
-	delete [] m_stack;
+	// m_stack is std::vector, auto-freed
 }
 
 void SlicStack::Push(SS_TYPE type, SlicStackValue value)
 {
 	if (static_cast<size_t>(m_sptr) + sizeof(SlicStackValue) + 1 > m_stackSize)
     {
-		uint8* newStack = new uint8[m_stackSize * 2];
-		memcpy(newStack, m_stack, m_stackSize);
-		delete [] m_stack;
-		m_stack = newStack;
 		m_stackSize *= 2;
+		m_stack.resize(m_stackSize);
 	}
 
 	m_stack[m_sptr++] = static_cast<uint8>(type);

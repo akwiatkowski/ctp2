@@ -96,6 +96,8 @@ enum AUI_EDIT_MODE_STATUS
 	AUI_EDIT_MODE_LAST
 };
 
+#include <string>
+
 #include "ui/aui_common/aui_base.h"        // aui_Base
 #include "ui/aui_common/aui_dimension.h"
 #include "ui/aui_common/aui_mouse.h"       // aui_MouseEvent
@@ -296,7 +298,7 @@ protected:
         m_doubleClickingInside      (true),
         m_doubleClickTimeOut        (0),
         // POINT		m_doubleClickOldPos;
-        m_ldlBlock                  (nullptr),
+        // m_ldlBlock default constructed (empty)
         // POINT		m_editGrabPoint;
         m_editGrabPointAttributes   (0),
         m_showCallback              (nullptr),
@@ -380,7 +382,7 @@ protected:
 	uint32		m_doubleClickTimeOut;
 	POINT		m_doubleClickOldPos;
 
-	MBCHAR     *m_ldlBlock;
+	std::string		m_ldlBlock;
 
 	POINT				m_editGrabPoint;
 	uint32				m_editGrabPointAttributes;

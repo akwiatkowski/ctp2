@@ -1101,17 +1101,14 @@ void Network::RemovePlayer(uint16 id)
 	}
 
 	if(m_playerData[index]) {
-		char *name = new char[strlen(m_playerData[index]->m_name) + 1];
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strcpy(name, m_playerData[index]->m_name);
+		std::string name = m_playerData[index]->m_name;
 
 		delete m_playerData[index];
 		m_playerData[index] = nullptr;
 
 		if(m_iAmHost && player_Get(index) && !player_Get(index)->m_isDead) {
-			SendLeftMessage(name, index);
+			SendLeftMessage(name.c_str(), index);
 		}
-		delete [] name;
 
 	}
 
@@ -1186,7 +1183,7 @@ void Network::SetToHost()
 			}
 		}
 
-		SendNewHostMessage(m_playerData[m_playerIndex]->m_name,
+		SendNewHostMessage(const_cast<MBCHAR *>(m_playerData[m_playerIndex]->m_name.c_str()),
 						   m_playerIndex);
 		SetMaxPlayers(CountOpenSlots() + CountTakenSlots());
 
@@ -1549,10 +1546,10 @@ void Network::SetReady(uint16 id)
 
 	PROGRESS(100);
 
-	SendJoinedMessage(player->m_name, index);
+	SendJoinedMessage(const_cast<MBCHAR *>(player->m_name.c_str()), index);
 	QueuePacket(player->m_id, new NetInfoMessage(NET_MSG_PLAYER_JOINED,
-						     m_playerData[m_playerIndex]->m_name,
-						     m_playerIndex));
+							     const_cast<MBCHAR *>(m_playerData[m_playerIndex]->m_name.c_str()),
+							     m_playerIndex));
 
 	QueuePacket(player->m_id, new NetInfo(NET_INFO_CODE_SET_TURN,
 					      selitem_Get()->GetCurPlayer()));
@@ -2285,7 +2282,7 @@ Network::ProcessNewPlayer(uint16 id)
 		if(memcmp(&player_Get(newslot)->m_networkGuid, &zeroGuid, sizeof(GUID)) &&
 		   memcmp(&player_Get(newslot)->m_networkGuid, &player->m_guid, sizeof(GUID))) {
 
-			SendWrongPlayerJoinedMessage(player->m_name, newslot);
+			SendWrongPlayerJoinedMessage(const_cast<MBCHAR *>(player->m_name.c_str()), newslot);
 		} else {
 			player_Get(newslot)->m_networkGuid = player->m_guid;
 			player_Get(newslot)->m_networkGroup = player->m_group;
@@ -2335,8 +2332,8 @@ Network::ProcessNewPlayer(uint16 id)
 									   newslot, player->m_id);
 		QueuePacketToAll(netInfo);
 		QueuePacketToAll(new NetSetPlayerGuid(newslot));
-		if(player->m_name) {
-			player_Get(newslot)->m_civilisation->AccessData()->SetLeaderName(player->m_name);
+		if(!player->m_name.empty()) {
+			player_Get(newslot)->m_civilisation->AccessData()->SetLeaderName(player->m_name.c_str());
 			QueuePacketToAll(new NetSetLeaderName(newslot));
 			if(g_networkPlayersScreen) {
 				g_networkPlayersScreen->UpdateData();
@@ -2796,6 +2793,7 @@ void Network::TogglePacketLog()
 #endif
 
 PlayerData::PlayerData(char* name, uint16 id) :
+	m_name(name ? name : ""),
 	m_id(id),
 	m_index(-1),
 	m_frozen(FALSE),
@@ -2803,14 +2801,6 @@ PlayerData::PlayerData(char* name, uint16 id) :
 	m_blocked(0),
 	m_ackBeginTurn(FALSE)
 {
-	if(name) {
-		m_name = new char[strlen(name) + 1];
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strcpy(m_name, name);
-	} else {
-		m_name = new char[1];
-		m_name[0] = 0;
-	}
 	m_bookmarks = new PointerList<PointerList<Packetizer>::PointerListNode>;
 	m_packetList = new PointerList<Packetizer>;
 	m_createdCities = new UnitDynamicArray;
@@ -2827,9 +2817,6 @@ PlayerData::~PlayerData()
 		packet->Release();
 	}
 
-	
-		delete [] m_name;
-	
 	delete m_bookmarks;
 	delete m_packetList;
 	delete m_createdCities;

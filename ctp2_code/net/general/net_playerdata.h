@@ -8,6 +8,8 @@
 #include "net/general/net_hash.h"
 #include "robot/aibackdoor/dynarr.h"
 
+#include <string>
+
 class UnitDynamicArray;
 
 
@@ -20,7 +22,7 @@ public:
 
 	~PlayerData();
 
-	char* m_name;
+	std::string m_name;
 	uint16 m_id;
 	sint32 m_index;
 	sint32 m_group;

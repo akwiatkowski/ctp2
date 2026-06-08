@@ -113,6 +113,8 @@ class CellUnitList;
 
 #include "gs/gameobj/Player.h" // PLAYER_INDEX
 
+#include <string>
+
 #ifdef _DEBUG
 class aui_Surface;
 #endif
@@ -124,17 +126,10 @@ void network_PlayerListCallback(sint32 player, sint32 val, sint32 action);
 class SessionData
 {
 public:
-	SessionData(sint32 index, const char* name) {
-		m_index = index;
-		m_name = new char[strlen(name) + 1];
-		strcpy(m_name, name);
-	}
+	SessionData(sint32 index, const char* name)
+		: m_index(index), m_name(name ? name : "") { }
 
-	~SessionData() {
-		delete [] m_name;
-	}
-
-	char* m_name;
+	std::string m_name;
 	int m_index;
 };
 
@@ -142,32 +137,16 @@ class NSPlayerInfo
 {
 public:
 	uint16 m_id;
-	char *m_name;
+	std::string m_name;
 	int m_civ;
 	int m_group;
 	int m_civpoints;
 	int m_settlers;
 	NSPlayerInfo(uint16 id, char const *name, int civ, int group, int civpoints,
 				 int settlers)
+		: m_id(id), m_name(name ? name : ""),
+		  m_civ(civ), m_group(group), m_civpoints(civpoints), m_settlers(settlers)
 	{
-		m_id = id;
-		Assert(name);
-		if(name) {
-			m_name = new char[strlen(name) + 1];
-			strcpy(m_name, name);
-		} else {
-			m_name = new char[1];
-			m_name[0] = 0;
-		}
-
-		m_civ = civ;
-		m_group = group;
-		m_civpoints = civpoints;
-		m_settlers = settlers;
-	}
-
-	~NSPlayerInfo() {
-		delete [] m_name;
 	}
 };
 

@@ -1784,10 +1784,10 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 		{
 			g_player[humanIndex]->m_gold->SetLevel(nspi->m_civpoints);
 			s_networkSettlers[humanIndex] = nspi->m_settlers;
-			if (strlen(nspi->m_name) > 0)
+			if (!nspi->m_name.empty())
 			{
 				g_player[humanIndex]->m_civilisation->AccessData()->
-					SetLeaderName(nspi->m_name);
+					SetLeaderName(nspi->m_name.c_str());
 			}
 		}
 	else
@@ -1863,9 +1863,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 						g_player[i]->m_networkGroup = nspi->m_group;
 						g_player[i]->m_gold->SetLevel(nspi->m_civpoints);
 						s_networkSettlers[i] = nspi->m_settlers;
-						if(strlen(nspi->m_name) > 0) {
+						if(!nspi->m_name.empty()) {
 							g_player[i]->m_civilisation->AccessData()->
-								SetLeaderName(nspi->m_name);
+								SetLeaderName(nspi->m_name.c_str());
 						}
 					}
 	else

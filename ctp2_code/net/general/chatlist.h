@@ -1,6 +1,8 @@
 #ifndef xCHAT_LIST_H__
 #define xCHAT_LIST_H__
 
+#include <string>
+
 #include "ctp/ctp2_utils/pointerlist.h"
 
 #define k_CHAT_TEXT_TIME 15
@@ -8,20 +10,15 @@
 class ChatText
 {
   public:
-	MBCHAR *m_text;
+	std::string m_text;
 	sint32 m_sender;
 	time_t m_timeAdded;
 
-	ChatText(sint32 sender, const char *text) {
-		m_text = new MBCHAR[strlen(text) + 1];
-		strcpy(m_text, text);
-		m_sender = sender;
-		m_timeAdded = time(nullptr);
-	}
+	ChatText(sint32 sender, const char *text)
+		: m_text(text), m_sender(sender), m_timeAdded(time(nullptr))
+	{}
 
-	~ChatText() {
-		delete [] m_text;
-	}
+	~ChatText() = default;
 };
 
 class ChatList

@@ -36,8 +36,8 @@
 //
 // - Fix unreferenced warnings in regular compilation by placing intialization
 //   of buff and err inside #ifndef statements.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Added alternative show leaks function. (Sep 15th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Added alternative show leaks function. (Sep 15th 2005 Martin Gï¿½hmann)
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1068,16 +1068,14 @@ cDebugCallStackSet::cDebugCallStackSet(int depth)
 	m_maxNumStacks = 16;
 	m_caller = 0;
 
-	m_stacks = new unsigned[m_blockSize*m_maxNumStacks];
+	m_stacks.resize(m_blockSize * m_maxNumStacks);
 
-	m_curStack = new unsigned[m_depth+2];
+	m_curStack.resize(m_depth + 2);
 
 }
 
 cDebugCallStackSet::~cDebugCallStackSet()
 {
-	delete [] m_stacks;
-	delete [] m_curStack;
 }
 
 static int qsortDebugCallStack(const void *a,const void *b)
@@ -1091,15 +1089,15 @@ static int qsortDebugCallStack(const void *a,const void *b)
 void cDebugCallStackSet::Add()
 {
 
-	DebugCallStack_Save(m_curStack,m_depth+2,0);
+	DebugCallStack_Save(m_curStack.data(), m_depth+2, 0);
 
 	int i;
 	for (i=0;i<m_numStacks;++i) {
-		if (memcmp(m_curStack+2,&m_stacks[m_blockSize*i+1],sizeof(unsigned)*m_depth)==0) {
+		if (memcmp(m_curStack.data()+2,&m_stacks[m_blockSize*i+1],sizeof(unsigned)*m_depth)==0) {
 			m_stacks[m_blockSize*i]++;
 
 			if (m_stacks[m_blockSize*i]%16 == 0) {
-				qsort(m_stacks,m_numStacks,m_blockSize*sizeof(unsigned),qsortDebugCallStack);
+				qsort(m_stacks.data(),m_numStacks,m_blockSize*sizeof(unsigned),qsortDebugCallStack);
 			}
 
 			return;
@@ -1110,24 +1108,19 @@ void cDebugCallStackSet::Add()
 	if (m_numStacks>=m_maxNumStacks) {
 
 		int newMax = m_maxNumStacks*=2;
-		unsigned *pNewStack = new unsigned[m_blockSize * newMax];
-
-		memcpy(pNewStack,m_stacks,m_numStacks*m_blockSize*sizeof(unsigned));
-
-		delete [] m_stacks;
-		m_stacks = pNewStack;
+		m_stacks.resize(m_blockSize * newMax);
 		m_maxNumStacks = newMax;
 	}
 
 	m_caller = m_curStack[1];
-	memcpy(&m_stacks[m_blockSize*i+1],m_curStack+2,sizeof(unsigned)*m_depth);
+	memcpy(&m_stacks[m_blockSize*i+1],m_curStack.data()+2,sizeof(unsigned)*m_depth);
 	m_stacks[m_blockSize*i] = 1;
 	m_numStacks++;
 
 
 
 
-	qsort(m_stacks,m_numStacks,m_blockSize*sizeof(unsigned),qsortDebugCallStack);
+	qsort(m_stacks.data(),m_numStacks,m_blockSize*sizeof(unsigned),qsortDebugCallStack);
 
 	if (m_numStacks > 1) {
 		Assert(m_stacks[0] >= m_stacks[m_blockSize]);
@@ -1139,7 +1132,7 @@ void cDebugCallStackSet::Dump(const char *filename)
 	const char *caller_name;
 	int offset;
 
-	qsort(m_stacks,m_numStacks,m_blockSize*sizeof(unsigned),qsortDebugCallStack);
+	qsort(m_stacks.data(),m_numStacks,m_blockSize*sizeof(unsigned),qsortDebugCallStack);
 
 
 	FILE *fp = fopen(filename,"wt");

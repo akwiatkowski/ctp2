@@ -284,6 +284,7 @@
 #include "gs/utility/UnitDynArr.h"
 #include "ui/interface/unitmanager.h"
 #include "UnitRecord.h"
+#include "gs/gameobj/UnitPool.h"               // unitpool_Get() for load-time actor recreation
 #include "gs/gameobj/unitutil.h"
 #include "gs/database/UVDB.h"
 #include "ui/interface/victorywin.h"
@@ -3493,6 +3494,17 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 	ProgressTo( 1280 );
 
 	GameFile::RestoreGame(name);
+
+	ProgressTo( 1285 );
+
+	// JSON-loaded UnitData intentionally omits gfx state (m_actor,
+	// m_sprite_state).  Recreate actors now that the sprite engine is
+	// initialised so cities and units are visible on the map.  Headless
+	// mode skips this — c3ui_Get() is null there and tile rendering is
+	// not needed.
+	if (c3ui_Get() && unitpool_Get()) {
+		unitpool_Get()->RecreateActors();
+	}
 
 	ProgressTo( 1290 );
 

@@ -394,6 +394,44 @@ UnitData::UnitData(nlohmann::json const &j) : GameObj(0)
 	// m_actor is intentionally left null — gfx state isn't persisted
 	// in the JSON path.  The observer-notify on pool insert is the
 	// only consumer that needs the unit handle, not the actor itself.
+	//
+	// The actual UnitActor + SpriteState are created later by
+	// UnitData::RecreateGfxState() when the load path knows the sprite
+	// engine is available (interactive game only).
+}
+
+void UnitData::RecreateGfxState()
+{
+	if (m_actor) {
+		return;
+	}
+
+	const UnitRecord *rec = GetDBRec();
+	if (!rec) {
+		return;
+	}
+
+	m_sprite_state = std::make_shared<SpriteState>(rec->GetDefaultSprite()->GetValue());
+
+	m_actor = std::make_shared<UnitActor>(
+		m_sprite_state,
+		Unit(m_id),
+		m_type,
+		m_pos,
+		m_owner,
+		FALSE,
+		GetVisionRange(),
+		m_city_data ? m_city_data->GetDesiredSpriteIndex() : -1);
+
+	m_actor->SetUnitVisibility(m_visibility);
+	m_actor->SetState(&m_state);
+
+	// Re-fire the spawn notification so UI observers (notably the
+	// UIGameObserver that populates UIUnitActorRegistry) pick up the
+	// newly-created actor.
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyUnitSpawned(Unit(m_id), &m_state);
+	}
 }
 
 UnitData::~UnitData()

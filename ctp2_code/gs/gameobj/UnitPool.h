@@ -66,6 +66,11 @@ public:
 
 	void RebuildQuadTree();
 
+	// Recreate UnitActor / SpriteState for every unit loaded from JSON.
+	// The JSON path omits gfx state, so this must be called after LoadJson
+	// once the sprite engine is initialised (interactive game only).
+	void RecreateActors();
+
 	// JSON bridge — mirrors UnitPool::Serialize at UnitPool.cpp:129.
 	// Persists ObjPool key counter + every live UnitData entry.
 	// Implementation in json_save.cpp.

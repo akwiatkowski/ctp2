@@ -259,6 +259,7 @@
 #include "ui/interface/spnewgametribescreen.h"
 #include "ui/interface/spnewgamewindow.h"
 #include "test/smoketest_server.h"
+#include "ctp/game_controller.h"          // game_controller::Dispatch
 #include "ui/interface/spriteeditor.h"
 #include "SpriteRecord.h"
 #include "ui/interface/statswindow.h"
@@ -2670,7 +2671,27 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 		if (smoketest_poll_command(cmd, sizeof(cmd))) {
 			smoke_log->info("Executing command: {}", cmd);
 
-			if (strcmp(cmd, "new_game") == 0) {
+			// New shared dispatch: UI-free command/query handlers that behave
+			// identically in headless and UI builds. Falls through to the
+			// legacy chain below for verbs not yet migrated.
+			//
+			// The poll left the smoke mutex LOCKED; it is released only by a
+			// send_* call. So an exception escaping Dispatch (e.g. from JSON
+			// serialization) would wedge the server forever — catch it and
+			// always send a response.
+			bool gc_handled = false;
+			std::string gc_resp;
+			try {
+				gc_resp = game_controller::Dispatch(cmd, gc_handled);
+			} catch (const std::exception &e) {
+				gc_handled = true;
+				gc_resp = "{\"status\":\"error\",\"detail\":\"exception\"}";
+				smoke_log->error("GameController dispatch threw: {}", e.what());
+			}
+			if (gc_handled) {
+				smoketest_send_json(gc_resp.c_str());
+			}
+			else if (strcmp(cmd, "new_game") == 0) {
 				if (m_appLoaded && !m_gameLoaded) {
 					initialplayscreen_newgamePress(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 					smoketest_send_response("ok", cmd, nullptr);
@@ -2694,42 +2715,6 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					smoketest_send_response("error", cmd, "game_not_loaded");
 				}
 			}
-			else if (strcmp(cmd, "build_city") == 0) {
-				if (m_gameLoaded) {
-					Player *human = nullptr;
-					for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-						if (player_Get(p) && player_Get(p)->IsHuman()) {
-							human = player_Get(p);
-							break;
-						}
-					}
-
-					if (!human) {
-						smoketest_send_response("error", cmd, "no_human_player");
-					} else {
-						DynamicArray<Army> *armies = human->GetAllArmiesList();
-						bool found = false;
-						for (sint32 i = 0; i < armies->Num(); i++) {
-							Army army = armies->Access(i);
-							if (army.IsValid() && army.CanSettle()) {
-								smoke_log->info("Found settler army {} for player {}, queueing settle",
-									i, (int)human->GetOwner());
-								army.AccessData()->Settle();
-								found = true;
-								break;
-							}
-						}
-
-						if (found) {
-							smoketest_send_response("ok", cmd, nullptr);
-						} else {
-							smoketest_send_response("error", cmd, "no_settler_found");
-						}
-					}
-				} else {
-					smoketest_send_response("error", cmd, "game_not_loaded");
-				}
-			}
 			else if (strcmp(cmd, "enable_autoplay") == 0) {
 				if (m_gameLoaded) {
 					sint32 flipped = 0;
@@ -2742,82 +2727,6 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					char detail[64];
 					snprintf(detail, sizeof(detail), "flipped=%d", flipped);
 					smoketest_send_response("ok", cmd, detail);
-				} else {
-					smoketest_send_response("error", cmd, "game_not_loaded");
-				}
-			}
-			else if (strncmp(cmd, "set_production ", 15) == 0) {
-				if (m_gameLoaded) {
-					int city_idx = 0;
-					char unit_keyword[64];
-					if (sscanf(cmd + 15, "%d %63s", &city_idx, unit_keyword) != 2) {
-						smoketest_send_response("error", cmd, "bad_args");
-					} else {
-						Player *human = nullptr;
-						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-							if (player_Get(p) && player_Get(p)->IsHuman()) {
-								human = player_Get(p);
-								break;
-							}
-						}
-
-						if (!human) {
-							smoketest_send_response("error", cmd, "no_human_player");
-						} else if (city_idx < 0 || city_idx >= human->GetAllCitiesList()->Num()) {
-							smoketest_send_response("error", cmd, "bad_city_index");
-						} else {
-							Unit city = human->GetAllCitiesList()->Access(city_idx);
-							if (!city.IsValid() || !city.GetData()->GetCityData()) {
-								smoketest_send_response("error", cmd, "invalid_city");
-							} else {
-								sint32 unit_type = -1;
-								sint32 gov_type = human->GetGovernmentType();
-
-								if (strcmp(unit_keyword, "cheapest_military") == 0) {
-									sint32 best_cost = 0x7fffffff;
-									for (sint32 i = 0; i < g_theUnitDB->NumRecords(); i++) {
-										const UnitRecord *rec = g_theUnitDB->Get(i, gov_type);
-										if (!rec || rec->GetCantBuild()) continue;
-										if (rec->GetAttack() <= 0.0) continue;
-										if (!city.GetData()->GetCityData()->CanBuildUnit(i)) continue;
-
-										sint32 cost = rec->GetShieldCost();
-										if (cost > 0 && cost < best_cost) {
-											best_cost = cost;
-											unit_type = i;
-										}
-									}
-								} else if (strcmp(unit_keyword, "settler") == 0) {
-									sint32 best_cost = 0x7fffffff;
-									for (sint32 i = 0; i < g_theUnitDB->NumRecords(); i++) {
-										const UnitRecord *rec = g_theUnitDB->Get(i, gov_type);
-										if (!rec || rec->GetCantBuild()) continue;
-										if (!rec->GetSettle() && rec->GetNumCanSettleOn() <= 0) continue;
-										if (!city.GetData()->GetCityData()->CanBuildUnit(i)) continue;
-
-										sint32 cost = rec->GetShieldCost();
-										if (cost > 0 && cost < best_cost) {
-											best_cost = cost;
-											unit_type = i;
-										}
-									}
-								} else {
-									unit_type = atoi(unit_keyword);
-								}
-
-								if (unit_type < 0 || unit_type >= g_theUnitDB->NumRecords()) {
-									smoketest_send_response("error", cmd, "unit_not_found");
-								} else if (!city.GetData()->GetCityData()->CanBuildUnit(unit_type)) {
-									smoketest_send_response("error", cmd, "cannot_build_unit");
-								} else {
-									smoke_log->info("Setting city {} to build unit {}",
-										(int)city_idx, (int)unit_type);
-									city.GetData()->GetCityData()->BuildUnit(unit_type);
-									smoketest_send_response("ok", cmd, nullptr);
-								}
-							}
-						}
-					}
 				} else {
 					smoketest_send_response("error", cmd, "game_not_loaded");
 				}
@@ -2965,30 +2874,6 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					}
 				} else {
 					smoketest_send_response("error", cmd, "game_not_loaded");
-				}
-			}
-			else if (strncmp(cmd, "save_game ", 10) == 0) {
-				if (m_gameLoaded) {
-					const char *path = cmd + 10;
-					if (!path[0]) {
-						smoketest_send_response("error", cmd, "bad_args");
-					} else {
-						smoke_log->info("Saving game to {}", path);
-						GameFile::SaveGame(path, nullptr);
-						smoketest_send_response("ok", cmd, nullptr);
-					}
-				} else {
-					smoketest_send_response("error", cmd, "game_not_loaded");
-				}
-			}
-			else if (strncmp(cmd, "load_game ", 10) == 0) {
-				const char *path = cmd + 10;
-				if (!path[0]) {
-					smoketest_send_response("error", cmd, "bad_args");
-				} else {
-					smoke_log->info("Loading game from {}", path);
-					GameFile::RestoreGame(path);
-					smoketest_send_response("ok", cmd, nullptr);
 				}
 			}
 			else if (strncmp(cmd, "screenshot ", 11) == 0) {

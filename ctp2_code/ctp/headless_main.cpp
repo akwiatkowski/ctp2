@@ -29,10 +29,14 @@
 #include "gs/gameobj/Events.h"                // GEV_AiBeginTurn / GEV_AiBeginMapAnalysis
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
+#include "ctp/game_controller.h"              // game_controller::Dispatch (--serve)
+#include "test/smoketest_server.h"            // smoketest_server_* (--serve)
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <chrono>
+#include <thread>
 
 extern sint32  g_runInBackground;
 #include "gs/utility/Globals.h"   // set_headless()
@@ -57,6 +61,9 @@ static void print_usage(const char *prog)
     fprintf(stderr,
         "Usage: %s [options]\n"
         "Options:\n"
+        "  --serve                 Interactive mode: listen on the command socket\n"
+        "                          and dispatch commands/queries (for the test\n"
+        "                          harness); keeps one human player.\n"
         "  --new-game              Start a new game immediately\n"
         "  --players N             Number of AI players (default: 3)\n"
         "  --turns N               Run N turns then exit (default: 10)\n"
@@ -78,6 +85,7 @@ int main(int argc, char **argv)
 
     // Parse arguments
     bool newGame = false;
+    bool serveMode = false;
     sint32 numPlayers = 3;
     sint32 maxTurns = 10;
     sint32 saveInterval = 0;
@@ -93,7 +101,9 @@ int main(int argc, char **argv)
     const char *jsonLoadPath = nullptr;
 
     for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "--new-game") == 0) {
+        if (strcmp(argv[i], "--serve") == 0) {
+            serveMode = true;
+        } else if (strcmp(argv[i], "--new-game") == 0) {
             newGame = true;
         } else if (strcmp(argv[i], "--players") == 0 && i + 1 < argc) {
             numPlayers = atoi(argv[++i]);
@@ -164,6 +174,87 @@ int main(int argc, char **argv)
     // the active player's round is returned.
     player_view::RegisterCurPlayer(&HeadlessCurPlayer);
     headless_log->info("observers + player_view registered");
+
+    // ---- Interactive serve mode -----------------------------------------
+    // Listen on the command socket and dispatch the same command/query set the
+    // UI build does (via game_controller::Dispatch).  This is what lets one
+    // Python test drive both binaries.  Unlike the batch path, we KEEP the
+    // default human player (player 1) instead of forcing all-ROBOT, so
+    // player-facing commands (build_city, set_production) are meaningful.
+    if (serveMode) {
+        headless_log->info("Serve mode: configuring profile (players={}, seed={})",
+                           numPlayers, seed);
+        profiledb_Get()->SetNPlayers(numPlayers);
+        if (seed != 0) g_oldRandSeed = seed;
+        profiledb_Get()->SetAI(TRUE);   // AI drives the non-human players
+
+        smoketest_server_init();
+        headless_log->info("Serve mode: command server up, entering poll loop");
+
+        char cmd[256];
+        bool done = false;
+        while (!done) {
+            if (!smoketest_poll_command(cmd, sizeof(cmd))) {
+                // No command pending; yield to avoid a busy spin.
+                std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                continue;
+            }
+            headless_log->info("serve cmd: {}", cmd);
+
+            // Shared, UI-free verbs (build_city, set_production, save/load,
+            // queries) behave identically to the UI build. The poll left the
+            // smoke mutex LOCKED (released only by a send_*), so an exception
+            // escaping Dispatch would wedge the loop — catch and always reply.
+            bool handled = false;
+            std::string resp;
+            try {
+                resp = game_controller::Dispatch(cmd, handled);
+            } catch (const std::exception &e) {
+                handled = true;
+                resp = "{\"status\":\"error\",\"detail\":\"exception\"}";
+                headless_log->error("GameController dispatch threw: {}", e.what());
+            }
+            if (handled) {
+                smoketest_send_json(resp.c_str());
+                continue;
+            }
+
+            // Frontend-specific verbs: game creation has no menus headless.
+            if (strcmp(cmd, "new_game") == 0) {
+                // Nothing to navigate; the game is created on start_game.
+                smoketest_send_response("ok", cmd, nullptr);
+            } else if (strcmp(cmd, "start_game") == 0) {
+                // Call the headless init path DIRECTLY. CivApp::InitializeGame()
+                // guards on (!c3ui_Get()), but c3ui is non-null even headless
+                // (InitializeEngine dereferences it), so that guard would route
+                // us into the UI path and hang. The batch path uses this same
+                // direct call.
+                sint32 e = civapp_Get()->InitializeGameHeadless();
+                if (e == 0) {
+                    // Point HeadlessCurPlayer at the human so AI asserts that
+                    // compare player == CurPlayer() hold for human-owned actions.
+                    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+                        if (player_Get(p) && player_Get(p)->IsHuman()) {
+                            s_headlessCurPlayer = p;
+                            break;
+                        }
+                    }
+                    smoketest_send_response("ok", cmd, nullptr);
+                } else {
+                    smoketest_send_response("error", cmd, "init_failed");
+                }
+            } else if (strcmp(cmd, "quit") == 0) {
+                smoketest_send_response("ok", cmd, nullptr);
+                done = true;
+            } else {
+                smoketest_send_response("error", cmd, "unknown_command");
+            }
+        }
+
+        smoketest_server_shutdown();
+        headless_log->info("Serve mode: shut down");
+        return 0;
+    }
 
     if (loadGamePath) {
         headless_log->info("Loading saved game from {}", loadGamePath);

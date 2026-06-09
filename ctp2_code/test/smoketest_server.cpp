@@ -18,6 +18,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 
 #include <SDL.h>
 
@@ -31,11 +32,13 @@ static SDL_mutex* g_smoke_mutex = nullptr;
 static SDL_cond*  g_smoke_cond  = nullptr;
 static SDL_Thread* g_smoke_thread = nullptr;
 
-// Command/response buffers
-static char g_smoke_command[256];
-static char g_smoke_response[512];
-static int  g_smoke_has_command = 0;
-static int  g_smoke_has_response = 0;
+// Command/response buffers.  The response is a std::string, not a fixed
+// buffer: query verbs (e.g. query_city's buildable list) return JSON payloads
+// far larger than the old 512-byte cap, which silently truncated them.
+static char        g_smoke_command[256];
+static std::string g_smoke_response;
+static int         g_smoke_has_command = 0;
+static int         g_smoke_has_response = 0;
 
 /**
  * Parse a simple JSON command from a buffer.
@@ -149,7 +152,7 @@ static int smoke_server_thread(void* /*data*/)
 
             // Send response back to client
             if (g_smoke_client_fd >= 0) {
-                write(g_smoke_client_fd, g_smoke_response, strlen(g_smoke_response));
+                write(g_smoke_client_fd, g_smoke_response.data(), g_smoke_response.size());
             }
 
             g_smoke_has_command = 0;
@@ -228,6 +231,14 @@ int smoketest_poll_command(char* out_cmd, int max_len)
     strncpy(out_cmd, g_smoke_command, max_len - 1);
     out_cmd[max_len - 1] = '\0';
 
+    // Consume the command NOW, while we still hold the mutex. The server
+    // thread also clears this after writing the response, but only after it is
+    // next scheduled — a caller that re-polls in a tight loop (the headless
+    // --serve loop) would otherwise re-read the same command many times before
+    // the server thread runs. The UI build hid this race by polling once per
+    // frame. Clearing here makes a command consumed exactly once.
+    g_smoke_has_command = 0;
+
     // Keep mutex locked — caller must call send_response to release it
     return 1;
 }
@@ -236,15 +247,31 @@ void smoketest_send_response(const char* status, const char* cmd, const char* de
 {
     if (!g_smoke_mutex) return;
 
+    char buf[512];
     if (detail && detail[0]) {
-        snprintf(g_smoke_response, sizeof(g_smoke_response),
+        snprintf(buf, sizeof(buf),
                  "{\"status\":\"%s\",\"cmd\":\"%s\",\"detail\":\"%s\"}\n",
                  status, cmd, detail);
     } else {
-        snprintf(g_smoke_response, sizeof(g_smoke_response),
+        snprintf(buf, sizeof(buf),
                  "{\"status\":\"%s\",\"cmd\":\"%s\"}\n",
                  status, cmd);
     }
+    g_smoke_response = buf;
+
+    g_smoke_has_response = 1;
+    SDL_CondSignal(g_smoke_cond);
+    SDL_UnlockMutex(g_smoke_mutex);
+}
+
+void smoketest_send_json(const char* json_line)
+{
+    if (!g_smoke_mutex) return;
+
+    // json_line is a complete single-line JSON object (no trailing newline);
+    // the protocol is newline-delimited, so append the terminator here.
+    g_smoke_response.assign(json_line ? json_line : "{}");
+    g_smoke_response.push_back('\n');
 
     g_smoke_has_response = 1;
     SDL_CondSignal(g_smoke_cond);

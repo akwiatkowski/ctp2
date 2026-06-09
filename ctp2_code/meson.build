@@ -1647,3 +1647,28 @@ test('smoke',
   priority : -1,
   workdir : cwd_for_tests,
 )
+
+# Save/load vertical slice driven through the shared command/query API. The
+# SAME script runs against both binaries — that is the headless/UI parity
+# guarantee. Both share the single /tmp/ctp2-smoke.sock, so they must not run
+# concurrently (is_parallel:false). 'integration' suite keeps them out of the
+# fast pre-commit run; the UI variant additionally needs a display.
+slice_test = find_program('test/slice_save_load.py')
+test('slice-headless',
+  slice_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless'), '--mode', 'headless'],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+test('slice-ui',
+  slice_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2'), '--mode', 'ui'],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)

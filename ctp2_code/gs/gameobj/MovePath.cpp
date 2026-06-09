@@ -18,10 +18,13 @@
 
 extern UnitAstar *g_theUnitAstar;
 
-bool army_QueueMovePath(sint32 owner, Army &army,
-                        const MapPoint &src, const MapPoint &dest)
+static bool army_ComputeMovePath(sint32 owner, Army &army,
+                                 const MapPoint &src, const MapPoint &dest,
+                                 Path *good_path)
 {
-	Path *good_path = new Path;
+	if (!g_theUnitAstar)
+		return false;
+
 	Path bad_path;
 	bool is_broken = false;
 	float cost = 0.0f;
@@ -31,7 +34,14 @@ bool army_QueueMovePath(sint32 owner, Army &army,
 	                                    *good_path, is_broken,
 	                                    bad_path,
 	                                    cost);
-	if (!r || is_broken) {
+	return r && !is_broken;
+}
+
+bool army_QueueMovePath(sint32 owner, Army &army,
+                        const MapPoint &src, const MapPoint &dest)
+{
+	Path *good_path = new Path;
+	if (!army_ComputeMovePath(owner, army, src, dest, good_path)) {
 		delete good_path;
 		return false;
 	}
@@ -45,5 +55,21 @@ bool army_QueueMovePath(sint32 owner, Army &army,
 	                       GEA_MapPoint, src,
 	                       GEA_Int, 0,
 	                       GEA_End);
+	return true;
+}
+
+bool army_AddMovePath(sint32 owner, Army &army,
+                      const MapPoint &src, const MapPoint &dest)
+{
+	Path *good_path = new Path;
+	if (!army_ComputeMovePath(owner, army, src, dest, good_path)) {
+		delete good_path;
+		return false;
+	}
+
+	army.ClearOrders();
+	good_path->JustSetStart(army->RetPos());
+
+	army.AddOrders(UNIT_ORDER_MOVE, good_path, src, 0);
 	return true;
 }

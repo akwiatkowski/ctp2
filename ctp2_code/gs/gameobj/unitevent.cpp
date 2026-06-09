@@ -36,6 +36,7 @@
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
+#include "gs/gameobj/MovePath.h"
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/core/game_observer.h"
@@ -142,7 +143,12 @@ STDEHANDLER(BeginTurnUnitEvent)
 			if (owner && owner->FindNearestUnexplored(cur, target)) {
 				ud->SetExploreTarget(target);
 				if (army.IsValid()) {
-					army.AddOrders(UNIT_ORDER_MOVE_TO, target);
+					if (!army_AddMovePath(u.GetOwner(), army, cur, target)) {
+						// Nearest unexplored tile is unreachable; stop exploring
+						// so the unit doesn't burn CPU every turn re-pathing to
+						// the same blocked destination.
+						ud->SetExploring(false);
+					}
 				}
 			} else {
 				// Nothing left to explore from here.

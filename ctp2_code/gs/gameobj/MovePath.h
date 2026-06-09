@@ -24,3 +24,12 @@ class MapPoint;
 // fails or the path is broken, returns false.
 bool army_QueueMovePath(sint32 owner, Army &army,
                         const MapPoint &src, const MapPoint &dest);
+
+// Pathfinds from src to dest for army owned by owner.  If a full path is
+// found, clears existing orders and directly adds a UNIT_ORDER_MOVE with the
+// computed path (synchronous, unlike army_QueueMovePath).  Returns true on
+// success, false if no path exists or pathfinding is unavailable.  Used by
+// auto-explore, which must update the army order queue immediately so that
+// subsequent BeginTurnUnitEvent checks see NumOrders() > 0.
+bool army_AddMovePath(sint32 owner, Army &army,
+                      const MapPoint &src, const MapPoint &dest);

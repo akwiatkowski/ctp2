@@ -33,7 +33,9 @@
 #include "gs/gameobj/UnitData.h"              // Unit::GetData / GetCityData
 #include "gs/gameobj/CityData.h"              // CityData
 #include "gs/gameobj/BldQue.h"                // BuildQueue / BuildNode
-#include "gs/gameobj/Vision.h"                // Vision::IsVisible
+#include "gs/gameobj/Vision.h"                // Vision::IsVisible / IsExplored
+#include "gs/world/World.h"                   // world_Get(), GetCell
+#include "gs/world/Cell.h"                    // Cell terrain / city / units
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
@@ -302,6 +304,101 @@ std::string QueryCity(const char * args)
     return Ok("query_city", result);
 }
 
+// query_units — every unit the human can see (fog-of-war filtered via the unit
+// visibility bitmask, same mechanism the renderer uses). Includes the human's
+// own units. Reports type, position, hp and whether it is a city.
+std::string QueryUnits()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_units", "game_not_loaded");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_units", "no_human_player");
+    sint32 vis = human->GetOwner();
+
+    json units = json::array();
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        if (!player_Get(p) || !player_Get(p)->m_all_units) continue;
+        for (sint32 i = 0; i < player_Get(p)->m_all_units->Num(); ++i) {
+            Unit u = player_Get(p)->m_all_units->Access(i);
+            if (!u.IsValid()) continue;
+            if (!(u.GetVisibility() & (1 << vis))) continue;
+            MapPoint pos;
+            u.GetPos(pos);
+            const char * nm = u.GetName();
+            json j;
+            j["owner"]   = p;
+            j["type"]    = u.GetType();
+            j["name"]    = nm ? nm : "";
+            j["pos"]     = { {"x", pos.x}, {"y", pos.y} };
+            j["hp"]      = u.GetHP();
+            j["is_city"] = u.IsCity();
+            units.push_back(j);
+        }
+    }
+
+    json result;
+    result["visible_player"] = vis;
+    result["units"]          = units;
+    return Ok("query_units", result);
+}
+
+// query_map — terrain, fog state and city markers for every tile the human has
+// explored. Only explored tiles are listed (unexplored tiles are omitted
+// entirely); the "visible" flag distinguishes currently-seen tiles from
+// remembered ones. Units belong to query_units; this stays terrain+cities.
+std::string QueryMap()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_map", "game_not_loaded");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_map", "no_human_player");
+    World * w = world_Get();
+    if (!w)
+        return Err("query_map", "no_world");
+    Vision * vis = human->m_vision;
+
+    const sint32 W = w->GetXWidth();
+    const sint32 H = w->GetYHeight();
+    json tiles = json::array();
+    sint32 n_explored = 0, n_visible = 0;
+
+    for (sint32 y = 0; y < H; ++y) {
+        for (sint32 x = 0; x < W; ++x) {
+            MapPoint pos(x, y);
+            if (!(vis && vis->IsExplored(pos))) continue;
+            ++n_explored;
+            bool visible = vis->IsVisible(pos);
+            if (visible) ++n_visible;
+
+            Cell * c = w->GetCell(pos);
+            json t;
+            t["x"]       = x;
+            t["y"]       = y;
+            t["terrain"] = c ? c->GetTerrain() : -1;
+            t["visible"] = visible;
+            if (c) {
+                Unit city = c->GetCity();
+                if (city.IsValid())
+                    t["city"] = (sint32)city.GetOwner();
+            }
+            tiles.push_back(t);
+        }
+    }
+
+    json result;
+    result["visible_player"] = human->GetOwner();
+    result["width"]    = W;
+    result["height"]   = H;
+    result["explored"] = n_explored;
+    result["visible"]  = n_visible;
+    result["tiles"]    = tiles;
+    return Ok("query_map", result);
+}
+
 }  // namespace
 
 namespace game_controller {
@@ -317,6 +414,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line == "query_cities")                                 return QueryCities();
     if (line.rfind("query_city ", 0) == 0)                      return QueryCity(line.c_str() + 11);
     if (line == "query_city")                                   return QueryCity("");
+    if (line == "query_units")                                  return QueryUnits();
+    if (line == "query_map")                                    return QueryMap();
 
     handled = false;
     return std::string();

@@ -1672,3 +1672,25 @@ test('slice-ui',
   workdir : cwd_for_tests,
   suite : 'integration',
 )
+
+# World observability: fog-of-war filtered map + unit queries, cross-checked
+# against query_cities. Same script on both binaries; shares the one socket.
+observability_test = find_program('test/observability.py')
+test('observability-headless',
+  observability_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless'), '--mode', 'headless'],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+test('observability-ui',
+  observability_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2'), '--mode', 'ui'],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)

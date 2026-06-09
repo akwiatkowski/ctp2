@@ -5166,13 +5166,15 @@ bool SaveJson(char const *path)
 
 bool LoadJson(char const *path)
 {
-    std::ifstream in(path);
-    if (!in)
-    {
-        std::cerr << "[json_save] LoadJson: cannot open '" << path
-                  << "' for reading\n";
-        return false;
-    }
+	std::cerr << "[json_save] LoadJson: loading from '" << path << "'\n";
+
+	std::ifstream in(path);
+	if (!in)
+	{
+		std::cerr << "[json_save] LoadJson: cannot open '" << path
+		          << "' for reading\n";
+		return false;
+	}
 
     nlohmann::json doc;
     try

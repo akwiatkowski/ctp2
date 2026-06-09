@@ -21,6 +21,9 @@ void TradePool::Draw(aui_Surface* surface)
 	if(!profiledb_Get()->GetShowTradeRoutes())
 		return;
 
+	if (!m_all_routes)
+		return;
+
 	sint32 num = m_all_routes->Num();
 
 	for (sint32 i = 0; i < num; i++) {

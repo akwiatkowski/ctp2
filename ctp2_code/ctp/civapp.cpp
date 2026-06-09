@@ -3453,6 +3453,7 @@ sint32 CivApp::EndGame()
 
 sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 {
+	civapp_log->info("LoadSavedGame: starting load from '{}'", name);
 
 	ProgressWindow::BeginProgress(
 		g_theProgressWindow,
@@ -3463,14 +3464,17 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 
 	FILE * fin = fopen(name, "r");
 	if (fin == nullptr) {
+		civapp_log->error("LoadSavedGame: could not open '{}'", name);
 		c3errors_ErrorDialog("Load save game", "Could not open %s", name);
 		return 0;
 	}
 	fclose(fin);
+	civapp_log->info("LoadSavedGame: file '{}' exists and is readable", name);
 
 	ProgressTo( 20 );
 
 	if (m_gameLoaded) {
+		civapp_log->info("LoadSavedGame: cleaning up current game before load");
 		CleanupGame(true);
 
 		ProgressTo( 30 );

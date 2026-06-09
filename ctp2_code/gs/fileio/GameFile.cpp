@@ -49,6 +49,7 @@
 #include "AgeRecord.h"
 #include "gs/gameobj/AgreementPool.h"         // agreementpool_Get()
 #include <algorithm>
+#include <vector>
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/BldQue.h"
 #include "BuildingRecord.h"
@@ -1082,16 +1083,37 @@ bool GameFile::ValidateGameFile(MBCHAR const * path, SaveInfo *info)
 		}
 	}
 
-	if(g_saveFileVersion < 0) {
+	if(g_saveFileVersion >= 0) {
+		bool success = LoadBasicGameInfo(saveFile, info);
 		c3files_fclose(saveFile);
-		return false;
+		return success;
 	}
 
-	bool success = LoadBasicGameInfo(saveFile, info);
-
+	// Not a recognised binary magic — check for JSON save.
+	// The file already has the first sizeof(k_GAME_MAGIC_VALUE) bytes read
+	// into header.  JSON saves start with {"magic":"CTP2-JSON",...
+	// so rewind and read enough to confirm.
+	rewind(saveFile);
+	n = c3files_fread(header, sizeof(uint8), sizeof(header) - 1, saveFile);
+	header[n] = '\0';
 	c3files_fclose(saveFile);
 
-	return success;
+	if (n < 20)
+		return false;
+
+	// Look for JSON magic anywhere in the first chunk (it should be near the
+	// start, but tolerate minor whitespace differences).
+	if (strstr(header, "\"magic\"") && strstr(header, "CTP2-JSON")) {
+		// JSON save — set a synthetic version so downstream code doesn't
+		// bail, and mark as basic load.  The load-save browser only needs
+		// fileName / pathName for the list; extended metadata (leader name,
+		// radar map, etc.) is populated on demand via FetchExtendedSaveInfo.
+		g_saveFileVersion = s_magicValue[k_NUM_MAGIC_VALUES - 1].version;
+		info->loadType    = SAVEINFOLOAD_BASIC;
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -1201,6 +1223,11 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 
 			if (!dir2) continue;
 #endif
+			struct SaveWithMtime {
+				SaveInfo *info;
+				time_t    mtime;
+			};
+			std::vector<SaveWithMtime> saves;
 			do {
 #ifndef WIN32
 				dent2 = readdir(dir2);
@@ -1211,9 +1238,15 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 
 				if (!S_ISDIR(tmpstat.st_mode)) {
 					name = dent2->d_name;
+					time_t mtime = tmpstat.st_mtime;
 #else
 				if (!(fileData2.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 					name = fileData2.cFileName;
+					// Convert FILETIME to time_t
+					ULARGE_INTEGER ull;
+					ull.LowPart  = fileData2.ftLastWriteTime.dwLowDateTime;
+					ull.HighPart = fileData2.ftLastWriteTime.dwHighDateTime;
+					time_t mtime = (time_t)((ull.QuadPart - 116444736000000000ULL) / 10000000ULL);
 #endif
 
 					SaveInfo		*saveInfo = new SaveInfo();
@@ -1227,17 +1260,33 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 						continue;
 					}
 
-					gameInfo->files->AddTail(saveInfo);
+					saves.push_back({saveInfo, mtime});
 				}
 #ifdef WIN32
 			} while (FindNextFile(lpFileList, &fileData2));
 			FindClose(lpFileList);
+
+			std::sort(saves.begin(), saves.end(),
+				[](const SaveWithMtime &a, const SaveWithMtime &b) {
+					return a.mtime > b.mtime; // descending: newest first
+				});
+			for (auto &swm : saves) {
+				gameInfo->files->AddTail(swm.info);
+			}
 		}
 	} while(FindNextFile(lpDirList,&fileData));
 	FindClose(lpDirList);
 #else
 			} while (dent2);
 			closedir(dir2);
+
+			std::sort(saves.begin(), saves.end(),
+				[](const SaveWithMtime &a, const SaveWithMtime &b) {
+					return a.mtime > b.mtime; // descending: newest first
+				});
+			for (auto &swm : saves) {
+				gameInfo->files->AddTail(swm.info);
+			}
 		}
 	} while(dent);
 	closedir(d);

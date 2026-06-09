@@ -104,6 +104,7 @@
 #include "ctp/ctp2_utils/civlog.h"
 #include "gs/core/game_observer.h"     // gameobservers_Get() init in InitializeEngine
 #include "gs/core/game_observer_registration.h"  // RegisterUIGameObserver + RegisterUIPlayerView
+#include "gs/gameobj/MovePath.h"                // army_QueueMovePath (move_unit console cmd)
 #include "robot/utility/RoboInit.h"             // roboinit_Initalize
 #include "ai/ctpai.h"                           // CtpAi::Initialize
 #include "ui/aui_ctp2/ui_events.h"     // ui_events_Initialize / _Cleanup
@@ -3045,14 +3046,18 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 									for (sint32 i = 0; i < cell->GetNumUnits(); i++) {
 										Unit u = cell->AccessUnit(i);
 										if (u.IsValid() && !u.IsCity() && u.GetOwner() == human->GetOwner()) {
-											Army army = u.GetArmy();
-											if (army.IsValid()) {
-												army.AddOrders(UNIT_ORDER_MOVE_TO, dest);
-												smoke_log->info("Moving unit from ({},{}) to ({},{})",
-												(int)city_pos.x, (int)city_pos.y, (int)dest.x, (int)dest.y);
-												moved = true;
-												break;
-											}
+												Army army = u.GetArmy();
+												if (army.IsValid()) {
+													if (army_QueueMovePath(human->GetOwner(), army, city_pos, dest)) {
+														smoke_log->info("Moving unit from ({},{}) to ({},{})",
+														(int)city_pos.x, (int)city_pos.y, (int)dest.x, (int)dest.y);
+														moved = true;
+													} else {
+														smoke_log->warn("move_unit: no path from ({},{}) to ({},{})",
+														(int)city_pos.x, (int)city_pos.y, (int)dest.x, (int)dest.y);
+													}
+													break;
+												}
 										}
 									}
 								}

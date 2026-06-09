@@ -1736,9 +1736,13 @@ void aui_Control::SetStatusTextCopy(const MBCHAR *text)
 {
 	m_statusText = nullptr;
 
-	m_statusTextCopy = text;
+	// Match master semantics: only clear the global StatusBar if a previous
+	// copy was set on this control. Assigning the new text first would clear
+	// the bar on every initial set, wiping text owned by another control.
 	if(!m_statusTextCopy.empty())
 	{
 		StatusBar::SetText("", nullptr);
 	}
+
+	m_statusTextCopy = text ? text : "";
 }

@@ -1478,8 +1478,10 @@ const MBCHAR *aui_Region::GetLdlBlock()
 
 void aui_Region::SetLdlBlock(const MBCHAR *ldlblock)
 {
-	if(!ldlblock)
+	if(!ldlblock) {
+		m_ldlBlock.clear();
 		return;
+	}
 
 	m_ldlBlock = ldlblock;
 }

@@ -1066,48 +1066,18 @@ bool GameFile::ValidateGameFile(MBCHAR const * path, SaveInfo *info)
 	if (saveFile == nullptr)
 		return false;
 
-	MBCHAR	header[_MAX_PATH];
-	size_t	n = c3files_fread(header, sizeof(uint8), sizeof(k_GAME_MAGIC_VALUE), saveFile);
-	if (n!=sizeof(k_GAME_MAGIC_VALUE)) {
-		c3files_fclose(saveFile);
-		return false;
-	}
+	// JSON-only: skip leading whitespace and check the first non-ws byte.
+	// nlohmann::json::dump(2) sorts keys alphabetically, so the "magic"
+	// key can be deep in the file (line 38k+).  We can't rely on strstr
+	// in a small read buffer — just verify the file is JSON.
+	int c;
+	do {
+		c = fgetc(saveFile);
+	} while (c != EOF && isspace(static_cast<unsigned char>(c)));
 
-	g_saveFileVersion = -1;
-
-	sint32 i;
-	for(i = 0; i < k_NUM_MAGIC_VALUES; i++) {
-		if(strcmp(header, s_magicValue[i].string) == 0) {
-			g_saveFileVersion = s_magicValue[i].version;
-			break;
-		}
-	}
-
-	if(g_saveFileVersion >= 0) {
-		bool success = LoadBasicGameInfo(saveFile, info);
-		c3files_fclose(saveFile);
-		return success;
-	}
-
-	// Not a recognised binary magic — check for JSON save.
-	// The file already has the first sizeof(k_GAME_MAGIC_VALUE) bytes read
-	// into header.  JSON saves start with {"magic":"CTP2-JSON",...
-	// so rewind and read enough to confirm.
-	rewind(saveFile);
-	n = c3files_fread(header, sizeof(uint8), sizeof(header) - 1, saveFile);
-	header[n] = '\0';
 	c3files_fclose(saveFile);
 
-	if (n < 20)
-		return false;
-
-	// Look for JSON magic anywhere in the first chunk (it should be near the
-	// start, but tolerate minor whitespace differences).
-	if (strstr(header, "\"magic\"") && strstr(header, "CTP2-JSON")) {
-		// JSON save — set a synthetic version so downstream code doesn't
-		// bail, and mark as basic load.  The load-save browser only needs
-		// fileName / pathName for the list; extended metadata (leader name,
-		// radar map, etc.) is populated on demand via FetchExtendedSaveInfo.
+	if (c == '{') {
 		g_saveFileVersion = s_magicValue[k_NUM_MAGIC_VALUES - 1].version;
 		info->loadType    = SAVEINFOLOAD_BASIC;
 		return true;

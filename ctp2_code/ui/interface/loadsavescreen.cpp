@@ -1161,9 +1161,27 @@ void loadsavescreen_delete( )
 		snprintf(path, sizeof(path), "%s", gameInfo->path);
 		int retval=_rmdir(path);
 		assert(!retval);
+#else
+		// Delete all files in the directory, then the directory itself.
+		DIR *dir = opendir(gameInfo->path);
+		if (dir) {
+			struct dirent *entry;
+			while ((entry = readdir(dir))) {
+				if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+					continue;
+				char fpath[_MAX_PATH];
+				snprintf(fpath, sizeof(fpath), "%s%s%s", gameInfo->path, FILE_SEP, entry->d_name);
+				struct stat st;
+				if (stat(fpath, &st) == 0 && !S_ISDIR(st.st_mode)) {
+					unlink(fpath);
+				}
+			}
+			closedir(dir);
+		}
+		rmdir(gameInfo->path);
+#endif // WIN32
 		g_loadsaveWindow->FillListTwo(NULL);
 		g_loadsaveWindow->SetType(g_loadsaveWindow->GetType());
-#endif // WIN32
 	}
 }
 

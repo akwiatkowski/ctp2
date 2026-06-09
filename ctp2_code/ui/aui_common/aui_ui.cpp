@@ -1420,23 +1420,13 @@ AUI_ERRCODE aui_UI::HandleMouseEvents(
 
 AUI_ERRCODE aui_UI::HandleKeyboardEvents( )
 {
-//	AUI_ERRCODE errcode = AUI_ERRCODE_UNHANDLED;
+	AUI_ERRCODE errcode = AUI_ERRCODE_UNHANDLED;
 
+	AUI_ERRCODE inputErr = m_keyboard->GetInput();
+	if (inputErr == AUI_ERRCODE_NOINPUT) {
+		return AUI_ERRCODE_NOINPUT;
+	}
 
-
-
-
-
-
-
-	m_keyboard->GetInput();
-
-
-
-
-	return AUI_ERRCODE_OK;
-
-#if 0   // Unreachable
 	aui_Control *control = aui_Control::GetKeyboardFocus();
 
 	for ( sint32 k = 1; k; k-- )
@@ -1496,7 +1486,6 @@ AUI_ERRCODE aui_UI::HandleKeyboardEvents( )
 	}
 
 	return errcode;
-#endif
 }
 
 

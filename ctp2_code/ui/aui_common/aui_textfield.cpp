@@ -760,3 +760,117 @@ int CALLBACK EnumTextFontsProc( LOGFONT *lplf, TEXTMETRIC *lptm, DWORD dwType, L
 	return TRUE;
 }
 #endif // __AUI_USE_DIRECTX__
+
+#ifdef __AUI_USE_SDL__
+#include <SDL2/SDL.h>
+
+void aui_TextField::KeyboardCallback(aui_KeyboardEvent *keyboardData)
+{
+	if (!keyboardData->down) {
+		// Play typing sound on key release, matching Windows WM_KEYUP behavior
+		soundmgr_Get()->AddGameSound(GAMESOUNDS_EDIT_TEXT);
+		return;
+	}
+
+	if (!m_Text) return;
+
+	uint32 key = keyboardData->key;
+
+	// Handle special keys
+	switch (key) {
+		case AUI_KEYBOARD_KEY_RETURN:
+			HitEnter();
+			return;
+		case AUI_KEYBOARD_KEY_TAB:
+			// Ignore tab - UI framework handles focus switching
+			return;
+		case AUI_KEYBOARD_KEY_LEFTARROW:
+			if (m_selStart > 0) {
+				m_selStart--;
+				m_selEnd = m_selStart;
+				m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
+			}
+			return;
+		case AUI_KEYBOARD_KEY_RIGHTARROW:
+		{
+			sint32 len = (sint32) strlen(m_Text);
+			if (m_selStart < len) {
+				m_selStart++;
+				m_selEnd = m_selStart;
+				m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
+			}
+			return;
+		}
+		case AUI_KEYBOARD_KEY_SPACE:
+			key = ' ';
+			break;
+	}
+
+	// Handle backspace (ASCII 8)
+	if (key == 8) {
+		if (m_selStart > 0) {
+			sint32 len = (sint32) strlen(m_Text);
+			for (sint32 i = m_selStart - 1; i < len; i++) {
+				m_Text[i] = m_Text[i + 1];
+			}
+			m_selStart--;
+			m_selEnd = m_selStart;
+			m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
+		}
+		return;
+	}
+
+	// Handle delete (ASCII 127)
+	if (key == 127) {
+		sint32 len = (sint32) strlen(m_Text);
+		if (m_selStart < len) {
+			for (sint32 i = m_selStart; i < len; i++) {
+				m_Text[i] = m_Text[i + 1];
+			}
+			m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
+		}
+		return;
+	}
+
+	// Handle printable ASCII characters (32-126)
+	if (key >= 32 && key < 127) {
+		char ch = (char)key;
+
+		// Apply shift to letters
+		if (ch >= 'a' && ch <= 'z') {
+			SDL_Keymod mod = SDL_GetModState();
+			if (mod & KMOD_SHIFT) {
+				ch = ch - 'a' + 'A';
+			}
+		}
+
+		// Filename character filtering
+		if (m_isFileName) {
+			switch (ch) {
+				case '\\': case '*': case '"': case '/':
+				case ':': case '|': case '?': case '<':
+				case '>':
+					return;
+			}
+		}
+
+		sint32 len = (sint32) strlen(m_Text);
+		if (len >= m_maxFieldLen) {
+			return;
+		}
+
+		// Clamp cursor position to valid range
+		if (m_selStart < 0) m_selStart = 0;
+		if (m_selStart > len) m_selStart = len;
+
+		// Insert character at cursor position
+		for (sint32 i = len; i >= m_selStart; i--) {
+			m_Text[i + 1] = m_Text[i];
+		}
+		m_Text[m_selStart] = ch;
+		m_selStart++;
+		m_selEnd = m_selStart;
+		m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
+	}
+}
+#endif // __AUI_USE_SDL__

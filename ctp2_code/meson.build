@@ -1534,6 +1534,7 @@ cpp_fast_test_sources = [
   'test/cpp/test_order.cpp',
   'test/cpp/test_player_view.cpp',
   'test/cpp/test_readiness.cpp',
+  'test/cpp/test_save_validation.cpp',
   'test/cpp/test_ui_command_surface.cpp',
   'ctp/civ3_main.cpp',
   'test/smoketest_server.cpp',

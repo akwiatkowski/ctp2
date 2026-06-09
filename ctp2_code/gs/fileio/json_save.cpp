@@ -1490,8 +1490,11 @@ void to_json(nlohmann::json &j, FeatTracker const &ft)
     nlohmann::json building_feat = nlohmann::json::array();
     sint32 const   feat_count    = g_theFeatDB     ? g_theFeatDB->NumRecords()     : 0;
     sint32 const   bldg_count    = g_theBuildingDB ? g_theBuildingDB->NumRecords() : 0;
-    for (sint32 i = 0; i < feat_count; ++i) achieved     .push_back(ft.m_achieved[i]);
-    for (sint32 i = 0; i < bldg_count; ++i) building_feat.push_back(ft.m_buildingFeat[i]);
+    // Serialize as JSON booleans (not integers) to preserve save-file
+    // compatibility with the pre-refactor bool[] representation. Without the
+    // explicit cast nlohmann would emit 0/1 integers for uint8.
+    for (sint32 i = 0; i < feat_count; ++i) achieved     .push_back(static_cast<bool>(ft.m_achieved[i]));
+    for (sint32 i = 0; i < bldg_count; ++i) building_feat.push_back(static_cast<bool>(ft.m_buildingFeat[i]));
 
     j = nlohmann::json{
         {"active",        std::move(active)},
@@ -1519,13 +1522,21 @@ void from_json(nlohmann::json const &j, FeatTracker &ft)
     sint32 const feat_count   = g_theFeatDB     ? g_theFeatDB->NumRecords()     : 0;
     sint32 const bldg_count   = g_theBuildingDB ? g_theBuildingDB->NumRecords() : 0;
 
+    // Accept either JSON booleans (legacy bool[] saves) or integers (post-
+    // refactor uint8 saves) so save files remain readable across the refactor.
+    auto json_to_uint8 = [](nlohmann::json const &v) -> uint8 {
+        if (v.is_boolean()) return v.get<bool>() ? 1 : 0;
+        return v.get<sint32>() != 0 ? 1 : 0;
+    };
     if (static_cast<sint32>(achieved.size()) == feat_count)
     {
-        for (sint32 i = 0; i < feat_count; ++i) achieved[i].get_to(ft.m_achieved[i]);
+        for (sint32 i = 0; i < feat_count; ++i)
+            ft.m_achieved[i] = json_to_uint8(achieved[i]);
     }
     if (static_cast<sint32>(building_feat.size()) == bldg_count)
     {
-        for (sint32 i = 0; i < bldg_count; ++i) building_feat[i].get_to(ft.m_buildingFeat[i]);
+        for (sint32 i = 0; i < bldg_count; ++i)
+            ft.m_buildingFeat[i] = json_to_uint8(building_feat[i]);
     }
 }
 

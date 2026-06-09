@@ -159,6 +159,10 @@ public:
 
 	void	MouseLGrabOutside(aui_MouseEvent * mouseData) override;
 	void	PostChildrenCallback(aui_MouseEvent * mouseData) override;
+
+#ifdef __AUI_USE_SDL__
+	void	KeyboardCallback(aui_KeyboardEvent * keyboardData) override;
+#endif
 };
 
 

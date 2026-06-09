@@ -282,6 +282,14 @@ SlicSegment::~SlicSegment()
 	// not a very nice design, but with this extra stuff it should be harmless.
 	m_trigger_symbols         = nullptr;
 	m_parameter_symbols       = nullptr;
+
+	// Same double-destruct concern for the vector members: free the heap
+	// buffer AND reset to a default-constructed empty vector so the implicit
+	// member destructor running a second time (during Pool<SlicSegment>::~Pool's
+	// delete[] over chunk storage that StringHashNode already destroyed) is a
+	// no-op rather than a double-free.
+	std::vector<sint32>().swap(m_trigger_symbols_indices);
+	std::vector<sint32>().swap(m_parameter_indices);
 }
 
 //----------------------------------------------------------------------------

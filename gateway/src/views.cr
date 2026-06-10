@@ -23,7 +23,12 @@ module Ctp2Gateway::Views
                    @game_error : String?, @player_count : Int32,
                    @alive_count : Int32, @city_count : Int32,
                    @leader_name : String?, @leader_country : String?,
-                   @leader_score : Int32)
+                   @leader_score : Int32, @round : Int32?, @year : Int32?)
+    end
+
+    # CTP2 years are astronomical: negative = BC.
+    private def year_label(year : Int32) : String
+      year < 0 ? "#{-year} BC" : "#{year} AD"
     end
 
     ECR.def_to_s "src/views/dashboard_ledger.ecr"

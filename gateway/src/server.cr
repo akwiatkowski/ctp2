@@ -34,6 +34,7 @@ module Ctp2Gateway
     CITY_PATH          = %r{\A/api/city/(\d+)\z}
     PLAYER_CITIES_PATH = %r{\A/players/(\d+)/cities\z}
     API_PLAYER_CITIES  = %r{\A/api/players/(\d+)/cities\z}
+    API_PLAYER         = %r{\A/api/players/(\d+)\z}
 
     # Vendored static assets (css, htmx, fonts) live in gateway/public/,
     # resolved relative to the SOURCE tree at compile time — fine for a dev
@@ -104,6 +105,8 @@ module Ctp2Gateway
         raw_cmd(ctx)
       when {"GET", "/api/players"}
         respond(ctx, @client.command("query_players"))
+      when {"GET", "/api/turn"}
+        respond(ctx, @client.command("query_turn"))
       when {"GET", "/api/cities"}
         respond(ctx, @client.command("query_cities"))
       when {"GET", "/api/units"}
@@ -117,6 +120,8 @@ module Ctp2Gateway
           player_cities_page(ctx, m[1].to_i)
         elsif req.method == "GET" && (m = req.path.match(API_PLAYER_CITIES))
           respond(ctx, @client.command("query_player_cities #{m[1]}"))
+        elsif req.method == "GET" && (m = req.path.match(API_PLAYER))
+          respond(ctx, @client.command("query_player #{m[1]}"))
         elsif req.method == "GET" && (m = req.path.match(CITY_PATH))
           respond(ctx, @client.command("query_city #{m[1]}"))
         else
@@ -156,6 +161,15 @@ module Ctp2Gateway
       players = result.try(&.["players"].as_a) || [] of JSON::Any
       leader = players.reject { |p| p["dead"].as_bool }.max_by? { |p| p["score"].as_i }
 
+      # The clock — skipped when the players query already failed (same
+      # failure would just repeat).
+      round = year = nil.as(Int32?)
+      if error.nil?
+        tresult, _, _ = fetch("query_turn")
+        round = tresult.try(&.["round"].as_i)
+        year = tresult.try(&.["year"].as_i)
+      end
+
       Views::DashboardLedger.new(
         socket: @client.socket_path,
         connected: @client.connected?,
@@ -167,6 +181,8 @@ module Ctp2Gateway
         leader_name: leader.try { |l| l["name"].as_s.presence },
         leader_country: leader.try { |l| l["country"]?.try(&.as_s?).try(&.presence) },
         leader_score: leader.try(&.["score"].as_i) || 0,
+        round: round,
+        year: year,
       )
     end
 
@@ -309,8 +325,10 @@ module Ctp2Gateway
         endpoints: [
           {method: "GET", path: "/api", about: "this document"},
           {method: "POST", path: "/api/cmd", body: %({"cmd":"<verb ...args>"}), about: "raw passthrough of any game verb"},
-          {method: "GET", path: "/api/players", maps_to: "query_players", about: "every player slot (omniscient): id, name, civ, country, human, dead, gold, num_cities, score"},
-          {method: "GET", path: "/api/players/<id>/cities", maps_to: "query_player_cities <id>", about: "ALL cities of one player (omniscient)"},
+          {method: "GET", path: "/api/players", maps_to: "query_players", about: "every player slot (omniscient): id, name, civ, country, human, dead, gold, num_cities, num_units, num_armies, government, score"},
+          {method: "GET", path: "/api/players/<id>", maps_to: "query_player <id>", about: "one player slot, same shape as a query_players entry"},
+          {method: "GET", path: "/api/players/<id>/cities", maps_to: "query_player_cities <id>", about: "ALL cities of one player (omniscient), incl. per-turn yields"},
+          {method: "GET", path: "/api/turn", maps_to: "query_turn", about: "the clock: round (full rounds completed) and calendar year"},
           {method: "GET", path: "/api/cities", maps_to: "query_cities", about: "cities visible to the human player (fog-filtered)"},
           {method: "GET", path: "/api/city/<idx>", maps_to: "query_city <idx>", about: "one of the human's cities + buildable units"},
           {method: "GET", path: "/api/units", maps_to: "query_units", about: "units visible to the human player (fog-filtered)"},
@@ -321,9 +339,10 @@ module Ctp2Gateway
         ],
         verbs: {
           commands: ["build_city", "set_production <city_idx> <settler|cheapest_military|N>",
+                     "end_turn [N] (headless: advance N full rounds; UI: queue director end-turn)",
                      "save_game <path>", "load_game <path>", "new_game", "start_game", "quit"],
           queries_player_view: ["query_cities", "query_city <idx>", "query_units", "query_map"],
-          queries_admin: ["query_players", "query_player_cities <id>"],
+          queries_admin: ["query_players", "query_player <id>", "query_player_cities <id>", "query_turn"],
         },
       }.to_pretty_json(ctx.response)
     end

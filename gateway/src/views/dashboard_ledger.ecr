@@ -20,6 +20,16 @@
 <% else %>
   <div class="stats">
     <div class="stat">
+      <div class="stat__label">Turn</div>
+      <% if r = @round %>
+        <div class="stat__value" data-stat="round"><%= r %></div>
+        <div class="stat__hint"><% if y = @year %><%= year_label(y) %> · <% end %>rounds completed</div>
+      <% else %>
+        <div class="stat__value muted" data-stat="round">—</div>
+        <div class="stat__hint">clock unavailable</div>
+      <% end %>
+    </div>
+    <div class="stat">
       <div class="stat__label">Players</div>
       <div class="stat__value" data-stat="players"><%= @player_count %></div>
       <div class="stat__hint"><a href="/players">open the census →</a></div>

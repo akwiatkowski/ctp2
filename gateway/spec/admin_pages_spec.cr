@@ -15,6 +15,8 @@ private CITIES_JSON = %({"status":"ok","cmd":"query_player_cities","result":{"ow
 private def admin_responses
   {
     "query_players"         => PLAYERS_JSON,
+    "query_turn"            => %({"status":"ok","cmd":"query_turn","result":{"round":42,"year":-3160}}),
+    "query_player 1"        => %({"status":"ok","cmd":"query_player","result":{"id":1,"name":"Caesar <Rome>","num_units":5}}),
     "query_player_cities 1" => CITIES_JSON,
     "query_player_cities 7" => %({"status":"error","cmd":"query_player_cities","detail":"bad_player"}),
   }
@@ -46,6 +48,8 @@ describe "admin panel" do
       resp.body.should contain %(data-stat="alive">2<)
       resp.body.should contain %(data-stat="cities">2<)
       resp.body.should contain "Caesar &lt;Rome&gt;" # leading player, escaped
+      resp.body.should contain %(data-stat="round">42<)
+      resp.body.should contain "3160 BC"
     end
   end
 
@@ -189,6 +193,35 @@ describe "debug surface" do
       resp = HTTP::Client.get("#{base}/players")
       resp.body.should contain "civilization"
       resp.body.should contain "Rome &lt;Empire&gt;" # escaped, straight from the game
+    end
+  end
+end
+
+describe "turn and player detail routes" do
+  it "GET /api/turn maps to query_turn" do
+    with_http do |base, fake|
+      resp = HTTP::Client.get("#{base}/api/turn")
+      resp.status_code.should eq 200
+      JSON.parse(resp.body)["result"]["round"].as_i.should eq 42
+      fake.not_nil!.received.should eq ["query_turn"]
+    end
+  end
+
+  it "GET /api/players/1 maps to query_player 1" do
+    with_http do |base, fake|
+      resp = HTTP::Client.get("#{base}/api/players/1")
+      resp.status_code.should eq 200
+      JSON.parse(resp.body)["result"]["num_units"].as_i.should eq 5
+      fake.not_nil!.received.should eq ["query_player 1"]
+    end
+  end
+
+  it "/api index documents the new surface" do
+    with_http do |base, _fake|
+      body = JSON.parse(HTTP::Client.get("#{base}/api").body)
+      body["endpoints"].as_a.any? { |e| e["path"].as_s == "/api/turn" }.should be_true
+      body["verbs"]["queries_admin"].as_a.map(&.as_s).should contain "query_turn"
+      body["verbs"]["commands"].as_a.any?(&.as_s.starts_with?("end_turn")).should be_true
     end
   end
 end

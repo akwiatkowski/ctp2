@@ -112,6 +112,20 @@ module Ctp2Gateway
       @connected = false
     end
 
+    # Point the client at a different game socket: drop the current
+    # connection, clear the journal, reset error state. The owner fiber and
+    # request queue keep running — the next command lazily connects to the
+    # new path. Exists for specs (the DI container holds ONE GameClient for
+    # the process lifetime; tests swap the FakeGame under it per test).
+    def reconfigure(socket_path : String) : Nil
+      @socket.try &.close rescue nil
+      @socket = nil
+      @connected = false
+      @last_error = nil
+      @socket_path = socket_path
+      @exchanges.clear
+    end
+
     # --- owner fiber -------------------------------------------------------
 
     private def run_loop

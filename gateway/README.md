@@ -86,7 +86,21 @@ that times out can never wedge the owner fiber. A timed-out connection is
 reconnection is lazy and per-request, which makes the gateway self-healing
 across game restarts.
 
-Stdlib only by design (HTTP::Server, UNIXSocket, JSON, ECR) — no shards.
+Built on [Athena Framework](https://athenaframework.org) 0.22 (adopted
+2026-06-10, previously stdlib-only): annotation routing with typed/regex-
+constrained params (`@[ARTA::Get("/players/{id}/cities")]`), constructor DI
+for controllers, and an exception-event listener that owns ALL error
+rendering. Two architecture notes future readers need:
+
+* **GameClient is a process singleton owned by `Config`**, handed to the DI
+  container by a factory. Athena's container is fiber-local with one fiber
+  per request — a container-managed client would open one game connection
+  per request and wedge the game's one-client socket (ECONNREFUSED after
+  the backlog fills).
+* **Static assets ride `ATH.run`'s `prepend_handlers`** (before the
+  framework) — the same seam the future /ws WebSocket face will use.
+
+System dependency: `brew install libmagic` (athena-mime links it).
 
 ## Tests
 

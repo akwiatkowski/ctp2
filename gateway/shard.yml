@@ -17,4 +17,16 @@ targets:
   ctp2-gateway:
     main: src/ctp2_gateway.cr
 
-# Stdlib only by design (v0.1): HTTP::Server, UNIXSocket, JSON, ECR.
+dependencies:
+  athena:
+    github: athena-framework/framework
+    version: ~> 0.22.0
+
+development_dependencies:
+  # ASPEC::TestCase + ATH::Spec::APITestCase (kernel-level request specs
+  # with no real HTTP server).
+  athena-spec:
+    github: athena-framework/spec
+
+# Athena adopted 2026-06-10 (was stdlib-only): annotation routing, DI,
+# event-based middleware — and Olek's learning project for the framework.

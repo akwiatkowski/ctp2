@@ -1,8 +1,15 @@
 require "option_parser"
 require "socket"
-require "./server"
+require "athena"
 
-# ctp2-gateway entry point.
+require "./config"
+require "./services"
+require "./assets_handler"
+require "./error_listener"
+require "./controllers/pages_controller"
+require "./controllers/api_controller"
+
+# ctp2-gateway entry point (Athena Framework).
 #
 # Two ways to pair with the game:
 #   * attach (default) — start the game yourself (ctp2_headless --serve or
@@ -13,7 +20,7 @@ require "./server"
 
 host = "127.0.0.1"
 port = (ENV["CTP2_GATEWAY_PORT"]? || "8666").to_i
-socket_path = ENV["CTP2_SOCKET"]? || "/tmp/ctp2-smoke.sock"
+socket_path = ENV["CTP2_SOCKET"]? || Ctp2Gateway::Config::DEFAULT_SOCKET
 spawn_game = false
 binary = ENV["CTP2_BINARY"]?
 spawn_args = [] of String
@@ -40,7 +47,9 @@ OptionParser.parse do |parser|
   end
 end
 
-process = nil.as(Ctp2Gateway::GameProcess?)
+# Config must be set BEFORE the first request resolves the DI container's
+# GameClient (built from Config.socket_path by its factory).
+Ctp2Gateway::Config.socket_path = socket_path
 
 if spawn_game
   # Auto-detect the binary whether the gateway runs from the repo root or
@@ -66,23 +75,20 @@ if spawn_game
     cwd = spawn_cwd.as(String?) || Path[resolved].parent.parent.to_s
     process = Ctp2Gateway::GameProcess.new(resolved, ["--serve"] + spawn_args, cwd, spawn_log)
     exit 1 unless process.start
+    Ctp2Gateway::Config.process = process
   end
 end
 
-client = Ctp2Gateway::GameClient.new(socket_path)
-server = Ctp2Gateway::Server.new(client, process)
-
-# Take the child down with us. Signal handlers run on the event loop, so
-# keep them short: stop the game (SIGTERM → SIGKILL), close, exit.
+# Take the spawned game down with us. Signal handlers run on the event
+# loop, so keep them short: stop the game (SIGTERM → SIGKILL), exit.
 {Signal::INT, Signal::TERM}.each do |sig|
   sig.trap do
     puts "\n#{sig} — shutting down"
-    process.try &.stop
-    server.close rescue nil
+    Ctp2Gateway::Config.process.try &.stop
     exit 0
   end
 end
 
-address = server.bind(host, port)
-puts "ctp2-gateway listening on http://#{address} (game socket: #{socket_path}#{process ? ", spawned game pid #{process.pid}" : ""})"
-server.listen
+puts "ctp2-gateway (athena) listening on http://#{host}:#{port} " \
+     "(game socket: #{socket_path}#{Ctp2Gateway::Config.process.try { |p| ", spawned game pid #{p.pid}" }})"
+ATH.run(port, host, prepend_handlers: [Ctp2Gateway::AssetsHandler.new] of HTTP::Handler)

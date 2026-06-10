@@ -1,0 +1,20 @@
+name: ctp2-gateway
+version: 0.1.0
+
+description: |
+  One-process observability/control server for CTP2: fronts the game's
+  Unix-socket test API with HTTP (curl debugging), an admin panel, MCP
+  (streamable HTTP) and a WebSocket gateway.
+
+authors:
+  - Aleksander Kwiatkowski
+
+crystal: ">= 1.19.0"
+
+license: MIT
+
+targets:
+  ctp2-gateway:
+    main: src/ctp2_gateway.cr
+
+# Stdlib only by design (v0.1): HTTP::Server, UNIXSocket, JSON, ECR.

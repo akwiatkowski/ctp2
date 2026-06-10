@@ -1,0 +1,90 @@
+# ctp2-gateway
+
+One-process observability/control server for CTP2. It fronts the game's
+Unix-socket test API (`smoketest_server.cpp` + `game_controller.cpp`) and will
+grow four faces on one port:
+
+| Face        | Route        | Status |
+|-------------|--------------|--------|
+| curl API    | `/api/*`     | ✅ v0.1 |
+| health      | `/healthz`   | ✅ v0.1 |
+| MCP (streamable HTTP, Claude plays the game) | `POST /mcp` | planned (session B) |
+| admin panel (game internals, future web UI)  | `/admin`    | planned (session C) |
+| WebSocket (live events)                      | `/ws`       | planned (v0.2, needs C++ event push) |
+
+## Run
+
+```sh
+# 1. Start the game with the command socket (either binary):
+./build/ctp2_headless --serve --players 3 --seed 42
+#    or the UI build, which enables the socket via its smoke-test mode.
+
+# 2. Start the gateway (order doesn't matter — it connects lazily and
+#    reconnects when the game restarts):
+cd gateway
+mise exec -- shards build
+./bin/ctp2-gateway                 # --port 8666 --socket /tmp/ctp2-smoke.sock
+```
+
+Env overrides: `CTP2_GATEWAY_PORT`, `CTP2_SOCKET`.
+
+## curl cookbook
+
+```sh
+curl localhost:8666/healthz
+curl -X POST localhost:8666/api/cmd -d '{"cmd":"start_game"}'   # takes seconds: world gen
+curl -X POST localhost:8666/api/cmd -d '{"cmd":"build_city"}'
+curl localhost:8666/api/cities
+curl localhost:8666/api/city/0                                  # incl. buildable list
+curl localhost:8666/api/units
+curl localhost:8666/api/map
+curl -X POST localhost:8666/api/cmd -d '{"cmd":"set_production 0 settler"}'
+curl -X POST localhost:8666/api/cmd -d '{"cmd":"save_game /tmp/test.json"}'
+```
+
+`POST /api/cmd` is a raw passthrough — any verb `game_controller::Dispatch`
+(or the frontend serve loop) understands.
+
+## Who said no? — status code contract
+
+Game responses pass through verbatim with **HTTP 200**, including the game's
+own `{"status":"error",...}` replies — "the game says no" is a successful
+roundtrip. Non-200 codes are reserved for *gateway* failures and always carry
+`"gateway": true`:
+
+| Code | Meaning |
+|------|---------|
+| 400  | malformed body / multi-line command (protocol injection guard) |
+| 429  | request queue full (backpressure) |
+| 502  | game replied with non-JSON |
+| 503  | game socket disconnected |
+| 504  | game accepted the command but didn't reply within the timeout |
+
+## Design
+
+The game accepts **one client and one in-flight command at a time** (the C++
+side holds an SDL mutex from command poll to response send). The gateway is
+the single serializer: one fiber owns the `UNIXSocket`, every HTTP request
+funnels through a `Channel(Request)`, reply channels are buffered so a caller
+that times out can never wedge the owner fiber. A timed-out connection is
+*poisoned* (its late reply would pair with the next request) and dropped;
+reconnection is lazy and per-request, which makes the gateway self-healing
+across game restarts.
+
+Stdlib only by design (HTTP::Server, UNIXSocket, JSON, ECR) — no shards.
+
+## Tests
+
+```sh
+cd gateway && mise exec -- crystal spec
+```
+
+Specs run against an in-process `FakeGame` Unix server that speaks the real
+line-JSON protocol with failure knobs (slow replies, mid-stream disconnects,
+garbage responses). No game binary required.
+
+## Roadmap
+
+See `~/projects/claude/plans/ctp2-gateway.md`. Next: MCP endpoint (session B),
+admin panel (session C); C++ prerequisite `end_turn` in headless `--serve`
+for full LLM play.

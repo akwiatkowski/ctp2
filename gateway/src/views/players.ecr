@@ -1,16 +1,26 @@
-<h1>Players</h1>
-<table>
-  <tr><th>id</th><th>name</th><th>type</th><th>status</th><th>gold</th><th>cities</th><th>score</th><th></th></tr>
+<h1 class="page-title reveal">The <em>census</em></h1>
+<p class="page-sub reveal">every seat at the table — omniscient, no fog of war</p>
+
+<div class="reveal">
+<table class="ledger">
+  <tr>
+    <th>id</th><th>leader</th><th>nature</th><th>status</th>
+    <th class="num">gold</th><th class="num">cities</th><th class="num">score</th><th></th>
+  </tr>
   <% @players.each do |p| %>
     <tr>
-      <td><%= p["id"].as_i %></td>
-      <td><%= HTML.escape(p["name"].as_s) %></td>
-      <td><%= p["human"].as_bool ? "human" : "AI" %></td>
-      <td><% if p["dead"].as_bool %><span class="bad">dead</span><% else %><span class="ok">alive</span><% end %></td>
-      <td><%= p["gold"].as_i %></td>
-      <td><%= p["num_cities"].as_i %></td>
-      <td><%= p["score"].as_i %></td>
-      <td><a href="/players/<%= p["id"].as_i %>/cities">cities →</a></td>
+      <td class="num"><%= p["id"].as_i %></td>
+      <td>
+        <% if p["human"].as_bool %><span class="glyph" title="human">♔</span><% else %><span class="glyph--dim" title="AI">⚙</span><% end %>
+        <%= HTML.escape(p["name"].as_s) %>
+      </td>
+      <td><%= p["human"].as_bool ? %(<span class="badge badge--gold">human</span>) : %(<span class="badge">AI</span>) %></td>
+      <td><%= p["dead"].as_bool ? %(<span class="badge badge--bad">dead</span>) : %(<span class="badge badge--ok">alive</span>) %></td>
+      <td class="num"><%= p["gold"].as_i %></td>
+      <td class="num"><%= p["num_cities"].as_i %></td>
+      <td class="num"><%= p["score"].as_i %></td>
+      <td class="row-link"><a href="/players/<%= p["id"].as_i %>/cities">cities →</a></td>
     </tr>
   <% end %>
 </table>
+</div>

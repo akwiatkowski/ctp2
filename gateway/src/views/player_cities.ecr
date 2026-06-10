@@ -1,24 +1,29 @@
-<h1>Cities of <%= HTML.escape(@owner_name) %> <span class="muted">(player <%= @owner %>)</span></h1>
-<p><a href="/players">← all players</a></p>
+<div class="crumb reveal"><a href="/players">← the census</a></div>
+<h1 class="page-title reveal">Cities of <em><%= HTML.escape(@owner_name) %></em></h1>
+<p class="page-sub reveal">player <%= @owner %> · all holdings, fog disregarded</p>
+
 <% if @cities.empty? %>
-  <div class="card muted">No cities.</div>
+  <div class="card reveal"><span class="muted">No cities founded yet.</span></div>
 <% else %>
-  <table>
-    <tr><th>#</th><th>name</th><th>position</th><th>population</th><th>building</th></tr>
+  <div class="reveal">
+  <table class="ledger">
+    <tr><th>#</th><th>city</th><th>position</th><th class="num">population</th><th>building</th></tr>
     <% @cities.each do |c| %>
       <tr>
-        <td><%= c["index"].as_i %></td>
-        <td><%= HTML.escape(c["name"].as_s) %></td>
-        <td>(<%= c["pos"]["x"].as_i %>, <%= c["pos"]["y"].as_i %>)</td>
-        <td><%= c["population"]?.try(&.as_i) || "?" %></td>
+        <td class="num"><%= c["index"].as_i %></td>
+        <td><span class="glyph">⬢</span> <%= HTML.escape(c["name"].as_s) %></td>
+        <td class="mono">(<%= c["pos"]["x"].as_i %>, <%= c["pos"]["y"].as_i %>)</td>
+        <td class="num"><%= c["population"]?.try(&.as_i) || "?" %></td>
         <td>
           <% if (b = c["building"]?) && !b.raw.nil? %>
-            category <%= b["category"].as_i %>, type <%= b["type"].as_i %>, cost <%= b["cost"].as_i %>
+            <span class="badge badge--gold">category <%= b["category"].as_i %> · type <%= b["type"].as_i %></span>
+            <span class="muted">cost <%= b["cost"].as_i %></span>
           <% else %>
-            <span class="muted">idle</span>
+            <span class="badge">idle</span>
           <% end %>
         </td>
       </tr>
     <% end %>
   </table>
+  </div>
 <% end %>

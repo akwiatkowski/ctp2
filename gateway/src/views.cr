@@ -8,16 +8,28 @@ module Ctp2Gateway::Views
   # <%= @content %> is raw on purpose — it embeds gateway-generated page
   # bodies, never game data directly.
   struct Layout
-    def initialize(@title : String, @content : String)
+    # @path drives the nav's aria-current highlight.
+    def initialize(@title : String, @content : String, @path : String)
     end
 
     ECR.def_to_s "src/views/layout.ecr"
   end
 
-  struct Dashboard
+  # The live-polled part of the dashboard (status strip + stat ledger).
+  # Rendered standalone for GET /fragments/dashboard (htmx swaps it in
+  # every 5s) and embedded pre-rendered into the full Dashboard page.
+  struct DashboardLedger
     def initialize(@socket : String, @connected : Bool, @spawn_line : String?,
                    @game_error : String?, @player_count : Int32,
-                   @alive_count : Int32, @city_count : Int32)
+                   @alive_count : Int32, @city_count : Int32,
+                   @leader_name : String?, @leader_score : Int32)
+    end
+
+    ECR.def_to_s "src/views/dashboard_ledger.ecr"
+  end
+
+  struct Dashboard
+    def initialize(@ledger : String)
     end
 
     ECR.def_to_s "src/views/dashboard.ecr"
@@ -44,7 +56,7 @@ module Ctp2Gateway::Views
     ECR.def_to_s "src/views/error.ecr"
   end
 
-  def self.page(title : String, body) : String
-    Layout.new(title, body.to_s).to_s
+  def self.page(title : String, body, path : String) : String
+    Layout.new(title, body.to_s, path).to_s
   end
 end

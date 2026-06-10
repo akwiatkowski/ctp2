@@ -1,3 +1,5 @@
-<h1><%= HTML.escape(@heading) %></h1>
-<div class="card"><span class="bad"><%= HTML.escape(@detail) %></span></div>
-<p><a href="/">← dashboard</a></p>
+<h1 class="page-title reveal"><%= HTML.escape(@heading) %></h1>
+<div class="card card--alert reveal">
+  <span class="seal seal--bad"></span><%= HTML.escape(@detail) %>
+</div>
+<div class="crumb reveal"><a href="/">← back to the dashboard</a></div>

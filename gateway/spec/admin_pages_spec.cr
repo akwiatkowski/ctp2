@@ -41,10 +41,11 @@ describe "admin panel" do
       resp = HTTP::Client.get("#{base}/")
       resp.status_code.should eq 200
       resp.headers["Content-Type"].should contain "text/html"
-      resp.body.should contain %(<a href="/players">Players</a>) # menu
-      resp.body.should contain "Players: <b>3</b>"
-      resp.body.should contain "(2 alive)"
-      resp.body.should contain "Cities: <b>2</b>"
+      resp.body.should contain %(>Players</a>) # masthead nav
+      resp.body.should contain %(data-stat="players">3<)
+      resp.body.should contain %(data-stat="alive">2<)
+      resp.body.should contain %(data-stat="cities">2<)
+      resp.body.should contain "Caesar &lt;Rome&gt;" # leading player, escaped
     end
   end
 
@@ -52,7 +53,7 @@ describe "admin panel" do
     with_http(socket_path: "/tmp/ctp2-gateway-spec-absent.sock") do |base, _fake|
       resp = HTTP::Client.get("#{base}/")
       resp.status_code.should eq 200
-      resp.body.should contain "Game unavailable"
+      resp.body.should contain "game unavailable"
     end
   end
 
@@ -73,7 +74,8 @@ describe "admin panel" do
       resp.body.should contain "Caesar &lt;Rome&gt;"
       resp.body.should contain "Rome &lt;b&gt;" # escaped city name
       resp.body.should contain "(31, 10)"
-      resp.body.should contain "category 1, type 54, cost 740"
+      resp.body.should contain "category 1 · type 54"
+      resp.body.should contain "cost 740"
       resp.body.should contain "idle" # Ostia builds nothing
       fake.not_nil!.received.first.should eq "query_player_cities 1"
     end
@@ -101,6 +103,35 @@ describe "admin panel" do
       resp = HTTP::Client.get("#{base}/api/players/1/cities")
       resp.status_code.should eq 200
       JSON.parse(resp.body)["result"]["owner"].as_i.should eq 1
+    end
+  end
+end
+
+describe "assets and fragments" do
+  it "serves vendored static assets with the right content type" do
+    with_http do |base, _fake|
+      resp = HTTP::Client.get("#{base}/assets/app.css")
+      resp.status_code.should eq 200
+      resp.headers["Content-Type"].should contain "text/css"
+      resp.body.should contain "THE CHANCELLERY"
+      HTTP::Client.get("#{base}/assets/htmx.min.js").status_code.should eq 200
+      HTTP::Client.get("#{base}/assets/fonts/fraunces-normal.woff2").status_code.should eq 200
+    end
+  end
+
+  it "blocks path traversal out of public/" do
+    with_http do |base, _fake|
+      HTTP::Client.get("#{base}/assets/../shard.yml").status_code.should eq 404
+      HTTP::Client.get("#{base}/assets/%2e%2e/shard.yml").status_code.should eq 404
+    end
+  end
+
+  it "GET /fragments/dashboard returns the bare ledger fragment" do
+    with_http do |base, _fake|
+      resp = HTTP::Client.get("#{base}/fragments/dashboard")
+      resp.status_code.should eq 200
+      resp.body.should contain %(data-stat="players">3<)
+      resp.body.should_not contain "<html" # fragment, not a full page
     end
   end
 end

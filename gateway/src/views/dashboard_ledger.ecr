@@ -1,0 +1,48 @@
+<div class="card">
+  <div class="statusline">
+    <span>
+      <% if @connected %><span class="seal seal--ok"></span><strong>connected</strong>
+      <% else %><span class="seal seal--bad"></span><strong>not connected</strong><% end %>
+    </span>
+    <span>socket <code><%= HTML.escape(@socket) %></code></span>
+    <% if s = @spawn_line %><span>spawned game: <strong><%= HTML.escape(s) %></strong></span><% end %>
+  </div>
+</div>
+
+<% if err = @game_error %>
+  <div class="card card--alert">
+    <div class="statusline">
+      <span><span class="seal seal--bad"></span><strong>game unavailable</strong></span>
+      <span class="muted"><%= HTML.escape(err) %></span>
+    </div>
+    <div class="stat__hint">summon one: <code>curl -X POST localhost:8666/api/cmd -d '{"cmd":"start_game"}'</code></div>
+  </div>
+<% else %>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat__label">Players</div>
+      <div class="stat__value" data-stat="players"><%= @player_count %></div>
+      <div class="stat__hint"><a href="/players">open the census →</a></div>
+    </div>
+    <div class="stat">
+      <div class="stat__label">Alive</div>
+      <div class="stat__value" data-stat="alive"><%= @alive_count %></div>
+      <div class="stat__hint">of <%= @player_count %> seats at the table</div>
+    </div>
+    <div class="stat">
+      <div class="stat__label">Cities</div>
+      <div class="stat__value" data-stat="cities"><%= @city_count %></div>
+      <div class="stat__hint">founded across the realm</div>
+    </div>
+    <div class="stat">
+      <div class="stat__label">Leading</div>
+      <% if name = @leader_name %>
+        <div class="stat__value stat__value--name" data-stat="leader"><%= HTML.escape(name) %></div>
+        <div class="stat__hint">score <%= @leader_score %></div>
+      <% else %>
+        <div class="stat__value stat__value--name muted" data-stat="leader">—</div>
+        <div class="stat__hint">no scores yet</div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

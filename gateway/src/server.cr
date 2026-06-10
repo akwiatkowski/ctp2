@@ -35,6 +35,20 @@ module Ctp2Gateway
     PLAYER_CITIES_PATH = %r{\A/players/(\d+)/cities\z}
     API_PLAYER_CITIES  = %r{\A/api/players/(\d+)/cities\z}
 
+    # Vendored static assets (css, htmx, fonts) live in gateway/public/,
+    # resolved relative to the SOURCE tree at compile time — fine for a dev
+    # tool whose binary lives next to its repo.
+    PUBLIC_DIR = File.expand_path(File.join(__DIR__, "..", "public"))
+
+    MIME_TYPES = {
+      ".css"   => "text/css; charset=utf-8",
+      ".js"    => "text/javascript; charset=utf-8",
+      ".woff2" => "font/woff2",
+      ".svg"   => "image/svg+xml",
+      ".png"   => "image/png",
+      ".ico"   => "image/x-icon",
+    }
+
     # process is present only when the gateway spawned the game (--spawn);
     # /healthz then reports its pid/exit state alongside the socket state.
     def initialize(@client : GameClient, @process : GameProcess? = nil)
@@ -60,6 +74,10 @@ module Ctp2Gateway
       case {req.method, req.path}
       when {"GET", "/"}
         dashboard(ctx)
+      when {"GET", "/fragments/dashboard"}
+        # htmx polls this every 5s and swaps it into #ledger.
+        ctx.response.content_type = "text/html; charset=utf-8"
+        ctx.response << build_ledger.to_s
       when {"GET", "/players"}
         players_page(ctx)
       when {"GET", "/healthz"}
@@ -75,7 +93,9 @@ module Ctp2Gateway
       when {"GET", "/api/map"}
         respond(ctx, @client.command("query_map"))
       else
-        if req.method == "GET" && (m = req.path.match(PLAYER_CITIES_PATH))
+        if req.method == "GET" && req.path.starts_with?("/assets/")
+          static_asset(ctx, req.path.lchop("/assets/"))
+        elsif req.method == "GET" && (m = req.path.match(PLAYER_CITIES_PATH))
           player_cities_page(ctx, m[1].to_i)
         elsif req.method == "GET" && (m = req.path.match(API_PLAYER_CITIES))
           respond(ctx, @client.command("query_player_cities #{m[1]}"))
@@ -105,7 +125,9 @@ module Ctp2Gateway
       end
     end
 
-    private def dashboard(ctx) : Nil
+    # Build the live part of the dashboard (status strip + stat cards) —
+    # shared between the full page and the htmx polling fragment.
+    private def build_ledger : Views::DashboardLedger
       spawn_line = @process.try do |p|
         s = p.status_json
         s[:running] ? "pid #{s[:pid]}, running" : "exited#{s[:exit_code] ? " (code #{s[:exit_code]})" : ""}"
@@ -114,8 +136,9 @@ module Ctp2Gateway
       result, gw_err, game_err = fetch("query_players")
       error = gw_err.try(&.detail) || game_err
       players = result.try(&.["players"].as_a) || [] of JSON::Any
+      leader = players.reject { |p| p["dead"].as_bool }.max_by? { |p| p["score"].as_i }
 
-      body = Views::Dashboard.new(
+      Views::DashboardLedger.new(
         socket: @client.socket_path,
         connected: @client.connected?,
         spawn_line: spawn_line,
@@ -123,10 +146,29 @@ module Ctp2Gateway
         player_count: players.size,
         alive_count: players.count { |p| !p["dead"].as_bool },
         city_count: players.sum { |p| p["num_cities"].as_i },
+        leader_name: leader.try { |l| l["name"].as_s.presence },
+        leader_score: leader.try(&.["score"].as_i) || 0,
       )
+    end
+
+    private def dashboard(ctx) : Nil
       # The dashboard always renders (200) — showing "game unavailable" IS
       # its job, unlike the API routes where non-200 signals the failure.
-      html(ctx, 200, "Dashboard", body)
+      html(ctx, 200, "Dashboard", Views::Dashboard.new(build_ledger.to_s))
+    end
+
+    private def static_asset(ctx, rel : String) : Nil
+      path = File.expand_path(File.join(PUBLIC_DIR, rel))
+      # expand_path collapses any ../ — anything escaping public/ is a 404.
+      unless path.starts_with?(PUBLIC_DIR + "/") && File.file?(path)
+        return gateway_error(ctx, 404, "not_found", "no such asset")
+      end
+      mime = MIME_TYPES[File.extname(path)]? || "application/octet-stream"
+      ctx.response.content_type = mime
+      # CSS is iterated on constantly; fonts and htmx are effectively frozen.
+      ctx.response.headers["Cache-Control"] =
+        path.ends_with?(".css") ? "no-cache" : "public, max-age=604800"
+      File.open(path) { |f| IO.copy(f, ctx.response) }
     end
 
     private def players_page(ctx) : Nil
@@ -166,7 +208,7 @@ module Ctp2Gateway
     private def html(ctx, status : Int32, title : String, body) : Nil
       ctx.response.status_code = status
       ctx.response.content_type = "text/html; charset=utf-8"
-      ctx.response << Views.page(title, body)
+      ctx.response << Views.page(title, body, ctx.request.path)
     end
 
     private def healthz(ctx) : Nil

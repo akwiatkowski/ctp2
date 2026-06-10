@@ -432,6 +432,9 @@ void UnitData::RecreateGfxState()
 	if (gameobservers_Get()) {
 		gameobservers_Get()->NotifyUnitSpawned(Unit(m_id), &m_state);
 	}
+
+	DPRINTF(k_DBG_GAMESTATE, ("RecreateGfxState: unit %lx actor=%p city=%s\n",
+		m_id, m_actor.get(), m_city_data ? m_city_data->GetName() : "no"));
 }
 
 UnitData::~UnitData()

@@ -2617,7 +2617,14 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 				}
 
 				UnitActorPtr actor = top.GetActor();
-
+				if (!actor) {
+					static int s_missingActorLog = 0;
+					if (++s_missingActorLog <= 5) {
+						DPRINTF(k_DBG_UI, ("TiledMap: unit %lx (%s) has no actor at (%d,%d)\n",
+							top.m_id, top.IsCity() ? "city" : "unit", pos.x, pos.y));
+					}
+					continue;
+				}
 
 				// SetIsFortifying / SetIsFortified / SetHasCityWalls /
 				// SetHasForceField pushes removed — UnitActor::Draw

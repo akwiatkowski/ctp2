@@ -1,0 +1,27 @@
+<h1>CTP2 Gateway</h1>
+
+<div class="card">
+  <div>Game socket: <code><%= HTML.escape(@socket) %></code> —
+    <% if @connected %><span class="ok">connected</span><% else %><span class="muted">not connected (connects on first command)</span><% end %>
+  </div>
+  <% if s = @spawn_line %>
+    <div>Spawned game: <%= HTML.escape(s) %></div>
+  <% end %>
+</div>
+
+<% if err = @game_error %>
+  <div class="card">
+    <span class="bad">Game unavailable: <%= HTML.escape(err) %></span>
+    <div class="muted">start one: <code>curl -X POST localhost:8666/api/cmd -d '{"cmd":"start_game"}'</code></div>
+  </div>
+<% else %>
+  <div class="card">
+    <div>Players: <b><%= @player_count %></b> (<%= @alive_count %> alive) — <a href="/players">details</a></div>
+    <div>Cities: <b><%= @city_count %></b></div>
+  </div>
+<% end %>
+
+<div class="card muted">
+  curl API: <code>POST /api/cmd</code> · <code>GET /api/players</code> · <code>GET /api/cities</code> ·
+  <code>GET /api/units</code> · <code>GET /api/map</code> — see gateway/README.md
+</div>

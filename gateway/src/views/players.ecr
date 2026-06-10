@@ -1,0 +1,16 @@
+<h1>Players</h1>
+<table>
+  <tr><th>id</th><th>name</th><th>type</th><th>status</th><th>gold</th><th>cities</th><th>score</th><th></th></tr>
+  <% @players.each do |p| %>
+    <tr>
+      <td><%= p["id"].as_i %></td>
+      <td><%= HTML.escape(p["name"].as_s) %></td>
+      <td><%= p["human"].as_bool ? "human" : "AI" %></td>
+      <td><% if p["dead"].as_bool %><span class="bad">dead</span><% else %><span class="ok">alive</span><% end %></td>
+      <td><%= p["gold"].as_i %></td>
+      <td><%= p["num_cities"].as_i %></td>
+      <td><%= p["score"].as_i %></td>
+      <td><a href="/players/<%= p["id"].as_i %>/cities">cities →</a></td>
+    </tr>
+  <% end %>
+</table>

@@ -8,9 +8,14 @@ grow four faces on one port:
 |-------------|--------------|--------|
 | curl API    | `/api/*`     | ✅ v0.1 |
 | health      | `/healthz`   | ✅ v0.1 |
+| admin panel (game internals, future web UI)  | `/`, `/players`, `/players/<id>/cities` | ✅ v0.1 |
 | MCP (streamable HTTP, Claude plays the game) | `POST /mcp` | planned (session B) |
-| admin panel (game internals, future web UI)  | `/admin`    | planned (session C) |
 | WebSocket (live events)                      | `/ws`       | planned (v0.2, needs C++ event push) |
+
+The admin pages are **omniscient** (no fog of war) — they ride the game's
+admin-query verbs (`query_players`, `query_player_cities <id>`), unlike the
+`/api/cities|units|map` routes which report the human player's view. JSON
+twins exist at `/api/players` and `/api/players/<id>/cities`.
 
 ## Run
 

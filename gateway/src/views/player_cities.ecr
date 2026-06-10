@@ -1,0 +1,24 @@
+<h1>Cities of <%= HTML.escape(@owner_name) %> <span class="muted">(player <%= @owner %>)</span></h1>
+<p><a href="/players">← all players</a></p>
+<% if @cities.empty? %>
+  <div class="card muted">No cities.</div>
+<% else %>
+  <table>
+    <tr><th>#</th><th>name</th><th>position</th><th>population</th><th>building</th></tr>
+    <% @cities.each do |c| %>
+      <tr>
+        <td><%= c["index"].as_i %></td>
+        <td><%= HTML.escape(c["name"].as_s) %></td>
+        <td>(<%= c["pos"]["x"].as_i %>, <%= c["pos"]["y"].as_i %>)</td>
+        <td><%= c["population"]?.try(&.as_i) || "?" %></td>
+        <td>
+          <% if (b = c["building"]?) && !b.raw.nil? %>
+            category <%= b["category"].as_i %>, type <%= b["type"].as_i %>, cost <%= b["cost"].as_i %>
+          <% else %>
+            <span class="muted">idle</span>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>

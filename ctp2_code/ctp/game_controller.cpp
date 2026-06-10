@@ -41,6 +41,7 @@
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
 #include "gs/gameobj/Score.h"                 // Score::GetTotalScore
 #include "gs/gameobj/Civilisation.h"          // Civilisation::Get*CivName
+#include "gs/utility/TurnCnt.h"               // turn_Get()->GetRound/GetYear
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 
 using json = nlohmann::json;
@@ -228,6 +229,14 @@ json CityJson(sint32 owner, sint32 city_idx, const Unit & u)
     CityData * cd = u.GetData() ? u.GetData()->GetCityData() : nullptr;
     if (cd) {
         c["population"] = cd->PopCount();
+        // Net per-turn yields — what the city panel shows the player.
+        json y;
+        y["food"]       = cd->GetNetCityFood();
+        y["production"] = cd->GetNetCityProduction();
+        y["gold"]       = cd->GetNetCityGold();
+        y["science"]    = cd->GetScience();
+        y["happiness"]  = cd->GetHappiness();
+        c["yields"] = y;
         BuildNode * head = cd->GetBuildQueue() ? cd->GetBuildQueue()->GetHead() : nullptr;
         if (head) {
             c["building"] = { {"category", head->m_category},
@@ -417,6 +426,36 @@ std::string QueryMap()
 // admin panel and debugging — a driver that wants the player's perspective
 // must use the query_* family instead.
 
+// One player slot, shared by query_players and query_player so the two can
+// never drift apart.
+json PlayerJson(sint32 p, Player * pl)
+{
+    const char * name = pl->GetLeaderName();
+    // Civilisation names come from the game's StringDB via the player's
+    // Civilisation object — never synthesized here.
+    MBCHAR civ[k_MAX_NAME_LEN]     = {0};
+    MBCHAR country[k_MAX_NAME_LEN] = {0};
+    Civilisation * c = pl->GetCivilisation();
+    if (c && c->AccessData()) {
+        c->GetSingularCivName(civ);
+        c->GetCountryName(country);
+    }
+    json j;
+    j["id"]         = p;
+    j["name"]       = name ? name : "";
+    j["civ"]        = civ;       // adjective/singular, e.g. "Roman"
+    j["country"]    = country;   // nation, e.g. "Rome"
+    j["human"]      = pl->IsHuman();
+    j["dead"]       = pl->IsDead();
+    j["gold"]       = pl->GetGold();
+    j["num_cities"] = pl->GetNumCities();
+    j["num_units"]  = pl->m_all_units ? pl->m_all_units->Num() : 0;
+    j["num_armies"] = pl->GetAllArmiesList() ? pl->GetAllArmiesList()->Num() : 0;
+    j["government"] = pl->GetGovernmentType();
+    j["score"]      = pl->m_score ? pl->m_score->GetTotalScore() : 0;
+    return j;
+}
+
 // query_players — every live player slot with headline stats.
 std::string QueryPlayers()
 {
@@ -427,32 +466,42 @@ std::string QueryPlayers()
     for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
         Player * pl = player_Get(p);
         if (!pl) continue;
-        const char * name = pl->GetLeaderName();
-        // Civilisation names come from the game's StringDB via the player's
-        // Civilisation object — never synthesized here.
-        MBCHAR civ[k_MAX_NAME_LEN]     = {0};
-        MBCHAR country[k_MAX_NAME_LEN] = {0};
-        Civilisation * c = pl->GetCivilisation();
-        if (c && c->AccessData()) {
-            c->GetSingularCivName(civ);
-            c->GetCountryName(country);
-        }
-        json j;
-        j["id"]         = p;
-        j["name"]       = name ? name : "";
-        j["civ"]        = civ;       // adjective/singular, e.g. "Roman"
-        j["country"]    = country;   // nation, e.g. "Rome"
-        j["human"]      = pl->IsHuman();
-        j["dead"]       = pl->IsDead();
-        j["gold"]       = pl->GetGold();
-        j["num_cities"] = pl->GetNumCities();
-        j["score"]      = pl->m_score ? pl->m_score->GetTotalScore() : 0;
-        players.push_back(j);
+        players.push_back(PlayerJson(p, pl));
     }
 
     json result;
     result["players"] = players;
     return Ok("query_players", result);
+}
+
+// query_player <id> — one player slot (same shape as a query_players entry).
+std::string QueryPlayer(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_player", "game_not_loaded");
+
+    int id = -1;
+    if (sscanf(args, "%d", &id) != 1)
+        return Err("query_player", "bad_args");
+    if (id < 0 || id >= k_MAX_PLAYERS || !player_Get(id))
+        return Err("query_player", "bad_player");
+
+    return Ok("query_player", PlayerJson(id, player_Get(id)));
+}
+
+// query_turn — where the clock stands. Session-level accessors on purpose:
+// the legacy GetRound/GetYear route through the currently-viewing PLAYER's
+// recorded round, which lags the global clock between rounds — exactly the
+// idle window in which this query runs.
+std::string QueryTurn()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_turn", "game_not_loaded");
+
+    json result;
+    result["round"] = turn_Get() ? turn_Get()->GetSessionRound() : 0;
+    result["year"]  = turn_Get() ? turn_Get()->GetSessionYear()  : 0;
+    return Ok("query_turn", result);
 }
 
 // query_player_cities <player_id> — ALL cities of one player (no fog filter).
@@ -500,6 +549,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line == "query_map")                                    return QueryMap();
     if (line == "query_players")                                return QueryPlayers();
     if (line.rfind("query_player_cities ", 0) == 0)             return QueryPlayerCities(line.c_str() + 20);
+    if (line.rfind("query_player ", 0) == 0)                    return QueryPlayer(line.c_str() + 13);
+    if (line == "query_turn")                                   return QueryTurn();
 
     handled = false;
     return std::string();

@@ -1694,3 +1694,17 @@ test('observability-ui',
   workdir : cwd_for_tests,
   suite : 'integration',
 )
+
+# Turn advancement: end_turn N drives full rounds through the real event
+# pipeline; query_turn tracks the clock. Headless-only — the UI build's
+# end_turn is asynchronous (director-driven).
+turns_test = find_program('test/turns.py')
+test('turns-headless',
+  turns_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)

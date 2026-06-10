@@ -121,3 +121,19 @@ struct McpArmyToolsTest < GatewayTestCase
     self.fake.received.should eq ["auto_explore 2", "query_armies"]
   end
 end
+
+struct McpEconomyToolsTest < GatewayTestCase
+  def test_research_and_terraform_tools_map_to_verbs : Nil
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"set_research","arguments":{"advance_id":106}}}))
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"set_material_tax","arguments":{"percent":30}}}))
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"query_terraform","arguments":{"x":31,"y":9}}}))
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"terraform","arguments":{"x":31,"y":9,"improvement_id":29}}}))
+    self.fake.received.should eq ["set_research 106", "set_material_tax 30", "query_terraform 31 9", "terraform 31 9 29"]
+  end
+
+  def test_query_research_listed : Nil
+    body = JSON.parse(self.post("/mcp", body: %({"jsonrpc":"2.0","id":5,"method":"tools/list"})).body)
+    names = body["result"]["tools"].as_a.map(&.["name"].as_s)
+    %w[query_research set_research set_material_tax query_terraform terraform].each { |n| names.should contain n }
+  end
+end

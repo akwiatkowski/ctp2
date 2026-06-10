@@ -131,7 +131,8 @@ module Ctp2Gateway
                      "end_turn [N] (headless: advance N full rounds; UI: queue director end-turn)",
                      "save_game <path>", "load_game <path>", "new_game", "start_game", "quit"],
           queries_player_view: ["query_cities", "query_city <idx>", "query_units", "query_armies", "query_map"],
-          queries_admin: ["query_players", "query_player <id>", "query_player_cities <id>", "query_turn"],
+          queries_admin: ["query_players", "query_player <id>", "query_player_cities <id>", "query_turn", "query_research", "query_terraform <x> <y>"],
+          commands_economy: ["set_research <advance_id>", "set_material_tax <0..100>", "terraform <x> <y> <improvement_id>", "grant_advance <id> (DEBUG cheat for tests)"],
         },
       }
       AHTTP::Response.new(doc.to_pretty_json, headers: HTTP::Headers{"content-type" => JSON_CT})

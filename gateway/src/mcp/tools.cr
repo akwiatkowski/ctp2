@@ -144,6 +144,49 @@ module Ctp2Gateway::Mcp
       NO_ARGS,
       ->(c : Ctp2Gateway::GameClient, _a : JSON::Any) : Ctp2Gateway::GameClient::Result { simple(c, "query_map") }),
 
+    Tool.new("query_research",
+      "The science affordance set: what you're researching, what you could research " \
+      "and each option's cost. RESEARCH IS THE MAIN SCORE ENGINE — advances unlock " \
+      "units, buildings and terraforming. Keep something queued at all times.",
+      NO_ARGS,
+      ->(c : Ctp2Gateway::GameClient, _a : JSON::Any) : Ctp2Gateway::GameClient::Result { simple(c, "query_research") }),
+
+    Tool.new("set_research",
+      "Switch research to an advance id from query_research's available list. " \
+      "Errors: already_known, prerequisites_missing.",
+      %({"type":"object","properties":{"advance_id":{"type":"integer","minimum":0}},"required":["advance_id"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("set_research #{a["advance_id"].as_i}")
+      }),
+
+    Tool.new("set_material_tax",
+      "Divert a percentage of city production into the Public Works pool that pays " \
+      "for terraforming. Without this your PW stays 0 and terraform is unusable. " \
+      "20-40% is a reasonable working rate.",
+      %({"type":"object","properties":{"percent":{"type":"integer","minimum":0,"maximum":100}},"required":["percent"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("set_material_tax #{a["percent"].as_i}")
+      }),
+
+    Tool.new("query_terraform",
+      "Terraform options for ONE tile: what it can become, the Public Works price, " \
+      "and your PW balance. Only works INSIDE your borders (check tile_owner), and " \
+      "each transform is gated by advances — e.g. draining swamp needs Industrial " \
+      "Revolution. If your cities can't grow (low food), terraforming toward " \
+      "Grassland/Plains is the long-term fix.",
+      %({"type":"object","properties":{"x":{"type":"integer","minimum":0},"y":{"type":"integer","minimum":0}},"required":["x","y"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("query_terraform #{a["x"].as_i} #{a["y"].as_i}")
+      }),
+
+    Tool.new("terraform",
+      "Spend Public Works to transform a tile (improvement_id from query_terraform's " \
+      "options). The change completes after the option's `turns` — keep ending turns.",
+      %({"type":"object","properties":{"x":{"type":"integer","minimum":0},"y":{"type":"integer","minimum":0},"improvement_id":{"type":"integer","minimum":0}},"required":["x","y","improvement_id"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("terraform #{a["x"].as_i} #{a["y"].as_i} #{a["improvement_id"].as_i}")
+      }),
+
     Tool.new("render_map",
       "YOUR EYES: an ASCII map of the explored world — terrain glyphs, coordinate " \
       "rulers, cities as letters, @ = your armies, ! = foreign units, · = unexplored. " \

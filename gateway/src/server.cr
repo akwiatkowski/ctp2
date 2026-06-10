@@ -1,5 +1,6 @@
 require "http/server"
 require "./game_client"
+require "./game_process"
 
 module Ctp2Gateway
   # HTTP face of the gateway. v0.1 routes:
@@ -23,7 +24,9 @@ module Ctp2Gateway
   class Server
     CITY_PATH = %r{\A/api/city/(\d+)\z}
 
-    def initialize(@client : GameClient)
+    # process is present only when the gateway spawned the game (--spawn);
+    # /healthz then reports its pid/exit state alongside the socket state.
+    def initialize(@client : GameClient, @process : GameProcess? = nil)
       @http = HTTP::Server.new { |ctx| handle(ctx) }
     end
 
@@ -66,10 +69,11 @@ module Ctp2Gateway
     private def healthz(ctx) : Nil
       ctx.response.content_type = "application/json"
       {
-        status:    "ok",
-        socket:    @client.socket_path,
-        connected: @client.connected?,
+        status:     "ok",
+        socket:     @client.socket_path,
+        connected:  @client.connected?,
         last_error: @client.last_error,
+        spawn:      @process.try(&.status_json),
       }.to_json(ctx.response)
     end
 

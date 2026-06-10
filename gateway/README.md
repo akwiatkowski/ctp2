@@ -15,18 +15,28 @@ grow four faces on one port:
 ## Run
 
 ```sh
-# 1. Start the game with the command socket (either binary):
-./build/ctp2_headless --serve --players 3 --seed 42
-#    or the UI build, which enables the socket via its smoke-test mode.
+cd gateway && mise exec -- shards build
 
-# 2. Start the gateway (order doesn't matter — it connects lazily and
-#    reconnects when the game restarts):
-cd gateway
-mise exec -- shards build
-./bin/ctp2-gateway                 # --port 8666 --socket /tmp/ctp2-smoke.sock
+# Option A — one command: spawn and supervise the headless game yourself
+./bin/ctp2-gateway --spawn --spawn-args "--players 3 --seed 42"
+
+# Option B — attach: start the game separately (either binary), any order
+./build/ctp2_headless --serve --players 3 --seed 42   # from the repo root
+./gateway/bin/ctp2-gateway
 ```
 
-Env overrides: `CTP2_GATEWAY_PORT`, `CTP2_SOCKET`.
+`--spawn` auto-detects `build/ctp2_headless` (from the repo root or
+`gateway/`), runs it with the repo root as cwd (asset loading), writes its
+output to `--spawn-log` (default `/tmp/ctp2-headless.log`), reports its
+pid/exit state under `"spawn"` in `/healthz`, and terminates it on gateway
+shutdown (SIGTERM, then SIGKILL after 5s). If a game is already serving the
+socket, the gateway refuses to race it and attaches instead. There is
+deliberately no auto-respawn — a crash would loop; the lazy reconnect picks
+the game back up whenever it returns.
+
+Flags: `--port`, `--socket`, `--spawn`, `--binary`, `--spawn-args`,
+`--spawn-log`, `--spawn-cwd`. Env: `CTP2_GATEWAY_PORT`, `CTP2_SOCKET`,
+`CTP2_BINARY`.
 
 ## curl cookbook
 

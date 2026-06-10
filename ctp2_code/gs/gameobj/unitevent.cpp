@@ -140,13 +140,16 @@ STDEHANDLER(BeginTurnUnitEvent)
 		if (needRetarget) {
 			Player * owner = player_Get(u.GetOwner());
 			MapPoint target;
-			if (owner && owner->FindNearestUnexplored(cur, target)) {
+			uint32 const moveTypes =
+				army.IsValid() && army.AccessData() ? army.AccessData()->GetMovementType() : 0;
+			if (owner && owner->FindNearestUnexplored(cur, target, moveTypes)) {
 				ud->SetExploreTarget(target);
 				if (army.IsValid()) {
-					if (!army_AddMovePath(u.GetOwner(), army, cur, target)) {
-						// Nearest unexplored tile is unreachable; stop exploring
-						// so the unit doesn't burn CPU every turn re-pathing to
-						// the same blocked destination.
+					if (!army_AddExplorePath(u.GetOwner(), army, cur, target)) {
+						// Neither the target nor its explored frontier is
+						// reachable; stop exploring so the unit doesn't burn
+						// CPU every turn re-pathing to the same blocked
+						// destination.
 						ud->SetExploring(false);
 					}
 				}

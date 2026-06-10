@@ -316,6 +316,13 @@ std::string CmdMoveArmy(const char * args)
     if (!army_QueueMovePath(human->GetOwner(), army, src, dest))
         return Err("move_army", "no_path");
 
+    // A manual order overrides auto-explore — otherwise the explore tick
+    // would re-route the army somewhere else next turn.
+    for (sint32 u = 0; u < ad->Num(); ++u) {
+        Unit unit = ad->Access(u);
+        if (UnitData * ud = unit.AccessData()) ud->SetExploring(false);
+    }
+
     // Drain the queued GEV_MoveOrder so the army starts walking now.
     if (gevmanager_Get())
         gevmanager_Get()->Process();

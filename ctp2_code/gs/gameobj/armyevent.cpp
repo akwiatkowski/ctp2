@@ -226,7 +226,7 @@ STDEHANDLER(ArmyExploreOrderEvent)
 
 	MapPoint const start = ad->RetPos();
 	MapPoint target;
-	if (!owner->FindNearestUnexplored(start, target)) {
+	if (!owner->FindNearestUnexplored(start, target, ad->GetMovementType())) {
 		// Map fully explored from here — flag stays cleared.
 		for (sint32 i = 0; i < ad->Num(); ++i) {
 			Unit u = ad->Access(i);
@@ -243,10 +243,11 @@ STDEHANDLER(ArmyExploreOrderEvent)
 		}
 	}
 
-	if (!army_AddMovePath(owner->GetOwner(), a, start, target)) {
-		// Target exists but is unreachable (e.g., across ocean with no
-		// transport, or blocked by impassable terrain).  Stop exploring so
-		// the unit doesn't get stuck in an infinite retarget loop.
+	if (!army_AddExplorePath(owner->GetOwner(), a, start, target)) {
+		// Neither the target nor its explored frontier is reachable (e.g.,
+		// across ocean with no transport, or blocked by impassable
+		// terrain).  Stop exploring so the unit doesn't get stuck in an
+		// infinite retarget loop.
 		for (sint32 i = 0; i < ad->Num(); ++i) {
 			Unit u = ad->Access(i);
 			if (UnitData * ud = u.AccessData()) ud->SetExploring(false);

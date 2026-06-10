@@ -11,7 +11,9 @@
 
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
+#include "gs/gameobj/Player.h"       // player_Get, IsExplored (explore frontier)
 #include "gs/world/MapPoint.h"
+#include "gs/utility/directions.h"   // WORLD_DIRECTION
 #include "gs/events/GameEventManager.h"
 #include "robot/pathing/Path.h"
 #include "robot/pathing/UnitAstar.h"
@@ -72,4 +74,41 @@ bool army_AddMovePath(sint32 owner, Army &army,
 
 	army.AddOrders(UNIT_ORDER_MOVE, good_path, src, 0);
 	return true;
+}
+
+bool army_AddExplorePath(sint32 owner, Army &army,
+                         const MapPoint &src, const MapPoint &target)
+{
+	// Direct first — works for AI players, whose pathfinding may enter
+	// unexplored terrain.
+	if (army_AddMovePath(owner, army, src, target))
+		return true;
+
+	// Human pathfinding refuses unexplored destinations, and an explore
+	// target is unexplored BY DEFINITION. Two fallbacks:
+	//
+	// 1. Already standing next to the target (ON the frontier): step
+	//    straight in with a point MOVE_TO order — adjacent moves need no
+	//    pathfinding (and are exactly how a human "walks into the fog").
+	if (src.IsNextTo(target)) {
+		army.ClearOrders();
+		army.AddOrders(UNIT_ORDER_MOVE_TO, target);
+		return true;
+	}
+
+	// 2. Otherwise walk to the frontier: an explored neighbour of the
+	//    target. Vision expands on arrival and the per-turn explore tick
+	//    picks the next target (then case 1 applies).
+	Player * pl = player_Get(owner);
+	if (!pl) return false;
+
+	for (sint32 d = sint32(NORTH); d < sint32(NOWHERE); ++d) {
+		MapPoint step;
+		if (!target.GetNeighborPosition(WORLD_DIRECTION(d), step)) continue;
+		if (!pl->IsExplored(step)) continue;
+		if (step == src) continue;  // handled by case 1 next tick
+		if (army_AddMovePath(owner, army, src, step))
+			return true;
+	}
+	return false;
 }

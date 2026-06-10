@@ -358,7 +358,7 @@ void from_json(nlohmann::json const &j, Cell &c)
     j.at("terrain_type")    .get_to(c.m_terrain_type);
     ID city_id(0);
     j.at("city")            .get_to(city_id);
-    c.m_city = Unit(city_id.m_id);
+    c.SetCity(Unit(city_id.m_id));   // keeps m_env city bits in sync
     j.at("cell_owner")      .get_to(c.m_cellOwner);
 }
 

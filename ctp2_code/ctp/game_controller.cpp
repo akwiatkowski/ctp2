@@ -39,6 +39,7 @@
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
+#include "gs/gameobj/UnitPool.h"              // unitpool_Get(), RecreateActors()
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 
 using json = nlohmann::json;
@@ -100,10 +101,11 @@ std::string CmdBuildCity()
     DynamicArray<Army> * armies = human->GetAllArmiesList();
     for (sint32 i = 0; i < armies->Num(); ++i) {
         Army army = armies->Access(i);
-        if (army.IsValid() && army.CanSettle()) {
+        ArmyData * ad = army.AccessData();
+        if (army.IsValid() && army.CanSettle() && ad) {
             gc_log->info("build_city: settling with army {} of player {}",
                          i, (int)human->GetOwner());
-            army.AccessData()->Settle();
+            ad->Settle();
             // Drain the queued GEV_Settle (and any cascade) so the city is
             // actually founded before we return — keeps the driver synchronous.
             if (gevmanager_Get())
@@ -197,6 +199,11 @@ std::string CmdLoadGame(const char * args)
         return Err("load_game", "bad_args");
     gc_log->info("load_game: {}", args);
     GameFile::RestoreGame(args);
+    // JSON-loaded UnitData omits gfx state.  Recreate actors so that both
+    // the UI renderer and any headless observation that peeks at actors
+    // see consistent state.
+    if (unitpool_Get())
+        unitpool_Get()->RecreateActors();
     return Ok("load_game");
 }
 

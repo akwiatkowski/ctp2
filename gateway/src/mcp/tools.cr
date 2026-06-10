@@ -229,6 +229,16 @@ module Ctp2Gateway::Mcp
         end
       }),
 
+    Tool.new("group_army",
+      "Merge every unit on the army's tile into ONE stack (up to 12 fight as one " \
+      "army). ESSENTIAL before combat: single-unit armies attacking a stack die one " \
+      "by one — build units in a city, then group the army standing there. " \
+      "ungroup via raw_cmd 'ungroup_army <idx>'.",
+      %({"type":"object","properties":{"army_index":{"type":"integer","minimum":0}},"required":["army_index"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("group_army #{a["army_index"].as_i}")
+      }),
+
     Tool.new("declare_war",
       "Formally declare war on a player (id from query_players). Requires CONTACT — " \
       "you must have met them (their units/cities seen by yours). Check the contact/" \

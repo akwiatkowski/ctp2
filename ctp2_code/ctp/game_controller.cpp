@@ -565,7 +565,10 @@ std::string QueryCity(const char * args)
         json item;
         item["category"] = k_GAME_OBJ_TYPE_UNIT;
         item["type"]     = i;
+        item["name"]     = rec ? ToUtf8(rec->GetNameText()) : "";
         item["cost"]     = rec ? rec->GetShieldCost() : 0;
+        item["attack"]   = rec ? rec->GetAttack() : 0.0;
+        item["defense"]  = rec ? rec->GetDefense() : 0.0;
         buildable.push_back(item);
     }
     result["buildable"] = buildable;
@@ -810,6 +813,65 @@ std::string CmdSetMaterialTax(const char * args)
     json result;
     result["material_tax"] = human->m_materialsTax;
     return Ok("set_material_tax", result);
+}
+
+// group_army <army_idx> — merge EVERY unit standing on the army's tile into
+// it (the UI's "group all"). Stacks up to 12 units fight as ONE army —
+// campaign 4 was lost by sending single-unit armies into a stack.
+std::string CmdGroupArmy(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("group_army", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("group_army", "no_human_player");
+
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("group_army", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("group_army", "bad_army_index");
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("group_army", "invalid_army");
+
+    ad->GroupAllUnits();
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    json result;
+    result["army"]  = idx;
+    result["units"] = ad->Num();
+    gc_log->info("group_army: army {} now {} units", idx, (int)ad->Num());
+    return Ok("group_army", result);
+}
+
+// ungroup_army <army_idx> — split the stack back into single-unit armies.
+std::string CmdUngroupArmy(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("ungroup_army", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("ungroup_army", "no_human_player");
+
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("ungroup_army", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("ungroup_army", "bad_army_index");
+    Army army = armies->Access(idx);
+    if (!army.IsValid() || !army.AccessData())
+        return Err("ungroup_army", "invalid_army");
+
+    if (gevmanager_Get()) {
+        gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
+                                   GEA_Army, army, GEA_End);
+        gevmanager_Get()->Process();
+    }
+    return Ok("ungroup_army");
 }
 
 // declare_war <player_id> — formal war declaration via the diplomacy layer
@@ -1195,6 +1257,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("grant_advance ", 0) == 0)                   return CmdGrantAdvance(line.c_str() + 14);
     if (line.rfind("declare_war ", 0) == 0)                     return CmdDeclareWar(line.c_str() + 12);
     if (line.rfind("attack ", 0) == 0)                          return CmdAttack(line.c_str() + 7);
+    if (line.rfind("group_army ", 0) == 0)                      return CmdGroupArmy(line.c_str() + 11);
+    if (line.rfind("ungroup_army ", 0) == 0)                    return CmdUngroupArmy(line.c_str() + 13);
 
     handled = false;
     return std::string();

@@ -119,46 +119,59 @@ static int smoke_server_thread(void* /*data*/)
         g_smoke_client_fd = client;
         fprintf(stderr, "[SMOKE] Client connected\n");
 
+        // The protocol is newline-delimited, but read() has no notion of
+        // lines: one command can arrive split across reads, or several can
+        // coalesce into one. Accumulate and process COMPLETE lines only —
+        // handing a partial buffer to the parser used to emit an unsolicited
+        // invalid_json response, which permanently desynced the client's
+        // request/response pairing (every later reply was off by one).
         char read_buf[512];
         char cmd[256];
+        std::string acc;
 
         while (true) {
-            memset(read_buf, 0, sizeof(read_buf));
-            int n = (int)read(client, read_buf, sizeof(read_buf) - 1);
+            int n = (int)read(client, read_buf, sizeof(read_buf));
             if (n <= 0) {
                 break; // Client disconnected
             }
+            acc.append(read_buf, (size_t)n);
 
-            // Parse command
-            if (!parse_json_cmd(read_buf, cmd, sizeof(cmd))) {
-                const char* err = "{\"status\":\"error\",\"cmd\":\"\",\"detail\":\"invalid_json\"}\n";
-                write(client, err, strlen(err));
-                continue;
+            size_t nl;
+            while ((nl = acc.find('\n')) != std::string::npos) {
+                std::string line = acc.substr(0, nl);
+                acc.erase(0, nl + 1);
+                if (line.empty()) continue;
+
+                if (!parse_json_cmd(line.c_str(), cmd, sizeof(cmd))) {
+                    const char* err = "{\"status\":\"error\",\"cmd\":\"\",\"detail\":\"invalid_json\"}\n";
+                    write(client, err, strlen(err));
+                    continue;
+                }
+
+                fprintf(stderr, "[SMOKE] Received command: %s\n", cmd);
+
+                // Hand off to main thread
+                SDL_LockMutex(g_smoke_mutex);
+
+                strlcpy(g_smoke_command, cmd, sizeof(g_smoke_command));
+                g_smoke_has_command = 1;
+                g_smoke_has_response = 0;
+
+                // Wait for main thread to process
+                while (!g_smoke_has_response) {
+                    SDL_CondWait(g_smoke_cond, g_smoke_mutex);
+                }
+
+                // Send response back to client
+                if (g_smoke_client_fd >= 0) {
+                    write(g_smoke_client_fd, g_smoke_response.data(), g_smoke_response.size());
+                }
+
+                g_smoke_has_command = 0;
+                g_smoke_has_response = 0;
+
+                SDL_UnlockMutex(g_smoke_mutex);
             }
-
-            fprintf(stderr, "[SMOKE] Received command: %s\n", cmd);
-
-            // Hand off to main thread
-            SDL_LockMutex(g_smoke_mutex);
-
-            strlcpy(g_smoke_command, cmd, sizeof(g_smoke_command));
-            g_smoke_has_command = 1;
-            g_smoke_has_response = 0;
-
-            // Wait for main thread to process
-            while (!g_smoke_has_response) {
-                SDL_CondWait(g_smoke_cond, g_smoke_mutex);
-            }
-
-            // Send response back to client
-            if (g_smoke_client_fd >= 0) {
-                write(g_smoke_client_fd, g_smoke_response.data(), g_smoke_response.size());
-            }
-
-            g_smoke_has_command = 0;
-            g_smoke_has_response = 0;
-
-            SDL_UnlockMutex(g_smoke_mutex);
         }
 
         close(client);

@@ -40,6 +40,7 @@
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
 #include "gs/gameobj/Score.h"                 // Score::GetTotalScore
+#include "gs/gameobj/Civilisation.h"          // Civilisation::Get*CivName
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 
 using json = nlohmann::json;
@@ -427,9 +428,20 @@ std::string QueryPlayers()
         Player * pl = player_Get(p);
         if (!pl) continue;
         const char * name = pl->GetLeaderName();
+        // Civilisation names come from the game's StringDB via the player's
+        // Civilisation object — never synthesized here.
+        MBCHAR civ[k_MAX_NAME_LEN]     = {0};
+        MBCHAR country[k_MAX_NAME_LEN] = {0};
+        Civilisation * c = pl->GetCivilisation();
+        if (c && c->AccessData()) {
+            c->GetSingularCivName(civ);
+            c->GetCountryName(country);
+        }
         json j;
         j["id"]         = p;
         j["name"]       = name ? name : "";
+        j["civ"]        = civ;       // adjective/singular, e.g. "Roman"
+        j["country"]    = country;   // nation, e.g. "Rome"
         j["human"]      = pl->IsHuman();
         j["dead"]       = pl->IsDead();
         j["gold"]       = pl->GetGold();

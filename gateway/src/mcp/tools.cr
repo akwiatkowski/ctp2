@@ -229,6 +229,26 @@ module Ctp2Gateway::Mcp
         end
       }),
 
+    Tool.new("declare_war",
+      "Formally declare war on a player (id from query_players). Requires CONTACT — " \
+      "you must have met them (their units/cities seen by yours). Check the contact/" \
+      "at_war fields in query_players. War enables the attack tool; conquest is worth " \
+      "more score than anything else on a bad start.",
+      %({"type":"object","properties":{"player_id":{"type":"integer","minimum":0}},"required":["player_id"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("declare_war #{a["player_id"].as_i}")
+      }),
+
+    Tool.new("attack",
+      "Order an army onto an ADJACENT enemy-occupied tile — the move resolves combat; " \
+      "if the defenders die and a city stands there, you capture it. Requires war " \
+      "(declare_war). March with move_army first; attack only closes the last tile. " \
+      "Check the result: army_survived, captured_tile, defenders_left.",
+      %({"type":"object","properties":{"army_index":{"type":"integer","minimum":0},"x":{"type":"integer","minimum":0},"y":{"type":"integer","minimum":0}},"required":["army_index","x","y"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("attack #{a["army_index"].as_i} #{a["x"].as_i} #{a["y"].as_i}")
+      }),
+
     Tool.new("raw_cmd",
       "Escape hatch: send a raw verb line to the game's command socket (one line, " \
       "e.g. \"query_city 0\"). See GET /api on the gateway for the verb inventory.",

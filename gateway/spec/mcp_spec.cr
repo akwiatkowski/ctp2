@@ -145,3 +145,11 @@ struct McpBuildingTest < GatewayTestCase
     self.fake.received.should eq ["set_production 0 building 30", "set_production 1 clear"]
   end
 end
+
+struct McpCombatTest < GatewayTestCase
+  def test_war_tools_map_to_verbs : Nil
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"declare_war","arguments":{"player_id":2}}}))
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"attack","arguments":{"army_index":0,"x":30,"y":11}}}))
+    self.fake.received.should eq ["declare_war 2", "attack 0 30 11"]
+  end
+end

@@ -47,6 +47,8 @@
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 #include "TerrainRecord.h"                    // g_theTerrainDB, TerrainRecord
 #include "BuildingRecord.h"                   // g_theBuildingDB, BuildingRecord
+#include "ai/diplomacy/Diplomat.h"            // Diplomat::DeclareWar
+#include "gs/gameobj/ArmyPool.h"              // armypool_Get
 #include "AdvanceRecord.h"                    // g_theAdvanceDB, AdvanceRecord
 #include "gs/gameobj/Advances.h"              // Advances::CanResearch/GetCost
 #include "gs/gameobj/terrainutil.h"           // terrainutil_CanPlayerBuildAt/cost/time
@@ -387,8 +389,19 @@ std::string CmdMoveArmy(const char * args)
 
     MapPoint src = ad->RetPos();
     MapPoint dest((sint16)x, (sint16)y);
-    if (!army_QueueMovePath(human->GetOwner(), army, src, dest))
-        return Err("move_army", "no_path");
+    if (!army_QueueMovePath(human->GetOwner(), army, src, dest)) {
+        // Pathfinding refuses unexplored destinations — but stepping into
+        // ADJACENT fog is a basic player ability (how anyone marches into
+        // the unknown). Mirror the explore fallback: a point MOVE_TO order
+        // needs no path. Validate enterability first — a land army ordered
+        // into ocean fog would otherwise "succeed" and silently never move.
+        if (!src.IsNextTo(dest))
+            return Err("move_army", "no_path");
+        if (!w->CanEnter(dest, ad->GetMovementType()))
+            return Err("move_army", "impassable");
+        army.ClearOrders();
+        army.AddOrders(UNIT_ORDER_MOVE_TO, dest);
+    }
 
     // A manual order overrides auto-explore — otherwise the explore tick
     // would re-route the army somewhere else next turn.
@@ -799,6 +812,104 @@ std::string CmdSetMaterialTax(const char * args)
     return Ok("set_material_tax", result);
 }
 
+// declare_war <player_id> — formal war declaration via the diplomacy layer
+// (sets the DECLARE_WAR agreement both engines honor). Requires CONTACT:
+// you cannot declare war on a civilization you have never met.
+std::string CmdDeclareWar(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("declare_war", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("declare_war", "no_human_player");
+
+    int id = -1;
+    if (sscanf(args, "%d", &id) != 1)
+        return Err("declare_war", "bad_args");
+    if (id < 0 || id >= k_MAX_PLAYERS || !player_Get(id))
+        return Err("declare_war", "bad_player");
+    if (id == human->GetOwner())
+        return Err("declare_war", "thats_you");
+    if (human->HasWarWith(id))
+        return Err("declare_war", "already_at_war");
+    if (!human->HasContactWith(id) || !player_Get(id)->HasContactWith(human->GetOwner()))
+        return Err("declare_war", "no_contact");
+
+    Diplomat::GetDiplomat(human->GetOwner()).DeclareWar(id);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    json result;
+    result["target"] = id;
+    result["at_war"] = human->HasWarWith(id);
+    gc_log->info("declare_war: {} -> {}", (int)human->GetOwner(), id);
+    return Ok("declare_war", result);
+}
+
+// attack <army_idx> <x> <y> — order an army onto an ADJACENT enemy-occupied
+// tile; the move resolves combat (and captures the city if the defenders
+// die and a city stands there). Requires being at war with the defender.
+std::string CmdAttack(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("attack", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("attack", "no_human_player");
+
+    int idx = -1, x = -1, y = -1;
+    if (sscanf(args, "%d %d %d", &idx, &x, &y) != 3)
+        return Err("attack", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("attack", "bad_army_index");
+    World * w = world_Get();
+    if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+        return Err("attack", "bad_position");
+
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("attack", "invalid_army");
+
+    MapPoint src = ad->RetPos();
+    MapPoint dest((sint16)x, (sint16)y);
+    if (!src.IsNextTo(dest))
+        return Err("attack", "not_adjacent");
+
+    Cell * cell = w->GetCell(dest);
+    sint32 defender = -1;
+    if (cell && cell->GetCity().IsValid())
+        defender = cell->GetCity().GetOwner();
+    else if (cell && cell->GetNumUnits() > 0)
+        defender = cell->AccessUnit(0).GetOwner();
+    if (defender < 0)
+        return Err("attack", "nothing_to_attack");
+    if (defender == human->GetOwner())
+        return Err("attack", "own_forces");
+    if (!human->HasWarWith(defender))
+        return Err("attack", "not_at_war");
+
+    // A manual order overrides auto-explore.
+    for (sint32 u = 0; u < ad->Num(); ++u) {
+        Unit unit = ad->Access(u);
+        if (UnitData * ud = unit.AccessData()) ud->SetExploring(false);
+    }
+    army.ClearOrders();
+    army.AddOrders(UNIT_ORDER_MOVE_TO, dest);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    // Report what the battlefield looks like afterwards.
+    MapPoint now = ad->RetPos();
+    json result;
+    result["army_survived"]  = armypool_Get() && army.IsValid();
+    result["pos"]            = { {"x", now.x}, {"y", now.y} };
+    result["captured_tile"]  = (now.x == x && now.y == y);
+    cell = w->GetCell(dest);
+    result["defenders_left"] = cell ? cell->GetNumUnits() : 0;
+    gc_log->info("attack: army {} ({},{}) -> ({},{})", idx, (int)src.x, (int)src.y, x, y);
+    return Ok("attack", result);
+}
+
 // grant_advance <advance_id> — DEBUG/TEST cheat: hand the human an advance
 // outright (prerequisites included via the game's own SetHasAdvance). Exists
 // so integration tests can reach late-game mechanics (e.g. swamp terraform
@@ -918,6 +1029,28 @@ json PlayerJson(sint32 p, Player * pl)
     j["num_armies"] = pl->GetAllArmiesList() ? pl->GetAllArmiesList()->Num() : 0;
     j["government"] = pl->GetGovernmentType();
     j["score"]      = pl->m_score ? pl->m_score->GetTotalScore() : 0;
+    // Diplomacy relative to the HUMAN player (null for the human's own row).
+    if (Player * human = HumanPlayer(); human && human->GetOwner() != p) {
+        j["contact"] = human->HasContactWith(p);
+        j["at_war"]  = human->HasWarWith(p);
+    }
+    if (pl->m_score) {
+        // The components the score screen shows — RANK is RELATIVE, so a
+        // player's score can fall while every absolute number improves.
+        json sc;
+        sc["feats"]      = pl->m_score->GetPartialScore(SCORE_CAT_FEATS);
+        sc["advances"]   = pl->m_score->GetPartialScore(SCORE_CAT_ADVANCES);
+        sc["wonders"]    = pl->m_score->GetPartialScore(SCORE_CAT_WONDERS);
+        sc["population"] = pl->m_score->GetPartialScore(SCORE_CAT_POPULATION);
+        sc["cities"]     = pl->m_score->GetPartialScore(SCORE_CAT_CITIES0TO30)
+                         + pl->m_score->GetPartialScore(SCORE_CAT_CITIES30TO100)
+                         + pl->m_score->GetPartialScore(SCORE_CAT_CITIES100TO500)
+                         + pl->m_score->GetPartialScore(SCORE_CAT_CITIES500PLUS);
+        sc["conquest"]   = pl->m_score->GetPartialScore(SCORE_CAT_OPPONENTS_CONQUERED)
+                         + pl->m_score->GetPartialScore(SCORE_CAT_CITIES_RECAPTURED);
+        sc["rank"]       = pl->m_score->GetPartialScore(SCORE_CAT_RANK);
+        j["score_breakdown"] = sc;
+    }
     return j;
 }
 
@@ -1060,6 +1193,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("terraform ", 0) == 0)                       return CmdTerraform(line.c_str() + 10);
     if (line.rfind("set_material_tax ", 0) == 0)                return CmdSetMaterialTax(line.c_str() + 17);
     if (line.rfind("grant_advance ", 0) == 0)                   return CmdGrantAdvance(line.c_str() + 14);
+    if (line.rfind("declare_war ", 0) == 0)                     return CmdDeclareWar(line.c_str() + 12);
+    if (line.rfind("attack ", 0) == 0)                          return CmdAttack(line.c_str() + 7);
 
     handled = false;
     return std::string();

@@ -14,12 +14,17 @@
 // builds.  Both the UI ProcessUI loop and the headless --serve loop dispatch
 // through Dispatch().
 //
-// Verbs are split into two families, matching what a player can do and see:
-//   * commands  — mutate state (build_city, set_production, save/load).  They
-//                 enforce the same preconditions the UI would (e.g. a settler
-//                 must exist), so a driver cannot reach past a disabled action.
-//   * queries   — read state, fog-of-war filtered (query_cities, query_city),
-//                 i.e. only what the visible player can actually see.
+// Verbs are split into three families:
+//   * commands      — mutate state (build_city, set_production, save/load).
+//                     They enforce the same preconditions the UI would (e.g. a
+//                     settler must exist), so a driver cannot reach past a
+//                     disabled action.
+//   * queries       — read state, fog-of-war filtered (query_cities,
+//                     query_city), i.e. only what the visible player can
+//                     actually see.  Use these for anything player-shaped.
+//   * admin queries — OMNISCIENT, no fog filter (query_players,
+//                     query_player_cities).  Observability surface for the
+//                     gateway admin panel and debugging only.
 //
 // Game creation (new_game / start_game) is deliberately NOT handled here: it is
 // inherently frontend-specific (the UI navigates menu screens; headless calls

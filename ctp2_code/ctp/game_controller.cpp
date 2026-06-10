@@ -39,6 +39,7 @@
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
+#include "gs/gameobj/Score.h"                 // Score::GetTotalScore
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 
 using json = nlohmann::json;
@@ -408,6 +409,66 @@ std::string QueryMap()
     return Ok("query_map", result);
 }
 
+// ---- admin queries --------------------------------------------------------
+//
+// Unlike the player-view queries above, these are OMNISCIENT: they report the
+// whole game state with no fog-of-war filtering. They exist for the gateway's
+// admin panel and debugging — a driver that wants the player's perspective
+// must use the query_* family instead.
+
+// query_players — every live player slot with headline stats.
+std::string QueryPlayers()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_players", "game_not_loaded");
+
+    json players = json::array();
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        Player * pl = player_Get(p);
+        if (!pl) continue;
+        const char * name = pl->GetLeaderName();
+        json j;
+        j["id"]         = p;
+        j["name"]       = name ? name : "";
+        j["human"]      = pl->IsHuman();
+        j["dead"]       = pl->IsDead();
+        j["gold"]       = pl->GetGold();
+        j["num_cities"] = pl->GetNumCities();
+        j["score"]      = pl->m_score ? pl->m_score->GetTotalScore() : 0;
+        players.push_back(j);
+    }
+
+    json result;
+    result["players"] = players;
+    return Ok("query_players", result);
+}
+
+// query_player_cities <player_id> — ALL cities of one player (no fog filter).
+std::string QueryPlayerCities(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_player_cities", "game_not_loaded");
+
+    int id = -1;
+    if (sscanf(args, "%d", &id) != 1)
+        return Err("query_player_cities", "bad_args");
+    if (id < 0 || id >= k_MAX_PLAYERS || !player_Get(id))
+        return Err("query_player_cities", "bad_player");
+
+    json cities = json::array();
+    UnitDynamicArray * list = player_Get(id)->GetAllCitiesList();
+    for (sint32 i = 0; list && i < list->Num(); ++i) {
+        Unit u = list->Access(i);
+        if (!u.IsValid()) continue;
+        cities.push_back(CityJson(id, i, u));
+    }
+
+    json result;
+    result["owner"]  = id;
+    result["cities"] = cities;
+    return Ok("query_player_cities", result);
+}
+
 }  // namespace
 
 namespace game_controller {
@@ -425,6 +486,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line == "query_city")                                   return QueryCity("");
     if (line == "query_units")                                  return QueryUnits();
     if (line == "query_map")                                    return QueryMap();
+    if (line == "query_players")                                return QueryPlayers();
+    if (line.rfind("query_player_cities ", 0) == 0)             return QueryPlayerCities(line.c_str() + 20);
 
     handled = false;
     return std::string();

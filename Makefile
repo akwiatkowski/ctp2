@@ -23,6 +23,11 @@
 # test
 #   Run the test suite.
 #
+# gateway / gateway-build / gateway-test
+#   The Crystal observability gateway (gateway/): `make gateway` builds the
+#   game + gateway and serves HTTP on :8666 with a spawned headless game.
+#   See gateway/README.md.
+#
 # bootstrap (legacy)
 #   Create autoconf-based buildfiles. Not used for macOS builds.
 #
@@ -157,6 +162,23 @@ run-hd: build-sanitized
 	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
 	@./run_game.sh --resolution 1920x1080
 
+# Build the Crystal gateway (gateway/bin/ctp2-gateway)
+gateway-build:
+	@echo "Building ctp2-gateway..."
+	cd gateway && mise exec -- shards build
+
+# Run the gateway specs (no game binary required)
+gateway-test:
+	@echo "Running ctp2-gateway specs..."
+	cd gateway && mise exec -- crystal spec
+
+# Build everything and serve the gateway with a spawned headless game.
+# HTTP on :8666 (override: make gateway GATEWAY_ARGS="--port 9000").
+GATEWAY_ARGS ?=
+gateway: build gateway-build
+	@echo "Starting ctp2-gateway with a spawned headless game..."
+	@./gateway/bin/ctp2-gateway --spawn $(GATEWAY_ARGS)
+
 # Clean build directory
 clean-build:
 	@echo "Cleaning build directory..."
@@ -267,6 +289,7 @@ ci-tier-a:
 	@.ci/tiers/tier-a.sh && echo "tier-a done"
 
 .PHONY: all deps setup build test clean-build local playtest doc smoke-test run-hd \
+        gateway gateway-build gateway-test \
         ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a
 
 SRCDIRS=\

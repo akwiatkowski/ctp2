@@ -1,5 +1,6 @@
 require "json"
 require "../game_client"
+require "../map_renderer"
 
 module Ctp2Gateway::Mcp
   # One MCP tool: name + description (written FOR the model — they are the
@@ -142,6 +143,45 @@ module Ctp2Gateway::Mcp
       "queries when you only need cities or units.",
       NO_ARGS,
       ->(c : Ctp2Gateway::GameClient, _a : JSON::Any) : Ctp2Gateway::GameClient::Result { simple(c, "query_map") }),
+
+    Tool.new("render_map",
+      "YOUR EYES: an ASCII map of the explored world — terrain glyphs, coordinate " \
+      "rulers, cities as letters, @ = your armies, ! = foreign units, · = unexplored. " \
+      "Read it to plan movement and expansion. Defaults to a viewport around your " \
+      "first city; pass center_x/center_y/radius to look elsewhere.",
+      %({"type":"object","properties":{"center_x":{"type":"integer","minimum":0},"center_y":{"type":"integer","minimum":0},"radius":{"type":"integer","minimum":4,"maximum":30,"description":"half-width of the viewport (default 14)"}},"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        r = Ctp2Gateway::MapRenderer.new(c)
+        text = r.render(
+          a["center_x"]?.try(&.as_i?),
+          a["center_y"]?.try(&.as_i?),
+          a["radius"]?.try(&.as_i?) || 14)
+        if text
+          Ctp2Gateway::GameClient::Ok.new(JSON::Any.new(text))
+        else
+          Ctp2Gateway::GameClient::Ok.new(JSON.parse({status: "error", detail: r.error || "render failed"}.to_json))
+        end
+      }),
+
+    Tool.new("suggest_settle_spots",
+      "Where to found the next city: explored, passable land tiles at distance >= 3 " \
+      "from every known city, scored by the base yields (food+shields+gold) of the " \
+      "tile and its explored neighbours — highest score first. March a settler there " \
+      "with move_army, then build_city.",
+      %({"type":"object","properties":{"max":{"type":"integer","minimum":1,"maximum":10,"description":"how many candidates (default 5)"}},"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        r = Ctp2Gateway::MapRenderer.new(c)
+        spots = r.settle_spots(a["max"]?.try(&.as_i?) || 5)
+        if spots
+          Ctp2Gateway::GameClient::Ok.new(JSON.parse({
+            status: "ok",
+            spots:  spots.map { |s| {x: s.x, y: s.y, score: s.score, distance_to_nearest_city: s.dist, terrain: s.terrain} },
+            note:   spots.empty? ? "no qualifying tiles explored yet — explore further (auto_explore) before settling" : nil,
+          }.to_json))
+        else
+          Ctp2Gateway::GameClient::Ok.new(JSON.parse({status: "error", detail: r.error || "advisor failed"}.to_json))
+        end
+      }),
 
     Tool.new("raw_cmd",
       "Escape hatch: send a raw verb line to the game's command socket (one line, " \

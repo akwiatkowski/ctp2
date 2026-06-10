@@ -1,4 +1,5 @@
 require "./base_controller"
+require "../map_renderer"
 
 module Ctp2Gateway
   # The HTML admin panel — omniscient debugging surface (rides the game's
@@ -58,6 +59,15 @@ module Ctp2Gateway
       end)
 
       html(200, "Cities of #{name}", Views::PlayerCities.new(id, name, cities), "/players")
+    end
+
+    # The world, as the model sees it — same renderer as the render_map tool.
+    @[ARTA::Get("/map")]
+    def map : AHTTP::Response
+      renderer = MapRenderer.new(@client)
+      text = renderer.render(radius: 30)
+      body = Views::MapPage.new(text, renderer.error, renderer.settle_spots(5))
+      html(200, "Map", body, "/map")
     end
 
     # The MCP tool catalog, rendered from the live registry (Mcp::TOOLS) —

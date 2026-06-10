@@ -377,6 +377,18 @@ main {
 .ledger th.num { text-align: right; }
 .ledger .row-link { white-space: nowrap; }
 
+/* ---- the charted world --------------------------------------- */
+
+.chart {
+  margin: 0;
+  font-family: var(--font-data);
+  font-size: 0.78rem;
+  line-height: 1.25;
+  letter-spacing: 0.18em;   /* square-ish cells */
+  color: var(--parchment);
+  overflow-x: auto;
+}
+
 /* ---- tool catalog -------------------------------------------- */
 
 .tool__head { display: flex; align-items: baseline; gap: 0.8rem; }

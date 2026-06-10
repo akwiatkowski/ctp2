@@ -121,8 +121,13 @@ module Ctp2Gateway
 
       case result
       in GameClient::Ok
-        # The game's own {"status":"error"} answers are TOOL errors: the
-        # model should read the detail and adapt (e.g. no_settler_found).
+        # String payloads (render_map) pass through as raw text; JSON
+        # payloads pretty-print. The game's own {"status":"error"} answers
+        # are TOOL errors: the model should read the detail and adapt
+        # (e.g. no_settler_found).
+        if raw = result.payload.as_s?
+          return tool_result(id, raw, is_error: false)
+        end
         game_error = result.payload["status"]?.try(&.as_s?) == "error"
         tool_result(id, result.payload.to_pretty_json, is_error: game_error)
       in GameClient::Err

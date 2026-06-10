@@ -377,6 +377,12 @@ main {
 .ledger th.num { text-align: right; }
 .ledger .row-link { white-space: nowrap; }
 
+/* ---- tool catalog -------------------------------------------- */
+
+.tool__head { display: flex; align-items: baseline; gap: 0.8rem; }
+.tool__name { font-size: 0.95rem; color: var(--gold-bright); background: var(--ink-0); }
+.tool__desc { margin: 0.5rem 0 0.2rem; font-size: 0.84rem; line-height: 1.6; color: var(--parchment-dim); max-width: 56rem; }
+
 /* ---- debug surfaces ------------------------------------------ */
 
 .kv {

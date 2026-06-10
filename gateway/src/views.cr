@@ -1,6 +1,7 @@
 require "ecr"
 require "html"
 require "json"
+require "./mcp/tools"
 
 module Ctp2Gateway::Views
   # ECR has NO auto-escaping: every piece of GAME data interpolated in a
@@ -32,6 +33,13 @@ module Ctp2Gateway::Views
     end
 
     ECR.def_to_s "src/views/dashboard_ledger.ecr"
+  end
+
+  struct Tools
+    def initialize(@tools : Array(Ctp2Gateway::Mcp::Tool))
+    end
+
+    ECR.def_to_s "src/views/tools.ecr"
   end
 
   struct DebugPage

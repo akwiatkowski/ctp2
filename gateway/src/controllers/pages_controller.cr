@@ -60,6 +60,13 @@ module Ctp2Gateway
       html(200, "Cities of #{name}", Views::PlayerCities.new(id, name, cities), "/players")
     end
 
+    # The MCP tool catalog, rendered from the live registry (Mcp::TOOLS) —
+    # always in sync with what tools/list serves to models.
+    @[ARTA::Get("/tools")]
+    def tools : AHTTP::Response
+      html(200, "Tools", Views::Tools.new(Mcp::TOOLS), "/tools")
+    end
+
     @[ARTA::Get("/debug")]
     def debug : AHTTP::Response
       body = Views::DebugPage.new(

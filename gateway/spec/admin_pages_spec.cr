@@ -72,6 +72,16 @@ struct PagesTest < GatewayTestCase
     resp.body.should contain "/debug/boom"
   end
 
+  def test_tools_catalog_renders_registry : Nil
+    resp = self.get("/tools")
+    resp.status_code.should eq 200
+    resp.body.should contain "MCP tools"
+    resp.body.should contain "move_army"          # tool name
+    resp.body.should contain "army_index"         # schema property
+    resp.body.should contain "max 20"             # end_turn constraint
+    resp.body.should contain "claude mcp add"     # registration crib
+  end
+
   def test_html_boom_renders_full_debug_error : Nil
     resp = self.get("/debug/boom")
     resp.status_code.should eq 500

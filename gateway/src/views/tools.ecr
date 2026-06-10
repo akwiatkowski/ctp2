@@ -1,0 +1,40 @@
+<h1 class="page-title reveal">The <em>armory</em></h1>
+<p class="page-sub reveal"><%= @tools.size %> MCP tools — what a model (or you) can do to the realm</p>
+
+<div class="card reveal">
+  <div class="stat__label">Connect a model</div>
+  <div style="margin-top:.5rem"><code>claude mcp add --transport http ctp2 http://localhost:8666/mcp</code></div>
+  <div class="stat__hint">tools-only MCP server (JSON-RPC 2.0, streamable HTTP) · same verbs as <code>POST /api/cmd</code></div>
+</div>
+
+<% @tools.each do |tool| %>
+  <% schema = JSON.parse(tool.schema) %>
+  <% props = schema["properties"]?.try(&.as_h?) || {} of String => JSON::Any %>
+  <% required = schema["required"]?.try(&.as_a.map(&.as_s)) || [] of String %>
+  <div class="card reveal">
+    <div class="tool__head">
+      <code class="tool__name"><%= HTML.escape(tool.name) %></code>
+      <% if props.empty? %><span class="badge">no arguments</span><% end %>
+    </div>
+    <p class="tool__desc"><%= HTML.escape(tool.description) %></p>
+    <% unless props.empty? %>
+      <table class="ledger">
+        <tr><th>argument</th><th>type</th><th>required</th><th>constraints</th><th>description</th></tr>
+        <% props.each do |pname, pdef| %>
+          <tr>
+            <td class="mono"><%= HTML.escape(pname) %></td>
+            <td><%= HTML.escape(pdef["type"]?.try(&.as_s) || "any") %></td>
+            <td><%= required.includes?(pname) ? %(<span class="badge badge--gold">required</span>) : %(<span class="badge">optional</span>) %></td>
+            <td class="mono muted">
+              <% constraints = [] of String %>
+              <% if min = pdef["minimum"]? %><% constraints << "min #{min}" %><% end %>
+              <% if max = pdef["maximum"]? %><% constraints << "max #{max}" %><% end %>
+              <%= constraints.empty? ? "—" : HTML.escape(constraints.join(" · ")) %>
+            </td>
+            <td class="muted"><%= HTML.escape(pdef["description"]?.try(&.as_s) || "") %></td>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+  </div>
+<% end %>

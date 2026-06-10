@@ -5346,6 +5346,18 @@ bool LoadJson(char const *path)
         // world_Get() == nullptr (MapAnalysis::Resize would deref it).
         if (world_Get())
             CtpAi::Resize();
+
+        // Units/cities were restored without gfx state (UnitData's
+        // from_json intentionally leaves m_actor null).  Recreate the
+        // actors here so EVERY load entry point — the UI load dialog,
+        // headless --load-game / --json-load, and the test-API
+        // load_game command — gets actors without its own patch-up
+        // call.  Runs after the player loop so RecreateGfxState
+        // resolves unit records against the restored governments.
+        // Same world_Get() gate as CtpAi::Resize above: unit-test
+        // fixtures may call LoadJson without gameinit (no unit DB).
+        if (world_Get() && unitpool_Get())
+            unitpool_Get()->RecreateActors();
     }
     catch (nlohmann::json::exception const &e)
     {

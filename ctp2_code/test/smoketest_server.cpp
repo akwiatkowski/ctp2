@@ -243,6 +243,36 @@ int smoketest_poll_command(char* out_cmd, int max_len)
     return 1;
 }
 
+/**
+ * Store the response (appending the protocol's newline terminator) and wake
+ * the server thread.
+ *
+ * Called with the smoke mutex held (locked by smoketest_poll_command).
+ * ALWAYS signals and unlocks — including when storing the response throws
+ * (std::bad_alloc on a huge payload) — otherwise the mutex would stay locked
+ * forever and every subsequent poll would wedge.
+ */
+static void smoke_store_response_and_release(const char* line)
+{
+    try {
+        g_smoke_response.assign(line);
+        g_smoke_response.push_back('\n');
+    } catch (...) {
+        // clear() keeps the existing capacity and never throws; the short
+        // fallback below reuses it.  If even that allocation fails, an
+        // empty response still beats a wedged server.
+        g_smoke_response.clear();
+        try {
+            g_smoke_response.assign(
+                "{\"status\":\"error\",\"detail\":\"response_alloc_failed\"}\n");
+        } catch (...) {}
+    }
+
+    g_smoke_has_response = 1;
+    SDL_CondSignal(g_smoke_cond);
+    SDL_UnlockMutex(g_smoke_mutex);
+}
+
 void smoketest_send_response(const char* status, const char* cmd, const char* detail)
 {
     if (!g_smoke_mutex) return;
@@ -250,30 +280,20 @@ void smoketest_send_response(const char* status, const char* cmd, const char* de
     char buf[512];
     if (detail && detail[0]) {
         snprintf(buf, sizeof(buf),
-                 "{\"status\":\"%s\",\"cmd\":\"%s\",\"detail\":\"%s\"}\n",
+                 "{\"status\":\"%s\",\"cmd\":\"%s\",\"detail\":\"%s\"}",
                  status, cmd, detail);
     } else {
         snprintf(buf, sizeof(buf),
-                 "{\"status\":\"%s\",\"cmd\":\"%s\"}\n",
+                 "{\"status\":\"%s\",\"cmd\":\"%s\"}",
                  status, cmd);
     }
-    g_smoke_response = buf;
-
-    g_smoke_has_response = 1;
-    SDL_CondSignal(g_smoke_cond);
-    SDL_UnlockMutex(g_smoke_mutex);
+    smoke_store_response_and_release(buf);
 }
 
 void smoketest_send_json(const char* json_line)
 {
     if (!g_smoke_mutex) return;
 
-    // json_line is a complete single-line JSON object (no trailing newline);
-    // the protocol is newline-delimited, so append the terminator here.
-    g_smoke_response.assign(json_line ? json_line : "{}");
-    g_smoke_response.push_back('\n');
-
-    g_smoke_has_response = 1;
-    SDL_CondSignal(g_smoke_cond);
-    SDL_UnlockMutex(g_smoke_mutex);
+    // json_line is a complete single-line JSON object (no trailing newline).
+    smoke_store_response_and_release(json_line ? json_line : "{}");
 }

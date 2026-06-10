@@ -218,14 +218,14 @@ static uint32 DispatchRestore(MBCHAR const *filepath)
 	return ok ? GAMEFILE_ERR_LOAD_OK : GAMEFILE_ERR_LOAD_FAILED;
 }
 
-void GameFile::RestoreGame(MBCHAR const * name)
+bool GameFile::RestoreGame(MBCHAR const * name)
 {
-	DispatchRestore(name);
+	return DispatchRestore(name) == GAMEFILE_ERR_LOAD_OK;
 }
 
-void GameFile::RestoreScenarioGame(MBCHAR const * name)
+bool GameFile::RestoreScenarioGame(MBCHAR const * name)
 {
-	DispatchRestore(name);
+	return DispatchRestore(name) == GAMEFILE_ERR_LOAD_OK;
 }
 
 void GameFile::SaveGame(const MBCHAR *filename, SaveInfo *info)

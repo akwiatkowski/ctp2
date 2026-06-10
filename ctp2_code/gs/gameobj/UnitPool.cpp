@@ -145,7 +145,7 @@ void UnitPool::RecreateActors()
 				city_count++;
 		}
 	}
-	unitpool_log->info("RecreateActors: {} units, {} cities", count, city_count);
+	unitpool_log->debug("RecreateActors: {} units, {} cities", count, city_count);
 }
 
 uint32 UnitPool_UnitPool_GetVersion()

@@ -202,18 +202,11 @@ int main(int argc, char **argv)
             headless_log->info("serve cmd: {}", cmd);
 
             // Shared, UI-free verbs (build_city, set_production, save/load,
-            // queries) behave identically to the UI build. The poll left the
-            // smoke mutex LOCKED (released only by a send_*), so an exception
-            // escaping Dispatch would wedge the loop — catch and always reply.
+            // queries) behave identically to the UI build. DispatchSafe (not
+            // Dispatch) because the poll left the smoke mutex LOCKED (released
+            // only by a send_*) — an escaping exception would wedge the loop.
             bool handled = false;
-            std::string resp;
-            try {
-                resp = game_controller::Dispatch(cmd, handled);
-            } catch (const std::exception &e) {
-                handled = true;
-                resp = "{\"status\":\"error\",\"detail\":\"exception\"}";
-                headless_log->error("GameController dispatch threw: {}", e.what());
-            }
+            std::string resp = game_controller::DispatchSafe(cmd, handled);
             if (handled) {
                 smoketest_send_json(resp.c_str());
                 continue;
@@ -233,12 +226,8 @@ int main(int argc, char **argv)
                 if (e == 0) {
                     // Point HeadlessCurPlayer at the human so AI asserts that
                     // compare player == CurPlayer() hold for human-owned actions.
-                    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
-                        if (player_Get(p) && player_Get(p)->IsHuman()) {
-                            s_headlessCurPlayer = p;
-                            break;
-                        }
-                    }
+                    if (Player * human = game_controller::HumanPlayer())
+                        s_headlessCurPlayer = human->GetOwner();
                     smoketest_send_response("ok", cmd, nullptr);
                 } else {
                     smoketest_send_response("error", cmd, "init_failed");
@@ -258,8 +247,11 @@ int main(int argc, char **argv)
 
     if (loadGamePath) {
         headless_log->info("Loading saved game from {}", loadGamePath);
-        GameFile::RestoreGame(loadGamePath);
-        headless_log->info("RestoreGame returned (state may or may not be valid)");
+        if (!GameFile::RestoreGame(loadGamePath)) {
+            headless_log->error("RestoreGame failed for {}", loadGamePath);
+            return 1;
+        }
+        headless_log->info("RestoreGame ok");
     }
 
     if (newGame || loadGamePath) {

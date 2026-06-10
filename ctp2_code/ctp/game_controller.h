@@ -32,6 +32,8 @@
 
 #include <string>
 
+class Player;
+
 namespace game_controller {
 
 // Execute a single command/query line (e.g. "build_city",
@@ -46,6 +48,19 @@ namespace game_controller {
 // then falls back to its legacy dispatch (UI ProcessUI chain) or reports an
 // unknown command (headless).
 std::string Dispatch(const std::string & line, bool & handled);
+
+// Like Dispatch, but never lets an exception escape: a throwing handler is
+// logged and converted to {"status":"error","cmd":"dispatch","detail":
+// "exception"} with handled=true.  Use from dispatch loops that hold the
+// smoke-server mutex, where an escaping exception would leave it locked and
+// wedge the server forever.
+std::string DispatchSafe(const std::string & line, bool & handled);
+
+// The (single) human player, or nullptr when none exists.  Queries report
+// from this player's viewpoint; frontends use it to point CurPlayer at the
+// human after game creation.  Deliberately not selitem_Get()-based — that UI
+// singleton may be absent/empty in the headless build.
+Player * HumanPlayer();
 
 }  // namespace game_controller
 

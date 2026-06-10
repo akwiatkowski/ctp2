@@ -285,7 +285,6 @@
 #include "gs/utility/UnitDynArr.h"
 #include "ui/interface/unitmanager.h"
 #include "UnitRecord.h"
-#include "gs/gameobj/UnitPool.h"               // unitpool_Get() for load-time actor recreation
 #include "gs/gameobj/unitutil.h"
 #include "gs/database/UVDB.h"
 #include "ui/interface/victorywin.h"
@@ -2673,21 +2672,12 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 
 			// New shared dispatch: UI-free command/query handlers that behave
 			// identically in headless and UI builds. Falls through to the
-			// legacy chain below for verbs not yet migrated.
-			//
-			// The poll left the smoke mutex LOCKED; it is released only by a
-			// send_* call. So an exception escaping Dispatch (e.g. from JSON
-			// serialization) would wedge the server forever — catch it and
-			// always send a response.
+			// legacy chain below for verbs not yet migrated.  DispatchSafe
+			// (not Dispatch) because the poll left the smoke mutex LOCKED;
+			// it is released only by a send_* call, so an escaping exception
+			// would wedge the server forever.
 			bool gc_handled = false;
-			std::string gc_resp;
-			try {
-				gc_resp = game_controller::Dispatch(cmd, gc_handled);
-			} catch (const std::exception &e) {
-				gc_handled = true;
-				gc_resp = "{\"status\":\"error\",\"detail\":\"exception\"}";
-				smoke_log->error("GameController dispatch threw: {}", e.what());
-			}
+			std::string gc_resp = game_controller::DispatchSafe(cmd, gc_handled);
 			if (gc_handled) {
 				smoketest_send_json(gc_resp.c_str());
 			}
@@ -3382,18 +3372,9 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 
 	ProgressTo( 1280 );
 
+	// Actor recreation for JSON-loaded units happens inside LoadJson
+	// (json_save.cpp), shared with the headless and test-API load paths.
 	GameFile::RestoreGame(name);
-
-	ProgressTo( 1285 );
-
-	// JSON-loaded UnitData intentionally omits gfx state (m_actor,
-	// m_sprite_state).  Recreate actors now that the sprite engine is
-	// initialised so cities and units are visible on the map.  Headless
-	// mode skips this — c3ui_Get() is null there and tile rendering is
-	// not needed.
-	if (c3ui_Get() && unitpool_Get()) {
-		unitpool_Get()->RecreateActors();
-	}
 
 	ProgressTo( 1290 );
 

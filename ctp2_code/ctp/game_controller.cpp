@@ -39,12 +39,30 @@
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
-#include "gs/gameobj/UnitPool.h"              // unitpool_Get(), RecreateActors()
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 
 using json = nlohmann::json;
 
+namespace game_controller {
+
+// The "visible player" whose viewpoint queries report — the (single) human.
+// We deliberately do NOT use selitem_Get() here: it is a UI singleton that may
+// be absent/empty headless.  The human player's own vision is the correct,
+// build-independent source for "what the player can see".
+Player * HumanPlayer()
+{
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        if (player_Get(p) && player_Get(p)->IsHuman())
+            return player_Get(p);
+    }
+    return nullptr;
+}
+
+}  // namespace game_controller
+
 namespace {
+
+using game_controller::HumanPlayer;
 
 auto gc_log = civlog::Get("gamectl");
 
@@ -69,19 +87,6 @@ std::string Err(const char * verb, const char * code)
     r["cmd"]    = verb;
     r["detail"] = code;
     return r.dump();
-}
-
-// The "visible player" whose viewpoint queries report — the (single) human.
-// We deliberately do NOT use selitem_Get() here: it is a UI singleton that may
-// be absent/empty headless.  The human player's own vision is the correct,
-// build-independent source for "what the player can see".
-Player * HumanPlayer()
-{
-    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
-        if (player_Get(p) && player_Get(p)->IsHuman())
-            return player_Get(p);
-    }
-    return nullptr;
 }
 
 // ---- commands -----------------------------------------------------------
@@ -142,25 +147,25 @@ std::string CmdSetProduction(const char * args)
     sint32     gov_type = human->GetGovernmentType();
     sint32     unit_type = -1;
 
+    // Cheapest buildable unit satisfying the keyword's predicate, or -1.
+    auto cheapest_buildable = [&](auto && pred) {
+        sint32 best = 0x7fffffff, found = -1;
+        for (sint32 i = 0; i < g_theUnitDB->NumRecords(); ++i) {
+            const UnitRecord * rec = g_theUnitDB->Get(i, gov_type);
+            if (!rec || rec->GetCantBuild() || !pred(rec)) continue;
+            if (!cd->CanBuildUnit(i)) continue;
+            sint32 cost = rec->GetShieldCost();
+            if (cost > 0 && cost < best) { best = cost; found = i; }
+        }
+        return found;
+    };
+
     if (strcmp(keyword, "cheapest_military") == 0) {
-        sint32 best = 0x7fffffff;
-        for (sint32 i = 0; i < g_theUnitDB->NumRecords(); ++i) {
-            const UnitRecord * rec = g_theUnitDB->Get(i, gov_type);
-            if (!rec || rec->GetCantBuild() || rec->GetAttack() <= 0.0) continue;
-            if (!cd->CanBuildUnit(i)) continue;
-            sint32 cost = rec->GetShieldCost();
-            if (cost > 0 && cost < best) { best = cost; unit_type = i; }
-        }
+        unit_type = cheapest_buildable(
+            [](const UnitRecord * r) { return r->GetAttack() > 0.0; });
     } else if (strcmp(keyword, "settler") == 0) {
-        sint32 best = 0x7fffffff;
-        for (sint32 i = 0; i < g_theUnitDB->NumRecords(); ++i) {
-            const UnitRecord * rec = g_theUnitDB->Get(i, gov_type);
-            if (!rec || rec->GetCantBuild()) continue;
-            if (!rec->GetSettle() && rec->GetNumCanSettleOn() <= 0) continue;
-            if (!cd->CanBuildUnit(i)) continue;
-            sint32 cost = rec->GetShieldCost();
-            if (cost > 0 && cost < best) { best = cost; unit_type = i; }
-        }
+        unit_type = cheapest_buildable(
+            [](const UnitRecord * r) { return r->GetSettle() || r->GetNumCanSettleOn() > 0; });
     } else {
         unit_type = atoi(keyword);
     }
@@ -192,18 +197,15 @@ std::string CmdSaveGame(const char * args)
     return Ok("save_game");
 }
 
-// load_game <path>
+// load_game <path>  — actor recreation happens inside LoadJson, shared with
+// the UI and headless batch load paths.
 std::string CmdLoadGame(const char * args)
 {
     if (!args[0])
         return Err("load_game", "bad_args");
     gc_log->info("load_game: {}", args);
-    GameFile::RestoreGame(args);
-    // JSON-loaded UnitData omits gfx state.  Recreate actors so that both
-    // the UI renderer and any headless observation that peeks at actors
-    // see consistent state.
-    if (unitpool_Get())
-        unitpool_Get()->RecreateActors();
+    if (!GameFile::RestoreGame(args))
+        return Err("load_game", "load_failed");
     return Ok("load_game");
 }
 
@@ -426,6 +428,19 @@ std::string Dispatch(const std::string & line, bool & handled)
 
     handled = false;
     return std::string();
+}
+
+std::string DispatchSafe(const std::string & line, bool & handled)
+{
+    try {
+        return Dispatch(line, handled);
+    } catch (const std::exception & e) {
+        gc_log->error("Dispatch threw on '{}': {}", line, e.what());
+    } catch (...) {
+        gc_log->error("Dispatch threw a non-std exception on '{}'", line);
+    }
+    handled = true;
+    return Err("dispatch", "exception");
 }
 
 }  // namespace game_controller

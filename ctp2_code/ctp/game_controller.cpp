@@ -45,6 +45,7 @@
 #include "gs/gameobj/Civilisation.h"          // Civilisation::Get*CivName
 #include "gs/utility/TurnCnt.h"               // turn_Get()->GetRound/GetYear
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
+#include "TerrainRecord.h"                    // g_theTerrainDB, TerrainRecord
 
 using json = nlohmann::json;
 
@@ -684,6 +685,40 @@ std::string QueryPlayerCities(const char * args)
     return Ok("query_player_cities", result);
 }
 
+// query_terrains — static dictionary mapping terrain ids (as reported by
+// query_map) to names, passability and base tile yields. Values come from
+// the game's TerrainRecord DB; fetch once and cache client-side.
+std::string QueryTerrains()
+{
+    if (!g_theTerrainDB)
+        return Err("query_terrains", "no_terrain_db");
+
+    json list = json::array();
+    for (sint32 i = 0; i < g_theTerrainDB->NumRecords(); ++i) {
+        const TerrainRecord * t = g_theTerrainDB->Get(i);
+        if (!t) continue;
+        const TerrainRecord::Modifiers * m = t->GetEnvBase();
+        sint32 movement = 0;
+        if (m) m->GetMovement(movement);
+        json j;
+        j["id"]       = i;
+        j["name"]     = t->GetNameText() ? t->GetNameText() : "";
+        j["internal"] = t->GetIDText() ? t->GetIDText() : "";
+        j["land"]     = t->GetMovementTypeLand();
+        j["water"]    = t->GetMovementTypeSea() || t->GetMovementTypeShallowWater();
+        j["mountain"] = t->GetMovementTypeMountain();
+        j["food"]     = m ? m->GetFood()   : 0;
+        j["shields"]  = m ? m->GetShield() : 0;
+        j["gold"]     = m ? m->GetGold()   : 0;
+        j["movement"] = movement;  // cost in 1/100 MP; 0 = record default
+        list.push_back(j);
+    }
+
+    json result;
+    result["terrains"] = list;
+    return Ok("query_terrains", result);
+}
+
 }  // namespace
 
 namespace game_controller {
@@ -708,6 +743,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("query_player_cities ", 0) == 0)             return QueryPlayerCities(line.c_str() + 20);
     if (line.rfind("query_player ", 0) == 0)                    return QueryPlayer(line.c_str() + 13);
     if (line == "query_turn")                                   return QueryTurn();
+    if (line == "query_terrains")                               return QueryTerrains();
 
     handled = false;
     return std::string();

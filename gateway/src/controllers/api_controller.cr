@@ -116,6 +116,7 @@ module Ctp2Gateway
           {method: "GET", path: "/healthz", about: "gateway + socket + spawned-game state"},
           {method: "GET", path: "/fragments/dashboard", about: "htmx fragment: dashboard status strip + stats"},
           {method: "GET", path: "/api/debug/boom", about: "raises intentionally — exercises the JSON error rendering"},
+          {method: "POST", path: "/mcp", about: "MCP endpoint (streamable HTTP, tools-only) — claude mcp add --transport http ctp2 http://localhost:8666/mcp"},
         ],
         verbs: {
           commands: ["build_city", "set_production <city_idx> <settler|cheapest_military|N>",

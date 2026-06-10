@@ -23,7 +23,7 @@ module Ctp2Gateway
       ex = event.exception
       request = event.request
       req_line = "#{request.method} #{request.path}"
-      json = request.path.starts_with?("/api") || request.path.starts_with?("/fragments")
+      json = request.path.starts_with?("/api") || request.path.starts_with?("/fragments") || request.path.starts_with?("/mcp")
 
       # Routing-level errors (no route, wrong method) aren't bugs — keep
       # their semantics, in our body shape.

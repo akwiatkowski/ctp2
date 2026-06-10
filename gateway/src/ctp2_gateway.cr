@@ -8,6 +8,7 @@ require "./assets_handler"
 require "./error_listener"
 require "./controllers/pages_controller"
 require "./controllers/api_controller"
+require "./controllers/mcp_controller"
 
 # ctp2-gateway entry point (Athena Framework).
 #

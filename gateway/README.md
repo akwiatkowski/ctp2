@@ -9,7 +9,7 @@ grow four faces on one port:
 | curl API    | `/api/*`     | ✅ v0.1 |
 | health      | `/healthz`   | ✅ v0.1 |
 | admin panel (game internals, future web UI)  | `/`, `/players`, `/players/<id>/cities` | ✅ v0.1 |
-| MCP (streamable HTTP, Claude plays the game) | `POST /mcp` | planned (session B) |
+| MCP (streamable HTTP, Claude plays the game) | `POST /mcp` | ✅ v0.1 |
 | WebSocket (live events)                      | `/ws`       | planned (v0.2, needs C++ event push) |
 
 The admin pages are **omniscient** (no fog of war) — they ride the game's
@@ -59,6 +59,23 @@ curl -X POST localhost:8666/api/cmd -d '{"cmd":"save_game /tmp/test.json"}'
 
 `POST /api/cmd` is a raw passthrough — any verb `game_controller::Dispatch`
 (or the frontend serve loop) understands.
+
+## MCP — Claude plays the game
+
+```sh
+claude mcp add --transport http ctp2 http://localhost:8666/mcp
+```
+
+16 tools, tools-only server (JSON-RPC 2.0 over streamable HTTP, protocol
+2025-06-18): `start_game` (composite new_game+start_game), `end_turn`
+(max 20 rounds/call — socket timeout budget), `build_city`,
+`set_production`, `save_game`/`load_game` (checkpointing for experiments),
+the full query family (player-view AND omniscient admin), `raw_cmd`
+escape hatch, and `gateway_health` (connection state + command journal,
+for when the model needs to debug the *gateway*). Game-level errors
+(`no_settler_found`...) surface as tool errors with the JSON detail so
+the model can adapt. Notifications → 202; GET/DELETE → 405 (no SSE
+stream, stateless sessions).
 
 ## Who said no? — status code contract
 
@@ -114,6 +131,5 @@ garbage responses). No game binary required.
 
 ## Roadmap
 
-See `~/projects/claude/plans/ctp2-gateway.md`. Next: MCP endpoint (session B),
-admin panel (session C); C++ prerequisite `end_turn` in headless `--serve`
-for full LLM play.
+See `~/projects/claude/plans/ctp2-gateway.md`. Next: map-grid admin view
+(session C remainder), C++ event push → live WebSocket face (v0.2).

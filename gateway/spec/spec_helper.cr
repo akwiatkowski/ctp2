@@ -8,6 +8,7 @@ require "../src/error_listener"
 require "../src/assets_handler"
 require "../src/controllers/pages_controller"
 require "../src/controllers/api_controller"
+require "../src/controllers/mcp_controller"
 
 require "athena/spec"
 

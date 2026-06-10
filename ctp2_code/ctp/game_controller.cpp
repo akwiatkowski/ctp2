@@ -74,6 +74,43 @@ auto gc_log = civlog::Get("gamectl");
 
 // ---- response builders --------------------------------------------------
 
+// Game strings reach us in TWO encodings: fresh-game strings come from the
+// StringDB in Latin-1 (a Mali city named with an 0xE9 'é' broke
+// query_player_cities live — nlohmann::json::dump() throws type_error.316
+// on invalid UTF-8), while strings that round-tripped through a JSON save
+// come back as valid UTF-8 (json_save transcodes on write but not back on
+// load — see plan: the deep fix is load-side UTF-8→Latin-1 so the UI font
+// path stays consistent). So: pass valid UTF-8 through untouched, and
+// transcode anything else as Latin-1.
+bool IsValidUtf8(const unsigned char * p)
+{
+    while (*p) {
+        if (*p < 0x80) { ++p; continue; }
+        int extra = (*p >= 0xF0) ? 3 : (*p >= 0xE0) ? 2 : (*p >= 0xC2) ? 1 : -1;
+        if (extra < 0) return false;
+        ++p;
+        for (int i = 0; i < extra; ++i, ++p)
+            if ((*p & 0xC0) != 0x80) return false;
+    }
+    return true;
+}
+
+std::string ToUtf8(const char * s)
+{
+    std::string out;
+    if (!s) return out;
+    if (IsValidUtf8((const unsigned char *)s)) return s;
+    for (const unsigned char * p = (const unsigned char *)s; *p; ++p) {
+        if (*p < 0x80) {
+            out += (char)*p;
+        } else {
+            out += (char)(0xC0 | (*p >> 6));
+            out += (char)(0x80 | (*p & 0x3F));
+        }
+    }
+    return out;
+}
+
 // {"status":"ok","cmd":"<verb>","result":{...}}  (result omitted if null)
 std::string Ok(const char * verb, const json & result = json())
 {
@@ -259,10 +296,9 @@ std::string QueryArmies()
         for (sint32 u = 0; u < ad->Num(); ++u) {
             Unit unit = ad->Access(u);
             if (!unit.IsValid()) continue;
-            const char * nm = unit.GetName();
             json j;
             j["type"] = unit.GetType();
-            j["name"] = nm ? nm : "";
+            j["name"] = ToUtf8(unit.GetName());
             j["hp"]   = unit.GetHP();
             units.push_back(j);
         }
@@ -385,8 +421,7 @@ json CityJson(sint32 owner, sint32 city_idx, const Unit & u)
     MapPoint pos;
     u.GetPos(pos);
     c["pos"] = { {"x", pos.x}, {"y", pos.y} };
-    const char * name = u.GetName();
-    c["name"] = name ? name : "";
+    c["name"] = ToUtf8(u.GetName());
 
     CityData * cd = u.GetData() ? u.GetData()->GetCityData() : nullptr;
     if (cd) {
@@ -508,11 +543,10 @@ std::string QueryUnits()
             if (!(u.GetVisibility() & (1 << vis))) continue;
             MapPoint pos;
             u.GetPos(pos);
-            const char * nm = u.GetName();
             json j;
             j["owner"]   = p;
             j["type"]    = u.GetType();
-            j["name"]    = nm ? nm : "";
+            j["name"]    = ToUtf8(u.GetName());
             j["pos"]     = { {"x", pos.x}, {"y", pos.y} };
             j["hp"]      = u.GetHP();
             j["is_city"] = u.IsCity();
@@ -592,7 +626,7 @@ std::string QueryMap()
 // never drift apart.
 json PlayerJson(sint32 p, Player * pl)
 {
-    const char * name = pl->GetLeaderName();
+    std::string name = ToUtf8(pl->GetLeaderName());
     // Civilisation names come from the game's StringDB via the player's
     // Civilisation object — never synthesized here.
     MBCHAR civ[k_MAX_NAME_LEN]     = {0};
@@ -604,9 +638,9 @@ json PlayerJson(sint32 p, Player * pl)
     }
     json j;
     j["id"]         = p;
-    j["name"]       = name ? name : "";
-    j["civ"]        = civ;       // adjective/singular, e.g. "Roman"
-    j["country"]    = country;   // nation, e.g. "Rome"
+    j["name"]       = name;
+    j["civ"]        = ToUtf8(civ);       // adjective/singular, e.g. "Roman"
+    j["country"]    = ToUtf8(country);   // nation, e.g. "Rome"
     j["human"]      = pl->IsHuman();
     j["dead"]       = pl->IsDead();
     j["gold"]       = pl->GetGold();
@@ -709,8 +743,8 @@ std::string QueryTerrains()
         if (m) m->GetMovement(movement);
         json j;
         j["id"]       = i;
-        j["name"]     = t->GetNameText() ? t->GetNameText() : "";
-        j["internal"] = t->GetIDText() ? t->GetIDText() : "";
+        j["name"]     = ToUtf8(t->GetNameText());
+        j["internal"] = ToUtf8(t->GetIDText());
         j["land"]     = t->GetMovementTypeLand();
         j["water"]    = t->GetMovementTypeSea() || t->GetMovementTypeShallowWater();
         j["mountain"] = t->GetMovementTypeMountain();
@@ -766,7 +800,8 @@ std::string DispatchSafe(const std::string & line, bool & handled)
         gc_log->error("Dispatch threw a non-std exception on '{}'", line);
     }
     handled = true;
-    return Err("dispatch", "exception");
+    std::string verb = line.substr(0, line.find(' '));
+    return Err(verb.c_str(), "exception");
 }
 
 }  // namespace game_controller

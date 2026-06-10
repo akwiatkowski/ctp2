@@ -108,3 +108,16 @@ struct McpTest < GatewayTestCase
     self.delete("/mcp").status_code.should eq 405
   end
 end
+
+struct McpArmyToolsTest < GatewayTestCase
+  def test_move_army_maps_args : Nil
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"move_army","arguments":{"army_index":0,"x":30,"y":11}}}))
+    self.fake.received.should eq ["move_army 0 30 11"]
+  end
+
+  def test_auto_explore_and_query_armies : Nil
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"auto_explore","arguments":{"army_index":2}}}))
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"query_armies"}}))
+    self.fake.received.should eq ["auto_explore 2", "query_armies"]
+  end
+end

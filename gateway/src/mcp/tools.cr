@@ -44,10 +44,38 @@ module Ctp2Gateway::Mcp
       }),
 
     Tool.new("build_city",
-      "Found a city with your first settler-capable unit at its current position. " \
-      "Fails with no_settler_found if you have no settler (build one via set_production).",
+      "Found a city with your first settler-capable army AT ITS CURRENT TILE. " \
+      "Errors: no_settler_found (build one via set_production), tile_occupied " \
+      "(a city already stands here — move_army the settler away first), " \
+      "settle_rejected (too close to another city — keep distance >= 3 — or bad terrain).",
       NO_ARGS,
       ->(c : Ctp2Gateway::GameClient, _a : JSON::Any) : Ctp2Gateway::GameClient::Result { simple(c, "build_city") }),
+
+    Tool.new("query_armies",
+      "Your armies — index (use with move_army/auto_explore), position, movement " \
+      "points left this turn, can_settle, and member units.",
+      NO_ARGS,
+      ->(c : Ctp2Gateway::GameClient, _a : JSON::Any) : Ctp2Gateway::GameClient::Result { simple(c, "query_armies") }),
+
+    Tool.new("move_army",
+      "Move one of your armies toward (x,y) via pathfinding. no_path means the " \
+      "destination is UNEXPLORED, impassable, or unreachable — you can only plot " \
+      "through explored tiles (see query_map), so walk in short hops and let vision " \
+      "expand. Most units move ~1 tile per turn: check `arrived` in the result, and " \
+      "if false, end_turn and re-issue. Typical expansion: march a settler to " \
+      "distance >= 3 from any city, then build_city.",
+      %({"type":"object","properties":{"army_index":{"type":"integer","minimum":0,"description":"from query_armies"},"x":{"type":"integer","minimum":0},"y":{"type":"integer","minimum":0}},"required":["army_index","x","y"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("move_army #{a["army_index"].as_i} #{a["x"].as_i} #{a["y"].as_i}")
+      }),
+
+    Tool.new("auto_explore",
+      "Put one of your armies on auto-explore: it keeps picking new targets each " \
+      "turn, revealing the map without manual driving. Good for a cheap scout.",
+      %({"type":"object","properties":{"army_index":{"type":"integer","minimum":0}},"required":["army_index"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("auto_explore #{a["army_index"].as_i}")
+      }),
 
     Tool.new("set_production",
       "Set what one of YOUR cities builds. `what` is \"settler\", \"cheapest_military\", " \

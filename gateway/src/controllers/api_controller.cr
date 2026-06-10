@@ -74,6 +74,11 @@ module Ctp2Gateway
       passthrough(@client.command("query_units"))
     end
 
+    @[ARTA::Get("/api/armies")]
+    def armies : AHTTP::Response
+      passthrough(@client.command("query_armies"))
+    end
+
     @[ARTA::Get("/api/map")]
     def map : AHTTP::Response
       passthrough(@client.command("query_map"))
@@ -112,6 +117,7 @@ module Ctp2Gateway
           {method: "GET", path: "/api/cities", maps_to: "query_cities", about: "cities visible to the human player (fog-filtered)"},
           {method: "GET", path: "/api/city/<idx>", maps_to: "query_city <idx>", about: "one of the human's cities + buildable units"},
           {method: "GET", path: "/api/units", maps_to: "query_units", about: "units visible to the human player (fog-filtered)"},
+          {method: "GET", path: "/api/armies", maps_to: "query_armies", about: "YOUR armies: index, pos, moves_left, can_settle, units — feed move_army/auto_explore"},
           {method: "GET", path: "/api/map", maps_to: "query_map", about: "explored tiles: terrain, visibility, city markers"},
           {method: "GET", path: "/healthz", about: "gateway + socket + spawned-game state"},
           {method: "GET", path: "/fragments/dashboard", about: "htmx fragment: dashboard status strip + stats"},
@@ -119,10 +125,12 @@ module Ctp2Gateway
           {method: "POST", path: "/mcp", about: "MCP endpoint (streamable HTTP, tools-only) — claude mcp add --transport http ctp2 http://localhost:8666/mcp"},
         ],
         verbs: {
-          commands: ["build_city", "set_production <city_idx> <settler|cheapest_military|N>",
+          commands: ["build_city (errors: tile_occupied, settle_rejected — min distance ~3)",
+                     "move_army <army_idx> <x> <y>", "auto_explore <army_idx>",
+                     "set_production <city_idx> <settler|cheapest_military|N>",
                      "end_turn [N] (headless: advance N full rounds; UI: queue director end-turn)",
                      "save_game <path>", "load_game <path>", "new_game", "start_game", "quit"],
-          queries_player_view: ["query_cities", "query_city <idx>", "query_units", "query_map"],
+          queries_player_view: ["query_cities", "query_city <idx>", "query_units", "query_armies", "query_map"],
           queries_admin: ["query_players", "query_player <id>", "query_player_cities <id>", "query_turn"],
         },
       }

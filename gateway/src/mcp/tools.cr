@@ -80,8 +80,11 @@ module Ctp2Gateway::Mcp
 
     Tool.new("set_production",
       "Set what one of YOUR cities builds. `what` is \"settler\", \"cheapest_military\", " \
-      "or a numeric unit type id from query_city's buildable list.",
-      %({"type":"object","properties":{"city_index":{"type":"integer","minimum":0,"description":"index into your city list (see query_cities)"},"what":{"type":"string","description":"settler | cheapest_military | unit type id"}},"required":["city_index","what"],"additionalProperties":false}),
+      "a numeric unit type id, \"building <id>\" (city improvements from query_city's " \
+      "buildable_buildings — a GRANARY is the growth lever on poor terrain), or " \
+      "\"clear\" to STOP producing. Production loops forever otherwise — idle armies " \
+      "drain score via upkeep, and each settler consumes a population point.",
+      %({"type":"object","properties":{"city_index":{"type":"integer","minimum":0,"description":"index into your city list (see query_cities)"},"what":{"type":"string","description":"settler | cheapest_military | unit type id | building <id> | clear"}},"required":["city_index","what"],"additionalProperties":false}),
       ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
         c.command("set_production #{a["city_index"].as_i} #{a["what"].as_s}")
       }),

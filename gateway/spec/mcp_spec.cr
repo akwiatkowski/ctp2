@@ -137,3 +137,11 @@ struct McpEconomyToolsTest < GatewayTestCase
     %w[query_research set_research set_material_tax query_terraform terraform].each { |n| names.should contain n }
   end
 end
+
+struct McpBuildingTest < GatewayTestCase
+  def test_building_and_clear_pass_through : Nil
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"set_production","arguments":{"city_index":0,"what":"building 30"}}}))
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"set_production","arguments":{"city_index":1,"what":"clear"}}}))
+    self.fake.received.should eq ["set_production 0 building 30", "set_production 1 clear"]
+  end
+end

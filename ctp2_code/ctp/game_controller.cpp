@@ -46,6 +46,7 @@
 #include "gs/utility/TurnCnt.h"               // turn_Get()->GetRound/GetYear
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 #include "TerrainRecord.h"                    // g_theTerrainDB, TerrainRecord
+#include "BuildingRecord.h"                   // g_theBuildingDB, BuildingRecord
 #include "AdvanceRecord.h"                    // g_theAdvanceDB, AdvanceRecord
 #include "gs/gameobj/Advances.h"              // Advances::CanResearch/GetCost
 #include "gs/gameobj/terrainutil.h"           // terrainutil_CanPlayerBuildAt/cost/time
@@ -186,8 +187,12 @@ std::string CmdBuildCity()
     return Err("build_city", "no_settler_found");
 }
 
-// set_production <city_idx> <unit_keyword>
-// unit_keyword: a numeric unit type, or "cheapest_military" / "settler".
+// set_production <city_idx> <what>
+// what: a numeric unit type, "cheapest_military", "settler",
+//       "building <building_id>" (city improvements: granaries etc. —
+//       the growth lever units can't provide), or "clear" (empty the build
+//       queue: stop producing entirely; the 173-round rematch showed
+//       perpetual unit spam actively drains score).
 std::string CmdSetProduction(const char * args)
 {
     if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
@@ -211,6 +216,34 @@ std::string CmdSetProduction(const char * args)
     CityData * cd       = city.GetData()->GetCityData();
     sint32     gov_type = human->GetGovernmentType();
     sint32     unit_type = -1;
+
+    if (strcmp(keyword, "clear") == 0) {
+        if (cd->GetBuildQueue())
+            cd->GetBuildQueue()->Clear();
+        json result;
+        result["city"] = city_idx;
+        result["building"] = nullptr;
+        return Ok("set_production", result);
+    }
+
+    if (strcmp(keyword, "building") == 0) {
+        int b = -1;
+        if (sscanf(args, "%*d %*s %d", &b) != 1)
+            return Err("set_production", "bad_args");
+        if (!g_theBuildingDB || b < 0 || b >= g_theBuildingDB->NumRecords())
+            return Err("set_production", "bad_building");
+        if (!cd->CanBuildBuilding(b))
+            return Err("set_production", "cannot_build_building");
+        cd->BuildImprovement(b);
+        const BuildingRecord * rec = g_theBuildingDB->Get(b, gov_type);
+        json result;
+        result["city"]     = city_idx;
+        result["category"] = k_GAME_OBJ_TYPE_IMPROVEMENT;
+        result["type"]     = b;
+        result["name"]     = rec ? ToUtf8(rec->GetNameText()) : "";
+        gc_log->info("set_production: city {} -> building {}", city_idx, b);
+        return Ok("set_production", result);
+    }
 
     // Cheapest buildable unit satisfying the keyword's predicate, or -1.
     auto cheapest_buildable = [&](auto && pred) {
@@ -523,6 +556,22 @@ std::string QueryCity(const char * args)
         buildable.push_back(item);
     }
     result["buildable"] = buildable;
+
+    // Buildable city improvements (granary-class growth levers) — with
+    // names: the model must be able to find "Granary" without a DB dump.
+    json buildings = json::array();
+    for (sint32 i = 0; g_theBuildingDB && i < g_theBuildingDB->NumRecords(); ++i) {
+        if (!cd->CanBuildBuilding(i)) continue;
+        const BuildingRecord * rec = g_theBuildingDB->Get(i, gov);
+        if (!rec) continue;
+        json item;
+        item["category"] = k_GAME_OBJ_TYPE_IMPROVEMENT;
+        item["type"]     = i;
+        item["name"]     = ToUtf8(rec->GetNameText());
+        item["cost"]     = rec->GetProductionCost();
+        buildings.push_back(item);
+    }
+    result["buildable_buildings"] = buildings;
     return Ok("query_city", result);
 }
 

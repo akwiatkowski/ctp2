@@ -333,6 +333,8 @@ std::string QueryArmies()
         ad->CurMinMovementPoints(moves);
 
         json units = json::array();
+        json cargo = json::array();
+        sint32 capacity = 0;
         for (sint32 u = 0; u < ad->Num(); ++u) {
             Unit unit = ad->Access(u);
             if (!unit.IsValid()) continue;
@@ -341,6 +343,15 @@ std::string QueryArmies()
             j["name"] = ToUtf8(unit.GetName());
             j["hp"]   = unit.GetHP();
             units.push_back(j);
+            if (UnitData * ud = unit.AccessData()) {
+                capacity += ud->GetMaxCargoCapacity();
+                if (UnitDynamicArray * cl = ud->GetCargoList()) {
+                    for (sint32 ci = 0; ci < cl->Num(); ++ci) {
+                        Unit cu = cl->Access(ci);
+                        if (cu.IsValid()) cargo.push_back(ToUtf8(cu.GetName()));
+                    }
+                }
+            }
         }
 
         json a;
@@ -349,6 +360,8 @@ std::string QueryArmies()
         a["moves_left"] = moves;
         a["can_settle"] = army.CanSettle();
         a["units"]      = units;
+        a["cargo"]          = cargo;     // units riding in this army's transports
+        a["cargo_capacity"] = capacity;  // total transport slots
         list.push_back(a);
     }
 
@@ -397,8 +410,20 @@ std::string CmdMoveArmy(const char * args)
         // into ocean fog would otherwise "succeed" and silently never move.
         if (!src.IsNextTo(dest))
             return Err("move_army", "no_path");
-        if (!w->CanEnter(dest, ad->GetMovementType()))
-            return Err("move_army", "impassable");
+        if (!w->CanEnter(dest, ad->GetMovementType())) {
+            // One legal exception: BOARDING. A land army may step onto a
+            // water tile that holds an own transport with enough free
+            // cargo space — MoveIntoCell handles the actual embarkation.
+            Cell * dcell = w->GetCell(dest);
+            sint32 capacity = 0;
+            for (sint32 u = 0; dcell && u < dcell->GetNumUnits(); ++u) {
+                Unit t = dcell->AccessUnit(u);
+                if (t.IsValid() && t.GetOwner() == human->GetOwner())
+                    capacity += t.GetData() ? t.GetData()->GetMaxCargoCapacity() : 0;
+            }
+            if (capacity < ad->Num())
+                return Err("move_army", "impassable");
+        }
         army.ClearOrders();
         army.AddOrders(UNIT_ORDER_MOVE_TO, dest);
     }
@@ -813,6 +838,80 @@ std::string CmdSetMaterialTax(const char * args)
     json result;
     result["material_tax"] = human->m_materialsTax;
     return Ok("set_material_tax", result);
+}
+
+// board <army_idx> — embark a land army into transports standing ON ITS OWN
+// TILE (port boarding: city tile holds both troops and docked boats).
+// Boarding an ADJACENT transport is move_army onto its tile.
+std::string CmdBoard(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("board", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("board", "no_human_player");
+
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("board", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("board", "bad_army_index");
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("board", "invalid_army");
+
+    army.ClearOrders();
+    army.AddOrders(UNIT_ORDER_BOARD_TRANSPORT);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    gc_log->info("board: army {}", idx);
+    return Ok("board");
+}
+
+// unload <army_idx> <x> <y> — order a transport army to disembark its cargo
+// onto an adjacent tile (the amphibious landing). The game validates
+// passability/capacity; we report the cargo count afterwards.
+std::string CmdUnload(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("unload", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("unload", "no_human_player");
+
+    int idx = -1, x = -1, y = -1;
+    if (sscanf(args, "%d %d %d", &idx, &x, &y) != 3)
+        return Err("unload", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("unload", "bad_army_index");
+    World * w = world_Get();
+    if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+        return Err("unload", "bad_position");
+
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("unload", "invalid_army");
+
+    MapPoint dest((sint16)x, (sint16)y);
+    if (!ad->RetPos().IsNextTo(dest) && !(ad->RetPos() == dest))
+        return Err("unload", "not_adjacent");
+
+    if (!gevmanager_Get())
+        return Err("unload", "no_event_manager");
+    gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UnloadOrder,
+                               GEA_Army, army,
+                               GEA_MapPoint, dest, GEA_End);
+    gevmanager_Get()->Process();
+
+    json result;
+    result["army"] = idx;
+    result["pos"]  = { {"x", x}, {"y", y} };
+    gc_log->info("unload: army {} at ({},{})", idx, x, y);
+    return Ok("unload", result);
 }
 
 // group_army <army_idx> — merge EVERY unit standing on the army's tile into
@@ -1258,6 +1357,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("declare_war ", 0) == 0)                     return CmdDeclareWar(line.c_str() + 12);
     if (line.rfind("attack ", 0) == 0)                          return CmdAttack(line.c_str() + 7);
     if (line.rfind("group_army ", 0) == 0)                      return CmdGroupArmy(line.c_str() + 11);
+    if (line.rfind("unload ", 0) == 0)                          return CmdUnload(line.c_str() + 7);
+    if (line.rfind("board ", 0) == 0)                           return CmdBoard(line.c_str() + 6);
     if (line.rfind("ungroup_army ", 0) == 0)                    return CmdUngroupArmy(line.c_str() + 13);
 
     handled = false;

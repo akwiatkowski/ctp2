@@ -229,6 +229,16 @@ module Ctp2Gateway::Mcp
         end
       }),
 
+    Tool.new("unload",
+      "Amphibious landing: order a transport army (boats carrying cargo — see " \
+      "query_armies' cargo field) to disembark everyone onto an ADJACENT land tile. " \
+      "To BOARD, move a land army onto your transport's water tile with move_army " \
+      "(allowed when the transport has free cargo_capacity).",
+      %({"type":"object","properties":{"army_index":{"type":"integer","minimum":0},"x":{"type":"integer","minimum":0},"y":{"type":"integer","minimum":0}},"required":["army_index","x","y"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("unload #{a["army_index"].as_i} #{a["x"].as_i} #{a["y"].as_i}")
+      }),
+
     Tool.new("group_army",
       "Merge every unit on the army's tile into ONE stack (up to 12 fight as one " \
       "army). ESSENTIAL before combat: single-unit armies attacking a stack die one " \

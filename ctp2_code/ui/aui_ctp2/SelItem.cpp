@@ -1042,7 +1042,12 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 
 		slicengine_Get()->RunCitySelectedTriggers(u);
 
-		c3ui_Get()->AddAction( new WorkWinUpdateAction );
+		// Headless: c3ui_Get() is null in serve mode, but SetSelectCity runs
+		// from real GAME events (CaptureCityEvent auto-selects the captured
+		// city) — found by the first amphibious conquest over MCP. The UI
+		// refresh is meaningless without a UI; the selection itself is not.
+		if (c3ui_Get())
+			c3ui_Get()->AddAction( new WorkWinUpdateAction );
 
 		// Focus on city if option is activated
 		if(IsAutoCenterOn())

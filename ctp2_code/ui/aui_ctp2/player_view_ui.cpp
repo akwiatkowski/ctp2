@@ -30,6 +30,7 @@
 #include "gs/gameobj/citydata.h"                // CityData::GetBuildQueue
 #include "gs/gameobj/BldQue.h"                  // BuildQueue::GetHead
 #include "gs/world/cellunitlist.h"              // CellUnitList
+#include "ui/aui_ctp2/c3ui.h"            // c3ui_Get — headless gate
 
 extern MessageModal *g_modalMessage;
 
@@ -85,14 +86,20 @@ void UIRefresh()
 
 void UISetSelectUnit(const Unit &unit)
 {
-	if (selitem_Get()) {
+	// c3ui gate: SelectedItem::SetSelectUnit drives a dozen UI singletons
+	// (action list, control panel tabs, director centering). Headless serve
+	// mode allocates a SelectedItem (CurPlayer bookkeeping needs it) but no
+	// UI — game events like CaptureCityEvent auto-selecting a captured city
+	// must not reach the widget layer. Found by the first amphibious
+	// conquest over MCP (SEGV chain: AddAction → SetTab → ...).
+	if (c3ui_Get() && selitem_Get()) {
 		selitem_Get()->SetSelectUnit(const_cast<Unit &>(unit));
 	}
 }
 
 void UISetSelectCity(const Unit &city)
 {
-	if (selitem_Get()) {
+	if (c3ui_Get() && selitem_Get()) {
 		selitem_Get()->SetSelectCity(const_cast<Unit &>(city));
 	}
 }

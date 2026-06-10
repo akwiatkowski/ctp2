@@ -1713,6 +1713,19 @@ test('turns-headless',
 # pathfinding, settle guard regression). Headless-only like turns.
 # Auto-explore: a human army keeps exploring across turns (passability-
 # aware retargeting); manual move_army overrides the explore order.
+# Research + terraform: the science affordance loop and the Public-Works
+# terrain transform loop (grant_advance debug verb shortcuts the tech climb).
+research_test = find_program('test/research.py')
+test('research-headless',
+  research_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
 explore_test = find_program('test/explore.py')
 test('explore-headless',
   explore_test,

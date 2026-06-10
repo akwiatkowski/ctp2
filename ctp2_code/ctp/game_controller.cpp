@@ -46,6 +46,11 @@
 #include "gs/utility/TurnCnt.h"               // turn_Get()->GetRound/GetYear
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 #include "TerrainRecord.h"                    // g_theTerrainDB, TerrainRecord
+#include "AdvanceRecord.h"                    // g_theAdvanceDB, AdvanceRecord
+#include "gs/gameobj/Advances.h"              // Advances::CanResearch/GetCost
+#include "gs/gameobj/terrainutil.h"           // terrainutil_CanPlayerBuildAt/cost/time
+#include "gs/gameobj/TerrImprove.h"           // TerrainImprovement
+#include "gs/gameobj/TerrImprovePool.h"       // terrimprovepool_Get
 
 using json = nlohmann::json;
 
@@ -560,6 +565,221 @@ std::string QueryUnits()
     return Ok("query_units", result);
 }
 
+// query_research — the science affordance set: what's being researched, what
+// could be, and what each option costs. Research is the main score engine
+// (advances unlock units/buildings/terraform and feed the score formula).
+std::string QueryResearch()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_research", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human || !human->m_advances)
+        return Err("query_research", "no_human_player");
+    if (!g_theAdvanceDB)
+        return Err("query_research", "no_advance_db");
+
+    Advances * adv = human->m_advances;
+    sint32 researching = adv->GetResearching();
+
+    json result;
+    json cur;
+    cur["id"] = researching;
+    if (researching >= 0 && researching < g_theAdvanceDB->NumRecords()) {
+        const AdvanceRecord * r = g_theAdvanceDB->Get(researching);
+        cur["name"] = r ? ToUtf8(r->GetNameText()) : "";
+        cur["cost"] = adv->GetCost(researching);
+    }
+    result["researching"] = cur;
+
+    sint32 known = 0;
+    json avail = json::array();
+    for (sint32 i = 0; i < g_theAdvanceDB->NumRecords(); ++i) {
+        if (adv->HasAdvance(i)) { ++known; continue; }
+        if (!adv->CanResearch(i)) continue;
+        const AdvanceRecord * r = g_theAdvanceDB->Get(i);
+        if (!r) continue;
+        json j;
+        j["id"]   = i;
+        j["name"] = ToUtf8(r->GetNameText());
+        j["cost"] = adv->GetCost(i);
+        avail.push_back(j);
+    }
+    result["known_count"] = known;
+    result["available"]   = avail;
+    return Ok("query_research", result);
+}
+
+// set_research <advance_id>
+std::string CmdSetResearch(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("set_research", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human || !human->m_advances)
+        return Err("set_research", "no_human_player");
+
+    int id = -1;
+    if (sscanf(args, "%d", &id) != 1)
+        return Err("set_research", "bad_args");
+    if (!g_theAdvanceDB || id < 0 || id >= g_theAdvanceDB->NumRecords())
+        return Err("set_research", "bad_advance");
+    if (human->m_advances->HasAdvance(id))
+        return Err("set_research", "already_known");
+    if (!human->m_advances->CanResearch(id))
+        return Err("set_research", "prerequisites_missing");
+
+    human->StartResearching(id);
+    const AdvanceRecord * r = g_theAdvanceDB->Get(id);
+    json result;
+    result["id"]   = id;
+    result["name"] = r ? ToUtf8(r->GetNameText()) : "";
+    gc_log->info("set_research: {} ({})", id, r ? r->GetNameText() : "?");
+    return Ok("set_research", result);
+}
+
+// query_terraform <x> <y> — terraform options for one tile: which transform
+// improvements the player can build there, what terrain they yield, and the
+// Public Works price (with the player's PW balance for context).
+std::string QueryTerraform(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_terraform", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_terraform", "no_human_player");
+
+    int x = -1, y = -1;
+    if (sscanf(args, "%d %d", &x, &y) != 2)
+        return Err("query_terraform", "bad_args");
+    World * w = world_Get();
+    if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+        return Err("query_terraform", "bad_position");
+
+    MapPoint pos((sint16)x, (sint16)y);
+    sint32 const terrain = w->GetTerrainType(pos);
+    sint32 const materials = human->GetMaterialsStored();
+    Cell * cell = w->GetCell(pos);
+
+    json options = json::array();
+    for (sint32 i = 0; g_theTerrainImprovementDB && i < g_theTerrainImprovementDB->NumRecords(); ++i) {
+        const TerrainImprovementRecord * rec = g_theTerrainImprovementDB->Get(i);
+        if (!rec || (!rec->GetClassTerraform() && !rec->GetClassOceanform())) continue;
+        sint32 to = -1;
+        if (!rec->GetTerraformTerrainIndex(to)) continue;
+        if (to == terrain) continue;  // no-op transform
+        if (!terrainutil_CanPlayerBuildAt(rec, human->GetOwner(), pos)) continue;
+        sint32 const cost = terrainutil_GetProductionCost(i, pos, 0);
+        json o;
+        o["improvement_id"]  = i;
+        o["name"]            = ToUtf8(rec->GetNameText());
+        o["to_terrain"]      = to;
+        const TerrainRecord * tr = g_theTerrainDB ? g_theTerrainDB->Get(to) : nullptr;
+        o["to_terrain_name"] = tr ? ToUtf8(tr->GetNameText()) : "";
+        o["cost"]            = cost;
+        o["turns"]           = terrainutil_GetProductionTime(i, pos, 0);
+        o["affordable"]      = cost <= materials;
+        options.push_back(o);
+    }
+
+    json result;
+    result["pos"]          = { {"x", x}, {"y", y} };
+    result["terrain"]      = terrain;
+    // Terraforming only works INSIDE your borders — surface the owner so a
+    // driver understands an empty options list.
+    result["tile_owner"]   = cell ? cell->GetOwner() : -1;
+    result["materials"]    = materials;
+    result["material_tax"] = human->m_materialsTax;
+    result["options"]      = options;
+    return Ok("query_terraform", result);
+}
+
+// terraform <x> <y> <improvement_id> — spend Public Works to start a terrain
+// transform; it completes after the option's `turns`.
+std::string CmdTerraform(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("terraform", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("terraform", "no_human_player");
+
+    int x = -1, y = -1, id = -1;
+    if (sscanf(args, "%d %d %d", &x, &y, &id) != 3)
+        return Err("terraform", "bad_args");
+    World * w = world_Get();
+    if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+        return Err("terraform", "bad_position");
+    if (!g_theTerrainImprovementDB || id < 0 || id >= g_theTerrainImprovementDB->NumRecords())
+        return Err("terraform", "bad_improvement");
+
+    MapPoint pos((sint16)x, (sint16)y);
+    ERR_BUILD_INST err;
+    if (!human->CanCreateImprovement(id, pos, 0, true, err))
+        return Err("terraform", "cannot_build_here");
+
+    TerrainImprovement imp = human->CreateImprovement(id, pos, 0);
+    if (!terrimprovepool_Get() || !terrimprovepool_Get()->IsValid(imp.m_id))
+        return Err("terraform", "create_failed");
+    if (gevmanager_Get())
+        gevmanager_Get()->Process();
+
+    json result;
+    result["pos"]   = { {"x", x}, {"y", y} };
+    result["turns"] = terrainutil_GetProductionTime(id, pos, 0);
+    gc_log->info("terraform: improvement {} at ({},{})", id, x, y);
+    return Ok("terraform", result);
+}
+
+// set_material_tax <percent 0..100> — divert city production into the Public
+// Works pool that pays for terraforming. Without this the human's PW stays 0.
+std::string CmdSetMaterialTax(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("set_material_tax", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("set_material_tax", "no_human_player");
+
+    int pct = -1;
+    if (sscanf(args, "%d", &pct) != 1 || pct < 0 || pct > 100)
+        return Err("set_material_tax", "bad_args");
+
+    human->SetMaterialsTax(pct / 100.0);
+    json result;
+    result["material_tax"] = human->m_materialsTax;
+    return Ok("set_material_tax", result);
+}
+
+// grant_advance <advance_id> — DEBUG/TEST cheat: hand the human an advance
+// outright (prerequisites included via the game's own SetHasAdvance). Exists
+// so integration tests can reach late-game mechanics (e.g. swamp terraform
+// needs Industrial Revolution) without playing 300 rounds. Not exposed as an
+// MCP tool; reachable via raw_cmd when explicitly requested.
+std::string CmdGrantAdvance(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("grant_advance", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human || !human->m_advances)
+        return Err("grant_advance", "no_human_player");
+
+    int id = -1;
+    if (sscanf(args, "%d", &id) != 1)
+        return Err("grant_advance", "bad_args");
+    if (!g_theAdvanceDB || id < 0 || id >= g_theAdvanceDB->NumRecords())
+        return Err("grant_advance", "bad_advance");
+
+    // Player::SetHasAdvance is the notification/ceremony layer and does NOT
+    // store the bit — the Advances object does.
+    human->m_advances->SetHasAdvance(id);
+    const AdvanceRecord * r = g_theAdvanceDB->Get(id);
+    gc_log->info("grant_advance (DEBUG): {} ({})", id, r ? r->GetNameText() : "?");
+    json result;
+    result["id"]   = id;
+    result["name"] = r ? ToUtf8(r->GetNameText()) : "";
+    return Ok("grant_advance", result);
+}
+
 // query_map — terrain, fog state and city markers for every tile the human has
 // explored. Only explored tiles are listed (unexplored tiles are omitted
 // entirely); the "visible" flag distinguishes currently-seen tiles from
@@ -785,6 +1005,12 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("query_player ", 0) == 0)                    return QueryPlayer(line.c_str() + 13);
     if (line == "query_turn")                                   return QueryTurn();
     if (line == "query_terrains")                               return QueryTerrains();
+    if (line == "query_research")                               return QueryResearch();
+    if (line.rfind("set_research ", 0) == 0)                    return CmdSetResearch(line.c_str() + 13);
+    if (line.rfind("query_terraform ", 0) == 0)                 return QueryTerraform(line.c_str() + 16);
+    if (line.rfind("terraform ", 0) == 0)                       return CmdTerraform(line.c_str() + 10);
+    if (line.rfind("set_material_tax ", 0) == 0)                return CmdSetMaterialTax(line.c_str() + 17);
+    if (line.rfind("grant_advance ", 0) == 0)                   return CmdGrantAdvance(line.c_str() + 14);
 
     handled = false;
     return std::string();

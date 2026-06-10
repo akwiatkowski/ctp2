@@ -39,6 +39,8 @@
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
+#include "gs/gameobj/MovePath.h"              // army_QueueMovePath
+#include "gs/gameobj/Events.h"                // GEV_ExploreOrder
 #include "gs/gameobj/Score.h"                 // Score::GetTotalScore
 #include "gs/gameobj/Civilisation.h"          // Civilisation::Get*CivName
 #include "gs/utility/TurnCnt.h"               // turn_Get()->GetRound/GetYear
@@ -111,6 +113,15 @@ std::string CmdBuildCity()
         Army army = armies->Access(i);
         ArmyData * ad = army.AccessData();
         if (army.IsValid() && army.CanSettle() && ad) {
+            // CanSettle() only checks the UNIT can settle, not the tile.
+            // Settling on a tile that already has a city silently REPLACES
+            // it (pop and improvements lost) — refuse instead. Found by the
+            // first MCP playtest: a settler stuck on Rome's tile "founded"
+            // a fresh pop-1 Rome over the pop-2 original.
+            MapPoint at = ad->RetPos();
+            Cell * cell = world_Get() ? world_Get()->GetCell(at) : nullptr;
+            if (cell && cell->GetCity().IsValid())
+                return Err("build_city", "tile_occupied");
             gc_log->info("build_city: settling with army {} of player {}",
                          i, (int)human->GetOwner());
             ad->Settle();
@@ -118,7 +129,15 @@ std::string CmdBuildCity()
             // actually founded before we return — keeps the driver synchronous.
             if (gevmanager_Get())
                 gevmanager_Get()->Process();
-            return Ok("build_city");
+            // The settle event can be VETOED downstream (city minimum
+            // distance, terrain rules) with no error surfaced — verify the
+            // city actually exists instead of reporting blind success.
+            cell = world_Get() ? world_Get()->GetCell(at) : nullptr;
+            if (!cell || !cell->GetCity().IsValid())
+                return Err("build_city", "settle_rejected");
+            json result;
+            result["pos"] = { {"x", at.x}, {"y", at.y} };
+            return Ok("build_city", result);
         }
     }
     return Err("build_city", "no_settler_found");
@@ -210,6 +229,141 @@ std::string CmdLoadGame(const char * args)
     if (!GameFile::RestoreGame(args))
         return Err("load_game", "load_failed");
     return Ok("load_game");
+}
+
+// query_armies — the human's armies with what a player needs to command
+// them: index (for move_army/auto_explore), position, movement points left
+// this turn, settle capability, and the member units.
+std::string QueryArmies()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_armies", "game_not_loaded");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_armies", "no_human_player");
+
+    json list = json::array();
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    for (sint32 i = 0; armies && i < armies->Num(); ++i) {
+        Army army = armies->Access(i);
+        ArmyData * ad = army.AccessData();
+        if (!army.IsValid() || !ad) continue;
+
+        MapPoint pos = ad->RetPos();
+        double moves = 0.0;
+        ad->CurMinMovementPoints(moves);
+
+        json units = json::array();
+        for (sint32 u = 0; u < ad->Num(); ++u) {
+            Unit unit = ad->Access(u);
+            if (!unit.IsValid()) continue;
+            const char * nm = unit.GetName();
+            json j;
+            j["type"] = unit.GetType();
+            j["name"] = nm ? nm : "";
+            j["hp"]   = unit.GetHP();
+            units.push_back(j);
+        }
+
+        json a;
+        a["index"]      = i;
+        a["pos"]        = { {"x", pos.x}, {"y", pos.y} };
+        a["moves_left"] = moves;
+        a["can_settle"] = army.CanSettle();
+        a["units"]      = units;
+        list.push_back(a);
+    }
+
+    json result;
+    result["armies"] = list;
+    return Ok("query_armies", result);
+}
+
+// move_army <army_idx> <x> <y> — pathfind and queue a move order, then pump
+// events so movement starts immediately. The army walks as far as this
+// turn's movement points allow; the rest of the path continues on later
+// turns. The result reports where the army actually stands afterwards.
+std::string CmdMoveArmy(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("move_army", "game_not_loaded");
+
+    int idx = -1, x = -1, y = -1;
+    if (sscanf(args, "%d %d %d", &idx, &x, &y) != 3)
+        return Err("move_army", "bad_args");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("move_army", "no_human_player");
+
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("move_army", "bad_army_index");
+
+    World * w = world_Get();
+    if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+        return Err("move_army", "bad_destination");
+
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("move_army", "invalid_army");
+
+    MapPoint src = ad->RetPos();
+    MapPoint dest((sint16)x, (sint16)y);
+    if (!army_QueueMovePath(human->GetOwner(), army, src, dest))
+        return Err("move_army", "no_path");
+
+    // Drain the queued GEV_MoveOrder so the army starts walking now.
+    if (gevmanager_Get())
+        gevmanager_Get()->Process();
+
+    MapPoint now = ad->RetPos();
+    gc_log->info("move_army: army {} ({},{}) -> ({},{}), now at ({},{})",
+                 idx, (int)src.x, (int)src.y, x, y, (int)now.x, (int)now.y);
+
+    json result;
+    result["army"] = idx;
+    result["from"] = { {"x", src.x}, {"y", src.y} };
+    result["dest"] = { {"x", x}, {"y", y} };
+    result["pos"]  = { {"x", now.x}, {"y", now.y} };
+    result["arrived"] = (now.x == x && now.y == y);
+    return Ok("move_army", result);
+}
+
+// auto_explore <army_idx> — hand the army to the explore order; the per-turn
+// hook keeps re-picking new targets, revealing the map without driving every
+// step by hand.
+std::string CmdAutoExplore(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("auto_explore", "game_not_loaded");
+
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("auto_explore", "bad_args");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("auto_explore", "no_human_player");
+
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("auto_explore", "bad_army_index");
+
+    Army army = armies->Access(idx);
+    if (!army.IsValid())
+        return Err("auto_explore", "invalid_army");
+
+    if (!gevmanager_Get())
+        return Err("auto_explore", "no_event_manager");
+    gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ExploreOrder,
+                               GEA_Army, army, GEA_End);
+    gevmanager_Get()->Process();
+
+    gc_log->info("auto_explore: army {}", idx);
+    return Ok("auto_explore");
 }
 
 // ---- queries ------------------------------------------------------------
@@ -546,6 +700,9 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("query_city ", 0) == 0)                      return QueryCity(line.c_str() + 11);
     if (line == "query_city")                                   return QueryCity("");
     if (line == "query_units")                                  return QueryUnits();
+    if (line == "query_armies")                                 return QueryArmies();
+    if (line.rfind("move_army ", 0) == 0)                       return CmdMoveArmy(line.c_str() + 10);
+    if (line.rfind("auto_explore ", 0) == 0)                    return CmdAutoExplore(line.c_str() + 13);
     if (line == "query_map")                                    return QueryMap();
     if (line == "query_players")                                return QueryPlayers();
     if (line.rfind("query_player_cities ", 0) == 0)             return QueryPlayerCities(line.c_str() + 20);

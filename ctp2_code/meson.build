@@ -1708,3 +1708,16 @@ test('turns-headless',
   workdir : cwd_for_tests,
   suite : 'integration',
 )
+
+# Expansion: the full second-city loop (settler production, move_army
+# pathfinding, settle guard regression). Headless-only like turns.
+expansion_test = find_program('test/expansion.py')
+test('expansion-headless',
+  expansion_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)

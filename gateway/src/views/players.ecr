@@ -4,7 +4,7 @@
 <div class="reveal">
 <table class="ledger">
   <tr>
-    <th>id</th><th>leader</th><th>nature</th><th>status</th>
+    <th>id</th><th>leader</th><th>civilization</th><th>nature</th><th>status</th>
     <th class="num">gold</th><th class="num">cities</th><th class="num">score</th><th></th>
   </tr>
   <% @players.each do |p| %>
@@ -14,6 +14,7 @@
         <% if p["human"].as_bool %><span class="glyph" title="human">♔</span><% else %><span class="glyph--dim" title="AI">⚙</span><% end %>
         <%= HTML.escape(p["name"].as_s) %>
       </td>
+      <td><%= HTML.escape(p["country"]?.try(&.as_s?).try(&.presence) || "—") %></td>
       <td><%= p["human"].as_bool ? %(<span class="badge badge--gold">human</span>) : %(<span class="badge">AI</span>) %></td>
       <td><%= p["dead"].as_bool ? %(<span class="badge badge--bad">dead</span>) : %(<span class="badge badge--ok">alive</span>) %></td>
       <td class="num"><%= p["gold"].as_i %></td>

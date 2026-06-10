@@ -38,7 +38,7 @@
       <div class="stat__label">Leading</div>
       <% if name = @leader_name %>
         <div class="stat__value stat__value--name" data-stat="leader"><%= HTML.escape(name) %></div>
-        <div class="stat__hint">score <%= @leader_score %></div>
+        <div class="stat__hint"><% if c = @leader_country %>of <%= HTML.escape(c) %> · <% end %>score <%= @leader_score %></div>
       <% else %>
         <div class="stat__value stat__value--name muted" data-stat="leader">—</div>
         <div class="stat__hint">no scores yet</div>

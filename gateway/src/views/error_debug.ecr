@@ -1,0 +1,42 @@
+<h1 class="page-title reveal">Something <em>broke</em> — here is everything</h1>
+<p class="page-sub reveal"><%= HTML.escape(@request_line) %></p>
+
+<div class="card card--alert reveal">
+  <div class="stat__label">Exception</div>
+  <div style="margin-top:.4rem"><code><%= HTML.escape(@klass) %></code></div>
+  <div class="mono" style="margin-top:.5rem"><%= HTML.escape(@message) %></div>
+</div>
+
+<div class="card reveal">
+  <div class="stat__label">Backtrace</div>
+  <pre class="trace"><% @backtrace.each do |frame| %><%= HTML.escape(frame) %>
+<% end %></pre>
+</div>
+
+<div class="card reveal">
+  <div class="stat__label">Gateway state</div>
+  <dl class="kv">
+    <dt>socket</dt><dd><code><%= HTML.escape(@socket) %></code></dd>
+    <dt>connected</dt><dd><% if @connected %><span class="seal seal--ok"></span>yes<% else %><span class="seal seal--bad"></span>no<% end %></dd>
+  </dl>
+</div>
+
+<% unless @exchanges.empty? %>
+<div class="card reveal">
+  <div class="stat__label">Recent game exchanges (newest first)</div>
+  <table class="ledger">
+    <tr><th>at (utc)</th><th>command</th><th>outcome</th><th class="num">ms</th><th>response / error</th></tr>
+    <% @exchanges.each do |e| %>
+      <tr>
+        <td class="mono"><%= e.at.to_s("%H:%M:%S.%3N") %></td>
+        <td class="mono"><%= HTML.escape(e.cmd) %></td>
+        <td><%= e.ok ? %(<span class="badge badge--ok">ok</span>) : %(<span class="badge badge--bad">error</span>) %></td>
+        <td class="num"><%= e.duration.total_milliseconds.round(1) %></td>
+        <td class="mono muted snippet"><%= HTML.escape(e.detail) %></td>
+      </tr>
+    <% end %>
+  </table>
+</div>
+<% end %>
+
+<div class="crumb reveal"><a href="/debug">→ full exchange journal at /debug</a></div>

@@ -44,6 +44,11 @@ module Ctp2Gateway
 
     alias Result = Ok | Err
 
+    # One entry of the exchange journal — the debugging primitive behind
+    # /debug and the error pages: what was asked, what came back, how long
+    # it took. `detail` is a truncated response/error snippet.
+    record Exchange, at : Time, cmd : String, ok : Bool, detail : String, duration : Time::Span
+
     private record Request, cmd : String, reply : Channel(Result)
 
     # 30s default: start_game runs full world generation and takes seconds;
@@ -53,6 +58,10 @@ module Ctp2Gateway
     # Pending-request cap. 32 is generous for a dev tool — if we're 32 deep,
     # something is polling pathologically and deserves a 429.
     DEFAULT_QUEUE_CAPACITY = 32
+
+    # Ring size of the exchange journal and snippet length per entry.
+    EXCHANGE_LOG_SIZE = 32
+    SNIPPET_LEN       = 220
 
     getter socket_path : String
     # Connection state for /healthz. Plain (non-atomic) fields are safe here:
@@ -66,7 +75,14 @@ module Ctp2Gateway
                    queue_capacity : Int32 = DEFAULT_QUEUE_CAPACITY)
       @socket = nil.as(UNIXSocket?)
       @requests = Channel(Request).new(queue_capacity)
+      @exchanges = Deque(Exchange).new
       spawn(name: "game-client-owner") { run_loop }
+    end
+
+    # Newest-first copy of the exchange journal (owner fiber owns the deque;
+    # single-threaded scheduling makes the copy safe).
+    def recent_exchanges : Array(Exchange)
+      @exchanges.to_a.reverse
     end
 
     # Send one verb line (e.g. "query_city 3") and wait for the game's reply.
@@ -101,8 +117,24 @@ module Ctp2Gateway
     private def run_loop
       # receive? returns nil when the channel is closed → clean shutdown.
       while req = @requests.receive?
-        req.reply.send(roundtrip(req.cmd))
+        started = Time.monotonic
+        result = roundtrip(req.cmd)
+        record_exchange(req.cmd, result, Time.monotonic - started)
+        req.reply.send(result)
       end
+    end
+
+    private def record_exchange(cmd : String, result : Result, duration : Time::Span) : Nil
+      detail = case result
+               in Ok  then snippet(result.payload.to_json)
+               in Err then "#{result.kind}: #{snippet(result.detail)}"
+               end
+      @exchanges.push Exchange.new(Time.utc, cmd, result.is_a?(Ok), detail, duration)
+      @exchanges.shift if @exchanges.size > EXCHANGE_LOG_SIZE
+    end
+
+    private def snippet(s : String) : String
+      s.size > SNIPPET_LEN ? s[0, SNIPPET_LEN] + "…" : s
     end
 
     private def roundtrip(cmd : String) : Result
@@ -118,7 +150,7 @@ module Ctp2Gateway
           drop_socket "game closed the connection"
           return Err.new(:disconnected, "game closed the connection")
         end
-        parse_response(line)
+        parse_response(cmd, line)
       rescue IO::TimeoutError
         # The reply may still arrive later; reusing this connection would pair
         # that stale reply with the NEXT request. Poisoned → drop it.
@@ -130,12 +162,29 @@ module Ctp2Gateway
       end
     end
 
-    private def parse_response(line : String) : Result
-      Ok.new(JSON.parse(line))
+    private def parse_response(cmd : String, line : String) : Result
+      payload = JSON.parse(line)
+
+      # Request/response pairing check. Every game reply echoes the request
+      # in its "cmd" field — game_controller verbs echo just the verb, the
+      # legacy frontend chain echoes the full command line — so accept
+      # either. Anything else means the stream is desynced (e.g. the game
+      # emitted an unsolicited line) and EVERY later reply would pair with
+      # the wrong request. Drop the connection — the next command reconnects
+      # to a clean stream — and say exactly what happened.
+      verb = cmd.partition(' ')[0]
+      if (got = payload["cmd"]?.try(&.as_s?)) && got != verb && got != cmd
+        drop_socket "response desync (sent '#{verb}', got reply for '#{got}')"
+        return Err.new(:protocol,
+          "response desync: sent '#{verb}' but the reply was addressed to " \
+          "'#{got}' — dropped the connection to resync. raw: #{snippet(line)}")
+      end
+
+      Ok.new(payload)
     rescue ex : JSON::ParseException
       # Don't drop the connection: framing is still intact (we read a full
       # line), the payload was just garbage.
-      Err.new(:protocol, "unparseable response from game: #{ex.message}")
+      Err.new(:protocol, "unparseable response from game: #{ex.message} — raw: #{snippet(line)}")
     end
 
     # Lazy connect: try on every request while disconnected. A Unix-socket

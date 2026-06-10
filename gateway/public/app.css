@@ -377,6 +377,45 @@ main {
 .ledger th.num { text-align: right; }
 .ledger .row-link { white-space: nowrap; }
 
+/* ---- debug surfaces ------------------------------------------ */
+
+.kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1.4rem;
+  margin: 0.3rem 0 0;
+}
+.kv dt {
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  align-self: baseline;
+}
+.kv dd { margin: 0; font-size: 0.82rem; }
+
+.trace {
+  margin: 0.6rem 0 0;
+  padding: 0.8rem 1rem;
+  background: var(--ink-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 0.74rem;
+  line-height: 1.6;
+  color: var(--parchment-dim);
+  overflow-x: auto;
+  max-height: 24rem;
+  overflow-y: auto;
+}
+.trace::first-line { color: var(--parchment); }
+
+.snippet {
+  max-width: 28rem;
+  overflow-wrap: anywhere;
+  font-size: 0.72rem;
+}
+
 /* ---- status strip -------------------------------------------- */
 
 .statusline {

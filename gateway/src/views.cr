@@ -22,10 +22,29 @@ module Ctp2Gateway::Views
     def initialize(@socket : String, @connected : Bool, @spawn_line : String?,
                    @game_error : String?, @player_count : Int32,
                    @alive_count : Int32, @city_count : Int32,
-                   @leader_name : String?, @leader_score : Int32)
+                   @leader_name : String?, @leader_country : String?,
+                   @leader_score : Int32)
     end
 
     ECR.def_to_s "src/views/dashboard_ledger.ecr"
+  end
+
+  struct DebugPage
+    def initialize(@socket : String, @connected : Bool, @last_error : String?,
+                   @spawn_line : String?,
+                   @exchanges : Array(Ctp2Gateway::GameClient::Exchange))
+    end
+
+    ECR.def_to_s "src/views/debug.ecr"
+  end
+
+  struct DebugError
+    def initialize(@klass : String, @message : String, @backtrace : Array(String),
+                   @request_line : String, @connected : Bool, @socket : String,
+                   @exchanges : Array(Ctp2Gateway::GameClient::Exchange))
+    end
+
+    ECR.def_to_s "src/views/error_debug.ecr"
   end
 
   struct Dashboard

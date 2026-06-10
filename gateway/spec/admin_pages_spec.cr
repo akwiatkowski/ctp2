@@ -3,9 +3,9 @@ require "http/client"
 
 # Canned admin-query responses matching the real game_controller.cpp shapes.
 private PLAYERS_JSON = %({"status":"ok","cmd":"query_players","result":{"players":[) +
-                       %({"id":0,"name":"Barbarians","human":false,"dead":false,"gold":0,"num_cities":0,"score":0},) +
-                       %({"id":1,"name":"Caesar <Rome>","human":true,"dead":false,"gold":300,"num_cities":2,"score":25},) +
-                       %({"id":2,"name":"Gandhi","human":false,"dead":true,"gold":0,"num_cities":0,"score":3}]}})
+                       %({"id":0,"name":"Barbarians","civ":"","country":"","human":false,"dead":false,"gold":0,"num_cities":0,"score":0},) +
+                       %({"id":1,"name":"Caesar <Rome>","civ":"Roman","country":"Rome <Empire>","human":true,"dead":false,"gold":300,"num_cities":2,"score":25},) +
+                       %({"id":2,"name":"Gandhi","civ":"Indian","country":"India","human":false,"dead":true,"gold":0,"num_cities":0,"score":3}]}})
 
 private CITIES_JSON = %({"status":"ok","cmd":"query_player_cities","result":{"owner":1,"cities":[) +
                       %({"owner":1,"index":0,"name":"Rome <b>","pos":{"x":31,"y":10},"population":2,) +
@@ -132,6 +132,63 @@ describe "assets and fragments" do
       resp.status_code.should eq 200
       resp.body.should contain %(data-stat="players">3<)
       resp.body.should_not contain "<html" # fragment, not a full page
+    end
+  end
+end
+
+describe "debug surface" do
+  it "GET /debug shows state and the exchange journal" do
+    with_http do |base, _fake|
+      HTTP::Client.get("#{base}/api/players") # produce one exchange
+      resp = HTTP::Client.get("#{base}/debug")
+      resp.status_code.should eq 200
+      resp.body.should contain "query_players"          # journal row
+      resp.body.should contain %(class="badge badge--ok")
+      resp.body.should contain "/debug/boom"
+    end
+  end
+
+  it "GET /debug/boom renders a full HTML debug error (500)" do
+    with_http do |base, _fake|
+      resp = HTTP::Client.get("#{base}/debug/boom")
+      resp.status_code.should eq 500
+      resp.body.should contain "intentional test exception"
+      resp.body.should contain "Backtrace"
+      resp.body.should contain "Exception"
+    end
+  end
+
+  it "GET /api/debug/boom renders a JSON debug error with backtrace and exchanges" do
+    with_http do |base, _fake|
+      HTTP::Client.get("#{base}/api/players") # seed the journal
+      resp = HTTP::Client.get("#{base}/api/debug/boom")
+      resp.status_code.should eq 500
+      body = JSON.parse(resp.body)
+      body["gateway"].as_bool.should be_true
+      body["kind"].as_s.should eq "exception"
+      body["message"].as_s.should contain "intentional"
+      body["backtrace"].as_a.should_not be_empty
+      body["exchanges"].as_a.first["cmd"].as_s.should eq "query_players"
+    end
+  end
+
+  it "GET /api is a self-describing index" do
+    with_http do |base, _fake|
+      resp = HTTP::Client.get("#{base}/api")
+      resp.status_code.should eq 200
+      body = JSON.parse(resp.body)
+      body["service"].as_s.should eq "ctp2-gateway"
+      body["endpoints"].as_a.any? { |e| e["path"].as_s == "/api/players" }.should be_true
+      body["verbs"]["queries_admin"].as_a.map(&.as_s).should contain "query_players"
+      body["status_contract"]["503"].as_s.should contain "disconnected"
+    end
+  end
+
+  it "players page shows civilization from game data" do
+    with_http do |base, _fake|
+      resp = HTTP::Client.get("#{base}/players")
+      resp.body.should contain "civilization"
+      resp.body.should contain "Rome &lt;Empire&gt;" # escaped, straight from the game
     end
   end
 end

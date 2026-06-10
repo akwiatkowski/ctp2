@@ -95,3 +95,32 @@ describe Ctp2Gateway::GameClient do
     end
   end
 end
+
+describe "desync detection" do
+  it "drops the connection and reports details when a reply is for the wrong verb" do
+    canned = {"query_units" => %({"status":"ok","cmd":"query_cities","result":{}})}
+    with_client(canned) do |client, _fake|
+      result = client.command("query_units").should be_a(GC2::Err)
+      result.kind.protocol?.should be_true
+      result.detail.should contain "desync"
+      result.detail.should contain "query_cities" # what actually arrived
+      client.connected?.should be_false           # poisoned connection dropped
+      # Self-heals: next command reconnects to a clean stream.
+      client.command("query_map").should be_a(GC2::Ok)
+    end
+  end
+
+  it "keeps a journal of recent exchanges, newest first" do
+    with_client do |client, _fake|
+      client.command("query_cities")
+      client.command("nope\nbad") # rejected before the socket — still journaled? no: pre-validation skips the owner fiber
+      client.command("query_units")
+      log = client.recent_exchanges
+      log.size.should eq 2
+      log.first.cmd.should eq "query_units"
+      log.first.ok.should be_true
+      log.first.duration.should be > 0.seconds
+      log.last.cmd.should eq "query_cities"
+    end
+  end
+end

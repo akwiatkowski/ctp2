@@ -69,11 +69,29 @@ module Ctp2Gateway
       @http.close
     end
 
+    # Every handler runs under a catch-all that renders FULL diagnostics —
+    # this is a debug tool first: an error page must carry everything needed
+    # to fix the bug (exception, backtrace, request, recent game exchanges),
+    # never a bare 500.
     private def handle(ctx : HTTP::Server::Context) : Nil
+      route(ctx)
+    rescue ex
+      render_exception(ctx, ex)
+    end
+
+    private def route(ctx : HTTP::Server::Context) : Nil
       req = ctx.request
       case {req.method, req.path}
       when {"GET", "/"}
         dashboard(ctx)
+      when {"GET", "/debug"}
+        debug_page(ctx)
+      when {"GET", "/debug/boom"}, {"GET", "/api/debug/boom"}
+        # Intentional raiser: exercises the error rendering end-to-end
+        # (HTML and JSON variants) without needing a real bug.
+        raise "intentional test exception (#{req.path})"
+      when {"GET", "/api"}, {"GET", "/api/"}
+        api_index(ctx)
       when {"GET", "/fragments/dashboard"}
         # htmx polls this every 5s and swaps it into #ledger.
         ctx.response.content_type = "text/html; charset=utf-8"
@@ -147,6 +165,7 @@ module Ctp2Gateway
         alive_count: players.count { |p| !p["dead"].as_bool },
         city_count: players.sum { |p| p["num_cities"].as_i },
         leader_name: leader.try { |l| l["name"].as_s.presence },
+        leader_country: leader.try { |l| l["country"]?.try(&.as_s?).try(&.presence) },
         leader_score: leader.try(&.["score"].as_i) || 0,
       )
     end
@@ -209,6 +228,104 @@ module Ctp2Gateway
       ctx.response.status_code = status
       ctx.response.content_type = "text/html; charset=utf-8"
       ctx.response << Views.page(title, body, ctx.request.path)
+    end
+
+    # --- debug surface -----------------------------------------------------
+
+    private def debug_page(ctx) : Nil
+      spawn_line = @process.try do |p|
+        s = p.status_json
+        s[:running] ? "pid #{s[:pid]}, running" : "exited#{s[:exit_code] ? " (code #{s[:exit_code]})" : ""}"
+      end
+      body = Views::DebugPage.new(
+        socket: @client.socket_path,
+        connected: @client.connected?,
+        last_error: @client.last_error,
+        spawn_line: spawn_line,
+        exchanges: @client.recent_exchanges,
+      )
+      html(ctx, 200, "Debug", body)
+    end
+
+    # Exceptions render with everything a debugger wants: class, message,
+    # full backtrace, the request, connection state and the recent game
+    # exchanges. JSON for programmatic routes, HTML elsewhere.
+    private def render_exception(ctx, ex : Exception) : Nil
+      req_line = "#{ctx.request.method} #{ctx.request.resource}"
+      trace = ex.backtrace? || [] of String
+      STDERR.puts "[error] #{req_line}: #{ex.class}: #{ex.message}\n  #{trace.join("\n  ")}"
+
+      if ctx.request.path.starts_with?("/api") || ctx.request.path.starts_with?("/fragments")
+        ctx.response.status_code = 500
+        ctx.response.content_type = "application/json"
+        {
+          status:    "error",
+          gateway:   true,
+          kind:      "exception",
+          class:     ex.class.name,
+          message:   ex.message,
+          request:   req_line,
+          backtrace: trace,
+          connected: @client.connected?,
+          exchanges: @client.recent_exchanges.first(8).map do |e|
+            {at: e.at.to_rfc3339(fraction_digits: 3), cmd: e.cmd, ok: e.ok,
+             duration_ms: e.duration.total_milliseconds.round(1), detail: e.detail}
+          end,
+        }.to_json(ctx.response)
+      else
+        body = Views::DebugError.new(
+          klass: ex.class.name,
+          message: ex.message || "(no message)",
+          backtrace: trace,
+          request_line: req_line,
+          connected: @client.connected?,
+          socket: @client.socket_path,
+          exchanges: @client.recent_exchanges.first(8),
+        )
+        html(ctx, 500, "Error", body)
+      end
+    rescue render_ex
+      # Headers may already be flushed mid-render; salvage what we can.
+      ctx.response << "\ngateway error rendering failed: #{render_ex.message}\n" rescue nil
+    end
+
+    # GET /api — machine- and human-readable description of the whole
+    # surface, so `curl localhost:8666/api` is the documentation.
+    private def api_index(ctx) : Nil
+      ctx.response.content_type = "application/json"
+      {
+        service: "ctp2-gateway",
+        about:   "HTTP face over CTP2's Unix-socket test API. HTML pages: / (dashboard), /players, /players/<id>/cities, /debug.",
+        status_contract: {
+          "200" => "game replied — including the game's own {\"status\":\"error\"} answers",
+          "400" => "bad request (malformed body, multi-line command)",
+          "404" => "no such route/asset",
+          "429" => "request queue full (backpressure)",
+          "500" => "gateway exception — body carries class, backtrace, recent exchanges",
+          "502" => "game replied with non-JSON or a desynced reply",
+          "503" => "game socket disconnected",
+          "504" => "game did not reply within the timeout",
+        },
+        endpoints: [
+          {method: "GET", path: "/api", about: "this document"},
+          {method: "POST", path: "/api/cmd", body: %({"cmd":"<verb ...args>"}), about: "raw passthrough of any game verb"},
+          {method: "GET", path: "/api/players", maps_to: "query_players", about: "every player slot (omniscient): id, name, civ, country, human, dead, gold, num_cities, score"},
+          {method: "GET", path: "/api/players/<id>/cities", maps_to: "query_player_cities <id>", about: "ALL cities of one player (omniscient)"},
+          {method: "GET", path: "/api/cities", maps_to: "query_cities", about: "cities visible to the human player (fog-filtered)"},
+          {method: "GET", path: "/api/city/<idx>", maps_to: "query_city <idx>", about: "one of the human's cities + buildable units"},
+          {method: "GET", path: "/api/units", maps_to: "query_units", about: "units visible to the human player (fog-filtered)"},
+          {method: "GET", path: "/api/map", maps_to: "query_map", about: "explored tiles: terrain, visibility, city markers"},
+          {method: "GET", path: "/healthz", about: "gateway + socket + spawned-game state"},
+          {method: "GET", path: "/fragments/dashboard", about: "htmx fragment: dashboard status strip + stats"},
+          {method: "GET", path: "/api/debug/boom", about: "raises intentionally — exercises the JSON error rendering"},
+        ],
+        verbs: {
+          commands: ["build_city", "set_production <city_idx> <settler|cheapest_military|N>",
+                     "save_game <path>", "load_game <path>", "new_game", "start_game", "quit"],
+          queries_player_view: ["query_cities", "query_city <idx>", "query_units", "query_map"],
+          queries_admin: ["query_players", "query_player_cities <id>"],
+        },
+      }.to_pretty_json(ctx.response)
     end
 
     private def healthz(ctx) : Nil

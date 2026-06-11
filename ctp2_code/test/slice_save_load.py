@@ -47,7 +47,7 @@ def found_city(client):
     client.wait_until(attempt, timeout=60, desc="city founded")
 
 
-def run_slice(client):
+def run_slice(client, mode):
     client.expect_ok("new_game")
     client.expect_ok("start_game")
     client.wait_game_loaded()
@@ -85,6 +85,54 @@ def run_slice(client):
     )
     print(f"  set production -> unit type {target}; city now building {after}")
 
+    # set_production REPLACES the queue (campaign 7: a granary queued
+    # behind a 740-shield settler for 20 rounds). Setting a different
+    # target must take effect immediately, not append behind the first.
+    other = buildable[0]["type"]
+    if other != target:
+        client.expect_ok("set_production", 0, other)
+        after = client.result("query_city", 0)["building"]
+        assert after and after["type"] == other, (
+            f"set_production appended instead of replacing: building={after}, "
+            f"wanted type {other}"
+        )
+        print(f"  replace semantics ok: building switched to type {other}")
+
+    # The remaining checks drive end_turn, which the UI binary's legacy
+    # smoke verb does not take arguments for — and the clock bugs they
+    # guard live in headless serve mode (serveRound was headless-only).
+    if mode != "headless":
+        return
+
+    # Clock regression (the serveRound bug): end_turn AFTER load must
+    # CONTINUE the loaded clock, not restart or stomp it backwards.
+    round0 = client.result("query_turn")["round"]
+    client.expect_ok("end_turn", 3)
+    round1 = client.result("query_turn")["round"]
+    assert round1 == round0 + 3, (
+        f"clock broken after load: round {round0} + 3 turns -> {round1}"
+    )
+    print(f"  clock after load ok: round {round0} -> {round1}")
+
+    # Sequential reload over a RUNNING game (the AutoSave/Slic-name crash
+    # path): save the advanced state, reload the ORIGINAL save mid-game,
+    # run turns, then reload the newer save and run again. Each load must
+    # restore its own clock and survive the turns.
+    save2 = SAVE_PATH + ".later"
+    client.expect_ok("save_game", save2)
+    client.expect_ok("load_game", SAVE_PATH)
+    r = client.result("query_turn")["round"]
+    assert r == round0, f"first save's clock not restored: {r} != {round0}"
+    client.expect_ok("end_turn", 2)
+    client.expect_ok("load_game", save2)
+    r = client.result("query_turn")["round"]
+    assert r == round1, f"second save's clock not restored: {r} != {round1}"
+    client.expect_ok("end_turn", 2)
+    assert client.result("query_turn")["round"] == round1 + 2
+    cities = client.result("query_cities")["cities"]
+    assert cities and cities[0]["name"] == name, "city lost across reloads"
+    print(f"  sequential reloads ok: {round0} <-> {round1}, turns ran on both")
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
@@ -98,7 +146,7 @@ def main():
 
     try:
         with Ctp2Client(args.binary, args.mode, log_path=log) as client:
-            run_slice(client)
+            run_slice(client, args.mode)
     except (Ctp2Error, AssertionError) as e:
         print(f"[slice] FAIL ({args.mode}): {e}")
         print(f"[slice] see game log: {log}")

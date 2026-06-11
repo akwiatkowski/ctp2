@@ -161,6 +161,40 @@ def run(client):
     names = [c["name"] for c in cities]
     print(f"  EXPANSION COMPLETE: {names}")
 
+    # Army-order honesty (campaign 7 regressions): produce one military army
+    # and check the verbs that used to lie or were missing.
+    client.expect_ok("set_production", 0, "cheapest_military")
+    army = None
+    for _ in range(12):
+        client.expect_ok("end_turn", 3)
+        armies = [a for a in client.result("query_armies")["armies"]
+                  if not a["can_settle"]]
+        if armies:
+            army = armies[0]
+            break
+    assert army, "military army never appeared"
+    idx = army["index"]
+
+    # board with no transport anywhere must FAIL (it used to return blind ok
+    # while the unit stayed ashore) and must not consume the army.
+    r = client.command("board", idx)
+    assert r.get("status") == "error" and r.get("detail") == "no_transport_in_range", (
+        f"board without a transport must fail honestly: {r}"
+    )
+    assert any(a["index"] == idx for a in client.result("query_armies")["armies"]), (
+        "army vanished after refused board"
+    )
+    print("  board honesty ok: no_transport_in_range, army intact")
+
+    # fortify reports verified entrenchment state.
+    r = client.command("fortify", idx)
+    assert r.get("status") == "ok", f"fortify failed: {r}"
+    st = r["result"]
+    assert st.get("entrenched") or st.get("entrenching"), (
+        f"fortify ok but no entrenchment state: {st}"
+    )
+    print(f"  fortify ok: {st}")
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)

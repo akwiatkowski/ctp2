@@ -3968,3 +3968,42 @@ TEST_CASE("json round-trip: MessagePool keys are snake_case (no m_ leak)")
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
 }
+
+// ---------------------------------------------------------------------------
+// Null Slic names (campaign 7 / load-over-running-game crashes): a
+// SlicSegment can exist with a NULL name (m_id), and std::string(nullptr)
+// is UB that aborts under libc++ hardening. Every GetName() conversion in
+// json_save goes through safeName(); this pins the contract at the
+// serializer that crashed twice (SlicNamedSymbol, then SlicEyePoint via
+// AutoSave — both share the same switch).
+
+#include "gs/slic/SlicNamedSymbol.h"
+#include "gs/slic/SlicSegment.h"
+
+void to_json(nlohmann::json &j, SlicNamedSymbol const &s);  // json_save.cpp
+
+TEST_CASE("json_save: Slic symbol with a NULL segment name serialises as \"\"")
+{
+    SlicSegment segment;  // default ctor: GetName() == nullptr
+    REQUIRE(segment.GetName() == nullptr);
+
+    SlicNamedSymbol sym("runtime_symbol", SLIC_SYM_ID);
+    sym.SetSegment(&segment);
+
+    nlohmann::json j;
+    to_json(j, sym);
+
+    CHECK(j.at("segment_name").get<std::string>() == "");
+    CHECK(j.at("name").get<std::string>() == "runtime_symbol");
+}
+
+TEST_CASE("json_save: Slic symbol with no segment serialises as \"\"")
+{
+    SlicNamedSymbol sym("orphan_symbol", SLIC_SYM_UFUNC);
+    sym.SetSegment(nullptr);
+
+    nlohmann::json j;
+    to_json(j, sym);
+
+    CHECK(j.at("segment_name").get<std::string>() == "");
+}

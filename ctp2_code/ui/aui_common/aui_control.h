@@ -26,7 +26,7 @@
 //
 // - Event handlers declared in a notation that is more standard C++.
 // - Prevented crash in destructor after using the default constructor.
-// - Added a constom status bar text for orders. (13-Sep-2008 Martin Gühmann)
+// - Added a constom status bar text for orders. (13-Sep-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -40,7 +40,9 @@
 #include "ui/aui_common/aui_keyboard.h"
 #include "ui/aui_common/aui_joystick.h"
 
+#include <string>
 #include <utility>
+#include <vector>
 
 class aui_ImageList;
 class aui_Window;
@@ -111,12 +113,12 @@ protected:
 		m_stringTable       (nullptr),
 		m_allocatedTip      (false),
 		m_statusText        (nullptr),
-		m_statusTextCopy    (nullptr),
 		m_numberOfLayers    (0),
 		m_imagesPerLayer    (0),
 		m_imageLayerList    (nullptr),
-		m_layerRenderFlags  (nullptr),
 		m_renderFlags       (k_AUI_CONTROL_LAYER_FLAG_ALWAYS)
+		// m_statusTextCopy default constructed (empty)
+		// m_layerRenderFlags default constructed (empty)
 	{};
 
 	AUI_ERRCODE InitCommonLdl(
@@ -280,7 +282,7 @@ protected:
 private:
 
 	const MBCHAR *m_statusText;
-	MBCHAR *m_statusTextCopy;
+	std::string m_statusTextCopy;
 
 
 
@@ -442,7 +444,7 @@ private:
 
 	aui_ImageList *m_imageLayerList;
 
-	sint32 *m_layerRenderFlags;
+	std::vector<sint32> m_layerRenderFlags;
 
 	sint32 m_renderFlags;
 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= HTML.escape(@title) %> · The Chancellery</title>
+<link rel="preload" href="/assets/fonts/fraunces-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/spline-sans-mono-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/app.css">
+<script src="/assets/htmx.min.js" defer></script>
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead__inner">
+    <div class="masthead__title"><span class="ornament">✦</span><a href="/">The Chancellery</a></div>
+    <nav class="masthead__nav">
+      <a href="/"<%= @path == "/" ? %( aria-current="page") : "" %>>Dashboard</a>
+      <a href="/players"<%= @path.starts_with?("/players") ? %( aria-current="page") : "" %>>Players</a>
+      <a href="/map"<%= @path == "/map" ? %( aria-current="page") : "" %>>Map</a>
+      <a href="/tools"<%= @path == "/tools" ? %( aria-current="page") : "" %>>Tools</a>
+      <a href="/debug"<%= @path == "/debug" ? %( aria-current="page") : "" %>>Debug</a>
+      <a href="/healthz">Health</a>
+    </nav>
+  </div>
+</header>
+<main>
+<%= @content %>
+</main>
+<footer class="colophon">
+  <span><span class="ornament">✦</span> ctp2-gateway</span>
+  <span>a ledger of the living realm</span>
+  <span><a href="/api/players">api</a></span>
+</footer>
+</body>
+</html>

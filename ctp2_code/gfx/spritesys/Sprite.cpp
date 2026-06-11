@@ -62,9 +62,7 @@ Sprite::Sprite()
 
 	m_numFrames = 0;
 	m_frames = nullptr;
-	m_framesSizes = nullptr;
 	m_miniframes = nullptr;
-	m_miniframesSizes = nullptr;
 	m_currentFrame = 0;
 	m_firstFrame = 0;
 
@@ -97,18 +95,12 @@ Sprite::~Sprite()
 		delete [] m_frames;
 		m_frames = nullptr;
 	}
-	if (m_framesSizes != nullptr) {
-		delete [] m_framesSizes;
-		m_framesSizes = nullptr;
-	}
+	m_framesSizes.clear();
 	if (m_miniframes != nullptr) {
 		delete [] m_miniframes;
 		m_miniframes = nullptr;
 	}
-	if (m_miniframesSizes != nullptr) {
-		delete [] m_miniframesSizes;
-		m_miniframesSizes = nullptr;
-	}
+	m_miniframesSizes.clear();
 }
 
 
@@ -231,19 +223,13 @@ void Sprite::Import(size_t nframes, char **imageFiles, char **shadowFiles)
 		delete [] m_frames;
 	
 	m_frames = new Pixel16*[m_numFrames];
-	
-		delete [] m_framesSizes;
-	
-	m_framesSizes = new size_t[m_numFrames];
+	m_framesSizes.resize(m_numFrames);
 
 	
 		delete [] m_miniframes;
 	
 	m_miniframes = new Pixel16*[m_numFrames];
-	
-		delete [] m_miniframesSizes;
-	
-	m_miniframesSizes = new size_t[m_numFrames];
+	m_miniframesSizes.resize(m_numFrames);
 
 	Pixel32 *image;
 	Pixel32 *miniimage;
@@ -734,8 +720,8 @@ size_t Sprite::GetFrameDataSize(uint16 frameNum)
 	Assert(frameNum < m_numFrames);
 	if (frameNum >= m_numFrames) return 0;
 
-	Assert(m_framesSizes != nullptr);
-	if (m_framesSizes == nullptr) return 0;
+	Assert(!m_framesSizes.empty());
+	if (m_framesSizes.empty()) return 0;
 
 #ifdef _WINDOWS
 	Assert(m_framesSizes[frameNum] == _msize(GetFrameData(frameNum)));
@@ -762,8 +748,8 @@ size_t Sprite::GetMiniFrameDataSize(uint16 frameNum)
 	Assert(frameNum < m_numFrames);
 	if (frameNum >= m_numFrames) return NULL;
 
-	Assert(m_miniframesSizes != nullptr);
-	if (m_miniframesSizes == nullptr) return 0;
+	Assert(!m_miniframesSizes.empty());
+	if (m_miniframesSizes.empty()) return 0;
 
 #ifdef _WINDOWS
 	Assert(m_miniframesSizes[frameNum] == _msize(GetMiniFrameData(frameNum)));
@@ -785,8 +771,8 @@ void Sprite::SetFrameData(uint16 frameNum, Pixel16 *data, size_t size)
 
 	m_frames[frameNum] = data;
 
-	Assert(m_framesSizes != nullptr);
-	if (m_framesSizes == nullptr) return;
+	Assert(!m_framesSizes.empty());
+	if (m_framesSizes.empty()) return;
 #ifdef _WINDOWS
 //	Assert(size == _msize(data));
 #endif
@@ -807,8 +793,8 @@ void Sprite::SetMiniFrameData(uint16 frameNum, Pixel16 *data, size_t size)
 
 	m_miniframes[frameNum] = data;
 
-	Assert(m_miniframesSizes != nullptr);
-	if (m_miniframesSizes == nullptr) return;
+	Assert(!m_miniframesSizes.empty());
+	if (m_miniframesSizes.empty()) return;
 #ifdef _WINDOWS
 //	Assert(size == _msize(data));
 #endif
@@ -880,15 +866,15 @@ void Sprite::AllocateFrameArrays(size_t count)
         }
     }
     delete [] m_frames;          m_frames = nullptr;
-    delete [] m_framesSizes;     m_framesSizes = nullptr;
+    m_framesSizes.clear();
     delete [] m_miniframes;      m_miniframes = nullptr;
-    delete [] m_miniframesSizes; m_miniframesSizes = nullptr;
+    m_miniframesSizes.clear();
 
     m_numFrames     = static_cast<uint16>(count);
 	m_frames        = new Pixel16*[m_numFrames];
-	m_framesSizes   = new size_t[m_numFrames];
+	m_framesSizes.resize(m_numFrames);
 	m_miniframes    = new Pixel16*[m_numFrames];
-	m_miniframesSizes = new size_t[m_numFrames];
+	m_miniframesSizes.resize(m_numFrames);
     for (size_t i = 0; i < m_numFrames; ++i)
     {
         m_frames[i]          = nullptr;

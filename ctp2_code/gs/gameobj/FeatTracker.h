@@ -74,6 +74,7 @@ sint32 const	USE_CURRENT_ROUND			= -1;
 #include "ctp/ctp2_utils/pointerlist.h"		// PointerList
 #include "gs/gameobj/Unit.h"				// Unit
 
+#include <vector>
 #include <nlohmann/json.hpp>
 
 //----------------------------------------------------------------------------
@@ -144,8 +145,8 @@ class FeatTracker {
   private:
 	PointerList<Feat> *m_activeList;
 	PointerList<Feat> *m_effectList[FEAT_EFFECT_MAX];
-	bool *m_achieved;
-	bool *m_buildingFeat;
+	std::vector<uint8>		m_achieved;
+	std::vector<uint8>		m_buildingFeat;
 };
 
 // g_featTracker demoted to file-scope `static` in gameinit.cpp (where the

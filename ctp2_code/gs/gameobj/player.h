@@ -684,7 +684,12 @@ public:
 	// nearest map cell that this player has not yet explored.  Returns false
 	// if no such cell exists (map fully explored) or if no path through
 	// known terrain leads to one.  Used by ORDER_EXPLORE.
-	bool FindNearestUnexplored(const MapPoint &start, MapPoint &out) const;
+	// moveTypes = 0: pure vision BFS. Non-zero (an army's GetMovementType()):
+	// the search walks and returns only tiles that movement class can enter,
+	// so auto-explore never targets a tile the army would silently fail to
+	// step into (e.g. a settler aimed at an unexplored mountain).
+	bool FindNearestUnexplored(const MapPoint &start, MapPoint &out,
+	                           uint32 moveTypes = 0) const;
 	bool GetLastSeen(const MapPoint &pnt, UnseenCellCarton &ucell);
 	void BeginTurnEnemyUnits();
 

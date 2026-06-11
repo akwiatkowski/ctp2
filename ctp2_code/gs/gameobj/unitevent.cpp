@@ -36,6 +36,7 @@
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
+#include "gs/gameobj/MovePath.h"
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/core/game_observer.h"
@@ -139,10 +140,18 @@ STDEHANDLER(BeginTurnUnitEvent)
 		if (needRetarget) {
 			Player * owner = player_Get(u.GetOwner());
 			MapPoint target;
-			if (owner && owner->FindNearestUnexplored(cur, target)) {
+			uint32 const moveTypes =
+				army.IsValid() && army.AccessData() ? army.AccessData()->GetMovementType() : 0;
+			if (owner && owner->FindNearestUnexplored(cur, target, moveTypes)) {
 				ud->SetExploreTarget(target);
 				if (army.IsValid()) {
-					army.AddOrders(UNIT_ORDER_MOVE_TO, target);
+					if (!army_AddExplorePath(u.GetOwner(), army, cur, target)) {
+						// Neither the target nor its explored frontier is
+						// reachable; stop exploring so the unit doesn't burn
+						// CPU every turn re-pathing to the same blocked
+						// destination.
+						ud->SetExploring(false);
+					}
 				}
 			} else {
 				// Nothing left to explore from here.

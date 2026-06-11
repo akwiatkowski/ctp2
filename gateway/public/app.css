@@ -1,0 +1,681 @@
+/* ============================================================ */
+/*  THE CHANCELLERY — ctp2-gateway design system                */
+/*  An imperial map-room ledger for a living simulation.        */
+/*  Ink blue-black · parchment · aged gold · wax seals.         */
+/* ============================================================ */
+
+/* ---- type ---------------------------------------------------- */
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("/assets/fonts/fraunces-normal.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("/assets/fonts/fraunces-italic.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Spline Sans Mono";
+  src: url("/assets/fonts/spline-sans-mono-normal.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Spline Sans Mono";
+  src: url("/assets/fonts/spline-sans-mono-italic.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---- tokens -------------------------------------------------- */
+
+:root {
+  color-scheme: dark;
+
+  /* ink — the night the empire is drawn on */
+  --ink-0: #0a0d15;
+  --ink-1: #0f131e;
+  --ink-2: #151b2a;
+  --ink-3: #1c2335;
+
+  /* parchment — what is written */
+  --parchment: #e9ddc2;
+  --parchment-dim: #a99d82;
+  --parchment-faint: #6e6553;
+
+  /* metals & pigments */
+  --gold: #c9a24b;
+  --gold-bright: #ecd28b;
+  --gold-line: rgba(201, 162, 75, 0.32);
+  --gold-faint: rgba(201, 162, 75, 0.12);
+  --verdigris: #58b08c;        /* oxidized bronze — alive, connected */
+  --verdigris-dim: rgba(88, 176, 140, 0.16);
+  --seal: #cf4f3e;             /* wax — dead, disconnected */
+  --seal-dim: rgba(207, 79, 62, 0.16);
+
+  --line: #232b40;
+
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-data: "Spline Sans Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --pad: 1.1rem;
+  --radius: 3px;
+}
+
+/* ---- base ---------------------------------------------------- */
+
+* { box-sizing: border-box; }
+
+html { font-size: 16px; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-data);
+  font-weight: 380;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--parchment);
+  background-color: var(--ink-0);
+  /* layered atmosphere: vignette glow, graticule, deep ink */
+  background-image:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(201, 162, 75, 0.07), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 110%, rgba(88, 176, 140, 0.04), transparent 60%),
+    repeating-linear-gradient(0deg, transparent 0 47px, rgba(201, 162, 75, 0.025) 47px 48px),
+    repeating-linear-gradient(90deg, transparent 0 47px, rgba(201, 162, 75, 0.025) 47px 48px);
+  background-attachment: fixed;
+}
+
+/* engraving grain over everything, beneath the content */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-bright); text-decoration: underline; text-underline-offset: 3px; }
+
+code, .mono { font-family: var(--font-data); }
+code {
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.1rem 0.4rem;
+  font-size: 0.85em;
+  color: var(--gold-bright);
+}
+
+::selection { background: var(--gold); color: var(--ink-0); }
+
+/* ---- masthead ------------------------------------------------ */
+
+.masthead {
+  border-bottom: 1px solid var(--gold-line);
+  background: linear-gradient(180deg, var(--ink-1), rgba(15, 19, 30, 0.6));
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.masthead__inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0.7rem 1.5rem;
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
+
+.masthead__title {
+  font-family: var(--font-display);
+  font-size: 1.18rem;
+  font-weight: 560;
+  font-variation-settings: "opsz" 40;
+  letter-spacing: 0.02em;
+  color: var(--parchment);
+  white-space: nowrap;
+}
+.masthead__title a { color: inherit; }
+.masthead__title a:hover { text-decoration: none; color: var(--gold-bright); }
+.masthead__title .ornament { color: var(--gold); margin-right: 0.45rem; }
+
+.masthead__nav {
+  display: flex;
+  gap: 1.4rem;
+  margin-left: auto;
+}
+.masthead__nav a {
+  font-size: 0.7rem;
+  font-weight: 480;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--parchment-dim);
+  padding: 0.2rem 0;
+  border-bottom: 1px solid transparent;
+}
+.masthead__nav a:hover,
+.masthead__nav a[aria-current="page"] {
+  color: var(--gold-bright);
+  border-bottom-color: var(--gold);
+  text-decoration: none;
+}
+
+/* ---- page scaffold ------------------------------------------- */
+
+main {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2.2rem 1.5rem 4rem;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-weight: 420;
+  font-variation-settings: "opsz" 90;
+  font-size: clamp(1.9rem, 4vw, 2.7rem);
+  line-height: 1.1;
+  margin: 0 0 0.3rem;
+  letter-spacing: 0.005em;
+}
+.page-title em {
+  font-style: italic;
+  color: var(--gold-bright);
+}
+
+.page-sub {
+  color: var(--parchment-dim);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  margin: 0 0 2rem;
+}
+
+.crumb {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--parchment-dim);
+  margin-bottom: 1.6rem;
+}
+
+/* ornamental rule: ——— ✦ ——— */
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 2.2rem 0;
+  color: var(--gold);
+  font-size: 0.7rem;
+}
+.rule::before, .rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-line), transparent);
+}
+
+/* ---- ledger cards -------------------------------------------- */
+
+.card {
+  position: relative;
+  background: linear-gradient(180deg, var(--ink-1), var(--ink-0));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--pad) 1.3rem;
+  margin: 0.9rem 0;
+}
+/* engraved inner frame */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--gold-faint);
+  border-radius: 1px;
+  pointer-events: none;
+}
+.card--alert { border-color: rgba(207, 79, 62, 0.45); }
+.card--alert::before { border-color: var(--seal-dim); }
+
+.card .muted { color: var(--parchment-dim); }
+
+/* stat grid — the ledger figures */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: 0.9rem;
+  margin: 0.9rem 0;
+}
+
+.stat {
+  position: relative;
+  background: linear-gradient(180deg, var(--ink-2), var(--ink-1));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem 0.9rem;
+  overflow: hidden;
+}
+.stat::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--gold-faint);
+  pointer-events: none;
+}
+.stat__label {
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.35rem;
+}
+.stat__value {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 110;
+  font-weight: 460;
+  font-size: 2.3rem;
+  line-height: 1;
+  color: var(--parchment);
+  font-feature-settings: "tnum";
+}
+.stat__value--name {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  font-style: italic;
+  color: var(--gold-bright);
+  padding-top: 0.4rem;
+}
+.stat__hint {
+  margin-top: 0.4rem;
+  font-size: 0.68rem;
+  color: var(--parchment-faint);
+  letter-spacing: 0.04em;
+}
+
+/* ---- seals & badges ------------------------------------------ */
+
+.seal {
+  display: inline-block;
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 50%;
+  margin-right: 0.45rem;
+  vertical-align: baseline;
+  transform: translateY(1px);
+}
+.seal--ok {
+  background: var(--verdigris);
+  box-shadow: 0 0 0 3px var(--verdigris-dim), 0 0 10px rgba(88, 176, 140, 0.5);
+  animation: seal-breathe 3s ease-in-out infinite;
+}
+.seal--bad {
+  background: var(--seal);
+  box-shadow: 0 0 0 3px var(--seal-dim), 0 0 10px rgba(207, 79, 62, 0.5);
+}
+@keyframes seal-breathe {
+  50% { box-shadow: 0 0 0 5px rgba(88, 176, 140, 0.08), 0 0 14px rgba(88, 176, 140, 0.6); }
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.14rem 0.5rem 0.1rem;
+  border-radius: 2px;
+  border: 1px solid var(--line);
+  color: var(--parchment-dim);
+  background: var(--ink-2);
+}
+.badge--ok    { color: var(--verdigris); border-color: rgba(88, 176, 140, 0.4); background: var(--verdigris-dim); }
+.badge--bad   { color: #e88a7d; border-color: rgba(207, 79, 62, 0.4); background: var(--seal-dim); }
+.badge--gold  { color: var(--gold-bright); border-color: var(--gold-line); background: var(--gold-faint); }
+
+.glyph { color: var(--gold); }
+.glyph--dim { color: var(--parchment-faint); }
+
+/* ---- ledger tables ------------------------------------------- */
+
+.ledger {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.2rem 0;
+  font-size: 0.86rem;
+  font-feature-settings: "tnum";
+}
+.ledger th {
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-align: left;
+  padding: 0.5rem 0.9rem;
+  border-bottom: 1px solid var(--gold-line);
+  white-space: nowrap;
+}
+.ledger td {
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: baseline;
+}
+.ledger tr:hover td { background: var(--gold-faint); }
+.ledger td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.ledger th.num { text-align: right; }
+.ledger .row-link { white-space: nowrap; }
+
+/* ---- the charted world --------------------------------------- */
+
+.chart {
+  margin: 0;
+  font-family: var(--font-data);
+  font-size: 0.78rem;
+  line-height: 1.25;
+  letter-spacing: 0.18em;   /* square-ish cells */
+  color: var(--parchment);
+  overflow-x: auto;
+}
+
+/* ---- tool catalog -------------------------------------------- */
+
+.tool__head { display: flex; align-items: baseline; gap: 0.8rem; }
+.tool__name { font-size: 0.95rem; color: var(--gold-bright); background: var(--ink-0); }
+.tool__desc { margin: 0.5rem 0 0.2rem; font-size: 0.84rem; line-height: 1.6; color: var(--parchment-dim); max-width: 56rem; }
+
+/* ---- debug surfaces ------------------------------------------ */
+
+.kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1.4rem;
+  margin: 0.3rem 0 0;
+}
+.kv dt {
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  align-self: baseline;
+}
+.kv dd { margin: 0; font-size: 0.82rem; }
+
+.trace {
+  margin: 0.6rem 0 0;
+  padding: 0.8rem 1rem;
+  background: var(--ink-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 0.74rem;
+  line-height: 1.6;
+  color: var(--parchment-dim);
+  overflow-x: auto;
+  max-height: 24rem;
+  overflow-y: auto;
+}
+.trace::first-line { color: var(--parchment); }
+
+.snippet {
+  max-width: 28rem;
+  overflow-wrap: anywhere;
+  font-size: 0.72rem;
+}
+
+/* ---- status strip -------------------------------------------- */
+
+.statusline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem 1.6rem;
+  font-size: 0.78rem;
+  color: var(--parchment-dim);
+}
+.statusline strong { color: var(--parchment); font-weight: 500; }
+
+/* ---- reveal choreography ------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: rise 0.55s cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
+  }
+  .reveal:nth-child(1) { animation-delay: 0.03s; }
+  .reveal:nth-child(2) { animation-delay: 0.1s; }
+  .reveal:nth-child(3) { animation-delay: 0.17s; }
+  .reveal:nth-child(4) { animation-delay: 0.24s; }
+  .reveal:nth-child(5) { animation-delay: 0.31s; }
+  .reveal:nth-child(6) { animation-delay: 0.38s; }
+  @keyframes rise {
+    to { opacity: 1; transform: none; }
+  }
+
+  /* htmx settle: freshly swapped ledger glints gold for a beat */
+  .htmx-settling .stat__value { color: var(--gold-bright); transition: none; }
+  .stat__value { transition: color 1.2s ease; }
+}
+
+/* ---- footer --------------------------------------------------- */
+
+.colophon {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.2rem 1.5rem 2rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--parchment-faint);
+}
+.colophon .ornament { color: var(--gold); }
+
+/* ---- the illuminated chart (/map) ---------------------------- */
+/* A cartographer's plate: inked tiles on dark vellum. Watched     */
+/* land is luminous; remembered land is the faded old survey;      */
+/* fog is unmarked vellum. Cities are wax seals, armies gold pins. */
+
+.atlas { --tile: 20px; }
+
+.atlas__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.atlas__hint {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--parchment-faint);
+  font-style: italic;
+}
+
+.atlas__scroll {
+  overflow: auto;
+  max-height: 72vh;
+  border: 1px solid var(--gold-line);
+  outline: 1px solid rgba(0, 0, 0, 0.6);
+  outline-offset: -4px;            /* engraved double rule */
+  background: var(--ink-0);
+  padding: 6px;
+}
+.atlas__grid {
+  display: grid;
+  gap: 1px;
+  width: max-content;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(201, 162, 75, 0.04), transparent 60%),
+    var(--ink-0);
+}
+
+.tl {
+  width: var(--tile);
+  height: var(--tile);
+  position: relative;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  border-radius: 1px;
+}
+
+/* ruler ticks */
+.tl--ruler {
+  background: transparent;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.6rem;
+  color: var(--parchment-faint);
+}
+.tl--ruler-y { width: 2.4rem; justify-self: end; padding-right: 4px; }
+
+/* terrain pigments — muted mineral inks on dark vellum */
+.t-deep     { background: #122230; }
+.t-shallow  { background: #1c3a50; }
+.t-kelp     { background: #1c4540; }
+.t-grass    { background: #4c5c2e; }
+.t-plains   { background: #6f653a; }
+.t-forest   { background: #2b482c; }
+.t-jungle   { background: #235040; }
+.t-swamp    { background: #3a4a3c; }
+.t-desert   { background: #8a6f42; }
+.t-tundra   { background: #585f54; }
+.t-glacier  { background: #9caeb4; }
+.t-hill     { background: #6a5c3a; }
+.t-mountain { background: #757067; }
+.t-unknown  { background: #3a3f4a; }
+
+/* the old survey: explored but not currently watched */
+.tl--dim { filter: brightness(0.52) saturate(0.55); }
+
+/* unexplored vellum */
+.tl--fog {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(233, 221, 194, 0.025) 0%, transparent 70%),
+    var(--ink-1);
+}
+
+/* hover: the surveyor's loupe */
+.atlas__grid .tl:not(.tl--ruler):not(.tl--fog):hover {
+  filter: brightness(1.35);
+  outline: 1px solid var(--gold-bright);
+  outline-offset: 0;
+  z-index: 2;
+  cursor: crosshair;
+}
+
+/* pins & seals */
+.pin {
+  font-weight: 600;
+  font-size: calc(var(--tile) * 0.62);
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+.pin--city,
+.pin--enemy {
+  font-family: "Fraunces", serif;
+  width: calc(var(--tile) * 0.92);
+  height: calc(var(--tile) * 0.92);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: calc(var(--tile) * 0.55);
+}
+.pin--city {
+  background: var(--gold);
+  color: var(--ink-0);
+  box-shadow: 0 0 0 1px var(--ink-0), 0 0 6px rgba(236, 210, 139, 0.5);
+}
+.pin--enemy {
+  background: var(--seal, #a83232);
+  color: var(--parchment);
+  box-shadow: 0 0 0 1px var(--ink-0);
+}
+.pin--army { color: var(--gold-bright); }
+.pin--foe  { color: #e06a5a; font-size: calc(var(--tile) * 0.5); }
+
+/* settle-advisor survey rings */
+.tl--spot { outline: 2px dashed var(--gold); outline-offset: -2px; z-index: 1; }
+.tl--spot::after {
+  content: attr(data-rank);
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold-bright);
+  color: var(--ink-0);
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 9px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  z-index: 3;
+}
+
+/* marginalia card (tooltip) */
+.atlas__tip {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  background: var(--ink-2);
+  border: 1px solid var(--gold-line);
+  border-top: 2px solid var(--gold);
+  padding: 0.5rem 0.7rem;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.74rem;
+  color: var(--parchment);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  max-width: 240px;
+}
+.atlas__tip .tip__pos { color: var(--gold-bright); }
+.atlas__tip .tip__city { color: var(--gold); }
+.atlas__tip .tip__unit { color: var(--verdigris); }
+.atlas__tip div { margin: 1px 0; }
+
+/* city roll & legend */
+.atlas__cities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--gold-faint);
+  font-size: 0.82rem;
+}
+.atlas__cityname { display: inline-flex; align-items: center; gap: 0.4rem; }
+.atlas__cityname .pin { width: 16px; height: 16px; font-size: 10px; }
+
+.atlas__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--gold-faint);
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--parchment-dim);
+}
+.atlas__key { display: inline-flex; align-items: center; gap: 0.4rem; }
+.atlas__key .tl { width: 13px; height: 13px; }
+.atlas__key .pin { font-size: 12px; }
+.atlas__key .tl--spot::after { display: none; }
+
+.atlas__plain summary { cursor: pointer; }
+.atlas__plain pre.chart { margin-top: 0.8rem; }

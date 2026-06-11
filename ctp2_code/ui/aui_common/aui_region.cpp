@@ -95,7 +95,7 @@ aui_Region::aui_Region
     m_doubleClickingInside      (true),
     m_doubleClickTimeOut        (0),
     // POINT		m_doubleClickOldPos;
-    m_ldlBlock                  (nullptr),
+    // m_ldlBlock default constructed (empty)
     // POINT		m_editGrabPoint;
     m_editGrabPointAttributes   (0),
     m_showCallback              (nullptr),
@@ -146,7 +146,7 @@ aui_Region::aui_Region
     m_doubleClickingInside      (true),
     m_doubleClickTimeOut        (0),
     // POINT		m_doubleClickOldPos;
-    m_ldlBlock                  (nullptr),
+    // m_ldlBlock default constructed (empty)
     // POINT		m_editGrabPoint;
     m_editGrabPointAttributes   (0),
     m_showCallback              (nullptr),
@@ -317,7 +317,7 @@ aui_Region::~aui_Region()
 
 	delete m_dim;
 	delete m_childList;
-	delete [] m_ldlBlock;
+	// m_ldlBlock is std::string, auto-freed
 }
 
 void aui_Region::DeleteChildren()
@@ -1473,18 +1473,15 @@ AUI_ERRCODE aui_Region::DoneInstantiatingThis(const MBCHAR *ldlBlock)
 
 const MBCHAR *aui_Region::GetLdlBlock()
 {
-	return m_ldlBlock;
+	return m_ldlBlock.c_str();
 }
 
 void aui_Region::SetLdlBlock(const MBCHAR *ldlblock)
 {
-	if(m_ldlBlock) {
-		delete [] m_ldlBlock;
-		m_ldlBlock = nullptr;
-	}
-	if(!ldlblock)
+	if(!ldlblock) {
+		m_ldlBlock.clear();
 		return;
+	}
 
-	m_ldlBlock = new MBCHAR[strlen(ldlblock) + 1];
-	strcpy(m_ldlBlock, ldlblock);
+	m_ldlBlock = ldlblock;
 }

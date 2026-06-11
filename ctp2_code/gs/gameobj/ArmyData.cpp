@@ -6216,7 +6216,7 @@ bool ArmyData::ExecuteOrders(bool propagate)
 		}
 	}
 
-	DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx Executing order %s @ (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name, m_pos.x, m_pos.y, player_Get(m_owner)->m_current_round));
+	DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx Executing order %s @ (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name.c_str(), m_pos.x, m_pos.y, player_Get(m_owner)->m_current_round));
 
 	while(keepGoing && m_nElements > 0 &&
 		  (order = m_orders->GetHead()) != nullptr) {
@@ -7346,19 +7346,19 @@ void ArmyData::UpdateZOCForMove(const MapPoint &pos, WORLD_DIRECTION d)
 			case NORTHWEST:  dirs = S_F | SE_F | E_F; break;
 		}
 
-	    DynamicArray<MapPoint> points;
+	    std::vector<MapPoint> points;
 		for(dd = 0; dd < (sint32)NOWHERE; dd++) {
 			if(dirs & (1 << dd)) {
 				if(m_pos.GetNeighborPosition((WORLD_DIRECTION)dd, chk)) {
 					world_Get()->RemoveZOC(chk, m_owner);
-					points.Insert(chk);
+					points.push_back(chk);
 				}
 			}
 		}
 
 
 		sint32 mp;
-		for(mp = points.Num() - 1; mp >= 0; mp--) {
+		for(mp = static_cast<sint32>(points.size()) - 1; mp >= 0; mp--) {
 			world_Get()->AddOtherArmyZOC(points[mp], m_owner, me, Unit());
 		}
 	}
@@ -7434,7 +7434,7 @@ bool ArmyData::MoveIntoCell(const MapPoint &pos, UNIT_ORDER_TYPE order, WORLD_DI
 
 	if(!CanMoveIntoCell(pos, zocViolation, ignoreZoc, alliedCity))
 	{
-		DPRINTF(k_DBG_GAMESTATE, ("Move Failure: Army 0x%lx Executing order %s @ (%d,%d) to (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name, m_pos.x, m_pos.y, pos.x, pos.y, player_Get(m_owner)->m_current_round));
+		DPRINTF(k_DBG_GAMESTATE, ("Move Failure: Army 0x%lx Executing order %s @ (%d,%d) to (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name.c_str(), m_pos.x, m_pos.y, pos.x, pos.y, player_Get(m_owner)->m_current_round));
 
 		if(zocViolation)
 		{

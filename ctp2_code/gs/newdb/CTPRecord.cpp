@@ -248,10 +248,7 @@ void CTPRecord::SetTextName(const char *text)
 	if (text)
     {
 	    m_name      = INDEX_INVALID;
-        delete [] m_textName;
-	    // TODO(phase-2): class-member assignment — migrate in wave 3
-	    m_textName  = new char[strlen(text) + 1];
-	    strcpy(m_textName, text);
+	    m_textName  = text;
     }
 }
 
@@ -263,5 +260,5 @@ const char *CTPRecord::GetIDText() const
 
 const char *CTPRecord::GetNameText() const
 {
-    return (m_textName) ? m_textName : stringdb_Get()->GetNameStr(m_name);
+    return (!m_textName.empty()) ? m_textName.c_str() : stringdb_Get()->GetNameStr(m_name);
 }

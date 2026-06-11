@@ -7,6 +7,7 @@
 
 #include "ctp/c3.h"
 #include "doctest.h"
+#include <fstream>
 #include "gs/core/game.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/world/World.h"
@@ -179,6 +180,53 @@ TEST_CASE("Ctp2::Game adopts a pre-existing Player[] array and releases it on cl
     // After cleanup, the legacy pointer is nulled and the array storage
     // has been freed (Game owned the array).
     CHECK(player_arr_Get() == nullptr);
+}
+
+TEST_CASE("Ctp2::Game::Cleanup destroys Players before the pools they reference") {
+    // Regression for a shutdown SEGV: Player::~Player at Player.cpp:623
+    // calls `civilisationpool_Get()->IsValid(*m_civilisation)`.  The
+    // trampoline returns nullptr once `m_civilisationPool.reset()` has
+    // run on the owning Game.  Cleanup must therefore destroy the
+    // player array BEFORE resetting any pool a Player dtor reaches for.
+    //
+    // Functional reproduction would require constructing a real Player
+    // (which needs the full DB stack), so this is a structural test:
+    // scan Game::Cleanup and verify the line that frees m_playerArr
+    // appears before m_civilisationPool.reset() (and before the other
+    // pools Player::~Player can transitively touch through its
+    // unit/army/message/installation lists).
+
+    std::ifstream src("../ctp2_code/gs/core/game.cpp");
+    if (!src.is_open())  // fall back when CWD is the source root
+        src.open("ctp2_code/gs/core/game.cpp");
+    REQUIRE(src.is_open());
+
+    std::string body((std::istreambuf_iterator<char>(src)),
+                     std::istreambuf_iterator<char>());
+
+    // Anchor inside Game::Cleanup so we don't match unrelated mentions.
+    size_t const cleanup_start = body.find("void Game::Cleanup()");
+    REQUIRE(cleanup_start != std::string::npos);
+    size_t const cleanup_end = body.find("\n}", cleanup_start);
+    REQUIRE(cleanup_end != std::string::npos);
+    std::string cleanup = body.substr(cleanup_start, cleanup_end - cleanup_start);
+
+    size_t const players_pos          = cleanup.find("delete m_playerArr[i]");
+    size_t const civpool_reset_pos    = cleanup.find("m_civilisationPool.reset()");
+    size_t const unitpool_reset_pos   = cleanup.find("m_unitPool.reset()");
+    size_t const armypool_reset_pos   = cleanup.find("m_armyPool.reset()");
+    size_t const msgpool_reset_pos    = cleanup.find("m_messagePool.reset()");
+
+    REQUIRE(players_pos       != std::string::npos);
+    REQUIRE(civpool_reset_pos != std::string::npos);
+    REQUIRE(unitpool_reset_pos != std::string::npos);
+    REQUIRE(armypool_reset_pos != std::string::npos);
+    REQUIRE(msgpool_reset_pos  != std::string::npos);
+
+    CHECK(players_pos < civpool_reset_pos);
+    CHECK(players_pos < unitpool_reset_pos);
+    CHECK(players_pos < armypool_reset_pos);
+    CHECK(players_pos < msgpool_reset_pos);
 }
 
 TEST_CASE("Ctp2::Game owns subsystems independently across instances") {

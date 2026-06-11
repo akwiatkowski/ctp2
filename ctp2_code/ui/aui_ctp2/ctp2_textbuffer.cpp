@@ -46,12 +46,7 @@ ctp2_TextBuffer::ctp2_TextBuffer(aui_Surface *destSurface, RECT *destRect, sint3
 	if (m_maxRows < m_numDisplayedRows)
 		m_maxRows = m_numDisplayedRows;
 
-	m_rowData = new MBCHAR *[m_maxRows];
-
-	for (sint32 i=0; i<m_maxRows; i++) {
-		m_rowData[i] = new MBCHAR [m_numDisplayedColumns];
-		memset(m_rowData[i], 0, m_numDisplayedColumns);
-	}
+	m_rowData.resize(m_maxRows);
 
 	m_surface = destSurface;
 
@@ -62,20 +57,12 @@ ctp2_TextBuffer::~ctp2_TextBuffer()
 {
 	if (c3ui_Get() && m_font)
 		c3ui_Get()->UnloadBitmapFont(m_font);
-
-	if (m_rowData) {
-		for (sint32 i=0; i<m_maxRows; i++) {
-			delete[] m_rowData[i];
-		}
-
-		delete[] m_rowData;
-	}
 }
 
 void ctp2_TextBuffer::DrawLine(sint32 lineNum, COLOR color)
 {
 	aui_BitmapFont::GlyphInfo		*gi;
-	MBCHAR							*s;
+	const MBCHAR						*s;
 	MBCHAR							ch;
 	RECT							destRect;
 	COLORREF						colorRef = colorset_Get()->GetColorRef(color);
@@ -89,7 +76,7 @@ void ctp2_TextBuffer::DrawLine(sint32 lineNum, COLOR color)
 	destRect.left = m_rect.left;
 	destRect.right = m_rect.left + m_charWidth;
 
-	s = m_rowData[lineNum];
+	s = m_rowData[lineNum].c_str();
 	col = 0;
 
 	while (*s != '\0') {
@@ -213,28 +200,22 @@ void ctp2_TextBuffer::Scroll(sint32 numLines)
 
 void ctp2_TextBuffer::AddLine(MBCHAR *text, sint32 len, COLOR color)
 {
-
-	MBCHAR *lastLine = m_rowData[m_maxRows-1];
-	memset(lastLine, 0, m_numDisplayedColumns);
-
-	for (sint32 i=m_maxRows-1; i>0; i--) {
-		m_rowData[i] = m_rowData[i-1];
+	// Rotate: shift all lines down, reuse last line as new first line
+	std::string lastLine = std::move(m_rowData.back());
+	for (sint32 i = m_maxRows - 1; i > 0; i--) {
+		m_rowData[i] = std::move(m_rowData[i - 1]);
 	}
+	m_rowData[0] = std::move(lastLine);
+	m_rowData[0].clear();
 
-	m_rowData[0] = lastLine;
-
-	if (m_numLines >= m_maxRows) {
-
-	} else {
-
+	if (m_numLines < m_maxRows) {
 		m_numLines++;
 	}
 
 	if (len >= m_numDisplayedColumns)
 		len = m_numDisplayedColumns - 1;
 
-	memcpy(m_rowData[0], text, len);
-	m_rowData[0][len] = '\0';
+	m_rowData[0].assign(text, len);
 
 	if (m_topLine != (m_numDisplayedRows - 1)) {
 		Redraw();

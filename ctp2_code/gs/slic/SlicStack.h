@@ -1,6 +1,8 @@
 #ifndef __SLICSTACK_H__
 #define __SLICSTACK_H__
 
+#include <vector>
+
 enum SS_TYPE {
 	SS_TYPE_INT,
 	SS_TYPE_VAR,
@@ -23,7 +25,7 @@ typedef union {
 class SlicStack {
 private:
 	sint32 m_sptr;
-	uint8 *m_stack;
+	std::vector<uint8> m_stack;
 	uint32 m_stackSize;
 
 public:

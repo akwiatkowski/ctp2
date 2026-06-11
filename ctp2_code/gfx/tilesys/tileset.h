@@ -28,9 +28,9 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added new map icon database. (3-Mar-2007 Martin Gühmann)
+// - Added new map icon database. (3-Mar-2007 Martin Gï¿½hmann)
 // - Increased the number of possible tile improvement graphics in the
-//   tile to 1024. (28-Feb-2008 Martin Gühmann)
+//   tile to 1024. (28-Feb-2008 Martin Gï¿½hmann)
 // - Added show city production icons. (25-Jun-2009 Maq)
 //
 //----------------------------------------------------------------------------
@@ -40,6 +40,8 @@
 #endif
 #ifndef __TILESET_H__
 #define __TILESET_H__
+
+#include <vector>
 
 class TileSet;
 
@@ -362,7 +364,7 @@ public:
 	MegaTileStep	GetMegaTileStep(sint32 megaTileNum, sint32 stepNum) const { return m_megaTileData[megaTileNum][stepNum]; }
 
 	Pixel16			*GetMapIconData(sint32 icon) { return m_mapIcons[icon]; }
-	POINT			GetMapIconDimensions(MAPICON icon) { return m_mapIconDimensions[icon]; }
+	POINT			GetMapIconDimensions(MAPICON icon) { return m_mapIconDimensions.at(icon); }
 
 	uint8			ReverseDirection(sint32 dir);
 
@@ -399,7 +401,7 @@ private:
 	MegaTileStep	m_megaTileData[k_MAX_MEGATILES][k_MAX_MEGATILE_STEPS];
 
 	Pixel16			**m_mapIcons;
-	POINT			*m_mapIconDimensions;
+	std::vector<POINT> m_mapIconDimensions;
 
 	BOOL			m_quick;
 	BOOL			m_mapped;

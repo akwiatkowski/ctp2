@@ -66,29 +66,23 @@ SlicNamedSymbol::SlicNamedSymbol(const char *name, SlicStructDescription *struct
 	Init(name);
 }
 
-SlicNamedSymbol::~SlicNamedSymbol()
-{
-	delete [] m_name;
-}
-
 void SlicNamedSymbol::Init(const char *name)
 {
     if (name)
     {
-	    m_name = new char[strlen(name) + 1];
-	    strcpy(m_name, name);
+	    m_name = name;
     }
     else
     {
-        m_name = nullptr;
+        m_name.clear();
     }
-
+	m_index = -1;
 	m_fromFile = k_GENERATED_BY_EXECUTABLE;
 }
 
 const char *SlicNamedSymbol::GetName() const
 {
-	return m_name;
+	return m_name.c_str();
 }
 
 SlicParameterSymbol::SlicParameterSymbol(const char *name, sint32 index) :

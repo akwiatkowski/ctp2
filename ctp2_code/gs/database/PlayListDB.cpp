@@ -50,14 +50,9 @@ TokenData g_playlist_token_data [TOKEN_PLAYLIST_MAX - TOKEN_MAX] = {
 PlayListDB::PlayListDB()
 {
 	m_numSongs = 0;
-	m_playList = nullptr;
 }
 
-PlayListDB::~PlayListDB()
-{
-	
-		delete [] m_playList;
-}
+PlayListDB::~PlayListDB() = default;
 
 BOOL PlayListDB::Parse(MBCHAR *filename)
 {
@@ -82,7 +77,7 @@ BOOL PlayListDB::Parse(MBCHAR *filename)
 	fprintf(stderr, "[PLDB] Parse: numSongs=%d\n", val);
 
 	m_numSongs = val;
-	m_playList = new sint32[m_numSongs];
+	m_playList = std::make_unique<sint32[]>(m_numSongs);
 
 	fprintf(stderr, "[PLDB] Parse: getting SONG_LIST\n");
 	sint32 songListToken = playListToken->Next();

@@ -1,6 +1,9 @@
 #ifndef __CTP2_TEXTBUFFER__
 #define __CTP2_TEXTBUFFER__
 
+#include <string>
+#include <vector>
+
 #include "ui/aui_common/aui_bitmapfont.h"
 #include "ui/aui_common/aui_surface.h"
 #include "gfx/gfx_utils/pixelutils.h"
@@ -39,7 +42,7 @@ private:
 
 	sint32			m_curLine;
 	sint32			m_numLines;
-	MBCHAR			**m_rowData;
+	std::vector<std::string>			m_rowData;
 };
 
 #endif

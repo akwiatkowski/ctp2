@@ -49,6 +49,7 @@
 #include "AgeRecord.h"
 #include "gs/gameobj/AgreementPool.h"         // agreementpool_Get()
 #include <algorithm>
+#include <vector>
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/BldQue.h"
 #include "BuildingRecord.h"
@@ -217,14 +218,14 @@ static uint32 DispatchRestore(MBCHAR const *filepath)
 	return ok ? GAMEFILE_ERR_LOAD_OK : GAMEFILE_ERR_LOAD_FAILED;
 }
 
-void GameFile::RestoreGame(MBCHAR const * name)
+bool GameFile::RestoreGame(MBCHAR const * name)
 {
-	DispatchRestore(name);
+	return DispatchRestore(name) == GAMEFILE_ERR_LOAD_OK;
 }
 
-void GameFile::RestoreScenarioGame(MBCHAR const * name)
+bool GameFile::RestoreScenarioGame(MBCHAR const * name)
 {
-	DispatchRestore(name);
+	return DispatchRestore(name) == GAMEFILE_ERR_LOAD_OK;
 }
 
 void GameFile::SaveGame(const MBCHAR *filename, SaveInfo *info)
@@ -1065,33 +1066,24 @@ bool GameFile::ValidateGameFile(MBCHAR const * path, SaveInfo *info)
 	if (saveFile == nullptr)
 		return false;
 
-	MBCHAR	header[_MAX_PATH];
-	size_t	n = c3files_fread(header, sizeof(uint8), sizeof(k_GAME_MAGIC_VALUE), saveFile);
-	if (n!=sizeof(k_GAME_MAGIC_VALUE)) {
-		c3files_fclose(saveFile);
-		return false;
-	}
-
-	g_saveFileVersion = -1;
-
-	sint32 i;
-	for(i = 0; i < k_NUM_MAGIC_VALUES; i++) {
-		if(strcmp(header, s_magicValue[i].string) == 0) {
-			g_saveFileVersion = s_magicValue[i].version;
-			break;
-		}
-	}
-
-	if(g_saveFileVersion < 0) {
-		c3files_fclose(saveFile);
-		return false;
-	}
-
-	bool success = LoadBasicGameInfo(saveFile, info);
+	// JSON-only: skip leading whitespace and check the first non-ws byte.
+	// nlohmann::json::dump(2) sorts keys alphabetically, so the "magic"
+	// key can be deep in the file (line 38k+).  We can't rely on strstr
+	// in a small read buffer — just verify the file is JSON.
+	int c;
+	do {
+		c = fgetc(saveFile);
+	} while (c != EOF && isspace(static_cast<unsigned char>(c)));
 
 	c3files_fclose(saveFile);
 
-	return success;
+	if (c == '{') {
+		g_saveFileVersion = s_magicValue[k_NUM_MAGIC_VALUES - 1].version;
+		info->loadType    = SAVEINFOLOAD_BASIC;
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -1201,6 +1193,11 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 
 			if (!dir2) continue;
 #endif
+			struct SaveWithMtime {
+				SaveInfo *info;
+				time_t    mtime;
+			};
+			std::vector<SaveWithMtime> saves;
 			do {
 #ifndef WIN32
 				dent2 = readdir(dir2);
@@ -1211,9 +1208,15 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 
 				if (!S_ISDIR(tmpstat.st_mode)) {
 					name = dent2->d_name;
+					time_t mtime = tmpstat.st_mtime;
 #else
 				if (!(fileData2.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 					name = fileData2.cFileName;
+					// Convert FILETIME to time_t
+					ULARGE_INTEGER ull;
+					ull.LowPart  = fileData2.ftLastWriteTime.dwLowDateTime;
+					ull.HighPart = fileData2.ftLastWriteTime.dwHighDateTime;
+					time_t mtime = (time_t)((ull.QuadPart - 116444736000000000ULL) / 10000000ULL);
 #endif
 
 					SaveInfo		*saveInfo = new SaveInfo();
@@ -1227,17 +1230,33 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 						continue;
 					}
 
-					gameInfo->files->AddTail(saveInfo);
+					saves.push_back({saveInfo, mtime});
 				}
 #ifdef WIN32
 			} while (FindNextFile(lpFileList, &fileData2));
 			FindClose(lpFileList);
+
+			std::sort(saves.begin(), saves.end(),
+				[](const SaveWithMtime &a, const SaveWithMtime &b) {
+					return a.mtime > b.mtime; // descending: newest first
+				});
+			for (auto &swm : saves) {
+				gameInfo->files->AddTail(swm.info);
+			}
 		}
 	} while(FindNextFile(lpDirList,&fileData));
 	FindClose(lpDirList);
 #else
 			} while (dent2);
 			closedir(dir2);
+
+			std::sort(saves.begin(), saves.end(),
+				[](const SaveWithMtime &a, const SaveWithMtime &b) {
+					return a.mtime > b.mtime; // descending: newest first
+				});
+			for (auto &swm : saves) {
+				gameInfo->files->AddTail(swm.info);
+			}
 		}
 	} while(dent);
 	closedir(d);

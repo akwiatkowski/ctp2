@@ -72,11 +72,12 @@ AUI_ERRCODE IconButton::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
 		name = ldlBlock;
 	}
 
-	m_filename = new MBCHAR[_MAX_PATH];
-
-	if (civpaths_Get()->FindFile(C3DIR_ICONS, name, m_filename)) {
-		m_icon = c3ui_Get()->LoadIcon(m_filename);
+	MBCHAR path[_MAX_PATH];
+	if (civpaths_Get()->FindFile(C3DIR_ICONS, name, path)) {
+		m_filename = path;
+		m_icon = c3ui_Get()->LoadIcon(m_filename.c_str());
 	} else {
+		m_filename.clear();
 		m_icon = nullptr;
 	}
 
@@ -85,7 +86,7 @@ AUI_ERRCODE IconButton::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
 
 IconButton::~IconButton()
 {
-	delete [] m_filename;
+	// m_filename is std::string, auto-freed
 }
 
 AUI_ERRCODE IconButton::DrawThis( aui_Surface *surface, sint32 x, sint32 y )

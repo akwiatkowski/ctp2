@@ -145,8 +145,8 @@ A_Star_Heuristic_Cost::A_Star_Heuristic_Cost
 {
 	size_t const	blockCount	= rows * columns;
 
-	raw_min_movement_costs		= new double[blockCount];
-	relaxed_min_movement_costs	= new double[blockCount];
+	raw_min_movement_costs		= std::make_unique<double[]>(blockCount);
+	relaxed_min_movement_costs	= std::make_unique<double[]>(blockCount);
 }
 
 //----------------------------------------------------------------------------
@@ -164,11 +164,7 @@ A_Star_Heuristic_Cost::A_Star_Heuristic_Cost
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-A_Star_Heuristic_Cost::~A_Star_Heuristic_Cost()
-{
-	delete [] raw_min_movement_costs;
-	delete [] relaxed_min_movement_costs;
-}
+A_Star_Heuristic_Cost::~A_Star_Heuristic_Cost() = default;
 
 
 
@@ -278,8 +274,8 @@ void A_Star_Heuristic_Cost::Update_One_Tiles_Cost
 
 void A_Star_Heuristic_Cost::Clear_Raw_Movement_Costs()
 {
-	std::fill(raw_min_movement_costs,
-		      raw_min_movement_costs + (rows * columns),
+	std::fill(raw_min_movement_costs.get(),
+		      raw_min_movement_costs.get() + (rows * columns),
 			  DBL_MAX
 			 );
 }

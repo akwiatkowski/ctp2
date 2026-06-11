@@ -46,7 +46,7 @@ class CTPRecord
 {
 protected:
 	sint32 m_index;
-	char *m_textName;
+	std::string m_textName;
 
 public:
 	StringId m_name;
@@ -60,10 +60,9 @@ public:
 	CTPRecord()
     :
         m_index     (INDEX_INVALID),
-        m_textName  (nullptr),
         m_name      (INDEX_INVALID) // StringID is an integer
     { };
-	virtual ~CTPRecord() { delete [] m_textName; }
+	virtual ~CTPRecord() = default;
 
 	sint32 GetIndex() const { return m_index; }
 	void SetIndex(sint32 index) { m_index = index; }

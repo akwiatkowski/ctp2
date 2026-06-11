@@ -1,0 +1,17 @@
+<h1 class="page-title reveal">The state of <em>the realm</em></h1>
+<p class="page-sub reveal">live census of players, cities and dominion · refreshed every 5 seconds</p>
+
+<div id="ledger" class="reveal" hx-get="/fragments/dashboard" hx-trigger="every 5s" hx-swap="innerHTML">
+<%= @ledger %>
+</div>
+
+<div class="rule reveal">✦</div>
+
+<div class="card reveal">
+  <div class="stat__label">Dispatches</div>
+  <div class="muted" style="margin-top:.5rem">
+    <code>POST /api/cmd</code> · <code>GET /api/players</code> · <code>GET /api/cities</code> ·
+    <code>GET /api/units</code> · <code>GET /api/map</code>
+  </div>
+  <div class="stat__hint">raw verbs ride the game socket — see gateway/README.md for the cookbook</div>
+</div>

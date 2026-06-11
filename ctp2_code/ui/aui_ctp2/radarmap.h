@@ -40,6 +40,8 @@
 #ifndef ___BMH_RADAR_MAP_HEADER
 #define ___BMH_RADAR_MAP_HEADER
 
+#include <vector>
+
 #include "ui/aui_common/aui_control.h"
 #include "gs/world/MapPoint.h"
 #include "ui/aui_ctp2/patternbase.h"
@@ -220,7 +222,7 @@ private:
 
 	aui_Surface	*m_mapSurface;
 	MapPoint	*m_mapSize;
-	COLOR		*m_mapOverlay;
+	std::vector<COLOR>		m_mapOverlay;
 	MapPoint	m_clickedCell;
 	double		m_tilePixelWidth,
 				m_tilePixelHeight;

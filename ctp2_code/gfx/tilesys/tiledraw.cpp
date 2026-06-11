@@ -4991,14 +4991,14 @@ void TiledMap::DrawChatText()
 			PointerList<ChatText>::Walker walk(&network_Get().GetChatList()->m_list);
 			for(; walk.IsValid() && c < k_NUM_CHAT_LINES; walk.Next(), c++)
 			{
-				rect.right = rect.left + m_font->GetStringWidth(walk.GetObj()->m_text);
-				m_chatRect.right = std::max(m_chatRect.right, rect.right);
-				rect.top -= height;
-				m_chatRect.top -= height;
-				COLOR      color = colorset_Get()->ComputePlayerColor(walk.GetObj()->m_sender);
-				m_font->DrawString(tempSurf, &rect, &rect, walk.GetObj()->m_text, 0, GetColorRef(COLOR_BLACK), 0);
-				OffsetRect(&rect, -1, -1);
-				m_font->DrawString(tempSurf, &rect, &rect, walk.GetObj()->m_text, 0, GetColorRef(color), 0);
+			rect.right = rect.left + m_font->GetStringWidth(walk.GetObj()->m_text.c_str());
+			m_chatRect.right = std::max(m_chatRect.right, rect.right);
+			rect.top -= height;
+			m_chatRect.top -= height;
+			COLOR      color = colorset_Get()->ComputePlayerColor(walk.GetObj()->m_sender);
+			m_font->DrawString(tempSurf, &rect, &rect, walk.GetObj()->m_text.c_str(), 0, GetColorRef(COLOR_BLACK), 0);
+			OffsetRect(&rect, -1, -1);
+			m_font->DrawString(tempSurf, &rect, &rect, walk.GetObj()->m_text.c_str(), 0, GetColorRef(color), 0);
 				OffsetRect(&rect, 1, 1);
 				rect.bottom -= height;
 			}

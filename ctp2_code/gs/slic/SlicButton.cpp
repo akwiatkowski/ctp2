@@ -50,8 +50,7 @@ SlicButton::SlicButton()
     m_codeOffset   (0),
     m_message      (new Message()),
     m_context      (new SlicObject()),
-    m_segment      (nullptr),
-    m_segmentName  (nullptr)
+    m_segment      (nullptr)
 {
     m_context->AddRef();
 }
@@ -62,8 +61,7 @@ SlicButton::SlicButton(StringId name, SlicSegment *segment,
     m_codeOffset   (codeOffset),
     m_message      (new Message()),
     m_context      (context),
-    m_segment      (segment),
-    m_segmentName  (nullptr)
+    m_segment      (segment)
 {
 	if(m_name >= 0) {
 		m_isCloseEvent = FALSE;
@@ -79,16 +77,10 @@ SlicButton::SlicButton(SlicButton *copy)
     m_codeOffset   (copy->m_codeOffset),
     m_message      (new Message(*copy->m_message)),
     m_context      (copy->m_context),
-    m_segment      (copy->m_segment)
+    m_segment      (copy->m_segment),
+    m_segmentName  (copy->m_segmentName)
 {
 	m_context->AddRef();
-
-	if(copy->m_segmentName) {
-		m_segmentName = new char[strlen(copy->m_segmentName) + 1];
-		strcpy(m_segmentName, copy->m_segmentName);
-	} else {
-		m_segmentName = nullptr;
-	}
 }
 
 SlicButton::~SlicButton()
@@ -97,21 +89,15 @@ SlicButton::~SlicButton()
 	s_deletedButtons.AddTail(this);
 #endif
 	m_context->Release();
-	if(m_segmentName) {
-		delete [] m_segmentName;
-		m_segmentName = nullptr;
-	}
 
-	
-		delete m_message;
+	delete m_message;
 }
 
 void SlicButton::Callback()
 {
-	if(m_segmentName && !m_segment) {
-		m_segment = slicengine_Get()->GetSegment(m_segmentName);
-		delete [] m_segmentName;
-		m_segmentName = nullptr;
+	if(!m_segmentName.empty() && !m_segment) {
+		m_segment = slicengine_Get()->GetSegment(m_segmentName.c_str());
+		m_segmentName.clear();
 	}
 
 #ifdef _DEBUG

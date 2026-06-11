@@ -2,17 +2,18 @@
 #ifndef __PQUEUE_H__
 #define __PQUEUE_H__
 
+#include <memory>
+
 template <class T> class PQueue {
 private:
-	T* m_array;
+	std::unique_ptr<T[]> m_array;
 	sint32 m_nElements;
 	sint32 m_maxSize;
 
 	void Grow() {
-		T* oldArray = m_array;
-		m_array = new T[m_maxSize * 2];
-		memcpy(m_array, oldArray, sizeof(T) * m_maxSize);
-		delete [] oldArray;
+		auto oldArray = std::move(m_array);
+		m_array = std::make_unique<T[]>(m_maxSize * 2);
+		memcpy(m_array.get(), oldArray.get(), sizeof(T) * m_maxSize);
 		m_maxSize *= 2;
 	}
 
@@ -31,14 +32,9 @@ public:
 	PQueue(sint32 startSize) {
 		m_maxSize = startSize;
 		m_nElements = 0;
-		m_array = new T[m_maxSize];
+		m_array = std::make_unique<T[]>(m_maxSize);
 	}
-	~PQueue() {
-		if(m_array) {
-			delete [] m_array;
-			m_array = nullptr;
-		}
-	}
+	~PQueue() = default;
 
 	void Insert(const T &obj);
 	bool RemoveTop(T &obj);

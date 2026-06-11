@@ -153,8 +153,7 @@ void NetCity::UnpacketizeResources(Resources &resources, uint8 *buf, sint32 &pos
 	Assert(resourceCount == resources.m_numGoods);
 	if(resourceCount != resources.m_numGoods) {
 		resources.m_numGoods = resourceCount;
-		delete [] resources.m_supply;
-		resources.m_supply = new sint32[resourceCount];
+		resources.m_supply.resize(resourceCount);
 	}
 
 	sint32 r;

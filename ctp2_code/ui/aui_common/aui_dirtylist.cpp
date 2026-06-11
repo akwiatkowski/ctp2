@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Standardized code (May 21th 2006 Martin Gühmann)
+// - Standardized code (May 21th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -53,14 +53,8 @@ aui_DirtyList::aui_DirtyList(
 		Assert( m_width > 0 && m_height > 0 );
 		if ( m_width <= 0 || m_height <= 0 ) return;
 
-		m_spanListArray = new aui_SpanList[ m_height ];
-		Assert( m_spanListArray != nullptr );
-		if ( !m_spanListArray ) return;
-
-		memset( m_spanListArray, 0, m_height * sizeof( aui_SpanList ) );
+		m_spanListArray.resize(m_height);
 	}
-	else
-		m_spanListArray = nullptr;
 }
 
 
@@ -69,7 +63,7 @@ aui_DirtyList::~aui_DirtyList()
 	Flush();
 
 	delete m_rectMemory;
-	delete [] m_spanListArray;
+	// m_spanListArray is std::vector, auto-freed
 }
 
 
@@ -93,7 +87,7 @@ AUI_ERRCODE aui_DirtyList::AddRect(
 
 		AddTail( rect );
 
-		if ( m_spanListArray )
+		if ( !m_spanListArray.empty() )
 			ComputeSpans( rect );
 	}
 
@@ -240,8 +234,8 @@ void aui_DirtyList::Flush( )
 
 	DeleteAll();
 
-	if ( m_spanListArray )
-		memset( m_spanListArray, 0, m_height * sizeof( aui_SpanList ) );
+	if ( !m_spanListArray.empty() )
+		std::fill(m_spanListArray.begin(), m_spanListArray.end(), aui_SpanList{});
 
 	m_isEmpty = TRUE;
 }
@@ -271,10 +265,7 @@ AUI_ERRCODE aui_DirtyList::SetSpans( aui_DirtyList *newDirtyList )
 
 	if ( !newDirtyList->IsEmpty() )
 	{
-		memcpy(
-			m_spanListArray,
-			newSpanListArray,
-			m_height * sizeof( aui_SpanList ) );
+		m_spanListArray = newDirtyList->m_spanListArray;
 
 		m_isEmpty = FALSE;
 	}
@@ -309,7 +300,7 @@ AUI_ERRCODE aui_DirtyList::ComputeSpans( RECT *newRect )
 
 	if ( !h ) return AUI_ERRCODE_OK;
 
-	aui_SpanList *curSpanList = m_spanListArray + newRect->top;
+	aui_SpanList *curSpanList = m_spanListArray.data() + newRect->top;
 	for ( ; h; h--, curSpanList++ )
 	{
 

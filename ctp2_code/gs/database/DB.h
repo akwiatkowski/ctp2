@@ -5,6 +5,8 @@
 #ifndef __DB_H__
 #define __DB_H__
 
+#include <memory>
+
 template <class T> class Database;
 
 #include "os/include/ctp2_inttypes.h"  // sint32
@@ -24,14 +26,13 @@ public:
 
 
 
-
-	T *m_rec;
-
+	std::unique_ptr<T[]> m_rec;
 
 
 
-	sint32 *m_indexToAlpha;
-	sint32 *m_alphaToIndex;
+
+	std::unique_ptr<sint32[]> m_indexToAlpha;
+	std::unique_ptr<sint32[]> m_alphaToIndex;
 
 
 

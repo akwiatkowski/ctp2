@@ -67,6 +67,8 @@
 //..\ctp2_code\gs\slic\slicfunc.cpp
 //..\ctp2_code\gs\slic\SlicEngine.cpp
 
+#include <vector>
+
 #include "ctp/c3.h"
 #include "gs/utility/safety.h"
 #include "gs/slic/SlicFunc.h"
@@ -457,18 +459,10 @@ GameEventArgList *SlicArgList::CreateGameEventArgs(GAME_EVENT ev)
 }
 
 SlicFunc::SlicFunc(char const * name, SLIC_FUNC_RET_TYPE type)
+	: m_name(std::string("_") + name)
+	, m_type(type)
 {
-	m_type = type;
-	m_name = new char[strlen(name) + 2];
-	m_name[0] = '_';
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	strcpy(m_name + 1, name);
 	m_result.m_int = 0;
-}
-
-SlicFunc::~SlicFunc()
-{
-	delete [] m_name;
 }
 
 //----------------------------------------------------------------------------
@@ -3273,7 +3267,7 @@ SFN_ERROR Slic_CreateUnit::Call(SlicArgList *args)
 	sint32 x;
 	sint32 y;
 	BOOL found = FALSE;
-	DynamicArray<MapPoint> legalPoints;
+	std::vector<MapPoint> legalPoints;
 	for(x = 0; x < world_Get()->GetXWidth(); x++) {
 		for(y = 0; y < world_Get()->GetYHeight(); y++) {
 			MapPoint chk(x, y);
@@ -3286,7 +3280,7 @@ SFN_ERROR Slic_CreateUnit::Call(SlicArgList *args)
 				 cell->UnitArmy()->Num() < k_MAX_ARMY_SIZE)) &&
 			   (cell->GetCity().m_id == (0) ||
 				cell->GetCity().GetOwner() == owner)) {
-				legalPoints.Insert(chk);
+				legalPoints.push_back(chk);
 				found = TRUE;
 			}
 		}
@@ -3294,7 +3288,7 @@ SFN_ERROR Slic_CreateUnit::Call(SlicArgList *args)
 
 	if(found) {
 		MapPoint upos;
-		upos = legalPoints[civrand().Next(legalPoints.Num())];
+		upos = legalPoints[civrand().Next(static_cast<sint32>(legalPoints.size()))];
 		Unit unit;
 		if(player_Get(owner)) {
 			unit = player_Get(owner)->CreateUnit(type, upos,
@@ -3531,8 +3525,8 @@ SFN_ERROR Slic_CreateCity::Call(SlicArgList *args)
 	sint32 x;
 	sint32 y;
 	BOOL found = FALSE;
-	static DynamicArray<MapPoint> legalPoints;
-	legalPoints.Clear();
+	static std::vector<MapPoint> legalPoints;
+	legalPoints.clear();
 
 	sint16 origContinent = world_Get()->GetContinent(pos);
 
@@ -3542,7 +3536,7 @@ SFN_ERROR Slic_CreateCity::Call(SlicArgList *args)
 			if(world_Get()->GetContinent(chk) == origContinent &&
 			   !world_Get()->IsNextToCity(chk) &&
 			   !world_Get()->IsCity(chk)) {
-				legalPoints.Insert(chk);
+				legalPoints.push_back(chk);
 				found = TRUE;
 			}
 		}
@@ -3556,7 +3550,7 @@ SFN_ERROR Slic_CreateCity::Call(SlicArgList *args)
 	sint32 bestDistance = 0x7fffffff;
 	sint32 bestDiff = 0x7fffffff;
 	sint32 i;
-	for(i = 0; i < legalPoints.Num(); i++) {
+	for(i = 0; i < static_cast<sint32>(legalPoints.size()); i++) {
 		sint32 dist = pos.NormalizedDistance(legalPoints[i]);
 		if(abs(distance - dist) < bestDiff) {
 			bestDiff = abs(distance - dist);
@@ -3564,15 +3558,15 @@ SFN_ERROR Slic_CreateCity::Call(SlicArgList *args)
 		}
 	}
 
-	for(i = legalPoints.Num() - 1; i >= 0; i--) {
+	for(i = static_cast<sint32>(legalPoints.size()) - 1; i >= 0; i--) {
 		sint32 dist = pos.NormalizedDistance(legalPoints[i]);
 		if(dist != bestDistance) {
-			legalPoints.DelIndex(i);
+			legalPoints.erase(legalPoints.begin() + i);
 		}
 	}
 
 	MapPoint cpos;
-	cpos = legalPoints[civrand().Next(legalPoints.Num())];
+	cpos = legalPoints[civrand().Next(static_cast<sint32>(legalPoints.size()))];
 	const UnitRecord *rec;
 	for(i = 0; i < g_theUnitDB->NumRecords() - 1; i++) {
 		rec = g_theUnitDB->Get(i, player_Get(owner)->GetGovernmentType());
@@ -3632,8 +3626,8 @@ SFN_ERROR Slic_CreateCoastalCity::Call(SlicArgList *args)
 	sint32 x;
 	sint32 y;
 	BOOL found = FALSE;
-	static DynamicArray<MapPoint> legalPoints;
-	legalPoints.Clear();
+	static std::vector<MapPoint> legalPoints;
+	legalPoints.clear();
 
 	sint16 origContinent = world_Get()->GetContinent(pos);
 
@@ -3644,7 +3638,7 @@ SFN_ERROR Slic_CreateCoastalCity::Call(SlicArgList *args)
 			   !world_Get()->IsNextToCity(chk) &&
 			   !world_Get()->IsCity(chk) &&
 			   world_Get()->IsNextToWater(chk.x, chk.y)) {
-				legalPoints.Insert(chk);
+				legalPoints.push_back(chk);
 				found = TRUE;
 			}
 		}
@@ -3658,7 +3652,7 @@ SFN_ERROR Slic_CreateCoastalCity::Call(SlicArgList *args)
 	sint32 bestDistance = 0x7fffffff;
 	sint32 bestDiff = 0x7fffffff;
 	sint32 i;
-	for(i = 0; i < legalPoints.Num(); i++) {
+	for(i = 0; i < static_cast<sint32>(legalPoints.size()); i++) {
 		sint32 dist = pos.NormalizedDistance(legalPoints[i]);
 		if(abs(distance - dist) < bestDiff) {
 			bestDiff = abs(distance - dist);
@@ -3666,15 +3660,15 @@ SFN_ERROR Slic_CreateCoastalCity::Call(SlicArgList *args)
 		}
 	}
 
-	for(i = legalPoints.Num() - 1; i >= 0; i--) {
+	for(i = static_cast<sint32>(legalPoints.size()) - 1; i >= 0; i--) {
 		sint32 dist = pos.NormalizedDistance(legalPoints[i]);
 		if(dist != bestDistance) {
-			legalPoints.DelIndex(i);
+			legalPoints.erase(legalPoints.begin() + i);
 		}
 	}
 
 	MapPoint cpos;
-	cpos = legalPoints[civrand().Next(legalPoints.Num())];
+	cpos = legalPoints[civrand().Next(static_cast<sint32>(legalPoints.size()))];
 	const UnitRecord *rec;
 	for(i = 0; i < g_theUnitDB->NumRecords() - 1; i++) {
 		rec = g_theUnitDB->Get(i, player_Get(owner)->GetGovernmentType());

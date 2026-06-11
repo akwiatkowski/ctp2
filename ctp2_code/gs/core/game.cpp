@@ -107,6 +107,25 @@ void Game::Cleanup() {
     m_events.reset();
     m_slic.reset();
 
+    // Players[] must be destroyed BEFORE any pool Player::~Player accesses
+    // through the legacy trampoline accessors (notably civilisationpool_Get
+    // at Player.cpp:623, plus unit/army/message/installation pools reached
+    // transitively through the per-player lists).  Resetting a pool's
+    // unique_ptr nulls the trampoline-routed accessor; if a Player dtor
+    // runs afterwards it dereferences nullptr and crashes on shutdown.
+    //
+    // Null the legacy global first so gameinit_Cleanup's own
+    // `delete g_player[i]; delete[] g_player` block becomes a no-op (it
+    // guards on `if (g_player)`).  Then free the adopted storage.
+    if (m_playerArr) {
+        player_arr_Set(nullptr);
+        for (sint32 i = 0; i < k_MAX_PLAYERS; ++i) {
+            delete m_playerArr[i];
+        }
+        delete[] m_playerArr;
+        m_playerArr = nullptr;
+    }
+
     // Trackers and pools: null the legacy pointer first, then destroy.
     // Trampolined subsystems: m_x.reset() also nulls the routed legacy
     // accessor.  Order matters: dependents before their dependencies.
@@ -134,18 +153,6 @@ void Game::Cleanup() {
 
     m_armyPool.reset();
     m_unitPool.reset();
-
-    // Players[]: null the legacy global first so gameinit_Cleanup's
-    // own `delete g_player[i]; delete[] g_player` block becomes a no-op
-    // (it guards on `if (g_player)`).  Then free the adopted storage.
-    if (m_playerArr) {
-        player_arr_Set(nullptr);
-        for (sint32 i = 0; i < k_MAX_PLAYERS; ++i) {
-            delete m_playerArr[i];
-        }
-        delete[] m_playerArr;
-        m_playerArr = nullptr;
-    }
 
     m_world.reset();
 

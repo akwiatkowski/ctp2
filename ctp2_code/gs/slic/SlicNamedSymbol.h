@@ -17,7 +17,8 @@ protected:
 	uint8 m_fromFile;
 
 
-	char *m_name;
+	std::string m_name;
+
 
 
 
@@ -28,8 +29,8 @@ public:
 	SlicNamedSymbol(const char *name);
 	SlicNamedSymbol(const char *name, SlicArray *array);
 	SlicNamedSymbol(const char *name, SlicStructDescription *structDesc);
-	SlicNamedSymbol() { m_name = nullptr; }
-	~SlicNamedSymbol() override;
+	SlicNamedSymbol() = default;
+	~SlicNamedSymbol() override = default;
 
 	bool IsParameter() const override { return false; }
 	virtual bool IsBuiltin() const { return false; }
@@ -40,7 +41,7 @@ public:
 	SLIC_SYM_SERIAL_TYPE GetSerializeType() override { return SLIC_SYM_SERIAL_NAMED; }
 
 	const char *GetName() const override;
-	void DelName();
+	void DelName() { m_name.clear(); }
 
 	sint32 GetIndex() const { return m_index; }
 	void SetIndex(sint32 index) { m_index = index; }

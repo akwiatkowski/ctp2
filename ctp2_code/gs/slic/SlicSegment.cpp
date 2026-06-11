@@ -94,9 +94,8 @@ SlicSegment::SlicSegment()
     m_code                      (nullptr),
     m_uiComponent               (nullptr),
     m_filename                  (nullptr),
-    m_trigger_symbols_indices   (nullptr),
     m_trigger_symbols           (nullptr),
-    m_parameter_indices         (nullptr),
+
     m_parameter_symbols         (nullptr),
     m_poolIndex                 (NOT_IN_USE)
 {
@@ -139,9 +138,8 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
     m_code                      (nullptr),
     m_uiComponent               (nullptr),
     m_filename                  (nullptr),
-    m_trigger_symbols_indices   (nullptr),
     m_trigger_symbols           (nullptr),
-    m_parameter_indices         (nullptr),
+
     m_parameter_symbols         (nullptr),
     m_poolIndex                 (slicifIndex)
 {
@@ -169,8 +167,9 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 	{
 		if (pobj->m_num_parameters > 0)
 		{
-			m_parameter_indices = new sint32[pobj->m_num_parameters];
-			memcpy(m_parameter_indices, pobj->m_parameters, pobj->m_num_parameters * sizeof(sint32));
+			m_parameter_indices.assign(
+				pobj->m_parameters,
+				pobj->m_parameters + pobj->m_num_parameters);
 		}
 		m_num_parameters = pobj->m_num_parameters;
 		free(pobj->m_parameters);
@@ -275,18 +274,22 @@ SlicSegment::~SlicSegment()
 		m_filename = nullptr;
 	}
 
-	delete [] m_trigger_symbols_indices;
 	delete [] m_trigger_symbols;
-	delete [] m_parameter_indices;
 	delete [] m_parameter_symbols;
 
 	// Has to be set to NULL, because SlicSegments are deleted twice,
 	// first from the StringHashNode and then from the pool. Actuially,
 	// not a very nice design, but with this extra stuff it should be harmless.
-	m_trigger_symbols_indices = nullptr;
 	m_trigger_symbols         = nullptr;
-	m_parameter_indices       = nullptr;
 	m_parameter_symbols       = nullptr;
+
+	// Same double-destruct concern for the vector members: free the heap
+	// buffer AND reset to a default-constructed empty vector so the implicit
+	// member destructor running a second time (during Pool<SlicSegment>::~Pool's
+	// delete[] over chunk storage that StringHashNode already destroyed) is a
+	// no-op rather than a double-free.
+	std::vector<sint32>().swap(m_trigger_symbols_indices);
+	std::vector<sint32>().swap(m_parameter_indices);
 }
 
 //----------------------------------------------------------------------------
@@ -449,11 +452,10 @@ void SlicSegmentHash::LinkTriggerSymbols(StringHash<SlicUITrigger> *uiHash)
 
 void SlicSegmentHash::SetSize(sint32 size)
 {
-	delete [] m_segments;
 	m_numSegments = size;
 	m_nextSegment = 0;
-	m_segments = new SlicSegment *[m_numSegments ? m_numSegments : 1];
-	memset(m_segments, 0, sizeof(SlicSegment *) * m_numSegments);
+	m_segments = std::make_unique<SlicSegment *[]>(m_numSegments ? m_numSegments : 1);
+	memset(m_segments.get(), 0, sizeof(SlicSegment *) * m_numSegments);
 }
 
 void SlicSegmentHash::Add(const char *name, SlicSegment *seg)

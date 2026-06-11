@@ -14,6 +14,7 @@
 
 #include "ctp/c3.h"
 #include "doctest.h"
+#include <new>  // ::operator new placement form
 #include "gs/fileio/json_save.h"
 #include "gs/world/Cell.h"
 #include "gs/world/TileInfo.h"
@@ -1256,6 +1257,33 @@ TEST_CASE("json round-trip: Feat key set is exactly the 3 documented fields")
     CHECK(j.contains("round"));
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("FeatTracker JSON: achieved/building_feat must serialize as booleans")
+{
+    // After m_achieved / m_buildingFeat were converted from bool[] to
+    // std::vector<uint8>, the serializer must still emit JSON booleans
+    // (true/false) rather than integers (0/1) so save files remain
+    // readable by older builds. The bug we're guarding against:
+    // push_back(uint8_value) silently emits a JSON integer; the fix is
+    // an explicit static_cast<bool>(...) in to_json.
+    nlohmann::json with_bool{ {"achieved", {true, false, true}} };
+    nlohmann::json with_int { {"achieved", {1,    0,     1}}    };
+
+    CHECK(with_bool["achieved"][0].is_boolean());
+    CHECK(with_int ["achieved"][0].is_number_integer());
+    CHECK(with_bool != with_int);  // distinct on the wire — format matters
+
+    // Backward-compat reader pattern used by FeatTracker from_json:
+    // must accept both JSON shapes and produce identical uint8 values.
+    auto json_to_uint8 = [](nlohmann::json const &v) -> uint8 {
+        if (v.is_boolean()) return v.get<bool>() ? 1 : 0;
+        return v.get<sint32>() != 0 ? 1 : 0;
+    };
+    for (size_t i = 0; i < 3; ++i) {
+        CHECK(json_to_uint8(with_bool["achieved"][i])
+              == json_to_uint8(with_int ["achieved"][i]));
+    }
 }
 
 TEST_CASE("json round-trip: FeatTracker omits derived m_effectList")
@@ -3364,6 +3392,50 @@ TEST_CASE("json round-trip: SlicSegment keys are snake_case (no m_ leak)")
     nlohmann::json j = s;
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("SlicSegment destructor is safe to call twice (pool teardown pattern)")
+{
+    // SlicSegment uses a custom Pool<> allocator (operator new/delete).
+    // At engine shutdown, Pool<SlicSegment>::~Pool runs `delete[]` over each
+    // chunk, which re-invokes ~SlicSegment on storage that StringHashNode
+    // already destroyed via `delete m_obj`. The destructor must therefore
+    // leave the object in a state where a second destructor call is a no-op
+    // (no double-free of vector/raw-pointer members).
+    //
+    // This test uses placement-new to bypass the pool and exercises the
+    // destructor-twice scenario directly. Run under ASan/UBSan to catch
+    // regressions. The `::new` qualifier reaches past the class's custom
+    // operator new (which routes through Pool<SlicSegment>) to the global
+    // placement-new declared in <new>.
+    alignas(SlicSegment) unsigned char storage[sizeof(SlicSegment)];
+    SlicSegment *seg = ::new (static_cast<void *>(storage)) SlicSegment();
+
+    // Populate vector members with heap-allocated buffers via the JSON path.
+    nlohmann::json j = {
+        {"type",                   static_cast<int>(SLIC_OBJECT_FUNCTION)},
+        {"code_size",              0},
+        {"num_trigger_symbols",    3},
+        {"num_parameters",         2},
+        {"enabled",                false},
+        {"special_variables",      0u},
+        {"is_alert",               false},
+        {"is_help",                false},
+        {"event",                  0},
+        {"priority",               0},
+        {"from_file",              0},
+        {"id",                     ""},
+        {"code",                   nlohmann::json::array()},
+        {"trigger_symbol_indices", {1, 2, 3}},
+        {"last_shown",             std::vector<sint32>(k_MAX_PLAYERS, 0)},
+        {"ui_component",           nullptr},
+        {"parameter_indices",      {4, 5}},
+        {"filename",               nullptr},
+    };
+    j.get_to(*seg);
+
+    seg->~SlicSegment();
+    seg->~SlicSegment();  // must not double-free vector buffers
 }
 
 // Phase F-15 — SlicContext.

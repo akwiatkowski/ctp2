@@ -245,7 +245,7 @@ void SelectedItem::Init()
 	m_good_path                 = nullptr;
 	m_bad_path.Clear();
 	m_is_broken_path            = false;
-	m_waypoints.Clear();
+	m_waypoints.clear();
 	m_player_on_screen          = -1;
 	m_gotClickSinceLastAutoEnd  = false;
 	m_selected_something_since_director_select = false;
@@ -723,7 +723,7 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 
 void SelectedItem::ClearWaypoints()
 {
-	m_waypoints.Clear();
+	m_waypoints.clear();
 }
 
 void SelectedItem::NextPlayer()
@@ -1008,7 +1008,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 
 	m_auto_unload = false;
 
-	m_waypoints.Clear();
+	m_waypoints.clear();
 
 	if (controlpanel_Get()) {
 		controlpanel_Get()->SetStack(Army(), nullptr); // empty function
@@ -1042,7 +1042,12 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 
 		slicengine_Get()->RunCitySelectedTriggers(u);
 
-		c3ui_Get()->AddAction( new WorkWinUpdateAction );
+		// Headless: c3ui_Get() is null in serve mode, but SetSelectCity runs
+		// from real GAME events (CaptureCityEvent auto-selects the captured
+		// city) — found by the first amphibious conquest over MCP. The UI
+		// refresh is meaningless without a UI; the selection itself is not.
+		if (c3ui_Get())
+			c3ui_Get()->AddAction( new WorkWinUpdateAction );
 
 		// Focus on city if option is activated
 		if(IsAutoCenterOn())
@@ -1318,7 +1323,7 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 	AddWaypoint(pos);
 	m_is_pathing    = false;
 
-	if (m_waypoints.Num() <= 0)
+	if (m_waypoints.empty())
 		return;
 
 	Unit	unit;
@@ -1344,7 +1349,7 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 
 	if (army_pos == pos)
 	{
-		m_waypoints.Clear();
+		m_waypoints.clear();
 		Deselect(player);
 	}
 	else
@@ -1600,7 +1605,7 @@ sint32 SelectedItem::GetVisiblePlayer() const
 
 void SelectedItem::AddWaypoint(const MapPoint &pos)
 {
-	m_waypoints.Insert(pos);
+	m_waypoints.push_back(pos);
 }
 
 void SelectedItem::SetDrawablePathDest(MapPoint &dest)
@@ -1623,13 +1628,13 @@ void SelectedItem::SetDrawablePathDest(MapPoint &dest)
 		Army a = m_selected_army[player];
 
 		MapPoint start;
-		if(m_waypoints.Num() <= 0)
+		if(m_waypoints.empty())
 		{
 			a.GetPos(start);
 		}
 		else
 		{
-			start = m_waypoints[m_waypoints.Num() - 1];
+			start = m_waypoints.back();
 		}
 
 		if (start == dest)
@@ -1718,13 +1723,13 @@ void SelectedItem::SetDrawablePathDest(MapPoint &dest)
 		Unit c = m_selected_city[player];
 
 		MapPoint start;
-		if(m_waypoints.Num() <= 0)
+		if(m_waypoints.empty())
 		{
 			c.GetPos(start);
 		}
 		else
 		{
-			start = m_waypoints[m_waypoints.Num() - 1];
+			start = m_waypoints.back();
 		}
 
 		if (start == dest)
@@ -1789,7 +1794,7 @@ void SelectedItem::ConstructPath(bool &isCircular, double &cost)
 
 	cost += partialCost;
 	partialPath = new Path;
-	for(sint32 i = 1; i < m_waypoints.Num(); i++)
+	for(sint32 i = 1; i < static_cast<sint32>(m_waypoints.size()); i++)
 	{
 		g_theUnitAstar->FindPath(a, m_waypoints[i-1],
 								 player, m_waypoints[i],
@@ -1804,9 +1809,9 @@ void SelectedItem::ConstructPath(bool &isCircular, double &cost)
 	}
 	delete partialPath;
 
-	isCircular = start == m_waypoints[m_waypoints.Num() - 1];
+	isCircular = start == m_waypoints.back();
 
-	m_waypoints.Clear();
+	m_waypoints.clear();
 }
 
 void SelectedItem::ProcessUnitOrders()

@@ -31,6 +31,8 @@
 #ifndef __SLIC_SEGMENT_H__
 #define __SLIC_SEGMENT_H__
 
+#include <vector>
+
 #include "gs/slic/slicif.h"
 #include "gs/slic/StringHash.h"
 #include "gs/events/GameEventHook.h"
@@ -81,10 +83,10 @@ private:
 	char *m_uiComponent;
 	char *m_filename;
 
-	sint32 *m_trigger_symbols_indices;
+	std::vector<sint32> m_trigger_symbols_indices;
 	SlicSymbolData **m_trigger_symbols;
 
-	sint32 *m_parameter_indices;
+	std::vector<sint32> m_parameter_indices;
 	SlicSymbolData **m_parameter_symbols;
 
 	int m_poolIndex;
@@ -154,19 +156,16 @@ class SlicSegmentHash : public StringHash<SlicSegment>
 {
 private:
 	sint32 m_numSegments;
-	SlicSegment **m_segments;
+	std::unique_ptr<SlicSegment *[]> m_segments;
 	sint32 m_nextSegment;
 	friend class SegmentList;
 
 public:
 	SlicSegmentHash(sint32 size) : StringHash<SlicSegment>(size) {
 		m_numSegments = 0;
-		m_segments = nullptr;
 		m_nextSegment = 0;
 	}
-	~SlicSegmentHash() override {
-		delete [] m_segments;
-	}
+	~SlicSegmentHash() override = default;
 
 	void SetSize(sint32 size);
 	void LinkTriggerSymbols(StringHash<SlicUITrigger> *uiHash);
@@ -175,20 +174,15 @@ public:
 
 class SlicUITrigger {
   private:
-	char *m_name;
+	std::string m_name;
 	SlicSegment *m_segment;
 
   public:
-	SlicUITrigger(char *name, SlicSegment *seg) {
-		m_name = new char[strlen(name) + 1];
-		strcpy(m_name, name);
-		m_segment = seg;
-	}
-	~SlicUITrigger() {
-		delete [] m_name;
-	}
+	SlicUITrigger(char *name, SlicSegment *seg)
+		: m_name(name), m_segment(seg) {}
+	~SlicUITrigger() = default;
 
-	const MBCHAR *GetName() { return m_name; }
+	const MBCHAR *GetName() { return m_name.c_str(); }
 	SlicSegment *GetSegment() { return m_segment; }
 };
 

@@ -180,7 +180,7 @@ AUI_ERRCODE aui_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 		RemoveHyperStatics();
 		m_virtualHeight = 0;
 		m_curStaticPos.x = m_curStaticPos.y = 0;
-		hyperText = m_hyperText;
+		hyperText = m_hyperText.c_str();
 	}
 
 	uint32 len = strlen( hyperText );

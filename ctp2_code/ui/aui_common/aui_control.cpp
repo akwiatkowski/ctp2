@@ -99,9 +99,9 @@ aui_Control::aui_Control
 	m_statusText            (nullptr),
 	m_numberOfLayers        (0),
 	m_imagesPerLayer        (0),
-	m_imageLayerList        (nullptr),
-	m_layerRenderFlags      (nullptr),
-	m_statusTextCopy        (nullptr)
+	m_imageLayerList        (nullptr)
+	// m_layerRenderFlags default constructed (empty)
+	// m_statusTextCopy default constructed (empty)
 {
 	if (AUI_SUCCESS(*retval))
 	{
@@ -132,9 +132,9 @@ aui_Control::aui_Control
 	m_numberOfLayers        (0),
 	m_imagesPerLayer        (0),
 	m_imageLayerList        (nullptr),
-	m_layerRenderFlags      (nullptr),
-	m_renderFlags           (k_AUI_CONTROL_LAYER_FLAG_ALWAYS),
-	m_statusTextCopy        (nullptr)
+	m_renderFlags           (k_AUI_CONTROL_LAYER_FLAG_ALWAYS)
+	// m_layerRenderFlags default constructed (empty)
+	// m_statusTextCopy default constructed (empty)
 {
 	if (AUI_SUCCESS(*retval))
 	{
@@ -264,9 +264,9 @@ aui_Control::~aui_Control()
 	}
 
 	delete m_imageLayerList;
-	delete [] m_layerRenderFlags;
+	// m_layerRenderFlags is std::vector, auto-freed
 	// m_statusText: reference only
-	delete [] m_statusTextCopy;
+	// m_statusTextCopy is std::string, auto-freed
 }
 
 
@@ -820,9 +820,9 @@ void aui_Control::MouseMoveOver( aui_MouseEvent *mouseData )
 			{
 				StatusBar::SetText(m_statusText, this);
 			}
-			else if(m_statusTextCopy)
+			else if(!m_statusTextCopy.empty())
 			{
-				StatusBar::SetText(m_statusTextCopy, this);
+				StatusBar::SetText(m_statusTextCopy.c_str(), this);
 			}
 
 			if ( m_mouseCode == AUI_ERRCODE_UNHANDLED )
@@ -1109,8 +1109,7 @@ bool aui_Control::AllocateImageLayers(ldl_datablock *theBlock)
 
 	m_imageLayerList = new aui_ImageList(m_numberOfLayers, m_imagesPerLayer);
 
-	if(!m_layerRenderFlags)
-		m_layerRenderFlags = new sint32[m_numberOfLayers];
+	m_layerRenderFlags.resize(m_numberOfLayers);
 
 	return(true);
 }
@@ -1679,7 +1678,7 @@ void aui_Control::BaseResetCurrentRenderFlags()
 void aui_Control::InitializeImageLayers(ldl_datablock *theBlock)
 {
 
-	bool initializeFlags = (m_layerRenderFlags == nullptr);
+	bool initializeFlags = m_layerRenderFlags.empty();
 
 
 	if(!AllocateImageLayers(theBlock))
@@ -1726,11 +1725,10 @@ void aui_Control::SetStatusText(const MBCHAR *text)
 {
 	m_statusText = text;
 
-	if(m_statusTextCopy != nullptr)
+	if(!m_statusTextCopy.empty())
 	{
 		StatusBar::SetText("", nullptr);
-		delete [] m_statusTextCopy;
-		m_statusTextCopy = nullptr;
+		m_statusTextCopy.clear();
 	}
 }
 
@@ -1738,11 +1736,13 @@ void aui_Control::SetStatusTextCopy(const MBCHAR *text)
 {
 	m_statusText = nullptr;
 
-	if(m_statusTextCopy != nullptr)
+	// Match master semantics: only clear the global StatusBar if a previous
+	// copy was set on this control. Assigning the new text first would clear
+	// the bar on every initial set, wiping text owned by another control.
+	if(!m_statusTextCopy.empty())
 	{
-		delete [] m_statusTextCopy;
 		StatusBar::SetText("", nullptr);
 	}
-	m_statusTextCopy = new MBCHAR[strlen(text)+1];
-	strcpy(m_statusTextCopy, text);
+
+	m_statusTextCopy = text ? text : "";
 }

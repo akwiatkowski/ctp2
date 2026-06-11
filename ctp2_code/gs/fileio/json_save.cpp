@@ -358,7 +358,7 @@ void from_json(nlohmann::json const &j, Cell &c)
     j.at("terrain_type")    .get_to(c.m_terrain_type);
     ID city_id(0);
     j.at("city")            .get_to(city_id);
-    c.m_city = Unit(city_id.m_id);
+    c.SetCity(Unit(city_id.m_id));   // keeps m_env city bits in sync
     j.at("cell_owner")      .get_to(c.m_cellOwner);
 }
 
@@ -1103,12 +1103,9 @@ void from_json(nlohmann::json const &j, Exclusions &e)
             531, "exclusions arrays must match their num_* counts", &j);
     }
 
-    delete[] e.m_units;
-    delete[] e.m_buildings;
-    delete[] e.m_wonders;
-    e.m_units     = new sint32[e.m_numUnits];
-    e.m_buildings = new sint32[e.m_numBuildings];
-    e.m_wonders   = new sint32[e.m_numWonders];
+    e.m_units     = std::make_unique<sint32[]>(e.m_numUnits);
+    e.m_buildings = std::make_unique<sint32[]>(e.m_numBuildings);
+    e.m_wonders   = std::make_unique<sint32[]>(e.m_numWonders);
 
     for (sint32 i = 0; i < e.m_numUnits;     ++i) units    [i].get_to(e.m_units[i]);
     for (sint32 i = 0; i < e.m_numBuildings; ++i) buildings[i].get_to(e.m_buildings[i]);
@@ -1493,8 +1490,11 @@ void to_json(nlohmann::json &j, FeatTracker const &ft)
     nlohmann::json building_feat = nlohmann::json::array();
     sint32 const   feat_count    = g_theFeatDB     ? g_theFeatDB->NumRecords()     : 0;
     sint32 const   bldg_count    = g_theBuildingDB ? g_theBuildingDB->NumRecords() : 0;
-    for (sint32 i = 0; i < feat_count; ++i) achieved     .push_back(ft.m_achieved[i]);
-    for (sint32 i = 0; i < bldg_count; ++i) building_feat.push_back(ft.m_buildingFeat[i]);
+    // Serialize as JSON booleans (not integers) to preserve save-file
+    // compatibility with the pre-refactor bool[] representation. Without the
+    // explicit cast nlohmann would emit 0/1 integers for uint8.
+    for (sint32 i = 0; i < feat_count; ++i) achieved     .push_back(static_cast<bool>(ft.m_achieved[i]));
+    for (sint32 i = 0; i < bldg_count; ++i) building_feat.push_back(static_cast<bool>(ft.m_buildingFeat[i]));
 
     j = nlohmann::json{
         {"active",        std::move(active)},
@@ -1522,13 +1522,21 @@ void from_json(nlohmann::json const &j, FeatTracker &ft)
     sint32 const feat_count   = g_theFeatDB     ? g_theFeatDB->NumRecords()     : 0;
     sint32 const bldg_count   = g_theBuildingDB ? g_theBuildingDB->NumRecords() : 0;
 
+    // Accept either JSON booleans (legacy bool[] saves) or integers (post-
+    // refactor uint8 saves) so save files remain readable across the refactor.
+    auto json_to_uint8 = [](nlohmann::json const &v) -> uint8 {
+        if (v.is_boolean()) return v.get<bool>() ? 1 : 0;
+        return v.get<sint32>() != 0 ? 1 : 0;
+    };
     if (static_cast<sint32>(achieved.size()) == feat_count)
     {
-        for (sint32 i = 0; i < feat_count; ++i) achieved[i].get_to(ft.m_achieved[i]);
+        for (sint32 i = 0; i < feat_count; ++i)
+            ft.m_achieved[i] = json_to_uint8(achieved[i]);
     }
     if (static_cast<sint32>(building_feat.size()) == bldg_count)
     {
-        for (sint32 i = 0; i < bldg_count; ++i) building_feat[i].get_to(ft.m_buildingFeat[i]);
+        for (sint32 i = 0; i < bldg_count; ++i)
+            ft.m_buildingFeat[i] = json_to_uint8(building_feat[i]);
     }
 }
 
@@ -2468,17 +2476,14 @@ void from_json(nlohmann::json const &j, Vision &v)
 void to_json(nlohmann::json &j, SlicConst const &c)
 {
     j = nlohmann::json{
-        {"name",  c.m_name ? std::string(c.m_name) : std::string()},
+        {"name",  c.m_name},
         {"value", c.m_value},
     };
 }
 
 void from_json(nlohmann::json const &j, SlicConst &c)
 {
-    std::string name = j.at("name").get<std::string>();
-    delete[] c.m_name;
-    c.m_name = new char[name.size() + 1];
-    std::memcpy(c.m_name, name.c_str(), name.size() + 1);
+    j.at("name").get_to(c.m_name);
     j.at("value").get_to(c.m_value);
 }
 
@@ -2528,6 +2533,16 @@ void jsonToOptString(nlohmann::json const &j, std::string &dest)
     }
     dest = j.get<std::string>();
 }
+
+// A Slic segment/function can exist with a NULL name (seen after
+// load_game over a running game: runtime-created Slic state whose
+// source segment never had a name bound). std::string(nullptr) is UB
+// and aborts under libc++ hardening, so every GetName() result is
+// converted through here.
+std::string safeName(MBCHAR const *s)
+{
+    return s ? std::string(s) : std::string();
+}
 }  // namespace
 
 void to_json(nlohmann::json &j, SlicRecord const &r)
@@ -2536,7 +2551,7 @@ void to_json(nlohmann::json &j, SlicRecord const &r)
         {"owner",        r.m_owner},
         {"title",        optStringToJson(r.m_title)},
         {"text",         optStringToJson(r.m_text)},
-        {"segment_name", r.m_segment ? std::string(r.m_segment->GetName())
+        {"segment_name", r.m_segment ? safeName(r.m_segment->GetName())
                                      : std::string()},
     };
 }
@@ -2565,9 +2580,9 @@ void to_json(nlohmann::json &j, EndGame const &g)
     std::vector<sint32> num_built;
     std::vector<sint32> saved_num_built;
     if (g.m_numBuilt)
-        num_built.assign(g.m_numBuilt, g.m_numBuilt + nRec);
+        num_built.assign(g.m_numBuilt.get(), g.m_numBuilt.get() + nRec);
     if (g.m_savedNumBuilt)
-        saved_num_built.assign(g.m_savedNumBuilt, g.m_savedNumBuilt + nRec);
+        saved_num_built.assign(g.m_savedNumBuilt.get(), g.m_savedNumBuilt.get() + nRec);
 
     j = nlohmann::json{
         {"owner",                 g.m_owner},
@@ -2591,12 +2606,18 @@ void from_json(nlohmann::json const &j, EndGame &g)
     j.at("num_built")      .get_to(num_built);
     j.at("saved_num_built").get_to(saved_num_built);
 
-    delete[] g.m_numBuilt;
-    delete[] g.m_savedNumBuilt;
-    g.m_numBuilt      = num_built.empty()       ? nullptr : new sint32[num_built.size()];
-    g.m_savedNumBuilt = saved_num_built.empty() ? nullptr : new sint32[saved_num_built.size()];
-    for (size_t i = 0; i < num_built.size();       ++i) g.m_numBuilt[i]      = num_built[i];
-    for (size_t i = 0; i < saved_num_built.size(); ++i) g.m_savedNumBuilt[i] = saved_num_built[i];
+    if (!num_built.empty()) {
+        g.m_numBuilt = std::make_unique<sint32[]>(num_built.size());
+        for (size_t i = 0; i < num_built.size(); ++i) g.m_numBuilt[i] = num_built[i];
+    } else {
+        g.m_numBuilt.reset();
+    }
+    if (!saved_num_built.empty()) {
+        g.m_savedNumBuilt = std::make_unique<sint32[]>(saved_num_built.size());
+        for (size_t i = 0; i < saved_num_built.size(); ++i) g.m_savedNumBuilt[i] = saved_num_built[i];
+    } else {
+        g.m_savedNumBuilt.reset();
+    }
 }
 
 // Phase F-1 — CivilisationPool
@@ -3645,7 +3666,7 @@ void to_json(nlohmann::json &j, SlicSymbolData const &s)
             break;
         case SLIC_SYM_FUNC:
             j["function_name"] = s.m_val.m_function_object
-                                     ? std::string(s.m_val.m_function_object->GetName())
+                                     ? safeName(s.m_val.m_function_object->GetName())
                                      : std::string();
             break;
         case SLIC_SYM_STRING:
@@ -3654,7 +3675,7 @@ void to_json(nlohmann::json &j, SlicSymbolData const &s)
         case SLIC_SYM_UFUNC:
         case SLIC_SYM_ID:
             j["segment_name"] = s.m_val.m_segment
-                                    ? std::string(s.m_val.m_segment->GetName())
+                                    ? safeName(s.m_val.m_segment->GetName())
                                     : std::string();
             break;
         case SLIC_SYM_IMPROVEMENT:
@@ -3813,7 +3834,7 @@ void to_json(nlohmann::json &j, SlicNamedSymbol const &s)
 {
     to_json(j, static_cast<SlicSymbolData const &>(s));
     j["serial_type"] = "named";
-    j["name"]        = s.m_name ? std::string(s.m_name) : std::string();
+    j["name"]        = s.m_name;
     j["index"]       = s.m_index;
     j["from_file"]   = s.m_fromFile;
 }
@@ -3822,11 +3843,7 @@ void from_json(nlohmann::json const &j, SlicNamedSymbol &s)
 {
     from_json(j, static_cast<SlicSymbolData &>(s));
 
-    std::string name = j.at("name").get<std::string>();
-    delete[] s.m_name;
-    s.m_name = new char[name.size() + 1];
-    std::memcpy(s.m_name, name.c_str(), name.size() + 1);
-
+    j.at("name").get_to(s.m_name);
     j.at("index").get_to(s.m_index);
     j.at("from_file").get_to(s.m_fromFile);
 }
@@ -3990,7 +4007,7 @@ void from_json(nlohmann::json const &j, SlicArray &a)
         for (size_t i = 0; i < a.m_allocatedSize; ++i)
             delete a.m_array[i].m_sym;
     }
-    delete[] a.m_array;
+    a.m_array.reset();
 
     a.m_type     = ssTypeFromName(j.at("type").get<std::string>());
     a.m_varType  = slicSymTypeFromName(j.at("var_type").get<std::string>());
@@ -4020,8 +4037,8 @@ void from_json(nlohmann::json const &j, SlicArray &a)
     if (a.m_allocatedSize == 0)
         a.m_allocatedSize = 1;  // matches k_DEFAULT_SLICARRAY_SIZE
 
-    a.m_array = new SlicStackValue[a.m_allocatedSize];
-    std::memset(a.m_array, 0, a.m_allocatedSize * sizeof(SlicStackValue));
+    a.m_array = std::make_unique<SlicStackValue[]>(a.m_allocatedSize);
+    std::memset(a.m_array.get(), 0, a.m_allocatedSize * sizeof(SlicStackValue));
 
     if (a.m_type == SS_TYPE_INT)
     {
@@ -4302,7 +4319,7 @@ void to_json(nlohmann::json &j, SlicObject const &o)
     j["recipients"] = std::move(recipients);
 
     j["segment_name"] = o.m_segment
-        ? std::string(o.m_segment->GetName())
+        ? safeName(o.m_segment->GetName())
         : std::string();
 
     j["default_advance_set"]     = o.m_defaultAdvanceSet;
@@ -4442,7 +4459,7 @@ void to_json(nlohmann::json &j, SlicSegment const &s)
         if (s.m_parameter_symbols)
             paramIdx.push_back(
                 static_cast<SlicParameterSymbol *>(s.m_parameter_symbols[i])->GetIndex());
-        else if (s.m_parameter_indices)
+        else if (!s.m_parameter_indices.empty())
             paramIdx.push_back(s.m_parameter_indices[i]);
         else
             paramIdx.push_back(-1);
@@ -4457,14 +4474,12 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
     free(s.m_code);
     free(s.m_uiComponent);
     free(s.m_filename);
-    delete[] s.m_trigger_symbols_indices;
-    delete[] s.m_parameter_indices;
     s.m_id = nullptr;
     s.m_code = nullptr;
     s.m_uiComponent = nullptr;
     s.m_filename = nullptr;
-    s.m_trigger_symbols_indices = nullptr;
-    s.m_parameter_indices = nullptr;
+    s.m_trigger_symbols_indices.clear();
+    s.m_parameter_indices.clear();
     s.m_trigger_symbols = nullptr;
     s.m_parameter_symbols = nullptr;
 
@@ -4496,7 +4511,7 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
     auto trigIdx = j.at("trigger_symbol_indices").get<std::vector<sint32>>();
     if (s.m_num_trigger_symbols > 0)
     {
-        s.m_trigger_symbols_indices = new sint32[s.m_num_trigger_symbols];
+        s.m_trigger_symbols_indices.resize(s.m_num_trigger_symbols);
         for (sint32 i = 0; i < s.m_num_trigger_symbols
                             && i < static_cast<sint32>(trigIdx.size()); ++i)
             s.m_trigger_symbols_indices[i] = trigIdx[i];
@@ -4517,7 +4532,7 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
     auto paramIdx = j.at("parameter_indices").get<std::vector<sint32>>();
     if (s.m_num_parameters > 0)
     {
-        s.m_parameter_indices = new sint32[s.m_num_parameters];
+        s.m_parameter_indices.resize(s.m_num_parameters);
         for (sint32 i = 0; i < s.m_num_parameters
                             && i < static_cast<sint32>(paramIdx.size()); ++i)
             s.m_parameter_indices[i] = paramIdx[i];
@@ -4778,9 +4793,8 @@ void to_json(nlohmann::json &j, SlicButton const &b)
         j["context"]  = *b.m_context;
     else
         j["context"]  = SlicObject();
-    j["segment_name"] = b.m_segment ? std::string(b.m_segment->GetName())
-                         : (b.m_segmentName ? std::string(b.m_segmentName)
-                                            : std::string());
+    j["segment_name"] = b.m_segment ? safeName(b.m_segment->GetName())
+                         : b.m_segmentName;
 }
 
 void from_json(nlohmann::json const &j, SlicButton &b)
@@ -4801,11 +4815,7 @@ void from_json(nlohmann::json const &j, SlicButton &b)
     b.m_context = newContext;
 
     std::string segName = j.at("segment_name").get<std::string>();
-    if (b.m_segmentName)
-    {
-        delete[] b.m_segmentName;
-        b.m_segmentName = nullptr;
-    }
+    b.m_segmentName.clear();
     b.m_segment = nullptr;
     if (!segName.empty() && slicengine_Get())
     {
@@ -4813,8 +4823,7 @@ void from_json(nlohmann::json const &j, SlicButton &b)
     }
     if (!b.m_segment && !segName.empty())
     {
-        b.m_segmentName = new char[segName.size() + 1];
-        std::strcpy(b.m_segmentName, segName.c_str());
+        b.m_segmentName = segName;
     }
 }
 
@@ -4830,7 +4839,7 @@ void to_json(nlohmann::json &j, SlicEyePoint const &e)
         {"data",         e.m_data},
         {"unit",         static_cast<ID const &>(e.m_unit)},
         {"recipient",    e.m_recipient},
-        {"segment_name", e.m_segment ? std::string(e.m_segment->GetName())
+        {"segment_name", e.m_segment ? safeName(e.m_segment->GetName())
                                       : std::string()},
         {"type",         static_cast<int>(e.m_type)},
     };
@@ -5167,13 +5176,15 @@ bool SaveJson(char const *path)
 
 bool LoadJson(char const *path)
 {
-    std::ifstream in(path);
-    if (!in)
-    {
-        std::cerr << "[json_save] LoadJson: cannot open '" << path
-                  << "' for reading\n";
-        return false;
-    }
+	std::cerr << "[json_save] LoadJson: loading from '" << path << "'\n";
+
+	std::ifstream in(path);
+	if (!in)
+	{
+		std::cerr << "[json_save] LoadJson: cannot open '" << path
+		          << "' for reading\n";
+		return false;
+	}
 
     nlohmann::json doc;
     try
@@ -5345,6 +5356,18 @@ bool LoadJson(char const *path)
         // world_Get() == nullptr (MapAnalysis::Resize would deref it).
         if (world_Get())
             CtpAi::Resize();
+
+        // Units/cities were restored without gfx state (UnitData's
+        // from_json intentionally leaves m_actor null).  Recreate the
+        // actors here so EVERY load entry point — the UI load dialog,
+        // headless --load-game / --json-load, and the test-API
+        // load_game command — gets actors without its own patch-up
+        // call.  Runs after the player loop so RecreateGfxState
+        // resolves unit records against the restored governments.
+        // Same world_Get() gate as CtpAi::Resize above: unit-test
+        // fixtures may call LoadJson without gameinit (no unit DB).
+        if (world_Get() && unitpool_Get())
+            unitpool_Get()->RecreateActors();
     }
     catch (nlohmann::json::exception const &e)
     {

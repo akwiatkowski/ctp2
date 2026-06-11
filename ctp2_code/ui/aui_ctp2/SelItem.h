@@ -71,6 +71,8 @@ enum SELECT_MODE {
 	SELECT_MODE_MAX
 };
 
+#include <vector>
+
 #include "gs/world/MapPoint.h"
 #include "robot/pathing/Path.h"
 #include "gs/gameobj/Army.h"
@@ -109,7 +111,7 @@ class SelectedItem
 	MapPoint     m_cur_mouse_tile;
 	Path *       m_good_path, m_bad_path;
 	bool         m_is_broken_path;
-	DynamicArray<MapPoint> m_waypoints;
+	std::vector<MapPoint> m_waypoints;
 	PLAYER_INDEX m_player_on_screen;
 	bool         m_auto_unload;
 	bool         m_gotClickSinceLastAutoEnd;

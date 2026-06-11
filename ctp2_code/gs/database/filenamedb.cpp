@@ -10,7 +10,6 @@ extern sint32 g_abort_parse;
 FilenameDB::FilenameDB ()
 
 {
-	m_map = nullptr;
 }
 
 
@@ -22,17 +21,13 @@ FilenameDB::FilenameDB ()
 
 
 
-FilenameDB::~FilenameDB ()
-
-{
-	delete [] m_map;
-}
+FilenameDB::~FilenameDB () = default;
 
 void FilenameDB::SetSize(sint32 s)
 
 {
 	m_size = s;
-	m_map = new FilenameNode[m_size];
+	m_map = std::make_unique<FilenameNode[]>(m_size);
 }
 
 sint32 FilenameDB::FindTypeIndex(const char *str) const

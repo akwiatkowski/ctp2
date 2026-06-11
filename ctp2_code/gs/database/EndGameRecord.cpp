@@ -16,9 +16,7 @@ EndGameRecord::EndGameRecord()
 	m_numStages = 0;
 	m_soundID = -1;
 	m_exactlyOneRequired = FALSE;
-	m_requiredForStage = nullptr;
 	m_maxAllowed = 0;
-	m_turnsPerStage = nullptr;
 	m_minRequired = 0;
 	m_successBonus = 0;
 	m_scoreBonusOverMinimum = 0;
@@ -34,14 +32,7 @@ EndGameRecord::EndGameRecord()
 	m_requiresLab = FALSE;
 }
 
-EndGameRecord::~EndGameRecord()
-{
-	
-		delete [] m_requiredForStage;
-
-	
-		delete [] m_turnsPerStage;
-}
+EndGameRecord::~EndGameRecord() = default;
 
 BOOL EndGameRecord::ParseNumber(Token *token, sint32 &val)
 {
@@ -85,10 +76,10 @@ BOOL EndGameRecord::ParseRecord(Token *token)
 	MBCHAR str[_MAX_PATH];
 	s_abort_endgame_parse = FALSE;
 	m_numStages = endgamedb_Get()->GetNumStages();
-	m_requiredForStage = new sint32[m_numStages];
-	m_turnsPerStage = new sint32[m_numStages];
-	memset(m_requiredForStage, 0, sizeof(sint32) * m_numStages);
-	memset(m_requiredForStage, 0, sizeof(sint32) * m_numStages);
+	m_requiredForStage = std::make_unique<sint32[]>(m_numStages);
+	m_turnsPerStage = std::make_unique<sint32[]>(m_numStages);
+	memset(m_requiredForStage.get(), 0, sizeof(sint32) * m_numStages);
+	memset(m_turnsPerStage.get(), 0, sizeof(sint32) * m_numStages);
 
 	if(!token_ParseAnOpenBraceNext(token)) {
 		s_abort_endgame_parse = TRUE;
@@ -145,7 +136,7 @@ BOOL EndGameRecord::ParseFlags(Token *token)
 			}
 			return TRUE;
 		case TOKEN_ENDGAME_REQUIRED_FOR_STAGE:
-			if(!ParseMultipleNumbers(token, m_requiredForStage, m_numStages)) {
+			if(!ParseMultipleNumbers(token, m_requiredForStage.get(), m_numStages)) {
 				return FALSE;
 			}
 			return TRUE;
@@ -156,7 +147,7 @@ BOOL EndGameRecord::ParseFlags(Token *token)
 				s_abort_endgame_parse = TRUE;
 				return FALSE;
 			}
-			if(!ParseMultipleNumbers(token, m_turnsPerStage, m_maxAllowed + 1)) {
+			if(!ParseMultipleNumbers(token, m_turnsPerStage.get(), m_maxAllowed + 1)) {
 				return FALSE;
 			}
 			return TRUE;

@@ -25,7 +25,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added alternative show leaks function. (Sep 15th 2005 Martin Gühmann)
+// - Added alternative show leaks function. (Sep 15th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 #ifdef HAVE_PRAGMA_ONCE
@@ -34,12 +34,13 @@
 #ifndef __DEBUGCALLSTACK_H
 #define __DEBUGCALLSTACK_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "ctp/debugtools/log.h"
 #include <stdio.h>
+
+#ifdef __cplusplus
+#include <vector>
+extern "C" {
+#endif
 
 void DebugCallStack_Open (void);
 void DebugCallStack_Close (void);
@@ -56,6 +57,8 @@ void *Debug_GetFAFirst(void);
 void Debug_SetFAFirst(void *ptr);
 
 #ifdef __cplusplus
+}
+
 class cDebugCallStackSet
 {
 public:
@@ -71,13 +74,9 @@ private:
 	int m_depth;
 	int m_blockSize;
 	int m_numStacks;
-	unsigned *m_stacks;
-	unsigned *m_curStack;
+	std::vector<unsigned> m_stacks;
+	std::vector<unsigned> m_curStack;
 };
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif

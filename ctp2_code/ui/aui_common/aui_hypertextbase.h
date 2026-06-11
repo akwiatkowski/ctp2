@@ -1,6 +1,8 @@
 #ifndef __AUI_HYPERTEXTBASE_H__
 #define __AUI_HYPERTEXTBASE_H__
 
+#include <string>
+
 #include "ui/aui_common/tech_wllist.h"
 
 class aui_Static;
@@ -37,7 +39,7 @@ protected:
 		uint32 hyperMaxLen );
 
 public:
-	MBCHAR *GetHyperText( ) const { return (MBCHAR *)m_hyperText; }
+	const MBCHAR *GetHyperText( ) const { return m_hyperText.c_str(); }
 	virtual AUI_ERRCODE	SetHyperText(
 		const MBCHAR *hyperText,
 		uint32 maxlen = 0xffffffff );
@@ -65,7 +67,7 @@ protected:
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	MBCHAR	*m_hyperText;
+	std::string	m_hyperText;
 	uint32	m_hyperMaxLen;
 	uint32	m_hyperCurLen;
 

@@ -38,7 +38,7 @@
 // Library dependencies
 //----------------------------------------------------------------------------
 
-// #include <>
+#include <vector>
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -359,9 +359,9 @@ protected:
 
 	uint16			m_numFrames;
 	Pixel16			**m_frames;
-	size_t			*m_framesSizes;
+	std::vector<size_t> m_framesSizes;
 	Pixel16			**m_miniframes;
-	size_t			*m_miniframesSizes;
+	std::vector<size_t> m_miniframesSizes;
 	uint16			m_firstFrame;
 	uint16			m_currentFrame;
 

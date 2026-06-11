@@ -1,0 +1,1382 @@
+//----------------------------------------------------------------------------
+//
+// Project      : Call To Power 2
+// File type    : C++ source
+// Description  : UI-free command/query dispatch for the test/automation API.
+//
+//----------------------------------------------------------------------------
+//
+// See game_controller.h for the design rationale.  Every handler here operates
+// purely on game-state objects and is safe to call in both the interactive and
+// headless builds.  Responses are built with nlohmann::json and dumped as a
+// single line (no embedded newlines), so they ride the existing
+// newline-delimited socket protocol without truncation.
+//
+//----------------------------------------------------------------------------
+
+#include "ctp/c3.h"
+#include "ctp/game_controller.h"
+
+#include <nlohmann/json.hpp>
+
+#include <cstdio>
+#include <cstring>
+#include <string>
+
+#include "ctp/civapp.h"                       // civapp_Get()->IsGameLoaded()
+#include "ctp/ctp2_utils/civlog.h"            // civlog::Get
+#include "gs/utility/Globals.h"               // k_MAX_PLAYERS, k_GAME_OBJ_TYPE_*
+#include "gs/gameobj/Player.h"                // player_Get, Player
+#include "gs/gameobj/Army.h"                  // Army
+#include "gs/gameobj/ArmyData.h"              // ArmyData::Settle / CanSettle
+#include "gs/gameobj/Unit.h"                  // Unit
+#include "gs/gameobj/UnitData.h"              // Unit::GetData / GetCityData
+#include "gs/gameobj/CityData.h"              // CityData
+#include "gs/gameobj/BldQue.h"                // BuildQueue / BuildNode
+#include "gs/gameobj/Vision.h"                // Vision::IsVisible / IsExplored
+#include "gs/world/World.h"                   // world_Get(), GetCell
+#include "gs/world/Cell.h"                    // Cell terrain / city / units
+#include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
+#include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
+#include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
+#include "gs/gameobj/MovePath.h"              // army_QueueMovePath
+#include "gs/gameobj/Events.h"                // GEV_ExploreOrder
+#include "gs/gameobj/Score.h"                 // Score::GetTotalScore
+#include "gs/gameobj/Civilisation.h"          // Civilisation::Get*CivName
+#include "gs/utility/TurnCnt.h"               // turn_Get()->GetRound/GetYear
+#include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
+#include "TerrainRecord.h"                    // g_theTerrainDB, TerrainRecord
+#include "BuildingRecord.h"                   // g_theBuildingDB, BuildingRecord
+#include "ai/diplomacy/Diplomat.h"            // Diplomat::DeclareWar
+#include "gs/gameobj/ArmyPool.h"              // armypool_Get
+#include "AdvanceRecord.h"                    // g_theAdvanceDB, AdvanceRecord
+#include "gs/gameobj/Advances.h"              // Advances::CanResearch/GetCost
+#include "gs/gameobj/terrainutil.h"           // terrainutil_CanPlayerBuildAt/cost/time
+#include "gs/gameobj/TerrImprove.h"           // TerrainImprovement
+#include "gs/gameobj/TerrImprovePool.h"       // terrimprovepool_Get
+
+using json = nlohmann::json;
+
+namespace game_controller {
+
+// The "visible player" whose viewpoint queries report — the (single) human.
+// We deliberately do NOT use selitem_Get() here: it is a UI singleton that may
+// be absent/empty headless.  The human player's own vision is the correct,
+// build-independent source for "what the player can see".
+Player * HumanPlayer()
+{
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        if (player_Get(p) && player_Get(p)->IsHuman())
+            return player_Get(p);
+    }
+    return nullptr;
+}
+
+}  // namespace game_controller
+
+namespace {
+
+using game_controller::HumanPlayer;
+
+auto gc_log = civlog::Get("gamectl");
+
+// ---- response builders --------------------------------------------------
+
+// Game strings reach us in TWO encodings: fresh-game strings come from the
+// StringDB in Latin-1 (a Mali city named with an 0xE9 'é' broke
+// query_player_cities live — nlohmann::json::dump() throws type_error.316
+// on invalid UTF-8), while strings that round-tripped through a JSON save
+// come back as valid UTF-8 (json_save transcodes on write but not back on
+// load — see plan: the deep fix is load-side UTF-8→Latin-1 so the UI font
+// path stays consistent). So: pass valid UTF-8 through untouched, and
+// transcode anything else as Latin-1.
+bool IsValidUtf8(const unsigned char * p)
+{
+    while (*p) {
+        if (*p < 0x80) { ++p; continue; }
+        int extra = (*p >= 0xF0) ? 3 : (*p >= 0xE0) ? 2 : (*p >= 0xC2) ? 1 : -1;
+        if (extra < 0) return false;
+        ++p;
+        for (int i = 0; i < extra; ++i, ++p)
+            if ((*p & 0xC0) != 0x80) return false;
+    }
+    return true;
+}
+
+std::string ToUtf8(const char * s)
+{
+    std::string out;
+    if (!s) return out;
+    if (IsValidUtf8((const unsigned char *)s)) return s;
+    for (const unsigned char * p = (const unsigned char *)s; *p; ++p) {
+        if (*p < 0x80) {
+            out += (char)*p;
+        } else {
+            out += (char)(0xC0 | (*p >> 6));
+            out += (char)(0x80 | (*p & 0x3F));
+        }
+    }
+    return out;
+}
+
+// {"status":"ok","cmd":"<verb>","result":{...}}  (result omitted if null)
+std::string Ok(const char * verb, const json & result = json())
+{
+    json r;
+    r["status"] = "ok";
+    r["cmd"]    = verb;
+    if (!result.is_null())
+        r["result"] = result;
+    return r.dump();
+}
+
+// {"status":"error","cmd":"<verb>","detail":"<code>"}
+std::string Err(const char * verb, const char * code)
+{
+    json r;
+    r["status"] = "error";
+    r["cmd"]    = verb;
+    r["detail"] = code;
+    return r.dump();
+}
+
+// ---- commands -----------------------------------------------------------
+
+// Found a city with the human player's first settler-capable army.  Settle()
+// only queues a GEV_Settle event, so we pump the event manager to make the
+// command synchronous: the city exists by the time we respond.
+std::string CmdBuildCity()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("build_city", "game_not_loaded");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("build_city", "no_human_player");
+
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    for (sint32 i = 0; i < armies->Num(); ++i) {
+        Army army = armies->Access(i);
+        ArmyData * ad = army.AccessData();
+        if (army.IsValid() && army.CanSettle() && ad) {
+            // CanSettle() only checks the UNIT can settle, not the tile.
+            // Settling on a tile that already has a city silently REPLACES
+            // it (pop and improvements lost) — refuse instead. Found by the
+            // first MCP playtest: a settler stuck on Rome's tile "founded"
+            // a fresh pop-1 Rome over the pop-2 original.
+            MapPoint at = ad->RetPos();
+            Cell * cell = world_Get() ? world_Get()->GetCell(at) : nullptr;
+            if (cell && cell->GetCity().IsValid())
+                return Err("build_city", "tile_occupied");
+            gc_log->info("build_city: settling with army {} of player {}",
+                         i, (int)human->GetOwner());
+            ad->Settle();
+            // Drain the queued GEV_Settle (and any cascade) so the city is
+            // actually founded before we return — keeps the driver synchronous.
+            if (gevmanager_Get())
+                gevmanager_Get()->Process();
+            // The settle event can be VETOED downstream (city minimum
+            // distance, terrain rules) with no error surfaced — verify the
+            // city actually exists instead of reporting blind success.
+            cell = world_Get() ? world_Get()->GetCell(at) : nullptr;
+            if (!cell || !cell->GetCity().IsValid())
+                return Err("build_city", "settle_rejected");
+            json result;
+            result["pos"] = { {"x", at.x}, {"y", at.y} };
+            return Ok("build_city", result);
+        }
+    }
+    return Err("build_city", "no_settler_found");
+}
+
+// set_production <city_idx> <what>
+// what: a numeric unit type, "cheapest_military", "settler",
+//       "building <building_id>" (city improvements: granaries etc. —
+//       the growth lever units can't provide), or "clear" (empty the build
+//       queue: stop producing entirely; the 173-round rematch showed
+//       perpetual unit spam actively drains score).
+std::string CmdSetProduction(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("set_production", "game_not_loaded");
+
+    int  city_idx = 0;
+    char keyword[64];
+    if (sscanf(args, "%d %63s", &city_idx, keyword) != 2)
+        return Err("set_production", "bad_args");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("set_production", "no_human_player");
+    if (city_idx < 0 || city_idx >= human->GetAllCitiesList()->Num())
+        return Err("set_production", "bad_city_index");
+
+    Unit city = human->GetAllCitiesList()->Access(city_idx);
+    if (!city.IsValid() || !city.GetData()->GetCityData())
+        return Err("set_production", "invalid_city");
+
+    CityData * cd       = city.GetData()->GetCityData();
+    sint32     gov_type = human->GetGovernmentType();
+    sint32     unit_type = -1;
+
+    if (strcmp(keyword, "clear") == 0) {
+        if (cd->GetBuildQueue())
+            cd->GetBuildQueue()->Clear();
+        json result;
+        result["city"] = city_idx;
+        result["building"] = nullptr;
+        return Ok("set_production", result);
+    }
+
+    if (strcmp(keyword, "building") == 0) {
+        int b = -1;
+        if (sscanf(args, "%*d %*s %d", &b) != 1)
+            return Err("set_production", "bad_args");
+        if (!g_theBuildingDB || b < 0 || b >= g_theBuildingDB->NumRecords())
+            return Err("set_production", "bad_building");
+        if (!cd->CanBuildBuilding(b))
+            return Err("set_production", "cannot_build_building");
+        cd->BuildImprovement(b);
+        const BuildingRecord * rec = g_theBuildingDB->Get(b, gov_type);
+        json result;
+        result["city"]     = city_idx;
+        result["category"] = k_GAME_OBJ_TYPE_IMPROVEMENT;
+        result["type"]     = b;
+        result["name"]     = rec ? ToUtf8(rec->GetNameText()) : "";
+        gc_log->info("set_production: city {} -> building {}", city_idx, b);
+        return Ok("set_production", result);
+    }
+
+    // Cheapest buildable unit satisfying the keyword's predicate, or -1.
+    auto cheapest_buildable = [&](auto && pred) {
+        sint32 best = 0x7fffffff, found = -1;
+        for (sint32 i = 0; i < g_theUnitDB->NumRecords(); ++i) {
+            const UnitRecord * rec = g_theUnitDB->Get(i, gov_type);
+            if (!rec || rec->GetCantBuild() || !pred(rec)) continue;
+            if (!cd->CanBuildUnit(i)) continue;
+            sint32 cost = rec->GetShieldCost();
+            if (cost > 0 && cost < best) { best = cost; found = i; }
+        }
+        return found;
+    };
+
+    if (strcmp(keyword, "cheapest_military") == 0) {
+        unit_type = cheapest_buildable(
+            [](const UnitRecord * r) { return r->GetAttack() > 0.0; });
+    } else if (strcmp(keyword, "settler") == 0) {
+        unit_type = cheapest_buildable(
+            [](const UnitRecord * r) { return r->GetSettle() || r->GetNumCanSettleOn() > 0; });
+    } else {
+        unit_type = atoi(keyword);
+    }
+
+    if (unit_type < 0 || unit_type >= g_theUnitDB->NumRecords())
+        return Err("set_production", "unit_not_found");
+    if (!cd->CanBuildUnit(unit_type))
+        return Err("set_production", "cannot_build_unit");
+
+    gc_log->info("set_production: city {} -> unit {}", city_idx, (int)unit_type);
+    cd->BuildUnit(unit_type);
+
+    json result;
+    result["city"]     = city_idx;
+    result["category"] = k_GAME_OBJ_TYPE_UNIT;
+    result["type"]     = unit_type;
+    return Ok("set_production", result);
+}
+
+// save_game <path>  — binary or JSON depending on extension (GameFile decides).
+std::string CmdSaveGame(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("save_game", "game_not_loaded");
+    if (!args[0])
+        return Err("save_game", "bad_args");
+    gc_log->info("save_game: {}", args);
+    GameFile::SaveGame(args, nullptr);
+    return Ok("save_game");
+}
+
+// load_game <path>  — actor recreation happens inside LoadJson, shared with
+// the UI and headless batch load paths.
+std::string CmdLoadGame(const char * args)
+{
+    if (!args[0])
+        return Err("load_game", "bad_args");
+    gc_log->info("load_game: {}", args);
+    if (!GameFile::RestoreGame(args))
+        return Err("load_game", "load_failed");
+    return Ok("load_game");
+}
+
+// query_armies — the human's armies with what a player needs to command
+// them: index (for move_army/auto_explore), position, movement points left
+// this turn, settle capability, and the member units.
+std::string QueryArmies()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_armies", "game_not_loaded");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_armies", "no_human_player");
+
+    json list = json::array();
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    for (sint32 i = 0; armies && i < armies->Num(); ++i) {
+        Army army = armies->Access(i);
+        ArmyData * ad = army.AccessData();
+        if (!army.IsValid() || !ad) continue;
+
+        MapPoint pos = ad->RetPos();
+        double moves = 0.0;
+        ad->CurMinMovementPoints(moves);
+
+        json units = json::array();
+        json cargo = json::array();
+        sint32 capacity = 0;
+        for (sint32 u = 0; u < ad->Num(); ++u) {
+            Unit unit = ad->Access(u);
+            if (!unit.IsValid()) continue;
+            json j;
+            j["type"] = unit.GetType();
+            j["name"] = ToUtf8(unit.GetName());
+            j["hp"]   = unit.GetHP();
+            units.push_back(j);
+            if (UnitData * ud = unit.AccessData()) {
+                capacity += ud->GetMaxCargoCapacity();
+                if (UnitDynamicArray * cl = ud->GetCargoList()) {
+                    for (sint32 ci = 0; ci < cl->Num(); ++ci) {
+                        Unit cu = cl->Access(ci);
+                        if (cu.IsValid()) cargo.push_back(ToUtf8(cu.GetName()));
+                    }
+                }
+            }
+        }
+
+        json a;
+        a["index"]      = i;
+        a["pos"]        = { {"x", pos.x}, {"y", pos.y} };
+        a["moves_left"] = moves;
+        a["can_settle"] = army.CanSettle();
+        a["units"]      = units;
+        a["cargo"]          = cargo;     // units riding in this army's transports
+        a["cargo_capacity"] = capacity;  // total transport slots
+        list.push_back(a);
+    }
+
+    json result;
+    result["armies"] = list;
+    return Ok("query_armies", result);
+}
+
+// move_army <army_idx> <x> <y> — pathfind and queue a move order, then pump
+// events so movement starts immediately. The army walks as far as this
+// turn's movement points allow; the rest of the path continues on later
+// turns. The result reports where the army actually stands afterwards.
+std::string CmdMoveArmy(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("move_army", "game_not_loaded");
+
+    int idx = -1, x = -1, y = -1;
+    if (sscanf(args, "%d %d %d", &idx, &x, &y) != 3)
+        return Err("move_army", "bad_args");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("move_army", "no_human_player");
+
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("move_army", "bad_army_index");
+
+    World * w = world_Get();
+    if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+        return Err("move_army", "bad_destination");
+
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("move_army", "invalid_army");
+
+    MapPoint src = ad->RetPos();
+    MapPoint dest((sint16)x, (sint16)y);
+    if (!army_QueueMovePath(human->GetOwner(), army, src, dest)) {
+        // Pathfinding refuses unexplored destinations — but stepping into
+        // ADJACENT fog is a basic player ability (how anyone marches into
+        // the unknown). Mirror the explore fallback: a point MOVE_TO order
+        // needs no path. Validate enterability first — a land army ordered
+        // into ocean fog would otherwise "succeed" and silently never move.
+        if (!src.IsNextTo(dest))
+            return Err("move_army", "no_path");
+        if (!w->CanEnter(dest, ad->GetMovementType())) {
+            // One legal exception: BOARDING. A land army may step onto a
+            // water tile that holds an own transport with enough free
+            // cargo space — MoveIntoCell handles the actual embarkation.
+            Cell * dcell = w->GetCell(dest);
+            sint32 capacity = 0;
+            for (sint32 u = 0; dcell && u < dcell->GetNumUnits(); ++u) {
+                Unit t = dcell->AccessUnit(u);
+                if (t.IsValid() && t.GetOwner() == human->GetOwner())
+                    capacity += t.GetData() ? t.GetData()->GetMaxCargoCapacity() : 0;
+            }
+            if (capacity < ad->Num())
+                return Err("move_army", "impassable");
+        }
+        army.ClearOrders();
+        army.AddOrders(UNIT_ORDER_MOVE_TO, dest);
+    }
+
+    // A manual order overrides auto-explore — otherwise the explore tick
+    // would re-route the army somewhere else next turn.
+    for (sint32 u = 0; u < ad->Num(); ++u) {
+        Unit unit = ad->Access(u);
+        if (UnitData * ud = unit.AccessData()) ud->SetExploring(false);
+    }
+
+    // Drain the queued GEV_MoveOrder so the army starts walking now.
+    if (gevmanager_Get())
+        gevmanager_Get()->Process();
+
+    MapPoint now = ad->RetPos();
+    gc_log->info("move_army: army {} ({},{}) -> ({},{}), now at ({},{})",
+                 idx, (int)src.x, (int)src.y, x, y, (int)now.x, (int)now.y);
+
+    json result;
+    result["army"] = idx;
+    result["from"] = { {"x", src.x}, {"y", src.y} };
+    result["dest"] = { {"x", x}, {"y", y} };
+    result["pos"]  = { {"x", now.x}, {"y", now.y} };
+    result["arrived"] = (now.x == x && now.y == y);
+    return Ok("move_army", result);
+}
+
+// auto_explore <army_idx> — hand the army to the explore order; the per-turn
+// hook keeps re-picking new targets, revealing the map without driving every
+// step by hand.
+std::string CmdAutoExplore(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("auto_explore", "game_not_loaded");
+
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("auto_explore", "bad_args");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("auto_explore", "no_human_player");
+
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("auto_explore", "bad_army_index");
+
+    Army army = armies->Access(idx);
+    if (!army.IsValid())
+        return Err("auto_explore", "invalid_army");
+
+    if (!gevmanager_Get())
+        return Err("auto_explore", "no_event_manager");
+    gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ExploreOrder,
+                               GEA_Army, army, GEA_End);
+    gevmanager_Get()->Process();
+
+    gc_log->info("auto_explore: army {}", idx);
+    return Ok("auto_explore");
+}
+
+// ---- queries ------------------------------------------------------------
+
+// Describe one city for the human's viewpoint.
+json CityJson(sint32 owner, sint32 city_idx, const Unit & u)
+{
+    json c;
+    c["owner"] = owner;
+    c["index"] = city_idx;
+    MapPoint pos;
+    u.GetPos(pos);
+    c["pos"] = { {"x", pos.x}, {"y", pos.y} };
+    c["name"] = ToUtf8(u.GetName());
+
+    CityData * cd = u.GetData() ? u.GetData()->GetCityData() : nullptr;
+    if (cd) {
+        c["population"] = cd->PopCount();
+        // Net per-turn yields — what the city panel shows the player.
+        json y;
+        y["food"]       = cd->GetNetCityFood();
+        y["production"] = cd->GetNetCityProduction();
+        y["gold"]       = cd->GetNetCityGold();
+        y["science"]    = cd->GetScience();
+        y["happiness"]  = cd->GetHappiness();
+        c["yields"] = y;
+        BuildNode * head = cd->GetBuildQueue() ? cd->GetBuildQueue()->GetHead() : nullptr;
+        if (head) {
+            c["building"] = { {"category", head->m_category},
+                              {"type",     head->m_type},
+                              {"cost",     head->m_cost} };
+        } else {
+            c["building"] = nullptr;
+        }
+    }
+    return c;
+}
+
+// query_cities — every city visible to the human (fog-of-war filtered).
+std::string QueryCities()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_cities", "game_not_loaded");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_cities", "no_human_player");
+
+    json cities = json::array();
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        if (!player_Get(p)) continue;
+        UnitDynamicArray * list = player_Get(p)->GetAllCitiesList();
+        if (!list) continue;
+        for (sint32 i = 0; i < list->Num(); ++i) {
+            Unit u = list->Access(i);
+            if (!u.IsValid()) continue;
+            MapPoint pos;
+            u.GetPos(pos);
+            // Only what the human can actually see.  A player always sees its
+            // own cities; enemy cities only when their tile is visible.
+            bool visible = (p == human->GetOwner()) ||
+                           (human->m_vision && human->m_vision->IsVisible(pos));
+            if (!visible) continue;
+            cities.push_back(CityJson(p, i, u));
+        }
+    }
+
+    json result;
+    result["visible_player"] = human->GetOwner();
+    result["cities"]         = cities;
+    return Ok("query_cities", result);
+}
+
+// query_city <city_idx>  — detail for one of the human's cities, including the
+// buildable-unit affordance list ("what can I do here").
+std::string QueryCity(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_city", "game_not_loaded");
+
+    int city_idx = 0;
+    if (sscanf(args, "%d", &city_idx) != 1)
+        return Err("query_city", "bad_args");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_city", "no_human_player");
+    if (city_idx < 0 || city_idx >= human->GetAllCitiesList()->Num())
+        return Err("query_city", "bad_city_index");
+
+    Unit u = human->GetAllCitiesList()->Access(city_idx);
+    if (!u.IsValid() || !u.GetData() || !u.GetData()->GetCityData())
+        return Err("query_city", "invalid_city");
+
+    json result   = CityJson(human->GetOwner(), city_idx, u);
+    CityData * cd = u.GetData()->GetCityData();
+    sint32 gov    = human->GetGovernmentType();
+
+    // Buildable units: the affordance set a player would see in the build menu.
+    json buildable = json::array();
+    for (sint32 i = 0; i < g_theUnitDB->NumRecords(); ++i) {
+        if (!cd->CanBuildUnit(i)) continue;
+        const UnitRecord * rec = g_theUnitDB->Get(i, gov);
+        json item;
+        item["category"] = k_GAME_OBJ_TYPE_UNIT;
+        item["type"]     = i;
+        item["name"]     = rec ? ToUtf8(rec->GetNameText()) : "";
+        item["cost"]     = rec ? rec->GetShieldCost() : 0;
+        item["attack"]   = rec ? rec->GetAttack() : 0.0;
+        item["defense"]  = rec ? rec->GetDefense() : 0.0;
+        buildable.push_back(item);
+    }
+    result["buildable"] = buildable;
+
+    // Buildable city improvements (granary-class growth levers) — with
+    // names: the model must be able to find "Granary" without a DB dump.
+    json buildings = json::array();
+    for (sint32 i = 0; g_theBuildingDB && i < g_theBuildingDB->NumRecords(); ++i) {
+        if (!cd->CanBuildBuilding(i)) continue;
+        const BuildingRecord * rec = g_theBuildingDB->Get(i, gov);
+        if (!rec) continue;
+        json item;
+        item["category"] = k_GAME_OBJ_TYPE_IMPROVEMENT;
+        item["type"]     = i;
+        item["name"]     = ToUtf8(rec->GetNameText());
+        item["cost"]     = rec->GetProductionCost();
+        buildings.push_back(item);
+    }
+    result["buildable_buildings"] = buildings;
+    return Ok("query_city", result);
+}
+
+// query_units — every unit the human can see (fog-of-war filtered via the unit
+// visibility bitmask, same mechanism the renderer uses). Includes the human's
+// own units. Reports type, position, hp and whether it is a city.
+std::string QueryUnits()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_units", "game_not_loaded");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_units", "no_human_player");
+    sint32 vis = human->GetOwner();
+
+    json units = json::array();
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        if (!player_Get(p) || !player_Get(p)->m_all_units) continue;
+        for (sint32 i = 0; i < player_Get(p)->m_all_units->Num(); ++i) {
+            Unit u = player_Get(p)->m_all_units->Access(i);
+            if (!u.IsValid()) continue;
+            if (!(u.GetVisibility() & (1 << vis))) continue;
+            MapPoint pos;
+            u.GetPos(pos);
+            json j;
+            j["owner"]   = p;
+            j["type"]    = u.GetType();
+            j["name"]    = ToUtf8(u.GetName());
+            j["pos"]     = { {"x", pos.x}, {"y", pos.y} };
+            j["hp"]      = u.GetHP();
+            j["is_city"] = u.IsCity();
+            units.push_back(j);
+        }
+    }
+
+    json result;
+    result["visible_player"] = vis;
+    result["units"]          = units;
+    return Ok("query_units", result);
+}
+
+// query_research — the science affordance set: what's being researched, what
+// could be, and what each option costs. Research is the main score engine
+// (advances unlock units/buildings/terraform and feed the score formula).
+std::string QueryResearch()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_research", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human || !human->m_advances)
+        return Err("query_research", "no_human_player");
+    if (!g_theAdvanceDB)
+        return Err("query_research", "no_advance_db");
+
+    Advances * adv = human->m_advances;
+    sint32 researching = adv->GetResearching();
+
+    json result;
+    json cur;
+    cur["id"] = researching;
+    if (researching >= 0 && researching < g_theAdvanceDB->NumRecords()) {
+        const AdvanceRecord * r = g_theAdvanceDB->Get(researching);
+        cur["name"] = r ? ToUtf8(r->GetNameText()) : "";
+        cur["cost"] = adv->GetCost(researching);
+    }
+    result["researching"] = cur;
+
+    sint32 known = 0;
+    json avail = json::array();
+    for (sint32 i = 0; i < g_theAdvanceDB->NumRecords(); ++i) {
+        if (adv->HasAdvance(i)) { ++known; continue; }
+        if (!adv->CanResearch(i)) continue;
+        const AdvanceRecord * r = g_theAdvanceDB->Get(i);
+        if (!r) continue;
+        json j;
+        j["id"]   = i;
+        j["name"] = ToUtf8(r->GetNameText());
+        j["cost"] = adv->GetCost(i);
+        avail.push_back(j);
+    }
+    result["known_count"] = known;
+    result["available"]   = avail;
+    return Ok("query_research", result);
+}
+
+// set_research <advance_id>
+std::string CmdSetResearch(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("set_research", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human || !human->m_advances)
+        return Err("set_research", "no_human_player");
+
+    int id = -1;
+    if (sscanf(args, "%d", &id) != 1)
+        return Err("set_research", "bad_args");
+    if (!g_theAdvanceDB || id < 0 || id >= g_theAdvanceDB->NumRecords())
+        return Err("set_research", "bad_advance");
+    if (human->m_advances->HasAdvance(id))
+        return Err("set_research", "already_known");
+    if (!human->m_advances->CanResearch(id))
+        return Err("set_research", "prerequisites_missing");
+
+    human->StartResearching(id);
+    const AdvanceRecord * r = g_theAdvanceDB->Get(id);
+    json result;
+    result["id"]   = id;
+    result["name"] = r ? ToUtf8(r->GetNameText()) : "";
+    gc_log->info("set_research: {} ({})", id, r ? r->GetNameText() : "?");
+    return Ok("set_research", result);
+}
+
+// query_terraform <x> <y> — terraform options for one tile: which transform
+// improvements the player can build there, what terrain they yield, and the
+// Public Works price (with the player's PW balance for context).
+std::string QueryTerraform(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_terraform", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_terraform", "no_human_player");
+
+    int x = -1, y = -1;
+    if (sscanf(args, "%d %d", &x, &y) != 2)
+        return Err("query_terraform", "bad_args");
+    World * w = world_Get();
+    if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+        return Err("query_terraform", "bad_position");
+
+    MapPoint pos((sint16)x, (sint16)y);
+    sint32 const terrain = w->GetTerrainType(pos);
+    sint32 const materials = human->GetMaterialsStored();
+    Cell * cell = w->GetCell(pos);
+
+    json options = json::array();
+    for (sint32 i = 0; g_theTerrainImprovementDB && i < g_theTerrainImprovementDB->NumRecords(); ++i) {
+        const TerrainImprovementRecord * rec = g_theTerrainImprovementDB->Get(i);
+        if (!rec || (!rec->GetClassTerraform() && !rec->GetClassOceanform())) continue;
+        sint32 to = -1;
+        if (!rec->GetTerraformTerrainIndex(to)) continue;
+        if (to == terrain) continue;  // no-op transform
+        if (!terrainutil_CanPlayerBuildAt(rec, human->GetOwner(), pos)) continue;
+        sint32 const cost = terrainutil_GetProductionCost(i, pos, 0);
+        json o;
+        o["improvement_id"]  = i;
+        o["name"]            = ToUtf8(rec->GetNameText());
+        o["to_terrain"]      = to;
+        const TerrainRecord * tr = g_theTerrainDB ? g_theTerrainDB->Get(to) : nullptr;
+        o["to_terrain_name"] = tr ? ToUtf8(tr->GetNameText()) : "";
+        o["cost"]            = cost;
+        o["turns"]           = terrainutil_GetProductionTime(i, pos, 0);
+        o["affordable"]      = cost <= materials;
+        options.push_back(o);
+    }
+
+    json result;
+    result["pos"]          = { {"x", x}, {"y", y} };
+    result["terrain"]      = terrain;
+    // Terraforming only works INSIDE your borders — surface the owner so a
+    // driver understands an empty options list.
+    result["tile_owner"]   = cell ? cell->GetOwner() : -1;
+    result["materials"]    = materials;
+    result["material_tax"] = human->m_materialsTax;
+    result["options"]      = options;
+    return Ok("query_terraform", result);
+}
+
+// terraform <x> <y> <improvement_id> — spend Public Works to start a terrain
+// transform; it completes after the option's `turns`.
+std::string CmdTerraform(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("terraform", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("terraform", "no_human_player");
+
+    int x = -1, y = -1, id = -1;
+    if (sscanf(args, "%d %d %d", &x, &y, &id) != 3)
+        return Err("terraform", "bad_args");
+    World * w = world_Get();
+    if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+        return Err("terraform", "bad_position");
+    if (!g_theTerrainImprovementDB || id < 0 || id >= g_theTerrainImprovementDB->NumRecords())
+        return Err("terraform", "bad_improvement");
+
+    MapPoint pos((sint16)x, (sint16)y);
+    ERR_BUILD_INST err;
+    if (!human->CanCreateImprovement(id, pos, 0, true, err))
+        return Err("terraform", "cannot_build_here");
+
+    TerrainImprovement imp = human->CreateImprovement(id, pos, 0);
+    if (!terrimprovepool_Get() || !terrimprovepool_Get()->IsValid(imp.m_id))
+        return Err("terraform", "create_failed");
+    if (gevmanager_Get())
+        gevmanager_Get()->Process();
+
+    json result;
+    result["pos"]   = { {"x", x}, {"y", y} };
+    result["turns"] = terrainutil_GetProductionTime(id, pos, 0);
+    gc_log->info("terraform: improvement {} at ({},{})", id, x, y);
+    return Ok("terraform", result);
+}
+
+// set_material_tax <percent 0..100> — divert city production into the Public
+// Works pool that pays for terraforming. Without this the human's PW stays 0.
+std::string CmdSetMaterialTax(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("set_material_tax", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("set_material_tax", "no_human_player");
+
+    int pct = -1;
+    if (sscanf(args, "%d", &pct) != 1 || pct < 0 || pct > 100)
+        return Err("set_material_tax", "bad_args");
+
+    human->SetMaterialsTax(pct / 100.0);
+    json result;
+    result["material_tax"] = human->m_materialsTax;
+    return Ok("set_material_tax", result);
+}
+
+// board <army_idx> — embark a land army into transports standing ON ITS OWN
+// TILE (port boarding: city tile holds both troops and docked boats).
+// Boarding an ADJACENT transport is move_army onto its tile.
+std::string CmdBoard(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("board", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("board", "no_human_player");
+
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("board", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("board", "bad_army_index");
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("board", "invalid_army");
+
+    army.ClearOrders();
+    army.AddOrders(UNIT_ORDER_BOARD_TRANSPORT);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    gc_log->info("board: army {}", idx);
+    return Ok("board");
+}
+
+// unload <army_idx> <x> <y> — order a transport army to disembark its cargo
+// onto an adjacent tile (the amphibious landing). The game validates
+// passability/capacity; we report the cargo count afterwards.
+std::string CmdUnload(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("unload", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("unload", "no_human_player");
+
+    int idx = -1, x = -1, y = -1;
+    if (sscanf(args, "%d %d %d", &idx, &x, &y) != 3)
+        return Err("unload", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("unload", "bad_army_index");
+    World * w = world_Get();
+    if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+        return Err("unload", "bad_position");
+
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("unload", "invalid_army");
+
+    MapPoint dest((sint16)x, (sint16)y);
+    if (!ad->RetPos().IsNextTo(dest) && !(ad->RetPos() == dest))
+        return Err("unload", "not_adjacent");
+
+    if (!gevmanager_Get())
+        return Err("unload", "no_event_manager");
+    gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UnloadOrder,
+                               GEA_Army, army,
+                               GEA_MapPoint, dest, GEA_End);
+    gevmanager_Get()->Process();
+
+    json result;
+    result["army"] = idx;
+    result["pos"]  = { {"x", x}, {"y", y} };
+    gc_log->info("unload: army {} at ({},{})", idx, x, y);
+    return Ok("unload", result);
+}
+
+// group_army <army_idx> — merge EVERY unit standing on the army's tile into
+// it (the UI's "group all"). Stacks up to 12 units fight as ONE army —
+// campaign 4 was lost by sending single-unit armies into a stack.
+std::string CmdGroupArmy(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("group_army", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("group_army", "no_human_player");
+
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("group_army", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("group_army", "bad_army_index");
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("group_army", "invalid_army");
+
+    ad->GroupAllUnits();
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    json result;
+    result["army"]  = idx;
+    result["units"] = ad->Num();
+    gc_log->info("group_army: army {} now {} units", idx, (int)ad->Num());
+    return Ok("group_army", result);
+}
+
+// ungroup_army <army_idx> — split the stack back into single-unit armies.
+std::string CmdUngroupArmy(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("ungroup_army", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("ungroup_army", "no_human_player");
+
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("ungroup_army", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("ungroup_army", "bad_army_index");
+    Army army = armies->Access(idx);
+    if (!army.IsValid() || !army.AccessData())
+        return Err("ungroup_army", "invalid_army");
+
+    if (gevmanager_Get()) {
+        gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
+                                   GEA_Army, army, GEA_End);
+        gevmanager_Get()->Process();
+    }
+    return Ok("ungroup_army");
+}
+
+// declare_war <player_id> — formal war declaration via the diplomacy layer
+// (sets the DECLARE_WAR agreement both engines honor). Requires CONTACT:
+// you cannot declare war on a civilization you have never met.
+std::string CmdDeclareWar(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("declare_war", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("declare_war", "no_human_player");
+
+    int id = -1;
+    if (sscanf(args, "%d", &id) != 1)
+        return Err("declare_war", "bad_args");
+    if (id < 0 || id >= k_MAX_PLAYERS || !player_Get(id))
+        return Err("declare_war", "bad_player");
+    if (id == human->GetOwner())
+        return Err("declare_war", "thats_you");
+    if (human->HasWarWith(id))
+        return Err("declare_war", "already_at_war");
+    if (!human->HasContactWith(id) || !player_Get(id)->HasContactWith(human->GetOwner()))
+        return Err("declare_war", "no_contact");
+
+    Diplomat::GetDiplomat(human->GetOwner()).DeclareWar(id);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    json result;
+    result["target"] = id;
+    result["at_war"] = human->HasWarWith(id);
+    gc_log->info("declare_war: {} -> {}", (int)human->GetOwner(), id);
+    return Ok("declare_war", result);
+}
+
+// attack <army_idx> <x> <y> — order an army onto an ADJACENT enemy-occupied
+// tile; the move resolves combat (and captures the city if the defenders
+// die and a city stands there). Requires being at war with the defender.
+std::string CmdAttack(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("attack", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("attack", "no_human_player");
+
+    int idx = -1, x = -1, y = -1;
+    if (sscanf(args, "%d %d %d", &idx, &x, &y) != 3)
+        return Err("attack", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("attack", "bad_army_index");
+    World * w = world_Get();
+    if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+        return Err("attack", "bad_position");
+
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("attack", "invalid_army");
+
+    MapPoint src = ad->RetPos();
+    MapPoint dest((sint16)x, (sint16)y);
+    if (!src.IsNextTo(dest))
+        return Err("attack", "not_adjacent");
+
+    Cell * cell = w->GetCell(dest);
+    sint32 defender = -1;
+    if (cell && cell->GetCity().IsValid())
+        defender = cell->GetCity().GetOwner();
+    else if (cell && cell->GetNumUnits() > 0)
+        defender = cell->AccessUnit(0).GetOwner();
+    if (defender < 0)
+        return Err("attack", "nothing_to_attack");
+    if (defender == human->GetOwner())
+        return Err("attack", "own_forces");
+    if (!human->HasWarWith(defender))
+        return Err("attack", "not_at_war");
+
+    // A manual order overrides auto-explore.
+    for (sint32 u = 0; u < ad->Num(); ++u) {
+        Unit unit = ad->Access(u);
+        if (UnitData * ud = unit.AccessData()) ud->SetExploring(false);
+    }
+    army.ClearOrders();
+    army.AddOrders(UNIT_ORDER_MOVE_TO, dest);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    // Report what the battlefield looks like afterwards.
+    MapPoint now = ad->RetPos();
+    json result;
+    result["army_survived"]  = armypool_Get() && army.IsValid();
+    result["pos"]            = { {"x", now.x}, {"y", now.y} };
+    result["captured_tile"]  = (now.x == x && now.y == y);
+    cell = w->GetCell(dest);
+    result["defenders_left"] = cell ? cell->GetNumUnits() : 0;
+    gc_log->info("attack: army {} ({},{}) -> ({},{})", idx, (int)src.x, (int)src.y, x, y);
+    return Ok("attack", result);
+}
+
+// grant_advance <advance_id> — DEBUG/TEST cheat: hand the human an advance
+// outright (prerequisites included via the game's own SetHasAdvance). Exists
+// so integration tests can reach late-game mechanics (e.g. swamp terraform
+// needs Industrial Revolution) without playing 300 rounds. Not exposed as an
+// MCP tool; reachable via raw_cmd when explicitly requested.
+std::string CmdGrantAdvance(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("grant_advance", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human || !human->m_advances)
+        return Err("grant_advance", "no_human_player");
+
+    int id = -1;
+    if (sscanf(args, "%d", &id) != 1)
+        return Err("grant_advance", "bad_args");
+    if (!g_theAdvanceDB || id < 0 || id >= g_theAdvanceDB->NumRecords())
+        return Err("grant_advance", "bad_advance");
+
+    // Player::SetHasAdvance is the notification/ceremony layer and does NOT
+    // store the bit — the Advances object does.
+    human->m_advances->SetHasAdvance(id);
+    const AdvanceRecord * r = g_theAdvanceDB->Get(id);
+    gc_log->info("grant_advance (DEBUG): {} ({})", id, r ? r->GetNameText() : "?");
+    json result;
+    result["id"]   = id;
+    result["name"] = r ? ToUtf8(r->GetNameText()) : "";
+    return Ok("grant_advance", result);
+}
+
+// query_map — terrain, fog state and city markers for every tile the human has
+// explored. Only explored tiles are listed (unexplored tiles are omitted
+// entirely); the "visible" flag distinguishes currently-seen tiles from
+// remembered ones. Units belong to query_units; this stays terrain+cities.
+std::string QueryMap()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_map", "game_not_loaded");
+
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_map", "no_human_player");
+    World * w = world_Get();
+    if (!w)
+        return Err("query_map", "no_world");
+    Vision * vis = human->m_vision;
+
+    const sint32 W = w->GetXWidth();
+    const sint32 H = w->GetYHeight();
+    json tiles = json::array();
+    sint32 n_explored = 0, n_visible = 0;
+
+    for (sint32 y = 0; y < H; ++y) {
+        for (sint32 x = 0; x < W; ++x) {
+            MapPoint pos(x, y);
+            if (!(vis && vis->IsExplored(pos))) continue;
+            ++n_explored;
+            bool visible = vis->IsVisible(pos);
+            if (visible) ++n_visible;
+
+            Cell * c = w->GetCell(pos);
+            json t;
+            t["x"]       = x;
+            t["y"]       = y;
+            t["terrain"] = c ? c->GetTerrain() : -1;
+            t["visible"] = visible;
+            if (c) {
+                Unit city = c->GetCity();
+                if (city.IsValid())
+                    t["city"] = (sint32)city.GetOwner();
+            }
+            tiles.push_back(t);
+        }
+    }
+
+    json result;
+    result["visible_player"] = human->GetOwner();
+    result["width"]    = W;
+    result["height"]   = H;
+    result["explored"] = n_explored;
+    result["visible"]  = n_visible;
+    result["tiles"]    = tiles;
+    return Ok("query_map", result);
+}
+
+// ---- admin queries --------------------------------------------------------
+//
+// Unlike the player-view queries above, these are OMNISCIENT: they report the
+// whole game state with no fog-of-war filtering. They exist for the gateway's
+// admin panel and debugging — a driver that wants the player's perspective
+// must use the query_* family instead.
+
+// One player slot, shared by query_players and query_player so the two can
+// never drift apart.
+json PlayerJson(sint32 p, Player * pl)
+{
+    std::string name = ToUtf8(pl->GetLeaderName());
+    // Civilisation names come from the game's StringDB via the player's
+    // Civilisation object — never synthesized here.
+    MBCHAR civ[k_MAX_NAME_LEN]     = {0};
+    MBCHAR country[k_MAX_NAME_LEN] = {0};
+    Civilisation * c = pl->GetCivilisation();
+    if (c && c->AccessData()) {
+        c->GetSingularCivName(civ);
+        c->GetCountryName(country);
+    }
+    json j;
+    j["id"]         = p;
+    j["name"]       = name;
+    j["civ"]        = ToUtf8(civ);       // adjective/singular, e.g. "Roman"
+    j["country"]    = ToUtf8(country);   // nation, e.g. "Rome"
+    j["human"]      = pl->IsHuman();
+    j["dead"]       = pl->IsDead();
+    j["gold"]       = pl->GetGold();
+    j["num_cities"] = pl->GetNumCities();
+    j["num_units"]  = pl->m_all_units ? pl->m_all_units->Num() : 0;
+    j["num_armies"] = pl->GetAllArmiesList() ? pl->GetAllArmiesList()->Num() : 0;
+    j["government"] = pl->GetGovernmentType();
+    j["score"]      = pl->m_score ? pl->m_score->GetTotalScore() : 0;
+    // Diplomacy relative to the HUMAN player (null for the human's own row).
+    if (Player * human = HumanPlayer(); human && human->GetOwner() != p) {
+        j["contact"] = human->HasContactWith(p);
+        j["at_war"]  = human->HasWarWith(p);
+    }
+    if (pl->m_score) {
+        // The components the score screen shows — RANK is RELATIVE, so a
+        // player's score can fall while every absolute number improves.
+        json sc;
+        sc["feats"]      = pl->m_score->GetPartialScore(SCORE_CAT_FEATS);
+        sc["advances"]   = pl->m_score->GetPartialScore(SCORE_CAT_ADVANCES);
+        sc["wonders"]    = pl->m_score->GetPartialScore(SCORE_CAT_WONDERS);
+        sc["population"] = pl->m_score->GetPartialScore(SCORE_CAT_POPULATION);
+        sc["cities"]     = pl->m_score->GetPartialScore(SCORE_CAT_CITIES0TO30)
+                         + pl->m_score->GetPartialScore(SCORE_CAT_CITIES30TO100)
+                         + pl->m_score->GetPartialScore(SCORE_CAT_CITIES100TO500)
+                         + pl->m_score->GetPartialScore(SCORE_CAT_CITIES500PLUS);
+        sc["conquest"]   = pl->m_score->GetPartialScore(SCORE_CAT_OPPONENTS_CONQUERED)
+                         + pl->m_score->GetPartialScore(SCORE_CAT_CITIES_RECAPTURED);
+        sc["rank"]       = pl->m_score->GetPartialScore(SCORE_CAT_RANK);
+        j["score_breakdown"] = sc;
+    }
+    return j;
+}
+
+// query_players — every live player slot with headline stats.
+std::string QueryPlayers()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_players", "game_not_loaded");
+
+    json players = json::array();
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        Player * pl = player_Get(p);
+        if (!pl) continue;
+        players.push_back(PlayerJson(p, pl));
+    }
+
+    json result;
+    result["players"] = players;
+    return Ok("query_players", result);
+}
+
+// query_player <id> — one player slot (same shape as a query_players entry).
+std::string QueryPlayer(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_player", "game_not_loaded");
+
+    int id = -1;
+    if (sscanf(args, "%d", &id) != 1)
+        return Err("query_player", "bad_args");
+    if (id < 0 || id >= k_MAX_PLAYERS || !player_Get(id))
+        return Err("query_player", "bad_player");
+
+    return Ok("query_player", PlayerJson(id, player_Get(id)));
+}
+
+// query_turn — where the clock stands. Session-level accessors on purpose:
+// the legacy GetRound/GetYear route through the currently-viewing PLAYER's
+// recorded round, which lags the global clock between rounds — exactly the
+// idle window in which this query runs.
+std::string QueryTurn()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_turn", "game_not_loaded");
+
+    json result;
+    result["round"] = turn_Get() ? turn_Get()->GetSessionRound() : 0;
+    result["year"]  = turn_Get() ? turn_Get()->GetSessionYear()  : 0;
+    return Ok("query_turn", result);
+}
+
+// query_player_cities <player_id> — ALL cities of one player (no fog filter).
+std::string QueryPlayerCities(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_player_cities", "game_not_loaded");
+
+    int id = -1;
+    if (sscanf(args, "%d", &id) != 1)
+        return Err("query_player_cities", "bad_args");
+    if (id < 0 || id >= k_MAX_PLAYERS || !player_Get(id))
+        return Err("query_player_cities", "bad_player");
+
+    json cities = json::array();
+    UnitDynamicArray * list = player_Get(id)->GetAllCitiesList();
+    for (sint32 i = 0; list && i < list->Num(); ++i) {
+        Unit u = list->Access(i);
+        if (!u.IsValid()) continue;
+        cities.push_back(CityJson(id, i, u));
+    }
+
+    json result;
+    result["owner"]  = id;
+    result["cities"] = cities;
+    return Ok("query_player_cities", result);
+}
+
+// query_terrains — static dictionary mapping terrain ids (as reported by
+// query_map) to names, passability and base tile yields. Values come from
+// the game's TerrainRecord DB; fetch once and cache client-side.
+std::string QueryTerrains()
+{
+    if (!g_theTerrainDB)
+        return Err("query_terrains", "no_terrain_db");
+
+    json list = json::array();
+    for (sint32 i = 0; i < g_theTerrainDB->NumRecords(); ++i) {
+        const TerrainRecord * t = g_theTerrainDB->Get(i);
+        if (!t) continue;
+        const TerrainRecord::Modifiers * m = t->GetEnvBase();
+        sint32 movement = 0;
+        if (m) m->GetMovement(movement);
+        json j;
+        j["id"]       = i;
+        j["name"]     = ToUtf8(t->GetNameText());
+        j["internal"] = ToUtf8(t->GetIDText());
+        j["land"]     = t->GetMovementTypeLand();
+        j["water"]    = t->GetMovementTypeSea() || t->GetMovementTypeShallowWater();
+        j["mountain"] = t->GetMovementTypeMountain();
+        j["food"]     = m ? m->GetFood()   : 0;
+        j["shields"]  = m ? m->GetShield() : 0;
+        j["gold"]     = m ? m->GetGold()   : 0;
+        j["movement"] = movement;  // cost in 1/100 MP; 0 = record default
+        list.push_back(j);
+    }
+
+    json result;
+    result["terrains"] = list;
+    return Ok("query_terrains", result);
+}
+
+}  // namespace
+
+namespace game_controller {
+
+std::string Dispatch(const std::string & line, bool & handled)
+{
+    handled = true;
+
+    if (line == "build_city")                                  return CmdBuildCity();
+    if (line.rfind("set_production ", 0) == 0)                  return CmdSetProduction(line.c_str() + 15);
+    if (line.rfind("save_game ", 0) == 0)                       return CmdSaveGame(line.c_str() + 10);
+    if (line.rfind("load_game ", 0) == 0)                       return CmdLoadGame(line.c_str() + 10);
+    if (line == "query_cities")                                 return QueryCities();
+    if (line.rfind("query_city ", 0) == 0)                      return QueryCity(line.c_str() + 11);
+    if (line == "query_city")                                   return QueryCity("");
+    if (line == "query_units")                                  return QueryUnits();
+    if (line == "query_armies")                                 return QueryArmies();
+    if (line.rfind("move_army ", 0) == 0)                       return CmdMoveArmy(line.c_str() + 10);
+    if (line.rfind("auto_explore ", 0) == 0)                    return CmdAutoExplore(line.c_str() + 13);
+    if (line == "query_map")                                    return QueryMap();
+    if (line == "query_players")                                return QueryPlayers();
+    if (line.rfind("query_player_cities ", 0) == 0)             return QueryPlayerCities(line.c_str() + 20);
+    if (line.rfind("query_player ", 0) == 0)                    return QueryPlayer(line.c_str() + 13);
+    if (line == "query_turn")                                   return QueryTurn();
+    if (line == "query_terrains")                               return QueryTerrains();
+    if (line == "query_research")                               return QueryResearch();
+    if (line.rfind("set_research ", 0) == 0)                    return CmdSetResearch(line.c_str() + 13);
+    if (line.rfind("query_terraform ", 0) == 0)                 return QueryTerraform(line.c_str() + 16);
+    if (line.rfind("terraform ", 0) == 0)                       return CmdTerraform(line.c_str() + 10);
+    if (line.rfind("set_material_tax ", 0) == 0)                return CmdSetMaterialTax(line.c_str() + 17);
+    if (line.rfind("grant_advance ", 0) == 0)                   return CmdGrantAdvance(line.c_str() + 14);
+    if (line.rfind("declare_war ", 0) == 0)                     return CmdDeclareWar(line.c_str() + 12);
+    if (line.rfind("attack ", 0) == 0)                          return CmdAttack(line.c_str() + 7);
+    if (line.rfind("group_army ", 0) == 0)                      return CmdGroupArmy(line.c_str() + 11);
+    if (line.rfind("unload ", 0) == 0)                          return CmdUnload(line.c_str() + 7);
+    if (line.rfind("board ", 0) == 0)                           return CmdBoard(line.c_str() + 6);
+    if (line.rfind("ungroup_army ", 0) == 0)                    return CmdUngroupArmy(line.c_str() + 13);
+
+    handled = false;
+    return std::string();
+}
+
+std::string DispatchSafe(const std::string & line, bool & handled)
+{
+    try {
+        return Dispatch(line, handled);
+    } catch (const std::exception & e) {
+        gc_log->error("Dispatch threw on '{}': {}", line, e.what());
+    } catch (...) {
+        gc_log->error("Dispatch threw a non-std exception on '{}'", line);
+    }
+    handled = true;
+    std::string verb = line.substr(0, line.find(' '));
+    return Err(verb.c_str(), "exception");
+}
+
+}  // namespace game_controller

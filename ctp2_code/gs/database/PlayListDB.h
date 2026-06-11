@@ -1,6 +1,7 @@
 #ifndef __PLAYLISTDB_H__
 #define __PLAYLISTDB_H__
 
+#include <memory>
 
 class PlayListDB
 {
@@ -15,7 +16,7 @@ public:
 
 private:
 	sint32		m_numSongs;
-	sint32		*m_playList;
+	std::unique_ptr<sint32[]> m_playList;
 };
 
 #endif

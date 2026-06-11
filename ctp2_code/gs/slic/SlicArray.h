@@ -4,6 +4,8 @@
 #ifndef __SLIC_ARRAY_H__
 #define __SLIC_ARRAY_H__
 
+#include <memory>
+
 #include "gs/slic/slicif.h"
 #include "gs/slic/SlicStack.h"
 #include <nlohmann/json.hpp>
@@ -15,7 +17,7 @@ class SlicArray {
 private:
 	SS_TYPE m_type;
 	SLIC_SYM m_varType;
-	SlicStackValue *m_array;
+	std::unique_ptr<SlicStackValue[]> m_array;
 	sint32 m_arraySize;
 	uint32 m_allocatedSize;
 	SlicStructDescription *m_structTemplate;

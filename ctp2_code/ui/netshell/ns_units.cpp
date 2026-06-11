@@ -43,13 +43,12 @@ void       nsunits_Set(ns_Units *p)  { g_nsUnits = p; }
 
 ns_Units::ns_Units()
 :
-	m_noIndex       (nullptr),
     m_stringtable   (nullptr)
 {
 	Assert(g_theUnitDB->NumRecords() <= k_UNITS_MAX);
     sint32      numUnits    =
         std::min<sint32>(k_UNITS_MAX, g_theUnitDB->NumRecords());
-	m_noIndex = new sint32[numUnits];
+	m_noIndex.resize(numUnits);
 
 	AUI_ERRCODE errcode     = AUI_ERRCODE_OK;
 	m_stringtable = new aui_StringTable(&errcode, numUnits);
@@ -68,5 +67,5 @@ ns_Units::ns_Units()
 ns_Units::~ns_Units()
 {
 	delete m_stringtable;
-	delete [] m_noIndex;
+	// m_noIndex is std::vector, auto-freed
 }

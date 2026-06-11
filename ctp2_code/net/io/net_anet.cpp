@@ -23,7 +23,6 @@ ActivNetIO::ActivNetIO()
 	m_sessionState = SESSION_STATE_READY;
 	m_isHost = FALSE;
 	m_response = nullptr;
-	m_name = nullptr;
 	m_hostId = 0;
 	m_pid = 0;
 	m_broadcastAddMessage = FALSE;
@@ -32,8 +31,6 @@ ActivNetIO::ActivNetIO()
 
 ActivNetIO::~ActivNetIO()
 {
-	delete [] m_name;
-
 	if(m_dp) {
 		dpDestroyPlayer(m_dp, m_pid);
 		Idle();
@@ -478,7 +475,7 @@ ActivNetIO::Idle()
 		res = dpCreatePlayer(m_dp,
 							 anet_PlayerReadyCallback,
 							 this,
-							 m_name);
+							 m_name.empty() ? nullptr : const_cast<char *>(m_name.c_str()));
 		if(res != dp_RES_OK) {
 			return NET_ERR_TRANSPORTERROR;
 		}
@@ -729,9 +726,7 @@ ActivNetIO::Idle()
 NET_ERR
 ActivNetIO::SetName(char* name)
 {
-    delete [] m_name;
-	m_name = new char[strlen(name) + 1];
-	strcpy(m_name, name);
+	m_name = name ? name : "";
 	return NET_ERR_OK;
 }
 

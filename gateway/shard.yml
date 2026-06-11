@@ -1,0 +1,32 @@
+name: ctp2-gateway
+version: 0.1.0
+
+description: |
+  One-process observability/control server for CTP2: fronts the game's
+  Unix-socket test API with HTTP (curl debugging), an admin panel, MCP
+  (streamable HTTP) and a WebSocket gateway.
+
+authors:
+  - Aleksander Kwiatkowski
+
+crystal: ">= 1.19.0"
+
+license: MIT
+
+targets:
+  ctp2-gateway:
+    main: src/ctp2_gateway.cr
+
+dependencies:
+  athena:
+    github: athena-framework/framework
+    version: ~> 0.22.0
+
+development_dependencies:
+  # ASPEC::TestCase + ATH::Spec::APITestCase (kernel-level request specs
+  # with no real HTTP server).
+  athena-spec:
+    github: athena-framework/spec
+
+# Athena adopted 2026-06-10 (was stdlib-only): annotation routing, DI,
+# event-based middleware — and Olek's learning project for the framework.

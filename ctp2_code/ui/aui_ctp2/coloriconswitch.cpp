@@ -34,7 +34,7 @@ ColorIconSwitch::ColorIconSwitch(
 	c3_Switch( retval, id, x, y, width, height, pattern, ActionFunc, cookie )
 {
 	m_shrinkToFit = FALSE;
-	m_filename = nullptr;
+	// m_filename default constructed (empty)
 
 	SetRect(&m_pictureRect, 0, 0, 0, 0);
 
@@ -53,7 +53,7 @@ ColorIconSwitch::ColorIconSwitch(
 	c3_Switch( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	m_shrinkToFit = FALSE;
-	m_filename = nullptr;
+	// m_filename default constructed (empty)
 
 	SetRect(&m_pictureRect, 0, 0, 0, 0);
 
@@ -152,15 +152,10 @@ void ColorIconSwitch::SetIcon(MBCHAR *name)
 {
 	if (name == nullptr) return;
 
-	delete[] m_filename;
+	m_filename = name;
 
-	m_filename = new MBCHAR[_MAX_PATH];
-
-
-	strcpy(m_filename, name);
-
-	if (strcmp(m_filename, "") != 0)
-		SetImage(m_filename, 0);
+	if (!m_filename.empty())
+		SetImage(m_filename.c_str(), 0);
 
 
 
@@ -196,7 +191,7 @@ AUI_ERRCODE ColorIconSwitch::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
 
 ColorIconSwitch::~ColorIconSwitch()
 {
-	delete [] m_filename;
+	// m_filename is std::string, auto-freed
 }
 
 AUI_ERRCODE ColorIconSwitch::DrawThis( aui_Surface *surface, sint32 x, sint32 y )

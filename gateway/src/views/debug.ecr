@@ -1,0 +1,36 @@
+<h1 class="page-title reveal">The <em>workshop</em></h1>
+<p class="page-sub reveal">gateway internals · game exchange journal, newest first</p>
+
+<div class="card reveal">
+  <dl class="kv">
+    <dt>socket</dt><dd><code><%= HTML.escape(@socket) %></code></dd>
+    <dt>connected</dt><dd><% if @connected %><span class="seal seal--ok"></span>yes<% else %><span class="seal seal--bad"></span>no<% end %></dd>
+    <% if le = @last_error %><dt>last socket error</dt><dd class="mono"><%= HTML.escape(le) %></dd><% end %>
+    <% if s = @spawn_line %><dt>spawned game</dt><dd><%= HTML.escape(s) %></dd><% end %>
+  </dl>
+</div>
+
+<% if @exchanges.empty? %>
+  <div class="card reveal"><span class="muted">No exchanges yet — issue a command or open the dashboard.</span></div>
+<% else %>
+  <div class="reveal">
+  <table class="ledger">
+    <tr><th>at (utc)</th><th>command</th><th>outcome</th><th class="num">ms</th><th>response / error</th></tr>
+    <% @exchanges.each do |e| %>
+      <tr>
+        <td class="mono"><%= e.at.to_s("%H:%M:%S.%3N") %></td>
+        <td class="mono"><%= HTML.escape(e.cmd) %></td>
+        <td><%= e.ok ? %(<span class="badge badge--ok">ok</span>) : %(<span class="badge badge--bad">error</span>) %></td>
+        <td class="num"><%= e.duration.total_milliseconds.round(1) %></td>
+        <td class="mono muted snippet"><%= HTML.escape(e.detail) %></td>
+      </tr>
+    <% end %>
+  </table>
+  </div>
+<% end %>
+
+<div class="card reveal muted">
+  test the error rendering: <a href="/debug/boom">/debug/boom</a> (HTML) ·
+  <code>curl localhost:8666/api/debug/boom</code> (JSON) ·
+  API docs: <code>curl localhost:8666/api</code>
+</div>

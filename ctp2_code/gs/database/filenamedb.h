@@ -4,6 +4,8 @@
 #ifndef __FILENAME_DB_H__
 #define __FILENAME_DB_H__ 1
 
+#include <memory>
+
 class Token;
 
 struct FilenameNode {
@@ -26,7 +28,7 @@ class FilenameDB {
 
 
 
-	FilenameNode *m_map;
+	std::unique_ptr<FilenameNode[]> m_map;
 
 
 public:

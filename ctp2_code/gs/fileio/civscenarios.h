@@ -5,6 +5,8 @@
 #ifndef __CIVSCENARIOS_H__
 #define __CIVSCENARIOS_H__
 
+#include <vector>
+
 #define k_SCENARIO_PACK_NAME_MAX		_MAX_PATH
 #define k_SCENARIO_PACK_DESC_MAX		512
 #define k_SCENARIO_NAME_MAX				_MAX_PATH
@@ -27,8 +29,7 @@ struct ScenarioPack {
 	MBCHAR		m_path[_MAX_PATH];
 	MBCHAR		m_name[k_SCENARIO_PACK_NAME_MAX];
 	MBCHAR		m_description[k_SCENARIO_PACK_DESC_MAX];
-	sint32		m_numScenarios;
-	Scenario	*m_scenarios;
+	std::vector<Scenario> m_scenarios;
 };
 
 class SaveInfo;
@@ -57,7 +58,7 @@ public:
 
 	void	ReloadData();
 
-	sint32			GetNumScenarioPacks() const { return m_numScenarioPacks; }
+	sint32			GetNumScenarioPacks() const { return static_cast<sint32>(m_scenarioPacks.size()); }
 	ScenarioPack	*GetScenarioPack(sint32 which);
 	ScenarioPack    *GetScenarioPackByPath(const MBCHAR *path);
 
@@ -82,8 +83,7 @@ public:
 	CIV_SCEN_ERR MakeNewScenario(ScenarioPack *pack, MBCHAR *scenName, MBCHAR *scenDesc);
 
 private:
-	sint32			m_numScenarioPacks;
-	ScenarioPack	*m_scenarioPacks;
+	std::vector<ScenarioPack> m_scenarioPacks;
 };
 
 // g_civScenarios demoted to file-scope `static` in civscenarios.cpp.

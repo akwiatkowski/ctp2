@@ -31,6 +31,8 @@
 #ifndef __GEOMETRIC_H__
 #define __GEOMETRIC_H__ 1
 
+#include <vector>
+
 #include "mapgen/IMapGen.h"
 
 class Geometric : public IMapGenerator
@@ -42,7 +44,7 @@ private:
 	uint32 m_refCount;
 #endif
 	sint8 *m_map;
-	sint8 *m_usedmap;
+	std::vector<sint8> m_usedmap;
 	sint32 m_width, m_height;
 	sint32 m_border;
 	sint32 m_nsBorder;

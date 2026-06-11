@@ -50,8 +50,8 @@ SlicArray::SlicArray(SS_TYPE type, SLIC_SYM varType)
 	m_allocatedSize = k_DEFAULT_SLICARRAY_SIZE;
 	m_arraySize = 0;
 	m_sizeIsFixed = false;
-	m_array = new SlicStackValue[m_allocatedSize];
-	memset(m_array, 0, m_allocatedSize * sizeof(SlicStackValue));
+	m_array = std::make_unique<SlicStackValue[]>(m_allocatedSize);
+	memset(m_array.get(), 0, m_allocatedSize * sizeof(SlicStackValue));
 	m_structTemplate = nullptr;
 }
 
@@ -62,8 +62,8 @@ SlicArray::SlicArray(SlicStructDescription *aStruct)
 	m_allocatedSize = k_DEFAULT_SLICARRAY_SIZE;
 	m_arraySize = 0;
 	m_sizeIsFixed = false;
-	m_array = new SlicStackValue[m_allocatedSize];
-	memset(m_array, 0, m_allocatedSize * sizeof(SlicStackValue));
+	m_array = std::make_unique<SlicStackValue[]>(m_allocatedSize);
+	memset(m_array.get(), 0, m_allocatedSize * sizeof(SlicStackValue));
 	m_structTemplate = aStruct;
 }
 
@@ -76,7 +76,6 @@ SlicArray::~SlicArray()
 		    delete m_array[i].m_sym;
         }
 	}
-    delete [] m_array;
 }
 
 void SlicArray::FixSize(sint32 size)
@@ -88,12 +87,11 @@ void SlicArray::FixSize(sint32 size)
 		    delete m_array[i].m_sym;
         }
 	}
-    delete [] m_array;
 
 	m_allocatedSize = static_cast<uint32>(size);
     m_arraySize     = size;
-	m_array         = new SlicStackValue[m_allocatedSize];
-	memset(m_array, 0, m_allocatedSize * sizeof(SlicStackValue));
+	m_array         = std::make_unique<SlicStackValue[]>(m_allocatedSize);
+	memset(m_array.get(), 0, m_allocatedSize * sizeof(SlicStackValue));
 	m_sizeIsFixed   = true;
 }
 
@@ -196,13 +194,12 @@ BOOL SlicArray::Insert(sint32 untestedIndex, SS_TYPE type, SlicStackValue value)
 			m_allocatedSize *= 2;
 		}
 
-		SlicStackValue * newArray = new SlicStackValue[m_allocatedSize];
+		auto newArray = std::make_unique<SlicStackValue[]>(m_allocatedSize);
 		memset(&newArray[oldAllocated], 0,
 			   (m_allocatedSize - oldAllocated) * sizeof(SlicStackValue));
 
-		memcpy(newArray, m_array, oldAllocated * sizeof(SlicStackValue));
-		delete [] m_array;
-		m_array = newArray;
+		memcpy(newArray.get(), m_array.get(), oldAllocated * sizeof(SlicStackValue));
+		m_array = std::move(newArray);
 	}
 
 	if (index >= static_cast<size_t>(m_arraySize))

@@ -181,9 +181,11 @@ public:
 	static void SetProfileFromExtendedInfo(SaveInfo *info);
 	static void GetExtendedInfoFromProfile(SaveInfo *info);
 
-	static void RestoreGame(MBCHAR const *filename);
+	// Both return false when the file is missing, malformed, or fails
+	// schema validation — game state may be partially overwritten then.
+	static bool RestoreGame(MBCHAR const *filename);
 	static void SaveGame(MBCHAR const * filename, SaveInfo *info);
-	static void RestoreScenarioGame(MBCHAR const *name);
+	static bool RestoreScenarioGame(MBCHAR const *name);
 
 	static bool ValidateGameFile(MBCHAR const * path, SaveInfo *info);
 	static bool FetchExtendedSaveInfo(MBCHAR const * path, SaveInfo *info);

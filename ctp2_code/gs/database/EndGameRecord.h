@@ -4,6 +4,8 @@
 #ifndef __ENDGAME_RECORD_H__
 #define __ENDGAME_RECORD_H__
 
+#include <memory>
+
 #include "gs/database/Rec.h"
 class Token;
 
@@ -31,8 +33,8 @@ public:
 private:
 	sint32 m_scoreBonusOverMinimum;
 
-	sint32 *m_requiredForStage;
-	sint32 *m_turnsPerStage;
+	std::unique_ptr<sint32[]> m_requiredForStage;
+	std::unique_ptr<sint32[]> m_turnsPerStage;
 
 public:
 	EndGameRecord();

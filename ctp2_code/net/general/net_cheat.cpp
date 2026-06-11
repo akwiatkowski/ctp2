@@ -36,21 +36,19 @@ NetCheat::NetCheat(NET_CHEAT cheat, ...) :
 
 	DPRINTF(k_DBG_NET, ("NetCheat: cheat=%d\n", m_cheat));
 	if(m_args[m_cheat] > 0) {
-		m_data = new uint32[m_args[m_cheat]];
+		m_data.resize(m_args[m_cheat]);
 		va_start( vl, cheat );
 		for(i = 0; i < m_args[m_cheat]; i++) {
 			m_data[i] = va_arg( vl, uint32 );
 			DPRINTF(k_DBG_NET, ("NetCheat: arg %d: %d\n", i, m_data[i]));
 		}
 		va_end(vl);
-	} else {
-		m_data = NULL;
 	}
 }
 
 NetCheat::~NetCheat()
 {
-	delete [] m_data;
+	// m_data is std::vector, auto-freed
 }
 
 void
@@ -76,7 +74,7 @@ NetCheat::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	PULLBYTETYPE(m_cheat, NET_CHEAT);
 	if(m_args[m_cheat] > 0)
-		m_data = new uint32[m_args[m_cheat]];
+		m_data.resize(m_args[m_cheat]);
 	for(uint32 i = 0; i < m_args[m_cheat]; i++) {
 		PULLLONG(m_data[i]);
 	}

@@ -3,6 +3,7 @@
 
 
 #include <cstring>
+#include <memory>
 #include <vector>
 #include <nlohmann/json.hpp>
 
@@ -10,20 +11,18 @@
 
 class BitMask {
   private:
-	uint8* m_bytes;
+	std::unique_ptr<uint8[]> m_bytes;
 	sint32 m_sizeInBits;
 
   public:
 	BitMask(sint32 bitSize) {
-		m_bytes = new uint8[SIZE_IN_BYTES(bitSize)];
+		m_bytes = std::make_unique<uint8[]>(SIZE_IN_BYTES(bitSize));
 		m_sizeInBits = bitSize;
 
-		memset(m_bytes, 0, SIZE_IN_BYTES(m_sizeInBits) * sizeof(uint8));
+		memset(m_bytes.get(), 0, SIZE_IN_BYTES(m_sizeInBits) * sizeof(uint8));
 	}
 
-	~BitMask() {
-		delete [] m_bytes;
-	}
+	~BitMask() = default;
 
 	void SetBit(sint32 bit) {
 		Assert(bit >= 0);
@@ -61,7 +60,7 @@ class BitMask {
 	friend void to_json(nlohmann::json &j, BitMask const &b) {
 		j = nlohmann::json{
 			{"size_in_bits", b.m_sizeInBits},
-			{"bytes",        std::vector<uint8>(b.m_bytes, b.m_bytes + SIZE_IN_BYTES(b.m_sizeInBits))},
+			{"bytes",        std::vector<uint8>(b.m_bytes.get(), b.m_bytes.get() + SIZE_IN_BYTES(b.m_sizeInBits))},
 		};
 	}
 
@@ -69,9 +68,8 @@ class BitMask {
 		j.at("size_in_bits").get_to(b.m_sizeInBits);
 		std::vector<uint8> bytes;
 		j.at("bytes").get_to(bytes);
-		delete[] b.m_bytes;
-		b.m_bytes = new uint8[SIZE_IN_BYTES(b.m_sizeInBits)];
-		std::memcpy(b.m_bytes, bytes.data(), bytes.size());
+		b.m_bytes = std::make_unique<uint8[]>(SIZE_IN_BYTES(b.m_sizeInBits));
+		std::memcpy(b.m_bytes.get(), bytes.data(), bytes.size());
 	}
 
 	bool AllBitsSet() {

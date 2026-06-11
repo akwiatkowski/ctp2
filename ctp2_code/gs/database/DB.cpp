@@ -45,65 +45,40 @@ template <class T> Database<T>::Database()
 
 {
 	m_nRec = m_max_nRec = 0;
-	m_rec = nullptr;
-	m_indexToAlpha = nullptr;
-	m_alphaToIndex = nullptr;
 }
 
-template <class T> Database<T>::~Database()
-
-{
-	delete [] m_rec;
-	delete [] m_indexToAlpha;
-	delete [] m_alphaToIndex;
-}
+template <class T> Database<T>::~Database() = default;
 
 template <class T> void  Database<T>::SetSize(const sint32 n)
 
 {
 	Assert (0 < n);
-	T*oldrec = nullptr;
-	sint32 *oldalpha = nullptr;
-	sint32 *oldindex = nullptr;
+	auto oldrec = std::move(m_rec);
+	auto oldalpha = std::move(m_indexToAlpha);
+	auto oldindex = std::move(m_alphaToIndex);
 	sint32 oldmax = m_max_nRec;
-	if(m_rec) {
-		oldrec = m_rec;
 
-		Assert( m_indexToAlpha != nullptr );
-		oldalpha = m_indexToAlpha;
-		Assert( m_alphaToIndex != nullptr );
-		oldindex = m_alphaToIndex;
-	}
 	m_max_nRec = n;
-	m_rec = new T[n];
-	m_indexToAlpha = new sint32[n];
-	m_alphaToIndex = new sint32[n];
-	memset(m_indexToAlpha, 0, sizeof(sint32) * n);
-	memset(m_alphaToIndex, 0, sizeof(sint32) * n);
-	Assert(m_rec);
-	Assert(m_indexToAlpha);
-	Assert(m_alphaToIndex);
+	m_rec = std::make_unique<T[]>(n);
+	m_indexToAlpha = std::make_unique<sint32[]>(n);
+	m_alphaToIndex = std::make_unique<sint32[]>(n);
+	memset(m_indexToAlpha.get(), 0, sizeof(sint32) * n);
+	memset(m_alphaToIndex.get(), 0, sizeof(sint32) * n);
+
 	if(oldrec) {
 		if(oldmax < m_max_nRec)
 		{
-			memcpy(m_rec, oldrec, sizeof(T) * oldmax);
-			memcpy(m_indexToAlpha, oldalpha, sizeof(sint32) * oldmax);
-			memcpy(m_alphaToIndex, oldindex, sizeof(sint32) * oldmax);
+			memcpy(m_rec.get(), oldrec.get(), sizeof(T) * oldmax);
+			memcpy(m_indexToAlpha.get(), oldalpha.get(), sizeof(sint32) * oldmax);
+			memcpy(m_alphaToIndex.get(), oldindex.get(), sizeof(sint32) * oldmax);
 		}
 		else
 		{
-			memcpy(m_rec, oldrec, sizeof(T) * m_max_nRec);
-			memcpy(m_indexToAlpha, oldalpha, sizeof(sint32) * m_max_nRec);
-			memcpy(m_alphaToIndex, oldindex, sizeof(sint32) * m_max_nRec);
+			memcpy(m_rec.get(), oldrec.get(), sizeof(T) * m_max_nRec);
+			memcpy(m_indexToAlpha.get(), oldalpha.get(), sizeof(sint32) * m_max_nRec);
+			memcpy(m_alphaToIndex.get(), oldindex.get(), sizeof(sint32) * m_max_nRec);
 		}
 	}
-
-	
-		delete [] oldrec;
-	
-		delete [] oldalpha;
-	
-		delete [] oldindex;
 }
 
 template <class T> void  Database<T>::SetSizeAll(const sint32 n)
@@ -111,15 +86,15 @@ template <class T> void  Database<T>::SetSizeAll(const sint32 n)
 {
 	Assert (0 < n);
 	m_max_nRec = n;
-	m_rec = new T[n];
-	m_indexToAlpha = new sint32[n];
-	m_alphaToIndex = new sint32[n];
-	memset(m_indexToAlpha, 0, sizeof(sint32) * n);
-	memset(m_alphaToIndex, 0, sizeof(sint32) * n);
+	m_rec = std::make_unique<T[]>(n);
+	m_indexToAlpha = std::make_unique<sint32[]>(n);
+	m_alphaToIndex = std::make_unique<sint32[]>(n);
+	memset(m_indexToAlpha.get(), 0, sizeof(sint32) * n);
+	memset(m_alphaToIndex.get(), 0, sizeof(sint32) * n);
 	m_nRec = n;
-	Assert(m_rec);
-	Assert(m_indexToAlpha);
-	Assert(m_alphaToIndex);
+	Assert(m_rec.get());
+	Assert(m_indexToAlpha.get());
+	Assert(m_alphaToIndex.get());
 }
 
 template <class T> const T* Database<T>::Get(const sint32 i) const
@@ -158,8 +133,8 @@ template <class T> void Database<T>::AddRec(const StringId sid, sint32 &i)
 			{
 
 				memmove(
-					m_alphaToIndex + a + 1,
-					m_alphaToIndex + a,
+					m_alphaToIndex.get() + a + 1,
+					m_alphaToIndex.get() + a,
 					( m_nRec - a ) * sizeof(sint32) );
 
 				for ( sint32 j = 0; j < m_nRec; ++j )

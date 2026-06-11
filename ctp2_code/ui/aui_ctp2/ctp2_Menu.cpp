@@ -186,8 +186,7 @@ ctp2_Menu::Item *ctp2_Menu::CreateItem(MBCHAR *block, const MBCHAR *text, const 
 		shortcut = "";
 	}
 
-	menuItem->m_shortcut = new MBCHAR[(strlen(shortcut) + 1) * sizeof(MBCHAR)];
-	strcpy(menuItem->m_shortcut, shortcut);
+	menuItem->m_shortcut = shortcut;
 	menuItem->m_cookie = cookie;
 
 
@@ -430,7 +429,7 @@ const MBCHAR *ctp2_Menu::GetShortcutString(sint32 index)
 	PointerList<Item>::Walker walk(m_items);
 	while(walk.IsValid()) {
 		if(i == index) {
-			return walk.GetObj()->m_shortcut;
+			return walk.GetObj()->m_shortcut.c_str();
 		}
 		walk.Next();
 	}
@@ -444,7 +443,7 @@ bool ctp2_Menu::HandleShortcut(const MBCHAR *shortcut)
 	sint32 index = 0;
 	PointerList<Item>::Walker walk(m_items);
 	while(walk.IsValid()) {
-		if(stricmp(walk.GetObj()->m_shortcut, shortcut) == 0) {
+		if(stricmp(walk.GetObj()->m_shortcut.c_str(), shortcut) == 0) {
 			if(m_callback) {
 				m_callback(this, CTP2_MENU_ACTION_SELECT, index, walk.GetObj()->m_cookie);
 			}

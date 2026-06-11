@@ -29,10 +29,14 @@
 #include "gs/gameobj/Events.h"                // GEV_AiBeginTurn / GEV_AiBeginMapAnalysis
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
+#include "ctp/game_controller.h"              // game_controller::Dispatch (--serve)
+#include "test/smoketest_server.h"            // smoketest_server_* (--serve)
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <chrono>
+#include <thread>
 
 extern sint32  g_runInBackground;
 #include "gs/utility/Globals.h"   // set_headless()
@@ -52,11 +56,72 @@ namespace {
 auto headless_log = civlog::Get("headless");
 }  // namespace
 
+// Run ONE full round: every live player takes a turn through the same event
+// pipeline the interactive game uses — mirrors the body of
+// STDEHANDLER(BeginTurnEvent) in TurnCntEvent.cpp. Without the AI events +
+// scheduler, calling Player::BeginTurn directly does NOT dispatch the AI:
+// settlers never settle, no cities are founded, and score stays flat.
+// Shared by the batch --turns loop and the serve-mode end_turn verb.
+static void headless_run_round(sint32 round)
+{
+    // The global TurnCount is the real clock: Player::BeginTurn overwrites
+    // m_current_round from GetSessionRound(), and query_turn reads it back.
+    // Align it to the round being played; advance it when the round ends —
+    // so "round N" in queries means "N full rounds completed".
+    if (turn_Get()) turn_Get()->SkipToRound(round);
+
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        if (!player_Get(p) || player_Get(p)->IsDead()) continue;
+
+        s_headlessCurPlayer = p;
+
+        if (profiledb_Get()->IsAIOn()) {
+            gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginMapAnalysis,
+                                   GEA_Player, p, GEA_End);
+        }
+        CtpAi::BeginDiplomacy(p, round);
+        if (profiledb_Get()->IsAIOn()) {
+            gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginTurn,
+                                   GEA_Player, p, GEA_End);
+        }
+
+        // BeginTurn() already calls NotifyTurnStart internally; only
+        // NotifyTurnEnd needs an explicit call because EndTurn() does
+        // not notify observers.
+        player_Get(p)->BeginTurn();
+
+        // In the interactive game the director queues GEV_BeginScheduler
+        // after BeginTurn(). Headless has no director loop, so we add the
+        // scheduler event directly so the AI actually assigns orders to
+        // units (settlers settle, armies move, etc.).
+        if (gevmanager_Get()) {
+            gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginScheduler,
+                                   GEA_Player, p, GEA_End);
+        }
+
+        // Drain queued AI events so the player's turn actually runs
+        // before we move on to the next player.
+        if (gevmanager_Get()) gevmanager_Get()->Process();
+
+        player_Get(p)->EndTurn();
+        if (gameobservers_Get()) gameobservers_Get()->NotifyTurnEnd(p);
+    }
+
+    // Process any cross-player pending events.
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    // Round complete — the clock now reads "round+1 rounds have elapsed".
+    if (turn_Get()) turn_Get()->SkipToRound(round + 1);
+}
+
 static void print_usage(const char *prog)
 {
     fprintf(stderr,
         "Usage: %s [options]\n"
         "Options:\n"
+        "  --serve                 Interactive mode: listen on the command socket\n"
+        "                          and dispatch commands/queries (for the test\n"
+        "                          harness); keeps one human player.\n"
         "  --new-game              Start a new game immediately\n"
         "  --players N             Number of AI players (default: 3)\n"
         "  --turns N               Run N turns then exit (default: 10)\n"
@@ -78,6 +143,7 @@ int main(int argc, char **argv)
 
     // Parse arguments
     bool newGame = false;
+    bool serveMode = false;
     sint32 numPlayers = 3;
     sint32 maxTurns = 10;
     sint32 saveInterval = 0;
@@ -93,7 +159,9 @@ int main(int argc, char **argv)
     const char *jsonLoadPath = nullptr;
 
     for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "--new-game") == 0) {
+        if (strcmp(argv[i], "--serve") == 0) {
+            serveMode = true;
+        } else if (strcmp(argv[i], "--new-game") == 0) {
             newGame = true;
         } else if (strcmp(argv[i], "--players") == 0 && i + 1 < argc) {
             numPlayers = atoi(argv[++i]);
@@ -165,10 +233,115 @@ int main(int argc, char **argv)
     player_view::RegisterCurPlayer(&HeadlessCurPlayer);
     headless_log->info("observers + player_view registered");
 
+    // ---- Interactive serve mode -----------------------------------------
+    // Listen on the command socket and dispatch the same command/query set the
+    // UI build does (via game_controller::Dispatch).  This is what lets one
+    // Python test drive both binaries.  Unlike the batch path, we KEEP the
+    // default human player (player 1) instead of forcing all-ROBOT, so
+    // player-facing commands (build_city, set_production) are meaningful.
+    if (serveMode) {
+        headless_log->info("Serve mode: configuring profile (players={}, seed={})",
+                           numPlayers, seed);
+        profiledb_Get()->SetNPlayers(numPlayers);
+        if (seed != 0) g_oldRandSeed = seed;
+        profiledb_Get()->SetAI(TRUE);   // AI drives the non-human players
+
+        smoketest_server_init();
+        headless_log->info("Serve mode: command server up, entering poll loop");
+
+        char cmd[256];
+        bool done = false;
+        while (!done) {
+            if (!smoketest_poll_command(cmd, sizeof(cmd))) {
+                // No command pending; yield to avoid a busy spin.
+                std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                continue;
+            }
+            headless_log->info("serve cmd: {}", cmd);
+
+            // Shared, UI-free verbs (build_city, set_production, save/load,
+            // queries) behave identically to the UI build. DispatchSafe (not
+            // Dispatch) because the poll left the smoke mutex LOCKED (released
+            // only by a send_*) — an escaping exception would wedge the loop.
+            bool handled = false;
+            std::string resp = game_controller::DispatchSafe(cmd, handled);
+            if (handled) {
+                smoketest_send_json(resp.c_str());
+                continue;
+            }
+
+            // Frontend-specific verbs: game creation has no menus headless.
+            if (strcmp(cmd, "new_game") == 0) {
+                // Nothing to navigate; the game is created on start_game.
+                smoketest_send_response("ok", cmd, nullptr);
+            } else if (strcmp(cmd, "start_game") == 0) {
+                // Call the headless init path DIRECTLY. CivApp::InitializeGame()
+                // guards on (!c3ui_Get()), but c3ui is non-null even headless
+                // (InitializeEngine dereferences it), so that guard would route
+                // us into the UI path and hang. The batch path uses this same
+                // direct call.
+                sint32 e = civapp_Get()->InitializeGameHeadless();
+                if (e == 0) {
+                    // Point HeadlessCurPlayer at the human so AI asserts that
+                    // compare player == CurPlayer() hold for human-owned actions.
+                    if (Player * human = game_controller::HumanPlayer())
+                        s_headlessCurPlayer = human->GetOwner();
+                    smoketest_send_response("ok", cmd, nullptr);
+                } else {
+                    smoketest_send_response("error", cmd, "init_failed");
+                }
+            } else if (strncmp(cmd, "end_turn", 8) == 0) {
+                // "end_turn" or "end_turn N": advance N FULL ROUNDS (every
+                // player takes a turn). Semantic note: the UI build's
+                // end_turn queues director->AddEndTurn for the human only;
+                // headless has no director, so a round is the meaningful
+                // unit of time here.
+                if (!civapp_Get()->IsGameLoaded()) {
+                    smoketest_send_response("error", cmd, "game_not_loaded");
+                } else {
+                    int n = 1;
+                    if (cmd[8] != '\0' && sscanf(cmd + 8, "%d", &n) != 1) n = -1;
+                    if (n < 1 || n > 1000) {
+                        smoketest_send_response("error", cmd, "bad_args");
+                    } else {
+                        // The GLOBAL TurnCount is the round source — a local
+                        // counter reset on process restart and, worse, made
+                        // end_turn after load_game stomp a loaded game's
+                        // clock backwards via SkipToRound.
+                        for (int i = 0; i < n; ++i) {
+                            headless_run_round(turn_Get() ? turn_Get()->GetSessionRound() : 0);
+                        }
+                        // Park CurPlayer back on the human so queries
+                        // (query_turn reads CurPlayer's round) and AI
+                        // asserts see the driver's viewpoint.
+                        if (Player * human = game_controller::HumanPlayer())
+                            s_headlessCurPlayer = human->GetOwner();
+                        char detail[48];
+                        snprintf(detail, sizeof(detail), "round=%d",
+                                 (int)(turn_Get() ? turn_Get()->GetSessionRound() : 0));
+                        smoketest_send_response("ok", "end_turn", detail);
+                    }
+                }
+            } else if (strcmp(cmd, "quit") == 0) {
+                smoketest_send_response("ok", cmd, nullptr);
+                done = true;
+            } else {
+                smoketest_send_response("error", cmd, "unknown_command");
+            }
+        }
+
+        smoketest_server_shutdown();
+        headless_log->info("Serve mode: shut down");
+        return 0;
+    }
+
     if (loadGamePath) {
         headless_log->info("Loading saved game from {}", loadGamePath);
-        GameFile::RestoreGame(loadGamePath);
-        headless_log->info("RestoreGame returned (state may or may not be valid)");
+        if (!GameFile::RestoreGame(loadGamePath)) {
+            headless_log->error("RestoreGame failed for {}", loadGamePath);
+            return 1;
+        }
+        headless_log->info("RestoreGame ok");
     }
 
     if (newGame || loadGamePath) {
@@ -228,53 +401,7 @@ int main(int argc, char **argv)
         // Run turns
         for (sint32 t = 0; t < maxTurns; ++t) {
             headless_log->info("Turn {} / {}", t + 1, maxTurns);
-
-            // Process one turn for each active player.  Drive AI through
-            // the same event pipeline the interactive game uses — mirrors
-            // the body of STDEHANDLER(BeginTurnEvent) in TurnCntEvent.cpp.
-            // Without this, calling Player::BeginTurn directly does NOT
-            // dispatch the AI: settlers never settle, no cities are
-            // founded, and score stays flat across thousands of turns.
-            for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
-                if (!player_Get(p) || player_Get(p)->IsDead()) continue;
-
-                s_headlessCurPlayer = p;
-                player_Get(p)->m_current_round = t;
-
-                if (profiledb_Get()->IsAIOn()) {
-                    gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginMapAnalysis,
-                                           GEA_Player, p, GEA_End);
-                }
-                CtpAi::BeginDiplomacy(p, t);
-                if (profiledb_Get()->IsAIOn()) {
-                    gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginTurn,
-                                           GEA_Player, p, GEA_End);
-                }
-
-                // BeginTurn() already calls NotifyTurnStart internally; only
-                // NotifyTurnEnd needs an explicit call because EndTurn() does
-                // not notify observers.
-                player_Get(p)->BeginTurn();
-
-                // In the interactive game the director queues GEV_BeginScheduler
-                // after BeginTurn().  Headless has no director loop, so we add
-                // the scheduler event directly so the AI actually assigns orders
-                // to units (settlers settle, armies move, etc.).
-                if (gevmanager_Get()) {
-                    gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginScheduler,
-                                           GEA_Player, p, GEA_End);
-                }
-
-                // Drain queued AI events so the player's turn actually runs
-                // before we move on to the next player.
-                if (gevmanager_Get()) gevmanager_Get()->Process();
-
-                player_Get(p)->EndTurn();
-                if (gameobservers_Get()) gameobservers_Get()->NotifyTurnEnd(p);
-            }
-
-            // Process any cross-player pending events.
-            if (gevmanager_Get()) gevmanager_Get()->Process();
+            headless_run_round(t);
         }
 
         headless_log->info("Completed {} turns", maxTurns);

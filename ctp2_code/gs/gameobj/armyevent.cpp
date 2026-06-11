@@ -44,6 +44,7 @@
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Army.h"
+#include "gs/gameobj/MovePath.h"
 #include "gs/gameobj/Order.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/world/MapPoint.h"
@@ -207,10 +208,10 @@ STDEHANDLER(ArmySleepOrderEvent)
 }
 
 // Auto-explore order: pick the nearest unexplored tile (BFS over the owner's
-// known map), flag every unit in the army as exploring, and seed a MOVE_TO.
-// BeginTurnUnitEvent re-issues each round from the new position; this
-// handler only sets the initial state.  Clears the flag if no reachable
-// unexplored tile remains.
+// known map), flag every unit in the army as exploring, and seed a MOVE order
+// along a computed path.  BeginTurnUnitEvent re-issues each round from the
+// new position; this handler only sets the initial state.  Clears the flag
+// if no reachable unexplored tile remains or if pathfinding fails.
 STDEHANDLER(ArmyExploreOrderEvent)
 {
 	Army a;
@@ -225,7 +226,7 @@ STDEHANDLER(ArmyExploreOrderEvent)
 
 	MapPoint const start = ad->RetPos();
 	MapPoint target;
-	if (!owner->FindNearestUnexplored(start, target)) {
+	if (!owner->FindNearestUnexplored(start, target, ad->GetMovementType())) {
 		// Map fully explored from here — flag stays cleared.
 		for (sint32 i = 0; i < ad->Num(); ++i) {
 			Unit u = ad->Access(i);
@@ -242,7 +243,16 @@ STDEHANDLER(ArmyExploreOrderEvent)
 		}
 	}
 
-	a->AddOrders(UNIT_ORDER_MOVE_TO, target);
+	if (!army_AddExplorePath(owner->GetOwner(), a, start, target)) {
+		// Neither the target nor its explored frontier is reachable (e.g.,
+		// across ocean with no transport, or blocked by impassable
+		// terrain).  Stop exploring so the unit doesn't get stuck in an
+		// infinite retarget loop.
+		for (sint32 i = 0; i < ad->Num(); ++i) {
+			Unit u = ad->Access(i);
+			if (UnitData * ud = u.AccessData()) ud->SetExploring(false);
+		}
+	}
 	return GEV_HD_Continue;
 }
 

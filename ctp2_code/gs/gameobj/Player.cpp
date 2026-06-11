@@ -3700,7 +3700,8 @@ bool Player::IsExplored(sint32 x, sint32 y) const
 // hex-adjacent (use GetNeighborPosition for all WORLD_DIRECTION cardinals).
 // Cost: O(W*H) worst case (a vector-of-bool visited bitmap + a deque
 // frontier).  Acceptable: CTP2 maps are at most 200x200 = 40k cells.
-bool Player::FindNearestUnexplored(const MapPoint &start, MapPoint &out) const
+bool Player::FindNearestUnexplored(const MapPoint &start, MapPoint &out,
+                                   uint32 moveTypes) const
 {
 	const sint32 W = world_Get()->GetXWidth();
 	const sint32 H = world_Get()->GetYHeight();
@@ -3724,6 +3725,12 @@ bool Player::FindNearestUnexplored(const MapPoint &start, MapPoint &out) const
 			                 + static_cast<size_t>(nb.x);
 			if (visited[idx]) continue;
 			visited[idx] = true;
+
+			// Passability-aware mode: never target or traverse tiles this
+			// movement class can't enter — a target the unit can't step
+			// into would fail silently and re-pick forever.
+			if (moveTypes != 0 && !world_Get()->CanEnter(nb, moveTypes))
+				continue;
 
 			if (!IsExplored(nb)) {
 				out = nb;

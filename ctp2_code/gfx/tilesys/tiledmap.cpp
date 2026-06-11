@@ -2617,7 +2617,7 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 				}
 
 				UnitActorPtr actor = top.GetActor();
-
+				if (!actor) continue;
 
 				// SetIsFortifying / SetIsFortified / SetHasCityWalls /
 				// SetHasForceField pushes removed — UnitActor::Draw

@@ -45,6 +45,41 @@ void       civpaths_Set(CivPaths *p) { g_civPaths = p; }
 #include "gs/fileio/prjfile.h"
 extern ProjectFile *g_ImageMapPF;
 
+#ifndef WIN32
+#include <sys/stat.h>
+
+/**
+ * Create a directory and all its parent directories recursively.
+ * Similar to `mkdir -p` on Unix or `CreateDirectory` on Windows.
+ *
+ * @param path The directory path to create.
+ * @return true on success, false on failure.
+ */
+static bool CreateDirectoryRecursive(const char *path)
+{
+	struct stat st;
+	if (stat(path, &st) == 0) {
+		return S_ISDIR(st.st_mode);
+	}
+
+	// Find the last separator to get the parent path
+	const char *last_sep = strrchr(path, FILE_SEP[0]);
+	if (last_sep && last_sep != path) {
+		char parent[_MAX_PATH];
+		size_t len = last_sep - path;
+		if (len >= sizeof(parent)) {
+			return false;
+		}
+		memcpy(parent, path, len);
+		parent[len] = '\0';
+		if (!CreateDirectoryRecursive(parent)) {
+			return false;
+		}
+	}
+
+	return mkdir(path, 0777) == 0;
+}
+#endif
 
 void CivPaths_InitCivPaths()
 {
@@ -110,7 +145,23 @@ CivPaths::CivPaths ()
 	MBCHAR	fullPath[_MAX_PATH];
 	MBCHAR	*s;
 
+	// On macOS, use the modern Application Support directory for saves
+	// instead of a relative path. This aligns with Apple's guidelines and
+	// prevents issues when the game is launched from different working
+	// directories.
+#if defined(__APPLE__)
+	const char *home = getenv("HOME");
+	if (home) {
+		snprintf(tempPath, sizeof(tempPath), "%s/Library/Application Support/CallToPower2/%s",
+		         home, m_savePath.c_str());
+	} else {
+		// Fallback: use the relative path from civpaths.txt
+		snprintf(tempPath, sizeof(tempPath), "%s%s%s", m_hdPath.c_str(), FILE_SEP, m_savePath.c_str());
+	}
+#else
 	snprintf(tempPath, sizeof(tempPath), "%s%s%s", m_hdPath.c_str(), FILE_SEP, m_savePath.c_str());
+#endif
+
 	s = _fullpath(fullPath, tempPath, _MAX_PATH);
 	Assert(s != nullptr);
 
@@ -131,8 +182,7 @@ void CivPaths::CreateSaveFolders(const MBCHAR *path)
 
 	CreateDirectory((LPCTSTR)path, &sa);
 #else
-	mode_t mode = 0777;
-	mkdir(path, mode);
+	CreateDirectoryRecursive(path);
 #endif
 
 	MBCHAR subFolderPath[_MAX_PATH];
@@ -141,37 +191,37 @@ void CivPaths::CreateSaveFolders(const MBCHAR *path)
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
-	mkdir(subFolderPath, mode);
+	CreateDirectoryRecursive(subFolderPath);
 #endif
 	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveQueuePath.c_str());
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
-	mkdir(subFolderPath, mode);
+	CreateDirectoryRecursive(subFolderPath);
 #endif
 	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveMPPath.c_str());
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
-	mkdir(subFolderPath, mode);
+	CreateDirectoryRecursive(subFolderPath);
 #endif
 	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveSCENPath.c_str());
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
-	mkdir(subFolderPath, mode);
+	CreateDirectoryRecursive(subFolderPath);
 #endif
 	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveMapPath.c_str());
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
-	mkdir(subFolderPath, mode);
+	CreateDirectoryRecursive(subFolderPath);
 #endif
 	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveClipsPath.c_str());
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
-	mkdir(subFolderPath, mode);
+	CreateDirectoryRecursive(subFolderPath);
 #endif
 }
 

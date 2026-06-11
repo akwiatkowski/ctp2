@@ -5,6 +5,8 @@
 #define __COLORICONSWITCH_H__
 
 
+#include <string>
+
 #include "ui/aui_ctp2/c3_switch.h"
 
 
@@ -44,7 +46,7 @@ public:
 	void SetIcon(MBCHAR *name);
 	void ShrinkToFit(BOOL fit) { m_shrinkToFit = fit; }
 
-	MBCHAR *GetFilename() { return m_filename; }
+	const MBCHAR *GetFilename() { return m_filename.c_str(); }
 
 	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
@@ -52,7 +54,7 @@ public:
 		sint32 y = 0 ) override;
 
 protected:
-	MBCHAR		*m_filename;
+	std::string		m_filename;
 	BOOL		m_shrinkToFit;
 	RECT		m_pictureRect;
 };

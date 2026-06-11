@@ -45,6 +45,16 @@ int smoketest_poll_command(char* out_cmd, int max_len);
  */
 void smoketest_send_response(const char* status, const char* cmd, const char* detail);
 
+/**
+ * Send a raw single-line JSON response back to the test harness.
+ * Used by GameController dispatch, whose handlers build their own JSON
+ * (including structured query "result" objects). The newline terminator is
+ * appended by the server. Must be called from the main thread after polling.
+ *
+ * @param json_line  Complete JSON object as a single line, no trailing newline.
+ */
+void smoketest_send_json(const char* json_line);
+
 #ifdef __cplusplus
 }
 #endif

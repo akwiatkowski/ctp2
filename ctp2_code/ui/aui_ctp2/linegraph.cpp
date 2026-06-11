@@ -176,8 +176,8 @@ LineGraph::LineGraph
 	m_lineData          (nullptr),
 	m_hasIndicator      (false),
 	m_indicatorValue    (0.0),
-	m_xAxisName         (nullptr),
-	m_yAxisName         (nullptr),
+	// m_xAxisName default constructed (empty)
+	// m_yAxisName default constructed (empty)
     m_surface           (nullptr),
 //  RECT m_graphRect
 //  RECT m_surfaceRect
@@ -215,8 +215,8 @@ LineGraph::LineGraph
 	m_lineData          (nullptr),
 	m_hasIndicator      (false),
 	m_indicatorValue    (0.0),
-	m_xAxisName         (nullptr),
-	m_yAxisName         (nullptr),
+	// m_xAxisName default constructed (empty)
+	// m_yAxisName default constructed (empty)
     m_surface           (nullptr),
 //  RECT m_graphRect
 //  RECT m_surfaceRect
@@ -248,8 +248,6 @@ LineGraph::LineGraph
 //----------------------------------------------------------------------------
 LineGraph::~LineGraph()
 {
-	delete [] m_xAxisName;
-	delete [] m_yAxisName;
 	delete m_surface;
 	delete [] m_data;
 
@@ -330,9 +328,9 @@ void LineGraph::LabelAxes()
 
 	if (m_enableXLabel)
 	{
-		sint32 len = textutils_GetWidth(m_surface, m_xAxisName);
+		sint32 len = textutils_GetWidth(m_surface, m_xAxisName.c_str());
 		sint32 xpos = m_graphRect.left + (m_graphRect.right - m_graphRect.left) / 2 - len / 2;
-		primitives_DrawText(m_surface, xpos, m_graphRect.bottom + 2 + (m_events?20:0), m_xAxisName,	colorset_Get()->GetColorRef(COLOR_WHITE), TRUE);
+		primitives_DrawText(m_surface, xpos, m_graphRect.bottom + 2 + (m_events?20:0), m_xAxisName.c_str(),	colorset_Get()->GetColorRef(COLOR_WHITE), TRUE);
 	}
 
 	if (m_enableYNumber)
@@ -581,10 +579,7 @@ void LineGraph::SetXAxisName(MBCHAR *name)
 	Assert(name);
 	if (!name) return;
 
-	delete [] m_xAxisName;
-	// TODO(phase-2): class-member assignment — needs wave-3 migration
-	m_xAxisName = new MBCHAR[strlen(name)+1];
-	strcpy(m_xAxisName, name);
+	m_xAxisName = name;
 }
 
 void LineGraph::SetYAxisName(MBCHAR *name)
@@ -592,10 +587,7 @@ void LineGraph::SetYAxisName(MBCHAR *name)
 	Assert(name);
 	if (!name) return;
 
-	delete[] m_yAxisName;
-	// TODO(phase-2): class-member assignment — needs wave-3 migration
-	m_yAxisName = new MBCHAR[strlen(name)+1];
-	strcpy(m_yAxisName, name);
+	m_yAxisName = name;
 }
 
 void LineGraph::GenrateGraph(sint32     &infoXCount,

@@ -4,6 +4,8 @@
 #ifndef ___BMH_MESSAGE_BOX_DIALOG_HEADER
 #define ___BMH_MESSAGE_BOX_DIALOG_HEADER
 
+#include <string>
+
 class aui_Control;
 class ctp2_Button;
 class ctp2_Static;
@@ -68,7 +70,7 @@ private:
 	bool m_closing;
 
 	void			*m_userData;
-	MBCHAR			*m_identifier;
+	std::string			m_identifier;
 
 	bool m_isTextQuery;
 };

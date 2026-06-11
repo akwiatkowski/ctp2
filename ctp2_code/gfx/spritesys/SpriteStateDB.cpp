@@ -15,7 +15,6 @@ extern sint32 g_abort_parse;
 SpriteStateDB::SpriteStateDB ()
 
 {
-	m_map = nullptr;
 }
 
 
@@ -27,19 +26,24 @@ SpriteStateDB::SpriteStateDB ()
 
 
 
-
-SpriteStateDB::~SpriteStateDB ()
-
-{
-	delete [] m_map;
-}
+SpriteStateDB::~SpriteStateDB () = default;
 
 void SpriteStateDB::SetSize(sint32 s)
 
 {
 	m_size = s;
-	m_map = new SpriteNameNode[m_size];
+	m_map = std::make_unique<SpriteNameNode[]>(m_size);
 }
+
+
+
+
+
+
+
+
+
+
 
 sint32 SpriteStateDB::FindTypeIndex(char *str) const
 

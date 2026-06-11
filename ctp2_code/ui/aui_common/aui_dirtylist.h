@@ -1,6 +1,8 @@
 #ifndef __AUI_DIRTYLIST_H__
 #define __AUI_DIRTYLIST_H__
 
+#include <vector>
+
 #include "ui/aui_common/aui_base.h"
 #include "ui/aui_common/tech_wllist.h"
 
@@ -56,7 +58,7 @@ public:
 	sint32 GetWidth() const { return m_width; }
 	sint32 GetHeight() const { return m_height; }
 
-	aui_SpanList *GetSpans() const { return m_spanListArray; }
+	aui_SpanList *GetSpans() { return m_spanListArray.empty() ? nullptr : m_spanListArray.data(); }
 	AUI_ERRCODE SetSpans( aui_DirtyList *newDirtyList );
 
 	BOOL IsEmpty( ) const { return m_isEmpty; }
@@ -69,7 +71,7 @@ protected:
 	sint32 m_width;
 	sint32 m_height;
 
-	aui_SpanList *m_spanListArray;
+	std::vector<aui_SpanList> m_spanListArray;
 	sint32 m_isEmpty;
 };
 

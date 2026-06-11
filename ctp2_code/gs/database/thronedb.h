@@ -4,6 +4,8 @@
 #ifndef _BMH_THRONE_DB_H_
 #define _BMH_THRONE_DB_H_
 
+#include <memory>
+
 #include "gs/database/dbtypes.h"
 
 class Token;
@@ -30,7 +32,7 @@ public:
 
 	sint32		m_nThroneTypes;
 	sint32		m_nThroneLevels;
-	ThroneInfo	*m_throneInfo;
+	std::unique_ptr<ThroneInfo[]> m_throneInfo;
 
 	ThroneDB();
 

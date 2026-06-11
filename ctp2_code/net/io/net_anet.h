@@ -4,6 +4,8 @@
 #ifndef _ANETIO_H_
 #define _ANETIO_H_
 
+#include <string>
+
 #include "net/io/net_io.h"
 #include "libs/anet/h/anet.h"
 #include "net/io/net_array.h"
@@ -78,7 +80,7 @@ private:
 	SESSION_STATE m_sessionState;
 	ANET_STATE m_state;
 
-	char* m_name;
+	std::string m_name;
 
 	BOOL m_got_end_players;
 

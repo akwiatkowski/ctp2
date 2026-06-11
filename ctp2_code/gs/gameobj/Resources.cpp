@@ -35,7 +35,7 @@
 Resources::Resources()
 {
 	m_numGoods = g_theResourceDB->NumRecords();
-	m_supply = new sint32[m_numGoods];
+	m_supply.resize(m_numGoods);
 	Clear();
 }
 
@@ -43,11 +43,7 @@ Resources::Resources(const Resources &copyme)
 {
 	m_numGoods = copyme.m_numGoods;
 	m_totalResources = copyme.m_totalResources;
-	sint32 i;
-	m_supply = new sint32[m_numGoods];
-	for(i = 0; i < m_numGoods; i++) {
-		m_supply[i] = copyme.m_supply[i];
-	}
+	m_supply = copyme.m_supply;
 }
 
 //----------------------------------------------------------------------------
@@ -72,10 +68,7 @@ Resources & Resources::operator = (Resources &copyme)
 	Assert(m_numGoods == copyme.m_numGoods);
 	m_numGoods = copyme.m_numGoods;
 	m_totalResources = copyme.m_totalResources;
-	sint32 i;
-	for(i = 0; i < m_numGoods; i++) {
-		m_supply[i] = copyme.m_supply[i];
-	}
+	m_supply = copyme.m_supply;
 	return *this;
 }
 
@@ -98,13 +91,8 @@ Resources & Resources::operator = (Resources &copyme)
 //----------------------------------------------------------------------------
 void Resources::Resize(sint32 newSize)
 {
-	sint32* oldSupply = m_supply;
-	sint32  oldSize = (m_numGoods < newSize) ? m_numGoods : newSize;
+	sint32 oldSize = (m_numGoods < newSize) ? m_numGoods : newSize;
 
 	m_numGoods = newSize;
-	m_supply = new sint32[newSize];
-	memset(m_supply, 0, m_numGoods * sizeof(sint32));
-	memcpy(m_supply, oldSupply, oldSize * sizeof(sint32));
-
-	delete [] oldSupply;
+	m_supply.resize(newSize, 0);
 }

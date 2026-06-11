@@ -132,6 +132,22 @@ void UnitPool::RebuildQuadTree()
 	}
 }
 
+void UnitPool::RecreateActors()
+{
+	sint32 count = 0, city_count = 0;
+	for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+	{
+		if (m_table[i])
+		{
+			((UnitData *)(m_table[i]))->RecreateGfxState();
+			count++;
+			if (((UnitData *)(m_table[i]))->GetCityData())
+				city_count++;
+		}
+	}
+	unitpool_log->debug("RecreateActors: {} units, {} cities", count, city_count);
+}
+
 uint32 UnitPool_UnitPool_GetVersion()
 {
 	return (k_UNITPOOL_VERSION_MAJOR<<16 | k_UNITPOOL_VERSION_MINOR);

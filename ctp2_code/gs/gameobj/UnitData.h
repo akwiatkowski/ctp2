@@ -308,6 +308,14 @@ public:
 	// of pointer-typed members + from_json (see json_save.cpp).
 	explicit UnitData(nlohmann::json const &j);
 
+	// Recreate m_sprite_state and m_actor after a JSON load.  The JSON
+	// path intentionally omits gfx state, but the main tile renderer still
+	// reads unit.GetActor() directly, so loaded units/cities would be
+	// invisible until this is called.  Safe to call multiple times; no-op
+	// if the actor already exists.  Caller should ensure the sprite system
+	// is initialised (UI mode only).
+	void RecreateGfxState();
+
 	~UnitData() override;
 
 	bool Flag(uint32 f) const { return (m_flags & f) != 0; }

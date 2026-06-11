@@ -5,6 +5,7 @@
 #define __ACTORPATH_H__
 
 #include <memory>
+#include <vector>
 
 enum POINTSPOSTYPE {
 	POINTSPOSTYPE_STARTPOS,
@@ -30,8 +31,8 @@ public:
 
 protected:
 	uint16		m_numPoints;
-	POINT		*m_points;
-	POINT		*m_pos;
+	std::vector<POINT> m_points;
+	std::vector<POINT> m_pos;
 	uint16		m_numFrames;
 	BOOL		m_finished;
 };

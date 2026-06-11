@@ -271,8 +271,7 @@ void Geometric::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight,
 #endif
 {
 	memset(outmap, -127, outwidth * outheight);
-	m_usedmap = new sint8[outwidth * outheight];
-	memset(m_usedmap, 0, outwidth * outheight);
+	m_usedmap.assign(outwidth * outheight, 0);
 
 	sint32 numContinents;
 	sint32 maxWidth;
@@ -397,8 +396,6 @@ void Geometric::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight,
 						 &settings[11], 2);
 		faults->Release();
 	}
-
-	delete [] m_usedmap;
 
 #if !defined(USE_COM_REPLACEMENT)
 	return S_OK;

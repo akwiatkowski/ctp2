@@ -281,6 +281,7 @@ game_core_sources = [
 	'ctp/fingerprint/shroud.c',
 	'ctp/fingerprint/verify.c',
 	'ctp/civapp.cpp',
+	'ctp/game_controller.cpp',
 	'ctp/display.cpp',
 	'gs/database/DB.cpp',
 	'gs/database/EndGameDB.cpp',
@@ -1530,9 +1531,11 @@ cpp_fast_test_sources = [
   'test/cpp/test_barbarians.cpp',
   'test/cpp/test_bugfixes.cpp',
   'test/cpp/test_endgame.cpp',
+  'test/cpp/test_movepath.cpp',
   'test/cpp/test_order.cpp',
   'test/cpp/test_player_view.cpp',
   'test/cpp/test_readiness.cpp',
+  'test/cpp/test_save_validation.cpp',
   'test/cpp/test_ui_command_surface.cpp',
   'ctp/civ3_main.cpp',
   'test/smoketest_server.cpp',
@@ -1574,6 +1577,7 @@ cpp_test_sources = [
   'test/cpp/test_endgame.cpp',
   'test/cpp/test_happy.cpp',
   'test/cpp/test_bugfixes.cpp',
+  'test/cpp/test_movepath.cpp',
   'test/cpp/test_order.cpp',
   'test/cpp/test_readiness.cpp',
   'test/cpp/test_observer.cpp',
@@ -1589,6 +1593,7 @@ cpp_test_sources = [
   'test/cpp/test_headless_determinism.cpp',
   'test/cpp/test_globals_cleanup_smoke.cpp',
   'test/cpp/test_save_determinism.cpp',
+  'test/cpp/test_slic_string.cpp',
   'test/cpp/test_json_save.cpp',
   'test/cpp/test_json_save_integration.cpp',
   'test/cpp/test_json_world.cpp',
@@ -1641,4 +1646,104 @@ test('smoke',
   is_parallel : false,
   priority : -1,
   workdir : cwd_for_tests,
+)
+
+# Save/load vertical slice driven through the shared command/query API. The
+# SAME script runs against both binaries — that is the headless/UI parity
+# guarantee. Both share the single /tmp/ctp2-smoke.sock, so they must not run
+# concurrently (is_parallel:false). 'integration' suite keeps them out of the
+# fast pre-commit run; the UI variant additionally needs a display.
+slice_test = find_program('test/slice_save_load.py')
+test('slice-headless',
+  slice_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless'), '--mode', 'headless'],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+test('slice-ui',
+  slice_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2'), '--mode', 'ui'],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+# World observability: fog-of-war filtered map + unit queries, cross-checked
+# against query_cities. Same script on both binaries; shares the one socket.
+observability_test = find_program('test/observability.py')
+test('observability-headless',
+  observability_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless'), '--mode', 'headless'],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+test('observability-ui',
+  observability_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2'), '--mode', 'ui'],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+# Turn advancement: end_turn N drives full rounds through the real event
+# pipeline; query_turn tracks the clock. Headless-only — the UI build's
+# end_turn is asynchronous (director-driven).
+turns_test = find_program('test/turns.py')
+test('turns-headless',
+  turns_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+# Expansion: the full second-city loop (settler production, move_army
+# pathfinding, settle guard regression). Headless-only like turns.
+# Auto-explore: a human army keeps exploring across turns (passability-
+# aware retargeting); manual move_army overrides the explore order.
+# Research + terraform: the science affordance loop and the Public-Works
+# terrain transform loop (grant_advance debug verb shortcuts the tech climb).
+research_test = find_program('test/research.py')
+test('research-headless',
+  research_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+explore_test = find_program('test/explore.py')
+test('explore-headless',
+  explore_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+expansion_test = find_program('test/expansion.py')
+test('expansion-headless',
+  expansion_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
 )

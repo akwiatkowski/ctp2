@@ -28,11 +28,13 @@ void gameinit_SetEmailGame(BOOL v);
 BOOL gameinit_IsHotseatGame();
 void gameinit_SetHotseatGame(BOOL v);
 
+#include <string>
+
 struct HotseatPlayerSetup {
 	sint32 civ;
 	sint32 isHuman;
-	MBCHAR *name;
-	MBCHAR *email;
+	std::string name;
+	std::string email;
 };
 // Hotseat per-slot setup buffer.  Definition is file-scope `static`
 // in gs/utility/gameinit.cpp; callers index via hs_player_setup_buf()

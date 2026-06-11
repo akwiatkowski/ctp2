@@ -4,6 +4,8 @@
 #ifndef __ORDER_H__
 #define __ORDER_H__
 
+#include <string>
+
 class Order;
 
 enum ORDER_RESULT {
@@ -18,7 +20,7 @@ enum ORDER_RESULT {
 
 struct OrderInfo {
 	UNIT_ORDER_TYPE m_type;
-	char *m_name;
+	std::string m_name;
 	sint32 m_goldCost;
 	sint32 m_moveCost;
 	sint32 m_failSound;

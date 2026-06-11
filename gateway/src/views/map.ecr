@@ -1,0 +1,92 @@
+<h1 class="page-title reveal">The <em>charted world</em></h1>
+<p class="page-sub reveal">every tile the realm has surveyed — luminous where watched, faded where remembered</p>
+
+<% if err = @error %>
+  <div class="card card--alert reveal"><span class="seal seal--bad"></span><%= HTML.escape(err) %></div>
+<% end %>
+
+<% if chart = @chart %>
+  <div class="card atlas reveal">
+    <div class="atlas__head">
+      <div class="stat__label">Survey plate · (<%= chart.x0 %>,<%= chart.y0 %>) — (<%= chart.x1 %>,<%= chart.y1 %>) · you are player <%= chart.me %></div>
+      <div class="atlas__hint">hover a tile for its ledger entry</div>
+    </div>
+    <div class="atlas__scroll">
+      <div class="atlas__grid" id="atlas" style="grid-template-columns: 2.4rem repeat(<%= chart.x1 - chart.x0 + 1 %>, var(--tile));">
+        <i class="tl tl--ruler"></i>
+        <% (chart.x0..chart.x1).each do |x| %><i class="tl tl--ruler"><%= x % 5 == 0 ? x.to_s : "" %></i><% end %>
+        <% chart.rows.each_with_index do |row, ri| %>
+          <% y = chart.y0 + ri %>
+          <i class="tl tl--ruler tl--ruler-y"><%= y % 5 == 0 ? y.to_s : "" %></i>
+          <% row.each do |c| %>
+            <% if c.nil? %><i class="tl tl--fog"></i><% else %>
+              <% klass = String.build do |k|
+                   k << "tl " << c.terrain_class
+                   k << " tl--dim" unless c.visible
+                   k << " tl--city" if c.city_name
+                   k << " tl--spot" if c.spot_rank > 0
+                 end %>
+              <% tip = String.build do |t|
+                   t << c.terrain_name
+                   t << " · f" << c.food << " s" << c.shields << " g" << c.gold
+                   t << " · remembered" unless c.visible
+                 end %>
+              <i class="<%= klass %>" data-x="<%= c.x %>" data-y="<%= c.y %>" data-t="<%= HTML.escape(tip) %>"<% if name = c.city_name %> data-city="<%= HTML.escape(name) %><%= c.city_own ? "" : " (foreign)" %>"<% end %><% if c.army_own %> data-unit="<%= c.army_settler ? "your settler" : "your army" %>"<% end %><% if c.army_foreign %> data-unit="foreign unit"<% end %><% if c.spot_rank > 0 %> data-rank="<%= c.spot_rank %>"<% end %>><% if name = c.city_name %><b class="pin <%= c.city_own ? "pin--city" : "pin--enemy" %>"><%= HTML.escape(name[0..0].upcase) %></b><% elsif c.army_own %><b class="pin pin--army"><%= c.army_settler ? "⚑" : "⚔" %></b><% elsif c.army_foreign %><b class="pin pin--foe">▲</b><% end %></i>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+    <div class="atlas__tip" id="atlas-tip" hidden></div>
+
+    <% unless chart.cities.empty? %>
+      <div class="atlas__cities">
+        <% chart.cities.each do |(name, x, y, own)| %>
+          <span class="atlas__cityname"><b class="pin <%= own ? "pin--city" : "pin--enemy" %>"><%= HTML.escape(name[0..0].upcase) %></b> <%= HTML.escape(name) %> <span class="mono muted">(<%= x %>,<%= y %>)</span></span>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="atlas__legend">
+      <% chart.terrains_used.each do |(klass, name)| %>
+        <span class="atlas__key"><i class="tl <%= klass %>"></i><%= HTML.escape(Ctp2Gateway::Views::MapPage::TERRAIN_LABELS[klass]? || name) %></span>
+      <% end %>
+      <span class="atlas__key"><i class="tl t-grass tl--dim"></i>remembered</span>
+      <span class="atlas__key"><i class="tl tl--fog"></i>unexplored</span>
+      <span class="atlas__key"><b class="pin pin--army">⚔</b>your army</span>
+      <span class="atlas__key"><b class="pin pin--army">⚑</b>your settler</span>
+      <span class="atlas__key"><b class="pin pin--foe">▲</b>foreign unit</span>
+      <span class="atlas__key"><i class="tl t-plains tl--spot" data-rank="1"></i>settle site</span>
+    </div>
+  </div>
+  <script src="/assets/atlas.js" defer></script>
+<% end %>
+
+<% if spots = @spots %>
+  <div class="card reveal">
+    <div class="stat__label">Settle advisor — best next city sites</div>
+    <% if spots.empty? %>
+      <div class="muted" style="margin-top:.5rem">no qualifying tiles yet — explore further</div>
+    <% else %>
+      <table class="ledger">
+        <tr><th>#</th><th>position</th><th class="num">score</th><th class="num">dist. to nearest city</th><th>terrain</th></tr>
+        <% spots.each_with_index do |s, i| %>
+          <tr>
+            <td class="num"><%= i + 1 %></td>
+            <td class="mono">(<%= s.x %>, <%= s.y %>)</td>
+            <td class="num"><%= s.score %></td>
+            <td class="num"><%= s.dist %></td>
+            <td><%= HTML.escape(s.terrain) %></td>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+  </div>
+<% end %>
+
+<% if ascii = @ascii %>
+  <details class="card reveal atlas__plain">
+    <summary class="stat__label">Plain chart (ASCII) — what the model sees via render_map</summary>
+    <pre class="chart"><%= HTML.escape(ascii) %></pre>
+  </details>
+<% end %>

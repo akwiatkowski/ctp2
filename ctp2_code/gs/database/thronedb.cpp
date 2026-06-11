@@ -36,18 +36,14 @@ ThroneDB::ThroneDB()
 	Initialize();
 }
 
-ThroneDB::~ThroneDB()
-{
-
-	delete [] m_throneInfo;
-}
+ThroneDB::~ThroneDB() = default;
 
 void ThroneDB::Initialize()
 {
 
 	m_nThroneTypes = 0;
 	m_nThroneLevels = 0;
-	m_throneInfo = nullptr;
+	m_throneInfo.reset();
 }
 
 sint32 ThroneDB::Init(MBCHAR *filename)
@@ -68,7 +64,7 @@ ThroneInfo *ThroneDB::GetThroneInfo( sint32 type, sint32 level ) const
 
 	sint32 index = (type * m_nThroneLevels) + level;
 
-	return(&(m_throneInfo[index]));
+	return(&m_throneInfo[index]);
 }
 
 sint32 ThroneDB::ParseNumber(Token *token, sint32 *number)
@@ -115,9 +111,7 @@ sint32 ThroneDB::ParseThroneDatabase(MBCHAR *filename)
 
 	nThrones = m_nThroneTypes * m_nThroneLevels;
 
-	m_throneInfo = new ThroneInfo[nThrones];
-
-	Assert(m_throneInfo);
+	m_throneInfo = std::make_unique<ThroneInfo[]>(nThrones);
 
 	for(index = 0; index < nThrones; index++) {
 		if(!ParseAThrone(throneToken, &m_throneInfo[index])) goto operation_failed;

@@ -1,6 +1,8 @@
 #ifndef __NS_UNITS_H__
 #define __NS_UNITS_H__
 
+#include <vector>
+
 class aui_StringTable;
 
 class ns_Units;
@@ -23,7 +25,7 @@ public:
 
 	aui_StringTable *GetStrings( ) const { return m_stringtable; }
 
-	sint32 *m_noIndex;
+	std::vector<sint32>		m_noIndex;
 
 private:
 	aui_StringTable *m_stringtable;

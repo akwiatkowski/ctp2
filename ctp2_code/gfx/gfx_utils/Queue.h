@@ -43,6 +43,7 @@
 
 #include <algorithm>    // std::copy
 #include <cstring>      // memcpy
+#include <memory>       // std::unique_ptr, std::make_unique
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -104,7 +105,7 @@ private:
     /// Allocated size of m_queue
     size_t      m_queueSize;
     /// Item queue
-    T *         m_queue;
+    std::unique_ptr<T[]> m_queue;
     /// Write index
     size_t      m_queueHead;
     /// Read index
@@ -121,41 +122,35 @@ private:
 template <class T> Queue<T>::Queue(size_t a_Size)
 :
     m_queueSize   (a_Size + 1), // 1 extra for overflow detection
-    m_queue       (NULL),
+    m_queue       (std::make_unique<T[]>(a_Size + 1)),
     m_queueHead   (0),
     m_queueTail   (0),
     m_numItems    (0)
 {
-    m_queue = new T[m_queueSize];
 }
 
 template <class T> Queue<T>::Queue(Queue<T> const & a_Original)
 :
     m_queueSize   (a_Original.m_queueSize),
-    m_queue       (NULL),
+    m_queue       (std::make_unique<T[]>(a_Original.m_queueSize)),
     m_queueHead   (a_Original.m_queueHead),
     m_queueTail   (a_Original.m_queueTail),
     m_numItems    (a_Original.m_numItems)
 {
-    m_queue = new T[m_queueSize];
-    std::copy(a_Original.m_queue, a_Original.m_queue + m_queueSize, m_queue);
+    std::copy(a_Original.m_queue.get(), a_Original.m_queue.get() + m_queueSize, m_queue.get());
 }
 
-template <class T> Queue<T>::~Queue()
-{
-    delete [] m_queue;
-}
+template <class T> Queue<T>::~Queue() = default;
 
 template <class T> Queue<T> & Queue<T>::operator = (Queue<T> const & a_Original)
 {
     if (this != &a_Original)
     {
         m_queueSize = a_Original.m_queueSize;
-        delete [] m_queue;
-        m_queue     = new T[m_queueSize];
+        m_queue     = std::make_unique<T[]>(m_queueSize);
 
         // Just copy everything, including bogus items
-        std::copy(a_Original.m_queue, a_Original.m_queue + m_queueSize, m_queue);
+        std::copy(a_Original.m_queue.get(), a_Original.m_queue.get() + m_queueSize, m_queue.get());
         m_queueHead = a_Original.m_queueHead;
         m_queueTail = a_Original.m_queueTail;
         m_numItems  = a_Original.m_numItems;
@@ -170,8 +165,7 @@ template <class T> Queue<T> & Queue<T>::operator = (Queue<T> const & a_Original)
 template <class T> void Queue<T>::Allocate(size_t a_Size)
 {
     m_queueSize = a_Size + 1; // 1 extra for overflow detection
-    delete [] m_queue;
-    m_queue     = new T[m_queueSize];
+    m_queue     = std::make_unique<T[]>(m_queueSize);
     m_queueHead = 0;
     m_queueTail = 0;
     m_numItems  = 0;
@@ -223,10 +217,9 @@ template <class T> bool Queue<T>::Dequeue(T & object)
 ///       and the assignment operator.
 template <class T> void Queue<T>::CopyQueue()
 {
-	T * oldQueue = m_queue;
-	m_queue = new T[m_queueSize];
-	memcpy(m_queue, oldQueue, m_queueSize * sizeof(T));
-    // The old queue is not deleted: possible leak?
+    auto newQueue = std::make_unique<T[]>(m_queueSize);
+    std::copy(m_queue.get(), m_queue.get() + m_queueSize, newQueue.get());
+    m_queue = std::move(newQueue);
 }
 
 /// Peek ahead to a previously stored object in the queue

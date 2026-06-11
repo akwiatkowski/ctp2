@@ -12,6 +12,14 @@ Every recent fix on this branch was a save/load / render-after-load bug; this
 test exercises exactly that path, so the same class of regression fails here
 loudly instead of being eyeballed.
 
+Absorbed the former observability.py slice (same boot on both binaries, two
+fewer game launches — one of them the slow UI menu boot): the player can
+OBSERVE the world through fog of war. query_map reports explored/visible
+tiles and city markers, query_units reports the player's own units, and the
+queries agree with each other and with query_cities. Asserts only on stable
+facts (a founded city is visible to its owner; counts positive; cross-query
+agreement), nothing turn-dependent.
+
 Usage:
     test/slice_save_load.py <path-to-binary> --mode {headless|ui} [--log FILE]
 
@@ -52,6 +60,21 @@ def run_slice(client, mode):
     client.expect_ok("start_game")
     client.wait_game_loaded()
 
+    # --- observability before founding (absorbed observability.py) ---
+    # The starting settler already reveals a patch of map, and the player
+    # sees its own units.
+    m0 = client.result("query_map")
+    assert m0["width"] > 0 and m0["height"] > 0, f"bad map dims: {m0['width']}x{m0['height']}"
+    assert m0["explored"] > 0, "player explores nothing at game start"
+    assert m0["visible"] > 0, "player sees nothing at game start"
+    assert len(m0["tiles"]) == m0["explored"], "tiles list != explored count"
+    u0 = client.result("query_units")
+    my_units = [u for u in u0["units"] if u["owner"] == u0["visible_player"]]
+    assert my_units, "player sees none of its own units at start"
+    print(f"  start: {m0['width']}x{m0['height']} map, "
+          f"{m0['explored']} explored / {m0['visible']} visible, "
+          f"units (mine): {[(u['name'], u['type']) for u in my_units]}")
+
     found_city(client)
 
     cities = client.result("query_cities")["cities"]
@@ -59,6 +82,24 @@ def run_slice(client, mode):
     name = cities[0]["name"]
     pos = cities[0]["pos"]
     print(f"  founded '{name}' at ({pos['x']},{pos['y']})")
+
+    # --- observability after founding ---
+    # The founded city shows up as a city marker on the player's own map,
+    # owned by the player, on a currently-visible tile — and the map agrees
+    # with query_cities about where it is.
+    m1 = client.result("query_map")
+    city_tiles = [t for t in m1["tiles"] if "city" in t]
+    assert city_tiles, "no city marker on the map after founding"
+    mine_cities = [t for t in city_tiles if t["city"] == m1["visible_player"]]
+    assert mine_cities, f"founded city not owned by player on map: {city_tiles}"
+    ct = mine_cities[0]
+    assert ct["visible"], f"player can't see its own city tile: {ct}"
+    assert m1["explored"] >= m0["explored"], "explored area shrank after founding"
+    assert (pos["x"], pos["y"]) == (ct["x"], ct["y"]), (
+        f"query_cities pos {pos} != query_map city tile ({ct['x']},{ct['y']})"
+    )
+    print(f"  observability ok: city marker at ({ct['x']},{ct['y']}), "
+          f"explored {m1['explored']} / visible {m1['visible']}")
 
     city = client.result("query_city", 0)
     buildable = city["buildable"]

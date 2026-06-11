@@ -50,7 +50,7 @@ START=$(date +%s)
     echo "=== meson test scenario + integration (headless) ==="
     mise exec -- meson test -C build \
         scenario-load-stress scenario-path-resume \
-        slice-headless expansion-headless turns-headless
+        slice-headless expansion-headless
     SCENARIO_RC=$?
     if [[ $UNIT_RC -ne 0 || $SCENARIO_RC -ne 0 ]]; then
         exit 1

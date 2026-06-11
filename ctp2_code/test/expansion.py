@@ -11,6 +11,13 @@ Also regression-tests the settle guard: founding on a tile that already has
 a city must FAIL with tile_occupied (it used to silently REPLACE the city —
 found by the first MCP playtest).
 
+Absorbed the former turns.py slice (same boot, one fewer game launch in
+tier-B): end_turn advances full rounds through the real event pipeline,
+query_turn tracks the clock exactly, the world stays consistent and
+queryable afterwards, and bad arguments stay errors. UI build is excluded
+on purpose: its end_turn queues director->AddEndTurn asynchronously, so
+"advance N rounds synchronously" is a headless-only contract.
+
 Usage:
     test/expansion.py <path-to-ctp2_headless> [--log FILE]
 """
@@ -36,10 +43,44 @@ def run(client):
     client.expect_ok("start_game")
     client.wait_game_loaded()
 
+    # --- turn clock (absorbed turns.py) ---
+    t0 = client.result("query_turn")
+    assert t0["round"] == 0, f"fresh game should be at round 0, got {t0}"
+    print(f"  start: round {t0['round']}, year {t0['year']}")
+
     client.expect_ok("build_city")
     home = client.result("query_cities")["cities"][0]
     hx, hy = home["pos"]["x"], home["pos"]["y"]
     print(f"  founded {home['name']} at ({hx},{hy})")
+
+    # end_turn N advances exactly N full rounds; bare end_turn exactly one.
+    r = client.command("end_turn", 3)
+    assert r.get("status") == "ok", f"end_turn failed: {r}"
+    t1 = client.result("query_turn")
+    assert t1["round"] == 3, f"end_turn 3 should land on round 3, got {t1}"
+    client.expect_ok("end_turn")
+    t2 = client.result("query_turn")
+    assert t2["round"] == 4, f"bare end_turn should advance 1, got {t2}"
+    print(f"  clock ok: round 0 -> {t1['round']} -> {t2['round']}")
+
+    # The world survived the rounds: players listed, the city exists and is
+    # worked (yields reported), per-player queries agree with each other.
+    players = client.result("query_players")["players"]
+    assert any(p["human"] and not p["dead"] for p in players), "human player vanished"
+    human = next(p for p in players if p["human"])
+    detail = client.result("query_player", human["id"])
+    assert detail["id"] == human["id"] and detail["num_cities"] >= 1, (
+        f"query_player disagrees with query_players: {detail}"
+    )
+    mine = client.result("query_player_cities", human["id"])["cities"]
+    assert mine and "yields" in mine[0], f"city yields missing: {mine}"
+    y = mine[0]["yields"]
+    print(f"  city yields after {t2['round']} rounds: food {y['food']}, "
+          f"production {y['production']}, gold {y['gold']}, science {y['science']}")
+
+    # bad args stay errors
+    assert client.command("end_turn", 0).get("detail") == "bad_args"
+    assert client.command("end_turn", 9999).get("detail") == "bad_args"
 
     # Settle guard: the starting tile now has a city; a settler created ON it
     # must not be able to found another. Produce one and try.

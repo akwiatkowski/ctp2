@@ -1674,44 +1674,13 @@ test('slice-ui',
   suite : 'integration',
 )
 
-# World observability: fog-of-war filtered map + unit queries, cross-checked
-# against query_cities. Same script on both binaries; shares the one socket.
-observability_test = find_program('test/observability.py')
-test('observability-headless',
-  observability_test,
-  args : [join_paths(meson.project_build_root(), 'ctp2_headless'), '--mode', 'headless'],
-  timeout : 180,
-  is_parallel : false,
-  priority : -1,
-  workdir : cwd_for_tests,
-  suite : 'integration',
-)
-test('observability-ui',
-  observability_test,
-  args : [join_paths(meson.project_build_root(), 'ctp2'), '--mode', 'ui'],
-  timeout : 180,
-  is_parallel : false,
-  priority : -1,
-  workdir : cwd_for_tests,
-  suite : 'integration',
-)
-
-# Turn advancement: end_turn N drives full rounds through the real event
-# pipeline; query_turn tracks the clock. Headless-only — the UI build's
-# end_turn is asynchronous (director-driven).
-turns_test = find_program('test/turns.py')
-test('turns-headless',
-  turns_test,
-  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
-  timeout : 300,
-  is_parallel : false,
-  priority : -1,
-  workdir : cwd_for_tests,
-  suite : 'integration',
-)
-
 # Expansion: the full second-city loop (settler production, move_army
-# pathfinding, settle guard regression). Headless-only like turns.
+# pathfinding, settle guard regression) plus the absorbed turn-advancement
+# checks (end_turn N drives full rounds through the real event pipeline;
+# query_turn tracks the clock). Headless-only — the UI build's end_turn is
+# asynchronous (director-driven). World observability (fog-filtered map +
+# unit queries cross-checked against query_cities) lives in the save/load
+# slice above — same boot, both binaries.
 # Auto-explore: a human army keeps exploring across turns (passability-
 # aware retargeting); manual move_army overrides the explore order.
 # Research + terraform: the science affordance loop and the Public-Works

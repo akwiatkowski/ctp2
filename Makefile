@@ -97,6 +97,17 @@ test:
 	@echo "Running fast + unit tests (no integration)..."
 	meson test -C build fast unit
 
+# One-command crash/behavior repro. Boots serve mode, optionally loads a
+# save (path or test/fixtures name), runs a ';'-separated command script.
+# On a crash the game log tail includes the in-process crash report.
+#   make repro CMDS='end_turn 5; query_players'
+#   make repro SAVE=c7-b-r80 CMDS='move_army 0 36 90; end_turn 4'
+BIN ?= build/ctp2_headless
+REPRO_ARGS ?= --players 3 --seed 42
+repro:
+	@test -n "$(CMDS)" || { echo "usage: make repro [SAVE=name|path] [BIN=...] CMDS='verb args; verb args'"; exit 2; }
+	@python3 ctp2_code/test/repro.py $(BIN) $(if $(SAVE),--save '$(SAVE)') --cmds '$(CMDS)' --args '$(REPRO_ARGS)'
+
 # Slower integration suite — headless game subprocess tests.
 # ~70 seconds.  Run on a slower cadence (every 4+ commits, pre-push).
 test-integration: build

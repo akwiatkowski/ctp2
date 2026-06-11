@@ -31,6 +31,7 @@
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
 #include "ctp/game_controller.h"              // game_controller::Dispatch (--serve)
+#include "ctp/crash_handler.h"                // crash_handler::Install
 #include "test/smoketest_server.h"            // smoketest_server_* (--serve)
 
 #include <cstdio>
@@ -164,7 +165,10 @@ static void print_usage(const char *prog)
 int main(int argc, char **argv)
 {
     civlog::Init();
-    headless_log->info("CTP2 Headless Engine starting");
+    // Self-reporting crashes: symbolised backtrace + recent game events
+    // land in the log, so most crashes never need a debugger session.
+    crash_handler::Install("/tmp/ctp2-crash.log");
+    headless_log->info("CTP2 Headless Engine starting (crash reports -> /tmp/ctp2-crash.log)");
 
     // Parse arguments
     bool newGame = false;

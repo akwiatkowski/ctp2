@@ -30,6 +30,7 @@
 
 #include "ctp/c3.h"
 #include "gs/events/GameEventArgument.h"
+#include "ctp/ctp2_utils/civlog.h"
 
 #include "gs/gameobj/Unit.h"
 #include "gs/world/MapPoint.h"
@@ -347,6 +348,15 @@ bool GameEventArgument::IsValid() const
 
 void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, GameEvent* event) const
 {
+	// Always-on visibility: a dropped event used to vanish silently
+	// (GEV_ERR_ArgsInvalid) unless a debug profile flag was set, making
+	// "the order did nothing" bugs invisible. One line, always logged.
+	civlog::Get("gevent")->warn(
+	    "event {} dropped: arg #{} ({}) invalid (id {:#x}), added during {}",
+	    GameEventManager::GetEventName(type), (int)argIndex,
+	    GameEventManager::ArgToName(m_type), (uint32)m_data.m_id,
+	    event ? GameEventManager::GetEventName(event->AddedDuring()) : "?");
+
 	DPRINTF(k_DBG_GAMESTATE, ("Missing object id %lx\n", (uint32)m_data.m_id));
 
 	if(profiledb_Get() && profiledb_Get()->IsDebugSlicEvents())

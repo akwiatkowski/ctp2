@@ -35,7 +35,8 @@
 #include "gs/events/GameEvent.h"
 
 #include "gs/events/GameEventArgList.h"
-#include "gs/events/GameEventManager.h"   // gevmanager_Get()
+#include "gs/events/GameEventManager.h"
+#include "ctp/crash_handler.h"   // gevmanager_Get()
 
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
@@ -93,6 +94,9 @@ GameEvent::~GameEvent()
 
 GAME_EVENT_ERR GameEvent::Process()
 {
+	// Feed the crash reporter's "what was the engine doing" ring.
+	crash_handler::NoteEvent(GameEventManager::GetEventName(m_type));
+
 	/// @todo Check whether there are valid situations when the data became invalid.
 	// When a unit is killed or consumed in the main execution phase of the event,
 	// its ID may have become invalid when reaching the 'post' execution phase.

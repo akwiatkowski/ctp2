@@ -1457,6 +1457,12 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("unload ", 0) == 0)                          return CmdUnload(line.c_str() + 7);
     if (line.rfind("board ", 0) == 0)                           return CmdBoard(line.c_str() + 6);
     if (line.rfind("fortify ", 0) == 0)                        return CmdFortify(line.c_str() + 8);
+    if (line == "debug_crash") {
+        // DEBUG: deliberate SIGSEGV to exercise the crash reporter
+        // (backtrace + event ring in /tmp/ctp2-crash.log). Not an MCP tool.
+        volatile int * boom = nullptr;
+        *boom = 42;
+    }
     if (line.rfind("ungroup_army ", 0) == 0)                    return CmdUngroupArmy(line.c_str() + 13);
 
     handled = false;

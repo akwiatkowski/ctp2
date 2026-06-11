@@ -42,6 +42,19 @@ START=$(date +%s)
 
     echo "=== ./build/ctp2_unit_tests ==="
     ./build/ctp2_unit_tests -r=xml --no-version > "$XML_FILE" 2>>"$LOG_FILE"
+    UNIT_RC=$?
+
+    # Scenario tier: campaign-save fixtures replayed through serve mode
+    # (~12s total). These caught a real reload bug on their first run;
+    # every promoted repro lands here automatically via the meson suite.
+    echo "=== meson test scenario + integration (headless) ==="
+    mise exec -- meson test -C build \
+        scenario-load-stress scenario-path-resume \
+        slice-headless expansion-headless turns-headless
+    SCENARIO_RC=$?
+    if [[ $UNIT_RC -ne 0 || $SCENARIO_RC -ne 0 ]]; then
+        exit 1
+    fi
 } >>"$LOG_FILE" 2>&1
 RUN_RC=$?
 

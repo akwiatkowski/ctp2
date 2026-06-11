@@ -64,7 +64,8 @@
 /// \mainpage
 /// \image html "../common/images/wallpaper1_640x480_2.jpg"
 
-#include "ctp/c3.h"         // Pre-compiled header
+#include "ctp/c3.h"
+#include "ctp/crash_handler.h"         // Pre-compiled header
 #include "ctp/civ3_main.h"  // Own declarations: consistency check
 
 #include "AdvanceRecord.h"
@@ -1503,6 +1504,7 @@ void main_InitializeLogs()
 int main(int argc, char **argv)
 {
 	fprintf(stderr, "[MAIN] main() started\n");
+	crash_handler::Install("/tmp/ctp2-crash.log");
 	int const   r = CivMain(argc, argv);
 
 	if (r < 0)

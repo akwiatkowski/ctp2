@@ -282,6 +282,7 @@ game_core_sources = [
 	'ctp/fingerprint/verify.c',
 	'ctp/civapp.cpp',
 	'ctp/game_controller.cpp',
+	'ctp/crash_handler.cpp',
 	'ctp/display.cpp',
 	'gs/database/DB.cpp',
 	'gs/database/EndGameDB.cpp',

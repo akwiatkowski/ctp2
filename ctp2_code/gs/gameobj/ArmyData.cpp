@@ -6582,7 +6582,10 @@ void ArmyData::CheckLoadSleepingCargoFromCity(Order *order)
 	&& !terrainutil_HasAirfield(m_pos))
 		return;
 
-	if(cell->UnitArmy()->Num() < 1)
+	// UnitArmy() is NULL for a cell with no units (this army can be mid-
+	// move or aboard a transport when orders resume headless) — same
+	// landmine as UpdateZOCForMove; the guarded callers use GetNumUnits().
+	if(cell->UnitArmy() == nullptr || cell->UnitArmy()->Num() < 1)
 		return;
 
 	for(sint32 i = 0; i < m_nElements; i++) {
@@ -7319,6 +7322,12 @@ void ArmyData::UpdateZOCForMove(const MapPoint &pos, WORLD_DIRECTION d)
 
 	if(cell->GetCity().IsValid()) {
 		doneRemoving = true;
+	} else if(cell->UnitArmy() == nullptr) {
+		// An empty source cell (the army is aboard a transport, or was
+		// just removed) has nothing blocking ZOC removal. UnitArmy()
+		// returns NULL for cells with no units — dereferencing it was a
+		// crash when orders executed for an army not in any cell.
+		doneRemoving = false;
 	} else {
 		for(i = cell->UnitArmy()->Num() - 1; i >= 0; i--) {
 

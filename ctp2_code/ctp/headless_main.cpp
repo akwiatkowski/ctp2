@@ -27,6 +27,7 @@
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/gameobj/Vision.h"                // Vision::IsVisible / IsExplored
 #include "gs/gameobj/Events.h"                // GEV_AiBeginTurn / GEV_AiBeginMapAnalysis
+#include "gs/gameobj/Army.h"                  // Army::NumOrders (resume queued paths)
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
 #include "ctp/game_controller.h"              // game_controller::Dispatch (--serve)
@@ -102,6 +103,30 @@ static void headless_run_round(sint32 round)
         // Drain queued AI events so the player's turn actually runs
         // before we move on to the next player.
         if (gevmanager_Get()) gevmanager_Get()->Process();
+
+        // Resume queued multi-turn orders (move paths, explore). In the
+        // interactive game GEV_BeginTurnExecute is emitted by the UI's
+        // unit-selection flow (SelItem.cpp) for each army with pending
+        // orders — headless has no UI, so without this every queued path
+        // died after its first leg (auto_explore "stuck armies", settler
+        // marches stalling 1-2 tiles in).
+        if (gevmanager_Get() && player_Get(p)->m_all_armies) {
+            for (sint32 a = 0; a < player_Get(p)->m_all_armies->Num(); ++a) {
+                Army army = player_Get(p)->m_all_armies->Access(a);
+                if (!army.IsValid() || army.NumOrders() == 0) continue;
+                // Cargo never self-executes: the UI can't select an army
+                // riding a transport, so interactive play never fires
+                // BeginTurnExecute for it. Executing its stale orders here
+                // crashes UpdateZOCForMove (the army isn't in any cell's
+                // unit list while aboard).
+                if (army.Num() > 0 && army.Access(0).IsBeingTransported())
+                    continue;
+                gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
+                                           GEV_BeginTurnExecute,
+                                           GEA_Army, army, GEA_End);
+            }
+            gevmanager_Get()->Process();
+        }
 
         player_Get(p)->EndTurn();
         if (gameobservers_Get()) gameobservers_Get()->NotifyTurnEnd(p);

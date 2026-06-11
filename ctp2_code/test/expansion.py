@@ -117,6 +117,44 @@ def run(client):
     assert dist(cur, (hx, hy)) >= 3, f"settler stuck near home: {a}"
     print(f"  settler marched to {cur} (distance {dist(cur, (hx, hy))})")
 
+    # Multi-turn path persistence: a queued path must survive end_turn
+    # WITHOUT re-issuing the move. The interactive UI re-fires
+    # GEV_BeginTurnExecute per army each turn; headless must do the same
+    # (campaign 7: every queued path died after its first leg).
+    explored = {(t["x"], t["y"]) for t in client.result("query_map")["tiles"]}
+    # Stay >= 3 from home so the follow-up settle isn't blocked by the
+    # too-close rule after this detour.
+    # Prefer a target several tiles out so the route genuinely spans turns
+    # (the first leg executes on issue; one-leg routes test nothing). Try
+    # candidates farthest-first until pathfinding accepts one.
+    candidates = sorted((c for c in explored
+                         if dist(c, (hx, hy)) >= 3 and dist(c, cur) >= 2),
+                        key=lambda c: -dist(c, cur))
+    far = None
+    for cand in candidates[:8]:
+        if client.command("move_army", a["index"], cand[0], cand[1]).get("status") == "ok":
+            far = cand
+            break
+    if far is not None:
+        if True:  # route accepted above
+            # move_army executes the first leg immediately; resumption is
+            # about progress AFTER that, across end_turns we don't drive.
+            a = settler_army(client)
+            start = (a["pos"]["x"], a["pos"]["y"])
+            cur = start
+            for _ in range(8):
+                client.expect_ok("end_turn")
+                a = settler_army(client)
+                assert a, "settler vanished on queued path"
+                cur = (a["pos"]["x"], a["pos"]["y"])
+                if cur == far:
+                    break
+            assert cur == far or dist(cur, far) < dist(start, far), (
+                f"queued path did not resume after end_turn: at {cur}, "
+                f"was {start}, target {far}"
+            )
+            print(f"  queued path persisted: {start} -> {cur} (target {far})")
+
     client.expect_ok("build_city")
     cities = client.result("query_cities")["cities"]
     assert len(cities) == 2, f"expected 2 cities after expansion, got {cities}"

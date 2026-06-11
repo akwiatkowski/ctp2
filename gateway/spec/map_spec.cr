@@ -69,8 +69,9 @@ struct MapToolsTest < GatewayTestCase
     spots = JSON.parse(body["result"]["content"].as_a.first["text"].as_s)["spots"].as_a
     spots.size.should eq 3
     best = spots.first
-    # Best cluster tile: self + 3 plains + 3 grassland neighbours = 7 x 25.
-    best["score"].as_i.should eq 175
+    # Food-weighted (3f+s+g): plains = 45, grassland = 55.
+    # Best cluster tile: self + 3 plains (180) + 3 grassland (165) = 345.
+    best["score"].as_i.should eq 345
     best["distance_to_nearest_city"].as_i.should be >= 3
     best["terrain"].as_s.should eq "Plains"
     # Every candidate respects the minimum city distance.

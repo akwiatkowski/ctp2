@@ -183,7 +183,11 @@ module Ctp2Gateway
       land = {} of Int32 => {Bool, Int32, String} # id => {settleable, yield, name}
       terrains.each do |t|
         ok = t["land"].as_bool && !t["mountain"].as_bool && !t["water"].as_bool
-        score = t["food"].as_i + t["shields"].as_i + t["gold"].as_i
+        # Food-weighted: score ≈ population, and population is food.
+        # 3x makes grassland (f15) beat mountain (s15 g10) and lets kelp
+        # beds (f15) mark good coastal sites — campaign 7 starved on a
+        # swamp peninsula while the food sat in the water tiles.
+        score = 3 * t["food"].as_i + t["shields"].as_i + t["gold"].as_i
         land[t["id"].as_i] = {ok, score, t["name"].as_s}
       end
 

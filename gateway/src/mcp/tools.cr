@@ -211,9 +211,10 @@ module Ctp2Gateway::Mcp
 
     Tool.new("suggest_settle_spots",
       "Where to found the next city: explored, passable land tiles at distance >= 3 " \
-      "from every known city, scored by the base yields (food+shields+gold) of the " \
-      "tile and its explored neighbours — highest score first. March a settler there " \
-      "with move_army, then build_city.",
+      "from every known city, scored FOOD-FIRST (3*food + shields + gold) over the " \
+      "tile and its explored neighbours INCLUDING water (kelp beds and beaches feed " \
+      "coastal cities) — highest score first. Score is population and population is " \
+      "food. March a settler there with move_army, then build_city.",
       %({"type":"object","properties":{"max":{"type":"integer","minimum":1,"maximum":10,"description":"how many candidates (default 5)"}},"additionalProperties":false}),
       ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
         r = Ctp2Gateway::MapRenderer.new(c)
@@ -247,6 +248,15 @@ module Ctp2Gateway::Mcp
       %({"type":"object","properties":{"army_index":{"type":"integer","minimum":0}},"required":["army_index"],"additionalProperties":false}),
       ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
         c.command("group_army #{a["army_index"].as_i}")
+      }),
+
+    Tool.new("fortify",
+      "Entrench an army in place for a defensive bonus. Garrisons that merely stand " \
+      "in a city take full damage — fortify them. Moving the army breaks the " \
+      "entrenchment.",
+      %({"type":"object","properties":{"army_index":{"type":"integer","minimum":0}},"required":["army_index"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("fortify #{a["army_index"].as_i}")
       }),
 
     Tool.new("declare_war",

@@ -251,9 +251,6 @@ int main(int argc, char **argv)
 
         char cmd[256];
         bool done = false;
-        // Round counter for serve-mode end_turn. Batch mode tracks rounds
-        // with its loop variable; serve mode persists it across commands.
-        sint32 serveRound = 0;
         while (!done) {
             if (!smoketest_poll_command(cmd, sizeof(cmd))) {
                 // No command pending; yield to avoid a busy spin.
@@ -307,8 +304,12 @@ int main(int argc, char **argv)
                     if (n < 1 || n > 1000) {
                         smoketest_send_response("error", cmd, "bad_args");
                     } else {
+                        // The GLOBAL TurnCount is the round source — a local
+                        // counter reset on process restart and, worse, made
+                        // end_turn after load_game stomp a loaded game's
+                        // clock backwards via SkipToRound.
                         for (int i = 0; i < n; ++i) {
-                            headless_run_round(serveRound++);
+                            headless_run_round(turn_Get() ? turn_Get()->GetSessionRound() : 0);
                         }
                         // Park CurPlayer back on the human so queries
                         // (query_turn reads CurPlayer's round) and AI
@@ -316,7 +317,8 @@ int main(int argc, char **argv)
                         if (Player * human = game_controller::HumanPlayer())
                             s_headlessCurPlayer = human->GetOwner();
                         char detail[48];
-                        snprintf(detail, sizeof(detail), "round=%d", (int)serveRound);
+                        snprintf(detail, sizeof(detail), "round=%d",
+                                 (int)(turn_Get() ? turn_Get()->GetSessionRound() : 0));
                         smoketest_send_response("ok", "end_turn", detail);
                     }
                 }

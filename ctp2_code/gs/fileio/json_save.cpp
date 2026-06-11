@@ -2533,6 +2533,16 @@ void jsonToOptString(nlohmann::json const &j, std::string &dest)
     }
     dest = j.get<std::string>();
 }
+
+// A Slic segment/function can exist with a NULL name (seen after
+// load_game over a running game: runtime-created Slic state whose
+// source segment never had a name bound). std::string(nullptr) is UB
+// and aborts under libc++ hardening, so every GetName() result is
+// converted through here.
+std::string safeName(MBCHAR const *s)
+{
+    return s ? std::string(s) : std::string();
+}
 }  // namespace
 
 void to_json(nlohmann::json &j, SlicRecord const &r)
@@ -2541,7 +2551,7 @@ void to_json(nlohmann::json &j, SlicRecord const &r)
         {"owner",        r.m_owner},
         {"title",        optStringToJson(r.m_title)},
         {"text",         optStringToJson(r.m_text)},
-        {"segment_name", r.m_segment ? std::string(r.m_segment->GetName())
+        {"segment_name", r.m_segment ? safeName(r.m_segment->GetName())
                                      : std::string()},
     };
 }
@@ -3656,7 +3666,7 @@ void to_json(nlohmann::json &j, SlicSymbolData const &s)
             break;
         case SLIC_SYM_FUNC:
             j["function_name"] = s.m_val.m_function_object
-                                     ? std::string(s.m_val.m_function_object->GetName())
+                                     ? safeName(s.m_val.m_function_object->GetName())
                                      : std::string();
             break;
         case SLIC_SYM_STRING:
@@ -3665,7 +3675,7 @@ void to_json(nlohmann::json &j, SlicSymbolData const &s)
         case SLIC_SYM_UFUNC:
         case SLIC_SYM_ID:
             j["segment_name"] = s.m_val.m_segment
-                                    ? std::string(s.m_val.m_segment->GetName())
+                                    ? safeName(s.m_val.m_segment->GetName())
                                     : std::string();
             break;
         case SLIC_SYM_IMPROVEMENT:
@@ -4309,7 +4319,7 @@ void to_json(nlohmann::json &j, SlicObject const &o)
     j["recipients"] = std::move(recipients);
 
     j["segment_name"] = o.m_segment
-        ? std::string(o.m_segment->GetName())
+        ? safeName(o.m_segment->GetName())
         : std::string();
 
     j["default_advance_set"]     = o.m_defaultAdvanceSet;
@@ -4783,7 +4793,7 @@ void to_json(nlohmann::json &j, SlicButton const &b)
         j["context"]  = *b.m_context;
     else
         j["context"]  = SlicObject();
-    j["segment_name"] = b.m_segment ? std::string(b.m_segment->GetName())
+    j["segment_name"] = b.m_segment ? safeName(b.m_segment->GetName())
                          : b.m_segmentName;
 }
 
@@ -4829,7 +4839,7 @@ void to_json(nlohmann::json &j, SlicEyePoint const &e)
         {"data",         e.m_data},
         {"unit",         static_cast<ID const &>(e.m_unit)},
         {"recipient",    e.m_recipient},
-        {"segment_name", e.m_segment ? std::string(e.m_segment->GetName())
+        {"segment_name", e.m_segment ? safeName(e.m_segment->GetName())
                                       : std::string()},
         {"type",         static_cast<int>(e.m_type)},
     };

@@ -14,7 +14,9 @@ private def world_responses
                 else
                   4 # grassland
                 end
-      tiles << %({"x":#{x},"y":#{y},"terrain":#{terrain},"visible":true})
+      # (7,7) is explored-but-remembered: the chart must dim it.
+      visible = {x, y} != {7, 7}
+      tiles << %({"x":#{x},"y":#{y},"terrain":#{terrain},"visible":#{visible}})
     end
   end
   [{8, 4}, {8, 5}, {9, 4}, {9, 5}].each do |(x, y)|
@@ -81,8 +83,28 @@ struct MapToolsTest < GatewayTestCase
     resp.status_code.should eq 200
     resp.body.should contain "charted world"
     resp.body.should contain "Settle advisor"
-    resp.body.should contain "R=Rome(5,5)"
     resp.body.should contain "(8, 5)" # a spot row... position formatting
+    # ASCII parity view stays available in the collapsible plain chart.
+    resp.body.should contain "Plain chart"
+    resp.body.should contain "R=Rome(5,5)"
+  end
+
+  def test_map_page_draws_the_illuminated_chart : Nil
+    world!
+    body = self.get("/map").body
+    body.should contain %(id="atlas")              # the tile grid
+    body.should contain "t-grass"                  # terrain pigment classes
+    body.should contain "t-mountain"
+    body.should contain "t-shallow"
+    body.should contain "tl--dim"                  # (7,7) remembered tile
+    body.should contain "tl--fog"                  # unexplored vellum
+    body.should contain %(data-t="Grassland · f15 s5 g5")     # tooltip ledger
+    body.should contain %(data-city="Rome")        # city seal with name
+    body.should contain %(class="pin pin--city">R<) # own city = gold seal
+    body.should contain "⚑"                        # own settler pin
+    body.should contain %(class="pin pin--foe">▲<) # foreign unit pin
+    body.should contain %(data-rank="1")           # top settle site ring
+    body.should contain "/assets/atlas.js"         # tooltip script wired in
   end
 
   def test_render_map_unstarted_game_is_tool_error : Nil

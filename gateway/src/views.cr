@@ -37,9 +37,21 @@ module Ctp2Gateway::Views
   end
 
   struct MapPage
-    def initialize(@map : String?, @error : String?,
+    def initialize(@chart : Ctp2Gateway::MapRenderer::Chart?,
+                   @ascii : String?, @error : String?,
                    @spots : Array(Ctp2Gateway::MapRenderer::Spot)?)
     end
+
+    # Human-readable names for the terrain swatch legend.
+    TERRAIN_LABELS = {
+      "t-deep" => "deep water", "t-shallow" => "coastal water",
+      "t-kelp" => "kelp/reef", "t-grass" => "grassland",
+      "t-plains" => "plains", "t-forest" => "forest",
+      "t-jungle" => "jungle", "t-swamp" => "swamp",
+      "t-desert" => "desert", "t-tundra" => "tundra",
+      "t-glacier" => "glacier", "t-hill" => "hills",
+      "t-mountain" => "mountains", "t-unknown" => "other",
+    }
 
     ECR.def_to_s "src/views/map.ecr"
   end

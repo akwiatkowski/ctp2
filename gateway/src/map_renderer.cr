@@ -212,3 +212,117 @@ module Ctp2Gateway
     end
   end
 end
+
+module Ctp2Gateway
+  class MapRenderer
+    # --- the illuminated chart (HTML map) ----------------------------------
+
+    record ChartCell,
+      x : Int32, y : Int32,
+      terrain_class : String, terrain_name : String,
+      food : Int32, shields : Int32, gold : Int32,
+      visible : Bool,
+      city_name : String?, city_own : Bool,
+      army_own : Bool, army_settler : Bool, army_foreign : Bool,
+      spot_rank : Int32
+
+    record Chart,
+      x0 : Int32, y0 : Int32, x1 : Int32, y1 : Int32,
+      me : Int32,
+      rows : Array(Array(ChartCell?)),
+      cities : Array({String, Int32, Int32, Bool}),
+      terrains_used : Array({String, String})
+
+    # CSS class for a terrain — the palette lives in app.css only.
+    private def terrain_class(name : String, water : Bool, mountain : Bool) : String
+      n = name.downcase
+      return "t-deep" if n.includes?("deep water") || n.includes?("rift") || n.includes?("trench")
+      return "t-kelp" if n.includes?("kelp") || n.includes?("reef")
+      return "t-shallow" if water && (n.includes?("beach") || n.includes?("shelf") || n.includes?("shallow"))
+      return "t-shallow" if water
+      return "t-mountain" if mountain || n.includes?("mountain")
+      return "t-hill" if n.includes?("hill")
+      return "t-grass" if n.includes?("grass")
+      return "t-plains" if n.includes?("plains")
+      return "t-forest" if n.includes?("forest")
+      return "t-jungle" if n.includes?("jungle")
+      return "t-swamp" if n.includes?("swamp")
+      return "t-desert" if n.includes?("desert") || n.includes?("dune")
+      return "t-tundra" if n.includes?("tundra")
+      return "t-glacier" if n.includes?("glacier")
+      "t-unknown"
+    end
+
+    # Structured data for the HTML tile chart. Same sources as render();
+    # presentation stays in the template/CSS.
+    def chart(radius : Int32 = 34, spots : Array(Spot)? = nil) : Chart?
+      map = fetch("query_map")
+      terrains = fetch("query_terrains").try(&.["terrains"].as_a)
+      cities = fetch("query_cities").try(&.["cities"].as_a)
+      armies = fetch("query_armies").try(&.["armies"].as_a)
+      units = fetch("query_units").try(&.["units"].as_a)
+      return nil unless map && terrains && cities && armies && units
+
+      me = map["visible_player"].as_i
+      tiles = {} of {Int32, Int32} => JSON::Any
+      map["tiles"].as_a.each { |t| tiles[{t["x"].as_i, t["y"].as_i}] = t }
+      if tiles.empty?
+        @error = "nothing explored yet — found a city or move a unit first"
+        return nil
+      end
+
+      tinfo = {} of Int32 => {String, String, Int32, Int32, Int32}
+      terrains.each do |t|
+        tinfo[t["id"].as_i] = {
+          terrain_class(t["name"].as_s, t["water"].as_bool, t["mountain"].as_bool),
+          t["name"].as_s, t["food"].as_i, t["shields"].as_i, t["gold"].as_i,
+        }
+      end
+
+      xs = tiles.keys.map(&.[0]); ys = tiles.keys.map(&.[1])
+      cx = (xs.min + xs.max) // 2
+      cy = (ys.min + ys.max) // 2
+      x0 = {xs.min, cx - radius}.max; x1 = {xs.max, cx + radius}.min
+      y0 = {ys.min, cy - radius}.max; y1 = {ys.max, cy + radius}.min
+
+      city_at = {} of {Int32, Int32} => {String, Bool}
+      city_list = [] of {String, Int32, Int32, Bool}
+      cities.each do |c|
+        pos = {c["pos"]["x"].as_i, c["pos"]["y"].as_i}
+        own = c["owner"].as_i == me
+        city_at[pos] = {c["name"].as_s, own}
+        city_list << {c["name"].as_s, pos[0], pos[1], own}
+      end
+      own_army = {} of {Int32, Int32} => Bool # value: settler?
+      armies.each { |a| own_army[{a["pos"]["x"].as_i, a["pos"]["y"].as_i}] = a["can_settle"].as_bool }
+      foreign = Set({Int32, Int32}).new
+      units.each { |u| foreign << {u["pos"]["x"].as_i, u["pos"]["y"].as_i} if u["owner"].as_i != me }
+      spot_rank = {} of {Int32, Int32} => Int32
+      spots.try &.each_with_index { |s, i| spot_rank[{s.x, s.y}] = i + 1 }
+
+      used = {} of String => String
+      rows = (y0..y1).map do |y|
+        (x0..x1).map do |x|
+          t = tiles[{x, y}]?
+          next nil unless t
+          klass, name, food, shields, gold = tinfo[t["terrain"].as_i]? || {"t-unknown", "unknown", 0, 0, 0}
+          used[klass] = name unless used.has_key?(klass)
+          city = city_at[{x, y}]?
+          ChartCell.new(
+            x: x, y: y,
+            terrain_class: klass, terrain_name: name,
+            food: food, shields: shields, gold: gold,
+            visible: t["visible"].as_bool,
+            city_name: city.try(&.[0]), city_own: city.try(&.[1]) || false,
+            army_own: own_army.has_key?({x, y}), army_settler: own_army[{x, y}]? || false,
+            army_foreign: foreign.includes?({x, y}),
+            spot_rank: spot_rank[{x, y}]? || 0,
+          ).as(ChartCell?)
+        end
+      end
+
+      Chart.new(x0: x0, y0: y0, x1: x1, y1: y1, me: me, rows: rows,
+                cities: city_list, terrains_used: used.to_a)
+    end
+  end
+end

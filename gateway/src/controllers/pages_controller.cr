@@ -61,12 +61,15 @@ module Ctp2Gateway
       html(200, "Cities of #{name}", Views::PlayerCities.new(id, name, cities), "/players")
     end
 
-    # The world, as the model sees it — same renderer as the render_map tool.
+    # The illuminated chart: an HTML tile map for humans, with the model's
+    # ASCII view (render_map) kept in a collapsible section for parity.
     @[ARTA::Get("/map")]
     def map : AHTTP::Response
       renderer = MapRenderer.new(@client)
-      text = renderer.render(radius: 30)
-      body = Views::MapPage.new(text, renderer.error, renderer.settle_spots(5))
+      spots = renderer.settle_spots(5)
+      chart = renderer.chart(spots: spots)
+      ascii = renderer.render(radius: 30)
+      body = Views::MapPage.new(chart, ascii, renderer.error, spots)
       html(200, "Map", body, "/map")
     end
 

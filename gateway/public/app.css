@@ -483,3 +483,199 @@ main {
   color: var(--parchment-faint);
 }
 .colophon .ornament { color: var(--gold); }
+
+/* ---- the illuminated chart (/map) ---------------------------- */
+/* A cartographer's plate: inked tiles on dark vellum. Watched     */
+/* land is luminous; remembered land is the faded old survey;      */
+/* fog is unmarked vellum. Cities are wax seals, armies gold pins. */
+
+.atlas { --tile: 20px; }
+
+.atlas__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.atlas__hint {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--parchment-faint);
+  font-style: italic;
+}
+
+.atlas__scroll {
+  overflow: auto;
+  max-height: 72vh;
+  border: 1px solid var(--gold-line);
+  outline: 1px solid rgba(0, 0, 0, 0.6);
+  outline-offset: -4px;            /* engraved double rule */
+  background: var(--ink-0);
+  padding: 6px;
+}
+.atlas__grid {
+  display: grid;
+  gap: 1px;
+  width: max-content;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(201, 162, 75, 0.04), transparent 60%),
+    var(--ink-0);
+}
+
+.tl {
+  width: var(--tile);
+  height: var(--tile);
+  position: relative;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  border-radius: 1px;
+}
+
+/* ruler ticks */
+.tl--ruler {
+  background: transparent;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.6rem;
+  color: var(--parchment-faint);
+}
+.tl--ruler-y { width: 2.4rem; justify-self: end; padding-right: 4px; }
+
+/* terrain pigments — muted mineral inks on dark vellum */
+.t-deep     { background: #122230; }
+.t-shallow  { background: #1c3a50; }
+.t-kelp     { background: #1c4540; }
+.t-grass    { background: #4c5c2e; }
+.t-plains   { background: #6f653a; }
+.t-forest   { background: #2b482c; }
+.t-jungle   { background: #235040; }
+.t-swamp    { background: #3a4a3c; }
+.t-desert   { background: #8a6f42; }
+.t-tundra   { background: #585f54; }
+.t-glacier  { background: #9caeb4; }
+.t-hill     { background: #6a5c3a; }
+.t-mountain { background: #757067; }
+.t-unknown  { background: #3a3f4a; }
+
+/* the old survey: explored but not currently watched */
+.tl--dim { filter: brightness(0.52) saturate(0.55); }
+
+/* unexplored vellum */
+.tl--fog {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(233, 221, 194, 0.025) 0%, transparent 70%),
+    var(--ink-1);
+}
+
+/* hover: the surveyor's loupe */
+.atlas__grid .tl:not(.tl--ruler):not(.tl--fog):hover {
+  filter: brightness(1.35);
+  outline: 1px solid var(--gold-bright);
+  outline-offset: 0;
+  z-index: 2;
+  cursor: crosshair;
+}
+
+/* pins & seals */
+.pin {
+  font-weight: 600;
+  font-size: calc(var(--tile) * 0.62);
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+.pin--city,
+.pin--enemy {
+  font-family: "Fraunces", serif;
+  width: calc(var(--tile) * 0.92);
+  height: calc(var(--tile) * 0.92);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: calc(var(--tile) * 0.55);
+}
+.pin--city {
+  background: var(--gold);
+  color: var(--ink-0);
+  box-shadow: 0 0 0 1px var(--ink-0), 0 0 6px rgba(236, 210, 139, 0.5);
+}
+.pin--enemy {
+  background: var(--seal, #a83232);
+  color: var(--parchment);
+  box-shadow: 0 0 0 1px var(--ink-0);
+}
+.pin--army { color: var(--gold-bright); }
+.pin--foe  { color: #e06a5a; font-size: calc(var(--tile) * 0.5); }
+
+/* settle-advisor survey rings */
+.tl--spot { outline: 2px dashed var(--gold); outline-offset: -2px; z-index: 1; }
+.tl--spot::after {
+  content: attr(data-rank);
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold-bright);
+  color: var(--ink-0);
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 9px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  z-index: 3;
+}
+
+/* marginalia card (tooltip) */
+.atlas__tip {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  background: var(--ink-2);
+  border: 1px solid var(--gold-line);
+  border-top: 2px solid var(--gold);
+  padding: 0.5rem 0.7rem;
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.74rem;
+  color: var(--parchment);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  max-width: 240px;
+}
+.atlas__tip .tip__pos { color: var(--gold-bright); }
+.atlas__tip .tip__city { color: var(--gold); }
+.atlas__tip .tip__unit { color: var(--verdigris); }
+.atlas__tip div { margin: 1px 0; }
+
+/* city roll & legend */
+.atlas__cities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--gold-faint);
+  font-size: 0.82rem;
+}
+.atlas__cityname { display: inline-flex; align-items: center; gap: 0.4rem; }
+.atlas__cityname .pin { width: 16px; height: 16px; font-size: 10px; }
+
+.atlas__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--gold-faint);
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--parchment-dim);
+}
+.atlas__key { display: inline-flex; align-items: center; gap: 0.4rem; }
+.atlas__key .tl { width: 13px; height: 13px; }
+.atlas__key .pin { font-size: 12px; }
+.atlas__key .tl--spot::after { display: none; }
+
+.atlas__plain summary { cursor: pointer; }
+.atlas__plain pre.chart { margin-top: 0.8rem; }

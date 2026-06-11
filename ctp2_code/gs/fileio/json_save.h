@@ -43,6 +43,13 @@ struct SelectionState
     sint32 current_player = -1;
 };
 
+// Save-file string codec: game memory is Latin-1 (StringDB, fixed name
+// buffers, the UI font path); the JSON save stores UTF-8. utf8_safe
+// encodes on write (lossless for Latin-1, never invalid UTF-8);
+// latin1_safe decodes on load (outside-Latin-1 becomes '?').
+std::string utf8_safe(MBCHAR const *src);
+std::string latin1_safe(std::string const &utf8);
+
 inline void to_json(nlohmann::json &j, SelectionState const &s)
 {
     j = nlohmann::json{{"current_player", s.current_player}};

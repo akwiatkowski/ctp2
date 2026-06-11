@@ -4007,3 +4007,29 @@ TEST_CASE("json_save: Slic symbol with no segment serialises as \"\"")
 
     CHECK(j.at("segment_name").get<std::string>() == "");
 }
+
+// ---------------------------------------------------------------------------
+// Save-file string codec: memory is Latin-1, saves are UTF-8. One test per
+// direction plus the round trip — the Djenné/mojibake/double-encoding class.
+
+TEST_CASE("json_save codec: Latin-1 <-> UTF-8 round trip is identity")
+{
+    const char latin1[] = "Djenn\xE9 caf\xE9 Czechos\xB3owacja";  // é, é, ł→³
+    std::string utf8 = utf8_safe(latin1);
+    CHECK(utf8 != latin1);                       // actually re-encoded
+    CHECK(latin1_safe(utf8) == latin1);          // and back, byte-exact
+}
+
+TEST_CASE("json_save codec: ASCII passes through both ways")
+{
+    CHECK(utf8_safe("Rome 42") == "Rome 42");
+    CHECK(latin1_safe("Rome 42") == "Rome 42");
+}
+
+TEST_CASE("json_save codec: outside-Latin-1 decodes to '?' not garbage")
+{
+    // U+4E2D (CJK, 3 bytes) and U+1F600 (emoji, 4 bytes): one '?' each.
+    CHECK(latin1_safe("\xE4\xB8\xAD ok \xF0\x9F\x98\x80") == "? ok ?");
+    // Truncated/invalid sequences must not read past the end.
+    CHECK(latin1_safe("\xC3") == "?");
+}

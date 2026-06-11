@@ -42,6 +42,7 @@
 #include "gs/gameobj/MovePath.h"              // army_QueueMovePath
 #include "gs/gameobj/Events.h"                // GEV_ExploreOrder
 #include "gs/gameobj/Score.h"                 // Score::GetTotalScore
+#include "gs/gameobj/Strengths.h"             // Strengths::GetStrength (rank inputs)
 #include "gs/gameobj/Civilisation.h"          // Civilisation::Get*CivName
 #include "gs/utility/TurnCnt.h"               // turn_Get()->GetRound/GetYear
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
@@ -1308,6 +1309,24 @@ json PlayerJson(sint32 p, Player * pl)
                          + pl->m_score->GetPartialScore(SCORE_CAT_CITIES_RECAPTURED);
         sc["rank"]       = pl->m_score->GetPartialScore(SCORE_CAT_RANK);
         j["score_breakdown"] = sc;
+
+        // Rank demystified: SCORE_CAT_RANK is 100 * yours / everyone's
+        // EMPIRE STRENGTH (Score::GetPlayerStrength), where strength =
+        // units + gold + buildings + wonders + production. Equal-pop
+        // players can differ 2x on rank (campaign 7: 640 vs 1340) --
+        // these components say WHY. Telemetry only; strategy decides
+        // what (if anything) to do about it.
+        if (pl->m_strengths) {
+            json st;
+            st["units"]      = pl->m_strengths->GetStrength(STRENGTH_CAT_UNITS);
+            st["gold"]       = pl->m_strengths->GetStrength(STRENGTH_CAT_GOLD);
+            st["buildings"]  = pl->m_strengths->GetStrength(STRENGTH_CAT_BUILDINGS);
+            st["wonders"]    = pl->m_strengths->GetStrength(STRENGTH_CAT_WONDERS);
+            st["production"] = pl->m_strengths->GetStrength(STRENGTH_CAT_PRODUCTION);
+            st["military"]   = pl->m_strengths->GetStrength(STRENGTH_CAT_MILITARY);
+            st["knowledge"]  = pl->m_strengths->GetStrength(STRENGTH_CAT_KNOWLEDGE);
+            j["strength"] = st;
+        }
     }
     return j;
 }

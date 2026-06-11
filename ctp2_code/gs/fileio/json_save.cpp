@@ -161,22 +161,7 @@ extern PointerList<Player>   *g_deadPlayer;
 #define CTP2_BUILD_SHA "unknown"
 #endif
 
-namespace {
-
-// ISO 8601 / RFC 3339 UTC timestamp ("2026-05-30T11:00:00Z") for the
-// "saved_at" field.  Captured at SaveJson time, never read back into
-// game state — purely informational.
-std::string iso_utc_now()
-{
-    auto const  now   = std::chrono::system_clock::now();
-    std::time_t const t = std::chrono::system_clock::to_time_t(now);
-    std::tm           tm;
-    gmtime_r(&t, &tm);
-
-    std::ostringstream out;
-    out << std::put_time(&tm, "%Y-%m-%dT%H:%M:%SZ");
-    return out.str();
-}
+// --- save-file string codec (public: unit-tested) ----------------------
 
 // Sanitise a NUL-terminated C string into a UTF-8-clean std::string.
 // CTP2's leader/civ/country names are stored as fixed char[] buffers
@@ -208,6 +193,56 @@ std::string utf8_safe(MBCHAR const *src)
     }
     return out;
 }
+
+// Inverse of utf8_safe for the LOAD side.  Game strings live in memory
+// as Latin-1 (StringDB, fixed char[] name buffers, the UI font path);
+// saves store them as UTF-8.  Without this, a loaded game carried UTF-8
+// bytes into Latin-1 contexts: the UI rendered mojibake and every
+// re-save double-encoded.  Two-byte sequences for U+0080..U+00FF decode
+// to the original byte; anything outside Latin-1 (or invalid UTF-8)
+// becomes '?' rather than garbage.
+std::string latin1_safe(std::string const &utf8)
+{
+    std::string out;
+    out.reserve(utf8.size());
+    for (std::size_t i = 0; i < utf8.size(); )
+    {
+        unsigned char const b = static_cast<unsigned char>(utf8[i]);
+        if (b < 0x80) {
+            out.push_back(static_cast<char>(b));
+            ++i;
+        } else if ((b == 0xC2 || b == 0xC3) && i + 1 < utf8.size() &&
+                   (static_cast<unsigned char>(utf8[i + 1]) & 0xC0) == 0x80) {
+            out.push_back(static_cast<char>(((b & 0x03) << 6) |
+                          (static_cast<unsigned char>(utf8[i + 1]) & 0x3F)));
+            i += 2;
+        } else {
+            // Outside Latin-1 (or invalid): skip the whole sequence.
+            int extra = (b >= 0xF0) ? 3 : (b >= 0xE0) ? 2 : (b >= 0xC2) ? 1 : 0;
+            out.push_back('?');
+            i += 1 + (std::size_t)extra;
+        }
+    }
+    return out;
+}
+
+namespace {
+
+// ISO 8601 / RFC 3339 UTC timestamp ("2026-05-30T11:00:00Z") for the
+// "saved_at" field.  Captured at SaveJson time, never read back into
+// game state — purely informational.
+std::string iso_utc_now()
+{
+    auto const  now   = std::chrono::system_clock::now();
+    std::time_t const t = std::chrono::system_clock::to_time_t(now);
+    std::tm           tm;
+    gmtime_r(&t, &tm);
+
+    std::ostringstream out;
+    out << std::put_time(&tm, "%Y-%m-%dT%H:%M:%SZ");
+    return out.str();
+}
+
 
 }  // namespace
 
@@ -1316,8 +1351,12 @@ namespace {
 void load_fixed_string(MBCHAR *dest, std::size_t buf_size,
                        std::string const &src)
 {
-    std::size_t const n = std::min(src.size(), buf_size - 1);
-    std::memcpy(dest, src.data(), n);
+    // Saves store UTF-8 (utf8_safe on write); the fixed buffers are
+    // Latin-1 in memory -- decode back so the UI font path and re-saves
+    // stay consistent.
+    std::string const decoded = latin1_safe(src);
+    std::size_t const n = std::min(decoded.size(), buf_size - 1);
+    std::memcpy(dest, decoded.data(), n);
     std::memset(dest + n, 0, buf_size - n);
 }
 }
@@ -2511,7 +2550,7 @@ void jsonToOptString(nlohmann::json const &j, MBCHAR *&dest)
         dest = nullptr;
         return;
     }
-    std::string s = j.get<std::string>();
+    std::string s = latin1_safe(j.get<std::string>());
     dest = new MBCHAR[s.size() + 1];
     std::memcpy(dest, s.c_str(), s.size() + 1);
 }
@@ -2531,7 +2570,7 @@ void jsonToOptString(nlohmann::json const &j, std::string &dest)
         dest.clear();
         return;
     }
-    dest = j.get<std::string>();
+    dest = latin1_safe(j.get<std::string>());
 }
 
 // A Slic segment/function can exist with a NULL name (seen after

@@ -172,6 +172,12 @@ gateway-test:
 	@echo "Running ctp2-gateway specs..."
 	cd gateway && mise exec -- crystal spec
 
+# Full-stack smoke: gateway specs against a REAL headless game
+# (HTTP -> GameClient -> socket -> game_controller). Needs the C++ build.
+gateway-e2e: build
+	@echo "Running ctp2-gateway end-to-end smoke against build/ctp2_headless..."
+	cd gateway && CTP2_HEADLESS=../build/ctp2_headless mise exec -- crystal spec spec/e2e_spec.cr spec/zz_athena_runner_spec.cr
+
 # Build everything and serve the gateway with a spawned headless game.
 # HTTP on :8666 (override: make gateway GATEWAY_ARGS="--port 9000").
 GATEWAY_ARGS ?=

@@ -3226,6 +3226,24 @@ void UnitData::RebuildQuadTree()
 	else
 	{
 		unit_tree_Get()->Insert(Unit(m_id));
+
+		// The cell unit lists (Cell::m_unit_army) are derived state just
+		// like the quadtree — the JSON bridge doesn't serialise them, and
+		// a unit only re-enters its cell when it next MOVES.  Until then a
+		// loaded game's stationary units are invisible to everything
+		// cell-based: GroupAllUnits no-ops, defended cities resolve as
+		// undefended, ZOC/stacking checks see empty tiles.  Mirror
+		// World::InsertUnit's cell half (vision is NOT re-applied — the
+		// per-player vision state is serialised; re-running DoVision
+		// would double-count refcounts).
+		if (GetCityData())
+		{
+			world_Get()->GetCell(m_pos)->SetCity(Unit(m_id));  // idempotent
+		}
+		else
+		{
+			world_Get()->GetCell(m_pos)->InsertUnit(Unit(m_id));
+		}
 	}
 
 	if(m_lesser)

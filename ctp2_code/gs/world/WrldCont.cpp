@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Added note about my continent error. Having terrain that was Air only caused it.
 //
 //----------------------------------------------------------------------------
@@ -583,6 +583,15 @@ void World::InsertLandNextToWater(const sint32 landc, const sint32 waterc)
 
 bool World::IsWaterNextTooLand(const sint32 waterc, const sint32 landc) const
 {
+    // Mirror InsertWaterNextToLand's guard: an out-of-range continent id
+    // (stale cache, water id in a land slot) is a wrong question â€” answer
+    // "no adjacency" loudly instead of indexing into nothing.
+    if ((waterc < 0) || (m_water_next_too_land->Num() <= waterc)) {
+        sint32 water_cont_out_of_bounds = 0;
+        Assert(water_cont_out_of_bounds);
+        return false;
+    }
+
     DynamicArray<sint32> * next = &(m_water_next_too_land->Access(waterc));
     sint32 num_water = next->Num();
 
@@ -598,6 +607,13 @@ bool World::IsWaterNextTooLand(const sint32 waterc, const sint32 landc) const
 
 bool World::IsLandNextTooWater(const sint32 landc, const sint32 waterc) const
 {
+    // Mirror InsertLandNextToWater's guard (see IsWaterNextTooLand above).
+    if ((landc < 0) || (m_land_next_too_water->Num() <= landc)) {
+        sint32 land_cont_out_of_bounds = 0;
+        Assert(land_cont_out_of_bounds);
+        return false;
+    }
+
     DynamicArray<sint32> * next = &(m_land_next_too_water->Access(landc));
     sint32 num_land = next->Num();
 

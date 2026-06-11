@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <vector>
 
 #include "ctp/civapp.h"                       // civapp_Get()->IsGameLoaded()
 #include "ctp/ctp2_utils/civlog.h"            // civlog::Get
@@ -563,11 +564,38 @@ json CityJson(sint32 owner, sint32 city_idx, const Unit & u)
         // freshly captured city (foreign pop + unhappiness). Surfacing it
         // is what lets a driver react (garrison, buy a happiness building).
         c["rioting"] = cd->GetIsRioting();
-        BuildNode * head = cd->GetBuildQueue() ? cd->GetBuildQueue()->GetHead() : nullptr;
+        // Build/growth progress — without these a driver cannot tell a
+        // slow build from a deadlocked one (e.g. a settler in a pop-1
+        // city is held forever by BuildFrontUnit's RemovesAPop guard).
+        c["shields_stored"] = cd->GetStoredCityProduction();
+        // partial_population accumulates growth_rate per turn; the city
+        // gains a pop at k_PEOPLE_PER_POPULATION (10000). growth_rate <= 0
+        // means the city will never grow (starving / no food surplus).
+        c["growth"] = { {"food_stored",        cd->GetStoredCityFood()},
+                        {"partial_population", cd->GetPartialPopulation()},
+                        {"pop_threshold",      k_PEOPLE_PER_POPULATION},
+                        {"growth_rate",        cd->GetGrowthRate()} };
+        BuildQueue * queue = cd->GetBuildQueue();
+        BuildNode * head = queue ? queue->GetHead() : nullptr;
         if (head) {
+            // Derived, not read from m_settler_pending: that flag is reset
+            // in BuildQueue::EndTurn, so it is never visible to a query
+            // that runs between rounds. Mirrors BuildFrontUnit's guards.
+            json blocked = nullptr;
+            if (head->m_category == k_GAME_OBJ_TYPE_UNIT &&
+                head->m_cost <= cd->GetStoredCityProduction()) {
+                const UnitRecord * rec = g_theUnitDB->Get(head->m_type);
+                sint32 unitpop = 0;
+                if (rec && rec->GetBuildingRemovesAPop() && cd->PopCount() < 2)
+                    blocked = "settler_needs_pop_2";
+                else if (rec && rec->GetPopCostsToBuild(unitpop) &&
+                         cd->PopCount() <= unitpop)
+                    blocked = "unit_pop_cost_exceeds_city_pop";
+            }
             c["building"] = { {"category", head->m_category},
                               {"type",     head->m_type},
-                              {"cost",     head->m_cost} };
+                              {"cost",     head->m_cost},
+                              {"blocked",  blocked} };
         } else {
             c["building"] = nullptr;
         }
@@ -915,6 +943,14 @@ std::string CmdBoard(const char * args)
     if (!army.IsValid() || !ad)
         return Err("board", "invalid_army");
 
+    // Capture the member units BEFORE processing: when every unit boards,
+    // the army dissolves into the transport's cargo and the handle goes
+    // invalid — Army::Num() on it after Process() was a SIGSEGV (caught
+    // by the crash reporter while building the cargo fixture).
+    std::vector<Unit> members;
+    for (sint32 u = 0; u < army.Num(); ++u)
+        members.push_back(army.Access(u));
+
     army.ClearOrders();
     army.AddOrders(UNIT_ORDER_BOARD_TRANSPORT);
     if (gevmanager_Get()) gevmanager_Get()->Process();
@@ -925,8 +961,7 @@ std::string CmdBoard(const char * args)
     // campaign 7: an "ok" board left the settler ashore and the coracle
     // sailed empty for 30 rounds.)
     sint32 aboard = 0;
-    for (sint32 u = 0; u < army.Num(); ++u) {
-        Unit unit = army.Access(u);
+    for (auto & unit : members) {
         if (unit.IsValid() && unit.IsBeingTransported())
             ++aboard;
     }

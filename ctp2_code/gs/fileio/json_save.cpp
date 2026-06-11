@@ -393,7 +393,13 @@ void from_json(nlohmann::json const &j, Cell &c)
     j.at("terrain_type")    .get_to(c.m_terrain_type);
     ID city_id(0);
     j.at("city")            .get_to(city_id);
-    c.SetCity(Unit(city_id.m_id));   // keeps m_env city bits in sync
+    // Restore m_city RAW — m_env (restored above, serialised in full) is
+    // the authority on the city bits.  SetCity here was wrong twice over:
+    // it re-derived env bits that were already correct (breaking exact
+    // round-trips), and it promoted city-RADIUS cells (m_city = owning
+    // city with only k_BIT_ENV_CITY_RADIUS set) to full CITY tiles on
+    // every load (SetCity sets k_BIT_ENV_CITY for any non-zero id).
+    c.m_city = Unit(city_id.m_id);
     j.at("cell_owner")      .get_to(c.m_cellOwner);
 }
 
@@ -671,6 +677,19 @@ void from_json(nlohmann::json const &j, World &w)
     // accumulates sizes from existing m_continent_number values; no
     // renumbering, so this is a pure cache rebuild.
     w.FindContinentSize();
+
+    // Same family, second cache: the continent NEIGHBOR arrays
+    // (m_land_next_too_water / m_water_next_too_land) are allocated
+    // empty by AllocateMap and only filled by FindContinentNeighbors.
+    // The first AI transport-goal evaluation after a load walks them
+    // (Agent::EstimateTransportUtility -> LandShareWater ->
+    // IsLandNextTooWater) and dereferenced the empty array's NULL
+    // storage — SIGSEGV caught by the crash reporter while building the
+    // capture fixture.  Pure cache rebuild from per-cell continent
+    // numbers, exactly like FindContinentSize above (the map-import
+    // path at wldgen.cpp does the full NumberContinents for the same
+    // reason).
+    w.FindContinentNeighbors();
 }
 
 // --- Player-layer leaf bridges (Phase D-1) -----------------------------

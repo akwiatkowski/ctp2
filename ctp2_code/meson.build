@@ -1742,3 +1742,35 @@ test('scenario-path-resume',
   workdir : cwd_for_tests,
   suite : 'scenario',
 )
+
+# City capture: the full assault arc on the capture-brink fixture (stack
+# adjacent to an enemy city, war on) — replays the campaign-6 crash chain
+# (CaptureCityEvent -> UI selection) plus the at-war contracts of
+# bombard/buy_production/propose_peace, and the continent-cache +
+# cell-unit-list load rebuilds that were found building the fixture.
+city_capture_test = find_program('test/scenario_city_capture.py')
+test('scenario-city-capture',
+  city_capture_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'scenario',
+)
+
+# Cargo resume: a transport with BOARDED cargo and a queued multi-tile sea
+# path must keep sailing across end_turns after a load with no re-issued
+# orders (campaign 7's stalled-path bug, naval flavor — the round pump's
+# BeginTurnExecute re-fire excludes cargo, so the transport must carry the
+# order itself).
+cargo_resume_test = find_program('test/scenario_cargo_resume.py')
+test('scenario-cargo-resume',
+  cargo_resume_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'scenario',
+)

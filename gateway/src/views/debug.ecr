@@ -3,6 +3,7 @@
 
 <div class="card reveal">
   <dl class="kv">
+    <dt>session</dt><dd><code><%= HTML.escape(@session_id) %></code></dd>
     <dt>socket</dt><dd><code><%= HTML.escape(@socket) %></code></dd>
     <dt>connected</dt><dd><% if @connected %><span class="seal seal--ok"></span>yes<% else %><span class="seal seal--bad"></span>no<% end %></dd>
     <% if le = @last_error %><dt>last socket error</dt><dd class="mono"><%= HTML.escape(le) %></dd><% end %>
@@ -14,15 +15,36 @@
   <div class="card reveal"><span class="muted">No exchanges yet — issue a command or open the dashboard.</span></div>
 <% else %>
   <div class="reveal">
-  <table class="ledger">
-    <tr><th>at (utc)</th><th>command</th><th>outcome</th><th class="num">ms</th><th>response / error</th></tr>
+  <table class="ledger ledger--debug">
+    <tr><th>at (utc)</th><th>action</th><th>outcome</th><th class="num">ms</th><th>details</th></tr>
     <% @exchanges.each do |e| %>
       <tr>
         <td class="mono"><%= e.at.to_s("%H:%M:%S.%3N") %></td>
-        <td class="mono"><%= HTML.escape(e.cmd) %></td>
+        <td>
+          <div class="exchange__verb"><%= HTML.escape(e.verb) %></div>
+          <div class="exchange__desc"><%= HTML.escape(describe(e.verb)) %></div>
+        </td>
         <td><%= e.ok ? %(<span class="badge badge--ok">ok</span>) : %(<span class="badge badge--bad">error</span>) %></td>
         <td class="num"><%= e.duration.total_milliseconds.round(1) %></td>
-        <td class="mono muted snippet"><%= HTML.escape(e.detail) %></td>
+        <td>
+          <details class="exchange__details">
+            <summary>show</summary>
+            <div class="exchange__body">
+              <dl class="kv kv--inline">
+                <dt>command</dt><dd><code><%= HTML.escape(e.cmd) %></code></dd>
+                <dt>verb</dt><dd><%= HTML.escape(e.verb) %></dd>
+                <% unless e.args.empty? %><dt>arguments</dt><dd><code><%= HTML.escape(e.args) %></code></dd><% end %>
+                <dt>duration</dt><dd><%= e.duration.total_milliseconds.round(1) %> ms</dd>
+                <dt>timestamp</dt><dd class="mono"><%= e.at.to_rfc3339(fraction_digits: 3) %></dd>
+                <dt>session</dt><dd><code><%= HTML.escape(e.session_id) %></code></dd>
+              </dl>
+              <div class="exchange__response">
+                <div class="exchange__response-label">full response</div>
+                <pre class="trace"><%= HTML.escape(e.full_response) %></pre>
+              </div>
+            </div>
+          </details>
+        </td>
       </tr>
     <% end %>
   </table>

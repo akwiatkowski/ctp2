@@ -434,6 +434,100 @@ main {
   font-size: 0.72rem;
 }
 
+/* ---- exchange inspector (/debug) ----------------------------- */
+
+.ledger--debug td { vertical-align: top; }
+
+.exchange__verb {
+  font-family: var(--font-data);
+  color: var(--gold-bright);
+  font-size: 0.86rem;
+}
+
+.exchange__desc {
+  font-size: 0.74rem;
+  color: var(--parchment-dim);
+  line-height: 1.45;
+  max-width: 22rem;
+  margin-top: 0.2rem;
+}
+
+.exchange__details {
+  position: relative;
+}
+
+.exchange__details > summary {
+  cursor: pointer;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius);
+  background: var(--ink-2);
+  user-select: none;
+}
+
+.exchange__details > summary:hover {
+  color: var(--gold-bright);
+  border-color: var(--gold);
+}
+
+.exchange__details > summary::-webkit-details-marker { display: none; }
+
+.exchange__details > summary::before {
+  content: "▸";
+  font-size: 0.8rem;
+  transition: transform 0.15s ease;
+}
+
+.exchange__details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.exchange__body {
+  margin-top: 0.6rem;
+  padding: 0.8rem 1rem;
+  background: var(--ink-0);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius);
+  max-width: 48rem;
+}
+
+.exchange__body .kv {
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+  font-size: 0.78rem;
+}
+
+.exchange__body .kv dt {
+  letter-spacing: 0.14em;
+}
+
+.exchange__response {
+  margin-top: 0.7rem;
+}
+
+.exchange__response-label {
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.35rem;
+}
+
+.exchange__response .trace {
+  margin: 0;
+  max-height: 28rem;
+}
+
 /* ---- status strip -------------------------------------------- */
 
 .statusline {
@@ -489,7 +583,15 @@ main {
 /* land is luminous; remembered land is the faded old survey;      */
 /* fog is unmarked vellum. Cities are wax seals, armies gold pins. */
 
-.atlas { --tile: 20px; }
+.atlas { --tile: 32px; }   /* larger tiles — read terrain + infrastructure at a glance */
+
+/* tile-improvement glyphs (farm/mine/road/structure) drawn when a tile has
+   no city/army pin — so the chart shows infrastructure, not just terrain */
+.pin--imp { font-size: calc(var(--tile) * 0.6); opacity: 0.85; }
+.pin--imp-farm { color: #8fd17a; }
+.pin--imp-mine { color: #d9b06a; }
+.pin--imp-road { color: var(--parchment-dim); }
+.pin--imp-structure { color: var(--verdigris); }
 
 .atlas__head {
   display: flex;

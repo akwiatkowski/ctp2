@@ -118,9 +118,45 @@ describe "desync detection" do
       log = client.recent_exchanges
       log.size.should eq 2
       log.first.cmd.should eq "query_units"
+      log.first.verb.should eq "query_units"
+      log.first.args.should be_empty
       log.first.ok.should be_true
       log.first.duration.should be > 0.seconds
+      log.first.full_response.should contain %("status":"ok")
       log.last.cmd.should eq "query_cities"
+    end
+  end
+
+  it "parses verb and arguments from commands" do
+    with_client do |client, _fake|
+      client.command("set_production 0 settler")
+      e = client.recent_exchanges.first
+      e.verb.should eq "set_production"
+      e.args.should eq "0 settler"
+    end
+  end
+
+  it "persists the journal to disk and replays it on restart" do
+    journal = File.tempname("ctp2-journal", ".jsonl")
+    begin
+      with_client(journal_path: journal) do |client, _fake|
+        client.command("query_turn")
+        client.command("query_players")
+      end
+
+      # Simulate a restart: a new client pointing at the same journal.
+      with_client(journal_path: journal) do |client, _fake|
+        client.session_id.should eq "spec-session"
+        client.journal_path.should eq journal
+        log = client.recent_exchanges
+        log.size.should eq 2
+        log.first.cmd.should eq "query_players"
+        log.first.verb.should eq "query_players"
+        log.first.full_response.should contain %("status":"ok")
+        log.last.cmd.should eq "query_turn"
+      end
+    ensure
+      File.delete?(journal)
     end
   end
 end

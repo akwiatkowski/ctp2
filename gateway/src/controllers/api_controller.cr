@@ -14,11 +14,13 @@ module Ctp2Gateway
     def healthz : AHTTP::Response
       AHTTP::Response.new(
         {
-          status:     "ok",
-          socket:     @client.socket_path,
-          connected:  @client.connected?,
-          last_error: @client.last_error,
-          spawn:      Config.process.try(&.status_json),
+          status:      "ok",
+          session_id:  Config.session.id,
+          socket:      @client.socket_path,
+          connected:   @client.connected?,
+          last_error:  @client.last_error,
+          spawn:       Config.process.try(&.status_json),
+          journal:     Config.session.journal_path,
         }.to_json,
         headers: HTTP::Headers{"content-type" => JSON_CT},
       )

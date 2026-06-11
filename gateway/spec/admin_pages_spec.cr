@@ -72,6 +72,16 @@ struct PagesTest < GatewayTestCase
     resp.body.should contain "/debug/boom"
   end
 
+  def test_debug_page_shows_session_id_and_human_descriptions : Nil
+    self.get("/api/players")
+    resp = self.get("/debug")
+    resp.status_code.should eq 200
+    resp.body.should contain Ctp2Gateway::Config.session.id
+    resp.body.should contain "ADMIN (omniscient): every player" # description for query_players
+    resp.body.should contain "<details"                       # collapsible details
+    resp.body.should contain "full response"
+  end
+
   def test_tools_catalog_renders_registry : Nil
     resp = self.get("/tools")
     resp.status_code.should eq 200
@@ -191,6 +201,8 @@ struct ApiTest < GatewayTestCase
     body = JSON.parse(resp.body)
     body["status"].as_s.should eq "ok"
     body["connected"].as_bool?.should_not be_nil
+    body["session_id"].as_s.should eq Ctp2Gateway::Config.session.id
+    body["journal"].as_s.should contain Ctp2Gateway::Config.session.id
   end
 end
 

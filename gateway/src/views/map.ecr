@@ -29,9 +29,12 @@
               <% tip = String.build do |t|
                    t << c.terrain_name
                    t << " · f" << c.food << " s" << c.shields << " g" << c.gold
+                   if imp = c.improvement
+                     t << " · " << imp
+                   end
                    t << " · remembered" unless c.visible
                  end %>
-              <i class="<%= klass %>" data-x="<%= c.x %>" data-y="<%= c.y %>" data-t="<%= HTML.escape(tip) %>"<% if name = c.city_name %> data-city="<%= HTML.escape(name) %><%= c.city_own ? "" : " (foreign)" %>"<% end %><% if c.army_own %> data-unit="<%= c.army_settler ? "your settler" : "your army" %>"<% end %><% if c.army_foreign %> data-unit="foreign unit"<% end %><% if c.spot_rank > 0 %> data-rank="<%= c.spot_rank %>"<% end %>><% if name = c.city_name %><b class="pin <%= c.city_own ? "pin--city" : "pin--enemy" %>"><%= HTML.escape(name[0..0].upcase) %></b><% elsif c.army_own %><b class="pin pin--army"><%= c.army_settler ? "⚑" : "⚔" %></b><% elsif c.army_foreign %><b class="pin pin--foe">▲</b><% end %></i>
+              <i class="<%= klass %>" data-x="<%= c.x %>" data-y="<%= c.y %>" data-t="<%= HTML.escape(tip) %>"<% if name = c.city_name %> data-city="<%= HTML.escape(name) %><%= c.city_own ? "" : " (foreign)" %>"<% end %><% if c.army_own %> data-unit="<%= c.army_settler ? "your settler" : "your army" %>"<% end %><% if c.army_foreign %> data-unit="foreign unit"<% end %><% if c.spot_rank > 0 %> data-rank="<%= c.spot_rank %>"<% end %>><% if name = c.city_name %><b class="pin <%= c.city_own ? "pin--city" : "pin--enemy" %>"><%= HTML.escape(name[0..0].upcase) %></b><% elsif c.army_own %><b class="pin pin--army"><%= c.army_settler ? "⚑" : "⚔" %></b><% elsif c.army_foreign %><b class="pin pin--foe">▲</b><% elsif imp = c.improvement %><b class="pin pin--imp pin--imp-<%= imp %>"><%= imp == "farm" ? "≋" : imp == "mine" ? "⛏" : imp == "road" ? "╬" : "▩" %></b><% end %></i>
             <% end %>
           <% end %>
         <% end %>

@@ -1,4 +1,5 @@
 require "spec"
+require "file_utils"
 
 # Sources first (they pull "athena"); athena/spec's component spec helpers
 # reference framework constants and must load after it.
@@ -11,6 +12,13 @@ require "../src/controllers/api_controller"
 require "../src/controllers/mcp_controller"
 
 require "athena/spec"
+
+# Keep spec session journals out of the repo session dir.
+SPEC_SESSION_DIR = File.join(Dir.tempdir, "ctp2-gateway-spec-#{Process.pid}-#{Random::Secure.hex(4)}")
+FileUtils.mkdir_p(SPEC_SESSION_DIR)
+Ctp2Gateway::Config.session_dir = SPEC_SESSION_DIR
+
+at_exit { FileUtils.rm_rf(SPEC_SESSION_DIR) }
 
 # In-process stand-in for the game's smoke server (smoketest_server.cpp):
 # a UNIXServer speaking the same newline-delimited JSON protocol, with knobs
@@ -78,12 +86,15 @@ end
 # Build a FakeGame + plain (non-DI) GameClient pair, run the block, tear
 # both down. Used by the framework-free game_client specs.
 def with_client(responses = {} of String => String,
-                delay : Time::Span? = nil,
-                close_at : Int32? = nil,
-                timeout : Time::Span = 2.seconds,
-                queue_capacity : Int32 = 32, &)
+                 delay : Time::Span? = nil,
+                 close_at : Int32? = nil,
+                 timeout : Time::Span = 2.seconds,
+                 queue_capacity : Int32 = 32,
+                 journal_path : String? = nil, &)
   fake = FakeGame.new(responses, delay, close_at)
-  client = Ctp2Gateway::GameClient.new(fake.path, timeout: timeout, queue_capacity: queue_capacity)
+  client = Ctp2Gateway::GameClient.new(fake.path,
+    timeout: timeout, queue_capacity: queue_capacity,
+    session_id: "spec-session", journal_path: journal_path)
   begin
     yield client, fake
   ensure

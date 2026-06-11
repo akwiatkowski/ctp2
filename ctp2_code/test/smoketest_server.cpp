@@ -25,6 +25,9 @@
 // Socket state
 static int g_smoke_listen_fd = -1;
 static int g_smoke_client_fd = -1;
+// Overridable via CTP2_SMOKE_SOCKET so long-lived play sessions and
+// concurrent test runs don't unlink each other's socket (every server
+// startup unlinks the path before binding).
 static const char* g_smoke_socket_path = "/tmp/ctp2-smoke.sock";
 
 // Threading primitives (SDL)
@@ -184,6 +187,11 @@ static int smoke_server_thread(void* /*data*/)
 
 void smoketest_server_init(void)
 {
+    const char* socket_override = getenv("CTP2_SMOKE_SOCKET");
+    if (socket_override && *socket_override) {
+        g_smoke_socket_path = socket_override;
+    }
+
     g_smoke_mutex = SDL_CreateMutex();
     g_smoke_cond  = SDL_CreateCond();
 

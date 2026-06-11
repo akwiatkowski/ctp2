@@ -87,6 +87,7 @@ module Ctp2Gateway
         connected: @client.connected?,
         last_error: @client.last_error,
         spawn_line: spawn_line,
+        session_id: Ctp2Gateway::Config.session.id,
         exchanges: @client.recent_exchanges,
       )
       html(200, "Debug", body, "/debug")

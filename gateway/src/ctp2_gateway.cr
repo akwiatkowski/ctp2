@@ -22,6 +22,7 @@ require "./controllers/mcp_controller"
 host = "127.0.0.1"
 port = (ENV["CTP2_GATEWAY_PORT"]? || "8666").to_i
 socket_path = ENV["CTP2_SOCKET"]? || Ctp2Gateway::Config::DEFAULT_SOCKET
+session_dir = ENV["CTP2_SESSION_DIR"]? || Ctp2Gateway::Config::DEFAULT_SESSION_DIR
 spawn_game = false
 binary = ENV["CTP2_BINARY"]?
 spawn_args = [] of String
@@ -32,6 +33,7 @@ OptionParser.parse do |parser|
   parser.banner = "Usage: ctp2-gateway [options]"
   parser.on("--port PORT", "HTTP port (default 8666, env CTP2_GATEWAY_PORT)") { |v| port = v.to_i }
   parser.on("--socket PATH", "game smoke socket (default /tmp/ctp2-smoke.sock, env CTP2_SOCKET)") { |v| socket_path = v }
+  parser.on("--session-dir DIR", "directory for durable session journals (default ./sessions, env CTP2_SESSION_DIR)") { |v| session_dir = v }
   parser.on("--spawn", "launch ctp2_headless --serve and supervise it") { spawn_game = true }
   parser.on("--binary PATH", "game binary for --spawn (default: auto-detect build/ctp2_headless, env CTP2_BINARY)") { |v| binary = v }
   parser.on("--spawn-args ARGS", %(extra game args for --spawn, e.g. "--players 4 --seed 7")) { |v| spawn_args = v.split }
@@ -51,6 +53,7 @@ end
 # Config must be set BEFORE the first request resolves the DI container's
 # GameClient (built from Config.socket_path by its factory).
 Ctp2Gateway::Config.socket_path = socket_path
+Ctp2Gateway::Config.session_dir = session_dir
 
 if spawn_game
   # Auto-detect the binary whether the gateway runs from the repo root or
@@ -90,6 +93,10 @@ end
   end
 end
 
+# Eagerly create the session so the journal directory exists and the id is
+# printed in the startup banner (useful when tailing logs after a crash).
+session = Ctp2Gateway::Config.session
+
 puts "ctp2-gateway (athena) listening on http://#{host}:#{port} " \
-     "(game socket: #{socket_path}#{Ctp2Gateway::Config.process.try { |p| ", spawned game pid #{p.pid}" }})"
+     "(game socket: #{socket_path}, session: #{session.id}#{Ctp2Gateway::Config.process.try { |p| ", spawned game pid #{p.pid}" }})"
 ATH.run(port, host, prepend_handlers: [Ctp2Gateway::AssetsHandler.new] of HTTP::Handler)

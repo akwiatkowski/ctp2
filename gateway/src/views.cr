@@ -2,6 +2,7 @@ require "ecr"
 require "html"
 require "json"
 require "./mcp/tools"
+require "./command_descriptions"
 require "./map_renderer"
 
 module Ctp2Gateway::Views
@@ -65,8 +66,13 @@ module Ctp2Gateway::Views
 
   struct DebugPage
     def initialize(@socket : String, @connected : Bool, @last_error : String?,
-                   @spawn_line : String?,
+                   @spawn_line : String?, @session_id : String,
                    @exchanges : Array(Ctp2Gateway::GameClient::Exchange))
+    end
+
+    # Human-readable label for a game verb; falls back to a neutral phrase.
+    private def describe(verb : String) : String
+      Ctp2Gateway::CommandDescriptions.for(verb) || "game command"
     end
 
     ECR.def_to_s "src/views/debug.ecr"

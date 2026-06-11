@@ -9977,10 +9977,23 @@ void ArmyData::CheckAddEventOrder()
 	Order *order = m_orders->GetHead();
 	if(order && order->m_order == UNIT_ORDER_ADD_EVENT && CanPerformSpecialAction()) {
 		m_orders->RemoveHead();
-		gevmanager_Get()->ArglistAddEvent(GEV_INSERT_AfterCurrent,
-									  order->m_eventType,
-									  order->m_gameEventArgs);
-		order->m_gameEventArgs = nullptr;
+		// m_gameEventArgs is transient and not persisted by the JSON
+		// savegame bridge (from_json(Order) nulls it).  An ADD_EVENT
+		// order that survived a save/load round-trip is therefore
+		// unreplayable — discard it instead of handing a null arg list
+		// to ArglistAddEvent (TestArgs dereferences it: SIGSEGV on the
+		// first turn after load).
+		if (order->m_gameEventArgs) {
+			gevmanager_Get()->ArglistAddEvent(GEV_INSERT_AfterCurrent,
+										  order->m_eventType,
+										  order->m_gameEventArgs);
+			order->m_gameEventArgs = nullptr;
+		} else {
+			DPRINTF(k_DBG_GAMESTATE,
+			        ("CheckAddEventOrder: dropping ADD_EVENT order with "
+			         "null args (stale after savegame load), army %lx\n",
+			         (uint32)m_id));
+		}
 		delete order;
 	}
 }

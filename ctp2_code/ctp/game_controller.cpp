@@ -46,9 +46,20 @@
 #include "gs/gameobj/Strengths.h"             // Strengths::GetStrength (rank inputs)
 #include "gs/gameobj/Civilisation.h"          // Civilisation::Get*CivName
 #include "gs/utility/TurnCnt.h"               // turn_Get()->GetRound/GetYear
+#include "ConstRecord.h"                      // g_theConstDB (end-of-game year)
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 #include "TerrainRecord.h"                    // g_theTerrainDB, TerrainRecord
 #include "BuildingRecord.h"                   // g_theBuildingDB, BuildingRecord
+#include "WonderRecord.h"                     // g_theWonderDB, WonderRecord
+#include "GovernmentRecord.h"                 // g_theGovernmentDB, GovernmentRecord
+#include "gs/gameobj/PlayHap.h"              // PlayerHappiness rate-slider levels
+#include "gs/gameobj/UnitTypes.h"            // POP_TYPE (specialists)
+#include "BuildListSequenceRecord.h"         // g_theBuildListSequenceDB (governor profiles)
+#include "OrderRecord.h"                      // g_theOrderDB, OrderRecord (unit orders)
+#include "robot/pathing/Path.h"              // Path (PerformOrderHere target)
+#include "gs/utility/TradeDynArr.h"          // TradeDynamicArray (cancel_trade_route)
+#include "ResourceRecord.h"                   // g_theResourceDB (trade goods)
+#include "gs/gameobj/TradeRoute.h"            // TradeRoute, ROUTE_TYPE
 #include "ai/diplomacy/Diplomat.h"            // Diplomat::DeclareWar / ExecuteNewProposal
 #include "ai/diplomacy/AgreementMatrix.h"     // AgreementMatrix::HasAgreement (peace treaty)
 #include "gs/gameobj/Gold.h"                  // Player gold level (buy_production)
@@ -62,6 +73,20 @@
 using json = nlohmann::json;
 
 namespace game_controller {
+
+// Human-readable labels for the coarse victory state stored on Score.
+// These mirror eScoreVictory in gs/gameobj/Score.h.
+const char * VictoryTypeLabel(sint32 type)
+{
+    switch (type) {
+        case kScoreGameInProgress: return "in_progress";
+        case kScoreDefeat:         return "defeat";
+        case kScoreSoloVictory:    return "solo";
+        case kScoreAlliedVictory:  return "allied";
+        case kScoreWonderVictory:  return "wonder";
+        default:                   return "unknown";
+    }
+}
 
 // The "visible player" whose viewpoint queries report — the (single) human.
 // We deliberately do NOT use selitem_Get() here: it is a UI singleton that may
@@ -169,6 +194,16 @@ std::string CmdBuildCity()
             // first MCP playtest: a settler stuck on Rome's tile "founded"
             // a fresh pop-1 Rome over the pop-2 original.
             MapPoint at = ad->RetPos();
+            // Settling is a "special action": it needs movement points
+            // (UnitData::CanPerformSpecialAction). A 0-move settler has
+            // its settle vetoed downstream, which used to surface as a
+            // (bogus) distance rejection — every "distance" rejection in
+            // the 2026-06-11 playtest was actually this.
+            if (!ad->CanPerformSpecialAction())
+                return Err("build_city",
+                           "no_moves_left (settling is a special action — "
+                           "end_turn so the settler has movement points, "
+                           "then retry)");
             Cell * cell = world_Get() ? world_Get()->GetCell(at) : nullptr;
             if (cell && cell->GetCity().IsValid())
                 return Err("build_city", "tile_occupied");
@@ -291,6 +326,31 @@ std::string CmdSetProduction(const char * args)
         result["type"]     = b;
         result["name"]     = rec ? ToUtf8(rec->GetNameText()) : "";
         gc_log->info("set_production: city {} -> building {}", city_idx, b);
+        return Ok("set_production", result);
+    }
+
+    if (strcmp(keyword, "wonder") == 0) {
+        // Wonders are a SEPARATE database (g_theWonderDB) from ordinary
+        // improvements — set_production "building <id>" cannot reach them.
+        // They are the biggest single score lever (and carry empire effects
+        // like Great Library's free advances), so they get their own keyword.
+        int w = -1;
+        if (sscanf(args, "%*d %*s %d", &w) != 1)
+            return Err("set_production", "bad_args");
+        if (!g_theWonderDB || w < 0 || w >= g_theWonderDB->NumRecords())
+            return Err("set_production", "bad_wonder");
+        if (!cd->CanBuildWonder(w))
+            return Err("set_production", "cannot_build_wonder");
+        if (cd->GetBuildQueue())
+            cd->GetBuildQueue()->Clear();
+        cd->BuildWonder(w);
+        const WonderRecord * rec = g_theWonderDB->Get(w);
+        json result;
+        result["city"]     = city_idx;
+        result["category"] = k_GAME_OBJ_TYPE_WONDER;
+        result["type"]     = w;
+        result["name"]     = rec ? ToUtf8(rec->GetNameText()) : "";
+        gc_log->info("set_production: city {} -> wonder {}", city_idx, w);
         return Ok("set_production", result);
     }
 
@@ -538,6 +598,21 @@ std::string CmdAutoExplore(const char * args)
 
 // ---- queries ------------------------------------------------------------
 
+// Coarse class label for a tile improvement — shared by query_terraform (the
+// buildable list) and query_map (what is actually on the ground) so both speak
+// the same vocabulary: farm/mine/road/structure/wonder/terraform/other.
+const char * TerrainImpClass(const TerrainImprovementRecord * r)
+{
+    if (!r) return "other";
+    if (r->GetClassTerraform() || r->GetClassOceanform()) return "terraform";
+    if (r->GetClassFarm()      || r->GetClassOceanFarm())  return "farm";
+    if (r->GetClassMine()      || r->GetClassOceanMine())  return "mine";
+    if (r->GetClassRoad()      || r->GetClassOceanRoad())  return "road";
+    if (r->GetClassStructure1()|| r->GetClassStructure2()) return "structure";
+    if (r->GetClassWonder())                               return "wonder";
+    return "other";
+}
+
 // Describe one city for the human's viewpoint.
 json CityJson(sint32 owner, sint32 city_idx, const Unit & u)
 {
@@ -568,13 +643,53 @@ json CityJson(sint32 owner, sint32 city_idx, const Unit & u)
         // slow build from a deadlocked one (e.g. a settler in a pop-1
         // city is held forever by BuildFrontUnit's RemovesAPop guard).
         c["shields_stored"] = cd->GetStoredCityProduction();
+
+        // Food breakdown — the *why* behind growth_rate.  net = gross
+        // produced minus what the population eats; a stagnant city with a
+        // healthy gross is being eaten by its own size (consumed) or by
+        // unit support, not by poor terrain.  required is the food the
+        // current population needs to not starve.
+        sint32 const popCount   = cd->PopCount();
+        sint32 const maxPop     = cd->GetMaxPop();
+        c["food"] = { {"gross",            cd->GetGrossCityFood()},
+                      {"net",              cd->GetNetCityFood()},
+                      {"consumed",         cd->GetConsumedFood()},
+                      {"required",         cd->GetFoodRequired()},
+                      {"max_from_terrain", cd->GetMaxFoodFromTerrain()} };
+
         // partial_population accumulates growth_rate per turn; the city
         // gains a pop at k_PEOPLE_PER_POPULATION (10000). growth_rate <= 0
-        // means the city will never grow (starving / no food surplus).
+        // means the city will never grow.  But a *positive* food surplus
+        // can still yield growth_rate 0 when population has hit max_pop —
+        // the size cap raised by Aqueduct/Sewer-class buildings.  at_pop_cap
+        // disambiguates "starving" (net food <= 0) from "capped" (need a
+        // bigger-city building), the two failure modes a driver confuses.
         c["growth"] = { {"food_stored",        cd->GetStoredCityFood()},
                         {"partial_population", cd->GetPartialPopulation()},
                         {"pop_threshold",      k_PEOPLE_PER_POPULATION},
-                        {"growth_rate",        cd->GetGrowthRate()} };
+                        {"growth_rate",        cd->GetGrowthRate()},
+                        {"max_pop",            maxPop},
+                        {"size_index",         cd->GetSizeIndex()},
+                        {"at_pop_cap",         popCount >= maxPop},
+                        {"starvation_turns",   cd->GetStarvationTurns()} };
+
+        // Gold upkeep this city pays each turn: wages to its citizens plus
+        // building maintenance (CalcWages + GetSupportBuildingsCost).  NOTE:
+        // this is NOT military unit upkeep — that is a player-level gold cost,
+        // not attributed per-city.  Grows with city size and building count.
+        c["gold_upkeep"] = cd->GetSupport();
+
+        // Buildings already built, by name — lets a consumer see at a glance
+        // which growth/economy/happiness levers a city already has (and which
+        // it is missing) instead of inferring it from yields alone.
+        json built = json::array();
+        for (sint32 b = 0; g_theBuildingDB && b < g_theBuildingDB->NumRecords(); ++b) {
+            if (!cd->HasBuilding(b)) continue;
+            const BuildingRecord * brec = g_theBuildingDB->Get(b);
+            built.push_back({ {"type", b},
+                              {"name", brec ? ToUtf8(brec->GetNameText()) : ""} });
+        }
+        c["buildings_built"] = built;
         BuildQueue * queue = cd->GetBuildQueue();
         BuildNode * head = queue ? queue->GetHead() : nullptr;
         if (head) {
@@ -694,6 +809,47 @@ std::string QueryCity(const char * args)
         buildings.push_back(item);
     }
     result["buildable_buildings"] = buildings;
+
+    // Buildable wonders — a separate DB, and the single biggest score lever
+    // (plus empire-wide effects). Without this list a driver never knows a
+    // wonder is available; set_production "wonder <type>" builds the chosen one.
+    json wonders = json::array();
+    for (sint32 i = 0; g_theWonderDB && i < g_theWonderDB->NumRecords(); ++i) {
+        if (!cd->CanBuildWonder(i)) continue;
+        const WonderRecord * rec = g_theWonderDB->Get(i);
+        if (!rec) continue;
+        json item;
+        item["category"] = k_GAME_OBJ_TYPE_WONDER;
+        item["type"]     = i;
+        item["name"]     = ToUtf8(rec->GetNameText());
+        item["cost"]     = rec->GetProductionCost();
+        wonders.push_back(item);
+    }
+    result["buildable_wonders"] = wonders;
+
+    // Specialists: citizens reassigned off tile-work into scientist/entertainer/
+    // farmer/laborer/merchant roles (fixed per-head output regardless of terrain
+    // — the lever for a city whose worked tiles are poor). Feed set_specialist.
+    result["specialists"] = {
+        {"workers",      cd->WorkerCount()},
+        {"scientists",   cd->SpecialistCount(POP_SCIENTIST)},
+        {"entertainers", cd->SpecialistCount(POP_ENTERTAINER)},
+        {"farmers",      cd->SpecialistCount(POP_FARMER)},
+        {"laborers",     cd->SpecialistCount(POP_LABORER)},
+        {"merchants",    cd->SpecialistCount(POP_MERCHANT)} };
+
+    // City governor (mayor): when enabled, the engine auto-manages this city's
+    // build queue per a named optimization profile (production/growth/science/
+    // gold/...). Feed set_governor; profile list via query_governor_profiles.
+    sint32 const seq = cd->GetBuildListSequenceIndex();
+    const char * seqName = "";
+    if (g_theBuildListSequenceDB && seq >= 0 && seq < g_theBuildListSequenceDB->NumRecords()) {
+        const BuildListSequenceRecord * sr = g_theBuildListSequenceDB->Get(seq);
+        seqName = sr ? sr->GetNameText() : "";
+    }
+    result["governor"] = { {"enabled",             cd->GetUseGovernor()},
+                           {"build_list_sequence", seq},
+                           {"build_list_name",     seqName} };
     return Ok("query_city", result);
 }
 
@@ -831,21 +987,37 @@ std::string QueryTerraform(const char * args)
     sint32 const materials = human->GetMaterialsStored();
     Cell * cell = w->GetCell(pos);
 
+    // Categorise an improvement so a driver/UI can filter "what can I build on
+    // this tile" — terraform AND ordinary tile infrastructure (farms add food,
+    // mines add production, roads add trade/movement).  Previously only
+    // terraform-class showed, so farms/roads/mines were invisible even though
+    // the `terraform` verb (CanCreateImprovement) can build them.
     json options = json::array();
     for (sint32 i = 0; g_theTerrainImprovementDB && i < g_theTerrainImprovementDB->NumRecords(); ++i) {
         const TerrainImprovementRecord * rec = g_theTerrainImprovementDB->Get(i);
-        if (!rec || (!rec->GetClassTerraform() && !rec->GetClassOceanform())) continue;
+        if (!rec) continue;
+        bool const isTerraform = rec->GetClassTerraform() || rec->GetClassOceanform();
         sint32 to = -1;
-        if (!rec->GetTerraformTerrainIndex(to)) continue;
-        if (to == terrain) continue;  // no-op transform
-        if (!terrainutil_CanPlayerBuildAt(rec, human->GetOwner(), pos)) continue;
+        if (isTerraform) {
+            if (!rec->GetTerraformTerrainIndex(to)) continue;
+            if (to == terrain) continue;  // no-op transform
+        }
+        // Authoritative buildability gate — exactly what CmdTerraform enforces,
+        // so the listed options match what the verb will actually accept
+        // (advances, terrain rules, excludes, already-built, borders).
+        ERR_BUILD_INST err;
+        if (!human->CanCreateImprovement(i, pos, 0, true, err)) continue;
         sint32 const cost = terrainutil_GetProductionCost(i, pos, 0);
         json o;
         o["improvement_id"]  = i;
         o["name"]            = ToUtf8(rec->GetNameText());
-        o["to_terrain"]      = to;
-        const TerrainRecord * tr = g_theTerrainDB ? g_theTerrainDB->Get(to) : nullptr;
-        o["to_terrain_name"] = tr ? ToUtf8(tr->GetNameText()) : "";
+        o["class"]           = TerrainImpClass(rec);
+        o["is_terraform"]    = isTerraform;
+        if (isTerraform) {
+            o["to_terrain"]      = to;
+            const TerrainRecord * tr = g_theTerrainDB ? g_theTerrainDB->Get(to) : nullptr;
+            o["to_terrain_name"] = tr ? ToUtf8(tr->GetNameText()) : "";
+        }
         o["cost"]            = cost;
         o["turns"]           = terrainutil_GetProductionTime(i, pos, 0);
         o["affordable"]      = cost <= materials;
@@ -1404,6 +1576,658 @@ std::string CmdGrantAdvance(const char * args)
     return Ok("grant_advance", result);
 }
 
+// disband_unit <army_index> — disband one of the human's armies, freeing the
+// shields/turn it costs in support. The dominant efficiency lever once a war
+// is unwinnable/unreachable: a stack of obsolete units bleeds production every
+// turn for no benefit. Uses ArmyData::Disband (which refuses your LAST army).
+std::string CmdDisbandUnit(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("disband_unit", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("disband_unit", "no_human_player");
+
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("disband_unit", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("disband_unit", "bad_army_index");
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("disband_unit", "invalid_army");
+    if (armies->Num() < 2 && human->m_all_cities->Num() < 1)
+        return Err("disband_unit", "last_army");  // Disband() would no-op
+
+    sint32 const n_units = ad->Num();
+    ad->Disband();
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    json result;
+    result["disbanded_army"] = idx;
+    result["units_removed"]  = n_units;
+    result["armies_left"]    = human->GetAllArmiesList()->Num();
+    gc_log->info("disband_unit: army {} ({} units)", idx, n_units);
+    return Ok("disband_unit", result);
+}
+
+// set_government <government_type> — switch government. The master multiplier
+// on science/gold/happiness/production and max city size. SetGovernmentType
+// self-gates on the enabling advance and handles the anarchy transition; it
+// returns false if the type is invalid, unchanged, or the advance is missing.
+std::string CmdSetGovernment(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("set_government", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("set_government", "no_human_player");
+
+    int type = -1;
+    if (sscanf(args, "%d", &type) != 1)
+        return Err("set_government", "bad_args");
+    if (!g_theGovernmentDB || type < 0 || type >= g_theGovernmentDB->NumRecords())
+        return Err("set_government", "bad_government");
+    const GovernmentRecord * grec = g_theGovernmentDB->Get(type);
+    if (type == human->GetGovernmentType())
+        return Err("set_government", "already_that_government");
+    if (grec && !human->HasAdvance(grec->GetEnableAdvanceIndex()))
+        return Err("set_government", "advance_missing");
+
+    bool const ok = human->SetGovernmentType(type);
+    if (!ok)
+        return Err("set_government", "rejected");
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    json result;
+    result["requested_government"] = type;
+    result["name"]                 = grec ? ToUtf8(grec->GetNameText()) : "";
+    // A switch FROM an established government routes through anarchy first, so
+    // the active type may still be the old one (or 0/anarchy) this turn.
+    result["active_government"]    = human->GetGovernmentType();
+    gc_log->info("set_government: -> {} (active {})", type, human->GetGovernmentType());
+    return Ok("set_government", result);
+}
+
+// establish_trade_route <src_city_index> <dest_city_index> [good_index]
+// — create a resource trade route from one of YOUR cities to another visible
+// city, generating trade value. If good_index is omitted, the first good the
+// source city can collect is used. Gold-economy lever the play loop ignored.
+std::string CmdEstablishTradeRoute(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("establish_trade_route", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("establish_trade_route", "no_human_player");
+
+    int src_idx = -1, dst_idx = -1, good = -1;
+    int const n = sscanf(args, "%d %d %d", &src_idx, &dst_idx, &good);
+    if (n < 2)
+        return Err("establish_trade_route", "bad_args");
+
+    UnitDynamicArray * mine = human->GetAllCitiesList();
+    if (!mine || src_idx < 0 || src_idx >= mine->Num())
+        return Err("establish_trade_route", "bad_source_city");
+    Unit srcCity = mine->Access(src_idx);
+    CityData * scd = srcCity.IsValid() && srcCity.GetData() ? srcCity.GetData()->GetCityData() : nullptr;
+    if (!scd)
+        return Err("establish_trade_route", "invalid_source_city");
+
+    // Destination can be any city the human can see (own or foreign).
+    Unit destCity;
+    for (sint32 p = 0; p < k_MAX_PLAYERS && !destCity.IsValid(); ++p) {
+        if (!player_Get(p)) continue;
+        UnitDynamicArray * list = player_Get(p)->GetAllCitiesList();
+        if (!list) continue;
+        for (sint32 i = 0; i < list->Num(); ++i) {
+            Unit u = list->Access(i);
+            if (p == human->GetOwner() && i == dst_idx) { destCity = u; break; }
+        }
+    }
+    if (!destCity.IsValid())
+        return Err("establish_trade_route", "bad_dest_city");
+    if (destCity.m_id == srcCity.m_id)
+        return Err("establish_trade_route", "same_city");
+
+    // Auto-pick a good the source city can actually collect, if unspecified.
+    if (good < 0 && g_theResourceDB) {
+        for (sint32 r = 0; r < g_theResourceDB->NumRecords(); ++r) {
+            if (scd->GetGoodCountInRadius(r) > 0) { good = r; break; }
+        }
+    }
+    if (good < 0 || !g_theResourceDB || good >= g_theResourceDB->NumRecords())
+        return Err("establish_trade_route", "no_good_available");
+    // CRITICAL: CreateTradeRoute null-derefs on a good the source city cannot
+    // actually export.  Validate collectability for an EXPLICIT good too, not
+    // just the auto-picked one — otherwise a bad good_index crashes the engine.
+    if (scd->GetGoodCountInRadius(good) <= 0)
+        return Err("establish_trade_route", "good_not_in_source_radius");
+
+    TradeRoute route = human->CreateTradeRoute(srcCity, ROUTE_TYPE_RESOURCE, good,
+                                               destCity, human->GetOwner(), 0);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+    if (!route.IsValid())
+        return Err("establish_trade_route", "route_rejected");
+
+    json result;
+    result["source_city"] = src_idx;
+    result["dest_city"]   = dst_idx;
+    result["good"]        = good;
+    const ResourceRecord * rr = g_theResourceDB->Get(good);
+    result["good_name"]   = rr ? ToUtf8(rr->GetNameText()) : "";
+    gc_log->info("establish_trade_route: city {} -> {} good {}", src_idx, dst_idx, good);
+    return Ok("establish_trade_route", result);
+}
+
+// set_science_rate <percent 0..100> — set the science share of commerce (the
+// rest becomes gold). The engine clamps to the government's max science rate.
+// A direct score dial: more science = faster advances; the UI slider the play
+// loop never touched. Read back economy.science_rate in query_player.
+std::string CmdSetScienceRate(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("set_science_rate", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("set_science_rate", "no_human_player");
+
+    int pct = -1;
+    if (sscanf(args, "%d", &pct) != 1)
+        return Err("set_science_rate", "bad_args");
+    if (pct < 0 || pct > 100)
+        return Err("set_science_rate", "out_of_range");
+
+    human->SetTaxes(static_cast<double>(pct) / 100.0);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    double applied = 0.0;
+    human->GetScienceTaxRate(applied);
+    json result;
+    result["requested_science_rate"] = static_cast<double>(pct) / 100.0;
+    result["science_rate"]           = applied;   // may be capped by government
+    result["gold_rate"]              = 1.0 - applied;
+    gc_log->info("set_science_rate: requested {}%, applied {}", pct, applied);
+    return Ok("set_science_rate", result);
+}
+
+// set_rates <workday> <wages> <rations> — the three social sliders (pass -1 to
+// leave one unchanged). Each trades raw output for happiness around the
+// government's expectation level: lower RATIONS frees food for growth (the
+// non-terraform growth lever), higher workday adds production, etc. Levels are
+// integer steps; query_player.economy reports current level + expectation.
+std::string CmdSetRates(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("set_rates", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("set_rates", "no_human_player");
+
+    int workday = -1, wages = -1, rations = -1;
+    if (sscanf(args, "%d %d %d", &workday, &wages, &rations) < 1)
+        return Err("set_rates", "bad_args");
+
+    if (workday >= 0) human->SetWorkdayLevel(workday);
+    if (wages   >= 0) human->SetWagesLevel(wages);
+    if (rations >= 0) human->SetRationsLevel(rations);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    PlayerHappiness * h = human->m_global_happiness;
+    json result;
+    result["workday"] = { {"level", h ? h->GetUnitlessWorkday() : 0}, {"expectation", human->GetWorkdayExpectation()} };
+    result["wages"]   = { {"level", h ? h->GetUnitlessWages()   : 0}, {"expectation", human->GetWagesExpectation()} };
+    result["rations"] = { {"level", h ? h->GetUnitlessRations() : 0}, {"expectation", human->GetRationsExpectation()} };
+    gc_log->info("set_rates: workday {} wages {} rations {}", workday, wages, rations);
+    return Ok("set_rates", result);
+}
+
+// set_specialist <city_index> <pop_type> <delta> — convert citizens between
+// tile-working and a specialist role. pop_type: 1=scientist 2=entertainer
+// 3=farmer 4=laborer 5=merchant. delta>0 turns workers INTO specialists
+// (needs that many free workers); delta<0 turns them back. Specialists give a
+// fixed per-head yield independent of terrain — the lever for a city on poor
+// tiles (e.g. add scientists for flat science, farmers for flat food).
+std::string CmdSetSpecialist(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("set_specialist", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("set_specialist", "no_human_player");
+
+    int city_idx = -1, ptype = -1, delta = 0;
+    if (sscanf(args, "%d %d %d", &city_idx, &ptype, &delta) != 3)
+        return Err("set_specialist", "bad_args");
+    UnitDynamicArray * mine = human->GetAllCitiesList();
+    if (!mine || city_idx < 0 || city_idx >= mine->Num())
+        return Err("set_specialist", "bad_city_index");
+    CityData * cd = mine->Access(city_idx).GetData() ? mine->Access(city_idx).GetData()->GetCityData() : nullptr;
+    if (!cd)
+        return Err("set_specialist", "invalid_city");
+    // Only the assignable specialist roles (not worker/slave/max).
+    if (ptype < POP_SCIENTIST || ptype > POP_MERCHANT)
+        return Err("set_specialist", "bad_pop_type");
+    if (delta == 0)
+        return Err("set_specialist", "zero_delta");
+    POP_TYPE type = static_cast<POP_TYPE>(ptype);
+    // Pre-validate exactly as ChangeSpecialists does, so we report instead of
+    // silently no-opping.
+    if (delta > 0 && cd->WorkerCount() < delta)
+        return Err("set_specialist", "not_enough_workers");
+    if (delta < 0 && cd->SpecialistCount(type) + delta < 0)
+        return Err("set_specialist", "not_enough_specialists");
+
+    cd->ChangeSpecialists(type, delta);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    json result;
+    result["city"]       = city_idx;
+    result["pop_type"]   = ptype;
+    result["delta"]      = delta;
+    result["now"]        = cd->SpecialistCount(type);
+    result["workers"]    = cd->WorkerCount();
+    gc_log->info("set_specialist: city {} type {} delta {}", city_idx, ptype, delta);
+    return Ok("set_specialist", result);
+}
+
+// set_governor <city_index> <0|1> [build_list_sequence] — toggle the city
+// mayor. When on, the engine auto-manages the build queue per a named profile
+// (query_governor_profiles lists them); the optional index switches profile.
+std::string CmdSetGovernor(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("set_governor", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("set_governor", "no_human_player");
+
+    int city_idx = -1, on = -1, seq = -1;
+    int const n = sscanf(args, "%d %d %d", &city_idx, &on, &seq);
+    if (n < 2)
+        return Err("set_governor", "bad_args");
+    UnitDynamicArray * mine = human->GetAllCitiesList();
+    if (!mine || city_idx < 0 || city_idx >= mine->Num())
+        return Err("set_governor", "bad_city_index");
+    CityData * cd = mine->Access(city_idx).GetData() ? mine->Access(city_idx).GetData()->GetCityData() : nullptr;
+    if (!cd)
+        return Err("set_governor", "invalid_city");
+    if (n >= 3) {
+        if (!g_theBuildListSequenceDB || seq < 0 || seq >= g_theBuildListSequenceDB->NumRecords())
+            return Err("set_governor", "bad_build_list_sequence");
+        cd->SetBuildListSequenceIndex(seq);
+    }
+    cd->SetUseGovernor(on != 0);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    sint32 const s = cd->GetBuildListSequenceIndex();
+    const char * nm = "";
+    if (g_theBuildListSequenceDB && s >= 0 && s < g_theBuildListSequenceDB->NumRecords()) {
+        const BuildListSequenceRecord * sr = g_theBuildListSequenceDB->Get(s);
+        nm = sr ? sr->GetNameText() : "";
+    }
+    json result;
+    result["city"]                = city_idx;
+    result["enabled"]             = cd->GetUseGovernor();
+    result["build_list_sequence"] = s;
+    result["build_list_name"]     = nm;
+    gc_log->info("set_governor: city {} enabled {} seq {}", city_idx, on != 0, s);
+    return Ok("set_governor", result);
+}
+
+// query_governor_profiles — the named build-list sequences a city governor can
+// follow (index + name), e.g. PRODUCTION / GROWTH / SCIENCE / GOLD / OFFENSE.
+// Feed the index to set_governor's optional profile argument.
+std::string QueryGovernorProfiles()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_governor_profiles", "game_not_loaded");
+    json profiles = json::array();
+    for (sint32 i = 0; g_theBuildListSequenceDB && i < g_theBuildListSequenceDB->NumRecords(); ++i) {
+        const BuildListSequenceRecord * sr = g_theBuildListSequenceDB->Get(i);
+        if (!sr) continue;
+        profiles.push_back({ {"index", i}, {"name", sr->GetNameText()} });
+    }
+    json result;
+    result["profiles"] = profiles;
+    return Ok("query_governor_profiles", result);
+}
+
+// Human-readable list of the target types an order needs — so a driver knows
+// where to point do_unit_order without decoding the pretest bitmask.
+static json OrderTargetTypes(const OrderRecord * o)
+{
+    json t = json::array();
+    if (o->GetTargetPretestEnemyCity())          t.push_back("enemy_city");
+    if (o->GetTargetPretestOwnCity())            t.push_back("own_city");
+    if (o->GetTargetPretestEnemyArmy())          t.push_back("enemy_army");
+    if (o->GetTargetPretestEnemySpecialUnit())   t.push_back("enemy_special_unit");
+    if (o->GetTargetPretestEnemySettler())       t.push_back("enemy_settler");
+    if (o->GetTargetPretestEnemyTradeUnit())     t.push_back("enemy_trade_unit");
+    if (o->GetTargetPretestTradeRoute())         t.push_back("trade_route");
+    if (o->GetTargetPretestTerrainImprovement()) t.push_back("terrain_improvement");
+    if (o->GetTargetPretestNone())               t.push_back("none");
+    return t;
+}
+
+// query_unit_orders <army_index> — the special orders THIS army is capable of
+// (the right-click menu the UI builds): index, name, the target type(s) each
+// needs, and gold cost. Covers spy/diplomat ops (investigate/steal/incite/
+// embassy), pillage, expel, infect, convert, etc. Feed an index to do_unit_order.
+std::string QueryUnitOrders(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_unit_orders", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_unit_orders", "no_human_player");
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("query_unit_orders", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("query_unit_orders", "bad_army_index");
+    ArmyData * ad = armies->Access(idx).AccessData();
+    if (!ad)
+        return Err("query_unit_orders", "invalid_army");
+
+    json orders = json::array();
+    for (sint32 i = 0; g_theOrderDB && i < g_theOrderDB->NumRecords(); ++i) {
+        const OrderRecord * o = g_theOrderDB->Get(i);
+        if (!o) continue;
+        // ORDER_TEST_ILLEGAL means no unit in the army can ever do it; anything
+        // else (OK / NEEDS_TARGET / LACKS_GOLD / NO_MOVEMENT) means it's a
+        // capability of this army worth surfacing.
+        if (ad->TestOrder(o) == ORDER_TEST_ILLEGAL) continue;
+        orders.push_back({ {"order_index", i},
+                           {"name",        o->GetNameText()},
+                           {"target",      OrderTargetTypes(o)},
+                           {"gold_cost",   o->GetGold()} });
+    }
+    json result;
+    result["army"]   = idx;
+    result["orders"] = orders;
+    return Ok("query_unit_orders", result);
+}
+
+// do_unit_order <army_index> <order_index> [x y] — execute one order from
+// query_unit_orders. With x,y the order acts on that tile (the army must be ON
+// it or ADJACENT — move there first); without, it acts in place. The engine's
+// own TestOrderHere is the gate, so an illegal order is REPORTED, never crashes.
+std::string CmdDoUnitOrder(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("do_unit_order", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("do_unit_order", "no_human_player");
+
+    int idx = -1, oidx = -1, x = -1, y = -1;
+    int const n = sscanf(args, "%d %d %d %d", &idx, &oidx, &x, &y);
+    if (n < 2)
+        return Err("do_unit_order", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("do_unit_order", "bad_army_index");
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!ad)
+        return Err("do_unit_order", "invalid_army");
+    if (!g_theOrderDB || oidx < 0 || oidx >= g_theOrderDB->NumRecords())
+        return Err("do_unit_order", "bad_order_index");
+    const OrderRecord * o = g_theOrderDB->Get(oidx);
+    if (!o)
+        return Err("do_unit_order", "bad_order_index");
+
+    MapPoint here = ad->RetPos();
+    bool const haveTarget = (n >= 4);
+    MapPoint target = haveTarget ? MapPoint((sint16)x, (sint16)y) : here;
+    if (haveTarget) {
+        World * w = world_Get();
+        if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+            return Err("do_unit_order", "bad_position");
+        // Like bombard: the army must already be on or next to the target.
+        if (target != here && !here.IsNextTo(target))
+            return Err("do_unit_order", "not_adjacent");
+    }
+
+    // Engine pretest — translate the verdict instead of executing on failure.
+    ORDER_TEST t = ad->TestOrderHere(o, target);
+    if (t != ORDER_TEST_OK) {
+        const char * why = "order_rejected";
+        switch (t) {
+            case ORDER_TEST_ILLEGAL:        why = "illegal_for_this_unit"; break;
+            case ORDER_TEST_LACKS_GOLD:     why = "lacks_gold";            break;
+            case ORDER_TEST_NEEDS_TARGET:   why = "needs_target";          break;
+            case ORDER_TEST_INVALID_TARGET: why = "invalid_target";        break;
+            case ORDER_TEST_NO_MOVEMENT:    why = "no_moves_left";         break;
+            default: break;
+        }
+        return Err("do_unit_order", why);
+    }
+
+    if (haveTarget && target != here) {
+        Path p;
+        p.SetStart(here);
+        p.AddDir(here.GetNeighborDirection(target));
+        ad->PerformOrderHere(o, &p);
+    } else {
+        ad->PerformOrder(o);  // acts on the army's own tile
+    }
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    json result;
+    result["army"]        = idx;
+    result["order_index"] = oidx;
+    result["order_name"]  = o->GetNameText();
+    if (haveTarget) result["target"] = { {"x", x}, {"y", y} };
+    gc_log->info("do_unit_order: army {} order {} ({})", idx, oidx, o->GetNameText());
+    return Ok("do_unit_order", result);
+}
+
+// upgrade_unit <army_index> — modernise every upgradable unit in the army to
+// its current-tech equivalent (spends gold). Reports how many were upgraded.
+std::string CmdUpgradeUnit(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("upgrade_unit", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("upgrade_unit", "no_human_player");
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("upgrade_unit", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("upgrade_unit", "bad_army_index");
+    ArmyData * ad = armies->Access(idx).AccessData();
+    if (!ad)
+        return Err("upgrade_unit", "invalid_army");
+
+    // Count upgradable units up front so we can report (Upgrade() returns only
+    // whether anything happened).
+    sint32 upgradable = 0, type = 0, costs = 0;
+    for (sint32 i = 0; i < ad->Num(); ++i) {
+        Unit u = ad->Access(i);
+        if (u.GetData() && u.GetData()->CanUpgrade(type, costs)) ++upgradable;
+    }
+    if (upgradable == 0)
+        return Err("upgrade_unit", "nothing_to_upgrade");
+
+    bool const ok = ad->Upgrade();
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    json result;
+    result["army"]              = idx;
+    result["units_upgradable"]  = upgradable;
+    result["upgraded"]          = ok;
+    gc_log->info("upgrade_unit: army {} upgradable {} ok {}", idx, upgradable, ok);
+    return Ok("upgrade_unit", result);
+}
+
+// propose <target_player> <proposal_type> [arg] — generalised diplomacy. Sends
+// any single-clause proposal the engine supports and reports the AI verdict.
+// proposal_type is a PROPOSAL_TYPE id (e.g. 17 OFFER_GIVE_ADVANCE, 19 OFFER_
+// GIVE_GOLD, 32 TREATY_CEASEFIRE, 33 TREATY_PEACE, 38 TREATY_ALLIANCE). [arg]
+// is the advance id for GIVE/REQUEST_ADVANCE, or gold amount for GIVE/REQUEST_GOLD.
+std::string CmdPropose(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("propose", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("propose", "no_human_player");
+
+    int target = -1, ptype = -1, arg = -1;
+    int const n = sscanf(args, "%d %d %d", &target, &ptype, &arg);
+    if (n < 2)
+        return Err("propose", "bad_args");
+    if (target < 0 || target >= k_MAX_PLAYERS || !player_Get(target))
+        return Err("propose", "bad_player");
+    if (target == human->GetOwner())
+        return Err("propose", "thats_you");
+    if (!human->HasContactWith(target))
+        return Err("propose", "no_contact");
+    if (ptype <= PROPOSAL_NONE || ptype >= PROPOSAL_MAX)
+        return Err("propose", "bad_proposal_type");
+
+    PROPOSAL_TYPE pt = static_cast<PROPOSAL_TYPE>(ptype);
+    NewProposal proposal;
+    proposal.senderId          = human->GetOwner();
+    proposal.receiverId        = target;
+    proposal.priority          = 1;
+    proposal.detail.first_type = pt;
+    proposal.detail.tone       = DIPLOMATIC_TONE_EQUAL;
+    // Wire the clause argument to the right slot.
+    if (pt == PROPOSAL_OFFER_GIVE_ADVANCE || pt == PROPOSAL_REQUEST_GIVE_ADVANCE) {
+        if (n < 3 || !g_theAdvanceDB || arg < 0 || arg >= g_theAdvanceDB->NumRecords())
+            return Err("propose", "bad_advance_arg");
+        proposal.detail.first_arg.advanceType = arg;
+    } else if (pt == PROPOSAL_OFFER_GIVE_GOLD || pt == PROPOSAL_REQUEST_GIVE_GOLD) {
+        if (n < 3 || arg < 0)
+            return Err("propose", "bad_gold_arg");
+        proposal.detail.first_arg.gold = arg;
+    }
+    Diplomat::GetDiplomat(human->GetOwner()).ExecuteNewProposal(proposal);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    json result;
+    result["target"]        = target;
+    result["proposal_type"] = ptype;
+    result["at_war"]        = human->HasWarWith(target);
+    // For treaty clauses, an accepted deal shows up in the agreement matrix.
+    if (pt == PROPOSAL_TREATY_PEACE || pt == PROPOSAL_TREATY_CEASEFIRE ||
+        pt == PROPOSAL_TREATY_ALLIANCE) {
+        result["agreement"] = AgreementMatrix::s_agreements.HasAgreement(
+                                  human->GetOwner(), target, pt);
+    }
+    gc_log->info("propose: {} -> {} type {} arg {}", (int)human->GetOwner(), target, ptype, arg);
+    return Ok("propose", result);
+}
+
+// sell_building <city_index> <building_type> — sell a built improvement for
+// gold (once per city per turn). building_type from query_city.buildings_built.
+std::string CmdSellBuilding(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("sell_building", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("sell_building", "no_human_player");
+    int city_idx = -1, btype = -1;
+    if (sscanf(args, "%d %d", &city_idx, &btype) != 2)
+        return Err("sell_building", "bad_args");
+    UnitDynamicArray * mine = human->GetAllCitiesList();
+    if (!mine || city_idx < 0 || city_idx >= mine->Num())
+        return Err("sell_building", "bad_city_index");
+    CityData * cd = mine->Access(city_idx).GetData() ? mine->Access(city_idx).GetData()->GetCityData() : nullptr;
+    if (!cd)
+        return Err("sell_building", "invalid_city");
+    if (!g_theBuildingDB || btype < 0 || btype >= g_theBuildingDB->NumRecords())
+        return Err("sell_building", "bad_building");
+    if (!cd->HasBuilding(btype))
+        return Err("sell_building", "building_not_present");
+    if (cd->SellingBuilding() >= 0)
+        return Err("sell_building", "already_sold_this_turn");
+
+    cd->SellBuilding(btype);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+    const BuildingRecord * rec = g_theBuildingDB->Get(btype);
+    json result;
+    result["city"]      = city_idx;
+    result["building"]  = btype;
+    result["name"]      = rec ? ToUtf8(rec->GetNameText()) : "";
+    result["gold"]      = human->GetGold();
+    gc_log->info("sell_building: city {} building {}", city_idx, btype);
+    return Ok("sell_building", result);
+}
+
+// query_trade_routes — your outgoing trade routes, per source city, with an
+// index usable by cancel_trade_route. (Routes originate at a source city's
+// trade-source list.)
+std::string QueryTradeRoutes()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_trade_routes", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("query_trade_routes", "no_human_player");
+    UnitDynamicArray * mine = human->GetAllCitiesList();
+    json routes = json::array();
+    for (sint32 c = 0; mine && c < mine->Num(); ++c) {
+        CityData * cd = mine->Access(c).GetData() ? mine->Access(c).GetData()->GetCityData() : nullptr;
+        if (!cd) continue;
+        TradeDynamicArray * src = cd->GetTradeSourceList();
+        for (sint32 r = 0; src && r < src->Num(); ++r) {
+            TradeRoute route = src->Access(r);
+            if (!route.IsValid()) continue;
+            Unit dest = route.GetDestination();
+            routes.push_back({ {"source_city",  c},
+                               {"route_index",  r},
+                               {"dest_city",    dest.IsValid() ? ToUtf8(dest.GetName()) : ""} });
+        }
+    }
+    json result;
+    result["routes"] = routes;
+    return Ok("query_trade_routes", result);
+}
+
+// cancel_trade_route <city_index> <route_index> — cancel one of your outgoing
+// routes (indices from query_trade_routes).
+std::string CmdCancelTradeRoute(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("cancel_trade_route", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("cancel_trade_route", "no_human_player");
+    int city_idx = -1, route_idx = -1;
+    if (sscanf(args, "%d %d", &city_idx, &route_idx) != 2)
+        return Err("cancel_trade_route", "bad_args");
+    UnitDynamicArray * mine = human->GetAllCitiesList();
+    if (!mine || city_idx < 0 || city_idx >= mine->Num())
+        return Err("cancel_trade_route", "bad_city_index");
+    CityData * cd = mine->Access(city_idx).GetData() ? mine->Access(city_idx).GetData()->GetCityData() : nullptr;
+    if (!cd)
+        return Err("cancel_trade_route", "invalid_city");
+    TradeDynamicArray * src = cd->GetTradeSourceList();
+    if (!src || route_idx < 0 || route_idx >= src->Num())
+        return Err("cancel_trade_route", "bad_route_index");
+    TradeRoute route = src->Access(route_idx);
+    if (!route.IsValid())
+        return Err("cancel_trade_route", "invalid_route");
+
+    human->RemoveTradeRoute(route, CAUSE_KILL_TRADE_ROUTE_RESET);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+    json result;
+    result["source_city"] = city_idx;
+    result["route_index"] = route_idx;
+    gc_log->info("cancel_trade_route: city {} route {}", city_idx, route_idx);
+    return Ok("cancel_trade_route", result);
+}
+
 // query_map — terrain, fog state and city markers for every tile the human has
 // explored. Only explored tiles are listed (unexplored tiles are omitted
 // entirely); the "visible" flag distinguishes currently-seen tiles from
@@ -1444,6 +2268,23 @@ std::string QueryMap()
                 Unit city = c->GetCity();
                 if (city.IsValid())
                     t["city"] = (sint32)city.GetOwner();
+                // Tile improvements actually on the ground (farms/mines/roads/
+                // structures) — so the map can SHOW infrastructure, not just
+                // terrain.  Emitted only when present to keep the payload lean.
+                sint32 const nimp = c->GetNumDBImprovements();
+                if (nimp > 0 && g_theTerrainImprovementDB) {
+                    json imps = json::array();
+                    for (sint32 k = 0; k < nimp; ++k) {
+                        sint32 const dbi = c->GetDBImprovement(k);
+                        const TerrainImprovementRecord * irec =
+                            (dbi >= 0 && dbi < g_theTerrainImprovementDB->NumRecords())
+                                ? g_theTerrainImprovementDB->Get(dbi) : nullptr;
+                        imps.push_back({ {"type",  dbi},
+                                         {"class", TerrainImpClass(irec)},
+                                         {"name",  irec ? ToUtf8(irec->GetNameText()) : ""} });
+                    }
+                    t["improvements"] = imps;
+                }
             }
             tiles.push_back(t);
         }
@@ -1488,11 +2329,45 @@ json PlayerJson(sint32 p, Player * pl)
     j["human"]      = pl->IsHuman();
     j["dead"]       = pl->IsDead();
     j["gold"]       = pl->GetGold();
+    // Victory state is needed by long-running autoplay loops so they can stop
+    // when the game is decided without polling every city every turn.
+    // Coarse victory state lets long-running autoplay loops stop when the game
+    // is decided without polling every city every turn.
+    sint32 vtype = pl->m_score ? pl->m_score->GetPartialScore(SCORE_CAT_TYPE_OF_VICTORY) : kScoreGameInProgress;
+    j["has_won_the_game"] = pl->m_hasWonTheGame != FALSE;
+    j["victory_type"]     = vtype;
+    j["victory_label"]    = game_controller::VictoryTypeLabel(vtype);
+    // Material tax is only meaningful/changeable for the human, but exposing it
+    // on every row keeps PlayerJson uniform and lets the autoplay loop verify
+    // the economy invariant with a single query_players call.
+    j["material_tax"]     = pl->m_materialsTax;
     j["num_cities"] = pl->GetNumCities();
     j["num_units"]  = pl->m_all_units ? pl->m_all_units->Num() : 0;
     j["num_armies"] = pl->GetAllArmiesList() ? pl->GetAllArmiesList()->Num() : 0;
     j["government"] = pl->GetGovernmentType();
     j["score"]      = pl->m_score ? pl->m_score->GetTotalScore() : 0;
+    // Economic rate dials the UI exposes but the API long ignored: the
+    // science<->gold commerce split and the workday/wages/rations social
+    // sliders. `expectation` is the government's neutral level for each slider
+    // (deviating trades output for happiness); max_science_rate is the
+    // government's science-split cap. Feed set_science_rate / set_rates.
+    {
+        double sci = 0.0;
+        pl->GetScienceTaxRate(sci);
+        json econ;
+        econ["science_rate"]     = sci;            // 0..1 fraction of commerce -> science
+        econ["gold_rate"]        = 1.0 - sci;
+        const GovernmentRecord * grec = g_theGovernmentDB ?
+            g_theGovernmentDB->Get(pl->GetGovernmentType()) : nullptr;
+        econ["max_science_rate"] = grec ? grec->GetMaxScienceRate() : 1.0;
+        // Current slider levels live in the happiness object (Player::Get*Level
+        // is unimplemented for workday/wages); expectations come from the gov.
+        PlayerHappiness * h = pl->m_global_happiness;
+        econ["workday"]  = { {"level", h ? h->GetUnitlessWorkday() : 0}, {"expectation", pl->GetWorkdayExpectation()} };
+        econ["wages"]    = { {"level", h ? h->GetUnitlessWages()   : 0}, {"expectation", pl->GetWagesExpectation()} };
+        econ["rations"]  = { {"level", h ? h->GetUnitlessRations() : 0}, {"expectation", pl->GetRationsExpectation()} };
+        j["economy"] = econ;
+    }
     // Diplomacy relative to the HUMAN player (null for the human's own row).
     if (Player * human = HumanPlayer(); human && human->GetOwner() != p) {
         j["contact"] = human->HasContactWith(p);
@@ -1579,8 +2454,22 @@ std::string QueryTurn()
         return Err("query_turn", "game_not_loaded");
 
     json result;
+    sint32 const year = turn_Get() ? turn_Get()->GetSessionYear() : 0;
     result["round"] = turn_Get() ? turn_Get()->GetSessionRound() : 0;
-    result["year"]  = turn_Get() ? turn_Get()->GetSessionYear()  : 0;
+    result["year"]  = year;
+    // The game's scored deadline: at end_of_game_year (default 2300 AD) the
+    // "out of time" end-game fires and the highest score wins.  Headless does
+    // NOT stop at the deadline — it keeps running in UNSCORED overtime, which
+    // is why no victory flag appears past it.  Surface the deadline so a driver
+    // knows whether the game is still live or already decided on score.
+    const ConstRecord * cr = g_theConstDB ? g_theConstDB->Get(0) : nullptr;
+    if (cr) {
+        sint32 const end_year  = cr->GetEndOfGameYear();
+        sint32 const warn_year = cr->GetEndOfGameYearEarlyWarning();
+        result["end_of_game_year"]         = end_year;
+        result["end_of_game_warning_year"] = warn_year;
+        result["past_deadline"]            = year >= end_year;  // true => unscored overtime
+    }
     return Ok("query_turn", result);
 }
 
@@ -1691,6 +2580,21 @@ std::string Dispatch(const std::string & line, bool & handled)
         *boom = 42;
     }
     if (line.rfind("ungroup_army ", 0) == 0)                    return CmdUngroupArmy(line.c_str() + 13);
+    if (line.rfind("disband_unit ", 0) == 0)                     return CmdDisbandUnit(line.c_str() + 13);
+    if (line.rfind("set_government ", 0) == 0)                   return CmdSetGovernment(line.c_str() + 15);
+    if (line.rfind("establish_trade_route ", 0) == 0)            return CmdEstablishTradeRoute(line.c_str() + 22);
+    if (line.rfind("set_science_rate ", 0) == 0)                 return CmdSetScienceRate(line.c_str() + 17);
+    if (line.rfind("set_rates ", 0) == 0)                        return CmdSetRates(line.c_str() + 10);
+    if (line.rfind("set_specialist ", 0) == 0)                   return CmdSetSpecialist(line.c_str() + 15);
+    if (line.rfind("set_governor ", 0) == 0)                     return CmdSetGovernor(line.c_str() + 13);
+    if (line == "query_governor_profiles")                       return QueryGovernorProfiles();
+    if (line.rfind("query_unit_orders ", 0) == 0)                return QueryUnitOrders(line.c_str() + 18);
+    if (line.rfind("do_unit_order ", 0) == 0)                     return CmdDoUnitOrder(line.c_str() + 14);
+    if (line.rfind("upgrade_unit ", 0) == 0)                      return CmdUpgradeUnit(line.c_str() + 13);
+    if (line.rfind("propose ", 0) == 0)                           return CmdPropose(line.c_str() + 8);
+    if (line.rfind("sell_building ", 0) == 0)                     return CmdSellBuilding(line.c_str() + 14);
+    if (line == "query_trade_routes")                            return QueryTradeRoutes();
+    if (line.rfind("cancel_trade_route ", 0) == 0)               return CmdCancelTradeRoute(line.c_str() + 19);
 
     handled = false;
     return std::string();

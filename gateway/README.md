@@ -9,6 +9,7 @@ grow four faces on one port:
 | curl API    | `/api/*`     | ✅ v0.1 |
 | health      | `/healthz`   | ✅ v0.1 |
 | admin panel (game internals, future web UI)  | `/`, `/players`, `/players/<id>/cities` | ✅ v0.1 |
+| debug / exchange journal                     | `/debug`    | ✅ v0.1 |
 | MCP (streamable HTTP, Claude plays the game) | `POST /mcp` | ✅ v0.1 |
 | WebSocket (live events)                      | `/ws`       | planned (v0.2, needs C++ event push) |
 
@@ -39,9 +40,17 @@ socket, the gateway refuses to race it and attaches instead. There is
 deliberately no auto-respawn — a crash would loop; the lazy reconnect picks
 the game back up whenever it returns.
 
-Flags: `--port`, `--socket`, `--spawn`, `--binary`, `--spawn-args`,
-`--spawn-log`, `--spawn-cwd`. Env: `CTP2_GATEWAY_PORT`, `CTP2_SOCKET`,
-`CTP2_BINARY`.
+Flags: `--port`, `--socket`, `--session-dir`, `--spawn`, `--binary`,
+`--spawn-args`, `--spawn-log`, `--spawn-cwd`. Env: `CTP2_GATEWAY_PORT`,
+`CTP2_SOCKET`, `CTP2_SESSION_DIR`, `CTP2_BINARY`.
+
+Each gateway run gets a **session id** (timestamp + random suffix). The
+exchange journal — every command sent to the game and its full response — is
+appended to `<session-dir>/<id>.journal.jsonl`. If the gateway restarts, a
+new session is created; if a client is pointed back at an existing journal
+path, the most recent exchanges are replayed into memory so the debug page
+stays useful after a crash. The session id is printed at startup and exposed
+in `/healthz`.
 
 ## curl cookbook
 

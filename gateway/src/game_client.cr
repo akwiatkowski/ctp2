@@ -46,8 +46,23 @@ module Ctp2Gateway
 
     # One entry of the exchange journal — the debugging primitive behind
     # /debug and the error pages: what was asked, what came back, how long
-    # it took. `detail` is a truncated response/error snippet.
-    record Exchange, at : Time, cmd : String, ok : Bool, detail : String, duration : Time::Span
+    # it took.
+    #   cmd           — the full command line sent to the game
+    #   verb          — first token of cmd (the action name)
+    #   args          — remainder of cmd after the verb
+    #   detail        — a truncated response/error snippet for tables
+    #   full_response — the complete raw response or error text; kept for the
+    #                   collapsible /debug inspector and for durable journals
+    record Exchange,
+      at : Time,
+      session_id : String,
+      cmd : String,
+      verb : String,
+      args : String,
+      ok : Bool,
+      detail : String,
+      full_response : String,
+      duration : Time::Span
 
     private record Request, cmd : String, reply : Channel(Result)
 
@@ -59,11 +74,13 @@ module Ctp2Gateway
     # something is polling pathologically and deserves a 429.
     DEFAULT_QUEUE_CAPACITY = 32
 
-    # Ring size of the exchange journal and snippet length per entry.
+    # Ring size of the in-memory exchange journal and snippet length per entry.
     EXCHANGE_LOG_SIZE = 32
     SNIPPET_LEN       = 220
 
     getter socket_path : String
+    getter session_id : String
+    getter journal_path : String?
     # Connection state for /healthz. Plain (non-atomic) fields are safe here:
     # Crystal fibers are cooperatively scheduled on one thread by default,
     # and only the owner fiber writes them.
@@ -72,10 +89,13 @@ module Ctp2Gateway
 
     def initialize(@socket_path : String,
                    @timeout : Time::Span = DEFAULT_TIMEOUT,
-                   queue_capacity : Int32 = DEFAULT_QUEUE_CAPACITY)
+                   queue_capacity : Int32 = DEFAULT_QUEUE_CAPACITY,
+                   @session_id : String = "anonymous",
+                   @journal_path : String? = nil)
       @socket = nil.as(UNIXSocket?)
       @requests = Channel(Request).new(queue_capacity)
       @exchanges = Deque(Exchange).new
+      replay_journal
       spawn(name: "game-client-owner") { run_loop }
     end
 
@@ -131,20 +151,85 @@ module Ctp2Gateway
     private def run_loop
       # receive? returns nil when the channel is closed → clean shutdown.
       while req = @requests.receive?
-        started = Time.monotonic
+        started = Time.instant
         result = roundtrip(req.cmd)
-        record_exchange(req.cmd, result, Time.monotonic - started)
+        record_exchange(req.cmd, result, Time.instant - started)
         req.reply.send(result)
       end
     end
 
     private def record_exchange(cmd : String, result : Result, duration : Time::Span) : Nil
-      detail = case result
-               in Ok  then snippet(result.payload.to_json)
-               in Err then "#{result.kind}: #{snippet(result.detail)}"
-               end
-      @exchanges.push Exchange.new(Time.utc, cmd, result.is_a?(Ok), detail, duration)
+      verb, _, args = cmd.partition(' ')
+      at = Time.utc
+      ok = result.is_a?(Ok)
+      full_response, detail = case result
+                              in Ok
+                                json = result.payload.to_json
+                                {json, snippet(json)}
+                              in Err
+                                text = "#{result.kind}: #{result.detail}"
+                                {text, snippet(text)}
+                              end
+      exchange = Exchange.new(at, @session_id, cmd, verb, args, ok, detail, full_response, duration)
+      @exchanges.push exchange
       @exchanges.shift if @exchanges.size > EXCHANGE_LOG_SIZE
+      append_journal(exchange)
+    end
+
+    # Persist the exchange as one JSON line so the ledger survives a gateway
+    # restart or a game crash. The file is append-only; replay_journal reads
+    # it back when the client is constructed.
+    private def append_journal(exchange : Exchange) : Nil
+      path = @journal_path
+      return unless path
+
+      entry = {
+        at:            exchange.at.to_rfc3339(fraction_digits: 3),
+        session_id:    exchange.session_id,
+        cmd:           exchange.cmd,
+        verb:          exchange.verb,
+        args:          exchange.args,
+        ok:            exchange.ok,
+        detail:        exchange.detail,
+        response:      exchange.full_response,
+        duration_ms:   exchange.duration.total_milliseconds,
+      }.to_json
+
+      File.open(path, "a") { |f| f.puts(entry) }
+    rescue ex
+      # Journaling must never break the game command. Log and move on.
+      STDERR.puts "[journal] failed to append #{exchange.verb}: #{ex.message}"
+    end
+
+    # On startup, restore the most recent exchanges from the previous session
+    # so the debug page is useful immediately after a crash/restart.
+    private def replay_journal : Nil
+      path = @journal_path
+      return unless path && File.exists?(path)
+
+      File.each_line(path) do |line|
+        begin
+          j = JSON.parse(line)
+          duration = j["duration_ms"].as_f.milliseconds
+          @exchanges.push Exchange.new(
+            at:            Time.parse_rfc3339(j["at"].as_s),
+            session_id:    j["session_id"].as_s,
+            cmd:           j["cmd"].as_s,
+            verb:          j["verb"].as_s,
+            args:          j["args"].as_s,
+            ok:            j["ok"].as_bool,
+            detail:        j["detail"].as_s,
+            full_response: j["response"].as_s,
+            duration:      duration)
+        rescue ex
+          STDERR.puts "[journal] skipping corrupt line: #{ex.message}"
+        end
+      end
+
+      # Keep only the in-memory window.
+      while @exchanges.size > EXCHANGE_LOG_SIZE
+        @exchanges.shift
+      end
     end
 
     private def snippet(s : String) : String

@@ -279,3 +279,6 @@ logs\\messages.txt
 .ci/log/
 .ci/failures/
 .ci/metrics/
+
+# gateway runtime session journals (per-run artifacts)
+sessions/

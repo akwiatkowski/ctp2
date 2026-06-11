@@ -228,7 +228,8 @@ module Ctp2Gateway
       visible : Bool,
       city_name : String?, city_own : Bool,
       army_own : Bool, army_settler : Bool, army_foreign : Bool,
-      spot_rank : Int32
+      spot_rank : Int32,
+      improvement : String?
 
     record Chart,
       x0 : Int32, y0 : Int32, x1 : Int32, y1 : Int32,
@@ -312,6 +313,13 @@ module Ctp2Gateway
           klass, name, food, shields, gold = tinfo[t["terrain"].as_i]? || {"t-unknown", "unknown", 0, 0, 0}
           used[klass] = name unless used.has_key?(klass)
           city = city_at[{x, y}]?
+          # Pick the most map-worthy built improvement on the tile: real
+          # infrastructure (farm/mine/road/structure) over transient terraform.
+          improvement = nil.as(String?)
+          if imps = t["improvements"]?.try(&.as_a)
+            classes = imps.map(&.["class"].as_s)
+            improvement = %w(farm mine road structure).find { |c| classes.includes?(c) } || classes.first?
+          end
           ChartCell.new(
             x: x, y: y,
             terrain_class: klass, terrain_name: name,
@@ -321,6 +329,7 @@ module Ctp2Gateway
             army_own: own_army.has_key?({x, y}), army_settler: own_army[{x, y}]? || false,
             army_foreign: foreign.includes?({x, y}),
             spot_rank: spot_rank[{x, y}]? || 0,
+            improvement: improvement,
           ).as(ChartCell?)
         end
       end

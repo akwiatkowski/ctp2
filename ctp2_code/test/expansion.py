@@ -276,6 +276,148 @@ def run(client):
         print(f"  buy_production refused honestly: {r.get('detail')}")
     assert client.command("buy_production", 99).get("detail") == "bad_city_index"
 
+    # --- efficiency/economy verbs added 2026-06-11 ----------------------------
+    # query_city exposes buildable_wonders + gold_upkeep (NOT unit upkeep).
+    city0 = client.result("query_city", 0)
+    assert "buildable_wonders" in city0, "query_city missing buildable_wonders"
+    assert "gold_upkeep" in city0, "query_city missing gold_upkeep"
+    print(f"  query_city extras ok: {len(city0['buildable_wonders'])} wonders buildable, "
+          f"gold_upkeep {city0['gold_upkeep']}")
+
+    # set_production wonder: build an early wonder if any is available on a
+    # fresh map, else the path must reject cleanly (bad_wonder / cannot_build).
+    if city0["buildable_wonders"]:
+        w = city0["buildable_wonders"][0]
+        r = client.command("set_production", 0, "wonder", w["type"])
+        assert r.get("status") == "ok" and r["result"]["name"] == w["name"], (
+            f"set_production wonder failed: {r}"
+        )
+        print(f"  set_production wonder ok: {w['name']}")
+    assert client.command("set_production", 0, "wonder", 99999).get("detail") == "bad_wonder"
+
+    # set_government: bad id rejected; a high-tier gov needing an advance the
+    # fresh civ lacks must report advance_missing (never crash / blind-ok).
+    assert client.command("set_government", 99999).get("detail") == "bad_government"
+    govr = client.command("set_government", 5)  # late gov => advance gate likely
+    assert govr.get("status") in ("ok", "error"), f"set_government malformed: {govr}"
+    if govr.get("status") == "error":
+        assert govr.get("detail") in (
+            "advance_missing", "already_that_government", "rejected"), (
+            f"set_government refused for the wrong reason: {govr}")
+    print(f"  set_government ok: {govr.get('result') or govr.get('detail')}")
+
+    # establish_trade_route: bad indices rejected; and — the regression that
+    # matters — an explicit good the source city cannot export must NOT crash
+    # the engine (it used to SIGSEGV in CreateTradeRoute). Must reject, and the
+    # engine must still answer afterwards.
+    assert client.command("establish_trade_route", 99, 0).get("detail") == "bad_source_city"
+    assert client.command("establish_trade_route", 0, 0).get("detail") == "same_city"
+    r = client.command("establish_trade_route", 0, 0, 0)  # explicit good, same/no-good
+    assert r.get("status") == "error", f"trade route should reject here: {r}"
+    assert client.result("query_turn")["round"] >= 0, "engine died after trade route call"
+    print(f"  trade route safe-reject ok: {r.get('detail')}")
+
+    # disband_unit: bad index rejected; disbanding a real army removes it and
+    # the engine stays consistent.
+    assert client.command("disband_unit", 99999).get("detail") == "bad_army_index"
+    before = client.result("query_armies")["armies"]
+    if len(before) >= 2:
+        victim = before[-1]["index"]
+        r = client.command("disband_unit", victim)
+        assert r.get("status") == "ok" and r["result"]["units_removed"] >= 1, (
+            f"disband_unit failed: {r}")
+        after = client.result("query_armies")["armies"]
+        assert len(after) == len(before) - 1, "disband did not remove the army"
+        print(f"  disband_unit ok: {len(before)} -> {len(after)} armies")
+
+    # economy rate dials: science split + the workday/wages/rations sliders.
+    # query_player exposes them; set_science_rate clamps to the government cap.
+    econ = client.result("query_player", human["id"])["economy"]
+    assert "science_rate" in econ and "rations" in econ, f"economy block missing: {econ}"
+    print(f"  economy visible: science {econ['science_rate']:.2f} "
+          f"(cap {econ['max_science_rate']:.2f}), rations level {econ['rations']['level']}")
+    assert client.command("set_science_rate", 150).get("detail") == "out_of_range"
+    r = client.command("set_science_rate", 40)
+    assert r.get("status") == "ok" and r["result"]["science_rate"] <= econ["max_science_rate"] + 1e-9, (
+        f"set_science_rate not clamped to government cap: {r}")
+    print(f"  set_science_rate ok: applied {r['result']['science_rate']:.2f}")
+    # lower rations to free food; -1 leaves the other two sliders alone.
+    rexp = econ["rations"]["expectation"]
+    r = client.command("set_rates", -1, -1, max(0, rexp - 1))
+    assert r.get("status") == "ok" and "rations" in r["result"], f"set_rates failed: {r}"
+    print(f"  set_rates ok: rations -> {r['result']['rations']['level']} "
+          f"(expectation {r['result']['rations']['expectation']})")
+
+    # specialists + governor: query_city exposes both; set_specialist validates
+    # worker availability; set_governor toggles the mayor + profile.
+    c0 = client.result("query_city", 0)
+    assert "specialists" in c0 and "governor" in c0, f"city missing specialists/governor: {c0.keys()}"
+    print(f"  specialists visible: {c0['specialists']} | governor {c0['governor']}")
+    assert client.command("set_specialist", 0, 9, 1).get("detail") == "bad_pop_type"
+    workers = c0["specialists"]["workers"]
+    if workers >= 1:
+        r = client.command("set_specialist", 0, 1, 1)  # +1 scientist
+        assert r.get("status") == "ok" and r["result"]["now"] >= 1, f"set_specialist failed: {r}"
+        print(f"  set_specialist ok: scientists -> {r['result']['now']}")
+    else:
+        assert client.command("set_specialist", 0, 1, 1).get("detail") == "not_enough_workers"
+        print("  set_specialist guard ok: not_enough_workers")
+
+    profs = client.result("query_governor_profiles")["profiles"]
+    assert profs and all("index" in p and "name" in p for p in profs), f"no governor profiles: {profs}"
+    r = client.command("set_governor", 0, 1, profs[0]["index"])  # raw socket: ints, not bools
+    assert r.get("status") == "ok" and r["result"]["enabled"] is True, f"set_governor on failed: {r}"
+    r2 = client.command("set_governor", 0, 0)
+    assert r2.get("status") == "ok" and r2["result"]["enabled"] is False, f"set_governor off failed: {r2}"
+    assert client.command("set_governor", 0, 1, 99999).get("detail") == "bad_build_list_sequence"
+    print(f"  governor ok: {len(profs)} profiles, toggle on/off verified")
+
+    # unit-order dispatcher: query the army's special orders, then exercise the
+    # do_unit_order gate (must REPORT, never crash, on an illegal/empty target).
+    mil = next((a for a in client.result("query_armies")["armies"]
+                if any(u["name"] != "Settler" for u in a["units"])), None)
+    if mil:
+        uo = client.result("query_unit_orders", mil["index"])
+        assert "orders" in uo, f"query_unit_orders missing orders: {uo}"
+        print(f"  query_unit_orders ok: {len(uo['orders'])} orders for army {mil['index']}")
+        assert client.command("do_unit_order", mil["index"], 99999).get("detail") == "bad_order_index"
+        if uo["orders"]:
+            oi = uo["orders"][0]["order_index"]
+            ax, ay = mil["pos"]["x"], mil["pos"]["y"]
+            # far tile => not_adjacent; engine never crashes.
+            r = client.command("do_unit_order", mil["index"], oi, (ax + 5) % 60, ay)
+            assert r.get("status") == "error", f"do_unit_order should reject far target: {r}"
+            assert client.result("query_turn")["round"] >= 0, "engine died after do_unit_order"
+            print(f"  do_unit_order safe-reject ok: {r.get('detail')}")
+        # upgrade: either nothing_to_upgrade or a clean ok.
+        r = client.command("upgrade_unit", mil["index"])
+        assert r.get("status") == "ok" or r.get("detail") == "nothing_to_upgrade", f"upgrade_unit: {r}"
+        print(f"  upgrade_unit ok: {r.get('result') or r.get('detail')}")
+
+    # diplomacy proposal generalisation: bad player rejected up front; a real
+    # proposal returns a verdict or a clean no_contact (early game), never crash.
+    assert client.command("propose", 99, 33).get("detail") == "bad_player", "propose bad-player guard"
+    if others:
+        r = client.command("propose", others[0], 19, 50)  # offer 50 gold
+        assert r.get("status") in ("ok", "error"), f"propose malformed: {r}"
+        assert client.result("query_turn")["round"] >= 0, "engine died after propose"
+        print(f"  propose ok: {r.get('result') or r.get('detail')}")
+
+    # sell_building: bad building rejected; selling one the city HAS works.
+    assert client.command("sell_building", 0, 99999).get("detail") == "bad_building"
+    built = client.result("query_city", 0).get("buildings_built", [])
+    if built:
+        r = client.command("sell_building", 0, built[0]["type"])
+        assert r.get("status") == "ok" and "gold" in r["result"], f"sell_building failed: {r}"
+        print(f"  sell_building ok: sold {r['result']['name']}, gold {r['result']['gold']}")
+
+    # trade routes: query never errors; cancel rejects bad indices safely.
+    tr = client.result("query_trade_routes")
+    assert "routes" in tr, f"query_trade_routes missing routes: {tr}"
+    assert client.command("cancel_trade_route", 99, 0).get("detail") == "bad_city_index"
+    assert client.command("cancel_trade_route", 0, 99999).get("detail") == "bad_route_index"
+    print(f"  trade routes ok: {len(tr['routes'])} routes, cancel guards verified")
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)

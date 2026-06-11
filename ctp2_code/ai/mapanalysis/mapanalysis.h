@@ -161,51 +161,68 @@ public:
 
 	const MapPoint & GetNearestForeigner(const PLAYER_INDEX player, const MapPoint & pos) const;
 
+	// The pre-vector code kept zero-filled k_MAX_PLAYERS arrays, so ANY
+	// player index was a valid "no data" slot. The vectors are sized by
+	// Resize(), which CtpAi runs AFTER gameinit creates players -- so
+	// early callers (Player::InitPlayer -> Strengths::Calculate ->
+	// GetTotalTrade) and reloads that change the player count index past
+	// size(). Found by scenario-load-stress: loading a 3-player save over
+	// a 4-player boot aborted on m_totalTrade[3]. Preserve the original
+	// semantics: out-of-range player == no data.
+	template <typename VECTOR>
+	static bool HasSlot(VECTOR const & v, sint32 player) {
+		return player >= 0 && static_cast<size_t>(player) < v.size();
+	}
+
 	sint32 TotalThreat(const PLAYER_INDEX & playerId) const {
+		if (!HasSlot(m_threatGrid, playerId)) return 0;
 		return static_cast<sint32>(m_threatGrid[playerId].GetTotalValue());
 	}
 
 	sint32 TotalValue(const PLAYER_INDEX & playerId) const {
+		if (!HasSlot(m_valueGrid, playerId)) return 0;
 		return static_cast<sint32>(m_valueGrid[playerId].GetTotalValue());
 	}
 
 	sint32 GetTotalTrade(const PLAYER_INDEX & playerId) const
 	{
-
-		if (m_totalTrade.size() <= 0)
-			return 0;
+		if (!HasSlot(m_totalTrade, playerId)) return 0;
 		return m_totalTrade[playerId];
 	}
 
 	sint32 GetProjectedScience(const PLAYER_INDEX & playerId) const
 	{
+		if (!HasSlot(m_projectedScience, playerId)) return 0;
 		return m_projectedScience[playerId];
 	}
 
 	sint32 GetTradeAtRisk(const PLAYER_INDEX & playerId, const MapPoint & pos ) const {
-
+		if (!HasSlot(m_tradeAtRiskGrid, playerId)) return 0;
 		return static_cast<sint32>(m_tradeAtRiskGrid[playerId].GetGridValue(pos) / 1000);
 	}
 
 	sint32 TotalTradeAtRisk(const PLAYER_INDEX & playerId) const {
-
+		if (!HasSlot(m_tradeAtRiskGrid, playerId)) return 0;
 		return static_cast<sint32>(m_tradeAtRiskGrid[playerId].GetTotalValue() / 1000);
 	}
 
 	sint32 GetMaxTradeAtRisk(const PLAYER_INDEX & player) const {
-
+		if (!HasSlot(m_tradeAtRiskGrid, player)) return 0;
 		return static_cast<sint32>(m_tradeAtRiskGrid[player].GetMaxGridValue() / 1000);
 	}
 
 	sint32 GetPiracyLoss(const PLAYER_INDEX & playerId, const MapPoint & pos ) const {
+		if (!HasSlot(m_piracyLossGrid, playerId)) return 0;
 		return static_cast<sint32>(m_piracyLossGrid[playerId].GetGridValue(pos));
 	}
 
 	sint32 TotalPiracyLoss(const PLAYER_INDEX & playerId) const {
+		if (!HasSlot(m_piracyLossGrid, playerId)) return 0;
 		return static_cast<sint32>(m_piracyLossGrid[playerId].GetTotalValue());
 	}
 
 	sint32 GetMaxPiracyLoss(const PLAYER_INDEX & player) const {
+		if (!HasSlot(m_piracyLossGrid, player)) return 0;
 		return static_cast<sint32>(m_piracyLossGrid[player].GetMaxGridValue());
 	}
 

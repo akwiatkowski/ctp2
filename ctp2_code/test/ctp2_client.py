@@ -167,3 +167,20 @@ class Ctp2Client:
             timeout=timeout,
             desc="game loaded",
         )
+
+
+def fixture_save(name):
+    """Decompress test/fixtures/<name>.json.gz to /tmp and return the path.
+
+    Campaign saves are kept gzipped in the repo (~90KB each instead of
+    ~4.5MB); load_game reads plain JSON, so scenarios inflate on demand.
+    """
+    import gzip
+    import shutil
+
+    src = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                       "fixtures", name + ".json.gz")
+    dst = f"/tmp/ctp2_fixture_{name}.json"
+    with gzip.open(src, "rb") as fin, open(dst, "wb") as fout:
+        shutil.copyfileobj(fin, fout)
+    return dst

@@ -1747,3 +1747,28 @@ test('expansion-headless',
   workdir : cwd_for_tests,
   suite : 'integration',
 )
+
+# Scenario suite: promoted campaign repros replayed on real saved-game
+# fixtures (test/fixtures/*.json.gz). These reach state new_game slices
+# cannot: runtime Slic symbols, stale army orders, transported cargo.
+load_stress_test = find_program('test/scenario_load_stress.py')
+test('scenario-load-stress',
+  load_stress_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 600,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'scenario',
+)
+
+path_resume_test = find_program('test/scenario_path_resume.py')
+test('scenario-path-resume',
+  path_resume_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'scenario',
+)

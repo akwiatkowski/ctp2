@@ -236,6 +236,46 @@ def run(client):
     )
     print(f"  fortify ok: {st}")
 
+    # War-depth verb contracts (peacetime side — the at-war behavior runs on
+    # the capture fixture in the scenario suite). All three must refuse
+    # cleanly, never blind-ok.
+    a = next(x for x in client.result("query_armies")["armies"] if x["index"] == idx)
+    ax, ay = a["pos"]["x"], a["pos"]["y"]
+    r = client.command("bombard", idx, ax + 1, ay)
+    assert r.get("status") == "error" and r.get("detail") in (
+        "nothing_to_bombard", "not_adjacent", "bad_position"), (
+        f"bombard at empty/invalid tile must refuse: {r}"
+    )
+    assert client.command("bombard", idx).get("detail") == "bad_args"
+
+    # No war in this slice: peace must be refused as not_at_war (and only
+    # for real, contacted players).
+    others = [p["id"] for p in client.result("query_players")["players"]
+              if not p["human"] and not p["dead"]]
+    if others:
+        r = client.command("propose_peace", others[0])
+        assert r.get("status") == "error" and r.get("detail") in (
+            "not_at_war", "no_contact"), f"peacetime propose_peace must refuse: {r}"
+    assert client.command("propose_peace", 99).get("detail") == "bad_player"
+
+    # buy_production: honest either way — a real purchase reduces gold, an
+    # unaffordable one reports the price. The military item set above may
+    # still be in the queue; if not, queue another first.
+    if not client.result("query_city", 0)["building"]:
+        client.expect_ok("set_production", 0, "cheapest_military")
+    r = client.command("buy_production", 0)
+    if r.get("status") == "ok":
+        assert r["result"]["cost"] >= 0 and "gold_after" in r["result"], (
+            f"buy_production ok but no price/gold report: {r}"
+        )
+        print(f"  buy_production ok: paid {r['result']['cost']}")
+    else:
+        assert r.get("detail") in ("not_enough_gold", "already_bought"), (
+            f"buy_production refused for the wrong reason: {r}"
+        )
+        print(f"  buy_production refused honestly: {r.get('detail')}")
+    assert client.command("buy_production", 99).get("detail") == "bad_city_index"
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)

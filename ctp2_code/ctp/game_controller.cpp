@@ -48,7 +48,9 @@
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 #include "TerrainRecord.h"                    // g_theTerrainDB, TerrainRecord
 #include "BuildingRecord.h"                   // g_theBuildingDB, BuildingRecord
-#include "ai/diplomacy/Diplomat.h"            // Diplomat::DeclareWar
+#include "ai/diplomacy/Diplomat.h"            // Diplomat::DeclareWar / ExecuteNewProposal
+#include "ai/diplomacy/AgreementMatrix.h"     // AgreementMatrix::HasAgreement (peace treaty)
+#include "gs/gameobj/Gold.h"                  // Player gold level (buy_production)
 #include "gs/gameobj/ArmyPool.h"              // armypool_Get
 #include "AdvanceRecord.h"                    // g_theAdvanceDB, AdvanceRecord
 #include "gs/gameobj/Advances.h"              // Advances::CanResearch/GetCost
@@ -557,6 +559,10 @@ json CityJson(sint32 owner, sint32 city_idx, const Unit & u)
         y["science"]    = cd->GetScience();
         y["happiness"]  = cd->GetHappiness();
         c["yields"] = y;
+        // A rioting city produces nothing — the defining problem of a
+        // freshly captured city (foreign pop + unhappiness). Surfacing it
+        // is what lets a driver react (garrison, buy a happiness building).
+        c["rioting"] = cd->GetIsRioting();
         BuildNode * head = cd->GetBuildQueue() ? cd->GetBuildQueue()->GetHead() : nullptr;
         if (head) {
             c["building"] = { {"category", head->m_category},
@@ -1169,6 +1175,170 @@ std::string CmdAttack(const char * args)
     return Ok("attack", result);
 }
 
+// bombard <army_idx> <x> <y> — ranged strike on an ADJACENT enemy-occupied
+// tile. Unlike attack, the bombarding army stays put and takes no damage;
+// use it to soften a stack (or a city's defenders) before the assault.
+// Requires war, a unit with bombard capability, and remaining special-action
+// points this turn.
+std::string CmdBombard(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("bombard", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("bombard", "no_human_player");
+
+    int idx = -1, x = -1, y = -1;
+    if (sscanf(args, "%d %d %d", &idx, &x, &y) != 3)
+        return Err("bombard", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("bombard", "bad_army_index");
+    World * w = world_Get();
+    if (!w || x < 0 || x >= w->GetXWidth() || y < 0 || y >= w->GetYHeight())
+        return Err("bombard", "bad_position");
+
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("bombard", "invalid_army");
+
+    MapPoint dest((sint16)x, (sint16)y);
+    if (!ad->RetPos().IsNextTo(dest))
+        return Err("bombard", "not_adjacent");
+
+    CellUnitList defenders;
+    w->GetArmy(dest, defenders);
+    if (defenders.Num() == 0)
+        return Err("bombard", "nothing_to_bombard");
+    sint32 defOwner = defenders.GetOwner();
+    if (defOwner == human->GetOwner())
+        return Err("bombard", "own_forces");
+    if (!human->HasWarWith(defOwner))
+        return Err("bombard", "not_at_war");
+    if (!ad->CanBombard(dest))
+        return Err("bombard", "cannot_bombard");
+
+    // Total defender HP before/after is the honest damage report — the
+    // bombard event itself succeeds silently even when every shot misses.
+    double hpBefore = 0.0;
+    for (sint32 i = 0; i < defenders.Num(); ++i)
+        hpBefore += defenders[i].GetHP();
+
+    if (!gevmanager_Get())
+        return Err("bombard", "no_event_manager");
+    gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BombardOrder,
+                               GEA_Army, army,
+                               GEA_MapPoint, dest, GEA_End);
+    gevmanager_Get()->Process();
+
+    CellUnitList after;
+    w->GetArmy(dest, after);
+    double hpAfter = 0.0;
+    for (sint32 i = 0; i < after.Num(); ++i)
+        hpAfter += after[i].GetHP();
+
+    json result;
+    result["target"]         = { {"x", x}, {"y", y} };
+    result["defenders_left"] = after.Num();
+    result["damage_dealt"]   = hpBefore - hpAfter;
+    gc_log->info("bombard: army {} -> ({},{}), damage {}", idx, x, y, hpBefore - hpAfter);
+    return Ok("bombard", result);
+}
+
+// buy_production <city_idx> — rush-buy the city's current build item with
+// gold (the "overtime" buy of the city panel). The lever for getting a
+// freshly captured city productive (a riot-calming building NOW, not in 30
+// rounds) and for emergency military. Reports the price actually paid.
+std::string CmdBuyProduction(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("buy_production", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("buy_production", "no_human_player");
+
+    int city_idx = -1;
+    if (sscanf(args, "%d", &city_idx) != 1)
+        return Err("buy_production", "bad_args");
+    if (city_idx < 0 || city_idx >= human->GetAllCitiesList()->Num())
+        return Err("buy_production", "bad_city_index");
+    Unit u = human->GetAllCitiesList()->Access(city_idx);
+    CityData * cd = (u.IsValid() && u.GetData()) ? u.GetData()->GetCityData() : nullptr;
+    if (!cd)
+        return Err("buy_production", "invalid_city");
+    if (!cd->GetBuildQueue() || !cd->GetBuildQueue()->GetHead())
+        return Err("buy_production", "nothing_being_built");
+    if (cd->AlreadyBoughtFront())
+        return Err("buy_production", "already_bought");
+
+    sint32 cost = cd->GetOvertimeCost();
+    sint32 gold = human->m_gold ? human->m_gold->GetLevel() : 0;
+    if (cost > gold) {
+        json result;
+        result["cost"] = cost;
+        result["gold"] = gold;
+        return Err("buy_production", "not_enough_gold");
+    }
+
+    if (!cd->BuyFront())
+        return Err("buy_production", "buy_rejected");
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    json result;
+    result["cost"]       = cost;
+    result["gold_after"] = human->m_gold ? human->m_gold->GetLevel() : 0;
+    gc_log->info("buy_production: city {} for {} gold", city_idx, (int)cost);
+    return Ok("buy_production", result);
+}
+
+// propose_peace <player_id> — send a formal PEACE TREATY proposal through
+// the diplomacy layer. The AI considers it with its real evaluation (war
+// regard, relative strength) and may REJECT — the result reports whether
+// the war actually ended. Peace is the AI's choice, not a cheat switch.
+std::string CmdProposePeace(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("propose_peace", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("propose_peace", "no_human_player");
+
+    int id = -1;
+    if (sscanf(args, "%d", &id) != 1)
+        return Err("propose_peace", "bad_args");
+    if (id < 0 || id >= k_MAX_PLAYERS || !player_Get(id))
+        return Err("propose_peace", "bad_player");
+    if (id == human->GetOwner())
+        return Err("propose_peace", "thats_you");
+    if (!human->HasContactWith(id))
+        return Err("propose_peace", "no_contact");
+    if (!human->HasWarWith(id))
+        return Err("propose_peace", "not_at_war");
+
+    NewProposal proposal;
+    proposal.senderId          = human->GetOwner();
+    proposal.receiverId        = id;
+    proposal.priority          = 1;
+    proposal.detail.first_type = PROPOSAL_TREATY_PEACE;
+    proposal.detail.tone       = DIPLOMATIC_TONE_EQUAL;
+    Diplomat::GetDiplomat(human->GetOwner()).ExecuteNewProposal(proposal);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    // The AI's verdict: an accepted treaty lands in the agreement matrix
+    // and ends the war state immediately; a rejection leaves both intact.
+    bool treaty = AgreementMatrix::s_agreements.HasAgreement(
+                      human->GetOwner(), id, PROPOSAL_TREATY_PEACE);
+    json result;
+    result["target"]       = id;
+    result["at_war"]       = human->HasWarWith(id);
+    result["peace_treaty"] = treaty;
+    result["accepted"]     = treaty && !human->HasWarWith(id);
+    gc_log->info("propose_peace: {} -> {} (treaty {}, at_war {})",
+                 (int)human->GetOwner(), id, treaty, human->HasWarWith(id));
+    return Ok("propose_peace", result);
+}
+
 // grant_advance <advance_id> — DEBUG/TEST cheat: hand the human an advance
 // outright (prerequisites included via the game's own SetHasAdvance). Exists
 // so integration tests can reach late-game mechanics (e.g. swamp terraform
@@ -1472,6 +1642,9 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("grant_advance ", 0) == 0)                   return CmdGrantAdvance(line.c_str() + 14);
     if (line.rfind("declare_war ", 0) == 0)                     return CmdDeclareWar(line.c_str() + 12);
     if (line.rfind("attack ", 0) == 0)                          return CmdAttack(line.c_str() + 7);
+    if (line.rfind("bombard ", 0) == 0)                         return CmdBombard(line.c_str() + 8);
+    if (line.rfind("buy_production ", 0) == 0)                  return CmdBuyProduction(line.c_str() + 15);
+    if (line.rfind("propose_peace ", 0) == 0)                   return CmdProposePeace(line.c_str() + 14);
     if (line.rfind("group_army ", 0) == 0)                      return CmdGroupArmy(line.c_str() + 11);
     if (line.rfind("unload ", 0) == 0)                          return CmdUnload(line.c_str() + 7);
     if (line.rfind("board ", 0) == 0)                           return CmdBoard(line.c_str() + 6);

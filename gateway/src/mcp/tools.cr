@@ -279,6 +279,40 @@ module Ctp2Gateway::Mcp
         c.command("attack #{a["army_index"].as_i} #{a["x"].as_i} #{a["y"].as_i}")
       }),
 
+    Tool.new("bombard",
+      "Ranged strike on an ADJACENT enemy-occupied tile. Unlike attack, your army " \
+      "STAYS PUT and takes no damage — soften a defending stack (or a city's " \
+      "garrison) with bombard, then attack with the survivors' odds improved. " \
+      "Needs war and a unit with bombard capability (see query_city buildable " \
+      "stats); each unit bombards once per turn. Result reports damage_dealt and " \
+      "defenders_left — zero damage means your units can't hurt that target.",
+      %({"type":"object","properties":{"army_index":{"type":"integer","minimum":0},"x":{"type":"integer","minimum":0},"y":{"type":"integer","minimum":0}},"required":["army_index","x","y"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("bombard #{a["army_index"].as_i} #{a["x"].as_i} #{a["y"].as_i}")
+      }),
+
+    Tool.new("buy_production",
+      "Rush-buy the city's CURRENT build item with gold — it completes next turn. " \
+      "THE captured-city lever: a freshly conquered city riots (query_city " \
+      "`rioting`) and produces nothing, so buy a happiness building immediately " \
+      "instead of waiting 30 rounds. Also for emergency military. Errors: " \
+      "not_enough_gold (reports cost), nothing_being_built, already_bought.",
+      %({"type":"object","properties":{"city_index":{"type":"integer","minimum":0}},"required":["city_index"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("buy_production #{a["city_index"].as_i}")
+      }),
+
+    Tool.new("propose_peace",
+      "Send a formal PEACE TREATY proposal to a player you are at war with. The AI " \
+      "evaluates it for real (its regard, war progress, relative strength) and may " \
+      "REJECT — check `accepted`/`at_war` in the result. Use after taking what you " \
+      "came for: peace stops counterattacks while you digest conquered cities. " \
+      "Rejected? Hurt them more or wait some rounds and retry.",
+      %({"type":"object","properties":{"player_id":{"type":"integer","minimum":0}},"required":["player_id"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("propose_peace #{a["player_id"].as_i}")
+      }),
+
     Tool.new("raw_cmd",
       "Escape hatch: send a raw verb line to the game's command socket (one line, " \
       "e.g. \"query_city 0\"). See GET /api on the gateway for the verb inventory.",

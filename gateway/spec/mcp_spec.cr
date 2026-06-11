@@ -122,6 +122,21 @@ struct McpArmyToolsTest < GatewayTestCase
   end
 end
 
+struct McpWarDepthToolsTest < GatewayTestCase
+  def test_bombard_buy_production_propose_peace_map_to_verbs : Nil
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"bombard","arguments":{"army_index":1,"x":19,"y":39}}}))
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"buy_production","arguments":{"city_index":2}}}))
+    self.post("/mcp", body: %({"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"propose_peace","arguments":{"player_id":3}}}))
+    self.fake.received.should eq ["bombard 1 19 39", "buy_production 2", "propose_peace 3"]
+  end
+
+  def test_war_depth_tools_listed : Nil
+    body = JSON.parse(self.post("/mcp", body: %({"jsonrpc":"2.0","id":4,"method":"tools/list"})).body)
+    names = body["result"]["tools"].as_a.map(&.["name"].as_s)
+    %w[bombard buy_production propose_peace].each { |n| names.should contain n }
+  end
+end
+
 struct McpEconomyToolsTest < GatewayTestCase
   def test_research_and_terraform_tools_map_to_verbs : Nil
     self.post("/mcp", body: %({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"set_research","arguments":{"advance_id":106}}}))

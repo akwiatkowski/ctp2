@@ -168,6 +168,21 @@ std::string CmdBuildCity()
             Cell * cell = world_Get() ? world_Get()->GetCell(at) : nullptr;
             if (cell && cell->GetCity().IsValid())
                 return Err("build_city", "tile_occupied");
+            // Pre-check the engine's own CreateCity veto (IsNextToCity uses
+            // ISO-grid adjacency, not x/y distance). Vital: the settle event
+            // chain queues GEV_KillUnit BEFORE GEV_CreateCity, so a vetoed
+            // settle DESTROYS the settler — campaign 7 lost a 740-shield
+            // settler learning this. Refuse here, while the unit still lives.
+            if (world_Get() &&
+                (world_Get()->IsCity(at) || world_Get()->IsNextToCity(at)))
+                return Err("build_city",
+                           "too_close_to_city (tile is iso-adjacent to an "
+                           "existing city; move at least one more tile away)");
+            if (cell && cell->GetCityOwner().IsValid() &&
+                cell->GetCityOwner().GetOwner() != human->GetOwner())
+                return Err("build_city",
+                           "inside_foreign_territory (another city's borders "
+                           "block settling here)");
             gc_log->info("build_city: settling with army {} of player {}",
                          i, (int)human->GetOwner());
             ad->Settle();
@@ -179,8 +194,30 @@ std::string CmdBuildCity()
             // distance, terrain rules) with no error surfaced — verify the
             // city actually exists instead of reporting blind success.
             cell = world_Get() ? world_Get()->GetCell(at) : nullptr;
-            if (!cell || !cell->GetCity().IsValid())
-                return Err("build_city", "settle_rejected");
+            if (!cell || !cell->GetCity().IsValid()) {
+                // Name the most common veto cause (minimum city distance)
+                // instead of leaving the driver to guess — campaign 7
+                // burned turns probing rejected sites blind.
+                sint32 nearest = -1;
+                for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+                    Player * pl = player_Get(p);
+                    if (!pl || !pl->m_all_cities) continue;
+                    for (sint32 c = 0; c < pl->m_all_cities->Num(); ++c) {
+                        Unit city = pl->m_all_cities->Access(c);
+                        if (!city.IsValid()) continue;
+                        MapPoint cpos;
+                        city.GetPos(cpos);
+                        sint32 d = std::max(std::abs((int)cpos.x - (int)at.x),
+                                            std::abs((int)cpos.y - (int)at.y));
+                        if (nearest < 0 || d < nearest) nearest = d;
+                    }
+                }
+                char detail[80];
+                snprintf(detail, sizeof(detail),
+                         "settle_rejected nearest_city_distance=%d (minimum ~3)",
+                         (int)nearest);
+                return Err("build_city", detail);
+            }
             json result;
             result["pos"] = { {"x", at.x}, {"y", at.y} };
             return Ok("build_city", result);
@@ -236,6 +273,12 @@ std::string CmdSetProduction(const char * args)
             return Err("set_production", "bad_building");
         if (!cd->CanBuildBuilding(b))
             return Err("set_production", "cannot_build_building");
+        // BuildImprovement APPENDS — without a clear the new order queues
+        // behind whatever is already there (campaign 7: a granary stuck
+        // behind a 740-shield settler for 20 rounds). set_production
+        // means "build this next": replace, don't append.
+        if (cd->GetBuildQueue())
+            cd->GetBuildQueue()->Clear();
         cd->BuildImprovement(b);
         const BuildingRecord * rec = g_theBuildingDB->Get(b, gov_type);
         json result;
@@ -276,6 +319,9 @@ std::string CmdSetProduction(const char * args)
         return Err("set_production", "cannot_build_unit");
 
     gc_log->info("set_production: city {} -> unit {}", city_idx, (int)unit_type);
+    // Same replace-not-append contract as the building branch.
+    if (cd->GetBuildQueue())
+        cd->GetBuildQueue()->Clear();
     cd->BuildUnit(unit_type);
 
     json result;
@@ -866,8 +912,59 @@ std::string CmdBoard(const char * args)
     army.AddOrders(UNIT_ORDER_BOARD_TRANSPORT);
     if (gevmanager_Get()) gevmanager_Get()->Process();
 
-    gc_log->info("board: army {}", idx);
-    return Ok("board");
+    // The board order silently no-ops when no transport with free
+    // capacity is on or next to the army's tile — verify the units are
+    // actually aboard instead of reporting blind success. (Found by
+    // campaign 7: an "ok" board left the settler ashore and the coracle
+    // sailed empty for 30 rounds.)
+    sint32 aboard = 0;
+    for (sint32 u = 0; u < army.Num(); ++u) {
+        Unit unit = army.Access(u);
+        if (unit.IsValid() && unit.IsBeingTransported())
+            ++aboard;
+    }
+    if (aboard == 0)
+        return Err("board", "no_transport_in_range");
+
+    gc_log->info("board: army {} ({} unit(s) aboard)", idx, (int)aboard);
+    json result;
+    result["units_aboard"] = aboard;
+    return Ok("board", result);
+}
+
+// fortify <army_idx> — entrench the army in place (defensive bonus).
+// Garrisons that merely stand around take full damage; campaign 4's
+// annihilation taught the difference.
+std::string CmdFortify(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("fortify", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("fortify", "no_human_player");
+
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("fortify", "bad_args");
+    DynamicArray<Army> * armies = human->GetAllArmiesList();
+    if (!armies || idx < 0 || idx >= armies->Num())
+        return Err("fortify", "bad_army_index");
+    Army army = armies->Access(idx);
+    ArmyData * ad = army.AccessData();
+    if (!army.IsValid() || !ad)
+        return Err("fortify", "invalid_army");
+
+    army.ClearOrders();
+    army.AddOrders(UNIT_ORDER_ENTRENCH);
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    if (!ad->IsEntrenched() && !ad->IsEntrenching())
+        return Err("fortify", "entrench_rejected");
+    json result;
+    result["entrenched"]  = ad->IsEntrenched();
+    result["entrenching"] = ad->IsEntrenching();
+    gc_log->info("fortify: army {}", idx);
+    return Ok("fortify", result);
 }
 
 // unload <army_idx> <x> <y> — order a transport army to disembark its cargo
@@ -1359,6 +1456,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("group_army ", 0) == 0)                      return CmdGroupArmy(line.c_str() + 11);
     if (line.rfind("unload ", 0) == 0)                          return CmdUnload(line.c_str() + 7);
     if (line.rfind("board ", 0) == 0)                           return CmdBoard(line.c_str() + 6);
+    if (line.rfind("fortify ", 0) == 0)                        return CmdFortify(line.c_str() + 8);
     if (line.rfind("ungroup_army ", 0) == 0)                    return CmdUngroupArmy(line.c_str() + 13);
 
     handled = false;

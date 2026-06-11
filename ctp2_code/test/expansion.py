@@ -63,6 +63,28 @@ def run(client):
     print(f"  settle guard ok: tile_occupied, {cities[0]['name']} intact "
           f"(pop {cities[0]['population']})")
 
+    # Too-close guard: a vetoed settle must NOT consume the settler. The
+    # engine's settle event queues GEV_KillUnit before GEV_CreateCity, so
+    # without the pre-check a rejected site destroys the unit (campaign 7
+    # lost a 740-shield settler this way). Step one tile off the city and
+    # try to settle iso-adjacent to it.
+    moved = False
+    for dx, dy in ((1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, -1)):
+        r = client.command("move_army", army["index"], hx + dx, hy + dy)
+        if r.get("status") == "ok":
+            moved = True
+            break
+    assert moved, "settler could not step off the city tile"
+    client.expect_ok("end_turn", 1)
+    a = settler_army(client)
+    if a and a["pos"] != {"x": hx, "y": hy}:  # actually stepped off
+        r = client.command("build_city")
+        assert r.get("status") == "error" and "too_close" in r.get("detail", ""), (
+            f"settling next to a city must fail with too_close_to_city: {r}"
+        )
+        assert settler_army(client), "rejected settle CONSUMED the settler"
+        print("  too-close guard ok: settler survived the refusal")
+
     # March the settler away, explore-as-you-go: pathfinding (correctly)
     # refuses unexplored tiles and a settler walks 1 tile/turn, so each step
     # targets an EXPLORED tile adjacent to the current position that takes us

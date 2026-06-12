@@ -178,8 +178,7 @@ void CivScenarios::LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath)
 #endif
 		if (!r) {
 			MBCHAR *scenarioPath = new MBCHAR[strlen(scenPath)+1];
-			// TODO(phase-2): strcpy → strlcpy — dst is `MBCHAR *`, capacity unknown at call site
-			strcpy(scenarioPath, scenPath);
+			strlcpy(scenarioPath, scenPath, strlen(scenPath)+1);
 			scenList->AddTail(scenarioPath);
 		}
 	}
@@ -266,8 +265,7 @@ void CivScenarios::LoadData()
 			if (!r) {
 				fileListFileName = new MBCHAR[strlen(name)+1];
 
-				// TODO(phase-2): strcpy → strlcpy — dst is `MBCHAR *`, capacity unknown at call site
-				strcpy(fileListFileName, name);
+				strlcpy(fileListFileName, name, strlen(name)+1);
 
 				packList->AddTail(fileListFileName);
 			}

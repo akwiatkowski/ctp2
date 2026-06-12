@@ -480,8 +480,7 @@ void AgreementData::ExtractPlayer(sint32 indexId, sint32 memberId, MBCHAR *sExpa
 	switch (memberId)
 		{
 		case 0 :
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-			strcpy(sExpanded, civ->GetLeaderName()) ;
+			strlcpy(sExpanded, civ->GetLeaderName(), sizeof(sExpanded)) ;
 			break ;
 
 		case 1 :
@@ -753,7 +752,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 
 			if (!pInput) {
 				c3errors_ErrorDialog("error", "malformed class string") ;
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+				// TODO(strlcpy): unknown dst size
 				strcpy(sInterpreted, msg);
 				return;
 			}
@@ -778,7 +777,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 				*p = 0 ;
 				if (!pToken) {
 					c3errors_ErrorDialog("error", "malformed class string") ;
-					// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+					// TODO(strlcpy): unknown dst size
 					strcpy(sInterpreted, msg);
 					return;
 				}
@@ -796,7 +795,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 			Assert(varList[classId].sClass) ;
 			if (!varList[classId].sClass) {
 				c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "MESSAGE_UNKNOWN_VARIABLE") ;
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+				// TODO(strlcpy): unknown dst size
 				strcpy(sInterpreted, msg);
 				return;
 			}
@@ -807,7 +806,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 
 				if (*p) {
 					c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "AGREEMENT_ERROR_INDEX_OUT_OF_BOUNDS") ;
-					// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+					// TODO(strlcpy): unknown dst size
 					strcpy(sInterpreted, msg);
 					return;
 				}
@@ -817,7 +816,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 				indexId-- ;
 				if (indexId<0) {
 					c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "AGREEMENT_ERROR_INDEX_OUT_OF_BOUNDS") ;
-					// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+					// TODO(strlcpy): unknown dst size
 					strcpy(sInterpreted, msg);
 					return;
 				}
@@ -832,7 +831,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 
 			if (!varList[memberId].sMember)	{
 				c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "MESSAGE_UNKNOWN_VARIABLE") ;
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+				// TODO(strlcpy): unknown dst size
 				strcpy(sInterpreted, msg);
 				return;
 			}
@@ -866,12 +865,12 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 
 			default :
 				c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "AGREEMENT_ERROR_UNKNOWN_VARIABLE") ;
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+				// TODO(strlcpy): unknown dst size
 				strcpy(sInterpreted, msg);
 				return;
 				}
 
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+			// TODO(strlcpy): unknown dst size
 			strcpy(pOutput, sExpanded) ;
 
 			pOutput += strlen(sExpanded) ;
@@ -980,7 +979,7 @@ void AgreementData::ToString(MBCHAR *s)
 			Assert(FALSE) ;
 
 			c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "AGREEMENT_ERROR_UNKNOWN_AGREEMENT") ;
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+			// TODO(strlcpy): unknown dst size
 			strcpy(s, "Unknown diplomatic agreement type") ;
 			break ;
 

@@ -439,7 +439,7 @@ int ProjectFile::addPath_DOS(char const * path)
     int pathnum = m_num_paths;
 
     m_paths[pathnum].type = PRJFILE_PATH_DOS;
-    strcpy(m_paths[pathnum].dos_path, path);
+    strlcpy(m_paths[pathnum].dos_path, path, sizeof(m_paths[pathnum].dos_path));
 
     int count = readDOSdir(pathnum, nullptr);
     if (count == 0)
@@ -575,7 +575,7 @@ int ProjectFile::addPath_ZMS(char const * path)
     m_paths[pathnum].type       = PRJFILE_PATH_ZMS;
     m_paths[pathnum].zms_start  = fbase;
     m_paths[pathnum].zms_end    = fbase + fsize;
-    strcpy(m_paths[pathnum].dos_path, path);
+    strlcpy(m_paths[pathnum].dos_path, path, sizeof(m_paths[pathnum].dos_path));
     m_num_paths++;
 
     ZFS_FHEADER * header = (ZFS_FHEADER *) fbase;

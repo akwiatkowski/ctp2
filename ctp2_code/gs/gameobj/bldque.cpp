@@ -1490,7 +1490,7 @@ bool BuildQueue::RemoveNodeByIndex(sint32 index,
 
 void BuildQueue::SetName(MBCHAR *name)
 {
-	if (name) strcpy(m_name,name);
+	if (name) strlcpy(m_name, name, sizeof(m_name));
 }
 
 void BuildQueue::RemoveObjectsOfType(sint32 cat, sint32 type,

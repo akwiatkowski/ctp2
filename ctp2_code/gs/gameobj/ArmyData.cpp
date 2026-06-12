@@ -2491,8 +2491,8 @@ ORDER_RESULT ArmyData::CauseUnhappiness(const MapPoint &point,
 	c.SetWatchful();
 
     char unitName[256];
-    strcpy(unitName, stringdb_Get()->
-           GetIdStr(g_theUnitDB->GetName(u.GetData()->GetType())));
+    strlcpy(unitName, stringdb_Get()->
+           GetIdStr(g_theUnitDB->GetName(u.GetData()->GetType())), sizeof(unitName));
 
 	if(civrand().Next(100) >= sint32(chance * 100.0)) {
 

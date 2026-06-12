@@ -3565,7 +3565,7 @@ void Player::BuildResearchDialog(AdvanceType advance)
 		MBCHAR	 tempStr[1024];
 		MBCHAR	 messageStr[1024];
 
-		strcpy(messageStr, dstring);
+		strlcpy(messageStr, dstring, sizeof(messageStr));
 
 			snprintf(tempStr, sizeof(tempStr), "%03d", (sint32)advance);
 

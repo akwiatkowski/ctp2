@@ -82,7 +82,7 @@ Unit UnitPool::Create (
 #ifndef _NO_GAME_WATCH
 
 	static char unitName[256];
-	strcpy(unitName, stringdb_Get()->GetNameStr(g_theUnitDB->Get(t)->GetName()));
+	strlcpy(unitName, stringdb_Get()->GetNameStr(g_theUnitDB->Get(t)->GetName()), sizeof(unitName));
 	sint32 unitCost = g_theUnitDB->Get(t, player_Get(owner)->GetGovernmentType())->GetShieldCost();
 
 	char *aipName = NULL;

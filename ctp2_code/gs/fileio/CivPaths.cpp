@@ -282,42 +282,42 @@ MBCHAR *CivPaths::GetSavePath(C3SAVEDIR dir, MBCHAR *path)
 	switch (dir) {
 	case C3SAVEDIR_GAME:
 		if (MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveGamePath))) {
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+			// TODO(strlcpy): unknown dst size
 			strcpy(path, fullPath);
 			return path;
 		}
 		break;
 	case C3SAVEDIR_QUEUES:
 		if (MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveQueuePath))) {
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+			// TODO(strlcpy): unknown dst size
 			strcpy(path, fullPath);
 			return path;
 		}
 		break;
 	case C3SAVEDIR_MP:
 		if (MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveMPPath))) {
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+			// TODO(strlcpy): unknown dst size
 			strcpy(path, fullPath);
 			return path;
 		}
 		break;
 	case C3SAVEDIR_SCEN:
 		if (MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveSCENPath))) {
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+			// TODO(strlcpy): unknown dst size
 			strcpy(path, fullPath);
 			return path;
 		}
 		break;
 	case C3SAVEDIR_MAP:
 		if (MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveMapPath))) {
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+			// TODO(strlcpy): unknown dst size
 			strcpy(path, fullPath);
 			return path;
 		}
 		break;
 	case C3SAVEDIR_CLIPS:
 		if(MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveClipsPath))) {
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+			// TODO(strlcpy): unknown dst size
 			strcpy(path, fullPath);
 			return path;
 		}
@@ -380,7 +380,7 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 	Assert(filename != nullptr);
 
 	if (dir == C3DIR_DIRECT) {
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+		// TODO(strlcpy): unknown dst size
 		strcpy(path, filename);
 
 		return path;
@@ -392,7 +392,7 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 			snprintf(fullPath, sizeof(fullPath), "%s%s%s%s%s%s%s", m_curScenarioPath.c_str(), FILE_SEP, m_localizedPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str(), FILE_SEP, filename);
 			if (c3files_PathIsValid(fullPath)) {
 
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+				// TODO(strlcpy): unknown dst size
 				strcpy(path, fullPath);
 				return path;
 			}
@@ -400,7 +400,7 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 
 			if (c3files_PathIsValid(fullPath)) {
 
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+				// TODO(strlcpy): unknown dst size
 				strcpy(path, fullPath);
 				return path;
 			}
@@ -411,7 +411,7 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 			snprintf(fullPath, sizeof(fullPath), "%s%s%s%s%s%s%s", m_curScenarioPackPath.c_str(), FILE_SEP, m_localizedPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str(), FILE_SEP, filename);
 			if (c3files_PathIsValid(fullPath)) {
 
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+				// TODO(strlcpy): unknown dst size
 				strcpy(path, fullPath);
 				return path;
 			}
@@ -419,7 +419,7 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 
 			if (c3files_PathIsValid(fullPath)) {
 
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+				// TODO(strlcpy): unknown dst size
 				strcpy(path, fullPath);
 				return path;
 			}
@@ -433,7 +433,7 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 			MakeAssetPath(fullPath, m_hdPath.c_str(), extra.c_str(), m_defaultPath.c_str(),   m_assetPaths[dir].c_str(), filename)
 		   )
 		{
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+			// TODO(strlcpy): unknown dst size
 			strcpy(path, fullPath);
 			return path;
 		}
@@ -442,14 +442,14 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 	// When not found in the new data, try the original directories
 	if (MakeAssetPath(fullPath, m_hdPath.c_str(), m_dataPath.c_str(), m_localizedPath.c_str(), m_assetPaths[dir].c_str(), filename)) {
 
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+		// TODO(strlcpy): unknown dst size
 		strcpy(path, fullPath);
 		return path;
 	}
 
 	if (MakeAssetPath(fullPath, m_hdPath.c_str(), m_dataPath.c_str(), m_defaultPath.c_str(), m_assetPaths[dir].c_str(), filename)) {
 
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+		// TODO(strlcpy): unknown dst size
 		strcpy(path, fullPath);
 		return path;
 	}
@@ -458,14 +458,14 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 	// The CD will only have the original content
 	if (MakeAssetPath(fullPath, m_cdPath.c_str(), m_dataPath.c_str(), m_localizedPath.c_str(), m_assetPaths[dir].c_str(), filename)) {
 
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+		// TODO(strlcpy): unknown dst size
 		strcpy(path, fullPath);
 		return path;
 	}
 
 	if (MakeAssetPath(fullPath, m_cdPath.c_str(), m_dataPath.c_str(), m_defaultPath.c_str(), m_assetPaths[dir].c_str(), filename)) {
 
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+		// TODO(strlcpy): unknown dst size
 		strcpy(path, fullPath);
 		return path;
 	}
@@ -485,7 +485,7 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 
             if (g_ImageMapPF && g_ImageMapPF->exists(fullPath)) {
 
-                // TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+                // TODO(strlcpy): unknown dst size
                 strcpy(path, filename);
                 return path;
             }
@@ -645,7 +645,7 @@ MBCHAR *CivPaths::GetSpecificPath(C3DIR dir, MBCHAR *path, BOOL local)
 	Assert(s);
 	if (s)
     {
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+		// TODO(strlcpy): unknown dst size
 		strcpy(path, fullPath);
 	}
 	return path;
@@ -658,7 +658,7 @@ MBCHAR *CivPaths::GetScenarioRootPath(MBCHAR *path)
 	Assert(s);
 	if (s)
     {
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+		// TODO(strlcpy): unknown dst size
 		strcpy(path, temp);
 	}
 

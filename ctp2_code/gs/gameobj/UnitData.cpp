@@ -2313,12 +2313,12 @@ char const * UnitData::GetText() const
 
 void UnitData::SetText(char const * str)
 {
-	strcpy(m_text, str);
+	strlcpy(m_text, str, sizeof(m_text));
 }
 
 void UnitData::GamestateDebug()
 {
-	strcpy(m_text, stringdb_Get()->GetIdStr(GetDBRec()->GetName()));
+	strlcpy(m_text, stringdb_Get()->GetIdStr(GetDBRec()->GetName()), sizeof(m_text));
 }
 
 #endif

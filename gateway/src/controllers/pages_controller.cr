@@ -1,5 +1,6 @@
 require "./base_controller"
 require "../map_renderer"
+require "../story_reducer"
 
 module Ctp2Gateway
   # The HTML admin panel — omniscient debugging surface (rides the game's
@@ -71,6 +72,14 @@ module Ctp2Gateway
       ascii = renderer.render(radius: 30)
       body = Views::MapPage.new(chart, ascii, renderer.error, spots)
       html(200, "Map", body, "/map")
+    end
+
+    # The chronicle: the engine's Action Log narrated as a "story of the
+    # civilization", one section per round (StoryReducer over log_get).
+    @[ARTA::Get("/story")]
+    def story : AHTTP::Response
+      reducer = StoryReducer.new(@client)
+      html(200, "Chronicle", Views::Story.new(reducer.story), "/story")
     end
 
     # The MCP tool catalog, rendered from the live registry (Mcp::TOOLS) —

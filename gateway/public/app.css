@@ -781,3 +781,31 @@ main {
 
 .atlas__plain summary { cursor: pointer; }
 .atlas__plain pre.chart { margin-top: 0.8rem; }
+
+/* --- chronicle (the Action Log narrated as a story) --------------------- */
+.chronicle {
+  border-left: 1px solid var(--gold-line);
+  margin: 1rem 0 0 0.4rem;
+  padding-left: 1.3rem;
+}
+.chronicle__chapter { margin: 0 0 1.4rem 0; }
+.chronicle__round {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--gold-bright);
+  margin: 0 0 0.4rem -1.55rem;   /* pull the ✦ onto the timeline rule */
+  font-weight: 500;
+}
+.chronicle__round .ornament { color: var(--gold); margin-right: 0.4rem; }
+.chronicle__beats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.chronicle__beats li {
+  color: var(--parchment);
+  font-family: var(--font-display);
+  padding: 0.18rem 0;
+  border-bottom: 1px dotted var(--gold-faint);
+}
+.chronicle__beats li:last-child { border-bottom: 0; }

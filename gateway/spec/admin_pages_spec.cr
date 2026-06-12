@@ -82,6 +82,21 @@ struct PagesTest < GatewayTestCase
     resp.body.should contain "full response"
   end
 
+  def test_story_chronicle_narrates_and_filters : Nil
+    resp = self.get("/story")
+    resp.status_code.should eq 200
+    resp.body.should contain "chronicle"                 # page title
+    resp.body.should contain "Round 2"                   # grouped by round
+    resp.body.should contain "Round 5"
+    # beat text: leader name looked up + escaped, location rendered
+    resp.body.should contain "Caesar &lt;Rome&gt; founded a city at (18, 39)."
+    resp.body.should contain "mastered a new advance"
+    resp.body.should contain "Battle was joined at (20, 40)."
+    # orders are filtered out of the chronicle
+    resp.body.should_not contain "MoveOrder"
+    resp.body.should contain "founded"                   # headline summary
+  end
+
   def test_tools_catalog_renders_registry : Nil
     resp = self.get("/tools")
     resp.status_code.should eq 200

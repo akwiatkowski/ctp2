@@ -114,6 +114,15 @@ CITIES_JSON = %({"status":"ok","cmd":"query_player_cities","result":{"owner":1,"
               %("building":{"category":1,"type":54,"cost":740}},) +
               %({"owner":1,"index":1,"name":"Ostia","pos":{"x":35,"y":12},"population":1,"building":null}]}})
 
+# Action Log sample: two narratable beats in round 2 (a city + a filtered
+# order), one in round 4, one in round 5 — exercises grouping, name lookup,
+# location rendering, and the order-filtering the chronicle does.
+LOG_JSON = %({"status":"ok","cmd":"log_get","result":{"count":4,"action_log":[) +
+           %({"turn":2,"player":1,"event":"CreateCity","args":[{"kind":"player","value":1},{"kind":"location","x":18,"y":39,"z":0},{"kind":"city","id":1,"out":true}]},) +
+           %({"turn":2,"player":1,"event":"MoveOrder","args":[{"kind":"army","id":7}]},) +
+           %({"turn":4,"player":1,"event":"GrantAdvance","args":[{"kind":"player","value":1}]},) +
+           %({"turn":5,"player":2,"event":"Battle","args":[{"kind":"location","x":20,"y":40,"z":0}]}]}})
+
 def admin_responses
   {
     "query_players"         => PLAYERS_JSON,
@@ -121,6 +130,7 @@ def admin_responses
     "query_player 1"        => %({"status":"ok","cmd":"query_player","result":{"id":1,"name":"Caesar <Rome>","num_units":5}}),
     "query_player_cities 1" => CITIES_JSON,
     "query_player_cities 7" => %({"status":"error","cmd":"query_player_cities","detail":"bad_player"}),
+    "log_get"               => LOG_JSON,
   }
 end
 

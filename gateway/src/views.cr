@@ -4,6 +4,7 @@ require "json"
 require "./mcp/tools"
 require "./command_descriptions"
 require "./map_renderer"
+require "./story_reducer"
 
 module Ctp2Gateway::Views
   # ECR has NO auto-escaping: every piece of GAME data interpolated in a
@@ -113,6 +114,15 @@ module Ctp2Gateway::Views
     end
 
     ECR.def_to_s "src/views/error.ecr"
+  end
+
+  # The chronicle: the Action Log narrated as a "story of the civilization",
+  # one section per round (see StoryReducer).
+  struct Story
+    def initialize(@story : Ctp2Gateway::StoryReducer::Story)
+    end
+
+    ECR.def_to_s "src/views/story.ecr"
   end
 
   def self.page(title : String, body, path : String) : String

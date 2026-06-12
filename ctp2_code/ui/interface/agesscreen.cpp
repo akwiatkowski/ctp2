@@ -148,7 +148,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 	if ( s_agesScreen ) return AUI_ERRCODE_OK;
 
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	strcpy(windowBlock, "agesscreen");
+	strlcpy(windowBlock, "agesscreen", sizeof(windowBlock));
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 

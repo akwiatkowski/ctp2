@@ -115,7 +115,7 @@ AUI_ERRCODE optionwarningscreen_Initialize( )
 
 	if ( s_optionwarningscreenWindow ) return AUI_ERRCODE_OK;
 
-	strcpy(windowBlock, "OptionWarningWindow");
+	strlcpy(windowBlock, "OptionWarningWindow", sizeof(windowBlock));
 	s_optionwarningscreenWindow = new c3_PopupWindow(
 		&errcode,
 		aui_UniqueId(),

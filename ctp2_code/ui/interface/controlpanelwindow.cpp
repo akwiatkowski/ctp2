@@ -533,7 +533,7 @@ sint32 controlpanelwindow_Initialize()
 	if (!g_controlPanel)
 	{
 		MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-		strcpy(windowBlock, "ControlPanelWindow");
+		strlcpy(windowBlock, "ControlPanelWindow", sizeof(windowBlock));
 
 		AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 		g_controlPanel = new ControlPanelWindow(&errcode, aui_UniqueId(), windowBlock, 16 );
@@ -2942,8 +2942,8 @@ ControlPanelWindow::BuildUnitList ()
 				sint32 string_index=rec->GetLocalizedName();
 
 				MBCHAR order[k_MAX_NAME_LEN];
-				strcpy(order, "  ");
-				strcat(order, stringdb_Get()->GetNameStr(string_index));
+			strlcpy(order, "  ", sizeof(order));
+			strcat(order, stringdb_Get()->GetNameStr(string_index));
 
 				m_contextMenu->AddItem(order, nullptr,(void *)i);
 			}

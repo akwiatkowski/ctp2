@@ -99,7 +99,7 @@ AUI_ERRCODE loadsavemapscreen_Initialize( aui_Control::ControlActionCallback *ca
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[k_AUI_LDL_MAXBLOCK + 1];
-	strcpy(windowBlock, "LoadSaveMapWindow");
+	strlcpy(windowBlock, "LoadSaveMapWindow", sizeof(windowBlock));
 
 	g_loadSaveMapWindow= new LoadSaveMapWindow(&errcode, aui_UniqueId(), windowBlock, 16 , AUI_WINDOW_TYPE_FLOATING);
 	Assert( AUI_NEWOK(g_loadSaveMapWindow, errcode) );

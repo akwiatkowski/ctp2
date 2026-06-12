@@ -436,7 +436,7 @@ return 1;
 			MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 			MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-			strcpy( windowBlock, "MoreMessagesIconWindow" );
+			strlcpy( windowBlock, "MoreMessagesIconWindow", sizeof(windowBlock) );
 
 			window = new aui_Window( &retval, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_STANDARD );
 			Assert( AUI_NEWOK( window, retval ));
@@ -508,7 +508,7 @@ return 1;
 			MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 			MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-			strcpy( windowBlock, "LessMessagesIconWindow" );
+			strlcpy( windowBlock, "LessMessagesIconWindow", sizeof(windowBlock) );
 
 			window = new aui_Window( &retval, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_STANDARD );
 			Assert( AUI_NEWOK( window, retval ));

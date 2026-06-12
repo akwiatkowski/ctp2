@@ -203,7 +203,7 @@ m_menuPollutionValue(static_cast<ctp2_Static*>(
 	Assert(m_menuGoldValue);
 	Assert(m_menuPollutionValue);
 
-	strcpy(m_ldlBlock,ldlBlock);
+	strlcpy(m_ldlBlock, ldlBlock, sizeof(m_ldlBlock));
 
 	m_scienceIconButton->SetActionFuncAndCookie(
 		EditResearchButtonActionCallback, this);

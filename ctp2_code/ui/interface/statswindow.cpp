@@ -364,7 +364,7 @@ int StatsWindow_Initialize( )
 
 	if ( g_statsWindow ) return 0;
 
-	strcpy(windowBlock, "StatsWindow");
+	strlcpy(windowBlock, "StatsWindow", sizeof(windowBlock));
 	g_statsWindow = new StatsWindow(&errcode, aui_UniqueId(), windowBlock, 16 );
 	Assert( AUI_NEWOK(g_statsWindow, errcode) );
 	if ( !AUI_NEWOK(g_statsWindow, errcode) ) return -1;

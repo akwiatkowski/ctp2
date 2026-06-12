@@ -86,7 +86,7 @@ AUI_ERRCODE MessageList::CreateMessage( Message data )
 
 	m_iconList->AddTail( mIconWindow );
 
-	strcpy( windowBlock, "StandardMessageWindow" );
+	strlcpy( windowBlock, "StandardMessageWindow", sizeof(windowBlock) );
 
 	mWindow = new MessageWindow( &errcode, aui_UniqueId(), windowBlock,
 								 16, data, mIconWindow );

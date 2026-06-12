@@ -49,7 +49,7 @@ AUI_ERRCODE MessageResponseListItem::InitCommonLdl(MBCHAR const * name, sint32 i
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		retval;
 
-	strcpy(m_name, name);
+	strlcpy(m_name, name, sizeof(m_name));
 	m_index = index;
 
 	c3_Static		*subItem;

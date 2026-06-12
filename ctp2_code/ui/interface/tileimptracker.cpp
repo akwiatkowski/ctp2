@@ -98,7 +98,7 @@ sint32 tileimptracker_Initialize()
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	strcpy( textBlock, "cp_tileimp_tracker");
+	strlcpy( textBlock, "cp_tileimp_tracker", sizeof(textBlock));
 	g_tileImpTrackerWindow = new TileimpTrackerWindow( &errcode, aui_UniqueId(), textBlock, 16);
 	Assert( AUI_NEWOK(g_tileImpTrackerWindow, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;

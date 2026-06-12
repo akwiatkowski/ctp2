@@ -290,7 +290,7 @@ AUI_ERRCODE sci_advancescreen_Initialize( MBCHAR *messageText )
 		return AUI_ERRCODE_OK;
 	}
 
-	strcpy(windowBlock, "SciAdvanceScreen");
+	strlcpy(windowBlock, "SciAdvanceScreen", sizeof(windowBlock));
 
 	{
 		s_sci_advanceScreen = new C3Window( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_STANDARD, false);

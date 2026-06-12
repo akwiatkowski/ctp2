@@ -640,9 +640,9 @@ void LoadSaveMapWindow::BuildDefaultSaveMapName(MBCHAR *gameMapName, MBCHAR *nam
 	MBCHAR		theGameMapName[_MAX_PATH];
 
 	if (gameMapName == nullptr) {
-		strcpy(theGameMapName, profiledb_Get()->GetLeaderName());
+		strlcpy(theGameMapName, profiledb_Get()->GetLeaderName(), sizeof(theGameMapName));
 	} else {
-		strcpy(theGameMapName, gameMapName);
+		strlcpy(theGameMapName, gameMapName, sizeof(theGameMapName));
 	}
 
 	theGameMapName[6] = '\0';
@@ -653,6 +653,7 @@ void LoadSaveMapWindow::BuildDefaultSaveMapName(MBCHAR *gameMapName, MBCHAR *nam
 	snprintf(saveMapName, sizeof(saveMapName), "%s", theGameMapName);
 
 
+	// TODO(strlcpy): unknown dst size
 	strcpy(name, saveMapName);
 
 	SetSaveMapName(saveMapName);

@@ -178,7 +178,7 @@ AUI_ERRCODE spnewgamemapsizescreen_Initialize( aui_Control::ControlActionCallbac
 
 	if ( s_spNewGameMapSizeScreen ) return AUI_ERRCODE_OK;
 
-	strcpy(windowBlock, "SPNewGameMapSizeScreen");
+	strlcpy(windowBlock, "SPNewGameMapSizeScreen", sizeof(windowBlock));
 
 	{
 		s_spNewGameMapSizeScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);

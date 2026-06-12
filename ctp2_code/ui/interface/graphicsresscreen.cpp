@@ -123,7 +123,7 @@ AUI_ERRCODE graphicsresscreen_Initialize( )
 
 	if ( s_graphicsResScreen ) return AUI_ERRCODE_OK;
 
-	strcpy(windowBlock, "ScreenResScreen");
+	strlcpy(windowBlock, "ScreenResScreen", sizeof(windowBlock));
 	{
 		s_graphicsResScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
 		Assert( AUI_NEWOK(s_graphicsResScreen, errcode) );

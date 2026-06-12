@@ -446,7 +446,7 @@ void ArmyManagerWindow::UpdateArmyItem(ctp2_ListItem *item)
 			if(armypool_Get()->IsValid(node->m_army)) {
 				snprintf(text, sizeof(text), "%d", node->m_army.Num());
 			} else {
-				strcpy(text, "0");
+				strlcpy(text, "0", sizeof(text));
 			}
 			count->SetText(text);
 		}

@@ -39,7 +39,7 @@ int messagemodal_CreateModalMessage( Message data )
 	Assert( count > 0 );
 	if ( count == 0 ) return -1;
 
-	strcpy( windowBlock, "ModalWindow" );
+	strlcpy( windowBlock, "ModalWindow", sizeof(windowBlock) );
 
 	g_modalMessage = new MessageModal( &errcode, aui_UniqueId(),
 										windowBlock, 16, data );

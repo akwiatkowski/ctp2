@@ -206,7 +206,7 @@ AUI_ERRCODE custommapscreen_Initialize( aui_Control::ControlActionCallback *call
 
 	if ( s_customMapWindow ) return AUI_ERRCODE_OK;
 
-	strcpy(windowBlock, "CustomMapWindow");
+	strlcpy(windowBlock, "CustomMapWindow", sizeof(windowBlock));
 	{
 		s_customMapWindow = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(s_customMapWindow, errcode) );

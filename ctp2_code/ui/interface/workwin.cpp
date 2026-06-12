@@ -148,7 +148,7 @@ sint32 workwin_Initialize( )
 
 
 
-	strcpy(windowBlock, "WorkWindow");
+	strlcpy(windowBlock, "WorkWindow", sizeof(windowBlock));
 
 	g_workWindow = new WorkWindow(&errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING);
 	Assert( AUI_NEWOK(g_workWindow, errcode) );

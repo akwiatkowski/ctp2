@@ -154,7 +154,7 @@ AUI_ERRCODE graphicsscreen_Initialize( )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	strcpy(windowBlock, "GraphicsWindow");
+	strlcpy(windowBlock, "GraphicsWindow", sizeof(windowBlock));
 	s_graphicsWindow = new c3_PopupWindow(
 		&errcode,
 		aui_UniqueId(),

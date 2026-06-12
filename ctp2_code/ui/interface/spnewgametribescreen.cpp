@@ -232,7 +232,7 @@ AUI_ERRCODE spnewgametribescreen_Initialize( aui_Control::ControlActionCallback 
 		return AUI_ERRCODE_OK;
 	}
 
-	strcpy(windowBlock, "SPNewGameTribeScreen");
+	strlcpy(windowBlock, "SPNewGameTribeScreen", sizeof(windowBlock));
 
 	{
 		g_spNewGameTribeScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);

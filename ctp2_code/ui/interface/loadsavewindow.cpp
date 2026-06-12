@@ -482,8 +482,7 @@ bool LoadSaveWindow::CreateSaveInfoIfNeeded( SaveInfo *&info )
 				if (player_Get(currentCiv)->HasContactWith(i)) {
 					player_Get(i)->GetSingularCivName(s) ;
 
-					// TODO(phase-2): strcpy → strlcpy — dst is `array[i]` expression, capacity unknown at call site
-					strcpy(info->civList[numCivs], s);
+					strlcpy(info->civList[numCivs], s, k_MAX_NAME_LEN);
 					numCivs++;
 				}
 			}
@@ -953,7 +952,7 @@ void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 #endif
 	}
 
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+	// TODO(strlcpy): unknown dst size
 	strcpy(name, saveName);
 
 	SetSaveName(saveName);

@@ -149,7 +149,7 @@ TutorialWin::TutorialWin( )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	strcpy(windowBlock,"TutorialWin");
+	strlcpy(windowBlock,"TutorialWin", sizeof(windowBlock));
 
 	m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING );
 	Assert( AUI_NEWOK(m_window, errcode) );
@@ -247,7 +247,7 @@ sint32 TutorialWin::UpdateData( )
 	PointerList<SlicRecord>::Walker walk(recordList);
 
 	while(walk.IsValid()) {
-		strcpy( title, walk.GetObj()->GetTitle() );
+		strlcpy( title, walk.GetObj()->GetTitle(), sizeof(title) );
 		item = new SingleListItem( &errcode, title, i++, ldlBlock );
 		TestControl( item );
 

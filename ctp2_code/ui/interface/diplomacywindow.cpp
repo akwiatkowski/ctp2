@@ -660,12 +660,12 @@ void DiplomacyWindow::UpdateProposalList(ctp2_ListBox *propList, bool toPlayer)
 						if(textStatic) {
 							MBCHAR finalText[k_MAX_NAME_LEN];
 							if(toPlayer) {
-								strcpy(finalText, stringdb_Get()->GetNameStr("str_ldl_From"));
+								strlcpy(finalText, stringdb_Get()->GetNameStr("str_ldl_From"), sizeof(finalText));
 								strcat(finalText, " ");
 								player_Get(sender)->m_civilisation->GetCountryName(finalText + strlen(finalText));
 								strcat(finalText, ": ");
 							} else {
-								strcpy(finalText, stringdb_Get()->GetNameStr("str_ldl_To"));
+								strlcpy(finalText, stringdb_Get()->GetNameStr("str_ldl_To"), sizeof(finalText));
 								strcat(finalText, " ");
 								player_Get(receiver)->m_civilisation->GetCountryName(finalText + strlen(finalText));
 								strcat(finalText, ": ");

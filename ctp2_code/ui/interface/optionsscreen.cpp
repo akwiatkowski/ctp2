@@ -192,7 +192,7 @@ AUI_ERRCODE optionsscreen_Initialize( )
 		return AUI_ERRCODE_OK;
 	}
 
-	strcpy(windowBlock, "OptionsWindow");
+	strlcpy(windowBlock, "OptionsWindow", sizeof(windowBlock));
 
 	g_optionsWindow= new OptionsWindow(&errcode, aui_UniqueId(), windowBlock, 16,AUI_WINDOW_TYPE_FLOATING,false );
 	Assert( AUI_NEWOK(g_optionsWindow, errcode) );

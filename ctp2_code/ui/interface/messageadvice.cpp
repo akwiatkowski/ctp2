@@ -22,7 +22,7 @@ int messageadvice_AddText( MBCHAR *text )
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	if ( !g_adviceMessageWindow ) {
-		strcpy( windowBlock, "AdviceWindow" );
+		strlcpy( windowBlock, "AdviceWindow", sizeof(windowBlock) );
 
 		g_adviceMessageWindow = new MessageAdvice( &errcode, aui_UniqueId(),
 											windowBlock, 16 );
@@ -120,7 +120,7 @@ AUI_ERRCODE MessageAdvice::CreateWindowEdges( MBCHAR *ldlBlock )
 	m_rightBar->SetImageBltType( AUI_IMAGEBASE_BLTTYPE_TILE );
 	AddControl( m_rightBar );
 
-	strcpy( imageBlock, "FancyAdviceTopBar" );
+	strlcpy( imageBlock, "FancyAdviceTopBar", sizeof(imageBlock) );
 	m_topBar = new C3Window( &errcode, aui_UniqueId(), imageBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
 	Assert( AUI_NEWOK( m_topBar, errcode ));
 	if ( !AUI_NEWOK( m_topBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;

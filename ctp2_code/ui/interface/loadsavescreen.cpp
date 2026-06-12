@@ -580,7 +580,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 				civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 				profiledb_Get()->SetIsScenario(TRUE);
 
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+				// TODO(strlcpy): unknown dst size
 				strcpy(scenario_name_buf(), saveInfo->scenarioName.c_str());
 			} else {
 

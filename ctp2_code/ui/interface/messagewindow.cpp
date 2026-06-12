@@ -110,7 +110,7 @@ AUI_ERRCODE MessageWindow::InitCommon( Message data,
 
 	SetDraggable( TRUE );
 
-	strcpy( windowBlock, "StandardMessageWindow" );
+	strlcpy( windowBlock, "StandardMessageWindow", sizeof(windowBlock) );
 
 	errcode = CreateStandardMinimizeButton( windowBlock );
 	Assert( errcode == AUI_ERRCODE_OK );
@@ -257,7 +257,7 @@ AUI_ERRCODE MessageWindow::CreateTurnText( MBCHAR *ldlBlock )
 	if(m_message.AccessData()->GetTitle())
 	{
 		m_turnText->SetTextFontSize(16);
-		strcpy(copyBlock, m_message.AccessData()->GetTitle());
+		strlcpy(copyBlock, m_message.AccessData()->GetTitle(), sizeof(copyBlock));
 	}
 	else
 	{

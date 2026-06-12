@@ -613,7 +613,7 @@ void ScenarioWindow::SetProfileFromScenario( )
 
 			profiledb_Get()->SetIsScenario(TRUE);
 
-			strcpy(scenario_name_buf(), s_ScenarioWindow->GetScenario()->m_name);
+			strlcpy(scenario_name_buf(), s_ScenarioWindow->GetScenario()->m_name, k_SCENARIO_NAME_MAX);
 
 			civapp_Get()->CleanupAppDB();
 			civapp_Get()->InitializeAppDB();
@@ -750,7 +750,7 @@ void ScenarioWindow::NewScenOk(aui_Control *control, uint32 action, uint32 data,
 	Assert(s_ScenarioWindow);
 	if(s_ScenarioWindow) {
 		MBCHAR scenPackDir[_MAX_PATH];
-		strcpy(scenPackDir, s_ScenarioWindow->m_scenarioPack->m_path);
+		strlcpy(scenPackDir, s_ScenarioWindow->m_scenarioPack->m_path, sizeof(scenPackDir));
 
 		CivScenarios *cs = civscenarios_Get();
 		CIV_SCEN_ERR err = cs->MakeNewScenario(s_ScenarioWindow->m_scenarioPack, name, desc);

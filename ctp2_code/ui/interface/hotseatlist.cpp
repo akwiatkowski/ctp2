@@ -153,8 +153,8 @@ HotseatList::HotseatList( HotseatListCallback *callback, MBCHAR *ldlBlock )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	if (ldlBlock) strcpy(windowBlock,ldlBlock);
-	else strcpy(windowBlock,"HotseatListPopup");
+	if (ldlBlock) strlcpy(windowBlock, ldlBlock, sizeof(windowBlock));
+	else strlcpy(windowBlock, "HotseatListPopup", sizeof(windowBlock));
 
 	{
 		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
@@ -279,7 +279,7 @@ sint32 HotseatList::UpdateData( )
 
 	AUI_ERRCODE		retval;
 
-	strcpy(ldlBlock,"HotseatListItem");
+	strlcpy(ldlBlock, "HotseatListItem", sizeof(ldlBlock));
 	HotseatListItem *item = nullptr;
 
 	m_list->Clear();

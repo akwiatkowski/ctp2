@@ -971,7 +971,7 @@ void CreditsWindow::ShowSecretImage()
 
 sCreditsLine::sCreditsLine(uint32 font, MBCHAR *pText)
 {
-	strcpy(m_text, pText);
+	strlcpy(m_text, pText, sizeof(m_text));
 	m_font = font;
 	m_pNext = nullptr;
 };

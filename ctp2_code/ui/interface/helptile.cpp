@@ -126,7 +126,7 @@ sint32 helptile_Initialize( )
 		return 0;
 	}
 
-	strcpy(windowBlock, HELPTILE_WINDOWldl);
+	strlcpy(windowBlock, HELPTILE_WINDOWldl, sizeof(windowBlock));
 	g_helpTileWindow = new c3_PopupWindow(
 		&errcode,
 		aui_UniqueId(),
@@ -228,7 +228,7 @@ void helptile_displayData(const MapPoint &p)
 	&& !player_Get(selitem_Get()->GetVisiblePlayer())->m_hasGlobalRadar)
 	&& tiledmap_Get()->GetLocalVision()->GetLastSeen(p, ucell)
 	){
-		strcpy(myname, stringdb_Get()->GetNameStr(g_theTerrainDB->Get(ucell.m_unseenCell->GetTerrainType())->GetName()));
+		strlcpy(myname, stringdb_Get()->GetNameStr(g_theTerrainDB->Get(ucell.m_unseenCell->GetTerrainType())->GetName()), sizeof(myname));
 		g_helpTileWindow->TitleText()->SetText( myname );
 
 		snprintf(mytext, sizeof(mytext), "%d\n", ucell.m_unseenCell->GetFoodProduced());
@@ -266,7 +266,7 @@ void helptile_displayData(const MapPoint &p)
 	}
 	else
 	{
-		strcpy(myname, world_Get()->GetTerrainName(p));
+		strlcpy(myname, world_Get()->GetTerrainName(p), sizeof(myname));
 		g_helpTileWindow->TitleText()->SetText( myname );
 
 		snprintf(mytext, sizeof(mytext), "%d\n", myTile->GetFoodProduced());

@@ -2340,7 +2340,7 @@ void ScenarioEditor::NameTheScenarioCallback(MBCHAR *text, sint32 accepted, void
 
 	if (accepted) {
 
-		strcpy(s_scenarioEditor->m_scenarioName, text);
+		strlcpy(s_scenarioEditor->m_scenarioName, text, sizeof(s_scenarioEditor->m_scenarioName));
 
 		s_wasKeepingScore = gamesettings_Get()->GetKeeppScore();
 		gamesettings_Get()->SetKeepScore( TRUE );
@@ -2682,7 +2682,7 @@ void ScenarioEditor::FileAction(FileDialog *dialog, uint32 action, const MBCHAR 
 				Player *p = player_Get(selitem_Get()->GetVisiblePlayer());
 
 				MBCHAR leaderName[k_MAX_NAME_LEN];
-				strcpy(leaderName, p->GetLeaderName());
+				strlcpy(leaderName, p->GetLeaderName(), sizeof(leaderName));
 
 				plgroup->SetSelectedItem(p->m_civilisation->GetCivilisation());
 

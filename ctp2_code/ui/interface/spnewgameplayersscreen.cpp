@@ -208,7 +208,7 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 		return AUI_ERRCODE_OK;
 	}
 
-	strcpy(windowBlock, "SPNewGamePlayersScreen");
+	strlcpy(windowBlock, "SPNewGamePlayersScreen", sizeof(windowBlock));
 
 	{
 		s_spNewGamePlayersScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);

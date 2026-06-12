@@ -71,7 +71,7 @@ const MBCHAR *TurnYearStatus::GetYearString(sint32 currentYear, sint32 round)
 			{
 				round = s_turnLengthOverrideSize - 1;
 			}
-			strcpy(buf, s_pTurnLengthOverride[round].text);
+			strlcpy(buf, s_pTurnLengthOverride[round].text, sizeof(buf));
 		}
 		else
 		{

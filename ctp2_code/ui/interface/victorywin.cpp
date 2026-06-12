@@ -957,7 +957,7 @@ sint32 victorywin_GetWonderFilename( sint32 index, MBCHAR *name )
 
 	if (civpaths_Get()->FindFile(C3DIR_PICTURES, filename, strbuf))
 	{
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+		// TODO(strlcpy): unknown dst size
 		strcpy(name, filename);
 		return TRUE;
 	}
@@ -1235,7 +1235,7 @@ sint32 victorywin_GetRankName( sint32 player, MBCHAR *name, sint32 gameResult )
 		else if (curScore > 100) strlcpy(strbuf, s_stringTable->GetString(20), sizeof(strbuf));
 	}
 
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+	// TODO(strlcpy): unknown dst size
 	strcpy(name, strbuf);
 	return 0;
 }

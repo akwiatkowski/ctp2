@@ -109,7 +109,7 @@ AUI_ERRCODE soundscreen_Initialize( )
 
 	if ( s_soundWindow ) return AUI_ERRCODE_OK;
 
-	strcpy(windowBlock, "SoundWindow");
+	strlcpy(windowBlock, "SoundWindow", sizeof(windowBlock));
 	s_soundWindow = new c3_PopupWindow(
 		&errcode,
 		aui_UniqueId(),

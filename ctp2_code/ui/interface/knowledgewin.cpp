@@ -616,7 +616,7 @@ sint32 knowledgewin_Initialize( void )
 		return 0;
 	}
 
-	strcpy(windowBlock, "KnowledgeScreen");
+	strlcpy(windowBlock, "KnowledgeScreen", sizeof(windowBlock));
 
 	g_knowledgeWindow = new KnowledgeWindow(&errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING );
 	Assert( AUI_NEWOK(g_knowledgeWindow, errcode) );

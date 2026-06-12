@@ -313,14 +313,14 @@ void GreatLibrary::Load_Great_Library()
 						{
 							*end_ptr = 0;
 
-							size_t  nameLength  = strlen(the_name);
+                            size_t  nameLength  = strlen(the_name);
 							char *  name_copy   = new char[nameLength + 1];
-                            strcpy(name_copy, the_name);
+                            strlcpy(name_copy, the_name, nameLength + 1);
 							name_copy[nameLength] = 0;
 
                             size_t  entryLength = strlen(the_entry);
 							char *  entry_copy  = new char[entryLength + 1];
-                            strcpy(entry_copy, the_entry);
+                            strlcpy(entry_copy, the_entry, entryLength + 1);
 							entry_copy[entryLength] = 0;
 
 							s_great_library_info->Add_To_Hash_Table

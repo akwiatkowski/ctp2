@@ -767,7 +767,7 @@ void EndGameWindow::Update(EndGame *endGame)
 
 		if(!constName) continue;
 
-		strcpy(requirementName, constName);
+		strlcpy(requirementName, constName, sizeof(requirementName));
 
 
 		if(!strcmp(m_embryoTankName, requirementName) && endGame->GetNumberBuilt(i))

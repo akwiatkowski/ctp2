@@ -197,7 +197,7 @@ AUI_ERRCODE spnewgamemapshapescreen_Initialize( aui_Control::ControlActionCallba
 
 	if ( s_spNewGameMapShapeScreen ) return AUI_ERRCODE_OK;
 
-	strcpy(windowBlock, "SPNewGameMapShapeScreen");
+	strlcpy(windowBlock, "SPNewGameMapShapeScreen", sizeof(windowBlock));
 
 	{
 		s_spNewGameMapShapeScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);

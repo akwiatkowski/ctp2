@@ -111,7 +111,7 @@ AUI_ERRCODE spnewgamerandomcustomscreen_Initialize(
 
 	if ( s_spNewGameRandomCustomScreen ) return AUI_ERRCODE_OK;
 
-	strcpy(windowBlock, "SPNewGameRandomCustomScreen");
+	strlcpy(windowBlock, "SPNewGameRandomCustomScreen", sizeof(windowBlock));
 
 	{
 		s_spNewGameRandomCustomScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);

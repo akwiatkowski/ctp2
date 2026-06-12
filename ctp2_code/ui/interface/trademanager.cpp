@@ -633,9 +633,9 @@ void TradeManager::UpdateAdviceText()
 						stringutils_Interpret(stringdb_Get()->GetNameStr("CREATE_ROUTE_ADVICE"),
 											  sc, interp);
 					} else if(m_createData.GetCount() > 0) {
-						strcpy(interp, stringdb_Get()->GetNameStr("BUILD_MORE_CARAVANS"));
+						strlcpy(interp, stringdb_Get()->GetNameStr("BUILD_MORE_CARAVANS"), sizeof(interp));
 					} else {
-						strcpy(interp, stringdb_Get()->GetNameStr("MAXIMUM_TRADE_EFFICIENCY"));
+						strlcpy(interp, stringdb_Get()->GetNameStr("MAXIMUM_TRADE_EFFICIENCY"), sizeof(interp));
 					}
 
 					advice->SetHyperText(interp);
@@ -733,7 +733,7 @@ void TradeManager::UpdateSummaryList()
 			if(rtype == ROUTE_TYPE_RESOURCE) {
 				snprintf(buf, sizeof(buf), "%d", route->GetValue());
 			} else {
-				strcpy(buf, "---");
+				strlcpy(buf, "---", sizeof(buf));
 			}
 
 			if (ctp2_Static * price = (ctp2_Static *)item->GetChildByIndex(k_PRICE_COL_SUM_INDEX))

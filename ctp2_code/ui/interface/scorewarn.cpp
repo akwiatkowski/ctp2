@@ -99,7 +99,7 @@ sint32 scorewarn_Initialize( )
 	if (g_scorewarn) return 0;
 
 	MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	strcpy(windowBlock, "Scorewarn");
+	strlcpy(windowBlock, "Scorewarn", sizeof(windowBlock));
 
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 	g_scorewarn = new c3_PopupWindow(
@@ -190,7 +190,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 	}
 
 	MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	strcpy(windowBlock, "DisclaimerScreen");
+	strlcpy(windowBlock, "DisclaimerScreen", sizeof(windowBlock));
 
 	s_disclaimerWindow = new c3_PopupWindow(
 		&errcode,

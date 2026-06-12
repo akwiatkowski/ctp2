@@ -199,7 +199,7 @@ AUI_ERRCODE spnewgamerulesscreen_Initialize( )
 
 	if ( s_spNewGameRulesScreen ) return AUI_ERRCODE_OK;
 
-	strcpy(windowBlock, "SPNewGameRulesScreen");
+	strlcpy(windowBlock, "SPNewGameRulesScreen", sizeof(windowBlock));
 
 	s_spNewGameRulesScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(s_spNewGameRulesScreen, errcode) );

@@ -1407,12 +1407,12 @@ sint32 infowin_GetWonderCityName( sint32 index, MBCHAR *name)
 
 	if (wonder_tracker_Get()->GetCityWithWonder( index, city ))
 	{
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+		// TODO(strlcpy): unknown dst size
 		strcpy(name, city.GetData()->GetCityData()->GetName());
 	}
 	else
 	{
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
+		// TODO(strlcpy): unknown dst size
 		strcpy(name, "NULL");
 	}
 

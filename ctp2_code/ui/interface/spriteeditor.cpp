@@ -243,7 +243,7 @@ int SpriteEditWindow_Initialize( )
 
 	if ( g_spriteEditWindow ) return 0;
 
-	strcpy(windowBlock, "SpriteEditor");
+	strlcpy(windowBlock, "SpriteEditor", sizeof(windowBlock));
 
 	g_spriteEditWindow = new SpriteEditWindow(&errcode, aui_UniqueId(), windowBlock, 16 );
 

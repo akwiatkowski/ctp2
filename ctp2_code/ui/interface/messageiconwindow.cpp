@@ -154,12 +154,12 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 void MessageIconWindow::ChangeIcon( const MBCHAR *image, const MBCHAR *image2 )
 {
 	char nonConstImage[_MAX_PATH];
-	strcpy(nonConstImage, image);
+	strlcpy(nonConstImage, image, sizeof(nonConstImage));
 	((aui_ImageBase *)m_icon)->SetImage( nonConstImage,
 										 0,
 										 AUI_IMAGEBASE_SUBSTATE_STATE );
 	if ( image2 ) {
-		strcpy(nonConstImage, image2);
+		strlcpy(nonConstImage, image2, sizeof(nonConstImage));
 		((aui_ImageBase *)m_icon)->SetImage( nonConstImage,
 											 1,
 											 AUI_IMAGEBASE_SUBSTATE_STATE );

@@ -79,7 +79,7 @@ sint32 specialAttackWindow_Initialize()
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	strcpy(textBlock, "SpecialAttackWindow");
+	strlcpy(textBlock, "SpecialAttackWindow", sizeof(textBlock));
 	g_theSpecialAttackWindow = new SpecialAttackWindow( &errcode, aui_UniqueId(), textBlock, 16);
 	Assert(AUI_NEWOK(g_theSpecialAttackWindow, errcode));
 	if(!AUI_SUCCESS(errcode)) return -1;

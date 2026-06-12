@@ -346,7 +346,7 @@ m_summaryCommerceConversionsGold(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ld
 
 	m_tab = (static_cast<ctp2_Tab*>(aui_Ldl::GetObject("DomesticDialog.TabGroup.Tab1")));
 
-	strcpy(m_ldlBlock,ldlBlock);
+	strlcpy(m_ldlBlock, ldlBlock, sizeof(m_ldlBlock));
 
 	DisplayDetails(false);
 

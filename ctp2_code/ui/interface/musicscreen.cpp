@@ -104,7 +104,7 @@ AUI_ERRCODE musicscreen_Initialize( )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	strcpy(windowBlock, "MusicScreen");
+	strlcpy(windowBlock, "MusicScreen", sizeof(windowBlock));
 	{
 		s_musicScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
 		Assert( AUI_NEWOK(s_musicScreen, errcode) );

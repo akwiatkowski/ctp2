@@ -164,7 +164,7 @@ AUI_ERRCODE spnewgamediffscreen_Initialize( aui_Control::ControlActionCallback *
 		return AUI_ERRCODE_OK;
 	}
 
-	strcpy(windowBlock, "SPNewGameDiffScreen");
+	strlcpy(windowBlock, "SPNewGameDiffScreen", sizeof(windowBlock));
 
 	{
 		s_spNewGameDiffScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);

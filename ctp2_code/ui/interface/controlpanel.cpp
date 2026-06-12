@@ -246,7 +246,7 @@ sint32 controlpanelwindow_Initialize()
 	sint32 controlSheetX = 91;
 	sint32 controlSheetY = 1;
 
-	strcpy(windowBlock, "ControlPanelWindow");
+	strlcpy(windowBlock, "ControlPanelWindow", sizeof(windowBlock));
 
 	controlpanel_Get() = new ControlPanelWindow(&errcode, k_ID_WINDOW_CONTROLPANEL, windowBlock, 16 );
 	Assert( AUI_NEWOK(controlpanel_Get(), errcode) );
@@ -435,7 +435,7 @@ sint32 controlpanelwindow_InitializeHats()
 	MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	MBCHAR			controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	strcpy(windowBlock, "ControlPanelRightHat");
+	strlcpy(windowBlock, "ControlPanelRightHat", sizeof(windowBlock));
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ZoomPlusButton" );
 	s_zoomPlusButton = new ctp2_Button( &errcode, aui_UniqueId(), controlBlock, ZoomPlusButtonActionCallback );

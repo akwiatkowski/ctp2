@@ -203,7 +203,7 @@ AUI_ERRCODE gameplayoptions_Initialize( )
 		return AUI_ERRCODE_OK;
 	}
 
-	strcpy(windowBlock, "GamePlayOptionsWindow");
+	strlcpy(windowBlock, "GamePlayOptionsWindow", sizeof(windowBlock));
 	s_gameplayoptionsWindow = new c3_PopupWindow(
 		&errcode,
 		aui_UniqueId(),

@@ -252,7 +252,7 @@ void RankingTab::UpdatePlayerList( )
 	m_infoPlayerList->Clear();
 
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	strcpy(ldlBlock, "InfoPlayerListItem");
+	strlcpy(ldlBlock, "InfoPlayerListItem", sizeof(ldlBlock));
 
 	AUI_ERRCODE	retval;
 	MBCHAR strbuf[256];

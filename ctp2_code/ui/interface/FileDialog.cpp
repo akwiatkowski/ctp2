@@ -157,7 +157,7 @@ const MBCHAR *FileDialog::GetSelectedFile()
 		ctp2_Static *box = (ctp2_Static *)item->GetChildByIndex(0);
 		Assert(box);
 		if(box) {
-			strcpy(file, box->GetText());
+			strlcpy(file, box->GetText(), sizeof(file));
 		}
 	} else {
 		Assert(m_field);

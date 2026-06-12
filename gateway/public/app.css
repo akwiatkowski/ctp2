@@ -809,3 +809,11 @@ main {
   border-bottom: 1px dotted var(--gold-faint);
 }
 .chronicle__beats li:last-child { border-bottom: 0; }
+.chronicle__headline {
+  font-family: var(--font-data);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin: 0 0 0.8rem 0;
+}

@@ -75,11 +75,19 @@ module Ctp2Gateway
     end
 
     # The chronicle: the engine's Action Log narrated as a "story of the
-    # civilization", one section per round (StoryReducer over log_get).
+    # civilization", one section per round (StoryReducer over log_get). The
+    # page frames a live-polled body; htmx swaps fresh chapters every 10s.
     @[ARTA::Get("/story")]
     def story : AHTTP::Response
-      reducer = StoryReducer.new(@client)
-      html(200, "Chronicle", Views::Story.new(reducer.story), "/story")
+      body = Views::StoryBody.new(StoryReducer.new(@client).story).to_s
+      html(200, "Chronicle", Views::Story.new(body), "/story")
+    end
+
+    # htmx polls this every 10s and swaps it into #chronicle.
+    @[ARTA::Get("/fragments/story")]
+    def story_fragment : AHTTP::Response
+      body = Views::StoryBody.new(StoryReducer.new(@client).story).to_s
+      AHTTP::Response.new(body, headers: HTTP::Headers{"content-type" => HTML_CT})
     end
 
     # The MCP tool catalog, rendered from the live registry (Mcp::TOOLS) —

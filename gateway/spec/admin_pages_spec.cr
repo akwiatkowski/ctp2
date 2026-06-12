@@ -95,6 +95,16 @@ struct PagesTest < GatewayTestCase
     # orders are filtered out of the chronicle
     resp.body.should_not contain "MoveOrder"
     resp.body.should contain "founded"                   # headline summary
+    # the page frames a live-polled body (htmx swaps /fragments/story in)
+    resp.body.should contain %(hx-get="/fragments/story")
+  end
+
+  def test_story_fragment_is_bare : Nil
+    resp = self.get("/fragments/story")
+    resp.status_code.should eq 200
+    resp.body.should contain "founded a city at (18, 39)."
+    resp.body.should_not contain "<html"           # fragment, not a full page
+    resp.body.should_not contain "hx-get"          # the poll wrapper lives on the page
   end
 
   def test_tools_catalog_renders_registry : Nil

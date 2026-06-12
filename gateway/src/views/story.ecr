@@ -1,27 +1,6 @@
 <h1 class="page-title reveal">The <em>chronicle</em></h1>
-<p class="page-sub reveal"><%= HTML.escape(@story.headline) %></p>
+<p class="page-sub reveal">the realm's history, drawn from the action log · refreshed every 10 seconds</p>
 
-<% if err = @story.error %>
-  <div class="card card--alert reveal">
-    <p>The chronicle is unavailable — <%= HTML.escape(err) %>.</p>
-  </div>
-<% elsif @story.chapters.empty? %>
-  <div class="card reveal">
-    <p>No beats recorded yet. The ledger fills as the game is played —
-       found a city, research an advance, wage a war, then return.</p>
-  </div>
-<% else %>
-  <div class="chronicle reveal">
-    <% @story.chapters.each do |ch| %>
-      <section class="chronicle__chapter">
-        <h2 class="chronicle__round"><span class="ornament">✦</span> Round <%= ch.round %></h2>
-        <ul class="chronicle__beats">
-          <% ch.lines.each do |line| %>
-            <li><%= HTML.escape(line) %></li>
-          <% end %>
-        </ul>
-      </section>
-    <% end %>
-  </div>
-  <p class="page-sub"><%= @story.told %> beats drawn from <%= @story.total_events %> logged actions.</p>
-<% end %>
+<div id="chronicle" class="reveal" hx-get="/fragments/story" hx-trigger="every 10s" hx-swap="innerHTML">
+<%= @body %>
+</div>

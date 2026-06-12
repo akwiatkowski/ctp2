@@ -117,12 +117,24 @@ module Ctp2Gateway::Views
   end
 
   # The chronicle: the Action Log narrated as a "story of the civilization",
-  # one section per round (see StoryReducer).
+  # one section per round (see StoryReducer). Split like the dashboard — the
+  # page is a static frame around a live-polled body (StoryBody), so htmx can
+  # swap in fresh chapters as the game advances without a reload.
   struct Story
-    def initialize(@story : Ctp2Gateway::StoryReducer::Story)
+    def initialize(@body : String)
     end
 
     ECR.def_to_s "src/views/story.ecr"
+  end
+
+  # The live part of the chronicle (headline + chapters + tally). Rendered
+  # standalone for GET /fragments/story (htmx polls it) and embedded
+  # pre-rendered into the full Story page.
+  struct StoryBody
+    def initialize(@story : Ctp2Gateway::StoryReducer::Story)
+    end
+
+    ECR.def_to_s "src/views/story_body.ecr"
   end
 
   def self.page(title : String, body, path : String) : String

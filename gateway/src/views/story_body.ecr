@@ -1,0 +1,26 @@
+<p class="chronicle__headline"><%= HTML.escape(@story.headline) %></p>
+
+<% if err = @story.error %>
+  <div class="card card--alert">
+    <p>The chronicle is unavailable — <%= HTML.escape(err) %>.</p>
+  </div>
+<% elsif @story.chapters.empty? %>
+  <div class="card">
+    <p>No beats recorded yet. The ledger fills as the game is played —
+       found a city, research an advance, wage a war, then watch it appear here.</p>
+  </div>
+<% else %>
+  <div class="chronicle">
+    <% @story.chapters.each do |ch| %>
+      <section class="chronicle__chapter">
+        <h2 class="chronicle__round"><span class="ornament">✦</span> Round <%= ch.round %></h2>
+        <ul class="chronicle__beats">
+          <% ch.lines.each do |line| %>
+            <li><%= HTML.escape(line) %></li>
+          <% end %>
+        </ul>
+      </section>
+    <% end %>
+  </div>
+  <p class="page-sub"><%= @story.told %> beats drawn from <%= @story.total_events %> logged actions.</p>
+<% end %>

@@ -108,14 +108,17 @@ repro:
 	@test -n "$(CMDS)" || { echo "usage: make repro [SAVE=name|path] [BIN=...] CMDS='verb args; verb args'"; exit 2; }
 	@python3 ctp2_code/test/repro.py $(BIN) $(if $(SAVE),--save '$(SAVE)') --cmds '$(CMDS)' --args '$(REPRO_ARGS)'
 
-# Slower integration suite — headless game subprocess tests.
-# ~70 seconds.  Run on a slower cadence (every 4+ commits, pre-push).
+# Slower integration suite — headless game subprocess tests + the in-binary
+# "integration" doctest set (save/load, determinism, multi-turn AI).
+# ~7 minutes.  HIGHER TIER (>60s rule): pre-push / slower cadence, never
+# pre-commit.  The pre-commit loop is `make test` (~4s).
 test-integration: build
 	@echo "Running integration suite (headless game tests)..."
 	meson test -C build integration
 
-# Full test suite — fast + unit + integration + smoke.
-# ~100 seconds.  Run pre-release or when investigating a regression.
+# Full test suite — fast + unit + integration + smoke + scenario.
+# ~8 minutes (dominated by the integration tier).  Run pre-release or when
+# investigating a regression — not in the fast loop.
 test-full: build
 	@echo "Running full test suite..."
 	meson test -C build

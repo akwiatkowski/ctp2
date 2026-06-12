@@ -1631,11 +1631,14 @@ test('unit', unit_test_exe,
 test('integration', unit_test_exe,
   # Long-running headless game tests: save/load round-trips, determinism
   # cross-validation across seeds, multi-turn AI sanity, etc.  Tagged
-  # with TEST_SUITE_BEGIN("integration") at the source.  Expect ~73s on
-  # current hardware.  Run on a slower cadence than the fast loop —
-  # typically every few commits / pre-push, not pre-commit.
+  # with TEST_SUITE_BEGIN("integration") at the source.  ~400s on current
+  # hardware (grew well past the original ~73s as the integration set
+  # expanded).  HIGHER TIER by the >60s rule: pre-push / slower cadence,
+  # NEVER pre-commit (the fast loop is `meson test fast unit`).  Generous
+  # timeout on purpose — it is allowed to be slow here.
   args : ['--duration=true', '--test-suite=integration'],
-  timeout : 180,
+  timeout : 600,
+  suite : 'integration',
   workdir : cwd_for_tests,
 )
 

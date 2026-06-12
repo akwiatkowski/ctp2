@@ -32,9 +32,9 @@ module Ctp2Gateway
     # CreateCity/Battle.
     STORY_EVENTS = %w[
       CreateCity CaptureCity KillCity DisbandCity GiveCity
-      GrantAdvance CreateWonder BuildWonder WonderRemoved AccomplishFeat
-      EnterAge NukeCity KillPlayer Battle CityRiot GlobalWarming
-      OzoneDepletion ContactMade NewProposal Accept Reject
+      GrantAdvance CreateWonder BuildWonder WonderRemoved CreateBuilding
+      BuildingRemoved AccomplishFeat EnterAge NukeCity KillPlayer Battle
+      CityRiot GlobalWarming OzoneDepletion ContactMade NewProposal Accept Reject
     ]
 
     def initialize(@client : Ctp2Gateway::GameClient)
@@ -131,6 +131,8 @@ module Ctp2Gateway
       when "GrantAdvance" then counts["advances"] += 1; "#{w} mastered a new advance."
       when "CreateWonder", "BuildWonder" then counts["wonders"] += 1; "#{w} raised a great Wonder#{at}."
       when "WonderRemoved" then "A Wonder was lost to the ages."
+      when "CreateBuilding" then counts["buildings"] += 1; "#{w} completed a new building."
+      when "BuildingRemoved" then "#{w} lost a building."
       when "AccomplishFeat" then "#{w} accomplished a historic feat."
       when "EnterAge"     then "#{w} entered a new age."
       when "NukeCity"     then counts["nukes"] += 1; "#{w} loosed a nuclear strike#{at}."
@@ -150,7 +152,8 @@ module Ctp2Gateway
     private def headline(counts, rounds : Int32) : String
       parts = [] of String
       {"cities" => "founded", "captures" => "captured", "wonders" => "wonders",
-       "battles" => "battles", "advances" => "advances", "nukes" => "nuked"}.each do |k, label|
+       "buildings" => "buildings", "battles" => "battles", "advances" => "advances",
+       "nukes" => "nuked"}.each do |k, label|
         n = counts[k]
         parts << "#{n} #{label}" if n > 0
       end

@@ -121,6 +121,7 @@ LOG_JSON = %({"status":"ok","cmd":"log_get","result":{"count":4,"action_log":[) 
            %({"turn":2,"player":1,"event":"CreateCity","args":[{"kind":"player","value":1},{"kind":"location","x":18,"y":39,"z":0},{"kind":"city","id":1,"out":true}]},) +
            %({"turn":2,"player":1,"event":"MoveOrder","args":[{"kind":"army","id":7}]},) +
            %({"turn":4,"player":1,"event":"GrantAdvance","args":[{"kind":"player","value":1}]},) +
+           %({"turn":4,"player":1,"event":"CreateBuilding","args":[{"kind":"city","id":1},{"kind":"int","value":30}]},) +
            %({"turn":5,"player":2,"event":"Battle","args":[{"kind":"location","x":20,"y":40,"z":0}]}]}})
 
 def admin_responses

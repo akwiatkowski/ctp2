@@ -91,6 +91,7 @@ struct PagesTest < GatewayTestCase
     # beat text: leader name looked up + escaped, location rendered
     resp.body.should contain "Caesar &lt;Rome&gt; founded a city at (18, 39)."
     resp.body.should contain "mastered a new advance"
+    resp.body.should contain "completed a new building"   # building beats now narrated
     resp.body.should contain "Battle was joined at (20, 40)."
     # orders are filtered out of the chronicle
     resp.body.should_not contain "MoveOrder"

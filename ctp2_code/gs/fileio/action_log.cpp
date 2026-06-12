@@ -107,7 +107,8 @@ namespace
 		GEV_NukeCity, GEV_NukeCityUnit, GEV_NukeLocationUnit, GEV_KillPlayer,
 		GEV_DisbandUnit, GEV_DisbandCity, GEV_UpgradeUnit, GEV_ConvertCity,
 		GEV_UnconvertCity, GEV_GiveCity, GEV_EstablishEmbassy, GEV_GlobalWarming,
-		GEV_OzoneDepletion, GEV_ImprovementComplete, GEV_SellBuilding, GEV_BuyFront,
+		GEV_OzoneDepletion, GEV_ImprovementComplete, GEV_CreateBuilding,
+		GEV_BuildingRemoved, GEV_SellBuilding, GEV_BuyFront,
 		GEV_CityRiot, GEV_EnslaveSettler,
 
 		// --- Bucket 3-keep: real diplomacy (excludes AI deliberation) ------

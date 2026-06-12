@@ -50,7 +50,13 @@ bool                 TurnYearStatus::s_useCustomYear          = false;
 
 const MBCHAR *TurnYearStatus::GetCurrentYear()
 {
-	sint32 currentYear = turn_Get()->GetSessionYear();
+	// Use the DYNAMIC year (derived from the live round), not GetSessionYear():
+	// TurnCount::m_year is only seeded to initialYear (4000 BC) at game start and
+	// refreshed via explicit SetRound (the serve/load path). The normal UI turn
+	// flow advances the player's round but never m_year, so GetSessionYear()
+	// stays frozen at 4000 BC. GetYear() == NewTurnCount::GetCurrentYear() tracks
+	// the live round, matching the round shown below.
+	sint32 currentYear = turn_Get()->GetYear();
 
 	sint32 round       = player_Get(selitem_Get()->GetVisiblePlayer()) ?
 	                     player_Get(selitem_Get()->GetVisiblePlayer())->m_current_round :

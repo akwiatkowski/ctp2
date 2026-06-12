@@ -2411,6 +2411,13 @@ void CivApp::CleanupGameUI()
 
 void CivApp::CleanupGame(bool keepScenInfo)
 {
+	// Clear the loaded flag FIRST: teardown below destroys the world
+	// (m_game->Cleanup), but CleanupGame also pumps ProcessUI to drain the
+	// director/UI. ProcessUI's scroll path is gated on m_gameLoaded, and
+	// scrolling a half-destroyed game dereferences the freed world. Clearing
+	// it up front keeps ProcessUI out of the game-render path during cleanup.
+	m_gameLoaded = false;
+
 	// Clear per-session subsystems before legacy gameinit_Cleanup() runs.
 	// The Game container itself is owned by CivApp for its full lifetime
 	// (constructed eagerly in CivApp's ctor) — Cleanup() just empties it

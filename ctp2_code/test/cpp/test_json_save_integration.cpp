@@ -149,6 +149,22 @@ TEST_CASE("SaveJson composite: full game state writes all expected top-level key
     CHECK(doc["ai_state"].contains("agreements"));
     CHECK(doc["ai_state"]["diplomats"].is_array());
     CHECK(doc["ai_state"]["diplomats"].size() == 3);
+
+    // Action Log: the event-bus tap must have fired during 3 turns of a
+    // 3-player game (founding cities, creating units, issuing orders), and
+    // every entry is well-formed {turn, player, event, args}.
+    REQUIRE(doc.contains("action_log"));
+    CHECK(doc["action_log"].is_array());
+    CHECK(doc["action_log"].size() > 0);
+    if (!doc["action_log"].empty()) {
+        auto const &e = doc["action_log"].front();
+        CHECK(e.contains("turn"));
+        CHECK(e.contains("player"));
+        CHECK(e.contains("event"));
+        CHECK(e["event"].is_string());
+        CHECK_FALSE(e["event"].get<std::string>().empty());
+        CHECK(e["args"].is_array());
+    }
 }
 
 TEST_CASE("LoadJson round-trip: save / load / save preserves all state")

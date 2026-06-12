@@ -256,6 +256,7 @@ game_core_sources = [
 	'gs/core/diplomacy_observer.cpp',
 	'gs/core/game.cpp',
 	'gs/fileio/json_save.cpp',
+	'gs/fileio/action_log.cpp',
 	'gs/gameobj/MovePath.cpp',
 	'ctp/ctp2_utils/appstrings.cpp',
 	'ctp/ctp2_utils/c3cmdline.cpp',

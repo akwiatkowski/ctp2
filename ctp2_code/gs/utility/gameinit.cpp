@@ -86,6 +86,7 @@ auto gameinit_log = civlog::Get("gameinit");
 #include "gs/gameobj/DiplomaticRequestPool.h"
 #include "gs/core/render_observer.h"
 #include "gs/gameobj/EventTracker.h"
+#include "gs/fileio/action_log.h"          // action_log::Clear on fresh game
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/database/filenamedb.h"
@@ -1748,6 +1749,11 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 		tradebids_Set(new TradeBids());
 
 		eventtracker_Set(new EventTracker());
+
+		// Fresh game starts with an empty Action Log — otherwise a new game
+		// within one process would inherit the prior game's ledger (the tap's
+		// carrier is a process-lifetime static, not Game-singleton-scoped).
+		action_log::Clear();
 
 	SPLASH_STRING("Setting Up Players...");
 

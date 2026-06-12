@@ -61,6 +61,7 @@
 #include "gs/gameobj/PollutionConst.h"    // k_MAX_GLOBAL_POLLUTION_RECORD_TURNS
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/gameobj/AchievementTracker.h"
+#include "gs/fileio/action_log.h"          // action_log carrier round-trip
 #include "gs/gameobj/Advances.h"
 #include "gs/gameobj/Happy.h"             // HappyTimer (full Happy is D-3+)
 #include "gs/gameobj/HappyTracker.h"
@@ -5176,6 +5177,10 @@ bool SaveJson(char const *path)
     if (FeatTracker *ft = feattracker_Get()) doc["feat_tracker"] = *ft;
     if (EventTracker *et = eventtracker_Get()) doc["event_tracker"] = *et;
 
+    // Action Log: the engine-native action/event ledger.  Additive + optional
+    // on load (no schema bump) — see action_log.h and plans/ctp2-action-log.md.
+    doc["action_log"] = action_log::Get();
+
     // --- TopTen: not written by GameFile::Save (legacy-load-only in the
     // binary path); included in JSON so leaderboard state persists across
     // save/load.  See plan section "Open questions before coding".
@@ -5318,6 +5323,11 @@ bool LoadJson(char const *path)
         if (FeatTracker *ft = feattracker_Get(); doc.contains("feat_tracker") && ft) doc.at("feat_tracker").get_to(*ft);
         if (EventTracker *et = eventtracker_Get(); doc.contains("event_tracker") && et) doc.at("event_tracker").get_to(*et);
         if (doc.contains("top_ten")        && topten_Get())       doc.at("top_ten")       .get_to(*topten_Get());
+
+        // Action Log: optional-on-load.  Old saves with no action_log key
+        // reset the ledger to empty rather than carrying a prior game's log.
+        if (doc.contains("action_log")) action_log::Set(doc.at("action_log"));
+        else                            action_log::Clear();
 
         // Post-load fixups that mirror gameinit_Initialize's archive
         // branch (gameinit.cpp:1623-1639, 1677, 1761).  These rebuild

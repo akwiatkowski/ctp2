@@ -36,6 +36,7 @@
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/events/GameEventManager.h"
+#include "gs/fileio/action_log.h"            // actionlog_tap_Initialize / _Cleanup
 
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Score.h"
@@ -92,6 +93,7 @@ void events_Initialize()
 	tradeevent_Initialize();
 
 	trackerevent_Initialize();
+	actionlog_tap_Initialize();
 
 	gevmanager_Get()->AddCallback(GEV_CalcScores, GEV_PRI_Primary, &s_ScoreEventTest);
 
@@ -125,4 +127,6 @@ void events_Cleanup()
 	FeatTracker::CleanupEvents();
 
 	CtpAi::CleanupEvents();
+
+	actionlog_tap_Cleanup();
 }

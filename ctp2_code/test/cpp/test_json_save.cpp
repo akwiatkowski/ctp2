@@ -16,6 +16,7 @@
 #include "doctest.h"
 #include <new>  // ::operator new placement form
 #include "gs/fileio/json_save.h"
+#include "gs/fileio/action_log.h"
 #include "gs/world/Cell.h"
 #include "gs/world/TileInfo.h"
 #include "gs/world/UnseenCell.h"
@@ -4032,4 +4033,61 @@ TEST_CASE("json_save codec: outside-Latin-1 decodes to '?' not garbage")
     CHECK(latin1_safe("\xE4\xB8\xAD ok \xF0\x9F\x98\x80") == "? ok ?");
     // Truncated/invalid sequences must not read past the end.
     CHECK(latin1_safe("\xC3") == "?");
+}
+
+// --- Action Log carrier --------------------------------------------------
+// The carrier's contract + the exact save-side (Get -> doc) and load-side
+// (Set / Clear) logic json_save uses.  Pure and fast — no game machinery.
+// The real SaveJson/LoadJson wiring + the event-bus tap are covered by the
+// integration suite (SaveJson composite asserts a well-formed action_log
+// after a real game; N-turn determinism proves the round-trip is stable).
+
+TEST_CASE("action_log carrier: Append/Set/Clear/Get and save/load logic")
+{
+    action_log::Clear();
+    CHECK(action_log::Count() == 0);
+    CHECK(action_log::Get().is_array());
+
+    action_log::Append({{"turn", 5}, {"player", 0}, {"event", "CreateCity"},
+                        {"args", nlohmann::json::array()}});
+    action_log::Append({{"turn", 7}, {"player", 1}, {"event", "GrantAdvance"},
+                        {"args", nlohmann::json::array()}});
+    CHECK(action_log::Count() == 2);
+
+    // Save side: SaveJson does exactly this.
+    nlohmann::json doc;
+    doc["action_log"] = action_log::Get();
+
+    // Load side into a "fresh process": Clear, then reinstate from the doc.
+    action_log::Clear();
+    CHECK(action_log::Count() == 0);
+    REQUIRE(doc.contains("action_log"));
+    action_log::Set(doc["action_log"]);
+    REQUIRE(action_log::Count() == 2);
+    CHECK(action_log::Get()[0]["event"] == "CreateCity");
+    CHECK(action_log::Get()[0]["turn"]  == 5);
+    CHECK(action_log::Get()[1]["event"] == "GrantAdvance");
+    CHECK(action_log::Get()[1]["player"] == 1);
+}
+
+TEST_CASE("action_log carrier: missing key on load resets to empty (compat)")
+{
+    // Emulate loading a save written before the feature existed.
+    action_log::Clear();
+    action_log::Append({{"turn", 9}, {"event", "KillCity"}});
+    REQUIRE(action_log::Count() == 1);
+
+    nlohmann::json bare;  // a doc with no action_log key
+    if (bare.contains("action_log")) action_log::Set(bare["action_log"]);
+    else                             action_log::Clear();
+    CHECK(action_log::Count() == 0);
+}
+
+TEST_CASE("action_log carrier: Set with a non-array resets to empty (defensive)")
+{
+    action_log::Clear();
+    action_log::Append({{"turn", 1}});
+    action_log::Set(nlohmann::json("not an array"));
+    CHECK(action_log::Count() == 0);
+    CHECK(action_log::Get().is_array());
 }

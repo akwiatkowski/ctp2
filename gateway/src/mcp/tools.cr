@@ -102,6 +102,19 @@ module Ctp2Gateway::Mcp
       %({"type":"object","properties":{"path":{"type":"string"}},"required":["path"],"additionalProperties":false}),
       ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result { c.command("load_game #{a["path"].as_s}") }),
 
+    Tool.new("log_get",
+      "The Action Log: a ledger of every meaningful action/outcome the engine fired " \
+      "this game — orders (move/settle/bombard/...), world-changing beats (city founded/" \
+      "captured, unit built, advance granted, pop grown, battle, wonder), and real " \
+      "diplomacy (contact, proposal, accept/reject) — regardless of source (your commands, " \
+      "the AI's turns, slic). Each entry is {turn, player, event, args}; args carry typed " \
+      "ids ({kind:city,id}, {kind:location,x,y}, ...). The ledger rides inside the JSON " \
+      "save, so it spans save_game/load_game — a forked checkpoint keeps its own history. " \
+      "Returns {action_log:[...], count}. Use it to review what happened over a span of " \
+      "turns, or to build a narrative of the game.",
+      NO_ARGS,
+      ->(c : Ctp2Gateway::GameClient, _a : JSON::Any) : Ctp2Gateway::GameClient::Result { simple(c, "log_get") }),
+
     Tool.new("query_turn",
       "The clock: round (full rounds completed) and calendar `year`, plus the scored " \
       "deadline — end_of_game_year (default 2300 AD; highest score wins then), " \

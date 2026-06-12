@@ -39,6 +39,7 @@
 #include "gs/world/Cell.h"                    // Cell terrain / city / units
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
+#include "gs/fileio/action_log.h"             // action_log::Get / Count / Clear
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
 #include "gs/gameobj/MovePath.h"              // army_QueueMovePath
 #include "gs/gameobj/Events.h"                // GEV_ExploreOrder
@@ -417,6 +418,27 @@ std::string CmdLoadGame(const char * args)
     if (!GameFile::RestoreGame(args))
         return Err("load_game", "load_failed");
     return Ok("load_game");
+}
+
+// log_get — the Action Log: every meaningful action/event the engine fired
+// (orders, world-changing outcomes, real diplomacy) regardless of source —
+// human UI, gateway command, AI turn, slic.  Each entry is {turn, player,
+// event, args}.  The ledger rides in the JSON save, so it spans save/load.
+// Read-only; the engine owns population (no log_append).
+std::string CmdLogGet()
+{
+    json result;
+    result["action_log"] = action_log::Get();
+    result["count"]      = (sint32) action_log::Count();
+    return Ok("log_get", result);
+}
+
+// log_clear — reset the ledger.  The engine repopulates as events fire; this
+// is a testing/debugging lever (e.g. isolate one turn's actions).
+std::string CmdLogClear()
+{
+    action_log::Clear();
+    return Ok("log_clear");
 }
 
 // query_armies — the human's armies with what a player needs to command
@@ -2545,6 +2567,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("set_production ", 0) == 0)                  return CmdSetProduction(line.c_str() + 15);
     if (line.rfind("save_game ", 0) == 0)                       return CmdSaveGame(line.c_str() + 10);
     if (line.rfind("load_game ", 0) == 0)                       return CmdLoadGame(line.c_str() + 10);
+    if (line == "log_get")                                      return CmdLogGet();
+    if (line == "log_clear")                                    return CmdLogClear();
     if (line == "query_cities")                                 return QueryCities();
     if (line.rfind("query_city ", 0) == 0)                      return QueryCity(line.c_str() + 11);
     if (line == "query_city")                                   return QueryCity("");

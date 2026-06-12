@@ -41,16 +41,19 @@ aui_SDLSurface::aui_SDLSurface(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	SDL_PixelFormat* fmt = SDL_GetWindowSurface(m_window)->format;
 	if ( !(m_lpdds = lpdds) )
 	{
-		// Create secondary surface with the requested bpp (usually 16-bit).
-		// The game renders in 16-bit; SDL_BlitSurface handles conversion
-		// to the primary's 32-bit window format on macOS.
+		// Create the surface with the requested bpp. The game renders in
+		// 16-bit (RGB565); the secondary stays 16-bit and SDL_BlitSurface
+		// converts on the blit to the primary. The primary is now a standalone
+		// 32-bit ARGB8888 surface (NOT the window surface — incompatible with
+		// the SDL_Renderer), which Flip() uploads to the GPU screen texture.
+		// Explicit ARGB8888 masks avoid SDL_GetWindowSurface (which fails once
+		// a renderer exists) and match the SDL_PIXELFORMAT_ARGB8888 texture.
 		if (bpp == 16) {
 			m_lpdds = SDL_CreateRGBSurface(0, width, height, 16, 0xF800, 0x07E0, 0x001F, 0);
 		} else {
-			m_lpdds = SDL_CreateRGBSurface(0, width, height, fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+			m_lpdds = SDL_CreateRGBSurface(0, width, height, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
 		}
 		if ( m_lpdds == nullptr )
 		{
@@ -184,24 +187,26 @@ AUI_ERRCODE aui_SDLSurface::Blank(const uint32 &color)
 
 void aui_SDLSurface::Flip( )
 {
-	if ( m_isPrimary && m_window )
+	// Present the composited primary surface through the GPU: upload its
+	// pixels to the streaming texture and let the renderer scale/present it
+	// (Metal on macOS, GL/Vulkan on Linux). Scaling for free = smooth zoom;
+	// a sub-rect source = smooth scroll (wired separately). Falls back to the
+	// window-surface present if no renderer (shouldn't happen post-init).
+	if ( m_isPrimary && m_lpdds )
 	{
 		SDL_LockMutex(m_bltMutex);
-		SDL_UpdateWindowSurface( m_window );
-		SDL_UnlockMutex(m_bltMutex);
-	}
-	
-	// DEBUG: If this is the secondary surface, save it periodically
-	if ( !m_isPrimary && m_lpdds )
-	{
-		static int flipCount = 0;
-		if (++flipCount == 60 || flipCount == 120 || flipCount == 300) {
-			char fname[256];
-			snprintf(fname, sizeof(fname), "/tmp/ctp2_sec_%d.bmp", flipCount);
-			SDL_SaveBMP(m_lpdds, fname);
-			fprintf(stderr, "DEBUG: Saved secondary surface to %s (%dx%d @ %dbpp)\n",
-				fname, m_lpdds->w, m_lpdds->h, m_lpdds->format->BitsPerPixel);
+		if ( m_renderer && m_screenTexture )
+		{
+			SDL_UpdateTexture( m_screenTexture, nullptr, m_lpdds->pixels, m_lpdds->pitch );
+			SDL_RenderClear( m_renderer );
+			SDL_RenderCopy( m_renderer, m_screenTexture, nullptr, nullptr );
+			SDL_RenderPresent( m_renderer );
 		}
+		else if ( m_window )
+		{
+			SDL_UpdateWindowSurface( m_window );
+		}
+		SDL_UnlockMutex(m_bltMutex);
 	}
 }
 

@@ -149,35 +149,56 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// Ensure cursor is hidden inside the window (macOS may need this after window creation)
 	SDL_ShowCursor(SDL_DISABLE);
 
-	m_lpdds = SDL_GetWindowSurface(m_window);
-	if (!m_lpdds) {
+	// GPU present layer (portable SDL2 — Metal on macOS, GL/Vulkan on Linux):
+	// create an accelerated renderer + a streaming texture sized to the game
+	// resolution. The engine still composites into the software `primary`
+	// surface; Flip() uploads that to the texture and the renderer scales/
+	// presents it on the GPU. Logical size = game res, so resized/HiDPI
+	// windows scale on the GPU. NOTE: SDL_GetWindowSurface and SDL_Renderer are
+	// mutually exclusive on one window — the primary is therefore a standalone
+	// surface, not the window surface.
+	m_renderer = SDL_CreateRenderer(m_window, -1,
+		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (!m_renderer) {
+		// Software-renderer fallback keeps display-less / unusual-GPU setups
+		// (some Linux CI) alive rather than aborting.
+		m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_SOFTWARE);
+	}
+	if (!m_renderer) {
+		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+	}
+	SDL_RenderSetLogicalSize(m_renderer, m_width, m_height);
+	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+	m_screenTexture = SDL_CreateTexture(m_renderer,
+		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
+		m_width, m_height);
+	if (!m_screenTexture) {
 		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
 	}
 
-	fprintf(stderr, "[SDLUI] Requested screen: %dx%d @ %dbpp\n", m_width, m_height, m_bpp);
-	fprintf(stderr, "[SDLUI] Window surface:  %dx%d @ %dbpp\n", m_lpdds->w, m_lpdds->h, m_lpdds->format->BitsPerPixel);
+	fprintf(stderr, "[SDLUI] Requested screen: %dx%d @ %dbpp; renderer + ARGB8888 streaming texture\n",
+		m_width, m_height, m_bpp);
 
+	// Primary: standalone 32-bit ARGB8888 surface (bpp=32, no wrapped window
+	// surface). The blitter composites secondary(16) -> primary(32) via
+	// SDL_BlitSurface; Flip() uploads primary -> texture -> renderer.
 	m_primary = new aui_SDLSurface(
 		&errcode,
 		m_width,
 		m_height,
-		m_bpp,
-		m_lpdds,
+		32,
+		nullptr,
 		TRUE );
 	Assert( AUI_NEWOK(m_primary,errcode) );
 	assert( AUI_NEWOK(m_primary,errcode) );
 	if ( !AUI_NEWOK(m_primary,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	fprintf(stderr, "[SDLUI] Primary surface: %dx%d @ %dbpp\n", m_primary->Width(), m_primary->Height());
+	// Keep aui_SDLUI::m_lpdds pointing at the primary's SDL surface for any
+	// consumers that read it (it used to be the window surface).
+	m_lpdds = static_cast<aui_SDLSurface *>(m_primary)->DDS();
 
-	// Update UI dimensions to match actual surface size (critical for Retina / macOS)
-	if (m_primary->Width() != m_width || m_primary->Height() != m_height) {
-		fprintf(stderr, "[SDLUI] Updating UI dimensions from %dx%d to %dx%d\n",
-			m_width, m_height, m_primary->Width(), m_primary->Height());
-		Resize(m_primary->Width(), m_primary->Height());
-	}
+	fprintf(stderr, "[SDLUI] Primary surface: %dx%d @ 32bpp\n", m_primary->Width(), m_primary->Height());
 
-	// Use actual primary surface dimensions for secondary to avoid mismatch on Retina
 	m_secondary = new aui_SDLSurface(
 		&errcode,
 		m_width,
@@ -206,6 +227,14 @@ aui_SDLUI::getDisplay()
 
 aui_SDLUI::~aui_SDLUI( )
 {
+	if ( m_screenTexture ) {
+		SDL_DestroyTexture(m_screenTexture);
+		m_screenTexture = nullptr;
+	}
+	if ( m_renderer ) {
+		SDL_DestroyRenderer(m_renderer);
+		m_renderer = nullptr;
+	}
 	if ( m_window ) {
 		SDL_DestroyWindow(m_window);
 		m_window = nullptr;

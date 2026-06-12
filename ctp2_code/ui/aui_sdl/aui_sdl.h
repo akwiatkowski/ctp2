@@ -34,6 +34,12 @@ protected:
 	BOOL			m_exclusiveMode;
 	static SDL_Surface *	m_lpdd;
 	static SDL_Window *	m_window;
+	// GPU present layer (hybrid): the engine still renders into the software
+	// `primary` surface; Flip() uploads it to m_screenTexture and the renderer
+	// presents/scales it on the GPU (Metal on macOS, GL/Vulkan on Linux —
+	// portable SDL2, no per-platform code). Statics: one window/renderer.
+	static SDL_Renderer *	m_renderer;
+	static SDL_Texture *	m_screenTexture;
 
 private:
 	static sint32		m_SDLRefCount;

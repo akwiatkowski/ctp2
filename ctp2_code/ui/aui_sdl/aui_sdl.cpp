@@ -9,6 +9,8 @@
 
 SDL_Surface *aui_SDL::m_lpdd = nullptr;
 SDL_Window *aui_SDL::m_window = nullptr;
+SDL_Renderer *aui_SDL::m_renderer = nullptr;
+SDL_Texture *aui_SDL::m_screenTexture = nullptr;
 uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
 sint32 aui_SDL::m_SDLRefCount = 0;
 

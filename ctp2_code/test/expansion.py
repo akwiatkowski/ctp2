@@ -348,6 +348,19 @@ def run(client):
     print(f"  set_rates ok: rations -> {r['result']['rations']['level']} "
           f"(expectation {r['result']['rations']['expectation']})")
 
+    # military readiness footing: query_player.economy reports it; set_readiness
+    # accepts peace/alert/war (and rejects junk) and applies immediately.
+    assert "readiness" in econ and "level" in econ["readiness"], (
+        f"economy.readiness missing: {econ}")
+    assert client.command("set_readiness", "nonsense").get("detail") == "bad_args"
+    r = client.command("set_readiness", "war")
+    assert r.get("status") == "ok" and r["result"]["readiness"]["label"] == "war", (
+        f"set_readiness war failed: {r}")
+    r = client.command("set_readiness", "peace")
+    assert r.get("status") == "ok" and r["result"]["readiness"]["level"] == 0, (
+        f"set_readiness peace failed: {r}")
+    print(f"  set_readiness ok: war -> peace, cost {r['result']['readiness']['cost']}")
+
     # specialists + governor: query_city exposes both; set_specialist validates
     # worker availability; set_governor toggles the mayor + profile.
     c0 = client.result("query_city", 0)

@@ -241,6 +241,17 @@ module Ctp2Gateway::Mcp
         c.command("set_rates #{a["workday"].as_i} #{a["wages"].as_i} #{a["rations"].as_i}")
       }),
 
+    Tool.new("set_readiness",
+      "Set your military footing: peace, alert, or war. Higher readiness raises every " \
+      "unit's ready-HP (combat strength) at a per-turn gold cost (see " \
+      "query_player.economy.readiness.cost). A war-prep lever distinct from declare_war — " \
+      "go alert/war BEFORE a campaign so your units fight at full strength; drop to peace " \
+      "afterward to stop paying the upkeep.",
+      %({"type":"object","properties":{"level":{"type":"string","enum":["peace","alert","war"]}},"required":["level"],"additionalProperties":false}),
+      ->(c : Ctp2Gateway::GameClient, a : JSON::Any) : Ctp2Gateway::GameClient::Result {
+        c.command("set_readiness #{a["level"].as_s}")
+      }),
+
     Tool.new("set_specialist",
       "Reassign citizens in one of YOUR cities between tile-work and a specialist role. " \
       "pop_type: 1=scientist 2=entertainer 3=farmer 4=laborer 5=merchant. delta>0 turns " \

@@ -1806,6 +1806,36 @@ std::string CmdSetRates(const char * args)
     return Ok("set_rates", result);
 }
 
+// set_readiness <peace|alert|war|0|1|2> — the military footing the UI exposes
+// but the API ignored. Higher readiness raises every unit's ready-HP (combat
+// effectiveness) at a per-turn gold cost (economy.readiness.cost); switching
+// applies immediately. A war-prep lever distinct from declaring war.
+std::string CmdSetReadiness(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("set_readiness", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("set_readiness", "no_human_player");
+
+    // Accept a word or a 0/1/2 index.
+    READINESS_LEVEL level;
+    if      (!strncmp(args, "peace", 5) || args[0] == '0') level = READINESS_LEVEL_PEACE;
+    else if (!strncmp(args, "alert", 5) || args[0] == '1') level = READINESS_LEVEL_ALERT;
+    else if (!strncmp(args, "war",   3) || args[0] == '2') level = READINESS_LEVEL_WAR;
+    else return Err("set_readiness", "bad_args");
+
+    human->SetReadinessLevel(level, true);   // immediate
+    if (gevmanager_Get()) gevmanager_Get()->Process();
+
+    sint32 const applied = human->GetReadinessLevel();
+    char const * label = (applied == 0) ? "peace" : (applied == 1) ? "alert" : (applied == 2) ? "war" : "unknown";
+    json result;
+    result["readiness"] = { {"level", applied}, {"label", label}, {"cost", human->GetReadinessCost()} };
+    gc_log->info("set_readiness: level {} ({})", applied, label);
+    return Ok("set_readiness", result);
+}
+
 // set_specialist <city_index> <pop_type> <delta> — convert citizens between
 // tile-working and a specialist role. pop_type: 1=scientist 2=entertainer
 // 3=farmer 4=laborer 5=merchant. delta>0 turns workers INTO specialists
@@ -2388,6 +2418,13 @@ json PlayerJson(sint32 p, Player * pl)
         econ["workday"]  = { {"level", h ? h->GetUnitlessWorkday() : 0}, {"expectation", pl->GetWorkdayExpectation()} };
         econ["wages"]    = { {"level", h ? h->GetUnitlessWages()   : 0}, {"expectation", pl->GetWagesExpectation()} };
         econ["rations"]  = { {"level", h ? h->GetUnitlessRations() : 0}, {"expectation", pl->GetRationsExpectation()} };
+        // Military readiness footing (peace/alert/war): raises unit ready-HP at a
+        // per-turn gold cost. Feed set_readiness.
+        {
+            sint32 const rl = pl->GetReadinessLevel();
+            char const * label = (rl == 0) ? "peace" : (rl == 1) ? "alert" : (rl == 2) ? "war" : "unknown";
+            econ["readiness"] = { {"level", rl}, {"label", label}, {"cost", pl->GetReadinessCost()} };
+        }
         j["economy"] = econ;
     }
     // Diplomacy relative to the HUMAN player (null for the human's own row).
@@ -2609,6 +2646,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("establish_trade_route ", 0) == 0)            return CmdEstablishTradeRoute(line.c_str() + 22);
     if (line.rfind("set_science_rate ", 0) == 0)                 return CmdSetScienceRate(line.c_str() + 17);
     if (line.rfind("set_rates ", 0) == 0)                        return CmdSetRates(line.c_str() + 10);
+    if (line.rfind("set_readiness ", 0) == 0)                    return CmdSetReadiness(line.c_str() + 14);
     if (line.rfind("set_specialist ", 0) == 0)                   return CmdSetSpecialist(line.c_str() + 15);
     if (line.rfind("set_governor ", 0) == 0)                     return CmdSetGovernor(line.c_str() + 13);
     if (line == "query_governor_profiles")                       return QueryGovernorProfiles();

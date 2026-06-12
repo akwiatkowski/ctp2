@@ -103,7 +103,7 @@ bool CTPRecord::ParseFileInArray(DBLexer *lex, std::vector<char *> &array)
 		lex->GetToken();
 		const char *value = lex->GetTokenText();
 		char *owned = new char[strlen(value) + 1];
-		strcpy(owned, value);
+		strlcpy(owned, value, strlen(value) + 1);
 		array.push_back(owned);
 	} while(lex->PeekAhead() == k_Token_String);
 	return true;
@@ -209,7 +209,7 @@ bool CTPRecord::ParseFileInArray(DBLexer *lex, char **array, sint32 *numElements
 		}
 		// TODO(phase-2): ownership transfer out of function — needs separate strategy
 		array[*numElements] = new char[strlen(value) + 1];
-		strcpy(array[*numElements], value);
+		strlcpy(array[*numElements], value, strlen(value) + 1);
 		*numElements += 1;
 	}while(lex->PeekAhead() == k_Token_String);
 	return true;

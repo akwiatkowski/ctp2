@@ -1011,8 +1011,7 @@ class PlayerSymbol_LeaderName : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-			strcpy(text, player_Get(pl)->GetLeaderName());
+			strlcpy(text, player_Get(pl)->GetLeaderName(), maxLen);
 			return TRUE;
 		}
 		return FALSE;
@@ -1071,11 +1070,9 @@ class PlayerSymbol_He : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HE_MALE"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HE_MALE"), maxLen);
 			} else {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HE_FEMALE"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HE_FEMALE"), maxLen);
 			}
 			return TRUE;
 		}
@@ -1091,11 +1088,9 @@ class PlayerSymbol_Him : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIM_MALE"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIM_MALE"), maxLen);
 			} else {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIM_FEMALE"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIM_FEMALE"), maxLen);
 			}
 			return TRUE;
 		}
@@ -1111,11 +1106,9 @@ class PlayerSymbol_His : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIS_MALE"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIS_MALE"), maxLen);
 			} else {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIS_FEMALE"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIS_FEMALE"), maxLen);
 			}
 			return TRUE;
 		}
@@ -1131,11 +1124,9 @@ class PlayerSymbol_HeCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HE_MALE_CAP"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HE_MALE_CAP"), maxLen);
 			} else {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HE_FEMALE_CAP"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HE_FEMALE_CAP"), maxLen);
 			}
 			return TRUE;
 		}
@@ -1151,11 +1142,9 @@ class PlayerSymbol_HimCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIM_MALE_CAP"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIM_MALE_CAP"), maxLen);
 			} else {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIM_FEMALE_CAP"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIM_FEMALE_CAP"), maxLen);
 			}
 			return TRUE;
 		}
@@ -1171,11 +1160,9 @@ class PlayerSymbol_HisCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIS_MALE_CAP"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIS_MALE_CAP"), maxLen);
 			} else {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIS_FEMALE_CAP"));
+				strlcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIS_FEMALE_CAP"), maxLen);
 			}
 			return TRUE;
 		}
@@ -1191,11 +1178,9 @@ class PlayerSymbol_Sir : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_MALE"));
+				strlcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_MALE"), maxLen);
 			} else {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_FEMALE"));
+				strlcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_FEMALE"), maxLen);
 			}
 			return TRUE;
 		}
@@ -1211,11 +1196,9 @@ class PlayerSymbol_SirCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_MALE_CAP"));
+				strlcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_MALE_CAP"), maxLen);
 			} else {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_FEMALE_CAP"));
+				strlcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_FEMALE_CAP"), maxLen);
 			}
 			return TRUE;
 		}

@@ -468,8 +468,8 @@ void ProfileDB::DefaultSettings()
 	StringId    leaderNameId = g_theCivilisationDB->Get(m_civIndex)->GetLeaderNameMale();
 	StringId    civNameId = g_theCivilisationDB->Get(m_civIndex)->GetPluralCivName();
 
-	strcpy(m_leaderName, stringdb_Get()->GetNameStr(leaderNameId));
-	strcpy(m_civName, stringdb_Get()->GetNameStr(civNameId));
+	strlcpy(m_leaderName, stringdb_Get()->GetNameStr(leaderNameId), sizeof(m_leaderName));
+	strlcpy(m_civName, stringdb_Get()->GetNameStr(civNameId), sizeof(m_civName));
 }
 
 ProfileDB::~ProfileDB()
@@ -623,6 +623,7 @@ BOOL ProfileDB::Parse(FILE *file)
 							c3errors_ErrorDialog("Profile", "Line %d: string too long", linenum);
 							return FALSE;
 						}
+						// TODO(strlcpy): unknown dst size
 						strcpy(var->m_stringValue, value);
 						break;
 					default:

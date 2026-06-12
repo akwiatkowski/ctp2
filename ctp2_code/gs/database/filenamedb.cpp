@@ -63,7 +63,7 @@ void FilenameDB::SetName(sint32 index, char str[_MAX_PATH])
 	Assert(index < m_size);
     Assert(m_map);
 
-    strcpy(m_map[index].m_name, str);
+    strlcpy(m_map[index].m_name, str, sizeof(m_map[index].m_name));
 }
 
 void FilenameDB::SetFilename(sint32 index, MBCHAR *s)
@@ -72,7 +72,7 @@ void FilenameDB::SetFilename(sint32 index, MBCHAR *s)
 	Assert(index < m_size);
     Assert(m_map);
 
-    strcpy(m_map[index].m_filename, s);
+    strlcpy(m_map[index].m_filename, s, sizeof(m_map[index].m_filename));
 }
 
 sint32 FilenameDB::ParseAFilename(Token *token, sint32 count)

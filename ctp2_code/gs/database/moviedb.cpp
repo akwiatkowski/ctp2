@@ -61,7 +61,7 @@ void MovieDB::SetName(sint32 index, char str[_MAX_PATH])
 	Assert(index < m_size);
     Assert(m_map);
 
-    strcpy(m_map[index].m_name, str);
+    strlcpy(m_map[index].m_name, str, sizeof(m_map[index].m_name));
 }
 
 void MovieDB::SetMovieFilename(sint32 index, MBCHAR *s)
@@ -70,7 +70,7 @@ void MovieDB::SetMovieFilename(sint32 index, MBCHAR *s)
 	Assert(index < m_size);
     Assert(m_map);
 
-    strcpy(m_map[index].m_movieFilename, s);
+    strlcpy(m_map[index].m_movieFilename, s, sizeof(m_map[index].m_movieFilename));
 }
 
 sint32 MovieDB::ParseAMovie(Token *movieToken, sint32 count)

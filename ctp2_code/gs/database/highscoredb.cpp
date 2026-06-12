@@ -51,7 +51,7 @@ sint32 HighScoreDB::AddHighScore(MBCHAR *name, sint32 score)
 	sint32 i = 0;
 
 	HighScoreInfo *newScore = new HighScoreInfo;
-	strcpy(newScore->m_name, name);
+	strlcpy(newScore->m_name, name, sizeof(newScore->m_name));
 	newScore->m_score = score;
 	newScore->m_next = nullptr;
 

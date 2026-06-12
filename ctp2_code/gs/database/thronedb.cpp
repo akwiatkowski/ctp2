@@ -169,7 +169,7 @@ sint32 ThroneDB::ParseAThrone(Token *throneToken, ThroneInfo *throneInfo)
 		return FALSE;
 	}
 
-	strcpy(throneInfo->m_zoomedImageFilename, "");
+	strlcpy(throneInfo->m_zoomedImageFilename, "", sizeof(throneInfo->m_zoomedImageFilename));
 	throneInfo->m_text = -1;
 	throneInfo->m_upgradeSoundID = -1;
 	throneInfo->m_isCeiling = false;
@@ -209,7 +209,7 @@ sint32 ThroneDB::ParseAThrone(Token *throneToken, ThroneInfo *throneInfo)
 			if(!CheckToken(throneToken, TOKEN_QUOTED_STRING, "Zoomed image filename expected"))
 				return(FALSE);
 			throneToken->GetString( str );
-			strcpy( throneInfo->m_zoomedImageFilename, str );
+			strlcpy(throneInfo->m_zoomedImageFilename, str, sizeof(throneInfo->m_zoomedImageFilename));
 			break;
 		case TOKEN_THRONE_IS_CEILING:
 			throneInfo->m_isCeiling = true;

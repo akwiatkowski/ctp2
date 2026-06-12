@@ -285,7 +285,7 @@ void db_maybe_copy(char * newFilePath)
 	_chdir(db_get_code_directory());
 
 	char oldFilePath[PATH_MAX];
-	strcpy(oldFilePath, newFilePath);
+	strlcpy(oldFilePath, newFilePath, sizeof(oldFilePath));
 
 	char *dot = strrchr(oldFilePath, '.');
 	if(!dot) {

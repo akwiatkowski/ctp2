@@ -60,7 +60,7 @@
 
 MemberClass::MemberClass(char const * name)
 {
-	strcpy(m_name, name);
+	strlcpy(m_name, name, sizeof(m_name));
 	m_numBits = 0;
 	m_parseNum = 0;
 }

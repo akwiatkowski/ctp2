@@ -249,8 +249,7 @@ void slicif_add_object(struct PSlicObject *obj)
 	obj->m_from_file     = s_file_num;
 	const char *filename = slicif_get_filename();
 	obj->m_filename      = (char *)malloc(strlen(filename) + 1);
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	strcpy(obj->m_filename, filename);
+	strlcpy(obj->m_filename, filename, strlen(filename) + 1);
 
 	g_slicObjectArray[g_slicNumEntries] = obj;
 	g_slicNumEntries++;
@@ -1781,8 +1780,7 @@ void slicif_start_segment(char *name)
 char *slicif_get_segment_name_copy()
 {
 	char *name = (char *)malloc(strlen(s_current_segment_name) + 1);
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	strcpy(name, s_current_segment_name);
+	strlcpy(name, s_current_segment_name, strlen(s_current_segment_name) + 1);
 	return name;
 }
 

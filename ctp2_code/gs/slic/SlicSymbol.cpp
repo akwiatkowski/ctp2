@@ -326,8 +326,7 @@ BOOL SlicSymbolData::SetValueFromStackValue(SS_TYPE type, SlicStackValue value)
                 {
                     delete [] m_val.m_hard_string;
 					m_val.m_hard_string = new MBCHAR[strlen(buf) + 1];
-					// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-					strcpy(m_val.m_hard_string, buf);
+					strlcpy(m_val.m_hard_string, buf, strlen(buf) + 1);
 					return TRUE;
 				} else {
 					Assert(FALSE);
@@ -621,13 +620,11 @@ BOOL SlicSymbolData::GetText(MBCHAR *text, sint32 maxLen) const
 			dataSym->GetText(text, maxLen);
 			break;
 		case SLIC_SYM_STRING:
-			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-			strcpy(text, m_val.m_hard_string);
+			strlcpy(text, m_val.m_hard_string, maxLen);
 			break;
 		case SLIC_SYM_SVAR:
 			if(stringdb_Get()->GetNameStr(m_val.m_string_value)) {
-				// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-				strcpy(text, stringdb_Get()->GetNameStr(m_val.m_string_value));
+				strlcpy(text, stringdb_Get()->GetNameStr(m_val.m_string_value), maxLen);
 			} else {
 				snprintf(text, maxLen, "<Bad String ID %d>", m_val.m_string_value);
 			}
@@ -933,8 +930,7 @@ void SlicSymbolData::SetString(MBCHAR const * str)
         if (str)
         {
 		    m_val.m_hard_string = new char[strlen(str) + 1];
-            // TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-            strcpy(m_val.m_hard_string, str);
+            strlcpy(m_val.m_hard_string, str, strlen(str) + 1);
         }
         else
         {

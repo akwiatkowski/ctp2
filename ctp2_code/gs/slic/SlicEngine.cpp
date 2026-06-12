@@ -2458,7 +2458,7 @@ void SlicEngine::CheckPendingResearch()
 
 void SlicEngine::AddResearchOnUnblank(sint32 owner, MBCHAR *text)
 {
-	strcpy(m_researchText, text);
+	strlcpy(m_researchText, text, sizeof(m_researchText));
 	m_researchOwner = owner;
 	m_doResearchOnUnblank = TRUE;
 }

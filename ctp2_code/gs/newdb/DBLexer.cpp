@@ -178,12 +178,10 @@ sint32 DBLexer::GetToken()
 	m_tokenLine[nextTokenText] = g_dblexerLineNumber;
 
 	if(m_nextToken != k_Token_String) {
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strcpy(m_tokenText[nextTokenText], dbltext);
+		strlcpy(m_tokenText[nextTokenText], dbltext, sizeof(m_tokenText[nextTokenText]));
 	} else {
 
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strcpy(m_tokenText[nextTokenText], dbltext + 1);
+		strlcpy(m_tokenText[nextTokenText], dbltext + 1, sizeof(m_tokenText[nextTokenText]));
 
 		m_tokenText[nextTokenText][strlen(m_tokenText[nextTokenText]) - 1] = 0;
 	}
@@ -298,8 +296,7 @@ bool DBLexer::GetFileAssignment(char *&filename)
 	if (result) {
 		delete [] filename;
 		filename = new char[temp.size() + 1];
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strcpy(filename, temp.c_str());
+		strlcpy(filename, temp.c_str(), temp.size() + 1);
 	}
 	return result;
 }
@@ -321,8 +318,7 @@ bool DBLexer::GetFile(char *&filename)
 	if (result) {
 		delete [] filename;
 		filename = new char[temp.size() + 1];
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strcpy(filename, temp.c_str());
+		strlcpy(filename, temp.c_str(), temp.size() + 1);
 	}
 	return result;
 }

@@ -54,6 +54,12 @@ def run(client):
     for aid in range(0, 110):  # debug shortcut past the tech climb
         client.command("grant_advance", aid)
 
+    # query_terraform lists ALL buildable tile improvements (farm/mine/road/
+    # structure/terraform); this slice exercises the terraform CLASS, so filter
+    # to is_terraform options (the others lack to_terrain).
+    def terraform_opts(tf):
+        return [o for o in tf["options"] if o.get("is_terraform")]
+
     home = client.result("query_cities")["cities"][0]["pos"]
     spot = None
     for dx in (-1, 0, 1):
@@ -61,7 +67,7 @@ def run(client):
             if dx == dy == 0:
                 continue
             tf = client.result("query_terraform", home["x"] + dx, home["y"] + dy)
-            if tf["tile_owner"] == 1 and tf["options"]:
+            if tf["tile_owner"] == 1 and terraform_opts(tf):
                 spot = (home["x"] + dx, home["y"] + dy)
                 break
         if spot:
@@ -69,7 +75,7 @@ def run(client):
     assert spot, "no terraform options inside own borders with full tech tree"
     x, y = spot
 
-    cheapest = min(client.result("query_terraform", x, y)["options"],
+    cheapest = min(terraform_opts(client.result("query_terraform", x, y)),
                    key=lambda o: o["cost"])
     print(f"  terraform target: {cheapest['name']} -> {cheapest['to_terrain_name']} "
           f"(cost {cheapest['cost']}, turns {cheapest['turns']})")

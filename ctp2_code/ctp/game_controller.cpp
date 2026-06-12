@@ -1024,11 +1024,14 @@ std::string QueryTerraform(const char * args)
             if (!rec->GetTerraformTerrainIndex(to)) continue;
             if (to == terrain) continue;  // no-op transform
         }
-        // Authoritative buildability gate — exactly what CmdTerraform enforces,
-        // so the listed options match what the verb will actually accept
-        // (advances, terrain rules, excludes, already-built, borders).
+        // Buildability gate — advances, terrain rules, excludes, already-built,
+        // borders.  check_materials=FALSE on purpose: this is a QUERY, so we list
+        // everything buildable in principle and report current affordability
+        // separately in the `affordable` field below.  (Gating on materials here
+        // would hide every option whenever Public Works is low — e.g. right after
+        // researching the tech that unlocks terraforming, before PW accumulates.)
         ERR_BUILD_INST err;
-        if (!human->CanCreateImprovement(i, pos, 0, true, err)) continue;
+        if (!human->CanCreateImprovement(i, pos, 0, false, err)) continue;
         sint32 const cost = terrainutil_GetProductionCost(i, pos, 0);
         json o;
         o["improvement_id"]  = i;

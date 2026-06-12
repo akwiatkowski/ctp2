@@ -3472,6 +3472,13 @@ bool TiledMap::ScrollMap(sint32 deltaX, sint32 deltaY)
 	if (g_modalWindow)
 		return false;
 
+	// A map scroll is meaningless without a world and a render surface. This
+	// can be reached during game teardown (CleanupGame pumps ProcessUI ->
+	// ui_CheckForScroll while the world is already destroyed) — bail rather
+	// than dereference a freed world (quit-from-game SIGSEGV, fault @ 0x18).
+	if (!world_Get() || !background_Get())
+		return false;
+
 	RECT	repaintRect;
 	RECT	oldMapViewRect;
 
@@ -4551,6 +4558,13 @@ bool TiledMap::PointInMask(POINT hitPt) const
 
 bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
 {
+	// No world -> a screen point maps to no tile. Reached during game teardown
+	// (CleanupGame pumps ProcessUI -> aui_UI Idle -> TiledMap::Idle) after the
+	// world is destroyed but before the UI is; bail rather than deref a freed
+	// world (close-game SIGSEGV in World::IsXwrap, fault @0xc).
+	if (!world_Get())
+		return false;
+
 	sint32      width   = GetZoomTilePixelWidth();
 	sint32      height  = GetZoomTilePixelHeight();
 
@@ -5063,6 +5077,9 @@ void TiledMap::Drop(aui_MouseEvent *data)
 
 void TiledMap::Idle()
 {
+	// Nothing to idle without a world (UI idle pump during game teardown).
+	if (!world_Get()) return;
+
 	MapPoint point;
 	if (!GetMouseTilePos(point)) return;
 

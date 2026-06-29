@@ -477,6 +477,12 @@ public:
 	//                     render state (surface, view rect, zoom, fog) after.
 	void		FullMapPixelSize(sint32 zoomLevel, sint32 *width, sint32 *height);
 	AUI_ERRCODE	RenderFullMap(aui_Surface *dest, sint32 zoomLevel);
+	// Render from a SELECTED player's fogged perspective: fogged terrain +
+	// infrastructure + unit/city sprites, only where that player has explored.
+	// Writes the explored region's pixel rect to *exploredPixelRect (for the
+	// caller to crop to "what the player sees"). Restores all render state.
+	AUI_ERRCODE	RenderPlayerView(aui_Surface *dest, sint32 zoomLevel,
+	                             sint32 playerIndex, RECT *exploredPixelRect);
 
 	void		DrawHilite( BOOL drawHilite ) { m_drawHilite = drawHilite; }
 
@@ -549,6 +555,10 @@ protected:
 	// When TRUE, CalculateWrap ignores fog-of-war (renders every tile fully
 	// visible). Set only during RenderFullMap; restored to FALSE after.
 	bool			m_renderEverything;
+	// When TRUE, explored tiles render at FULL brightness (no "remembered"
+	// dimming) while UNEXPLORED tiles stay black — i.e. "the world as this
+	// player has discovered it". Set only during RenderPlayerView.
+	bool			m_renderExploredAsVisible;
 
 	RECT			m_displayRect;
 	RECT			m_surfaceRect;

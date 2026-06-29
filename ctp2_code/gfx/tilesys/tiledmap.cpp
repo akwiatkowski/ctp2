@@ -183,6 +183,7 @@ TiledMap::TiledMap(MapPoint &size)
 	m_surfPitch             (0),
 	m_surfIsLocked          (false),
 	m_renderEverything      (false),
+	m_renderExploredAsVisible (false),
     m_displayRect           (RECT_INVISIBLE),
     m_surfaceRect           (RECT_INVISIBLE),
 	m_mapBounds             (RECT_INVISIBLE),
@@ -602,6 +603,112 @@ AUI_ERRCODE TiledMap::RenderFullMap(aui_Surface *dest, sint32 zoomLevel)
 	m_renderEverything = savedEverything;
 	m_mapViewRect      = savedView;
 	m_surfaceRect      = savedSurfRect;
+	SetZoomLevel(savedZoom);
+
+	return AUI_ERRCODE_OK;
+}
+
+AUI_ERRCODE TiledMap::RenderPlayerView(aui_Surface *dest, sint32 zoomLevel,
+                                       sint32 playerIndex, RECT *exploredPixelRect)
+{
+	World * w   = world_Get();
+	Player * pl = player_Get(playerIndex);
+	if (!dest || !w || !m_tileSet || !pl || !pl->m_vision)
+		return AUI_ERRCODE_INVALIDPARAM;
+
+	if (zoomLevel < 0)              zoomLevel = 0;
+	if (zoomLevel > k_ZOOM_LARGEST) zoomLevel = k_ZOOM_LARGEST;
+
+	// --- save state ---
+	sint32 const  savedZoom    = m_zoomLevel;
+	aui_Surface * savedSurface = m_surface;
+	RECT const    savedView    = m_mapViewRect;
+	RECT const    savedSurfRect= m_surfaceRect;
+	bool const    savedEvery   = m_renderEverything;
+	Vision *      savedVision  = m_localVision;
+
+	SetZoomLevel(zoomLevel);
+	sint32 const mw    = w->GetXWidth();
+	sint32 const mh    = w->GetYHeight();
+	double const scale = GetZoomScale(zoomLevel);
+
+	m_mapViewRect.left = 0; m_mapViewRect.top = 0;
+	m_mapViewRect.right = mw; m_mapViewRect.bottom = mh;
+	m_surfaceRect.left = 0; m_surfaceRect.top = 0;
+	m_surfaceRect.right = dest->Width(); m_surfaceRect.bottom = dest->Height();
+	m_renderEverything = false;          // unexplored tiles stay black
+	m_renderExploredAsVisible = true;    // explored tiles at full brightness
+	m_localVision      = pl->m_vision;   // render from this player's perspective
+
+	RetargetTileSurface(dest);
+	LockThisSurface(dest);
+	if (m_surfBase) memset(m_surfBase, 0, (size_t) m_surfHeight * m_surfPitch);
+
+	// 1) fogged terrain + 2) infrastructure — direct pixel writes, so they run
+	//    while WE hold the surface lock (m_surfBase).
+	for (sint32 i = 0; i < mh; ++i) {
+		for (sint32 j = 0; j < mw; ++j) {
+			CalculateWrap(dest, i, j);
+			DrawImprovements(dest, i, j, false);
+		}
+	}
+
+	// Sprites lock the surface THEMSELVES (Sprite::DrawDirect -> LockSurface),
+	// so we must release our lock first or the re-lock fails -> null buffer ->
+	// crash. Drop the lock before the sprite pass.
+	UnlockSurface();
+
+	// 3) unit/city sprites the player can see; also accumulate the explored
+	//    pixel bounds so the caller can crop to "what the player sees".
+	sint32 pminX = dest->Width(), pminY = dest->Height(), pmaxX = 0, pmaxY = 0;
+	bool   any   = false;
+	sint32 const tw = GetZoomTilePixelWidth();
+	sint32 const th = GetZoomTilePixelHeight();
+	sint32 const hr = GetZoomTileHeadroom();
+	for (sint32 y = 0; y < mh; ++y) {
+		for (sint32 x = 0; x < mw; ++x) {
+			MapPoint pos(x, y);
+			if (!m_localVision->IsExplored(pos)) continue;
+
+			sint32 px, py;
+			maputils_MapXY2PixelXY(pos.x, pos.y, &px, &py);
+			any = true;
+			if (px < pminX) pminX = px;
+			if (py < pminY) pminY = py;
+			if (px + tw > pmaxX) pmaxX = px + tw;
+			if (py + th + hr > pmaxY) pmaxY = py + th + hr;
+
+			Unit top;
+			if (w->GetTopVisibleUnit(playerIndex, pos, top)) {
+				std::shared_ptr<UnitActor> actor = top.GetActor();
+				if (actor)
+					actor->DrawDirect(dest, px, py, scale);
+			}
+		}
+	}
+
+	RetargetTileSurface(savedSurface);
+
+	if (exploredPixelRect) {
+		if (!any) {
+			exploredPixelRect->left = 0; exploredPixelRect->top = 0;
+			exploredPixelRect->right = dest->Width();
+			exploredPixelRect->bottom = dest->Height();
+		} else {
+			sint32 const m = tw;   // a tile of margin around the explored region
+			exploredPixelRect->left   = (pminX - m < 0) ? 0 : pminX - m;
+			exploredPixelRect->top    = (pminY - m < 0) ? 0 : pminY - m;
+			exploredPixelRect->right  = (pmaxX + m > dest->Width())  ? dest->Width()  : pmaxX + m;
+			exploredPixelRect->bottom = (pmaxY + m > dest->Height()) ? dest->Height() : pmaxY + m;
+		}
+	}
+
+	// --- restore ---
+	m_renderEverything = savedEvery;
+	m_renderExploredAsVisible = false;
+	m_mapViewRect      = savedView;
+	m_surfaceRect      = savedSurfRect;
+	m_localVision      = savedVision;
 	SetZoomLevel(savedZoom);
 
 	return AUI_ERRCODE_OK;
@@ -1695,7 +1802,8 @@ sint32 TiledMap::CalculateWrap
 	if (baseTile == nullptr) return -1;
 
 	sint32  terrainType;
-	bool    fog = !m_renderEverything && !m_localVision->IsVisible(tempPos);
+	bool    fog = !m_renderEverything && !m_renderExploredAsVisible
+	              && !m_localVision->IsVisible(tempPos);
 	if (fog)
 	{
 		UnseenCellCarton ucell;

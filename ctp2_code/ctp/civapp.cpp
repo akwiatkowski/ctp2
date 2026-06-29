@@ -2937,6 +2937,52 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 #endif
 				}
 			}
+			else if (strncmp(cmd, "render_map_player ", 18) == 0) {
+				// render_map_player <player> <path> [zoom]
+				// Fogged, cropped-to-explored isometric render from ONE empire's
+				// perspective, with infrastructure + unit/city sprites. Responds
+				// "ok" with detail "crop=x,y,w,h" (the explored pixel rect).
+				if (!m_gameLoaded) {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				} else {
+#ifdef USE_SDL
+					int  player = -1, zoom = 1;
+					char pathBuf[1024] = {0};
+					sscanf(cmd + 18, "%d %1023s %d", &player, pathBuf, &zoom);
+					TiledMap *tm = tiledmap_Get();
+					if (player < 0 || !pathBuf[0]) {
+						smoketest_send_response("error", cmd, "bad_args");
+					} else if (!tm) {
+						smoketest_send_response("error", cmd, "no_map");
+					} else {
+						sint32 SW = 0, SH = 0;
+						tm->FullMapPixelSize(zoom, &SW, &SH);
+						AUI_ERRCODE err = AUI_ERRCODE_OK;
+						aui_SDLSurface *off =
+							new aui_SDLSurface(&err, SW, SH, 16, nullptr, FALSE);
+						if (off && err == AUI_ERRCODE_OK && off->DDS()) {
+							RECT crop = {0, 0, 0, 0};
+							tm->RenderPlayerView(off, zoom, player, &crop);
+							if (SDL_SaveBMP(off->DDS(), pathBuf) == 0) {
+								char detail[96];
+								snprintf(detail, sizeof(detail), "crop=%d,%d,%d,%d",
+									(int) crop.left, (int) crop.top,
+									(int) (crop.right - crop.left),
+									(int) (crop.bottom - crop.top));
+								smoketest_send_response("ok", cmd, detail);
+							} else {
+								smoketest_send_response("error", cmd, "sdl_save_failed");
+							}
+						} else {
+							smoketest_send_response("error", cmd, "surface_alloc_failed");
+						}
+						delete off;
+					}
+#else
+					smoketest_send_response("error", cmd, "not_sdl");
+#endif
+				}
+			}
 			else if (strncmp(cmd, "move_unit ", 10) == 0) {
 				if (m_gameLoaded) {
 					int city_idx = 0;

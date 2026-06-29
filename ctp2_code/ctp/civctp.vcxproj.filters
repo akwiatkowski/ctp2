@@ -1345,9 +1345,6 @@
     <ClInclude Include="..\robot\aibackdoor\BSet.h">
       <Filter>robot\aibackdoor</Filter>
     </ClInclude>
-    <ClInclude Include="..\robot\aibackdoor\civarchive.h">
-      <Filter>robot\aibackdoor</Filter>
-    </ClInclude>
     <ClInclude Include="..\robot\aibackdoor\common.h">
       <Filter>robot\aibackdoor</Filter>
     </ClInclude>
@@ -3658,9 +3655,6 @@
       <Filter>robot\pathing</Filter>
     </ClCompile>
     <ClCompile Include="..\robot\aibackdoor\BSet.cpp">
-      <Filter>robot\aibackdoor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\robot\aibackdoor\civarchive.cpp">
       <Filter>robot\aibackdoor</Filter>
     </ClCompile>
     <ClCompile Include="..\ui\aui_common\aui_action.cpp">

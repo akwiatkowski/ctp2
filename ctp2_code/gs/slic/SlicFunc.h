@@ -106,7 +106,6 @@ class   SlicStringToToken;
 #include "gs/database/dbtypes.h"                // StringId;
 #include "gs/events/GameEventDescription.h"
 class Army;
-class CivArchive;
 class GameEventArgList;
 class MapPoint;
 class SlicSegment;

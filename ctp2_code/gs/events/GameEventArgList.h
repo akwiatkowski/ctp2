@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Improved slic event debugging. (7-Nov-2007 Martin Gühmann)
+// - Improved slic event debugging. (7-Nov-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -49,7 +49,6 @@ class Army;
 class Path;
 class TerrainImprovement;
 class TradeRoute;
-class CivArchive;
 
 class GameEventArgList
 {

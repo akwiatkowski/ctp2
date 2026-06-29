@@ -143,7 +143,6 @@ ctp2_SOURCES = \
 	robot/pathing/TradeAstar.cpp \
 	robot/pathing/unitastar.cpp \
 	robot/aibackdoor/bset.cpp \
-	robot/aibackdoor/civarchive.cpp \
 	ui/aui_common/aui_action.cpp \
 	ui/aui_common/aui_animate.cpp \
 	ui/aui_common/aui_audiomanager.cpp \

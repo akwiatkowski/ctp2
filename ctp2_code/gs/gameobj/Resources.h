@@ -37,8 +37,6 @@
 
 #include <vector>
 
-class CivArchive;
-
 class Resources {
 private:
 	sint32 m_numGoods;

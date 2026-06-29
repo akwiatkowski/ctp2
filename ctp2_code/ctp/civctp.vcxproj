@@ -939,7 +939,6 @@ rem                                                 if                          
     <ClInclude Include="..\robot\aibackdoor\AVL.h" />
     <ClInclude Include="..\robot\aibackdoor\Bit_Table.h" />
     <ClInclude Include="..\robot\aibackdoor\BSet.h" />
-    <ClInclude Include="..\robot\aibackdoor\civarchive.h" />
     <ClInclude Include="..\robot\aibackdoor\common.h" />
     <ClInclude Include="..\robot\aibackdoor\DynArr.h" />
     <ClInclude Include="..\robot\aibackdoor\list_array.h" />
@@ -1850,7 +1849,6 @@ rem                                                 if                          
     <ClCompile Include="..\net\io\net_io.cpp" />
     <ClCompile Include="..\net\io\net_thread.cpp" />
     <ClCompile Include="..\robot\aibackdoor\BSet.cpp" />
-    <ClCompile Include="..\robot\aibackdoor\civarchive.cpp" />
     <ClCompile Include="..\robot\pathing\Astar.cpp" />
     <ClCompile Include="..\robot\pathing\AstarPnt.cpp" />
     <ClCompile Include="..\robot\pathing\AVLHeap.cpp" />

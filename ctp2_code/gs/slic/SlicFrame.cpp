@@ -1504,74 +1504,79 @@ void SlicFrame::ReportSFError(SFN_ERROR err, SlicSymbolData *sym)
 
 	snprintf(buf, sizeof(buf), "In object %s, function %s: ",
 			m_segment->GetName(), sym->GetFunction()->GetName());
+	MBCHAR const *message = nullptr;
 	switch(err) {
 		case SFN_ERROR_NUM_ARGS:
-			strcat(buf, "Wrong number of arguments");
+			message = "Wrong number of arguments";
 			break;
 		case SFN_ERROR_TYPE_ARGS:
-			strcat(buf, "Wrong type of argument");
+			message = "Wrong type of argument";
 			break;
 		case SFN_ERROR_BAD_FUNCTION:
-			strcat(buf, "Bad function, bad!");
+			message = "Bad function, bad!";
 			break;
 		case SFN_ERROR_INTERNAL:
-			strcat(buf, "Internal failure (not your fault, don't feel bad)");
+			message = "Internal failure (not your fault, don't feel bad)";
 			break;
 		case SFN_ERROR_TYPE_BUILTIN:
-			strcat(buf, "Wrong kind of builtin variable");
+			message = "Wrong kind of builtin variable";
 			break;
 		case SFN_ERROR_NOT_ADVANCE:
-			strcat(buf, "Argument is not an advance");
+			message = "Argument is not an advance";
 			break;
 		case SFN_ERROR_NOT_UNIT_FLAG:
-			strcat(buf, "Argument is not a unit flag");
+			message = "Argument is not a unit flag";
 			break;
 		case SFN_ERROR_NOT_IN_BUTTON:
-			strcat(buf, "This function can only be used inside buttons");
+			message = "This function can only be used inside buttons";
 			break;
 		case SFN_ERROR_NOT_DIP_MESSAGE:
-			strcat(buf, "This function can only be used in diplomatic messages");
+			message = "This function can only be used in diplomatic messages";
 			break;
 		case SFN_ERROR_NOT_MESSAGE_TYPE:
-			strcat(buf, "Invalid message type");
+			message = "Invalid message type";
 			break;
 		case SFN_ERROR_NOT_SEGMENT:
 			snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "There is no object named %s", g_missingSegment);
 			break;
 		case SFN_ERROR_NOT_TRADE_BID:
-			strcat(buf, "Not in a trade bid message");
+			message = "Not in a trade bid message";
 			break;
 		case SFN_ERROR_NOT_SINGLE_RECIPIENT:
-			strcat(buf, "Single recipient function called from multiple recipient message");
+			message = "Single recipient function called from multiple recipient message";
 			break;
 		case SFN_ERROR_NOT_ADJACENT:
-			strcat(buf, "This function only works with adjacent locations");
+			message = "This function only works with adjacent locations";
 			break;
 		case SFN_ERROR_UNKNOWN_UNIT_TYPE:
-			strcat(buf, "Unknown unit type");
+			message = "Unknown unit type";
 			break;
 		case SFN_ERROR_UNKNOWN_BUILDING:
-			strcat(buf, "Unknown building");
+			message = "Unknown building";
 			break;
 		case SFN_ERROR_OUT_OF_RANGE:
-			strcat(buf, "Value out of bounds");
+			message = "Value out of bounds";
 			break;
 		case SFN_ERROR_DEAD_PLAYER:
-			strcat(buf, "Referenced player is not in the game");
+			message = "Referenced player is not in the game";
 			break;
 		case SFN_ERROR_EFFECT_NOT_FOUND:
-			strcat(buf, "The named special effect does not exist");
+			message = "The named special effect does not exist";
 			break;
 		case SFN_ERROR_SOUND_NOT_FOUND:
-			strcat(buf, "The named sound does not exist");
+			message = "The named sound does not exist";
 			break;
 		case SFN_ERROR_CIV_NOT_FOUND:
-			strcat(buf, "The named civilization does not exist");
+			message = "The named civilization does not exist";
 			break;
 
 		default:
-			strcat(buf, "Unknown error");
+			message = "Unknown error";
 			break;
+	}
+	if (message) {
+		size_t const len = strlen(buf);
+		snprintf(buf + len, sizeof(buf) - len, "%s", message);
 	}
 	if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 		c3errors_ErrorDialog("Slic", buf);

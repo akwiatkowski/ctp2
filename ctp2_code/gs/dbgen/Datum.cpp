@@ -554,8 +554,7 @@ void Datum::ExportBitPairInitialization(FILE *outfile)
 				// else: empty string is fine
 			} else if (m_hasValue) {
 				fprintf(outfile, "    m_%s = new char[%zu];\n", m_bitPairDatum->m_name, strlen(val.textValue) + 1);
-				// TODO(strlcpy): unknown dst size
-				fprintf(outfile, "    strcpy(m_%s, \"%s\");\n", m_bitPairDatum->m_name, val.textValue);
+				fprintf(outfile, "    memcpy(m_%s, \"%s\", %zu);\n", m_bitPairDatum->m_name, val.textValue, strlen(val.textValue) + 1);
 			} else {
 				fprintf(outfile, "    m_%s = NULL;\n", m_bitPairDatum->m_name);
 			}
@@ -668,8 +667,7 @@ void Datum::ExportInitialization(FILE *outfile)
 				if (m_hasValue)
 				{
 					fprintf(outfile, "    m_%s = new char[%zu];\n", m_name, strlen(val.textValue) + 1);
-					// TODO(strlcpy): unknown dst size
-					fprintf(outfile, "    strcpy(m_%s, \"%s\");\n", m_name, val.textValue);
+					fprintf(outfile, "    memcpy(m_%s, \"%s\", %zu);\n", m_name, val.textValue, strlen(val.textValue) + 1);
 				}
 				else
 				{
@@ -801,8 +799,7 @@ void Datum::ExportOperatorAssignment(FILE *outfile)
 			fprintf(outfile, "%sfor (index = 0; index < rval.m_num%s; index++)\n", ind, m_name);
 			fprintf(outfile, "%s{\n", ind);
 			fprintf(outfile, "%s    m_%s[index] = new char [strlen(rval.m_%s[index])+1];\n", ind, m_name, m_name);
-			// TODO(strlcpy): unknown dst size
-			fprintf(outfile, "%s    strcpy(m_%s[index], rval.m_%s[index]);\n", ind, m_name, m_name);
+			fprintf(outfile, "%s    memcpy(m_%s[index], rval.m_%s[index], strlen(rval.m_%s[index])+1);\n", ind, m_name, m_name, m_name);
 			fprintf(outfile, "%s}\n", ind);
 			fprintf(outfile, "%sm_num%s = rval.m_num%s;\n\n", ind, m_name, m_name);
 			break;
@@ -833,8 +830,7 @@ void Datum::ExportOperatorAssignment(FILE *outfile)
 			fprintf(outfile, "%sfor (index = 0; index < rval.m_num%s; index++)\n", ind, m_name);
 			fprintf(outfile, "%s{\n", ind);
 			fprintf(outfile, "%s    m_%s[index] = new char [strlen(rval.m_%s[index])+1];\n", ind, m_name, m_name);
-			// TODO(strlcpy): unknown dst size
-			fprintf(outfile, "%s    strcpy(m_%s[index], rval.m_%s[index]);\n", ind, m_name, m_name);
+			fprintf(outfile, "%s    memcpy(m_%s[index], rval.m_%s[index], strlen(rval.m_%s[index])+1);\n", ind, m_name, m_name, m_name);
 			fprintf(outfile, "%s}\n\n", ind);
 			break;
 
@@ -874,9 +870,8 @@ void Datum::ExportOperatorAssignment(FILE *outfile)
 				fprintf(outfile, "%s    m_%s = new char[strlen(rval.m_%s)+1];\n",
 				        ind, m_bitPairDatum->m_name, m_bitPairDatum->m_name
 				       );
-				// TODO(strlcpy): unknown dst size
-				fprintf(outfile, "%s    strcpy(m_%s, rval.m_%s);\n",
-				        ind, m_bitPairDatum->m_name, m_bitPairDatum->m_name
+				fprintf(outfile, "%s    memcpy(m_%s, rval.m_%s, strlen(rval.m_%s)+1);\n",
+				        ind, m_bitPairDatum->m_name, m_bitPairDatum->m_name, m_bitPairDatum->m_name
 				       );
 				fprintf(outfile, "%s}\n\n", ind);
 			}
@@ -891,8 +886,7 @@ void Datum::ExportOperatorAssignment(FILE *outfile)
 		fprintf(outfile, "%sif (rval.m_%s)\n", ind, m_name);
 		fprintf(outfile, "%s{\n", ind);
 		fprintf(outfile, "%s    m_%s = new char [strlen(rval.m_%s)+1];\n", ind, m_name, m_name);
-		// TODO(strlcpy): unknown dst size
-		fprintf(outfile, "%s    strcpy(m_%s, rval.m_%s);\n", ind, m_name, m_name);
+		fprintf(outfile, "%s    memcpy(m_%s, rval.m_%s, strlen(rval.m_%s)+1);\n", ind, m_name, m_name, m_name);
 		fprintf(outfile, "%s}\n\n", ind);
 	}
 	else {
@@ -1062,9 +1056,8 @@ void Datum::ExportMerge(FILE *outfile, char *recordName)
 				fprintf(outfile, "        m_%s[index_%s] = new char[strlen(rval.m_%s[index_%s])+1];\n",
 				                        m_name, m_name, m_name, m_name
 				       );
-				// TODO(strlcpy): unknown dst size
-				fprintf(outfile, "        strcpy(m_%s[index_%s], rval.m_%s[index_%s]);\n",
-				                        m_name, m_name, m_name, m_name
+				fprintf(outfile, "        memcpy(m_%s[index_%s], rval.m_%s[index_%s], strlen(rval.m_%s[index_%s])+1);\n",
+					                        m_name, m_name, m_name, m_name, m_name, m_name
 				       );
 				fprintf(outfile, "    }\n");
 				break;
@@ -1122,9 +1115,8 @@ void Datum::ExportMerge(FILE *outfile, char *recordName)
 						fprintf(outfile, "        delete m_%s;\n", m_bitPairDatum->m_name);
 						fprintf(outfile, "        m_%s = new char[strlen(rval.m_%s)+1];\n",
 								m_bitPairDatum->m_name, m_bitPairDatum->m_name);
-						// TODO(strlcpy): unknown dst size
-						fprintf(outfile, "        strcpy(m_%s, rval.m_%s);\n",
-								m_bitPairDatum->m_name, m_bitPairDatum->m_name);
+						fprintf(outfile, "        memcpy(m_%s, rval.m_%s, strlen(rval.m_%s)+1);\n",
+								m_bitPairDatum->m_name, m_bitPairDatum->m_name, m_bitPairDatum->m_name);
 					}
 					fprintf(outfile, "    }\n\n");
 					break;

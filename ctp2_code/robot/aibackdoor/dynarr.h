@@ -38,6 +38,7 @@
 #define DYNAMIC_ARRAY_H__
 
 #include <algorithm>
+#include <vector>
 
 template <class T> class DynamicArray;
 #define k_FUDGE_MAX_ARMY_SIZE 9
@@ -560,8 +561,8 @@ template <class T> void DynamicArray<T>::KillList(const CAUSE_REMOVE_ARMY cause,
     if (m_nElements <= 0)
         return;
 
-    T * killList = new T[m_nElements];
-    std::copy(m_array, m_array + m_nElements, killList);
+    std::vector<T> killList(m_nElements);
+    std::copy(m_array, m_array + m_nElements, killList.begin());
 
     int n = m_nElements;
     int i;
@@ -575,7 +576,6 @@ template <class T> void DynamicArray<T>::KillList(const CAUSE_REMOVE_ARMY cause,
         killList[i].DelPointers();
     }
 
-    delete [] killList;
     m_nElements = 0;
 }
 
@@ -584,8 +584,8 @@ template <class T> void DynamicArray<T>::KillList()
     if (m_nElements <= 0)
         return;
 
-    T * killList = new T[m_nElements];
-    std::copy(m_array, m_array + m_nElements, killList);
+    std::vector<T> killList(m_nElements);
+    std::copy(m_array, m_array + m_nElements, killList.begin());
 
     int n = m_nElements;
     int i;
@@ -597,7 +597,6 @@ template <class T> void DynamicArray<T>::KillList()
     {
         killList[i].DelPointers();
     }
-    delete [] killList;
     m_nElements = 0;
 }
 

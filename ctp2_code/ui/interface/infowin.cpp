@@ -32,6 +32,8 @@
 #include "ctp/c3.h"
 #include "ui/interface/infowin.h"
 
+#include <vector>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_stringtable.h"
 #include "ui/aui_common/aui_textfield.h"
@@ -818,7 +820,7 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 	sint32 i = 0;
 
 	sint32 maxPlayers = k_MAX_PLAYERS + g_deadPlayer->GetCount();
-	sint32 *color = new sint32[maxPlayers];
+	std::vector<sint32> color(maxPlayers);
 
 	infoYCount = 0;
 	infoXCount = 0;
@@ -875,8 +877,6 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 
 	if (!infoXCount)
 	{
-		delete [] color;
-
 		infoGraph->RenderGraph();
 		return 0;
 	}
@@ -931,11 +931,9 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 
 	Assert(playerCount == infoYCount);
 
-	infoGraph->SetLineData(infoYCount, infoXCount, (*infoGraphData), color);
+	infoGraph->SetLineData(infoYCount, infoXCount, (*infoGraphData), color.data());
 	infoGraph->SetGraphBounds(minRound, curRound, minPower, maxPower);
 	infoGraph->RenderGraph();
-
-	delete [] color;
 
 	if (dumpStrings)
     {

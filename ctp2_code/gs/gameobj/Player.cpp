@@ -1499,8 +1499,7 @@ void Player::BeginTurnScience()
 		sint32 i;
 		sint32 j;
 
-		uint8 *mergedCanGet = new uint8[g_theAdvanceDB->NumRecords()];
-		memset(mergedCanGet, 0, g_theAdvanceDB->NumRecords());
+		std::vector<uint8> mergedCanGet(g_theAdvanceDB->NumRecords());
 		sint32 num;
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
 			if(player_Get(i)) {
@@ -3771,7 +3770,7 @@ uint32 Player::GetAverageEventPollution()
 
 void Player::AttemptRevolt()
 {
-	bool	*revolution;
+	std::vector<bool>	revolution;
 
 	sint32	 i;
 	sint32	 j;
@@ -3791,8 +3790,7 @@ void Player::AttemptRevolt()
 	if (cityNum < 1)
 		return;
 
-	revolution = new bool[cityNum] ;
-	memset(revolution, false, sizeof(bool) * cityNum) ;
+	revolution.assign(cityNum, false) ;
 
 	for (i=0; i<cityNum; i++)
 		{
@@ -3843,8 +3841,6 @@ void Player::AttemptRevolt()
 			cityData->NoRevoltCountdown();
 		}
 	}
-
-	delete [] revolution ;
 
 	for(i = m_all_cities->Num() - 1; i >= 0; i--) {
 		cityData = m_all_cities->Get(i).GetData()->GetCityData();
@@ -5418,7 +5414,7 @@ void Player::BeginTurnBattleFlags()
 {
 	sint32 i, n, d = 0;
 	n = m_battleFlags->Num();
-	sint32 *dead_index = new sint32[n];
+	std::vector<sint32> dead_index(n);
 
 	for(i = 0; i < n; i++) {
 		if(!world_Get()->GetCell(m_battleFlags->Get(i))->DecayBattleFlag()) {
@@ -5429,8 +5425,6 @@ void Player::BeginTurnBattleFlags()
 	for(i = d-1; i >= 0; i--) {
 		m_battleFlags->DelIndex(dead_index[i]);
 	}
-
-	delete [] dead_index;
 }
 #endif
 
@@ -5497,7 +5491,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 	{
 		if(!network_Get().IsClient() || network_Get().IsLocalPlayer(m_owner))
 		{
-			Unit *ua = new Unit[polluters];
+			std::vector<Unit> ua(polluters);
 			for(sint32 i = 0; i < polluters; i++) {
 				ua[i].m_id = (0);
 			}
@@ -5539,7 +5533,6 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 					ua[po].CityToPark(m_owner);
 				}
 			}
-			delete [] ua;
 		}
 	}
 

@@ -35,6 +35,7 @@
 #include "ui/aui_common/aui_control.h"
 
 #include <string>
+#include <vector>
 #ifndef WIN32
 #include <sstream>
 #else
@@ -1642,17 +1643,16 @@ void aui_Control::ResizeLayers(ldl_datablock *theBlock)
 
 	for(sint32 layerIndex = 0; layerIndex < m_numberOfLayers; layerIndex++) {
 
-		sint32 *rowIndices = new sint32[m_imagesPerLayer];
+		std::vector<sint32> rowIndices(m_imagesPerLayer);
 		sint32 numberOfRows = SegmentImages(theBlock,
-			layerIndex, rowIndices);
+			layerIndex, rowIndices.data());
 
 		ResizeLayerWidth(theBlock, layerIndex, numberOfRows,
-			rowIndices, width);
+			rowIndices.data(), width);
 
 		ResizeLayerHeight(theBlock, layerIndex, numberOfRows,
-			rowIndices, height);
+			rowIndices.data(), height);
 
-		delete [] rowIndices;
 	}
 
 

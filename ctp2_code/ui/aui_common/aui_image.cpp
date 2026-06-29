@@ -30,6 +30,8 @@
 
 #include "ctp/c3.h"
 
+#include <vector>
+
 #include "ui/aui_common/aui_blitter.h"
 #include "ui/aui_common/aui_Factory.h"
 #include "ui/aui_common/aui_image.h"
@@ -282,20 +284,18 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 		{
 			const sint32 pitch = surface->Pitch();
 
-			uint8 *temp = new uint8[ pitch ];
+			std::vector<uint8> temp( pitch );
 			uint8 *top = (uint8 *)bits;
 			uint8 *bot = top + pitch * ( surface->Height() - 1 );
 			for ( sint32 i = surface->Height() / 2; i; i-- )
 			{
-				memcpy( temp, top, pitch );
+				memcpy( temp.data(), top, pitch );
 				memcpy( top, bot, pitch );
-				memcpy( bot, temp, pitch );
+				memcpy( bot, temp.data(), pitch );
 
 				top += pitch;
 				bot -= pitch;
 			}
-
-			delete [] temp;
 
 			errcode = surface->Unlock( bits );
 			Assert( AUI_SUCCESS(errcode) );

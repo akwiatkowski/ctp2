@@ -31,6 +31,8 @@
 
 #include "ctp/c3.h"
 
+#include <vector>
+
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/spritesys/spriteutils.h"
 
@@ -400,9 +402,9 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, Pixel32 *shadowBuf, uint16 wi
 {
 	Pixel32             *srcPixel = buf;
 
-	Pixel16             *outBuf = new Pixel16[(1+height+width*height)*8];
+	std::vector<Pixel16> outBuf((1+height+width*height)*8);
 	Pixel16             *returnBuf = nullptr;
-	uint16              *table = (uint16 *)outBuf;
+	uint16              *table = (uint16 *)outBuf.data();
 	Pixel16             *startOfData;
 	Pixel16             *dataPtr;
 	Pixel16             *startDataPtr;
@@ -414,7 +416,7 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, Pixel32 *shadowBuf, uint16 wi
 
 	*table++ = (uint16)height;
 
-	startOfData = outBuf + 1 + height;
+	startOfData = outBuf.data() + 1 + height;
 	dataPtr = startOfData;
 
 	for(sint32 y=0; y<height; y++)
@@ -433,7 +435,7 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, Pixel32 *shadowBuf, uint16 wi
 		}
 	}
 
-	sint32 resultSize = (dataPtr - outBuf);
+	sint32 resultSize = (dataPtr - outBuf.data());
 
 
 
@@ -442,8 +444,7 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, Pixel32 *shadowBuf, uint16 wi
 
 	returnBuf = new Pixel16[resultSize];
 
-	memcpy(returnBuf, outBuf, resultSize * sizeof(Pixel16));
-	delete[] outBuf;
+	memcpy(returnBuf, outBuf.data(), resultSize * sizeof(Pixel16));
 	if (size)
 		*size = resultSize * sizeof(Pixel16);
 
@@ -454,9 +455,9 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, uint16 width, uint16 height, 
 {
 	Pixel32             *srcPixel = buf;
 
-	Pixel16             *outBuf = new Pixel16[(1+height+width*height)*8];
+	std::vector<Pixel16> outBuf((1+height+width*height)*8);
 	Pixel16             *returnBuf = nullptr;
-	uint16              *table = (uint16 *)outBuf;
+	uint16              *table = (uint16 *)outBuf.data();
 	Pixel16             *startOfData;
 	Pixel16             *dataPtr;
 	Pixel16             *startDataPtr;
@@ -465,7 +466,7 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, uint16 width, uint16 height, 
 
 	*table++ = (uint16)height;
 
-	startOfData = outBuf + 1 + height;
+	startOfData = outBuf.data() + 1 + height;
 	dataPtr = startOfData;
 
 	for(sint32 y=0; y<height; y++) {
@@ -483,15 +484,14 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, uint16 width, uint16 height, 
 		}
 	}
 
-	sint32 resultSize = (dataPtr - outBuf);
+	sint32 resultSize = (dataPtr - outBuf.data());
 
 
 
 
 	returnBuf = new Pixel16[resultSize];
 
-	memcpy(returnBuf, outBuf, resultSize * sizeof(Pixel16));
-	delete[] outBuf;
+	memcpy(returnBuf, outBuf.data(), resultSize * sizeof(Pixel16));
 	if (size)
 		*size = resultSize * sizeof(Pixel16);
 

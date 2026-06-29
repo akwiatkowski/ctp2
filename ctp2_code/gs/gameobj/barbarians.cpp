@@ -61,6 +61,8 @@
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/wonderutil.h"
 
+#include <vector>
+
 
 
 struct BestUnit
@@ -100,7 +102,7 @@ sint32 Barbarians::ChooseUnitType()
 {
 	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 	sint32 num_best_units = risk->GetBarbarianUnitRankMin();
-	BestUnit *best = new BestUnit[num_best_units];
+	std::vector<BestUnit> best(num_best_units);
 	sint32 i;
 	sint32 j;
 	sint32 k;
@@ -161,7 +163,6 @@ sint32 Barbarians::ChooseUnitType()
 
 		ret = best[whichbest].index;
 	}
-	delete [] best;
 	return ret;
 }
 
@@ -251,7 +252,7 @@ sint32 Barbarians::ChooseSeaUnitType()
 {
 	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 	sint32 num_best_units = risk->GetBarbarianUnitRankMin();
-	BestUnit *best = new BestUnit[num_best_units];
+	std::vector<BestUnit> best(num_best_units);
 	sint32 i;
 	sint32 j;
 	sint32 k;
@@ -322,7 +323,6 @@ sint32 Barbarians::ChooseSeaUnitType()
 		ret = best[whichbest].index;
 	}
 
-	delete [] best;
 	return ret;
 }
 

@@ -148,6 +148,7 @@
 #include "ui/aui_ctp2/statuswindow.h"
 #include "gs/database/StrDB.h"                      // stringdb_Get()
 #include <string>                       // std::basic_string
+#include <vector>                       // std::vector
 #include "TerrainRecord.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/gameobj/TradePool.h"
@@ -1569,11 +1570,11 @@ void main_DisplayPatchDisclaimer()
 		if (f && (positionEnd > 0))
 		{
 			size_t const    filesize    = static_cast<size_t>(positionEnd);
-			MBCHAR *        message     = new MBCHAR[filesize+1];
+			std::vector<MBCHAR> message(filesize+1);
 			size_t const    readCount   = c3files_fread
-			                                (message, sizeof(MBCHAR), filesize, f);
+			                                (message.data(), sizeof(MBCHAR), filesize, f);
 			message[readCount]  = 0;
-			MessageBox(nullptr, message, "Call to Power", MB_OK | MB_ICONEXCLAMATION);
+			MessageBox(nullptr, message.data(), "Call to Power", MB_OK | MB_ICONEXCLAMATION);
 			isDisclaimerShown   = true;
 		}
 	}

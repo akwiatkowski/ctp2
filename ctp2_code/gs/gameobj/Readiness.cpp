@@ -60,6 +60,8 @@
 
 #include "gs/events/GameEventManager.h"   // gevmanager_Get()
 
+#include <vector>
+
 MilitaryReadiness::MilitaryReadiness(sint32 a_Owner)
 :
     m_delta             (0.0),
@@ -345,8 +347,8 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 	}
 
 	Assert(0 < n_units);
-	UnitCost *all_units = new UnitCost[n_units];
-	UnitCost *prof_units = new UnitCost[n_units];
+	std::vector<UnitCost> all_units(n_units);
+	std::vector<UnitCost> prof_units(n_units);
 
 	n_units = 0;
 	sint32 n_prof_units = 0;
@@ -448,9 +450,6 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 		}
 	}
 	m_ignore_unsupport = FALSE;
-
-	delete [] all_units;
-	delete [] prof_units;
 }
 
 sint32 MilitaryReadiness::GetTurnsToNewReadiness(sint32 currentRound)

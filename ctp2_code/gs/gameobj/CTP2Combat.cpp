@@ -33,6 +33,8 @@
 
 #include "ctp/c3.h"
 
+#include <vector>
+
 #ifndef TEST_APP
 
 #include "gs/world/cellunitlist.h"
@@ -414,7 +416,7 @@ void CombatField::Move()
 		}
 	}
 
-	CombatUnit *newRow = new CombatUnit[m_width];
+	std::vector<CombatUnit> newRow(m_width);
 	sint32 rowPos = 0;
 
 	for(y = 0; y < m_height; y++) {
@@ -434,8 +436,6 @@ void CombatField::Move()
 			m_field[x][y].Invalidate();
 		}
 	}
-
-	delete [] newRow;
 }
 
 void CombatField::Sort()

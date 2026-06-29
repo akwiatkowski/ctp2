@@ -505,8 +505,8 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		return;
 
 	sint32 numTerrain = g_theTerrainDB->NumRecords();
-	bool* settleTerrainTypes = new bool[numTerrain];
-	std::fill(settleTerrainTypes, settleTerrainTypes + numTerrain, false);
+	std::vector<bool> settleTerrainTypes(numTerrain);
+	std::fill(settleTerrainTypes.begin(), settleTerrainTypes.end(), false);
 
 	bool noSettleUnits = true;
 	Unit unit;
@@ -547,7 +547,6 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 
 	if(noSettleUnits)
 	{
-		delete [] settleTerrainTypes;
 		return;
 	}
 
@@ -596,8 +595,6 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 
 		targets.push_back(settle_target);
 	}
-
-	delete [] settleTerrainTypes;
 
 	if (targets.empty())
 	{

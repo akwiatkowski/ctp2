@@ -33,6 +33,8 @@
 #include "ctp/c3.h"
 #include "ui/aui_utils/primitives.h"
 
+#include <vector>
+
 #include "gs/utility/Globals.h"
 
 #include "ui/aui_common/aui.h"
@@ -3092,11 +3094,11 @@ void primitives_HackTileDraw(aui_Surface *pSurface)
 	fread((void *)&accumTable, 1, sizeof(uint32)*3*k_TILE_PIXEL_HEIGHT, file);
 	fread((void *)&len, 1, sizeof(uint16), file);
 
-	Pixel16 *   data = new Pixel16[len/2];
-	fread((void *)data, 1, len, file);
+	std::vector<Pixel16> data(len/2);
+	fread((void *)data.data(), 1, len, file);
 	fclose(file);
 
-	Pixel16 *   dataPtr = data;
+	Pixel16 *   dataPtr = data.data();
 
 	uint8 *pSurfBase;
 

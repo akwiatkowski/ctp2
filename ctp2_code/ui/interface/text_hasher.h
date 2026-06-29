@@ -6,6 +6,7 @@
 #define __Text_Hasher_h__
 
 #include <algorithm>
+#include <vector>
 
 template <class DATA_TYPE>  class Text_Hasher;
 template <class DATA_TYPE>  class Translation;
@@ -175,8 +176,8 @@ DATA_TYPE Text_Hasher<DATA_TYPE>::Look_Up_Data
 #else
     size_t      keyLength       = strlen(key);
 #endif
-	_TCHAR *    lowerCaseKey    = new _TCHAR[keyLength + 1];
-    std::transform(key, key + keyLength, lowerCaseKey, tolower);
+	std::vector<_TCHAR> lowerCaseKey(keyLength + 1);
+    std::transform(key, key + keyLength, lowerCaseKey.data(), tolower);
     lowerCaseKey[keyLength]     = _TCHAR(0);
 
 	for
@@ -192,12 +193,10 @@ DATA_TYPE Text_Hasher<DATA_TYPE>::Look_Up_Data
 		  if (!strncmp(key, translation->m_key, MAX_KEY_CHARS))
 #endif // WIN32
 		{
-            delete [] lowerCaseKey;
 			return translation->m_data;
 		}
 	}
 
-    delete [] lowerCaseKey;
 	return m_untranslated;
 }
 

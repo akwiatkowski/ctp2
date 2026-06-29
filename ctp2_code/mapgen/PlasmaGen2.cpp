@@ -41,6 +41,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <vector>
 #include "gs/outcom/IC3Rand.h"
 #include "mapgen/PlasmaGen2.h"
 
@@ -137,8 +138,8 @@ void PlasmaGenerator2::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight
 	}
 	int     height  = 1 << i;
 
-	sint8 * map = new sint8 [width * height];
-    std::fill(map, map + (width * height), 0);
+	std::vector<sint8> map(width * height);
+    std::fill(map.data(), map.data() + (width * height), 0);
 
     int     bigside = std::max(width, height);
 	int     h       = height;
@@ -186,7 +187,6 @@ void PlasmaGenerator2::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight
 		}
 	}
 
-	delete [] map;
 #if !defined(USE_COM_REPLACEMENT)
 	return S_OK;
 #endif

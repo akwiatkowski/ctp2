@@ -35,6 +35,8 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/GoodyHuts.h"
 
+#include <vector>
+
 #include "ctp/ctp2_utils/c3math.h"         // AsPercentage
 #include "gs/gameobj/Player.h"
 #include "gs/utility/RandGen.h"
@@ -294,8 +296,7 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 		case GOODY_ADVANCE:
 		{
 			Advances const *    advances     = player_Get(owner)->m_advances;
-			AdvanceType *       possible     =
-			    new AdvanceType[g_theAdvanceDB->NumRecords()];
+			std::vector<AdvanceType> possible(g_theAdvanceDB->NumRecords());
 			size_t              nextPossible = 0;
 			sint32 const        maxNovelty   = risk.GetMaxAdvanceLeap();
 
@@ -328,8 +329,6 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 			{
 				result  = GOODY_BOGUS;
 			}
-
-			delete [] possible;
 		}
 		break;
 
@@ -355,7 +354,7 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 		case GOODY_UNIT:
 		{
 			Advances const *    advances     = player_Get(owner)->m_advances;
-			sint32 *            possible     = new sint32[g_theUnitDB->NumRecords()];
+			std::vector<sint32> possible(g_theUnitDB->NumRecords());
 			size_t              nextPossible = 0;
 			sint32 const        maxNovelty   = risk.GetMaxUnitAdvanceLeap();
 
@@ -397,8 +396,6 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 			{
 				result  = GOODY_BOGUS;
 			}
-
-			delete [] possible;
 
 		}
 		break;

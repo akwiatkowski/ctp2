@@ -98,6 +98,7 @@ auto gameinit_log = civlog::Get("gameinit");
 #include "gs/gameobj/installationtree.h"
 #include <ios>
 #include <iostream>
+#include <vector>
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/MessagePool.h"
 #include "gs/utility/MoveFlags.h"
@@ -606,7 +607,7 @@ void gameinit_SpewUnits(sint32 player, MapPoint &pos)
 	{
 		fscanf(uFile, "%ld\n", &n);
 
-		sint32 *uids = new sint32[n];
+		std::vector<sint32> uids(n);
 
 		for (i=0; i<n; i++) {
 			fscanf(uFile, "%ld\n", &uids[i]);
@@ -626,7 +627,6 @@ void gameinit_SpewUnits(sint32 player, MapPoint &pos)
 						pos.y = 2;
 					}
 					if (world_Get()->GetXWidth()<=pos.x) {
-						delete [] uids;
 						return;
 					}
 				}  while(!world_Get()->CanEnter(pos, g_theUnitDB->Get(uid)->GetMovementType()));
@@ -638,7 +638,6 @@ void gameinit_SpewUnits(sint32 player, MapPoint &pos)
 			}
 		}
 
-		delete[] uids;
 	}
 }
 

@@ -8,6 +8,7 @@
 #include <cstring>
 #include <search.h>
 #include <cctype>
+#include <vector>
 
 #ifndef WIN32
 #ifdef HAVE_SYS_TYPES_H
@@ -448,9 +449,8 @@ int ProjectFile::addPath_DOS(char const * path)
     }
     m_num_paths++;
 
-    PFEntry *   tmpList = new PFEntry[count];
-    mergeEntries(tmpList, readDOSdir(pathnum, tmpList));
-    delete [] tmpList;
+    std::vector<PFEntry> tmpList(count);
+    mergeEntries(tmpList.data(), readDOSdir(pathnum, tmpList.data()));
 
     return(1);
 }
@@ -526,8 +526,8 @@ int ProjectFile::addPath_ZFS(char const * path)
 	}
 
     int         count   = header.num_rentries;
-    PFEntry *   tmpList = new PFEntry[count];
-    PFEntry *   tlp     = tmpList;
+    std::vector<PFEntry> tmpList(count);
+    PFEntry *   tlp     = tmpList.data();
     long        dhead   = header.dtable_head;
     long        rcount  = 0;
     ZFS_DTABLE  dtable;
@@ -537,7 +537,6 @@ int ProjectFile::addPath_ZFS(char const * path)
 
         if (fread(&dtable, sizeof(ZFS_DTABLE), 1, fp) < 1) {
             snprintf(m_error_string, sizeof(m_error_string), "File \"%s\" is corrupt", path);
-            delete [] tmpList;
             return(0);
         }
 
@@ -545,9 +544,7 @@ int ProjectFile::addPath_ZFS(char const * path)
     }
     while ((dhead = dtable.next_dtable) != 0);
 
-    mergeEntries(tmpList, rcount);
-
-    delete [] tmpList;
+    mergeEntries(tmpList.data(), rcount);
 
     return(1);
 }
@@ -585,8 +582,8 @@ int ProjectFile::addPath_ZMS(char const * path)
 	}
 
     int             count   = header->num_rentries;
-    PFEntry *       tmpList = new PFEntry[count];
-    PFEntry *       tlp     = tmpList;
+    std::vector<PFEntry> tmpList(count);
+    PFEntry *       tlp     = tmpList.data();
     long            rcount  = 0;
     long            dhead   = header->dtable_head;
     ZFS_DTABLE *    dtable;
@@ -597,9 +594,7 @@ int ProjectFile::addPath_ZMS(char const * path)
     }
     while ((dhead = dtable->next_dtable) != 0);
 
-    mergeEntries(tmpList, rcount);
-
-    delete [] tmpList;
+    mergeEntries(tmpList.data(), rcount);
 
     return(1);
 }

@@ -22,7 +22,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Outcommented unused code. (Sep 9th 2005 Martin Gühmann)
+// - Outcommented unused code. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Redesigned to get rid of global variables.
 //
 //----------------------------------------------------------------------------
@@ -34,6 +34,7 @@
 #include "gfx/gfx_utils/targautils.h"
 
 #include <algorithm>
+#include <vector>
 #include "gfx/gfx_utils/pixelutils.h"
 #define BYTES_PER_PIXEL 2
 
@@ -185,20 +186,19 @@ bool Load_TGA_File_Simple(char const * fname,
 	}
 	else if (head.ImageType == 10)
 	{
-		unsigned char * tmpbuf  = new unsigned char[MAX_DATASIZE];
+		std::vector<unsigned char> tmpbuf(MAX_DATASIZE);
 
-		if (fread(tmpbuf, datasize, 1, fp) < 1)
+		if (fread(tmpbuf.data(), datasize, 1, fp) < 1)
 		{
 			DPRINTF(k_DBG_UI, ("Error reading file \"%s\"\n", fname));
 			fclose(fp);
-			delete [] tmpbuf;
 			return false;
 		}
 
 		fclose(fp);
-		unsigned char * tmpbuf1 = new unsigned char[MAX_DATASIZE];
-		unsigned char * dp      = tmpbuf1;
-		unsigned char * tp      = tmpbuf;
+		std::vector<unsigned char> tmpbuf1(MAX_DATASIZE);
+		unsigned char * dp      = tmpbuf1.data();
+		unsigned char * tp      = tmpbuf.data();
 
 		for (int i = 0; i < head.ImageHeight; i++)
 		{
@@ -206,15 +206,10 @@ bool Load_TGA_File_Simple(char const * fname,
 			if (byteCount < 0)
 			{
 				DPRINTF(k_DBG_UI, ("Error decoding file \"%s\"\n", fname));
-				delete [] tmpbuf;
-				delete [] tmpbuf1;
 				return false;
 			}
 			dp += byteCount;
 		}
-
-		delete [] tmpbuf;
-		delete [] tmpbuf1;
 	}
 
 	return true;

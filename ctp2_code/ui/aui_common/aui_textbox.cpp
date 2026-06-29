@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <vector>
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_static.h"
@@ -206,8 +207,8 @@ AUI_ERRCODE aui_TextBox::CalculateItems(MBCHAR const * text)
 			Assert( cur + length <= stop );
 			if ( cur + length > stop ) length = stop - cur;
 
-			MBCHAR * tempCopy = new MBCHAR[length + 1];
-            std::copy(cur, cur + length, tempCopy);
+			std::vector<MBCHAR> tempCopy(length + 1);
+            std::copy(cur, cur + length, tempCopy.data());
             tempCopy[length] = '0';
 
 			if ( ++m_numItems > k_AUI_TEXTBOX_MAXITEMS )
@@ -219,7 +220,7 @@ AUI_ERRCODE aui_TextBox::CalculateItems(MBCHAR const * text)
 				memset( m_text + m_maxLength - length, '\0', length + 1 );
 			}
 
-			(*itemPtr)->SetText(tempCopy);
+			(*itemPtr)->SetText(tempCopy.data());
 
 			COLORREF color = m_curColor;
 

@@ -35,6 +35,7 @@
 
 #include <chrono>
 #include <thread>
+#include <vector>
 
 #include "net/io/net_thread.h"
 #include "net/io/net_types.h"
@@ -436,16 +437,15 @@ NET_ERR NetThread::Send(uint16 id, sint32 flags, uint8* buf, sint32 len)
 NET_ERR NetThread::SendCompressed(uint16 id, sint32 flags, uint8 *buf, sint32 len)
 {
 	uLongf  cbufsize = (uLongf)(((double)len * 1.01) + 12.5);
-	uint8 * cbuf    = new uint8[cbufsize + 5];
+	std::vector<uint8> cbuf(cbufsize + 5);
 
 	cbuf[0] = k_COMPRESSED_PACKET;
 	int err;
 	err = compress2(&cbuf[5], &cbufsize, buf, len, Z_DEFAULT_COMPRESSION);
 	if(err == Z_OK) {
 		putlong(&cbuf[1], len);
-		return Send(id, flags, cbuf, cbufsize + 5);
+		return Send(id, flags, cbuf.data(), cbufsize + 5);
 	} else {
-		delete [] cbuf;
 		return NET_ERR_UNKNOWN;
 	}
 }
@@ -510,14 +510,13 @@ NET_ERR NetThread::Idle()
 				}
 				uLongf uSize = getlong(&packet->m_buf[1]);
 
-				uint8 *uBuf = new uint8[uSize];
+				std::vector<uint8> uBuf(uSize);
 				int err;
-				err = uncompress(uBuf, &uSize, &packet->m_buf[5], packet->m_len - 5);
+				err = uncompress(uBuf.data(), &uSize, &packet->m_buf[5], packet->m_len - 5);
 				Assert(err == Z_OK);
 				if(err == Z_OK) {
-					m_response->PacketReady(packet->m_id, uBuf, uSize);
+					m_response->PacketReady(packet->m_id, uBuf.data(), uSize);
 				}
-				delete [] uBuf;
 			} else {
 				m_response->PacketReady(packet->m_id, packet->m_buf, packet->m_len);
 			}

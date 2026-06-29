@@ -36,6 +36,8 @@
 #include "ctp/c3.h"
 #include "ui/interface/unitmanager.h"
 
+#include <vector>
+
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
 #include "ui/aui_common/aui.h"
@@ -309,8 +311,8 @@ void UnitManager::UpdateStatsList()
 	if(!player_Get(visP)) return;
 	Player *pl = player_Get(visP);
 
-	sint32 *unitcount = new sint32[g_theUnitDB->NumRecords()];
-	memset(unitcount, 0, g_theUnitDB->NumRecords() * sizeof(sint32));
+	std::vector<sint32> unitcount(g_theUnitDB->NumRecords());
+	memset(unitcount.data(), 0, g_theUnitDB->NumRecords() * sizeof(sint32));
 
 	if(m_statsList) {
 		m_statsList->Clear();
@@ -398,7 +400,6 @@ void UnitManager::UpdateStatsList()
 			}
 		}
 	}
-	delete [] unitcount;
 }
 
 void UnitManager::UpdateTacticalList()

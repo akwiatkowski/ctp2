@@ -43,6 +43,8 @@
 #ifdef _PLAYTEST
 #include "ctp/ctp2_utils/c3cmdline.h"
 
+#include <vector>
+
 #include "CivilisationRecord.h"
 #include "ConstRecord.h"
 #include "ui/aui_ctp2/c3ui.h"
@@ -2554,9 +2556,7 @@ void DebugCheckMemCommand::Execute(sint32 argc, char **argv)
     g_check_mem = !g_check_mem;
 
     if (g_check_mem) {
-        sint32 * tmp;
-        tmp = new sint32 [10];
-        delete[] tmp;
+        std::vector<sint32> tmp(10);
 
     }
 }

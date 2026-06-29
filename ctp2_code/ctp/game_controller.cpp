@@ -2583,7 +2583,12 @@ std::string QueryTurn()
         return Err("query_turn", "game_not_loaded");
 
     json result;
-    sint32 const year = turn_Get() ? turn_Get()->GetSessionYear() : 0;
+    // GetYear() == NewTurnCount::GetCurrentYear(), derived from the LIVE round.
+    // GetSessionYear() returns TurnCount::m_year, which is only seeded to
+    // 4000 BC at game start and refreshed solely on the serve/load SetRound
+    // path — so a plain end_turn loop (autoplay, headless) leaves it frozen at
+    // 4000 BC even at round 300. Same bug class as the UI fix in a83a851f.
+    sint32 const year = turn_Get() ? turn_Get()->GetYear() : 0;
     result["round"] = turn_Get() ? turn_Get()->GetSessionRound() : 0;
     result["year"]  = year;
     // The game's scored deadline: at end_of_game_year (default 2300 AD) the

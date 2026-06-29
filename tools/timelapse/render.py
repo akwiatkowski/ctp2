@@ -47,14 +47,21 @@ PLAYER_COLORS = [
     (96, 216, 216), (240, 144, 56), (200, 200, 208), (160, 110, 70), (240, 120, 170),
 ]
 
-# Action-log event names that are per-turn housekeeping — never worth a caption.
-SKIP_EVENT_RE = re.compile(
-    r"(BeginTurn|EndTurn|BeginScheduler|Scheduler|Idle|Process|NextPlayer|"
-    r"BeginMove|MoveProcess|Awake|Asleep|Heartbeat)", re.I)
-# Events that make a good story beat, ranked first.
-SALIENT_RE = re.compile(
-    r"(City|Settle|Found|Advance|Tech|Wonder|War|Peace|Battle|Attack|Capture|"
-    r"Conquer|Disband|Government|TradeRoute|Revolt|Golden|Diplomac|Alliance)", re.I)
+# Action-log event name -> (priority, caption verb). Lower priority shows first.
+# ONLY these events are captioned; the firehose of EntrenchOrder / MoveOrder /
+# SettleOrder / BoardTransportOrder / MakePop / CreateUnit is military micro-
+# management noise and is dropped entirely so the Chronicle reads as a story.
+EVENT_CAPTIONS = {
+    "CreateCity":          (0, "founds a city"),
+    "GrantAdvance":        (1, "discovers a new technology"),
+    "NewProposal":         (1, "proposes a deal"),
+    "Threaten":            (1, "issues a threat"),
+    "KillUnit":            (2, "loses a unit in battle"),
+    "CreateBuilding":      (2, "completes a building"),
+    "ProposalResponse":    (3, "answers a proposal"),
+    "Reject":              (3, "rejects a proposal"),
+    "ImprovementComplete": (4, "finishes construction"),
+}
 
 
 def player_color(pid):
@@ -98,25 +105,15 @@ def terrain_palette(meta):
     return pal
 
 
-def humanize_event(name):
-    s = re.sub(r"Event$", "", name or "")
-    s = re.sub(r"(?<!^)(?=[A-Z])", " ", s)       # space before CamelCase humps
-    return s.strip()
-
-
-def build_captions(log_events):
-    """round -> [caption strings], salient events only, protagonist-agnostic."""
-    by_round = {}
-    for e in log_events or []:
-        name = e.get("event", "")
-        if not name or SKIP_EVENT_RE.search(name):
-            continue
-        by_round.setdefault(e.get("turn"), []).append(e)
-    out = {}
-    for rnd, evs in by_round.items():
-        evs.sort(key=lambda e: (0 if SALIENT_RE.search(e.get("event", "")) else 1))
-        out[rnd] = evs[:3]
-    return out
+def frame_captions(events):
+    """This frame's events -> [(player_id, verb)], curated beats only (max 3)."""
+    picked = []
+    for e in events or []:
+        cap = EVENT_CAPTIONS.get(e.get("event"))
+        if cap:
+            picked.append((cap[0], e.get("player"), cap[1]))
+    picked.sort(key=lambda x: x[0])                # by priority
+    return [(pid, verb) for _, pid, verb in picked[:3]]
 
 
 def pick_protagonist(frames):
@@ -132,7 +129,7 @@ def civ_label(p):
     return p.get("civ") or p.get("name") or f"p{p['id']}"
 
 
-def render_frame(frame, pal, protagonist, captions, civ_by_pid, fonts):
+def render_frame(frame, pal, protagonist, show_year, civ_by_pid, fonts):
     font, font_sm, font_cap = fonts
     W, H = frame["width"], frame["height"]
     terrain = frame["terrain"] or []
@@ -185,9 +182,11 @@ def render_frame(frame, pal, protagonist, captions, civ_by_pid, fonts):
     panel_x = W * TILE
     draw.rectangle([panel_x, 0, img_w, img_h], fill=(10, 12, 16))
     year = frame.get("year")
-    yr = (f"{abs(year)} {'BC' if year and year < 0 else 'AD'}" if year is not None else "?")
+    clock = f"turn {frame['turn']}"
+    if show_year and year is not None:
+        clock += f"   {abs(year)} {'BC' if year < 0 else 'AD'}"
     draw.text((panel_x + 12, 12), "CALL TO POWER 2", font=font, fill=(235, 235, 245))
-    draw.text((panel_x + 12, 36), f"turn {frame['turn']}   {yr}", font=font_sm, fill=(170, 180, 200))
+    draw.text((panel_x + 12, 36), clock, font=font_sm, fill=(170, 180, 200))
 
     players = sorted((frame.get("players") or []), key=lambda p: p.get("score", 0), reverse=True)
     yoff = 80
@@ -210,26 +209,24 @@ def render_frame(frame, pal, protagonist, captions, civ_by_pid, fonts):
     # 5) Chronicle caption strip (bottom): this round's salient events
     cap_y = H * TILE
     draw.rectangle([0, cap_y, img_w, img_h], fill=(8, 9, 13))
-    evs = captions.get(frame.get("round"), [])
+    evs = frame_captions(frame.get("events"))
     if evs:
         ty = cap_y + 8
-        for e in evs:
-            pid = e.get("player")
+        for pid, verb in evs:
             if isinstance(pid, int) and 0 <= pid < 32:
                 draw.rectangle([10, ty + 2, 22, ty + 14], fill=player_color(pid))
                 who = civ_by_pid.get(pid, f"p{pid}")
             else:
                 who = ""
-            txt = f"{who}: {humanize_event(e.get('event'))}".strip(": ")
-            draw.text((30, ty), txt, font=font_cap, fill=(210, 214, 228))
+            draw.text((30, ty), f"{who} {verb}".strip(), font=font_cap, fill=(210, 214, 228))
             ty += 17
     else:
-        draw.text((30, cap_y + 8), "...", font=font_cap, fill=(80, 86, 100))
+        draw.text((30, cap_y + 8), "· · ·", font=font_cap, fill=(80, 86, 100))
     return img
 
 
 def main():
-    frames, meta, log_events = [], None, []
+    frames, meta = [], None
     with open(IN) as f:
         for line in f:
             line = line.strip()
@@ -241,25 +238,26 @@ def main():
                 meta = rec
             elif t == "frame":
                 frames.append(rec)
-            elif t == "log":
-                log_events = rec.get("events") or []
     if not frames:
         print(f"[RENDER] no frames in {IN}")
         return 1
 
     pal = terrain_palette(meta)
     protagonist = pick_protagonist(frames)
-    captions = build_captions(log_events)
-    # civ name per player id, from the final frame (names are stable)
+    # Only show a BC/AD year if it actually varies — the autoplay path leaves
+    # the engine year frozen, in which case "turn N" alone is the honest clock.
+    show_year = len({f.get("year") for f in frames if f.get("year") is not None}) > 1
+    n_events = sum(len(f.get("events") or []) for f in frames)
     civ_by_pid = {p["id"]: civ_label(p) for p in (frames[-1].get("players") or [])}
     fonts = (load_font(17), load_font(13), load_font(13))
     os.makedirs(OUT_DIR, exist_ok=True)
     prot_name = civ_by_pid.get(protagonist, f"p{protagonist}")
     print(f"[RENDER] {len(frames)} frames, protagonist={prot_name}, "
-          f"{len(log_events)} log events, tile={TILE}px -> {OUT_DIR}")
+          f"{n_events} events, year={'live' if show_year else 'frozen->turns only'}, "
+          f"tile={TILE}px -> {OUT_DIR}")
 
     for i, fr in enumerate(frames):
-        img = render_frame(fr, pal, protagonist, captions, civ_by_pid, fonts)
+        img = render_frame(fr, pal, protagonist, show_year, civ_by_pid, fonts)
         img.save(os.path.join(OUT_DIR, f"frame_{i:04d}.png"))
         if i % 25 == 0:
             print(f"[RENDER] {i}/{len(frames)}")

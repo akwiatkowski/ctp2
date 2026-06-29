@@ -132,6 +132,12 @@ def main() -> int:
                           "target_turns": TURNS}) + "\n")
     out.flush()
 
+    # The engine does NOT advance its session round (or stamp action-log turns)
+    # in the enable_autoplay + end_turn path, so we cannot trust event "turn"
+    # fields. Instead we clear the ledger and re-read it each snapshot, tagging
+    # events with our own reliable turn counter — stored per frame.
+    cmd("log_clear")
+
     for i in range(TURNS):
         if proc.poll() is not None:
             print(f"[REC] game exited early at turn {i} (code={proc.returncode})")
@@ -146,11 +152,15 @@ def main() -> int:
 
         world = cmd("query_world", timeout=30)
         clock = cmd("query_turn", timeout=10)
+        # Events that fired since the last clear == this snapshot's events.
+        logr = cmd("log_get", timeout=20)
+        cmd("log_clear")
         if not world or world.get("status") != "ok":
             print(f"[REC] turn {turn_num}: query_world -> {world}")
             continue
         w = world["result"] if "result" in world else world
         c = (clock.get("result", clock) if clock else {}) or {}
+        events = ((logr.get("result", logr) if logr else {}) or {}).get("action_log") or []
 
         out.write(json.dumps({
             "type": "frame",
@@ -162,6 +172,7 @@ def main() -> int:
             "terrain": w.get("terrain"),
             "cities": w.get("cities"),
             "players": w.get("players"),
+            "events": events,
         }) + "\n")
         out.flush()
         frames += 1
@@ -170,16 +181,6 @@ def main() -> int:
             top = max(alive, key=lambda p: p.get("score", 0), default=None)
             lead = f"p{top['id']} score={top['score']} cities={top['cities']}" if top else "-"
             print(f"[REC] turn {turn_num}/{TURNS} wall={time.time()-t0:.1f}s frames={frames} leader={lead}")
-
-    # Action Log: one final capture. Every entry is turn-stamped, so render.py
-    # can caption each frame with that round's events — the "Chronicle".
-    log = cmd("log_get", timeout=30)
-    if log and log.get("status") == "ok":
-        lr = log.get("result", log)
-        events = lr.get("action_log") or []
-        out.write(json.dumps({"type": "log", "events": events}) + "\n")
-        out.flush()
-        print(f"[REC] action log: {lr.get('count')} events captured")
 
     print(f"[REC] done: {frames} frames -> {OUT}")
     cmd("quit")

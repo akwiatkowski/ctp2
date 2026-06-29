@@ -128,7 +128,7 @@ void BestFirstSearch::FindMoveCostToCitiesZ(const sint32 player_idx, const sint3
     start_pos.z = z_height;
     Cell *neighbor_cell = world_Get()->GetCell(start_pos);
     neighbor_cell->m_search_count = g_search_count;
-    InitPoint(player_idx, NULL, neighbor_cell->m_point, start_pos, start_cost, max_cost);
+    InitPoint(player_idx, nullptr, neighbor_cell->m_point, start_pos, start_cost, max_cost);
     sint32 nodes_opened = 1;
     AstarPoint* best = neighbor_cell->m_point;
     double past_cost;

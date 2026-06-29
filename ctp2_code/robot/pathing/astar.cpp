@@ -27,7 +27,7 @@
 // - Prevent CtD (NULL-dereference)
 // - Made the algorithm behave more like A-star (recompute an open node when a
 //   new path is found that has a lower cost).
-// - Made Win32 Optimized Test configuration compile. - Jul 19th 2005 Martin Gühmann
+// - Made Win32 Optimized Test configuration compile. - Jul 19th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -277,7 +277,7 @@ void Astar::RecalcEntryCost(AstarPoint *parent, AstarPoint *node, float &new_ent
 
 #ifdef _DEBUG
 sint32 finite_stack;
-#endif _DEUBG
+#endif // _DEBUG
 
 
 
@@ -298,12 +298,12 @@ void Astar::PropagatePathCost(AstarPoint *node, AstarPoint *parent,
     }
 #endif
 
-    AstarPoint *dead = NULL;
+    AstarPoint *dead = nullptr;
     float new_past_cost, new_entry_cost, new_total_cost;
     bool reset = false;
     sint32 d=0;
 
-    if (node->m_parent == NULL) {
+    if (node->m_parent == nullptr) {
         return;
     }
 
@@ -372,7 +372,7 @@ void Astar::PropagatePathCost(AstarPoint *node, AstarPoint *parent,
 
 				c = world_Get()->GetCell(next_pos);
 
-				if (c->m_point != NULL)  {
+				if (c->m_point != nullptr)  {
 					if ((c->m_search_count == g_search_count) &&
 						(!c->m_point->GetZoc())) {
 

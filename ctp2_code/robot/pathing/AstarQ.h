@@ -16,8 +16,8 @@ public:
 
     sint32 Remove(const AstarPoint *node);
 
-    void Empty() { head = NULL; }
-    sint32 IsEmpty() { return head == NULL; }
+    void Empty() { head = nullptr; }
+    sint32 IsEmpty() { return head == nullptr; }
   };
 
 #endif

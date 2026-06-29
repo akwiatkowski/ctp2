@@ -99,4 +99,4 @@ private:
 	PLAYER_INDEX m_owner;
 };
 
-#endif __ROBOT_ASTAR2_H__
+#endif // __ROBOT_ASTAR2_H__

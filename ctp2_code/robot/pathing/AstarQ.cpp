@@ -3,12 +3,12 @@
 
 AstarQueue::AstarQueue()
 {
-	head = NULL;
+	head = nullptr;
 }
 
 void AstarQueue::Enqueue(AstarPoint *node)
 {
-	AstarPoint *tmp=NULL;
+	AstarPoint *tmp = nullptr;
 
 
 
@@ -47,7 +47,7 @@ sint32 AstarQueue::Remove(const AstarPoint *node)
 
 {
 
-    AstarPoint *tmp = NULL;
+    AstarPoint *tmp = nullptr;
     sint32 searching = FALSE;
 
 

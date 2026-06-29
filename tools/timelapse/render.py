@@ -234,7 +234,7 @@ def render_realart_frame(frame, show_year, civ_by_pid, protagonist, fonts):
     """Composite the engine's real isometric BMP (terrain + civ city markers)
     with the HUD panel + Chronicle caption strip."""
     font, font_sm, font_cap = fonts
-    mp = Image.open(frame["bmp"]).convert("RGB")
+    mp = Image.open(frame.get("img") or frame.get("bmp")).convert("RGB")
     if mp.width > MAP_TARGET_W:
         s = MAP_TARGET_W / mp.width
         mp = mp.resize((MAP_TARGET_W, int(mp.height * s)), Image.BILINEAR)
@@ -318,11 +318,12 @@ def main():
           f"{n_events} events, year={'live' if show_year else 'frozen->turns only'}, "
           f"tile={TILE}px -> {OUT_DIR}")
 
-    realart = any(fr.get("bmp") for fr in frames)
+    realart = any((fr.get("img") or fr.get("bmp")) for fr in frames)
     if realart:
-        print("[RENDER] real-art mode (engine isometric BMPs + HUD/Chronicle overlay)")
+        print("[RENDER] real-art mode (engine isometric renders + HUD/Chronicle overlay)")
     for i, fr in enumerate(frames):
-        if realart and fr.get("bmp") and os.path.exists(fr["bmp"]):
+        src = fr.get("img") or fr.get("bmp")
+        if realart and src and os.path.exists(src):
             img = render_realart_frame(fr, show_year, civ_by_pid, protagonist, fonts)
         else:
             img = render_frame(fr, pal, protagonist, show_year, civ_by_pid, fonts)

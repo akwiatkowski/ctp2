@@ -76,6 +76,22 @@ def send_cmd(cmd: str, timeout: float = 20) -> dict:
         sock.close()
 
 
+def bmp_to_png(bmp: str):
+    """Convert the engine's BMP to a PNG and delete the BMP. render_map emits
+    ~11MB BMPs; PNG is ~10x smaller, so a long run stays a few hundred MB
+    instead of multiple GB. Returns the PNG path (or the BMP if conversion
+    isn't possible)."""
+    try:
+        from PIL import Image
+        png = bmp[:-4] + ".png"
+        Image.open(bmp).save(png)
+        os.remove(bmp)
+        return png
+    except Exception as e:
+        print(f"[REC] png convert failed ({e}); keeping BMP")
+        return bmp
+
+
 def wait_for_socket(path: str, timeout: float) -> None:
     deadline = time.time() + timeout
     while time.time() < deadline:
@@ -170,13 +186,14 @@ def main() -> int:
         c = (clock.get("result", clock) if clock else {}) or {}
         events = ((logr.get("result", logr) if logr else {}) or {}).get("action_log") or []
 
-        bmp = None
+        img_path = None
         if REALART:
             bmp = os.path.join(RAW_DIR, f"turn-{turn_num:04d}.bmp")
             r = cmd(f"render_map {bmp} {RENDER_ZOOM}", timeout=60)
-            if not r or r.get("status") != "ok":
+            if r and r.get("status") == "ok":
+                img_path = bmp_to_png(bmp)
+            else:
                 print(f"[REC] turn {turn_num}: render_map -> {r}")
-                bmp = None
 
         out.write(json.dumps({
             "type": "frame",
@@ -185,9 +202,9 @@ def main() -> int:
             "year": c.get("year"),
             "width": w.get("width"),
             "height": w.get("height"),
-            # Real-art frames carry the engine BMP; terrain/cities live in it,
-            # so they are omitted from the log to keep it small.
-            "bmp": bmp,
+            # Real-art frames carry the engine render (PNG); terrain/cities live
+            # in it, so they are omitted from the log to keep it small.
+            "img": img_path,
             "terrain": None if REALART else w.get("terrain"),
             "cities": None if REALART else w.get("cities"),
             "players": w.get("players"),

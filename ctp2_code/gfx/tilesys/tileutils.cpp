@@ -840,7 +840,8 @@ sint32 tileutils_ConvertPixelFormatFrom555(Pixel16 *data)
 
 void tileutils_DecodeToBuffer(Pixel16 *data, int width, int height)
 {
-	Pixel16		*outBuf = (Pixel16 *)malloc(width * height * 2);
+	std::vector<Pixel16>    outBuf_vec(width * height);
+	Pixel16		*outBuf = outBuf_vec.data();
 	Pixel16		*destPixel = outBuf;
 
 	Pixel16		*table = data + 1;

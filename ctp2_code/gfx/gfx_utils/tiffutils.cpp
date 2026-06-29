@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Removed unused local variables. (Sep 9th 2005 Martin Gühmann)
+// - Removed unused local variables. (Sep 9th 2005 Martin Gähmann)
 //
 //----------------------------------------------------------------------------
 
@@ -32,6 +32,7 @@
 
 #include "gfx/gfx_utils/tiffutils.h"
 #include <tiffio.h>
+#include <vector>
 
 char *tiffutils_LoadTIF(const char *filename, uint16 *width, uint16 *height, size_t *size)
 {
@@ -237,7 +238,7 @@ char *StripTIF2Mem(const char *filename, uint16 *width, uint16 *height, size_t *
 
 	tsize_t LineSize    = TIFFScanlineSize(tif);
 	tsize_t stripSize   = TIFFStripSize(tif);
-	char *  buf         = (char *)malloc(stripSize);
+	std::vector<char> buf(stripSize);
 	char *  outBuf      = (char *)malloc(imageWidth * imageLength * 4);
 	if (size)
 		*size = imageWidth * imageLength * 4;
@@ -246,7 +247,7 @@ char *StripTIF2Mem(const char *filename, uint16 *width, uint16 *height, size_t *
 	for (uint32 row = 0; row < imageLength; row += RowsPerStrip)
 	{
 		tsize_t nrow = (row + RowsPerStrip > imageLength ? imageLength - row : RowsPerStrip);
-		if (TIFFReadEncodedStrip(tif, TIFFComputeStrip(tif, row, 0), buf, nrow*LineSize)==-1)
+		if (TIFFReadEncodedStrip(tif, TIFFComputeStrip(tif, row, 0), buf.data(), nrow*LineSize)==-1)
         {
             /// @todo Check free(buf)?
 			return nullptr;
@@ -261,7 +262,6 @@ char *StripTIF2Mem(const char *filename, uint16 *width, uint16 *height, size_t *
 		 }
 	}
 
-	free(buf);
 	TIFFClose(tif);
 
 	*width  = (uint16) imageWidth;

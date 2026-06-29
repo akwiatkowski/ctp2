@@ -46,8 +46,22 @@ aui_SDLMouse::GetInput()
       }
       switch (od.type) {
       case SDL_MOUSEMOTION:
-         m_data.position.x = od.motion.x;
-         m_data.position.y = od.motion.y;
+         {
+            // Map window coords -> game logical coords so input stays correct
+            // when the window is resized or HiDPI-scaled (renderer logical size
+            // = game res). No-op (returns raw coords) when window is 1:1.
+            SDL_Window *win = SDL_GetWindowFromID(od.motion.windowID);
+            SDL_Renderer *ren = win ? SDL_GetRenderer(win) : nullptr;
+            if (ren) {
+               float lx = 0.0f, ly = 0.0f;
+               SDL_RenderWindowToLogical(ren, od.motion.x, od.motion.y, &lx, &ly);
+               m_data.position.x = (sint32)lx;
+               m_data.position.y = (sint32)ly;
+            } else {
+               m_data.position.x = od.motion.x;
+               m_data.position.y = od.motion.y;
+            }
+         }
          m_data.lbutton = !!(od.motion.state & SDL_BUTTON_LMASK);
          m_data.rbutton = !!(od.motion.state & SDL_BUTTON_RMASK);
          static int motionLogCount = 0;
@@ -58,8 +72,19 @@ aui_SDLMouse::GetInput()
          break;
       case SDL_MOUSEBUTTONDOWN:
       case SDL_MOUSEBUTTONUP:
-         m_data.position.x = od.button.x;
-         m_data.position.y = od.button.y;
+         {
+            SDL_Window *win = SDL_GetWindowFromID(od.button.windowID);
+            SDL_Renderer *ren = win ? SDL_GetRenderer(win) : nullptr;
+            if (ren) {
+               float lx = 0.0f, ly = 0.0f;
+               SDL_RenderWindowToLogical(ren, od.button.x, od.button.y, &lx, &ly);
+               m_data.position.x = (sint32)lx;
+               m_data.position.y = (sint32)ly;
+            } else {
+               m_data.position.x = od.button.x;
+               m_data.position.y = od.button.y;
+            }
+         }
          if (od.button.button == SDL_BUTTON_LEFT) {
             m_data.lbutton = od.button.state == SDL_PRESSED;
          } else if (od.button.button == SDL_BUTTON_RIGHT) {

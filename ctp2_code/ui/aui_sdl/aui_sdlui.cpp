@@ -134,8 +134,14 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return errcode;
 
-	// SDL2: create window instead of SDL_SetVideoMode
-	Uint32 windowFlags = SDL_WINDOW_SHOWN;
+	// SDL2: create window instead of SDL_SetVideoMode.
+	// ALLOW_HIGHDPI: on Retina the drawable becomes 2x the logical size, so the
+	//   GPU present (RenderSetLogicalSize below) scales the game surface onto a
+	//   full-resolution backing instead of an OS-upscaled blurry one.
+	// RESIZABLE: the renderer's logical size letterboxes/scales the game res to
+	//   any window size; mouse coords are mapped back via SDL_RenderWindowToLogical
+	//   in aui_SDLMouse so input stays correct when the window is not 1:1.
+	Uint32 windowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
 	if (g_SDL_flags) {
 		windowFlags |= SDL_WINDOW_FULLSCREEN;
 	}

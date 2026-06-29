@@ -338,7 +338,7 @@ STDEHANDLER(PayForAdvance_ProposalResponseEvent)
 	GetDescription(name, sizeof(name));
 	DPRINTF(k_DBG_DIPLOMACY, ("Executing %s\n",name));
 	ProposalAnalysis::DebugResult(sender_proposal);
-#endif _DEBUG
+#endif // _DEBUG
 
 
 	sint32 regard = receiver_diplomat.GetEffectiveRegard(sender);
@@ -419,7 +419,7 @@ STDEHANDLER(AdvanceForGold_ProposalResponseEvent)
 	GetDescription(name, sizeof(name));
 	DPRINTF(k_DBG_DIPLOMACY, ("Executing %s\n",name));
 	ProposalAnalysis::DebugResult(sender_proposal);
-#endif _DEBUG
+#endif // _DEBUG
 
 
 	sint32 regard = receiver_diplomat.GetEffectiveRegard(sender);
@@ -503,7 +503,7 @@ STDEHANDLER(AdvanceExchange_ProposalResponseEvent)
 	GetDescription(name, sizeof(name));
 	DPRINTF(k_DBG_DIPLOMACY, ("Executing %s\n",name));
 	ProposalAnalysis::DebugResult(sender_proposal);
-#endif _DEBUG
+#endif // _DEBUG
 
 	sint32 regard = receiver_diplomat.GetEffectiveRegard(sender);
 
@@ -593,7 +593,7 @@ STDEHANDLER(StopPiracy_ProposalResponseEvent)
 	GetDescription(name, sizeof(name));
 	DPRINTF(k_DBG_DIPLOMACY, ("Executing %s\n",name));
 	ProposalAnalysis::DebugResult(sender_proposal);
-#endif _DEBUG
+#endif // _DEBUG
 
 	const MapAnalysis & map = MapAnalysis::GetMapAnalysis();
 	sint32 piracy_lost_to_sender = map.GetPiracyIncomeByPlayer(sender, receiver);

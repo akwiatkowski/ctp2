@@ -71,4 +71,4 @@ private:
 	std::string m_strategicStateName;
 };
 
-#endif __AIP2_H__
+#endif // __AIP2_H__

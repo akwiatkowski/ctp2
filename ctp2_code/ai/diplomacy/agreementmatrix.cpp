@@ -107,7 +107,7 @@ const ai::Agreement & AgreementMatrix::GetAgreement( const PLAYER_INDEX sender_p
 			return AgreementMatrix::s_badAgreement;
 		}
 	}
-#endif _DEBUG
+#endif // _DEBUG
 
 	if (index >= m_agreements.size())
 		return AgreementMatrix::s_badAgreement;

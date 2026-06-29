@@ -435,7 +435,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 #ifdef _DEBUG
                   if (is_land) {Assert(cont < max_land_cont);}
                   else {Assert(cont < max_water_cont);}
-#endif _DEBUG
+#endif // _DEBUG
 		Assert(cont >= 0);
 
 		if ((is_land && (land_continent_count[cont] >= k_targets_per_continent)) ||
@@ -628,7 +628,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 #ifdef _DEBUG
                   if (is_land) {Assert(cont < max_land_cont);}
                   else {Assert(cont < max_water_cont);}
-#endif _DEBUG
+#endif // _DEBUG
 		Assert(cont >= 0);
 
 		if ((is_land && (land_continent_count[cont] >= k_targets_per_continent)) ||

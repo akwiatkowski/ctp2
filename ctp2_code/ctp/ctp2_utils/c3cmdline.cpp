@@ -5651,7 +5651,7 @@ void DipLogOnCommand::Execute (sint32 argc, char** argv)
         sint32 p = atoi(argv[1]);
         g_theDiplomacyLog->LogPlayer(p);
     }
-#endif _DEBUG
+#endif // _DEBUG
 }
 
 void DipLogOffCommand::Execute (sint32 argc, char** argv)
@@ -5667,7 +5667,7 @@ void DipLogOffCommand::Execute (sint32 argc, char** argv)
         sint32 p = atoi(argv[1]);
         g_theDiplomacyLog->UnlogPlayer(p);
     }
-#endif _DEBUG
+#endif // _DEBUG
 }
 
 void RestartCommand::Execute(sint32 argc, char** argv)

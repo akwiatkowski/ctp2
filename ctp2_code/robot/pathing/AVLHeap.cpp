@@ -45,7 +45,7 @@ AVLHeap::AVLHeap()
 void AVLHeap::InitHeap()
 
 {
-	m_block_list = nullptr;
+	m_blocks.clear();
 	m_used_head = nullptr;
 	m_used_tail = nullptr;
 	m_ready = nullptr;
@@ -60,13 +60,7 @@ AVLHeap::~AVLHeap()
 void AVLHeap::CleanUp()
 
 {
-    AstarPoint *tmp;
-
-	while (m_block_list) {
-		tmp = m_block_list;
-   		m_block_list = m_block_list->m_next;
-		delete[] tmp;
-	}
+	m_blocks.clear();
     InitHeap();
 
 }
@@ -122,10 +116,11 @@ void AVLHeap::InitNewBlock()
 {
 	uint32 i;
 
-	AstarPoint *tmp = new AstarPoint[AVLHEAP_SIZE];
+	auto block = std::make_unique<AstarPoint[]>(AVLHEAP_SIZE);
+	AstarPoint *tmp = block.get();
+	m_blocks.push_back(std::move(block));
 
-	tmp[0].m_next = m_block_list;
-	m_block_list = tmp;
+	tmp[0].m_next = nullptr;
 	for (i=1; i<(AVLHEAP_SIZE-1); i++) {
 		tmp[i].m_next = &(tmp[i+1]);
 	}
@@ -143,7 +138,8 @@ void AVLHeap::Validate()
     uint32 i;
     BOOL searching;
 
-    for (o = m_block_list; o; o = o->m_next) {
+	for (auto const &block : m_blocks) {
+		o = block.get();
         p = o;
         for (i=0; i<AVLHEAP_SIZE; i++) {
             test = p[i].m_next;
@@ -152,7 +148,9 @@ void AVLHeap::Validate()
                 searching = FALSE;
             }
 
-            for (s=m_block_list; searching && s; s = s->m_next) {
+			for (auto const &candidate_block : m_blocks) {
+				if (!searching) break;
+				s = candidate_block.get();
                 if ((size_t(&s[0]) <= size_t(test)) && (size_t(test) <= size_t(&s[AVLHEAP_SIZE-1]))) {
                     searching = FALSE;
                 }

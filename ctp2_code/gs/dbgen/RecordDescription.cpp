@@ -906,7 +906,7 @@ void RecordDescription::ExportParser(FILE *outfile)
 
 		fprintf(outfile, "    if(tok != k_Token_Name) {\n");
 		fprintf(outfile, "        char newName[256];\n");
-		fprintf(outfile, "        sprintf(newName, \"%s_%s\", numRecords);\n", uppName, "%i");
+		fprintf(outfile, "        snprintf(newName, sizeof(newName), \"%s_%s\", numRecords);\n", uppName, "%i");
 		fprintf(outfile, "        if(!stringdb_Get()->GetStringID(newName, m_name)) {\n");
 
 		fprintf(outfile, "            stringdb_Get()->InsertStr(newName, newName);\n");

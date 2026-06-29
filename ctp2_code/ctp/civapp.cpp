@@ -1210,7 +1210,7 @@ bool CivApp::InitializeAppDB()
 		if (!g_theCitySizeDB->Parse(C3DIR_GAMEDATA, g_citysize_filename))
 			return false;
 
-		strcpy(lastdot, ".txt");
+		snprintf(lastdot, _MAX_PATH - (lastdot - g_citysize_filename), ".txt");
 	}
 
 	ProgressTo( 490 );
@@ -3629,8 +3629,7 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 
 	if (c3files_PathIsValid(fullpath) || c3files_CreateDirectory(fullpath))
 	{
-		strcat(fullpath, FILE_SEP);
-		strcat(fullpath, filename);
+		snprintf(fullpath, sizeof(fullpath), "%s%s%s%s%s", path, FILE_SEP, leaderName, FILE_SEP, filename);
 
 		is_scenario_Set(FALSE);
 		// SaveGame always writes JSON (Phase 0.C-1).
@@ -3692,8 +3691,7 @@ void CivApp::PostLoadQuickSaveAction(sint32 player)
 
 	if (c3files_PathIsValid(fullpath) || c3files_CreateDirectory(fullpath))
 	{
-		strcat(fullpath, FILE_SEP);
-		strcat(fullpath, filename);
+		snprintf(fullpath, sizeof(fullpath), "%s%s%s%s%s", path, FILE_SEP, leaderName, FILE_SEP, filename);
 
 		FILE * f = fopen(fullpath, "r");
 		if (f)

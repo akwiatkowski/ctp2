@@ -85,13 +85,24 @@ build:
 	@echo "Building CTP2..."
 	meson compile -C build
 
+# Modernization ratchet — allows cleanup to lower legacy pattern counts, but
+# fails if a change adds more raw ownership, unsafe strings, C allocation, or
+# type-erased casts.
+modernization-ratchet:
+	@echo "Checking C++ modernization ratchets..."
+	mise exec -- python3 tools/modernization/ratchet.py
+
+modernization-ratchet-update:
+	@echo "Updating C++ modernization ratchet baseline..."
+	mise exec -- python3 tools/modernization/ratchet.py --update-baseline
+
 # Pre-commit loop — fast + unit (excludes integration / smoke).
 # ~4 seconds total.  Should be run before every commit.
 #   - fast:  ratchets + observer dispatch tests + small unit cases
 #   - unit:  all other test_*.cpp except the headless integration set
 #            (test_headless_*.cpp and test_save_load.cpp are tagged
 #            doctest::test_suite("integration") and excluded here)
-test:
+test: modernization-ratchet
 	@echo "Building fast + unit tests..."
 	meson compile -C build ctp2_fast_tests ctp2_unit_tests
 	@echo "Running fast + unit tests (no integration)..."
@@ -339,7 +350,7 @@ ci-reset:
 ci-tier-a:
 	@.ci/tiers/tier-a.sh && echo "tier-a done"
 
-.PHONY: all deps setup build test clean-build local playtest doc smoke-test run-hd \
+.PHONY: all deps setup build test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
         gateway gateway-build gateway-test \
         ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a
 

@@ -404,9 +404,9 @@ DWORD *tracklen_LoadEncryptedKey( DWORD *trackLenBuf, const char *szFile )
 
 		char *pos = (char*)strrchr(szTemp, FILE_SEPC);
 		if (pos) {
-       			*pos = '\0';
-			strcat(szTemp, FILE_SEP);
-			strcat(szTemp, szFile);
+			*pos = '\0';
+			size_t const dir_len = pos - szTemp;
+			snprintf(szTemp + dir_len, sizeof(szTemp) - dir_len, "%s%s", FILE_SEP, szFile);
 		} else {
 			strlcpy(szTemp, szFile, sizeof(szTemp));
 		}

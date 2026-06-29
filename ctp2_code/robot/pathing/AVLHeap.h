@@ -34,11 +34,14 @@
 
 #include "robot/pathing/astarpnt.h"
 
+#include <memory>
+#include <vector>
+
 #define AVLHEAP_SIZE ((4096)/sizeof(AstarPoint))
 
 class AVLHeap {
 
-	AstarPoint *m_block_list;
+	std::vector<std::unique_ptr<AstarPoint[]>> m_blocks;
 	AstarPoint *m_used_head;
 	AstarPoint *m_used_tail;
 	AstarPoint *m_ready;

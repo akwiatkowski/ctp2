@@ -227,6 +227,66 @@ def render_frame(frame, pal, protagonist, show_year, civ_by_pid, fonts):
     return img
 
 
+MAP_TARGET_W = int(os.environ.get("MAP_TARGET_W", "1100"))
+
+
+def render_realart_frame(frame, show_year, civ_by_pid, protagonist, fonts):
+    """Composite the engine's real isometric BMP (terrain + civ city markers)
+    with the HUD panel + Chronicle caption strip."""
+    font, font_sm, font_cap = fonts
+    mp = Image.open(frame["bmp"]).convert("RGB")
+    if mp.width > MAP_TARGET_W:
+        s = MAP_TARGET_W / mp.width
+        mp = mp.resize((MAP_TARGET_W, int(mp.height * s)), Image.BILINEAR)
+    mw, mh = mp.size
+    img = Image.new("RGB", (mw + HUD_W, max(mh, 300) + CAP_H), BG)
+    img.paste(mp, (0, 0))
+    draw = ImageDraw.Draw(img, "RGBA")
+
+    # HUD panel (right)
+    panel_x = mw
+    draw.rectangle([panel_x, 0, img.width, img.height], fill=(10, 12, 16))
+    year = frame.get("year")
+    clock = f"turn {frame['turn']}"
+    if show_year and year is not None:
+        clock += f"   {abs(year)} {'BC' if year < 0 else 'AD'}"
+    draw.text((panel_x + 12, 12), "CALL TO POWER 2", font=font, fill=(235, 235, 245))
+    draw.text((panel_x + 12, 36), clock, font=font_sm, fill=(170, 180, 200))
+    players = sorted((frame.get("players") or []), key=lambda p: p.get("score", 0), reverse=True)
+    yoff = 80
+    draw.text((panel_x + 12, yoff - 22), "civ", font=font_sm, fill=(120, 130, 150))
+    draw.text((panel_x + 150, yoff - 22), "score  cty", font=font_sm, fill=(120, 130, 150))
+    for p in players:
+        if p.get("dead") or (p.get("cities", 0) == 0 and p.get("score", 0) == 0):
+            continue
+        prot = p["id"] == protagonist
+        draw.rectangle([panel_x + 12, yoff + 3, panel_x + 24, yoff + 15], fill=player_color(p["id"]))
+        draw.text((panel_x + 32, yoff), civ_label(p)[:14], font=font_sm,
+                  fill=(255, 255, 255) if prot else (160, 168, 184))
+        draw.text((panel_x + 150, yoff), f"{p.get('score',0):>5} {p.get('cities',0):>3}",
+                  font=font_sm, fill=(255, 255, 255) if prot else (160, 168, 184))
+        if prot:
+            draw.text((panel_x + 232, yoff), "*", font=font_sm, fill=(255, 230, 120))
+        yoff += 20
+
+    # Chronicle caption strip (bottom)
+    cap_y = img.height - CAP_H
+    draw.rectangle([0, cap_y, img.width, img.height], fill=(8, 9, 13))
+    evs = frame_captions(frame.get("events"))
+    if evs:
+        ty = cap_y + 8
+        for pid, verb in evs:
+            who = ""
+            if isinstance(pid, int) and 0 <= pid < 32:
+                draw.rectangle([10, ty + 2, 22, ty + 14], fill=player_color(pid))
+                who = civ_by_pid.get(pid, f"p{pid}")
+            draw.text((30, ty), f"{who} {verb}".strip(), font=font_cap, fill=(210, 214, 228))
+            ty += 17
+    else:
+        draw.text((30, cap_y + 8), "· · ·", font=font_cap, fill=(80, 86, 100))
+    return img
+
+
 def main():
     frames, meta = [], None
     with open(IN) as f:
@@ -258,8 +318,14 @@ def main():
           f"{n_events} events, year={'live' if show_year else 'frozen->turns only'}, "
           f"tile={TILE}px -> {OUT_DIR}")
 
+    realart = any(fr.get("bmp") for fr in frames)
+    if realart:
+        print("[RENDER] real-art mode (engine isometric BMPs + HUD/Chronicle overlay)")
     for i, fr in enumerate(frames):
-        img = render_frame(fr, pal, protagonist, show_year, civ_by_pid, fonts)
+        if realart and fr.get("bmp") and os.path.exists(fr["bmp"]):
+            img = render_realart_frame(fr, show_year, civ_by_pid, protagonist, fonts)
+        else:
+            img = render_frame(fr, pal, protagonist, show_year, civ_by_pid, fonts)
         img.save(os.path.join(OUT_DIR, f"frame_{i:04d}.png"))
         if i % 25 == 0:
             print(f"[RENDER] {i}/{len(frames)}")

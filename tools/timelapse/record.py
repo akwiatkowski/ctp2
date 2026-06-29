@@ -46,6 +46,12 @@ TURN_TIMEOUT = int(os.environ.get("AUTOPLAY_TURN_TIMEOUT", "60"))
 OUT = os.environ.get("TIMELAPSE_OUT", "/tmp/ctp2-timelapse.jsonl")
 INTERVAL = max(1, int(os.environ.get("SNAPSHOT_INTERVAL", "1")))
 GAME_LOG = "/tmp/ctp2-timelapse-game.log"
+# Real-art mode: each turn ask the engine for an unfogged isometric BMP of the
+# whole map (render_map). The BMP is the frame's map layer; render.py composites
+# the HUD + Chronicle over it. ZOOM 0..5 trades file size for tile detail.
+REALART = os.environ.get("TIMELAPSE_REALART", "1") != "0"
+RENDER_ZOOM = int(os.environ.get("TIMELAPSE_ZOOM", "1"))
+RAW_DIR = os.path.join(os.path.dirname(os.path.abspath(OUT)), "raw")
 
 
 def send_cmd(cmd: str, timeout: float = 20) -> dict:
@@ -111,6 +117,8 @@ def main() -> int:
     print("[REC] Game up")
     out = open(OUT, "w")
     frames = 0
+    if REALART:
+        os.makedirs(RAW_DIR, exist_ok=True)
 
     def cmd(c, timeout=20):
         try:
@@ -162,6 +170,14 @@ def main() -> int:
         c = (clock.get("result", clock) if clock else {}) or {}
         events = ((logr.get("result", logr) if logr else {}) or {}).get("action_log") or []
 
+        bmp = None
+        if REALART:
+            bmp = os.path.join(RAW_DIR, f"turn-{turn_num:04d}.bmp")
+            r = cmd(f"render_map {bmp} {RENDER_ZOOM}", timeout=60)
+            if not r or r.get("status") != "ok":
+                print(f"[REC] turn {turn_num}: render_map -> {r}")
+                bmp = None
+
         out.write(json.dumps({
             "type": "frame",
             "turn": turn_num,
@@ -169,8 +185,11 @@ def main() -> int:
             "year": c.get("year"),
             "width": w.get("width"),
             "height": w.get("height"),
-            "terrain": w.get("terrain"),
-            "cities": w.get("cities"),
+            # Real-art frames carry the engine BMP; terrain/cities live in it,
+            # so they are omitted from the log to keep it small.
+            "bmp": bmp,
+            "terrain": None if REALART else w.get("terrain"),
+            "cities": None if REALART else w.get("cities"),
             "players": w.get("players"),
             "events": events,
         }) + "\n")

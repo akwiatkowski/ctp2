@@ -11,7 +11,7 @@
 class aui_Control;
 class Sequence;
 
-sint32 sci_advancescreen_displayMyWindow( MBCHAR *messageText = nullptr, sint32 from = NULL, std::weak_ptr<Sequence> seq = std::weak_ptr<Sequence>());
+sint32 sci_advancescreen_displayMyWindow( MBCHAR *messageText = nullptr, sint32 from = 0, std::weak_ptr<Sequence> seq = std::weak_ptr<Sequence>());
 sint32 sci_advancescreen_removeMyWindow(uint32 action);
 AUI_ERRCODE sci_advancescreen_Initialize( MBCHAR *messageText = nullptr );
 void sci_advancescreen_Cleanup();

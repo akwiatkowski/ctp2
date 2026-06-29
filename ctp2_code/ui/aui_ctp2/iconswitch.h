@@ -21,7 +21,7 @@ public:
 		sint32 y,
 		MBCHAR *pattern = nullptr,
 		Icon *icon = nullptr,
-		uint16 color = NULL,
+		uint16 color = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );

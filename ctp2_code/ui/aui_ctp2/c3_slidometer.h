@@ -31,7 +31,7 @@ public:
 		sint32 height,
 		BOOL isVertical,
 		MBCHAR *pattern,
-		sint32 percentFilled = NULL,
+		sint32 percentFilled = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	~c3_Slidometer() override = default;

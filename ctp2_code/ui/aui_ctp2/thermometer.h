@@ -28,7 +28,7 @@ public:
 		sint32 width,
 		sint32 height,
 		MBCHAR *pattern,
-		sint32 percentFilled = NULL,
+		sint32 percentFilled = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	~Thermometer() override = default;

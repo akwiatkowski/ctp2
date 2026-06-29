@@ -2399,9 +2399,17 @@ std::string QueryWorld()
                                {"pop", cd ? cd->PopCount() : 0} });
         }
 
+        std::string leader = ToUtf8(pl->GetLeaderName());
+        MBCHAR civname[k_MAX_NAME_LEN] = {0};
+        Civilisation * civ = pl->GetCivilisation();
+        if (civ && civ->AccessData())
+            civ->GetSingularCivName(civname);
+
         players.push_back({ {"id", p},
                             {"cities", ncity},
                             {"dead", pl->IsDead() ? true : false},
+                            {"name", leader},
+                            {"civ", ToUtf8(civname)},
                             {"score", pl->m_score ? pl->m_score->GetTotalScore() : 0} });
     }
 

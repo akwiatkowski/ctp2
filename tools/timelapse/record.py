@@ -171,6 +171,16 @@ def main() -> int:
             lead = f"p{top['id']} score={top['score']} cities={top['cities']}" if top else "-"
             print(f"[REC] turn {turn_num}/{TURNS} wall={time.time()-t0:.1f}s frames={frames} leader={lead}")
 
+    # Action Log: one final capture. Every entry is turn-stamped, so render.py
+    # can caption each frame with that round's events — the "Chronicle".
+    log = cmd("log_get", timeout=30)
+    if log and log.get("status") == "ok":
+        lr = log.get("result", log)
+        events = lr.get("action_log") or []
+        out.write(json.dumps({"type": "log", "events": events}) + "\n")
+        out.flush()
+        print(f"[REC] action log: {lr.get('count')} events captured")
+
     print(f"[REC] done: {frames} frames -> {OUT}")
     cmd("quit")
     try:

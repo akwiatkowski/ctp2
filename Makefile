@@ -176,6 +176,30 @@ run-hd: build-sanitized
 	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
 	@./run_game.sh --resolution 1920x1080
 
+# Record an AI-vs-AI game and render an empire timelapse (PNG frames + mp4).
+#   make timelapse                              # 150 turns -> /tmp/ctp2-timelapse
+#   make timelapse TURNS=300 TL_TILE=11         # longer, higher-res
+#   make timelapse-render                       # re-render the LAST recording
+#                                               # (fast; no game run)
+TURNS    ?= 150
+TL_DIR   ?= /tmp/ctp2-timelapse
+TL_TILE  ?= 9
+TL_FPS   ?= 12
+timelapse: build
+	@mkdir -p $(TL_DIR)
+	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
+	@echo "[timelapse] recording $(TURNS) turns (a game window will open and auto-close)..."
+	AUTOPLAY_TURNS=$(TURNS) TIMELAPSE_OUT=$(TL_DIR)/run.jsonl \
+		mise exec -- python3 tools/timelapse/record.py
+	@$(MAKE) timelapse-render
+
+# Re-render from the existing recording — iterate the visual without replaying.
+timelapse-render:
+	@echo "[timelapse] rendering frames + mp4..."
+	TILE=$(TL_TILE) FPS=$(TL_FPS) \
+		mise exec -- python3 tools/timelapse/render.py $(TL_DIR)/run.jsonl $(TL_DIR)/frames
+	@echo "[timelapse] done -> $(TL_DIR)/frames/timelapse.mp4"
+
 # Build the Crystal gateway (gateway/bin/ctp2-gateway)
 gateway-build:
 	@echo "Building ctp2-gateway..."

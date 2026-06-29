@@ -8,23 +8,24 @@ draws, per turn:
     show up as growing coloured blobs (an approximation of borders from city
     positions, no per-tile owner needed)
   - cities as dots (owner colour, radius grows with population)
-  - HUD: turn / year, and a score leaderboard with the protagonist civ
-    highlighted (the others desaturated so the story follows one empire)
+  - HUD: turn / year + a score leaderboard by civ name, protagonist spotlit
+  - a Chronicle caption strip: the salient action-log events for that turn
+
 Then ffmpeg stitches the frames into an mp4.
 
 Usage:
     render.py [in.jsonl] [out_dir]
 
 Env:
-    TIMELAPSE_PROTAGONIST   player id to spotlight (default: top scorer in the
-                            final frame)
-    TILE                    pixels per map tile (default 7)
+    TIMELAPSE_PROTAGONIST   player id to spotlight (default: top scorer, final frame)
+    TILE                    pixels per map tile (default 9)
     TERRITORY_RADIUS        city influence radius in tiles (default 3)
     FPS                     output framerate (default 12)
 """
 
 import json
 import os
+import re
 import sys
 import subprocess
 
@@ -32,27 +33,28 @@ from PIL import Image, ImageDraw, ImageFont
 
 IN = sys.argv[1] if len(sys.argv) > 1 else "/tmp/ctp2-timelapse.jsonl"
 OUT_DIR = sys.argv[2] if len(sys.argv) > 2 else "/tmp/ctp2-timelapse-frames"
-TILE = int(os.environ.get("TILE", "7"))
+TILE = int(os.environ.get("TILE", "9"))
 TERRITORY_RADIUS = int(os.environ.get("TERRITORY_RADIUS", "3"))
 FPS = int(os.environ.get("FPS", "12"))
 PROTAGONIST_ENV = os.environ.get("TIMELAPSE_PROTAGONIST")
 
-HUD_W = 230            # right-hand HUD panel width (px)
+HUD_W = 250            # right-hand HUD panel width (px)
+CAP_H = 64             # bottom Chronicle caption strip height (px)
 BG = (16, 18, 24)
 
-# Distinct per-player colours (index = player id). Tweak freely.
 PLAYER_COLORS = [
-    (224, 64, 64),    # 0 red
-    (64, 128, 240),   # 1 blue
-    (80, 200, 96),    # 2 green
-    (236, 200, 64),   # 3 yellow
-    (200, 96, 220),   # 4 purple
-    (96, 216, 216),   # 5 cyan
-    (240, 144, 56),   # 6 orange
-    (200, 200, 208),  # 7 white
-    (160, 110, 70),   # 8 brown
-    (240, 120, 170),  # 9 pink
+    (224, 64, 64), (64, 128, 240), (80, 200, 96), (236, 200, 64), (200, 96, 220),
+    (96, 216, 216), (240, 144, 56), (200, 200, 208), (160, 110, 70), (240, 120, 170),
 ]
+
+# Action-log event names that are per-turn housekeeping — never worth a caption.
+SKIP_EVENT_RE = re.compile(
+    r"(BeginTurn|EndTurn|BeginScheduler|Scheduler|Idle|Process|NextPlayer|"
+    r"BeginMove|MoveProcess|Awake|Asleep|Heartbeat)", re.I)
+# Events that make a good story beat, ranked first.
+SALIENT_RE = re.compile(
+    r"(City|Settle|Found|Advance|Tech|Wonder|War|Peace|Battle|Attack|Capture|"
+    r"Conquer|Disband|Government|TradeRoute|Revolt|Golden|Diplomac|Alliance)", re.I)
 
 
 def player_color(pid):
@@ -60,11 +62,9 @@ def player_color(pid):
 
 
 def load_font(size):
-    for path in (
-        "/System/Library/Fonts/Supplemental/Arial.ttf",
-        "/System/Library/Fonts/Helvetica.ttc",
-        "/Library/Fonts/Arial.ttf",
-    ):
+    for path in ("/System/Library/Fonts/Supplemental/Arial.ttf",
+                 "/System/Library/Fonts/Helvetica.ttc",
+                 "/Library/Fonts/Arial.ttf"):
         try:
             return ImageFont.truetype(path, size)
         except Exception:
@@ -73,11 +73,7 @@ def load_font(size):
 
 
 def terrain_palette(meta):
-    """Build {terrain_id: (r,g,b)} from the query_terrains dictionary.
-
-    Land is shaded green->tan by food (lush vs poor); water blue; mountain grey.
-    Falls back to a neutral colour for ids we can't classify.
-    """
+    """{terrain_id: (r,g,b)} from query_terrains; land shaded green->tan by food."""
     pal = {}
     terr = (meta or {}).get("terrains") if meta else None
     rows = (terr or {}).get("terrains") if isinstance(terr, dict) else None
@@ -94,13 +90,33 @@ def terrain_palette(meta):
         elif r.get("mountain"):
             pal[tid] = (110, 110, 120)
         elif r.get("land"):
-            # lush (high food) -> tan (low food)
             f = (r.get("food", 0) / fmax) if fmax else 0.0
             lush, poor = (70, 150, 70), (170, 150, 100)
             pal[tid] = tuple(int(poor[i] + (lush[i] - poor[i]) * f) for i in range(3))
         else:
             pal[tid] = (60, 64, 72)
     return pal
+
+
+def humanize_event(name):
+    s = re.sub(r"Event$", "", name or "")
+    s = re.sub(r"(?<!^)(?=[A-Z])", " ", s)       # space before CamelCase humps
+    return s.strip()
+
+
+def build_captions(log_events):
+    """round -> [caption strings], salient events only, protagonist-agnostic."""
+    by_round = {}
+    for e in log_events or []:
+        name = e.get("event", "")
+        if not name or SKIP_EVENT_RE.search(name):
+            continue
+        by_round.setdefault(e.get("turn"), []).append(e)
+    out = {}
+    for rnd, evs in by_round.items():
+        evs.sort(key=lambda e: (0 if SALIENT_RE.search(e.get("event", "")) else 1))
+        out[rnd] = evs[:3]
+    return out
 
 
 def pick_protagonist(frames):
@@ -112,15 +128,16 @@ def pick_protagonist(frames):
     return top["id"] if top else 0
 
 
-def blend(base, over, a):
-    return tuple(int(base[i] * (1 - a) + over[i] * a) for i in range(3))
+def civ_label(p):
+    return p.get("civ") or p.get("name") or f"p{p['id']}"
 
 
-def render_frame(frame, pal, protagonist, font, font_sm):
+def render_frame(frame, pal, protagonist, captions, civ_by_pid, fonts):
+    font, font_sm, font_cap = fonts
     W, H = frame["width"], frame["height"]
     terrain = frame["terrain"] or []
     img_w = W * TILE + HUD_W
-    img_h = H * TILE
+    img_h = H * TILE + CAP_H
     img = Image.new("RGB", (img_w, img_h), BG)
     px = img.load()
 
@@ -137,15 +154,12 @@ def render_frame(frame, pal, protagonist, font, font_sm):
 
     draw = ImageDraw.Draw(img, "RGBA")
 
-    # 2) territory tint — soft diamond around each city in owner colour.
-    #    Protagonist at full strength, rivals faint, so the eye follows one civ.
+    # 2) territory tint (soft diamond per city; protagonist strong, rivals faint)
     for c in frame.get("cities") or []:
         owner = c["owner"]
         col = player_color(owner)
-        is_prot = owner == protagonist
-        peak = 0.55 if is_prot else 0.28
-        cx, cy = c["x"], c["y"]
-        R = TERRITORY_RADIUS
+        peak = 0.55 if owner == protagonist else 0.26
+        cx, cy, R = c["x"], c["y"], TERRITORY_RADIUS
         for dy in range(-R, R + 1):
             for dx in range(-R, R + 1):
                 man = abs(dx) + abs(dy)
@@ -154,12 +168,10 @@ def render_frame(frame, pal, protagonist, font, font_sm):
                 tx, ty = cx + dx, cy + dy
                 if 0 <= tx < W and 0 <= ty < H:
                     a = peak * (1 - man / (R + 1))
-                    draw.rectangle(
-                        [tx * TILE, ty * TILE, tx * TILE + TILE - 1, ty * TILE + TILE - 1],
-                        fill=col + (int(a * 255),),
-                    )
+                    draw.rectangle([tx * TILE, ty * TILE, tx * TILE + TILE - 1,
+                                    ty * TILE + TILE - 1], fill=col + (int(a * 255),))
 
-    # 3) city dots (radius ~ pop), protagonist ringed white
+    # 3) city dots (radius ~ pop); protagonist ringed white
     for c in frame.get("cities") or []:
         owner = c["owner"]
         col = player_color(owner)
@@ -177,51 +189,79 @@ def render_frame(frame, pal, protagonist, font, font_sm):
     draw.text((panel_x + 12, 12), "CALL TO POWER 2", font=font, fill=(235, 235, 245))
     draw.text((panel_x + 12, 36), f"turn {frame['turn']}   {yr}", font=font_sm, fill=(170, 180, 200))
 
-    players = sorted((frame.get("players") or []),
-                     key=lambda p: p.get("score", 0), reverse=True)
-    yoff = 78
-    draw.text((panel_x + 12, yoff - 22), "score        cities", font=font_sm, fill=(120, 130, 150))
+    players = sorted((frame.get("players") or []), key=lambda p: p.get("score", 0), reverse=True)
+    yoff = 80
+    draw.text((panel_x + 12, yoff - 22), "civ", font=font_sm, fill=(120, 130, 150))
+    draw.text((panel_x + 150, yoff - 22), "score  cty", font=font_sm, fill=(120, 130, 150))
     for p in players:
         if p.get("dead") or (p.get("cities", 0) == 0 and p.get("score", 0) == 0):
             continue
         col = player_color(p["id"])
         prot = p["id"] == protagonist
         draw.rectangle([panel_x + 12, yoff + 3, panel_x + 24, yoff + 15], fill=col)
-        label = f"{p.get('score',0):>6}      {p.get('cities',0):>2}"
-        draw.text((panel_x + 32, yoff), label, font=font_sm,
+        draw.text((panel_x + 32, yoff), civ_label(p)[:14], font=font_sm,
                   fill=(255, 255, 255) if prot else (160, 168, 184))
+        draw.text((panel_x + 150, yoff), f"{p.get('score',0):>5} {p.get('cities',0):>3}",
+                  font=font_sm, fill=(255, 255, 255) if prot else (160, 168, 184))
         if prot:
-            draw.text((panel_x + 150, yoff), "*", font=font_sm, fill=(255, 230, 120))
+            draw.text((panel_x + 232, yoff), "*", font=font_sm, fill=(255, 230, 120))
         yoff += 20
+
+    # 5) Chronicle caption strip (bottom): this round's salient events
+    cap_y = H * TILE
+    draw.rectangle([0, cap_y, img_w, img_h], fill=(8, 9, 13))
+    evs = captions.get(frame.get("round"), [])
+    if evs:
+        ty = cap_y + 8
+        for e in evs:
+            pid = e.get("player")
+            if isinstance(pid, int) and 0 <= pid < 32:
+                draw.rectangle([10, ty + 2, 22, ty + 14], fill=player_color(pid))
+                who = civ_by_pid.get(pid, f"p{pid}")
+            else:
+                who = ""
+            txt = f"{who}: {humanize_event(e.get('event'))}".strip(": ")
+            draw.text((30, ty), txt, font=font_cap, fill=(210, 214, 228))
+            ty += 17
+    else:
+        draw.text((30, cap_y + 8), "...", font=font_cap, fill=(80, 86, 100))
     return img
 
 
 def main():
-    frames, meta = [], None
+    frames, meta, log_events = [], None, []
     with open(IN) as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
             rec = json.loads(line)
-            if rec.get("type") == "meta":
+            t = rec.get("type")
+            if t == "meta":
                 meta = rec
-            elif rec.get("type") == "frame":
+            elif t == "frame":
                 frames.append(rec)
+            elif t == "log":
+                log_events = rec.get("events") or []
     if not frames:
         print(f"[RENDER] no frames in {IN}")
         return 1
 
     pal = terrain_palette(meta)
     protagonist = pick_protagonist(frames)
-    font, font_sm = load_font(16), load_font(13)
+    captions = build_captions(log_events)
+    # civ name per player id, from the final frame (names are stable)
+    civ_by_pid = {p["id"]: civ_label(p) for p in (frames[-1].get("players") or [])}
+    fonts = (load_font(17), load_font(13), load_font(13))
     os.makedirs(OUT_DIR, exist_ok=True)
-    print(f"[RENDER] {len(frames)} frames, protagonist=p{protagonist}, tile={TILE}px -> {OUT_DIR}")
+    prot_name = civ_by_pid.get(protagonist, f"p{protagonist}")
+    print(f"[RENDER] {len(frames)} frames, protagonist={prot_name}, "
+          f"{len(log_events)} log events, tile={TILE}px -> {OUT_DIR}")
 
     for i, fr in enumerate(frames):
-        img = render_frame(fr, pal, protagonist, font, font_sm)
+        img = render_frame(fr, pal, protagonist, captions, civ_by_pid, fonts)
         img.save(os.path.join(OUT_DIR, f"frame_{i:04d}.png"))
-        if i % 20 == 0:
+        if i % 25 == 0:
             print(f"[RENDER] {i}/{len(frames)}")
 
     mp4 = os.path.join(OUT_DIR, "timelapse.mp4")

@@ -394,6 +394,13 @@ work or design tasks, do it in this session directly.
   abbreviations (`c3`, `slic`, `aui_`, `g_the*`) are part of the codebase's
   identity — leave them alone — but don't propagate that style into new
   code.
+  - **Avoid single-letter locals and loop variables** (`c`, `f`, `t`, `r`).
+    They only shrink the file; they make code harder to read and invite
+    real bugs — e.g. reusing `c` as a loop variable silently clobbered a
+    `c` holding query results one scope up, crashing the recorder. Use
+    `city`, `frame`, `token`, `response`. A short index `i`/`j`/`x`/`y` in a
+    tight numeric loop is fine; a single letter standing in for a real
+    object or value is not.
 - **Param struct + designated initializers when args ≥ 5 or any duplicated
   primitive type.** Functions taking ≥5 args, OR any 2+ args sharing a
   primitive type (`sint32` + `sint32`, two `bool`s) where order ambiguity

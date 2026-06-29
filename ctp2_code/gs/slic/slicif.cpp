@@ -1817,7 +1817,7 @@ void slicif_function_return(SF_RET rettype)
 	s_function_return_type = rettype;
 }
 
-void slicif_get_local_name(char *localName, char *name)
+void slicif_get_local_name(char *localName, const char *name)
 {
 	snprintf(localName, sizeof(localName), "%s#%s", s_current_segment_name, name);
 }
@@ -1882,17 +1882,17 @@ void slicif_end_for()
 	s_while_level--;
 }
 
-int slicif_find_const(char *name, int *value)
+int slicif_find_const(const char *name, int *value)
 {
 	return (int)slicengine_Get()->FindConst(name, (sint32*)value);
 }
 
-void slicif_add_const(char *name, int value)
+void slicif_add_const(const char *name, int value)
 {
-	slicengine_Get()->AddConst((MBCHAR *)name, (sint32)value);
+	slicengine_Get()->AddConst(name, (sint32)value);
 }
 
-void slicif_check_event_exists(char *name)
+void slicif_check_event_exists(const char *name)
 {
 	GAME_EVENT ev = GameEventManager::GetEventIndex(name);
 	if(ev >= GEV_MAX) {
@@ -1902,7 +1902,7 @@ void slicif_check_event_exists(char *name)
 	}
 }
 
-char *slicif_create_name(char *base)
+char *slicif_create_name(const char *base)
 {
 	size_t const nameSize = strlen(base) + 10;
 	char *name = (char *)malloc(nameSize);
@@ -1921,7 +1921,7 @@ SLIC_PRI slicif_get_priority()
 	return s_priority;
 }
 
-void slicif_set_event_checking(char *eventname)
+void slicif_set_event_checking(const char *eventname)
 {
 	s_event_checking = 1;
 	const char *argString = GameEventManager::GetArgString(GameEventManager::GetEventIndex(eventname));
@@ -1984,7 +1984,7 @@ void slicif_register_line(int line, int offset)
 	}
 }
 
-SlicNamedSymbol *slicif_get_symbol(char *name)
+SlicNamedSymbol *slicif_get_symbol(const char *name)
 {
 	char localname[1024];
 	slicif_get_local_name(localname, name);
@@ -2011,7 +2011,7 @@ void slicif_start_event(char *name)
 	slicif_add_op(SOP_SARGS);
 }
 
-void slicif_check_arg_symbol(SLIC_SYM type, char *typeName)
+void slicif_check_arg_symbol(SLIC_SYM type, const char *typeName)
 {
 	char errbuf[1024];
 	SLIC_SYM symType;

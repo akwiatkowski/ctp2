@@ -3325,7 +3325,7 @@ sint32 CivApp::Process()
 	if (m_gameLoaded && g_savedGameRequest && selitem_Get())
     {
         Player *    p = player_Get(selitem_Get()->GetCurPlayer());
-		if(p && !p->IsRobot()
+		if((p && !p->IsRobot())
 		|| selitem_Get()->GetVisiblePlayer() == selitem_Get()->GetCurPlayer())
         {
 			if (director_Get())

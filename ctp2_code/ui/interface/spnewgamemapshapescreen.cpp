@@ -202,7 +202,7 @@ AUI_ERRCODE spnewgamemapshapescreen_Initialize( aui_Control::ControlActionCallba
 	{
 		s_spNewGameMapShapeScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(s_spNewGameMapShapeScreen, errcode) );
-		if ( !AUI_NEWOK(s_spNewGameMapShapeScreen, errcode) ) errcode;
+		if ( !AUI_NEWOK(s_spNewGameMapShapeScreen, errcode) ) return errcode;
 
 		s_spNewGameMapShapeScreen->Resize(s_spNewGameMapShapeScreen->Width(),s_spNewGameMapShapeScreen->Height());
 		s_spNewGameMapShapeScreen->GrabRegion()->Resize(s_spNewGameMapShapeScreen->Width(),s_spNewGameMapShapeScreen->Height());

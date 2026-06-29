@@ -118,7 +118,7 @@ AUI_ERRCODE soundscreen_Initialize( )
 		AUI_WINDOW_TYPE_FLOATING,
 		false );
 	Assert( AUI_NEWOK(s_soundWindow, errcode) );
-	if ( !AUI_NEWOK(s_soundWindow, errcode) ) errcode;
+	if ( !AUI_NEWOK(s_soundWindow, errcode) ) return errcode;
 
 	s_soundWindow->SetStronglyModal(TRUE);
 

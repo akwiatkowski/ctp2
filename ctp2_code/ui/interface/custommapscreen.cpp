@@ -210,7 +210,7 @@ AUI_ERRCODE custommapscreen_Initialize( aui_Control::ControlActionCallback *call
 	{
 		s_customMapWindow = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(s_customMapWindow, errcode) );
-		if ( !AUI_NEWOK(s_customMapWindow, errcode) ) errcode;
+		if ( !AUI_NEWOK(s_customMapWindow, errcode) ) return errcode;
 
 		s_customMapWindow->Resize(s_customMapWindow->Width(),s_customMapWindow->Height());
 		s_customMapWindow->GrabRegion()->Resize(s_customMapWindow->Width(),s_customMapWindow->Height());

@@ -124,7 +124,7 @@ AUI_ERRCODE optionwarningscreen_Initialize( )
 		AUI_WINDOW_TYPE_FLOATING,
 		false );
 	Assert( AUI_NEWOK(s_optionwarningscreenWindow, errcode) );
-	if ( !AUI_NEWOK(s_optionwarningscreenWindow, errcode) ) errcode;
+	if ( !AUI_NEWOK(s_optionwarningscreenWindow, errcode) ) return errcode;
 
 	s_optionwarningscreenWindow->SetStronglyModal(TRUE);
 

@@ -377,7 +377,7 @@ AUI_ERRCODE km_screen_Initialize( )
 	{
 		s_km_screen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING );
 		Assert( AUI_NEWOK(s_km_screen, errcode) );
-		if ( !AUI_NEWOK(s_km_screen, errcode) ) errcode;
+		if ( !AUI_NEWOK(s_km_screen, errcode) ) return errcode;
 
 		s_km_screen->Resize(s_km_screen->Width(),s_km_screen->Height());
 		s_km_screen->GrabRegion()->Resize(s_km_screen->Width(),s_km_screen->Height());

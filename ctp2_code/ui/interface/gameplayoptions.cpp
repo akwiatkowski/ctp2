@@ -212,7 +212,7 @@ AUI_ERRCODE gameplayoptions_Initialize( )
 		AUI_WINDOW_TYPE_FLOATING,
 		false);
 	Assert( AUI_NEWOK(s_gameplayoptionsWindow, errcode) );
-	if ( !AUI_NEWOK(s_gameplayoptionsWindow, errcode) ) errcode;
+	if ( !AUI_NEWOK(s_gameplayoptionsWindow, errcode) ) return errcode;
 
 	s_gameplayoptionsWindow->SetStronglyModal(TRUE);
 

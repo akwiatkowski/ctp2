@@ -94,8 +94,6 @@ public:
 		return m_totalResources;
 	}
 
-	void Serialize(CivArchive &archive);
-
 	sint32 FindMatch(const Resources *r2) const {
 		for(sint32 i = 0; i < m_numGoods; i++) {
 			if(m_supply[i] && r2->m_supply[i])

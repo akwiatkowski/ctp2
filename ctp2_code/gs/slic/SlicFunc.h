@@ -145,13 +145,8 @@ public:
 		m_name = name;
 		m_token = token;
 	}
-	SlicStringToToken(CivArchive &archive) {
-		Serialize(archive);
-	}
 	const char *GetName() { return m_name; }
 	sint32 GetToken() const { return m_token; }
-
-	void Serialize(CivArchive &archive) {};
 };
 
 class SlicArgList
@@ -204,9 +199,7 @@ protected:
 
 public:
 	SlicFunc(char const * name, SLIC_FUNC_RET_TYPE type);
-	SlicFunc(CivArchive &archive);
 	virtual ~SlicFunc() = default;
-	void Serialize(CivArchive &archive);
 	SlicFuncResult GetResult() { return m_result; }
 	SLIC_FUNC_RET_TYPE GetReturnType() { return m_type; }
 

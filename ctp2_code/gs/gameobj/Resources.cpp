@@ -46,23 +46,6 @@ Resources::Resources(const Resources &copyme)
 	m_supply = copyme.m_supply;
 }
 
-//----------------------------------------------------------------------------
-//
-// Name       : Resources::Serialize
-//
-// Description: Store/Load CityData
-//
-// Parameters : CivArchive &archive: The archive from/to date should be
-//              read/written.
-//
-// Globals    : -
-//
-// Returns    : -
-//
-// Remark(s)  : -
-//
-//----------------------------------------------------------------------------
-
 Resources & Resources::operator = (Resources &copyme)
 {
 	Assert(m_numGoods == copyme.m_numGoods);

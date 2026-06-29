@@ -557,6 +557,44 @@ AUI_ERRCODE TiledMap::RenderFullMap(aui_Surface *dest, sint32 zoomLevel)
 	fullMap.left = 0; fullMap.top = 0; fullMap.right = mw; fullMap.bottom = mh;
 	RepaintTiles(&fullMap);
 
+	// City markers: a filled square per city in its owner's colour, drawn while
+	// the viewport is still at origin (absolute projection) and the surface is
+	// locked. Terrain alone barely changes turn to turn — the cities are what
+	// make the timelapse move. Same maputils projection as the tiles, so the
+	// markers sit on the correct iso tiles.
+	{
+		sint32 const tw   = GetZoomTilePixelWidth();
+		sint32 const th   = GetZoomTilePixelHeight();
+		sint32 const hr   = GetZoomTileHeadroom();
+		sint32 const half = th / 2;
+		for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+			Player * pl = player_Get(p);
+			if (!pl) continue;
+			Pixel16 const col = colorset_Get()->GetPlayerColor(p);
+			UnitDynamicArray * cl = pl->GetAllCitiesList();
+			for (sint32 i = 0; cl && i < cl->Num(); ++i) {
+				Unit u = cl->Access(i);
+				if (!u.IsValid()) continue;
+				MapPoint cp;
+				u.GetPos(cp);
+				sint32 cx, cy;
+				maputils_MapXY2PixelXY(cp.x, cp.y, &cx, &cy);
+				sint32 const mx = cx + tw / 2;       // tile centre x
+				sint32 const my = cy + hr + half;    // tile centre y
+				for (sint32 dy = -half; dy <= half; ++dy) {
+					sint32 const yy = my + dy;
+					if (yy < 0 || yy >= m_surfHeight) continue;
+					Pixel16 * row = (Pixel16 *)(m_surfBase + yy * m_surfPitch);
+					for (sint32 dx = -half; dx <= half; ++dx) {
+						sint32 const xx = mx + dx;
+						if (xx < 0 || xx >= m_surfWidth) continue;
+						row[xx] = col;
+					}
+				}
+			}
+		}
+	}
+
 	UnlockSurface();
 	RetargetTileSurface(savedSurface);
 

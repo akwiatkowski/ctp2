@@ -73,6 +73,7 @@ enum SAVEINFOLOAD
 #include "gs/gameobj/CivilisationPool.h"
 
 #include <string>
+#include <vector>
 
 struct CivGuid {
 	sint32 civIndex;
@@ -94,10 +95,10 @@ public:
 	MBCHAR					note[_MAX_PATH];
 	sint32					radarMapWidth;
 	sint32					radarMapHeight;
-	Pixel16					*radarMapData;
+	std::vector<Pixel16>	radarMapData;
 	sint32					powerGraphWidth;
 	sint32					powerGraphHeight;
-	Pixel16					*powerGraphData;
+	std::vector<Pixel16>	powerGraphData;
 	sint32					numCivs;
 	MBCHAR					civList[k_MAX_PLAYERS][k_MAX_NAME_LEN];
 	CivGuid                 networkGUID[k_MAX_PLAYERS];

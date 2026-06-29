@@ -42,6 +42,7 @@
 
 #include <stdio.h>			// sprintf
 #include <string.h>			// strcpy
+#include <string>			// std::string
 
 //----------------------------------------------------------------------------
 // Exported names
@@ -75,7 +76,7 @@ struct aui_ResourceElement
 	virtual ~aui_ResourceElement();
 
 	TT		*resource;
-	MBCHAR	*name;
+	std::string	name;
 	uint32	hash;
 	uint32	pathhash;
 	sint32	refcount;
@@ -121,7 +122,7 @@ aui_ResourceElement<TT>::aui_ResourceElement(
 	const MBCHAR *newName,
 	const MBCHAR *fullPath )
 :	resource(nullptr),
-	name((newName && fullPath) ? new MBCHAR[strlen(newName) + 1] : nullptr),
+	name((newName && fullPath) ? newName : ""),
 	hash(aui_Base::CalculateHash(newName)),
 	pathhash(aui_Base::CalculateHash(fullPath)),
 	refcount(1)
@@ -129,8 +130,6 @@ aui_ResourceElement<TT>::aui_ResourceElement(
 
 	Assert( newName != nullptr && fullPath != nullptr );
 	if ( !newName || !fullPath ) return;
-	// Temporary patch: modern code would use std::string and initialiser
-	strcpy(name, newName);
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	resource = new TT( &errcode, fullPath );
@@ -150,7 +149,6 @@ template<class TT>
 aui_ResourceElement<TT>::~aui_ResourceElement()
 {
     delete resource;
-	delete [] name;
 }
 
 
@@ -294,7 +292,7 @@ T *aui_Resource<T>::Load( const MBCHAR *resName, C3DIR dir, uint32 size)
 	for ( sint32 i = m_resourceList->L(); i; i-- )
 	{
 		aui_ResourceElement<T> *re = m_resourceList->GetNext( position );
-		if (((hash == re->hash) && (strcmp(name, re->name) == 0))   ||
+		if (((hash == re->hash) && (strcmp(name, re->name.c_str()) == 0))   ||
 		    ((hash == re->pathhash) &&
              (!re->resource || (strcmp(name, re->resource->GetFilename()) == 0))
             )
@@ -420,7 +418,7 @@ AUI_ERRCODE aui_Resource<T>::Unload( const MBCHAR *name )
 		ListPos prevPosition = position;
 
 		aui_ResourceElement<T> *re = m_resourceList->GetNext( position );
-		if (((hash == re->hash) && (strcmp(name, re->name) == 0))   ||
+		if (((hash == re->hash) && (strcmp(name, re->name.c_str()) == 0))   ||
 		    ((hash == re->pathhash) &&
              (!re->resource || (strcmp(name, re->resource->GetFilename()) == 0))
             )

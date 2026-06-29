@@ -383,11 +383,11 @@ public:
 
 private:
 	uint16			m_numTransforms;
-	sint16			**m_transforms;
+	std::vector<sint16*>	m_transforms;
 
 	uint16			m_numRiverTransforms;
-	sint16			**m_riverTransforms;
-	Pixel16			**m_riverData;
+	std::vector<sint16*>	m_riverTransforms;
+	std::vector<Pixel16*>	m_riverData;
 
 	BaseTile		*m_baseTiles[k_MAX_BASE_TILES];
 	Pixel16			*m_transitions[TERRAIN_MAX][TERRAIN_MAX][k_TRANSITIONS_PER_TILE];
@@ -400,7 +400,7 @@ private:
 	uint16			m_megaTileLengths[k_MAX_MEGATILES];
 	MegaTileStep	m_megaTileData[k_MAX_MEGATILES][k_MAX_MEGATILE_STEPS];
 
-	Pixel16			**m_mapIcons;
+	std::vector<Pixel16*>	m_mapIcons;
 	std::vector<POINT> m_mapIconDimensions;
 
 	BOOL			m_quick;

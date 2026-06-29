@@ -83,15 +83,11 @@ namespace
 TileSet::TileSet()
 :
 	m_numTransforms         (0),
-	m_transforms            (nullptr),
     m_numRiverTransforms    (0),
-	m_riverTransforms       (nullptr),
-	m_riverData             (nullptr),
 	m_tileSetData           (nullptr),
 	m_numMegaTiles          (0),
     m_quick                 (false),
 	m_mapped                (false),
-	m_mapIcons              (nullptr),
 #ifdef WIN32
 	m_fileHandle            (INVALID_HANDLE_VALUE),
 	m_mappedFileHandle      (INVALID_HANDLE_VALUE)
@@ -143,15 +139,12 @@ TileSet::~TileSet()
 
 void TileSet::CleanupQuick()
 {
-	delete[] m_transforms;
-	m_transforms = nullptr;
+	m_transforms.clear();
 	m_numTransforms = 0;
 
-	delete[] m_riverTransforms;
-	m_riverTransforms = nullptr;
+	m_riverTransforms.clear();
 
-	delete[] m_riverData;
-	m_riverData = nullptr;
+	m_riverData.clear();
 
 	sint32 i;
 
@@ -165,8 +158,7 @@ void TileSet::CleanupQuick()
 	{
 		delete m_mapIcons[i];
 	}
-	delete[] m_mapIcons;
-	m_mapIcons = nullptr;
+	m_mapIcons.clear();
 	m_mapIconDimensions.clear();
 
 	delete[] m_tileSetData;
@@ -175,15 +167,12 @@ void TileSet::CleanupQuick()
 
 void TileSet::CleanupMapped()
 {
-	delete[] m_transforms;
-	m_transforms = nullptr;
+	m_transforms.clear();
 	m_numTransforms = 0;
 
-	delete[] m_riverTransforms;
-	m_riverTransforms = nullptr;
+	m_riverTransforms.clear();
 
-	delete[] m_riverData;
-	m_riverData = nullptr;
+	m_riverData.clear();
 
 	sint32 i;
 
@@ -197,8 +186,7 @@ void TileSet::CleanupMapped()
 	{
 		delete m_mapIcons[i];
 	}
-	delete[] m_mapIcons;
-	m_mapIcons = nullptr;
+	m_mapIcons.clear();
 	m_mapIconDimensions.clear();
 
 #ifdef WIN32
@@ -228,19 +216,18 @@ void TileSet::Cleanup()
 	    sint32		 j;
 	    sint32		 k;
 
-		if (m_transforms)
+		if (!m_transforms.empty())
         {
 			for (i = 0; i < m_numTransforms; i++)
             {
 				delete [] m_transforms[i];
 			}
-			delete [] m_transforms;
-			m_transforms    = nullptr;
+			m_transforms.clear();
 			m_numTransforms = 0;
 		}
 
 
-		if (m_riverTransforms)
+		if (!m_riverTransforms.empty())
         {
 			for (i = 0; i<m_numRiverTransforms; i++)
             {
@@ -248,12 +235,10 @@ void TileSet::Cleanup()
 				delete [] m_riverData[i];
 			}
 
-			delete [] m_riverTransforms;
-			m_riverTransforms = nullptr;
+			m_riverTransforms.clear();
 			m_numRiverTransforms = 0;
 
-			delete [] m_riverData;
-			m_riverData = nullptr;
+			m_riverData.clear();
 		}
 
 		for (i=0; i<TERRAIN_MAX; i++) {
@@ -337,8 +322,7 @@ void TileSet::LoadTransforms(FILE *file)
 	    uint16		numTransforms;
 		c3files_fread((void *)&numTransforms, 1, sizeof(numTransforms), file);
 
-		// TODO(phase-2): class-member buffer — wave 3 migration (nested T** pointer array)
-		m_transforms    = new sint16*[numTransforms];
+		m_transforms.resize(numTransforms);
 		m_numTransforms = numTransforms;
 
 		for (uint16 i = 0; i < numTransforms; ++i)
@@ -359,11 +343,9 @@ void TileSet::LoadRiverTransforms(FILE *file)
 		c3files_fread((void *)&numRiverTransforms, 1, sizeof(numRiverTransforms), file);
 
 		if (numRiverTransforms > 0) {
-			// TODO(phase-2): class-member buffer — wave 3 migration (nested T** pointer array)
-			m_riverTransforms = new sint16*[numRiverTransforms];
+			m_riverTransforms.resize(numRiverTransforms);
 			m_numRiverTransforms = numRiverTransforms;
-			// TODO(phase-2): class-member buffer — wave 3 migration (nested T** pointer array)
-			m_riverData = new Pixel16*[numRiverTransforms];
+			m_riverData.resize(numRiverTransforms);
 
 			for (uint16 i = 0; i < numRiverTransforms; ++i)
             {
@@ -467,9 +449,7 @@ void TileSet::LoadMapIcons()
 	Pixel16		*tga;
 	Pixel16		*data;
 
-	// TODO(phase-2): class-member buffer — wave 3 migration (nested T** pointer array)
-	m_mapIcons          = new Pixel16*[g_theMapIconDB->NumRecords()];
-	// TODO(phase-2): class-member buffer — wave 3 migration
+	m_mapIcons.assign(g_theMapIconDB->NumRecords(), nullptr);
 	m_mapIconDimensions.resize(g_theMapIconDB->NumRecords());
 	for (sint32 i = 0; i < g_theMapIconDB->NumRecords(); ++i)
 	{
@@ -617,7 +597,7 @@ void TileSet::QuickLoadTransforms(uint8 **dataPtr)
 	    memcpy(&m_numTransforms, *dataPtr, sizeof(uint16));
 		(*dataPtr) += sizeof(uint16);
 
-		m_transforms = new sint16*[m_numTransforms];
+		m_transforms.resize(m_numTransforms);
 
 		for (uint16 i = 0; i < m_numTransforms; ++i)
         {
@@ -682,9 +662,9 @@ void TileSet::QuickLoadRiverTransforms(uint8 **dataPtr)
 
 	if (numRiverTransforms > 0)
     {
-		m_riverTransforms = new sint16*[numRiverTransforms];
+		m_riverTransforms.resize(numRiverTransforms);
 		m_numRiverTransforms = numRiverTransforms;
-		m_riverData = new Pixel16*[numRiverTransforms];
+		m_riverData.resize(numRiverTransforms);
 
 		for (uint16 i = 0; i < numRiverTransforms; ++i)
         {

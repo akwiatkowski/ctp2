@@ -105,10 +105,10 @@ public:
 	void	SetNumFrames(uint16 num) override    { m_facedFrameCount = num; }
 
 protected:
-	Pixel16			**m_frames[k_NUM_FACINGS];
-	size_t			*m_framesSizes[k_NUM_FACINGS];
-	Pixel16			**m_miniframes[k_NUM_FACINGS];
-	size_t			*m_miniframesSizes[k_NUM_FACINGS];
+	std::vector<Pixel16*>	m_frames[k_NUM_FACINGS];
+	std::vector<size_t>		m_framesSizes[k_NUM_FACINGS];
+	std::vector<Pixel16*>	m_miniframes[k_NUM_FACINGS];
+	std::vector<size_t>		m_miniframesSizes[k_NUM_FACINGS];
 	POINT			m_hotPoints[k_NUM_FACINGS];
     size_t          m_facedFrameCount;          // number of valid entries per facing in the Pixel16 ** variables
 };

@@ -10,8 +10,6 @@
 
 
 ns_String::ns_String( char *ldlBlock )
-:
-    m_string    (nullptr)
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
@@ -27,15 +25,15 @@ ns_String::ns_String( char *ldlBlock )
 		string = stringdb_Get()->GetNameStr( block->GetString("text") );
 	}
 
-	m_string = new char[strlen(string) + 1];
-    strcpy(m_string, string);
+	if ( string ) {
+		m_string = string;
+	}
 }
 
 ns_String::~ns_String( )
 {
-	delete [] m_string;
 }
 
 char *ns_String::GetString( ) {
-	return m_string;
+	return const_cast<char *>(m_string.c_str());
 }

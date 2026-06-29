@@ -58,6 +58,7 @@
 //----------------------------------------------------------------------------
 
 #include <memory>
+#include <string>
 #include <vector>
 
 //----------------------------------------------------------------------------
@@ -346,7 +347,7 @@ public:
 	Score                            *m_score;                    // Serialized
 	EndGame                          *m_endGame;                  // Serialized
 	std::vector<sint32>               m_goodSalePrices;
-	MBCHAR                           *m_email;                    // Serialized
+	std::string                       m_email;                    // Serialized
 	GaiaController                   *m_gaiaController;           // Serialized
 
 	CreateUnitRequest                *m_unitRequestList;

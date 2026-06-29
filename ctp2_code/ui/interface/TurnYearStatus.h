@@ -35,7 +35,8 @@
 #define ___BMH_TURN_YEAR_STATUS_HEADER
 
 class TurnYearStatus;
-struct sTurnLengthOverride;
+
+#include <vector>
 
 #include "ctp/c3types.h"    // MBCHAR, uint32
 #include "gs/gameobj/Player.h"     // PLAYER_INDEX
@@ -44,6 +45,12 @@ class aui_Control;
 class ctp2_Button;
 class ctp2_Static;
 class aui_Surface;
+
+struct sTurnLengthOverride
+{
+	uint32 turn;
+	MBCHAR text[32];
+};
 
 class TurnYearStatus {
 public:
@@ -81,15 +88,9 @@ private:
 
 	DisplayType m_displayType;
 
-	static sTurnLengthOverride *s_pTurnLengthOverride;
+	static std::vector<sTurnLengthOverride> s_pTurnLengthOverride;
 	static uint32               s_turnLengthOverrideSize;
 	static bool                 s_useCustomYear;
-};
-
-struct sTurnLengthOverride
-{
-	uint32 turn;
-	MBCHAR text[32];
 };
 
 #endif // ___BMH_TURN_YEAR_STATUS_HEADER

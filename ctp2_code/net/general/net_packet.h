@@ -36,6 +36,8 @@
 #ifndef _NET_PACKET_H_
 #define _NET_PACKET_H_
 
+#include <vector>
+
 class Packetizer;
 
 #define MAKE_CIV3_ID(x, y) (((x) << 8) | (y))
@@ -113,7 +115,6 @@ public:
 		m_reliability = 1;
 		m_refCount = 0;
 		m_unitId = 0;
-		m_packetbuf = nullptr;
 		m_packetsize = 0;
 		m_sendCompressed = FALSE;
 	}
@@ -123,14 +124,13 @@ public:
 		m_reliability = 1;
 		m_refCount = 0;
 		m_unitId = 0;
-		m_packetbuf = rawBuf;
+		m_packetbuf.assign(rawBuf, rawBuf + len);
 		m_packetsize = len;
 		m_sendCompressed = TRUE;
 	}
 
 	virtual ~Packetizer()
 	{
-		delete [] m_packetbuf;
 	}
 
 	sint32 AddRef() { return ++m_refCount; }
@@ -161,7 +161,7 @@ public:
 
 	void PacketizeAndSave()
 	{
- 		if(!m_packetbuf) {
+ 		if(m_packetbuf.empty()) {
 			uint8 buf[8192];
 			uint16 size = 0;
 			Packetize(buf, size);
@@ -179,8 +179,7 @@ public:
 #endif
 
 			Assert(m_packetsize < 8192);
-			m_packetbuf = new uint8[m_packetsize];
-			memcpy(m_packetbuf, buf, m_packetsize);
+			m_packetbuf.assign(buf, buf + m_packetsize);
 		}
 	}
 
@@ -190,7 +189,7 @@ public:
 	sint32 m_reliability;
 	sint32 m_unitId;
 
-	uint8 *m_packetbuf;
+	std::vector<uint8> m_packetbuf;
 	sint32 m_packetsize;
 	sint32 m_sendCompressed;
 

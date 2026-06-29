@@ -1094,14 +1094,14 @@ void TurnCount::SendNextPlayerMessageEvent()
 		is_scenario_Set(FALSE);
 
 		MBCHAR fullPath[_MAX_PATH];
-		MBCHAR *c;
-		MBCHAR *startc;
+		const MBCHAR *c;
+		const MBCHAR *startc;
 		MBCHAR *fc;
 		strlcpy(fullPath, civpaths_Get()->GetDesktopPath(), sizeof(fullPath));
 		// JJB changed this from CTP to CTP2 to avoid confusion between the two games
 		strncat(fullPath, "\\CTP2 Email To ", sizeof(fullPath) - strlen(fullPath) - 1);
 
-		startc = player_Get(player)->m_email;
+		startc = player_Get(player)->m_email.c_str();
 		c = startc;
 		fc = &fullPath[strlen(fullPath)];
 		while(*c && (fc - fullPath) < (sint32)(sizeof(fullPath) - 50)) {
@@ -1130,7 +1130,7 @@ void TurnCount::SendNextPlayerMessageEvent()
 	so->AddRecipient(player);
 	so->AddCivilisation(player);
 	if(m_isEmail)
-		so->AddAction(player_Get(player)->m_email);
+		so->AddAction(player_Get(player)->m_email.c_str());
 
 	slicengine_Get()->Execute(so);
 

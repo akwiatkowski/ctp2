@@ -75,10 +75,10 @@ m_loadOnDemand(loadOnDemand)
 	Assert(m_numStates);
 	Assert(m_numImages);
 
-	m_images = new aui_ImageListInfo *[m_numStates];
+	m_images.resize(m_numStates);
 
 	for(sint32 i = 0; i < m_numStates; i++) {
-		m_images[i] = new aui_ImageListInfo[m_numImages];
+		m_images[i].resize(m_numImages);
 	}
 
 	m_currentState = 0;
@@ -86,14 +86,9 @@ m_loadOnDemand(loadOnDemand)
 
 aui_ImageList::~aui_ImageList()
 {
-
-	for(sint32 i = 0; i < m_numStates; i++) {
-		delete [] m_images[i];
-		m_images[i] = nullptr;
-	}
-
-	delete [] m_images;
-	m_images = nullptr;
+	// m_images is a std::vector of std::vector; the destructors of the
+	// contained aui_ImageListInfo objects (which unload their images) run
+	// automatically as the vectors are destroyed.
 }
 
 

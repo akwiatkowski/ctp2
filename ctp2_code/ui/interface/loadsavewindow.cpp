@@ -533,21 +533,15 @@ void LoadSaveWindow::GetPowerGraph(SaveInfo *info)
 	myGraph->GenrateGraph(xCount, yCount, &graphData, kRankingOverall);
 	if(yCount <= 0) return;
 
-	if (info->powerGraphWidth > 0 &&
-		info->powerGraphHeight > 0)
-	{
-		delete [] info->powerGraphData;
-	}
-
 	info->powerGraphWidth   = width;
 	info->powerGraphHeight  = height;
-	info->powerGraphData    = new Pixel16[width*height];
+	info->powerGraphData.assign(width*height, Pixel16());
 
 	aui_Surface *   surf = myGraph->GetGraphSurface();
 	Pixel16	*       buffer;
 	if (surf->Lock(nullptr, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) return;
 
-	Pixel16 *   graphDataPtr    = info->powerGraphData;
+	Pixel16 *   graphDataPtr    = info->powerGraphData.data();
 	sint32      halfPitch       = surf->Pitch() / 2;
 
 	for (sint32 i = 0; i < height; i++)
@@ -582,21 +576,15 @@ void LoadSaveWindow::GetRadarMap(SaveInfo *info)
 	aui_Surface	*   surf        = radarMap->GetMapSurface();
 	radarMap->RenderMap(surf);
 
-	if (info->radarMapWidth > 0 &&
-		info->radarMapHeight > 0)
-    {
-		delete [] info->radarMapData;
-	}
-
 	info->radarMapWidth     = width;
 	info->radarMapHeight    = height;
-	info->radarMapData      = new Pixel16[width*height];
+	info->radarMapData.assign(width*height, Pixel16());
 
     Pixel16 *   buffer;
 	if (surf->Lock(nullptr, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) return;
 
 	sint32      halfPitch       = surf->Pitch() / 2;
-	Pixel16 *   radarDataPtr    = info->radarMapData;
+	Pixel16 *   radarDataPtr    = info->radarMapData.data();
 
 	for (sint32 i = 0; i < height; i++)
     {
@@ -665,7 +653,7 @@ void LoadSaveWindow::SetPowerGraph(SaveInfo *info)
 		return;
 	}
 
-	Pixel16 *   radarDataPtr = info->powerGraphData;
+	Pixel16 *   radarDataPtr = info->powerGraphData.data();
 	sint32      pitch = surface->Pitch();
 
 	for (sint32 i = 0; i < height; i++)
@@ -737,7 +725,7 @@ void LoadSaveWindow::SetRadarMap(SaveInfo *info)
 		return;
 	}
 
-	Pixel16 *   radarDataPtr = info->radarMapData;
+	Pixel16 *   radarDataPtr = info->radarMapData.data();
 	sint32      pitch = surface->Pitch();
 
 	for (sint32 i=0; i<height; i++) {

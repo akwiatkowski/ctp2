@@ -44,7 +44,7 @@
 #include "gs/fileio/gamefile.h"           // is_scenario_Get()
 #include "gs/fileio/CivPaths.h"           // civpaths_Get()
 
-sTurnLengthOverride *TurnYearStatus::s_pTurnLengthOverride    = nullptr;
+std::vector<sTurnLengthOverride> TurnYearStatus::s_pTurnLengthOverride;
 uint32               TurnYearStatus::s_turnLengthOverrideSize = 0;
 bool                 TurnYearStatus::s_useCustomYear          = false;
 
@@ -69,7 +69,7 @@ const MBCHAR *TurnYearStatus::GetYearString(sint32 currentYear, sint32 round)
 {
 	static MBCHAR buf[1024];
 
-	if(s_useCustomYear && s_pTurnLengthOverride)
+	if(s_useCustomYear && !s_pTurnLengthOverride.empty())
 	{
 		if(round >= 0)
 		{
@@ -177,7 +177,7 @@ void TurnYearStatus::BuildTurnLengthOverride()
 			if (count)
 			{
 				MBCHAR dummy[1024];
-				s_pTurnLengthOverride = new sTurnLengthOverride[count];
+				s_pTurnLengthOverride.resize(count);
 				s_turnLengthOverrideSize = count;
 				rewind(fp);
 				for (int i = 0; i < count; i++)
@@ -202,8 +202,7 @@ void TurnYearStatus::BuildTurnLengthOverride()
 void TurnYearStatus::CleanupTurnLengthOverride()
 {
 	s_useCustomYear = false;
-	delete [] s_pTurnLengthOverride;
-	s_pTurnLengthOverride = nullptr;
+	s_pTurnLengthOverride.clear();
 }
 
 TurnYearStatus::TurnYearStatus(MBCHAR *ldlBlock)
@@ -229,7 +228,7 @@ void TurnYearStatus::Update()
 	switch(m_displayType)
 	{
 		case DISPLAY_YEAR:
-			if (s_useCustomYear && s_pTurnLengthOverride)
+			if (s_useCustomYear && !s_pTurnLengthOverride.empty())
 			{
 				uint32 round = turn_Get()->GetSessionRound();
 				if (round > s_turnLengthOverrideSize)

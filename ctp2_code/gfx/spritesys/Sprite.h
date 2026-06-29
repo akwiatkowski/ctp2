@@ -358,9 +358,9 @@ protected:
 	POINT			m_hotPoint;
 
 	uint16			m_numFrames;
-	Pixel16			**m_frames;
+	std::vector<Pixel16*> m_frames;
 	std::vector<size_t> m_framesSizes;
-	Pixel16			**m_miniframes;
+	std::vector<Pixel16*> m_miniframes;
 	std::vector<size_t> m_miniframesSizes;
 	uint16			m_firstFrame;
 	uint16			m_currentFrame;

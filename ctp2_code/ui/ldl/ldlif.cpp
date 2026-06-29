@@ -1,6 +1,7 @@
 #include "ctp/c3.h"
 
 #include <cinttypes>
+#include <string>
 
 #include "ui/ldl/ldlif.h"
 #include "gs/fileio/CivPaths.h"
@@ -17,17 +18,19 @@
 #include "ctp/ctp2_utils/c3errors.h"
 
 class LDLString {
-	char *m_name;
+	std::string m_name;
   public:
 	LDLString(const char *text) {
-		m_name = new char[strlen(text) + 1];
-		strcpy(m_name, text);
-	}
-	~LDLString() {
-		delete [] m_name;
+		m_name = text;
 	}
 
-	char * GetName() const { return m_name; }
+	// The returned pointer is interned: callers store it (in ldl_datablock /
+	// ldl_attribute / the lexer's nameval) and compare names by pointer
+	// identity, never by content, and never write through it.  std::string's
+	// buffer is stable for the object's lifetime (name is never mutated after
+	// construction), so c_str() preserves that identity.  const_cast keeps the
+	// historic char* return type so every consumer compiles unchanged.
+	char * GetName() const { return const_cast<char *>(m_name.c_str()); }
 };
 
 StringHash<LDLString> *s_ldlStringHash = nullptr;

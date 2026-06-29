@@ -49,6 +49,7 @@
 //----------------------------------------------------------------------------
 
 #include <memory>
+#include <vector>
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -575,7 +576,7 @@ protected:
 	float			m_one_over_gridWidth;
 	float			m_one_over_gridHeight;
 
-	GridRect		**m_gridRects;
+	std::vector<GridRect*>	m_gridRects;
 
 	RECT m_chatRect;
 };

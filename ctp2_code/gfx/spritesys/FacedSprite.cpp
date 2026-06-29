@@ -51,13 +51,6 @@ FacedSprite::FacedSprite()
 :   Sprite              (),
     m_facedFrameCount   (0)
 {
-	for (size_t facing = 0; facing < k_NUM_FACINGS; ++facing)
-	{
-		m_frames[facing]        = nullptr;
-		m_framesSizes[facing]   = nullptr;
-		m_miniframes[facing]    = nullptr;
-		m_miniframesSizes[facing] = nullptr;
-	}
 	m_type = SPRITETYPE_FACED;
 }
 
@@ -68,31 +61,14 @@ FacedSprite::~FacedSprite()
 	{
 		for (size_t i = 0; i < m_facedFrameCount; ++i)
 	        {
-			if ((m_frames[facing] != nullptr) && (m_frames[facing][i] != nullptr)) {
+			if ((i < m_frames[facing].size()) && (m_frames[facing][i] != nullptr)) {
 				delete m_frames[facing][i];
 				m_frames[facing][i] = nullptr;
 			}
-			if ((m_miniframes[facing] != nullptr) && (m_miniframes[facing][i] != nullptr)) {
+			if ((i < m_miniframes[facing].size()) && (m_miniframes[facing][i] != nullptr)) {
 				delete m_miniframes[facing][i];
 				m_miniframes[facing][i] = nullptr;
 			}
-		}
-
-		if (m_frames[facing] != nullptr) {
-			delete [] m_frames[facing];
-			m_frames[facing] = nullptr;
-		}
-		if (m_framesSizes[facing] != nullptr) {
-			delete [] m_framesSizes[facing];
-			m_framesSizes[facing] = nullptr;
-		}
-		if (m_miniframes[facing] != nullptr) {
-			delete [] m_miniframes[facing];
-			m_miniframes[facing] = nullptr;
-		}
-		if (m_miniframesSizes[facing] != nullptr) {
-			delete [] m_miniframesSizes[facing];
-			m_miniframesSizes[facing] = nullptr;
 		}
 	}
 }
@@ -289,7 +265,7 @@ Pixel16 *FacedSprite::GetFrameData(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_frames[facing] != nullptr);
+	Assert(!m_frames[facing].empty());
 
 	return m_frames[facing][frame];
 }
@@ -298,7 +274,7 @@ size_t FacedSprite::GetFrameDataSize(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_framesSizes[facing] != nullptr);
+	Assert(!m_framesSizes[facing].empty());
 #ifdef _WINDOWS
 	Assert(m_framesSizes[facing][frame] == _msize(GetFrameData(facing, frame)));
 
@@ -312,7 +288,7 @@ Pixel16 *FacedSprite::GetMiniFrameData(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_miniframes[facing] != nullptr);
+	Assert(!m_miniframes[facing].empty());
 
 	return m_miniframes[facing][frame];
 }
@@ -321,7 +297,7 @@ size_t FacedSprite::GetMiniFrameDataSize(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_miniframesSizes[facing] != nullptr);
+	Assert(!m_miniframesSizes[facing].empty());
 #ifdef _WINDOWS
 	Assert(m_miniframesSizes[facing][frame] = _msize(GetMiniFrameData(facing, frame)));
 
@@ -335,8 +311,8 @@ void FacedSprite::SetFrameData(uint16 facing, uint16 frame, Pixel16 *data, size_
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_frames[facing] != nullptr);
-	Assert(m_framesSizes[facing] != nullptr);
+	Assert(!m_frames[facing].empty());
+	Assert(!m_framesSizes[facing].empty());
 #ifdef _WINDOWS
 //	Assert((((data == NULL) && (size = 0)) || ((data != NULL) && (_msize(data) == size))));
 #endif
@@ -349,8 +325,8 @@ void FacedSprite::SetMiniFrameData(uint16 facing, uint16 frame, Pixel16 *data, s
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_miniframes[facing] != nullptr);
-	Assert(m_miniframesSizes[facing] != nullptr);
+	Assert(!m_miniframes[facing].empty());
+	Assert(!m_miniframesSizes[facing].empty());
 #ifdef _WINDOWS
 //	Assert((((data == NULL) && (size = 0)) || ((data != NULL) && (_msize(data) == size))));
 #endif
@@ -565,38 +541,30 @@ void FacedSprite::AllocateFrameArrays(size_t count)
     {
         for (size_t i = 0; i < m_facedFrameCount; ++i)
         {
-            if (m_frames[facing] && m_frames[facing][i])
+            if (i < m_frames[facing].size() && m_frames[facing][i])
             {
                 delete m_frames[facing][i];
                 m_frames[facing][i] = nullptr;
             }
-            if (m_miniframes[facing] && m_miniframes[facing][i])
+            if (i < m_miniframes[facing].size() && m_miniframes[facing][i])
             {
                 delete m_miniframes[facing][i];
                 m_miniframes[facing][i] = nullptr;
             }
         }
-        delete [] m_frames[facing];          m_frames[facing] = nullptr;
-        delete [] m_framesSizes[facing];     m_framesSizes[facing] = nullptr;
-        delete [] m_miniframes[facing];      m_miniframes[facing] = nullptr;
-        delete [] m_miniframesSizes[facing]; m_miniframesSizes[facing] = nullptr;
+        m_frames[facing].clear();
+        m_framesSizes[facing].clear();
+        m_miniframes[facing].clear();
+        m_miniframesSizes[facing].clear();
     }
     m_facedFrameCount = 0;
 
 	for (size_t facing = 0; facing < k_NUM_FACINGS; ++facing)
     {
-		m_frames[facing]          = new Pixel16 * [count];
-		m_framesSizes[facing]     = new size_t    [count];
-		m_miniframes[facing]      = new Pixel16 * [count];
-		m_miniframesSizes[facing] = new size_t    [count];
-
-        for (size_t i = 0; i < count; ++i)
-        {
-            m_frames[facing][i]          = nullptr;
-            m_framesSizes[facing][i]     = 0;
-            m_miniframes[facing][i]      = nullptr;
-            m_miniframesSizes[facing][i] = 0;
-        }
+		m_frames[facing].assign(count, nullptr);
+		m_framesSizes[facing].assign(count, 0);
+		m_miniframes[facing].assign(count, nullptr);
+		m_miniframesSizes[facing].assign(count, 0);
 	}
 
     m_facedFrameCount   = count;

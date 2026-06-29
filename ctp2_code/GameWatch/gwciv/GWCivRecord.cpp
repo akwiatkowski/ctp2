@@ -17,7 +17,6 @@ DllExport GWCivRecord::GWCivRecord() : GWRecord()
 {
 
 	head = NULL;
-	dataBuffer = NULL;
 }
 
 
@@ -25,7 +24,6 @@ DllExport GWCivRecord::GWCivRecord(void *data, long numOfBytes) : GWRecord()
 {
 
 	head = NULL;
-	dataBuffer = NULL;
 
 	long size = numOfBytes / sizeof(GWUnitRecord);
 
@@ -56,8 +54,6 @@ DllExport GWCivRecord::~GWCivRecord()
 
 		delete record;
 	}
-
-	if(dataBuffer) delete [] dataBuffer;
 }
 
 
@@ -244,8 +240,6 @@ DllExport char *GWCivRecord::Export(char *baseName, char *stamp)
 DllExport void GWCivRecord::GetData(void **data, long *numOfBytes)
 {
 
-	if(dataBuffer) delete [] dataBuffer;
-
 	long counter = 0;
 	GWUnitRecord *current = head;
 
@@ -255,7 +249,7 @@ DllExport void GWCivRecord::GetData(void **data, long *numOfBytes)
 	}
 
 
-	dataBuffer = new GWUnitRecord[counter];
+	dataBuffer.assign(counter, GWUnitRecord());
 
 	*numOfBytes = counter * sizeof(GWUnitRecord);
 
@@ -278,7 +272,7 @@ DllExport void GWCivRecord::GetData(void **data, long *numOfBytes)
 		counter++;
 	}
 
-	*data = (void*)dataBuffer;
+	*data = (void*)dataBuffer.data();
 }
 
 

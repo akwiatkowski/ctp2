@@ -293,8 +293,7 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 
 	info->radarMapWidth = 0;
 	info->radarMapHeight = 0;
-	delete [] info->radarMapData;
-	info->radarMapData = nullptr;
+	info->radarMapData.clear();
 
 	n = c3files_fread(&info->radarMapWidth, sizeof(uint8), sizeof(info->radarMapWidth), saveFile);
 	if (n != sizeof(info->radarMapWidth)) {
@@ -308,8 +307,8 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 	}
 
 	if (info->radarMapHeight > 0 && info->radarMapWidth > 0) {
-		info->radarMapData = new Pixel16[info->radarMapWidth * info->radarMapHeight];
-		n = c3files_fread(info->radarMapData, sizeof(uint8),
+		info->radarMapData.resize(info->radarMapWidth * info->radarMapHeight);
+		n = c3files_fread(info->radarMapData.data(), sizeof(uint8),
 							sizeof(Pixel16) * info->radarMapWidth * info->radarMapHeight, saveFile);
 		if (n != (sint32)(info->radarMapWidth * info->radarMapHeight * sizeof(Pixel16))) {
 			c3files_fclose(saveFile);
@@ -325,8 +324,7 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 
 	info->powerGraphWidth = 0;
 	info->powerGraphHeight = 0;
-	delete [] info->powerGraphData;
-	info->powerGraphData = nullptr;
+	info->powerGraphData.clear();
 
 	n = c3files_fread(&info->powerGraphWidth, sizeof(uint8), sizeof(info->powerGraphWidth), saveFile);
 	if (n != sizeof(info->powerGraphWidth)) {
@@ -340,8 +338,8 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 	}
 
 	if (info->powerGraphHeight > 0 && info->powerGraphWidth > 0) {
-		info->powerGraphData = new Pixel16[info->powerGraphWidth * info->powerGraphHeight];
-		n = c3files_fread(info->powerGraphData, sizeof(uint8),
+		info->powerGraphData.resize(info->powerGraphWidth * info->powerGraphHeight);
+		n = c3files_fread(info->powerGraphData.data(), sizeof(uint8),
 							sizeof(Pixel16) * info->powerGraphWidth * info->powerGraphHeight, saveFile);
 		if (n != (sint32)(info->powerGraphWidth * info->powerGraphHeight * sizeof(Pixel16))) {
 			c3files_fclose(saveFile);
@@ -350,9 +348,9 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 
 		if (!is_565_Get())
 		{
-			std::transform(info->powerGraphData,
-			               info->powerGraphData + (info->powerGraphWidth * info->powerGraphHeight),
-			               info->powerGraphData,
+			std::transform(info->powerGraphData.data(),
+			               info->powerGraphData.data() + (info->powerGraphWidth * info->powerGraphHeight),
+			               info->powerGraphData.data(),
 			               pixelutils_Convert565to555
 			              );
 		}
@@ -720,7 +718,7 @@ void GameFile::SaveExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 			}
 		}
 
-		n = c3files_fwrite(info->radarMapData, sizeof(uint8),
+		n = c3files_fwrite(info->radarMapData.data(), sizeof(uint8),
 							sizeof(Pixel16) * info->radarMapHeight * info->radarMapWidth,
 							saveFile);
 		if (n != (sint32)(sizeof(Pixel16) * info->radarMapHeight * info->radarMapWidth)) {
@@ -749,7 +747,7 @@ void GameFile::SaveExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 			}
 		}
 
-		n = c3files_fwrite(info->powerGraphData, sizeof(uint8),
+		n = c3files_fwrite(info->powerGraphData.data(), sizeof(uint8),
 							sizeof(Pixel16) * info->powerGraphHeight * info->powerGraphWidth,
 							saveFile);
 		if (n != (sint32)(sizeof(Pixel16) * info->powerGraphHeight * info->powerGraphWidth)) {
@@ -1284,10 +1282,8 @@ SaveInfo::SaveInfo()
 :
 	radarMapWidth       (0),
 	radarMapHeight      (0),
-	radarMapData        (nullptr),
 	powerGraphWidth     (0),
 	powerGraphHeight    (0),
-	powerGraphData      (nullptr),
 	numCivs             (0),
 // nf_GameSetup gameSetup;
 // struct OptionScreenSettings options
@@ -1339,29 +1335,27 @@ SaveInfo::SaveInfo(SaveInfo *copyMe)
 {
 	memcpy(this, copyMe, sizeof(SaveInfo));
 
-	sint32 numPixels;
-	sint32 numBytes;
+	// memcpy above byte-copied copyMe's std::vector internals (pointer /
+	// size / capacity) over our own freshly default-constructed members.
+	// Those bytes alias copyMe's heap buffer, which we must NOT touch.
+	// Re-initialise the vector members in place with placement-new so they
+	// own nothing, then deep-copy below.  (Skip running their destructors —
+	// that would free copyMe's buffer.)
+	new (&radarMapData)   std::vector<Pixel16>();
+	new (&powerGraphData) std::vector<Pixel16>();
 
 	if (copyMe->radarMapWidth > 0 &&
 		copyMe->radarMapHeight > 0 &&
-		copyMe->radarMapData != nullptr) {
+		!copyMe->radarMapData.empty()) {
 
-		numPixels = copyMe->radarMapWidth * copyMe->radarMapHeight;
-		numBytes = numPixels * sizeof(Pixel16);
-
-		radarMapData = new Pixel16[numPixels];
-		memcpy(radarMapData, copyMe->radarMapData, numBytes);
+		radarMapData = copyMe->radarMapData;
 	}
 
 	if (copyMe->powerGraphWidth > 0 &&
 		copyMe->powerGraphHeight > 0 &&
-		copyMe->powerGraphData != nullptr) {
+		!copyMe->powerGraphData.empty()) {
 
-		numPixels = copyMe->powerGraphWidth * copyMe->powerGraphHeight;
-		numBytes = numPixels * sizeof(Pixel16);
-
-		powerGraphData = new Pixel16[numPixels];
-		memcpy(powerGraphData, copyMe->powerGraphData, numBytes);
+		powerGraphData = copyMe->powerGraphData;
 	}
 
 }
@@ -1385,8 +1379,6 @@ SaveInfo::SaveInfo(SaveInfo *copyMe)
 //----------------------------------------------------------------------------
 SaveInfo::~SaveInfo()
 {
-	delete [] powerGraphData;
-	delete [] radarMapData;
 }
 
 //----------------------------------------------------------------------------

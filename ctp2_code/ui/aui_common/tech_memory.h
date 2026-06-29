@@ -25,12 +25,14 @@
 // Modifications from the original Activision code:
 //
 // - Variable scope corrected
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gähmann)
 //
 //----------------------------------------------------------------------------
 
 #ifndef __TECH_MEMORY_H__
 #define __TECH_MEMORY_H__
+
+#include <vector>
 
 #define k_TECH_MEMORY_DEFAULT_BLOCKSIZE		20
 #define k_TECH_MEMORY_BITSPERDWORD			(sizeof(unsigned)<<3)
@@ -52,9 +54,9 @@ protected:
 		:
 			pNext      (nullptr),
 			usedSize   (blockSize / k_TECH_MEMORY_BITSPERDWORD),
-			used       (nullptr),
+			used       (),
 			dataSize   (blockSize),
-			data       (nullptr)
+			data       ()
 		{
 			size_t const remainder = dataSize % k_TECH_MEMORY_BITSPERDWORD;
 			if (remainder)
@@ -62,40 +64,26 @@ protected:
 				usedSize++;
 			}
 
-			used = new unsigned[usedSize];
-			if (used)
-			{
-				memset( used, 0, usedSize * sizeof( unsigned ) );
+			used.resize(usedSize);
+			memset( used.data(), 0, usedSize * sizeof( unsigned ) );
 
-				if (remainder)
-				{
-					used[usedSize - 1] = ~(( 1 << remainder ) - 1);
-				}
+			if (remainder)
+			{
+				used[usedSize - 1] = ~(( 1 << remainder ) - 1);
 			}
 
-			data = new T[dataSize];
+			data.resize(dataSize);
 		};
 
 		virtual ~Block()
 		{
-			if (used)
-			{
-				delete[] used;
-				used = nullptr;
-			}
-
-			if (data)
-			{
-				delete[] data;
-				data = nullptr;
-			}
 		};
 
-		Block *     pNext;
-		size_t      usedSize;
-		unsigned *  used;
-		size_t      dataSize;
-		T *         data;
+		Block *                 pNext;
+		size_t                  usedSize;
+		std::vector<unsigned>   used;
+		size_t                  dataSize;
+		std::vector<T>          data;
 	};
 
 	T *UseFreeElement( );
@@ -153,8 +141,8 @@ T *tech_Memory< T >::New( )
 		m_pLast = m_pFirst = new Block(m_blockSize);
 	}
 
-	*(m_pLast->used) |= 1;
-	return m_pLast->data;
+	m_pLast->used[0] |= 1;
+	return m_pLast->data.data();
 }
 
 
@@ -171,10 +159,10 @@ T *tech_Memory< T >::UseFreeElement( )
 
 	for ( Block *pBlock = m_pFirst; pBlock; pBlock = pBlock->pNext )
 	{
-		T *t = pBlock->data;
+		T *t = pBlock->data.data();
 		T *stopT = t + m_blockSize;
 
-		unsigned *pUsed = pBlock->used;
+		unsigned *pUsed = pBlock->used.data();
 		unsigned *pStop = pUsed + pBlock->usedSize;
 		for ( ; pUsed != pStop; pUsed++ )
 		{
@@ -212,7 +200,7 @@ void tech_Memory< T >::UnuseElement( T *t )
 	Block *			pBlock = m_pFirst;
 	for ( ; pBlock ; pBlock = pBlock->pNext )
 	{
-		offset = t - pBlock->data;
+		offset = t - pBlock->data.data();
 		if ( offset < m_blockSize )
 			break;
 	}

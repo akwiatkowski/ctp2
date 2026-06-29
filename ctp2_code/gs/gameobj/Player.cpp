@@ -556,8 +556,6 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 
 	m_openForNetwork = FALSE;
 
-	m_email = nullptr;
-
 	m_governorPwReserve = -1;
 
 	m_gaiaController = new GaiaController(o);
@@ -627,7 +625,6 @@ Player::~Player()
 	}
 
 	delete m_slic_special_city;
-	delete [] m_email;
 	delete m_gaiaController;
 }
 

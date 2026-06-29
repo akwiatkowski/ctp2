@@ -126,15 +126,15 @@ public:
 	void	SetNumFrames(uint16 num) override    { m_shadowFrameCount = num; }
 
 protected:
-	Pixel16			**m_frames[k_NUM_FACINGS];
-	size_t			*m_framesSizes[k_NUM_FACINGS];
-	Pixel16			**m_miniframes[k_NUM_FACINGS];
-	size_t			*m_miniframesSizes[k_NUM_FACINGS];
+	std::vector<Pixel16*>	m_frames[k_NUM_FACINGS];
+	std::vector<size_t>		m_framesSizes[k_NUM_FACINGS];
+	std::vector<Pixel16*>	m_miniframes[k_NUM_FACINGS];
+	std::vector<size_t>		m_miniframesSizes[k_NUM_FACINGS];
 
-	Pixel16			**m_shadowFrames[k_NUM_FACINGS];
-	size_t			*m_shadowFramesSizes[k_NUM_FACINGS];
-	Pixel16			**m_miniShadowFrames[k_NUM_FACINGS];
-	size_t			*m_miniShadowFramesSizes[k_NUM_FACINGS];
+	std::vector<Pixel16*>	m_shadowFrames[k_NUM_FACINGS];
+	std::vector<size_t>		m_shadowFramesSizes[k_NUM_FACINGS];
+	std::vector<Pixel16*>	m_miniShadowFrames[k_NUM_FACINGS];
+	std::vector<size_t>		m_miniShadowFramesSizes[k_NUM_FACINGS];
 
 	uint16			m_hasShadow;
 

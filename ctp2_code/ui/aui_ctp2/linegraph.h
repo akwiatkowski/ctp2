@@ -66,6 +66,7 @@ class  LineGraph;
 struct LineGraphData;
 
 #include <string>
+#include <vector>
 
 #include "ui/aui_common/aui_control.h"
 #include "os/include/ctp2_inttypes.h"
@@ -134,7 +135,7 @@ public:
 		if (m_events != nullptr) SetGraphType(GRAPH_TYPE_ZEROSUM);
 	}
 
-	LineGraphData *GetData() { return m_data; }
+	LineGraphData *GetData() { return m_data.empty() ? nullptr : m_data.data(); }
 
 	AUI_ERRCODE		DrawThis(aui_Surface *surface, sint32 x, sint32 y) override;
 
@@ -156,7 +157,7 @@ private:
 
 	sint32			m_numLines;
 	sint32			m_numSamples;
-	double			**m_lineData;
+	std::vector<double*>	m_lineData;
 
 	bool			m_hasIndicator;
 	double			m_indicatorValue;
@@ -169,7 +170,7 @@ private:
 	RECT			m_graphRect;
 	RECT			m_surfaceRect;
 
-	LineGraphData	*m_data;
+	std::vector<LineGraphData>	m_data;
 
 	sint32			m_enableXLabel;
 	sint32			m_enableXNumber;

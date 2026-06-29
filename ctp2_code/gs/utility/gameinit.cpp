@@ -2097,8 +2097,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 				{
 					g_theProfileDB->SetLeaderName(g_hsPlayerSetup[i].name.c_str());
 				}
-				g_player[i]->m_email = new MBCHAR[g_hsPlayerSetup[i].email.length() + 1];
-				strlcpy(g_player[i]->m_email, g_hsPlayerSetup[i].email.c_str(), g_hsPlayerSetup[i].email.length() + 1);
+				g_player[i]->m_email = g_hsPlayerSetup[i].email;
 				}
 			}
 		}

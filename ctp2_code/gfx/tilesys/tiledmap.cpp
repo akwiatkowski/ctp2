@@ -215,7 +215,6 @@ TiledMap::TiledMap(MapPoint &size)
 	m_gridHeight            (0),
 	m_one_over_gridWidth    (1.0f),
 	m_one_over_gridHeight   (1.0f),
-	m_gridRects             (nullptr),
 	m_chatRect              (RECT_INVISIBLE)
 {
     std::fill(m_fortifyString, m_fortifyString + 4, 0);
@@ -343,7 +342,7 @@ void TiledMap::InitGrid(sint32 maxPixelsPerGridRectX, sint32 maxPixelsPerGridRec
 	m_one_over_gridWidth  = 1.0f/(float)maxPixelsPerGridRectX;
 	m_one_over_gridHeight = 1.0f/(float)maxPixelsPerGridRectY;
 
-	m_gridRects = new GridRect*[m_gridHeight];
+	m_gridRects.resize(m_gridHeight);
 
 	for (sint32 i=0; i<m_gridHeight; i++)
 	{
@@ -377,8 +376,7 @@ void TiledMap::DeleteGrid()
 		delete m_gridRects[i];
 	}
 
-	delete [] m_gridRects;
-	m_gridRects = nullptr;
+	m_gridRects.clear();
 }
 
 

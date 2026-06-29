@@ -785,14 +785,14 @@ void Network::ProcessSends()
 				uint8 *sbuf;
 				sint32 size;
 				Packetizer* packet = packetList->RemoveHead();
-				if(!packet->m_packetbuf) {
+				if(packet->m_packetbuf.empty()) {
 					Assert(FALSE);
 					uint16 psize;
 					packet->Packetize(buf, psize);
 					size = (sint32)psize;
 					sbuf = buf;
 				} else {
-					sbuf = packet->m_packetbuf;
+					sbuf = packet->m_packetbuf.data();
 					size = packet->m_packetsize;
 				}
 
@@ -3926,6 +3926,7 @@ void Network::ChunkList(uint16 id, PointerList<Packetizer> * a_List)
 	}
 
 	Packetizer *chunk = new Packetizer(mapBuf, size);
+	delete [] mapBuf;
 	QueuePacket(id, chunk);
 
 }

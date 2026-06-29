@@ -61,8 +61,6 @@ Sprite::Sprite()
 	m_hotPoint.y = 0;
 
 	m_numFrames = 0;
-	m_frames = nullptr;
-	m_miniframes = nullptr;
 	m_currentFrame = 0;
 	m_firstFrame = 0;
 
@@ -82,24 +80,18 @@ Sprite::~Sprite()
 {
 	for (size_t i = 0; i < m_numFrames; ++i)
 	{
-		if (m_frames[i] != nullptr) {
+		if (i < m_frames.size() && m_frames[i] != nullptr) {
 			delete [] (m_frames[i]);
 			m_frames[i] = nullptr;
 		}
-		if (m_miniframes[i] != nullptr) {
+		if (i < m_miniframes.size() && m_miniframes[i] != nullptr) {
 			delete [] (m_miniframes[i]);
 			m_miniframes[i] = nullptr;
 		}
 	}
-	if (m_frames != nullptr) {
-		delete [] m_frames;
-		m_frames = nullptr;
-	}
+	m_frames.clear();
 	m_framesSizes.clear();
-	if (m_miniframes != nullptr) {
-		delete [] m_miniframes;
-		m_miniframes = nullptr;
-	}
+	m_miniframes.clear();
 	m_miniframesSizes.clear();
 }
 
@@ -219,16 +211,10 @@ void Sprite::Import(size_t nframes, char **imageFiles, char **shadowFiles)
 {
 	m_numFrames = static_cast<uint16>(nframes);
 
-	
-		delete [] m_frames;
-	
-	m_frames = new Pixel16*[m_numFrames];
+	m_frames.assign(m_numFrames, nullptr);
 	m_framesSizes.resize(m_numFrames);
 
-	
-		delete [] m_miniframes;
-	
-	m_miniframes = new Pixel16*[m_numFrames];
+	m_miniframes.assign(m_numFrames, nullptr);
 	m_miniframesSizes.resize(m_numFrames);
 
 	Pixel32 *image;
@@ -709,8 +695,8 @@ Pixel16 *Sprite::GetFrameData(uint16 frameNum)
 	Assert(frameNum < m_numFrames);
 	if (frameNum >= m_numFrames) return nullptr;
 
-	Assert(m_frames != nullptr);
-	if (m_frames == nullptr) return nullptr;
+	Assert(!m_frames.empty());
+	if (m_frames.empty()) return nullptr;
 
 	return m_frames[frameNum];
 }
@@ -737,8 +723,8 @@ Pixel16 *Sprite::GetMiniFrameData(uint16 frameNum)
 	Assert(frameNum < m_numFrames);
 	if (frameNum >= m_numFrames) return nullptr;
 
-	Assert(m_miniframes != nullptr);
-	if (m_miniframes == nullptr) return nullptr;
+	Assert(!m_miniframes.empty());
+	if (m_miniframes.empty()) return nullptr;
 
 	return m_miniframes[frameNum];
 }
@@ -766,8 +752,8 @@ void Sprite::SetFrameData(uint16 frameNum, Pixel16 *data, size_t size)
 	if (data == nullptr) return;
 	Assert(frameNum < m_numFrames);
 	if (frameNum >= m_numFrames) return;
-	Assert(m_frames != nullptr);
-	if (m_frames == nullptr) return;
+	Assert(!m_frames.empty());
+	if (m_frames.empty()) return;
 
 	m_frames[frameNum] = data;
 
@@ -788,8 +774,8 @@ void Sprite::SetMiniFrameData(uint16 frameNum, Pixel16 *data, size_t size)
 	if (data == nullptr) return;
 	Assert(frameNum < m_numFrames);
 	if (frameNum >= m_numFrames) return;
-	Assert(m_miniframes != nullptr);
-	if (m_miniframes == nullptr) return;
+	Assert(!m_miniframes.empty());
+	if (m_miniframes.empty()) return;
 
 	m_miniframes[frameNum] = data;
 
@@ -854,34 +840,27 @@ void Sprite::AllocateFrameArrays(size_t count)
     // silently leaked.  See lessons/ctp2.md (Anim buffer-reuse pattern).
     for (size_t i = 0; i < m_numFrames; ++i)
     {
-        if (m_frames && m_frames[i])
+        if (i < m_frames.size() && m_frames[i])
         {
             delete [] m_frames[i];
             m_frames[i] = nullptr;
         }
-        if (m_miniframes && m_miniframes[i])
+        if (i < m_miniframes.size() && m_miniframes[i])
         {
             delete [] m_miniframes[i];
             m_miniframes[i] = nullptr;
         }
     }
-    delete [] m_frames;          m_frames = nullptr;
+    m_frames.clear();
     m_framesSizes.clear();
-    delete [] m_miniframes;      m_miniframes = nullptr;
+    m_miniframes.clear();
     m_miniframesSizes.clear();
 
     m_numFrames     = static_cast<uint16>(count);
-	m_frames        = new Pixel16*[m_numFrames];
-	m_framesSizes.resize(m_numFrames);
-	m_miniframes    = new Pixel16*[m_numFrames];
-	m_miniframesSizes.resize(m_numFrames);
-    for (size_t i = 0; i < m_numFrames; ++i)
-    {
-        m_frames[i]          = nullptr;
-        m_framesSizes[i]     = 0;
-        m_miniframes[i]      = nullptr;
-        m_miniframesSizes[i] = 0;
-    }
+	m_frames.assign(m_numFrames, nullptr);
+	m_framesSizes.assign(m_numFrames, 0);
+	m_miniframes.assign(m_numFrames, nullptr);
+	m_miniframesSizes.assign(m_numFrames, 0);
 }
 
 void Sprite::Export(FILE *file)

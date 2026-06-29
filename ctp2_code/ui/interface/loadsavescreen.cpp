@@ -1269,18 +1269,12 @@ void loadsavescreen_ListTwoHandler(aui_Control *control, uint32 action, uint32 d
 				// Dump power graph
 				oldSaveInfo->powerGraphWidth = 0;
 				oldSaveInfo->powerGraphHeight = 0;
-				if (oldSaveInfo->powerGraphData) {
-					delete[] oldSaveInfo->powerGraphData;
-					oldSaveInfo->powerGraphData = nullptr;
-				}
+				oldSaveInfo->powerGraphData.clear();
 
 				// Dump radar map
 				oldSaveInfo->radarMapWidth = 0;
 				oldSaveInfo->radarMapHeight = 0;
-				if (oldSaveInfo->radarMapData) {
-					delete[] oldSaveInfo->radarMapData;
-					oldSaveInfo->radarMapData = nullptr;
-				}
+				oldSaveInfo->radarMapData.clear();
 
 				// Set load type back to basic
 				oldSaveInfo->loadType = SAVEINFOLOAD_BASIC;

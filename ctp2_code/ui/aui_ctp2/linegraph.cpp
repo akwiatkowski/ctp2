@@ -173,7 +173,7 @@ LineGraph::LineGraph
 	m_ymax              (0.0),
 	m_numLines          (0),
 	m_numSamples        (0),
-	m_lineData          (nullptr),
+	// m_lineData default constructed (empty)
 	m_hasIndicator      (false),
 	m_indicatorValue    (0.0),
 	// m_xAxisName default constructed (empty)
@@ -181,7 +181,7 @@ LineGraph::LineGraph
     m_surface           (nullptr),
 //  RECT m_graphRect
 //  RECT m_surfaceRect
-	m_data              (nullptr),
+	// m_data default constructed (empty)
 	m_enableXLabel      (true),
 	m_enableXNumber     (true),
 	m_enableYLabel      (true),
@@ -212,7 +212,7 @@ LineGraph::LineGraph
 	m_ymax              (0.0),
 	m_numLines          (0),
 	m_numSamples        (0),
-	m_lineData          (nullptr),
+	// m_lineData default constructed (empty)
 	m_hasIndicator      (false),
 	m_indicatorValue    (0.0),
 	// m_xAxisName default constructed (empty)
@@ -220,7 +220,7 @@ LineGraph::LineGraph
     m_surface           (nullptr),
 //  RECT m_graphRect
 //  RECT m_surfaceRect
-	m_data              (nullptr),
+	// m_data default constructed (empty)
 	m_enableXLabel      (true),
 	m_enableXNumber     (true),
 	m_enableYLabel      (true),
@@ -249,15 +249,10 @@ LineGraph::LineGraph
 LineGraph::~LineGraph()
 {
 	delete m_surface;
-	delete [] m_data;
 
-	if (m_lineData)
+	for (sint32 i = 0; i < m_numLines * 3; i++)
 	{
-		for (sint32 i = 0; i < m_numLines * 3; i++)
-		{
-			delete [] m_lineData[i];
-		}
-		delete [] m_lineData;
+		delete [] m_lineData[i];
 	}
 }
 
@@ -403,7 +398,7 @@ void LineGraph::DrawLines(int eventsOfset)
 				xpos = m_graphRect.left + ((m_graphRect.right-m_graphRect.left) * j) / num;
 				ypos = (sint32)(m_graphRect.bottom - ((point-m_ymin) / (m_ymax - m_ymin)) * (m_graphRect.bottom - m_graphRect.top));
 
-                sint32  l_Color = (m_data) ? m_data[i].color : color;
+                sint32  l_Color = (!m_data.empty()) ? m_data[i].color : color;
 
                 if (first)
                 {
@@ -506,30 +501,20 @@ void LineGraph::SetLineData(sint32 numLines, sint32 numSamples, double **data, s
 	double		 sum;
 	double		 curYPos;
 
-	if (m_lineData)
+	for (i = 0; i < (m_numLines * 3); i++)
 	{
-		for (i = 0; i < (m_numLines * 3); i++)
-		{
-			delete [] m_lineData[i];
-		}
-		delete [] m_lineData;
+		delete [] m_lineData[i];
 	}
-	// TODO(phase-2): class-member assignment — needs wave-3 migration
-	m_lineData  = new double *[numLines*3];
+	m_lineData.assign(numLines * 3, nullptr);
 	m_numLines	= numLines;
 
-	delete [] m_data;
-	// TODO(phase-2): class-member assignment — needs wave-3 migration
-	m_data = new LineGraphData[numLines];
+	m_data.assign(numLines, LineGraphData());
 
 	sint32 defaultColor = (sint32)COLOR_RED;
 
 	for (i=0; i<numLines; i++) {
-		// TODO(phase-2): class-member assignment — needs wave-3 migration
 		m_lineData[i] = new double[numSamples];
-		// TODO(phase-2): class-member assignment — needs wave-3 migration
 		m_lineData[i+numLines] = new double[numSamples];
-		// TODO(phase-2): class-member assignment — needs wave-3 migration
 		m_lineData[i+numLines*2] = new double[numSamples];
 
 		m_data[i].array = m_lineData[i];

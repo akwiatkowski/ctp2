@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Crashes prevented.
-// - Use of delete to free memory. (Sep 13th 2005 Martin Gühmann)
+// - Use of delete to free memory. (Sep 13th 2005 Martin Gähmann)
 //
 //----------------------------------------------------------------------------
 
@@ -61,8 +61,7 @@ aui_ImageBase::aui_ImageBase
 	m_chromaGreen		        (k_DEFAULT_CHROMA_GREEN),
 	m_chromaBlue		        (k_DEFAULT_CHROMA_BLUE),
 	m_chromaSpecified           (false),
-	m_numberOfStateImageNames   (0),
-	m_stateImageNames           (nullptr)
+	m_numberOfStateImageNames   (0)
 {
 	InitCommonLdl(ldlBlock);
 }
@@ -83,8 +82,7 @@ aui_ImageBase::aui_ImageBase
 	m_chromaGreen		        (k_DEFAULT_CHROMA_GREEN),
 	m_chromaBlue		        (k_DEFAULT_CHROMA_BLUE),
 	m_chromaSpecified           (false),
-	m_numberOfStateImageNames   (0),
-	m_stateImageNames           (nullptr)
+	m_numberOfStateImageNames   (0)
 {
 	InitCommon(numStateImageGroups, imageblttype, imagebltflag);
 }
@@ -208,10 +206,7 @@ AUI_ERRCODE aui_ImageBase::InitCommon(
 	if(m_loadOnDemand) {
 
 		m_numberOfStateImageNames = numStateImageGroups * AUI_IMAGEBASE_SUBSTATE_LAST;
-		m_stateImageNames = new MBCHAR * [m_numberOfStateImageNames];
-
-		for(int index = 0; index < m_numberOfStateImageNames; index++)
-			m_stateImageNames[index] = nullptr;
+		m_stateImageNames.assign(m_numberOfStateImageNames, nullptr);
 	}
 
 	m_stateImageGroups =
@@ -230,14 +225,12 @@ AUI_ERRCODE aui_ImageBase::InitCommon(
 
 aui_ImageBase::~aui_ImageBase()
 {
-	if (m_stateImageNames)
+	if (!m_stateImageNames.empty())
     {
 		for (int index = 0; index < m_numberOfStateImageNames; index++)
         {
 			delete m_stateImageNames[index];
         }
-
-		delete [] m_stateImageNames;
 	}
 
 	if (m_stateImageGroups)

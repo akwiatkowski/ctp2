@@ -5,6 +5,8 @@
 
 #include "GameWatch/gamewatch/GWRecord.h"
 
+#include <vector>
+
 class GWUnitRecord;
 
 class GWCivDllHeader GWCivRecord : public GWRecord {
@@ -51,7 +53,7 @@ private:
 	GWUnitRecord *head;
 
 
-	GWUnitRecord *dataBuffer;
+	std::vector<GWUnitRecord> dataBuffer;
 };
 
 #endif

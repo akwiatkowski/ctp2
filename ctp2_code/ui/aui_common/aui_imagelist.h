@@ -94,7 +94,7 @@ private:
 	sint32 m_numImages;
 
 
-	aui_ImageListInfo **m_images;
+	std::vector<std::vector<aui_ImageListInfo> > m_images;
 
 	sint32 m_currentState;
 

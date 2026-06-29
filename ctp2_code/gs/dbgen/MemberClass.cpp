@@ -168,7 +168,7 @@ void MemberClass::ExportBits(FILE *outfile)
 			if(!(bit % 32)) {
 				fprintf(outfile, "//\n// m_flags%d: %s\n", bit / 32, m_name);
 			}
-			sprintf(nicename, "k_%s_%s_Bit", m_name, dat->m_name);
+			snprintf(nicename, sizeof(nicename), "k_%s_%s_Bit", m_name, dat->m_name);
 			fprintf(outfile, "#define %-40s 0x%08x\n", nicename, 1 << (bit % 32));
 			bit++;
 		}
@@ -183,7 +183,7 @@ void MemberClass::ExportBits(FILE *outfile)
 			fprintf(outfile, "//\n// m_%s bit group\n", dat->m_name);
 			struct namelist *node = dat->m_groupList;
 			while(node) {
-				sprintf(nicename, "k_%s_%s_%s_Bit", m_name, dat->m_name, node->name);
+				snprintf(nicename, sizeof(nicename), "k_%s_%s_%s_Bit", m_name, dat->m_name, node->name);
 				fprintf(outfile, "#define %-40s 0x%08x\n", nicename, 1 << bit);
 				bit++;
 				Assert(bit <= 32);
@@ -402,7 +402,7 @@ void MemberClass::ExportParser(FILE *outfile, char *recordName)
 
 	for (walk.SetList(&m_datumList); walk.IsValid(); walk.Next())
 	{
-		sprintf(nicename, "k_Token_%s_%s_%s", recordName, m_name, walk.GetObj()->m_name);
+		snprintf(nicename, sizeof(nicename), "k_Token_%s_%s_%s", recordName, m_name, walk.GetObj()->m_name);
 		fprintf(outfile, "#define %-40s ((k_Token_Custom_Base) + %d)\n", nicename, numTokens);
 		numTokens++;
 	}
@@ -410,7 +410,7 @@ void MemberClass::ExportParser(FILE *outfile, char *recordName)
 	{
 		Datum *dat = walk.GetObj();
 		if(dat->m_akaName){
-			sprintf(nicename, "k_Token_%s_%s_%s", recordName, m_name, dat->m_akaName);
+			snprintf(nicename, sizeof(nicename), "k_Token_%s_%s_%s", recordName, m_name, dat->m_akaName);
 			fprintf(outfile, "#define %-40s ((k_Token_Custom_Base) + %d)\n", nicename, numTokens);
 			numTokens++;
 		}

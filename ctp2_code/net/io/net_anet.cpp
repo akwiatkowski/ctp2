@@ -173,7 +173,7 @@ ActivNetIO::EnumTransports()
 	dp_transport_t dlldir;
 	memset(&dlldir, 0, sizeof(dlldir));
 
-	strcpy(dlldir.fname, "dll" FILE_SEP "net");
+	strlcpy(dlldir.fname, "dll" FILE_SEP "net", sizeof(dlldir.fname));
 
 	dp_result_t dp_res = dpEnumTransports(&dlldir,
 										anet_EnumTransportsCallback,

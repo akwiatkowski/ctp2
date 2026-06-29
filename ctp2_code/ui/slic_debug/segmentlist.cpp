@@ -96,8 +96,8 @@ SegmentList::SegmentList(SegmentListCallback *callback, MBCHAR *ldlBlock)
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	if (ldlBlock) strcpy(windowBlock,ldlBlock);
-	else strcpy(windowBlock,"SegmentListPopup");
+	if (ldlBlock) strlcpy(windowBlock,ldlBlock, sizeof(windowBlock));
+	else strlcpy(windowBlock,"SegmentListPopup", sizeof(windowBlock));
 
 	{
 		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
@@ -223,7 +223,7 @@ void SegmentList::kh_Close()
 sint32 SegmentList::UpdateData()
 {
 	MBCHAR ldlBlock[k_AUI_LDL_MAXBLOCK + 1];
-	strcpy(ldlBlock, "SegmentListItem");
+	strlcpy(ldlBlock, "SegmentListItem", sizeof(ldlBlock));
 
 	m_list->BuildListStart();
     {

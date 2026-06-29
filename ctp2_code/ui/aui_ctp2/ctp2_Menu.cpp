@@ -109,7 +109,7 @@ void ctp2_Menu::Init(const MBCHAR *block, bool atMouse, CTP2MenuCallback *callba
 	m_siblingArea = nullptr;
 
 	MBCHAR dammit[k_MAX_NAME_LEN];
-	strcpy(dammit, block);
+	strlcpy(dammit, block, sizeof(dammit));
 
 	m_window = (ctp2_Window *)aui_Ldl::GetObject(dammit);
 	if(!m_window) {

@@ -287,7 +287,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	if ( s_passwordScreen ) return AUI_ERRCODE_OK;
-	strcpy(windowBlock, "passwordscreen");
+	strlcpy(windowBlock, "passwordscreen", sizeof(windowBlock));
 
 	s_passwordScreen = new ns_Window(
 		&errcode,

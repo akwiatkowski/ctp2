@@ -21,7 +21,7 @@ public:
 	void SetDevice( LPDIRECTINPUTDEVICE8 device ) { m_lpdid = device;};
 	LPDIRECTINPUTDEVICE8 Device( void ) { return m_lpdid;};
 
-	void SetDeviceName( MBCHAR *name ) { strcpy( m_deviceName, name ); };
+	void SetDeviceName( MBCHAR *name ) { strlcpy( m_deviceName, name, sizeof( m_deviceName ) ); };
 	MBCHAR *DeviceName( void ) { return m_deviceName; };
 
 	uint32 GetLowerMin ( void ) { return m_lMin; };

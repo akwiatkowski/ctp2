@@ -85,7 +85,7 @@ AUI_ERRCODE VideoWindow::CreateVideoSurface(MBCHAR *name, BOOL modal)
 	m_modal = modal;
 
 	MBCHAR	fname[_MAX_PATH];
-	strcpy(m_filename, name);
+	strlcpy(m_filename, name, sizeof(m_filename));
 
 	civpaths_Get()->FindFile(C3DIR_VIDEOS, name, fname);
 	hr = m_video->OpenStream(fname);

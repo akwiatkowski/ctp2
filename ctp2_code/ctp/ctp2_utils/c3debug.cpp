@@ -104,7 +104,7 @@ void c3debug_InitDebugLog()
 	WIN32_FIND_DATA	fileData;
 	MBCHAR path[_MAX_PATH];
 
-	strcpy(path, "logs" FILE_SEP "*.*");
+	strlcpy(path, "logs" FILE_SEP "*.*", sizeof(path));
 
 	HANDLE lpFileList = FindFirstFile(path, &fileData);
 

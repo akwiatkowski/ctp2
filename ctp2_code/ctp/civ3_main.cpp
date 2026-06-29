@@ -1632,7 +1632,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 								"Call to Power 2 saved game");
 
 		char launchcommand[_MAX_PATH];
-		strcpy(launchcommand, exepath);
+		strlcpy(launchcommand, exepath, sizeof(launchcommand));
 		strcat(launchcommand, " -l\"%1\"");
 		ctpregistry_SetKeyValue(HKEY_CLASSES_ROOT,
 								"c2gfile\\Shell\\Open\\command",

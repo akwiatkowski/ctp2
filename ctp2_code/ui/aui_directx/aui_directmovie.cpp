@@ -140,7 +140,7 @@ AUI_ERRCODE aui_DirectMovie::Open(
         (void) hr;  // Ignore audio failures: display movie without sound.
 
 		char fullPath[_MAX_PATH];
-		strcpy(fullPath, m_filename);
+		strlcpy(fullPath, m_filename, sizeof(fullPath));
 
 
 

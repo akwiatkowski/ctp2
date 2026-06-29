@@ -138,11 +138,11 @@ AUI_ERRCODE aui_TextField::InitCommon(
 	m_holdfont = nullptr;
 #endif
 
-	if (font) strcpy(m_desiredFont, font);
+	if (font) strlcpy(m_desiredFont, font, sizeof(m_desiredFont));
 #ifdef __AUI_USE_DIRECTX__
-	else strcpy(m_desiredFont, "\0");
+	else strlcpy(m_desiredFont, "\0", sizeof(m_desiredFont));
 #else
-	else strcpy(m_desiredFont, "times.ttf");
+	else strlcpy(m_desiredFont, "times.ttf", sizeof(m_desiredFont));
 #endif
 
 	if ( !m_registered ) return AUI_ERRCODE_INVALIDPARAM;

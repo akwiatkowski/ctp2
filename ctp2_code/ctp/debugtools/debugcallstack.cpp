@@ -863,7 +863,7 @@ void DebugCallStack_ShowToFile  (LogClass log_class, unsigned *call_stack, int n
 		caller_name = Debug_FunctionNameAndOffsetGet (caller, &offset);
 
 		if (index == 3) {
-			strcpy(allocator_name, caller_name);
+			strlcpy(allocator_name, caller_name, sizeof(allocator_name));
 		}
 
 		fprintf(file, "0x%08x [%s+0x%x] / ", caller, caller_name, offset);
@@ -906,7 +906,7 @@ void DebugCallStack_ShowToAltFile  (LogClass log_class, unsigned *call_stack, in
 	caller = call_stack[index];
 	int offset;
 	caller_name = Debug_FunctionNameAndOffsetGet (caller, &offset);
-	sprintf(buff, "[%s]", caller_name);
+	snprintf(buff, sizeof(buff), "[%s]", caller_name);
 	index++;
 
 	while ((index < number) && (call_stack[index] != 0)) {
@@ -915,8 +915,8 @@ void DebugCallStack_ShowToAltFile  (LogClass log_class, unsigned *call_stack, in
 		int offset;
 		caller_name = Debug_FunctionNameAndOffsetGet (caller, &offset);
 
-		strcpy(cpyBuff, buff);
-		sprintf(buff, "[%s] %s", caller_name, cpyBuff);
+		strlcpy(cpyBuff, buff, sizeof(cpyBuff));
+		snprintf(buff, sizeof(buff), "[%s] %s", caller_name, cpyBuff);
 
 
 		index++;
@@ -949,7 +949,7 @@ char * c3debug_StackTrace()
 
 		caller_name = Debug_FunctionNameAndOffsetGet (caller, &offset);
 
-		sprintf(function_name, "  0x%08x  [%s + 0x%x]\n", caller, caller_name, offset);
+		snprintf(function_name, sizeof(function_name), "  0x%08x  [%s + 0x%x]\n", caller, caller_name, offset);
 
 		if (strlen(s_stackTraceString) + strlen(function_name) < k_STACK_TRACE_LEN - 1 )
 			strcat(s_stackTraceString, function_name);
@@ -992,10 +992,10 @@ char * c3debug_ExceptionStackTrace(LPEXCEPTION_POINTERS exception)
 
 			caller_name = Debug_FunctionNameAndOffsetGet (caller, &offset);
 
-			sprintf(function_name, "  0x%08x  [%s + 0x%x]\n", caller, caller_name, offset);
+			snprintf(function_name, sizeof(function_name), "  0x%08x  [%s + 0x%x]\n", caller, caller_name, offset);
 
 		} else {
-			sprintf(function_name, "  0x%08x\n", caller);
+			snprintf(function_name, sizeof(function_name), "  0x%08x\n", caller);
 		}
 
 		if (strlen(s_stackTraceString) + strlen(function_name) < k_STACK_TRACE_LEN - 1 )
@@ -1028,7 +1028,7 @@ char * c3debug_ExceptionStackTraceFromFile(FILE *f)
 			if(sscanf(line, "  0x%08x", &caller) == 1) {
 				caller_name = Debug_FunctionNameAndOffsetGet(caller, &offset);
 
-				sprintf(function_name, "  0x%08x  [%s + 0x%x]\n", caller, caller_name, offset);
+				snprintf(function_name, sizeof(function_name), "  0x%08x  [%s + 0x%x]\n", caller, caller_name, offset);
 
 				if (strlen(s_stackTraceString) + strlen(function_name) < k_STACK_TRACE_LEN - 1 )
 					strcat(s_stackTraceString, function_name);

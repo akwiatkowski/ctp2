@@ -25,7 +25,7 @@ public:
 	LPDIRECTINPUTDEVICE Device( void ) { return m_lpdid;};
 #endif
 
-	void SetDeviceName( MBCHAR *name ) { strcpy( m_deviceName, name ); };
+	void SetDeviceName( MBCHAR *name ) { strlcpy( m_deviceName, name, sizeof( m_deviceName ) ); };
 	MBCHAR *DeviceName( ) { return m_deviceName; };
 
 	uint32 GetLowerMin ( ) { return m_lMin; };

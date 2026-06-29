@@ -134,8 +134,8 @@ SourceList::SourceList(SourceListCallback *callback, MBCHAR *ldlBlock)
 	m_stepInto = nullptr;
 	m_status = nullptr;
 
-	if (ldlBlock) strcpy(windowBlock,ldlBlock);
-	else strcpy(windowBlock,"SourceListPopup");
+	if (ldlBlock) strlcpy(windowBlock,ldlBlock, sizeof(windowBlock));
+	else strlcpy(windowBlock,"SourceListPopup", sizeof(windowBlock));
 
 	{
 		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
@@ -318,7 +318,7 @@ sint32 SourceList::UpdateData()
 
 	AUI_ERRCODE retval = AUI_ERRCODE_OK;
 
-	strcpy(ldlBlock, "SourceListItem");
+	strlcpy(ldlBlock, "SourceListItem", sizeof(ldlBlock));
 
 	m_list->Clear();
 

@@ -54,11 +54,11 @@ BOOL EP_RegisterEarServiceTable(BOOL bForceDirectSound)
 
 	if (bForceDirectSound)
 	 {	gbExtLoadedPDS = TRUE;
-		strcpy(dll_name, EARPDS_DLL_FILENAME);
+		strlcpy(dll_name, EARPDS_DLL_FILENAME, sizeof(dll_name));
 	 }
 
 	else
-	 {	strcpy(dll_name, EARIAS_DLL_FILENAME);
+	 {	strlcpy(dll_name, EARIAS_DLL_FILENAME, sizeof(dll_name));
 	 }
 
 	EAR_DLL = GetModuleHandle(dll_name);

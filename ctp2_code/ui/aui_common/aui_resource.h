@@ -322,15 +322,15 @@ T *aui_Resource<T>::Load( const MBCHAR *resName, C3DIR dir, uint32 size)
 
 		MBCHAR path[_MAX_PATH];
 		if (civpaths_Get()->FindFile(dir, name, path, TRUE)) {
-			strcpy(fullPath, path);
+			strlcpy(fullPath, path, sizeof(fullPath));
 		} else {
 			if (dir == C3DIR_PICTURES) {
 
 				if (civpaths_Get()->FindFile(C3DIR_PATTERNS, name, path, TRUE)) {
-					strcpy(fullPath, path);
+					strlcpy(fullPath, path, sizeof(fullPath));
 				} else {
 					if (civpaths_Get()->FindFile(C3DIR_ICONS, name, path, TRUE)) {
-						strcpy(fullPath, path);
+						strlcpy(fullPath, path, sizeof(fullPath));
 					} else {
 						FindFile( fullPath, name );
 					}

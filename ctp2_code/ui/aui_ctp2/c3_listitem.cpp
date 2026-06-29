@@ -51,7 +51,7 @@ SingleListItem::SingleListItem(AUI_ERRCODE *retval, MBCHAR const *name, sint32 v
 
 AUI_ERRCODE SingleListItem::InitCommonLdl(MBCHAR const *name, sint32 value, MBCHAR const * ldlBlock)
 {
-	strcpy(m_name, name);
+	strlcpy(m_name, name, sizeof(m_name));
 	m_value = value;
 
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -95,8 +95,8 @@ sint32 SingleListItem::Compare(c3_ListItem *item2, uint32 column)
 	case 0:
 		i1 = (c3_Static *)this->GetChildByIndex(column);
 		i2 = (c3_Static *)item2->GetChildByIndex(column);
-		strcpy(strbuf1,i1->GetText());
-		strcpy(strbuf2,i2->GetText());
+		strlcpy(strbuf1,i1->GetText(), sizeof(strbuf1));
+		strlcpy(strbuf2,i2->GetText(), sizeof(strbuf2));
 
 		return (strbuf1[0] - strbuf2[0]);
 	}

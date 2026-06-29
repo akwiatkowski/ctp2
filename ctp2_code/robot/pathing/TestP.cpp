@@ -107,7 +107,7 @@ g_theTestPather->FindPath(*(player_Get(s_player)->GetArmy(s_index)),
    }
 
      char str[80];
-    sprintf (str, " (%d %d)", dest.x, dest.y);
+    snprintf (str, sizeof(str), " (%d %d)", dest.x, dest.y);
     primitives_DrawText(surf, 100, 550, (MBCHAR *)str, RGB(20,0,0), 0);
 
      c = pixelutils_RGB(0,30, 0);

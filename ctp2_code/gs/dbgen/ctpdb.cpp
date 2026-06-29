@@ -306,7 +306,7 @@ void db_maybe_copy(char * newFilePath)
 	    if (hasChanges)
 	    {
 			char backupPath[PATH_MAX] = { 0 };
-			sprintf(backupPath, "%s.old", oldFilePath);
+			snprintf(backupPath, sizeof(backupPath), "%s.old", oldFilePath);
 
 #ifdef _DEBUG
 			printf("%s -> %s\n", oldFilePath, backupPath);
@@ -337,7 +337,7 @@ void db_maybe_copy(char * newFilePath)
 void db_end_record(char *name)
 {
 	char filename[PATH_MAX];
-	sprintf(filename, "%s" FILE_SEP "%sRecord.h.new",
+	snprintf(filename, sizeof(filename), "%s" FILE_SEP "%sRecord.h.new",
 	        db_get_code_directory(), name);
 
 	FILE * outfile = db_open_file(filename);
@@ -349,7 +349,7 @@ void db_end_record(char *name)
 
 	db_maybe_copy(strrchr(filename, FILE_SEPC) + 1);
 
-	sprintf(filename, "%s" FILE_SEP "%sRecord.cpp.new",
+	snprintf(filename, sizeof(filename), "%s" FILE_SEP "%sRecord.cpp.new",
 	        db_get_code_directory(), name);
 
 	outfile = db_open_file(filename);
@@ -362,7 +362,7 @@ void db_end_record(char *name)
 
 	db_maybe_copy(strrchr(filename, FILE_SEPC) + 1);
 
-	sprintf(filename, "%s" FILE_SEP "%sRecord.stamp",
+	snprintf(filename, sizeof(filename), "%s" FILE_SEP "%sRecord.stamp",
 	        db_get_code_directory(), name);
 	FILE * stamp = fopen(filename, "w");
 	Assert(stamp);

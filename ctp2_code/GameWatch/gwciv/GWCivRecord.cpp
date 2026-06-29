@@ -95,7 +95,7 @@ DllExport char *GWCivRecord::Export(char *baseName, char *stamp)
 {
 
 	char fileName[1024];
-	sprintf(fileName, "%s.txt", baseName);
+	snprintf(fileName, sizeof(fileName), "%s.txt", baseName);
 
 	FILE *exportFile = fopen(fileName, "w");
 	if(!exportFile) return(NULL);

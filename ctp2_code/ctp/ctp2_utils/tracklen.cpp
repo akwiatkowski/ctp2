@@ -424,7 +424,7 @@ DWORD *tracklen_LoadEncryptedKey( DWORD *trackLenBuf, const char *szFile )
 
 	if (!f)
 	{
-		strcpy( szTemp, szFile );
+		strlcpy( szTemp, szFile, sizeof(szTemp) );
 		f = fopen(szTemp, "r");
 	}
 

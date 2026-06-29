@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Added unit display name.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Changed occurances of UnitRecord::GetMaxHP to
 //   UnitData::CalculateTotalHP. (Aug 3rd 2009 Maq)
 //
@@ -399,7 +399,7 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 {
 	MBCHAR		s[_MAX_PATH];
 
-	strcpy(s, theUnit.GetDBRec()->GetDefaultIcon()->GetIcon());
+	strlcpy(s, theUnit.GetDBRec()->GetDefaultIcon()->GetIcon(), sizeof(s));
 	m_unitImage->SetIcon( s );
 
 	BobButtonAction *action = (BobButtonAction *)m_unitImage->GetAction();
@@ -659,7 +659,7 @@ void BattleOrderBox::SetStack(Army &selectedArmy, CellUnitList *fullArmy, Unit s
 					}
 				}
 
-				strcpy(iconName, unit.GetDBRec()->GetDefaultIcon()->GetIcon());
+				strlcpy(iconName, unit.GetDBRec()->GetDefaultIcon()->GetIcon(), sizeof(iconName));
 
 				button->IconButton()->SetIcon(iconName);
 

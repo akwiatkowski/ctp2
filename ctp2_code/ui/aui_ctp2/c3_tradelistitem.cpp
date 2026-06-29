@@ -79,7 +79,7 @@ void c3_TradeListItem::Update(void)
 	{
 
 		subItem = (c3_Static *)GetChildByIndex(0);
-		strcpy(s, tradewin_GetResourceName(m_resIndex));
+		strlcpy(s, tradewin_GetResourceName(m_resIndex), sizeof(s));
 		subItem->SetText(s);
 
 		subItem = (c3_Static *)GetChildByIndex(1);
@@ -94,7 +94,7 @@ void c3_TradeListItem::Update(void)
 		destCity = m_route->GetDestination().GetData()->GetCityData();
 
 		subItem = (c3_Static *)GetChildByIndex(0);
-		strcpy(s, stringdb_Get()->GetNameStr(m_route->GetResourceName()));
+		strlcpy(s, stringdb_Get()->GetNameStr(m_route->GetResourceName()), sizeof(s));
 		subItem->SetText(s);
 
 		subItem = (c3_Static *)GetChildByIndex(1);

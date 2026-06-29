@@ -430,7 +430,7 @@ void RecordDescription::ExportBits(FILE *outfile)
 			if(!(bit % 32)) {
 				fprintf(outfile, "//\n// m_flags%d: %s\n", bit / 32, m_name);
 			}
-			sprintf(nicename, "k_%s_%s_Bit", m_name, dat->m_name);
+			snprintf(nicename, sizeof(nicename), "k_%s_%s_Bit", m_name, dat->m_name);
 			fprintf(outfile, "#define %-40s 0x%08x\n", nicename, 1 << (bit % 32));
 			bit++;
 		}
@@ -452,7 +452,7 @@ void RecordDescription::ExportBits(FILE *outfile)
                 node = node->next
             )
             {
-				sprintf(nicename, "k_%s_%s_%s_Bit", m_name, dat->m_name, node->name);
+				snprintf(nicename, sizeof(nicename), "k_%s_%s_%s_Bit", m_name, dat->m_name, node->name);
 				fprintf(outfile, "#define %-40s 0x%08x\n", nicename, 1 << bit);
 				bit++;
 				Assert(bit <= 32);
@@ -821,12 +821,12 @@ void RecordDescription::ExportParser(FILE *outfile)
 	for (walk.SetList(&m_datumList); walk.IsValid(); walk.Next())
 	{
 		Datum *dat = walk.GetObj();
-		sprintf(nicename, "k_Token_%s_%s", m_name, dat->m_name);
+		snprintf(nicename, sizeof(nicename), "k_Token_%s_%s", m_name, dat->m_name);
 		fprintf(outfile, "#define %-40s ((k_Token_Custom_Base) + %d)\n", nicename, numTokens);
 		numTokens++;
 
 		if(dat->m_type == DATUM_BIT_PAIR) {
-			sprintf(nicename, "k_Token_%s_%s_Value", m_name, dat->m_name);
+			snprintf(nicename, sizeof(nicename), "k_Token_%s_%s_Value", m_name, dat->m_name);
 			fprintf(outfile, "#define %-40s ((k_Token_Custom_Base) + %d)\n", nicename, numTokens);
 			numTokens++;
 		}
@@ -836,13 +836,13 @@ void RecordDescription::ExportParser(FILE *outfile)
 	{
 		Datum *dat = walk.GetObj();
 		if(dat->m_akaName){
-			sprintf(nicename, "k_Token_%s_%s", m_name, dat->m_akaName);
+			snprintf(nicename, sizeof(nicename), "k_Token_%s_%s", m_name, dat->m_akaName);
 			fprintf(outfile, "#define %-40s ((k_Token_Custom_Base) + %d)\n", nicename, numTokens);
 			numTokens++;
 		}
 	}
 
-	sprintf(nicename, "k_Token_%s_Max", m_name);
+	snprintf(nicename, sizeof(nicename), "k_Token_%s_Max", m_name);
 	fprintf(outfile, "#define %-40s ((k_Token_Custom_Base) + %d)\n\n\n", nicename, numTokens);
 
 	fprintf(outfile, "static BitArray s_ParsedTokens(%d);\n", numTokens);

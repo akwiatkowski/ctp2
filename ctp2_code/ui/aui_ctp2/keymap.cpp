@@ -214,7 +214,7 @@ KEYMAP::KEYMAP(BOOL useDefault)
 		if(strlen(space+1) > 79)
 			continue;
 
-		strcpy(funcstr, space + 1);
+		strlcpy(funcstr, space + 1, sizeof(funcstr));
 		char *eol = &funcstr[strlen(funcstr) - 1];
 		while((*eol == '\r' || *eol == '\n') && eol > funcstr)
 		{

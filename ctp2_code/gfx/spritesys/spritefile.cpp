@@ -67,7 +67,7 @@ SpriteFile::SpriteFile(MBCHAR const * name)
 	m_spr_compression   (SPRDATA_REGULAR),
 	m_file              (nullptr)
 {
-	strcpy(m_filename, name);
+	strlcpy(m_filename, name, sizeof(m_filename));
 }
 
 SpriteFile::~SpriteFile()

@@ -74,7 +74,7 @@ CivSound::CivSound(const uint32 &associatedObject, const sint32 &soundID)
         return;
     }
 
-    strcpy(m_soundFilename, fname);
+    strlcpy(m_soundFilename, fname, sizeof(m_soundFilename));
 
     size_t      l_dataSize = 0;
     m_dataptr   = g_SoundPF->getData(m_soundFilename, l_dataSize);

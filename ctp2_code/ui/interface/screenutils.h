@@ -26,7 +26,7 @@
 // Modifications from the original Activision code:
 //
 // - Added close_AllScreensAndUpdateInfoScreen so that on a new turn the
-//   information window can stay open. (Aug. 7th 2005 Martin Gühmann)
+//   information window can stay open. (Aug. 7th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@
 
 #define GET_ELAPSED_TIME(x)		g_screenTime = (GetTickCount() - g_screenTime) * 0.001;	\
 								MBCHAR str[50];	\
-								sprintf( str, "%4.2f secs - %s", g_screenTime, x );	\
+								snprintf( str, sizeof(str), "%4.2f secs - %s", g_screenTime, x );	\
 								if ( g_debugWindow) g_debugWindow->AddText( str );
 #endif
 

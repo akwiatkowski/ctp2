@@ -388,7 +388,7 @@ void Log_Open (const char *config_file, int number )
 	logging->number       = number;
 
 	char name[30];
-	sprintf(name, k_DEBUG_FILENAME, number);
+	snprintf(name, sizeof(name), k_DEBUG_FILENAME, number);
 
 	Log_InitReadConfig (config_file, name);
 

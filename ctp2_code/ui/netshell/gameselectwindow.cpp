@@ -410,7 +410,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 				ns_String format( "strings.newgame" );
 
 				char truncname[ dp_PNAMELEN + 1 ];
-				strcpy( truncname, playersetup_Get().GetName() );
+				strlcpy( truncname, playersetup_Get().GetName(), sizeof( truncname ) );
 
 				sint32 trunclen = dp_SNAMELEN -
 					( strlen( truncname ) + ( strlen( format.GetString() ) - 2  ) );
@@ -725,7 +725,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 		ns_String format( "strings.newgame" );
 
 		char truncname[ dp_PNAMELEN + 1 ];
-		strcpy( truncname, playersetup_Get().GetName() );
+		strlcpy( truncname, playersetup_Get().GetName(), sizeof( truncname ) );
 
 		sint32 trunclen = dp_SNAMELEN -
 			( strlen( truncname ) + ( strlen( format.GetString() ) - 2  ) );
@@ -850,7 +850,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 		ns_String format( "strings.newgame" );
 
 		char truncname[ dp_PNAMELEN + 1 ];
-		strcpy( truncname, playersetup_Get().GetName() );
+		strlcpy( truncname, playersetup_Get().GetName(), sizeof( truncname ) );
 
 		sint32 trunclen = dp_SNAMELEN -
 			( strlen( truncname ) + ( strlen( format.GetString() ) - 2  ) );

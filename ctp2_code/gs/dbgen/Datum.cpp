@@ -215,7 +215,7 @@ void Datum::ExportVariable(FILE *outfile, sint32 indent)
 	char comment[k_MAX_STRING];
 	comment[0] = 0;
 	if (m_type == DATUM_RECORD) {
-		sprintf(comment, " // Index into %s database", m_subType);
+		snprintf(comment, sizeof(comment), " // Index into %s database", m_subType);
 	} else if (m_type == DATUM_BIT) {
 		Assert(false);
 	}
@@ -242,7 +242,7 @@ void Datum::ExportVariable(FILE *outfile, sint32 indent)
 		sizestring[0] = 0;
 		notFixedStar = '*';
 	} else if(m_maxSize > 0) {
-		sprintf(sizestring, "[k_MAX_%s]", m_name);
+		snprintf(sizestring, sizeof(sizestring), "[k_MAX_%s]", m_name);
 	} else {
 		sizestring[0] = 0;
 	}

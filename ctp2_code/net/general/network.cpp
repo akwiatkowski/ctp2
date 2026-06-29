@@ -2400,28 +2400,28 @@ void Network::SendChatText(MBCHAR *str, sint32 len)
 	if(str[0] == '/') {
 		if(stricmp(str, "/rules") == 0) {
 			char buf[1024];
-			sprintf(buf, "Difficulty: %d", gamesettings_Get()->GetDifficulty());
+			snprintf(buf, sizeof(buf), "Difficulty: %d", gamesettings_Get()->GetDifficulty());
 			chatbox_Get()->AddLine(m_playerIndex, buf);
 
-			sprintf(buf, "Risk: %d", gamesettings_Get()->GetRisk());
+			snprintf(buf, sizeof(buf), "Risk: %d", gamesettings_Get()->GetRisk());
 			chatbox_Get()->AddLine(m_playerIndex, buf);
 
-			sprintf(buf, "Pollution: %s", gamesettings_Get()->GetPollution() ? "On" : "Off");
+			snprintf(buf, sizeof(buf), "Pollution: %s", gamesettings_Get()->GetPollution() ? "On" : "Off");
 			chatbox_Get()->AddLine(m_playerIndex, buf);
 
-			sprintf(buf, "Bloodlust: %s", gamesettings_Get()->GetAlienEndGame() ? "Off" : "On");
+			snprintf(buf, sizeof(buf), "Bloodlust: %s", gamesettings_Get()->GetAlienEndGame() ? "Off" : "On");
 			chatbox_Get()->AddLine(m_playerIndex, buf);
 
 			if(gamesettings_Get()->GetStartingAge() > 0 || gamesettings_Get()->GetEndingAge() < g_theAgeDB->NumRecords()) {
-				sprintf(buf, "Starting Age: %d", gamesettings_Get()->GetStartingAge());
+				snprintf(buf, sizeof(buf), "Starting Age: %d", gamesettings_Get()->GetStartingAge());
 				chatbox_Get()->AddLine(m_playerIndex, buf);
 
-				sprintf(buf, "Ending Age: %d", gamesettings_Get()->GetEndingAge());
+				snprintf(buf, sizeof(buf), "Ending Age: %d", gamesettings_Get()->GetEndingAge());
 				chatbox_Get()->AddLine(m_playerIndex, buf);
 			}
 
 			if(TeamsEnabled()) {
-				sprintf(buf, "Teammates: ");
+				snprintf(buf, sizeof(buf), "Teammates: ");
 				sint32 i;
 				for(i = 1; i < k_MAX_PLAYERS; i++) {
 					if(i == m_playerIndex)
@@ -2572,7 +2572,7 @@ void Network::DisplayChat(aui_Surface *surf)
 		uint32 totalSentBytes = 0;
 
 		for(sint32 i = 0; i < k_NUM_PACKET_TYPES; i++) {
-			sprintf(buf, "%c%c : Rx: %d/%d   Tx: %d/%d",
+			snprintf(buf, sizeof(buf), "%c%c : Rx: %d/%d   Tx: %d/%d",
 					m_packetName[i][0], m_packetName[i][1],
 					m_packetCounter[i], m_packetBytes[i],
 					m_sentPacketCounter[i], m_sentPacketBytes[i]);
@@ -2584,7 +2584,7 @@ void Network::DisplayChat(aui_Surface *surf)
 			totalSent += m_sentPacketCounter[i];
 			totalSentBytes += m_sentPacketBytes[i];
 		}
-		sprintf(buf, "Total: Rx: %d/%d, Tx: %d/%d [%d blocked]",
+		snprintf(buf, sizeof(buf), "Total: Rx: %d/%d, Tx: %d/%d [%d blocked]",
 				totalCount, totalBytes,
 				totalSent, totalSentBytes,
 				m_blockedPackets);

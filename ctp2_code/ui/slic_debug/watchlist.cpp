@@ -112,7 +112,7 @@ WatchList::WatchList(WatchListCallback callback, MBCHAR *ldlBlock)
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-    strcpy(windowBlock, ldlBlock ? ldlBlock : "WatchListPopup");
+    strlcpy(windowBlock, ldlBlock ? ldlBlock : "WatchListPopup", sizeof(windowBlock));
 
 		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
@@ -255,7 +255,7 @@ sint32 WatchList::UpdateData()
 {
 	MBCHAR ldlBlock[k_AUI_LDL_MAXBLOCK + 1];
 
-	strcpy(ldlBlock, "WatchListItem");
+	strlcpy(ldlBlock, "WatchListItem", sizeof(ldlBlock));
 
 	return 0;
 }
@@ -371,7 +371,7 @@ void WatchListItem::Update()
 	sliccmd_add_watch(this);
 
 	if(res != 0) {
-		strcpy(valbuf, "--");
+		strlcpy(valbuf, "--", sizeof(valbuf));
 	}
 
 	c3_Static *valueItem = (c3_Static *)GetChildByIndex(2);

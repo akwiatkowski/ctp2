@@ -282,7 +282,7 @@ BOOL TextTable::AddColumn( uint32 pos, MBCHAR *text )
 
 	if (!text)
 		snprintf(strbuf, sizeof(strbuf),"col-%d",pos);
-	else strcpy(strbuf, text);
+	else strlcpy(strbuf, text, sizeof(strbuf));
 
 	m_item_width = m_width / (m_columns + 1);
 
@@ -313,7 +313,7 @@ BOOL TextTable::AddRow( uint32 pos, MBCHAR *text )
 
 	if (!text)
 		snprintf(strbuf, sizeof(strbuf),"row-%d",pos);
-	else strcpy(strbuf, text);
+	else strlcpy(strbuf, text, sizeof(strbuf));
 
 
 

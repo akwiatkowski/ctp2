@@ -419,8 +419,6 @@ static inline void ProgressTo(sint32 val, MBCHAR const * msg = nullptr)
 	if (g_theProgressWindow) g_theProgressWindow->StartCountingTo(val, msg);
 }
 
-bool    g_tempLeakCheck = false;
-
 #ifndef _NO_GAME_WATCH
 int g_gameWatchID = -1;
 #endif
@@ -440,11 +438,6 @@ void InitializeImageMaps();
 
 namespace
 {
-#if defined(_DEBUG)
-/// Allocated memory at the start
-size_t  g_allocatedAtStart  = 0;
-#endif
-
 /// Add search directories to a project file
 /// @param  a_ProjectFile   Project file to add to
 /// @param  a_Type          Type of search items
@@ -603,19 +596,6 @@ namespace Os
 		std::this_thread::sleep_for(std::chrono::milliseconds(milliSeconds));
 	}
 } // namespace Os
-
-void check_leak()
-{
-#if defined(_DEBUG) && defined(WIN32)
-	if (g_tempLeakCheck)
-	{
-		_CrtMemState new_state;
-		_CrtMemCheckpoint(&new_state);
-		Assert(g_allocatedAtStart == new_state.lSizes[1]);
-		g_allocatedAtStart = new_state.lSizes[1];
-	}
-#endif
-}
 
 CivApp::CivApp()
 :
@@ -3268,16 +3248,6 @@ sint32 CivApp::ProcessProfile()
 
 sint32 CivApp::Process()
 {
-#if defined(_DEBUG) && defined(WIN32)
-	if(g_tempLeakCheck) {
-		_CrtMemState new_state;
-		_CrtMemCheckpoint(&new_state);
-
-		g_allocatedAtStart = new_state.lSizes[1];
-	}
-#endif
-
-
 	if (NetConsole *nc = netconsole_Get()) {
 		static uint32 last_tick = 0;
 

@@ -182,6 +182,7 @@ TiledMap::TiledMap(MapPoint &size)
 	m_surfHeight            (0),
 	m_surfPitch             (0),
 	m_surfIsLocked          (false),
+	m_renderEverything      (false),
     m_displayRect           (RECT_INVISIBLE),
     m_surfaceRect           (RECT_INVISIBLE),
 	m_mapBounds             (RECT_INVISIBLE),
@@ -491,6 +492,81 @@ void TiledMap::UnlockSurface()
 	m_surfHeight = 0;
 	m_surfPitch = 0;
 	m_surfIsLocked = FALSE;
+}
+
+//----------------------------------------------------------------------------
+// FullMapPixelSize / RenderFullMap — offscreen UNFOGGED full-map export for the
+// empire-timelapse tooling. The UI layer owns the concrete 16bpp surface and
+// the BMP write (the tile blitter writes 16-bit pixels); here we just size the
+// surface and drive the existing per-tile renderer over the WHOLE map with fog
+// disabled, restoring all render state afterwards.
+//----------------------------------------------------------------------------
+void TiledMap::FullMapPixelSize(sint32 zoomLevel, sint32 *width, sint32 *height)
+{
+	if (zoomLevel < 0)              zoomLevel = 0;
+	if (zoomLevel > k_ZOOM_LARGEST) zoomLevel = k_ZOOM_LARGEST;
+
+	sint32 const tw = m_zoomTilePixelWidth[zoomLevel];
+	sint32 const th = m_zoomTilePixelHeight[zoomLevel];
+	sint32 const hr = m_zoomTileHeadroom[zoomLevel];
+	World * w = world_Get();
+	sint32 const mw = w ? w->GetXWidth()  : 0;
+	sint32 const mh = w ? w->GetYHeight() : 0;
+
+	// Iso layout: odd rows shift right by tw/2, each map row steps down th/2.
+	// One tile of slack on each axis so edge tiles + headroom are not clipped.
+	if (width)  *width  = (mw + 1) * tw + tw;
+	if (height) *height = (mh + 2) * (th / 2) + th + hr;
+}
+
+AUI_ERRCODE TiledMap::RenderFullMap(aui_Surface *dest, sint32 zoomLevel)
+{
+	World * w = world_Get();
+	if (!dest || !w || !m_tileSet) return AUI_ERRCODE_INVALIDPARAM;
+
+	if (zoomLevel < 0)              zoomLevel = 0;
+	if (zoomLevel > k_ZOOM_LARGEST) zoomLevel = k_ZOOM_LARGEST;
+
+	// --- save the state we are about to clobber ---
+	sint32 const  savedZoom       = m_zoomLevel;
+	aui_Surface * savedSurface    = m_surface;
+	RECT const    savedView       = m_mapViewRect;
+	RECT const    savedSurfRect   = m_surfaceRect;
+	bool const    savedEverything = m_renderEverything;
+
+	SetZoomLevel(zoomLevel);
+
+	sint32 const mw = w->GetXWidth();
+	sint32 const mh = w->GetYHeight();
+
+	// Project from map origin so maputils_MapXY2PixelXY yields absolute
+	// (whole-map) pixel coords; widen the clip rect to the whole surface.
+	m_mapViewRect.left = 0; m_mapViewRect.top = 0;
+	m_mapViewRect.right = mw; m_mapViewRect.bottom = mh;
+	m_surfaceRect.left = 0; m_surfaceRect.top = 0;
+	m_surfaceRect.right = dest->Width(); m_surfaceRect.bottom = dest->Height();
+	m_renderEverything = true;
+
+	RetargetTileSurface(dest);
+	LockThisSurface(dest);
+
+	// Black background behind the iso diamonds (gaps between tiles).
+	if (m_surfBase) memset(m_surfBase, 0, (size_t) m_surfHeight * m_surfPitch);
+
+	RECT fullMap;
+	fullMap.left = 0; fullMap.top = 0; fullMap.right = mw; fullMap.bottom = mh;
+	RepaintTiles(&fullMap);
+
+	UnlockSurface();
+	RetargetTileSurface(savedSurface);
+
+	// --- restore ---
+	m_renderEverything = savedEverything;
+	m_mapViewRect      = savedView;
+	m_surfaceRect      = savedSurfRect;
+	SetZoomLevel(savedZoom);
+
+	return AUI_ERRCODE_OK;
 }
 
 void TiledMap::AddDirty(sint32 left, sint32 top, sint32 width, sint32 height, aui_DirtyList * a_List)
@@ -1553,7 +1629,7 @@ sint32 TiledMap::CalculateWrap
 	maputils_WrapPoint(j, i, &j, &i);
 	MapPoint tempPos    = MapPoint(maputils_TileX2MapX(j, i), i);
 
-	if (!ReadyToDraw() || !m_localVision->IsExplored(tempPos))
+	if (!ReadyToDraw() || (!m_renderEverything && !m_localVision->IsExplored(tempPos)))
 	{
 		BlackTile(surface, &tempPos);
 		return 0;
@@ -1581,7 +1657,7 @@ sint32 TiledMap::CalculateWrap
 	if (baseTile == nullptr) return -1;
 
 	sint32  terrainType;
-	bool    fog = !m_localVision->IsVisible(tempPos);
+	bool    fog = !m_renderEverything && !m_localVision->IsVisible(tempPos);
 	if (fog)
 	{
 		UnseenCellCarton ucell;

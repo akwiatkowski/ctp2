@@ -2895,6 +2895,48 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 #endif
 				}
 			}
+			else if (strncmp(cmd, "render_map ", 11) == 0) {
+				// render_map <path> [zoom]
+				// Unfogged, whole-map isometric render to a BMP (real game art),
+				// for the empire-timelapse tooling. Distinct from `screenshot`,
+				// which only grabs the current fogged viewport.
+				if (!m_gameLoaded) {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				} else {
+#ifdef USE_SDL
+					char pathBuf[1024] = {0};
+					int  zoom = 1;   // small tiles -> manageable surface; tune per call
+					sscanf(cmd + 11, "%1023s %d", pathBuf, &zoom);
+					TiledMap *tm = tiledmap_Get();
+					if (!pathBuf[0]) {
+						smoketest_send_response("error", cmd, "bad_args");
+					} else if (!tm) {
+						smoketest_send_response("error", cmd, "no_map");
+					} else {
+						sint32 SW = 0, SH = 0;
+						tm->FullMapPixelSize(zoom, &SW, &SH);
+						AUI_ERRCODE err = AUI_ERRCODE_OK;
+						aui_SDLSurface *off =
+							new aui_SDLSurface(&err, SW, SH, 16, nullptr, FALSE);
+						if (off && err == AUI_ERRCODE_OK && off->DDS()) {
+							tm->RenderFullMap(off, zoom);
+							if (SDL_SaveBMP(off->DDS(), pathBuf) == 0) {
+								smoke_log->info("Full map rendered to {} ({}x{} zoom {})",
+								                pathBuf, SW, SH, zoom);
+								smoketest_send_response("ok", cmd, nullptr);
+							} else {
+								smoketest_send_response("error", cmd, "sdl_save_failed");
+							}
+						} else {
+							smoketest_send_response("error", cmd, "surface_alloc_failed");
+						}
+						delete off;
+					}
+#else
+					smoketest_send_response("error", cmd, "not_sdl");
+#endif
+				}
+			}
 			else if (strncmp(cmd, "move_unit ", 10) == 0) {
 				if (m_gameLoaded) {
 					int city_idx = 0;

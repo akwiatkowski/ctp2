@@ -469,6 +469,15 @@ public:
 	void		UnlockSurface();
 	BOOL		IsLocked() const { return m_surfIsLocked; }
 
+	// Offscreen full-map export (empire-timelapse tooling). The UI layer owns
+	// the concrete surface + file I/O (it must be 16bpp to match the tile
+	// blitter); TiledMap just sizes it and renders into it.
+	//   FullMapPixelSize: pixel dims needed to hold the whole iso map at zoom.
+	//   RenderFullMap:    draw EVERY tile UNFOGGED into dest, restoring all
+	//                     render state (surface, view rect, zoom, fog) after.
+	void		FullMapPixelSize(sint32 zoomLevel, sint32 *width, sint32 *height);
+	AUI_ERRCODE	RenderFullMap(aui_Surface *dest, sint32 zoomLevel);
+
 	void		DrawHilite( BOOL drawHilite ) { m_drawHilite = drawHilite; }
 
 	bool        ReadyToDraw() const;
@@ -537,6 +546,9 @@ protected:
 	sint32			m_surfHeight;
 	sint32			m_surfPitch;
 	BOOL			m_surfIsLocked;
+	// When TRUE, CalculateWrap ignores fog-of-war (renders every tile fully
+	// visible). Set only during RenderFullMap; restored to FALSE after.
+	bool			m_renderEverything;
 
 	RECT			m_displayRect;
 	RECT			m_surfaceRect;

@@ -2355,6 +2355,65 @@ std::string QueryMap()
     return Ok("query_map", result);
 }
 
+// query_world — UNFOGGED full-map snapshot for visualization / timelapse.
+// Unlike query_map (clipped to the human's fog-of-war), this sees the whole
+// board, so an AI player's empire can be rendered exactly as it stands. The
+// terrain is a flat row-major array of terrain ids (length width*height) to
+// keep the per-turn payload compact; cities and per-player score/city-count
+// follow. Pairs with a per-turn recorder to build an empire timelapse.
+std::string QueryWorld()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_world", "game_not_loaded");
+    World * w = world_Get();
+    if (!w)
+        return Err("query_world", "no_world");
+
+    const sint32 W = w->GetXWidth();
+    const sint32 H = w->GetYHeight();
+
+    json terrain = json::array();
+    for (sint32 y = 0; y < H; ++y) {
+        for (sint32 x = 0; x < W; ++x) {
+            Cell * c = w->GetCell(MapPoint(x, y));
+            terrain.push_back(c ? c->GetTerrain() : -1);
+        }
+    }
+
+    json cities  = json::array();
+    json players = json::array();
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        Player * pl = player_Get(p);
+        if (!pl) continue;
+
+        sint32 ncity = 0;
+        UnitDynamicArray * list = pl->GetAllCitiesList();
+        for (sint32 i = 0; list && i < list->Num(); ++i) {
+            Unit u = list->Access(i);
+            if (!u.IsValid()) continue;
+            ++ncity;
+            MapPoint pos;
+            u.GetPos(pos);
+            CityData * cd = u.GetData() ? u.GetData()->GetCityData() : nullptr;
+            cities.push_back({ {"owner", p}, {"x", pos.x}, {"y", pos.y},
+                               {"pop", cd ? cd->PopCount() : 0} });
+        }
+
+        players.push_back({ {"id", p},
+                            {"cities", ncity},
+                            {"dead", pl->IsDead() ? true : false},
+                            {"score", pl->m_score ? pl->m_score->GetTotalScore() : 0} });
+    }
+
+    json result;
+    result["width"]   = W;
+    result["height"]  = H;
+    result["terrain"] = terrain;
+    result["cities"]  = cities;
+    result["players"] = players;
+    return Ok("query_world", result);
+}
+
 // ---- admin queries --------------------------------------------------------
 //
 // Unlike the player-view queries above, these are OMNISCIENT: they report the
@@ -2617,6 +2676,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("move_army ", 0) == 0)                       return CmdMoveArmy(line.c_str() + 10);
     if (line.rfind("auto_explore ", 0) == 0)                    return CmdAutoExplore(line.c_str() + 13);
     if (line == "query_map")                                    return QueryMap();
+    if (line == "query_world")                                  return QueryWorld();
     if (line == "query_players")                                return QueryPlayers();
     if (line.rfind("query_player_cities ", 0) == 0)             return QueryPlayerCities(line.c_str() + 20);
     if (line.rfind("query_player ", 0) == 0)                    return QueryPlayer(line.c_str() + 13);

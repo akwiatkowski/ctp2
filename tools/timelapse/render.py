@@ -117,11 +117,13 @@ def frame_captions(events):
 
 
 def pick_protagonist(frames):
+    """Default: the widest empire (most cities, score as tiebreak) — a sprawling
+    map makes the best timelapse. Override with TIMELAPSE_PROTAGONIST."""
     if PROTAGONIST_ENV is not None:
         return int(PROTAGONIST_ENV)
     last = frames[-1]
     alive = [p for p in (last.get("players") or []) if not p.get("dead")]
-    top = max(alive, key=lambda p: p.get("score", 0), default=None)
+    top = max(alive, key=lambda p: (p.get("cities", 0), p.get("score", 0)), default=None)
     return top["id"] if top else 0
 
 

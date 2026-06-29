@@ -230,11 +230,18 @@ def render_frame(frame, pal, protagonist, show_year, civ_by_pid, fonts):
 MAP_TARGET_W = int(os.environ.get("MAP_TARGET_W", "1100"))
 
 
-def render_realart_frame(frame, show_year, civ_by_pid, protagonist, fonts):
-    """Composite the engine's real isometric BMP (terrain + civ city markers)
-    with the HUD panel + Chronicle caption strip."""
+def render_realart_frame(frame, show_year, civ_by_pid, protagonist, fonts, union_crop=None):
+    """Composite the engine's real isometric render (terrain + cities/units/infra)
+    with the HUD panel + Chronicle caption strip. In fogged player mode the frame
+    is cropped to union_crop (the run-wide explored extent) so the video stays a
+    constant size while the empire's known world grows within it."""
     font, font_sm, font_cap = fonts
     mp = Image.open(frame.get("img") or frame.get("bmp")).convert("RGB")
+    if union_crop:
+        x0, y0, x1, y1 = union_crop
+        x0 = max(0, x0); y0 = max(0, y0); x1 = min(mp.width, x1); y1 = min(mp.height, y1)
+        if x1 > x0 and y1 > y0:
+            mp = mp.crop((x0, y0, x1, y1))
     if mp.width > MAP_TARGET_W:
         s = MAP_TARGET_W / mp.width
         mp = mp.resize((MAP_TARGET_W, int(mp.height * s)), Image.BILINEAR)
@@ -319,12 +326,21 @@ def main():
           f"tile={TILE}px -> {OUT_DIR}")
 
     realart = any((fr.get("img") or fr.get("bmp")) for fr in frames)
+    # Fogged player mode: crop every frame to the run-wide explored extent so the
+    # video size is constant while the empire's known world expands within it.
+    union_crop = None
+    crops = [fr.get("crop") for fr in frames if fr.get("crop")]
+    if crops:
+        x0 = min(c[0] for c in crops); y0 = min(c[1] for c in crops)
+        x1 = max(c[0] + c[2] for c in crops); y1 = max(c[1] + c[3] for c in crops)
+        union_crop = (x0, y0, x1, y1)
     if realart:
-        print("[RENDER] real-art mode (engine isometric renders + HUD/Chronicle overlay)")
+        print(f"[RENDER] real-art mode (engine isometric renders + HUD/Chronicle); "
+              f"{'fogged player view, crop ' + str(union_crop) if union_crop else 'whole map'}")
     for i, fr in enumerate(frames):
         src = fr.get("img") or fr.get("bmp")
         if realart and src and os.path.exists(src):
-            img = render_realart_frame(fr, show_year, civ_by_pid, protagonist, fonts)
+            img = render_realart_frame(fr, show_year, civ_by_pid, protagonist, fonts, union_crop)
         else:
             img = render_frame(fr, pal, protagonist, show_year, civ_by_pid, fonts)
         img.save(os.path.join(OUT_DIR, f"frame_{i:04d}.png"))

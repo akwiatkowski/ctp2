@@ -52,6 +52,11 @@ GAME_LOG = "/tmp/ctp2-timelapse-game.log"
 REALART = os.environ.get("TIMELAPSE_REALART", "1") != "0"
 RENDER_ZOOM = int(os.environ.get("TIMELAPSE_ZOOM", "1"))
 RAW_DIR = os.path.join(os.path.dirname(os.path.abspath(OUT)), "raw")
+# TIMELAPSE_PLAYER: render the FOGGED view from this player's perspective
+# (cities/units/infra + fog-of-war, cropped to what they've seen). Empty/-1 =
+# the unfogged god's-eye whole map. Default 1 (the first real civ).
+_pl = os.environ.get("TIMELAPSE_PLAYER", "1")
+PLAYER = None if _pl in ("", "-1", "all") else int(_pl)
 
 
 def send_cmd(cmd: str, timeout: float = 20) -> dict:
@@ -187,13 +192,23 @@ def main() -> int:
         events = ((logr.get("result", logr) if logr else {}) or {}).get("action_log") or []
 
         img_path = None
+        crop = None
         if REALART:
             bmp = os.path.join(RAW_DIR, f"turn-{turn_num:04d}.bmp")
-            r = cmd(f"render_map {bmp} {RENDER_ZOOM}", timeout=60)
+            if PLAYER is not None:
+                r = cmd(f"render_map_player {PLAYER} {bmp} {RENDER_ZOOM}", timeout=60)
+            else:
+                r = cmd(f"render_map {bmp} {RENDER_ZOOM}", timeout=60)
             if r and r.get("status") == "ok":
                 img_path = bmp_to_png(bmp)
+                d = r.get("detail") or ""
+                if d.startswith("crop="):   # explored pixel rect [x,y,w,h]
+                    try:
+                        crop = [int(v) for v in d[5:].split(",")]
+                    except Exception:
+                        crop = None
             else:
-                print(f"[REC] turn {turn_num}: render_map -> {r}")
+                print(f"[REC] turn {turn_num}: render -> {r}")
 
         out.write(json.dumps({
             "type": "frame",
@@ -205,6 +220,7 @@ def main() -> int:
             # Real-art frames carry the engine render (PNG); terrain/cities live
             # in it, so they are omitted from the log to keep it small.
             "img": img_path,
+            "crop": crop,   # explored pixel rect [x,y,w,h] in fogged player mode
             "terrain": None if REALART else w.get("terrain"),
             "cities": None if REALART else w.get("cities"),
             "players": w.get("players"),

@@ -184,16 +184,19 @@ run-hd: build-sanitized
 TURNS     ?= 150
 TL_DIR    ?= /tmp/ctp2-timelapse
 TL_FPS    ?= 12
-TL_ZOOM   ?= 1            # render_map zoom 0..5 (lower = smaller BMPs)
+TL_ZOOM   ?= 1            # render_map zoom 0..5 (lower = smaller renders)
 TL_MAPW   ?= 1100         # downscaled map width in the final frames
 TL_REALART?= 1            # 1 = real isometric engine art; 0 = stylized squares
 TL_TILE   ?= 9            # tile px for the stylized-square fallback
+TL_PLAYER ?= 1            # fogged view from this player (cities/units/infra +
+                          # fog, cropped to what they see). -1 = unfogged whole map
 timelapse: build
 	@mkdir -p $(TL_DIR)
 	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
 	@echo "[timelapse] recording $(TURNS) turns (a game window will open and auto-close)..."
 	AUTOPLAY_TURNS=$(TURNS) TIMELAPSE_OUT=$(TL_DIR)/run.jsonl \
 		TIMELAPSE_REALART=$(TL_REALART) TIMELAPSE_ZOOM=$(TL_ZOOM) \
+		TIMELAPSE_PLAYER=$(TL_PLAYER) \
 		mise exec -- python3 tools/timelapse/record.py
 	@$(MAKE) timelapse-render
 

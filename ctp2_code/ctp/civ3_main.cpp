@@ -1755,6 +1755,9 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 	for (gDone = FALSE; !gDone; )
 	{
+#ifdef __AUI_USE_SDL__
+		Uint32 frameStart = SDL_GetTicks();
+#endif
 		g_civApp->Process();
                 //printf("%s L%d: g_civApp->Process() done!\n", __FILE__, __LINE__);
 
@@ -1806,6 +1809,18 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		}
 
 		g_letUIProcess = FALSE;
+
+#ifdef __AUI_USE_SDL__
+		// Frame pacing: cap the loop to ~60 fps. When the engine is idle (no
+		// dirty rects -> no Flip -> no vsync block), this stops the loop from
+		// busy-spinning at 100% CPU / draining battery. When a vsync'd Flip
+		// already consumed the frame budget, frameElapsed >= target and no
+		// extra latency is added.
+		const Uint32 k_TARGET_FRAME_MS = 16;   // ~60 fps
+		Uint32 frameElapsed = SDL_GetTicks() - frameStart;
+		if (frameElapsed < k_TARGET_FRAME_MS)
+			SDL_Delay(k_TARGET_FRAME_MS - frameElapsed);
+#endif
 	}
 
 #ifdef __AUI_USE_SDL__

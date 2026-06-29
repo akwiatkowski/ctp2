@@ -609,7 +609,8 @@ AUI_ERRCODE TiledMap::RenderFullMap(aui_Surface *dest, sint32 zoomLevel)
 }
 
 AUI_ERRCODE TiledMap::RenderPlayerView(aui_Surface *dest, sint32 zoomLevel,
-                                       sint32 playerIndex, RECT *exploredPixelRect)
+                                       sint32 playerIndex, RECT *exploredPixelRect,
+                                       std::vector<CityLabel> *cityLabels)
 {
 	World * w   = world_Get();
 	Player * pl = player_Get(playerIndex);
@@ -709,6 +710,18 @@ AUI_ERRCODE TiledMap::RenderPlayerView(aui_Surface *dest, sint32 zoomLevel,
 				std::shared_ptr<UnitActor> actor = top.GetActor();
 				if (actor)
 					actor->DrawDirect(dest, px, py, scale);
+
+				if (cityLabels && top.IsCity()) {
+					CityData * cd = top.GetData() ? top.GetData()->GetCityData() : nullptr;
+					CityLabel cl;
+					cl.px    = px;
+					cl.py    = py;
+					cl.owner = (sint32) top.GetOwner();
+					cl.pop   = cd ? cd->PopCount() : 0;
+					snprintf(cl.name, sizeof(cl.name), "%s",
+					         top.GetName() ? top.GetName() : "");
+					cityLabels->push_back(cl);
+				}
 			}
 		}
 	}

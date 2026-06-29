@@ -267,6 +267,7 @@
 #include "StrategyRecord.h"
 #include "gs/database/StrDB.h"
 #include <string>                       // std::string
+#include <vector>                       // std::vector (render_map_player labels)
 #include "gs/database/thronedb.h"                   // g_theThroneDB
 #include "TerrainImprovementRecord.h"
 #include "TerrainRecord.h"
@@ -2962,14 +2963,27 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 							new aui_SDLSurface(&err, SW, SH, 16, nullptr, FALSE);
 						if (off && err == AUI_ERRCODE_OK && off->DDS()) {
 							RECT crop = {0, 0, 0, 0};
-							tm->RenderPlayerView(off, zoom, player, &crop);
+							std::vector<TiledMap::CityLabel> labels;
+							tm->RenderPlayerView(off, zoom, player, &crop, &labels);
 							if (SDL_SaveBMP(off->DDS(), pathBuf) == 0) {
-								char detail[96];
-								snprintf(detail, sizeof(detail), "crop=%d,%d,%d,%d",
-									(int) crop.left, (int) crop.top,
-									(int) (crop.right - crop.left),
-									(int) (crop.bottom - crop.top));
-								smoketest_send_response("ok", cmd, detail);
+								// detail: "crop=x,y,w,h cities=px~py~owner~pop~name;..."
+								std::string detail = "crop=" +
+									std::to_string((int) crop.left) + "," +
+									std::to_string((int) crop.top) + "," +
+									std::to_string((int) (crop.right - crop.left)) + "," +
+									std::to_string((int) (crop.bottom - crop.top));
+								if (!labels.empty()) {
+									detail += " cities=";
+									for (size_t k = 0; k < labels.size(); ++k) {
+										if (k) detail += ";";
+										detail += std::to_string(labels[k].px) + "~" +
+											std::to_string(labels[k].py) + "~" +
+											std::to_string(labels[k].owner) + "~" +
+											std::to_string(labels[k].pop) + "~" +
+											labels[k].name;
+									}
+								}
+								smoketest_send_response("ok", cmd, detail.c_str());
 							} else {
 								smoketest_send_response("error", cmd, "sdl_save_failed");
 							}

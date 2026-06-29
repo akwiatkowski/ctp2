@@ -477,12 +477,18 @@ public:
 	//                     render state (surface, view rect, zoom, fog) after.
 	void		FullMapPixelSize(sint32 zoomLevel, sint32 *width, sint32 *height);
 	AUI_ERRCODE	RenderFullMap(aui_Surface *dest, sint32 zoomLevel);
+	// One visible city, for the caller to label (name + population) on the
+	// rendered frame. px/py are FULL-SURFACE pixel coords of the city tile.
+	struct CityLabel { sint32 px; sint32 py; sint32 owner; sint32 pop; char name[64]; };
+
 	// Render from a SELECTED player's fogged perspective: fogged terrain +
 	// infrastructure + unit/city sprites, only where that player has explored.
 	// Writes the explored region's pixel rect to *exploredPixelRect (for the
-	// caller to crop to "what the player sees"). Restores all render state.
+	// caller to crop to "what the player sees") and, if cityLabels != nullptr,
+	// the visible cities' name/pop/pixel for labelling. Restores render state.
 	AUI_ERRCODE	RenderPlayerView(aui_Surface *dest, sint32 zoomLevel,
-	                             sint32 playerIndex, RECT *exploredPixelRect);
+	                             sint32 playerIndex, RECT *exploredPixelRect,
+	                             std::vector<CityLabel> *cityLabels = nullptr);
 
 	void		DrawHilite( BOOL drawHilite ) { m_drawHilite = drawHilite; }
 

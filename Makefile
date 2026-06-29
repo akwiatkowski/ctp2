@@ -184,8 +184,8 @@ run-hd: build-sanitized
 TURNS     ?= 150
 TL_DIR    ?= /tmp/ctp2-timelapse
 TL_FPS    ?= 12
-TL_ZOOM   ?= 1            # render_map zoom 0..5 (lower = smaller renders)
-TL_MAPW   ?= 1100         # downscaled map width in the final frames
+TL_ZOOM   ?= 5            # render zoom 0..5 (5 = native 1:1 tiles, full detail)
+TL_MAPW   ?= 0            # final frame width; 0 = 1:1 (no downscale)
 TL_REALART?= 1            # 1 = real isometric engine art; 0 = stylized squares
 TL_TILE   ?= 9            # tile px for the stylized-square fallback
 TL_PLAYER ?= 1            # fogged view from this player (cities/units/infra +

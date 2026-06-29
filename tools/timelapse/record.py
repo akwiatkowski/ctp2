@@ -193,6 +193,7 @@ def main() -> int:
 
         img_path = None
         crop = None
+        cities_labels = None
         if REALART:
             bmp = os.path.join(RAW_DIR, f"turn-{turn_num:04d}.bmp")
             if PLAYER is not None:
@@ -201,12 +202,25 @@ def main() -> int:
                 r = cmd(f"render_map {bmp} {RENDER_ZOOM}", timeout=60)
             if r and r.get("status") == "ok":
                 img_path = bmp_to_png(bmp)
+                # detail: "crop=x,y,w,h cities=px~py~owner~pop~name;..."
                 d = r.get("detail") or ""
-                if d.startswith("crop="):   # explored pixel rect [x,y,w,h]
+                head, _, citystr = d.partition(" cities=")
+                if head.startswith("crop="):
                     try:
-                        crop = [int(v) for v in d[5:].split(",")]
+                        crop = [int(v) for v in head[5:].split(",")]
                     except Exception:
                         crop = None
+                if citystr:
+                    cities_labels = []
+                    for tok in citystr.split(";"):
+                        f = tok.split("~", 4)   # px, py, owner, pop, name
+                        if len(f) == 5:
+                            try:
+                                cities_labels.append({"px": int(f[0]), "py": int(f[1]),
+                                                      "owner": int(f[2]), "pop": int(f[3]),
+                                                      "name": f[4]})
+                            except Exception:
+                                pass
             else:
                 print(f"[REC] turn {turn_num}: render -> {r}")
 
@@ -221,6 +235,7 @@ def main() -> int:
             # in it, so they are omitted from the log to keep it small.
             "img": img_path,
             "crop": crop,   # explored pixel rect [x,y,w,h] in fogged player mode
+            "city_labels": cities_labels,  # [{px,py,owner,pop,name}] full-surface px
             "terrain": None if REALART else w.get("terrain"),
             "cities": None if REALART else w.get("cities"),
             "players": w.get("players"),

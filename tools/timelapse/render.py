@@ -237,18 +237,36 @@ def render_realart_frame(frame, show_year, civ_by_pid, protagonist, fonts, union
     constant size while the empire's known world grows within it."""
     font, font_sm, font_cap = fonts
     mp = Image.open(frame.get("img") or frame.get("bmp")).convert("RGB")
+    ox, oy = 0, 0
     if union_crop:
         x0, y0, x1, y1 = union_crop
         x0 = max(0, x0); y0 = max(0, y0); x1 = min(mp.width, x1); y1 = min(mp.height, y1)
         if x1 > x0 and y1 > y0:
-            mp = mp.crop((x0, y0, x1, y1))
-    if mp.width > MAP_TARGET_W:
+            mp = mp.crop((x0, y0, x1, y1)); ox, oy = x0, y0
+    s = 1.0   # MAP_TARGET_W <= 0 means 1:1 (no downscale)
+    if MAP_TARGET_W > 0 and mp.width > MAP_TARGET_W:
         s = MAP_TARGET_W / mp.width
         mp = mp.resize((MAP_TARGET_W, int(mp.height * s)), Image.BILINEAR)
     mw, mh = mp.size
     img = Image.new("RGB", (mw + HUD_W, max(mh, 300) + CAP_H), BG)
     img.paste(mp, (0, 0))
     draw = ImageDraw.Draw(img, "RGBA")
+
+    # City name + population labels over the map. Engine reports full-surface
+    # pixel coords; transform by the crop origin and downscale factor.
+    def _label(cx, cy, text, col):
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                if dx or dy:
+                    draw.text((cx + dx, cy + dy), text, font=font_cap, fill=(0, 0, 0))
+        draw.text((cx, cy), text, font=font_cap, fill=col)
+    for lab in (frame.get("city_labels") or []):
+        lx = int((lab["px"] - ox) * s)
+        ly = int((lab["py"] - oy) * s)
+        if 0 <= lx < mw and 0 <= ly < mh:
+            text = f"{lab.get('name', '')}  {lab.get('pop', 0)}"
+            tw = draw.textlength(text, font=font_cap)
+            _label(int(lx - tw / 2), max(0, ly - 15), text, (255, 255, 255))
 
     # HUD panel (right)
     panel_x = mw

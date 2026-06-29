@@ -638,24 +638,50 @@ AUI_ERRCODE TiledMap::RenderPlayerView(aui_Surface *dest, sint32 zoomLevel,
 	m_surfaceRect.right = dest->Width(); m_surfaceRect.bottom = dest->Height();
 	m_renderEverything = false;          // unexplored tiles stay black
 	m_renderExploredAsVisible = true;    // explored tiles at full brightness
-	m_localVision      = pl->m_vision;   // render from this player's perspective
+
+	// AI players don't maintain a fog/Vision explored map in autoplay, so
+	// reconstruct "what this empire can see" from its units' and cities'
+	// vision ranges into a throwaway Vision and render through that. (amOnScreen
+	// = false so AddVisible doesn't fire tiledmap redraw side effects.)
+	Vision sightVision(playerIndex, false);
+	{
+		UnitDynamicArray * units = pl->m_all_units;
+		for (sint32 u = 0; units && u < units->Num(); ++u) {
+			Unit unit = units->Access(u);
+			if (!unit.IsValid()) continue;
+			MapPoint up; unit.GetPos(up);
+			double const r = unit.GetVisionRange();
+			sightVision.AddVisible(up, (r > 0.0) ? r : 1.0);
+		}
+		UnitDynamicArray * cities = pl->GetAllCitiesList();
+		for (sint32 c = 0; cities && c < cities->Num(); ++c) {
+			Unit city = cities->Access(c);
+			if (!city.IsValid()) continue;
+			MapPoint cp; city.GetPos(cp);
+			double const r = city.GetVisionRange();
+			sightVision.AddVisible(cp, (r > 0.0) ? r : 2.0);
+		}
+	}
+	m_localVision = &sightVision;        // render from this empire's sight
 
 	RetargetTileSurface(dest);
 	LockThisSurface(dest);
 	if (m_surfBase) memset(m_surfBase, 0, (size_t) m_surfHeight * m_surfPitch);
 
-	// 1) fogged terrain + 2) infrastructure — direct pixel writes, so they run
-	//    while WE hold the surface lock (m_surfBase).
-	for (sint32 i = 0; i < mh; ++i) {
-		for (sint32 j = 0; j < mw; ++j) {
-			CalculateWrap(dest, i, j);
-			DrawImprovements(dest, i, j, false);
-		}
-	}
+	// 1) fogged terrain — use RepaintTiles (the proven path): it calls
+	//    CalculateWrap with a NULL surface, which draws into the locked
+	//    m_surfBase. Passing a non-null surface here suppresses the tile draw.
+	RECT fullMap;
+	fullMap.left = 0; fullMap.top = 0; fullMap.right = mw; fullMap.bottom = mh;
+	RepaintTiles(&fullMap);
+
+	// 2) infrastructure — same NULL-surface convention.
+	for (sint32 i = 0; i < mh; ++i)
+		for (sint32 j = 0; j < mw; ++j)
+			DrawImprovements(nullptr, i, j, false);
 
 	// Sprites lock the surface THEMSELVES (Sprite::DrawDirect -> LockSurface),
-	// so we must release our lock first or the re-lock fails -> null buffer ->
-	// crash. Drop the lock before the sprite pass.
+	// so release our lock first or the re-lock fails -> null buffer -> crash.
 	UnlockSurface();
 
 	// 3) unit/city sprites the player can see; also accumulate the explored

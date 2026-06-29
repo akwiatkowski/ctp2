@@ -431,8 +431,7 @@ void sliccmd_parse_done(struct sliccmdExpValue *v, int action)
 
 	Assert(sym);
 	if(!sym) {
-		// TODO(strlcpy): unknown dst size
-		strcpy(sliccmd_output, "<Err>");
+		strlcpy(sliccmd_output, "<Err>", sliccmd_output_len);
 		return;
 	}
 
@@ -445,8 +444,7 @@ void sliccmd_parse_done(struct sliccmdExpValue *v, int action)
 				snprintf(buf, sizeof(buf), "%s_%s", stringdb_Get()->GetIdStr(id), sliccmd_cat_string);
 				MBCHAR *rval;
 				if(stringdb_Get()->GetText(buf, &rval)) {
-					// TODO(strlcpy): unknown dst size
-					strcpy(sliccmd_output, rval);
+					strlcpy(sliccmd_output, rval, sliccmd_output_len);
 					expanded = true;
 				}
 			}

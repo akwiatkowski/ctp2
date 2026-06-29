@@ -648,8 +648,7 @@ void slicif_add_op(SOP op, ...)
 					yyerror(errbuf);
 				}
 			} else {
-				strlcpy(internalName, "_", sizeof(internalName));
-				strcat(internalName, name);
+				snprintf(internalName, sizeof(internalName), "_%s", name);
 				if(!slicengine_Get()->GetFunction(internalName)) {
 					snprintf(errbuf, sizeof(errbuf), "No function named %s", name);
 					yyerror(errbuf);

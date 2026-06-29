@@ -181,22 +181,26 @@ run-hd: build-sanitized
 #   make timelapse TURNS=300 TL_TILE=11         # longer, higher-res
 #   make timelapse-render                       # re-render the LAST recording
 #                                               # (fast; no game run)
-TURNS    ?= 150
-TL_DIR   ?= /tmp/ctp2-timelapse
-TL_TILE  ?= 9
-TL_FPS   ?= 12
+TURNS     ?= 150
+TL_DIR    ?= /tmp/ctp2-timelapse
+TL_FPS    ?= 12
+TL_ZOOM   ?= 1            # render_map zoom 0..5 (lower = smaller BMPs)
+TL_MAPW   ?= 1100         # downscaled map width in the final frames
+TL_REALART?= 1            # 1 = real isometric engine art; 0 = stylized squares
+TL_TILE   ?= 9            # tile px for the stylized-square fallback
 timelapse: build
 	@mkdir -p $(TL_DIR)
 	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
 	@echo "[timelapse] recording $(TURNS) turns (a game window will open and auto-close)..."
 	AUTOPLAY_TURNS=$(TURNS) TIMELAPSE_OUT=$(TL_DIR)/run.jsonl \
+		TIMELAPSE_REALART=$(TL_REALART) TIMELAPSE_ZOOM=$(TL_ZOOM) \
 		mise exec -- python3 tools/timelapse/record.py
 	@$(MAKE) timelapse-render
 
 # Re-render from the existing recording — iterate the visual without replaying.
 timelapse-render:
 	@echo "[timelapse] rendering frames + mp4..."
-	TILE=$(TL_TILE) FPS=$(TL_FPS) \
+	TILE=$(TL_TILE) FPS=$(TL_FPS) MAP_TARGET_W=$(TL_MAPW) \
 		mise exec -- python3 tools/timelapse/render.py $(TL_DIR)/run.jsonl $(TL_DIR)/frames
 	@echo "[timelapse] done -> $(TL_DIR)/frames/timelapse.mp4"
 

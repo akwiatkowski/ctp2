@@ -28,7 +28,7 @@ This is not a full rewrite. A fully modernized CTP2 engine is open-ended and lik
 | Warning cleanup | Several low-risk batches done; many legacy warnings remain | High-signal warnings fixed: include case, precedence, scalar NULL, dead locals | 4-8 sessions |
 | Modernization ratchets | Ratchets exist for raw new/delete, unsafe strings, C allocation, casts | Ratchets kept green and lowered after each intentional cleanup batch | 4-8 sessions |
 | Timelapse tooling | Fogged hero timelapse works; captions have names metadata | Captions are useful, short runs are reproducible, docs explain common commands | 1-3 sessions |
-| UI/frame polish | Not started in this sequence | Pick 1-2 visible polish wins, not a full UI rewrite | 2-4 sessions |
+| UI/frame polish | One frame-pacing polish win committed | Pick 1-2 visible polish wins, not a full UI rewrite | 0-2 sessions |
 | Modern asset pipeline | Not started; renderer still consumes legacy `.SPR`/surface data directly | Export one representative legacy sprite to modern frame metadata + atlas/PNG cache with visual-parity check | 3-6 sessions |
 | Deeper architecture cleanup | Large legacy systems still coupled | Only targeted cleanup with tests; no broad rewrite | Open-ended |
 
@@ -53,9 +53,9 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M2 | Warning noise reduction | 8/8 done | complete | `make test`, warning category visibly reduced |
 | M3 | Modernization ratchet burn-down | 6/6 done | complete | ratchet baseline lowered without regressions |
 | M4 | Timelapse/play tooling polish | 5/5 done | complete | short timelapse smoke, docs updated |
-| M5 | UI/frame polish | verified, pending commit | 2-4 sessions | visible/manual or smoke verification |
-| M6 | Final stabilization pass | 0/4 done | 2-3 sessions | all standard checks, plan updated |
-| M7 | Obsolete subsystem removal | GameWatch removed, pending commit | 3-6 sessions | obsolete code removed without network/movie regressions |
+| M5 | UI/frame polish | 3/3 done | complete | visible/manual or smoke verification |
+| M6 | Final stabilization pass | 4/4 done | complete | all standard checks, plan updated |
+| M7 | Obsolete subsystem removal | 2/5 done | 2-4 sessions | obsolete code removed without network/movie regressions |
 | M8 | Modern asset pipeline spike | 0/5 done | 3-6 sessions | legacy sprite exports reproducibly; visual parity checked |
 
 ### M1: Baseline Safety Loop
@@ -107,34 +107,32 @@ Latest ratchet counts after the GameWatch removal: `c_allocation=516`, `raw_dele
 
 ### M5: UI / Frame Polish
 
-- [ ] Pick one concrete frame pacing/window persistence/UI scaling issue.
-- [ ] Implement the smallest visible fix.
-- [ ] Verify on desktop and avoid broad UI constructor const-correctness unless explicitly scoped.
+- [x] Pick one concrete frame pacing/window persistence/UI scaling issue.
+- [x] Implement the smallest visible fix.
+- [x] Verify on desktop and avoid broad UI constructor const-correctness unless explicitly scoped.
 
-Pending M5 commit: the SDL main-loop idle cap now uses a 17 ms frame budget, matching `1000 / 60` rounded up instead of an undershooting 16 ms magic number. Verification already run: `mise exec -- make test`, `git diff --check`, `mise exec -- make ubsan-smoke`.
+M5 fix: the SDL main-loop idle cap now uses a 17 ms frame budget, matching `1000 / 60` rounded up instead of an undershooting 16 ms magic number. Verified with `mise exec -- make test`, `git diff --check`, and `mise exec -- make ubsan-smoke`; committed as `a3e59cf6`.
 
 ### M6: Final Stabilization Pass
 
-- [ ] Run `make test` and `make ubsan-smoke` cleanly after final batch.
-- [ ] Update this plan with final counts and remaining caveats.
-- [ ] Ensure `README.md` does not contradict current Makefile commands.
-- [ ] Stop with clean worktree and a concise handoff.
+- [x] Run `make test` and `make ubsan-smoke` cleanly after final batch.
+- [x] Update this plan with final counts and remaining caveats.
+- [x] Ensure `README.md` does not contradict current Makefile commands.
+- [x] Stop with clean worktree and a concise handoff.
 
-Pending M6 commit: `README.md` build instructions now point at the current root-level `mise exec -- make setup`, `mise exec -- make build`, `mise exec -- make test`, and UBSan smoke workflow instead of the stale `build-headless` Meson commands.
-
-Pending final verification after GameWatch removal: `mise exec -- make test`, `git diff --check`, and `mise exec -- make ubsan-smoke` all pass. The worktree is intentionally not clean until Olek approves committing the GameWatch/ratchet batch.
+M6 final verification: `mise exec -- make test`, `git diff --check`, and `mise exec -- make ubsan-smoke` pass. `README.md` build instructions now point at the current root-level `mise exec -- make setup`, `mise exec -- make build`, `mise exec -- make test`, and UBSan smoke workflow instead of the stale `build-headless` Meson commands.
 
 ### M7: Obsolete Subsystem Removal
 
 Scope: remove legacy systems that are no longer product goals. Windows support should later use SDL/Linux-like paths, not old DirectX/Win32 runtime plumbing. Networking is out of scope for this milestone. Movie playback and movie DB/schema/data are product goals and should be preserved for future repair, not removed.
 
 - [x] Remove remaining CD-ROM / Redbook audio / copy-protection code.
-- [ ] Confirm GameWatch provenance; if it is original Activision telemetry/recording/plugin code, remove it.
+- [x] Confirm GameWatch provenance; if it is original Activision telemetry/recording/plugin code, remove it.
 - [ ] Remove Windows registry / file-association / DirectX startup checks.
 - [ ] Remove DirectX AUI backend in SDL-first batches.
 - [ ] Re-run `make test`, `git diff --check`, and `make ubsan-smoke`; record any retained compatibility caveats.
 
-Pending M7 commit: GameWatch was confirmed as obsolete plugin-based recording/delivery code (`gwciv`, `gwfile`, `gwarchive`) that wrote unit build/kill records and `recordN.dat` payloads. Runtime hooks, profile setting, active Meson include path, legacy autotools include paths, source tree, DLL, and static libraries were removed. Visual Studio project files still mention old GameWatch library/include paths and should be handled with the later Windows/DirectX cleanup batch.
+GameWatch was confirmed as obsolete plugin-based recording/delivery code (`gwciv`, `gwfile`, `gwarchive`) that wrote unit build/kill records and `recordN.dat` payloads. Runtime hooks, profile setting, active Meson include path, legacy autotools include paths, source tree, DLL, and static libraries were removed in `b4f79eb0`. Visual Studio project files still mention old GameWatch library/include paths and should be handled with the later Windows/DirectX cleanup batch.
 
 Do not remove yet:
 
@@ -162,14 +160,10 @@ Goal: make original game data compatible with a future modern renderer without b
 
 Do these in order unless Olek changes priorities:
 
-1. Return to M3 by lowering one modernization ratchet category intentionally, then update baseline.
-2. Add the M3 final ratchet-count note.
-3. Add a short timelapse usage note once captions are good enough.
-4. Add a tiny caption-render smoke fixture or helper test if practical.
-5. Pick one visible caption/frame polish improvement and verify with a short run.
-6. Confirm GameWatch provenance; remove it if it is original Activision telemetry/recording/plugin code.
-7. Remove Windows registry / DirectX startup checks and continue SDL-first backend cleanup, without removing movie playback.
-8. Start M8 with a read-only `.SPR` inspector/exporter before changing runtime rendering.
+1. Remove Windows registry / DirectX startup checks and stale GameWatch Visual Studio references.
+2. Continue SDL-first backend cleanup without removing movie playback.
+3. Start M8 with a read-only `.SPR` inspector/exporter before changing runtime rendering.
+4. Continue modernization ratchet reductions only as small, obvious batches.
 
 ## Assistant Protocol
 

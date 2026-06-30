@@ -53,6 +53,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M4 | Timelapse/play tooling polish | 2/5 done | 1-3 sessions | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | 0/3 done | 2-4 sessions | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 0/4 done | 2-3 sessions | all standard checks, plan updated |
+| M7 | Obsolete subsystem removal | 0/6 done | 4-8 sessions | obsolete code removed without network/movie-schema regressions |
 
 ### M1: Baseline Safety Loop
 
@@ -114,6 +115,22 @@ Latest ratchet counts after TGA local buffer cleanup and obsolete Redbook CD-dri
 - [ ] Ensure `README.md` does not contradict current Makefile commands.
 - [ ] Stop with clean worktree and a concise handoff.
 
+### M7: Obsolete Subsystem Removal
+
+Scope: remove legacy systems that are no longer product goals. Windows support should later use SDL/Linux-like paths, not old DirectX/Win32 runtime plumbing. Networking is out of scope for this milestone. Movie DB/schema/data references are also out of scope and should be fixed later, not removed now.
+
+- [ ] Remove remaining CD-ROM / Redbook audio / copy-protection code.
+- [ ] Remove DirectMedia / DirectX movie playback runtime paths while preserving movie DB/schema.
+- [ ] Confirm GameWatch provenance; if it is original Activision telemetry/recording/plugin code, remove it.
+- [ ] Remove Windows registry / file-association / DirectX startup checks.
+- [ ] Remove DirectX AUI backend in SDL-first batches.
+- [ ] Re-run `make test`, `git diff --check`, and `make ubsan-smoke`; record any retained compatibility caveats.
+
+Do not remove yet:
+
+- Network / multiplayer code; it will be resolved later.
+- Wonder/victory movie DB/schema/data fields; playback plumbing can go first, schema cleanup is a later scoped task.
+
 ## Progress Rules
 
 - A normal `continue` should complete one checkbox or one coherent part of a checkbox.
@@ -125,11 +142,12 @@ Latest ratchet counts after TGA local buffer cleanup and obsolete Redbook CD-dri
 
 Do these in order unless Olek changes priorities:
 
-1. Run one more small warning cleanup batch from `make ubsan-smoke` output.
-2. Normalize `Player.h` include casing in a mechanical batch, then verify.
-3. Fix remaining low-risk precedence warnings in AI code.
-4. Lower one modernization ratchet category intentionally, then update baseline.
-5. Add a short timelapse usage note once captions are good enough.
+1. Start M7 with the remaining CD-ROM / Redbook / copy-protection removal batch.
+2. Remove DirectMedia / DirectX movie playback runtime paths while preserving movie DB/schema.
+3. Confirm GameWatch provenance; remove it if it is original Activision telemetry/recording/plugin code.
+4. Remove Windows registry / DirectX startup checks and continue SDL-first backend cleanup.
+5. Return to M3 by lowering one modernization ratchet category intentionally, then update baseline.
+6. Add a short timelapse usage note once captions are good enough.
 
 ## Assistant Protocol
 

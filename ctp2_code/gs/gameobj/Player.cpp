@@ -8583,8 +8583,8 @@ bool Player::HasWarWith(PLAYER_INDEX otherPlayer) const
 	// Everyone is always at war with the barbarians.
 	return      m_owner <= 0
 	    ||  otherPlayer <= 0
-	    ||  player_Get(otherPlayer) != nullptr
-	    && AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_DECLARE_WAR);
+	    || (player_Get(otherPlayer) != nullptr
+	    && AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_DECLARE_WAR));
 }
 
 bool Player::HasAllianceWith(PLAYER_INDEX otherPlayer) const

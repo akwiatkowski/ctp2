@@ -709,8 +709,7 @@ TEST_CASE("json round-trip: MaterialPool preserves all 3 fields")
     orig.SetCap(2000);
 
     nlohmann::json j = orig;
-    alignas(MaterialPool) unsigned char buf[sizeof(MaterialPool)];
-    MaterialPool &round = *reinterpret_cast<MaterialPool *>(buf);
+    MaterialPool round(0);
     j.get_to(round);
 
     CHECK(round.GetMaterials() == 750);

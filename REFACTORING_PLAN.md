@@ -51,7 +51,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | --- | --- | --- | --- | --- |
 | M1 | Baseline safety loop | 4/4 done | complete | `make test`, `make ubsan-smoke` |
 | M2 | Warning noise reduction | 8/8 done | complete | `make test`, warning category visibly reduced |
-| M3 | Modernization ratchet burn-down | 4/6 done | 4-8 sessions | ratchet baseline lowered without regressions |
+| M3 | Modernization ratchet burn-down | 6/6 done | complete | ratchet baseline lowered without regressions |
 | M4 | Timelapse/play tooling polish | 2/5 done | 1-3 sessions | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | 0/3 done | 2-4 sessions | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 0/4 done | 2-3 sessions | all standard checks, plan updated |
@@ -92,10 +92,10 @@ Remaining high-signal warning categories after the M2 pass:
 - [x] Reduce one small unsafe string API cluster, then update baseline.
 - [x] Reduce one small raw `new`/`delete` ownership cluster with clear ownership.
 - [x] Reduce one C allocation cluster where lifetime is local/simple.
-- [ ] Reduce one type-erased cast cluster only if behavior is obvious.
-- [ ] Add a short note here listing ratchet counts after the last reduction.
+- [x] Reduce one type-erased cast cluster only if behavior is obvious.
+- [x] Add a short note here listing ratchet counts after the last reduction.
 
-Latest ratchet counts after TGA local buffer cleanup and obsolete Redbook CD-drive scan removal: `c_allocation=526`, `raw_delete=2078`, `raw_new=5536`, `type_erased_casting=3764`, `unsafe_string_api=1417`.
+Latest ratchet counts after the `MaterialPool` JSON test cast cleanup: `c_allocation=526`, `raw_delete=2078`, `raw_new=5536`, `type_erased_casting=3763`, `unsafe_string_api=1417`.
 
 ### M4: Timelapse / Play Tooling Polish
 

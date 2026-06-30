@@ -2644,6 +2644,27 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					smoketest_send_response("error", cmd, "game_not_loaded");
 				}
 			}
+			else if (strncmp(cmd, "advance_round", 13) == 0) {
+				if (m_gameLoaded) {
+					int n = 1;
+					if (cmd[13] != '\0' && sscanf(cmd + 13, "%d", &n) != 1) n = -1;
+					if (n < 1 || n > 1000) {
+						smoketest_send_response("error", cmd, "bad_args");
+					} else {
+						for (int i = 0; i < n; ++i) {
+							game_controller::RunRound(
+								turn_Get() ? turn_Get()->GetSessionRound() : 0,
+								nullptr);
+						}
+						char detail[48];
+						snprintf(detail, sizeof(detail), "round=%d",
+						         (int)(turn_Get() ? turn_Get()->GetSessionRound() : 0));
+						smoketest_send_response("ok", "advance_round", detail);
+					}
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
 			else if (strcmp(cmd, "enable_autoplay") == 0) {
 				if (m_gameLoaded) {
 					sint32 flipped = 0;

@@ -41,6 +41,8 @@ class Player;
 
 namespace game_controller {
 
+typedef void (*SetCurrentPlayerFn)(sint32 player);
+
 // Execute a single command/query line (e.g. "build_city",
 // "set_production 0 settler", "query_city 0").
 //
@@ -66,6 +68,12 @@ std::string DispatchSafe(const std::string & line, bool & handled);
 // human after game creation.  Deliberately not selitem_Get()-based — that UI
 // singleton may be absent/empty in the headless build.
 Player * HumanPlayer();
+
+// Run one complete simulation round: every live player gets BeginTurn, AI
+// scheduler events, queued order resumption, and EndTurn. Frontends pass a
+// current-player setter because UI and headless builds store CurPlayer in
+// different places.
+void RunRound(sint32 round, SetCurrentPlayerFn set_current_player);
 
 }  // namespace game_controller
 

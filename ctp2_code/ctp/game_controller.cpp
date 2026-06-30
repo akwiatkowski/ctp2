@@ -41,8 +41,10 @@
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/fileio/action_log.h"             // action_log::Get / Count / Clear
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
+#include "gs/core/game_observer.h"            // gameobservers_Get()
+#include "gs/core/player_view.h"              // player_view::SetCurrentPlayer
 #include "gs/gameobj/MovePath.h"              // army_QueueMovePath
-#include "gs/gameobj/Events.h"                // GEV_ExploreOrder
+#include "gs/gameobj/Events.h"                // GEV_ExploreOrder / AI events
 #include "gs/gameobj/Score.h"                 // Score::GetTotalScore
 #include "gs/gameobj/Strengths.h"             // Strengths::GetStrength (rank inputs)
 #include "gs/gameobj/Civilisation.h"          // Civilisation::Get*CivName
@@ -70,6 +72,8 @@
 #include "gs/gameobj/terrainutil.h"           // terrainutil_CanPlayerBuildAt/cost/time
 #include "gs/gameobj/TerrImprove.h"           // TerrainImprovement
 #include "gs/gameobj/TerrImprovePool.h"       // terrimprovepool_Get
+#include "gs/database/profileDB.h"            // profiledb_Get()->IsAIOn()
+#include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
 
 using json = nlohmann::json;
 
@@ -100,6 +104,73 @@ Player * HumanPlayer()
             return player_Get(p);
     }
     return nullptr;
+}
+
+void RunRound(sint32 round, SetCurrentPlayerFn set_current_player)
+{
+    auto set_current = [set_current_player](sint32 player) {
+        if (set_current_player) {
+            set_current_player(player);
+        } else {
+            player_view::SetCurrentPlayer(player);
+        }
+    };
+
+    if (turn_Get()) turn_Get()->SkipToRound(round);
+
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        if (!player_Get(p) || player_Get(p)->IsDead()) continue;
+
+        set_current(p);
+
+        if (profiledb_Get()->IsAIOn()) {
+            gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginMapAnalysis,
+                                   GEA_Player, p, GEA_End);
+        }
+        CtpAi::BeginDiplomacy(p, round);
+        if (profiledb_Get()->IsAIOn()) {
+            gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginTurn,
+                                   GEA_Player, p, GEA_End);
+        }
+
+        // BeginTurn() already calls NotifyTurnStart internally; only
+        // NotifyTurnEnd needs an explicit call because EndTurn() does not
+        // notify observers.
+        player_Get(p)->BeginTurn();
+
+        // Automation bypasses the UI director path that queues the scheduler,
+        // so add it directly and drain AI events before advancing players.
+        if (gevmanager_Get()) {
+            gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginScheduler,
+                                   GEA_Player, p, GEA_End);
+            gevmanager_Get()->Process();
+        }
+
+        // Resume queued multi-turn orders. Cargo never self-executes: the UI
+        // cannot select an army riding a transport, so interactive play never
+        // fires BeginTurnExecute for it either.
+        if (gevmanager_Get() && player_Get(p)->m_all_armies) {
+            for (sint32 a = 0; a < player_Get(p)->m_all_armies->Num(); ++a) {
+                Army army = player_Get(p)->m_all_armies->Access(a);
+                if (!army.IsValid() || army.NumOrders() == 0) continue;
+                if (army.Num() > 0 && army.Access(0).IsBeingTransported())
+                    continue;
+                gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
+                                           GEV_BeginTurnExecute,
+                                           GEA_Army, army, GEA_End);
+            }
+            gevmanager_Get()->Process();
+        }
+
+        player_Get(p)->EndTurn();
+        if (gameobservers_Get()) gameobservers_Get()->NotifyTurnEnd(p);
+    }
+
+    if (turn_Get()) turn_Get()->SkipToRound(round + 1);
+
+    if (Player * human = HumanPlayer()) {
+        set_current(human->GetOwner());
+    }
 }
 
 }  // namespace game_controller

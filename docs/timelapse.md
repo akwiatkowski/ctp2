@@ -43,7 +43,7 @@ mise exec -- make timelapse-caption-smoke
 
 - `TURNS=300`: number of autoplay turns to record.
 - `TL_DIR=/tmp/ctp2-timelapse`: output directory; contains `run.jsonl`, `raw/`, and `frames/`.
-- `TL_PLAYER=1`: fogged view from one player. Use `TL_PLAYER=-1` for the unfogged whole map.
+- `TL_PLAYER=-1`: unfogged whole map. Set `TL_PLAYER=1` or another player id for a fogged empire view.
 - `TL_REALART=1`: use real isometric engine-rendered frames. Use `TL_REALART=0` for the stylized fallback renderer.
 - `TL_ZOOM=5`: engine render zoom, `0..5`; `5` keeps native tile detail.
 - `TL_FPS=12`: output video framerate.

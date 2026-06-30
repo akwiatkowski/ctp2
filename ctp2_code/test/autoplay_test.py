@@ -44,8 +44,8 @@ SOCKET_PATH = "/tmp/ctp2-smoke.sock"
 TIMEOUT_INIT = 30
 TURNS = int(os.environ.get("AUTOPLAY_TURNS", "100"))
 TURN_TIMEOUT = int(os.environ.get("AUTOPLAY_TURN_TIMEOUT", "60"))
-# end_turn queues an event in g_director and returns "ok" immediately, so we
-# must pace the driver to let the AI actually process. Tune via env var.
+# advance_round runs a full simulation round before returning. Keep a small
+# pacing hook so callers can still slow the UI smoke build if needed.
 TURN_PACE = float(os.environ.get("AUTOPLAY_TURN_PACE", "2.0"))
 GAME_LOG = "/tmp/ctp2-autoplay-game.log"
 SAVELOAD_INTERVAL = int(os.environ.get("AUTOPLAY_SAVELOAD_INTERVAL", "0"))
@@ -146,7 +146,7 @@ def main() -> int:
             failures += 1
             break
         turn_t0 = time.time()
-        run("end_turn", timeout=TURN_TIMEOUT)
+        run("advance_round", timeout=TURN_TIMEOUT)
         time.sleep(TURN_PACE)
         dt = time.time() - turn_t0
 

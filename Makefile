@@ -238,8 +238,8 @@ TL_ZOOM   ?= 5            # render zoom 0..5 (5 = native 1:1 tiles, full detail)
 TL_MAPW   ?= 0            # final frame width; 0 = 1:1 (no downscale)
 TL_REALART?= 1            # 1 = real isometric engine art; 0 = stylized squares
 TL_TILE   ?= 9            # tile px for the stylized-square fallback
-TL_PLAYER ?= 1            # fogged view from this player (cities/units/infra +
-                          # fog, cropped to what they see). -1 = unfogged whole map
+TL_PLAYER ?= -1           # unfogged whole map. Set to a player id for fogged,
+                          # cropped view from that empire's perspective.
 timelapse: build
 	@mkdir -p $(TL_DIR)
 	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt

@@ -58,87 +58,7 @@ namespace {
 auto headless_log = civlog::Get("headless");
 }  // namespace
 
-// Run ONE full round: every live player takes a turn through the same event
-// pipeline the interactive game uses — mirrors the body of
-// STDEHANDLER(BeginTurnEvent) in TurnCntEvent.cpp. Without the AI events +
-// scheduler, calling Player::BeginTurn directly does NOT dispatch the AI:
-// settlers never settle, no cities are founded, and score stays flat.
-// Shared by the batch --turns loop and the serve-mode end_turn verb.
-static void headless_run_round(sint32 round)
-{
-    // The global TurnCount is the real clock: Player::BeginTurn overwrites
-    // m_current_round from GetSessionRound(), and query_turn reads it back.
-    // Align it to the round being played; advance it when the round ends —
-    // so "round N" in queries means "N full rounds completed".
-    if (turn_Get()) turn_Get()->SkipToRound(round);
-
-    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
-        if (!player_Get(p) || player_Get(p)->IsDead()) continue;
-
-        s_headlessCurPlayer = p;
-
-        if (profiledb_Get()->IsAIOn()) {
-            gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginMapAnalysis,
-                                   GEA_Player, p, GEA_End);
-        }
-        CtpAi::BeginDiplomacy(p, round);
-        if (profiledb_Get()->IsAIOn()) {
-            gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginTurn,
-                                   GEA_Player, p, GEA_End);
-        }
-
-        // BeginTurn() already calls NotifyTurnStart internally; only
-        // NotifyTurnEnd needs an explicit call because EndTurn() does
-        // not notify observers.
-        player_Get(p)->BeginTurn();
-
-        // In the interactive game the director queues GEV_BeginScheduler
-        // after BeginTurn(). Headless has no director loop, so we add the
-        // scheduler event directly so the AI actually assigns orders to
-        // units (settlers settle, armies move, etc.).
-        if (gevmanager_Get()) {
-            gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginScheduler,
-                                   GEA_Player, p, GEA_End);
-        }
-
-        // Drain queued AI events so the player's turn actually runs
-        // before we move on to the next player.
-        if (gevmanager_Get()) gevmanager_Get()->Process();
-
-        // Resume queued multi-turn orders (move paths, explore). In the
-        // interactive game GEV_BeginTurnExecute is emitted by the UI's
-        // unit-selection flow (SelItem.cpp) for each army with pending
-        // orders — headless has no UI, so without this every queued path
-        // died after its first leg (auto_explore "stuck armies", settler
-        // marches stalling 1-2 tiles in).
-        if (gevmanager_Get() && player_Get(p)->m_all_armies) {
-            for (sint32 a = 0; a < player_Get(p)->m_all_armies->Num(); ++a) {
-                Army army = player_Get(p)->m_all_armies->Access(a);
-                if (!army.IsValid() || army.NumOrders() == 0) continue;
-                // Cargo never self-executes: the UI can't select an army
-                // riding a transport, so interactive play never fires
-                // BeginTurnExecute for it. Executing its stale orders here
-                // crashes UpdateZOCForMove (the army isn't in any cell's
-                // unit list while aboard).
-                if (army.Num() > 0 && army.Access(0).IsBeingTransported())
-                    continue;
-                gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
-                                           GEV_BeginTurnExecute,
-                                           GEA_Army, army, GEA_End);
-            }
-            gevmanager_Get()->Process();
-        }
-
-        player_Get(p)->EndTurn();
-        if (gameobservers_Get()) gameobservers_Get()->NotifyTurnEnd(p);
-    }
-
-    // Process any cross-player pending events.
-    if (gevmanager_Get()) gevmanager_Get()->Process();
-
-    // Round complete — the clock now reads "round+1 rounds have elapsed".
-    if (turn_Get()) turn_Get()->SkipToRound(round + 1);
-}
+static void SetHeadlessCurPlayer(sint32 player) { s_headlessCurPlayer = player; }
 
 static void print_usage(const char *prog)
 {
@@ -338,7 +258,9 @@ int main(int argc, char **argv)
                         // end_turn after load_game stomp a loaded game's
                         // clock backwards via SkipToRound.
                         for (int i = 0; i < n; ++i) {
-                            headless_run_round(turn_Get() ? turn_Get()->GetSessionRound() : 0);
+                            game_controller::RunRound(
+                                turn_Get() ? turn_Get()->GetSessionRound() : 0,
+                                &SetHeadlessCurPlayer);
                         }
                         // Park CurPlayer back on the human so queries
                         // (query_turn reads CurPlayer's round) and AI
@@ -430,7 +352,7 @@ int main(int argc, char **argv)
         // Run turns
         for (sint32 t = 0; t < maxTurns; ++t) {
             headless_log->info("Turn {} / {}", t + 1, maxTurns);
-            headless_run_round(t);
+            game_controller::RunRound(t, &SetHeadlessCurPlayer);
         }
 
         headless_log->info("Completed {} turns", maxTurns);

@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Record per-turn UNFOGGED world snapshots from an AI-vs-AI autoplay game.
 
-Drives the game over the smoke socket exactly like
-ctp2_code/test/autoplay_test.py (new_game / start_game / enable_autoplay /
-end_turn), but each turn it asks the engine for the omniscient `query_world`
-snapshot (+ `query_turn`) and appends it to a JSONL file.
+Drives the game over the smoke socket (new_game / start_game /
+enable_autoplay / advance_round), but each turn it asks the engine for the
+omniscient `query_world` snapshot (+ `query_turn`) and appends it to a JSONL file.
 
 This is the RECORD half of a record-then-render pipeline: the (slow, fragile)
 game runs once and produces a compact log; render.py then turns that log into a
@@ -21,8 +20,8 @@ Env:
   CTP2_BINARY            game binary (default: build/ctp2)
   CTP2_CWD               game data dir (default: walk up to appstr.txt)
   AUTOPLAY_TURNS         turns to run (default 150)
-  AUTOPLAY_TURN_PACE     seconds to wait after each end_turn (default 2.0)
-  AUTOPLAY_TURN_TIMEOUT  per-end_turn socket timeout (default 60)
+  AUTOPLAY_TURN_PACE     seconds to wait after each advance_round (default 2.0)
+  AUTOPLAY_TURN_TIMEOUT  per-advance_round socket timeout (default 60)
   TIMELAPSE_OUT          output JSONL (default /tmp/ctp2-timelapse.jsonl)
   SNAPSHOT_INTERVAL      record a frame every N turns (default 1)
 """
@@ -54,8 +53,8 @@ RENDER_ZOOM = int(os.environ.get("TIMELAPSE_ZOOM", "1"))
 RAW_DIR = os.path.join(os.path.dirname(os.path.abspath(OUT)), "raw")
 # TIMELAPSE_PLAYER: render the FOGGED view from this player's perspective
 # (cities/units/infra + fog-of-war, cropped to what they've seen). Empty/-1 =
-# the unfogged god's-eye whole map. Default 1 (the first real civ).
-_pl = os.environ.get("TIMELAPSE_PLAYER", "1")
+# the unfogged god's-eye whole map. Default -1 shows the whole AI-vs-AI run.
+_pl = os.environ.get("TIMELAPSE_PLAYER", "-1")
 PLAYER = None if _pl in ("", "-1", "all") else int(_pl)
 
 
@@ -163,10 +162,8 @@ def main() -> int:
                           "target_turns": TURNS}) + "\n")
     out.flush()
 
-    # The engine does NOT advance its session round (or stamp action-log turns)
-    # in the enable_autoplay + end_turn path, so we cannot trust event "turn"
-    # fields. Instead we clear the ledger and re-read it each snapshot, tagging
-    # events with our own reliable turn counter — stored per frame.
+    # The action log is global. Clear it between frames so Chronicle captions
+    # describe the round that produced the current snapshot.
     cmd("log_clear")
 
     for i in range(TURNS):
@@ -174,7 +171,7 @@ def main() -> int:
             print(f"[REC] game exited early at turn {i} (code={proc.returncode})")
             break
         t0 = time.time()
-        cmd("end_turn", timeout=TURN_TIMEOUT)
+        cmd("advance_round", timeout=TURN_TIMEOUT)
         time.sleep(TURN_PACE)
 
         turn_num = i + 1

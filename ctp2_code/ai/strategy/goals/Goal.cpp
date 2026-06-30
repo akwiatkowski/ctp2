@@ -1521,12 +1521,12 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 		// For Defend or Retreat goals
 		if
 		  (
-		        agent_ptr->Get_Army()->HasCargo()
+		        (agent_ptr->Get_Army()->HasCargo()
 		    &&  agent_ptr->Get_Army()->IsCargoWounded()
-		    && !agent_ptr->Get_Army()->IsCargoObsolete()
-		    || !agent_ptr->Get_Army()->HasCargo()
+		    && !agent_ptr->Get_Army()->IsCargoObsolete())
+		    || (!agent_ptr->Get_Army()->HasCargo()
 		    &&  agent_ptr->Get_Army()->IsWounded()
-		    && !agent_ptr->Get_Army()->IsObsolete()
+		    && !agent_ptr->Get_Army()->IsObsolete())
 		  )
 		{
 			bonus+= g_theGoalDB->Get(m_goal_type)->GetWoundedArmyBonus();
@@ -1579,12 +1579,12 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 
 		if
 		  (
-		        agent_ptr->Get_Army()->HasCargo()
+		        (agent_ptr->Get_Army()->HasCargo()
 		    &&  agent_ptr->Get_Army()->IsCargoWounded()
-		    && !agent_ptr->Get_Army()->IsCargoObsolete()
-		    || !agent_ptr->Get_Army()->HasCargo()
+		    && !agent_ptr->Get_Army()->IsCargoObsolete())
+		    || (!agent_ptr->Get_Army()->HasCargo()
 		    &&  agent_ptr->Get_Army()->IsWounded()
-		    && !agent_ptr->Get_Army()->IsObsolete()
+		    && !agent_ptr->Get_Army()->IsObsolete())
 		  )
 		{
 			bonus+= g_theGoalDB->Get(m_goal_type)->GetWoundedArmyBonus();
@@ -3988,8 +3988,8 @@ bool Goal::RallyTroops()
 			continue;
 		}
 
-		if(!agent_ptr->CanMove()
-		&& !agent_ptr->Get_Army()->HasCargo()
+		if((!agent_ptr->CanMove()
+		&& !agent_ptr->Get_Army()->HasCargo())
 		||  agent_ptr == rallyAgent
 		){
 			agent_ptr->Set_Can_Be_Executed(false);

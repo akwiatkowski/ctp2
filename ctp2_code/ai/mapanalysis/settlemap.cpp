@@ -304,10 +304,10 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 			for(sint32 j = 0; j < numTerrain; ++j)
 			{
 				const TerrainRecord* trec = g_theTerrainDB->Get(j);
-				if(trec->GetMovementTypeLand()                                        && rec->GetSettleLand()
-				|| trec->GetMovementTypeMountain()                                    && rec->GetSettleMountain()
-				||(trec->GetMovementTypeSea() || trec->GetMovementTypeShallowWater()) && rec->GetSettleWater()
-				|| trec->GetMovementTypeSpace()                                       && rec->GetSettleSpace()
+				if((trec->GetMovementTypeLand() && rec->GetSettleLand())
+				|| (trec->GetMovementTypeMountain() && rec->GetSettleMountain())
+				|| ((trec->GetMovementTypeSea() || trec->GetMovementTypeShallowWater()) && rec->GetSettleWater())
+				|| (trec->GetMovementTypeSpace() && rec->GetSettleSpace())
 				){
 					settleTerrainTypes[j] = true;
 					noSettleUnits = false;
@@ -533,10 +533,10 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 			for(sint32 j = 0; j < numTerrain; ++j)
 			{
 				const TerrainRecord* trec = g_theTerrainDB->Get(j);
-				if(trec->GetMovementTypeLand()                                        && rec->GetSettleLand()
-				|| trec->GetMovementTypeMountain()                                    && rec->GetSettleMountain()
-				||(trec->GetMovementTypeSea() || trec->GetMovementTypeShallowWater()) && rec->GetSettleWater()
-				|| trec->GetMovementTypeSpace()                                       && rec->GetSettleSpace()
+				if((trec->GetMovementTypeLand() && rec->GetSettleLand())
+				|| (trec->GetMovementTypeMountain() && rec->GetSettleMountain())
+				|| ((trec->GetMovementTypeSea() || trec->GetMovementTypeShallowWater()) && rec->GetSettleWater())
+				|| (trec->GetMovementTypeSpace() && rec->GetSettleSpace())
 				){
 					settleTerrainTypes[j] = true;
 					noSettleUnits = false;

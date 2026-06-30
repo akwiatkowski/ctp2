@@ -53,7 +53,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M2 | Warning noise reduction | 8/8 done | complete | `make test`, warning category visibly reduced |
 | M3 | Modernization ratchet burn-down | 6/6 done | complete | ratchet baseline lowered without regressions |
 | M4 | Timelapse/play tooling polish | 5/5 done | complete | short timelapse smoke, docs updated |
-| M5 | UI/frame polish | 0/3 done | 2-4 sessions | visible/manual or smoke verification |
+| M5 | UI/frame polish | verified, pending commit | 2-4 sessions | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 0/4 done | 2-3 sessions | all standard checks, plan updated |
 | M7 | Obsolete subsystem removal | 1/5 done | 3-6 sessions | obsolete code removed without network/movie regressions |
 | M8 | Modern asset pipeline spike | 0/5 done | 3-6 sessions | legacy sprite exports reproducibly; visual parity checked |
@@ -111,12 +111,16 @@ Latest ratchet counts after the `MaterialPool` JSON test cast cleanup: `c_alloca
 - [ ] Implement the smallest visible fix.
 - [ ] Verify on desktop and avoid broad UI constructor const-correctness unless explicitly scoped.
 
+Pending M5 commit: the SDL main-loop idle cap now uses a 17 ms frame budget, matching `1000 / 60` rounded up instead of an undershooting 16 ms magic number. Verification already run: `mise exec -- make test`, `git diff --check`, `mise exec -- make ubsan-smoke`.
+
 ### M6: Final Stabilization Pass
 
 - [ ] Run `make test` and `make ubsan-smoke` cleanly after final batch.
 - [ ] Update this plan with final counts and remaining caveats.
 - [ ] Ensure `README.md` does not contradict current Makefile commands.
 - [ ] Stop with clean worktree and a concise handoff.
+
+Pending M6 commit: `README.md` build instructions now point at the current root-level `mise exec -- make setup`, `mise exec -- make build`, `mise exec -- make test`, and UBSan smoke workflow instead of the stale `build-headless` Meson commands.
 
 ### M7: Obsolete Subsystem Removal
 

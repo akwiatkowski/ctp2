@@ -1816,7 +1816,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		// busy-spinning at 100% CPU / draining battery. When a vsync'd Flip
 		// already consumed the frame budget, frameElapsed >= target and no
 		// extra latency is added.
-		const Uint32 k_TARGET_FRAME_MS = 16;   // ~60 fps
+		const Uint32 k_TARGET_FRAME_MS = 17;   // 1000 / 60 rounded up.
 		Uint32 frameElapsed = SDL_GetTicks() - frameStart;
 		if (frameElapsed < k_TARGET_FRAME_MS)
 			SDL_Delay(k_TARGET_FRAME_MS - frameElapsed);

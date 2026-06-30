@@ -39,16 +39,26 @@ all engine / plumbing work.
 ### macOS / Linux (Meson)
 
 ```sh
-cd ctp2_code
-meson setup build-headless
-ninja -C build-headless
+mise exec -- make setup
+mise exec -- make build
+mise exec -- make test
 ```
 
-This produces a `ctp2_headless` binary that runs the simulation without any
-graphics, sound, or window manager. Useful for AI work, save-file inspection,
-determinism testing, CI, and just poking at the game from a shell.
+This configures `build/`, compiles the project, and runs the fast pre-commit
+test tier. The headless binary runs the simulation without graphics, sound, or
+window manager. It is useful for AI work, save-file inspection, determinism
+testing, CI, and poking at the game from a shell.
 
-There is also a `build-headless-asan` preset for AddressSanitizer builds.
+For sanitizer smoke testing, use:
+
+```sh
+mise exec -- make setup-ubsan
+mise exec -- make ubsan-smoke
+```
+
+There is also a `sanitized-smoke` target for ASan+UBSan, but ASan currently
+hangs before `main` on the tested macOS/Apple clang setup. UBSan is the working
+sanitizer tier for now.
 
 macOS is what this is tested on. Linux should work via the same setup but
 hasn't been exercised yet — patches welcome.

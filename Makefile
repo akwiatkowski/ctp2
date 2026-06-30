@@ -80,6 +80,23 @@ build-sanitized:
 	@echo "Building CTP2 with sanitizers..."
 	mise exec -- meson compile -C build-sanitized
 
+# UBSan-only build. On some macOS/Apple clang combinations ASan can deadlock in
+# dyld before main(); this keeps a sanitizer smoke tier available for CI/local use.
+setup-ubsan:
+	@echo "Configuring meson build with UndefinedBehaviorSanitizer..."
+	@rm -rf build-ubsan
+	mise exec -- meson setup build-ubsan ctp2_code \
+		--buildtype=debug \
+		-Db_sanitize=undefined \
+		-Db_lundef=false \
+		-Dcpp_args="-fno-omit-frame-pointer" \
+		-Dc_args="-fno-omit-frame-pointer"
+	@echo "UBSan build configured. Run 'make build-ubsan' to compile."
+
+build-ubsan:
+	@echo "Building CTP2 with UBSan..."
+	mise exec -- meson compile -C build-ubsan ctp2_headless
+
 # Short ASan/UBSan smoke path. Uses the repro harness so failures include the
 # headless log/crash report tail instead of just a sanitizer abort.
 SAN_CMDS ?= new_game; start_game; query_players; end_turn 2; query_players
@@ -92,6 +109,13 @@ sanitized-smoke: build-sanitized
 	@echo "Running ASan/UBSan smoke via build-sanitized/ctp2_headless..."
 	ASAN_OPTIONS=$(SAN_OPTIONS) UBSAN_OPTIONS=$(UBSAN_OPTIONS) \
 		mise exec -- python3 ctp2_code/test/repro.py build-sanitized/ctp2_headless \
+		--cmds '$(SAN_CMDS)' --args '$(SAN_ARGS)' --log '$(SAN_LOG)' \
+		--socket-wait $(SAN_SOCKET_WAIT)
+
+ubsan-smoke: build-ubsan
+	@echo "Running UBSan smoke via build-ubsan/ctp2_headless..."
+	UBSAN_OPTIONS=$(UBSAN_OPTIONS) \
+		mise exec -- python3 ctp2_code/test/repro.py build-ubsan/ctp2_headless \
 		--cmds '$(SAN_CMDS)' --args '$(SAN_ARGS)' --log '$(SAN_LOG)' \
 		--socket-wait $(SAN_SOCKET_WAIT)
 
@@ -365,7 +389,7 @@ ci-reset:
 ci-tier-a:
 	@.ci/tiers/tier-a.sh && echo "tier-a done"
 
-.PHONY: all deps setup build setup-sanitized build-sanitized sanitized-smoke test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
+.PHONY: all deps setup build setup-sanitized build-sanitized sanitized-smoke setup-ubsan build-ubsan ubsan-smoke test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
         gateway gateway-build gateway-test \
         ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a
 

@@ -48,7 +48,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | ID | Milestone | Status | Estimate | Verification |
 | --- | --- | --- | --- | --- |
 | M1 | Baseline safety loop | 4/4 done | complete | `make test`, `make ubsan-smoke` |
-| M2 | Warning noise reduction | 7/8 done | 4-6 sessions | `make test`, warning category visibly reduced |
+| M2 | Warning noise reduction | 8/8 done | complete | `make test`, warning category visibly reduced |
 | M3 | Modernization ratchet burn-down | 1/6 done | 4-8 sessions | ratchet baseline lowered without regressions |
 | M4 | Timelapse/play tooling polish | 2/5 done | 1-3 sessions | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | 0/3 done | 2-4 sessions | visible/manual or smoke verification |
@@ -72,7 +72,15 @@ ASan blocker summary: on the current macOS/Apple clang setup, `build-sanitized/c
 - [x] Fix low-risk AI `&&`/`||` precedence warnings in `Goal.cpp` and `settlemap.cpp`.
 - [x] Fix safe dead-local / unused-variable warnings where the variable has no side effect.
 - [x] Fix simple constructor initializer-order warnings where member order is obvious.
-- [ ] Re-run `make ubsan-smoke` and record remaining high-signal warning categories here.
+- [x] Re-run `make ubsan-smoke` and record remaining high-signal warning categories here.
+
+Remaining high-signal warning categories after the M2 pass:
+
+- Include-case stragglers in files outside the targeted fast/unit/headless sweep, mostly remaining `Player.h` includes pulled in by broader rebuilds.
+- Legacy writable string conversions (`char *` / `MBCHAR *` from string literals), especially diplomacy, UI popup/window, and logging paths.
+- Broader unused-variable / set-but-unused warnings in large legacy files such as `governor.cpp`, `ArmyData.cpp`, and `diplomat.cpp`; many need local behavior review before removal because initializers can have side effects.
+- Additional logical precedence warnings in broad game/pathing files such as `ArmyData.cpp` and `robotastar2.cpp`; defer to smaller behavior-preserving batches.
+- Switch exhaustiveness warnings for legacy enums and overloaded-virtual hiding warnings in UI/sprite/network classes.
 
 ### M3: Modernization Ratchet Burn-Down
 

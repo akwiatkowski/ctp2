@@ -23,7 +23,7 @@ This is not a full rewrite. A fully modernized CTP2 engine is open-ended and lik
 | --- | --- | --- | --- |
 | Commit hygiene | Recent batches committed; worktree should usually be clean | One logical commit per batch; no uncommitted drift | Ongoing |
 | Fast test loop | `make test` runs ratchets + fast/unit tests | Stays under practical pre-commit time and is trusted | 0-1 sessions |
-| Sanitizer smoke | `make ubsan-smoke` works; ASan hangs before `main` on current macOS setup | UBSan smoke documented and ASan either fixed or explicitly marked platform-blocked | 1-3 sessions |
+| Sanitizer smoke | `make ubsan-smoke` works; ASan hangs before `main` on current macOS setup and is documented below | UBSan smoke documented and ASan either fixed or explicitly marked platform-blocked | 0-2 sessions |
 | Warning cleanup | Several low-risk batches done; many legacy warnings remain | High-signal warnings fixed: include case, precedence, scalar NULL, dead locals | 4-8 sessions |
 | Modernization ratchets | Ratchets exist for raw new/delete, unsafe strings, C allocation, casts | Ratchets kept green and lowered after each intentional cleanup batch | 4-8 sessions |
 | Timelapse tooling | Fogged hero timelapse works; captions have names metadata | Captions are useful, short runs are reproducible, docs explain common commands | 1-3 sessions |
@@ -47,7 +47,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 
 | ID | Milestone | Status | Estimate | Verification |
 | --- | --- | --- | --- | --- |
-| M1 | Baseline safety loop | 3/4 done | 1 session | `make test`, `make ubsan-smoke` |
+| M1 | Baseline safety loop | 4/4 done | complete | `make test`, `make ubsan-smoke` |
 | M2 | Warning noise reduction | 2/8 done | 4-6 sessions | `make test`, warning category visibly reduced |
 | M3 | Modernization ratchet burn-down | 1/6 done | 4-8 sessions | ratchet baseline lowered without regressions |
 | M4 | Timelapse/play tooling polish | 2/5 done | 1-3 sessions | short timelapse smoke, docs updated |
@@ -59,7 +59,9 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 - [x] Add modernization ratchets to `make test`.
 - [x] Add `sanitized-smoke` target for ASan/UBSan attempt.
 - [x] Add working `ubsan-smoke` target.
-- [ ] Document ASan macOS blocker in README or this plan with sample-stack summary.
+- [x] Document ASan macOS blocker in this plan with sample-stack summary.
+
+ASan blocker summary: on the current macOS/Apple clang setup, `build-sanitized/ctp2_headless` hangs before `main` in the dynamic loader/ASan runtime. A `sample` of the process showed `dyld4::APIs::runAllInitializersForMain -> libSystem_initializer -> __malloc_init -> wrap_malloc_default_zone -> __asan::AsanInitFromRtl -> __asan::InitializeShadowMemory -> __sanitizer::MemoryRangeIsAvailable`, then spinning in `__sanitizer::StaticSpinMutex::LockSlow`. This means the ASan issue is currently platform/runtime startup, not CTP2 game initialization. Use `make ubsan-smoke` as the working sanitizer tier until ASan is fixed or tested on another platform/toolchain.
 
 ### M2: Warning Noise Reduction
 
@@ -113,12 +115,11 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 
 Do these in order unless Olek changes priorities:
 
-1. Finish sanitizer story: document ASan macOS blocker or find a working ASan config.
-2. Run one more small warning cleanup batch from `make ubsan-smoke` output.
-3. Normalize `Player.h` include casing in a mechanical batch, then verify.
-4. Fix remaining low-risk precedence warnings in AI code.
-5. Lower one modernization ratchet category intentionally, then update baseline.
-6. Add a short timelapse usage note once captions are good enough.
+1. Run one more small warning cleanup batch from `make ubsan-smoke` output.
+2. Normalize `Player.h` include casing in a mechanical batch, then verify.
+3. Fix remaining low-risk precedence warnings in AI code.
+4. Lower one modernization ratchet category intentionally, then update baseline.
+5. Add a short timelapse usage note once captions are good enough.
 
 ## Assistant Protocol
 
@@ -140,7 +141,7 @@ mise exec -- make ubsan-smoke
 
 ## Known Blockers / Caveats
 
-- `make sanitized-smoke` exists, but ASan currently hangs before `main` on this macOS/Apple clang setup.
+- `make sanitized-smoke` exists, but ASan currently hangs before `main` on this macOS/Apple clang setup; see M1 stack summary.
 - `make ubsan-smoke` is the working sanitizer smoke path.
 - Windows is best-effort and should not drive refactoring decisions unless Olek asks.
 - Avoid `MBCHAR *` UI string-literal cleanup unless intentionally doing a broader UI const-correctness batch.

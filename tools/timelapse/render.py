@@ -41,6 +41,7 @@ PROTAGONIST_ENV = os.environ.get("TIMELAPSE_PROTAGONIST")
 HUD_W = 250            # right-hand HUD panel width (px)
 CAP_H = 64             # bottom Chronicle caption strip height (px)
 BG = (16, 18, 24)
+CAPTION_TEXT_X = 112
 
 PLAYER_COLORS = [
     (224, 64, 64), (64, 128, 240), (80, 200, 96), (236, 200, 64), (200, 96, 220),
@@ -269,19 +270,20 @@ def render_frame(frame, pal, protagonist, show_year, civ_by_pid, fonts, names=No
     # 5) Chronicle caption strip (bottom): this round's salient events
     cap_y = H * TILE
     draw.rectangle([0, cap_y, img_w, img_h], fill=(8, 9, 13))
+    draw.text((12, cap_y + 8), "CHRONICLE", font=font_cap, fill=(120, 130, 150))
     evs = frame_captions(frame.get("events"), names)
     if evs:
         ty = cap_y + 8
         for pid, verb in evs:
             if isinstance(pid, int) and 0 <= pid < 32:
-                draw.rectangle([10, ty + 2, 22, ty + 14], fill=player_color(pid))
+                draw.rectangle([CAPTION_TEXT_X - 20, ty + 2, CAPTION_TEXT_X - 8, ty + 14], fill=player_color(pid))
                 who = civ_by_pid.get(pid, f"p{pid}")
             else:
                 who = ""
-            draw.text((30, ty), f"{who} {verb}".strip(), font=font_cap, fill=(210, 214, 228))
+            draw.text((CAPTION_TEXT_X, ty), f"{who} {verb}".strip(), font=font_cap, fill=(210, 214, 228))
             ty += 17
     else:
-        draw.text((30, cap_y + 8), "· · ·", font=font_cap, fill=(80, 86, 100))
+        draw.text((CAPTION_TEXT_X, cap_y + 8), "· · ·", font=font_cap, fill=(80, 86, 100))
     return img
 
 
@@ -355,18 +357,19 @@ def render_realart_frame(frame, show_year, civ_by_pid, protagonist, fonts, union
     # Chronicle caption strip (bottom)
     cap_y = img.height - CAP_H
     draw.rectangle([0, cap_y, img.width, img.height], fill=(8, 9, 13))
+    draw.text((12, cap_y + 8), "CHRONICLE", font=font_cap, fill=(120, 130, 150))
     evs = frame_captions(frame.get("events"), names)
     if evs:
         ty = cap_y + 8
         for pid, verb in evs:
             who = ""
             if isinstance(pid, int) and 0 <= pid < 32:
-                draw.rectangle([10, ty + 2, 22, ty + 14], fill=player_color(pid))
+                draw.rectangle([CAPTION_TEXT_X - 20, ty + 2, CAPTION_TEXT_X - 8, ty + 14], fill=player_color(pid))
                 who = civ_by_pid.get(pid, f"p{pid}")
-            draw.text((30, ty), f"{who} {verb}".strip(), font=font_cap, fill=(210, 214, 228))
+            draw.text((CAPTION_TEXT_X, ty), f"{who} {verb}".strip(), font=font_cap, fill=(210, 214, 228))
             ty += 17
     else:
-        draw.text((30, cap_y + 8), "· · ·", font=font_cap, fill=(80, 86, 100))
+        draw.text((CAPTION_TEXT_X, cap_y + 8), "· · ·", font=font_cap, fill=(80, 86, 100))
     return img
 
 

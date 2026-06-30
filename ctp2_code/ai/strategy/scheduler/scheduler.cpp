@@ -1161,9 +1161,6 @@ bool Scheduler::Prioritize_Goals()
 	}
 
 	time_t t2 = GetTickCount();
-#if defined(_DEBUG)
-	time_t t = t2 - t1;
-#endif
 	AI_DPRINTF(k_DBG_AI, m_playerId, -1, -1, ("//  Raw goal priorities calculated:\n"));
 	AI_DPRINTF(k_DBG_AI, m_playerId, -1, -1, ("//  elapsed time = %d ms\n\n", (t2 - t1)  ));
 	t1 = GetTickCount();
@@ -1235,10 +1232,6 @@ bool Scheduler::Prioritize_Goals()
 	AI_DPRINTF(k_DBG_AI, m_playerId, -1, -1, ("//  Goals sorted:\n"));
 	AI_DPRINTF(k_DBG_AI, m_playerId, -1, -1, ("//  elapsed time = %d ms\n\n", (t2 - t1)  ));
 
-#if defined(_DEBUG)
-	t = t2 - t1;
-#endif
-
 	return true;
 }
 
@@ -1272,12 +1265,8 @@ bool Scheduler::Prune_Goals()
 
 	m_goals.resize(0);
 
-	Goal_Vector::iterator generic_goal_iter = m_generic_goals.begin();
-
 	for(sint32 i = 0; i < strategy.GetNumGoalElement(); i++)
 	{
-		time_t t1 = GetTickCount();
-
 		const StrategyRecord::GoalElement* goal_element_ptr = strategy.GetGoalElement(i);
 
 		GOAL_TYPE goal_type = GetMaxEvalExec(goal_element_ptr, max_eval, max_exec);
@@ -1386,7 +1375,6 @@ void Scheduler::Add_New_Matches_For_Goal
     const bool       update_match_value
 )
 {
-	sint32      count            = 0;
 	GOAL_TYPE   type             = goal_ptr->Get_Goal_Type();
 	SQUAD_CLASS goal_squad_class = g_theGoalDB->Get(type)->GetSquadClass();
 
@@ -1412,8 +1400,6 @@ void Scheduler::Add_New_Matches_For_Agent
     const Agent_ptr & agent
 )
 {
-	sint32 count = 0;
-
 	SQUAD_CLASS squad_class = agent->Get_Squad_Class();
 
 	for(sint32 i = 0; i < g_theGoalDB->NumRecords(); i++)

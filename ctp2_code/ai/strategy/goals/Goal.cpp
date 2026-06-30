@@ -4267,8 +4267,6 @@ bool Goal::FindTransporters(const Agent_ptr & agent_ptr, std::list< std::pair<Ut
 {
 	std::pair<Utility, Agent_ptr> transporter;
 
-	double          max_utility         = Goal::BAD_UTILITY;
-
 	for
 	(auto & m_agent : m_agents)
 	{

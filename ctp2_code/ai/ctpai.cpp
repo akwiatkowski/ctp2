@@ -156,8 +156,6 @@ namespace
 	// Settings for periodic actions
 	// These should be > 0 (otherwise % will crash).
 	// The original ACTIVISION values are 5 for all period.
-	size_t const    PERIOD_COMPUTE_ROADS                = 2; // From 5
-	size_t const    PERIOD_COMPUTE_TILE_IMPROVEMENTS    = 5;
 	size_t const    EXPLORE_RESOLUTION                  = 5;
 
 	char const      LOG_SECTION_START[]                 = "\n\n//\n";

@@ -446,8 +446,6 @@ double Agent::GetRoundsPrecise(const MapPoint & pos, sint32 & cells) const
 	{
 		///Improvement of rounds evaluation (based on minimum cost point between
 		///start and destination mappoints. - Calvitix
-		Cell *          myCell      = world_Get()->GetCell(pos);
-		Cell *          otherCell   = world_Get()->GetCell(Get_Pos());
 		double const    movement    = 100.0;
 		// This does not do the trick, better avaerage
 		// over all tiles from pos to target, unfortunately this

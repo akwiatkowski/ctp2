@@ -46,7 +46,6 @@
 #if defined(USE_SDL)
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
-#include "os/include/sdl_cdrom_stub.h"
 #endif
 
 template <class T> class PointerList;
@@ -67,12 +66,8 @@ public:
 	void InitSoundDriver();
 	void CleanupSoundDriver();
 
-	void InitRedbook();
-	void CleanupRedbook();
-
 	void DumpAllSounds();
 
-	void ProcessRedbook();
 	void Process(const uint32 &target_milliseconds, uint32 &used_milliseconds);
 
 	void AddGameSound(const GAMESOUNDS &sound);
@@ -138,18 +133,12 @@ private:
 	uint32					m_musicVolume;
 	uint32					m_voiceVolume;
 
-	uint32					m_oldRedbookVolume;
-
 	BOOL					m_noSound;
 	BOOL					m_usePlaySound;
 
-#if !defined(USE_SDL)
-	HREDBOOK				m_redbook;
-#else
-    SDL_CD                  *m_cdrom;
+#if defined(USE_SDL)
     Uint32                  m_SDLInitFlags;
 #endif
-	uint32					m_timeToCheckCD;
 	sint32					m_numTracks;
 	sint32					m_curTrack;
 	sint32					m_lastTrack;
@@ -160,7 +149,6 @@ private:
 	sint32					m_userTrack;
 	BOOL					m_autoRepeat;
 
-	BOOL					m_stopRedbookTemporarily;
 };
 
 // App-singleton accessor pair, mirroring profiledb_Get / c3ui_Get / world_Get.

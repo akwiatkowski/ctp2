@@ -26,7 +26,7 @@
 //
 // - Cleanup improved.
 // - Don't reset user changes when returning from the track selection window.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -134,7 +134,7 @@ AUI_ERRCODE musicscreen_Initialize( )
 
 	s_useAutoRepeat		= soundmgr_Get()->IsAutoRepeat();
 	s_useRandomOrder	= (MUSICSTYLE_RANDOM == soundmgr_Get()->GetMusicStyle());
-	s_useMusicOn		= profiledb_Get()->IsUseRedbookAudio();
+	s_useMusicOn		= soundmgr_Get() && soundmgr_Get()->IsMusicEnabled();
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
 	Assert( AUI_SUCCESS(errcode) );
@@ -220,13 +220,9 @@ void musicscreen_acceptPress(aui_Control *control, uint32 action, uint32 data, v
 
 		if ( s_useMusicOn ) {
 			soundmgr_Get()->EnableMusic();
-			soundmgr_Get()->InitRedbook();
 		} else {
 			soundmgr_Get()->DisableMusic();
-			soundmgr_Get()->CleanupRedbook();
 		}
-
-		profiledb_Get()->SetUseRedbookAudio(s_useMusicOn);
 
 		soundmgr_Get()->PickNextTrack();
 		soundmgr_Get()->StartMusic();

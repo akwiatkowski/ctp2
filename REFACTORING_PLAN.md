@@ -13,6 +13,7 @@ The refactoring effort is "done enough" when CTP2 has:
 - Modernization ratchets preventing regression in unsafe patterns.
 - Warning noise reduced enough that new warnings are visible.
 - Timelapse/play-session tooling stable enough for repeated use.
+- A first modern asset-conversion path that preserves original game data as canonical input.
 - A documented list of remaining legacy-risk areas instead of open-ended cleanup.
 
 This is not a full rewrite. A fully modernized CTP2 engine is open-ended and likely much larger than this project needs.
@@ -28,6 +29,7 @@ This is not a full rewrite. A fully modernized CTP2 engine is open-ended and lik
 | Modernization ratchets | Ratchets exist for raw new/delete, unsafe strings, C allocation, casts | Ratchets kept green and lowered after each intentional cleanup batch | 4-8 sessions |
 | Timelapse tooling | Fogged hero timelapse works; captions have names metadata | Captions are useful, short runs are reproducible, docs explain common commands | 1-3 sessions |
 | UI/frame polish | Not started in this sequence | Pick 1-2 visible polish wins, not a full UI rewrite | 2-4 sessions |
+| Modern asset pipeline | Not started; renderer still consumes legacy `.SPR`/surface data directly | Export one representative legacy sprite to modern frame metadata + atlas/PNG cache with visual-parity check | 3-6 sessions |
 | Deeper architecture cleanup | Large legacy systems still coupled | Only targeted cleanup with tests; no broad rewrite | Open-ended |
 
 ## Short Answer Formula
@@ -53,7 +55,8 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M4 | Timelapse/play tooling polish | 2/5 done | 1-3 sessions | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | 0/3 done | 2-4 sessions | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 0/4 done | 2-3 sessions | all standard checks, plan updated |
-| M7 | Obsolete subsystem removal | 0/6 done | 4-8 sessions | obsolete code removed without network/movie-schema regressions |
+| M7 | Obsolete subsystem removal | 1/6 done | 4-8 sessions | obsolete code removed without network/movie-schema regressions |
+| M8 | Modern asset pipeline spike | 0/5 done | 3-6 sessions | legacy sprite exports reproducibly; visual parity checked |
 
 ### M1: Baseline Safety Loop
 
@@ -119,7 +122,7 @@ Latest ratchet counts after TGA local buffer cleanup and obsolete Redbook CD-dri
 
 Scope: remove legacy systems that are no longer product goals. Windows support should later use SDL/Linux-like paths, not old DirectX/Win32 runtime plumbing. Networking is out of scope for this milestone. Movie DB/schema/data references are also out of scope and should be fixed later, not removed now.
 
-- [ ] Remove remaining CD-ROM / Redbook audio / copy-protection code.
+- [x] Remove remaining CD-ROM / Redbook audio / copy-protection code.
 - [ ] Remove DirectMedia / DirectX movie playback runtime paths while preserving movie DB/schema.
 - [ ] Confirm GameWatch provenance; if it is original Activision telemetry/recording/plugin code, remove it.
 - [ ] Remove Windows registry / file-association / DirectX startup checks.
@@ -130,6 +133,16 @@ Do not remove yet:
 
 - Network / multiplayer code; it will be resolved later.
 - Wonder/victory movie DB/schema/data fields; playback plumbing can go first, schema cleanup is a later scoped task.
+
+### M8: Modern Asset Pipeline Spike
+
+Goal: make original game data compatible with a future modern renderer without breaking mod/original-data compatibility. Original assets remain canonical; generated modern assets are cache/build artifacts.
+
+- [ ] Write a small `.SPR` inspector/exporter for one representative unit sprite (`GU###.SPR`).
+- [ ] Export frames with action/facing/frame metadata, hot points, dimensions, and draw flags needed by the current renderer.
+- [ ] Generate a debug-friendly PNG frame dump first; atlas/KTX-style packing can follow after parity is proven.
+- [ ] Add a visual-parity check against the current CPU sprite path for one sprite/action/facing/frame set.
+- [ ] Document the intended cache layout (`cache/assets/<data-hash>/...`) and fallback rule: load generated assets when valid, otherwise use legacy loaders.
 
 ## Progress Rules
 
@@ -148,6 +161,7 @@ Do these in order unless Olek changes priorities:
 4. Remove Windows registry / DirectX startup checks and continue SDL-first backend cleanup.
 5. Return to M3 by lowering one modernization ratchet category intentionally, then update baseline.
 6. Add a short timelapse usage note once captions are good enough.
+7. Start M8 with a read-only `.SPR` inspector/exporter before changing runtime rendering.
 
 ## Assistant Protocol
 
@@ -158,6 +172,7 @@ For any LLM continuing this work:
 - Verify with `mise exec -- make test` and `git diff --check`.
 - Use `mise exec -- make ubsan-smoke` after touching headless/game-loop code.
 - Do not treat "fully refactored" as the goal unless Olek explicitly redefines scope.
+- Do not make converted assets canonical; preserve original data/mod compatibility and treat generated modern assets as rebuildable cache/output.
 - After each committed batch, update the estimate table only if the estimate materially changed.
 
 ## Last Known Verification Commands

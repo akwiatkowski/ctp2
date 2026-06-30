@@ -227,9 +227,7 @@ void CivPaths::CreateSaveFolders(const MBCHAR *path)
 
 void CivPaths::InitCDPath()
 {
-	MBCHAR tempPath[_MAX_PATH];
-	snprintf(tempPath, sizeof(tempPath), "%c:%s%s", c3files_GetCtpCdId(), FILE_SEP, m_cdPath.c_str());
-	m_cdPath = tempPath;
+	m_cdPath.clear();
 }
 
 

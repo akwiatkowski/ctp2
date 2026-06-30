@@ -64,9 +64,10 @@ if not win32
 	# Modern structured logging.  Replaces ad-hoc fprintf(stderr, "[TAG]...")
 	# calls that already exist for [HEADLESS] / [CIVAPP] traces.  Provides
 	# compile-time-filterable levels, named loggers per subsystem, sinks
-	# (stderr / file / rotating), and fmt-style format strings.  Headers
-	# only — no runtime link cost beyond fmt.
+	# (stderr / file / rotating), and fmt-style format strings.
+	# Link fmt explicitly because current spdlog packages use external fmt.
 	spdlog = dependency('spdlog')
+	fmt = dependency('fmt')
 
 	# GTK is only used for message dialogs on Linux
 	gtk = dependency('gtk+-3.0', required: false)
@@ -78,7 +79,7 @@ if not win32
 	if x11.found()
 		conf.set('HAVE_X11', 1, description : 'System with X11 present')
 	endif
-	main_dependencies += [tiff, zlib, sdl, x11, spdlog]
+	main_dependencies += [tiff, zlib, sdl, x11, spdlog, fmt]
 
 	# nowin32 stubs: depend on gtk only if available
 	main_dependencies += declare_dependency( sources : 'os/nowin32/nowin32.cpp', dependencies : gtk )
@@ -269,7 +270,6 @@ game_core_sources = [
 	'ctp/ctp2_utils/ctpregistry.cpp',
 	'ctp/ctp2_utils/ddhelp.cpp',
 	'ctp/ctp2_utils/netconsole.cpp',
-	'ctp/ctp2_utils/tracklen.cpp',
 	'ctp/debugtools/debug.c',
 	'ctp/debugtools/debugassert.cpp',
 	'ctp/debugtools/debugcallstack.cpp',

@@ -25,7 +25,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - c3files_fopen can now ignore scenario paths. (9-Apr-2007 Martin Gühmann)
+// - c3files_fopen can now ignore scenario paths. (9-Apr-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -85,8 +85,6 @@ enum C3SAVEDIR {
 // WIN32_FIND_DATA is native type
 typedef MBCHAR      DriveIdType;
 // TODO: remove when all references have been removed
-#define c3files_GetCTPCDDriveLetter     c3files_GetCtpCdId
-
 #else
 
 typedef MBCHAR      WIN32_FIND_DATA;
@@ -143,9 +141,6 @@ bool		c3files_getfilelist(C3SAVEDIR dirID, MBCHAR *ext, PointerList<MBCHAR> *pli
 bool		c3files_getfilelist_ex(C3SAVEDIR dirID, MBCHAR *ext, PointerList<WIN32_FIND_DATA> *plist);
 #endif
 
-DriveIdType c3files_GetCtpCdId();
-bool		c3files_HasCD();
 bool		c3files_HasLegalCD();
-void		c3files_InitializeCD();
 
 #endif

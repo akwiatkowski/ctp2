@@ -153,7 +153,6 @@ ProfileDB::ProfileDB()
     m_useLeftClick                      (FALSE),
     m_showZoomedCombat                  (FALSE),
     m_useFingerprinting                 (FALSE),
-    m_useRedbookAudio                   (FALSE),
     m_requireCD                         (FALSE),
     m_protected                         (FALSE),
     m_tryWindowsResolution              (TRUE),
@@ -339,7 +338,6 @@ ProfileDB::ProfileDB()
 	Var("UseLeftClick"               , PV_BOOL  , &m_useLeftClick               , nullptr, false);
 	Var("ShowZoomedCombat"           , PV_BOOL  , &m_showZoomedCombat           , nullptr, false);
 	Var("UseFingerPrinting"          , PV_BOOL  , &m_useFingerprinting          , nullptr, false);
-	Var("UseRedbookAudio"            , PV_BOOL  , &m_useRedbookAudio            , nullptr, false);
 	Var("RequireCD"                  , PV_BOOL  , &m_requireCD                  , nullptr, false);
 	Var("Prophylaxis"                , PV_BOOL  , &m_protected                  , nullptr, false);
 	Var("TryWindowsResolution"       , PV_BOOL  , &m_tryWindowsResolution       , nullptr, false);

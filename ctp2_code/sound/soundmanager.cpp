@@ -46,7 +46,6 @@
 #include "gs/database/profileDB.h"
 #include "SoundRecord.h"
 #include "gs/fileio/CivPaths.h"
-#include "ctp/ctp2_utils/c3files.h"
 #include "gs/database/PlayListDB.h"
 #include "sound/gamesounds.h"
 #include <iostream>
@@ -63,13 +62,11 @@ void           soundmgr_Set(SoundManager *p) { g_soundManager = p; }
 
 namespace
 {
-    uint32 const    k_CHECK_CD_PERIOD	= 4000;     // [ms]
     uint32 const    SLIDER_FULL         = 10;
 
 #if !defined(USE_SDL)
     S32             s_masterVolume;
 #endif
-    sint32          s_startTrack        = 1;        // skip CD data track
 }
 
 void SoundManager::Initialize()
@@ -97,16 +94,11 @@ SoundManager::SoundManager()
     m_sfxVolume                 (SLIDER_FULL),
     m_musicVolume               (SLIDER_FULL),
     m_voiceVolume               (SLIDER_FULL),
-    m_oldRedbookVolume          (0),
     m_noSound                   (false),
     m_usePlaySound              (false),
-#if !defined(USE_SDL)
-    m_redbook                   (0),
-#else
-    m_cdrom                     (nullptr),
+#if defined(USE_SDL)
     m_SDLInitFlags              (SDL_INIT_NOPARACHUTE),
 #endif
-    m_timeToCheckCD             (0),
     m_numTracks                 (0),
     m_curTrack                  (0),
     m_lastTrack                 (0),
@@ -114,8 +106,7 @@ SoundManager::SoundManager()
     m_style                     (MUSICSTYLE_PLAYLIST),
     m_playListPosition          (0),
     m_userTrack                 (0),
-    m_autoRepeat                (true),
-    m_stopRedbookTemporarily    (false)
+    m_autoRepeat                (true)
 {
     if (profiledb_Get())
     {
@@ -191,8 +182,6 @@ void SoundManager::InitSoundDriver()
             (use_digital, use_MIDI, output_rate, output_bits, output_channels);
 #endif // defined(USE_SDL)
 
-	InitRedbook();
-
 	SetVolume(SOUNDTYPE_SFX,   m_sfxVolume);
 	SetVolume(SOUNDTYPE_VOICE, m_voiceVolume);
 	SetVolume(SOUNDTYPE_MUSIC, m_musicVolume);
@@ -202,8 +191,6 @@ void SoundManager::CleanupSoundDriver()
 {
 	if (!m_usePlaySound)
     {
-		CleanupRedbook();
-
 #if defined(USE_SDL)
         if (!m_noSound) {
             Mix_CloseAudio();
@@ -213,126 +200,6 @@ void SoundManager::CleanupSoundDriver()
 #else // !USE_SDL
 		AIL_quick_shutdown();
 #endif // USE_SDL
-	}
-}
-
-void SoundManager::InitRedbook()
-{
-#if defined(USE_SDL)
-    if (!m_cdrom) {
-        int errcode = SDL_Init(m_SDLInitFlags);
-
-        Assert(0 == errcode);
-        if (errcode < 0) {
-            return;
-        }
-
-        int numDrives = SDL_CDNumDrives();
-        Assert(numDrives >= 0);
-
-        int drive = -1;
-        int i = 0;
-        // Hack: We don't have the num of the SDL drive stored,
-        //       so we search for the drive with the drive letter stored
-        MBCHAR driveLetter = toupper(c3files_GetCtpCdId());
-        while ((i < numDrives) && (-1 == drive)) {
-            const char *cd_name = SDL_CDName(i);
-            if (cd_name) {
-                if (toupper(cd_name[0]) == driveLetter) {
-                    drive = i;
-                }
-            }
-            i++;
-        }
-
-        // No drive match?!
-        if (drive < 0) {
-            return;
-        }
-        m_cdrom = SDL_CDOpen(drive);
-        Assert(m_cdrom != nullptr);
-        // No control structur?
-        if (m_cdrom)
-        {
-            CDstatus status = SDL_CDStatus(m_cdrom);
-        }
-    }
-#else // !USE_SDL
-	if (!m_redbook)
-	{
-		m_redbook = AIL_redbook_open_drive(c3files_GetCtpCdId());
-	}
-#endif // USE_SDL
-}
-
-void SoundManager::CleanupRedbook()
-{
-#if defined(USE_SDL)
-    if (m_cdrom) {
-        SDL_CDClose(m_cdrom);
-        m_cdrom = nullptr;
-    }
-#else
-    if (m_redbook) {
-		AIL_redbook_stop(m_redbook);
-		AIL_redbook_close(m_redbook);
-		m_redbook = NULL;
-	}
-#endif
-}
-
-void SoundManager::ProcessRedbook()
-{
-	if (!profiledb_Get()->IsUseRedbookAudio()) return;
-
-	if (!m_musicEnabled) return;
-
-	if (GetTickCount() > m_timeToCheckCD) {
-#if defined(USE_SDL)
-        CDstatus status;
-        if (m_cdrom) {
-            status = SDL_CDStatus(m_cdrom);
-#else
-        U32 status;
-		if (m_redbook) {
-			status = AIL_redbook_status(m_redbook);
-#endif
-			switch (status) {
-#if !defined(USE_SDL)
-			case REDBOOK_ERROR:
-#else
-            case CD_TRAYEMPTY:
-                break;
-            case CD_ERROR:
-#endif
-				break;
-#if !defined(USE_SDL)
-			case REDBOOK_PLAYING:
-#else
-            case CD_PLAYING:
-#endif
-				break;
-#if !defined(USE_SDL)
-			case REDBOOK_PAUSED:
-#else
-            case CD_PAUSED:
-#endif
-				break;
-#if !defined(USE_SDL)
-			case REDBOOK_STOPPED:
-#else
-            case CD_STOPPED:
-#endif
-				if (m_curTrack != -1)
-					PickNextTrack();
-
-				if (m_curTrack != -1 && !m_stopRedbookTemporarily)
-					StartMusic(m_curTrack);
-				break;
-			}
-		}
-
-		m_timeToCheckCD = GetTickCount() + k_CHECK_CD_PERIOD;
 	}
 }
 
@@ -407,8 +274,6 @@ void SoundManager::Process(const uint32 &target_milliseconds,
 			}
 		}
 	}
-
-	ProcessRedbook();
 
     used_milliseconds = GetTickCount() - start_time_ms;
 }
@@ -667,14 +532,6 @@ SoundManager::SetVolume(const SOUNDTYPE &type, const uint32 &volume)
 		break;
 	case SOUNDTYPE_MUSIC:
 		m_musicVolume = volume;
-#if !defined(USE_SDL)
-		if (m_redbook)
-			AIL_redbook_set_volume(m_redbook, (sint32)((double)volume * 12.7));
-#else
-        if (m_cdrom) {
-            // TODO: found nothing in reference
-        }
-#endif
 		break;
 	}
 }
@@ -881,102 +738,15 @@ void SoundManager::SetUserTrack(const sint32 &trackNum)
 
 void SoundManager::StartMusic()
 {
-    StartMusic(m_curTrack);
 }
 
 void SoundManager::StartMusic(const sint32 &InTrackNum)
 {
-	m_stopRedbookTemporarily = FALSE;
-
-	if (!profiledb_Get()->IsUseRedbookAudio() || !c3files_HasCD()) return;
-
-	if (m_noSound) return;
-
-	if (m_usePlaySound) return;
-
-	if (m_curTrack == -1) return;
-
-#if defined(USE_SDL)
-    if (!m_cdrom) {
-        return;
-    }
-
-    CDstatus status = SDL_CDStatus(m_cdrom);
-
-    if ((CD_ERROR == status) || (!CD_INDRIVE(status))) {
-        return;
-    }
-
-	sint32 const numTracks = m_cdrom->numtracks;
-#else
-    if (!m_redbook) {
-        return;
-    }
-
-	U32 status = AIL_redbook_status(m_redbook);
-
-    if (status == REDBOOK_ERROR) {
-        return;
-    }
-
-	if (AIL_redbook_track(m_redbook)) {
-		AIL_redbook_stop(m_redbook);
-	}
-
-	sint32 const numTracks = AIL_redbook_tracks(m_redbook);
-#endif
-
-	if (numTracks <= s_startTrack) return;
-
-	m_numTracks = numTracks;
-
-	sint32 trackNum = InTrackNum;
-	if (trackNum < 0) trackNum = 0;
-	if (trackNum > m_numTracks) trackNum = m_numTracks;
-
-	m_curTrack = trackNum;
-
-#if defined(USE_SDL)
-    SDL_CDPlayTracks(m_cdrom, trackNum, 0, 1, 0);
-#else
-	U32 start;
-    U32 end;
-	AIL_redbook_track_info(m_redbook, trackNum, &start, &end);
-
-    // Why?
-	TerminateAllSounds();
-
-	AIL_redbook_play(m_redbook, start, end);
-#endif
+	(void) InTrackNum;
 }
 
 void SoundManager::TerminateMusic()
 {
-	if (!profiledb_Get()->IsUseRedbookAudio() || !c3files_HasCD()) return;
-
-	if (m_noSound) return;
-
-	if (m_usePlaySound) return;
-
-#if !defined(USE_SDL)
-	if (!m_redbook) return;
-#else
-    if (!m_cdrom) return;
-#endif
-
-	m_stopRedbookTemporarily = TRUE;
-
-#if !defined(USE_SDL)
-	if (AIL_redbook_track(m_redbook)) {
-		AIL_redbook_stop(m_redbook);
-	}
-#else
-    CDstatus status = SDL_CDStatus(m_cdrom);
-
-    if (CD_PLAYING == status) {
-        SDL_CDStop(m_cdrom);
-    }
-#endif
 }
 
 void SoundManager::PickNextTrack()
@@ -996,22 +766,22 @@ void SoundManager::PickNextTrack()
 				return;
 			}
 		}
-		m_curTrack = s_startTrack + g_thePlayListDB->GetSong(m_playListPosition);
+		m_curTrack = g_thePlayListDB->GetSong(m_playListPosition);
 		break;
 
 	case MUSICSTYLE_RANDOM:
 	{
-		sint32 trackRange = m_numTracks - (1 + s_startTrack);
+		sint32 trackRange = m_numTracks - 1;
 		if (trackRange <= 0) {
-			m_curTrack = s_startTrack;
+			m_curTrack = 0;
 		} else {
-			m_curTrack = (1 + s_startTrack) + rand() % trackRange;
+			m_curTrack = 1 + rand() % trackRange;
 		}
 	}
 		break;
 
 	case MUSICSTYLE_USER:
-		m_curTrack = (1 + s_startTrack) + m_userTrack;
+		m_curTrack = m_userTrack;
 		if (!m_autoRepeat && m_curTrack >= m_lastTrack)
         {
 			m_curTrack = -1;

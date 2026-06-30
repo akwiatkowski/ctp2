@@ -237,7 +237,6 @@ private:
 
     sint32	m_showZoomedCombat;
     sint32	m_useFingerprinting;
-    sint32	m_useRedbookAudio;
     sint32	m_requireCD;
     sint32	m_protected;
     sint32	m_tryWindowsResolution;
@@ -513,7 +512,6 @@ public:
 
     void SetShowZoomedCombat(BOOL show)                 { m_showZoomedCombat = show; }
     void SetUseFingerprinting(BOOL use)                 { m_useFingerprinting = use; }
-    void SetUseRedbookAudio(BOOL use)                   { m_useRedbookAudio = use; }
     void SetRequireCD(BOOL require)                     { m_requireCD = require; }
     void SetProtected(BOOL pro)                         { m_protected = pro; }
     void SetTryWindowsResolution(BOOL tryIt)            { m_tryWindowsResolution = tryIt; }
@@ -688,8 +686,6 @@ public:
 
     BOOL        IsShowZoomedCombat() const      { return m_showZoomedCombat; }
     BOOL        IsUseFingerprinting() const     { return m_useFingerprinting; }
-    BOOL        IsUseRedbookAudio() const       { return m_useRedbookAudio; }
-
 #ifdef _BFR_
     BOOL        IsRequireCD() const             { return FALSE; }
 #else

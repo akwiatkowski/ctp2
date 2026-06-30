@@ -2,11 +2,6 @@
 #define __AUI_MUSIC_H__
 
 #include "ui/aui_common/aui_base.h"
-#ifdef USE_SDL
-#include <SDL2/SDL.h>
-#include "os/include/sdl_cdrom_stub.h"
-#endif
-
 enum AUI_MUSIC_CODE
 {
 	AUI_MUSIC_CODE_UNKNOWN = -1,
@@ -24,15 +19,7 @@ enum AUI_MUSIC_ERRCODE
 	AUI_MUSIC_ERRCODE_UNKNOWN = -1,
 	AUI_MUSIC_ERRCODE_OK = 0,
 
-	AUI_MUSIC_ERRCODE_NOCDDRIVE,
-	AUI_MUSIC_ERRCODE_SYSINFOERROR,
-	AUI_MUSIC_ERRCODE_INVALID_DRIVE_INDEX,
-	AUI_MUSIC_ERRCODE_NODEVICE_NAME,
-	AUI_MUSIC_ERRCODE_OPENERR,
-	AUI_MUSIC_ERRCODE_FORMATTINGERR,
-	AUI_MUSIC_ERRCODE_STATUSERR,
 	AUI_MUSIC_ERRCODE_INVALID_TRACKNUMBER,
-	AUI_MUSIC_AUXCDROMID_INVALID,
 	AUI_MUSIC_ERRCODE_MCIERR,
 
 	AUI_MUSIC_ERRCODE_COUNT
@@ -69,45 +56,6 @@ protected:
 	sint32 m_ctrack;
 	uint8 m_volume;
 	BOOL m_pause;
-
-};
-
-
-class aui_Redbook : public aui_Music
-{
-public:
-	aui_Redbook();
-	~aui_Redbook() override;
-
-
-	AUI_MUSIC_ERRCODE Init() override;
-	AUI_MUSIC_ERRCODE Close() override;
-	AUI_MUSIC_ERRCODE Pause() override;
-	AUI_MUSIC_ERRCODE Resume() override;
-	AUI_MUSIC_ERRCODE Stop() override;
-	AUI_MUSIC_ERRCODE Play() override;
-	AUI_MUSIC_ERRCODE Play( sint32 itrack ) override;
-	AUI_MUSIC_ERRCODE SetVolume( uint8 volume ) override;
-	AUI_MUSIC_CODE Status() override;
-
-protected:
-
-	sint32 CDInitVolume();
-	AUI_MUSIC_ERRCODE GetCDIndex();
-	AUI_MUSIC_ERRCODE CDDone();
-
-protected:
-
-#ifdef __AUI_USE_DIRECTX__
-	sint32 m_cd_device_id;
-#elif defined(__AUI_USE_SDL__)
-	SDL_CD*m_cd_device_id;
-#endif
-	int    m_cd_drive_num;
-	MBCHAR m_cd_drive_letter;
-	sint32 m_cd_drive_index;
-	BOOL m_cd_ok;
-	sint32 m_aux_cdrom_id;
 
 };
 

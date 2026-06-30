@@ -1386,7 +1386,6 @@ sint32 CivApp::InitializeEngine()
 	g_logCrashes = profiledb_Get()->GetEnableLogs();
 
 	InitDataIncludePath();
-	c3files_InitializeCD();
 	civpaths_Get()->InitCDPath();
 	GreatLibrary::Initialize_Great_Library_Data();
 

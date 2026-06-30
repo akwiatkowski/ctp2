@@ -52,7 +52,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M1 | Baseline safety loop | 4/4 done | complete | `make test`, `make ubsan-smoke` |
 | M2 | Warning noise reduction | 8/8 done | complete | `make test`, warning category visibly reduced |
 | M3 | Modernization ratchet burn-down | 6/6 done | complete | ratchet baseline lowered without regressions |
-| M4 | Timelapse/play tooling polish | 3/5 done | 1-2 sessions | short timelapse smoke, docs updated |
+| M4 | Timelapse/play tooling polish | 4/5 done | 1-2 sessions | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | 0/3 done | 2-4 sessions | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 0/4 done | 2-3 sessions | all standard checks, plan updated |
 | M7 | Obsolete subsystem removal | 1/5 done | 3-6 sessions | obsolete code removed without network/movie regressions |
@@ -102,7 +102,7 @@ Latest ratchet counts after the `MaterialPool` JSON test cast cleanup: `c_alloca
 - [x] Run long fogged hero timelapse successfully.
 - [x] Add `query_names` metadata and richer Chronicle captions.
 - [x] Add short usage docs for common timelapse commands.
-- [ ] Add a tiny caption-render smoke fixture or helper test if practical.
+- [x] Add a tiny caption-render smoke fixture or helper test if practical.
 - [ ] Pick one visible caption/frame polish improvement and verify with a short run.
 
 ### M5: UI / Frame Polish

@@ -33,6 +33,12 @@ Render from a custom recording directory:
 mise exec -- make timelapse-render TL_DIR=/tmp/ctp2-timelapse-300
 ```
 
+Smoke-test Chronicle caption rendering without running the game:
+
+```sh
+mise exec -- make timelapse-caption-smoke
+```
+
 ## Useful Options
 
 - `TURNS=300`: number of autoplay turns to record.

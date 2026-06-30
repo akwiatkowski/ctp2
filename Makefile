@@ -257,6 +257,10 @@ timelapse-render:
 		mise exec -- python3 tools/timelapse/render.py $(TL_DIR)/run.jsonl $(TL_DIR)/frames
 	@echo "[timelapse] done -> $(TL_DIR)/frames/timelapse.mp4"
 
+timelapse-caption-smoke:
+	@echo "[timelapse] smoke-testing Chronicle caption rendering..."
+	mise exec -- python3 tools/timelapse/smoke_caption.py
+
 # Build the Crystal gateway (gateway/bin/ctp2-gateway)
 gateway-build:
 	@echo "Building ctp2-gateway..."

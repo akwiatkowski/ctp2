@@ -53,7 +53,7 @@
 
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/mapanalysis/mapanalysis.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ai/CityManagement/governor.h"
 #include "StrategyRecord.h"
 #include "gs/utility/TurnCnt.h"

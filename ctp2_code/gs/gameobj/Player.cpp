@@ -136,7 +136,7 @@
 
 #include "ctp/c3.h"
 #include "gs/utility/safety.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "gs/core/great_library_db.h"  // GL_DB_* constants mirror DATABASE enum values
 

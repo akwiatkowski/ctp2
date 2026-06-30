@@ -75,7 +75,7 @@
 #include "ui/aui_ctp2/c3ui.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "ui/aui_ctp2/ctp2_spinner.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"

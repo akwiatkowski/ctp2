@@ -315,31 +315,6 @@ aui_Redbook::CDInitVolume()
 AUI_MUSIC_ERRCODE
 aui_Redbook::GetCDIndex()
 {
-#ifdef __AUI_USE_DIRECTX__
-	LPSTR   driveMap    = (LPSTR) calloc(105, sizeof(char));
-	GetLogicalDriveStrings(105, driveMap);
-
-	LPSTR   driveName   = driveMap;
-	m_cd_drive_index = 0;
-
-	while ( *driveName )
-	{
-		if ( GetDriveType(driveName) ==	DRIVE_CDROM )
-		{
-			m_cd_drive_index++;
-			break ;
-		}
-		driveName += 4;
-	}
-
-	if ( *driveName )
-		m_cd_drive_letter = driveName[0];
-	else
-		m_cd_drive_index = 0;
-
-	free(driveMap);
-#endif
-
 	return AUI_MUSIC_ERRCODE_OK;
 }
 
@@ -363,8 +338,9 @@ aui_Redbook::CDDone()
 AUI_MUSIC_CODE
 aui_Redbook::Status()
 {
-    sint32 mci_retval = 0;
 #ifdef __AUI_USE_DIRECTX__
+    sint32 mci_retval = 0;
+
     if (m_cd_ok)
     {
         MCI_STATUS_PARMS mciStatusParms;

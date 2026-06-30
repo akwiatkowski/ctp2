@@ -278,8 +278,8 @@ bool Load_TGA_File(char const *fname,
 	long datasize = ftell(fp) - curpos;
 	fseek(fp, curpos, SEEK_SET);
 
-	unsigned char * tmpbuf  = nullptr;
-	unsigned char * tmpbuf1 = nullptr;
+	std::vector<unsigned char> tmpbuf;
+	std::vector<unsigned char> tmpbuf1;
 
 	if (head.ImageType == 2)
 	{
@@ -308,20 +308,19 @@ bool Load_TGA_File(char const *fname,
 	}
 	else if (head.ImageType == 10)
 	{
-		tmpbuf  = new unsigned char[MAX_DATASIZE];
+		tmpbuf.resize(MAX_DATASIZE);
 
-		if (fread(tmpbuf, datasize, 1, fp) < 1)
+		if (fread(tmpbuf.data(), datasize, 1, fp) < 1)
 		{
 			DPRINTF(k_DBG_UI, ("Error reading file \"%s\"\n", fname));
 			fclose(fp);
-			delete [] tmpbuf;
 			return false;
 		}
 		fclose(fp);
 
-		tmpbuf1 = new unsigned char[MAX_DATASIZE];
-		unsigned char * dp = tmpbuf1;
-		unsigned char * tp = tmpbuf;
+		tmpbuf1.resize(MAX_DATASIZE);
+		unsigned char * dp = tmpbuf1.data();
+		unsigned char * tp = tmpbuf.data();
 
 		for (int i = 0; i < head.ImageHeight; i++)
 		{
@@ -329,8 +328,6 @@ bool Load_TGA_File(char const *fname,
 			if (byteCount < 0)
 			{
 				DPRINTF(k_DBG_UI, ("Error decoding file \"%s\"\n", fname));
-				delete [] tmpbuf;
-				delete [] tmpbuf1;
 				return false;
 			}
 			dp += byteCount;
@@ -339,9 +336,9 @@ bool Load_TGA_File(char const *fname,
 
 	if ((BYTES_PER_PIXEL == 3) && (bpp == 4))
 	{
-		Assert(tmpbuf1);
+		Assert(!tmpbuf1.empty());
 		unsigned char *fp = data;
-		unsigned char *tp = tmpbuf1;
+		unsigned char *tp = tmpbuf1.data();
 		int count = (width * height);
 
 		while(count--)
@@ -354,11 +351,11 @@ bool Load_TGA_File(char const *fname,
 	}
 	else if ((BYTES_PER_PIXEL == 2) && (bpp==4))
 	{
-		Assert(tmpbuf1);
-		unsigned char *fp = tmpbuf1;
-		unsigned char *fp1= tmpbuf1 + 1;
-		unsigned char *fp2= tmpbuf1 + 2;
-		unsigned char *fp3= tmpbuf1 + 3;
+		Assert(!tmpbuf1.empty());
+		unsigned char *fp = tmpbuf1.data();
+		unsigned char *fp1= tmpbuf1.data() + 1;
+		unsigned char *fp2= tmpbuf1.data() + 2;
+		unsigned char *fp3= tmpbuf1.data() + 3;
 
 		unsigned short int *tp = (unsigned short int *)data;
 		int count = (width * height);
@@ -377,8 +374,6 @@ bool Load_TGA_File(char const *fname,
 		}
 	}
 
-	delete [] tmpbuf;
-	delete [] tmpbuf1;
 	return true;
 }
 

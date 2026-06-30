@@ -71,7 +71,7 @@ class Unit;
 #include "gs/world/MapPoint.h"       // MapPoint
 #include "gs/gameobj/Order.h"          // ORDER_RESULT
 #include "OrderRecord.h"    // For order valid check
-#include "gs/gameobj/Player.h"         // PLAYER_INDEX
+#include "gs/gameobj/player.h"         // PLAYER_INDEX
 
 class CityData;
 class UnitData;

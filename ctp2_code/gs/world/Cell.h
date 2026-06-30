@@ -130,7 +130,7 @@ class MapPoint;
 #define CELL_COLOR 1
 
 #include "gs/utility/gstypes.h"    // TERRAIN_TYPES
-#include "gs/gameobj/Player.h"     // PLAYER_INDEX
+#include "gs/gameobj/player.h"     // PLAYER_INDEX
 #include "gs/gameobj/Unit.h"
 
 #include <nlohmann/json.hpp>

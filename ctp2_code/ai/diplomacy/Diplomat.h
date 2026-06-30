@@ -63,7 +63,7 @@ class Diplomat;
 #include <nlohmann/json.hpp>
 #include "Foreigner.h"              // Foreigner
 #include "PersonalityRecord.h"      // PersonalityRecord
-#include "gs/gameobj/Player.h"                 // PLAYER_INDEX, k_MAX_PLAYERS
+#include "gs/gameobj/player.h"                 // PLAYER_INDEX, k_MAX_PLAYERS
 #include "gs/slic/SlicContext.h"            // SlicContext
 #include "StrategyRecord.h"         // StrategyRecord
 #include "gs/gameobj/Unit.h"                   // Unit

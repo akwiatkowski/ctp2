@@ -30,7 +30,7 @@ enum ROUTE_TYPE {
 
 #include "gs/database/DB.h"     // StringId
 #include "gs/gameobj/ID.h"     // ID
-#include "gs/gameobj/Player.h" // PLAYER_INDEX
+#include "gs/gameobj/player.h" // PLAYER_INDEX
 
 template <class T> class DynamicArray;
 class TradeRouteData;

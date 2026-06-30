@@ -36,6 +36,8 @@ def main():
     ap.add_argument("--args", default="--players 3 --seed 42",
                     help="binary boot args (default: '--players 3 --seed 42')")
     ap.add_argument("--log", default="/tmp/ctp2_repro.log")
+    ap.add_argument("--socket-wait", type=float, default=60,
+                    help="seconds to wait for the command socket (default: 60)")
     args = ap.parse_args()
 
     boot = args.args.split()
@@ -51,7 +53,8 @@ def main():
     failed = False
     try:
         with Ctp2Client(args.binary, "headless", log_path=args.log,
-                        players=players, seed=seed) as client:
+                        players=players, seed=seed,
+                        socket_wait=args.socket_wait) as client:
             script = []
             if save:
                 script.append(f"load_game {save}")

@@ -54,7 +54,7 @@ class AgreementMatrix;
 //----------------------------------------------------------------------------
 
 #include "gs/diplomacy/diplomacy_types.h"  // ai::..., PROPOSAL_TYPE
-#include "gs/gameobj/Player.h"         // PLAYER_INDEX
+#include "gs/gameobj/player.h"         // PLAYER_INDEX
 
 //----------------------------------------------------------------------------
 // Class declarations

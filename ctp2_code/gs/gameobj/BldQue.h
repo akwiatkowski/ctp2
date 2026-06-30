@@ -72,7 +72,7 @@ class CityData;
 class UnitRecord;
 template <class T> class PointerList;
 
-#include "gs/gameobj/Player.h" // PLAYER_INDEX
+#include "gs/gameobj/player.h" // PLAYER_INDEX
 #include "gs/gameobj/Unit.h"   // Unit
 
 #include <nlohmann/json.hpp>

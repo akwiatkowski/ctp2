@@ -57,7 +57,7 @@ class VisibilityDurationArray;
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/GameObj.h"
 #include "gs/gameobj/Order.h"          // ORDER_RESULT
-#include "gs/gameobj/Player.h"         // k_MAX_PLAYERS
+#include "gs/gameobj/player.h"         // k_MAX_PLAYERS
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/citydata.h"
@@ -111,7 +111,6 @@ public:
 	}
 
 	void SetVisibleDuration(const sint32 player, sint32 duration) {
-		Assert(m_array != nullptr);
 		Assert(duration >= 0);
 
 		Assert(duration <= k_DEFAULT_VIS_DURATION_SIZE);

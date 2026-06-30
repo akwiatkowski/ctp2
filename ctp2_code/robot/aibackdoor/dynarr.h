@@ -45,7 +45,7 @@ template <class T> class DynamicArray;
 
 #include "gs/outcom/AICause.h"
 #include "os/include/ctp2_inttypes.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 template <class T> class DynamicArray
 {

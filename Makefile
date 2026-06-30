@@ -78,7 +78,22 @@ setup-sanitized:
 
 build-sanitized:
 	@echo "Building CTP2 with sanitizers..."
-	meson compile -C build-sanitized
+	mise exec -- meson compile -C build-sanitized
+
+# Short ASan/UBSan smoke path. Uses the repro harness so failures include the
+# headless log/crash report tail instead of just a sanitizer abort.
+SAN_CMDS ?= new_game; start_game; query_players; end_turn 2; query_players
+SAN_ARGS ?= --players 3 --seed 42
+SAN_LOG  ?= /tmp/ctp2_sanitized_smoke.log
+SAN_SOCKET_WAIT ?= 180
+SAN_OPTIONS ?= detect_leaks=0:halt_on_error=1:abort_on_error=1
+UBSAN_OPTIONS ?= halt_on_error=1:abort_on_error=1:print_stacktrace=1
+sanitized-smoke: build-sanitized
+	@echo "Running ASan/UBSan smoke via build-sanitized/ctp2_headless..."
+	ASAN_OPTIONS=$(SAN_OPTIONS) UBSAN_OPTIONS=$(UBSAN_OPTIONS) \
+		mise exec -- python3 ctp2_code/test/repro.py build-sanitized/ctp2_headless \
+		--cmds '$(SAN_CMDS)' --args '$(SAN_ARGS)' --log '$(SAN_LOG)' \
+		--socket-wait $(SAN_SOCKET_WAIT)
 
 # Compile the project
 build:
@@ -350,7 +365,7 @@ ci-reset:
 ci-tier-a:
 	@.ci/tiers/tier-a.sh && echo "tier-a done"
 
-.PHONY: all deps setup build test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
+.PHONY: all deps setup build setup-sanitized build-sanitized sanitized-smoke test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
         gateway gateway-build gateway-test \
         ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a
 

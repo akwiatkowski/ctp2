@@ -27,12 +27,12 @@
 #include "ctp/civapp.h"                       // civapp_Get()->IsGameLoaded()
 #include "ctp/ctp2_utils/civlog.h"            // civlog::Get
 #include "gs/utility/Globals.h"               // k_MAX_PLAYERS, k_GAME_OBJ_TYPE_*
-#include "gs/gameobj/Player.h"                // player_Get, Player
+#include "gs/gameobj/player.h"                // player_Get, Player
 #include "gs/gameobj/Army.h"                  // Army
 #include "gs/gameobj/ArmyData.h"              // ArmyData::Settle / CanSettle
 #include "gs/gameobj/Unit.h"                  // Unit
 #include "gs/gameobj/UnitData.h"              // Unit::GetData / GetCityData
-#include "gs/gameobj/CityData.h"              // CityData
+#include "gs/gameobj/citydata.h"              // CityData
 #include "gs/gameobj/BldQue.h"                // BuildQueue / BuildNode
 #include "gs/gameobj/Vision.h"                // Vision::IsVisible / IsExplored
 #include "gs/world/World.h"                   // world_Get(), GetCell
@@ -2667,6 +2667,52 @@ std::string QueryTerrains()
     return Ok("query_terrains", result);
 }
 
+// query_names — compact static/dynamic dictionaries for offline tooling.  The
+// timelapse recorder stores this once in the meta row so Chronicle captions can
+// resolve action-log ids without querying the running game during rendering.
+std::string QueryNames()
+{
+    json result;
+
+    json players = json::object();
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        Player * pl = player_Get(p);
+        if (!pl) continue;
+        MBCHAR civ[k_MAX_NAME_LEN]     = {0};
+        MBCHAR country[k_MAX_NAME_LEN] = {0};
+        Civilisation * c = pl->GetCivilisation();
+        if (c && c->AccessData()) {
+            c->GetSingularCivName(civ);
+            c->GetCountryName(country);
+        }
+        players[std::to_string(p)] = {
+            {"leader", ToUtf8(pl->GetLeaderName())},
+            {"civ", ToUtf8(civ)},
+            {"country", ToUtf8(country)},
+        };
+    }
+    result["players"] = players;
+
+    auto named_records = [](auto * db) {
+        json names = json::object();
+        if (!db) return names;
+        for (sint32 i = 0; i < db->NumRecords(); ++i) {
+            auto const * rec = db->Get(i);
+            if (rec)
+                names[std::to_string(i)] = ToUtf8(rec->GetNameText());
+        }
+        return names;
+    };
+
+    result["advances"]             = named_records(g_theAdvanceDB);
+    result["buildings"]            = named_records(g_theBuildingDB);
+    result["wonders"]              = named_records(g_theWonderDB);
+    result["units"]                = named_records(g_theUnitDB);
+    result["terrain_improvements"] = named_records(g_theTerrainImprovementDB);
+
+    return Ok("query_names", result);
+}
+
 }  // namespace
 
 namespace game_controller {
@@ -2695,6 +2741,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("query_player ", 0) == 0)                    return QueryPlayer(line.c_str() + 13);
     if (line == "query_turn")                                   return QueryTurn();
     if (line == "query_terrains")                               return QueryTerrains();
+    if (line == "query_names")                                  return QueryNames();
     if (line == "query_research")                               return QueryResearch();
     if (line.rfind("set_research ", 0) == 0)                    return CmdSetResearch(line.c_str() + 13);
     if (line.rfind("query_terraform ", 0) == 0)                 return QueryTerraform(line.c_str() + 16);

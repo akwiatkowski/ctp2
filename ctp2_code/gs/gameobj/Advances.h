@@ -59,7 +59,7 @@ typedef sint32  AdvanceType;
 #include "AdvanceRecord.h"  // AdvanceRecord
 #include "gs/outcom/AICause.h"	    // CAUSE_SCI
 #include "os/include/ctp2_inttypes.h"  // uint8, uint16, sint32
-#include "gs/gameobj/Player.h"         // PLAYER_INDEX
+#include "gs/gameobj/player.h"         // PLAYER_INDEX
 
 #include <nlohmann/json.hpp>
 #include <vector>

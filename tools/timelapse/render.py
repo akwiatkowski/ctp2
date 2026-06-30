@@ -58,6 +58,7 @@ EVENT_CAPTIONS = {
     "Threaten":            (1, "issues a threat"),
     "KillUnit":            (2, "loses a unit in battle"),
     "CreateBuilding":      (2, "completes a building"),
+    "CreateWonder":        (2, "completes a wonder"),
     "ProposalResponse":    (3, "answers a proposal"),
     "Reject":              (3, "rejects a proposal"),
     "ImprovementComplete": (4, "finishes construction"),
@@ -105,13 +106,70 @@ def terrain_palette(meta):
     return pal
 
 
-def frame_captions(events):
-    """This frame's events -> [(player_id, verb)], curated beats only (max 3)."""
+def lookup_name(names, group, ident):
+    if ident is None:
+        return None
+    group_names = (names or {}).get(group) or {}
+    return group_names.get(str(ident))
+
+
+def arg_ident(arg):
+    if not isinstance(arg, dict):
+        return None
+    return arg.get("value", arg.get("id"))
+
+
+def first_arg(args, kind):
+    for arg in args or []:
+        if arg.get("kind") == kind:
+            return arg
+    return None
+
+
+def location_text(args):
+    loc = first_arg(args, "location")
+    if not loc:
+        return None
+    return f"at {loc.get('x')},{loc.get('y')}"
+
+
+def event_detail(event, args, names):
+    """Best-effort object/place text from the generic action-log args."""
+    if event == "GrantAdvance":
+        adv = first_arg(args, "advance") or first_arg(args, "int")
+        name = lookup_name(names, "advances", arg_ident(adv))
+        return f": {name}" if name else ""
+    if event == "CreateBuilding":
+        # Building completion events carry the building id as an int in current
+        # logs; keep this event-specific so unrelated ints are not mislabeled.
+        bid = arg_ident(first_arg(args, "int"))
+        name = lookup_name(names, "buildings", bid)
+        return f": {name}" if name else ""
+    if event == "CreateWonder":
+        wonder = first_arg(args, "wonder") or first_arg(args, "int")
+        name = lookup_name(names, "wonders", arg_ident(wonder))
+        return f": {name}" if name else ""
+    if event == "ImprovementComplete":
+        # The terrain-improvement type is the output int; the improvement arg is
+        # the placed object id and does not index the TerrainImprovement DB.
+        imp = first_arg(args, "int") or first_arg(args, "improvement")
+        name = lookup_name(names, "terrain_improvements", arg_ident(imp))
+        return f": {name}" if name else ""
+    if event == "CreateCity":
+        where = location_text(args)
+        return f" {where}" if where else ""
+    return ""
+
+
+def frame_captions(events, names=None):
+    """This frame's events -> [(player_id, text)], curated beats only (max 3)."""
     picked = []
     for e in events or []:
-        cap = EVENT_CAPTIONS.get(e.get("event"))
+        event = e.get("event")
+        cap = EVENT_CAPTIONS.get(event)
         if cap:
-            picked.append((cap[0], e.get("player"), cap[1]))
+            detail = event_detail(event, e.get("args"), names)
+            picked.append((cap[0], e.get("player"), cap[1] + detail))
     picked.sort(key=lambda x: x[0])                # by priority
     return [(pid, verb) for _, pid, verb in picked[:3]]
 
@@ -131,7 +189,7 @@ def civ_label(p):
     return p.get("civ") or p.get("name") or f"p{p['id']}"
 
 
-def render_frame(frame, pal, protagonist, show_year, civ_by_pid, fonts):
+def render_frame(frame, pal, protagonist, show_year, civ_by_pid, fonts, names=None):
     font, font_sm, font_cap = fonts
     W, H = frame["width"], frame["height"]
     terrain = frame["terrain"] or []
@@ -211,7 +269,7 @@ def render_frame(frame, pal, protagonist, show_year, civ_by_pid, fonts):
     # 5) Chronicle caption strip (bottom): this round's salient events
     cap_y = H * TILE
     draw.rectangle([0, cap_y, img_w, img_h], fill=(8, 9, 13))
-    evs = frame_captions(frame.get("events"))
+    evs = frame_captions(frame.get("events"), names)
     if evs:
         ty = cap_y + 8
         for pid, verb in evs:
@@ -230,7 +288,7 @@ def render_frame(frame, pal, protagonist, show_year, civ_by_pid, fonts):
 MAP_TARGET_W = int(os.environ.get("MAP_TARGET_W", "1100"))
 
 
-def render_realart_frame(frame, show_year, civ_by_pid, protagonist, fonts, union_crop=None):
+def render_realart_frame(frame, show_year, civ_by_pid, protagonist, fonts, union_crop=None, names=None):
     """Composite the engine's real isometric render (terrain + cities/units/infra)
     with the HUD panel + Chronicle caption strip. In fogged player mode the frame
     is cropped to union_crop (the run-wide explored extent) so the video stays a
@@ -297,7 +355,7 @@ def render_realart_frame(frame, show_year, civ_by_pid, protagonist, fonts, union
     # Chronicle caption strip (bottom)
     cap_y = img.height - CAP_H
     draw.rectangle([0, cap_y, img.width, img.height], fill=(8, 9, 13))
-    evs = frame_captions(frame.get("events"))
+    evs = frame_captions(frame.get("events"), names)
     if evs:
         ty = cap_y + 8
         for pid, verb in evs:
@@ -330,6 +388,7 @@ def main():
         return 1
 
     pal = terrain_palette(meta)
+    names = (meta or {}).get("names") or {}
     protagonist = pick_protagonist(frames)
     # Only show a BC/AD year if it actually varies — the autoplay path leaves
     # the engine year frozen, in which case "turn N" alone is the honest clock.
@@ -358,9 +417,9 @@ def main():
     for i, fr in enumerate(frames):
         src = fr.get("img") or fr.get("bmp")
         if realart and src and os.path.exists(src):
-            img = render_realart_frame(fr, show_year, civ_by_pid, protagonist, fonts, union_crop)
+            img = render_realart_frame(fr, show_year, civ_by_pid, protagonist, fonts, union_crop, names)
         else:
-            img = render_frame(fr, pal, protagonist, show_year, civ_by_pid, fonts)
+            img = render_frame(fr, pal, protagonist, show_year, civ_by_pid, fonts, names)
         img.save(os.path.join(OUT_DIR, f"frame_{i:04d}.png"))
         if i % 25 == 0:
             print(f"[RENDER] {i}/{len(frames)}")

@@ -9,7 +9,7 @@ class Message;
 #include "gs/gameobj/Advances.h"       // AdvanceType
 #include "gs/gameobj/ID.h"             // ID
 #include "gs/gameobj/MessageData.h"    // MESSAGE_RESPONSE_TYPE, MESSAGE_TYPE
-#include "gs/gameobj/Player.h"         // PLAYER_INDEX
+#include "gs/gameobj/player.h"         // PLAYER_INDEX
 #include <nlohmann/json.hpp>
 
 class Message : public ID

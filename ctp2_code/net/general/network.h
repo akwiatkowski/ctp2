@@ -111,7 +111,7 @@ struct Response;
 class ChatList;
 class CellUnitList;
 
-#include "gs/gameobj/Player.h" // PLAYER_INDEX
+#include "gs/gameobj/player.h" // PLAYER_INDEX
 
 #include <string>
 

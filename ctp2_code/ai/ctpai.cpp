@@ -403,10 +403,10 @@ STDEHANDLER(CtpAi_NukeCityUnit)
 			for (GOAL_TYPE goal_type = 0; goal_type < g_theGoalDB->NumRecords(); goal_type++)
 			{
 
-				if ( (world_Get()->IsWater(city.RetPos()) == FALSE) &&
-					(g_theGoalDB->Get(goal_type)->GetTargetTypeSettleLand()) ||
-					(world_Get()->IsWater(city.RetPos()) == TRUE) &&
-					(g_theGoalDB->Get(goal_type)->GetTargetTypeSettleSea()))
+				if (((world_Get()->IsWater(city.RetPos()) == FALSE) &&
+					(g_theGoalDB->Get(goal_type)->GetTargetTypeSettleLand())) ||
+					((world_Get()->IsWater(city.RetPos()) == TRUE) &&
+					(g_theGoalDB->Get(goal_type)->GetTargetTypeSettleSea())))
 				{
 					Goal * goal_ptr = new Goal();
 					goal_ptr->Set_Type( goal_type );
@@ -1777,10 +1777,10 @@ void CtpAi::AddSettleTargets(const PLAYER_INDEX playerId)
 		{
 			SettleMap::SettleTarget settle_target = *iter;
 
-			if ( (!world_Get()->IsWater(settle_target.m_pos)) &&
-				 (g_theGoalDB->Get(goal_type)->GetTargetTypeSettleLand()) ||
-				 (world_Get()->IsWater(settle_target.m_pos)) &&
-				 (g_theGoalDB->Get(goal_type)->GetTargetTypeSettleSea()))
+			if (((!world_Get()->IsWater(settle_target.m_pos)) &&
+				 (g_theGoalDB->Get(goal_type)->GetTargetTypeSettleLand())) ||
+				 ((world_Get()->IsWater(settle_target.m_pos)) &&
+				 (g_theGoalDB->Get(goal_type)->GetTargetTypeSettleSea())))
 			{
 				Goal_ptr goal_ptr = new Goal();
 				goal_ptr->Set_Type( goal_type );

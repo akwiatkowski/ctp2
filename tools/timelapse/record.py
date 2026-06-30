@@ -153,11 +153,13 @@ def main() -> int:
     time.sleep(5)
     print(f"[REC] autoplay: {cmd('enable_autoplay')}")
 
-    # Meta line: the terrain dictionary (id -> name/flags/yields) lets the
-    # renderer pick a palette without hardcoding terrain ids.
+    # Meta line: terrain drives colours; names let offline render resolve
+    # action-log ids into Chronicle captions without talking to the engine.
     terrains = cmd("query_terrains")
+    names = cmd("query_names")
     out.write(json.dumps({"type": "meta",
                           "terrains": terrains.get("result", terrains) if terrains else None,
+                          "names": names.get("result", names) if names else None,
                           "target_turns": TURNS}) + "\n")
     out.flush()
 

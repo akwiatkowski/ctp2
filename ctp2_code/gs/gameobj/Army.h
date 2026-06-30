@@ -45,7 +45,7 @@ class Army;
 
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/ID.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Unit.h"
 
 #include <nlohmann/json.hpp>

@@ -105,7 +105,7 @@ typedef sint32 AdvanceType;
 #include "gs/slic/slicif_sym.h"
 #include "gs/slic/SlicModFuncEnum.h"
 #include "ctp/c3types.h"            // MBCHAR, sint32
-#include "gs/gameobj/Player.h"             // PLAYER_INDEX
+#include "gs/gameobj/player.h"             // PLAYER_INDEX
 #include <nlohmann/json.hpp>
 
 class SlicEngine

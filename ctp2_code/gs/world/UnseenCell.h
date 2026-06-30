@@ -88,7 +88,7 @@ class UnseenInstallationInfo;
 
 #include "os/include/ctp2_inttypes.h"    // sintN, uintN
 #include "gs/world/MapPoint.h"         // MapPoint
-#include "gs/gameobj/Player.h"           // PLAYER_INDEX
+#include "gs/gameobj/player.h"           // PLAYER_INDEX
 #include "gs/gameobj/TerrImproveData.h"  // TERRAIN_IMPROVEMENT
 #include "gs/world/Cell.h"             // k_MASK_ENV_RIV_CUR
 

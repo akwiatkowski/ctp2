@@ -35,7 +35,7 @@
 
 class Difficulty;
 
-#include "gs/gameobj/Player.h" // PLAYER_INDEX
+#include "gs/gameobj/player.h" // PLAYER_INDEX
 #include <nlohmann/json.hpp>
 
 #define k_DIFFICULTY_VERSION_MAJOR	0

@@ -83,7 +83,7 @@
 #include "ai/diplomacy/Foreigner.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/UnitTypes.h"           // POP_MAX
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/PollutionConst.h"      // already included via pollution.h, kept explicit
 #include "gs/gameobj/UnitState.h"
 #include "gs/gameobj/Order.h"

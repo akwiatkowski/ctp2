@@ -157,7 +157,7 @@
 #include "net/general/net_action.h"
 #include "net/general/network.h"
 #include "robot/pathing/Path.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "PopRecord.h"
 #include "ai/profileai.h"
 #include "ResourceRecord.h"

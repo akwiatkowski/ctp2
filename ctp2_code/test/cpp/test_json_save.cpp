@@ -48,7 +48,7 @@
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/diplomacy/Foreigner.h"
 #include "gs/gameobj/citydata.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/UnitTypes.h"
 #include "gs/gameobj/UnitState.h"
 #include "gs/gameobj/Order.h"

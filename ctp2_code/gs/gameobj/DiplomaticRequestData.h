@@ -43,7 +43,7 @@ typedef sint32 AdvanceType;
 
 
 #include "gs/gameobj/DiplomaticTypes.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include <nlohmann/json.hpp>
 
 class DiplomaticRequestData : public GameObj

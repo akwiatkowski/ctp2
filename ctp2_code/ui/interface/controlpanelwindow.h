@@ -142,7 +142,7 @@ enum
 // Project dependencies
 //----------------------------------------------------------------------------
 
-#include "gs/gameobj/Player.h"             // PLAYER_INDEX
+#include "gs/gameobj/player.h"             // PLAYER_INDEX
 #include "os/include/ctp2_inttypes.h"      // sint32
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/c3_button.h"

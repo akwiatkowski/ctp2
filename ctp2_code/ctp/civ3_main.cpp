@@ -127,7 +127,7 @@
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_ctp2/picture.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/pollution.h"
 #include "ui/aui_utils/primitives.h"
 #include "gs/database/profileDB.h"                  // profiledb_Get()

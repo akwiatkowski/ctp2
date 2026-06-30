@@ -55,7 +55,7 @@ class HappyTimer;
 //----------------------------------------------------------------------------
 
 #include "gs/gameobj/HappyTracker.h"   // HAPPY_REASON, HappyTracker
-#include "gs/gameobj/Player.h"         // PLAYER_INDEX, Player
+#include "gs/gameobj/player.h"         // PLAYER_INDEX, Player
 
 #include <nlohmann/json.hpp>
 

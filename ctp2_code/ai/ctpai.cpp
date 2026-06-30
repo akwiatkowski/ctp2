@@ -108,7 +108,7 @@
 #include "ai/diplomacy/ResponseEvent.h"
 #include "ai/diplomacy/SStateEvent.h"
 #include "ai/diplomacy/DStateEvent.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/newturncount.h"
 #include "gs/newdb/CTPDatabase.h"
 #include "gs/gameobj/Army.h"

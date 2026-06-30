@@ -44,7 +44,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
 #include "gs/gameobj/citydata.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/utility/UnitDynArr.h"
 #include "ctp/ctp2_utils/c3debug.h"

@@ -47,7 +47,7 @@ size_t const    k_targets_per_continent     = 25;
 #include "robot/aibackdoor/bit_table.h"
 #include "ai/mapanalysis/mapgrid.h"
 #include "gs/world/MapPoint.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Unit.h"
 
 class SettleMap

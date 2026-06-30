@@ -36,7 +36,7 @@
 #include "gs/world/MapPoint.h"
 #include "gs/gameobj/Army.h"
 #include "robot/pathing/Path.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/TradeRoute.h"
 #include "AdvanceRecord.h"       // g_theAdvanceDB

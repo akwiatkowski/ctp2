@@ -52,7 +52,7 @@ class Agent;
 #include "gs/gameobj/Army.h"               // Army
 #include "gs/world/MapPoint.h"           // MapPoint
 #include "robot/pathing/Path.h"
-#include "gs/gameobj/Player.h"             // PLAYER_INDEX
+#include "gs/gameobj/player.h"             // PLAYER_INDEX
 #include "ai/strategy/scheduler/scheduler_types.h"    // SQUAD_CLASS, Squad_Strength, etc.
 #include "gs/events/GameEventTypes.h"
 #include "ctp/ctp2_utils/c3debugstl.h"

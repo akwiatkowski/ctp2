@@ -58,7 +58,7 @@ class Pollution;
 // Project imports
 //----------------------------------------------------------------------------
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/PollutionConst.h"
 #include <nlohmann/json.hpp>
 class MapPoint;

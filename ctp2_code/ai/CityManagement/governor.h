@@ -77,7 +77,7 @@ class Governor;
 //----------------------------------------------------------------------------
 
 #include "gs/gameobj/citydata.h"
-#include "gs/gameobj/Player.h"         // PLAYER_INDEX, PLAYER_UNASSIGNED
+#include "gs/gameobj/player.h"         // PLAYER_INDEX, PLAYER_UNASSIGNED
 #include "StrategyRecord.h" // StrategyRecord
 #include "ai/mapanalysis/settlemap.h"
 

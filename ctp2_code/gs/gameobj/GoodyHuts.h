@@ -62,7 +62,7 @@ enum GOODY
 //----------------------------------------------------------------------------
 
 #include "os/include/ctp2_inttypes.h"      // uint32
-#include "gs/gameobj/Player.h"             // PLAYER_INDEX
+#include "gs/gameobj/player.h"             // PLAYER_INDEX
 
 #include <nlohmann/json.hpp>
 

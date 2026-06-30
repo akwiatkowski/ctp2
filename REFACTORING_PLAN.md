@@ -136,6 +136,8 @@ GameWatch was confirmed as obsolete plugin-based recording/delivery code (`gwciv
 
 Windows registry / DirectX startup cleanup removed the `.c2g` file-association registry writes, the fatal `dxver.dll` startup gate, and the duplicate AUI `dxver` probe. Movie/DirectShow COM code and networking/anet registry helpers are intentionally retained: movies should be repaired later, and networking is outside this milestone.
 
+DirectX AUI backend cleanup has started with the safest SDL-first slice: the active Meson build no longer includes `ui/aui_directx` include paths or source files. The `ui/aui_directx/` source tree and Visual Studio project references remain for a later review/deletion batch because movie playback and Windows project cleanup need separate handling.
+
 Do not remove yet:
 
 - Network / multiplayer code; it will be resolved later.

@@ -171,8 +171,9 @@ bool GraphicsOptions::AddTextToCell(const MapPoint &pos, const char *text,
 
 	if (text)
 	{
-		MBCHAR * newText = new MBCHAR[strlen(text) + 1];
-		strcpy(newText, text);
+		size_t const textLen = strlen(text) + 1;
+		MBCHAR * newText = new MBCHAR[textLen];
+		memcpy(newText, text, textLen);
 
 		if (!cellText)
 		{

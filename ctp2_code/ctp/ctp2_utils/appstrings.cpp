@@ -42,7 +42,7 @@ void appstrings_Initialize()
 		if (len > 0)
 			inStr[len - 1] = '\0';
 		s_appStrings[i] = new MBCHAR[sizeof(inStr) + 1];
-		strcpy(s_appStrings[i], inStr);
+		memcpy(s_appStrings[i], inStr, len > 0 ? len : 1);
 	}
 
 }

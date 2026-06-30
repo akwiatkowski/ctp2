@@ -1356,35 +1356,6 @@ static LONG _cdecl main_CivExceptionHandler(LPEXCEPTION_POINTERS pException)
 }
 #endif // WIN32
 
-#ifdef __AUI_USE_DIRECTX__
-BOOL main_CheckDirectX(void)
-{
-	BOOL found = FALSE;
-
-	HANDLE dll = LoadLibrary( "dll" FILE_SEP "util" FILE_SEP "dxver" );
-	if ( dll ) {
-
-		typedef BOOL (WINAPI *FuncType)( DWORD *pVersion );
-		FuncType GetDirectXVersion = (FuncType)GetProcAddress( (HINSTANCE)dll, "MicrosoftDirectXInstalled" );
-		if ( !GetDirectXVersion )
-		{
-			FreeLibrary( (HINSTANCE)dll );
-			return AUI_ERRCODE_HACK;    /// @todo Check: effectively this means true???
-		}
-
-		if(GetDirectXVersion( &g_dxver ) > 0) {
-			found = TRUE;
-		}
-
-		FreeLibrary( (HINSTANCE)dll );
-	} else {
-		c3errors_FatalDialog("DLL", "Cannot find dxver.dll");
-	}
-
-	return found;
-}
-#endif // __AUI_USE_DIRECTX__
-
 void main_InitializeLogs()
 {
 	time_t		ltime;
@@ -1622,24 +1593,6 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	char exepath[_MAX_PATH];
 	if (GetModuleFileName(NULL, exepath, _MAX_PATH) != 0)
 	{
-		ctpregistry_SetKeyValue(HKEY_CLASSES_ROOT,
-								".c2g",
-								NULL,
-								"c2gfile");
-
-		ctpregistry_SetKeyValue(HKEY_CLASSES_ROOT,
-								"c2gfile",
-								NULL,
-								"Call to Power 2 saved game");
-
-		char launchcommand[_MAX_PATH];
-		strlcpy(launchcommand, exepath, sizeof(launchcommand));
-		strcat(launchcommand, " -l\"%1\"");
-		ctpregistry_SetKeyValue(HKEY_CLASSES_ROOT,
-								"c2gfile\\Shell\\Open\\command",
-								NULL,
-								launchcommand);
-
 		char * lastbackslash = strrchr(exepath, FILE_SEPC);
 		if(lastbackslash) {
 			*lastbackslash = 0;
@@ -1654,14 +1607,6 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	appstrings_Initialize();
 
 	setlocale(LC_COLLATE, appstrings_GetString(APPSTR_LOCALE));
-
-#ifdef __AUI_USE_DIRECTX__
-	if (!main_CheckDirectX()) {
-
-		c3errors_FatalDialog(appstrings_GetString(APPSTR_DIRECTX),
-		                     appstrings_GetString(APPSTR_NEEDDIRECTX));
-	}
-#endif
 
 #if defined(_DEBUG) || defined(USE_LOGGING)
 	main_InitializeLogs();

@@ -55,7 +55,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M4 | Timelapse/play tooling polish | 5/5 done | complete | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | 3/3 done | complete | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 4/4 done | complete | all standard checks, plan updated |
-| M7 | Obsolete subsystem removal | 2/5 done | 2-4 sessions | obsolete code removed without network/movie regressions |
+| M7 | Obsolete subsystem removal | 3/5 done | 1-3 sessions | obsolete code removed without network/movie regressions |
 | M8 | Modern asset pipeline spike | 0/5 done | 3-6 sessions | legacy sprite exports reproducibly; visual parity checked |
 
 ### M1: Baseline Safety Loop
@@ -128,11 +128,13 @@ Scope: remove legacy systems that are no longer product goals. Windows support s
 
 - [x] Remove remaining CD-ROM / Redbook audio / copy-protection code.
 - [x] Confirm GameWatch provenance; if it is original Activision telemetry/recording/plugin code, remove it.
-- [ ] Remove Windows registry / file-association / DirectX startup checks.
+- [x] Remove Windows registry / file-association / DirectX startup checks.
 - [ ] Remove DirectX AUI backend in SDL-first batches.
 - [ ] Re-run `make test`, `git diff --check`, and `make ubsan-smoke`; record any retained compatibility caveats.
 
-GameWatch was confirmed as obsolete plugin-based recording/delivery code (`gwciv`, `gwfile`, `gwarchive`) that wrote unit build/kill records and `recordN.dat` payloads. Runtime hooks, profile setting, active Meson include path, legacy autotools include paths, source tree, DLL, and static libraries were removed in `b4f79eb0`. Visual Studio project files still mention old GameWatch library/include paths and should be handled with the later Windows/DirectX cleanup batch.
+GameWatch was confirmed as obsolete plugin-based recording/delivery code (`gwciv`, `gwfile`, `gwarchive`) that wrote unit build/kill records and `recordN.dat` payloads. Runtime hooks, profile setting, active Meson include path, legacy autotools include paths, source tree, DLL, and static libraries were removed in `b4f79eb0`. Stale Visual Studio GameWatch include paths, import defines, and library dependencies were removed with the Windows registry / DirectX startup cleanup batch.
+
+Windows registry / DirectX startup cleanup removed the `.c2g` file-association registry writes, the fatal `dxver.dll` startup gate, and the duplicate AUI `dxver` probe. Movie/DirectShow COM code and networking/anet registry helpers are intentionally retained: movies should be repaired later, and networking is outside this milestone.
 
 Do not remove yet:
 
@@ -160,10 +162,9 @@ Goal: make original game data compatible with a future modern renderer without b
 
 Do these in order unless Olek changes priorities:
 
-1. Remove Windows registry / DirectX startup checks and stale GameWatch Visual Studio references.
-2. Continue SDL-first backend cleanup without removing movie playback.
-3. Start M8 with a read-only `.SPR` inspector/exporter before changing runtime rendering.
-4. Continue modernization ratchet reductions only as small, obvious batches.
+1. Continue SDL-first backend cleanup without removing movie playback.
+2. Start M8 with a read-only `.SPR` inspector/exporter before changing runtime rendering.
+3. Continue modernization ratchet reductions only as small, obvious batches.
 
 ## Assistant Protocol
 

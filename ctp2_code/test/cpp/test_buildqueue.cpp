@@ -4,7 +4,7 @@
 #include "doctest.h"
 #include "ctp/c3.h"
 #include "gs/gameobj/BldQue.h"
-#include "gs/gameobj/CityData.h"
+#include "gs/gameobj/citydata.h"
 #include "gs/utility/Globals.h"
 #include "gs/utility/safety.h"
 #include "UnitRecord.h"

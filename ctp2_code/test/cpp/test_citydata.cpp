@@ -7,10 +7,10 @@
 
 #include "doctest.h"
 #include "ctp/c3.h"
-#include "gs/gameobj/CityData.h"
+#include "gs/gameobj/citydata.h"
 #include "gs/world/MapPoint.h"
 #include "gs/world/World.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/gstypes.h"
 #include "gs/newdb/CTPDatabase.h"
 #include "CitySizeRecord.h"

@@ -14,7 +14,7 @@
 #include "gs/world/MapPoint.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/events/GameEventManager.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/RandGen.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/ArmyPool.h"

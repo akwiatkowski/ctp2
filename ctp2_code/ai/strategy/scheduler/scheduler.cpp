@@ -67,7 +67,7 @@
 
 #include "ctp/ctp2_utils/c3errors.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "gs/newdb/CTPDatabase.h"
 #include "GoalRecord.h"

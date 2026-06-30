@@ -55,7 +55,7 @@
 #include "robot/pathing/CityAstar.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/Unit.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/Order.h"
 #include "gs/events/GameEventUser.h"
@@ -75,17 +75,17 @@ extern CityAstar g_city_astar;
 
 Agent::Agent()
 :
-    m_squad_class       (SQUAD_CLASS_DEFAULT),
-    m_agent_type        (-1),
-    m_goal              (nullptr),
     m_squad_strength    (0),
-    m_can_be_executed   (true),
-    m_detached          (false),
-    m_neededForGarrison (false),
+    m_goal              (nullptr),
     m_army              (),
     m_playerId          (PLAYER_UNASSIGNED),
     m_targetOrder       (OrderRecord::INDEX_INVALID),
-    m_targetPos         ()
+    m_targetPos         (),
+    m_squad_class       (SQUAD_CLASS_DEFAULT),
+    m_agent_type        (-1),
+    m_can_be_executed   (true),
+    m_detached          (false),
+    m_neededForGarrison (false)
 {
 }
 

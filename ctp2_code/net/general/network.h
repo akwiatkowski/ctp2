@@ -127,7 +127,7 @@ class SessionData
 {
 public:
 	SessionData(sint32 index, const char* name)
-		: m_index(index), m_name(name ? name : "") { }
+		: m_name(name ? name : ""), m_index(index) { }
 
 	std::string m_name;
 	int m_index;

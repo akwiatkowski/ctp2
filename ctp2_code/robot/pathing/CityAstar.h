@@ -52,8 +52,8 @@ public:
 	    m_alliance_mask  (0),
 	    m_pathRoad       (false),
 	    m_pathLand       (false),
-	    m_simpleDistance (false),
 	    m_pathPenalizeCantEnter(0x0),
+	    m_simpleDistance (false),
 	    m_start          (),
 	    m_dest           ()
 	{ ; }

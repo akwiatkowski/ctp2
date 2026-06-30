@@ -48,7 +48,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | ID | Milestone | Status | Estimate | Verification |
 | --- | --- | --- | --- | --- |
 | M1 | Baseline safety loop | 4/4 done | complete | `make test`, `make ubsan-smoke` |
-| M2 | Warning noise reduction | 5/8 done | 4-6 sessions | `make test`, warning category visibly reduced |
+| M2 | Warning noise reduction | 6/8 done | 4-6 sessions | `make test`, warning category visibly reduced |
 | M3 | Modernization ratchet burn-down | 1/6 done | 4-8 sessions | ratchet baseline lowered without regressions |
 | M4 | Timelapse/play tooling polish | 2/5 done | 1-3 sessions | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | 0/3 done | 2-4 sessions | visible/manual or smoke verification |
@@ -71,7 +71,7 @@ ASan blocker summary: on the current macOS/Apple clang setup, `build-sanitized/c
 - [x] Mechanical `CityData.h` -> `citydata.h` sweep where warnings remain.
 - [x] Fix low-risk AI `&&`/`||` precedence warnings in `Goal.cpp` and `settlemap.cpp`.
 - [ ] Fix safe dead-local / unused-variable warnings where the variable has no side effect.
-- [ ] Fix simple constructor initializer-order warnings where member order is obvious.
+- [x] Fix simple constructor initializer-order warnings where member order is obvious.
 - [ ] Re-run `make ubsan-smoke` and record remaining high-signal warning categories here.
 
 ### M3: Modernization Ratchet Burn-Down

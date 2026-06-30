@@ -557,8 +557,6 @@ AM_CPPFLAGS=\
 	-I$(ctp2_code)/mapgen \
 	-I$(ctp2_code)/ui/freetype \
 	-I$(ctp2_code)/sound \
-	-I$(ctp2_code)/GameWatch/gamewatch \
-	-I$(ctp2_code)/GameWatch/gwciv \
 	$(CTP2_WIN32_MILES_INC) \
 	-I$(ctp2_code)/ctp/fingerprint \
 	$(CTP2_WIN32_ZLIB_INC) \

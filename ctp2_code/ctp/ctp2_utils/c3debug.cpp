@@ -19,7 +19,6 @@
 // Compiler flags
 //
 // _DEBUG           (automatically set when choosing the Debug configuration)
-// _NO_GAME_WATCH
 // USE_LOGGING      Enable logging for the release/final version.
 //                  The debug version has logging enabled always.
 //
@@ -47,13 +46,6 @@
 #include "ctp/civ3_main.h"
 #include "ctp/ctp2_utils/netconsole.h"
 #include "ctp/ctp2_utils/c3files.h"
-
-#ifndef _NO_GAME_WATCH
-
-#include "GameWatch/gamewatch/GameWatch.h"
-
-extern int g_gameWatchID;
-#endif
 
 uint32 g_debug_mask = k_DBG_NONE;
 static int g_useMask;
@@ -295,30 +287,6 @@ static LONG _cdecl c3debug_CivExceptionHandler (LPEXCEPTION_POINTERS exception_p
 	s = c3debug_ExceptionStackTrace(exception_pointers);
 
 	DPRINTF(k_DBG_FIX, ("Exception Stack Trace:\n%s\n", s));
-
-#ifndef _NO_GAME_WATCH
-
-	char userName[256];
-	DWORD size = 256;
-	userName[0] = '\0';
-	GetUserName(userName, &size);
-
-	char computerName[256];
-	size = 256;
-	computerName[0] = '\0';
-	GetComputerName(computerName, &size);
-
-	SYSTEMTIME localTime;
-	memset(&localTime, 0, sizeof(localTime));
-	GetLocalTime(&localTime);
-
-	char stamp[1024];
-	snprintf(stamp, sizeof(stamp), "Civilization III CTP - %s on %s at %d/%d/%d %d:%d:%d", userName, computerName,
-		localTime.wMonth, localTime.wDay, localTime.wYear, localTime.wHour,
-		localTime.wMinute, localTime.wSecond);
-
-	gameWatch.EndGame(g_gameWatchID, stamp);
-#endif
 
 	return EXCEPTION_CONTINUE_SEARCH;
 }

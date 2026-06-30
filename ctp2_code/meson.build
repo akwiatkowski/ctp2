@@ -196,7 +196,6 @@ incdir += include_directories(
 	'robot/utility',
 	'robot/pathing',
 	'robot/aibackdoor',
-	'GameWatch/gamewatch',
 	'gfx/gfx_utils',
 	'gfx/spritesys',
 	'gfx/tilesys',

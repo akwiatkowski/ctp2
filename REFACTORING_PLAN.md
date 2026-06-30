@@ -55,7 +55,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M4 | Timelapse/play tooling polish | 5/5 done | complete | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | verified, pending commit | 2-4 sessions | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 0/4 done | 2-3 sessions | all standard checks, plan updated |
-| M7 | Obsolete subsystem removal | 1/5 done | 3-6 sessions | obsolete code removed without network/movie regressions |
+| M7 | Obsolete subsystem removal | GameWatch removed, pending commit | 3-6 sessions | obsolete code removed without network/movie regressions |
 | M8 | Modern asset pipeline spike | 0/5 done | 3-6 sessions | legacy sprite exports reproducibly; visual parity checked |
 
 ### M1: Baseline Safety Loop
@@ -95,7 +95,7 @@ Remaining high-signal warning categories after the M2 pass:
 - [x] Reduce one type-erased cast cluster only if behavior is obvious.
 - [x] Add a short note here listing ratchet counts after the last reduction.
 
-Latest ratchet counts after the `MaterialPool` JSON test cast cleanup: `c_allocation=526`, `raw_delete=2078`, `raw_new=5536`, `type_erased_casting=3763`, `unsafe_string_api=1417`.
+Latest ratchet counts after the GameWatch removal: `c_allocation=516`, `raw_delete=2065`, `raw_new=5528`, `type_erased_casting=3739`, `unsafe_string_api=1417`.
 
 ### M4: Timelapse / Play Tooling Polish
 
@@ -122,6 +122,8 @@ Pending M5 commit: the SDL main-loop idle cap now uses a 17 ms frame budget, mat
 
 Pending M6 commit: `README.md` build instructions now point at the current root-level `mise exec -- make setup`, `mise exec -- make build`, `mise exec -- make test`, and UBSan smoke workflow instead of the stale `build-headless` Meson commands.
 
+Pending final verification after GameWatch removal: `mise exec -- make test`, `git diff --check`, and `mise exec -- make ubsan-smoke` all pass. The worktree is intentionally not clean until Olek approves committing the GameWatch/ratchet batch.
+
 ### M7: Obsolete Subsystem Removal
 
 Scope: remove legacy systems that are no longer product goals. Windows support should later use SDL/Linux-like paths, not old DirectX/Win32 runtime plumbing. Networking is out of scope for this milestone. Movie playback and movie DB/schema/data are product goals and should be preserved for future repair, not removed.
@@ -131,6 +133,8 @@ Scope: remove legacy systems that are no longer product goals. Windows support s
 - [ ] Remove Windows registry / file-association / DirectX startup checks.
 - [ ] Remove DirectX AUI backend in SDL-first batches.
 - [ ] Re-run `make test`, `git diff --check`, and `make ubsan-smoke`; record any retained compatibility caveats.
+
+Pending M7 commit: GameWatch was confirmed as obsolete plugin-based recording/delivery code (`gwciv`, `gwfile`, `gwarchive`) that wrote unit build/kill records and `recordN.dat` payloads. Runtime hooks, profile setting, active Meson include path, legacy autotools include paths, source tree, DLL, and static libraries were removed. Visual Studio project files still mention old GameWatch library/include paths and should be handled with the later Windows/DirectX cleanup batch.
 
 Do not remove yet:
 

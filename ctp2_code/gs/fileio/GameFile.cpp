@@ -16,10 +16,6 @@
 //
 //----------------------------------------------------------------------------
 //
-// Compiler flags
-//
-// _NO_GAME_WATCH
-//
 //----------------------------------------------------------------------------
 //
 // Modifications from the original Activision code:
@@ -109,11 +105,6 @@ Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils
 #include "gs/world/World.h"                  // world_Get()
 #include "gs/gameobj/Wormhole.h"
 #include <zlib.h>
-
-#ifndef _NO_GAME_WATCH
-#include "GameWatch/gamewatch/GameWatch.h"
-extern int g_gameWatchID;
-#endif
 
 #ifndef WIN32
 #include <sys/types.h>

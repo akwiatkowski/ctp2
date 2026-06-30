@@ -273,7 +273,6 @@ ProfileDB::ProfileDB()
 	m_civName[0]            = 0;
 	m_saveNote[0]           = 0;
 	m_ruleSets[0]           = 0;
-	m_gameWatchDirectory[0] = 0;
 
 	for (size_t map_pass = 0; map_pass < k_NUM_MAP_PASSES; ++map_pass)
 	{
@@ -348,7 +347,6 @@ ProfileDB::ProfileDB()
 	Var("ZoomedCombatAlways"         , PV_BOOL  , &m_zoomedCombatAlways         , nullptr, false);
 	Var("AttackEveryone"             , PV_BOOL  , &m_attackEveryone             , nullptr, false);
 	Var("NonRandomCivs"              , PV_BOOL  , &m_nonRandomCivs              , nullptr, false);
-	Var("GameWatchDirectory"         , PV_STRING, nullptr, (char*)m_gameWatchDirectory   , false);
 	Var("AutoEndMultiple"            , PV_BOOL  , &m_autoEndMultiple            , nullptr);
 
 	Var("WetDry"                     , PV_NUM   , &m_wetdry                     , nullptr, false);

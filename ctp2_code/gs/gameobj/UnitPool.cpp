@@ -16,10 +16,6 @@
 //
 //----------------------------------------------------------------------------
 //
-// Compiler flags
-//
-// _NO_GAME_WATCH
-//
 //----------------------------------------------------------------------------
 //
 // Modifications from the original Activision code:
@@ -50,13 +46,6 @@ auto unitpool_log = civlog::Get("unitpool");
 
 #include "ctp/civ3_main.h"
 
-#ifndef _NO_GAME_WATCH
-
-#include "GameWatch/gwciv/GWCiv.h"
-
-extern int g_gameWatchID;
-#endif
-
 UnitPool::UnitPool () : ObjPool (k_BIT_GAME_OBJ_TYPE_UNIT)
 {
 }
@@ -78,17 +67,6 @@ Unit UnitPool::Create (
 	ptr = new UnitData(t, trans_t, id, owner, pos, hc, actor);
 
 	Assert(ptr);
-
-#ifndef _NO_GAME_WATCH
-
-	static char unitName[256];
-	strlcpy(unitName, stringdb_Get()->GetNameStr(g_theUnitDB->Get(t)->GetName()), sizeof(unitName));
-	sint32 unitCost = g_theUnitDB->Get(t, player_Get(owner)->GetGovernmentType())->GetShieldCost();
-
-	char *aipName = NULL;
-
-	gwCiv.UnitBuilt(g_gameWatchID, unitName, unitCost, aipName);
-#endif
 
 	Insert(ptr);
 	// Phase 3 slice 7a: fire spawn event AFTER pool insertion so

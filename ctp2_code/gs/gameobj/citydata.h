@@ -80,7 +80,6 @@ class CityData;
 #include "gs/utility/UnitDynArr.h"
 #include "gs/utility/TradeDynArr.h"
 #include "gs/gameobj/Resources.h"
-#include "GameWatch/gamewatch/GWRecord.h"
 
 #include "gs/gameobj/CityRadius.h"
 

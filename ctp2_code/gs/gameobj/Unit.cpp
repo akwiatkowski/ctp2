@@ -60,7 +60,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Unit.h"
 
-#include "GameWatch/gamewatch/GWRecord.h"
 #include "ai/ctpai.h"
 class UnitActor;
 #include "gs/core/render_observer.h"

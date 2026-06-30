@@ -249,8 +249,6 @@ private:
     sint32    m_attackEveryone;
     sint32    m_nonRandomCivs; //1
 
-    MBCHAR	m_gameWatchDirectory[_MAX_PATH];
-
     sint32    m_autoEndMultiple;
 
     sint32 m_wetdry, m_warmcold, m_oceanland, m_islandcontinent,
@@ -521,7 +519,6 @@ public:
 
     void SetAttackEveryone(BOOL on)                     { m_attackEveryone = on; }
     void SetAutoSelectFirstUnit(BOOL on)                { m_autoSelectFirstUnit = on; }
-    void SetGameWatchDirectory(MBCHAR *dir)             { strlcpy(m_gameWatchDirectory, dir, sizeof(m_gameWatchDirectory)); }
     void SetAutoTurnCycle(BOOL on)                      { m_autoTurnCycle = on; }
     void SetNonRandomCivs(BOOL on)                      { m_nonRandomCivs = on; } //2
 
@@ -722,8 +719,6 @@ public:
             return (m_yWrap) ? WORLD_SHAPE_URANUS   : WORLD_SHAPE_FLAT;
         }
     };
-
-    MBCHAR      *GetGameWatchDirectory()    { return m_gameWatchDirectory; }
 
     sint32      GetWetDry()                     { return m_wetdry; }
     sint32      GetWarmCold()                   { return m_warmcold; }

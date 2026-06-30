@@ -120,8 +120,6 @@ public:
 	sint32 GetLastShown(sint32 player) { return (m_lastShown[player] & ~SLICLS_FLAG); }
 	BOOL TestLastShown(sint32 player, sint32 turn, sint32 currentRound);
 	BOOL HasBeenShown(sint32 player) {
-	    Assert(m_lastShown);
-	    if (!m_lastShown) return FALSE;
 	    return(m_lastShown[player] != 0);
 	}
 

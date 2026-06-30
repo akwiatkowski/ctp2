@@ -12,7 +12,7 @@
 #include "gs/utility/gameinit.h"
 #include "gs/database/profileDB.h"
 #include "gs/fileio/civscenarios.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/world/World.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/events/GameEventManager.h"
@@ -22,7 +22,7 @@
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/fileio/json_save.h"              // json_save::SaveJson (Phase A)
 #include "gs/gameobj/Score.h"                 // Score::GetTotalScore
-#include "gs/gameobj/CityData.h"              // CityData::PopCount
+#include "gs/gameobj/citydata.h"              // CityData::PopCount
 #include "gs/gameobj/Unit.h"                  // Unit::GetName / GetPos / CD
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/gameobj/Vision.h"                // Vision::IsVisible / IsExplored
@@ -175,7 +175,6 @@ int main(int argc, char **argv)
     bool serveMode = false;
     sint32 numPlayers = 3;
     sint32 maxTurns = 10;
-    sint32 saveInterval = 0;
     sint32 seed = 42;
     const char *saveGamePath = nullptr;
     const char *loadGamePath = nullptr;
@@ -199,7 +198,8 @@ int main(int argc, char **argv)
         } else if (strcmp(argv[i], "--seed") == 0 && i + 1 < argc) {
             seed = atoi(argv[++i]);
         } else if (strcmp(argv[i], "--save-interval") == 0 && i + 1 < argc) {
-            saveInterval = atoi(argv[++i]);
+            // Accepted for old scripts, but still unimplemented (see --help).
+            ++i;
         } else if (strcmp(argv[i], "--save-game") == 0 && i + 1 < argc) {
             saveGamePath = argv[++i];
         } else if (strcmp(argv[i], "--load-game") == 0 && i + 1 < argc) {

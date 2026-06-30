@@ -41,6 +41,74 @@ When asked "how much more work remains?", answer from this scale:
 
 Recommended default answer: **about 10-16 focused sessions** to reach a solid, practical refactoring milestone.
 
+## Milestone Board
+
+Use this as the real burn-down list. Move an item to `[x]` only after the code is committed and the listed verification has passed.
+
+| ID | Milestone | Status | Estimate | Verification |
+| --- | --- | --- | --- | --- |
+| M1 | Baseline safety loop | 3/4 done | 1 session | `make test`, `make ubsan-smoke` |
+| M2 | Warning noise reduction | 2/8 done | 4-6 sessions | `make test`, warning category visibly reduced |
+| M3 | Modernization ratchet burn-down | 1/6 done | 4-8 sessions | ratchet baseline lowered without regressions |
+| M4 | Timelapse/play tooling polish | 2/5 done | 1-3 sessions | short timelapse smoke, docs updated |
+| M5 | UI/frame polish | 0/3 done | 2-4 sessions | visible/manual or smoke verification |
+| M6 | Final stabilization pass | 0/4 done | 2-3 sessions | all standard checks, plan updated |
+
+### M1: Baseline Safety Loop
+
+- [x] Add modernization ratchets to `make test`.
+- [x] Add `sanitized-smoke` target for ASan/UBSan attempt.
+- [x] Add working `ubsan-smoke` target.
+- [ ] Document ASan macOS blocker in README or this plan with sample-stack summary.
+
+### M2: Warning Noise Reduction
+
+- [x] Clean scalar `NULL` defaults/args in isolated files.
+- [x] Clean first include-case and fixed-array-null warning batches.
+- [ ] Mechanical `Player.h` -> `player.h` include-case sweep for headers/sources that compile in fast/unit/headless paths.
+- [ ] Mechanical `CityData.h` -> `citydata.h` sweep where warnings remain.
+- [ ] Fix low-risk AI `&&`/`||` precedence warnings in `Goal.cpp` and `settlemap.cpp`.
+- [ ] Fix safe dead-local / unused-variable warnings where the variable has no side effect.
+- [ ] Fix simple constructor initializer-order warnings where member order is obvious.
+- [ ] Re-run `make ubsan-smoke` and record remaining high-signal warning categories here.
+
+### M3: Modernization Ratchet Burn-Down
+
+- [x] Establish ratchet baseline and enforce it in `make test`.
+- [ ] Reduce one small unsafe string API cluster, then update baseline.
+- [ ] Reduce one small raw `new`/`delete` ownership cluster with clear ownership.
+- [ ] Reduce one C allocation cluster where lifetime is local/simple.
+- [ ] Reduce one type-erased cast cluster only if behavior is obvious.
+- [ ] Add a short note here listing ratchet counts after the last reduction.
+
+### M4: Timelapse / Play Tooling Polish
+
+- [x] Run long fogged hero timelapse successfully.
+- [x] Add `query_names` metadata and richer Chronicle captions.
+- [ ] Add short usage docs for common timelapse commands.
+- [ ] Add a tiny caption-render smoke fixture or helper test if practical.
+- [ ] Pick one visible caption/frame polish improvement and verify with a short run.
+
+### M5: UI / Frame Polish
+
+- [ ] Pick one concrete frame pacing/window persistence/UI scaling issue.
+- [ ] Implement the smallest visible fix.
+- [ ] Verify on desktop and avoid broad UI constructor const-correctness unless explicitly scoped.
+
+### M6: Final Stabilization Pass
+
+- [ ] Run `make test` and `make ubsan-smoke` cleanly after final batch.
+- [ ] Update this plan with final counts and remaining caveats.
+- [ ] Ensure `README.md` does not contradict current Makefile commands.
+- [ ] Stop with clean worktree and a concise handoff.
+
+## Progress Rules
+
+- A normal `continue` should complete one checkbox or one coherent part of a checkbox.
+- Decrease the session estimate only after a committed, verified checkbox materially reduces remaining work.
+- If a task discovers a blocker, add or update a blocker/caveat instead of pretending progress happened.
+- Prefer many small commits over one broad refactor commit.
+
 ## Next Best Batches
 
 Do these in order unless Olek changes priorities:

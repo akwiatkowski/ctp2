@@ -2,46 +2,43 @@
 
 Purpose: give any assistant or developer a quick, shared answer to: "how much more refactoring work remains?"
 
-This file is deliberately plain Markdown so it is easy for different LLMs (OpenAI, Claude Opus, local models) to read and update. Keep it short. Update the table after each committed batch.
+This file is deliberately plain Markdown so it is easy for different LLMs (OpenAI, Claude Opus, local models) to read and update. Keep it short. Update the board after each committed batch.
+
+## Overall Progress
+
+**33 / 45 checkboxes done (~73%).** Remaining bounded work: **about 5-9 focused sessions** (M7 finish + M8 + M9 close-out).
+
+Recount any time with:
+
+```sh
+grep -c '^- \[x\]' REFACTORING_PLAN.md   # done
+grep -c '^- \[ \]' REFACTORING_PLAN.md   # remaining
+```
 
 ## Current Definition Of Done
 
 The refactoring effort is "done enough" when CTP2 has:
 
-- Fast pre-commit tests that stay green.
-- A working sanitizer smoke tier on macOS/Linux.
-- Modernization ratchets preventing regression in unsafe patterns.
-- Warning noise reduced enough that new warnings are visible.
-- Timelapse/play-session tooling stable enough for repeated use.
-- A first modern asset-conversion path that preserves original game data as canonical input.
-- A documented list of remaining legacy-risk areas instead of open-ended cleanup.
+- Fast pre-commit tests that stay green. ✅ (M1, M6)
+- A working sanitizer smoke tier on macOS/Linux. ✅ (`make ubsan-smoke`; ASan documented as platform-blocked)
+- Modernization ratchets preventing regression in unsafe patterns. ✅ (M3; enforced in `make test`)
+- Warning noise reduced enough that new warnings are visible. ✅ (M2; leftovers documented)
+- Timelapse/play-session tooling stable enough for repeated use. ✅ (M4)
+- A first modern asset-conversion path that preserves original game data as canonical input. ⬜ (M8)
+- A documented list of remaining legacy-risk areas instead of open-ended cleanup. ⬜ (M9)
 
 This is not a full rewrite. A fully modernized CTP2 engine is open-ended and likely much larger than this project needs.
-
-## Work Remaining Estimate
-
-| Track | Current State | Done When | Estimate |
-| --- | --- | --- | --- |
-| Commit hygiene | Recent batches committed; worktree should usually be clean | One logical commit per batch; no uncommitted drift | Ongoing |
-| Fast test loop | `make test` runs ratchets + fast/unit tests | Stays under practical pre-commit time and is trusted | 0-1 sessions |
-| Sanitizer smoke | `make ubsan-smoke` works; ASan hangs before `main` on current macOS setup and is documented below | UBSan smoke documented and ASan either fixed or explicitly marked platform-blocked | 0-2 sessions |
-| Warning cleanup | Several low-risk batches done; many legacy warnings remain | High-signal warnings fixed: include case, precedence, scalar NULL, dead locals | 4-8 sessions |
-| Modernization ratchets | Ratchets exist for raw new/delete, unsafe strings, C allocation, casts | Ratchets kept green and lowered after each intentional cleanup batch | 4-8 sessions |
-| Timelapse tooling | Fogged hero timelapse works; captions have names metadata | Captions are useful, short runs are reproducible, docs explain common commands | 1-3 sessions |
-| UI/frame polish | One frame-pacing polish win committed | Pick 1-2 visible polish wins, not a full UI rewrite | 0-2 sessions |
-| Modern asset pipeline | Not started; renderer still consumes legacy `.SPR`/surface data directly | Export one representative legacy sprite to modern frame metadata + atlas/PNG cache with visual-parity check | 3-6 sessions |
-| Deeper architecture cleanup | Large legacy systems still coupled | Only targeted cleanup with tests; no broad rewrite | Open-ended |
 
 ## Short Answer Formula
 
 When asked "how much more work remains?", answer from this scale:
 
-- Minimum useful cleanup: **4-6 sessions**.
-- Solid modernization pass: **10-16 sessions**.
-- Mostly quiet warnings + sanitizer/ratchet discipline: **16-24 sessions**.
+- Finish obsolete subsystem removal (M7): **1-3 sessions**.
+- Modern asset pipeline spike (M8): **3-6 sessions**.
+- Close-out documentation pass (M9): **~1 session**.
 - Fully refactored engine: **open-ended / not a bounded goal**.
 
-Recommended default answer: **about 10-16 focused sessions** to reach a solid, practical refactoring milestone.
+Recommended default answer: **about 5-9 focused sessions** to reach the Definition of Done.
 
 ## Milestone Board
 
@@ -55,8 +52,9 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M4 | Timelapse/play tooling polish | 5/5 done | complete | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | 3/3 done | complete | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 4/4 done | complete | all standard checks, plan updated |
-| M7 | Obsolete subsystem removal | 3/5 done | 1-3 sessions | obsolete code removed without network/movie regressions |
+| M7 | Obsolete subsystem removal | 3/8 done | 1-3 sessions | obsolete code removed without network/movie regressions |
 | M8 | Modern asset pipeline spike | 0/5 done | 3-6 sessions | legacy sprite exports reproducibly; visual parity checked |
+| M9 | Close-out | 0/2 done | ~1 session | plan reflects reality; DoD declared |
 
 ### M1: Baseline Safety Loop
 
@@ -78,7 +76,7 @@ ASan blocker summary: on the current macOS/Apple clang setup, `build-sanitized/c
 - [x] Fix simple constructor initializer-order warnings where member order is obvious.
 - [x] Re-run `make ubsan-smoke` and record remaining high-signal warning categories here.
 
-Remaining high-signal warning categories after the M2 pass:
+Remaining high-signal warning categories after the M2 pass (post-DoD, opportunistic only):
 
 - Include-case stragglers in files outside the targeted fast/unit/headless sweep, mostly remaining `Player.h` includes pulled in by broader rebuilds.
 - Legacy writable string conversions (`char *` / `MBCHAR *` from string literals), especially diplomacy, UI popup/window, and logging paths.
@@ -95,7 +93,7 @@ Remaining high-signal warning categories after the M2 pass:
 - [x] Reduce one type-erased cast cluster only if behavior is obvious.
 - [x] Add a short note here listing ratchet counts after the last reduction.
 
-Latest ratchet counts after the GameWatch removal: `c_allocation=516`, `raw_delete=2065`, `raw_new=5528`, `type_erased_casting=3739`, `unsafe_string_api=1417`.
+Current baseline (`tools/modernization/ratchet_baseline.json`, verified 2026-07-02): `c_allocation=516`, `raw_delete=2065`, `raw_new=5528`, `type_erased_casting=3739`, `unsafe_string_api=1416`. Further reductions are post-DoD, opportunistic only.
 
 ### M4: Timelapse / Play Tooling Polish
 
@@ -129,14 +127,17 @@ Scope: remove legacy systems that are no longer product goals. Windows support s
 - [x] Remove remaining CD-ROM / Redbook audio / copy-protection code.
 - [x] Confirm GameWatch provenance; if it is original Activision telemetry/recording/plugin code, remove it.
 - [x] Remove Windows registry / file-association / DirectX startup checks.
-- [ ] Remove DirectX AUI backend in SDL-first batches.
-- [ ] Re-run `make test`, `git diff --check`, and `make ubsan-smoke`; record any retained compatibility caveats.
+- [ ] Guard or drop the unconditional `aui_directx` includes in active sources: `ui/aui_common/aui_Factory.cpp` (3 headers), `ui/aui_ctp2/c3blitter.cpp` (`aui_directsurface.h`), `ctp/civ3_main.cpp` (`aui_directmoviemanager.h`). Use branches (`c3ui.h` `#else` pattern) or `__AUI_USE_DIRECTX__` guards so SDL builds no longer need the headers on disk.
+- [ ] Decide movie-path handling before deletion: `aui_directmovie.*` / `aui_directmoviemanager.*` and the self-guarded `directvideo.*` are movie code — keep, relocate, or stub them (movies are a product goal for later repair).
+- [ ] Delete the remaining `ui/aui_directx/` sources that are not needed for movie repair.
+- [ ] Purge `aui_directx` references from Windows/legacy project files: `ui/ui.dsp`, `ui/ui.vcxproj(.filters)`, `ctp2_code/Makefile.am`, `gs/newdb/Makefile.am`, plus stragglers in `net/net.dsp`, `gs/gs.dsp`, `robot*/…dsp`, `mapgen/plasma1.dsp`.
+- [ ] Re-run `make test`, `git diff --check`, and `make ubsan-smoke`; record any retained compatibility caveats here.
 
 GameWatch was confirmed as obsolete plugin-based recording/delivery code (`gwciv`, `gwfile`, `gwarchive`) that wrote unit build/kill records and `recordN.dat` payloads. Runtime hooks, profile setting, active Meson include path, legacy autotools include paths, source tree, DLL, and static libraries were removed in `b4f79eb0`. Stale Visual Studio GameWatch include paths, import defines, and library dependencies were removed with the Windows registry / DirectX startup cleanup batch.
 
 Windows registry / DirectX startup cleanup removed the `.c2g` file-association registry writes, the fatal `dxver.dll` startup gate, and the duplicate AUI `dxver` probe. Movie/DirectShow COM code and networking/anet registry helpers are intentionally retained: movies should be repaired later, and networking is outside this milestone.
 
-DirectX AUI backend cleanup has started with the safest SDL-first slice: the active Meson build no longer includes `ui/aui_directx` include paths or source files. The `ui/aui_directx/` source tree and Visual Studio project references remain for a later review/deletion batch because movie playback and Windows project cleanup need separate handling.
+DirectX AUI backend status (verified 2026-07-02): the active Meson build no longer references `ui/aui_directx` include paths or source files (`8eb6fe01`), but the source tree still exists and its *headers* are still compiled into SDL builds via the unguarded includes listed in the checkboxes above. `directvideo.*` stays in the Meson build but is fully self-guarded by `__AUI_USE_DIRECTX__`, so it compiles to nothing on SDL.
 
 Do not remove yet:
 
@@ -153,10 +154,15 @@ Goal: make original game data compatible with a future modern renderer without b
 - [ ] Add a visual-parity check against the current CPU sprite path for one sprite/action/facing/frame set.
 - [ ] Document the intended cache layout (`cache/assets/<data-hash>/...`) and fallback rule: load generated assets when valid, otherwise use legacy loaders.
 
+### M9: Close-Out
+
+- [ ] Write a "Remaining Legacy-Risk Areas" section in this file consolidating: leftover warning categories (M2 note), ratchet counts (M3 note), deferred systems (network, movies, Windows project files), and any M7/M8 caveats.
+- [ ] Final verification pass (`make test`, `make ubsan-smoke`, clean worktree); update Overall Progress and declare the Definition of Done met.
+
 ## Progress Rules
 
 - A normal `continue` should complete one checkbox or one coherent part of a checkbox.
-- Decrease the session estimate only after a committed, verified checkbox materially reduces remaining work.
+- Update the Overall Progress counts and the Milestone Board `Status` column in the same commit as the checkbox change.
 - If a task discovers a blocker, add or update a blocker/caveat instead of pretending progress happened.
 - Prefer many small commits over one broad refactor commit.
 
@@ -164,9 +170,10 @@ Goal: make original game data compatible with a future modern renderer without b
 
 Do these in order unless Olek changes priorities:
 
-1. Continue SDL-first backend cleanup without removing movie playback.
-2. Start M8 with a read-only `.SPR` inspector/exporter before changing runtime rendering.
-3. Continue modernization ratchet reductions only as small, obvious batches.
+1. M7: guard the unconditional `aui_directx` includes (smallest safe SDL-first slice).
+2. M7: settle movie-code handling, then delete the rest of `ui/aui_directx/` and purge project-file references.
+3. M8: start with a read-only `.SPR` inspector/exporter before changing runtime rendering.
+4. M9: close-out documentation pass.
 
 ## Assistant Protocol
 
@@ -178,7 +185,7 @@ For any LLM continuing this work:
 - Use `mise exec -- make ubsan-smoke` after touching headless/game-loop code.
 - Do not treat "fully refactored" as the goal unless Olek explicitly redefines scope.
 - Do not make converted assets canonical; preserve original data/mod compatibility and treat generated modern assets as rebuildable cache/output.
-- After each committed batch, update the estimate table only if the estimate materially changed.
+- Warning cleanup and ratchet reductions are post-DoD opportunistic work now (M2/M3 complete); do them only as small, obvious side batches.
 
 ## Last Known Verification Commands
 

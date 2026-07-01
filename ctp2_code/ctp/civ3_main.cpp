@@ -73,7 +73,9 @@
 #include "ui/interface/ancientwindows.h"
 #include "ctp/ctp2_utils/appstrings.h"
 #include "ui/aui_common/aui.h"
+#if !defined(__GNUC__)  // aui_DirectMovieManager is only referenced in the !__GNUC__ (DirectX) build below
 #include "ui/aui_directx/aui_directmoviemanager.h"
+#endif
 #include "ui/aui_common/aui_Factory.h"
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_ctp2/background.h"

@@ -6,7 +6,7 @@ This file is deliberately plain Markdown so it is easy for different LLMs (OpenA
 
 ## Overall Progress
 
-**33 / 45 checkboxes done (~73%).** Remaining bounded work: **about 5-9 focused sessions** (M7 finish + M8 + M9 close-out).
+**34 / 45 checkboxes done (~76%).** Remaining bounded work: **about 5-8 focused sessions** (M7 finish + M8 + M9 close-out).
 
 Recount any time with:
 
@@ -52,7 +52,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M4 | Timelapse/play tooling polish | 5/5 done | complete | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | 3/3 done | complete | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 4/4 done | complete | all standard checks, plan updated |
-| M7 | Obsolete subsystem removal | 3/8 done | 1-3 sessions | obsolete code removed without network/movie regressions |
+| M7 | Obsolete subsystem removal | 4/8 done | 1-3 sessions | obsolete code removed without network/movie regressions |
 | M8 | Modern asset pipeline spike | 0/5 done | 3-6 sessions | legacy sprite exports reproducibly; visual parity checked |
 | M9 | Close-out | 0/2 done | ~1 session | plan reflects reality; DoD declared |
 
@@ -127,7 +127,7 @@ Scope: remove legacy systems that are no longer product goals. Windows support s
 - [x] Remove remaining CD-ROM / Redbook audio / copy-protection code.
 - [x] Confirm GameWatch provenance; if it is original Activision telemetry/recording/plugin code, remove it.
 - [x] Remove Windows registry / file-association / DirectX startup checks.
-- [ ] Guard or drop the unconditional `aui_directx` includes in active sources: `ui/aui_common/aui_Factory.cpp` (3 headers), `ui/aui_ctp2/c3blitter.cpp` (`aui_directsurface.h`), `ctp/civ3_main.cpp` (`aui_directmoviemanager.h`). Use branches (`c3ui.h` `#else` pattern) or `__AUI_USE_DIRECTX__` guards so SDL builds no longer need the headers on disk.
+- [x] Guard or drop the unconditional `aui_directx` includes in active sources: `ui/aui_common/aui_Factory.cpp` (3 headers), `ui/aui_ctp2/c3blitter.cpp` (`aui_directsurface.h`), `ctp/civ3_main.cpp` (`aui_directmoviemanager.h`). Use branches (`c3ui.h` `#else` pattern) or `__AUI_USE_DIRECTX__` guards so SDL builds no longer need the headers on disk.
 - [ ] Decide movie-path handling before deletion: `aui_directmovie.*` / `aui_directmoviemanager.*` and the self-guarded `directvideo.*` are movie code — keep, relocate, or stub them (movies are a product goal for later repair).
 - [ ] Delete the remaining `ui/aui_directx/` sources that are not needed for movie repair.
 - [ ] Purge `aui_directx` references from Windows/legacy project files: `ui/ui.dsp`, `ui/ui.vcxproj(.filters)`, `ctp2_code/Makefile.am`, `gs/newdb/Makefile.am`, plus stragglers in `net/net.dsp`, `gs/gs.dsp`, `robot*/…dsp`, `mapgen/plasma1.dsp`.
@@ -137,7 +137,7 @@ GameWatch was confirmed as obsolete plugin-based recording/delivery code (`gwciv
 
 Windows registry / DirectX startup cleanup removed the `.c2g` file-association registry writes, the fatal `dxver.dll` startup gate, and the duplicate AUI `dxver` probe. Movie/DirectShow COM code and networking/anet registry helpers are intentionally retained: movies should be repaired later, and networking is outside this milestone.
 
-DirectX AUI backend status (verified 2026-07-02): the active Meson build no longer references `ui/aui_directx` include paths or source files (`8eb6fe01`), but the source tree still exists and its *headers* are still compiled into SDL builds via the unguarded includes listed in the checkboxes above. `directvideo.*` stays in the Meson build but is fully self-guarded by `__AUI_USE_DIRECTX__`, so it compiles to nothing on SDL.
+DirectX AUI backend status (verified 2026-07-02): the active Meson build no longer references `ui/aui_directx` include paths or source files (`8eb6fe01`). The remaining unconditional `aui_directx` includes in active sources are now guarded (2026-07-02): `aui_Factory.cpp` and `c3blitter.cpp` wrap their DirectX headers in `#if defined(__AUI_USE_DIRECTX__)` (the symbols are only used in the matching `#elif defined(__AUI_USE_DIRECTX__)` branches), and `civ3_main.cpp` wraps `aui_directmoviemanager.h` in `#if !defined(__GNUC__)` to match the exact guard on the only `aui_DirectMovieManager` use. SDL builds (`make test`, `make ubsan-smoke`) no longer need the `ui/aui_directx` headers on disk. The `ui/aui_directx/` source tree still exists; deleting it (after settling movie-path handling) remains a later M7 checkbox. `directvideo.*` stays in the Meson build but is fully self-guarded by `__AUI_USE_DIRECTX__`, so it compiles to nothing on SDL.
 
 Do not remove yet:
 

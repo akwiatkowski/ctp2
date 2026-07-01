@@ -29,9 +29,11 @@
 #include "ctp/c3.h"
 #include "ui/aui_common/aui_Factory.h"
 
+#if defined(__AUI_USE_DIRECTX__)
 #include "ui/aui_directx/aui_directsurface.h"
 #include "ui/aui_directx/aui_directmouse.h"
 #include "ui/aui_directx/aui_directkeyboard.h"
+#endif
 
 #include "ui/aui_sdl/aui_sdlsurface.h"
 #include "ui/aui_sdl/aui_sdlmouse.h"

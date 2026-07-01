@@ -13,6 +13,9 @@ Recount any time with:
 ```sh
 grep -c '^- \[x\]' REFACTORING_PLAN.md   # done
 grep -c '^- \[ \]' REFACTORING_PLAN.md   # remaining
+# M11 memory phase is tracked in its own file (per-file checkboxes):
+grep -c '^- \[x\]' docs/memory-refactor-checklist.md   # files fixed
+grep -c '^- \[ \]' docs/memory-refactor-checklist.md   # files remaining
 ```
 
 ## Current Definition Of Done
@@ -55,7 +58,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M7 | Obsolete subsystem removal | 8/8 done | complete | obsolete code removed without network/movie regressions |
 | M8 | Modern asset pipeline spike | 5/5 done | complete | legacy sprite exports reproducibly; visual parity checked |
 | M9 | Close-out | 0/2 done | ~1 session | plan reflects reality; DoD declared |
-| M11 | Memory-safety refactoring (raw new/delete → RAII) | not started | multi-session (**priority**) | ratchet raw_new/raw_delete/c_allocation counts fall without behavior change |
+| M11 | Memory-safety refactoring (raw new/delete → RAII) | 0/574 files | multi-session (**priority**) | ratchet raw_new/raw_delete/c_allocation counts fall without behavior change |
 | M10 | Modern-asset converter + first-run (follow-on) | **parked** | deferred | `~/.ctp2` atlases generated from owned data; engine modern-first loader |
 
 ### M1: Baseline Safety Loop
@@ -182,6 +185,23 @@ Design doc done (2026-07-02): `docs/modern-assets.md` captures the agreed direct
 
 - [ ] Write a "Remaining Legacy-Risk Areas" section in this file consolidating: leftover warning categories (M2 note), ratchet counts (M3 note), deferred systems (network, movies, Windows project files), and any M7/M8 caveats.
 - [ ] Final verification pass (`make test`, `make ubsan-smoke`, clean worktree); update Overall Progress and declare the Definition of Done met.
+
+### M11: Memory-Safety Refactoring (priority phase)
+
+Scope requested by Olek (2026-07-02): systematically remove legacy manual memory management from the first-party engine — raw `new`/`delete`, `malloc`/`calloc`/`realloc`/`free`, and the raw-owning-pointer patterns around them — moving ownership to RAII / smart pointers (`std::unique_ptr`, `std::vector`, `std::string`, containers) without changing behavior.
+
+The per-file worklist lives in **`docs/memory-refactor-checklist.md`** — one checkbox per affected file (574 first-party files, ~6880 raw `new`/`delete`/alloc matches), grouped by module and sorted by size. This keeps the burn-down out of the short board here.
+
+Ground rules for this phase:
+
+- **First-party only.** Vendored `libs/**` (anet, freetype, tiff, zlib, miles, etc.) are upstream code and are excluded from the checklist — do not refactor them.
+- **Deferred sub-areas stay low priority within the phase:** networking (`net/**`, `ui/netshell/**`) is deferred per M7, and generated DB code (`gs/newdb`, `gs/dbgen`) should be fixed at the generator, not the output. Tests (`test/cpp`) are optional cleanup.
+- **One file (or one clear ownership cluster) per commit.** Preserve behavior exactly; no drive-by logic changes.
+- **Verify every batch** with `mise exec -- make test` (and `make ubsan-smoke` when touching headless/game-loop code), then **lower the ratchet baseline** (`tools/modernization/ratchet_baseline.json`) so the reduction is locked in and can't regress.
+- Prefer the smallest, clearest-ownership clusters first (a `new` with an obvious single `delete` in the same scope → `unique_ptr`/stack object) before tackling shared-ownership or hand-rolled containers.
+- The crude `rg` counts include false positives (the word "new"/"delete" in comments/strings, placement new, `operator delete` overrides); confirm real ownership before editing, and it is fine to tick a file whose remaining matches are all non-ownership noise.
+
+Progress is tracked as files ticked in the checklist, not as a single board checkbox. This phase is **beyond the original Definition of Done** (which M1–M9 cover) but is the current top priority; the modern-asset converter (M10) stays parked until it is well underway.
 
 ## Progress Rules
 

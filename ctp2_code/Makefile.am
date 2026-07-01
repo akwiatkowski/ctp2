@@ -209,18 +209,6 @@ ctp2_SOURCES = \
 	ui/aui_utils/primitives.cpp \
 	ui/aui_utils/textutils.cpp \
 	ui/aui_utils/vidplay.cpp \
-	ui/aui_directx/aui_directaudiomanager.cpp \
-	ui/aui_directx/aui_directblitter.cpp \
-	ui/aui_directx/aui_directinput.cpp \
-	ui/aui_directx/aui_directjoystick.cpp \
-	ui/aui_directx/aui_directkeyboard.cpp \
-	ui/aui_directx/aui_directmouse.cpp \
-	ui/aui_directx/aui_directmovie.cpp \
-	ui/aui_directx/aui_directmoviemanager.cpp \
-	ui/aui_directx/aui_directsound.cpp \
-	ui/aui_directx/aui_directsurface.cpp \
-	ui/aui_directx/aui_directui.cpp \
-	ui/aui_directx/aui_directx.cpp \
 	ui/aui_sdl/aui_sdl.cpp \
 	ui/aui_sdl/aui_sdlblitter.cpp \
 	ui/aui_sdl/aui_sdlinput.cpp \

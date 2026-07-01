@@ -194,7 +194,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>false</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\os\include\;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robot\utility;..\robot\pathing;..\robot\aibackdoor;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_directx\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;..\gs\newdb;..\ai\diplomacy;..\ai;..\ai\mapanalysis;..\ai\strategy\scheduler;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\squads;..\ai\citymanagement;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\os\include\;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robot\utility;..\robot\pathing;..\robot\aibackdoor;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;..\gs\newdb;..\ai\diplomacy;..\ai;..\ai\mapanalysis;..\ai\strategy\scheduler;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\squads;..\ai\citymanagement;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_BFR_;USE_LOGGING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\FinalLog\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\FinalLog\civctp.pch</PrecompiledHeaderOutputFile>
@@ -238,7 +238,7 @@
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <AdditionalIncludeDirectories>..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robot\utility;..\robot\pathing;..\robot\aibackdoor;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_directx\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;..\gs\newdb;..\ai\diplomacy;..\ai;..\ai\mapanalysis;..\ai\strategy\scheduler;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\squads;..\ai\citymanagement;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robot\utility;..\robot\pathing;..\robot\aibackdoor;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;..\gs\newdb;..\ai\diplomacy;..\ai;..\ai\mapanalysis;..\ai\strategy\scheduler;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\squads;..\ai\citymanagement;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;USE_NDBG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <AssemblerListingLocation>.\ctp2___W\</AssemblerListingLocation>
@@ -334,7 +334,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>false</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\os\include\;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robot\utility;..\robot\pathing;..\robot\aibackdoor;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_directx\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;..\gs\newdb;..\ai\diplomacy;..\ai;..\ai\mapanalysis;..\ai\strategy\scheduler;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\squads;..\ai\citymanagement;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\os\include\;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robot\utility;..\robot\pathing;..\robot\aibackdoor;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;..\gs\newdb;..\ai\diplomacy;..\ai;..\ai\mapanalysis;..\ai\strategy\scheduler;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\squads;..\ai\citymanagement;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_BFR_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\final\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\final\civctp.pch</PrecompiledHeaderOutputFile>
@@ -379,7 +379,7 @@
       <MinimalRebuild>true</MinimalRebuild>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <IntrinsicFunctions>false</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robotcom\incom;..\robot\utility;..\robot\pathing;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\newdb;..\gs\database;..\gs\events;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_directx\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\ui\slic_debug;..\ai;..\ai\CityManagement;..\ai\diplomacy;..\ai\mapanalysis;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\scheduler;..\ai\strategy\squads;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robotcom\incom;..\robot\utility;..\robot\pathing;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\newdb;..\gs\database;..\gs\events;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\ui\slic_debug;..\ai;..\ai\CityManagement;..\ai\diplomacy;..\ai\mapanalysis;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\scheduler;..\ai\strategy\squads;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_PLAYTEST;_AI_BACKDOOR;_DEBUG;_TEST;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Test\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Test\civctp.pch</PrecompiledHeaderOutputFile>
@@ -471,7 +471,7 @@
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robot\utility;..\robot\pathing;..\robot\aibackdoor;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_directx\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;..\gs\newdb;..\ai\diplomacy;..\ai;..\ai\mapanalysis;..\ai\strategy\scheduler;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\squads;..\ai\citymanagement;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robot\utility;..\robot\pathing;..\robot\aibackdoor;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;..\gs\newdb;..\ai\diplomacy;..\ai;..\ai\mapanalysis;..\ai\strategy\scheduler;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\squads;..\ai\citymanagement;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_PLAYTEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\ctp2___Win32_Optimized_Test1\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\ctp2___Win32_Optimized_Test1\civctp.pch</PrecompiledHeaderOutputFile>
@@ -517,7 +517,7 @@
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <AdditionalIncludeDirectories>..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robot\utility;..\robot\pathing;..\robot\aibackdoor;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_directx\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;..\gs\newdb;..\ai\diplomacy;..\ai;..\ai\mapanalysis;..\ai\strategy\scheduler;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\squads;..\ai\citymanagement;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils\;..\ctp\ctp2_rsrc\;..\ctp\debugtools;..\libs\freetype\lib;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\ui\netshell;..\robot\utility;..\robot\pathing;..\robot\aibackdoor;..\libs\freetype\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_utils\;..\ui\aui_sdl\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\mm\;..\robotcom\backdoor;..\gs\slic;..\gfx\layers;..\mapgen;..\ui\freetype;..\sound;..\libs\miles;..\ctp\fingerprint;..\libs\zlib;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;..\gs\newdb;..\ai\diplomacy;..\ai;..\ai\mapanalysis;..\ai\strategy\scheduler;..\ai\strategy\agents;..\ai\strategy\goals;..\ai\strategy\squads;..\ai\citymanagement;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_PLAYTEST;_DEBUG;_AI_BACKDOOR;WIN32;_WINDOWS;_DEBUGTOOLS;_DEBUG_MEMORY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
       <BrowseInformation>true</BrowseInformation>
@@ -1133,18 +1133,6 @@ rem                                                 if                          
     <ClInclude Include="..\ui\aui_ctp2\tipwindow.h" />
     <ClInclude Include="..\ui\aui_ctp2\unittabbutton.h" />
     <ClInclude Include="..\ui\aui_ctp2\videowindow.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directaudiomanager.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directblitter.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directinput.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directjoystick.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directkeyboard.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directmouse.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directmovie.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directmoviemanager.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directsound.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directsurface.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directui.h" />
-    <ClInclude Include="..\ui\aui_directx\aui_directx.h" />
     <ClInclude Include="..\ui\aui_sdl\aui_sdl.h" />
     <ClInclude Include="..\ui\aui_sdl\aui_sdlinput.h" />
     <ClInclude Include="..\ui\aui_sdl\aui_sdljoystick.h" />
@@ -2531,118 +2519,6 @@ rem                                                 if                          
     <ClCompile Include="..\ui\aui_ctp2\tipwindow.cpp" />
     <ClCompile Include="..\ui\aui_ctp2\unittabbutton.cpp" />
     <ClCompile Include="..\ui\aui_ctp2\videowindow.cpp" />
-    <ClCompile Include="..\ui\aui_directx\aui_directaudiomanager.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directblitter.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directinput.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directjoystick.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directkeyboard.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directmouse.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directmovie.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directmoviemanager.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directsound.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directsurface.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directui.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final with Logging|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='NDebug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Optimized Test|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\ui\aui_sdl\aui_sdl.cpp" />
     <ClCompile Include="..\ui\aui_sdl\aui_sdlinput.cpp" />
     <ClCompile Include="..\ui\aui_sdl\aui_sdljoystick.cpp" />

@@ -545,7 +545,6 @@ AM_CPPFLAGS=\
 	-I$(ctp2_code)/net/general \
 	-I$(ctp2_code)/ui/aui_utils \
 	-I$(ctp2_code)/ui/aui_sdl \
-	-I$(ctp2_code)/ui/aui_directx \
 	-I$(ctp2_code)/ui/aui_ctp2 \
 	-I$(ctp2_code)/ui/aui_common \
 		$(INCORDER_ctp2_code__libs__tiff) \

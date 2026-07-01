@@ -111,9 +111,6 @@
     <Filter Include="ui\aui_utils">
       <UniqueIdentifier>{8bb62971-8221-4341-91fe-e61036386bde}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ui\aui_directx">
-      <UniqueIdentifier>{52fb7d3b-b91f-4925-8397-f1bef4067617}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ui\aui_sdl">
       <UniqueIdentifier>{af724a34-9634-45d2-bba1-c35c9bbb6eed}</UniqueIdentifier>
     </Filter>
@@ -1593,42 +1590,6 @@
     </ClInclude>
     <ClInclude Include="..\ui\aui_utils\vidplay.h">
       <Filter>ui\aui_utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directaudiomanager.h">
-      <Filter>ui\aui_directx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directblitter.h">
-      <Filter>ui\aui_directx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directinput.h">
-      <Filter>ui\aui_directx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directjoystick.h">
-      <Filter>ui\aui_directx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directkeyboard.h">
-      <Filter>ui\aui_directx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directmouse.h">
-      <Filter>ui\aui_directx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directmovie.h">
-      <Filter>ui\aui_directx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directmoviemanager.h">
-      <Filter>ui\aui_directx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directsound.h">
-      <Filter>ui\aui_directx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directsurface.h">
-      <Filter>ui\aui_directx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directui.h">
-      <Filter>ui\aui_directx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ui\aui_directx\aui_directx.h">
-      <Filter>ui\aui_directx</Filter>
     </ClInclude>
     <ClInclude Include="..\ui\aui_sdl\aui_sdl.h">
       <Filter>ui\aui_sdl</Filter>
@@ -3854,42 +3815,6 @@
     </ClCompile>
     <ClCompile Include="..\ui\aui_utils\vidplay.cpp">
       <Filter>ui\aui_utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directaudiomanager.cpp">
-      <Filter>ui\aui_directx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directblitter.cpp">
-      <Filter>ui\aui_directx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directinput.cpp">
-      <Filter>ui\aui_directx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directjoystick.cpp">
-      <Filter>ui\aui_directx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directkeyboard.cpp">
-      <Filter>ui\aui_directx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directmouse.cpp">
-      <Filter>ui\aui_directx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directmovie.cpp">
-      <Filter>ui\aui_directx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directmoviemanager.cpp">
-      <Filter>ui\aui_directx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directsound.cpp">
-      <Filter>ui\aui_directx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directsurface.cpp">
-      <Filter>ui\aui_directx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directui.cpp">
-      <Filter>ui\aui_directx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ui\aui_directx\aui_directx.cpp">
-      <Filter>ui\aui_directx</Filter>
     </ClCompile>
     <ClCompile Include="..\ui\aui_sdl\aui_sdl.cpp">
       <Filter>ui\aui_sdl</Filter>

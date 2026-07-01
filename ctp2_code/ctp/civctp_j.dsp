@@ -48,7 +48,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G5 /MD /W3 /GX /Zd /Og /Oi /Os /Ob2 /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /Yu"c3.h" /FD /c
+# ADD CPP /nologo /G5 /MD /W3 /GX /Zd /Og /Oi /Os /Ob2 /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /Yu"c3.h" /FD /c
 # SUBTRACT CPP /Ox
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -76,7 +76,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "_PLAYTEST" /D "_DEBUG" /D "_AI_BACKDOOR" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "_DEBUGTOOLS" /D "_DEBUG_MEMORY" /Yu"c3.h" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "_PLAYTEST" /D "_DEBUG" /D "_AI_BACKDOOR" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "_DEBUGTOOLS" /D "_DEBUG_MEMORY" /Yu"c3.h" /FD /c
 # SUBTRACT CPP /X /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -104,9 +104,9 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Test"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\ctp2\\" /I "..\ctp2\ctp2_utils\\" /I "..\ctp2\ctp2_rsrc\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\ctp2\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AI_BACKDOOR" /Yu"c3.h" /FD /c
+# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\ctp2\\" /I "..\ctp2\ctp2_utils\\" /I "..\ctp2\ctp2_rsrc\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\ctp2\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AI_BACKDOOR" /Yu"c3.h" /FD /c
 # SUBTRACT BASE CPP /X /Fr
-# ADD CPP /nologo /G6 /MD /W3 /Gm /GX /Zi /Ot /Og /Ob2 /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /D "_PLAYTEST" /D "_AI_BACKDOOR" /D "_DEBUG" /D "_TEST" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /Yu"c3.h" /FD /c
+# ADD CPP /nologo /G6 /MD /W3 /Gm /GX /Zi /Ot /Og /Ob2 /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /D "_PLAYTEST" /D "_AI_BACKDOOR" /D "_DEBUG" /D "_TEST" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /Yu"c3.h" /FD /c
 # SUBTRACT CPP /Ox /Ow /Oi
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -135,9 +135,9 @@ LINK32=link.exe
 # PROP Intermediate_Dir "ctp2___W"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\ctp\\" /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /D "_DEBUG" /D "_AI_BACKDOOR" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /Yu"c3.h" /FD /c
+# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\ctp\\" /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /D "_DEBUG" /D "_AI_BACKDOOR" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /Yu"c3.h" /FD /c
 # SUBTRACT BASE CPP /X /Fr
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "USE_NDBG" /U "_DEBUG" /Yu"c3.h" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "USE_NDBG" /U "_DEBUG" /Yu"c3.h" /FD /c
 # SUBTRACT CPP /X /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -166,8 +166,8 @@ LINK32=link.exe
 # PROP Intermediate_Dir "final"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /G5 /MD /W3 /GX /Ox /Ot /Og /Oi /Op /Oy- /Ob2 /I "..\ctp\\" /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /Yu"c3.h" /FD /c
-# ADD CPP /nologo /G5 /MD /W3 /GX /Ox /Ot /Og /Oi /Op /Oy- /Ob2 /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "_BFR_" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_JAPANESE" /Yu"c3.h" /FD /c
+# ADD BASE CPP /nologo /G5 /MD /W3 /GX /Ox /Ot /Og /Oi /Op /Oy- /Ob2 /I "..\ctp\\" /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /Yu"c3.h" /FD /c
+# ADD CPP /nologo /G5 /MD /W3 /GX /Ox /Ot /Og /Oi /Op /Oy- /Ob2 /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "_BFR_" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_JAPANESE" /Yu"c3.h" /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -195,9 +195,9 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "_DEBUG" /D "_AI_BACKDOOR" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "_DEBUGTOOLS" /D "_DEBUG_MEMORY" /Yu"c3.h" /FD /c
+# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "_DEBUG" /D "_AI_BACKDOOR" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "_DEBUGTOOLS" /D "_DEBUG_MEMORY" /Yu"c3.h" /FD /c
 # SUBTRACT BASE CPP /X /Fr
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "_PLAYTEST" /D "_AI_BACKDOOR" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "_DEBUGTOOLS" /D "_DEBUG_MEMORY" /D "WIN32" /D "_DEBUG" /D "_JAPANESE" /Fr /Yu"c3.h" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "_PLAYTEST" /D "_AI_BACKDOOR" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "_DEBUGTOOLS" /D "_DEBUG_MEMORY" /D "WIN32" /D "_DEBUG" /D "_JAPANESE" /Fr /Yu"c3.h" /FD /c
 # SUBTRACT CPP /X
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -231,9 +231,9 @@ PostBuild_Cmds=if                               exist                           
 # PROP Intermediate_Dir "ctp2___Win32_Optimized_Test1"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /G5 /MD /W3 /GX /Zd /Og /Oi /Os /Ob2 /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /Yu"c3.h" /FD /c
+# ADD BASE CPP /nologo /G5 /MD /W3 /GX /Zd /Og /Oi /Os /Ob2 /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /Yu"c3.h" /FD /c
 # SUBTRACT BASE CPP /Ox
-# ADD CPP /nologo /G5 /MD /W3 /GX /Zd /Og /Oi /Os /Ob2 /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "_PLAYTEST" /Yu"c3.h" /FD /c
+# ADD CPP /nologo /G5 /MD /W3 /GX /Zd /Og /Oi /Os /Ob2 /I "..\ctp\ctp2_utils\\" /I "..\ctp\ctp2_rsrc\\" /I "..\ctp\debugtools" /I "..\libs\freetype\lib" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\ui\netshell" /I "..\robot\utility" /I "..\robot\pathing" /I "..\robot\aibackdoor" /I "..\libs\freetype\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_utils\\" /I "..\ui\aui_ctp2\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\mm\\" /I "..\robotcom\backdoor" /I "..\gs\slic" /I "..\gfx\layers" /I "..\mapgen" /I "..\ui\freetype" /I "..\sound" /I "..\GameWatch\gamewatch" /I "..\GameWatch\gwciv" /I "..\libs\miles" /I "..\ctp\fingerprint" /I "..\libs\zlib" /I "..\ui\slic_debug" /I "..\gs\outcom" /I "..\ctp\\" /I "..\ui\aui_common" /I "..\ui\ldl" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\libs\directx\include" /I "..\gs\events" /I "..\gs\newdb" /I "..\ai\diplomacy" /I "..\ai" /I "..\ai\mapanalysis" /I "..\ai\strategy\scheduler" /I "..\ai\strategy\agents" /I "..\ai\strategy\goals" /I "..\ai\strategy\squads" /I "..\ai\citymanagement" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__GW_USE_IMPORT" /D "__GWCIV_USE_IMPORT" /D "_PLAYTEST" /Yu"c3.h" /FD /c
 # SUBTRACT CPP /Ox /Ot
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -7562,506 +7562,6 @@ SOURCE=..\ui\aui_utils\vidplay.cpp
 # Begin Source File
 
 SOURCE=..\ui\aui_utils\vidplay.h
-# End Source File
-# End Group
-# Begin Group "aui_directx"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directaudiomanager.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directaudiomanager.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directblitter.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directblitter.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directinput.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directinput.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directjoystick.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directjoystick.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directkeyboard.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directkeyboard.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directmouse.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directmouse.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directmovie.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directmovie.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directmoviemanager.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directmoviemanager.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directsound.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directsound.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directsurface.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directsurface.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directui.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directui.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directx.cpp
-
-!IF  "$(CFG)" == "ctp2 - Win32 Release"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug"
-
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Test"
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 NDebug"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Final"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Debug Browse"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ELSEIF  "$(CFG)" == "ctp2 - Win32 Optimized Test"
-
-# ADD BASE CPP /Yu
-# ADD CPP /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\ui\aui_directx\aui_directx.h
 # End Source File
 # End Group
 # Begin Group "aui_ctp2"

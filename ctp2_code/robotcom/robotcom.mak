@@ -182,7 +182,7 @@ CPP_PROJ=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\civ3\debugtools" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
@@ -515,7 +515,7 @@ CPP_PROJ=/nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
@@ -848,7 +848,7 @@ CPP_PROJ=/nologo /MD /W3 /Gm /GX /Zi /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "_AIDLL" /D "_TEST" /D "WIN32" /D\
@@ -1630,7 +1630,7 @@ CPP_SWITCHES=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\civ3\debugtools" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
@@ -1688,7 +1688,7 @@ CPP_SWITCHES=/nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
@@ -1720,7 +1720,7 @@ CPP_SWITCHES=/nologo /MD /W3 /Gm /GX /Zi /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "_AIDLL" /D "_TEST" /D "WIN32" /D\
@@ -2521,7 +2521,7 @@ CPP_SWITCHES=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\civ3\debugtools" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
@@ -2596,7 +2596,7 @@ CPP_SWITCHES=/nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
@@ -2643,7 +2643,7 @@ CPP_SWITCHES=/nologo /MD /W3 /Gm /GX /Zi /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "_AIDLL" /D "_TEST" /D "WIN32" /D\
@@ -4791,7 +4791,7 @@ CPP_SWITCHES=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\civ3\debugtools" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
@@ -4828,7 +4828,7 @@ CPP_SWITCHES=/nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
@@ -4863,7 +4863,7 @@ CPP_SWITCHES=/nologo /MD /W3 /Gm /GX /Zi /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "_AIDLL" /D "_TEST" /D "WIN32" /D\
@@ -4901,7 +4901,7 @@ CPP_SWITCHES=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\civ3\debugtools" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
@@ -4937,7 +4937,7 @@ CPP_SWITCHES=/nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
@@ -4971,7 +4971,7 @@ CPP_SWITCHES=/nologo /MD /W3 /Gm /GX /Zi /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "_AIDLL" /D "_TEST" /D "WIN32" /D\
@@ -5010,7 +5010,7 @@ CPP_SWITCHES=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\civ3\debugtools" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
@@ -5047,7 +5047,7 @@ CPP_SWITCHES=/nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
@@ -5082,7 +5082,7 @@ CPP_SWITCHES=/nologo /MD /W3 /Gm /GX /Zi /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "_AIDLL" /D "_TEST" /D "WIN32" /D\
@@ -5121,7 +5121,7 @@ CPP_SWITCHES=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\civ3\debugtools" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
@@ -5158,7 +5158,7 @@ CPP_SWITCHES=/nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
@@ -5193,7 +5193,7 @@ CPP_SWITCHES=/nologo /MD /W3 /Gm /GX /Zi /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "_AIDLL" /D "_TEST" /D "WIN32" /D\
@@ -5232,7 +5232,7 @@ CPP_SWITCHES=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\civ3\debugtools" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
@@ -5269,7 +5269,7 @@ CPP_SWITCHES=/nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
@@ -5304,7 +5304,7 @@ CPP_SWITCHES=/nologo /MD /W3 /Gm /GX /Zi /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "_AIDLL" /D "_TEST" /D "WIN32" /D\
@@ -5340,7 +5340,7 @@ CPP_SWITCHES=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\civ3\debugtools" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
@@ -5369,7 +5369,7 @@ CPP_SWITCHES=/nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
@@ -5396,7 +5396,7 @@ CPP_SWITCHES=/nologo /MD /W3 /Gm /GX /Zi /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "_AIDLL" /D "_TEST" /D "WIN32" /D\
@@ -8668,7 +8668,7 @@ CPP_SWITCHES=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\civ3\debugtools" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
@@ -8701,7 +8701,7 @@ CPP_SWITCHES=/nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
@@ -8734,7 +8734,7 @@ CPP_SWITCHES=/nologo /MD /W3 /Gm /GX /Zi /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "_AIDLL" /D "_TEST" /D "WIN32" /D\
@@ -8769,7 +8769,7 @@ CPP_SWITCHES=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\civ3\debugtools" /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
@@ -8796,7 +8796,7 @@ CPP_SWITCHES=/nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
@@ -8823,7 +8823,7 @@ CPP_SWITCHES=/nologo /MD /W3 /Gm /GX /Zi /O2 /Ob2 /I "..\robotcom\Top" /I\
  "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I\
  "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I\
  "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I\
- "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
+ "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I\
  "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I\
  "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I\
  "..\ui\freetype\\" /I "..\ctp\debugtools" /D "_AIDLL" /D "_TEST" /D "WIN32" /D\

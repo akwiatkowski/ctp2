@@ -40,7 +40,7 @@ CPP=cl.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /I "..\libs\freetype\lib\\" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\civ3\\" /I "..\civ3\civ3_utils\\" /I "..\civ3\civ3_rsrc\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\mm\\" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# ADD CPP /nologo /W3 /GX /O2 /I "..\libs\freetype\lib\\" /I "..\libs\freetype\utils\\" /I "..\libs\freetype\win32\\" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\civ3\\" /I "..\civ3\civ3_utils\\" /I "..\civ3\civ3_rsrc\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\mm\\" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -61,7 +61,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /Zi /Od /I "..\robotcom\backdoor" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\civ3\\" /I "..\civ3\civ3_utils\\" /I "..\civ3\civ3_rsrc\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\gs\slic" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AI_BACKDOOR" /Fr /YX"c3.h" /FD /c
+# ADD CPP /nologo /W3 /GX /Zi /Od /I "..\robotcom\backdoor" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\civ3\\" /I "..\civ3\civ3_utils\\" /I "..\civ3\civ3_rsrc\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\gs\slic" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AI_BACKDOOR" /Fr /YX"c3.h" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -81,9 +81,9 @@ LIB32=link.exe -lib
 # PROP Output_Dir "Test"
 # PROP Intermediate_Dir "Test"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /GX /Zi /Od /I "..\robotcom\backdoor" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\civ3\\" /I "..\civ3\civ3_utils\\" /I "..\civ3\civ3_rsrc\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\gs\slic" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AI_BACKDOOR" /YX"c3.h" /FD /c
+# ADD BASE CPP /nologo /W3 /GX /Zi /Od /I "..\robotcom\backdoor" /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\ui\interface" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\civ3\\" /I "..\civ3\civ3_utils\\" /I "..\civ3\civ3_rsrc\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /I "..\gs\slic" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AI_BACKDOOR" /YX"c3.h" /FD /c
 # SUBTRACT BASE CPP /Fr
-# ADD CPP /nologo /G5 /MT /W3 /GX /Zi /Ob2 /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\gs\slic" /I "..\robotcom\backdoor" /I "..\ui\interface" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\civ3\\" /I "..\civ3\civ3_utils\\" /I "..\civ3\civ3_rsrc\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_directx\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AI_BACKDOOR" /YX"c3.h" /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /Zi /Ob2 /I "..\libs\freetype\utils" /I "..\libs\freetype\win32" /I "..\gs\slic" /I "..\robotcom\backdoor" /I "..\ui\interface" /I "..\gs\outcom" /I "..\robotcom\incom" /I "..\robot\utility" /I "..\robot\pathing" /I "..\libs\freetype\\" /I "..\civ3\\" /I "..\civ3\civ3_utils\\" /I "..\civ3\civ3_rsrc\\" /I "..\gfx\spritesys\\" /I "..\gfx\tilesys\\" /I "..\gfx\gfx_utils\\" /I "..\gs\database" /I "..\gs\fileio\\" /I "..\gs\gameobj\\" /I "..\gs\utility\\" /I "..\gs\world\\" /I "..\net\io\\" /I "..\net\general\\" /I "..\ui\aui_common" /I "..\ui\aui_utils\\" /I "..\ui\aui_civ3\\" /I "..\ui\aui_common\\" /I "..\ui\ldl" /I "..\libs\tiff\\" /I "..\libs\anet\h\\" /I "..\libs\dxmedia\classes\base" /I "..\libs\dxmedia\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AI_BACKDOOR" /YX"c3.h" /FD /c
 # SUBTRACT CPP /Fr
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
@@ -565,98 +565,6 @@ SOURCE=.\aui_utils\textutils.cpp
 # Begin Source File
 
 SOURCE=.\aui_utils\textutils.h
-# End Source File
-# End Group
-# Begin Group "aui_directx"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directaudiomanager.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directaudiomanager.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directblitter.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directblitter.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directinput.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directinput.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directjoystick.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directjoystick.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directkeyboard.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directkeyboard.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directmouse.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directmouse.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directsound.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directsound.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directsurface.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directsurface.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directui.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directui.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directwindow.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directwindow.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directx.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\aui_directx\aui_directx.h
 # End Source File
 # End Group
 # Begin Group "aui_civ3"

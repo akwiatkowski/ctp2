@@ -252,7 +252,7 @@
       <WarningLevel>Level3</WarningLevel>
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\gs\gameobj;..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils;..\ui\aui_directx;..\ui\freetype;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\gs\gameobj;..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils;..\ui\freetype;..\ui\slic_debug;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;..\gs\events;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_PLAYTEST;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Crater_0\</AssemblerListingLocation>
       <BrowseInformation>true</BrowseInformation>
@@ -297,7 +297,7 @@
       <WarningLevel>Level3</WarningLevel>
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\gs\gameobj;..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils;..\ui\aui_directx;..\ui\freetype;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\gs\gameobj;..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils;..\ui\freetype;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Crater_2\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Crater_2\Crater.pch</PrecompiledHeaderOutputFile>
@@ -341,7 +341,7 @@
       <WarningLevel>Level3</WarningLevel>
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\gs\gameobj;..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils;..\ui\aui_directx;..\ui\freetype;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\gs\gameobj;..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils;..\ui\freetype;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_PLAYTEST;WIN32;_DEBUG;_WINDOWS;_DEBUGTOOLS;_DEBUG_MEMORY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Crater_3\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Crater_3\Crater.pch</PrecompiledHeaderOutputFile>
@@ -385,7 +385,7 @@
       <WarningLevel>Level3</WarningLevel>
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\gs\gameobj;..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils;..\ui\aui_directx;..\ui\freetype;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\gs\gameobj;..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils;..\ui\freetype;..\gs\outcom;..\ctp\;..\ui\aui_common;..\ui\ldl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Crater_1\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Crater_1\Crater.pch</PrecompiledHeaderOutputFile>
@@ -430,7 +430,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>false</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils;..\ui\aui_directx;..\ui\freetype;..\gs\outcom;..\gs\gameobj;..\ctp\;..\ui\aui_common;..\ui\ldl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\os\include;..\os\common;..\os\win32;..\ctp\ctp2_utils;..\ui\freetype;..\gs\outcom;..\gs\gameobj;..\ctp\;..\ui\aui_common;..\ui\ldl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\final\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\final\Crater.pch</PrecompiledHeaderOutputFile>

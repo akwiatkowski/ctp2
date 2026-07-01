@@ -743,18 +743,6 @@ module.include.files=\
 	../../../ctp2_code/ui/interface/scoretab.h\
 	../../../ctp2_code/ui/interface/citywindow.h\
 	../../../ctp2_code/ui/interface/graphicsscreen.h\
-	../../../ctp2_code/ui/aui_directx/aui_directsound.h\
-	../../../ctp2_code/ui/aui_directx/aui_directsurface.h\
-	../../../ctp2_code/ui/aui_directx/aui_directmouse.h\
-	../../../ctp2_code/ui/aui_directx/aui_directmovie.h\
-	../../../ctp2_code/ui/aui_directx/aui_directx.h\
-	../../../ctp2_code/ui/aui_directx/aui_directmoviemanager.h\
-	../../../ctp2_code/ui/aui_directx/aui_directui.h\
-	../../../ctp2_code/ui/aui_directx/aui_directjoystick.h\
-	../../../ctp2_code/ui/aui_directx/aui_directkeyboard.h\
-	../../../ctp2_code/ui/aui_directx/aui_directinput.h\
-	../../../ctp2_code/ui/aui_directx/aui_directblitter.h\
-	../../../ctp2_code/ui/aui_directx/aui_directaudiomanager.h\
 	../../../ctp2_code/ui/aui_utils/vidplay.h\
 	../../../ctp2_code/ui/aui_utils/textutils.h\
 	../../../ctp2_code/ui/aui_utils/primitives.h\
@@ -1784,18 +1772,6 @@ module.source.files=\
 	../../../ctp2_code/ui/interface/battle.cpp\
 	../../../ctp2_code/ui/interface/rankingtab.cpp\
 	../../../ctp2_code/ui/interface/spriteeditor.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directui.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directsound.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directinput.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directkeyboard.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directjoystick.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directaudiomanager.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directsurface.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directmouse.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directmovie.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directmoviemanager.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directblitter.cpp\
-	../../../ctp2_code/ui/aui_directx/aui_directx.cpp\
 	../../../ctp2_code/ui/aui_utils/textutils.cpp\
 	../../../ctp2_code/ui/aui_utils/primitives.cpp\
 	../../../ctp2_code/ui/aui_utils/vidplay.cpp\

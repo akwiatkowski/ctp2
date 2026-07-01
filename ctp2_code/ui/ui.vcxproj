@@ -100,7 +100,7 @@
       <Optimization>MaxSpeed</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>..\libs\freetype\lib\;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\robot\utility;..\robot\pathing;..\libs\freetype\;..\civ3\;..\civ3\civ3_utils\;..\civ3\civ3_rsrc\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_common;..\ui\aui_utils\;..\ui\aui_directx\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\libs\dxmedia\classes\base;..\libs\dxmedia\include;..\mm\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\freetype\lib\;..\libs\freetype\utils\;..\libs\freetype\win32\;..\libs\freetype\utils;..\libs\freetype\win32;..\robot\utility;..\robot\pathing;..\libs\freetype\;..\civ3\;..\civ3\civ3_utils\;..\civ3\civ3_rsrc\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_common;..\ui\aui_utils\;..\ui\aui_ctp2\;..\ui\aui_common\;..\libs\tiff\;..\libs\anet\h\;..\libs\dxmedia\classes\base;..\libs\dxmedia\include;..\mm\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Release\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Release\ui.pch</PrecompiledHeaderOutputFile>
@@ -125,7 +125,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\ctp\ctp2_utils;..\robotcom\backdoor;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\gs\outcom;..\robotcom\incom;..\robot\utility;..\robot\pathing;..\libs\freetype-1.3.1\lib;..\civ3\;..\civ3\civ3_utils\;..\civ3\civ3_rsrc\;..\gfx\spritesys\;..\os\include;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_common;..\ui\aui_utils\;..\ui\aui_directx\;..\ui\aui_ctp2\;..\ui\aui_common\;..\ui\ldl;..\libs\tiff\;..\libs\anet\h\;..\libs\dxmedia\classes\base;..\libs\dxmedia\include;..\ctp;..\gs\slic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\ctp\ctp2_utils;..\robotcom\backdoor;..\libs\freetype\utils;..\libs\freetype\win32;..\ui\interface;..\gs\outcom;..\robotcom\incom;..\robot\utility;..\robot\pathing;..\libs\freetype-1.3.1\lib;..\civ3\;..\civ3\civ3_utils\;..\civ3\civ3_rsrc\;..\gfx\spritesys\;..\os\include;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_common;..\ui\aui_utils\;..\ui\aui_ctp2\;..\ui\aui_common\;..\ui\ldl;..\libs\tiff\;..\libs\anet\h\;..\libs\dxmedia\classes\base;..\libs\dxmedia\include;..\ctp;..\gs\slic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_AI_BACKDOOR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
       <BrowseInformation>true</BrowseInformation>
@@ -150,7 +150,7 @@
       <Optimization>Disabled</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>..\libs\freetype\utils;..\libs\freetype\win32;..\gs\slic;..\robotcom\backdoor;..\ui\interface;..\gs\outcom;..\robotcom\incom;..\robot\utility;..\robot\pathing;..\libs\freetype\;..\civ3\;..\civ3\civ3_utils\;..\civ3\civ3_rsrc\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_common;..\ui\aui_utils\;..\ui\aui_directx\;..\ui\aui_ctp2\;..\ui\aui_common\;..\ui\ldl;..\libs\tiff\;..\libs\anet\h\;..\libs\dxmedia\classes\base;..\libs\dxmedia\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\freetype\utils;..\libs\freetype\win32;..\gs\slic;..\robotcom\backdoor;..\ui\interface;..\gs\outcom;..\robotcom\incom;..\robot\utility;..\robot\pathing;..\libs\freetype\;..\civ3\;..\civ3\civ3_utils\;..\civ3\civ3_rsrc\;..\gfx\spritesys\;..\gfx\tilesys\;..\gfx\gfx_utils\;..\gs\database;..\gs\fileio\;..\gs\gameobj\;..\gs\utility\;..\gs\world\;..\net\io\;..\net\general\;..\ui\aui_common;..\ui\aui_utils\;..\ui\aui_ctp2\;..\ui\aui_common\;..\ui\ldl;..\libs\tiff\;..\libs\anet\h\;..\libs\dxmedia\classes\base;..\libs\dxmedia\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_AI_BACKDOOR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Test\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Test\ui.pch</PrecompiledHeaderOutputFile>
@@ -295,17 +295,6 @@
     <ClInclude Include="aui_common\Dxver.h" />
     <ClInclude Include="aui_common\tech_memory.h" />
     <ClInclude Include="aui_common\tech_wllist.h" />
-    <ClInclude Include="aui_directx\aui_directaudiomanager.h" />
-    <ClInclude Include="aui_directx\aui_directblitter.h" />
-    <ClInclude Include="aui_directx\aui_directinput.h" />
-    <ClInclude Include="aui_directx\aui_directjoystick.h" />
-    <ClInclude Include="aui_directx\aui_directkeyboard.h" />
-    <ClInclude Include="aui_directx\aui_directmouse.h" />
-    <ClInclude Include="aui_directx\aui_directsound.h" />
-    <ClInclude Include="aui_directx\aui_directsurface.h" />
-    <ClInclude Include="aui_directx\aui_directui.h" />
-    <ClInclude Include="aui_directx\aui_directwindow.h" />
-    <ClInclude Include="aui_directx\aui_directx.h" />
     <ClInclude Include="aui_utils\primitives.h" />
     <ClInclude Include="aui_utils\textutils.h" />
     <ClInclude Include="interface\advancespad.h" />
@@ -506,17 +495,6 @@
     <ClCompile Include="aui_common\aui_uniqueid.cpp" />
     <ClCompile Include="aui_common\aui_win.cpp" />
     <ClCompile Include="aui_common\aui_window.cpp" />
-    <ClCompile Include="aui_directx\aui_directaudiomanager.cpp" />
-    <ClCompile Include="aui_directx\aui_directblitter.cpp" />
-    <ClCompile Include="aui_directx\aui_directinput.cpp" />
-    <ClCompile Include="aui_directx\aui_directjoystick.cpp" />
-    <ClCompile Include="aui_directx\aui_directkeyboard.cpp" />
-    <ClCompile Include="aui_directx\aui_directmouse.cpp" />
-    <ClCompile Include="aui_directx\aui_directsound.cpp" />
-    <ClCompile Include="aui_directx\aui_directsurface.cpp" />
-    <ClCompile Include="aui_directx\aui_directui.cpp" />
-    <ClCompile Include="aui_directx\aui_directwindow.cpp" />
-    <ClCompile Include="aui_directx\aui_directx.cpp" />
     <ClCompile Include="aui_utils\primitives.cpp" />
     <ClCompile Include="aui_utils\textutils.cpp" />
     <ClCompile Include="interface\advancespad.cpp" />

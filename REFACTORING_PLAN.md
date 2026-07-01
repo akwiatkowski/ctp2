@@ -6,7 +6,7 @@ This file is deliberately plain Markdown so it is easy for different LLMs (OpenA
 
 ## Overall Progress
 
-**36 / 45 checkboxes done (~80%).** Remaining bounded work: **about 4-7 focused sessions** (M7 finish + M8 + M9 close-out).
+**38 / 45 checkboxes done (~84%).** M7 is complete. Remaining bounded work: **about 4-7 focused sessions** (M8 asset-pipeline spike + M9 close-out).
 
 Recount any time with:
 
@@ -52,7 +52,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M4 | Timelapse/play tooling polish | 5/5 done | complete | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | 3/3 done | complete | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 4/4 done | complete | all standard checks, plan updated |
-| M7 | Obsolete subsystem removal | 6/8 done | 1-3 sessions | obsolete code removed without network/movie regressions |
+| M7 | Obsolete subsystem removal | 8/8 done | complete | obsolete code removed without network/movie regressions |
 | M8 | Modern asset pipeline spike | 0/5 done | 3-6 sessions | legacy sprite exports reproducibly; visual parity checked |
 | M9 | Close-out | 0/2 done | ~1 session | plan reflects reality; DoD declared |
 
@@ -130,8 +130,8 @@ Scope: remove legacy systems that are no longer product goals. Windows support s
 - [x] Guard or drop the unconditional `aui_directx` includes in active sources: `ui/aui_common/aui_Factory.cpp` (3 headers), `ui/aui_ctp2/c3blitter.cpp` (`aui_directsurface.h`), `ctp/civ3_main.cpp` (`aui_directmoviemanager.h`). Use branches (`c3ui.h` `#else` pattern) or `__AUI_USE_DIRECTX__` guards so SDL builds no longer need the headers on disk.
 - [x] Decide movie-path handling before deletion: `aui_directmovie.*` / `aui_directmoviemanager.*` and the self-guarded `directvideo.*` are movie code — keep, relocate, or stub them (movies are a product goal for later repair).
 - [x] Delete the remaining `ui/aui_directx/` sources that are not needed for movie repair.
-- [ ] Purge `aui_directx` references from Windows/legacy project files: `ui/ui.dsp`, `ui/ui.vcxproj(.filters)`, `ctp2_code/Makefile.am`, `gs/newdb/Makefile.am`, plus stragglers in `net/net.dsp`, `gs/gs.dsp`, `robot*/…dsp`, `mapgen/plasma1.dsp`.
-- [ ] Re-run `make test`, `git diff --check`, and `make ubsan-smoke`; record any retained compatibility caveats here.
+- [x] Purge `aui_directx` references from Windows/legacy project files: `ui/ui.dsp`, `ui/ui.vcxproj(.filters)`, `ctp2_code/Makefile.am`, `gs/newdb/Makefile.am`, plus stragglers in `net/net.dsp`, `gs/gs.dsp`, `robot*/…dsp`, `mapgen/plasma1.dsp`.
+- [x] Re-run `make test`, `git diff --check`, and `make ubsan-smoke`; record any retained compatibility caveats here.
 
 GameWatch was confirmed as obsolete plugin-based recording/delivery code (`gwciv`, `gwfile`, `gwarchive`) that wrote unit build/kill records and `recordN.dat` payloads. Runtime hooks, profile setting, active Meson include path, legacy autotools include paths, source tree, DLL, and static libraries were removed in `b4f79eb0`. Stale Visual Studio GameWatch include paths, import defines, and library dependencies were removed with the Windows registry / DirectX startup cleanup batch.
 
@@ -145,6 +145,10 @@ Movie-path handling decision (2026-07-02): **keep movie code in place, guarded; 
 - `ui/aui_directx/aui_directmovie.*` and `aui_directmoviemanager.*` are the DirectShow reference implementation, guarded by `__AUI_USE_DIRECTMEDIA__` and absent from the Meson build. Keep them as the thing to repair later. The only active-source touch is `civ3_main.cpp`, whose include and `new aui_DirectMovieManager()` use are both guarded (`!__GNUC__`).
 - The cross-platform movie surface already compiles in the SDL build and stays: `ui/aui_common/aui_movie.*` / `aui_moviemanager.*` / `aui_moviebutton.*`, `ui/aui_ctp2/directvideo.*` (self-guarded by `__AUI_USE_DIRECTX__`), `gs/database/moviedb.*`, and the `ui/interface/*moviewin*` windows.
 - Consequence for the next checkbox: `aui_directmovie.cpp` includes sibling headers `aui_directui.h` and `aui_directsurface.h`, so those two headers count as "needed for movie repair" and must be retained (or their loss explicitly accepted as dangling includes) when the rest of `ui/aui_directx/` is deleted.
+
+Project-file purge done (2026-07-02): removed every `aui_directx` reference from the 27 legacy VS6/autotools/VS project files (`ui/ui.dsp`, `ui/ui.vcxproj(.filters)`, `ctp/civctp.{dsp,vcxproj,vcxproj.filters}`, `ctp/civctp_j.dsp`, `ctp2_code/Makefile.am`, `ctp/Makefile.am`, `gs/newdb/Makefile.am`, `os/linux/civctp2.prj`, `net/net.dsp`, `gs/gs.dsp`, `gfx/gfx.dsp`, `robot*/*.dsp`, `robotcom/robotcom.mak`, `mapgen/*.{dsp,vcxproj}`) — both `/I`/`AdditionalIncludeDirectories` include paths and source-file/group membership, including the retained movie sources' entries. Removal was verified with a repo-wide grep (zero `aui_directx` refs remain in project files) and an XML well-formedness parse of every touched `.vcxproj`/`.filters`. None of these files are part of the active Meson build, so `make test` and `make ubsan-smoke` are unaffected (both pass). CRLF line endings on the `.dsp`/`.mak` files were preserved; `git diff --check` reports "trailing whitespace" on their changed lines, but that is only the pre-existing CR (`0x0d`) of the DOS line endings, not added whitespace (verified byte-for-byte against `HEAD`) — do not "fix" it, as stripping the CR would corrupt the VS6 line-ending style.
+
+M7 verification (2026-07-02): `make test` (fast+unit) and `make ubsan-smoke` pass; `git diff --check` is clean apart from the documented CRLF-CR artifacts on `.dsp`/`.mak` files. Retained compatibility caveats: (1) the DirectShow movie reference (`aui_directmovie.*`, `aui_directmoviemanager.*`) plus its `aui_directui.h`/`aui_directsurface.h`/`aui_directx.h` header closure stay on disk for future SDL-based repair and never compile on SDL; (2) the retained `aui_directui.h`/`aui_directsurface.h` declare classes whose `.cpp` bodies were deleted; (3) the legacy VS6/autotools project files remain in the tree but no longer reference the DirectX backend — they are not the canonical build (Meson is) and are tracked as a deferred legacy-risk area for M9.
 
 Do not remove yet:
 
@@ -180,10 +184,9 @@ Goal: make original game data compatible with a future modern renderer without b
 
 Do these in order unless Olek changes priorities:
 
-1. M7: guard the unconditional `aui_directx` includes (smallest safe SDL-first slice).
-2. M7: settle movie-code handling, then delete the rest of `ui/aui_directx/` and purge project-file references.
-3. M8: start with a read-only `.SPR` inspector/exporter before changing runtime rendering.
-4. M9: close-out documentation pass.
+1. M8: start with a read-only `.SPR` inspector/exporter before changing runtime rendering.
+2. M8: export frames with metadata to a debug PNG dump, then add a visual-parity check.
+3. M9: close-out documentation pass (consolidate legacy-risk areas, declare DoD).
 
 ## Assistant Protocol
 

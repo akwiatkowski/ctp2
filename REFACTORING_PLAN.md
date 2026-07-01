@@ -6,7 +6,7 @@ This file is deliberately plain Markdown so it is easy for different LLMs (OpenA
 
 ## Overall Progress
 
-**43 / 45 checkboxes done (~96%).** M7 and M8 are complete. Remaining bounded work: **M9 close-out (~1 session)**, plus a newly-scoped follow-on milestone (M10, the actual modern-asset converter + engine first-run integration) that is out of the original Definition of Done.
+**43 / 45 checkboxes done (~96%).** M7 and M8 are complete. Remaining bounded work: **M9 close-out (~1 session)** reaches the original Definition of Done. After that the priority (per Olek, 2026-07-02) is **M11 mechanical memory-safety refactoring** (raw `new`/`delete` → RAII); the modern-asset converter (M10) is **parked** now that the M8 spike is done.
 
 Recount any time with:
 
@@ -55,7 +55,8 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M7 | Obsolete subsystem removal | 8/8 done | complete | obsolete code removed without network/movie regressions |
 | M8 | Modern asset pipeline spike | 5/5 done | complete | legacy sprite exports reproducibly; visual parity checked |
 | M9 | Close-out | 0/2 done | ~1 session | plan reflects reality; DoD declared |
-| M10 | Modern-asset converter + first-run (follow-on) | not started | multi-session | `~/.ctp2` atlases generated from owned data; engine modern-first loader |
+| M11 | Memory-safety refactoring (raw new/delete → RAII) | not started | multi-session (**priority**) | ratchet raw_new/raw_delete/c_allocation counts fall without behavior change |
+| M10 | Modern-asset converter + first-run (follow-on) | **parked** | deferred | `~/.ctp2` atlases generated from owned data; engine modern-first loader |
 
 ### M1: Baseline Safety Loop
 
@@ -191,10 +192,11 @@ Design doc done (2026-07-02): `docs/modern-assets.md` captures the agreed direct
 
 ## Next Best Batches
 
-Do these in order unless Olek changes priorities:
+Priority updated 2026-07-02 (Olek): the modern-asset converter (M10) is **parked** now that the M8 spike proved the format is decodable; the mechanical memory refactoring is more important. Do these in order:
 
-1. M9: close-out documentation pass (consolidate legacy-risk areas, declare DoD) — this reaches the original Definition of Done.
-2. M10 (follow-on, optional beyond DoD): build the offline modern-asset converter (`~/.ctp2` atlases from owned data, starting with v2/LZW1 sprite decode), then the engine modern-first loader. See `docs/modern-assets.md`.
+1. M9: close-out documentation pass (consolidate legacy-risk areas, declare DoD) — reaches the original Definition of Done. Small.
+2. M11 (**new priority**): mechanical memory-safety refactoring — reduce the large raw `new`/`delete`/C-allocation clusters (ratchet baseline `raw_new=5528`, `raw_delete=2065`, `c_allocation=516`) toward RAII/smart-pointer ownership, in small behavior-preserving batches, lowering the ratchet baseline as each cluster clears. This reopens M3's burn-down as a focused effort rather than opportunistic side work.
+3. M10 (parked, follow-on): offline modern-asset converter + engine modern-first loader; resume only after the memory work. See `docs/modern-assets.md`.
 
 ## Assistant Protocol
 

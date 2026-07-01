@@ -441,7 +441,7 @@ Legend: `(new / delete / alloc)` match counts per file.
 - [ ] `gfx/spritesys/DirectorActions.cpp` (0/2/0)
 - [ ] `gfx/spritesys/workeractor.cpp` (1/0/0)
 - [ ] `gfx/spritesys/EffectActor.cpp` (1/0/0)
-- [ ] `gfx/spritesys/Actor.cpp` (1/0/0)
+- [x] `gfx/spritesys/Actor.cpp` (1/0/0)
 
 ## test/cpp  (20 files, 221 matches)
 

@@ -6,7 +6,7 @@ This file is deliberately plain Markdown so it is easy for different LLMs (OpenA
 
 ## Overall Progress
 
-**34 / 45 checkboxes done (~76%).** Remaining bounded work: **about 5-8 focused sessions** (M7 finish + M8 + M9 close-out).
+**35 / 45 checkboxes done (~78%).** Remaining bounded work: **about 4-8 focused sessions** (M7 finish + M8 + M9 close-out).
 
 Recount any time with:
 
@@ -52,7 +52,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M4 | Timelapse/play tooling polish | 5/5 done | complete | short timelapse smoke, docs updated |
 | M5 | UI/frame polish | 3/3 done | complete | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 4/4 done | complete | all standard checks, plan updated |
-| M7 | Obsolete subsystem removal | 4/8 done | 1-3 sessions | obsolete code removed without network/movie regressions |
+| M7 | Obsolete subsystem removal | 5/8 done | 1-3 sessions | obsolete code removed without network/movie regressions |
 | M8 | Modern asset pipeline spike | 0/5 done | 3-6 sessions | legacy sprite exports reproducibly; visual parity checked |
 | M9 | Close-out | 0/2 done | ~1 session | plan reflects reality; DoD declared |
 
@@ -128,7 +128,7 @@ Scope: remove legacy systems that are no longer product goals. Windows support s
 - [x] Confirm GameWatch provenance; if it is original Activision telemetry/recording/plugin code, remove it.
 - [x] Remove Windows registry / file-association / DirectX startup checks.
 - [x] Guard or drop the unconditional `aui_directx` includes in active sources: `ui/aui_common/aui_Factory.cpp` (3 headers), `ui/aui_ctp2/c3blitter.cpp` (`aui_directsurface.h`), `ctp/civ3_main.cpp` (`aui_directmoviemanager.h`). Use branches (`c3ui.h` `#else` pattern) or `__AUI_USE_DIRECTX__` guards so SDL builds no longer need the headers on disk.
-- [ ] Decide movie-path handling before deletion: `aui_directmovie.*` / `aui_directmoviemanager.*` and the self-guarded `directvideo.*` are movie code — keep, relocate, or stub them (movies are a product goal for later repair).
+- [x] Decide movie-path handling before deletion: `aui_directmovie.*` / `aui_directmoviemanager.*` and the self-guarded `directvideo.*` are movie code — keep, relocate, or stub them (movies are a product goal for later repair).
 - [ ] Delete the remaining `ui/aui_directx/` sources that are not needed for movie repair.
 - [ ] Purge `aui_directx` references from Windows/legacy project files: `ui/ui.dsp`, `ui/ui.vcxproj(.filters)`, `ctp2_code/Makefile.am`, `gs/newdb/Makefile.am`, plus stragglers in `net/net.dsp`, `gs/gs.dsp`, `robot*/…dsp`, `mapgen/plasma1.dsp`.
 - [ ] Re-run `make test`, `git diff --check`, and `make ubsan-smoke`; record any retained compatibility caveats here.
@@ -139,10 +139,18 @@ Windows registry / DirectX startup cleanup removed the `.c2g` file-association r
 
 DirectX AUI backend status (verified 2026-07-02): the active Meson build no longer references `ui/aui_directx` include paths or source files (`8eb6fe01`). The remaining unconditional `aui_directx` includes in active sources are now guarded (2026-07-02): `aui_Factory.cpp` and `c3blitter.cpp` wrap their DirectX headers in `#if defined(__AUI_USE_DIRECTX__)` (the symbols are only used in the matching `#elif defined(__AUI_USE_DIRECTX__)` branches), and `civ3_main.cpp` wraps `aui_directmoviemanager.h` in `#if !defined(__GNUC__)` to match the exact guard on the only `aui_DirectMovieManager` use. SDL builds (`make test`, `make ubsan-smoke`) no longer need the `ui/aui_directx` headers on disk. The `ui/aui_directx/` source tree still exists; deleting it (after settling movie-path handling) remains a later M7 checkbox. `directvideo.*` stays in the Meson build but is fully self-guarded by `__AUI_USE_DIRECTX__`, so it compiles to nothing on SDL.
 
+Movie-path handling decision (2026-07-02): **keep movie code in place, guarded; do not relocate or stub in this refactor.** Rationale and consequences for the deletion checkbox:
+
+- Build config: `auicfg.h` defines `__AUI_USE_DIRECTX__` + `__AUI_USE_DIRECTMEDIA__` only under `WIN32`; SDL builds get `__AUI_USE_SDL__` only. So all DirectX/DirectMedia movie code is inert on the current macOS/Linux build.
+- `ui/aui_directx/aui_directmovie.*` and `aui_directmoviemanager.*` are the DirectShow reference implementation, guarded by `__AUI_USE_DIRECTMEDIA__` and absent from the Meson build. Keep them as the thing to repair later. The only active-source touch is `civ3_main.cpp`, whose include and `new aui_DirectMovieManager()` use are both guarded (`!__GNUC__`).
+- The cross-platform movie surface already compiles in the SDL build and stays: `ui/aui_common/aui_movie.*` / `aui_moviemanager.*` / `aui_moviebutton.*`, `ui/aui_ctp2/directvideo.*` (self-guarded by `__AUI_USE_DIRECTX__`), `gs/database/moviedb.*`, and the `ui/interface/*moviewin*` windows.
+- Consequence for the next checkbox: `aui_directmovie.cpp` includes sibling headers `aui_directui.h` and `aui_directsurface.h`, so those two headers count as "needed for movie repair" and must be retained (or their loss explicitly accepted as dangling includes) when the rest of `ui/aui_directx/` is deleted.
+
 Do not remove yet:
 
 - Network / multiplayer code; it will be resolved later.
 - Movie playback code and wonder/victory movie DB/schema/data fields; the desired direction is to make movies work later.
+- `aui_directmovie.*`, `aui_directmoviemanager.*`, and their `aui_directui.h` / `aui_directsurface.h` dependencies within `ui/aui_directx/` (needed for movie repair per the decision above).
 
 ### M8: Modern Asset Pipeline Spike
 

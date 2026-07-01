@@ -6,7 +6,7 @@ This file is deliberately plain Markdown so it is easy for different LLMs (OpenA
 
 ## Overall Progress
 
-**38 / 45 checkboxes done (~84%).** M7 is complete. Remaining bounded work: **about 4-7 focused sessions** (M8 asset-pipeline spike + M9 close-out).
+**39 / 45 checkboxes done (~87%).** M7 is complete. Remaining bounded work: **about 3-6 focused sessions** (M8 asset-pipeline spike + M9 close-out).
 
 Recount any time with:
 
@@ -53,7 +53,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M5 | UI/frame polish | 3/3 done | complete | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 4/4 done | complete | all standard checks, plan updated |
 | M7 | Obsolete subsystem removal | 8/8 done | complete | obsolete code removed without network/movie regressions |
-| M8 | Modern asset pipeline spike | 0/5 done | 3-6 sessions | legacy sprite exports reproducibly; visual parity checked |
+| M8 | Modern asset pipeline spike | 1/5 done | 3-5 sessions | legacy sprite exports reproducibly; visual parity checked |
 | M9 | Close-out | 0/2 done | ~1 session | plan reflects reality; DoD declared |
 
 ### M1: Baseline Safety Loop
@@ -162,8 +162,10 @@ Backend deletion done (2026-07-02): removed 17 pure-DirectX-backend files from `
 
 Goal: make original game data compatible with a future modern renderer without breaking mod/original-data compatibility. Original assets remain canonical; generated modern assets are cache/build artifacts.
 
-- [ ] Write a small `.SPR` inspector/exporter for one representative unit sprite (`GU###.SPR`).
+- [x] Write a small `.SPR` inspector/exporter for one representative unit sprite (`GU###.SPR`).
 - [ ] Export frames with action/facing/frame metadata, hot points, dimensions, and draw flags needed by the current renderer.
+
+Inspector done (2026-07-02): `tools/assets/spr_inspect.py` is a standalone read-only inspector (no engine dependency, original assets stay canonical). It parses the `.SPR` container header for all three versions and decodes the unit action table plus each present action's sprite header — sprite type, `width`x`height`, frame count, first frame, and per-facing hot points — without decoding pixels. Format was reverse-engineered from `gfx/spritesys/spritefile.cpp` (`Open`, `ReadBasic_v13`, `ReadBasic_v20`, `ReadFacedSpriteDataBasic`) and cross-checked byte-for-byte against `GU04.SPR`/`GU065.SPR`. Key facts for the next slices: tag `0x53505246` ("FRPS" on disk); versions `0x00010003` (v13) / `0x00020000` (v20) / `0x00020001` (v20+compression field); type `4` = UNIT. v13 unit body = `int32 offsets[5]` (MOVE, ATTACK, IDLE, VICTORY, WORK); v20 unit body = `int32 offsets[17]` where the last entry is the special-data (shield/fire points) offset, not an action. Per-action header: `uint16 sprite_type` (0 NORMAL / 1 FACED / 2 FACEDWSHADOW), `uint16 width`, `uint16 height`, hot points (one `POINT{int32 x,y}` for NORMAL, five for FACED), `uint16 first_frame`, `uint16 num_frames`. Sample `GU04.SPR` = 96x72, MOVE(11 frames)/ATTACK(8)/IDLE(4). Frame pixel payloads are LZW1-or-raw compressed and still undecoded — that is the next checkbox.
 - [ ] Generate a debug-friendly PNG frame dump first; atlas/KTX-style packing can follow after parity is proven.
 - [ ] Add a visual-parity check against the current CPU sprite path for one sprite/action/facing/frame set.
 - [ ] Document the intended cache layout (`cache/assets/<data-hash>/...`) and fallback rule: load generated assets when valid, otherwise use legacy loaders.

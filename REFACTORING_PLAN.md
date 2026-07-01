@@ -6,7 +6,7 @@ This file is deliberately plain Markdown so it is easy for different LLMs (OpenA
 
 ## Overall Progress
 
-**41 / 45 checkboxes done (~91%).** M7 is complete. Remaining bounded work: **about 2-4 focused sessions** (M8 asset-pipeline spike + M9 close-out).
+**43 / 45 checkboxes done (~96%).** M7 and M8 are complete. Remaining bounded work: **M9 close-out (~1 session)**, plus a newly-scoped follow-on milestone (M10, the actual modern-asset converter + engine first-run integration) that is out of the original Definition of Done.
 
 Recount any time with:
 
@@ -53,8 +53,9 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M5 | UI/frame polish | 3/3 done | complete | visible/manual or smoke verification |
 | M6 | Final stabilization pass | 4/4 done | complete | all standard checks, plan updated |
 | M7 | Obsolete subsystem removal | 8/8 done | complete | obsolete code removed without network/movie regressions |
-| M8 | Modern asset pipeline spike | 3/5 done | 1-3 sessions | legacy sprite exports reproducibly; visual parity checked |
+| M8 | Modern asset pipeline spike | 5/5 done | complete | legacy sprite exports reproducibly; visual parity checked |
 | M9 | Close-out | 0/2 done | ~1 session | plan reflects reality; DoD declared |
+| M10 | Modern-asset converter + first-run (follow-on) | not started | multi-session | `~/.ctp2` atlases generated from owned data; engine modern-first loader |
 
 ### M1: Baseline Safety Loop
 
@@ -172,7 +173,9 @@ Frame export done (2026-07-02): `tools/assets/spr_export.py` decodes unit `.SPR`
 - [x] Add a visual-parity check against the current CPU sprite path for one sprite/action/facing/frame set.
 Parity check done (2026-07-02): `spr_export.py --verify` applies the invariant the engine's non-clipped `DrawLow565` relies on — a decoded row must never advance past the scanline width (trailing transparent pixels are implicit/unencoded, so rows legitimately end at `x <= width`; a row that pushes `x > width` would corrupt the next scanline). Ran across all 151 v0/v1 `GU*.SPR` unit sprites: **151 OK, 0 overflow**. Combined with the coherent humanoid silhouette rendered from `GU04.SPR` MOVE frame 0, this is strong format-level parity evidence. (This is a structural/format parity check plus visual confirmation, not a live pixel-diff against a running engine render.)
 
-- [ ] Document the intended layout of the generated modern assets and the fallback rule: load generated assets when valid, otherwise use legacy loaders.
+- [x] Document the intended layout of the generated modern assets and the fallback rule: load generated assets when valid, otherwise use legacy loaders.
+
+Design doc done (2026-07-02): `docs/modern-assets.md` captures the agreed direction — original data stays canonical and user-supplied; a persistent (not disposable) modern asset set is generated **locally** from the user's own data into `~/.ctp2/assets/<source-fingerprint>/`; target format is a **packed texture atlas** (PNG then optionally KTX2) plus a per-unit JSON manifest with frame rects and hot points; conversion is an **offline Python tool** extending the existing decoders; the engine loads modern assets when a valid fingerprinted set exists, else falls back to legacy `.SPR` loaders. It also records the licensing finding the owner asked for: game data is **not** part of the Activision/Apolyton source release and must be user-supplied, so converting is a personal, local format shift — generated (and original) assets must never be redistributed or committed. Full converter + engine first-run integration is scoped as a separate later milestone.
 
 ### M9: Close-Out
 
@@ -190,9 +193,8 @@ Parity check done (2026-07-02): `spr_export.py --verify` applies the invariant t
 
 Do these in order unless Olek changes priorities:
 
-1. M8: start with a read-only `.SPR` inspector/exporter before changing runtime rendering.
-2. M8: export frames with metadata to a debug PNG dump, then add a visual-parity check.
-3. M9: close-out documentation pass (consolidate legacy-risk areas, declare DoD).
+1. M9: close-out documentation pass (consolidate legacy-risk areas, declare DoD) — this reaches the original Definition of Done.
+2. M10 (follow-on, optional beyond DoD): build the offline modern-asset converter (`~/.ctp2` atlases from owned data, starting with v2/LZW1 sprite decode), then the engine modern-first loader. See `docs/modern-assets.md`.
 
 ## Assistant Protocol
 

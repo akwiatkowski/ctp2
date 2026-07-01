@@ -169,8 +169,10 @@ Inspector done (2026-07-02): `tools/assets/spr_inspect.py` is a standalone read-
 - [x] Generate a debug-friendly PNG frame dump first; atlas/KTX-style packing can follow after parity is proven.
 Frame export done (2026-07-02): `tools/assets/spr_export.py` decodes unit `.SPR` frames to debug PNGs plus a JSON manifest (action/facing/frame mapping, hot points, dimensions, sprite type), read-only. The frame RLE format was reverse-engineered from `Sprite::DrawLow565` (`spritelow.cpp`): per frame, `Pixel16 frame[0]` skipped, `Pixel16 table[height]` of per-row offsets (`0xFFFF` = empty row), then forward-read RLE runs (`0x0A` chromakey/transparent, `0x0C` copy, `0x0E` shadow, `0x0F` feathered; row ends when the tag high nibble is set). Stored pixels are RGB565 (confirmed by `spriteutils_ConvertPixelFormat`, which converts 565->555 at load). Verified on `GU04.SPR`: 99 PNGs (MOVE 5x11, ATTACK 5x8, IDLE 1x4), all 96x72, ~14% opaque, and an ASCII silhouette of MOVE frame 0 renders a clearly coherent humanoid unit — decode confirmed correct. v0/v1 payloads are raw; **v2 (LZW1) pixel decode is not yet implemented** (the tool reports header/metadata and exits with a note for v2). Draw flags (transparency/fog/desaturate) are runtime render options, not stored per frame, so they are documented rather than exported.
 
-- [ ] Add a visual-parity check against the current CPU sprite path for one sprite/action/facing/frame set.
-- [ ] Document the intended cache layout (`cache/assets/<data-hash>/...`) and fallback rule: load generated assets when valid, otherwise use legacy loaders.
+- [x] Add a visual-parity check against the current CPU sprite path for one sprite/action/facing/frame set.
+Parity check done (2026-07-02): `spr_export.py --verify` applies the invariant the engine's non-clipped `DrawLow565` relies on — a decoded row must never advance past the scanline width (trailing transparent pixels are implicit/unencoded, so rows legitimately end at `x <= width`; a row that pushes `x > width` would corrupt the next scanline). Ran across all 151 v0/v1 `GU*.SPR` unit sprites: **151 OK, 0 overflow**. Combined with the coherent humanoid silhouette rendered from `GU04.SPR` MOVE frame 0, this is strong format-level parity evidence. (This is a structural/format parity check plus visual confirmation, not a live pixel-diff against a running engine render.)
+
+- [ ] Document the intended layout of the generated modern assets and the fallback rule: load generated assets when valid, otherwise use legacy loaders.
 
 ### M9: Close-Out
 

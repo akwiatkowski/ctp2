@@ -146,6 +146,66 @@ def decode_frame(frame: bytes, width: int, height: int) -> list[list]:
     return out
 
 
+def verify_frame(frame: bytes, width: int, height: int) -> tuple[int, int]:
+    """Parity check: no non-empty row's runs may overflow the scanline.
+
+    ``Sprite::DrawLow565`` writes each row's runs into a scanline of stride
+    ``width`` with no intra-row clipping, so a correct decode must never
+    advance past ``width`` (trailing transparent pixels are implicit and left
+    unencoded, so rows legitimately end at x <= width). A row whose runs push
+    x > width would corrupt the next scanline in the engine, so that is the
+    real failure signal. Returns (rows_checked, rows_overflowed).
+    """
+    if len(frame) < 2:
+        return 0, 0
+    u16 = struct.unpack(f"<{len(frame) // 2}H", frame[: (len(frame) // 2) * 2])
+    n = len(u16)
+    data_start = 1 + height
+    checked = mismatched = 0
+    for j in range(height):
+        if 1 + j >= n:
+            break
+        entry = u16[1 + j]
+        if entry == EMPTY_TABLE_ENTRY:
+            continue
+        idx = data_start + entry
+        if idx >= n:
+            mismatched += 1
+            checked += 1
+            continue
+        x = 0
+        tag = u16[idx] & 0x0FFF
+        idx += 1
+        runs = 0
+        max_runs = width * 2 + 10
+        while (tag & 0xF000) == 0:
+            runs += 1
+            if runs > max_runs or idx >= n:
+                break
+            opcode = (tag & 0x0F00) >> 8
+            length = tag & 0x00FF
+            if opcode == CHROMAKEY_RUN_ID:
+                x += length
+            elif opcode == COPY_RUN_ID:
+                x += length
+                idx += length
+            elif opcode == SHADOW_RUN_ID:
+                x += length
+            elif opcode == FEATHERED_RUN_ID:
+                x += 1
+                idx += 1
+            else:
+                break
+            if idx >= n:
+                break
+            tag = u16[idx]
+            idx += 1
+        checked += 1
+        if x > width:
+            mismatched += 1
+    return checked, mismatched
+
+
 def grid_to_rgba_bytes(grid: list[list], width: int, height: int) -> bytes:
     """Flatten a decoded grid to raw RGBA8 (transparent = 0,0,0,0)."""
     row_bytes = bytearray()
@@ -288,6 +348,36 @@ def export(path: str, out_dir: str, action_filter: str | None) -> int:
     return 0
 
 
+def verify(path: str) -> int:
+    """Run the per-row width invariant across every frame of a unit sprite."""
+    info = spr.inspect(path)
+    if info.type_name != "UNIT":
+        print(f"skip: {os.path.basename(path)} is {info.type_name}, not UNIT")
+        return 0
+    if info.version == spr.VERSION_V2:
+        print(f"skip: {os.path.basename(path)} is v2 (LZW1, not yet decoded)")
+        return 0
+    with open(path, "rb") as f:
+        buf = f.read()
+    total_checked = total_bad = 0
+    for action in info.actions:
+        if action.sprite_type not in ("FACED", "NORMAL"):
+            continue
+        parsed = _read_faced_frames(buf, action.offset, info.version)
+        if not parsed:
+            continue
+        width, height, nf, frames, stype, _ = parsed
+        for facing_frames in frames:
+            for frame in facing_frames:
+                c, m = verify_frame(frame, width, height)
+                total_checked += c
+                total_bad += m
+    status = "OK " if total_bad == 0 else "BAD"
+    print(f"{status} {os.path.basename(path):<14} rows_checked={total_checked} "
+          f"mismatched={total_bad}")
+    return 0 if total_bad == 0 else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="Export CTP2 unit .SPR frames to debug PNGs (read-only).")
@@ -295,8 +385,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("-o", "--out-dir", default="spr_export",
                     help="output directory for PNGs (default: ./spr_export)")
     ap.add_argument("--action", help="only export this action (e.g. MOVE)")
+    ap.add_argument("--verify", action="store_true",
+                    help="parity check only (per-row width invariant), no PNGs")
     args = ap.parse_args(argv)
     try:
+        if args.verify:
+            return verify(args.path)
         return export(args.path, args.out_dir, args.action)
     except (OSError, spr.SprError) as exc:
         print(f"error: {exc}", file=sys.stderr)

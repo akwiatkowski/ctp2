@@ -470,7 +470,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 
 				if(strchr(interp, '{'))
 					*strchr(interp,'{')=0;
-				strcat(interp,needEmbassy);
+				strlcat(interp, needEmbassy, sizeof(interp));
 				st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.EmpireSizeLabel");
 				st->SetText(interp);
 
@@ -478,7 +478,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_Population"), sizeof(interp));
 				if(strchr(interp, '%'))
 					*strchr(interp,'%')=0;
-				strcat(interp,needEmbassy);
+				strlcat(interp, needEmbassy, sizeof(interp));
 				st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.PopulationLabel");
 				st->SetText(interp);
 
@@ -502,7 +502,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 					strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_Capital"), sizeof(interp));
 					if(strchr(interp, '{'))
 						*strchr(interp,'{')=0;
-					strcat(interp,needEmbassy);
+					strlcat(interp, needEmbassy, sizeof(interp));
 					st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.CapitalLabel");
 					st->SetText(interp);
 				}
@@ -511,7 +511,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_LargestCity"), sizeof(interp));
 				if(strchr(interp, '{'))
 					*strchr(interp,'{')=0;
-				strcat(interp,needEmbassy);
+				strlcat(interp, needEmbassy, sizeof(interp));
 				st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.LargestCityLabel");
 				st->SetText(interp);
 
@@ -519,7 +519,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_MilitaryState"), sizeof(interp));
 				if(strchr(interp, '{'))
 					*strchr(interp,'{')=0;
-				strcat(interp,needEmbassy);
+				strlcat(interp, needEmbassy, sizeof(interp));
 				st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.MilStateLabel");
 				st->SetText(interp);
 
@@ -527,7 +527,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				strlcpy(interp,stringdb_Get()->GetNameStr("str_ldl_DipDetails_GovType"), sizeof(interp));
 				if(strchr(interp, '{'))
 					*strchr(interp,'{')=0;
-				strcat(interp,needEmbassy);
+				strlcat(interp, needEmbassy, sizeof(interp));
 				st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.GovTypeLabel");
 				st->SetText(interp);
 

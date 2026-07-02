@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -189,8 +189,8 @@ void ThroneControl::InitCommon()
 	MBCHAR s[_MAX_PATH];
 
 	if (!civpaths_Get()->GetSpecificPath(C3DIR_PICTURES, s, FALSE)) return;
-	strcat( s, "\\" );
-	strcat( s, s_throneImage[0] );
+	strlcat( s, "\\", sizeof(s) );
+	strlcat( s, s_throneImage[0], sizeof(s) );
 
 	m_background = new c3_Image( &errcode, s );
 	Assert( AUI_NEWOK(m_background, errcode) );
@@ -200,8 +200,8 @@ void ThroneControl::InitCommon()
 
 	for ( sint32 i = 0;i < k_THRONE_IMAGES;i++ ) {
 		if (!civpaths_Get()->GetSpecificPath(C3DIR_PICTURES, s, FALSE)) return;
-		strcat( s, "\\" );
-		strcat( s, s_throneImage[i+1] );
+		strlcat( s, "\\", sizeof(s) );
+		strlcat( s, s_throneImage[i+1], sizeof(s) );
 
 		m_upgradeImage[i] = new c3_Image( &errcode, s );
 		Assert( AUI_NEWOK(m_upgradeImage[i], errcode) );
@@ -307,8 +307,8 @@ aui_Surface *ThroneControl::InitializeNewBG( MBCHAR *filename )
 		delete tempBG;
 		return nullptr;
 	}
-	strcat( s, "\\" );
-	strcat( s, filename );
+	strlcat( s, "\\", sizeof(s) );
+	strlcat( s, filename, sizeof(s) );
 
 	m_upgradeImage[ m_selectedImage ]->Unload();
 

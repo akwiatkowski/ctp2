@@ -2943,7 +2943,7 @@ ControlPanelWindow::BuildUnitList ()
 
 				MBCHAR order[k_MAX_NAME_LEN];
 			strlcpy(order, "  ", sizeof(order));
-			strcat(order, stringdb_Get()->GetNameStr(string_index));
+			strlcat(order, stringdb_Get()->GetNameStr(string_index), sizeof(order));
 
 				m_contextMenu->AddItem(order, nullptr,(void *)i);
 			}

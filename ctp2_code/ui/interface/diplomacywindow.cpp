@@ -661,14 +661,14 @@ void DiplomacyWindow::UpdateProposalList(ctp2_ListBox *propList, bool toPlayer)
 							MBCHAR finalText[k_MAX_NAME_LEN];
 							if(toPlayer) {
 								strlcpy(finalText, stringdb_Get()->GetNameStr("str_ldl_From"), sizeof(finalText));
-								strcat(finalText, " ");
+								strlcat(finalText, " ", sizeof(finalText));
 								player_Get(sender)->m_civilisation->GetCountryName(finalText + strlen(finalText));
-								strcat(finalText, ": ");
+								strlcat(finalText, ": ", sizeof(finalText));
 							} else {
 								strlcpy(finalText, stringdb_Get()->GetNameStr("str_ldl_To"), sizeof(finalText));
-								strcat(finalText, " ");
+								strlcat(finalText, " ", sizeof(finalText));
 								player_Get(receiver)->m_civilisation->GetCountryName(finalText + strlen(finalText));
-								strcat(finalText, ": ");
+								strlcat(finalText, ": ", sizeof(finalText));
 							}
 
 							GetProposalSummary(propData, sender, receiver, finalText + strlen(finalText), false, response);

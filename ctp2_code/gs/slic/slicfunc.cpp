@@ -3260,6 +3260,8 @@ SFN_ERROR Slic_CreateUnit::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
+	if(!player_Get(owner))
+		return SFN_ERROR_DEAD_PLAYER;
 	const UnitRecord *rec = g_theUnitDB->Get(type, player_Get(owner)->GetGovernmentType());
 	// Check if the function was called with a valid unit type.
 	if(!rec) return SFN_ERROR_UNKNOWN_UNIT_TYPE;

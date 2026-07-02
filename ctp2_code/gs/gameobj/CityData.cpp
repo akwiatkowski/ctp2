@@ -920,7 +920,15 @@ void CityData::Copy(CityData *copy)
 	m_merchantsEff  = copy->m_merchantsEff;
 	m_scientistsEff = copy->m_scientistsEff;
 
-	memcpy(&m_max_processed_terrain_food, &copy->m_max_processed_terrain_food, (uint32)&copy->m_science_lost_to_crime + sizeof(copy->m_science_lost_to_crime) - (uint32)&copy->m_max_processed_terrain_food);
+	// Copy the contiguous block of resource-process members from
+	// m_max_processed_terrain_food through m_science_lost_to_crime. Compute the
+	// size with char* pointer arithmetic; the previous (uint32) casts truncated
+	// the pointers on 64-bit builds, producing a wrong byte count.
+	size_t const resourceBlockSize =
+		reinterpret_cast<const char *>(&copy->m_science_lost_to_crime)
+		+ sizeof(copy->m_science_lost_to_crime)
+		- reinterpret_cast<const char *>(&copy->m_max_processed_terrain_food);
+	memcpy(&m_max_processed_terrain_food, &copy->m_max_processed_terrain_food, resourceBlockSize);
 #endif
 
 	m_secthappy = 0; //emod - didn't crash but always set to 0 at -1 it showed up but begin turn didn't work nor did it process

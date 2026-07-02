@@ -58,7 +58,7 @@ Use this as the real burn-down list. Move an item to `[x]` only after the code i
 | M7 | Obsolete subsystem removal | 8/8 done | complete | obsolete code removed without network/movie regressions |
 | M8 | Modern asset pipeline spike | 5/5 done | complete | legacy sprite exports reproducibly; visual parity checked |
 | M9 | Close-out | 0/2 done | ~1 session | plan reflects reality; DoD declared |
-| M11 | Memory-safety refactoring (raw new/delete → RAII) | 0/574 files | multi-session (**priority**) | ratchet raw_new/raw_delete/c_allocation counts fall without behavior change |
+| M11 | Memory-safety refactoring (raw new/delete → RAII) | 9/574 files (see M11 breakdown) | multi-session (**priority**) | ratchet raw_new/raw_delete/c_allocation counts fall without behavior change |
 | M10 | Modern-asset converter + first-run (follow-on) | **parked** | deferred | `~/.ctp2` atlases generated from owned data; engine modern-first loader |
 
 ### M1: Baseline Safety Loop
@@ -190,7 +190,69 @@ Design doc done (2026-07-02): `docs/modern-assets.md` captures the agreed direct
 
 Scope requested by Olek (2026-07-02): systematically remove legacy manual memory management from the first-party engine — raw `new`/`delete`, `malloc`/`calloc`/`realloc`/`free`, and the raw-owning-pointer patterns around them — moving ownership to RAII / smart pointers (`std::unique_ptr`, `std::vector`, `std::string`, containers) without changing behavior.
 
-The per-file worklist lives in **`docs/memory-refactor-checklist.md`** — one checkbox per affected file (574 first-party files, ~6880 raw `new`/`delete`/alloc matches), grouped by module and sorted by size. This keeps the burn-down out of the short board here.
+The per-file worklist lives in **`docs/memory-refactor-checklist.md`** — one checkbox per affected file (574 first-party files, ~6880 raw `new`/`delete`/alloc matches), grouped by module, each tagged with a difficulty label. This keeps the burn-down out of the short board here.
+
+#### Progress snapshot (2026-07-02)
+
+Authoritative metric is the modernization ratchet (enforced by `make test`); the per-file `rg` counts are original-baseline size hints (noisy, include comments/strings).
+
+| Ratchet counter | M11 start | Now | Removed |
+| --- | --: | --: | --: |
+| `raw_new` | 5528 | **5479** | 49 |
+| `raw_delete` | 2065 | **2019** | 46 |
+| `c_allocation` | 516 | **515** | 1 |
+
+Files ticked in the checklist: **9 / 574**. (Ratchet reductions run ahead of ticked files because most touched files still have a harder residual cluster — e.g. `Sprite.cpp`, the sprite-group family — so their box stays open even though their easy locals are already RAII.)
+
+#### Difficulty breakdown (heuristic triage of the 565 remaining files)
+
+Labels are grep-derived (see the legend in `docs/memory-refactor-checklist.md`) — a triage sort, not verified verdicts. Difficulty maps: **easy** = self-contained local owner (compiler-enforced); **medium** = single-owner member / needs analysis; **hard** = factory returns crossing callers; **very hard** = linked lists, `void*` handoffs, member pointer arrays, mixed `new[]`/`malloc` (real double-free risk, multi-file blast radius); **skip** = game-lifetime singletons, pools/arenas, vendored — usually correct as-is, converting adds risk for no gain.
+
+| Difficulty | Files | Unsafe lines | Notes |
+| --- | --: | --: | --- |
+| 🟢 easy | 8 | 33 | mechanical; safe for a Sonnet `/goal` loop |
+| 🟡 medium | 409 | 3387 | the bulk; one owner-cluster per commit |
+| 🔴 hard | 4 | 96 | change return type, let the compiler guide callers |
+| 🔴🔴 very hard | 43 | 733 | supervised (Opus); reason-tagged in checklist |
+| ⚪ skip | 101 | 2609 | don't mechanically convert |
+| ✅ done | 9 | 22 | committed this phase |
+| **total** | **574** | **6880** | |
+
+**Realistic finish line:** the ~38% in `skip` (+ much of `very hard`) should be *encapsulated behind clear owners*, not rewritten. The productive automatable target is 🟢 + 🟡 ≈ **3420 lines / 417 files**; the 🔴 47 files are the supervised tail.
+
+#### Where the work is (per-module difficulty × unsafe-line total)
+
+| Module | easy | med | hard | v.hard | skip | lines |
+|---|--:|--:|--:|--:|--:|--:|
+| `ui/interface` | 1 | 51 | 1 | 17 | 48 | 1413 |
+| `gs/gameobj` | 4 | 77 | 0 | 0 | 12 | 938 |
+| `gs/slic` | 0 | 14 | 2 | 1 | 4 | 927 |
+| `ui/netshell` | 1 | 26 | 0 | 1 | 1 | 518 |
+| `ui/aui_ctp2` | 1 | 49 | 0 | 3 | 4 | 469 |
+| `net/general` | 1 | 22 | 0 | 0 | 5 | 396 |
+| `ui/aui_common` | 0 | 32 | 0 | 5 | 1 | 288 |
+| `gfx/spritesys` | 0 | 5 | 0 | 9 | 0 | 238 |
+| `test/cpp` | 0 | 18 | 1 | 0 | 1 | 221 |
+| `gs/utility` | 0 | 9 | 0 | 0 | 1 | 195 |
+| `gs/fileio` | 0 | 4 | 0 | 0 | 4 | 155 |
+| `gs/world` | 0 | 11 | 0 | 0 | 3 | 126 |
+| `ctp` | 0 | 3 | 0 | 0 | 3 | 124 |
+| `ctp/ctp2_utils` | 0 | 8 | 0 | 0 | 1 | 120 |
+| `gfx/tilesys` | 0 | 4 | 0 | 5 | 0 | 93 |
+| `gs/database` | 0 | 10 | 0 | 0 | 1 | 64 |
+| _(other 27 modules)_ | 0 | 84 | 0 | 2 | 12 | ~495 |
+
+`gs/slic` and networking (`ui/netshell`, `net/general`) carry big line counts but are **deferred** per the phase rules (generated/wire code); `gs/newdb`/`gs/dbgen` should be fixed at the generator, not the output.
+
+#### 🟢 Easy files — do these first (8)
+
+`gs/gameobj/AgreementData.cpp` (5/1/0) · `gs/gameobj/MovePath.cpp` (2/2/0) · `gs/gameobj/Pollution.cpp` (2/1/0) · `gs/gameobj/TradePool.cpp` (2/2/0) · `net/general/net_endgame.cpp` (2/1/0) · `ui/aui_ctp2/keypress.cpp` (4/1/0) · `ui/interface/progresswindow.cpp` (3/3/0) · `ui/netshell/ns_customlistbox.h` (1/1/0)
+
+#### 🔴 Hard + very-hard tail — supervised (47, biggest first)
+
+`ui/netshell/netfunc.cpp` (63/14/1) · `ui/interface/sciencewin.cpp` (55/18/0) · `gfx/spritesys/spritefile.cpp` (45/2/0) · `ui/interface/loadsavewindow.cpp` (15/40/0) · `ui/aui_common/aui_ldl.cpp` (32/13/0) · `ui/interface/spriteeditor.cpp` (9/26/0) · `gs/slic/slicif.cpp` (6/3/17) · `ui/interface/spnewgamescreen.cpp` (21/2/0) · `gfx/tilesys/tileutils.cpp` (15/5/7) · `ui/interface/scenarioeditor.cpp` (19/9/0) · `gs/slic/SlicStruct.cpp` (12/8/0) · `gfx/spritesys/UnitSpriteGroup.cpp` (15/13/0) · `ui/interface/EditQueue.cpp` (18/8/0) · `gfx/tilesys/tileset.cpp` (9/13/0) · `test/cpp/doctest.h` (13/33/0) · `ui/aui_ctp2/chart.cpp` (10/7/0) · `gfx/spritesys/Sprite.cpp` (3/10/4) · `ui/interface/greatlibrary.cpp` (11/5/0) · `ui/interface/loadsavemapwindow.cpp` (10/6/0) · `gfx/spritesys/effectspritegroup.cpp` (9/7/0) · `gfx/spritesys/goodspritegroup.cpp` (8/8/0) · `gs/slic/SlicBuiltin.h` (7/0/0) · `ui/interface/dipwizard.cpp` (4/8/0) · `ui/interface/diplomacywindow.cpp` (3/9/0) · `ui/interface/controlpanelwindow.cpp` (7/4/0) · `ui/aui_common/aui_ranger.cpp` (5/6/0) · `gfx/spritesys/FacedSpriteWshadow.cpp` (0/8/3) · `net/io/net_anet.cpp` (5/5/0) · `ui/interface/chatbox.cpp` (4/4/0) · `gfx/spritesys/FacedSprite.cpp` (0/8/0) · `gfx/tilesys/workmap.cpp` (1/6/0) · `ui/interface/DiplomacyDetails.cpp` (3/3/0) · `ui/interface/trademanager.cpp` (4/1/0) · `ui/interface/intelligencewindow.cpp` (4/0/0) · `ui/interface/UnitControlPanel.cpp` (2/2/0) · `ui/interface/unitmanager.cpp` (4/0/0) · `gfx/spritesys/spriteutils.cpp` (2/0/2) · `gfx/spritesys/SpriteGroup.cpp` (0/4/0) · `gfx/tilesys/BaseTile.cpp` (2/2/0) · `gfx/tilesys/resourcemap.cpp` (1/3/0) · `ui/interface/c3dialogs.cpp` (2/1/0) · `ui/aui_common/aui_tab.cpp` (2/1/0) · `ui/aui_common/aui_textbase.cpp` (2/1/0) · `ui/aui_ctp2/ctp2_menubar.cpp` (2/0/0) · `ui/aui_common/aui_win.cpp` (1/1/0) · `gs/events/GameEventArgument.cpp` (1/1/0) · `ui/aui_ctp2/c3_updateaction.cpp` (1/0/0)
+
+Recompute this breakdown after big clusters land: re-run the triage classifier over the checklist (heuristic) and refresh the ratchet snapshot from `tools/modernization/ratchet_baseline.json`.
 
 Ground rules for this phase:
 
@@ -215,7 +277,7 @@ Progress is tracked as files ticked in the checklist, not as a single board chec
 Priority updated 2026-07-02 (Olek): the modern-asset converter (M10) is **parked** now that the M8 spike proved the format is decodable; the mechanical memory refactoring is more important. Do these in order:
 
 1. M9: close-out documentation pass (consolidate legacy-risk areas, declare DoD) — reaches the original Definition of Done. Small.
-2. M11 (**new priority**): mechanical memory-safety refactoring — reduce the large raw `new`/`delete`/C-allocation clusters (ratchet baseline `raw_new=5528`, `raw_delete=2065`, `c_allocation=516`) toward RAII/smart-pointer ownership, in small behavior-preserving batches, lowering the ratchet baseline as each cluster clears. This reopens M3's burn-down as a focused effort rather than opportunistic side work.
+2. M11 (**new priority**): mechanical memory-safety refactoring — reduce the large raw `new`/`delete`/C-allocation clusters (ratchet now `raw_new=5479`, `raw_delete=2019`, `c_allocation=515`; see the M11 progress snapshot + difficulty breakdown above) toward RAII/smart-pointer ownership, in small behavior-preserving batches, lowering the ratchet baseline as each cluster clears. Start with the 8 🟢 easy files, then work 🟡 medium clusters by module; leave the 🔴 47-file tail for supervised sessions. This reopens M3's burn-down as a focused effort rather than opportunistic side work.
 3. M10 (parked, follow-on): offline modern-asset converter + engine modern-first loader; resume only after the memory work. See `docs/modern-assets.md`.
 
 ## Assistant Protocol

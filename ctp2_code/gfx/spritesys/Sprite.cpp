@@ -33,6 +33,8 @@
 #include "ctp/c3.h"
 #include "gfx/spritesys/Sprite.h"
 
+#include <memory>
+
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/tiffutils.h"
 #include "gfx/gfx_utils/targautils.h"
@@ -105,15 +107,12 @@ void Sprite::Load(char const * filename)
 
 void Sprite::Save(char const * filename)
 {
-	SpriteFile *file = new SpriteFile(filename);
-	Anim		*a = new Anim();
+	auto file = std::make_unique<SpriteFile>(filename);
+	auto a    = std::make_unique<Anim>();
 
 	file->Create(SPRITEFILETYPE_PLAIN,k_SPRITEFILE_VERSION0,SPRDATA_REGULAR);
-	file->Write(this, a);
+	file->Write(this, a.get());
 	file->CloseWrite();
-
-	delete file;
-	delete a;
 }
 
 

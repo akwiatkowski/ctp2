@@ -487,8 +487,8 @@ void UnitActor::AddIdle(bool NoIdleJustDelay) {
     anim->SetNoIdleJustDelay(TRUE);
   }
 
-  ActionPtr idleAction(
-      new Action(UNITACTION_IDLE, ACTIONEND_INTERRUPT, 0, NoIdleJustDelay));
+  ActionPtr idleAction = std::make_shared<Action>(
+      UNITACTION_IDLE, ACTIONEND_INTERRUPT, 0, NoIdleJustDelay);
 
   if (NoIdleJustDelay) {
     idleAction->SetFacing(m_facing);
@@ -514,8 +514,8 @@ void UnitActor::ActionQueueUpIdle(bool NoIdleJustDelay) {
     anim->SetNoIdleJustDelay(TRUE);
   }
 
-  ActionPtr tempCurAction(
-      new Action(UNITACTION_IDLE, ACTIONEND_INTERRUPT, 0, NoIdleJustDelay));
+  ActionPtr tempCurAction = std::make_shared<Action>(
+      UNITACTION_IDLE, ACTIONEND_INTERRUPT, 0, NoIdleJustDelay);
 
   tempCurAction->SetAnim(anim.release());
 

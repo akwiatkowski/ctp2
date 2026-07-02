@@ -1,5 +1,7 @@
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "gfx/spritesys/SpriteStateDB.h"
 
 #include "gs/fileio/Token.h"
@@ -140,13 +142,11 @@ sint32 SpriteStateDB::Parse(char *filename)
 {
     sint32 n;
 
-    Token *spriteToken = new Token(filename, C3DIR_GAMEDATA);
-	Assert(spriteToken);
+    auto spriteToken = std::make_unique<Token>(filename, C3DIR_GAMEDATA);
 
    	if (spriteToken->GetType() != TOKEN_NUMBER) {
 		c3errors_ErrorDialog  (spriteToken->ErrStr(), "Missing number of ability");
         g_abort_parse = TRUE;
-		delete spriteToken;
 		return FALSE;
 	} else {
 		spriteToken->GetNumber(n);
@@ -154,7 +154,6 @@ sint32 SpriteStateDB::Parse(char *filename)
 		if (n <0) {
 			c3errors_ErrorDialog  (spriteToken->ErrStr(), "Number of sprites is negative");
             g_abort_parse = TRUE;
-			delete spriteToken;
 			return FALSE;
 		}
 		SetSize(n + 1);
@@ -162,7 +161,7 @@ sint32 SpriteStateDB::Parse(char *filename)
 
     int count = 0;
 
-    while (ParseASpriteState(spriteToken, count)) {
+    while (ParseASpriteState(spriteToken.get(), count)) {
         count++;
     }
 
@@ -173,11 +172,8 @@ sint32 SpriteStateDB::Parse(char *filename)
 	}
 
 	if (g_abort_parse) {
-		delete spriteToken;
 		return FALSE;
 	}
-
-	delete spriteToken;
 
     return TRUE;
 }

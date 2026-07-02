@@ -115,6 +115,7 @@ const Utility Goal::MAX_UTILITY =  99999999;
 #include "WonderRecord.h"
 
 #include "gs/gameobj/advanceutil.h"
+#include "gs/utility/safety.h"          // safe_player
 #include "gs/gameobj/terrainutil.h"
 #include "gs/gameobj/wonderutil.h"
 
@@ -2443,10 +2444,12 @@ bool Goal::Get_Totally_Complete() const
 	Assert(player_ptr != nullptr);
 
 	// Don't attack as Barbarian a target that is protected by the Great Wall
+	Player * targetPlayer = safe_player(target_owner);
 	if
 	  (
 	       m_playerId == PLAYER_INDEX_VANDALS
-	    && wonderutil_GetProtectFromBarbarians(player_Get(target_owner)->m_builtWonders)
+	    && targetPlayer
+	    && wonderutil_GetProtectFromBarbarians(targetPlayer->m_builtWonders)
 	  )
 	{
 		return true;

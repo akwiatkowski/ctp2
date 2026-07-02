@@ -6409,6 +6409,9 @@ SFN_ERROR Slic_StringCompare::Call(SlicArgList *args)
 		string2 = const_cast<char *>(cstring2);
 	}
 
+	if(!string1 || !string2)
+		return SFN_ERROR_OUT_OF_RANGE;
+
 	if ( !stricmp(string1, string2) )
 	{
 		m_result.m_int = 1;

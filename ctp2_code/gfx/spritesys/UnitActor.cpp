@@ -1530,8 +1530,9 @@ void UnitActor::DrawHealthBar() {
 
   double ratio;
   if (m_unitID.IsValid()) {
-    if (stackSize > 1 && myCell->GetNumUnits()) {
-      ratio = std::max(0.0, myCell->UnitArmy()->GetAverageHealthPercentage());
+    CellUnitList* cellArmy = myCell->UnitArmy();
+    if (stackSize > 1 && myCell->GetNumUnits() && cellArmy) {
+      ratio = std::max(0.0, cellArmy->GetAverageHealthPercentage());
     } else {
 		if (m_healthPercent < 0) {
 			sint32 totalHP = m_unitID->CalculateTotalHP();

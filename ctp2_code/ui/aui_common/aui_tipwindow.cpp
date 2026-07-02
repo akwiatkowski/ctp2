@@ -84,6 +84,9 @@ AUI_ERRCODE aui_TipWindow::InitCommonLdl( MBCHAR *ldlBlock )
 
 AUI_ERRCODE aui_TipWindow::SetTipText(MBCHAR *text)
 {
+	if (!m_staticTip)
+		return AUI_ERRCODE_INVALIDPARAM;
+
 	m_staticTip->SetText(text);
 	aui_BitmapFont	*font = m_staticTip->GetTextFont();
 

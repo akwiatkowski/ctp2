@@ -62,8 +62,14 @@ GameEventArgList::GameEventArgList(va_list *vl, GAME_EVENT eventType)
 		}
 		m_argLists[arg]->AddTail(new GameEventArgument(arg, vl, *argString == '$'));
 
-		argString++;
-		argString++;
+		// Each argument consumes two characters of the format string, but a
+		// va_list longer than the format would walk argString past its '\0'.
+		// Never step over the terminator (well-formed input ends both together).
+		if(*argString) {
+			argString++;
+			if(*argString)
+				argString++;
+		}
 	}
 }
 

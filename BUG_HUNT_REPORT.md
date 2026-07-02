@@ -674,6 +674,8 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 
 ### MISSING_BOUNDS_CHECK
 
+> **Tier note (2026-07-02):** THIS is the **HIGH-tier** MISSING_BOUNDS_CHECK section (~174 leads) — the real P3 target. Earlier "P3 HIGH bounds" resolution blocks were mistakenly written into the **MEDIUM**-tier mirror (see the `## MEDIUM Severity` MISSING_BOUNDS_CHECK section), which catalogues the same bugs at slightly different line numbers (e.g. `ArmyData:1029/1062/1068` here vs `1027/1060/1066` there). The underlying code fixes apply to both, but this HIGH section has **not** yet been systematically verified/annotated. Spot-checks so far match the MEDIUM finding: most leads are already fixed (`ArmyData` empty-army guards present; `AgreementData` uses `safe_player`) or stale (`C3GameState.cpp` absent). A full HIGH-tier verification pass remains — treat every lead as unverified until checked in code.
+
 - **ArmyData.cpp:1029** — `m_array[0]` is accessed in `IsAsleep()` without first checking `m_nElements > 0`.
   *Fix: Add an early return `if (m_nElements == 0) return false;` before accessing `m_array[0]`.*
 
@@ -1204,6 +1206,8 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 
 
 ### NULL_DEREFERENCE
+
+> **Tier note (2026-07-02):** THIS is the **HIGH-tier** NULL_DEREFERENCE section (~131 leads) — the real P3 target. Earlier "P3 NULL_DEREFERENCE" resolution blocks were written into the **MEDIUM**-tier mirror. This HIGH section has **not** yet been systematically verified/annotated. Spot-check: `AgreementData.cpp:524/540/544/548` are already fixed — the code uses `safe_player(m_owner)->GetCivilisation()`. A full HIGH-tier pass remains; verify each lead in code before treating it as a verdict.
 
 - **AgreementData.cpp:524** — `g_player[m_owner]->GetCivilisation()` is dereferenced without first checking whether `g_player[m_owner]` is non-NULL. If the owner player has been destroyed or is uninitialized, this crashes.
   *Fix: Add a null check before dereferencing: `if (g_player[m_owner]) civ = g_player[m_owner]->GetCivilisation();`*

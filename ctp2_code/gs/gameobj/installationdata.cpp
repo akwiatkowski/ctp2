@@ -41,6 +41,7 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "gs/gameobj/Player.h"
+#include "gs/utility/safety.h"          // safe_player
 #include "gs/world/Cell.h"
 #include "gs/core/tiledmap_observer.h"
 #include "net/general/network.h"
@@ -281,22 +282,22 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 									  m_id, m_owner, toOwner));
 	}
 
-	if(m_owner >= 0 && player_Get(m_owner) != nullptr)
+	if(Player *owner = safe_player(m_owner))
 	{
-		player_Get(m_owner)->RemoveInstallationReferences(Installation(m_id));
+		owner->RemoveInstallationReferences(Installation(m_id));
 
 		double visionRange = terrainutil_GetVisionRange(m_type, m_point);
-		player_Get(m_owner)->m_vision->RemoveVisible(m_point, visionRange);
+		owner->m_vision->RemoveVisible(m_point, visionRange);
 
 		if(visionRange > 0)
 		{
-			player_Get(m_owner)->RemoveUnitVision(m_point, visionRange);
+			owner->RemoveUnitVision(m_point, visionRange);
 		}
 	}
 
-	if(toOwner >= 0)
+	if(Player *newOwner = safe_player(toOwner))
 	{
-		player_Get(toOwner)->AddInstallation(Installation(m_id));
+		newOwner->AddInstallation(Installation(m_id));
 	}
 
 	m_owner = toOwner;

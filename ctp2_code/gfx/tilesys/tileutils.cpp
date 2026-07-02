@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include <vector>
 
 #include "gs/utility/Globals.h"
@@ -1801,10 +1802,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 	printf("\nParsing Tileset Script: '%s'\n", scriptName);
 
-	Token *         theToken = new Token(scriptName, C3DIR_SPRITES);
-	Assert(theToken);
-
-	if (!theToken) return FALSE;
+	auto theToken = std::make_unique<Token>(scriptName, C3DIR_SPRITES);
 
 	sint32 tmp;
 
@@ -1819,18 +1817,18 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 				sint32	tileNum = tmp;
 				sint32	hasTransition[4];
 
-				if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+				if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 
-				if (!token_ParseValNext(theToken, TOKEN_TILESET_TILE_BASE_TYPE, tmp)) return FALSE;
+				if (!token_ParseValNext(theToken.get(), TOKEN_TILESET_TILE_BASE_TYPE, tmp)) return FALSE;
 				sint32 baseType = tmp;
 
-				if (!token_ParseValNext(theToken, TOKEN_TILESET_TILE_TRANS_0, tmp)) return FALSE;
+				if (!token_ParseValNext(theToken.get(), TOKEN_TILESET_TILE_TRANS_0, tmp)) return FALSE;
 				hasTransition[0] = tmp;
-				if (!token_ParseValNext(theToken, TOKEN_TILESET_TILE_TRANS_1, tmp)) return FALSE;
+				if (!token_ParseValNext(theToken.get(), TOKEN_TILESET_TILE_TRANS_1, tmp)) return FALSE;
 				hasTransition[1] = tmp;
-				if (!token_ParseValNext(theToken, TOKEN_TILESET_TILE_TRANS_2, tmp)) return FALSE;
+				if (!token_ParseValNext(theToken.get(), TOKEN_TILESET_TILE_TRANS_2, tmp)) return FALSE;
 				hasTransition[2] = tmp;
-				if (!token_ParseValNext(theToken, TOKEN_TILESET_TILE_TRANS_3, tmp)) return FALSE;
+				if (!token_ParseValNext(theToken.get(), TOKEN_TILESET_TILE_TRANS_3, tmp)) return FALSE;
 				hasTransition[3] = tmp;
 
 				printf(" * Basetile %.3d\n", tileNum);
@@ -1850,7 +1848,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 					tileutils_BorkifyTile((uint16)(tileNum * 100) + 99, ageChar, (uint16)baseType, 0, 0, 0, 0);
 				}
 
-				if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
+				if (!token_ParseAnCloseBraceNext(theToken.get())) return FALSE;
 
 				numBaseTiles++;
 			}
@@ -1859,9 +1857,9 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 			{
 				MBCHAR		configStr[100];
 
-				if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+				if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 
-				if (!token_ParseKeywordNext(theToken, TOKEN_TILESET_MEGATILE_CONFIG)) return FALSE;
+				if (!token_ParseKeywordNext(theToken.get(), TOKEN_TILESET_MEGATILE_CONFIG)) return FALSE;
 
 				theToken->Next();
 				theToken->GetString(configStr);
@@ -1872,7 +1870,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 				for (size_t i = 0; i < len; i++)
                 {
-					if (!token_ParseKeywordNext(theToken, TOKEN_TILESET_MEGATILE_INFO)) return FALSE;
+					if (!token_ParseKeywordNext(theToken.get(), TOKEN_TILESET_MEGATILE_INFO)) return FALSE;
 
 					uint8		dir = 0;
 
@@ -1907,7 +1905,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 				printf(" * Supertile %s\n", configStr);
 
-				if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
+				if (!token_ParseAnCloseBraceNext(theToken.get())) return FALSE;
 
 				numMegaTiles++;
 			}
@@ -1918,7 +1916,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 				theToken->GetNumber(tmp);
 //				sint32 transformNum = tmp;
 
-				if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+				if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 
 				transforms[numTransforms].assign(k_TRANSFORM_SIZE, k_TRANSFORM_TO_LIST_ID);
 
@@ -1950,7 +1948,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 						break;
 				}
 
-				if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
+				if (!token_ParseAnCloseBraceNext(theToken.get())) return FALSE;
 
 				printf(" * Transform %.3d\n", numTransforms);
 
@@ -1964,15 +1962,15 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 				sint16		 fromType;
 				sint16		 toType;
 
-				if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+				if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 
-				if (!token_ParseValNext(theToken, TOKEN_TILESET_TRANSITION_FROM, tmp)) return FALSE;
+				if (!token_ParseValNext(theToken.get(), TOKEN_TILESET_TRANSITION_FROM, tmp)) return FALSE;
 				fromType = (sint16)tmp;
 
-				if (!token_ParseValNext(theToken, TOKEN_TILESET_TRANSITION_TO, tmp)) return FALSE;
+				if (!token_ParseValNext(theToken.get(), TOKEN_TILESET_TRANSITION_TO, tmp)) return FALSE;
 				toType = (sint16)tmp;
 
-				if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
+				if (!token_ParseAnCloseBraceNext(theToken.get())) return FALSE;
 
 				tileutils_ExtractStencils(fromType, toType);
 
@@ -1984,7 +1982,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 		case TOKEN_TILESET_RIVER_TRANSFORM:
 			{
-				if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+				if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 
 				riverTransforms[numRiverTransforms].resize(k_RIVER_TRANSFORM_SIZE);
 				for (size_t i = 0; i<k_RIVER_TRANSFORM_SIZE-1; i++) {
@@ -1993,10 +1991,10 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 					riverTransforms[numRiverTransforms][i] = (sint16)tmp;
 				}
 
-				if (!token_ParseValNext(theToken, TOKEN_TILESET_RIVER_PIECE, tmp)) return FALSE;
+				if (!token_ParseValNext(theToken.get(), TOKEN_TILESET_RIVER_PIECE, tmp)) return FALSE;
 				riverTransforms[numRiverTransforms][k_RIVER_TRANSFORM_SIZE-1] = (sint16)tmp;
 
-				if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
+				if (!token_ParseAnCloseBraceNext(theToken.get())) return FALSE;
 
 				MBCHAR		filename[_MAX_PATH];
 				char		*tif;
@@ -2025,8 +2023,6 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 			break;
 		}
 	}
-
-	delete theToken;
 
 	MBCHAR	fname[_MAX_PATH];
 

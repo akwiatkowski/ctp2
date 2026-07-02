@@ -157,12 +157,9 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 	snprintf(prefixStr, sizeof(prefixStr), ".%s%d%s", FILE_SEP, id, FILE_SEP);
 	snprintf(scriptName, sizeof(scriptName), "GG%.2d.txt", id);
 
-	Token * theToken = new Token(scriptName, C3DIR_SPRITES);
-	Assert(theToken);
-	if (!theToken) return FALSE;
+	auto theToken = std::make_unique<Token>(scriptName, C3DIR_SPRITES);
 
-	if (!token_ParseKeywordNext(theToken, TOKEN_GOOD_SPRITE)) {
-		delete theToken;
+	if (!token_ParseKeywordNext(theToken.get(), TOKEN_GOOD_SPRITE)) {
 		return k_NOT_GOOD;
 	}
 
@@ -178,16 +175,16 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
         shadowNames[i] = new MBCHAR[k_MAX_NAME_LENGTH];
     }
 
-	if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+	if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 
 	sint32 tmp;
-	if (!token_ParseValNext(theToken, TOKEN_GOOD_SPRITE_IDLE, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_GOOD_SPRITE_IDLE, tmp)) return FALSE;
 	if (tmp) {
 		Sprite *idleSprite = new Sprite;
 		Assert(idleSprite);
 		if(!idleSprite) return FALSE;
 
-		idleSprite->ParseFromTokens(theToken);
+		idleSprite->ParseFromTokens(theToken.get());
 
 		printf(" [Idle");
 		size_t numFrames = idleSprite->GetNumFrames();
@@ -213,13 +210,11 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 		printf("]\n");
 
 		Anim *idleAnim = new Anim;
-		idleAnim->ParseFromTokens(theToken);
+		idleAnim->ParseFromTokens(theToken.get());
 		delete m_anims[GOODACTION_IDLE];
 		m_anims[GOODACTION_IDLE] = idleAnim;
 	}
 
-
-	delete theToken;
 
     for (i = 0; i < k_MAX_NAMES; i++)
     {

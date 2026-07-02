@@ -161,25 +161,22 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 
     printf("Processing '%s'\n", scriptName);
 
-	Token * theToken = new Token(scriptName, C3DIR_SPRITES);
-	Assert(theToken);
-
-	if (!theToken) return FALSE;
+	auto theToken = std::make_unique<Token>(scriptName, C3DIR_SPRITES);
 
 	sint32  tmp;
     size_t  tmpNumFrames = 0;
 
-	if (!token_ParseKeywordNext(theToken, TOKEN_EFFECT_SPRITE)) return FALSE;
+	if (!token_ParseKeywordNext(theToken.get(), TOKEN_EFFECT_SPRITE)) return FALSE;
 
-	if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+	if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 
-	if (!token_ParseValNext(theToken, TOKEN_EFFECT_SPRITE_PLAY, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_EFFECT_SPRITE_PLAY, tmp)) return FALSE;
 	if (tmp)
 	{
 
 		Sprite *effectSprite = new Sprite;
 
-		effectSprite->ParseFromTokens(theToken);
+		effectSprite->ParseFromTokens(theToken.get());
 
 		printf(" [Effect");
 		tmpNumFrames = effectSprite->GetNumFrames();
@@ -209,18 +206,18 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 
 		Anim *effectAnim = new Anim;
 
-		effectAnim->ParseFromTokens(theToken);
+		effectAnim->ParseFromTokens(theToken.get());
         delete m_anims[EFFECTACTION_PLAY];
 		m_anims[EFFECTACTION_PLAY] = effectAnim;
 	}
 
-	if (!token_ParseValNext(theToken, TOKEN_EFFECT_SPRITE_FLASH, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_EFFECT_SPRITE_FLASH, tmp)) return FALSE;
 	if (tmp)
 	{
 
 		Sprite *flashSprite = new Sprite;
 
-		flashSprite->ParseFromTokens(theToken);
+		flashSprite->ParseFromTokens(theToken.get());
 
 		printf(" [Flash");
 
@@ -251,14 +248,12 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 
 		Anim *moveAnim = new Anim;
 
-		moveAnim->ParseFromTokens(theToken);
+		moveAnim->ParseFromTokens(theToken.get());
         delete m_anims[EFFECTACTION_FLASH];
 		m_anims[EFFECTACTION_FLASH] = moveAnim;
 
 	}
 
-
-	delete theToken;
 
 	for (i = 0; i < k_MAX_NAMES; i++)
 	{

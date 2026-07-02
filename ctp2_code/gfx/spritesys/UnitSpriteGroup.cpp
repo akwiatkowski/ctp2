@@ -418,17 +418,15 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 	printf("Processing '%s'\n", scriptName);
 
-	Token	* theToken = new Token(scriptName, C3DIR_SPRITES);
-	Assert(theToken);
-	if (!theToken) return FALSE;
+	auto theToken = std::make_unique<Token>(scriptName, C3DIR_SPRITES);
 
 	sint32 tmp;
 
-	if (!token_ParseKeywordNext(theToken, TOKEN_UNIT_SPRITE)) return FALSE;
+	if (!token_ParseKeywordNext(theToken.get(), TOKEN_UNIT_SPRITE)) return FALSE;
 
-	if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+	if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 
-	if (!token_ParseValNext(theToken, TOKEN_UNIT_SPRITE_MOVE, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_MOVE, tmp)) return FALSE;
 
 	if (tmp)
 	{
@@ -442,7 +440,7 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		FacedSprite *moveSprite = new FacedSprite;
 
-		moveSprite->ParseFromTokens(theToken);
+		moveSprite->ParseFromTokens(theToken.get());
 
 		printf(" [Move");
 		for (j=0; j<k_NUM_FACINGS; j++)
@@ -465,12 +463,12 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		Anim *moveAnim = new Anim;
 
-		moveAnim->ParseFromTokens(theToken);
+		moveAnim->ParseFromTokens(theToken.get());
 		delete m_anims[UNITACTION_MOVE];
 		m_anims[UNITACTION_MOVE] = moveAnim;
 	}
 
-	if (!token_ParseValNext(theToken, TOKEN_UNIT_SPRITE_ATTACK, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_ATTACK, tmp)) return FALSE;
 	if (tmp)
 	{
 		Assert(type == GROUPTYPE_UNIT);
@@ -481,7 +479,7 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 			return FALSE;
 		}
 
-		if (!token_ParseValNext(theToken, TOKEN_UNIT_SPRITE_ATTACK_IS_DIRECTIONAL, tmp)) return FALSE;
+		if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_ATTACK_IS_DIRECTIONAL, tmp)) return FALSE;
 		if (tmp)
 			m_hasDirectional = TRUE;
 		else
@@ -489,7 +487,7 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		FacedSprite *attackSprite = new FacedSprite;
 
-		attackSprite->ParseFromTokens(theToken);
+		attackSprite->ParseFromTokens(theToken.get());
 
 		printf(" [Attack");
 		for (j=0; j<k_NUM_FACINGS; j++)
@@ -512,16 +510,16 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		Anim *attackAnim = new Anim;
 
-		attackAnim->ParseFromTokens(theToken);
+		attackAnim->ParseFromTokens(theToken.get());
 		delete m_anims[UNITACTION_ATTACK];
 		m_anims[UNITACTION_ATTACK] = attackAnim;
 	}
 
-	if (!token_ParseValNext(theToken, TOKEN_UNIT_SPRITE_IDLE, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_IDLE, tmp)) return FALSE;
 	if (tmp)
 	{
 		Sprite *idleSprite = new Sprite;
-		idleSprite->ParseFromTokens(theToken);
+		idleSprite->ParseFromTokens(theToken.get());
 
 		if (type == GROUPTYPE_UNIT)
 		{
@@ -557,12 +555,12 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		Anim *idleAnim = new Anim;
 
-		idleAnim->ParseFromTokens(theToken);
+		idleAnim->ParseFromTokens(theToken.get());
 		delete m_anims[UNITACTION_IDLE];
 		m_anims[UNITACTION_IDLE] = idleAnim;
 	}
 
-	if (!token_ParseValNext(theToken, TOKEN_UNIT_SPRITE_VICTORY, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_VICTORY, tmp)) return FALSE;
 	if (tmp)
 	{
 		Assert(type == GROUPTYPE_UNIT);
@@ -575,10 +573,10 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		Sprite *victorySprite = new Sprite;
 
-		if (!token_ParseValNext(theToken, TOKEN_UNIT_SPRITE_IS_DEATH, tmp)) return FALSE;
+		if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_IS_DEATH, tmp)) return FALSE;
 		SetHasDeath(0 != tmp);
 
-		victorySprite->ParseFromTokens(theToken);
+		victorySprite->ParseFromTokens(theToken.get());
 
 		printf(" [Victory");
 		for(size_t n = 0; n < victorySprite->GetNumFrames(); ++n)
@@ -596,12 +594,12 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		Anim *victoryAnim = new Anim;
 
-		victoryAnim->ParseFromTokens(theToken);
+		victoryAnim->ParseFromTokens(theToken.get());
 		delete m_anims[UNITACTION_VICTORY];
 		m_anims[UNITACTION_VICTORY] = victoryAnim;
 	}
 
-	if (!token_ParseValNext(theToken, TOKEN_UNIT_SPRITE_WORK, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_WORK, tmp)) return FALSE;
 	if (tmp)
 	{
 		Assert(type == GROUPTYPE_UNIT);
@@ -613,7 +611,7 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		FacedSprite *workSprite = new FacedSprite;
 
-		workSprite->ParseFromTokens(theToken);
+		workSprite->ParseFromTokens(theToken.get());
 
 		printf(" [Work/A2");
 		for (j=0; j<k_NUM_FACINGS; j++)
@@ -635,93 +633,91 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		printf("]\n");
 
 		Anim *workAnim = new Anim;
-		workAnim->ParseFromTokens(theToken);
+		workAnim->ParseFromTokens(theToken.get());
 		delete m_anims[UNITACTION_WORK];
 		m_anims[UNITACTION_WORK] = workAnim;
 	}
 
-	if (!token_ParseValNext(theToken, TOKEN_UNIT_SPRITE_FIREPOINTS, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_FIREPOINTS, tmp)) return FALSE;
 
 	if (tmp)
 	{
 
 
 		for (sint32 j=0; j<tmp; j++) {
-			if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+			if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 			for (i=0; i<k_NUM_FACINGS; i++) {
-			    token_ParsePoint(theToken);
+			    token_ParsePoint(theToken.get());
 			}
-			if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
+			if (!token_ParseAnCloseBraceNext(theToken.get())) return FALSE;
 		}
 	}
 
-	if (!token_ParseValNext(theToken, TOKEN_UNIT_SPRITE_FIREPOINTS_WORK, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_FIREPOINTS_WORK, tmp)) return FALSE;
 	if (tmp) {
 
 		m_numFirePointsWork = (uint16)tmp;
 
 		for (sint32 j=0; j<tmp; j++) {
-			if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+			if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 			for (i=0; i<k_NUM_FACINGS; i++) {
-			   token_ParsePoint(theToken);
+			   token_ParsePoint(theToken.get());
 			}
-			if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
+			if (!token_ParseAnCloseBraceNext(theToken.get())) return FALSE;
 		}
 	}
 
-	if (!token_ParseValNext(theToken, TOKEN_UNIT_SPRITE_MOVEOFFSETS, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_MOVEOFFSETS, tmp)) return FALSE;
 	if (tmp) {
-		if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+		if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 		for (i=0; i<k_NUM_FACINGS; i++) {
-			m_moveOffsets[i] = token_ParsePoint(theToken);
+			m_moveOffsets[i] = token_ParsePoint(theToken.get());
 		}
-		if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
+		if (!token_ParseAnCloseBraceNext(theToken.get())) return FALSE;
 	}
 
-	if (!token_ParseValNext(theToken, TOKEN_UNIT_SPRITE_SHIELDPOINTS, tmp)) return FALSE;
+	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_SHIELDPOINTS, tmp)) return FALSE;
 	if (tmp) {
 
-		if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
+		if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
 
-		if (!token_ParseKeywordNext(theToken, TOKEN_UNIT_SPRITE_SHIELDPOINTS_MOVE)) return FALSE;
+		if (!token_ParseKeywordNext(theToken.get(), TOKEN_UNIT_SPRITE_SHIELDPOINTS_MOVE)) return FALSE;
 		
 			for (i=0; i<k_NUM_FACINGS; i++) {
-				m_shieldPoints[UNITACTION_MOVE][i] = token_ParsePoint(theToken);
+				m_shieldPoints[UNITACTION_MOVE][i] = token_ParsePoint(theToken.get());
 			}
 		
-		if (!token_ParseKeywordNext(theToken, TOKEN_UNIT_SPRITE_SHIELDPOINTS_ATTACK)) return FALSE;
+		if (!token_ParseKeywordNext(theToken.get(), TOKEN_UNIT_SPRITE_SHIELDPOINTS_ATTACK)) return FALSE;
 		if (tmp) {
 			for (i=0; i<k_NUM_FACINGS; i++) {
-				m_shieldPoints[UNITACTION_ATTACK][i] = token_ParsePoint(theToken);
+				m_shieldPoints[UNITACTION_ATTACK][i] = token_ParsePoint(theToken.get());
 			}
 		}
-		if (!token_ParseKeywordNext(theToken, TOKEN_UNIT_SPRITE_SHIELDPOINTS_IDLE)) return FALSE;
+		if (!token_ParseKeywordNext(theToken.get(), TOKEN_UNIT_SPRITE_SHIELDPOINTS_IDLE)) return FALSE;
 		if (tmp) {
 			for (i=0; i<k_NUM_FACINGS; i++) {
-				m_shieldPoints[UNITACTION_IDLE][i] = token_ParsePoint(theToken);
+				m_shieldPoints[UNITACTION_IDLE][i] = token_ParsePoint(theToken.get());
 			}
 		}
-		if (!token_ParseKeywordNext(theToken, TOKEN_UNIT_SPRITE_SHIELDPOINTS_VICTORY)) return FALSE;
+		if (!token_ParseKeywordNext(theToken.get(), TOKEN_UNIT_SPRITE_SHIELDPOINTS_VICTORY)) return FALSE;
 		if (tmp) {
 			for (i=0; i<k_NUM_FACINGS; i++) {
-				m_shieldPoints[UNITACTION_VICTORY][i] = token_ParsePoint(theToken);
+				m_shieldPoints[UNITACTION_VICTORY][i] = token_ParsePoint(theToken.get());
 			}
 		}
-		if (!token_ParseKeywordNext(theToken, TOKEN_UNIT_SPRITE_SHIELDPOINTS_WORK)) return FALSE;
+		if (!token_ParseKeywordNext(theToken.get(), TOKEN_UNIT_SPRITE_SHIELDPOINTS_WORK)) return FALSE;
 		if (tmp) {
 			for (i=0; i<k_NUM_FACINGS; i++) {
-				m_shieldPoints[UNITACTION_WORK][i] = token_ParsePoint(theToken);
+				m_shieldPoints[UNITACTION_WORK][i] = token_ParsePoint(theToken.get());
 			}
 		}
 
-		if (!token_ParseAnCloseBraceNext(theToken)) return FALSE;
+		if (!token_ParseAnCloseBraceNext(theToken.get())) return FALSE;
 	}
 
 
 
 
-
-	delete theToken;
 
 	return TRUE;
 }

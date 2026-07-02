@@ -120,9 +120,9 @@ class UnitActor : public Actor {
   void AddIdle(bool NoIdleJustDelay = false);
   void ActionQueueUpIdle(bool NoIdleJustDelay = false);
 
-  Anim* CreateAnim(UNITACTION action);
-  Anim* MakeFakeDeath();
-  Anim* MakeFaceoff();
+  std::unique_ptr<Anim> CreateAnim(UNITACTION action);
+  std::unique_ptr<Anim> MakeFakeDeath();
+  std::unique_ptr<Anim> MakeFaceoff();
 
   bool HasThisAnim(UNITACTION action) const {
     return m_unitSpriteGroup && m_unitSpriteGroup->GetAnim((GAME_ACTION)action);

@@ -280,13 +280,13 @@ void EffectActor::AddAction(ActionPtr actionObj)
 	m_actionQueue.Push(actionObj);
 }
 
-Anim *EffectActor::CreateAnim(EFFECTACTION action)
+std::unique_ptr<Anim> EffectActor::CreateAnim(EFFECTACTION action)
 {
 	Assert(m_effectSpriteGroup);
 	if (!m_effectSpriteGroup) return nullptr;
 
 	Anim	* origAnim = m_effectSpriteGroup->GetAnim((GAME_ACTION) action);
-	return origAnim ? new Anim(*origAnim) : nullptr;
+	return origAnim ? std::make_unique<Anim>(*origAnim) : nullptr;
 }
 
 void EffectActor::Draw()

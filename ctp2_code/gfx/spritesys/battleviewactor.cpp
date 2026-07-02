@@ -96,7 +96,7 @@ BattleViewActor::~BattleViewActor()
 
 void BattleViewActor::AddIdle(BOOL NoIdleJustDelay)
 {
-	Anim * anim = CreateAnim(UNITACTION_IDLE);
+	std::unique_ptr<Anim> anim = CreateAnim(UNITACTION_IDLE);
 
 	if (anim == nullptr)
 	{
@@ -110,7 +110,7 @@ void BattleViewActor::AddIdle(BOOL NoIdleJustDelay)
 	}
 
 	m_curAction = std::make_shared<Action>(UNITACTION_IDLE, ACTIONEND_INTERRUPT);
-	m_curAction->SetAnim(anim);
+	m_curAction->SetAnim(anim.release());
 	m_curUnitAction = UNITACTION_IDLE;
 
 	if (soundmgr_Get())
@@ -213,7 +213,7 @@ void BattleViewActor::AddAction(ActionPtr actionObj)
 	m_actionQueue.Push(actionObj);
 }
 
-Anim *BattleViewActor::CreateAnim(UNITACTION action)
+std::unique_ptr<Anim> BattleViewActor::CreateAnim(UNITACTION action)
 {
 	Assert(m_unitSpriteGroup);
 	if (!m_unitSpriteGroup) return nullptr;
@@ -230,7 +230,7 @@ Anim *BattleViewActor::CreateAnim(UNITACTION action)
 	if (!origAnim)
 		return nullptr;
 
-    Anim * anim = new Anim(*origAnim);
+    auto anim = std::make_unique<Anim>(*origAnim);
 
 	if (action == UNITACTION_IDLE)
 	{
@@ -244,9 +244,9 @@ Anim *BattleViewActor::CreateAnim(UNITACTION action)
 #define k_FAKE_DEATH_FRAMES			15
 #define k_FAKE_DEATH_DURATION		1500
 
-Anim * BattleViewActor::MakeFakeDeath()
+std::unique_ptr<Anim> BattleViewActor::MakeFakeDeath()
 {
-    Anim *      anim        = new Anim();
+    auto        anim        = std::make_unique<Anim>();
 
     std::vector<uint16> frames(k_FAKE_DEATH_FRAMES, 0);
 	anim->SetFrames(frames.data(), frames.size());

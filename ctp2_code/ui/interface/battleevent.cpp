@@ -222,11 +222,11 @@ void BattleEvent::ProcessAttack()
 
 					Assert(actor);
 
-					Anim *  anim = actor->CreateAnim(UNITACTION_ATTACK);
+					std::unique_ptr<Anim> anim = actor->CreateAnim(UNITACTION_ATTACK);
 					if (anim) {
 						ActionPtr action(new Action(UNITACTION_ATTACK, ACTIONEND_ANIMEND));
 
-						action->SetAnim(anim);
+						action->SetAnim(anim.release());
 						actor->AddAction(std::move(action));
 					} else {
 						finished = TRUE;
@@ -288,7 +288,7 @@ void BattleEvent::ProcessExplode()
 				if (actor) {
 					ActionPtr	action;
 
-					Anim *  anim = actor->CreateAnim(EFFECTACTION_PLAY);
+					std::unique_ptr<Anim> anim = actor->CreateAnim(EFFECTACTION_PLAY);
 					if (anim == nullptr) {
 						anim = actor->CreateAnim(EFFECTACTION_FLASH);
 						if (anim) {
@@ -300,7 +300,7 @@ void BattleEvent::ProcessExplode()
 						action = std::make_shared<Action>(EFFECTACTION_PLAY, ACTIONEND_ANIMEND);
 					}
 
-					action->SetAnim(anim);
+					action->SetAnim(anim.release());
 					actor->AddAction(std::move(action));
 					actor->Process();
 
@@ -372,7 +372,7 @@ void BattleEvent::ProcessDeath()
 
 				if (!m_animating) {
 					ActionPtr action;
-					Anim		*anim;
+					std::unique_ptr<Anim> anim;
 
 
 
@@ -386,7 +386,7 @@ void BattleEvent::ProcessDeath()
 						anim = actor->CreateAnim(UNITACTION_VICTORY);
 					}
 
-					action->SetAnim(anim);
+					action->SetAnim(anim.release());
 					actor->AddAction(std::move(action));
 
 					if (soundmgr_Get())

@@ -5,6 +5,7 @@
 #define __EFFECTACTOR_H__
 
 #include <deque>
+#include <memory>
 
 #include "gfx/spritesys/Actor.h"
 #include "gfx/spritesys/EffectSpriteGroup.h"
@@ -35,7 +36,7 @@ public:
   void			AddAction(ActionPtr actionObj) override;
 	void			GetNextAction(BOOL isVisible = TRUE);
 
-	Anim *          CreateAnim(EFFECTACTION action);
+	std::unique_ptr<Anim>	CreateAnim(EFFECTACTION action);
 
 	void			Draw();
 	void			DrawDirect(aui_Surface *surf, sint32 x, sint32 y);

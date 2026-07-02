@@ -192,7 +192,7 @@ void dh_projectileMove(DQAction* itemAction,
   if (projectileEnd && director_Get()->TileIsVisibleToPlayer(startPos)) {
     ActionPtr actionObj;
 
-    Anim* anim = projectileEnd->CreateAnim(EFFECTACTION_PLAY);
+    std::unique_ptr<Anim> anim = projectileEnd->CreateAnim(EFFECTACTION_PLAY);
     if (anim == nullptr) {
       anim = projectileEnd->CreateAnim(EFFECTACTION_FLASH);
       Assert(anim != nullptr);
@@ -208,15 +208,13 @@ void dh_projectileMove(DQAction* itemAction,
 
     Assert(actionObj);
     if (actionObj) {
-      actionObj->SetAnim(anim);
+      actionObj->SetAnim(anim.release());
       projectileEnd->AddAction(std::move(actionObj));
       director_Get()->ActiveEffectAdd(projectileEnd);
 
       // Management taken over by director, no longer managed by item queue:
       // release ownership without deleting (director now owns the actor).
       action->end_projectile.release();
-    } else {
-      delete anim;
     }
   }
 
@@ -421,8 +419,8 @@ void dh_death(DQAction* itemAction,
   DQActionDeath* action = (DQActionDeath*)itemAction;
   UnitActorPtr theDead = action->death_dead;
   UnitActorPtr theVictor = action->death_victor.lock();
-  Anim* deathAnim = nullptr;
-  Anim* victorAnim = nullptr;
+  std::unique_ptr<Anim> deathAnim;
+  std::unique_ptr<Anim> victorAnim;
   sint32 deathActionType = UNITACTION_NONE;
   sint32 victorActionType = UNITACTION_NONE;
 
@@ -480,8 +478,6 @@ void dh_death(DQAction* itemAction,
     if (deadActionObj == nullptr) {
       c3errors_ErrorDialog("Director",
                            "Internal Failure to create death action");
-      delete deathAnim;
-      delete victorAnim;
       return;
     }
 
@@ -491,7 +487,7 @@ void dh_death(DQAction* itemAction,
     deadActionObj->SetStartMapPoint(action->dead_Pos);
     deadActionObj->SetEndMapPoint(action->dead_Pos);
 
-    deadActionObj->SetAnim(deathAnim);
+    deadActionObj->SetAnim(deathAnim.release());
 
     deadActionObj->SetUnitVisionRange(theDead->GetUnitVisionRange());
     deadActionObj->SetUnitsVisibility(theDead->GetUnitVisibility());
@@ -538,8 +534,6 @@ void dh_death(DQAction* itemAction,
       if (victorActionObj == nullptr) {
         c3errors_ErrorDialog("Director",
                              "Internal Failure to create victory action");
-        delete deathAnim;
-        delete victorAnim;
         return;
       }
       victorActionObj->SetSequence(seq);
@@ -547,7 +541,7 @@ void dh_death(DQAction* itemAction,
       victorActionObj->SetStartMapPoint(action->victor_Pos);
       victorActionObj->SetEndMapPoint(action->victor_Pos);
 
-      victorActionObj->SetAnim(victorAnim);
+      victorActionObj->SetAnim(victorAnim.release());
 
       victorActionObj->SetUnitVisionRange(theVictor->GetUnitVisionRange());
       victorActionObj->SetUnitsVisibility(theVictor->GetUnitVisibility());
@@ -678,7 +672,7 @@ void dh_work(DQAction* itemAction,
   if (actor->GetLoadType() != LOADTYPE_FULL)
     actor->FullLoad(UNITACTION_WORK);
 
-  Anim* anim = actor->CreateAnim(UNITACTION_WORK);
+  std::unique_ptr<Anim> anim = actor->CreateAnim(UNITACTION_WORK);
   if (anim == nullptr) {
     anim = actor->CreateAnim(UNITACTION_MOVE);
 
@@ -692,7 +686,7 @@ void dh_work(DQAction* itemAction,
   actionObj->SetSequence(seq);
   seq->AddRef();
 
-  actionObj->SetAnim(anim);
+  actionObj->SetAnim(anim.release());
 
   actor->AddAction(std::move(actionObj));
 
@@ -837,7 +831,7 @@ void dh_combatflash(DQAction* itemAction,
   SpriteStatePtr ss(new SpriteState(99));
   EffectActor* flash = new EffectActor(ss, action->flash_pos);
 
-  Anim* anim = flash->CreateAnim(EFFECTACTION_PLAY);
+  std::unique_ptr<Anim> anim = flash->CreateAnim(EFFECTACTION_PLAY);
   if (anim == nullptr) {
     anim = flash->CreateAnim(EFFECTACTION_FLASH);
     Assert(anim != nullptr);
@@ -845,7 +839,7 @@ void dh_combatflash(DQAction* itemAction,
 
   if (anim) {
     ActionPtr actionObj(new Action(EFFECTACTION_FLASH, ACTIONEND_PATHEND));
-    actionObj->SetAnim(anim);
+    actionObj->SetAnim(anim.release());
     flash->AddAction(std::move(actionObj));
     director_Get()->ActiveEffectAdd(flash);
   }
@@ -1071,14 +1065,14 @@ void dh_faceoff(DQAction* itemAction,
     AttackedActionObj->SetEndMapPoint(action->faceoff_attacked_pos);
   }
 
-  Anim* AttackedAnim = nullptr;
+  std::unique_ptr<Anim> AttackedAnim;
 
-  Anim* AttackerAnim = theAttacker->MakeFaceoff();
+  std::unique_ptr<Anim> AttackerAnim = theAttacker->MakeFaceoff();
   if (AttackerAnim == nullptr) {
     theAttacker->AddIdle(TRUE);
     return;
   }
-  AttackerActionObj->SetAnim(AttackerAnim);
+  AttackerActionObj->SetAnim(AttackerAnim.release());
 
   if (attackedIsAttackable) {
     if (theAttacked->GetLoadType() != LOADTYPE_FULL)
@@ -1104,7 +1098,7 @@ void dh_faceoff(DQAction* itemAction,
                                 AttackedPoints.y - AttackerPoints.y));
 
   if (AttackedAnim != nullptr) {
-    AttackedActionObj->SetAnim(AttackedAnim);
+    AttackedActionObj->SetAnim(AttackedAnim.release());
     AttackedActionObj->SetFacing(
         spriteutils_DeltaToFacing(AttackerPoints.x - AttackedPoints.x,
                                   AttackerPoints.y - AttackedPoints.y));
@@ -1235,11 +1229,11 @@ void dh_speceffect(DQAction* itemAction,
   SpriteStatePtr ss(new SpriteState(spriteID));
   EffectActor* effectActor = new EffectActor(ss, pos);
 
-  Anim* anim = effectActor->CreateAnim(EFFECTACTION_PLAY);
+  std::unique_ptr<Anim> anim = effectActor->CreateAnim(EFFECTACTION_PLAY);
 
   if (anim) {
     ActionPtr actionObj(new Action(EFFECTACTION_PLAY, ACTIONEND_PATHEND));
-    actionObj->SetAnim(anim);
+    actionObj->SetAnim(anim.release());
     effectActor->AddAction(std::move(actionObj));
     director_Get()->ActiveEffectAdd(effectActor);
 
@@ -1281,7 +1275,7 @@ void dh_attackpos(DQAction* itemAction,
   AttackerActionObj->SetStartMapPoint(action->attackpos_attacker_pos);
   AttackerActionObj->SetEndMapPoint(action->attackpos_attacker_pos);
 
-  Anim* AttackerAnim = nullptr;
+  std::unique_ptr<Anim> AttackerAnim;
 
   if (theAttacker->GetLoadType() != LOADTYPE_FULL)
     theAttacker->FullLoad(UNITACTION_ATTACK);
@@ -1291,7 +1285,7 @@ void dh_attackpos(DQAction* itemAction,
   if (AttackerAnim == nullptr)
     AttackerAnim = theAttacker->CreateAnim(UNITACTION_IDLE);
 
-  AttackerActionObj->SetAnim(AttackerAnim);
+  AttackerActionObj->SetAnim(AttackerAnim.release());
 
   POINT AttackerPoints;
   POINT AttackedPoints;

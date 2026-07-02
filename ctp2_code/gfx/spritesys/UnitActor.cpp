@@ -476,7 +476,7 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
 }
 
 void UnitActor::AddIdle(bool NoIdleJustDelay) {
-  Anim* anim = CreateAnim(UNITACTION_IDLE);
+  std::unique_ptr<Anim> anim = CreateAnim(UNITACTION_IDLE);
   m_frame = 0;
 
   if (anim == nullptr) {
@@ -494,7 +494,7 @@ void UnitActor::AddIdle(bool NoIdleJustDelay) {
     idleAction->SetFacing(m_facing);
   }
 
-  idleAction->SetAnim(anim);
+  idleAction->SetAnim(anim.release());
 
   AddAction(std::move(idleAction));
 
@@ -503,7 +503,7 @@ void UnitActor::AddIdle(bool NoIdleJustDelay) {
 }
 
 void UnitActor::ActionQueueUpIdle(bool NoIdleJustDelay) {
-  Anim* anim = CreateAnim(UNITACTION_IDLE);
+  std::unique_ptr<Anim> anim = CreateAnim(UNITACTION_IDLE);
 
   if (anim == nullptr) {
     anim = CreateAnim(UNITACTION_MOVE);
@@ -517,7 +517,7 @@ void UnitActor::ActionQueueUpIdle(bool NoIdleJustDelay) {
   ActionPtr tempCurAction(
       new Action(UNITACTION_IDLE, ACTIONEND_INTERRUPT, 0, NoIdleJustDelay));
 
-  tempCurAction->SetAnim(anim);
+  tempCurAction->SetAnim(anim.release());
 
   m_actionQueue.Push(std::move(tempCurAction));
 }
@@ -828,7 +828,7 @@ void UnitActor::AddAction(ActionPtr actionObj) {
   }
 }
 
-Anim* UnitActor::CreateAnim(UNITACTION action) {
+std::unique_ptr<Anim> UnitActor::CreateAnim(UNITACTION action) {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -852,7 +852,7 @@ Anim* UnitActor::CreateAnim(UNITACTION action) {
     }
   }
 
-  Anim* anim = new Anim(*origAnim);
+  auto anim = std::make_unique<Anim>(*origAnim);
 
   if (anim->GetType() == ANIMTYPE_LOOPED) {
     anim->SetDelayEnd(m_holdingCurAnimDelayEnd[action]);
@@ -869,13 +869,13 @@ Anim* UnitActor::CreateAnim(UNITACTION action) {
     anim->AdjustDelay(rand() % 2000);
   }
 
-  return anim;  // Has to be deleted outside.
+  return anim;
 }
 
 #define k_FAKE_DEATH_FRAMES 15
 #define k_FAKE_DEATH_DURATION 1500
 
-Anim* UnitActor::MakeFakeDeath() {
+std::unique_ptr<Anim> UnitActor::MakeFakeDeath() {
   std::vector<uint16> frames(k_FAKE_DEATH_FRAMES, 0);
 
   POINT pt = {0, 0};
@@ -886,7 +886,7 @@ Anim* UnitActor::MakeFakeDeath() {
     transparencies[i] = (uint16)(15 - i);
   }
 
-  Anim* anim = new Anim();
+  auto anim = std::make_unique<Anim>();
   anim->SetNumFrames(k_FAKE_DEATH_FRAMES);
   anim->SetFrames(frames.data(), frames.size());
   anim->SetPlaybackTime(k_FAKE_DEATH_DURATION);
@@ -900,7 +900,7 @@ Anim* UnitActor::MakeFakeDeath() {
 #define k_FACEOFF_FRAMES 1
 #define k_FACEOFF_DURATION 1000
 
-Anim* UnitActor::MakeFaceoff() {
+std::unique_ptr<Anim> UnitActor::MakeFaceoff() {
   std::vector<uint16> frames(k_FACEOFF_FRAMES, 0);
 
   POINT pt = {0, 0};
@@ -908,7 +908,7 @@ Anim* UnitActor::MakeFaceoff() {
 
   std::vector<uint16> transparencies(k_FACEOFF_FRAMES, 15);
 
-  Anim* anim = new Anim();
+  auto anim = std::make_unique<Anim>();
   anim->SetNumFrames(k_FACEOFF_FRAMES);
   anim->SetFrames(frames.data(), frames.size());
   anim->SetPlaybackTime(k_FACEOFF_DURATION);
@@ -2072,12 +2072,12 @@ bool UnitActor::ActionMove(ActionPtr actionObj) {
   if (GetLoadType() != LOADTYPE_FULL)
     FullLoad(UNITACTION_MOVE);
 
-  Anim* anim = CreateAnim(UNITACTION_MOVE);
+  std::unique_ptr<Anim> anim = CreateAnim(UNITACTION_MOVE);
   Assert(anim != nullptr);
   if (anim == nullptr)
     return false;
 
-  actionObj->SetAnim(anim);
+  actionObj->SetAnim(anim.release());
   actionObj->SetUnitsVisibility(GetUnitVisibility());
   actionObj->SetUnitVisionRange(GetUnitVisionRange());
   actionObj->SetMaxActionCounter(k_MAX_UNIT_MOVEMENT_ITERATIONS -
@@ -2170,12 +2170,12 @@ bool UnitActor::ActionSpecialAttack(ActionPtr actionObj, sint32 facing) {
 bool UnitActor::TryAnimation(ActionPtr actionObj, UNITACTION action) {
   FullLoad(action);
 
-  Anim* theAnim = CreateAnim(action);  // theAnim must be deleted
+  std::unique_ptr<Anim> theAnim = CreateAnim(action);
   if (theAnim) {
     actionObj->SetAnimPos(GetHoldingCurAnimPos(action));
     actionObj->SetSpecialDelayProcess(
         GetHoldingCurAnimSpecialDelayProcess(action));
-    actionObj->SetAnim(theAnim);
+    actionObj->SetAnim(theAnim.release());
     return true;
   }
 

@@ -57,6 +57,7 @@ class BattleViewActor;
 //
 //----------------------------------------------------------------------------
 #include <deque>
+#include <memory>
 
 #include "gfx/spritesys/Actor.h"            // Actor
 #include "gfx/spritesys/Anim.h"             // Anim
@@ -93,13 +94,13 @@ public:
 	void			GetNextAction(BOOL isVisible = TRUE);
 	void			AddIdle(BOOL NoIdleJustDelay = FALSE);
 
-	Anim *          CreateAnim(UNITACTION action);
+	std::unique_ptr<Anim>	CreateAnim(UNITACTION action);
 
 	bool			HasThisAnim(UNITACTION action) const
     {
         return m_unitSpriteGroup && m_unitSpriteGroup->GetAnim((GAME_ACTION) action);
     };
-	Anim			*MakeFakeDeath();
+	std::unique_ptr<Anim>	MakeFakeDeath();
 
 	void			Draw(BOOL fogged = FALSE);
 	void			DrawDirect(aui_Surface *surf, sint32 x, sint32 y);

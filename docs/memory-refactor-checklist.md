@@ -438,7 +438,7 @@ Legend: `(new / delete / alloc)` match counts per file.
 - [ ] `gfx/spritesys/goodactor.cpp` (2/0/0)
 - [ ] `gfx/spritesys/TradeActor.cpp` (2/0/0)
 - [ ] `gfx/spritesys/goodactor_factory_impl.cpp` (1/1/0)
-- [ ] `gfx/spritesys/DirectorActions.cpp` (0/2/0)
+- [x] `gfx/spritesys/DirectorActions.cpp` (0/2/0)
 - [ ] `gfx/spritesys/workeractor.cpp` (1/0/0)
 - [ ] `gfx/spritesys/EffectActor.cpp` (1/0/0)
 - [x] `gfx/spritesys/Actor.cpp` (1/0/0)

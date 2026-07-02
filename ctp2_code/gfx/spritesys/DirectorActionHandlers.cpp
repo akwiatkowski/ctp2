@@ -178,7 +178,7 @@ void dh_projectileMove(DQAction* itemAction,
 
   DQActionMoveProjectile* action = (DQActionMoveProjectile*)itemAction;
 
-  EffectActor* projectileEnd = action->end_projectile;
+  EffectActor* projectileEnd = action->end_projectile.get();
   UnitActorPtr shootingActor = action->pshooting_actor.lock();
   UnitActorPtr targetActor = action->ptarget_actor.lock();
   MapPoint startPos = action->pmove_oldPos;
@@ -212,8 +212,9 @@ void dh_projectileMove(DQAction* itemAction,
       projectileEnd->AddAction(std::move(actionObj));
       director_Get()->ActiveEffectAdd(projectileEnd);
 
-      // Management taken over by director, no longer managed by item queue.
-      action->end_projectile = nullptr;
+      // Management taken over by director, no longer managed by item queue:
+      // release ownership without deleting (director now owns the actor).
+      action->end_projectile.release();
     } else {
       delete anim;
     }
@@ -1362,10 +1363,14 @@ void dh_invokeResearchAdvance(DQAction* itemAction,
     return;
   }
 
-  sci_advancescreen_displayMyWindow(action->message, 0, seq);
+  // Preserve the original nullptr-vs-text distinction: an empty message was
+  // previously a null pointer (the setter only allocated for non-null input).
+  sci_advancescreen_displayMyWindow(
+      action->message.empty() ? nullptr
+                              : const_cast<MBCHAR*>(action->message.c_str()),
+      0, seq);
 
-  delete action->message;
-  action->message = nullptr;
+  action->message.clear();
 }
 
 void dh_beginScheduler(DQAction* itemAction,

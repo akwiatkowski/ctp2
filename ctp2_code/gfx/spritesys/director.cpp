@@ -293,7 +293,7 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("  pmove_newPos       :%d,%d\n",
                          action->pmove_newPos.x, action->pmove_newPos.y));
       DPRINTF(k_DBG_UI,
-              ("  end_projectile     :%#.8lx\n", action->end_projectile));
+              ("  end_projectile     :%#.8lx\n", action->end_projectile.get()));
       DPRINTF(k_DBG_UI,
               ("  projectile_path    :%d\n", action->projectile_path));
     } break;
@@ -1313,12 +1313,10 @@ void Director::AddProjectileAttack(Unit shooting,
       DQItem::CreatePtr(DQITEM_MOVEPROJECTILE, action, dh_projectileMove));
   item->SetOwner(shooting.GetOwner());
 
-  EffectActor* projectileEnd =
-      new EffectActor(projectileEnd_state, target.RetPos());
-
   action->pshooting_actor = shooting.GetActor();
   action->ptarget_actor = target.GetActor();
-  action->end_projectile = projectileEnd;
+  action->end_projectile =
+      std::make_unique<EffectActor>(projectileEnd_state, target.RetPos());
   action->projectile_path = projectile_Path;
   action->pmove_oldPos = shooting.RetPos();
   action->pmove_newPos = target.RetPos();
@@ -1871,9 +1869,7 @@ void Director::AddInvokeThroneRoom() {
 void Director::AddInvokeResearchAdvance(MBCHAR* message) {
   DQActionInvokeResearchAdvance* action = new DQActionInvokeResearchAdvance;
   if (message) {
-    MBCHAR* mess = new MBCHAR[strlen(message) + 1];
-    strcpy(mess, message);
-    action->message = mess;
+    action->message = message;  // std::string copies the text
   }
 
   m_itemQueue.push_back(DQItem::CreatePtr(DQITEM_INVOKE_RESEARCH_ADVANCE,

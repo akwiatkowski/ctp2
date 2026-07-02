@@ -46,6 +46,7 @@
 //----------------------------------------------------------------------------
 
 #include <memory>
+#include <string>
 #include <vector>
 
 //----------------------------------------------------------------------------
@@ -145,7 +146,7 @@ public:
 	std::weak_ptr<UnitActor> ptarget_actor;
 	MapPoint					pmove_oldPos;
 	MapPoint					pmove_newPos;
-	EffectActor					*end_projectile;
+	std::unique_ptr<EffectActor>	end_projectile;
 	sint32						projectile_path;
 };
 
@@ -475,14 +476,10 @@ public:
 class DQActionInvokeResearchAdvance : public DQAction
 {
 public:
-	DQActionInvokeResearchAdvance()
-    :
-        DQAction    (),
-        message     (nullptr)
-    {}
-	~DQActionInvokeResearchAdvance() override;
+	DQActionInvokeResearchAdvance() = default;
+	~DQActionInvokeResearchAdvance() override = default;
 
-	MBCHAR *        message;
+	std::string     message;
 };
 
 class DQActionBeginScheduler : public DQAction

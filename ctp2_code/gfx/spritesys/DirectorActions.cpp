@@ -36,23 +36,15 @@
 
 #include "gfx/spritesys/EffectActor.h"        // EffectActor destructor
 
-DQActionInvokeResearchAdvance::~DQActionInvokeResearchAdvance()
-{
-    delete [] message;
-}
-
 DQActionMoveProjectile::DQActionMoveProjectile()
 :
     pmove_oldPos        (),
     pmove_newPos        (),
-    end_projectile      (nullptr),
     projectile_path     (0)
 {
 }
 
-DQActionMoveProjectile::~DQActionMoveProjectile()
-{
-    // pshooting_actor  : reference only
-    // ptarget_actor    : reference only
-    delete end_projectile;
-}
+// pshooting_actor / ptarget_actor are weak references; end_projectile is a
+// unique_ptr that frees the effect actor unless ownership was already handed
+// to the director (see dh_projectileMove, which release()s it).
+DQActionMoveProjectile::~DQActionMoveProjectile() = default;

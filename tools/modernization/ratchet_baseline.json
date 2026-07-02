@@ -1,10 +1,10 @@
 {
   "counts": {
     "c_allocation": 515,
-    "raw_delete": 2012,
+    "raw_delete": 2014,
     "raw_new": 5472,
     "type_erased_casting": 3739,
-    "unsafe_string_api": 1410
+    "unsafe_string_api": 1398
   },
   "description": "Maximum allowed legacy C/C++ pattern counts. Run `make modernization-ratchet-update` after intentional cleanup only.",
   "source_root": "ctp2_code"

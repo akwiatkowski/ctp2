@@ -35,6 +35,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/interface/loadsavewindow.h"
 
 #include "ui/aui_common/aui.h"
@@ -520,7 +521,7 @@ void LoadSaveWindow::GetPowerGraph(SaveInfo *info)
 	AUI_ERRCODE	    errcode = AUI_ERRCODE_OK;
 	sint32 const    width   = m_powerTabImage->Width();
 	sint32 const    height  = m_powerTabImage->Height();
-	LineGraph *     myGraph = new LineGraph(&errcode, aui_UniqueId(), 0, 0, width, height);
+	auto myGraph = std::make_unique<LineGraph>(&errcode, aui_UniqueId(), 0, 0, width, height);
 
 	myGraph->EnableYLabel(FALSE);
 	myGraph->EnableYNumber(FALSE);
@@ -552,8 +553,6 @@ void LoadSaveWindow::GetPowerGraph(SaveInfo *info)
 	}
 
 	surf->Unlock(buffer);
-
-	delete myGraph;
 
     if (graphData)
     {

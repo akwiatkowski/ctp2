@@ -30,6 +30,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/slic/SlicButton.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/database/StrDB.h"
@@ -122,9 +123,8 @@ void SlicButton::Callback()
 	}
 	else{
 		Assert(false);
-		SlicFrame *frame = new SlicFrame(m_segment);
+		auto frame = std::make_unique<SlicFrame>(m_segment);
 		frame->RunAt(m_codeOffset);
-		delete frame;
 	}
 
 	slicengine_Get()->SetCurrentMessage(oldmessage);

@@ -24,12 +24,13 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
 
+#include <memory>
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_control.h"
@@ -419,9 +420,8 @@ void LoadSaveMapWindow::GetRadarMap(SaveMapInfo *info)
 	AUI_ERRCODE	    errcode     = AUI_ERRCODE_OK;
 	sint32 const    width       = m_mapTabImage->Width();
 	sint32 const    height      = m_mapTabImage->Height();
-	RadarMap *      radarMap    = new RadarMap
+	auto radarMap = std::make_unique<RadarMap>
 	    (&errcode, aui_UniqueId(), 0, 0, width, height, m_pattern->GetFilename());
-	if (!radarMap) return;
 
 	aui_Surface	*surf = radarMap->GetMapSurface();
 
@@ -453,8 +453,6 @@ void LoadSaveMapWindow::GetRadarMap(SaveMapInfo *info)
 	}
 
 	surf->Unlock(buffer);
-
-	delete radarMap;
 }
 
 

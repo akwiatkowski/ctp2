@@ -123,6 +123,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"                 // Pre-compiled header
+#include <memory>
 #include "ai/CityManagement/governor.h"           // Own declarations: consistency check
 
 #include "AdvanceRecord.h"
@@ -2478,7 +2479,7 @@ void Governor::AssignPopulation(CityData *city) const
 	/////////////////////////////////////////////////////////////
 	// Create a copy of city data for effect comparision.
 	// Copy should be removed in the end.
-	CityData * tmp_city = new CityData(city);
+	auto tmp_city = std::make_unique<CityData>(city);
 	sint32 delta;
 	double prev_result;
 
@@ -2635,10 +2636,7 @@ void Governor::AssignPopulation(CityData *city) const
 #endif
 	}
 
-#if !defined(NEW_RESOURCE_PROCESS)
-	// Not used anymore
-	delete tmp_city;
-#endif
+	// tmp_city (unique_ptr) is released automatically at function exit.
 
 	best_specialist = city->GetBestSpecialist(POP_SCIENTIST);
 

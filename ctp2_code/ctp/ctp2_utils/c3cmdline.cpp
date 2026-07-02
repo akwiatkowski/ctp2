@@ -41,6 +41,7 @@
 
 #include "ctp/c3.h"
 #ifdef _PLAYTEST
+#include <memory>
 #include "ctp/ctp2_utils/c3cmdline.h"
 
 #include <vector>
@@ -1819,37 +1820,31 @@ void CleanSpritesCommand::Execute(sint32 argc, char **argv)
 				};
 	sint32		numGoods = 19;
 
-	UnitSpriteGroup		*usg;
-	GoodSpriteGroup		*gsg;
-
 	MBCHAR *name;
 	MBCHAR saveName[_MAX_PATH];
 
 	for (i=0; i<numUnits; i++) {
-		usg = new UnitSpriteGroup(GROUPTYPE_UNIT);
+		auto usg = std::make_unique<UnitSpriteGroup>(GROUPTYPE_UNIT);
 		name = unitFileNames[i];
 		usg->LoadFull(name);
 		snprintf(saveName, sizeof(saveName), "Output\\%s", name);
 		usg->Save(saveName,k_SPRITEFILE_VERSION0,SPRDATA_REGULAR);
-		delete usg;
 	}
 
 	for (i=0; i<numGoods; i++) {
-		gsg = new GoodSpriteGroup(GROUPTYPE_GOOD);
+		auto gsg = std::make_unique<GoodSpriteGroup>(GROUPTYPE_GOOD);
 		name = goodFileNames[i];
 		gsg->LoadFull(name);
 		snprintf(saveName, sizeof(saveName), "Output\\%s", name);
 		gsg->Save(saveName,k_SPRITEFILE_VERSION0,SPRDATA_REGULAR);
-		delete gsg;
 	}
 
 	for (i=0; i<numCities; i++) {
-		usg = new UnitSpriteGroup(GROUPTYPE_CITY);
+		auto usg = std::make_unique<UnitSpriteGroup>(GROUPTYPE_CITY);
 		name = cityFileNames[i];
 		usg->LoadFull(name);
 		snprintf(saveName, sizeof(saveName), "Output\\%s", name);
 		usg->Save(saveName,k_SPRITEFILE_VERSION0,SPRDATA_REGULAR);
-		delete usg;
 	}
 }
 

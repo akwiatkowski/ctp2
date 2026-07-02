@@ -23,7 +23,7 @@ grep -c '^- \[ \]' docs/memory-refactor-checklist.md   # P6 (M11) files remainin
 When asked "how much more work remains?":
 
 - Declare the original Definition of Done (P7 docs pass): **~1 session**.
-- Crash-class stability work (P1–P5): **bounded, ~3–6 focused sessions** (P1 done; P3 HIGH crash-class burned down — the four categories are verified with resolution blocks, ~25 genuine bugs fixed, tail is supervised/P4/net; P4 unsafe-strings underway at 1376; P5 load-cache audit + P2 Linux-ASan remain).
+- Crash-class stability work (P1–P5): **bounded, ~3–6 focused sessions** (P1 done; P3 HIGH crash-class burned down — the four categories are verified with resolution blocks, ~25 genuine bugs fixed, tail is supervised/P4/net; P4 unsafe-strings underway — ratchet re-scoped to first-party (vendored libs excluded), baseline now 92 after 50 real conversions; P5 load-cache audit + P2 Linux-ASan remain).
 - Mechanical RAII conversion (P6): **multi-session; ~413 files, each needing ownership analysis (no free mechanical tier — verified 2026-07-02)**.
 - Fully refactored engine: **open-ended / not a bounded goal**.
 

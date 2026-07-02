@@ -16,9 +16,16 @@ Legend: `(new / delete / alloc)` match counts per file.
 
 Each unticked file carries a **heuristic** difficulty tag (appended after the counts).
 These are grep-derived triage labels — a starting sort, **not** verified verdicts.
-Confirm ownership before converting; some labels will be wrong (e.g. a hand-rolled
-list whose node is `new`'d but linked via a later `= node` assignment can slip into
-_moderate_).
+Confirm ownership before converting; some labels will be wrong.
+
+> **Verified 2026-07-02:** all 8 files the heuristic tagged 🟢 _clean_ turned out to be
+> false positives on inspection — every one is a transfer-to-sink (`Execute`, `AddEvent`,
+> `InsertItem`, pool), a **reference-counted** type (`SlicObject` via `AddRef`/`Release`),
+> or a global singleton (`theKeyMap`, `wormhole_Get/Set`). The grep signal
+> "lowercase local `= new` + `delete` same name" cannot distinguish "delete on the
+> failure path, transfer on success" from a genuine local owner. Those 8 were
+> reclassified (see below); **the 🟢 bucket is now empty.** Treat 🟡 and 🔴 as
+> "needs ownership analysis" — the counts below are approximate, not audited.
 
 | Tag | Meaning | Approach |
 |-----|---------|----------|
@@ -27,19 +34,22 @@ _moderate_).
 | 🔴 **hard**     | Linked lists, `void*` handoffs across callbacks, mixed `new[]`/`malloc`, member pointer arrays, factory returns crossing modules. | Supervised (Opus); real double-free risk; often touches multiple files. |
 | ⚪ **leave**    | Game-lifetime singletons (`g_*`/`s_*`), pool/arena allocators, vendored code. | Usually correct as-is; converting adds risk for no safety gain. Encapsulate, don't rewrite. |
 
-**Distribution (565 unticked files, 6858 raw matches):**
+**Distribution (565 unticked files, 6858 raw matches; post-verification 2026-07-02):**
 
 | Tag | Files | Raw matches |
 |-----|------:|------------:|
-| 🟢 clean    |   8 |   33 |
-| 🟡 moderate | 409 | 3387 |
-| 🔴 hard     |  47 |  829 |
-| ⚪ leave    | 101 | 2609 |
+| 🟢 clean    |   0 |    0 |
+| 🟡 moderate | 413 | 3403 |
+| 🔴 hard     |  49 |  838 |
+| ⚪ leave    | 103 | 2617 |
 
 Takeaway: **~38% of the raw matches (leave + a chunk of hard) shouldn't be mechanically
 converted at all** — the realistic finish line is lowering the ratchet to a floor, not zero.
-The 🟢/🟡 buckets (≈3420 matches) are the productive automatable target; the 🔴 47 files
-are the supervised tail. Re-run `tools/modernization/` triage after big clusters land.
+There is **no free "easy" tier** — every remaining conversion needs ownership analysis
+(the 🟢 verification proved the grep heuristic can't find genuinely-trivial locals here;
+CTP2's raw `new`/`delete` are dominated by transfer/refcount/singleton patterns). The 🟡
+bucket is the productive target, converted per owner-cluster; the 🔴 49 files are the
+supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## ui/interface  (118 files, 1413 matches)
 
@@ -100,7 +110,7 @@ are the supervised tail. Re-run `tools/modernization/` triage after big clusters
 - [ ] `ui/interface/graphicsresscreen.cpp` (5/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/agesscreen.cpp` (7/0/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/ControlTabPanel.cpp` (6/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `ui/interface/progresswindow.cpp` (3/3/0) — 🟢 clean · _local scratch owner (progwin)_
+- [ ] `ui/interface/progresswindow.cpp` (3/3/0) — 🟡 · _window lifecycle (ref-param + c3ui)_
 - [ ] `ui/interface/text_hasher.h` (2/4/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/interface/statswindow.cpp` (3/3/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/MainControlPanel.cpp` (6/0/0) — ⚪ leave · _mostly g_/s_ singletons_
@@ -185,16 +195,16 @@ are the supervised tail. Re-run `tools/modernization/` triage after big clusters
 - [ ] `gs/gameobj/GameObj.cpp` (0/9/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/TradeBids.cpp` (2/5/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/Happy.cpp` (5/1/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/AgreementData.cpp` (5/1/0) — 🟢 clean · _local scratch owner (so2)_
+- [ ] `gs/gameobj/AgreementData.cpp` (5/1/0) — 🔴 · _refcounted SlicObject (AddRef/Release)_
 - [ ] `gs/gameobj/CTP2Combat.cpp` (3/2/0) — 🟡 moderate · _single-owner member_
 - [ ] `gs/gameobj/MessagePool.cpp` (5/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/MaterialPool.cpp` (5/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/Order.h` (3/2/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/Unit.cpp` (5/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/Order.cpp` (1/3/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/MovePath.cpp` (2/2/0) — 🟢 clean · _local scratch owner (good_path)_
+- [ ] `gs/gameobj/MovePath.cpp` (2/2/0) — 🟡 · _Path transferred to event system_
 - [ ] `gs/gameobj/TradeRouteData.cpp` (3/1/0) — 🟡 moderate · _single-owner member_
-- [ ] `gs/gameobj/TradePool.cpp` (2/2/0) — 🟢 clean · _local scratch owner (newData)_
+- [ ] `gs/gameobj/TradePool.cpp` (2/2/0) — 🟡 · _pool + member array owner_
 - [ ] `gs/gameobj/UnoccupiedTiles.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/barbarians.cpp` (3/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/civilisationpool.cpp` (3/1/0) — 🟡 moderate · _single-owner member_
@@ -204,7 +214,7 @@ are the supervised tail. Re-run `tools/modernization/` triage after big clusters
 - [ ] `gs/gameobj/TradeOfferPool.cpp` (2/1/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/TerrImprovePool.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/EventTracker.cpp` (2/1/0) — ⚪ leave · _pool/arena allocator_
-- [ ] `gs/gameobj/Pollution.cpp` (2/1/0) — 🟢 clean · _local scratch owner (so)_
+- [ ] `gs/gameobj/Pollution.cpp` (2/1/0) — 🔴 · _refcounted SlicObject (AddRef/Release)_
 - [ ] `gs/gameobj/citydata.h` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/DiplomaticRequestPool.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/PlayerTurn.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
@@ -304,7 +314,7 @@ are the supervised tail. Re-run `tools/modernization/` triage after big clusters
 - [ ] `ui/netshell/netfunc.h` (2/3/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/netshell/ns_tribes.cpp` (3/1/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/netshell/ns_window.cpp` (0/4/0) — 🟡 moderate · _needs ownership review_
-- [ ] `ui/netshell/ns_customlistbox.h` (1/1/0) — 🟢 clean · _local scratch owner (t)_
+- [ ] `ui/netshell/ns_customlistbox.h` (1/1/0) — 🟡 · _item transferred to listbox_
 - [ ] `ui/netshell/ns_improvements.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/netshell/ns_item.h` (1/1/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/netshell/ns_units.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
@@ -342,7 +352,7 @@ are the supervised tail. Re-run `tools/modernization/` triage after big clusters
 - [ ] `ui/aui_ctp2/texttable.cpp` (5/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/aui_ctp2/cityinventorylistbox.cpp` (5/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/aui_ctp2/c3scroller.cpp` (5/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `ui/aui_ctp2/keypress.cpp` (4/1/0) — 🟢 clean · _local scratch owner (theKeyMap)_
+- [ ] `ui/aui_ctp2/keypress.cpp` (4/1/0) — ⚪ · _global keymap singleton_
 - [ ] `ui/aui_ctp2/thumbnailmap.cpp` (1/4/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `ui/aui_ctp2/c3_button.cpp` (2/2/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/aui_ctp2/c3_tradelistitem.cpp` (4/0/0) — 🟡 moderate · _needs ownership review_
@@ -392,7 +402,7 @@ are the supervised tail. Re-run `tools/modernization/` triage after big clusters
 - [ ] `net/general/net_unit.cpp` (4/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `net/general/net_order.cpp` (2/1/0) — 🟡 moderate · _single-owner member_
 - [ ] `net/general/net_message.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `net/general/net_endgame.cpp` (2/1/0) — 🟢 clean · _local scratch owner (wh)_
+- [ ] `net/general/net_endgame.cpp` (2/1/0) — ⚪ · _global Wormhole singleton + list_
 - [ ] `net/general/net_civ.cpp` (2/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `net/general/net_city.cpp` (2/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `net/general/chatlist.h` (1/1/0) — 🟡 moderate · _needs ownership review_

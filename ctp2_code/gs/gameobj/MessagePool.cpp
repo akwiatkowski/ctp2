@@ -1,6 +1,7 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Player.h"
+#include "gs/utility/safety.h"          // safe_player
 #include "gs/gameobj/MessageData.h"
 #include "gs/gameobj/message.h"
 #include "gs/gameobj/MessagePool.h"
@@ -38,7 +39,8 @@ Message MessagePool::Create(PLAYER_INDEX owner, PLAYER_INDEX sender, MESSAGE_TYP
 	newData = new MessageData(newRequest, owner, sender, type, msg, turn_Get() ? turn_Get()->GetYear() : 0) ;
 	Insert(newData) ;
 
-	player_Get(owner)->AddMessage(newRequest) ;
+	if(Player * p = safe_player(owner))
+		p->AddMessage(newRequest) ;
 	DoNetwork(newData);
 
 	return (newRequest) ;
@@ -64,7 +66,8 @@ Message MessagePool::Create(PLAYER_INDEX owner, MBCHAR *msg)
 	newData = new MessageData(newMessage, owner, PLAYER_INDEX_INVALID, 0, msg, turn_Get() ? turn_Get()->GetYear() : 0) ;
 	Insert(newData) ;
 
-	player_Get(owner)->AddMessage(newMessage) ;
+	if(Player * p = safe_player(owner))
+		p->AddMessage(newMessage) ;
 
 	DoNetwork(newData);
 
@@ -83,7 +86,8 @@ Message MessagePool::Recreate(PLAYER_INDEX owner, MBCHAR *msg, MBCHAR *title)
 	if(title)
 		newData->SetTitle(title);
 
-	player_Get(owner)->AddMessage(newMessage) ;
+	if(Player * p = safe_player(owner))
+		p->AddMessage(newMessage) ;
 
 	DoNetwork(newData);
 
@@ -97,7 +101,8 @@ Message MessagePool::Create(PLAYER_INDEX owner, MessageData *copy)
 	newData = new MessageData(newMessage, copy);
 	newData->SetOwner(owner);
 	Insert(newData);
-	player_Get(owner)->AddMessage(newMessage);
+	if(Player * p = safe_player(owner))
+		p->AddMessage(newMessage);
 
 
 

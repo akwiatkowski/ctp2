@@ -34,6 +34,7 @@
 #include "net/general/net_action.h"
 #include "net/general/net_info.h"
 #include "gs/gameobj/Player.h"
+#include "gs/utility/safety.h"          // safe_player
 #include "ConstRecord.h"
 
 extern BOOL g_powerPointsMode;
@@ -50,14 +51,17 @@ void MaterialPool::AddMaterials(sint32 amt)
 void MaterialPool::CheatAddMaterials(sint32 amt)
 {
 	if((network_Get().IsActive() && network_Get().SetupMode()) || g_powerPointsMode) {
-		sint32 pointCost = sint32(double(amt) * g_theConstDB->Get(0)->GetPowerPointsToMaterials());
-		if(player_Get(m_owner)->GetPoints() < pointCost)
+		Player * owner = safe_player(m_owner);
+		if(!owner)
 			return;
-		player_Get(m_owner)->DeductPoints(pointCost);
+		sint32 pointCost = sint32(double(amt) * g_theConstDB->Get(0)->GetPowerPointsToMaterials());
+		if(owner->GetPoints() < pointCost)
+			return;
+		owner->DeductPoints(pointCost);
 
 		if(network_Get().IsHost()) {
 			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
-										  m_owner, player_Get(m_owner)->GetPoints()));
+										  m_owner, owner->GetPoints()));
 		}
 	}
 	if(network_Get().IsClient()) {
@@ -70,12 +74,14 @@ void MaterialPool::CheatAddMaterials(sint32 amt)
 sint32 MaterialPool::CheatSubtractMaterials(sint32 amt)
 {
 	if((network_Get().IsActive() && network_Get().SetupMode()) | g_powerPointsMode) {
-		sint32 pointCost = sint32(double(amt) * g_theConstDB->Get(0)->GetPowerPointsToMaterials());
-		player_Get(m_owner)->AddPoints(pointCost);
+		if(Player * owner = safe_player(m_owner)) {
+			sint32 pointCost = sint32(double(amt) * g_theConstDB->Get(0)->GetPowerPointsToMaterials());
+			owner->AddPoints(pointCost);
 
-		if(network_Get().IsHost()) {
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
-										  m_owner, player_Get(m_owner)->GetPoints()));
+			if(network_Get().IsHost()) {
+				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
+											  m_owner, owner->GetPoints()));
+			}
 		}
 	}
 	if(network_Get().IsClient()) {

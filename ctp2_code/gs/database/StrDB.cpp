@@ -40,6 +40,8 @@
 #include "ctp/c3.h"
 #include "ctp/ctp2_utils/c3files.h"
 
+#include <memory>
+
 #include "gs/database/StrRec.h"
 #include "gs/database/StrDB.h"
 
@@ -610,23 +612,22 @@ bool StringDB::Parse(MBCHAR * filename)
 {
 	g_load_defaults = true;
 
-	Token *	strToken = new Token(filename, C3DIR_GAMEDATA);
+	auto strToken = std::make_unique<Token>(filename, C3DIR_GAMEDATA);
 
-	while (ParseAStringEntry(strToken))
+	while (ParseAStringEntry(strToken.get()))
 	{
 		// No action: ParseAStringEntry fills m_head and m_all.
 	}
 
-	delete strToken;	// or make it an auto_ptr
+	strToken.reset();
 
 	if(g_load_defaults){
-		strToken = new Token("Strings.txt", C3DIR_GAMEDATA);
+		strToken = std::make_unique<Token>("Strings.txt", C3DIR_GAMEDATA);
 		strToken->SetCheckScenario(false);
-		while (ParseAStringEntryNoDuplicates(strToken))
+		while (ParseAStringEntryNoDuplicates(strToken.get()))
 		{
 			// No action: ParseAStringEntry fills m_head and m_all.
 		}
-		delete strToken;	// or make it an auto_ptr
 	}
 
 	if (g_abort_parse)

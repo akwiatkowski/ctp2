@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "ctp/ctp2_utils/c3errors.h"
 
 #include "gs/utility/Globals.h"
@@ -186,12 +187,10 @@ TokenData	g_UVDB_token_data[TOKEN_UV_POLLUTION_MAX_VAL] =
 
 sint32 OzoneDatabase::ParseOzoneDatabase(char *filename, C3DIR dir)
 	{
-	Token	*uvToken = new Token(filename, TOKEN_UV_POLLUTION_MAX_VAL - TOKEN_MAX, g_UVDB_token_data, dir) ;
+	auto uvToken = std::make_unique<Token>(filename, TOKEN_UV_POLLUTION_MAX_VAL - TOKEN_MAX, g_UVDB_token_data, dir) ;
 
-	ParseAnOzone(uvToken) ;
+	ParseAnOzone(uvToken.get()) ;
 	uvToken->Next() ;
-
-	delete uvToken ;
 
 	if (g_parse_uv_abort)
 		return (FALSE) ;

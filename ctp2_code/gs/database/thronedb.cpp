@@ -102,24 +102,20 @@ sint32 ThroneDB::ParseThroneDatabase(MBCHAR *filename)
 	sint32 nThrones = 0;
 	sint32 index = 0;
 
-	Token *throneToken = new Token(filename, sizeof(s_ThroneDB_token_data) / sizeof(s_ThroneDB_token_data[0]), s_ThroneDB_token_data, C3DIR_GAMEDATA);
+	auto throneToken = std::make_unique<Token>(filename, sizeof(s_ThroneDB_token_data) / sizeof(s_ThroneDB_token_data[0]), s_ThroneDB_token_data, C3DIR_GAMEDATA);
 
-	Assert(throneToken);
-
-	if(!ParseNumber(throneToken, &m_nThroneTypes)) goto operation_failed;
-	if(!ParseNumber(throneToken, &m_nThroneLevels)) goto operation_failed;
+	if(!ParseNumber(throneToken.get(), &m_nThroneTypes)) goto operation_failed;
+	if(!ParseNumber(throneToken.get(), &m_nThroneLevels)) goto operation_failed;
 
 	nThrones = m_nThroneTypes * m_nThroneLevels;
 
 	m_throneInfo = std::make_unique<ThroneInfo[]>(nThrones);
 
 	for(index = 0; index < nThrones; index++) {
-		if(!ParseAThrone(throneToken, &m_throneInfo[index])) goto operation_failed;
+		if(!ParseAThrone(throneToken.get(), &m_throneInfo[index])) goto operation_failed;
 	}
 
 operation_failed:
-
-	delete throneToken;
 
 	if (g_abort_parse) return FALSE;
 

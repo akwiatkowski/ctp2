@@ -111,13 +111,11 @@ sint32 FilenameDB::Parse(char *filename)
 
 {
 
-    Token *token = new Token(filename, C3DIR_GAMEDATA);
-	Assert(token);
+    auto token = std::make_unique<Token>(filename, C3DIR_GAMEDATA);
 
    	if (token->GetType() != TOKEN_NUMBER) {
 		c3errors_ErrorDialog  (token->ErrStr(), "Missing number of filenames");
         g_abort_parse = TRUE;
-		delete token;
 		return FALSE;
 	} else {
         sint32 n;
@@ -126,22 +124,18 @@ sint32 FilenameDB::Parse(char *filename)
 		if (n <0) {
 			c3errors_ErrorDialog(token->ErrStr(), "Number of filename is negative");
             g_abort_parse = TRUE;
-			delete token;
 			return FALSE;
 		}
 		SetSize(n);
 	}
 
     int count = 0;
-    while (ParseAFilename(token, count)) {
+    while (ParseAFilename(token.get(), count)) {
         count++;
     }
     if (g_abort_parse) {
-		delete token;
 		return FALSE;
 	}
-
-	delete token;
 
     return TRUE;
 }

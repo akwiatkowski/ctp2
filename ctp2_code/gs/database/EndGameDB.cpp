@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/database/EndGameDB.h"
 #include "gs/fileio/Token.h"
@@ -38,7 +39,7 @@ EndGameDatabase::EndGameDatabase()
 BOOL EndGameDatabase::Initialize(char *filename, C3DIR dir)
 {
 	m_abort_parse = FALSE;
-	Token *token = new Token(filename,
+	auto token = std::make_unique<Token>(filename,
 							 TOKEN_ENDGAME_MAX_VAL - TOKEN_MAX,
 							 s_endgameTokenData, dir);
 
@@ -52,16 +53,15 @@ BOOL EndGameDatabase::Initialize(char *filename, C3DIR dir)
 	token->GetNumber(n);
 	SetSize(n);
 
-	if(!token_ParseValNext(token, TOKEN_ENDGAME_NUM_STAGES, m_numStages)) {
+	if(!token_ParseValNext(token.get(), TOKEN_ENDGAME_NUM_STAGES, m_numStages)) {
 		c3errors_ErrorDialog(token->ErrStr(), "Expected number of stages");
 		return FALSE;
 	}
 
-	while(ParseAnEndGameObject(token, count)) {
+	while(ParseAnEndGameObject(token.get(), count)) {
 		count++;
 	}
 
-	delete token;
 	if(m_abort_parse)
 		return FALSE;
 	return TRUE;

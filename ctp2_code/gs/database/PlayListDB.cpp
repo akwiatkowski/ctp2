@@ -57,11 +57,8 @@ PlayListDB::~PlayListDB() = default;
 BOOL PlayListDB::Parse(MBCHAR *filename)
 {
 	fprintf(stderr, "[PLDB] Parse: opening %s\n", filename);
-	Token *playListToken = new Token(filename, TOKEN_PLAYLIST_MAX - TOKEN_MAX,
+	auto playListToken = std::make_unique<Token>(filename, TOKEN_PLAYLIST_MAX - TOKEN_MAX,
 									g_playlist_token_data, C3DIR_GAMEDATA);
-
-	Assert(playListToken);
-	if (!playListToken) return FALSE;
 
 	fprintf(stderr, "[PLDB] Parse: first token type=%d (NUM_SONGS=%d)\n",
 		playListToken->GetType(), TOKEN_PLAYLIST_NUM_SONGS);
@@ -93,19 +90,14 @@ BOOL PlayListDB::Parse(MBCHAR *filename)
 			} else {
 				fprintf(stderr, "[PLDB] Parse: ERROR expected number at song %d\n", i+1);
 				c3errors_ErrorDialog("PlayListDB", "Looking for a song number.");
-				delete playListToken;
 				return FALSE;
 			}
 		}
 	} else {
 		fprintf(stderr, "[PLDB] Parse: ERROR missing SONG_LIST\n");
 		c3errors_ErrorDialog("PlayListDB", "Missing token SONG_LIST.");
-		delete playListToken;
 		return FALSE;
 	}
-
-	fprintf(stderr, "[PLDB] Parse: done, deleting token\n");
-	delete playListToken;
 
 	fprintf(stderr, "[PLDB] Parse: returning TRUE\n");
 	return TRUE;

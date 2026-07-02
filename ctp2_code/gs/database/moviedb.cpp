@@ -109,13 +109,11 @@ sint32 MovieDB::Parse(char *filename)
 
 {
 
-    Token *movieToken = new Token(filename, C3DIR_GAMEDATA);
-	Assert(movieToken);
+    auto movieToken = std::make_unique<Token>(filename, C3DIR_GAMEDATA);
 
    	if (movieToken->GetType() != TOKEN_NUMBER) {
 		c3errors_ErrorDialog  (movieToken->ErrStr(), "Missing number of unit icons");
         g_abort_parse = TRUE;
-		delete movieToken;
 		return FALSE;
 	} else {
         sint32 n;
@@ -124,22 +122,18 @@ sint32 MovieDB::Parse(char *filename)
 		if (n <0) {
 			c3errors_ErrorDialog(movieToken->ErrStr(), "Number of unit icons is negative");
             g_abort_parse = TRUE;
-			delete movieToken;
 			return FALSE;
 		}
 		SetSize(n);
 	}
 
     int count = 0;
-    while (ParseAMovie(movieToken, count)) {
+    while (ParseAMovie(movieToken.get(), count)) {
         count++;
     }
     if (g_abort_parse) {
-		delete movieToken;
 		return FALSE;
 	}
-
-	delete movieToken;
 
     return TRUE;
 }

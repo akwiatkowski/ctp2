@@ -8,6 +8,7 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 
 - **Original Definition of Done (M1–M8): complete.** Only the P7 documentation close-out (~1 session) remains before declaring it formally.
 - **Current phase: memory safety & stability**, tracked as work items **P1–P7** below, sorted by severity/importance (highest first; ordered 2026-07-02).
+- **Progress:** P1 complete (all 54 CRITICAL verified). P3 underway — 2 of the 4 HIGH crash-class categories done (**DANGEROUS_SHIFT + DIVISION_BY_ZERO**, both `0 open` first-party); MISSING_BOUNDS_CHECK + NULL_DEREFERENCE remain. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number**.
 - **Parked:** modern-asset converter (formerly M10).
 
 Recount remaining work any time with:
@@ -22,7 +23,7 @@ grep -c '^- \[ \]' docs/memory-refactor-checklist.md   # P6 (M11) files remainin
 When asked "how much more work remains?":
 
 - Declare the original Definition of Done (P7 docs pass): **~1 session**.
-- Crash-class stability work (P1–P5): **bounded, ~5–10 focused sessions**.
+- Crash-class stability work (P1–P5): **bounded, ~5–10 focused sessions** (P1 done; P3 ~half through its HIGH categories — the two large buckets, ~470 bounds/null findings, are the bulk of what's left, though most are expected already-fixed on verification).
 - Mechanical RAII conversion (P6): **multi-session; ~413 files, each needing ownership analysis (no free mechanical tier — verified 2026-07-02)**.
 - Fully refactored engine: **open-ended / not a bounded goal**.
 
@@ -43,7 +44,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 
 ### Caveats retained from completed work
 
-- **ASan/macOS blocker (M1):** `build-sanitized/ctp2_headless` hangs pre-`main` in the ASan runtime (`AsanInitFromRtl -> InitializeShadowMemory -> MemoryRangeIsAvailable`, spinning in `StaticSpinMutex::LockSlow`). Platform/runtime startup issue, not game code. `make ubsan-smoke` is the working sanitizer tier; P2 moves ASan to Linux.
+- **ASan/macOS blocker (M1) — root cause pinned 2026-07-02:** the hang is a **re-entrant deadlock in the ASan runtime on macOS 26 (Tahoe)**, and affects **every** ASan binary on this machine — a 6-line `malloc`+overflow test hangs pre-`main` under both Apple clang 17 *and* Homebrew LLVM 21, so it is **not** Apple-clang- or CTP2-specific. Stack: `AsanInitFromRtl` holds the init spin-lock → `InitializeShadowMemory` → `MemoryRangeIsAvailable` → `get_dyld_hdr()` allocates via the malloc-zone interceptor (`__sanitizer_mz_malloc`) → re-enters `AsanInitFromRtl` → blocks on the lock it already holds (`StaticSpinMutex::LockSlow`). Tahoe's dyld changed `get_dyld_hdr` to allocate during init; older macOS did not. No `ASAN_OPTIONS` / `MallocNanoZone=0` / link-order flag fixes it (all tried). `make ubsan-smoke` is the working sanitizer tier; **P2's only viable path is Linux** (local Docker/Colima — daemon not currently running — or CI).
 - **Remaining warning categories (M2; post-DoD, opportunistic only):** include-case stragglers outside the swept paths; writable-string-literal conversions (`char *`/`MBCHAR *`) in diplomacy/UI/logging; unused-variable warnings in `governor.cpp`/`ArmyData.cpp`/`diplomat.cpp` (initializers may have side effects — review before removal); `&&`/`||` precedence in `ArmyData.cpp`/`robotastar2.cpp`; switch-exhaustiveness and overloaded-virtual in UI/sprite/network classes.
 - **Do not remove (M7):** network/multiplayer code (resolve later); movie playback code and wonder/victory movie DB/schema/data; the DirectShow movie reference `ui/aui_directx/aui_directmovie.*` + `aui_directmoviemanager.*` and their header closure `aui_directui.h`/`aui_directsurface.h`/`aui_directx.h` — kept for a future SDL-based movie repair, never compiled on SDL builds.
 - **CRLF project files (M7):** legacy `.dsp`/`.mak` files use DOS line endings; `git diff --check` "trailing whitespace" on their changed lines is the pre-existing CR byte — do **not** "fix" it, stripping the CR corrupts the VS6 format. The VS6/autotools project files are not the canonical build (Meson is).
@@ -72,9 +73,9 @@ Why P1–P5 outrank P6: raw `new`/`delete` → RAII mostly prevents **leaks**, w
 
 ### P2 — ASan smoke tier on Linux
 
-ASan is the single highest-leverage detector (`MEMORY_SAFETY_STRATEGY.md`): use-after-free, heap/stack overflow, leaks — the classes UBSan does not catch. It is blocked on macOS (see Caveats) but that is a platform issue; Linux does not have it. This also **guards P6 itself**: a bad RAII conversion introduces double-frees that ASan catches immediately.
+ASan is the single highest-leverage detector (`MEMORY_SAFETY_STRATEGY.md`): use-after-free, heap/stack overflow, leaks — the classes UBSan does not catch. Native macOS ASan is **impossible on this machine** — confirmed 2026-07-02 as a runtime deadlock on macOS 26 that hangs even a trivial program (see the M1 caveat for the exact re-entrancy chain); Linux ASan is unaffected. This also **guards P6 itself**: a bad RAII conversion introduces double-frees that ASan catches immediately, so it is most valuable *right before* P6 ramps in volume — until then `make ubsan-smoke` covers the shift/overflow/UB classes the crash-class work (P3/P4) targets.
 
-- [ ] Get the ASan smoke run working on Linux (Docker on this machine, or CI), wire it in as an on-demand `make` target, and document the invocation here.
+- [ ] Get the ASan smoke run working on **Linux** (native-only — see M1 caveat; the sole prerequisite is a running container engine: start Docker Desktop or `colima start`, then build an arm64 Linux image with `-Db_sanitize=address,undefined`), wire it in as an on-demand `make asan-smoke-linux` target reusing `test/repro.py`, and document the invocation here.
 
 ### P3 — HIGH-severity findings, category batches
 

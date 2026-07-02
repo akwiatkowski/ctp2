@@ -378,12 +378,12 @@ startup_failed:
 
 #if EU_SUE_TELL_USER_KILL
 
-	strcat(message, "\n\nProgram will terminate.");
+	strlcat(message, "\n\nProgram will terminate.", sizeof(message));
 	MessageBox(NULL, message, title, MB_OK | MB_ICONSTOP);
 
 #elif EU_SUE_TELL_USER_ASK
 
-	strcat(message, "\n\nDo you want to run the program without audio?");
+	strlcat(message, "\n\nDo you want to run the program without audio?", sizeof(message));
 
 	if (MessageBox(NULL, message, title, MB_YESNO | MB_ICONEXCLAMATION) == IDYES)
 	 {

@@ -143,7 +143,7 @@ AUI_ERRCODE aui_Ldl::InitCommon( MBCHAR const *ldlFilename )
 #else
 	GetCurrentDirectory( MAX_PATH, outDir );
 #endif
-	strcat(outDir, FILE_SEP "ldl_out");
+	strlcat(outDir, FILE_SEP "ldl_out", sizeof(outDir));
 
     delete s_ldl;
 	s_ldl = new ldl( ldlFilename, outDir );
@@ -281,7 +281,7 @@ AUI_ERRCODE aui_Ldl::Associate(void *object, MBCHAR const * ldlBlock)
 	if ( !ldlObject->ldlBlock ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	ldlObject->object = object;
-	strcpy( ldlObject->ldlBlock, ldlBlock );
+	strlcpy( ldlObject->ldlBlock, ldlBlock, strlen( ldlBlock ) + 1 );
 	ldlObject->hash = aui_UI::CalculateHash( ldlBlock );
 
 

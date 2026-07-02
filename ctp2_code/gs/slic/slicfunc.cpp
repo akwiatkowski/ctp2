@@ -838,7 +838,7 @@ SFN_ERROR Slic_IsHostile::Call(SlicArgList *args)
 	if(!args->GetPlayer(1, p2))
 		return SFN_ERROR_TYPE_ARGS;
 
-	m_result.m_int = ((player_Get(p1)->m_mask_hostile & (1 << p2)) != 0);
+	m_result.m_int = ((player_Get(p1)->m_mask_hostile & (1u << p2)) != 0);
 
 	return SFN_ERROR_OK;
 }
@@ -7353,7 +7353,7 @@ SFN_ERROR Slic_Pillage::Call(SlicArgList *args)
 		return SFN_ERROR_DEAD_PLAYER;
 
 	sint32 p = 0;
-	uint64 buildings = city->GetCityData()->GetEffectiveBuildings()&(((uint64)1<<(uint64)g_theBuildingDB->NumRecords())-1);
+	uint64 buildings = city->GetCityData()->GetEffectiveBuildings()&(safe_shift_left_u64(g_theBuildingDB->NumRecords())-1);
 	for(sint32 i=0; buildings!=0; i++,buildings>>=1)
 	{
 
@@ -7417,7 +7417,7 @@ SFN_ERROR Slic_Plunder::Call(SlicArgList *args)
 	}
 
 	sint32 p = 0;
-	uint64 buildings = city->GetCityData()->GetEffectiveBuildings()&(((uint64)1<<(uint64)g_theBuildingDB->NumRecords())-1);
+	uint64 buildings = city->GetCityData()->GetEffectiveBuildings()&(safe_shift_left_u64(g_theBuildingDB->NumRecords())-1);
 	for(sint32 i=0; buildings!=0; i++,buildings>>=1)
 	{
 

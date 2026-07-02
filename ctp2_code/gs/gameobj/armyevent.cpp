@@ -1281,7 +1281,7 @@ STDEHANDLER(MoveUnitsEvent)
 		const Diplomat & new_cell_diplomat = Diplomat::GetDiplomat(new_cell_owner);
 		uint32 incursion_permission = new_cell_diplomat.GetIncursionPermission();
 		if (army_owner >= 0 && army_owner < 32 &&
-			!(incursion_permission & (0x1 << army_owner)) &&
+			!(incursion_permission & (0x1u << army_owner)) &&
 			!new_cell_diplomat.GetBorderIncursionBy(army_owner))
 		{
 			bool is_threat = (a->HasCargo() || !a->IsCivilian()) &&

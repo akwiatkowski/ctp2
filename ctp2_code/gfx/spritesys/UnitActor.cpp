@@ -2092,7 +2092,7 @@ bool UnitActor::ActionMove(ActionPtr actionObj) {
     sint32 const visiblePlayer = selitem_Get()->GetVisiblePlayer();
 
     if ((visiblePlayer == GetPlayerNum()) ||
-        (GetUnitVisibility() & (1 << visiblePlayer))) {
+        (GetUnitVisibility() & (1u << visiblePlayer))) {
       AddLoopingSound(SOUNDTYPE_SFX, actionObj->GetSoundEffect());
     }
   }
@@ -2127,7 +2127,7 @@ bool UnitActor::ActionAttack(ActionPtr actionObj, sint32 facing) {
   sint32 const visiblePlayer = selitem_Get()->GetVisiblePlayer();
 
   if ((visiblePlayer == GetPlayerNum()) ||
-      (GetUnitVisibility() & (1 << visiblePlayer)))
+      (GetUnitVisibility() & (1u << visiblePlayer)))
     AddSound(SOUNDTYPE_SFX, actionObj->GetSoundEffect());
 
   return true;
@@ -2161,7 +2161,7 @@ bool UnitActor::ActionSpecialAttack(ActionPtr actionObj, sint32 facing) {
   sint32 const visiblePlayer = selitem_Get()->GetVisiblePlayer();
 
   if ((visiblePlayer == GetPlayerNum()) ||
-      (GetUnitVisibility() & (1 << visiblePlayer)))
+      (GetUnitVisibility() & (1u << visiblePlayer)))
     AddSound(SOUNDTYPE_SFX, actionObj->GetSoundEffect());
 
   return true;

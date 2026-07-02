@@ -494,7 +494,7 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	m_name[0] = 0;
 	m_build_queue.SetOwner(m_owner);
 	m_build_queue.SetCity(m_home_city);
-	world_Get()->SetCapitolDistanceDirtyFlags(1 << owner);
+	world_Get()->SetCapitolDistanceDirtyFlags(1u << owner);
 
 	// Set the style of the founder of the city - if any.
 	if (player_Get(owner) && player_Get(owner)->GetCivilisation()
@@ -1258,7 +1258,7 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 			{
 				sint32 const visiblePlayer = player_view::VisiblePlayer();
 				if ((visiblePlayer == m_owner) ||
-				    (m_home_city.GetVisibility() & (1 << visiblePlayer))
+				    (m_home_city.GetVisibility() & (1u << visiblePlayer))
 				   )
 				{
 					audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0, 	soundID,
@@ -6013,7 +6013,7 @@ void CityData::ResetCityOwner(sint32 owner)
 
 	if (m_owner != owner)
 	{
-		world_Get()->SetCapitolDistanceDirtyFlags(1<<owner);
+		world_Get()->SetCapitolDistanceDirtyFlags(1u<<owner);
 		m_owner = (PLAYER_INDEX)owner;
 	}
 
@@ -7680,7 +7680,7 @@ void CityData::Disband()
 void CityData::AddSlaveBit(sint32 player)
 {
 	if(player >= 0 && player < k_MAX_PLAYERS) {
-		m_slaveBits |= (1 << player);
+		m_slaveBits |= (1u << player);
 	}
 }
 

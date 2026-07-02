@@ -277,6 +277,20 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 
 ### DANGEROUS_SHIFT
 
+> **Resolution status — all first-party HIGH DANGEROUS_SHIFT findings verified in code 2026-07-02. Net result: 0 open (first-party).**
+> Findings are static-analysis leads, not verdicts; line numbers had drifted since May 2026. `safety.h` provides `safe_shift_left_u32/u64` (bounds-checked, returns 0 on out-of-range). `k_MAX_PLAYERS == 32`, so a player-index shift can reach `1 << 31`, which on a signed `int` is genuinely UB — fixed by making the literal unsigned (`1u << idx`), behaviour-identical for valid indices.
+>
+> **Already fixed before this pass (verified present):** `ArmyData.cpp` 1487/4107 (now `safe_shift_left_u64`, guarded); `CityData.cpp` 979/988/998/1007/1716/2162/2177/5007/5911 (converted to `safe_shift_left_u64`); `CityData.cpp:4793` wonder shift (guarded `type < 64`); `SlicFunc.cpp:6800` wonder shift (guarded `wonder < 64`); `UnitActor.cpp` 2397-2402/2432 (loops bounded `< 64`); `cellunitlist.cpp:287` (guarded `owner < 32`); `scheduler.cpp` 1726/1767/1805 (loop `< k_MAX_PLAYERS`, extra `< 32` guard, `uint32` cache, `1u<<i`).
+>
+> **Fixed this pass (commit pending):**
+> - Player-index signed-shift UB → `1u << idx`: `cellunitlist.cpp` 319/390; `ArmyData.cpp` 17 visibility/owner masks; `armyevent.cpp:1284`; `CityData.cpp` 497/1261/6016/7683; `slicfunc.cpp:841`; `UnitActor.cpp` 2095/2130/2164; `c3cmdline.cpp` DebugMask stray `1<<bit`.
+> - Unbounded DB-record / console-input shifts → `safe_shift_*`: `slicfunc.cpp` building-mask `(1 << NumRecords()) - 1` ×2 (→ `safe_shift_left_u64`, which yields all-ones at 64 — the correct mask); `c3cmdline.cpp` CreateImprovement (2961) and ChatMask (3055) shift by raw `atoi(argv)`.
+>
+> **Deferred (networking, per plan ground rules):** `net_cheat.cpp:150`, `net_info.cpp:1260`, `net_thread.cpp` buffer overflows.
+> **Not bugs (skipped):** direction-flag shifts (`1 << NORTH … 1 << dd`, amount ≤ 7).
+>
+> Verified with `mise exec -- make build`, `make test` (ratchet unchanged), and `make ubsan-smoke` (all green).
+
 - **ArmyData.cpp:1487** — `~(1 << m_array[0].GetOwner())` performs a left shift by `GetOwner()`. If the owner index is `>= 32`, the shift width exceeds the bit-width of `int`, causing undefined behavior.
   *Fix: Use a 32-bit mask and cap the shift: `uint32 mask = (m_array[0].GetOwner() < 32) ? (1u << m_array[0].GetOwner()) : 0;` or use `~((m_array[0].GetOwner() < 32) ? (1u << m_array[0].GetOwner()) : 0u)`.*
 

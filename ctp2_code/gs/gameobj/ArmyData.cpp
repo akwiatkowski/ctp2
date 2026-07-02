@@ -2311,7 +2311,7 @@ ORDER_RESULT ArmyData::Expel(const MapPoint &point)
 	sint32 numToExpel = 0;
 	for(i = 0; i < n; i++) {
 		if(cell->AccessUnit(i).CanBeExpelled() &&
-		   cell->AccessUnit(i).GetVisibility() & (1 << m_owner)) {
+		   cell->AccessUnit(i).GetVisibility() & (1u << m_owner)) {
 			numToExpel++;
 		}
 	}
@@ -2326,7 +2326,7 @@ ORDER_RESULT ArmyData::Expel(const MapPoint &point)
 	CellUnitList 	expelled;
 	for(i = 0; i < n; i++) {
 		if(cell->AccessUnit(i).CanBeExpelled() &&
-		   cell->AccessUnit(i).GetVisibility() & (1 << m_owner)) {
+		   cell->AccessUnit(i).GetVisibility() & (1u << m_owner)) {
 			Unit u = cell->AccessUnit(i);
 
 			foundCity = u.NearestFriendlyCityWithRoom(cpos, numToExpel,
@@ -7404,7 +7404,7 @@ void ArmyData::RevealZOCUnits(const MapPoint &pos)
 	MapPoint hisPos;
 	for(sint32 i = units.Num() - 1; i >= 0; i--) {
 		if(!units[i].IsNoZoc() && units[i].GetOwner() != m_owner) {
-			if(units[i].GetVisibility() & (1 << m_owner))
+			if(units[i].GetVisibility() & (1u << m_owner))
 				return;
 			units[i].GetPos(hisPos);
 			units[i].ForceVisibleThisTurn(m_owner);
@@ -7592,7 +7592,7 @@ void ArmyData::MoveActors(const MapPoint &pos,
 
 	MapPoint newPos = pos;
 
-	if (teleport || !(top_src.GetVisibility() & (1 << player_view::VisiblePlayer()))) {
+	if (teleport || !(top_src.GetVisibility() & (1u << player_view::VisiblePlayer()))) {
 		render_observer::AddTeleport(
       top_src, 
       m_pos, 
@@ -7652,7 +7652,7 @@ void ArmyData::MoveUnits(const MapPoint &pos)
 	bool anyVisible = false;
 	for(sint32 i = 0; i < m_nElements; i++)
 	{
-		anyVisible = anyVisible || (m_array[i].GetVisibility() & (1 << player_view::VisiblePlayer()));
+		anyVisible = anyVisible || (m_array[i].GetVisibility() & (1u << player_view::VisiblePlayer()));
 		// EMOD - Rebasing of units, especially aircraft - code removed trying to create a code that automatically moves a unit from a
 		//city to another city anywhere in the world and costing that unit 1 move.
 
@@ -8023,7 +8023,7 @@ bool ArmyData::MoveIntoTransport(const MapPoint &pos, CellUnitList &transports)
 				{
 					sint32 visiblePlayer = player_view::VisiblePlayer();
 					if ((visiblePlayer == top_src.GetOwner()) ||
-						(top_src.GetVisibility() & (1 << visiblePlayer))) {
+						(top_src.GetVisibility() & (1u << visiblePlayer))) {
 						if(transports[j].GetLoadSoundID() >= 0) {
 							audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
 							                         transports[j].GetLoadSoundID(),
@@ -8236,7 +8236,7 @@ bool ArmyData::ExecuteUnloadOrder(Order *order)
 	{
 		sint32 visiblePlayer = player_view::VisiblePlayer();
 		if(visiblePlayer == m_array[0].GetOwner()
-		|| (m_array[0].GetVisibility() & (1 << visiblePlayer)))
+		|| (m_array[0].GetVisibility() & (1u << visiblePlayer)))
 		{
 			audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
 						m_array[0].GetCantMoveSoundID(),
@@ -8254,7 +8254,7 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 	{
 		sint32 visiblePlayer = player_view::VisiblePlayer();
 		if ((visiblePlayer == m_array[0].GetOwner()) ||
-			(m_array[0].GetVisibility() & (1 << visiblePlayer))) {
+			(m_array[0].GetVisibility() & (1u << visiblePlayer))) {
 			audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
 						m_array[0].GetCantMoveSoundID(),
 								to_pt.x,
@@ -8315,7 +8315,7 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 		if(0 < debark.Num()) {
 			sint32 visiblePlayer = player_view::VisiblePlayer();
 			if ((visiblePlayer == debark[0].GetOwner()) ||
-			    (debark[0].GetVisibility() & (1 << visiblePlayer))) {
+			    (debark[0].GetVisibility() & (1u << visiblePlayer))) {
 				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
 							    m_array[0].GetUnloadSoundID(),
 							    to_pt.x,
@@ -9035,11 +9035,11 @@ void ArmyData::ActionSuccessful(SPECATTACK attack, Unit &unit, Unit const & c)
 			if(
 			     (
 			       (    m_owner == player_view::VisiblePlayer()
-			         || (unit.GetVisibility() & (1 << player_view::VisiblePlayer()))
+			         || (unit.GetVisibility() & (1u << player_view::VisiblePlayer()))
 			       )
 			    || c.IsValid()
 			    && (    c.GetOwner() == player_view::VisiblePlayer()
-			         || (c.GetVisibility() & (1 << player_view::VisiblePlayer()))
+			         || (c.GetVisibility() & (1u << player_view::VisiblePlayer()))
 			       )
 			     )
 			){
@@ -9065,7 +9065,7 @@ void ArmyData::ActionUnsuccessful(const MapPoint &point)
 {
 	sint32 visiblePlayer = player_view::VisiblePlayer();
 	if ((visiblePlayer == m_owner) ||
-		(m_array[0].GetVisibility() & (1 << visiblePlayer))) {
+		(m_array[0].GetVisibility() & (1u << visiblePlayer))) {
 
 		audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
 							gamesounds_GetGameSoundID(GAMESOUNDS_DEFAULT_FAIL),
@@ -9245,7 +9245,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 			if
 			  (
 			       visiblePlayer == m_owner
-			    || (m_array[0].GetVisibility() & (1 << visiblePlayer))
+			    || (m_array[0].GetVisibility() & (1u << visiblePlayer))
 			  )
 			{
 				sint32	spriteID = g_theSpecialEffectDB->Get(g_theSpecialEffectDB->FindTypeIndex("SPECEFFECT_GENERAL_CANT"))->GetValue();
@@ -9392,7 +9392,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 	{
 		sint32 visiblePlayer = player_view::VisiblePlayer();
 		if ((visiblePlayer == m_owner) ||
-			(m_array[0].GetVisibility() & (1 << visiblePlayer))) {
+			(m_array[0].GetVisibility() & (1u << visiblePlayer))) {
 
 			sint32	spriteID = g_theSpecialEffectDB->Get(g_theSpecialEffectDB->FindTypeIndex("SPECEFFECT_GENERAL_CANT"))->GetValue();
 			sint32	soundID = gamesounds_GetGameSoundID(GAMESOUNDS_DEFAULT_FAIL);
@@ -9603,7 +9603,7 @@ bool ArmyData::CheckWasEnemyVisible(const MapPoint &pos, bool justCheck)
 
 	if (cell->GetCity().IsValid())
 	{
-		bool visible = (cell->GetCity().GetVisibility() & (1 << m_owner)) != 0;
+		bool visible = (cell->GetCity().GetVisibility() & (1u << m_owner)) != 0;
 		if(!visible)
 		{
 			cell->GetCity().SetVisible(m_owner);
@@ -9620,7 +9620,7 @@ bool ArmyData::CheckWasEnemyVisible(const MapPoint &pos, bool justCheck)
 		sint32 i;
 		for (i = 0; i < defender->Num(); i++)
 		{
-			if (defender->Access(i).GetVisibility() & (1 << m_owner))
+			if (defender->Access(i).GetVisibility() & (1u << m_owner))
 			{
 				visible = true;
 				break;
@@ -10850,7 +10850,7 @@ bool ArmyData::PlayerCanSee(const PLAYER_INDEX playerId) const
 {
 	for (sint32 i = 0; i < Num() ; i++)
 	{
-		if (m_array[i].GetVisibility() & (1 << playerId))
+		if (m_array[i].GetVisibility() & (1u << playerId))
 			return true;
 	}
 	return false;

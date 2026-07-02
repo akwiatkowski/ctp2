@@ -316,7 +316,7 @@ bool CellUnitList::IsVisible(PLAYER_INDEX player) const
 {
 	for (sint32 i = 0; i < m_nElements; i++)
 	{
-		if(m_array[i].GetVisibility() & (1 << player))
+		if(m_array[i].GetVisibility() & (1u << player))
 			return true;
 	}
 
@@ -387,7 +387,7 @@ bool CellUnitList::GetTopVisibleUnitOfMoveType
 		{
 			if (u.IsSameMovementType(moveTypes)	&&	// move types match
 				// cell visible
-				((u.GetVisibility() & (0x01 << looker))						||
+				((u.GetVisibility() & (0x01u << looker))						||
 				 (player_Get(looker) && player_Get(looker)->m_hasGlobalRadar)	||
 				 g_god || g_fog_toggle
 			    )									&&

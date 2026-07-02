@@ -1643,6 +1643,7 @@ void AiDebugCommand::Execute(sint32 argc, char **argv)
 
 #include "gfx/spritesys/GoodSpriteGroup.h"
 #include "gfx/spritesys/UnitSpriteGroup.h"
+#include "gs/utility/safety.h"         // safe_shift_left_u32/u64
 
 void CleanSpritesCommand::Execute(sint32 argc, char **argv)
 {
@@ -2958,7 +2959,7 @@ void CreateImprovementCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	Unit c(item);
-	c.AccessData()->m_city_data->m_built_improvements |= ((uint64)1 << atoi(argv[1]));
+	c.AccessData()->m_city_data->m_built_improvements |= safe_shift_left_u64(atoi(argv[1]));
 	if(network_Get().IsClient()) {
 		network_Get().SendCheat(new NetCheat(NET_CHEAT_CREATE_IMPROVEMENT,
 		                                 (uint32)c, atoi(argv[1])));
@@ -2990,7 +2991,7 @@ void DebugMaskCommand::Execute(sint32 argc, char **argv)
 	if(g_debug_mask & (1u << bit))
 		g_debug_mask &= ~(1u << bit);
 	else
-		g_debug_mask |= (1 << bit);
+		g_debug_mask |= (1u << bit);
 #endif
 }
 
@@ -3052,7 +3053,7 @@ void ChatMaskCommand::Execute(sint32 argc, char **argv)
 	uint32 mask = 0;
 
 	for(sint32 i = 1; i < argc; i++) {
-		mask |= (1 << atoi(argv[i]));
+		mask |= safe_shift_left_u32(atoi(argv[i]));
 	}
 
 	network_Get().SetChatMask(mask);

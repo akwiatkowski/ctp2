@@ -7129,6 +7129,9 @@ bool ArmyData::MoveIntoForeigner(const MapPoint &pos)
 
 void ArmyData::Battle(const MapPoint &pos, CellUnitList & defender)
 {
+	if (m_nElements <= 0)
+		return;
+
 	InformAI(UNIT_ORDER_FINISH_ATTACK, pos);
 
 	sint32 numCloaked = 0;

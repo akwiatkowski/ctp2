@@ -1750,10 +1750,14 @@ void SelectedItem::SetDrawablePathDest(MapPoint &dest)
 
 void SelectedItem::ConstructPath(bool &isCircular, double &cost)
 {
+	isCircular = false;
+	cost = 0.0;
+	if (m_waypoints.empty())
+		return;
+
 	PLAYER_INDEX player = GetVisiblePlayer();
 	Path *partialPath = new Path;
 	float partialCost;
-	cost = 0.0;
 
 	delete m_good_path;
 	m_good_path = nullptr;

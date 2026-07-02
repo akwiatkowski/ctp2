@@ -85,6 +85,7 @@
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/Player.h"  // player_Get()
+#include "gs/utility/safety.h"  // safe_player
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/buildingutil.h"
@@ -274,7 +275,8 @@ void UnitActor::AddVision() {
   STOMPCHECK();
 #endif
   if (!m_isUnseenCellActor) {
-    player_Get(m_playerNum)->m_vision->AddVisible(GetPos(), m_unitVisionRange);
+    if (Player *p = safe_player(m_playerNum))
+      p->m_vision->AddVisible(GetPos(), m_unitVisionRange);
   }
 }
 
@@ -284,7 +286,8 @@ void UnitActor::RemoveVision() {
 #endif
 
   if (!m_isUnseenCellActor) {
-    player_Get(m_playerNum)->m_vision->RemoveVisible(GetPos(), m_unitVisionRange);
+    if (Player *p = safe_player(m_playerNum))
+      p->m_vision->RemoveVisible(GetPos(), m_unitVisionRange);
   }
 }
 
@@ -311,7 +314,9 @@ void UnitActor::GetIDAndType(sint32 owner,
                              sint32* spriteID,
                              GROUPTYPE* groupType,
                              sint32 citySprite) const {
-  bool isCity = g_theUnitDB->Get(unitType, player_Get(owner)->GetGovernmentType())
+  Player *ownerPlayer = safe_player(owner);
+  bool isCity = ownerPlayer &&
+                g_theUnitDB->Get(unitType, ownerPlayer->GetGovernmentType())
                     ->GetHasPopAndCanBuild();
 
   if (isCity) {

@@ -3,6 +3,7 @@
 #include "gs/gameobj/installationpool.h"
 
 #include "gs/gameobj/Player.h"
+#include "gs/utility/safety.h"          // safe_player
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 
@@ -25,15 +26,15 @@ Installation::RemoveAllReferences()
 	MapPoint pos;
 	GetPos(pos);
 
-	if(GetOwner() >= 0 && player_Get(GetOwner())) {
-		player_Get(GetOwner())->RemoveInstallationReferences(*this);
+	if(Player *owner = safe_player(GetOwner())) {
+		owner->RemoveInstallationReferences(*this);
 	}
 	world_Get()->RemoveInstallation(*this, pos);
-	if(GetOwner() >= 0 && player_Get(GetOwner())) {
+	if(Player *owner = safe_player(GetOwner())) {
 
 		double myVisionRange = terrainutil_GetVisionRange(GetType(), RetPos());
 		if(myVisionRange > 0) {
-			player_Get(GetOwner())->RemoveUnitVision(pos, myVisionRange);
+			owner->RemoveUnitVision(pos, myVisionRange);
 			if(GetOwner() == player_view::VisiblePlayer()) {
 				render_observer::AddCopyVision();
 			}

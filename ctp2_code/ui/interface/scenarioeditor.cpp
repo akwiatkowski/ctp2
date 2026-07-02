@@ -61,6 +61,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/interface/scenarioeditor.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -2740,7 +2741,7 @@ void ScenarioEditor::SetupGlobalControls()
 	    aui_Ldl::GetObject(s_scenarioEditorBlock, "Globals.MapSize");
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	aui_StringTable *table = new aui_StringTable(&err, "SPMapSizeStringTable");
+	auto table = std::make_unique<aui_StringTable>(&err, "SPMapSizeStringTable");
 
 	Assert(err == AUI_ERRCODE_OK);
 	Assert(dd);
@@ -2754,8 +2755,6 @@ void ScenarioEditor::SetupGlobalControls()
 			dd->SetSelectedItem(profiledb_Get()->GetMapSize());
 		}
 	}
-
-	delete table;
 
 	dd = (ctp2_DropDown *)aui_Ldl::GetObject(s_scenarioEditorBlock, "Globals.Barbarians");
 	Assert(dd);
@@ -2789,7 +2788,7 @@ void ScenarioEditor::SetupGlobalControls()
 	}
 
 
-	table = new aui_StringTable(&err, "WorldControlsStringTable");
+	table = std::make_unique<aui_StringTable>(&err, "WorldControlsStringTable");
 
 	ctp2_Button * button;
 	button = (ctp2_Button *)aui_Ldl::GetObject(s_scenarioEditorBlock, "WorldControls.XWrapButton");
@@ -2822,8 +2821,6 @@ void ScenarioEditor::SetupGlobalControls()
 	((aui_TipWindow *)button->GetTipWindow())->SetTipText( table->GetString(11) );
 	button = (ctp2_Button *)aui_Ldl::GetObject(s_scenarioEditorBlock, "UniversalControls.FogButton");
 	((aui_TipWindow *)button->GetTipWindow())->SetTipText( table->GetString(12) );
-
-	delete table;
 
 	ctp2_Static *st = (ctp2_Static *)aui_Ldl::GetObject(s_scenarioEditorBlock, "Globals.YearDisplay");
 	st->SetText(TurnYearStatus::GetCurrentYear());

@@ -31,6 +31,7 @@
 #include "ctp/c3.h"
 #include "ui/interface/TurnYearStatus.h"
 
+#include <memory>
 #include <sstream>
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_ctp2/ctp2_button.h"
@@ -92,10 +93,9 @@ const MBCHAR *TurnYearStatus::GetYearString(sint32 currentYear, sint32 round)
 		}
 
 		AUI_ERRCODE         errcode         = AUI_ERRCODE_OK;
-		aui_StringTable *   table           = new aui_StringTable(&errcode, "YearStrings");
+		auto                table           = std::make_unique<aui_StringTable>(&errcode, "YearStrings");
 		sint32 const        yearStringIndex = (currentYear < 0) ? 0 : 1;
 		snprintf(buf, sizeof(buf), "%ld%s", abs(currentYear), table->GetString(yearStringIndex));
-		delete table;
 	}
 
 	return buf;

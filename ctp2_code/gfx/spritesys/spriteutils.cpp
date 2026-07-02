@@ -502,10 +502,9 @@ void spriteutils_DecodeToBuffer(Pixel16 *data, sint32 width, sint32 height)
 {
 	Pixel16     *table = data+1;
 	Pixel16     *dataStart = table + height * 2;
-	Pixel16     *outBuf = (Pixel16 *)malloc(width * height * 8);
-	if (!outBuf)
-		return;
-	Pixel16     *destPixel = outBuf;
+	// width*height*8 bytes == width*height*4 Pixel16 elements.
+	std::vector<Pixel16> outBuf(static_cast<size_t>(width) * height * 4);
+	Pixel16     *destPixel = outBuf.data();
 
 	for(sint32 j=0; j<height; j++) {
 		if (table[j*2] != k_EMPTY_TABLE_ENTRY) {

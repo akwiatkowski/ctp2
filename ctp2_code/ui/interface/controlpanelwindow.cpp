@@ -3722,7 +3722,7 @@ void controlpanelwindow_Update(Unit *city)
 {
 }
 
-void cpw_NumberToCommas( uint64 number, MBCHAR *s )
+void cpw_NumberToCommas( uint64 number, MBCHAR *s, size_t size )
 {
 	uint64 temp = number;
 	sint32 trillion = (sint32)(temp / k_CPW_TRILLION);
@@ -3738,19 +3738,19 @@ void cpw_NumberToCommas( uint64 number, MBCHAR *s )
 	strlcpy( c, stringdb_Get()->GetNameStr("str_ldl_comma"), sizeof(c) );
 
 	if ( trillion ) {
-		sprintf(s, "%ld%s%.3ld%s%.3ld%s%.3ld%s%.3" PRIu64, trillion, c, billion, c, million, c, thousand, c, temp );
+		snprintf(s, size, "%ld%s%.3ld%s%.3ld%s%.3ld%s%.3" PRIu64, trillion, c, billion, c, million, c, thousand, c, temp );
 	}
 	else if ( billion ) {
-		sprintf(s, "%ld%s%.3ld%s%.3ld%s%.3" PRIu64, billion, c, million, c, thousand, c, temp );
+		snprintf(s, size, "%ld%s%.3ld%s%.3ld%s%.3" PRIu64, billion, c, million, c, thousand, c, temp );
 	}
 	else if ( million ) {
-		sprintf(s, "%ld%s%.3ld%s%.3" PRIu64, million, c, thousand, c, temp );
+		snprintf(s, size, "%ld%s%.3ld%s%.3" PRIu64, million, c, thousand, c, temp );
 	}
 	else if ( thousand ) {
-		sprintf(s, "%ld%s%.3" PRIu64, thousand, c, temp );
+		snprintf(s, size, "%ld%s%.3" PRIu64, thousand, c, temp );
 	}
 	else {
-		sprintf(s, "%" PRIu64, temp );
+		snprintf(s, size, "%" PRIu64, temp );
 	}
 }
 

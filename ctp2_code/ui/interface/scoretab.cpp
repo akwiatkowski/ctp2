@@ -13,7 +13,7 @@
 
 #include "gs/gameobj/GameSettings.h"
 
-extern void cpw_NumberToCommas( uint64 number, MBCHAR *s );
+extern void cpw_NumberToCommas( uint64 number, MBCHAR *s, size_t size );
 
 
 
@@ -105,10 +105,10 @@ void ScoreTab::Update()
 
 		((ctp2_Static *)m_scoreElem[i]->GetChildByIndex(2))->SetText(score->GetPartialScoreItemized(cat));
 
-		cpw_NumberToCommas(score->GetPartialScore(cat), commaNumber);
+		cpw_NumberToCommas(score->GetPartialScore(cat), commaNumber, sizeof(commaNumber));
 		((ctp2_Static *)m_scoreElem[i]->GetChildByIndex(3))->SetText(commaNumber);
 	}
-	cpw_NumberToCommas(score->GetTotalScore(), commaNumber);
+	cpw_NumberToCommas(score->GetTotalScore(), commaNumber, sizeof(commaNumber));
 	m_total->SetText(commaNumber);
 
 	sint32 rank = 1;

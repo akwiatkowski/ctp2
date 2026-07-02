@@ -388,7 +388,7 @@ double Score::GetPartialScoreValue(SCORE_CATEGORY cat)
 
 }
 
-extern void cpw_NumberToCommas( uint64 number, MBCHAR *s );
+extern void cpw_NumberToCommas( uint64 number, MBCHAR *s, size_t size );
 
 const MBCHAR *Score::GetPartialScoreItemized(SCORE_CATEGORY cat)
 {
@@ -422,8 +422,8 @@ const MBCHAR *Score::GetPartialScoreItemized(SCORE_CATEGORY cat)
 			break;
 	}
 
-	cpw_NumberToCommas((sint32 )value, commaValue);
-	cpw_NumberToCommas(count, commaCount);
+	cpw_NumberToCommas((sint32 )value, commaValue, sizeof(commaValue));
+	cpw_NumberToCommas(count, commaCount, sizeof(commaCount));
 	snprintf(buffer, sizeof(buffer), formatStr, commaCount, commaValue);
 
 	return buffer;

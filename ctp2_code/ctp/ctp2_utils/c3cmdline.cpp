@@ -6529,6 +6529,14 @@ CommandLine::AddKey(char c)
 			return FALSE;
 		}
 
+		// Reject input once the fixed command buffer is full (leave room for
+		// the terminating NUL written by AddKey/Clear), otherwise m_buf[1024]
+		// overflows on a long command line.
+		if(m_len >= static_cast<sint32>(sizeof(m_buf)) - 1) {
+			m_addingKey = false;
+			return TRUE;
+		}
+
 		m_buf[m_len++] = c;
 		Draw();
 		m_addingKey = false;
@@ -6557,12 +6565,20 @@ CommandLine::Parse()
 	char curarg[1024];
 	int argpos = 0;
 
+	// Fixed-capacity bounds: curarg holds one argument, m_argv the argument
+	// vector. Without these caps a long argument overflows curarg and too many
+	// arguments overflow m_argv[256] (both stack/member buffer overflows).
+	const int k_maxCurArg = static_cast<int>(sizeof(curarg)) - 1;
+	const sint32 k_maxArgs = static_cast<sint32>(sizeof(m_argv) / sizeof(m_argv[0]));
+
 	while(isspace(m_buf[p])) p++;
 
 	for(; p < m_len; p++) {
 		switch(state) {
 		case 0:
 			if(isspace(m_buf[p])) {
+				if(m_argc >= k_maxArgs)
+					return m_argc;
 				m_argv[m_argc] = new char[argpos + 1];
 				// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 				strncpy(m_argv[m_argc], curarg, argpos);
@@ -6571,7 +6587,7 @@ CommandLine::Parse()
 				state = 1;
 			} else if(m_buf[p] == '"') {
 				state = 2;
-			} else {
+			} else if(argpos < k_maxCurArg) {
 				curarg[argpos++] = m_buf[p];
 			}
 			break;
@@ -6585,14 +6601,14 @@ CommandLine::Parse()
 		case 2:
 			if(m_buf[p] == '"') {
 				state = 0;
-			} else {
+			} else if(argpos < k_maxCurArg) {
 				curarg[argpos] = m_buf[p];
 			}
 			break;
 
 		}
 	}
-	if((state == 0 || state == 2) && argpos > 0) {
+	if((state == 0 || state == 2) && argpos > 0 && m_argc < k_maxArgs) {
 		m_argv[m_argc] = new char[argpos + 1];
 		// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
 		strncpy(m_argv[m_argc], curarg, argpos);

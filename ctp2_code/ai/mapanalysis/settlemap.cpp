@@ -172,7 +172,12 @@ void SettleMap::HandleCityGrowth(const Unit & city)
 	MapPoint        cityPos     = city.RetPos();
 	CityData *      citydata    = city.GetCityData();
 	PLAYER_INDEX    playerId    = city.GetOwner();
-	sint32          radius      = g_theCitySizeDB->Get(citydata->GetSizeIndex())->GetIntRadius();
+	if(!citydata)
+		return;
+	sint32          sizeIndex   = citydata->GetSizeIndex();
+	if(sizeIndex < 0 || sizeIndex >= g_theCitySizeDB->NumRecords())
+		return;
+	sint32          radius      = g_theCitySizeDB->Get(sizeIndex)->GetIntRadius();
 	/// @todo Check functionality. Using "2 * current radius + 1" looks arbitrary.
 	/// This does not account for future growth (city spacing may become too tight), but it also
 	/// prevents any overlap.

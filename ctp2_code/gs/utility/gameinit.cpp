@@ -2053,7 +2053,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 			g_player[i]->m_playerType = PLAYER_TYPE_ROBOT;
 		}
 
-		g_player[g_scenarioUsePlayerNumber]->m_playerType = PLAYER_TYPE_HUMAN;
+		if(g_scenarioUsePlayerNumber < k_MAX_PLAYERS && g_player[g_scenarioUsePlayerNumber])
+			g_player[g_scenarioUsePlayerNumber]->m_playerType = PLAYER_TYPE_HUMAN;
 
 		//Set current player the selected player so that the
 		//game starts with the first turn and the correct player.

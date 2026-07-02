@@ -1970,6 +1970,8 @@ void CityData::CollectResources()
 	{
 		Cell *cell = world_Get()->GetCell(it.Pos());
 		sint32 ring = GetRing(it.Pos());
+		if(ring < 0 || ring >= static_cast<sint32>(m_ringFood.size()))
+			continue;
 		m_ringFood[ring] += cell->GetFoodProduced();
 		m_ringProd[ring] += cell->GetShieldsProduced();
 		m_ringGold[ring] += cell->GetGoldProduced();

@@ -26,7 +26,7 @@
 //
 // - Prevented memory leaks and double deletes.
 // - The good sprite index is now retrieved from the resource database
-//   instead from the good sprite state database. (Aug 29th 2005 Martin Gühmann)
+//   instead from the good sprite state database. (Aug 29th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -100,12 +100,6 @@ TradeActor::TradeActor(TradeRoute newRoute) :
 
 	AddIdle();
 }
-/*
-TradeActor::TradeActor(TradeActor *copy)
-{
-	*this = *copy;
-	m_curAction.reset(new Action(*m_curAction));
-}*/
 
 TradeActor::~TradeActor()
 = default;
@@ -113,7 +107,7 @@ TradeActor::~TradeActor()
 void TradeActor::AddIdle()
 {
 	m_curAction = std::make_shared<Action>(GOODACTION_IDLE, ACTIONEND_INTERRUPT);
-	m_curAction->SetAnim(CreateAnim(GOODACTION_IDLE));
+	m_curAction->SetAnim(CreateAnim(GOODACTION_IDLE).release());
 	m_curGoodAction = GOODACTION_IDLE;
 }
 
@@ -243,7 +237,7 @@ void TradeActor::AddAction(ActionPtr actionObj)
 	}
 }
 
-Anim *TradeActor::CreateAnim(GOODACTION action)
+std::unique_ptr<Anim> TradeActor::CreateAnim(GOODACTION action)
 {
 	Assert(m_goodSpriteGroup != nullptr);
 	if (m_goodSpriteGroup == nullptr) return nullptr;
@@ -257,7 +251,7 @@ Anim *TradeActor::CreateAnim(GOODACTION action)
 		return nullptr;
 	}
 
-	return new Anim(*origAnim);
+	return std::make_unique<Anim>(*origAnim);
 }
 
 void TradeActor::Draw(const Vision *tileLocalVision)

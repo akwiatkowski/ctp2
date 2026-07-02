@@ -2,7 +2,7 @@
   "counts": {
     "c_allocation": 516,
     "raw_delete": 2054,
-    "raw_new": 5520,
+    "raw_new": 5515,
     "type_erased_casting": 3737,
     "unsafe_string_api": 1415
   },

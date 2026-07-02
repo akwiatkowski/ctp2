@@ -58,6 +58,7 @@ class GoodActor;
 //
 //----------------------------------------------------------------------------
 #include <deque>
+#include <memory>
 
 #include "gfx/spritesys/Actor.h"              // Actor
 #include "os/include/ctp2_inttypes.h"      // sint32, uint16
@@ -91,7 +92,7 @@ public:
 	void			GetNextAction();
 	void			AddIdle();
 
-	Anim *          CreateAnim(GOODACTION action);
+	std::unique_ptr<Anim>	CreateAnim(GOODACTION action);
 
 	void			DrawSelectionBrackets();
 	bool			Draw(bool fogged = false);

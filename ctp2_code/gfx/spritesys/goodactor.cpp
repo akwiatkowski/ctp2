@@ -101,7 +101,9 @@ GoodActor & GoodActor::operator=(GoodActor const & rhs) {
     m_index = rhs.m_index;
     m_pos = rhs.m_pos;
     m_curGoodAction = rhs.m_curGoodAction;
-    m_curAction.reset(rhs.m_curAction ? new Action(*rhs.m_curAction) : nullptr);
+    m_curAction = rhs.m_curAction
+                      ? std::make_shared<Action>(*rhs.m_curAction)
+                      : nullptr;
     m_loadType = rhs.m_loadType;
     m_goodSpriteGroup = (GoodSpriteGroup *)
         g_goodSpriteGroupList->GetSprite(m_index, GROUPTYPE_GOOD, GetLoadType(), (GAME_ACTION)0);
@@ -158,9 +160,9 @@ void GoodActor::AddIdle() {
 
   m_curAction = std::make_shared<Action>(GOODACTION_IDLE, ACTIONEND_ANIMEND);
 
-  Anim * anim = CreateAnim(GOODACTION_IDLE);
+  std::unique_ptr<Anim> anim = CreateAnim(GOODACTION_IDLE);
   if (anim) {
-    m_curAction->SetAnim(anim);
+    m_curAction->SetAnim(anim.release());
     m_curAction->SetDelay(0);
     m_curGoodAction = GOODACTION_IDLE;
   }
@@ -241,7 +243,7 @@ void GoodActor::AddAction(ActionPtr actionObj) {
   }
 }
 
-Anim *GoodActor::CreateAnim(GOODACTION action) {
+std::unique_ptr<Anim> GoodActor::CreateAnim(GOODACTION action) {
   Assert(m_goodSpriteGroup);
   if (!m_goodSpriteGroup) return nullptr;
 
@@ -250,7 +252,7 @@ Anim *GoodActor::CreateAnim(GOODACTION action) {
     origAnim = m_goodSpriteGroup->GetAnim((GAME_ACTION)GOODACTION_IDLE);
   }
 
-  return origAnim ? new Anim(*origAnim) : nullptr;
+  return origAnim ? std::make_unique<Anim>(*origAnim) : nullptr;
 }
 
 void GoodActor::DrawSelectionBrackets() {

@@ -60,7 +60,7 @@ WorkerActor::~WorkerActor()
 void WorkerActor::AddIdle()
 {
 	m_curAction = std::make_shared<Action>(UNITACTION_IDLE, ACTIONEND_ANIMEND);
-	m_curAction->SetAnim(CreateAnim(UNITACTION_IDLE));
+	m_curAction->SetAnim(CreateAnim(UNITACTION_IDLE).release());
 	m_curUnitAction = UNITACTION_IDLE;
 }
 
@@ -149,7 +149,7 @@ void WorkerActor::AddAction(ActionPtr actionObj)
     }
 }
 
-Anim *WorkerActor::CreateAnim(UNITACTION action)
+std::unique_ptr<Anim> WorkerActor::CreateAnim(UNITACTION action)
 {
 	Assert(m_unitSpriteGroup != nullptr);
 	if (m_unitSpriteGroup == nullptr) return nullptr;
@@ -163,7 +163,7 @@ Anim *WorkerActor::CreateAnim(UNITACTION action)
 		return nullptr;
 	}
 
-	return new Anim(*origAnim);
+	return std::make_unique<Anim>(*origAnim);
 }
 
 void WorkerActor::Draw()

@@ -5,6 +5,7 @@
 #define __TRADEACTOR_H__
 
 #include <deque>
+#include <memory>
 
 #include "gfx/spritesys/Actor.h"
 #include "gfx/spritesys/GoodSpriteGroup.h"
@@ -31,7 +32,7 @@ public:
 	void			GetNextAction();
 	void			AddIdle();
 
-	Anim *          CreateAnim(GOODACTION action);
+	std::unique_ptr<Anim>	CreateAnim(GOODACTION action);
 
 	void			Draw(const Vision *tileLocalVision);
 	void			DrawText(sint32 x, sint32 y, MBCHAR *goodText);

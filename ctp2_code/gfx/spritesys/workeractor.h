@@ -5,6 +5,7 @@
 #define __WORKERACTOR_H__
 
 #include <deque>
+#include <memory>
 
 #include "gfx/spritesys/Actor.h"              // Actor
 #include "os/include/ctp2_inttypes.h"      // sint32, uint16
@@ -28,7 +29,7 @@ public:
 	void			GetNextAction();
 	void			AddIdle();
 
-	Anim *          CreateAnim(UNITACTION action);
+	std::unique_ptr<Anim>	CreateAnim(UNITACTION action);
 
 	void			Draw();
 	void			DrawDirect(aui_Surface *surf, sint32 x, sint32 y, double scale);

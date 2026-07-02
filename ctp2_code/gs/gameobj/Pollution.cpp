@@ -501,7 +501,7 @@ uint32 Pollution::GetPollutionAtRound(const PLAYER_INDEX player, const sint32 ro
 	if (current_round < round)
 		return 0;
 
-	if ((current_round - round) > k_MAX_POLLUTION_HISTORY)
+	if ((current_round - round) >= k_MAX_POLLUTION_HISTORY)
 		return 0;
 
 	return player_Get(player)->GetPollutionHistory()[current_round - round];

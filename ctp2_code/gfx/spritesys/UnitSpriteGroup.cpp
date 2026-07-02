@@ -732,6 +732,7 @@ POINT UnitSpriteGroup::GetHotPoint(UNITACTION action, sint32 facing)
 	if (m_sprites[action] != nullptr) {
 		if (m_sprites[action]->GetType() == SPRITETYPE_FACED) {
 			if (facing >= k_NUM_FACINGS) facing = k_MAX_FACINGS - facing;
+			if (facing < 0 || facing >= k_NUM_FACINGS) return nullPoint;
 			return ((FacedSprite *)m_sprites[action])->GetHotPoint((uint16)facing);
 		} else {
 			return m_sprites[action]->GetHotPoint();

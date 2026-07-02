@@ -2514,6 +2514,11 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 > `SlicSegment.cpp:605` was already converted from `sprintf` to `snprintf`, but used `sizeof(str)` on a pointer; it now respects the caller-provided `maxsize`.
 > `profileDB.cpp:620` now uses `strlcpy(..., k_MAX_NAME_LEN)` after the existing max-length check instead of unbounded `strcpy`.
 >
+> **Fixed in second mini-batch (2026-07-02):** `Pollution.cpp:531` (`GetPollutionAtRound`) used `> k_MAX_POLLUTION_HISTORY` where the array is exactly that size — an off-by-one OOB read at index `k_MAX_POLLUTION_HISTORY`; changed to `>=`.
+> `gameinit.cpp:471` (`gameinit_PlaceInitalUnits`) now clamps `nPlayers` to `k_MAX_PLAYERS` before the loop that indexes `g_player[i]` and `player_start_list[humanStart]`.
+> `SpriteStateDB.cpp:185-189` (`SetName`/`SetVal`) had assert-only bounds; added runtime `index`/`m_map` guards so a file declaring fewer entries than it contains cannot write past `m_map` in release builds.
+> `UnitSpriteGroup.cpp:743` (`GetHotPoint`) mirrors facings 5–8 → 3–0 via `k_MAX_FACINGS - facing`; the report's naive clamp would break that mapping, so instead it now returns `nullPoint` only when the post-mirror index is genuinely outside `[0, k_NUM_FACINGS)` (negative or >8 inputs).
+>
 > **Already fixed before this pass (verified present):** `Agreement.cpp:42/45` already uses `safe_player(GetRecipient())` / `safe_player(GetOwner())`; `ArmyData.cpp:1027/1060/1066` already returns false for empty armies before reading `m_array[0]`; `ArmyData.cpp:1413` is only reached from `CheckActiveDefenders`, which returns false when `m_nElements <= 0` before calling `GetActiveDefenders`; `Order.cpp:254` already guards `order < 0 || order >= UNIT_ORDER_MAX` before indexing `s_orderToEventMap`.
 > `agreementmatrix.cpp:124` already returns `s_badAgreement` when the computed index is outside `m_agreements`; `c3cmdline.cpp:5539` was already guarded; `c3debug.cpp:233` already uses bounded `vsnprintf` with the remaining global-buffer capacity; `SlicBuiltin.cpp:1000/1059` already uses `strlcpy(..., maxLen)` for the reported leader/pronoun text copies; `SlicEngine.cpp:2599` already uses `strlcpy(m_researchText, text, sizeof(m_researchText));`; `appstrings.cpp:41` already checks `len > 0` before writing `inStr[len - 1]`.
 >

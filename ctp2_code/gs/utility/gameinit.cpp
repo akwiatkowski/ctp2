@@ -474,6 +474,10 @@ sint32 gameinit_PlaceInitalUnits(sint32 nPlayers, MapPoint player_start_list[k_M
 	sint32 j;
 	sint32 settler = -1;
 
+	Assert(nPlayers <= k_MAX_PLAYERS);
+	if (nPlayers > k_MAX_PLAYERS)
+		nPlayers = k_MAX_PLAYERS;
+
 	sint32 n = g_theUnitDB->NumRecords();
 	for (i=0; i<n; i++) {
 		if (g_theUnitDB->Get(i)->GetSettleLand()) {

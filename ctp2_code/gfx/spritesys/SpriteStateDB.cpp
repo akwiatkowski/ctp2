@@ -80,6 +80,7 @@ void SpriteStateDB::SetName(sint32 index, char str[_MAX_PATH])
  	Assert(0 <= index);
 	Assert(index < m_size);
     Assert(m_map);
+    if (index < 0 || index >= m_size || !m_map) return;
 
     strlcpy(m_map[index].m_name, str, sizeof(m_map[index].m_name));
 }
@@ -89,6 +90,7 @@ void SpriteStateDB::SetVal(sint32 index, sint32 val)
  	Assert(0 <= index);
 	Assert(index < m_size);
     Assert(m_map);
+    if (index < 0 || index >= m_size || !m_map) return;
 
     m_map[index].m_default_val = val;
 }

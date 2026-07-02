@@ -3,6 +3,7 @@
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/TradeOfferPool.h"
 #include "gs/gameobj/Player.h"
+#include "gs/utility/safety.h"          // safe_player
 #include "net/general/net_info.h"
 #include "net/general/network.h"
 
@@ -18,7 +19,8 @@ void TradeOffer::KillOffer()
 
 void TradeOffer::RemoveAllReferences()
 {
-	player_Get(GetOwner())->RemoveTradeOffer(*this);
+	if(Player * owner = safe_player(GetOwner()))
+		owner->RemoveTradeOffer(*this);
 
 	if(network_Get().IsHost()) {
 		network_Get().Block(GetOwner());

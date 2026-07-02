@@ -4,6 +4,7 @@
 #include "gs/database/DB.h"
 #include "GovernmentRecord.h"
 #include "gs/gameobj/Player.h"
+#include "gs/utility/safety.h"          // safe_player
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "net/general/net_action.h"
@@ -17,8 +18,12 @@ void TaxRate::SetTaxRates(double s, sint32 owner)
 	Assert(0.0 <= s);
     Assert(s <= 1.0);
 
-	if(s > g_theGovernmentDB->Get(player_Get(owner)->m_government_type)->GetMaxScienceRate())
-		s = g_theGovernmentDB->Get(player_Get(owner)->m_government_type)->GetMaxScienceRate();
+	if(Player * p = safe_player(owner))
+	{
+		double const maxRate = g_theGovernmentDB->Get(p->m_government_type)->GetMaxScienceRate();
+		if(s > maxRate)
+			s = maxRate;
+	}
 
 	double oldscience = m_science;
 	m_science = s;

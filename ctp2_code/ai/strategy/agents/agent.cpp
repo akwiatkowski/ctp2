@@ -313,8 +313,11 @@ bool Agent::FindPathToBoard(const uint32 & move_intersection, const MapPoint & d
 
 	if(m_army->CheckValidDestination(dest_pos))
 	{
-		found_path = Path(m_army->GetOrder(0)->m_path);
-		return true;
+		if(const Order *order = m_army->GetOrder(0))
+		{
+			found_path = Path(order->m_path);
+			return true;
+		}
 	}
 
 	float total_cost;
@@ -350,8 +353,11 @@ bool Agent::FindPath(const Army & army, const MapPoint & target_pos, const bool 
 {
 	if(army->CheckValidDestination(target_pos))
 	{
-		found_path = Path(army->GetOrder(0)->m_path);
-		return true;
+		if(const Order *order = army->GetOrder(0))
+		{
+			found_path = Path(order->m_path);
+			return true;
+		}
 	}
 
 	float total_cost = 0.0f;

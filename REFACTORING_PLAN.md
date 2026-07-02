@@ -8,7 +8,7 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 
 - **Original Definition of Done (M1–M8): complete.** Only the P7 documentation close-out (~1 session) remains before declaring it formally.
 - **Current phase: memory safety & stability**, tracked as work items **P1–P7** below, sorted by severity/importance (highest first; ordered 2026-07-02).
-- **Progress:** P1 complete (all 54 CRITICAL verified). **P3 crash-class burned down 2026-07-02/03** — all 4 HIGH categories worked: DANGEROUS_SHIFT + DIVISION_BY_ZERO (`0 open` first-party), and MISSING_BOUNDS_CHECK + NULL_DEREFERENCE (`@~675`, `@~1206`; ~305 leads) verified in-code with resolution blocks — ~25 genuine crash bugs fixed, the rest already-fixed by the `g_player→safe_player` migration, false-positive, structurally-safe, or the supervised/P4/net tail. (A tier-drift found 2026-07-02, where earlier annotations landed in the MEDIUM mirror, was corrected.) P4 underway (`unsafe_string_api` 1415→1376); P6 ticked 11/574. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number** — and **check the severity tier** before annotating.
+- **Progress:** P1 complete (all 54 CRITICAL verified). **P3 crash-class burned down 2026-07-02/03** — all 4 HIGH categories worked: DANGEROUS_SHIFT + DIVISION_BY_ZERO (`0 open` first-party), and MISSING_BOUNDS_CHECK + NULL_DEREFERENCE (`@~675`, `@~1206`; ~305 leads) verified in-code with resolution blocks — ~25 genuine crash bugs fixed, the rest already-fixed by the `g_player→safe_player` migration, false-positive, structurally-safe, or the supervised/P4/net tail. (A tier-drift found 2026-07-02, where earlier annotations landed in the MEDIUM mirror, was corrected.) P4 underway — ratchet re-scoped to first-party (vendored libs excluded); `unsafe_string_api` first-party baseline now **92** (50 real first-party conversions this phase; the old 1360 was 93% vendored-libs noise); P6 ticked 11/574. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number** — and **check the severity tier** before annotating.
 - **Parked:** modern-asset converter (formerly M10).
 
 Recount remaining work any time with:
@@ -57,7 +57,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P1 | Remaining CRITICAL crash bugs (BUG_HUNT_REPORT) | ✅ 1/1 done | complete |
 | P2 | ASan smoke tier on Linux | 0/1 | ~1 session |
 | P3 | HIGH-severity findings, category batches | DANGEROUS_SHIFT + DIVISION_BY_ZERO done. MISSING_BOUNDS_CHECK + NULL_DEREFERENCE HIGH tiers **verified & burned down 2026-07-02/03**: ~25 genuine crash bugs fixed, the rest already-fixed (g_player→safe_player migration), false-positive, or the supervised/P4/net tail. Both sections carry resolution blocks. | tail = supervised/P4/net |
-| P4 | Unsafe string APIs (`unsafe_string_api=1376`) | underway (1415→1376) | multi-session |
+| P4 | Unsafe string APIs (`unsafe_string_api=92`, first-party) | underway; ratchet re-scoped (libs excluded); 50 real conversions | multi-session |
 | P5 | JSON-load derived-cache audit | 0/1 | ~1 session |
 | P6 | Mechanical RAII conversion (was M11) | 11/574 files | multi-session |
 | P7 | Close-out docs, declare DoD (was M9) | 0/2 | ~1 session |
@@ -105,7 +105,7 @@ ASan is the single highest-leverage detector (`MEMORY_SAFETY_STRATEGY.md`): use-
 
 ### P4 — Unsafe string APIs
 
-`strcpy`/`strcat`/`sprintf` are the buffer-overflow class — higher real-world risk than the raw-`new` count. Ratchet: `unsafe_string_api=1376` (was 1415 at phase start).
+`strcpy`/`strcat`/`sprintf` are the buffer-overflow class — higher real-world risk than the raw-`new` count. Ratchet **re-scoped to first-party 2026-07-03** (vendored `libs/` excluded, see P6 snapshot): `unsafe_string_api=92`. The old libs-inclusive counter was 1360, of which **1268 (93%) were vendored anet/freetype** — noise that hid the real first-party surface. The 92 first-party sites are dominated by the embedded `GetXName(MBCHAR*)` "fill caller's buffer" idiom (threading a size would cascade to 40+ call sites incl offset-callers — low ROI) plus dead code (`AgreementData`/`BuildQueue::Dump`, 16) and `ui/netshell` lobby UI (21).
 
 - [ ] Convert unsafe-string clusters on crash-prone paths (parsers, UI text, save/load) to `strlcpy`/`snprintf`/`std::string`, lowering the `unsafe_string_api` ratchet baseline per batch.
 
@@ -134,6 +134,8 @@ Authoritative metric is the modernization ratchet (enforced by `make test`); per
 | `raw_new` | 5528 | **5472** | 56 |
 | `raw_delete` | 2065 | **2012** | 53 |
 | `c_allocation` | 516 | **515** | 1 |
+
+> **Ratchet re-scoped to first-party 2026-07-03.** `EXCLUDE_GLOBS` now drops `**/libs/**` (vendored anet/freetype/zlib/tiff/miles/GameWatch — upstream-owned, never a modernization target), the same rationale as the existing `build-*` exclusion. This affects **every** counter — the enforced first-party-only baselines are now `raw_new=4819`, `raw_delete=1865`, `c_allocation=101`, `type_erased_casting=2644`, `unsafe_string_api=92` (down from the libs-inclusive 5472 / 2012 / 515 / 3739 / 1360). The `Phase start`/`Removed` figures above were libs-inclusive; the first-party RAII work they count is unchanged. Trivially reversible (revert the one-line glob + baseline) if libs should be tracked again.
 
 Files ticked: **11 / 574**. (Ratchet runs ahead of ticked files because most touched files still have a harder residual cluster — e.g. `Sprite.cpp`, the sprite-group family. `ControlTabPanel.cpp` fixes a real `new[]`/scalar-delete mismatch but keeps one explicit `new[]` inside `unique_ptr<MBCHAR[]>`, so raw `new` does not drop; `scoretab.cpp` removed one raw `new`/`delete` pair.)
 

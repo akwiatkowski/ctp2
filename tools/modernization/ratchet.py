@@ -19,7 +19,11 @@ ROOT = Path(__file__).resolve().parents[2]
 BASELINE_PATH = ROOT / "tools" / "modernization" / "ratchet_baseline.json"
 SOURCE_ROOT = ROOT / "ctp2_code"
 SOURCE_GLOBS = ["*.c", "*.cc", "*.cpp", "*.cxx", "*.h", "*.hpp"]
-EXCLUDE_GLOBS = ["build/**", "**/.!*", "**/build/**", "**/build-*/**"]
+# Vendored third-party libraries (anet, freetype, zlib, tiff, miles, GameWatch)
+# are not first-party modernization targets — upstream owns them and any edit is
+# clobbered on upgrade — so they are excluded from every ratchet counter, the
+# same rationale that already excludes generated build-* directories.
+EXCLUDE_GLOBS = ["build/**", "**/.!*", "**/build/**", "**/build-*/**", "**/libs/**"]
 
 CHECKS = {
     "raw_new": r"\bnew\b",

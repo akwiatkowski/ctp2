@@ -269,7 +269,12 @@ void TileSet::LoadBaseTiles(FILE *file)
 	{
 		BaseTile *  baseTile = new BaseTile();
 		baseTile->Read(file);
-		m_baseTiles[baseTile->GetTileNum()] = baseTile;
+		sint32 const tileNum = baseTile->GetTileNum();
+		if (tileNum < 0 || tileNum >= k_MAX_BASE_TILES) {
+			delete baseTile;
+			continue;
+		}
+		m_baseTiles[tileNum] = baseTile;
 	}
 }
 
@@ -650,7 +655,12 @@ void TileSet::QuickLoadBaseTiles(uint8 **dataPtr)
 	    BaseTile * baseTile = new BaseTile();
 		baseTile->QuickRead(dataPtr, m_mapped);
 
-		m_baseTiles[baseTile->GetTileNum()] = baseTile;
+		sint32 const tileNum = baseTile->GetTileNum();
+		if (tileNum < 0 || tileNum >= k_MAX_BASE_TILES) {
+			delete baseTile;
+			continue;
+		}
+		m_baseTiles[tileNum] = baseTile;
 	}
 }
 

@@ -8,7 +8,7 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 
 - **Original Definition of Done (M1–M8): complete.** Only the P7 documentation close-out (~1 session) remains before declaring it formally.
 - **Current phase: memory safety & stability**, tracked as work items **P1–P7** below, sorted by severity/importance (highest first; ordered 2026-07-02).
-- **Progress:** P1 complete (all 54 CRITICAL verified). P3 underway — 2 of the 4 HIGH crash-class categories done (**DANGEROUS_SHIFT + DIVISION_BY_ZERO**, both `0 open` first-party, correctly annotated in the HIGH tier). **MISSING_BOUNDS_CHECK + NULL_DEREFERENCE are NOT done:** a tier-drift was found 2026-07-02 — the bounds/null resolution work this phase was written into the report's MEDIUM-tier mirror, while the real HIGH-tier sections (`@~675`, `@~1206`; ~305 leads combined) remain unannotated/unverified. Many genuine crash bugs were fixed along the way (`Army`/`Civilisation`/`Regard`/`Pollution`/`gameinit`/`installation`/`installationdata`/`GameEventArgList`/sprite+UI guards), and spot-checks suggest the HIGH tier is mostly already-fixed/stale — but a proper HIGH-tier verification pass is still owed. P4 underway (`unsafe_string_api` 1415→1376); P6 ticked 11/574. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number** — and **check the severity tier** before annotating.
+- **Progress:** P1 complete (all 54 CRITICAL verified). **P3 crash-class burned down 2026-07-02/03** — all 4 HIGH categories worked: DANGEROUS_SHIFT + DIVISION_BY_ZERO (`0 open` first-party), and MISSING_BOUNDS_CHECK + NULL_DEREFERENCE (`@~675`, `@~1206`; ~305 leads) verified in-code with resolution blocks — ~25 genuine crash bugs fixed, the rest already-fixed by the `g_player→safe_player` migration, false-positive, structurally-safe, or the supervised/P4/net tail. (A tier-drift found 2026-07-02, where earlier annotations landed in the MEDIUM mirror, was corrected.) P4 underway (`unsafe_string_api` 1415→1376); P6 ticked 11/574. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number** — and **check the severity tier** before annotating.
 - **Parked:** modern-asset converter (formerly M10).
 
 Recount remaining work any time with:
@@ -23,7 +23,7 @@ grep -c '^- \[ \]' docs/memory-refactor-checklist.md   # P6 (M11) files remainin
 When asked "how much more work remains?":
 
 - Declare the original Definition of Done (P7 docs pass): **~1 session**.
-- Crash-class stability work (P1–P5): **bounded, ~5–10 focused sessions** (P1 done; P3 ~half through its HIGH categories — the two large buckets, ~470 bounds/null findings, are the bulk of what's left, though most are expected already-fixed on verification).
+- Crash-class stability work (P1–P5): **bounded, ~3–6 focused sessions** (P1 done; P3 HIGH crash-class burned down — the four categories are verified with resolution blocks, ~25 genuine bugs fixed, tail is supervised/P4/net; P4 unsafe-strings underway at 1376; P5 load-cache audit + P2 Linux-ASan remain).
 - Mechanical RAII conversion (P6): **multi-session; ~413 files, each needing ownership analysis (no free mechanical tier — verified 2026-07-02)**.
 - Fully refactored engine: **open-ended / not a bounded goal**.
 

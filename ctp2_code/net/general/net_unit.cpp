@@ -216,6 +216,13 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			return;
 		}
 
+		// The fields below read fixed offsets up to buf[23] (getlong at
+		// buf[20]). Reject truncated packets so a forged/short packet cannot
+		// trigger an out-of-bounds read.
+		if(size < 24) {
+			return;
+		}
+
 		PLAYER_INDEX unitOwner = (PLAYER_INDEX)getshort(&buf[10]);
 		uint32 unitType = getlong(&buf[12]);
 		MapPoint unitPos((sint32)getshort(&buf[16]),

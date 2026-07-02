@@ -3907,8 +3907,24 @@ void Network::ChunkList(uint16 id, PointerList<Packetizer> * a_List)
 	while(a_List->GetHead()) {
 		uint16 len = 0;
 		Packetizer *packet = a_List->RemoveHead();
+
+		// Packetize writes an unknown length (bounded by k_MAX_PACKET_LEN)
+		// before it reports it, so guarantee room for the largest possible
+		// packet before the write. The reactive realloc below keeps the buffer
+		// sized for subsequent packets, but only enforced the invariant via an
+		// Assert that is compiled out in release builds.
+		const sint32 k_MAX_PACKET_LEN = 16384;
+		if(size + 2 + k_MAX_PACKET_LEN > mapBufSize) {
+			sint32 newSize = size + 2 + k_MAX_PACKET_LEN;
+			uint8 *grown = new uint8[newSize];
+			memcpy(grown, mapBuf, size);
+			delete [] mapBuf;
+			mapBuf = grown;
+			mapBufSize = newSize;
+		}
+
 		packet->Packetize(&mapBuf[size + 2], len);
-		Assert(len < 16384);
+		Assert(len < k_MAX_PACKET_LEN);
 
 		putshort(&mapBuf[size], len);
 		size += len + 2;

@@ -104,13 +104,13 @@ Authoritative metric is the modernization ratchet (enforced by `make test`); per
 
 | Ratchet counter | Phase start | Now | Removed |
 | --- | --: | --: | --: |
-| `raw_new` | 5528 | **5479** | 49 |
-| `raw_delete` | 2065 | **2019** | 46 |
+| `raw_new` | 5528 | **5472** | 56 |
+| `raw_delete` | 2065 | **2012** | 53 |
 | `c_allocation` | 516 | **515** | 1 |
 
 Files ticked: **9 / 574**. (Ratchet runs ahead of ticked files because most touched files still have a harder residual cluster — e.g. `Sprite.cpp`, the sprite-group family.)
 
-> **Easy-tier verified empty (2026-07-02).** A `/goal` run to "fix all easy lines" inspected all 8 files the heuristic tagged 🟢 easy — **every one was a false positive**: transfer-to-sink (`Execute`/`AddEvent`/`InsertItem`/pool), a reference-counted `SlicObject` (`AddRef`/`Release` — `unique_ptr` would double-free), or a global singleton (`theKeyMap`, `wormhole_Get/Set`). No code was changed; the 8 were reclassified (2→hard, 4→medium, 2→skip). Lesson: the grep signal can't tell "delete-on-failure, transfer-on-success" from a real local owner. **There is no free easy tier — every conversion needs ownership analysis.**
+> **"Easy" tier — heuristic empty, but real easy conversions exist (2026-07-02).** A `/goal` run first inspected all 8 files the grep heuristic tagged 🟢 easy — **every one was a false positive**: transfer-to-sink (`Execute`/`AddEvent`/`InsertItem`/pool), a reference-counted `SlicObject` (`AddRef`/`Release` — `unique_ptr` would double-free), or a global singleton (`theKeyMap`, `wormhole_Get/Set`); those 8 were reclassified (2→hard, 4→medium, 2→skip). A **tightened finder** (local var, deleted by name, never passed to a function / stored to member-global / returned / refcounted / `static`) then surfaced the *genuine* easy set: **5 files converted** (`SlicButton`, `governor`, `c3cmdline`, `loadsavemapwindow`, `loadsavewindow` — 7 `new` + 7 `delete`, also fixing leaks on early-return and `#if`-excluded paths; commit `99755456`), with 2 finder false-positives excluded (commented-out code; `static` pointers transferred to a dropdown behind a cast). Lesson: grep can't tell "delete-on-failure, transfer-on-success" from a real local owner — but a strict no-transfer/no-static/no-refcount filter *can* isolate the truly-mechanical ones. See memory `feedback_memrefactor_easy_triage`.
 
 #### Difficulty breakdown (heuristic triage; legend in the checklist)
 

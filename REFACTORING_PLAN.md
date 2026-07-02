@@ -55,7 +55,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | --- | --- | --- | --- |
 | P1 | Remaining CRITICAL crash bugs (BUG_HUNT_REPORT) | ✅ 1/1 done | complete |
 | P2 | ASan smoke tier on Linux | 0/1 | ~1 session |
-| P3 | HIGH-severity findings, category batches | DANGEROUS_SHIFT done (1st-party); ~380 findings left | multi-session |
+| P3 | HIGH-severity findings, category batches | DANGEROUS_SHIFT + DIVISION_BY_ZERO done (1st-party); bounds/null buckets left | multi-session |
 | P4 | Unsafe string APIs (`unsafe_string_api=1415`) | 0/1 | multi-session |
 | P5 | JSON-load derived-cache audit | 0/1 | ~1 session |
 | P6 | Mechanical RAII conversion (was M11) | 9/574 files | multi-session |
@@ -80,7 +80,9 @@ ASan is the single highest-leverage detector (`MEMORY_SAFETY_STRATEGY.md`): use-
 
 - [ ] Burn down the ~420 unaddressed HIGH findings from `BUG_HUNT_REPORT.md` in category batches (bounds checks → null derefs → div-by-zero → shifts), one module per commit, each finding verified in code before fixing. Fans out to workers the same way as P6.
 
-**DANGEROUS_SHIFT (first-party) done 2026-07-02.** Verified all HIGH shift findings in code; report line numbers had drifted since May 2026 and most were already fixed (converted to `safe_shift_left_u64` or guarded `< 64`/`< 32`) by prior passes. Genuine open sites fixed this pass across `cellunitlist`, `ArmyData` (17 sites), `armyevent`, `CityData`, `slicfunc`, `UnitActor`, `c3cmdline`: player-index signed-shift UB (`1 << idx` → `1u << idx`, since `k_MAX_PLAYERS==32` makes `1<<31` reachable and UB) and two classes of unbounded shift (DB-record building-mask and raw-`atoi(argv)` console shifts) routed through `safety.h` helpers. Net: **0 open first-party**; net-code shift findings (`net_cheat`, `net_info`, `net_thread`) deferred per ground rules. Report section carries a resolution block. `make build`/`make test`/`make ubsan-smoke` green. **Next categories:** DIVISION_BY_ZERO (many `CityData` ones already guarded per the CRITICAL note — verify first), then MISSING_BOUNDS_CHECK and NULL_DEREFERENCE (the two large buckets).
+**DANGEROUS_SHIFT (first-party) done 2026-07-02.** Verified all HIGH shift findings in code; report line numbers had drifted since May 2026 and most were already fixed (converted to `safe_shift_left_u64` or guarded `< 64`/`< 32`) by prior passes. Genuine open sites fixed this pass across `cellunitlist`, `ArmyData` (17 sites), `armyevent`, `CityData`, `slicfunc`, `UnitActor`, `c3cmdline`: player-index signed-shift UB (`1 << idx` → `1u << idx`, since `k_MAX_PLAYERS==32` makes `1<<31` reachable and UB) and two classes of unbounded shift (DB-record building-mask and raw-`atoi(argv)` console shifts) routed through `safety.h` helpers. Net: **0 open first-party**; net-code shift findings (`net_cheat`, `net_info`, `net_thread`) deferred per ground rules. Report section carries a resolution block. `make build`/`make test`/`make ubsan-smoke` green.
+
+**DIVISION_BY_ZERO (first-party) done 2026-07-02.** Verified every HIGH div-by-zero finding; the vast majority were already fixed by prior passes (`safe_divide`/`safe_divide_double` or explicit `> 0` guards in `CityData`, `FeatTracker`, `Readiness`, `SlicFunc`, `UnitData`, `aui_listbox`, `c3slider`, `director`, `soundmanager`, `UnitActor`). Only genuine open site: `SpriteLow565` scaled-draw `/(double)destHeight` cast-to-int UB at `destHeight==0` (guarded inline). All `Barbarians` findings are **false positives** — `RandomGenerator::Next(sint32)` self-guards `if (r <= 0) return 0`. Net: **0 open first-party**. **Next categories:** MISSING_BOUNDS_CHECK and NULL_DEREFERENCE (the two large buckets, ~305 + ~166 raw, many likely already fixed — verify each).
 
 ### P4 — Unsafe string APIs
 

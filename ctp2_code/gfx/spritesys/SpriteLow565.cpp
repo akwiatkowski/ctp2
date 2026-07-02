@@ -877,7 +877,7 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 	vincxy = (destHeight - m_height) * 2 ;
 
 	vpos1 = 0;
-	vpos2 = (sint32)((double)(m_height - destHeight) / (double)destHeight);
+	vpos2 = (destHeight != 0) ? (sint32)((double)(m_height - destHeight) / (double)destHeight) : 0;
 
 	vdestpos = y;
 	vend = m_height - 1;
@@ -1348,7 +1348,7 @@ void Sprite::DrawFlashScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 des
 	vincxy = (destHeight - m_height) * 2 ;
 
 	vpos1 = 0;
-	vpos2 = (sint32)((double)(m_height - destHeight) / (double)destHeight);
+	vpos2 = (destHeight != 0) ? (sint32)((double)(m_height - destHeight) / (double)destHeight) : 0;
 
 	vdestpos = y;
 	vend = m_height - 1;

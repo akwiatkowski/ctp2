@@ -381,6 +381,17 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 
 ### DIVISION_BY_ZERO
 
+> **Resolution status — all first-party HIGH DIVISION_BY_ZERO findings verified in code 2026-07-02. Net result: 0 open (first-party).**
+> Line numbers had drifted since May 2026; `safety.h` provides `safe_divide`/`safe_divide_double`.
+>
+> **Fixed this pass (commit pending):** `SpriteLow565.cpp` `DrawScaledLow565`/`DrawFlashScaledLow565` — `(m_height - destHeight) / (double)destHeight` cast to `sint32` was UB when `destHeight == 0` (nan/inf → int). Guarded inline (`destHeight != 0 ? … : 0`); the surrounding scale loop already no-ops at `destHeight == 0` (`vend == vdestpos`), so the guard fully closes it.
+>
+> **Already fixed before this pass (verified present):** `CityData.cpp` ring food/prod/gold (all `totalX > 0 ? … : 0.0`); `FeatTracker.cpp` (`safe_divide`); `Readiness.cpp` (`safe_divide_double`); `SlicFunc.cpp` Pillage/Plunder (`if (modifier == 0) return SFN_ERROR_INTERNAL`); `UnitData.cpp` armor (`armor > 0.0 ? …`), attack/(attack+defense) (guarded), `a/(a+d)` (runtime guard replacing the stripped `Assert`); `aui_listbox.cpp` (`m_maxItemHeight > 0 ? …`, and `DragSelect` is unreachable at height 0 via the `y < maxY` test); `c3slider.cpp` (`if (m_maxY == m_minY) return`); `director.cpp` (`totalHP > 0 ? …`); `soundmanager.cpp` (`if (trackRange <= 0) …`); `UnitActor.cpp:1550` (per CRITICAL note).
+>
+> **False positives (verified not bugs):** all `Barbarians.cpp` `civrand().Next(maxHut - 1)` sites — `RandomGenerator::Next(sint32 r)` (RandGen.h:48) self-guards with `if (r <= 0) return 0;` before `Next() % r`, so a zero/negative range never reaches the modulo. `UnitData::FightOneLineDanceAssault` `a/(a+d)` is in an explicitly `// Not used.` dead function.
+>
+> Verified with `make build`, `make test` (ratchet unchanged), `make ubsan-smoke` (all green).
+
 - **Barbarians.cpp:159** — `g_rand->Next(count - rankMax) + rankMax` calls `Next(0)` when `count == rankMax`. Most `RandomGenerator::Next(n)` implementations use modulo (`rand() % n`), which divides by zero when `n == 0`.
   *Fix: Ensure the argument is never zero: `sint32 range = count - rankMax; if (range <= 0) range = 1; sint32 whichbest = g_rand->Next(range) + rankMax;`*
 

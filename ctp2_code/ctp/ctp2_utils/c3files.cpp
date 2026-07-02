@@ -327,15 +327,13 @@ bool c3files_getfilelist(C3SAVEDIR dirID, MBCHAR *ext, PointerList<MBCHAR> *list
 	if (lpFileList ==  INVALID_HANDLE_VALUE) return false;
 
 	MBCHAR *lpFileName = new MBCHAR[256];
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	strcpy(lpFileName,fileData.cFileName);
+	strlcpy(lpFileName, fileData.cFileName, 256);
 	list->AddTail(lpFileName);
 
 	while (FindNextFile(lpFileList,&fileData))
 	{
 		lpFileName = new MBCHAR[256];
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strcpy(lpFileName,fileData.cFileName);
+		strlcpy(lpFileName, fileData.cFileName, 256);
 		list->AddTail(lpFileName);
 	}
 
@@ -359,9 +357,8 @@ bool c3files_getfilelist(C3SAVEDIR dirID, MBCHAR *ext, PointerList<MBCHAR> *list
                 if (ext != NULL && 0 != strcasecmp(p, ext)) {
 			continue;
 		}
-		MBCHAR *lpFileName = new char[NAME_MAX];
-		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strcpy(lpFileName, dent->d_name);
+		MBCHAR *lpFileName = new char[NAME_MAX + 1];
+		strlcpy(lpFileName, dent->d_name, NAME_MAX + 1);
 		list->AddTail(lpFileName);
 	}
 

@@ -109,7 +109,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/spnewgamerandomcustomscreen.cpp` (5/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/graphicsresscreen.cpp` (5/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/agesscreen.cpp` (7/0/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/interface/ControlTabPanel.cpp` (6/0/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/ControlTabPanel.cpp` (6/0/0) — ✅ done · `m_ldlBlock` now uses `unique_ptr<MBCHAR[]>`, fixing the `new[]`/scalar-delete mismatch; local formatter uses `snprintf`.
 - [ ] `ui/interface/progresswindow.cpp` (3/3/0) — 🟡 · _window lifecycle (ref-param + c3ui)_
 - [ ] `ui/interface/text_hasher.h` (2/4/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/interface/statswindow.cpp` (3/3/0) — ⚪ leave · _mostly g_/s_ singletons_
@@ -150,7 +150,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/greatlibrarywindow.cpp` (1/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/interface/ScienceManagementDialog.cpp` (1/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/IntroMovieWindow.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/interface/scoretab.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/scoretab.cpp` (1/1/0) — ✅ done · `m_difficultyStrings` is now a `unique_ptr` single-owner member.
 - [ ] `ui/interface/victorymoviewindow.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/interface/cursormanager.cpp` (1/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/optionsscreen.cpp` (2/0/0) — ⚪ leave · _mostly g_/s_ singletons_

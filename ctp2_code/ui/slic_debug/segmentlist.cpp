@@ -157,6 +157,9 @@ void SegmentListActionCallback(aui_Control *control, uint32 action, uint32 data,
 void SegmentListButtonCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {
 	if(action == AUI_BUTTON_ACTION_EXECUTE) {
+		if(!g_segmentList)
+			return;
+
 		if(control == g_segmentList->m_watchButton) {
 			watchlist_Display();
 		}

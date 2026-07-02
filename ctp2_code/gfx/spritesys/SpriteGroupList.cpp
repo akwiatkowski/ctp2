@@ -87,6 +87,11 @@ SpriteGroupList::~SpriteGroupList()
 
 SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE loadType,GAME_ACTION action)
 {
+	Assert(index < k_MAX_SPRITES);
+	if(index >= k_MAX_SPRITES) {
+		return SPRITELISTERR_NOTFOUND;
+	}
+
 	char			inFile[_MAX_PATH];
 	SpriteGroup		*newSpriteGroup=m_spriteList[index];
 

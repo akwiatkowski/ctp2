@@ -148,6 +148,11 @@ PLAYER_INDEX civilisation_NewCivilisationOrVandals(PLAYER_INDEX old_owner)
 //----------------------------------------------------------------------------
 void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner)
 {
+	Assert(pi >= 0 && pi < k_MAX_PLAYERS);
+	if(pi < 0 || pi >= k_MAX_PLAYERS) {
+		return;
+	}
+
 	player_arr_Get()[pi] = new Player
 	    (PLAYER_INDEX(pi), 0, PLAYER_TYPE_ROBOT, CIV_INDEX_RANDOM, GENDER_RANDOM);
 

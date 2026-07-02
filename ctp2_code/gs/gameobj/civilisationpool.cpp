@@ -89,6 +89,11 @@ Civilisation CivilisationPool::Create(const PLAYER_INDEX owner, sint32 requiredC
 	sint32 const	numCivs	= g_theCivilisationDB->NumRecords();
 	sint32		civ		= requiredCiv;
 
+	if (numCivs <= 0)
+	{
+		c3errors_FatalDialogFromDB("CIVILIZATION_ERROR", "CIVILIZATION_NO_MORE_CIVS_AVAILABLE");
+	}
+
 	if (CIV_INDEX_RANDOM == civ)
 	{
 		if (profiledb_Get()->IsNonRandomCivs())

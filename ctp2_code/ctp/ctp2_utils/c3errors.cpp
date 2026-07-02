@@ -40,6 +40,8 @@
 #include "ui/aui_common/aui_ui.h"
 #include "gs/database/StrDB.h"      // stringdb_Get()
 
+#include <cstdlib>
+
 
 void c3errors_FatalDialog(const char* module, const char* fmt, ...)
 {
@@ -60,8 +62,7 @@ void c3errors_FatalDialog(const char* module, const char* fmt, ...)
 #ifdef WIN32
 #ifndef _DEBUG
 #ifndef _BFR_
-	sint32 *s = 0;
-	*s = 0;
+	abort();
 #endif
 #endif
 #endif
@@ -101,8 +102,7 @@ void c3errors_FatalDialogFromDB(const char *module, const char *err, ...)
 #if defined(WIN32)
 #ifndef _DEBUG
 #ifndef _BFR_
-	sint32 *s = 0;
-	*s = 0;
+	abort();
 #endif
 #endif
 #endif

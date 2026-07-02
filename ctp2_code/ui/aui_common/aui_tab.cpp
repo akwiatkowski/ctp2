@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gohmann)
 //
 //----------------------------------------------------------------------------
 
@@ -86,6 +86,7 @@ aui_Tab::aui_Tab(
 
 AUI_ERRCODE aui_Tab::InitCommon( MBCHAR *ldlBlock )
 {
+	if (!ldlBlock) return AUI_ERRCODE_INVALIDPARAM;
 
 	static MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "pane" );

@@ -8,7 +8,7 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 
 - **Original Definition of Done (M1–M8): complete.** Only the P7 documentation close-out (~1 session) remains before declaring it formally.
 - **Current phase: memory safety & stability**, tracked as work items **P1–P7** below, sorted by severity/importance (highest first; ordered 2026-07-02).
-- **Progress:** P1 complete (all 54 CRITICAL verified). P3 underway — 2 of the 4 HIGH crash-class categories done (**DANGEROUS_SHIFT + DIVISION_BY_ZERO**, both `0 open` first-party); MISSING_BOUNDS_CHECK + NULL_DEREFERENCE remain. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number**.
+- **Progress:** P1 complete (all 54 CRITICAL verified). P3 underway — 2 of the 4 HIGH crash-class categories done (**DANGEROUS_SHIFT + DIVISION_BY_ZERO**, both `0 open` first-party); MISSING_BOUNDS_CHECK is started (bounds mini-batches through `profileDB` verified; 14 open sites fixed, several stale/false-positive leads annotated); NULL_DEREFERENCE started with obvious local guards through `UnitActor`/`directorevent`. P4 started (`unsafe_string_api` 1415→1410); P6 ticked 11/574. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number**.
 - **Parked:** modern-asset converter (formerly M10).
 
 Recount remaining work any time with:
@@ -56,10 +56,10 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | --- | --- | --- | --- |
 | P1 | Remaining CRITICAL crash bugs (BUG_HUNT_REPORT) | ✅ 1/1 done | complete |
 | P2 | ASan smoke tier on Linux | 0/1 | ~1 session |
-| P3 | HIGH-severity findings, category batches | DANGEROUS_SHIFT + DIVISION_BY_ZERO done (1st-party); bounds/null buckets left | multi-session |
-| P4 | Unsafe string APIs (`unsafe_string_api=1415`) | 0/1 | multi-session |
+| P3 | HIGH-severity findings, category batches | DANGEROUS_SHIFT + DIVISION_BY_ZERO done (1st-party); MISSING_BOUNDS_CHECK started through `profileDB`; NULL_DEREFERENCE started through obvious `UnitActor`/`directorevent` guards | multi-session |
+| P4 | Unsafe string APIs (`unsafe_string_api=1410`) | started | multi-session |
 | P5 | JSON-load derived-cache audit | 0/1 | ~1 session |
-| P6 | Mechanical RAII conversion (was M11) | 9/574 files | multi-session |
+| P6 | Mechanical RAII conversion (was M11) | 11/574 files | multi-session |
 | P7 | Close-out docs, declare DoD (was M9) | 0/2 | ~1 session |
 | — | Modern-asset converter + first-run (was M10) | **parked** | deferred |
 
@@ -85,11 +85,15 @@ ASan is the single highest-leverage detector (`MEMORY_SAFETY_STRATEGY.md`): use-
 
 **DIVISION_BY_ZERO (first-party) done 2026-07-02.** Verified every HIGH div-by-zero finding; the vast majority were already fixed by prior passes (`safe_divide`/`safe_divide_double` or explicit `> 0` guards in `CityData`, `FeatTracker`, `Readiness`, `SlicFunc`, `UnitData`, `aui_listbox`, `c3slider`, `director`, `soundmanager`, `UnitActor`). Only genuine open site: `SpriteLow565` scaled-draw `/(double)destHeight` cast-to-int UB at `destHeight==0` (guarded inline). All `Barbarians` findings are **false positives** — `RandomGenerator::Next(sint32)` self-guards `if (r <= 0) return 0`. Net: **0 open first-party**. **Next categories:** MISSING_BOUNDS_CHECK and NULL_DEREFERENCE (the two large buckets, ~305 + ~166 raw, many likely already fixed — verify each).
 
+**MISSING_BOUNDS_CHECK started 2026-07-02.** First mini-batches verified `Agreement`/`Army`/`ArmyData`/`Barbarians`/`Civilisation`/`CivilisationPool`/`Cont`/`GameEventManager`/`Installation`/`Order`/`Regard`/`Player` plus small sprite/UI, `c3cmdline`, and `profileDB` guard clusters: `Agreement.cpp` already used `safe_player`; `ArmyData` empty-army and `CanSlaveRaid` leads were already guarded; `Barbarians` RNG leads are false positives because `RandomGenerator::Next(sint32)` returns 0 for non-positive bounds; `Cont.cpp`, `Installation.cpp`, and GameWatch files are stale/absent; `DiplomaticRequest.cpp` already uses `safe_player`; `Order.cpp` already guards invalid order indices; `agreementmatrix.cpp`, `c3debug.cpp`, and one `c3cmdline` create-unit lead were already guarded. Genuine open sites fixed: `Army::RemoveAllReferences` now uses `safe_player(GetOwner())` before touching the owner player and `player_view::ArmyRemoved` rejects invalid indices at the shared UI-observer boundary; `civilisation_CreateNewPlayer` validates `pi` before assigning `player_arr_Get()[pi]`; `CivilisationPool::Create` fatals before random/DB access when `numCivs <= 0`; `GameEventManager::ProcessHead` validates `m_processingEvent` before indexing `event_description(...)`; `Regard::SetForPlayer`/`GetForPlayer` now guard `player < k_MAX_PLAYERS` before indexing `m_regard`; `Player::SetGovernmentType` now rejects `type == NumRecords()` before DB access; `aui_control`, `SpriteGroupList`, `effectspritegroup`, and `goodspritegroup` now add runtime guards before reported array/string-table accesses; `c3cmdline` diplomacy/trade/tax/workday/wages/rations commands now validate parsed player/city indices before dereference/list access; `profileDB` now bounds the reported profile string copy. NULL_DEREFERENCE mini-batch also started: `aui_tab` rejects null `ldlBlock`, `TaxCommand` validates required args before `argv[]`, `c3errors` uses `abort()` instead of deliberate null writes, `Director::AddMove` guards null actors, `Player` city-transfer paths guard null `CityData`, `directorevent` guards visible-player/effect lookups, and `UnitActor` draw helpers guard the reported null tile/player/image/record lookups before dereference. Continue from the next obvious HIGH bounds/null leads; skip broad `DiplomaticRequestData`, blitter geometry, and network packet-size flows until supervised.
+
 ### P4 — Unsafe string APIs
 
-`strcpy`/`strcat`/`sprintf` are the buffer-overflow class — higher real-world risk than the raw-`new` count. Ratchet: `unsafe_string_api=1415`.
+`strcpy`/`strcat`/`sprintf` are the buffer-overflow class — higher real-world risk than the raw-`new` count. Ratchet: `unsafe_string_api=1410`.
 
 - [ ] Convert unsafe-string clusters on crash-prone paths (parsers, UI text, save/load) to `strlcpy`/`snprintf`/`std::string`, lowering the `unsafe_string_api` ratchet baseline per batch.
+
+**Started 2026-07-02.** `ControlTabPanel::AppendBlockName` switched from exact-sized `sprintf` to `snprintf`; `profileDB` now uses bounded `strlcpy` for parsed profile strings; and `c3files_getfilelist` now uses `strlcpy` for fixed-size filename buffers, lowering the ratchet from 1415 to 1410. `c3mem.cpp` also fixed a stale `size_t`/`%ld` format mismatch (`%zu`) but did not affect the unsafe-string counter because it already used `snprintf`. `SlicSegment::GetDescription` now uses its `maxsize` parameter instead of `sizeof(pointer)`. `SlicBuiltin` leader/pronoun and `SlicEngine::AddResearchOnUnblank` report leads were already fixed with `strlcpy`.
 
 ### P5 — JSON-load derived-cache audit
 
@@ -113,7 +117,7 @@ Authoritative metric is the modernization ratchet (enforced by `make test`); per
 | `raw_delete` | 2065 | **2012** | 53 |
 | `c_allocation` | 516 | **515** | 1 |
 
-Files ticked: **9 / 574**. (Ratchet runs ahead of ticked files because most touched files still have a harder residual cluster — e.g. `Sprite.cpp`, the sprite-group family.)
+Files ticked: **11 / 574**. (Ratchet runs ahead of ticked files because most touched files still have a harder residual cluster — e.g. `Sprite.cpp`, the sprite-group family. `ControlTabPanel.cpp` fixes a real `new[]`/scalar-delete mismatch but keeps one explicit `new[]` inside `unique_ptr<MBCHAR[]>`, so raw `new` does not drop; `scoretab.cpp` removed one raw `new`/`delete` pair.)
 
 > **"Easy" tier — heuristic empty, but real easy conversions exist (2026-07-02).** A `/goal` run first inspected all 8 files the grep heuristic tagged 🟢 easy — **every one was a false positive**: transfer-to-sink (`Execute`/`AddEvent`/`InsertItem`/pool), a reference-counted `SlicObject` (`AddRef`/`Release` — `unique_ptr` would double-free), or a global singleton (`theKeyMap`, `wormhole_Get/Set`); those 8 were reclassified (2→hard, 4→medium, 2→skip). A **tightened finder** (local var, deleted by name, never passed to a function / stored to member-global / returned / refcounted / `static`) then surfaced the *genuine* easy set: **5 files converted** (`SlicButton`, `governor`, `c3cmdline`, `loadsavemapwindow`, `loadsavewindow` — 7 `new` + 7 `delete`, also fixing leaks on early-return and `#if`-excluded paths; commit `99755456`), with 2 finder false-positives excluded (commented-out code; `static` pointers transferred to a dropdown behind a cast). Lesson: grep can't tell "delete-on-failure, transfer-on-success" from a real local owner — but a strict no-transfer/no-static/no-refcount filter *can* isolate the truly-mechanical ones. See memory `feedback_memrefactor_easy_triage`.
 
@@ -124,11 +128,11 @@ Files ticked: **9 / 574**. (Ratchet runs ahead of ticked files because most touc
 | Difficulty | Files | Unsafe lines | Notes |
 | --- | --: | --: | --- |
 | 🟢 easy | 0 | 0 | empty — verified false-positive tier (see box above) |
-| 🟡 medium | 413 | 3403 | the bulk; read each, confirm one owner, convert per-cluster |
+| 🟡 medium | 411 | 3395 | the bulk; read each, confirm one owner, convert per-cluster |
 | 🔴 hard | 4 | 96 | change return type, let the compiler guide callers |
 | 🔴🔴 very hard | 45 | 742 | supervised (Opus); reason-tagged in checklist |
 | ⚪ skip | 103 | 2617 | don't mechanically convert |
-| ✅ done | 9 | 22 | committed this phase |
+| ✅ done | 11 | 30 | committed this phase |
 | **total** | **574** | **6880** | |
 
 **Realistic finish line:** `skip` (+ much of `very hard`) should be *encapsulated behind clear owners*, not rewritten. The productive target is 🟡 medium ≈ **3403 lines / 413 files**, each needing ownership analysis (no mechanical tier); the 🔴 49 files are the supervised tail.

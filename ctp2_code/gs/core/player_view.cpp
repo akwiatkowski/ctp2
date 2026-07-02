@@ -206,6 +206,7 @@ void AddPlayer(sint32 player)
 
 void ArmyRemoved(sint32 player, const Army &army)
 {
+	if(player < 0 || player >= k_MAX_PLAYERS) return;
 	if (s_registerRemovedArmy) s_registerRemovedArmy(player, army);
 }
 

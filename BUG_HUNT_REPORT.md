@@ -2497,6 +2497,28 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 
 ### MISSING_BOUNDS_CHECK
 
+> **Resolution status — first P3 HIGH MISSING_BOUNDS_CHECK mini-batch verified in code 2026-07-02.**
+> Findings are static-analysis leads, not verdicts; line numbers had drifted since May 2026.
+>
+> **Fixed this pass (commit pending):** `Army.cpp:71` now uses `safe_player(GetOwner())` before removing the army from the owner, and `player_view::ArmyRemoved` rejects invalid player indices at the shared UI-observer boundary, so invalid owner indices cannot index player/UI arrays out of bounds.
+> `Civilisation.cpp:152` now validates `pi` before assigning `player_arr_Get()[pi]`, so malformed caller input cannot write past the global player array.
+> `civilisationpool.cpp:100` now fatals before `rand_ptr()->Next(numCivs)` or DB lookups when the civilisation database is empty.
+> `GameEventManager.cpp:261` now validates `m_processingEvent` before indexing `event_description(...)` while processing the event head.
+> `Regard.cpp:28/36` now uses `< k_MAX_PLAYERS` plus runtime guards before reading/writing `m_regard[player]`.
+> `Player.cpp:6494` now rejects `type == g_theGovernmentDB->NumRecords()` before `g_theGovernmentDB->Get(type)`.
+> `aui_control.cpp:742` now requires `state < m_stringTable->GetNumStrings()` before `GetString(state)`.
+> `SpriteGroupList.cpp:91` now validates `index < k_MAX_SPRITES` before `m_spriteList[index]`.
+> `effectspritegroup.cpp:46/72` now guards `EFFECTACTION` bounds before indexing `m_sprites[action]`.
+> `goodspritegroup.cpp:53/74/84` now guards `GOODACTION` bounds before indexing `m_sprites[action]`.
+> `c3cmdline.cpp:1177/5207/5287` now validates parsed player and city indices before `Diplomat::GetDiplomat`, `player_Get(...)`, and city-list access in the matching diplomacy/trade commands.
+> `SlicSegment.cpp:605` was already converted from `sprintf` to `snprintf`, but used `sizeof(str)` on a pointer; it now respects the caller-provided `maxsize`.
+> `profileDB.cpp:620` now uses `strlcpy(..., k_MAX_NAME_LEN)` after the existing max-length check instead of unbounded `strcpy`.
+>
+> **Already fixed before this pass (verified present):** `Agreement.cpp:42/45` already uses `safe_player(GetRecipient())` / `safe_player(GetOwner())`; `ArmyData.cpp:1027/1060/1066` already returns false for empty armies before reading `m_array[0]`; `ArmyData.cpp:1413` is only reached from `CheckActiveDefenders`, which returns false when `m_nElements <= 0` before calling `GetActiveDefenders`; `Order.cpp:254` already guards `order < 0 || order >= UNIT_ORDER_MAX` before indexing `s_orderToEventMap`.
+> `agreementmatrix.cpp:124` already returns `s_badAgreement` when the computed index is outside `m_agreements`; `c3cmdline.cpp:5539` was already guarded; `c3debug.cpp:233` already uses bounded `vsnprintf` with the remaining global-buffer capacity; `SlicBuiltin.cpp:1000/1059` already uses `strlcpy(..., maxLen)` for the reported leader/pronoun text copies; `SlicEngine.cpp:2599` already uses `strlcpy(m_researchText, text, sizeof(m_researchText));`; `appstrings.cpp:41` already checks `len > 0` before writing `inStr[len - 1]`.
+>
+> **Not bugs / stale leads (skipped):** `Barbarians.cpp` `g_rand->Next(x - 1)` leads are covered by `RandomGenerator::Next(sint32)`, which returns 0 for `r <= 0`; `Cont.cpp`, `Installation.cpp`, and the GameWatch files (`GWArchive.cpp`, `GWCivRecord.cpp`, `GWFile.cpp`) are absent from the current tree.
+
 - **Agreement.cpp:42** — `g_player[GetRecipient()]` indexes the global player array using `GetRecipient()` without first verifying the index is within `[0, k_MAX_PLAYERS)`. Only a NULL check is performed on the resulting pointer.
   *Fix: Add index validation: `if (GetRecipient() < 0 || GetRecipient() >= k_MAX_PLAYERS) return;`*
 
@@ -2848,6 +2870,20 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 
 ### NULL_DEREFERENCE
 
+> **Resolution status — obvious P3 HIGH NULL_DEREFERENCE mini-batch verified in code 2026-07-02.**
+> `aui_tab.cpp:91` now rejects a null `ldlBlock` before formatting it with `%s`.
+> `c3cmdline.cpp:5580` / `TaxCommand::Execute` now requires the three tax arguments before reading `argv[1..3]` and validates the optional player id before `player_Get(player)`.
+> `c3errors.cpp:64/104` now uses `abort()` instead of deliberate null-pointer writes for release-Win32 crash paths.
+> `director.cpp:1250` now returns when `mover.GetActor()` is null before asserting or queueing a move action.
+> `SetWorkdayCommand` / `SetWagesCommand` / `SetRationsCommand` now require exactly one value argument and validate the visible player before dereferencing `player_Get(...)`.
+> `Player.cpp:5151` was verified against current code and both city-transfer paths now return when `GetCityData()` is null before `TeleportUnits(...)`.
+> `UnitActor.cpp` draw helpers now guard the reported null tile/image/player/shield/civilisation-record lookups before dereferencing them.
+> `directorevent.cpp:222/224` now validates the visible player, vision pointer, and general-success special-effect record before dereferencing.
+> `CityData.cpp:1466` is stale in the current tree; the `SPECATTACK_REVOLUTION` record is checked before `GetSoundIDIndex()`.
+> `gfx_options.cpp:164` is already fixed; `AddTextToCell` checks `text` before `strlen(text)`.
+> `c3files.cpp:617` is stale/obsolete in the current tree; CD validation is now the stub `c3files_HasLegalCD() { return true; }`.
+> `c3files_getfilelist` now uses `strlcpy` for fixed-size filename buffers and allocates the POSIX `NAME_MAX + 1` byte terminator.
+
 - **CityData.cpp:1466** — `specRec->GetSoundIDIndex()` is called when `unitutil_GetSpecialAttack(SPECATTACK_REVOLUTION)` could return NULL.
   *Fix: Ensure `specRec != NULL` before calling `GetSoundIDIndex()`.*
 
@@ -3114,4 +3150,3 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 
 - **SlicFunc.cpp:6800** — In `Slic_CityHasWonder::Call`, `wonder` is read via `args->GetInt(1, wonder)` but there is no explicit initialization of `wonder` before the call. If `GetInt` fails to set the variable and returns false (which is checked), this is safe, but defensive initialization would prevent issues if the control flow is later modified.
   *Fix: Initialize `sint32 wonder = -1;` at declaration.*
-

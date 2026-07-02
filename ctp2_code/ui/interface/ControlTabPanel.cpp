@@ -38,10 +38,11 @@
 namespace
 {
 
-MBCHAR * AppendBlockName(MBCHAR const * ldlBlock, MBCHAR const * subBlock)
+std::unique_ptr<MBCHAR[]> AppendBlockName(MBCHAR const * ldlBlock, MBCHAR const * subBlock)
 {
-	MBCHAR *    newBlock = new char[strlen(ldlBlock) + strlen(subBlock) + 2];
-	sprintf(newBlock, "%s.%s", ldlBlock, subBlock);
+	size_t const newBlockSize = strlen(ldlBlock) + strlen(subBlock) + 2;
+	std::unique_ptr<MBCHAR[]> newBlock(new MBCHAR[newBlockSize]);
+	snprintf(newBlock.get(), newBlockSize, "%s.%s", ldlBlock, subBlock);
 	return newBlock;
 }
 

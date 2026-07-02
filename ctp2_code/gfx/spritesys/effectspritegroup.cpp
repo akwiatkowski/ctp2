@@ -45,6 +45,9 @@ void EffectSpriteGroup::Draw(EFFECTACTION action, sint32 frame, sint32 drawX, si
 {
 	Assert(action > EFFECTACTION_NONE &&
 			action < EFFECTACTION_MAX);
+	if(action <= EFFECTACTION_NONE || action >= EFFECTACTION_MAX) {
+		return;
+	}
 
 	if (m_sprites[action] == nullptr) return;
 
@@ -71,6 +74,9 @@ void EffectSpriteGroup::DrawDirect(aui_Surface *surf, EFFECTACTION action, sint3
 {
 	Assert(action > EFFECTACTION_NONE &&
 			action < EFFECTACTION_MAX);
+	if(action <= EFFECTACTION_NONE || action >= EFFECTACTION_MAX) {
+		return;
+	}
 
 	if (m_sprites[action] == nullptr) return;
 

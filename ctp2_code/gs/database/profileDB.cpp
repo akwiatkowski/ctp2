@@ -619,8 +619,7 @@ BOOL ProfileDB::Parse(FILE *file)
 							c3errors_ErrorDialog("Profile", "Line %d: string too long", linenum);
 							return FALSE;
 						}
-						// TODO(strlcpy): unknown dst size
-						strcpy(var->m_stringValue, value);
+						strlcpy(var->m_stringValue, value, k_MAX_NAME_LEN);
 						break;
 					default:
 						Assert(FALSE);

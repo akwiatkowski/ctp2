@@ -4923,6 +4923,8 @@ void Player::GiveCity(const PLAYER_INDEX player, const sint32 c)
 	Unit	u = m_all_cities->Get(c).m_id ;
 
 	CityData	*cityData = m_all_cities->Get(c).GetData()->GetCityData() ;
+	if(!cityData)
+		return;
 
 	MapPoint newPos ;
 	double dist;
@@ -4950,6 +4952,8 @@ void Player::GiveCity(const PLAYER_INDEX recipient, Unit city)
 	}
 
 	CityData	*cityData = city.GetData()->GetCityData() ;
+	if(!cityData)
+		return;
 	MapPoint pos ;
 
 	MapPoint newPos ;
@@ -6304,7 +6308,7 @@ bool Player::SetGovernmentType(sint32 type)
 		return false;
 
 	Assert(type >= 0 && type < g_theGovernmentDB->NumRecords());
-	if(type < 0 || type > g_theGovernmentDB->NumRecords())
+	if(type < 0 || type >= g_theGovernmentDB->NumRecords())
 		return false;
 
 	sint32 sci_id = g_theGovernmentDB->Get(type)->GetEnableAdvanceIndex();

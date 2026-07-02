@@ -734,10 +734,10 @@ AUI_ERRCODE aui_Control::DrawThisStateImage(
 
 		if ( state < 0 )
 			state = 0;
-		if ( state > m_stringTable->GetNumStrings() )
+		if ( state >= m_stringTable->GetNumStrings() )
 			state = m_stringTable->GetNumStrings() - 1;
 
-		if ( state >= 0 )
+		if ( state >= 0 && state < m_stringTable->GetNumStrings() )
 		{
 			aui_TextBase::SetText(
 				m_stringTable->GetString( state ),

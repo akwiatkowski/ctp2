@@ -99,6 +99,9 @@ void watchlist_Refresh()
 void watchlist_AddExpression(char *exp)
 {
 	watchlist_Display();
+	if(!g_watchList)
+		return;
+
 	g_watchList->AddExpression(exp);
 }
 

@@ -264,8 +264,13 @@ GAME_EVENT_ERR GameEventManager::ProcessHead()
 {
 	GameEvent *     event   = m_eventList->GetHead();
 
-    // Processing busy
+	// Processing busy
 	m_processingEvent       = event->GetType();
+	Assert((m_processingEvent >= (GAME_EVENT)0) && (m_processingEvent < GEV_MAX));
+	if(m_processingEvent < (GAME_EVENT)0 || m_processingEvent >= GEV_MAX) {
+		m_processingEvent = GEV_MAX;
+		return GEV_ERR_BadEvent;
+	}
 
 	EVENTLOG(("ProcessEvent: %s Serial: %d\n",
             event_description(m_processingEvent).name,

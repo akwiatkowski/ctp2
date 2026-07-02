@@ -920,6 +920,10 @@ std::unique_ptr<Anim> UnitActor::MakeFaceoff() {
 }
 
 void UnitActor::DrawFortified(bool fogged) {
+	TileSet* tileSet = tiledmap_Get()->GetTileSet();
+	if (!tileSet)
+		return;
+
   sint32 nudgeX =
       (sint32)((k_ACTOR_CENTER_OFFSET_X - 48) * tiledmap_Get()->GetScale());
   sint32 nudgeY =
@@ -933,7 +937,9 @@ void UnitActor::DrawFortified(bool fogged) {
   if ((m_y + nudgeY) > (surfHeight - tiledmap_Get()->GetZoomTilePixelHeight()))
     return;
 
-  Pixel16* fortifiedImage = tiledmap_Get()->GetTileSet()->GetImprovementData(34);
+  Pixel16* fortifiedImage = tileSet->GetImprovementData(34);
+  if (!fortifiedImage)
+	return;
 
   if (tiledmap_Get()->GetZoomLevel() == k_ZOOM_LARGEST) {
     if (fogged)
@@ -1027,7 +1033,13 @@ void UnitActor::DrawCityWalls(
     bool fogged)  // TODO make a draw wonders and draw buildings method
 {
   TileSet const* tileSet = tiledmap_Get()->GetTileSet();
+  if (!tileSet)
+	return;
+
   Pixel16* cityImage = tileSet->GetImprovementData(38);  // default
+  if (!cityImage)
+	return;
+
   Unit unit(GetUnitID());
 
   // Test city style overrides.
@@ -1035,8 +1047,16 @@ void UnitActor::DrawCityWalls(
       g_theCityStyleDB->Get(unit.CD()->GetCityStyle());
 
   if (styleRec) {
+    PLAYER_INDEX ownerIndex = unit->GetOwner();
+    if (ownerIndex < 0 || ownerIndex >= k_MAX_PLAYERS)
+      return;
+
+    Player *owner = player_Get(ownerIndex);
+    if (!owner)
+      return;
+
     AgeCityStyleRecord const* ageStyleRec =
-        styleRec->GetAgeStyle(player_Get(unit->GetOwner())->m_age);
+        styleRec->GetAgeStyle(owner->m_age);
 
     if (ageStyleRec) {
       bool const isWater = world_Get()->IsWater(GetPos());
@@ -1064,6 +1084,8 @@ void UnitActor::DrawCityWalls(
       if (matchingSprite) {
         cityImage = tileSet->GetImprovementData(
             static_cast<uint16>(matchingSprite->GetWalls()));
+        if (!cityImage)
+          return;
       }
       // else: keep default
     }
@@ -1141,8 +1163,16 @@ void UnitActor::DrawForceField(bool fogged) {
       g_theCityStyleDB->Get(unit.CD()->GetCityStyle());
 
   if (styleRec) {
+    PLAYER_INDEX ownerIndex = unit->GetOwner();
+    if (ownerIndex < 0 || ownerIndex >= k_MAX_PLAYERS)
+      return;
+
+    Player *owner = player_Get(ownerIndex);
+    if (!owner)
+      return;
+
     AgeCityStyleRecord const* ageStyleRec =
-        styleRec->GetAgeStyle(player_Get(unit->GetOwner())->m_age);
+        styleRec->GetAgeStyle(owner->m_age);
 
     if (ageStyleRec) {
       bool const isWater = world_Get()->IsWater(GetPos());
@@ -1175,8 +1205,13 @@ void UnitActor::DrawForceField(bool fogged) {
   }
   // else: keep default
 
-  Pixel16* cityImage =
-      tiledmap_Get()->GetTileSet()->GetImprovementData((uint16)which);
+  TileSet* tileSet = tiledmap_Get()->GetTileSet();
+  if (!tileSet)
+	return;
+
+  Pixel16* cityImage = tileSet->GetImprovementData((uint16)which);
+  if (!cityImage)
+	return;
 
   if (tiledmap_Get()->GetZoomLevel() == k_ZOOM_LARGEST) {
     tiledmap_Get()->DrawDitheredOverlayIntoMix(cityImage, m_x + nudgeX,
@@ -1449,6 +1484,9 @@ void UnitActor::DrawHealthBar() {
   }
 
   TileSet* tileSet = tiledmap_Get()->GetTileSet();
+  if (!tileSet || !m_unitSpriteGroup)
+	return;
+
   Cell* myCell = world_Get()->GetCell(GetPos());
 
   sint32 stackSize = 1;
@@ -1517,6 +1555,8 @@ void UnitActor::DrawHealthBar() {
   if (unitAction == UNITACTION_IDLE &&
       m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)UNITACTION_IDLE) == nullptr) {
     shieldPoint = m_unitSpriteGroup->GetShieldPoints(UNITACTION_MOVE);
+    if (!shieldPoint)
+      return;
     OffsetRect(
         &iconRect,
         m_x + (sint32)((double)(shieldPoint->x) * tiledmap_Get()->GetScale()),
@@ -1525,6 +1565,8 @@ void UnitActor::DrawHealthBar() {
     if (m_unitSpriteGroup &&
         m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)unitAction) != nullptr) {
       shieldPoint = m_unitSpriteGroup->GetShieldPoints(unitAction);
+      if (!shieldPoint)
+        return;
       OffsetRect(
           &iconRect,
           m_x + (sint32)((double)(shieldPoint->x) * tiledmap_Get()->GetScale()),
@@ -1639,6 +1681,9 @@ void UnitActor::DrawStackingIndicator(sint32& x, sint32& y, sint32 stack) {
     return;
 
   TileSet* tileSet = tiledmap_Get()->GetTileSet();
+  if (!tileSet)
+	return;
+
   POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_HERALD);
   if (x >= screenmanager_Get()->GetSurfWidth() - iconDim.x)
     return;
@@ -1875,8 +1920,8 @@ void UnitActor::DrawSpecialIndicators(
 
     sint32 civicon = 0;
 
-    if (g_theCivilisationDB->Get(civ)->GetNationUnitFlagIndex(civicon) &&
-        civ > -1) {
+    auto const *civRec = civ > -1 ? g_theCivilisationDB->Get(civ) : nullptr;
+    if (civRec && civRec->GetNationUnitFlagIndex(civicon)) {
       sint32 xf = x;  // + iconDim.x;
       tiledmap_Get()->DrawColorizedOverlayIntoMix(tileSet->GetMapIconData(civicon),
                                               xf, y, displayedColor);

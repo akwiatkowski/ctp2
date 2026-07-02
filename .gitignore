@@ -282,3 +282,6 @@ logs\\messages.txt
 
 # gateway runtime session journals (per-run artifacts)
 sessions/
+
+# local agent tooling (opencode.ai CLI config + node_modules)
+.opencode/

@@ -4,6 +4,8 @@
 #ifndef __SCORETAB_H__
 #define __SCORETAB_H__
 
+#include <memory>
+
 class ScoreTab;
 
 #include "gs/gameobj/Score.h"  // SCORE_CAT_MAX
@@ -26,7 +28,7 @@ private:
 	ctp2_Static *       m_total;
 	ctp2_ListBox *      m_scoreList;
 	ctp2_ListItem *     m_scoreElem[SCORE_CAT_MAX];
-    aui_StringTable *   m_difficultyStrings;
+    std::unique_ptr<aui_StringTable> m_difficultyStrings;
 };
 
 #endif

@@ -490,7 +490,9 @@ void SlicSegment::GetDescription(char *str, sint32 maxsize)
 		GetSourceLines(m_firstLineNumber, offset, lastline);
 	}
 
-	snprintf(str, sizeof(str), "'%s': %s@%d", m_id, m_filename, m_firstLineNumber);
+	if(maxsize > 0) {
+		snprintf(str, (size_t)maxsize, "'%s': %s@%d", m_id, m_filename, m_firstLineNumber);
+	}
 }
 
 GAME_EVENT_HOOK_DISPOSITION SlicSegment::GEVHookCallback(GAME_EVENT type, GameEventArgList *args)

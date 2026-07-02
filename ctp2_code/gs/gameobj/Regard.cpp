@@ -23,15 +23,21 @@ Regard::Regard()
 
 void Regard::SetForPlayer(const PLAYER_INDEX player, const REGARD_TYPE regard)
 {
-	Assert((player>=0) && (player<=k_MAX_PLAYERS)) ;
+	Assert((player>=0) && (player<k_MAX_PLAYERS)) ;
 	Assert((REGARD_TYPE_INSANE_HATRED <= regard) && (regard<=REGARD_TYPE_LOVE)) ;
+	if(player < 0 || player >= k_MAX_PLAYERS) {
+		return;
+	}
 
 	m_regard[player] = regard ;
 }
 
 REGARD_TYPE Regard::GetForPlayer(const PLAYER_INDEX player)
 {
-	Assert((player>=0) && (player<=k_MAX_PLAYERS)) ;
+	Assert((player>=0) && (player<k_MAX_PLAYERS)) ;
+	if(player < 0 || player >= k_MAX_PLAYERS) {
+		return REGARD_TYPE_NEUTRAL;
+	}
 
 	return (m_regard[player]) ;
 }

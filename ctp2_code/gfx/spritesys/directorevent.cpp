@@ -223,9 +223,18 @@ STDEHANDLER(DirectorActionSuccessful)
 	}
 	else
 	{
-		if(player_Get(selitem_Get()->GetVisiblePlayer())->m_vision->IsVisible(attackPos))
+		sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
+		if(visiblePlayer < 0 || visiblePlayer >= k_MAX_PLAYERS)
+			return GEV_HD_Continue;
+
+		Player *vp = player_Get(visiblePlayer);
+		if(vp && vp->m_vision && vp->m_vision->IsVisible(attackPos))
 		{
-			spriteID = g_theSpecialEffectDB->Get(g_theSpecialEffectDB->FindTypeIndex("SPECEFFECT_GENERAL_SUCCESS"))->GetValue();
+			SpecialEffectRecord const *effect = g_theSpecialEffectDB->Get(g_theSpecialEffectDB->FindTypeIndex("SPECEFFECT_GENERAL_SUCCESS"));
+			if(!effect)
+				return GEV_HD_Continue;
+
+			spriteID = effect->GetValue();
 			soundID  = g_theSoundDB->FindTypeIndex("SOUND_ID_GENERALSUCCEED");
 			if(selitem_Get()->IsAutoCenterOn())
 			{

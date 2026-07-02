@@ -75,7 +75,7 @@ public:
 
 private:
 
-	std::unique_ptr<MBCHAR> m_ldlBlock;
+	std::unique_ptr<MBCHAR[]> m_ldlBlock;
 
 	std::unique_ptr<DomesticControlPanel>	m_domesticControlPanel;
 	std::unique_ptr<CityControlPanel>		m_cityControlPanel;

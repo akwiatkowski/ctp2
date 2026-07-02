@@ -54,7 +54,7 @@ ScoreTab::ScoreTab()
 
 {
     AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	m_difficultyStrings = new aui_StringTable(&errcode, "strings.difficulty1strings");
+	m_difficultyStrings = std::make_unique<aui_StringTable>(&errcode, "strings.difficulty1strings");
 
     m_scoreList->Clear();
 	for (auto & i : m_scoreElem)
@@ -80,7 +80,6 @@ ScoreTab::ScoreTab()
 
 ScoreTab::~ScoreTab()
 {
-    delete m_difficultyStrings;
 }
 
 void ScoreTab::Update()

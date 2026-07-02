@@ -54,6 +54,9 @@ void GoodSpriteGroup::Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32
 {
 	Assert(action > GOODACTION_NONE &&
 			action < GOODACTION_MAX);
+	if(action <= GOODACTION_NONE || action >= GOODACTION_MAX) {
+		return;
+	}
 
 	if (m_sprites[action] == nullptr) return;
 
@@ -73,6 +76,9 @@ void GoodSpriteGroup::DrawDirect(aui_Surface *surf, GOODACTION action, sint32 fr
 {
 	Assert(action > GOODACTION_NONE &&
 			action < GOODACTION_MAX);
+	if(action <= GOODACTION_NONE || action >= GOODACTION_MAX) {
+		return;
+	}
 
 	if (m_sprites[action] == nullptr) return;
 
@@ -83,6 +89,9 @@ void GoodSpriteGroup::DrawDirect(aui_Surface *surf, GOODACTION action, sint32 fr
 POINT GoodSpriteGroup::GetHotPoint(GOODACTION action)
 {
 	POINT nullPoint = {0,0};
+	if(action <= GOODACTION_NONE || action >= GOODACTION_MAX) {
+		return nullPoint;
+	}
 
 	return m_sprites[action] ? m_sprites[action]->GetHotPoint() : nullPoint;
 }

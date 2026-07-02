@@ -1248,6 +1248,7 @@ void Director::AddMove(Unit mover,
   UnitActorPtr actor = mover.GetActor();
 
   Assert(!mover.IsCity());
+  if (!actor) return;
 
   Assert(actor->GetUnitID() == mover.m_id);
 

@@ -1178,6 +1178,10 @@ void InitializeDiplomacyCommand::Execute(sint32 argc, char **argv) {
 	if(argc > 2) {
 		player2 = atoi(argv[2]);
 	}
+	if(player1 < 0 || player1 >= k_MAX_PLAYERS || !player_Get(player1) ||
+	   player2 < 0 || player2 >= k_MAX_PLAYERS || !player_Get(player2)) {
+		return;
+	}
 
 	if (player1 == player2)
 		return;
@@ -5192,15 +5196,24 @@ AcceptOfferCommand::Execute(sint32 argc, char **argv)
 	if(argc != 5)
 		return;
 
+	sint32 offerOwner = atoi(argv[1]);
+	if(offerOwner < 0 || offerOwner >= k_MAX_PLAYERS || !player_Get(offerOwner)) {
+		return;
+	}
+
 	sint32 index = atoi(argv[2]);
-	DynamicArray<TradeOffer> *offers = player_Get(atoi(argv[1]))->m_tradeOffers;
+	DynamicArray<TradeOffer> *offers = player_Get(offerOwner)->m_tradeOffers;
 	Assert(index >= 0);
 	Assert(index < offers->Num());
 	if(index < 0 || index >= offers->Num())
 		return;
 
 	TradeOffer offer = offers->Access(index);
-	UnitDynamicArray *cities = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities;
+	sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
+	if(visiblePlayer < 0 || visiblePlayer >= k_MAX_PLAYERS || !player_Get(visiblePlayer)) {
+		return;
+	}
+	UnitDynamicArray *cities = player_Get(visiblePlayer)->m_all_cities;
 	sint32 city1index = atoi(argv[3]);
 	sint32 city2index = atoi(argv[4]);
 	Assert(city1index >= 0);
@@ -5215,7 +5228,7 @@ AcceptOfferCommand::Execute(sint32 argc, char **argv)
 
 	Unit city1 = cities->Access(city1index);
 	Unit city2 = cities->Access(city2index);
-	player_Get(selitem_Get()->GetVisiblePlayer())->AcceptTradeOffer(offer, city1, city2);
+	player_Get(visiblePlayer)->AcceptTradeOffer(offer, city1, city2);
 }
 
 void ShowVictoryCommand::Execute(sint32 argc, char **argv)
@@ -5272,10 +5285,20 @@ TradeRouteCommand::Execute(sint32 argc, char** argv)
 	sourceResource = atoi(argv[3]);
 	d_plr = atoi(argv[4]);
 	d_idx = atoi(argv[5]);
+	if(s_plr < 0 || s_plr >= k_MAX_PLAYERS || !player_Get(s_plr) ||
+	   d_plr < 0 || d_plr >= k_MAX_PLAYERS || !player_Get(d_plr)) {
+		return;
+	}
 
 	UnitDynamicArray *cities = player_Get(d_plr)->GetAllCitiesList();
+	if(d_idx < 0 || d_idx >= cities->Num()) {
+		return;
+	}
 	Unit destCity = cities->Get(d_idx);
 	cities = player_Get(s_plr)->GetAllCitiesList();
+	if(s_idx < 0 || s_idx >= cities->Num()) {
+		return;
+	}
 	Unit srcCity = cities->Get(s_idx);
 
 	player_Get(s_plr)->CreateTradeRoute(srcCity, sourceType, sourceResource,
@@ -5560,6 +5583,8 @@ void CreateCommand::Execute(sint32 argc, char** argv)
 
 void TaxCommand::Execute(sint32 argc, char** argv)
 {
+	if(argc < 4)
+		return;
 
 	double s, g, l;
 	PLAYER_INDEX player = selitem_Get()->GetVisiblePlayer();
@@ -5572,6 +5597,8 @@ void TaxCommand::Execute(sint32 argc, char** argv)
 		return;
 	if(argc > 4)
 		player = (PLAYER_INDEX)atoi(argv[4]);
+	if(player < 0 || player >= k_MAX_PLAYERS || !player_Get(player))
+		return;
 	player_Get(player)->SetTaxes(s);
 }
 
@@ -5699,29 +5726,38 @@ void SeeWWRCommand::Execute(sint32 argc, char**argv)
 
 void SetWorkdayCommand::Execute(sint32 argc, char**argv)
 {
-    if(argc > 2)
+    if(argc != 2)
         return;
 
 	sint32 val = (PLAYER_INDEX)atoi(argv[1]);
-    player_Get(selitem_Get()->GetVisiblePlayer())->SetWorkdayLevel(val);
+	PLAYER_INDEX player = selitem_Get()->GetVisiblePlayer();
+	if(player < 0 || player >= k_MAX_PLAYERS || !player_Get(player))
+		return;
+    player_Get(player)->SetWorkdayLevel(val);
 }
 
 void SetWagesCommand::Execute(sint32 argc, char** argv)
 {
-   	if(argc > 2)
+    if(argc != 2)
         return;
 
 	sint32 val = (PLAYER_INDEX)atoi(argv[1]);
-    player_Get(selitem_Get()->GetVisiblePlayer())->SetWagesLevel(val);
+	PLAYER_INDEX player = selitem_Get()->GetVisiblePlayer();
+	if(player < 0 || player >= k_MAX_PLAYERS || !player_Get(player))
+		return;
+    player_Get(player)->SetWagesLevel(val);
 }
 
 void SetRationsCommand::Execute(sint32 argc, char** argv)
 {
-  	if(argc > 2)
+    if(argc != 2)
         return;
 
 	sint32 val = (PLAYER_INDEX)atoi(argv[1]);
-    player_Get(selitem_Get()->GetVisiblePlayer())->SetRationsLevel(val);
+	PLAYER_INDEX player = selitem_Get()->GetVisiblePlayer();
+	if(player < 0 || player >= k_MAX_PLAYERS || !player_Get(player))
+		return;
+    player_Get(player)->SetRationsLevel(val);
 }
 
 void AddMaterialsCommand::Execute(sint32 argc, char **argv)

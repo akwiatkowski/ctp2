@@ -16,11 +16,11 @@ void* operator new(const size_t size)
 #ifdef _AIDLL
 #ifdef _DEBUG
 		MBCHAR s[256];
-		snprintf(s, sizeof(s), "EXE: Failed to allocate Block of size %ld\n", size);
+		snprintf(s, sizeof(s), "EXE: Failed to allocate Block of size %zu\n", size);
 		c3ai_Log(s);
 #endif
 #else
-		DPRINTF(k_DBG_FIX, ("AI: Failed to allocate block of size %ld\n", size));
+		DPRINTF(k_DBG_FIX, ("AI: Failed to allocate block of size %zu\n", size));
 #endif
 		exit(-1);
 	}

@@ -119,6 +119,9 @@ void sourcelist_Remove()
 void sourcelist_RegisterBreak(SlicSegment *segment, sint32 offset)
 {
 	sourcelist_Display(segment);
+	if(!g_sourceList)
+		return;
+
 	g_sourceList->ShowBreak(offset);
 }
 
@@ -198,6 +201,9 @@ void SourceListActionCallback(aui_Control *control, uint32 action, uint32 data, 
 void SourceListButtonCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {
 	if(action == AUI_BUTTON_ACTION_EXECUTE) {
+		if(!g_sourceList)
+			return;
+
 		if(control == g_sourceList->m_continue) {
 			g_sourceList->Continue();
 		}

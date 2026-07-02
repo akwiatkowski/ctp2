@@ -8,7 +8,7 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 
 - **Original Definition of Done (M1–M8): complete.** Only the P7 documentation close-out (~1 session) remains before declaring it formally.
 - **Current phase: memory safety & stability**, tracked as work items **P1–P7** below, sorted by severity/importance (highest first; ordered 2026-07-02).
-- **Progress:** P1 complete (all 54 CRITICAL verified). P3 underway — 2 of the 4 HIGH crash-class categories done (**DANGEROUS_SHIFT + DIVISION_BY_ZERO**, both `0 open` first-party, correctly annotated in the HIGH tier). **MISSING_BOUNDS_CHECK + NULL_DEREFERENCE are NOT done:** a tier-drift was found 2026-07-02 — the bounds/null resolution work this phase was written into the report's MEDIUM-tier mirror, while the real HIGH-tier sections (`@~675`, `@~1206`; ~305 leads combined) remain unannotated/unverified. Many genuine crash bugs were fixed along the way (`Army`/`Civilisation`/`Regard`/`Pollution`/`gameinit`/`installation`/`installationdata`/`GameEventArgList`/sprite+UI guards), and spot-checks suggest the HIGH tier is mostly already-fixed/stale — but a proper HIGH-tier verification pass is still owed. P4 started (`unsafe_string_api` 1415→1410); P6 ticked 11/574. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number** — and **check the severity tier** before annotating.
+- **Progress:** P1 complete (all 54 CRITICAL verified). P3 underway — 2 of the 4 HIGH crash-class categories done (**DANGEROUS_SHIFT + DIVISION_BY_ZERO**, both `0 open` first-party, correctly annotated in the HIGH tier). **MISSING_BOUNDS_CHECK + NULL_DEREFERENCE are NOT done:** a tier-drift was found 2026-07-02 — the bounds/null resolution work this phase was written into the report's MEDIUM-tier mirror, while the real HIGH-tier sections (`@~675`, `@~1206`; ~305 leads combined) remain unannotated/unverified. Many genuine crash bugs were fixed along the way (`Army`/`Civilisation`/`Regard`/`Pollution`/`gameinit`/`installation`/`installationdata`/`GameEventArgList`/sprite+UI guards), and spot-checks suggest the HIGH tier is mostly already-fixed/stale — but a proper HIGH-tier verification pass is still owed. P4 underway (`unsafe_string_api` 1415→1376); P6 ticked 11/574. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number** — and **check the severity tier** before annotating.
 - **Parked:** modern-asset converter (formerly M10).
 
 Recount remaining work any time with:
@@ -57,7 +57,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P1 | Remaining CRITICAL crash bugs (BUG_HUNT_REPORT) | ✅ 1/1 done | complete |
 | P2 | ASan smoke tier on Linux | 0/1 | ~1 session |
 | P3 | HIGH-severity findings, category batches | DANGEROUS_SHIFT + DIVISION_BY_ZERO done. MISSING_BOUNDS_CHECK + NULL_DEREFERENCE HIGH tiers **verified & burned down 2026-07-02/03**: ~25 genuine crash bugs fixed, the rest already-fixed (g_player→safe_player migration), false-positive, or the supervised/P4/net tail. Both sections carry resolution blocks. | tail = supervised/P4/net |
-| P4 | Unsafe string APIs (`unsafe_string_api=1410`) | started | multi-session |
+| P4 | Unsafe string APIs (`unsafe_string_api=1376`) | underway (1415→1376) | multi-session |
 | P5 | JSON-load derived-cache audit | 0/1 | ~1 session |
 | P6 | Mechanical RAII conversion (was M11) | 11/574 files | multi-session |
 | P7 | Close-out docs, declare DoD (was M9) | 0/2 | ~1 session |
@@ -105,11 +105,13 @@ ASan is the single highest-leverage detector (`MEMORY_SAFETY_STRATEGY.md`): use-
 
 ### P4 — Unsafe string APIs
 
-`strcpy`/`strcat`/`sprintf` are the buffer-overflow class — higher real-world risk than the raw-`new` count. Ratchet: `unsafe_string_api=1410`.
+`strcpy`/`strcat`/`sprintf` are the buffer-overflow class — higher real-world risk than the raw-`new` count. Ratchet: `unsafe_string_api=1376` (was 1415 at phase start).
 
 - [ ] Convert unsafe-string clusters on crash-prone paths (parsers, UI text, save/load) to `strlcpy`/`snprintf`/`std::string`, lowering the `unsafe_string_api` ratchet baseline per batch.
 
 **Started 2026-07-02.** `ControlTabPanel::AppendBlockName` switched from exact-sized `sprintf` to `snprintf`; `profileDB` now uses bounded `strlcpy` for parsed profile strings; and `c3files_getfilelist` now uses `strlcpy` for fixed-size filename buffers, lowering the ratchet from 1415 to 1410. `c3mem.cpp` also fixed a stale `size_t`/`%ld` format mismatch (`%zu`) but did not affect the unsafe-string counter because it already used `snprintf`. `SlicSegment::GetDescription` now uses its `maxsize` parameter instead of `sizeof(pointer)`. `SlicBuiltin` leader/pronoun and `SlicEngine::AddResearchOnUnblank` report leads were already fixed with `strlcpy`.
+
+**Batch pass 2026-07-03 (1410 → 1376, −34).** Convention confirmed: BSD `strlcpy`/`strlcat`/`snprintf` from `<string.h>` (no project wrapper; my earlier "`n()` helper" was an `rg -r` typo artifact). Fixed-array `strcat`/`sprintf` → bounded equivalents on live crash-prone paths: `EditQueue` queue save/load/delete filename buffers (−12); `DiplomacyDetails` `interp[20000]`, `thronecontrol` `s[_MAX_PATH]`, `diplomacywindow` `finalText[k_MAX_NAME_LEN]` (4 of 8), `controlpanelwindow` `order` (−17); `cpw_NumberToCommas` threaded a `size_t size` param + `snprintf`, callers pass `sizeof(buf)` (−5). **Skipped as dead code (no callers, caller-owned unknown-size dst):** `AgreementData::ToString`/`Interpret` (11), `BuildQueue::Dump` (5). **Deferred (needs size threaded through multi-param signatures):** `diplomacywindow::GetProposalSummary`/`GetProposalDetails` `MBCHAR *finalText`/`exchangeText` params (4 sites — callers pass `finalText + strlen(finalText)` into a `k_MAX_NAME_LEN` array). Next live targets by density: `chatbox`/`dipwizard`/`aui_bitmapfont` (4 each), `ldl_data`/`UIUtils`/`CivilisationData` (3). `libs/anet`, `libs/freetype`, `net_*` remain out of scope.
 
 ### P5 — JSON-load derived-cache audit
 

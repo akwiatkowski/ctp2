@@ -89,7 +89,7 @@ POINT GoodSpriteGroup::GetHotPoint(GOODACTION action)
 
 void GoodSpriteGroup::LoadBasic(MBCHAR const * filename)
 {
-	std::unique_ptr<SpriteFile>	file(new SpriteFile(filename));
+	auto file = std::make_unique<SpriteFile>(filename);
 
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
@@ -102,7 +102,7 @@ void GoodSpriteGroup::LoadBasic(MBCHAR const * filename)
 
 void GoodSpriteGroup::LoadFull(MBCHAR const * filename)
 {
-	std::unique_ptr<SpriteFile>	file(new SpriteFile(filename));
+	auto file = std::make_unique<SpriteFile>(filename);
 
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
@@ -115,7 +115,7 @@ void GoodSpriteGroup::LoadFull(MBCHAR const * filename)
 
 void GoodSpriteGroup::Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode)
 {
-	std::unique_ptr<SpriteFile>	file(new SpriteFile(filename));
+	auto file = std::make_unique<SpriteFile>(filename);
 
 	if (SPRITEFILEERR_OK ==
 			file->Create(SPRITEFILETYPE_GOOD, version_id, compression_mode)

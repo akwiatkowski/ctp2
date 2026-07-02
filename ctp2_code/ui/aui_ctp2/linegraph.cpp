@@ -584,7 +584,7 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 	infoXCount = 0;
 
 	AUI_ERRCODE                     errcode     = AUI_ERRCODE_OK;
-	std::unique_ptr<aui_StringTable>  stringTable (new aui_StringTable(&errcode, "InfoStrings"));
+	auto stringTable = std::make_unique<aui_StringTable>(&errcode, "InfoStrings");
 
 	SetXAxisName(stringTable->GetString(6));
 	SetYAxisName("Power");

@@ -251,7 +251,7 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 
 void UnitSpriteGroup::LoadBasic(MBCHAR const * filename)
 {
-	std::unique_ptr<SpriteFile>	file(new SpriteFile(filename));
+	auto file = std::make_unique<SpriteFile>(filename);
 
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
@@ -267,7 +267,7 @@ void UnitSpriteGroup::LoadBasic(MBCHAR const * filename)
 
 void UnitSpriteGroup::LoadIndexed(MBCHAR const * filename, GAME_ACTION index)
 {
-	std::unique_ptr<SpriteFile>	file(new SpriteFile(filename));
+	auto file = std::make_unique<SpriteFile>(filename);
 
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
@@ -281,7 +281,7 @@ void UnitSpriteGroup::LoadIndexed(MBCHAR const * filename, GAME_ACTION index)
 
 void UnitSpriteGroup::LoadFull(MBCHAR const * filename)
 {
-	std::unique_ptr<SpriteFile>	file(new SpriteFile(filename));
+	auto file = std::make_unique<SpriteFile>(filename);
 
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
@@ -294,7 +294,7 @@ void UnitSpriteGroup::LoadFull(MBCHAR const * filename)
 
 void UnitSpriteGroup::Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode)
 {
-	std::unique_ptr<SpriteFile>	file(new SpriteFile(filename));
+	auto file = std::make_unique<SpriteFile>(filename);
 
 	if (SPRITEFILEERR_OK ==
 			file->Create(SPRITEFILETYPE_UNIT, version_id, compression_mode)

@@ -94,7 +94,7 @@ void EffectSpriteGroup::DrawDirect(aui_Surface *surf, EFFECTACTION action, sint3
 
 void EffectSpriteGroup::Load(MBCHAR const * filename)
 {
-	std::unique_ptr<SpriteFile>	file(new SpriteFile(filename));
+	auto file = std::make_unique<SpriteFile>(filename);
 
 	SPRITEFILETYPE				type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
@@ -112,7 +112,7 @@ void EffectSpriteGroup::Save
     unsigned int    compression_mode
 )
 {
-	std::unique_ptr<SpriteFile>	file(new SpriteFile(filename));
+	auto file = std::make_unique<SpriteFile>(filename);
 
 	if (SPRITEFILEERR_OK ==
 			file->Create(SPRITEFILETYPE_EFFECT, version_id, compression_mode)

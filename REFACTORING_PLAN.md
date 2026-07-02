@@ -53,7 +53,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 
 | P | Item | Status | Size |
 | --- | --- | --- | --- |
-| P1 | Remaining CRITICAL crash bugs (BUG_HUNT_REPORT) | 0/1 | ~1–2 sessions |
+| P1 | Remaining CRITICAL crash bugs (BUG_HUNT_REPORT) | ✅ 1/1 done | complete |
 | P2 | ASan smoke tier on Linux | 0/1 | ~1 session |
 | P3 | HIGH-severity findings, category batches | 0/1 | multi-session |
 | P4 | Unsafe string APIs (`unsafe_string_api=1415`) | 0/1 | multi-session |
@@ -68,7 +68,7 @@ Why P1–P5 outrank P6: raw `new`/`delete` → RAII mostly prevents **leaks**, w
 
 `BUG_HUNT_REPORT.md` (May 2026) catalogues **963 static-analysis findings** (54 critical, 441 high, 449 medium). Only ~63 were ever fixed (commits `c694afe3`, `970d9bec`, `d7e9e0ff`, `33211c11`, all 2026-05-12); nothing since, and the report has no fixed/open tracking. Findings are **leads, not verdicts** — verify each in code first; marking one false-positive with a one-line justification counts as progress.
 
-- [ ] Verify and fix the ~13 remaining CRITICAL findings; annotate the report (or a sidecar note) with fixed/false-positive status per finding so the report stops rotting.
+- [x] Verify and fix the remaining CRITICAL findings; annotate the report with fixed/false-positive status per finding so the report stops rotting. **Done 2026-07-02:** all 54 CRITICAL findings verified in code — 49 were already fixed or obsolete, 5 were genuinely open and fixed this pass (commits `fbbe6965` c3cmdline console buffers, `65406bc4` spriteutils DecodeToBuffer, `9aee4932` CityData 64-bit pointer truncation, `2fe812d5` NetUnit/ChunkList packet bounds). Report now carries a resolution-status block at the top of its CRITICAL section. `make test` + `make ubsan-smoke` green.
 
 ### P2 — ASan smoke tier on Linux
 

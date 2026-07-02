@@ -43,6 +43,36 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 
 ## CRITICAL Severity
 
+> **Resolution status — all 54 CRITICAL findings verified in code 2026-07-02.**
+> Findings are static-analysis leads, not verdicts; each was checked against the
+> current source. **Net result: 0 open.** Breakdown:
+>
+> **Fixed this pass (5 findings, 4 commits):**
+> - `c3cmdline.cpp` `CommandLine::AddKey` / `Parse` buffer & argv overflow → commit `fbbe6965`
+> - `spriteutils.cpp` `spriteutils_DecodeToBuffer` unbounded writes → commit `65406bc4` (function is currently uncalled)
+> - `CityData.cpp` 64-bit `(uint32)&` pointer-truncation memcpy → commit `9aee4932` (dormant behind `NEW_RESOURCE_PROCESS`)
+> - `net_unit.cpp` missing `size` check + `network.cpp` `ChunkList` write-before-grow → commit `2fe812d5`
+>
+> **Already fixed (verified present in current code, from the May 2026 batch or later):**
+> - `GaiaController.cpp` — all 18 DANGEROUS_SHIFT via `safe_shift_left_u64()` (runtime-guarded, not just Assert)
+> - `CityData.cpp` DIVISION_BY_ZERO (2585/2586/2588/3763/3771/3774) — all denominators guarded
+> - `UnitActor.cpp:1550` — `totalHP > 0` guard
+> - `Goal.cpp:3255` — refactored to `snprintf` into a sized `std::vector` (underflow loop gone)
+> - `ArmyData.cpp:2963` — `m_nElements <= 0` and `data == nullptr` guards
+> - `slicobject.cpp` (100/135/553) — refactored to `std::string`, null-safe
+> - `sourcelist.cpp:133` — pointers `nullptr`-initialized in ctor
+> - `thronedb.cpp:73` — bounds check returns `nullptr`
+> - `spritefile.cpp` (91-98/376-380/452-456/634-641) — `GetNumFrames() > 800` guard with early return
+> - `net_action.cpp` (278/320) — `m_action` range guard; `net_info.cpp:320` — `m_type` range guard
+>
+> **Obsolete (the flagged code path was removed/replaced, so the bug no longer exists):**
+> - `SlicSegment.cpp` (441/443/456/471) — `malloc`/`Serialize` path gone; `m_code` is `nullptr`-initialized
+> - `foreigner.cpp:1493` — `ComputeLandContinentShared` removed
+> - `gameinit.cpp:1890` — `usedPositions[]` array removed
+> - `MapFile.cpp:716` — binary chunk reader replaced by the JSON map loader
+>
+> Verified with `mise exec -- make test` and `mise exec -- make ubsan-smoke` (both green).
+
 
 ### DANGEROUS_SHIFT
 

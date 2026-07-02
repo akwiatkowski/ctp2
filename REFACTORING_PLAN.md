@@ -91,6 +91,8 @@ ASan is the single highest-leverage detector (`MEMORY_SAFETY_STRATEGY.md`): use-
 
 **NULL_DEREFERENCE second mini-batch (2026-07-02).** `WorkWin::Execute` null-checks `selitem_Get()` (returns `g_selected_item`, null pre-init/teardown) before `GetSelectedCity`; `CtpAi_ConsiderNuclearWar` returns early when `player_Get(playerId)` is null. Verified stale/false-positive: `civ3_main` crash-dump `fopen`s already guarded, `gameinit:2464` `new`+`strcpy` safe (global `operator new` `exit(-1)`s, never null), `ctpai:285` inside `#if 0`. `network.cpp`/`slicif.cpp` null leads deferred per ground rules.
 
+**MISSING_BOUNDS_CHECK third mini-batch (2026-07-02).** `ProfileDB::DefaultSettings` validates/clamps `m_civIndex` (defaults to 16) against `g_theCivilisationDB->NumRecords()` before `Get()`; `victorymoviewin` guards a possible `-1` from `FindTypeIndex` before `GetMovieFilename`. `profileDB:549` whitespace-trim was already `len > 0`-guarded (stale). The remaining unverified bounds leads are concentrated in the deferred `net_*`/`network.cpp` packet flows and the slic-debug UI `k_AUI_LDL_MAXBLOCK` string buffers (`segmentlist`/`sourcelist`/`watchlist`/`thronedb`/`robotcom`/`tracklen`/`iparser`) — a P4-flavored string-safety cluster for a later pass.
+
 ### P4 — Unsafe string APIs
 
 `strcpy`/`strcat`/`sprintf` are the buffer-overflow class — higher real-world risk than the raw-`new` count. Ratchet: `unsafe_string_api=1410`.

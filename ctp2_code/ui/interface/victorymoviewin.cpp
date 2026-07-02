@@ -148,6 +148,8 @@ void victorymoviewin_DisplayVictoryMovie(GAME_OVER reason)
 
 	sint32 index = g_theVictoryMovieDB->FindTypeIndex(whichMovie);
 	Assert(index >= 0);
+	if (index < 0)
+		return;
 
 	MBCHAR *filename = g_theVictoryMovieDB->GetMovieFilename(index);
 	g_victoryMovieWindow->SetMovie(filename);

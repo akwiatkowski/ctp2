@@ -2514,6 +2514,10 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 > `SlicSegment.cpp:605` was already converted from `sprintf` to `snprintf`, but used `sizeof(str)` on a pointer; it now respects the caller-provided `maxsize`.
 > `profileDB.cpp:620` now uses `strlcpy(..., k_MAX_NAME_LEN)` after the existing max-length check instead of unbounded `strcpy`.
 >
+> **Fixed in third mini-batch (2026-07-02):** `profileDB.cpp:467` (`DefaultSettings`) indexed `g_theCivilisationDB->Get(m_civIndex)` with `m_civIndex` defaulting to 16 and no bounds check; it now validates `NumRecords()`, clamps an out-of-range index to 0, null-checks the record, and dedups the two `Get()` calls.
+> `victorymoviewin.cpp:153` had an assert-only guard before passing a possible `-1` from `FindTypeIndex` to `GetMovieFilename`; added a runtime `if (index < 0) return;`.
+> `profileDB.cpp:549` is stale — the whitespace-trim loop already guards `len > 0` before reading `line[len - 1]`.
+>
 > **Fixed in second mini-batch (2026-07-02):** `Pollution.cpp:531` (`GetPollutionAtRound`) used `> k_MAX_POLLUTION_HISTORY` where the array is exactly that size — an off-by-one OOB read at index `k_MAX_POLLUTION_HISTORY`; changed to `>=`.
 > `gameinit.cpp:471` (`gameinit_PlaceInitalUnits`) now clamps `nPlayers` to `k_MAX_PLAYERS` before the loop that indexes `g_player[i]` and `player_start_list[humanStart]`.
 > `SpriteStateDB.cpp:185-189` (`SetName`/`SetVal`) had assert-only bounds; added runtime `index`/`m_map` guards so a file declaring fewer entries than it contains cannot write past `m_map` in release builds.

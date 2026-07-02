@@ -461,8 +461,22 @@ ProfileDB::ProfileDB()
 
 void ProfileDB::DefaultSettings()
 {
-	StringId    leaderNameId = g_theCivilisationDB->Get(m_civIndex)->GetLeaderNameMale();
-	StringId    civNameId = g_theCivilisationDB->Get(m_civIndex)->GetPluralCivName();
+	// m_civIndex defaults to PLAYER_COUNT_MAX_DEFAULT (16); a minimal
+	// civilisation DB may hold fewer records, so validate before Get().
+	sint32 const numCivs = g_theCivilisationDB->NumRecords();
+	if (numCivs <= 0)
+		return;
+
+	sint32 civIndex = m_civIndex;
+	if (civIndex < 0 || civIndex >= numCivs)
+		civIndex = 0;
+
+	auto const * civRec = g_theCivilisationDB->Get(civIndex);
+	if (!civRec)
+		return;
+
+	StringId    leaderNameId = civRec->GetLeaderNameMale();
+	StringId    civNameId = civRec->GetPluralCivName();
 
 	strlcpy(m_leaderName, stringdb_Get()->GetNameStr(leaderNameId), sizeof(m_leaderName));
 	strlcpy(m_civName, stringdb_Get()->GetNameStr(civNameId), sizeof(m_civName));

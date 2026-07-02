@@ -54,6 +54,7 @@
 #include "gs/gameobj/ArmyData.h"
 #include "WonderRecord.h"
 #include "gs/gameobj/Player.h"
+#include "gs/utility/safety.h"          // safe_player
 #include "gs/outcom/AICause.h"
 #include "ConstRecord.h"
 #include "gs/utility/RandGen.h"
@@ -816,8 +817,9 @@ STDEHANDLER(ArmyMoveEvent)
 			}
 
 			PLAYER_INDEX owner = army.GetOwner();
-			if ((owner == PLAYER_INDEX_VANDALS) &&
-				wonderutil_GetProtectFromBarbarians(player_Get(defender->GetOwner())->m_builtWonders))
+			Player * defenderOwner = safe_player(defender->GetOwner());
+			if ((owner == PLAYER_INDEX_VANDALS) && defenderOwner &&
+				wonderutil_GetProtectFromBarbarians(defenderOwner->m_builtWonders))
 			{
 				return GEV_HD_Continue;
 			}
@@ -1149,7 +1151,8 @@ STDEHANDLER(AftermathEvent)
 			&&  (civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetCombatLeaderChance() * 100.0))
 			&&  (army[i].IsElite()) //IsElite
 			){
-				player_Get(attack_owner)->CreateLeader(); //Great Leader Code - Emod 6-5-2007
+				if(Player * p = safe_player(attack_owner))
+					p->CreateLeader(); //Great Leader Code - Emod 6-5-2007
 			}
 
 			if( (army[i].GetAttack() > 0)
@@ -1196,7 +1199,8 @@ STDEHANDLER(AftermathEvent)
 		&&  (civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetCombatLeaderChance() * 100.0))
 		&&  (defender[i].IsElite())
 		){
-			player_Get(defense_owner)->CreateLeader();
+			if(Player * p = safe_player(defense_owner))
+				p->CreateLeader();
 		}
 
 		//copy and make for elite units

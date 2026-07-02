@@ -3974,7 +3974,8 @@ void Player::BreakAlliance(PLAYER_INDEX ally)
 void Player::ExchangeMap(PLAYER_INDEX recipient)
 {
 	GiveMap(recipient);
-	player_Get(recipient)->GiveMap(m_owner);
+	if(Player * r = safe_player(recipient))
+		r->GiveMap(m_owner);
 }
 
 void Player::GiveMap(PLAYER_INDEX recipient)

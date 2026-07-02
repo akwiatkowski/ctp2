@@ -86,7 +86,7 @@ void WorkWinUpdateAction::Execute(aui_Control *control,
 
 	if ( c3ui_Get()->GetWindow(g_workWindow->Id()) ) {
 		Unit city;
-		if ( selitem_Get()->GetSelectedCity(city) ) {
+		if ( selitem_Get() && selitem_Get()->GetSelectedCity(city) ) {
 			if ( g_resourceMap ) {
 				g_resourceMap->SetUnit( city );
 				g_resourceMap->DrawSurface();

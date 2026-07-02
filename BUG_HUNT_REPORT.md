@@ -2888,6 +2888,10 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 > `gfx_options.cpp:164` is already fixed; `AddTextToCell` checks `text` before `strlen(text)`.
 > `c3files.cpp:617` is stale/obsolete in the current tree; CD validation is now the stub `c3files_HasLegalCD() { return true; }`.
 > `c3files_getfilelist` now uses `strlcpy` for fixed-size filename buffers and allocates the POSIX `NAME_MAX + 1` byte terminator.
+>
+> **Second NULL_DEREFERENCE mini-batch (2026-07-02):** `WorkWin.cpp:82` (`WorkWinUpdateAction::Execute`) now null-checks `selitem_Get()` before `GetSelectedCity(...)` — the accessor returns `g_selected_item`, which is null before init / during teardown.
+> `ctpai.cpp:~607` (`CtpAi_ConsiderNuclearWar`) now returns `GEV_HD_Continue` when `player_Get(playerId)` is null before `player_ptr->IsRobot()`, matching the guarded pattern already used elsewhere in the file.
+> **Stale/false-positive:** `civ3_main.cpp:1092/1093` already guards both `fopen` results with `if(crash && txt)`; `gameinit.cpp:2464` (`new`+`strcpy`) is not a bug because this codebase's global `operator new` calls `exit(-1)` on failure and never returns null; `ctpai.cpp:285` sits inside a `#if 0` dead block; `network.cpp:1259` and `slicif.cpp:246` are deferred (network / slic-compiler) per ground rules.
 
 - **CityData.cpp:1466** — `specRec->GetSoundIDIndex()` is called when `unitutil_GetSpecialAttack(SPECATTACK_REVOLUTION)` could return NULL.
   *Fix: Ensure `specRec != NULL` before calling `GetSoundIDIndex()`.*

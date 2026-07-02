@@ -89,6 +89,8 @@ ASan is the single highest-leverage detector (`MEMORY_SAFETY_STRATEGY.md`): use-
 
 **MISSING_BOUNDS_CHECK second mini-batch (2026-07-02).** Four more genuinely-open sites fixed after verifying the flagged string leads (`MessageData`, `TurnCnt`, `civapp`, `SlicBuiltin`, `SlicEngine`) were already converted to `strlcpy`/`snprintf`: `Pollution::GetPollutionAtRound` off-by-one (`>` → `>=` on a `[k_MAX_POLLUTION_HISTORY]` array); `gameinit_PlaceInitalUnits` clamps `nPlayers` to `k_MAX_PLAYERS` before indexing `g_player`/`player_start_list`; `SpriteStateDB::SetName`/`SetVal` gained release-mode `index`/`m_map` guards (assert-only before); `UnitSpriteGroup::GetHotPoint` guards the post-mirror facing index without breaking the 5–8→3–0 mirror. `make build`/`make test`/ratchet green.
 
+**NULL_DEREFERENCE second mini-batch (2026-07-02).** `WorkWin::Execute` null-checks `selitem_Get()` (returns `g_selected_item`, null pre-init/teardown) before `GetSelectedCity`; `CtpAi_ConsiderNuclearWar` returns early when `player_Get(playerId)` is null. Verified stale/false-positive: `civ3_main` crash-dump `fopen`s already guarded, `gameinit:2464` `new`+`strcpy` safe (global `operator new` `exit(-1)`s, never null), `ctpai:285` inside `#if 0`. `network.cpp`/`slicif.cpp` null leads deferred per ground rules.
+
 ### P4 — Unsafe string APIs
 
 `strcpy`/`strcat`/`sprintf` are the buffer-overflow class — higher real-world risk than the raw-`new` count. Ratchet: `unsafe_string_api=1410`.

@@ -605,6 +605,8 @@ STDEHANDLER(CtpAi_ConsiderNuclearWar)
 		return GEV_HD_Continue;
 
 	Player *player_ptr = player_Get(playerId);
+	if (!player_ptr)
+		return GEV_HD_Continue;
 
 	if(!player_ptr->IsRobot() ||
 	   (network_Get().IsActive() && playerId == player_view::VisiblePlayer())) {

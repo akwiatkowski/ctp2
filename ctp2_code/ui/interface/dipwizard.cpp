@@ -1084,7 +1084,7 @@ void DipWizard::UpdateExchangeStage()
 			}
 		} else {
 			tabButton->Show();
-			strcat(labelStrName, "Request");
+			strlcat(labelStrName, "Request", sizeof(labelStrName));
 		}
 	}
 	tabButton = nullptr;
@@ -1103,7 +1103,7 @@ void DipWizard::UpdateExchangeStage()
 			}
 		} else {
 			tabButton->Show();
-			strcat(labelStrName, "Offer");
+			strlcat(labelStrName, "Offer", sizeof(labelStrName));
 		}
 	}
 	tabButton = nullptr;
@@ -1122,7 +1122,7 @@ void DipWizard::UpdateExchangeStage()
 			}
 		} else {
 			tabButton->Show();
-			strcat(labelStrName, "Treaty");
+			strlcat(labelStrName, "Treaty", sizeof(labelStrName));
 		}
 	}
 
@@ -1140,7 +1140,7 @@ void DipWizard::UpdateExchangeStage()
 	ctp2_Static *label = (ctp2_Static *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage2.Label");
 	if(label) {
 		if(m_sendCounter) {
-			strcat(labelStrName, "ForCounter");
+			strlcat(labelStrName, "ForCounter", sizeof(labelStrName));
 		}
 
 		const MBCHAR *labelText = stringdb_Get()->GetNameStr(labelStrName);

@@ -148,9 +148,9 @@ void ChatBox::AddLine(sint32 playerNum, MBCHAR *text)
 
 	MBCHAR			coloredText[_MAX_PATH];
 
-	m_chatWindow->ColorizeString(coloredText, text, colorRef);
+	m_chatWindow->ColorizeString(coloredText, sizeof(coloredText), text, colorRef);
 
-	strcat(coloredText, "\n");
+	strlcat(coloredText, "\n", sizeof(coloredText));
 
 	m_chatWindow->GetTextBox()->AppendHyperText(coloredText);
 
@@ -222,7 +222,7 @@ AUI_ERRCODE ChatWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	return AUI_ERRCODE_OK;
 }
 
-void ChatWindow::ColorizeString(MBCHAR *destString, MBCHAR *srcString, COLORREF colorRef)
+void ChatWindow::ColorizeString(MBCHAR *destString, size_t destSize, MBCHAR *srcString, COLORREF colorRef)
 {
 	if (!destString) return;
 	if (!srcString) return;
@@ -235,11 +235,11 @@ void ChatWindow::ColorizeString(MBCHAR *destString, MBCHAR *srcString, COLORREF 
 
 	MBCHAR		colorString[20];
 	snprintf(colorString, sizeof(colorString), "<c:%u,%u,%u>", r, g, b);
-	strcat(destString, colorString);
-	strcat(destString, srcString);
+	strlcat(destString, colorString, destSize);
+	strlcat(destString, srcString, destSize);
 
 	snprintf(colorString, sizeof(colorString), "<e>");
-	strcat(destString, colorString);
+	strlcat(destString, colorString, destSize);
 }
 
 void ChatWindow::ChatCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)

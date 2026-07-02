@@ -190,7 +190,7 @@ AUI_ERRCODE aui_BitmapFont::InitCommon( MBCHAR const *descriptor )
 			if ( fontdir[ last ] == FILE_SEPC )
 				fontdir[ last ] = '\0';
 
-			strcat( fontdir, FILE_SEP "fonts" );
+			strlcat( fontdir, FILE_SEP "fonts", sizeof(fontdir) );
 
 			aui_ui_Get()->GetBitmapFontResource()->AddSearchPath( fontdir );
 		}
@@ -1405,12 +1405,12 @@ bool aui_BitmapFont::TruncateString( MBCHAR *name, sint32 width )
 		{
 #if defined(_JAPANESE)
 			if( IS_SJIS_2ND( *(name+end) ) ){
-				strcpy( name + end + 1, ".." );
+				memcpy( name + end + 1, "..", 3 );
 			} else {
-				strcpy( name + end, "..." );
+				memcpy( name + end, "...", 4 );
 			}
 # else
-			strcpy( name + end, "..." );
+			memcpy( name + end, "...", 4 );
 # endif
 		}
 

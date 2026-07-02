@@ -62,7 +62,7 @@ public:
 	C3TextField	*       GetTextField() const { return m_textField; }
 	ChatBox	*           GetChatBox() const { return m_chatBox; }
 
-	void				ColorizeString(MBCHAR *destString, MBCHAR *srcString, COLORREF colorRef);
+	void				ColorizeString(MBCHAR *destString, size_t destSize, MBCHAR *srcString, COLORREF colorRef);
 
 	static void ChatCallback(aui_Control *control, uint32 action, uint32 data, void *cookie) ;
 

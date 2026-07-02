@@ -505,6 +505,9 @@ void spriteutils_DecodeToBuffer(Pixel16 *data, sint32 width, sint32 height)
 	// width*height*8 bytes == width*height*4 Pixel16 elements.
 	std::vector<Pixel16> outBuf(static_cast<size_t>(width) * height * 4);
 	Pixel16     *destPixel = outBuf.data();
+	// Malformed sprite data (bad run lengths / row offsets) must never write
+	// past the decode buffer. Clamp every write against destEnd.
+	Pixel16     * const destEnd = outBuf.data() + outBuf.size();
 
 	for(sint32 j=0; j<height; j++) {
 		if (table[j*2] != k_EMPTY_TABLE_ENTRY) {
@@ -521,12 +524,14 @@ void spriteutils_DecodeToBuffer(Pixel16 *data, sint32 width, sint32 height)
 				switch ((tag & 0x0F00) >> 8) {
 					case k_CHROMAKEY_RUN_ID :
 						destPixel += (tag & 0x00FF);
+						if (destPixel > destEnd)
+							destPixel = destEnd;
 						break;
 					case k_COPY_RUN_ID:
 						{
 							short len = (tag & 0x00FF);
 
-							for (short i=0; i<len; i++) {
+							for (short i=0; i<len && destPixel < destEnd; i++) {
 								*destPixel++ = *rowData--;
 							}
 
@@ -537,7 +542,7 @@ void spriteutils_DecodeToBuffer(Pixel16 *data, sint32 width, sint32 height)
 						{
 							short len = (tag & 0x00FF);
 
-							for (short i=0; i<len; i++) {
+							for (short i=0; i<len && destPixel < destEnd; i++) {
 								*destPixel = pixelutils_Shadow(*destPixel);
 								destPixel++;
 							}
@@ -546,14 +551,12 @@ void spriteutils_DecodeToBuffer(Pixel16 *data, sint32 width, sint32 height)
 						}
 						break;
 					case k_FEATHERED_RUN_ID:
-						if (TRUE) { // ???
+						if (destPixel < destEnd) {
 								short alpha = (tag & 0x00FF);
 
 								*destPixel = pixelutils_Blend(*rowData, *destPixel, (short)alpha>>4);
 								destPixel++;
 								rowData--;
-						} else {
-							*destPixel++ = *rowData--;
 						}
 						tag = *rowData--;
 						break;

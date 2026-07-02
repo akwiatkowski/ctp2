@@ -3541,13 +3541,16 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 
 									switch(bn->m_category) {
 										case k_GAME_OBJ_TYPE_UNIT:
-											buildItemName = g_theUnitDB->Get(bn->m_type)->GetNameText();
+											if(auto const * r = g_theUnitDB->Get(bn->m_type))
+												buildItemName = r->GetNameText();
 											break;
 										case k_GAME_OBJ_TYPE_IMPROVEMENT:
-											buildItemName = g_theBuildingDB->Get(bn->m_type)->GetNameText();
+											if(auto const * r = g_theBuildingDB->Get(bn->m_type))
+												buildItemName = r->GetNameText();
 											break;
 										case k_GAME_OBJ_TYPE_WONDER:
-											buildItemName = g_theWonderDB->Get(bn->m_type)->GetNameText();
+											if(auto const * r = g_theWonderDB->Get(bn->m_type))
+												buildItemName = r->GetNameText();
 											break;
 										case k_GAME_OBJ_TYPE_INFRASTRUCTURE:
 											buildItemName = stringdb_Get()->GetNameStr("INFRASTRUCTURE");

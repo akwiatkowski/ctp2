@@ -53,8 +53,8 @@ public:
 
 	COLOR					GetAttackersColor() { return m_attackersColor; }
 	COLOR					GetDefendersColor() { return m_defendersColor; }
-	void					GetAttackersName(MBCHAR *s) { strcpy(s, m_attackersName); } // TODO(strlcpy): unknown dst size
-	void					GetDefendersName(MBCHAR *s) { strcpy(s, m_defendersName); } // TODO(strlcpy): unknown dst size
+	void					GetAttackersName(MBCHAR *s) { strlcpy(s, m_attackersName, k_MAX_NAME_LEN); } // src is m_attackersName[k_MAX_NAME_LEN]; both callers pass >= that
+	void					GetDefendersName(MBCHAR *s) { strlcpy(s, m_defendersName, k_MAX_NAME_LEN); }
 
 	sint32					GetNumAttackers() { return m_numAttackers; }
 	BattleViewActor			*GetAttacker(sint32 index) { return m_attackers[index]; }

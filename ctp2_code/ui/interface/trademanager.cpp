@@ -593,7 +593,7 @@ void TradeManager::UpdateAdviceText()
 						SlicContext sc2;
 						sc2.AddInt(data->m_caravans - (p->m_tradeTransportPoints - p->m_usedTradeTransportPoints));
 
-						strcat(interp + strlen(interp), "  ");
+						strlcat(interp, "  ", sizeof(interp));
 
 						stringutils_Interpret(stringdb_Get()->GetNameStr("NEED_MORE_CARAVANS"),
 											  sc2, interp + strlen(interp));

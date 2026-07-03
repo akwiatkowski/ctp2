@@ -243,7 +243,7 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 			strncpy(imageNames[i], name, k_MAX_NAME_LENGTH - 1);
 			imageNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 
-			strcpy(shadowNames[i], "");
+			shadowNames[i][0] = '\0';
 		}
 
 		flashSprite->Import(flashNumFrames, imageNames, shadowNames);

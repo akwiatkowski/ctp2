@@ -581,7 +581,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 				profiledb_Get()->SetIsScenario(TRUE);
 
 				// TODO(strlcpy): unknown dst size
-				strcpy(scenario_name_buf(), saveInfo->scenarioName.c_str());
+				strlcpy(scenario_name_buf(), saveInfo->scenarioName.c_str(), k_SCENARIO_NAME_MAX);
 			} else {
 
 				MBCHAR tempStr[_MAX_PATH];

@@ -170,7 +170,7 @@ AUI_ERRCODE aui_StringTable::SetString(const MBCHAR *text, sint32 index)
 			m_Strings[index] = new MBCHAR[newSize];
 		}
 
-		strcpy(m_Strings[index], text);
+		strlcpy(m_Strings[index], text, newSize);
 	}
 	else
 	{

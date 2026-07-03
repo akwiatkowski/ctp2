@@ -387,7 +387,7 @@ HFONT textutils_CreateFont(
 	lf.lfQuality = 0;
 	lf.lfPitchAndFamily = 0;
 
-	strcpy(lf.lfFaceName, szFaceName);
+	strlcpy(lf.lfFaceName, szFaceName, sizeof(lf.lfFaceName));
 
 	hFont = CreateFontIndirect(&lf);
 

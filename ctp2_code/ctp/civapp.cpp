@@ -3090,7 +3090,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 										count > 0 ? "," : "",
 										p, pos.x, pos.y);
 									if (strlen(detail) + strlen(entry) < sizeof(detail) - 1) {
-										strcat(detail, entry);
+										strlcat(detail, entry, sizeof(detail));
 										count++;
 									}
 								}

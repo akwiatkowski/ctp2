@@ -161,12 +161,12 @@ ns_AIPlayerSetupListBox::ns_AIPlayerSetupListBox (
 EmailTransport::EmailTransport()
 {
 	ns_String s( "strings.email" );
-	strcpy( description.name, s.GetString() );
+	strlcpy( description.name, s.GetString(), sizeof(description.name) );
 }
 HotseatTransport::HotseatTransport()
 {
 	ns_String s( "strings.hotseat" );
-	strcpy( description.name, s.GetString() );
+	strlcpy( description.name, s.GetString(), sizeof(description.name) );
 }
 
 ns_TransportListBox::ns_TransportListBox (

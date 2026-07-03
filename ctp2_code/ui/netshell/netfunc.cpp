@@ -224,8 +224,11 @@ void NETFunc::StringMix(int c, char *mix, char *msg, ...) {
 
 
 char *NETFunc::StringDup(char *s) {
-    // TODO(phase-2): strcpy → strlcpy — dst is expression (`new char[...]`), capacity unknown at call site
-    return (s) ? strcpy(new char[strlen(s) + 1], s) : nullptr;
+    if (!s) return nullptr;
+    size_t const len = strlen(s) + 1;
+    char *dup = new char[len];
+    strlcpy(dup, s, len);
+    return dup;
 }
 
 

@@ -2394,7 +2394,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 						ScenarioPack *pack;
 						Scenario *scen;
 						// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-						strcpy(scenario_name_buf(), m_scenInfo.m_gameName);
+						strlcpy(scenario_name_buf(), m_scenInfo.m_gameName, k_SCENARIO_NAME_MAX);
 						if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 														&pack, &scen)) {
 
@@ -2415,7 +2415,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 
 					} else if(m_scenInfo.m_scenarioName[0] != 0) {
 						// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-						strcpy(scenario_name_buf(), m_scenInfo.m_scenarioName);
+						strlcpy(scenario_name_buf(), m_scenInfo.m_scenarioName, k_SCENARIO_NAME_MAX);
 						ScenarioPack *pack;
 						Scenario *scen;
 						if(civscenarios_Get()->FindScenario(scenario_name_buf(),
@@ -3913,7 +3913,7 @@ void AllinoneWindow_SetupGameForLaunch( )
 		ScenarioPack *pack;
 		Scenario *scen;
 		// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strcpy(scenario_name_buf(), scenInfo->m_gameName);
+		strlcpy(scenario_name_buf(), scenInfo->m_gameName, k_SCENARIO_NAME_MAX);
 		if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 										&pack, &scen)) {
 
@@ -3923,7 +3923,7 @@ void AllinoneWindow_SetupGameForLaunch( )
 	} else {
 		if(scenInfo->m_scenarioName[0] != 0) {
 			// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-			strcpy(scenario_name_buf(), scenInfo->m_scenarioName);
+			strlcpy(scenario_name_buf(), scenInfo->m_scenarioName, k_SCENARIO_NAME_MAX);
 			ScenarioPack *pack;
 			Scenario *scen;
 			if(civscenarios_Get()->FindScenario(scenario_name_buf(),
@@ -4147,8 +4147,8 @@ void AllinoneWindow::SpitOutGameSetup( )
 	{
 		if ( m_units[ i ] && m_units[ i ]->GetState() )
 		{
-			strcat( moreinfo, m_units[ i ]->GetText() );
-			strcat( moreinfo, ", " );
+			strlcat( moreinfo, m_units[ i ]->GetText(), sizeof(moreinfo) );
+			strlcat( moreinfo, ", ", sizeof(moreinfo) );
 		}
 	}
 	sint32 len = strlen( moreinfo );
@@ -4159,7 +4159,7 @@ void AllinoneWindow::SpitOutGameSetup( )
 		strlcpy( temp, excludedUnitInfo.GetString(), sizeof(temp) );
 
 		moreinfo[ len - 2 ] = '\0';
-		strcat( temp, moreinfo );
+		strlcat( temp, moreinfo, sizeof(temp) );
 
 		strncat( info, temp, biglen );
 		strncat( info, "\n", biglen );
@@ -4171,8 +4171,8 @@ void AllinoneWindow::SpitOutGameSetup( )
 	{
 		if ( m_improvements[ i ]->GetState() )
 		{
-			strcat( moreinfo, m_improvements[ i ]->GetText() );
-			strcat( moreinfo, ", " );
+			strlcat( moreinfo, m_improvements[ i ]->GetText(), sizeof(moreinfo) );
+			strlcat( moreinfo, ", ", sizeof(moreinfo) );
 		}
 	}
 	len = strlen( moreinfo );
@@ -4184,7 +4184,7 @@ void AllinoneWindow::SpitOutGameSetup( )
 		strlcpy( temp, excludedImprovementInfo.GetString(), sizeof(temp) );
 
 		moreinfo[ len - 2 ] = '\0';
-		strcat( temp, moreinfo );
+		strlcat( temp, moreinfo, sizeof(temp) );
 
 		strncat( info, temp, biglen );
 		strncat( info, "\n", biglen );
@@ -4196,8 +4196,8 @@ void AllinoneWindow::SpitOutGameSetup( )
 	{
 		if ( m_wonders[ i ]->GetState() )
 		{
-			strcat( moreinfo, m_wonders[ i ]->GetText() );
-			strcat( moreinfo, ", " );
+			strlcat( moreinfo, m_wonders[ i ]->GetText(), sizeof(moreinfo) );
+			strlcat( moreinfo, ", ", sizeof(moreinfo) );
 		}
 	}
 	len = strlen( moreinfo );
@@ -4208,7 +4208,7 @@ void AllinoneWindow::SpitOutGameSetup( )
 		strlcpy( temp, excludedWonderInfo.GetString(), sizeof(temp) );
 
 		moreinfo[ len - 2 ] = '\0';
-		strcat( temp, moreinfo );
+		strlcat( temp, moreinfo, sizeof(temp) );
 
 		strncat( info, temp, biglen );
 		strncat( info, "\n", biglen );

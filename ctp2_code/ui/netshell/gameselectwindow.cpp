@@ -427,7 +427,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 
 				snprintf(name, sizeof(name), format.GetString(), truncname );
 
-				strcpy( sess->sessionName, name );
+				strlcpy( sess->sessionName, name, sizeof(sess->sessionName) );
 			}
 
 			mode = AllinoneWindow::CONTINUE_CREATE;

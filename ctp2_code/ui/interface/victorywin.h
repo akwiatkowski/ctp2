@@ -152,7 +152,7 @@ sint32 victorywin_DisplayHighScore( );
 
 sint32 victorywin_SetLineGraph( BOOL lineGraph);
 
-sint32 victorywin_GetWonderFilename( sint32 index, MBCHAR *name );
+sint32 victorywin_GetWonderFilename( sint32 index, MBCHAR *name, size_t size );
 sint32 victorywin_LoadGraphData( );
 sint32 victorywin_LoadScoreData( );
 sint32 victorywin_LoadWonderData( );

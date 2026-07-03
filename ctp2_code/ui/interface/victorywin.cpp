@@ -946,7 +946,7 @@ sint32 HighScoreWindowPopup::UpdateData( )
 
 
 
-sint32 victorywin_GetWonderFilename( sint32 index, MBCHAR *name )
+sint32 victorywin_GetWonderFilename( sint32 index, MBCHAR *name, size_t size )
 {
 	MBCHAR filename[80];
 	MBCHAR strbuf[_MAX_PATH];
@@ -957,8 +957,7 @@ sint32 victorywin_GetWonderFilename( sint32 index, MBCHAR *name )
 
 	if (civpaths_Get()->FindFile(C3DIR_PICTURES, filename, strbuf))
 	{
-		// TODO(strlcpy): unknown dst size
-		strcpy(name, filename);
+		strlcpy(name, filename, size);
 		return TRUE;
 	}
 
@@ -1196,7 +1195,7 @@ sint32 victorywin_LoadWonderData( )
 		if (curPlayer == wonderutil_GetOwner(i))
 		{
 
-			victorywin_GetWonderFilename(i,strbuf);
+			victorywin_GetWonderFilename(i,strbuf,sizeof(strbuf));
 
 			s_wonderIcons[i]->SetImage(strbuf);
 		}

@@ -294,8 +294,8 @@ void c3files_StripSpaces(MBCHAR * s)
 
     if (0 == copied)
     {
-        // TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-        strcpy(s, "-");
+        s[0] = '-';
+        s[1] = '\0';
     }
     else
     {

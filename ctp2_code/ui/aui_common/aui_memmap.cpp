@@ -21,7 +21,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Modified ReleaseFileFormat to fix some memory leaks, by Martin Gühmann.
+// - Modified ReleaseFileFormat to fix some memory leaks, by Martin Gï¿½hmann.
 //
 //----------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@
 aui_FileFormat * aui_MemMap::GetFileFormat(MBCHAR const * filename)
 {
 	MBCHAR extension[ 8 ];
-	if ( GetFileExtension( filename, extension ) )
+	if ( GetFileExtension( filename, extension, sizeof(extension) ) )
 	{
 		if ( !strnicmp( extension, "bmp", 3 ) )
 			return new aui_BmpImageFormat;

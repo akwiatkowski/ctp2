@@ -939,8 +939,8 @@ void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 #endif
 	}
 
-	// TODO(strlcpy): unknown dst size
-	strcpy(name, saveName);
+	// all four callers pass SaveInfo::{gameName,fileName}[_MAX_PATH]; src saveName is _MAX_PATH
+	strlcpy(name, saveName, _MAX_PATH);
 
 	SetSaveName(saveName);
 }

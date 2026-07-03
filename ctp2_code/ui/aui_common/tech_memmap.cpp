@@ -5,14 +5,14 @@
 
 
 
-bool tech_MemMap::GetFileExtension(char const * filename, char * extension)
+bool tech_MemMap::GetFileExtension(char const * filename, char * extension, size_t size)
 {
 	if (filename && extension)
 	{
 		char const * lastDot = strrchr(filename, '.');
 		if (lastDot)
 		{
-			strcpy(extension, ++lastDot);
+			strlcpy(extension, ++lastDot, size);
 			return true;
 		}
 	}

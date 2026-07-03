@@ -11,7 +11,7 @@
 aui_FileFormat * C3MemMap::GetFileFormat(MBCHAR const * filename)
 {
 	MBCHAR extension[ 8 ];
-	if ( GetFileExtension( filename, extension ) )
+	if ( GetFileExtension( filename, extension, sizeof(extension) ) )
 	{
 		if ( !strnicmp( extension, "tga", 3 ) )
 			return new TargaImageFormat;

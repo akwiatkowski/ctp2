@@ -15,7 +15,7 @@ public:
 	);
 	virtual void ReleaseFileBits( unsigned char *&bits );
 
-	static bool GetFileExtension(char const * filename, char * extension);
+	static bool GetFileExtension(char const * filename, char * extension, size_t size);
 };
 
 #endif

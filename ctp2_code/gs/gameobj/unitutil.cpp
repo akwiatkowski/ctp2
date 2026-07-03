@@ -329,7 +329,7 @@ bool unitutil_GetCityInfo(MapPoint &pos, char * city_name, sint32 & image_index)
 
 		Assert(city_name);
 		// TODO(strlcpy): unknown dst size
-		strcpy(city_name, cell->GetCity().GetName());
+		strlcpy(city_name, cell->GetCity().GetName(), k_MAX_NAME_LEN); // sole caller passes m_cityName[k_MAX_NAME_LEN]
 		return true;
 	}
 	return false;

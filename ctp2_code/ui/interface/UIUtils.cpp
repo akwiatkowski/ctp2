@@ -22,9 +22,9 @@ void BlockPush(MBCHAR *path, MBCHAR *addition)
 	Assert(addition[strlen(addition)] != '.') ;
 
 	if (path[0]!=NULL)
-		strcat(path, ".") ;
+		strlcat(path, ".", k_AUI_LDL_MAXBLOCK) ;
 
-	strcat(path, addition) ;
+	strlcat(path, addition, k_AUI_LDL_MAXBLOCK) ;
 	}
 
 void BlockPop(MBCHAR *path)

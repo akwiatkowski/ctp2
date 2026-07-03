@@ -8,7 +8,7 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 
 - **Original Definition of Done (M1–M8): complete.** Only the P7 documentation close-out (~1 session) remains before declaring it formally.
 - **Current phase: memory safety & stability**, tracked as work items **P1–P7** below, sorted by severity/importance (highest first; ordered 2026-07-02).
-- **Progress:** P1 complete (all 54 CRITICAL verified). **P3 crash-class burned down 2026-07-02/03** — all 4 HIGH categories worked: DANGEROUS_SHIFT + DIVISION_BY_ZERO (`0 open` first-party), and MISSING_BOUNDS_CHECK + NULL_DEREFERENCE (`@~675`, `@~1206`; ~305 leads) verified in-code with resolution blocks — ~25 genuine crash bugs fixed, the rest already-fixed by the `g_player→safe_player` migration, false-positive, structurally-safe, or the supervised/P4/net tail. (A tier-drift found 2026-07-02, where earlier annotations landed in the MEDIUM mirror, was corrected.) P4 underway — ratchet re-scoped to first-party (vendored libs excluded); `unsafe_string_api` first-party baseline now **65** (77 real first-party conversions this phase; the old 1360 was 93% vendored-libs noise); P6 ticked 11/574. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number** — and **check the severity tier** before annotating.
+- **Progress:** P1 complete (all 54 CRITICAL verified). **P3 crash-class burned down 2026-07-02/03** — all 4 HIGH categories worked: DANGEROUS_SHIFT + DIVISION_BY_ZERO (`0 open` first-party), and MISSING_BOUNDS_CHECK + NULL_DEREFERENCE (`@~675`, `@~1206`; ~305 leads) verified in-code with resolution blocks — ~25 genuine crash bugs fixed, the rest already-fixed by the `g_player→safe_player` migration, false-positive, structurally-safe, or the supervised/P4/net tail. (A tier-drift found 2026-07-02, where earlier annotations landed in the MEDIUM mirror, was corrected.) P4 underway — ratchet re-scoped to first-party (vendored libs excluded); `unsafe_string_api` first-party baseline now **62** (80 real first-party conversions this phase; the old 1360 was 93% vendored-libs noise); P6 ticked 11/574. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number** — and **check the severity tier** before annotating.
 - **Parked:** modern-asset converter (formerly M10).
 
 Recount remaining work any time with:
@@ -23,7 +23,7 @@ grep -c '^- \[ \]' docs/memory-refactor-checklist.md   # P6 (M11) files remainin
 When asked "how much more work remains?":
 
 - Declare the original Definition of Done (P7 docs pass): **~1 session**.
-- Crash-class stability work (P1–P5): **bounded, ~3–6 focused sessions** (P1 done; P3 HIGH crash-class burned down — the four categories are verified with resolution blocks, ~25 genuine bugs fixed, tail is supervised/P4/net; P4 unsafe-strings underway — ratchet re-scoped to first-party (vendored libs excluded), baseline now 65 after 77 real conversions, easy pool exhausted (tail = net/dead/idiom-cascade); P5 load-cache audit + P2 Linux-ASan remain).
+- Crash-class stability work (P1–P5): **bounded, ~3–6 focused sessions** (P1 done; P3 HIGH crash-class burned down — the four categories are verified with resolution blocks, ~25 genuine bugs fixed, tail is supervised/P4/net; P4 unsafe-strings underway — ratchet re-scoped to first-party (vendored libs excluded), baseline now 62 after 80 real conversions, hard tail reached (tail = net/dead/idiom-cascade); P5 load-cache audit + P2 Linux-ASan remain).
 - Mechanical RAII conversion (P6): **multi-session; ~413 files, each needing ownership analysis (no free mechanical tier — verified 2026-07-02)**.
 - Fully refactored engine: **open-ended / not a bounded goal**.
 
@@ -57,7 +57,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P1 | Remaining CRITICAL crash bugs (BUG_HUNT_REPORT) | ✅ 1/1 done | complete |
 | P2 | ASan smoke tier on Linux | 0/1 | ~1 session |
 | P3 | HIGH-severity findings, category batches | DANGEROUS_SHIFT + DIVISION_BY_ZERO done. MISSING_BOUNDS_CHECK + NULL_DEREFERENCE HIGH tiers **verified & burned down 2026-07-02/03**: ~25 genuine crash bugs fixed, the rest already-fixed (g_player→safe_player migration), false-positive, or the supervised/P4/net tail. Both sections carry resolution blocks. | tail = supervised/P4/net |
-| P4 | Unsafe string APIs (`unsafe_string_api=65`, first-party) | underway; ratchet re-scoped (libs excluded); 77 real conversions; easy pool exhausted (tail = net/dead/idiom-cascade) | multi-session |
+| P4 | Unsafe string APIs (`unsafe_string_api=62`, first-party) | underway; ratchet re-scoped (libs excluded); 80 real conversions; hard tail reached (tail = net/dead/idiom-cascade) | multi-session |
 | P5 | JSON-load derived-cache audit | 0/1 | ~1 session |
 | P6 | Mechanical RAII conversion (was M11) | 11/574 files | multi-session |
 | P7 | Close-out docs, declare DoD (was M9) | 0/2 | ~1 session |

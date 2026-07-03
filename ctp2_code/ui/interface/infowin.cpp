@@ -1399,19 +1399,17 @@ sint32 infowin_LabReady()
 	return FALSE;
 }
 
-sint32 infowin_GetWonderCityName( sint32 index, MBCHAR *name)
+sint32 infowin_GetWonderCityName( sint32 index, MBCHAR *name, size_t size)
 {
 	Unit city;
 
 	if (wonder_tracker_Get()->GetCityWithWonder( index, city ))
 	{
-		// TODO(strlcpy): unknown dst size
-		strcpy(name, city.GetData()->GetCityData()->GetName());
+		strlcpy(name, city.GetData()->GetCityData()->GetName(), size);
 	}
 	else
 	{
-		// TODO(strlcpy): unknown dst size
-		strcpy(name, "NULL");
+		strlcpy(name, "NULL", size);
 	}
 
 	return 0;
@@ -1702,7 +1700,7 @@ void InfoWonderListItem::Update()
 
 
 	subItem = (c3_Static *)GetChildByIndex(2);
-	infowin_GetWonderCityName(m_index, strbuf);
+	infowin_GetWonderCityName(m_index, strbuf, sizeof(strbuf));
 	subItem->SetText(strbuf);
 
 }

@@ -213,6 +213,6 @@ sint32 infowin_ChangeDataSetting( sint32 type );
 sint32 infowin_DisplayLab( );
 sint32 infowin_GetCivScore( sint32 player );
 sint32 infowin_LabReady( );
-sint32 infowin_GetWonderCityName( sint32 index, MBCHAR *name);
+sint32 infowin_GetWonderCityName( sint32 index, MBCHAR *name, size_t size);
 
 #endif

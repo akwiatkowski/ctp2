@@ -651,8 +651,8 @@ void LoadSaveMapWindow::BuildDefaultSaveMapName(MBCHAR *gameMapName, MBCHAR *nam
 	snprintf(saveMapName, sizeof(saveMapName), "%s", theGameMapName);
 
 
-	// TODO(strlcpy): unknown dst size
-	strcpy(name, saveMapName);
+	// single caller passes SaveMapInfo::fileName[_MAX_PATH]; src saveMapName is _MAX_PATH
+	strlcpy(name, saveMapName, _MAX_PATH);
 
 	SetSaveMapName(saveMapName);
 }

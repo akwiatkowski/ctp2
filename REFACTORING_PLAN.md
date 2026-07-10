@@ -6,8 +6,8 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 
 ## Overall Progress
 
-- **Original Definition of Done (M1–M8): complete.** Only the P7 documentation close-out (~1 session) remains before declaring it formally.
-- **Current phase: memory safety & stability**, tracked as work items **P1–P7** below, sorted by severity/importance (highest first; ordered 2026-07-02).
+- **Original Definition of Done (M1–M8): COMPLETE and formally declared 2026-07-10.** The P7 close-out documentation pass has landed (the "Remaining Legacy-Risk Areas" consolidation below), and a final verification pass (`make test` + `make ubsan-smoke` + integration/scenario suites, clean worktree) is green. Nothing remains to declare the original DoD met.
+- **Current phase: memory safety & stability** (open-ended, post-DoD), tracked as work items **P1–P7** below, sorted by severity/importance (highest first; ordered 2026-07-02). **P1, P5, P7 done; P3/P4 at their practical floor; P2 (Linux ASan) and P6 (RAII) remain.**
 - **Progress:** P1 complete (all 54 CRITICAL verified). **P5 complete 2026-07-10** — JSON-load derived-cache audit: `SetAllMoveCost`/`CalcChokePoints` need no rebuild (outputs are dense-serialized per-cell); the only non-serialized world caches (continent size/neighbor arrays) were already rebuilt in `World::from_json`; one real gap found + fixed — stale `good_value` on a `ResourceDB`-size mismatch now recomputes via `ComputeGoodsValues`, pinned by a new regression test that fails without the fix. **P3 crash-class burned down 2026-07-02/03** — all 4 HIGH categories worked: DANGEROUS_SHIFT + DIVISION_BY_ZERO (`0 open` first-party), and MISSING_BOUNDS_CHECK + NULL_DEREFERENCE (`@~675`, `@~1206`; ~305 leads) verified in-code with resolution blocks — ~25 genuine crash bugs fixed, the rest already-fixed by the `g_player→safe_player` migration, false-positive, structurally-safe, or the supervised/P4/net tail. (A tier-drift found 2026-07-02, where earlier annotations landed in the MEDIUM mirror, was corrected.) **P4 effectively complete** — ratchet re-scoped to first-party (vendored libs excluded), then **85 real conversions drove `unsafe_string_api` 92 → 57** (the old libs-inclusive 1360 was 93% vendored noise); one real overflow bug caught (`tech_MemMap::GetFileExtension`). The clean pool is exhausted — the remaining 57 is dead code (~20, deletable), deferred `net/` (~22), and the off-limits `GetXName` idiom / hard cascades (~15). P6 ticked 11/574. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number** — and **check the severity tier** before annotating.
 - **Parked:** modern-asset converter (formerly M10).
 
@@ -22,8 +22,8 @@ grep -c '^- \[ \]' docs/memory-refactor-checklist.md   # P6 (M11) files remainin
 
 When asked "how much more work remains?":
 
-- Declare the original Definition of Done (P7 docs pass): **~1 session**.
-- Crash-class stability work (P1–P5): **bounded, ~2–4 focused sessions remain** (P1 done; P3 HIGH crash-class burned down — the four categories are verified with resolution blocks, ~25 genuine bugs fixed, tail is supervised/P4/net; P4 unsafe-strings effectively complete — re-scoped to first-party then 92→57 via 85 real conversions, clean pool exhausted (tail = dead/deferred-net/idiom-cascade); **P5 load-cache audit done — no world-cache gap, one `good_value` fix landed**; **P7 close-out is now the best-ROI next step**; P2 Linux-ASan is gated on starting a container engine).
+- Original Definition of Done (M1–M8): **DONE — formally declared 2026-07-10** (P7 close-out landed).
+- Crash-class stability work (P1–P5): **DONE / at practical floor** (P1 done; P3 HIGH crash-class burned down — the four categories are verified with resolution blocks, ~25 genuine bugs fixed, tail is supervised/P4/net; P4 unsafe-strings effectively complete — re-scoped to first-party then 92→57 via 85 real conversions, clean pool exhausted (tail = dead/deferred-net/idiom-cascade); **P5 load-cache audit done — no world-cache gap, one `good_value` fix landed**). **Remaining bounded work: P2 Linux-ASan (gated on starting a container engine).**
 - Mechanical RAII conversion (P6): **multi-session; ~413 files, each needing ownership analysis (no free mechanical tier — verified 2026-07-02)**.
 - Fully refactored engine: **open-ended / not a bounded goal**.
 
@@ -60,14 +60,13 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P4 | Unsafe string APIs (`unsafe_string_api=57`, first-party) | **effectively complete** — ratchet re-scoped (libs excluded); 85 real conversions (92→57); clean pool exhausted. Tail = dead(~20)/deferred-net(~22)/idiom-cascade+hard(~15). Optional: delete dead code (needs OK). | done for practical purposes |
 | P5 | JSON-load derived-cache audit | ✅ 1/1 done | complete |
 | P6 | Mechanical RAII conversion (was M11) | 11/574 files | multi-session |
-| P7 | Close-out docs, declare DoD (was M9) | 0/2 | ~1 session |
+| P7 | Close-out docs, declare DoD (was M9) | ✅ 2/2 done | complete |
 | — | Modern-asset converter + first-run (was M10) | **parked** | deferred |
 
-**Recommended next order (2026-07-10):** crash-class work (P1/P3/P4) is done or at its practical floor, and **P5 is now complete** (audit + one real `good_value` fix, pinned). The highest-value remaining moves are:
-1. **P7** — close-out docs; small, and lets the original Definition of Done be formally declared (only P7 blocks it). Best ROI now.
-2. **P4 dead-code deletion** *(optional, needs Olek's OK)* — deleting the ~20 confirmed-dead unsafe-string sites (~200 lines) drops the counter further and is genuine cleanup, but it removes code so it's opt-in.
-3. **P2** — ASan-on-Linux; blocked only on starting a container engine (`colima start` / Docker), then one build. User action gates it.
-4. **P6** — the long multi-session RAII effort (413 medium files); interleaves well but is the least crash-relevant. Do after ASan (P2) lands to catch double-frees.
+**Recommended next order (2026-07-10):** the original DoD is declared, and crash-class work (P1/P3/P4/P5) is done or at its practical floor. The remaining moves, best-ROI first:
+1. **P4 dead-code deletion** *(optional, needs Olek's OK)* — deleting the ~20 confirmed-dead unsafe-string sites (~200 lines) drops the counter further and is genuine cleanup, but it removes code so it's opt-in.
+2. **P2** — ASan-on-Linux; blocked only on starting a container engine (`colima start` / Docker), then one build. User action gates it. Do this before P6 ramps, to catch RAII-conversion double-frees.
+3. **P6** — the long multi-session RAII effort (413 medium files); interleaves well but is the least crash-relevant.
 
 Why P1–P5 outrank P6: raw `new`/`delete` → RAII mostly prevents **leaks**, which rarely hurt a play session. Out-of-bounds indexing, null derefs, division by zero, UB shifts, and unsafe string writes are what actually crash or corrupt the game — and the repo already has them catalogued. P6 stays active and interleaves well (same worker fan-out pattern), but crash-class fixes deliver more player-visible stability per line changed. P7 is tiny and fine to slot in anytime as a warm-up; it is last only because it is documentation, not code.
 
@@ -229,8 +228,39 @@ Recompute this breakdown after big clusters land: re-run the triage classifier o
 
 Smallest item; fine to do anytime as a warm-up — last here only because it is documentation, not code.
 
-- [ ] Write a "Remaining Legacy-Risk Areas" section in this file consolidating: leftover warning categories, ratchet counts, deferred systems (network, movies, Windows project files), and M7/M8 caveats.
-- [ ] Final verification pass (`make test`, `make ubsan-smoke`, clean worktree); update Overall Progress and declare the original Definition of Done met.
+- [x] Write a "Remaining Legacy-Risk Areas" section in this file consolidating: leftover warning categories, ratchet counts, deferred systems (network, movies, Windows project files), and M7/M8 caveats. **Done 2026-07-10 — see below.**
+- [x] Final verification pass (`make test`, `make ubsan-smoke`, clean worktree); update Overall Progress and declare the original Definition of Done met. **Done 2026-07-10:** `make test` (fast+unit+ratchet), `make ubsan-smoke`, and the integration + scenario suites all green on a clean worktree at commit `41860954`. **The original Definition of Done (M1–M8) is formally met.**
+
+#### Remaining Legacy-Risk Areas (close-out consolidation, 2026-07-10)
+
+The original DoD (M1–M8) is complete. What follows is the honest inventory of legacy risk the engine still carries — none of it blocks the DoD; it is the standing backlog the separate memory-safety phase (P2–P6) and future opportunistic work draw from.
+
+**Modernization ratchet (first-party, enforced by `make test`).** Snapshot at close-out — these are floors, not targets; they can only ratchet down:
+
+| Counter | Count | Nature of the remainder |
+| --- | --: | --- |
+| `raw_new` | 4819 | RAII conversion (P6); ~413 medium files need per-file ownership analysis, no mechanical tier. (Includes ~11 `--new-game`-style string false positives absorbed in test files.) |
+| `raw_delete` | 1865 | same P6 effort (paired with `raw_new`). |
+| `c_allocation` | 101 | `malloc`/`calloc`/`realloc`/`free`; the smallest bucket, mostly in the supervised hard/very-hard tail. |
+| `type_erased_casting` | 2644 | `void*`/C-cast handoffs; not yet a work item — large, cross-cutting, low crash-relevance. |
+| `unsafe_string_api` | 57 | P4 floor — dead code (~20, deletable), deferred `net/` (~22), off-limits `GetXName` idiom + hard cascades (~15). |
+
+**Sanitizer coverage gap (P2).** ASan is impossible natively on this macOS 26 (Tahoe) machine — a runtime re-entrancy deadlock in the ASan runtime that hangs even a trivial program (root cause pinned in the M1 caveat). `make ubsan-smoke` is the working sanitizer tier (shift/overflow/UB classes). The use-after-free / heap-overflow / leak classes ASan alone catches are **unguarded** until the Linux ASan tier (P2) lands — most valuable right before P6's RAII volume ramps, to catch conversion-introduced double-frees.
+
+**Crash-class tail (P3/P4).** The HIGH bug-hunt categories are burned down, but a deliberately-deferred tail remains: network packet-size / null-deref flows (`net_*`, `network.cpp`, `slicif.cpp`), the supervised UI/geometry clusters (`DiplomaticRequestData`, blitter geometry, `WrlEnv` coordinate-contract methods), and the P4 dead/net/idiom string remainder. All are documented in the P3/P4 resolution blocks and the `BUG_HUNT_REPORT.md` annotations. `BUG_HUNT_REPORT.md` findings are **leads, not verdicts** — verify by code pattern, not the drifted May-2026 line numbers.
+
+**Deferred subsystems (never a refactoring target without an explicit decision).**
+- **Networking** (`net/**`, `ui/netshell/**`) — retained per M7; multiplayer resolve-later. Excluded from P3/P4/P6.
+- **Movies** — wonder/victory movie DB/schema/data retained; the DirectShow references (`ui/aui_directx/aui_directmovie.*`, `aui_directmoviemanager.*` + their header closure `aui_directui.h`/`aui_directsurface.h`/`aui_directx.h`) are kept for a future SDL-based movie repair and are **never compiled on SDL builds**.
+- **Windows project files** — legacy `.dsp`/`.mak` use DOS CRLF; `git diff --check` flags the pre-existing CR byte on changed lines — do **not** "fix" it (stripping the CR corrupts the VS6 format). These are not the canonical build (Meson is); Windows is best-effort and must not drive refactoring decisions.
+- **Generated DB code** (`gs/newdb`, `gs/dbgen`) — fix at the generator, not the output.
+- **Vendored libs** (`libs/**`: anet, freetype, tiff, zlib, miles, GameWatch) — upstream-owned; excluded from every ratchet since 2026-07-03.
+
+**Leftover warning categories (M2; post-DoD, opportunistic only).** Include-case stragglers outside the swept paths; writable-string-literal conversions (`char *`/`MBCHAR *`) in diplomacy/UI/logging; unused-variable warnings in `governor.cpp`/`ArmyData.cpp`/`diplomat.cpp` (initializers may have side effects — review before removal); `&&`/`||` precedence in `ArmyData.cpp`/`robotastar2.cpp`; switch-exhaustiveness (e.g. `QuadTree.h` `QUADRANT_ERROR`) and overloaded-virtual in UI/sprite/network classes.
+
+**Asset licensing (M8).** Game data is not part of the Activision/Apolyton source release — it is user-supplied and non-redistributable. Generated modern assets are local, rebuildable cache under `~/.ctp2/assets/<fingerprint>/`, never committed; original data stays canonical.
+
+**Infrastructure caveat.** The local CI daemon (`.ci/daemon.sh`) is **not running** and `.ci/state.json` is stale — restart it before trusting `jq '.tier_a.status' .ci/state.json`, or agents read a month-old green.
 
 ### Parked — Modern-asset converter + first-run (was M10)
 

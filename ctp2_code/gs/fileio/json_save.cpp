@@ -650,9 +650,18 @@ void from_json(nlohmann::json const &j, World &w)
         civ_starts[i].get_to(w.m_civ_starts[i]);
     }
 
-    // good_value: re-allocate based on the saved count.  If the
-    // current database doesn't match, the load side discards (matches
-    // wldgen.cpp:2418 — would normally call ComputeGoodsValues).
+    // good_value: per-resource weighting derived from the map's good
+    // distribution.  When the saved count matches the current resource
+    // DB, restore it verbatim.  When it doesn't (a mod changed
+    // ResourceDB between save and load) — or the save carried no
+    // good_value at all — recompute from the freshly-loaded cells via
+    // ComputeGoodsValues(), exactly as the map-generation and binary
+    // load paths do (wldgen.cpp:824).  Leaving m_goodValue at whatever
+    // the throwaway fresh-game gameinit computed was a wrong-but-not-
+    // crashing state after load (the P5 derived-cache gap): the value
+    // table would reflect the discarded initial map, not the loaded
+    // one.  Cells are already restored above, so ComputeGoodsValues has
+    // the real good distribution to work from.
     auto const &good_value = j.at("good_value");
     sint32 const n_goods = static_cast<sint32>(good_value.size());
     if (g_theResourceDB && n_goods == g_theResourceDB->NumRecords())
@@ -665,9 +674,13 @@ void from_json(nlohmann::json const &j, World &w)
         }
         g_numGoods = n_goods;
     }
-    // Database size changed: the binary path calls
-    // ComputeGoodsValues() here.  Phase C-2 leaves m_goodValue alone
-    // for the JSON path — Phase D's player + city deps will revisit.
+    else if (g_theResourceDB)
+    {
+        // Size mismatch or empty saved table: rebuild from the loaded map.
+        w.ComputeGoodsValues();
+    }
+    // (If g_theResourceDB is unavailable there is nothing to compute
+    //  against; m_goodValue is left as-is.)
 
     // Continent-size arrays (m_land_size / m_water_size) are zeroed by
     // AllocateMap.  Without re-populating them, GetLandContinentSize()

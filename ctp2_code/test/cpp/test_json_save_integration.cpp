@@ -256,6 +256,86 @@ TEST_CASE("LoadJson round-trip: save / load / save preserves all state")
     CHECK(a["slic_engine"].size() == b["slic_engine"].size());
 }
 
+TEST_CASE("LoadJson derived cache (P5): stale good_value is recomputed from the "
+          "loaded map, not left at the fresh-game state")
+{
+    // P5 derived-cache audit pin.  World's per-resource good_value table
+    // is derived from the map's good distribution (ComputeGoodsValues).
+    // The save carries it, but when the saved length doesn't match the
+    // current ResourceDB (a mod changed the DB between save and load) the
+    // load path must REBUILD it from the freshly-loaded cells — not leave
+    // it at whatever the throwaway fresh-game gameinit computed for the
+    // discarded initial map (the wrong-but-not-crashing state P5 targets).
+    //
+    // We can't change the DB mid-test, so we force the mismatch branch by
+    // corrupting the saved good_value to a wrong length, then load it under
+    // a DIFFERENT seed (so the fresh-game map — and its good_value — differ
+    // from the saved map).  A correct recompute reproduces the SOURCE map's
+    // values; the pre-fix "leave it alone" behaviour would surface the
+    // fresh seed-999 map's values instead.
+    const char *bin = find_headless();
+    REQUIRE(bin);
+
+    const char *patha = "/tmp/ctp2_p5_good_a.json";
+    const char *pathc = "/tmp/ctp2_p5_good_corrupt.json";
+    const char *pathb = "/tmp/ctp2_p5_good_b.json";
+    std::remove(patha);
+    std::remove(pathc);
+    std::remove(pathb);
+
+    // Run 1: seed 42 → source-of-truth map + good_value.
+    {
+        std::string log;
+        REQUIRE(run_save(patha, &log));  // seed 42, 3 turns, 3 players
+    }
+
+    std::string ra;
+    REQUIRE(read_file(patha, ra));
+    nlohmann::json a = nlohmann::json::parse(ra);
+    REQUIRE(a["world"]["good_value"].is_array());
+    nlohmann::json const good_a = a["world"]["good_value"];
+    REQUIRE(good_a.size() > 3);  // real DB is ~55 entries
+
+    // Corrupt the length so the load path can't restore verbatim and must
+    // fall into the recompute branch.
+    a["world"]["good_value"] = nlohmann::json::array({1.0, 2.0, 3.0});
+    {
+        std::ofstream out(pathc);
+        REQUIRE(out.good());
+        out << a.dump();
+    }
+
+    // Run 2: fresh seed 999 game → load the corrupted save → re-save.
+    {
+        char cmd[1024];
+        std::snprintf(cmd, sizeof(cmd),
+                      "%s --new-game --turns 0 --players 3 --seed 999 "
+                      "--json-load %s --json-save %s 2>&1",
+                      bin, pathc, pathb);
+        std::FILE *pipe = popen(cmd, "r");
+        REQUIRE(pipe != nullptr);
+        char buf[512];
+        std::string log;
+        while (std::fgets(buf, sizeof(buf), pipe)) log += buf;
+        int rc = pclose(pipe);
+        INFO(log);
+        REQUIRE(log.find("LoadJson returned ok") != std::string::npos);
+        REQUIRE(WIFEXITED(rc));
+        REQUIRE(WEXITSTATUS(rc) == 0);  // recompute path must not crash
+    }
+
+    std::string rb;
+    REQUIRE(read_file(pathb, rb));
+    nlohmann::json b = nlohmann::json::parse(rb);
+    REQUIRE(b["world"]["good_value"].is_array());
+
+    // Recompute restored the correct DB-sized table (not the corrupt 3)...
+    CHECK(b["world"]["good_value"].size() == good_a.size());
+    // ...with the SOURCE map's values, proving it was rebuilt from the
+    // loaded cells and not left at the fresh seed-999 game's table.
+    CHECK(b["world"]["good_value"] == good_a);
+}
+
 TEST_CASE("Phase G converter: binary save → JSON save via --load-game --json-save")
 {
     // The one-shot converter mentioned in the JSON-savegame plan is free

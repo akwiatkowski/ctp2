@@ -1714,6 +1714,21 @@ test('scenario-load-stress',
   suite : 'scenario',
 )
 
+# Long-game soak: a fresh game driven ~300 rounds deep into the mid/late
+# game (~3x the fixture scenarios' round ~160), asserting the clock advances
+# and the game stays self-consistent the whole arc. Guards the late-game-only
+# regime the 50-turn integration tier never reaches. ~70s locally.
+long_game_test = find_program('test/scenario_long_game.py')
+test('scenario-long-game',
+  long_game_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 600,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'scenario',
+)
+
 path_resume_test = find_program('test/scenario_path_resume.py')
 test('scenario-path-resume',
   path_resume_test,

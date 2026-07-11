@@ -9,6 +9,7 @@
 #include "gs/gameobj/TradeRoute.h"
 
 #include <nlohmann/json.hpp>
+#include <memory>
 
 class TradeRouteData;
 enum ROUTE_TYPE;
@@ -26,7 +27,7 @@ class TradePool : public ObjPool
 
 
 
-	TradeDynamicArray *m_all_routes;
+	std::unique_ptr<TradeDynamicArray> m_all_routes;
 
 
 	friend class NetTradeRoute;
@@ -65,7 +66,7 @@ public:
 	sint32 GetSingleGoodValue(sint32 resource, sint32 nth_good);
 
 	const TradeDynamicArray &GetAllRoutes();
-	TradeDynamicArray *AccessAllRoutes() { return m_all_routes; }
+	TradeDynamicArray *AccessAllRoutes() { return m_all_routes.get(); }
 
 	sint32 GetGoldValue(sint32 resource, sint32 num);
 	void BreakOffTrade(PLAYER_INDEX pl1, PLAYER_INDEX pl2);

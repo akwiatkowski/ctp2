@@ -16,7 +16,7 @@
 
 TradePool::TradePool() : ObjPool(k_BIT_GAME_OBJ_TYPE_TRADE_ROUTE)
 {
-	m_all_routes = new TradeDynamicArray;
+	m_all_routes = std::make_unique<TradeDynamicArray>();
 }
 
 TradePool::~TradePool()
@@ -25,7 +25,7 @@ TradePool::~TradePool()
 	for(i = m_all_routes->Num() - 1; i >= 0; i--) {
 		m_all_routes->Access(i).Kill(CAUSE_KILL_TRADE_ROUTE_UNKNOWN);
 	}
-	delete m_all_routes;
+	// m_all_routes (unique_ptr) frees after the Kill loop above.
 }
 
 TradeRoute TradePool::Create(Unit sourceCity,

@@ -1,8 +1,8 @@
 {
   "counts": {
     "c_allocation": 101,
-    "raw_delete": 1846,
-    "raw_new": 4800,
+    "raw_delete": 1845,
+    "raw_new": 4799,
     "type_erased_casting": 2644,
     "unsafe_string_api": 57
   },

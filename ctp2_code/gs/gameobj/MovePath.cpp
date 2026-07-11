@@ -17,6 +17,7 @@
 #include "gs/events/GameEventManager.h"
 #include "robot/pathing/Path.h"
 #include "robot/pathing/UnitAstar.h"
+#include <memory>
 
 extern UnitAstar *g_theUnitAstar;
 
@@ -42,18 +43,19 @@ static bool army_ComputeMovePath(sint32 owner, Army &army,
 bool army_QueueMovePath(sint32 owner, Army &army,
                         const MapPoint &src, const MapPoint &dest)
 {
-	Path *good_path = new Path;
-	if (!army_ComputeMovePath(owner, army, src, dest, good_path)) {
-		delete good_path;
+	auto good_path = std::make_unique<Path>();
+	if (!army_ComputeMovePath(owner, army, src, dest, good_path.get())) {
 		return false;
 	}
 
 	army.ClearOrders();
 	good_path->JustSetStart(army->RetPos());
 
+	// Ownership transfers to the event system (GEA_Path); release the raw
+	// pointer so it hands over exactly as the old raw allocation did.
 	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
 	                       GEA_Army, army,
-	                       GEA_Path, good_path,
+	                       GEA_Path, good_path.release(),
 	                       GEA_MapPoint, src,
 	                       GEA_Int, 0,
 	                       GEA_End);
@@ -63,16 +65,17 @@ bool army_QueueMovePath(sint32 owner, Army &army,
 bool army_AddMovePath(sint32 owner, Army &army,
                       const MapPoint &src, const MapPoint &dest)
 {
-	Path *good_path = new Path;
-	if (!army_ComputeMovePath(owner, army, src, dest, good_path)) {
-		delete good_path;
+	auto good_path = std::make_unique<Path>();
+	if (!army_ComputeMovePath(owner, army, src, dest, good_path.get())) {
 		return false;
 	}
 
 	army.ClearOrders();
 	good_path->JustSetStart(army->RetPos());
 
-	army.AddOrders(UNIT_ORDER_MOVE, good_path, src, 0);
+	// AddOrders takes ownership of the Path; release to hand over the raw
+	// pointer unchanged.
+	army.AddOrders(UNIT_ORDER_MOVE, good_path.release(), src, 0);
 	return true;
 }
 

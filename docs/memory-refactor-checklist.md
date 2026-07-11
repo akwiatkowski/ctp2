@@ -202,11 +202,11 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/gameobj/Order.h` (3/2/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/Unit.cpp` (5/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/Order.cpp` (1/3/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/MovePath.cpp` (2/2/0) — 🟡 · _Path transferred to event system_
-- [ ] `gs/gameobj/TradeRouteData.cpp` (3/1/0) — 🟡 moderate · _single-owner member_
+- [x] `gs/gameobj/MovePath.cpp` (2/2/0) — ✅ done · _Path transfer-on-success -> unique_ptr + release_
+- [ ] `gs/gameobj/TradeRouteData.cpp` (3/1/0) — 🔴 hard · _`*this=*copyme` copy-ctor blocks unique_ptr (needs custom operator=)_
 - [ ] `gs/gameobj/TradePool.cpp` (2/2/0) — 🟡 · _pool + member array owner_
 - [ ] `gs/gameobj/UnoccupiedTiles.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/barbarians.cpp` (3/1/0) — 🟡 moderate · _needs ownership review_
+- [ ] `gs/gameobj/barbarians.cpp` (3/1/0) — ⚪ leave · _alloc is in a `/* */`-commented-out function (dead code)_
 - [x] `gs/gameobj/civilisationpool.cpp` (3/1/0) — 🟡 moderate · _single-owner member_
 - [ ] `gs/gameobj/ArmyPool.cpp` (4/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/installationtree.h` (2/1/0) — 🟡 moderate · _needs ownership review_
@@ -537,7 +537,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/world/WrldCont.cpp` (7/8/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/world/Cell.cpp` (5/9/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/world/WrldPoll.cpp` (5/1/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/world/TileInfo.cpp` (2/3/0) — 🟡 moderate · _single-owner member_
+- [ ] `gs/world/TileInfo.cpp` (2/3/0) — 🔴 hard · _`*this=*copy` copy-ctor blocks unique_ptr (needs custom operator=)_
 - [ ] `gs/world/WrldCity.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/world/worldutils.cpp` (1/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/world/WorldDistance.cpp` (2/0/0) — 🟡 moderate · _needs ownership review_
@@ -736,7 +736,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## gs/outcom  (1 files, 3 matches)
 
-- [ ] `gs/outcom/c3rand.cpp` (1/2/0) — 🟡 moderate · _single-owner member_
+- [ ] `gs/outcom/c3rand.cpp` (1/2/0) — ⚪ leave · _conditional/borrowed owner (m_rand=rand_ptr() when !ownGenerator) + refcounted_
 
 ## ui/aui_directx  (1 files, 2 matches)
 

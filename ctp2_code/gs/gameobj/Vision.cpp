@@ -93,13 +93,12 @@ Vision::Vision(sint32 owner, bool amOnScreen)
 		m_array[x] = new uint16[m_height];
 		std::fill(m_array[x], m_array[x] + m_height, 0);
 	}
-	m_unseenCells = new UnseenCellQuadTree(m_width, m_height, m_isYwrap);
+	m_unseenCells = std::make_unique<UnseenCellQuadTree>(m_width, m_height, m_isYwrap);
 }
 
 Vision::~Vision()
 {
-	DeleteUnseenCells();
-	delete m_unseenCells;
+	DeleteUnseenCells();   // clears cell contents before the tree frees itself
 
 	for (int x = 0; x < m_width; x++)
 	{
@@ -115,8 +114,7 @@ void Vision::Clear()
 		std::fill(m_array[x], m_array[x] + m_height, 0);
 	}
 
-	delete m_unseenCells;
-	m_unseenCells = new UnseenCellQuadTree(m_width, m_height, m_isYwrap);
+	m_unseenCells = std::make_unique<UnseenCellQuadTree>(m_width, m_height, m_isYwrap);
 }
 
 void Vision::AddExplored(MapPoint pos, double radius)

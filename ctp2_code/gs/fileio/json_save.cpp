@@ -2507,8 +2507,7 @@ void from_json(nlohmann::json const &j, Vision &v)
         v.m_array = nullptr;
     }
     v.DeleteUnseenCells();
-    delete v.m_unseenCells;
-    v.m_unseenCells = nullptr;
+    v.m_unseenCells.reset();
 
     j.at("width")        .get_to(v.m_width);
     j.at("height")       .get_to(v.m_height);
@@ -2531,7 +2530,7 @@ void from_json(nlohmann::json const &j, Vision &v)
             grid[idx++].get_to(v.m_array[x][y]);
     }
 
-    v.m_unseenCells = new UnseenCellQuadTree(v.m_width, v.m_height, v.m_isYwrap);
+    v.m_unseenCells = std::make_unique<UnseenCellQuadTree>(v.m_width, v.m_height, v.m_isYwrap);
     for (auto const &entry : j.at("unseen_cells"))
     {
         UnseenCell *uc = new UnseenCell(MapPoint(0, 0));

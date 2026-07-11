@@ -60,6 +60,8 @@ class Vision;
 
 #include "gs/world/MapPoint.h"
 
+#include <memory>
+
 class UnseenCellQuadTree;
 class UnseenCellCarton;
 template <class T> class DynamicArray;
@@ -99,7 +101,7 @@ private:
 //----------------------------------------------------------------------------
 
 	uint16 **m_array;
-	UnseenCellQuadTree *m_unseenCells;
+	std::unique_ptr<UnseenCellQuadTree> m_unseenCells;
 
 	friend class NetVision;
 	friend class MapFile;

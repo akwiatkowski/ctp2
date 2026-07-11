@@ -2462,7 +2462,7 @@ void to_json(nlohmann::json &j, Vision const &v)
 {
     sint32 const wh = static_cast<sint32>(v.m_width) * static_cast<sint32>(v.m_height);
     nlohmann::json grid = nlohmann::json::array();
-    if (v.m_array)
+    if (!v.m_array.empty())
     {
         for (sint16 x = 0; x < v.m_width; ++x)
         {
@@ -2499,13 +2499,7 @@ void to_json(nlohmann::json &j, Vision const &v)
 void from_json(nlohmann::json const &j, Vision &v)
 {
     // Tear down existing storage (matches Vision::Serialize's load branch).
-    if (v.m_array)
-    {
-        for (sint16 x = 0; x < v.m_width; ++x)
-            delete[] v.m_array[x];
-        delete[] v.m_array;
-        v.m_array = nullptr;
-    }
+    v.m_array.clear();
     v.DeleteUnseenCells();
     v.m_unseenCells.reset();
 
@@ -2516,16 +2510,15 @@ void from_json(nlohmann::json const &j, Vision &v)
     v.m_isYwrap    = j.at("is_y_wrap")   .get<bool>() ? TRUE : FALSE;
     v.m_amOnScreen = j.at("am_on_screen").get<bool>() ? TRUE : FALSE;
 
-    v.m_array = new uint16 *[v.m_width];
     auto const &grid = j.at("grid");
     sint32 expected = static_cast<sint32>(v.m_width) * static_cast<sint32>(v.m_height);
     if (static_cast<sint32>(grid.size()) != expected)
         throw nlohmann::json::other_error::create(
             501, "Vision grid size mismatch", &j);
+    v.m_array.assign(v.m_width, std::vector<uint16>(v.m_height));
     sint32 idx = 0;
     for (sint16 x = 0; x < v.m_width; ++x)
     {
-        v.m_array[x] = new uint16[v.m_height];
         for (sint16 y = 0; y < v.m_height; ++y)
             grid[idx++].get_to(v.m_array[x][y]);
     }

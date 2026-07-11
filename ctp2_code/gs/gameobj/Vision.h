@@ -61,6 +61,7 @@ class Vision;
 #include "gs/world/MapPoint.h"
 
 #include <memory>
+#include <vector>
 
 class UnseenCellQuadTree;
 class UnseenCellCarton;
@@ -100,7 +101,7 @@ private:
 // Changing the order below this should not break anything.
 //----------------------------------------------------------------------------
 
-	uint16 **m_array;
+	std::vector<std::vector<uint16>> m_array;
 	std::unique_ptr<UnseenCellQuadTree> m_unseenCells;
 
 	friend class NetVision;

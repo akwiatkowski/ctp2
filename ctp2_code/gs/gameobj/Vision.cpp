@@ -76,7 +76,7 @@ Vision::Vision(sint32 owner, bool amOnScreen)
     m_xyConversion          (0),
     m_isYwrap               (false),
     m_amOnScreen            (amOnScreen),
-    m_array                 (nullptr),
+    m_array                 (),
     m_unseenCells           (nullptr),
     m_mergeFrom             (nullptr)
 {
@@ -87,31 +87,22 @@ Vision::Vision(sint32 owner, bool amOnScreen)
 	m_xyConversion = (m_height - (2 * m_width)) / 2;
 	m_isYwrap = world_Get()->IsYwrap();
 
-	m_array = new uint16*[m_width];
-	for (int x = 0; x < m_width; x++)
-	{
-		m_array[x] = new uint16[m_height];
-		std::fill(m_array[x], m_array[x] + m_height, 0);
-	}
+	m_array.assign(m_width, std::vector<uint16>(m_height, 0));
 	m_unseenCells = std::make_unique<UnseenCellQuadTree>(m_width, m_height, m_isYwrap);
 }
 
 Vision::~Vision()
 {
 	DeleteUnseenCells();   // clears cell contents before the tree frees itself
-
-	for (int x = 0; x < m_width; x++)
-	{
-		delete [] m_array[x];
-	}
-	delete [] m_array;
+	// m_array (vector<vector<uint16>>) and m_unseenCells (unique_ptr) free
+	// themselves.
 }
 
 void Vision::Clear()
 {
-	for (int x = 0; x < m_width; x++)
+	for (auto & col : m_array)
 	{
-		std::fill(m_array[x], m_array[x] + m_height, 0);
+		std::fill(col.begin(), col.end(), 0);
 	}
 
 	m_unseenCells = std::make_unique<UnseenCellQuadTree>(m_width, m_height, m_isYwrap);
@@ -659,7 +650,7 @@ void Vision::Copy(const Vision *copy)
 	m_owner = copy->m_owner;
 	for(sint32 x = 0; x < m_width; x++)
 	{
-		memcpy(m_array[x], copy->m_array[x], m_height * sizeof(uint16));
+		m_array[x] = copy->m_array[x];   // deep-copy the column
 	}
 
 	m_unseenCells->Clear();

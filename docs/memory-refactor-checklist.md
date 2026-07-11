@@ -181,7 +181,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/gameobj/DiplomaticRequestData.cpp` (46/2/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/bldque.cpp` (42/5/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/endgame.cpp` (22/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/Vision.cpp` (12/9/0) — 🟡 moderate · _single-owner member_
+- [x] `gs/gameobj/Vision.cpp` (12/9/0) — ✅ done · _m_unseenCells -> unique_ptr, m_array uint16** -> vector<vector>; quadtree cell-content news left (separate ownership)_
 - [ ] `gs/gameobj/CityEvent.cpp` (16/2/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/unitevent.cpp` (16/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/GoodyHuts.cpp` (14/0/0) — 🟡 moderate · _needs ownership review_

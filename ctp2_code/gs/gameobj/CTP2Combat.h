@@ -44,6 +44,7 @@ typedef unsigned long uint32;
 #include "gs/gameobj/Unit.h"
 #include "gs/world/MapPoint.h"
 #include "robot/aibackdoor/dynarr.h"
+#include <vector>
 
 #define k_COMBAT_WIDTH 4
 #define k_COMBAT_HEIGHT 7
@@ -156,7 +157,7 @@ public:
 
 class CombatField {
 private:
-	CombatUnit **m_field;
+	std::vector<std::vector<CombatUnit>> m_field;
 	sint32 m_width, m_height;
 	bool m_isOffense;
 

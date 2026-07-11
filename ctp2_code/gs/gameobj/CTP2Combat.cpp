@@ -237,10 +237,9 @@ CombatField::CombatField(sint32 width, sint32 height, bool isOffense)
     m_height    (height),
     m_isOffense (isOffense)
 {
-	m_field = new CombatUnit *[width];
-	for(sint32 i = 0; i < width; i++) {
-		m_field[i] = new CombatUnit[height];
-	}
+	// width columns, each height default-constructed CombatUnits
+	// (CombatUnit() sets m_valid=false — same as the old per-row arrays).
+	m_field.assign(width, std::vector<CombatUnit>(height));
 }
 
 
@@ -248,12 +247,9 @@ CombatField::CombatField(sint32 width, sint32 height, bool isOffense)
 
 CombatField::~CombatField()
 {
-	for(sint32 i = 0; i < m_width; i++)
-	{
-		delete m_field[i];
-	}
-
-	delete m_field;
+	// m_field (vector<vector<CombatUnit>>) frees itself. The old raw
+	// version freed array rows with a scalar (non-array) operator here,
+	// an allocation/deallocation form mismatch (UB).
 }
 
 CombatUnit &CombatField::GetUnit(sint32 x, sint32 y)

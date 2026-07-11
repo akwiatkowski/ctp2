@@ -196,7 +196,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/gameobj/TradeBids.cpp` (2/5/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/Happy.cpp` (5/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/AgreementData.cpp` (5/1/0) — 🔴 · _refcounted SlicObject (AddRef/Release)_
-- [ ] `gs/gameobj/CTP2Combat.cpp` (3/2/0) — 🟡 moderate · _single-owner member_
+- [x] `gs/gameobj/CTP2Combat.cpp` (3/2/0) — ✅ done · _CombatField::m_field 2D array -> vector<vector>; fixed new[]/scalar-delete UB_
 - [ ] `gs/gameobj/MessagePool.cpp` (5/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/MaterialPool.cpp` (5/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/Order.h` (3/2/0) — 🟡 moderate · _needs ownership review_

@@ -719,7 +719,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## ai/mapanalysis  (1 files, 4 matches)
 
-- [ ] `ai/mapanalysis/settlemap.cpp` (1/3/0) — 🟡 moderate · _needs ownership review_
+- [x] `ai/mapanalysis/settlemap.cpp` (1/3/0) — ✅ done · _local bool[] scratch -> vector<bool>_
 
 ## ui/freetype  (1 files, 4 matches)
 

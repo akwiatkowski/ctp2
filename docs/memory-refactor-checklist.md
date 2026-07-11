@@ -207,7 +207,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/gameobj/TradePool.cpp` (2/2/0) — 🟡 · _pool + member array owner_
 - [ ] `gs/gameobj/UnoccupiedTiles.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/barbarians.cpp` (3/1/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/civilisationpool.cpp` (3/1/0) — 🟡 moderate · _single-owner member_
+- [x] `gs/gameobj/civilisationpool.cpp` (3/1/0) — 🟡 moderate · _single-owner member_
 - [ ] `gs/gameobj/ArmyPool.cpp` (4/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/installationtree.h` (2/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/improvementevent.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_

@@ -636,16 +636,8 @@ bool World::GetIsChokePoint(MapPoint const & pos) const
 
 void World::CalcChokePoints()
 {
-    sint16 ** water_map = new sint16*[m_size.x];
-    sint32 x;
-    for (x=0; x<m_size.x; x++) {
-        water_map[x] = new sint16[m_size.y];
-    }
-
-    sint16 ** land_map = new sint16*[m_size.x];
-    for (x=0; x<m_size.x; x++) {
-        land_map[x] = new sint16[m_size.y];
-    }
+    std::vector<std::vector<sint16>> water_map(m_size.x, std::vector<sint16>(m_size.y));
+    std::vector<std::vector<sint16>> land_map(m_size.x, std::vector<sint16>(m_size.y));
 
     Grassfire8(FALSE, water_map);
     ClipGF(water_map);
@@ -654,13 +646,6 @@ void World::CalcChokePoints()
     ClipGF(land_map);
 
     SaveGF(water_map, land_map);
-
-    for (x=0; x<m_size.x; x++) {
-        delete[] land_map[x];
-        delete[] water_map[x];
-    }
-    delete[] land_map;
-    delete[] water_map;
 }
 
 bool World::IsGFComputed(bool is_choke_land, MapPoint const & pos) const
@@ -668,7 +653,7 @@ bool World::IsGFComputed(bool is_choke_land, MapPoint const & pos) const
     return is_choke_land == (IsLand (pos) || IsMountain (pos));
 }
 
-void World::Grassfire8(bool is_choke_land, sint16 **tmp_map)
+void World::Grassfire8(bool is_choke_land, std::vector<std::vector<sint16>> &tmp_map)
 {
     MapPoint pos;
     for (pos.x=0; pos.x < m_size.x; pos.x++) {
@@ -754,7 +739,7 @@ void World::Grassfire8(bool is_choke_land, sint16 **tmp_map)
     }
 }
 
-void World::ClipGF(sint16 **tmp_map)
+void World::ClipGF(std::vector<std::vector<sint16>> &tmp_map)
 {
     MapPoint pos;
     MapPoint w;
@@ -952,7 +937,7 @@ void World::DumpGF()
     }
 }
 
-void World::SaveGF(sint16 **water_map, sint16 **land_map)
+void World::SaveGF(std::vector<std::vector<sint16>> &water_map, std::vector<std::vector<sint16>> &land_map)
 {
     for (sint32 x=0; x<m_size.x; x++) {
         for (sint32 y=0; y<m_size.y; y++) {

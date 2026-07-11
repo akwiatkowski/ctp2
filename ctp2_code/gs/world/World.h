@@ -61,6 +61,8 @@ enum MAP_GENERATOR
 #define k_WORLD_VERSION_MAJOR	0
 #define k_WORLD_VERSION_MINOR	0
 
+#include <vector>
+
 #include "gs/world/MapPoint.h"
 #include "gs/gameobj/CityRadius.h"
 #include "gs/fileio/StartingPosition.h"
@@ -387,10 +389,11 @@ public:
     void CalcChokePoints();
 
     bool IsGFComputed(bool is_choke_land, MapPoint const & pos) const;
-    void Grassfire8(bool is_choke_land, sint16 **tmp_map);
-    void ClipGF(sint16 **tmp_map);
+    void Grassfire8(bool is_choke_land, std::vector<std::vector<sint16>> &tmp_map);
+    void ClipGF(std::vector<std::vector<sint16>> &tmp_map);
 
-    void SaveGF(sint16 **water_map, sint16 **land_map);
+    void SaveGF(std::vector<std::vector<sint16>> &water_map,
+                std::vector<std::vector<sint16>> &land_map);
     void DumpGF();
 
 

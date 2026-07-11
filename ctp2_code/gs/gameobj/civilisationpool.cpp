@@ -57,7 +57,7 @@
 
 CivilisationPool::CivilisationPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_CIVILISATION)
 {
-	m_usedCivs = new SimpleDynamicArray<sint32>;
+	m_usedCivs = std::make_unique<SimpleDynamicArray<sint32>>();
 }
 
 
@@ -70,7 +70,8 @@ CivilisationPool::CivilisationPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_CIVILISATION)
 
 CivilisationPool::~CivilisationPool()
 {
-	delete m_usedCivs;
+	// m_usedCivs (unique_ptr) frees automatically; the out-of-line dtor
+	// keeps SimpleDynamicArray complete at the point of destruction.
 }
 
 

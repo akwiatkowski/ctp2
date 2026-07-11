@@ -43,13 +43,14 @@ class CivilisationPool;
 #include "gs/gameobj/Civilisation.h"
 
 #include <nlohmann/json.hpp>
+#include <memory>
 
 template <class T> class SimpleDynamicArray;
 
 class CivilisationPool : public ObjPool
 {
 public:
-	SimpleDynamicArray<sint32> *m_usedCivs;
+	std::unique_ptr<SimpleDynamicArray<sint32>> m_usedCivs;
 
 	CivilisationPool() ;
 	~CivilisationPool() override ;

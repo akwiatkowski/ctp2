@@ -2736,7 +2736,7 @@ void from_json(nlohmann::json const &j, CivilisationPool &p)
         p.Insert(data);
     }
 
-    if (!p.m_usedCivs) p.m_usedCivs = new SimpleDynamicArray<sint32>;
+    if (!p.m_usedCivs) p.m_usedCivs = std::make_unique<SimpleDynamicArray<sint32>>();
     p.m_usedCivs->Clear();
     for (auto const &id : j.at("used_civs"))
     {

@@ -36,6 +36,7 @@
 
 #include "gs/utility/newturncount.h"
 #include <nlohmann/json.hpp>
+#include <memory>
 
 template <class T> class SimpleDynamicArray;
 
@@ -47,7 +48,7 @@ class TurnCount {
 	sint32 m_year;
 	sint32 m_activePlayers;
 	BOOL m_simultaneousMode;
-	SimpleDynamicArray<sint32> *m_sliceList;
+	std::unique_ptr<SimpleDynamicArray<sint32>> m_sliceList;
 	sint32 m_lastBeginTurn;
 	BOOL m_isHotSeat;
 	BOOL m_isEmail;

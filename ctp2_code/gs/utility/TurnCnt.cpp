@@ -98,14 +98,14 @@ sint32 TurnCount::sm_the_stop_player = 1;
 
 TurnCount::TurnCount(sint32 numPlayers, sint32 initialYear)
 {
-	m_sliceList = new SimpleDynamicArray<sint32>;
+	m_sliceList = std::make_unique<SimpleDynamicArray<sint32>>();
 	Init(numPlayers, initialYear);
 }
 
 TurnCount::~TurnCount()
 {
-	delete m_sliceList;
-	m_sliceList = nullptr;
+	// m_sliceList (unique_ptr) frees automatically; out-of-line dtor keeps
+	// SimpleDynamicArray complete at destruction.
 }
 
 void TurnCount::Init(sint32 numPlayers, sint32 initialYear)

@@ -508,7 +508,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 ## gs/utility  (10 files, 195 matches)
 
 - [ ] `gs/utility/gameinit.cpp` (96/16/0) — ⚪ leave · _pool/arena allocator_
-- [ ] `gs/utility/TurnCnt.cpp` (25/1/0) — 🟡 moderate · _single-owner member_
+- [x] `gs/utility/TurnCnt.cpp` (14/1/0) — ✅ done · _m_sliceList -> unique_ptr; residual news are net-transfer (deferred) + refcounted SlicObject (off-limits)_
 - [ ] `gs/utility/QuadTree.h` (11/12/0) — 🟡 moderate · _single-owner member_
 - [ ] `gs/utility/newturncount.cpp` (11/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/utility/Globals.h` (4/5/0) — 🟡 moderate · _needs ownership review_

@@ -1729,6 +1729,22 @@ test('scenario-long-game',
   suite : 'scenario',
 )
 
+# Combat invariant matrix: repeated real battles (bombard + attack + AI
+# counterattack rounds) on the capture-brink fixture, asserting the
+# invariants any battle outcome must satisfy (finite hp>0, no unit
+# inflation, honest refusals). Exercises CTP2Combat far beyond the single
+# capture arc.
+combat_test = find_program('test/scenario_combat.py')
+test('scenario-combat',
+  combat_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'scenario',
+)
+
 # Seed sweep: the same short game across several rng seeds — map gen,
 # start placement, and early AI across the seed space (everything else
 # runs on seed 42). Small config here; `make seed-sweep` runs 20 seeds

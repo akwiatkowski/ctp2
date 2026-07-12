@@ -533,12 +533,22 @@ CityData::~CityData()
 		//DPRINTF(k_DBG_GAMESTATE, ("Killing City %lx\n", uint32(m_home_city)));
 		sint32 i;
 
+		// Guard each Kill: during an in-process re-init (load_game),
+		// gameinit replaces the TradePool BEFORE the UnitPool, so by the
+		// time the old pool's CityData dtors run these lists hold ids of
+		// routes that were already killed with the old pool. Killing a
+		// stale id against the fresh pool hits "No such object" and
+		// aborts — caught by the deep-state save/load soak (a round-300
+		// economy always has live routes at teardown; the round-160
+		// fixtures rarely did).
 		for(i = 0; i < m_tradeSourceList.Num(); i++) {
-			m_tradeSourceList[i].Kill(CAUSE_KILL_TRADE_ROUTE_CITY_DIED);
+			if (m_tradeSourceList[i].IsValid())
+				m_tradeSourceList[i].Kill(CAUSE_KILL_TRADE_ROUTE_CITY_DIED);
 		}
 
 		for(i = 0; i < m_tradeDestinationList.Num(); i++) {
-			m_tradeDestinationList[i].Kill(CAUSE_KILL_TRADE_ROUTE_CITY_DIED);
+			if (m_tradeDestinationList[i].IsValid())
+				m_tradeDestinationList[i].Kill(CAUSE_KILL_TRADE_ROUTE_CITY_DIED);
 		}
 	}
 

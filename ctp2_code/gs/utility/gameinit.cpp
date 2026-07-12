@@ -1237,13 +1237,15 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 	                                                 sint16(world_Get()->GetYHeight()),
 	                                                 world_Get()->IsYwrap());
 
+	// Trade pool before unit pool — same re-init ordering rationale as
+	// gameinit_Initialize (route kills must run while old units live).
+	tradepool_Set(new TradePool());
+
 	unitpool_Set(new UnitPool());
 	Assert(unitpool_Get());
 
 	armypool_Set(new ArmyPool());
 	Assert(armypool_Get());
-
-	tradepool_Set(new TradePool());
 
 	tradeofferpool_Set(new TradeOfferPool());
 	Assert(tradeofferpool_Get());
@@ -1664,14 +1666,21 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 	                                                 sint16(world_Get()->GetYHeight()),
 	                                                 world_Get()->IsYwrap());
 
+	// Order matters on RE-init (in-process load_game): replace the
+	// TradePool BEFORE the UnitPool so the old UnitPool's CityData dtors
+	// see the fresh (empty) trade pool and skip their route-kill cascade
+	// (guarded via TradeRoute::IsValid in ~CityData). The old order ran
+	// that cascade against half-destroyed pools — "No such object" abort
+	// on any save with live trade routes (deep-state save/load soak).
+	// Note: Game::Set*Ptr uses unique_ptr::reset, so the NEW pool is
+	// already current while the OLD pool's dtor runs.
+	tradepool_Set(new TradePool());
+
 		unitpool_Set(new UnitPool());
 	Assert(unitpool_Get());
 
 		armypool_Set(new ArmyPool());
 	Assert(armypool_Get());
-
-
-	tradepool_Set(new TradePool());
 
     // 55 is probably the last save game version for CTP1
 		tradeofferpool_Set(new TradeOfferPool());

@@ -21,11 +21,16 @@ TradePool::TradePool() : ObjPool(k_BIT_GAME_OBJ_TYPE_TRADE_ROUTE)
 
 TradePool::~TradePool()
 {
-	sint32 i;
-	for(i = m_all_routes->Num() - 1; i >= 0; i--) {
-		m_all_routes->Access(i).Kill(CAUSE_KILL_TRADE_ROUTE_UNKNOWN);
-	}
-	// m_all_routes (unique_ptr) frees after the Kill loop above.
+	// Deliberately NO route-Kill cascade here. The pool is only destroyed
+	// on re-init (tradepool_Set replacement during load_game) or shutdown —
+	// in both cases every object a Kill would unlink (units, cities,
+	// players) is being torn down too. Worse, Game::SetTradesPtr uses
+	// unique_ptr::reset, which installs the NEW pool BEFORE this dtor
+	// runs, so the cascade's tradepool_Get() calls resolved to the fresh
+	// empty pool and aborted with "No such object" on any save carrying
+	// live trade routes (caught by the deep-state save/load soak).
+	// TradeRouteData storage is freed by the ObjPool base dtor;
+	// m_all_routes (unique_ptr) frees itself.
 }
 
 TradeRoute TradePool::Create(Unit sourceCity,

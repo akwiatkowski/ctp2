@@ -19,7 +19,10 @@
 
 bool TradeRoute::IsValid() const
 {
-	return tradepool_Get()->IsValid(m_id);
+	// Null-safe: teardown paths query validity while the pool is being
+	// replaced (see CityData::~CityData).
+	TradePool * pool = tradepool_Get();
+	return pool && pool->IsValid(m_id);
 }
 
 void TradeRoute::KillRoute(CAUSE_KILL_TRADE_ROUTE cause)

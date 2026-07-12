@@ -49,6 +49,46 @@ BATCH = 50          # rounds per end_turn RPC (each well under the socket timeou
 PLAYERS = 6         # more AI players -> more late-game stress (combat, borders)
 
 
+def _walk_numbers(obj, path=""):
+    """Yield (path, value) for every number nested in a JSON-ish structure."""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            yield from _walk_numbers(v, f"{path}.{k}")
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            yield from _walk_numbers(v, f"{path}[{i}]")
+    elif isinstance(obj, (int, float)) and not isinstance(obj, bool):
+        yield path, obj
+
+
+def check_economy_invariants(players, round_now):
+    """Corruption catchers, not balance checks (#8). NaN/inf in economy
+    floats, negative populations/city counts, or absurd gold magnitudes mean
+    an uninitialised read or memory stomp — the memory-refactor regression
+    class — long before they'd crash."""
+    import math
+    assert players, f"round {round_now}: query_players returned no players"
+    for p in players:
+        pid = p.get("id")
+        for path, v in _walk_numbers(p):
+            assert not (isinstance(v, float) and
+                        (math.isnan(v) or math.isinf(v))), (
+                f"round {round_now}: player {pid} has non-finite {path}={v}"
+            )
+        for key in ("num_cities", "num_units", "num_armies"):
+            if key in p:
+                assert 0 <= p[key] < 10000, (
+                    f"round {round_now}: player {pid} {key}={p[key]} "
+                    f"out of sane range"
+                )
+        if "gold" in p:
+            # Deficits are legal (units disband), garbage is not.
+            assert -1_000_000 < p["gold"] < 1_000_000_000, (
+                f"round {round_now}: player {pid} gold={p['gold']} "
+                f"looks like corruption"
+            )
+
+
 def run(client, target):
     client.expect_ok("start_game")
     round_now = client.result("query_turn")["round"]
@@ -70,10 +110,17 @@ def run(client, target):
             )
         print(f"  round {round_now}/{start_round + target}")
 
+        # Economy sanity invariants (#8): not balance checks — the sim is
+        # allowed to drift — but corruption catchers. A NaN/inf in the
+        # economy floats, a negative population, or an absurd gold value
+        # means memory corruption or an uninitialised read, exactly the
+        # class the memory-safety refactors could regress.
+        players = client.result("query_players")["players"]
+        check_economy_invariants(players, round_now)
+
         # A conquest/score victory is a legitimate healthy finish — reaching it
         # without a crash is still a pass. Stop soaking rather than demanding
         # the full round count from an already-decided game.
-        players = client.result("query_players")["players"]
         if any(p.get("has_won_the_game") for p in players):
             winner = next(p for p in players if p.get("has_won_the_game"))
             print(f"  game won by player {winner.get('id')} at round "
@@ -103,6 +150,32 @@ def run(client, target):
         f"  end: round {round_now}, live={len(live)}/{len(players)}, "
         f"cities={total_cities}"
     )
+
+    # Deep-state save/load (#3): the committed fixtures stop at round ~160,
+    # so late-game serialization (bigger armies, deeper tech, more cities/
+    # trade state) is otherwise never round-tripped. Save at the soak's end,
+    # load it back, and prove the loaded game is alive: clock preserved,
+    # same city total, and 20 more rounds run with exact clock advance.
+    save_path = "/tmp/ctp2_longgame_deep.sav"
+    client.expect_ok("save_game", save_path)
+    client.expect_ok("load_game", save_path)
+    r = client.result("query_turn")["round"]
+    assert r == round_now, (
+        f"deep save/load clock broken: saved at {round_now}, loaded {r}"
+    )
+    reloaded = client.result("query_players")["players"]
+    reloaded_cities = sum(p.get("num_cities", 0) for p in reloaded)
+    assert reloaded_cities == total_cities, (
+        f"cities changed across deep save/load: {total_cities} -> {reloaded_cities}"
+    )
+    check_economy_invariants(reloaded, r)
+    client.expect_ok("end_turn", 20)
+    r2 = client.result("query_turn")["round"]
+    assert r2 == r + 20, (
+        f"clock broken after deep reload: {r} + 20 -> {r2}"
+    )
+    check_economy_invariants(client.result("query_players")["players"], r2)
+    print(f"  deep save/load ok: round {r} preserved, +20 rounds -> {r2}")
 
 
 def main():

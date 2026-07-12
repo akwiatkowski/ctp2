@@ -173,7 +173,6 @@ public:
 	PointerList<BuildNode> *GetList() const { return m_list; }
 
 	void ResetOwner(sint32 new_owner);
-	void Dump(const sint32 shieldstore, MBCHAR *s);
 	void RemoveHead();
 
 	bool RemoveNode(BuildNode *node, CAUSE_REMOVE_BUILD_ITEM cause);

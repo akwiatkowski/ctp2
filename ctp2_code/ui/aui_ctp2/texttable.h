@@ -58,8 +58,6 @@ public:
 
 	BOOL			SetTextEntry( uint32 row, uint32 col, MBCHAR *text );
 	BOOL			SetTextHeader( uint32 pos, MBCHAR *text );
-	BOOL			GetTextEntry( uint32 row, uint32 col, MBCHAR *strbuf );
-	BOOL			GetTextHeader( uint32 pos, MBCHAR *strbuf );
 	uint32			GetNumItems( void ) { return m_numItems; };
 
 	BOOL			CleanTextTable( void );

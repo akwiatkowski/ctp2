@@ -1204,40 +1204,6 @@ sint32 victorywin_LoadWonderData( )
 	return 0;
 }
 
-sint32 victorywin_GetRankName( sint32 player, MBCHAR *name, sint32 gameResult )
-{
-
-	MBCHAR strbuf[256];
-
-	strlcpy(strbuf, "NULL", sizeof(strbuf));
-
-	sint32 curScore = infowin_GetCivScore(player);
-
-	if (gameResult == k_VICWIN_DEFEAT)
-	{
-
-		if (curScore <= 5) strlcpy(strbuf, s_stringTable->GetString(9), sizeof(strbuf));
-		else if ((curScore > 5) && (curScore <= 10)) strlcpy(strbuf, s_stringTable->GetString(10), sizeof(strbuf));
-		else if ((curScore > 10) && (curScore <= 15)) strlcpy(strbuf, s_stringTable->GetString(11), sizeof(strbuf));
-		else if ((curScore > 15) && (curScore <= 20)) strlcpy(strbuf, s_stringTable->GetString(12), sizeof(strbuf));
-		else if ((curScore > 20) && (curScore <= 25)) strlcpy(strbuf, s_stringTable->GetString(13), sizeof(strbuf));
-		else if (curScore >= 26) strlcpy(strbuf, s_stringTable->GetString(14), sizeof(strbuf));
-	}
-	else
-	{
-
-		if (curScore <= 20) strlcpy(strbuf, s_stringTable->GetString(15), sizeof(strbuf));
-		else if ((curScore > 20) && (curScore <= 40)) strlcpy(strbuf, s_stringTable->GetString(16), sizeof(strbuf));
-		else if ((curScore > 40) && (curScore <= 60)) strlcpy(strbuf, s_stringTable->GetString(17), sizeof(strbuf));
-		else if ((curScore > 60) && (curScore <= 80)) strlcpy(strbuf, s_stringTable->GetString(18), sizeof(strbuf));
-		else if ((curScore > 80) && (curScore <= 100)) strlcpy(strbuf, s_stringTable->GetString(19), sizeof(strbuf));
-		else if (curScore > 100) strlcpy(strbuf, s_stringTable->GetString(20), sizeof(strbuf));
-	}
-
-	// TODO(strlcpy): unknown dst size
-	strcpy(name, strbuf);
-	return 0;
-}
 
 
 bool victorywin_IsOnScreen()

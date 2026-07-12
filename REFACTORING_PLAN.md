@@ -59,7 +59,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P1 | Remaining CRITICAL crash bugs (BUG_HUNT_REPORT) | ✅ 1/1 done | complete |
 | P2 | ASan smoke tier on Linux | 0/1 | ~1 session |
 | P3 | HIGH-severity findings, category batches | DANGEROUS_SHIFT + DIVISION_BY_ZERO done. MISSING_BOUNDS_CHECK + NULL_DEREFERENCE HIGH tiers **verified & burned down 2026-07-02/03**: ~25 genuine crash bugs fixed, the rest already-fixed (g_player→safe_player migration), false-positive, or the supervised/P4/net tail. Both sections carry resolution blocks. | tail = supervised/P4/net |
-| P4 | Unsafe string APIs (`unsafe_string_api=57`, first-party) | **effectively complete** — ratchet re-scoped (libs excluded); 85 real conversions (92→57); clean pool exhausted. Tail = dead(~20)/deferred-net(~22)/idiom-cascade+hard(~15). Optional: delete dead code (needs OK). | done for practical purposes |
+| P4 | Unsafe string APIs (`unsafe_string_api=39`, first-party) | ✅ complete — 85 conversions (92→57) + dead-code deletion 57→39 + live `GetLabel` sizeof(ptr) bug fixed. Tail = deferred-net(~22)/idiom-cascade(~17). | complete |
 | P5 | JSON-load derived-cache audit | ✅ 1/1 done | complete |
 | P6 | Mechanical RAII conversion (was M11) | 17/574 files; ratchet raw_new 4799, raw_delete 1845 | multi-session |
 | P7 | Close-out docs, declare DoD (was M9) | ✅ 2/2 done | complete |
@@ -71,10 +71,9 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 
 **Recommended next order (2026-07-12):** the original DoD is declared; crash-class work (P1/P3/P4/P5) is done or at its practical floor. The remaining moves, best-ROI first:
 1. **P2** — ASan-on-Linux; blocked only on starting a container engine (`colima start` / Docker), then one build. User action gates it. Do this before P6/P9 ramp, to catch conversion-introduced double-frees.
-2. **P4 dead-code deletion** *(optional, needs Olek's OK)* — deleting the ~20 confirmed-dead unsafe-string sites (~200 lines) drops the counter further and is genuine cleanup, but it removes code so it's opt-in.
-3. **P6** — the long multi-session RAII effort (~407 medium files left); interleaves well. The 2026-07-11 session banked 9 conversions (−20 raw_new/−20 raw_delete incl. one real `new[]`/`delete` UB fix); the self-contained fast-verify tier is now largely picked over — the rest is cross-module owners and the supervised 🔴 tail, best done after P2's ASan net exists.
-4. **P9** — container modernization; same per-cluster discipline as P6, start only after P6 has a stable rhythm (or interleave module-by-module).
-5. **P10** — type-erased cast burn-down; opportunistic, lowest crash-relevance.
+2. **P6** — the long multi-session RAII effort (~407 medium files left); interleaves well. The 2026-07-11 session banked 9 conversions (−20 raw_new/−20 raw_delete incl. one real `new[]`/`delete` UB fix); the self-contained fast-verify tier is now largely picked over — the rest is cross-module owners and the supervised 🔴 tail, best done after P2's ASan net exists.
+3. **P9** — container modernization; same per-cluster discipline as P6, start only after P6 has a stable rhythm (or interleave module-by-module).
+4. **P10** — type-erased cast burn-down; opportunistic, lowest crash-relevance.
 
 Why P1–P5 outrank P6: raw `new`/`delete` → RAII mostly prevents **leaks**, which rarely hurt a play session. Out-of-bounds indexing, null derefs, division by zero, UB shifts, and unsafe string writes are what actually crash or corrupt the game — and the repo already has them catalogued. P6 stays active and interleaves well (same worker fan-out pattern), but crash-class fixes deliver more player-visible stability per line changed. P7 is tiny and fine to slot in anytime as a warm-up; it is last only because it is documentation, not code.
 
@@ -128,7 +127,7 @@ The remaining **57** is *not* a clean-conversion pool:
 - **`GetXName(MBCHAR*)` idiom (~3)** — `CivilisationData`/`Player`/`Civilisation` "fill caller's buffer"; threading a size cascades to 40+ call sites incl offset-callers (`finalText+strlen`) where source-bound capping is unsafe — off-limits.
 - **Hard cascades (~12)** — `UnitSpriteGroup::GetImageFileName` (24-caller in/out), `ldl_data::GetFullName` (recursive, elusive header), `c3errors` (Windows `LocalAlloc`), `civ3_main`.
 
-**Next lever if P4 is resumed:** delete the confirmed-dead code (~20 sites, ~200 lines removed) — needs an explicit go-ahead since it removes code. Otherwise P4 is done for practical purposes.
+**Dead-code deletion done 2026-07-12 (Olek's go-ahead):** deleted `AgreementData::ToString`/`Interpret` (+ the uncalled `Agreement::ToString` handle wrapper), `BuildQueue::Dump`, `victorywin_GetRankName`, `TextTable::GetTextEntry`/`GetTextHeader` — ~320 lines removed, all verified zero-caller (grep -a for the ISO-8859 files). One list entry was **stale**: `ScenarioEditor::GetLabel` IS live (tiledmap.cpp cell labels) and carried a real `snprintf(ptr, sizeof(ptr))` bug truncating every start-loc label to 7 chars — fixed by threading `labelSize` through (header + 1 caller) and bounding the raw `sprintf` in the same function. `unsafe_string_api` **57 → 39**; the remaining 39 is deferred `net/` (~22) + the off-limits `GetXName` idiom / hard cascades (~17).
 
 - [ ] Convert unsafe-string clusters on crash-prone paths (parsers, UI text, save/load) to `strlcpy`/`snprintf`/`std::string`, lowering the `unsafe_string_api` ratchet baseline per batch.
 

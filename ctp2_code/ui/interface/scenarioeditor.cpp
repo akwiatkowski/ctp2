@@ -2436,7 +2436,7 @@ void ScenarioEditor::PlaceFlag(MapPoint &pos)
 }
 
 
-void ScenarioEditor::GetLabel(MBCHAR *labelString, sint32 playerOrCiv)
+void ScenarioEditor::GetLabel(MBCHAR *labelString, size_t labelSize, sint32 playerOrCiv)
 {
 	sint32 index;
 
@@ -2451,7 +2451,7 @@ void ScenarioEditor::GetLabel(MBCHAR *labelString, sint32 playerOrCiv)
 	if (mode == SCEN_START_LOC_MODE_PLAYER ||
 		mode == SCEN_START_LOC_MODE_PLAYER_WITH_CIV)
     {
-		snprintf(labelString, sizeof(labelString), "%s (%d/%d)",
+		snprintf(labelString, labelSize, "%s (%d/%d)",
 					stringdb_Get()->GetNameStr("str_ldl_Player_Text"),
 					index,
 					profiledb_Get()->GetNPlayers()-1);
@@ -2459,12 +2459,12 @@ void ScenarioEditor::GetLabel(MBCHAR *labelString, sint32 playerOrCiv)
     else if (mode == SCEN_START_LOC_MODE_CIV)
     {
 		if(g_theCivilisationDB->Get(index)) {
-		sprintf(labelString, "%s (%d/%d)",
+		snprintf(labelString, labelSize, "%s (%d/%d)",
 					stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(index)->GetPluralCivName()),
 					index,
 					g_theCivilisationDB->NumRecords()-1);
 		} else {
-			snprintf(labelString, sizeof(labelString), "???");
+			snprintf(labelString, labelSize, "???");
 		}
 	}
 }

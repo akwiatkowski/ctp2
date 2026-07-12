@@ -1298,57 +1298,6 @@ sint32 BuildQueue::GetFrontCost()
 	return m_list->GetHead()->m_cost;
 }
 
-void BuildQueue::Dump(const sint32 shieldstore, MBCHAR *s)
-	{
-#if 0
-	bool    firstTime = true;
-
-	BuildNode	*node = m_list->GetHead() ;
-
-	*s = NULL ;
-    while (node)
-		{
-        switch (node->m_category)
-			{
-			case k_GAME_OBJ_TYPE_UNIT :
-				strcat(s, stringdb_Get()->GetNameStr(g_theUnitDB->Get(node->m_type)->m_name)) ;
-				break ;
-
-			case k_GAME_OBJ_TYPE_POP :
-				strcat(s, "Pop") ;
-				break ;
-
-			case k_GAME_OBJ_TYPE_IMPROVEMENT :
-				strcat(s, stringdb_Get()->GetNameStr(g_theBuildingDB->Get(node->m_type)->m_name)) ;
-				break ;
-
-			case k_GAME_OBJ_TYPE_WONDER :
-				strcat(s, stringdb_Get()->GetNameStr(wonderutil_Get(node->m_type)->m_name)) ;
-				break ;
-			case k_GAME_OBJ_TYPE_ENDGAME_OBJECT:
-//				strcat(s, stringdb_Get()->GetNameStr(g_theEndGameDB->Get(node->m_type)->m_name));
-//				break;
-
-			default :
-				Assert(false);
-				break ;
-
-			}
-
-		if (firstTime)
-			{
-			snprintf(s, k_MAX_NAME_LEN, "%s(%d/%d), ", s, node->m_cost, node->m_cost - shieldstore) ;
-			firstTime = false;
-			}
-		else
-			snprintf(s, k_MAX_NAME_LEN, "%s(%d), ", s, node->m_cost) ;
-
-		node = node->m_next ;
-		}
-
-	s[strlen(s) - 2] = NULL ;
-#endif
-    }
 
 void BuildQueue::SetCity(Unit &city)
 {

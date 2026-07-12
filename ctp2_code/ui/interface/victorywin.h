@@ -157,7 +157,6 @@ sint32 victorywin_LoadGraphData( );
 sint32 victorywin_LoadScoreData( );
 sint32 victorywin_LoadWonderData( );
 
-sint32 victorywin_GetRankName( sint32 player, MBCHAR *name, sint32 gameResult );
 bool   victorywin_IsOnScreen();
 
 #endif

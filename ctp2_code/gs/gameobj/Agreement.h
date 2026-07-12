@@ -41,8 +41,6 @@ public:
 	void SetTarget(const Unit &city) { AccessData()->SetTarget(city) ; }
 	void SetThirdParty(const PLAYER_INDEX player) { AccessData()->SetThirdParty(player) ; }
 
-	void ToString(MBCHAR *s) { AccessData()->ToString(s) ; }
-
 	void Break();
 	BOOL IsBroken() const;
 

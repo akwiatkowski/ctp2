@@ -77,7 +77,6 @@ private:
 
 
 	void ExtractPlayer(sint32 indexId, sint32 memberId, MBCHAR *sExpanded) ;
-	void Interpret(MBCHAR *msg, MBCHAR *sInterpreted) ;
 
 	friend class NetAgreement ;
 	friend class NetClientAgreement ;
@@ -134,7 +133,6 @@ public:
 
 	void EndTurn() ;
 
-	void ToString(MBCHAR *s) ;
 
 	void Dump(const sint32 i) ;
 

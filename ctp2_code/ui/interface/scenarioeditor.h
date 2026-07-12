@@ -248,7 +248,7 @@ class ScenarioEditor {
 
 	static bool WorldHasPlayerOrCiv(sint32 playerOrCiv, sint32 &index);
 	static void PlaceFlag(MapPoint &pos);
-	static void GetLabel(MBCHAR *labelString, sint32 playerOrCiv);
+	static void GetLabel(MBCHAR *labelString, size_t labelSize, sint32 playerOrCiv);
 
 	static void RegionButton(aui_Control *control, uint32 action, uint32 data, void *cookie);
 	static bool DrawRegion();

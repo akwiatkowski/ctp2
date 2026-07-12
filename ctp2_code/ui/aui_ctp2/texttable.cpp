@@ -372,34 +372,6 @@ BOOL TextTable::SetTextEntry( uint32 row, uint32 column, MBCHAR *text )
 	return TRUE;
 }
 
-BOOL TextTable::GetTextEntry( uint32 row, uint32 column, MBCHAR *strbuf )
-{
-	uint32 i,j;
-
-	if (( row >= m_rows ) || ( column >= m_columns )) return FALSE;
-
-	aui_Static **itemPtr = m_items;
-
-	for ( i = 0 ; i < m_rows ; i++ )
-	{
-
-		if ( i == row )
-		{
-
-			for ( j = 0 ; j < column ; j++ )
-				*itemPtr++;
-			strcpy(strbuf,(*itemPtr)->GetText());
-			break;
-		}
-		else
-		{
-			for ( j = 0 ; j < m_columns ; j++ )
-				*itemPtr++;
-		}
-	}
-
-	return TRUE;
-}
 
 BOOL TextTable::SetTextHeader( uint32 pos, MBCHAR *text )
 {
@@ -417,21 +389,6 @@ BOOL TextTable::SetTextHeader( uint32 pos, MBCHAR *text )
 	return TRUE;
 }
 
-BOOL TextTable::GetTextHeader( uint32 pos, MBCHAR *strbuf )
-{
-	uint32 i = 0;
-
-	if (pos >= m_columns) return FALSE;
-
-	TextSwitch **headerPtr = m_table_headers;
-
-	for( i = 0 ; i < pos ; i++ )
-		*headerPtr++;
-
-	strcpy(strbuf,(*headerPtr)->GetText());
-
-	return TRUE;
-}
 
 
 BOOL TextTable::CleanTextTable( void )

@@ -4,7 +4,7 @@
     "raw_delete": 1845,
     "raw_new": 4799,
     "type_erased_casting": 2644,
-    "unsafe_string_api": 57
+    "unsafe_string_api": 39
   },
   "description": "Maximum allowed legacy C/C++ pattern counts. Run `make modernization-ratchet-update` after intentional cleanup only.",
   "source_root": "ctp2_code"

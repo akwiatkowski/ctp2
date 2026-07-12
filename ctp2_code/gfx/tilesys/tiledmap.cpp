@@ -3354,7 +3354,7 @@ void TiledMap::DrawStartingLocations(aui_Surface *surf, sint32 layer)
 
 			AddDirtyToMix(destX, destY, iconDim.x, iconDim.y);
 
-			ScenarioEditor::GetLabel(labelString, playerOrCiv);
+			ScenarioEditor::GetLabel(labelString, sizeof(labelString), playerOrCiv);
 
 			if (m_font) {
 				RECT		 rect;

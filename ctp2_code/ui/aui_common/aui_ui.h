@@ -44,6 +44,7 @@
 //----------------------------------------------------------------------------
 
 #include <windows.h>		// HINSTANCE etc.
+#include <algorithm>		// std::min/max (secondary dirty-union)
 
 //----------------------------------------------------------------------------
 // Exported names
@@ -183,12 +184,22 @@ public:
 	                          )
 	{
 		Assert(m_secondary);
+		AccumulateSecondaryDirty(destx, desty,
+		                         destx + (srcRect->right - srcRect->left),
+		                         desty + (srcRect->bottom - srcRect->top));
 		return m_blitter->Blt(m_secondary, destx, desty, srcSurf, srcRect, flags);
 	};
 
+	// useAccumulatedDirty: the per-frame mouse presents pass true — every
+	// write they composite goes through BltToSecondary/ColorBltToSecondary
+	// above, so the accumulated union covers exactly what changed, and the
+	// 565->8888 convert + GPU texture upload are scoped to it. Direct
+	// Secondary() writers (splash text, movie playback) keep the default
+	// full-frame present. An empty union falls back to full-frame.
 	AUI_ERRCODE BltSecondaryToPrimary
 	                        (
-	                         uint32       flags
+	                         uint32       flags,
+	                         bool         useAccumulatedDirty = false
 	                        );
 
 	AUI_ERRCODE ColorBltToSecondary
@@ -198,6 +209,8 @@ public:
 	                              uint32    flags
 	                             )
 	{
+		AccumulateSecondaryDirty(destRect->left, destRect->top,
+		                         destRect->right, destRect->bottom);
 		return m_blitter->ColorBlt(m_secondary, destRect, color, flags);
 	};
 
@@ -224,6 +237,7 @@ public:
 	AUI_ERRCODE ClearSecondary()
 	{
 		RECT rect = {0, 0, SecondaryWidth(), SecondaryHeight()};
+		AccumulateSecondaryDirty(rect.left, rect.top, rect.right, rect.bottom);
 		return m_blitter->ColorBlt(m_secondary, &rect, RGB(0,0,0), 0);
 	}
 
@@ -423,6 +437,30 @@ protected:
 
 	aui_Surface		*m_primary;
 	aui_Surface		*m_secondary;
+
+	// Running union of every rect written into m_secondary via
+	// BltToSecondary/ColorBltToSecondary since the last present.
+	// Consumed + reset by BltSecondaryToPrimary(useAccumulatedDirty=true).
+	RECT			m_secondaryDirtyUnion;
+	BOOL			m_secondaryDirtyValid;
+
+	void AccumulateSecondaryDirty(sint32 l, sint32 t, sint32 r, sint32 b)
+	{
+		if (r <= l || b <= t) return;
+		if (m_secondaryDirtyValid)
+		{
+			m_secondaryDirtyUnion.left   = std::min<sint32>(m_secondaryDirtyUnion.left,   l);
+			m_secondaryDirtyUnion.top    = std::min<sint32>(m_secondaryDirtyUnion.top,    t);
+			m_secondaryDirtyUnion.right  = std::max<sint32>(m_secondaryDirtyUnion.right,  r);
+			m_secondaryDirtyUnion.bottom = std::max<sint32>(m_secondaryDirtyUnion.bottom, b);
+		}
+		else
+		{
+			m_secondaryDirtyUnion = { l, t, r, b };
+			m_secondaryDirtyValid = TRUE;
+		}
+	}
+
 	aui_Blitter		*m_blitter;
 	aui_MemMap		*m_memmap;
 	aui_Mouse		*m_mouse;

@@ -894,7 +894,8 @@ AUI_ERRCODE aui_Mouse::ReactToInput( )
 		k_AUI_BLITTER_FLAG_COPY );
 	Assert( errcode == AUI_ERRCODE_OK );
 
-	errcode = aui_ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
+	errcode = aui_ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY,
+	                                              true /*useAccumulatedDirty*/);
 	Assert( errcode == AUI_ERRCODE_OK );
 
 	aui_Surface *tempSurf = m_prevPickup;
@@ -1213,7 +1214,8 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 		}
 	}
 
-	errcode = aui_ui_Get()->BltSecondaryToPrimary(blitFlags);
+	errcode = aui_ui_Get()->BltSecondaryToPrimary(blitFlags,
+	                                              true /*useAccumulatedDirty*/);
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK )
 	{

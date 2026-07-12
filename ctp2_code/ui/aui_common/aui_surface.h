@@ -24,7 +24,7 @@
 // Modifications from the original Activision code:
 //
 // - Corrected a reported memory leak.
-// - Added back buffering capability. (1-Jan-2010 Martin Gühmann)
+// - Added back buffering capability. (1-Jan-2010 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 #if defined(HAVE_PRAGMA_ONCE)
@@ -129,7 +129,9 @@ public:
 	virtual AUI_ERRCODE BlankRGB(const uint8 &red, const uint8 &green, const uint8 &blue);
 	virtual AUI_ERRCODE Blank(const uint32 &color);
 
-	virtual void Flip(){};
+	// dirty: optional sub-rect that changed since the last Flip â€” a present
+	// backend may upload only that region (nullptr = full surface).
+	virtual void Flip(RECT const *dirty = nullptr){ (void)dirty; };
 	virtual void ReverseFlip(){};
 
 	static uint32 m_surfaceClassId;

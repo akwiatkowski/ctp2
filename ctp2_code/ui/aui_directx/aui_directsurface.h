@@ -26,7 +26,7 @@
 // Modifications from the original Activision code:
 //
 // - Initialised pointer in default constructor to prevent destructor crash.
-// - Added back buffering capability. (1-Jan-2010 Martin Gühmann)
+// - Added back buffering capability. (1-Jan-2010 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ public:
 	BOOL				IsDCGot( void ) const { return m_dcIsGot; }
 
 	virtual BOOL IsOK( void ) const;
-	virtual void Flip();
+	virtual void Flip(RECT const *dirty = nullptr);
 
 	static uint32 m_directSurfaceClassId;
 

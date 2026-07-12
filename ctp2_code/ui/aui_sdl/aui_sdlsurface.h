@@ -47,7 +47,7 @@ public:
 
 	BOOL IsOK( ) const override;
 	AUI_ERRCODE Blank(const uint32 &color) override;
-	void Flip( ) override;
+	void Flip(RECT const *dirty = nullptr) override;
 
 	static uint32 m_SDLSurfaceClassId;
 

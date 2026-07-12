@@ -7,6 +7,7 @@
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_sdl/aui_sdlsurface.h"
 #include <SDL2/SDL_thread.h>
+#include <algorithm>   // std::min/max (dirty-rect clamp in Flip)
 
 uint32 aui_SDLSurface::m_SDLSurfaceClassId = aui_UniqueId();
 
@@ -185,19 +186,47 @@ AUI_ERRCODE aui_SDLSurface::Blank(const uint32 &color)
 	return AUI_ERRCODE_BLTFAILED;
 }
 
-void aui_SDLSurface::Flip( )
+void aui_SDLSurface::Flip(RECT const *dirty)
 {
 	// Present the composited primary surface through the GPU: upload its
 	// pixels to the streaming texture and let the renderer scale/present it
-	// (Metal on macOS, GL/Vulkan on Linux). Scaling for free = smooth zoom;
-	// a sub-rect source = smooth scroll (wired separately). Falls back to the
-	// window-surface present if no renderer (shouldn't happen post-init).
+	// (Metal on macOS, GL/Vulkan on Linux). When a dirty rect is given only
+	// that region is uploaded — the texture persists between frames, so a
+	// partial upload + full RenderCopy still shows the complete frame.
+	// Falls back to the window-surface present if no renderer (shouldn't
+	// happen post-init).
 	if ( m_isPrimary && m_lpdds )
 	{
 		SDL_LockMutex(m_bltMutex);
 		if ( m_renderer && m_screenTexture )
 		{
-			SDL_UpdateTexture( m_screenTexture, nullptr, m_lpdds->pixels, m_lpdds->pitch );
+			SDL_Rect up;
+			SDL_Rect const *upPtr = nullptr;
+			if (dirty)
+			{
+				// Clamp to surface bounds; empty -> nothing to upload,
+				// but still present (callers only Flip when something
+				// changed, so keep the present unconditional).
+				sint32 const l = std::max<sint32>(dirty->left, 0);
+				sint32 const t = std::max<sint32>(dirty->top, 0);
+				sint32 const r = std::min<sint32>(dirty->right, m_lpdds->w);
+				sint32 const b = std::min<sint32>(dirty->bottom, m_lpdds->h);
+				if (l < r && t < b)
+				{
+					up.x = l;  up.y = t;  up.w = r - l;  up.h = b - t;
+					upPtr = &up;
+				}
+			}
+			if (!dirty || upPtr)
+			{
+				uint8 const *pixels = static_cast<uint8 const *>(m_lpdds->pixels);
+				if (upPtr)
+				{
+					pixels += static_cast<size_t>(up.y) * m_lpdds->pitch
+					        + static_cast<size_t>(up.x) * m_lpdds->format->BytesPerPixel;
+				}
+				SDL_UpdateTexture( m_screenTexture, upPtr, pixels, m_lpdds->pitch );
+			}
 			SDL_RenderClear( m_renderer );
 			SDL_RenderCopy( m_renderer, m_screenTexture, nullptr, nullptr );
 			SDL_RenderPresent( m_renderer );

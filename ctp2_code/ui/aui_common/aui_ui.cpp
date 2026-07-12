@@ -91,6 +91,8 @@ aui_UI::aui_UI
 	m_ldl                       (nullptr),
 	m_primary                   (nullptr),
 	m_secondary                 (nullptr),
+	m_secondaryDirtyUnion       {0, 0, 0, 0},
+	m_secondaryDirtyValid       (FALSE),
 	m_blitter                   (nullptr),
 	m_memmap                    (nullptr),
 	m_mouse                     (nullptr),
@@ -1904,17 +1906,37 @@ AUI_ERRCODE aui_UI::TagMouseEvents( sint32 numEvents, aui_MouseEvent *events )
 
 AUI_ERRCODE aui_UI::BltSecondaryToPrimary
                         (
-                         uint32       flags
+                         uint32       flags,
+                         bool         useAccumulatedDirty
                         )
 {
 	if(m_blitter == nullptr)
 		return AUI_ERRCODE_NOBLITTER;
 
-	RECT rect = {0, 0, SecondaryWidth(), SecondaryHeight()};
+	RECT full = {0, 0, SecondaryWidth(), SecondaryHeight()};
+	RECT rect = full;
 
-	AUI_ERRCODE hr = m_blitter->Blt(m_primary, 0, 0, m_secondary, &rect, flags);
+	if (useAccumulatedDirty && m_secondaryDirtyValid)
+	{
+		// Scope the 565->8888 convert and the GPU texture upload to the
+		// union of what was actually composited since the last present.
+		// The union is clamped to the surface; falls back to full frame
+		// when nothing was tracked (conservative).
+		rect.left   = std::max<sint32>(m_secondaryDirtyUnion.left,   0);
+		rect.top    = std::max<sint32>(m_secondaryDirtyUnion.top,    0);
+		rect.right  = std::min<sint32>(m_secondaryDirtyUnion.right,  full.right);
+		rect.bottom = std::min<sint32>(m_secondaryDirtyUnion.bottom, full.bottom);
+		if (rect.right <= rect.left || rect.bottom <= rect.top)
+			rect = full;
+	}
 
-	m_primary->Flip();
+	AUI_ERRCODE hr = m_blitter->Blt(m_primary, rect.left, rect.top,
+	                                m_secondary, &rect, flags);
+
+	m_primary->Flip(&rect);
+
+	// Every present consumes the union — full-frame presents supersede it.
+	m_secondaryDirtyValid = FALSE;
 
 	return hr;
 }

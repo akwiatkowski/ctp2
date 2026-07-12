@@ -1729,6 +1729,21 @@ test('scenario-long-game',
   suite : 'scenario',
 )
 
+# Conquest ending: forces a 2-opponent game to an actual victory (capture
+# the AI's city, eliminate its units) and asserts the engine RECOGNIZES
+# the ending (dead flag / has_won_the_game) and keeps running afterward.
+# The game's end state was never tested before this.
+victory_test = find_program('test/scenario_victory.py')
+test('scenario-victory',
+  victory_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 600,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'scenario',
+)
+
 # Forced late-game content: grant_advance + create_unit cheats push the
 # game straight to the nano-age SettleWater mechanic — an undersea city
 # founded on open water, on a fresh map, in ~1s. Content that is

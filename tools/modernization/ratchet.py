@@ -31,6 +31,11 @@ CHECKS = {
     "c_allocation": r"\b(malloc|calloc|realloc|free)\s*\(",
     "unsafe_string_api": r"\b(strcpy|strcat|sprintf)\s*\(",
     "type_erased_casting": r"void\s*\*|reinterpret_cast",
+    # P9 container modernization: the pre-STL custom containers. PointerList
+    # is often OWNING (converting one is also a P6 ownership decision);
+    # DynamicArray/SimpleDynamicArray are the memcpy-growth value arrays.
+    "pointerlist_uses": r"\bPointerList\s*<",
+    "dynarray_uses": r"\b(DynamicArray|SimpleDynamicArray)\s*<",
 }
 
 

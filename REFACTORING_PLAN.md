@@ -64,7 +64,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P6 | Mechanical RAII conversion (was M11) | 17/574 files; ratchet raw_new 4799, raw_delete 1845 | multi-session |
 | P7 | Close-out docs, declare DoD (was M9) | ✅ 2/2 done | complete |
 | P8 | Performance build tier (release + thin-LTO) | ✅ 1/1 done — `make release` / `release-check`; 8.6–9.3× CPU banked | complete |
-| P9 | Container modernization (PointerList/DynamicArray → std) | 0/n — 954 legacy uses | multi-session |
+| P9 | Container modernization (PointerList/DynamicArray → std) | ratchets live (576+353); burn-down 0/n | multi-session |
 | P10 | Type-erased casting burn-down (`type_erased_casting=2644`) | 0/n | opportunistic |
 | P11 | GPU-path rendering | **Stage 1 ✅ done** (pixel oracle + dirty-rect present, −73% upload bytes); Stage 2 parked with M10 | staged |
 | — | Modern-asset converter + first-run (was M10) | **parked** | deferred |
@@ -295,7 +295,8 @@ That is **5.3× wall / 8.6× CPU** for zero code changes. The 2026-07-10 long-ga
 
 First-party non-test usage counts (2026-07-12): **`PointerList<>` 554, `DynamicArray<>` 340, `SimpleDynamicArray<>` 60** — vs 1245 `std::vector` already in newer code. These custom containers predate the STL era of this codebase and are the locality/iterator-safety layer *next to* P6's raw-pointer work.
 
-- [ ] Add per-container ratchet counters (`pointerlist_uses`, `dynarray_uses`) and burn down leaf/value-semantics uses to `std::vector`/`std::list`/`std::deque` per-cluster, smallest first — same discipline as P6 (no free mechanical tier assumed; serialization-coupled uses wait for their bridge).
+- [x] Add per-container ratchet counters. **Done 2026-07-12:** `pointerlist_uses=576`, `dynarray_uses=353` (DynamicArray + SimpleDynamicArray) enforced by `make test` alongside the other five.
+- [ ] Burn down leaf/value-semantics uses to `std::vector`/`std::list`/`std::deque` per-cluster, smallest first — same discipline as P6 (no free mechanical tier assumed; serialization-coupled uses wait for their bridge; PointerList conversions are simultaneously P6 ownership decisions).
 
 Caveats: `DynamicArray` has game-semantic quirks (POD `memcpy` growth, `Num()`/`Access()` idioms, ID-type coupling); `PointerList` is often *owning* — converting one is simultaneously a P6 ownership decision. A* pathfinding already uses an `AVLHeap` arena (`g_astar_mem`) — **leave it** (correct and hot).
 

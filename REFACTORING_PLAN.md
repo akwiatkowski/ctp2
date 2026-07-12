@@ -66,7 +66,8 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P8 | Performance build tier (release + LTO eval) | 0/1 — **measured 5.3× wall / 8.6× CPU win** | ~1 session |
 | P9 | Container modernization (PointerList/DynamicArray → std) | 0/n — 954 legacy uses | multi-session |
 | P10 | Type-erased casting burn-down (`type_erased_casting=2644`) | 0/n | opportunistic |
-| — | Modern-asset converter + first-run (was M10) + GPU-path rendering (P11) | **parked** | deferred |
+| P11 | GPU-path rendering | **Stage 1 ✅ done** (pixel oracle + dirty-rect present, −73% upload bytes); Stage 2 parked with M10 | staged |
+| — | Modern-asset converter + first-run (was M10) | **parked** | deferred |
 
 **Recommended next order (2026-07-12):** the original DoD is declared; crash-class work (P1/P3/P4/P5) is done or at its practical floor. The remaining moves, best-ROI first:
 1. **P8** — performance build tier. Zero code risk, one session, and the payoff is already measured: **5.3× wall / 8.6× CPU** (the engine has only ever been built at `-O0` + `-ftrapv`). See P8 below.
@@ -303,11 +304,20 @@ Ratchet `type_erased_casting = 2644` first-party (pattern: `void*` | `reinterpre
 
 - [ ] Opportunistic burn-down at the edges: replace C casts with checked casts where types are locally known; do **not** redesign the two by-design type-erased systems — the `GameEventArgument` GEA varargs event API (the `-Wno-non-pod-varargs` suppression exists for it) and the aui callback-cookie protocol. Lowest crash-relevance of the open items (UBSan tier + P1/P3 already covered the crash classes); slot behind P6/P9.
 
-### Parked — Modern-asset converter + first-run (was M10) · GPU-path rendering (P11)
+### P11 — GPU-path rendering
 
-Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerprint>/`) plus an engine modern-first loader with legacy fallback. See `docs/modern-assets.md`. Resume only after the memory-safety phase is well underway.
+**Re-scoped 2026-07-12 (exploration overturned the "parked" framing):** the GPU present **already existed** — the SDL2 build presents via an accelerated `SDL_Renderer` (Metal on macOS, vsync, HiDPI `SDL_RenderSetLogicalSize`) + streaming ARGB8888 texture in `aui_SDLSurface::Flip()`. The engine composites in software (world → 16-bit `secondary`, UI dirty-rects → 32-bit `primary`), then one texture upload + present per frame.
 
-**P11 (parked with it):** the renderer is a 16-bit `Pixel16` 565 software pipeline with RLE-encoded tiles composited on the CPU and presented via SDL2. Moving to `SDL_Texture`/GPU compositing is a rewrite of the blit layer and only pays off together with the modern-asset pipeline — park them as one workstream. Release-tier `-O2` (P8) already makes the software blitter cheap on modern CPUs.
+**Stage 1 done 2026-07-12** (commits `2102b82d` + `5a463ac3`):
+- **Pixel oracle first** — the present path was test-blind (no test read back a GPU frame; a black screen would pass everything). New smoke command `screenshot_presented <pres> [prim]` reads the screen texture back through a target texture (1:1, HiDPI-proof) and captures the software primary **atomically in the same dispatch**; `slice-ui` now asserts a 7×7 sample grid identical between primary and GPU readback + non-monochrome.
+- **Dirty-rect present** — `aui_UI` accumulates the union of every rect composited into the secondary (choke points `BltToSecondary`/`ColorBltToSecondary`); the two per-frame mouse presents opt in via `BltSecondaryToPrimary(flags, useAccumulatedDirty)`, scoping both the 565→8888 convert and the `SDL_UpdateTexture` upload (`Flip(RECT const*)`) to it. Direct `Secondary()` writers (splash, movies) keep full-frame defaults; empty union → full frame. Verified: TiledMap/world content reaches the secondary via window surfaces + tracked dirty lists, so the union covers the true frame delta.
+- **Measured** (debug tier, 1024×768, idle + turns): average converted/uploaded area **100% → 26.7%** of the frame (−73% bytes); per-present wall ~unchanged (vsync-block dominated) — the win is CPU work/battery inside the frame budget, and it scales with resolution.
+
+**Stage 2 (parked with M10):** per-window/per-layer `SDL_Texture` GPU compositing, 32-bit world surface, and draw-time render flags (fog/desaturation) as GPU ops — only pays off together with the modern-asset atlas pipeline (`docs/modern-assets.md`). The dirty-union seam + pixel oracle from Stage 1 are the foundation it builds on.
+
+### Parked — Modern-asset converter + first-run (was M10)
+
+Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerprint>/`) plus an engine modern-first loader with legacy fallback. See `docs/modern-assets.md`. Resume only after the memory-safety phase is well underway. P11 Stage 2 (GPU compositing) resumes together with this.
 
 ### Already-modern (verified 2026-07-12 — don't re-propose)
 

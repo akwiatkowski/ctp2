@@ -97,6 +97,36 @@ build-ubsan:
 	@echo "Building CTP2 with UBSan..."
 	mise exec -- meson compile -C build-ubsan ctp2_headless
 
+# Performance tier (P8). The dev default is -O0 debug with hardening=maximum
+# (-ftrapv on every signed op) — measured 5.3x wall / 8.6x CPU slower than
+# release on the same seed (identical game outcome, so optimization does not
+# break determinism). Use the release tier for play sessions, benchmarks, and
+# long soaks; it does NOT replace the hardened dev/test tiers.
+# NOTE: buildtype must be `release`, not `debugoptimized` — meson.build gates
+# _DEBUG/SHOW_ASSERTS/USE_LOGGING on buildtype.startswith('debug'), which
+# `debugoptimized` matches. Thin-LTO measured 2026-07-12: ~7% CPU over plain
+# -O2 (user 1.95s vs 2.11s, 60-turn/6-player benchmark) — enabled here since
+# this tier is rebuilt occasionally, not per-edit.
+setup-release:
+	@echo "Configuring optimized release build (thin-LTO)..."
+	@rm -rf build-release
+	mise exec -- meson setup build-release ctp2_code \
+		--buildtype=release \
+		-Dhardening_level=basic \
+		-Db_lto=true \
+		-Db_lto_mode=thin
+	@echo "Release build configured. Run 'make release' to compile."
+
+release:
+	@test -d build-release || $(MAKE) setup-release
+	@echo "Building CTP2 (release)..."
+	mise exec -- meson compile -C build-release ctp2 ctp2_headless
+
+# Release-tier validation (run per milestone): the long-game soak against the
+# optimized binary. The meson-wired test suites keep running the debug tier.
+release-check: release
+	mise exec -- python3 ctp2_code/test/scenario_long_game.py build-release/ctp2_headless
+
 # Short ASan/UBSan smoke path. Uses the repro harness so failures include the
 # headless log/crash report tail instead of just a sanitizer abort.
 SAN_CMDS ?= new_game; start_game; query_players; end_turn 2; query_players
@@ -393,7 +423,7 @@ ci-reset:
 ci-tier-a:
 	@.ci/tiers/tier-a.sh && echo "tier-a done"
 
-.PHONY: all deps setup build setup-sanitized build-sanitized sanitized-smoke setup-ubsan build-ubsan ubsan-smoke test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
+.PHONY: all deps setup build setup-sanitized build-sanitized sanitized-smoke setup-ubsan build-ubsan ubsan-smoke setup-release release release-check test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
         gateway gateway-build gateway-test \
         ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a
 

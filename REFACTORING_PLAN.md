@@ -63,19 +63,18 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P5 | JSON-load derived-cache audit | ✅ 1/1 done | complete |
 | P6 | Mechanical RAII conversion (was M11) | 17/574 files; ratchet raw_new 4799, raw_delete 1845 | multi-session |
 | P7 | Close-out docs, declare DoD (was M9) | ✅ 2/2 done | complete |
-| P8 | Performance build tier (release + LTO eval) | 0/1 — **measured 5.3× wall / 8.6× CPU win** | ~1 session |
+| P8 | Performance build tier (release + thin-LTO) | ✅ 1/1 done — `make release` / `release-check`; 8.6–9.3× CPU banked | complete |
 | P9 | Container modernization (PointerList/DynamicArray → std) | 0/n — 954 legacy uses | multi-session |
 | P10 | Type-erased casting burn-down (`type_erased_casting=2644`) | 0/n | opportunistic |
 | P11 | GPU-path rendering | **Stage 1 ✅ done** (pixel oracle + dirty-rect present, −73% upload bytes); Stage 2 parked with M10 | staged |
 | — | Modern-asset converter + first-run (was M10) | **parked** | deferred |
 
 **Recommended next order (2026-07-12):** the original DoD is declared; crash-class work (P1/P3/P4/P5) is done or at its practical floor. The remaining moves, best-ROI first:
-1. **P8** — performance build tier. Zero code risk, one session, and the payoff is already measured: **5.3× wall / 8.6× CPU** (the engine has only ever been built at `-O0` + `-ftrapv`). See P8 below.
-2. **P2** — ASan-on-Linux; blocked only on starting a container engine (`colima start` / Docker), then one build. User action gates it. Do this before P6/P9 ramp, to catch conversion-introduced double-frees.
-3. **P4 dead-code deletion** *(optional, needs Olek's OK)* — deleting the ~20 confirmed-dead unsafe-string sites (~200 lines) drops the counter further and is genuine cleanup, but it removes code so it's opt-in.
-4. **P6** — the long multi-session RAII effort (~407 medium files left); interleaves well. The 2026-07-11 session banked 9 conversions (−20 raw_new/−20 raw_delete incl. one real `new[]`/`delete` UB fix); the self-contained fast-verify tier is now largely picked over — the rest is cross-module owners and the supervised 🔴 tail, best done after P2's ASan net exists.
-5. **P9** — container modernization; same per-cluster discipline as P6, start only after P6 has a stable rhythm (or interleave module-by-module).
-6. **P10** — type-erased cast burn-down; opportunistic, lowest crash-relevance.
+1. **P2** — ASan-on-Linux; blocked only on starting a container engine (`colima start` / Docker), then one build. User action gates it. Do this before P6/P9 ramp, to catch conversion-introduced double-frees.
+2. **P4 dead-code deletion** *(optional, needs Olek's OK)* — deleting the ~20 confirmed-dead unsafe-string sites (~200 lines) drops the counter further and is genuine cleanup, but it removes code so it's opt-in.
+3. **P6** — the long multi-session RAII effort (~407 medium files left); interleaves well. The 2026-07-11 session banked 9 conversions (−20 raw_new/−20 raw_delete incl. one real `new[]`/`delete` UB fix); the self-contained fast-verify tier is now largely picked over — the rest is cross-module owners and the supervised 🔴 tail, best done after P2's ASan net exists.
+4. **P9** — container modernization; same per-cluster discipline as P6, start only after P6 has a stable rhythm (or interleave module-by-module).
+5. **P10** — type-erased cast burn-down; opportunistic, lowest crash-relevance.
 
 Why P1–P5 outrank P6: raw `new`/`delete` → RAII mostly prevents **leaks**, which rarely hurt a play session. Out-of-bounds indexing, null derefs, division by zero, UB shifts, and unsafe string writes are what actually crash or corrupt the game — and the repo already has them catalogued. P6 stays active and interleaves well (same worker fan-out pattern), but crash-class fixes deliver more player-visible stability per line changed. P7 is tiny and fine to slot in anytime as a warm-up; it is last only because it is documentation, not code.
 
@@ -286,7 +285,10 @@ That is **5.3× wall / 8.6× CPU** for zero code changes. The 2026-07-10 long-ga
 
 **⚠️ `debugoptimized` trap:** `meson.build` gates `_DEBUG`/`SHOW_ASSERTS`/`USE_LOGGING` (and debug `-ftrapv`) on `buildtype.startswith('debug')` — which **matches `debugoptimized`**. A perf tier must use `buildtype=release` (as `build-release` does: `meson setup build-release ctp2_code -Dbuildtype=release -Dhardening_level=basic`), or that condition needs fixing first.
 
-- [ ] Make the release tier official: `make release` target + docs; run the scenario suite (incl. `scenario-long-game`) against it once per milestone; evaluate `-Db_lto=true` (and thin-LTO) and record the delta here; optionally expose an `-mcpu=native` toggle. Keep the hardened `-O0` tier as the dev/test default — the perf tier is additive, not a replacement.
+- [x] Make the release tier official. **Done 2026-07-12:** `make setup-release` / `make release` (buildtype=release, hardening basic, **thin-LTO**) + `make release-check` (the 300-round long-game soak against the optimized binary, to run per milestone). Measurements on M4 Pro:
+  - 60 turns / 6 players / seed 42: debug 18.7 s wall → release-O2 **2.4 s wall / 2.1 s CPU**; thin-LTO **1.95 s CPU** (~7% over plain -O2 — enabled, since the tier is rebuilt occasionally, not per-edit).
+  - 300-round soak: debug 71 s → release **16.8 s**, byte-identical outcome (round 300, 5/6 live, 42 cities — same as the debug run; optimization does not perturb determinism).
+  - `-mcpu=native` not exposed (thin-LTO already in; revisit only if profiling on this tier shows a hotspot). The hardened `-O0` tier stays the dev/test default — the perf tier is additive.
 
 **Threading non-goal (recorded so it isn't re-proposed):** the sim is single-threaded by design (threads exist only in `net/` and the smoke server); with 175 file-scope `g_*` singleton definitions and determinism guarantees (same-seed replays, save round-trips), multithreading the simulation is high-risk/low-need — release-tier `-O2` already buys 5–8×. Profile on the release tier before any concurrency discussion.
 

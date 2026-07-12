@@ -1729,6 +1729,22 @@ test('scenario-long-game',
   suite : 'scenario',
 )
 
+# Seed sweep: the same short game across several rng seeds — map gen,
+# start placement, and early AI across the seed space (everything else
+# runs on seed 42). Small config here; `make seed-sweep` runs 20 seeds
+# on the release tier.
+seed_sweep_test = find_program('test/scenario_seed_sweep.py')
+test('scenario-seed-sweep',
+  seed_sweep_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless'),
+          '--count', '3', '--turns', '40'],
+  timeout : 600,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'scenario',
+)
+
 path_resume_test = find_program('test/scenario_path_resume.py')
 test('scenario-path-resume',
   path_resume_test,

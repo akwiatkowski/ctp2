@@ -122,10 +122,15 @@ release:
 	@echo "Building CTP2 (release)..."
 	mise exec -- meson compile -C build-release ctp2 ctp2_headless
 
-# Release-tier validation (run per milestone): the long-game soak against the
-# optimized binary. The meson-wired test suites keep running the debug tier.
+# Release-tier validation (run per milestone): the long-game soak + a wide
+# seed sweep against the optimized binary. The meson-wired test suites keep
+# running the debug tier (with a small 3-seed sweep).
 release-check: release
 	mise exec -- python3 ctp2_code/test/scenario_long_game.py build-release/ctp2_headless
+	mise exec -- python3 ctp2_code/test/scenario_seed_sweep.py build-release/ctp2_headless --count 20 --turns 60 --players 6
+
+seed-sweep: release
+	mise exec -- python3 ctp2_code/test/scenario_seed_sweep.py build-release/ctp2_headless --count 20 --turns 60 --players 6
 
 # Short ASan/UBSan smoke path. Uses the repro harness so failures include the
 # headless log/crash report tail instead of just a sanitizer abort.
@@ -423,7 +428,7 @@ ci-reset:
 ci-tier-a:
 	@.ci/tiers/tier-a.sh && echo "tier-a done"
 
-.PHONY: all deps setup build setup-sanitized build-sanitized sanitized-smoke setup-ubsan build-ubsan ubsan-smoke setup-release release release-check test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
+.PHONY: all deps setup build setup-sanitized build-sanitized sanitized-smoke setup-ubsan build-ubsan ubsan-smoke setup-release release release-check seed-sweep test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
         gateway gateway-build gateway-test \
         ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a
 

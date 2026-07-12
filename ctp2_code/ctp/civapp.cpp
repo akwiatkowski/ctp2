@@ -275,6 +275,7 @@
 #include "ui/interface/tutorialwin.h"
 #include "gs/fileio/gamefile.h"
 #ifdef USE_SDL
+#include "ui/aui_sdl/aui_sdl.h"          // aui_SDL::Renderer/ScreenTexture (presented-frame readback)
 #include "ui/aui_sdl/aui_sdlsurface.h"
 #endif
 #include "gs/gameobj/Unit.h"
@@ -2842,6 +2843,76 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						}
 					} else {
 						smoketest_send_response("error", cmd, "no_surface");
+					}
+#else
+					smoketest_send_response("error", cmd, "not_sdl");
+#endif
+				}
+			}
+			else if (strncmp(cmd, "screenshot_presented ", 21) == 0) {
+				// screenshot_presented <presented.bmp> [primary.bmp]
+				// Presented-frame readback: re-composite the GPU present
+				// stage (Copy from the persistent screen texture into a
+				// target texture, NO present — the backbuffer after
+				// RenderPresent is undefined, re-compositing is
+				// deterministic) and read the pixels back. The optional
+				// second path also saves the software primary surface IN
+				// THE SAME DISPATCH, so the pair is atomic — no animation
+				// frame can land between the two captures. Together they
+				// validate the texture upload + RenderCopy path that every
+				// visible frame goes through.
+				char presPath[1024] = {0};
+				char primPath[1024] = {0};
+				sscanf(cmd + 21, "%1023s %1023s", presPath, primPath);
+				const char *path = presPath;
+				if (!path[0]) {
+					smoketest_send_response("error", cmd, "bad_args");
+				} else {
+#ifdef USE_SDL
+					SDL_Renderer *renderer = aui_SDL::Renderer();
+					SDL_Texture  *texture  = aui_SDL::ScreenTexture();
+					if (!renderer || !texture) {
+						smoketest_send_response("error", cmd, "no_renderer");
+					} else {
+						// Copy the screen texture into a same-size TARGET
+						// texture and read that back. Target state resets
+						// viewport/scale to 1:1 texture size, so the read
+						// is exact regardless of HiDPI backbuffer scale or
+						// SDL_RenderSetLogicalSize on the window target.
+						int texW = 0, texH = 0;
+						SDL_QueryTexture(texture, nullptr, nullptr, &texW, &texH);
+						SDL_Texture *target = SDL_CreateTexture(renderer,
+						        SDL_PIXELFORMAT_ARGB8888,
+						        SDL_TEXTUREACCESS_TARGET, texW, texH);
+						bool ok = false;
+						if (target && SDL_SetRenderTarget(renderer, target) == 0) {
+							SDL_RenderClear(renderer);
+							SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+							SDL_Surface *shot = SDL_CreateRGBSurfaceWithFormat(
+								0, texW, texH, 32, SDL_PIXELFORMAT_ARGB8888);
+							if (shot) {
+								ok = SDL_RenderReadPixels(renderer, nullptr,
+								        SDL_PIXELFORMAT_ARGB8888,
+								        shot->pixels, shot->pitch) == 0
+								  && SDL_SaveBMP(shot, path) == 0;
+								SDL_FreeSurface(shot);
+							}
+							SDL_SetRenderTarget(renderer, nullptr);
+						}
+						if (target) SDL_DestroyTexture(target);
+						// Atomic pair: capture the software primary in the
+						// same dispatch (no Draw can run in between).
+						if (ok && primPath[0]) {
+							aui_SDLSurface *prim = static_cast<aui_SDLSurface*>(c3ui_Get()->Primary());
+							ok = prim && prim->DDS()
+							  && SDL_SaveBMP(prim->DDS(), primPath) == 0;
+						}
+						if (ok) {
+							smoke_log->info("Presented-frame readback saved to {}", path);
+							smoketest_send_response("ok", cmd, nullptr);
+						} else {
+							smoketest_send_response("error", cmd, "readback_failed");
+						}
 					}
 #else
 					smoketest_send_response("error", cmd, "not_sdl");

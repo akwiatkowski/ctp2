@@ -29,6 +29,10 @@ public:
 
 	BOOL GetExclusiveMode() { return m_exclusiveMode; }
 	static SDL_Surface *DD() { return m_lpdd; }
+	// Read-only access to the GPU present layer, for the test API's
+	// presented-frame readback (screenshot_presented).
+	static SDL_Renderer *Renderer() { return m_renderer; }
+	static SDL_Texture *ScreenTexture() { return m_screenTexture; }
 
 protected:
 	BOOL			m_exclusiveMode;

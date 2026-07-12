@@ -1657,7 +1657,25 @@ std::string CmdGrantAdvance(const char * args)
 
     int id = -1;
     if (sscanf(args, "%d", &id) != 1)
-        return Err("grant_advance", "bad_args");
+    {
+        // Also accept the internal ID text (e.g. ADVANCE_NANO_ASSEMBLY) so
+        // tests don't have to hardcode database indices.
+        char name[128] = {0};
+        if (g_theAdvanceDB && sscanf(args, "%127s", name) == 1)
+        {
+            for (sint32 i = 0; i < g_theAdvanceDB->NumRecords(); ++i)
+            {
+                const AdvanceRecord * rec = g_theAdvanceDB->Get(i);
+                if (rec && rec->GetIDText() && strcmp(rec->GetIDText(), name) == 0)
+                {
+                    id = i;
+                    break;
+                }
+            }
+        }
+        if (id < 0)
+            return Err("grant_advance", "bad_args");
+    }
     if (!g_theAdvanceDB || id < 0 || id >= g_theAdvanceDB->NumRecords())
         return Err("grant_advance", "bad_advance");
 
@@ -1670,6 +1688,60 @@ std::string CmdGrantAdvance(const char * args)
     result["id"]   = id;
     result["name"] = r ? ToUtf8(r->GetNameText()) : "";
     return Ok("grant_advance", result);
+}
+
+// create_unit <UNIT_ID|index> <x> <y> — DEBUG/TEST cheat: spawn a unit for
+// the human at a position, bypassing production. Companion to grant_advance:
+// together they let integration tests reach late-game content (undersea
+// cities, space layer) that is organically hundreds of rounds away. The
+// type accepts the internal ID text (UNIT_SEA_ENGINEER) or a DB index.
+// Not exposed as an MCP tool; reachable via raw_cmd when explicitly asked.
+std::string CmdCreateUnit(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("create_unit", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human)
+        return Err("create_unit", "no_human_player");
+    if (!g_theUnitDB)
+        return Err("create_unit", "no_unit_db");
+
+    char name[128] = {0};
+    int x = -1, y = -1;
+    if (sscanf(args, "%127s %d %d", name, &x, &y) != 3)
+        return Err("create_unit", "bad_args");
+
+    sint32 type = -1;
+    if (sscanf(name, "%d", &type) != 1)
+    {
+        for (sint32 i = 0; i < g_theUnitDB->NumRecords(); ++i)
+        {
+            const UnitRecord * rec = g_theUnitDB->Get(i);
+            if (rec && rec->GetIDText() && strcmp(rec->GetIDText(), name) == 0)
+            {
+                type = i;
+                break;
+            }
+        }
+    }
+    if (type < 0 || type >= g_theUnitDB->NumRecords())
+        return Err("create_unit", "bad_unit_type");
+
+    World * w = world_Get();
+    if (!w || x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("create_unit", "bad_position");
+
+    MapPoint pos(x, y);
+    Unit u = human->CreateUnit(type, pos, Unit(), false,
+                               CAUSE_NEW_ARMY_INITIAL);
+    if (!u.IsValid())
+        return Err("create_unit", "create_failed");
+
+    gc_log->info("create_unit (DEBUG): type {} at ({},{})", type, x, y);
+    json result;
+    result["type"] = type;
+    result["pos"]  = { {"x", x}, {"y", y} };
+    return Ok("create_unit", result);
 }
 
 // disband_unit <army_index> — disband one of the human's armies, freeing the
@@ -2819,6 +2891,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("terraform ", 0) == 0)                       return CmdTerraform(line.c_str() + 10);
     if (line.rfind("set_material_tax ", 0) == 0)                return CmdSetMaterialTax(line.c_str() + 17);
     if (line.rfind("grant_advance ", 0) == 0)                   return CmdGrantAdvance(line.c_str() + 14);
+    if (line.rfind("create_unit ", 0) == 0)                     return CmdCreateUnit(line.c_str() + 12);
     if (line.rfind("declare_war ", 0) == 0)                     return CmdDeclareWar(line.c_str() + 12);
     if (line.rfind("attack ", 0) == 0)                          return CmdAttack(line.c_str() + 7);
     if (line.rfind("bombard ", 0) == 0)                         return CmdBombard(line.c_str() + 8);

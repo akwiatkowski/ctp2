@@ -1729,6 +1729,21 @@ test('scenario-long-game',
   suite : 'scenario',
 )
 
+# Forced late-game content: grant_advance + create_unit cheats push the
+# game straight to the nano-age SettleWater mechanic — an undersea city
+# founded on open water, on a fresh map, in ~1s. Content that is
+# organically hundreds of rounds away from any fixture.
+lategame_test = find_program('test/scenario_lategame.py')
+test('scenario-lategame',
+  lategame_test,
+  args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'scenario',
+)
+
 # Combat invariant matrix: repeated real battles (bombard + attack + AI
 # counterattack rounds) on the capture-brink fixture, asserting the
 # invariants any battle outcome must satisfy (finite hp>0, no unit

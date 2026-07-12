@@ -7,7 +7,8 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 ## Overall Progress
 
 - **Original Definition of Done (M1–M8): COMPLETE and formally declared 2026-07-10.** The P7 close-out documentation pass has landed (the "Remaining Legacy-Risk Areas" consolidation below), and a final verification pass (`make test` + `make ubsan-smoke` + integration/scenario suites, clean worktree) is green. Nothing remains to declare the original DoD met.
-- **Current phase: memory safety & stability** (open-ended, post-DoD), tracked as work items **P1–P7** below, sorted by severity/importance (highest first; ordered 2026-07-02). **P1, P5, P7 done; P3/P4 at their practical floor; P2 (Linux ASan) and P6 (RAII) remain.**
+- **Current phase: memory safety & stability** (open-ended, post-DoD), tracked as work items **P1–P7** below, sorted by severity/importance (highest first; ordered 2026-07-02). **P1, P5, P7 done; P3/P4 at their practical floor; P2 (Linux ASan) and P6 (RAII, 17/574 — session 2026-07-11 banked 9 conversions, −20 raw_new/−20 raw_delete incl. one real `new[]`/`delete` UB fix in `CombatField`) remain.**
+- **Modernization Phase 2 scoped 2026-07-12** (analysis pass: modern / safe / fast-on-modern-machines): **P8** perf build tier — measured **5.3× wall / 8.6× CPU** from a release build (every existing tier was `-O0`+`-ftrapv`; outcome bit-identical, so optimization does not break determinism); **P9** container modernization (954 legacy `PointerList`/`DynamicArray`/`SimpleDynamicArray` uses); **P10** type-erased-cast burn-down (2644); **P11** GPU rendering parked with M10. Verified-already-modern list added so items don't get re-proposed (C++20, hardening max, UBSan tier, arena-pooled A*, JSON saves).
 - **Progress:** P1 complete (all 54 CRITICAL verified). **P5 complete 2026-07-10** — JSON-load derived-cache audit: `SetAllMoveCost`/`CalcChokePoints` need no rebuild (outputs are dense-serialized per-cell); the only non-serialized world caches (continent size/neighbor arrays) were already rebuilt in `World::from_json`; one real gap found + fixed — stale `good_value` on a `ResourceDB`-size mismatch now recomputes via `ComputeGoodsValues`, pinned by a new regression test that fails without the fix. **P3 crash-class burned down 2026-07-02/03** — all 4 HIGH categories worked: DANGEROUS_SHIFT + DIVISION_BY_ZERO (`0 open` first-party), and MISSING_BOUNDS_CHECK + NULL_DEREFERENCE (`@~675`, `@~1206`; ~305 leads) verified in-code with resolution blocks — ~25 genuine crash bugs fixed, the rest already-fixed by the `g_player→safe_player` migration, false-positive, structurally-safe, or the supervised/P4/net tail. (A tier-drift found 2026-07-02, where earlier annotations landed in the MEDIUM mirror, was corrected.) **P4 effectively complete** — ratchet re-scoped to first-party (vendored libs excluded), then **85 real conversions drove `unsafe_string_api` 92 → 57** (the old libs-inclusive 1360 was 93% vendored noise); one real overflow bug caught (`tech_MemMap::GetFileExtension`). The clean pool is exhausted — the remaining 57 is dead code (~20, deletable), deferred `net/` (~22), and the off-limits `GetXName` idiom / hard cascades (~15). P6 ticked 11/574. Key finding: `BUG_HUNT_REPORT.md` HIGH findings are stale leads — line numbers drifted, most already fixed or false-positive; **verify by code pattern, not line number** — and **check the severity tier** before annotating.
 - **Parked:** modern-asset converter (formerly M10).
 
@@ -24,7 +25,8 @@ When asked "how much more work remains?":
 
 - Original Definition of Done (M1–M8): **DONE — formally declared 2026-07-10** (P7 close-out landed).
 - Crash-class stability work (P1–P5): **DONE / at practical floor** (P1 done; P3 HIGH crash-class burned down — the four categories are verified with resolution blocks, ~25 genuine bugs fixed, tail is supervised/P4/net; P4 unsafe-strings effectively complete — re-scoped to first-party then 92→57 via 85 real conversions, clean pool exhausted (tail = dead/deferred-net/idiom-cascade); **P5 load-cache audit done — no world-cache gap, one `good_value` fix landed**). **Remaining bounded work: P2 Linux-ASan (gated on starting a container engine).**
-- Mechanical RAII conversion (P6): **multi-session; ~413 files, each needing ownership analysis (no free mechanical tier — verified 2026-07-02)**.
+- Mechanical RAII conversion (P6): **multi-session; ~407 medium files left, each needing ownership analysis (no free mechanical tier — verified 2026-07-02, re-confirmed 2026-07-11: ~half the heuristic "easy" hits are copy-assign traps, borrowed pointers, transfer, or dead code)**.
+- Modernization Phase 2 (P8–P10): **P8 is ~1 session with a measured 5.3×/8.6× payoff waiting; P9 multi-session; P10 opportunistic.** P11/GPU parked with M10.
 - Fully refactored engine: **open-ended / not a bounded goal**.
 
 ## Completed Milestones (compact)
@@ -59,14 +61,20 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P3 | HIGH-severity findings, category batches | DANGEROUS_SHIFT + DIVISION_BY_ZERO done. MISSING_BOUNDS_CHECK + NULL_DEREFERENCE HIGH tiers **verified & burned down 2026-07-02/03**: ~25 genuine crash bugs fixed, the rest already-fixed (g_player→safe_player migration), false-positive, or the supervised/P4/net tail. Both sections carry resolution blocks. | tail = supervised/P4/net |
 | P4 | Unsafe string APIs (`unsafe_string_api=57`, first-party) | **effectively complete** — ratchet re-scoped (libs excluded); 85 real conversions (92→57); clean pool exhausted. Tail = dead(~20)/deferred-net(~22)/idiom-cascade+hard(~15). Optional: delete dead code (needs OK). | done for practical purposes |
 | P5 | JSON-load derived-cache audit | ✅ 1/1 done | complete |
-| P6 | Mechanical RAII conversion (was M11) | 11/574 files | multi-session |
+| P6 | Mechanical RAII conversion (was M11) | 17/574 files; ratchet raw_new 4799, raw_delete 1845 | multi-session |
 | P7 | Close-out docs, declare DoD (was M9) | ✅ 2/2 done | complete |
-| — | Modern-asset converter + first-run (was M10) | **parked** | deferred |
+| P8 | Performance build tier (release + LTO eval) | 0/1 — **measured 5.3× wall / 8.6× CPU win** | ~1 session |
+| P9 | Container modernization (PointerList/DynamicArray → std) | 0/n — 954 legacy uses | multi-session |
+| P10 | Type-erased casting burn-down (`type_erased_casting=2644`) | 0/n | opportunistic |
+| — | Modern-asset converter + first-run (was M10) + GPU-path rendering (P11) | **parked** | deferred |
 
-**Recommended next order (2026-07-10):** the original DoD is declared, and crash-class work (P1/P3/P4/P5) is done or at its practical floor. The remaining moves, best-ROI first:
-1. **P4 dead-code deletion** *(optional, needs Olek's OK)* — deleting the ~20 confirmed-dead unsafe-string sites (~200 lines) drops the counter further and is genuine cleanup, but it removes code so it's opt-in.
-2. **P2** — ASan-on-Linux; blocked only on starting a container engine (`colima start` / Docker), then one build. User action gates it. Do this before P6 ramps, to catch RAII-conversion double-frees.
-3. **P6** — the long multi-session RAII effort (413 medium files); interleaves well but is the least crash-relevant.
+**Recommended next order (2026-07-12):** the original DoD is declared; crash-class work (P1/P3/P4/P5) is done or at its practical floor. The remaining moves, best-ROI first:
+1. **P8** — performance build tier. Zero code risk, one session, and the payoff is already measured: **5.3× wall / 8.6× CPU** (the engine has only ever been built at `-O0` + `-ftrapv`). See P8 below.
+2. **P2** — ASan-on-Linux; blocked only on starting a container engine (`colima start` / Docker), then one build. User action gates it. Do this before P6/P9 ramp, to catch conversion-introduced double-frees.
+3. **P4 dead-code deletion** *(optional, needs Olek's OK)* — deleting the ~20 confirmed-dead unsafe-string sites (~200 lines) drops the counter further and is genuine cleanup, but it removes code so it's opt-in.
+4. **P6** — the long multi-session RAII effort (~407 medium files left); interleaves well. The 2026-07-11 session banked 9 conversions (−20 raw_new/−20 raw_delete incl. one real `new[]`/`delete` UB fix); the self-contained fast-verify tier is now largely picked over — the rest is cross-module owners and the supervised 🔴 tail, best done after P2's ASan net exists.
+5. **P9** — container modernization; same per-cluster discipline as P6, start only after P6 has a stable rhythm (or interleave module-by-module).
+6. **P10** — type-erased cast burn-down; opportunistic, lowest crash-relevance.
 
 Why P1–P5 outrank P6: raw `new`/`delete` → RAII mostly prevents **leaks**, which rarely hurt a play session. Out-of-bounds indexing, null derefs, division by zero, UB shifts, and unsafe string writes are what actually crash or corrupt the game — and the repo already has them catalogued. P6 stays active and interleaves well (same worker fan-out pattern), but crash-class fixes deliver more player-visible stability per line changed. P7 is tiny and fine to slot in anytime as a warm-up; it is last only because it is documentation, not code.
 
@@ -167,7 +175,7 @@ Authoritative metric is the modernization ratchet (enforced by `make test`); per
 
 > **Ratchet re-scoped to first-party 2026-07-03.** `EXCLUDE_GLOBS` now drops `**/libs/**` (vendored anet/freetype/zlib/tiff/miles/GameWatch — upstream-owned, never a modernization target), the same rationale as the existing `build-*` exclusion. This affects **every** counter — the enforced first-party-only baselines became `raw_new=4819`, `raw_delete=1865`, `c_allocation=101`, `type_erased_casting=2644`, `unsafe_string_api=92` (down from the libs-inclusive 5472 / 2012 / 515 / 3739 / 1360). (`unsafe_string_api` has since been driven to **57** by the P4 grind.) The `Phase start`/`Removed` figures above were libs-inclusive; the first-party RAII work they count is unchanged. Trivially reversible (revert the one-line glob + baseline) if libs should be tracked again.
 
-Files ticked: **11 / 574**. (Ratchet runs ahead of ticked files because most touched files still have a harder residual cluster — e.g. `Sprite.cpp`, the sprite-group family. `ControlTabPanel.cpp` fixes a real `new[]`/scalar-delete mismatch but keeps one explicit `new[]` inside `unique_ptr<MBCHAR[]>`, so raw `new` does not drop; `scoretab.cpp` removed one raw `new`/`delete` pair.)
+Files ticked: **17 / 574**; first-party baselines now **`raw_new=4799`, `raw_delete=1845`** after the 2026-07-11 session (9 conversions: CivilisationPool/TurnCnt/TradePool member `unique_ptr`s, MovePath transfer-on-success, Vision both members, settlemap + CalcChokePoints scratch `vector`s, and the `CombatField::m_field` `vector<vector>` conversion that fixed a real `new[]`/scalar-`delete` UB). (Ratchet runs ahead of ticked files because most touched files still have a harder residual cluster — e.g. `Sprite.cpp`, the sprite-group family. `ControlTabPanel.cpp` fixes a real `new[]`/scalar-delete mismatch but keeps one explicit `new[]` inside `unique_ptr<MBCHAR[]>`, so raw `new` does not drop; `scoretab.cpp` removed one raw `new`/`delete` pair.)
 
 > **"Easy" tier — heuristic empty, but real easy conversions exist (2026-07-02).** A `/goal` run first inspected all 8 files the grep heuristic tagged 🟢 easy — **every one was a false positive**: transfer-to-sink (`Execute`/`AddEvent`/`InsertItem`/pool), a reference-counted `SlicObject` (`AddRef`/`Release` — `unique_ptr` would double-free), or a global singleton (`theKeyMap`, `wormhole_Get/Set`); those 8 were reclassified (2→hard, 4→medium, 2→skip). A **tightened finder** (local var, deleted by name, never passed to a function / stored to member-global / returned / refcounted / `static`) then surfaced the *genuine* easy set: **5 files converted** (`SlicButton`, `governor`, `c3cmdline`, `loadsavemapwindow`, `loadsavewindow` — 7 `new` + 7 `delete`, also fixing leaks on early-return and `#if`-excluded paths; commit `99755456`), with 2 finder false-positives excluded (commented-out code; `static` pointers transferred to a dropdown behind a cast). Lesson: grep can't tell "delete-on-failure, transfer-on-success" from a real local owner — but a strict no-transfer/no-static/no-refcount filter *can* isolate the truly-mechanical ones. See memory `feedback_memrefactor_easy_triage`.
 
@@ -262,9 +270,48 @@ The original DoD (M1–M8) is complete. What follows is the honest inventory of 
 
 **Infrastructure caveat.** The local CI daemon (`.ci/daemon.sh`) is **not running** and `.ci/state.json` is stale — restart it before trusting `jq '.tier_a.status' .ci/state.json`, or agents read a month-old green.
 
-### Parked — Modern-asset converter + first-run (was M10)
+### P8 — Performance build tier (release + LTO evaluation)
+
+**Analysis 2026-07-12 (verified, measured).** The engine is C++20 and arm64-native, but **every existing build dir (`build`, `build-ubsan`, `build-sanitized`, `build-asan`, `build-cov`, `build-string-safety`) is `-O0 debug` with `hardening_level=maximum`** (`-ftrapv`, `_GLIBCXX_ASSERTIONS`, `-Wformat=2`). No LTO, no PGO, anywhere. The game has never been run optimized on this machine.
+
+Measured (M4 Pro, 60 turns / 6 players / seed 42, headless):
+
+| Tier | Wall | CPU | Outcome |
+| --- | --: | --: | --- |
+| `build` (debug, -O0, ftrapv) | 18.7 s | 18.2 s | baseline |
+| `build-release` (release, -O2, hardening basic) | **3.5 s** | **2.1 s** | **identical metrics** (same seed → same scores/cities: deterministic across opt levels) |
+
+That is **5.3× wall / 8.6× CPU** for zero code changes. The 2026-07-10 long-game findings ("per-turn cost grows superlinearly", 500 rounds = 6.5 min) were `-O0` artifacts; at `-O2` the same soak should run ~1 min.
+
+**⚠️ `debugoptimized` trap:** `meson.build` gates `_DEBUG`/`SHOW_ASSERTS`/`USE_LOGGING` (and debug `-ftrapv`) on `buildtype.startswith('debug')` — which **matches `debugoptimized`**. A perf tier must use `buildtype=release` (as `build-release` does: `meson setup build-release ctp2_code -Dbuildtype=release -Dhardening_level=basic`), or that condition needs fixing first.
+
+- [ ] Make the release tier official: `make release` target + docs; run the scenario suite (incl. `scenario-long-game`) against it once per milestone; evaluate `-Db_lto=true` (and thin-LTO) and record the delta here; optionally expose an `-mcpu=native` toggle. Keep the hardened `-O0` tier as the dev/test default — the perf tier is additive, not a replacement.
+
+**Threading non-goal (recorded so it isn't re-proposed):** the sim is single-threaded by design (threads exist only in `net/` and the smoke server); with 175 file-scope `g_*` singleton definitions and determinism guarantees (same-seed replays, save round-trips), multithreading the simulation is high-risk/low-need — release-tier `-O2` already buys 5–8×. Profile on the release tier before any concurrency discussion.
+
+### P9 — Container modernization (legacy containers → std::)
+
+First-party non-test usage counts (2026-07-12): **`PointerList<>` 554, `DynamicArray<>` 340, `SimpleDynamicArray<>` 60** — vs 1245 `std::vector` already in newer code. These custom containers predate the STL era of this codebase and are the locality/iterator-safety layer *next to* P6's raw-pointer work.
+
+- [ ] Add per-container ratchet counters (`pointerlist_uses`, `dynarray_uses`) and burn down leaf/value-semantics uses to `std::vector`/`std::list`/`std::deque` per-cluster, smallest first — same discipline as P6 (no free mechanical tier assumed; serialization-coupled uses wait for their bridge).
+
+Caveats: `DynamicArray` has game-semantic quirks (POD `memcpy` growth, `Num()`/`Access()` idioms, ID-type coupling); `PointerList` is often *owning* — converting one is simultaneously a P6 ownership decision. A* pathfinding already uses an `AVLHeap` arena (`g_astar_mem`) — **leave it** (correct and hot).
+
+### P10 — Type-erased casting burn-down
+
+Ratchet `type_erased_casting = 2644` first-party (pattern: `void*` | `reinterpret_cast`). Top hotspots: `gfx/spritesys/spritefile.cpp` (138 — binary sprite parsing), `ui/interface/controlpanelwindow.cpp` (132), `scenarioeditor.cpp` (99) — mostly the aui `void*` cookie-callback protocol.
+
+- [ ] Opportunistic burn-down at the edges: replace C casts with checked casts where types are locally known; do **not** redesign the two by-design type-erased systems — the `GameEventArgument` GEA varargs event API (the `-Wno-non-pod-varargs` suppression exists for it) and the aui callback-cookie protocol. Lowest crash-relevance of the open items (UBSan tier + P1/P3 already covered the crash classes); slot behind P6/P9.
+
+### Parked — Modern-asset converter + first-run (was M10) · GPU-path rendering (P11)
 
 Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerprint>/`) plus an engine modern-first loader with legacy fallback. See `docs/modern-assets.md`. Resume only after the memory-safety phase is well underway.
+
+**P11 (parked with it):** the renderer is a 16-bit `Pixel16` 565 software pipeline with RLE-encoded tiles composited on the CPU and presented via SDL2. Moving to `SDL_Texture`/GPU compositing is a rewrite of the blit layer and only pays off together with the modern-asset pipeline — park them as one workstream. Release-tier `-O2` (P8) already makes the software blitter cheap on modern CPUs.
+
+### Already-modern (verified 2026-07-12 — don't re-propose)
+
+C++20 (`cpp_std=c++20`); arm64-native clang build; `hardening_level=maximum` dev default (+`-ftrapv`, `_GLIBCXX_ASSERTIONS`); UBSan smoke tier wired into `make ubsan-smoke`; five modernization ratchets enforced by `make test`; JSON saves (binary CivArchive path deleted); SDL2 + SDL2_mixer; A* node allocation already arena-pooled; 963-finding bug-hunt triaged with P1/P3 resolution blocks.
 
 ## Ground Rules (P1–P6)
 

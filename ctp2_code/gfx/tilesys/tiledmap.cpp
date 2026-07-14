@@ -564,6 +564,8 @@ AUI_ERRCODE TiledMap::RenderFullMap(aui_Surface *dest, sint32 zoomLevel)
 	// make the timelapse move. Same maputils projection as the tiles, so the
 	// markers sit on the correct iso tiles.
 	{
+		bool const   bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+		sint32 const step  = bpp32 ? 4 : 2;
 		sint32 const tw   = GetZoomTilePixelWidth();
 		sint32 const th   = GetZoomTilePixelHeight();
 		sint32 const hr   = GetZoomTileHeadroom();
@@ -585,11 +587,11 @@ AUI_ERRCODE TiledMap::RenderFullMap(aui_Surface *dest, sint32 zoomLevel)
 				for (sint32 dy = -half; dy <= half; ++dy) {
 					sint32 const yy = my + dy;
 					if (yy < 0 || yy >= m_surfHeight) continue;
-					Pixel16 * row = (Pixel16 *)(m_surfBase + yy * m_surfPitch);
+					uint8 * row = m_surfBase + yy * m_surfPitch;
 					for (sint32 dx = -half; dx <= half; ++dx) {
 						sint32 const xx = mx + dx;
 						if (xx < 0 || xx >= m_surfWidth) continue;
-						row[xx] = col;
+						pixelutils_StorePixel(row + xx * step, col, bpp32);
 					}
 				}
 			}

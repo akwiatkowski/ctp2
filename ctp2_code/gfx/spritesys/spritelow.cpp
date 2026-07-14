@@ -667,15 +667,17 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 	sint32 surfWidth = m_surfWidth;
 	sint32 surfHeight = m_surfHeight;
 	sint32 surfPitch = m_surfPitch;
+	bool const	bpp32 = m_surface && m_surface->BitsPerPixel() == 32;
+	sint32 const	step  = bpp32 ? 4 : 2;
 
-	surfBase = m_surfBase + (y * surfPitch) + (x * sizeof(Pixel16));
+	surfBase = m_surfBase + (y * surfPitch) + (x * step);
 
 	if (destRect.left < 0) return;
 	if (destRect.top < 0) return;
 	if (destRect.right > surfWidth) return;
 	if (destRect.bottom > surfHeight) return;
 
-	Pixel16			*destPixel;
+	uint8			*destPixel;
 	Pixel16			*srcPixel = (Pixel16 *)data;
 
 	Pixel16			*table = data+1;
@@ -759,7 +761,7 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 				} else {
 					haccum += hincxy;
 
-					destPixel = (Pixel16 *)(surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * 2));
+					destPixel = surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * step);
 
 					while (pos1 <= hpos) {
 						switch (mode1) {
@@ -768,7 +770,7 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 								break;
 							case k_COPY_RUN_ID			:
 									if (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) {
-										firstPixel = pixelutils_Blend_565(*rowData1, *destPixel, transparency);
+										firstPixel = pixelutils_Blend_565(*rowData1, pixelutils_ReadPixel565(destPixel, bpp32), transparency);
 									} else
 									if (flags & k_BIT_DRAWFLAGS_FOGGED) {
 										firstPixel = pixelutils_Shadow_565(*rowData1);
@@ -781,14 +783,14 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 									rowData1++;
 								break;
 							case k_SHADOW_RUN_ID		:
-									firstPixel = pixelutils_Shadow_565(*destPixel);
+									firstPixel = pixelutils_Shadow_565(pixelutils_ReadPixel565(destPixel, bpp32));
 								break;
 							case k_FEATHERED_RUN_ID	:
 									if (flags & k_BIT_DRAWFLAGS_OUTLINE) {
 										firstPixel = outlineColor;
 									} else {
 										if (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) {
-											firstPixel = pixelutils_Blend_565(*rowData1, *destPixel, (uint16)transparency);
+											firstPixel = pixelutils_Blend_565(*rowData1, pixelutils_ReadPixel565(destPixel, bpp32), (uint16)transparency);
 										} else {
 											Pixel16 pixel = *rowData1;
 											if (flags & k_BIT_DRAWFLAGS_FOGGED) {
@@ -798,7 +800,7 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 												pixel = pixelutils_Desaturate_565(pixel);
 											}
 											if (flags & k_BIT_DRAWFLAGS_FEATHERING) {
-												pixel = pixelutils_Blend_565(pixel, *destPixel, (uint16)alpha1>>3);
+												pixel = pixelutils_Blend_565(pixel, pixelutils_ReadPixel565(destPixel, bpp32), (uint16)alpha1>>3);
 											}
 											firstPixel = pixel;
 										}
@@ -825,7 +827,7 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 								break;
 							case k_COPY_RUN_ID			:
 									if (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) {
-										secondPixel = pixelutils_Blend_565(*rowData2, *destPixel, transparency);
+										secondPixel = pixelutils_Blend_565(*rowData2, pixelutils_ReadPixel565(destPixel, bpp32), transparency);
 									} else
 									if (flags & k_BIT_DRAWFLAGS_FOGGED) {
 										secondPixel = pixelutils_Shadow_565(*rowData2);
@@ -839,14 +841,14 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 									rowData2++;
 								break;
 							case k_SHADOW_RUN_ID		:
-									secondPixel = pixelutils_Shadow_565(*destPixel);
+									secondPixel = pixelutils_Shadow_565(pixelutils_ReadPixel565(destPixel, bpp32));
 								break;
 							case k_FEATHERED_RUN_ID	:
 									if (flags & k_BIT_DRAWFLAGS_OUTLINE) {
 										secondPixel = outlineColor;
 									} else {
 										if (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) {
-											secondPixel = pixelutils_Blend_565(*rowData2, *destPixel, (uint16)transparency);
+											secondPixel = pixelutils_Blend_565(*rowData2, pixelutils_ReadPixel565(destPixel, bpp32), (uint16)transparency);
 										} else {
 											Pixel16 pixel = *rowData2;
 											if (flags & k_BIT_DRAWFLAGS_FOGGED) {
@@ -856,7 +858,7 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 												pixel = pixelutils_Desaturate_565(pixel);
 											}
 											if (flags & k_BIT_DRAWFLAGS_FEATHERING) {
-												pixel = pixelutils_Blend_565(pixel, *destPixel, (uint16)alpha2>>3);
+												pixel = pixelutils_Blend_565(pixel, pixelutils_ReadPixel565(destPixel, bpp32), (uint16)alpha2>>3);
 											}
 											secondPixel = pixel;
 										}
@@ -890,7 +892,7 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 
 								if (pixel == 0)
 									pixel = 0x0001;
-								*destPixel = pixel;
+								pixelutils_StorePixel(destPixel, pixel, bpp32);
 							}
 						} else {
 							if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY) {
@@ -898,7 +900,7 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 								if (pixel == 0)
 									pixel = 0x0001;
 
-								*destPixel = pixel;
+								pixelutils_StorePixel(destPixel, pixel, bpp32);
 							}
 						}
 					} else {
@@ -906,7 +908,7 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 							pixel3 = 0x0001;
 
 						if (pixel3 != k_MEDIUM_KEY)
-							*destPixel = pixel3;
+							pixelutils_StorePixel(destPixel, pixel3, bpp32);
 					}
 					pixel1 = pixel3;
 					pixel2 = pixel4;
@@ -1139,15 +1141,17 @@ void Sprite::DrawFlashScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 des
 	sint32 surfWidth = m_surfWidth;
 	sint32 surfHeight = m_surfHeight;
 	sint32 surfPitch = m_surfPitch;
+	bool const	bpp32 = m_surface && m_surface->BitsPerPixel() == 32;
+	sint32 const	step  = bpp32 ? 4 : 2;
 
-	surfBase = m_surfBase + (y * surfPitch) + (x * sizeof(Pixel16));
+	surfBase = m_surfBase + (y * surfPitch) + (x * step);
 
 	if (destRect.left < 0) return;
 	if (destRect.top < 0) return;
 	if (destRect.right > surfWidth) return;
 	if (destRect.bottom > surfHeight) return;
 
-	Pixel16			*destPixel;
+	uint8			*destPixel;
 	Pixel16			*srcPixel = (Pixel16 *)data;
 
 	Pixel16			*table = data+1;
@@ -1238,7 +1242,7 @@ void Sprite::DrawFlashScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 des
 				} else {
 					haccum += hincxy;
 
-					destPixel = (Pixel16 *)(surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * 2));
+					destPixel = surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * step);
 
 
 
@@ -1255,25 +1259,25 @@ void Sprite::DrawFlashScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 des
 								break;
 							case k_COPY_RUN_ID			:
 									if (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) {
-										firstPixel = pixelutils_Blend_565(*rowData1, *destPixel, transparency);
+										firstPixel = pixelutils_Blend_565(*rowData1, pixelutils_ReadPixel565(destPixel, bpp32), transparency);
 									} else {
-										firstPixel = pixelutils_Additive_565(*rowData1, *destPixel);
+										firstPixel = pixelutils_Additive_565(*rowData1, pixelutils_ReadPixel565(destPixel, bpp32));
 									}
 									rowData1++;
 								break;
 							case k_SHADOW_RUN_ID		:
-									firstPixel = pixelutils_Shadow_565(*destPixel);
+									firstPixel = pixelutils_Shadow_565(pixelutils_ReadPixel565(destPixel, bpp32));
 								break;
 							case k_FEATHERED_RUN_ID	:
 									if (flags & k_BIT_DRAWFLAGS_OUTLINE) {
 										firstPixel = outlineColor;
 									} else {
 										if (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) {
-											firstPixel = pixelutils_Blend_565(*rowData1, *destPixel, (uint16)transparency);
+											firstPixel = pixelutils_Blend_565(*rowData1, pixelutils_ReadPixel565(destPixel, bpp32), (uint16)transparency);
 										} else {
 											if (flags & k_BIT_DRAWFLAGS_FEATHERING) {
 
-												firstPixel = pixelutils_Blend_565(*rowData1, *destPixel, (uint16)alpha1>>3);
+												firstPixel = pixelutils_Blend_565(*rowData1, pixelutils_ReadPixel565(destPixel, bpp32), (uint16)alpha1>>3);
 											} else {
 												firstPixel = *rowData1;
 											}
@@ -1301,24 +1305,24 @@ void Sprite::DrawFlashScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 des
 								break;
 							case k_COPY_RUN_ID			:
 									if (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) {
-										secondPixel = pixelutils_Blend_565(*rowData2, *destPixel, transparency);
+										secondPixel = pixelutils_Blend_565(*rowData2, pixelutils_ReadPixel565(destPixel, bpp32), transparency);
 									} else {
-										secondPixel = pixelutils_Additive_565(*rowData2, *destPixel);
+										secondPixel = pixelutils_Additive_565(*rowData2, pixelutils_ReadPixel565(destPixel, bpp32));
 									}
 									rowData2++;
 								break;
 							case k_SHADOW_RUN_ID		:
-									secondPixel = pixelutils_Shadow_565(*destPixel);
+									secondPixel = pixelutils_Shadow_565(pixelutils_ReadPixel565(destPixel, bpp32));
 								break;
 							case k_FEATHERED_RUN_ID	:
 									if (flags & k_BIT_DRAWFLAGS_OUTLINE) {
 										secondPixel = outlineColor;
 									} else {
 										if (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) {
-											secondPixel = pixelutils_Blend_565(*rowData2, *destPixel, (uint16)transparency);
+											secondPixel = pixelutils_Blend_565(*rowData2, pixelutils_ReadPixel565(destPixel, bpp32), (uint16)transparency);
 										} else {
 											if (flags & k_BIT_DRAWFLAGS_FEATHERING) {
-												secondPixel = pixelutils_Blend_565(*rowData2, *destPixel, (uint16)alpha2>>3);
+												secondPixel = pixelutils_Blend_565(*rowData2, pixelutils_ReadPixel565(destPixel, bpp32), (uint16)alpha2>>3);
 
 											} else {
 												secondPixel = *rowData2;
@@ -1352,19 +1356,19 @@ void Sprite::DrawFlashScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 des
 							if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY || pixel3 != k_MEDIUM_KEY || pixel4 != k_MEDIUM_KEY) {
 								pixel =	average(pixel1, pixel2, pixel3, pixel4);
 
-								*destPixel = pixel;
+								pixelutils_StorePixel(destPixel, pixel, bpp32);
 							}
 						} else {
 							if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY) {
 								pixel = average(pixel2, pixel3);
 
-								*destPixel = pixel;
+								pixelutils_StorePixel(destPixel, pixel, bpp32);
 							}
 						}
 					} else {
 
 						if (pixel3 != k_MEDIUM_KEY)
-							*destPixel = pixel3;
+							pixelutils_StorePixel(destPixel, pixel3, bpp32);
 					}
 					pixel1 = pixel3;
 					pixel2 = pixel4;

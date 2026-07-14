@@ -29,6 +29,15 @@ void write_pixel(aui_SDLSurface &surface, sint32 x, sint32 y, uint32 value)
 	CHECK(surface.Unlock(pixel) == AUI_ERRCODE_OK);
 }
 
+void write_pixel16(aui_SDLSurface &surface, sint32 x, sint32 y, uint16 value)
+{
+	RECT rect{x, y, x + 1, y + 1};
+	LPVOID pixel = nullptr;
+	CHECK(surface.Lock(&rect, &pixel, 0) == AUI_ERRCODE_OK);
+	std::memcpy(pixel, &value, sizeof(value));
+	CHECK(surface.Unlock(pixel) == AUI_ERRCODE_OK);
+}
+
 }
 
 TEST_CASE("aui_Blitter ColorBlt fills 32bpp SDL surfaces")
@@ -178,4 +187,28 @@ TEST_CASE("aui_Blitter BevelBlt shades 32bpp SDL surfaces")
 	CHECK(read_pixel(surface, 3, 1) == 0x80202020u);
 	CHECK(read_pixel(surface, 2, 3) == 0x80282828u);
 	CHECK(read_pixel(surface, 1, 1) == 0x80404040u);
+}
+
+TEST_CASE("aui_Blitter ColorStencilBlt fills 32bpp SDL surfaces through 16bpp stencils")
+{
+	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
+	aui_SDLSurface dest(&errcode, 3, 1, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(errcode));
+	aui_SDLSurface stencil(&errcode, 3, 1, 16, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(errcode));
+
+	write_pixel(dest, 0, 0, 0xFF010203u);
+	write_pixel(dest, 1, 0, 0xFF040506u);
+	write_pixel(dest, 2, 0, 0xFF070809u);
+	write_pixel16(stencil, 0, 0, 0x0000u);
+	write_pixel16(stencil, 1, 0, 0x1234u);
+	write_pixel16(stencil, 2, 0, 0x0000u);
+
+	RECT rect{0, 0, 3, 1};
+	aui_Blitter blitter;
+	CHECK(blitter.ColorStencilBlt(&dest, &rect, &stencil, &rect, RGB(0x11, 0x22, 0x33), 0) == AUI_ERRCODE_OK);
+
+	CHECK(read_pixel(dest, 0, 0) == 0xFF112233u);
+	CHECK(read_pixel(dest, 1, 0) == 0xFF040506u);
+	CHECK(read_pixel(dest, 2, 0) == 0xFF112233u);
 }

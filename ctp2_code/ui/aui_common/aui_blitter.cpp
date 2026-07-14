@@ -57,6 +57,17 @@ uint32 DarkenARGB8888(uint32 pixel, sint32 scalar)
 	return alpha | (red << 16) | (green << 8) | blue;
 }
 
+uint32 ColorToARGB8888(uint32 color)
+{
+	if (color & 0xff000000u)
+		return color;
+
+	return 0xff000000u
+		| (static_cast<uint32>(GetRValue(color)) << 16)
+		| (static_cast<uint32>(GetGValue(color)) << 8)
+		| static_cast<uint32>(GetBValue(color));
+}
+
 AUI_ERRCODE Blt32To32(
 	aui_Surface *destSurf,
 	RECT *destRect,
@@ -338,6 +349,87 @@ AUI_ERRCODE BevelBlt32(
 		if (!wasDestLocked)
 		{
 			errcode = destSurf->Unlock((LPVOID)origDestBuf);
+			if (!AUI_SUCCESS(errcode))
+				retcode = AUI_ERRCODE_SURFACEUNLOCKFAILED;
+		}
+	}
+
+	return retcode;
+}
+
+AUI_ERRCODE ColorStencilBlt32(
+	aui_Surface *destSurf,
+	RECT *destRect,
+	aui_Surface *stencilSurf,
+	RECT *stencilRect,
+	uint32 color )
+{
+	if (stencilSurf->BytesPerPixel() != 2 && stencilSurf->BytesPerPixel() != 4)
+		return AUI_ERRCODE_INVALIDPARAM;
+
+	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
+	AUI_ERRCODE errcode;
+
+	const sint32 destPitch = destSurf->Pitch() / 4;
+	uint32 *destBuf = (uint32 *)destSurf->Buffer();
+	const bool wasDestLocked = destBuf != nullptr;
+	if (wasDestLocked)
+	{
+		destBuf += destRect->top * destPitch + destRect->left;
+	}
+	else if (destSurf->Lock(destRect, (LPVOID *)&destBuf, 0) != AUI_ERRCODE_OK)
+	{
+		destBuf = nullptr;
+		retcode = AUI_ERRCODE_SURFACELOCKFAILED;
+	}
+
+	const sint32 stencilBytesPerPixel = stencilSurf->BytesPerPixel();
+	uint8 *stencilBuf = stencilSurf->Buffer();
+	const bool wasStencilLocked = stencilBuf != nullptr;
+	if (wasStencilLocked)
+	{
+		stencilBuf += stencilRect->top * stencilSurf->Pitch()
+			+ stencilRect->left * stencilBytesPerPixel;
+	}
+	else if (stencilSurf->Lock(stencilRect, (LPVOID *)&stencilBuf, 0) != AUI_ERRCODE_OK)
+	{
+		stencilBuf = nullptr;
+		retcode = AUI_ERRCODE_SURFACELOCKFAILED;
+	}
+
+	if (destBuf && stencilBuf)
+	{
+		uint32 *origDestBuf = destBuf;
+		uint8 *origStencilBuf = stencilBuf;
+		const sint32 width = destRect->right - destRect->left;
+		const sint32 height = destRect->bottom - destRect->top;
+		const uint32 pixelColor = ColorToARGB8888(color);
+
+		for (sint32 y = 0; y < height; ++y)
+		{
+			uint32 *destLine = destBuf + y * destPitch;
+			uint8 *stencilLine = stencilBuf + y * stencilSurf->Pitch();
+			for (sint32 x = 0; x < width; ++x)
+			{
+				const uint8 *stencilPixel = stencilLine + x * stencilBytesPerPixel;
+				uint32 stencilValue = 0;
+				std::memcpy(&stencilValue, stencilPixel, stencilBytesPerPixel);
+				const bool transparent = stencilValue == 0;
+				if (transparent)
+					destLine[x] = pixelColor;
+			}
+		}
+
+		if (!wasDestLocked)
+		{
+			errcode = destSurf->Unlock((LPVOID)origDestBuf);
+			if (!AUI_SUCCESS(errcode))
+				retcode = AUI_ERRCODE_SURFACEUNLOCKFAILED;
+		}
+
+		if (!wasStencilLocked)
+		{
+			errcode = stencilSurf->Unlock((LPVOID)origStencilBuf);
 			if (!AUI_SUCCESS(errcode))
 				retcode = AUI_ERRCODE_SURFACEUNLOCKFAILED;
 		}
@@ -2051,7 +2143,20 @@ AUI_ERRCODE aui_Blitter::ColorStencilBlt(
 	COLORREF color,
 	uint32 flags )
 {
-	return ColorStencilBlt16(destSurf, destRect, stencilSurf, stencilRect, color, flags);
+	switch (destSurf->BytesPerPixel())
+	{
+	case 1:
+		return ColorStencilBlt8(destSurf, destRect, stencilSurf, stencilRect, color, flags);
+	case 2:
+		return ColorStencilBlt16(destSurf, destRect, stencilSurf, stencilRect, color, flags);
+	case 3:
+		return ColorStencilBlt24(destSurf, destRect, stencilSurf, stencilRect, color, flags);
+	case 4:
+		return ColorStencilBlt32(destSurf, destRect, stencilSurf, stencilRect, color);
+	default:
+		Assert(FALSE);
+		return AUI_ERRCODE_INVALIDPARAM;
+	}
 }
 
 AUI_ERRCODE aui_Blitter::ColorStencilBlt24(

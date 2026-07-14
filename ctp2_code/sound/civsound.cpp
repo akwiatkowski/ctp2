@@ -95,7 +95,7 @@ CivSound::CivSound(const uint32 &associatedObject, const sint32 &soundID)
     // Mix_QuickLoad_WAV unconditionally reads the RIFF header (44 bytes).
     // SEGV on null+0xf observed during autoplay around turn 272.
     if (m_dataptr && m_datasize >= 44) {
-        m_Audio = Mix_QuickLoad_WAV((Uint8 *) m_dataptr);
+        m_Audio = CTP2_Mix_QuickLoadWAV((Uint8 *) m_dataptr, m_datasize);
     } else {
         m_Audio = nullptr;
     }

@@ -5,6 +5,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <memory>
 #include <string>
 #include <vector>
 #include <zlib.h>
@@ -80,7 +81,7 @@ TEST_CASE("ModernSpriteAtlas loads manifest + PNG and resolves frame rects")
 	})json");
 
 	std::string error;
-	ModernSpriteAtlas * atlas = ModernSpriteAtlas::Load(json.c_str(), error);
+	std::unique_ptr<ModernSpriteAtlas> atlas(ModernSpriteAtlas::Load(json.c_str(), error));
 	REQUIRE(atlas != nullptr);
 	CHECK(error.empty());
 	CHECK(atlas->Width() == 2);
@@ -97,7 +98,6 @@ TEST_CASE("ModernSpriteAtlas loads manifest + PNG and resolves frame rects")
 	CHECK(r1->y == 1);
 	CHECK(atlas->FindRect("MOVE", 0, 0) == nullptr);   // absent action
 
-	delete atlas;
 	std::remove(png.c_str());
 	std::remove(json.c_str());
 }

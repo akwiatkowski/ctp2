@@ -41,10 +41,6 @@
 #include "ui/aui_sdl/aui_sdlmixercompat.h"
 #include "sound/soundmanager.h"		// soundmgr_Get()
 #include "ui/aui_sdl/aui_sdlsurface.h"
-
-Mix_Chunk achunk;
-
-int m_moviechannel;
 #endif
 
 WNDPROC aui_Movie::m_windowProc = nullptr;

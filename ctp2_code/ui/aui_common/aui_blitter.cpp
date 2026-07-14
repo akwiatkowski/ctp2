@@ -40,6 +40,23 @@
 
 namespace {
 
+uint32 DarkenARGB8888(uint32 pixel, sint32 scalar)
+{
+	const sint32 newScalar = k_AUI_PIXEL_MAXSCALAR - scalar;
+	auto scale = [newScalar, scalar](uint32 channel) -> uint32 {
+		sint32 scaled = (channel * newScalar) >> k_AUI_PIXEL_SCALARSHIFT;
+		if (scalar < 0 && scaled > 0xff)
+			scaled = 0xff;
+		return static_cast<uint32>(scaled);
+	};
+
+	const uint32 alpha = pixel & 0xff000000u;
+	const uint32 red = scale((pixel >> 16) & 0xffu);
+	const uint32 green = scale((pixel >> 8) & 0xffu);
+	const uint32 blue = scale(pixel & 0xffu);
+	return alpha | (red << 16) | (green << 8) | blue;
+}
+
 AUI_ERRCODE Blt32To32(
 	aui_Surface *destSurf,
 	RECT *destRect,
@@ -229,6 +246,92 @@ AUI_ERRCODE TileBlt32To32(
 				errcode = srcSurf->Unlock((LPVOID)origSrcBuf);
 				if (!AUI_SUCCESS(errcode))
 					retcode = AUI_ERRCODE_SURFACEUNLOCKFAILED;
+			}
+		}
+
+		if (!wasDestLocked)
+		{
+			errcode = destSurf->Unlock((LPVOID)origDestBuf);
+			if (!AUI_SUCCESS(errcode))
+				retcode = AUI_ERRCODE_SURFACEUNLOCKFAILED;
+		}
+	}
+
+	return retcode;
+}
+
+AUI_ERRCODE BevelBlt32(
+	aui_Surface *destSurf,
+	RECT *destRect,
+	RECT *bevelRect,
+	sint32 bevelThickness,
+	uint32 flags )
+{
+	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
+	AUI_ERRCODE errcode;
+
+	uint32 *destBuf = (uint32 *)destSurf->Buffer();
+	const bool wasDestLocked = destBuf != nullptr;
+	if (wasDestLocked)
+	{
+		destBuf += destRect->top * (destSurf->Pitch() / 4) + destRect->left;
+	}
+	else if (destSurf->Lock(destRect, (LPVOID *)&destBuf, 0) != AUI_ERRCODE_OK)
+	{
+		destBuf = nullptr;
+		retcode = AUI_ERRCODE_SURFACELOCKFAILED;
+	}
+
+	if (destBuf)
+	{
+		uint32 *origDestBuf = destBuf;
+		const sint32 destPitch = destSurf->Pitch() / 4;
+		const sint32 bevelWidth = bevelRect->right - bevelRect->left;
+		const sint32 bevelHeight = bevelRect->bottom - bevelRect->top;
+		const sint32 startX = std::max<sint32>(0, destRect->left - bevelRect->left);
+		const sint32 startY = std::max<sint32>(0, destRect->top - bevelRect->top);
+		const sint32 endX = std::min<sint32>(bevelWidth, destRect->right - bevelRect->left);
+		const sint32 endY = std::min<sint32>(bevelHeight, destRect->bottom - bevelRect->top);
+
+		sint32 xscalar = 0;
+		sint32 yscalar = 0;
+		if (flags & k_AUI_BLITTER_FLAG_IN)
+		{
+			xscalar = -64;
+			yscalar = -48;
+		}
+		else if (flags & k_AUI_BLITTER_FLAG_OUT)
+		{
+			xscalar = 64;
+			yscalar = 48;
+		}
+		else
+		{
+			retcode = AUI_ERRCODE_INVALIDPARAM;
+		}
+
+		if (AUI_SUCCESS(retcode))
+		{
+			for (sint32 y = startY; y < endY; ++y)
+			{
+				uint32 *line = destBuf
+					+ (bevelRect->top + y - destRect->top) * destPitch
+					+ (bevelRect->left - destRect->left);
+				for (sint32 x = startX; x < endX; ++x)
+				{
+					const bool topEdge = y < bevelThickness;
+					const bool bottomEdge = y >= bevelHeight - bevelThickness;
+					const bool leftEdge = x < bevelThickness;
+					const bool rightEdge = x >= bevelWidth - bevelThickness;
+					if (leftEdge)
+						line[x] = DarkenARGB8888(line[x], -xscalar);
+					else if (rightEdge)
+						line[x] = DarkenARGB8888(line[x], xscalar);
+					else if (topEdge)
+						line[x] = DarkenARGB8888(line[x], -yscalar);
+					else if (bottomEdge)
+						line[x] = DarkenARGB8888(line[x], yscalar);
+				}
 			}
 		}
 
@@ -1315,6 +1418,13 @@ AUI_ERRCODE aui_Blitter::BevelBlt(
 			bevelThickness,
 			lightx,
 			lighty,
+			flags );
+	case 4:
+		return BevelBlt32(
+			destSurf,
+			&clippedDestRect,
+			bevelRect,
+			bevelThickness,
 			flags );
 	default:
 

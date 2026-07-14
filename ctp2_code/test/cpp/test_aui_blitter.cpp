@@ -158,3 +158,24 @@ TEST_CASE("aui_Blitter TileBlt applies 32bpp chroma keys")
 	CHECK(read_pixel(dest, 2, 0) == 0xFF010205u);
 	CHECK(read_pixel(dest, 3, 0) == 0xFFABCDEFu);
 }
+
+TEST_CASE("aui_Blitter BevelBlt shades 32bpp SDL surfaces")
+{
+	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
+	aui_SDLSurface surface(&errcode, 4, 4, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(errcode));
+
+	for (sint32 y = 0; y < 4; ++y)
+		for (sint32 x = 0; x < 4; ++x)
+			write_pixel(surface, x, y, 0x80404040u);
+
+	RECT rect{0, 0, 4, 4};
+	aui_Blitter blitter;
+	CHECK(blitter.BevelBlt(&surface, &rect, &rect, 1, 0, 0, k_AUI_BLITTER_FLAG_OUT) == AUI_ERRCODE_OK);
+
+	CHECK(read_pixel(surface, 0, 0) == 0x80606060u);
+	CHECK(read_pixel(surface, 2, 0) == 0x80585858u);
+	CHECK(read_pixel(surface, 3, 1) == 0x80202020u);
+	CHECK(read_pixel(surface, 2, 3) == 0x80282828u);
+	CHECK(read_pixel(surface, 1, 1) == 0x80404040u);
+}

@@ -67,7 +67,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P8 | Performance build tier (release + thin-LTO) | ✅ 1/1 done — `make release` / `release-check`; 8.6–9.3× CPU banked | complete |
 | P9 | Container modernization (PointerList/DynamicArray → std) | ratchets live (576+353); burn-down 0/n | multi-session |
 | P10 | Type-erased casting burn-down (`type_erased_casting=2487`) | redundant I/O/API cast cleanups: −157 total | opportunistic |
-| P11 | GPU-path rendering | **Stage 1 ✅ done** (pixel oracle + dirty-rect present, −73% upload bytes); Stage 2 un-parked 2026-07-14 with M10; Phase A started (32-bit SDL secondary) | staged |
+| P11 | GPU-path rendering | **Stage 1 ✅ done** (pixel oracle + dirty-rect present, −73% upload bytes); Stage 2 un-parked 2026-07-14 with M10; SDL3 backend probe builds and passes fast+unit tests | staged |
 | — | Modern-asset converter + first-run (was M10) | **un-parked 2026-07-14**; required before atlas-backed GPU compositing | staged |
 
 **Recommended next order (2026-07-13):** the original DoD is declared; crash-class work (P1/P3/P4/P5) is complete or at its practical floor. The remaining moves, best-ROI first:
@@ -339,7 +339,7 @@ Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerpri
 
 **Phase C seam started 2026-07-14:** the engine now has a small `ModernSpriteManifest` C++ parser/validator for generated atlas manifests, covered by fast doctests. It does not load textures or change rendering yet; it only establishes the validated data shape the modern-first loader will consume.
 
-**Phase D dependency probe 2026-07-14:** local pkg-config has `sdl3=3.4.12`, but `SDL3_mixer` is absent (`SDL2_mixer=2.8.1` is present). The SDL3 video/input backend port can be started independently, but the sound mixer portion is blocked until SDL3_mixer is installed or the audio plan is split.
+**Phase D SDL3 backend probe 2026-07-14:** local pkg-config has `sdl3=3.4.12` and `sdl3_mixer=3.2.4`. The `-Dsdl_backend=sdl3` Meson build now links `ctp2`, `ctp2_headless`, `ctp2_fast_tests`, and `ctp2_unit_tests`, with `meson test -C build-sdl3-probe fast unit` green. SDL2 remains the default backend.
 
 ### Already-modern (verified 2026-07-12 — don't re-propose)
 

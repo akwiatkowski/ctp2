@@ -183,14 +183,17 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		m_width, m_height, m_bpp);
 
 	// Primary: standalone 32-bit ARGB8888 surface (bpp=32, no wrapped window
-	// surface). It remains a software mirror for tests/screenshot capture.
+	// surface). It is only a software mirror for tests/screenshot capture — the
+	// secondary is the surface presented to the GPU (see below), so the primary
+	// is created NOT-primary: aui_SDLSurface::Flip() presents only when
+	// m_isPrimary is set, and exactly one surface (the secondary) must present.
 	m_primary = new aui_SDLSurface(
 		&errcode,
 		m_width,
 		m_height,
 		32,
 		nullptr,
-		TRUE );
+		FALSE );
 	Assert( AUI_NEWOK(m_primary,errcode) );
 	assert( AUI_NEWOK(m_primary,errcode) );
 	if ( !AUI_NEWOK(m_primary,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -201,13 +204,18 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 
 	fprintf(stderr, "[SDLUI] Primary surface: %dx%d @ 32bpp\n", m_primary->Width(), m_primary->Height());
 
+	// Secondary: the live 32-bit ARGB8888 composite AND the surface presented to
+	// the GPU. BltSecondaryToPrimary() mirrors it into the primary (for the
+	// pixel oracle) and then calls m_secondary->Flip(), which uploads these
+	// pixels to the screen texture and presents. That present path runs only
+	// when m_isPrimary is set, so the presenting surface must be created primary.
 	m_secondary = new aui_SDLSurface(
 		&errcode,
 		m_width,
 		m_height,
 		32,
 		nullptr,
-		FALSE );
+		TRUE );
 	Assert( AUI_NEWOK(m_secondary,errcode) );
 	assert( AUI_NEWOK(m_secondary,errcode) );
 	if ( !AUI_NEWOK(m_secondary,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;

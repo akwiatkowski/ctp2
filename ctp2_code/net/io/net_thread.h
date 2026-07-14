@@ -70,7 +70,7 @@ private:
 #else
 	Uint32 m_threadId;
 	SDL_Thread *m_thread;
-	SDL_mutex *m_mutex;
+	CTP2_SDL_Mutex *m_mutex;
 #endif
 	dp_t *m_dp;
 	dp_t *m_origDP;

@@ -189,7 +189,7 @@ public:
 		aui_DirtyList *imageAreas );
 
 #ifdef __AUI_USE_SDL__
-	SDL_mutex *LPCS() const { return m_lpcs; }
+	CTP2_SDL_Mutex *LPCS() const { return m_lpcs; }
 #else
 	LPCRITICAL_SECTION LPCS( void ) const { return m_lpcs; }
 #endif
@@ -203,7 +203,7 @@ public:
 protected:
 	static sint32 m_mouseRefCount;
 #ifdef __AUI_USE_SDL__
-	static SDL_mutex* m_lpcs;
+	static CTP2_SDL_Mutex* m_lpcs;
 #else
 	static LPCRITICAL_SECTION m_lpcs;
 #endif

@@ -31,7 +31,7 @@ static int g_smoke_client_fd = -1;
 static const char* g_smoke_socket_path = "/tmp/ctp2-smoke.sock";
 
 // Threading primitives (SDL)
-static SDL_mutex* g_smoke_mutex = nullptr;
+static CTP2_SDL_Mutex* g_smoke_mutex = nullptr;
 static SDL_cond*  g_smoke_cond  = nullptr;
 static SDL_Thread* g_smoke_thread = nullptr;
 

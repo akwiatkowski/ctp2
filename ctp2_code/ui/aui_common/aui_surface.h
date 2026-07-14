@@ -118,7 +118,7 @@ public:
 #endif
 
 #ifdef USE_SDL
-	SDL_mutex *LPCS( ) const { return m_cs; };
+	CTP2_SDL_Mutex *LPCS( ) const { return m_cs; };
 #else
 	LPCRITICAL_SECTION LPCS( void ) const { return &m_cs; };
 #endif
@@ -138,7 +138,7 @@ public:
 protected:
 	static sint32 m_surfaceRefCount;
 #ifdef USE_SDL
-	static SDL_mutex *m_cs;
+	static CTP2_SDL_Mutex *m_cs;
 #else
 	static	CRITICAL_SECTION	m_cs;
 #endif

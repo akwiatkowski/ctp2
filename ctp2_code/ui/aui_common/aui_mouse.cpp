@@ -63,7 +63,7 @@ sint32 aui_Mouse::m_mouseRefCount = 0;
 #ifdef __AUI_USE_DIRECTX__
 LPCRITICAL_SECTION aui_Mouse::m_lpcs = NULL;
 #elif defined(__AUI_USE_SDL__)
-SDL_mutex *aui_Mouse::m_lpcs = nullptr;
+CTP2_SDL_Mutex *aui_Mouse::m_lpcs = nullptr;
 #endif
 
 #define k_AUI_MOUSE_THREAD_SLEEP_TIME	2

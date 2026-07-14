@@ -21,7 +21,7 @@ static std::queue<SDL_Event> g_secondaryKeyboardEventQueue;
 // better, but I'll leave it in here to be on the safe side).
 // Lifecycle managed via aui_sdlkbd_InitQueueMutex / DestroyQueueMutex
 // from civ3_main.cpp.
-static SDL_mutex* g_secondaryKeyboardEventQueueMutex = nullptr;
+static CTP2_SDL_Mutex* g_secondaryKeyboardEventQueueMutex = nullptr;
 
 void aui_sdlkbd_InitQueueMutex()
 {

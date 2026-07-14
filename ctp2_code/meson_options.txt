@@ -1,4 +1,4 @@
 option('slicdebug', type : 'boolean', value : false, description : 'Enable slic debugging code')
 option('anet', type : 'boolean', value : true, description : 'Enable anet networking library (required for multiplayer)')
-option('sdl_backend', type : 'combo', choices : ['sdl2', 'sdl3'], value : 'sdl2', description : 'SDL backend version')
+option('sdl_backend', type : 'combo', choices : ['sdl2', 'sdl3'], value : 'sdl3', description : 'SDL backend version (sdl3 default; sdl2 still supported via -Dsdl_backend=sdl2)')
 option('hardening_level', type : 'combo', choices : ['none', 'basic', 'strong', 'maximum'], value : 'basic', description : 'Compiler hardening level: none=minimal, basic=stack protector+FORTIFY, strong=+warning-as-error for common bugs, maximum=+runtime traps and debug checks')

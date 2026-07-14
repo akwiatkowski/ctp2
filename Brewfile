@@ -2,9 +2,10 @@
 # Install with: brew bundle
 # Or: make deps
 
-# Graphics, input, audio
-brew "sdl2"
-brew "sdl2_mixer"
+# Graphics, input, audio (SDL3 is the default backend; for the legacy
+# sdl2 backend — meson -Dsdl_backend=sdl2 — install sdl2 + sdl2_mixer instead)
+brew "sdl3"
+brew "sdl3_mixer"
 
 # Image format support
 brew "libtiff"

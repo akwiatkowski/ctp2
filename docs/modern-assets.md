@@ -94,8 +94,8 @@ Offline tool, extending the existing read-only Python decoders
 3. Packs frames into atlases and writes the atlas + manifest. The current
    `--atlas --modern-assets` path accepts one `.SPR` file or a directory tree and
    writes output under `~/.ctp2/assets/<source-fingerprint>/`.
-4. Validates atlas manifests with `--validate-manifest <json>` before a future
-   loader trusts them.
+4. Validates atlas manifests with `--validate-manifest <json>` and the engine's
+   `ModernSpriteManifest` parser before a future loader trusts them.
 
 Keeping the converter offline (rather than embedded in the engine) keeps all
 format knowledge in one place and makes it fast to iterate. A future "run it

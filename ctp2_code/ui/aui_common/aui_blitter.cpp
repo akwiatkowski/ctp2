@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Standardized code (May 21th 2006 Martin Gühmann)
+// - Standardized code (May 21th 2006 Martin Goehmann)
 // - Replaced inline assembly for 32 bit Intel with regular C++ library call.
 //
 //----------------------------------------------------------------------------
@@ -33,6 +33,7 @@
 #include "ui/aui_common/aui_blitter.h"
 
 #include <algorithm>          // std::fill, std::max, std::min
+#include <cstring>
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_common/aui_dirtylist.h"
 #include "ui/aui_common/aui_pixel.h"
@@ -1527,6 +1528,58 @@ AUI_ERRCODE aui_Blitter::ColorBlt(
 			&clippedDestRect,
 			(uint32)color,
 			flags );
+	}
+	case 4:
+	{
+		Assert( destSurf->PixelFormat() == AUI_SURFACE_PIXELFORMAT_888 );
+
+		AUI_ERRCODE retcode = AUI_ERRCODE_OK;
+		AUI_ERRCODE errcode;
+		const sint32 bytesPerPixel = 4;
+		const sint32 destPitch = destSurf->Pitch();
+		uint8 *destBuf = destSurf->Buffer();
+		bool const wasDestLocked = destBuf != nullptr;
+
+		if (wasDestLocked)
+		{
+			destBuf += clippedDestRect.top * destPitch + clippedDestRect.left * bytesPerPixel;
+		}
+		else
+		{
+			LPVOID lockedBuf = nullptr;
+			if (destSurf->Lock(&clippedDestRect, &lockedBuf, 0) != AUI_ERRCODE_OK)
+			{
+				return AUI_ERRCODE_SURFACELOCKFAILED;
+			}
+			destBuf = static_cast<uint8 *>(lockedBuf);
+		}
+
+		uint8 *origDestBuf = destBuf;
+		sint32 const scanWidth = clippedDestRect.right - clippedDestRect.left;
+		sint32 const height = clippedDestRect.bottom - clippedDestRect.top;
+		uint32 const pixelColor = 0xFF000000u
+			| (static_cast<uint32>(GetRValue(color)) << 16)
+			| (static_cast<uint32>(GetGValue(color)) << 8)
+			| static_cast<uint32>(GetBValue(color));
+
+		for (sint32 y = 0; y < height; ++y)
+		{
+			uint8 *scan = destBuf;
+			for (sint32 x = 0; x < scanWidth; ++x)
+			{
+				std::memcpy(scan, &pixelColor, sizeof(pixelColor));
+				scan += bytesPerPixel;
+			}
+			destBuf += destPitch;
+		}
+
+		if (!wasDestLocked)
+		{
+			errcode = destSurf->Unlock(origDestBuf);
+			if (!AUI_SUCCESS(errcode))
+				retcode = AUI_ERRCODE_SURFACEUNLOCKFAILED;
+		}
+		return retcode;
 	}
 	default:
 

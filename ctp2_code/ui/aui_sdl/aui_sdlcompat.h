@@ -138,6 +138,15 @@ inline bool CTP2_SDL_SaveBMP(SDL_Surface *surface, char const *path)
 #endif
 }
 
+inline bool CTP2_SDL_SetColorKey(SDL_Surface *surface, bool enabled, Uint32 key)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_SetColorKey(surface, enabled, key);
+#else
+	return SDL_SetColorKey(surface, enabled ? SDL_TRUE : SDL_FALSE, key) == 0;
+#endif
+}
+
 inline void CTP2_SDL_DestroySurface(SDL_Surface *surface)
 {
 #if defined(CTP2_USE_SDL3)

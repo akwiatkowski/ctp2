@@ -39,3 +39,13 @@ TEST_CASE("aui_Blitter ColorBlt fills 32bpp SDL surfaces")
 	CHECK(read_pixel(surface, 1, 2) == 0xFF112233u);
 	CHECK(read_pixel(surface, 2, 2) == 0xFF112233u);
 }
+
+TEST_CASE("aui_Surface SetChromaKey maps RGB to 32bpp ARGB")
+{
+	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
+	aui_SDLSurface surface(&errcode, 1, 1, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(errcode));
+
+	CHECK(surface.aui_Surface::SetChromaKey(0x11, 0x22, 0x33) == 0);
+	CHECK(surface.GetChromaKey() == 0xFF112233u);
+}

@@ -247,6 +247,15 @@ uint32 aui_Surface::SetChromaKey( uint8 red, uint8 green, uint8 blue )
 
 		return SetChromaKey( RGB(red,green,blue) );
 
+	case 4:
+		Assert( m_pixelFormat == AUI_SURFACE_PIXELFORMAT_888 );
+
+		return SetChromaKey(
+			0xFF000000u |
+			(static_cast<uint32>(red) << 16) |
+			(static_cast<uint32>(green) << 8) |
+			static_cast<uint32>(blue) );
+
 	default:
 
 		Assert( FALSE );

@@ -109,11 +109,9 @@ aui_SDLSurface::~aui_SDLSurface()
 
 
 uint32 aui_SDLSurface::SetChromaKey( uint32 color ) {
-    int hr = SDL_SetColorKey(m_lpdds, SDL_TRUE, color); //|SDL_RLEACCEL ?
-    //hr == 0 if succeded!
     //printf("%s L%d: SDL_SRCCOLORKEY set to %#X\n", __FILE__, __LINE__, color);
 
-    if ( hr == 0 )
+    if ( CTP2_SDL_SetColorKey(m_lpdds, true, color) )
         return aui_Surface::SetChromaKey( color ); //sets aui_Surface.m_chromaKey and returns last value!
 
     //return AUI_ERRCODE_OK;  //this is not sensible, should retrun last color key!?!

@@ -339,6 +339,8 @@ Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerpri
 
 **Phase C seam started 2026-07-14:** the engine now has a small `ModernSpriteManifest` C++ parser/validator for generated atlas manifests, covered by fast doctests. It does not load textures or change rendering yet; it only establishes the validated data shape the modern-first loader will consume.
 
+**Phase D dependency probe 2026-07-14:** local pkg-config has `sdl3=3.4.12`, but `SDL3_mixer` is absent (`SDL2_mixer=2.8.1` is present). The SDL3 video/input backend port can be started independently, but the sound mixer portion is blocked until SDL3_mixer is installed or the audio plan is split.
+
 ### Already-modern (verified 2026-07-12 — don't re-propose)
 
 C++20 (`cpp_std=c++20`); arm64-native clang build; `hardening_level=maximum` dev default (+`-ftrapv`, `_GLIBCXX_ASSERTIONS`); UBSan smoke tier wired into `make ubsan-smoke`; five modernization ratchets enforced by `make test`; JSON saves (binary CivArchive path deleted); SDL2 + SDL2_mixer; A* node allocation already arena-pooled; 963-finding bug-hunt triaged with P1/P3 resolution blocks.

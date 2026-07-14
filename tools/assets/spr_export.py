@@ -308,7 +308,15 @@ def grid_to_rgba_bytes(grid: list[list], width: int, height: int) -> bytes:
 
 
 def write_png(path: str, width: int, height: int, rgba: bytes) -> None:
-    """Write an 8-bit RGBA PNG with no third-party dependencies."""
+    """Write an 8-bit RGBA PNG with no third-party dependencies.
+
+    Engine-decode contract (the modern-first C++ loader relies on this exact
+    shape so it can decode with the already-linked zlib and no un-filtering):
+    colour type 6 (RGBA), bit depth 8, no interlace, filter type 0 on every
+    scanline, and a single IDAT chunk. Decoding is then: inflate the IDAT,
+    then drop one leading zero byte per row to recover raw RGBA. ``--self-test``
+    pins this structure.
+    """
     def chunk(kind: bytes, data: bytes) -> bytes:
         return (struct.pack(">I", len(data)) + kind + data
                 + struct.pack(">I", zlib.crc32(kind + data) & 0xFFFFFFFF))
@@ -885,7 +893,41 @@ def self_test() -> int:
         print("self-test failed: effective group for known type", file=sys.stderr)
         return 1
 
-    print("self-test OK: LZW1 streams + atlas packer + group resolver")
+    # PNG engine-decode contract: colour type 6 / depth 8 / no interlace,
+    # a single IDAT, and filter byte 0 on every scanline. The modern-first
+    # C++ loader assumes exactly this, so pin it here.
+    with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
+        write_png(tmp.name, 2, 2, bytes(range(2 * 2 * 4)))
+        blob = open(tmp.name, "rb").read()
+    if blob[:8] != b"\x89PNG\r\n\x1a\n":
+        print("self-test failed: PNG signature", file=sys.stderr)
+        return 1
+
+    def _png_chunks(data):
+        pos, out = 8, []
+        while pos < len(data):
+            length = struct.unpack_from(">I", data, pos)[0]
+            kind = data[pos + 4:pos + 8]
+            out.append((kind, data[pos + 8:pos + 8 + length]))
+            pos += 12 + length
+        return out
+
+    chunks = _png_chunks(blob)
+    ihdr = next(payload for kind, payload in chunks if kind == b"IHDR")
+    w, h, depth, colour, comp, filt, interlace = struct.unpack(">IIBBBBB", ihdr)
+    if (depth, colour, comp, filt, interlace) != (8, 6, 0, 0, 0):
+        print("self-test failed: PNG IHDR not RGBA8/no-interlace", file=sys.stderr)
+        return 1
+    idats = [payload for kind, payload in chunks if kind == b"IDAT"]
+    if len(idats) != 1:
+        print("self-test failed: PNG must have a single IDAT", file=sys.stderr)
+        return 1
+    raw = zlib.decompress(idats[0])
+    if len(raw) != h * (1 + w * 4) or any(raw[j * (1 + w * 4)] != 0 for j in range(h)):
+        print("self-test failed: PNG scanline filter bytes must be 0", file=sys.stderr)
+        return 1
+
+    print("self-test OK: LZW1 streams + atlas packer + group resolver + PNG contract")
     return 0
 
 

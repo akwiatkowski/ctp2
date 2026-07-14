@@ -4,8 +4,7 @@
 #include "ui/aui_sdl/aui_sdlsurface.h"
 
 #include "ui/aui_sdl/aui_sdlblitter.h"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_thread.h>
+#include "ui/aui_sdl/aui_sdlcompat.h"
 
 #ifndef DD_OK
 #define DD_OK 0

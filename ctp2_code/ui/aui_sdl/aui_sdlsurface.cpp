@@ -5,8 +5,8 @@
 
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_uniqueid.h"
+#include "ui/aui_sdl/aui_sdlcompat.h"
 #include "ui/aui_sdl/aui_sdlsurface.h"
-#include <SDL2/SDL_thread.h>
 #include <algorithm>   // std::min/max (dirty-rect clamp in Flip)
 
 uint32 aui_SDLSurface::m_SDLSurfaceClassId = aui_UniqueId();

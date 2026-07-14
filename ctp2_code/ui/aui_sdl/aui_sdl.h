@@ -9,7 +9,7 @@
 
 #if defined(__AUI_USE_SDL__)
 
-#include <SDL2/SDL.h>
+#include "ui/aui_sdl/aui_sdlcompat.h"
 
 class aui_SDL
 {

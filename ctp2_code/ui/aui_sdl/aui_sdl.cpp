@@ -27,7 +27,7 @@ AUI_ERRCODE aui_SDL::InitCommon(BOOL useExclusiveMode)
 		return AUI_ERRCODE_CREATEFAILED;
 	}
 */
-	SDL_ShowCursor(SDL_DISABLE);
+	CTP2_SDL_HideCursor();
 
 	// SDL2: all events are enabled by default; no need to filter
 	// SDL_EnableUNICODE removed in SDL2 (always on)

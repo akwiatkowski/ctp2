@@ -326,6 +326,15 @@ inline Uint32 CTP2_SDL_GetMouseState(int *x, int *y)
 #endif
 }
 
+inline void CTP2_SDL_HideCursor()
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_HideCursor();
+#else
+	SDL_ShowCursor(SDL_DISABLE);
+#endif
+}
+
 inline bool CTP2_SDL_SaveRendererPixels(
 	SDL_Renderer *renderer,
 	char const *path,

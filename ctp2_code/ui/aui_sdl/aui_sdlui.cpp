@@ -151,7 +151,7 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	}
 
 	// Ensure cursor is hidden inside the window (macOS may need this after window creation)
-	SDL_ShowCursor(SDL_DISABLE);
+	CTP2_SDL_HideCursor();
 
 	// GPU present layer (portable SDL2 — Metal on macOS, GL/Vulkan on Linux):
 	// create an accelerated renderer + a streaming texture sized to the game

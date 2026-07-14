@@ -65,6 +65,11 @@ import zlib
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import spr_inspect as spr  # noqa: E402
 
+# LZW1 constants (SpriteFile.h:57-59)
+LZW1_FLAG_BYTES = 4
+LZW1_FLAG_COMPRESS = 0
+LZW1_FLAG_COPY = 1
+
 # RLE opcodes (spriteutils.h:12-22)
 CHROMAKEY_RUN_ID = 0x0A
 COPY_RUN_ID = 0x0C
@@ -73,6 +78,76 @@ FEATHERED_RUN_ID = 0x0F
 EMPTY_TABLE_ENTRY = 0xFFFF
 
 TRANSPARENT = None  # marker for an unset pixel
+
+
+class SprExportError(Exception):
+    """Raised when a frame payload cannot be decoded safely."""
+
+
+def decompress_lzw1(payload: bytes, actual_size: int) -> bytes:
+    """Decode the engine's simple LZW1 stream from ``SpriteFile``.
+
+    The on-disk payload starts with a 4-byte mode/padding header. Mode 1 is a
+    raw copy fallback; mode 0 is a control-bit stream where set bits read a
+    12-bit backward offset + 4-bit length token, and clear bits read one
+    literal byte. Control bits are consumed least-significant bit first, exactly
+    like ``SpriteFile::DeCompressData_LZW1``.
+    """
+    if actual_size < 0:
+        raise SprExportError(f"negative LZW1 actual size: {actual_size}")
+    if len(payload) < LZW1_FLAG_BYTES:
+        raise SprExportError("LZW1 payload shorter than flag header")
+
+    mode = payload[0]
+    src = LZW1_FLAG_BYTES
+    if mode == LZW1_FLAG_COPY:
+        out = payload[src:]
+        if len(out) != actual_size:
+            raise SprExportError(
+                f"LZW1 copy size mismatch: got {len(out)}, expected {actual_size}")
+        return out
+    if mode != LZW1_FLAG_COMPRESS:
+        raise SprExportError(f"unknown LZW1 mode byte: {mode}")
+
+    out = bytearray()
+    control = 0
+    control_bits = 0
+    while src < len(payload) and len(out) < actual_size:
+        if control_bits == 0:
+            if src + 2 > len(payload):
+                raise SprExportError("truncated LZW1 control word")
+            control = payload[src] | (payload[src + 1] << 8)
+            src += 2
+            control_bits = 16
+
+        if control & 1:
+            if src + 2 > len(payload):
+                raise SprExportError("truncated LZW1 back-reference")
+            first = payload[src]
+            second = payload[src + 1]
+            src += 2
+            offset = ((first & 0xF0) << 4) + second
+            length = 1 + (first & 0x0F)
+            if offset == 0 or offset > len(out):
+                raise SprExportError(
+                    f"invalid LZW1 back-reference offset {offset} at output {len(out)}")
+            for _ in range(length):
+                if len(out) >= actual_size:
+                    break
+                out.append(out[-offset])
+        else:
+            if src >= len(payload):
+                raise SprExportError("truncated LZW1 literal")
+            out.append(payload[src])
+            src += 1
+
+        control >>= 1
+        control_bits -= 1
+
+    if len(out) != actual_size:
+        raise SprExportError(
+            f"LZW1 output size mismatch: got {len(out)}, expected {actual_size}")
+    return bytes(out)
 
 
 def rgb565_to_rgba(p: int) -> tuple[int, int, int, int]:
@@ -378,21 +453,50 @@ def verify(path: str) -> int:
     return 0 if total_bad == 0 else 1
 
 
+def self_test() -> int:
+    """Exercise LZW1 without requiring licensed game assets."""
+    copy_payload = bytes([LZW1_FLAG_COPY, 0, 0, 0]) + b"raw-frame"
+    if decompress_lzw1(copy_payload, len(b"raw-frame")) != b"raw-frame":
+        print("self-test failed: LZW1 copy mode", file=sys.stderr)
+        return 1
+
+    # Control word 0b1000 (LSB-first): literal A, literal B, literal C,
+    # then back-reference offset=3, len=3 -> ABCABC.
+    compressed = bytes([
+        LZW1_FLAG_COMPRESS, 0, 0, 0,
+        0x08, 0x00,
+        ord("A"), ord("B"), ord("C"),
+        0x02, 0x03,
+    ])
+    if decompress_lzw1(compressed, 6) != b"ABCABC":
+        print("self-test failed: LZW1 back-reference mode", file=sys.stderr)
+        return 1
+
+    print("self-test OK: LZW1 copy + compressed streams")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="Export CTP2 unit .SPR frames to debug PNGs (read-only).")
-    ap.add_argument("path", help="path to a unit .SPR (e.g. GU04.SPR)")
+    ap.add_argument("path", nargs="?", help="path to a unit .SPR (e.g. GU04.SPR)")
     ap.add_argument("-o", "--out-dir", default="spr_export",
                     help="output directory for PNGs (default: ./spr_export)")
     ap.add_argument("--action", help="only export this action (e.g. MOVE)")
     ap.add_argument("--verify", action="store_true",
                     help="parity check only (per-row width invariant), no PNGs")
+    ap.add_argument("--self-test", action="store_true",
+                    help="run synthetic decoder self-tests; does not read assets")
     args = ap.parse_args(argv)
     try:
+        if args.self_test:
+            return self_test()
+        if not args.path:
+            ap.error("path is required unless --self-test is used")
         if args.verify:
             return verify(args.path)
         return export(args.path, args.out_dir, args.action)
-    except (OSError, spr.SprError) as exc:
+    except (OSError, spr.SprError, SprExportError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 

@@ -325,6 +325,8 @@ Ratchet `type_erased_casting = 2602` first-party (pattern: `void*` | `reinterpre
 
 Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerprint>/`) plus an engine modern-first loader with legacy fallback. See `docs/modern-assets.md`. This now proceeds with P11 Stage 2 ahead of the remaining memory-safety phase because atlas-backed textures and the SDL3 backend are prerequisites for real GPU compositing and shader render flags.
 
+**B1 started 2026-07-14:** first slice adds a pure Python LZW1 decoder seam to `spr_export.py`, verified with synthetic copy-mode and compressed literal/back-reference streams because no licensed `.SPR` assets are committed. Real v2 parity remains the next B1 step and needs Olek's local data path.
+
 ### Already-modern (verified 2026-07-12 — don't re-propose)
 
 C++20 (`cpp_std=c++20`); arm64-native clang build; `hardening_level=maximum` dev default (+`-ftrapv`, `_GLIBCXX_ASSERTIONS`); UBSan smoke tier wired into `make ubsan-smoke`; five modernization ratchets enforced by `make test`; JSON saves (binary CivArchive path deleted); SDL2 + SDL2_mixer; A* node allocation already arena-pooled; 963-finding bug-hunt triaged with P1/P3 resolution blocks.

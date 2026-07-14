@@ -506,6 +506,43 @@ inline Pixel32 pixelutils_Shadow32_565(Pixel32 pixel)
   return ((pixel&0xF7DEF7DE)>>1);
 }
 
+// --- True ARGB8888 expanders (P11 Stage 2 B) --------------------------------
+// The 32-bit screen/world surfaces are ARGB8888 = 0xAARRGGBB (blue in the low
+// byte, per the SDL surface masks R=0x00FF0000 G=0x0000FF00 B=0x000000FF).
+// These expand a stored 16-bit pixel to that exact layout, fully opaque, using
+// bit-replication — the same math SDL's own 565->8888 blit uses — so an opaque
+// world pixel written through the expander is byte-identical to the historic
+// "compose 565 then let SDL convert" path. (Note: this differs from
+// ComponentsToRGB32(), which packs red in the low byte; do NOT use that helper
+// for raw surface writes.)
+inline Pixel32 pixelutils_565to8888(Pixel16 p)
+{
+	uint32 const r5 = (p >> 11) & 0x1F;
+	uint32 const g6 = (p >> 5)  & 0x3F;
+	uint32 const b5 =  p        & 0x1F;
+	uint32 const r8 = (r5 << 3) | (r5 >> 2);
+	uint32 const g8 = (g6 << 2) | (g6 >> 4);
+	uint32 const b8 = (b5 << 3) | (b5 >> 2);
+	return 0xFF000000u | (r8 << 16) | (g8 << 8) | b8;
+}
+
+inline Pixel32 pixelutils_555to8888(Pixel16 p)
+{
+	uint32 const r5 = (p >> 10) & 0x1F;
+	uint32 const g5 = (p >> 5)  & 0x1F;
+	uint32 const b5 =  p        & 0x1F;
+	uint32 const r8 = (r5 << 3) | (r5 >> 2);
+	uint32 const g8 = (g5 << 3) | (g5 >> 2);
+	uint32 const b8 = (b5 << 3) | (b5 >> 2);
+	return 0xFF000000u | (r8 << 16) | (g8 << 8) | b8;
+}
+
+// Expand using whichever 16-bit layout the display is in (565 vs 555).
+inline Pixel32 pixelutils_16to8888(Pixel16 p)
+{
+	return is_565_Get() ? pixelutils_565to8888(p) : pixelutils_555to8888(p);
+}
+
 
 Pixel32 pixelutils_Lightening32_565(Pixel16 pixel);
 Pixel32 pixelutils_PercentDarken32_565(Pixel32 pixel, sint32 percent);

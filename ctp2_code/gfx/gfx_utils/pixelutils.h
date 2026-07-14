@@ -543,6 +543,27 @@ inline Pixel32 pixelutils_16to8888(Pixel16 p)
 	return is_565_Get() ? pixelutils_565to8888(p) : pixelutils_555to8888(p);
 }
 
+// Truncate an ARGB8888 (0xAARRGGBB) pixel back down to RGB565. Used by the few
+// scaled/legacy blitters that must read the current destination pixel into
+// their 565 blend math when the surface is 32-bit; the value round-trips
+// 8888->565->8888 (minor precision loss only on those blended edge pixels).
+inline Pixel16 pixelutils_8888to565(Pixel32 p)
+{
+	uint32 const r8 = (p >> 16) & 0xFF;
+	uint32 const g8 = (p >> 8)  & 0xFF;
+	uint32 const b8 =  p        & 0xFF;
+	return static_cast<Pixel16>(((r8 >> 3) << 11) | ((g8 >> 2) << 5) | (b8 >> 3));
+}
+
+// Read one destination pixel as RGB565 regardless of surface depth (expands via
+// the 565 blend path; downconverts a 32-bit dest). Companion to StorePixel for
+// read-modify-write blitters.
+inline Pixel16 pixelutils_ReadPixel565(uint8 const * p, bool bpp32)
+{
+	return bpp32 ? pixelutils_8888to565(*reinterpret_cast<Pixel32 const *>(p))
+	             : *reinterpret_cast<Pixel16 const *>(p);
+}
+
 // Store one 565/555 pixel at a raw byte pointer, expanding to ARGB8888 when the
 // destination world surface is 32-bit. Lets a tile writer keep a single loop
 // body (bpp32 is loop-invariant → predicts well at -O2); in 16-bit mode it is

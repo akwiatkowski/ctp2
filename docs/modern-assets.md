@@ -94,6 +94,8 @@ Offline tool, extending the existing read-only Python decoders
 3. Packs frames into atlases and writes the atlas + manifest. The current
    `--atlas --modern-assets` path accepts one `.SPR` file or a directory tree and
    writes output under `~/.ctp2/assets/<source-fingerprint>/`.
+4. Validates atlas manifests with `--validate-manifest <json>` before a future
+   loader trusts them.
 
 Keeping the converter offline (rather than embedded in the engine) keeps all
 format knowledge in one place and makes it fast to iterate. A future "run it
@@ -115,5 +117,5 @@ canonical originals.
 
 - Real-asset v2 (LZW1) sprite pixel parity.
 - Non-unit asset types (tiles `.TIF`, cities, goods, effects, sounds).
-- First-run auto-conversion / validation flow.
+- First-run auto-conversion flow.
 - Whether/when to auto-invoke the converter on first launch.

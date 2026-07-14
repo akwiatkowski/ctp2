@@ -335,6 +335,8 @@ Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerpri
 
 **B2 started 2026-07-14:** `spr_export.py --atlas` now packs decoded v0/v1 unit frames into one dependency-free RGBA PNG atlas plus manifest rects using the existing decoder output. `--modern-assets` writes under `~/.ctp2/assets/<source-fingerprint>/`; when pointed at a directory it recursively walks `.SPR` files and fingerprints the source set from relative paths + contents. Both are verified by the synthetic self-test; real atlas parity still needs a local `.SPR` data path.
 
+**B2 validator 2026-07-14:** `spr_export.py --validate-manifest <json>` checks atlas manifest self-consistency (atlas metadata, per-frame references, rect bounds). This is the loader-contract guard before any engine modern-first path trusts generated assets.
+
 ### Already-modern (verified 2026-07-12 — don't re-propose)
 
 C++20 (`cpp_std=c++20`); arm64-native clang build; `hardening_level=maximum` dev default (+`-ftrapv`, `_GLIBCXX_ASSERTIONS`); UBSan smoke tier wired into `make ubsan-smoke`; five modernization ratchets enforced by `make test`; JSON saves (binary CivArchive path deleted); SDL2 + SDL2_mixer; A* node allocation already arena-pooled; 963-finding bug-hunt triaged with P1/P3 resolution blocks.

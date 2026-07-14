@@ -561,6 +561,80 @@ def export_tree(path: str, out_dir: str, action_filter: str | None, atlas: bool)
     return 1 if failed else 0
 
 
+def validate_manifest_data(manifest: dict) -> list[str]:
+    """Return manifest contract errors; empty means self-consistent."""
+    errors: list[str] = []
+    actions = manifest.get("actions")
+    if not isinstance(actions, list):
+        return ["actions must be a list"]
+
+    atlas = manifest.get("atlas")
+    atlas_width = atlas_height = None
+    if atlas is not None:
+        if not isinstance(atlas, dict):
+            errors.append("atlas must be an object")
+        else:
+            atlas_width = atlas.get("width")
+            atlas_height = atlas.get("height")
+            if not isinstance(atlas.get("png"), str) or not atlas["png"]:
+                errors.append("atlas.png must be a non-empty string")
+            if not isinstance(atlas_width, int) or atlas_width <= 0:
+                errors.append("atlas.width must be a positive integer")
+            if not isinstance(atlas_height, int) or atlas_height <= 0:
+                errors.append("atlas.height must be a positive integer")
+
+    for action_index, action in enumerate(actions):
+        prefix = f"actions[{action_index}]"
+        if not isinstance(action, dict):
+            errors.append(f"{prefix} must be an object")
+            continue
+        frames = action.get("frames")
+        if not isinstance(frames, list):
+            errors.append(f"{prefix}.frames must be a list")
+            continue
+        if action.get("num_frames") != len({frame.get("frame") for frame in frames if isinstance(frame, dict)}):
+            errors.append(f"{prefix}.num_frames does not match distinct frame indices")
+        for frame_index, frame in enumerate(frames):
+            frame_prefix = f"{prefix}.frames[{frame_index}]"
+            if not isinstance(frame, dict):
+                errors.append(f"{frame_prefix} must be an object")
+                continue
+            if atlas is None:
+                if not isinstance(frame.get("png"), str) or not frame["png"]:
+                    errors.append(f"{frame_prefix}.png must be a non-empty string")
+                continue
+            rect = frame.get("rect")
+            if not isinstance(rect, dict):
+                errors.append(f"{frame_prefix}.rect must be an object")
+                continue
+            x = rect.get("x")
+            y = rect.get("y")
+            width = rect.get("w")
+            height = rect.get("h")
+            if not all(isinstance(value, int) for value in (x, y, width, height)):
+                errors.append(f"{frame_prefix}.rect fields must be integers")
+                continue
+            if x < 0 or y < 0 or width <= 0 or height <= 0:
+                errors.append(f"{frame_prefix}.rect has invalid dimensions")
+                continue
+            if atlas_width is not None and atlas_height is not None:
+                if x + width > atlas_width or y + height > atlas_height:
+                    errors.append(f"{frame_prefix}.rect exceeds atlas bounds")
+    return errors
+
+
+def validate_manifest(path: str) -> int:
+    with open(path) as f:
+        manifest = json.load(f)
+    errors = validate_manifest_data(manifest)
+    if errors:
+        for error in errors:
+            print(f"BAD {path}: {error}", file=sys.stderr)
+        return 1
+    print(f"OK  {path}")
+    return 0
+
+
 def verify(path: str) -> int:
     """Run the per-row width invariant across every frame of a unit sprite."""
     info = spr.inspect(path)
@@ -623,6 +697,21 @@ def self_test() -> int:
         print("self-test failed: v2 frame decompression", file=sys.stderr)
         return 1
 
+    manifest_errors = validate_manifest_data({
+        "atlas": {"png": "GU04.png", "width": 2, "height": 3},
+        "actions": [{
+            "name": "MOVE",
+            "num_frames": 2,
+            "frames": [
+                {"facing": 0, "frame": 0, "rect": {"x": 0, "y": 0, "w": 2, "h": 1}},
+                {"facing": 0, "frame": 1, "rect": {"x": 0, "y": 1, "w": 1, "h": 2}},
+            ],
+        }],
+    })
+    if manifest_errors:
+        print("self-test failed: manifest validator", file=sys.stderr)
+        return 1
+
     frames = [
         {"width": 2, "height": 1, "rgba": b"\xff\x00\x00\xff\x00\xff\x00\xff"},
         {"width": 1, "height": 2, "rgba": b"\x00\x00\xff\xff\xff\xff\xff\xff"},
@@ -683,10 +772,14 @@ def main(argv: list[str] | None = None) -> int:
                     help="write to ~/.ctp2/assets/<source-fingerprint>/")
     ap.add_argument("--self-test", action="store_true",
                     help="run synthetic decoder self-tests; does not read assets")
+    ap.add_argument("--validate-manifest", metavar="JSON",
+                    help="check an exported manifest for atlas/rect consistency")
     args = ap.parse_args(argv)
     try:
         if args.self_test:
             return self_test()
+        if args.validate_manifest:
+            return validate_manifest(args.validate_manifest)
         if not args.path:
             ap.error("path is required unless --self-test is used")
         if args.verify:

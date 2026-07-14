@@ -535,6 +535,87 @@ AUI_ERRCODE StretchBlt32To32(
 	return retcode;
 }
 
+AUI_ERRCODE SpanBlt32To32(
+	aui_Surface *destSurf,
+	aui_Surface *srcSurf,
+	aui_SpanList *srcSpanListArray,
+	uint32 flags )
+{
+	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
+	AUI_ERRCODE errcode;
+
+	const sint32 destPitch = destSurf->Pitch() / 4;
+	const sint32 srcPitch = srcSurf->Pitch() / 4;
+
+	uint32 *destBuf = (uint32 *)destSurf->Buffer();
+	const bool wasDestLocked = destBuf != nullptr;
+	if (!wasDestLocked && destSurf->Lock(nullptr, (LPVOID *)&destBuf, 0) != AUI_ERRCODE_OK)
+	{
+		destBuf = nullptr;
+		retcode = AUI_ERRCODE_SURFACELOCKFAILED;
+	}
+
+	if (destBuf)
+	{
+		uint32 *origDestBuf = destBuf;
+		uint32 *srcBuf = (uint32 *)srcSurf->Buffer();
+		const bool wasSrcLocked = srcBuf != nullptr;
+		if (!wasSrcLocked && srcSurf->Lock(nullptr, (LPVOID *)&srcBuf, 0) != AUI_ERRCODE_OK)
+		{
+			srcBuf = nullptr;
+			retcode = AUI_ERRCODE_SURFACELOCKFAILED;
+		}
+
+		if (srcBuf)
+		{
+			uint32 *origSrcBuf = srcBuf;
+			if (flags & k_AUI_BLITTER_FLAG_COPY)
+			{
+				aui_SpanList *curSpanList = srcSpanListArray;
+				const aui_SpanList *stopSpanList = curSpanList + srcSurf->Height();
+				do
+				{
+					uint32 *destLineStart = destBuf;
+					uint32 *srcLineStart = srcBuf;
+					sint32 num = curSpanList->num;
+					aui_Span *curSpan = curSpanList->spans;
+					while (num--)
+					{
+						destBuf += curSpan->run;
+						srcBuf += curSpan->run;
+						memcpy(destBuf, srcBuf, 4 * curSpan->length);
+						destBuf += curSpan->length;
+						srcBuf += curSpan->length;
+						curSpan++;
+					}
+					destBuf = destLineStart + destPitch;
+					srcBuf = srcLineStart + srcPitch;
+				} while (++curSpanList != stopSpanList);
+			}
+			else
+			{
+				retcode = AUI_ERRCODE_INVALIDPARAM;
+			}
+
+			if (!wasSrcLocked)
+			{
+				errcode = srcSurf->Unlock((LPVOID)origSrcBuf);
+				if (!AUI_SUCCESS(errcode))
+					retcode = AUI_ERRCODE_SURFACEUNLOCKFAILED;
+			}
+		}
+
+		if (!wasDestLocked)
+		{
+			errcode = destSurf->Unlock((LPVOID)origDestBuf);
+			if (!AUI_SUCCESS(errcode))
+				retcode = AUI_ERRCODE_SURFACEUNLOCKFAILED;
+		}
+	}
+
+	return retcode;
+}
+
 }
 
 AUI_ERRCODE aui_Blitter::Blt(
@@ -3140,6 +3221,12 @@ AUI_ERRCODE aui_Blitter::SpanBlt(
 	case 3:
 
 		return AUI_ERRCODE_INVALIDPARAM;
+	case 4:
+		return SpanBlt32To32(
+			destSurf,
+			srcSurf,
+			srcSpanListArray,
+			flags );
 	default:
 
 		Assert( FALSE );

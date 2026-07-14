@@ -2,6 +2,7 @@
 
 #include "ctp/c3.h"
 #include "ui/aui_common/aui_blitter.h"
+#include "ui/aui_common/aui_dirtylist.h"
 #include "ui/aui_sdl/aui_sdlcompat.h"
 #include "ui/aui_sdl/aui_sdlsurface.h"
 
@@ -261,4 +262,33 @@ TEST_CASE("aui_Blitter StretchBlt applies 32bpp chroma keys")
 	CHECK(read_pixel(dest, 1, 0) == 0xFF010204u);
 	CHECK(read_pixel(dest, 2, 0) == 0xFF123456u);
 	CHECK(read_pixel(dest, 3, 0) == 0xFF123456u);
+}
+
+TEST_CASE("aui_Blitter SpanBlt copies 32bpp dirty spans")
+{
+	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
+	aui_SDLSurface src(&errcode, 4, 4, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(errcode));
+	aui_SDLSurface dest(&errcode, 4, 4, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(errcode));
+
+	for (sint32 y = 0; y < 4; ++y)
+		for (sint32 x = 0; x < 4; ++x)
+		{
+			write_pixel(src, x, y, 0xFF100000u + static_cast<uint32>(y * 4 + x));
+			write_pixel(dest, x, y, 0xFF000001u);
+		}
+
+	aui_DirtyList dirty(TRUE, 4, 4);
+	CHECK(dirty.AddRect(1, 1, 3, 3) == AUI_ERRCODE_OK);
+
+	aui_Blitter blitter;
+	CHECK(blitter.SpanBlt(&dest, 0, 0, &src, &dirty, k_AUI_BLITTER_FLAG_COPY) == AUI_ERRCODE_OK);
+
+	CHECK(read_pixel(dest, 0, 0) == 0xFF000001u);
+	CHECK(read_pixel(dest, 1, 1) == 0xFF100005u);
+	CHECK(read_pixel(dest, 2, 1) == 0xFF100006u);
+	CHECK(read_pixel(dest, 1, 2) == 0xFF100009u);
+	CHECK(read_pixel(dest, 2, 2) == 0xFF10000Au);
+	CHECK(read_pixel(dest, 3, 2) == 0xFF000001u);
 }

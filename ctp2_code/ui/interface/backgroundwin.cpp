@@ -126,7 +126,11 @@ sint32 backgroundWin_Initialize(bool fullscreen)
 	Assert( g_background != nullptr );
 	if ( !g_background ) return -1;
 
-
+	// P11 Stage 2 D: tell the UI which surface is the world (background) window
+	// so per-layer GPU compositing can route its composite into the world layer
+	// and everything else into the UI layer. No-op unless CTP2_GPU_LAYERS is on.
+	if ( c3ui_Get() )
+		c3ui_Get()->SetWorldWindowSurface( g_background->TheSurface() );
 
 
 

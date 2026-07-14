@@ -259,6 +259,32 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 
 	m_pixelFormat = m_primary->PixelFormat();
 
+	// P11 Stage 2 D: per-layer GPU compositing. Create the world-only and
+	// UI-only composite surfaces (32-bit, screen-sized, NOT-primary — they are
+	// uploaded to their own GPU textures in Flip, never self-present). The UI
+	// surface starts fully transparent so the world shows through everywhere the
+	// UI has not drawn; the aui_UI chokepoint mirrors each composite write into
+	// one of these two layers. Gated so the default single-texture path is
+	// untouched.
+	if (aui_SDL::GpuLayersEnabled()) {
+		m_worldSurface = new aui_SDLSurface(&errcode, m_width, m_height, 32, nullptr, FALSE);
+		if (!AUI_NEWOK(m_worldSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
+		m_uiSurface = new aui_SDLSurface(&errcode, m_width, m_height, 32, nullptr, FALSE);
+		if (!AUI_NEWOK(m_uiSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
+
+		// Zero both surfaces (ARGB 0x00000000). The world layer is fully
+		// repainted by the opaque background window each frame; the UI layer
+		// stays transparent until UI composites into it.
+		SDL_Surface *ws = static_cast<aui_SDLSurface *>(m_worldSurface)->DDS();
+		SDL_Surface *us = static_cast<aui_SDLSurface *>(m_uiSurface)->DDS();
+		if (ws && ws->pixels) memset(ws->pixels, 0, static_cast<size_t>(ws->h) * ws->pitch);
+		if (us && us->pixels) memset(us->pixels, 0, static_cast<size_t>(us->h) * us->pitch);
+
+		m_gpuLayers = true;
+		fprintf(stderr, "[SDLUI] Per-layer GPU compositing ON: world + UI surfaces %dx%d @ 32bpp\n",
+			m_width, m_height);
+	}
+
 	return AUI_ERRCODE_OK;
 }
 

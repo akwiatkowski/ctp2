@@ -115,6 +115,10 @@ protected:
 		m_ldl                       (nullptr),
 		m_primary                   (nullptr),
 		m_secondary                 (nullptr),
+		m_worldSurface              (nullptr),
+		m_uiSurface                 (nullptr),
+		m_worldWindowSurface        (nullptr),
+		m_gpuLayers                 (false),
 		m_blitter                   (nullptr),
 		m_memmap                    (nullptr),
 		m_mouse                     (nullptr),
@@ -187,7 +191,21 @@ public:
 		AccumulateSecondaryDirty(destx, desty,
 		                         destx + (srcRect->right - srcRect->left),
 		                         desty + (srcRect->bottom - srcRect->top));
-		return m_blitter->Blt(m_secondary, destx, desty, srcSurf, srcRect, flags);
+		AUI_ERRCODE const rc =
+			m_blitter->Blt(m_secondary, destx, desty, srcSurf, srcRect, flags);
+		// P11 Stage 2 D: mirror each composite write into a world-only or a
+		// UI-only layer so they can be GPU-composited separately (fog on the
+		// world, pan/zoom the world). The background window's surface is the
+		// world; every other source (UI windows, cursor, fills) is UI. Both
+		// layers are screen-sized and share the secondary's coordinates.
+		if (m_gpuLayers)
+		{
+			if (srcSurf == m_worldWindowSurface)
+				m_blitter->Blt(m_worldSurface, destx, desty, srcSurf, srcRect, flags);
+			else
+				m_blitter->Blt(m_uiSurface, destx, desty, srcSurf, srcRect, flags);
+		}
+		return rc;
 	};
 
 	// useAccumulatedDirty: the per-frame mouse presents pass true — every
@@ -211,7 +229,12 @@ public:
 	{
 		AccumulateSecondaryDirty(destRect->left, destRect->top,
 		                         destRect->right, destRect->bottom);
-		return m_blitter->ColorBlt(m_secondary, destRect, color, flags);
+		AUI_ERRCODE const rc = m_blitter->ColorBlt(m_secondary, destRect, color, flags);
+		// P11 Stage 2 D: color/image fills are background/UI chrome, never the
+		// world window — mirror them into the UI layer (see BltToSecondary).
+		if (m_gpuLayers)
+			m_blitter->ColorBlt(m_uiSurface, destRect, color, flags);
+		return rc;
 	};
 
 	sint32 PrimaryHeight()  { return m_primary->Height(); };
@@ -243,6 +266,11 @@ public:
 
 	aui_Surface		*Secondary( ) const { return m_secondary; }
 	aui_Surface		*Primary( ) const { return m_primary; }
+	// P11 Stage 2 D: per-layer GPU compositing surfaces + configuration.
+	aui_Surface		*WorldSurface( ) const { return m_worldSurface; }
+	aui_Surface		*UiSurface( ) const { return m_uiSurface; }
+	bool			GpuLayers( ) const { return m_gpuLayers; }
+	void			SetWorldWindowSurface( aui_Surface *s ) { m_worldWindowSurface = s; }
 	aui_Blitter		*TheBlitter( ) const { return m_blitter; }
 	aui_MemMap		*TheMemMap( ) const { return m_memmap; }
 	aui_Mouse		*TheMouse( ) const { return m_mouse; }
@@ -437,6 +465,16 @@ protected:
 
 	aui_Surface		*m_primary;
 	aui_Surface		*m_secondary;
+
+	// P11 Stage 2 D: per-layer GPU compositing. When m_gpuLayers is set (by the
+	// SDL UI when CTP2_GPU_LAYERS is on), every BltToSecondary/ColorBltToSecondary
+	// is mirrored into a world-only or UI-only screen-sized surface so the two
+	// layers can be GPU-composited independently. m_worldWindowSurface is the
+	// background window's surface, used to classify a write as world vs UI.
+	aui_Surface		*m_worldSurface;
+	aui_Surface		*m_uiSurface;
+	aui_Surface		*m_worldWindowSurface;
+	bool			m_gpuLayers;
 
 	// Running union of every rect written into m_secondary via
 	// BltToSecondary/ColorBltToSecondary since the last present.

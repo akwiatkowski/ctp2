@@ -215,38 +215,48 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					upPtr = &up;
 				}
 			}
-			// P11 Stage 2 D: when per-layer GPU compositing is enabled, the
-			// composited frame becomes the world (base) layer and a second
-			// alpha texture is composited over it on the GPU. Both textures are
-			// full-screen ARGB8888; the UI texture is in BLENDMODE_BLEND so its
-			// transparent pixels leave the world layer untouched. Until the UI
-			// composite is redirected into it (next increment) the UI texture
-			// is fully transparent, so the presented frame is byte-identical to
-			// the single-texture present — keeping the slice-ui oracle green.
-			bool const layered = aui_SDL::GpuLayersEnabled()
-			                   && aui_SDL::WorldTexture() && aui_SDL::UiTexture();
-			SDL_Texture * const baseTex = layered ? aui_SDL::WorldTexture()
-			                                      : m_screenTexture;
-			// The world/base texture accumulates the frame from per-dirty-rect
-			// uploads exactly as m_screenTexture does (the full m_lpdds surface
-			// is never a complete frame — only its freshly composited regions
-			// are valid, the rest holds stale init content). Since layers are
-			// enabled from frame 0, the world texture builds up identically.
-			if (!dirty || upPtr)
-			{
-				uint8 const *pixels = static_cast<uint8 const *>(m_lpdds->pixels);
-				if (upPtr)
-				{
-					pixels += static_cast<size_t>(up.y) * m_lpdds->pitch
-					        + static_cast<size_t>(up.x) * CTP2_SDL_SurfaceBytesPerPixel(m_lpdds);
-				}
-				CTP2_SDL_UpdateTexture( baseTex, upPtr, pixels, m_lpdds->pitch );
-			}
-			SDL_RenderClear( m_renderer );
-			CTP2_SDL_RenderTexture( m_renderer, baseTex );
+			// P11 Stage 2 D: per-layer GPU compositing. The aui_UI chokepoint
+			// keeps a world-only and a UI-only composite surface; upload each to
+			// its own full-screen ARGB8888 texture and GPU-composite them
+			// (world base, then UI in BLENDMODE_BLEND on top). The UI surface is
+			// transparent everywhere it has not drawn, so the world shows
+			// through. Both surfaces are complete (persisted, dirty-accumulated
+			// like m_secondary), so a full upload each present is correct.
+			aui_UI * const ui = aui_ui_Get();
+			aui_SDLSurface * const worldSurf =
+				(ui && ui->GpuLayers()) ? static_cast<aui_SDLSurface *>(ui->WorldSurface()) : nullptr;
+			aui_SDLSurface * const uiSurf =
+				(ui && ui->GpuLayers()) ? static_cast<aui_SDLSurface *>(ui->UiSurface()) : nullptr;
+			bool const layered = aui_SDL::WorldTexture() && aui_SDL::UiTexture()
+			                   && worldSurf && uiSurf && worldSurf->DDS() && uiSurf->DDS();
+
 			if (layered)
+			{
+				SDL_Surface * const ws = worldSurf->DDS();
+				SDL_Surface * const us = uiSurf->DDS();
+				CTP2_SDL_UpdateTexture( aui_SDL::WorldTexture(), nullptr, ws->pixels, ws->pitch );
+				CTP2_SDL_UpdateTexture( aui_SDL::UiTexture(),    nullptr, us->pixels, us->pitch );
+				SDL_RenderClear( m_renderer );
+				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::WorldTexture() );
 				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::UiTexture() );
-			SDL_RenderPresent( m_renderer );
+				SDL_RenderPresent( m_renderer );
+			}
+			else
+			{
+				if (!dirty || upPtr)
+				{
+					uint8 const *pixels = static_cast<uint8 const *>(m_lpdds->pixels);
+					if (upPtr)
+					{
+						pixels += static_cast<size_t>(up.y) * m_lpdds->pitch
+						        + static_cast<size_t>(up.x) * CTP2_SDL_SurfaceBytesPerPixel(m_lpdds);
+					}
+					CTP2_SDL_UpdateTexture( m_screenTexture, upPtr, pixels, m_lpdds->pitch );
+				}
+				SDL_RenderClear( m_renderer );
+				CTP2_SDL_RenderTexture( m_renderer, m_screenTexture );
+				SDL_RenderPresent( m_renderer );
+			}
 		}
 		else if ( m_window )
 		{

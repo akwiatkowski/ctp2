@@ -4,7 +4,7 @@
     "dynarray_uses": 353,
     "pointerlist_uses": 576,
     "raw_delete": 1845,
-    "raw_new": 4799,
+    "raw_new": 4801,
     "type_erased_casting": 2580,
     "unsafe_string_api": 39
   },

@@ -54,6 +54,101 @@ inline bool CTP2_SDL_RenderTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 #endif
 }
 
+inline bool CTP2_SDL_UpdateTexture(
+	SDL_Texture *texture,
+	SDL_Rect const *rect,
+	void const *pixels,
+	int pitch)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_UpdateTexture(texture, rect, pixels, pitch);
+#else
+	return SDL_UpdateTexture(texture, rect, pixels, pitch) == 0;
+#endif
+}
+
+inline bool CTP2_SDL_GetTextureSize(SDL_Texture *texture, int *width, int *height)
+{
+#if defined(CTP2_USE_SDL3)
+	float w = 0.0f;
+	float h = 0.0f;
+	if (!SDL_GetTextureSize(texture, &w, &h))
+	{
+		return false;
+	}
+	*width = static_cast<int>(w);
+	*height = static_cast<int>(h);
+	return true;
+#else
+	return SDL_QueryTexture(texture, nullptr, nullptr, width, height) == 0;
+#endif
+}
+
+inline bool CTP2_SDL_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *target)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_SetRenderTarget(renderer, target);
+#else
+	return SDL_SetRenderTarget(renderer, target) == 0;
+#endif
+}
+
+inline SDL_Surface *CTP2_SDL_CreateARGB8888Surface(int width, int height)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_CreateSurface(width, height, SDL_PIXELFORMAT_ARGB8888);
+#else
+	return SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
+#endif
+}
+
+inline bool CTP2_SDL_SaveBMP(SDL_Surface *surface, char const *path)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_SaveBMP(surface, path);
+#else
+	return SDL_SaveBMP(surface, path) == 0;
+#endif
+}
+
+inline void CTP2_SDL_DestroySurface(SDL_Surface *surface)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_DestroySurface(surface);
+#else
+	SDL_FreeSurface(surface);
+#endif
+}
+
+inline bool CTP2_SDL_SaveRendererPixels(
+	SDL_Renderer *renderer,
+	char const *path,
+	int width,
+	int height)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_Surface *shot = SDL_RenderReadPixels(renderer, nullptr);
+	if (!shot)
+	{
+		return false;
+	}
+	bool const ok = CTP2_SDL_SaveBMP(shot, path);
+	CTP2_SDL_DestroySurface(shot);
+	return ok;
+#else
+	SDL_Surface *shot = CTP2_SDL_CreateARGB8888Surface(width, height);
+	if (!shot)
+	{
+		return false;
+	}
+	bool const ok = SDL_RenderReadPixels(renderer, nullptr,
+		SDL_PIXELFORMAT_ARGB8888, shot->pixels, shot->pitch) == 0
+		&& CTP2_SDL_SaveBMP(shot, path);
+	CTP2_SDL_DestroySurface(shot);
+	return ok;
+#endif
+}
+
 inline bool CTP2_SDL_SetRenderLogicalSize(SDL_Renderer *renderer, int width, int height)
 {
 #if defined(CTP2_USE_SDL3)

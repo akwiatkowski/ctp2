@@ -2835,7 +2835,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 #ifdef USE_SDL
 					aui_SDLSurface *sdlSurf = static_cast<aui_SDLSurface*>(c3ui_Get()->Primary());
 					if (sdlSurf && sdlSurf->DDS()) {
-						if (SDL_SaveBMP(sdlSurf->DDS(), path) == 0) {
+						if (CTP2_SDL_SaveBMP(sdlSurf->DDS(), path)) {
 							smoke_log->info("Screenshot saved to {}", path);
 							smoketest_send_response("ok", cmd, nullptr);
 						} else {
@@ -2880,24 +2880,16 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						// is exact regardless of HiDPI backbuffer scale or
 						// SDL_RenderSetLogicalSize on the window target.
 						int texW = 0, texH = 0;
-						SDL_QueryTexture(texture, nullptr, nullptr, &texW, &texH);
+						CTP2_SDL_GetTextureSize(texture, &texW, &texH);
 						SDL_Texture *target = SDL_CreateTexture(renderer,
 						        SDL_PIXELFORMAT_ARGB8888,
 						        SDL_TEXTUREACCESS_TARGET, texW, texH);
 						bool ok = false;
-						if (target && SDL_SetRenderTarget(renderer, target) == 0) {
+						if (target && CTP2_SDL_SetRenderTarget(renderer, target)) {
 							SDL_RenderClear(renderer);
 							CTP2_SDL_RenderTexture(renderer, texture);
-							SDL_Surface *shot = SDL_CreateRGBSurfaceWithFormat(
-								0, texW, texH, 32, SDL_PIXELFORMAT_ARGB8888);
-							if (shot) {
-								ok = SDL_RenderReadPixels(renderer, nullptr,
-								        SDL_PIXELFORMAT_ARGB8888,
-								        shot->pixels, shot->pitch) == 0
-								  && SDL_SaveBMP(shot, path) == 0;
-								SDL_FreeSurface(shot);
-							}
-							SDL_SetRenderTarget(renderer, nullptr);
+							ok = CTP2_SDL_SaveRendererPixels(renderer, path, texW, texH);
+							CTP2_SDL_SetRenderTarget(renderer, nullptr);
 						}
 						if (target) SDL_DestroyTexture(target);
 						// Atomic pair: capture the software primary in the
@@ -2905,7 +2897,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						if (ok && primPath[0]) {
 							aui_SDLSurface *prim = static_cast<aui_SDLSurface*>(c3ui_Get()->Primary());
 							ok = prim && prim->DDS()
-							  && SDL_SaveBMP(prim->DDS(), primPath) == 0;
+							  && CTP2_SDL_SaveBMP(prim->DDS(), primPath);
 						}
 						if (ok) {
 							smoke_log->info("Presented-frame readback saved to {}", path);
@@ -2944,7 +2936,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 							new aui_SDLSurface(&err, SW, SH, 16, nullptr, FALSE);
 						if (off && err == AUI_ERRCODE_OK && off->DDS()) {
 							tm->RenderFullMap(off, zoom);
-							if (SDL_SaveBMP(off->DDS(), pathBuf) == 0) {
+							if (CTP2_SDL_SaveBMP(off->DDS(), pathBuf)) {
 								smoke_log->info("Full map rendered to {} ({}x{} zoom {})",
 								                pathBuf, SW, SH, zoom);
 								smoketest_send_response("ok", cmd, nullptr);
@@ -2988,7 +2980,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 							RECT crop = {0, 0, 0, 0};
 							std::vector<TiledMap::CityLabel> labels;
 							tm->RenderPlayerView(off, zoom, player, &crop, &labels);
-							if (SDL_SaveBMP(off->DDS(), pathBuf) == 0) {
+							if (CTP2_SDL_SaveBMP(off->DDS(), pathBuf)) {
 								// detail: "crop=x,y,w,h cities=px~py~owner~pop~name;..."
 								std::string detail = "crop=" +
 									std::to_string((int) crop.left) + "," +

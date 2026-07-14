@@ -225,7 +225,7 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					pixels += static_cast<size_t>(up.y) * m_lpdds->pitch
 					        + static_cast<size_t>(up.x) * m_lpdds->format->BytesPerPixel;
 				}
-				SDL_UpdateTexture( m_screenTexture, upPtr, pixels, m_lpdds->pitch );
+				CTP2_SDL_UpdateTexture( m_screenTexture, upPtr, pixels, m_lpdds->pitch );
 			}
 			SDL_RenderClear( m_renderer );
 			CTP2_SDL_RenderTexture( m_renderer, m_screenTexture );

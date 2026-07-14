@@ -20,6 +20,15 @@ uint32 read_pixel(aui_SDLSurface &surface, sint32 x, sint32 y)
 	return value;
 }
 
+void write_pixel(aui_SDLSurface &surface, sint32 x, sint32 y, uint32 value)
+{
+	RECT rect{x, y, x + 1, y + 1};
+	LPVOID pixel = nullptr;
+	CHECK(surface.Lock(&rect, &pixel, 0) == AUI_ERRCODE_OK);
+	std::memcpy(pixel, &value, sizeof(value));
+	CHECK(surface.Unlock(pixel) == AUI_ERRCODE_OK);
+}
+
 }
 
 TEST_CASE("aui_Blitter ColorBlt fills 32bpp SDL surfaces")
@@ -48,4 +57,50 @@ TEST_CASE("aui_Surface SetChromaKey maps RGB to 32bpp ARGB")
 
 	CHECK(surface.aui_Surface::SetChromaKey(0x11, 0x22, 0x33) == 0);
 	CHECK(surface.GetChromaKey() == 0xFF112233u);
+}
+
+TEST_CASE("aui_Blitter Blt copies 32bpp SDL surfaces")
+{
+	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
+	aui_SDLSurface src(&errcode, 3, 2, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(errcode));
+	aui_SDLSurface dest(&errcode, 4, 3, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(errcode));
+
+	write_pixel(src, 1, 0, 0xFF102030u);
+	write_pixel(src, 2, 0, 0xFF405060u);
+	write_pixel(src, 1, 1, 0xFF708090u);
+	write_pixel(src, 2, 1, 0xFFA0B0C0u);
+
+	RECT srcRect{1, 0, 3, 2};
+	aui_Blitter blitter;
+	CHECK(blitter.Blt(&dest, 1, 1, &src, &srcRect, k_AUI_BLITTER_FLAG_COPY) == AUI_ERRCODE_OK);
+
+	CHECK(read_pixel(dest, 0, 0) == 0);
+	CHECK(read_pixel(dest, 1, 1) == 0xFF102030u);
+	CHECK(read_pixel(dest, 2, 1) == 0xFF405060u);
+	CHECK(read_pixel(dest, 1, 2) == 0xFF708090u);
+	CHECK(read_pixel(dest, 2, 2) == 0xFFA0B0C0u);
+}
+
+TEST_CASE("aui_Blitter Blt applies 32bpp chroma keys")
+{
+	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
+	aui_SDLSurface src(&errcode, 2, 1, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(errcode));
+	aui_SDLSurface dest(&errcode, 2, 1, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(errcode));
+
+	write_pixel(src, 0, 0, 0xFFFF00FFu);
+	write_pixel(src, 1, 0, 0xFF123456u);
+	write_pixel(dest, 0, 0, 0xFF010203u);
+	write_pixel(dest, 1, 0, 0xFF040506u);
+	CHECK(src.aui_Surface::SetChromaKey(0xFF, 0x00, 0xFF) == 0);
+
+	RECT srcRect{0, 0, 2, 1};
+	aui_Blitter blitter;
+	CHECK(blitter.Blt(&dest, 0, 0, &src, &srcRect, k_AUI_BLITTER_FLAG_CHROMAKEY) == AUI_ERRCODE_OK);
+
+	CHECK(read_pixel(dest, 0, 0) == 0xFF010203u);
+	CHECK(read_pixel(dest, 1, 0) == 0xFF123456u);
 }

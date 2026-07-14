@@ -20,7 +20,7 @@
 #include <cstdlib>
 #include <string>
 
-#include <SDL.h>
+#include "ui/aui_sdl/aui_sdlcompat.h"
 
 // Socket state
 static int g_smoke_listen_fd = -1;

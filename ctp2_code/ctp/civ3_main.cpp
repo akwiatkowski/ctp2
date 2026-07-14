@@ -175,7 +175,7 @@
 #include <unistd.h>
 #endif
 #if defined(USE_SDL)
-#include <SDL.h>
+#include "ui/aui_sdl/aui_sdlcompat.h"
 #include <SDL_mixer.h>
 #include "ui/aui_sdl/aui_sdlkeyboard.h"
 #endif

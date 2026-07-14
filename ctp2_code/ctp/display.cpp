@@ -9,7 +9,7 @@
 #ifdef __AUI_USE_DIRECTX__
 #include <multimon.h>
 #elif defined(__AUI_USE_SDL__)
-#include <SDL2/SDL.h>
+#include "ui/aui_sdl/aui_sdlcompat.h"
 #endif
 
 PointerList<CTPDisplayMode>	*g_displayModes = nullptr;

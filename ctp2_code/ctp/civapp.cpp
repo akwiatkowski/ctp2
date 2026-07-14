@@ -107,7 +107,7 @@
 #include "ui/aui_ctp2/ui_events.h"     // ui_events_Initialize / _Cleanup
 
 #ifdef __AUI_USE_SDL__
-#include <SDL2/SDL.h>
+#include "ui/aui_sdl/aui_sdlcompat.h"
 #include "ui/aui_sdl/aui_sdlkeyboard.h"
 #endif
 

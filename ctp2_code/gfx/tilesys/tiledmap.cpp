@@ -5479,7 +5479,10 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 	if ((x < 0) || (y < 0))
 		return 0;
 
-	unsigned short	*destPixel;
+	bool const bpp32 = surface ? (surface->BitsPerPixel() == 32)
+	                           : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step = bpp32 ? 4 : 2;
+	uint8		*destPixel;
 
 	uint16		start	= (uint16)*data++;
 	uint16		end		= (uint16)*data++;
@@ -5497,7 +5500,7 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 
 	for (sint32 j = start; j <= end; j++)
 	{
-		destPixel = (unsigned short *)(surfBase + ((y + j) * surfPitch) + (x * 2));
+		destPixel = surfBase + ((y + j) * surfPitch) + (x * step);
 
 		if ((y+j) >= surfHeight)
 			return 0;
@@ -5515,7 +5518,7 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 			switch ((tag & 0x0F00) >> 8)
 			{
 				case	k_TILE_SKIP_RUN_ID	:
-						destPixel	+= len;
+						destPixel	+= len * step;
 						xoff		+= len;
 						break;
 
@@ -5526,7 +5529,7 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 						if (xoff<0)
 						{
 							looplen   += xoff;
-							destPixel -= xoff;
+							destPixel -= xoff * step;
 							rowData	  -= xoff;
 						}
 						else
@@ -5536,11 +5539,10 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 						for (i=0; i<looplen; i++)
 						{
 							if (!(flags & k_OVERLAY_FLAG_SHADOWSONLY))
-
-				destPixel[i] = rowData[i];
+								pixelutils_StorePixel(destPixel + i * step, rowData[i], bpp32);
 						}
 
-						destPixel += len;
+						destPixel += len * step;
 						rowData   += len;
 						break;
 
@@ -5551,7 +5553,7 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 						if (xoff<0)
 						{
 							looplen += xoff;
-							destPixel -= xoff;
+							destPixel -= xoff * step;
 						}
 						else
 							if (xoff>surfPitch)
@@ -5560,10 +5562,21 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 						for (i=0; i<looplen; i++)
 						{
 					  		if (!(flags & k_OVERLAY_FLAG_NOSHADOWS))
-				destPixel[i] = pixelutils_Shadow(destPixel[i]);
+							{
+								if (bpp32)
+								{
+									Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel + i * step);
+									*d = pixelutils_Shadow8888(*d);
+								}
+								else
+								{
+									Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel + i * step);
+									*d = pixelutils_Shadow(*d);
+								}
+							}
 						}
 
-						destPixel += len;
+						destPixel += len * step;
 						break;
 			}
 

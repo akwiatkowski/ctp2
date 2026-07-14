@@ -333,6 +333,8 @@ Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerpri
 
 **B1 started 2026-07-14:** first slice adds a pure Python LZW1 decoder seam to `spr_export.py`, verified with synthetic copy-mode and compressed literal/back-reference streams because no licensed `.SPR` assets are committed. Real v2 parity remains the next B1 step and needs Olek's local data path.
 
+**B2 started 2026-07-14:** `spr_export.py --atlas` now packs decoded v0/v1 unit frames into one dependency-free RGBA PNG atlas plus manifest rects using the existing decoder output. It is verified by the synthetic self-test; real atlas parity still needs a local `.SPR` data path, and source-set fingerprint/output placement under `~/.ctp2/assets/<fingerprint>/` remains open.
+
 ### Already-modern (verified 2026-07-12 — don't re-propose)
 
 C++20 (`cpp_std=c++20`); arm64-native clang build; `hardening_level=maximum` dev default (+`-ftrapv`, `_GLIBCXX_ASSERTIONS`); UBSan smoke tier wired into `make ubsan-smoke`; five modernization ratchets enforced by `make test`; JSON saves (binary CivArchive path deleted); SDL2 + SDL2_mixer; A* node allocation already arena-pooled; 963-finding bug-hunt triaged with P1/P3 resolution blocks.

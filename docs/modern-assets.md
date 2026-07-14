@@ -1,9 +1,10 @@
 # Modern Asset Pipeline — Design
 
 Status: **design / spike** (M8 in `REFACTORING_PLAN.md`). The read-only
-decoders exist (`tools/assets/spr_inspect.py`, `tools/assets/spr_export.py`);
-the converter and engine integration described here are a **separate, later
-milestone** and are not built yet.
+decoders exist (`tools/assets/spr_inspect.py`, `tools/assets/spr_export.py`),
+and `spr_export.py --atlas` can pack decoded v0/v1 unit frames into one PNG
+atlas plus manifest rects. Source-set fingerprinting, first-run conversion, and
+engine integration are not built yet.
 
 ## Goal
 
@@ -72,8 +73,8 @@ Chosen direction: **packed texture atlas per unit**, not one PNG per frame.
   - per-facing hot points (draw anchor),
   - for every (facing, frame): its rectangle `{x, y, w, h}` in the atlas.
 - The per-frame PNG dump that `spr_export.py` already produces is the
-  parity-proving intermediate; the atlas packer consumes the same decoded RGBA
-  frames and the same metadata, just laid out into one texture.
+  parity-proving intermediate; `spr_export.py --atlas` consumes the same decoded
+  RGBA frames and metadata, just laid out into one texture.
 
 Draw-time options (transparency, fog, desaturation, feathering) are **runtime
 render flags**, not stored per frame in the source `.SPR`, so they are a renderer
@@ -85,9 +86,11 @@ Offline tool, extending the existing read-only Python decoders
 (`spr_inspect.py` + `spr_export.py`), run via `mise`. It:
 
 1. Walks the original data set (sprites first; tiles/other assets later).
-2. Decodes each asset (already implemented for v0/v1 unit sprites;
-   **v2 LZW1 decompression is still TODO**).
-3. Packs frames into atlases and writes the atlas + manifest under
+2. Decodes each asset (already implemented for v0/v1 unit sprites; v2 has a
+   synthetic LZW1 decoder seam but still needs real-asset parity).
+3. Packs frames into atlases and writes the atlas + manifest. The current
+   `--atlas` path writes to the requested output directory; the future first-run
+   converter should place the validated output under
    `~/.ctp2/assets/<source-fingerprint>/`.
 
 Keeping the converter offline (rather than embedded in the engine) keeps all
@@ -108,7 +111,7 @@ canonical originals.
 
 ## Open items before implementation
 
-- v2 (LZW1) sprite pixel decode.
+- Real-asset v2 (LZW1) sprite pixel parity.
 - Non-unit asset types (tiles `.TIF`, cities, goods, effects, sounds).
-- Exact source-fingerprint definition and atlas packing strategy.
+- Exact source-fingerprint definition and first-run output placement.
 - Whether/when to auto-invoke the converter on first launch.

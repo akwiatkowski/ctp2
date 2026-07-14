@@ -316,6 +316,45 @@ def write_png(path: str, width: int, height: int, rgba: bytes) -> None:
         f.write(png)
 
 
+def pack_atlas(frames: list[dict], max_width: int = 2048) -> tuple[int, int, bytes]:
+    """Pack decoded RGBA frames into a simple row atlas.
+
+    This is intentionally boring: rows are filled left-to-right and wrapped at
+    ``max_width``. It is not space-optimal, but it is deterministic,
+    dependency-free, and enough to prove the manifest/atlas contract before the
+    engine loader exists.
+    """
+    x = y = row_height = atlas_width = 0
+    for frame in frames:
+        width = frame["width"]
+        height = frame["height"]
+        if width <= 0 or height <= 0:
+            raise SprExportError(f"invalid atlas frame size {width}x{height}")
+        if x and x + width > max_width:
+            y += row_height
+            x = 0
+            row_height = 0
+        frame["rect"] = {"x": x, "y": y, "w": width, "h": height}
+        x += width
+        row_height = max(row_height, height)
+        atlas_width = max(atlas_width, x)
+
+    atlas_height = y + row_height
+    if atlas_width == 0 or atlas_height == 0:
+        return 1, 1, b"\x00\x00\x00\x00"
+
+    atlas = bytearray(atlas_width * atlas_height * 4)
+    for frame in frames:
+        rect = frame["rect"]
+        src = frame["rgba"]
+        stride = frame["width"] * 4
+        for row in range(frame["height"]):
+            src_start = row * stride
+            dst_start = ((rect["y"] + row) * atlas_width + rect["x"]) * 4
+            atlas[dst_start:dst_start + stride] = src[src_start:src_start + stride]
+    return atlas_width, atlas_height, bytes(atlas)
+
+
 def _read_faced_frames(buf: bytes, offset: int, version: int):
     """Parse a FACED action's header + size tables + normal frame payloads.
 
@@ -363,7 +402,7 @@ def _read_faced_frames(buf: bytes, offset: int, version: int):
     return width, height, nf, frames, stype, is_v2
 
 
-def export(path: str, out_dir: str, action_filter: str | None) -> int:
+def export(path: str, out_dir: str, action_filter: str | None, atlas: bool = False) -> int:
     info = spr.inspect(path)
     if info.type_name != "UNIT":
         print(f"error: {path} is {info.type_name}, not UNIT", file=sys.stderr)
@@ -379,6 +418,7 @@ def export(path: str, out_dir: str, action_filter: str | None) -> int:
     os.makedirs(out_dir, exist_ok=True)
     base = os.path.splitext(os.path.basename(path))[0]
     written = 0
+    atlas_frames: list[dict] = []
     manifest = {
         "source": os.path.basename(path),
         "version": info.version_name,
@@ -412,14 +452,44 @@ def export(path: str, out_dir: str, action_filter: str | None) -> int:
                 grid = decode_frame(frame, width, height)
                 rgba = grid_to_rgba_bytes(grid, width, height)
                 name = f"{base}_{action.name}_f{j}_frame{i}.png"
-                write_png(os.path.join(out_dir, name), width, height, rgba)
-                entry["frames"].append({"facing": j, "frame": i, "png": name})
+                frame_entry = {"facing": j, "frame": i}
+                if atlas:
+                    atlas_frame = {
+                        "action": action.name,
+                        "facing": j,
+                        "frame": i,
+                        "width": width,
+                        "height": height,
+                        "rgba": rgba,
+                    }
+                    atlas_frames.append(atlas_frame)
+                    frame_entry["atlas_index"] = len(atlas_frames) - 1
+                else:
+                    write_png(os.path.join(out_dir, name), width, height, rgba)
+                    frame_entry["png"] = name
+                entry["frames"].append(frame_entry)
                 written += 1
         manifest["actions"].append(entry)
 
-    with open(os.path.join(out_dir, f"{base}_manifest.json"), "w") as f:
+    if atlas:
+        atlas_width, atlas_height, atlas_rgba = pack_atlas(atlas_frames)
+        atlas_name = f"{base}.png"
+        write_png(os.path.join(out_dir, atlas_name), atlas_width, atlas_height, atlas_rgba)
+        manifest["atlas"] = {
+            "png": atlas_name,
+            "width": atlas_width,
+            "height": atlas_height,
+        }
+        for action in manifest["actions"]:
+            for frame in action["frames"]:
+                packed = atlas_frames[frame.pop("atlas_index")]
+                frame["rect"] = packed["rect"]
+
+    manifest_name = f"{base}.json" if atlas else f"{base}_manifest.json"
+    with open(os.path.join(out_dir, manifest_name), "w") as f:
         json.dump(manifest, f, indent=2)
-    print(f"wrote {written} PNG frame(s) + manifest to {out_dir}")
+    output_kind = "atlas frame(s)" if atlas else "PNG frame(s)"
+    print(f"wrote {written} {output_kind} + manifest to {out_dir}")
     return 0
 
 
@@ -472,7 +542,25 @@ def self_test() -> int:
         print("self-test failed: LZW1 back-reference mode", file=sys.stderr)
         return 1
 
-    print("self-test OK: LZW1 copy + compressed streams")
+    frames = [
+        {"width": 2, "height": 1, "rgba": b"\xff\x00\x00\xff\x00\xff\x00\xff"},
+        {"width": 1, "height": 2, "rgba": b"\x00\x00\xff\xff\xff\xff\xff\xff"},
+    ]
+    width, height, rgba = pack_atlas(frames, max_width=2)
+    if (width, height) != (2, 3):
+        print("self-test failed: atlas dimensions", file=sys.stderr)
+        return 1
+    if frames[0]["rect"] != {"x": 0, "y": 0, "w": 2, "h": 1}:
+        print("self-test failed: atlas first rect", file=sys.stderr)
+        return 1
+    if frames[1]["rect"] != {"x": 0, "y": 1, "w": 1, "h": 2}:
+        print("self-test failed: atlas wrapped rect", file=sys.stderr)
+        return 1
+    if len(rgba) != width * height * 4:
+        print("self-test failed: atlas byte size", file=sys.stderr)
+        return 1
+
+    print("self-test OK: LZW1 streams + atlas packer")
     return 0
 
 
@@ -485,6 +573,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--action", help="only export this action (e.g. MOVE)")
     ap.add_argument("--verify", action="store_true",
                     help="parity check only (per-row width invariant), no PNGs")
+    ap.add_argument("--atlas", action="store_true",
+                    help="write one packed atlas PNG and rect manifest instead of per-frame PNGs")
     ap.add_argument("--self-test", action="store_true",
                     help="run synthetic decoder self-tests; does not read assets")
     args = ap.parse_args(argv)
@@ -495,7 +585,7 @@ def main(argv: list[str] | None = None) -> int:
             ap.error("path is required unless --self-test is used")
         if args.verify:
             return verify(args.path)
-        return export(args.path, args.out_dir, args.action)
+        return export(args.path, args.out_dir, args.action, args.atlas)
     except (OSError, spr.SprError, SprExportError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

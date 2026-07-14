@@ -82,3 +82,53 @@ TEST_CASE("modern sprite manifest loader reads validated json files")
 	CHECK(manifest.atlasWidth == 16);
 	std::remove(path);
 }
+
+// Verbatim output of `spr_export.py --atlas` on the real GG012.SPR good
+// sprite. It carries fields the synthetic cases above omit (version,
+// source_fingerprint, type, sprite_type, hot_points); the parser must accept
+// real converter output and ignore the extra keys. Regenerate with:
+//   tools/assets/spr_export.py --atlas -o <dir> ctp2_data/.../sprites/GG012.SPR
+TEST_CASE("modern sprite manifest loader accepts real spr_export output")
+{
+	char const *path = "/tmp/ctp2_modern_sprite_manifest_real.json";
+	{
+		std::ofstream out(path);
+		out << R"json({
+  "source": "GG012.SPR",
+  "version": "v0 (0x00010003, v13 layout)",
+  "source_fingerprint": "59e9f0bf2832e619",
+  "type": "GOOD",
+  "actions": [
+    {
+      "name": "IDLE",
+      "sprite_type": "NORMAL",
+      "width": 96,
+      "height": 72,
+      "num_frames": 1,
+      "facings": 1,
+      "hot_points": [[49, 47]],
+      "frames": [
+        {"facing": 0, "frame": 0, "rect": {"x": 0, "y": 0, "w": 96, "h": 72}}
+      ]
+    }
+  ],
+  "atlas": {"png": "GG012.png", "width": 96, "height": 72}
+})json";
+	}
+
+	ModernSpriteManifest manifest;
+	std::string error;
+	CHECK(ModernSpriteManifestLoad(path, manifest, error));
+	CHECK(error.empty());
+	CHECK(manifest.source == "GG012.SPR");
+	CHECK(manifest.atlasPng == "GG012.png");
+	CHECK(manifest.atlasWidth == 96);
+	CHECK(manifest.atlasHeight == 72);
+	REQUIRE(manifest.actions.size() == 1);
+	CHECK(manifest.actions[0].name == "IDLE");
+	CHECK(manifest.actions[0].numFrames == 1);
+	CHECK(manifest.actions[0].facings == 1);
+	REQUIRE(manifest.actions[0].frames.size() == 1);
+	CHECK(manifest.actions[0].frames[0].rect.w == 96);
+	std::remove(path);
+}

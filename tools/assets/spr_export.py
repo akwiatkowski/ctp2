@@ -366,9 +366,39 @@ def source_fingerprint(path: str) -> str:
     return digest.hexdigest()[:16]
 
 
+def iter_spr_files(path: str) -> list[str]:
+    """Return all sprite files below ``path`` in deterministic order."""
+    if os.path.isfile(path):
+        return [path]
+
+    matches: list[str] = []
+    for root, _, names in os.walk(path):
+        for name in names:
+            if name.lower().endswith(".spr"):
+                matches.append(os.path.join(root, name))
+    return sorted(matches, key=lambda item: os.path.relpath(item, path).lower())
+
+
+def source_set_fingerprint(path: str) -> str:
+    """Return a stable fingerprint for one file or a walked sprite set."""
+    if os.path.isfile(path):
+        return source_fingerprint(path)
+
+    digest = hashlib.sha256()
+    for filename in iter_spr_files(path):
+        rel = os.path.relpath(filename, path).replace(os.sep, "/").lower()
+        digest.update(rel.encode("utf-8"))
+        digest.update(b"\0")
+        with open(filename, "rb") as f:
+            for chunk in iter(lambda: f.read(1024 * 1024), b""):
+                digest.update(chunk)
+        digest.update(b"\0")
+    return digest.hexdigest()[:16]
+
+
 def modern_assets_dir(path: str) -> str:
     """User-local output directory for modern assets derived from ``path``."""
-    return os.path.expanduser(os.path.join("~", ".ctp2", "assets", source_fingerprint(path)))
+    return os.path.expanduser(os.path.join("~", ".ctp2", "assets", source_set_fingerprint(path)))
 
 
 def _read_faced_frames(buf: bytes, offset: int, version: int):
@@ -510,6 +540,29 @@ def export(path: str, out_dir: str, action_filter: str | None, atlas: bool = Fal
     return 0
 
 
+def export_tree(path: str, out_dir: str, action_filter: str | None, atlas: bool) -> int:
+    """Export every sprite below ``path``; unsupported files are skipped."""
+    files = iter_spr_files(path)
+    if not files:
+        print(f"error: no .SPR files found under {path}", file=sys.stderr)
+        return 1
+
+    exported = skipped = failed = 0
+    for filename in files:
+        rel = os.path.relpath(filename, path)
+        target_dir = os.path.join(out_dir, os.path.dirname(rel))
+        result = export(filename, target_dir, action_filter, atlas)
+        if result == 0:
+            exported += 1
+        elif result == 2:
+            skipped += 1
+        else:
+            failed += 1
+
+    print(f"walked {len(files)} SPR file(s): exported={exported} skipped={skipped} failed={failed}")
+    return 1 if failed else 0
+
+
 def verify(path: str) -> int:
     """Run the per-row width invariant across every frame of a unit sprite."""
     info = spr.inspect(path)
@@ -584,6 +637,22 @@ def self_test() -> int:
             print("self-test failed: source fingerprint", file=sys.stderr)
             return 1
 
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.makedirs(os.path.join(tmpdir, "b"))
+        with open(os.path.join(tmpdir, "b", "TWO.SPR"), "wb") as f:
+            f.write(b"two")
+        with open(os.path.join(tmpdir, "one.spr"), "wb") as f:
+            f.write(b"one")
+        digest = hashlib.sha256()
+        for rel, data in (("b/two.spr", b"two"), ("one.spr", b"one")):
+            digest.update(rel.encode("utf-8"))
+            digest.update(b"\0")
+            digest.update(data)
+            digest.update(b"\0")
+        if source_set_fingerprint(tmpdir) != digest.hexdigest()[:16]:
+            print("self-test failed: source-set fingerprint", file=sys.stderr)
+            return 1
+
     print("self-test OK: LZW1 streams + atlas packer")
     return 0
 
@@ -591,7 +660,7 @@ def self_test() -> int:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="Export CTP2 unit .SPR frames to debug PNGs (read-only).")
-    ap.add_argument("path", nargs="?", help="path to a unit .SPR (e.g. GU04.SPR)")
+    ap.add_argument("path", nargs="?", help="path to a unit .SPR or directory of .SPR files")
     ap.add_argument("-o", "--out-dir", default="spr_export",
                     help="output directory for PNGs (default: ./spr_export)")
     ap.add_argument("--action", help="only export this action (e.g. MOVE)")
@@ -612,6 +681,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.verify:
             return verify(args.path)
         out_dir = modern_assets_dir(args.path) if args.modern_assets else args.out_dir
+        if os.path.isdir(args.path):
+            return export_tree(args.path, out_dir, args.action, args.atlas)
         return export(args.path, out_dir, args.action, args.atlas)
     except (OSError, spr.SprError, SprExportError) as exc:
         print(f"error: {exc}", file=sys.stderr)

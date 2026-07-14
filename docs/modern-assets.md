@@ -2,10 +2,10 @@
 
 Status: **design / spike** (M8 in `REFACTORING_PLAN.md`). The read-only
 decoders exist (`tools/assets/spr_inspect.py`, `tools/assets/spr_export.py`),
-and `spr_export.py --atlas --modern-assets` can pack decoded v0/v1 unit frames
-into one PNG atlas plus manifest rects under `~/.ctp2/assets/<fingerprint>/`.
-Source-set walking, first-run conversion, and engine integration are not built
-yet.
+and `spr_export.py --atlas --modern-assets` can walk `.SPR` files, pack decoded
+v0/v1 unit frames into one PNG atlas plus manifest rects, and write them under
+`~/.ctp2/assets/<fingerprint>/`. First-run conversion and engine integration
+are not built yet.
 
 ## Goal
 
@@ -60,8 +60,9 @@ Consequences the design must honor:
 - `<source-fingerprint>` is a hash of the source data so that pointing the
   converter at a different or updated data set produces a distinct,
   independently valid output tree rather than silently mixing versions. The
-  current `spr_export.py --modern-assets` seam hashes one source `.SPR` file;
-  the future first-run converter should hash the walked source set.
+  current `spr_export.py --modern-assets` seam hashes either one source `.SPR`
+  file or, for directory input, the walked `.SPR` source set from relative paths
+  plus file contents.
 
 ## Target format — packed texture atlas
 
@@ -91,9 +92,8 @@ Offline tool, extending the existing read-only Python decoders
 2. Decodes each asset (already implemented for v0/v1 unit sprites; v2 has a
    synthetic LZW1 decoder seam but still needs real-asset parity).
 3. Packs frames into atlases and writes the atlas + manifest. The current
-   `--atlas --modern-assets` path writes a single source file's output under
-   `~/.ctp2/assets/<source-fingerprint>/`; the future first-run converter should
-   validate and populate a whole walked source set there.
+   `--atlas --modern-assets` path accepts one `.SPR` file or a directory tree and
+   writes output under `~/.ctp2/assets/<source-fingerprint>/`.
 
 Keeping the converter offline (rather than embedded in the engine) keeps all
 format knowledge in one place and makes it fast to iterate. A future "run it
@@ -115,5 +115,5 @@ canonical originals.
 
 - Real-asset v2 (LZW1) sprite pixel parity.
 - Non-unit asset types (tiles `.TIF`, cities, goods, effects, sounds).
-- Whole-source-set fingerprinting and first-run output placement.
+- First-run auto-conversion / validation flow.
 - Whether/when to auto-invoke the converter on first launch.

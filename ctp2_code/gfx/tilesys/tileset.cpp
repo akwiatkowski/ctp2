@@ -263,7 +263,7 @@ void TileSet::Cleanup()
 void TileSet::LoadBaseTiles(FILE *file)
 {
 	uint32			baseTileCount;
-	c3files_fread((void *)&baseTileCount, 1, sizeof(baseTileCount), file);
+	c3files_fread(&baseTileCount, 1, sizeof(baseTileCount), file);
 
 	for (uint32 i = 0; i < baseTileCount; ++i)
 	{
@@ -286,10 +286,10 @@ void TileSet::LoadTransitions(FILE *file)
 	size_t		count;
     uint32      i;
 
-	count = c3files_fread((void *)&transitionCount, 1, sizeof(transitionCount), file);
+	count = c3files_fread(&transitionCount, 1, sizeof(transitionCount), file);
 	if (count != sizeof(transitionCount)) goto Error;
 
-	count = c3files_fread((void *)&transitionSize, 1, sizeof(transitionSize), file);
+	count = c3files_fread(&transitionSize, 1, sizeof(transitionSize), file);
 	if (count != sizeof(transitionSize)) goto Error;
 
 	sint16	 from;
@@ -297,16 +297,16 @@ void TileSet::LoadTransitions(FILE *file)
 
 	for (i = 0; i < transitionCount; ++i)
     {
-		count = c3files_fread((void *)&from, 1, sizeof(from), file);
+		count = c3files_fread(&from, 1, sizeof(from), file);
 		if (count != sizeof(from)) goto Error;
-		count = c3files_fread((void *)&to, 1, sizeof(to), file);
+		count = c3files_fread(&to, 1, sizeof(to), file);
 		if (count != sizeof(to)) goto Error;
 
 		for (size_t k = 0; k < k_TRANSITIONS_PER_TILE; ++k)
         {
 			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 	        Pixel16	* xData = new Pixel16[transitionSize/2];
-			count = c3files_fread((void *)xData, 1, transitionSize, file);
+			count = c3files_fread(xData, 1, transitionSize, file);
 			if (count != transitionSize) goto Error;
 
 			m_transitions[from][to][k] = xData;
@@ -325,7 +325,7 @@ void TileSet::LoadTransforms(FILE *file)
 	if (file)
     {
 	    uint16		numTransforms;
-		c3files_fread((void *)&numTransforms, 1, sizeof(numTransforms), file);
+		c3files_fread(&numTransforms, 1, sizeof(numTransforms), file);
 
 		m_transforms.resize(numTransforms);
 		m_numTransforms = numTransforms;
@@ -334,7 +334,7 @@ void TileSet::LoadTransforms(FILE *file)
         {
 			// TODO(phase-2): ownership transfer out of function — needs separate strategy
 	        sint16 * transform = new sint16[k_TRANSFORM_SIZE];
-			c3files_fread((void *)transform, 1, sizeof(sint16)*k_TRANSFORM_SIZE, file);
+			c3files_fread(transform, 1, sizeof(sint16)*k_TRANSFORM_SIZE, file);
 			m_transforms[i] = transform;
 		}
 	}
@@ -345,7 +345,7 @@ void TileSet::LoadRiverTransforms(FILE *file)
 	if (file)
     {
 	    uint16		numRiverTransforms;
-		c3files_fread((void *)&numRiverTransforms, 1, sizeof(numRiverTransforms), file);
+		c3files_fread(&numRiverTransforms, 1, sizeof(numRiverTransforms), file);
 
 		if (numRiverTransforms > 0) {
 			m_riverTransforms.resize(numRiverTransforms);
@@ -356,17 +356,17 @@ void TileSet::LoadRiverTransforms(FILE *file)
             {
 				// TODO(phase-2): ownership transfer out of function — needs separate strategy
 	            sint16 *    transform = new sint16[k_RIVER_TRANSFORM_SIZE];
-				c3files_fread((void *)transform, 1, sizeof(sint16)*k_RIVER_TRANSFORM_SIZE, file);
+				c3files_fread(transform, 1, sizeof(sint16)*k_RIVER_TRANSFORM_SIZE, file);
 				m_riverTransforms[i] = transform;
 
 	            uint32		len = 0;
-				c3files_fread((void *)&len, 1, sizeof(uint32), file);
+				c3files_fread(&len, 1, sizeof(uint32), file);
 
 				if (len > 0)
                 {
                 	// TODO(phase-2): ownership transfer out of function — needs separate strategy
                 	Pixel16	* riverData = new Pixel16[len/2];
-					c3files_fread((void *)riverData, 1, len, file);
+					c3files_fread(riverData, 1, len, file);
 					m_riverData[i] = riverData;
 				}
                 else
@@ -383,21 +383,21 @@ void TileSet::LoadImprovements(FILE *file)
 	if (file)
     {
 	    uint16		numImprovements;
-		c3files_fread((void *)&numImprovements, 1, sizeof(numImprovements), file);
+		c3files_fread(&numImprovements, 1, sizeof(numImprovements), file);
 
 		for (uint16 i = 0; i < numImprovements; ++i)
         {
 			uint16		impNum;
-			c3files_fread((void *)&impNum, 1, sizeof(uint16), file);
+			c3files_fread(&impNum, 1, sizeof(uint16), file);
 
 	        uint32		len;
-			c3files_fread((void *)&len, 1, sizeof(uint32), file);
+			c3files_fread(&len, 1, sizeof(uint32), file);
 
 			if (len > 0)
             {
 				// TODO(phase-2): ownership transfer out of function — needs separate strategy
 				Pixel16	*   impData = new Pixel16[len/2];
-				c3files_fread((void *)impData, 1, len, file);
+				c3files_fread(impData, 1, len, file);
 				m_improvementData[impNum] = impData;
 			}
             else
@@ -412,17 +412,17 @@ void TileSet::LoadMegaTiles(FILE *file)
 {
 	if (file)
     {
-		c3files_fread((void *)&m_numMegaTiles, 1, sizeof(m_numMegaTiles), file);
+		c3files_fread(&m_numMegaTiles, 1, sizeof(m_numMegaTiles), file);
 
 		for (uint16 i = 0; i < m_numMegaTiles; ++i)
         {
 			uint16			megaLen;
-			c3files_fread((void *)&megaLen, 1, sizeof(uint16), file);
+			c3files_fread(&megaLen, 1, sizeof(uint16), file);
 			m_megaTileLengths[i] = megaLen;
 
 			if (megaLen > 0)
             {
-				c3files_fread((void *)&m_megaTileData[i], 1, megaLen * sizeof(MegaTileStep), file);
+				c3files_fread(&m_megaTileData[i], 1, megaLen * sizeof(MegaTileStep), file);
 			}
 		}
 	}
@@ -781,7 +781,7 @@ void TileSet::QuickLoad()
 		}
 
 		size_t const count =
-            c3files_fread((void *)m_tileSetData, 1, fileSize, file);
+			c3files_fread(m_tileSetData, 1, fileSize, file);
 		if (count != (size_t)fileSize) goto Error;
 
 		c3files_fclose(file);

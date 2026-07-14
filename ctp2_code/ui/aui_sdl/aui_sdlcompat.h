@@ -14,6 +14,12 @@
 #define CTP2_SDL_WINDOW_ALLOW_HIGHDPI SDL_WINDOW_ALLOW_HIGHDPI
 #endif
 
+#if defined(CTP2_USE_SDL3)
+using CTP2_SDL_Mutex = SDL_Mutex;
+#else
+using CTP2_SDL_Mutex = SDL_mutex;
+#endif
+
 inline SDL_Window *CTP2_SDL_CreateWindow(
 	char const *title,
 	int width,
@@ -118,6 +124,16 @@ inline void CTP2_SDL_DestroySurface(SDL_Surface *surface)
 #else
 	SDL_FreeSurface(surface);
 #endif
+}
+
+inline void CTP2_SDL_LockMutex(CTP2_SDL_Mutex *mutex)
+{
+	SDL_LockMutex(mutex);
+}
+
+inline void CTP2_SDL_UnlockMutex(CTP2_SDL_Mutex *mutex)
+{
+	SDL_UnlockMutex(mutex);
 }
 
 inline bool CTP2_SDL_SaveRendererPixels(

@@ -328,7 +328,7 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 		// SDL2: SDL_DisplayFormat removed; convert to a reasonable default format
 		surf = SDL_ConvertSurfaceFormat(bmp, SDL_PIXELFORMAT_RGB565, 0);
 	}
-	SDL_FreeSurface(bmp);
+	CTP2_SDL_DestroySurface(bmp);
 	if (nullptr == surf)
 		return AUI_ERRCODE_LOADFAILED;
 	//surface = image->TheSurface();

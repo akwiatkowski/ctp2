@@ -308,7 +308,7 @@ void NetThread::Run()
 void NetThread::Lock()
 {
 #ifdef USE_SDL
-	SDL_mutexP(m_mutex);
+	CTP2_SDL_LockMutex(m_mutex);
 #else
 	EnterCriticalSection(&m_mutex);
 #endif
@@ -317,7 +317,7 @@ void NetThread::Lock()
 void NetThread::Unlock()
 {
 #ifdef USE_SDL
-	SDL_mutexV(m_mutex);
+	CTP2_SDL_UnlockMutex(m_mutex);
 #else
 	LeaveCriticalSection(&m_mutex);
 #endif

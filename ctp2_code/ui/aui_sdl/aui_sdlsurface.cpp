@@ -101,7 +101,7 @@ aui_SDLSurface::~aui_SDLSurface()
 {
 	if ( m_allocated && m_lpdds )
 	{
-		SDL_FreeSurface(m_lpdds);
+		CTP2_SDL_DestroySurface(m_lpdds);
 		m_lpdds = nullptr;
 		m_allocated = FALSE;
 	}

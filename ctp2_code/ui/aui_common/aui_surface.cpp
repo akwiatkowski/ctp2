@@ -432,7 +432,7 @@ AUI_ERRCODE aui_Surface::ManipulateLockList( RECT *rect, LPVOID *buffer, AUI_SUR
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 #ifdef USE_SDL
-	SDL_mutexP(m_cs);
+	CTP2_SDL_LockMutex(m_cs);
 #else
 	EnterCriticalSection(&m_cs);
 #endif
@@ -517,7 +517,7 @@ AUI_ERRCODE aui_Surface::ManipulateLockList( RECT *rect, LPVOID *buffer, AUI_SUR
 	}
 
 #ifdef USE_SDL
-	SDL_mutexV(m_cs);
+	CTP2_SDL_UnlockMutex(m_cs);
 #else
 	LeaveCriticalSection(&m_cs);
 #endif

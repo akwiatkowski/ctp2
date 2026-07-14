@@ -1528,7 +1528,7 @@ sint32 aui_Mouse::ManipulateInputs( aui_MouseEvent *data, BOOL add )
 #ifdef __AUI_USE_DIRECTX__
 	EnterCriticalSection( m_lpcs );
 #elif defined(__AUI_USE_SDL__)
-	SDL_mutexP(m_lpcs);
+	CTP2_SDL_LockMutex(m_lpcs);
 #endif
 
 	if ( add )
@@ -1572,7 +1572,7 @@ sint32 aui_Mouse::ManipulateInputs( aui_MouseEvent *data, BOOL add )
 #ifdef __AUI_USE_DIRECTX__
 	LeaveCriticalSection( m_lpcs );
 #elif defined(__AUI_USE_SDL__)
-	SDL_mutexV(m_lpcs);
+	CTP2_SDL_UnlockMutex(m_lpcs);
 #endif
 
 	return numManipulated;

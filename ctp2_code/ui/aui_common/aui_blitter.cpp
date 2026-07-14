@@ -142,6 +142,107 @@ AUI_ERRCODE Blt32To32(
 	return retcode;
 }
 
+AUI_ERRCODE TileBlt32To32(
+	aui_Surface *destSurf,
+	RECT *destRect,
+	aui_Surface *srcSurf,
+	RECT *srcRect,
+	uint32 flags )
+{
+	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
+	AUI_ERRCODE errcode;
+
+	const sint32 destPitch = destSurf->Pitch() / 4;
+	const sint32 srcPitch = srcSurf->Pitch() / 4;
+
+	uint32 *destBuf = (uint32 *)destSurf->Buffer();
+	const bool wasDestLocked = destBuf != nullptr;
+	if (wasDestLocked)
+	{
+		destBuf += destRect->top * destPitch + destRect->left;
+	}
+	else if (destSurf->Lock(destRect, (LPVOID *)&destBuf, 0) != AUI_ERRCODE_OK)
+	{
+		destBuf = nullptr;
+		retcode = AUI_ERRCODE_SURFACELOCKFAILED;
+	}
+
+	if (destBuf)
+	{
+		uint32 *origDestBuf = destBuf;
+		uint32 *srcBuf = (uint32 *)srcSurf->Buffer();
+		const bool wasSrcLocked = srcBuf != nullptr;
+		if (wasSrcLocked)
+		{
+			srcBuf += srcRect->top * srcPitch + srcRect->left;
+		}
+		else if (srcSurf->Lock(srcRect, (LPVOID *)&srcBuf, 0) != AUI_ERRCODE_OK)
+		{
+			srcBuf = nullptr;
+			retcode = AUI_ERRCODE_SURFACELOCKFAILED;
+		}
+
+		if (srcBuf)
+		{
+			uint32 *origSrcBuf = srcBuf;
+			const sint32 destWidth = destRect->right - destRect->left;
+			const sint32 destHeight = destRect->bottom - destRect->top;
+			const sint32 srcWidth = srcRect->right - srcRect->left;
+			const sint32 srcHeight = srcRect->bottom - srcRect->top;
+
+			if (flags & k_AUI_BLITTER_FLAG_COPY)
+			{
+				for (sint32 y = 0; y < destHeight; ++y)
+				{
+					uint32 *destLine = destBuf + y * destPitch;
+					const uint32 *srcLine = origSrcBuf + (y % srcHeight) * srcPitch;
+					for (sint32 x = 0; x < destWidth; x += srcWidth)
+					{
+						const sint32 copyWidth = std::min(srcWidth, destWidth - x);
+						memcpy(destLine + x, srcLine, 4 * copyWidth);
+					}
+				}
+			}
+			else if ((flags & k_AUI_BLITTER_FLAG_CHROMAKEY)
+				&& !(flags & k_AUI_BLITTER_FLAG_BLEND))
+			{
+				const uint32 chromakey = srcSurf->GetChromaKey();
+				for (sint32 y = 0; y < destHeight; ++y)
+				{
+					uint32 *destLine = destBuf + y * destPitch;
+					const uint32 *srcLine = origSrcBuf + (y % srcHeight) * srcPitch;
+					for (sint32 x = 0; x < destWidth; ++x)
+					{
+						const uint32 pixel = srcLine[x % srcWidth];
+						if (pixel != chromakey)
+							destLine[x] = pixel;
+					}
+				}
+			}
+			else
+			{
+				retcode = AUI_ERRCODE_INVALIDPARAM;
+			}
+
+			if (!wasSrcLocked)
+			{
+				errcode = srcSurf->Unlock((LPVOID)origSrcBuf);
+				if (!AUI_SUCCESS(errcode))
+					retcode = AUI_ERRCODE_SURFACEUNLOCKFAILED;
+			}
+		}
+
+		if (!wasDestLocked)
+		{
+			errcode = destSurf->Unlock((LPVOID)origDestBuf);
+			if (!AUI_SUCCESS(errcode))
+				retcode = AUI_ERRCODE_SURFACEUNLOCKFAILED;
+		}
+	}
+
+	return retcode;
+}
+
 }
 
 AUI_ERRCODE aui_Blitter::Blt(
@@ -736,6 +837,13 @@ AUI_ERRCODE aui_Blitter::TileBlt(
 			&clippedSrcRect,
 			anchorx,
 			anchory,
+			flags );
+	case 4:
+		return TileBlt32To32(
+			destSurf,
+			&clippedDestRect,
+			srcSurf,
+			&clippedSrcRect,
 			flags );
 	default:
 

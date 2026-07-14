@@ -296,7 +296,11 @@ sint32 TiledMap::Initialize(RECT *viewRect)
 	sint32			h = viewRect->bottom - viewRect->top;
 	AUI_ERRCODE		errcode;
 
-	m_mapSurface = aui_Factory::new_Surface(errcode, w, h);
+	// P11 Stage 2 B2.3: the world surface is 32-bit ARGB8888. The tile, sprite
+	// and primitive writers all expand-at-store into 32-bit now (dormant paths
+	// activated by this flip), and the implicit m_mapSurface->secondary
+	// SDL_BlitSurface 565->8888 convert self-neutralizes into a 32->32 copy.
+	m_mapSurface = aui_Factory::new_Surface(errcode, w, h, nullptr, FALSE, FALSE, FALSE, 32);
 	Assert(m_mapSurface);
 	if (!m_mapSurface) return AUI_ERRCODE_MEMALLOCFAILED;
 

@@ -67,7 +67,9 @@ aui_SDLMouse::GetInput()
          static int motionLogCount = 0;
          if (++motionLogCount <= 20) {
             fprintf(stderr, "[MOUSE-IN] SDL motion: (%d, %d) state=%d\n",
-                    od.motion.x, od.motion.y, od.motion.state);
+                    static_cast<int>(od.motion.x),
+                    static_cast<int>(od.motion.y),
+                    od.motion.state);
          }
          break;
       case SDL_MOUSEBUTTONDOWN:
@@ -86,9 +88,9 @@ aui_SDLMouse::GetInput()
             }
          }
          if (od.button.button == SDL_BUTTON_LEFT) {
-            m_data.lbutton = od.button.state == SDL_PRESSED;
+            m_data.lbutton = CTP2_SDL_IsMouseButtonDown(od);
          } else if (od.button.button == SDL_BUTTON_RIGHT) {
-            m_data.rbutton = od.button.state == SDL_PRESSED;
+            m_data.rbutton = CTP2_SDL_IsMouseButtonDown(od);
          }
          break;
       default:

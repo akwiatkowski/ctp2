@@ -37,7 +37,7 @@ void aui_sdlkbd_DestroyQueueMutex()
 void aui_sdlkbd_PushQueueEvent(SDL_Event const & event)
 {
 	if (!g_secondaryKeyboardEventQueueMutex) return;
-	if (-1 == SDL_LockMutex(g_secondaryKeyboardEventQueueMutex)) {
+	if (!CTP2_SDL_LockMutexChecked(g_secondaryKeyboardEventQueueMutex)) {
 		fprintf(stderr, "[aui_sdlkbd_PushQueueEvent] SDL_LockMutex failed: %s\n",
 		        SDL_GetError());
 		return;
@@ -49,7 +49,7 @@ void aui_sdlkbd_PushQueueEvent(SDL_Event const & event)
 bool aui_sdlkbd_TryPopQueueEvent(SDL_Event & event)
 {
 	if (!g_secondaryKeyboardEventQueueMutex) return false;
-	if (-1 == SDL_LockMutex(g_secondaryKeyboardEventQueueMutex)) {
+	if (!CTP2_SDL_LockMutexChecked(g_secondaryKeyboardEventQueueMutex)) {
 		fprintf(stderr, "[aui_sdlkbd_TryPopQueueEvent] SDL_LockMutex failed: %s\n",
 		        SDL_GetError());
 		return false;
@@ -96,10 +96,12 @@ AUI_ERRCODE aui_SDLKeyboard::GetInput( )
 	switch (event.type) {
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
+		{
+			bool const keyDown = CTP2_SDL_IsKeyDown(event);
 			switch (CTP2_SDL_GetKeycode(event.key)) {
 				case SDLK_LSHIFT:
 					if (c3ui_Get()->TheMouse()) {
-						if (event.key.state & SDL_PRESSED) {
+						if (keyDown) {
 							c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_LSHIFT);
 						} else {
 							c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_LSHIFT);
@@ -108,7 +110,7 @@ AUI_ERRCODE aui_SDLKeyboard::GetInput( )
 					return AUI_ERRCODE_OK;
 				case SDLK_RSHIFT:
 					if (c3ui_Get()->TheMouse()) {
-						if (event.key.state & SDL_PRESSED) {
+						if (keyDown) {
 							c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_RSHIFT);
 						} else {
 							c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_RSHIFT);
@@ -117,7 +119,7 @@ AUI_ERRCODE aui_SDLKeyboard::GetInput( )
 					return AUI_ERRCODE_OK;
 				case SDLK_LCTRL:
 					if (c3ui_Get()->TheMouse()) {
-						if (event.key.state & SDL_PRESSED) {
+						if (keyDown) {
 							c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_LCONTROL);
 						} else {
 							c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_LCONTROL);
@@ -126,7 +128,7 @@ AUI_ERRCODE aui_SDLKeyboard::GetInput( )
 					return AUI_ERRCODE_OK;
 				case SDLK_RCTRL:
 					if (c3ui_Get()->TheMouse()) {
-						if (event.key.state & SDL_PRESSED) {
+						if (keyDown) {
 							c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_RCONTROL);
 						} else {
 							c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_RCONTROL);
@@ -144,7 +146,7 @@ AUI_ERRCODE aui_SDLKeyboard::GetInput( )
 				case SDLK_DOWN:
 				case SDLK_LEFT:
 				case SDLK_RIGHT:
-					if (event.key.state & SDL_PRESSED) {
+					if (keyDown) {
 						civapp_Get()->BeginKeyboardScrolling(
 							convertSDLKey(CTP2_SDL_GetKeycode(event.key)));
 					} else {
@@ -155,6 +157,7 @@ AUI_ERRCODE aui_SDLKeyboard::GetInput( )
 			}
 			convertSDLKeyboardEvent(event.key, m_data);
 			break;
+		}
 		default:
 			Assert(true);
 	}
@@ -165,7 +168,7 @@ AUI_ERRCODE aui_SDLKeyboard::GetInput( )
 void aui_SDLKeyboard::convertSDLKeyboardEvent(SDL_KeyboardEvent &sdlevent,
                                       aui_KeyboardEvent &auievent)
 {
-	auievent.down = (sdlevent.state & SDL_PRESSED) ? TRUE : FALSE;
+	auievent.down = CTP2_SDL_IsKeyDown(sdlevent) ? TRUE : FALSE;
 	auievent.key = convertSDLKey(CTP2_SDL_GetKeycode(sdlevent));
 }
 

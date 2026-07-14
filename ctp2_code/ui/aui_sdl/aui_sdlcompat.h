@@ -251,6 +251,16 @@ inline void CTP2_SDL_LockMutex(CTP2_SDL_Mutex *mutex)
 	SDL_LockMutex(mutex);
 }
 
+inline bool CTP2_SDL_LockMutexChecked(CTP2_SDL_Mutex *mutex)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_LockMutex(mutex);
+	return true;
+#else
+	return SDL_LockMutex(mutex) == 0;
+#endif
+}
+
 inline void CTP2_SDL_UnlockMutex(CTP2_SDL_Mutex *mutex)
 {
 	SDL_UnlockMutex(mutex);
@@ -310,6 +320,25 @@ inline SDL_Keymod CTP2_SDL_GetKeymod(SDL_KeyboardEvent const &event)
 #else
 	return static_cast<SDL_Keymod>(event.keysym.mod);
 #endif
+}
+
+inline bool CTP2_SDL_IsKeyDown(SDL_Event const &event)
+{
+	return event.type == SDL_KEYDOWN;
+}
+
+inline bool CTP2_SDL_IsKeyDown(SDL_KeyboardEvent const &event)
+{
+#if defined(CTP2_USE_SDL3)
+	return event.down;
+#else
+	return event.state == SDL_PRESSED;
+#endif
+}
+
+inline bool CTP2_SDL_IsMouseButtonDown(SDL_Event const &event)
+{
+	return event.type == SDL_MOUSEBUTTONDOWN;
 }
 
 inline Uint32 CTP2_SDL_GetMouseState(int *x, int *y)

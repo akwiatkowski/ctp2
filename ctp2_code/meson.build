@@ -55,7 +55,13 @@ if not win32
 		endif
 	endif
 
-	sdl = [dependency('sdl2'), dependency('SDL2_mixer')]
+	sdl_backend = get_option('sdl_backend')
+	if sdl_backend == 'sdl3'
+		sdl = [dependency('sdl3'), dependency('SDL3_mixer')]
+		conf.set('CTP2_USE_SDL3', 1)
+	else
+		sdl = [dependency('sdl2'), dependency('SDL2_mixer')]
+	endif
 	conf.set('USE_SDL', 1)
 
 	tiff = dependency('libtiff-4')

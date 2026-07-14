@@ -141,13 +141,11 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// RESIZABLE: the renderer's logical size letterboxes/scales the game res to
 	//   any window size; mouse coords are mapped back via SDL_RenderWindowToLogical
 	//   in aui_SDLMouse so input stays correct when the window is not 1:1.
-	Uint32 windowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+	Uint64 windowFlags = CTP2_SDL_WINDOW_SHOWN | CTP2_SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
 	if (g_SDL_flags) {
 		windowFlags |= SDL_WINDOW_FULLSCREEN;
 	}
-	m_window = SDL_CreateWindow("Call to Power 2",
-		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		m_width, m_height, windowFlags);
+	m_window = CTP2_SDL_CreateWindow("Call to Power 2", m_width, m_height, windowFlags);
 	if (!m_window) {
 		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
 	}
@@ -163,12 +161,11 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// windows scale on the GPU. NOTE: SDL_GetWindowSurface and SDL_Renderer are
 	// mutually exclusive on one window — the primary is therefore a standalone
 	// surface, not the window surface.
-	m_renderer = SDL_CreateRenderer(m_window, -1,
-		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	m_renderer = CTP2_SDL_CreateRenderer(m_window, false);
 	if (!m_renderer) {
 		// Software-renderer fallback keeps display-less / unusual-GPU setups
 		// (some Linux CI) alive rather than aborting.
-		m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_SOFTWARE);
+		m_renderer = CTP2_SDL_CreateRenderer(m_window, true);
 	}
 	if (!m_renderer) {
 		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());

@@ -415,9 +415,32 @@ def source_set_fingerprint(path: str) -> str:
     return digest.hexdigest()[:16]
 
 
+def modern_assets_root() -> str:
+    """Root of the user-local modern-asset cache."""
+    return os.path.expanduser(os.path.join("~", ".ctp2", "assets"))
+
+
 def modern_assets_dir(path: str) -> str:
     """User-local output directory for modern assets derived from ``path``."""
-    return os.path.expanduser(os.path.join("~", ".ctp2", "assets", source_set_fingerprint(path)))
+    return os.path.join(modern_assets_root(), source_set_fingerprint(path))
+
+
+def update_current_pointer(fingerprint_dir: str) -> None:
+    """Point ``<root>/current`` at the freshly generated fingerprint dir.
+
+    The engine has no sha256 to reproduce the content fingerprint, so it looks
+    up manifests under a stable ``current`` symlink instead. Regenerating the
+    cache re-points it (this is the cache-invalidation mechanism)."""
+    link = os.path.join(modern_assets_root(), "current")
+    target = os.path.basename(fingerprint_dir.rstrip("/"))  # relative → the fp dir
+    try:
+        if os.path.islink(link) or os.path.exists(link):
+            os.remove(link)
+        os.symlink(target, link)
+    except OSError:
+        # Fall back to a plain text pointer where symlinks are unavailable.
+        with open(link + ".txt", "w") as f:
+            f.write(target + "\n")
 
 
 def _read_faced_frames(buf: bytes, offset: int, version: int):
@@ -960,8 +983,12 @@ def main(argv: list[str] | None = None) -> int:
             return verify(args.path)
         out_dir = modern_assets_dir(args.path) if args.modern_assets else args.out_dir
         if os.path.isdir(args.path):
-            return export_tree(args.path, out_dir, args.action, args.atlas)
-        return export(args.path, out_dir, args.action, args.atlas)
+            rc = export_tree(args.path, out_dir, args.action, args.atlas)
+        else:
+            rc = export(args.path, out_dir, args.action, args.atlas)
+        if args.modern_assets and rc == 0:
+            update_current_pointer(out_dir)  # engine reads <root>/current/<base>.json
+        return rc
     except (OSError, spr.SprError, SprExportError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

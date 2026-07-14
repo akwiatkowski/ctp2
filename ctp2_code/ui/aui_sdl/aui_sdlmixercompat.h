@@ -9,7 +9,11 @@ using Mix_Chunk = MIX_Audio;
 inline MIX_Mixer *g_ctp2_sdl3Mixer = nullptr;
 inline MIX_Track *g_ctp2_sdl3Tracks[32] = {};
 
-inline int Mix_OpenAudio(int frequency, SDL_AudioFormat format, int channels, int chunksize)
+#ifndef SDL_INIT_NOPARACHUTE
+#define SDL_INIT_NOPARACHUTE 0
+#endif
+
+inline int Mix_OpenAudio(int frequency, int format, int channels, int chunksize)
 {
 	(void)chunksize;
 	if (!MIX_Init())
@@ -19,7 +23,7 @@ inline int Mix_OpenAudio(int frequency, SDL_AudioFormat format, int channels, in
 
 	SDL_AudioSpec spec = {};
 	spec.freq = frequency;
-	spec.format = format;
+	spec.format = static_cast<SDL_AudioFormat>(format);
 	spec.channels = channels;
 	g_ctp2_sdl3Mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
 	return g_ctp2_sdl3Mixer ? 0 : -1;

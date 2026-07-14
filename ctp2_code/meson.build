@@ -1378,11 +1378,12 @@ gfxutils = static_library('libgfxgfx_utils', [
 	'gfx/gfx_utils/ColorSet.cpp',
 	'gfx/gfx_utils/gfx_options.cpp',
 	'gfx/gfx_utils/pixelutils.cpp',
+	'gfx/gfx_utils/png_load.cpp',
 	'gfx/gfx_utils/targautils.cpp',
 	'gfx/gfx_utils/tiffutils.cpp',
 	'gfx/gfx_utils/videoutils.cpp'],
 		include_directories : incdir,
-		dependencies : [ cdb_header, tiff, sdl ])
+		dependencies : [ cdb_header, tiff, sdl, zlib ])
 
 gfxlayers = static_library('libgfxlayers', 'gfx/layers/citylayer.cpp',
 		include_directories : incdir,
@@ -1515,6 +1516,7 @@ cpp_fast_test_sources = [
   'test/cpp/test_scoped_rand.cpp',
   'test/cpp/test_mappoint.cpp',
 	'test/cpp/test_aui_blitter.cpp',
+	'test/cpp/test_png_load.cpp',
 	'test/cpp/test_modern_sprite_manifest.cpp',
   'test/cpp/test_army.cpp',
   'test/cpp/test_barbarians.cpp',
@@ -1559,6 +1561,7 @@ cpp_test_sources = [
   'test/cpp/test_scoped_rand.cpp',
   'test/cpp/test_mappoint.cpp',
 	'test/cpp/test_aui_blitter.cpp',
+	'test/cpp/test_png_load.cpp',
 	'test/cpp/test_modern_sprite_manifest.cpp',
   'test/cpp/test_army.cpp',
   'test/cpp/test_barbarians.cpp',

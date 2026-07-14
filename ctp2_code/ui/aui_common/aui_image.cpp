@@ -38,6 +38,7 @@
 #include "ui/aui_common/aui_memmap.h"
 #include "ui/aui_common/aui_pixel.h"
 #include "ui/aui_common/aui_ui.h"
+#include "ui/aui_sdl/aui_sdlcompat.h"
 
 aui_Image::aui_Image(
 	AUI_ERRCODE *retval,
@@ -310,7 +311,6 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 	assert(0);
 	SDL_Surface *bmp = SDL_LoadBMP(filename);
 	SDL_Surface *surf = nullptr;
-	SDL_PixelFormat fmt = { 0 };
 //#if 0
 //	if (aui_image_SDLPixelFormat(image, &fmt)) {
 //		surf = SDL_ConvertSurface(bmp, &fmt, 0);
@@ -320,13 +320,13 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
         printf("%s L%d: image %s!\n", __FILE__, __LINE__, filename);
         if (aui_ui_Get()->Primary()->BitsPerPixel() != 16)
             printf("%s L%d: bpp %d", __FILE__, __LINE__,  aui_ui_Get()->Primary()->BitsPerPixel());
-        if (bmp->format->Gmask >> bmp->format->Gshift == 0x3F)
+		if (CTP2_SDL_SurfaceGMask(bmp) >> CTP2_SDL_SurfaceGShift(bmp) == 0x3F)
             printf("%s L%d: 565 image!\n", __FILE__, __LINE__);
-        if (bmp->format->Gmask >> bmp->format->Gshift == 0x1F)
+		if (CTP2_SDL_SurfaceGMask(bmp) >> CTP2_SDL_SurfaceGShift(bmp) == 0x1F)
             printf("%s L%d: 555 image!\n", __FILE__, __LINE__);
 	if (nullptr == surf) {
 		// SDL2: SDL_DisplayFormat removed; convert to a reasonable default format
-		surf = SDL_ConvertSurfaceFormat(bmp, SDL_PIXELFORMAT_RGB565, 0);
+		surf = CTP2_SDL_ConvertSurfaceFormat(bmp, SDL_PIXELFORMAT_RGB565);
 	}
 	CTP2_SDL_DestroySurface(bmp);
 	if (nullptr == surf)

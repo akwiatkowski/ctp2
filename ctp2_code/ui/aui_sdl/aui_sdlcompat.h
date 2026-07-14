@@ -129,6 +129,95 @@ inline void CTP2_SDL_DestroySurface(SDL_Surface *surface)
 #endif
 }
 
+inline SDL_Surface *CTP2_SDL_ConvertSurfaceFormat(SDL_Surface *surface, Uint32 format)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_ConvertSurface(surface, format);
+#else
+	return SDL_ConvertSurfaceFormat(surface, format, 0);
+#endif
+}
+
+inline int CTP2_SDL_SurfaceBitsPerPixel(SDL_Surface const *surface)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_PixelFormatDetails const *details = SDL_GetPixelFormatDetails(surface->format);
+	return details ? details->bits_per_pixel : SDL_BITSPERPIXEL(surface->format);
+#else
+	return surface->format->BitsPerPixel;
+#endif
+}
+
+inline int CTP2_SDL_SurfaceBytesPerPixel(SDL_Surface const *surface)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_PixelFormatDetails const *details = SDL_GetPixelFormatDetails(surface->format);
+	return details ? details->bytes_per_pixel : SDL_BYTESPERPIXEL(surface->format);
+#else
+	return surface->format->BytesPerPixel;
+#endif
+}
+
+inline Uint32 CTP2_SDL_SurfaceRMask(SDL_Surface const *surface)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_PixelFormatDetails const *details = SDL_GetPixelFormatDetails(surface->format);
+	return details ? details->Rmask : 0;
+#else
+	return surface->format->Rmask;
+#endif
+}
+
+inline Uint32 CTP2_SDL_SurfaceGMask(SDL_Surface const *surface)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_PixelFormatDetails const *details = SDL_GetPixelFormatDetails(surface->format);
+	return details ? details->Gmask : 0;
+#else
+	return surface->format->Gmask;
+#endif
+}
+
+inline Uint32 CTP2_SDL_SurfaceBMask(SDL_Surface const *surface)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_PixelFormatDetails const *details = SDL_GetPixelFormatDetails(surface->format);
+	return details ? details->Bmask : 0;
+#else
+	return surface->format->Bmask;
+#endif
+}
+
+inline Uint8 CTP2_SDL_SurfaceRShift(SDL_Surface const *surface)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_PixelFormatDetails const *details = SDL_GetPixelFormatDetails(surface->format);
+	return details ? details->Rshift : 0;
+#else
+	return surface->format->Rshift;
+#endif
+}
+
+inline Uint8 CTP2_SDL_SurfaceGShift(SDL_Surface const *surface)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_PixelFormatDetails const *details = SDL_GetPixelFormatDetails(surface->format);
+	return details ? details->Gshift : 0;
+#else
+	return surface->format->Gshift;
+#endif
+}
+
+inline Uint8 CTP2_SDL_SurfaceBShift(SDL_Surface const *surface)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_PixelFormatDetails const *details = SDL_GetPixelFormatDetails(surface->format);
+	return details ? details->Bshift : 0;
+#else
+	return surface->format->Bshift;
+#endif
+}
+
 inline void CTP2_SDL_LockMutex(CTP2_SDL_Mutex *mutex)
 {
 	SDL_LockMutex(mutex);

@@ -27,12 +27,12 @@ aui_SDLSurface::aui_SDLSurface(
 	if (lpdds != nullptr && takeOwnership) {
 		width = lpdds->w;
 		height = lpdds->h;
-		bpp = lpdds->format->BitsPerPixel;
+		bpp = CTP2_SDL_SurfaceBitsPerPixel(lpdds);
 	}
 	// If wrapping an existing surface (like the window surface), use its actual bpp
 	// so m_Bpp and offset calculations are correct
 	if (lpdds != nullptr && !takeOwnership) {
-		bpp = lpdds->format->BitsPerPixel;
+		bpp = CTP2_SDL_SurfaceBitsPerPixel(lpdds);
 	}
 	*retval = aui_Surface::InitCommon( width, height, bpp, isPrimary );
 	Assert( AUI_SUCCESS(*retval) );
@@ -71,15 +71,14 @@ aui_SDLSurface::aui_SDLSurface(
             }
 
 	// Detect pixel format from the ACTUAL surface, not the window format
-	SDL_PixelFormat* actualFmt = m_lpdds->format;
-	if (actualFmt->BitsPerPixel == 32) {
+	if (CTP2_SDL_SurfaceBitsPerPixel(m_lpdds) == 32) {
 		m_pixelFormat = AUI_SURFACE_PIXELFORMAT_888;
 	}
-	if ((actualFmt->Rmask >> actualFmt->Rshift == 0x1F) && (actualFmt->Gmask >> actualFmt->Gshift == 0x3F) && (actualFmt->Bmask >> actualFmt->Bshift == 0x1F)) {
+	if ((CTP2_SDL_SurfaceRMask(m_lpdds) >> CTP2_SDL_SurfaceRShift(m_lpdds) == 0x1F) && (CTP2_SDL_SurfaceGMask(m_lpdds) >> CTP2_SDL_SurfaceGShift(m_lpdds) == 0x3F) && (CTP2_SDL_SurfaceBMask(m_lpdds) >> CTP2_SDL_SurfaceBShift(m_lpdds) == 0x1F)) {
             m_pixelFormat = AUI_SURFACE_PIXELFORMAT_565;
             //printf("%s L%d: AUI_SURFACE_PIXELFORMAT_565\n", __FILE__, __LINE__);
             }
-        if ((actualFmt->Rmask >> actualFmt->Rshift == 0x1F) && (actualFmt->Gmask >> actualFmt->Gshift == 0x1F) && (actualFmt->Bmask >> actualFmt->Bshift == 0x1F)) {
+		if ((CTP2_SDL_SurfaceRMask(m_lpdds) >> CTP2_SDL_SurfaceRShift(m_lpdds) == 0x1F) && (CTP2_SDL_SurfaceGMask(m_lpdds) >> CTP2_SDL_SurfaceGShift(m_lpdds) == 0x1F) && (CTP2_SDL_SurfaceBMask(m_lpdds) >> CTP2_SDL_SurfaceBShift(m_lpdds) == 0x1F)) {
             m_pixelFormat = AUI_SURFACE_PIXELFORMAT_555;
             //printf("%s L%d: AUI_SURFACE_PIXELFORMAT_555\n", __FILE__, __LINE__);
             }
@@ -223,7 +222,7 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 				if (upPtr)
 				{
 					pixels += static_cast<size_t>(up.y) * m_lpdds->pitch
-					        + static_cast<size_t>(up.x) * m_lpdds->format->BytesPerPixel;
+					        + static_cast<size_t>(up.x) * CTP2_SDL_SurfaceBytesPerPixel(m_lpdds);
 				}
 				CTP2_SDL_UpdateTexture( m_screenTexture, upPtr, pixels, m_lpdds->pitch );
 			}

@@ -2163,7 +2163,7 @@ SPRITEFILEERR SpriteFile::WriteData(uint8 *data, size_t bytes)
 
 SPRITEFILEERR SpriteFile::WriteData(sint16 data)
 {
-	size_t  countWritten = c3files_fwrite((void *)&data, 1, 2, m_file);
+	size_t  countWritten = c3files_fwrite(&data, 1, 2, m_file);
 	Assert(countWritten == 2);
 
     return (countWritten == 2) ? SPRITEFILEERR_OK : SPRITEFILEERR_WRITEERR;
@@ -2171,7 +2171,7 @@ SPRITEFILEERR SpriteFile::WriteData(sint16 data)
 
 SPRITEFILEERR SpriteFile::WriteData(uint16 data)
 {
-	size_t	countWritten = c3files_fwrite((void *)&data, 1, 2, m_file);
+	size_t	countWritten = c3files_fwrite(&data, 1, 2, m_file);
 	Assert(countWritten == 2);
 
     return (countWritten == 2) ? SPRITEFILEERR_OK : SPRITEFILEERR_WRITEERR;
@@ -2179,7 +2179,7 @@ SPRITEFILEERR SpriteFile::WriteData(uint16 data)
 
 SPRITEFILEERR SpriteFile::WriteData(sint32 data)
 {
-	size_t	countWritten = c3files_fwrite((void *)&data, 1, 4, m_file);
+	size_t	countWritten = c3files_fwrite(&data, 1, 4, m_file);
 	Assert(countWritten == 4);
 
     return (countWritten == 4) ? SPRITEFILEERR_OK : SPRITEFILEERR_WRITEERR;
@@ -2187,7 +2187,7 @@ SPRITEFILEERR SpriteFile::WriteData(sint32 data)
 
 SPRITEFILEERR SpriteFile::WriteData(uint32 data)
 {
-	size_t	countWritten = c3files_fwrite((void *)&data, 1, 4, m_file);
+	size_t	countWritten = c3files_fwrite(&data, 1, 4, m_file);
 	Assert(countWritten == 4);
 
 	return (countWritten == 4) ? SPRITEFILEERR_OK : SPRITEFILEERR_WRITEERR;

@@ -3091,11 +3091,11 @@ void primitives_HackTileDraw(aui_Surface *pSurface)
 	sint32		 endX;
 	uint32		accumTable[k_TILE_PIXEL_HEIGHT][3];
 	FILE *      file = fopen("gtfb000.bin", "rb");
-	fread((void *)&accumTable, 1, sizeof(uint32)*3*k_TILE_PIXEL_HEIGHT, file);
-	fread((void *)&len, 1, sizeof(uint16), file);
+	fread(&accumTable, 1, sizeof(uint32)*3*k_TILE_PIXEL_HEIGHT, file);
+	fread(&len, 1, sizeof(uint16), file);
 
 	std::vector<Pixel16> data(len/2);
-	fread((void *)data.data(), 1, len, file);
+	fread(data.data(), 1, len, file);
 	fclose(file);
 
 	Pixel16 *   dataPtr = data.data();

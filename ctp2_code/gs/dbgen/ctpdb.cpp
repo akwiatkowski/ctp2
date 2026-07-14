@@ -179,11 +179,11 @@ bool copy_file(char const * srcFName, char const * dstFName)
 	size_t read;
 	size_t wrote = 0;
 
-	while ((read = fread((void *)&buf, sizeof(char),
+	while ((read = fread(&buf, sizeof(char),
 	                     sizeof(buf) / sizeof(char), inFile
 	                    )
 	       ) > 0) {
-		wrote = fwrite((void *)&buf, sizeof(char),
+		wrote = fwrite(&buf, sizeof(char),
 		               read, outFile);
 
 	}

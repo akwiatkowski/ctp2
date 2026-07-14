@@ -2879,15 +2879,30 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						// viewport/scale to 1:1 texture size, so the read
 						// is exact regardless of HiDPI backbuffer scale or
 						// SDL_RenderSetLogicalSize on the window target.
+						// P11 Stage 2 D: mirror the exact present composite. With
+						// per-layer GPU compositing the visible frame is the world
+						// texture with the UI texture alpha-blended over it, so the
+						// readback must reproduce both layers (re-composing only the
+						// screen texture would read a stale/never-uploaded texture).
+						bool const layered = aui_SDL::GpuLayersEnabled()
+						                   && aui_SDL::WorldTexture()
+						                   && aui_SDL::UiTexture();
+						SDL_Texture *sizeTex = layered ? aui_SDL::WorldTexture()
+						                               : texture;
 						int texW = 0, texH = 0;
-						CTP2_SDL_GetTextureSize(texture, &texW, &texH);
+						CTP2_SDL_GetTextureSize(sizeTex, &texW, &texH);
 						SDL_Texture *target = SDL_CreateTexture(renderer,
 						        SDL_PIXELFORMAT_ARGB8888,
 						        SDL_TEXTUREACCESS_TARGET, texW, texH);
 						bool ok = false;
 						if (target && CTP2_SDL_SetRenderTarget(renderer, target)) {
 							SDL_RenderClear(renderer);
-							CTP2_SDL_RenderTexture(renderer, texture);
+							if (layered) {
+								CTP2_SDL_RenderTexture(renderer, aui_SDL::WorldTexture());
+								CTP2_SDL_RenderTexture(renderer, aui_SDL::UiTexture());
+							} else {
+								CTP2_SDL_RenderTexture(renderer, texture);
+							}
 							ok = CTP2_SDL_SaveRendererPixels(renderer, path, texW, texH);
 							CTP2_SDL_SetRenderTarget(renderer, nullptr);
 						}

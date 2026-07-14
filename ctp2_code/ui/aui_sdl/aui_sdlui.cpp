@@ -190,6 +190,24 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, m_width, m_height);
 		if (m_uiTexture) {
 			SDL_SetTextureBlendMode(m_uiTexture, SDL_BLENDMODE_BLEND);
+			// A freshly created streaming texture has undefined contents; clear
+			// it to fully transparent (ARGB 0x00000000) so, until the UI
+			// composite is redirected into it, the alpha overlay contributes
+			// nothing and the presented frame matches the single-texture path.
+			// Lock the streaming texture and zero its pixels. Guard on the
+			// returned pixels pointer, not the return code: SDL_LockTexture
+			// yields int(0)=ok on SDL2 but bool(true)=ok on SDL3, so a `== 0`
+			// test would misfire on the SDL3 default backend.
+			void * pixels = nullptr;
+			int    pitch  = 0;
+			SDL_LockTexture(m_uiTexture, nullptr, &pixels, &pitch);
+			if (pixels) {
+				// Clear the whole locked region (all rows at full pitch,
+				// padding included) so every pixel is fully transparent
+				// (ARGB 0x00000000). memset takes the pointer directly.
+				memset(pixels, 0, static_cast<size_t>(m_height) * pitch);
+				SDL_UnlockTexture(m_uiTexture);
+			}
 		}
 		if (!m_worldTexture || !m_uiTexture) {
 			c3errors_FatalDialog("aui_SDLUI", SDL_GetError());

@@ -7,6 +7,7 @@
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_sdl/aui_sdlcompat.h"
 #include "ui/aui_sdl/aui_sdlsurface.h"
+#include "ui/aui_sdl/aui_sdl.h"   // P11 D: GpuLayersEnabled + world/UI textures
 #include <algorithm>   // std::min/max (dirty-rect clamp in Flip)
 
 uint32 aui_SDLSurface::m_SDLSurfaceClassId = aui_UniqueId();
@@ -214,6 +215,23 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					upPtr = &up;
 				}
 			}
+			// P11 Stage 2 D: when per-layer GPU compositing is enabled, the
+			// composited frame becomes the world (base) layer and a second
+			// alpha texture is composited over it on the GPU. Both textures are
+			// full-screen ARGB8888; the UI texture is in BLENDMODE_BLEND so its
+			// transparent pixels leave the world layer untouched. Until the UI
+			// composite is redirected into it (next increment) the UI texture
+			// is fully transparent, so the presented frame is byte-identical to
+			// the single-texture present — keeping the slice-ui oracle green.
+			bool const layered = aui_SDL::GpuLayersEnabled()
+			                   && aui_SDL::WorldTexture() && aui_SDL::UiTexture();
+			SDL_Texture * const baseTex = layered ? aui_SDL::WorldTexture()
+			                                      : m_screenTexture;
+			// The world/base texture accumulates the frame from per-dirty-rect
+			// uploads exactly as m_screenTexture does (the full m_lpdds surface
+			// is never a complete frame — only its freshly composited regions
+			// are valid, the rest holds stale init content). Since layers are
+			// enabled from frame 0, the world texture builds up identically.
 			if (!dirty || upPtr)
 			{
 				uint8 const *pixels = static_cast<uint8 const *>(m_lpdds->pixels);
@@ -222,10 +240,12 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					pixels += static_cast<size_t>(up.y) * m_lpdds->pitch
 					        + static_cast<size_t>(up.x) * CTP2_SDL_SurfaceBytesPerPixel(m_lpdds);
 				}
-				CTP2_SDL_UpdateTexture( m_screenTexture, upPtr, pixels, m_lpdds->pitch );
+				CTP2_SDL_UpdateTexture( baseTex, upPtr, pixels, m_lpdds->pitch );
 			}
 			SDL_RenderClear( m_renderer );
-			CTP2_SDL_RenderTexture( m_renderer, m_screenTexture );
+			CTP2_SDL_RenderTexture( m_renderer, baseTex );
+			if (layered)
+				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::UiTexture() );
 			SDL_RenderPresent( m_renderer );
 		}
 		else if ( m_window )

@@ -124,7 +124,7 @@ AUI_ERRCODE aui_Window::CreateSurface( )
 	Assert( m_surface == nullptr );
 	if ( !m_surface )
 	{
-		m_surface = aui_Factory::new_Surface(errcode, m_width, m_height);
+		m_surface = aui_Factory::new_Surface(errcode, m_width, m_height, nullptr, FALSE, FALSE, FALSE, m_bpp);
 
 		Assert( AUI_NEWOK(m_surface,errcode) );
 		if ( !AUI_NEWOK(m_surface,errcode) ) return errcode;

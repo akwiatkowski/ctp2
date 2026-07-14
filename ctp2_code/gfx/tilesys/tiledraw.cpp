@@ -2352,14 +2352,17 @@ sint32 TiledMap::DrawOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 	Pixel16	*   dataStart   = table + (end - start + 1);
 
 	sint32 len;
+	bool const bpp32 = surface ? (surface->BitsPerPixel() == 32)
+	                           : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step = bpp32 ? 4 : 2;
 
 	for (sint32 j = start; j <= end; j++)
     {
 		if ((y+j) >= surfHeight) continue;
 		if ((sint16)table[j-start] == -1) continue;
 
-        unsigned short *    destPixel   =
-		    (unsigned short *)(surfBase + ((y + j) * surfPitch) + (x * 2));
+        uint8 *    destPixel   =
+		    surfBase + ((y + j) * surfPitch) + (x * step);
 
 		Pixel16	*   rowData = dataStart + table[j-start];
 		Pixel16		tag;
@@ -2368,19 +2371,17 @@ sint32 TiledMap::DrawOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
-						destPixel += (tag & 0x00FF);
+						destPixel += (tag & 0x00FF) * step;
 					break;
 				case k_TILE_COPY_RUN_ID			: {
 						len = (tag & 0x00FF);
 
 						while (len--) {
 							if (!(flags & k_OVERLAY_FLAG_SHADOWSONLY)) {
-								*destPixel++ = *rowData++;
-							} else {
-								destPixel++;
-								rowData++;
+								pixelutils_StorePixel(destPixel, *rowData, bpp32);
 							}
-
+							destPixel += step;
+							rowData++;
 						}
 					}
 					break;
@@ -2388,11 +2389,15 @@ sint32 TiledMap::DrawOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 						len = (tag & 0x00FF);
 						while (len--) {
 							if (!(flags & k_OVERLAY_FLAG_NOSHADOWS)) {
-								*destPixel = pixelutils_Shadow(*destPixel);
-								destPixel++;
-							} else {
-								destPixel++;
+								if (bpp32) {
+									Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+									*d = pixelutils_Shadow8888(*d);
+								} else {
+									Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+									*d = pixelutils_Shadow(*d);
+								}
 							}
+							destPixel += step;
 						}
 					}
 					break;

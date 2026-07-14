@@ -49,18 +49,22 @@ aui_Factory::new_Surface(AUI_ERRCODE &retval,
                          void *data,
                          const BOOL &isPrimary,
                          const BOOL &useVideoMemory,
-                         const BOOL &takeOwnership
+                         const BOOL &takeOwnership,
+                         sint32 bpp
                         )
 {
+	// bpp == 0 -> follow the global display depth (historic behaviour).
+	sint32 const surfaceBpp = (bpp > 0) ? bpp : c3ui_Get()->BitsPerPixel();
+
 #if defined(__AUI_USE_SDL__)
 	aui_SDLSurface *surface = nullptr;
 
-	surface = new aui_SDLSurface(&retval, width, height, c3ui_Get()->BitsPerPixel(), C3UI::DD(),
+	surface = new aui_SDLSurface(&retval, width, height, surfaceBpp, C3UI::DD(),
 	                             isPrimary, useVideoMemory, takeOwnership);
 #elif defined(__AUI_USE_DIRECTX__)
 	aui_DirectSurface *surface = 0;
 
-	surface = new aui_DirectSurface(&retval, width, height, c3ui_Get()->BitsPerPixel(), c3ui_Get()->DD(),
+	surface = new aui_DirectSurface(&retval, width, height, surfaceBpp, c3ui_Get()->DD(),
 				  (LPDIRECTDRAWSURFACE) data,
 				  isPrimary, useVideoMemory);
 #endif

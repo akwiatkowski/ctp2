@@ -10,6 +10,7 @@
 //----------------------------------------------------------------------------
 
 #include <windows.h>          // BOOL, POINT
+#include <memory>             // std::unique_ptr
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -48,10 +49,13 @@ class aui_Surface;
 // Class declarations
 //----------------------------------------------------------------------------
 
+class ModernSpriteAtlas;
+
 class UnitSpriteGroup : public SpriteGroup
 {
 public:
 	UnitSpriteGroup(GROUPTYPE type);
+	~UnitSpriteGroup() override;
 
 	void			DeallocateStorage() override;
 	void			DeallocateFullLoadAnims() override;
@@ -107,7 +111,10 @@ private:
 
 	POINT			m_shieldPoints[UNITACTION_MAX][k_NUM_FACINGS];
 
-
+	// Modern-first atlas (P11 B1), populated on load when CTP2_MODERN_SPRITES
+	// is set and a generated manifest exists; else null and the legacy RLE
+	// sprites are drawn. Owned; freed in the out-of-line destructor.
+	std::unique_ptr<ModernSpriteAtlas> m_modernAtlas;
 };
 
 #endif

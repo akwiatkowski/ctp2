@@ -8,6 +8,8 @@
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_common/aui_surface.h"
 
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <memory>
 
@@ -119,4 +121,52 @@ bool ModernSpriteAtlas::Blit(aui_Surface * destSurface, char const * action, int
 
     destSurface->Unlock(base);
     return true;
+}
+
+bool ModernSpritesEnabled()
+{
+    char const * e = getenv("CTP2_MODERN_SPRITES");
+    return e && e[0] && strcmp(e, "0") != 0;
+}
+
+std::string ModernAssetManifestPath(char const * spriteFileName)
+{
+    if (!spriteFileName || !spriteFileName[0])
+        return std::string();
+
+    // base = filename without directory or extension (e.g. "GU04.SPR" -> "GU04").
+    std::string name(spriteFileName);
+    std::string::size_type const slash = name.find_last_of("/\\");
+    if (slash != std::string::npos)
+        name = name.substr(slash + 1);
+    std::string::size_type const dot = name.find_last_of('.');
+    if (dot != std::string::npos)
+        name = name.substr(0, dot);
+
+    char const * home = getenv("HOME");
+    if (!home || !home[0])
+        return std::string();
+
+    // The converter maintains ~/.ctp2/assets/current -> <fingerprint> (symlink),
+    // with a "current.txt" holding the fingerprint where symlinks are absent.
+    std::string const root = std::string(home) + "/.ctp2/assets/";
+    std::string candidate = root + "current/" + name + ".json";
+    if (FILE * f = fopen(candidate.c_str(), "r")) { fclose(f); return candidate; }
+
+    if (FILE * ptr = fopen((root + "current.txt").c_str(), "r"))
+    {
+        char fp[256] = {0};
+        if (fgets(fp, sizeof(fp), ptr))
+        {
+            size_t len = strlen(fp);
+            while (len > 0 && (fp[len - 1] == '\n' || fp[len - 1] == '\r'))
+                fp[--len] = '\0';
+            candidate = root + fp + "/" + name + ".json";
+            fclose(ptr);
+            if (FILE * f = fopen(candidate.c_str(), "r")) { fclose(f); return candidate; }
+            return std::string();
+        }
+        fclose(ptr);
+    }
+    return std::string();
 }

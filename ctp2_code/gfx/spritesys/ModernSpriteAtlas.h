@@ -53,4 +53,15 @@ private:
 	int                  m_height = 0;
 };
 
+// True when the modern-first atlas sprite path is opted into via the
+// CTP2_MODERN_SPRITES environment variable (unset/"0" => legacy path). The
+// legacy (now 32-bit) render stays the default so this cannot regress it.
+bool ModernSpritesEnabled();
+
+// Given a legacy sprite filename ("GU04.SPR", "GX22.SPR", ...), return the path
+// to its generated atlas manifest under ~/.ctp2/assets/current/<base>.json, or
+// an empty string if the modern cache has no manifest for it. The "current"
+// pointer is maintained by tools/assets/spr_export.py --modern-assets.
+std::string ModernAssetManifestPath(char const * spriteFileName);
+
 #endif // __MODERNSPRITEATLAS_H__

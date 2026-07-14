@@ -54,6 +54,7 @@
 
 #include "gfx/spritesys/SpriteFile.h"
 #include "gfx/spritesys/Anim.h"
+#include "gfx/spritesys/ModernSpriteAtlas.h"  // P11 B1 modern-first atlas path
 
 #include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 
@@ -221,6 +222,23 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 	if (action < UNITACTION_MOVE || action > UNITACTION_WORK)
 		return;
 
+	// Modern-first atlas draw (P11 B1): at default zoom, draw the frame from the
+	// atlas and skip the legacy RLE path. Falls through to legacy when the atlas
+	// lacks this frame/facing (e.g. mirrored facings 5-8) or when zoomed
+	// (scale != 1), where the RLE scaled draw is still authoritative. Draw flags
+	// (fog/desaturate/transparency) are not yet applied on the atlas path.
+	if (m_modernAtlas && scale > 0.999 && scale < 1.001)
+	{
+		static char const * const kActionName[UNITACTION_MAX] =
+			{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };
+		POINT const hp = GetHotPoint(action, facing);
+		if (m_modernAtlas->Blit(surf, kActionName[action], facing, frame,
+		                        drawX - hp.x, drawY - hp.y))
+		{
+			return;
+		}
+	}
+
 
 
 
@@ -249,6 +267,26 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 	}
 }
 
+// Out-of-line so the unique_ptr<ModernSpriteAtlas> member is destroyed where
+// the type is complete.
+UnitSpriteGroup::~UnitSpriteGroup() = default;
+
+// When the modern-first path is enabled and a generated atlas manifest exists
+// for this sprite file, load it; otherwise leave m_modernAtlas null and the
+// legacy RLE sprites (loaded above) are drawn. Never fatal: any failure just
+// falls back to legacy.
+static void LoadModernAtlasIfEnabled(std::unique_ptr<ModernSpriteAtlas> & slot,
+                                     MBCHAR const * filename)
+{
+	if (!ModernSpritesEnabled())
+		return;
+	std::string const manifest = ModernAssetManifestPath(filename);
+	if (manifest.empty())
+		return;
+	std::string error;
+	slot.reset(ModernSpriteAtlas::Load(manifest.c_str(), error));
+}
+
 void UnitSpriteGroup::LoadBasic(MBCHAR const * filename)
 {
 	auto file = std::make_unique<SpriteFile>(filename);
@@ -260,6 +298,7 @@ void UnitSpriteGroup::LoadBasic(MBCHAR const * filename)
 		file->CloseRead();
 		m_loadType = LOADTYPE_BASIC;
 	}
+	LoadModernAtlasIfEnabled(m_modernAtlas, filename);
 }
 
 
@@ -290,6 +329,7 @@ void UnitSpriteGroup::LoadFull(MBCHAR const * filename)
 		file->CloseRead();
 		m_loadType = LOADTYPE_FULL;
 	}
+	LoadModernAtlasIfEnabled(m_modernAtlas, filename);
 }
 
 void UnitSpriteGroup::Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode)

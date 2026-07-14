@@ -3513,7 +3513,9 @@ sint32 TiledMap::PaintColoredTile(sint32 x, sint32 y, COLOR color)
 	surfHeight = screenmanager_Get()->GetSurfHeight();
 	surfPitch = screenmanager_Get()->GetSurfPitch();
 
-	unsigned short	*destPixel;
+	bool const   bpp32 = surface && surface->BitsPerPixel() == 32;
+	sint32 const step  = bpp32 ? 4 : 2;
+	uint8	*destPixel;
 
 	y+=k_TILE_PIXEL_HEADROOM;
 
@@ -3535,14 +3537,17 @@ if (y >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 		}
 		endX = k_TILE_PIXEL_WIDTH - startX;
 
-		destPixel = (unsigned short *)(surfBase + ((y + j) * surfPitch) + ((x+startX) * 2));
+		destPixel = surfBase + ((y + j) * surfPitch) + ((x+startX) * step);
 
 		for (sint32 i=startX; i<endX; i++) {
-			if (*destPixel == 352)  {
-				*destPixel = 352;
+			if (bpp32) {
+				Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+				*d = pixelutils_BlendFast8888(*d, pixelutils_16to8888(pixelColor), 20);
+			} else {
+				Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+				*d = pixelutils_BlendFast(*d, pixelColor, 20);
 			}
-			*destPixel = pixelutils_BlendFast(*destPixel, pixelColor, 20);
-			destPixel++;
+			destPixel += step;
 		}
 	}
 
@@ -3605,110 +3610,56 @@ void TiledMap::ScrollPixels(sint32 deltaX, sint32 deltaY, aui_Surface *surf)
 	if (errcode != AUI_ERRCODE_OK)
 		return;
 
-	sint32	 h = surf->Height();
-	sint32	 w = surf->Width();
-	sint32	 copyWidth = (w - abs(deltaX))>>1;
-	sint32	 copyHeight = h - abs(deltaY);
-
-	sint32		pitch = surf->Pitch();
-
-	uint32		 *srcPtr;
-	uint32		 *destPtr;
-	sint32		 dx = abs(deltaX);
-	sint32		 dy = abs(deltaY);
-	sint32		 i;
-	sint32		 j;
-
-	sint32		slop;
+	sint32 const h     = surf->Height();
+	sint32 const w     = surf->Width();
+	sint32 const pitch = surf->Pitch();
+	// Pixel size in bytes: 2 (RGB565) or 4 (ARGB8888). The scroll is a plain
+	// rectangular shift of existing content + black fill of the newly exposed
+	// strip (the caller redraws that strip afterwards), so it works for any
+	// depth as a per-row memmove — no more 2-pixels-per-uint32-word math.
+	// P11 Stage 2 B: replaced the 16bpp-only word copy so the pan optimization
+	// survives the 32-bit world surface. (Not exercised by the pixel oracle;
+	// verify by panning a 32-bit map.)
+	sint32 const bpp   = surf->BitsPerPixel() / 8;
+	uint8 * const base = reinterpret_cast<uint8 *>(buffer);
+	sint32 const dx    = abs(deltaX);
+	sint32 const dy    = abs(deltaY);
 
 	if (deltaX)
 	{
-
-		if (deltaX<0)
+		sint32 const copyBytes = (w - dx) * bpp;
+		sint32 const fillBytes = dx * bpp;
+		for (sint32 i = 0; i < h; i++)
 		{
-
-			srcPtr =	(uint32 *)(buffer + (w - dx) * 2 - 4);
-			destPtr =	(uint32 *)(buffer + w * 2 - 4);
-
-			Assert((uintptr_t)srcPtr >=(uintptr_t)buffer);
-			Assert((uintptr_t)destPtr>=(uintptr_t)buffer);
-
-			slop = (pitch>>2) + copyWidth;
-
-			for (i=0; i<h; i++)
+			uint8 * const row = base + i * pitch;
+			if (deltaX > 0)                     // content moves left; expose the right edge
 			{
-				for (j=0; j<copyWidth; j++)
-					*destPtr-- = *srcPtr--;
-
-				for (j=0; j<(dx>>1); j++)
-					*destPtr-- = 0x00000000;
-
-				srcPtr += slop;
-				destPtr += (slop + (dx>>1));
+				memmove(row, row + fillBytes, copyBytes);
+				memset(row + copyBytes, 0, fillBytes);
+			}
+			else                                // content moves right; expose the left edge
+			{
+				memmove(row + fillBytes, row, copyBytes);
+				memset(row, 0, fillBytes);
 			}
 		}
-		else
-		{
-			srcPtr =	(uint32 *)(buffer + dx * 2);
-			destPtr =	(uint32 *)buffer;
-			slop = (pitch / 4) - copyWidth;
-			for (i=0; i<h; i++)
-			{
-				for (j=0; j<copyWidth; j++)
-					*destPtr++ = *srcPtr++;
-				for (j=0; j<dx/2; j++)
-					*destPtr++ = 0x00000000;
-
-				srcPtr += slop;
-				destPtr += (slop - dx/2);
-			}
-		}
-
 	}
-	else
+	else if (deltaY)
 	{
-		if (deltaY)
+		sint32 const rowBytes = w * bpp;
+		if (deltaY > 0)                         // content moves up; expose the bottom rows
 		{
-			if (deltaY < 0)
-			{
-				srcPtr =	(uint32 *)(buffer + (pitch * (h - dy- 1)));
-				destPtr =	(uint32 *)(buffer + (pitch * (h - 1)));
-				slop = (pitch / 4) + (w >> 1);
-				for (i=0; i<copyHeight; i++)
-				{
-					for (j=0; j<w>>1; j++)
-						*destPtr++ = *srcPtr++;
-					srcPtr -= slop;
-					destPtr -= slop;
-				}
-				for (i=0; i<dy; i++)
-				{
-					for (j=0; j<w>>1; j++)
-						*destPtr++ = 0x00000000;
-					destPtr -= slop;
-				}
-			}
-			else
-			{
-				srcPtr =	(uint32 *)(buffer + (pitch * dy));
-				destPtr =	(uint32 *)(buffer);
-				slop = (pitch / 4) - (w >> 1);
-				for (i=0; i<copyHeight; i++)
-				{
-					for (j=0; j<w>>1; j++)
-						*destPtr++ = *srcPtr++;
-
-					srcPtr += slop;
-					destPtr += slop;
-				}
-				for (i=0; i<dy; i++)
-				{
-					for (j=0; j<w>>1; j++)
-						*destPtr++ = 0x00000000;
-
-					destPtr += slop;
-				}
-			}
+			for (sint32 i = 0; i < h - dy; i++)
+				memcpy(base + i * pitch, base + (i + dy) * pitch, rowBytes);
+			for (sint32 i = h - dy; i < h; i++)
+				memset(base + i * pitch, 0, rowBytes);
+		}
+		else                                    // content moves down; expose the top rows
+		{
+			for (sint32 i = h - 1; i >= dy; i--)
+				memcpy(base + i * pitch, base + (i - dy) * pitch, rowBytes);
+			for (sint32 i = 0; i < dy; i++)
+				memset(base + i * pitch, 0, rowBytes);
 		}
 	}
 

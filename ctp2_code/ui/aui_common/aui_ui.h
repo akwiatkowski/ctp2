@@ -193,7 +193,7 @@ public:
 	// useAccumulatedDirty: the per-frame mouse presents pass true — every
 	// write they composite goes through BltToSecondary/ColorBltToSecondary
 	// above, so the accumulated union covers exactly what changed, and the
-	// 565->8888 convert + GPU texture upload are scoped to it. Direct
+	// software mirror copy + GPU texture upload are scoped to it. Direct
 	// Secondary() writers (splash text, movie playback) keep the default
 	// full-frame present. An empty union falls back to full-frame.
 	AUI_ERRCODE BltSecondaryToPrimary

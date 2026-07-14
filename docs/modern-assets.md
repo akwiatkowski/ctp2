@@ -89,8 +89,8 @@ Offline tool, extending the existing read-only Python decoders
 (`spr_inspect.py` + `spr_export.py`), run via `mise`. It:
 
 1. Walks the original data set (sprites first; tiles/other assets later).
-2. Decodes each asset (already implemented for v0/v1 unit sprites; v2 has a
-   synthetic LZW1 decoder seam but still needs real-asset parity).
+2. Decodes each asset (implemented for v0/v1 unit sprites; v2 LZW1 normal-frame
+   decode is wired and synthetically tested, but still needs real-asset parity).
 3. Packs frames into atlases and writes the atlas + manifest. The current
    `--atlas --modern-assets` path accepts one `.SPR` file or a directory tree and
    writes output under `~/.ctp2/assets/<source-fingerprint>/`.

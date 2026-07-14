@@ -438,10 +438,13 @@ def _read_faced_frames(buf: bytes, offset: int, version: int):
     frames: list[list[bytes]] = [[b"" for _ in range(nf)] for _ in range(facings)]
     for j in range(facings):
         for i in range(nf):
+            actual_size = None
             if is_v2:
-                pos += 4  # actual_size prefix (LZW1) — payload undecoded here
+                actual_size = spr._u32(buf, pos)
+                pos += 4
             size = ssizes[j][i]
-            frames[j][i] = buf[pos:pos + size]
+            payload = buf[pos:pos + size]
+            frames[j][i] = decompress_lzw1(payload, actual_size) if is_v2 else payload
             pos += size
         for i in range(nf):
             pos += msizes[j][i]  # skip mini (zoomed-out) frames
@@ -453,11 +456,6 @@ def export(path: str, out_dir: str, action_filter: str | None, atlas: bool = Fal
     if info.type_name != "UNIT":
         print(f"error: {path} is {info.type_name}, not UNIT", file=sys.stderr)
         return 1
-    if info.version == spr.VERSION_V2:
-        print("note: v2 sprites use LZW1 compression; pixel decode not yet "
-              "implemented for v2 (header/metadata only).", file=sys.stderr)
-        return 2
-
     with open(path, "rb") as f:
         buf = f.read()
 
@@ -569,9 +567,6 @@ def verify(path: str) -> int:
     if info.type_name != "UNIT":
         print(f"skip: {os.path.basename(path)} is {info.type_name}, not UNIT")
         return 0
-    if info.version == spr.VERSION_V2:
-        print(f"skip: {os.path.basename(path)} is v2 (LZW1, not yet decoded)")
-        return 0
     with open(path, "rb") as f:
         buf = f.read()
     total_checked = total_bad = 0
@@ -610,6 +605,22 @@ def self_test() -> int:
     ])
     if decompress_lzw1(compressed, 6) != b"ABCABC":
         print("self-test failed: LZW1 back-reference mode", file=sys.stderr)
+        return 1
+
+    raw_frame = struct.pack("<HH", 0, EMPTY_TABLE_ENTRY)
+    v2_payload = bytes([LZW1_FLAG_COPY, 0, 0, 0]) + raw_frame
+    v2_action = b"".join([
+        struct.pack("<HHH", 0, 1, 1),   # NORMAL, 1x1
+        struct.pack("<ii", 0, 0),       # hot point
+        struct.pack("<HH", 0, 1),       # first frame, frame count
+        struct.pack("<I", len(v2_payload)),
+        struct.pack("<I", 0),           # no mini frame
+        struct.pack("<I", len(raw_frame)),
+        v2_payload,
+    ])
+    parsed = _read_faced_frames(v2_action, 0, spr.VERSION_V2)
+    if not parsed or parsed[3][0][0] != raw_frame:
+        print("self-test failed: v2 frame decompression", file=sys.stderr)
         return 1
 
     frames = [

@@ -331,7 +331,7 @@ Ratchet `type_erased_casting = 2487` first-party (pattern: `void*` | `reinterpre
 
 Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerprint>/`) plus an engine modern-first loader with legacy fallback. See `docs/modern-assets.md`. This now proceeds with P11 Stage 2 ahead of the remaining memory-safety phase because atlas-backed textures and the SDL3 backend are prerequisites for real GPU compositing and shader render flags.
 
-**B1 started 2026-07-14:** first slice adds a pure Python LZW1 decoder seam to `spr_export.py`, verified with synthetic copy-mode and compressed literal/back-reference streams because no licensed `.SPR` assets are committed. Real v2 parity remains the next B1 step and needs Olek's local data path.
+**B1 started 2026-07-14:** `spr_export.py` has a pure Python LZW1 decoder wired into the v2 normal-frame parser, verified with synthetic copy-mode, compressed literal/back-reference streams, and a synthetic v2 frame payload because no licensed `.SPR` assets are committed. Real v2 parity remains the next B1 step and needs Olek's local data path.
 
 **B2 started 2026-07-14:** `spr_export.py --atlas` now packs decoded v0/v1 unit frames into one dependency-free RGBA PNG atlas plus manifest rects using the existing decoder output. `--modern-assets` writes under `~/.ctp2/assets/<source-fingerprint>/`; when pointed at a directory it recursively walks `.SPR` files and fingerprints the source set from relative paths + contents. Both are verified by the synthetic self-test; real atlas parity still needs a local `.SPR` data path.
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #if defined(CTP2_USE_SDL3)
+#define SDL_ENABLE_OLD_NAMES
 #include <SDL3_mixer/SDL_mixer.h>
 
 using Mix_Chunk = MIX_Audio;

@@ -96,7 +96,7 @@ AUI_ERRCODE aui_SDLKeyboard::GetInput( )
 	switch (event.type) {
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
-			switch (event.key.keysym.sym) {
+			switch (CTP2_SDL_GetKeycode(event.key)) {
 				case SDLK_LSHIFT:
 					if (c3ui_Get()->TheMouse()) {
 						if (event.key.state & SDL_PRESSED) {
@@ -145,9 +145,11 @@ AUI_ERRCODE aui_SDLKeyboard::GetInput( )
 				case SDLK_LEFT:
 				case SDLK_RIGHT:
 					if (event.key.state & SDL_PRESSED) {
-						civapp_Get()->BeginKeyboardScrolling(convertSDLKey(event.key.keysym));
+						civapp_Get()->BeginKeyboardScrolling(
+							convertSDLKey(CTP2_SDL_GetKeycode(event.key)));
 					} else {
-						civapp_Get()->StopKeyboardScrolling(convertSDLKey(event.key.keysym));
+						civapp_Get()->StopKeyboardScrolling(
+							convertSDLKey(CTP2_SDL_GetKeycode(event.key)));
 					}
 					break;
 			}
@@ -164,12 +166,12 @@ void aui_SDLKeyboard::convertSDLKeyboardEvent(SDL_KeyboardEvent &sdlevent,
                                       aui_KeyboardEvent &auievent)
 {
 	auievent.down = (sdlevent.state & SDL_PRESSED) ? TRUE : FALSE;
-	auievent.key = convertSDLKey(sdlevent.keysym);
+	auievent.key = convertSDLKey(CTP2_SDL_GetKeycode(sdlevent));
 }
 
-uint32 aui_SDLKeyboard::convertSDLKey(SDL_Keysym keysym)
+uint32 aui_SDLKeyboard::convertSDLKey(SDL_Keycode key)
 {
-	switch (keysym.sym) {
+	switch (key) {
 		case SDLK_ESCAPE:
 			return AUI_KEYBOARD_KEY_ESCAPE;
 		case SDLK_RETURN:
@@ -188,8 +190,8 @@ uint32 aui_SDLKeyboard::convertSDLKey(SDL_Keysym keysym)
 			return AUI_KEYBOARD_KEY_RIGHTARROW;
 	}
 	// SDL2 removed keysym.unicode; use sym for ASCII range
-	if (keysym.sym >= 0 && keysym.sym < 128) {
-		return keysym.sym;
+	if (key >= 0 && key < 128) {
+		return key;
 	}
 	return AUI_KEYBOARD_KEY_INVALID;
 }

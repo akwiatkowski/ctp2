@@ -1,6 +1,7 @@
 #pragma once
 
 #if defined(CTP2_USE_SDL3)
+#define SDL_ENABLE_OLD_NAMES
 #include <SDL3/SDL.h>
 #else
 #include <SDL2/SDL.h>
@@ -173,6 +174,24 @@ inline void CTP2_SDL_SignalCondition(CTP2_SDL_Condition *condition)
 	SDL_SignalCondition(condition);
 #else
 	SDL_CondSignal(condition);
+#endif
+}
+
+inline SDL_Keycode CTP2_SDL_GetKeycode(SDL_KeyboardEvent const &event)
+{
+#if defined(CTP2_USE_SDL3)
+	return event.key;
+#else
+	return event.keysym.sym;
+#endif
+}
+
+inline SDL_Keymod CTP2_SDL_GetKeymod(SDL_KeyboardEvent const &event)
+{
+#if defined(CTP2_USE_SDL3)
+	return event.mod;
+#else
+	return static_cast<SDL_Keymod>(event.keysym.mod);
 #endif
 }
 

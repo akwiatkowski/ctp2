@@ -1832,8 +1832,8 @@ int SDLMessageHandler(const SDL_Event &event)
 	switch(event.type) {
 	case SDL_KEYDOWN:
 		{
-                	SDL_Keycode key = event.key.keysym.sym;
-			SDL_Keymod mod = (SDL_Keymod)event.key.keysym.mod;
+			SDL_Keycode key = CTP2_SDL_GetKeycode(event.key);
+			SDL_Keymod mod = CTP2_SDL_GetKeymod(event.key);
 			WPARAM wp = '\0';
 			switch (key) {
 

@@ -71,23 +71,23 @@ BOOL BaseTile::Read(FILE *file)
 	Assert(file != nullptr);
 	if (file == nullptr) return FALSE;
 
-	c3files_fread((void *)&m_tileNum    , 1, sizeof(m_tileNum), file);
-	c3files_fread((void *)&m_baseType   , 1, sizeof(m_baseType), file);
+	c3files_fread(&m_tileNum    , 1, sizeof(m_tileNum), file);
+	c3files_fread(&m_baseType   , 1, sizeof(m_baseType), file);
 
-	c3files_fread((void *)&m_flags      , 1, sizeof(m_flags), file);
-	c3files_fread((void *)&m_tileDataLen, 1, sizeof(m_tileDataLen), file);
+	c3files_fread(&m_flags      , 1, sizeof(m_flags), file);
+	c3files_fread(&m_tileDataLen, 1, sizeof(m_tileDataLen), file);
 
 	m_tileData = new Pixel16[m_tileDataLen/2];
-	c3files_fread((void *)m_tileData    , 1, m_tileDataLen, file);
+	c3files_fread(m_tileData    , 1, m_tileDataLen, file);
 
 	uint16	size;
-	c3files_fread((void *)&size         , 1, sizeof(size), file);
+	c3files_fread(&size         , 1, sizeof(size), file);
 
 	Pixel16		*hatData;
 	if (size > 0)
 	{
 		hatData = new Pixel16[size/2];
-		c3files_fread((void *)hatData, 1, size, file);
+		c3files_fread(hatData, 1, size, file);
 	}
 	else
 	{

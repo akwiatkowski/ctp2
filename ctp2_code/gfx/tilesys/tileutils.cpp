@@ -963,10 +963,10 @@ sint32 tileutils_EncodeStencil(MBCHAR *filename)
 
 	FILE *  file = fopen("source" FILE_SEP "stencil" FILE_SEP "stencil.bin", "wb");
 	if (file != nullptr) {
-		fwrite((void *)&tableHeight, 1, sizeof(uint16), file);
-		fwrite((void *)g_bitsTable, 1, sizeof(sint32) * k_TILE_PIXEL_HEIGHT, file);
-		fwrite((void *)&index, 1, sizeof(index), file);
-		fwrite((void *)g_offsets, 1, 32 * k_TILE_PIXEL_HEIGHT * sizeof(Pixel16), file);
+		fwrite(&tableHeight, 1, sizeof(uint16), file);
+		fwrite(g_bitsTable, 1, sizeof(sint32) * k_TILE_PIXEL_HEIGHT, file);
+		fwrite(&index, 1, sizeof(index), file);
+		fwrite(g_offsets, 1, 32 * k_TILE_PIXEL_HEIGHT * sizeof(Pixel16), file);
 		fclose(file);
 	}
 
@@ -1013,15 +1013,15 @@ void tileutils_LoadStencil()
 
 	if (file != nullptr) {
 	    uint16		tableHeight = 0;
-		fread((void *)&tableHeight, 1, sizeof(uint16), file);
+		fread(&tableHeight, 1, sizeof(uint16), file);
 
-		fread((void *)g_bitsTable, 1, sizeof(sint32) * k_TILE_PIXEL_HEIGHT, file);
+		fread(g_bitsTable, 1, sizeof(sint32) * k_TILE_PIXEL_HEIGHT, file);
 
 	    uint16		stencilLen = 0;
-		fread((void *)&stencilLen, 1, sizeof(stencilLen), file);
+		fread(&stencilLen, 1, sizeof(stencilLen), file);
 		g_stencilSize = stencilLen;
 
-		fread((void *)g_offsets, 1, 32 * k_TILE_PIXEL_HEIGHT * sizeof(Pixel16), file);
+		fread(g_offsets, 1, 32 * k_TILE_PIXEL_HEIGHT * sizeof(Pixel16), file);
 
 		fclose(file);
 	}
@@ -1176,7 +1176,7 @@ Pixel16 *tileutils_LoadStencilImage(uint16 from, uint16 to)
 
 	FILE *      file = fopen(fname, "rb");
 	if (file != nullptr) {
-		fread((void *)data, 1, g_stencilSize * sizeof(Pixel16), file);
+		fread(data, 1, g_stencilSize * sizeof(Pixel16), file);
 		fclose(file);
 	}
 
@@ -1731,7 +1731,7 @@ uint16 tileutils_CompileImprovements(FILE *file)
 		if (r == 0) count++;
 	}
 
-	fwrite((void *)&count, 1, sizeof(uint16), file);
+	fwrite(&count, 1, sizeof(uint16), file);
 
 	for (i=0; i<k_MAX_IMPROVEMENTS; i++) {
 		snprintf(filename, sizeof(filename), "source%simprove%sGTFM%.3d.tif",
@@ -1745,11 +1745,11 @@ uint16 tileutils_CompileImprovements(FILE *file)
 
 			id = (uint16)i;
 
-			fwrite((void *)&id, 1, sizeof(uint16), file);
+			fwrite(&id, 1, sizeof(uint16), file);
 
-			fwrite((void *)&dataLen, 1, sizeof(uint32), file);
+			fwrite(&dataLen, 1, sizeof(uint32), file);
 
-			fwrite((void *)data, 1, dataLen, file);
+			fwrite(data, 1, dataLen, file);
 		}
 	}
 
@@ -2037,13 +2037,13 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 	FILE *  tfile = fopen(fname, "wb");
 	if (tfile) {
 
-		fwrite((void *)&numTransforms, 1, sizeof(uint16), tfile);
+		fwrite(&numTransforms, 1, sizeof(uint16), tfile);
 
 		if (numTransforms > 0) {
 
 			for (size_t i = 0; i < numTransforms; i++)
             {
-				fwrite((void *)transforms[i].data(), 1, sizeof(sint16)*k_TRANSFORM_SIZE, tfile);
+				fwrite(transforms[i].data(), 1, sizeof(sint16)*k_TRANSFORM_SIZE, tfile);
 
 			}
 
@@ -2064,10 +2064,10 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 				}
 			}
 
-			fwrite((void *)&transitionCount, 1, sizeof(uint32), tfile);
+			fwrite(&transitionCount, 1, sizeof(uint32), tfile);
 
 			uint32  transitionSize = g_stencilSize * sizeof(Pixel16);
-			fwrite((void *)&transitionSize, 1, sizeof(uint32), tfile);
+			fwrite(&transitionSize, 1, sizeof(uint32), tfile);
 
 			for (i=0; i<TERRAIN_MAX; i++) {
 				for (j=0; j<TERRAIN_MAX; j++) {
@@ -2078,11 +2078,11 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 						from = (sint16)i;
 						to = (sint16)j;
 
-						fwrite((void *)&from, 1, sizeof(sint16), tfile);
-						fwrite((void *)&to, 1, sizeof(sint16), tfile);
+						fwrite(&from, 1, sizeof(sint16), tfile);
+						fwrite(&to, 1, sizeof(sint16), tfile);
 
 						for(k=0; k<k_TRANSITIONS_PER_TILE; k++) {
-							fwrite((void *)g_transitions[i][j][k], 1, transitionSize, tfile);
+							fwrite(g_transitions[i][j][k], 1, transitionSize, tfile);
 						}
 					}
 				}
@@ -2099,15 +2099,15 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 					baseTileCount++;
 			}
 
-			fwrite((void *)&baseTileCount, 1, sizeof(uint32), tfile);
+			fwrite(&baseTileCount, 1, sizeof(uint32), tfile);
 
 			for (i=0; i<k_MAX_BASE_TILES; i++) {
 				if (g_baseTiles[i] != nullptr) {
 					uint16		tNum = (uint16)i;
-					fwrite((void *)&tNum, 1, sizeof(uint16), tfile);
+					fwrite(&tNum, 1, sizeof(uint16), tfile);
 
 					uint8   baseType = (uint8)g_baseTiles[i]->GetBaseType();
-					fwrite((void *)&baseType, 1, sizeof(uint8), tfile);
+					fwrite(&baseType, 1, sizeof(uint8), tfile);
 
 					uint8 flag = 0;
 					for (j = 0; j < k_TRANSITIONS_PER_TILE; j++)
@@ -2116,7 +2116,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 							flag |= (1 << j);
 					}
 
-					fwrite((void *)&flag, 1, sizeof(uint8), tfile);
+					fwrite(&flag, 1, sizeof(uint8), tfile);
 
 
 
@@ -2126,10 +2126,10 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 
 					uint16 len16 = g_baseTiles[i]->GetTileDataLen();
-					fwrite((void *)&len16, 1, sizeof(uint16), tfile);
+					fwrite(&len16, 1, sizeof(uint16), tfile);
 
 					Pixel16 * tileData = g_baseTiles[i]->GetTileData();
-					fwrite((void *)tileData, 1, len16, tfile);
+					fwrite(tileData, 1, len16, tfile);
 
 
 
@@ -2147,10 +2147,10 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 
 					len16 = (uint16)g_baseTiles[i]->GetHatDataLen();
-					fwrite((void *)&len16, 1, sizeof(uint16), tfile);
+					fwrite(&len16, 1, sizeof(uint16), tfile);
 
 					if (len16 > 0) {
-						fwrite((void *)g_baseTiles[i]->GetHatData(), 1, len16, tfile);
+						fwrite(g_baseTiles[i]->GetHatData(), 1, len16, tfile);
 					}
 
 					delete g_baseTiles[i];
@@ -2161,17 +2161,17 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 		}
 
 
-		fwrite((void *)&numRiverTransforms, 1, sizeof(uint16), tfile);
+		fwrite(&numRiverTransforms, 1, sizeof(uint16), tfile);
 
 		if (numRiverTransforms > 0) {
 
 			for (size_t i = 0; i < numRiverTransforms; i++) {
-				fwrite((void *)riverTransforms[i].data(), 1, sizeof(sint16)*k_RIVER_TRANSFORM_SIZE, tfile);
+				fwrite(riverTransforms[i].data(), 1, sizeof(sint16)*k_RIVER_TRANSFORM_SIZE, tfile);
 
-				fwrite((void *)&riverDataLen[i], 1, sizeof(uint32), tfile);
+				fwrite(&riverDataLen[i], 1, sizeof(uint32), tfile);
 
 				if (riverDataLen[i] > 0) {
-					fwrite((void *)riverData[i], 1, riverDataLen[i], tfile);
+					fwrite(riverData[i], 1, riverDataLen[i], tfile);
 				}
 
 				delete[] riverData[i];
@@ -2188,13 +2188,13 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 		if (numMegaTiles > 0) {
 			uint16		num = (uint16)numMegaTiles;
 
-			fwrite((void *)&num, 1, sizeof(uint16), tfile);
+			fwrite(&num, 1, sizeof(uint16), tfile);
 			for (size_t i = 0; i < numMegaTiles; i++) {
 				uint16		len = megaTileLengths[i];
 
-				fwrite((void *)&len, 1, sizeof(uint16), tfile);
+				fwrite(&len, 1, sizeof(uint16), tfile);
 
-				fwrite((void *)&megaTileData[i], 1, sizeof(MegaTileStep)*len, tfile);
+				fwrite(megaTileData[i], 1, sizeof(MegaTileStep)*len, tfile);
 			}
 
 			printf("...MegaTiles");

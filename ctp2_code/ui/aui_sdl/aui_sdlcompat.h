@@ -16,8 +16,10 @@
 
 #if defined(CTP2_USE_SDL3)
 using CTP2_SDL_Mutex = SDL_Mutex;
+using CTP2_SDL_Condition = SDL_Condition;
 #else
 using CTP2_SDL_Mutex = SDL_mutex;
+using CTP2_SDL_Condition = SDL_cond;
 #endif
 
 inline SDL_Window *CTP2_SDL_CreateWindow(
@@ -134,6 +136,44 @@ inline void CTP2_SDL_LockMutex(CTP2_SDL_Mutex *mutex)
 inline void CTP2_SDL_UnlockMutex(CTP2_SDL_Mutex *mutex)
 {
 	SDL_UnlockMutex(mutex);
+}
+
+inline CTP2_SDL_Condition *CTP2_SDL_CreateCondition()
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_CreateCondition();
+#else
+	return SDL_CreateCond();
+#endif
+}
+
+inline void CTP2_SDL_DestroyCondition(CTP2_SDL_Condition *condition)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_DestroyCondition(condition);
+#else
+	SDL_DestroyCond(condition);
+#endif
+}
+
+inline void CTP2_SDL_WaitCondition(
+	CTP2_SDL_Condition *condition,
+	CTP2_SDL_Mutex *mutex)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_WaitCondition(condition, mutex);
+#else
+	SDL_CondWait(condition, mutex);
+#endif
+}
+
+inline void CTP2_SDL_SignalCondition(CTP2_SDL_Condition *condition)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_SignalCondition(condition);
+#else
+	SDL_CondSignal(condition);
+#endif
 }
 
 inline bool CTP2_SDL_SaveRendererPixels(

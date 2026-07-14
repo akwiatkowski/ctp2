@@ -32,7 +32,7 @@ static const char* g_smoke_socket_path = "/tmp/ctp2-smoke.sock";
 
 // Threading primitives (SDL)
 static CTP2_SDL_Mutex* g_smoke_mutex = nullptr;
-static SDL_cond*  g_smoke_cond  = nullptr;
+static CTP2_SDL_Condition*  g_smoke_cond  = nullptr;
 static SDL_Thread* g_smoke_thread = nullptr;
 
 // Command/response buffers.  The response is a std::string, not a fixed
@@ -162,7 +162,7 @@ static int smoke_server_thread(void* /*data*/)
 
                 // Wait for main thread to process
                 while (!g_smoke_has_response) {
-                    SDL_CondWait(g_smoke_cond, g_smoke_mutex);
+                    CTP2_SDL_WaitCondition(g_smoke_cond, g_smoke_mutex);
                 }
 
                 // Send response back to client
@@ -193,7 +193,7 @@ void smoketest_server_init(void)
     }
 
     g_smoke_mutex = SDL_CreateMutex();
-    g_smoke_cond  = SDL_CreateCond();
+    g_smoke_cond  = CTP2_SDL_CreateCondition();
 
     if (!g_smoke_mutex || !g_smoke_cond) {
         fprintf(stderr, "[SMOKE] Failed to create mutex/cond\n");
@@ -230,7 +230,7 @@ void smoketest_server_shutdown(void)
     }
 
     if (g_smoke_cond) {
-        SDL_DestroyCond(g_smoke_cond);
+        CTP2_SDL_DestroyCondition(g_smoke_cond);
         g_smoke_cond = nullptr;
     }
 
@@ -290,7 +290,7 @@ static void smoke_store_response_and_release(const char* line)
     }
 
     g_smoke_has_response = 1;
-    SDL_CondSignal(g_smoke_cond);
+    CTP2_SDL_SignalCondition(g_smoke_cond);
     SDL_UnlockMutex(g_smoke_mutex);
 }
 

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Decode CTP2 ``.SPR`` unit-sprite frames to debug PNGs (read-only).
+"""Decode CTP2 ``.SPR`` sprite frames to debug PNGs / atlases (read-only).
 
 Second slice of the M8 "modern asset pipeline" spike (see
-``REFACTORING_PLAN.md``). Given a unit ``.SPR`` this decodes the run-length
+``REFACTORING_PLAN.md``). Given a ``.SPR`` this decodes the run-length
 encoded 16-bit frames into RGBA and writes one PNG per action / facing /
-frame. It never modifies the original ``.SPR`` — original assets stay
-canonical; the PNGs are a rebuildable debug artifact.
+frame (or a packed atlas). UNIT sprites (incl. city ``GC*``), GOOD and EFFECT
+containers are all supported. It never modifies the original ``.SPR`` —
+original assets stay canonical; the output is a rebuildable debug artifact.
 
 Format reference
 ----------------
@@ -78,6 +79,16 @@ COPY_RUN_ID = 0x0C
 SHADOW_RUN_ID = 0x0E
 FEATHERED_RUN_ID = 0x0F
 EMPTY_TABLE_ENTRY = 0xFFFF
+
+# SpriteFile.h SPRITEFILETYPE enum (mirrored in spr_inspect.SPRITEFILETYPES).
+SPRITEFILETYPE_EFFECT = 6
+SPRITEFILETYPE_GOOD = 7
+
+# Per-group action counts for the non-UNIT container walk.
+#   GoodSpriteGroup.h:  GOODACTION_IDLE=0, GOODACTION_MAX=1  -> 1 action, IDLE.
+#   EffectSpriteGroup.h: EFFECTACTION_PLAY=0, _FLASH=1, _MAX=2 -> PLAY, FLASH.
+GOODACTION_MAX = 1
+EFFECT_ACTION_NAMES = ("PLAY", "FLASH")
 
 TRANSPARENT = None  # marker for an unset pixel
 
@@ -404,8 +415,11 @@ def modern_assets_dir(path: str) -> str:
 def _read_faced_frames(buf: bytes, offset: int, version: int):
     """Parse a FACED action's header + size tables + normal frame payloads.
 
-    Returns (width, height, num_frames, frames[facing][frame] = bytes) or None
-    if the action is not a decodable faced/normal sprite.
+    Returns (width, height, num_frames, frames[facing][frame] = bytes, stype,
+    is_v2, end_offset) or None if the action is not a decodable faced/normal
+    sprite. ``end_offset`` is the byte position just past the action's frame
+    payloads (the start of the following ``Anim`` block in a GOOD/EFFECT
+    container), so callers can walk sequentially like the engine's ReadFull.
     """
     stype = spr._u16(buf, offset)
     pos = offset + 2
@@ -448,16 +462,90 @@ def _read_faced_frames(buf: bytes, offset: int, version: int):
             pos += size
         for i in range(nf):
             pos += msizes[j][i]  # skip mini (zoomed-out) frames
-    return width, height, nf, frames, stype, is_v2
+    return width, height, nf, frames, stype, is_v2, pos
+
+
+def _header_end(version: int) -> int:
+    """Byte offset just past the file header (tag, version, [compression], type)."""
+    return 8 + (4 if version == spr.VERSION_V2 else 0) + 4
+
+
+def _skip_anim_full(buf: bytes, pos: int) -> int:
+    """Advance past one ``ReadAnimDataFull`` block and return the new position.
+
+    Layout (spritefile.cpp ReadAnimDataFull): uint16 type, num_frames,
+    playback_time, delay; then num_frames * (uint16 frame, POINT delta,
+    uint16 transparency). A zero num_frames is clamped to 1 by the engine.
+    """
+    num = spr._u16(buf, pos + 2)
+    if num == 0:
+        num = 1
+    pos += 8                       # type, num_frames, playback_time, delay
+    pos += num * 2                 # frames (uint16)
+    pos += num * spr.POINT_SIZE    # deltas (POINT)
+    pos += num * 2                 # transparencies (uint16)
+    return pos
+
+
+def _walk_non_unit_offsets(buf: bytes, version: int, type_id: int) -> list[tuple[str, int]]:
+    """Return [(action_name, sprite_header_offset)] for GOOD/EFFECT sprites.
+
+    Mirrors the engine's sequential readers (SpriteFile::ReadFull(GoodSpriteGroup)
+    and Read(EffectSpriteGroup)): GOOD is a 1-entry offset table followed by a
+    present-flag + sprite + anim; EFFECT is a present-flag + sprite +
+    anim-present-flag + anim, repeated for PLAY then FLASH.
+    """
+    pos = _header_end(version)
+    result: list[tuple[str, int]] = []
+    if type_id == SPRITEFILETYPE_GOOD:
+        pos += GOODACTION_MAX * 4           # leading offset table (unused; read sequentially)
+        if spr._u32(buf, pos):              # sprite-present flag
+            result.append(("IDLE", pos + 4))
+        return result
+    if type_id == SPRITEFILETYPE_EFFECT:
+        for name in EFFECT_ACTION_NAMES:
+            sprite_present = spr._u32(buf, pos)
+            pos += 4
+            if not sprite_present:
+                continue
+            sprite_off = pos
+            result.append((name, sprite_off))
+            parsed = _read_faced_frames(buf, sprite_off, version)
+            if not parsed:
+                break
+            pos = parsed[6]                 # end of frame payloads
+            anim_present = spr._u32(buf, pos)
+            pos += 4
+            if anim_present:
+                pos = _skip_anim_full(buf, pos)
+        return result
+    return []
+
+
+def _resolve_actions(info: "spr.SprInfo", buf: bytes):
+    """Return the decodable action headers for any supported sprite type.
+
+    UNIT (incl. city GC* sprites) uses the offset table the inspector already
+    parses; GOOD/EFFECT are walked here. Returns None for types with no
+    frame-decodable actions (e.g. the lone v2 type-24 file).
+    """
+    if info.type_name == "UNIT":
+        return info.actions
+    if info.type_id in (SPRITEFILETYPE_GOOD, SPRITEFILETYPE_EFFECT):
+        return [spr._read_action_header(buf, off, name)
+                for name, off in _walk_non_unit_offsets(buf, info.version, info.type_id)]
+    return None
 
 
 def export(path: str, out_dir: str, action_filter: str | None, atlas: bool = False) -> int:
     info = spr.inspect(path)
-    if info.type_name != "UNIT":
-        print(f"error: {path} is {info.type_name}, not UNIT", file=sys.stderr)
-        return 1
     with open(path, "rb") as f:
         buf = f.read()
+    actions = _resolve_actions(info, buf)
+    if actions is None:
+        print(f"skip: {os.path.basename(path)} is {info.type_name}, not decodable",
+              file=sys.stderr)
+        return 2
 
     os.makedirs(out_dir, exist_ok=True)
     base = os.path.splitext(os.path.basename(path))[0]
@@ -473,7 +561,7 @@ def export(path: str, out_dir: str, action_filter: str | None, atlas: bool = Fal
         # metadata is the sprite type, size and hot points captured below.
         "actions": [],
     }
-    for action in info.actions:
+    for action in actions:
         if action_filter and action.name != action_filter:
             continue
         if action.sprite_type not in ("FACED", "NORMAL"):
@@ -481,7 +569,7 @@ def export(path: str, out_dir: str, action_filter: str | None, atlas: bool = Fal
         parsed = _read_faced_frames(buf, action.offset, info.version)
         if not parsed:
             continue
-        width, height, nf, frames, stype, _ = parsed
+        width, height, nf, frames, stype, _, _ = parsed
         entry = {
             "name": action.name,
             "sprite_type": action.sprite_type,
@@ -636,21 +724,22 @@ def validate_manifest(path: str) -> int:
 
 
 def verify(path: str) -> int:
-    """Run the per-row width invariant across every frame of a unit sprite."""
+    """Run the per-row width invariant across every frame of a sprite."""
     info = spr.inspect(path)
-    if info.type_name != "UNIT":
-        print(f"skip: {os.path.basename(path)} is {info.type_name}, not UNIT")
-        return 0
     with open(path, "rb") as f:
         buf = f.read()
+    actions = _resolve_actions(info, buf)
+    if actions is None:
+        print(f"skip: {os.path.basename(path)} is {info.type_name}, not decodable")
+        return 0
     total_checked = total_bad = 0
-    for action in info.actions:
+    for action in actions:
         if action.sprite_type not in ("FACED", "NORMAL"):
             continue
         parsed = _read_faced_frames(buf, action.offset, info.version)
         if not parsed:
             continue
-        width, height, nf, frames, stype, _ = parsed
+        width, height, nf, frames, stype, _, _ = parsed
         for facing_frames in frames:
             for frame in facing_frames:
                 c, m = verify_frame(frame, width, height)
@@ -759,8 +848,8 @@ def self_test() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        description="Export CTP2 unit .SPR frames to debug PNGs (read-only).")
-    ap.add_argument("path", nargs="?", help="path to a unit .SPR or directory of .SPR files")
+        description="Export CTP2 .SPR frames to debug PNGs / atlases (read-only).")
+    ap.add_argument("path", nargs="?", help="path to a .SPR or directory of .SPR files")
     ap.add_argument("-o", "--out-dir", default="spr_export",
                     help="output directory for PNGs (default: ./spr_export)")
     ap.add_argument("--action", help="only export this action (e.g. MOVE)")

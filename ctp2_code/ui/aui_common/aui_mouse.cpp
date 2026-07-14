@@ -125,7 +125,7 @@ AUI_ERRCODE aui_Mouse::InitCommon( )
 #elif defined(__AUI_USE_SDL__)
         int x = 0;
         int y = 0;
-        Uint8 state = SDL_GetMouseState(&x, &y);
+        Uint8 state = CTP2_SDL_GetMouseState(&x, &y);
         m_data.position.x = x;
         m_data.position.y = y;
 #endif

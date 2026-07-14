@@ -132,7 +132,7 @@ inline void CTP2_SDL_DestroySurface(SDL_Surface *surface)
 inline SDL_Surface *CTP2_SDL_ConvertSurfaceFormat(SDL_Surface *surface, Uint32 format)
 {
 #if defined(CTP2_USE_SDL3)
-	return SDL_ConvertSurface(surface, format);
+	return SDL_ConvertSurface(surface, static_cast<SDL_PixelFormat>(format));
 #else
 	return SDL_ConvertSurfaceFormat(surface, format, 0);
 #endif
@@ -281,6 +281,20 @@ inline SDL_Keymod CTP2_SDL_GetKeymod(SDL_KeyboardEvent const &event)
 	return event.mod;
 #else
 	return static_cast<SDL_Keymod>(event.keysym.mod);
+#endif
+}
+
+inline Uint32 CTP2_SDL_GetMouseState(int *x, int *y)
+{
+#if defined(CTP2_USE_SDL3)
+	float fx = 0.0f;
+	float fy = 0.0f;
+	Uint32 const state = SDL_GetMouseState(&fx, &fy);
+	*x = static_cast<int>(fx);
+	*y = static_cast<int>(fy);
+	return state;
+#else
+	return SDL_GetMouseState(x, y);
 #endif
 }
 

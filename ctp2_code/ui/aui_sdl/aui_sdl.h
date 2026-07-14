@@ -33,6 +33,10 @@ public:
 	// presented-frame readback (screenshot_presented).
 	static SDL_Renderer *Renderer() { return m_renderer; }
 	static SDL_Texture *ScreenTexture() { return m_screenTexture; }
+	// P11 Stage 2 D: per-layer GPU compositing. Off by default.
+	static bool GpuLayersEnabled();
+	static SDL_Texture *WorldTexture() { return m_worldTexture; }
+	static SDL_Texture *UiTexture() { return m_uiTexture; }
 
 protected:
 	BOOL			m_exclusiveMode;
@@ -44,6 +48,8 @@ protected:
 	// portable SDL2, no per-platform code). Statics: one window/renderer.
 	static SDL_Renderer *	m_renderer;
 	static SDL_Texture *	m_screenTexture;
+	static SDL_Texture *	m_worldTexture;   // P11 D: world layer (terrain+units)
+	static SDL_Texture *	m_uiTexture;      // P11 D: UI layer (alpha over world)
 
 private:
 	static sint32		m_SDLRefCount;

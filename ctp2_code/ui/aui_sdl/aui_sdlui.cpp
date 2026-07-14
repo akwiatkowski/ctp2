@@ -179,6 +179,23 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
 	}
 
+	// P11 Stage 2 D: when per-layer GPU compositing is enabled, create separate
+	// world + UI layer textures (world composited under, UI alpha-blended over).
+	// Dormant until the two-layer present is wired; the default single-texture
+	// present is unaffected.
+	if (aui_SDL::GpuLayersEnabled()) {
+		m_worldTexture = SDL_CreateTexture(m_renderer,
+			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, m_width, m_height);
+		m_uiTexture = SDL_CreateTexture(m_renderer,
+			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, m_width, m_height);
+		if (m_uiTexture) {
+			SDL_SetTextureBlendMode(m_uiTexture, SDL_BLENDMODE_BLEND);
+		}
+		if (!m_worldTexture || !m_uiTexture) {
+			c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+		}
+	}
+
 	fprintf(stderr, "[SDLUI] Requested screen: %dx%d @ %dbpp; renderer + ARGB8888 streaming texture\n",
 		m_width, m_height, m_bpp);
 

@@ -11,8 +11,25 @@ SDL_Surface *aui_SDL::m_lpdd = nullptr;
 SDL_Window *aui_SDL::m_window = nullptr;
 SDL_Renderer *aui_SDL::m_renderer = nullptr;
 SDL_Texture *aui_SDL::m_screenTexture = nullptr;
+// P11 Stage 2 D (per-layer GPU compositing): separate world + UI GPU textures,
+// composited on the GPU. Null / unused unless GpuLayersEnabled().
+SDL_Texture *aui_SDL::m_worldTexture = nullptr;
+SDL_Texture *aui_SDL::m_uiTexture = nullptr;
 uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
 sint32 aui_SDL::m_SDLRefCount = 0;
+
+bool aui_SDL::GpuLayersEnabled()
+{
+	// Opt-in, cached: the two-layer GPU present (world texture + UI texture) is
+	// off by default so the verified single-texture present is untouched.
+	static int s_enabled = -1;
+	if (s_enabled < 0)
+	{
+		char const * e = getenv("CTP2_GPU_LAYERS");
+		s_enabled = (e && e[0] && strcmp(e, "0") != 0) ? 1 : 0;
+	}
+	return s_enabled != 0;
+}
 
 AUI_ERRCODE aui_SDL::InitCommon(BOOL useExclusiveMode)
 {

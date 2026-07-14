@@ -10,8 +10,7 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "net/io/net_anet.h"
 #ifdef USE_SDL
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_thread.h>
+#include "ui/aui_sdl/aui_sdlcompat.h"
 #endif
 
 #define k_MAX_NETWORK_PLAYERS 32

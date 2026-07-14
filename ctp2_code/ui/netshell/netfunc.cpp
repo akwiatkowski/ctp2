@@ -43,8 +43,7 @@
 #endif
 
 #ifdef USE_SDL
-#include <SDL.h>
-#include <SDL_thread.h>
+#include "ui/aui_sdl/aui_sdlcompat.h"
 #endif
 
 #ifdef WIN32

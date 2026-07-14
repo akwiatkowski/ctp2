@@ -762,7 +762,7 @@ int CALLBACK EnumTextFontsProc( LOGFONT *lplf, TEXTMETRIC *lptm, DWORD dwType, L
 #endif // __AUI_USE_DIRECTX__
 
 #ifdef __AUI_USE_SDL__
-#include <SDL2/SDL.h>
+#include "ui/aui_sdl/aui_sdlcompat.h"
 
 void aui_TextField::KeyboardCallback(aui_KeyboardEvent *keyboardData)
 {

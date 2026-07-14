@@ -42,7 +42,7 @@
 #endif
 
 #if defined(__AUI_USE_SDL__)
-#include <SDL2/SDL.h>
+#include "ui/aui_sdl/aui_sdlcompat.h"
 #include "ui/aui_sdl/aui_sdlsurface.h"
 #endif
 

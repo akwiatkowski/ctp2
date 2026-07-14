@@ -36,8 +36,7 @@
 
 #include "ui/aui_common/aui_base.h"
 #ifdef USE_SDL
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_thread.h>
+#include "ui/aui_sdl/aui_sdlcompat.h"
 #endif
 
 enum AUI_SURFACE_PIXELFORMAT

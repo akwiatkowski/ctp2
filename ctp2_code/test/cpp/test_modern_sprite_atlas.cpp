@@ -2,6 +2,7 @@
 
 #include "ctp/c3.h"
 #include "gfx/spritesys/ModernSpriteAtlas.h"
+#include "ui/aui_sdl/aui_sdlsurface.h"
 
 #include <cstdio>
 #include <cstring>
@@ -116,5 +117,64 @@ TEST_CASE("ModernSpriteAtlas fails cleanly when the atlas image is missing")
 	ModernSpriteAtlas * atlas = ModernSpriteAtlas::Load(json.c_str(), error);
 	CHECK(atlas == nullptr);
 	CHECK_FALSE(error.empty());
+	std::remove(json.c_str());
+}
+
+namespace {
+uint32_t read_px(aui_SDLSurface & s, int x, int y)
+{
+	RECT rect{x, y, x + 1, y + 1};
+	LPVOID p = nullptr;
+	REQUIRE(s.Lock(&rect, &p, 0) == AUI_ERRCODE_OK);
+	uint32_t v = 0;
+	std::memcpy(&v, p, sizeof(v));
+	REQUIRE(s.Unlock(p) == AUI_ERRCODE_OK);
+	return v;
+}
+} // namespace
+
+TEST_CASE("ModernSpriteAtlas::Blit composites a frame with binary alpha")
+{
+	std::string const png  = "/tmp/ctp2_atlas_blit.png";
+	std::string const json = "/tmp/ctp2_atlas_blit.json";
+
+	// 2x2: red(opaque), transparent / green(opaque), blue(opaque).
+	write_png(png, 2, 2, {0xFF,0,0,0xFF,  0,0,0,0,
+	                      0,0xFF,0,0xFF,  0,0,0xFF,0xFF});
+	write_file(json, R"json({
+		"source": "GU.SPR",
+		"atlas": {"png": "ctp2_atlas_blit.png", "width": 2, "height": 2},
+		"actions": [{"name": "IDLE", "width": 2, "height": 2, "num_frames": 1, "facings": 1,
+			"frames": [{"facing": 0, "frame": 0, "rect": {"x": 0, "y": 0, "w": 2, "h": 2}}]}]
+	})json");
+
+	std::string error;
+	std::unique_ptr<ModernSpriteAtlas> atlas(ModernSpriteAtlas::Load(json.c_str(), error));
+	REQUIRE(atlas != nullptr);
+
+	AUI_ERRCODE ec = AUI_ERRCODE_OK;
+	aui_SDLSurface dest(&ec, 4, 4, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(ec));
+	// Pre-fill with a sentinel so we can see what the blit did (and didn't) touch.
+	for (int y = 0; y < 4; ++y)
+		for (int x = 0; x < 4; ++x) {
+			RECT r{x, y, x + 1, y + 1};
+			LPVOID p = nullptr;
+			REQUIRE(dest.Lock(&r, &p, 0) == AUI_ERRCODE_OK);
+			uint32_t s = 0xFF010203u; std::memcpy(p, &s, sizeof(s));
+			REQUIRE(dest.Unlock(p) == AUI_ERRCODE_OK);
+		}
+
+	CHECK(atlas->Blit(&dest, "IDLE", 0, 0, 1, 1));
+
+	CHECK(read_px(dest, 0, 0) == 0xFF010203u);   // outside the blit: untouched
+	CHECK(read_px(dest, 1, 1) == 0xFFFF0000u);   // red
+	CHECK(read_px(dest, 2, 1) == 0xFF010203u);   // transparent atlas pixel: skipped
+	CHECK(read_px(dest, 1, 2) == 0xFF00FF00u);   // green
+	CHECK(read_px(dest, 2, 2) == 0xFF0000FFu);   // blue
+
+	CHECK_FALSE(atlas->Blit(&dest, "MOVE", 0, 0, 0, 0));  // unknown frame
+
+	std::remove(png.c_str());
 	std::remove(json.c_str());
 }

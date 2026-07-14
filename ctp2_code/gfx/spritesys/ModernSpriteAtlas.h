@@ -36,6 +36,16 @@ public:
 	// the manifest name (e.g. "MOVE", "IDLE").
 	ModernSpriteRect const * FindRect(char const * action, int facing, int frame) const;
 
+	// Composite the frame (action/facing/frame) into destSurface with its
+	// top-left at (destX, destY). The atlas carries binary alpha (opaque or
+	// fully transparent), so this is a chroma-key-style copy: transparent
+	// atlas pixels are skipped, opaque ones written (expanded to the dest
+	// depth). Clipped to the surface. Returns false if the frame is unknown or
+	// the surface can't be locked. Draw flags (fog/desaturate/transparency)
+	// are a later refinement; this is the base opaque draw.
+	bool Blit(class aui_Surface * destSurface, char const * action, int facing,
+	          int frame, int destX, int destY) const;
+
 private:
 	ModernSpriteManifest m_manifest;
 	std::vector<uint8_t> m_rgba;

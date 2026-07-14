@@ -522,18 +522,43 @@ def _walk_non_unit_offsets(buf: bytes, version: int, type_id: int) -> list[tuple
     return []
 
 
+_PREFIX_GROUP = {
+    "GU": spr.SPRITEFILETYPE_UNIT,   # unit
+    "GC": spr.SPRITEFILETYPE_UNIT,   # city (stored as a UNIT container)
+    "GG": SPRITEFILETYPE_GOOD,       # good
+    "GX": SPRITEFILETYPE_EFFECT,     # effect
+}
+
+
+def _effective_group(info: "spr.SprInfo") -> int | None:
+    """Return the group layout to read ``info`` with.
+
+    The engine loads a sprite by its filename prefix (GROUPTYPE) and ignores
+    the .SPR ``type`` field, which is occasionally junk — e.g. GG023.SPR (the
+    only compressed v2 file) stores type 24 but is a normal GOOD container.
+    So trust the type field when it names a known group, else fall back to the
+    GU/GC/GG/GX filename prefix exactly as SpriteGroupList::LoadSprite does.
+    """
+    if info.type_id in (spr.SPRITEFILETYPE_UNIT, SPRITEFILETYPE_GOOD, SPRITEFILETYPE_EFFECT):
+        return info.type_id
+    return _PREFIX_GROUP.get(os.path.basename(info.path)[:2].upper())
+
+
 def _resolve_actions(info: "spr.SprInfo", buf: bytes):
     """Return the decodable action headers for any supported sprite type.
 
     UNIT (incl. city GC* sprites) uses the offset table the inspector already
-    parses; GOOD/EFFECT are walked here. Returns None for types with no
-    frame-decodable actions (e.g. the lone v2 type-24 file).
+    parses; GOOD/EFFECT are walked here. Returns None for files that match no
+    known group layout.
     """
-    if info.type_name == "UNIT":
+    group = _effective_group(info)
+    if group == spr.SPRITEFILETYPE_UNIT:
+        # inspect() only populates actions when the type field itself is UNIT;
+        # every real GU/GC file has the correct type, so this branch is exact.
         return info.actions
-    if info.type_id in (SPRITEFILETYPE_GOOD, SPRITEFILETYPE_EFFECT):
+    if group in (SPRITEFILETYPE_GOOD, SPRITEFILETYPE_EFFECT):
         return [spr._read_action_header(buf, off, name)
-                for name, off in _walk_non_unit_offsets(buf, info.version, info.type_id)]
+                for name, off in _walk_non_unit_offsets(buf, info.version, group)]
     return None
 
 
@@ -551,11 +576,14 @@ def export(path: str, out_dir: str, action_filter: str | None, atlas: bool = Fal
     base = os.path.splitext(os.path.basename(path))[0]
     written = 0
     atlas_frames: list[dict] = []
+    group = _effective_group(info)
     manifest = {
         "source": os.path.basename(path),
         "version": info.version_name,
         "source_fingerprint": source_fingerprint(path),
-        "type": info.type_name,
+        # Effective group (how the engine loads it), not the raw type field —
+        # which is junk on GG023 (stored 24, read as GOOD).
+        "type": spr.SPRITEFILETYPES[group] if group is not None else info.type_name,
         # Draw flags (transparency/fog/desaturate) are runtime render options,
         # not stored per frame in the .SPR; the renderer-relevant per-frame
         # metadata is the sprite type, size and hot points captured below.
@@ -842,7 +870,22 @@ def self_test() -> int:
             print("self-test failed: source-set fingerprint", file=sys.stderr)
             return 1
 
-    print("self-test OK: LZW1 streams + atlas packer")
+    # Filename-prefix fallback: the engine loads by GROUPTYPE, so a junk type
+    # field (GG023 stores 24) must still resolve to its prefix's group.
+    junk = spr.SprInfo(path="graphics/GG023.SPR", size=0, version=spr.VERSION_V2,
+                       version_name="v2", compression=1, type_id=24,
+                       type_name="unknown(24)")
+    if _effective_group(junk) != SPRITEFILETYPE_GOOD:
+        print("self-test failed: prefix fallback for junk type", file=sys.stderr)
+        return 1
+    known = spr.SprInfo(path="GX22.SPR", size=0, version=0, version_name="v0",
+                        compression=None, type_id=SPRITEFILETYPE_EFFECT,
+                        type_name="EFFECT")
+    if _effective_group(known) != SPRITEFILETYPE_EFFECT:
+        print("self-test failed: effective group for known type", file=sys.stderr)
+        return 1
+
+    print("self-test OK: LZW1 streams + atlas packer + group resolver")
     return 0
 
 

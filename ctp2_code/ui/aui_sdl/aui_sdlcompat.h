@@ -218,6 +218,16 @@ inline Uint8 CTP2_SDL_SurfaceBShift(SDL_Surface const *surface)
 #endif
 }
 
+inline Uint32 CTP2_SDL_MapRGB(SDL_Surface const *surface, Uint8 r, Uint8 g, Uint8 b)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_PixelFormatDetails const *details = SDL_GetPixelFormatDetails(surface->format);
+	return SDL_MapRGB(details, nullptr, r, g, b);
+#else
+	return SDL_MapRGB(surface->format, r, g, b);
+#endif
+}
+
 inline void CTP2_SDL_LockMutex(CTP2_SDL_Mutex *mutex)
 {
 	SDL_LockMutex(mutex);

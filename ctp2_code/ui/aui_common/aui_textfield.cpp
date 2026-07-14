@@ -548,7 +548,7 @@ AUI_ERRCODE aui_TextField::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	SDL_Surface* SDLsurf = static_cast<aui_SDLSurface*>(surface)->DDS();
 	// fill background
 	SDL_Rect r1 = { rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top };
-	SDL_FillRect(SDLsurf, &r1, SDL_MapRGB(SDLsurf->format, 0xff, 0xff, 0xff));
+	SDL_FillRect(SDLsurf, &r1, CTP2_SDL_MapRGB(SDLsurf, 0xff, 0xff, 0xff));
 
 	m_Font->DrawString(surface, &rect, &rect, m_Text,
 	                   k_AUI_BITMAPFONT_DRAWFLAG_JUSTLEFT,

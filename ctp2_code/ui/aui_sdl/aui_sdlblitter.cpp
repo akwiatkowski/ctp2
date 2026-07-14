@@ -81,10 +81,10 @@ AUI_ERRCODE aui_SDLBlitter::ColorBlt(
 		SDL_Rect sdst = { destRect->left, destRect->top,
 			              destRect->right - destRect->left,
 			              destRect->bottom - destRect->top };
-		uint32 const mapped = SDL_MapRGB(sdlDest->DDS()->format,
-		                                 GetRValue(color),
-		                                 GetGValue(color),
-		                                 GetBValue(color));
+		uint32 const mapped = CTP2_SDL_MapRGB(sdlDest->DDS(),
+		                                      GetRValue(color),
+		                                      GetGValue(color),
+		                                      GetBValue(color));
 
 		SDL_LockMutex(sdlDest->m_bltMutex);
 		AUI_ERRCODE retcode = AUI_ERRCODE_OK;
@@ -264,8 +264,8 @@ static AUI_ERRCODE SimpleHVStretch(SDL_Surface* src, SDL_Rect* rsrc,
 		// put a pixel in column dx while the level is non-negative
 		while (lx >= 0 && dx < edx && sx < esx) {
 		    // write source pixel sx
-		    assert(src->format->BytesPerPixel == 2);
-		    assert(dst->format->BytesPerPixel == 2);
+		    assert(CTP2_SDL_SurfaceBytesPerPixel(src) == 2);
+		    assert(CTP2_SDL_SurfaceBytesPerPixel(dst) == 2);
 		    dptr[dx] = sptr[sx];
 		    lx -= rsrc->w-1;
 		    ++dx;

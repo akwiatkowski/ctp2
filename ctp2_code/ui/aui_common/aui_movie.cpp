@@ -38,7 +38,7 @@
 
 #ifdef __AUI_USE_SDL__
 #include "ui/aui_sdl/aui_sdlcompat.h"
-#include <SDL2/SDL_mixer.h>
+#include "ui/aui_sdl/aui_sdlmixercompat.h"
 #include "sound/soundmanager.h"		// soundmgr_Get()
 #include "ui/aui_sdl/aui_sdlsurface.h"
 

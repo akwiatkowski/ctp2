@@ -176,7 +176,7 @@
 #endif
 #if defined(USE_SDL)
 #include "ui/aui_sdl/aui_sdlcompat.h"
-#include <SDL_mixer.h>
+#include "ui/aui_sdl/aui_sdlmixercompat.h"
 #include "ui/aui_sdl/aui_sdlkeyboard.h"
 #endif
 #ifdef HAVE_X11

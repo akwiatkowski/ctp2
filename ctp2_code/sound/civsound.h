@@ -49,7 +49,7 @@
 #endif
 
 #if defined(USE_SDL)
-#include <SDL2/SDL_mixer.h>
+#include "ui/aui_sdl/aui_sdlmixercompat.h"
 #else
 #include "libs/miles/mss.h"
 #endif

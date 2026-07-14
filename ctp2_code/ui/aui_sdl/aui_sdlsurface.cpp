@@ -49,9 +49,9 @@ aui_SDLSurface::aui_SDLSurface(
 		// surfaces are 32-bit ARGB8888 so the present path uploads pixels without
 		// a per-frame 565->8888 conversion.
 		if (bpp == 16) {
-			m_lpdds = SDL_CreateRGBSurface(0, width, height, 16, 0xF800, 0x07E0, 0x001F, 0);
+			m_lpdds = CTP2_SDL_CreateRGBSurface(width, height, 16, 0xF800, 0x07E0, 0x001F, 0);
 		} else {
-			m_lpdds = SDL_CreateRGBSurface(0, width, height, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+			m_lpdds = CTP2_SDL_CreateRGBSurface(width, height, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
 		}
 		if ( m_lpdds == nullptr )
 		{

@@ -111,6 +111,24 @@ inline SDL_Surface *CTP2_SDL_CreateARGB8888Surface(int width, int height)
 #endif
 }
 
+inline SDL_Surface *CTP2_SDL_CreateRGBSurface(
+	int width,
+	int height,
+	int depth,
+	Uint32 rmask,
+	Uint32 gmask,
+	Uint32 bmask,
+	Uint32 amask)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_PixelFormat const format = SDL_GetPixelFormatForMasks(
+		depth, rmask, gmask, bmask, amask);
+	return format == SDL_PIXELFORMAT_UNKNOWN ? nullptr : SDL_CreateSurface(width, height, format);
+#else
+	return SDL_CreateRGBSurface(0, width, height, depth, rmask, gmask, bmask, amask);
+#endif
+}
+
 inline bool CTP2_SDL_SaveBMP(SDL_Surface *surface, char const *path)
 {
 #if defined(CTP2_USE_SDL3)

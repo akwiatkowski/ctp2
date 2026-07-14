@@ -333,7 +333,7 @@ Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerpri
 
 **B1 started 2026-07-14:** first slice adds a pure Python LZW1 decoder seam to `spr_export.py`, verified with synthetic copy-mode and compressed literal/back-reference streams because no licensed `.SPR` assets are committed. Real v2 parity remains the next B1 step and needs Olek's local data path.
 
-**B2 started 2026-07-14:** `spr_export.py --atlas` now packs decoded v0/v1 unit frames into one dependency-free RGBA PNG atlas plus manifest rects using the existing decoder output. It is verified by the synthetic self-test; real atlas parity still needs a local `.SPR` data path, and source-set fingerprint/output placement under `~/.ctp2/assets/<fingerprint>/` remains open.
+**B2 started 2026-07-14:** `spr_export.py --atlas` now packs decoded v0/v1 unit frames into one dependency-free RGBA PNG atlas plus manifest rects using the existing decoder output. `--modern-assets` writes under `~/.ctp2/assets/<source-fingerprint>/` with a single-source SHA-256 fingerprint seam. Both are verified by the synthetic self-test; real atlas parity still needs a local `.SPR` data path, and the full source-set fingerprint/walker remains open.
 
 ### Already-modern (verified 2026-07-12 — don't re-propose)
 

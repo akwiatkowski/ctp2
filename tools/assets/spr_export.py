@@ -55,10 +55,12 @@ ends when ``tag & 0xF000`` is set. Opcode ``(tag & 0x0F00) >> 8``, run length
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import struct
 import sys
+import tempfile
 import zlib
 
 # Reuse the container/header parser from the inspector.
@@ -355,6 +357,20 @@ def pack_atlas(frames: list[dict], max_width: int = 2048) -> tuple[int, int, byt
     return atlas_width, atlas_height, bytes(atlas)
 
 
+def source_fingerprint(path: str) -> str:
+    """Return the stable content fingerprint for one source asset file."""
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()[:16]
+
+
+def modern_assets_dir(path: str) -> str:
+    """User-local output directory for modern assets derived from ``path``."""
+    return os.path.expanduser(os.path.join("~", ".ctp2", "assets", source_fingerprint(path)))
+
+
 def _read_faced_frames(buf: bytes, offset: int, version: int):
     """Parse a FACED action's header + size tables + normal frame payloads.
 
@@ -422,6 +438,7 @@ def export(path: str, out_dir: str, action_filter: str | None, atlas: bool = Fal
     manifest = {
         "source": os.path.basename(path),
         "version": info.version_name,
+        "source_fingerprint": source_fingerprint(path),
         "type": info.type_name,
         # Draw flags (transparency/fog/desaturate) are runtime render options,
         # not stored per frame in the .SPR; the renderer-relevant per-frame
@@ -560,6 +577,13 @@ def self_test() -> int:
         print("self-test failed: atlas byte size", file=sys.stderr)
         return 1
 
+    with tempfile.NamedTemporaryFile() as tmp:
+        tmp.write(b"abc")
+        tmp.flush()
+        if source_fingerprint(tmp.name) != "ba7816bf8f01cfea":
+            print("self-test failed: source fingerprint", file=sys.stderr)
+            return 1
+
     print("self-test OK: LZW1 streams + atlas packer")
     return 0
 
@@ -575,6 +599,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="parity check only (per-row width invariant), no PNGs")
     ap.add_argument("--atlas", action="store_true",
                     help="write one packed atlas PNG and rect manifest instead of per-frame PNGs")
+    ap.add_argument("--modern-assets", action="store_true",
+                    help="write to ~/.ctp2/assets/<source-fingerprint>/")
     ap.add_argument("--self-test", action="store_true",
                     help="run synthetic decoder self-tests; does not read assets")
     args = ap.parse_args(argv)
@@ -585,7 +611,8 @@ def main(argv: list[str] | None = None) -> int:
             ap.error("path is required unless --self-test is used")
         if args.verify:
             return verify(args.path)
-        return export(args.path, args.out_dir, args.action, args.atlas)
+        out_dir = modern_assets_dir(args.path) if args.modern_assets else args.out_dir
+        return export(args.path, out_dir, args.action, args.atlas)
     except (OSError, spr.SprError, SprExportError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

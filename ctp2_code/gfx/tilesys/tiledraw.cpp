@@ -124,6 +124,20 @@ static COLOR		g_curSelectColor = COLOR_SELECT_0;
 static sint32		g_nano_flash = 0;
 static sint32		g_bio_flash = 0;
 
+// P11 Stage 2 B: store one 565/555 world pixel, expanding to ARGB8888 when the
+// locked world surface is 32-bit. Keeps a single loop body per tile writer;
+// bpp32 is loop-invariant so the branch predicts well at -O2. Terrain writers
+// only ever blend toward a constant or copy the source, so an opaque 16-bit
+// result expands byte-identically to the historic "compose 565, SDL-convert"
+// path.
+// ponytail: if a release profile shows this per-pixel branch hot, templatize
+// the writers on the destination pixel type instead of branching per pixel.
+static inline void storeWorldPix(uint8 * p, Pixel16 v, bool bpp32)
+{
+	if (bpp32) *reinterpret_cast<Pixel32 *>(p) = pixelutils_16to8888(v);
+	else       *reinterpret_cast<Pixel16 *>(p) = v;
+}
+
 #define k_POP_BOX_SIZE_MINIMUM	10
 
 namespace
@@ -960,16 +974,18 @@ sint32 TiledMap::DrawBlackTile(aui_Surface *surface, sint32 x, sint32 y) //EMOD 
 
 	uint8	*surfBase = m_surfBase;
 	sint32 surfPitch = m_surfPitch;
+	bool const bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
 
 	for (sint32 j=0; j<k_TILE_PIXEL_HEIGHT; j++)
 	{
 		sint32  startX      = StartPixel(j);
 		sint32  endX        = k_TILE_PIXEL_WIDTH - startX;
-		unsigned short *
-                destPixel   = (unsigned short *)(surfBase + ((y + j) * surfPitch) + ((x+startX) * 2));
+		uint8 * destPixel   = surfBase + ((y + j) * surfPitch) + ((x+startX) * step);
 
 		for (sint32 i = startX; i < endX; i++) {
-			*destPixel++ = 0x0000;
+			storeWorldPix(destPixel, 0x0000, bpp32);
+			destPixel += step;
 		}
 	}
 
@@ -998,18 +1014,18 @@ sint32 TiledMap::DrawDitheredTile(aui_Surface *surface, sint32 x, sint32 y, Pixe
 
 	uint8	* surfBase = m_surfBase;
 	sint32 surfPitch = m_surfPitch;
+	bool const bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
 
 	for(sint32 j=0; j<k_TILE_PIXEL_HEIGHT; j++)
     {
 		sint32  startX      = StartPixel(j);
 		sint32  endX        = k_TILE_PIXEL_WIDTH - startX;
 		sint32  offset      = j & 0x01;
-		unsigned short *
-    		destPixel       = (unsigned short *)(surfBase + ((y + j) * surfPitch) + ((x+startX) * 2));
-		destPixel += offset;
+		uint8 * destPixel   = surfBase + ((y + j) * surfPitch) + ((x+startX+offset) * step);
 		for (sint32 i=startX; i<endX; i+=2) {
-				*destPixel = color;
-				destPixel+=2;
+				storeWorldPix(destPixel, color, bpp32);
+				destPixel += 2 * step;
 		}
 	}
 
@@ -1163,6 +1179,8 @@ sint32 TiledMap::DrawBlendedTile(aui_Surface *surface, const MapPoint &pos,sint3
 	Pixel16 *   dataPtr             = data;
 	uint8 *     pSurfBase           = m_surfBase;
 	sint32      surfPitch           = m_surfPitch;
+	bool const  bpp32               = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step               = bpp32 ? 4 : 2;
 
 	Pixel16 transPixel = 0;
 
@@ -1194,10 +1212,10 @@ sint32 TiledMap::DrawBlendedTile(aui_Surface *surface, const MapPoint &pos,sint3
 					srcPixel = DEFAULT_PIXEL[srcPixel];
 				}
 			}
-			Pixel16 * pDestPixel = (Pixel16 *)
-                (pSurfBase + ((y+ypos) * surfPitch) + ((x+xpos) << 1));
+			uint8 * pDestPixel =
+                pSurfBase + ((y+ypos) * surfPitch) + ((x+xpos) * step);
 
-			*pDestPixel = pixelutils_BlendFast(srcPixel,color,blend);
+			storeWorldPix(pDestPixel, pixelutils_BlendFast(srcPixel,color,blend), bpp32);
 		}
 	}
 

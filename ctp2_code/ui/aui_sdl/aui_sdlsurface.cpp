@@ -44,13 +44,10 @@ aui_SDLSurface::aui_SDLSurface(
 
 	if ( !(m_lpdds = lpdds) )
 	{
-		// Create the surface with the requested bpp. The game renders in
-		// 16-bit (RGB565); the secondary stays 16-bit and SDL_BlitSurface
-		// converts on the blit to the primary. The primary is now a standalone
-		// 32-bit ARGB8888 surface (NOT the window surface — incompatible with
-		// the SDL_Renderer), which Flip() uploads to the GPU screen texture.
-		// Explicit ARGB8888 masks avoid SDL_GetWindowSurface (which fails once
-		// a renderer exists) and match the SDL_PIXELFORMAT_ARGB8888 texture.
+		// Create the surface with the requested bpp. Legacy asset/window surfaces
+		// may still be 16-bit RGB565, but the SDL primary and secondary screen
+		// surfaces are 32-bit ARGB8888 so the present path uploads pixels without
+		// a per-frame 565->8888 conversion.
 		if (bpp == 16) {
 			m_lpdds = SDL_CreateRGBSurface(0, width, height, 16, 0xF800, 0x07E0, 0x001F, 0);
 		} else {
@@ -75,6 +72,9 @@ aui_SDLSurface::aui_SDLSurface(
 
 	// Detect pixel format from the ACTUAL surface, not the window format
 	SDL_PixelFormat* actualFmt = m_lpdds->format;
+	if (actualFmt->BitsPerPixel == 32) {
+		m_pixelFormat = AUI_SURFACE_PIXELFORMAT_888;
+	}
 	if ((actualFmt->Rmask >> actualFmt->Rshift == 0x1F) && (actualFmt->Gmask >> actualFmt->Gshift == 0x3F) && (actualFmt->Bmask >> actualFmt->Bshift == 0x1F)) {
             m_pixelFormat = AUI_SURFACE_PIXELFORMAT_565;
             //printf("%s L%d: AUI_SURFACE_PIXELFORMAT_565\n", __FILE__, __LINE__);

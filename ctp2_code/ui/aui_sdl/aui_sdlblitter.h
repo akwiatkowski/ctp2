@@ -13,6 +13,7 @@ public:
 	~aui_SDLBlitter() override = default;
 
 	RobustBltFunc Blt override;
+	RobustColorBltFunc ColorBlt override;
 	NakedBltFunc Blt16To16 override;
 	NakedColorBltFunc ColorBlt16 override;
 	NakedStretchBltFunc StretchBlt16To16 override;

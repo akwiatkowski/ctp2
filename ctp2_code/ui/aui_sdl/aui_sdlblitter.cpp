@@ -68,6 +68,38 @@ AUI_ERRCODE aui_SDLBlitter::Blt(
 	return aui_Blitter::Blt(destSurf, destx, desty, srcSurf, srcRect, flags);
 }
 
+AUI_ERRCODE aui_SDLBlitter::ColorBlt(
+		aui_Surface *destSurf,
+		RECT *destRect,
+		COLORREF color,
+		uint32 flags )
+{
+	if (destSurf
+	 && destSurf->IsThisA(aui_SDLSurface::m_SDLSurfaceClassId)
+	 && (!flags || (flags & k_AUI_BLITTER_FLAG_COPY)))
+	{
+		aui_SDLSurface *sdlDest = static_cast<aui_SDLSurface *>(destSurf);
+		SDL_Rect sdst = { destRect->left, destRect->top,
+			              destRect->right - destRect->left,
+			              destRect->bottom - destRect->top };
+		uint32 const mapped = SDL_MapRGB(sdlDest->DDS()->format,
+		                                 GetRValue(color),
+		                                 GetGValue(color),
+		                                 GetBValue(color));
+
+		SDL_LockMutex(sdlDest->m_bltMutex);
+		AUI_ERRCODE retcode = AUI_ERRCODE_OK;
+		if (SDL_FillRect(sdlDest->DDS(), &sdst, mapped) < 0) {
+			fprintf(stderr, "FillRect failed: %s\n", SDL_GetError());
+			retcode = AUI_ERRCODE_BLTFAILED;
+		}
+		SDL_UnlockMutex(sdlDest->m_bltMutex);
+		return retcode;
+	}
+
+	return aui_Blitter::ColorBlt(destSurf, destRect, color, flags);
+}
+
 AUI_ERRCODE aui_SDLBlitter::Blt16To16(
     aui_Surface *destSurf,
     RECT *destRect,

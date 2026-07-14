@@ -1918,7 +1918,7 @@ AUI_ERRCODE aui_UI::BltSecondaryToPrimary
 
 	if (useAccumulatedDirty && m_secondaryDirtyValid)
 	{
-		// Scope the 565->8888 convert and the GPU texture upload to the
+		// Scope the software mirror copy and the GPU texture upload to the
 		// union of what was actually composited since the last present.
 		// The union is clamped to the surface; falls back to full frame
 		// when nothing was tracked (conservative).
@@ -1933,7 +1933,7 @@ AUI_ERRCODE aui_UI::BltSecondaryToPrimary
 	AUI_ERRCODE hr = m_blitter->Blt(m_primary, rect.left, rect.top,
 	                                m_secondary, &rect, flags);
 
-	m_primary->Flip(&rect);
+	m_secondary->Flip(&rect);
 
 	// Every present consumes the union — full-frame presents supersede it.
 	m_secondaryDirtyValid = FALSE;

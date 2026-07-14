@@ -186,8 +186,7 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		m_width, m_height, m_bpp);
 
 	// Primary: standalone 32-bit ARGB8888 surface (bpp=32, no wrapped window
-	// surface). The blitter composites secondary(16) -> primary(32) via
-	// SDL_BlitSurface; Flip() uploads primary -> texture -> renderer.
+	// surface). It remains a software mirror for tests/screenshot capture.
 	m_primary = new aui_SDLSurface(
 		&errcode,
 		m_width,
@@ -209,14 +208,14 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		&errcode,
 		m_width,
 		m_height,
-		m_bpp,
+		32,
 		nullptr,
 		FALSE );
 	Assert( AUI_NEWOK(m_secondary,errcode) );
 	assert( AUI_NEWOK(m_secondary,errcode) );
 	if ( !AUI_NEWOK(m_secondary,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	fprintf(stderr, "[SDLUI] Secondary surface: %dx%d @ %dbpp\n", m_secondary->Width(), m_secondary->Height());
+	fprintf(stderr, "[SDLUI] Secondary surface: %dx%d @ 32bpp\n", m_secondary->Width(), m_secondary->Height());
 
 	m_pixelFormat = m_primary->PixelFormat();
 

@@ -543,6 +543,61 @@ inline Pixel32 pixelutils_16to8888(Pixel16 p)
 	return is_565_Get() ? pixelutils_565to8888(p) : pixelutils_555to8888(p);
 }
 
+// Store one 565/555 pixel at a raw byte pointer, expanding to ARGB8888 when the
+// destination world surface is 32-bit. Lets a tile writer keep a single loop
+// body (bpp32 is loop-invariant → predicts well at -O2); in 16-bit mode it is
+// exactly the historic *(Pixel16*)p = v, so conversions are behaviour-
+// preserving until the world surface is flipped to 32-bit.
+inline void pixelutils_StorePixel(uint8 * p, Pixel16 v, bool bpp32)
+{
+	if (bpp32) *reinterpret_cast<Pixel32 *>(p) = pixelutils_16to8888(v);
+	else       *reinterpret_cast<Pixel16 *>(p) = v;
+}
+
+// --- True ARGB8888 per-pixel ops (for writers that read the destination) -----
+// Used by tile overlay shadow runs and the legacy sprite fallback (transparency
+// / additive / shadow / desaturate). These operate directly on 0xAARRGGBB and
+// are NOT byte-identical to "do it in 565 then expand" — that is expected and
+// acceptable (the atlas path is the primary sprite route; overlay shadows are a
+// minor visual detail). Alpha is preserved / forced opaque as noted per op.
+
+// Halve each RGB channel, keep alpha (mirrors pixelutils_Shadow's darken-to-50%).
+inline Pixel32 pixelutils_Shadow8888(Pixel32 p)
+{
+	return ((p >> 1) & 0x007F7F7Fu) | (p & 0xFF000000u);
+}
+
+// Grey out: replace RGB with their average, keep alpha (mirrors Desaturate_565).
+inline Pixel32 pixelutils_Desaturate8888(Pixel32 p)
+{
+	uint32 const r = (p >> 16) & 0xFF;
+	uint32 const g = (p >> 8)  & 0xFF;
+	uint32 const b =  p        & 0xFF;
+	uint32 const ave = (r + g + b) / 3;
+	return (p & 0xFF000000u) | (ave << 16) | (ave << 8) | ave;
+}
+
+// Blend src toward dst by blend/32 per channel: dst + blend*(src-dst)/32.
+// Matches pixelutils_BlendFast's weighting; result is opaque.
+inline Pixel32 pixelutils_BlendFast8888(Pixel32 src, Pixel32 dst, sint32 blend)
+{
+	sint32 const sr = (src >> 16) & 0xFF, sg = (src >> 8) & 0xFF, sb = src & 0xFF;
+	sint32 const dr = (dst >> 16) & 0xFF, dg = (dst >> 8) & 0xFF, db = dst & 0xFF;
+	uint32 const r = static_cast<uint32>(dr + ((blend * (sr - dr)) >> 5));
+	uint32 const g = static_cast<uint32>(dg + ((blend * (sg - dg)) >> 5));
+	uint32 const b = static_cast<uint32>(db + ((blend * (sb - db)) >> 5));
+	return 0xFF000000u | (r << 16) | (g << 8) | b;
+}
+
+// Saturating additive of src onto dst (for the selection flash), opaque.
+inline Pixel32 pixelutils_Additive8888(Pixel32 dst, Pixel32 src)
+{
+	uint32 r = ((dst >> 16) & 0xFF) + ((src >> 16) & 0xFF); if (r > 0xFF) r = 0xFF;
+	uint32 g = ((dst >> 8)  & 0xFF) + ((src >> 8)  & 0xFF); if (g > 0xFF) g = 0xFF;
+	uint32 b = ( dst        & 0xFF) + ( src        & 0xFF); if (b > 0xFF) b = 0xFF;
+	return 0xFF000000u | (r << 16) | (g << 8) | b;
+}
+
 
 Pixel32 pixelutils_Lightening32_565(Pixel16 pixel);
 Pixel32 pixelutils_PercentDarken32_565(Pixel32 pixel, sint32 percent);

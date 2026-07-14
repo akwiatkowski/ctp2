@@ -5590,6 +5590,8 @@ TiledMap::DrawTransitionTileClipped(aui_Surface *surface, MapPoint &pos, sint32 
 	sint32 surfWidth	= m_surfWidth;
 	sint32 surfHeight	= m_surfHeight;
 	sint32 surfPitch	= m_surfPitch;
+	bool const bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
 
 	ypos+=k_TILE_PIXEL_HEADROOM;
 
@@ -5660,14 +5662,14 @@ TiledMap::DrawTransitionTileClipped(aui_Surface *surface, MapPoint &pos, sint32 
 			if (xsrc<0)
 				continue;
 
-			xsrc<<=1;
+			sint32 const xbyte = xsrc * step;
 
-		  	if (xsrc>=surfPitch)
+		  	if (xbyte>=surfPitch)
 				continue;
 
-			Pixel16 * pDestPixel = (Pixel16 *)(pSurfBase + (ysrc*surfPitch+xsrc));
+			uint8 * pDestPixel = pSurfBase + (ysrc*surfPitch + xbyte);
 
-			*pDestPixel = srcPixel;
+			pixelutils_StorePixel(pDestPixel, srcPixel, bpp32);
 		}
 	}
 }

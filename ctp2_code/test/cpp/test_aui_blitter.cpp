@@ -314,3 +314,22 @@ TEST_CASE("pixelutils 555->8888 expander uses ARGB byte order")
 	CHECK(pixelutils_555to8888(0x03E0) == 0xFF00FF00u);  // pure green
 	CHECK(pixelutils_555to8888(0x001F) == 0xFF0000FFu);  // pure blue
 }
+
+// P11 Stage 2 B: true-ARGB8888 dest-blend ops used by tile overlay shadow runs
+// and the legacy sprite fallback. Not byte-identical to the 565 versions (by
+// design); pin their behaviour on known inputs.
+TEST_CASE("pixelutils 8888 dest-blend ops")
+{
+	// Shadow halves each RGB channel, keeps alpha.
+	CHECK(pixelutils_Shadow8888(0xFF808080u) == 0xFF404040u);
+	CHECK(pixelutils_Shadow8888(0x80FFFFFFu) == 0x807F7F7Fu);
+	// Desaturate replaces RGB with their average, keeps alpha.
+	CHECK(pixelutils_Desaturate8888(0xFF603000u) == 0xFF303030u);
+	CHECK(pixelutils_Desaturate8888(0xFFFFFFFFu) == 0xFFFFFFFFu);
+	// BlendFast at 16/32 is the midpoint of src and dst, opaque.
+	CHECK(pixelutils_BlendFast8888(0xFF000000u, 0xFFFFFFFFu, 16) == 0xFF7F7F7Fu);
+	CHECK(pixelutils_BlendFast8888(0xFF102030u, 0xFF102030u, 16) == 0xFF102030u);
+	// Additive saturates.
+	CHECK(pixelutils_Additive8888(0xFF808080u, 0xFF404040u) == 0xFFC0C0C0u);
+	CHECK(pixelutils_Additive8888(0xFFFF00F0u, 0xFF10FF20u) == 0xFFFFFFFFu);
+}

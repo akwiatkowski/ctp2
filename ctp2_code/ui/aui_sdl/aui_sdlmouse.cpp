@@ -54,7 +54,7 @@ aui_SDLMouse::GetInput()
             SDL_Renderer *ren = win ? SDL_GetRenderer(win) : nullptr;
             if (ren) {
                float lx = 0.0f, ly = 0.0f;
-               SDL_RenderWindowToLogical(ren, od.motion.x, od.motion.y, &lx, &ly);
+               CTP2_SDL_RenderWindowToLogical(ren, od.motion.x, od.motion.y, &lx, &ly);
                m_data.position.x = (sint32)lx;
                m_data.position.y = (sint32)ly;
             } else {
@@ -77,7 +77,7 @@ aui_SDLMouse::GetInput()
             SDL_Renderer *ren = win ? SDL_GetRenderer(win) : nullptr;
             if (ren) {
                float lx = 0.0f, ly = 0.0f;
-               SDL_RenderWindowToLogical(ren, od.button.x, od.button.y, &lx, &ly);
+               CTP2_SDL_RenderWindowToLogical(ren, od.button.x, od.button.y, &lx, &ly);
                m_data.position.x = (sint32)lx;
                m_data.position.y = (sint32)ly;
             } else {

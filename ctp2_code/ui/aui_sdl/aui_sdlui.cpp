@@ -173,7 +173,7 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	if (!m_renderer) {
 		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
 	}
-	SDL_RenderSetLogicalSize(m_renderer, m_width, m_height);
+	CTP2_SDL_SetRenderLogicalSize(m_renderer, m_width, m_height);
 	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
 	m_screenTexture = SDL_CreateTexture(m_renderer,
 		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,

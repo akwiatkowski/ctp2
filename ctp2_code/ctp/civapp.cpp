@@ -2887,7 +2887,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						bool ok = false;
 						if (target && SDL_SetRenderTarget(renderer, target) == 0) {
 							SDL_RenderClear(renderer);
-							SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+							CTP2_SDL_RenderTexture(renderer, texture);
 							SDL_Surface *shot = SDL_CreateRGBSurfaceWithFormat(
 								0, texW, texH, 32, SDL_PIXELFORMAT_ARGB8888);
 							if (shot) {

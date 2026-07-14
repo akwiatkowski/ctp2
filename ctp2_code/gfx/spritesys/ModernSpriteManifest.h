@@ -40,3 +40,4 @@ struct ModernSpriteManifest
 };
 
 bool ModernSpriteManifestParse(nlohmann::json const &doc, ModernSpriteManifest &out, std::string &error);
+bool ModernSpriteManifestLoad(char const *path, ModernSpriteManifest &out, std::string &error);

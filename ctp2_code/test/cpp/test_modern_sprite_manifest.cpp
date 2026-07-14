@@ -2,6 +2,9 @@
 
 #include "gfx/spritesys/ModernSpriteManifest.h"
 
+#include <cstdio>
+#include <fstream>
+
 TEST_CASE("modern sprite manifest parser accepts atlas rects")
 {
 	nlohmann::json doc = {
@@ -51,4 +54,31 @@ TEST_CASE("modern sprite manifest parser rejects out-of-bounds rects")
 	std::string error;
 	CHECK_FALSE(ModernSpriteManifestParse(doc, manifest, error));
 	CHECK(error == "frame rect exceeds atlas bounds");
+}
+
+TEST_CASE("modern sprite manifest loader reads validated json files")
+{
+	char const *path = "/tmp/ctp2_modern_sprite_manifest_test.json";
+	{
+		std::ofstream out(path);
+		out << R"({
+			"source": "GU04.SPR",
+			"atlas": {"png": "GU04.png", "width": 16, "height": 16},
+			"actions": [{
+				"name": "MOVE",
+				"width": 16,
+				"height": 16,
+				"num_frames": 1,
+				"facings": 1,
+				"frames": [{"facing": 0, "frame": 0, "rect": {"x": 0, "y": 0, "w": 16, "h": 16}}]
+			}]
+		})";
+	}
+
+	ModernSpriteManifest manifest;
+	std::string error;
+	CHECK(ModernSpriteManifestLoad(path, manifest, error));
+	CHECK(error.empty());
+	CHECK(manifest.atlasWidth == 16);
+	std::remove(path);
 }

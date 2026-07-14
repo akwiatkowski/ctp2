@@ -1,5 +1,6 @@
 #include "gfx/spritesys/ModernSpriteManifest.h"
 
+#include <fstream>
 #include <set>
 #include <utility>
 
@@ -145,4 +146,25 @@ bool ModernSpriteManifestParse(nlohmann::json const &doc, ModernSpriteManifest &
 	}
 	out = std::move(parsed);
 	return true;
+}
+
+bool ModernSpriteManifestLoad(char const *path, ModernSpriteManifest &out, std::string &error)
+{
+	std::ifstream input(path);
+	if (!input)
+	{
+		error = "could not open manifest";
+		return false;
+	}
+	nlohmann::json doc;
+	try
+	{
+		input >> doc;
+	}
+	catch (nlohmann::json::exception const &exc)
+	{
+		error = exc.what();
+		return false;
+	}
+	return ModernSpriteManifestParse(doc, out, error);
 }

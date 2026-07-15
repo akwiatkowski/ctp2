@@ -2899,6 +2899,10 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 							SDL_RenderClear(renderer);
 							if (layered) {
 								CTP2_SDL_RenderTexture(renderer, aui_SDL::WorldTexture());
+								// P11 C: fog mask darkens the world between the
+								// world and UI copies (mirrors Flip's present).
+								if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())
+									CTP2_SDL_RenderTexture(renderer, aui_SDL::FogTexture());
 								CTP2_SDL_RenderTexture(renderer, aui_SDL::UiTexture());
 							} else {
 								CTP2_SDL_RenderTexture(renderer, texture);

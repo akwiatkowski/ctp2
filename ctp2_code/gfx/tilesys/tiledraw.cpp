@@ -294,7 +294,7 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 	if (!ReadyToDraw())
 		return drewSomething;
 
-	bool	    fog                     = !m_localVision->IsVisible(pos);
+	bool	    fog                     = !m_localVision->IsVisible(pos) && !GpuFogActive();
 	bool        visiblePlayerOwnsThis   =
 	    (selitem_Get()->GetVisiblePlayer() == world_Get()->GetOwner(pos));
 	uint32		env                     = 0x00000000;

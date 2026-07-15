@@ -1848,7 +1848,8 @@ sint32 TiledMap::CalculateWrap
 
 	sint32  terrainType;
 	bool    fog = !m_renderEverything && !m_renderExploredAsVisible
-	              && !m_localVision->IsVisible(tempPos);
+	              && !m_localVision->IsVisible(tempPos)
+	              && !GpuFogActive();   // P11 C: GPU fog composites the mask instead
 	if (fog)
 	{
 		UnseenCellCarton ucell;
@@ -2024,7 +2025,7 @@ sint32 TiledMap::CalculateWrapClipped(
 
 	sint32	terrainType;
 
-	bool    fog = !m_localVision->IsVisible(tempPos);
+	bool    fog = !m_localVision->IsVisible(tempPos) && !GpuFogActive();
 
 	if (fog)
 	{
@@ -2277,7 +2278,7 @@ sint32 TiledMap::CalculateHatWrap(
 
 	TileInfo *tileInfo;
 
-	bool    fog = !m_localVision->IsVisible(pos);
+	bool    fog = !m_localVision->IsVisible(pos) && !GpuFogActive();
 	if (fog)
 	{
 		UnseenCellCarton ucell;
@@ -3561,6 +3562,11 @@ if (y >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 }
 
 
+bool TiledMap::GpuFogActive() const
+{
+	return c3ui_Get() && c3ui_Get()->GpuFog();
+}
+
 sint32 TiledMap::Refresh()
 {
 	// Headless builds construct a TiledMap with no rendering surface.
@@ -4126,7 +4132,7 @@ sint32 TiledMap::RedrawHat(
 	TileInfo		*tileInfo;
 
 	sint32		terrainType;
-	bool		fog = !m_localVision->IsVisible(tempPos);
+	bool		fog = !m_localVision->IsVisible(tempPos) && !GpuFogActive();
 	if (fog)
     {
 		UnseenCellCarton ucell;

@@ -355,6 +355,9 @@ public:
 	// (transparent, with fogged tiles stamped 50% black) for GPU compositing
 	// over the world texture. Uses the same tile geometry as the terrain pass.
 	void			BuildFogMask(aui_Surface *fogSurface);
+	// P11 Stage 2 C: true when GPU fog is active, so the CPU terrain pass renders
+	// UNFOGGED (the GPU composites the fog mask instead).
+	bool			GpuFogActive() const;
 	sint32			QuickBlackBackGround(aui_Surface *surface);
 	sint32			DrawDitheredTile(aui_Surface *surface, sint32 x, sint32 y, Pixel16 color);
 	void			DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos, sint32 x, sint32 y, sint32 destWidth, sint32 destHeight,Pixel16 color);

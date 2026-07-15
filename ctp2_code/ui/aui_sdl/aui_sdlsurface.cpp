@@ -236,8 +236,24 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 				SDL_Surface * const us = uiSurf->DDS();
 				CTP2_SDL_UpdateTexture( aui_SDL::WorldTexture(), nullptr, ws->pixels, ws->pitch );
 				CTP2_SDL_UpdateTexture( aui_SDL::UiTexture(),    nullptr, us->pixels, us->pitch );
+
+				// P11 Stage 2 C: GPU fog. When enabled, upload the fog mask and
+				// composite it (BLENDMODE_BLEND, black + per-tile alpha) between
+				// the world and UI copies so it darkens ONLY the world (fogged
+				// terrain), leaving UI/radar/city-text overlays unfogged.
+				aui_SDLSurface * const fogSurf =
+					(ui->GpuFog()) ? static_cast<aui_SDLSurface *>(ui->FogSurface()) : nullptr;
+				bool const fogged = aui_SDL::FogTexture() && fogSurf && fogSurf->DDS();
+				if (fogged)
+				{
+					SDL_Surface * const fs = fogSurf->DDS();
+					CTP2_SDL_UpdateTexture( aui_SDL::FogTexture(), nullptr, fs->pixels, fs->pitch );
+				}
+
 				SDL_RenderClear( m_renderer );
 				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::WorldTexture() );
+				if (fogged)
+					CTP2_SDL_RenderTexture( m_renderer, aui_SDL::FogTexture() );
 				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::UiTexture() );
 				SDL_RenderPresent( m_renderer );
 			}

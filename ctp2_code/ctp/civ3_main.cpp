@@ -1759,6 +1759,21 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		g_letUIProcess = FALSE;
 
 #ifdef __AUI_USE_SDL__
+		// P11 Stage 2 F: advance the smooth-camera physics each frame and
+		// re-present while it is still settling (momentum pan glide + the
+		// spring-back zoom). Cheap: no tile re-render, just re-composite the
+		// GPU layers with the updated transform.
+		if (aui_SDL::GpuCameraEnabled() && aui_SDL::CameraMoving())
+		{
+			static Uint32 s_lastCamTick = 0;
+			Uint32 const nowCam = SDL_GetTicks();
+			float const camDt = (s_lastCamTick == 0) ? 0.016f
+			                  : (nowCam - s_lastCamTick) / 1000.0f;
+			s_lastCamTick = nowCam;
+			aui_SDL::TickCamera(camDt);
+			if (c3ui_Get()) c3ui_Get()->BltSecondaryToPrimary(0, false);
+		}
+
 		// Frame pacing: cap the loop to ~60 fps. When the engine is idle (no
 		// dirty rects -> no Flip -> no vsync block), this stops the loop from
 		// busy-spinning at 100% CPU / draining battery. When a vsync'd Flip
@@ -2062,14 +2077,10 @@ int SDLMessageHandler(const SDL_Event &event)
 		// on SDL2 and float on SDL3 — the cast covers both.
 		if (aui_SDL::GpuCameraEnabled())
 		{
-			float const step = static_cast<float>(event.wheel.y);
-			float z = aui_SDL::CameraZoom() * (1.0f + 0.20f * step);
-			if (z < 0.5f) z = 0.5f;
-			if (z > 3.0f) z = 3.0f;
-			aui_SDL::SetCamera(aui_SDL::CameraOffX(), aui_SDL::CameraOffY(), z);
-			// Re-present with the updated transform (world/fog unchanged, so no
-			// re-render — just re-composite the layers on the GPU).
-			if (c3ui_Get()) c3ui_Get()->BltSecondaryToPrimary(0, false);
+			// Add a zoom velocity impulse; the per-frame TickCamera integrates it
+			// and springs the zoom back toward home (the rubber-band peek). The
+			// frame loop re-presents while the camera is settling.
+			aui_SDL::AddZoomImpulse(static_cast<float>(event.wheel.y) * 3.0f);
 		}
 		return 0;
 #endif

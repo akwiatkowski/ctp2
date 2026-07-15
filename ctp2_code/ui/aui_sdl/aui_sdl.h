@@ -50,6 +50,16 @@ public:
 	static float CameraOffX() { return m_cameraOffX; }
 	static float CameraOffY() { return m_cameraOffY; }
 	static float CameraZoom() { return m_cameraZoom; }
+	// P11 Stage 2 F — momentum camera physics. Input adds velocity impulses;
+	// TickCamera integrates them each frame. Pan glides to rest under friction
+	// and stays put; zoom is spring-loaded toward the "home" zoom so it eases
+	// back after a scroll (a rubber-band peek). CameraMoving() is true while the
+	// camera is still settling (so the frame loop keeps presenting).
+	static void AddZoomImpulse(float delta) { m_zoomVel += delta; }
+	static void AddPanImpulse(float dx, float dy) { m_panVelX += dx; m_panVelY += dy; }
+	static void SetHomeZoom(float z) { m_homeZoom = z; }
+	static void TickCamera(float dtSec);
+	static bool CameraMoving();
 
 protected:
 	BOOL			m_exclusiveMode;
@@ -68,6 +78,11 @@ protected:
 	static float		m_cameraOffX;
 	static float		m_cameraOffY;
 	static float		m_cameraZoom;
+	// P11 F: momentum physics state (velocities + spring anchor).
+	static float		m_panVelX;
+	static float		m_panVelY;
+	static float		m_zoomVel;
+	static float		m_homeZoom;
 
 private:
 	static sint32		m_SDLRefCount;

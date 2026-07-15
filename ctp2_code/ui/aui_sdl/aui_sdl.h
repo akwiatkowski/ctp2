@@ -37,6 +37,10 @@ public:
 	static bool GpuLayersEnabled();
 	static SDL_Texture *WorldTexture() { return m_worldTexture; }
 	static SDL_Texture *UiTexture() { return m_uiTexture; }
+	// P11 Stage 2 C: GPU fog-mask composited over the world texture. Requires
+	// GpuLayersEnabled (needs the world on its own texture). Off by default.
+	static bool GpuFogEnabled();
+	static SDL_Texture *FogTexture() { return m_fogTexture; }
 
 protected:
 	BOOL			m_exclusiveMode;
@@ -50,6 +54,7 @@ protected:
 	static SDL_Texture *	m_screenTexture;
 	static SDL_Texture *	m_worldTexture;   // P11 D: world layer (terrain+units)
 	static SDL_Texture *	m_uiTexture;      // P11 D: UI layer (alpha over world)
+	static SDL_Texture *	m_fogTexture;     // P11 C: fog mask (alpha over world)
 
 private:
 	static sint32		m_SDLRefCount;

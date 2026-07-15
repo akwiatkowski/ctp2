@@ -214,6 +214,26 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		}
 	}
 
+	// P11 Stage 2 C: fog-of-war mask texture, composited over the world texture
+	// on the GPU (between the world and UI copies) to darken fogged terrain.
+	// Requires GpuLayersEnabled (implied by GpuFogEnabled). Created transparent.
+	if (aui_SDL::GpuFogEnabled()) {
+		m_fogTexture = SDL_CreateTexture(m_renderer,
+			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, m_width, m_height);
+		if (m_fogTexture) {
+			SDL_SetTextureBlendMode(m_fogTexture, SDL_BLENDMODE_BLEND);
+			void * pixels = nullptr;
+			int    pitch  = 0;
+			SDL_LockTexture(m_fogTexture, nullptr, &pixels, &pitch);
+			if (pixels) {
+				memset(pixels, 0, static_cast<size_t>(m_height) * pitch);
+				SDL_UnlockTexture(m_fogTexture);
+			}
+		} else {
+			c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+		}
+	}
+
 	fprintf(stderr, "[SDLUI] Requested screen: %dx%d @ %dbpp; renderer + ARGB8888 streaming texture\n",
 		m_width, m_height, m_bpp);
 
@@ -283,6 +303,17 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		m_gpuLayers = true;
 		fprintf(stderr, "[SDLUI] Per-layer GPU compositing ON: world + UI surfaces %dx%d @ 32bpp\n",
 			m_width, m_height);
+	}
+
+	// P11 Stage 2 C: fog mask surface — TiledMap stamps fogged-tile diamonds
+	// here (50% black); Flip uploads it to m_fogTexture. Transparent to start.
+	if (aui_SDL::GpuFogEnabled()) {
+		m_fogSurface = new aui_SDLSurface(&errcode, m_width, m_height, 32, nullptr, FALSE);
+		if (!AUI_NEWOK(m_fogSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
+		SDL_Surface *fs = static_cast<aui_SDLSurface *>(m_fogSurface)->DDS();
+		if (fs && fs->pixels) memset(fs->pixels, 0, static_cast<size_t>(fs->h) * fs->pitch);
+		m_gpuFog = true;
+		fprintf(stderr, "[SDLUI] GPU fog mask ON: fog surface %dx%d @ 32bpp\n", m_width, m_height);
 	}
 
 	return AUI_ERRCODE_OK;

@@ -15,6 +15,8 @@ SDL_Texture *aui_SDL::m_screenTexture = nullptr;
 // composited on the GPU. Null / unused unless GpuLayersEnabled().
 SDL_Texture *aui_SDL::m_worldTexture = nullptr;
 SDL_Texture *aui_SDL::m_uiTexture = nullptr;
+// P11 Stage 2 C: fog-of-war mask composited over the world texture on the GPU.
+SDL_Texture *aui_SDL::m_fogTexture = nullptr;
 uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
 sint32 aui_SDL::m_SDLRefCount = 0;
 
@@ -27,6 +29,20 @@ bool aui_SDL::GpuLayersEnabled()
 	{
 		char const * e = getenv("CTP2_GPU_LAYERS");
 		s_enabled = (e && e[0] && strcmp(e, "0") != 0) ? 1 : 0;
+	}
+	return s_enabled != 0;
+}
+
+bool aui_SDL::GpuFogEnabled()
+{
+	// Opt-in, cached. GPU fog composites a mask over the world texture, so it
+	// requires per-layer compositing (the world on its own texture) — enabling
+	// fog without layers is meaningless, so it implies GpuLayersEnabled().
+	static int s_enabled = -1;
+	if (s_enabled < 0)
+	{
+		char const * e = getenv("CTP2_GPU_FOG");
+		s_enabled = (e && e[0] && strcmp(e, "0") != 0 && GpuLayersEnabled()) ? 1 : 0;
 	}
 	return s_enabled != 0;
 }

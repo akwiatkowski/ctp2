@@ -119,6 +119,8 @@ protected:
 		m_uiSurface                 (nullptr),
 		m_worldWindowSurface        (nullptr),
 		m_gpuLayers                 (false),
+		m_fogSurface                (nullptr),
+		m_gpuFog                    (false),
 		m_blitter                   (nullptr),
 		m_memmap                    (nullptr),
 		m_mouse                     (nullptr),
@@ -271,6 +273,8 @@ public:
 	aui_Surface		*UiSurface( ) const { return m_uiSurface; }
 	bool			GpuLayers( ) const { return m_gpuLayers; }
 	void			SetWorldWindowSurface( aui_Surface *s ) { m_worldWindowSurface = s; }
+	aui_Surface		*FogSurface( ) const { return m_fogSurface; }
+	bool			GpuFog( ) const { return m_gpuFog; }
 	aui_Blitter		*TheBlitter( ) const { return m_blitter; }
 	aui_MemMap		*TheMemMap( ) const { return m_memmap; }
 	aui_Mouse		*TheMouse( ) const { return m_mouse; }
@@ -475,6 +479,11 @@ protected:
 	aui_Surface		*m_uiSurface;
 	aui_Surface		*m_worldWindowSurface;
 	bool			m_gpuLayers;
+	// P11 Stage 2 C: fog-of-war mask surface (32-bit, screen-sized, transparent
+	// except fogged tiles = 50% black). Composited over the world layer on the
+	// GPU. Built by TiledMap from vision state. Set when m_gpuFog is on.
+	aui_Surface		*m_fogSurface;
+	bool			m_gpuFog;
 
 	// Running union of every rect written into m_secondary via
 	// BltToSecondary/ColorBltToSecondary since the last present.

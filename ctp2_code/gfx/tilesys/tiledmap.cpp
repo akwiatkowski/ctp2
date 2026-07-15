@@ -3603,6 +3603,12 @@ sint32 TiledMap::Refresh()
 
 	UnlockSurface();
 
+	// P11 Stage 2 C: rebuild the GPU fog mask from the same view, in sync with
+	// the world render. Separate surface + lock (not the world map surface), so
+	// it runs after UnlockSurface. No-op unless GPU fog is enabled.
+	if (c3ui_Get() && c3ui_Get()->GpuFog())
+		BuildFogMask(c3ui_Get()->FogSurface());
+
 	return 0;
 }
 

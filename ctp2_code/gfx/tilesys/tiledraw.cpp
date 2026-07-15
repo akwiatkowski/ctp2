@@ -997,6 +997,82 @@ sint32 TiledMap::DrawBlackTile(aui_Surface *surface, sint32 x, sint32 y) //EMOD 
 	return 0;
 }
 
+void TiledMap::BuildFogMask(aui_Surface *fogSurface)
+{
+	// Rasterize the fog-of-war mask into a screen-space ARGB8888 surface for
+	// GPU compositing over the world texture (P11 Stage 2 C). Fogged tiles
+	// (explored but not currently visible) get a 50%-black diamond; unexplored
+	// tiles need no mask because the world layer is already opaque black there
+	// (DrawBlackTile); visible tiles stay transparent. Tile geometry mirrors the
+	// terrain pass exactly (same StartPixel diamond + maputils screen coords),
+	// so the mask aligns with the terrain by construction. Default zoom only for
+	// now — zoomed tile scaling is a follow-up.
+	if (!fogSurface || !ReadyToDraw() || !m_localVision) return;
+
+	LPVOID      buffer  = nullptr;
+	AUI_ERRCODE errcode = fogSurface->Lock(nullptr, &buffer, 0);
+	if (errcode != AUI_ERRCODE_OK || !buffer) return;
+
+	uint8 * const base  = static_cast<uint8 *>(buffer);
+	sint32 const  pitch = fogSurface->Pitch();
+	sint32 const  sw    = fogSurface->Width();
+	sint32 const  sh    = fogSurface->Height();
+
+	// Clear the whole mask transparent (ARGB 0x00000000).
+	memset(base, 0, static_cast<size_t>(sh) * pitch);
+
+	sint32 mapWidth, mapHeight;
+	GetMapMetrics(&mapWidth, &mapHeight);
+
+	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
+	{
+		if (!(world_Get()->IsYwrap() || (i >= 0 && i < mapHeight))) continue;
+		for (sint32 j = m_mapViewRect.left; j < m_mapViewRect.right; j++)
+		{
+			if (!(world_Get()->IsXwrap() || (j >= 0 && j < mapWidth))) continue;
+
+			sint32 wj = j, wi = i;
+			maputils_WrapPoint(wj, wi, &wj, &wi);
+			MapPoint pos(maputils_TileX2MapX(wj, wi), wi);
+
+			if (!m_localVision->IsExplored(pos)) continue;
+			bool const fog = !m_renderEverything && !m_renderExploredAsVisible
+			               && !m_localVision->IsVisible(pos);
+			if (!fog) continue;
+
+			sint32 x, y;
+			maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y);
+			if (   x < m_surfaceRect.left
+			    || x > (m_surfaceRect.right  - GetZoomTilePixelWidth())
+			    || y < m_surfaceRect.top
+			    || y > (m_surfaceRect.bottom - (GetZoomTilePixelHeight() + GetZoomTileHeadroom())))
+				continue;
+
+			// Stamp the tile diamond (same StartPixel span pattern as
+			// DrawBlackTile). Only the alpha byte is written: ARGB8888 is
+			// little-endian on the target (arm64/x86), so byte +3 of each
+			// 4-byte pixel is A; R/G/B stay 0 from the clear, giving black+50%.
+			sint32 const ytop = y + k_TILE_PIXEL_HEADROOM;
+			for (sint32 dj = 0; dj < k_TILE_PIXEL_HEIGHT; dj++)
+			{
+				sint32 const py = ytop + dj;
+				if (py < 0 || py >= sh) continue;
+				sint32 const startX = StartPixel(dj);
+				sint32 const endX   = k_TILE_PIXEL_WIDTH - startX;
+				uint8 * row = base + py * pitch;
+				for (sint32 di = startX; di < endX; di++)
+				{
+					sint32 const px = x + di;
+					if (px < 0 || px >= sw) continue;
+					row[px * 4 + 3] = 0x80;   // alpha ~128/255 = ~50%
+				}
+			}
+		}
+	}
+
+	fogSurface->Unlock(buffer);
+}
+
 
 
 

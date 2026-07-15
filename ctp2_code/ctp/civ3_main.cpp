@@ -176,6 +176,7 @@
 #endif
 #if defined(USE_SDL)
 #include "ui/aui_sdl/aui_sdlcompat.h"
+#include "ui/aui_sdl/aui_sdl.h"          // P11 F: aui_SDL camera (wheel-zoom)
 #include "ui/aui_sdl/aui_sdlmixercompat.h"
 #include "ui/aui_sdl/aui_sdlkeyboard.h"
 #endif
@@ -2052,6 +2053,26 @@ int SDLMessageHandler(const SDL_Event &event)
 #endif
 
 		return 0;
+#ifdef __AUI_USE_SDL__
+	case SDL_MOUSEWHEEL:
+		// P11 Stage 2 F: drive the smooth GPU camera zoom. The mouse wheel and
+		// macOS trackpad two-finger scroll both arrive here (the wheel was
+		// otherwise dead under SDL). Only active with CTP2_GPU_CAMERA; the world
+		// + fog layers scale on the GPU, no tile re-render. event.wheel.y is int
+		// on SDL2 and float on SDL3 — the cast covers both.
+		if (aui_SDL::GpuCameraEnabled())
+		{
+			float const step = static_cast<float>(event.wheel.y);
+			float z = aui_SDL::CameraZoom() * (1.0f + 0.12f * step);
+			if (z < 0.5f) z = 0.5f;
+			if (z > 3.0f) z = 3.0f;
+			aui_SDL::SetCamera(aui_SDL::CameraOffX(), aui_SDL::CameraOffY(), z);
+			// Re-present with the updated transform (world/fog unchanged, so no
+			// re-render — just re-composite the layers on the GPU).
+			if (c3ui_Get()) c3ui_Get()->BltSecondaryToPrimary(0, false);
+		}
+		return 0;
+#endif
 #ifndef __AUI_USE_SDL__
 	case k_MSWHEEL_ROLLMSG :
 		{

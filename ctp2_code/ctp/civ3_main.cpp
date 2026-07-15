@@ -2063,7 +2063,7 @@ int SDLMessageHandler(const SDL_Event &event)
 		if (aui_SDL::GpuCameraEnabled())
 		{
 			float const step = static_cast<float>(event.wheel.y);
-			float z = aui_SDL::CameraZoom() * (1.0f + 0.12f * step);
+			float z = aui_SDL::CameraZoom() * (1.0f + 0.20f * step);
 			if (z < 0.5f) z = 0.5f;
 			if (z > 3.0f) z = 3.0f;
 			aui_SDL::SetCamera(aui_SDL::CameraOffX(), aui_SDL::CameraOffY(), z);

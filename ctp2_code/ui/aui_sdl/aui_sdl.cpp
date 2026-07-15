@@ -17,6 +17,10 @@ SDL_Texture *aui_SDL::m_worldTexture = nullptr;
 SDL_Texture *aui_SDL::m_uiTexture = nullptr;
 // P11 Stage 2 C: fog-of-war mask composited over the world texture on the GPU.
 SDL_Texture *aui_SDL::m_fogTexture = nullptr;
+// P11 Stage 2 F: smooth-camera transform (identity until the camera moves).
+float aui_SDL::m_cameraOffX = 0.0f;
+float aui_SDL::m_cameraOffY = 0.0f;
+float aui_SDL::m_cameraZoom = 1.0f;
 uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
 sint32 aui_SDL::m_SDLRefCount = 0;
 
@@ -42,6 +46,20 @@ bool aui_SDL::GpuFogEnabled()
 	if (s_enabled < 0)
 	{
 		char const * e = getenv("CTP2_GPU_FOG");
+		s_enabled = (e && e[0] && strcmp(e, "0") != 0 && GpuLayersEnabled()) ? 1 : 0;
+	}
+	return s_enabled != 0;
+}
+
+bool aui_SDL::GpuCameraEnabled()
+{
+	// Opt-in, cached. The smooth camera pans/zooms the world+fog GPU layers at
+	// present time, so it requires per-layer compositing (implies
+	// GpuLayersEnabled). Identity transform until something drives the camera.
+	static int s_enabled = -1;
+	if (s_enabled < 0)
+	{
+		char const * e = getenv("CTP2_GPU_CAMERA");
 		s_enabled = (e && e[0] && strcmp(e, "0") != 0 && GpuLayersEnabled()) ? 1 : 0;
 	}
 	return s_enabled != 0;

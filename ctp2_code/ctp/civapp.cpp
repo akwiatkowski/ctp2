@@ -2898,11 +2898,27 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						if (target && CTP2_SDL_SetRenderTarget(renderer, target)) {
 							SDL_RenderClear(renderer);
 							if (layered) {
-								CTP2_SDL_RenderTexture(renderer, aui_SDL::WorldTexture());
-								// P11 C: fog mask darkens the world between the
-								// world and UI copies (mirrors Flip's present).
-								if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())
-									CTP2_SDL_RenderTexture(renderer, aui_SDL::FogTexture());
+								// P11 F: mirror Flip's camera transform on the
+								// world+fog layers so the readback matches the
+								// presented frame at any camera state (identity
+								// by default). UI stays full-screen.
+								bool const cam = aui_SDL::GpuCameraEnabled();
+								float const W = (float)texW, H = (float)texH;
+								float const z = cam ? aui_SDL::CameraZoom() : 1.0f;
+								float const dw = W * z, dh = H * z;
+								float const dx = cam ? aui_SDL::CameraOffX() + (W - dw) * 0.5f : 0.0f;
+								float const dy = cam ? aui_SDL::CameraOffY() + (H - dh) * 0.5f : 0.0f;
+								if (cam) {
+									CTP2_SDL_RenderTextureDst(renderer, aui_SDL::WorldTexture(), dx, dy, dw, dh);
+									if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())
+										CTP2_SDL_RenderTextureDst(renderer, aui_SDL::FogTexture(), dx, dy, dw, dh);
+								} else {
+									CTP2_SDL_RenderTexture(renderer, aui_SDL::WorldTexture());
+									// P11 C: fog mask darkens the world between the
+									// world and UI copies (mirrors Flip's present).
+									if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())
+										CTP2_SDL_RenderTexture(renderer, aui_SDL::FogTexture());
+								}
 								CTP2_SDL_RenderTexture(renderer, aui_SDL::UiTexture());
 							} else {
 								CTP2_SDL_RenderTexture(renderer, texture);

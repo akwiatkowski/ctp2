@@ -41,6 +41,15 @@ public:
 	// GpuLayersEnabled (needs the world on its own texture). Off by default.
 	static bool GpuFogEnabled();
 	static SDL_Texture *FogTexture() { return m_fogTexture; }
+	// P11 Stage 2 F: smooth camera. Pan offset (screen px) + zoom applied to the
+	// world + fog layers at present time (UI stays fixed). Requires
+	// GpuLayersEnabled. Off by default; identity (0,0,1) is a no-op.
+	static bool GpuCameraEnabled();
+	static void SetCamera(float offX, float offY, float zoom)
+	{ m_cameraOffX = offX; m_cameraOffY = offY; m_cameraZoom = zoom; }
+	static float CameraOffX() { return m_cameraOffX; }
+	static float CameraOffY() { return m_cameraOffY; }
+	static float CameraZoom() { return m_cameraZoom; }
 
 protected:
 	BOOL			m_exclusiveMode;
@@ -55,6 +64,10 @@ protected:
 	static SDL_Texture *	m_worldTexture;   // P11 D: world layer (terrain+units)
 	static SDL_Texture *	m_uiTexture;      // P11 D: UI layer (alpha over world)
 	static SDL_Texture *	m_fogTexture;     // P11 C: fog mask (alpha over world)
+	// P11 F: smooth-camera transform for the world+fog layers (identity = no-op).
+	static float		m_cameraOffX;
+	static float		m_cameraOffY;
+	static float		m_cameraZoom;
 
 private:
 	static sint32		m_SDLRefCount;

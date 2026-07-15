@@ -251,9 +251,32 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 				}
 
 				SDL_RenderClear( m_renderer );
-				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::WorldTexture() );
-				if (fogged)
-					CTP2_SDL_RenderTexture( m_renderer, aui_SDL::FogTexture() );
+
+				// P11 Stage 2 F: smooth camera. The world + fog layers share a
+				// pan/zoom dst-rect transform (they must move together); the UI
+				// layer stays full-screen. Identity (off 0,0 / zoom 1) reproduces
+				// the full-screen copy exactly, so this is a no-op until the
+				// camera moves.
+				if (aui_SDL::GpuCameraEnabled())
+				{
+					float const W = static_cast<float>(m_lpdds->w);
+					float const H = static_cast<float>(m_lpdds->h);
+					float const z = aui_SDL::CameraZoom();
+					float const dw = W * z;
+					float const dh = H * z;
+					// Zoom about the screen centre, then apply the pan offset.
+					float const dx = aui_SDL::CameraOffX() + (W - dw) * 0.5f;
+					float const dy = aui_SDL::CameraOffY() + (H - dh) * 0.5f;
+					CTP2_SDL_RenderTextureDst( m_renderer, aui_SDL::WorldTexture(), dx, dy, dw, dh );
+					if (fogged)
+						CTP2_SDL_RenderTextureDst( m_renderer, aui_SDL::FogTexture(), dx, dy, dw, dh );
+				}
+				else
+				{
+					CTP2_SDL_RenderTexture( m_renderer, aui_SDL::WorldTexture() );
+					if (fogged)
+						CTP2_SDL_RenderTexture( m_renderer, aui_SDL::FogTexture() );
+				}
 				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::UiTexture() );
 				SDL_RenderPresent( m_renderer );
 			}

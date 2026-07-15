@@ -63,6 +63,22 @@ inline bool CTP2_SDL_RenderTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 #endif
 }
 
+// P11 Stage 2 F (smooth camera): copy the whole texture into a destination
+// rectangle (offset + scale) instead of filling the render target. Used to
+// pan/zoom the world + fog layers on the GPU while the UI layer stays full
+// screen. SDL3 wants an SDL_FRect dest; SDL2 an SDL_Rect.
+inline bool CTP2_SDL_RenderTextureDst(SDL_Renderer *renderer, SDL_Texture *texture,
+                                      float x, float y, float w, float h)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_FRect dst = { x, y, w, h };
+	return SDL_RenderTexture(renderer, texture, nullptr, &dst);
+#else
+	SDL_Rect dst = { (int)x, (int)y, (int)w, (int)h };
+	return SDL_RenderCopy(renderer, texture, nullptr, &dst) == 0;
+#endif
+}
+
 inline bool CTP2_SDL_UpdateTexture(
 	SDL_Texture *texture,
 	SDL_Rect const *rect,

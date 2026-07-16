@@ -519,7 +519,8 @@ int ui_Initialize()
 		c3errors_FatalDialog(appstrings_GetString(APPSTR_FONTS),
 								appstrings_GetString(APPSTR_NOWINDOWSDIR));
 	}
-	strcat(s, FILE_SEP "fonts");
+	size_t const sLen = strlen(s);
+	snprintf(s + sLen, sizeof(s) - sLen, FILE_SEP "fonts");
 	g_c3ui->AddBitmapFontSearchPath(s);
 #elif defined(HAVE_X11)
 	Display *display = g_c3ui->getDisplay();

@@ -34,6 +34,32 @@ NetOrder::NetOrder()
 	m_path = nullptr;
 }
 
+#ifdef _DEBUG
+// Append one path step's compass tag (":N ", ":SW", ...) to the debug path
+// string, bounded by the buffer size (appending simply stops when full).
+// Shared by Packetize/Unpacketize, which log the same path layout.
+static void net_order_AppendDirTag(char *buf, size_t bufSize, sint32 dir)
+{
+	char const *tag = nullptr;
+	switch (dir) {
+		case NORTH:     tag = ":N "; break;
+		case SOUTH:     tag = ":S "; break;
+		case EAST:      tag = ":E "; break;
+		case WEST:      tag = ":W "; break;
+		case NORTHWEST: tag = ":NW"; break;
+		case NORTHEAST: tag = ":NE"; break;
+		case SOUTHWEST: tag = ":SW"; break;
+		case SOUTHEAST: tag = ":SE"; break;
+		default:
+			Assert(FALSE);
+			return;
+	}
+	size_t const len = strlen(buf);
+	if (len < bufSize)
+		snprintf(buf + len, bufSize - len, "%s", tag);
+}
+#endif
+
 NetOrder::~NetOrder()
 {
 	
@@ -54,19 +80,7 @@ void NetOrder::Packetize(uint8 *buf, uint16 &size)
 	if(m_path) {
 		snprintf(pathstr, sizeof(pathstr), "(%d,%d) (%d,%d), %d:%d:", m_path->m_start.x, m_path->m_start.y, m_path->m_current.x, m_path->m_current.y, m_path->m_next_dir, m_path->m_next);
 		for(i = 0; i < m_path->m_step.Num(); i++) {
-			switch(m_path->m_step[i].dir) {
-				case NORTH: strcat(pathstr, ":N "); break;
-				case SOUTH: strcat(pathstr, ":S "); break;
-				case EAST: strcat(pathstr, ":E "); break;
-				case WEST: strcat(pathstr, ":W "); break;
-				case NORTHWEST: strcat(pathstr, ":NW"); break;
-				case NORTHEAST: strcat(pathstr, ":NE"); break;
-				case SOUTHWEST: strcat(pathstr, ":SW"); break;
-				case SOUTHEAST: strcat(pathstr, ":SE"); break;
-				default:
-					Assert(FALSE);
-					break;
-			}
+			net_order_AppendDirTag(pathstr, sizeof(pathstr), m_path->m_step[i].dir);
 		}
 	}
 
@@ -176,19 +190,7 @@ void NetOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(path) {
 		snprintf(pathstr, sizeof(pathstr), "(%d,%d) (%d,%d), %d:%d:", path->m_start.x, path->m_start.y, path->m_current.x, path->m_current.y, path->m_next_dir, path->m_next);
 		for(i = 0; i < path->m_step.Num(); i++) {
-			switch(path->m_step[i].dir) {
-				case NORTH: strcat(pathstr, ":N "); break;
-				case SOUTH: strcat(pathstr, ":S "); break;
-				case EAST: strcat(pathstr, ":E "); break;
-				case WEST: strcat(pathstr, ":W "); break;
-				case NORTHWEST: strcat(pathstr, ":NW"); break;
-				case NORTHEAST: strcat(pathstr, ":NE"); break;
-				case SOUTHWEST: strcat(pathstr, ":SW"); break;
-				case SOUTHEAST: strcat(pathstr, ":SE"); break;
-				default:
-					Assert(FALSE);
-					break;
-			}
+			net_order_AppendDirTag(pathstr, sizeof(pathstr), path->m_step[i].dir);
 		}
 	}
 

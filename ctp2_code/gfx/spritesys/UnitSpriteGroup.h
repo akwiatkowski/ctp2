@@ -64,7 +64,8 @@ public:
 	void			LoadIndexed(MBCHAR const * filename, GAME_ACTION index) override;
 	void			LoadFull(MBCHAR const * filename) override;
 
-	bool			GetImageFileName(MBCHAR * name, char * format, ...);
+	// nameSize = capacity of `name` in chars (the write is bounded by it).
+	bool			GetImageFileName(MBCHAR * name, size_t nameSize, char * format, ...);
 
 	void			Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode) override;
 

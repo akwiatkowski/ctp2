@@ -59,6 +59,7 @@
 #include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 
 #include "gs/fileio/Token.h"
+#include "gs/utility/safety.h"          // safe_strcpy
 
 
 UnitSpriteGroup::UnitSpriteGroup(GROUPTYPE type)
@@ -376,20 +377,22 @@ void UnitSpriteGroup::DrawText(sint32 x, sint32 y, MBCHAR const * s)
 
 
 bool
-UnitSpriteGroup::GetImageFileName(MBCHAR * name, char *format,...)
+UnitSpriteGroup::GetImageFileName(MBCHAR * name, size_t nameSize, char *format,...)
 {
    	va_list          v_args;
 	char			 fname[512];
 
     va_start(v_args, format);
-    vsnprintf(name, sizeof(name),format,v_args);
+    // nameSize is the caller's buffer capacity — sizeof(name) here would be
+    // the POINTER size (8) and truncate every generated filename.
+    vsnprintf(name, nameSize, format, v_args);
     va_end( v_args );
 
 	snprintf(fname, sizeof(fname),"%s.%s",name,"TGA");
 
 	if (c3files_PathIsValid(fname))
 	{
-		strcpy(name,fname);
+		safe_strcpy(name, fname, nameSize);
 		return true;
 	}
 
@@ -397,12 +400,16 @@ UnitSpriteGroup::GetImageFileName(MBCHAR * name, char *format,...)
 
 	if (c3files_PathIsValid(fname))
 	{
-		strcpy(name,fname);
+		safe_strcpy(name, fname, nameSize);
 		return true;
 	}
 
 	return false;
 }
+
+// Capacity of every per-frame image/shadow file-name buffer below AND the
+// bound GetImageFileName writes with — one constant so they cannot drift.
+static size_t const k_IMAGE_NAME_CHARS = 2 * k_MAX_NAME_LENGTH;
 
 /// @todo Repair major memory leaks when returning FALSE
 sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
@@ -411,13 +418,13 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 	std::vector<std::vector<std::vector<char>>> facedImageBuffers(
 	    k_NUM_FACINGS,
-	    std::vector<std::vector<char>>(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH)));
+	    std::vector<std::vector<char>>(k_MAX_NAMES, std::vector<char>(k_IMAGE_NAME_CHARS)));
 	std::vector<std::vector<std::vector<char>>> facedShadowBuffers(
 	    k_NUM_FACINGS,
-	    std::vector<std::vector<char>>(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH)));
+	    std::vector<std::vector<char>>(k_MAX_NAMES, std::vector<char>(k_IMAGE_NAME_CHARS)));
 
-	std::vector<std::vector<char>> imageBuffers(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH));
-	std::vector<std::vector<char>> shadowBuffers(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH));
+	std::vector<std::vector<char>> imageBuffers(k_MAX_NAMES, std::vector<char>(k_IMAGE_NAME_CHARS));
+	std::vector<std::vector<char>> shadowBuffers(k_MAX_NAMES, std::vector<char>(k_IMAGE_NAME_CHARS));
 
 	MBCHAR			*facedImageNames[k_NUM_FACINGS][k_MAX_NAMES];
 	MBCHAR			*facedShadowNames[k_NUM_FACINGS][k_MAX_NAMES];
@@ -488,11 +495,11 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		{
 			for (size_t k = 0; k < moveSprite->GetNumFrames(); ++k)
 			{
-				if (!GetImageFileName(facedShadowNames[j][k],"%sGU%#.3dMS%d.%d", prefixStr,  id, j+1, k+moveSprite->GetFirstFrame()))
-					GetImageFileName(facedShadowNames[j][k] ,"%sGU%#.2dMS%d.%d", prefixStr,  id, j+1, k+moveSprite->GetFirstFrame());
+				if (!GetImageFileName(facedShadowNames[j][k], k_IMAGE_NAME_CHARS, "%sGU%#.3dMS%d.%d", prefixStr,  id, j+1, k+moveSprite->GetFirstFrame()))
+					GetImageFileName(facedShadowNames[j][k], k_IMAGE_NAME_CHARS, "%sGU%#.2dMS%d.%d", prefixStr,  id, j+1, k+moveSprite->GetFirstFrame());
 
-				if (!GetImageFileName(facedImageNames[j][k], "%sGU%#.3dMA%d.%d", prefixStr, id,  j+1, k+moveSprite->GetFirstFrame()))
-					GetImageFileName(facedImageNames[j][k] , "%sGU%#.2dMA%d.%d", prefixStr, id,  j+1, k+moveSprite->GetFirstFrame());
+				if (!GetImageFileName(facedImageNames[j][k], k_IMAGE_NAME_CHARS, "%sGU%#.3dMA%d.%d", prefixStr, id,  j+1, k+moveSprite->GetFirstFrame()))
+					GetImageFileName(facedImageNames[j][k], k_IMAGE_NAME_CHARS, "%sGU%#.2dMA%d.%d", prefixStr, id,  j+1, k+moveSprite->GetFirstFrame());
 			}
 		}
 
@@ -535,11 +542,11 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		{
 			for(i=0; i<attackSprite->GetNumFrames(); i++)
 			{
-				if (!GetImageFileName(facedShadowNames[j][i],"%sGU%#.3dAS%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame()))
-					GetImageFileName (facedShadowNames[j][i],"%sGU%#.2dAS%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame());
+				if (!GetImageFileName(facedShadowNames[j][i], k_IMAGE_NAME_CHARS, "%sGU%#.3dAS%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame()))
+					GetImageFileName(facedShadowNames[j][i], k_IMAGE_NAME_CHARS, "%sGU%#.2dAS%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame());
 
-				if (!GetImageFileName(facedImageNames [j][i],"%sGU%#.3dAA%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame()))
-					GetImageFileName (facedImageNames [j][i],"%sGU%#.2dAA%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame());
+				if (!GetImageFileName(facedImageNames [j][i], k_IMAGE_NAME_CHARS, "%sGU%#.3dAA%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame()))
+					GetImageFileName(facedImageNames [j][i], k_IMAGE_NAME_CHARS, "%sGU%#.2dAA%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame());
 			}
 		}
 
@@ -568,10 +575,10 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 			for (size_t n = 0; n < idleSprite->GetNumFrames(); ++n)
 			{
-				if (!GetImageFileName(imageNames[n] ,"%sGU%#.3dIA%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame()))
-					GetImageFileName (imageNames[n] ,"%sGU%#.2dIA%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame());
-				if (!GetImageFileName(shadowNames[n],"%sGU%#.3dIS%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame()))
-					GetImageFileName (shadowNames[n],"%sGU%#.2dIS%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame());
+				if (!GetImageFileName(imageNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.3dIA%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame()))
+					GetImageFileName(imageNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.2dIA%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame());
+				if (!GetImageFileName(shadowNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.3dIS%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame()))
+					GetImageFileName(shadowNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.2dIS%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame());
 			}
 		}
 		else if (type == GROUPTYPE_CITY)
@@ -580,8 +587,8 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 			for (size_t n = 0; n < idleSprite->GetNumFrames(); ++n)
 			{
-				GetImageFileName(shadowNames[n], "%sGC%#.3dS.%d", prefixStr, id, n + idleSprite->GetFirstFrame());
-				GetImageFileName(imageNames[n] , "%sGC%#.3dA.%d", prefixStr, id, n + idleSprite->GetFirstFrame());
+				GetImageFileName(shadowNames[n], k_IMAGE_NAME_CHARS, "%sGC%#.3dS.%d", prefixStr, id, n + idleSprite->GetFirstFrame());
+				GetImageFileName(imageNames[n], k_IMAGE_NAME_CHARS, "%sGC%#.3dA.%d", prefixStr, id, n + idleSprite->GetFirstFrame());
 			}
 		}
 		else
@@ -622,10 +629,10 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		printf(" [Victory");
 		for(size_t n = 0; n < victorySprite->GetNumFrames(); ++n)
 		{
-			if (!GetImageFileName(shadowNames[n],"%sGU%#.3dVS%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame()))
-				GetImageFileName (shadowNames[n],"%sGU%#.2dVS%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame());
-			if (!GetImageFileName(imageNames[n], "%sGU%#.3dVA%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame()))
-				GetImageFileName (imageNames[n], "%sGU%#.2dVA%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame());
+			if (!GetImageFileName(shadowNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.3dVS%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame()))
+				GetImageFileName(shadowNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.2dVS%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame());
+			if (!GetImageFileName(imageNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.3dVA%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame()))
+				GetImageFileName(imageNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.2dVA%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame());
 		}
 
 		victorySprite->Import(victorySprite->GetNumFrames(), imageNames, shadowNames);
@@ -659,10 +666,10 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		{
 			for(size_t n = 0; n < workSprite->GetNumFrames(); ++n)
 			{
-				if (!GetImageFileName(facedShadowNames[j][n],"%sGU%#.3dWS%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame()))
-					GetImageFileName (facedShadowNames[j][n],"%sGU%#.2dWS%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame());
-				if (!GetImageFileName(facedImageNames[j][n] ,"%sGU%#.3dWA%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame()))
-					GetImageFileName (facedImageNames[j][n] ,"%sGU%#.2dWA%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame());
+				if (!GetImageFileName(facedShadowNames[j][n], k_IMAGE_NAME_CHARS, "%sGU%#.3dWS%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame()))
+					GetImageFileName(facedShadowNames[j][n], k_IMAGE_NAME_CHARS, "%sGU%#.2dWS%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame());
+				if (!GetImageFileName(facedImageNames[j][n], k_IMAGE_NAME_CHARS, "%sGU%#.3dWA%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame()))
+					GetImageFileName(facedImageNames[j][n], k_IMAGE_NAME_CHARS, "%sGU%#.2dWA%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame());
 			}
 		}
 

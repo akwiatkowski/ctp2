@@ -840,7 +840,8 @@ void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force, sin
 
 	if(sendMessage) {
 		SlicObject *so1 = new SlicObject(objName);
-		strcat(objName, "ByYou");
+		size_t const objNameLen = strlen(objName);
+		snprintf(objName + objNameLen, sizeof(objName) - objNameLen, "ByYou");
 		SlicObject *so2 = new SlicObject(objName);
 
 		so1->AddCivilisation(m_recipient);
@@ -905,7 +906,8 @@ void AgreementData::OwnerIsViolating(PLAYER_INDEX curPlayer, sint32 currentRound
 
 	if(sendMessage) {
 		SlicObject *so1 = new SlicObject(objName);
-		strcat(objName, "ByYou");
+		size_t const objNameLen = strlen(objName);
+		snprintf(objName + objNameLen, sizeof(objName) - objNameLen, "ByYou");
 		SlicObject *so2 = new SlicObject(objName);
 
 		so1->AddCivilisation(m_owner);

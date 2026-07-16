@@ -636,17 +636,18 @@ void ui_HandleMouseWheel(sint16 delta)
 	}
 }
 
-// P11 Stage 2 F — macOS trackpad two-finger pan. Both the physical mouse wheel
-// and a trackpad two-finger scroll arrive as SDL_MOUSEWHEEL; the trackpad also
-// carries a horizontal delta and streams many small (often fractional) events.
-// We treat two-finger scroll as a map pan: accumulate the wheel deltas as map
-// pixels and emit a whole-tile ScrollMap step each time the accumulator crosses
-// a tile (hscroll wide / vscroll = half-tile-row tall — the same units the edge
-// scroll uses). The sub-tile remainder is intentionally kept in the accumulator;
-// the follow-up smoothness pass (GPU sub-tile glide or ScrollMapSmooth) will
-// consume it. Ships default-on, no env gate, and reveals fresh terrain (real
-// ScrollMap, not a texture shift). Direction signs are tuned for macOS natural
-// scrolling and can be flipped in one place.
+// P11 Stage 2 F/2c — macOS trackpad two-finger pan (buttery GPU glide, ADR-001).
+//
+// A trackpad two-finger scroll arrives as a bursty stream of SDL_MOUSEWHEEL events
+// with large, uneven deltas. Presenting one frame per event makes the map lurch in
+// chunky steps (the "no smoothness" failure). Instead we accumulate the commanded
+// pan into a TARGET offset (aui_SDL pan target); the per-frame camera tick eases the
+// displayed CameraOff toward it, so the motion is smooth at the frame rate and
+// decoupled from the event bursts. macOS keeps streaming decaying momentum events
+// after the finger lifts, so following the target also gives natural inertia. The
+// engine only ScrollMaps to RECENTER when the eased offset nears the pre-rendered
+// margin (see ui_RecenterPanIfNeeded), which the frame tick handles. Direction signs
+// are tuned for macOS natural scrolling and can be flipped in one place.
 void ui_HandleTrackpadPan(float wheelX, float wheelY)
 {
 	if (!g_civApp || !g_civApp->IsGameLoaded() || !g_tiledMap)
@@ -659,56 +660,135 @@ void ui_HandleTrackpadPan(float wheelX, float wheelY)
 	// this scales them to a comfortable pan speed. Tunable to taste.
 	float const k_PAN_PIXELS_PER_WHEEL = 24.0f;
 
-	static float s_accX = 0.0f;
-	static float s_accY = 0.0f;
-
-	// Natural viewport scroll: scroll right -> view moves east (deltaX > 0),
-	// scroll up -> view moves north (deltaY < 0). SDL wheel.y is positive when
-	// scrolling up, so Y is negated. Flip either sign here to invert an axis.
-	s_accX += wheelX * k_PAN_PIXELS_PER_WHEEL;
-	s_accY -= wheelY * k_PAN_PIXELS_PER_WHEEL;
-
 	sint32 const hscroll = g_tiledMap->GetZoomTilePixelWidth();
 	sint32 const vscroll = g_tiledMap->GetZoomTilePixelHeight() / 2;
 	if (hscroll < 1 || vscroll < 1)
 		return;
 
+	if (aui_SDL::GpuCameraEnabled())
+	{
+		// Buttery path: feed the commanded delta into the camera target. CameraOff =
+		// -accumulatedPan, so the target moves by (-wheelX*k, +wheelY*k) (wheel.y is
+		// positive scrolling up; negating it makes scroll-up move the view north).
+		// The main-loop camera tick eases + recenters + presents — nothing to draw
+		// here, which is exactly what keeps the motion smooth (no per-event present).
+		aui_SDL::AddPanTarget(-wheelX * k_PAN_PIXELS_PER_WHEEL,
+		                       wheelY * k_PAN_PIXELS_PER_WHEEL);
+		return;
+	}
+
+	// No GPU camera: tile-stepped fallback. Accumulate and cross whole tiles via the
+	// engine scroll (reveals terrain + actors); the sub-tile remainder carries over.
+	static float s_accX = 0.0f;
+	static float s_accY = 0.0f;
+	s_accX += wheelX * k_PAN_PIXELS_PER_WHEEL;
+	s_accY -= wheelY * k_PAN_PIXELS_PER_WHEEL;
+
 	sint32 const dxTiles = static_cast<sint32>(s_accX / hscroll);
 	sint32 const dyTiles = static_cast<sint32>(s_accY / vscroll);
-
-	// Whole tiles crossed: scroll the engine view (reveals terrain + actors) and
-	// keep only the sub-tile remainder in the accumulator.
-	if (dxTiles != 0 || dyTiles != 0)
+	if (dxTiles == 0 && dyTiles == 0)
+		return;
+	if (g_tiledMap->ScrollMap(dxTiles, dyTiles))
 	{
 		s_accX -= dxTiles * hscroll;
 		s_accY -= dyTiles * vscroll;
-		if (g_tiledMap->ScrollMap(dxTiles, dyTiles))
-		{
-			g_tiledMap->RetargetTileSurface(nullptr);
-			g_tiledMap->Refresh();
-			g_tiledMap->InvalidateMap();
-			g_tiledMap->ValidateMix();
-		}
-		else
-		{
-			// Clamped at a map edge: drop the residual so it doesn't spring back.
-			s_accX = 0.0f;
-			s_accY = 0.0f;
-		}
+		g_tiledMap->RetargetTileSurface(nullptr);
+		g_tiledMap->Refresh();
+		g_tiledMap->InvalidateMap();
+		g_tiledMap->ValidateMix();
 	}
-
-	// P11 2c (ADR-001): the sub-tile remainder becomes the GPU camera offset — the
-	// world texture (oversized, with margin content from RenderWorldLayer) slides
-	// by it on the GPU, so the pan is pixel-smooth between whole-tile ScrollMaps.
-	// The offset negates the remainder (pan east => sample further east). Ignored
-	// unless the GPU camera is on, so the default build stays tile-stepped. Present
-	// immediately so the glide shows even when no whole tile crossed this event.
-	if (aui_SDL::GpuCameraEnabled())
+	else
 	{
-		aui_SDL::SetCamera(-s_accX, -s_accY, aui_SDL::CameraZoom());
-		if (c3ui_Get())
-			c3ui_Get()->BltSecondaryToPrimary(0, false);
+		s_accX = 0.0f;
+		s_accY = 0.0f;
 	}
+}
+
+// P11 2c (ADR-001) — recenter the buttery pan. Called from the per-frame camera tick
+// after TickCamera has eased the displayed offset. When the offset reaches the whole-
+// tile margin that RenderWorldLayer fills, ScrollMap the engine by those tiles and
+// slide BOTH the displayed offset and the target back by the same pixels (ShiftPan),
+// then re-render the world layer so the present shows the scrolled content at the
+// reduced offset. Net view position is unchanged — the ScrollMap is invisible — but
+// it keeps the GPU window inside the pre-rendered margin as the pan travels any
+// distance. Returns true if it recentered (so the caller re-renders / knows content
+// changed).
+static bool ui_RecenterPanIfNeeded()
+{
+	if (!g_tiledMap || !aui_SDL::GpuCameraEnabled())
+		return false;
+
+	sint32 const hscroll = g_tiledMap->GetZoomTilePixelWidth();
+	sint32 const vscroll = g_tiledMap->GetZoomTilePixelHeight() / 2;
+	if (hscroll < 1 || vscroll < 1)
+		return false;
+
+	// Recenter once the displayed offset comes within one tile of the rendered
+	// margin edge (world content offset), so we never window past it into black.
+	float const threshX = static_cast<float>(aui_SDL::WorldContentOffX()) - hscroll;
+	float const threshY = static_cast<float>(aui_SDL::WorldContentOffY()) - vscroll;
+	float const ox = aui_SDL::CameraOffX();
+	float const oy = aui_SDL::CameraOffY();
+
+	// CameraOff = -accumulatedPan, so the whole tiles to scroll = -CameraOff/scroll.
+	sint32 dxTiles = 0;
+	sint32 dyTiles = 0;
+	if (threshX > 0.0f && (ox > threshX || ox < -threshX))
+		dxTiles = static_cast<sint32>(-ox / hscroll);
+	if (threshY > 0.0f && (oy > threshY || oy < -threshY))
+		dyTiles = static_cast<sint32>(-oy / vscroll);
+	if (dxTiles == 0 && dyTiles == 0)
+		return false;
+
+	// ONE combined ScrollMap call (the shape every legacy caller uses), then trust
+	// only the view rect for how far each axis actually moved. ScrollMap clamps
+	// its axes independently at map edges (Y at the poles; X on non-wrapping
+	// maps) — including PARTIAL clamps (scroll 1 of 3 requested tiles) — while
+	// still returning true if anything moved, so shifting the camera by the
+	// REQUESTED pixels would jump the view by tiles that never scrolled. The
+	// before/after m_mapViewRect delta gives the truth per axis. On a wrapping
+	// axis the rect can additionally be relabelled by a whole map dimension at
+	// the seam (a coordinate rename, not a visual move); recenter deltas are a
+	// few tiles and map dimensions are far larger, so |raw| > |requested|
+	// identifies the relabel (the visual scroll is then exactly the request —
+	// wrap never clamps).
+	RECT const before = *g_tiledMap->GetMapViewRect();
+	bool const moved  = g_tiledMap->ScrollMap(dxTiles, dyTiles);
+	RECT const after  = *g_tiledMap->GetMapViewRect();
+
+	auto actualAxis = [](sint32 raw, sint32 req) -> sint32
+	{
+		sint32 const rawAbs = (raw < 0) ? -raw : raw;
+		sint32 const reqAbs = (req < 0) ? -req : req;
+		return (rawAbs > reqAbs) ? req : raw;
+	};
+	sint32 const adx = moved ? actualAxis(after.left - before.left, dxTiles) : 0;
+	sint32 const ady = moved ? actualAxis(after.top  - before.top,  dyTiles) : 0;
+
+	if (adx != 0 || ady != 0)
+		aui_SDL::ShiftPan(static_cast<float>(adx * hscroll),
+		                  static_cast<float>(ady * vscroll));
+
+	// An axis that scrolled less than requested hit a map edge: clamp its target
+	// to the current offset so the ease stops pushing into the wall (the other
+	// axis keeps gliding).
+	if (adx != dxTiles)
+		aui_SDL::SetPanTarget(aui_SDL::CameraOffX(), aui_SDL::PanTargetY());
+	if (ady != dyTiles)
+		aui_SDL::SetPanTarget(aui_SDL::PanTargetX(), aui_SDL::CameraOffY());
+
+	if (adx == 0 && ady == 0)
+		return false;
+
+	// Content moved +N tiles / camera -N tiles: net view unchanged, but the map
+	// needs a redraw pass and the oversized world texture fresh margin content.
+	g_tiledMap->RetargetTileSurface(nullptr);
+	g_tiledMap->Refresh();
+	g_tiledMap->InvalidateMap();
+	g_tiledMap->ValidateMix();
+	if (c3ui_Get() && c3ui_Get()->GpuLayers())
+		g_tiledMap->RenderWorldLayer(c3ui_Get()->WorldSurface());
+	return true;
 }
 
 bool compute_scroll_deltas(sint32 time,sint32 &deltaX,sint32 &deltaY)
@@ -1844,15 +1924,30 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		// re-present while it is still settling (momentum pan glide + the
 		// spring-back zoom). Cheap: no tile re-render, just re-composite the
 		// GPU layers with the updated transform.
-		if (aui_SDL::GpuCameraEnabled() && aui_SDL::CameraMoving())
 		{
+			// dt clock for the camera ease. 0 is the "no previous tick" sentinel:
+			// it MUST be reset whenever the camera is at rest, otherwise the first
+			// frame of the next gesture sees dt = the whole idle gap, TickCamera
+			// clamps it to 0.05s, and the ease factor saturates to 1.0 — a 100%
+			// snap-to-target pop at the start of every pan instead of an ease-in.
 			static Uint32 s_lastCamTick = 0;
-			Uint32 const nowCam = SDL_GetTicks();
-			float const camDt = (s_lastCamTick == 0) ? 0.016f
-			                  : (nowCam - s_lastCamTick) / 1000.0f;
-			s_lastCamTick = nowCam;
-			aui_SDL::TickCamera(camDt);
-			if (c3ui_Get()) c3ui_Get()->BltSecondaryToPrimary(0, false);
+			if (aui_SDL::GpuCameraEnabled() && aui_SDL::CameraMoving())
+			{
+				Uint32 const nowCam = SDL_GetTicks();
+				float const camDt = (s_lastCamTick == 0) ? 0.016f
+				                  : (nowCam - s_lastCamTick) / 1000.0f;
+				s_lastCamTick = nowCam;
+				aui_SDL::TickCamera(camDt);
+				// P11 2c: after easing the offset, recenter via ScrollMap if it reached
+				// the rendered margin (keeps the buttery glide inside real content over
+				// any pan distance). Seamless — see ui_RecenterPanIfNeeded.
+				ui_RecenterPanIfNeeded();
+				if (c3ui_Get()) c3ui_Get()->BltSecondaryToPrimary(0, false);
+			}
+			else
+			{
+				s_lastCamTick = 0;
+			}
 		}
 
 		// Frame pacing: cap the loop to ~60 fps. When the engine is idle (no

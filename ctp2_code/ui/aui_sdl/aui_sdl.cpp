@@ -1,6 +1,8 @@
 #include "os/include/ctp2_config.h"
 #include "ctp/c3.h"
 
+#include <cmath>    // std::exp — frame-rate-independent camera ease
+
 #ifdef __AUI_USE_SDL__
 
 #include "ui/aui_common/aui_ui.h"
@@ -25,6 +27,8 @@ float aui_SDL::m_panVelX = 0.0f;
 float aui_SDL::m_panVelY = 0.0f;
 float aui_SDL::m_zoomVel = 0.0f;
 float aui_SDL::m_homeZoom = 1.0f;
+float aui_SDL::m_panTargetX = 0.0f;
+float aui_SDL::m_panTargetY = 0.0f;
 int aui_SDL::m_worldContentOffX = 0;
 int aui_SDL::m_worldContentOffY = 0;
 // P11 Stage 3 G1: terrain quad atlas + per-frame draw list.
@@ -128,14 +132,46 @@ void aui_SDL::TickCamera(float dtSec)
 	if (dtSec > 0.05f) dtSec = 0.05f;
 	if (dtSec <= 0.0f) return;
 
-	// --- Pan: velocity + exponential friction, no spring (stays where left). ---
-	// k_PAN_FRICTION per-second decay rate: higher = stops sooner.
-	float const k_PAN_FRICTION = 6.0f;
-	float const panDecay = 1.0f - k_PAN_FRICTION * dtSec;
-	m_cameraOffX += m_panVelX * dtSec;
-	m_cameraOffY += m_panVelY * dtSec;
-	m_panVelX *= (panDecay > 0.0f) ? panDecay : 0.0f;
-	m_panVelY *= (panDecay > 0.0f) ? panDecay : 0.0f;
+	// --- Pan: exponential follow toward the commanded target (buttery glide). ---
+	// The trackpad sets m_panTarget (in big, bursty jumps); the displayed CameraOff
+	// eases a fraction of the remaining distance each frame, so the motion is smooth
+	// at the frame rate no matter how chunky the event stream is. macOS keeps sending
+	// decaying momentum wheel events after the finger lifts, so following the target
+	// yields natural inertia for free. k_PAN_FOLLOW: higher = snappier (less lag),
+	// lower = floatier.
+	//
+	// The factor uses the EXACT exponential form 1-e^(-k*dt), not the linear k*dt
+	// approximation: the linear form saturates to a 100% snap-to-target once
+	// dt >= 1/k (0.045s at k=22) — precisely what happens when presents get
+	// starved to 20Hz — turning the ease back into per-event stepping. The exact
+	// form converges to but never reaches 1, and composes correctly across any
+	// frame rate (two 8ms ticks advance exactly as far as one 16ms tick).
+	float const k_PAN_FOLLOW = 22.0f;
+	float const panFollow = 1.0f - std::exp(-k_PAN_FOLLOW * dtSec);
+	m_cameraOffX += (m_panTargetX - m_cameraOffX) * panFollow;
+	m_cameraOffY += (m_panTargetY - m_cameraOffY) * panFollow;
+
+	// Hard-clamp the pan (offset AND target) to the rendered world margin. The
+	// present windows the source rect at (contentOff - off), which is only valid
+	// while |off| <= contentOff — beyond it the window samples unrendered (black)
+	// texture. This is also the safety bound that keeps the recenter's ScrollMap
+	// requests small: before the first world render publishes a margin the
+	// content offset is 0, the recenter thresholds never fire, and an unclamped
+	// ease once walked the offset out to ~1000px — which then asked ScrollMap for
+	// a scroll taller than its surface (the 2026-07-16 ScrollPixels crash).
+	// Recenter shifts offset+target back inside the margin as the pan travels,
+	// so this cap never limits sustained scrolling — only the queued overshoot.
+	float const limX = static_cast<float>(m_worldContentOffX);
+	float const limY = static_cast<float>(m_worldContentOffY);
+	auto clampPanAxis = [](float &off, float &tgt, float lim)
+	{
+		if (tgt >  lim) tgt =  lim;
+		if (tgt < -lim) tgt = -lim;
+		if (off >  lim) off =  lim;
+		if (off < -lim) off = -lim;
+	};
+	clampPanAxis(m_cameraOffX, m_panTargetX, limX);
+	clampPanAxis(m_cameraOffY, m_panTargetY, limY);
 
 	// --- Zoom: damped spring toward the home zoom (the "gravity"). ---
 	// Impulses (scroll) push m_zoomVel; the spring pulls zoom back to home and
@@ -158,16 +194,22 @@ void aui_SDL::TickCamera(float dtSec)
 	{
 		m_cameraZoom = m_homeZoom;
 		m_zoomVel = m_panVelX = m_panVelY = 0.0f;
+		// Snap the displayed offset exactly onto the target so no sub-pixel error
+		// lingers (and the next recenter math starts clean).
+		m_cameraOffX = m_panTargetX;
+		m_cameraOffY = m_panTargetY;
 	}
 }
 
 bool aui_SDL::CameraMoving()
 {
 	float const zoomErr = m_cameraZoom - m_homeZoom;
+	float const panErrX = m_panTargetX - m_cameraOffX;
+	float const panErrY = m_panTargetY - m_cameraOffY;
 	return (zoomErr >  0.002f) || (zoomErr < -0.002f)
 	    || (m_zoomVel > 0.01f) || (m_zoomVel < -0.01f)
-	    || (m_panVelX > 0.5f)  || (m_panVelX < -0.5f)
-	    || (m_panVelY > 0.5f)  || (m_panVelY < -0.5f);
+	    || (panErrX  > 0.5f)   || (panErrX  < -0.5f)
+	    || (panErrY  > 0.5f)   || (panErrY  < -0.5f);
 }
 
 AUI_ERRCODE aui_SDL::InitCommon(BOOL useExclusiveMode)

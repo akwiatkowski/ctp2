@@ -3686,6 +3686,11 @@ void TiledMap::RenderWorldLayer(aui_Surface *worldSurf)
 	RetargetTileSurface(savedSurface);
 	m_mapViewRect = savedView;
 	m_surfaceRect = savedSurfRect;
+
+	// Stamp the write: the GPU present uploads the world texture only when this
+	// version moved, and skips identical frames entirely (see aui_UI versions).
+	if (c3ui_Get())
+		c3ui_Get()->BumpWorldContentVersion();
 }
 
 // P11 Stage 3 G1 — terrain quad renderer.

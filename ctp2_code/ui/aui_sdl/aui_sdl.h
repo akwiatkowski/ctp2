@@ -54,7 +54,11 @@ public:
 	// the ALLOCATION margin (generous, fixed); the actual content offset the
 	// world-layer render uses is whole-tile-aligned (<= this) and published via
 	// SetWorldContentOffset so the present + oracle window to the exact centre.
-	static int WorldMargin() { return 128; }
+	// 192px (4 tile-columns / 8 half-rows at default zoom): the buttery pan lets
+	// the GPU camera glide this far into the margin before a whole-tile recenter,
+	// so a bigger margin = fewer recenters (fewer synchronous world re-renders),
+	// most noticeably on the horizontal axis where tiles are twice as wide.
+	static int WorldMargin() { return 192; }
 	// The whole-tile-aligned pixel offset at which TiledMap::RenderWorldLayer
 	// places the screen's top-left inside the oversized world surface. The
 	// present windows the screen viewport at this offset (minus CameraOff). Set
@@ -71,6 +75,19 @@ public:
 	static float CameraOffX() { return m_cameraOffX; }
 	static float CameraOffY() { return m_cameraOffY; }
 	static float CameraZoom() { return m_cameraZoom; }
+
+	// P11 2c (ADR-001) — buttery pan target. The trackpad accumulates the commanded
+	// pan into this TARGET offset (screen px); TickCamera eases the displayed
+	// CameraOff toward it every frame, so the motion is smooth at the frame rate and
+	// decoupled from the bursty (large-delta) trackpad event stream. On a whole-tile
+	// recenter, ShiftPan slides BOTH the displayed offset and the target by the same
+	// pixels so the ease continues seamlessly across the ScrollMap.
+	static void AddPanTarget(float dx, float dy) { m_panTargetX += dx; m_panTargetY += dy; }
+	static void SetPanTarget(float x, float y)   { m_panTargetX = x;  m_panTargetY = y; }
+	static void ShiftPan(float dx, float dy)
+	{ m_cameraOffX += dx; m_cameraOffY += dy; m_panTargetX += dx; m_panTargetY += dy; }
+	static float PanTargetX() { return m_panTargetX; }
+	static float PanTargetY() { return m_panTargetY; }
 	// P11 Stage 2 F — momentum camera physics. Input adds velocity impulses;
 	// TickCamera integrates them each frame. Pan glides to rest under friction
 	// and stays put; zoom is spring-loaded toward the "home" zoom so it eases
@@ -131,6 +148,9 @@ protected:
 	static float		m_panVelY;
 	static float		m_zoomVel;
 	static float		m_homeZoom;
+	// P11 2c: buttery-pan follow target (the displayed CameraOff eases toward this).
+	static float		m_panTargetX;
+	static float		m_panTargetY;
 	// P11 G1: terrain quad atlas (source) + the per-frame cell draw list.
 	static SDL_Texture *	m_quadAtlasTexture;
 	static int		m_quadAtlasW;

@@ -235,6 +235,54 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 				SDL_Surface * const ws = worldSurf->DDS();
 				SDL_Surface * const us = uiSurf->DDS();
 
+				// P11 2c (ADR-001) — redundant-present elimination. Multiple callers
+				// Flip every frame (main loop camera tick, the mouse thread, UI
+				// process); each present blocks on vsync, so redundant ones halve or
+				// third the achievable frame rate — during a trackpad glide that
+				// starved the camera tick down to ~20Hz and broke the ease into
+				// visible steps. The composite output is fully determined by the
+				// layer content versions + the camera transform + the content
+				// offset: if none of them changed since the last present, the frame
+				// on screen is already identical — skip the whole present. The
+				// texture uploads use the same versions (upload only what changed):
+				// during a pure glide neither surface changed, so a present is just
+				// two GPU draws + present. Statics are safe under m_bltMutex (all
+				// Flips serialize on it) and shared across surfaces by design (the
+				// layered composite ignores which surface flipped).
+				bool  const camOn   = aui_SDL::GpuCameraEnabled();
+				float const camOffX = camOn ? aui_SDL::CameraOffX() : 0.0f;
+				float const camOffY = camOn ? aui_SDL::CameraOffY() : 0.0f;
+				float const camZoom = camOn ? aui_SDL::CameraZoom() : 1.0f;
+				uint32 const worldV = ui->WorldContentVersion();
+				uint32 const uiV    = ui->UiContentVersion();
+				bool  const fogOn   = ui->GpuFog();
+
+				static uint32 s_shownWorldV  = ~0u;
+				static uint32 s_shownUiV     = ~0u;
+				static float  s_shownOffX    = 0.0f;
+				static float  s_shownOffY    = 0.0f;
+				static float  s_shownZoom    = 1.0f;
+				static int    s_shownBaseX   = -1;
+				static int    s_shownBaseY   = -1;
+
+				bool const worldChanged = (worldV != s_shownWorldV);
+				bool const uiChanged    = (uiV    != s_shownUiV);
+				bool const camChanged   = (camOffX != s_shownOffX)
+				                       || (camOffY != s_shownOffY)
+				                       || (camZoom != s_shownZoom)
+				                       || (aui_SDL::WorldContentOffX() != s_shownBaseX)
+				                       || (aui_SDL::WorldContentOffY() != s_shownBaseY);
+
+				// Fog has no version counter (conservative: never skip while GPU fog
+				// is on). Quads re-render the world texture per present, so they
+				// always count as a world change.
+				if (!worldChanged && !uiChanged && !camChanged && !fogOn
+				    && !aui_SDL::GpuQuadsEnabled())
+				{
+					SDL_UnlockMutex(m_bltMutex);
+					return;
+				}
+
 				// P11 Stage 3 G1: terrain quad renderer. When enabled, draw the
 				// visible terrain cells as GPU textured quads (from the tile
 				// atlas) INTO the world texture — which is a render target in
@@ -259,11 +307,14 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					}
 					SDL_SetRenderTarget( m_renderer, nullptr );
 				}
-				else
+				else if (worldChanged)
 				{
+					// Upload only when the world surface actually changed since the
+					// last upload — a camera-only glide present skips the ~6MB copy.
 					CTP2_SDL_UpdateTexture( aui_SDL::WorldTexture(), nullptr, ws->pixels, ws->pitch );
 				}
-				CTP2_SDL_UpdateTexture( aui_SDL::UiTexture(),    nullptr, us->pixels, us->pitch );
+				if (uiChanged)
+					CTP2_SDL_UpdateTexture( aui_SDL::UiTexture(), nullptr, us->pixels, us->pitch );
 
 				// P11 Stage 2 C: GPU fog. When enabled, upload the fog mask and
 				// composite it (BLENDMODE_BLEND, black + per-tile alpha) between
@@ -315,9 +366,29 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 						(float)aui_SDL::WorldContentOffX(), (float)aui_SDL::WorldContentOffY() );
 					if (fogged)
 						presentWindowed( aui_SDL::FogTexture(), 0.0f, 0.0f );
+					// [FLIP] TEMPORARY diagnostic — strip before final commit. Fire only
+					// on a non-zero camera offset (an actual glide present), so idle
+					// boot frames don't exhaust the cap before the user pans. Logs the
+					// pan TARGET too: smooth = off chases tgt in small per-frame steps;
+					// broken = off equals tgt every line (per-event snapping again).
+					static int s_flipdbg = 0;
+					if ((offX != 0.0f || offY != 0.0f) && s_flipdbg++ < 240)
+						fprintf(stderr, "[FLIP] t=%u off=(%.1f,%.1f) tgt=(%.1f,%.1f) base=(%d,%d)\n",
+							(unsigned)SDL_GetTicks(), offX, offY,
+							aui_SDL::PanTargetX(), aui_SDL::PanTargetY(),
+							aui_SDL::WorldContentOffX(), aui_SDL::WorldContentOffY());
 				}
 				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::UiTexture() );
 				SDL_RenderPresent( m_renderer );
+
+				// Record what this present showed, for the redundancy check above.
+				s_shownWorldV = worldV;
+				s_shownUiV    = uiV;
+				s_shownOffX   = camOffX;
+				s_shownOffY   = camOffY;
+				s_shownZoom   = camZoom;
+				s_shownBaseX  = aui_SDL::WorldContentOffX();
+				s_shownBaseY  = aui_SDL::WorldContentOffY();
 			}
 			else
 			{

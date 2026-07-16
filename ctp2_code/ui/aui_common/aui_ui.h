@@ -121,6 +121,8 @@ protected:
 		m_gpuLayers                 (false),
 		m_fogSurface                (nullptr),
 		m_gpuFog                    (false),
+		m_worldContentVersion       (0),
+		m_uiContentVersion          (0),
 		m_blitter                   (nullptr),
 		m_memmap                    (nullptr),
 		m_mouse                     (nullptr),
@@ -219,9 +221,15 @@ public:
 				EraseUiLayerRect(destx, desty,
 				                 destx + (srcRect->right - srcRect->left),
 				                 desty + (srcRect->bottom - srcRect->top));
+				++m_uiContentVersion;
 			}
 			else
+			{
 				m_blitter->Blt(m_uiSurface, destx, desty, srcSurf, srcRect, flags);
+				// Stamp the write so the present can tell "UI pixels changed"
+				// from "identical frame" (see the content versions below).
+				++m_uiContentVersion;
+			}
 		}
 		return rc;
 	};
@@ -251,7 +259,10 @@ public:
 		// P11 Stage 2 D: color/image fills are background/UI chrome, never the
 		// world window — mirror them into the UI layer (see BltToSecondary).
 		if (m_gpuLayers)
+		{
 			m_blitter->ColorBlt(m_uiSurface, destRect, color, flags);
+			++m_uiContentVersion;
+		}
 		return rc;
 	};
 
@@ -299,6 +310,18 @@ public:
 	void			EraseUiLayerRect( sint32 l, sint32 t, sint32 r, sint32 b );
 	aui_Surface		*FogSurface( ) const { return m_fogSurface; }
 	bool			GpuFog( ) const { return m_gpuFog; }
+	// P11 2c (ADR-001) — layer content versions. Monotonic counters bumped on
+	// every write to the UI layer (the BltToSecondary/ColorBltToSecondary
+	// chokepoints above) and to the world layer (TiledMap::RenderWorldLayer).
+	// The GPU present compares them against what it last uploaded/showed: an
+	// unchanged version means the texture upload can be skipped, and an entirely
+	// unchanged frame (same versions + same camera) can skip the vsync-blocking
+	// present altogether. That matters because the mouse thread also presents;
+	// during a trackpad glide the cursor is still, and without the skip its
+	// redundant presents each block on vsync and starve the 60fps camera tick.
+	uint32			WorldContentVersion( ) const { return m_worldContentVersion; }
+	uint32			UiContentVersion( ) const { return m_uiContentVersion; }
+	void			BumpWorldContentVersion( ) { ++m_worldContentVersion; }
 	aui_Blitter		*TheBlitter( ) const { return m_blitter; }
 	aui_MemMap		*TheMemMap( ) const { return m_memmap; }
 	aui_Mouse		*TheMouse( ) const { return m_mouse; }
@@ -504,6 +527,9 @@ protected:
 	// hide/resize — a surface pointer captured once goes stale (or is null).
 	aui_Surface		*m_worldSurface;
 	aui_Surface		*m_uiSurface;
+	// P11 2c: content versions for the layer surfaces (see accessors above).
+	uint32			m_worldContentVersion;
+	uint32			m_uiContentVersion;
 	aui_Window		*m_worldWindow;
 	bool			m_gpuLayers;
 	// P11 Stage 2 C: fog-of-war mask surface (32-bit, screen-sized, transparent

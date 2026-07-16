@@ -18,6 +18,7 @@ Exit codes:
 import argparse
 import os
 import sys
+import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ctp2_client import Ctp2Client, Ctp2Error  # noqa: E402
@@ -142,16 +143,73 @@ def run_attempt(binary, env, log, path0, path1):
         client.expect_ok("camera_debug_set", 50, 50)
         client.expect_ok("screenshot_presented", path1)
 
-    samples, mismatches, dims = diff_frames(path0, path1)
-    print(f"[pixel-proof] frame dims: {dims[0]}x{dims[1]}")
-    print(f"[pixel-proof] sampled {samples} points, {mismatches} mismatched")
+        samples, mismatches, dims = diff_frames(path0, path1)
+        print(f"[pixel-proof] frame dims: {dims[0]}x{dims[1]}")
+        print(f"[pixel-proof] sampled {samples} points, {mismatches} mismatched")
 
-    if mismatches > samples * 0.05:
+        if mismatches <= samples * 0.05:
+            print("[pixel-proof] FAIL: camera offset did NOT shift presented pixels")
+            print("[pixel-proof] bug is likely in layer compositing, not input/cadence")
+            return 1
         print("[pixel-proof] PASS: camera offset visibly shifted presented pixels")
-        return 0
-    print("[pixel-proof] FAIL: camera offset did NOT visibly shift presented pixels")
-    print("[pixel-proof] bug is likely in layer compositing, not input/cadence")
-    return 1
+
+        # ---- Phase 2: the glide. Stream pan-target pulses like a trackpad
+        # (each within the recenter margin) and watch the presented frame pass
+        # through SUB-TILE positions on its way — the actual "buttery" claim.
+        # A tile-stepped pan only ever shows multiples of the 96px tile step.
+        client.expect_ok("camera_debug_set", 0, 0)
+        time.sleep(0.4)  # let the ease settle from the reset
+        client.expect_ok("screenshot_presented", path0)
+
+        shifts = []
+        for i in range(10):
+            client.expect_ok("camera_debug_pan", 20, 0)
+            client.expect_ok("screenshot_presented", path1)
+            shifts.append(measure_x_shift(path0, path1))
+            time.sleep(0.10)
+        # One more after the ease finishes.
+        time.sleep(0.8)
+        client.expect_ok("screenshot_presented", path1)
+        shifts.append(measure_x_shift(path0, path1))
+
+    print(f"[glide-proof] x-shifts vs baseline: {shifts}")
+    total = shifts[-1]
+    distinct = sorted(set(s for s in shifts if s is not None))
+    subtile = [s for s in distinct
+               if 4 < s < total - 4 and 4 < (s % 96) < 92]
+    print(f"[glide-proof] total={total} distinct={distinct} subtile={subtile}")
+
+    if total is None or total < 150:
+        print("[glide-proof] FAIL: pan did not travel (expected ~200px)")
+        return 1
+    if len(subtile) < 2:
+        print("[glide-proof] FAIL: no sub-tile intermediate positions — pan is tile-stepped")
+        return 1
+    print("[glide-proof] PASS: glide passed through sub-tile positions")
+    return 0
+
+
+def measure_x_shift(base_path, frame_path, max_shift=240):
+    """Horizontal displacement of frame vs base (px), by 1-D correlation of
+    terrain samples in the map region. Positive = content moved right."""
+    with open(base_path, "rb") as f:
+        a = f.read()
+    with open(frame_path, "rb") as f:
+        b = f.read()
+    w, h = _bmp_dims(a)
+    pts = [(x, y)
+           for y in range(60, h * 3 // 5, 4)
+           for x in range(max_shift + 4, w - max_shift - 4, 4)
+           if _bmp_pixel(a, x, y) != (0, 0, 0)]
+    if len(pts) < 50:
+        return None
+    pts = pts[::max(1, len(pts) // 400)]
+    best = (0, 0)
+    for d in range(-max_shift, max_shift + 1, 2):
+        m = sum(1 for (x, y) in pts if _bmp_pixel(b, x + d, y) == _bmp_pixel(a, x, y))
+        if m > best[0]:
+            best = (m, d)
+    return best[1]
 
 
 def run(binary):

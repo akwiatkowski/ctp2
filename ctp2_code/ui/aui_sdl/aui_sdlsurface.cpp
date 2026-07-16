@@ -349,9 +349,10 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					float const offY = cam ? aui_SDL::CameraOffY() : 0.0f;
 
 					// baseX/baseY = pixel offset of the screen top-left inside the
-					// texture. The world texture is oversized, so its screen content
-					// sits at the published whole-tile content offset; fog is
-					// screen-sized (offset 0). Zoom centres about the screen middle.
+					// texture. The mirrored world texture is oversized, its screen
+					// content at the fixed window-margin content offset; the quad
+					// path renders a screen-sized texture (offset 0), as is fog.
+					// Zoom centres about the screen middle.
 					auto presentWindowed = [&]( SDL_Texture * tex, float baseX, float baseY )
 					{
 						float const srcW = W / z;
@@ -363,20 +364,10 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					};
 
 					presentWindowed( aui_SDL::WorldTexture(),
-						(float)aui_SDL::WorldContentOffX(), (float)aui_SDL::WorldContentOffY() );
+						quads ? 0.0f : (float)aui_SDL::WorldContentOffX(),
+						quads ? 0.0f : (float)aui_SDL::WorldContentOffY() );
 					if (fogged)
 						presentWindowed( aui_SDL::FogTexture(), 0.0f, 0.0f );
-					// [FLIP] TEMPORARY diagnostic — strip before final commit. Fire only
-					// on a non-zero camera offset (an actual glide present), so idle
-					// boot frames don't exhaust the cap before the user pans. Logs the
-					// pan TARGET too: smooth = off chases tgt in small per-frame steps;
-					// broken = off equals tgt every line (per-event snapping again).
-					static int s_flipdbg = 0;
-					if ((offX != 0.0f || offY != 0.0f) && s_flipdbg++ < 240)
-						fprintf(stderr, "[FLIP] t=%u off=(%.1f,%.1f) tgt=(%.1f,%.1f) base=(%d,%d)\n",
-							(unsigned)SDL_GetTicks(), offX, offY,
-							aui_SDL::PanTargetX(), aui_SDL::PanTargetY(),
-							aui_SDL::WorldContentOffX(), aui_SDL::WorldContentOffY());
 				}
 				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::UiTexture() );
 				SDL_RenderPresent( m_renderer );

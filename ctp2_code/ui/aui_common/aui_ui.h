@@ -204,14 +204,22 @@ public:
 		// layer is screen-sized and shares the secondary's coordinates.
 		if (m_gpuLayers)
 		{
-			// P11 2b (ADR-001): the world layer is no longer mirrored from the
-			// screen background here — TiledMap::RenderWorldLayer renders terrain
-			// and actors directly into the oversized m_worldSurface at the wider
-			// (margin) view, so the margin holds real content. Only the UI layer
-			// is still mirrored from the composite (everything that is NOT the
-			// background/world window).
 			if (srcSurf && srcSurf == WorldSurfaceKey())
 			{
+				// P11 2b (ADR-001): the background window IS an oversized world
+				// render — its surface extends one tile-grid past the screen on
+				// every side (window at (-94,-72)), terrain AND actors drawn by
+				// the legacy pipeline. Mirror the WHOLE window surface 1:1 (not
+				// the incoming rect): the composite pipeline clips its rects to
+				// the screen, but the sub-tile GPU pan samples the off-screen
+				// margins every frame — after a ScrollMap the whole surface has
+				// shifted, so a screen-clipped mirror would leave one-tile-stale
+				// margins for the glide to slide into. The present windows the
+				// screen out at the fixed (94,72) content offset
+				// (aui_SDL::WorldContentOff*).
+				RECT whole = { 0, 0, srcSurf->Width(), srcSurf->Height() };
+				m_blitter->Blt(m_worldSurface, 0, 0, srcSurf, &whole, flags);
+				++m_worldContentVersion;
 				// Punch a transparent hole in the UI layer (screen coords): in
 				// z-order the world is the bottom-most window, so a world write
 				// means whatever the UI layer held here (a closed window, a
@@ -312,7 +320,7 @@ public:
 	bool			GpuFog( ) const { return m_gpuFog; }
 	// P11 2c (ADR-001) — layer content versions. Monotonic counters bumped on
 	// every write to the UI layer (the BltToSecondary/ColorBltToSecondary
-	// chokepoints above) and to the world layer (TiledMap::RenderWorldLayer).
+	// chokepoints above) and to the world layer (the world mirror above).
 	// The GPU present compares them against what it last uploaded/showed: an
 	// unchanged version means the texture upload can be skipped, and an entirely
 	// unchanged frame (same versions + same camera) can skip the vsync-blocking
@@ -321,7 +329,6 @@ public:
 	// redundant presents each block on vsync and starve the 60fps camera tick.
 	uint32			WorldContentVersion( ) const { return m_worldContentVersion; }
 	uint32			UiContentVersion( ) const { return m_uiContentVersion; }
-	void			BumpWorldContentVersion( ) { ++m_worldContentVersion; }
 	aui_Blitter		*TheBlitter( ) const { return m_blitter; }
 	aui_MemMap		*TheMemMap( ) const { return m_memmap; }
 	aui_Mouse		*TheMouse( ) const { return m_mouse; }

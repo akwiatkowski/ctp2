@@ -23,6 +23,7 @@
 
 #include "ui/interface/backgroundwin.h"
 #include "ui/interface/controlpanelwindow.h"
+#include "ui/aui_sdl/aui_sdl.h"       // aui_SDL::WorldContentOff* (margin assert)
 
 
 #include "gs/database/profileDB.h"
@@ -135,6 +136,17 @@ sint32 backgroundWin_Initialize(bool fullscreen)
 	if ( c3ui_Get() )
 		c3ui_Get()->SetWorldWindow( g_background );
 
+#if defined(__AUI_USE_SDL__)
+	// P11 2a (ADR-001): the GPU world layer is a 1:1 mirror of this window's
+	// surface, and the present windows the screen viewport out of it at the
+	// window's margin — the offsets baked into aui_SDL must match the layout
+	// established above (window at (-k_TILE_GRID_WIDTH, -k_TILE_GRID_HEIGHT)).
+	static_assert(aui_SDL::WorldContentOffX() == k_TILE_GRID_WIDTH,
+	              "GPU world content offset X must equal the background window margin");
+	static_assert(aui_SDL::WorldContentOffY() == k_TILE_GRID_HEIGHT,
+	              "GPU world content offset Y must equal the background window margin");
+#endif
+
 
 
 
@@ -186,14 +198,6 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 
 	tradepool_Get()->Draw(surface);
 	tiledmap_Get()->RepaintSprites(surface, tiledmap_Get()->GetMapViewRect(), false);
-
-	// P11 2b (ADR-001): with per-layer GPU compositing on, also render the world
-	// layer (terrain + actors) into the oversized GPU world surface at the wider
-	// margin view, so the buttery sub-tile pan has real content to slide into.
-	// Screen-view state is current here (actors just positioned); RenderWorldLayer
-	// widens/restores the view internally so this does not affect the screen draw.
-	if (c3ui_Get() && c3ui_Get()->GpuLayers())
-		tiledmap_Get()->RenderWorldLayer(c3ui_Get()->WorldSurface());
 
 	if (director_Get())
     {

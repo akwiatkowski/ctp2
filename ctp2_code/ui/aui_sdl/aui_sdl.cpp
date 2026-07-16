@@ -29,8 +29,6 @@ float aui_SDL::m_zoomVel = 0.0f;
 float aui_SDL::m_homeZoom = 1.0f;
 float aui_SDL::m_panTargetX = 0.0f;
 float aui_SDL::m_panTargetY = 0.0f;
-int aui_SDL::m_worldContentOffX = 0;
-int aui_SDL::m_worldContentOffY = 0;
 // P11 Stage 3 G1: terrain quad atlas + per-frame draw list.
 SDL_Texture *aui_SDL::m_quadAtlasTexture = nullptr;
 int aui_SDL::m_quadAtlasW = 0;
@@ -155,14 +153,13 @@ void aui_SDL::TickCamera(float dtSec)
 	// present windows the source rect at (contentOff - off), which is only valid
 	// while |off| <= contentOff — beyond it the window samples unrendered (black)
 	// texture. This is also the safety bound that keeps the recenter's ScrollMap
-	// requests small: before the first world render publishes a margin the
-	// content offset is 0, the recenter thresholds never fire, and an unclamped
-	// ease once walked the offset out to ~1000px — which then asked ScrollMap for
-	// a scroll taller than its surface (the 2026-07-16 ScrollPixels crash).
-	// Recenter shifts offset+target back inside the margin as the pan travels,
-	// so this cap never limits sustained scrolling — only the queued overshoot.
-	float const limX = static_cast<float>(m_worldContentOffX);
-	float const limY = static_cast<float>(m_worldContentOffY);
+	// requests small: an unclamped ease once walked the offset out to ~1000px —
+	// which then asked ScrollMap for a scroll taller than its surface (the
+	// 2026-07-16 ScrollPixels crash). Recenter shifts offset+target back inside
+	// the margin as the pan travels, so this cap never limits sustained
+	// scrolling — only the queued overshoot.
+	float const limX = static_cast<float>(WorldContentOffX());
+	float const limY = static_cast<float>(WorldContentOffY());
 	auto clampPanAxis = [](float &off, float &tgt, float lim)
 	{
 		if (tgt >  lim) tgt =  lim;

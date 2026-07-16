@@ -51,21 +51,22 @@ public:
 	// oversized by this margin (px) on each side of the screen so the viewport
 	// can pan sub-tile on the GPU (a moving source rect) without revealing a
 	// black edge; whole-tile ScrollMap recenters the content underneath. This is
-	// the ALLOCATION margin (generous, fixed); the actual content offset the
-	// world-layer render uses is whole-tile-aligned (<= this) and published via
-	// SetWorldContentOffset so the present + oracle window to the exact centre.
-	// 192px (4 tile-columns / 8 half-rows at default zoom): the buttery pan lets
-	// the GPU camera glide this far into the margin before a whole-tile recenter,
-	// so a bigger margin = fewer recenters (fewer synchronous world re-renders),
-	// most noticeably on the horizontal axis where tiles are twice as wide.
+	// the ALLOCATION margin; it must be >= the background window's own margin
+	// (94/72 px, see WorldContentOff below) since the world layer is a 1:1
+	// mirror of that window. 192px keeps headroom for both axes.
 	static int WorldMargin() { return 192; }
-	// The whole-tile-aligned pixel offset at which TiledMap::RenderWorldLayer
-	// places the screen's top-left inside the oversized world surface. The
-	// present windows the screen viewport at this offset (minus CameraOff). Set
-	// each frame by the render; 0 until the first oversized render.
-	static void SetWorldContentOffset(int x, int y) { m_worldContentOffX = x; m_worldContentOffY = y; }
-	static int WorldContentOffX() { return m_worldContentOffX; }
-	static int WorldContentOffY() { return m_worldContentOffY; }
+	// The pixel offset at which the screen's top-left sits inside the world
+	// layer. The world layer is an identity mirror of the legacy background
+	// window surface, which is allocated one tile-grid larger than the screen
+	// on each side and positioned at (-k_TILE_GRID_WIDTH, -k_TILE_GRID_HEIGHT)
+	// — so the offset IS that margin, a fixed property of the window layout
+	// (independent of zoom, which only changes how many tiles the margin
+	// covers). backgroundWin_Initialize static_asserts these against the
+	// tileset constants. The present windows the screen viewport at this
+	// offset minus CameraOff; the sub-tile glide may slide at most this far
+	// before a whole-tile recenter pulls the offset back.
+	static constexpr int WorldContentOffX() { return 94; }   // k_TILE_GRID_WIDTH
+	static constexpr int WorldContentOffY() { return 72; }   // k_TILE_GRID_HEIGHT
 	static void SetCamera(float offX, float offY, float zoom)
 	{ m_cameraOffX = offX; m_cameraOffY = offY; m_cameraZoom = zoom; }
 	// TEMPORARY (P11 pixel-proof debug): set the pan offset directly, bypassing
@@ -139,10 +140,6 @@ protected:
 	static float		m_cameraOffX;
 	static float		m_cameraOffY;
 	static float		m_cameraZoom;
-	// P11 2b: whole-tile-aligned pixel offset of the screen's top-left inside the
-	// oversized world surface (published by RenderWorldLayer; consumed by present).
-	static int		m_worldContentOffX;
-	static int		m_worldContentOffY;
 	// P11 F: momentum physics state (velocities + spring anchor).
 	static float		m_panVelX;
 	static float		m_panVelY;

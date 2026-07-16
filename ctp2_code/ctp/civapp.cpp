@@ -2918,8 +2918,14 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 									CTP2_SDL_RenderTextureWindow(renderer, tex,
 										srcX, srcY, srcW, srcH, 0.0f, 0.0f, W, H);
 								};
+								// Quad mode renders a screen-sized world texture with
+								// content at (0,0); the mirrored path is oversized with
+								// content at the window-margin offset (match Flip).
+								bool const quads = aui_SDL::GpuQuadsEnabled()
+								                && aui_SDL::QuadAtlasTexture();
 								windowed(aui_SDL::WorldTexture(),
-									(float)aui_SDL::WorldContentOffX(), (float)aui_SDL::WorldContentOffY());
+									quads ? 0.0f : (float)aui_SDL::WorldContentOffX(),
+									quads ? 0.0f : (float)aui_SDL::WorldContentOffY());
 								// P11 C: fog mask darkens the world between the world
 								// and UI copies (mirrors Flip's present).
 								if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())
@@ -2963,6 +2969,25 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				char detail[64];
 				snprintf(detail, sizeof(detail), "off=%.1f,%.1f", offX, offY);
 				smoketest_send_response("ok", cmd, detail);
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
+			}
+			else if (strncmp(cmd, "camera_debug_pan ", 17) == 0) {
+				// camera_debug_pan <dx> <dy>
+				// TEMPORARY (P11 pixel-proof debug): add to the buttery-pan
+				// TARGET (screen px) exactly as trackpad input does, so a
+				// harness can exercise the real ease/recenter path and verify
+				// the glide passes through sub-tile positions.
+				float dx = 0.0f, dy = 0.0f;
+				sscanf(cmd + 17, "%f %f", &dx, &dy);
+#ifdef USE_SDL
+				if (aui_SDL::GpuCameraEnabled()) {
+					aui_SDL::AddPanTarget(dx, dy);
+					smoketest_send_response("ok", cmd, nullptr);
+				} else {
+					smoketest_send_response("error", cmd, "camera_off");
+				}
 #else
 				smoketest_send_response("error", cmd, "not_sdl");
 #endif

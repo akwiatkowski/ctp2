@@ -705,8 +705,8 @@ void ui_HandleTrackpadPan(float wheelX, float wheelY)
 }
 
 // P11 2c (ADR-001) — recenter the buttery pan. Called from the per-frame camera tick
-// after TickCamera has eased the displayed offset. When the offset reaches the whole-
-// tile margin that RenderWorldLayer fills, ScrollMap the engine by those tiles and
+// after TickCamera has eased the displayed offset. When the offset nears the window
+// margin the world mirror fills, ScrollMap the engine by whole tiles and
 // slide BOTH the displayed offset and the target back by the same pixels (ShiftPan),
 // then re-render the world layer so the present shows the scrolled content at the
 // reduced offset. Net view position is unchanged — the ScrollMap is invisible — but
@@ -725,18 +725,28 @@ static bool ui_RecenterPanIfNeeded()
 
 	// Recenter once the displayed offset comes within one tile of the rendered
 	// margin edge (world content offset), so we never window past it into black.
-	float const threshX = static_cast<float>(aui_SDL::WorldContentOffX()) - hscroll;
-	float const threshY = static_cast<float>(aui_SDL::WorldContentOffY()) - vscroll;
+	// The margin can be SMALLER than the tile step (94px window margin vs a
+	// 96px tile column at zoom 1) — then wait until near the margin edge and
+	// force a single-tile scroll: the offset lands a couple of pixels on the
+	// other side of centre, still safely inside the margin.
+	auto axisTiles = [](float off, sint32 step, sint32 margin) -> sint32
+	{
+		float thresh = static_cast<float>(margin - step);
+		if (thresh <= 0.0f)
+			thresh = static_cast<float>(margin - 6);   // 6px safety strip
+		if (off <= thresh && off >= -thresh)
+			return 0;
+		// CameraOff = -accumulatedPan: whole tiles to scroll = -off/step,
+		// at least one in the crossed direction.
+		sint32 tiles = static_cast<sint32>(-off / step);
+		if (tiles == 0)
+			tiles = (off > 0.0f) ? -1 : 1;
+		return tiles;
+	};
 	float const ox = aui_SDL::CameraOffX();
 	float const oy = aui_SDL::CameraOffY();
-
-	// CameraOff = -accumulatedPan, so the whole tiles to scroll = -CameraOff/scroll.
-	sint32 dxTiles = 0;
-	sint32 dyTiles = 0;
-	if (threshX > 0.0f && (ox > threshX || ox < -threshX))
-		dxTiles = static_cast<sint32>(-ox / hscroll);
-	if (threshY > 0.0f && (oy > threshY || oy < -threshY))
-		dyTiles = static_cast<sint32>(-oy / vscroll);
+	sint32 const dxTiles = axisTiles(ox, hscroll, aui_SDL::WorldContentOffX());
+	sint32 const dyTiles = axisTiles(oy, vscroll, aui_SDL::WorldContentOffY());
 	if (dxTiles == 0 && dyTiles == 0)
 		return false;
 
@@ -780,14 +790,22 @@ static bool ui_RecenterPanIfNeeded()
 	if (adx == 0 && ady == 0)
 		return false;
 
-	// Content moved +N tiles / camera -N tiles: net view unchanged, but the map
-	// needs a redraw pass and the oversized world texture fresh margin content.
+	// Content moved +N tiles / camera -N tiles: net view unchanged, but the
+	// world layer needs the scrolled content BEFORE the next present (ShiftPan
+	// already moved the offset — presenting old content at the moved offset would
+	// visibly jump for a frame). Redraw the background window synchronously and
+	// composite it via DrawOne, whose BltToSecondary mirror copies the whole
+	// window surface (margins included) into the world layer.
 	g_tiledMap->RetargetTileSurface(nullptr);
 	g_tiledMap->Refresh();
 	g_tiledMap->InvalidateMap();
 	g_tiledMap->ValidateMix();
-	if (c3ui_Get() && c3ui_Get()->GpuLayers())
-		g_tiledMap->RenderWorldLayer(c3ui_Get()->WorldSurface());
+	if (c3ui_Get() && c3ui_Get()->GpuLayers() && background_Get())
+	{
+		g_tiledMap->CopyMixDirtyRects(background_Get()->GetDirtyList());
+		background_draw_handler(background_Get());
+		c3ui_Get()->DrawOne(background_Get());
+	}
 	return true;
 }
 

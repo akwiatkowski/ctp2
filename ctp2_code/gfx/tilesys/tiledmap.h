@@ -364,9 +364,6 @@ public:
 	// (compositing each unseen cell once via DrawTransitionTile). No-op unless
 	// CTP2_GPU_QUADS is on. Called from Refresh after the CPU passes unlock.
 	void			BuildTerrainQuads();
-	// P11 2b: render terrain + actors into the oversized GPU world surface at the
-	// widened (margin) view, so the sub-tile pan can slide into real content.
-	void			RenderWorldLayer(aui_Surface *worldSurf);
 	sint32			QuickBlackBackGround(aui_Surface *surface);
 	sint32			DrawDitheredTile(aui_Surface *surface, sint32 x, sint32 y, Pixel16 color);
 	void			DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos, sint32 x, sint32 y, sint32 destWidth, sint32 destHeight,Pixel16 color);

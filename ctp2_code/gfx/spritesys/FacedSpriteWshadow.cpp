@@ -78,42 +78,40 @@ void FacedSpriteWshadow::Import(uint16 nframes, char *imageFiles[k_NUM_FACINGS][
 	{
 		for (sint32 i=0; i < nframes; i++)
 		{
-			char *tif = StripTIF2Mem(imageFiles[facing][i], &m_width, &m_height);
+			TifBuffer tif(StripTIF2Mem(imageFiles[facing][i], &m_width, &m_height));
 
 			if (tif)
 			{
-				char *minitif = nullptr;
-				spriteutils_CreateQuarterSize((Pixel32 *)tif, m_width, m_height, (Pixel32 **)&minitif, TRUE);
+				char *minitifRaw = nullptr;
+				spriteutils_CreateQuarterSize((Pixel32 *)tif.get(), m_width, m_height, (Pixel32 **)&minitifRaw, TRUE);
+				TifBuffer minitif(minitifRaw);   // was leaked before
 
 				size_t dataSize = 0;
-				Pixel16 *data =	spriteutils_RGB32ToEncoded((Pixel32 *)tif, m_width, m_height, &dataSize);
+				Pixel16 *data =	spriteutils_RGB32ToEncoded((Pixel32 *)tif.get(), m_width, m_height, &dataSize);
 				SetFrameData(facing, i, data, dataSize);
 
-				data = spriteutils_RGB32ToEncoded((Pixel32 *)minitif, m_width >> 1, m_height >> 1, &dataSize);
+				data = spriteutils_RGB32ToEncoded((Pixel32 *)minitif.get(), m_width >> 1, m_height >> 1, &dataSize);
 				SetMiniFrameData(facing, i, data, dataSize);
 
 	            uint16		width;
                 uint16      height;
-				char *shadowTif = StripTIF2Mem(shadowFiles[facing][i], &width, &height);
+				TifBuffer shadowTif(StripTIF2Mem(shadowFiles[facing][i], &width, &height));
 
 				if (shadowTif)
 				{
-					data = spriteutils_RGB32ToEncoded((Pixel32 *)shadowTif, m_width, m_height, &dataSize);
+					data = spriteutils_RGB32ToEncoded((Pixel32 *)shadowTif.get(), m_width, m_height, &dataSize);
 					SetShadowFrameData(facing, i, data, dataSize);
 
-				    char *minishadow = nullptr;
-					spriteutils_CreateQuarterSize((Pixel32 *)shadowTif, m_width, m_height, (Pixel32 **)&minishadow, FALSE);
+				    char *minishadowRaw = nullptr;
+					spriteutils_CreateQuarterSize((Pixel32 *)shadowTif.get(), m_width, m_height, (Pixel32 **)&minishadowRaw, FALSE);
+					TifBuffer minishadow(minishadowRaw);   // was leaked before
 
 					if(minishadow)
 					{
-						data = spriteutils_RGB32ToEncoded((Pixel32 *)minishadow, m_width >> 1, m_height >> 1, &dataSize);
+						data = spriteutils_RGB32ToEncoded((Pixel32 *)minishadow.get(), m_width >> 1, m_height >> 1, &dataSize);
 						SetMiniShadowFrameData(facing, i, data, dataSize);
 						}
-
-					free(shadowTif);
 					}
-
-				free(tif);
 			}
 
 			printf(".");
@@ -132,20 +130,19 @@ void FacedSpriteWshadow::Import(uint16 nframes, char *imageFiles[k_NUM_FACINGS][
 	{
 		for (sint32 i=0; i < nframes; i++)
 		{
-			char *tif = StripTIF2Mem(imageFiles[facing][i], &m_width, &m_height);
+			TifBuffer tif(StripTIF2Mem(imageFiles[facing][i], &m_width, &m_height));
 
 			if (tif)
 			{
-				char *minitif = nullptr;
-				spriteutils_CreateQuarterSize((Pixel32 *)tif, m_width, m_height, (Pixel32 **)&minitif, TRUE);
+				char *minitifRaw = nullptr;
+				spriteutils_CreateQuarterSize((Pixel32 *)tif.get(), m_width, m_height, (Pixel32 **)&minitifRaw, TRUE);
+				TifBuffer minitif(minitifRaw);   // was leaked before
 
 				size_t dataSize = 0;
-				Pixel16 * data = spriteutils_RGB32ToEncoded((Pixel32 *)tif, m_width, m_height, &dataSize);
+				Pixel16 * data = spriteutils_RGB32ToEncoded((Pixel32 *)tif.get(), m_width, m_height, &dataSize);
 				SetFrameData(facing, i, data, dataSize);
-				data = spriteutils_RGB32ToEncoded((Pixel32 *)minitif, m_width >> 1, m_height >> 1, &dataSize);
+				data = spriteutils_RGB32ToEncoded((Pixel32 *)minitif.get(), m_width >> 1, m_height >> 1, &dataSize);
 				SetMiniFrameData(facing, i, data, dataSize);
-
-				free(tif);
 			}
 
 			printf(".");

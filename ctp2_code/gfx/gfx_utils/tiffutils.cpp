@@ -269,3 +269,10 @@ char *StripTIF2Mem(const char *filename, uint16 *width, uint16 *height, size_t *
 
 	return outBuf;
 }
+
+// Out-of-line so consumers of TifBuffer never spell the C deallocator —
+// the buffers come from the C allocator inside the loaders above.
+void tiffutils_BufferDeleter::operator()(char *pixels) const
+{
+	free(pixels);
+}

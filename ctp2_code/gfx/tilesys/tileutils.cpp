@@ -1386,7 +1386,8 @@ sint32 tileutils_ExtractStencils(sint16 fromType, sint16 toType)
 	MBCHAR		fname[_MAX_PATH];
 	snprintf(fname, sizeof(fname), "source" FILE_SEP "xitions" FILE_SEP "%s", filename);
 
-	tif = tileutils_TIF2mem(fname, &width, &height);
+	TifBuffer tifBuf(tileutils_TIF2mem(fname, &width, &height));
+	tif = tifBuf.get();
 	Assert(tif != nullptr);
 	if (tif == nullptr) {
 		printf("\n*** Could not find '%s'.\n", fname);
@@ -1431,9 +1432,6 @@ sint32 tileutils_ExtractStencils(sint16 fromType, sint16 toType)
 
 
 
-
-	if (tif)
-		free (tif);
 
 	return 0;
 }
@@ -1681,11 +1679,10 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 	uint32		hatDataLen=0;
 
 	snprintf(filename, sizeof(filename), "source" FILE_SEP "hats" FILE_SEP "GTFh%.4d.tif", tileNum);
-	hatTif = tileutils_TIF2mem(filename, &width, &height);
+	TifBuffer hatTifBuf(tileutils_TIF2mem(filename, &width, &height));
+	hatTif = hatTifBuf.get();
 	if (hatTif) {
 		hatData = (Pixel16 *)tileutils_EncodeTile((Pixel32 *)hatTif, width, height, &hatDataLen);
-		free(hatTif);
-		hatTif = nullptr;
 	}
 
 	baseTile->SetHatDataLen((uint16)hatDataLen);
@@ -1736,12 +1733,10 @@ uint16 tileutils_CompileImprovements(FILE *file)
 	for (i=0; i<k_MAX_IMPROVEMENTS; i++) {
 		snprintf(filename, sizeof(filename), "source%simprove%sGTFM%.3d.tif",
 		        FILE_SEP, FILE_SEP, i);
-		tif = tileutils_TIF2mem(filename, &width, &height);
+		TifBuffer tifBuf(tileutils_TIF2mem(filename, &width, &height));
+		tif = tifBuf.get();
 		if (tif) {
 			data = (Pixel16 *)tileutils_EncodeTile((Pixel32 *)tif, width, height, &dataLen);
-
-			free(tif);
-			tif = nullptr;
 
 			id = (uint16)i;
 
@@ -2002,14 +1997,13 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 				uint16		 height;
 
 				snprintf(filename, sizeof(filename), "source" FILE_SEP "rivers" FILE_SEP "GTFL%.2d.tif", tmp);
-				tif = tileutils_TIF2mem(filename, &width, &height);
+				TifBuffer tifBuf(tileutils_TIF2mem(filename, &width, &height));
+				tif = tifBuf.get();
 
 				uint32		dataLen=0;
 
 				if (tif) riverData[numRiverTransforms] = (Pixel16 *)tileutils_EncodeTile((Pixel32 *)tif, width, height, &dataLen);
 				else riverData[numRiverTransforms] = nullptr;
-
-				if (tif) free(tif);
 
 				riverDataLen[numRiverTransforms] = dataLen;
 

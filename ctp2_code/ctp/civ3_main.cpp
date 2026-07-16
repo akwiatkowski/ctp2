@@ -177,6 +177,7 @@
 #if defined(USE_SDL)
 #include "ui/aui_sdl/aui_sdlcompat.h"
 #include "ui/aui_sdl/aui_sdl.h"          // P11 F: aui_SDL camera (wheel-zoom)
+#include "ui/aui_common/pinch_detector.h" // P11 pinch zoom (trackpad)
 #include "ui/aui_sdl/aui_sdlmixercompat.h"
 #include "ui/aui_sdl/aui_sdlkeyboard.h"
 #endif
@@ -702,6 +703,46 @@ void ui_HandleTrackpadPan(float wheelX, float wheelY)
 		s_accX = 0.0f;
 		s_accY = 0.0f;
 	}
+}
+
+// P11 pinch zoom (v1) — trackpad pinch steps the ENGINE zoom, exactly like
+// the zoom keys / the control-panel ZoomPad. macOS exposes the trackpad as an
+// indirect touch device, so pinches arrive as raw two-finger SDL touch events
+// (SDL3 dropped SDL2's gesture API); PinchDetector turns them into whole zoom
+// steps and rejects two-finger scrolls (which also have two fingers down —
+// see pinch_detector.h). Works with or without the GPU camera stack.
+void ui_HandlePinchZoom(SDL_TouchFingerEvent const &tf, Uint32 eventType)
+{
+	static PinchDetector s_pinch;
+
+	long long const id = CTP2_SDL_FingerId(tf);
+	int steps = 0;
+	switch (eventType)
+	{
+	case SDL_FINGERDOWN:
+		steps = s_pinch.Down(id, tf.x, tf.y);
+		break;
+	case SDL_FINGERMOTION:
+		steps = s_pinch.Motion(id, tf.x, tf.y);
+		break;
+	default:                       // FINGERUP (and SDL3's FINGER_CANCELED)
+		s_pinch.Up(id);
+		break;
+	}
+	if (steps == 0)
+		return;
+
+	// Same gesture guards as the trackpad pan, plus no zooming under a modal
+	// (the map is frozen there; a zoom re-render would fight it).
+	if (!g_civApp || !g_civApp->IsGameLoaded() || !g_tiledMap)
+		return;
+	if (g_modalWindow > 0 || aui_ListBox::GetMouseFocusListBox())
+		return;
+
+	if (steps > 0)
+		g_tiledMap->ZoomIn();
+	else
+		g_tiledMap->ZoomOut();
 }
 
 // P11 2c (ADR-001) — recenter the buttery pan. Called from the per-frame camera tick
@@ -1914,6 +1955,15 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 			SDLMessageHandler(event);
 		}
 
+		// Process touch finger events (P11 pinch zoom; the trackpad is an
+		// indirect touch device on macOS, so pinches arrive as finger events)
+		while (true) {
+			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+			                       SDL_FINGERDOWN, CTP2_SDL_FINGER_RANGE_LAST);
+			if (n <= 0) break;
+			SDLMessageHandler(event);
+		}
+
 		// Process mouse wheel events (ui_HandleMouseWheel is in this compilation unit)
 		while (true) {
 			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEWHEEL, SDL_MOUSEWHEEL);
@@ -2271,6 +2321,15 @@ int SDLMessageHandler(const SDL_Event &event)
 		// trackpad's fractional deltas on SDL3.
 		ui_HandleTrackpadPan(static_cast<float>(event.wheel.x),
 		                     static_cast<float>(event.wheel.y));
+		return 0;
+	case SDL_FINGERDOWN:
+	case SDL_FINGERUP:
+	case SDL_FINGERMOTION:
+#if defined(CTP2_USE_SDL3)
+	case SDL_EVENT_FINGER_CANCELED:
+#endif
+		// P11 pinch zoom: raw trackpad touches feed the pinch detector.
+		ui_HandlePinchZoom(event.tfinger, event.type);
 		return 0;
 #endif
 #ifndef __AUI_USE_SDL__

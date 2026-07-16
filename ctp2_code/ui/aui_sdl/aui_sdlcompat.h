@@ -419,6 +419,27 @@ inline bool CTP2_SDL_IsMouseButtonDown(SDL_Event const &event)
 	return event.type == SDL_MOUSEBUTTONDOWN;
 }
 
+// Touch finger id — the struct field casing differs (SDL2 fingerId,
+// SDL3 fingerID). Event TYPE constants (SDL_FINGERDOWN etc.) come from
+// SDL_ENABLE_OLD_NAMES and need no wrapper.
+inline Sint64 CTP2_SDL_FingerId(SDL_TouchFingerEvent const &event)
+{
+#if defined(CTP2_USE_SDL3)
+	return static_cast<Sint64>(event.fingerID);
+#else
+	return event.fingerId;
+#endif
+}
+
+// Last event type in the contiguous finger range, for SDL_PeepEvents.
+// SDL3 appended FINGER_CANCELED (a lifted-by-the-OS finger) after MOTION;
+// SDL2's range ends at MOTION.
+#if defined(CTP2_USE_SDL3)
+#define CTP2_SDL_FINGER_RANGE_LAST SDL_EVENT_FINGER_CANCELED
+#else
+#define CTP2_SDL_FINGER_RANGE_LAST SDL_FINGERMOTION
+#endif
+
 inline Uint32 CTP2_SDL_GetMouseState(int *x, int *y)
 {
 #if defined(CTP2_USE_SDL3)

@@ -1904,6 +1904,32 @@ AUI_ERRCODE aui_UI::TagMouseEvents( sint32 numEvents, aui_MouseEvent *events )
 	return AUI_ERRCODE_OK;
 }
 
+void aui_UI::EraseUiLayerRect( sint32 l, sint32 t, sint32 r, sint32 b )
+{
+	// Zero a rect of the 32-bit UI layer to fully transparent so the world
+	// layer shows through (the hole punch for world writes; see the header).
+	// Plain zeroing, not a ColorBlt: the blitters write opaque black for
+	// COLORREF 0, but the layer needs alpha 0.
+	if (!m_uiSurface) return;
+
+	l = std::max<sint32>(l, 0);
+	t = std::max<sint32>(t, 0);
+	r = std::min<sint32>(r, m_uiSurface->Width());
+	b = std::min<sint32>(b, m_uiSurface->Height());
+	if (l >= r || t >= b) return;
+
+	LPVOID buffer = nullptr;
+	if (m_uiSurface->Lock(nullptr, &buffer, 0) != AUI_ERRCODE_OK || !buffer)
+		return;
+	uint8 * const base = static_cast<uint8 *>(buffer);
+	sint32 const pitch = m_uiSurface->Pitch();
+	size_t const bytes = static_cast<size_t>(r - l) * 4;
+	for (sint32 y = t; y < b; ++y)
+		memset(base + static_cast<size_t>(y) * pitch
+		            + static_cast<size_t>(l) * 4, 0, bytes);
+	m_uiSurface->Unlock(buffer);
+}
+
 AUI_ERRCODE aui_UI::BltSecondaryToPrimary
                         (
                          uint32       flags,

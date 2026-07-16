@@ -117,7 +117,7 @@ protected:
 		m_secondary                 (nullptr),
 		m_worldSurface              (nullptr),
 		m_uiSurface                 (nullptr),
-		m_worldWindowSurface        (nullptr),
+		m_worldWindow               (nullptr),
 		m_gpuLayers                 (false),
 		m_fogSurface                (nullptr),
 		m_gpuFog                    (false),
@@ -202,8 +202,19 @@ public:
 		// layers are screen-sized and share the secondary's coordinates.
 		if (m_gpuLayers)
 		{
-			if (srcSurf == m_worldWindowSurface)
+			if (srcSurf && srcSurf == WorldSurfaceKey())
+			{
 				m_blitter->Blt(m_worldSurface, destx, desty, srcSurf, srcRect, flags);
+				// Punch a transparent hole in the UI layer: in z-order the
+				// world is the bottom-most window, so a world write means
+				// whatever the UI layer held here (a closed window, a fill)
+				// is stale — anything genuinely above will be re-blitted
+				// right after by its own window in the same composite pass.
+				// Without this, closed windows ghost forever over the world.
+				EraseUiLayerRect(destx, desty,
+				                 destx + (srcRect->right - srcRect->left),
+				                 desty + (srcRect->bottom - srcRect->top));
+			}
 			else
 				m_blitter->Blt(m_uiSurface, destx, desty, srcSurf, srcRect, flags);
 		}
@@ -272,7 +283,15 @@ public:
 	aui_Surface		*WorldSurface( ) const { return m_worldSurface; }
 	aui_Surface		*UiSurface( ) const { return m_uiSurface; }
 	bool			GpuLayers( ) const { return m_gpuLayers; }
-	void			SetWorldWindowSurface( aui_Surface *s ) { m_worldWindowSurface = s; }
+	void			SetWorldWindow( aui_Window *w ) { m_worldWindow = w; }
+	// The world window's CURRENT surface (or null) — the source-surface key
+	// BltToSecondary classifies world writes by. Resolved live because windows
+	// create their surfaces lazily and drop/rebuild them on hide/resize.
+	aui_Surface		*WorldSurfaceKey( ) const
+	{ return m_worldWindow ? m_worldWindow->TheSurface() : nullptr; }
+	// Zero (ARGB 0x00000000 = transparent) a rect of the UI layer, clamped to
+	// the surface. See the world-blit hole punch in BltToSecondary.
+	void			EraseUiLayerRect( sint32 l, sint32 t, sint32 r, sint32 b );
 	aui_Surface		*FogSurface( ) const { return m_fogSurface; }
 	bool			GpuFog( ) const { return m_gpuFog; }
 	aui_Blitter		*TheBlitter( ) const { return m_blitter; }
@@ -473,11 +492,14 @@ protected:
 	// P11 Stage 2 D: per-layer GPU compositing. When m_gpuLayers is set (by the
 	// SDL UI when CTP2_GPU_LAYERS is on), every BltToSecondary/ColorBltToSecondary
 	// is mirrored into a world-only or UI-only screen-sized surface so the two
-	// layers can be GPU-composited independently. m_worldWindowSurface is the
-	// background window's surface, used to classify a write as world vs UI.
+	// layers can be GPU-composited independently. m_worldWindow is the background
+	// window; a write whose source is that window's CURRENT surface is world,
+	// everything else is UI. The window pointer (not its surface) is stored
+	// because windows create their surfaces lazily and drop/rebuild them on
+	// hide/resize — a surface pointer captured once goes stale (or is null).
 	aui_Surface		*m_worldSurface;
 	aui_Surface		*m_uiSurface;
-	aui_Surface		*m_worldWindowSurface;
+	aui_Window		*m_worldWindow;
 	bool			m_gpuLayers;
 	// P11 Stage 2 C: fog-of-war mask surface (32-bit, screen-sized, transparent
 	// except fogged tiles = 50% black). Composited over the world layer on the

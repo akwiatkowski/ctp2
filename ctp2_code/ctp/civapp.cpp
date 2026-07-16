@@ -2946,6 +2946,114 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 #endif
 				}
 			}
+			else if (strncmp(cmd, "camera_debug_set ", 17) == 0) {
+				// camera_debug_set <offX> <offY>
+				// TEMPORARY (P11 pixel-proof debug): force the GPU camera pan offset
+				// to exact pixel values, bypassing velocity/target integration, so
+				// a harness can verify that the presented frame actually shifts.
+				float offX = 0.0f, offY = 0.0f;
+				sscanf(cmd + 17, "%f %f", &offX, &offY);
+#ifdef USE_SDL
+				aui_SDL::SetCameraOffset(offX, offY);
+				char detail[64];
+				snprintf(detail, sizeof(detail), "off=%.1f,%.1f", offX, offY);
+				smoketest_send_response("ok", cmd, detail);
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
+			}
+			else if (strncmp(cmd, "camera_debug_center", 19) == 0) {
+				// camera_debug_center [x y]
+				// TEMPORARY (P11 pixel-proof debug): synchronously center the
+				// map view on (x, y) — or the current selection — and force a
+				// full terrain redraw (the dh_centerMap recipe), so a harness
+				// gets real terrain pixels in view without depending on
+				// director timing.
+#ifdef USE_SDL
+				if (g_modalWindow > 0) {
+					// background_draw_handler skips terrain under a modal
+					// (e.g. the Loading progress window) — report it so a
+					// harness can retry once the modal clears.
+					smoketest_send_response("error", cmd, "modal");
+				} else if (selitem_Get() && radar_map_Get() && tiledmap_Get()
+				    && background_Get()) {
+					MapPoint pos = selitem_Get()->GetCurSelectPos();
+					sint32 x = 0, y = 0;
+					if (sscanf(cmd + 19, "%d %d", &x, &y) == 2)
+						pos = MapPoint(x, y);
+					radar_map_Get()->CenterMap(pos);
+					tiledmap_Get()->Refresh();
+					tiledmap_Get()->InvalidateMap();
+					tiledmap_Get()->InvalidateMix();
+					background_draw_handler(background_Get());
+					RECT const * vr = tiledmap_Get()->GetMapViewRect();
+					char detail[96];
+					snprintf(detail, sizeof(detail),
+					         "pos=%d,%d view=%ld,%ld,%ld,%ld",
+					         pos.x, pos.y, (long)vr->left, (long)vr->top,
+					         (long)vr->right, (long)vr->bottom);
+					smoketest_send_response("ok", cmd, detail);
+				} else {
+					smoketest_send_response("error", cmd, "not_ready");
+				}
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
+			}
+			else if (strncmp(cmd, "camera_debug_layers ", 20) == 0) {
+				// camera_debug_layers <world.bmp> <ui.bmp> [bgwin.bmp]
+				// TEMPORARY (P11 pixel-proof debug): dump the CPU world and UI
+				// composite surfaces (and optionally the background window's
+				// own surface, to tell "terrain never drawn" from "terrain
+				// drawn but not composited/mirrored").
+				char worldPath[1024] = {0};
+				char uiPath[1024] = {0};
+				char bgPath[1024] = {0};
+				sscanf(cmd + 20, "%1023s %1023s %1023s", worldPath, uiPath, bgPath);
+#ifdef USE_SDL
+				aui_UI *ui = c3ui_Get();
+				bool ok = ui && ui->WorldSurface() && ui->UiSurface();
+				if (ok) {
+					aui_SDLSurface *ws = static_cast<aui_SDLSurface *>(ui->WorldSurface());
+					aui_SDLSurface *us = static_cast<aui_SDLSurface *>(ui->UiSurface());
+					ok = ws->DDS() && us->DDS()
+					  && CTP2_SDL_SaveBMP(ws->DDS(), worldPath)
+					  && CTP2_SDL_SaveBMP(us->DDS(), uiPath);
+					if (ok && bgPath[0] && background_Get()) {
+						aui_SDLSurface *bs = static_cast<aui_SDLSurface *>(
+							background_Get()->TheSurface());
+						ok = bs && bs->DDS() && CTP2_SDL_SaveBMP(bs->DDS(), bgPath);
+					}
+					if (ok && bgPath[0] && tiledmap_Get()) {
+						// Sibling dump: the tile renderer's own surface, to
+						// tell "tiles never painted" from "mix copy broken".
+						char mixPath[1040];
+						snprintf(mixPath, sizeof(mixPath), "%s.mix.bmp", bgPath);
+						aui_SDLSurface *ms = static_cast<aui_SDLSurface *>(
+							tiledmap_Get()->GetSurface());
+						if (ms && ms->DDS())
+							CTP2_SDL_SaveBMP(ms->DDS(), mixPath);
+					}
+				}
+				if (ok) {
+					// Diagnose world-layer routing: BltToSecondary routes a
+					// blit to the world layer only when its source surface
+					// IS the world-window key. Report whether the key
+					// resolves to the background window's live surface.
+					aui_Surface *key = ui->WorldSurfaceKey();
+					aui_Surface *live = background_Get()
+					                  ? background_Get()->TheSurface() : nullptr;
+					char detail[64];
+					snprintf(detail, sizeof(detail), "key_null=%d eq=%d",
+					         key == nullptr ? 1 : 0, key == live ? 1 : 0);
+					smoketest_send_response("ok", cmd, detail);
+				} else {
+					smoketest_send_response("error", cmd, "save_failed");
+				}
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
+			}
 			else if (strncmp(cmd, "render_map ", 11) == 0) {
 				// render_map <path> [zoom]
 				// Unfogged, whole-map isometric render to a BMP (real game art),

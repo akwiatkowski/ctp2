@@ -44,6 +44,7 @@ class Ctp2Client:
         players=4,
         socket_path=SOCKET_PATH,
         cwd=None,
+        env=None,
         log_path=None,
         timeout=120,
         socket_wait=60,
@@ -70,7 +71,7 @@ class Ctp2Client:
 
         self._log = open(log_path, "w") if log_path else subprocess.DEVNULL
         self.proc = subprocess.Popen(
-            args, cwd=self.cwd, stdout=self._log, stderr=subprocess.STDOUT
+            args, cwd=self.cwd, env=env, stdout=self._log, stderr=subprocess.STDOUT
         )
 
         self._wait_for_socket(socket_wait)

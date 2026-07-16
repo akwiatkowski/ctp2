@@ -49,6 +49,10 @@ public:
 	static bool GpuCameraEnabled();
 	static void SetCamera(float offX, float offY, float zoom)
 	{ m_cameraOffX = offX; m_cameraOffY = offY; m_cameraZoom = zoom; }
+	// TEMPORARY (P11 pixel-proof debug): set the pan offset directly, bypassing
+	// velocity/target logic so a test harness can force a known camera state.
+	static void SetCameraOffset(float offX, float offY)
+	{ m_cameraOffX = offX; m_cameraOffY = offY; }
 	static float CameraOffX() { return m_cameraOffX; }
 	static float CameraOffY() { return m_cameraOffY; }
 	static float CameraZoom() { return m_cameraZoom; }

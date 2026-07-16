@@ -1676,6 +1676,22 @@ test('slice-ui',
   suite : 'integration',
 )
 
+# P11 GPU camera pixel-proof: boots the UI build with CTP2_GPU_LAYERS +
+# CTP2_GPU_CAMERA, gets real terrain on screen, forces a 50px camera offset
+# and asserts the presented pixels actually shift. This is the only test that
+# exercises the layered present with a non-identity camera — slice-ui's
+# oracle runs the default single-texture path. May relaunch the game a few
+# times (no --seed in the UI build; re-rolls seam/edge settler spawns).
+test('pan-pixel-proof',
+  find_program('test/pan_pixel_proof.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 420,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
 # Expansion: the full second-city loop (settler production, move_army
 # pathfinding, settle guard regression) plus the absorbed turn-advancement
 # checks (end_turn N drives full rounds through the real event pipeline;

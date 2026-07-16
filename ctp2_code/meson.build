@@ -46,6 +46,24 @@ main_dependencies = []
 use_ld = []
 host_system = host_machine.system()
 
+# macOS-only native sources (Objective-C++): the trackpad pinch monitor
+# (os/osx/osx_pinch_monitor.mm) taps Cocoa magnify gestures that SDL3 does
+# not forward. Appended to game_core_sources below so every binary that
+# links civ3_main gets the symbols.
+osx_sources = []
+if host_system == 'darwin'
+	add_languages('objcpp', native : false)
+	main_dependencies += dependency('appleframeworks', modules : ['AppKit'])
+	osx_sources += ['os/osx/osx_pinch_monitor.mm']
+endif
+
+# libltdl (mapgen plugin loader). Resolved as a real dependency rather than a
+# raw '-lltdl' link flag: with Objective-C++ in the target the linker driver
+# language changes and bare -l flags no longer see the C++-language search
+# paths.
+ltdl = compiler.find_library('ltdl', dirs : ['/opt/homebrew/lib', '/usr/local/lib'])
+main_dependencies += ltdl
+
 if not win32
 	# use gold-linker by default if available (Linux only)
 	if host_system == 'linux'
@@ -921,6 +939,11 @@ game_core_sources = [
 	'mapgen/PlasmaGen2.cpp',
 ]
 
+# civ3_main references the macOS pinch monitor; every consumer of the core
+# list also links civ3_main (game, headless, test runners), so the native
+# sources ride along here. Empty off-darwin.
+game_core_sources += osx_sources
+
 # Entry-point sources — added only to the game executable.
 # ctp/civ3_main.cpp is included in the test target with -DUNIT_TEST_BUILD
 # to suppress its main() function while keeping global definitions.
@@ -1467,7 +1490,7 @@ executable('ctp2', main_sources,
 		include_directories : incdir,
 		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
 		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs' ],
-		link_args : [ '-lltdl', use_ld ],
+		link_args : [ use_ld ],
 		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ])
 
 # headless exe — simulation core without UI/audio/render
@@ -1484,7 +1507,7 @@ executable('ctp2_headless', headless_sources,
 		include_directories : incdir,
 		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
 		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DHEADLESS_BUILD', '-DUNIT_TEST_BUILD' ],
-		link_args : [ '-lltdl', use_ld ],
+		link_args : [ use_ld ],
 		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ])
 
 # Phase 1i probe library: compile-only target for engine_only_sources.
@@ -1541,7 +1564,7 @@ fast_test_exe = executable('ctp2_fast_tests', cpp_fast_test_sources + game_core_
   include_directories : [ incdir, doctest_incdir ],
   dependencies : [ cdb_header, anet, freetype, main_dependencies ],
   cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DUNIT_TEST_BUILD' ],
-  link_args : [ '-lltdl', use_ld ],
+  link_args : [ use_ld ],
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
 )
 
@@ -1613,7 +1636,7 @@ unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + game_core_sourc
   include_directories : [ incdir, doctest_incdir ],
   dependencies : [ cdb_header, anet, freetype, main_dependencies ],
   cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DUNIT_TEST_BUILD' ],
-  link_args : [ '-lltdl', use_ld ],
+  link_args : [ use_ld ],
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
 )
 

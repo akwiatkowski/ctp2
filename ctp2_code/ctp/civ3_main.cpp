@@ -177,7 +177,8 @@
 #if defined(USE_SDL)
 #include "ui/aui_sdl/aui_sdlcompat.h"
 #include "ui/aui_sdl/aui_sdl.h"          // P11 F: aui_SDL camera (wheel-zoom)
-#include "ui/aui_common/pinch_detector.h" // P11 pinch zoom (trackpad)
+#include "ui/aui_common/pinch_detector.h" // P11 pinch zoom (touch devices)
+#include "os/osx/osx_pinch_monitor.h"     // P11 pinch zoom (macOS magnify)
 #include "ui/aui_sdl/aui_sdlmixercompat.h"
 #include "ui/aui_sdl/aui_sdlkeyboard.h"
 #endif
@@ -706,11 +707,31 @@ void ui_HandleTrackpadPan(float wheelX, float wheelY)
 }
 
 // P11 pinch zoom (v1) — trackpad pinch steps the ENGINE zoom, exactly like
-// the zoom keys / the control-panel ZoomPad. macOS exposes the trackpad as an
-// indirect touch device, so pinches arrive as raw two-finger SDL touch events
-// (SDL3 dropped SDL2's gesture API); PinchDetector turns them into whole zoom
-// steps and rejects two-finger scrolls (which also have two fingers down —
-// see pinch_detector.h). Works with or without the GPU camera stack.
+// the zoom keys / the control-panel ZoomPad. Shared gate + step executor for
+// both input sources (SDL touch events; macOS native magnify gestures).
+static void ui_StepPinchZoom(int steps)
+{
+	if (steps == 0)
+		return;
+
+	// Same gesture guards as the trackpad pan, plus no zooming under a modal
+	// (the map is frozen there; a zoom re-render would fight it).
+	if (!g_civApp || !g_civApp->IsGameLoaded() || !g_tiledMap)
+		return;
+	if (g_modalWindow > 0 || aui_ListBox::GetMouseFocusListBox())
+		return;
+
+	for (; steps > 0; --steps)
+		g_tiledMap->ZoomIn();
+	for (; steps < 0; ++steps)
+		g_tiledMap->ZoomOut();
+}
+
+// SDL touch-event source: real touch devices (touchscreens; trackpads on
+// SDL2). PinchDetector turns raw two-finger geometry into whole zoom steps
+// and rejects two-finger scrolls (see pinch_detector.h). NOTE macOS/SDL3
+// forwards no trackpad touches by default — there the magnify source below
+// does the work; this stays for the platforms that do deliver fingers.
 void ui_HandlePinchZoom(SDL_TouchFingerEvent const &tf, Uint32 eventType)
 {
 	static PinchDetector s_pinch;
@@ -729,20 +750,32 @@ void ui_HandlePinchZoom(SDL_TouchFingerEvent const &tf, Uint32 eventType)
 		s_pinch.Up(id);
 		break;
 	}
-	if (steps == 0)
-		return;
+	ui_StepPinchZoom(steps);
+}
 
-	// Same gesture guards as the trackpad pan, plus no zooming under a modal
-	// (the map is frozen there; a zoom re-render would fight it).
-	if (!g_civApp || !g_civApp->IsGameLoaded() || !g_tiledMap)
-		return;
-	if (g_modalWindow > 0 || aui_ListBox::GetMouseFocusListBox())
-		return;
+// macOS native source: Cocoa magnify gestures accumulated by the NSEvent
+// monitor (os/osx/osx_pinch_monitor.mm), consumed once per frame from the
+// main loop. A full relaxed pinch sums to roughly ±1.0 magnification; one
+// engine zoom step per 0.30 gives 2-3 steps per gesture, matching the
+// touch-path ratio threshold.
+void ui_HandlePinchMagnify(float magnification)
+{
+	static float s_accum = 0.0f;
+	float const k_MAGNIFY_PER_STEP = 0.30f;
 
-	if (steps > 0)
-		g_tiledMap->ZoomIn();
-	else
-		g_tiledMap->ZoomOut();
+	s_accum += magnification;
+	int steps = 0;
+	while (s_accum >= k_MAGNIFY_PER_STEP)
+	{
+		s_accum -= k_MAGNIFY_PER_STEP;
+		++steps;
+	}
+	while (s_accum <= -k_MAGNIFY_PER_STEP)
+	{
+		s_accum += k_MAGNIFY_PER_STEP;
+		--steps;
+	}
+	ui_StepPinchZoom(steps);
 }
 
 // P11 2c (ADR-001) — recenter the buttery pan. Called from the per-frame camera tick
@@ -1915,6 +1948,11 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 #ifdef __AUI_USE_SDL__
 	aui_sdlkbd_InitQueueMutex();
+#ifdef __APPLE__
+	// P11 pinch zoom: tap Cocoa magnify gestures (SDL3 forwards no trackpad
+	// touches by default; see os/osx/osx_pinch_monitor.h).
+	osx_InstallPinchMonitor();
+#endif
 #endif
 #ifdef __AUI_USE_DIRECTX__
 	MSG			msg;
@@ -1932,6 +1970,17 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 #ifdef __AUI_USE_SDL__
 		SDL_PumpEvents();  // Required on macOS for window visibility and OS event processing
 		SDL_Event event;
+
+#ifdef __APPLE__
+		// P11 pinch zoom: consume the magnification the Cocoa monitor
+		// accumulated during the pump — zoom re-renders run out here, never
+		// inside the event dispatch.
+		{
+			float const magnify = osx_ConsumePinchMagnification();
+			if (magnify != 0.0f)
+				ui_HandlePinchMagnify(magnify);
+		}
+#endif
 
 		// Consume only events the main thread handles.
 		// SDL_PeepEvents scans for the first event in the type range, skipping others,

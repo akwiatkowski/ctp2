@@ -675,24 +675,39 @@ void ui_HandleTrackpadPan(float wheelX, float wheelY)
 
 	sint32 const dxTiles = static_cast<sint32>(s_accX / hscroll);
 	sint32 const dyTiles = static_cast<sint32>(s_accY / vscroll);
-	if (dxTiles == 0 && dyTiles == 0)
-		return;                       // sub-tile: keep accumulating
 
-	s_accX -= dxTiles * hscroll;
-	s_accY -= dyTiles * vscroll;
-
-	if (g_tiledMap->ScrollMap(dxTiles, dyTiles))
+	// Whole tiles crossed: scroll the engine view (reveals terrain + actors) and
+	// keep only the sub-tile remainder in the accumulator.
+	if (dxTiles != 0 || dyTiles != 0)
 	{
-		g_tiledMap->RetargetTileSurface(nullptr);
-		g_tiledMap->Refresh();
-		g_tiledMap->InvalidateMap();
-		g_tiledMap->ValidateMix();
+		s_accX -= dxTiles * hscroll;
+		s_accY -= dyTiles * vscroll;
+		if (g_tiledMap->ScrollMap(dxTiles, dyTiles))
+		{
+			g_tiledMap->RetargetTileSurface(nullptr);
+			g_tiledMap->Refresh();
+			g_tiledMap->InvalidateMap();
+			g_tiledMap->ValidateMix();
+		}
+		else
+		{
+			// Clamped at a map edge: drop the residual so it doesn't spring back.
+			s_accX = 0.0f;
+			s_accY = 0.0f;
+		}
 	}
-	else
+
+	// P11 2c (ADR-001): the sub-tile remainder becomes the GPU camera offset — the
+	// world texture (oversized, with margin content from RenderWorldLayer) slides
+	// by it on the GPU, so the pan is pixel-smooth between whole-tile ScrollMaps.
+	// The offset negates the remainder (pan east => sample further east). Ignored
+	// unless the GPU camera is on, so the default build stays tile-stepped. Present
+	// immediately so the glide shows even when no whole tile crossed this event.
+	if (aui_SDL::GpuCameraEnabled())
 	{
-		// Clamped at a map edge: drop the residual so it doesn't spring back.
-		s_accX = 0.0f;
-		s_accY = 0.0f;
+		aui_SDL::SetCamera(-s_accX, -s_accY, aui_SDL::CameraZoom());
+		if (c3ui_Get())
+			c3ui_Get()->BltSecondaryToPrimary(0, false);
 	}
 }
 

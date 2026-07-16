@@ -297,23 +297,24 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					float const offX = cam ? aui_SDL::CameraOffX() : 0.0f;
 					float const offY = cam ? aui_SDL::CameraOffY() : 0.0f;
 
-					auto presentWindowed = [&]( SDL_Texture * tex )
+					// baseX/baseY = pixel offset of the screen top-left inside the
+					// texture. The world texture is oversized, so its screen content
+					// sits at the published whole-tile content offset; fog is
+					// screen-sized (offset 0). Zoom centres about the screen middle.
+					auto presentWindowed = [&]( SDL_Texture * tex, float baseX, float baseY )
 					{
-						int tw = 0, th = 0;
-						CTP2_SDL_QueryTextureSize( tex, tw, th );
 						float const srcW = W / z;
 						float const srcH = H / z;
-						// Centre the screen region in the texture, then slide by the
-						// pan offset (offX/offY are in screen px; positive pans view left/up).
-						float const srcX = (tw - srcW) * 0.5f - offX;
-						float const srcY = (th - srcH) * 0.5f - offY;
+						float const srcX = baseX + (W - srcW) * 0.5f - offX;
+						float const srcY = baseY + (H - srcH) * 0.5f - offY;
 						CTP2_SDL_RenderTextureWindow( m_renderer, tex,
 							srcX, srcY, srcW, srcH, 0.0f, 0.0f, W, H );
 					};
 
-					presentWindowed( aui_SDL::WorldTexture() );
+					presentWindowed( aui_SDL::WorldTexture(),
+						(float)aui_SDL::WorldContentOffX(), (float)aui_SDL::WorldContentOffY() );
 					if (fogged)
-						presentWindowed( aui_SDL::FogTexture() );
+						presentWindowed( aui_SDL::FogTexture(), 0.0f, 0.0f );
 				}
 				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::UiTexture() );
 				SDL_RenderPresent( m_renderer );

@@ -187,6 +187,14 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 	tradepool_Get()->Draw(surface);
 	tiledmap_Get()->RepaintSprites(surface, tiledmap_Get()->GetMapViewRect(), false);
 
+	// P11 2b (ADR-001): with per-layer GPU compositing on, also render the world
+	// layer (terrain + actors) into the oversized GPU world surface at the wider
+	// margin view, so the buttery sub-tile pan has real content to slide into.
+	// Screen-view state is current here (actors just positioned); RenderWorldLayer
+	// widens/restores the view internally so this does not affect the screen draw.
+	if (c3ui_Get() && c3ui_Get()->GpuLayers())
+		tiledmap_Get()->RenderWorldLayer(c3ui_Get()->WorldSurface());
+
 	if (director_Get())
     {
 		director_Get()->GarbageCollectItems();

@@ -25,6 +25,8 @@ float aui_SDL::m_panVelX = 0.0f;
 float aui_SDL::m_panVelY = 0.0f;
 float aui_SDL::m_zoomVel = 0.0f;
 float aui_SDL::m_homeZoom = 1.0f;
+int aui_SDL::m_worldContentOffX = 0;
+int aui_SDL::m_worldContentOffY = 0;
 // P11 Stage 3 G1: terrain quad atlas + per-frame draw list.
 SDL_Texture *aui_SDL::m_quadAtlasTexture = nullptr;
 int aui_SDL::m_quadAtlasW = 0;

@@ -2911,20 +2911,19 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 								float const z    = cam ? aui_SDL::CameraZoom() : 1.0f;
 								float const offX = cam ? aui_SDL::CameraOffX() : 0.0f;
 								float const offY = cam ? aui_SDL::CameraOffY() : 0.0f;
-								auto windowed = [&](SDL_Texture *tex) {
-									int tw = 0, th = 0;
-									CTP2_SDL_GetTextureSize(tex, &tw, &th);
+								auto windowed = [&](SDL_Texture *tex, float baseX, float baseY) {
 									float const srcW = W / z, srcH = H / z;
-									float const srcX = (tw - srcW) * 0.5f - offX;
-									float const srcY = (th - srcH) * 0.5f - offY;
+									float const srcX = baseX + (W - srcW) * 0.5f - offX;
+									float const srcY = baseY + (H - srcH) * 0.5f - offY;
 									CTP2_SDL_RenderTextureWindow(renderer, tex,
 										srcX, srcY, srcW, srcH, 0.0f, 0.0f, W, H);
 								};
-								windowed(aui_SDL::WorldTexture());
+								windowed(aui_SDL::WorldTexture(),
+									(float)aui_SDL::WorldContentOffX(), (float)aui_SDL::WorldContentOffY());
 								// P11 C: fog mask darkens the world between the world
 								// and UI copies (mirrors Flip's present).
 								if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())
-									windowed(aui_SDL::FogTexture());
+									windowed(aui_SDL::FogTexture(), 0.0f, 0.0f);
 								CTP2_SDL_RenderTexture(renderer, aui_SDL::UiTexture());
 							} else {
 								CTP2_SDL_RenderTexture(renderer, texture);

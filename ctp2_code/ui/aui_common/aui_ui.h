@@ -202,16 +202,14 @@ public:
 		// layer is screen-sized and shares the secondary's coordinates.
 		if (m_gpuLayers)
 		{
+			// P11 2b (ADR-001): the world layer is no longer mirrored from the
+			// screen background here — TiledMap::RenderWorldLayer renders terrain
+			// and actors directly into the oversized m_worldSurface at the wider
+			// (margin) view, so the margin holds real content. Only the UI layer
+			// is still mirrored from the composite (everything that is NOT the
+			// background/world window).
 			if (srcSurf && srcSurf == WorldSurfaceKey())
 			{
-				// P11 2a (ADR-001): the world surface is oversized by a margin on
-				// each side. Centre the screen-space write so the margin border
-				// surrounds it (the present windows that centre back to the screen;
-				// a sub-tile CameraOff slides the window into the margin). Offset =
-				// half the size difference (0 when the world surface is screen-sized).
-				sint32 const mx = (m_worldSurface->Width()  - m_secondary->Width())  / 2;
-				sint32 const my = (m_worldSurface->Height() - m_secondary->Height()) / 2;
-				m_blitter->Blt(m_worldSurface, destx + mx, desty + my, srcSurf, srcRect, flags);
 				// Punch a transparent hole in the UI layer (screen coords): in
 				// z-order the world is the bottom-most window, so a world write
 				// means whatever the UI layer held here (a closed window, a

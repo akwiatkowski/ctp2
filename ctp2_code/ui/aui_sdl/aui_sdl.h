@@ -50,10 +50,18 @@ public:
 	// P11 2a — buttery pan substrate (ADR-001). The world surface + texture are
 	// oversized by this margin (px) on each side of the screen so the viewport
 	// can pan sub-tile on the GPU (a moving source rect) without revealing a
-	// black edge; whole-tile ScrollMap recenters the content underneath. The map
-	// renders the wider extent into the oversized surface; the UI/fog stay
-	// screen-sized. ~2 tiles is ample (tile ~94x~48 at largest zoom); tunable.
-	static int WorldMargin() { return 96; }
+	// black edge; whole-tile ScrollMap recenters the content underneath. This is
+	// the ALLOCATION margin (generous, fixed); the actual content offset the
+	// world-layer render uses is whole-tile-aligned (<= this) and published via
+	// SetWorldContentOffset so the present + oracle window to the exact centre.
+	static int WorldMargin() { return 128; }
+	// The whole-tile-aligned pixel offset at which TiledMap::RenderWorldLayer
+	// places the screen's top-left inside the oversized world surface. The
+	// present windows the screen viewport at this offset (minus CameraOff). Set
+	// each frame by the render; 0 until the first oversized render.
+	static void SetWorldContentOffset(int x, int y) { m_worldContentOffX = x; m_worldContentOffY = y; }
+	static int WorldContentOffX() { return m_worldContentOffX; }
+	static int WorldContentOffY() { return m_worldContentOffY; }
 	static void SetCamera(float offX, float offY, float zoom)
 	{ m_cameraOffX = offX; m_cameraOffY = offY; m_cameraZoom = zoom; }
 	// TEMPORARY (P11 pixel-proof debug): set the pan offset directly, bypassing
@@ -114,6 +122,10 @@ protected:
 	static float		m_cameraOffX;
 	static float		m_cameraOffY;
 	static float		m_cameraZoom;
+	// P11 2b: whole-tile-aligned pixel offset of the screen's top-left inside the
+	// oversized world surface (published by RenderWorldLayer; consumed by present).
+	static int		m_worldContentOffX;
+	static int		m_worldContentOffY;
 	// P11 F: momentum physics state (velocities + spring anchor).
 	static float		m_panVelX;
 	static float		m_panVelY;

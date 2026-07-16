@@ -198,17 +198,24 @@ public:
 		// P11 Stage 2 D: mirror each composite write into a world-only or a
 		// UI-only layer so they can be GPU-composited separately (fog on the
 		// world, pan/zoom the world). The background window's surface is the
-		// world; every other source (UI windows, cursor, fills) is UI. Both
-		// layers are screen-sized and share the secondary's coordinates.
+		// world; every other source (UI windows, cursor, fills) is UI. The UI
+		// layer is screen-sized and shares the secondary's coordinates.
 		if (m_gpuLayers)
 		{
 			if (srcSurf && srcSurf == WorldSurfaceKey())
 			{
-				m_blitter->Blt(m_worldSurface, destx, desty, srcSurf, srcRect, flags);
-				// Punch a transparent hole in the UI layer: in z-order the
-				// world is the bottom-most window, so a world write means
-				// whatever the UI layer held here (a closed window, a fill)
-				// is stale — anything genuinely above will be re-blitted
+				// P11 2a (ADR-001): the world surface is oversized by a margin on
+				// each side. Centre the screen-space write so the margin border
+				// surrounds it (the present windows that centre back to the screen;
+				// a sub-tile CameraOff slides the window into the margin). Offset =
+				// half the size difference (0 when the world surface is screen-sized).
+				sint32 const mx = (m_worldSurface->Width()  - m_secondary->Width())  / 2;
+				sint32 const my = (m_worldSurface->Height() - m_secondary->Height()) / 2;
+				m_blitter->Blt(m_worldSurface, destx + mx, desty + my, srcSurf, srcRect, flags);
+				// Punch a transparent hole in the UI layer (screen coords): in
+				// z-order the world is the bottom-most window, so a world write
+				// means whatever the UI layer held here (a closed window, a
+				// fill) is stale — anything genuinely above will be re-blitted
 				// right after by its own window in the same composite pass.
 				// Without this, closed windows ghost forever over the world.
 				EraseUiLayerRect(destx, desty,

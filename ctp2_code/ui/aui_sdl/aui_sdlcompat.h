@@ -98,6 +98,40 @@ inline bool CTP2_SDL_RenderTextureSrcDst(SDL_Renderer *renderer, SDL_Texture *te
 #endif
 }
 
+// Texture pixel dimensions. SDL2 returns ints via SDL_QueryTexture; SDL3 returns
+// floats via SDL_GetTextureSize.
+inline void CTP2_SDL_QueryTextureSize(SDL_Texture *texture, int &w, int &h)
+{
+	w = 0; h = 0;
+#if defined(CTP2_USE_SDL3)
+	float fw = 0.0f, fh = 0.0f;
+	SDL_GetTextureSize(texture, &fw, &fh);
+	w = (int)fw; h = (int)fh;
+#else
+	SDL_QueryTexture(texture, nullptr, nullptr, &w, &h);
+#endif
+}
+
+// P11 2a (buttery pan, ADR-001): copy a FLOAT sub-rectangle of a source texture
+// into a destination rectangle. Same as CTP2_SDL_RenderTextureSrcDst but the
+// source rect is float, so the world viewport can be windowed into the oversized
+// world texture with sub-pixel precision (smooth pan) on SDL3. SDL2 rounds the
+// source to ints (SDL_Rect), so its pan is pixel- rather than sub-pixel-smooth.
+inline bool CTP2_SDL_RenderTextureWindow(SDL_Renderer *renderer, SDL_Texture *texture,
+                                         float sx, float sy, float sw, float sh,
+                                         float dx, float dy, float dw, float dh)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_FRect src = { sx, sy, sw, sh };
+	SDL_FRect dst = { dx, dy, dw, dh };
+	return SDL_RenderTexture(renderer, texture, &src, &dst);
+#else
+	SDL_Rect src = { (int)(sx + 0.5f), (int)(sy + 0.5f), (int)(sw + 0.5f), (int)(sh + 0.5f) };
+	SDL_Rect dst = { (int)dx, (int)dy, (int)dw, (int)dh };
+	return SDL_RenderCopy(renderer, texture, &src, &dst) == 0;
+#endif
+}
+
 inline bool CTP2_SDL_UpdateTexture(
 	SDL_Texture *texture,
 	SDL_Rect const *rect,

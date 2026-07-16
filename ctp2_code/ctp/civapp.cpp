@@ -2887,10 +2887,12 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						bool const layered = aui_SDL::GpuLayersEnabled()
 						                   && aui_SDL::WorldTexture()
 						                   && aui_SDL::UiTexture();
-						SDL_Texture *sizeTex = layered ? aui_SDL::WorldTexture()
-						                               : texture;
+						// Target is SCREEN-sized (the presented frame), from the
+						// screen texture — NOT the world texture, which is oversized
+						// by the pan margin (P11 2a). The world layer is windowed back
+						// to the screen below.
 						int texW = 0, texH = 0;
-						CTP2_SDL_GetTextureSize(sizeTex, &texW, &texH);
+						CTP2_SDL_GetTextureSize(texture, &texW, &texH);
 						SDL_Texture *target = SDL_CreateTexture(renderer,
 						        SDL_PIXELFORMAT_ARGB8888,
 						        SDL_TEXTUREACCESS_TARGET, texW, texH);
@@ -2898,27 +2900,31 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						if (target && CTP2_SDL_SetRenderTarget(renderer, target)) {
 							SDL_RenderClear(renderer);
 							if (layered) {
-								// P11 F: mirror Flip's camera transform on the
-								// world+fog layers so the readback matches the
-								// presented frame at any camera state (identity
-								// by default). UI stays full-screen.
-								bool const cam = aui_SDL::GpuCameraEnabled();
-								float const W = (float)texW, H = (float)texH;
-								float const z = cam ? aui_SDL::CameraZoom() : 1.0f;
-								float const dw = W * z, dh = H * z;
-								float const dx = cam ? aui_SDL::CameraOffX() + (W - dw) * 0.5f : 0.0f;
-								float const dy = cam ? aui_SDL::CameraOffY() + (H - dh) * 0.5f : 0.0f;
-								if (cam) {
-									CTP2_SDL_RenderTextureDst(renderer, aui_SDL::WorldTexture(), dx, dy, dw, dh);
-									if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())
-										CTP2_SDL_RenderTextureDst(renderer, aui_SDL::FogTexture(), dx, dy, dw, dh);
-								} else {
-									CTP2_SDL_RenderTexture(renderer, aui_SDL::WorldTexture());
-									// P11 C: fog mask darkens the world between the
-									// world and UI copies (mirrors Flip's present).
-									if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())
-										CTP2_SDL_RenderTexture(renderer, aui_SDL::FogTexture());
-								}
+								// P11 2a: mirror Flip's windowed present exactly — the
+								// world+fog layers are windowed from the (oversized)
+								// texture to the screen viewport, slid by CameraOff and
+								// scaled by CameraZoom (identity by default). UI stays
+								// full-screen. Must match aui_SDLSurface::Flip or the
+								// oracle diverges from the real frame.
+								bool  const cam  = aui_SDL::GpuCameraEnabled();
+								float const W    = (float)texW, H = (float)texH;
+								float const z    = cam ? aui_SDL::CameraZoom() : 1.0f;
+								float const offX = cam ? aui_SDL::CameraOffX() : 0.0f;
+								float const offY = cam ? aui_SDL::CameraOffY() : 0.0f;
+								auto windowed = [&](SDL_Texture *tex) {
+									int tw = 0, th = 0;
+									CTP2_SDL_GetTextureSize(tex, &tw, &th);
+									float const srcW = W / z, srcH = H / z;
+									float const srcX = (tw - srcW) * 0.5f - offX;
+									float const srcY = (th - srcH) * 0.5f - offY;
+									CTP2_SDL_RenderTextureWindow(renderer, tex,
+										srcX, srcY, srcW, srcH, 0.0f, 0.0f, W, H);
+								};
+								windowed(aui_SDL::WorldTexture());
+								// P11 C: fog mask darkens the world between the world
+								// and UI copies (mirrors Flip's present).
+								if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())
+									windowed(aui_SDL::FogTexture());
 								CTP2_SDL_RenderTexture(renderer, aui_SDL::UiTexture());
 							} else {
 								CTP2_SDL_RenderTexture(renderer, texture);

@@ -190,10 +190,14 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		// are mutually exclusive, so pick the access type at creation. Keep the
 		// ternary inline so its type stays SDL_TextureAccess (SDL3's C++ headers
 		// do not implicitly convert a plain int to that enum).
+		// P11 2a (ADR-001): in the streaming layer path the world texture is
+		// oversized by WorldMargin on each side so the viewport can pan sub-tile
+		// on the GPU without a black edge. The parked quad path stays screen-sized.
+		int const worldMargin = aui_SDL::GpuQuadsEnabled() ? 0 : aui_SDL::WorldMargin();
 		m_worldTexture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888,
 			aui_SDL::GpuQuadsEnabled()
 				? SDL_TEXTUREACCESS_TARGET : SDL_TEXTUREACCESS_STREAMING,
-			m_width, m_height);
+			m_width + 2 * worldMargin, m_height + 2 * worldMargin);
 		m_uiTexture = SDL_CreateTexture(m_renderer,
 			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, m_width, m_height);
 		if (m_uiTexture) {
@@ -295,7 +299,12 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// one of these two layers. Gated so the default single-texture path is
 	// untouched.
 	if (aui_SDL::GpuLayersEnabled()) {
-		m_worldSurface = new aui_SDLSurface(&errcode, m_width, m_height, 32, nullptr, FALSE);
+		// P11 2a (ADR-001): the world surface is oversized by WorldMargin on each
+		// side (streaming layer path) so the map renders the wider extent and the
+		// GPU viewport can pan sub-tile into the margin. UI stays screen-sized.
+		int const worldMargin = aui_SDL::GpuQuadsEnabled() ? 0 : aui_SDL::WorldMargin();
+		m_worldSurface = new aui_SDLSurface(&errcode, m_width + 2 * worldMargin,
+			m_height + 2 * worldMargin, 32, nullptr, FALSE);
 		if (!AUI_NEWOK(m_worldSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
 		m_uiSurface = new aui_SDLSurface(&errcode, m_width, m_height, 32, nullptr, FALSE);
 		if (!AUI_NEWOK(m_uiSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;

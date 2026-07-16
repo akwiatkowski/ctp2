@@ -47,6 +47,13 @@ public:
 	// world + fog layers at present time (UI stays fixed). Requires
 	// GpuLayersEnabled. Off by default; identity (0,0,1) is a no-op.
 	static bool GpuCameraEnabled();
+	// P11 2a — buttery pan substrate (ADR-001). The world surface + texture are
+	// oversized by this margin (px) on each side of the screen so the viewport
+	// can pan sub-tile on the GPU (a moving source rect) without revealing a
+	// black edge; whole-tile ScrollMap recenters the content underneath. The map
+	// renders the wider extent into the oversized surface; the UI/fog stay
+	// screen-sized. ~2 tiles is ample (tile ~94x~48 at largest zoom); tunable.
+	static int WorldMargin() { return 96; }
 	static void SetCamera(float offX, float offY, float zoom)
 	{ m_cameraOffX = offX; m_cameraOffY = offY; m_cameraZoom = zoom; }
 	// TEMPORARY (P11 pixel-proof debug): set the pan offset directly, bypassing

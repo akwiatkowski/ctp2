@@ -280,30 +280,40 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 
 				SDL_RenderClear( m_renderer );
 
-				// P11 Stage 2 F: smooth camera. The world + fog layers share a
-				// pan/zoom dst-rect transform (they must move together); the UI
-				// layer stays full-screen. Identity (off 0,0 / zoom 1) reproduces
-				// the full-screen copy exactly, so this is a no-op until the
-				// camera moves.
-				if (aui_SDL::GpuCameraEnabled())
+				// P11 2a (ADR-001): present a screen-sized viewport windowed into
+				// the (oversized) world texture, slid by CameraOff (pan) and scaled
+				// by CameraZoom. Windowing by a source rect — rather than stretching
+				// the whole texture — is what lets the viewport pan sub-tile into the
+				// margin without revealing an edge. At identity (off 0,0 / zoom 1) it
+				// samples the centred screen region, reproducing the pre-margin
+				// output exactly. World + fog share the window (they move together);
+				// the UI layer stays full-screen. The margin is (texW - screenW)/2,
+				// so a screen-sized texture (fog) windows to its full extent.
 				{
 					float const W = static_cast<float>(m_lpdds->w);
 					float const H = static_cast<float>(m_lpdds->h);
-					float const z = aui_SDL::CameraZoom();
-					float const dw = W * z;
-					float const dh = H * z;
-					// Zoom about the screen centre, then apply the pan offset.
-					float const dx = aui_SDL::CameraOffX() + (W - dw) * 0.5f;
-					float const dy = aui_SDL::CameraOffY() + (H - dh) * 0.5f;
-					CTP2_SDL_RenderTextureDst( m_renderer, aui_SDL::WorldTexture(), dx, dy, dw, dh );
+					bool  const cam  = aui_SDL::GpuCameraEnabled();
+					float const z    = cam ? aui_SDL::CameraZoom() : 1.0f;
+					float const offX = cam ? aui_SDL::CameraOffX() : 0.0f;
+					float const offY = cam ? aui_SDL::CameraOffY() : 0.0f;
+
+					auto presentWindowed = [&]( SDL_Texture * tex )
+					{
+						int tw = 0, th = 0;
+						CTP2_SDL_QueryTextureSize( tex, tw, th );
+						float const srcW = W / z;
+						float const srcH = H / z;
+						// Centre the screen region in the texture, then slide by the
+						// pan offset (offX/offY are in screen px; positive pans view left/up).
+						float const srcX = (tw - srcW) * 0.5f - offX;
+						float const srcY = (th - srcH) * 0.5f - offY;
+						CTP2_SDL_RenderTextureWindow( m_renderer, tex,
+							srcX, srcY, srcW, srcH, 0.0f, 0.0f, W, H );
+					};
+
+					presentWindowed( aui_SDL::WorldTexture() );
 					if (fogged)
-						CTP2_SDL_RenderTextureDst( m_renderer, aui_SDL::FogTexture(), dx, dy, dw, dh );
-				}
-				else
-				{
-					CTP2_SDL_RenderTexture( m_renderer, aui_SDL::WorldTexture() );
-					if (fogged)
-						CTP2_SDL_RenderTexture( m_renderer, aui_SDL::FogTexture() );
+						presentWindowed( aui_SDL::FogTexture() );
 				}
 				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::UiTexture() );
 				SDL_RenderPresent( m_renderer );

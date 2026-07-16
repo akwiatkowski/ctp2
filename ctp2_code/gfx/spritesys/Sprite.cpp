@@ -123,45 +123,6 @@ void Sprite::ImportTIFF(uint16 index, char **imageFiles,Pixel32 **imageData, siz
 
 		*imageData = (Pixel32 *)StripTIF2Mem(imageFiles[index], &m_width, &m_height, size);
 }
-#if 0
-
-		if (tif)
-		{
-			uint16	width, height;
-
-			spriteutils_CreateQuarterSize((Pixel32 *)tif, m_width, m_height, (Pixel32 **)&minitif, TRUE);
-
-			char *shadowTif = StripTIF2Mem(shadowFiles[index], &width, &height);
-
-			if (shadowTif)
-			{
-
-				spriteutils_CreateQuarterSize((Pixel32 *)shadowTif, m_width, m_height, (Pixel32 **)&minishadow, FALSE);
-			}
-
-			size_t size;
-			Pixel16 *frame = spriteutils_RGB32ToEncoded((Pixel32 *)tif, (Pixel32 *)shadowTif, m_width, m_height, &size);
-			if (frame) {
-				SetFrameData(index, frame, size);
-			}
-
-			Pixel16	*miniframe = spriteutils_RGB32ToEncoded((Pixel32 *)minitif, (Pixel32 *)minishadow, m_width >> 1, m_height >> 1, &size);
-			if (miniframe) {
-				SetMiniFrameData(index, miniframe, size);
-			}
-
-			if (shadowTif)  free (shadowTif);
-			if (minishadow) free (minishadow);
-
-			if (tif) free(tif);
-			if (minitif) free(minitif);
-		}
-		else
-		{
-			printf("Could not find %s.\n", imageFiles[index]);
-		}
-}
-#endif
 
 
 

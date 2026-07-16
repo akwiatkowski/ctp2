@@ -663,9 +663,9 @@ void ui_HandleTrackpadPan(float wheelX, float wheelY)
 	// this scales them to a comfortable pan speed. Tunable to taste.
 	float const k_PAN_PIXELS_PER_WHEEL = 24.0f;
 
-	sint32 const hscroll = g_tiledMap->GetZoomTilePixelWidth();
-	sint32 const vscroll = g_tiledMap->GetZoomTilePixelHeight() / 2;
-	if (hscroll < 1 || vscroll < 1)
+	sint32 const tileStepX = g_tiledMap->GetZoomTilePixelWidth();
+	sint32 const halfRowStepY = g_tiledMap->GetZoomTilePixelHeight() / 2;
+	if (tileStepX < 1 || halfRowStepY < 1)
 		return;
 
 	if (aui_SDL::GpuCameraEnabled())
@@ -687,14 +687,14 @@ void ui_HandleTrackpadPan(float wheelX, float wheelY)
 	s_accX += wheelX * k_PAN_PIXELS_PER_WHEEL;
 	s_accY -= wheelY * k_PAN_PIXELS_PER_WHEEL;
 
-	sint32 const dxTiles = static_cast<sint32>(s_accX / hscroll);
-	sint32 const dyTiles = static_cast<sint32>(s_accY / vscroll);
+	sint32 const dxTiles = static_cast<sint32>(s_accX / tileStepX);
+	sint32 const dyTiles = static_cast<sint32>(s_accY / halfRowStepY);
 	if (dxTiles == 0 && dyTiles == 0)
 		return;
 	if (g_tiledMap->ScrollMap(dxTiles, dyTiles))
 	{
-		s_accX -= dxTiles * hscroll;
-		s_accY -= dyTiles * vscroll;
+		s_accX -= dxTiles * tileStepX;
+		s_accY -= dyTiles * halfRowStepY;
 		g_tiledMap->RetargetTileSurface(nullptr);
 		g_tiledMap->Refresh();
 		g_tiledMap->InvalidateMap();
@@ -793,9 +793,9 @@ static bool ui_RecenterPanIfNeeded()
 	if (!g_tiledMap || !aui_SDL::GpuCameraEnabled())
 		return false;
 
-	sint32 const hscroll = g_tiledMap->GetZoomTilePixelWidth();
-	sint32 const vscroll = g_tiledMap->GetZoomTilePixelHeight() / 2;
-	if (hscroll < 1 || vscroll < 1)
+	sint32 const tileStepX = g_tiledMap->GetZoomTilePixelWidth();
+	sint32 const halfRowStepY = g_tiledMap->GetZoomTilePixelHeight() / 2;
+	if (tileStepX < 1 || halfRowStepY < 1)
 		return false;
 
 	// Recenter once the displayed offset comes within one tile of the rendered
@@ -820,8 +820,8 @@ static bool ui_RecenterPanIfNeeded()
 	};
 	float const ox = aui_SDL::CameraOffX();
 	float const oy = aui_SDL::CameraOffY();
-	sint32 const dxTiles = axisTiles(ox, hscroll, aui_SDL::WorldContentOffX());
-	sint32 const dyTiles = axisTiles(oy, vscroll, aui_SDL::WorldContentOffY());
+	sint32 const dxTiles = axisTiles(ox, tileStepX, aui_SDL::WorldContentOffX());
+	sint32 const dyTiles = axisTiles(oy, halfRowStepY, aui_SDL::WorldContentOffY());
 	if (dxTiles == 0 && dyTiles == 0)
 		return false;
 
@@ -851,8 +851,8 @@ static bool ui_RecenterPanIfNeeded()
 	sint32 const ady = moved ? actualAxis(after.top  - before.top,  dyTiles) : 0;
 
 	if (adx != 0 || ady != 0)
-		aui_SDL::ShiftPan(static_cast<float>(adx * hscroll),
-		                  static_cast<float>(ady * vscroll));
+		aui_SDL::ShiftPan(static_cast<float>(adx * tileStepX),
+		                  static_cast<float>(ady * halfRowStepY));
 
 	// An axis that scrolled less than requested hit a map edge: clamp its target
 	// to the current offset so the ease stops pushing into the wall (the other
@@ -930,8 +930,8 @@ bool ui_CheckForScroll()
 	// centering a harness does). No real input, no scroll.
 	if (g_smokeTest) return false;
 
-	sint32		hscroll = g_tiledMap->GetZoomTilePixelWidth();
-	sint32		vscroll = g_tiledMap->GetZoomTilePixelHeight()/2;
+	sint32		tileStepX = g_tiledMap->GetZoomTilePixelWidth();
+	sint32		halfRowStepY = g_tiledMap->GetZoomTilePixelHeight()/2;
 
 	if (controlpanel_Get())
 		controlpanel_Get()->Idle();
@@ -1114,13 +1114,13 @@ bool ui_CheckForScroll()
 		sint32 accel = (accellTickDelta/k_TICKS_PER_ACCELERATION)+1;
 
 
-        smoothX = std::min<sint32>(deltaX * accel, hscroll);
-        smoothY = std::min<sint32>(deltaY * accel, vscroll);
+        smoothX = std::min<sint32>(deltaX * accel, tileStepX);
+        smoothY = std::min<sint32>(deltaY * accel, halfRowStepY);
 
-        if (smoothX < -hscroll)
-			smoothX = -hscroll;
-		if (smoothY < -vscroll)
-			smoothY = -vscroll;
+        if (smoothX < -tileStepX)
+			smoothX = -tileStepX;
+		if (smoothY < -halfRowStepY)
+			smoothY = -halfRowStepY;
 
 		if (g_smoothScroll) {
 			g_tiledMap->ScrollMapSmooth(smoothX, smoothY);

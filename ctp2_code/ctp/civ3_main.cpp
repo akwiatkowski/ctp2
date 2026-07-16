@@ -1022,6 +1022,16 @@ bool ui_CheckForScroll()
 			lastdeltaX = deltaX;
 			lastdeltaY = deltaY;
 
+		// Buttery path (same as the trackpad pan): feed the whole-tile step
+		// into the camera target; the frame tick eases and recenters. A
+		// negative target moves the view right/down (CameraOff = -pan).
+		if (aui_SDL::GpuCameraEnabled())
+		{
+			aui_SDL::AddPanTarget(-deltaX * static_cast<float>(tileStepX),
+			                      -deltaY * static_cast<float>(halfRowStepY));
+			return true;
+		}
+
 		g_tiledMap->SetScrolling(true);
 		if (!g_tiledMap->ScrollMap(deltaX, deltaY))
 			return false;
@@ -1122,7 +1132,13 @@ bool ui_CheckForScroll()
 		if (smoothY < -halfRowStepY)
 			smoothY = -halfRowStepY;
 
-		if (g_smoothScroll) {
+		// Buttery path (same as the trackpad pan): whole-tile step into the
+		// camera target; eased + recentered by the frame tick. Negative
+		// target = view right/down (CameraOff = -pan).
+		if (aui_SDL::GpuCameraEnabled()) {
+			aui_SDL::AddPanTarget(-deltaX * static_cast<float>(tileStepX),
+			                      -deltaY * static_cast<float>(halfRowStepY));
+		} else if (g_smoothScroll) {
 			g_tiledMap->ScrollMapSmooth(smoothX, smoothY);
 		} else {
 		  	if (!g_tiledMap->ScrollMap(deltaX, deltaY))

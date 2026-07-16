@@ -40,13 +40,15 @@ sint32 aui_SDL::m_SDLRefCount = 0;
 
 bool aui_SDL::GpuLayersEnabled()
 {
-	// Opt-in, cached: the two-layer GPU present (world texture + UI texture) is
-	// off by default so the verified single-texture present is untouched.
+	// DEFAULT ON (P11, ADR-001/ADR-002 "flip last"): the two-layer GPU
+	// present (world texture + UI texture) carries the buttery pan and the
+	// hardware cursor. CTP2_GPU_LAYERS=0 opts back into the legacy
+	// single-texture present.
 	static int s_enabled = -1;
 	if (s_enabled < 0)
 	{
 		char const * e = getenv("CTP2_GPU_LAYERS");
-		s_enabled = (e && e[0] && strcmp(e, "0") != 0) ? 1 : 0;
+		s_enabled = (e && e[0]) ? (strcmp(e, "0") != 0 ? 1 : 0) : 1;
 	}
 	return s_enabled != 0;
 }
@@ -67,14 +69,16 @@ bool aui_SDL::GpuFogEnabled()
 
 bool aui_SDL::GpuCameraEnabled()
 {
-	// Opt-in, cached. The smooth camera pans/zooms the world+fog GPU layers at
-	// present time, so it requires per-layer compositing (implies
-	// GpuLayersEnabled). Identity transform until something drives the camera.
+	// DEFAULT ON with the layers (P11): the smooth camera pans/zooms the
+	// world+fog layers at present time; identity until input drives it, so
+	// with the camera idle the present matches the plain layered copy.
+	// CTP2_GPU_CAMERA=0 opts out (or opting out of layers disables both).
 	static int s_enabled = -1;
 	if (s_enabled < 0)
 	{
 		char const * e = getenv("CTP2_GPU_CAMERA");
-		s_enabled = (e && e[0] && strcmp(e, "0") != 0 && GpuLayersEnabled()) ? 1 : 0;
+		bool const on = (e && e[0]) ? (strcmp(e, "0") != 0) : true;
+		s_enabled = (on && GpuLayersEnabled()) ? 1 : 0;
 	}
 	return s_enabled != 0;
 }

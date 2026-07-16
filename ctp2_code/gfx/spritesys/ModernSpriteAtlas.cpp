@@ -6,6 +6,7 @@
 
 #include "gfx/gfx_utils/png_load.h"
 #include "gfx/gfx_utils/pixelutils.h"
+#include "gfx/spritesys/Sprite.h"           // k_BIT_DRAWFLAGS_* per-pixel effect bits
 #include "ui/aui_common/aui_surface.h"
 
 #include <cstdio>
@@ -68,7 +69,8 @@ ModernSpriteRect const * ModernSpriteAtlas::FindRect(char const * action, int fa
 }
 
 bool ModernSpriteAtlas::Blit(aui_Surface * destSurface, char const * action, int facing,
-                             int frame, int destX, int destY) const
+                             int frame, int destX, int destY,
+                             uint16 transparency, uint16 flags) const
 {
     if (!destSurface)
         return false;
@@ -88,6 +90,12 @@ bool ModernSpriteAtlas::Blit(aui_Surface * destSurface, char const * action, int
     sint32 const destH = destSurface->Height();
     bool   const bpp32 = destSurface->BitsPerPixel() == 32;
 
+    // Which per-pixel effect to run (mutually exclusive, same precedence as the
+    // legacy RLE draw in spritelow.cpp: transparency, then fog, then desaturate).
+    bool const transp   = (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) != 0;
+    bool const fogged   = !transp && (flags & k_BIT_DRAWFLAGS_FOGGED) != 0;
+    bool const desatur  = !transp && !fogged && (flags & k_BIT_DRAWFLAGS_DESATURATED) != 0;
+
     for (int row = 0; row < r->h; ++row)
     {
         int const dy = destY + row;
@@ -104,17 +112,28 @@ bool ModernSpriteAtlas::Blit(aui_Surface * destSurface, char const * action, int
             uint8 const * px = srcRow + static_cast<size_t>(col) * 4;
             if (px[3] == 0)                 // binary alpha: transparent -> skip
                 continue;
-            // Atlas stores R,G,B,A; write opaque at the destination depth.
+
             if (bpp32)
             {
-                *reinterpret_cast<Pixel32 *>(dstRow + dx * 4) =
-                    0xFF000000u | (static_cast<uint32>(px[0]) << 16)
-                                | (static_cast<uint32>(px[1]) << 8) | px[2];
+                // Full-fidelity 8888 straight from the atlas RGB (no 565 round-trip).
+                Pixel32 const src = 0xFF000000u | (static_cast<uint32>(px[0]) << 16)
+                                                | (static_cast<uint32>(px[1]) << 8) | px[2];
+                Pixel32 * const d = reinterpret_cast<Pixel32 *>(dstRow + dx * 4);
+                if      (transp)  *d = pixelutils_BlendFast8888(src, *d, transparency);
+                else if (fogged)  *d = pixelutils_Shadow8888(src);
+                else if (desatur) *d = pixelutils_Desaturate8888(src);
+                else              *d = src;
             }
             else
             {
-                *reinterpret_cast<Pixel16 *>(dstRow + dx * 2) = static_cast<Pixel16>(
+                // Legacy 16-bit destination: match that surface's depth via 565.
+                Pixel16 const src = static_cast<Pixel16>(
                     ((px[0] >> 3) << 11) | ((px[1] >> 2) << 5) | (px[2] >> 3));
+                Pixel16 * const d = reinterpret_cast<Pixel16 *>(dstRow + dx * 2);
+                if      (transp)  *d = static_cast<Pixel16>(pixelutils_BlendFast_565(src, *d, transparency));
+                else if (fogged)  *d = pixelutils_Shadow_565(src);
+                else if (desatur) *d = pixelutils_Desaturate_565(src);
+                else              *d = src;
             }
         }
     }

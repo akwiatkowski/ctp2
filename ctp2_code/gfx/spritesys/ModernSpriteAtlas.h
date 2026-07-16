@@ -41,10 +41,21 @@ public:
 	// fully transparent), so this is a chroma-key-style copy: transparent
 	// atlas pixels are skipped, opaque ones written (expanded to the dest
 	// depth). Clipped to the surface. Returns false if the frame is unknown or
-	// the surface can't be locked. Draw flags (fog/desaturate/transparency)
-	// are a later refinement; this is the base opaque draw.
+	// the surface can't be locked.
+	//
+	// The three mutually-exclusive per-pixel draw flags the legacy RLE draw
+	// applies (k_BIT_DRAWFLAGS_TRANSPARENCY / _FOGGED / _DESATURATED, from
+	// Sprite.h) are honoured here for parity: TRANSPARENCY alpha-blends the
+	// sprite over the destination by `transparency`, FOGGED shadows it, and
+	// DESATURATED greys it. On the 32-bit destination the effects run in full
+	// 8888 (pixelutils_*8888) straight from the atlas RGB — no 565 round-trip,
+	// so the modern path keeps its extra colour fidelity rather than collapsing
+	// back to the legacy 16-bit precision; the 16-bit branch uses the 565
+	// helpers to match that surface's depth. Outline/feathering remain
+	// legacy-only.
 	bool Blit(class aui_Surface * destSurface, char const * action, int facing,
-	          int frame, int destX, int destY) const;
+	          int frame, int destX, int destY,
+	          uint16 transparency = 0, uint16 flags = 0) const;
 
 private:
 	ModernSpriteManifest m_manifest;

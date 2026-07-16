@@ -7,6 +7,7 @@
 
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_uniqueid.h"
+#include "ui/aui_common/aui_surface.h"
 #include "ui/aui_sdl/aui_sdl.h"
 
 SDL_Surface *aui_SDL::m_lpdd = nullptr;
@@ -124,6 +125,91 @@ void aui_SDL::UploadQuadAtlasSlot(int x, int y, int w, int h,
 	CTP2_SDL_UpdateTexture(m_quadAtlasTexture, &rect, pixels, pitch);
 }
 
+void aui_SDL::SetHardwareCursor(aui_Surface *surf, int hotX, int hotY)
+{
+	// The installed SDL_Cursor must stay alive while set; keep the current
+	// one and destroy it only after its replacement is installed.
+	static SDL_Cursor *s_current = nullptr;
+
+	if (!surf)
+	{
+		CTP2_SDL_HideCursor();
+		return;
+	}
+
+	LPVOID buffer = nullptr;
+	if (surf->Lock(nullptr, &buffer, 0) != AUI_ERRCODE_OK || !buffer)
+		return;
+
+	int const     w      = surf->Width();
+	int const     h      = surf->Height();
+	sint32 const  pitch  = surf->Pitch();
+	sint32 const  bpp    = surf->BitsPerPixel();
+	uint32 const  chroma = surf->GetChromaKey();
+	uint8 const * base   = static_cast<uint8 const *>(buffer);
+
+	// Chroma key -> alpha: the game blits cursors with
+	// k_AUI_BLITTER_FLAG_CHROMAKEY (pixels equal to the surface's key are
+	// skipped); the OS cursor wants that as real transparency instead.
+	// Pixels are assembled byte-wise (little-endian, as everywhere in the
+	// codebase) so no pointer reinterpretation is needed.
+	std::vector<uint32> argb(static_cast<size_t>(w) * h);
+	for (int y = 0; y < h; ++y)
+	{
+		uint32 *out = argb.data() + static_cast<size_t>(y) * w;
+		uint8 const *row = base + static_cast<size_t>(y) * pitch;
+		if (bpp == 16)
+		{
+			for (int x = 0; x < w; ++x)
+			{
+				uint16 const p = static_cast<uint16>(
+					row[2 * x] | (row[2 * x + 1] << 8));
+				if (p == static_cast<uint16>(chroma))
+				{
+					out[x] = 0;
+					continue;
+				}
+				// RGB565 -> 888, replicating high bits into low so pure
+				// white/black stay pure.
+				uint32 const r = (p >> 11) & 0x1f;
+				uint32 const g = (p >> 5) & 0x3f;
+				uint32 const b = p & 0x1f;
+				out[x] = 0xff000000u
+				       | ((r << 3 | r >> 2) << 16)
+				       | ((g << 2 | g >> 4) << 8)
+				       |  (b << 3 | b >> 2);
+			}
+		}
+		else // 32bpp ARGB
+		{
+			for (int x = 0; x < w; ++x)
+			{
+				uint32 const p = static_cast<uint32>(row[4 * x])
+				               | (static_cast<uint32>(row[4 * x + 1]) << 8)
+				               | (static_cast<uint32>(row[4 * x + 2]) << 16)
+				               | (static_cast<uint32>(row[4 * x + 3]) << 24);
+				out[x] = (p == chroma) ? 0 : (p | 0xff000000u);
+			}
+		}
+	}
+	surf->Unlock(buffer);
+
+	SDL_Surface *ss = CTP2_SDL_CreateARGBSurfaceFrom(
+		argb.data(), w, h, w * static_cast<int>(sizeof(uint32)));
+	if (!ss)
+		return;
+	SDL_Cursor *cursor = SDL_CreateColorCursor(ss, hotX, hotY);
+	SDL_FreeSurface(ss);
+	if (!cursor)
+		return;
+
+	SDL_SetCursor(cursor);
+	CTP2_SDL_ShowCursor();
+	if (s_current)
+		SDL_FreeCursor(s_current);
+	s_current = cursor;
+}
+
 void aui_SDL::TickCamera(float dtSec)
 {
 	// Clamp dt so a stall (e.g. a long modal) doesn't fling the camera.
@@ -222,7 +308,10 @@ AUI_ERRCODE aui_SDL::InitCommon(BOOL useExclusiveMode)
 		return AUI_ERRCODE_CREATEFAILED;
 	}
 */
-	CTP2_SDL_HideCursor();
+	// Layered mode uses the OS cursor (see HardwareCursorEnabled); the
+	// default arrow shows until the game installs its themed cursor.
+	if (!HardwareCursorEnabled())
+		CTP2_SDL_HideCursor();
 
 	// SDL2: all events are enabled by default; no need to filter
 	// SDL_EnableUNICODE removed in SDL2 (always on)

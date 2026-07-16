@@ -170,6 +170,12 @@ public:
 
 	void SetAnim( sint32 anim );
 
+	// P11: keep the OS cursor in step with the game cursor when the layered
+	// GPU present uses a hardware cursor (no-op otherwise). Called from the
+	// per-frame paths (ReactToInput, HandleAnim); converts + installs only
+	// when the effective cursor actually changed.
+	void SyncHardwareCursor( );
+
 	AUI_ERRCODE ReactToInput( ) override;
 
 	BOOL	ShouldTerminateThread( );
@@ -232,6 +238,8 @@ protected:
 	sint32		m_suspendCount;
 	sint32		m_showCount;
 	BOOL		m_reset;
+	// P11: cursor last installed as the OS cursor (hardware-cursor mode).
+	aui_Cursor	*m_hwCursorShown;
 
 #ifdef __AUI_USE_SDL__
 	SDL_Thread     *m_thread;

@@ -419,6 +419,29 @@ inline bool CTP2_SDL_IsMouseButtonDown(SDL_Event const &event)
 	return event.type == SDL_MOUSEBUTTONDOWN;
 }
 
+inline void CTP2_SDL_ShowCursor()
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_ShowCursor();
+#else
+	SDL_ShowCursor(SDL_ENABLE);
+#endif
+}
+
+// Wrap an existing ARGB8888 pixel buffer in an SDL_Surface (no copy; the
+// buffer must outlive the surface). The two APIs order arguments differently.
+inline SDL_Surface *CTP2_SDL_CreateARGBSurfaceFrom(
+	Uint32 *pixels, int width, int height, int pitch)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_ARGB8888,
+	                             pixels, pitch);
+#else
+	return SDL_CreateRGBSurfaceWithFormatFrom(pixels, width, height, 32,
+	                                          pitch, SDL_PIXELFORMAT_ARGB8888);
+#endif
+}
+
 // Touch finger id — the struct field casing differs (SDL2 fingerId,
 // SDL3 fingerID). Event TYPE constants (SDL_FINGERDOWN etc.) come from
 // SDL_ENABLE_OLD_NAMES and need no wrapper.

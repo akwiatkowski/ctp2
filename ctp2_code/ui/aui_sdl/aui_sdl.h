@@ -13,6 +13,8 @@
 
 #include <vector>
 
+class aui_Surface;   // hardware-cursor conversion source
+
 class aui_SDL
 {
 public:
@@ -47,6 +49,17 @@ public:
 	// world + fog layers at present time (UI stays fixed). Requires
 	// GpuLayersEnabled. Off by default; identity (0,0,1) is a no-op.
 	static bool GpuCameraEnabled();
+	// P11 pan polish — hardware (OS) cursor. In the layered GPU present the
+	// legacy software cursor is poison: every move "restores" a pickup of
+	// SECONDARY pixels through BltToSecondary, which bakes screen-coord map
+	// fragments into the persistent UI layer — stale squares that float over
+	// the sliding world (cursor strobing, units apparently in wrong tiles).
+	// With layers on, the OS cursor is shown instead and ALL software cursor
+	// mixing is skipped (see aui_Mouse).
+	static bool HardwareCursorEnabled() { return GpuLayersEnabled(); }
+	// Convert a chroma-keyed game cursor image (16 or 32 bpp aui surface)
+	// and install it as the OS cursor; null hides the OS cursor.
+	static void SetHardwareCursor(aui_Surface *surf, int hotX, int hotY);
 	// P11 2a — buttery pan substrate (ADR-001). The world surface + texture are
 	// oversized by this margin (px) on each side of the screen so the viewport
 	// can pan sub-tile on the GPU (a moving source rect) without revealing a

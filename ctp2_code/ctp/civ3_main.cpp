@@ -636,6 +636,66 @@ void ui_HandleMouseWheel(sint16 delta)
 	}
 }
 
+// P11 Stage 2 F — macOS trackpad two-finger pan. Both the physical mouse wheel
+// and a trackpad two-finger scroll arrive as SDL_MOUSEWHEEL; the trackpad also
+// carries a horizontal delta and streams many small (often fractional) events.
+// We treat two-finger scroll as a map pan: accumulate the wheel deltas as map
+// pixels and emit a whole-tile ScrollMap step each time the accumulator crosses
+// a tile (hscroll wide / vscroll = half-tile-row tall — the same units the edge
+// scroll uses). The sub-tile remainder is intentionally kept in the accumulator;
+// the follow-up smoothness pass (GPU sub-tile glide or ScrollMapSmooth) will
+// consume it. Ships default-on, no env gate, and reveals new terrain (real
+// ScrollMap, not a texture shift). Direction signs are tuned for macOS natural
+// scrolling and can be flipped in one place.
+void ui_HandleTrackpadPan(float wheelX, float wheelY)
+{
+	if (!g_civApp || !g_civApp->IsGameLoaded() || !g_tiledMap)
+		return;
+	// A list box under the pointer owns the gesture (scroll the list, not the map).
+	if (aui_ListBox::GetMouseFocusListBox())
+		return;
+
+	// Map pixels per wheel unit. A trackpad delivers small deltas at high rate;
+	// this scales them to a comfortable pan speed. Tunable to taste.
+	float const k_PAN_PIXELS_PER_WHEEL = 24.0f;
+
+	static float s_accX = 0.0f;
+	static float s_accY = 0.0f;
+
+	// Natural viewport scroll: scroll right -> view moves east (deltaX > 0),
+	// scroll up -> view moves north (deltaY < 0). SDL wheel.y is positive when
+	// scrolling up, so Y is negated. Flip either sign here to invert an axis.
+	s_accX += wheelX * k_PAN_PIXELS_PER_WHEEL;
+	s_accY -= wheelY * k_PAN_PIXELS_PER_WHEEL;
+
+	sint32 const hscroll = g_tiledMap->GetZoomTilePixelWidth();
+	sint32 const vscroll = g_tiledMap->GetZoomTilePixelHeight() / 2;
+	if (hscroll < 1 || vscroll < 1)
+		return;
+
+	sint32 const dxTiles = static_cast<sint32>(s_accX / hscroll);
+	sint32 const dyTiles = static_cast<sint32>(s_accY / vscroll);
+	if (dxTiles == 0 && dyTiles == 0)
+		return;                       // sub-tile: keep accumulating
+
+	s_accX -= dxTiles * hscroll;
+	s_accY -= dyTiles * vscroll;
+
+	if (g_tiledMap->ScrollMap(dxTiles, dyTiles))
+	{
+		g_tiledMap->RetargetTileSurface(nullptr);
+		g_tiledMap->Refresh();
+		g_tiledMap->InvalidateMap();
+		g_tiledMap->ValidateMix();
+	}
+	else
+	{
+		// Clamped at a map edge: drop the residual so it doesn't spring back.
+		s_accX = 0.0f;
+		s_accY = 0.0f;
+	}
+}
+
 bool compute_scroll_deltas(sint32 time,sint32 &deltaX,sint32 &deltaY)
 {
 
@@ -2070,18 +2130,13 @@ int SDLMessageHandler(const SDL_Event &event)
 		return 0;
 #ifdef __AUI_USE_SDL__
 	case SDL_MOUSEWHEEL:
-		// P11 Stage 2 F: drive the smooth GPU camera zoom. The mouse wheel and
-		// macOS trackpad two-finger scroll both arrive here (the wheel was
-		// otherwise dead under SDL). Only active with CTP2_GPU_CAMERA; the world
-		// + fog layers scale on the GPU, no tile re-render. event.wheel.y is int
-		// on SDL2 and float on SDL3 — the cast covers both.
-		if (aui_SDL::GpuCameraEnabled())
-		{
-			// Add a zoom velocity impulse; the per-frame TickCamera integrates it
-			// and springs the zoom back toward home (the rubber-band peek). The
-			// frame loop re-presents while the camera is settling.
-			aui_SDL::AddZoomImpulse(static_cast<float>(event.wheel.y) * 3.0f);
-		}
+		// P11 Stage 2 F: two-finger trackpad scroll (and the physical mouse
+		// wheel) pan the map. Ships default-on — real ScrollMap, reveals terrain.
+		// Zoom now lives on the pinch gesture, not the wheel. event.wheel.x/y are
+		// int on SDL2 and float on SDL3; the cast covers both and preserves the
+		// trackpad's fractional deltas on SDL3.
+		ui_HandleTrackpadPan(static_cast<float>(event.wheel.x),
+		                     static_cast<float>(event.wheel.y));
 		return 0;
 #endif
 #ifndef __AUI_USE_SDL__

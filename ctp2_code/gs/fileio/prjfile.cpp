@@ -147,8 +147,6 @@ void unmapFile(PFPath &pfp)
 ProjectFile::ProjectFile()
 :
     m_num_paths         (0),
-    m_entries           (nullptr),
-    m_num_entries       (0),
     m_Reported          ()
 {
     m_error_string[0] = 0;
@@ -157,11 +155,6 @@ ProjectFile::ProjectFile()
 
 ProjectFile::~ProjectFile()
 {
-    if (m_entries)
-    {
-        free(m_entries);
-    }
-
     for (auto & m_path : m_paths)
     {
         switch(m_path.type)
@@ -189,24 +182,9 @@ ProjectFile::~ProjectFile()
 
 int ProjectFile::mergeEntries(PFEntry *newList, int newCount)
 {
+    m_entries.insert(m_entries.end(), newList, newList + newCount);
 
-    if (m_entries) {
-        m_entries =
-            (PFEntry *)realloc(m_entries, (sizeof(PFEntry) *
-                                           (newCount + m_num_entries)));
-    } else {
-        m_entries = (PFEntry *)malloc(sizeof(PFEntry) * newCount);
-        m_num_entries = 0;
-    }
-    if (m_entries == nullptr) {
-        snprintf(m_error_string, sizeof(m_error_string), "Not enough memory");
-        return(0);
-    }
-
-    memcpy(m_entries + m_num_entries, newList, sizeof(PFEntry) * newCount);
-    m_num_entries += newCount;
-
-    qsort(m_entries, m_num_entries, sizeof(PFEntry), PFEntry_compare);
+    qsort(m_entries.data(), m_entries.size(), sizeof(PFEntry), PFEntry_compare);
 
     return(1);
 }
@@ -217,7 +195,7 @@ PFEntry *ProjectFile::findRecord(char const * rname) const
 
     strcasecpy(key.rname, rname);
 
-    return((PFEntry *)bsearch(&key, m_entries, m_num_entries,
+    return((PFEntry *)bsearch(&key, m_entries.data(), m_entries.size(),
                               sizeof(PFEntry), PFEntry_compare));
 }
 

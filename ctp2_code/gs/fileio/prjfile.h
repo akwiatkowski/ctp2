@@ -3,6 +3,7 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 #include "ctp/ctp2_utils/c3files.h"
 
@@ -90,8 +91,9 @@ private:
     PFPath m_paths[MAX_PRJFILE_PATHS];
     long m_num_paths;
 
-    PFEntry *m_entries;
-    long m_num_entries;
+    // Sorted by rname (mergeEntries re-sorts after every batch) so
+    // findRecord can bsearch.
+    std::vector<PFEntry> m_entries;
 
     char m_error_string[256];
 

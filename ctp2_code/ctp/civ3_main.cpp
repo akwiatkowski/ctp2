@@ -644,7 +644,7 @@ void ui_HandleMouseWheel(sint16 delta)
 // a tile (hscroll wide / vscroll = half-tile-row tall — the same units the edge
 // scroll uses). The sub-tile remainder is intentionally kept in the accumulator;
 // the follow-up smoothness pass (GPU sub-tile glide or ScrollMapSmooth) will
-// consume it. Ships default-on, no env gate, and reveals new terrain (real
+// consume it. Ships default-on, no env gate, and reveals fresh terrain (real
 // ScrollMap, not a texture shift). Direction signs are tuned for macOS natural
 // scrolling and can be flipped in one place.
 void ui_HandleTrackpadPan(float wheelX, float wheelY)
@@ -735,6 +735,12 @@ bool compute_scroll_deltas(sint32 time,sint32 &deltaX,sint32 &deltaY)
 bool ui_CheckForScroll()
 {
 	if (!g_tiledMap) return false;
+
+	// Smoke-test sessions have no human at the controls: the SDL mouse sits
+	// at (0,0) forever, which reads as permanent edge-scroll-up-left and
+	// silently drags the view to the map corner (fighting any programmatic
+	// centering a harness does). No real input, no scroll.
+	if (g_smokeTest) return false;
 
 	sint32		hscroll = g_tiledMap->GetZoomTilePixelWidth();
 	sint32		vscroll = g_tiledMap->GetZoomTilePixelHeight()/2;

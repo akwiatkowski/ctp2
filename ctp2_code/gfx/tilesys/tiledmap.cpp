@@ -3764,8 +3764,14 @@ void TiledMap::ScrollPixels(sint32 deltaX, sint32 deltaY, aui_Surface *surf)
 	// verify by panning a 32-bit map.)
 	sint32 const bpp   = surf->BitsPerPixel() / 8;
 	uint8 * const base = reinterpret_cast<uint8 *>(buffer);
-	sint32 const dx    = abs(deltaX);
-	sint32 const dy    = abs(deltaY);
+	// Clamp the shift to the surface dimensions: a shift >= the whole surface
+	// degenerates to "everything is newly exposed" (full clear), which the
+	// unclamped loops did NOT handle — with dy > h the reveal loop's start row
+	// (h - dy) went negative and memset wrote BELOW the buffer (SIGSEGV / silent
+	// heap corruption; hit 2026-07-16 when an unbounded camera pan asked
+	// ScrollMap for a ~1050px scroll on a ~912px surface).
+	sint32 const dx    = std::min<sint32>(abs(deltaX), w);
+	sint32 const dy    = std::min<sint32>(abs(deltaY), h);
 
 	if (deltaX)
 	{

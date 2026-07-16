@@ -79,6 +79,25 @@ inline bool CTP2_SDL_RenderTextureDst(SDL_Renderer *renderer, SDL_Texture *textu
 #endif
 }
 
+// P11 Stage 3 G1 (terrain quads): copy a sub-rectangle of a source texture
+// (an atlas slot) into a destination rectangle of the current render target.
+// Used to draw each visible terrain cell from the tile atlas into the world
+// texture. SDL3 wants SDL_FRect src/dst; SDL2 SDL_Rect.
+inline bool CTP2_SDL_RenderTextureSrcDst(SDL_Renderer *renderer, SDL_Texture *texture,
+                                         int sx, int sy, int sw, int sh,
+                                         float dx, float dy, float dw, float dh)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_FRect src = { (float)sx, (float)sy, (float)sw, (float)sh };
+	SDL_FRect dst = { dx, dy, dw, dh };
+	return SDL_RenderTexture(renderer, texture, &src, &dst);
+#else
+	SDL_Rect src = { sx, sy, sw, sh };
+	SDL_Rect dst = { (int)dx, (int)dy, (int)dw, (int)dh };
+	return SDL_RenderCopy(renderer, texture, &src, &dst) == 0;
+#endif
+}
+
 inline bool CTP2_SDL_UpdateTexture(
 	SDL_Texture *texture,
 	SDL_Rect const *rect,

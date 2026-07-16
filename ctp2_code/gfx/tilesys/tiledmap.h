@@ -110,6 +110,7 @@ class CellUnitList;
 class CityData;
 class EffectActor;
 class GoodActor;
+class GpuTileCache;
 class Path;
 class TerrainImprovementRecord;
 class TileInfo;
@@ -358,6 +359,11 @@ public:
 	// P11 Stage 2 C: true when GPU fog is active, so the CPU terrain pass renders
 	// UNFOGGED (the GPU composites the fog mask instead).
 	bool			GpuFogActive() const;
+	// P11 Stage 3 G1: terrain quad renderer. Rebuilds the per-frame GPU quad
+	// draw list from the visible cells, filling the tile atlas on cache misses
+	// (compositing each unseen cell once via DrawTransitionTile). No-op unless
+	// CTP2_GPU_QUADS is on. Called from Refresh after the CPU passes unlock.
+	void			BuildTerrainQuads();
 	sint32			QuickBlackBackGround(aui_Surface *surface);
 	sint32			DrawDitheredTile(aui_Surface *surface, sint32 x, sint32 y, Pixel16 color);
 	void			DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos, sint32 x, sint32 y, sint32 destWidth, sint32 destHeight,Pixel16 color);
@@ -591,6 +597,13 @@ protected:
 	TILEHITMASK		m_tileHitMask[k_TILE_GRID_HEIGHT];
 
 	TileSet			*m_tileSet;
+
+	// P11 Stage 3 G1: terrain quad cache + scratch. m_gpuTileCache maps a cell's
+	// appearance signature to an atlas slot; m_gpuScratchTile (94x72, 32-bit) is
+	// the compose-once buffer for a cache miss before upload to the atlas. Both
+	// created lazily on the first BuildTerrainQuads; null unless quads are on.
+	std::unique_ptr<GpuTileCache>	m_gpuTileCache;
+	std::unique_ptr<aui_Surface>	m_gpuScratchTile;
 
 	MapPoint		m_hiliteMouseTile;
 	BOOL			m_drawHilite;

@@ -25,6 +25,11 @@ float aui_SDL::m_panVelX = 0.0f;
 float aui_SDL::m_panVelY = 0.0f;
 float aui_SDL::m_zoomVel = 0.0f;
 float aui_SDL::m_homeZoom = 1.0f;
+// P11 Stage 3 G1: terrain quad atlas + per-frame draw list.
+SDL_Texture *aui_SDL::m_quadAtlasTexture = nullptr;
+int aui_SDL::m_quadAtlasW = 0;
+int aui_SDL::m_quadAtlasH = 0;
+std::vector<aui_SDL::GpuQuad> aui_SDL::m_quadDrawList;
 uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
 sint32 aui_SDL::m_SDLRefCount = 0;
 
@@ -67,6 +72,52 @@ bool aui_SDL::GpuCameraEnabled()
 		s_enabled = (e && e[0] && strcmp(e, "0") != 0 && GpuLayersEnabled()) ? 1 : 0;
 	}
 	return s_enabled != 0;
+}
+
+bool aui_SDL::GpuQuadsEnabled()
+{
+	// Opt-in, cached. Terrain-as-GPU-quads renders the world into a render-target
+	// texture instead of uploading the CPU world surface, so it requires
+	// per-layer compositing (implies GpuLayersEnabled). Off by default.
+	static int s_enabled = -1;
+	if (s_enabled < 0)
+	{
+		char const * e = getenv("CTP2_GPU_QUADS");
+		s_enabled = (e && e[0] && strcmp(e, "0") != 0 && GpuLayersEnabled()) ? 1 : 0;
+	}
+	return s_enabled != 0;
+}
+
+void aui_SDL::EnsureQuadAtlas(int atlasW, int atlasH)
+{
+	// Lazily create the atlas texture the terrain quads sample from. It is a
+	// streaming ARGB8888 texture (CPU-composited tiles are uploaded slot by slot
+	// via UploadQuadAtlasSlot) with alpha blending so a tile's transparent
+	// diamond surround does not clobber its neighbours when quads tessellate.
+	if (!m_renderer) return;
+	if (m_quadAtlasTexture && m_quadAtlasW == atlasW && m_quadAtlasH == atlasH)
+		return;
+	if (m_quadAtlasTexture)
+	{
+		SDL_DestroyTexture(m_quadAtlasTexture);
+		m_quadAtlasTexture = nullptr;
+	}
+	m_quadAtlasTexture = SDL_CreateTexture(m_renderer,
+		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, atlasW, atlasH);
+	if (m_quadAtlasTexture)
+	{
+		SDL_SetTextureBlendMode(m_quadAtlasTexture, SDL_BLENDMODE_BLEND);
+		m_quadAtlasW = atlasW;
+		m_quadAtlasH = atlasH;
+	}
+}
+
+void aui_SDL::UploadQuadAtlasSlot(int x, int y, int w, int h,
+                                  void const *pixels, int pitch)
+{
+	if (!m_quadAtlasTexture) return;
+	SDL_Rect rect = { x, y, w, h };
+	CTP2_SDL_UpdateTexture(m_quadAtlasTexture, &rect, pixels, pitch);
 }
 
 void aui_SDL::TickCamera(float dtSec)

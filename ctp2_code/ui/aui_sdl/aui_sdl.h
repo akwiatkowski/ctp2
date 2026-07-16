@@ -11,6 +11,8 @@
 
 #include "ui/aui_sdl/aui_sdlcompat.h"
 
+#include <vector>
+
 class aui_SDL
 {
 public:
@@ -61,6 +63,29 @@ public:
 	static void TickCamera(float dtSec);
 	static bool CameraMoving();
 
+	// P11 Stage 3 G1 — terrain quad renderer. When enabled, terrain is drawn as
+	// GPU textured quads from a tile atlas into the world texture (a render
+	// target) instead of uploading the CPU-composited world surface. The D/C/F
+	// composite then pans/zooms/fogs that world texture unchanged. Requires
+	// GpuLayersEnabled. Off by default.
+	static bool GpuQuadsEnabled();
+	static SDL_Texture *QuadAtlasTexture() { return m_quadAtlasTexture; }
+	// Lazily create the atlas texture (ARGB8888 streaming, alpha-blended so the
+	// transparent diamond surround tessellates). No-op if already sized to match.
+	static void EnsureQuadAtlas(int atlasW, int atlasH);
+	// Upload one composited tile's pixels (ARGB8888) into an atlas slot rect.
+	static void UploadQuadAtlasSlot(int x, int y, int w, int h,
+	                                void const *pixels, int pitch);
+
+	// One terrain cell to draw: atlas source rect -> world-texture dest rect.
+	struct GpuQuad { int sx, sy, sw, sh; int dx, dy, dw, dh; };
+	// The per-frame draw list is rebuilt by the tile pass (BeginQuadFrame +
+	// AddQuad) and consumed by the present (QuadDrawList). It persists between
+	// presents so camera-only frames reuse it without a rebuild.
+	static void BeginQuadFrame() { m_quadDrawList.clear(); }
+	static void AddQuad(GpuQuad const &q) { m_quadDrawList.push_back(q); }
+	static std::vector<GpuQuad> const &QuadDrawList() { return m_quadDrawList; }
+
 protected:
 	BOOL			m_exclusiveMode;
 	static SDL_Surface *	m_lpdd;
@@ -83,6 +108,11 @@ protected:
 	static float		m_panVelY;
 	static float		m_zoomVel;
 	static float		m_homeZoom;
+	// P11 G1: terrain quad atlas (source) + the per-frame cell draw list.
+	static SDL_Texture *	m_quadAtlasTexture;
+	static int		m_quadAtlasW;
+	static int		m_quadAtlasH;
+	static std::vector<GpuQuad> m_quadDrawList;
 
 private:
 	static sint32		m_SDLRefCount;

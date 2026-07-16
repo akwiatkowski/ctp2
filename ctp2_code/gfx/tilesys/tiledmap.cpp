@@ -120,6 +120,8 @@
 #include "gfx/tilesys/TileDrawRoad.h"
 #include "gs/world/TileInfo.h"
 #include "gfx/tilesys/tileset.h"
+#include "gfx/tilesys/GpuTileCache.h"   // P11 G1: terrain quad cache + signature
+#include "ui/aui_sdl/aui_sdl.h"         // P11 G1: GPU quad atlas + draw list
 #include "gfx/tilesys/tileutils.h"
 #include "gs/gameobj/TradeRoute.h"
 #include "gs/gameobj/TradeRouteData.h"
@@ -283,6 +285,7 @@ TiledMap::~TiledMap()
 	delete m_oldMixDirtyList;
 	delete m_mapDirtyList;
 	delete m_tileSet;
+	// m_gpuTileCache / m_gpuScratchTile are unique_ptr — freed automatically
 	// m_localVision    not deleted: reference only
 	// m_surface        not deleted: reference only
 	// m_surfBase       not deleted: reference only
@@ -3615,7 +3618,130 @@ sint32 TiledMap::Refresh()
 	if (c3ui_Get() && c3ui_Get()->GpuFog())
 		BuildFogMask(c3ui_Get()->FogSurface());
 
+	// P11 Stage 3 G1: rebuild the terrain quad draw list (and fill the atlas on
+	// cache misses) from the same view. Runs after UnlockSurface — it does its
+	// own scratch-surface locking. No-op unless CTP2_GPU_QUADS is on.
+	if (aui_SDL::GpuQuadsEnabled())
+		BuildTerrainQuads();
+
 	return 0;
+}
+
+// P11 Stage 3 G1 — terrain quad renderer.
+//
+// Rebuild the per-frame draw list of visible terrain cells as GPU quads. Each
+// cell's composited appearance is keyed by TerrainCellSignature; on a cache
+// miss the cell is composited exactly once (reusing DrawTransitionTile into a
+// 94x72 scratch surface) and uploaded into its atlas slot. On a hit we just
+// reference the cached slot. The present (aui_SDLSurface::Flip) then draws each
+// quad from the atlas into the world texture. Largest zoom only for now
+// (camera zoom scales the world texture; engine zoom levels come later).
+void TiledMap::BuildTerrainQuads()
+{
+	// Only the singleton main world map drives the (single, global) quad draw
+	// list. The radar and thumbnail maps are separate TiledMap instances with
+	// their own small views; letting them run would clobber the main map's list
+	// (BeginQuadFrame clears it) and blank the world. Guard BEFORE the clear.
+	if (this != tiledmap_Get()) return;
+
+	// Clear the list up front so any early return presents an empty world (black)
+	// rather than stale quads left at the wrong scale.
+	aui_SDL::BeginQuadFrame();
+
+	if (m_zoomLevel != k_ZOOM_LARGEST) return;      // G1 scope: default zoom
+	if (!m_tileSet || !m_localVision)    return;
+
+	// Atlas geometry: a cols x rows grid of 94x72 tile slots. 1024 slots easily
+	// holds the distinct edge combinations on a real map (interiors share one
+	// signature); LRU absorbs any overflow. Both atlas dims stay < 4096 so any
+	// GPU accepts the texture (3008 x 2304).
+	int const k_ATLAS_COLS = 32;
+	int const k_ATLAS_ROWS = 32;
+	int const tileW = k_TILE_PIXEL_WIDTH;   // 94
+	int const tileH = k_TILE_GRID_HEIGHT;   // 72
+
+	if (!m_gpuTileCache)
+	{
+		m_gpuTileCache = std::make_unique<GpuTileCache>(
+			k_ATLAS_COLS, k_ATLAS_ROWS, tileW, tileH);
+		AUI_ERRCODE err = AUI_ERRCODE_OK;
+		m_gpuScratchTile.reset(aui_Factory::new_Surface(err, tileW, tileH,
+			nullptr, FALSE, FALSE, FALSE, /*bpp=*/32));
+	}
+	if (!m_gpuScratchTile) return;
+
+	aui_SDL::EnsureQuadAtlas(m_gpuTileCache->AtlasW(), m_gpuTileCache->AtlasH());
+
+	sint32 mapWidth, mapHeight;
+	GetMapMetrics(&mapWidth, &mapHeight);
+
+	// Mirror RepaintTiles' visible-cell iteration (m_mapViewRect + wrap/bounds).
+	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
+	{
+		if (!(world_Get()->IsYwrap() || (i >= 0 && i < mapHeight))) continue;
+		for (sint32 j = m_mapViewRect.left; j < m_mapViewRect.right; j++)
+		{
+			if (!(world_Get()->IsXwrap() || (j >= 0 && j < mapWidth))) continue;
+
+			sint32 wj = j, wi = i;
+			maputils_WrapPoint(wj, wi, &wj, &wi);
+			MapPoint pos = MapPoint(maputils_TileX2MapX(wj, wi), wi);
+
+			// Only explored cells draw terrain (unexplored stays the black the
+			// world texture was cleared to — matching CalculateWrap's BlackTile).
+			if (!m_renderEverything && !m_localVision->IsExplored(pos)) continue;
+
+			sint32 x, y;
+			maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y);
+
+			// Same on-surface clip as CalculateWrap.
+			if (   (x < m_surfaceRect.left)
+			    || (x > (m_surfaceRect.right  - GetZoomTilePixelWidth()))
+			    || (y < m_surfaceRect.top)
+			    || (y > (m_surfaceRect.bottom - (GetZoomTilePixelHeight() + GetZoomTileHeadroom()))))
+				continue;
+
+			TileInfo * tileInfo = GetTileInfo(pos);
+			if (!tileInfo) continue;
+			if (!m_tileSet->GetBaseTile(tileInfo->GetTileNum())) continue;
+
+			sint32 tilesetIndex =
+				g_theTerrainDB->Get(tileInfo->GetTerrainType())->GetTilesetIndex();
+
+			uint64_t sig = TerrainCellSignature(
+				tileInfo->GetTileNum(),
+				(uint8_t) tilesetIndex,
+				(uint8_t) tileInfo->GetTransition(0),
+				(uint8_t) tileInfo->GetTransition(1),
+				(uint8_t) tileInfo->GetTransition(2),
+				(uint8_t) tileInfo->GetTransition(3));
+
+			GpuTileSlot slot;
+			if (m_gpuTileCache->Get(sig, slot) == GpuTileCache::MISS)
+			{
+				// Compose this cell once into the scratch tile, then upload it to
+				// its atlas slot. Clear scratch to transparent first so the
+				// diamond's surround (and headroom) stays alpha 0 and neighbouring
+				// quads tessellate cleanly. DrawTransitionTile writes via the
+				// locked m_surf* members, so target the scratch through
+				// LockThisSurface and place the tile at scratch origin (0,0).
+				LockThisSurface(m_gpuScratchTile.get());
+				if (m_surfBase)
+				{
+					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
+					DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
+					aui_SDL::UploadQuadAtlasSlot(slot.atlasX, slot.atlasY, tileW, tileH,
+						m_surfBase, m_surfPitch);
+				}
+				UnlockSurface();
+			}
+
+			aui_SDL::GpuQuad q;
+			q.sx = slot.atlasX; q.sy = slot.atlasY; q.sw = tileW; q.sh = tileH;
+			q.dx = x;           q.dy = y;           q.dw = tileW; q.dh = tileH;
+			aui_SDL::AddQuad(q);
+		}
+	}
 }
 
 void TiledMap::ScrollPixels(sint32 deltaX, sint32 deltaY, aui_Surface *surf)

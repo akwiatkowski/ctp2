@@ -234,7 +234,35 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 			{
 				SDL_Surface * const ws = worldSurf->DDS();
 				SDL_Surface * const us = uiSurf->DDS();
-				CTP2_SDL_UpdateTexture( aui_SDL::WorldTexture(), nullptr, ws->pixels, ws->pitch );
+
+				// P11 Stage 3 G1: terrain quad renderer. When enabled, draw the
+				// visible terrain cells as GPU textured quads (from the tile
+				// atlas) INTO the world texture — which is a render target in
+				// quad mode — instead of uploading the CPU world surface. The
+				// draw list covers every visible cell every present, so the
+				// world texture is always complete (the camera transform below
+				// has no holes to reveal — the failure mode that sank the old
+				// dirty-rect layer split). Cleared to opaque black first, so any
+				// unexplored / unemitted cell is black (as the CPU BlackTile).
+				bool const quads = aui_SDL::GpuQuadsEnabled() && aui_SDL::QuadAtlasTexture();
+				if (quads)
+				{
+					SDL_SetRenderTarget( m_renderer, aui_SDL::WorldTexture() );
+					SDL_SetRenderDrawColor( m_renderer, 0, 0, 0, 255 );
+					SDL_RenderClear( m_renderer );
+					SDL_Texture * const atlas = aui_SDL::QuadAtlasTexture();
+					for (aui_SDL::GpuQuad const & q : aui_SDL::QuadDrawList())
+					{
+						CTP2_SDL_RenderTextureSrcDst( m_renderer, atlas,
+							q.sx, q.sy, q.sw, q.sh,
+							(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh );
+					}
+					SDL_SetRenderTarget( m_renderer, nullptr );
+				}
+				else
+				{
+					CTP2_SDL_UpdateTexture( aui_SDL::WorldTexture(), nullptr, ws->pixels, ws->pitch );
+				}
 				CTP2_SDL_UpdateTexture( aui_SDL::UiTexture(),    nullptr, us->pixels, us->pitch );
 
 				// P11 Stage 2 C: GPU fog. When enabled, upload the fog mask and

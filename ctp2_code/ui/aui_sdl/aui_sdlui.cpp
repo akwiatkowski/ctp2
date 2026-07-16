@@ -184,8 +184,16 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// Dormant until the two-layer present is wired; the default single-texture
 	// present is unaffected.
 	if (aui_SDL::GpuLayersEnabled()) {
-		m_worldTexture = SDL_CreateTexture(m_renderer,
-			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, m_width, m_height);
+		// P11 Stage 3 G1: in terrain-quad mode the world texture is a render
+		// TARGET (the quad pass draws terrain into it each frame); otherwise it
+		// is STREAMING (the CPU world surface is uploaded into it). The two modes
+		// are mutually exclusive, so pick the access type at creation. Keep the
+		// ternary inline so its type stays SDL_TextureAccess (SDL3's C++ headers
+		// do not implicitly convert a plain int to that enum).
+		m_worldTexture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888,
+			aui_SDL::GpuQuadsEnabled()
+				? SDL_TEXTUREACCESS_TARGET : SDL_TEXTUREACCESS_STREAMING,
+			m_width, m_height);
 		m_uiTexture = SDL_CreateTexture(m_renderer,
 			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, m_width, m_height);
 		if (m_uiTexture) {

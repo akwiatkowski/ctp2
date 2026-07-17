@@ -98,25 +98,37 @@ ModernSpriteRect const * ModernSpriteAtlas::FindRect(char const * action, int fa
     return nullptr;
 }
 
-bool ModernSpriteAtlas::Blit(aui_Surface * destSurface, char const * action, int facing,
-                             int frame, int destX, int destY,
-                             uint16 transparency, uint16 flags, bool mirror) const
+// Shared thin wrapper: lock the surface, run `core` against its raw buffer,
+// unlock. The interactive Draw path (screenmanager-owned, already-locked
+// surface) calls the *Locked cores directly instead — a second Lock would nest
+// over the screenmanager's lock. Returns false on lock failure.
+namespace
 {
-    if (!destSurface)
+    template <typename Core>
+    bool LockAndRun(aui_Surface * s, Core core)
+    {
+        if (!s)
+            return false;
+        LPVOID lockedBits = nullptr;
+        if (s->Lock(nullptr, &lockedBits, 0) != AUI_ERRCODE_OK || !lockedBits)
+            return false;
+        bool const ok = core(static_cast<uint8 *>(lockedBits), s->Pitch(),
+                             s->Width(), s->Height(), s->BitsPerPixel() == 32);
+        s->Unlock(lockedBits);
+        return ok;
+    }
+}
+
+bool ModernSpriteAtlas::BlitLocked(uint8 * base, int pitch, int surfW, int surfH, bool bpp32,
+                                   char const * action, int facing, int frame,
+                                   int destX, int destY,
+                                   uint16 transparency, uint16 flags, bool mirror) const
+{
+    if (!base)
         return false;
     ModernSpriteRect const * r = FindRect(action, facing, frame);
     if (!r)
         return false;
-
-    LPVOID lockedBits = nullptr;
-    if (destSurface->Lock(nullptr, &lockedBits, 0) != AUI_ERRCODE_OK || !lockedBits)
-        return false;
-    uint8 * base = static_cast<uint8 *>(lockedBits);
-
-    sint32 const pitch = destSurface->Pitch();
-    sint32 const destW = destSurface->Width();
-    sint32 const destH = destSurface->Height();
-    bool   const bpp32 = destSurface->BitsPerPixel() == 32;
 
     // Which per-pixel effect to run (mutually exclusive, same precedence as the
     // legacy RLE draw in spritelow.cpp: transparency, then fog, then desaturate).
@@ -127,7 +139,7 @@ bool ModernSpriteAtlas::Blit(aui_Surface * destSurface, char const * action, int
     for (int row = 0; row < r->h; ++row)
     {
         int const dy = destY + row;
-        if (dy < 0 || dy >= destH)
+        if (dy < 0 || dy >= surfH)
             continue;
         uint8 const * srcRow = m_rgba.data()
             + (static_cast<size_t>(r->y + row) * m_width + r->x) * 4;
@@ -135,7 +147,7 @@ bool ModernSpriteAtlas::Blit(aui_Surface * destSurface, char const * action, int
         for (int col = 0; col < r->w; ++col)
         {
             int const dx = destX + col;
-            if (dx < 0 || dx >= destW)
+            if (dx < 0 || dx >= surfW)
                 continue;
             // Reversed facings sample the row right-to-left (horizontal flip).
             int const srcCol = mirror ? (r->w - 1 - col) : col;
@@ -145,30 +157,30 @@ bool ModernSpriteAtlas::Blit(aui_Surface * destSurface, char const * action, int
             WriteEffectPixel(dstRow, dx, px, bpp32, transp, fogged, desatur, transparency);
         }
     }
-
-    destSurface->Unlock(base);
     return true;
 }
 
-bool ModernSpriteAtlas::BlitScaled(aui_Surface * destSurface, char const * action, int facing,
-                                   int frame, int destX, int destY, int destW, int destH,
-                                   uint16 transparency, uint16 flags, bool mirror) const
+bool ModernSpriteAtlas::Blit(aui_Surface * destSurface, char const * action, int facing,
+                             int frame, int destX, int destY,
+                             uint16 transparency, uint16 flags, bool mirror) const
 {
-    if (!destSurface || destW <= 0 || destH <= 0)
+    return LockAndRun(destSurface,
+        [&](uint8 * base, int pitch, int w, int h, bool bpp32) {
+            return BlitLocked(base, pitch, w, h, bpp32, action, facing, frame,
+                              destX, destY, transparency, flags, mirror);
+        });
+}
+
+bool ModernSpriteAtlas::BlitScaledLocked(uint8 * base, int pitch, int surfW, int surfH, bool bpp32,
+                                         char const * action, int facing, int frame,
+                                         int destX, int destY, int destW, int destH,
+                                         uint16 transparency, uint16 flags, bool mirror) const
+{
+    if (!base || destW <= 0 || destH <= 0)
         return false;
     ModernSpriteRect const * r = FindRect(action, facing, frame);
     if (!r || r->w <= 0 || r->h <= 0)
         return false;
-
-    LPVOID lockedBits = nullptr;
-    if (destSurface->Lock(nullptr, &lockedBits, 0) != AUI_ERRCODE_OK || !lockedBits)
-        return false;
-    uint8 * base = static_cast<uint8 *>(lockedBits);
-
-    sint32 const pitch   = destSurface->Pitch();
-    sint32 const surfW   = destSurface->Width();
-    sint32 const surfH   = destSurface->Height();
-    bool   const bpp32   = destSurface->BitsPerPixel() == 32;
 
     bool const transp   = (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) != 0;
     bool const fogged   = !transp && (flags & k_BIT_DRAWFLAGS_FOGGED) != 0;
@@ -198,9 +210,18 @@ bool ModernSpriteAtlas::BlitScaled(aui_Surface * destSurface, char const * actio
             WriteEffectPixel(dstRow, dx, px, bpp32, transp, fogged, desatur, transparency);
         }
     }
-
-    destSurface->Unlock(base);
     return true;
+}
+
+bool ModernSpriteAtlas::BlitScaled(aui_Surface * destSurface, char const * action, int facing,
+                                   int frame, int destX, int destY, int destW, int destH,
+                                   uint16 transparency, uint16 flags, bool mirror) const
+{
+    return LockAndRun(destSurface,
+        [&](uint8 * base, int pitch, int w, int h, bool bpp32) {
+            return BlitScaledLocked(base, pitch, w, h, bpp32, action, facing, frame,
+                                    destX, destY, destW, destH, transparency, flags, mirror);
+        });
 }
 
 bool ModernSpritesEnabled()

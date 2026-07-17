@@ -71,6 +71,19 @@ public:
 	                int frame, int destX, int destY, int destW, int destH,
 	                uint16 transparency = 0, uint16 flags = 0, bool mirror = false) const;
 
+	// Lock-free cores of Blit / BlitScaled: composite straight into an
+	// ALREADY-LOCKED destination buffer (base + pitch + surf dims + 32bpp flag).
+	// The interactive draw path uses these because its surface is held locked by
+	// the ScreenManager — a nested Lock would stack over that. Blit / BlitScaled
+	// are thin lock-then-delegate wrappers around these.
+	bool BlitLocked(uint8_t * base, int pitch, int surfW, int surfH, bool bpp32,
+	                char const * action, int facing, int frame, int destX, int destY,
+	                uint16 transparency = 0, uint16 flags = 0, bool mirror = false) const;
+	bool BlitScaledLocked(uint8_t * base, int pitch, int surfW, int surfH, bool bpp32,
+	                      char const * action, int facing, int frame,
+	                      int destX, int destY, int destW, int destH,
+	                      uint16 transparency = 0, uint16 flags = 0, bool mirror = false) const;
+
 private:
 	ModernSpriteManifest m_manifest;
 	std::vector<uint8_t> m_rgba;

@@ -103,7 +103,12 @@ public:
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack);
 
 private:
-
+	// Modern atlas draw for the interactive Draw path (writes into the
+	// ScreenManager's already-locked surface). Returns false to fall back to
+	// the legacy RLE draw. See the definition for the geometry.
+	bool			DrawModernInteractive(UNITACTION action, sint32 frame,
+						   sint32 drawX, sint32 drawY, sint32 facing, double scale,
+						   uint16 transparency, uint16 flags);
 
 	uint16			m_numFirePointsWork;
 	POINT			m_firePointsWork[k_NUM_FIREPOINTS][k_NUM_FACINGS];

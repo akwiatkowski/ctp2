@@ -48,6 +48,7 @@
 #include "gfx/spritesys/FacedSprite.h"
 #include "gfx/spritesys/Sprite.h"
 #include "gfx/spritesys/screenmanager.h"
+#include "ui/aui_common/aui_surface.h"       // aui_Surface::BitsPerPixel (modern draw)
 
 #include "gs/fileio/CivPaths.h"           // civpaths_Get()
 #include "ctp/ctp2_utils/c3files.h"
@@ -154,6 +155,18 @@ void UnitSpriteGroup::Draw(UNITACTION action, sint32 frame, sint32 drawX, sint32
 		}
 	}
 
+	// Modern-first atlas draw on the INTERACTIVE main-map path (this Draw, unlike
+	// DrawDirect, is what UnitActor::Draw uses for the primary map). Composites
+	// from the atlas into the ScreenManager's already-locked surface; falls back
+	// to the legacy RLE draw below when the atlas lacks the frame or for a
+	// directional attack (a special multi-part legacy draw the atlas can't do).
+	// Gated by CTP2_MODERN_SPRITES via m_modernAtlas being non-null.
+	if (m_modernAtlas && !directionalAttack
+	    && DrawModernInteractive(action, frame, drawX, drawY, facing, scale, transparency, flags))
+	{
+		return;
+	}
+
 	if (m_sprites[action])
     {
     	if ((frame < 0) ||
@@ -176,6 +189,56 @@ void UnitSpriteGroup::Draw(UNITACTION action, sint32 frame, sint32 drawX, sint32
                 (drawX, drawY, facing, scale, transparency, outlineColor, flags);
 	    }
     }
+}
+
+// Modern atlas draw for the interactive path. Mirrors the faced geometry of the
+// DrawDirect hook (fold facings 5-7 onto their stored counterpart + right-edge
+// origin, scale the origin, Blit vs BlitScaled at zoom != 1) but composites into
+// the ScreenManager's ALREADY-LOCKED surface via the lock-free *Locked cores — a
+// nested Lock would stack over the ScreenManager's lock. Returns false (caller
+// falls back to legacy) when disabled, no surface, or the frame is absent.
+bool UnitSpriteGroup::DrawModernInteractive(UNITACTION action, sint32 frame,
+                                            sint32 drawX, sint32 drawY, sint32 facing,
+                                            double scale, uint16 transparency, uint16 flags)
+{
+	if (action < UNITACTION_MOVE || action > UNITACTION_WORK)
+		return false;
+
+	aui_Surface * surf = screenmanager_Get()->GetSurface();
+	uint8 *       base = screenmanager_Get()->GetSurfBase();
+	if (!m_modernAtlas || !surf || !base)
+		return false;
+
+	static char const * const kActionName[UNITACTION_MAX] =
+		{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };
+	char const * const   actionName  = kActionName[action];
+	bool const           reversed    = facing >= k_NUM_FACINGS;
+	sint32 const         atlasFacing = reversed ? (k_MAX_FACINGS - facing) : facing;
+	ModernSpriteRect const * r = m_modernAtlas->FindRect(actionName, atlasFacing, frame);
+	if (!r)
+		return false;
+
+	POINT const  hp    = GetHotPoint(action, facing);   // hot point of atlasFacing
+	sint32 const destX = reversed ? (drawX - static_cast<sint32>((r->w - hp.x) * scale))
+	                              : (drawX - static_cast<sint32>(hp.x * scale));
+	sint32 const destY = drawY - static_cast<sint32>(hp.y * scale);
+
+	sint32 const pitch = screenmanager_Get()->GetSurfPitch();
+	sint32 const sw    = screenmanager_Get()->GetSurfWidth();
+	sint32 const sh    = screenmanager_Get()->GetSurfHeight();
+	bool   const bpp32 = surf->BitsPerPixel() == 32;
+
+	if (scale > 0.999 && scale < 1.001)
+	{
+		return m_modernAtlas->BlitLocked(base, pitch, sw, sh, bpp32,
+		                                 actionName, atlasFacing, frame, destX, destY,
+		                                 transparency, flags, reversed);
+	}
+	sint32 const destW = static_cast<sint32>(r->w * scale);
+	sint32 const destH = static_cast<sint32>(r->h * scale);
+	return m_modernAtlas->BlitScaledLocked(base, pitch, sw, sh, bpp32,
+	                                       actionName, atlasFacing, frame, destX, destY,
+	                                       destW, destH, transparency, flags, reversed);
 }
 
 BOOL UnitSpriteGroup::HitTest(POINT mousePt, UNITACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 facing,

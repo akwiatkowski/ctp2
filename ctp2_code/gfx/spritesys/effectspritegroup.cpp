@@ -76,7 +76,7 @@ void EffectSpriteGroup::Draw(EFFECTACTION action, sint32 frame, sint32 drawX, si
 		// Modern-first atlas draw on the interactive path (into the
 		// ScreenManager's already-locked surface); the additive FLASH overlay
 		// above stays legacy. Falls back to the legacy PLAY draw below.
-		if (m_modernAtlas)
+		if (m_modernAtlas && outlineColor == 0)   // outline requested -> legacy
 		{
 			aui_Surface * surf = screenmanager_Get()->GetSurface();
 			uint8 *       base = screenmanager_Get()->GetSurfBase();
@@ -123,7 +123,7 @@ void EffectSpriteGroup::DrawDirect(aui_Surface *surf, EFFECTACTION action, sint3
     {
 		// Modern-first atlas draw (any zoom); the additive FLASH overlay above
 		// stays legacy. Falls back when the atlas lacks the frame.
-		if (m_modernAtlas)
+		if (m_modernAtlas && outlineColor == 0)   // outline requested -> legacy
 		{
 			POINT const hp = m_sprites[action]->GetHotPoint();
 			if (ModernSpriteDrawUnfaced(*m_modernAtlas, surf, "PLAY", frame, drawX, drawY,

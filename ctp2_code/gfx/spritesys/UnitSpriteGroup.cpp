@@ -161,7 +161,9 @@ void UnitSpriteGroup::Draw(UNITACTION action, sint32 frame, sint32 drawX, sint32
 	// to the legacy RLE draw below when the atlas lacks the frame or for a
 	// directional attack (a special multi-part legacy draw the atlas can't do).
 	// Gated by CTP2_MODERN_SPRITES via m_modernAtlas being non-null.
-	if (m_modernAtlas && !directionalAttack
+	// outlineColor == 0 means "no outline"; the atlas draw doesn't render the
+	// legacy silhouette outline, so defer to legacy when one is requested.
+	if (m_modernAtlas && !directionalAttack && outlineColor == 0
 	    && DrawModernInteractive(action, frame, drawX, drawY, facing, scale, transparency, flags))
 	{
 		return;
@@ -299,7 +301,7 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 	// zoom != 1 the atlas is nearest-neighbour scaled (BlitScaled) — note the
 	// smallest zoom downscales the full frame rather than using the legacy
 	// precomputed miniframes (a minor, refinable fidelity difference).
-	if (m_modernAtlas)
+	if (m_modernAtlas && outlineColor == 0)   // outline requested -> legacy (atlas has no outline)
 	{
 		static char const * const kActionName[UNITACTION_MAX] =
 			{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };

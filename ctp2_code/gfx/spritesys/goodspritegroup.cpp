@@ -77,7 +77,7 @@ void GoodSpriteGroup::Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32
 
 	// Modern-first atlas draw on the interactive path (into the ScreenManager's
 	// already-locked surface); falls back to the legacy RLE draw below.
-	if (m_modernAtlas)
+	if (m_modernAtlas && outlineColor == 0)   // outline requested -> legacy
 	{
 		aui_Surface * surf = screenmanager_Get()->GetSurface();
 		uint8 *       base = screenmanager_Get()->GetSurfBase();
@@ -112,7 +112,7 @@ void GoodSpriteGroup::DrawDirect(aui_Surface *surf, GOODACTION action, sint32 fr
 
 	// Modern-first atlas draw (any zoom); falls back to the legacy RLE draw
 	// when the atlas lacks the frame or an unsupported flag is set.
-	if (m_modernAtlas)
+	if (m_modernAtlas && outlineColor == 0)   // outline requested -> legacy
 	{
 		POINT const hp = m_sprites[action]->GetHotPoint();
 		if (ModernSpriteDrawUnfaced(*m_modernAtlas, surf, "IDLE", frame, drawX, drawY,

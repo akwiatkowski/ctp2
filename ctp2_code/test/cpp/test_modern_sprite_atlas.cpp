@@ -218,6 +218,53 @@ TEST_CASE("ModernSpriteAtlas::Blit mirror flips columns (reversed facings 5-8)")
 	std::remove(json.c_str());
 }
 
+TEST_CASE("ModernSpriteDrawUnfaced places + mirrors like Sprite::DrawDirect")
+{
+	std::string const png  = "/tmp/ctp2_atlas_unfaced.png";
+	std::string const json = "/tmp/ctp2_atlas_unfaced.json";
+
+	// A 2x1 asymmetric frame: red(opaque) | blue(opaque). Goods/effects store a
+	// single facing (0); reversed facings (>=5) mirror + shift the origin.
+	write_png(png, 2, 1, {0xFF,0,0,0xFF,  0,0,0xFF,0xFF});
+	write_file(json, R"json({
+		"source": "GG.SPR",
+		"atlas": {"png": "ctp2_atlas_unfaced.png", "width": 2, "height": 1},
+		"actions": [{"name": "IDLE", "width": 2, "height": 1, "num_frames": 1, "facings": 1,
+			"frames": [{"facing": 0, "frame": 0, "rect": {"x": 0, "y": 0, "w": 2, "h": 1}}]}]
+	})json");
+
+	std::string error;
+	std::unique_ptr<ModernSpriteAtlas> atlas(ModernSpriteAtlas::Load(json.c_str(), error));
+	REQUIRE(atlas != nullptr);
+
+	AUI_ERRCODE ec = AUI_ERRCODE_OK;
+	aui_SDLSurface dest(&ec, 8, 1, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(ec));
+
+	// Forward facing 0, hot point (1,0): origin = drawX - hotX = 5-1 = 4.
+	CHECK(ModernSpriteDrawUnfaced(*atlas, &dest, "IDLE", 0, 5, 0, /*facing*/0,
+	                              /*hotX*/1, /*hotY*/0, 0, 0));
+	CHECK(read_px(dest, 4, 0) == 0xFFFF0000u);   // red
+	CHECK(read_px(dest, 5, 0) == 0xFF0000FFu);   // blue
+
+	// Reversed facing 5: origin = drawX - (w - hotX) = 5 - (2-1) = 4, mirrored.
+	aui_SDLSurface dest2(&ec, 8, 1, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(ec));
+	CHECK(ModernSpriteDrawUnfaced(*atlas, &dest2, "IDLE", 0, 5, 0, /*facing*/5,
+	                              /*hotX*/1, /*hotY*/0, 0, 0));
+	CHECK(read_px(dest2, 4, 0) == 0xFF0000FFu);  // blue (mirrored)
+	CHECK(read_px(dest2, 5, 0) == 0xFFFF0000u);  // red
+
+	// The additive "flash" blend has no atlas equivalent -> caller falls back.
+	CHECK_FALSE(ModernSpriteDrawUnfaced(*atlas, &dest, "IDLE", 0, 0, 0, 0, 0, 0,
+	                                    0, k_BIT_DRAWFLAGS_ADDITIVE));
+	// Unknown frame -> false as well.
+	CHECK_FALSE(ModernSpriteDrawUnfaced(*atlas, &dest, "IDLE", 9, 0, 0, 0, 0, 0, 0, 0));
+
+	std::remove(png.c_str());
+	std::remove(json.c_str());
+}
+
 TEST_CASE("ModernSpriteAtlas::Blit applies the per-pixel draw flags in 8888")
 {
 	std::string const png  = "/tmp/ctp2_atlas_flags.png";

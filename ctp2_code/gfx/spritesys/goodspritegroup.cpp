@@ -45,9 +45,14 @@
 #include "ctp/ctp2_utils/c3files.h"
 #include "gfx/spritesys/SpriteFile.h"
 #include "gfx/spritesys/Anim.h"
+#include "gfx/spritesys/ModernSpriteAtlas.h"   // P11 modern-first atlas path
 #include "gs/fileio/Token.h"
 
 
+// Out-of-line so the unique_ptr<ModernSpriteAtlas> member is created/destroyed
+// where the type is complete.
+GoodSpriteGroup::GoodSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {}
+GoodSpriteGroup::~GoodSpriteGroup() = default;
 
 void GoodSpriteGroup::Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags)
@@ -83,6 +88,19 @@ void GoodSpriteGroup::DrawDirect(aui_Surface *surf, GOODACTION action, sint32 fr
 	if (m_sprites[action] == nullptr) return;
 
 	m_sprites[action]->SetCurrentFrame((uint16)frame);
+
+	// Modern-first atlas draw at default zoom; falls back to the legacy RLE
+	// draw when the atlas lacks the frame or an unsupported flag is set.
+	if (m_modernAtlas && scale > 0.999 && scale < 1.001)
+	{
+		POINT const hp = m_sprites[action]->GetHotPoint();
+		if (ModernSpriteDrawUnfaced(*m_modernAtlas, surf, "IDLE", frame, drawX, drawY,
+		                            facing, hp.x, hp.y, transparency, flags))
+		{
+			return;
+		}
+	}
+
 	m_sprites[action]->DrawDirect(surf, drawX, drawY, facing, scale, transparency, outlineColor, flags);
 }
 
@@ -107,6 +125,7 @@ void GoodSpriteGroup::LoadBasic(MBCHAR const * filename)
 		file->CloseRead();
 		m_loadType = LOADTYPE_BASIC;
 	}
+	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }
 
 void GoodSpriteGroup::LoadFull(MBCHAR const * filename)
@@ -120,6 +139,7 @@ void GoodSpriteGroup::LoadFull(MBCHAR const * filename)
 		file->CloseRead();
 		m_loadType = LOADTYPE_FULL;
 	}
+	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }
 
 void GoodSpriteGroup::Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode)

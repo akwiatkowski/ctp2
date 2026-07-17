@@ -61,11 +61,14 @@ enum GOODACTION {
 // Project dependencies
 //----------------------------------------------------------------------------
 
+#include <memory>                        // std::unique_ptr
+
 #include "os/include/ctp2_inttypes.h"    // sint32, uint16
 #include "gfx/gfx_utils/pixeltypes.h"		// Pixel16
 #include "gfx/spritesys/SpriteGroup.h"	// SpriteGroup, GROUPTYPE
 
 class aui_Surface;
+class ModernSpriteAtlas;
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -74,7 +77,11 @@ class aui_Surface;
 class GoodSpriteGroup : public SpriteGroup
 {
 public:
-	GoodSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {};
+	// Constructor and destructor are out-of-line so the
+	// unique_ptr<ModernSpriteAtlas> member is created/destroyed where the
+	// (forward-declared) type is complete.
+	GoodSpriteGroup(GROUPTYPE type);
+	~GoodSpriteGroup();
 
 	void			DeallocateStorage() override;
 	void			DeallocateFullLoadAnims() override;
@@ -97,6 +104,11 @@ public:
 
 
 	sint32			Parse(uint16 id,GROUPTYPE group) override;
+
+private:
+	// Modern-first atlas for this good sprite (null unless CTP2_MODERN_SPRITES
+	// is set and a generated manifest exists). Goods are non-faced.
+	std::unique_ptr<ModernSpriteAtlas> m_modernAtlas;
 };
 
 #endif

@@ -80,4 +80,22 @@ bool ModernSpritesEnabled();
 // pointer is maintained by tools/assets/spr_export.py --modern-assets.
 std::string ModernAssetManifestPath(char const * spriteFileName);
 
+// Load the generated atlas for `spriteFileName` into `slot` when the modern
+// path is enabled (CTP2_MODERN_SPRITES) and a manifest exists; otherwise leave
+// `slot` null so the legacy RLE draw is used. Never fatal — any failure just
+// leaves `slot` null. Shared by the Unit / Good / Effect sprite groups.
+void ModernSpriteLoadIfEnabled(std::unique_ptr<ModernSpriteAtlas> & slot,
+                               char const * spriteFileName);
+
+// Draw a NON-FACED sprite frame (goods, effects) from `atlas`, replicating
+// Sprite::DrawDirect's hot-point placement and facing>=5 horizontal reversal.
+// (hotX,hotY) is the sprite's hot point. Returns false — caller should fall
+// back to the legacy draw — when the frame is absent or an unsupported flag
+// (k_BIT_DRAWFLAGS_ADDITIVE, which the binary-alpha atlas blit cannot blend)
+// is set. Unit sprites use their own faced path in UnitSpriteGroup instead.
+bool ModernSpriteDrawUnfaced(ModernSpriteAtlas const & atlas, class aui_Surface * surf,
+                             char const * action, int frame, int drawX, int drawY,
+                             int facing, int hotX, int hotY,
+                             uint16 transparency, uint16 flags);
+
 #endif // __MODERNSPRITEATLAS_H__

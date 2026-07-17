@@ -191,3 +191,38 @@ std::string ModernAssetManifestPath(char const * spriteFileName)
     }
     return std::string();
 }
+
+void ModernSpriteLoadIfEnabled(std::unique_ptr<ModernSpriteAtlas> & slot,
+                               char const * spriteFileName)
+{
+    if (!ModernSpritesEnabled())
+        return;
+    std::string const manifest = ModernAssetManifestPath(spriteFileName);
+    if (manifest.empty())
+        return;
+    std::string error;
+    slot.reset(ModernSpriteAtlas::Load(manifest.c_str(), error));
+}
+
+bool ModernSpriteDrawUnfaced(ModernSpriteAtlas const & atlas, aui_Surface * surf,
+                             char const * action, int frame, int drawX, int drawY,
+                             int facing, int hotX, int hotY,
+                             uint16 transparency, uint16 flags)
+{
+    // The atlas blit is a binary-alpha copy; it cannot do the additive "flash"
+    // blend Sprite::DrawDirect uses for k_BIT_DRAWFLAGS_ADDITIVE. Leave those to
+    // the legacy path.
+    if (flags & k_BIT_DRAWFLAGS_ADDITIVE)
+        return false;
+
+    ModernSpriteRect const * r = atlas.FindRect(action, 0, frame);
+    if (!r)
+        return false;
+
+    // Match Sprite::DrawDirect: reversed facings measure the hot point from the
+    // frame's right edge and draw mirrored (default zoom, scale == 1).
+    bool const   reversed = facing >= 5;
+    int  const   destX    = reversed ? (drawX - (r->w - hotX)) : (drawX - hotX);
+    int  const   destY    = drawY - hotY;
+    return atlas.Blit(surf, action, 0, frame, destX, destY, transparency, flags, reversed);
+}

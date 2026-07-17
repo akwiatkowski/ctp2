@@ -38,7 +38,13 @@
 #include "gfx/spritesys/Anim.h"
 #include "gfx/spritesys/SpriteFile.h"
 #include "gfx/spritesys/Sprite.h"
+#include "gfx/spritesys/ModernSpriteAtlas.h"   // P11 modern-first atlas path
 #include "gs/fileio/Token.h"
+
+// Out-of-line so the unique_ptr<ModernSpriteAtlas> member is created/destroyed
+// where the type is complete.
+EffectSpriteGroup::EffectSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {}
+EffectSpriteGroup::~EffectSpriteGroup() = default;
 
 void EffectSpriteGroup::Draw(EFFECTACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 SdrawX, sint32 SdrawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack)
@@ -94,6 +100,17 @@ void EffectSpriteGroup::DrawDirect(aui_Surface *surf, EFFECTACTION action, sint3
 
 	if (action == EFFECTACTION_PLAY)
     {
+		// Modern-first atlas draw at default zoom; the additive FLASH overlay
+		// above stays legacy. Falls back when the atlas lacks the frame.
+		if (m_modernAtlas && scale > 0.999 && scale < 1.001)
+		{
+			POINT const hp = m_sprites[action]->GetHotPoint();
+			if (ModernSpriteDrawUnfaced(*m_modernAtlas, surf, "PLAY", frame, drawX, drawY,
+			                            facing, hp.x, hp.y, transparency, flags))
+			{
+				return;
+			}
+		}
 		m_sprites[action]->DrawDirect(surf, drawX, drawY, facing, scale, transparency, outlineColor, flags);
 	}
 }
@@ -109,6 +126,7 @@ void EffectSpriteGroup::Load(MBCHAR const * filename)
 		file->CloseRead();
 		m_loadType = LOADTYPE_FULL;
 	}
+	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }
 
 void EffectSpriteGroup::Save

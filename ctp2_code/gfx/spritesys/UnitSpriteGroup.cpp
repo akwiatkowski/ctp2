@@ -287,22 +287,6 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 // the type is complete.
 UnitSpriteGroup::~UnitSpriteGroup() = default;
 
-// When the modern-first path is enabled and a generated atlas manifest exists
-// for this sprite file, load it; otherwise leave m_modernAtlas null and the
-// legacy RLE sprites (loaded above) are drawn. Never fatal: any failure just
-// falls back to legacy.
-static void LoadModernAtlasIfEnabled(std::unique_ptr<ModernSpriteAtlas> & slot,
-                                     MBCHAR const * filename)
-{
-	if (!ModernSpritesEnabled())
-		return;
-	std::string const manifest = ModernAssetManifestPath(filename);
-	if (manifest.empty())
-		return;
-	std::string error;
-	slot.reset(ModernSpriteAtlas::Load(manifest.c_str(), error));
-}
-
 void UnitSpriteGroup::LoadBasic(MBCHAR const * filename)
 {
 	auto file = std::make_unique<SpriteFile>(filename);
@@ -314,7 +298,7 @@ void UnitSpriteGroup::LoadBasic(MBCHAR const * filename)
 		file->CloseRead();
 		m_loadType = LOADTYPE_BASIC;
 	}
-	LoadModernAtlasIfEnabled(m_modernAtlas, filename);
+	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }
 
 
@@ -345,7 +329,7 @@ void UnitSpriteGroup::LoadFull(MBCHAR const * filename)
 		file->CloseRead();
 		m_loadType = LOADTYPE_FULL;
 	}
-	LoadModernAtlasIfEnabled(m_modernAtlas, filename);
+	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }
 
 void UnitSpriteGroup::Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode)

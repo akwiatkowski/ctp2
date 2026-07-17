@@ -30,9 +30,12 @@ enum EFFECTACTION {
 // Project dependencies
 //----------------------------------------------------------------------------
 
+#include <memory>               // std::unique_ptr
+
 #include "gfx/spritesys/SpriteGroup.h"
 
 class aui_Surface;
+class ModernSpriteAtlas;
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -41,7 +44,11 @@ class aui_Surface;
 class EffectSpriteGroup : public SpriteGroup
 {
 public:
-	EffectSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {};
+	// Constructor and destructor are out-of-line so the
+	// unique_ptr<ModernSpriteAtlas> member is created/destroyed where the
+	// (forward-declared) type is complete.
+	EffectSpriteGroup(GROUPTYPE type);
+	~EffectSpriteGroup();
 
 	void			Load(MBCHAR const * filename);
 	void			Save(MBCHAR const * filename,unsigned int version_id, unsigned int compression_mode) override;
@@ -56,6 +63,12 @@ public:
 
 	sint32			Parse(uint16 id,GROUPTYPE group) override;
 	POINT			GetHotPoint(EFFECTACTION action, sint32 facing);
+
+private:
+	// Modern-first atlas for the effect's PLAY frames (null unless
+	// CTP2_MODERN_SPRITES is set and a generated manifest exists). The additive
+	// FLASH overlay stays on the legacy path (the atlas cannot blend additively).
+	std::unique_ptr<ModernSpriteAtlas> m_modernAtlas;
 };
 
 #endif

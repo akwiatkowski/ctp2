@@ -26,40 +26,30 @@ void pixelutils_Initialize()
 
 
 
-Pixel16 *RGB32ToRGB16(char *buf, uint16 width, uint16 height)
+std::vector<Pixel16> RGB32ToRGB16(char *buf, uint16 width, uint16 height)
 {
-	unsigned short	*outBuf;
-	unsigned short  *destPixel = (unsigned short *)malloc(width * height * 2);
+	std::vector<Pixel16> outBuf(static_cast<size_t>(width) * height);
 	unsigned long	*srcPixel = (unsigned long *)buf;
 
-
-	outBuf = destPixel;
-
-	if (outBuf == nullptr) return nullptr;
-
-	for(int i=0; i<width*height; i++) {
+	for(size_t i = 0; i < outBuf.size(); i++) {
 		unsigned long int pix = *srcPixel;
 		unsigned short int r;
 		unsigned short int g;
 		unsigned short int b;
-		unsigned char a;
 
 		r = (unsigned short int) ((pix & 0x000000FF) >> 0);
 		g = (unsigned short int) ((pix & 0x0000FF00) >> 8);
 		b = (unsigned short int) ((pix & 0x00FF0000) >> 16);
 
-		a = (unsigned char) ((pix & 0xFF000000) >> 24);
-
 		if (is_565_Get())
-			*destPixel = (unsigned short int)(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3));
+			outBuf[i] = (Pixel16)(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3));
 		else
-			*destPixel = (Pixel16) (((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3));
+			outBuf[i] = (Pixel16)(((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3));
 
-		destPixel++;
 		srcPixel++;
 	}
 
-	return (Pixel16 *)outBuf;
+	return outBuf;
 }
 
 void pixelutils_ComputeBlendTable()

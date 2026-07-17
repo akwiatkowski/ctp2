@@ -1529,16 +1529,11 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 	MBCHAR		filename[_MAX_PATH];
 	snprintf(filename, sizeof(filename), "source" FILE_SEP "basetiles" FILE_SEP "GT%cB%.4d.tif", ageChar, tileNum);
 
-	char		*tif;
-	if (baseType == TERRAIN_WATER_BEACH) {
-
-		tif = tileutils_StripTIF2Mem(filename, &width, &height);
-	} else {
-		tif = tileutils_TIF2mem(filename, &width, &height);
-	}
-
-
-
+	TifBuffer tifBuf(
+		(baseType == TERRAIN_WATER_BEACH)
+			? tileutils_StripTIF2Mem(filename, &width, &height)
+			: tileutils_TIF2mem(filename, &width, &height));
+	char		*tif = tifBuf.get();
 
 	Assert(tif != nullptr);
 	if (tif == nullptr) {
@@ -1546,7 +1541,8 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 		exit(-1);
 	}
 
-	Pixel16 *   tileImage = RGB32ToRGB16(tif, width, height);
+	std::vector<Pixel16> tileImage_vec = RGB32ToRGB16(tif, width, height);
+	Pixel16 *   tileImage = tileImage_vec.data();
 
 	for (auto & i : accumList) {
 		i[0] = 0;
@@ -1692,12 +1688,6 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 	g_baseTiles[tileNum] = baseTile;
 
 	delete[] bork;
-
-	if (tif)
-		free(tif);
-
-	if (tileImage)
-		free(tileImage);
 }
 
 uint16 tileutils_CompileImprovements(FILE *file)

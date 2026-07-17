@@ -11,6 +11,7 @@
 #define k_PERCENT_SHIFT		7
 
 #include "gfx/gfx_utils/pixeltypes.h"
+#include <vector>
 
 
 
@@ -27,7 +28,7 @@ typedef union
 
 void pixelutils_Initialize();
 
-Pixel16 *RGB32ToRGB16(char *buf, uint16 width, uint16 height);
+std::vector<Pixel16> RGB32ToRGB16(char *buf, uint16 width, uint16 height);
 
 void RGB32Components(Pixel32 pixel, Pixel16 *r, Pixel16 *g, Pixel16 *b, Pixel16 *a);
 Pixel32 ComponentsToRGB32(Pixel16 r, Pixel16 g, Pixel16 b, Pixel16 a) ;

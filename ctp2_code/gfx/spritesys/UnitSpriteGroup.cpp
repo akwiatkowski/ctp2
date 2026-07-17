@@ -225,19 +225,33 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 
 	// Modern-first atlas draw (P11 B1): at default zoom, draw the frame from the
 	// atlas and skip the legacy RLE path. Falls through to legacy when the atlas
-	// lacks this frame/facing (e.g. mirrored facings 5-8) or when zoomed
-	// (scale != 1), where the RLE scaled draw is still authoritative. The
-	// per-pixel draw flags (transparency/fog/desaturate) are now applied by the
-	// atlas draw for parity; outline/feathering still fall to legacy.
+	// lacks this frame/facing or when zoomed (scale != 1), where the RLE scaled
+	// draw is still authoritative. The per-pixel draw flags
+	// (transparency/fog/desaturate) are applied by the atlas draw for parity;
+	// outline/feathering still fall to legacy.
+	//
+	// The atlas stores only facings 0..4; facings 5..7 reflect their stored
+	// counterpart (k_MAX_FACINGS - facing) drawn horizontally flipped, exactly
+	// like FacedSprite::Draw. The reversed draw origin measures the hot point
+	// from the frame's RIGHT edge (drawX - (w - hp.x)) to match the legacy path.
 	if (m_modernAtlas && scale > 0.999 && scale < 1.001)
 	{
 		static char const * const kActionName[UNITACTION_MAX] =
 			{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };
-		POINT const hp = GetHotPoint(action, facing);
-		if (m_modernAtlas->Blit(surf, kActionName[action], facing, frame,
-		                        drawX - hp.x, drawY - hp.y, transparency, flags))
+		char const * const   actionName  = kActionName[action];
+		bool const           reversed    = facing >= k_NUM_FACINGS;
+		sint32 const         atlasFacing = reversed ? (k_MAX_FACINGS - facing) : facing;
+		ModernSpriteRect const * r = m_modernAtlas->FindRect(actionName, atlasFacing, frame);
+		if (r)
 		{
-			return;
+			POINT const hp = GetHotPoint(action, facing);   // hot point of atlasFacing
+			sint32 const destX = reversed ? (drawX - (r->w - hp.x)) : (drawX - hp.x);
+			sint32 const destY = drawY - hp.y;
+			if (m_modernAtlas->Blit(surf, actionName, atlasFacing, frame,
+			                        destX, destY, transparency, flags, reversed))
+			{
+				return;
+			}
 		}
 	}
 

@@ -70,7 +70,7 @@ ModernSpriteRect const * ModernSpriteAtlas::FindRect(char const * action, int fa
 
 bool ModernSpriteAtlas::Blit(aui_Surface * destSurface, char const * action, int facing,
                              int frame, int destX, int destY,
-                             uint16 transparency, uint16 flags) const
+                             uint16 transparency, uint16 flags, bool mirror) const
 {
     if (!destSurface)
         return false;
@@ -109,7 +109,9 @@ bool ModernSpriteAtlas::Blit(aui_Surface * destSurface, char const * action, int
             int const dx = destX + col;
             if (dx < 0 || dx >= destW)
                 continue;
-            uint8 const * px = srcRow + static_cast<size_t>(col) * 4;
+            // Reversed facings sample the row right-to-left (horizontal flip).
+            int const srcCol = mirror ? (r->w - 1 - col) : col;
+            uint8 const * px = srcRow + static_cast<size_t>(srcCol) * 4;
             if (px[3] == 0)                 // binary alpha: transparent -> skip
                 continue;
 

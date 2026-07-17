@@ -53,9 +53,14 @@ public:
 	// back to the legacy 16-bit precision; the 16-bit branch uses the 565
 	// helpers to match that surface's depth. Outline/feathering remain
 	// legacy-only.
+	//
+	// When `mirror` is set the frame is drawn horizontally flipped (source
+	// columns read right-to-left). The atlas only stores facings 0..4; the
+	// caller reflects facings 5..7 onto their stored counterpart and sets
+	// `mirror` — the same trick FacedSprite uses for reversed facings.
 	bool Blit(class aui_Surface * destSurface, char const * action, int facing,
 	          int frame, int destX, int destY,
-	          uint16 transparency = 0, uint16 flags = 0) const;
+	          uint16 transparency = 0, uint16 flags = 0, bool mirror = false) const;
 
 private:
 	ModernSpriteManifest m_manifest;

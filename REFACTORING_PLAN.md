@@ -14,6 +14,7 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 - **Un-parked 2026-07-14:** modern-asset converter (formerly M10), required for P11 Stage 2 atlas-backed GPU compositing.
 - **P11 Stage 2 shipped 2026-07-16/17.** The buttery pan was parked (glide invisible), then the new pixel-proof discipline found the world GPU layer had been **empty since Stage 2 D** (null routing key) — every parity oracle was structurally blind to it. Fixed routing + UI-layer hole punch, replaced the margin re-render with the ADR-002 window mirror, added the `pan-pixel-proof` integration test (forced-offset shift + streamed sub-tile glide), hardware cursor (software cursor pickups were baking screen-coord ghosts into the UI layer — the "strobing"/"wrong tile" artifacts), pinch zoom via native macOS magnify (SDL3 forwards no trackpad touches), and flipped `CTP2_GPU_LAYERS`+`CTP2_GPU_CAMERA` **default-on** after a green full integration suite. Three latent bugs fixed en route: `ScrollPixels` OOB memset (SIGSEGV), sprite-filename `sizeof(ptr)` truncation, sprite-import quarter-size leaks.
 - **Mechanical modernization loop started 2026-07-17 (/goal).** Per-commit fast tests + ratchet baseline updates: `unsafe_string_api` 39→17, `c_allocation` 101→81, clarity renames (`hscroll`→`tileStepX`), dead code deleted. Next targets + off-limits notes in the ratchet snapshot table below.
+- **P12 scoped 2026-07-17 (Olek):** single `~/.ctp2` data root — an install script copies all data to `~/.ctp2/original_data/` (verbatim, canonical), converts sprites into `~/.ctp2/assets/`, and the engine relocates its data + save roots there (HOME-expansion in `CivPaths`), so the ~476 MB in-tree `ctp2_data/` can be deleted. **Sequenced after finishing the modern-sprite wiring first.** See the P12 section.
 
 Recount remaining work any time with:
 
@@ -364,7 +365,7 @@ Ratchet `type_erased_casting = 2487` first-party (pattern: `void*` | `reinterpre
 
 **Modern-asset sprite track — active 2026-07-16 (not asset-gated: 463 `.SPR` on disk, full 463-atlas cache generated at `~/.ctp2/assets/current`).**
 - [x] **Draw-flags parity on the atlas path** — DONE 2026-07-16. `ModernSpriteAtlas::Blit` now honours the three mutually-exclusive per-pixel draw flags (`k_BIT_DRAWFLAGS_TRANSPARENCY`/`_FOGGED`/`_DESATURATED`) with the same precedence as the legacy RLE draw (`spritelow.cpp`): transparency alpha-blends, fog shadows, desaturate greys. Runs in **full 8888** straight from the atlas RGB on the 32-bit destination (`pixelutils_BlendFast8888`/`_Shadow8888`/`_Desaturate8888` — no 565 round-trip, so the modern path keeps its extra colour fidelity; the 16-bit branch uses the 565 helpers to match that surface). `UnitSpriteGroup::DrawDirect` threads `transparency`+`flags` into the atlas draw. Proven by a new doctest (`test_modern_sprite_atlas.cpp`) asserting each flag's blitted pixel equals the reference `pixelutils_*8888` result; `make test` + `slice-ui` (modern on) green. Outline/feathering remain legacy-only.
-- [ ] **Mirrored facings 5–8** on the atlas path (currently fall back to legacy — horizontal-flip the 1–4 frames).
+- [x] **Mirrored facings 5–8** on the atlas path — DONE 2026-07-17. `ModernSpriteAtlas::Blit` gained a `mirror` flag (samples source columns right-to-left); `UnitSpriteGroup::DrawDirect` folds facing ≥ `k_NUM_FACINGS` onto its stored counterpart (`k_MAX_FACINGS - facing`) and measures the reversed draw origin from the frame's right edge (`drawX - (w - hp.x)`), matching `FacedSprite::Draw`. Column-flip proven by a new `test_modern_sprite_atlas.cpp` doctest; `make test` + `slice-ui` (modern on) green. Reversed-facing *geometry* still wants an in-game look (the slice scenario doesn't force facings 5–8).
 - [ ] **Scaled facings** (zoom ≠ 1 falls back to legacy scaled RLE).
 - [ ] **Good/Effect group draw swap** (the modern-first hook is only in `UnitSpriteGroup`; goods/effects still legacy).
 - [ ] **Real v2/LZW1 `.SPR` parity** against the on-disk data (converter decodes all 463; v2 LZW1 decoder was synthetic-verified).
@@ -386,6 +387,42 @@ Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerpri
 **Phase C seam started 2026-07-14:** the engine now has a small `ModernSpriteManifest` C++ parser/validator for generated atlas manifests, covered by fast doctests. It does not load textures or change rendering yet; it only establishes the validated data shape the modern-first loader will consume.
 
 **Phase D SDL3 backend probe 2026-07-14:** local pkg-config has `sdl3=3.4.12` and `sdl3_mixer=3.2.4`. The `-Dsdl_backend=sdl3` Meson build now links `ctp2`, `ctp2_headless`, `ctp2_fast_tests`, and `ctp2_unit_tests`, with `meson test -C build-sdl3-probe fast unit` green. SDL2 remains the default backend.
+
+### P12 — Single `~/.ctp2` data root (install script + engine relocation)
+
+**Scoped 2026-07-17 (Olek).** Goal: **one executable that reads *all* game data from `~/.ctp2`**, so the ~476 MB in-tree `ctp2_data/` can be deleted from the working tree. Not a "convert everything to modern formats" project — a **relocation** that copies the canonical data out of the tree once, keeps it as the source of truth (`original_data/`), and converts the subset we *have* converters for (sprites) alongside it. The modern-format track (below) then lights up incrementally without ever blocking the relocation win.
+
+**⚠️ Prerequisite — finish wiring modern sprites to the engine FIRST (Olek's explicit sequencing).** The modern-first atlas path already exists but is gated OFF and incomplete: `ModernSpriteAtlas::Load` reads `~/.ctp2/assets/current/<name>.json` (`gfx/spritesys/ModernSpriteAtlas.cpp`), hooked into `UnitSpriteGroup` behind `getenv("CTP2_MODERN_SPRITES")`. Before relocating, close the gaps from the modern-asset sprite track above so the engine genuinely *uses* `~/.ctp2` for sprites on a stock launch:
+- [x] Mirrored facings 5–8 on the atlas path — DONE 2026-07-17 (see modern-asset sprite track above).
+- [ ] Scaled facings (zoom ≠ 1 currently legacy).
+- [ ] Good/Effect group draw swap (hook is `UnitSpriteGroup`-only).
+- [ ] Real v2/LZW1 `.SPR` parity against on-disk data.
+- [ ] Decide default-on for `CTP2_MODERN_SPRITES` once the above hold (or keep opt-in with a documented reason).
+
+**Target layout** (all under a configurable root — see env override):
+```
+~/.ctp2/
+  original_data/   verbatim copy of ctp2_data/ — the engine's canonical source today
+  assets/<fp>/     modern sprite atlases (already generated; loader gated on CTP2_MODERN_SPRITES)
+  saves/           games, queues, mp, scen, maps, clips
+```
+
+**Work items (do AFTER the prerequisite):**
+- [ ] **Install script `tools/assets/install_ctp2_home.py`** (run via `mise exec -- python …`):
+  1. Mirror-copy `ctp2_data/` → `$CTP2_HOME/original_data/` verbatim (idempotent; skips unchanged files). Copy **all** data first — the engine runs off `original_data/` regardless of conversion state.
+  2. Invoke the existing `spr_export.py --atlas --modern-assets` to (re)generate `$CTP2_HOME/assets/<fingerprint>/` from the copied originals.
+  3. `--purge` (opt-in, OFF by default): delete the in-tree `ctp2_data/` **only after** a verified copy (file-count + size check); refuse on mismatch.
+  4. `--dest <dir>` / `CTP2_HOME` env override (default `~/.ctp2`) so tests and alternate installs can target another directory.
+- [ ] **Engine — `CivPaths.cpp` HOME-expansion.** After parsing `civpaths.txt`, if `$CTP2_HOME/original_data` exists, override `m_hdPath → $CTP2_HOME`, `m_dataPath → original_data` (all asset lookups resolve under `$CTP2_HOME/original_data/{default,english,…}`), save base → `$CTP2_HOME/saves` (replaces the current macOS `Application Support` branch + the non-Apple relative branch), scenarios under the same root. Legacy fallback: if absent, keep today's in-tree behavior so nothing breaks mid-migration. `CTP2_HOME` defaults to `$HOME/.ctp2`. **Unify `ModernSpriteAtlas` on the same `CTP2_HOME`** instead of its hardcoded `$HOME/.ctp2/assets/`.
+- [ ] **Tests — `tools/assets/tests/` (pytest).** Synthetic `ctp2_data/` fixture → assert mirrored tree + idempotent re-run; `--purge` refuses on verification failure and deletes only after success. Sprite conversion stays out of unit tests (needs real `.SPR`); cover the new/fallible copy/purge/verify logic.
+- [ ] **Delete in-tree `ctp2_data/`** once the game is verified running from `~/.ctp2` (via `--purge` or by hand).
+
+**Modernization of *other* asset types — future, discuss before starting.** Only sprites have a converter today. Realistic end-state is **converted where a GPU format helps, verbatim for config/media** — not "everything converted":
+- Tiles `.TIF` → texture/atlas — no converter yet; high value for GPU terrain.
+- Pictures / icons / cursors → thin PNG/KTX2 re-encode (already near-standard images).
+- `gamedata` / `uidata` (text tables, layouts, fonts) → config, not GPU assets; **stay verbatim** permanently.
+- `sound` / `videos` → transcode possible but low-priority/format-risky; **stay verbatim**.
+So `original_data/` remains the canonical source the converters read from; `assets/` grows as loaders land. The relocation sets this up without committing to any of it.
 
 ### Already-modern (verified 2026-07-12 — don't re-propose)
 

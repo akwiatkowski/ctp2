@@ -181,6 +181,43 @@ TEST_CASE("ModernSpriteAtlas::Blit composites a frame with binary alpha")
 	std::remove(json.c_str());
 }
 
+TEST_CASE("ModernSpriteAtlas::Blit mirror flips columns (reversed facings 5-8)")
+{
+	std::string const png  = "/tmp/ctp2_atlas_mirror.png";
+	std::string const json = "/tmp/ctp2_atlas_mirror.json";
+
+	// A 2x1 asymmetric frame: red(opaque) | blue(opaque). A horizontal flip
+	// must swap the two columns.
+	write_png(png, 2, 1, {0xFF,0,0,0xFF,  0,0,0xFF,0xFF});
+	write_file(json, R"json({
+		"source": "GU.SPR",
+		"atlas": {"png": "ctp2_atlas_mirror.png", "width": 2, "height": 1},
+		"actions": [{"name": "IDLE", "width": 2, "height": 1, "num_frames": 1, "facings": 1,
+			"frames": [{"facing": 0, "frame": 0, "rect": {"x": 0, "y": 0, "w": 2, "h": 1}}]}]
+	})json");
+
+	std::string error;
+	std::unique_ptr<ModernSpriteAtlas> atlas(ModernSpriteAtlas::Load(json.c_str(), error));
+	REQUIRE(atlas != nullptr);
+
+	AUI_ERRCODE ec = AUI_ERRCODE_OK;
+	aui_SDLSurface dest(&ec, 2, 1, 32, nullptr, FALSE);
+	REQUIRE(AUI_SUCCESS(ec));
+
+	// Not mirrored: red then blue, left to right.
+	CHECK(atlas->Blit(&dest, "IDLE", 0, 0, 0, 0, 0, 0, /*mirror*/false));
+	CHECK(read_px(dest, 0, 0) == 0xFFFF0000u);   // red
+	CHECK(read_px(dest, 1, 0) == 0xFF0000FFu);   // blue
+
+	// Mirrored: columns swap -> blue then red.
+	CHECK(atlas->Blit(&dest, "IDLE", 0, 0, 0, 0, 0, 0, /*mirror*/true));
+	CHECK(read_px(dest, 0, 0) == 0xFF0000FFu);   // blue
+	CHECK(read_px(dest, 1, 0) == 0xFFFF0000u);   // red
+
+	std::remove(png.c_str());
+	std::remove(json.c_str());
+}
+
 TEST_CASE("ModernSpriteAtlas::Blit applies the per-pixel draw flags in 8888")
 {
 	std::string const png  = "/tmp/ctp2_atlas_flags.png";

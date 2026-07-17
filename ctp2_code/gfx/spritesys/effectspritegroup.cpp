@@ -100,13 +100,13 @@ void EffectSpriteGroup::DrawDirect(aui_Surface *surf, EFFECTACTION action, sint3
 
 	if (action == EFFECTACTION_PLAY)
     {
-		// Modern-first atlas draw at default zoom; the additive FLASH overlay
-		// above stays legacy. Falls back when the atlas lacks the frame.
-		if (m_modernAtlas && scale > 0.999 && scale < 1.001)
+		// Modern-first atlas draw (any zoom); the additive FLASH overlay above
+		// stays legacy. Falls back when the atlas lacks the frame.
+		if (m_modernAtlas)
 		{
 			POINT const hp = m_sprites[action]->GetHotPoint();
 			if (ModernSpriteDrawUnfaced(*m_modernAtlas, surf, "PLAY", frame, drawX, drawY,
-			                            facing, hp.x, hp.y, transparency, flags))
+			                            facing, hp.x, hp.y, scale, transparency, flags))
 			{
 				return;
 			}

@@ -62,6 +62,15 @@ public:
 	          int frame, int destX, int destY,
 	          uint16 transparency = 0, uint16 flags = 0, bool mirror = false) const;
 
+	// Like Blit, but nearest-neighbour scales the frame into a destW x destH
+	// box (top-left at destX, destY) — the modern-path equivalent of the legacy
+	// DrawScaledLow used at zoom != 1. Same draw-flag effects and `mirror`
+	// semantics as Blit. Returns false if the frame is unknown, the box is
+	// empty, or the surface can't be locked.
+	bool BlitScaled(class aui_Surface * destSurface, char const * action, int facing,
+	                int frame, int destX, int destY, int destW, int destH,
+	                uint16 transparency = 0, uint16 flags = 0, bool mirror = false) const;
+
 private:
 	ModernSpriteManifest m_manifest;
 	std::vector<uint8_t> m_rgba;
@@ -88,14 +97,15 @@ void ModernSpriteLoadIfEnabled(std::unique_ptr<ModernSpriteAtlas> & slot,
                                char const * spriteFileName);
 
 // Draw a NON-FACED sprite frame (goods, effects) from `atlas`, replicating
-// Sprite::DrawDirect's hot-point placement and facing>=5 horizontal reversal.
-// (hotX,hotY) is the sprite's hot point. Returns false — caller should fall
-// back to the legacy draw — when the frame is absent or an unsupported flag
-// (k_BIT_DRAWFLAGS_ADDITIVE, which the binary-alpha atlas blit cannot blend)
-// is set. Unit sprites use their own faced path in UnitSpriteGroup instead.
+// Sprite::DrawDirect's hot-point placement, `scale` zoom (nearest-neighbour at
+// scale != 1) and facing>=5 horizontal reversal. (hotX,hotY) is the sprite's
+// hot point. Returns false — caller should fall back to the legacy draw — when
+// the frame is absent or an unsupported flag (k_BIT_DRAWFLAGS_ADDITIVE, which
+// the binary-alpha atlas blit cannot blend) is set. Unit sprites use their own
+// faced path in UnitSpriteGroup instead.
 bool ModernSpriteDrawUnfaced(ModernSpriteAtlas const & atlas, class aui_Surface * surf,
                              char const * action, int frame, int drawX, int drawY,
-                             int facing, int hotX, int hotY,
+                             int facing, int hotX, int hotY, double scale,
                              uint16 transparency, uint16 flags);
 
 #endif // __MODERNSPRITEATLAS_H__

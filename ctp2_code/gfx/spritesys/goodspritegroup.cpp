@@ -89,13 +89,13 @@ void GoodSpriteGroup::DrawDirect(aui_Surface *surf, GOODACTION action, sint32 fr
 
 	m_sprites[action]->SetCurrentFrame((uint16)frame);
 
-	// Modern-first atlas draw at default zoom; falls back to the legacy RLE
-	// draw when the atlas lacks the frame or an unsupported flag is set.
-	if (m_modernAtlas && scale > 0.999 && scale < 1.001)
+	// Modern-first atlas draw (any zoom); falls back to the legacy RLE draw
+	// when the atlas lacks the frame or an unsupported flag is set.
+	if (m_modernAtlas)
 	{
 		POINT const hp = m_sprites[action]->GetHotPoint();
 		if (ModernSpriteDrawUnfaced(*m_modernAtlas, surf, "IDLE", frame, drawX, drawY,
-		                            facing, hp.x, hp.y, transparency, flags))
+		                            facing, hp.x, hp.y, scale, transparency, flags))
 		{
 			return;
 		}

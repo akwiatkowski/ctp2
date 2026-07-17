@@ -146,7 +146,7 @@ aui_Window::~aui_Window()
     delete m_surface;
     delete m_dirtyList;
     delete m_grabRegion;
-    free(m_stencil);
+    aui_DestroyStencil(m_stencil);
     delete m_focusControl;
     delete m_focusList;
 }
@@ -693,7 +693,7 @@ void aui_Window::SetStencilFromImage(const MBCHAR *imageFileName)
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 	if(m_stencil) {
-		free(m_stencil);
+		aui_DestroyStencil(m_stencil);
 	}
 
 	aui_Image *image = aui_ui_Get()->LoadImage((MBCHAR *)imageFileName);

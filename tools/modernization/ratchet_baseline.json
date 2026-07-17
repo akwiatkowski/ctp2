@@ -1,6 +1,6 @@
 {
   "counts": {
-    "c_allocation": 72,
+    "c_allocation": 71,
     "dynarray_uses": 353,
     "pointerlist_uses": 576,
     "raw_delete": 1844,

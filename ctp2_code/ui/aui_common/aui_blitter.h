@@ -19,6 +19,7 @@ struct aui_SpanList;
 
 struct aui_Stencil;
 aui_Stencil *aui_CreateStencil(aui_Surface *pSurface);
+void aui_DestroyStencil(aui_Stencil *pStencil);
 
 
 

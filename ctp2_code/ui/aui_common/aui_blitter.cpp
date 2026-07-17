@@ -2670,6 +2670,13 @@ aui_Stencil *aui_CreateStencil(aui_Surface *pSurface)
 	return pBuffer;
 }
 
+void aui_DestroyStencil(aui_Stencil *pStencil)
+{
+	// Paired with aui_CreateStencil — the stencil is a single flexible
+	// allocation (struct + trailing spans), so it is released as one block.
+	free(pStencil);
+}
+
 AUI_ERRCODE aui_Blitter::StencilMixBlt16(
 		aui_Surface *destSurf,
 		RECT *destRect,

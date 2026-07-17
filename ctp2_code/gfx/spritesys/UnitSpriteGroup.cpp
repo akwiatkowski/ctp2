@@ -214,8 +214,12 @@ bool UnitSpriteGroup::DrawModernInteractive(UNITACTION action, sint32 frame,
 	static char const * const kActionName[UNITACTION_MAX] =
 		{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };
 	char const * const   actionName  = kActionName[action];
+	// Mirror at facing >= 5 (both faced and normal sprites do). Directional
+	// actions (facings 5) fold onto their stored counterpart; non-directional
+	// ones (facings 1, e.g. IDLE) only ever stored facing 0.
 	bool const           reversed    = facing >= k_NUM_FACINGS;
-	sint32 const         atlasFacing = reversed ? (k_MAX_FACINGS - facing) : facing;
+	bool const           directional = m_modernAtlas->FacingCount(actionName) > 1;
+	sint32 const         atlasFacing = directional ? (reversed ? (k_MAX_FACINGS - facing) : facing) : 0;
 	ModernSpriteRect const * r = m_modernAtlas->FindRect(actionName, atlasFacing, frame);
 	if (!r)
 		return false;
@@ -307,7 +311,8 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 			{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };
 		char const * const   actionName  = kActionName[action];
 		bool const           reversed    = facing >= k_NUM_FACINGS;
-		sint32 const         atlasFacing = reversed ? (k_MAX_FACINGS - facing) : facing;
+		bool const           directional = m_modernAtlas->FacingCount(actionName) > 1;
+		sint32 const         atlasFacing = directional ? (reversed ? (k_MAX_FACINGS - facing) : facing) : 0;
 		ModernSpriteRect const * r = m_modernAtlas->FindRect(actionName, atlasFacing, frame);
 		if (r)
 		{

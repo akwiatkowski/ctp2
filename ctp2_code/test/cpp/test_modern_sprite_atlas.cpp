@@ -101,6 +101,13 @@ TEST_CASE("ModernSpriteAtlas loads manifest + PNG and resolves frame rects")
 	CHECK(r1->y == 1);
 	CHECK(atlas->FindRect("MOVE", 0, 0) == nullptr);   // absent action
 
+	// FacingCount reports the manifest's per-action facing count so the draw
+	// path can ask for stored facing 0 on a non-directional action (IDLE) and
+	// fold/mirror on a directional one — the bug that made idle units, which
+	// request their heading facing, silently fall back to legacy.
+	CHECK(atlas->FacingCount("IDLE") == 2);
+	CHECK(atlas->FacingCount("MOVE") == 0);   // absent -> 0
+
 	std::remove(png.c_str());
 	std::remove(json.c_str());
 }

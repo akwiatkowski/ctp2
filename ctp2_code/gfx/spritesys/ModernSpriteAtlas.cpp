@@ -83,6 +83,14 @@ ModernSpriteAtlas * ModernSpriteAtlas::Load(char const * manifestPath, std::stri
     return atlas.release();
 }
 
+int ModernSpriteAtlas::FacingCount(char const * action) const
+{
+    for (ModernSpriteAction const & a : m_manifest.actions)
+        if (a.name == action)
+            return a.facings;
+    return 0;
+}
+
 ModernSpriteRect const * ModernSpriteAtlas::FindRect(char const * action, int facing, int frame) const
 {
     for (ModernSpriteAction const & a : m_manifest.actions)

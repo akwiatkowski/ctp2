@@ -36,6 +36,13 @@ public:
 	// the manifest name (e.g. "MOVE", "IDLE").
 	ModernSpriteRect const * FindRect(char const * action, int facing, int frame) const;
 
+	// Number of stored facings for an action (0 if the action is absent). 1 =
+	// non-directional (e.g. IDLE, goods): the caller must request facing 0
+	// regardless of the unit's heading. 5 = directional (facings 0-4 stored,
+	// 5-7 are the mirror of 3-1). Lets the draw avoid asking for a facing the
+	// atlas never packed.
+	int FacingCount(char const * action) const;
+
 	// Composite the frame (action/facing/frame) into destSurface with its
 	// top-left at (destX, destY). The atlas carries binary alpha (opaque or
 	// fully transparent), so this is a chroma-key-style copy: transparent

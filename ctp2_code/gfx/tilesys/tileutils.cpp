@@ -883,7 +883,8 @@ sint32 tileutils_EncodeStencil(MBCHAR *filename)
 {
 	uint16	 width=0;
 	uint16	 height=0;
-	char	*tif    = tileutils_TIF2mem(filename, &width, &height);
+	TifBuffer tifBuf(tileutils_TIF2mem(filename, &width, &height));
+	char	*tif    = tifBuf.get();   // was leaked before
 	Assert(tif != nullptr);
 	if (tif == nullptr) exit(-1);
 

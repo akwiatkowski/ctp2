@@ -5,7 +5,7 @@
     "pointerlist_uses": 576,
     "raw_delete": 1845,
     "raw_new": 4802,
-    "type_erased_casting": 2581,
+    "type_erased_casting": 2540,
     "unsafe_string_api": 17
   },
   "description": "Maximum allowed legacy C/C++ pattern counts. Run `make modernization-ratchet-update` after intentional cleanup only.",

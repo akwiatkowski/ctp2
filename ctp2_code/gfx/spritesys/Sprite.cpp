@@ -118,16 +118,25 @@ void Sprite::Save(char const * filename)
 
 
 
-void Sprite::ImportTIFF(uint16 index, char **imageFiles,Pixel32 **imageData, size_t *size)
+void Sprite::ImportTIFF(uint16 index, char **imageFiles, std::vector<Pixel32> &imageData, size_t *size)
 {
-
-		*imageData = (Pixel32 *)StripTIF2Mem(imageFiles[index], &m_width, &m_height, size);
+	// StripTIF2Mem returns a malloc'd buffer; own it, copy into the vector,
+	// and let TifBuffer free the source. This gives every import path (TIFF
+	// and TGA) the SAME owning container — the old raw pointer was malloc'd
+	// here but array-allocated in ImportTGA, so the caller's uniform delete[]
+	// was undefined behaviour on TIFF sprites.
+	TifBuffer buf(StripTIF2Mem(imageFiles[index], &m_width, &m_height, size));
+	Pixel32 const * pixels = (Pixel32 const *)buf.get();
+	if (pixels)
+		imageData.assign(pixels, pixels + static_cast<size_t>(m_width) * m_height);
+	else
+		imageData.clear();
 }
 
 
 
 
-void Sprite::ImportTGA(uint16 index, char **imageFiles,Pixel32 **imageData, size_t *size)
+void Sprite::ImportTGA(uint16 index, char **imageFiles, std::vector<Pixel32> &imageData, size_t *size)
 {
 	int		bpp;
 	int     w;
@@ -136,7 +145,7 @@ void Sprite::ImportTGA(uint16 index, char **imageFiles,Pixel32 **imageData, size
 	if (!Get_TGA_Dimension(imageFiles[index], w, h, bpp))
 	{
 		printf("Bad TGA Sprite File(%s)\n",imageFiles[index]);
-		*imageData = nullptr;
+		imageData.clear();
 		fcloseall();
 		exit(0);
 		return;
@@ -145,22 +154,22 @@ void Sprite::ImportTGA(uint16 index, char **imageFiles,Pixel32 **imageData, size
 	if (bpp!=4)
 	{
 		printf("TGA Sprite File not 32-bits(%s)\n",imageFiles[index]);
-		*imageData=nullptr;
+		imageData.clear();
 		fcloseall();
 		exit(0);
 		return;
 	}
 
-	*imageData = new Pixel32[w*h];
+	imageData.resize(static_cast<size_t>(w) * h);
 	if (size)
-		*size = w * h * sizeof(Pixel32);
+		*size = static_cast<size_t>(w) * h * sizeof(Pixel32);
 
-	Load_TGA_File_Simple(imageFiles[index],(unsigned char *)*imageData,w*sizeof(Pixel32),w,h);
+	Load_TGA_File_Simple(imageFiles[index],(unsigned char *)imageData.data(),w*sizeof(Pixel32),w,h);
 
 	m_width  = (uint16)w;
 	m_height = (uint16)h;
 
-	TGA2RGB32((Pixel32 *)*imageData,w*h);
+	TGA2RGB32(imageData.data(),w*h);
 }
 
 
@@ -177,37 +186,28 @@ void Sprite::Import(size_t nframes, char **imageFiles, char **shadowFiles)
 	m_miniframes.assign(m_numFrames, nullptr);
 	m_miniframesSizes.resize(m_numFrames);
 
-	Pixel32 *image;
-	Pixel32 *miniimage;
-	size_t   imageSize;
-	size_t   miniimageSize;
-	Pixel32 *shadow;
-	Pixel32 *minishadow;
-	size_t   shadowSize;
-	size_t   minishadowSize;
-
 	for (uint16 i=0; i<m_numFrames; i++)
 	{
 		char ext[_MAX_DIR];
 
 		Pixel16 *data   = nullptr;
 		size_t dataSize = 0;
-		image		= nullptr;
-		imageSize       = 0;
-		miniimage	= nullptr;
-		miniimageSize   = 0;
-		shadow		= nullptr;
-		shadowSize      = 0;
-		minishadow	= nullptr;
-		minishadowSize  = 0;
+		// Owning buffers — freed automatically at loop end (the old raw
+		// pointers were freed with delete[] regardless of whether TIFF's
+		// malloc or TGA's array allocation produced them: UB on the TIFF
+		// path).
+		std::vector<Pixel32> image;
+		std::vector<Pixel32> miniimage;
+		std::vector<Pixel32> shadow;
+		std::vector<Pixel32> minishadow;
 
 		_splitpath(imageFiles[i],nullptr,nullptr,nullptr,ext);
 
 		if (strstr(strupr(ext),"TIF"))
-			ImportTIFF(i,imageFiles,&image,&imageSize);
+			ImportTIFF(i,imageFiles,image);
 		else
 			if (strstr(strupr(ext),"TGA"))
-				ImportTGA(i,imageFiles,&image, &imageSize);
+				ImportTGA(i,imageFiles,image);
 			else
 			{
 				printf("Unknown image file \"%s\"\n",imageFiles[i]);
@@ -218,64 +218,27 @@ void Sprite::Import(size_t nframes, char **imageFiles, char **shadowFiles)
 		_splitpath(shadowFiles[i],nullptr,nullptr,nullptr,ext);
 
 		if (strstr(strupr(ext),"TIF"))
-			ImportTIFF(i,shadowFiles,&shadow, &shadowSize);
+			ImportTIFF(i,shadowFiles,shadow);
 		else
 			if (strstr(strupr(ext),"TGA"))
-				ImportTGA(i,shadowFiles,&shadow, &shadowSize);
+				ImportTGA(i,shadowFiles,shadow);
 
-		if (image)
+		if (!image.empty())
 		{
+			Pixel32 * shadowPtr = shadow.empty() ? nullptr : shadow.data();
 
+			miniimage = spriteutils_CreateQuarterSize(image.data(), m_width, m_height, TRUE);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			spriteutils_CreateQuarterSize(image, m_width, m_height,&miniimage, TRUE);
-
-			data = spriteutils_RGB32ToEncoded(image,shadow, m_width, m_height, &dataSize);
+			data = spriteutils_RGB32ToEncoded(image.data(), shadowPtr, m_width, m_height, &dataSize);
 			SetFrameData(i, data, dataSize);
 
-			if (shadow)
-				spriteutils_CreateQuarterSize(shadow, m_width, m_height,&minishadow, FALSE);
+			if (!shadow.empty())
+				minishadow = spriteutils_CreateQuarterSize(shadow.data(), m_width, m_height, FALSE);
 
-			data = spriteutils_RGB32ToEncoded(miniimage, minishadow, m_width >> 1, m_height >> 1, &dataSize);
+			Pixel32 * minishadowPtr = minishadow.empty() ? nullptr : minishadow.data();
+			data = spriteutils_RGB32ToEncoded(miniimage.data(), minishadowPtr, m_width >> 1, m_height >> 1, &dataSize);
 			SetMiniFrameData(i, data, dataSize);
 		}
-
-				delete []image;
-				delete []shadow;
-			delete []miniimage;
-			delete []minishadow;
 
 		printf(".");
 	}

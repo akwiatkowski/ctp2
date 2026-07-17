@@ -111,9 +111,9 @@ public:
 
 	void			Import(size_t nframes, char **imageFiles, char **shadowFiles);
 
-	void			ImportTIFF(uint16 index,char **imageFiles,Pixel32 **imageData, size_t *size = nullptr);
+	void			ImportTIFF(uint16 index,char **imageFiles,std::vector<Pixel32> &imageData, size_t *size = nullptr);
 
-	void			ImportTGA (uint16 index,char **imageFiles,Pixel32 **imageData, size_t *size = nullptr);
+	void			ImportTGA (uint16 index,char **imageFiles,std::vector<Pixel32> &imageData, size_t *size = nullptr);
 
 	void			Save(char const * filename);
 	void			Export(FILE *file);

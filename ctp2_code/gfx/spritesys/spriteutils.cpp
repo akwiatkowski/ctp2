@@ -608,7 +608,7 @@ Pixel32	spriteutils_AveragePixel32(Pixel32 pixel1, Pixel32 pixel2, Pixel32 pixel
 	return result;
 }
 
-void spriteutils_CreateQuarterSize(Pixel32 *srcBuf, sint32 srcWidth, sint32 srcHeight, Pixel32 **destBuf, BOOL aa)
+std::vector<Pixel32> spriteutils_CreateQuarterSize(Pixel32 *srcBuf, sint32 srcWidth, sint32 srcHeight, BOOL aa)
 {
 	sint32      destWidth = srcWidth / 2;
 	sint32      destHeight = srcHeight / 2;
@@ -619,9 +619,8 @@ void spriteutils_CreateQuarterSize(Pixel32 *srcBuf, sint32 srcWidth, sint32 srcH
 	Pixel32     pixel2;
 	Pixel32     pixel3;
 	Pixel32     pixel4;
-	Pixel32     *outBuf;
 
-	outBuf = (Pixel32 *)malloc(destWidth * destHeight * sizeof(Pixel32) );
+	std::vector<Pixel32> outBuf(static_cast<size_t>(destWidth) * destHeight);
 
 	for (i=0; i<destHeight; i++) {
 		for (j=0; j<destWidth; j++) {
@@ -641,7 +640,7 @@ void spriteutils_CreateQuarterSize(Pixel32 *srcBuf, sint32 srcWidth, sint32 srcH
 		}
 	}
 
-	*destBuf = outBuf;
+	return outBuf;
 }
 
 

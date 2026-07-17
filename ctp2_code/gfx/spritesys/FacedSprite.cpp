@@ -86,19 +86,21 @@ void FacedSprite::Import(size_t nframes, char *imageFiles[k_NUM_FACINGS][k_MAX_N
 
 			Pixel16 *   data        = nullptr;
 			size_t      dataSize    = 0;
-			Pixel32 *   image       = nullptr;
-			Pixel32 *   miniimage	= nullptr;
-			Pixel32 *   shadow		= nullptr;
-			Pixel32 *   minishadow	= nullptr;
+			// Owning buffers — freed at scope end (see Sprite::Import: the
+			// old delete[] on these malloc/array-alloc-mixed pointers was UB).
+			std::vector<Pixel32> image;
+			std::vector<Pixel32> miniimage;
+			std::vector<Pixel32> shadow;
+			std::vector<Pixel32> minishadow;
 			char *      fname       = imageFiles[facing][i];
 
 			_splitpath(fname,nullptr,nullptr,nullptr,ext);
 
 			if (strstr(strupr(ext),"TIF"))
-				ImportTIFF(i,imageFiles[facing],&image);
+				ImportTIFF(i,imageFiles[facing],image);
 			else
 				if (strstr(strupr(ext),"TGA"))
-					ImportTGA(i,imageFiles[facing],&image);
+					ImportTGA(i,imageFiles[facing],image);
 				else
 					printf("Unknown image file \"%s\"\n",fname);
 
@@ -107,22 +109,25 @@ void FacedSprite::Import(size_t nframes, char *imageFiles[k_NUM_FACINGS][k_MAX_N
 			_splitpath(fname,nullptr,nullptr,nullptr,ext);
 
 			if (strstr(strupr(ext),"TIF"))
-				ImportTIFF(i,shadowFiles[facing],&shadow);
+				ImportTIFF(i,shadowFiles[facing],shadow);
 			else
 				if (strstr(strupr(ext),"TGA"))
-					ImportTGA(i,shadowFiles[facing],&shadow);
+					ImportTGA(i,shadowFiles[facing],shadow);
 
-			if (image)
+			if (!image.empty())
 			{
-				spriteutils_CreateQuarterSize(image, m_width, m_height,&miniimage, TRUE);
+				Pixel32 * shadowPtr = shadow.empty() ? nullptr : shadow.data();
 
-				data = spriteutils_RGB32ToEncoded(image,shadow, m_width, m_height, &dataSize);
+				miniimage = spriteutils_CreateQuarterSize(image.data(), m_width, m_height, TRUE);
+
+				data = spriteutils_RGB32ToEncoded(image.data(), shadowPtr, m_width, m_height, &dataSize);
 				SetFrameData(facing, i, data, dataSize);
 
-				if (shadow)
-					spriteutils_CreateQuarterSize(shadow, m_width, m_height,&minishadow, FALSE);
+				if (!shadow.empty())
+					minishadow = spriteutils_CreateQuarterSize(shadow.data(), m_width, m_height, FALSE);
 
-				data = spriteutils_RGB32ToEncoded(miniimage, minishadow, m_width >> 1, m_height >> 1, &dataSize);
+				Pixel32 * minishadowPtr = minishadow.empty() ? nullptr : minishadow.data();
+				data = spriteutils_RGB32ToEncoded(miniimage.data(), minishadowPtr, m_width >> 1, m_height >> 1, &dataSize);
 				SetMiniFrameData(facing, i, data, dataSize);
 			}
 			else
@@ -131,11 +136,6 @@ void FacedSprite::Import(size_t nframes, char *imageFiles[k_NUM_FACINGS][k_MAX_N
 				printf("Could not locate %s.  Aborting.\n\n", imageFiles[facing][i]);
 				exit(-1);
 			}
-
-			delete [] image;
-			delete [] shadow;
-			delete [] miniimage;
-			delete [] minishadow;
 
 			printf(".");
 		}

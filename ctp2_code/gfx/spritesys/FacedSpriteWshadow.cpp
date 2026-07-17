@@ -82,15 +82,14 @@ void FacedSpriteWshadow::Import(uint16 nframes, char *imageFiles[k_NUM_FACINGS][
 
 			if (tif)
 			{
-				char *minitifRaw = nullptr;
-				spriteutils_CreateQuarterSize((Pixel32 *)tif.get(), m_width, m_height, (Pixel32 **)&minitifRaw, TRUE);
-				TifBuffer minitif(minitifRaw);   // was leaked before
+				std::vector<Pixel32> minitif =
+					spriteutils_CreateQuarterSize((Pixel32 *)tif.get(), m_width, m_height, TRUE);
 
 				size_t dataSize = 0;
 				Pixel16 *data =	spriteutils_RGB32ToEncoded((Pixel32 *)tif.get(), m_width, m_height, &dataSize);
 				SetFrameData(facing, i, data, dataSize);
 
-				data = spriteutils_RGB32ToEncoded((Pixel32 *)minitif.get(), m_width >> 1, m_height >> 1, &dataSize);
+				data = spriteutils_RGB32ToEncoded(minitif.data(), m_width >> 1, m_height >> 1, &dataSize);
 				SetMiniFrameData(facing, i, data, dataSize);
 
 	            uint16		width;
@@ -102,13 +101,12 @@ void FacedSpriteWshadow::Import(uint16 nframes, char *imageFiles[k_NUM_FACINGS][
 					data = spriteutils_RGB32ToEncoded((Pixel32 *)shadowTif.get(), m_width, m_height, &dataSize);
 					SetShadowFrameData(facing, i, data, dataSize);
 
-				    char *minishadowRaw = nullptr;
-					spriteutils_CreateQuarterSize((Pixel32 *)shadowTif.get(), m_width, m_height, (Pixel32 **)&minishadowRaw, FALSE);
-					TifBuffer minishadow(minishadowRaw);   // was leaked before
+					std::vector<Pixel32> minishadow =
+						spriteutils_CreateQuarterSize((Pixel32 *)shadowTif.get(), m_width, m_height, FALSE);
 
-					if(minishadow)
+					if(!minishadow.empty())
 					{
-						data = spriteutils_RGB32ToEncoded((Pixel32 *)minishadow.get(), m_width >> 1, m_height >> 1, &dataSize);
+						data = spriteutils_RGB32ToEncoded(minishadow.data(), m_width >> 1, m_height >> 1, &dataSize);
 						SetMiniShadowFrameData(facing, i, data, dataSize);
 						}
 					}
@@ -134,14 +132,13 @@ void FacedSpriteWshadow::Import(uint16 nframes, char *imageFiles[k_NUM_FACINGS][
 
 			if (tif)
 			{
-				char *minitifRaw = nullptr;
-				spriteutils_CreateQuarterSize((Pixel32 *)tif.get(), m_width, m_height, (Pixel32 **)&minitifRaw, TRUE);
-				TifBuffer minitif(minitifRaw);   // was leaked before
+				std::vector<Pixel32> minitif =
+					spriteutils_CreateQuarterSize((Pixel32 *)tif.get(), m_width, m_height, TRUE);
 
 				size_t dataSize = 0;
 				Pixel16 * data = spriteutils_RGB32ToEncoded((Pixel32 *)tif.get(), m_width, m_height, &dataSize);
 				SetFrameData(facing, i, data, dataSize);
-				data = spriteutils_RGB32ToEncoded((Pixel32 *)minitif.get(), m_width >> 1, m_height >> 1, &dataSize);
+				data = spriteutils_RGB32ToEncoded(minitif.data(), m_width >> 1, m_height >> 1, &dataSize);
 				SetMiniFrameData(facing, i, data, dataSize);
 			}
 

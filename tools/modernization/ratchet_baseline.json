@@ -1,10 +1,10 @@
 {
   "counts": {
-    "c_allocation": 71,
+    "c_allocation": 70,
     "dynarray_uses": 353,
     "pointerlist_uses": 576,
-    "raw_delete": 1844,
-    "raw_new": 4801,
+    "raw_delete": 1839,
+    "raw_new": 4800,
     "type_erased_casting": 2540,
     "unsafe_string_api": 17
   },

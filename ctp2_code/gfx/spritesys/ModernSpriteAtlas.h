@@ -121,4 +121,13 @@ bool ModernSpriteDrawUnfaced(ModernSpriteAtlas const & atlas, class aui_Surface 
                              int facing, int hotX, int hotY, double scale,
                              uint16 transparency, uint16 flags);
 
+// Lock-free twin of ModernSpriteDrawUnfaced for the interactive Draw path:
+// composites into an ALREADY-LOCKED buffer (base + pitch + surf dims + 32bpp),
+// e.g. the ScreenManager's held surface. Same geometry and additive-fallback.
+bool ModernSpriteDrawUnfacedLocked(ModernSpriteAtlas const & atlas,
+                                   uint8_t * base, int pitch, int surfW, int surfH, bool bpp32,
+                                   char const * action, int frame, int drawX, int drawY,
+                                   int facing, int hotX, int hotY, double scale,
+                                   uint16 transparency, uint16 flags);
+
 #endif // __MODERNSPRITEATLAS_H__

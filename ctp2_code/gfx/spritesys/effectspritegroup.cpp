@@ -39,6 +39,8 @@
 #include "gfx/spritesys/SpriteFile.h"
 #include "gfx/spritesys/Sprite.h"
 #include "gfx/spritesys/ModernSpriteAtlas.h"   // P11 modern-first atlas path
+#include "gfx/spritesys/screenmanager.h"       // screenmanager_Get()
+#include "ui/aui_common/aui_surface.h"         // aui_Surface::BitsPerPixel
 #include "gs/fileio/Token.h"
 
 // Out-of-line so the unique_ptr<ModernSpriteAtlas> member is created/destroyed
@@ -71,6 +73,25 @@ void EffectSpriteGroup::Draw(EFFECTACTION action, sint32 frame, sint32 drawX, si
 
 	if (action == EFFECTACTION_PLAY)
     {
+		// Modern-first atlas draw on the interactive path (into the
+		// ScreenManager's already-locked surface); the additive FLASH overlay
+		// above stays legacy. Falls back to the legacy PLAY draw below.
+		if (m_modernAtlas)
+		{
+			aui_Surface * surf = screenmanager_Get()->GetSurface();
+			uint8 *       base = screenmanager_Get()->GetSurfBase();
+			if (surf && base)
+			{
+				POINT const hp = m_sprites[action]->GetHotPoint();
+				if (ModernSpriteDrawUnfacedLocked(*m_modernAtlas, base,
+				        screenmanager_Get()->GetSurfPitch(), screenmanager_Get()->GetSurfWidth(),
+				        screenmanager_Get()->GetSurfHeight(), surf->BitsPerPixel() == 32,
+				        "PLAY", frame, drawX, drawY, facing, hp.x, hp.y, scale, transparency, flags))
+				{
+					return;
+				}
+			}
+		}
 		m_sprites[action]->Draw(drawX, drawY, facing, scale, transparency, outlineColor, flags);
 	}
 }

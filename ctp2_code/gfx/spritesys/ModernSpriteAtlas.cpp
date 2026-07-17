@@ -284,10 +284,11 @@ void ModernSpriteLoadIfEnabled(std::unique_ptr<ModernSpriteAtlas> & slot,
     slot.reset(ModernSpriteAtlas::Load(manifest.c_str(), error));
 }
 
-bool ModernSpriteDrawUnfaced(ModernSpriteAtlas const & atlas, aui_Surface * surf,
-                             char const * action, int frame, int drawX, int drawY,
-                             int facing, int hotX, int hotY, double scale,
-                             uint16 transparency, uint16 flags)
+bool ModernSpriteDrawUnfacedLocked(ModernSpriteAtlas const & atlas,
+                                   uint8 * base, int pitch, int surfW, int surfH, bool bpp32,
+                                   char const * action, int frame, int drawX, int drawY,
+                                   int facing, int hotX, int hotY, double scale,
+                                   uint16 transparency, uint16 flags)
 {
     // The atlas blit is a binary-alpha copy; it cannot do the additive "flash"
     // blend Sprite::DrawDirect uses for k_BIT_DRAWFLAGS_ADDITIVE. Leave those to
@@ -307,10 +308,28 @@ bool ModernSpriteDrawUnfaced(ModernSpriteAtlas const & atlas, aui_Surface * surf
     int  const destY    = drawY - static_cast<int>(hotY * scale);
 
     if (scale > 0.999 && scale < 1.001)
-        return atlas.Blit(surf, action, 0, frame, destX, destY, transparency, flags, reversed);
+        return atlas.BlitLocked(base, pitch, surfW, surfH, bpp32,
+                                action, 0, frame, destX, destY, transparency, flags, reversed);
 
     int const destW = static_cast<int>(r->w * scale);
     int const destH = static_cast<int>(r->h * scale);
-    return atlas.BlitScaled(surf, action, 0, frame, destX, destY, destW, destH,
-                            transparency, flags, reversed);
+    return atlas.BlitScaledLocked(base, pitch, surfW, surfH, bpp32,
+                                  action, 0, frame, destX, destY, destW, destH,
+                                  transparency, flags, reversed);
+}
+
+bool ModernSpriteDrawUnfaced(ModernSpriteAtlas const & atlas, aui_Surface * surf,
+                             char const * action, int frame, int drawX, int drawY,
+                             int facing, int hotX, int hotY, double scale,
+                             uint16 transparency, uint16 flags)
+{
+    // DrawDirect path: lock the explicit surface, then delegate to the locked
+    // core (the interactive Draw path calls the locked core directly against the
+    // ScreenManager's already-locked surface).
+    return LockAndRun(surf,
+        [&](uint8 * base, int pitch, int w, int h, bool bpp32) {
+            return ModernSpriteDrawUnfacedLocked(atlas, base, pitch, w, h, bpp32,
+                                                 action, frame, drawX, drawY, facing,
+                                                 hotX, hotY, scale, transparency, flags);
+        });
 }

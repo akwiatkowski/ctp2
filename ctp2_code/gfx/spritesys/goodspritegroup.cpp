@@ -46,6 +46,7 @@
 #include "gfx/spritesys/SpriteFile.h"
 #include "gfx/spritesys/Anim.h"
 #include "gfx/spritesys/ModernSpriteAtlas.h"   // P11 modern-first atlas path
+#include "ui/aui_common/aui_surface.h"         // aui_Surface::BitsPerPixel
 #include "gs/fileio/Token.h"
 
 
@@ -73,6 +74,26 @@ void GoodSpriteGroup::Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32
     }
 
 	m_sprites[action]->SetCurrentFrame((uint16)frame);
+
+	// Modern-first atlas draw on the interactive path (into the ScreenManager's
+	// already-locked surface); falls back to the legacy RLE draw below.
+	if (m_modernAtlas)
+	{
+		aui_Surface * surf = screenmanager_Get()->GetSurface();
+		uint8 *       base = screenmanager_Get()->GetSurfBase();
+		if (surf && base)
+		{
+			POINT const hp = m_sprites[action]->GetHotPoint();
+			if (ModernSpriteDrawUnfacedLocked(*m_modernAtlas, base,
+			        screenmanager_Get()->GetSurfPitch(), screenmanager_Get()->GetSurfWidth(),
+			        screenmanager_Get()->GetSurfHeight(), surf->BitsPerPixel() == 32,
+			        "IDLE", frame, drawX, drawY, facing, hp.x, hp.y, scale, transparency, flags))
+			{
+				return;
+			}
+		}
+	}
+
 	m_sprites[action]->Draw(drawX, drawY, facing, scale, transparency, outlineColor, flags);
 }
 

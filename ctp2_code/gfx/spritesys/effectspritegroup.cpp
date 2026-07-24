@@ -146,37 +146,46 @@ bool EffectSpriteGroup::AddGpuSpriteQuad(EFFECTACTION action, sint32 frame, sint
 {
 	if (!m_modernAtlas || action != EFFECTACTION_PLAY || m_sprites[action] == nullptr)
 		return false;
-	if (m_sprites[EFFECTACTION_FLASH] != nullptr)
-		return false;
 	if (outlineColor != 0 || flags != k_DRAWFLAGS_NORMAL || specialDelayProcess || directionalAttack)
 		return false;
 
 	ModernSpriteRect const * r = m_modernAtlas->FindRect("PLAY", 0, frame);
 	if (!r)
 		return false;
+	ModernSpriteRect const * flash = nullptr;
+	if (m_sprites[EFFECTACTION_FLASH] != nullptr) {
+		flash = m_modernAtlas->FindRect("FLASH", 0, frame);
+		if (!flash)
+			return false;
+	}
 
 	SDL_Texture * texture = aui_SDL::EnsureSpriteAtlasTexture(m_modernAtlas.get());
 	if (!texture)
 		return false;
 
-	POINT const hp = m_sprites[action]->GetHotPoint();
 	bool const reversed = facing >= 5;
-	int const destX = reversed ? (drawX - static_cast<int>((r->w - hp.x) * scale))
-	                         : (drawX - static_cast<int>(hp.x * scale));
-	int const destY = drawY - static_cast<int>(hp.y * scale);
+	auto addQuad = [&](ModernSpriteRect const & rect, POINT const & hp, bool additive) {
+		int const destX = reversed ? (drawX - static_cast<int>((rect.w - hp.x) * scale))
+		                         : (drawX - static_cast<int>(hp.x * scale));
+		int const destY = drawY - static_cast<int>(hp.y * scale);
+		aui_SDL::GpuSpriteQuad q;
+		q.texture = texture;
+		q.sx = rect.x; q.sy = rect.y; q.sw = rect.w; q.sh = rect.h;
+		q.dx = destX; q.dy = destY;
+		q.dw = static_cast<int>(rect.w * scale);
+		q.dh = static_cast<int>(rect.h * scale);
+		q.mirror = reversed;
+		q.alpha = 255;
+		q.additive = additive;
+		aui_SDL::AddSpriteQuad(q);
+	};
 
 	(void)SdrawX;
 	(void)SdrawY;
 
-	aui_SDL::GpuSpriteQuad q;
-	q.texture = texture;
-	q.sx = r->x; q.sy = r->y; q.sw = r->w; q.sh = r->h;
-	q.dx = destX; q.dy = destY;
-	q.dw = static_cast<int>(r->w * scale);
-	q.dh = static_cast<int>(r->h * scale);
-	q.mirror = reversed;
-	q.alpha = 255;
-	aui_SDL::AddSpriteQuad(q);
+	if (flash)
+		addQuad(*flash, m_sprites[EFFECTACTION_FLASH]->GetHotPoint(), true);
+	addQuad(*r, m_sprites[action]->GetHotPoint(), false);
 	return true;
 }
 

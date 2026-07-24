@@ -66,9 +66,9 @@ public:
 	POINT			GetHotPoint(EFFECTACTION action, sint32 facing);
 
 private:
-	// Modern-first atlas for the effect's PLAY frames (null when
-	// CTP2_MODERN_SPRITES=0 or no generated manifest exists). The additive FLASH
-	// overlay stays on the legacy path (the atlas cannot blend additively).
+	// Modern-first atlas for effect frames (null when CTP2_MODERN_SPRITES=0 or no
+	// generated manifest exists). The GPU path can replay FLASH as SDL additive
+	// blending; CPU atlas draws still leave additive blending to legacy sprites.
 	std::unique_ptr<ModernSpriteAtlas> m_modernAtlas;
 };
 

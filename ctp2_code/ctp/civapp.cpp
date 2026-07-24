@@ -2912,6 +2912,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 											(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh);
 									}
 									for (aui_SDL::GpuSpriteQuad const & q : aui_SDL::SpriteDrawList()) {
+										SDL_SetTextureBlendMode(q.texture, q.additive ? SDL_BLENDMODE_ADD : SDL_BLENDMODE_BLEND);
 										SDL_SetTextureColorMod(q.texture, q.red, q.green, q.blue);
 										SDL_SetTextureAlphaMod(q.texture, q.alpha);
 										CTP2_SDL_RenderTextureSrcDstFlip(renderer, q.texture,

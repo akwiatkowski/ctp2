@@ -165,6 +165,68 @@ double s_zoomTileScale[k_MAX_ZOOM_LEVELS] =			{0.50526, 0.58947, 0.71578, 0.8, 0
 namespace
 {
     RECT const          RECT_INVISIBLE      = {0, 0, 0, 0};
+
+    bool AddGpuCityNamesQuad(TiledMap *map, sint32 w, sint32 h)
+    {
+        static std::unique_ptr<aui_Surface> s_surface;
+        static SDL_Texture *s_texture = nullptr;
+        static sint32 s_w = 0;
+        static sint32 s_h = 0;
+
+        auto fail = [](char const *reason) {
+            aui_SDL::MarkQuadFrameIncomplete(reason);
+            return false;
+        };
+
+        if (!map || !aui_SDL::Renderer() || w <= 0 || h <= 0)
+            return fail("city-names-setup");
+        if (!s_surface || s_w != w || s_h != h)
+        {
+            if (s_texture)
+            {
+                SDL_DestroyTexture(s_texture);
+                s_texture = nullptr;
+            }
+            AUI_ERRCODE err = AUI_ERRCODE_OK;
+            s_surface.reset(aui_Factory::new_Surface(err, w, h, nullptr, FALSE, FALSE, FALSE, 32));
+            s_w = w;
+            s_h = h;
+        }
+        if (!s_surface)
+            return fail("city-names-surface");
+
+        LPVOID bits = nullptr;
+        if (s_surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
+            return fail("city-names-lock");
+        memset(bits, 0, static_cast<size_t>(s_surface->Pitch()) * static_cast<size_t>(h));
+        s_surface->Unlock(bits);
+
+        map->DrawCityNames(s_surface.get(), 0);
+
+        if (!s_texture)
+        {
+            s_texture = SDL_CreateTexture(aui_SDL::Renderer(), SDL_PIXELFORMAT_ARGB8888,
+                                          SDL_TEXTUREACCESS_STREAMING, w, h);
+            if (!s_texture)
+                return fail("city-names-texture");
+            SDL_SetTextureBlendMode(s_texture, SDL_BLENDMODE_BLEND);
+        }
+
+        if (s_surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
+            return fail("city-names-lock-upload");
+        CTP2_SDL_UpdateTexture(s_texture, nullptr, bits, s_surface->Pitch());
+        s_surface->Unlock(bits);
+
+        aui_SDL::GpuSpriteQuad q;
+        q.texture = s_texture;
+        q.sx = 0; q.sy = 0; q.sw = w; q.sh = h;
+        q.dx = aui_SDL::WorldContentOffX(); q.dy = aui_SDL::WorldContentOffY();
+        q.dw = w; q.dh = h;
+        q.mirror = false;
+        q.alpha = 255;
+        aui_SDL::AddSpriteQuad(q);
+        return true;
+    }
 }
 
 TiledMap::TiledMap(MapPoint &size)
@@ -3757,29 +3819,6 @@ void TiledMap::BuildTerrainQuads()
 		}
 	}
 
-	if (profiledb_Get()->GetShowCityNames())
-	{
-		for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
-		{
-			for (sint32 j = m_mapViewRect.left; j < m_mapViewRect.right; j++)
-			{
-				sint32 tileX;
-				sint32 tileY;
-				maputils_WrapPoint(j, i, &tileX, &tileY);
-				MapPoint pos(maputils_TileX2MapX(tileX, tileY), tileY);
-				if (m_localVision && !m_localVision->IsExplored(pos) && !g_fog_toggle && !g_god)
-					continue;
-
-				Unit unit;
-				if (world_Get()->GetTopVisibleUnit(pos, unit) && unit.IsCity())
-				{
-					aui_SDL::MarkQuadFrameIncomplete("city-names");
-					return;
-				}
-			}
-		}
-	}
-
 	PLAYER_INDEX const player = selitem_Get()->GetVisiblePlayer();
 	double const scale = GetScale();
 	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
@@ -3867,6 +3906,10 @@ void TiledMap::BuildTerrainQuads()
 			}
 		}
 	}
+
+	if (profiledb_Get()->GetShowCityNames()
+	    && (!c3ui_Get() || !AddGpuCityNamesQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight())))
+		aui_SDL::MarkQuadFrameIncomplete("city-names");
 
 	if (ScenarioEditor::ShowStartFlags())
 		aui_SDL::MarkQuadFrameIncomplete("scenario-start-flags");

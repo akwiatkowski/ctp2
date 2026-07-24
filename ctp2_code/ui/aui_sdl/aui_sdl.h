@@ -145,7 +145,7 @@ public:
 	struct GpuSpriteQuad { SDL_Texture *texture; int sx, sy, sw, sh; int dx, dy, dw, dh; bool mirror; uint8 alpha; uint8 red = 255, green = 255, blue = 255; bool additive = false; };
 	static SDL_Texture *EnsureSpriteAtlasTexture(ModernSpriteAtlas const *atlas, bool desaturate = false);
 	static void ReleaseSpriteAtlasTexture(ModernSpriteAtlas const *atlas);
-	static SDL_Texture *EnsureMapIconTexture(void const *data, int w, int h, uint16 color, bool blend = false, int blendValue = 0);
+	static SDL_Texture *EnsureMapIconTexture(void const *data, int w, int h, uint16 color, bool blend = false, int blendValue = 0, bool dither = false);
 	static SDL_Texture *EnsureSolidColorTexture(uint16 color);
 	static void BeginSpriteFrame() { m_spriteDrawList.clear(); }
 	static void AddSpriteQuad(GpuSpriteQuad const &q) { m_spriteDrawList.push_back(q); }
@@ -185,7 +185,7 @@ protected:
 	static std::vector<GpuQuad> m_quadDrawList;
 	static std::map<ModernSpriteAtlas const *, SDL_Texture *> m_spriteAtlasTextures;
 	static std::map<ModernSpriteAtlas const *, SDL_Texture *> m_desaturatedSpriteAtlasTextures;
-	static std::map<std::tuple<void const *, int, int, uint16, bool, int>, SDL_Texture *> m_mapIconTextures;
+	static std::map<std::tuple<void const *, int, int, uint16, bool, int, bool>, SDL_Texture *> m_mapIconTextures;
 	static std::map<uint16, SDL_Texture *> m_solidColorTextures;
 	static std::vector<GpuSpriteQuad> m_spriteDrawList;
 

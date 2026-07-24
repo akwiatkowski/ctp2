@@ -70,7 +70,10 @@
 #include "ctp/c3.h"
 #include "gfx/spritesys/UnitActor.h"
 
+#include <map>
 #include <memory>
+#include <string>
+#include <tuple>
 
 #include "ctp/debugtools/debugmemory.h"
 #include "gfx/gfx_utils/colorset.h"  // g_colorset
@@ -100,6 +103,7 @@
 #include "gs/world/cellunitlist.h"
 #include "sound/soundmanager.h"  // soundmgr_Get()
 #include "ui/aui_common/aui_bitmapfont.h"
+#include "ui/aui_common/aui_Factory.h"
 #include "ui/aui_sdl/aui_sdl.h"
 #include "ui/aui_ctp2/SelItem.h"  // selitem_Get()
 #include "ui/aui_utils/primitives.h"
@@ -136,6 +140,74 @@ bool AddGpuMapIconQuad(TileSet *tileSet, MAPICON icon, sint32 x, sint32 y, Pixel
   return true;
 }
 
+bool AddGpuImprovementQuad(Pixel16 *data, sint32 x, sint32 y, sint32 w, sint32 h,
+                           Pixel16 color, bool blend, bool dither) {
+  SDL_Texture *texture = aui_SDL::EnsureMapIconTexture(data, k_TILE_PIXEL_WIDTH,
+      k_TILE_GRID_HEIGHT, color, blend, k_FOW_BLEND_VALUE, dither);
+  if (!texture)
+    return false;
+  aui_SDL::AddSpriteQuad({texture, 0, 0, k_TILE_PIXEL_WIDTH, k_TILE_GRID_HEIGHT,
+                          x, y, w, h, false, 255});
+  return true;
+}
+
+Pixel16 *CityWallImage(UnitActor const &actor, TileSet *tileSet) {
+  Pixel16 *cityImage = tileSet->GetImprovementData(38);
+  Unit unit(actor.GetUnitID());
+  CityStyleRecord const* styleRec = g_theCityStyleDB->Get(unit.CD()->GetCityStyle());
+  if (!styleRec)
+    return cityImage;
+  PLAYER_INDEX ownerIndex = unit->GetOwner();
+  if (ownerIndex < 0 || ownerIndex >= k_MAX_PLAYERS || !player_Get(ownerIndex))
+    return nullptr;
+  AgeCityStyleRecord const* ageStyleRec = styleRec->GetAgeStyle(player_Get(ownerIndex)->m_age);
+  if (!ageStyleRec)
+    return cityImage;
+  bool const isWater = world_Get()->IsWater(actor.GetPos());
+  AgeCityStyleRecord::SizeSprite const* matchingSprite = nullptr;
+  for (sint32 i = 0; i < ageStyleRec->GetNumSprites(); ++i) {
+    AgeCityStyleRecord::SizeSprite const* spr = ageStyleRec->GetSprites(i);
+    if (spr && (isWater == (CITY_TYPE_WATER == spr->GetType()))) {
+      matchingSprite = spr;
+      sint32 p;
+      unit.CD()->GetPop(p);
+      if (spr->GetMinSize() <= p && spr->GetMaxSize() >= p)
+        break;
+    }
+  }
+  return matchingSprite ? tileSet->GetImprovementData(static_cast<uint16>(matchingSprite->GetWalls())) : cityImage;
+}
+
+Pixel16 *ForceFieldImage(UnitActor const &actor, TileSet *tileSet) {
+  MapPoint const here = actor.GetPos();
+  sint32 which = world_Get()->IsLand(here) ? 154 : (world_Get()->IsWater(here) ? 155 : 156);
+  Unit unit(actor.GetUnitID());
+  CityStyleRecord const* styleRec = g_theCityStyleDB->Get(unit.CD()->GetCityStyle());
+  if (styleRec) {
+    PLAYER_INDEX ownerIndex = unit->GetOwner();
+    if (ownerIndex < 0 || ownerIndex >= k_MAX_PLAYERS || !player_Get(ownerIndex))
+      return nullptr;
+    AgeCityStyleRecord const* ageStyleRec = styleRec->GetAgeStyle(player_Get(ownerIndex)->m_age);
+    if (ageStyleRec) {
+      bool const isWater = world_Get()->IsWater(actor.GetPos());
+      AgeCityStyleRecord::SizeSprite const* matchingSprite = nullptr;
+      for (sint32 i = 0; i < ageStyleRec->GetNumSprites(); ++i) {
+        AgeCityStyleRecord::SizeSprite const* spr = ageStyleRec->GetSprites(i);
+        if (spr && (isWater == (CITY_TYPE_WATER == spr->GetType()))) {
+          matchingSprite = spr;
+          sint32 p;
+          unit.CD()->GetPop(p);
+          if (spr->GetMinSize() <= p && spr->GetMaxSize() >= p)
+            break;
+        }
+      }
+      if (matchingSprite)
+        which = matchingSprite->GetForceField();
+    }
+  }
+  return tileSet->GetImprovementData((uint16)which);
+}
+
 bool AddGpuSolidRect(RECT const &rect, Pixel16 color) {
   if (rect.right <= rect.left || rect.bottom <= rect.top)
     return true;
@@ -144,6 +216,50 @@ bool AddGpuSolidRect(RECT const &rect, Pixel16 color) {
     return false;
   aui_SDL::AddSpriteQuad({texture, 0, 0, 1, 1, rect.left, rect.top,
                           rect.right - rect.left, rect.bottom - rect.top, false, 255});
+  return true;
+}
+
+bool AddGpuTextQuad(aui_BitmapFont *font, char const *text, sint32 x, sint32 y, COLORREF color)
+{
+  if (!font || !text || !*text)
+    return true;
+
+  sint32 const w = font->GetStringWidth(text);
+  sint32 const h = font->GetMaxHeight();
+  if (w <= 0 || h <= 0 || !aui_SDL::Renderer())
+    return false;
+
+  static std::map<std::tuple<std::string, COLORREF>, SDL_Texture *> s_textures;
+  auto const key = std::make_tuple(std::string(text), color);
+  SDL_Texture *texture = nullptr;
+  auto const found = s_textures.find(key);
+  if (found != s_textures.end()) {
+    texture = found->second;
+  } else {
+    AUI_ERRCODE err = AUI_ERRCODE_OK;
+    std::unique_ptr<aui_Surface> surface(aui_Factory::new_Surface(err, w, h, nullptr, FALSE, FALSE, FALSE, 32));
+    if (!surface)
+      return false;
+    LPVOID bits = nullptr;
+    if (surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
+      return false;
+    memset(bits, 0, static_cast<size_t>(surface->Pitch()) * static_cast<size_t>(h));
+    surface->Unlock(bits);
+    RECT rect = {0, 0, w, h};
+    font->DrawString(surface.get(), &rect, &rect, text, 0, color, 0);
+    texture = SDL_CreateTexture(aui_SDL::Renderer(), SDL_PIXELFORMAT_ARGB8888,
+                                SDL_TEXTUREACCESS_STATIC, w, h);
+    if (!texture)
+      return false;
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    if (surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
+      return false;
+    CTP2_SDL_UpdateTexture(texture, nullptr, bits, surface->Pitch());
+    surface->Unlock(bits);
+    s_textures[key] = texture;
+  }
+
+  aui_SDL::AddSpriteQuad({texture, 0, 0, w, h, x, y, w, h, false, 255});
   return true;
 }
 
@@ -1482,19 +1598,14 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged) 
     flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
   if (fogged)
     flags |= k_BIT_DRAWFLAGS_FOGGED;
+  uint16 spriteTransparency = m_transparency;
   if (m_unitID.IsValid()) {
     if (m_unitID.IsAsleep())
       flags |= k_BIT_DRAWFLAGS_DESATURATED;
-    if (m_unitID.IsCloaked())
-      return fail("unit-cloaked");
-    if (m_unitID.IsEntrenched())
-      return fail("unit-entrenched");
-    if (m_unitID.IsEntrenching())
-      return fail("unit-entrenching");
-    if (m_unitID.HasCityWalls())
-      return fail("unit-city-walls");
-    if (m_unitID.HasForceField())
-      return fail("unit-forcefield");
+    if (m_unitID.IsCloaked()) {
+      spriteTransparency = static_cast<uint16>(8 + (rand() % 5));
+      flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
+    }
   }
   if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED | k_BIT_DRAWFLAGS_DESATURATED))
     return fail("unit-draw-flags");
@@ -1513,15 +1624,61 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged) 
   BOOL directionAttack = FALSE;
   sint32 xoffset = (sint32)(k_ACTOR_CENTER_OFFSET_X * scale);
   sint32 yoffset = (sint32)(k_ACTOR_CENTER_OFFSET_Y * scale);
+
+  TileSet* tileSet = tiledmap_Get()->GetTileSet();
+  sint32 const nudgeX = (sint32)((double)((k_ACTOR_CENTER_OFFSET_X)-48) * scale);
+  sint32 const nudgeY = (sint32)((double)((k_ACTOR_CENTER_OFFSET_Y)-48) * scale);
+  sint32 const tileW = tiledmap_Get()->GetZoomTilePixelWidth();
+  sint32 const tileH = tiledmap_Get()->GetZoomTileGridHeight();
+  if (m_unitID.IsValid() && tileSet) {
+    if (m_unitID.IsEntrenched() && !m_unitID.IsAsleep()) {
+      Pixel16 *fortifiedImage = tileSet->GetImprovementData(34);
+      if (!AddGpuImprovementQuad(fortifiedImage, x + nudgeX, y + nudgeY, tileW, tileH,
+                                 fogged ? k_FOW_COLOR : 0x0000, fogged, false))
+        return fail("unit-entrenched");
+    }
+    if (m_unitID.IsEntrenching() && !m_unitID.IsAsleep()) {
+      aui_BitmapFont* font = tiledmap_Get()->GetFont();
+      MBCHAR* text = tiledmap_Get()->GetFortifyString();
+      if (!font || !text)
+        return fail("unit-entrenching");
+      sint32 const tw = font->GetStringWidth(text);
+      sint32 const th = font->GetMaxHeight();
+      sint32 const tx = x + xoffset - tw / 2;
+      sint32 const ty = y + yoffset - th / 2;
+      COLORREF const labelColor = fogged ? colorset_Get()->GetColorRef(COLOR_WHITE)
+                                         : colorset_Get()->GetDarkColorRef(COLOR_WHITE);
+      if (!AddGpuTextQuad(font, text, tx, ty, colorset_Get()->GetColorRef(COLOR_BLACK))
+          || !AddGpuTextQuad(font, text, tx - 1, ty - 1, labelColor))
+        return fail("unit-entrenching");
+    }
+    if (m_unitID.HasCityWalls()) {
+      Pixel16 *cityImage = CityWallImage(*this, tileSet);
+      if (!AddGpuImprovementQuad(cityImage, x + nudgeX, y + nudgeY, tileW, tileH,
+                                 fogged ? k_FOW_COLOR : 0x0000, fogged, false))
+        return fail("unit-city-walls");
+    }
+  }
+
   if (!m_unitSpriteGroup->AddGpuSpriteQuad(
       m_curUnitAction, m_frame, x + xoffset, y + yoffset, m_facing, scale,
-      m_transparency, color, flags, FALSE, directionAttack))
+      spriteTransparency, color, flags, FALSE, directionAttack))
     return fail("unit-atlas");
+
+  bool forcefieldsEverywhere = false;
+  if (player_Get(m_playerNum) && wonderutil_GetForcefieldEverywhere(player_Get(m_playerNum)->m_builtWonders))
+    forcefieldsEverywhere = m_unitID.IsValid() && m_unitID.IsCity();
+  if (m_unitID.IsValid() && tileSet && (m_unitID.HasForceField() || forcefieldsEverywhere)) {
+    Pixel16 *fieldImage = ForceFieldImage(*this, tileSet);
+    if (!AddGpuImprovementQuad(fieldImage, x + nudgeX, y + nudgeY, tileW, tileH,
+                               fogged ? k_FOW_COLOR : 0x0000, fogged, true))
+      return fail("unit-forcefield");
+  }
+
   if (selected && !AddGpuSelectionBrackets(x, y, scale, m_unitID))
     return fail("unit-selection-brackets");
 
   if (g_showHeralds && m_size <= 0 && (!m_unitID.IsValid() || !m_unitID.IsCity())) {
-    TileSet* tileSet = tiledmap_Get()->GetTileSet();
     if (!tileSet)
       return fail("unit-no-tileset");
 

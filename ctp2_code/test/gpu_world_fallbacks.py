@@ -37,10 +37,23 @@ def run(binary):
             assert gpu["enabled"] and gpu["complete"], gpu
             print("[gpu-fallbacks] PASS: city actor base renders on GPU")
 
-            client.expect_ok("set_show_city_names", 1)
-            last_gpu = None
+            created = client.result("create_unit", "UNIT_ARCHER", city["x"], city["y"])
+            armies = client.result("query_armies")["armies"]
+            archer_army = next(
+                a for a in armies
+                if a["pos"] == city and any(u["type"] == created["type"] for u in a["units"])
+            )
+            client.expect_ok("fortify", archer_army["index"])
+            client.expect_ok("camera_debug_center", city["x"], city["y"])
+            client.expect_ok("screenshot_presented", screenshot)
+            gpu = client.result("query_gpu_world")
+            assert gpu["enabled"] and gpu["complete"], gpu
+            print("[gpu-fallbacks] PASS: fortified unit state stays on GPU path")
 
-            def city_names_fallback():
+            client.expect_ok("set_show_city_names", 1)
+            last_gpu = {}
+
+            def city_names_complete():
                 nonlocal last_gpu
                 r = client.command("camera_debug_center", city["x"], city["y"])
                 if r.get("status") != "ok":
@@ -50,15 +63,14 @@ def run(binary):
                 client.expect_ok("screenshot_presented", screenshot)
                 gpu = client.result("query_gpu_world")
                 last_gpu = gpu
-                return (gpu["enabled"] and not gpu["complete"]
-                        and gpu["fallback_reason"] == "city-names")
+                return gpu["enabled"] and gpu["complete"]
 
             try:
-                client.wait_until(city_names_fallback, timeout=60, desc="city-name GPU fallback")
+                client.wait_until(city_names_complete, timeout=60, desc="city-name GPU render")
             except Ctp2Error:
                 print(f"[gpu-fallbacks] observed gpu state: {last_gpu}")
                 raise
-            print("[gpu-fallbacks] PASS: city names report city-names fallback")
+            print("[gpu-fallbacks] PASS: city names stay on GPU path")
 
             client.expect_ok("set_show_city_names", 0)
             client.expect_ok("camera_debug_center", city["x"], city["y"])

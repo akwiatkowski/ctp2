@@ -12,6 +12,7 @@
 #include "ui/aui_sdl/aui_sdlcompat.h"
 
 #include <map>
+#include <tuple>
 #include <vector>
 
 class aui_Surface;   // hardware-cursor conversion source
@@ -144,6 +145,8 @@ public:
 	struct GpuSpriteQuad { SDL_Texture *texture; int sx, sy, sw, sh; int dx, dy, dw, dh; bool mirror; };
 	static SDL_Texture *EnsureSpriteAtlasTexture(ModernSpriteAtlas const *atlas);
 	static void ReleaseSpriteAtlasTexture(ModernSpriteAtlas const *atlas);
+	static SDL_Texture *EnsureMapIconTexture(void const *data, int w, int h, uint16 color);
+	static SDL_Texture *EnsureSolidColorTexture(uint16 color);
 	static void BeginSpriteFrame() { m_spriteDrawList.clear(); }
 	static void AddSpriteQuad(GpuSpriteQuad const &q) { m_spriteDrawList.push_back(q); }
 	static std::vector<GpuSpriteQuad> const &SpriteDrawList() { return m_spriteDrawList; }
@@ -181,6 +184,8 @@ protected:
 	static char const *	m_quadFrameIncompleteReason;
 	static std::vector<GpuQuad> m_quadDrawList;
 	static std::map<ModernSpriteAtlas const *, SDL_Texture *> m_spriteAtlasTextures;
+	static std::map<std::tuple<void const *, int, int, uint16>, SDL_Texture *> m_mapIconTextures;
+	static std::map<uint16, SDL_Texture *> m_solidColorTextures;
 	static std::vector<GpuSpriteQuad> m_spriteDrawList;
 
 private:

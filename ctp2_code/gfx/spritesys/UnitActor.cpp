@@ -100,6 +100,7 @@
 #include "gs/world/cellunitlist.h"
 #include "sound/soundmanager.h"  // soundmgr_Get()
 #include "ui/aui_common/aui_bitmapfont.h"
+#include "ui/aui_sdl/aui_sdl.h"
 #include "ui/aui_ctp2/SelItem.h"  // selitem_Get()
 #include "ui/aui_utils/primitives.h"
 #include "ui/interface/citywindow.h"  // s_cityWindow
@@ -124,6 +125,55 @@ bool g_showHeralds = true;
 namespace {
 sint32 const CITY_TYPE_LAND = 0;
 sint32 const CITY_TYPE_WATER = 1;
+
+bool AddGpuMapIconQuad(TileSet *tileSet, MAPICON icon, sint32 x, sint32 y, Pixel16 color) {
+  POINT iconDim = tileSet->GetMapIconDimensions(icon);
+  Pixel16 *iconData = tileSet->GetMapIconData(icon);
+  SDL_Texture *texture = aui_SDL::EnsureMapIconTexture(iconData, iconDim.x, iconDim.y, color);
+  if (!texture)
+    return false;
+  aui_SDL::AddSpriteQuad({texture, 0, 0, iconDim.x, iconDim.y, x, y, iconDim.x, iconDim.y, false});
+  return true;
+}
+
+bool AddGpuSolidRect(RECT const &rect, Pixel16 color) {
+  if (rect.right <= rect.left || rect.bottom <= rect.top)
+    return true;
+  SDL_Texture *texture = aui_SDL::EnsureSolidColorTexture(color);
+  if (!texture)
+    return false;
+  aui_SDL::AddSpriteQuad({texture, 0, 0, 1, 1, rect.left, rect.top,
+                          rect.right - rect.left, rect.bottom - rect.top, false});
+  return true;
+}
+
+bool AddGpuSelectionBrackets(sint32 x, sint32 y, double scale, Unit unitID) {
+  TileSet* tileSet = tiledmap_Get()->GetTileSet();
+  RECT rect;
+  SetRect(&rect, 0, 0, 1, 1);
+  OffsetRect(&rect,
+             x + (sint32)(k_TILE_PIXEL_WIDTH * scale) / 2,
+             y + (sint32)(k_TILE_GRID_HEIGHT * scale) / 2);
+  InflateRect(&rect, 25, 25);
+
+  POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_BRACKET1);
+  rect.right -= (iconDim.x + 1);
+  rect.bottom -= (iconDim.y + 1);
+
+  COLOR color = COLOR_YELLOW;
+  if (unitID.IsValid()) {
+    if (unitID.GetArmy().IsValid() && unitID.GetArmy().CanMove())
+      color = COLOR_GREEN;
+    else if (unitID.IsCity())
+      color = COLOR_RED;
+  }
+  Pixel16 pixelColor = colorset_Get()->GetColor(color);
+
+  return AddGpuMapIconQuad(tileSet, MAPICON_BRACKET1, rect.left, rect.top, pixelColor)
+      && AddGpuMapIconQuad(tileSet, MAPICON_BRACKET2, rect.right, rect.top, pixelColor)
+      && AddGpuMapIconQuad(tileSet, MAPICON_BRACKET3, rect.right, rect.bottom, pixelColor)
+      && AddGpuMapIconQuad(tileSet, MAPICON_BRACKET4, rect.left, rect.bottom, pixelColor);
+}
 
 };  // namespace
 
@@ -1422,13 +1472,187 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
     return false;
 
   uint16 flags = k_DRAWFLAGS_NORMAL;
+  if (m_transparency < 15)
+    flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
+  if (flags != k_DRAWFLAGS_NORMAL)
+    return false;
+  if (m_unitID.IsValid()) {
+    if (m_unitID.IsCity()
+        || m_unitID.IsAsleep()
+        || m_unitID.IsCloaked()
+        || m_unitID.IsEntrenched()
+        || m_unitID.IsEntrenching()
+        || m_unitID.HasCityWalls()
+        || m_unitID.HasForceField())
+      return false;
+  }
+  SELECT_TYPE selectType;
+  ID selectedID;
+  PLAYER_INDEX selectedPlayer;
+  selitem_Get()->GetTopCurItem(selectedPlayer, selectedID, selectType);
+  Unit selectedUnit;
+  if (selectType == SELECT_TYPE_LOCAL_CITY)
+    selectedUnit = selectedID;
+  else if (selectType == SELECT_TYPE_LOCAL_ARMY)
+    selectedUnit = Army(selectedID).GetTopVisibleUnit(selectedPlayer);
+  bool const selected = selectedUnit.IsValid() && selectedUnit.GetActor().get() == this;
+
   Pixel16 color = 0;
   BOOL directionAttack = FALSE;
   sint32 xoffset = (sint32)(k_ACTOR_CENTER_OFFSET_X * scale);
   sint32 yoffset = (sint32)(k_ACTOR_CENTER_OFFSET_Y * scale);
-  return m_unitSpriteGroup->AddGpuSpriteQuad(
+  if (!m_unitSpriteGroup->AddGpuSpriteQuad(
       m_curUnitAction, m_frame, x + xoffset, y + yoffset, m_facing, scale,
-      m_transparency, color, flags, FALSE, directionAttack);
+      m_transparency, color, flags, FALSE, directionAttack))
+    return false;
+  if (selected && !AddGpuSelectionBrackets(x, y, scale, m_unitID))
+    return false;
+
+  if (g_showHeralds && m_size <= 0 && (!m_unitID.IsValid() || !m_unitID.IsCity())) {
+    TileSet* tileSet = tiledmap_Get()->GetTileSet();
+    if (!tileSet)
+      return false;
+
+    sint32 stackSize = 1;
+    Cell* myCell = world_Get()->GetCell(GetPos());
+    if (m_tempStackSize != 0) {
+      stackSize = m_tempStackSize;
+    } else if (IsActive()) {
+      if (m_unitID.IsValid()) {
+        Army army = m_unitID.GetArmy();
+        if (army.IsValid())
+          stackSize = army.Num();
+      }
+    } else if (myCell && myCell->UnitArmy()) {
+      stackSize = myCell->UnitArmy()->Num();
+    }
+
+    if (m_unitID.IsValid() && m_unitID->GetArmy().IsValid()) {
+      Army army = m_unitID->GetArmy();
+      if (army->HasVeterans() || army->HasElite() || army->HasCargo())
+        return false;
+    }
+
+    double ratio = 1.0;
+    if (m_unitID.IsValid()) {
+      if (myCell && stackSize > 1 && myCell->GetNumUnits() && myCell->UnitArmy()) {
+        ratio = std::max(0.0, myCell->UnitArmy()->GetAverageHealthPercentage());
+      } else if (m_healthPercent < 0) {
+        sint32 totalHP = m_unitID->CalculateTotalHP();
+        ratio = (totalHP > 0) ? std::max(0.0, static_cast<double>(m_unitID.GetHP()) / static_cast<double>(totalHP)) : 0.0;
+      } else {
+        ratio = 0.0;
+      }
+    } else {
+      ratio = std::max(0.0, m_healthPercent);
+    }
+
+    POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_HERALD);
+    RECT iconRect = {0, 0, iconDim.x, iconDim.y};
+    UNITACTION unitAction = m_curUnitAction;
+    if (m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)unitAction) == nullptr)
+      unitAction = UNITACTION_IDLE;
+    POINT* shieldPoint = nullptr;
+    if (unitAction == UNITACTION_IDLE &&
+        m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)UNITACTION_IDLE) == nullptr) {
+      shieldPoint = m_unitSpriteGroup->GetShieldPoints(UNITACTION_MOVE);
+    } else if (m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)unitAction) != nullptr) {
+      shieldPoint = m_unitSpriteGroup->GetShieldPoints(unitAction);
+    }
+    if (shieldPoint) {
+      OffsetRect(&iconRect, x + (sint32)((double)shieldPoint->x * scale),
+                 y + (sint32)((double)shieldPoint->y * scale));
+    } else {
+      sint32 top = y;
+      sint32 middle = x + (sint32)((k_TILE_PIXEL_WIDTH) * scale) / 2;
+      OffsetRect(&iconRect, middle - iconDim.x / 2, top - iconDim.y);
+    }
+
+    sint32 specialIcon = 0;
+    if (m_unitID.IsValid() && m_unitID.GetDBRec()->GetHasReligionIconIndex(specialIcon))
+      return false;
+
+    sint32 displayedOwner;
+    if (m_unitID.IsValid() && m_unitID.IsHiddenNationality() &&
+        m_playerNum != selitem_Get()->GetVisiblePlayer()) {
+      displayedOwner = PLAYER_INDEX_VANDALS;
+    } else {
+      displayedOwner = m_playerNum;
+    }
+    Pixel16 playerColor = colorset_Get()->GetPlayerColor(displayedOwner);
+
+    if (profiledb_Get()->IsCivFlags()) {
+      sint32 civ = -1;
+      if (player_Get(displayedOwner) != nullptr) {
+        civ = player_Get(displayedOwner)->GetCivilisation()->GetCivilisation();
+      } else {
+        for (PointerList<Player>::Walker walk(g_deadPlayer); walk.IsValid(); walk.Next()) {
+          Player* p = walk.GetObj();
+          if (p) {
+            Civilisation* civP = p->GetCivilisation();
+            if (civP != nullptr && civilisationpool_Get()->IsValid(*civP) && civP->GetOwner() == displayedOwner)
+              civ = civP->GetCivilisation();
+          }
+        }
+      }
+
+      sint32 civIcon = 0;
+      auto const *civRec = civ > -1 ? g_theCivilisationDB->Get(civ) : nullptr;
+      if (civRec && civRec->GetNationUnitFlagIndex(civIcon)) {
+        if (!AddGpuMapIconQuad(tileSet, (MAPICON)civIcon, iconRect.left, iconRect.top, playerColor))
+          return false;
+      }
+    }
+    iconRect.top += iconDim.y;
+    iconRect.bottom += iconDim.y;
+
+    Pixel16 black = colorset_Get()->GetColor(COLOR_BLACK);
+    if (black == 0x0000)
+      black = 0x0001;
+    if (profiledb_Get()->GetShowEnemyHealth() || m_playerNum == selitem_Get()->GetVisiblePlayer()) {
+      iconRect.bottom += 4;
+      RECT healthBar = iconRect;
+      if (!AddGpuSolidRect(healthBar, black))
+        return false;
+      InflateRect(&healthBar, -1, -1);
+      RECT leftRect = healthBar;
+      RECT rightRect = healthBar;
+      Pixel16 healthColor = colorset_Get()->GetColor(COLOR_GREEN);
+      if (ratio < 1.0) {
+        leftRect.right = leftRect.left + (sint32)(ratio * (double)(healthBar.right - iconRect.left));
+        rightRect.left = leftRect.right;
+        if (ratio < 0.25)
+          healthColor = colorset_Get()->GetColor(COLOR_RED);
+        else if (ratio < 0.50)
+          healthColor = colorset_Get()->GetColor(COLOR_ORANGE);
+        else if (ratio < 0.75)
+          healthColor = colorset_Get()->GetColor(COLOR_YELLOW);
+        if (!AddGpuSolidRect(rightRect, black))
+          return false;
+      }
+      if (!AddGpuSolidRect(leftRect, healthColor))
+        return false;
+      iconRect.top = iconRect.bottom;
+    }
+
+    MAPICON stackIcon = MAPICON_HERALD;
+    if (stackSize > 1 && stackSize <= 9)
+      stackIcon = (MAPICON)((sint32)MAPICON_HERALD2 + stackSize - 2);
+    else if (stackSize >= 10 && stackSize <= 12)
+      stackIcon = (MAPICON)((sint32)MAPICON_HERALD10 + stackSize - 10);
+    else if (stackSize > 12)
+      return false;
+    if (!AddGpuMapIconQuad(tileSet, stackIcon, iconRect.left, iconRect.top, playerColor))
+      return false;
+    iconRect.top += iconDim.y;
+
+    if (m_unitID.IsValid() && m_unitID->GetArmy().IsValid() && m_unitID->GetArmy()->Num() > 1) {
+      if (!AddGpuMapIconQuad(tileSet, MAPICON_ARMY, iconRect.left, iconRect.top, playerColor))
+        return false;
+    }
+
+  }
+  return true;
 }
 
 void UnitActor::DrawText(sint32 x, sint32 y, MBCHAR* unitText) {

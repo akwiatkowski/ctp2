@@ -8,7 +8,9 @@
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_surface.h"
+#include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/spritesys/ModernSpriteAtlas.h"
+#include "gfx/tilesys/tileset.h"
 #include "ui/aui_sdl/aui_sdl.h"
 
 SDL_Surface *aui_SDL::m_lpdd = nullptr;
@@ -39,6 +41,8 @@ bool aui_SDL::m_quadFrameComplete = true;
 char const *aui_SDL::m_quadFrameIncompleteReason = nullptr;
 std::vector<aui_SDL::GpuQuad> aui_SDL::m_quadDrawList;
 std::map<ModernSpriteAtlas const *, SDL_Texture *> aui_SDL::m_spriteAtlasTextures;
+std::map<std::tuple<void const *, int, int, uint16>, SDL_Texture *> aui_SDL::m_mapIconTextures;
+std::map<uint16, SDL_Texture *> aui_SDL::m_solidColorTextures;
 std::vector<aui_SDL::GpuSpriteQuad> aui_SDL::m_spriteDrawList;
 uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
 sint32 aui_SDL::m_SDLRefCount = 0;
@@ -174,6 +178,84 @@ void aui_SDL::ReleaseSpriteAtlasTexture(ModernSpriteAtlas const *atlas)
 
 	SDL_DestroyTexture(found->second);
 	m_spriteAtlasTextures.erase(found);
+}
+
+SDL_Texture *aui_SDL::EnsureMapIconTexture(void const *data, int w, int h, uint16 color)
+{
+	if (!m_renderer || !data || w <= 0 || h <= 0)
+		return nullptr;
+
+	auto const key = std::make_tuple(data, w, h, color);
+	auto const found = m_mapIconTextures.find(key);
+	if (found != m_mapIconTextures.end())
+		return found->second;
+
+	std::vector<uint32> rgba(static_cast<size_t>(w) * static_cast<size_t>(h), 0);
+	Pixel16 const *encoded = static_cast<Pixel16 const *>(data);
+	uint16 const start = static_cast<uint16>(*encoded++);
+	uint16 const end = static_cast<uint16>(*encoded++);
+	Pixel16 const *table = encoded;
+	Pixel16 const *dataStart = table + (end - start + 1);
+	Pixel32 const argbColor = pixelutils_16to8888(color) | 0xff000000u;
+
+	for (sint32 j = start; j <= end && j < h; ++j)
+	{
+		if (static_cast<sint16>(table[j - start]) == -1)
+			continue;
+
+		uint32 *dest = rgba.data() + static_cast<size_t>(j) * static_cast<size_t>(w);
+		Pixel16 const *rowData = dataStart + table[j - start];
+		Pixel16 tag;
+		do {
+			tag = *rowData++;
+			sint32 len = tag & 0x00ff;
+			switch ((tag & 0x0f00) >> 8) {
+				case k_TILE_SKIP_RUN_ID:
+					dest += len;
+					break;
+				case k_TILE_COPY_RUN_ID:
+					while (len-- > 0 && dest < rgba.data() + static_cast<size_t>(j + 1) * static_cast<size_t>(w))
+						*dest++ = pixelutils_16to8888(*rowData++) | 0xff000000u;
+					break;
+				case k_TILE_COLORIZE_RUN_ID:
+					while (len-- > 0 && dest < rgba.data() + static_cast<size_t>(j + 1) * static_cast<size_t>(w))
+						*dest++ = argbColor;
+					break;
+				case k_TILE_SHADOW_RUN_ID:
+					// Shadow runs depend on destination pixels in the CPU blitter; map
+					// icons used by GPU unit brackets do not rely on them, so keep them transparent.
+					dest += len;
+					break;
+			}
+		} while ((tag & 0xf000) == 0 && dest < rgba.data() + static_cast<size_t>(j + 1) * static_cast<size_t>(w));
+	}
+
+	SDL_Texture *texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888,
+		SDL_TEXTUREACCESS_STATIC, w, h);
+	if (!texture)
+		return nullptr;
+	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+	CTP2_SDL_UpdateTexture(texture, nullptr, rgba.data(), w * static_cast<int>(sizeof(uint32)));
+	m_mapIconTextures[key] = texture;
+	return texture;
+}
+
+SDL_Texture *aui_SDL::EnsureSolidColorTexture(uint16 color)
+{
+	if (!m_renderer)
+		return nullptr;
+	auto const found = m_solidColorTextures.find(color);
+	if (found != m_solidColorTextures.end())
+		return found->second;
+	uint32 const argb = pixelutils_16to8888(color) | 0xff000000u;
+	SDL_Texture *texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888,
+		SDL_TEXTUREACCESS_STATIC, 1, 1);
+	if (!texture)
+		return nullptr;
+	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+	CTP2_SDL_UpdateTexture(texture, nullptr, &argb, static_cast<int>(sizeof(argb)));
+	m_solidColorTextures[color] = texture;
+	return texture;
 }
 
 void aui_SDL::SetHardwareCursor(aui_Surface *surf, int hotX, int hotY)
@@ -376,6 +458,12 @@ aui_SDL::~aui_SDL()
 		for (auto &entry : m_spriteAtlasTextures)
 			SDL_DestroyTexture(entry.second);
 		m_spriteAtlasTextures.clear();
+		for (auto &entry : m_mapIconTextures)
+			SDL_DestroyTexture(entry.second);
+		m_mapIconTextures.clear();
+		for (auto &entry : m_solidColorTextures)
+			SDL_DestroyTexture(entry.second);
+		m_solidColorTextures.clear();
 		m_spriteDrawList.clear();
 		if (m_quadAtlasTexture) {
 			SDL_DestroyTexture(m_quadAtlasTexture);

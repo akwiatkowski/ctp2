@@ -159,6 +159,7 @@ bool GoodSpriteGroup::AddGpuSpriteQuad(GOODACTION action, sint32 frame, sint32 d
 	q.dw = static_cast<int>(r->w * scale);
 	q.dh = static_cast<int>(r->h * scale);
 	q.mirror = reversed;
+	q.alpha = 255;
 	aui_SDL::AddSpriteQuad(q);
 	return true;
 }

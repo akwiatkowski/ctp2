@@ -132,7 +132,7 @@ bool AddGpuMapIconQuad(TileSet *tileSet, MAPICON icon, sint32 x, sint32 y, Pixel
   SDL_Texture *texture = aui_SDL::EnsureMapIconTexture(iconData, iconDim.x, iconDim.y, color);
   if (!texture)
     return false;
-  aui_SDL::AddSpriteQuad({texture, 0, 0, iconDim.x, iconDim.y, x, y, iconDim.x, iconDim.y, false});
+  aui_SDL::AddSpriteQuad({texture, 0, 0, iconDim.x, iconDim.y, x, y, iconDim.x, iconDim.y, false, 255});
   return true;
 }
 
@@ -143,7 +143,7 @@ bool AddGpuSolidRect(RECT const &rect, Pixel16 color) {
   if (!texture)
     return false;
   aui_SDL::AddSpriteQuad({texture, 0, 0, 1, 1, rect.left, rect.top,
-                          rect.right - rect.left, rect.bottom - rect.top, false});
+                          rect.right - rect.left, rect.bottom - rect.top, false, 255});
   return true;
 }
 
@@ -1474,7 +1474,7 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
   uint16 flags = k_DRAWFLAGS_NORMAL;
   if (m_transparency < 15)
     flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
-  if (flags != k_DRAWFLAGS_NORMAL)
+  if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY))
     return false;
   if (m_unitID.IsValid()) {
     if (m_unitID.IsCity()

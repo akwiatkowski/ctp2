@@ -175,6 +175,7 @@ bool EffectSpriteGroup::AddGpuSpriteQuad(EFFECTACTION action, sint32 frame, sint
 	q.dw = static_cast<int>(r->w * scale);
 	q.dh = static_cast<int>(r->h * scale);
 	q.mirror = reversed;
+	q.alpha = 255;
 	aui_SDL::AddSpriteQuad(q);
 	return true;
 }

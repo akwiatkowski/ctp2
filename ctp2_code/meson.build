@@ -1718,6 +1718,16 @@ test('pan-pixel-proof',
   suite : 'integration',
 )
 
+test('gpu-world-fallbacks',
+  find_program('test/gpu_world_fallbacks.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
 # Expansion: the full second-city loop (settler production, move_army
 # pathfinding, settle guard regression) plus the absorbed turn-advancement
 # checks (end_turn N drives full rounds through the real event pipeline;

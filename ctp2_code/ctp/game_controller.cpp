@@ -338,6 +338,18 @@ std::string CmdBuildCity()
     return Err("build_city", "no_settler_found");
 }
 
+std::string CmdSetShowCityNames(const char * args)
+{
+    int on = 0;
+    if (sscanf(args, "%d", &on) != 1)
+        return Err("set_show_city_names", "bad_args");
+
+    profiledb_Get()->SetShowCityNames(on != 0);
+    json result;
+    result["show_city_names"] = profiledb_Get()->GetShowCityNames() != FALSE;
+    return Ok("set_show_city_names", result);
+}
+
 // set_production <city_idx> <what>
 // what: a numeric unit type, "cheapest_military", "settler",
 //       "building <building_id>" (city improvements: granaries etc. —
@@ -2878,6 +2890,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     handled = true;
 
     if (line == "build_city")                                  return CmdBuildCity();
+    if (line.rfind("set_show_city_names ", 0) == 0)             return CmdSetShowCityNames(line.c_str() + 20);
     if (line.rfind("set_production ", 0) == 0)                  return CmdSetProduction(line.c_str() + 15);
     if (line.rfind("save_game ", 0) == 0)                       return CmdSaveGame(line.c_str() + 10);
     if (line.rfind("load_game ", 0) == 0)                       return CmdLoadGame(line.c_str() + 10);

@@ -3754,6 +3754,29 @@ void TiledMap::BuildTerrainQuads()
 		}
 	}
 
+	if (profiledb_Get()->GetShowCityNames())
+	{
+		for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
+		{
+			for (sint32 j = m_mapViewRect.left; j < m_mapViewRect.right; j++)
+			{
+				sint32 tileX;
+				sint32 tileY;
+				maputils_WrapPoint(j, i, &tileX, &tileY);
+				MapPoint pos(maputils_TileX2MapX(tileX, tileY), tileY);
+				if (m_localVision && !m_localVision->IsExplored(pos) && !g_fog_toggle && !g_god)
+					continue;
+
+				Unit unit;
+				if (world_Get()->GetTopVisibleUnit(pos, unit) && unit.IsCity())
+				{
+					aui_SDL::MarkQuadFrameIncomplete("city-names");
+					return;
+				}
+			}
+		}
+	}
+
 	PLAYER_INDEX const player = selitem_Get()->GetVisiblePlayer();
 	double const scale = GetScale();
 	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
@@ -3817,29 +3840,6 @@ void TiledMap::BuildTerrainQuads()
 
 	if (ScenarioEditor::ShowStartFlags())
 		aui_SDL::MarkQuadFrameIncomplete("scenario-start-flags");
-
-	if (profiledb_Get()->GetShowCityNames())
-	{
-		for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
-		{
-			for (sint32 j = m_mapViewRect.left; j < m_mapViewRect.right; j++)
-			{
-				sint32 tileX;
-				sint32 tileY;
-				maputils_WrapPoint(j, i, &tileX, &tileY);
-				MapPoint pos(maputils_TileX2MapX(tileX, tileY), tileY);
-				if (m_localVision && !m_localVision->IsExplored(pos) && !g_fog_toggle && !g_god)
-					continue;
-
-				Unit unit;
-				if (world_Get()->GetTopVisibleUnit(pos, unit) && unit.IsCity())
-				{
-					aui_SDL::MarkQuadFrameIncomplete("city-names");
-					return;
-				}
-			}
-		}
-	}
 
 }
 

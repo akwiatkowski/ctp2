@@ -3777,12 +3777,6 @@ void TiledMap::BuildTerrainQuads()
 		}
 	}
 
-	if (m_overlayActive)
-	{
-		aui_SDL::MarkQuadFrameIncomplete("terrain-overlay");
-		return;
-	}
-
 	PLAYER_INDEX const player = selitem_Get()->GetVisiblePlayer();
 	double const scale = GetScale();
 	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
@@ -3840,6 +3834,36 @@ void TiledMap::BuildTerrainQuads()
 			aui_SDL::WorldContentOffX() - baseX,
 			aui_SDL::WorldContentOffY() - baseY))
 		aui_SDL::MarkQuadFrameIncomplete("effect-sprite");
+
+	if (m_overlayActive)
+	{
+		m_overlayActive = false;
+		if (m_overlayRec)
+		{
+			TerrainImprovementRecord::Effect const * effect =
+				(m_overlayRec->GetClassTerraform() || m_overlayRec->GetClassOceanform())
+				? m_overlayRec->GetTerrainEffect(0)
+				: terrainutil_GetTerrainEffect(m_overlayRec, m_overlayPos);
+			Pixel16 *data = effect ? m_tileSet->GetImprovementData((uint16)effect->GetTilesetIndex()) : nullptr;
+			SDL_Texture *texture = aui_SDL::EnsureMapIconTexture(data,
+				k_TILE_PIXEL_WIDTH, k_TILE_GRID_HEIGHT, m_overlayColor, true, k_FOW_BLEND_VALUE);
+			if (texture)
+			{
+				sint32 x, y;
+				maputils_MapXY2PixelXY(m_overlayPos.x, m_overlayPos.y, &x, &y);
+				aui_SDL::GpuSpriteQuad q;
+				q.texture = texture;
+				q.sx = 0; q.sy = 0; q.sw = k_TILE_PIXEL_WIDTH; q.sh = k_TILE_GRID_HEIGHT;
+				q.dx = x - baseX + aui_SDL::WorldContentOffX();
+				q.dy = y - baseY + aui_SDL::WorldContentOffY();
+				q.dw = GetZoomTilePixelWidth();
+				q.dh = GetZoomTileGridHeight();
+				q.mirror = false;
+				q.alpha = 255;
+				aui_SDL::AddSpriteQuad(q);
+			}
+		}
+	}
 
 	if (ScenarioEditor::ShowStartFlags())
 		aui_SDL::MarkQuadFrameIncomplete("scenario-start-flags");

@@ -64,9 +64,8 @@ def run(binary):
             client.expect_ok("camera_debug_center", city["x"], city["y"])
             client.expect_ok("debug_terrain_overlay", city["x"], city["y"])
             gpu = client.result("query_gpu_world")
-            assert gpu["enabled"] and not gpu["complete"], gpu
-            assert gpu["fallback_reason"] == "terrain-overlay", gpu
-            print("[gpu-fallbacks] PASS: terrain overlay reports terrain-overlay fallback")
+            assert gpu["enabled"] and gpu["complete"], gpu
+            print("[gpu-fallbacks] PASS: terrain overlay flag stays on GPU path")
             return 0
     except (Ctp2Error, AssertionError, KeyError) as e:
         print(f"[gpu-fallbacks] FAIL: {e}")

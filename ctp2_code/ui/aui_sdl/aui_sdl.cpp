@@ -42,7 +42,7 @@ char const *aui_SDL::m_quadFrameIncompleteReason = nullptr;
 std::vector<aui_SDL::GpuQuad> aui_SDL::m_quadDrawList;
 std::map<ModernSpriteAtlas const *, SDL_Texture *> aui_SDL::m_spriteAtlasTextures;
 std::map<ModernSpriteAtlas const *, SDL_Texture *> aui_SDL::m_desaturatedSpriteAtlasTextures;
-std::map<std::tuple<void const *, int, int, uint16>, SDL_Texture *> aui_SDL::m_mapIconTextures;
+std::map<std::tuple<void const *, int, int, uint16, bool, int>, SDL_Texture *> aui_SDL::m_mapIconTextures;
 std::map<uint16, SDL_Texture *> aui_SDL::m_solidColorTextures;
 std::vector<aui_SDL::GpuSpriteQuad> aui_SDL::m_spriteDrawList;
 uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
@@ -201,12 +201,12 @@ void aui_SDL::ReleaseSpriteAtlasTexture(ModernSpriteAtlas const *atlas)
 	m_desaturatedSpriteAtlasTextures.erase(desatFound);
 }
 
-SDL_Texture *aui_SDL::EnsureMapIconTexture(void const *data, int w, int h, uint16 color)
+SDL_Texture *aui_SDL::EnsureMapIconTexture(void const *data, int w, int h, uint16 color, bool blend, int blendValue)
 {
 	if (!m_renderer || !data || w <= 0 || h <= 0)
 		return nullptr;
 
-	auto const key = std::make_tuple(data, w, h, color);
+	auto const key = std::make_tuple(data, w, h, color, blend, blendValue);
 	auto const found = m_mapIconTextures.find(key);
 	if (found != m_mapIconTextures.end())
 		return found->second;
@@ -235,8 +235,11 @@ SDL_Texture *aui_SDL::EnsureMapIconTexture(void const *data, int w, int h, uint1
 					dest += len;
 					break;
 				case k_TILE_COPY_RUN_ID:
-					while (len-- > 0 && dest < rgba.data() + static_cast<size_t>(j + 1) * static_cast<size_t>(w))
-						*dest++ = pixelutils_16to8888(*rowData++) | 0xff000000u;
+					while (len-- > 0 && dest < rgba.data() + static_cast<size_t>(j + 1) * static_cast<size_t>(w)) {
+						Pixel16 const px = blend ? pixelutils_BlendFast(*rowData, color, blendValue) : *rowData;
+						*dest++ = pixelutils_16to8888(px) | 0xff000000u;
+						++rowData;
+					}
 					break;
 				case k_TILE_COLORIZE_RUN_ID:
 					while (len-- > 0 && dest < rgba.data() + static_cast<size_t>(j + 1) * static_cast<size_t>(w))

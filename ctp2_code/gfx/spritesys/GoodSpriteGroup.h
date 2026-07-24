@@ -97,6 +97,8 @@ public:
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags);
 	void			DrawDirect(aui_Surface *surf, GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags);
+	bool			AddGpuSpriteQuad(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
+						   sint32 facing, double scale, Pixel16 outlineColor, uint16 flags);
 
 	void			DrawText(sint32 x, sint32 y, MBCHAR const * s) override;
 

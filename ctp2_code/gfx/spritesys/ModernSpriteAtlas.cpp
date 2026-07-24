@@ -6,6 +6,7 @@
 
 #include "gfx/gfx_utils/png_load.h"
 #include "gfx/gfx_utils/pixelutils.h"
+#include "gfx/spritesys/FacedSprite.h"       // k_NUM_FACINGS / k_MAX_FACINGS
 #include "gfx/spritesys/Sprite.h"           // k_BIT_DRAWFLAGS_* per-pixel effect bits
 #include "ui/aui_common/aui_surface.h"
 
@@ -235,7 +236,7 @@ bool ModernSpriteAtlas::BlitScaled(aui_Surface * destSurface, char const * actio
 bool ModernSpritesEnabled()
 {
     char const * e = getenv("CTP2_MODERN_SPRITES");
-    return e && e[0] && strcmp(e, "0") != 0;
+    return !e || !e[0] || strcmp(e, "0") != 0;
 }
 
 std::string ModernAssetManifestPath(char const * spriteFileName)
@@ -338,6 +339,51 @@ bool ModernSpriteDrawUnfaced(ModernSpriteAtlas const & atlas, aui_Surface * surf
         [&](uint8 * base, int pitch, int w, int h, bool bpp32) {
             return ModernSpriteDrawUnfacedLocked(atlas, base, pitch, w, h, bpp32,
                                                  action, frame, drawX, drawY, facing,
-                                                 hotX, hotY, scale, transparency, flags);
+                                                  hotX, hotY, scale, transparency, flags);
+        });
+}
+
+bool ModernSpriteDrawFacedLocked(ModernSpriteAtlas const & atlas,
+                                 uint8 * base, int pitch, int surfW, int surfH, bool bpp32,
+                                 char const * action, int frame, int drawX, int drawY,
+                                 int facing, int hotX, int hotY, double scale,
+                                 uint16 transparency, uint16 flags)
+{
+    if (flags & k_BIT_DRAWFLAGS_ADDITIVE)
+        return false;
+
+    bool const reversed    = facing >= k_NUM_FACINGS;
+    bool const directional = atlas.FacingCount(action) > 1;
+    int  const atlasFacing = directional ? (reversed ? (k_MAX_FACINGS - facing) : facing) : 0;
+    ModernSpriteRect const * r = atlas.FindRect(action, atlasFacing, frame);
+    if (!r)
+        return false;
+
+    int const destX = reversed ? (drawX - static_cast<int>((r->w - hotX) * scale))
+                               : (drawX - static_cast<int>(hotX * scale));
+    int const destY = drawY - static_cast<int>(hotY * scale);
+
+    if (scale > 0.999 && scale < 1.001)
+        return atlas.BlitLocked(base, pitch, surfW, surfH, bpp32,
+                                action, atlasFacing, frame, destX, destY,
+                                transparency, flags, reversed);
+
+    int const destW = static_cast<int>(r->w * scale);
+    int const destH = static_cast<int>(r->h * scale);
+    return atlas.BlitScaledLocked(base, pitch, surfW, surfH, bpp32,
+                                  action, atlasFacing, frame, destX, destY, destW, destH,
+                                  transparency, flags, reversed);
+}
+
+bool ModernSpriteDrawFaced(ModernSpriteAtlas const & atlas, aui_Surface * surf,
+                           char const * action, int frame, int drawX, int drawY,
+                           int facing, int hotX, int hotY, double scale,
+                           uint16 transparency, uint16 flags)
+{
+    return LockAndRun(surf,
+        [&](uint8 * base, int pitch, int w, int h, bool bpp32) {
+            return ModernSpriteDrawFacedLocked(atlas, base, pitch, w, h, bpp32,
+                                               action, frame, drawX, drawY, facing,
+                                               hotX, hotY, scale, transparency, flags);
         });
 }

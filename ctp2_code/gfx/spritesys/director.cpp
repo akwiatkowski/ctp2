@@ -1185,6 +1185,25 @@ void Director::DrawActiveEffects(RECT* paintRect, sint32 layer) {
   }
 }
 
+bool Director::AddActiveEffectGpuSpriteQuads(RECT* paintRect, sint32 offsetX, sint32 offsetY) {
+  bool complete = true;
+
+  for (EffectActor* actor : m_activeEffectList) {
+    MapPoint pos = actor->GetPos();
+    sint32 tileX = 0;
+
+    maputils_MapX2TileX(pos.x, pos.y, &tileX);
+
+    if (!maputils_TilePointInTileRect(tileX, pos.y, paintRect))
+      continue;
+
+    if (actor->GetCurAction() && !actor->AddGpuSpriteQuad(offsetX, offsetY))
+      complete = false;
+  }
+
+  return complete;
+}
+
 void Director::DrawTradeRouteAnimations(RECT* paintRect, sint32 layer) {
   if (!profiledb_Get()->IsTradeAnim())
     return;

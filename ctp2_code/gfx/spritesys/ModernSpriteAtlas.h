@@ -98,9 +98,9 @@ private:
 	int                  m_height = 0;
 };
 
-// True when the modern-first atlas sprite path is opted into via the
-// CTP2_MODERN_SPRITES environment variable (unset/"0" => legacy path). The
-// legacy (now 32-bit) render stays the default so this cannot regress it.
+// True unless the modern-first atlas sprite path is opted out with
+// CTP2_MODERN_SPRITES=0. The legacy RLE path stays as temporary fallback until
+// GPU world rendering covers every visible sprite case.
 bool ModernSpritesEnabled();
 
 // Given a legacy sprite filename ("GU04.SPR", "GX22.SPR", ...), return the path
@@ -110,7 +110,7 @@ bool ModernSpritesEnabled();
 std::string ModernAssetManifestPath(char const * spriteFileName);
 
 // Load the generated atlas for `spriteFileName` into `slot` when the modern
-// path is enabled (CTP2_MODERN_SPRITES) and a manifest exists; otherwise leave
+// path is enabled (default; CTP2_MODERN_SPRITES=0 opts out) and a manifest exists; otherwise leave
 // `slot` null so the legacy RLE draw is used. Never fatal — any failure just
 // leaves `slot` null. Shared by the Unit / Good / Effect sprite groups.
 void ModernSpriteLoadIfEnabled(std::unique_ptr<ModernSpriteAtlas> & slot,
@@ -136,5 +136,18 @@ bool ModernSpriteDrawUnfacedLocked(ModernSpriteAtlas const & atlas,
                                    char const * action, int frame, int drawX, int drawY,
                                    int facing, int hotX, int hotY, double scale,
                                    uint16 transparency, uint16 flags);
+
+// Faced unit-sprite twin: folds facings 5..7 onto atlas facings 3..1 and mirrors
+// them, while non-directional atlas actions (facings=1) always use facing 0.
+// Unsupported additive/flash draws return false so callers keep legacy parity.
+bool ModernSpriteDrawFaced(ModernSpriteAtlas const & atlas, class aui_Surface * surf,
+                           char const * action, int frame, int drawX, int drawY,
+                           int facing, int hotX, int hotY, double scale,
+                           uint16 transparency, uint16 flags);
+bool ModernSpriteDrawFacedLocked(ModernSpriteAtlas const & atlas,
+                                 uint8_t * base, int pitch, int surfW, int surfH, bool bpp32,
+                                 char const * action, int frame, int drawX, int drawY,
+                                 int facing, int hotX, int hotY, double scale,
+                                 uint16 transparency, uint16 flags);
 
 #endif // __MODERNSPRITEATLAS_H__

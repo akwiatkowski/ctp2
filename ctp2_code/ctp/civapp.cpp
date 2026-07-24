@@ -2900,6 +2900,25 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						if (target && CTP2_SDL_SetRenderTarget(renderer, target)) {
 							SDL_RenderClear(renderer);
 							if (layered) {
+								if (aui_SDL::GpuQuadsEnabled() && aui_SDL::QuadAtlasTexture()
+								    && aui_SDL::QuadFrameComplete()) {
+									CTP2_SDL_SetRenderTarget(renderer, aui_SDL::WorldTexture());
+									SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+									SDL_RenderClear(renderer);
+									SDL_Texture * const atlas = aui_SDL::QuadAtlasTexture();
+									for (aui_SDL::GpuQuad const & q : aui_SDL::QuadDrawList()) {
+										CTP2_SDL_RenderTextureSrcDst(renderer, atlas,
+											q.sx, q.sy, q.sw, q.sh,
+											(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh);
+									}
+									for (aui_SDL::GpuSpriteQuad const & q : aui_SDL::SpriteDrawList()) {
+										CTP2_SDL_RenderTextureSrcDstFlip(renderer, q.texture,
+											q.sx, q.sy, q.sw, q.sh,
+											(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh,
+											q.mirror);
+									}
+									CTP2_SDL_SetRenderTarget(renderer, target);
+								}
 								// P11 2a: mirror Flip's windowed present exactly — the
 								// world+fog layers are windowed from the (oversized)
 								// texture to the screen viewport, slid by CameraOff and
@@ -2918,14 +2937,11 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 									CTP2_SDL_RenderTextureWindow(renderer, tex,
 										srcX, srcY, srcW, srcH, 0.0f, 0.0f, W, H);
 								};
-								// Quad mode renders a screen-sized world texture with
-								// content at (0,0); the mirrored path is oversized with
-								// content at the window-margin offset (match Flip).
-								bool const quads = aui_SDL::GpuQuadsEnabled()
-								                && aui_SDL::QuadAtlasTexture();
+								// P12: quad and mirrored paths share the same oversized
+								// world-space origin; only the producer differs.
 								windowed(aui_SDL::WorldTexture(),
-									quads ? 0.0f : (float)aui_SDL::WorldContentOffX(),
-									quads ? 0.0f : (float)aui_SDL::WorldContentOffY());
+									(float)aui_SDL::WorldContentOffX(),
+									(float)aui_SDL::WorldContentOffY());
 								// P11 C: fog mask darkens the world between the world
 								// and UI copies (mirrors Flip's present).
 								if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())

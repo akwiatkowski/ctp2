@@ -359,10 +359,9 @@ public:
 	// P11 Stage 2 C: true when GPU fog is active, so the CPU terrain pass renders
 	// UNFOGGED (the GPU composites the fog mask instead).
 	bool			GpuFogActive() const;
-	// P11 Stage 3 G1: terrain quad renderer. Rebuilds the per-frame GPU quad
-	// draw list from the visible cells, filling the tile atlas on cache misses
-	// (compositing each unseen cell once via DrawTransitionTile). No-op unless
-	// CTP2_GPU_QUADS is on. Called from Refresh after the CPU passes unlock.
+	// P12: terrain/sprite GPU world renderer. Rebuilds the per-frame GPU draw list
+	// from the visible cells, filling the tile atlas on cache misses. CTP2_GPU_QUADS=0
+	// keeps the temporary CPU fallback. Called from Refresh after CPU passes unlock.
 	void			BuildTerrainQuads();
 	sint32			QuickBlackBackGround(aui_Surface *surface);
 	sint32			DrawDitheredTile(aui_Surface *surface, sint32 x, sint32 y, Pixel16 color);

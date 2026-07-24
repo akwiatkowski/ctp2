@@ -56,6 +56,7 @@
 #include "gfx/spritesys/SpriteFile.h"
 #include "gfx/spritesys/Anim.h"
 #include "gfx/spritesys/ModernSpriteAtlas.h"  // P11 B1 modern-first atlas path
+#include "ui/aui_sdl/aui_sdl.h"
 
 #include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 
@@ -213,38 +214,14 @@ bool UnitSpriteGroup::DrawModernInteractive(UNITACTION action, sint32 frame,
 
 	static char const * const kActionName[UNITACTION_MAX] =
 		{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };
-	char const * const   actionName  = kActionName[action];
-	// Mirror at facing >= 5 (both faced and normal sprites do). Directional
-	// actions (facings 5) fold onto their stored counterpart; non-directional
-	// ones (facings 1, e.g. IDLE) only ever stored facing 0.
-	bool const           reversed    = facing >= k_NUM_FACINGS;
-	bool const           directional = m_modernAtlas->FacingCount(actionName) > 1;
-	sint32 const         atlasFacing = directional ? (reversed ? (k_MAX_FACINGS - facing) : facing) : 0;
-	ModernSpriteRect const * r = m_modernAtlas->FindRect(actionName, atlasFacing, frame);
-	if (!r)
-		return false;
-
-	POINT const  hp    = GetHotPoint(action, facing);   // hot point of atlasFacing
-	sint32 const destX = reversed ? (drawX - static_cast<sint32>((r->w - hp.x) * scale))
-	                              : (drawX - static_cast<sint32>(hp.x * scale));
-	sint32 const destY = drawY - static_cast<sint32>(hp.y * scale);
-
-	sint32 const pitch = screenmanager_Get()->GetSurfPitch();
-	sint32 const sw    = screenmanager_Get()->GetSurfWidth();
-	sint32 const sh    = screenmanager_Get()->GetSurfHeight();
-	bool   const bpp32 = surf->BitsPerPixel() == 32;
-
-	if (scale > 0.999 && scale < 1.001)
-	{
-		return m_modernAtlas->BlitLocked(base, pitch, sw, sh, bpp32,
-		                                 actionName, atlasFacing, frame, destX, destY,
-		                                 transparency, flags, reversed);
-	}
-	sint32 const destW = static_cast<sint32>(r->w * scale);
-	sint32 const destH = static_cast<sint32>(r->h * scale);
-	return m_modernAtlas->BlitScaledLocked(base, pitch, sw, sh, bpp32,
-	                                       actionName, atlasFacing, frame, destX, destY,
-	                                       destW, destH, transparency, flags, reversed);
+	POINT const hp = GetHotPoint(action, facing);
+	return ModernSpriteDrawFacedLocked(*m_modernAtlas, base,
+	                                   screenmanager_Get()->GetSurfPitch(),
+	                                   screenmanager_Get()->GetSurfWidth(),
+	                                   screenmanager_Get()->GetSurfHeight(),
+	                                   surf->BitsPerPixel() == 32,
+	                                   kActionName[action], frame, drawX, drawY,
+	                                   facing, hp.x, hp.y, scale, transparency, flags);
 }
 
 BOOL UnitSpriteGroup::HitTest(POINT mousePt, UNITACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 facing,
@@ -309,34 +286,11 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 	{
 		static char const * const kActionName[UNITACTION_MAX] =
 			{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };
-		char const * const   actionName  = kActionName[action];
-		bool const           reversed    = facing >= k_NUM_FACINGS;
-		bool const           directional = m_modernAtlas->FacingCount(actionName) > 1;
-		sint32 const         atlasFacing = directional ? (reversed ? (k_MAX_FACINGS - facing) : facing) : 0;
-		ModernSpriteRect const * r = m_modernAtlas->FindRect(actionName, atlasFacing, frame);
-		if (r)
-		{
-			POINT const hp = GetHotPoint(action, facing);   // hot point of atlasFacing
-			sint32 const destX = reversed ? (drawX - static_cast<sint32>((r->w - hp.x) * scale))
-			                              : (drawX - static_cast<sint32>(hp.x * scale));
-			sint32 const destY = drawY - static_cast<sint32>(hp.y * scale);
-			bool ok;
-			if (scale > 0.999 && scale < 1.001)
-			{
-				ok = m_modernAtlas->Blit(surf, actionName, atlasFacing, frame,
-				                         destX, destY, transparency, flags, reversed);
-			}
-			else
-			{
-				sint32 const destW = static_cast<sint32>(r->w * scale);
-				sint32 const destH = static_cast<sint32>(r->h * scale);
-				ok = m_modernAtlas->BlitScaled(surf, actionName, atlasFacing, frame,
-				                               destX, destY, destW, destH,
-				                               transparency, flags, reversed);
-			}
-			if (ok)
-				return;
-		}
+		POINT const hp = GetHotPoint(action, facing);
+		if (ModernSpriteDrawFaced(*m_modernAtlas, surf, kActionName[action], frame,
+		                          drawX, drawY, facing, hp.x, hp.y, scale,
+		                          transparency, flags))
+			return;
 	}
 
 
@@ -367,9 +321,54 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 	}
 }
 
+bool UnitSpriteGroup::AddGpuSpriteQuad(UNITACTION action, sint32 frame, sint32 drawX, sint32 drawY,
+						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags,
+						   BOOL specialDelayProcess, BOOL directionalAttack)
+{
+	if (!m_modernAtlas || action < UNITACTION_MOVE || action > UNITACTION_WORK)
+		return false;
+	if (directionalAttack || specialDelayProcess || outlineColor != 0 || transparency != 0)
+		return false;
+	if (flags != k_DRAWFLAGS_NORMAL)
+		return false;
+
+	static char const * const kActionName[UNITACTION_MAX] =
+		{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };
+
+	bool const reversed    = facing >= k_NUM_FACINGS;
+	bool const directional = m_modernAtlas->FacingCount(kActionName[action]) > 1;
+	int  const atlasFacing = directional ? (reversed ? (k_MAX_FACINGS - facing) : facing) : 0;
+	ModernSpriteRect const * r = m_modernAtlas->FindRect(kActionName[action], atlasFacing, frame);
+	if (!r)
+		return false;
+
+	SDL_Texture * texture = aui_SDL::EnsureSpriteAtlasTexture(m_modernAtlas.get());
+	if (!texture)
+		return false;
+
+	POINT const hp = GetHotPoint(action, facing);
+	int const destX = reversed ? (drawX - static_cast<int>((r->w - hp.x) * scale))
+	                         : (drawX - static_cast<int>(hp.x * scale));
+	int const destY = drawY - static_cast<int>(hp.y * scale);
+
+	aui_SDL::GpuSpriteQuad q;
+	q.texture = texture;
+	q.sx = r->x; q.sy = r->y; q.sw = r->w; q.sh = r->h;
+	q.dx = destX; q.dy = destY;
+	q.dw = static_cast<int>(r->w * scale);
+	q.dh = static_cast<int>(r->h * scale);
+	q.mirror = reversed;
+	aui_SDL::AddSpriteQuad(q);
+	return true;
+}
+
 // Out-of-line so the unique_ptr<ModernSpriteAtlas> member is destroyed where
 // the type is complete.
-UnitSpriteGroup::~UnitSpriteGroup() = default;
+UnitSpriteGroup::~UnitSpriteGroup()
+{
+	if (m_modernAtlas)
+		aui_SDL::ReleaseSpriteAtlasTexture(m_modernAtlas.get());
+}
 
 void UnitSpriteGroup::LoadBasic(MBCHAR const * filename)
 {

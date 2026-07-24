@@ -8,6 +8,7 @@
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_surface.h"
+#include "gfx/spritesys/ModernSpriteAtlas.h"
 #include "ui/aui_sdl/aui_sdl.h"
 
 SDL_Surface *aui_SDL::m_lpdd = nullptr;
@@ -34,7 +35,10 @@ float aui_SDL::m_panTargetY = 0.0f;
 SDL_Texture *aui_SDL::m_quadAtlasTexture = nullptr;
 int aui_SDL::m_quadAtlasW = 0;
 int aui_SDL::m_quadAtlasH = 0;
+bool aui_SDL::m_quadFrameComplete = true;
 std::vector<aui_SDL::GpuQuad> aui_SDL::m_quadDrawList;
+std::map<ModernSpriteAtlas const *, SDL_Texture *> aui_SDL::m_spriteAtlasTextures;
+std::vector<aui_SDL::GpuSpriteQuad> aui_SDL::m_spriteDrawList;
 uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
 sint32 aui_SDL::m_SDLRefCount = 0;
 
@@ -85,14 +89,19 @@ bool aui_SDL::GpuCameraEnabled()
 
 bool aui_SDL::GpuQuadsEnabled()
 {
-	// Opt-in, cached. Terrain-as-GPU-quads renders the world into a render-target
+	// Default-on, cached. Terrain-as-GPU-quads renders the world into a render-target
 	// texture instead of uploading the CPU world surface, so it requires
-	// per-layer compositing (implies GpuLayersEnabled). Off by default.
+	// per-layer compositing (implies GpuLayersEnabled). With the smooth camera it
+	// also needs modern sprites; otherwise the GPU world would be terrain-only
+	// again and units would not pan with tiles. CTP2_GPU_QUADS=0 opts out while
+	// the temporary CPU fallback still exists.
 	static int s_enabled = -1;
 	if (s_enabled < 0)
 	{
 		char const * e = getenv("CTP2_GPU_QUADS");
-		s_enabled = (e && e[0] && strcmp(e, "0") != 0 && GpuLayersEnabled()) ? 1 : 0;
+		bool const requested = !e || !e[0] || strcmp(e, "0") != 0;
+		bool const spritesSafe = !GpuCameraEnabled() || ModernSpritesEnabled();
+		s_enabled = (requested && GpuLayersEnabled() && spritesSafe) ? 1 : 0;
 	}
 	return s_enabled != 0;
 }
@@ -127,6 +136,36 @@ void aui_SDL::UploadQuadAtlasSlot(int x, int y, int w, int h,
 	if (!m_quadAtlasTexture) return;
 	SDL_Rect rect = { x, y, w, h };
 	CTP2_SDL_UpdateTexture(m_quadAtlasTexture, &rect, pixels, pitch);
+}
+
+SDL_Texture *aui_SDL::EnsureSpriteAtlasTexture(ModernSpriteAtlas const *atlas)
+{
+	if (!m_renderer || !atlas || atlas->Width() <= 0 || atlas->Height() <= 0)
+		return nullptr;
+
+	auto const found = m_spriteAtlasTextures.find(atlas);
+	if (found != m_spriteAtlasTextures.end())
+		return found->second;
+
+	SDL_Texture *texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ABGR8888,
+		SDL_TEXTUREACCESS_STATIC, atlas->Width(), atlas->Height());
+	if (!texture)
+		return nullptr;
+
+	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+	CTP2_SDL_UpdateTexture(texture, nullptr, atlas->Rgba().data(), atlas->Width() * 4);
+	m_spriteAtlasTextures[atlas] = texture;
+	return texture;
+}
+
+void aui_SDL::ReleaseSpriteAtlasTexture(ModernSpriteAtlas const *atlas)
+{
+	auto const found = m_spriteAtlasTextures.find(atlas);
+	if (found == m_spriteAtlasTextures.end())
+		return;
+
+	SDL_DestroyTexture(found->second);
+	m_spriteAtlasTextures.erase(found);
 }
 
 void aui_SDL::SetHardwareCursor(aui_Surface *surf, int hotX, int hotY)
@@ -326,6 +365,16 @@ AUI_ERRCODE aui_SDL::InitCommon(BOOL useExclusiveMode)
 aui_SDL::~aui_SDL()
 {
 	if (! --m_SDLRefCount) {
+		for (auto &entry : m_spriteAtlasTextures)
+			SDL_DestroyTexture(entry.second);
+		m_spriteAtlasTextures.clear();
+		m_spriteDrawList.clear();
+		if (m_quadAtlasTexture) {
+			SDL_DestroyTexture(m_quadAtlasTexture);
+			m_quadAtlasTexture = nullptr;
+		}
+		m_quadDrawList.clear();
+		m_quadFrameComplete = true;
 		SDL_Quit();
 		m_lpdd = nullptr;
 	}

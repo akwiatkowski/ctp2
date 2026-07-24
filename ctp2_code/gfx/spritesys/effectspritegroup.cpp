@@ -41,12 +41,17 @@
 #include "gfx/spritesys/ModernSpriteAtlas.h"   // P11 modern-first atlas path
 #include "gfx/spritesys/screenmanager.h"       // screenmanager_Get()
 #include "ui/aui_common/aui_surface.h"         // aui_Surface::BitsPerPixel
+#include "ui/aui_sdl/aui_sdl.h"
 #include "gs/fileio/Token.h"
 
 // Out-of-line so the unique_ptr<ModernSpriteAtlas> member is created/destroyed
 // where the type is complete.
 EffectSpriteGroup::EffectSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {}
-EffectSpriteGroup::~EffectSpriteGroup() = default;
+EffectSpriteGroup::~EffectSpriteGroup()
+{
+	if (m_modernAtlas)
+		aui_SDL::ReleaseSpriteAtlasTexture(m_modernAtlas.get());
+}
 
 void EffectSpriteGroup::Draw(EFFECTACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 SdrawX, sint32 SdrawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack)
@@ -134,6 +139,44 @@ void EffectSpriteGroup::DrawDirect(aui_Surface *surf, EFFECTACTION action, sint3
 		}
 		m_sprites[action]->DrawDirect(surf, drawX, drawY, facing, scale, transparency, outlineColor, flags);
 	}
+}
+
+bool EffectSpriteGroup::AddGpuSpriteQuad(EFFECTACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 SdrawX, sint32 SdrawY,
+						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack)
+{
+	if (!m_modernAtlas || action != EFFECTACTION_PLAY || m_sprites[action] == nullptr)
+		return false;
+	if (m_sprites[EFFECTACTION_FLASH] != nullptr)
+		return false;
+	if (transparency != 0 || outlineColor != 0 || flags != k_DRAWFLAGS_NORMAL || specialDelayProcess || directionalAttack)
+		return false;
+
+	ModernSpriteRect const * r = m_modernAtlas->FindRect("PLAY", 0, frame);
+	if (!r)
+		return false;
+
+	SDL_Texture * texture = aui_SDL::EnsureSpriteAtlasTexture(m_modernAtlas.get());
+	if (!texture)
+		return false;
+
+	POINT const hp = m_sprites[action]->GetHotPoint();
+	bool const reversed = facing >= 5;
+	int const destX = reversed ? (drawX - static_cast<int>((r->w - hp.x) * scale))
+	                         : (drawX - static_cast<int>(hp.x * scale));
+	int const destY = drawY - static_cast<int>(hp.y * scale);
+
+	(void)SdrawX;
+	(void)SdrawY;
+
+	aui_SDL::GpuSpriteQuad q;
+	q.texture = texture;
+	q.sx = r->x; q.sy = r->y; q.sw = r->w; q.sh = r->h;
+	q.dx = destX; q.dy = destY;
+	q.dw = static_cast<int>(r->w * scale);
+	q.dh = static_cast<int>(r->h * scale);
+	q.mirror = reversed;
+	aui_SDL::AddSpriteQuad(q);
+	return true;
 }
 
 void EffectSpriteGroup::Load(MBCHAR const * filename)

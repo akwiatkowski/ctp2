@@ -77,6 +77,10 @@ public:
 							   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags,
 							   BOOL specialDelayProcess,
 							   BOOL directionalAttack);
+	bool			AddGpuSpriteQuad(UNITACTION action, sint32 frame, sint32 drawX, sint32 drawY,
+							   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags,
+							   BOOL specialDelayProcess,
+							   BOOL directionalAttack);
 
 	POINT *         GetShieldPoints(UNITACTION action) { return m_shieldPoints[action]; }
 

@@ -184,16 +184,11 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// Dormant until the two-layer present is wired; the default single-texture
 	// present is unaffected.
 	if (aui_SDL::GpuLayersEnabled()) {
-		// P11 Stage 3 G1: in terrain-quad mode the world texture is a render
-		// TARGET (the quad pass draws terrain into it each frame); otherwise it
-		// is STREAMING (the CPU world surface is uploaded into it). The two modes
-		// are mutually exclusive, so pick the access type at creation. Keep the
-		// ternary inline so its type stays SDL_TextureAccess (SDL3's C++ headers
-		// do not implicitly convert a plain int to that enum).
-		// P11 2a (ADR-001): in the streaming layer path the world texture is
-		// oversized by WorldMargin on each side so the viewport can pan sub-tile
-		// on the GPU without a black edge. The parked quad path stays screen-sized.
-		int const worldMargin = aui_SDL::GpuQuadsEnabled() ? 0 : aui_SDL::WorldMargin();
+		// P12: both streaming and full-GPU paths use one oversized world texture.
+		// Screen top-left lives at WorldContentOffX/Y inside it; the camera pans by
+		// moving the source window. Quad mode only changes HOW the world texture is
+		// filled (render target instead of CPU upload), not its coordinate system.
+		int const worldMargin = aui_SDL::WorldMargin();
 		m_worldTexture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888,
 			aui_SDL::GpuQuadsEnabled()
 				? SDL_TEXTUREACCESS_TARGET : SDL_TEXTUREACCESS_STREAMING,
@@ -299,10 +294,10 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// one of these two layers. Gated so the default single-texture path is
 	// untouched.
 	if (aui_SDL::GpuLayersEnabled()) {
-		// P11 2a (ADR-001): the world surface is oversized by WorldMargin on each
-		// side (streaming layer path) so the map renders the wider extent and the
-		// GPU viewport can pan sub-tile into the margin. UI stays screen-sized.
-		int const worldMargin = aui_SDL::GpuQuadsEnabled() ? 0 : aui_SDL::WorldMargin();
+		// P12: keep the CPU mirror oversized too while the migration is hybrid; the
+		// GPU quad path may stop depending on it later, but the layer dimensions stay
+		// identical across renderers.
+		int const worldMargin = aui_SDL::WorldMargin();
 		m_worldSurface = new aui_SDLSurface(&errcode, m_width + 2 * worldMargin,
 			m_height + 2 * worldMargin, 32, nullptr, FALSE);
 		if (!AUI_NEWOK(m_worldSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;

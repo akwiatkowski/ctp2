@@ -41,6 +41,7 @@ public:
 	void			Draw();
 	void			DrawDirect(aui_Surface *surf, sint32 x, sint32 y);
 	void			DrawDirectWithFlags(aui_Surface *surf, sint32 x, sint32 y, uint16 flags);
+	bool			AddGpuSpriteQuad(sint32 offsetX, sint32 offsetY);
 
 	void			DrawText(sint32 x, sint32 y, MBCHAR *EffectText);
 

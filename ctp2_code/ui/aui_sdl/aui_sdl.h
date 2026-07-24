@@ -11,9 +11,11 @@
 
 #include "ui/aui_sdl/aui_sdlcompat.h"
 
+#include <map>
 #include <vector>
 
 class aui_Surface;   // hardware-cursor conversion source
+class ModernSpriteAtlas;
 
 class aui_SDL
 {
@@ -37,7 +39,7 @@ public:
 	// presented-frame readback (screenshot_presented).
 	static SDL_Renderer *Renderer() { return m_renderer; }
 	static SDL_Texture *ScreenTexture() { return m_screenTexture; }
-	// P11 Stage 2 D: per-layer GPU compositing. Off by default.
+	// P11 Stage 2 D: per-layer GPU compositing. Default-on; CTP2_GPU_LAYERS=0 opts out.
 	static bool GpuLayersEnabled();
 	static SDL_Texture *WorldTexture() { return m_worldTexture; }
 	static SDL_Texture *UiTexture() { return m_uiTexture; }
@@ -47,7 +49,7 @@ public:
 	static SDL_Texture *FogTexture() { return m_fogTexture; }
 	// P11 Stage 2 F: smooth camera. Pan offset (screen px) + zoom applied to the
 	// world + fog layers at present time (UI stays fixed). Requires
-	// GpuLayersEnabled. Off by default; identity (0,0,1) is a no-op.
+	// GpuLayersEnabled. Default-on; CTP2_GPU_CAMERA=0 opts out. Identity (0,0,1) is a no-op.
 	static bool GpuCameraEnabled();
 	// P11 pan polish — hardware (OS) cursor. In the layered GPU present the
 	// legacy software cursor is poison: every move "restores" a pickup of
@@ -113,11 +115,11 @@ public:
 	static void TickCamera(float dtSec);
 	static bool CameraMoving();
 
-	// P11 Stage 3 G1 — terrain quad renderer. When enabled, terrain is drawn as
-	// GPU textured quads from a tile atlas into the world texture (a render
-	// target) instead of uploading the CPU-composited world surface. The D/C/F
-	// composite then pans/zooms/fogs that world texture unchanged. Requires
-	// GpuLayersEnabled. Off by default.
+	// P11 Stage 3 G1 / P12 — GPU world renderer. When enabled, terrain and the
+	// first modern-atlas unit sprites are drawn as GPU textured quads into the
+	// world texture instead of uploading the CPU-composited world surface. The
+	// D/C/F composite then pans/zooms/fogs that world texture unchanged. Requires
+	// GpuLayersEnabled. Default-on; CTP2_GPU_QUADS=0 temporarily opts out.
 	static bool GpuQuadsEnabled();
 	static SDL_Texture *QuadAtlasTexture() { return m_quadAtlasTexture; }
 	// Lazily create the atlas texture (ARGB8888 streaming, alpha-blended so the
@@ -132,9 +134,18 @@ public:
 	// The per-frame draw list is rebuilt by the tile pass (BeginQuadFrame +
 	// AddQuad) and consumed by the present (QuadDrawList). It persists between
 	// presents so camera-only frames reuse it without a rebuild.
-	static void BeginQuadFrame() { m_quadDrawList.clear(); }
+	static void BeginQuadFrame() { m_quadDrawList.clear(); m_quadFrameComplete = true; }
 	static void AddQuad(GpuQuad const &q) { m_quadDrawList.push_back(q); }
+	static void MarkQuadFrameIncomplete() { m_quadFrameComplete = false; }
+	static bool QuadFrameComplete() { return m_quadFrameComplete; }
 	static std::vector<GpuQuad> const &QuadDrawList() { return m_quadDrawList; }
+
+	struct GpuSpriteQuad { SDL_Texture *texture; int sx, sy, sw, sh; int dx, dy, dw, dh; bool mirror; };
+	static SDL_Texture *EnsureSpriteAtlasTexture(ModernSpriteAtlas const *atlas);
+	static void ReleaseSpriteAtlasTexture(ModernSpriteAtlas const *atlas);
+	static void BeginSpriteFrame() { m_spriteDrawList.clear(); }
+	static void AddSpriteQuad(GpuSpriteQuad const &q) { m_spriteDrawList.push_back(q); }
+	static std::vector<GpuSpriteQuad> const &SpriteDrawList() { return m_spriteDrawList; }
 
 protected:
 	BOOL			m_exclusiveMode;
@@ -165,7 +176,10 @@ protected:
 	static SDL_Texture *	m_quadAtlasTexture;
 	static int		m_quadAtlasW;
 	static int		m_quadAtlasH;
+	static bool		m_quadFrameComplete;
 	static std::vector<GpuQuad> m_quadDrawList;
+	static std::map<ModernSpriteAtlas const *, SDL_Texture *> m_spriteAtlasTextures;
+	static std::vector<GpuSpriteQuad> m_spriteDrawList;
 
 private:
 	static sint32		m_SDLRefCount;

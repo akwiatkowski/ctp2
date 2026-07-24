@@ -3618,9 +3618,9 @@ sint32 TiledMap::Refresh()
 	if (c3ui_Get() && c3ui_Get()->GpuFog())
 		BuildFogMask(c3ui_Get()->FogSurface());
 
-	// P11 Stage 3 G1: rebuild the terrain quad draw list (and fill the atlas on
-	// cache misses) from the same view. Runs after UnlockSurface — it does its
-	// own scratch-surface locking. No-op unless CTP2_GPU_QUADS is on.
+	// P12: rebuild the GPU world draw list (and fill the atlas on cache misses)
+	// from the same view. Runs after UnlockSurface — it does its own scratch-
+	// surface locking. CTP2_GPU_QUADS=0 keeps the temporary CPU fallback.
 	if (aui_SDL::GpuQuadsEnabled())
 		BuildTerrainQuads();
 
@@ -3647,9 +3647,10 @@ void TiledMap::BuildTerrainQuads()
 	// Clear the list up front so any early return presents an empty world (black)
 	// rather than stale quads left at the wrong scale.
 	aui_SDL::BeginQuadFrame();
+	aui_SDL::BeginSpriteFrame();
 
-	if (m_zoomLevel != k_ZOOM_LARGEST) return;      // G1 scope: default zoom
-	if (!m_tileSet || !m_localVision)    return;
+	if (m_zoomLevel != k_ZOOM_LARGEST) { aui_SDL::MarkQuadFrameIncomplete(); return; }
+	if (!m_tileSet || !m_localVision)   { aui_SDL::MarkQuadFrameIncomplete(); return; }
 
 	// Atlas geometry: a cols x rows grid of 94x72 tile slots. 1024 slots easily
 	// holds the distinct edge combinations on a real map (interiors share one
@@ -3668,12 +3669,17 @@ void TiledMap::BuildTerrainQuads()
 		m_gpuScratchTile.reset(aui_Factory::new_Surface(err, tileW, tileH,
 			nullptr, FALSE, FALSE, FALSE, /*bpp=*/32));
 	}
-	if (!m_gpuScratchTile) return;
+	if (!m_gpuScratchTile) { aui_SDL::MarkQuadFrameIncomplete(); return; }
 
 	aui_SDL::EnsureQuadAtlas(m_gpuTileCache->AtlasW(), m_gpuTileCache->AtlasH());
 
 	sint32 mapWidth, mapHeight;
 	GetMapMetrics(&mapWidth, &mapHeight);
+
+	sint32 baseX;
+	sint32 baseY = m_mapViewRect.top;
+	maputils_TileX2MapXAbs(m_mapViewRect.left, m_mapViewRect.top, &baseX);
+	maputils_MapXY2PixelXY(baseX, baseY, &baseX, &baseY);
 
 	// Mirror RepaintTiles' visible-cell iteration (m_mapViewRect + wrap/bounds).
 	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
@@ -3683,6 +3689,12 @@ void TiledMap::BuildTerrainQuads()
 		{
 			if (!(world_Get()->IsXwrap() || (j >= 0 && j < mapWidth))) continue;
 
+			sint32 drawX = j, drawY = i;
+			maputils_TileX2MapXAbs(drawX, drawY, &drawX);
+			maputils_MapXY2PixelXY(drawX, drawY, &drawX, &drawY);
+			drawX -= baseX;
+			drawY -= baseY;
+
 			sint32 wj = j, wi = i;
 			maputils_WrapPoint(wj, wi, &wj, &wi);
 			MapPoint pos = MapPoint(maputils_TileX2MapX(wj, wi), wi);
@@ -3691,14 +3703,11 @@ void TiledMap::BuildTerrainQuads()
 			// world texture was cleared to — matching CalculateWrap's BlackTile).
 			if (!m_renderEverything && !m_localVision->IsExplored(pos)) continue;
 
-			sint32 x, y;
-			maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y);
-
 			// Same on-surface clip as CalculateWrap.
-			if (   (x < m_surfaceRect.left)
-			    || (x > (m_surfaceRect.right  - GetZoomTilePixelWidth()))
-			    || (y < m_surfaceRect.top)
-			    || (y > (m_surfaceRect.bottom - (GetZoomTilePixelHeight() + GetZoomTileHeadroom()))))
+			if (   (drawX < m_surfaceRect.left)
+			    || (drawX > (m_surfaceRect.right  - GetZoomTilePixelWidth()))
+			    || (drawY < m_surfaceRect.top)
+			    || (drawY > (m_surfaceRect.bottom - (GetZoomTilePixelHeight() + GetZoomTileHeadroom()))))
 				continue;
 
 			TileInfo * tileInfo = GetTileInfo(pos);
@@ -3738,10 +3747,70 @@ void TiledMap::BuildTerrainQuads()
 
 			aui_SDL::GpuQuad q;
 			q.sx = slot.atlasX; q.sy = slot.atlasY; q.sw = tileW; q.sh = tileH;
-			q.dx = x;           q.dy = y;           q.dw = tileW; q.dh = tileH;
+			q.dx = drawX + aui_SDL::WorldContentOffX();
+			q.dy = drawY + aui_SDL::WorldContentOffY();
+			q.dw = tileW; q.dh = tileH;
 			aui_SDL::AddQuad(q);
 		}
 	}
+
+	PLAYER_INDEX const player = selitem_Get()->GetVisiblePlayer();
+	double const scale = GetScale();
+	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
+	{
+		if (!(world_Get()->IsYwrap() || (i >= 0 && i < mapHeight))) continue;
+		for (sint32 j = m_mapViewRect.left; j < m_mapViewRect.right; j++)
+		{
+			if (!(world_Get()->IsXwrap() || (j >= 0 && j < mapWidth))) continue;
+
+			sint32 drawX = j, drawY = i;
+			maputils_TileX2MapXAbs(drawX, drawY, &drawX);
+			maputils_MapXY2PixelXY(drawX, drawY, &drawX, &drawY);
+			drawX -= baseX;
+			drawY -= baseY;
+
+			sint32 wj = j, wi = i;
+			maputils_WrapPoint(wj, wi, &wj, &wi);
+			MapPoint pos = MapPoint(maputils_TileX2MapX(wj, wi), wi);
+			if (!m_renderEverything && !m_localVision->IsExplored(pos)) continue;
+
+			if (   (drawX < m_surfaceRect.left)
+			    || (drawX > (m_surfaceRect.right  - GetZoomTilePixelWidth()))
+			    || (drawY < m_surfaceRect.top)
+			    || (drawY > (m_surfaceRect.bottom - (GetZoomTilePixelHeight() + GetZoomTileHeadroom()))))
+				continue;
+
+			if (world_Get()->IsGood(pos))
+			{
+				TileInfo * tileInfo = GetTileInfo(pos);
+				GoodActor * goodActor = tileInfo ? tileInfo->GetGoodActor() : nullptr;
+				if (goodActor)
+				{
+					goodActor->PositionActor(pos);
+					if (!goodActor->AddGpuSpriteQuad(drawX + aui_SDL::WorldContentOffX(),
+					                                drawY + aui_SDL::WorldContentOffY(), scale))
+						aui_SDL::MarkQuadFrameIncomplete();
+				}
+			}
+
+			Unit top;
+			if (!world_Get()->GetTopVisibleUnit(player, pos, top)) continue;
+			UnitActorPtr actor = top.GetActor();
+			if (!actor) continue;
+
+			if (!actor->AddGpuSpriteQuad(drawX + aui_SDL::WorldContentOffX(),
+			                         drawY + aui_SDL::WorldContentOffY(), scale))
+				aui_SDL::MarkQuadFrameIncomplete();
+		}
+	}
+
+	Director *director = director_Get();
+	if (director && !director->AddActiveEffectGpuSpriteQuads(
+			&m_mapViewRect,
+			aui_SDL::WorldContentOffX() - baseX,
+			aui_SDL::WorldContentOffY() - baseY))
+		aui_SDL::MarkQuadFrameIncomplete();
+
 }
 
 void TiledMap::ScrollPixels(sint32 deltaX, sint32 deltaY, aui_Surface *surf)

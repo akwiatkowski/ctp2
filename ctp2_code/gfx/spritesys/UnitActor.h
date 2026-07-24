@@ -144,6 +144,7 @@ class UnitActor : public Actor {
   void DrawText(sint32 x, sint32 y, MBCHAR* unitText);
 
   void DrawDirect(aui_Surface* surf, sint32 x, sint32 y, double scale);
+  bool AddGpuSpriteQuad(sint32 x, sint32 y, double scale);
 
   bool IsAnimating() const;
 

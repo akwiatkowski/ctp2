@@ -317,6 +317,70 @@ TEST_CASE("ModernSpriteDrawUnfaced places + mirrors like Sprite::DrawDirect")
 	std::remove(json.c_str());
 }
 
+TEST_CASE("ModernSpriteDrawFaced folds reversed facings and additive falls back")
+{
+	std::string const png  = "/tmp/ctp2_atlas_faced.png";
+	std::string const json = "/tmp/ctp2_atlas_faced.json";
+
+	// Five stored 2x1 facings. Facing 6 must fold to stored facing 2 and mirror.
+	write_png(png, 10, 1, {
+		0x10,0x10,0x10,0xFF,  0x20,0x20,0x20,0xFF,
+		0,0xFF,0,0xFF,        0,0x80,0,0xFF,
+		0xFF,0,0,0xFF,        0,0,0xFF,0xFF,
+		0xFF,0xFF,0,0xFF,     0x80,0x80,0,0xFF,
+		0,0xFF,0xFF,0xFF,     0,0x80,0x80,0xFF
+	});
+	write_file(json, R"json({
+		"source": "GU.SPR",
+		"atlas": {"png": "ctp2_atlas_faced.png", "width": 10, "height": 1},
+		"actions": [{"name": "MOVE", "width": 2, "height": 1, "num_frames": 1, "facings": 5,
+			"frames": [
+				{"facing": 0, "frame": 0, "rect": {"x": 0, "y": 0, "w": 2, "h": 1}},
+				{"facing": 1, "frame": 0, "rect": {"x": 2, "y": 0, "w": 2, "h": 1}},
+				{"facing": 2, "frame": 0, "rect": {"x": 4, "y": 0, "w": 2, "h": 1}},
+				{"facing": 3, "frame": 0, "rect": {"x": 6, "y": 0, "w": 2, "h": 1}},
+				{"facing": 4, "frame": 0, "rect": {"x": 8, "y": 0, "w": 2, "h": 1}}
+			]}]
+	})json");
+
+	std::string error;
+	std::unique_ptr<ModernSpriteAtlas> atlas(ModernSpriteAtlas::Load(json.c_str(), error));
+	REQUIRE(atlas != nullptr);
+
+	AUI_ERRCODE ec = AUI_ERRCODE_OK;
+	uint32_t const bg = 0xFF010203u;
+	uint32_t const red = 0xFFFF0000u;
+	uint32_t const blue = 0xFF0000FFu;
+
+	// Facing 6: atlas facing = 8-6 = 2; origin = 5-(w-hotX)=4; mirrored blue/red.
+	{
+		aui_SDLSurface dest(&ec, 8, 1, 32, nullptr, FALSE);
+		REQUIRE(AUI_SUCCESS(ec));
+		CHECK(ModernSpriteDrawFaced(*atlas, &dest, "MOVE", 0, 5, 0, 6,
+		                            /*hotX*/1, /*hotY*/0, 1.0, 0, 0));
+		CHECK(read_px(dest, 4, 0) == blue);
+		CHECK(read_px(dest, 5, 0) == red);
+	}
+
+	// Additive flash cannot be represented by the binary-alpha atlas path; leave
+	// it to legacy and do not touch the destination.
+	{
+		aui_SDLSurface dest(&ec, 1, 1, 32, nullptr, FALSE);
+		REQUIRE(AUI_SUCCESS(ec));
+		RECT r{0, 0, 1, 1};
+		LPVOID p = nullptr;
+		REQUIRE(dest.Lock(&r, &p, 0) == AUI_ERRCODE_OK);
+		std::memcpy(p, &bg, sizeof(bg));
+		REQUIRE(dest.Unlock(p) == AUI_ERRCODE_OK);
+		CHECK_FALSE(ModernSpriteDrawFaced(*atlas, &dest, "MOVE", 0, 0, 0, 0,
+		                                  0, 0, 1.0, 0, k_BIT_DRAWFLAGS_ADDITIVE));
+		CHECK(read_px(dest, 0, 0) == bg);
+	}
+
+	std::remove(png.c_str());
+	std::remove(json.c_str());
+}
+
 TEST_CASE("ModernSpriteAtlas::Blit applies the per-pixel draw flags in 8888")
 {
 	std::string const png  = "/tmp/ctp2_atlas_flags.png";

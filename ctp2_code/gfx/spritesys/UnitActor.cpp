@@ -1411,6 +1411,22 @@ void UnitActor::DrawDirect(aui_Surface* surf,
   }
 }
 
+bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
+  if (m_hidden || m_hiddenUnderStack)
+    return true;
+  if (!m_unitSpriteGroup)
+    return false;
+
+  uint16 flags = k_DRAWFLAGS_NORMAL;
+  Pixel16 color = 0;
+  BOOL directionAttack = FALSE;
+  sint32 xoffset = (sint32)(k_ACTOR_CENTER_OFFSET_X * scale);
+  sint32 yoffset = (sint32)(k_ACTOR_CENTER_OFFSET_Y * scale);
+  return m_unitSpriteGroup->AddGpuSpriteQuad(
+      m_curUnitAction, m_frame, x + xoffset, y + yoffset, m_facing, scale,
+      m_transparency, color, flags, FALSE, directionAttack);
+}
+
 void UnitActor::DrawText(sint32 x, sint32 y, MBCHAR* unitText) {
 #ifndef _TEST
   STOMPCHECK();

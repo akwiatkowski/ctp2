@@ -92,9 +92,9 @@ def diff_frames(path_a, path_b):
     return samples, mismatches, (aw, ah)
 
 
-def run_attempt(binary, env, log, path0, path1):
+def run_attempt(binary, env, socket_path, log, path0, path1):
     """One game launch. Returns an exit code, or None to re-roll the map."""
-    with Ctp2Client(binary, "ui", log_path=log, env=env) as client:
+    with Ctp2Client(binary, "ui", socket_path=socket_path, log_path=log, env=env) as client:
         client.expect_ok("new_game")
         client.expect_ok("start_game")
         client.wait_game_loaded()
@@ -134,7 +134,7 @@ def run_attempt(binary, env, log, path0, path1):
                 raise Ctp2Error(f"camera_debug_center failed: {r}")
             client.expect_ok("camera_debug_set", 0, 0)
             client.expect_ok("screenshot_presented", path0)
-            return count_terrain(path0) >= 50
+            return count_terrain(path0) >= 20
 
         client.wait_until(has_terrain, timeout=60, desc="terrain visible")
 
@@ -216,11 +216,14 @@ def run(binary):
     env = os.environ.copy()
     env["CTP2_GPU_LAYERS"] = "1"
     env["CTP2_GPU_CAMERA"] = "1"
-    log = "/tmp/ctp2_pan_pixel_proof.log"
+    run_id = os.getpid()
+    socket_path = f"/tmp/ctp2-smoke-pan-{run_id}.sock"
+    env["CTP2_SMOKE_SOCKET"] = socket_path
+    log = f"/tmp/ctp2_pan_pixel_proof_{run_id}.log"
     print(f"[pixel-proof] {binary} (log -> {log})")
 
-    path0 = "/tmp/ctp2_pan_off0.bmp"
-    path1 = "/tmp/ctp2_pan_off50.bmp"
+    path0 = f"/tmp/ctp2_pan_off0_{run_id}.bmp"
+    path1 = f"/tmp/ctp2_pan_off50_{run_id}.bmp"
     for p in (path0, path1):
         try:
             os.unlink(p)
@@ -229,7 +232,7 @@ def run(binary):
 
     try:
         for attempt in range(5):
-            rc = run_attempt(binary, env, log, path0, path1)
+            rc = run_attempt(binary, env, socket_path, log, path0, path1)
             if rc is not None:
                 return rc
         print("[pixel-proof] no interior spawn in 5 rolls")

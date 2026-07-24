@@ -201,6 +201,13 @@ test-integration: build
 	@echo "Running integration suite (headless game tests)..."
 	meson test -C build integration
 
+# UI-only P11 proof: forces GPU camera offsets and verifies presented pixels move,
+# then checks the smooth pan path passes through sub-tile positions. Opens the UI
+# binary, so keep it out of the fast pre-commit loop.
+test-pan-pixel: build
+	@echo "Running P11 GPU camera pixel/glide proof..."
+	meson test -C build pan-pixel-proof --print-errorlogs
+
 # Full test suite — fast + unit + integration + smoke + scenario.
 # ~8 minutes (dominated by the integration tier).  Run pre-release or when
 # investigating a regression — not in the fast loop.

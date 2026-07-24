@@ -98,6 +98,24 @@ inline bool CTP2_SDL_RenderTextureSrcDst(SDL_Renderer *renderer, SDL_Texture *te
 #endif
 }
 
+inline bool CTP2_SDL_RenderTextureSrcDstFlip(SDL_Renderer *renderer, SDL_Texture *texture,
+                                             int sx, int sy, int sw, int sh,
+                                             float dx, float dy, float dw, float dh,
+                                             bool mirror)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_FRect src = { (float)sx, (float)sy, (float)sw, (float)sh };
+	SDL_FRect dst = { dx, dy, dw, dh };
+	return SDL_RenderTextureRotated(renderer, texture, &src, &dst, 0.0, nullptr,
+		mirror ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+#else
+	SDL_Rect src = { sx, sy, sw, sh };
+	SDL_Rect dst = { (int)dx, (int)dy, (int)dw, (int)dh };
+	return SDL_RenderCopyEx(renderer, texture, &src, &dst, 0.0, nullptr,
+		mirror ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE) == 0;
+#endif
+}
+
 // Texture pixel dimensions. SDL2 returns ints via SDL_QueryTexture; SDL3 returns
 // floats via SDL_GetTextureSize.
 inline void CTP2_SDL_QueryTextureSize(SDL_Texture *texture, int &w, int &h)

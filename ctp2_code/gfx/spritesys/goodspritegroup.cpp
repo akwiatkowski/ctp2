@@ -47,13 +47,18 @@
 #include "gfx/spritesys/Anim.h"
 #include "gfx/spritesys/ModernSpriteAtlas.h"   // P11 modern-first atlas path
 #include "ui/aui_common/aui_surface.h"         // aui_Surface::BitsPerPixel
+#include "ui/aui_sdl/aui_sdl.h"
 #include "gs/fileio/Token.h"
 
 
 // Out-of-line so the unique_ptr<ModernSpriteAtlas> member is created/destroyed
 // where the type is complete.
 GoodSpriteGroup::GoodSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {}
-GoodSpriteGroup::~GoodSpriteGroup() = default;
+GoodSpriteGroup::~GoodSpriteGroup()
+{
+	if (m_modernAtlas)
+		aui_SDL::ReleaseSpriteAtlasTexture(m_modernAtlas.get());
+}
 
 void GoodSpriteGroup::Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags)
@@ -123,6 +128,39 @@ void GoodSpriteGroup::DrawDirect(aui_Surface *surf, GOODACTION action, sint32 fr
 	}
 
 	m_sprites[action]->DrawDirect(surf, drawX, drawY, facing, scale, transparency, outlineColor, flags);
+}
+
+bool GoodSpriteGroup::AddGpuSpriteQuad(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
+						   sint32 facing, double scale, Pixel16 outlineColor, uint16 flags)
+{
+	if (!m_modernAtlas || action <= GOODACTION_NONE || action >= GOODACTION_MAX)
+		return false;
+	if (outlineColor != 0 || flags != k_DRAWFLAGS_NORMAL)
+		return false;
+
+	ModernSpriteRect const * r = m_modernAtlas->FindRect("IDLE", 0, frame);
+	if (!r)
+		return false;
+
+	SDL_Texture * texture = aui_SDL::EnsureSpriteAtlasTexture(m_modernAtlas.get());
+	if (!texture)
+		return false;
+
+	POINT const hp = GetHotPoint(action);
+	bool const reversed = facing >= 5;
+	int const destX = reversed ? (drawX - static_cast<int>((r->w - hp.x) * scale))
+	                         : (drawX - static_cast<int>(hp.x * scale));
+	int const destY = drawY - static_cast<int>(hp.y * scale);
+
+	aui_SDL::GpuSpriteQuad q;
+	q.texture = texture;
+	q.sx = r->x; q.sy = r->y; q.sw = r->w; q.sh = r->h;
+	q.dx = destX; q.dy = destY;
+	q.dw = static_cast<int>(r->w * scale);
+	q.dh = static_cast<int>(r->h * scale);
+	q.mirror = reversed;
+	aui_SDL::AddSpriteQuad(q);
+	return true;
 }
 
 POINT GoodSpriteGroup::GetHotPoint(GOODACTION action)

@@ -292,7 +292,8 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 				// has no holes to reveal — the failure mode that sank the old
 				// dirty-rect layer split). Cleared to opaque black first, so any
 				// unexplored / unemitted cell is black (as the CPU BlackTile).
-				bool const quads = aui_SDL::GpuQuadsEnabled() && aui_SDL::QuadAtlasTexture();
+				bool const quads = aui_SDL::GpuQuadsEnabled() && aui_SDL::QuadAtlasTexture()
+				                && aui_SDL::QuadFrameComplete();
 				if (quads)
 				{
 					SDL_SetRenderTarget( m_renderer, aui_SDL::WorldTexture() );
@@ -304,6 +305,13 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 						CTP2_SDL_RenderTextureSrcDst( m_renderer, atlas,
 							q.sx, q.sy, q.sw, q.sh,
 							(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh );
+					}
+					for (aui_SDL::GpuSpriteQuad const & q : aui_SDL::SpriteDrawList())
+					{
+						CTP2_SDL_RenderTextureSrcDstFlip( m_renderer, q.texture,
+							q.sx, q.sy, q.sw, q.sh,
+							(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh,
+							q.mirror );
 					}
 					SDL_SetRenderTarget( m_renderer, nullptr );
 				}
@@ -351,7 +359,7 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					// baseX/baseY = pixel offset of the screen top-left inside the
 					// texture. The mirrored world texture is oversized, its screen
 					// content at the fixed window-margin content offset; the quad
-					// path renders a screen-sized texture (offset 0), as is fog.
+					// path now uses the same oversized world-space origin as streaming.
 					// Zoom centres about the screen middle.
 					auto presentWindowed = [&]( SDL_Texture * tex, float baseX, float baseY )
 					{
@@ -364,8 +372,8 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					};
 
 					presentWindowed( aui_SDL::WorldTexture(),
-						quads ? 0.0f : (float)aui_SDL::WorldContentOffX(),
-						quads ? 0.0f : (float)aui_SDL::WorldContentOffY() );
+						(float)aui_SDL::WorldContentOffX(),
+						(float)aui_SDL::WorldContentOffY() );
 					if (fogged)
 						presentWindowed( aui_SDL::FogTexture(), 0.0f, 0.0f );
 				}

@@ -95,17 +95,14 @@ bool aui_SDL::GpuCameraEnabled()
 
 bool aui_SDL::GpuQuadsEnabled()
 {
-	// Default-on, cached. Terrain-as-GPU-quads renders the world into a render-target
-	// texture instead of uploading the CPU world surface, so it requires
-	// per-layer compositing (implies GpuLayersEnabled). With the smooth camera it
-	// also needs modern sprites; otherwise the GPU world would be terrain-only
-	// again and units would not pan with tiles. CTP2_GPU_QUADS=0 opts out while
-	// the temporary CPU fallback still exists.
+	// Opt-in, cached. Terrain-as-GPU-quads is still missing some CPU map layers
+	// (rivers/hats/borders/improvements) and can expose atlas seams, so normal
+	// play keeps the CPU-composited world upload as the parity path.
 	static int s_enabled = -1;
 	if (s_enabled < 0)
 	{
 		char const * e = getenv("CTP2_GPU_QUADS");
-		bool const requested = !e || !e[0] || strcmp(e, "0") != 0;
+		bool const requested = e && e[0] && strcmp(e, "0") != 0;
 		bool const spritesSafe = !GpuCameraEnabled() || ModernSpritesEnabled();
 		s_enabled = (requested && GpuLayersEnabled() && spritesSafe) ? 1 : 0;
 	}

@@ -137,6 +137,10 @@ def run_attempt(binary, env, socket_path, log, path0, path1):
             return count_terrain(path0) >= 20
 
         client.wait_until(has_terrain, timeout=60, desc="terrain visible")
+        gpu = client.result("query_gpu_world")
+        if gpu["enabled"] and not gpu["complete"]:
+            print(f"[pixel-proof] FAIL: GPU world fell back: {gpu}")
+            return 1
 
         # Baseline (offset 0,0) is path0 from the wait above.
         # Forced offset (50, 50).

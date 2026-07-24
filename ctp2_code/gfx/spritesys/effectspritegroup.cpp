@@ -148,7 +148,7 @@ bool EffectSpriteGroup::AddGpuSpriteQuad(EFFECTACTION action, sint32 frame, sint
 		return false;
 	if (m_sprites[EFFECTACTION_FLASH] != nullptr)
 		return false;
-	if (transparency != 0 || outlineColor != 0 || flags != k_DRAWFLAGS_NORMAL || specialDelayProcess || directionalAttack)
+	if (outlineColor != 0 || flags != k_DRAWFLAGS_NORMAL || specialDelayProcess || directionalAttack)
 		return false;
 
 	ModernSpriteRect const * r = m_modernAtlas->FindRect("PLAY", 0, frame);

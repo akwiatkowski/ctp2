@@ -1416,6 +1416,10 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
     return true;
   if (!m_unitSpriteGroup)
     return false;
+  if (!m_curAction)
+    GetNextAction();
+  if (!m_curAction)
+    return false;
 
   uint16 flags = k_DRAWFLAGS_NORMAL;
   Pixel16 color = 0;

@@ -325,12 +325,25 @@ bool UnitSpriteGroup::AddGpuSpriteQuad(UNITACTION action, sint32 frame, sint32 d
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags,
 						   BOOL specialDelayProcess, BOOL directionalAttack)
 {
+	if (action == UNITACTION_FAKE_DEATH)
+		action = UNITACTION_MOVE;
 	if (!m_modernAtlas || action < UNITACTION_MOVE || action > UNITACTION_WORK)
 		return false;
-	if (directionalAttack || specialDelayProcess || outlineColor != 0 || transparency != 0)
+	if (directionalAttack || specialDelayProcess || outlineColor != 0)
+		return false;
+	if ((flags & k_BIT_DRAWFLAGS_TRANSPARENCY) && transparency != 0)
 		return false;
 	if (flags != k_DRAWFLAGS_NORMAL)
 		return false;
+	if (   (action == UNITACTION_IDLE && m_sprites[action] == nullptr)
+	    || (action == UNITACTION_ATTACK && m_sprites[action] == nullptr)
+	    || (action == UNITACTION_MOVE && m_sprites[UNITACTION_IDLE] == nullptr))
+	{
+		if (!m_sprites[UNITACTION_MOVE])
+			return false;
+		action = UNITACTION_MOVE;
+		frame = 0;
+	}
 
 	static char const * const kActionName[UNITACTION_MAX] =
 		{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };

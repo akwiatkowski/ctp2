@@ -145,6 +145,7 @@ class UnitActor : public Actor {
 
   void DrawDirect(aui_Surface* surf, sint32 x, sint32 y, double scale);
   bool AddGpuSpriteQuad(sint32 x, sint32 y, double scale);
+  char const *GpuSpriteFallbackReason() const { return m_gpuSpriteFallbackReason; }
 
   bool IsAnimating() const;
 
@@ -305,6 +306,7 @@ class UnitActor : public Actor {
   sint32 m_lastMoveFacing;
   sint32 m_frame;
   uint16 m_transparency;
+  char const *m_gpuSpriteFallbackReason = nullptr;
 
   UNITACTION m_curUnitAction;
 

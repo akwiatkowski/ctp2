@@ -1462,29 +1462,41 @@ void UnitActor::DrawDirect(aui_Surface* surf,
 }
 
 bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
+  m_gpuSpriteFallbackReason = nullptr;
+  auto fail = [this](char const *reason) {
+    m_gpuSpriteFallbackReason = reason;
+    return false;
+  };
+
   if (m_hidden || m_hiddenUnderStack)
     return true;
   if (!m_unitSpriteGroup)
-    return false;
+    return fail("unit-no-sprite-group");
   if (!m_curAction)
     GetNextAction();
   if (!m_curAction)
-    return false;
+    return fail("unit-no-action");
 
   uint16 flags = k_DRAWFLAGS_NORMAL;
   if (m_transparency < 15)
     flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
   if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY))
-    return false;
+    return fail("unit-draw-flags");
   if (m_unitID.IsValid()) {
-    if (m_unitID.IsCity()
-        || m_unitID.IsAsleep()
-        || m_unitID.IsCloaked()
-        || m_unitID.IsEntrenched()
-        || m_unitID.IsEntrenching()
-        || m_unitID.HasCityWalls()
-        || m_unitID.HasForceField())
-      return false;
+    if (m_unitID.IsCity())
+      return fail("unit-city-actor");
+    if (m_unitID.IsAsleep())
+      return fail("unit-asleep");
+    if (m_unitID.IsCloaked())
+      return fail("unit-cloaked");
+    if (m_unitID.IsEntrenched())
+      return fail("unit-entrenched");
+    if (m_unitID.IsEntrenching())
+      return fail("unit-entrenching");
+    if (m_unitID.HasCityWalls())
+      return fail("unit-city-walls");
+    if (m_unitID.HasForceField())
+      return fail("unit-forcefield");
   }
   SELECT_TYPE selectType;
   ID selectedID;
@@ -1504,14 +1516,14 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
   if (!m_unitSpriteGroup->AddGpuSpriteQuad(
       m_curUnitAction, m_frame, x + xoffset, y + yoffset, m_facing, scale,
       m_transparency, color, flags, FALSE, directionAttack))
-    return false;
+    return fail("unit-atlas");
   if (selected && !AddGpuSelectionBrackets(x, y, scale, m_unitID))
-    return false;
+    return fail("unit-selection-brackets");
 
   if (g_showHeralds && m_size <= 0 && (!m_unitID.IsValid() || !m_unitID.IsCity())) {
     TileSet* tileSet = tiledmap_Get()->GetTileSet();
     if (!tileSet)
-      return false;
+      return fail("unit-no-tileset");
 
     sint32 stackSize = 1;
     Cell* myCell = world_Get()->GetCell(GetPos());
@@ -1574,7 +1586,7 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
     sint32 specialIcon = 0;
     if (m_unitID.IsValid() && m_unitID.GetDBRec()->GetHasReligionIconIndex(specialIcon)) {
       if (!AddGpuMapIconQuad(tileSet, (MAPICON)specialIcon, iconRect.left, iconRect.top, playerColor))
-        return false;
+        return fail("unit-religion-icon");
     } else if (profiledb_Get()->IsCivFlags()) {
       sint32 civ = -1;
       if (player_Get(displayedOwner) != nullptr) {
@@ -1594,7 +1606,7 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
       auto const *civRec = civ > -1 ? g_theCivilisationDB->Get(civ) : nullptr;
       if (civRec && civRec->GetNationUnitFlagIndex(civIcon)) {
         if (!AddGpuMapIconQuad(tileSet, (MAPICON)civIcon, iconRect.left, iconRect.top, playerColor))
-          return false;
+          return fail("unit-civ-flag");
       }
     }
     iconRect.top += iconDim.y;
@@ -1607,7 +1619,7 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
       iconRect.bottom += 4;
       RECT healthBar = iconRect;
       if (!AddGpuSolidRect(healthBar, black))
-        return false;
+        return fail("unit-health-bar");
       InflateRect(&healthBar, -1, -1);
       RECT leftRect = healthBar;
       RECT rightRect = healthBar;
@@ -1622,10 +1634,10 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
         else if (ratio < 0.75)
           healthColor = colorset_Get()->GetColor(COLOR_YELLOW);
         if (!AddGpuSolidRect(rightRect, black))
-          return false;
+          return fail("unit-health-bar");
       }
       if (!AddGpuSolidRect(leftRect, healthColor))
-        return false;
+        return fail("unit-health-bar");
       iconRect.top = iconRect.bottom;
     }
 
@@ -1635,14 +1647,14 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
     else if (stackSize >= 10 && stackSize <= 12)
       stackIcon = (MAPICON)((sint32)MAPICON_HERALD10 + stackSize - 10);
     else if (stackSize > 12)
-      return false;
+      return fail("unit-stack-size");
     if (!AddGpuMapIconQuad(tileSet, stackIcon, iconRect.left, iconRect.top, playerColor))
-      return false;
+      return fail("unit-stack-icon");
     iconRect.top += iconDim.y;
 
     if (m_unitID.IsValid() && m_unitID->GetArmy().IsValid() && m_unitID->GetArmy()->Num() > 1) {
       if (!AddGpuMapIconQuad(tileSet, MAPICON_ARMY, iconRect.left, iconRect.top, playerColor))
-        return false;
+        return fail("unit-army-icon");
       iconRect.top += tileSet->GetMapIconDimensions(MAPICON_ARMY).y;
     }
 
@@ -1650,17 +1662,17 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
       Army army = m_unitID->GetArmy();
       if (army->HasVeterans() && !army->HasElite()) {
         if (!AddGpuMapIconQuad(tileSet, MAPICON_VETERAN, iconRect.left, iconRect.top, playerColor))
-          return false;
+          return fail("unit-veteran-icon");
         iconRect.top += tileSet->GetMapIconDimensions(MAPICON_VETERAN).y;
       } else if (army->HasElite()) {
         if (!AddGpuMapIconQuad(tileSet, MAPICON_ELITE, iconRect.left, iconRect.top, playerColor))
-          return false;
+          return fail("unit-elite-icon");
         iconRect.top += tileSet->GetMapIconDimensions(MAPICON_ELITE).y;
       }
 
       if (army->HasCargo() && !(army->HasCargoOnlyStealth() && m_playerNum != selitem_Get()->GetVisiblePlayer())) {
         if (!AddGpuMapIconQuad(tileSet, MAPICON_CARGO, iconRect.left, iconRect.top, playerColor))
-          return false;
+          return fail("unit-cargo-icon");
       }
     }
 

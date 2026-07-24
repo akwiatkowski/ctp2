@@ -3800,7 +3800,7 @@ void TiledMap::BuildTerrainQuads()
 
 			if (!actor->AddGpuSpriteQuad(drawX + aui_SDL::WorldContentOffX(),
 			                         drawY + aui_SDL::WorldContentOffY(), scale))
-				aui_SDL::MarkQuadFrameIncomplete("unit-sprite");
+				aui_SDL::MarkQuadFrameIncomplete(actor->GpuSpriteFallbackReason());
 		}
 	}
 

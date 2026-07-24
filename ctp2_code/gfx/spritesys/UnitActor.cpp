@@ -1482,11 +1482,9 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged) 
     flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
   if (fogged)
     flags |= k_BIT_DRAWFLAGS_FOGGED;
-  if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED))
-    return fail("unit-draw-flags");
   if (m_unitID.IsValid()) {
-    if (m_unitID.IsAsleep() && !(flags & (k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED)))
-      return fail("unit-asleep");
+    if (m_unitID.IsAsleep())
+      flags |= k_BIT_DRAWFLAGS_DESATURATED;
     if (m_unitID.IsCloaked())
       return fail("unit-cloaked");
     if (m_unitID.IsEntrenched())
@@ -1498,6 +1496,8 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged) 
     if (m_unitID.HasForceField())
       return fail("unit-forcefield");
   }
+  if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED | k_BIT_DRAWFLAGS_DESATURATED))
+    return fail("unit-draw-flags");
   SELECT_TYPE selectType;
   ID selectedID;
   PLAYER_INDEX selectedPlayer;

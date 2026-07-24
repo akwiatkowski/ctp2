@@ -41,6 +41,7 @@ bool aui_SDL::m_quadFrameComplete = true;
 char const *aui_SDL::m_quadFrameIncompleteReason = nullptr;
 std::vector<aui_SDL::GpuQuad> aui_SDL::m_quadDrawList;
 std::map<ModernSpriteAtlas const *, SDL_Texture *> aui_SDL::m_spriteAtlasTextures;
+std::map<ModernSpriteAtlas const *, SDL_Texture *> aui_SDL::m_desaturatedSpriteAtlasTextures;
 std::map<std::tuple<void const *, int, int, uint16>, SDL_Texture *> aui_SDL::m_mapIconTextures;
 std::map<uint16, SDL_Texture *> aui_SDL::m_solidColorTextures;
 std::vector<aui_SDL::GpuSpriteQuad> aui_SDL::m_spriteDrawList;
@@ -150,14 +151,28 @@ void aui_SDL::MarkQuadFrameIncomplete(char const *reason)
 		m_quadFrameIncompleteReason = reason;
 }
 
-SDL_Texture *aui_SDL::EnsureSpriteAtlasTexture(ModernSpriteAtlas const *atlas)
+SDL_Texture *aui_SDL::EnsureSpriteAtlasTexture(ModernSpriteAtlas const *atlas, bool desaturate)
 {
 	if (!m_renderer || !atlas || atlas->Width() <= 0 || atlas->Height() <= 0)
 		return nullptr;
 
-	auto const found = m_spriteAtlasTextures.find(atlas);
-	if (found != m_spriteAtlasTextures.end())
+	auto &textures = desaturate ? m_desaturatedSpriteAtlasTextures : m_spriteAtlasTextures;
+	auto const found = textures.find(atlas);
+	if (found != textures.end())
 		return found->second;
+
+	std::vector<uint8_t> rgba;
+	uint8_t const *pixels = atlas->Rgba().data();
+	if (desaturate)
+	{
+		rgba = atlas->Rgba();
+		for (size_t i = 0; i + 3 < rgba.size(); i += 4)
+		{
+			uint8_t const ave = static_cast<uint8_t>((static_cast<uint16_t>(rgba[i]) + rgba[i + 1] + rgba[i + 2]) / 3);
+			rgba[i] = rgba[i + 1] = rgba[i + 2] = ave;
+		}
+		pixels = rgba.data();
+	}
 
 	SDL_Texture *texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ABGR8888,
 		SDL_TEXTUREACCESS_STATIC, atlas->Width(), atlas->Height());
@@ -165,19 +180,25 @@ SDL_Texture *aui_SDL::EnsureSpriteAtlasTexture(ModernSpriteAtlas const *atlas)
 		return nullptr;
 
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-	CTP2_SDL_UpdateTexture(texture, nullptr, atlas->Rgba().data(), atlas->Width() * 4);
-	m_spriteAtlasTextures[atlas] = texture;
+	CTP2_SDL_UpdateTexture(texture, nullptr, pixels, atlas->Width() * 4);
+	textures[atlas] = texture;
 	return texture;
 }
 
 void aui_SDL::ReleaseSpriteAtlasTexture(ModernSpriteAtlas const *atlas)
 {
 	auto const found = m_spriteAtlasTextures.find(atlas);
-	if (found == m_spriteAtlasTextures.end())
-		return;
+	if (found != m_spriteAtlasTextures.end())
+	{
+		SDL_DestroyTexture(found->second);
+		m_spriteAtlasTextures.erase(found);
+	}
 
-	SDL_DestroyTexture(found->second);
-	m_spriteAtlasTextures.erase(found);
+	auto const desatFound = m_desaturatedSpriteAtlasTextures.find(atlas);
+	if (desatFound == m_desaturatedSpriteAtlasTextures.end())
+		return;
+	SDL_DestroyTexture(desatFound->second);
+	m_desaturatedSpriteAtlasTextures.erase(desatFound);
 }
 
 SDL_Texture *aui_SDL::EnsureMapIconTexture(void const *data, int w, int h, uint16 color)
@@ -458,6 +479,9 @@ aui_SDL::~aui_SDL()
 		for (auto &entry : m_spriteAtlasTextures)
 			SDL_DestroyTexture(entry.second);
 		m_spriteAtlasTextures.clear();
+		for (auto &entry : m_desaturatedSpriteAtlasTextures)
+			SDL_DestroyTexture(entry.second);
+		m_desaturatedSpriteAtlasTextures.clear();
 		for (auto &entry : m_mapIconTextures)
 			SDL_DestroyTexture(entry.second);
 		m_mapIconTextures.clear();

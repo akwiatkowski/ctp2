@@ -331,7 +331,7 @@ bool UnitSpriteGroup::AddGpuSpriteQuad(UNITACTION action, sint32 frame, sint32 d
 		return false;
 	if (directionalAttack || specialDelayProcess || outlineColor != 0)
 		return false;
-	if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED))
+	if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED | k_BIT_DRAWFLAGS_DESATURATED))
 		return false;
 	if (   (action == UNITACTION_IDLE && m_sprites[action] == nullptr)
 	    || (action == UNITACTION_ATTACK && m_sprites[action] == nullptr)
@@ -353,7 +353,9 @@ bool UnitSpriteGroup::AddGpuSpriteQuad(UNITACTION action, sint32 frame, sint32 d
 	if (!r)
 		return false;
 
-	SDL_Texture * texture = aui_SDL::EnsureSpriteAtlasTexture(m_modernAtlas.get());
+	bool const desaturate = !(flags & (k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED))
+	                   && (flags & k_BIT_DRAWFLAGS_DESATURATED);
+	SDL_Texture * texture = aui_SDL::EnsureSpriteAtlasTexture(m_modernAtlas.get(), desaturate);
 	if (!texture)
 		return false;
 

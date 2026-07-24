@@ -30,6 +30,13 @@ def run(binary):
             client.wait_game_loaded()
 
             city = client.result("build_city")["pos"]
+            client.expect_ok("set_show_city_names", 0)
+            client.expect_ok("camera_debug_center", city["x"], city["y"])
+            client.expect_ok("screenshot_presented", screenshot)
+            gpu = client.result("query_gpu_world")
+            assert gpu["enabled"] and gpu["complete"], gpu
+            print("[gpu-fallbacks] PASS: city actor base renders on GPU")
+
             client.expect_ok("set_show_city_names", 1)
             last_gpu = None
 

@@ -1566,12 +1566,16 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 
 		seed = g_oldRandSeed ? g_oldRandSeed : GetTickCount();
 
-		fin = fopen("logs\\oldseed.txt", "w");
-		fprintf (fin, "%d\n", seed);
+		fin = fopen("logs/oldseed.txt", "w");
+		if (fin) {
+			fprintf (fin, "%d\n", seed);
+		}
 	}
 
 	DPRINTF(k_DBG_FIX, ("** RANDOM SEED %d\n", seed));
-	fclose (fin);
+	if (fin) {
+		fclose (fin);
+	}
 #else
 
 	seed = g_oldRandSeed ? g_oldRandSeed : GetTickCount();

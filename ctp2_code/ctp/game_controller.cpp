@@ -74,6 +74,7 @@
 #include "gs/gameobj/TerrImprovePool.h"       // terrimprovepool_Get
 #include "gs/database/profileDB.h"            // profiledb_Get()->IsAIOn()
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
+#include "ui/aui_sdl/aui_sdl.h"               // GPU world diagnostics
 
 using json = nlohmann::json;
 
@@ -2856,6 +2857,18 @@ std::string QueryNames()
     return Ok("query_names", result);
 }
 
+std::string QueryGpuWorld()
+{
+    json result;
+    result["enabled"] = aui_SDL::GpuQuadsEnabled();
+    result["complete"] = aui_SDL::QuadFrameComplete();
+    char const *reason = aui_SDL::QuadFrameIncompleteReason();
+    result["fallback_reason"] = reason ? reason : "";
+    result["terrain_quads"] = aui_SDL::QuadDrawList().size();
+    result["sprite_quads"] = aui_SDL::SpriteDrawList().size();
+    return Ok("query_gpu_world", result);
+}
+
 }  // namespace
 
 namespace game_controller {
@@ -2885,6 +2898,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line == "query_turn")                                   return QueryTurn();
     if (line == "query_terrains")                               return QueryTerrains();
     if (line == "query_names")                                  return QueryNames();
+    if (line == "query_gpu_world")                              return QueryGpuWorld();
     if (line == "query_research")                               return QueryResearch();
     if (line.rfind("set_research ", 0) == 0)                    return CmdSetResearch(line.c_str() + 13);
     if (line.rfind("query_terraform ", 0) == 0)                 return QueryTerraform(line.c_str() + 16);

@@ -134,10 +134,11 @@ public:
 	// The per-frame draw list is rebuilt by the tile pass (BeginQuadFrame +
 	// AddQuad) and consumed by the present (QuadDrawList). It persists between
 	// presents so camera-only frames reuse it without a rebuild.
-	static void BeginQuadFrame() { m_quadDrawList.clear(); m_quadFrameComplete = true; }
+	static void BeginQuadFrame() { m_quadDrawList.clear(); m_quadFrameComplete = true; m_quadFrameIncompleteReason = nullptr; }
 	static void AddQuad(GpuQuad const &q) { m_quadDrawList.push_back(q); }
-	static void MarkQuadFrameIncomplete() { m_quadFrameComplete = false; }
+	static void MarkQuadFrameIncomplete(char const *reason = nullptr);
 	static bool QuadFrameComplete() { return m_quadFrameComplete; }
+	static char const *QuadFrameIncompleteReason() { return m_quadFrameIncompleteReason; }
 	static std::vector<GpuQuad> const &QuadDrawList() { return m_quadDrawList; }
 
 	struct GpuSpriteQuad { SDL_Texture *texture; int sx, sy, sw, sh; int dx, dy, dw, dh; bool mirror; };
@@ -177,6 +178,7 @@ protected:
 	static int		m_quadAtlasW;
 	static int		m_quadAtlasH;
 	static bool		m_quadFrameComplete;
+	static char const *	m_quadFrameIncompleteReason;
 	static std::vector<GpuQuad> m_quadDrawList;
 	static std::map<ModernSpriteAtlas const *, SDL_Texture *> m_spriteAtlasTextures;
 	static std::vector<GpuSpriteQuad> m_spriteDrawList;

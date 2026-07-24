@@ -36,6 +36,7 @@ SDL_Texture *aui_SDL::m_quadAtlasTexture = nullptr;
 int aui_SDL::m_quadAtlasW = 0;
 int aui_SDL::m_quadAtlasH = 0;
 bool aui_SDL::m_quadFrameComplete = true;
+char const *aui_SDL::m_quadFrameIncompleteReason = nullptr;
 std::vector<aui_SDL::GpuQuad> aui_SDL::m_quadDrawList;
 std::map<ModernSpriteAtlas const *, SDL_Texture *> aui_SDL::m_spriteAtlasTextures;
 std::vector<aui_SDL::GpuSpriteQuad> aui_SDL::m_spriteDrawList;
@@ -136,6 +137,13 @@ void aui_SDL::UploadQuadAtlasSlot(int x, int y, int w, int h,
 	if (!m_quadAtlasTexture) return;
 	SDL_Rect rect = { x, y, w, h };
 	CTP2_SDL_UpdateTexture(m_quadAtlasTexture, &rect, pixels, pitch);
+}
+
+void aui_SDL::MarkQuadFrameIncomplete(char const *reason)
+{
+	m_quadFrameComplete = false;
+	if (!m_quadFrameIncompleteReason)
+		m_quadFrameIncompleteReason = reason;
 }
 
 SDL_Texture *aui_SDL::EnsureSpriteAtlasTexture(ModernSpriteAtlas const *atlas)
@@ -375,6 +383,7 @@ aui_SDL::~aui_SDL()
 		}
 		m_quadDrawList.clear();
 		m_quadFrameComplete = true;
+		m_quadFrameIncompleteReason = nullptr;
 		SDL_Quit();
 		m_lpdd = nullptr;
 	}

@@ -3649,8 +3649,8 @@ void TiledMap::BuildTerrainQuads()
 	aui_SDL::BeginQuadFrame();
 	aui_SDL::BeginSpriteFrame();
 
-	if (m_zoomLevel != k_ZOOM_LARGEST) { aui_SDL::MarkQuadFrameIncomplete(); return; }
-	if (!m_tileSet || !m_localVision)   { aui_SDL::MarkQuadFrameIncomplete(); return; }
+	if (m_zoomLevel != k_ZOOM_LARGEST) { aui_SDL::MarkQuadFrameIncomplete("zoom-level"); return; }
+	if (!m_tileSet || !m_localVision)   { aui_SDL::MarkQuadFrameIncomplete("world-setup"); return; }
 
 	// Atlas geometry: a cols x rows grid of 94x72 tile slots. 1024 slots easily
 	// holds the distinct edge combinations on a real map (interiors share one
@@ -3669,7 +3669,7 @@ void TiledMap::BuildTerrainQuads()
 		m_gpuScratchTile.reset(aui_Factory::new_Surface(err, tileW, tileH,
 			nullptr, FALSE, FALSE, FALSE, /*bpp=*/32));
 	}
-	if (!m_gpuScratchTile) { aui_SDL::MarkQuadFrameIncomplete(); return; }
+	if (!m_gpuScratchTile) { aui_SDL::MarkQuadFrameIncomplete("scratch-surface"); return; }
 
 	aui_SDL::EnsureQuadAtlas(m_gpuTileCache->AtlasW(), m_gpuTileCache->AtlasH());
 
@@ -3789,7 +3789,7 @@ void TiledMap::BuildTerrainQuads()
 					goodActor->PositionActor(pos);
 					if (!goodActor->AddGpuSpriteQuad(drawX + aui_SDL::WorldContentOffX(),
 					                                drawY + aui_SDL::WorldContentOffY(), scale))
-						aui_SDL::MarkQuadFrameIncomplete();
+						aui_SDL::MarkQuadFrameIncomplete("good-sprite");
 				}
 			}
 
@@ -3800,7 +3800,7 @@ void TiledMap::BuildTerrainQuads()
 
 			if (!actor->AddGpuSpriteQuad(drawX + aui_SDL::WorldContentOffX(),
 			                         drawY + aui_SDL::WorldContentOffY(), scale))
-				aui_SDL::MarkQuadFrameIncomplete();
+				aui_SDL::MarkQuadFrameIncomplete("unit-sprite");
 		}
 	}
 
@@ -3809,7 +3809,7 @@ void TiledMap::BuildTerrainQuads()
 			&m_mapViewRect,
 			aui_SDL::WorldContentOffX() - baseX,
 			aui_SDL::WorldContentOffY() - baseY))
-		aui_SDL::MarkQuadFrameIncomplete();
+		aui_SDL::MarkQuadFrameIncomplete("effect-sprite");
 
 }
 

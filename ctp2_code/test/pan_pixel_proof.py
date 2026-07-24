@@ -168,9 +168,9 @@ def run_attempt(binary, env, socket_path, log, path0, path1):
         shifts = []
         for i in range(10):
             client.expect_ok("camera_debug_pan", 20, 0)
+            time.sleep(0.10)
             client.expect_ok("screenshot_presented", path1)
             shifts.append(measure_x_shift(path0, path1))
-            time.sleep(0.10)
         # One more after the ease finishes.
         time.sleep(0.8)
         client.expect_ok("screenshot_presented", path1)

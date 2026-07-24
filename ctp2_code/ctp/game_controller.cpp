@@ -365,6 +365,23 @@ std::string CmdDebugTerrainOverlay(const char * args)
     return Ok("debug_terrain_overlay");
 }
 
+std::string CmdSetZoomLevel(const char * args)
+{
+    int level = 0;
+    if (sscanf(args, "%d", &level) != 1 || level < k_ZOOM_SMALLEST || level > k_ZOOM_LARGEST)
+        return Err("set_zoom_level", "bad_args");
+    if (!tiledmap_Get())
+        return Err("set_zoom_level", "no_tiledmap");
+
+    while (tiledmap_Get()->GetZoomLevel() < level && tiledmap_Get()->ZoomIn()) {}
+    while (tiledmap_Get()->GetZoomLevel() > level && tiledmap_Get()->ZoomOut()) {}
+    tiledmap_Get()->BuildTerrainQuads();
+
+    json result;
+    result["zoom_level"] = tiledmap_Get()->GetZoomLevel();
+    return Ok("set_zoom_level", result);
+}
+
 // set_production <city_idx> <what>
 // what: a numeric unit type, "cheapest_military", "settler",
 //       "building <building_id>" (city improvements: granaries etc. —
@@ -2907,6 +2924,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line == "build_city")                                  return CmdBuildCity();
     if (line.rfind("set_show_city_names ", 0) == 0)             return CmdSetShowCityNames(line.c_str() + 20);
     if (line.rfind("debug_terrain_overlay ", 0) == 0)           return CmdDebugTerrainOverlay(line.c_str() + 22);
+    if (line.rfind("set_zoom_level ", 0) == 0)                  return CmdSetZoomLevel(line.c_str() + 15);
     if (line.rfind("set_production ", 0) == 0)                  return CmdSetProduction(line.c_str() + 15);
     if (line.rfind("save_game ", 0) == 0)                       return CmdSaveGame(line.c_str() + 10);
     if (line.rfind("load_game ", 0) == 0)                       return CmdLoadGame(line.c_str() + 10);

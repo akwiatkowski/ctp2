@@ -66,6 +66,13 @@ def run(binary):
             gpu = client.result("query_gpu_world")
             assert gpu["enabled"] and gpu["complete"], gpu
             print("[gpu-fallbacks] PASS: terrain overlay flag stays on GPU path")
+
+            client.expect_ok("set_zoom_level", 4)
+            client.expect_ok("camera_debug_center", city["x"], city["y"])
+            client.expect_ok("screenshot_presented", screenshot)
+            gpu = client.result("query_gpu_world")
+            assert gpu["enabled"] and gpu["complete"], gpu
+            print("[gpu-fallbacks] PASS: zoomed engine view stays on GPU path")
             return 0
     except (Ctp2Error, AssertionError, KeyError) as e:
         print(f"[gpu-fallbacks] FAIL: {e}")

@@ -3631,11 +3631,11 @@ sint32 TiledMap::Refresh()
 //
 // Rebuild the per-frame draw list of visible terrain cells as GPU quads. Each
 // cell's composited appearance is keyed by TerrainCellSignature; on a cache
-// miss the cell is composited exactly once (reusing DrawTransitionTile into a
-// 94x72 scratch surface) and uploaded into its atlas slot. On a hit we just
+// miss the cell is composited exactly once (reusing the legacy tile draw into a
+// zoom-sized scratch surface) and uploaded into its atlas slot. On a hit we just
 // reference the cached slot. The present (aui_SDLSurface::Flip) then draws each
-// quad from the atlas into the world texture. Largest zoom only for now
-// (camera zoom scales the world texture; engine zoom levels come later).
+// quad from the atlas into the world texture. The atlas slot size follows the
+// current engine zoom level; changing zoom rebuilds the cache at the new size.
 void TiledMap::BuildTerrainQuads()
 {
 	// Only the singleton main world map drives the (single, global) quad draw
@@ -3649,19 +3649,18 @@ void TiledMap::BuildTerrainQuads()
 	aui_SDL::BeginQuadFrame();
 	aui_SDL::BeginSpriteFrame();
 
-	if (m_zoomLevel != k_ZOOM_LARGEST) { aui_SDL::MarkQuadFrameIncomplete("zoom-level"); return; }
 	if (!m_tileSet || !m_localVision)   { aui_SDL::MarkQuadFrameIncomplete("world-setup"); return; }
 
-	// Atlas geometry: a cols x rows grid of 94x72 tile slots. 1024 slots easily
+	// Atlas geometry: a cols x rows grid of zoom-sized tile slots. 1024 slots easily
 	// holds the distinct edge combinations on a real map (interiors share one
 	// signature); LRU absorbs any overflow. Both atlas dims stay < 4096 so any
 	// GPU accepts the texture (3008 x 2304).
 	int const k_ATLAS_COLS = 32;
 	int const k_ATLAS_ROWS = 32;
-	int const tileW = k_TILE_PIXEL_WIDTH;   // 94
-	int const tileH = k_TILE_GRID_HEIGHT;   // 72
+	int const tileW = GetZoomTilePixelWidth();
+	int const tileH = GetZoomTileGridHeight();
 
-	if (!m_gpuTileCache)
+	if (!m_gpuTileCache || m_gpuTileCache->TileW() != tileW || m_gpuTileCache->TileH() != tileH)
 	{
 		m_gpuTileCache = std::make_unique<GpuTileCache>(
 			k_ATLAS_COLS, k_ATLAS_ROWS, tileW, tileH);
@@ -3738,7 +3737,11 @@ void TiledMap::BuildTerrainQuads()
 				if (m_surfBase)
 				{
 					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
-					DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
+					if (m_zoomLevel == k_ZOOM_LARGEST)
+						DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
+					else
+						DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
+							GetZoomTilePixelWidth(), GetZoomTilePixelHeight());
 					aui_SDL::UploadQuadAtlasSlot(slot.atlasX, slot.atlasY, tileW, tileH,
 						m_surfBase, m_surfPitch);
 				}

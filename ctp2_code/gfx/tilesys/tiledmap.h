@@ -598,8 +598,8 @@ protected:
 	TileSet			*m_tileSet;
 
 	// P11 Stage 3 G1: terrain quad cache + scratch. m_gpuTileCache maps a cell's
-	// appearance signature to an atlas slot; m_gpuScratchTile (94x72, 32-bit) is
-	// the compose-once buffer for a cache miss before upload to the atlas. Both
+	// appearance signature to a zoom-sized atlas slot; m_gpuScratchTile is the
+	// compose-once buffer for a cache miss before upload to the atlas. Both are
 	// created lazily on the first BuildTerrainQuads; null unless quads are on.
 	std::unique_ptr<GpuTileCache>	m_gpuTileCache;
 	std::unique_ptr<aui_Surface>	m_gpuScratchTile;

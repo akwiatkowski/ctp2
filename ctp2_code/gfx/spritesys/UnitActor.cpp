@@ -1527,12 +1527,6 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
       stackSize = myCell->UnitArmy()->Num();
     }
 
-    if (m_unitID.IsValid() && m_unitID->GetArmy().IsValid()) {
-      Army army = m_unitID->GetArmy();
-      if (army->HasVeterans() || army->HasElite() || army->HasCargo())
-        return false;
-    }
-
     double ratio = 1.0;
     if (m_unitID.IsValid()) {
       if (myCell && stackSize > 1 && myCell->GetNumUnits() && myCell->UnitArmy()) {
@@ -1568,10 +1562,6 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
       OffsetRect(&iconRect, middle - iconDim.x / 2, top - iconDim.y);
     }
 
-    sint32 specialIcon = 0;
-    if (m_unitID.IsValid() && m_unitID.GetDBRec()->GetHasReligionIconIndex(specialIcon))
-      return false;
-
     sint32 displayedOwner;
     if (m_unitID.IsValid() && m_unitID.IsHiddenNationality() &&
         m_playerNum != selitem_Get()->GetVisiblePlayer()) {
@@ -1581,7 +1571,11 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
     }
     Pixel16 playerColor = colorset_Get()->GetPlayerColor(displayedOwner);
 
-    if (profiledb_Get()->IsCivFlags()) {
+    sint32 specialIcon = 0;
+    if (m_unitID.IsValid() && m_unitID.GetDBRec()->GetHasReligionIconIndex(specialIcon)) {
+      if (!AddGpuMapIconQuad(tileSet, (MAPICON)specialIcon, iconRect.left, iconRect.top, playerColor))
+        return false;
+    } else if (profiledb_Get()->IsCivFlags()) {
       sint32 civ = -1;
       if (player_Get(displayedOwner) != nullptr) {
         civ = player_Get(displayedOwner)->GetCivilisation()->GetCivilisation();
@@ -1649,6 +1643,25 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
     if (m_unitID.IsValid() && m_unitID->GetArmy().IsValid() && m_unitID->GetArmy()->Num() > 1) {
       if (!AddGpuMapIconQuad(tileSet, MAPICON_ARMY, iconRect.left, iconRect.top, playerColor))
         return false;
+      iconRect.top += tileSet->GetMapIconDimensions(MAPICON_ARMY).y;
+    }
+
+    if (m_unitID.IsValid() && m_unitID->GetArmy().IsValid()) {
+      Army army = m_unitID->GetArmy();
+      if (army->HasVeterans() && !army->HasElite()) {
+        if (!AddGpuMapIconQuad(tileSet, MAPICON_VETERAN, iconRect.left, iconRect.top, playerColor))
+          return false;
+        iconRect.top += tileSet->GetMapIconDimensions(MAPICON_VETERAN).y;
+      } else if (army->HasElite()) {
+        if (!AddGpuMapIconQuad(tileSet, MAPICON_ELITE, iconRect.left, iconRect.top, playerColor))
+          return false;
+        iconRect.top += tileSet->GetMapIconDimensions(MAPICON_ELITE).y;
+      }
+
+      if (army->HasCargo() && !(army->HasCargoOnlyStealth() && m_playerNum != selitem_Get()->GetVisiblePlayer())) {
+        if (!AddGpuMapIconQuad(tileSet, MAPICON_CARGO, iconRect.left, iconRect.top, playerColor))
+          return false;
+      }
     }
 
   }

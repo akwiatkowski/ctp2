@@ -3798,8 +3798,9 @@ void TiledMap::BuildTerrainQuads()
 			UnitActorPtr actor = top.GetActor();
 			if (!actor) continue;
 
+			bool const fog = m_localVision && m_localVision->IsExplored(pos) && !m_localVision->IsVisible(pos);
 			if (!actor->AddGpuSpriteQuad(drawX + aui_SDL::WorldContentOffX(),
-			                         drawY + aui_SDL::WorldContentOffY(), scale))
+			                         drawY + aui_SDL::WorldContentOffY(), scale, fog))
 				aui_SDL::MarkQuadFrameIncomplete(actor->GpuSpriteFallbackReason());
 		}
 	}

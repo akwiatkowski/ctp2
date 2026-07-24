@@ -1461,7 +1461,7 @@ void UnitActor::DrawDirect(aui_Surface* surf,
   }
 }
 
-bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
+bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged) {
   m_gpuSpriteFallbackReason = nullptr;
   auto fail = [this](char const *reason) {
     m_gpuSpriteFallbackReason = reason;
@@ -1480,12 +1480,14 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale) {
   uint16 flags = k_DRAWFLAGS_NORMAL;
   if (m_transparency < 15)
     flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
-  if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY))
+  if (fogged)
+    flags |= k_BIT_DRAWFLAGS_FOGGED;
+  if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED))
     return fail("unit-draw-flags");
   if (m_unitID.IsValid()) {
     if (m_unitID.IsCity())
       return fail("unit-city-actor");
-    if (m_unitID.IsAsleep())
+    if (m_unitID.IsAsleep() && !(flags & (k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED)))
       return fail("unit-asleep");
     if (m_unitID.IsCloaked())
       return fail("unit-cloaked");

@@ -308,6 +308,7 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					}
 					for (aui_SDL::GpuSpriteQuad const & q : aui_SDL::SpriteDrawList())
 					{
+						SDL_SetTextureColorMod(q.texture, q.red, q.green, q.blue);
 						SDL_SetTextureAlphaMod(q.texture, q.alpha);
 						CTP2_SDL_RenderTextureSrcDstFlip( m_renderer, q.texture,
 							q.sx, q.sy, q.sw, q.sh,

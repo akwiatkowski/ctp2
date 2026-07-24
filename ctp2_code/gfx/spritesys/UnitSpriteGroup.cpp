@@ -331,7 +331,7 @@ bool UnitSpriteGroup::AddGpuSpriteQuad(UNITACTION action, sint32 frame, sint32 d
 		return false;
 	if (directionalAttack || specialDelayProcess || outlineColor != 0)
 		return false;
-	if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY))
+	if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED))
 		return false;
 	if (   (action == UNITACTION_IDLE && m_sprites[action] == nullptr)
 	    || (action == UNITACTION_ATTACK && m_sprites[action] == nullptr)
@@ -372,6 +372,10 @@ bool UnitSpriteGroup::AddGpuSpriteQuad(UNITACTION action, sint32 frame, sint32 d
 	q.alpha = (flags & k_BIT_DRAWFLAGS_TRANSPARENCY)
 		? static_cast<uint8>(transparency > 31 ? 255 : (transparency * 255) / 32)
 		: 255;
+	if (!(flags & k_BIT_DRAWFLAGS_TRANSPARENCY) && (flags & k_BIT_DRAWFLAGS_FOGGED))
+	{
+		q.red = q.green = q.blue = 128;
+	}
 	aui_SDL::AddSpriteQuad(q);
 	return true;
 }

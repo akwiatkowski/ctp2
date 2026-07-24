@@ -74,6 +74,8 @@ def run(binary):
             client.wait_game_loaded()
 
             city = client.result("build_city")["pos"]
+            cities = client.result("query_cities")["cities"]
+            city_index = next(c["index"] for c in cities if c["pos"] == city)
             client.expect_ok("set_show_city_names", 0)
             client.expect_ok("camera_debug_center", city["x"], city["y"])
             client.expect_ok("screenshot_presented", screenshot)
@@ -94,6 +96,28 @@ def run(binary):
             assert gpu["enabled"] and gpu["complete"], gpu
             print("[gpu-fallbacks] PASS: fortified unit state stays on GPU path")
 
+            client.expect_ok("debug_cloak_army", archer_army["index"])
+            client.expect_ok("camera_debug_center", city["x"], city["y"])
+            client.expect_ok("screenshot_presented", screenshot)
+            gpu = client.result("query_gpu_world")
+            assert gpu["enabled"] and gpu["complete"], gpu
+            print("[gpu-fallbacks] PASS: cloaked unit state stays on GPU path")
+
+            client.expect_ok("debug_city_defense", city_index, "walls")
+            client.expect_ok("camera_debug_center", city["x"], city["y"])
+            client.expect_ok("screenshot_presented", screenshot)
+            gpu = client.result("query_gpu_world")
+            assert gpu["enabled"] and gpu["complete"], gpu
+            print("[gpu-fallbacks] PASS: city walls stay on GPU path")
+
+            client.expect_ok("debug_city_defense", city_index, "forcefield")
+            client.expect_ok("camera_debug_center", city["x"], city["y"])
+            client.expect_ok("screenshot_presented", screenshot)
+            gpu = client.result("query_gpu_world")
+            assert gpu["enabled"] and gpu["complete"], gpu
+            print("[gpu-fallbacks] PASS: forcefield stays on GPU path")
+            client.expect_ok("debug_city_defense", city_index, "clear")
+
             client.expect_ok("end_turn", 1)
             client.expect_ok("camera_debug_center", city["x"], city["y"])
             client.expect_ok("screenshot_presented", screenshot)
@@ -113,10 +137,11 @@ def run(binary):
                     if r.get("detail") == "modal":
                         return False
                     raise Ctp2Error(f"camera_debug_center failed: {r}")
-                client.expect_ok("screenshot_presented", screenshot)
+                client.expect_ok("screenshot_presented", after)
                 gpu = client.result("query_gpu_world")
                 last_gpu = gpu
-                return gpu["enabled"] and gpu["complete"]
+                assert gpu["enabled"] and gpu["complete"], gpu
+                return changed_samples(before, after) > 0
 
             try:
                 client.wait_until(city_names_complete, timeout=60, desc="city-name GPU render")
@@ -124,12 +149,38 @@ def run(binary):
                 print(f"[gpu-fallbacks] observed gpu state: {last_gpu}")
                 raise
             print("[gpu-fallbacks] PASS: city names stay on GPU path")
-            client.expect_ok("screenshot_presented", after)
             expect_visible_change("city names", before, after)
+
+            client.expect_ok("camera_debug_set", 50, 50)
+            client.expect_ok("screenshot_presented", screenshot)
+            gpu = client.result("query_gpu_world")
+            assert gpu["enabled"] and gpu["complete"], gpu
+            print("[gpu-fallbacks] PASS: city names stay on GPU path while panned")
+
+            client.expect_ok("set_zoom_level", 4)
+            client.expect_ok("camera_debug_center", city["x"], city["y"])
+            client.expect_ok("screenshot_presented", screenshot)
+            gpu = client.result("query_gpu_world")
+            assert gpu["enabled"] and gpu["complete"], gpu
+            print("[gpu-fallbacks] PASS: city names stay on GPU path while zoomed")
+
+            client.expect_ok("set_zoom_level", 0)
+            client.expect_ok("camera_debug_set", 0, 0)
 
             client.expect_ok("set_show_city_names", 0)
             client.expect_ok("camera_debug_center", city["x"], city["y"])
             client.expect_ok("screenshot_presented", before)
+
+            client.expect_ok("debug_scenario_start_flags", 1)
+            client.expect_ok("camera_debug_center", city["x"], city["y"])
+            client.expect_ok("screenshot_presented", after)
+            gpu = client.result("query_gpu_world")
+            assert gpu["enabled"] and gpu["complete"], gpu
+            print("[gpu-fallbacks] PASS: scenario start flags stay on GPU path")
+            expect_visible_change("scenario start flags", before, after)
+            client.expect_ok("debug_scenario_start_flags", 0)
+            client.expect_ok("screenshot_presented", before)
+
             client.expect_ok("debug_terrain_overlay", city["x"] + 1, city["y"])
             last_gpu = {}
 
@@ -160,14 +211,28 @@ def run(binary):
             expect_visible_change("engine zoom", before, after, minimum=10)
 
             client.expect_ok("set_zoom_level", 0)
-            client.expect_ok("camera_debug_center", city["x"], city["y"])
+            flash = {"x": city["x"] + 1, "y": city["y"]}
+            client.expect_ok("camera_debug_center", flash["x"], flash["y"])
             client.expect_ok("screenshot_presented", before)
-            client.expect_ok("debug_combat_flash", city["x"], city["y"])
-            client.expect_ok("screenshot_presented", after)
-            gpu = client.result("query_gpu_world")
-            assert gpu["enabled"] and gpu["complete"], gpu
+            client.expect_ok("debug_combat_flash", flash["x"], flash["y"])
+            last_gpu = {}
+
+            def combat_flash_visible():
+                nonlocal last_gpu
+                client.expect_ok("screenshot_presented", after)
+                gpu = client.result("query_gpu_world")
+                last_gpu = gpu
+                assert gpu["enabled"] and gpu["complete"], gpu
+                return changed_samples(before, after) > 0
+
+            try:
+                client.wait_until(combat_flash_visible, timeout=10, desc="combat flash visible")
+            except Ctp2Error:
+                print(f"[gpu-fallbacks] observed gpu state: {last_gpu}")
+                raise
             print("[gpu-fallbacks] PASS: combat flash stays on GPU path")
             expect_visible_change("combat flash", before, after)
+
             return 0
     except (Ctp2Error, AssertionError, KeyError) as e:
         print(f"[gpu-fallbacks] FAIL: {e}")

@@ -27,6 +27,7 @@
 #include "ctp/civapp.h"                       // civapp_Get()->IsGameLoaded()
 #include "ctp/ctp2_utils/civlog.h"            // civlog::Get
 #include "gs/utility/Globals.h"               // k_MAX_PLAYERS, k_GAME_OBJ_TYPE_*
+#include "gs/utility/safety.h"                // safe_shift_left_u64
 #include "gs/gameobj/player.h"                // player_Get, Player
 #include "gs/gameobj/Army.h"                  // Army
 #include "gs/gameobj/ArmyData.h"              // ArmyData::Settle / CanSettle
@@ -78,6 +79,7 @@
 #include "ui/aui_sdl/aui_sdl.h"               // GPU world diagnostics
 #include "gfx/tilesys/tiledmap.h"             // debug terrain-overlay fallback
 #include "gfx/spritesys/director.h"            // debug combat flash
+#include "ui/interface/scenarioeditor.h"       // debug scenario start flags
 
 using json = nlohmann::json;
 
@@ -419,6 +421,106 @@ std::string CmdDebugCombatFlash(const char * args)
     json result;
     result["pos"] = { {"x", x}, {"y", y} };
     return Ok("debug_combat_flash", result);
+}
+
+std::string CmdDebugScenarioStartFlags(const char * args)
+{
+    int on = 0;
+    if (sscanf(args, "%d", &on) != 1)
+        return Err("debug_scenario_start_flags", "bad_args");
+
+    ScenarioEditor::DebugSetStartFlags(on ? SCEN_START_LOC_MODE_PLAYER : SCEN_START_LOC_MODE_NONE);
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
+
+    json result;
+    result["show_start_flags"] = on != 0;
+    return Ok("debug_scenario_start_flags", result);
+}
+
+std::string CmdDebugCloakArmy(const char * args)
+{
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("debug_cloak_army", "bad_args");
+    Player * human = HumanPlayer();
+    if (!human || !human->GetAllArmiesList())
+        return Err("debug_cloak_army", "no_human_player");
+    if (idx < 0 || idx >= human->GetAllArmiesList()->Num())
+        return Err("debug_cloak_army", "bad_army_index");
+
+    Army army = human->GetAllArmiesList()->Access(idx);
+    if (!army.IsValid() || !army.AccessData() || army.Num() < 1)
+        return Err("debug_cloak_army", "invalid_army");
+    Unit unit = army.AccessData()->Access(0);
+    if (!unit.IsValid())
+        return Err("debug_cloak_army", "invalid_unit");
+    unit.Cloak();
+    return Ok("debug_cloak_army");
+}
+
+std::string CmdDebugCityDefense(const char * args)
+{
+    struct SavedImprovements { sint32 cityId; uint64 improvements; };
+    static std::vector<SavedImprovements> s_saved;
+
+    int cityIdx = -1;
+    char kind[32] = {0};
+    if (sscanf(args, "%d %31s", &cityIdx, kind) != 2)
+        return Err("debug_city_defense", "bad_args");
+    Player * human = HumanPlayer();
+    if (!human || !human->GetAllCitiesList())
+        return Err("debug_city_defense", "no_human_player");
+    if (cityIdx < 0 || cityIdx >= human->GetAllCitiesList()->Num())
+        return Err("debug_city_defense", "bad_city_index");
+
+    Unit city = human->GetAllCitiesList()->Access(cityIdx);
+    CityData * cd = city.IsValid() && city.GetData() ? city.GetData()->GetCityData() : nullptr;
+    if (!cd)
+        return Err("debug_city_defense", "invalid_city");
+
+    if (strcmp(kind, "clear") == 0) {
+        for (size_t i = 0; i < s_saved.size(); ++i) {
+            if (s_saved[i].cityId != city.m_id) continue;
+            cd->SetImprovements(s_saved[i].improvements);
+            s_saved.erase(s_saved.begin() + i);
+            if (tiledmap_Get())
+                tiledmap_Get()->BuildTerrainQuads();
+            return Ok("debug_city_defense");
+        }
+        if (tiledmap_Get())
+            tiledmap_Get()->BuildTerrainQuads();
+        return Ok("debug_city_defense");
+    }
+
+    sint32 building = -1;
+    for (sint32 i = 0; g_theBuildingDB && i < g_theBuildingDB->NumRecords(); ++i) {
+        const BuildingRecord *rec = g_theBuildingDB->Get(i);
+        if (!rec) continue;
+        if ((strcmp(kind, "walls") == 0 && rec->GetCityWalls())
+            || (strcmp(kind, "forcefield") == 0 && rec->GetForceField())) {
+            building = i;
+            break;
+        }
+    }
+    if (building < 0)
+        return Err("debug_city_defense", "no_matching_building");
+
+    bool saved = false;
+    for (SavedImprovements const &entry : s_saved)
+        saved = saved || entry.cityId == city.m_id;
+    if (!saved)
+        s_saved.push_back({city.m_id, cd->GetImprovements()});
+
+    cd->SetImprovements(cd->GetImprovements() | safe_shift_left_u64(building));
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
+
+    json result;
+    result["city"] = cityIdx;
+    result["building"] = building;
+    result["kind"] = kind;
+    return Ok("debug_city_defense", result);
 }
 
 std::string CmdSetZoomLevel(const char * args)
@@ -2982,6 +3084,9 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("set_show_city_names ", 0) == 0)             return CmdSetShowCityNames(line.c_str() + 20);
     if (line.rfind("debug_terrain_overlay ", 0) == 0)           return CmdDebugTerrainOverlay(line.c_str() + 22);
     if (line.rfind("debug_combat_flash ", 0) == 0)              return CmdDebugCombatFlash(line.c_str() + 19);
+    if (line.rfind("debug_scenario_start_flags ", 0) == 0)      return CmdDebugScenarioStartFlags(line.c_str() + 27);
+    if (line.rfind("debug_cloak_army ", 0) == 0)                return CmdDebugCloakArmy(line.c_str() + 17);
+    if (line.rfind("debug_city_defense ", 0) == 0)              return CmdDebugCityDefense(line.c_str() + 19);
     if (line.rfind("set_zoom_level ", 0) == 0)                  return CmdSetZoomLevel(line.c_str() + 15);
     if (line.rfind("set_production ", 0) == 0)                  return CmdSetProduction(line.c_str() + 15);
     if (line.rfind("save_game ", 0) == 0)                       return CmdSaveGame(line.c_str() + 10);

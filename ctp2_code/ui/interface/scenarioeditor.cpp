@@ -168,6 +168,7 @@ extern void WhackScreen();
 
 static MBCHAR *s_scenarioEditorBlock = "ScenarioEditor";
 static ScenarioEditor *s_scenarioEditor = nullptr;
+static SCEN_START_LOC_MODE s_debugStartLocMode = SCEN_START_LOC_MODE_NONE;
 static MBCHAR *s_scenarioAddStuffBlock = "ScenAddStuffWindow";
 
 #define k_TERRAIN_COLS_PER_ROW 6
@@ -532,6 +533,7 @@ AUI_ERRCODE ScenarioEditor::Initialize()
 
 AUI_ERRCODE ScenarioEditor::Cleanup()
 {
+	s_debugStartLocMode = SCEN_START_LOC_MODE_NONE;
 	if(s_scenarioEditor) {
 
 		// Only execute the necessary stuff from ScenarioEditor::Hide
@@ -1142,14 +1144,21 @@ bool ScenarioEditor::PlaceStartFlags()
 
 bool ScenarioEditor::ShowStartFlags()
 {
+	if(s_debugStartLocMode != SCEN_START_LOC_MODE_NONE) return true;
 	if(!s_scenarioEditor) return false;
 	return s_scenarioEditor->m_startLocMode != SCEN_START_LOC_MODE_NONE;
 }
 
 SCEN_START_LOC_MODE ScenarioEditor::GetStartLocMode()
 {
+	if(s_debugStartLocMode != SCEN_START_LOC_MODE_NONE) return s_debugStartLocMode;
 	if(!s_scenarioEditor) return SCEN_START_LOC_MODE_NONE;
 	return s_scenarioEditor->m_startLocMode;
+}
+
+void ScenarioEditor::DebugSetStartFlags(SCEN_START_LOC_MODE mode)
+{
+	s_debugStartLocMode = mode;
 }
 
 bool ScenarioEditor::PasteMode()
@@ -2438,6 +2447,7 @@ void ScenarioEditor::PlaceFlag(MapPoint &pos)
 
 void ScenarioEditor::GetLabel(MBCHAR *labelString, size_t labelSize, sint32 playerOrCiv)
 {
+	if(labelSize > 0) labelString[0] = '\0';
 	sint32 index;
 
 	if (playerOrCiv != -1) {
@@ -2446,7 +2456,7 @@ void ScenarioEditor::GetLabel(MBCHAR *labelString, size_t labelSize, sint32 play
 		index = selitem_Get()->GetVisiblePlayer();
 	}
 
-	SCEN_START_LOC_MODE mode = s_scenarioEditor->m_startLocMode;
+	SCEN_START_LOC_MODE mode = GetStartLocMode();
 
 	if (mode == SCEN_START_LOC_MODE_PLAYER ||
 		mode == SCEN_START_LOC_MODE_PLAYER_WITH_CIV)

@@ -163,6 +163,15 @@ inline bool CTP2_SDL_UpdateTexture(
 #endif
 }
 
+inline bool CTP2_SDL_SetTextureNearest(SDL_Texture *texture)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+#else
+	return SDL_SetTextureScaleMode(texture, SDL_ScaleModeNearest) == 0;
+#endif
+}
+
 inline bool CTP2_SDL_GetTextureSize(SDL_Texture *texture, int *width, int *height)
 {
 #if defined(CTP2_USE_SDL3)

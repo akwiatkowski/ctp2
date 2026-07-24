@@ -1645,6 +1645,29 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged) 
   sint32 const tileW = tiledmap_Get()->GetZoomTilePixelWidth();
   sint32 const tileH = tiledmap_Get()->GetZoomTileGridHeight();
   if (m_unitID.IsValid() && tileSet) {
+    if (m_unitID.IsCity()) {
+      Unit unit(m_unitID);
+      sint32 cityIcon = 0;
+      sint32 iconX = nudgeX;
+      for (sint32 b = 0; b < g_theBuildingDB->NumRecords() && b < 64; b++) {
+        if (buildingutil_Get(b, m_playerNum)->GetShowCityIconBottomIndex(cityIcon)
+            && (unit.CD()->GetImprovements() & ((uint64)1 << b))) {
+          if (!AddGpuImprovementQuad(tileSet->GetMapIconData(cityIcon), x + iconX, y + nudgeY,
+                                     tileW, tileH, fogged ? k_FOW_COLOR : 0x0000, fogged, false))
+            return fail("unit-city-building-icon");
+          iconX += 5;
+        }
+      }
+      for (sint32 i = 0; i < g_theWonderDB->NumRecords() && i < 64; i++) {
+        if (wonderutil_Get(i, m_playerNum)->GetShowCityIconBottomIndex(cityIcon)
+            && (unit.CD()->GetBuiltWonders() & ((uint64)1 << i))) {
+          if (!AddGpuImprovementQuad(tileSet->GetMapIconData(cityIcon), x + iconX, y + nudgeY,
+                                     tileW, tileH, fogged ? k_FOW_COLOR : 0x0000, fogged, false))
+            return fail("unit-city-wonder-icon");
+          iconX += 5;
+        }
+      }
+    }
     if (m_unitID.IsEntrenched() && !m_unitID.IsAsleep()) {
       Pixel16 *fortifiedImage = tileSet->GetImprovementData(34);
       if (!AddGpuImprovementQuad(fortifiedImage, x + nudgeX, y + nudgeY, tileW, tileH,

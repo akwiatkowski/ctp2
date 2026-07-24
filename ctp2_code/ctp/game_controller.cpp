@@ -406,6 +406,30 @@ std::string CmdDebugTerrainOverlay(const char * args)
     return Ok("debug_terrain_overlay");
 }
 
+std::string CmdDebugSetTerrain(const char * args)
+{
+	sint32 x = 0, y = 0, terrain = 0;
+	if (sscanf(args, "%d %d %d", &x, &y, &terrain) != 3)
+		return Err("debug_set_terrain", "bad_args");
+	World *w = world_Get();
+	if (!w)
+		return Err("debug_set_terrain", "no_world");
+	if (!g_theTerrainDB || terrain < 0 || terrain >= g_theTerrainDB->NumRecords())
+		return Err("debug_set_terrain", "bad_terrain");
+	if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+		return Err("debug_set_terrain", "out_of_bounds");
+
+	MapPoint pos(x, y);
+	w->SmartSetTerrain(pos, terrain, 0);
+	if (tiledmap_Get())
+		tiledmap_Get()->BuildTerrainQuads();
+
+	json result;
+	result["pos"] = { {"x", x}, {"y", y} };
+	result["terrain"] = terrain;
+	return Ok("debug_set_terrain", result);
+}
+
 std::string CmdDebugCombatFlash(const char * args)
 {
     sint32 x = 0, y = 0;
@@ -3083,6 +3107,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("end_turn", 0) == 0)                         return CmdEndTurn(line.c_str() + 8);
     if (line.rfind("set_show_city_names ", 0) == 0)             return CmdSetShowCityNames(line.c_str() + 20);
     if (line.rfind("debug_terrain_overlay ", 0) == 0)           return CmdDebugTerrainOverlay(line.c_str() + 22);
+    if (line.rfind("debug_set_terrain ", 0) == 0)               return CmdDebugSetTerrain(line.c_str() + 18);
     if (line.rfind("debug_combat_flash ", 0) == 0)              return CmdDebugCombatFlash(line.c_str() + 19);
     if (line.rfind("debug_scenario_start_flags ", 0) == 0)      return CmdDebugScenarioStartFlags(line.c_str() + 27);
     if (line.rfind("debug_cloak_army ", 0) == 0)                return CmdDebugCloakArmy(line.c_str() + 17);

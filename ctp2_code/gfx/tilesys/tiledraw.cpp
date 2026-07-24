@@ -3395,8 +3395,8 @@ L0:
                                 pedx = tileData[ax];
                                 if (pedx == nullptr)
                                     goto L2;
-                                tileData[ax] = pedx;
-                                dx = pedx[-1];
+                                tileData[ax] = pedx + 1;
+                                dx = *pedx;
                                 goto L1;
 L2:
                                 dx = *ebx;

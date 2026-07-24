@@ -52,6 +52,7 @@
 #include "ConstRecord.h"                      // g_theConstDB (end-of-game year)
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 #include "TerrainRecord.h"                    // g_theTerrainDB, TerrainRecord
+#include "TerrainImprovementRecord.h"         // debug terrain overlay
 #include "BuildingRecord.h"                   // g_theBuildingDB, BuildingRecord
 #include "WonderRecord.h"                     // g_theWonderDB, WonderRecord
 #include "GovernmentRecord.h"                 // g_theGovernmentDB, GovernmentRecord
@@ -76,6 +77,7 @@
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
 #include "ui/aui_sdl/aui_sdl.h"               // GPU world diagnostics
 #include "gfx/tilesys/tiledmap.h"             // debug terrain-overlay fallback
+#include "gfx/spritesys/director.h"            // debug combat flash
 
 using json = nlohmann::json;
 
@@ -339,6 +341,26 @@ std::string CmdBuildCity()
     return Err("build_city", "no_settler_found");
 }
 
+std::string CmdEndTurn(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("end_turn", "game_not_loaded");
+
+    int turns = 1;
+    if (args && *args && sscanf(args, "%d", &turns) != 1)
+        return Err("end_turn", "bad_args");
+    if (turns < 1 || turns > 20)
+        return Err("end_turn", "out_of_range");
+
+    sint32 const startRound = turn_Get() ? turn_Get()->GetRound() : 0;
+    for (int i = 0; i < turns; ++i)
+        game_controller::RunRound(startRound + i, nullptr);
+
+    json result;
+    result["round"] = turn_Get() ? turn_Get()->GetRound() : startRound + turns;
+    return Ok("end_turn", result);
+}
+
 std::string CmdSetShowCityNames(const char * args)
 {
     int on = 0;
@@ -346,6 +368,8 @@ std::string CmdSetShowCityNames(const char * args)
         return Err("set_show_city_names", "bad_args");
 
     profiledb_Get()->SetShowCityNames(on != 0);
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
     json result;
     result["show_city_names"] = profiledb_Get()->GetShowCityNames() != FALSE;
     return Ok("set_show_city_names", result);
@@ -358,11 +382,43 @@ std::string CmdDebugTerrainOverlay(const char * args)
         return Err("debug_terrain_overlay", "bad_args");
     if (!tiledmap_Get())
         return Err("debug_terrain_overlay", "no_tiledmap");
-
     MapPoint pos(x, y);
-    tiledmap_Get()->SetTerrainOverlay(nullptr, pos, 0xffff);
+    const TerrainImprovementRecord *rec = nullptr;
+    for (sint32 i = 0; g_theTerrainImprovementDB && i < g_theTerrainImprovementDB->NumRecords(); ++i) {
+        const TerrainImprovementRecord *candidate = g_theTerrainImprovementDB->Get(i);
+        const TerrainImprovementRecord::Effect *effect = candidate
+            ? ((candidate->GetClassTerraform() || candidate->GetClassOceanform())
+                ? candidate->GetTerrainEffect(0)
+                : terrainutil_GetTerrainEffect(candidate, pos))
+            : nullptr;
+        if (effect && effect->GetTilesetIndex() > 0) {
+            rec = candidate;
+            break;
+        }
+    }
+    if (!rec)
+        return Err("debug_terrain_overlay", "no_overlay_record");
+
+    tiledmap_Get()->SetTerrainOverlay(const_cast<TerrainImprovementRecord *>(rec), pos, 0xffff);
     tiledmap_Get()->BuildTerrainQuads();
     return Ok("debug_terrain_overlay");
+}
+
+std::string CmdDebugCombatFlash(const char * args)
+{
+    sint32 x = 0, y = 0;
+    if (sscanf(args, "%d %d", &x, &y) != 2)
+        return Err("debug_combat_flash", "bad_args");
+    if (!director_Get())
+        return Err("debug_combat_flash", "no_director");
+
+    MapPoint pos(x, y);
+    director_Get()->AddCombatFlash(pos);
+    director_Get()->HandleNextAction();
+
+    json result;
+    result["pos"] = { {"x", x}, {"y", y} };
+    return Ok("debug_combat_flash", result);
 }
 
 std::string CmdSetZoomLevel(const char * args)
@@ -2922,8 +2978,10 @@ std::string Dispatch(const std::string & line, bool & handled)
     handled = true;
 
     if (line == "build_city")                                  return CmdBuildCity();
+    if (line.rfind("end_turn", 0) == 0)                         return CmdEndTurn(line.c_str() + 8);
     if (line.rfind("set_show_city_names ", 0) == 0)             return CmdSetShowCityNames(line.c_str() + 20);
     if (line.rfind("debug_terrain_overlay ", 0) == 0)           return CmdDebugTerrainOverlay(line.c_str() + 22);
+    if (line.rfind("debug_combat_flash ", 0) == 0)              return CmdDebugCombatFlash(line.c_str() + 19);
     if (line.rfind("set_zoom_level ", 0) == 0)                  return CmdSetZoomLevel(line.c_str() + 15);
     if (line.rfind("set_production ", 0) == 0)                  return CmdSetProduction(line.c_str() + 15);
     if (line.rfind("save_game ", 0) == 0)                       return CmdSaveGame(line.c_str() + 10);

@@ -70,13 +70,16 @@
 #include "ctp/c3.h"
 #include "gfx/spritesys/UnitActor.h"
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include "ctp/debugtools/debugmemory.h"
 #include "gfx/gfx_utils/colorset.h"  // g_colorset
+#include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/spritesys/SpriteGroupList.h"
 #include "gfx/spritesys/SpriteState.h"
 #include "gfx/spritesys/director.h"  // director_Get()
@@ -237,13 +240,17 @@ bool AddGpuTextQuad(aui_BitmapFont *font, char const *text, sint32 x, sint32 y, 
     texture = found->second;
   } else {
     AUI_ERRCODE err = AUI_ERRCODE_OK;
-    std::unique_ptr<aui_Surface> surface(aui_Factory::new_Surface(err, w, h, nullptr, FALSE, FALSE, FALSE, 32));
+    std::unique_ptr<aui_Surface> surface(aui_Factory::new_Surface(err, w, h, nullptr, FALSE, FALSE, FALSE, 16));
     if (!surface)
       return false;
     LPVOID bits = nullptr;
     if (surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
       return false;
-    memset(bits, 0, static_cast<size_t>(surface->Pitch()) * static_cast<size_t>(h));
+    Pixel16 const transparent = 0xf81fu;
+    for (sint32 rowIndex = 0; rowIndex < h; ++rowIndex) {
+      Pixel16 *row = reinterpret_cast<Pixel16 *>(static_cast<uint8 *>(bits) + rowIndex * surface->Pitch());
+      std::fill(row, row + w, transparent);
+    }
     surface->Unlock(bits);
     RECT rect = {0, 0, w, h};
     font->DrawString(surface.get(), &rect, &rect, text, 0, color, 0);
@@ -254,7 +261,14 @@ bool AddGpuTextQuad(aui_BitmapFont *font, char const *text, sint32 x, sint32 y, 
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
     if (surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
       return false;
-    CTP2_SDL_UpdateTexture(texture, nullptr, bits, surface->Pitch());
+    std::vector<uint32> rgba(static_cast<size_t>(w) * static_cast<size_t>(h));
+    for (sint32 rowIndex = 0; rowIndex < h; ++rowIndex) {
+      Pixel16 *row = reinterpret_cast<Pixel16 *>(static_cast<uint8 *>(bits) + rowIndex * surface->Pitch());
+      for (sint32 col = 0; col < w; ++col)
+        rgba[static_cast<size_t>(rowIndex) * static_cast<size_t>(w) + col] =
+            (row[col] == transparent) ? 0u : (pixelutils_16to8888(row[col]) | 0xff000000u);
+    }
+    CTP2_SDL_UpdateTexture(texture, nullptr, rgba.data(), w * 4);
     surface->Unlock(bits);
     s_textures[key] = texture;
   }

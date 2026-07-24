@@ -142,7 +142,7 @@ public:
 	static char const *QuadFrameIncompleteReason() { return m_quadFrameIncompleteReason; }
 	static std::vector<GpuQuad> const &QuadDrawList() { return m_quadDrawList; }
 
-	struct GpuSpriteQuad { SDL_Texture *texture; int sx, sy, sw, sh; int dx, dy, dw, dh; bool mirror; uint8 alpha; uint8 red = 255, green = 255, blue = 255; bool additive = false; };
+	struct GpuSpriteQuad { SDL_Texture *texture; int sx, sy, sw, sh; int dx, dy, dw, dh; bool mirror; uint8 alpha; uint8 red = 255, green = 255, blue = 255; bool additive = false; bool screen_space = false; };
 	static SDL_Texture *EnsureSpriteAtlasTexture(ModernSpriteAtlas const *atlas, bool desaturate = false);
 	static void ReleaseSpriteAtlasTexture(ModernSpriteAtlas const *atlas);
 	static SDL_Texture *EnsureMapIconTexture(void const *data, int w, int h, uint16 color, bool blend = false, int blendValue = 0, bool dither = false);

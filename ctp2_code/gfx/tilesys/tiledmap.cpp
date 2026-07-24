@@ -61,6 +61,7 @@
 
 #include "gs/outcom/AICause.h"
 #include <algorithm>                    // std::fill
+#include <vector>
 #include "gs/gameobj/ArmyData.h"
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_blitter.h"
@@ -166,12 +167,20 @@ namespace
 {
     RECT const          RECT_INVISIBLE      = {0, 0, 0, 0};
 
-    bool AddGpuCityNamesQuad(TiledMap *map, sint32 w, sint32 h)
+    struct OverlayScratch
     {
-        static std::unique_ptr<aui_Surface> s_surface;
-        static SDL_Texture *s_texture = nullptr;
-        static sint32 s_w = 0;
-        static sint32 s_h = 0;
+        std::unique_ptr<aui_Surface> surface;
+        SDL_Texture *texture = nullptr;
+        sint32 w = 0;
+        sint32 h = 0;
+    };
+
+    bool AddGpuOverlayQuad(TiledMap *map, sint32 w, sint32 h, sint32 slot,
+                           char const *reason,
+                           void (TiledMap::*draw)(aui_Surface *, sint32))
+    {
+        static OverlayScratch s_scratch[2];
+        OverlayScratch &scratch = s_scratch[slot];
 
         auto fail = [](char const *reason) {
             aui_SDL::MarkQuadFrameIncomplete(reason);
@@ -179,51 +188,74 @@ namespace
         };
 
         if (!map || !aui_SDL::Renderer() || w <= 0 || h <= 0)
-            return fail("city-names-setup");
-        if (!s_surface || s_w != w || s_h != h)
+            return fail(reason);
+        if (!scratch.surface || scratch.w != w || scratch.h != h)
         {
-            if (s_texture)
+            if (scratch.texture)
             {
-                SDL_DestroyTexture(s_texture);
-                s_texture = nullptr;
+                SDL_DestroyTexture(scratch.texture);
+                scratch.texture = nullptr;
             }
             AUI_ERRCODE err = AUI_ERRCODE_OK;
-            s_surface.reset(aui_Factory::new_Surface(err, w, h, nullptr, FALSE, FALSE, FALSE, 32));
-            s_w = w;
-            s_h = h;
+            scratch.surface.reset(aui_Factory::new_Surface(err, w, h, nullptr, FALSE, FALSE, FALSE, 16));
+            scratch.w = w;
+            scratch.h = h;
         }
-        if (!s_surface)
-            return fail("city-names-surface");
+        if (!scratch.surface)
+            return fail(reason);
 
         LPVOID bits = nullptr;
-        if (s_surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
-            return fail("city-names-lock");
-        memset(bits, 0, static_cast<size_t>(s_surface->Pitch()) * static_cast<size_t>(h));
-        s_surface->Unlock(bits);
-
-        map->DrawCityNames(s_surface.get(), 0);
-
-        if (!s_texture)
+        if (scratch.surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
+            return fail(reason);
+        Pixel16 const transparent = 0xf81fu;
+        for (sint32 y = 0; y < h; ++y)
         {
-            s_texture = SDL_CreateTexture(aui_SDL::Renderer(), SDL_PIXELFORMAT_ARGB8888,
-                                          SDL_TEXTUREACCESS_STREAMING, w, h);
-            if (!s_texture)
-                return fail("city-names-texture");
-            SDL_SetTextureBlendMode(s_texture, SDL_BLENDMODE_BLEND);
+            Pixel16 *row = reinterpret_cast<Pixel16 *>(static_cast<uint8 *>(bits) + y * scratch.surface->Pitch());
+            std::fill(row, row + w, transparent);
+        }
+        scratch.surface->Unlock(bits);
+
+        (map->*draw)(scratch.surface.get(), 0);
+
+        if (!scratch.texture)
+        {
+            scratch.texture = SDL_CreateTexture(aui_SDL::Renderer(), SDL_PIXELFORMAT_ARGB8888,
+                                                SDL_TEXTUREACCESS_STREAMING, w, h);
+            if (!scratch.texture)
+                return fail(reason);
+            SDL_SetTextureBlendMode(scratch.texture, SDL_BLENDMODE_BLEND);
         }
 
-        if (s_surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
-            return fail("city-names-lock-upload");
-        CTP2_SDL_UpdateTexture(s_texture, nullptr, bits, s_surface->Pitch());
-        s_surface->Unlock(bits);
+        if (scratch.surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
+            return fail(reason);
+        std::vector<uint32> rgba(static_cast<size_t>(w) * static_cast<size_t>(h));
+        bool anyPixel = false;
+        for (sint32 y = 0; y < h; ++y)
+        {
+            Pixel16 *row = reinterpret_cast<Pixel16 *>(static_cast<uint8 *>(bits) + y * scratch.surface->Pitch());
+            for (sint32 x = 0; x < w; ++x) {
+                if (row[x] != transparent) {
+                    anyPixel = true;
+                    rgba[static_cast<size_t>(y) * static_cast<size_t>(w) + x] =
+                        pixelutils_16to8888(row[x]) | 0xff000000u;
+                }
+            }
+        }
+        if (!anyPixel) {
+            scratch.surface->Unlock(bits);
+            return true;
+        }
+        CTP2_SDL_UpdateTexture(scratch.texture, nullptr, rgba.data(), w * 4);
+        scratch.surface->Unlock(bits);
 
         aui_SDL::GpuSpriteQuad q;
-        q.texture = s_texture;
+        q.texture = scratch.texture;
         q.sx = 0; q.sy = 0; q.sw = w; q.sh = h;
-        q.dx = aui_SDL::WorldContentOffX(); q.dy = aui_SDL::WorldContentOffY();
+        q.dx = 0; q.dy = 0;
         q.dw = w; q.dh = h;
         q.mirror = false;
         q.alpha = 255;
+        q.screen_space = true;
         aui_SDL::AddSpriteQuad(q);
         return true;
     }
@@ -3908,11 +3940,16 @@ void TiledMap::BuildTerrainQuads()
 	}
 
 	if (profiledb_Get()->GetShowCityNames()
-	    && (!c3ui_Get() || !AddGpuCityNamesQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight())))
+	    && (!c3ui_Get() || !AddGpuOverlayQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight(),
+	                                         0, "city-names", &TiledMap::DrawCityNames)))
 		aui_SDL::MarkQuadFrameIncomplete("city-names");
 
 	if (ScenarioEditor::ShowStartFlags())
-		aui_SDL::MarkQuadFrameIncomplete("scenario-start-flags");
+	{
+		if (!c3ui_Get() || !AddGpuOverlayQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight(),
+		                                      1, "scenario-start-flags", &TiledMap::DrawStartingLocations))
+			aui_SDL::MarkQuadFrameIncomplete("scenario-start-flags");
+	}
 
 }
 

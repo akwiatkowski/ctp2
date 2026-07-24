@@ -308,6 +308,8 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					}
 					for (aui_SDL::GpuSpriteQuad const & q : aui_SDL::SpriteDrawList())
 					{
+						if (q.screen_space)
+							continue;
 						SDL_SetTextureBlendMode(q.texture, q.additive ? SDL_BLENDMODE_ADD : SDL_BLENDMODE_BLEND);
 						SDL_SetTextureColorMod(q.texture, q.red, q.green, q.blue);
 						SDL_SetTextureAlphaMod(q.texture, q.alpha);
@@ -379,6 +381,18 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 						(float)aui_SDL::WorldContentOffY() );
 					if (fogged)
 						presentWindowed( aui_SDL::FogTexture(), 0.0f, 0.0f );
+				}
+				for (aui_SDL::GpuSpriteQuad const & q : aui_SDL::SpriteDrawList())
+				{
+					if (!q.screen_space)
+						continue;
+					SDL_SetTextureBlendMode(q.texture, q.additive ? SDL_BLENDMODE_ADD : SDL_BLENDMODE_BLEND);
+					SDL_SetTextureColorMod(q.texture, q.red, q.green, q.blue);
+					SDL_SetTextureAlphaMod(q.texture, q.alpha);
+					CTP2_SDL_RenderTextureSrcDstFlip( m_renderer, q.texture,
+						q.sx, q.sy, q.sw, q.sh,
+						(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh,
+						q.mirror );
 				}
 				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::UiTexture() );
 				SDL_RenderPresent( m_renderer );

@@ -270,6 +270,7 @@ nstrnsprt.cfg
 .!*
 logs\\oldseed.txt
 logs\\messages.txt
+logs\\diplomacy_log.txt
 
 # Local CI daemon runtime artifacts (.ci/ scripts are tracked, output is not)
 .ci/state.json

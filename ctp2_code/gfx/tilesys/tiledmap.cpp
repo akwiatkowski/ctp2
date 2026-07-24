@@ -3777,6 +3777,12 @@ void TiledMap::BuildTerrainQuads()
 		}
 	}
 
+	if (m_overlayActive)
+	{
+		aui_SDL::MarkQuadFrameIncomplete("terrain-overlay");
+		return;
+	}
+
 	PLAYER_INDEX const player = selitem_Get()->GetVisiblePlayer();
 	double const scale = GetScale();
 	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
@@ -3834,9 +3840,6 @@ void TiledMap::BuildTerrainQuads()
 			aui_SDL::WorldContentOffX() - baseX,
 			aui_SDL::WorldContentOffY() - baseY))
 		aui_SDL::MarkQuadFrameIncomplete("effect-sprite");
-
-	if (m_overlayActive)
-		aui_SDL::MarkQuadFrameIncomplete("terrain-overlay");
 
 	if (ScenarioEditor::ShowStartFlags())
 		aui_SDL::MarkQuadFrameIncomplete("scenario-start-flags");

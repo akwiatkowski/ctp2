@@ -75,6 +75,7 @@
 #include "gs/database/profileDB.h"            // profiledb_Get()->IsAIOn()
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
 #include "ui/aui_sdl/aui_sdl.h"               // GPU world diagnostics
+#include "gfx/tilesys/tiledmap.h"             // debug terrain-overlay fallback
 
 using json = nlohmann::json;
 
@@ -348,6 +349,20 @@ std::string CmdSetShowCityNames(const char * args)
     json result;
     result["show_city_names"] = profiledb_Get()->GetShowCityNames() != FALSE;
     return Ok("set_show_city_names", result);
+}
+
+std::string CmdDebugTerrainOverlay(const char * args)
+{
+    sint32 x = 0, y = 0;
+    if (sscanf(args, "%d %d", &x, &y) != 2)
+        return Err("debug_terrain_overlay", "bad_args");
+    if (!tiledmap_Get())
+        return Err("debug_terrain_overlay", "no_tiledmap");
+
+    MapPoint pos(x, y);
+    tiledmap_Get()->SetTerrainOverlay(nullptr, pos, 0xffff);
+    tiledmap_Get()->BuildTerrainQuads();
+    return Ok("debug_terrain_overlay");
 }
 
 // set_production <city_idx> <what>
@@ -2891,6 +2906,7 @@ std::string Dispatch(const std::string & line, bool & handled)
 
     if (line == "build_city")                                  return CmdBuildCity();
     if (line.rfind("set_show_city_names ", 0) == 0)             return CmdSetShowCityNames(line.c_str() + 20);
+    if (line.rfind("debug_terrain_overlay ", 0) == 0)           return CmdDebugTerrainOverlay(line.c_str() + 22);
     if (line.rfind("set_production ", 0) == 0)                  return CmdSetProduction(line.c_str() + 15);
     if (line.rfind("save_game ", 0) == 0)                       return CmdSaveGame(line.c_str() + 10);
     if (line.rfind("load_game ", 0) == 0)                       return CmdLoadGame(line.c_str() + 10);

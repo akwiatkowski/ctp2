@@ -73,6 +73,7 @@
 #include "AdvanceRecord.h"                    // g_theAdvanceDB, AdvanceRecord
 #include "gs/gameobj/Advances.h"              // Advances::CanResearch/GetCost
 #include "gs/gameobj/terrainutil.h"           // terrainutil_CanPlayerBuildAt/cost/time
+#include "gs/gameobj/unitutil.h"              // unitutil_GetSeaCity / city type
 #include "gs/gameobj/TerrImprove.h"           // TerrainImprovement
 #include "gs/gameobj/TerrImprovePool.h"       // terrimprovepool_Get
 #include "gs/database/profileDB.h"            // profiledb_Get()->IsAIOn()
@@ -225,6 +226,23 @@ std::string ToUtf8(const char * s)
         }
     }
     return out;
+}
+
+sint32 ResolveUnitType(const char * name)
+{
+    if (!g_theUnitDB || !name || !*name)
+        return -1;
+
+    sint32 type = -1;
+    if (sscanf(name, "%d", &type) == 1)
+        return (type >= 0 && type < g_theUnitDB->NumRecords()) ? type : -1;
+
+    for (sint32 i = 0; i < g_theUnitDB->NumRecords(); ++i) {
+        const UnitRecord * rec = g_theUnitDB->Get(i);
+        if (rec && rec->GetIDText() && strcmp(rec->GetIDText(), name) == 0)
+            return i;
+    }
+    return -1;
 }
 
 // {"status":"ok","cmd":"<verb>","result":{...}}  (result omitted if null)
@@ -622,6 +640,74 @@ std::string CmdDebugCityDefense(const char * args)
     result["building"] = building;
     result["kind"] = kind;
     return Ok("debug_city_defense", result);
+}
+
+std::string CmdDebugGalleryCase(const char * args)
+{
+    char kind[64] = {0};
+    char arg[128] = {0};
+    sint32 x = 0, y = 0;
+    int parsed = sscanf(args, "%63s %d %d %127s", kind, &x, &y, arg);
+    if (parsed < 3)
+        return Err("debug_gallery_case", "bad_args");
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("debug_gallery_case", "game_not_loaded");
+    Player * human = HumanPlayer();
+    World * w = world_Get();
+    if (!human || !w)
+        return Err("debug_gallery_case", "no_world");
+    if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("debug_gallery_case", "bad_position");
+
+    MapPoint pos(x, y);
+    CmdDebugClearTerrainLayers((std::to_string(x) + " " + std::to_string(y) + " 60").c_str());
+
+    if (strcmp(kind, "underwater_city") == 0) {
+        w->SmartSetTerrain(pos, TERRAIN_WATER_SHELF, 0);
+        w->SetMovementType(x, y, k_MOVEMENT_TYPE_WATER | k_MOVEMENT_TYPE_SHALLOW_WATER);
+        if (tiledmap_Get())
+            tiledmap_Get()->BuildTerrainQuads();
+        Unit city = human->CreateCity(unitutil_GetSeaCity(), pos, CAUSE_NEW_CITY_INITIAL, nullptr, CITY_STYLE_EDITOR);
+        if (!city.IsValid())
+            return Err("debug_gallery_case", "create_city_failed");
+    } else if (strcmp(kind, "city") == 0 || strcmp(kind, "city_walls") == 0 || strcmp(kind, "city_forcefield") == 0) {
+        Unit city = human->CreateCity(unitutil_GetCityTypeFor(pos), pos, CAUSE_NEW_CITY_INITIAL, nullptr, CITY_STYLE_EDITOR);
+        if (!city.IsValid())
+            return Err("debug_gallery_case", "create_city_failed");
+        CityData * cd = city.GetData() ? city.GetData()->GetCityData() : nullptr;
+        if (cd && strcmp(kind, "city") != 0) {
+            char defenseArgs[64];
+            sint32 cityIdx = human->GetAllCitiesList()->Num() - 1;
+            snprintf(defenseArgs, sizeof(defenseArgs), "%d %s", (int)cityIdx,
+                     strcmp(kind, "city_walls") == 0 ? "walls" : "forcefield");
+            CmdDebugCityDefense(defenseArgs);
+        }
+    } else if (strcmp(kind, "unit") == 0) {
+        sint32 const type = ResolveUnitType(parsed >= 4 ? arg : "UNIT_MARINE");
+        if (type < 0)
+            return Err("debug_gallery_case", "bad_unit_type");
+        Unit u = human->CreateUnit(type, pos, Unit(), false, CAUSE_NEW_ARMY_INITIAL);
+        if (!u.IsValid())
+            return Err("debug_gallery_case", "create_unit_failed");
+    } else if (strcmp(kind, "combat_flash") == 0) {
+        director_Get()->AddCombatFlash(pos);
+        director_Get()->HandleNextAction();
+    } else if (strcmp(kind, "terrain_overlay") == 0) {
+        char overlayArgs[64];
+        snprintf(overlayArgs, sizeof(overlayArgs), "%d %d", (int)x, (int)y);
+        return CmdDebugTerrainOverlay(overlayArgs);
+    } else {
+        return Err("debug_gallery_case", "unknown_kind");
+    }
+
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
+    json result;
+    result["kind"] = kind;
+    result["pos"] = { {"x", x}, {"y", y} };
+    if (parsed >= 4)
+        result["arg"] = arg;
+    return Ok("debug_gallery_case", result);
 }
 
 std::string CmdSetZoomLevel(const char * args)
@@ -2015,19 +2101,7 @@ std::string CmdCreateUnit(const char * args)
     if (sscanf(args, "%127s %d %d", name, &x, &y) != 3)
         return Err("create_unit", "bad_args");
 
-    sint32 type = -1;
-    if (sscanf(name, "%d", &type) != 1)
-    {
-        for (sint32 i = 0; i < g_theUnitDB->NumRecords(); ++i)
-        {
-            const UnitRecord * rec = g_theUnitDB->Get(i);
-            if (rec && rec->GetIDText() && strcmp(rec->GetIDText(), name) == 0)
-            {
-                type = i;
-                break;
-            }
-        }
-    }
+    sint32 type = ResolveUnitType(name);
     if (type < 0 || type >= g_theUnitDB->NumRecords())
         return Err("create_unit", "bad_unit_type");
 
@@ -3192,6 +3266,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_scenario_start_flags ", 0) == 0)      return CmdDebugScenarioStartFlags(line.c_str() + 27);
     if (line.rfind("debug_cloak_army ", 0) == 0)                return CmdDebugCloakArmy(line.c_str() + 17);
     if (line.rfind("debug_city_defense ", 0) == 0)              return CmdDebugCityDefense(line.c_str() + 19);
+    if (line.rfind("debug_gallery_case ", 0) == 0)              return CmdDebugGalleryCase(line.c_str() + 19);
     if (line.rfind("set_zoom_level ", 0) == 0)                  return CmdSetZoomLevel(line.c_str() + 15);
     if (line.rfind("set_production ", 0) == 0)                  return CmdSetProduction(line.c_str() + 15);
     if (line.rfind("save_game ", 0) == 0)                       return CmdSaveGame(line.c_str() + 10);

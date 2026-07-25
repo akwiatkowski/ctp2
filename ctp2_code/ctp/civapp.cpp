@@ -2989,6 +2989,123 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 #endif
 				}
 			}
+#ifdef RENDER_TOOL_BUILD
+			else if (strncmp(cmd, "screenshot_map_only ", 20) == 0) {
+				// screenshot_map_only <path>
+				// Render only the map layer: terrain, fog-visible map sprites, trade/map
+				// effects. No UI windows, modal overlays, mouse hilite, legal moves, or
+				// turn/gameplay processing. This is the map-to-texture seam for visual
+				// review and future offscreen map rendering.
+				char path[1024] = {0};
+				sscanf(cmd + 20, "%1023s", path);
+				bool ready = false;
+				if (!path[0]) {
+					smoketest_send_response("error", cmd, "bad_args");
+				} else if (!background_Get()) {
+					smoketest_send_response("error", cmd, "no_background");
+				} else if (!tiledmap_Get()) {
+					smoketest_send_response("error", cmd, "no_tiledmap");
+				} else {
+					tiledmap_Get()->BuildTerrainQuads();
+					if (background_render_map_only(background_Get()) != AUI_ERRCODE_OK) {
+						smoketest_send_response("error", cmd, "render_failed");
+					} else {
+						ready = true;
+					}
+				}
+				if (ready) {
+#ifdef USE_SDL
+					bool ok = false;
+					SDL_Renderer *renderer = aui_SDL::Renderer();
+					SDL_Texture  *screenTexture = aui_SDL::ScreenTexture();
+					bool const drawGpuWorld = renderer && screenTexture
+						&& aui_SDL::GpuLayersEnabled()
+						&& aui_SDL::GpuQuadsEnabled()
+						&& aui_SDL::WorldTexture()
+						&& aui_SDL::QuadAtlasTexture()
+						&& aui_SDL::QuadFrameComplete();
+
+					if (drawGpuWorld) {
+						int texW = 0, texH = 0;
+						CTP2_SDL_GetTextureSize(screenTexture, &texW, &texH);
+						SDL_Texture *target = SDL_CreateTexture(renderer,
+							SDL_PIXELFORMAT_ARGB8888,
+							SDL_TEXTUREACCESS_TARGET, texW, texH);
+						if (target && CTP2_SDL_SetRenderTarget(renderer, target)) {
+							CTP2_SDL_SetRenderTarget(renderer, aui_SDL::WorldTexture());
+							SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+							SDL_RenderClear(renderer);
+							SDL_Texture * const atlas = aui_SDL::QuadAtlasTexture();
+							for (aui_SDL::GpuQuad const & q : aui_SDL::QuadDrawList()) {
+								CTP2_SDL_RenderTextureSrcDst(renderer, atlas,
+									q.sx, q.sy, q.sw, q.sh,
+									(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh);
+							}
+							for (aui_SDL::GpuSpriteQuad const & q : aui_SDL::SpriteDrawList()) {
+								if (q.screen_space)
+									continue;
+								SDL_SetTextureBlendMode(q.texture, q.additive ? SDL_BLENDMODE_ADD : SDL_BLENDMODE_BLEND);
+								SDL_SetTextureColorMod(q.texture, q.red, q.green, q.blue);
+								SDL_SetTextureAlphaMod(q.texture, q.alpha);
+								CTP2_SDL_RenderTextureSrcDstFlip(renderer, q.texture,
+									q.sx, q.sy, q.sw, q.sh,
+									(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh,
+									q.mirror);
+							}
+
+							CTP2_SDL_SetRenderTarget(renderer, target);
+							SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+							SDL_RenderClear(renderer);
+							bool  const cam  = aui_SDL::GpuCameraEnabled();
+							float const W    = (float)texW, H = (float)texH;
+							float const z    = cam ? aui_SDL::CameraZoom() : 1.0f;
+							float const offX = cam ? aui_SDL::CameraOffX() : 0.0f;
+							float const offY = cam ? aui_SDL::CameraOffY() : 0.0f;
+							float const srcW = W / z, srcH = H / z;
+							float const srcX = (float)aui_SDL::WorldContentOffX() + (W - srcW) * 0.5f - offX;
+							float const srcY = (float)aui_SDL::WorldContentOffY() + (H - srcH) * 0.5f - offY;
+							CTP2_SDL_RenderTextureWindow(renderer, aui_SDL::WorldTexture(),
+								srcX, srcY, srcW, srcH, 0.0f, 0.0f, W, H);
+							if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture()) {
+								float const fogSrcX = (W - srcW) * 0.5f - offX;
+								float const fogSrcY = (H - srcH) * 0.5f - offY;
+								CTP2_SDL_RenderTextureWindow(renderer, aui_SDL::FogTexture(),
+									fogSrcX, fogSrcY, srcW, srcH, 0.0f, 0.0f, W, H);
+							}
+							ok = CTP2_SDL_SaveRendererPixels(renderer, path, texW, texH);
+							CTP2_SDL_SetRenderTarget(renderer, nullptr);
+						}
+						if (target) SDL_DestroyTexture(target);
+					} else {
+						aui_SDLSurface *bs = static_cast<aui_SDLSurface *>(background_Get()->TheSurface());
+						aui_Surface *primary = c3ui_Get() ? c3ui_Get()->Primary() : nullptr;
+						int const viewW = primary ? primary->Width() : 0;
+						int const viewH = primary ? primary->Height() : 0;
+						SDL_Surface *src = bs ? bs->DDS() : nullptr;
+						SDL_Surface *shot = (src && viewW > 0 && viewH > 0) ? CTP2_SDL_CreateARGB8888Surface(viewW, viewH) : nullptr;
+						if (shot) {
+							SDL_Rect srect = { aui_SDL::WorldContentOffX(), aui_SDL::WorldContentOffY(), viewW, viewH };
+							SDL_Rect drect = { 0, 0, viewW, viewH };
+#if defined(CTP2_USE_SDL3)
+							bool const blitOk = SDL_BlitSurface(src, &srect, shot, &drect);
+#else
+							bool const blitOk = SDL_BlitSurface(src, &srect, shot, &drect) == 0;
+#endif
+							ok = blitOk && CTP2_SDL_SaveBMP(shot, path);
+							CTP2_SDL_DestroySurface(shot);
+						}
+					}
+					if (ok) {
+						smoketest_send_response("ok", cmd, drawGpuWorld ? "gpu_world" : "cpu_world");
+					} else {
+						smoketest_send_response("error", cmd, "save_failed");
+					}
+#else
+					smoketest_send_response("error", cmd, "not_sdl");
+#endif
+				}
+			}
+#endif
 			else if (strncmp(cmd, "camera_debug_set ", 17) == 0) {
 				// camera_debug_set <offX> <offY>
 				// TEMPORARY (P11 pixel-proof debug): force the GPU camera pan offset
@@ -3553,7 +3670,13 @@ sint32 CivApp::Process()
 		}
 	}
 
-    return 0;
+	return 0;
+}
+
+sint32 CivApp::ProcessRenderTool()
+{
+	uint32 used_milliseconds = 0;
+	return ProcessUI(0, used_milliseconds);
 }
 
 sint32 CivApp::StartGame()

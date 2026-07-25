@@ -1493,6 +1493,16 @@ executable('ctp2', main_sources,
 		link_args : [ use_ld ],
 		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ])
 
+# Render tooling binary: same initialized assets/UI substrate as ctp2 for now,
+# but extra smoke/debug commands stay out of the regular player executable.
+executable('ctp2_render', main_sources + ['ctp/render_main.cpp'],
+		include_directories : incdir,
+		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DRENDER_TOOL_BUILD' ],
+		link_args : [ use_ld ],
+		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
+		build_by_default : false)
+
 # headless exe — simulation core without UI/audio/render
 # Same sources as ctp2 for now; stubs out UI at runtime via g_headlessMode.
 # Future: split game_core_sources into engine_sources + ui_sources.

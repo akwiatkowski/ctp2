@@ -141,6 +141,7 @@ public:
 	void		PostSpriteTestAction();
 	void		PostStartGameAction();
 	sint32		Process();
+	sint32		ProcessRenderTool();
 	void		ProcessGraphicsCallback();
 	sint32		QuickInit(HINSTANCE hInstance, int iCmdShow);
 	void		QuitGame();

@@ -1756,7 +1756,7 @@ void main_InitializeLogs()
 #endif
 }
 
-#ifndef UNIT_TEST_BUILD
+#if !defined(UNIT_TEST_BUILD) && !defined(RENDER_TOOL_BUILD)
 
 #if defined(__GNUC__)
 
@@ -1810,7 +1810,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 #endif // __GNUC__
 
-#endif // UNIT_TEST_BUILD
+#endif // UNIT_TEST_BUILD / RENDER_TOOL_BUILD
 
 void main_DisplayPatchDisclaimer()
 {

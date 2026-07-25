@@ -141,7 +141,12 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// RESIZABLE: the renderer's logical size letterboxes/scales the game res to
 	//   any window size; mouse coords are mapped back via SDL_RenderWindowToLogical
 	//   in aui_SDLMouse so input stays correct when the window is not 1:1.
-	Uint64 windowFlags = CTP2_SDL_WINDOW_SHOWN | CTP2_SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+	Uint64 windowFlags = CTP2_SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+#if defined(RENDER_TOOL_BUILD)
+	windowFlags |= SDL_WINDOW_HIDDEN;
+#else
+	windowFlags |= CTP2_SDL_WINDOW_SHOWN;
+#endif
 	if (g_SDL_flags) {
 		windowFlags |= SDL_WINDOW_FULLSCREEN;
 	}

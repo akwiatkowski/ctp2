@@ -259,6 +259,23 @@ namespace
         aui_SDL::AddSpriteQuad(q);
         return true;
     }
+
+    bool CellHasCpuOnlyImprovementLayer(Cell *cell, MapPoint const &pos)
+    {
+        if (!cell)
+            return false;
+
+        uint32 const env = cell->GetEnv();
+        uint32 const mask = k_MASK_ENV_INSTALLATION
+                          | k_MASK_ENV_MINE
+                          | k_MASK_ENV_IRRIGATION
+                          | k_MASK_ENV_ROAD
+                          | k_MASK_ENV_CANAL_TUNNEL;
+        return (env & mask)
+            || cell->GetNumImprovements() > 0
+            || cell->GetNumDBImprovements() > 0
+            || world_Get()->GetGoodyHut(pos) != nullptr;
+    }
 }
 
 TiledMap::TiledMap(MapPoint &size)
@@ -3806,6 +3823,17 @@ void TiledMap::BuildTerrainQuads()
 			TileInfo * tileInfo = GetTileInfo(pos);
 			if (!tileInfo) continue;
 			if (!m_tileSet->GetBaseTile(tileInfo->GetTileNum())) continue;
+
+			if (tileInfo->GetRiverPiece() != -1)
+				aui_SDL::MarkQuadFrameIncomplete("terrain-rivers");
+			if (CellHasCpuOnlyImprovementLayer(world_Get()->GetCell(pos), pos))
+				aui_SDL::MarkQuadFrameIncomplete("terrain-improvements");
+			if (g_isGridOn)
+				aui_SDL::MarkQuadFrameIncomplete("terrain-grid");
+			if (graphicsoptions_Get() && graphicsoptions_Get()->IsCellTextOn())
+				aui_SDL::MarkQuadFrameIncomplete("terrain-cell-text");
+			if (!m_renderEverything && !m_renderExploredAsVisible && !m_localVision->IsVisible(pos) && !GpuFogActive())
+				aui_SDL::MarkQuadFrameIncomplete("terrain-cpu-fog");
 
 			sint32 tilesetIndex =
 				g_theTerrainDB->Get(tileInfo->GetTerrainType())->GetTilesetIndex();

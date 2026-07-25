@@ -92,6 +92,28 @@ def diff_frames(path_a, path_b):
     return samples, mismatches, (aw, ah)
 
 
+def terrain_id(client, name):
+    for terrain in client.result("query_terrains")["terrains"]:
+        keys = (terrain.get("name", ""), terrain.get("internal", ""))
+        for key in keys:
+            clean = key.lower().replace("terrain_", "").replace(" ", "_")
+            if clean == name:
+                return terrain["id"]
+    raise AssertionError(f"terrain not found: {name}")
+
+
+def paint_camera_patch(client, pos, radius=12):
+    grassland = terrain_id(client, "grassland")
+    plains = terrain_id(client, "plains")
+    for dy in range(-radius, radius + 1):
+        for dx in range(-radius, radius + 1):
+            terrain = grassland if ((dx + dy) & 1) else plains
+            r = client.command("debug_set_terrain", pos["x"] + dx, pos["y"] + dy, terrain)
+            if r.get("status") != "ok" and r.get("detail") != "out_of_bounds":
+                raise Ctp2Error(f"debug_set_terrain failed: {r}")
+    client.expect_ok("debug_clear_terrain_layers", pos["x"], pos["y"], 60)
+
+
 def run_attempt(binary, env, socket_path, log, path0, path1):
     """One game launch. Returns an exit code, or None to re-roll the map."""
     with Ctp2Client(binary, "ui", socket_path=socket_path, log_path=log, env=env) as client:
@@ -118,6 +140,7 @@ def run_attempt(binary, env, socket_path, log, path0, path1):
                   f"(tileX={tile_x}) near seam/edge of "
                   f"{m['width']}x{m['height']} map — re-roll")
             return None
+        paint_camera_patch(client, upos)
 
         # Center the view on the starting settler and force a terrain
         # redraw. Without it the viewport can sit over unexplored (pure

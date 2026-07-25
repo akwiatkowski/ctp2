@@ -9,6 +9,7 @@ smooth enough.
 
 import argparse
 import os
+import struct
 import sys
 from pathlib import Path
 
@@ -79,9 +80,11 @@ def paint_patch(client, center, terrain_a, terrain_b, pattern, radius):
             # fixture robust; the visible center normally avoids this.
             if r.get("status") != "ok" and r.get("detail") != "out_of_bounds":
                 raise RuntimeError(f"debug_set_terrain failed: {r}")
+    client.expect_ok("debug_clear_terrain_layers", cx, cy, 60)
 
 
-def capture_mode(binary, out_dir, mode_name, seed, players, pairs, patterns, radius):
+def capture_mode(binary, out_dir, mode_name, seed, players, pairs, patterns, radius,
+                 save_fixture=None, load_fixture=None):
     env = os.environ.copy()
     env["CTP2_GPU_LAYERS"] = "1"
     env["CTP2_GPU_CAMERA"] = "1"
@@ -94,9 +97,15 @@ def capture_mode(binary, out_dir, mode_name, seed, players, pairs, patterns, rad
     shots = []
     with Ctp2Client(str(binary), "ui", seed=seed, players=players,
                     socket_path=socket, env=env, log_path=str(log)) as client:
-        client.expect_ok("new_game")
-        client.expect_ok("start_game")
-        client.wait_game_loaded()
+        if load_fixture:
+            client.expect_ok("load_game", load_fixture)
+        else:
+            client.expect_ok("new_game")
+            client.expect_ok("start_game")
+            client.wait_game_loaded()
+            if save_fixture:
+                client.expect_ok("save_game", save_fixture)
+        client.expect_ok("debug_deselect")
         client.expect_ok("set_show_city_names", 0)
 
         lookup = terrain_lookup(client)
@@ -173,6 +182,101 @@ def write_contact_sheet(out_dir, shots, crop_size, scale):
     print(f"wrote {path}")
 
 
+def read_bmp_rgb(path):
+    data = Path(path).read_bytes()
+    off = struct.unpack_from("<I", data, 10)[0]
+    w = struct.unpack_from("<i", data, 18)[0]
+    h_raw = struct.unpack_from("<i", data, 22)[0]
+    bpp = struct.unpack_from("<H", data, 28)[0]
+    if bpp not in (24, 32):
+        raise ValueError(f"{path}: unsupported BMP bpp {bpp}")
+    h = abs(h_raw)
+    row_size = ((bpp * w + 31) // 32) * 4
+    pixels = []
+    for y in range(h):
+        src_y = h - 1 - y if h_raw > 0 else y
+        row = []
+        for x in range(w):
+            p = off + src_y * row_size + x * (bpp // 8)
+            b, g, r = data[p], data[p + 1], data[p + 2]
+            row.append((r, g, b))
+        pixels.append(row)
+    return w, h, pixels
+
+
+def terrain_profile(path, crop_size):
+    w, h, pixels = read_bmp_rgb(path)
+    crop_w = min(crop_size, w) if crop_size > 0 else w
+    crop_h = min(crop_size, h) if crop_size > 0 else h
+    left = (w - crop_w) // 2
+    top = (h - crop_h) // 2
+
+    world = 0
+    green = 0
+    yellow = 0
+    dark = 0
+    for y in range(top, top + crop_h):
+        for x in range(left, left + crop_w):
+            r, g, blue = pixels[y][x]
+            if r <= 8 and g <= 8 and blue <= 8:
+                continue
+            world += 1
+            if g >= r and g >= blue:
+                green += 1
+            if r >= g and r >= blue and r > 80:
+                yellow += 1
+            if max(r, g, blue) < 50:
+                dark += 1
+
+    return {
+        "world_pixels": world,
+        "green_ratio": green / world if world else 0.0,
+        "yellow_ratio": yellow / world if world else 0.0,
+        "dark_ratio": dark / world if world else 0.0,
+    }
+
+
+def check_gpu_vs_cpu(shots, crop_size, min_world_coverage_ratio, max_color_ratio_delta):
+    by_key = {(s["mode"], s["pair"], s["pattern"]): s for s in shots}
+    failures = []
+    for shot in shots:
+        if shot["mode"] != "gpu":
+            continue
+        cpu = by_key.get(("cpu", shot["pair"], shot["pattern"]))
+        if not cpu:
+            failures.append(f"missing CPU reference for {shot['pair']} {shot['pattern']}")
+            continue
+        if not shot["gpu"].get("enabled") or not shot["gpu"].get("complete"):
+            failures.append(f"GPU frame incomplete for {shot['pair']} {shot['pattern']}: {shot['gpu']}")
+            continue
+        gpu_profile = terrain_profile(shot["path"], crop_size)
+        cpu_profile = terrain_profile(cpu["path"], crop_size)
+        coverage_ratio = (
+            gpu_profile["world_pixels"] / cpu_profile["world_pixels"]
+            if cpu_profile["world_pixels"] else 0.0
+        )
+        color_delta = max(
+            abs(gpu_profile["green_ratio"] - cpu_profile["green_ratio"]),
+            abs(gpu_profile["yellow_ratio"] - cpu_profile["yellow_ratio"]),
+            abs(gpu_profile["dark_ratio"] - cpu_profile["dark_ratio"]),
+        )
+        print(
+            f"{shot['pair']} {shot['pattern']}: "
+            f"coverage={coverage_ratio:.3f} "
+            f"color_delta={color_delta:.3f} "
+            f"gpu_world={gpu_profile['world_pixels']} "
+            f"cpu_world={cpu_profile['world_pixels']}"
+        )
+        if coverage_ratio < min_world_coverage_ratio or color_delta > max_color_ratio_delta:
+            failures.append(
+                f"{shot['pair']} {shot['pattern']} exceeds threshold: "
+                f"coverage={coverage_ratio:.3f}/{min_world_coverage_ratio}, "
+                f"color_delta={color_delta:.3f}/{max_color_ratio_delta}"
+            )
+    if failures:
+        raise SystemExit("terrain GPU/CPU check failed:\n" + "\n".join(failures))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--binary", default=str(ROOT / "build" / "ctp2"))
@@ -185,6 +289,10 @@ def main():
     parser.add_argument("--patterns", nargs="*", default=list(PATTERNS),
                         choices=list(PATTERNS))
     parser.add_argument("--mode", choices=["both", "gpu", "cpu"], default="both")
+    parser.add_argument("--check", action="store_true",
+                        help="fail if GPU and CPU crops differ beyond thresholds")
+    parser.add_argument("--min-world-coverage-ratio", type=float, default=0.45)
+    parser.add_argument("--max-color-ratio-delta", type=float, default=0.15)
     parser.add_argument("--crop-size", type=int, default=420,
                         help="center crop size before contact-sheet scaling")
     parser.add_argument("--scale", type=int, default=2,
@@ -197,11 +305,22 @@ def main():
 
     modes = ["gpu", "cpu"] if args.mode == "both" else [args.mode]
     all_shots = []
+    fixture = out_dir / "terrain-edge-fixture.json"
     for mode in modes:
+        save_fixture = str(fixture) if args.check and mode == "gpu" else None
+        load_fixture = str(fixture) if args.check and mode == "cpu" and fixture.exists() else None
         all_shots.extend(capture_mode(binary, out_dir, mode, args.seed,
                                       args.players, args.pairs,
-                                      args.patterns, args.radius))
+                                      args.patterns, args.radius,
+                                      save_fixture=save_fixture,
+                                      load_fixture=load_fixture))
     write_contact_sheet(out_dir, all_shots, args.crop_size, args.scale)
+    if args.check:
+        if args.mode != "both":
+            raise SystemExit("--check requires --mode both")
+        check_gpu_vs_cpu(all_shots, args.crop_size,
+                         args.min_world_coverage_ratio,
+                         args.max_color_ratio_delta)
 
 
 if __name__ == "__main__":

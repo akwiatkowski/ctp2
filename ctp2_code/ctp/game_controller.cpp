@@ -38,6 +38,7 @@
 #include "gs/gameobj/Vision.h"                // Vision::IsVisible / IsExplored
 #include "gs/world/World.h"                   // world_Get(), GetCell
 #include "gs/world/Cell.h"                    // Cell terrain / city / units
+#include "gs/world/TileInfo.h"                // debug_set_terrain fixture cleanup
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/fileio/action_log.h"             // action_log::Get / Count / Clear
@@ -421,13 +422,89 @@ std::string CmdDebugSetTerrain(const char * args)
 
 	MapPoint pos(x, y);
 	w->SmartSetTerrain(pos, terrain, 0);
-	if (tiledmap_Get())
+	if (tiledmap_Get()) {
+		if (TileInfo *tileInfo = tiledmap_Get()->GetTileInfo(pos))
+			tileInfo->SetRiverPiece(-1);
 		tiledmap_Get()->BuildTerrainQuads();
+	}
 
 	json result;
 	result["pos"] = { {"x", x}, {"y", y} };
 	result["terrain"] = terrain;
 	return Ok("debug_set_terrain", result);
+}
+
+std::string CmdDebugClearRivers(const char * args)
+{
+	sint32 cx = 0, cy = 0, radius = 0;
+	if (sscanf(args, "%d %d %d", &cx, &cy, &radius) != 3 || radius < 0)
+		return Err("debug_clear_rivers", "bad_args");
+	World *w = world_Get();
+	TiledMap *map = tiledmap_Get();
+	if (!w || !map)
+		return Err("debug_clear_rivers", "no_world");
+
+	for (sint32 dy = -radius; dy <= radius; ++dy) {
+		for (sint32 dx = -radius; dx <= radius; ++dx) {
+			sint32 const x = cx + dx;
+			sint32 const y = cy + dy;
+			if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+				continue;
+			MapPoint pos(x, y);
+			if (TileInfo *tileInfo = map->GetTileInfo(pos))
+				tileInfo->SetRiverPiece(-1);
+		}
+	}
+	map->BuildTerrainQuads();
+	return Ok("debug_clear_rivers");
+}
+
+std::string CmdDebugClearTerrainLayers(const char * args)
+{
+	sint32 cx = 0, cy = 0, radius = 0;
+	if (sscanf(args, "%d %d %d", &cx, &cy, &radius) != 3 || radius < 0)
+		return Err("debug_clear_terrain_layers", "bad_args");
+	World *w = world_Get();
+	TiledMap *map = tiledmap_Get();
+	if (!w || !map)
+		return Err("debug_clear_terrain_layers", "no_world");
+
+	uint32 const envMask = k_MASK_ENV_INSTALLATION
+	                   | k_MASK_ENV_MINE
+	                   | k_MASK_ENV_IRRIGATION
+	                   | k_MASK_ENV_ROAD
+	                   | k_MASK_ENV_CANAL_TUNNEL;
+	for (sint32 dy = -radius; dy <= radius; ++dy) {
+		for (sint32 dx = -radius; dx <= radius; ++dx) {
+			sint32 const x = cx + dx;
+			sint32 const y = cy + dy;
+			if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+				continue;
+			MapPoint pos(x, y);
+			if (TileInfo *tileInfo = map->GetTileInfo(pos))
+				tileInfo->SetRiverPiece(-1);
+			if (Cell *cell = w->GetCell(pos)) {
+				cell->SetEnv(cell->GetEnv() & ~envMask);
+				while (cell->GetNumImprovements() > 0)
+					cell->RemoveImprovement(cell->AccessImprovement(0));
+				while (cell->GetNumDBImprovements() > 0)
+					cell->RemoveDBImprovement(cell->GetDBImprovement(0));
+				cell->DeleteGoodyHut();
+			}
+		}
+	}
+	map->BuildTerrainQuads();
+	return Ok("debug_clear_terrain_layers");
+}
+
+std::string CmdDebugDeselect()
+{
+	if (!selitem_Get())
+		return Err("debug_deselect", "no_selitem");
+	selitem_Get()->Deselect(selitem_Get()->GetVisiblePlayer());
+	if (tiledmap_Get())
+		tiledmap_Get()->BuildTerrainQuads();
+	return Ok("debug_deselect");
 }
 
 std::string CmdDebugCombatFlash(const char * args)
@@ -3108,6 +3185,9 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("set_show_city_names ", 0) == 0)             return CmdSetShowCityNames(line.c_str() + 20);
     if (line.rfind("debug_terrain_overlay ", 0) == 0)           return CmdDebugTerrainOverlay(line.c_str() + 22);
     if (line.rfind("debug_set_terrain ", 0) == 0)               return CmdDebugSetTerrain(line.c_str() + 18);
+    if (line.rfind("debug_clear_rivers ", 0) == 0)              return CmdDebugClearRivers(line.c_str() + 19);
+    if (line.rfind("debug_clear_terrain_layers ", 0) == 0)      return CmdDebugClearTerrainLayers(line.c_str() + 27);
+    if (line == "debug_deselect")                               return CmdDebugDeselect();
     if (line.rfind("debug_combat_flash ", 0) == 0)              return CmdDebugCombatFlash(line.c_str() + 19);
     if (line.rfind("debug_scenario_start_flags ", 0) == 0)      return CmdDebugScenarioStartFlags(line.c_str() + 27);
     if (line.rfind("debug_cloak_army ", 0) == 0)                return CmdDebugCloakArmy(line.c_str() + 17);

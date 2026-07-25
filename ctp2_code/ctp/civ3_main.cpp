@@ -722,10 +722,24 @@ static void ui_StepPinchZoom(int steps)
 	if (g_modalWindow > 0 || aui_ListBox::GetMouseFocusListBox())
 		return;
 
+	auto stepZoom = [](bool zoomIn) {
+		double const oldScale = g_tiledMap->GetZoomScale(g_tiledMap->GetZoomLevel());
+		bool const changed = zoomIn ? g_tiledMap->ZoomIn() : g_tiledMap->ZoomOut();
+		if (!changed)
+			return;
+
+		if (aui_SDL::GpuCameraEnabled()) {
+			double const newScale = g_tiledMap->GetZoomScale(g_tiledMap->GetZoomLevel());
+			if (newScale > 0.0)
+				aui_SDL::SetCamera(aui_SDL::CameraOffX(), aui_SDL::CameraOffY(),
+				                   static_cast<float>(oldScale / newScale));
+		}
+	};
+
 	for (; steps > 0; --steps)
-		g_tiledMap->ZoomIn();
+		stepZoom(true);
 	for (; steps < 0; ++steps)
-		g_tiledMap->ZoomOut();
+		stepZoom(false);
 }
 
 // SDL touch-event source: real touch devices (touchscreens; trackpads on

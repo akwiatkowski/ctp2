@@ -1728,6 +1728,23 @@ test('gpu-world-fallbacks',
   suite : 'integration',
 )
 
+test('terrain-edge-parity',
+  find_program('../tools/visual/terrain_edges.py'),
+  args : [
+    '--binary', join_paths(meson.project_build_root(), 'ctp2'),
+    '--out', join_paths(meson.project_build_root(), 'terrain-edge-parity'),
+    '--pairs', 'grassland:plains',
+    '--patterns', 'vertical', 'diagonal',
+    '--crop-size', '320',
+    '--check',
+  ],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
 # Expansion: the full second-city loop (settler production, move_army
 # pathfinding, settle guard regression) plus the absorbed turn-advancement
 # checks (end_turn N drives full rounds through the real event pipeline;

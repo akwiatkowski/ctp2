@@ -38,6 +38,25 @@ def visible_center(client):
     return {"x": world["width"] // 2, "y": world["height"] // 2}
 
 
+def human_player(client):
+    for player in client.result("query_players").get("players", []):
+        if player.get("human"):
+            return player
+    raise RuntimeError("no human player")
+
+
+def validate_human_alive(client, context):
+    player = human_player(client)
+    if player.get("dead") or player.get("victory_label") == "defeat":
+        raise RuntimeError(f"{context}: human player is defeated")
+    if player.get("num_units", 0) <= 0 and player.get("num_armies", 0) <= 0 and player.get("num_cities", 0) <= 0:
+        raise RuntimeError(f"{context}: human player has no units, armies, or cities")
+
+
+def reveal_patch(client, center, radius):
+    client.expect_ok("debug_reveal_patch", center["x"], center["y"], radius)
+
+
 def terrain_lookup(client):
     terrains = client.result("query_terrains")["terrains"]
     lookup = {}
@@ -58,6 +77,22 @@ def paint_patch(client, center, terrain_a, terrain_b, pattern, radius):
             if r.get("status") != "ok" and r.get("detail") != "out_of_bounds":
                 raise RuntimeError(f"debug_set_terrain failed: {r}")
     client.expect_ok("debug_clear_terrain_layers", center["x"], center["y"], 60)
+
+
+def safe_patch_center(client, center, radius):
+    world = client.result("query_world")
+    margin = radius + 2
+    offset = radius * 2 + 6
+    x = center["x"] + offset
+    y = center["y"] + offset
+    if x >= world["width"] - margin:
+        x = center["x"] - offset
+    if y >= world["height"] - margin:
+        y = center["y"] - offset
+    return {
+        "x": max(margin, min(world["width"] - margin - 1, x)),
+        "y": max(margin, min(world["height"] - margin - 1, y)),
+    }
 
 
 def set_zoom(client, zoom):
@@ -153,15 +188,18 @@ def compose_pair(cpu_bmp, gpu_bmp, out_png, title):
     }
 
 
-def capture_case(client, out_dir, local_index, total, index, name, mode, fixture, apply_case):
+def capture_case(client, out_dir, local_index, total, index, name, mode, fixture, apply_case, reveal_radius):
     client.expect_ok("load_game", fixture)
     client.expect_ok("debug_deselect")
     client.expect_ok("set_show_city_names", 0)
     client.expect_ok("debug_scenario_start_flags", 0)
+    validate_human_alive(client, f"{name} before setup")
     center = visible_center(client)
     ok = apply_case(client, center)
     if ok is False:
         return {"case": name, "skipped": True, "reason": "fixture command failed"}
+    reveal_patch(client, center, reveal_radius)
+    validate_human_alive(client, f"{name} after setup")
     r = client.command("camera_debug_center", center["x"], center["y"])
     if r.get("status") != "ok" and r.get("detail") == "modal":
         return {"case": name, "skipped": True, "reason": "modal"}
@@ -172,8 +210,10 @@ def capture_case(client, out_dir, local_index, total, index, name, mode, fixture
     tmp_dir.mkdir(exist_ok=True)
     bmp = tmp_dir / f"{base}-{mode}.bmp"
     print(f"[{mode}] {local_index}/{total} temporary capture -> {bmp}", flush=True)
-    screenshot_command = "screenshot_map_only" if name.startswith("scene ") else "screenshot_presented"
-    client.expect_ok(screenshot_command, bmp)
+    r = client.command("screenshot_map_only", bmp)
+    if r.get("status") != "ok":
+        raise Ctp2Error(f"screenshot failed: {r}")
+    validate_human_alive(client, f"{name} after screenshot")
     record = {"case": name, "bmp": bmp}
     if mode == "gpu":
         record["gpu"] = client.result("query_gpu_world")
@@ -214,7 +254,7 @@ def load_accuracy_records(path):
     return data
 
 
-def capture_mode(binary, out_dir, mode, fixture, cases, limit):
+def capture_mode(binary, out_dir, mode, fixture, cases, limit, reveal_radius):
     client = open_client(binary, out_dir, mode, fixture)
     records = []
     try:
@@ -224,7 +264,7 @@ def capture_mode(binary, out_dir, mode, fixture, cases, limit):
                 break
             remaining = total - local_index
             print(f"[{mode}] {local_index}/{total} #{index:05d} rendering: {name} ({remaining} left)", flush=True)
-            records.append(capture_case(client, out_dir, local_index, total, index, name, mode, fixture, apply_case))
+            records.append(capture_case(client, out_dir, local_index, total, index, name, mode, fixture, apply_case, reveal_radius))
     finally:
         client.close()
     return records
@@ -241,6 +281,8 @@ def terrain_cases(terrains, zooms, patterns, radius):
 
                     def apply(client, center, ta=terrain_a, tb=terrain_b, pat=pattern, z=zoom):
                         set_zoom(client, z)
+                        patch_center = safe_patch_center(client, center, radius)
+                        center.update(patch_center)
                         paint_patch(client, center, ta, tb, pat, radius)
 
                     yield name, apply
@@ -356,6 +398,8 @@ def main():
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--players", type=int, default=4)
     parser.add_argument("--radius", type=int, default=4)
+    parser.add_argument("--reveal-radius", type=int, default=14,
+                        help="visible/explored radius forced around each rendered fixture")
     parser.add_argument("--zooms", nargs="*", type=int, default=[-1],
                         help="-1 keeps the game's default zoom")
     parser.add_argument("--patterns", nargs="*", default=list(PATTERNS), choices=list(PATTERNS))
@@ -372,7 +416,7 @@ def main():
         out_dir = out_base / time.strftime("%Y%m%d-%H%M%S")
     out_dir.mkdir(parents=True, exist_ok=True)
     print(f"output: {out_dir}", flush=True)
-    binary = Path(args.render_binary if "scene" in args.families else args.binary)
+    binary = Path(args.render_binary)
     fixture = out_dir / "base-fixture.json"
     if not fixture.exists():
         fixture = make_base_fixture(binary, out_dir, args.seed, args.players)
@@ -403,8 +447,8 @@ def main():
         indexed_cases = indexed_cases[:args.limit]
     print(f"planned: {len(indexed_cases)} cases", flush=True)
 
-    cpu_records = capture_mode(binary, out_dir, "cpu", fixture, indexed_cases, 0)
-    gpu_records = capture_mode(binary, out_dir, "gpu", fixture, indexed_cases, 0)
+    cpu_records = capture_mode(binary, out_dir, "cpu", fixture, indexed_cases, 0, args.reveal_radius)
+    gpu_records = capture_mode(binary, out_dir, "gpu", fixture, indexed_cases, 0, args.reveal_radius)
     accuracy_records = load_accuracy_records(accuracy_path) if args.continue_run else []
     accuracy_by_file = {record["file"]: record for record in accuracy_records}
     with manifest.open("a" if args.continue_run else "w") as f:

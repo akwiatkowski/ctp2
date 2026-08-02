@@ -3921,29 +3921,8 @@ int TiledMap::BuildWorldmapQuads()
 				if (m_surfBase)
 				{
 					++m_worldmapUploads;
-					// Is the lock actually on the scratch tile? If m_surf*
-					// still describes the map surface, DrawTransitionTile
-					// draws somewhere else entirely -- while a direct write
-					// through m_surfBase (as the solid-fill probe does) would
-					// still look correct, which is exactly what we measured.
-					m_worldmapLockPitch  = m_surfPitch;
-					m_worldmapLockHeight = m_surfHeight;
 					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
-					if (aui_SDL::WorldmapGeometryProbe())
-					{
-						// Diagnostic: solid opaque fill INSTEAD of the tile
-						// composite, then upload and blit through the normal
-						// path. Isolates DrawTransitionTile from the
-						// upload/atlas/quad pipeline.
-						for (sint32 row = 0; row < m_surfHeight; ++row)
-						{
-							uint32 * line = reinterpret_cast<uint32 *>(
-								m_surfBase + (size_t) row * m_surfPitch);
-							for (sint32 col = 0; col < tileW; ++col)
-								line[col] = 0xFF203040u;
-						}
-					}
-					else if (m_zoomLevel == k_ZOOM_LARGEST)
+					if (m_zoomLevel == k_ZOOM_LARGEST)
 						DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
 					else
 						DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
@@ -4107,21 +4086,7 @@ void TiledMap::BuildTerrainQuads()
 				if (m_surfBase)
 				{
 					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
-					if (aui_SDL::WorldmapGeometryProbe())
-					{
-						// Diagnostic: solid opaque fill INSTEAD of the tile
-						// composite, then upload and blit through the normal
-						// path. Isolates DrawTransitionTile from the
-						// upload/atlas/quad pipeline.
-						for (sint32 row = 0; row < m_surfHeight; ++row)
-						{
-							uint32 * line = reinterpret_cast<uint32 *>(
-								m_surfBase + (size_t) row * m_surfPitch);
-							for (sint32 col = 0; col < tileW; ++col)
-								line[col] = 0xFF203040u;
-						}
-					}
-					else if (m_zoomLevel == k_ZOOM_LARGEST)
+					if (m_zoomLevel == k_ZOOM_LARGEST)
 						DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
 					else
 						DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,

@@ -36,9 +36,6 @@ int aui_SDL::m_viewportH = 1080;
 SDL_Texture *aui_SDL::m_worldmapTexture = nullptr;
 int aui_SDL::m_worldmapW = 0;
 int aui_SDL::m_worldmapH = 0;
-// P13 step 1 diagnostic: fill quad rects with a marker instead of blitting the
-// atlas, so coverage measures where quads LAND independently of what they hold.
-bool aui_SDL::m_worldmapGeometryProbe = false;
 float aui_SDL::m_panVelX = 0.0f;
 float aui_SDL::m_panVelY = 0.0f;
 float aui_SDL::m_zoomVel = 0.0f;

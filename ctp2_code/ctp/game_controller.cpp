@@ -591,16 +591,13 @@ std::string CmdDebugWorldmapBuild(const char * args)
 	if (!tiledmap_Get())
 		return Err("debug_worldmap_build", "no_tiledmap");
 
-	// "geometry" draws marker rects instead of atlas tiles (see aui_SDL).
-	bool const geometryProbe = args && strstr(args, "geometry") != nullptr;
-	aui_SDL::SetWorldmapGeometryProbe(geometryProbe);
-	if (geometryProbe)
-		tiledmap_Get()->InvalidateWorldmap();   // force a full redraw for the probe
+	// "rebuild" forces a full recomposite; otherwise the dirty path applies.
+	if (args && strstr(args, "rebuild") != nullptr)
+		tiledmap_Get()->InvalidateWorldmap();
 	// Drive it through Refresh, the only context where the tile composite works.
 	tiledmap_Get()->RetargetTileSurface(nullptr);
 	tiledmap_Get()->Refresh();
 	int const redrawn = tiledmap_Get()->LastWorldmapRedrawCount();
-	aui_SDL::SetWorldmapGeometryProbe(false);
 	json result;
 	result["cells_redrawn"] = redrawn;
 	result["texture_w"] = aui_SDL::WorldmapW();
@@ -611,8 +608,6 @@ std::string CmdDebugWorldmapBuild(const char * args)
 	result["dx_range"] = { tiledmap_Get()->m_worldmapMinX, tiledmap_Get()->m_worldmapMaxX };
 	result["dy_range"] = { tiledmap_Get()->m_worldmapMinY, tiledmap_Get()->m_worldmapMaxY };
 	result["tile_wh"] = { tiledmap_Get()->m_worldmapTileW, tiledmap_Get()->m_worldmapTileH };
-	result["lock_pitch"] = tiledmap_Get()->m_worldmapLockPitch;
-	result["lock_height"] = tiledmap_Get()->m_worldmapLockHeight;
 	result["zoom_level"] = (int)tiledmap_Get()->GetZoomLevel();
 	result["zoom_largest"] = (int)k_ZOOM_LARGEST;
 	result["zoom_tile_wh"] = { (int)tiledmap_Get()->GetZoomTilePixelWidth(),

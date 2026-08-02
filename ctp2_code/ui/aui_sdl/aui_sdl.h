@@ -185,10 +185,6 @@ public:
 	// sampled while the target stays bound (see the .cpp for why that matters).
 	// Returns -1 if there is no target.
 	static int SampleWorldmapCoverage(int grid);
-	// Diagnostic: draw quads as solid marker rects rather than atlas tiles, to
-	// separate "quads land in the wrong place" from "atlas slots are empty".
-	static void SetWorldmapGeometryProbe(bool on) { m_worldmapGeometryProbe = on; }
-	static bool WorldmapGeometryProbe() { return m_worldmapGeometryProbe; }
 	static void DestroyWorldmapTexture();
 	static void MarkQuadFrameIncomplete(char const *reason = nullptr);
 	static bool QuadFrameComplete() { return m_quadFrameComplete; }
@@ -236,7 +232,6 @@ protected:
 	static SDL_Texture *	m_worldmapTexture;
 	static int		m_worldmapW;
 	static int		m_worldmapH;
-	static bool		m_worldmapGeometryProbe;
 	// P11 G1: terrain quad atlas (source) + the per-frame cell draw list.
 	static SDL_Texture *	m_quadAtlasTexture;
 	static int		m_quadAtlasW;

@@ -194,6 +194,9 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		// moving the source window. Quad mode only changes HOW the world texture is
 		// filled (render target instead of CPU upload), not its coordinate system.
 		int const worldMargin = aui_SDL::WorldMargin();
+		// P13 step 0: the camera's pan budget and safe zoom range are both
+		// functions of the screen size it windows out of the world texture.
+		aui_SDL::SetViewportSize(m_width, m_height);
 		m_worldTexture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888,
 			aui_SDL::GpuQuadsEnabled()
 				? SDL_TEXTUREACCESS_TARGET : SDL_TEXTUREACCESS_STREAMING,

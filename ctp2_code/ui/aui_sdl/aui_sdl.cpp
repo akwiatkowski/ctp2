@@ -27,6 +27,11 @@ SDL_Texture *aui_SDL::m_fogTexture = nullptr;
 float aui_SDL::m_cameraOffX = 0.0f;
 float aui_SDL::m_cameraOffY = 0.0f;
 float aui_SDL::m_cameraZoom = 1.0f;
+// P13 step 0: viewport size, overwritten by SetViewportSize when the layer
+// textures are created. The 1920x1080 default keeps MinSafeZoom sane if the
+// camera is queried before that (it only ever tightens the clamp).
+int aui_SDL::m_viewportW = 1920;
+int aui_SDL::m_viewportH = 1080;
 float aui_SDL::m_panVelX = 0.0f;
 float aui_SDL::m_panVelY = 0.0f;
 float aui_SDL::m_zoomVel = 0.0f;
@@ -405,8 +410,12 @@ void aui_SDL::TickCamera(float dtSec)
 	// 2026-07-16 ScrollPixels crash). Recenter shifts offset+target back inside
 	// the margin as the pan travels, so this cap never limits sustained
 	// scrolling — only the queued overshoot.
-	float const limX = static_cast<float>(WorldContentOffX());
-	float const limY = static_cast<float>(WorldContentOffY());
+	// P13 step 0: the budget is the margin MINUS what the zoomed source window
+	// already spends overshooting the screen region — not the raw margin. Using
+	// the raw margin let the pan run past rendered content whenever the camera
+	// was zoomed, and SDL's srcrect clipping turned that into a visible jump.
+	float const limX = PanBudgetX();
+	float const limY = PanBudgetY();
 	auto clampPanAxis = [](float &off, float &tgt, float lim)
 	{
 		if (tgt >  lim) tgt =  lim;
@@ -427,8 +436,11 @@ void aui_SDL::TickCamera(float dtSec)
 	m_zoomVel   += accel * dtSec;
 	m_cameraZoom += m_zoomVel * dtSec;
 
-	// Clamp zoom to a sane peek range.
-	float const k_ZOOM_MIN = 0.5f, k_ZOOM_MAX = 2.5f;
+	// Clamp zoom to a sane peek range. The lower bound is not a taste choice:
+	// below MinSafeZoom the source window is wider than screen+margin, so even
+	// a centred window samples outside rendered content (P13 step 0). ADR-003's
+	// whole-map texture removes the limit; until then it is a hard floor.
+	float const k_ZOOM_MIN = MinSafeZoom(), k_ZOOM_MAX = 2.5f;
 	if (m_cameraZoom < k_ZOOM_MIN) { m_cameraZoom = k_ZOOM_MIN; if (m_zoomVel < 0.0f) m_zoomVel = 0.0f; }
 	if (m_cameraZoom > k_ZOOM_MAX) { m_cameraZoom = k_ZOOM_MAX; if (m_zoomVel > 0.0f) m_zoomVel = 0.0f; }
 

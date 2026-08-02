@@ -1551,6 +1551,7 @@ cpp_fast_test_sources = [
   'test/cpp/test_scoped_rand.cpp',
   'test/cpp/test_mappoint.cpp',
   'test/cpp/test_pinch_detector.cpp',
+  'test/cpp/test_camera_window.cpp',
 	'test/cpp/test_aui_blitter.cpp',
 	'test/cpp/test_png_load.cpp',
 	'test/cpp/test_modern_sprite_manifest.cpp',

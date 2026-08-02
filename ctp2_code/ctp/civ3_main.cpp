@@ -856,8 +856,15 @@ static bool ui_RecenterPanIfNeeded()
 	};
 	float const ox = aui_SDL::CameraOffX();
 	float const oy = aui_SDL::CameraOffY();
-	sint32 const dxTiles = axisTiles(ox, tileStepX, aui_SDL::WorldContentOffX());
-	sint32 const dyTiles = axisTiles(oy, halfRowStepY, aui_SDL::WorldContentOffY());
+	// P13 step 0: budget, not raw margin. The present's source window already
+	// spends part of the margin overshooting the screen region whenever the
+	// camera is zoomed, so recentring against the full 94/72 let the pan run
+	// past rendered content — SDL then clipped the srcrect and rescaled the
+	// destination, which is what made the map teleport after a pinch.
+	sint32 const marginX = static_cast<sint32>(aui_SDL::PanBudgetX());
+	sint32 const marginY = static_cast<sint32>(aui_SDL::PanBudgetY());
+	sint32 const dxTiles = axisTiles(ox, tileStepX, marginX);
+	sint32 const dyTiles = axisTiles(oy, halfRowStepY, marginY);
 	if (dxTiles == 0 && dyTiles == 0)
 		return false;
 

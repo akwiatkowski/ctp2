@@ -10,6 +10,7 @@
 #if defined(__AUI_USE_SDL__)
 
 #include "ui/aui_sdl/aui_sdlcompat.h"
+#include "ui/aui_common/camera_window.h"   // P13 step 0: pan budget / safe zoom
 
 #include <map>
 #include <tuple>
@@ -83,8 +84,31 @@ public:
 	// before a whole-tile recenter pulls the offset back.
 	static constexpr int WorldContentOffX() { return 94; }   // k_TILE_GRID_WIDTH
 	static constexpr int WorldContentOffY() { return 72; }   // k_TILE_GRID_HEIGHT
+	// P13 step 0 — the screen size the camera windows out of the world texture.
+	// Needed because the pan budget and the safe zoom range both depend on it
+	// (see camera_window.h); set once when the layer textures are created.
+	static void SetViewportSize(int w, int h) { m_viewportW = w; m_viewportH = h; }
+	static float ViewportW() { return static_cast<float>(m_viewportW); }
+	static float ViewportH() { return static_cast<float>(m_viewportH); }
+	// How far the camera may pan on each axis at the CURRENT zoom before the
+	// present samples outside rendered content. At zoom 1 this is just the
+	// margin; zooming in eats into it (see camera_window.h for why).
+	static float PanBudgetX() { return camera_window::PanBudgetPx(ViewportW(), (float)WorldContentOffX(), m_cameraZoom); }
+	static float PanBudgetY() { return camera_window::PanBudgetPx(ViewportH(), (float)WorldContentOffY(), m_cameraZoom); }
+	// The lowest zoom the rendered margin can supply on BOTH axes. Below this
+	// even a centred window overruns, so every camera-zoom writer clamps to it.
+	static float MinSafeZoom()
+	{
+		float const zx = camera_window::MinSafeZoom(ViewportW(), (float)WorldContentOffX());
+		float const zy = camera_window::MinSafeZoom(ViewportH(), (float)WorldContentOffY());
+		return (zx > zy) ? zx : zy;
+	}
 	static void SetCamera(float offX, float offY, float zoom)
-	{ m_cameraOffX = offX; m_cameraOffY = offY; m_cameraZoom = zoom; }
+	{
+		float const zMin = MinSafeZoom();
+		m_cameraOffX = offX; m_cameraOffY = offY;
+		m_cameraZoom = (zoom < zMin) ? zMin : zoom;
+	}
 	// TEMPORARY (P11 pixel-proof debug): set the pan offset directly, bypassing
 	// velocity/target logic so a test harness can force a known camera state.
 	static void SetCameraOffset(float offX, float offY)
@@ -176,6 +200,9 @@ protected:
 	// P11 2c: buttery-pan follow target (the displayed CameraOff eases toward this).
 	static float		m_panTargetX;
 	static float		m_panTargetY;
+	// P13 step 0: screen size the camera windows out of the world texture.
+	static int		m_viewportW;
+	static int		m_viewportH;
 	// P11 G1: terrain quad atlas (source) + the per-frame cell draw list.
 	static SDL_Texture *	m_quadAtlasTexture;
 	static int		m_quadAtlasW;

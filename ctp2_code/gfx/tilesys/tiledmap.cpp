@@ -3735,6 +3735,14 @@ sint32 TiledMap::Refresh()
 	if (aui_SDL::GpuQuadsEnabled())
 		BuildTerrainQuads();
 
+	// P13 step 1 (ADR-003): update the whole-map target from the SAME point in
+	// the frame. It composites cache misses through the identical scratch-lock
+	// path BuildTerrainQuads uses, which only behaves correctly here — after
+	// UnlockSurface. Called from outside a render pass the composite silently
+	// produced empty tiles. Dirty-tracked, so this is free once the map is drawn.
+	if (aui_SDL::GpuWorldmapEnabled())
+		BuildWorldmapQuads();
+
 	return 0;
 }
 
@@ -3904,7 +3912,8 @@ int TiledMap::BuildWorldmapQuads()
 		InvalidateWorldmap();
 		return 0;
 	}
-	return static_cast<int>(dirty.size());
+	m_worldmapRedrawn = static_cast<int>(dirty.size());
+	return m_worldmapRedrawn;
 }
 
 void TiledMap::BuildTerrainQuads()

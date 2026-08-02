@@ -584,14 +584,23 @@ std::string CmdDebugRevealPatch(const char * args)
 // P13 step 1 — build (or incrementally update) the whole-map GPU target and
 // report how many cells were redrawn. The count IS the contract: the first call
 // draws the explored map, and a call that follows a pan or zoom must draw zero.
-std::string CmdDebugWorldmapBuild(const char *)
+std::string CmdDebugWorldmapBuild(const char * args)
 {
 	if (!aui_SDL::GpuWorldmapEnabled())
 		return Err("debug_worldmap_build", "worldmap_disabled");
 	if (!tiledmap_Get())
 		return Err("debug_worldmap_build", "no_tiledmap");
 
-	int const redrawn = tiledmap_Get()->BuildWorldmapQuads();
+	// "geometry" draws marker rects instead of atlas tiles (see aui_SDL).
+	bool const geometryProbe = args && strstr(args, "geometry") != nullptr;
+	aui_SDL::SetWorldmapGeometryProbe(geometryProbe);
+	if (geometryProbe)
+		tiledmap_Get()->InvalidateWorldmap();   // force a full redraw for the probe
+	// Drive it through Refresh, the only context where the tile composite works.
+	tiledmap_Get()->RetargetTileSurface(nullptr);
+	tiledmap_Get()->Refresh();
+	int const redrawn = tiledmap_Get()->LastWorldmapRedrawCount();
+	aui_SDL::SetWorldmapGeometryProbe(false);
 	json result;
 	result["cells_redrawn"] = redrawn;
 	result["texture_w"] = aui_SDL::WorldmapW();
@@ -3464,7 +3473,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_clear_terrain_layers ", 0) == 0)      return CmdDebugClearTerrainLayers(line.c_str() + 27);
     if (line.rfind("debug_reveal_patch ", 0) == 0)              return CmdDebugRevealPatch(line.c_str() + 19);
 #if defined(RENDER_TOOL_BUILD) && defined(USE_SDL)
-    if (line == "debug_worldmap_build")                         return CmdDebugWorldmapBuild(nullptr);
+    if (line == "debug_worldmap_build")                         return CmdDebugWorldmapBuild("");
+    if (line.rfind("debug_worldmap_build ", 0) == 0)            return CmdDebugWorldmapBuild(line.c_str() + 21);
     if (line.rfind("debug_worldmap_pixel ", 0) == 0)            return CmdDebugWorldmapPixel(line.c_str() + 21);
     if (line == "debug_gpu_worldmap_probe")                     return CmdDebugGpuWorldmapProbe(nullptr);
     if (line.rfind("debug_gpu_worldmap_probe ", 0) == 0)        return CmdDebugGpuWorldmapProbe(line.c_str() + 25);

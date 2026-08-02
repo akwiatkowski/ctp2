@@ -36,6 +36,9 @@ int aui_SDL::m_viewportH = 1080;
 SDL_Texture *aui_SDL::m_worldmapTexture = nullptr;
 int aui_SDL::m_worldmapW = 0;
 int aui_SDL::m_worldmapH = 0;
+// P13 step 1 diagnostic: fill quad rects with a marker instead of blitting the
+// atlas, so coverage measures where quads LAND independently of what they hold.
+bool aui_SDL::m_worldmapGeometryProbe = false;
 float aui_SDL::m_panVelX = 0.0f;
 float aui_SDL::m_panVelY = 0.0f;
 float aui_SDL::m_zoomVel = 0.0f;
@@ -187,8 +190,13 @@ bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &quads)
 		// clear its own rect to opaque black, or the previous tile would show
 		// through the replacement tile's transparent border.
 		SDL_Rect const clearRect = { q.dx, q.dy, q.dw, q.dh };
-		SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+		if (m_worldmapGeometryProbe)
+			SDL_SetRenderDrawColor(m_renderer, 0x20, 0x30, 0x40, 255);
+		else
+			SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
 		CTP2_SDL_RenderFillRectI(m_renderer, &clearRect);
+		if (m_worldmapGeometryProbe)
+			continue;   // geometry only: no atlas blit, so coverage == quad area
 		CTP2_SDL_RenderTextureWindow(m_renderer, m_quadAtlasTexture,
 			(float)q.sx, (float)q.sy, (float)q.sw, (float)q.sh,
 			(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh);

@@ -620,6 +620,8 @@ public:
 	// P13 step 1 diagnostics: atlas misses and actual uploads on the last build.
 	// A miss count far above the atlas slot count means LRU is evicting slots
 	// before the deferred batch draw samples them.
+	int				LastWorldmapRedrawCount() const { return m_worldmapRedrawn; }
+	int				m_worldmapRedrawn = 0;
 	int				m_worldmapMisses = 0;
 	int				m_worldmapUploads = 0;
 	int				m_worldmapMinX = 0, m_worldmapMaxX = 0;

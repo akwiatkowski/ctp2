@@ -580,6 +580,82 @@ std::string CmdDebugRevealPatch(const char * args)
 	return Ok("debug_reveal_patch", result);
 }
 
+#if defined(RENDER_TOOL_BUILD) && defined(USE_SDL)
+// P13 step 1 probe. ADR-003 puts the WHOLE map in one GPU render target instead
+// of the screen+margin window mirror, so the first question to settle is whether
+// a texture that size can be created, rendered into, and read back at all — the
+// Gigantic map is 6,580 x 5,040px (~133MB at 32bpp) against a 16,384^2 Metal
+// limit. Reports the measured answer rather than the arithmetic.
+std::string CmdDebugGpuWorldmapProbe(const char * args)
+{
+	World * w = world_Get();
+	if (!w)
+		return Err("debug_gpu_worldmap_probe", "no_world");
+	SDL_Renderer * renderer = aui_SDL::Renderer();
+	if (!renderer)
+		return Err("debug_gpu_worldmap_probe", "no_renderer");
+
+	// Whole-map extent at native zoom: one tile grid per column, half a grid per
+	// row (isometric rows interleave), matching the tileset constants the world
+	// mirror is pinned to.
+	int const mapW = static_cast<int>(w->GetXWidth());
+	int const mapH = static_cast<int>(w->GetYHeight());
+	// Optional "<tilesX> <tilesY>" override, so the worst case (Gigantic, 70x140)
+	// can be probed without generating a Gigantic game.
+	int overrideW = 0, overrideH = 0;
+	bool const overridden = args && sscanf(args, "%d %d", &overrideW, &overrideH) == 2
+	                        && overrideW > 0 && overrideH > 0;
+	int const tilesX = overridden ? overrideW : mapW;
+	int const tilesY = overridden ? overrideH : mapH;
+	int const texW = tilesX * k_TILE_GRID_WIDTH;
+	int const texH = tilesY * (k_TILE_GRID_HEIGHT / 2);
+
+	json result;
+	result["map_tiles_x"] = tilesX;
+	result["map_tiles_y"] = tilesY;
+	result["overridden"] = overridden;
+	result["texture_w"] = texW;
+	result["texture_h"] = texH;
+	result["bytes"] = static_cast<double>(texW) * texH * 4.0;
+
+	SDL_Texture * target = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
+		SDL_TEXTUREACCESS_TARGET, texW, texH);
+	if (!target)
+	{
+		result["created"] = false;
+		result["sdl_error"] = SDL_GetError();
+		return Ok("debug_gpu_worldmap_probe", result);
+	}
+	result["created"] = true;
+
+	// Clear to a known colour and read it back from the FAR corner: allocation
+	// alone proves nothing if the driver cannot actually target a texture this
+	// large, and the far corner is what a silently-clamped size would miss.
+	bool readback_ok = false;
+	uint32 pixel = 0;
+	if (CTP2_SDL_SetRenderTarget(renderer, target))
+	{
+		SDL_SetRenderDrawColor(renderer, 0x12, 0x34, 0x56, 255);
+		SDL_RenderClear(renderer);
+		readback_ok = CTP2_SDL_RenderReadPixelARGB(renderer, texW - 1, texH - 1, &pixel);
+		CTP2_SDL_SetRenderTarget(renderer, nullptr);
+	}
+	result["readback"] = readback_ok;
+	if (readback_ok)
+	{
+		result["pixel"] = pixel & 0x00FFFFFFu;
+		result["pixel_matches"] = ((pixel & 0x00FFFFFFu) == 0x00123456u);
+	}
+	else
+	{
+		result["sdl_error"] = SDL_GetError();
+	}
+	SDL_DestroyTexture(target);
+	return Ok("debug_gpu_worldmap_probe", result);
+}
+#endif
+
+
 std::string CmdDebugDeselect()
 {
 	if (!selitem_Get())
@@ -3327,6 +3403,10 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_clear_rivers ", 0) == 0)              return CmdDebugClearRivers(line.c_str() + 19);
     if (line.rfind("debug_clear_terrain_layers ", 0) == 0)      return CmdDebugClearTerrainLayers(line.c_str() + 27);
     if (line.rfind("debug_reveal_patch ", 0) == 0)              return CmdDebugRevealPatch(line.c_str() + 19);
+#if defined(RENDER_TOOL_BUILD) && defined(USE_SDL)
+    if (line == "debug_gpu_worldmap_probe")                     return CmdDebugGpuWorldmapProbe(nullptr);
+    if (line.rfind("debug_gpu_worldmap_probe ", 0) == 0)        return CmdDebugGpuWorldmapProbe(line.c_str() + 25);
+#endif
     if (line == "debug_deselect")                               return CmdDebugDeselect();
     if (line.rfind("debug_combat_flash ", 0) == 0)              return CmdDebugCombatFlash(line.c_str() + 19);
     if (line.rfind("debug_scenario_start_flags ", 0) == 0)      return CmdDebugScenarioStartFlags(line.c_str() + 27);

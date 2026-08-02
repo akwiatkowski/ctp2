@@ -513,6 +513,42 @@ inline void CTP2_SDL_HideCursor()
 #endif
 }
 
+// Read a single ARGB pixel back from the current render target. Reading one
+// pixel rather than the whole target matters when the target is large — the
+// P13 whole-map texture is ~133MB, and a full readback to prove one value would
+// allocate all of it.
+inline bool CTP2_SDL_RenderReadPixelARGB(SDL_Renderer *renderer, int x, int y,
+                                         uint32 *out)
+{
+	SDL_Rect const rect = { x, y, 1, 1 };
+#if defined(CTP2_USE_SDL3)
+	SDL_Surface *px = SDL_RenderReadPixels(renderer, &rect);
+	if (!px)
+	{
+		return false;
+	}
+	SDL_Surface *argb = SDL_ConvertSurface(px, SDL_PIXELFORMAT_ARGB8888);
+	bool ok = false;
+	if (argb && argb->pixels)
+	{
+		*out = *static_cast<uint32 *>(argb->pixels);
+		ok = true;
+	}
+	if (argb) CTP2_SDL_DestroySurface(argb);
+	CTP2_SDL_DestroySurface(px);
+	return ok;
+#else
+	uint32 pixel = 0;
+	if (SDL_RenderReadPixels(renderer, &rect, SDL_PIXELFORMAT_ARGB8888,
+	                         &pixel, sizeof(pixel)) != 0)
+	{
+		return false;
+	}
+	*out = pixel;
+	return true;
+#endif
+}
+
 inline bool CTP2_SDL_SaveRendererPixels(
 	SDL_Renderer *renderer,
 	char const *path,

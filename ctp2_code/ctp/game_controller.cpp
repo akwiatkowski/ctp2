@@ -581,6 +581,57 @@ std::string CmdDebugRevealPatch(const char * args)
 }
 
 #if defined(RENDER_TOOL_BUILD) && defined(USE_SDL)
+// P13 step 1 — build (or incrementally update) the whole-map GPU target and
+// report how many cells were redrawn. The count IS the contract: the first call
+// draws the explored map, and a call that follows a pan or zoom must draw zero.
+std::string CmdDebugWorldmapBuild(const char *)
+{
+	if (!aui_SDL::GpuWorldmapEnabled())
+		return Err("debug_worldmap_build", "worldmap_disabled");
+	if (!tiledmap_Get())
+		return Err("debug_worldmap_build", "no_tiledmap");
+
+	int const redrawn = tiledmap_Get()->BuildWorldmapQuads();
+	json result;
+	result["cells_redrawn"] = redrawn;
+	result["texture_w"] = aui_SDL::WorldmapW();
+	result["texture_h"] = aui_SDL::WorldmapH();
+	result["has_texture"] = aui_SDL::WorldmapTexture() != nullptr;
+	return Ok("debug_worldmap_build", result);
+}
+
+// Read one ARGB pixel back out of the whole-map target, in absolute map-pixel
+// coordinates. This is the oracle for "did terrain actually land where the map
+// says it should", independent of any camera or present.
+std::string CmdDebugWorldmapPixel(const char * args)
+{
+	int x = 0, y = 0;
+	if (!args || sscanf(args, "%d %d", &x, &y) != 2)
+		return Err("debug_worldmap_pixel", "bad_args");
+	SDL_Renderer * renderer = aui_SDL::Renderer();
+	SDL_Texture *  target   = aui_SDL::WorldmapTexture();
+	if (!renderer || !target)
+		return Err("debug_worldmap_pixel", "no_worldmap_texture");
+	if (x < 0 || y < 0 || x >= aui_SDL::WorldmapW() || y >= aui_SDL::WorldmapH())
+		return Err("debug_worldmap_pixel", "out_of_bounds");
+
+	SDL_Texture * const prev = SDL_GetRenderTarget(renderer);
+	uint32 pixel = 0;
+	bool ok = false;
+	if (CTP2_SDL_SetRenderTarget(renderer, target))
+		ok = CTP2_SDL_RenderReadPixelARGB(renderer, x, y, &pixel);
+	CTP2_SDL_SetRenderTarget(renderer, prev);
+	if (!ok)
+		return Err("debug_worldmap_pixel", "readback_failed");
+
+	json result;
+	result["x"] = x;
+	result["y"] = y;
+	result["argb"] = pixel;
+	result["rgb"] = pixel & 0x00FFFFFFu;
+	return Ok("debug_worldmap_pixel", result);
+}
+
 // P13 step 1 probe. ADR-003 puts the WHOLE map in one GPU render target instead
 // of the screen+margin window mirror, so the first question to settle is whether
 // a texture that size can be created, rendered into, and read back at all — the
@@ -3404,6 +3455,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_clear_terrain_layers ", 0) == 0)      return CmdDebugClearTerrainLayers(line.c_str() + 27);
     if (line.rfind("debug_reveal_patch ", 0) == 0)              return CmdDebugRevealPatch(line.c_str() + 19);
 #if defined(RENDER_TOOL_BUILD) && defined(USE_SDL)
+    if (line == "debug_worldmap_build")                         return CmdDebugWorldmapBuild(nullptr);
+    if (line.rfind("debug_worldmap_pixel ", 0) == 0)            return CmdDebugWorldmapPixel(line.c_str() + 21);
     if (line == "debug_gpu_worldmap_probe")                     return CmdDebugGpuWorldmapProbe(nullptr);
     if (line.rfind("debug_gpu_worldmap_probe ", 0) == 0)        return CmdDebugGpuWorldmapProbe(line.c_str() + 25);
 #endif

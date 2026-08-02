@@ -513,6 +513,19 @@ inline void CTP2_SDL_HideCursor()
 #endif
 }
 
+// Fill an integer rect on the current target. SDL3 took SDL_RenderFillRect to
+// float rects; this keeps call sites in integer pixel space.
+inline bool CTP2_SDL_RenderFillRectI(SDL_Renderer *renderer, SDL_Rect const *rect)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_FRect const fr = { (float)rect->x, (float)rect->y,
+	                       (float)rect->w, (float)rect->h };
+	return SDL_RenderFillRect(renderer, &fr);
+#else
+	return SDL_RenderFillRect(renderer, rect) == 0;
+#endif
+}
+
 // Read a single ARGB pixel back from the current render target. Reading one
 // pixel rather than the whole target matters when the target is large — the
 // P13 whole-map texture is ~133MB, and a full readback to prove one value would

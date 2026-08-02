@@ -161,6 +161,27 @@ public:
 	// presents so camera-only frames reuse it without a rebuild.
 	static void BeginQuadFrame() { m_quadDrawList.clear(); m_quadFrameComplete = true; m_quadFrameIncompleteReason = nullptr; }
 	static void AddQuad(GpuQuad const &q) { m_quadDrawList.push_back(q); }
+	// P13 step 1 (ADR-003) — whole-map GPU render target. Opt-in via
+	// CTP2_GPU_WORLDMAP; the ADR-002 window mirror stays the default path.
+	// Instead of a screen+margin texture rebuilt as the view scrolls, the ENTIRE
+	// map lives in one render target in absolute map-pixel coordinates, and only
+	// tiles whose content actually changed are redrawn. Pan and zoom then never
+	// touch it. Measured feasible: Gigantic is 6,580x5,040 (~133MB) against a
+	// 16,384^2 limit (debug_gpu_worldmap_probe).
+	static bool GpuWorldmapEnabled();
+	static SDL_Texture *WorldmapTexture() { return m_worldmapTexture; }
+	static int WorldmapW() { return m_worldmapW; }
+	static int WorldmapH() { return m_worldmapH; }
+	// Create (or resize) the whole-map target and clear it to opaque black, the
+	// same "unexplored" base the window-mirror path clears to. Returns false if
+	// the driver refuses the size, so callers can fall back rather than draw
+	// into nothing.
+	static bool EnsureWorldmapTexture(int w, int h);
+	// Draw a batch of atlas->map-space quads into the whole-map target. Separate
+	// from the present: these land when content changes, not when the camera
+	// moves. Returns false if the target is missing or cannot be bound.
+	static bool DrawWorldmapQuads(std::vector<GpuQuad> const &quads);
+	static void DestroyWorldmapTexture();
 	static void MarkQuadFrameIncomplete(char const *reason = nullptr);
 	static bool QuadFrameComplete() { return m_quadFrameComplete; }
 	static char const *QuadFrameIncompleteReason() { return m_quadFrameIncompleteReason; }
@@ -203,6 +224,10 @@ protected:
 	// P13 step 0: screen size the camera windows out of the world texture.
 	static int		m_viewportW;
 	static int		m_viewportH;
+	// P13 step 1: whole-map render target (ADR-003). Null unless opted in.
+	static SDL_Texture *	m_worldmapTexture;
+	static int		m_worldmapW;
+	static int		m_worldmapH;
 	// P11 G1: terrain quad atlas (source) + the per-frame cell draw list.
 	static SDL_Texture *	m_quadAtlasTexture;
 	static int		m_quadAtlasW;

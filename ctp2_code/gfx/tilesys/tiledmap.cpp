@@ -3747,6 +3747,154 @@ sint32 TiledMap::Refresh()
 // reference the cached slot. The present (aui_SDLSurface::Flip) then draws each
 // quad from the atlas into the world texture. The atlas slot size follows the
 // current engine zoom level; changing zoom rebuilds the cache at the new size.
+// P13 step 1 (ADR-003) — whole-map GPU render target, terrain only.
+//
+// The difference from BuildTerrainQuads is what the destination means. There,
+// quads land in a screen+margin texture at view-relative coordinates, so every
+// scroll invalidates the lot. Here they land in a texture the size of the WHOLE
+// map at absolute map-pixel coordinates, so a cell's destination never changes
+// and panning costs nothing. Only cells whose rendered content actually changed
+// are redrawn, keyed on the same signature the atlas cache uses.
+//
+// Terrain only, by design (step 1). Rivers, improvements, grid, cell text and
+// all actors are step 3; this path deliberately does not attempt them.
+static uint64_t const k_WORLDMAP_CELL_UNDRAWN = 0;
+
+void TiledMap::InvalidateWorldmap()
+{
+	m_worldmapCellSig.clear();
+	m_worldmapSigWidth = 0;
+}
+
+int TiledMap::BuildWorldmapQuads()
+{
+	if (!aui_SDL::GpuWorldmapEnabled()) return 0;
+	// Only the singleton main map owns the single global target; radar and
+	// thumbnail maps are separate TiledMap instances with their own views.
+	if (this != tiledmap_Get())        return 0;
+	if (!m_tileSet || !m_localVision)  return 0;
+
+	sint32 mapWidth, mapHeight;
+	GetMapMetrics(&mapWidth, &mapHeight);
+	if (mapWidth <= 0 || mapHeight <= 0) return 0;
+
+	int const tileW = GetZoomTilePixelWidth();
+	int const tileH = GetZoomTileGridHeight();
+	if (tileW <= 0 || tileH <= 0) return 0;
+
+	// The whole map at native tile size. Rows interleave by half a grid height,
+	// so the map is mapHeight half-steps tall plus the bottom row's remainder.
+	int const texW = static_cast<int>(mapWidth)  * tileW;
+	int const texH = static_cast<int>(mapHeight) * (tileH / 2) + tileH;
+	if (!aui_SDL::EnsureWorldmapTexture(texW, texH))
+		return 0;   // driver refused the size — caller stays on the ADR-002 path
+
+	// The atlas the quads sample from is shared with BuildTerrainQuads; build it
+	// on the same terms so a mode switch does not thrash the cache.
+	int const k_ATLAS_COLS = 32;
+	int const k_ATLAS_ROWS = 32;
+	if (!m_gpuTileCache || m_gpuTileCache->TileW() != tileW || m_gpuTileCache->TileH() != tileH)
+	{
+		m_gpuTileCache = std::make_unique<GpuTileCache>(
+			k_ATLAS_COLS, k_ATLAS_ROWS, tileW, tileH);
+		AUI_ERRCODE err = AUI_ERRCODE_OK;
+		m_gpuScratchTile.reset(aui_Factory::new_Surface(err, tileW, tileH,
+			nullptr, FALSE, FALSE, FALSE, /*bpp=*/32));
+		InvalidateWorldmap();   // atlas slots moved; every cell must redraw
+	}
+	if (!m_gpuScratchTile) return 0;
+	aui_SDL::EnsureQuadAtlas(m_gpuTileCache->AtlasW(), m_gpuTileCache->AtlasH());
+
+	if (m_worldmapSigWidth != mapWidth
+	    || m_worldmapCellSig.size() != static_cast<size_t>(mapWidth) * mapHeight)
+	{
+		m_worldmapCellSig.assign(static_cast<size_t>(mapWidth) * mapHeight,
+		                         k_WORLDMAP_CELL_UNDRAWN);
+		m_worldmapSigWidth = mapWidth;
+	}
+
+	std::vector<aui_SDL::GpuQuad> dirty;
+	for (sint32 i = 0; i < mapHeight; i++)
+	{
+		for (sint32 j = 0; j < mapWidth; j++)
+		{
+			// j is a MAP x here (the loop walks map space directly), unlike
+			// BuildTerrainQuads whose j walks the view rect in tile space.
+			MapPoint pos = MapPoint(j, i);
+
+			// Unexplored cells stay the opaque black the target was cleared to,
+			// matching CalculateWrap's BlackTile.
+			if (!m_renderEverything && !m_localVision->IsExplored(pos)) continue;
+
+			TileInfo * tileInfo = GetTileInfo(pos);
+			if (!tileInfo) continue;
+			if (!m_tileSet->GetBaseTile(tileInfo->GetTileNum())) continue;
+
+			sint32 const tilesetIndex =
+				g_theTerrainDB->Get(tileInfo->GetTerrainType())->GetTilesetIndex();
+			uint64_t const sig = TerrainCellSignature(
+				tileInfo->GetTileNum(),
+				(uint8_t) tilesetIndex,
+				(uint8_t) tileInfo->GetTransition(0),
+				(uint8_t) tileInfo->GetTransition(1),
+				(uint8_t) tileInfo->GetTransition(2),
+				(uint8_t) tileInfo->GetTransition(3));
+
+			// The whole point of this path: unchanged cells cost nothing, so a
+			// pan or a zoom redraws zero tiles.
+			size_t const cellIdx = static_cast<size_t>(i) * mapWidth + j;
+			if (m_worldmapCellSig[cellIdx] == sig) continue;
+
+			GpuTileSlot slot;
+			if (m_gpuTileCache->Get(sig, slot) == GpuTileCache::MISS)
+			{
+				LockThisSurface(m_gpuScratchTile.get());
+				if (m_surfBase)
+				{
+					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
+					if (m_zoomLevel == k_ZOOM_LARGEST)
+						DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
+					else
+						DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
+							GetZoomTilePixelWidth(), GetZoomTilePixelHeight());
+					aui_SDL::UploadQuadAtlasSlot(slot.atlasX, slot.atlasY, tileW, tileH,
+						m_surfBase, m_surfPitch);
+				}
+				UnlockSurface();
+			}
+
+			// Absolute map-pixel destination. NOTE this cannot use
+			// maputils_MapXY2PixelXY: that consults GetMapViewRect() and is
+			// therefore view-RELATIVE — there is no absolute map->pixel
+			// converter in the engine, because until now nothing needed one.
+			// The projection itself is plain isometric arithmetic: a column is
+			// one tile wide, odd rows are nudged half a tile, and rows advance
+			// by half a tile height because they interleave (the same nudge
+			// maputils applies for `mapY & 0x01`).
+			sint32 tileX = 0;
+			maputils_MapX2TileX(j, i, &tileX);
+			sint32 const drawX = tileX * tileW + ((i & 1) ? (tileW / 2) : 0);
+			sint32 const drawY = i * (tileH / 2);
+
+			aui_SDL::GpuQuad q;
+			q.sx = slot.atlasX; q.sy = slot.atlasY; q.sw = tileW; q.sh = tileH;
+			q.dx = drawX; q.dy = drawY;
+			q.dw = tileW; q.dh = tileH;
+			dirty.push_back(q);
+			m_worldmapCellSig[cellIdx] = sig;
+		}
+	}
+
+	if (!aui_SDL::DrawWorldmapQuads(dirty))
+	{
+		// The batch never landed; forget what we claimed to have drawn so the
+		// next call retries rather than leaving the target permanently stale.
+		InvalidateWorldmap();
+		return 0;
+	}
+	return static_cast<int>(dirty.size());
+}
+
 void TiledMap::BuildTerrainQuads()
 {
 	// Only the singleton main world map drives the (single, global) quad draw

@@ -363,6 +363,15 @@ public:
 	// from the visible cells, filling the tile atlas on cache misses. CTP2_GPU_QUADS=0
 	// keeps the temporary CPU fallback. Called from Refresh after CPU passes unlock.
 	void			BuildTerrainQuads();
+	// P13 step 1 (ADR-003) — draw terrain into the whole-map GPU target, in
+	// absolute map-pixel space. Redraws only cells whose rendered content
+	// changed since last call (see m_worldmapCellSig), so pan and zoom never
+	// dirty anything. No-op unless CTP2_GPU_WORLDMAP is on. Returns the number
+	// of cells redrawn, so tests can assert that a pan costs zero.
+	int			BuildWorldmapQuads();
+	// Drop all cached per-cell state, forcing a full rebuild (map changed size,
+	// tileset/zoom changed, or another game was loaded).
+	void			InvalidateWorldmap();
 	sint32			QuickBlackBackGround(aui_Surface *surface);
 	sint32			DrawDitheredTile(aui_Surface *surface, sint32 x, sint32 y, Pixel16 color);
 	void			DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos, sint32 x, sint32 y, sint32 destWidth, sint32 destHeight,Pixel16 color);
@@ -602,6 +611,11 @@ protected:
 	// compose-once buffer for a cache miss before upload to the atlas. Both are
 	// created lazily on the first BuildTerrainQuads; null unless quads are on.
 	std::unique_ptr<GpuTileCache>	m_gpuTileCache;
+	// P13 step 1: last signature drawn into the whole-map target, per cell
+	// (index = y * mapWidth + x). k_WORLDMAP_CELL_UNDRAWN means never drawn, so
+	// the first pass renders everything and later passes only the differences.
+	std::vector<uint64_t>		m_worldmapCellSig;
+	sint32				m_worldmapSigWidth = 0;
 	std::unique_ptr<aui_Surface>	m_gpuScratchTile;
 
 	MapPoint		m_hiliteMouseTile;

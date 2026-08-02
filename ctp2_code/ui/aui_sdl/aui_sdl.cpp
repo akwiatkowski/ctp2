@@ -32,6 +32,10 @@ float aui_SDL::m_cameraZoom = 1.0f;
 // camera is queried before that (it only ever tightens the clamp).
 int aui_SDL::m_viewportW = 1920;
 int aui_SDL::m_viewportH = 1080;
+// P13 step 1: whole-map render target (ADR-003). Null unless opted in.
+SDL_Texture *aui_SDL::m_worldmapTexture = nullptr;
+int aui_SDL::m_worldmapW = 0;
+int aui_SDL::m_worldmapH = 0;
 float aui_SDL::m_panVelX = 0.0f;
 float aui_SDL::m_panVelY = 0.0f;
 float aui_SDL::m_zoomVel = 0.0f;
@@ -115,6 +119,93 @@ bool aui_SDL::GpuQuadsEnabled()
 		s_enabled = (requested && GpuLayersEnabled() && spritesSafe) ? 1 : 0;
 	}
 	return s_enabled != 0;
+}
+
+bool aui_SDL::GpuWorldmapEnabled()
+{
+	// Opt-in, cached. ADR-003's whole-map target. It reuses the terrain-quad
+	// machinery (atlas + tile cache), so it implies GpuQuadsEnabled; without
+	// quads there is nothing to draw into it. Default OFF — the ADR-002 window
+	// mirror remains the shipping path until this substrate is proven.
+	static int s_enabled = -1;
+	if (s_enabled < 0)
+	{
+		char const * e = getenv("CTP2_GPU_WORLDMAP");
+		bool const requested = e && e[0] && strcmp(e, "0") != 0;
+		s_enabled = (requested && GpuQuadsEnabled()) ? 1 : 0;
+	}
+	return s_enabled != 0;
+}
+
+bool aui_SDL::EnsureWorldmapTexture(int w, int h)
+{
+	if (!m_renderer || w <= 0 || h <= 0)
+		return false;
+	if (m_worldmapTexture && m_worldmapW == w && m_worldmapH == h)
+		return true;
+
+	DestroyWorldmapTexture();
+	m_worldmapTexture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888,
+		SDL_TEXTUREACCESS_TARGET, w, h);
+	if (!m_worldmapTexture)
+		return false;   // driver refused the size; caller falls back
+
+	m_worldmapW = w;
+	m_worldmapH = h;
+	// Nearest sampling: above 1.0 the camera should show crisp pixel art rather
+	// than a blurred upscale (ADR-003).
+	CTP2_SDL_SetTextureNearest(m_worldmapTexture);
+	SDL_SetTextureBlendMode(m_worldmapTexture, SDL_BLENDMODE_BLEND);
+
+	// Clear once to opaque black — the same base unexplored cells keep, since
+	// only explored cells ever draw a tile into it.
+	SDL_Texture * const prev = SDL_GetRenderTarget(m_renderer);
+	if (CTP2_SDL_SetRenderTarget(m_renderer, m_worldmapTexture))
+	{
+		SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+		SDL_RenderClear(m_renderer);
+	}
+	CTP2_SDL_SetRenderTarget(m_renderer, prev);
+	return true;
+}
+
+bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &quads)
+{
+	if (!m_renderer || !m_worldmapTexture || !m_quadAtlasTexture)
+		return false;
+	if (quads.empty())
+		return true;   // nothing dirty is a success, not a failure
+
+	SDL_Texture * const prev = SDL_GetRenderTarget(m_renderer);
+	if (!CTP2_SDL_SetRenderTarget(m_renderer, m_worldmapTexture))
+		return false;
+
+	for (GpuQuad const & q : quads)
+	{
+		// Tiles are alpha-blended so a diamond's transparent surround does not
+		// clobber the neighbours it tessellates with. A redrawn cell must first
+		// clear its own rect to opaque black, or the previous tile would show
+		// through the replacement tile's transparent border.
+		SDL_Rect const clearRect = { q.dx, q.dy, q.dw, q.dh };
+		SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+		CTP2_SDL_RenderFillRectI(m_renderer, &clearRect);
+		CTP2_SDL_RenderTextureWindow(m_renderer, m_quadAtlasTexture,
+			(float)q.sx, (float)q.sy, (float)q.sw, (float)q.sh,
+			(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh);
+	}
+
+	CTP2_SDL_SetRenderTarget(m_renderer, prev);
+	return true;
+}
+
+void aui_SDL::DestroyWorldmapTexture()
+{
+	if (m_worldmapTexture)
+	{
+		SDL_DestroyTexture(m_worldmapTexture);
+		m_worldmapTexture = nullptr;
+	}
+	m_worldmapW = m_worldmapH = 0;
 }
 
 void aui_SDL::EnsureQuadAtlas(int atlasW, int atlasH)

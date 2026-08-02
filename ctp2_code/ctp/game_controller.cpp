@@ -27,6 +27,7 @@
 #include "ctp/civapp.h"                       // civapp_Get()->IsGameLoaded()
 #include "ctp/ctp2_utils/civlog.h"            // civlog::Get
 #include "gs/utility/Globals.h"               // k_MAX_PLAYERS, k_GAME_OBJ_TYPE_*
+#include "gs/utility/MoveFlags.h"             // k_MOVEMENT_TYPE_* render fixture terrain env
 #include "gs/utility/safety.h"                // safe_shift_left_u64
 #include "gs/gameobj/player.h"                // player_Get, Player
 #include "gs/gameobj/Army.h"                  // Army
@@ -45,6 +46,7 @@
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
 #include "gs/core/game_observer.h"            // gameobservers_Get()
 #include "gs/core/player_view.h"              // player_view::SetCurrentPlayer
+#include "gs/core/tiledmap_observer.h"        // render-fixture tile postprocess
 #include "gs/gameobj/MovePath.h"              // army_QueueMovePath
 #include "gs/gameobj/Events.h"                // GEV_ExploreOrder / AI events
 #include "gs/gameobj/Score.h"                 // Score::GetTotalScore
@@ -245,6 +247,21 @@ sint32 ResolveUnitType(const char * name)
     return -1;
 }
 
+uint32 MovementMaskFromTerrain(const TerrainRecord * rec)
+{
+    uint32 movement = 0;
+    if (!rec)
+        return movement;
+    if (rec->GetMovementTypeLand())         movement |= k_MOVEMENT_TYPE_LAND;
+    if (rec->GetMovementTypeSea())          movement |= k_MOVEMENT_TYPE_WATER;
+    if (rec->GetMovementTypeAir())          movement |= k_MOVEMENT_TYPE_AIR;
+    if (rec->GetMovementTypeMountain())     movement |= k_MOVEMENT_TYPE_MOUNTAIN;
+    if (rec->GetMovementTypeTrade())        movement |= k_MOVEMENT_TYPE_TRADE;
+    if (rec->GetMovementTypeShallowWater()) movement |= k_MOVEMENT_TYPE_SHALLOW_WATER;
+    if (rec->GetMovementTypeSpace())        movement |= k_MOVEMENT_TYPE_SPACE;
+    return movement;
+}
+
 // {"status":"ok","cmd":"<verb>","result":{...}}  (result omitted if null)
 std::string Ok(const char * verb, const json & result = json())
 {
@@ -439,7 +456,25 @@ std::string CmdDebugSetTerrain(const char * args)
 		return Err("debug_set_terrain", "out_of_bounds");
 
 	MapPoint pos(x, y);
+#if defined(RENDER_TOOL_BUILD)
+	// Render fixtures must not invoke scenario-editor terrain logic: it can rewrite
+	// neighbours and let gameplay consequences leak into visual comparison runs.
+	w->SetTerrain(x, y, terrain);
+	w->SetMovementType(x, y, MovementMaskFromTerrain(g_theTerrainDB->Get(terrain)));
+	for (sint32 dy = -1; dy <= 1; ++dy) {
+		for (sint32 dx = -1; dx <= 1; ++dx) {
+			sint32 const px = x + dx;
+			sint32 const py = y + dy;
+			if (px < 0 || py < 0 || px >= w->GetXWidth() || py >= w->GetYHeight())
+				continue;
+			MapPoint p(px, py);
+			tiledmap_observer::PostProcessTile(p, w->GetTileInfo(p));
+			tiledmap_observer::RedrawTile(p);
+		}
+	}
+#else
 	w->SmartSetTerrain(pos, terrain, 0);
+#endif
 	if (tiledmap_Get()) {
 		if (TileInfo *tileInfo = tiledmap_Get()->GetTileInfo(pos))
 			tileInfo->SetRiverPiece(-1);
@@ -513,6 +548,32 @@ std::string CmdDebugClearTerrainLayers(const char * args)
 	}
 	map->BuildTerrainQuads();
 	return Ok("debug_clear_terrain_layers");
+}
+
+std::string CmdDebugRevealPatch(const char * args)
+{
+	sint32 x = 0, y = 0, radius = 0;
+	if (sscanf(args, "%d %d %d", &x, &y, &radius) != 3 || radius < 0)
+		return Err("debug_reveal_patch", "bad_args");
+	World *w = world_Get();
+	Player *human = HumanPlayer();
+	if (!w || !human || !human->m_vision)
+		return Err("debug_reveal_patch", "no_world");
+	if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+		return Err("debug_reveal_patch", "bad_position");
+
+	MapPoint pos(x, y);
+	double const revealRadius = static_cast<double>(radius);
+	human->m_vision->AddExplored(pos, revealRadius);
+	human->m_vision->AddVisible(pos, revealRadius);
+	if (tiledmap_Get()) {
+		tiledmap_Get()->CopyVision();
+		tiledmap_Get()->BuildTerrainQuads();
+	}
+	json result;
+	result["pos"] = { {"x", x}, {"y", y} };
+	result["radius"] = radius;
+	return Ok("debug_reveal_patch", result);
 }
 
 std::string CmdDebugDeselect()
@@ -3261,6 +3322,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_set_terrain ", 0) == 0)               return CmdDebugSetTerrain(line.c_str() + 18);
     if (line.rfind("debug_clear_rivers ", 0) == 0)              return CmdDebugClearRivers(line.c_str() + 19);
     if (line.rfind("debug_clear_terrain_layers ", 0) == 0)      return CmdDebugClearTerrainLayers(line.c_str() + 27);
+    if (line.rfind("debug_reveal_patch ", 0) == 0)              return CmdDebugRevealPatch(line.c_str() + 19);
     if (line == "debug_deselect")                               return CmdDebugDeselect();
     if (line.rfind("debug_combat_flash ", 0) == 0)              return CmdDebugCombatFlash(line.c_str() + 19);
     if (line.rfind("debug_scenario_start_flags ", 0) == 0)      return CmdDebugScenarioStartFlags(line.c_str() + 27);

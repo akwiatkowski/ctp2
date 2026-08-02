@@ -87,6 +87,7 @@
 #include "ui/aui_ctp2/c3_static.h"
 #include "ui/aui_ctp2/c3blitter.h"
 #include "ctp/ctp2_utils/c3cmdline.h"
+#include "ctp/ctp2_utils/civlog.h"                     // pinch-zoom gesture tracing
 #include "ctp/ctp2_utils/c3debug.h"                    // c3debug_ExceptionStackTrace
 #include "ctp/ctp2_utils/c3errors.h"
 #include "ui/aui_ctp2/c3memmap.h"
@@ -715,16 +716,33 @@ static void ui_StepPinchZoom(int steps)
 	if (steps == 0)
 		return;
 
+	// Diagnostic for the "pinch does nothing" reports (CIVLOG_LEVEL=debug).
+	// Every line here is gated on a real gesture step, so idle frames stay
+	// silent and the interesting event can never be crowded out.
+	auto log = civlog::Get("pinch");
+	log->debug("StepPinchZoom steps={}", steps);
+
 	// Same gesture guards as the trackpad pan, plus no zooming under a modal
 	// (the map is frozen there; a zoom re-render would fight it).
-	if (!g_civApp || !g_civApp->IsGameLoaded() || !g_tiledMap)
+	if (!g_civApp || !g_civApp->IsGameLoaded() || !g_tiledMap) {
+		log->debug("  rejected: civApp={} loaded={} tiledMap={}",
+		           g_civApp != nullptr,
+		           g_civApp && g_civApp->IsGameLoaded(),
+		           g_tiledMap != nullptr);
 		return;
-	if (g_modalWindow > 0 || aui_ListBox::GetMouseFocusListBox())
+	}
+	if (g_modalWindow > 0 || aui_ListBox::GetMouseFocusListBox()) {
+		log->debug("  rejected: modalWindow={} listBoxFocus={}",
+		           g_modalWindow, aui_ListBox::GetMouseFocusListBox() != nullptr);
 		return;
+	}
 
-	auto stepZoom = [](bool zoomIn) {
+	auto stepZoom = [&log](bool zoomIn) {
 		double const oldScale = g_tiledMap->GetZoomScale(g_tiledMap->GetZoomLevel());
 		bool const changed = zoomIn ? g_tiledMap->ZoomIn() : g_tiledMap->ZoomOut();
+		log->debug("  {} level={} oldScale={} changed={}",
+		           zoomIn ? "ZoomIn" : "ZoomOut",
+		           g_tiledMap->GetZoomLevel(), oldScale, changed);
 		if (!changed)
 			return;
 
@@ -777,6 +795,10 @@ void ui_HandlePinchMagnify(float magnification)
 {
 	static float s_accum = 0.0f;
 	float const k_MAGNIFY_PER_STEP = 0.30f;
+
+	// Reached only when the Cocoa monitor actually saw a magnify gesture,
+	// so this line proves the native tap is alive (CIVLOG_LEVEL=debug).
+	civlog::Get("pinch")->debug("magnify={} accum={}", magnification, s_accum);
 
 	s_accum += magnification;
 	int steps = 0;

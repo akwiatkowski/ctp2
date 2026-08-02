@@ -180,7 +180,7 @@ public:
 	// Draw a batch of atlas->map-space quads into the whole-map target. Separate
 	// from the present: these land when content changes, not when the camera
 	// moves. Returns false if the target is missing or cannot be bound.
-	static bool DrawWorldmapQuads(std::vector<GpuQuad> const &quads);
+	static bool DrawWorldmapQuads(std::vector<GpuQuad> const &quads, bool clearFirst);
 	// Count non-black samples on a grid x grid lattice over the whole-map target,
 	// sampled while the target stays bound (see the .cpp for why that matters).
 	// Returns -1 if there is no target.

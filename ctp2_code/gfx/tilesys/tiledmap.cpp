@@ -3779,6 +3779,23 @@ void TiledMap::InvalidateWorldmap()
 	m_gpuTileCache.reset();
 }
 
+// Current rendered signature of a cell, or k_WORLDMAP_CELL_UNDRAWN if the cell
+// draws no terrain (unexplored, or no base tile).
+uint64_t TiledMap::CellSignatureAt(sint32 mapX, sint32 mapY)
+{
+	MapPoint pos = MapPoint(mapX, mapY);
+	if (!m_renderEverything && !m_localVision->IsExplored(pos))
+		return k_WORLDMAP_CELL_UNDRAWN;
+	TileInfo * tileInfo = GetTileInfo(pos);
+	if (!tileInfo) return k_WORLDMAP_CELL_UNDRAWN;
+	if (!m_tileSet->GetBaseTile(tileInfo->GetTileNum())) return k_WORLDMAP_CELL_UNDRAWN;
+	sint32 const tilesetIndex =
+		g_theTerrainDB->Get(tileInfo->GetTerrainType())->GetTilesetIndex();
+	return TerrainCellSignature(tileInfo->GetTileNum(), (uint8_t) tilesetIndex,
+		(uint8_t) tileInfo->GetTransition(0), (uint8_t) tileInfo->GetTransition(1),
+		(uint8_t) tileInfo->GetTransition(2), (uint8_t) tileInfo->GetTransition(3));
+}
+
 int TiledMap::BuildWorldmapQuads()
 {
 	if (!aui_SDL::GpuWorldmapEnabled()) return 0;
@@ -3818,12 +3835,46 @@ int TiledMap::BuildWorldmapQuads()
 	if (!m_gpuScratchTile) return 0;
 	aui_SDL::EnsureQuadAtlas(m_gpuTileCache->AtlasW(), m_gpuTileCache->AtlasH());
 
+	bool firstBuild = false;
 	if (m_worldmapSigWidth != mapWidth
 	    || m_worldmapCellSig.size() != static_cast<size_t>(mapWidth) * mapHeight)
 	{
+		firstBuild = true;
 		m_worldmapCellSig.assign(static_cast<size_t>(mapWidth) * mapHeight,
 		                         k_WORLDMAP_CELL_UNDRAWN);
 		m_worldmapSigWidth = mapWidth;
+	}
+
+	// A cell's quad rect is a full tile tall but rows step half that, so a
+	// redraw must also refresh the neighbours it overlaps -- otherwise clearing
+	// the changed cell erases correct pixels belonging to rows above and below.
+	// Pre-pass: find changed cells, then mark their neighbours undrawn so the
+	// emit pass picks them up too. Skipped on the first build (nothing drawn
+	// yet, so every explored cell is already dirty).
+	if (!firstBuild)
+	{
+		std::vector<size_t> touched;
+		for (sint32 i = 0; i < mapHeight; i++)
+			for (sint32 j = 0; j < mapWidth; j++)
+			{
+				size_t const idx = static_cast<size_t>(i) * mapWidth + j;
+				uint64_t const cur = CellSignatureAt(j, i);
+				if (cur != k_WORLDMAP_CELL_UNDRAWN && m_worldmapCellSig[idx] != cur)
+					touched.push_back(idx);
+			}
+		for (size_t idx : touched)
+		{
+			sint32 const ci = static_cast<sint32>(idx / mapWidth);
+			sint32 const cj = static_cast<sint32>(idx % mapWidth);
+			for (sint32 di = -1; di <= 1; ++di)
+				for (sint32 dj = -1; dj <= 1; ++dj)
+				{
+					sint32 const ni = ci + di, nj = cj + dj;
+					if (ni < 0 || nj < 0 || ni >= mapHeight || nj >= mapWidth) continue;
+					m_worldmapCellSig[static_cast<size_t>(ni) * mapWidth + nj] =
+						k_WORLDMAP_CELL_UNDRAWN;
+				}
+		}
 	}
 
 	std::vector<aui_SDL::GpuQuad> dirty;
@@ -3931,7 +3982,9 @@ int TiledMap::BuildWorldmapQuads()
 		}
 	}
 
-	if (!aui_SDL::DrawWorldmapQuads(dirty))
+	// Clear first, draw second: doing them per-quad would let a later cell's
+	// clear erase an earlier cell's already-drawn overlap.
+	if (!aui_SDL::DrawWorldmapQuads(dirty, /*clearFirst=*/!firstBuild))
 	{
 		// The batch never landed; forget what we claimed to have drawn so the
 		// next call retries rather than leaving the target permanently stale.

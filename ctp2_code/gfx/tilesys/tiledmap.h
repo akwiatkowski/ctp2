@@ -369,6 +369,7 @@ public:
 	// dirty anything. No-op unless CTP2_GPU_WORLDMAP is on. Returns the number
 	// of cells redrawn, so tests can assert that a pan costs zero.
 	int			BuildWorldmapQuads();
+	uint64_t		CellSignatureAt(sint32 mapX, sint32 mapY);
 	// Drop all cached per-cell state, forcing a full rebuild (map changed size,
 	// tileset/zoom changed, or another game was loaded).
 	void			InvalidateWorldmap();

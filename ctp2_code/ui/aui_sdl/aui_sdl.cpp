@@ -172,7 +172,7 @@ bool aui_SDL::EnsureWorldmapTexture(int w, int h)
 	return true;
 }
 
-bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &quads)
+bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &quads, bool clearFirst)
 {
 	if (!m_renderer || !m_worldmapTexture || !m_quadAtlasTexture)
 		return false;
@@ -183,15 +183,27 @@ bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &quads)
 	if (!CTP2_SDL_SetRenderTarget(m_renderer, m_worldmapTexture))
 		return false;
 
+	// Clearing is a separate pass, never interleaved with drawing: a per-quad
+	// clear would erase the overlapping part of a cell already drawn this batch.
+	if (clearFirst)
+	{
+		SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+		for (GpuQuad const & q : quads)
+		{
+			SDL_Rect const clearRect = { q.dx, q.dy, q.dw, q.dh };
+			CTP2_SDL_RenderFillRectI(m_renderer, &clearRect);
+		}
+	}
+
 	for (GpuQuad const & q : quads)
 	{
-		// Tiles are alpha-blended so a diamond's transparent surround does not
-		// clobber the neighbours it tessellates with. A redrawn cell must first
-		// clear its own rect to opaque black, or the previous tile would show
-		// through the replacement tile's transparent border.
-		SDL_Rect const clearRect = { q.dx, q.dy, q.dw, q.dh };
-		SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
-		CTP2_SDL_RenderFillRectI(m_renderer, &clearRect);
+		// NO per-quad clear. Rows step half a tile height but the quad rect is a
+		// full tile tall, so clearing a cell's rect erases the bottom half of the
+		// row above it -- drawing top-to-bottom, each row wiped its predecessor
+		// and only slivers survived. Tiles are alpha-blended and the target starts
+		// opaque black, so they tessellate correctly without one. (A changed cell
+		// therefore needs its overlapping neighbours redrawn too; that belongs to
+		// the dirty-update path, not here.)
 		CTP2_SDL_RenderTextureWindow(m_renderer, m_quadAtlasTexture,
 			(float)q.sx, (float)q.sy, (float)q.sw, (float)q.sh,
 			(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh);

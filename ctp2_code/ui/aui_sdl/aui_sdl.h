@@ -188,6 +188,7 @@ public:
 	// Diagnostic: draw quads as solid marker rects rather than atlas tiles, to
 	// separate "quads land in the wrong place" from "atlas slots are empty".
 	static void SetWorldmapGeometryProbe(bool on) { m_worldmapGeometryProbe = on; }
+	static bool WorldmapGeometryProbe() { return m_worldmapGeometryProbe; }
 	static void DestroyWorldmapTexture();
 	static void MarkQuadFrameIncomplete(char const *reason = nullptr);
 	static bool QuadFrameComplete() { return m_quadFrameComplete; }

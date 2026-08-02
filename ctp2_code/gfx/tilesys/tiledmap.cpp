@@ -3772,6 +3772,11 @@ void TiledMap::InvalidateWorldmap()
 {
 	m_worldmapCellSig.clear();
 	m_worldmapSigWidth = 0;
+	// Drop the tile cache too. Clearing only the cell signatures forces quads to
+	// be re-EMITTED but every signature still HITs, so nothing is re-composited
+	// and any diagnostic that swaps out the composite step silently does
+	// nothing (measured: 1322 cells redrawn, 0 misses, 0 uploads).
+	m_gpuTileCache.reset();
 }
 
 int TiledMap::BuildWorldmapQuads()
@@ -3866,7 +3871,21 @@ int TiledMap::BuildWorldmapQuads()
 				{
 					++m_worldmapUploads;
 					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
-					if (m_zoomLevel == k_ZOOM_LARGEST)
+					if (aui_SDL::WorldmapGeometryProbe())
+					{
+						// Diagnostic: solid opaque fill INSTEAD of the tile
+						// composite, then upload and blit through the normal
+						// path. Isolates DrawTransitionTile from the
+						// upload/atlas/quad pipeline.
+						for (sint32 row = 0; row < m_surfHeight; ++row)
+						{
+							uint32 * line = reinterpret_cast<uint32 *>(
+								m_surfBase + (size_t) row * m_surfPitch);
+							for (sint32 col = 0; col < tileW; ++col)
+								line[col] = 0xFF203040u;
+						}
+					}
+					else if (m_zoomLevel == k_ZOOM_LARGEST)
 						DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
 					else
 						DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
@@ -4028,7 +4047,21 @@ void TiledMap::BuildTerrainQuads()
 				if (m_surfBase)
 				{
 					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
-					if (m_zoomLevel == k_ZOOM_LARGEST)
+					if (aui_SDL::WorldmapGeometryProbe())
+					{
+						// Diagnostic: solid opaque fill INSTEAD of the tile
+						// composite, then upload and blit through the normal
+						// path. Isolates DrawTransitionTile from the
+						// upload/atlas/quad pipeline.
+						for (sint32 row = 0; row < m_surfHeight; ++row)
+						{
+							uint32 * line = reinterpret_cast<uint32 *>(
+								m_surfBase + (size_t) row * m_surfPitch);
+							for (sint32 col = 0; col < tileW; ++col)
+								line[col] = 0xFF203040u;
+						}
+					}
+					else if (m_zoomLevel == k_ZOOM_LARGEST)
 						DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
 					else
 						DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,

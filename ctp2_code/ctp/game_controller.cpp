@@ -611,6 +611,10 @@ std::string CmdDebugWorldmapBuild(const char * args)
 	result["dx_range"] = { tiledmap_Get()->m_worldmapMinX, tiledmap_Get()->m_worldmapMaxX };
 	result["dy_range"] = { tiledmap_Get()->m_worldmapMinY, tiledmap_Get()->m_worldmapMaxY };
 	result["tile_wh"] = { tiledmap_Get()->m_worldmapTileW, tiledmap_Get()->m_worldmapTileH };
+	result["zoom_level"] = (int)tiledmap_Get()->GetZoomLevel();
+	result["zoom_largest"] = (int)k_ZOOM_LARGEST;
+	result["zoom_tile_wh"] = { (int)tiledmap_Get()->GetZoomTilePixelWidth(),
+	                           (int)tiledmap_Get()->GetZoomTilePixelHeight() };
 	result["atlas_misses"] = tiledmap_Get()->m_worldmapMisses;
 	result["atlas_uploads"] = tiledmap_Get()->m_worldmapUploads;
 	result["coverage_hits"] = aui_SDL::SampleWorldmapCoverage(30);

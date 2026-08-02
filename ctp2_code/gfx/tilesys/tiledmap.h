@@ -616,6 +616,16 @@ protected:
 	// the first pass renders everything and later passes only the differences.
 	std::vector<uint64_t>		m_worldmapCellSig;
 	sint32				m_worldmapSigWidth = 0;
+public:
+	// P13 step 1 diagnostics: atlas misses and actual uploads on the last build.
+	// A miss count far above the atlas slot count means LRU is evicting slots
+	// before the deferred batch draw samples them.
+	int				m_worldmapMisses = 0;
+	int				m_worldmapUploads = 0;
+	int				m_worldmapMinX = 0, m_worldmapMaxX = 0;
+	int				m_worldmapMinY = 0, m_worldmapMaxY = 0;
+	int				m_worldmapTileW = 0, m_worldmapTileH = 0;
+private:
 	std::unique_ptr<aui_Surface>	m_gpuScratchTile;
 
 	MapPoint		m_hiliteMouseTile;

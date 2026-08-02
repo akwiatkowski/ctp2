@@ -181,6 +181,10 @@ public:
 	// from the present: these land when content changes, not when the camera
 	// moves. Returns false if the target is missing or cannot be bound.
 	static bool DrawWorldmapQuads(std::vector<GpuQuad> const &quads);
+	// Count non-black samples on a grid x grid lattice over the whole-map target,
+	// sampled while the target stays bound (see the .cpp for why that matters).
+	// Returns -1 if there is no target.
+	static int SampleWorldmapCoverage(int grid);
 	static void DestroyWorldmapTexture();
 	static void MarkQuadFrameIncomplete(char const *reason = nullptr);
 	static bool QuadFrameComplete() { return m_quadFrameComplete; }

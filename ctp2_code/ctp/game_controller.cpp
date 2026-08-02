@@ -597,6 +597,15 @@ std::string CmdDebugWorldmapBuild(const char *)
 	result["texture_w"] = aui_SDL::WorldmapW();
 	result["texture_h"] = aui_SDL::WorldmapH();
 	result["has_texture"] = aui_SDL::WorldmapTexture() != nullptr;
+	// Sampled in the same call, with the target still bound: a count read from a
+	// later command cannot tell a drawing bug from a discarded render target.
+	result["dx_range"] = { tiledmap_Get()->m_worldmapMinX, tiledmap_Get()->m_worldmapMaxX };
+	result["dy_range"] = { tiledmap_Get()->m_worldmapMinY, tiledmap_Get()->m_worldmapMaxY };
+	result["tile_wh"] = { tiledmap_Get()->m_worldmapTileW, tiledmap_Get()->m_worldmapTileH };
+	result["atlas_misses"] = tiledmap_Get()->m_worldmapMisses;
+	result["atlas_uploads"] = tiledmap_Get()->m_worldmapUploads;
+	result["coverage_hits"] = aui_SDL::SampleWorldmapCoverage(30);
+	result["coverage_samples"] = 900;
 	return Ok("debug_worldmap_build", result);
 }
 

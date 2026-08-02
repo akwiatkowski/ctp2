@@ -198,6 +198,37 @@ bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &quads)
 	return true;
 }
 
+int aui_SDL::SampleWorldmapCoverage(int grid)
+{
+	// Count non-black samples on a grid x grid lattice over the whole-map
+	// target, WITHOUT unbinding it between reads. Sampling from a separate
+	// command would interleave with the frame loop's SDL_RenderPresent, and
+	// render-target contents are not guaranteed to survive a present — so a
+	// low count read later cannot distinguish "drew wrong" from "was discarded".
+	if (!m_renderer || !m_worldmapTexture || grid <= 0)
+		return -1;
+
+	SDL_Texture * const prev = SDL_GetRenderTarget(m_renderer);
+	if (!CTP2_SDL_SetRenderTarget(m_renderer, m_worldmapTexture))
+		return -1;
+
+	int hits = 0;
+	for (int yi = 0; yi < grid; ++yi)
+	{
+		for (int xi = 0; xi < grid; ++xi)
+		{
+			int const x = (int)((int64_t)m_worldmapW * xi / grid);
+			int const y = (int)((int64_t)m_worldmapH * yi / grid);
+			uint32 pixel = 0;
+			if (CTP2_SDL_RenderReadPixelARGB(m_renderer, x, y, &pixel)
+			    && (pixel & 0x00FFFFFFu) != 0)
+				++hits;
+		}
+	}
+	CTP2_SDL_SetRenderTarget(m_renderer, prev);
+	return hits;
+}
+
 void aui_SDL::DestroyWorldmapTexture()
 {
 	if (m_worldmapTexture)

@@ -3784,8 +3784,8 @@ int TiledMap::BuildWorldmapQuads()
 
 	// The whole map at native tile size. Rows interleave by half a grid height,
 	// so the map is mapHeight half-steps tall plus the bottom row's remainder.
-	int const texW = static_cast<int>(mapWidth)  * tileW;
-	int const texH = static_cast<int>(mapHeight) * (tileH / 2) + tileH;
+	int const texW = static_cast<int>(mapWidth)  * k_TILE_GRID_WIDTH + k_TILE_GRID_WIDTH;
+	int const texH = static_cast<int>(mapHeight) * (k_TILE_GRID_HEIGHT / 2) + k_TILE_GRID_HEIGHT;
 	if (!aui_SDL::EnsureWorldmapTexture(texW, texH))
 		return 0;   // driver refused the size — caller stays on the ADR-002 path
 
@@ -3814,6 +3814,10 @@ int TiledMap::BuildWorldmapQuads()
 	}
 
 	std::vector<aui_SDL::GpuQuad> dirty;
+	m_worldmapMisses = 0;
+	m_worldmapUploads = 0;
+	m_worldmapMinX = m_worldmapMinY = 1 << 30;
+	m_worldmapMaxX = m_worldmapMaxY = -(1 << 30);
 	for (sint32 i = 0; i < mapHeight; i++)
 	{
 		for (sint32 j = 0; j < mapWidth; j++)
@@ -3848,9 +3852,11 @@ int TiledMap::BuildWorldmapQuads()
 			GpuTileSlot slot;
 			if (m_gpuTileCache->Get(sig, slot) == GpuTileCache::MISS)
 			{
+				++m_worldmapMisses;
 				LockThisSurface(m_gpuScratchTile.get());
 				if (m_surfBase)
 				{
+					++m_worldmapUploads;
 					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
 					if (m_zoomLevel == k_ZOOM_LARGEST)
 						DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
@@ -3873,14 +3879,20 @@ int TiledMap::BuildWorldmapQuads()
 			// maputils applies for `mapY & 0x01`).
 			sint32 tileX = 0;
 			maputils_MapX2TileX(j, i, &tileX);
-			sint32 const drawX = tileX * tileW + ((i & 1) ? (tileW / 2) : 0);
-			sint32 const drawY = i * (tileH / 2);
+			sint32 const drawX = tileX * k_TILE_GRID_WIDTH
+			                   + ((i & 1) ? (k_TILE_GRID_WIDTH / 2) : 0);
+			sint32 const drawY = i * (k_TILE_GRID_HEIGHT / 2);
 
 			aui_SDL::GpuQuad q;
 			q.sx = slot.atlasX; q.sy = slot.atlasY; q.sw = tileW; q.sh = tileH;
 			q.dx = drawX; q.dy = drawY;
 			q.dw = tileW; q.dh = tileH;
 			dirty.push_back(q);
+			if (m_worldmapMinX > drawX) m_worldmapMinX = drawX;
+			if (m_worldmapMaxX < drawX) m_worldmapMaxX = drawX;
+			if (m_worldmapMinY > drawY) m_worldmapMinY = drawY;
+			if (m_worldmapMaxY < drawY) m_worldmapMaxY = drawY;
+			m_worldmapTileW = tileW; m_worldmapTileH = tileH;
 			m_worldmapCellSig[cellIdx] = sig;
 		}
 	}

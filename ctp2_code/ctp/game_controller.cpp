@@ -247,6 +247,9 @@ sint32 ResolveUnitType(const char * name)
     return -1;
 }
 
+#if defined(RENDER_TOOL_BUILD)
+// Only the render-fixture terrain path needs this; the gameplay path gets its
+// movement mask from World::SmartSetTerrain.
 uint32 MovementMaskFromTerrain(const TerrainRecord * rec)
 {
     uint32 movement = 0;
@@ -261,6 +264,7 @@ uint32 MovementMaskFromTerrain(const TerrainRecord * rec)
     if (rec->GetMovementTypeSpace())        movement |= k_MOVEMENT_TYPE_SPACE;
     return movement;
 }
+#endif
 
 // {"status":"ok","cmd":"<verb>","result":{...}}  (result omitted if null)
 std::string Ok(const char * verb, const json & result = json())

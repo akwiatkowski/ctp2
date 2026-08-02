@@ -2,6 +2,62 @@
 
 Short log of non-trivial design decisions. Newest first.
 
+## ADR-003 — Whole-map GPU texture; the camera owns zoom (2026-08-03)
+
+**Context.** ADR-002's window mirror gives a buttery pan but only a screen+margin texture, so
+zoom still has to be negotiated with the engine: `ui_StepPinchZoom` steps `ZoomIn`/`ZoomOut`
+through the 6-level table (`s_zoomTileScale` = 0.505…1.0, a 2x range total) and counter-scales
+the camera by `oldScale/newScale` while a spring-back eases it home. Two consequences.
+(1) The UX is stepped, not continuous — pinch works but does not feel like a map view.
+(2) A live regression: `ui_RecenterPanIfNeeded` budgets the pan offset against a fixed 94/72px
+margin, but the present's zoom-centring term `(W - W/z)/2` (`aui_sdlsurface.cpp`) consumes
+margin the recenter never accounts for — at z=0.9 on a 1920-wide screen that is ~107px against
+a 94px margin. Any `CameraZoom() != 1` therefore makes the recenter fire at the wrong offset
+and the compensating `ScrollMap`+`ShiftPan` teleports the view. Pinch creates exactly that
+state, so panning after a pinch teleports. The goal is a real map view: ~0.21x (whole Gigantic
+map on screen) to 2.0x, continuous, with a detent at 100%.
+
+**Decision.** Render the **whole map** into one GPU render-target texture, updated by dirty
+region only when the game changes it — never on pan or zoom. Pin the engine at zoom scale 1.0
+and give the GPU camera **sole** ownership of zoom; the zoom table stops driving rendering.
+Pan and zoom become a source rect over the full-map texture.
+
+Consequent choices:
+- **Quads, not CPU composite.** At 100% the largest map (Gigantic, 70x140 tiles, 94x72 grid) is
+  6,580 x 5,040px = ~133MB. A CPU-composited surface that size plus its upload is untenable; a
+  render target fed by tile quads never materializes it, and "dirty" reduces to redrawing N
+  tiles. This un-parks the G-series — there as an upload optimization, here as the enabling
+  mechanism.
+- **Filter mode keys off zoom direction.** NEAREST above 1.0 (crisp pixel art, explicitly
+  wanted at 200%); a small manual mip pyramid (full+half+quarter, ~174MB) below 1.0, since
+  plain bilinear at 0.21x shimmers during pan.
+- **Detent at 100%**: resistance near 1.0 plus ease-to-exact on gesture end, which also buys
+  pixel-exact rendering at rest.
+
+**Alternatives considered.**
+- *Keep the window mirror, make the recenter zoom-aware.* Fixes the teleport but leaves zoom
+  stepped and capped at the table's 2x. Worth doing as an interim fix on the shipping path,
+  not as the destination.
+- *Interpolate between engine zoom levels (treat the table as a mip pyramid).* Smooth within
+  2x with far less work, but cannot reach 0.21x and keeps two systems owning zoom. Rejected as
+  the endpoint; still a viable fallback if the whole-map substrate stalls.
+- *Store the texture at 200% so zoom-in is native.* 4x the memory (~530MB) to avoid a
+  pixel-art look that is explicitly desired. Rejected.
+
+**Consequences.** Deletes the margin/recenter/`ShiftPan` machinery and the bug class above —
+the camera can no longer window past a margin because there is no margin. Costs, in order of
+risk: (1) **mouse picking** — `MousePointToTilePos` divides by `GetZoomScale`
+(`tiledmap.cpp:5150`); it must go through the camera transform instead, and everything
+downstream is affected; (2) **the pixel oracle** — `slice-ui` / `screenshot_map_only` assume a
+screen-sized world texture and must be updated in the same steps, not after (a dead GPU present
+already hid for a whole phase once); (3) **non-terrain content** — roads, rivers, borders, grid,
+goods and actor overlays are all mixed into the one background surface by `CalculateWrap`;
+quads reproduce only `DrawTransitionTile`, so each needs its own draw path. Fog moves from a
+screen-space mask to a one-texel-per-tile whole-map mask (an improvement). CTP2's hand-authored
+lower-zoom tile art is dropped in favour of GPU downscaling — a fidelity change judged
+irrelevant at overview zooms. Supersedes ADR-002 for the world layer; ADR-002's mirror stays as
+the fallback path until the new substrate is proven.
+
 ## ADR-002 — World GPU layer is a 1:1 mirror of the background window (2026-07-16)
 
 **Context.** ADR-001's dedicated margin render (`RenderWorldLayer`: temporarily widen the

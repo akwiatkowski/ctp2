@@ -611,6 +611,8 @@ std::string CmdDebugWorldmapBuild(const char * args)
 	result["dx_range"] = { tiledmap_Get()->m_worldmapMinX, tiledmap_Get()->m_worldmapMaxX };
 	result["dy_range"] = { tiledmap_Get()->m_worldmapMinY, tiledmap_Get()->m_worldmapMaxY };
 	result["tile_wh"] = { tiledmap_Get()->m_worldmapTileW, tiledmap_Get()->m_worldmapTileH };
+	result["lock_pitch"] = tiledmap_Get()->m_worldmapLockPitch;
+	result["lock_height"] = tiledmap_Get()->m_worldmapLockHeight;
 	result["zoom_level"] = (int)tiledmap_Get()->GetZoomLevel();
 	result["zoom_largest"] = (int)k_ZOOM_LARGEST;
 	result["zoom_tile_wh"] = { (int)tiledmap_Get()->GetZoomTilePixelWidth(),

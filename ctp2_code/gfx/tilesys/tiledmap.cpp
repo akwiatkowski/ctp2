@@ -3870,6 +3870,13 @@ int TiledMap::BuildWorldmapQuads()
 				if (m_surfBase)
 				{
 					++m_worldmapUploads;
+					// Is the lock actually on the scratch tile? If m_surf*
+					// still describes the map surface, DrawTransitionTile
+					// draws somewhere else entirely -- while a direct write
+					// through m_surfBase (as the solid-fill probe does) would
+					// still look correct, which is exactly what we measured.
+					m_worldmapLockPitch  = m_surfPitch;
+					m_worldmapLockHeight = m_surfHeight;
 					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
 					if (aui_SDL::WorldmapGeometryProbe())
 					{

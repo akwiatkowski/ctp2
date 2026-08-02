@@ -622,6 +622,8 @@ public:
 	// before the deferred batch draw samples them.
 	int				LastWorldmapRedrawCount() const { return m_worldmapRedrawn; }
 	int				m_worldmapRedrawn = 0;
+	int				m_worldmapLockPitch = -1;
+	int				m_worldmapLockHeight = -1;
 	int				m_worldmapMisses = 0;
 	int				m_worldmapUploads = 0;
 	int				m_worldmapMinX = 0, m_worldmapMaxX = 0;

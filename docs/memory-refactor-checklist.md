@@ -92,7 +92,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [x] `ui/interface/battleview.cpp` — done 2026-08-03: m_activeEvents held by value (partial: other raw owners remain)
 - [ ] `ui/interface/controlpanel.cpp` (3/16/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [x] `ui/interface/messageresponse.cpp` — done 2026-08-03: 4 owned members are unique_ptr; the two tech_WLLists left raw (they own their entries)
-- [ ] `ui/interface/loadsavemapwindow.cpp` (10/6/0) — 🔴 hard · _void* ownership handoff_
+- [x] `ui/interface/loadsavemapwindow.cpp` — done 2026-08-03: 9 window controls are unique_ptr; list-item members left raw (c3_ListItem frees children)
 - [x] `ui/interface/messageadvice.cpp` — done 2026-08-03: 5 controls are unique_ptr; list ITEMS still deleted by hand (not members)
 - [ ] `ui/interface/spnewgameplayersscreen.cpp` (14/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/messagemodal.cpp` (10/6/0) — 🟡 moderate · _single-owner member_

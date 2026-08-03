@@ -168,4 +168,35 @@ TEST_CASE("zooming in samples a smaller texture span across the same screen")
     CHECK((r2 - l2) == doctest::Approx(k_W * 2.0f));
 }
 
+TEST_CASE("whole-map pan is limited by the texture edge, not a margin")
+{
+    // 1920-wide viewport over a 4606-wide map texture, screen origin at 0.
+    float const texW = 4606.0f;
+    // At zoom 1 the window is 1920 wide, so the offset may run from
+    // 1920-4606 = -2686 (right edge) up to 0 (left edge).
+    CHECK(camera_window::PanLimitHigh(k_W, 0.0f, 1.0f) == doctest::Approx(0.0f));
+    CHECK(camera_window::PanLimitLow(k_W, texW, 0.0f, 1.0f) == doctest::Approx(k_W - texW));
+
+    // Clamping keeps an in-range offset untouched and pulls outliers to the edge.
+    CHECK(camera_window::ClampPan(-1000.0f, k_W, texW, 0.0f, 1.0f) == doctest::Approx(-1000.0f));
+    CHECK(camera_window::ClampPan(500.0f,   k_W, texW, 0.0f, 1.0f) == doctest::Approx(0.0f));
+    CHECK(camera_window::ClampPan(-9999.0f, k_W, texW, 0.0f, 1.0f) == doctest::Approx(k_W - texW));
+
+    // The pannable span is texture minus visible span, and it SHRINKS as you
+    // zoom out (more map visible = less left to pan to).
+    float const span1 = camera_window::PanLimitHigh(k_W, 0.0f, 1.0f)
+                      - camera_window::PanLimitLow(k_W, texW, 0.0f, 1.0f);
+    float const span05 = camera_window::PanLimitHigh(k_W, 0.0f, 0.5f)
+                       - camera_window::PanLimitLow(k_W, texW, 0.0f, 0.5f);
+    CHECK(span1 == doctest::Approx(texW - k_W));
+    CHECK(span05 == doctest::Approx(texW - k_W * 2.0f));
+    CHECK(span05 < span1);
+
+    // Zoomed out past fit there is nothing to pan: both limits collapse and any
+    // offset resolves to the same centred value.
+    float const a = camera_window::ClampPan(-5000.0f, k_W, texW, 0.0f, 0.2f);
+    float const b = camera_window::ClampPan( 5000.0f, k_W, texW, 0.0f, 0.2f);
+    CHECK(a == doctest::Approx(b));
+}
+
 TEST_SUITE_END();

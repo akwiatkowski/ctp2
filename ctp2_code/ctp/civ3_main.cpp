@@ -676,8 +676,19 @@ void ui_HandleTrackpadPan(float wheelX, float wheelY)
 		// positive scrolling up; negating it makes scroll-up move the view north).
 		// The main-loop camera tick eases + recenters + presents — nothing to draw
 		// here, which is exactly what keeps the motion smooth (no per-event present).
-		aui_SDL::AddPanTarget(-wheelX * k_PAN_PIXELS_PER_WHEEL,
-		                       wheelY * k_PAN_PIXELS_PER_WHEEL);
+		// P13: the camera offset is in TEXTURE pixels but the finger moves in
+		// SCREEN pixels, and the present scales texture by zoom. Without the
+		// 1/zoom correction a drag moves the map by gesture*zoom on screen --
+		// sluggish when zoomed out, which is exactly when you want to cover
+		// ground. Dividing by zoom makes the map track the finger 1:1 at every
+		// zoom. No-op at zoom 1, so the legacy feel is unchanged.
+		float speed = k_PAN_PIXELS_PER_WHEEL;
+		if (aui_SDL::GpuWorldmapEnabled())
+		{
+			float const z = aui_SDL::CameraZoom();
+			if (z > 0.0f) speed /= z;
+		}
+		aui_SDL::AddPanTarget(-wheelX * speed, wheelY * speed);
 		return;
 	}
 
@@ -845,6 +856,13 @@ void ui_HandlePinchMagnify(float magnification)
 static bool ui_RecenterPanIfNeeded()
 {
 	if (!g_tiledMap || !aui_SDL::GpuCameraEnabled())
+		return false;
+	// P13: the whole-map path has no margin to run out of and no ScrollMap
+	// underneath -- the camera slides over a texture that already holds the
+	// entire map, clamped to its edges in TickCamera. Recentring there would
+	// scroll the engine view for no reason and move the published origin out
+	// from under the pan.
+	if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture())
 		return false;
 
 	sint32 const tileStepX = g_tiledMap->GetZoomTilePixelWidth();

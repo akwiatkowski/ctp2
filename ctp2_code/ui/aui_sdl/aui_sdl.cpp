@@ -550,6 +550,21 @@ void aui_SDL::TickCamera(float dtSec)
 	// already spends overshooting the screen region — not the raw margin. Using
 	// the raw margin let the pan run past rendered content whenever the camera
 	// was zoomed, and SDL's srcrect clipping turned that into a visible jump.
+	// P13: on the whole-map path the limit is the texture edge, not a margin --
+	// the camera traverses the entire map, so a +/-94px budget would pin it.
+	if (GpuWorldmapEnabled() && m_worldmapTexture)
+	{
+		m_panTargetX = camera_window::ClampPan(m_panTargetX, ViewportW(),
+			(float)m_worldmapW, (float)m_worldmapOriginX, m_cameraZoom);
+		m_panTargetY = camera_window::ClampPan(m_panTargetY, ViewportH(),
+			(float)m_worldmapH, (float)m_worldmapOriginY, m_cameraZoom);
+		m_cameraOffX = camera_window::ClampPan(m_cameraOffX, ViewportW(),
+			(float)m_worldmapW, (float)m_worldmapOriginX, m_cameraZoom);
+		m_cameraOffY = camera_window::ClampPan(m_cameraOffY, ViewportH(),
+			(float)m_worldmapH, (float)m_worldmapOriginY, m_cameraZoom);
+	}
+	else
+	{
 	float const limX = PanBudgetX();
 	float const limY = PanBudgetY();
 	auto clampPanAxis = [](float &off, float &tgt, float lim)
@@ -561,6 +576,7 @@ void aui_SDL::TickCamera(float dtSec)
 	};
 	clampPanAxis(m_cameraOffX, m_panTargetX, limX);
 	clampPanAxis(m_cameraOffY, m_panTargetY, limY);
+	}
 
 	// --- Zoom: damped spring toward the home zoom (the "gravity"). ---
 	// Impulses (scroll) push m_zoomVel; the spring pulls zoom back to home and

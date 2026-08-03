@@ -127,6 +127,42 @@ inline float TextureToScreen(float texPos, float screenSize,
 	return (texPos - src) * zoom;
 }
 
+// P13 — pan limits on the whole-map path. There is no rendered margin here and
+// no ScrollMap underneath: the camera simply slides its source window over a
+// texture that already holds the entire map, so the only constraint is keeping
+// that window inside the texture.
+//
+// The present computes  src = origin + (S - S/z)/2 - off  and samples S/z of
+// texture, so staying in bounds means 0 <= src and src + S/z <= texSize, i.e.
+//     off <= origin + (S - S/z)/2                     (left/top edge)
+//     off >= origin + (S - S/z)/2 + S/z - texSize     (right/bottom edge)
+// Returned as [low, high]; low > high when the map is smaller than the viewport
+// (zoomed out past fit), in which case both collapse to the centred position.
+inline float PanLimitHigh(float screenSize, float origin, float zoom)
+{
+	if (zoom <= 0.0f) return origin;
+	return origin + (screenSize - screenSize / zoom) * 0.5f;
+}
+
+inline float PanLimitLow(float screenSize, float texSize, float origin, float zoom)
+{
+	if (zoom <= 0.0f) return origin;
+	return PanLimitHigh(screenSize, origin, zoom) + screenSize / zoom - texSize;
+}
+
+// Clamp a pan offset into the allowed range, collapsing to the centred value
+// when the visible span exceeds the texture (nothing left to pan).
+inline float ClampPan(float off, float screenSize, float texSize,
+                      float origin, float zoom)
+{
+	float const hi = PanLimitHigh(screenSize, origin, zoom);
+	float const lo = PanLimitLow(screenSize, texSize, origin, zoom);
+	if (lo > hi) return (lo + hi) * 0.5f;
+	if (off > hi) return hi;
+	if (off < lo) return lo;
+	return off;
+}
+
 }  // namespace camera_window
 
 #endif // CAMERA_WINDOW_H_

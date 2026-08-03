@@ -621,7 +621,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## ui/slic_debug  (3 files, 51 matches)
 
-- [ ] `ui/slic_debug/sourcelist.cpp` (14/9/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/slic_debug/sourcelist.cpp` — done 2026-08-03: 7 controls are unique_ptr; window now released last (hand-written order freed it third); local delete-macro removed
 - [ ] `ui/slic_debug/watchlist.cpp` (11/6/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `ui/slic_debug/segmentlist.cpp` (7/4/0) — 🟡 moderate · _single-owner member_
 

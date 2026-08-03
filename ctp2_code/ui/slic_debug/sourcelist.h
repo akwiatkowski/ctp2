@@ -6,6 +6,7 @@
 
 #ifdef CTP2_ENABLE_SLICDEBUG
 
+#include <memory>
 #include "ui/aui_ctp2/c3_listitem.h"
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_ctp2/keyboardhandler.h"
@@ -60,13 +61,13 @@ public:
 	SourceList(SourceListCallback *callback = nullptr, MBCHAR *ldlBlock = nullptr);
 	~SourceList() override;
 
-	c3_PopupWindow *m_window;
-	c3_ListBox     *m_list;
-	c3_Button      *m_continue;
-	c3_Button      *m_exit;
-	c3_Button      *m_step;
-	c3_Button      *m_stepInto;
-	c3_Static      *m_status;
+	std::unique_ptr<c3_PopupWindow>	m_window;
+	std::unique_ptr<c3_ListBox>	m_list;
+	std::unique_ptr<c3_Button>	m_continue;
+	std::unique_ptr<c3_Button>	m_exit;
+	std::unique_ptr<c3_Button>	m_step;
+	std::unique_ptr<c3_Button>	m_stepInto;
+	std::unique_ptr<c3_Static>	m_status;
 
 	SourceListCallback *m_callback;
 
@@ -82,7 +83,7 @@ public:
 
 	void kh_Close() override;
 
-	c3_ListBox *GetList() { return m_list; }
+	c3_ListBox *GetList() { return m_list.get(); }
 	void ShowBreak(sint32 offset);
 	void Continue();
 	void StepInto();

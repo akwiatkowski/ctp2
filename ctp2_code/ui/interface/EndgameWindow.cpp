@@ -1139,7 +1139,7 @@ void EndGameWindow::CleanUp(aui_Control *control)
 
 	if(!control) return;
 
-	RemoveControl(control);
+	DeleteControl(control);
 
 	delete control;
 }

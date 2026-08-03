@@ -139,7 +139,7 @@ sint32 tutorialwin_Initialize( )
 
 sint32 tutorialwin_Cleanup( )
 {
-	RemoveControl( g_tutorialWin );
+	DeleteControl( g_tutorialWin );
 
 	return 0;
 }
@@ -203,13 +203,13 @@ TutorialWin::~TutorialWin( )
 {
 	Remove();
 
-	RemoveControl( m_list );
-	RemoveControl( m_titleButton );
-	RemoveControl( m_endButton );
-	RemoveControl( m_exitButton );
-	RemoveControl( m_string );
+	DeleteControl( m_list );
+	DeleteControl( m_titleButton );
+	DeleteControl( m_endButton );
+	DeleteControl( m_exitButton );
+	DeleteControl( m_string );
 
-	RemoveControl( m_window );
+	DeleteControl( m_window );
 }
 
 void TutorialWin::Display( )

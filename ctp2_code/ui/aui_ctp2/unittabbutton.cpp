@@ -157,14 +157,14 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 
 UnitTabButton::~UnitTabButton()
 {
-	RemoveControl( m_button );
-	RemoveControl( m_healthBar );
-	RemoveControl( m_arrow );
-	RemoveControl( m_fortify );
-	RemoveControl( m_veteran );
+	DeleteControl( m_button );
+	DeleteControl( m_healthBar );
+	DeleteControl( m_arrow );
+	DeleteControl( m_fortify );
+	DeleteControl( m_veteran );
 
 	for (auto & i : m_cargo) {
-		RemoveControl( i );
+		DeleteControl( i );
 	}
 }
 

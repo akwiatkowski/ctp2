@@ -78,7 +78,7 @@ public:
 	c3_Button	*Cancel( ) { return m_cancel; }
 	c3_Button	*Ok( ) { return m_ok; }
 
-	void RemoveCancel( ) { RemoveControl( m_cancel->Id() ); }
+	void RemoveCancel( ) { DeleteControl( m_cancel->Id() ); }
 
 protected:
     void	MouseLGrabInside(aui_MouseEvent * data) override;

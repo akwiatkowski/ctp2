@@ -318,13 +318,13 @@ BattleOrderBox::~BattleOrderBox()
 
 
 
-	RemoveControl( m_unitHealthBar );
+	DeleteControl( m_unitHealthBar );
 	m_fuelLabel.reset();
 	m_fuelBox.reset();
 	m_unitName.reset();
 
 	for ( i = 0;i < k_CARGO_CAPACITY;i++ ) {
-		RemoveControl( m_cargo[i] );
+		DeleteControl( m_cargo[i] );
 	}
 }
 

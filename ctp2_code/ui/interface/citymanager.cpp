@@ -68,12 +68,12 @@ CityManagerWindow::CityManagerWindow(AUI_ERRCODE *retval,
 CityManagerWindow::~CityManagerWindow()
 {
 	if(m_ok) {
-		RemoveControl(m_ok);
+		DeleteControl(m_ok);
 		m_ok = nullptr;
 	}
 
 	if(m_cancel) {
-		RemoveControl(m_cancel);
+		DeleteControl(m_cancel);
 		m_cancel = nullptr;
 	}
 

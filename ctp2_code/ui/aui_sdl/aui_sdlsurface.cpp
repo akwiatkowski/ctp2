@@ -381,9 +381,19 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					// past, so none of the recenter machinery applies. Falls back
 					// to the ADR-002 window mirror if the target is not ready.
 					if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture())
+					{
+						// P13 step 2.3: filter mode follows zoom DIRECTION.
+						// Magnifying (z > 1) must stay NEAREST -- 200% is meant
+						// to read as crisp pixel art, and linear would just blur
+						// it. Minifying needs linear, since nearest drops pixels
+						// and the dropped set changes as the source rect slides,
+						// which reads as shimmer during a pan.
+						if (z > 1.0f) CTP2_SDL_SetTextureNearest(aui_SDL::WorldmapTexture());
+						else          CTP2_SDL_SetTextureLinear(aui_SDL::WorldmapTexture());
 						presentWindowed( aui_SDL::WorldmapTexture(),
 							(float)aui_SDL::WorldmapOriginX(),
 							(float)aui_SDL::WorldmapOriginY() );
+					}
 					else
 						presentWindowed( aui_SDL::WorldTexture(),
 							(float)aui_SDL::WorldContentOffX(),

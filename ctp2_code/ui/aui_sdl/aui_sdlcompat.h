@@ -163,6 +163,17 @@ inline bool CTP2_SDL_UpdateTexture(
 #endif
 }
 
+// Linear sampling -- the right choice when MINIFYING, where nearest aliases
+// badly and shimmers as the source rect slides during a pan.
+inline bool CTP2_SDL_SetTextureLinear(SDL_Texture *texture)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR);
+#else
+	return SDL_SetTextureScaleMode(texture, SDL_ScaleModeLinear) == 0;
+#endif
+}
+
 inline bool CTP2_SDL_SetTextureNearest(SDL_Texture *texture)
 {
 #if defined(CTP2_USE_SDL3)

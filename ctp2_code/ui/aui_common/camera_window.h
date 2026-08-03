@@ -87,6 +87,19 @@ inline float MinSafeZoom(float screenPx, float marginPx)
 	return screenPx / denom;
 }
 
+// P13 step 2.6 — the 100% detent. Continuous zoom makes it hard to land exactly
+// on 1.0 by hand, and 1.0 is the one zoom worth landing on: it is where the
+// texture maps 1:1 to the screen, so terrain is pixel-exact rather than
+// resampled. Inside a narrow band the camera is pulled to exactly 1.0.
+//
+// Applied only as the camera settles, not while the gesture is live -- a detent
+// that fights an active pinch feels like the zoom is sticking.
+inline float ZoomDetent(float zoom, float band = 0.04f)
+{
+	float const d = (zoom > 1.0f) ? (zoom - 1.0f) : (1.0f - zoom);
+	return (d <= band) ? 1.0f : zoom;
+}
+
 }  // namespace camera_window
 
 #endif // CAMERA_WINDOW_H_

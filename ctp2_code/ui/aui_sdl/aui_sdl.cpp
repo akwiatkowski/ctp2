@@ -587,7 +587,14 @@ void aui_SDL::TickCamera(float dtSec)
 	// and the frame loop stops presenting.
 	if (!CameraMoving())
 	{
-		m_cameraZoom = m_homeZoom;
+		// P13 step 2.6: on the whole-map path the camera owns zoom, so settling
+		// means landing on the user's zoom -- with a detent so 100% is easy to
+		// hit exactly (pixel-exact terrain). The legacy path still springs back
+		// to its home zoom, which is what its rubber-band peek is for.
+		if (GpuWorldmapEnabled())
+			m_cameraZoom = camera_window::ZoomDetent(m_cameraZoom);
+		else
+			m_cameraZoom = m_homeZoom;
 		m_zoomVel = m_panVelX = m_panVelY = 0.0f;
 		// Snap the displayed offset exactly onto the target so no sub-pixel error
 		// lingers (and the next recenter math starts clean).

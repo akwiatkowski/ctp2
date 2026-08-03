@@ -104,4 +104,24 @@ TEST_CASE("degenerate zooms do not produce garbage budgets")
     CHECK(camera_window::PanBudgetPx(k_W, 0.0f, 0.5f) == doctest::Approx(0.0f));
 }
 
+TEST_CASE("the 100% detent snaps only inside its band")
+{
+    // Inside the band, from either side, land exactly on 1.0.
+    CHECK(camera_window::ZoomDetent(1.00f) == doctest::Approx(1.0f));
+    CHECK(camera_window::ZoomDetent(1.03f) == doctest::Approx(1.0f));
+    CHECK(camera_window::ZoomDetent(0.97f) == doctest::Approx(1.0f));
+    CHECK(camera_window::ZoomDetent(1.04f) == doctest::Approx(1.0f));   // boundary is inclusive
+
+    // Outside it, the zoom is left alone -- the detent must not drag the whole
+    // range toward 1.0 or intermediate zooms become unreachable.
+    CHECK(camera_window::ZoomDetent(1.05f) == doctest::Approx(1.05f));
+    CHECK(camera_window::ZoomDetent(0.90f) == doctest::Approx(0.90f));
+    CHECK(camera_window::ZoomDetent(2.00f) == doctest::Approx(2.0f));
+    CHECK(camera_window::ZoomDetent(0.21f) == doctest::Approx(0.21f));
+
+    // A wider band widens the catch symmetrically.
+    CHECK(camera_window::ZoomDetent(1.10f, 0.20f) == doctest::Approx(1.0f));
+    CHECK(camera_window::ZoomDetent(0.90f, 0.20f) == doctest::Approx(1.0f));
+}
+
 TEST_SUITE_END();

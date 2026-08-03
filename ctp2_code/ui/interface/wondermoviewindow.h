@@ -52,14 +52,14 @@ public:
 	void SetSequence(std::weak_ptr<Sequence> seq) { m_sequence = seq; }
 
 private:
-	aui_MovieButton		*m_movieButton;
-	c3_Static			*m_wonderName;
+	std::unique_ptr<aui_MovieButton>	m_movieButton;
+	std::unique_ptr<c3_Static>	m_wonderName;
 	std::weak_ptr<Sequence> m_sequence;
-	c3_Static			*m_topBorder;
-	c3_Static			*m_leftBorder;
-	c3_Static			*m_rightBorder;
-	c3_Static			*m_bottomBorder;
-	ctp2_HyperTextBox   *m_textBox;
+	std::unique_ptr<c3_Static>	m_topBorder;
+	std::unique_ptr<c3_Static>	m_leftBorder;
+	std::unique_ptr<c3_Static>	m_rightBorder;
+	std::unique_ptr<c3_Static>	m_bottomBorder;
+	std::unique_ptr<ctp2_HyperTextBox>	m_textBox;
 };
 
 #endif

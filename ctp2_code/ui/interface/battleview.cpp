@@ -65,7 +65,6 @@ BattleView::BattleView()
 	m_numAttackers              (0),
 	m_numDefenders              (0),
 	m_eventQueue                (nullptr),
-	m_activeEvents              (new PointerList<BattleEvent>),
     m_walker                    (new PointerList<BattleEvent>::Walker),
 	m_activeEvent               (nullptr),
 	m_cityBonus                 (0.0),
@@ -93,7 +92,7 @@ BattleView::~BattleView()
 		delete m_walker->Remove();
 	}
 
-	m_walker->SetList(m_activeEvents);
+	m_walker->SetList(&m_activeEvents);
 	while (m_walker->IsValid())
     {
 		delete m_walker->Remove();
@@ -109,7 +108,6 @@ BattleView::~BattleView()
     }
 
 	delete m_eventQueue;
-    delete m_activeEvents;
 	delete m_activeEvent;
 	delete m_battleSurface;
 	delete m_walker;
@@ -200,7 +198,7 @@ void BattleView::GetDefenderPos(sint32 column, sint32 row, sint32 *x, sint32 *y)
 
 void BattleView::DrawExplosions()
 {
-	PointerList<BattleEvent>::Walker *walker = new PointerList<BattleEvent>::Walker(m_activeEvents);
+	PointerList<BattleEvent>::Walker *walker = new PointerList<BattleEvent>::Walker(&m_activeEvents);
 
 	while (walker->IsValid()) {
 		BattleEvent *event = walker->GetObj();
@@ -375,7 +373,7 @@ void BattleView::RemoveActor(BattleViewActor *actor)
 		walk.GetObj()->RemoveDeadActor(actor);
 	}
 
-	for(walk.SetList(m_activeEvents); walk.IsValid(); walk.Next()) {
+	for(walk.SetList(&m_activeEvents); walk.IsValid(); walk.Next()) {
 		walk.GetObj()->RemoveDeadActor(actor);
 	}
 
@@ -452,7 +450,7 @@ void BattleView::Process()
 		bool                addEvent        = true;
         bool                isAfterAttack   = IsAfterAttack(*event);
 		PointerList<BattleEvent>::PointerListNode *
-                            activeNode  = m_activeEvents->GetHeadNode();
+                            activeNode  = m_activeEvents.GetHeadNode();
 
 		while (activeNode)
         {
@@ -492,7 +490,7 @@ void BattleView::Process()
 
 			m_eventQueue->Remove(addNode);
 
-			m_activeEvents->AddTail(event);
+			m_activeEvents.AddTail(event);
 		} else {
 
 			eventNode = eventNode->GetNext();
@@ -500,9 +498,9 @@ void BattleView::Process()
 		}
 	}
 
-	if(m_activeEvents->GetCount() > 0) {
+	if(m_activeEvents.GetCount() > 0) {
 
-		m_walker->SetList(m_activeEvents);
+		m_walker->SetList(&m_activeEvents);
 
 
 		while (m_walker->IsValid())

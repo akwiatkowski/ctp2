@@ -72,7 +72,7 @@ class SlicObject;
 class SlicSegment;
 class SlicFunc;
 template <class T> class StringHash;
-template <class T> class PointerList;
+#include "ctp/ctp2_utils/pointerlist.h"
 class SlicSymTab;
 class SlicSymbolData;
 class SlicContext;
@@ -332,7 +332,7 @@ private:
 	PointerList<SlicRecord> *		m_records[k_MAX_PLAYERS];
 	sint32                          m_timer[k_NUM_TIMERS];
 	SimpleDynamicArray<sint32> *	m_disabledClasses;
-	PointerList<SlicObject> *		m_uiExecuteObjects;
+	PointerList<SlicObject> m_uiExecuteObjects;   // held by value; entries stay reference counted
 	Message							m_eyepointMessage;
 
 	MBCHAR m_triggerKey[k_MAX_TRIGGER_KEYS];
@@ -354,7 +354,7 @@ private:
 	bool m_atBreak;
 	SlicObject *m_breakContext;
 
-	PointerList<SlicObject> *   m_contextStack;
+	PointerList<SlicObject> m_contextStack;   // held by value; entries stay reference counted
 	bool                        m_breakRequested;
 
 	friend void to_json(nlohmann::json &j, SlicEngine const &e);

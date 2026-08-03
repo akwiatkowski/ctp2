@@ -186,7 +186,6 @@ SlicEngine::SlicEngine()
 	m_symTab                (new SlicSymTab(0)),
 	m_context               (nullptr),
 	m_disabledClasses       (new SimpleDynamicArray<sint32>),
-	m_uiExecuteObjects      (new PointerList<SlicObject>),
 	m_eyepointMessage       (),
 	m_timerGranularity      (k_SLIC_DEFAULT_TIMER_GRANULARITY),
 	m_doResearchOnUnblank   (FALSE),
@@ -199,7 +198,6 @@ SlicEngine::SlicEngine()
 	m_blankScreen           (false),
 	m_atBreak               (false),
 	m_breakContext          (nullptr),
-	m_contextStack          (new PointerList<SlicObject>),
 	m_breakRequested        (false)
 {
 	for (auto & m_triggerList : m_triggerLists)
@@ -234,11 +232,12 @@ SlicEngine::~SlicEngine()
         m_breakContext = nullptr;
 	}
 
-    while (SlicObject * obj = m_contextStack->RemoveTail())
+    // Entries are reference counted, so they are Released rather than deleted;
+    // the list itself now frees its own nodes.
+    while (SlicObject * obj = m_contextStack.RemoveTail())
 	{
         obj->Release();
 	}
-    delete m_contextStack;
 
 	// m_loadGameName: reference only
     KillCurrentMessage();
@@ -270,11 +269,7 @@ SlicEngine::~SlicEngine()
         delete m_disabledClasses;
     }
 
-    if (m_uiExecuteObjects)
-    {
-	    m_uiExecuteObjects->DeleteAll();
-        delete m_uiExecuteObjects;
-    }
+	    m_uiExecuteObjects.DeleteAll();
 
 	for (i = 0; i < mod_MAX; ++i)
     {
@@ -1082,9 +1077,9 @@ void SlicEngine::ProcessUITriggers()
 {
     for
     (
-        SlicObject *    obj = m_uiExecuteObjects->RemoveHead();
+        SlicObject *    obj = m_uiExecuteObjects.RemoveHead();
         obj;
-        obj = m_uiExecuteObjects->RemoveHead()
+        obj = m_uiExecuteObjects.RemoveHead()
     )
     {
         Execute(obj);
@@ -1958,7 +1953,7 @@ void SlicEngine::RunUITriggers(const MBCHAR *controlName)
 	if(trig) {
 		SlicSegment *seg = trig->GetSegment();
 		if(seg && seg->IsEnabled()) {
-			m_uiExecuteObjects->AddTail(new SlicObject(seg));
+			m_uiExecuteObjects.AddTail(new SlicObject(seg));
 
 		}
 	}
@@ -2643,9 +2638,9 @@ void SlicEngine::Continue()
     {
 	    for
         (
-            SlicObject * oldContext = m_contextStack->RemoveTail();
+            SlicObject * oldContext = m_contextStack.RemoveTail();
             oldContext;
-            oldContext = m_contextStack->RemoveTail()
+            oldContext = m_contextStack.RemoveTail()
         )
         {
 			SetContext(oldContext);
@@ -2670,7 +2665,7 @@ void SlicEngine::PushContext(SlicObject * obj)
 {
 	if (m_context)
 	{
-		m_contextStack->AddTail(m_context);
+		m_contextStack.AddTail(m_context);
 	}
 
 	m_context = obj;
@@ -2689,7 +2684,7 @@ void SlicEngine::PopContext()
 		m_context->Release();
 	}
 
-	m_context = m_contextStack->RemoveTail();
+	m_context = m_contextStack.RemoveTail();
 
 	if(m_context){
 		// TODO check whether builtins filling is superflous.

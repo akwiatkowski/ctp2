@@ -70,7 +70,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/EditQueue.cpp` (18/8/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/interface/spnewgamescreen.cpp` (21/2/0) — 🔴 hard · _factory returns crossing callers_
 - [ ] `ui/interface/sci_advancescreen.cpp` (17/4/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/interface/battleview.cpp` (3/16/0) — ⚪ leave · _pool/arena allocator_
+- [x] `ui/interface/battleview.cpp` — done 2026-08-03: m_activeEvents held by value (partial: other raw owners remain)
 - [ ] `ui/interface/controlpanel.cpp` (3/16/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/messageresponse.cpp` (10/8/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/interface/loadsavemapwindow.cpp` (10/6/0) — 🔴 hard · _void* ownership handoff_
@@ -270,7 +270,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## gs/slic  (21 files, 927 matches)
 
-- [ ] `gs/slic/SlicEngine.cpp` (574/21/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/slic/SlicEngine.cpp` — done 2026-08-03: ui-execute and context lists held by value; SlicObject entries stay reference counted (partial: other raw owners remain)
 - [ ] `gs/slic/SlicBuiltin.cpp` (79/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/slic/SlicContext.cpp` (26/25/0) — 🟡 moderate · _single-owner member_
 - [ ] `gs/slic/slicfunc.cpp` (33/1/0) — 🟡 moderate · _needs ownership review_

@@ -376,9 +376,18 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 							srcX, srcY, srcW, srcH, 0.0f, 0.0f, W, H );
 					};
 
-					presentWindowed( aui_SDL::WorldTexture(),
-						(float)aui_SDL::WorldContentOffX(),
-						(float)aui_SDL::WorldContentOffY() );
+					// P13 step 2.1 (ADR-003): with the whole map in one texture the
+					// camera is a plain source rect over it -- no margin to run
+					// past, so none of the recenter machinery applies. Falls back
+					// to the ADR-002 window mirror if the target is not ready.
+					if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture())
+						presentWindowed( aui_SDL::WorldmapTexture(),
+							(float)aui_SDL::WorldmapOriginX(),
+							(float)aui_SDL::WorldmapOriginY() );
+					else
+						presentWindowed( aui_SDL::WorldTexture(),
+							(float)aui_SDL::WorldContentOffX(),
+							(float)aui_SDL::WorldContentOffY() );
 					if (fogged)
 						presentWindowed( aui_SDL::FogTexture(), 0.0f, 0.0f );
 				}

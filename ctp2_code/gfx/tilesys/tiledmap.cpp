@@ -3977,6 +3977,18 @@ int TiledMap::BuildWorldmapQuads()
 		InvalidateWorldmap();
 		return 0;
 	}
+	// P13 step 2.1: publish where the screen's top-left sits inside the
+	// whole-map texture, so the present can window it directly. Same projection
+	// the quads use, plus k_TILE_PIXEL_HEADROOM because DrawTransitionTile
+	// places each diamond that far down inside its slot.
+	{
+		sint32 const vy = m_mapViewRect.top;
+		sint32 vx = ((m_mapViewRect.left % mapWidth) + mapWidth) % mapWidth;
+		aui_SDL::SetWorldmapOrigin(
+			vx * k_TILE_GRID_WIDTH + ((vy & 1) ? (k_TILE_GRID_WIDTH / 2) : 0),
+			vy * (k_TILE_GRID_HEIGHT / 2) + k_TILE_PIXEL_HEADROOM);
+	}
+
 	m_worldmapRedrawn = static_cast<int>(dirty.size());
 	return m_worldmapRedrawn;
 }

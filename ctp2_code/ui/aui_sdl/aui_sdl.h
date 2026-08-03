@@ -170,6 +170,11 @@ public:
 	// 16,384^2 limit (debug_gpu_worldmap_probe).
 	static bool GpuWorldmapEnabled();
 	static SDL_Texture *WorldmapTexture() { return m_worldmapTexture; }
+	// Where the screen's top-left sits inside the whole-map texture, in map
+	// pixels. Published each build by TiledMap; the present windows here.
+	static void SetWorldmapOrigin(int x, int y) { m_worldmapOriginX = x; m_worldmapOriginY = y; }
+	static int WorldmapOriginX() { return m_worldmapOriginX; }
+	static int WorldmapOriginY() { return m_worldmapOriginY; }
 	static int WorldmapW() { return m_worldmapW; }
 	static int WorldmapH() { return m_worldmapH; }
 	// Create (or resize) the whole-map target and clear it to opaque black, the
@@ -232,6 +237,8 @@ protected:
 	static SDL_Texture *	m_worldmapTexture;
 	static int		m_worldmapW;
 	static int		m_worldmapH;
+	static int		m_worldmapOriginX;
+	static int		m_worldmapOriginY;
 	// P11 G1: terrain quad atlas (source) + the per-frame cell draw list.
 	static SDL_Texture *	m_quadAtlasTexture;
 	static int		m_quadAtlasW;

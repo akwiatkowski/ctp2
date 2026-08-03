@@ -253,7 +253,7 @@ void AttractWindow::HighlightControl(MBCHAR *ldlName)
 	m_finishTime = GetTickCount() + k_ATTRACT_DURATION;
 }
 
-void AttractWindow::DeleteControl(MBCHAR *ldlName)
+void AttractWindow::RemoveControl(MBCHAR *ldlName)
 {
 	aui_Region *region = (aui_Region *)aui_Ldl::GetObject(ldlName);
 	if(region) {

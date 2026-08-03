@@ -540,7 +540,7 @@ public:
             AttractWindow::Initialize();
         }
         if (AttractWindow *aw = attractwindow_Get()) {
-            aw->DeleteControl(const_cast<char *>(control));
+            aw->RemoveControl(const_cast<char *>(control));
         }
     }
 

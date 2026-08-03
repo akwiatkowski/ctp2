@@ -140,7 +140,7 @@ public:
 
 	AUI_ERRCODE	AddControl( aui_Control *control )
 	{ return AddChild( (aui_Region *)control ); }
-	AUI_ERRCODE	DeleteControl( uint32 controlId )
+	AUI_ERRCODE	RemoveControl( uint32 controlId )
 	{ return RemoveChild( controlId ); }
 	aui_Control	*GetControl( uint32 controlId )
 	{ return (aui_Control *)GetChild( controlId ); }

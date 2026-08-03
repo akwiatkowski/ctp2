@@ -286,7 +286,7 @@ AUI_ERRCODE DiplomacyWindow::Display()
 		s_dipWindow->Update();
 
 		if(AttractWindow *aw = attractwindow_Get()) {
-			aw->DeleteControl(k_DIP_WINDOW_ATTRACT_BUTTON);
+			aw->RemoveControl(k_DIP_WINDOW_ATTRACT_BUTTON);
 		}
 
 		EnableButtons(FALSE);
@@ -1909,7 +1909,7 @@ STDEHANDLER(DipWinResponseReady)
 		if(!DiplomacyWindow::IsShown()) {
 			attractwindow_Get()->HighlightControl(k_DIP_WINDOW_ATTRACT_BUTTON);
 		} else {
-			attractwindow_Get()->DeleteControl(k_DIP_WINDOW_ATTRACT_BUTTON);
+			attractwindow_Get()->RemoveControl(k_DIP_WINDOW_ATTRACT_BUTTON);
 
 			s_dipWindow->ShowReceivedProposalDetails();
 		}
@@ -1936,7 +1936,7 @@ STDEHANDLER(DipWinNewProposalEvent)
 			if(!DiplomacyWindow::IsShown()) {
 				aw->HighlightControl(k_DIP_WINDOW_ATTRACT_BUTTON);
 			} else {
-				aw->DeleteControl(k_DIP_WINDOW_ATTRACT_BUTTON);
+				aw->RemoveControl(k_DIP_WINDOW_ATTRACT_BUTTON);
 			}
 		}
 

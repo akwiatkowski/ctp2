@@ -37,7 +37,7 @@ public:
 	void DrawAttractiveStuff();
 	void ClearWindow();
 	void HighlightControl(MBCHAR *ldlName);
-	void DeleteControl(MBCHAR *ldlName);
+	void RemoveControl(MBCHAR *ldlName);
 
 	void RemoveRegion(aui_Region *region);
 	void AddRegion(aui_Region *region);

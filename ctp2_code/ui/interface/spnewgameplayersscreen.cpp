@@ -80,7 +80,7 @@ void CleanupControl(T * & a_Control)
 {
 	if (a_Control)
 	{
-		s_spNewGamePlayersScreen->DeleteControl(a_Control->Id());
+		s_spNewGamePlayersScreen->RemoveControl(a_Control->Id());
 		delete a_Control;
 		a_Control = nullptr;
 	}

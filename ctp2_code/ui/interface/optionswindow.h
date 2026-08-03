@@ -4,6 +4,7 @@
 #ifndef OPTIONSWINDOW_FLAG
 #define OPTIONSWINDOW_FLAG
 
+#include <memory>
 #include "ui/aui_ctp2/c3_popupwindow.h"
 
 class c3_Static;
@@ -48,35 +49,36 @@ public:
 	void RemoveQuitToWindowsButton( );
 	void AddQuitToWindowsButton( );
 
-	ctp2_Button *SaveGameButton() const { return m_savegame; }
-	ctp2_Button *LoadGameButton() const { return m_loadgame; }
-	ctp2_Button *QuitToShellButton() const { return m_quittoshell; }
+	ctp2_Button *SaveGameButton() const { return m_savegame.get(); }
+	ctp2_Button *LoadGameButton() const { return m_loadgame.get(); }
+	ctp2_Button *QuitToShellButton() const { return m_quittoshell.get(); }
 
-	ctp2_Button *GraphicsButton() const { return m_graphics; }
-	ctp2_Button *SoundButton() const { return m_sound; }
-	ctp2_Button *MusicButton() const { return m_music; }
-	ctp2_Button *NewGameButton() const { return m_newgame; }
-	ctp2_Button *RestartButton() const { return m_restart; }
-	ctp2_Button *GamePlayButton() const { return m_gameplay; }
-	ctp2_Button *MapEditorButton() const { return m_mapeditor; }
-	ctp2_Button *KeyboardButton() const { return m_keyboard; }
+	ctp2_Button *GraphicsButton() const { return m_graphics.get(); }
+	ctp2_Button *SoundButton() const { return m_sound.get(); }
+	ctp2_Button *MusicButton() const { return m_music.get(); }
+	ctp2_Button *NewGameButton() const { return m_newgame.get(); }
+	ctp2_Button *RestartButton() const { return m_restart.get(); }
+	ctp2_Button *GamePlayButton() const { return m_gameplay.get(); }
+	ctp2_Button *MapEditorButton() const { return m_mapeditor.get(); }
+	ctp2_Button *KeyboardButton() const { return m_keyboard.get(); }
 
 private:
 
-	ctp2_Button		*m_graphics,
-					*m_sound,
-					*m_music,
-					*m_newgame,
-					*m_savegame,
-					*m_loadgame,
-					*m_restart,
-					*m_gameplay,
-					*m_mapeditor,
-					*m_keyboard,
-					*m_quittoshell;
+	// One declaration per control, so each can carry its own ownership.
+	std::unique_ptr<ctp2_Button>	m_graphics;
+	std::unique_ptr<ctp2_Button>	m_sound;
+	std::unique_ptr<ctp2_Button>	m_music;
+	std::unique_ptr<ctp2_Button>	m_newgame;
+	std::unique_ptr<ctp2_Button>	m_savegame;
+	std::unique_ptr<ctp2_Button>	m_loadgame;
+	std::unique_ptr<ctp2_Button>	m_restart;
+	std::unique_ptr<ctp2_Button>	m_gameplay;
+	std::unique_ptr<ctp2_Button>	m_mapeditor;
+	std::unique_ptr<ctp2_Button>	m_keyboard;
+	std::unique_ptr<ctp2_Button>	m_quittoshell;
 
-	c3_Static		*m_configHeader;
-	c3_Static		*m_gameHeader;
+	std::unique_ptr<c3_Static>	m_configHeader;
+	std::unique_ptr<c3_Static>	m_gameHeader;
 
 };
 

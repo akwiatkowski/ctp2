@@ -64,20 +64,20 @@ OptionsWindow::OptionsWindow( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock, 
 							 AUI_WINDOW_TYPE type, bool bevel) :
 c3_PopupWindow(retval,id,ldlBlock,bpp,type,bevel)
 {
-	m_graphics = spNew_ctp2_Button(retval,ldlBlock,"GraphicsButton",optionsscreen_graphicsPress);
-	m_sound = spNew_ctp2_Button(retval,ldlBlock,"SoundButton",optionsscreen_soundPress);
-	m_music = spNew_ctp2_Button(retval,ldlBlock,"MusicButton",optionsscreen_musicPress);
-	m_newgame = spNew_ctp2_Button(retval,ldlBlock,"NewGameButton",optionsscreen_quitToShellPress);
-	m_savegame = spNew_ctp2_Button(retval,ldlBlock,"SaveGameButton",optionsscreen_savegamePress);
-	m_loadgame = spNew_ctp2_Button(retval,ldlBlock,"LoadGameButton",optionsscreen_loadgamePress);
-	m_restart = spNew_ctp2_Button(retval,ldlBlock,"RestartButton",optionsscreen_restartPress);
-	m_gameplay = spNew_ctp2_Button(retval,ldlBlock,"GamePlayButton",optionsscreen_gameplayPress);
-	m_mapeditor = spNew_ctp2_Button(retval,ldlBlock,"MapEditorButton",optionsscreen_mapeditorPress);
-	m_keyboard = spNew_ctp2_Button( retval, ldlBlock, "KeyboardButton", optionsscreen_keyboardPress );
-	m_quittoshell = spNew_ctp2_Button( retval, ldlBlock, "QuitToShellButton", optionsscreen_quitPress );
+	m_graphics.reset(spNew_ctp2_Button(retval,ldlBlock,"GraphicsButton",optionsscreen_graphicsPress));
+	m_sound.reset(spNew_ctp2_Button(retval,ldlBlock,"SoundButton",optionsscreen_soundPress));
+	m_music.reset(spNew_ctp2_Button(retval,ldlBlock,"MusicButton",optionsscreen_musicPress));
+	m_newgame.reset(spNew_ctp2_Button(retval,ldlBlock,"NewGameButton",optionsscreen_quitToShellPress));
+	m_savegame.reset(spNew_ctp2_Button(retval,ldlBlock,"SaveGameButton",optionsscreen_savegamePress));
+	m_loadgame.reset(spNew_ctp2_Button(retval,ldlBlock,"LoadGameButton",optionsscreen_loadgamePress));
+	m_restart.reset(spNew_ctp2_Button(retval,ldlBlock,"RestartButton",optionsscreen_restartPress));
+	m_gameplay.reset(spNew_ctp2_Button(retval,ldlBlock,"GamePlayButton",optionsscreen_gameplayPress));
+	m_mapeditor.reset(spNew_ctp2_Button(retval,ldlBlock,"MapEditorButton",optionsscreen_mapeditorPress));
+	m_keyboard.reset(spNew_ctp2_Button( retval, ldlBlock, "KeyboardButton", optionsscreen_keyboardPress ));
+	m_quittoshell.reset(spNew_ctp2_Button( retval, ldlBlock, "QuitToShellButton", optionsscreen_quitPress ));
 
-	m_configHeader = spNew_c3_Static(retval,ldlBlock,"ConfigHeader");
-	m_gameHeader = spNew_c3_Static(retval,ldlBlock,"GameHeader");
+	m_configHeader.reset(spNew_c3_Static(retval,ldlBlock,"ConfigHeader"));
+	m_gameHeader.reset(spNew_c3_Static(retval,ldlBlock,"GameHeader"));
 
 
 
@@ -91,31 +91,7 @@ c3_PopupWindow(retval,id,ldlBlock,bpp,type,bevel)
 
 OptionsWindow::~OptionsWindow()
 {
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
-
-	mycleanup( m_quittoshell );
-	mycleanup( m_keyboard );
-	mycleanup(m_mapeditor);
-	mycleanup(m_gameplay);
-
-	mycleanup(m_restart);
-	mycleanup(m_loadgame);
-	mycleanup(m_savegame);
-
-	mycleanup(m_newgame);
-	mycleanup(m_music);
-	mycleanup(m_sound);
-	mycleanup(m_graphics);
-
-	mycleanup(m_configHeader);
-	mycleanup(m_gameHeader);
-
-
-
-
-
-
-#undef mycleanup
+	// Every control is a unique_ptr member and releases itself.
 }
 
 sint32 OptionsWindow::EnableButtons( )
@@ -153,5 +129,5 @@ void OptionsWindow::RemoveQuitToWindowsButton( )
 void OptionsWindow::AddQuitToWindowsButton( )
 {
 	if ( m_quittoshell && !GetChild( m_quittoshell->Id() ) )
-		AddChild( m_quittoshell );
+		AddChild(m_quittoshell.get());
 }

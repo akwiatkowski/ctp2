@@ -188,7 +188,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/initialplayscreen.cpp` (1/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/interface/scenarioeditor.h` (1/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/interface/dipwizard.h` (1/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `ui/interface/optionswindow.cpp` (0/1/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/optionswindow.cpp` — done 2026-08-03: 13 controls are unique_ptr; local mycleanup macro gone, destructor empty
 - [ ] `ui/interface/UIUtils.h` (0/1/0) — 🟡 moderate · _needs ownership review_
 
 ## gs/gameobj  (93 files, 938 matches)

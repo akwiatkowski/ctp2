@@ -313,7 +313,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## ui/netshell  (29 files, 518 matches)
 
-- [ ] `ui/netshell/allinonewindow.cpp` (100/44/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/netshell/allinonewindow.cpp` — done 2026-08-03: 9 owned members are unique_ptr; m_aiplayerList (tech_WLList) left raw
 - [ ] `ui/netshell/netfunc.cpp` (63/14/1) — 🔴 hard · _mixed new[]/malloc buffers_
 - [ ] `ui/netshell/netshell.cpp` (28/8/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/netshell/lobbywindow.cpp` (27/4/0) — 🟡 moderate · _single-owner member_

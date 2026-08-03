@@ -1757,6 +1757,56 @@ test('terrain-edge-parity',
   suite : 'integration',
 )
 
+# P13 whole-map transition parity. Until this existed the CTP2_GPU_WORLDMAP
+# path had NO automated coverage at all -- it is opt-in and default off, and
+# every other test here (slice-ui, pan-pixel-proof, gpu-world-fallbacks,
+# terrain-edge-parity) runs with it off, so they guard the ADR-002 window
+# mirror and the P11 quad path instead.
+#
+# The reference is 'gpu', NOT 'cpu'. Against cpu the spatial metric is blind:
+# the shipping quad path scores diff_ratio 0.956 and the whole-map path 0.952,
+# indistinguishable because the known CPU/GPU framing offset swamps both.
+# Against gpu the two share the quad machinery and framing, so the only
+# variable left is the whole-map target itself -- measured baseline 0.000
+# across all 15 pair/pattern combinations.
+#
+# The threshold is tight on purpose. The metric was calibrated: genuinely
+# different terrain pairs score 0.925 and different patterns 0.524, so 0.02
+# leaves room for blend drift while still failing on any real divergence.
+#
+# THIS TEST IS RED TODAY, and that is the point of landing it. With the
+# readback fixed the whole-map path measures diff_ratio ~0.73-0.77 against the
+# quad path at coverage ~1.08-1.29 -- it presents materially more world in the
+# same screen area. Reproducible within a map (two runs agreed to 0.003); the
+# spread across runs is only the random map, since the UI build has no --seed.
+#
+# It sits in its own suite rather than 'integration' so an unfinished, opt-in,
+# default-off path does not gate the shipping suite. Move it into
+# 'integration' once it goes green.
+test('worldmap-transition-parity',
+  find_program('../tools/visual/terrain_edges.py'),
+  args : [
+    '--binary', join_paths(meson.project_build_root(), 'ctp2'),
+    '--out', join_paths(meson.project_build_root(), 'worldmap-transition-parity'),
+    '--modes', 'gpu', 'worldmap',
+    '--reference', 'gpu',
+    # Wider than terrain-edge-parity's single pair: transitions are composited
+    # per terrain pair, so one pair cannot speak for the rest. 'checker' is the
+    # stress case -- every neighbour differs, so every edge is a transition.
+    '--pairs', 'grassland:plains', 'grassland:forest', 'grassland:hill',
+               'plains:desert', 'forest:hill',
+    '--patterns', 'vertical', 'diagonal', 'checker',
+    '--crop-size', '320',
+    '--max-diff-ratio', '0.02',
+    '--check',
+  ],
+  timeout : 900,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'p13',
+)
+
 # Expansion: the full second-city loop (settler production, move_army
 # pathfinding, settle guard regression) plus the absorbed turn-advancement
 # checks (end_turn N drives full rounds through the real event pipeline;

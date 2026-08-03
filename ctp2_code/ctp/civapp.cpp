@@ -2944,9 +2944,28 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 								};
 								// P12: quad and mirrored paths share the same oversized
 								// world-space origin; only the producer differs.
-								windowed(aui_SDL::WorldTexture(),
-									(float)aui_SDL::WorldContentOffX(),
-									(float)aui_SDL::WorldContentOffY());
+								//
+								// P13 step 2.1 (ADR-003): Flip presents the whole-map
+								// target when it is ready and the window mirror
+								// otherwise. The readback MUST branch the same way.
+								// While it did not, this oracle re-composited the
+								// window mirror no matter what CTP2_GPU_WORLDMAP was
+								// set to -- so every screenshot test was blind to the
+								// whole-map path, and the tile-gap and transition bugs
+								// in it could only be found by looking at the game.
+								if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture()) {
+									// Filtering is part of the presented pixels, so the
+									// zoom-direction rule is mirrored too (step 2.3).
+									if (z > 1.0f) CTP2_SDL_SetTextureNearest(aui_SDL::WorldmapTexture());
+									else          CTP2_SDL_SetTextureLinear(aui_SDL::WorldmapTexture());
+									windowed(aui_SDL::WorldmapTexture(),
+										(float)aui_SDL::WorldmapOriginX(),
+										(float)aui_SDL::WorldmapOriginY());
+								} else {
+									windowed(aui_SDL::WorldTexture(),
+										(float)aui_SDL::WorldContentOffX(),
+										(float)aui_SDL::WorldContentOffY());
+								}
 								// P11 C: fog mask darkens the world between the world
 								// and UI copies (mirrors Flip's present).
 								if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())

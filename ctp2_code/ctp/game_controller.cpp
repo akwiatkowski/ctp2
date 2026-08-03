@@ -3449,6 +3449,17 @@ std::string QueryGpuWorld()
 {
     json result;
     result["enabled"] = aui_SDL::GpuQuadsEnabled();
+    // Reported separately from "enabled": the whole-map target is opt-in and
+    // implies quads, so a parity test that only checked "enabled" could not
+    // tell the P13 path from the ADR-002 one and would silently compare a
+    // path against itself.
+    result["worldmap"] = aui_SDL::GpuWorldmapEnabled();
+    // The flag alone does NOT mean the frame came from the whole-map target:
+    // the present falls back to the ADR-002 window mirror whenever the texture
+    // is absent (aui_sdlsurface.cpp, "Falls back ... if the target is not
+    // ready"). A parity test that checks only the flag passes that fallback as
+    // if it had measured the P13 path.
+    result["worldmap_texture"] = aui_SDL::WorldmapTexture() != nullptr;
     result["complete"] = aui_SDL::QuadFrameComplete();
     char const *reason = aui_SDL::QuadFrameIncompleteReason();
     result["fallback_reason"] = reason ? reason : "";

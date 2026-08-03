@@ -3945,6 +3945,13 @@ int TiledMap::BuildWorldmapQuads()
 			maputils_MapX2TileX(j, i, &tileX);
 			sint32 const drawX = tileX * k_TILE_GRID_WIDTH
 			                   + ((i & 1) ? (k_TILE_GRID_WIDTH / 2) : 0);
+			// NOTE for the camera work: DrawTransitionTile places the diamond
+			// k_TILE_PIXEL_HEADROOM (24px) DOWN inside its slot, so a row's
+			// diamond sits at drawY + 24, not drawY. That offset is uniform, so
+			// tessellation is unaffected (measured: shifting the slot up by 24
+			// leaves coverage identical at 162/900), but whatever maps camera
+			// position to this texture must account for it. Not folded in here
+			// because it would place row 0 at y = -24, off the texture.
 			sint32 const drawY = i * (k_TILE_GRID_HEIGHT / 2);
 
 			aui_SDL::GpuQuad q;

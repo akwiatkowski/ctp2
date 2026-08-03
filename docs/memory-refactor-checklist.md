@@ -8,7 +8,26 @@ treat them as a size hint, not an exact task count. Tick a file only after its r
 ownership is moved to RAII/smart pointers with `make test` green and no behavior
 change, then lower the ratchet baseline. -->
 
-**Scope:** 574 first-party files, ~6880 raw new/delete/alloc matches (excludes vendored `libs/**`). Work smallest / clearest-ownership clusters first.
+**Scope:** 574 first-party files (excludes vendored `libs/**`). Work smallest /
+clearest-ownership clusters first.
+
+> **Counts re-based 2026-08-03.** The ratchet used to grep raw file text, so
+> comments and string literals counted as legacy usage — `raw_new` fell 4800 →
+> 4187 and `raw_delete` 1839 → 1737 once it started skipping them (97ba0ee8).
+> The per-file `(new / delete / alloc)` figures below are the OLD text-based
+> numbers and still include prose; treat them as a size hint only, as the
+> header already warns.
+>
+> Session of 2026-08-03 against the re-based baseline: `raw_delete` 1737 →
+> 1611, `raw_new` 4187 → 4174, `pointerlist_uses` 573 → 567. Two themes ran
+> through it — sprite frame/group ownership (which fixed a real scalar-delete
+> on array-new'd memory), and UI controls held as `std::unique_ptr` members.
+>
+> Two traps worth knowing before the next batch: `DeleteControl` (was
+> `RemoveControl`) is a macro in `UIUtils.h` that deletes, so it is an
+> invisible release site; and several UI headers declare many small classes
+> that reuse member names like `m_text` with different types, which defeats a
+> type-driven sweep.
 
 Legend: `(new / delete / alloc)` match counts per file.
 

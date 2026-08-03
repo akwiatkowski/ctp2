@@ -106,7 +106,6 @@ protected:
 	aui_UI()
 	:
 		aui_Region                  (),
-		m_dirtyRectInfoMemory       (nullptr),
 		m_dirtyRectInfoList         (nullptr),
 		m_hinst                     ((HINSTANCE) INVALID_HANDLE_VALUE),
 		m_hwnd                      ((HWND) INVALID_HANDLE_VALUE),
@@ -511,7 +510,8 @@ protected:
 	AUI_ERRCODE InsertDirtyRectInfo( RECT *rect, aui_Window *window );
 	void FlushDirtyRectInfoList( );
 
-	tech_Memory<DirtyRectInfo>		*m_dirtyRectInfoMemory;
+	// Held by value: created with the UI, destroyed with it, never replaced.
+	tech_Memory<DirtyRectInfo>		m_dirtyRectInfoMemory;
 	tech_WLList<DirtyRectInfo *>	*m_dirtyRectInfoList;
 
 	HINSTANCE		m_hinst;

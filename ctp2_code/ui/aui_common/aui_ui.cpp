@@ -82,7 +82,6 @@ aui_UI::aui_UI
 )
 :
 	aui_Region                  (retval, 0, 0, 0, width, height),
-	m_dirtyRectInfoMemory       (nullptr),
 	m_dirtyRectInfoList         (nullptr),
 	m_hinst                     (hinst),
 	m_hwnd                      (hwnd),
@@ -217,10 +216,6 @@ AUI_ERRCODE aui_UI::InitCommon(
 	Assert( m_dirtyRectInfoList != nullptr );
 	if ( !m_dirtyRectInfoList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_dirtyRectInfoMemory = new tech_Memory<DirtyRectInfo>;
-	Assert( m_dirtyRectInfoMemory != nullptr );
-	if ( !m_dirtyRectInfoMemory ) return AUI_ERRCODE_MEMALLOCFAILED;
-
 	if ( ldlFilename )
 	{
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -288,7 +283,6 @@ aui_UI::~aui_UI()
 	delete m_destructiveActionList;
 	delete m_winList;
 	delete m_dirtyRectInfoList;
-	delete m_dirtyRectInfoMemory;
 
 	aui_Ldl::Remove(this);
 	delete m_ldl;
@@ -960,7 +954,7 @@ AUI_ERRCODE aui_UI::InsertDirtyRectInfo( RECT *rect, aui_Window *window )
 	if ( Rectangle_HasZeroArea( rect ) )
 		return AUI_ERRCODE_OK;
 
-	DirtyRectInfo *newDri = m_dirtyRectInfoMemory->New();
+	DirtyRectInfo *newDri = m_dirtyRectInfoMemory.New();
 	Assert( newDri != nullptr );
 	if ( !newDri ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -1019,7 +1013,7 @@ AUI_ERRCODE aui_UI::InsertDirtyRectInfo( RECT *rect, aui_Window *window )
 void aui_UI::FlushDirtyRectInfoList( )
 {
 	for ( sint32 i = m_dirtyRectInfoList->L(); i; i-- )
-		m_dirtyRectInfoMemory->Delete( m_dirtyRectInfoList->RemoveHead() );
+		m_dirtyRectInfoMemory.Delete( m_dirtyRectInfoList->RemoveHead() );
 }
 
 AUI_ERRCODE aui_UI::DrawOne(aui_Window *window)

@@ -66,7 +66,8 @@ public:
 	AUI_ERRCODE ComputeSpans( RECT *newRect );
 
 protected:
-	tech_Memory<RECT> *m_rectMemory;
+	// Held by value: created with the list, destroyed with it, never replaced.
+	tech_Memory<RECT> m_rectMemory;
 
 	sint32 m_width;
 	sint32 m_height;

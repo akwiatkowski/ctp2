@@ -417,7 +417,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## ui/aui_common  (38 files, 288 matches)
 
-- [ ] `ui/aui_common/aui_ui.cpp` (18/30/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/aui_common/aui_ui.cpp` — done 2026-08-03: tech_Memory pool held by value, not new/delete
 - [ ] `ui/aui_common/aui_ldl.cpp` (32/13/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/aui_common/aui_listbox.cpp` (13/12/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/aui_common/aui_resource.h` (5/8/0) — 🟡 moderate · _single-owner member_
@@ -445,7 +445,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/aui_common/aui_textbase.cpp` (2/1/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/aui_common/aui_win.cpp` (1/1/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/aui_common/aui_base.cpp` (1/1/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/aui_common/aui_dirtylist.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/aui_common/aui_dirtylist.cpp` — done 2026-08-03: tech_Memory pool held by value, not new/delete
 - [ ] `ui/aui_common/aui_tipwindow.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/aui_common/aui_surface.cpp` (1/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/aui_common/aui_textbox.cpp` (1/1/0) — 🟡 moderate · _needs ownership review_

@@ -219,8 +219,7 @@ void GoodSpriteGroup::DeallocateStorage()
 {
     for (int i = GOODACTION_IDLE; i < GOODACTION_MAX; i++)
     {
-	    delete m_sprites[i];
-        m_sprites[i] = nullptr;
+	    m_sprites[i].reset();
     }
 }
 
@@ -228,8 +227,7 @@ void GoodSpriteGroup::DeallocateFullLoadAnims()
 {
     for (int i = GOODACTION_IDLE; i < GOODACTION_MAX; i++)
     {
-        delete m_anims[i];
-        m_anims[i] = nullptr;
+        m_anims[i].reset();
     }
 }
 
@@ -294,14 +292,12 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 		}
 
 		idleSprite->Import(numFrames, imageNames, shadowNames);
-		delete m_sprites[GOODACTION_IDLE];
-		m_sprites[GOODACTION_IDLE] = idleSprite;
+		m_sprites[GOODACTION_IDLE].reset(idleSprite);
 		printf("]\n");
 
 		Anim *idleAnim = new Anim;
 		idleAnim->ParseFromTokens(theToken.get());
-		delete m_anims[GOODACTION_IDLE];
-		m_anims[GOODACTION_IDLE] = idleAnim;
+		m_anims[GOODACTION_IDLE].reset(idleAnim);
 	}
 
 

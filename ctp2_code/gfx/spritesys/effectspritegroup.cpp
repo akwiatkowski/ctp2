@@ -297,16 +297,14 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 
 		effectSprite->Import(numFrames, imageNames, shadowNames);
 
-		delete m_sprites[EFFECTACTION_PLAY];
-		m_sprites[EFFECTACTION_PLAY] = effectSprite;
+		m_sprites[EFFECTACTION_PLAY].reset(effectSprite);
 
 		printf("]\n");
 
 		Anim *effectAnim = new Anim;
 
 		effectAnim->ParseFromTokens(theToken.get());
-        delete m_anims[EFFECTACTION_PLAY];
-		m_anims[EFFECTACTION_PLAY] = effectAnim;
+        m_anims[EFFECTACTION_PLAY].reset(effectAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_EFFECT_SPRITE_FLASH, tmp)) return FALSE;
@@ -340,15 +338,13 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 
 		flashSprite->Import(flashNumFrames, imageNames, shadowNames);
 
-		delete m_sprites[EFFECTACTION_FLASH];
-		m_sprites[EFFECTACTION_FLASH] = flashSprite;
+		m_sprites[EFFECTACTION_FLASH].reset(flashSprite);
 		printf("]\n");
 
 		Anim *moveAnim = new Anim;
 
 		moveAnim->ParseFromTokens(theToken.get());
-        delete m_anims[EFFECTACTION_FLASH];
-		m_anims[EFFECTACTION_FLASH] = moveAnim;
+        m_anims[EFFECTACTION_FLASH].reset(moveAnim);
 
 	}
 

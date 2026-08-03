@@ -460,18 +460,18 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 - [ ] `gfx/spritesys/director.cpp` (40/7/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gfx/spritesys/spritefile.cpp` (45/2/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `gfx/spritesys/UnitSpriteGroup.cpp` (15/13/0) — 🔴 hard · _member pointer array_
+- [x] `gfx/spritesys/UnitSpriteGroup.cpp` — done 2026-08-03 (b1169bf7): delete+assign on the base slots became reset()
 - [ ] `gfx/spritesys/DirectorActionHandlers.cpp` (16/6/0) — 🟡 moderate · _needs ownership review_
 - [x] `gfx/spritesys/Sprite.cpp` — done 2026-08-03: frames own their buffers via SpriteFrame, matching the two faced subclasses; whole hierarchy now shares one frame representation
-- [ ] `gfx/spritesys/effectspritegroup.cpp` (9/7/0) — 🔴 hard · _member pointer array_
-- [ ] `gfx/spritesys/goodspritegroup.cpp` (8/8/0) — 🔴 hard · _member pointer array_
+- [x] `gfx/spritesys/effectspritegroup.cpp` — done 2026-08-03 (b1169bf7): delete+assign on the base slots became reset()
+- [x] `gfx/spritesys/goodspritegroup.cpp` — done 2026-08-03 (b1169bf7): delete+assign on the base slots became reset()
 - [ ] `gfx/spritesys/SpriteGroupList.cpp` (8/6/0) — 🟡 moderate · _needs ownership review_
 - [x] `gfx/spritesys/FacedSpriteWshadow.cpp` — done 2026-08-03 (f05e888d): frames own their buffers via SpriteFrame; fixed 8 scalar deletes on array-new'd memory
 - [x] `gfx/spritesys/FacedSprite.cpp` — done 2026-08-03 (b2d108fe): frames own their buffers via SpriteFrame; fixed 4 scalar deletes on array-new'd memory
 - [x] `gfx/spritesys/UnitActor.cpp` (6/0/0)
 - [x] `gfx/spritesys/SpriteStateDB.cpp` (1/4/0)
 - [ ] `gfx/spritesys/spriteutils.cpp` (2/0/2) — 🔴 hard · _mixed new[]/malloc buffers_
-- [ ] `gfx/spritesys/SpriteGroup.cpp` (0/4/0) — 🔴 hard · _member pointer array_
+- [x] `gfx/spritesys/SpriteGroup.cpp` — done 2026-08-03 (b1169bf7): sprite/anim slots are unique_ptr; setters guard self-assignment (the loader does get-modify-set)
 - [x] `gfx/spritesys/battleviewactor.cpp` (2/0/0)
 - [ ] `gfx/spritesys/action.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
 - [x] `gfx/spritesys/goodactor.cpp` (2/0/0)

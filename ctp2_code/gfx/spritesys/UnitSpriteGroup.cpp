@@ -92,8 +92,7 @@ void UnitSpriteGroup::DeallocateStorage()
 {
 	for (int i = UNITACTION_MOVE; i < UNITACTION_MAX; i++)
 	{
-		delete m_sprites[i];
-		m_sprites[i] = nullptr;
+		m_sprites[i].reset();
 	}
 }
 
@@ -108,8 +107,7 @@ void UnitSpriteGroup::DeallocateFullLoadAnims()
 {
 	for (int i = UNITACTION_MOVE; i < UNITACTION_MAX; i++)
 	{
-		delete m_anims[i];
-		m_anims[i] = nullptr;
+		m_anims[i].reset();
 	}
 }
 
@@ -606,15 +604,13 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		moveSprite->Import(moveSprite->GetNumFrames(), facedImageNames, facedShadowNames);
 
-		delete m_sprites[UNITACTION_MOVE];
-		m_sprites[UNITACTION_MOVE] = moveSprite;
+		m_sprites[UNITACTION_MOVE].reset(moveSprite);
 		printf("]\n");
 
 		Anim *moveAnim = new Anim;
 
 		moveAnim->ParseFromTokens(theToken.get());
-		delete m_anims[UNITACTION_MOVE];
-		m_anims[UNITACTION_MOVE] = moveAnim;
+		m_anims[UNITACTION_MOVE].reset(moveAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_ATTACK, tmp)) return FALSE;
@@ -653,15 +649,13 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		attackSprite->Import(attackSprite->GetNumFrames(), facedImageNames, facedShadowNames);
 
-		delete m_sprites[UNITACTION_ATTACK];
-		m_sprites[UNITACTION_ATTACK] = attackSprite;
+		m_sprites[UNITACTION_ATTACK].reset(attackSprite);
 		printf("]\n");
 
 		Anim *attackAnim = new Anim;
 
 		attackAnim->ParseFromTokens(theToken.get());
-		delete m_anims[UNITACTION_ATTACK];
-		m_anims[UNITACTION_ATTACK] = attackAnim;
+		m_anims[UNITACTION_ATTACK].reset(attackAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_IDLE, tmp)) return FALSE;
@@ -698,15 +692,13 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		}
 
 		idleSprite->Import(idleSprite->GetNumFrames(), imageNames, shadowNames);
-		delete m_sprites[UNITACTION_IDLE];
-		m_sprites[UNITACTION_IDLE] = idleSprite;
+		m_sprites[UNITACTION_IDLE].reset(idleSprite);
 		printf("]\n");
 
 		Anim *idleAnim = new Anim;
 
 		idleAnim->ParseFromTokens(theToken.get());
-		delete m_anims[UNITACTION_IDLE];
-		m_anims[UNITACTION_IDLE] = idleAnim;
+		m_anims[UNITACTION_IDLE].reset(idleAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_VICTORY, tmp)) return FALSE;
@@ -737,15 +729,13 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		}
 
 		victorySprite->Import(victorySprite->GetNumFrames(), imageNames, shadowNames);
-		delete m_sprites[UNITACTION_VICTORY];
-		m_sprites[UNITACTION_VICTORY] = victorySprite;
+		m_sprites[UNITACTION_VICTORY].reset(victorySprite);
 		printf("]\n");
 
 		Anim *victoryAnim = new Anim;
 
 		victoryAnim->ParseFromTokens(theToken.get());
-		delete m_anims[UNITACTION_VICTORY];
-		m_anims[UNITACTION_VICTORY] = victoryAnim;
+		m_anims[UNITACTION_VICTORY].reset(victoryAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_WORK, tmp)) return FALSE;
@@ -777,14 +767,12 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		workSprite->Import(workSprite->GetNumFrames(), facedImageNames, facedShadowNames);
 
-		delete m_sprites[UNITACTION_WORK];
-		m_sprites[UNITACTION_WORK] = workSprite;
+		m_sprites[UNITACTION_WORK].reset(workSprite);
 		printf("]\n");
 
 		Anim *workAnim = new Anim;
 		workAnim->ParseFromTokens(theToken.get());
-		delete m_anims[UNITACTION_WORK];
-		m_anims[UNITACTION_WORK] = workAnim;
+		m_anims[UNITACTION_WORK].reset(workAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_FIREPOINTS, tmp)) return FALSE;
@@ -882,7 +870,7 @@ POINT UnitSpriteGroup::GetHotPoint(UNITACTION action, sint32 facing)
 		if (m_sprites[action]->GetType() == SPRITETYPE_FACED) {
 			if (facing >= k_NUM_FACINGS) facing = k_MAX_FACINGS - facing;
 			if (facing < 0 || facing >= k_NUM_FACINGS) return nullPoint;
-			return ((FacedSprite *)m_sprites[action])->GetHotPoint((uint16)facing);
+			return ((FacedSprite *)m_sprites[action].get())->GetHotPoint((uint16)facing);
 		} else {
 			return m_sprites[action]->GetHotPoint();
 		}
@@ -907,7 +895,7 @@ UnitSpriteGroup::SetHotPoint(UNITACTION action, sint32 facing,POINT pt)
 			if (facing >= k_NUM_FACINGS)
 				facing = k_MAX_FACINGS - facing;
 
-			((FacedSprite *)m_sprites[action])->SetHotPoint((uint16)facing,pt.x,pt.y);
+			((FacedSprite *)m_sprites[action].get())->SetHotPoint((uint16)facing,pt.x,pt.y);
 		}
 		else
 			m_sprites[action]->SetHotPoint(pt.x,pt.y);

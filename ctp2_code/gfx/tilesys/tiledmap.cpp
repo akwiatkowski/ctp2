@@ -3815,7 +3815,7 @@ int TiledMap::BuildWorldmapQuads()
 	// The whole map at native tile size. Rows interleave by half a grid height,
 	// so the map is mapHeight half-steps tall plus the bottom row's remainder.
 	int const texW = static_cast<int>(mapWidth)  * k_TILE_GRID_WIDTH + k_TILE_GRID_WIDTH;
-	int const texH = static_cast<int>(mapHeight) * (k_TILE_GRID_HEIGHT / 2) + k_TILE_GRID_HEIGHT;
+	int const texH = static_cast<int>(mapHeight) * (k_TILE_PIXEL_HEIGHT / 2) + k_TILE_GRID_HEIGHT;
 	if (!aui_SDL::EnsureWorldmapTexture(texW, texH))
 		return 0;   // driver refused the size — caller stays on the ADR-002 path
 
@@ -3945,6 +3945,11 @@ int TiledMap::BuildWorldmapQuads()
 			maputils_MapX2TileX(j, i, &tileX);
 			sint32 const drawX = tileX * k_TILE_GRID_WIDTH
 			                   + ((i & 1) ? (k_TILE_GRID_WIDTH / 2) : 0);
+			// Rows step by HALF THE DIAMOND (k_TILE_PIXEL_HEIGHT/2 = 24), not
+			// half the grid cell. The 72px grid height includes 24px of
+			// headroom above the diamond for elevation; stepping by 36 spaces
+			// tiles 1.5x too far apart and they touch only at the corners,
+			// leaving black diamonds between them.
 			// NOTE for the camera work: DrawTransitionTile places the diamond
 			// k_TILE_PIXEL_HEADROOM (24px) DOWN inside its slot, so a row's
 			// diamond sits at drawY + 24, not drawY. That offset is uniform, so
@@ -3952,7 +3957,7 @@ int TiledMap::BuildWorldmapQuads()
 			// leaves coverage identical at 162/900), but whatever maps camera
 			// position to this texture must account for it. Not folded in here
 			// because it would place row 0 at y = -24, off the texture.
-			sint32 const drawY = i * (k_TILE_GRID_HEIGHT / 2);
+			sint32 const drawY = i * (k_TILE_PIXEL_HEIGHT / 2);
 
 			aui_SDL::GpuQuad q;
 			q.sx = slot.atlasX; q.sy = slot.atlasY; q.sw = tileW; q.sh = tileH;
@@ -3986,7 +3991,7 @@ int TiledMap::BuildWorldmapQuads()
 		sint32 vx = ((m_mapViewRect.left % mapWidth) + mapWidth) % mapWidth;
 		aui_SDL::SetWorldmapOrigin(
 			vx * k_TILE_GRID_WIDTH + ((vy & 1) ? (k_TILE_GRID_WIDTH / 2) : 0),
-			vy * (k_TILE_GRID_HEIGHT / 2) + k_TILE_PIXEL_HEADROOM);
+			vy * (k_TILE_PIXEL_HEIGHT / 2) + k_TILE_PIXEL_HEADROOM);
 	}
 
 	m_worldmapRedrawn = static_cast<int>(dirty.size());

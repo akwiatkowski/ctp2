@@ -465,7 +465,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [x] `gfx/spritesys/Sprite.cpp` — done 2026-08-03: frames own their buffers via SpriteFrame, matching the two faced subclasses; whole hierarchy now shares one frame representation
 - [x] `gfx/spritesys/effectspritegroup.cpp` — done 2026-08-03 (b1169bf7): delete+assign on the base slots became reset()
 - [x] `gfx/spritesys/goodspritegroup.cpp` — done 2026-08-03 (b1169bf7): delete+assign on the base slots became reset()
-- [ ] `gfx/spritesys/SpriteGroupList.cpp` (8/6/0) — 🟡 moderate · _needs ownership review_
+- [x] `gfx/spritesys/SpriteGroupList.cpp` — done 2026-08-03: slots are unique_ptr; store-back guards self-assignment (loader reuses the slot it read)
 - [x] `gfx/spritesys/FacedSpriteWshadow.cpp` — done 2026-08-03 (f05e888d): frames own their buffers via SpriteFrame; fixed 8 scalar deletes on array-new'd memory
 - [x] `gfx/spritesys/FacedSprite.cpp` — done 2026-08-03 (b2d108fe): frames own their buffers via SpriteFrame; fixed 4 scalar deletes on array-new'd memory
 - [x] `gfx/spritesys/UnitActor.cpp` (6/0/0)

@@ -61,6 +61,8 @@ enum	SPRITELISTERR
 
 #include "gfx/spritesys/Action.h"			// GAME_ACTION
 #include "ctp/c3types.h"		// uint8, uint32
+#include <memory>
+
 #include "gfx/spritesys/SpriteGroup.h"	// GROUPTYPE, LOADTYPE, SpriteGroup
 
 //----------------------------------------------------------------------------
@@ -88,7 +90,9 @@ public:
 	void            RefreshBasicLoads(GROUPTYPE groupType);
 
 private:
-	SpriteGroup *   m_spriteList[k_MAX_SPRITES];
+	// The list owns every group it has loaded. Slots stay empty until first use
+	// and are emptied again when the last reference is released.
+	std::unique_ptr<SpriteGroup>   m_spriteList[k_MAX_SPRITES];
 };
 
 //----------------------------------------------------------------------------

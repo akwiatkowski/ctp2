@@ -581,12 +581,27 @@ void aui_SDL::TickCamera(float dtSec)
 	// --- Zoom: damped spring toward the home zoom (the "gravity"). ---
 	// Impulses (scroll) push m_zoomVel; the spring pulls zoom back to home and
 	// the damping bleeds off velocity so it settles rather than oscillating.
+	// P13: NO spring on the whole-map path. The spring is the legacy rubber-band
+	// peek -- zoom springs back to home because the ENGINE owned the real zoom
+	// and the camera was only a transient preview. Here the camera owns zoom
+	// outright, so a pull toward home would drag every zoom back to 100% and
+	// make any other zoom impossible to hold. Velocity still decays so a flick
+	// coasts to rest.
+	if (GpuWorldmapEnabled() && m_worldmapTexture)
+	{
+		float const k_ZOOM_DAMPING = 9.0f;
+		m_zoomVel   -= k_ZOOM_DAMPING * m_zoomVel * dtSec;
+		m_cameraZoom += m_zoomVel * dtSec;
+	}
+	else
+	{
 	float const k_ZOOM_SPRING  = 55.0f;   // pull strength toward home (1/s^2)
 	float const k_ZOOM_DAMPING = 9.0f;    // velocity damping (1/s)
 	float const accel = k_ZOOM_SPRING * (m_homeZoom - m_cameraZoom)
 	                  - k_ZOOM_DAMPING * m_zoomVel;
 	m_zoomVel   += accel * dtSec;
 	m_cameraZoom += m_zoomVel * dtSec;
+	}
 
 	// Clamp zoom to a sane peek range. The lower bound is not a taste choice:
 	// below MinSafeZoom the source window is wider than screen+margin, so even
@@ -621,9 +636,17 @@ void aui_SDL::TickCamera(float dtSec)
 
 bool aui_SDL::CameraMoving()
 {
-	float const zoomErr = m_cameraZoom - m_homeZoom;
 	float const panErrX = m_panTargetX - m_cameraOffX;
 	float const panErrY = m_panTargetY - m_cameraOffY;
+	// P13: on the whole-map path a zoom away from home is a RESTING state, not
+	// motion -- the camera owns zoom, so 1.5x held steady is where the user put
+	// it. Counting it as movement would keep the frame loop presenting forever
+	// and stop the settle (and its detent) from ever running.
+	if (GpuWorldmapEnabled() && m_worldmapTexture)
+		return (m_zoomVel > 0.01f) || (m_zoomVel < -0.01f)
+		    || (panErrX  > 0.5f)   || (panErrX  < -0.5f)
+		    || (panErrY  > 0.5f)   || (panErrY  < -0.5f);
+	float const zoomErr = m_cameraZoom - m_homeZoom;
 	return (zoomErr >  0.002f) || (zoomErr < -0.002f)
 	    || (m_zoomVel > 0.01f) || (m_zoomVel < -0.01f)
 	    || (panErrX  > 0.5f)   || (panErrX  < -0.5f)

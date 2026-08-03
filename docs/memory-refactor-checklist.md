@@ -85,7 +85,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/messageeyepoint.cpp` (20/10/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/interface/ancientwindows.cpp` (13/15/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/scenarioeditor.cpp` (19/9/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/messagewindow.cpp` (17/10/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/messagewindow.cpp` — done 2026-08-03: 12 controls are unique_ptr, including 4 border bars that were leaking (allocated, AddControl'd, never freed)
 - [ ] `ui/interface/EditQueue.cpp` (18/8/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/interface/spnewgamescreen.cpp` (21/2/0) — 🔴 hard · _factory returns crossing callers_
 - [ ] `ui/interface/sci_advancescreen.cpp` (17/4/0) — ⚪ leave · _mostly g_/s_ singletons_

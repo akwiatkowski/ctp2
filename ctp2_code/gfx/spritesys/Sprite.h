@@ -38,6 +38,7 @@
 // Library dependencies
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include <vector>
 
 //----------------------------------------------------------------------------
@@ -100,6 +101,50 @@ typedef  void (Sprite::*_SPRITE_DRAWLOW2)(Pixel16 *frame,
 										  Pixel16 outlineColor,
 										  uint16 flags,
 										  BOOL reversed);
+
+//----------------------------------------------------------------------------
+// One encoded sprite frame: the pixel buffer together with the byte size that
+// describes it.
+//
+// This replaces four parallel std::vectors per sprite (data + size, full-size +
+// mini) whose indices had to be kept in step by hand. Two problems went with
+// that shape, and owning the buffer here removes both:
+//
+//  * Release did not match allocation. Every producer allocates these buffers
+//    with ARRAY new -- spriteutils_RGB32ToEncoded uses `new Pixel16[]`,
+//    SpriteFile::DeCompressData_Default and _LZW1 use `new uint8[]` -- and the
+//    base Sprite frees them with `delete []`, but both faced subclasses used a
+//    scalar `delete`. That is undefined behaviour on every faced-sprite
+//    destruction. std::unique_ptr<Pixel16[]> makes the array form structural.
+//  * A size could drift away from the data it described, because nothing tied
+//    the two vectors together.
+//
+// Note: producers that allocate `new uint8[bytes]` and cast to Pixel16* are
+// left as they are. Both are arrays of trivially destructible PODs so the array
+// delete form is right either way, and `bytes` is not guaranteed even, so
+// re-typing the allocation is not a safe mechanical change.
+//----------------------------------------------------------------------------
+class SpriteFrame
+{
+public:
+	SpriteFrame() = default;
+
+	// Takes ownership of an array-new'd buffer. (nullptr, 0) means "no frame",
+	// which the sprite-file reader stores for absent facings.
+	void Adopt(Pixel16 * pixels, size_t size)
+	{
+		m_pixels.reset(pixels);
+		m_size = size;
+	}
+
+	// Non-owning view for the drawing and hit-test paths.
+	Pixel16 * Pixels() const { return m_pixels.get(); }
+	size_t    Size()   const { return m_size; }
+
+private:
+	std::unique_ptr<Pixel16[]>	m_pixels;
+	size_t						m_size = 0;
+};
 
 class Sprite
 {

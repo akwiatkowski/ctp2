@@ -737,6 +737,24 @@ static void ui_StepPinchZoom(int steps)
 		return;
 	}
 
+	// P13 step 2.4 (ADR-003): on the whole-map path the camera owns zoom, so a
+	// pinch drives the camera continuously instead of stepping the engine's
+	// 6-level table. The engine stays at its native scale (it already sits at
+	// k_ZOOM_LARGEST by default -- measured), which is what makes the whole-map
+	// texture a fixed 1:1 render the camera can scale freely.
+	if (aui_SDL::GpuWorldmapEnabled()) {
+		// One engine "step" of intent becomes a proportional camera zoom, using
+		// the same ~1.08x per step the table's top end used, so the gesture
+		// keeps its familiar sensitivity.
+		float const k_STEP = 1.08f;
+		float z = aui_SDL::CameraZoom();
+		for (int n = steps; n > 0; --n) z *= k_STEP;
+		for (int n = steps; n < 0; ++n) z /= k_STEP;
+		aui_SDL::SetCamera(aui_SDL::CameraOffX(), aui_SDL::CameraOffY(), z);
+		log->debug("  camera zoom -> {} (engine not stepped)", aui_SDL::CameraZoom());
+		return;
+	}
+
 	auto stepZoom = [&log](bool zoomIn) {
 		double const oldScale = g_tiledMap->GetZoomScale(g_tiledMap->GetZoomLevel());
 		bool const changed = zoomIn ? g_tiledMap->ZoomIn() : g_tiledMap->ZoomOut();

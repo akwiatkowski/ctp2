@@ -39,14 +39,29 @@ candidates, most of them false. Three separate reasons:
    name and cannot tell that from a direct member, so entries whose owner is a
    nested struct need checking by hand.
 
+4. **Destructors that free children generically.** `c3_ListItem::~c3_ListItem`
+   walks `m_childList` and deletes every entry. Nothing names the members, so no
+   name-based scan can see it. This one is easy to get wrong twice over:
+   `c3_ListItem` and `ctp2_ListItem` are *different* classes that both derive
+   from `aui_Item`, and only `ctp2_ListItem` frees children through the obvious
+   `DeleteChildren()`. Checking the wrong one of the pair gives the wrong
+   answer.
+
 ## Confidence
 
-Two entries are independently corroborated:
+One entry is independently corroborated:
 
 - `spriteeditor.cpp` `m_actionObj` — the file carries
   `// delete m_actionObj : TODO (crashes)`. Not released, and known not to be.
-- `ns_item.cpp` `m_nameItem` and its six siblings — allocated, `AddChild`'d,
-  and the class has no destructor at all.
+
+**One entry has since been disproved, and it was the largest.** `ns_item.cpp`'s
+seven controls looked like the strongest case — allocated, `AddChild`'d, and
+`ns_HPlayerItem` declares no destructor. But it derives from `c3_ListItem`,
+whose destructor walks `m_childList` and deletes every child. They are freed.
+That is caveat 4 above, discovered by trying to fix this entry. The row is
+struck through below rather than deleted, because it is the clearest warning
+this table carries: **every row needs the ownership chain walked by hand, and a
+missing destructor is not evidence of anything.**
 
 One entry from the same audit has already been fixed: `messagewindow.cpp`'s four
 border bars (`m_leftBar`, `m_topBar`, `m_rightBar`, `m_bottomBar`) were
@@ -67,7 +82,7 @@ added to a parent does not give the parent ownership of it.**
 
 | Count | File | Members |
 |---:|---|---|
-| 7 | `ui/netshell/ns_item.cpp` | `m_civpointsItem`, `m_launchedItem`, `m_nameItem`, `m_pingItem`, `m_pwpointsItem`, `m_tribeButton`, `m_tribeItem` |
+| ~~7~~ | ~~`ui/netshell/ns_item.cpp`~~ | **NOT A LEAK** — freed by `c3_ListItem::~c3_ListItem`, which deletes every child in `m_childList` |
 | 5 | `ui/interface/messagewindow.cpp` | `m_messageEyePointDropdown`, `m_messageEyePointListbox`, `m_messageEyePointStandard`, `m_messageResponseDropdown`, `m_messageResponseStandard` — nested in `m_messageEyePoint` / `m_messageResponse`, verify by hand |
 | 3 | `ui/interface/messagemodal.cpp` | `m_messageEyePointDropdown`, `m_messageEyePointListbox`, `m_messageEyePointStandard` — same nesting caveat |
 | 3 | `ui/aui_sdl/aui_sdlui.cpp` | `m_fogSurface`, `m_uiSurface`, `m_worldSurface` |
@@ -83,7 +98,8 @@ added to a parent does not give the parent ownership of it.**
 | 1 | `ui/interface/messageadvice.cpp` | `m_dismissButton` |
 | 1 | `ui/interface/spriteeditor.cpp` | `m_actionObj` — known, releasing it crashes |
 
-The `net/general/*` entries share a shape (`m_unitData`, `m_routeData`,
+Of the remaining rows, none has been verified either way. The `net/general/*`
+entries share a shape (`m_unitData`, `m_routeData`,
 `m_offerData`, `m_ucell`) and are probably one decision rather than four.
 
 ## Reproducing

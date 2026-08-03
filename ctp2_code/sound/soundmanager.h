@@ -124,8 +124,8 @@ public:
 #endif
 
 private:
-	PointerList<CivSound>	*m_sfxSounds;
-	PointerList<CivSound>	*m_voiceSounds;
+	PointerList<CivSound> m_sfxSounds;   // held by value
+	PointerList<CivSound> m_voiceSounds;   // held by value
 
 	PointerList<CivSound>::Walker *m_soundWalker;
 

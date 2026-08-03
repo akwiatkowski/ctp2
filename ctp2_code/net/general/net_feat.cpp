@@ -115,8 +115,8 @@ void NetFeatTracker::Packetize(uint8 * buf, uint16 & size)
 	}
 
 	FeatTracker *ft = feattracker_Get();
-	PUSHLONG(ft->m_activeList->GetCount());
-	PointerList<Feat>::Walker walk(ft->m_activeList);
+	PUSHLONG(ft->m_activeList.GetCount());
+	PointerList<Feat>::Walker walk(&ft->m_activeList);
 	while (walk.IsValid())
 	{
 		Feat * feat = walk.GetObj();
@@ -184,7 +184,7 @@ void NetFeatTracker::Unpacketize(uint16 id, uint8 * buf, uint16 size)
 		PULLLONG(player);
 		PULLLONG(turn);
 
-		feattracker_Get()->m_activeList->AddTail(new Feat(featIndex, player, turn));
+		feattracker_Get()->m_activeList.AddTail(new Feat(featIndex, player, turn));
 	}
 
 	Assert(pos == size);

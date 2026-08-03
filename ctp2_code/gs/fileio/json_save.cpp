@@ -1551,7 +1551,7 @@ void from_json(nlohmann::json const &j, Feat &f)
 void to_json(nlohmann::json &j, FeatTracker const &ft)
 {
     nlohmann::json active = nlohmann::json::array();
-    PointerList<Feat>::Walker walk(ft.m_activeList);
+    PointerList<Feat>::Walker walk(const_cast<PointerList<Feat> *>(&ft.m_activeList));
     while (walk.IsValid())
     {
         active.push_back(*walk.GetObj());
@@ -1578,12 +1578,12 @@ void to_json(nlohmann::json &j, FeatTracker const &ft)
 void from_json(nlohmann::json const &j, FeatTracker &ft)
 {
     // Rebuild m_activeList from the JSON array.
-    ft.m_activeList->DeleteAll();
+    ft.m_activeList.DeleteAll();
     for (auto const &feat_json : j.at("active"))
     {
         Feat *feat = new Feat(0, 0);  // dummy ctor args; overwritten by JSON
         feat_json.get_to(*feat);
-        ft.m_activeList->AddTail(feat);
+        ft.m_activeList.AddTail(feat);
     }
 
     // Achieved / building_feat: sized by current DB.  If the JSON

@@ -191,7 +191,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/gameobj/armyevent.cpp` (9/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/Civilisation.cpp` (8/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/Wormhole.cpp` (5/4/0) — ⚪ leave · _pool/arena allocator_
-- [ ] `gs/gameobj/FeatTracker.cpp` (6/3/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/gameobj/FeatTracker.cpp` — done 2026-08-03: m_activeList held by value
 - [ ] `gs/gameobj/GameObj.cpp` (0/9/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/TradeBids.cpp` (2/5/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/Happy.cpp` (5/1/0) — 🟡 moderate · _needs ownership review_
@@ -697,7 +697,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## sound  (1 files, 15 matches)
 
-- [ ] `sound/soundmanager.cpp` (6/9/0) — ⚪ leave · _pool/arena allocator_
+- [x] `sound/soundmanager.cpp` — done 2026-08-03: sfx and voice lists held by value (partial: m_soundWalker remains)
 
 ## mapgen  (5 files, 15 matches)
 

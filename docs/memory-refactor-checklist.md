@@ -462,12 +462,12 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gfx/spritesys/spritefile.cpp` (45/2/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `gfx/spritesys/UnitSpriteGroup.cpp` (15/13/0) — 🔴 hard · _member pointer array_
 - [ ] `gfx/spritesys/DirectorActionHandlers.cpp` (16/6/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gfx/spritesys/Sprite.cpp` (3/10/4) — 🔴 hard · _member pointer array_
+- [x] `gfx/spritesys/Sprite.cpp` — done 2026-08-03: frames own their buffers via SpriteFrame, matching the two faced subclasses; whole hierarchy now shares one frame representation
 - [ ] `gfx/spritesys/effectspritegroup.cpp` (9/7/0) — 🔴 hard · _member pointer array_
 - [ ] `gfx/spritesys/goodspritegroup.cpp` (8/8/0) — 🔴 hard · _member pointer array_
 - [ ] `gfx/spritesys/SpriteGroupList.cpp` (8/6/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gfx/spritesys/FacedSpriteWshadow.cpp` (0/8/3) — 🔴 hard · _member pointer array_
-- [ ] `gfx/spritesys/FacedSprite.cpp` (0/8/0) — 🔴 hard · _member pointer array_
+- [x] `gfx/spritesys/FacedSpriteWshadow.cpp` — done 2026-08-03 (f05e888d): frames own their buffers via SpriteFrame; fixed 8 scalar deletes on array-new'd memory
+- [x] `gfx/spritesys/FacedSprite.cpp` — done 2026-08-03 (b2d108fe): frames own their buffers via SpriteFrame; fixed 4 scalar deletes on array-new'd memory
 - [x] `gfx/spritesys/UnitActor.cpp` (6/0/0)
 - [x] `gfx/spritesys/SpriteStateDB.cpp` (1/4/0)
 - [ ] `gfx/spritesys/spriteutils.cpp` (2/0/2) — 🔴 hard · _mixed new[]/malloc buffers_

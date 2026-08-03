@@ -78,24 +78,8 @@ Sprite::Sprite()
 }
 
 
-Sprite::~Sprite()
-{
-	for (size_t i = 0; i < m_numFrames; ++i)
-	{
-		if (i < m_frames.size() && m_frames[i] != nullptr) {
-			delete [] (m_frames[i]);
-			m_frames[i] = nullptr;
-		}
-		if (i < m_miniframes.size() && m_miniframes[i] != nullptr) {
-			delete [] (m_miniframes[i]);
-			m_miniframes[i] = nullptr;
-		}
-	}
-	m_frames.clear();
-	m_framesSizes.clear();
-	m_miniframes.clear();
-	m_miniframesSizes.clear();
-}
+// No frame teardown here: each SpriteFrame releases its own buffer.
+Sprite::~Sprite() = default;
 
 
 void Sprite::Load(char const * filename)
@@ -180,11 +164,10 @@ void Sprite::Import(size_t nframes, char **imageFiles, char **shadowFiles)
 {
 	m_numFrames = static_cast<uint16>(nframes);
 
-	m_frames.assign(m_numFrames, nullptr);
-	m_framesSizes.resize(m_numFrames);
-
-	m_miniframes.assign(m_numFrames, nullptr);
-	m_miniframesSizes.resize(m_numFrames);
+	m_frames.clear();
+	m_miniframes.clear();
+	m_frames.resize(m_numFrames);
+	m_miniframes.resize(m_numFrames);
 
 	for (uint16 i=0; i<m_numFrames; i++)
 	{
@@ -328,30 +311,30 @@ void Sprite::Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale, sint1
 	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 5) {
 			if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-				(this->*_DrawFlashLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+				(this->*_DrawFlashLow)(m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 			} else {
-				(this->*_DrawLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+				(this->*_DrawLow)(m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 			}
 		} else {
 			if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-				(this->*_DrawFlashLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+				(this->*_DrawFlashLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 			} else {
-				(this->*_DrawLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+				(this->*_DrawLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 			}
 		}
 	} else {
 		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 5) {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+					(this->*_DrawFlashLow)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 				} else {
-					(this->*_DrawLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+					(this->*_DrawLow)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 				}
 			} else {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+					(this->*_DrawFlashLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 				} else {
-					(this->*_DrawLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+					(this->*_DrawLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 				}
 			}
 		} else {
@@ -361,18 +344,18 @@ void Sprite::Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale, sint1
 
 			if (facing < 5) {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, FALSE);
 				} else {
-					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, FALSE);
 				}
 			} else {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, TRUE);
 				} else {
-					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, TRUE);
 				}
 			}
@@ -424,16 +407,16 @@ BOOL Sprite::HitTest(POINT mousePt, sint32 drawX, sint32 drawY, sint32 facing, d
 
 	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 5) {
-			return HitTestLow(mousePt, m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+			return HitTestLow(mousePt, m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 		} else {
-			return HitTestLowReversed(mousePt, m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+			return HitTestLowReversed(mousePt, m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 		}
 	} else {
 		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 5) {
-				return HitTestLow(mousePt, m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+				return HitTestLow(mousePt, m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 			} else {
-				return HitTestLowReversed(mousePt, m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+				return HitTestLowReversed(mousePt, m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 			}
 		} else {
 
@@ -441,10 +424,10 @@ BOOL Sprite::HitTest(POINT mousePt, sint32 drawX, sint32 drawY, sint32 facing, d
 			sint32 destHeight = (sint32)(m_height * scale);
 
 			if (facing < 5) {
-				return HitTestScaledLow(mousePt, (Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+				return HitTestScaledLow(mousePt, (Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 									transparency, outlineColor, flags, FALSE);
 			} else {
-				return HitTestScaledLow(mousePt, (Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+				return HitTestScaledLow(mousePt, (Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 									transparency, outlineColor, flags, TRUE);
 			}
 		}
@@ -487,30 +470,30 @@ void Sprite::DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint32 fa
 	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 5) {
 			if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-				(this->*_DrawFlashLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+				(this->*_DrawFlashLow)(m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 			} else {
-				(this->*_DrawLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+				(this->*_DrawLow)(m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 			}
 		} else {
 			if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-				(this->*_DrawFlashLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+				(this->*_DrawFlashLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 			} else {
-				(this->*_DrawLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+				(this->*_DrawLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 			}
 		}
 	} else {
 		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 5) {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+					(this->*_DrawFlashLow)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 				} else {
-					(this->*_DrawLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+					(this->*_DrawLow)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 				}
 			} else {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+					(this->*_DrawFlashLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 				} else {
-					(this->*_DrawLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+					(this->*_DrawLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 				}
 			}
 		} else {
@@ -520,18 +503,18 @@ void Sprite::DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint32 fa
 
 			if (facing < 5) {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, FALSE);
 				} else {
-					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, FALSE);
 				}
 			} else {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, TRUE);
 				} else {
-					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, TRUE);
 				}
 			}
@@ -566,28 +549,28 @@ void Sprite::DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing, double s
 	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 4 && facing > 0)
 		{
-			(this->*_DrawLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+			(this->*_DrawLow)(m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 		}
 		else if (facing == 4 || facing == 0)
 		{
-			(this->*_DrawLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+			(this->*_DrawLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 		}
 		else
 		{
-			(this->*_DrawLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+			(this->*_DrawLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 		}
 	} else {
 		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 4 && facing > 0)
 			{
-				(this->*_DrawLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+				(this->*_DrawLow)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 			}
 			else if (facing == 4 || facing == 0)
 			{
-				(this->*_DrawLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+				(this->*_DrawLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 			} else
 			{
-				(this->*_DrawLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+				(this->*_DrawLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 			}
 		} else {
 
@@ -596,16 +579,16 @@ void Sprite::DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing, double s
 
 			if (facing < 4 && facing > 0)
 			{
-				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 					transparency, outlineColor, flags, FALSE);
 			}
 			else if (facing == 4 || facing == 0)
 			{
-				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 									transparency, outlineColor, flags, TRUE);
 			} else
 			{
-				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 									transparency, outlineColor, flags, TRUE);
 			}
 		}
@@ -621,7 +604,7 @@ Pixel16 *Sprite::GetFrameData(uint16 frameNum)
 	Assert(!m_frames.empty());
 	if (m_frames.empty()) return nullptr;
 
-	return m_frames[frameNum];
+	return m_frames[frameNum].Pixels();
 }
 
 size_t Sprite::GetFrameDataSize(uint16 frameNum)
@@ -629,16 +612,7 @@ size_t Sprite::GetFrameDataSize(uint16 frameNum)
 	Assert(frameNum < m_numFrames);
 	if (frameNum >= m_numFrames) return 0;
 
-	Assert(!m_framesSizes.empty());
-	if (m_framesSizes.empty()) return 0;
-
-#ifdef _WINDOWS
-	Assert(m_framesSizes[frameNum] == _msize(GetFrameData(frameNum)));
-
-	return _msize(GetFrameData(frameNum));
-#else
-	return m_framesSizes[frameNum];
-#endif
+	return m_frames[frameNum].Size();
 }
 
 Pixel16 *Sprite::GetMiniFrameData(uint16 frameNum)
@@ -649,7 +623,7 @@ Pixel16 *Sprite::GetMiniFrameData(uint16 frameNum)
 	Assert(!m_miniframes.empty());
 	if (m_miniframes.empty()) return nullptr;
 
-	return m_miniframes[frameNum];
+	return m_miniframes[frameNum].Pixels();
 }
 
 size_t Sprite::GetMiniFrameDataSize(uint16 frameNum)
@@ -657,16 +631,7 @@ size_t Sprite::GetMiniFrameDataSize(uint16 frameNum)
 	Assert(frameNum < m_numFrames);
 	if (frameNum >= m_numFrames) return NULL;
 
-	Assert(!m_miniframesSizes.empty());
-	if (m_miniframesSizes.empty()) return 0;
-
-#ifdef _WINDOWS
-	Assert(m_miniframesSizes[frameNum] == _msize(GetMiniFrameData(frameNum)));
-
-	return _msize(GetMiniFrameData(frameNum));
-#else
-	return m_miniframesSizes[frameNum];
-#endif
+	return m_miniframes[frameNum].Size();
 }
 
 void Sprite::SetFrameData(uint16 frameNum, Pixel16 *data, size_t size)
@@ -678,14 +643,7 @@ void Sprite::SetFrameData(uint16 frameNum, Pixel16 *data, size_t size)
 	Assert(!m_frames.empty());
 	if (m_frames.empty()) return;
 
-	m_frames[frameNum] = data;
-
-	Assert(!m_framesSizes.empty());
-	if (m_framesSizes.empty()) return;
-#ifdef _WINDOWS
-//	Assert(size == _msize(data));
-#endif
-	m_framesSizes[frameNum] = size;
+	m_frames[frameNum].Adopt(data, size);
 }
 
 
@@ -700,14 +658,7 @@ void Sprite::SetMiniFrameData(uint16 frameNum, Pixel16 *data, size_t size)
 	Assert(!m_miniframes.empty());
 	if (m_miniframes.empty()) return;
 
-	m_miniframes[frameNum] = data;
-
-	Assert(!m_miniframesSizes.empty());
-	if (m_miniframesSizes.empty()) return;
-#ifdef _WINDOWS
-//	Assert(size == _msize(data));
-#endif
-	m_miniframesSizes[frameNum] = size;
+	m_miniframes[frameNum].Adopt(data, size);
 }
 
 
@@ -757,33 +708,17 @@ sint32 Sprite::ParseFromTokens(Token *theToken)
 
 void Sprite::AllocateFrameArrays(size_t count)
 {
-    // Two-phase sprite loads (Basic then Full) reuse the same Sprite object.
-    // Free any previously allocated arrays and per-frame buffers before we
-    // reallocate; the old Asserts here were no-ops in release builds and
-    // silently leaked.  See lessons/ctp2.md (Anim buffer-reuse pattern).
-    for (size_t i = 0; i < m_numFrames; ++i)
-    {
-        if (i < m_frames.size() && m_frames[i])
-        {
-            delete [] m_frames[i];
-            m_frames[i] = nullptr;
-        }
-        if (i < m_miniframes.size() && m_miniframes[i])
-        {
-            delete [] m_miniframes[i];
-            m_miniframes[i] = nullptr;
-        }
-    }
-    m_frames.clear();
-    m_framesSizes.clear();
-    m_miniframes.clear();
-    m_miniframesSizes.clear();
+    // Two-phase sprite loads (Basic then Full) reuse the same Sprite object, so
+    // this has to discard whatever the previous load left behind. Assigning
+    // fresh SpriteFrames releases the old buffers; the old Asserts that guarded
+    // this were no-ops in release builds and silently leaked.
+    // See lessons/ctp2.md (Anim buffer-reuse pattern).
+    m_numFrames = static_cast<uint16>(count);
 
-    m_numFrames     = static_cast<uint16>(count);
-	m_frames.assign(m_numFrames, nullptr);
-	m_framesSizes.assign(m_numFrames, 0);
-	m_miniframes.assign(m_numFrames, nullptr);
-	m_miniframesSizes.assign(m_numFrames, 0);
+    m_frames.clear();
+    m_miniframes.clear();
+    m_frames.resize(m_numFrames);
+    m_miniframes.resize(m_numFrames);
 }
 
 void Sprite::Export(FILE *file)

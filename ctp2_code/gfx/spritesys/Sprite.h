@@ -403,10 +403,9 @@ protected:
 	POINT			m_hotPoint;
 
 	uint16			m_numFrames;
-	std::vector<Pixel16*> m_frames;
-	std::vector<size_t> m_framesSizes;
-	std::vector<Pixel16*> m_miniframes;
-	std::vector<size_t> m_miniframesSizes;
+	// Each SpriteFrame carries its own size and releases its own buffer.
+	std::vector<SpriteFrame> m_frames;
+	std::vector<SpriteFrame> m_miniframes;
 	uint16			m_firstFrame;
 	uint16			m_currentFrame;
 

@@ -328,7 +328,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 - [ ] `ui/aui_ctp2/c3windows.cpp` (46/41/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/aui_ctp2/c3_utilitydialogbox.cpp` (37/35/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/aui_ctp2/battleorderbox.cpp` (17/12/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/aui_ctp2/battleorderbox.cpp` — done 2026-08-03: 12 controls are unique_ptr; RemoveControl() macro calls became reset() (the macro deletes despite its name)
 - [ ] `ui/aui_ctp2/c3_popupwindow.cpp` (12/5/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/aui_ctp2/chart.cpp` (10/7/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/aui_ctp2/c3_ranger.cpp` (14/1/0) — 🟡 moderate · _single-owner member_

@@ -173,7 +173,7 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitImageButton");
-	m_unitImage = new c3_ColorIconButton(&errcode, aui_UniqueId(), controlBlock);
+	m_unitImage.reset(new c3_ColorIconButton(&errcode, aui_UniqueId(), controlBlock));
 
 	Assert( AUI_NEWOK(m_unitImage, errcode) );
 	if ( !AUI_NEWOK(m_unitImage, errcode) ) return errcode;
@@ -188,14 +188,14 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
 
 
 	snprintf(fortifyBlock, sizeof(fortifyBlock), "%s.%s", controlBlock, "UnitF" );
-	m_unitFortify = new c3_Static( &errcode, aui_UniqueId(), fortifyBlock );
+	m_unitFortify.reset(new c3_Static( &errcode, aui_UniqueId(), fortifyBlock ));
 	Assert( AUI_NEWOK( m_unitFortify, errcode) );
 	if ( !AUI_NEWOK( m_unitFortify, errcode ) ) return errcode;
 
 	m_unitFortify->SetBlindness( TRUE );
 
 	snprintf(fortifyBlock, sizeof(fortifyBlock), "%s.%s", controlBlock, "UnitV" );
-	m_unitVeteran = new c3_Static( &errcode, aui_UniqueId(), fortifyBlock );
+	m_unitVeteran.reset(new c3_Static( &errcode, aui_UniqueId(), fortifyBlock ));
 	Assert( AUI_NEWOK( m_unitVeteran, errcode) );
 	if ( !AUI_NEWOK( m_unitVeteran, errcode ) ) return errcode;
 
@@ -221,32 +221,32 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitARDText");
-	m_unitARDText = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	m_unitARDText.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
 	Assert( AUI_NEWOK(m_unitARDText, errcode) );
 	if ( !AUI_NEWOK(m_unitARDText, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitARD");
-	m_unitARD = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	m_unitARD.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
 	Assert( AUI_NEWOK(m_unitARD, errcode) );
 	if ( !AUI_NEWOK(m_unitARD, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitMText");
-	m_unitMText = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	m_unitMText.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
 	Assert( AUI_NEWOK(m_unitMText, errcode) );
 	if ( !AUI_NEWOK(m_unitMText, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitMovement");
-	m_unitMovement = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	m_unitMovement.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
 	Assert( AUI_NEWOK(m_unitMovement, errcode) );
 	if ( !AUI_NEWOK(m_unitMovement, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "ActiveDefenseIcon");
-	m_activeDefenseIcon = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	m_activeDefenseIcon.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
 	Assert( AUI_NEWOK(m_activeDefenseIcon, errcode) );
 	if ( !AUI_NEWOK(m_activeDefenseIcon, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "VeteranIcon");
-	m_veteranIcon = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	m_veteranIcon.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
 	Assert( AUI_NEWOK(m_veteranIcon, errcode) );
 	if ( !AUI_NEWOK(m_veteranIcon, errcode) ) return errcode;
 
@@ -256,33 +256,33 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
 	if ( !AUI_NEWOK(m_unitHealthBar, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "FuelLabel" );
-	m_fuelLabel = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	m_fuelLabel.reset(new c3_Static( &errcode, aui_UniqueId(), controlBlock ));
 	Assert( AUI_NEWOK(m_fuelLabel, errcode) );
 	if ( !AUI_NEWOK(m_fuelLabel, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "FuelBox" );
-	m_fuelBox = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	m_fuelBox.reset(new c3_Static( &errcode, aui_UniqueId(), controlBlock ));
 	Assert( AUI_NEWOK(m_fuelBox, errcode) );
 	if ( !AUI_NEWOK(m_fuelBox, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitName" );
-	m_unitName = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	m_unitName.reset(new c3_Static( &errcode, aui_UniqueId(), controlBlock ));
 	Assert( AUI_NEWOK(m_unitName, errcode) );
 	if ( !AUI_NEWOK(m_unitName, errcode) ) return errcode;
 
-	errcode = AddSubControl(m_unitImage);
+	errcode = AddSubControl(m_unitImage.get());
 	Assert(errcode == AUI_ERRCODE_OK);
-	errcode = AddSubControl(m_unitARDText);
+	errcode = AddSubControl(m_unitARDText.get());
 	Assert(errcode == AUI_ERRCODE_OK);
-	errcode = AddSubControl(m_unitMText);
+	errcode = AddSubControl(m_unitMText.get());
 	Assert(errcode == AUI_ERRCODE_OK);
-	errcode = AddSubControl(m_unitMovement);
+	errcode = AddSubControl(m_unitMovement.get());
 	Assert(errcode == AUI_ERRCODE_OK);
-	errcode = AddSubControl(m_activeDefenseIcon);
+	errcode = AddSubControl(m_activeDefenseIcon.get());
 	Assert(errcode == AUI_ERRCODE_OK);
-	errcode = AddSubControl(m_veteranIcon);
+	errcode = AddSubControl(m_veteranIcon.get());
 	Assert(errcode == AUI_ERRCODE_OK);
-	errcode = AddSubControl(m_unitName);
+	errcode = AddSubControl(m_unitName.get());
 	Assert(errcode == AUI_ERRCODE_OK);
 
 	return AUI_ERRCODE_OK;
@@ -309,37 +309,19 @@ BattleOrderBox::~BattleOrderBox()
 	Assert(action);
 	delete action;
 
-	delete m_unitImage;
-	m_unitImage = nullptr;
 
-	delete m_unitFortify;
-	m_unitFortify = nullptr;
 
-	delete m_unitVeteran;
-	m_unitVeteran = nullptr;
 
-	delete m_unitARDText;
-	m_unitARDText = nullptr;
 
-	delete m_unitARD;
-	m_unitARD = nullptr;
 
-	delete m_unitMovement;
-	m_unitMovement = nullptr;
 
-	delete m_unitMText;
-	m_unitMText = nullptr;
 
-	delete m_activeDefenseIcon;
-	m_activeDefenseIcon = nullptr;
 
-	delete m_veteranIcon;
-	m_veteranIcon = nullptr;
 
 	RemoveControl( m_unitHealthBar );
-	RemoveControl( m_fuelLabel );
-	RemoveControl( m_fuelBox );
-	RemoveControl( m_unitName );
+	m_fuelLabel.reset();
+	m_fuelBox.reset();
+	m_unitName.reset();
 
 	for ( i = 0;i < k_CARGO_CAPACITY;i++ ) {
 		RemoveControl( m_cargo[i] );
@@ -416,7 +398,7 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 	if ( theUnit.IsVeteran() ) {
 		m_unitVeteran->SetText( stringdb_Get()->GetNameStr("str_ldl_V") );
 		m_unitVeteran->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
-		m_unitImage->AddSubControl( m_unitVeteran );
+		m_unitImage->AddSubControl(m_unitVeteran.get());
 	}
 	else {
 		m_unitImage->RemoveSubControl( m_unitVeteran->Id() );
@@ -425,17 +407,17 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 	if ( theUnit.IsEntrenched() ) {
 		m_unitFortify->SetText( stringdb_Get()->GetNameStr("str_ldl_F") );
 		m_unitFortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
-		m_unitImage->AddSubControl( m_unitFortify );
+		m_unitImage->AddSubControl(m_unitFortify.get());
 	}
 	else if ( theUnit.IsAsleep() ) {
 		m_unitFortify->SetText( stringdb_Get()->GetNameStr("str_tbl_ldl_S") );
 		m_unitFortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
-		m_unitImage->AddSubControl( m_unitFortify );
+		m_unitImage->AddSubControl(m_unitFortify.get());
 	}
 	else if ( theUnit.IsEntrenching() ) {
 		m_unitFortify->SetText( stringdb_Get()->GetNameStr("str_ldl_F") );
 		m_unitFortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_GRAY) );
-		m_unitImage->AddSubControl( m_unitFortify );
+		m_unitImage->AddSubControl(m_unitFortify.get());
 	}
 	else {
 		m_unitImage->RemoveSubControl( m_unitFortify->Id() );
@@ -457,8 +439,8 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 		double fuel = theUnit.GetFuel() / 100.0;
 		snprintf(s, sizeof(s), "%.1f", fuel );
 		m_fuelBox->SetText( s );
-		AddSubControl( m_fuelLabel );
-		AddSubControl( m_fuelBox );
+		AddSubControl(m_fuelLabel.get());
+		AddSubControl(m_fuelBox.get());
 	}
 	else {
 		RemoveSubControl( m_fuelLabel->Id() );

@@ -10,14 +10,13 @@
 
 EventTracker::EventTracker()
 {
-	m_dataList=new PointerList<EventData>;
 }
 
 
 EventTracker::~EventTracker()
 {
-	m_dataList->DeleteAll();
-	delete m_dataList;
+	// The list frees its nodes; DeleteAll frees the events they point to.
+	m_dataList.DeleteAll();
 }
 
 void EventTracker::AddEvent(EVENT_TYPE type, sint32 playerNum, sint32 turn, sint32 dbIndex)
@@ -27,7 +26,7 @@ void EventTracker::AddEvent(EVENT_TYPE type, sint32 playerNum, sint32 turn, sint
 	newdata->m_playerNum=playerNum;
 	newdata->m_turn=turn;
 	newdata->m_dbIndex=dbIndex;
-	m_dataList->AddTail(newdata);
+	m_dataList.AddTail(newdata);
 }
 
 void EventTracker::ResetList()
@@ -39,7 +38,7 @@ EventData *EventTracker::GetEvents(BOOL Reset)
 	static PointerList<EventData>::PointerListNode *curDataPtr;
 	if(Reset)
 	{
-		curDataPtr=m_dataList->GetHeadNode();
+		curDataPtr=m_dataList.GetHeadNode();
 	}
 	else if(curDataPtr)
 	{
@@ -59,7 +58,7 @@ EventData *EventTracker::GetEvents(BOOL Reset)
 
 int EventTracker::GetEventCount()
 {
-	return m_dataList->GetCount();
+	return m_dataList.GetCount();
 }
 
 STDEHANDLER(TrackCreateWonderEvent)

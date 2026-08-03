@@ -213,14 +213,14 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/gameobj/improvementevent.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/TradeOfferPool.cpp` (2/1/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/TerrImprovePool.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/EventTracker.cpp` (2/1/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/gameobj/EventTracker.cpp` — done 2026-08-03: PointerList member held by value (DeleteAll still frees the pointed-to objects)
 - [ ] `gs/gameobj/Pollution.cpp` (2/1/0) — 🔴 · _refcounted SlicObject (AddRef/Release)_
 - [ ] `gs/gameobj/citydata.h` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/DiplomaticRequestPool.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/PlayerTurn.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/TradeOfferData.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/combatevent.cpp` (1/2/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/CriticalMessagesPrefs.cpp` (2/1/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/gameobj/CriticalMessagesPrefs.cpp` — done 2026-08-03: PointerList member held by value (DeleteAll still frees the pointed-to objects)
 - [ ] `gs/gameobj/CTP2Combat.h` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/terrainutil.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/Readiness.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_

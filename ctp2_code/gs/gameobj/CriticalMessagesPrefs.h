@@ -59,7 +59,8 @@ public:
 
 private:
 	PointerList<CriticalMessagesData>::PointerListNode *FindMessage(const char *name);
-	PointerList<CriticalMessagesData> *m_messagesList;
+	// Held by value: lives as long as the prefs object, never replaced.
+	PointerList<CriticalMessagesData> m_messagesList;
 };
 
 // Lifecycle (new in gameinit_InitializeGame + Cleanup) lives in

@@ -91,7 +91,7 @@ c3_PopupWindow(retval,id,ldlBlock,bpp,type,bevel)
 
 OptionsWindow::~OptionsWindow()
 {
-#define mycleanup(mypointer) delete mypointer
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
 	mycleanup( m_quittoshell );
 	mycleanup( m_keyboard );

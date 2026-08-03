@@ -433,7 +433,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 
 AUI_ERRCODE passwordscreen_Cleanup()
 {
-#define mycleanup(mypointer) if(mypointer) { delete mypointer; mypointer = NULL; };
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
 	if ( !s_passwordScreen  ) return AUI_ERRCODE_OK;
 	c3ui_Get()->RemoveWindow( s_passwordScreen->Id() );

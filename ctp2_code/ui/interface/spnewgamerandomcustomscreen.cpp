@@ -154,7 +154,7 @@ AUI_ERRCODE spnewgamerandomcustomscreen_Initialize(
 
 AUI_ERRCODE spnewgamerandomcustomscreen_Cleanup()
 {
-#define mycleanup(mypointer) if(mypointer) { delete mypointer; mypointer = NULL; };
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
 	if ( !s_spNewGameRandomCustomScreen  ) return AUI_ERRCODE_OK;
 

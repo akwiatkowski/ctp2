@@ -374,7 +374,7 @@ void sci_advancescreen_Cleanup()
 
 	keypress_RemoveHandler(&s_keyboardHandler);
 
-#define mycleanup(mypointer)    { delete mypointer; mypointer = NULL; }
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 	mycleanup(s_name);
 	mycleanup(s_back);
 	mycleanup(s_cancel);

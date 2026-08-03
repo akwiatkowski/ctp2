@@ -247,7 +247,7 @@ AUI_ERRCODE spnewgamerulesscreen_Initialize( )
 
 AUI_ERRCODE spnewgamerulesscreen_Cleanup()
 {
-#define mycleanup(mypointer) if(mypointer) { delete mypointer; mypointer = NULL; };
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
 	if ( !s_spNewGameRulesScreen  ) return AUI_ERRCODE_OK;
 

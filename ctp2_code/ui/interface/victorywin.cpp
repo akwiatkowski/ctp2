@@ -345,7 +345,7 @@ void victorywin_Cleanup( )
         s_scoreList->Clear();
     }
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; }
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
     {
 	    mycleanup(s_highScoreWin);
 	    mycleanup(s_stringTable);
@@ -880,7 +880,7 @@ void HighScoreWindowPopup::Cleanup( )
 	    c3ui_Get()->RemoveWindow(m_window->Id());
     }
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; };
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
     {
 	    mycleanup( m_continueButton );
 	    mycleanup( m_creditsButton );

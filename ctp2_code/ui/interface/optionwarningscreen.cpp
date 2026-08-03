@@ -150,7 +150,7 @@ AUI_ERRCODE optionwarningscreen_Initialize( )
 
 AUI_ERRCODE optionwarningscreen_Cleanup()
 {
-#define mycleanup(mypointer) if(mypointer) { delete mypointer; mypointer = NULL; };
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
 	if ( !s_optionwarningscreenWindow  ) return AUI_ERRCODE_OK;
 

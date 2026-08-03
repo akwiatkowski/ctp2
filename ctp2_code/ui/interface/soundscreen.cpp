@@ -159,7 +159,7 @@ AUI_ERRCODE soundscreen_Initialize( )
 
 AUI_ERRCODE soundscreen_Cleanup()
 {
-#define mycleanup(mypointer) if(mypointer) { delete mypointer; mypointer = NULL; };
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
 	if ( !s_soundWindow  ) return AUI_ERRCODE_OK;
 

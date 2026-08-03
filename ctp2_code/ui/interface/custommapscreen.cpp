@@ -267,7 +267,7 @@ AUI_ERRCODE custommapscreen_Initialize( aui_Control::ControlActionCallback *call
 
 AUI_ERRCODE custommapscreen_Cleanup()
 {
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; };
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
 	if ( !s_customMapWindow  ) return AUI_ERRCODE_OK;
 

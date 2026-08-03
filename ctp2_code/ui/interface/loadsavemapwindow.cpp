@@ -185,7 +185,7 @@ LoadSaveMapWindow::~LoadSaveMapWindow()
 {
 	CleanUpSaveMapInfo();
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; }
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
 	mycleanup(m_nameString);
 

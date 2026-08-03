@@ -590,7 +590,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 ## gs/database  (11 files, 64 matches)
 
 - [ ] `gs/database/StrDB.cpp` (17/5/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/database/profileDB.cpp` (8/3/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/database/profileDB.cpp` — done 2026-08-03: PointerList member held by value (partial: other raw owners remain in this file)
 - [ ] `gs/database/profileDB.h` (6/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/database/moviedb.cpp` (1/4/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/database/filenamedb.cpp` (1/4/0) — 🟡 moderate · _needs ownership review_
@@ -627,7 +627,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## gs/events  (6 files, 34 matches)
 
-- [ ] `gs/events/GameEventManager.cpp` (5/9/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/events/GameEventManager.cpp` — done 2026-08-03: PointerList member held by value (partial: other raw owners remain in this file)
 - [ ] `gs/events/GameEventDescription.h` (11/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/events/GameEventArgList.cpp` (3/1/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/events/GameEventArgument.cpp` (1/1/0) — 🔴 hard · _void* ownership handoff_

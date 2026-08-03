@@ -405,7 +405,8 @@ private:
     /// Show what a city is producing under it's name
     sint32 m_showCityProduction;
 
-    PointerList<ProfileVar> *m_vars;
+    // Held by value: created with the owner, never replaced.
+	PointerList<ProfileVar> m_vars;
     BOOL m_loadedFromTutorial;
     BOOL m_dontSave;
 
@@ -416,7 +417,7 @@ public:
 
     void DefaultSettings();
 
-    PointerList<ProfileVar> *GetVars() { return m_vars; }
+    PointerList<ProfileVar> *GetVars() { return &m_vars; }
 
     BOOL IsAIOn() const { return m_ai_on; }
     void SetAI(BOOL on) { m_ai_on = on; }

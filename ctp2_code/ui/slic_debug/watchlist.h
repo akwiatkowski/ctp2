@@ -6,6 +6,7 @@
 
 #ifdef CTP2_ENABLE_SLICDEBUG
 
+#include <memory>
 #include "ui/aui_ctp2/c3_listitem.h"
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_ctp2/keyboardhandler.h"
@@ -66,22 +67,22 @@ public:
 
 	void kh_Close() override;
 
-	c3_ListBox *GetList() { return m_list; }
+	c3_ListBox *GetList() { return m_list.get(); }
 	void ShowBreak(sint32 offset);
 
 	void AddExpression(char *exp);
 	void Clear();
 
-	c3_Button *GetNewButton() { return m_newButton; }
-	c3_Button *GetClearButton() { return m_clearButton; }
-	c3_Button *GetExitButton() { return m_exitButton; }
+	c3_Button *GetNewButton() { return m_newButton.get(); }
+	c3_Button *GetClearButton() { return m_clearButton.get(); }
+	c3_Button *GetExitButton() { return m_exitButton.get(); }
 
 public:
-	c3_PopupWindow *m_window;
-	c3_ListBox     *m_list;
-	c3_Button      *m_newButton;
-	c3_Button      *m_clearButton;
-	c3_Button      *m_exitButton;
+	std::unique_ptr<c3_PopupWindow>	m_window;
+	std::unique_ptr<c3_ListBox>	m_list;
+	std::unique_ptr<c3_Button>	m_newButton;
+	std::unique_ptr<c3_Button>	m_clearButton;
+	std::unique_ptr<c3_Button>	m_exitButton;
 
 	WatchListCallback m_callback;
 };

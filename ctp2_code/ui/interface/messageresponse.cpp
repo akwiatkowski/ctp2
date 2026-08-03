@@ -183,12 +183,12 @@ AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow
 		if(critical_messages_prefs_Get()->IsEnabled(((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName())>0)
 		{
 			snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardDontShowButton");
-			m_dontShowButton = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock );
+			m_dontShowButton.reset(new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock ));
 			Assert( AUI_NEWOK( m_dontShowButton, errcode ));
 			m_dontShowButton->SetActionFuncAndCookie(	DontShowButtonActionCallback, this);
 			m_identifier = ((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName();
 
-			window->AddControl(m_dontShowButton);
+			window->AddControl(m_dontShowButton.get());
 		}
 	}
 	return AUI_ERRCODE_OK;
@@ -235,7 +235,6 @@ MessageResponseStandard::~MessageResponseStandard()
 	}
 	// m_identifier is std::string, auto-freed
 
-	delete m_dontShowButton;
 }
 
 
@@ -277,11 +276,11 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 	m_dropdown      = nullptr;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseButton");
-	m_submitButton = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock );
+	m_submitButton.reset(new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock ));
 	Assert( AUI_NEWOK( m_submitButton, errcode ));
 	if ( !AUI_NEWOK( m_submitButton, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_action = new MessageResponseSubmitAction( window );
+	m_action.reset(new MessageResponseSubmitAction( window ));
 	Assert( m_action != nullptr );
 	if ( m_action == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -292,9 +291,9 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 		m_submitButton->SetText(submitText);
     }
 
-	m_submitButton->SetAction(m_action);
+	m_submitButton->SetAction(m_action.get());
 
-	window->AddControl(m_submitButton);
+	window->AddControl(m_submitButton.get());
 
 #if 0
     // This code block determines the maximum length of all submit button texts,
@@ -312,11 +311,11 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 #endif
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseDropdown" );
-	m_dropdown = new c3_DropDown( &errcode, aui_UniqueId(), buttonBlock );
+	m_dropdown.reset(new c3_DropDown( &errcode, aui_UniqueId(), buttonBlock ));
 	Assert( AUI_NEWOK( m_dropdown, errcode ));
 	if ( !AUI_NEWOK( m_dropdown, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_action->SetDropdown( m_dropdown );
+	m_action->SetDropdown( m_dropdown.get() );
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseDropdownItem" );
 	sint32 i = 0;
@@ -333,7 +332,7 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 
 	m_dropdown->Offset( -m_dropdown->Width() - g_messageRespDropPadding, 0 );
 
-	window->AddControl( m_dropdown );
+	window->AddControl(m_dropdown.get());
 
 	return AUI_ERRCODE_OK;
 }
@@ -341,9 +340,6 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 
 MessageResponseDropdown::~MessageResponseDropdown()
 {
-	delete m_submitButton;
-	delete m_action;
-	delete m_dropdown;
 }
 
 void MessageResponseStandard::DontShowButtonActionCallback(aui_Control *control,

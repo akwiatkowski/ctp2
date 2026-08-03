@@ -9,6 +9,7 @@ class MessageResponseListItem;
 class MessageResponseStandard;
 class MessageResponseDropdown;
 
+#include <memory>
 #include <string>
 
 #include "ui/aui_common/auitypes.h"		// AUI_ERRCODE
@@ -70,7 +71,7 @@ private:
 	tech_WLList<ctp2_Button *>				*m_messageResponseButton;
 	tech_WLList<MessageResponseAction *>	*m_messageResponseAction;
 
-	ctp2_Button		*m_dontShowButton;
+	std::unique_ptr<ctp2_Button>	m_dontShowButton;
 	std::string		m_identifier;
 };
 
@@ -88,10 +89,10 @@ public:
 	virtual AUI_ERRCODE InitCommon( MBCHAR *ldlBlock, MessageWindow *window );
 
 private:
-	ctp2_Button						*m_submitButton;
-	c3_DropDown						*m_dropdown;
+	std::unique_ptr<ctp2_Button>	m_submitButton;
+	std::unique_ptr<c3_DropDown>	m_dropdown;
 
-	MessageResponseSubmitAction		*m_action;
+	std::unique_ptr<MessageResponseSubmitAction>	m_action;
 };
 
 #endif

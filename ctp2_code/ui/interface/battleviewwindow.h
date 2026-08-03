@@ -43,7 +43,7 @@ public:
 	std::weak_ptr<Sequence> GetSequence() { return m_sequence; }
 
 
-	const BattleView *GetBattleView() const { return(m_battleView); }
+	const BattleView *GetBattleView() const { return m_battleView.get(); }
 
 protected:
 	AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock);
@@ -57,49 +57,50 @@ public:
 
 private:
 
-	BattleView				*m_battleView;
+	std::unique_ptr<BattleView>	m_battleView;
 
 	RECT					m_battleViewRect;
 
 
-	ctp2_Static				*m_topBorder,
-							*m_leftBorder,
-							*m_rightBorder,
-							*m_bottomBorder;
+	// The window owns every control it builds from LDL.
+	std::unique_ptr<ctp2_Static>	m_topBorder;
+	std::unique_ptr<ctp2_Static>	m_leftBorder;
+	std::unique_ptr<ctp2_Static>	m_rightBorder;
+	std::unique_ptr<ctp2_Static>	m_bottomBorder;
 
-	ctp2_Button				*m_exitButton;
-	ctp2_Button				*m_retreatButton;
-	ctp2_Static				*m_titleText;
+	std::unique_ptr<ctp2_Button>	m_exitButton;
+	std::unique_ptr<ctp2_Button>	m_retreatButton;
+	std::unique_ptr<ctp2_Static>	m_titleText;
 
-	ctp2_Static				*m_attackersText;
-	ctp2_Static				*m_attackersName;
-	c3_Icon					*m_attackersFlag;
+	std::unique_ptr<ctp2_Static>	m_attackersText;
+	std::unique_ptr<ctp2_Static>	m_attackersName;
+	std::unique_ptr<c3_Icon>	m_attackersFlag;
 
-	ctp2_Static				*m_defendersText;
-	ctp2_Static				*m_defendersName;
-	c3_Icon					*m_defendersFlag;
+	std::unique_ptr<ctp2_Static>	m_defendersText;
+	std::unique_ptr<ctp2_Static>	m_defendersName;
+	std::unique_ptr<c3_Icon>	m_defendersFlag;
 
-	ctp2_Static				*m_terrainBonusText;
-	ctp2_Static				*m_terrainBonusValue;
+	std::unique_ptr<ctp2_Static>	m_terrainBonusText;
+	std::unique_ptr<ctp2_Static>	m_terrainBonusValue;
 
-	ctp2_Static				*m_cityBonusText;
-	ctp2_Static				*m_cityBonusValue;
+	std::unique_ptr<ctp2_Static>	m_cityBonusText;
+	std::unique_ptr<ctp2_Static>	m_cityBonusValue;
 
-	ctp2_Static				*m_citylandattackBonusText;
-	ctp2_Static				*m_citylandattackBonusValue;
-	ctp2_Static				*m_cityairattackBonusText;
-	ctp2_Static				*m_cityairattackBonusValue;
-	ctp2_Static				*m_cityseaattackBonusText;
-	ctp2_Static				*m_cityseaattackBonusValue;
+	std::unique_ptr<ctp2_Static>	m_citylandattackBonusText;
+	std::unique_ptr<ctp2_Static>	m_citylandattackBonusValue;
+	std::unique_ptr<ctp2_Static>	m_cityairattackBonusText;
+	std::unique_ptr<ctp2_Static>	m_cityairattackBonusValue;
+	std::unique_ptr<ctp2_Static>	m_cityseaattackBonusText;
+	std::unique_ptr<ctp2_Static>	m_cityseaattackBonusValue;
 
-	ctp2_Static				*m_cityName;
+	std::unique_ptr<ctp2_Static>	m_cityName;
 
-	ctp2_Static				*m_fortBonusText;
-	ctp2_Static				*m_fortBonusValue;
-	ctp2_Static				*m_fortBonusImage;
+	std::unique_ptr<ctp2_Static>	m_fortBonusText;
+	std::unique_ptr<ctp2_Static>	m_fortBonusValue;
+	std::unique_ptr<ctp2_Static>	m_fortBonusImage;
 
-	ctp2_Static				*m_fortifiedBonusText;
-	ctp2_Static				*m_fortifiedBonusValue;
+	std::unique_ptr<ctp2_Static>	m_fortifiedBonusText;
+	std::unique_ptr<ctp2_Static>	m_fortifiedBonusValue;
 
 	std::weak_ptr<Sequence>  m_sequence;
 };

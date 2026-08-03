@@ -57,7 +57,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/infowin.cpp` (84/6/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/interface/spnewgamewindow.cpp` (4/69/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/interface/sciencewin.cpp` (55/18/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/battleviewwindow.cpp` (33/34/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/battleviewwindow.cpp` — done 2026-08-03: all 31 owned controls are unique_ptr members; destructor is just the global back-pointer reset
 - [ ] `ui/interface/loadsavewindow.cpp` (15/40/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/interface/EndgameWindow.cpp` (31/14/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/interface/spriteeditor.cpp` (9/26/0) — 🔴 hard · _void* ownership handoff_

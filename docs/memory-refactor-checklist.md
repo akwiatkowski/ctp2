@@ -345,7 +345,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/aui_ctp2/c3_hypertextbox.cpp` (4/3/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/aui_ctp2/c3_dropdown.cpp` (7/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/aui_ctp2/ctp2_hypertextbox.cpp` (4/2/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/aui_ctp2/unittabbutton.cpp` (6/0/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/aui_ctp2/unittabbutton.cpp` — done 2026-08-03: 5 controls are unique_ptr; m_cargo array still freed by hand
 - [ ] `ui/aui_ctp2/background.cpp` (5/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/aui_ctp2/picturebutton.cpp` (2/4/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/aui_ctp2/c3ui.cpp` (3/3/0) — 🟡 moderate · _single-owner member_

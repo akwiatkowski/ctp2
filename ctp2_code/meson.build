@@ -1774,11 +1774,19 @@ test('terrain-edge-parity',
 # different terrain pairs score 0.925 and different patterns 0.524, so 0.02
 # leaves room for blend drift while still failing on any real divergence.
 #
-# THIS TEST IS RED TODAY, and that is the point of landing it. With the
-# readback fixed the whole-map path measures diff_ratio ~0.73-0.77 against the
-# quad path at coverage ~1.08-1.29 -- it presents materially more world in the
-# same screen area. Reproducible within a map (two runs agreed to 0.003); the
-# spread across runs is only the random map, since the UI build has no --seed.
+# THIS TEST IS RED TODAY, and that is the point of landing it. With fog
+# controlled (reference uniformly lit, 102248 of 102400 px) it measures
+# color_delta 0.05-0.13 -- which PASSES -- and diff_ratio 0.57-0.83, which does
+# not. Coverage runs 0.82-1.00 and clusters hard on 0.892.
+#
+# Note the direction flips once fog is controlled: the whole-map path draws
+# ~11% LESS than the quad path, not more. 0.892 is very close to the 239-of-269
+# probe ceiling (0.888) measured in fda82c49, whose commit message records that
+# the whole-map coverage never reached the geometry ceiling even after the row
+# step was fixed. Leftover inter-tile gaps are therefore the leading hypothesis
+# for the residual -- corroborated, but NOT established. Alignment analysis was
+# inconclusive: three methods disagreed on the displacement (-13,-24 / -86,-29
+# / +28,-8) and the landmark run landed on a map-edge tile.
 #
 # It sits in its own suite rather than 'integration' so an unfinished, opt-in,
 # default-off path does not gate the shipping suite. Move it into
@@ -1797,6 +1805,16 @@ test('worldmap-transition-parity',
                'plains:desert', 'forest:hill',
     '--patterns', 'vertical', 'diagonal', 'checker',
     '--crop-size', '320',
+    # Isolate transitions from fog. The quad path hides cells that are explored
+    # but not currently visible; the whole-map path draws them, because fog
+    # there is step 4 (#12839) and unbuilt. Uncontrolled, that difference alone
+    # produced the whole coverage ratio (1.29). The radius must exceed the crop
+    # -- reveal paints a DIAMOND and the crop is a rectangle, so radius 20 left
+    # corners unrevealed and the ratio bounced between 0.99 and 1.46 with the
+    # map. At 60 the reference is fully lit (~102k of 102400 px) and two runs on
+    # different maps agree to 0.002. Fog parity needs its own test once step 4
+    # lands.
+    '--reveal-radius', '60',
     '--max-diff-ratio', '0.02',
     '--check',
   ],

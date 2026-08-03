@@ -128,7 +128,7 @@ def capture_settled(client, center, path, crop_size,
 
 
 def capture_mode(binary, out_dir, mode_name, seed, players, pairs, patterns, radius,
-                 crop_size, save_fixture=None, load_fixture=None):
+                 crop_size, reveal_radius, save_fixture=None, load_fixture=None):
     env = os.environ.copy()
     env["CTP2_GPU_LAYERS"] = "1"
     env["CTP2_GPU_CAMERA"] = "1"
@@ -160,6 +160,19 @@ def capture_mode(binary, out_dir, mode_name, seed, players, pairs, patterns, rad
             terrain_a, terrain_b = resolve_pair(lookup, pair_spec)
             for pattern in patterns:
                 paint_patch(client, center, terrain_a, terrain_b, pattern, radius)
+                # Make the compared area VISIBLE, not merely explored. The quad
+                # path filters cells on m_localVision->IsVisible; the whole-map
+                # path does not, because fog there is P13 step 4 and unbuilt.
+                # Without this the run measures that difference instead of the
+                # transitions it exists to measure.
+                #
+                # Re-applied per capture, not once at startup: visibility decays
+                # over a sequence of captures, and revealing only at the start
+                # left the reference 53% lit by the end of a 15-capture run
+                # while a single-capture run measured 99%.
+                if reveal_radius > 0:
+                    client.expect_ok("debug_reveal_patch", center["x"],
+                                     center["y"], reveal_radius)
                 path = out_dir / f"{mode_name}-{pair_spec.replace(':', '-')}-{pattern}.bmp"
                 if not capture_settled(client, center, path, crop_size):
                     raise RuntimeError(
@@ -437,6 +450,12 @@ def main():
                              "POSITIONALLY from CPU. Off by default: the older "
                              "gpu-vs-cpu comparison is a histogram check and "
                              "was never calibrated against this.")
+    parser.add_argument("--reveal-radius", type=int, default=0,
+                        help="make this radius around the compared area VISIBLE "
+                             "(not just explored) before capturing. Needed for a "
+                             "fair transition comparison: the quad path hides "
+                             "non-visible cells and the whole-map path does not, "
+                             "so without it the run measures fog, not transitions")
     parser.add_argument("--channel-tolerance", type=int, default=24,
                         help="per-channel delta below which a pixel counts as "
                              "matching, absorbing independent blend/rounding drift")
@@ -467,7 +486,7 @@ def main():
         all_shots.extend(capture_mode(binary, out_dir, mode, args.seed,
                                       args.players, args.pairs,
                                       args.patterns, args.radius,
-                                      args.crop_size,
+                                      args.crop_size, args.reveal_radius,
                                       save_fixture=save_fixture,
                                       load_fixture=load_fixture))
     write_contact_sheet(out_dir, all_shots, args.crop_size, args.scale)

@@ -3465,6 +3465,16 @@ std::string QueryGpuWorld()
     result["fallback_reason"] = reason ? reason : "";
     result["terrain_quads"] = aui_SDL::QuadDrawList().size();
     result["sprite_quads"] = aui_SDL::SpriteDrawList().size();
+    // The exact inputs to the present's source rect. Reported so a parity run
+    // can compare the two paths' geometry directly instead of inferring it by
+    // correlating presented pixels — tile art is periodic, so a correlation
+    // peak can sit a whole tile off and still look convincing.
+    result["worldmap_origin"] = { aui_SDL::WorldmapOriginX(), aui_SDL::WorldmapOriginY() };
+    result["worldmap_size"] = { aui_SDL::WorldmapW(), aui_SDL::WorldmapH() };
+    result["world_content_off"] = { aui_SDL::WorldContentOffX(), aui_SDL::WorldContentOffY() };
+    result["camera"] = { {"zoom", aui_SDL::CameraZoom()},
+                         {"off_x", aui_SDL::CameraOffX()},
+                         {"off_y", aui_SDL::CameraOffY()} };
     return Ok("query_gpu_world", result);
 }
 

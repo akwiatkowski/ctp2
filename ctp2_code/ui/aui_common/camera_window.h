@@ -100,6 +100,33 @@ inline float ZoomDetent(float zoom, float band = 0.04f)
 	return (d <= band) ? 1.0f : zoom;
 }
 
+// P13 step 2.5 — the inverse of the present's windowing, for picking.
+//
+// The present maps texture rect (srcX, srcW = W/z) onto screen (0, W):
+//     srcX = originX + (W - W/z)/2 - offX
+// so a screen x corresponds to texture x = srcX + sx/z. Picking is exactly that
+// inverse, and it lives here next to the forward terms so the two cannot drift
+// apart -- the same reason the pan budget lives here.
+inline float ScreenToTexture(float screenPos, float screenSize,
+                             float origin, float camOff, float zoom)
+{
+	if (zoom <= 0.0f)
+		return origin + screenPos - camOff;
+	float const src = origin + (screenSize - screenSize / zoom) * 0.5f - camOff;
+	return src + screenPos / zoom;
+}
+
+// Forward direction, used by the round-trip test and by anything that needs to
+// place a known texture position on screen.
+inline float TextureToScreen(float texPos, float screenSize,
+                             float origin, float camOff, float zoom)
+{
+	if (zoom <= 0.0f)
+		return texPos - origin + camOff;
+	float const src = origin + (screenSize - screenSize / zoom) * 0.5f - camOff;
+	return (texPos - src) * zoom;
+}
+
 }  // namespace camera_window
 
 #endif // CAMERA_WINDOW_H_

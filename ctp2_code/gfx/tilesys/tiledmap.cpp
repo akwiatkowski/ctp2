@@ -5417,10 +5417,27 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
   	sint32  x = point.x + xoff;
 	sint32  y = point.y + yoff;
 
+	// P13 step 2.5 (ADR-003): on the whole-map path the camera owns zoom, so a
+	// pick must invert the present's windowing -- not just its pan. Reuses the
+	// exact inverse of the terms the present uses (camera_window.h), so the two
+	// cannot drift apart; the round-trip is unit-tested across the full zoom and
+	// offset range. Texture position minus the published origin is the
+	// view-relative pixel the rest of this function already expects, and at zoom
+	// 1 with no pan it reduces to the legacy value exactly.
+	if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture())
+	{
+		float const z = aui_SDL::CameraZoom();
+		float const ox = static_cast<float>(aui_SDL::WorldmapOriginX());
+		float const oy = static_cast<float>(aui_SDL::WorldmapOriginY());
+		x = static_cast<sint32>(camera_window::ScreenToTexture(
+			static_cast<float>(x), aui_SDL::ViewportW(), ox, aui_SDL::CameraOffX(), z) - ox);
+		y = static_cast<sint32>(camera_window::ScreenToTexture(
+			static_cast<float>(y), aui_SDL::ViewportH(), oy, aui_SDL::CameraOffY(), z) - oy);
+	}
 	// P11 2c (ADR-001): the sub-tile GPU pan slides the visible world by CameraOff
 	// while the engine view stays tile-aligned, so a pick must shift by the same
 	// offset to hit the tile the user sees. No-op unless the GPU camera is on.
-	if (aui_SDL::GpuCameraEnabled())
+	else if (aui_SDL::GpuCameraEnabled())
 	{
 		x -= static_cast<sint32>(aui_SDL::CameraOffX());
 		y -= static_cast<sint32>(aui_SDL::CameraOffY());

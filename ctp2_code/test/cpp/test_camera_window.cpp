@@ -124,4 +124,48 @@ TEST_CASE("the 100% detent snaps only inside its band")
     CHECK(camera_window::ZoomDetent(0.90f, 0.20f) == doctest::Approx(1.0f));
 }
 
+TEST_CASE("screen<->texture round-trips exactly at every zoom and offset")
+{
+    // This IS the picking oracle. The forward direction is already known good
+    // (terrain renders in the right place, and the whole-map origin was
+    // measured to agree with the legacy path), so an exact inverse means
+    // picking is correct -- no screenshot comparison needed.
+    float const origins[] = { 0.0f, 94.0f, 2256.0f };
+    float const zooms[]   = { 0.21f, 0.5f, 1.0f, 1.5f, 2.0f };
+    float const offs[]    = { -120.0f, 0.0f, 37.5f };
+    float const points[]  = { 0.0f, 1.0f, 640.0f, 959.5f, 1919.0f };
+    for (float o : origins)
+        for (float z : zooms)
+            for (float c : offs)
+                for (float p : points)
+                {
+                    CAPTURE(o); CAPTURE(z); CAPTURE(c); CAPTURE(p);
+                    float const tex = camera_window::ScreenToTexture(p, k_W, o, c, z);
+                    float const back = camera_window::TextureToScreen(tex, k_W, o, c, z);
+                    CHECK(back == doctest::Approx(p).epsilon(1e-4));
+                }
+}
+
+TEST_CASE("at identity the screen maps onto the texture at the origin")
+{
+    // zoom 1, no pan: screen x lands at origin + x, which is what the
+    // window-mirror path did with origin = WorldContentOffX.
+    CHECK(camera_window::ScreenToTexture(0.0f, k_W, 94.0f, 0.0f, 1.0f) == doctest::Approx(94.0f));
+    CHECK(camera_window::ScreenToTexture(100.0f, k_W, 94.0f, 0.0f, 1.0f) == doctest::Approx(194.0f));
+    // Panning right moves the sampled texture window left by the same pixels.
+    CHECK(camera_window::ScreenToTexture(0.0f, k_W, 94.0f, 30.0f, 1.0f) == doctest::Approx(64.0f));
+}
+
+TEST_CASE("zooming in samples a smaller texture span across the same screen")
+{
+    // At 2x the screen covers half as much texture, centred: the span is W/2.
+    float const left  = camera_window::ScreenToTexture(0.0f,  k_W, 0.0f, 0.0f, 2.0f);
+    float const right = camera_window::ScreenToTexture(k_W,   k_W, 0.0f, 0.0f, 2.0f);
+    CHECK((right - left) == doctest::Approx(k_W / 2.0f));
+    // ...and at 0.5x it covers twice as much.
+    float const l2 = camera_window::ScreenToTexture(0.0f, k_W, 0.0f, 0.0f, 0.5f);
+    float const r2 = camera_window::ScreenToTexture(k_W,  k_W, 0.0f, 0.0f, 0.5f);
+    CHECK((r2 - l2) == doctest::Approx(k_W * 2.0f));
+}
+
 TEST_SUITE_END();

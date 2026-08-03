@@ -576,7 +576,10 @@ void aui_SDL::TickCamera(float dtSec)
 	// below MinSafeZoom the source window is wider than screen+margin, so even
 	// a centred window samples outside rendered content (P13 step 0). ADR-003's
 	// whole-map texture removes the limit; until then it is a hard floor.
-	float const k_ZOOM_MIN = MinSafeZoom(), k_ZOOM_MAX = 2.5f;
+	// P13 step 2.2: ceiling is 2.0 on the whole-map path (the requested 200%,
+	// shown with NEAREST as crisp pixel art); the legacy peek range keeps 2.5.
+	float const k_ZOOM_MIN = MinSafeZoom();
+	float const k_ZOOM_MAX = GpuWorldmapEnabled() ? 2.0f : 2.5f;
 	if (m_cameraZoom < k_ZOOM_MIN) { m_cameraZoom = k_ZOOM_MIN; if (m_zoomVel < 0.0f) m_zoomVel = 0.0f; }
 	if (m_cameraZoom > k_ZOOM_MAX) { m_cameraZoom = k_ZOOM_MAX; if (m_zoomVel > 0.0f) m_zoomVel = 0.0f; }
 

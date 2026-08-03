@@ -97,8 +97,22 @@ public:
 	static float PanBudgetY() { return camera_window::PanBudgetPx(ViewportH(), (float)WorldContentOffY(), m_cameraZoom); }
 	// The lowest zoom the rendered margin can supply on BOTH axes. Below this
 	// even a centred window overruns, so every camera-zoom writer clamps to it.
+	// P13 step 2.2 — with the whole map in one texture there is no margin to
+	// overrun, so the floor is "the whole map fits the viewport" instead of the
+	// window-mirror margin bound. Map-size dependent (~0.21 on Gigantic at
+	// 1920x1080, ~0.63 on Small), so it is computed, never hardcoded.
+	static float WorldmapFitZoom()
+	{
+		if (m_worldmapW <= 0 || m_worldmapH <= 0) return 1.0f;
+		float const zx = ViewportW() / static_cast<float>(m_worldmapW);
+		float const zy = ViewportH() / static_cast<float>(m_worldmapH);
+		return (zx < zy) ? zx : zy;
+	}
 	static float MinSafeZoom()
 	{
+		// Whole-map path: bounded by fitting the map, not by a rendered margin.
+		if (GpuWorldmapEnabled() && m_worldmapTexture)
+			return WorldmapFitZoom();
 		float const zx = camera_window::MinSafeZoom(ViewportW(), (float)WorldContentOffX());
 		float const zy = camera_window::MinSafeZoom(ViewportH(), (float)WorldContentOffY());
 		return (zx > zy) ? zx : zy;

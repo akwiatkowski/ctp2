@@ -1717,8 +1717,9 @@ test('slice-ui',
 # CTP2_GPU_CAMERA, gets real terrain on screen, forces a 50px camera offset
 # and asserts the presented pixels actually shift. This is the only test that
 # exercises the layered present with a non-identity camera — slice-ui's
-# oracle runs the default single-texture path. May relaunch the game a few
-# times (no --seed in the UI build; re-rolls seam/edge settler spawns).
+# oracle runs the default single-texture path. One launch: the map is random
+# (no --seed in the UI build) but the camera point is chosen and revealed
+# deterministically, so it no longer depends on where the settler spawned.
 test('pan-pixel-proof',
   find_program('test/pan_pixel_proof.py'),
   args : [join_paths(meson.project_build_root(), 'ctp2')],

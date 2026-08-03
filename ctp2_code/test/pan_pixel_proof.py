@@ -102,7 +102,44 @@ def terrain_id(client, name):
     raise AssertionError(f"terrain not found: {name}")
 
 
-def paint_camera_patch(client, pos, radius=12):
+PATCH_RADIUS = 12       # tiles painted around the camera point
+REVEAL_RADIUS = 16      # explored radius; must exceed PATCH_RADIUS or the
+                        # painted terrain stays black and count_terrain fails
+
+
+def interior_point(m):
+    """Pick a deterministic camera point, independent of the random start spawn.
+
+    Two constraints, both from the legacy view code:
+      * the view rect lives in SKEWED iso tile space (tileX = x + y/2, per
+        maputils_MapX2TileX), and a rect centred near the horizontal wrap seam
+        draws black (legacy CenterMap quirk) — so tileX needs a margin;
+      * a point near the top/bottom edge clamps the view off the revealed
+        circle, so y needs one too.
+
+    The two pull against each other — the skew means the seam-safest column
+    depends on the row — so rather than take the first point that merely
+    qualifies (which lands exactly ON the 8-tile margin, the worst legal
+    choice), score every candidate by its WORST margin and keep the best. The
+    scan is a fixed order over a fixed range, so the same map dimensions always
+    yield the same point and any failure is reproducible.
+    """
+    w, h = m["width"], m["height"]
+    best, best_score = None, -1
+    # x range keeps the paint patch fully in bounds, so the revealed circle is
+    # uniformly covered; y range is the vertical clamp margin.
+    for y in range(20, h - 19):
+        for x in range(PATCH_RADIUS + 2, w - PATCH_RADIUS - 1):
+            tile_x = (x + y // 2) % w
+            score = min(tile_x, w - tile_x, x, w - x, y, h - y)
+            if score > best_score:
+                best, best_score = {"x": x, "y": y}, score
+    assert best is not None and best_score >= 8, (
+        f"no seam-safe interior point on {w}x{h} map (best margin {best_score})")
+    return best
+
+
+def paint_camera_patch(client, pos, radius=PATCH_RADIUS):
     grassland = terrain_id(client, "grassland")
     plains = terrain_id(client, "plains")
     for dy in range(-radius, radius + 1):
@@ -114,43 +151,35 @@ def paint_camera_patch(client, pos, radius=12):
     client.expect_ok("debug_clear_terrain_layers", pos["x"], pos["y"], 60)
 
 
-def run_attempt(binary, env, socket_path, log, path0, path1):
-    """One game launch. Returns an exit code, or None to re-roll the map."""
+def run_proof(binary, env, socket_path, log, path0, path1):
+    """One game launch. Returns an exit code."""
     with Ctp2Client(binary, "ui", socket_path=socket_path, log_path=log, env=env) as client:
         client.expect_ok("new_game")
         client.expect_ok("start_game")
         client.wait_game_loaded()
 
-        # The UI binary has no --seed, so the map is random. The view rect
-        # lives in SKEWED iso tile space (tileX = x + y/2, per
-        # maputils_MapX2TileX); centering near the horizontal wrap seam
-        # produces a wrapped rect that draws black (legacy CenterMap quirk),
-        # and a spawn near the top/bottom edge clamps the view off the
-        # explored circle. Re-roll (fresh process) until comfortably interior.
+        # The UI binary has no --seed, so the map — and the start spawn — is
+        # random. Nothing here needs the settler: it was only ever a proxy for
+        # "somewhere explored to point the camera at", and depending on it made
+        # the test a spawn lottery that failed outright once every five runs.
+        # Reveal a seam-safe point instead, and the run is deterministic.
         m = client.result("query_map")
-        units = client.result("query_units")
-        mine = [u for u in units["units"]
-                if u["owner"] == units["visible_player"]]
-        assert mine, "player has no units at game start"
-        upos = mine[0]["pos"]
-        tile_x = (upos["x"] + upos["y"] // 2) % m["width"]
-        if not (8 <= tile_x <= m["width"] - 8
-                and 20 <= upos["y"] <= m["height"] - 20):
-            print(f"[pixel-proof] settler at ({upos['x']},{upos['y']}) "
-                  f"(tileX={tile_x}) near seam/edge of "
-                  f"{m['width']}x{m['height']} map — re-roll")
-            return None
-        paint_camera_patch(client, upos)
+        pos = interior_point(m)
+        print(f"[pixel-proof] camera point ({pos['x']},{pos['y']}) "
+              f"(tileX={(pos['x'] + pos['y'] // 2) % m['width']}) "
+              f"on {m['width']}x{m['height']} map")
+        client.expect_ok("debug_reveal_patch", pos["x"], pos["y"], REVEAL_RADIUS)
+        paint_camera_patch(client, pos)
 
-        # Center the view on the starting settler and force a terrain
-        # redraw. Without it the viewport can sit over unexplored (pure
-        # black) map — a camera shift of uniform black is invisible.
+        # Center the view on the revealed point and force a terrain redraw.
+        # Without it the viewport can sit over unexplored (pure black) map —
+        # a camera shift of uniform black is invisible.
         # (build_city is NOT used: it pops the Build Manager modal, which
         # both covers the map and suppresses terrain drawing.)
         def has_terrain():
             # "modal" = a modal (Loading window) still suppresses terrain
             # drawing; anything else failing is a real error.
-            r = client.command("camera_debug_center", upos["x"], upos["y"])
+            r = client.command("camera_debug_center", pos["x"], pos["y"])
             if r.get("status") != "ok":
                 if r.get("detail") == "modal":
                     return False
@@ -258,12 +287,7 @@ def run(binary):
             pass
 
     try:
-        for attempt in range(5):
-            rc = run_attempt(binary, env, socket_path, log, path0, path1)
-            if rc is not None:
-                return rc
-        print("[pixel-proof] no interior spawn in 5 rolls")
-        return 2
+        return run_proof(binary, env, socket_path, log, path0, path1)
     except (Ctp2Error, AssertionError) as e:
         print(f"[pixel-proof] harness error: {e}")
         print(f"[pixel-proof] see game log: {log}")

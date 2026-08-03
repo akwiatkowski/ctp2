@@ -66,17 +66,17 @@ protected:
 	AUI_ERRCODE CreateDismissButton( MBCHAR *ldlBlock );
 
 private:
-	aui_Static						*m_leftBar;
-	aui_Static						*m_rightBar;
-	C3Window						*m_topBar;
-	C3Window						*m_bottomBar;
+	std::unique_ptr<aui_Static>	m_leftBar;
+	std::unique_ptr<aui_Static>	m_rightBar;
+	std::unique_ptr<C3Window>	m_topBar;
+	std::unique_ptr<C3Window>	m_bottomBar;
 	POINT	m_offsetTop;
 	POINT	m_offsetBottom;
 
 	aui_Button						*m_dismissButton;
 	MessageAdviceDismissAction		*m_dismissAction;
 
-	C3ListBox						*m_listBox;
+	std::unique_ptr<C3ListBox>	m_listBox;
 
 };
 

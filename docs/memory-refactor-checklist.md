@@ -74,7 +74,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/controlpanel.cpp` (3/16/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/messageresponse.cpp` (10/8/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/interface/loadsavemapwindow.cpp` (10/6/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/messageadvice.cpp` (9/7/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/messageadvice.cpp` — done 2026-08-03: 5 controls are unique_ptr; list ITEMS still deleted by hand (not members)
 - [ ] `ui/interface/spnewgameplayersscreen.cpp` (14/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/messagemodal.cpp` (10/6/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/interface/messagewin.cpp` (9/7/0) — 🟡 moderate · _needs ownership review_

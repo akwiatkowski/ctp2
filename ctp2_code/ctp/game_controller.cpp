@@ -188,6 +188,9 @@ void RunRound(sint32 round, SetCurrentPlayerFn set_current_player)
 // Owned by tiledmap.cpp; the graphics options screen is the only other writer.
 extern sint32 g_isGridOn;
 
+extern int s_goodCellsSeen, s_goodNoActor, s_goodDeclined, s_goodEmitted;   // PROBE
+extern char const * s_goodReason;   // PROBE
+
 namespace {
 
 using game_controller::HumanPlayer;
@@ -582,6 +585,16 @@ std::string CmdDebugSetGrid(const char * args)
 
 // Nearest map good to a position. Goods are placed at generation and there is
 // no query for them, which makes "does a good render" awkward to test.
+std::string CmdDebugWorldmapSprites(const char * args)
+{
+	int on = -1;
+	if (!args || sscanf(args, "%d", &on) != 1 || (on != 0 && on != 1))
+		return Err("debug_worldmap_sprites", "bad_args");
+	aui_SDL::SetWorldmapSprites(on != 0);
+	json result; result["sprites"] = on;
+	return Ok("debug_worldmap_sprites", result);
+}
+
 std::string CmdDebugFindGood(const char * args)
 {
 	sint32 fx = 0, fy = 0;
@@ -3548,6 +3561,9 @@ std::string QueryGpuWorld()
     result["complete"] = aui_SDL::QuadFrameComplete();
     char const *reason = aui_SDL::QuadFrameIncompleteReason();
     result["fallback_reason"] = reason ? reason : "";
+    { result["goods"] = { {"cells", s_goodCellsSeen}, {"no_actor", s_goodNoActor},
+                          {"declined", s_goodDeclined}, {"emitted", s_goodEmitted},
+                          {"reason", s_goodReason} }; }   // PROBE
     result["terrain_quads"] = aui_SDL::QuadDrawList().size();
     result["sprite_quads"] = aui_SDL::SpriteDrawList().size();
     // The exact inputs to the present's source rect. Reported so a parity run
@@ -3580,6 +3596,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_clear_terrain_layers ", 0) == 0)      return CmdDebugClearTerrainLayers(line.c_str() + 27);
     if (line.rfind("debug_reveal_patch ", 0) == 0)              return CmdDebugRevealPatch(line.c_str() + 19);
     if (line.rfind("debug_find_good ", 0) == 0)                 return CmdDebugFindGood(line.c_str() + 16);
+    if (line.rfind("debug_worldmap_sprites ", 0) == 0)          return CmdDebugWorldmapSprites(line.c_str() + 23);
     if (line == "debug_icon_alpha")                             return CmdDebugIconAlpha(nullptr);
     if (line.rfind("debug_set_grid ", 0) == 0)                  return CmdDebugSetGrid(line.c_str() + 15);
 #if defined(RENDER_TOOL_BUILD) && defined(USE_SDL)

@@ -37,6 +37,7 @@ SDL_Texture *aui_SDL::m_worldmapTexture = nullptr;
 int aui_SDL::m_worldmapW = 0;
 int aui_SDL::m_worldmapH = 0;
 int aui_SDL::m_worldmapOriginX = 0;
+bool aui_SDL::m_worldmapSpritesOn = true;
 int aui_SDL::m_lastIconOpaquePixels = 0;
 int aui_SDL::m_worldmapOriginY = 0;
 float aui_SDL::m_panVelX = 0.0f;
@@ -128,7 +129,7 @@ void aui_SDL::RenderWorldmapSpriteQuads(SDL_Renderer *renderer,
                                         float viewW, float viewH,
                                         float zoom, float offX, float offY)
 {
-	if (!renderer || !m_worldmapTexture)
+	if (!renderer || !m_worldmapTexture || !m_worldmapSpritesOn)
 		return;
 
 	// The same source rect the terrain present used, so sprites land on the

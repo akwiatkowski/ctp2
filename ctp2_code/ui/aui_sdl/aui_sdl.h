@@ -188,6 +188,12 @@ public:
 	// pixels. Published each build by TiledMap; the present windows here.
 	static void SetWorldmapOrigin(int x, int y) { m_worldmapOriginX = x; m_worldmapOriginY = y; }
 	static int WorldmapOriginX() { return m_worldmapOriginX; }
+	// Test hook: turn the whole-map sprite pass off so a single run can
+	// capture the same map with and without it. New games generate a random
+	// map and loading one loses good actors, so an A/B across processes
+	// cannot hold the map fixed.
+	static void SetWorldmapSprites(bool on) { m_worldmapSpritesOn = on; }
+	static bool m_worldmapSpritesOn;
 	static int LastIconOpaquePixels() { return m_lastIconOpaquePixels; }
 	static int m_lastIconOpaquePixels;
 	static int WorldmapOriginY() { return m_worldmapOriginY; }

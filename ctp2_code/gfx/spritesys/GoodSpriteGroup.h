@@ -99,6 +99,9 @@ public:
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags);
 	bool			AddGpuSpriteQuad(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, Pixel16 outlineColor, uint16 flags);
+	// Why the last AddGpuSpriteQuad declined, for the frame-incomplete report.
+	static char const * GpuFallbackReason() { return s_gpuFallbackReason; }
+	static char const * s_gpuFallbackReason;
 
 	void			DrawText(sint32 x, sint32 y, MBCHAR const * s) override;
 

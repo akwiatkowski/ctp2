@@ -130,21 +130,24 @@ void GoodSpriteGroup::DrawDirect(aui_Surface *surf, GOODACTION action, sint32 fr
 	m_sprites[action]->DrawDirect(surf, drawX, drawY, facing, scale, transparency, outlineColor, flags);
 }
 
+char const * GoodSpriteGroup::s_gpuFallbackReason = "good-sprite";
+
 bool GoodSpriteGroup::AddGpuSpriteQuad(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, Pixel16 outlineColor, uint16 flags)
 {
-	if (!m_modernAtlas || action <= GOODACTION_NONE || action >= GOODACTION_MAX)
-		return false;
-	if (outlineColor != 0 || flags != k_DRAWFLAGS_NORMAL)
-		return false;
+	// One reason per rejection. A single "good-sprite" told you a good fell back
+	// but not which condition did it, which is most of the diagnosis.
+	if (!m_modernAtlas)              { s_gpuFallbackReason = "good-no-atlas";    return false; }
+	if (action <= GOODACTION_NONE || action >= GOODACTION_MAX)
+	                                 { s_gpuFallbackReason = "good-bad-action";  return false; }
+	if (outlineColor != 0)           { s_gpuFallbackReason = "good-outline";     return false; }
+	if (flags != k_DRAWFLAGS_NORMAL) { s_gpuFallbackReason = "good-drawflags";   return false; }
 
 	ModernSpriteRect const * r = m_modernAtlas->FindRect("IDLE", 0, frame);
-	if (!r)
-		return false;
+	if (!r)                          { s_gpuFallbackReason = "good-no-rect";     return false; }
 
 	SDL_Texture * texture = aui_SDL::EnsureSpriteAtlasTexture(m_modernAtlas.get());
-	if (!texture)
-		return false;
+	if (!texture)                    { s_gpuFallbackReason = "good-no-texture";  return false; }
 
 	POINT const hp = GetHotPoint(action);
 	bool const reversed = facing >= 5;

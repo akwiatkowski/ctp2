@@ -151,6 +151,8 @@ sint32      g_tileImprovementMode   = 0;
 BOOL        g_isTransportOn         = FALSE;
 sint32      g_isFastCpu             = 1;
 sint32      g_isGridOn              = 0;
+int s_goodCellsSeen = 0, s_goodNoActor = 0, s_goodDeclined = 0, s_goodEmitted = 0;   // PROBE
+char const * s_goodReason = "";   // PROBE
 sint32      g_placeGoodsMode        = FALSE;
 BOOL	    g_drawArmyClumps;
 
@@ -4234,6 +4236,7 @@ void TiledMap::BuildTerrainQuads()
 		}
 	}
 
+	s_goodCellsSeen = s_goodNoActor = s_goodDeclined = s_goodEmitted = 0;   // PROBE
 	PLAYER_INDEX const player = selitem_Get()->GetVisiblePlayer();
 	double const scale = GetScale();
 	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
@@ -4262,14 +4265,21 @@ void TiledMap::BuildTerrainQuads()
 
 			if (world_Get()->IsGood(pos))
 			{
+				++s_goodCellsSeen;   // PROBE
 				TileInfo * tileInfo = GetTileInfo(pos);
 				GoodActor * goodActor = tileInfo ? tileInfo->GetGoodActor() : nullptr;
+				if (!goodActor) ++s_goodNoActor;   // PROBE
 				if (goodActor)
 				{
 					goodActor->PositionActor(pos);
 					if (!goodActor->AddGpuSpriteQuad(drawX + aui_SDL::WorldContentOffX(),
 					                                drawY + aui_SDL::WorldContentOffY(), scale))
-						aui_SDL::MarkQuadFrameIncomplete("good-sprite");
+					{
+						++s_goodDeclined;   // PROBE
+						s_goodReason = GoodSpriteGroup::GpuFallbackReason();   // PROBE
+						aui_SDL::MarkQuadFrameIncomplete(GoodSpriteGroup::GpuFallbackReason());
+					}
+					else ++s_goodEmitted;   // PROBE
 				}
 			}
 

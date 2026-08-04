@@ -191,11 +191,21 @@ void maputils_MapXY2WorldmapPixelXY(
 	sint32 tileX = 0;
 	maputils_MapX2TileX(mapX, mapY, &tileX);
 
+	// Stride with the ENGINE's tile metrics, not the asset constants. The tile
+	// art is k_TILE_GRID_WIDTH (94) wide, but maputils_MapXY2PixelXY -- the
+	// projection every view-relative coordinate in the engine comes from -- lays
+	// columns out on GetZoomTilePixelWidth() (96 at full zoom). Packing the
+	// whole-map texture on 94 while sprites and picking arrive in 96-space put a
+	// -2px-per-column drift between a tile and everything drawn on it, which no
+	// constant offset can correct. Rows already agree (24 both ways).
+	sint32 const strideX = tiledmap_Get() ? tiledmap_Get()->GetZoomTilePixelWidth()
+	                                      : k_TILE_GRID_WIDTH;
+	sint32 const strideY = tiledmap_Get() ? (tiledmap_Get()->GetZoomTilePixelHeight() / 2)
+	                                      : (k_TILE_PIXEL_HEIGHT / 2);
 	if (pixelX)
-		*pixelX = tileX * k_TILE_GRID_WIDTH
-		        + ((mapY & 1) ? (k_TILE_GRID_WIDTH / 2) : 0);
+		*pixelX = tileX * strideX + ((mapY & 1) ? (strideX / 2) : 0);
 	if (pixelY)
-		*pixelY = mapY * (k_TILE_PIXEL_HEIGHT / 2);
+		*pixelY = mapY * strideY;
 }
 
 void maputils_MapXY2PixelXY(

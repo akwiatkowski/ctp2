@@ -3947,7 +3947,10 @@ int TiledMap::BuildWorldmapQuads()
 
 	// The whole map at native tile size. Rows interleave by half a grid height,
 	// so the map is mapHeight half-steps tall plus the bottom row's remainder.
-	int const texW = static_cast<int>(mapWidth)  * k_TILE_GRID_WIDTH + k_TILE_GRID_WIDTH;
+	// Same stride the whole-map projection addresses with (see
+	// maputils_MapXY2WorldmapPixelXY) -- the engine's, not the asset constant.
+	int const strideX = GetZoomTilePixelWidth();
+	int const texW = static_cast<int>(mapWidth)  * strideX + strideX;
 	int const texH = static_cast<int>(mapHeight) * (k_TILE_PIXEL_HEIGHT / 2) + k_TILE_GRID_HEIGHT;
 	if (!aui_SDL::EnsureWorldmapTexture(texW, texH))
 		return 0;   // driver refused the size — caller stays on the ADR-002 path
@@ -4141,9 +4144,11 @@ int TiledMap::BuildWorldmapQuads()
 	{
 		sint32 const vy = m_mapViewRect.top;
 		sint32 vx = ((m_mapViewRect.left % mapWidth) + mapWidth) % mapWidth;
-		aui_SDL::SetWorldmapOrigin(
-			vx * k_TILE_GRID_WIDTH + ((vy & 1) ? (k_TILE_GRID_WIDTH / 2) : 0),
-			vy * (k_TILE_PIXEL_HEIGHT / 2) + k_TILE_PIXEL_HEADROOM);
+		sint32 originMapX = vx;
+		maputils_TileX2MapXAbs(vx, vy, &originMapX);
+		sint32 originX = 0, originY = 0;
+		maputils_MapXY2WorldmapPixelXY(originMapX, vy, &originX, &originY);
+		aui_SDL::SetWorldmapOrigin(originX, originY + k_TILE_PIXEL_HEADROOM);
 	}
 
 	m_worldmapRedrawn = static_cast<int>(dirty.size());
@@ -4193,6 +4198,25 @@ void TiledMap::BuildTerrainQuads()
 	sint32 baseY = m_mapViewRect.top;
 	maputils_TileX2MapXAbs(m_mapViewRect.left, m_mapViewRect.top, &baseX);
 	maputils_MapXY2PixelXY(baseX, baseY, &baseX, &baseY);
+
+	// P13: where the view's top-left sits in the whole-map texture, from the SAME
+	// projection the tile builder draws with. Derived once per frame from the view
+	// rect rather than measured off whichever cell a loop happens to reach, so it
+	// can never be stale (the old site sat behind an IsExplored continue and froze
+	// on a fully-unexplored view) nor cell-dependent.
+	//
+	// This is provably the same value the per-cell measurement produced:
+	// maputils_MapXY2PixelXY subtracts viewLeft*tileWidth and the smooth-scroll
+	// offsets from every cell, so both cancel in (worldmap(cell) - draw(cell)),
+	// leaving worldmap(viewOrigin).
+	{
+		sint32 originMapX = m_mapViewRect.left;
+		maputils_TileX2MapXAbs(m_mapViewRect.left, m_mapViewRect.top, &originMapX);
+		sint32 originWorldmapX = 0, originWorldmapY = 0;
+		maputils_MapXY2WorldmapPixelXY(originMapX, m_mapViewRect.top,
+		                               &originWorldmapX, &originWorldmapY);
+		aui_SDL::SetWorldmapSpriteBase(originWorldmapX, originWorldmapY);
+	}
 
 	// Mirror RepaintTiles' visible-cell iteration (m_mapViewRect + wrap/bounds).
 	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
@@ -4317,18 +4341,6 @@ void TiledMap::BuildTerrainQuads()
 			    || (drawY < m_surfaceRect.top)
 			    || (drawY > (m_surfaceRect.bottom - (GetZoomTilePixelHeight() + GetZoomTileHeadroom()))))
 				continue;
-
-			// Publish the sprite base from a REAL cell: the difference between
-			// where the terrain builder puts this tile in the whole-map texture
-			// and the view-relative coordinate sprites for it are emitted with.
-			// Measuring it beats deriving it -- the two projections differ by a
-			// row-parity nudge and the headroom, and getting that algebra wrong
-			// put every sprite (-48, +24) texture pixels off its tile.
-			{
-				sint32 wmX = 0, wmY = 0;
-				maputils_MapXY2WorldmapPixelXY(pos.x, pos.y, &wmX, &wmY);
-				aui_SDL::SetWorldmapSpriteBase(wmX - drawX, wmY - drawY);
-			}
 
 			if (world_Get()->IsGood(pos))
 			{

@@ -3145,6 +3145,23 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				smoketest_send_response("error", cmd, "not_sdl");
 #endif
 			}
+			else if (strncmp(cmd, "camera_debug_zoom ", 18) == 0) {
+				// camera_debug_zoom <zoom>
+				// Force the camera zoom directly, bypassing pinch integration and
+				// the detent, so a harness can check that sprites stay glued to
+				// their tiles at a zoom other than 1. Without this the harness
+				// could only ever test the one zoom where most errors vanish.
+				float zoom = 1.0f;
+				sscanf(cmd + 18, "%f", &zoom);
+#ifdef USE_SDL
+				aui_SDL::SetCamera(aui_SDL::CameraOffX(), aui_SDL::CameraOffY(), zoom);
+				char detail[64];
+				snprintf(detail, sizeof(detail), "zoom=%.3f", aui_SDL::CameraZoom());
+				smoketest_send_response("ok", cmd, detail);
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
+			}
 			else if (strncmp(cmd, "camera_debug_pan ", 17) == 0) {
 				// camera_debug_pan <dx> <dy>
 				// TEMPORARY (P11 pixel-proof debug): add to the buttery-pan

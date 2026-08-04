@@ -29,9 +29,12 @@ Start or load a game first — everything below is inert in the menus.
 EXPECT ON THE WHOLE-MAP PATH: terrain, units, cities and effects. Units and
 cities pan and zoom WITH the terrain -- that is the part to check.
 
-Still missing: roads, rivers, borders, the grid, and goods. Those are not on
-the quad path at all (they force a CPU fallback), so the legacy path still
-shows more. That is the rest of step 3, not a bug.
+Also present now: roads and other improvements, rivers, goody huts, the grid,
+goods, and national borders (the smooth/icon style).
+
+Still missing: LINE-style national borders, which draw through a routine that
+cannot target a tile-sized buffer. Switch borders to smooth in the graphics
+options to see them here.
 
 WHAT TO JUDGE — the questions the code deliberately left open:
 

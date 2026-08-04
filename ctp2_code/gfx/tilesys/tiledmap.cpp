@@ -5615,10 +5615,21 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
 		float const z = aui_SDL::CameraZoom();
 		float const ox = static_cast<float>(aui_SDL::WorldmapOriginX());
 		float const oy = static_cast<float>(aui_SDL::WorldmapOriginY());
+		// Two different origins are in play here, and using one for both jobs is
+		// what made a click land on the neighbouring tile. ox/oy is where the
+		// present WINDOWS the texture, so it is the right base for the screen ->
+		// texture inversion. But converting texture -> view-relative must
+		// subtract the TRUE texture position of the view's top-left, which is
+		// the sprite base -- the projection the tile builder actually draws
+		// with. The two differ by a fixed (k_TILE_GRID_WIDTH/4, headroom), which
+		// is a quarter tile across and half a row down: enough to select the
+		// wrong tile every time.
+		float const bx = static_cast<float>(aui_SDL::WorldmapSpriteBaseX());
+		float const by = static_cast<float>(aui_SDL::WorldmapSpriteBaseY());
 		x = static_cast<sint32>(camera_window::ScreenToTexture(
-			static_cast<float>(x), aui_SDL::ViewportW(), ox, aui_SDL::CameraOffX(), z) - ox);
+			static_cast<float>(x), aui_SDL::ViewportW(), ox, aui_SDL::CameraOffX(), z) - bx);
 		y = static_cast<sint32>(camera_window::ScreenToTexture(
-			static_cast<float>(y), aui_SDL::ViewportH(), oy, aui_SDL::CameraOffY(), z) - oy);
+			static_cast<float>(y), aui_SDL::ViewportH(), oy, aui_SDL::CameraOffY(), z) - by);
 	}
 	// P11 2c (ADR-001): the sub-tile GPU pan slides the visible world by CameraOff
 	// while the engine view stays tile-aligned, so a pick must shift by the same

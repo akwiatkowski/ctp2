@@ -3571,6 +3571,12 @@ std::string QueryGpuWorld()
     // correlating presented pixels — tile art is periodic, so a correlation
     // peak can sit a whole tile off and still look convincing.
     result["worldmap_origin"] = { aui_SDL::WorldmapOriginX(), aui_SDL::WorldmapOriginY() };
+    // Terrain, sprites and picking must all agree on where the view's top-left
+    // sits in the whole-map texture. Picking inverts through the origin; sprites
+    // are placed through the sprite base. Any difference between these two is
+    // exactly the "click the unit, select its neighbour" error, in texture
+    // pixels, so report it rather than leaving it to be inferred from pixels.
+    result["worldmap_sprite_base"] = { aui_SDL::WorldmapSpriteBaseX(), aui_SDL::WorldmapSpriteBaseY() };
     result["worldmap_size"] = { aui_SDL::WorldmapW(), aui_SDL::WorldmapH() };
     result["world_content_off"] = { aui_SDL::WorldContentOffX(), aui_SDL::WorldContentOffY() };
     result["camera"] = { {"zoom", aui_SDL::CameraZoom()},

@@ -3888,6 +3888,7 @@ void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo)
 
 	DrawImprovementsLayer(nullptr, cellPos, 0, 0);
 
+
 	if (profiledb_Get() && profiledb_Get()->GetShowPoliticalBorders()
 	 && profiledb_Get()->IsSmoothBorders() && m_tileSet)
 	{
@@ -4316,6 +4317,18 @@ void TiledMap::BuildTerrainQuads()
 			    || (drawY < m_surfaceRect.top)
 			    || (drawY > (m_surfaceRect.bottom - (GetZoomTilePixelHeight() + GetZoomTileHeadroom()))))
 				continue;
+
+			// Publish the sprite base from a REAL cell: the difference between
+			// where the terrain builder puts this tile in the whole-map texture
+			// and the view-relative coordinate sprites for it are emitted with.
+			// Measuring it beats deriving it -- the two projections differ by a
+			// row-parity nudge and the headroom, and getting that algebra wrong
+			// put every sprite (-48, +24) texture pixels off its tile.
+			{
+				sint32 wmX = 0, wmY = 0;
+				maputils_MapXY2WorldmapPixelXY(pos.x, pos.y, &wmX, &wmY);
+				aui_SDL::SetWorldmapSpriteBase(wmX - drawX, wmY - drawY);
+			}
 
 			if (world_Get()->IsGood(pos))
 			{

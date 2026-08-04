@@ -37,6 +37,8 @@ SDL_Texture *aui_SDL::m_worldmapTexture = nullptr;
 int aui_SDL::m_worldmapW = 0;
 int aui_SDL::m_worldmapH = 0;
 int aui_SDL::m_worldmapOriginX = 0;
+int aui_SDL::m_worldmapSpriteBaseX = 0;
+int aui_SDL::m_worldmapSpriteBaseY = 0;
 bool aui_SDL::m_worldmapSpritesOn = true;
 int aui_SDL::m_lastIconOpaquePixels = 0;
 int aui_SDL::m_worldmapOriginY = 0;
@@ -146,8 +148,8 @@ void aui_SDL::RenderWorldmapSpriteQuads(SDL_Renderer *renderer,
 		if (q.screen_space || !q.texture)
 			continue;
 
-		float const mapX = (float) q.dx - (float) WorldContentOffX() + (float) m_worldmapOriginX;
-		float const mapY = (float) q.dy - (float) WorldContentOffY() + (float) m_worldmapOriginY;
+		float const mapX = (float) q.dx - (float) WorldContentOffX() + (float) m_worldmapSpriteBaseX;
+		float const mapY = (float) q.dy - (float) WorldContentOffY() + (float) m_worldmapSpriteBaseY;
 
 		SDL_SetTextureBlendMode(q.texture, q.additive ? SDL_BLENDMODE_ADD : SDL_BLENDMODE_BLEND);
 		SDL_SetTextureColorMod(q.texture, q.red, q.green, q.blue);

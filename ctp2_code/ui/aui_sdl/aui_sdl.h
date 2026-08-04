@@ -187,6 +187,18 @@ public:
 	// Where the screen's top-left sits inside the whole-map texture, in map
 	// pixels. Published each build by TiledMap; the present windows here.
 	static void SetWorldmapOrigin(int x, int y) { m_worldmapOriginX = x; m_worldmapOriginY = y; }
+	// Whole-map pixel that view-relative (0,0) maps to, for SPRITES.
+	//
+	// This is NOT WorldmapOrigin. That is built from the view rect and carries a
+	// row-parity nudge plus k_TILE_PIXEL_HEADROOM; a sprite's coordinates come
+	// from maputils, which applies the nudge for the CELL's own row and no
+	// headroom. Assuming the two cancel put every sprite a fixed (-48, +24)
+	// texture pixels off its tile -- invisible at zoom 1 against a 96px tile,
+	// obvious once zoomed out. Published by the tile builder as the measured
+	// difference for a real cell, so it stays right whatever the projections do.
+	static void SetWorldmapSpriteBase(int x, int y) { m_worldmapSpriteBaseX = x; m_worldmapSpriteBaseY = y; }
+	static int WorldmapSpriteBaseX() { return m_worldmapSpriteBaseX; }
+	static int WorldmapSpriteBaseY() { return m_worldmapSpriteBaseY; }
 	static int WorldmapOriginX() { return m_worldmapOriginX; }
 	// Test hook: turn the whole-map sprite pass off so a single run can
 	// capture the same map with and without it. New games generate a random
@@ -288,6 +300,8 @@ protected:
 	static int		m_worldmapW;
 	static int		m_worldmapH;
 	static int		m_worldmapOriginX;
+	static int m_worldmapSpriteBaseX;
+	static int m_worldmapSpriteBaseY;
 	static int		m_worldmapOriginY;
 	// P11 G1: terrain quad atlas (source) + the per-frame cell draw list.
 	static SDL_Texture *	m_quadAtlasTexture;

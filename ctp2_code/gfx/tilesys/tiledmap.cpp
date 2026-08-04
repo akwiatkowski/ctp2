@@ -3822,9 +3822,16 @@ uint64_t TiledMap::CellSignatureAt(sint32 mapX, sint32 mapY)
 	if (!m_tileSet->GetBaseTile(tileInfo->GetTileNum())) return k_WORLDMAP_CELL_UNDRAWN;
 	sint32 const tilesetIndex =
 		g_theTerrainDB->Get(tileInfo->GetTerrainType())->GetTilesetIndex();
-	return TerrainCellSignature(tileInfo->GetTileNum(), (uint8_t) tilesetIndex,
-		(uint8_t) tileInfo->GetTransition(0), (uint8_t) tileInfo->GetTransition(1),
-		(uint8_t) tileInfo->GetTransition(2), (uint8_t) tileInfo->GetTransition(3));
+	// MUST match what BuildWorldmapQuads stores in m_worldmapCellSig, overlays
+	// included. The dirty pre-pass compares the two: if they are computed
+	// differently every cell looks changed every frame, every neighbour is
+	// marked undrawn, and the path silently redraws the whole map on every pan
+	// -- correct output, none of the point.
+	return WorldmapCellSignature(
+		TerrainCellSignature(tileInfo->GetTileNum(), (uint8_t) tilesetIndex,
+			(uint8_t) tileInfo->GetTransition(0), (uint8_t) tileInfo->GetTransition(1),
+			(uint8_t) tileInfo->GetTransition(2), (uint8_t) tileInfo->GetTransition(3)),
+		WorldmapCellOverlayState(tileInfo, pos, m_localVision, g_isGridOn != 0));
 }
 
 // P13 step 3: the per-cell overlays for one whole-map tile, drawn into the

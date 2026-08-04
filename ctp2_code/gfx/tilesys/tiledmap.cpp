@@ -3941,10 +3941,12 @@ int TiledMap::BuildWorldmapQuads()
 			// one tile wide, odd rows are nudged half a tile, and rows advance
 			// by half a tile height because they interleave (the same nudge
 			// maputils applies for `mapY & 0x01`).
-			sint32 tileX = 0;
-			maputils_MapX2TileX(j, i, &tileX);
-			sint32 const drawX = tileX * k_TILE_GRID_WIDTH
-			                   + ((i & 1) ? (k_TILE_GRID_WIDTH / 2) : 0);
+			// The absolute projection now lives in maputils beside the
+			// view-relative one, so terrain and anything else placed into this
+			// texture agree on where a tile is.
+			sint32 drawX = 0;
+			sint32 slotY = 0;
+			maputils_MapXY2WorldmapPixelXY(j, i, &drawX, &slotY);
 			// Rows step by HALF THE DIAMOND (k_TILE_PIXEL_HEIGHT/2 = 24), not
 			// half the grid cell. The 72px grid height includes 24px of
 			// headroom above the diamond for elevation; stepping by 36 spaces
@@ -3957,7 +3959,7 @@ int TiledMap::BuildWorldmapQuads()
 			// leaves coverage identical at 162/900), but whatever maps camera
 			// position to this texture must account for it. Not folded in here
 			// because it would place row 0 at y = -24, off the texture.
-			sint32 const drawY = i * (k_TILE_PIXEL_HEIGHT / 2);
+			sint32 const drawY = slotY;
 
 			aui_SDL::GpuQuad q;
 			q.sx = slot.atlasX; q.sy = slot.atlasY; q.sw = tileW; q.sh = tileH;

@@ -181,6 +181,23 @@ void maputils_MapX2TileX(
 	*tileX = (mapX + mapY/2) % mapWidth;
 }
 
+void maputils_MapXY2WorldmapPixelXY(
+	sint32 mapX,
+	sint32 mapY,
+	sint32 *pixelX,
+	sint32 *pixelY
+	)
+{
+	sint32 tileX = 0;
+	maputils_MapX2TileX(mapX, mapY, &tileX);
+
+	if (pixelX)
+		*pixelX = tileX * k_TILE_GRID_WIDTH
+		        + ((mapY & 1) ? (k_TILE_GRID_WIDTH / 2) : 0);
+	if (pixelY)
+		*pixelY = mapY * (k_TILE_PIXEL_HEIGHT / 2);
+}
+
 void maputils_MapXY2PixelXY(
 	sint32 mapX,
 	sint32 mapY,

@@ -15,4 +15,23 @@ void	maputils_MapXY2PixelXY(sint32 mapX, sint32 mapY, sint32 * pixelX, sint32 * 
 
 void	maputils_TileX2MapXAbs(sint32 tileX,sint32 tileY,sint32 *mapX);
 
+// Absolute map -> whole-map-texture pixel (P13 / ADR-003).
+//
+// Unlike maputils_MapXY2PixelXY this consults NO view rect: the whole-map
+// target holds the entire map, so a tile's place in it depends only on its map
+// coordinates. That is also why it needs none of that function's wrap-splitting
+// -- there is no view edge for the map to wrap around.
+//
+// Plain isometric arithmetic: a column is one tile wide, odd rows are nudged
+// half a tile, and rows advance by HALF THE DIAMOND (k_TILE_PIXEL_HEIGHT / 2)
+// because they interleave. Not half the grid cell: the 72px grid height
+// includes 24px of elevation headroom above the diamond, and stepping by that
+// spaces rows 1.5x too far apart (fixed in fda82c49).
+//
+// Returns the tile SLOT's top-left. DrawTransitionTile places the diamond
+// k_TILE_PIXEL_HEADROOM down inside the slot, so callers aligning to the
+// visible diamond -- rather than to terrain quads, which use the slot -- must
+// add that offset themselves.
+void	maputils_MapXY2WorldmapPixelXY(sint32 mapX, sint32 mapY, sint32 *pixelX, sint32 *pixelY);
+
 #endif

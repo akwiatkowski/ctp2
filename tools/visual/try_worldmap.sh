@@ -26,9 +26,12 @@ cat <<'EOF'
 
 Start or load a game first — everything below is inert in the menus.
 
-EXPECT ON THE WHOLE-MAP PATH: terrain only. No units, cities, roads, borders,
-grid or goods. That is step 3, not a bug. On the legacy path you get the full
-map, which is why the two look very different.
+EXPECT ON THE WHOLE-MAP PATH: terrain, units, cities and effects. Units and
+cities pan and zoom WITH the terrain -- that is the part to check.
+
+Still missing: roads, rivers, borders, the grid, and goods. Those are not on
+the quad path at all (they force a CPU fallback), so the legacy path still
+shows more. That is the rest of step 3, not a bug.
 
 WHAT TO JUDGE — the questions the code deliberately left open:
 
@@ -56,7 +59,17 @@ WHAT TO JUDGE — the questions the code deliberately left open:
      - Steady => linear filtering is enough, and we skip the mip pyramid.
      - Shimmering => the pyramid is needed (~41MB, ADR-003 anticipated it).
 
-  5. CLICK ACCURACY  <-- the correctness one
+  5. UNITS AND CITIES SIT ON THEIR TILES  <-- new, and the one most likely wrong
+     Sprites are drawn over the windowed terrain rather than baked into it,
+     converted by a single offset from the engine's view-relative coordinates.
+     - At 100%, is each unit ON its tile, not beside or under it?
+     - Zoom in and out: do sprites stay glued to their tiles, or drift?
+     - Pan: do they travel with the terrain, or lag/slide against it?
+     - Move a unit around: no smearing or trails. (If you see a trail, a sprite
+       has been drawn INTO the persistent whole-map texture, which is exactly
+       what this design avoids.)
+
+  6. CLICK ACCURACY  <-- the correctness one
      Zoom to something well away from 1.0, then click tiles, especially near
      the screen corners. Selection must land on the tile under the cursor.
      The transform is round-trip unit-tested, but only you can confirm it

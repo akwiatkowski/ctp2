@@ -2135,14 +2135,18 @@ void TiledMap::DrawDitheredOverlayScaled(aui_Surface *surface, Pixel16 *data, si
 {
 	if (!data || (x < 0) || (y < 0)) return;
 
-	if (!surface)
-    {
-        surface = m_surface;
-        if (!surface) return;
-    }
+	// A null surface means "the current composite target" -- m_surfBase and
+	// friends -- exactly as DrawColorizedOverlay treats it, and that is what the
+	// whole-map tile builder sets up per cell. Substituting m_surface and bailing
+	// when it is absent (always, on the whole-map path) made the grid the one
+	// overlay that silently drew nothing there, while rivers, roads and borders
+	// -- all DrawColorizedOverlay -- worked.
+	sint32 boundsWidth  = surface ? surface->Width()  : m_surfWidth;
+	sint32 boundsHeight = surface ? surface->Height() : m_surfHeight;
+	if (!surface && !m_surfBase) return;
 
-    if (x >= surface->Width() - destWidth) return;
-    if (y >= surface->Height() - destHeight) return;
+    if (x >= boundsWidth  - destWidth)  return;
+    if (y >= boundsHeight - destHeight) return;
 
 	Pixel16		emptyRow[2];
 	emptyRow[0] = (k_TILE_SKIP_RUN_ID << 8) | k_TILE_GRID_WIDTH;
@@ -2244,13 +2248,17 @@ sint32 TiledMap::DrawTileBorder(aui_Surface *surface, sint32 x, sint32 y, Pixel1
 	y+=k_TILE_PIXEL_HEADROOM;
     if (y < 0) return 0;
 
-	if (!surface)
-    {
-        surface = m_surface;
-        if (!surface) return 0;
-    }
-    if (x > surface->Width() - k_TILE_PIXEL_WIDTH) return 0;
-    if (y > surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
+	// A null surface means "the current composite target" -- m_surfBase and
+	// friends -- exactly as DrawColorizedOverlay treats it, and that is what the
+	// whole-map tile builder sets up per cell. Substituting m_surface and bailing
+	// when it is absent (always, on the whole-map path) made the grid the one
+	// overlay that silently drew nothing there, while rivers, roads and borders
+	// -- all DrawColorizedOverlay -- worked.
+	sint32 boundsWidth  = surface ? surface->Width()  : m_surfWidth;
+	sint32 boundsHeight = surface ? surface->Height() : m_surfHeight;
+	if (!surface && !m_surfBase) return 0;
+    if (x > boundsWidth  - k_TILE_PIXEL_WIDTH)  return 0;
+    if (y > boundsHeight - k_TILE_PIXEL_HEIGHT) return 0;
 
 	bool const  bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
 	sint32 const step = bpp32 ? 4 : 2;

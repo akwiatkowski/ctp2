@@ -55,6 +55,29 @@ inline uint64_t TerrainCellSignature(uint16_t tileNum, uint8_t tilesetIndex,
 	     | ((uint64_t)t3           << 48);
 }
 
+// P13 step 3: key for a whole-map cell, whose image includes the per-cell
+// overlays the window path leaves to the CPU (river, roads and other
+// improvements, goody hut, grid). Those cannot go in the structured layout
+// above -- it is already full -- so this hashes them in.
+//
+// Both quad paths share ONE GpuTileCache, so a worldmap key must never equal a
+// window key or one path would be served the other's image. Bit 63 makes that
+// impossible rather than unlikely: TerrainCellSignature packs into bits 0..55,
+// so a structured key always has the top byte clear, and every key from here
+// always has bit 63 set.
+inline uint64_t WorldmapCellSignature(uint64_t terrainSignature, uint64_t overlayState)
+{
+	// splitmix64 finaliser: cheap, and mixes every input bit into every output
+	// bit so an overlay change of one bit cannot alias a different terrain.
+	uint64_t h = terrainSignature ^ (overlayState + 0x9E3779B97F4A7C15ULL
+	                                 + (terrainSignature << 6)
+	                                 + (terrainSignature >> 2));
+	h = (h ^ (h >> 30)) * 0xBF58476D1CE4E5B9ULL;
+	h = (h ^ (h >> 27)) * 0x94D049BB133111EBULL;
+	h ^=  h >> 31;
+	return h | (1ULL << 63);
+}
+
 // The atlas rect a signature is mapped to. (atlasX, atlasY) is the top-left
 // pixel of this slot inside the atlas image; the slot is TileW() x TileH().
 struct GpuTileSlot

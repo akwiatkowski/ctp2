@@ -260,6 +260,37 @@ namespace
         return true;
     }
 
+    // Everything that changes what the per-cell OVERLAYS look like, folded into
+    // one value so a cached whole-map tile is rebuilt exactly when its
+    // appearance changes and never otherwise.
+    //
+    // Terrain state is deliberately absent -- TerrainCellSignature already
+    // carries it, and this is combined with that. Visibility and ownership ARE
+    // here: DrawImprovementsLayer draws a remembered (last-seen) cell for
+    // territory the visible player does not own, so the same road can render
+    // differently depending on who is looking.
+    uint64_t WorldmapCellOverlayState(TileInfo const *tileInfo, MapPoint const &pos,
+                                      Vision const *vision, bool gridOn)
+    {
+        uint64_t state = gridOn ? 1u : 0u;
+        state = (state << 16) | (uint64_t)(uint16_t)(tileInfo ? tileInfo->GetRiverPiece() : -1);
+
+        Cell * const cell = world_Get() ? world_Get()->GetCell(pos) : nullptr;
+        uint64_t env = cell ? cell->GetEnv() : 0u;
+        // Only the bits that reach the improvement layer; the rest of GetEnv
+        // changes constantly and would defeat the cache.
+        env &= (k_MASK_ENV_INSTALLATION | k_MASK_ENV_MINE | k_MASK_ENV_IRRIGATION
+              | k_MASK_ENV_ROAD | k_MASK_ENV_CANAL_TUNNEL);
+        state = (state << 32) ^ env;
+
+        uint64_t counts = (uint64_t)(cell ? cell->GetNumImprovements() : 0)
+                        | ((uint64_t)(cell ? cell->GetNumDBImprovements() : 0) << 8)
+                        | ((world_Get() && world_Get()->GetGoodyHut(pos)) ? (1ULL << 16) : 0)
+                        | ((vision && vision->IsVisible(pos))             ? (1ULL << 17) : 0)
+                        | ((uint64_t)(uint8_t)(world_Get() ? world_Get()->GetOwner(pos) : -1) << 24);
+        return state * 0x100000001B3ULL ^ counts;
+    }
+
     bool CellHasCpuOnlyImprovementLayer(Cell *cell, MapPoint const &pos)
     {
         if (!cell)
@@ -3796,6 +3827,45 @@ uint64_t TiledMap::CellSignatureAt(sint32 mapX, sint32 mapY)
 		(uint8_t) tileInfo->GetTransition(2), (uint8_t) tileInfo->GetTransition(3));
 }
 
+// P13 step 3: the per-cell overlays for one whole-map tile, drawn into the
+// surface the caller has locked (the scratch tile), at its origin.
+//
+// Same content and same order as the CPU path in DrawATile: river over the
+// terrain, then the improvement layer (roads, mines, irrigation, installations,
+// goody huts), then the grid on top. Passing nullptr as the surface targets the
+// locked surface, which is how workmap and resourcemap already reuse these
+// routines for their own views.
+//
+// National borders are NOT here. DrawNationalBorders computes its own
+// view-relative position and bails on a negative one, so it cannot draw into a
+// tile-sized scratch surface without being given a destination first.
+void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo)
+{
+	MapPoint cellPos = pos;
+
+	sint16 const river = tileInfo ? tileInfo->GetRiverPiece() : -1;
+	if (river != -1 && m_tileSet)
+	{
+		if (m_zoomLevel == k_ZOOM_LARGEST)
+			DrawOverlay(nullptr, m_tileSet->GetRiverData(river), 0, 0);
+		else
+			DrawScaledOverlay(nullptr, m_tileSet->GetRiverData(river), 0, 0,
+				GetZoomTilePixelWidth(), GetZoomTileGridHeight());
+	}
+
+	DrawImprovementsLayer(nullptr, cellPos, 0, 0);
+
+	if (g_isGridOn)
+	{
+		if (m_zoomLevel == k_ZOOM_LARGEST)
+			DrawTileBorder(nullptr, 0, 0, colorset_Get()->GetColor(COLOR_BLACK));
+		else
+			DrawTileBorderScaled(nullptr, cellPos, 0, 0,
+				GetZoomTilePixelWidth(), GetZoomTileGridHeight(),
+				colorset_Get()->GetColor(COLOR_BLACK));
+	}
+}
+
 int TiledMap::BuildWorldmapQuads()
 {
 	if (!aui_SDL::GpuWorldmapEnabled()) return 0;
@@ -3900,13 +3970,20 @@ int TiledMap::BuildWorldmapQuads()
 
 			sint32 const tilesetIndex =
 				g_theTerrainDB->Get(tileInfo->GetTerrainType())->GetTilesetIndex();
-			uint64_t const sig = TerrainCellSignature(
-				tileInfo->GetTileNum(),
-				(uint8_t) tilesetIndex,
-				(uint8_t) tileInfo->GetTransition(0),
-				(uint8_t) tileInfo->GetTransition(1),
-				(uint8_t) tileInfo->GetTransition(2),
-				(uint8_t) tileInfo->GetTransition(3));
+			// P13 step 3: the whole-map image includes the per-cell overlays
+			// (river, roads and other improvements, goody hut, grid) that the
+			// window path leaves to the CPU, so the key has to cover them too.
+			// Bit 63 keeps these keys disjoint from the window path's, which
+			// shares this cache.
+			uint64_t const sig = WorldmapCellSignature(
+				TerrainCellSignature(
+					tileInfo->GetTileNum(),
+					(uint8_t) tilesetIndex,
+					(uint8_t) tileInfo->GetTransition(0),
+					(uint8_t) tileInfo->GetTransition(1),
+					(uint8_t) tileInfo->GetTransition(2),
+					(uint8_t) tileInfo->GetTransition(3)),
+				WorldmapCellOverlayState(tileInfo, pos, m_localVision, g_isGridOn != 0));
 
 			// The whole point of this path: unchanged cells cost nothing, so a
 			// pan or a zoom redraws zero tiles.
@@ -3922,11 +3999,20 @@ int TiledMap::BuildWorldmapQuads()
 				{
 					++m_worldmapUploads;
 					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
+					// Base terrain plus its transitions.
 					if (m_zoomLevel == k_ZOOM_LARGEST)
 						DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
 					else
 						DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
 							GetZoomTilePixelWidth(), GetZoomTilePixelHeight());
+
+					// P13 step 3: the per-cell overlays, in the order the CPU
+					// path draws them. nullptr targets the surface locked
+					// above -- the scratch tile -- which is how workmap and
+					// resourcemap already reuse these same routines for their
+					// own views.
+					DrawWorldmapCellOverlays(pos, tileInfo);
+
 					aui_SDL::UploadQuadAtlasSlot(slot.atlasX, slot.atlasY, tileW, tileH,
 						m_surfBase, m_surfPitch);
 				}
@@ -4112,11 +4198,20 @@ void TiledMap::BuildTerrainQuads()
 				if (m_surfBase)
 				{
 					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
+					// Base terrain plus its transitions.
 					if (m_zoomLevel == k_ZOOM_LARGEST)
 						DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
 					else
 						DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
 							GetZoomTilePixelWidth(), GetZoomTilePixelHeight());
+
+					// P13 step 3: the per-cell overlays, in the order the CPU
+					// path draws them. nullptr targets the surface locked
+					// above -- the scratch tile -- which is how workmap and
+					// resourcemap already reuse these same routines for their
+					// own views.
+					DrawWorldmapCellOverlays(pos, tileInfo);
+
 					aui_SDL::UploadQuadAtlasSlot(slot.atlasX, slot.atlasY, tileW, tileH,
 						m_surfBase, m_surfPitch);
 				}

@@ -185,6 +185,9 @@ void RunRound(sint32 round, SetCurrentPlayerFn set_current_player)
 
 }  // namespace game_controller
 
+// Owned by tiledmap.cpp; the graphics options screen is the only other writer.
+extern sint32 g_isGridOn;
+
 namespace {
 
 using game_controller::HumanPlayer;
@@ -552,6 +555,29 @@ std::string CmdDebugClearTerrainLayers(const char * args)
 	}
 	map->BuildTerrainQuads();
 	return Ok("debug_clear_terrain_layers");
+}
+
+// Toggle the tile grid. It is a global the graphics options screen owns, with
+// no way in from a test; the grid is the one per-cell overlay that affects
+// EVERY cell at once, which makes it the decisive check that the whole-map
+// path composites overlays at all (P13 step 3).
+std::string CmdDebugSetGrid(const char * args)
+{
+	int on = -1;
+	if (!args || sscanf(args, "%d", &on) != 1 || (on != 0 && on != 1))
+		return Err("debug_set_grid", "bad_args");
+
+	::g_isGridOn = on;
+	// Every cached cell image is now stale: the grid is part of the whole-map
+	// tile picture, not a separate pass.
+	if (tiledmap_Get())
+	{
+		tiledmap_Get()->InvalidateWorldmap();
+		tiledmap_Get()->BuildTerrainQuads();
+	}
+	json result;
+	result["grid"] = on;
+	return Ok("debug_set_grid", result);
 }
 
 std::string CmdDebugRevealPatch(const char * args)
@@ -3494,6 +3520,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_clear_rivers ", 0) == 0)              return CmdDebugClearRivers(line.c_str() + 19);
     if (line.rfind("debug_clear_terrain_layers ", 0) == 0)      return CmdDebugClearTerrainLayers(line.c_str() + 27);
     if (line.rfind("debug_reveal_patch ", 0) == 0)              return CmdDebugRevealPatch(line.c_str() + 19);
+    if (line.rfind("debug_set_grid ", 0) == 0)                  return CmdDebugSetGrid(line.c_str() + 15);
 #if defined(RENDER_TOOL_BUILD) && defined(USE_SDL)
     if (line == "debug_worldmap_build")                         return CmdDebugWorldmapBuild("");
     if (line.rfind("debug_worldmap_build ", 0) == 0)            return CmdDebugWorldmapBuild(line.c_str() + 21);

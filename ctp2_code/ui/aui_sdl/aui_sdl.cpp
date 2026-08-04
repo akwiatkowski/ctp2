@@ -37,6 +37,7 @@ SDL_Texture *aui_SDL::m_worldmapTexture = nullptr;
 int aui_SDL::m_worldmapW = 0;
 int aui_SDL::m_worldmapH = 0;
 int aui_SDL::m_worldmapOriginX = 0;
+int aui_SDL::m_lastIconOpaquePixels = 0;
 int aui_SDL::m_worldmapOriginY = 0;
 float aui_SDL::m_panVelX = 0.0f;
 float aui_SDL::m_panVelY = 0.0f;
@@ -433,6 +434,11 @@ SDL_Texture *aui_SDL::EnsureMapIconTexture(void const *data, int w, int h, uint1
 			}
 		} while ((tag & 0xf000) == 0 && dest < rgba.data() + static_cast<size_t>(j + 1) * static_cast<size_t>(w));
 	}
+
+	m_lastIconOpaquePixels = 0;
+	for (uint32 px : rgba)
+		if ((px >> 24) != 0)
+			++m_lastIconOpaquePixels;
 
 	SDL_Texture *texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888,
 		SDL_TEXTUREACCESS_STATIC, w, h);

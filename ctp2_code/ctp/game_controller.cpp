@@ -580,6 +580,65 @@ std::string CmdDebugSetGrid(const char * args)
 	return Ok("debug_set_grid", result);
 }
 
+// Nearest map good to a position. Goods are placed at generation and there is
+// no query for them, which makes "does a good render" awkward to test.
+std::string CmdDebugFindGood(const char * args)
+{
+	sint32 fx = 0, fy = 0;
+	if (!args || sscanf(args, "%d %d", &fx, &fy) != 2)
+		return Err("debug_find_good", "bad_args");
+	World * w = world_Get();
+	if (!w) return Err("debug_find_good", "no_world");
+
+	sint32 bestD = 0x7fffffff, bx = -1, by = -1;
+	for (sint32 y = 0; y < w->GetYHeight(); ++y)
+		for (sint32 x = 0; x < w->GetXWidth(); ++x)
+		{
+			MapPoint p(x, y);
+			if (!w->IsGood(p)) continue;
+			sint32 const d = (x - fx) * (x - fx) + (y - fy) * (y - fy);
+			if (d < bestD) { bestD = d; bx = x; by = y; }
+		}
+	if (bx < 0) return Err("debug_find_good", "no_good_on_map");
+
+	json result;
+	result["pos"] = { {"x", bx}, {"y", by} };
+	return Ok("debug_find_good", result);
+}
+
+// Opaque pixel count from the last icon the GPU decoder built. Border icons
+// render as nothing on the whole-map path and this says whether the decode
+// produced anything to draw.
+std::string CmdDebugIconAlpha(const char * args)
+{
+	if (!tiledmap_Get() || !tiledmap_Get()->GetTileSet())
+		return Err("debug_icon_alpha", "no_tileset");
+	TileSet * ts = tiledmap_Get()->GetTileSet();
+
+	json result;
+	json icons = json::array();
+	MAPICON const probe[] = { MAPICON_POLBORDERNW, MAPICON_POLBORDERSW,
+	                          MAPICON_POLBORDERNE, MAPICON_POLBORDERSE };
+	char const * names[] = { "NW", "SW", "NE", "SE" };
+	for (int i = 0; i < 4; ++i)
+	{
+		Pixel16 * data = ts->GetMapIconData(probe[i]);
+		POINT dim = ts->GetMapIconDimensions(probe[i]);
+		json e;
+		e["edge"] = names[i];
+		e["has_data"] = (data != nullptr);
+		e["w"] = dim.x; e["h"] = dim.y;
+		if (data && dim.x > 0 && dim.y > 0)
+		{
+			aui_SDL::EnsureMapIconTexture(data, dim.x, dim.y, 0x7c00);
+			e["opaque_pixels"] = aui_SDL::LastIconOpaquePixels();
+		}
+		icons.push_back(e);
+	}
+	result["icons"] = icons;
+	return Ok("debug_icon_alpha", result);
+}
+
 std::string CmdDebugRevealPatch(const char * args)
 {
 	sint32 x = 0, y = 0, radius = 0;
@@ -3520,6 +3579,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_clear_rivers ", 0) == 0)              return CmdDebugClearRivers(line.c_str() + 19);
     if (line.rfind("debug_clear_terrain_layers ", 0) == 0)      return CmdDebugClearTerrainLayers(line.c_str() + 27);
     if (line.rfind("debug_reveal_patch ", 0) == 0)              return CmdDebugRevealPatch(line.c_str() + 19);
+    if (line.rfind("debug_find_good ", 0) == 0)                 return CmdDebugFindGood(line.c_str() + 16);
+    if (line == "debug_icon_alpha")                             return CmdDebugIconAlpha(nullptr);
     if (line.rfind("debug_set_grid ", 0) == 0)                  return CmdDebugSetGrid(line.c_str() + 15);
 #if defined(RENDER_TOOL_BUILD) && defined(USE_SDL)
     if (line == "debug_worldmap_build")                         return CmdDebugWorldmapBuild("");

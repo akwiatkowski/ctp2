@@ -188,6 +188,8 @@ public:
 	// pixels. Published each build by TiledMap; the present windows here.
 	static void SetWorldmapOrigin(int x, int y) { m_worldmapOriginX = x; m_worldmapOriginY = y; }
 	static int WorldmapOriginX() { return m_worldmapOriginX; }
+	static int LastIconOpaquePixels() { return m_lastIconOpaquePixels; }
+	static int m_lastIconOpaquePixels;
 	static int WorldmapOriginY() { return m_worldmapOriginY; }
 	static int WorldmapW() { return m_worldmapW; }
 	static int WorldmapH() { return m_worldmapH; }

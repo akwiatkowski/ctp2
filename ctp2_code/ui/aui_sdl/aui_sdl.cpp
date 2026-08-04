@@ -123,6 +123,41 @@ bool aui_SDL::GpuQuadsEnabled()
 	return s_enabled != 0;
 }
 
+void aui_SDL::RenderWorldmapSpriteQuads(SDL_Renderer *renderer,
+                                        float viewW, float viewH,
+                                        float zoom, float offX, float offY)
+{
+	if (!renderer || !m_worldmapTexture)
+		return;
+
+	// The same source rect the terrain present used, so sprites land on the
+	// tiles they belong to at every zoom and pan.
+	float const srcW = viewW / zoom;
+	float const srcH = viewH / zoom;
+	float const srcX = (float) m_worldmapOriginX + (viewW - srcW) * 0.5f - offX;
+	float const srcY = (float) m_worldmapOriginY + (viewH - srcH) * 0.5f - offY;
+
+	for (GpuSpriteQuad const & q : m_spriteDrawList)
+	{
+		// Screen-space quads (city names and other overlays pinned to the
+		// window) are drawn by the caller after the world, unscaled.
+		if (q.screen_space || !q.texture)
+			continue;
+
+		float const mapX = (float) q.dx - (float) WorldContentOffX() + (float) m_worldmapOriginX;
+		float const mapY = (float) q.dy - (float) WorldContentOffY() + (float) m_worldmapOriginY;
+
+		SDL_SetTextureBlendMode(q.texture, q.additive ? SDL_BLENDMODE_ADD : SDL_BLENDMODE_BLEND);
+		SDL_SetTextureColorMod(q.texture, q.red, q.green, q.blue);
+		SDL_SetTextureAlphaMod(q.texture, q.alpha);
+		CTP2_SDL_RenderTextureSrcDstFlip(renderer, q.texture,
+			q.sx, q.sy, q.sw, q.sh,
+			(mapX - srcX) * zoom, (mapY - srcY) * zoom,
+			(float) q.dw * zoom, (float) q.dh * zoom,
+			q.mirror);
+	}
+}
+
 bool aui_SDL::GpuWorldmapEnabled()
 {
 	// Opt-in, cached. ADR-003's whole-map target. It reuses the terrain-quad

@@ -393,6 +393,12 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 						presentWindowed( aui_SDL::WorldmapTexture(),
 							(float)aui_SDL::WorldmapOriginX(),
 							(float)aui_SDL::WorldmapOriginY() );
+						// P13 step 3: units, cities and effects go on top of the
+						// windowed terrain. They are NOT composited into the
+						// whole-map texture -- it is persistent and
+						// dirty-tracked, so anything that moves would leave a
+						// trail baked into it.
+						aui_SDL::RenderWorldmapSpriteQuads(m_renderer, W, H, z, offX, offY);
 					}
 					else
 						presentWindowed( aui_SDL::WorldTexture(),

@@ -219,6 +219,34 @@ public:
 	static void AddSpriteQuad(GpuSpriteQuad const &q) { m_spriteDrawList.push_back(q); }
 	static std::vector<GpuSpriteQuad> const &SpriteDrawList() { return m_spriteDrawList; }
 
+	// P13 step 3 (ADR-003): draw the world-space sprite quads -- units, cities,
+	// effects -- for the whole-map path.
+	//
+	// They cannot be composited INTO the whole-map texture the way terrain is.
+	// That texture is persistent and dirty-tracked, redrawing only cells whose
+	// signature changed, so anything that moves would smear a permanent trail
+	// across it. Sprites are therefore drawn at present time, on top of the
+	// windowed terrain, every frame.
+	//
+	// Their coordinates arrive in WORLD-TEXTURE space (view-relative, plus the
+	// fixed content margin). Whole-map space is the same scale, because the
+	// engine is pinned at zoom 1 on this path and the camera owns zoom, so the
+	// conversion is a single offset:
+	//
+	//     worldmap = worldTexture - WorldContentOff + WorldmapOrigin
+	//
+	// That is the identity picking already depends on -- MousePointToTilePos
+	// reads "texture position minus the published origin is the view-relative
+	// pixel". Screen position then applies the same windowing the terrain used,
+	// so sprites and tiles pan and zoom together by construction.
+	//
+	// Shared by the real present and by screenshot_presented's readback. Those
+	// two drifting apart is exactly how the whole-map path stayed invisible to
+	// every pixel test until 5769503f.
+	static void RenderWorldmapSpriteQuads(SDL_Renderer *renderer,
+	                                      float viewW, float viewH,
+	                                      float zoom, float offX, float offY);
+
 protected:
 	BOOL			m_exclusiveMode;
 	static SDL_Surface *	m_lpdd;

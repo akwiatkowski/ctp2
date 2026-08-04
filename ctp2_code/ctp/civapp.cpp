@@ -2961,6 +2961,10 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 									windowed(aui_SDL::WorldmapTexture(),
 										(float)aui_SDL::WorldmapOriginX(),
 										(float)aui_SDL::WorldmapOriginY());
+									// Mirror Flip: sprites are drawn over the
+									// windowed terrain on this path, not into
+									// the texture.
+									aui_SDL::RenderWorldmapSpriteQuads(renderer, W, H, z, offX, offY);
 								} else {
 									windowed(aui_SDL::WorldTexture(),
 										(float)aui_SDL::WorldContentOffX(),

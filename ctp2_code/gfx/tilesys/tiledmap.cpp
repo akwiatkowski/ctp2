@@ -272,7 +272,8 @@ namespace
     // territory the visible player does not own, so the same road can render
     // differently depending on who is looking.
     uint64_t WorldmapCellOverlayState(TileInfo const *tileInfo, MapPoint const &pos,
-                                      Vision const *vision, bool gridOn)
+                                      Vision const *vision, bool gridOn,
+                                      uint64_t visibleOwners)
     {
         uint64_t state = gridOn ? 1u : 0u;
         state = (state << 16) | (uint64_t)(uint16_t)(tileInfo ? tileInfo->GetRiverPiece() : -1);
@@ -284,6 +285,11 @@ namespace
         env &= (k_MASK_ENV_INSTALLATION | k_MASK_ENV_MINE | k_MASK_ENV_IRRIGATION
               | k_MASK_ENV_ROAD | k_MASK_ENV_CANAL_TUNNEL);
         state = (state << 32) ^ env;
+
+        // Borders depend on the neighbours' owners as the BORDER code sees
+        // them, so the key must be built from the same function the drawing
+        // uses -- World::GetOwner and GetVisibleCellOwner are not the same.
+        state = state * 0x100000001B3ULL ^ visibleOwners;
 
         uint64_t counts = (uint64_t)(cell ? cell->GetNumImprovements() : 0)
                         | ((uint64_t)(cell ? cell->GetNumDBImprovements() : 0) << 8)
@@ -3814,6 +3820,23 @@ void TiledMap::InvalidateWorldmap()
 
 // Current rendered signature of a cell, or k_WORLDMAP_CELL_UNDRAWN if the cell
 // draws no terrain (unexplored, or no base tile).
+uint64_t TiledMap::WorldmapVisibleOwners(MapPoint const &pos)
+{
+	MapPoint cell = pos;
+	uint64_t owners = (uint64_t)(uint8_t)GetVisibleCellOwner(cell);
+	static WORLD_DIRECTION const dirs[] =
+		{ NORTHWEST, SOUTHWEST, NORTHEAST, SOUTHEAST };
+	for (int n = 0; n < 4; ++n)
+	{
+		MapPoint adj;
+		sint32 owner = -1;
+		if (pos.GetNeighborPosition(dirs[n], adj))
+			owner = GetVisibleCellOwner(adj);
+		owners |= ((uint64_t)(uint8_t)owner) << ((n + 1) * 8);
+	}
+	return owners;
+}
+
 uint64_t TiledMap::CellSignatureAt(sint32 mapX, sint32 mapY)
 {
 	MapPoint pos = MapPoint(mapX, mapY);
@@ -3833,7 +3856,8 @@ uint64_t TiledMap::CellSignatureAt(sint32 mapX, sint32 mapY)
 		TerrainCellSignature(tileInfo->GetTileNum(), (uint8_t) tilesetIndex,
 			(uint8_t) tileInfo->GetTransition(0), (uint8_t) tileInfo->GetTransition(1),
 			(uint8_t) tileInfo->GetTransition(2), (uint8_t) tileInfo->GetTransition(3)),
-		WorldmapCellOverlayState(tileInfo, pos, m_localVision, g_isGridOn != 0));
+		WorldmapCellOverlayState(tileInfo, pos, m_localVision, g_isGridOn != 0,
+			WorldmapVisibleOwners(pos)));
 }
 
 // P13 step 3: the per-cell overlays for one whole-map tile, drawn into the
@@ -3863,6 +3887,35 @@ void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo)
 	}
 
 	DrawImprovementsLayer(nullptr, cellPos, 0, 0);
+
+	if (profiledb_Get() && profiledb_Get()->GetShowPoliticalBorders()
+	 && profiledb_Get()->IsSmoothBorders() && m_tileSet)
+	{
+		sint32 const owner = GetVisibleCellOwner(cellPos);
+		Player * const visP = player_Get(selitem_Get()->GetVisiblePlayer());
+		if (owner >= 0 && visP && (visP->HasSeen(owner) || g_fog_toggle || g_god))
+		{
+			Pixel16 const color = colorset_Get()->GetPlayerColor(owner);
+			struct BorderEdge { WORLD_DIRECTION dir; MAPICON icon; sint32 dy; };
+			static BorderEdge const edges[] = {
+				{ NORTHWEST, MAPICON_POLBORDERNW, 18 },
+				{ SOUTHWEST, MAPICON_POLBORDERSW, 46 },
+				{ NORTHEAST, MAPICON_POLBORDERNE, 22 },
+				{ SOUTHEAST, MAPICON_POLBORDERSE, 48 },
+			};
+			for (BorderEdge const & edge : edges)
+			{
+				MapPoint adj;
+				if (!cellPos.GetNeighborPosition(edge.dir, adj))
+					continue;
+				if (GetVisibleCellOwner(adj) == owner)
+					continue;
+				Pixel16 * const icon = m_tileSet->GetMapIconData(edge.icon);
+				if (icon)
+					DrawColorizedOverlay(icon, nullptr, 0, edge.dy, color);
+			}
+		}
+	}
 
 	if (g_isGridOn)
 	{
@@ -3992,7 +4045,8 @@ int TiledMap::BuildWorldmapQuads()
 					(uint8_t) tileInfo->GetTransition(1),
 					(uint8_t) tileInfo->GetTransition(2),
 					(uint8_t) tileInfo->GetTransition(3)),
-				WorldmapCellOverlayState(tileInfo, pos, m_localVision, g_isGridOn != 0));
+				WorldmapCellOverlayState(tileInfo, pos, m_localVision, g_isGridOn != 0,
+			WorldmapVisibleOwners(pos)));
 
 			// The whole point of this path: unchanged cells cost nothing, so a
 			// pan or a zoom redraws zero tiles.

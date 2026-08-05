@@ -4180,17 +4180,32 @@ int TiledMap::BuildWorldmapQuads()
 		return 0;
 	}
 	// P13 step 2.1: publish where the screen's top-left sits inside the
-	// whole-map texture, so the present can window it directly. Same projection
-	// the quads use, plus k_TILE_PIXEL_HEADROOM because DrawTransitionTile
-	// places each diamond that far down inside its slot.
+	// whole-map texture, so the present can window it directly. Exactly the
+	// projection the quads are drawn with -- no headroom correction.
+	//
+	// There used to be a + k_TILE_PIXEL_HEADROOM here, reasoning that
+	// DrawTransitionTile places each diamond 24px down inside its slot. It does
+	// -- but it does so on BOTH paths. Screen y=0 on the CPU/quad path is the
+	// view's top-left tile SLOT, headroom included, and that slot is exactly
+	// what this projection returns. Adding the headroom windowed the texture 24
+	// rows too low, so the whole world presented 24px too high. Measured against
+	// the quad path across all 15 pair/pattern captures: a uniform (0,-24) shift
+	// and, once corrected for, diff_ratio 0.000 -- the two paths agree pixel for
+	// pixel. Nothing else about the whole-map present was wrong.
+	//
+	// This makes the window origin equal the sprite base (set from the same
+	// projection in BuildTerrainQuads) rather than differing from it. They are
+	// published separately because they answer different questions, but they can
+	// no longer disagree -- and picking, which converts screen -> texture through
+	// the origin and texture -> view-relative through the base, stays correct
+	// because it reads both rather than restating either.
 	{
 		sint32 const vy = m_mapViewRect.top;
-		sint32 vx = ((m_mapViewRect.left % mapWidth) + mapWidth) % mapWidth;
-		sint32 originMapX = vx;
-		maputils_TileX2MapXAbs(vx, vy, &originMapX);
+		sint32 originMapX = m_mapViewRect.left;
+		maputils_TileX2MapXAbs(m_mapViewRect.left, vy, &originMapX);
 		sint32 originX = 0, originY = 0;
 		maputils_MapXY2WorldmapPixelXY(originMapX, vy, &originX, &originY);
-		aui_SDL::SetWorldmapOrigin(originX, originY + k_TILE_PIXEL_HEADROOM);
+		aui_SDL::SetWorldmapOrigin(originX, originY);
 	}
 
 	m_worldmapRedrawn = static_cast<int>(dirty.size());

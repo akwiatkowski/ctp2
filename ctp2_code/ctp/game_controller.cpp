@@ -583,6 +583,35 @@ std::string CmdDebugSetGrid(const char * args)
 	return Ok("debug_set_grid", result);
 }
 
+// Political border display: on/off and which STYLE. Both live in the graphics
+// options screen with no way in from a test, and the style matters: smooth
+// borders stamp a corner icon while the line style draws a colored edge through
+// completely different code. The whole-map path composited only the icon style
+// for a while (#14260), which no test could have caught without this.
+std::string CmdDebugSetBorders(const char * args)
+{
+	int on = -1, smooth = -1;
+	if (!args || sscanf(args, "%d %d", &on, &smooth) != 2
+	 || (on != 0 && on != 1) || (smooth != 0 && smooth != 1))
+		return Err("debug_set_borders", "bad_args");
+	if (!profiledb_Get())
+		return Err("debug_set_borders", "no_profile");
+
+	profiledb_Get()->SetShowPoliticalBorders(on);
+	profiledb_Get()->SetShowSmooth(smooth);
+	// Borders are part of the whole-map tile picture, so every cached cell
+	// image is stale — same reasoning as the grid above.
+	if (tiledmap_Get())
+	{
+		tiledmap_Get()->InvalidateWorldmap();
+		tiledmap_Get()->BuildTerrainQuads();
+	}
+	json result;
+	result["borders"] = on;
+	result["smooth"]  = smooth;
+	return Ok("debug_set_borders", result);
+}
+
 // Nearest map good to a position. Goods are placed at generation and there is
 // no query for them, which makes "does a good render" awkward to test.
 std::string CmdDebugWorldmapSprites(const char * args)
@@ -3605,6 +3634,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_worldmap_sprites ", 0) == 0)          return CmdDebugWorldmapSprites(line.c_str() + 23);
     if (line == "debug_icon_alpha")                             return CmdDebugIconAlpha(nullptr);
     if (line.rfind("debug_set_grid ", 0) == 0)                  return CmdDebugSetGrid(line.c_str() + 15);
+    if (line.rfind("debug_set_borders ", 0) == 0)               return CmdDebugSetBorders(line.c_str() + 18);
 #if defined(RENDER_TOOL_BUILD) && defined(USE_SDL)
     if (line == "debug_worldmap_build")                         return CmdDebugWorldmapBuild("");
     if (line.rfind("debug_worldmap_build ", 0) == 0)            return CmdDebugWorldmapBuild(line.c_str() + 21);

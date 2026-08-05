@@ -1744,6 +1744,20 @@ test('goods-reload',
   suite : 'integration',
 )
 
+# #14260: political borders have two draw styles behind a graphics option, and
+# the whole-map path composited only one of them. Toggling an overlay and
+# requiring the presented pixels to change is the check that cannot pass
+# vacuously — the failure mode is drawing nothing while every flag looks right.
+test('worldmap-borders',
+  find_program('test/worldmap_borders.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
 test('gpu-world-fallbacks',
   find_program('test/gpu_world_fallbacks.py'),
   args : [join_paths(meson.project_build_root(), 'ctp2')],

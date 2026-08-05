@@ -850,16 +850,38 @@ void TiledMap::DrawColoredBorderEdge(aui_Surface *surf, const MapPoint &pos, Pix
 	sint32 height = GetZoomTilePixelHeight();
 
 	if (!surf) surf = m_surface;
+	if (!surf) return;
 
 	if (x >= surf->Width()-width) return;
 	if (y >= surf->Height() - height) return;
 
 	AddDirtyToMix(x, y, width, height);
 
+	DrawColoredBorderEdgeAt(x, y, selectColorPixel, side, dashMode);
+}
+
+// The pixel work of DrawColoredBorderEdge, at a destination the caller chooses.
+//
+// Split out for the whole-map path (P13 step 3). The writing half was always
+// composite-target oriented -- it goes through m_surfBase/m_surfPitch, the
+// surface the caller locked -- but the position came from
+// maputils_MapXY2PixelXY, which is view-RELATIVE, and the clip tested a
+// full-screen surface. Into a tile-sized scratch that projection lands
+// somewhere else entirely and the clip rejects everything, which is why line
+// borders were the one overlay the whole-map tiles never got.
+//
+// x/y are in the locked surface's own coordinates: view-relative on the CPU
+// path, the tile's origin (0,0) when compositing one whole-map tile.
+void TiledMap::DrawColoredBorderEdgeAt(sint32 x, sint32 y, Pixel16 selectColorPixel,
+                                       WORLD_DIRECTION side, sint32 dashMode)
+{
 	uint8	* surfBase = m_surfBase;
+	if (!surfBase) return;
 	sint32  surfPitch = m_surfPitch;
 	bool const  bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
 	sint32 const step = bpp32 ? 4 : 2;
+
+	sint32 const height = GetZoomTilePixelHeight();
 
     sint32 num = k_TILE_GRID_HEIGHT - k_TILE_PIXEL_HEADROOM;
 	sint32 den = height;
@@ -908,7 +930,14 @@ void TiledMap::DrawColoredBorderEdge(aui_Surface *surf, const MapPoint &pos, Pix
 			continue;
 		}
 
-		uint8 * pDestPixel = surfBase + ((y+row) * surfPitch) + ((x+start) * step); //EMOD change here
+		// The destination is the caller's now, so clip against the surface
+		// actually locked rather than trusting the projection to be on-screen.
+		// Three pixels are written from each end, hence the margins.
+		sint32 const destY = y + row;
+		if (destY < 0 || destY >= m_surfHeight) { row++; continue; }
+		if (x + start < 0 || x + end + 1 > m_surfWidth) { row++; continue; }
+
+		uint8 * pDestPixel = surfBase + (destY * surfPitch) + ((x+start) * step); //EMOD change here
 		if(west) {
 			pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32);
 			pixelutils_StorePixel(pDestPixel + step, selectColorPixel, bpp32);

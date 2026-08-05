@@ -196,6 +196,11 @@ public:
 	void			DrawColoredHitMask(aui_Surface *surf, const MapPoint &pos, COLOR color);
 	void			DrawColoredHitMaskEdge(aui_Surface *surf, const MapPoint &pos, Pixel16 color, WORLD_DIRECTION d);
 	void			DrawColoredBorderEdge(aui_Surface *surf, const MapPoint &pos, Pixel16 color, WORLD_DIRECTION d, sint32 dashMode);
+	// Same edge, drawn at a destination the caller picks in the locked
+	// surface's own coordinates. Lets the whole-map tile builder composite line
+	// borders into a tile-sized scratch, which the view-relative entry point
+	// cannot reach. See the .cpp.
+	void			DrawColoredBorderEdgeAt(sint32 x, sint32 y, Pixel16 color, WORLD_DIRECTION d, sint32 dashMode);
 	void			DrawHitMask(aui_Surface *surf, const MapPoint &pos, RECT *mapViewRect, RECT *destRect);
 	void			SetHiliteMouseTile(MapPoint &pos);
 	void			DrawHiliteMouseTile(aui_Surface *destSurf);

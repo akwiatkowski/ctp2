@@ -271,11 +271,21 @@ namespace
     // here: DrawImprovementsLayer draws a remembered (last-seen) cell for
     // territory the visible player does not own, so the same road can render
     // differently depending on who is looking.
+    // Everything the composited tile picture depends on that is NOT the terrain
+    // itself. Display options belong here as much as world state does: they
+    // change what a cached tile should look like, so leaving one out means the
+    // map keeps showing the old setting until something else dirties the cell.
     uint64_t WorldmapCellOverlayState(TileInfo const *tileInfo, MapPoint const &pos,
                                       Vision const *vision, bool gridOn,
                                       uint64_t visibleOwners)
     {
-        uint64_t state = gridOn ? 1u : 0u;
+        bool const bordersOn = profiledb_Get()
+                            && profiledb_Get()->GetShowPoliticalBorders();
+        bool const smoothBorders = profiledb_Get()
+                                && profiledb_Get()->IsSmoothBorders() != 0;
+        uint64_t state = (gridOn ? 1u : 0u)
+                       | (bordersOn ? 2u : 0u)
+                       | (smoothBorders ? 4u : 0u);
         state = (state << 16) | (uint64_t)(uint16_t)(tileInfo ? tileInfo->GetRiverPiece() : -1);
 
         Cell * const cell = world_Get() ? world_Get()->GetCell(pos) : nullptr;
@@ -3926,14 +3936,20 @@ void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo)
 	DrawImprovementsLayer(nullptr, cellPos, 0, 0);
 
 
-	if (profiledb_Get() && profiledb_Get()->GetShowPoliticalBorders()
-	 && profiledb_Get()->IsSmoothBorders() && m_tileSet)
+	if (profiledb_Get() && profiledb_Get()->GetShowPoliticalBorders() && m_tileSet)
 	{
 		sint32 const owner = GetVisibleCellOwner(cellPos);
 		Player * const visP = player_Get(selitem_Get()->GetVisiblePlayer());
 		if (owner >= 0 && visP && (visP->HasSeen(owner) || g_fog_toggle || g_god))
 		{
 			Pixel16 const color = colorset_Get()->GetPlayerColor(owner);
+			// P13 step 3 (#14260): both border STYLES, matching DrawNationalBorders.
+			// The smooth style stamps a corner icon; the line style draws a
+			// colored edge. Only the icon style used to composite here, so a
+			// player with smooth borders off saw no borders at all on the
+			// whole-map path -- and the setting is in the graphics options, so
+			// it is a plain user preference rather than a corner case.
+			bool const smooth = profiledb_Get()->IsSmoothBorders() != 0;
 			struct BorderEdge { WORLD_DIRECTION dir; MAPICON icon; sint32 dy; };
 			static BorderEdge const edges[] = {
 				{ NORTHWEST, MAPICON_POLBORDERNW, 18 },
@@ -3948,9 +3964,21 @@ void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo)
 					continue;
 				if (GetVisibleCellOwner(adj) == owner)
 					continue;
-				Pixel16 * const icon = m_tileSet->GetMapIconData(edge.icon);
-				if (icon)
-					DrawColorizedOverlay(icon, nullptr, 0, edge.dy, color);
+				if (smooth)
+				{
+					Pixel16 * const icon = m_tileSet->GetMapIconData(edge.icon);
+					if (icon)
+						DrawColorizedOverlay(icon, nullptr, 0, edge.dy, color);
+				}
+				else
+				{
+					// Tile-local x, and the same headroom offset the CPU entry
+					// point applies before it starts drawing -- the diamond sits
+					// that far down inside its slot on both paths.
+					DrawColoredBorderEdgeAt(0,
+						(sint32)((double)k_TILE_PIXEL_HEADROOM * m_scale),
+						color, edge.dir, k_BORDER_SOLID);
+				}
 			}
 		}
 	}

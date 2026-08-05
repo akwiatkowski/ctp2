@@ -3919,7 +3919,8 @@ uint64_t TiledMap::CellSignatureAt(sint32 mapX, sint32 mapY)
 // National borders are NOT here. DrawNationalBorders computes its own
 // view-relative position and bails on a negative one, so it cannot draw into a
 // tile-sized scratch surface without being given a destination first.
-void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo)
+void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo,
+                                        bool lineBorders)
 {
 	MapPoint cellPos = pos;
 
@@ -3949,35 +3950,49 @@ void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo)
 			// player with smooth borders off saw no borders at all on the
 			// whole-map path -- and the setting is in the graphics options, so
 			// it is a plain user preference rather than a corner case.
+			//
+			// The line style is gated on the CALLER, not just the setting,
+			// because this routine is shared with the quad path -- and that
+			// path's tile cache is keyed on TerrainCellSignature alone, with no
+			// border state in it. Compositing a border there poisons the cached
+			// tile for every other cell that shares its terrain signature.
+			// Measured when this was ungated: the quad path's own coverage
+			// against the whole-map path went to 1.87 with diff_ratio 0.9.
+			// Only the whole-map key (WorldmapCellOverlayState) carries the
+			// border settings, so only the whole-map path may draw them.
 			bool const smooth = profiledb_Get()->IsSmoothBorders() != 0;
-			struct BorderEdge { WORLD_DIRECTION dir; MAPICON icon; sint32 dy; };
-			static BorderEdge const edges[] = {
-				{ NORTHWEST, MAPICON_POLBORDERNW, 18 },
-				{ SOUTHWEST, MAPICON_POLBORDERSW, 46 },
-				{ NORTHEAST, MAPICON_POLBORDERNE, 22 },
-				{ SOUTHEAST, MAPICON_POLBORDERSE, 48 },
-			};
-			for (BorderEdge const & edge : edges)
+			if (smooth || lineBorders)
 			{
-				MapPoint adj;
-				if (!cellPos.GetNeighborPosition(edge.dir, adj))
-					continue;
-				if (GetVisibleCellOwner(adj) == owner)
-					continue;
-				if (smooth)
+				struct BorderEdge { WORLD_DIRECTION dir; MAPICON icon; sint32 dy; };
+				static BorderEdge const edges[] = {
+					{ NORTHWEST, MAPICON_POLBORDERNW, 18 },
+					{ SOUTHWEST, MAPICON_POLBORDERSW, 46 },
+					{ NORTHEAST, MAPICON_POLBORDERNE, 22 },
+					{ SOUTHEAST, MAPICON_POLBORDERSE, 48 },
+				};
+				for (BorderEdge const & edge : edges)
 				{
-					Pixel16 * const icon = m_tileSet->GetMapIconData(edge.icon);
-					if (icon)
-						DrawColorizedOverlay(icon, nullptr, 0, edge.dy, color);
-				}
-				else
-				{
-					// Tile-local x, and the same headroom offset the CPU entry
-					// point applies before it starts drawing -- the diamond sits
-					// that far down inside its slot on both paths.
-					DrawColoredBorderEdgeAt(0,
-						(sint32)((double)k_TILE_PIXEL_HEADROOM * m_scale),
-						color, edge.dir, k_BORDER_SOLID);
+					MapPoint adj;
+					if (!cellPos.GetNeighborPosition(edge.dir, adj))
+						continue;
+					if (GetVisibleCellOwner(adj) == owner)
+						continue;
+					if (smooth)
+					{
+						Pixel16 * const icon = m_tileSet->GetMapIconData(edge.icon);
+						if (icon)
+							DrawColorizedOverlay(icon, nullptr, 0, edge.dy, color);
+					}
+					else
+					{
+						// Tile-local x, and the same headroom offset the CPU
+						// entry point applies before it starts drawing -- the
+						// diamond sits that far down inside its slot on both
+						// paths.
+						DrawColoredBorderEdgeAt(0,
+							(sint32)((double)k_TILE_PIXEL_HEADROOM * m_scale),
+							color, edge.dir, k_BORDER_SOLID);
+					}
 				}
 			}
 		}
@@ -4213,7 +4228,12 @@ int TiledMap::BuildWorldmapQuads()
 					// above -- the scratch tile -- which is how workmap and
 					// resourcemap already reuse these same routines for their
 					// own views.
-					DrawWorldmapCellOverlays(pos, tileInfo);
+					//
+					// Line borders only here: this path's key
+					// (WorldmapCellOverlayState) carries the border settings and
+					// the neighbours' owners, so a bordered tile is a distinct
+					// cache entry. The quad path's key does not.
+					DrawWorldmapCellOverlays(pos, tileInfo, /*lineBorders=*/true);
 
 					aui_SDL::UploadQuadAtlasSlot(slot.atlasX, slot.atlasY, tileW, tileH,
 						m_surfBase, m_surfPitch);

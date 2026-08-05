@@ -106,8 +106,14 @@ def main():
             c.expect_ok("screenshot_presented", str(p))
             return p
 
+        # These settings persist to userprofile.txt when the game exits, so
+        # leaving them changed would alter the user's game and skew every later
+        # test run. Captured before the first change, restored after the last.
+        original = None
         for style, smooth in (("smooth", 1), ("line", 0)):
-            c.expect_ok("debug_set_borders", 0, smooth)
+            r = c.result("debug_set_borders", 0, smooth)
+            if original is None:
+                original = r.get("was", {})
             off = capture(f"{style}-off")
             c.expect_ok("debug_set_borders", 1, smooth)
             on = capture(f"{style}-on")
@@ -117,6 +123,12 @@ def main():
                 failures.append(
                     f"{style} borders changed only {n} pixels (< {MIN_CHANGED}) "
                     f"— the whole-map tiles are not compositing this style")
+
+        if original:
+            c.expect_ok("debug_set_borders",
+                        original.get("borders", 1), original.get("smooth", 1))
+            print(f"[borders] restored borders={original.get('borders')} "
+                  f"smooth={original.get('smooth')}")
 
     if failures:
         print("worldmap border check failed:", file=sys.stderr)

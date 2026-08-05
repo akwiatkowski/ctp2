@@ -597,6 +597,14 @@ std::string CmdDebugSetBorders(const char * args)
 	if (!profiledb_Get())
 		return Err("debug_set_borders", "no_profile");
 
+	// Report what they WERE. These settings persist to userprofile.txt on exit,
+	// so a test that changes them silently changes the user's game (and the
+	// next test run's baseline). Returning the previous values lets a caller
+	// put them back.
+	json result;
+	result["was"] = { {"borders", profiledb_Get()->GetShowPoliticalBorders() ? 1 : 0},
+	                  {"smooth",  profiledb_Get()->IsSmoothBorders() ? 1 : 0} };
+
 	profiledb_Get()->SetShowPoliticalBorders(on);
 	profiledb_Get()->SetShowSmooth(smooth);
 	// Borders are part of the whole-map tile picture, so every cached cell
@@ -606,7 +614,6 @@ std::string CmdDebugSetBorders(const char * args)
 		tiledmap_Get()->InvalidateWorldmap();
 		tiledmap_Get()->BuildTerrainQuads();
 	}
-	json result;
 	result["borders"] = on;
 	result["smooth"]  = smooth;
 	return Ok("debug_set_borders", result);

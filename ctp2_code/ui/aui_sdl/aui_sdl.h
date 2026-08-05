@@ -219,7 +219,16 @@ public:
 	// Draw a batch of atlas->map-space quads into the whole-map target. Separate
 	// from the present: these land when content changes, not when the camera
 	// moves. Returns false if the target is missing or cannot be bound.
-	static bool DrawWorldmapQuads(std::vector<GpuQuad> const &quads, bool clearFirst);
+	//
+	// The two lists are deliberately DIFFERENT sets. `clears` is the cells whose
+	// own content changed; `quads` is those plus every cell whose diamond
+	// overlaps one of the cleared rects. Using one list for both is what made an
+	// incremental update lose 11% of the map: whatever set gets cleared, the
+	// cells just outside it painted into those rects too, so a set that clears
+	// exactly what it redraws always erases its own border. Widening such a set
+	// cannot help — it only moves the border outwards.
+	static bool DrawWorldmapQuads(std::vector<GpuQuad> const &clears,
+	                              std::vector<GpuQuad> const &quads);
 	// Count non-black samples on a grid x grid lattice over the whole-map target,
 	// sampled while the target stays bound (see the .cpp for why that matters).
 	// Returns -1 if there is no target.

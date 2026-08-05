@@ -3981,28 +3981,69 @@ int TiledMap::BuildWorldmapQuads()
 		m_worldmapSigWidth = mapWidth;
 	}
 
-	// A cell's quad rect is a full tile tall but rows step half that, so a
-	// redraw must also refresh the neighbours it overlaps -- otherwise clearing
-	// the changed cell erases correct pixels belonging to rows above and below.
-	// Pre-pass: find changed cells, then mark their neighbours undrawn so the
-	// emit pass picks them up too. Skipped on the first build (nothing drawn
-	// yet, so every explored cell is already dirty).
+	// A cell's quad rect is a full GRID tile tall (headroom + diamond) but rows
+	// advance by half a diamond, so a rect overlaps the diamonds of several rows.
+	// Clearing a changed cell therefore erases correct pixels belonging to its
+	// neighbours, and they have to be redrawn.
+	//
+	// The subtlety that cost 11% of the map: it is NOT enough to widen the dirty
+	// set, because the widened set is what gets cleared as well, and its new
+	// border erases ITS neighbours in turn. No radius terminates that. The fix is
+	// that the two sets are different jobs -- clear only the cells that actually
+	// changed, redraw those plus everyone overlapping them:
+	//
+	//   clear set C = cells whose own signature changed
+	//   draw set  D = C + every cell whose diamond intersects a rect of C
+	//
+	// Then every pixel a clear removed belongs to some cell in D and comes back,
+	// and nothing outside D was touched. Skipped on the first build: nothing is
+	// drawn yet, so there is nothing to erase and every explored cell is dirty.
+	//
+	// Reach, in row steps: upward a rect covers gridHeight/rowStep - 1 = 2 rows
+	// (the 24px headroom sits above the diamond, over the row two steps up);
+	// downward diamondHeight/rowStep - 1 = 1. Derived from the zoom metrics
+	// rather than hardcoded, because both scale with the zoom level. Sideways a
+	// rect is exactly one column stride wide and adjacent rows are offset half a
+	// stride, so +-1 column covers it.
+	std::vector<aui_SDL::GpuQuad> clears;
 	if (!firstBuild)
 	{
+		sint32 const rowStep  = GetZoomTilePixelHeight() / 2;
+		sint32 const rowsUp   = rowStep > 0
+			? (GetZoomTileGridHeight()  + rowStep - 1) / rowStep - 1 : 0;
+		sint32 const rowsDown = rowStep > 0
+			? (GetZoomTilePixelHeight() + rowStep - 1) / rowStep - 1 : 0;
+
 		std::vector<size_t> touched;
 		for (sint32 i = 0; i < mapHeight; i++)
 			for (sint32 j = 0; j < mapWidth; j++)
 			{
 				size_t const idx = static_cast<size_t>(i) * mapWidth + j;
 				uint64_t const cur = CellSignatureAt(j, i);
-				if (cur != k_WORLDMAP_CELL_UNDRAWN && m_worldmapCellSig[idx] != cur)
+				// A cell with nothing drawn yet (newly explored) has no stale
+				// pixels to erase, so it belongs in D but not in C -- and the emit
+				// pass already picks it up on the signature mismatch. Clearing it
+				// would drag its whole neighbourhood into the redraw for nothing,
+				// every turn vision expands.
+				if (cur != k_WORLDMAP_CELL_UNDRAWN
+				    && m_worldmapCellSig[idx] != cur
+				    && m_worldmapCellSig[idx] != k_WORLDMAP_CELL_UNDRAWN)
 					touched.push_back(idx);
 			}
 		for (size_t idx : touched)
 		{
 			sint32 const ci = static_cast<sint32>(idx / mapWidth);
 			sint32 const cj = static_cast<sint32>(idx % mapWidth);
-			for (sint32 di = -1; di <= 1; ++di)
+
+			sint32 clearX = 0, clearY = 0;
+			maputils_MapXY2WorldmapPixelXY(cj, ci, &clearX, &clearY);
+			aui_SDL::GpuQuad c;
+			c.sx = c.sy = c.sw = c.sh = 0;   // clears sample nothing
+			c.dx = clearX; c.dy = clearY;
+			c.dw = tileW;  c.dh = tileH;
+			clears.push_back(c);
+
+			for (sint32 di = -rowsUp; di <= rowsDown; ++di)
 				for (sint32 dj = -1; dj <= 1; ++dj)
 				{
 					sint32 const ni = ci + di, nj = cj + dj;
@@ -4129,8 +4170,9 @@ int TiledMap::BuildWorldmapQuads()
 	}
 
 	// Clear first, draw second: doing them per-quad would let a later cell's
-	// clear erase an earlier cell's already-drawn overlap.
-	if (!aui_SDL::DrawWorldmapQuads(dirty, /*clearFirst=*/!firstBuild))
+	// clear erase an earlier cell's already-drawn overlap. `clears` is the
+	// changed cells; `dirty` is those plus the neighbours they overlap.
+	if (!aui_SDL::DrawWorldmapQuads(clears, dirty))
 	{
 		// The batch never landed; forget what we claimed to have drawn so the
 		// next call retries rather than leaving the target permanently stale.

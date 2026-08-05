@@ -210,7 +210,8 @@ bool aui_SDL::EnsureWorldmapTexture(int w, int h)
 	return true;
 }
 
-bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &quads, bool clearFirst)
+bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &clears,
+                                std::vector<GpuQuad> const &quads)
 {
 	if (!m_renderer || !m_worldmapTexture || !m_quadAtlasTexture)
 		return false;
@@ -223,10 +224,12 @@ bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &quads, bool clearFir
 
 	// Clearing is a separate pass, never interleaved with drawing: a per-quad
 	// clear would erase the overlapping part of a cell already drawn this batch.
-	if (clearFirst)
+	// It also covers a SMALLER set than the draw — see the header for why the two
+	// cannot be the same list.
+	if (!clears.empty())
 	{
 		SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
-		for (GpuQuad const & q : quads)
+		for (GpuQuad const & q : clears)
 		{
 			SDL_Rect const clearRect = { q.dx, q.dy, q.dw, q.dh };
 			CTP2_SDL_RenderFillRectI(m_renderer, &clearRect);

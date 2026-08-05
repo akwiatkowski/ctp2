@@ -658,6 +658,33 @@ std::string CmdDebugExplorePatch(const char * args)
 	return Ok("debug_explore_patch", result);
 }
 
+// Draw explored terrain at full brightness, ignoring current vision.
+//
+// The deterministic way to take fog OUT of a comparison. Revealing a radius
+// does not do that: visibility decays, so two processes capturing the same
+// scene drift apart during the seconds a capture takes to settle, and once the
+// whole-map path started drawing fog (#12839) that drift became the largest
+// difference in a transition-parity run. This flag is honoured by every render
+// path and does not decay.
+std::string CmdDebugRenderExploredAsVisible(const char * args)
+{
+	int on = -1;
+	if (!args || sscanf(args, "%d", &on) != 1 || (on != 0 && on != 1))
+		return Err("debug_render_explored_as_visible", "bad_args");
+	if (!tiledmap_Get())
+		return Err("debug_render_explored_as_visible", "no_tiledmap");
+
+	tiledmap_Get()->SetRenderExploredAsVisible(on != 0);
+	// Fog is baked into the whole-map tile pictures, so every cached cell image
+	// is now stale — same reasoning as the grid and the border settings.
+	tiledmap_Get()->InvalidateWorldmap();
+	tiledmap_Get()->BuildTerrainQuads();
+
+	json result;
+	result["render_explored_as_visible"] = on;
+	return Ok("debug_render_explored_as_visible", result);
+}
+
 // Explored / visible cell counts over a square patch, read from BOTH the
 // human player's Vision and the one the tile map is actually rendering
 // through. Fog is "explored and not visible", and nothing could observe that
@@ -3730,6 +3757,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_reveal_patch ", 0) == 0)              return CmdDebugRevealPatch(line.c_str() + 19);
     if (line.rfind("debug_explore_patch ", 0) == 0)             return CmdDebugExplorePatch(line.c_str() + 20);
     if (line.rfind("debug_vision_stats ", 0) == 0)              return CmdDebugVisionStats(line.c_str() + 19);
+    if (line.rfind("debug_render_explored_as_visible ", 0) == 0) return CmdDebugRenderExploredAsVisible(line.c_str() + 33);
     if (line.rfind("debug_find_good ", 0) == 0)                 return CmdDebugFindGood(line.c_str() + 16);
     if (line.rfind("debug_worldmap_sprites ", 0) == 0)          return CmdDebugWorldmapSprites(line.c_str() + 23);
     if (line == "debug_icon_alpha")                             return CmdDebugIconAlpha(nullptr);

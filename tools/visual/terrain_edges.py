@@ -98,7 +98,7 @@ MIN_TERRAIN_PIXELS = 500
 
 
 def capture_settled(client, center, path, crop_size,
-                    attempts=40, delay=0.25):
+                    attempts=40, delay=0.25, before_each=None):
     """Capture once the frame has STOPPED CHANGING, not merely started drawing.
 
     The whole-map target is dirty-tracked and composited during Refresh, so a
@@ -112,10 +112,21 @@ def capture_settled(client, center, path, crop_size,
     numbers swinging between runs. Requiring two consecutive identical captures
     is the criterion that actually means finished.
 
-    Every mode goes through this, so no mode is compared against a partial frame.
+    before_each runs on every attempt, not once before the loop. Visibility
+    DECAYS, and this loop can spend ten seconds settling — so a reveal applied
+    only beforehand has partly worn off by the time the frame is captured, and
+    by different amounts in each mode's process. That was invisible while the
+    whole-map path ignored fog; once it started drawing fog (#12839) it became
+    the largest source of divergence in the run, and it showed up on whichever
+    pair happened to be captured last.
+
+    Every mode goes through this, so no mode is compared against a partial or a
+    differently-lit frame.
     """
     previous = None
     for _ in range(attempts):
+        if before_each:
+            before_each()
         client.expect_ok("camera_debug_center", center["x"], center["y"])
         client.expect_ok("screenshot_presented", path)
         current = Path(path).read_bytes()
@@ -128,7 +139,8 @@ def capture_settled(client, center, path, crop_size,
 
 
 def capture_mode(binary, out_dir, mode_name, seed, players, pairs, patterns, radius,
-                 crop_size, reveal_radius, save_fixture=None, load_fixture=None):
+                 crop_size, reveal_radius, save_fixture=None, load_fixture=None,
+                 lit=False):
     env = os.environ.copy()
     env["CTP2_GPU_LAYERS"] = "1"
     env["CTP2_GPU_CAMERA"] = "1"
@@ -151,6 +163,15 @@ def capture_mode(binary, out_dir, mode_name, seed, players, pairs, patterns, rad
                 client.expect_ok("save_game", save_fixture)
         client.expect_ok("debug_deselect")
         client.expect_ok("set_show_city_names", 0)
+        # Hold fog off for the whole run rather than revealing a radius per
+        # capture. Visibility DECAYS, so a reveal wears off during the seconds a
+        # capture takes to settle, and by different amounts in each mode's
+        # process. That was harmless while the whole-map path ignored fog; once
+        # it started drawing fog (#12839) it became the biggest difference in
+        # the run and landed on whichever pair was captured last. This flag does
+        # not decay, and fog has its own test now (worldmap-fog).
+        if lit:
+            client.expect_ok("debug_render_explored_as_visible", 1)
 
         lookup = terrain_lookup(client)
         center = visible_center(client)
@@ -170,11 +191,20 @@ def capture_mode(binary, out_dir, mode_name, seed, players, pairs, patterns, rad
                 # over a sequence of captures, and revealing only at the start
                 # left the reference 53% lit by the end of a 15-capture run
                 # while a single-capture run measured 99%.
+                reveal = None
                 if reveal_radius > 0:
-                    client.expect_ok("debug_reveal_patch", center["x"],
-                                     center["y"], reveal_radius)
+                    def reveal():
+                        client.expect_ok("debug_reveal_patch", center["x"],
+                                         center["y"], reveal_radius)
+                    reveal()
                 path = out_dir / f"{mode_name}-{pair_spec.replace(':', '-')}-{pattern}.bmp"
-                if not capture_settled(client, center, path, crop_size):
+                # Both mechanisms, on every attempt. --lit steadies the
+                # whole-map path, but the reference path does not honour it
+                # uniformly -- several of its draw sites test IsVisible alone --
+                # so its brightness still follows decaying visibility and has to
+                # be topped up as the frame settles.
+                if not capture_settled(client, center, path, crop_size,
+                                       before_each=reveal):
                     raise RuntimeError(
                         f"{mode_name} {pair_spec} {pattern}: frame never reached "
                         f"{MIN_TERRAIN_PIXELS} terrain pixels — capturing it would "
@@ -450,6 +480,12 @@ def main():
                              "POSITIONALLY from CPU. Off by default: the older "
                              "gpu-vs-cpu comparison is a histogram check and "
                              "was never calibrated against this.")
+    parser.add_argument("--lit", action="store_true",
+                        help="render explored terrain at full brightness for "
+                             "the whole run, taking fog out of the comparison "
+                             "deterministically. Prefer this to --reveal-radius: "
+                             "revealing decays during a capture and the two "
+                             "processes drift apart")
     parser.add_argument("--reveal-radius", type=int, default=0,
                         help="make this radius around the compared area VISIBLE "
                              "(not just explored) before capturing. Needed for a "
@@ -488,7 +524,8 @@ def main():
                                       args.patterns, args.radius,
                                       args.crop_size, args.reveal_radius,
                                       save_fixture=save_fixture,
-                                      load_fixture=load_fixture))
+                                      load_fixture=load_fixture,
+                                      lit=args.lit))
     write_contact_sheet(out_dir, all_shots, args.crop_size, args.scale)
     if args.check:
         check_modes_vs_reference(all_shots, args.reference, args.crop_size,

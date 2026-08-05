@@ -392,6 +392,12 @@ public:
 	// globals deciding how fog looks (for the cache key). See the .cpp.
 	bool		WorldmapCellFogged(MapPoint const &pos) const;
 	uint64_t	WorldmapFogFlags() const;
+	// Draw explored terrain at full brightness regardless of current vision.
+	// Every render path honours this, so it is the deterministic way to take
+	// fog out of a comparison — unlike revealing a radius, which decays.
+	// The timelapse renderer already sets it around its own draw.
+	void		SetRenderExploredAsVisible(bool on) { m_renderExploredAsVisible = on; }
+	bool		RenderExploredAsVisible() const { return m_renderExploredAsVisible; }
 	uint64_t		CellSignatureAt(sint32 mapX, sint32 mapY);
 	// Drop all cached per-cell state, forcing a full rebuild (map changed size,
 	// tileset/zoom changed, or another game was loaded).

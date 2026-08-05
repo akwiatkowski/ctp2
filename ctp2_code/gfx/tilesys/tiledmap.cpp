@@ -61,6 +61,7 @@
 
 #include "gs/outcom/AICause.h"
 #include <algorithm>                    // std::fill
+#include <unordered_set>                // whole-map batch signature set
 #include <vector>
 #include "gs/gameobj/ArmyData.h"
 #include "ui/aui_common/aui.h"
@@ -3888,6 +3889,21 @@ uint64_t TiledMap::WorldmapVisibleOwners(MapPoint const &pos)
 	return owners;
 }
 
+int TiledMap::GpuTileCacheSize() const
+{
+	return m_gpuTileCache ? m_gpuTileCache->Size() : -1;
+}
+
+int TiledMap::GpuTileCacheCapacity() const
+{
+	return m_gpuTileCache ? m_gpuTileCache->Capacity() : -1;
+}
+
+uint64_t TiledMap::GpuTileCacheEvictions() const
+{
+	return m_gpuTileCache ? m_gpuTileCache->Evictions() : 0;
+}
+
 // P13 step 4 (#12839): is this cell drawn fogged in its whole-map tile?
 //
 // Same test DrawATile makes on the CPU path. Explored-but-not-currently-visible
@@ -4220,6 +4236,47 @@ int TiledMap::BuildWorldmapQuads()
 	m_worldmapUploads = 0;
 	m_worldmapMinX = m_worldmapMinY = 1 << 30;
 	m_worldmapMaxX = m_worldmapMaxY = -(1 << 30);
+
+	// A quad records WHERE in the atlas its pixels are, and the batch is drawn
+	// only after the whole map has been walked. The atlas is an LRU cache, so a
+	// cell late in the walk can evict a slot that an earlier quad in the SAME
+	// batch still points at -- and that earlier quad then samples whatever
+	// replaced it. It shows up as a scatter of cells wearing another cell's
+	// terrain, so it reads as a transition or projection bug rather than a cache
+	// one, and it is terrain-dependent because which signatures collide depends
+	// on what is on the map.
+	//
+	// Not hypothetical: on a 48x96 map the atlas (1024 slots) saturates after
+	// the second painted patch and then evicts continuously -- 1181 evictions
+	// over a 15-capture parity run, with 4 captures showing diff_ratio up to
+	// 0.035 against the quad path. Enlarging the atlas hid it, which is how it
+	// was confirmed, but that only buys headroom: this path composites the WHOLE
+	// map, so the number of distinct cell appearances scales with the map and
+	// will always be able to exceed any fixed atlas.
+	//
+	// The fix is to bound the batch instead. Once a batch has touched as many
+	// distinct signatures as the cache can hold, draw what is accumulated and
+	// start a new one; anything evicted after that belongs to a batch already on
+	// the texture. Clears ride with the first flush because they must all land
+	// before any drawing (a later cell's clear would erase an earlier cell's
+	// overlap), and clearing is independent of the atlas.
+	std::unordered_set<uint64_t> batchSigs;
+	int const atlasCapacity = m_gpuTileCache->Capacity();
+	bool clearsPending = true;
+	int emitted = 0;
+	bool drawFailed = false;
+	auto flushBatch = [&]() -> bool
+	{
+		if (dirty.empty()) return true;
+		std::vector<aui_SDL::GpuQuad> const noClears;
+		bool const ok = aui_SDL::DrawWorldmapQuads(
+			clearsPending ? clears : noClears, dirty);
+		clearsPending = false;
+		emitted += static_cast<int>(dirty.size());
+		dirty.clear();
+		batchSigs.clear();
+		return ok;
+	};
 	for (sint32 i = 0; i < mapHeight; i++)
 	{
 		for (sint32 j = 0; j < mapWidth; j++)
@@ -4258,6 +4315,17 @@ int TiledMap::BuildWorldmapQuads()
 			// pan or a zoom redraws zero tiles.
 			size_t const cellIdx = static_cast<size_t>(i) * mapWidth + j;
 			if (m_worldmapCellSig[cellIdx] == sig) continue;
+
+			// One more distinct signature than the atlas holds means the next
+			// Get() can recycle a slot this batch already emitted a quad for.
+			// Draw what we have first; see the batching note above.
+			if (atlasCapacity > 0
+			    && batchSigs.find(sig) == batchSigs.end()
+			    && (int) batchSigs.size() >= atlasCapacity)
+			{
+				if (!flushBatch()) { drawFailed = true; break; }
+			}
+			batchSigs.insert(sig);
 
 			GpuTileSlot slot;
 			if (m_gpuTileCache->Get(sig, slot) == GpuTileCache::MISS)
@@ -4375,12 +4443,15 @@ int TiledMap::BuildWorldmapQuads()
 			m_worldmapTileW = tileW; m_worldmapTileH = tileH;
 			m_worldmapCellSig[cellIdx] = sig;
 		}
+		if (drawFailed) break;
 	}
 
 	// Clear first, draw second: doing them per-quad would let a later cell's
 	// clear erase an earlier cell's already-drawn overlap. `clears` is the
-	// changed cells; `dirty` is those plus the neighbours they overlap.
-	if (!aui_SDL::DrawWorldmapQuads(clears, dirty))
+	// changed cells; `dirty` is those plus the neighbours they overlap. This is
+	// the final flush; earlier ones happen mid-walk when the atlas would
+	// otherwise recycle a slot this batch is still referencing.
+	if (drawFailed || !flushBatch())
 	{
 		// The batch never landed; forget what we claimed to have drawn so the
 		// next call retries rather than leaving the target permanently stale.
@@ -4416,7 +4487,9 @@ int TiledMap::BuildWorldmapQuads()
 		aui_SDL::SetWorldmapOrigin(originX, originY);
 	}
 
-	m_worldmapRedrawn = static_cast<int>(dirty.size());
+	// Total across every flush, not just the last one — the count is the
+	// contract this path is tested on ("a pan redraws zero cells").
+	m_worldmapRedrawn = emitted;
 	return m_worldmapRedrawn;
 }
 

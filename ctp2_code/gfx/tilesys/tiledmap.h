@@ -388,6 +388,13 @@ public:
 	void		DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo,
 	                                     bool lineBorders = false,
 	                                     bool fogged = false);
+	// Atlas cache occupancy, for diagnostics. The cache is shared between the
+	// quad and whole-map paths and evicts LRU when full, which matters: an
+	// eviction DURING a batch can rewrite a slot that quads already emitted in
+	// that same batch still point at.
+	int			GpuTileCacheSize() const;
+	int			GpuTileCacheCapacity() const;
+	uint64_t	GpuTileCacheEvictions() const;
 	// Whether this cell composites as fogged into its whole-map tile, and the
 	// globals deciding how fog looks (for the cache key). See the .cpp.
 	bool		WorldmapCellFogged(MapPoint const &pos) const;

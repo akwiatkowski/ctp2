@@ -852,6 +852,13 @@ std::string CmdDebugWorldmapBuild(const char * args)
 	int const redrawn = tiledmap_Get()->LastWorldmapRedrawCount();
 	json result;
 	result["cells_redrawn"] = redrawn;
+	// Atlas occupancy. Evictions during a build are the interesting number: the
+	// batch emits quads that reference atlas slots and draws them afterwards,
+	// so a slot recycled mid-build makes an already-emitted quad sample pixels
+	// that belong to a different cell.
+	result["atlas_slots_used"] = tiledmap_Get()->GpuTileCacheSize();
+	result["atlas_capacity"]   = tiledmap_Get()->GpuTileCacheCapacity();
+	result["atlas_evictions"]  = (int64_t) tiledmap_Get()->GpuTileCacheEvictions();
 	result["texture_w"] = aui_SDL::WorldmapW();
 	result["texture_h"] = aui_SDL::WorldmapH();
 	result["has_texture"] = aui_SDL::WorldmapTexture() != nullptr;

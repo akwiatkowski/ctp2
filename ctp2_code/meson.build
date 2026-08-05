@@ -1871,16 +1871,16 @@ test('worldmap-transition-parity',
     # visibility has decayed by the time the frame settles.
     '--reveal-radius', '60',
     '--lit',
-    # 0.06, not 0.02. The residual is a 0.024-0.044 transient on the FIRST
-    # capture of a run only, at coverage 1.000, with every later capture
-    # scoring 0.000-0.003 — a start-up effect in the initial whole-map build,
-    # not a geometry error, and not yet diagnosed. The tight threshold was kept
-    # deliberately while it was the only thing holding #14291 and #13130
-    # honest; both are fixed, so the metric has done that job. Headroom is
-    # still an order of magnitude: genuinely different terrain pairs score
-    # 0.925, different patterns 0.524, and every bug caught this way scored
-    # 0.5-0.97. Tighten again once the first-capture transient is understood.
-    '--max-diff-ratio', '0.06',
+    # 0.03. Was 0.06; the atlas-eviction corruption behind the 0.024-0.035
+    # residual is fixed (#15092) -- that was never the "start-up transient" it
+    # was first read as. A deterministic replay of this matrix on one saved map
+    # now scores 0.0000 on 14 of 15 captures and 0.0021 on the last.
+    #
+    # Not back to 0.02, because the OTHER failure mode is still open: fog state
+    # desynchronises between the two processes (#15107) and produces 0.6-0.85
+    # spikes that no threshold should accommodate. Tighten to 0.02 when that
+    # lands; until then this test flakes for that reason and no other.
+    '--max-diff-ratio', '0.03',
     '--check',
   ],
   timeout : 900,

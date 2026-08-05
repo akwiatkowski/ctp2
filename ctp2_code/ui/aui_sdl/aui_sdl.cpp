@@ -36,6 +36,7 @@ int aui_SDL::m_viewportH = 1080;
 SDL_Texture *aui_SDL::m_worldmapTexture = nullptr;
 int aui_SDL::m_worldmapW = 0;
 int aui_SDL::m_worldmapH = 0;
+int aui_SDL::m_worldmapWrapW = 0;
 int aui_SDL::m_worldmapOriginX = 0;
 int aui_SDL::m_worldmapSpriteBaseX = 0;
 int aui_SDL::m_worldmapSpriteBaseY = 0;
@@ -125,6 +126,59 @@ bool aui_SDL::GpuQuadsEnabled()
 		s_enabled = (requested && GpuLayersEnabled() && spritesSafe) ? 1 : 0;
 	}
 	return s_enabled != 0;
+}
+
+void aui_SDL::PresentWorldmapWindow(SDL_Renderer *renderer,
+                                    float viewW, float viewH,
+                                    float zoom, float offX, float offY)
+{
+	if (!renderer || !m_worldmapTexture || zoom <= 0.0f)
+		return;
+
+	// Filter mode follows zoom DIRECTION. Magnifying (z > 1) must stay NEAREST
+	// -- 200% is meant to read as crisp pixel art, and linear would just blur
+	// it. Minifying needs linear, since nearest drops pixels and the dropped set
+	// changes as the source rect slides, which reads as shimmer during a pan.
+	if (zoom > 1.0f) CTP2_SDL_SetTextureNearest(m_worldmapTexture);
+	else             CTP2_SDL_SetTextureLinear(m_worldmapTexture);
+
+	float const srcW = viewW / zoom;
+	float const srcH = viewH / zoom;
+	float const srcY = (float) m_worldmapOriginY + (viewH - srcH) * 0.5f - offY;
+	float       srcX = (float) m_worldmapOriginX + (viewW - srcW) * 0.5f - offX;
+
+	// The map wraps in X, so the texture is periodic and a window that straddles
+	// the seam is two draws, not one. A single rect ran off the end of the
+	// texture and presented black for every view within a viewport width of the
+	// map's right edge -- roughly a quarter of the map, and whichever quarter a
+	// random start happened to land in decided whether a parity run passed.
+	float const wrap = (m_worldmapWrapW > 0) ? (float) m_worldmapWrapW
+	                                         : (float) m_worldmapW;
+	if (wrap <= 0.0f || srcW >= wrap)
+	{
+		// The view holds a whole period (or the wrap is unknown): there is no
+		// seam to split at, so present it as-is rather than tiling it.
+		CTP2_SDL_RenderTextureWindow(renderer, m_worldmapTexture,
+			srcX, srcY, srcW, srcH, 0.0f, 0.0f, viewW, viewH);
+		return;
+	}
+
+	srcX = fmodf(srcX, wrap);
+	if (srcX < 0.0f) srcX += wrap;
+
+	float const headSrcW = (srcX + srcW <= wrap) ? srcW : (wrap - srcX);
+	float const headDstW = headSrcW * zoom;
+	CTP2_SDL_RenderTextureWindow(renderer, m_worldmapTexture,
+		srcX, srcY, headSrcW, srcH, 0.0f, 0.0f, headDstW, viewH);
+
+	if (headSrcW < srcW)
+	{
+		// Remainder comes from the far side of the seam, i.e. texture x = 0.
+		float const tailSrcW = srcW - headSrcW;
+		CTP2_SDL_RenderTextureWindow(renderer, m_worldmapTexture,
+			0.0f, srcY, tailSrcW, srcH,
+			headDstW, 0.0f, tailSrcW * zoom, viewH);
+	}
 }
 
 void aui_SDL::RenderWorldmapSpriteQuads(SDL_Renderer *renderer,

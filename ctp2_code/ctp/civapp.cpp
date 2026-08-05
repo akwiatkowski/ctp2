@@ -2954,13 +2954,12 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 								// whole-map path, and the tile-gap and transition bugs
 								// in it could only be found by looking at the game.
 								if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture()) {
-									// Filtering is part of the presented pixels, so the
-									// zoom-direction rule is mirrored too (step 2.3).
-									if (z > 1.0f) CTP2_SDL_SetTextureNearest(aui_SDL::WorldmapTexture());
-									else          CTP2_SDL_SetTextureLinear(aui_SDL::WorldmapTexture());
-									windowed(aui_SDL::WorldmapTexture(),
-										(float)aui_SDL::WorldmapOriginX(),
-										(float)aui_SDL::WorldmapOriginY());
+									// Filtering, the seam split and the source rect are
+									// all inside PresentWorldmapWindow, which Flip
+									// calls too -- sharing the function is what keeps
+									// this oracle honest, rather than a comment
+									// asking the next edit to mirror it by hand.
+									aui_SDL::PresentWorldmapWindow(renderer, W, H, z, offX, offY);
 									// Mirror Flip: sprites are drawn over the
 									// windowed terrain on this path, not into
 									// the texture.

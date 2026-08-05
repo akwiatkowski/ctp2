@@ -3950,10 +3950,16 @@ int TiledMap::BuildWorldmapQuads()
 	// Same stride the whole-map projection addresses with (see
 	// maputils_MapXY2WorldmapPixelXY) -- the engine's, not the asset constant.
 	int const strideX = GetZoomTilePixelWidth();
-	int const texW = static_cast<int>(mapWidth)  * strideX + strideX;
+	// The map wraps in X, so the image is periodic with this width; the texture
+	// is one stride wider only so the half-stride overhang of odd rows has
+	// somewhere to land. Everything that SAMPLES the texture must use the period,
+	// not the allocation.
+	int const wrapW = static_cast<int>(mapWidth) * strideX;
+	int const texW = wrapW + strideX;
 	int const texH = static_cast<int>(mapHeight) * (k_TILE_PIXEL_HEIGHT / 2) + k_TILE_GRID_HEIGHT;
 	if (!aui_SDL::EnsureWorldmapTexture(texW, texH))
 		return 0;   // driver refused the size — caller stays on the ADR-002 path
+	aui_SDL::SetWorldmapWrap(wrapW);
 
 	// The atlas the quads sample from is shared with BuildTerrainQuads; build it
 	// on the same terms so a mode switch does not thrash the cache.
@@ -4006,6 +4012,7 @@ int TiledMap::BuildWorldmapQuads()
 	// rect is exactly one column stride wide and adjacent rows are offset half a
 	// stride, so +-1 column covers it.
 	std::vector<aui_SDL::GpuQuad> clears;
+	bool const xWraps = world_Get() && world_Get()->IsXwrap();
 	if (!firstBuild)
 	{
 		sint32 const rowStep  = GetZoomTilePixelHeight() / 2;
@@ -4042,12 +4049,34 @@ int TiledMap::BuildWorldmapQuads()
 			c.dx = clearX; c.dy = clearY;
 			c.dw = tileW;  c.dh = tileH;
 			clears.push_back(c);
+			// Seam cells are drawn twice (see the emit pass), so both copies have
+			// to be erased or the wrapped one keeps showing the old terrain.
+			if (clearX + tileW > wrapW)
+			{
+				aui_SDL::GpuQuad w = c;
+				w.dx = clearX - wrapW;
+				clears.push_back(w);
+			}
 
 			for (sint32 di = -rowsUp; di <= rowsDown; ++di)
 				for (sint32 dj = -1; dj <= 1; ++dj)
 				{
-					sint32 const ni = ci + di, nj = cj + dj;
-					if (ni < 0 || nj < 0 || ni >= mapHeight || nj >= mapWidth) continue;
+					sint32 const ni = ci + di;
+					if (ni < 0 || ni >= mapHeight) continue;
+					// Neighbour in MAP x, wrapped -- because "next to" here means
+					// next to in the TEXTURE, and a column's texture position is
+					// (mapX + mapY/2) mod mapWidth. Bounds-checking mapX instead of
+					// wrapping it silently dropped the cells across the texture's
+					// seam, which in map coordinates is not an edge at all but a
+					// DIAGONAL line (the +mapY/2 term moves it half a column per
+					// row). That is why the loss showed up as a diagonal chain of
+					// missing tiles, and why it depended on where the map put the
+					// camera rather than on anything about the terrain.
+					sint32 nj = cj + dj;
+					if (xWraps)
+						nj = ((nj % mapWidth) + mapWidth) % mapWidth;
+					else if (nj < 0 || nj >= mapWidth)
+						continue;
 					m_worldmapCellSig[static_cast<size_t>(ni) * mapWidth + nj] =
 						k_WORLDMAP_CELL_UNDRAWN;
 				}
@@ -4160,6 +4189,20 @@ int TiledMap::BuildWorldmapQuads()
 			q.dx = drawX; q.dy = drawY;
 			q.dw = tileW; q.dh = tileH;
 			dirty.push_back(q);
+			// A cell in the last column of an ODD row starts half a stride in and
+			// so runs past the wrap period, into the texture's spare stride. The
+			// pixels beyond wrapW belong, by wrap, at the far left -- and nothing
+			// else paints there, because even rows start flush at x=0 and odd rows
+			// half a stride further right. Left alone that is a half-stride
+			// black zigzag down the seam column. Emit the same tile again one
+			// period back (SDL clips the negative part) so [0, wrapW) is a
+			// complete periodic image and the present can sample it modulo wrapW.
+			if (drawX + tileW > wrapW)
+			{
+				aui_SDL::GpuQuad w = q;
+				w.dx = drawX - wrapW;
+				dirty.push_back(w);
+			}
 			if (m_worldmapMinX > drawX) m_worldmapMinX = drawX;
 			if (m_worldmapMaxX < drawX) m_worldmapMaxX = drawX;
 			if (m_worldmapMinY > drawY) m_worldmapMinY = drawY;

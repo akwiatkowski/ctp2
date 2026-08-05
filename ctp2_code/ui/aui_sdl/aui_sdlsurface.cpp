@@ -382,17 +382,13 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					// to the ADR-002 window mirror if the target is not ready.
 					if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture())
 					{
-						// P13 step 2.3: filter mode follows zoom DIRECTION.
-						// Magnifying (z > 1) must stay NEAREST -- 200% is meant
-						// to read as crisp pixel art, and linear would just blur
-						// it. Minifying needs linear, since nearest drops pixels
-						// and the dropped set changes as the source rect slides,
-						// which reads as shimmer during a pan.
-						if (z > 1.0f) CTP2_SDL_SetTextureNearest(aui_SDL::WorldmapTexture());
-						else          CTP2_SDL_SetTextureLinear(aui_SDL::WorldmapTexture());
-						presentWindowed( aui_SDL::WorldmapTexture(),
-							(float)aui_SDL::WorldmapOriginX(),
-							(float)aui_SDL::WorldmapOriginY() );
+						// Not presentWindowed: the whole-map target is periodic
+						// in X, so a window straddling the map's wrap seam takes
+						// two draws. That, the zoom-direction filter rule and
+						// the source-rect arithmetic live in one function shared
+						// with the screenshot readback, so the pixel oracle
+						// cannot drift from what is actually presented.
+						aui_SDL::PresentWorldmapWindow(m_renderer, W, H, z, offX, offY);
 						// P13 step 3: units, cities and effects go on top of the
 						// windowed terrain. They are NOT composited into the
 						// whole-map texture -- it is persistent and

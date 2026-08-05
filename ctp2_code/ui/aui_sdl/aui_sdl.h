@@ -189,13 +189,13 @@ public:
 	static void SetWorldmapOrigin(int x, int y) { m_worldmapOriginX = x; m_worldmapOriginY = y; }
 	// Whole-map pixel that view-relative (0,0) maps to, for SPRITES.
 	//
-	// This is NOT WorldmapOrigin. That is built from the view rect and carries a
-	// row-parity nudge plus k_TILE_PIXEL_HEADROOM; a sprite's coordinates come
-	// from maputils, which applies the nudge for the CELL's own row and no
-	// headroom. Assuming the two cancel put every sprite a fixed (-48, +24)
-	// texture pixels off its tile -- invisible at zoom 1 against a 96px tile,
-	// obvious once zoomed out. Published by the tile builder as the measured
-	// difference for a real cell, so it stays right whatever the projections do.
+	// Same projection as WorldmapOrigin, published separately because it answers
+	// a different question: where the tile builder DREW, versus where the present
+	// WINDOWS. They used to differ by k_TILE_PIXEL_HEADROOM (a phantom -- see
+	// BuildWorldmapQuads) and by a quarter tile in X (a real stride bug). Both
+	// are fixed, so the two now agree; keeping them separate means a future
+	// divergence stays observable in query_gpu_world instead of silently
+	// misplacing every sprite by the difference.
 	static void SetWorldmapSpriteBase(int x, int y) { m_worldmapSpriteBaseX = x; m_worldmapSpriteBaseY = y; }
 	static int WorldmapSpriteBaseX() { return m_worldmapSpriteBaseX; }
 	static int WorldmapSpriteBaseY() { return m_worldmapSpriteBaseY; }
@@ -211,6 +211,26 @@ public:
 	static int WorldmapOriginY() { return m_worldmapOriginY; }
 	static int WorldmapW() { return m_worldmapW; }
 	static int WorldmapH() { return m_worldmapH; }
+	// Horizontal period of the whole-map texture: mapWidth column strides. NOT
+	// WorldmapW(), which is one stride wider so the half-stride overhang of odd
+	// rows has somewhere to land. The map wraps in X, so texture content
+	// satisfies content(x) == content(x + wrap) and any sampling must be taken
+	// modulo this.
+	static void SetWorldmapWrap(int w) { m_worldmapWrapW = w; }
+	static int WorldmapWrapW() { return m_worldmapWrapW; }
+	// Present the whole-map target into the current render target, windowed at
+	// WorldmapOrigin, zoomed and panned by the camera, wrapping across the map's
+	// X seam.
+	//
+	// This exists as ONE function on purpose. Both aui_SDLSurface::Flip and the
+	// screenshot_presented readback have to produce identical pixels -- the
+	// readback is the only pixel oracle for this path, and when it last drifted
+	// from Flip it re-composited the wrong texture entirely, leaving every
+	// screenshot test blind to the whole-map path for a whole phase. Two copies
+	// of this arithmetic is how that happens; there is now one.
+	static void PresentWorldmapWindow(SDL_Renderer *renderer,
+	                                  float viewW, float viewH,
+	                                  float zoom, float offX, float offY);
 	// Create (or resize) the whole-map target and clear it to opaque black, the
 	// same "unexplored" base the window-mirror path clears to. Returns false if
 	// the driver refuses the size, so callers can fall back rather than draw
@@ -308,6 +328,7 @@ protected:
 	static SDL_Texture *	m_worldmapTexture;
 	static int		m_worldmapW;
 	static int		m_worldmapH;
+	static int		m_worldmapWrapW;
 	static int		m_worldmapOriginX;
 	static int m_worldmapSpriteBaseX;
 	static int m_worldmapSpriteBaseY;

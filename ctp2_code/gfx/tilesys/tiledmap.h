@@ -381,10 +381,17 @@ public:
 	int			BuildWorldmapQuads();
 	uint64_t	WorldmapVisibleOwners(MapPoint const &pos);
 	// Per-cell overlays composited into the whole-map tile image (P13 step 3).
-	// lineBorders: composite the LINE style of national border into the tile.
-	// Only the whole-map path may ask for this -- see the .cpp.
+	// lineBorders / fogged: composite the LINE style of national border, and
+	// fog, into the tile. Only the whole-map path may ask for either -- its
+	// cache key carries the border settings and the cell's visibility, and the
+	// quad path's does not. See the .cpp.
 	void		DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo,
-	                                     bool lineBorders = false);
+	                                     bool lineBorders = false,
+	                                     bool fogged = false);
+	// Whether this cell composites as fogged into its whole-map tile, and the
+	// globals deciding how fog looks (for the cache key). See the .cpp.
+	bool		WorldmapCellFogged(MapPoint const &pos) const;
+	uint64_t	WorldmapFogFlags() const;
 	uint64_t		CellSignatureAt(sint32 mapX, sint32 mapY);
 	// Drop all cached per-cell state, forcing a full rebuild (map changed size,
 	// tileset/zoom changed, or another game was loaded).

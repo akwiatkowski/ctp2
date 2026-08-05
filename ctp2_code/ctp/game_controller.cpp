@@ -619,6 +619,97 @@ std::string CmdDebugSetBorders(const char * args)
 	return Ok("debug_set_borders", result);
 }
 
+// Put a patch into FOG: explored, but not currently visible.
+//
+// There was no way to reach that state from a test, and it is the state most
+// of an explored map is in for most of a game. debug_reveal_patch only ever
+// produces lit terrain, so the whole-map path's handling of fog (#12839) could
+// not be developed or tested at all.
+//
+// Note Vision::AddExplored is NOT "explore without seeing" — it is the same
+// FillCircle(CIRCLE_OP_ADD) call as AddVisible. Visibility is a REFERENCE
+// COUNT in the low bits with the explored flag as the top bit, so adding sets
+// both and there is no add-explored-only primitive. Fog is made by dropping
+// the reference again: the count returns to zero (unless a unit really can see
+// the cell, which is correct) while the explored bit stays set.
+std::string CmdDebugExplorePatch(const char * args)
+{
+	sint32 x = 0, y = 0, radius = 0;
+	if (!args || sscanf(args, "%d %d %d", &x, &y, &radius) != 3 || radius < 0)
+		return Err("debug_explore_patch", "bad_args");
+	World *w = world_Get();
+	Player *human = HumanPlayer();
+	if (!w || !human || !human->m_vision)
+		return Err("debug_explore_patch", "no_world");
+	if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+		return Err("debug_explore_patch", "bad_position");
+
+	MapPoint const pos(x, y);
+	double const r = static_cast<double>(radius);
+	human->m_vision->AddVisible(pos, r);
+	human->m_vision->RemoveVisible(pos, r);
+	if (tiledmap_Get()) {
+		tiledmap_Get()->CopyVision();
+		tiledmap_Get()->BuildTerrainQuads();
+	}
+	json result;
+	result["pos"] = { {"x", x}, {"y", y} };
+	result["radius"] = radius;
+	return Ok("debug_explore_patch", result);
+}
+
+// Explored / visible cell counts over a square patch, read from BOTH the
+// human player's Vision and the one the tile map is actually rendering
+// through. Fog is "explored and not visible", and nothing could observe that
+// state: a test could set it up and screenshot the result, but if the frame
+// did not change there was no way to tell whether fog failed to draw or the
+// visibility never moved in the first place. Reporting both sides also catches
+// the two drifting apart, which is a real possibility -- CopyVision aliases
+// m_localVision to whichever player is being viewed, not necessarily the human.
+std::string CmdDebugVisionStats(const char * args)
+{
+	sint32 x = 0, y = 0, radius = 0;
+	if (!args || sscanf(args, "%d %d %d", &x, &y, &radius) != 3 || radius < 0)
+		return Err("debug_vision_stats", "bad_args");
+	World *w = world_Get();
+	Player *human = HumanPlayer();
+	if (!w || !human || !human->m_vision)
+		return Err("debug_vision_stats", "no_world");
+
+	Vision const * local = tiledmap_Get() ? tiledmap_Get()->GetLocalVision() : nullptr;
+
+	sint32 cells = 0;
+	sint32 humanExplored = 0, humanVisible = 0;
+	sint32 localExplored = 0, localVisible = 0;
+	for (sint32 dy = -radius; dy <= radius; ++dy)
+	{
+		for (sint32 dx = -radius; dx <= radius; ++dx)
+		{
+			sint32 const cx = x + dx, cy = y + dy;
+			if (cx < 0 || cy < 0 || cx >= w->GetXWidth() || cy >= w->GetYHeight())
+				continue;
+			MapPoint const pos(cx, cy);
+			++cells;
+			if (human->m_vision->IsExplored(pos)) ++humanExplored;
+			if (human->m_vision->IsVisible(pos))  ++humanVisible;
+			if (local)
+			{
+				if (local->IsExplored(pos)) ++localExplored;
+				if (local->IsVisible(pos))  ++localVisible;
+			}
+		}
+	}
+
+	json result;
+	result["cells"]  = cells;
+	result["human"]  = { {"explored", humanExplored}, {"visible", humanVisible} };
+	result["local"]  = { {"explored", localExplored}, {"visible", localVisible},
+	                     {"present", local != nullptr} };
+	// The cells that should render fogged.
+	result["fogged"] = localExplored - localVisible;
+	return Ok("debug_vision_stats", result);
+}
+
 // Nearest map good to a position. Goods are placed at generation and there is
 // no query for them, which makes "does a good render" awkward to test.
 std::string CmdDebugWorldmapSprites(const char * args)
@@ -3637,6 +3728,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_clear_rivers ", 0) == 0)              return CmdDebugClearRivers(line.c_str() + 19);
     if (line.rfind("debug_clear_terrain_layers ", 0) == 0)      return CmdDebugClearTerrainLayers(line.c_str() + 27);
     if (line.rfind("debug_reveal_patch ", 0) == 0)              return CmdDebugRevealPatch(line.c_str() + 19);
+    if (line.rfind("debug_explore_patch ", 0) == 0)             return CmdDebugExplorePatch(line.c_str() + 20);
+    if (line.rfind("debug_vision_stats ", 0) == 0)              return CmdDebugVisionStats(line.c_str() + 19);
     if (line.rfind("debug_find_good ", 0) == 0)                 return CmdDebugFindGood(line.c_str() + 16);
     if (line.rfind("debug_worldmap_sprites ", 0) == 0)          return CmdDebugWorldmapSprites(line.c_str() + 23);
     if (line == "debug_icon_alpha")                             return CmdDebugIconAlpha(nullptr);

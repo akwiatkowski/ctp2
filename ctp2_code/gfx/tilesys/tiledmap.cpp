@@ -277,7 +277,7 @@ namespace
     // map keeps showing the old setting until something else dirties the cell.
     uint64_t WorldmapCellOverlayState(TileInfo const *tileInfo, MapPoint const &pos,
                                       Vision const *vision, bool gridOn,
-                                      uint64_t visibleOwners)
+                                      uint64_t visibleOwners, uint64_t fogFlags)
     {
         bool const bordersOn = profiledb_Get()
                             && profiledb_Get()->GetShowPoliticalBorders();
@@ -285,7 +285,11 @@ namespace
                                 && profiledb_Get()->IsSmoothBorders() != 0;
         uint64_t state = (gridOn ? 1u : 0u)
                        | (bordersOn ? 2u : 0u)
-                       | (smoothBorders ? 4u : 0u);
+                       | (smoothBorders ? 4u : 0u)
+                       // Whether fog composites into the tile at all, and which
+                       // of the two fog looks is in force. Both change the
+                       // cached picture of every fogged cell at once.
+                       | (fogFlags << 3);
         state = (state << 16) | (uint64_t)(uint16_t)(tileInfo ? tileInfo->GetRiverPiece() : -1);
 
         Cell * const cell = world_Get() ? world_Get()->GetCell(pos) : nullptr;
@@ -3884,6 +3888,33 @@ uint64_t TiledMap::WorldmapVisibleOwners(MapPoint const &pos)
 	return owners;
 }
 
+// P13 step 4 (#12839): is this cell drawn fogged in its whole-map tile?
+//
+// Same test DrawATile makes on the CPU path. Explored-but-not-currently-visible
+// is fog; unexplored is not fog but plain black, which the target is already
+// cleared to. GpuFogActive() means the separate screen-space mask is doing the
+// job and compositing it into the tile as well would double it.
+bool TiledMap::WorldmapCellFogged(MapPoint const &pos) const
+{
+	if (!m_localVision) return false;
+	if (m_renderEverything || m_renderExploredAsVisible) return false;
+	if (GpuFogActive()) return false;
+	return m_localVision->IsExplored(pos) && !m_localVision->IsVisible(pos);
+}
+
+// The globals that decide how fog LOOKS, for the cache key. Per-cell visibility
+// is already in the key (WorldmapCellOverlayState); these are what make every
+// cached tile stale at once when the engine or the player flips them.
+uint64_t TiledMap::WorldmapFogFlags() const
+{
+	uint64_t flags = 0;
+	if (!(m_renderEverything || m_renderExploredAsVisible) && !GpuFogActive())
+		flags |= 1u;                    // fog composites into tiles at all
+	if (g_isFastCpu)
+		flags |= 2u;                    // blended rather than dithered
+	return flags;
+}
+
 uint64_t TiledMap::CellSignatureAt(sint32 mapX, sint32 mapY)
 {
 	MapPoint pos = MapPoint(mapX, mapY);
@@ -3904,7 +3935,7 @@ uint64_t TiledMap::CellSignatureAt(sint32 mapX, sint32 mapY)
 			(uint8_t) tileInfo->GetTransition(0), (uint8_t) tileInfo->GetTransition(1),
 			(uint8_t) tileInfo->GetTransition(2), (uint8_t) tileInfo->GetTransition(3)),
 		WorldmapCellOverlayState(tileInfo, pos, m_localVision, g_isGridOn != 0,
-			WorldmapVisibleOwners(pos)));
+			WorldmapVisibleOwners(pos), WorldmapFogFlags()));
 }
 
 // P13 step 3: the per-cell overlays for one whole-map tile, drawn into the
@@ -3920,18 +3951,39 @@ uint64_t TiledMap::CellSignatureAt(sint32 mapX, sint32 mapY)
 // view-relative position and bails on a negative one, so it cannot draw into a
 // tile-sized scratch surface without being given a destination first.
 void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo,
-                                        bool lineBorders)
+                                        bool lineBorders, bool fogged)
 {
 	MapPoint cellPos = pos;
 
 	sint16 const river = tileInfo ? tileInfo->GetRiverPiece() : -1;
 	if (river != -1 && m_tileSet)
 	{
+		// The river follows its tile into fog, the same four-way choice
+		// DrawATile makes. A bright river over darkened terrain would read as a
+		// glowing seam through the fog.
+		Pixel16 * const data = m_tileSet->GetRiverData(river);
 		if (m_zoomLevel == k_ZOOM_LARGEST)
-			DrawOverlay(nullptr, m_tileSet->GetRiverData(river), 0, 0);
+		{
+			if (!fogged)
+				DrawOverlay(nullptr, data, 0, 0);
+			else if (g_isFastCpu)
+				DrawBlendedOverlay(nullptr, data, 0, 0, k_FOW_COLOR, k_FOW_BLEND_VALUE);
+			else
+				DrawDitheredOverlay(nullptr, data, 0, 0, k_FOW_COLOR);
+		}
 		else
-			DrawScaledOverlay(nullptr, m_tileSet->GetRiverData(river), 0, 0,
-				GetZoomTilePixelWidth(), GetZoomTileGridHeight());
+		{
+			if (!fogged)
+				DrawScaledOverlay(nullptr, data, 0, 0,
+					GetZoomTilePixelWidth(), GetZoomTileGridHeight());
+			else if (g_isFastCpu)
+				DrawBlendedOverlayScaled(nullptr, data, 0, 0,
+					GetZoomTilePixelWidth(), GetZoomTileGridHeight(),
+					k_FOW_COLOR, k_FOW_BLEND_VALUE);
+			else
+				DrawDitheredOverlayScaled(nullptr, data, 0, 0,
+					GetZoomTilePixelWidth(), GetZoomTileGridHeight(), k_FOW_COLOR);
+		}
 	}
 
 	DrawImprovementsLayer(nullptr, cellPos, 0, 0);
@@ -4200,7 +4252,7 @@ int TiledMap::BuildWorldmapQuads()
 					(uint8_t) tileInfo->GetTransition(2),
 					(uint8_t) tileInfo->GetTransition(3)),
 				WorldmapCellOverlayState(tileInfo, pos, m_localVision, g_isGridOn != 0,
-			WorldmapVisibleOwners(pos)));
+			WorldmapVisibleOwners(pos), WorldmapFogFlags()));
 
 			// The whole point of this path: unchanged cells cost nothing, so a
 			// pan or a zoom redraws zero tiles.
@@ -4216,12 +4268,37 @@ int TiledMap::BuildWorldmapQuads()
 				{
 					++m_worldmapUploads;
 					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
-					// Base terrain plus its transitions.
+					// Base terrain plus its transitions. P13 step 4 (#12839):
+					// a fogged cell takes the blended or dithered variant, the
+					// same choice DrawATile makes on the CPU path, so fog is
+					// part of the cached tile picture instead of a separate
+					// pass. Per-cell visibility is already in the signature, so
+					// a cell that gains or loses sight recomposites by itself.
+					bool const fogged = WorldmapCellFogged(pos);
 					if (m_zoomLevel == k_ZOOM_LARGEST)
-						DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
+					{
+						if (!fogged)
+							DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
+						else if (g_isFastCpu)
+							DrawBlendedTile(m_gpuScratchTile.get(), pos, 0, 0,
+								k_FOW_COLOR, k_FOW_BLEND_VALUE);
+						else
+							DrawDitheredTile(m_gpuScratchTile.get(), 0, 0, k_FOW_COLOR);
+					}
 					else
-						DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
-							GetZoomTilePixelWidth(), GetZoomTilePixelHeight());
+					{
+						if (!fogged)
+							DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
+								GetZoomTilePixelWidth(), GetZoomTilePixelHeight());
+						else if (g_isFastCpu)
+							DrawBlendedTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
+								GetZoomTilePixelWidth(), GetZoomTilePixelHeight(),
+								k_FOW_COLOR, k_FOW_BLEND_VALUE);
+						else
+							DrawDitheredTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
+								GetZoomTilePixelWidth(), GetZoomTilePixelHeight(),
+								k_FOW_COLOR);
+					}
 
 					// P13 step 3: the per-cell overlays, in the order the CPU
 					// path draws them. nullptr targets the surface locked
@@ -4229,11 +4306,14 @@ int TiledMap::BuildWorldmapQuads()
 					// resourcemap already reuse these same routines for their
 					// own views.
 					//
-					// Line borders only here: this path's key
-					// (WorldmapCellOverlayState) carries the border settings and
-					// the neighbours' owners, so a bordered tile is a distinct
-					// cache entry. The quad path's key does not.
-					DrawWorldmapCellOverlays(pos, tileInfo, /*lineBorders=*/true);
+					// Line borders and fog only here: this path's key
+					// (WorldmapCellOverlayState) carries the border settings,
+					// the neighbours' owners and the cell's visibility, so a
+					// bordered or fogged tile is a distinct cache entry. The
+					// quad path's key is terrain alone, so anything conditional
+					// baked into a tile there leaks onto unrelated cells.
+					DrawWorldmapCellOverlays(pos, tileInfo, /*lineBorders=*/true,
+					                         fogged);
 
 					aui_SDL::UploadQuadAtlasSlot(slot.atlasX, slot.atlasY, tileW, tileH,
 						m_surfBase, m_surfPitch);

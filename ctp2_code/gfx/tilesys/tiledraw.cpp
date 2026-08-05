@@ -1257,8 +1257,15 @@ sint32 TiledMap::DrawBlendedTile(aui_Surface *surface, const MapPoint &pos,sint3
         if (!surface) return 0;
     }
 
-    if (xpos >= surface->Width() - k_TILE_PIXEL_WIDTH) return 0;
-    if (ypos >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
+    // Strictly greater, matching DrawTransitionTile: a tile whose right or
+    // bottom edge lands exactly on the surface edge FITS. This is the fogged
+    // twin of that function -- the two are alternatives for the same tile at
+    // the same position, so accepting different positions is a bug either way.
+    // With >= a tile flush against the edge drew unfogged and vanished when
+    // fogged, and no tile at all could be drawn into a surface exactly one
+    // tile wide, which is what the whole-map path composites into.
+    if (xpos > surface->Width() - k_TILE_PIXEL_WIDTH) return 0;
+    if (ypos > surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 
 	TileInfo * tileInfo = GetTileInfo(pos);
 	Assert(tileInfo);

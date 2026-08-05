@@ -1744,6 +1744,19 @@ test('goods-reload',
   suite : 'integration',
 )
 
+# #12839 (P13 step 4): fog is composited into the whole-map tiles. Checks that
+# fog darkens the world at all on that path, and that it darkens it by about as
+# much as the quad path does — deliberately a tolerance, not pixel equality:
+# the two paths blend and cache differently and this is not a bit-exact port.
+test('worldmap-fog',
+  find_program('test/worldmap_fog.py'),
+  timeout : 420,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
 # #14260: political borders have two draw styles behind a graphics option, and
 # the whole-map path composited only one of them. Toggling an overlay and
 # requiring the presented pixels to change is the check that cannot pass

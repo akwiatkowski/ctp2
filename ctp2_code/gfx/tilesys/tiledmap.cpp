@@ -1744,6 +1744,43 @@ void TiledMap::PostProcessMap(BOOL regenTilenums)
 	}
 }
 
+// Rebuild the good sprites, and only those.
+//
+// A save carries where the goods ARE (World's cell data) but not the actors
+// that draw them: TileInfo::m_goodActor is a UI sprite pointer and json_save
+// deliberately skips it. Nothing recreated them afterwards, so every resource
+// on the map was invisible after loading any save, on every render path --
+// while a new game showed them, because PostProcessMap runs during map
+// generation.
+//
+// Deliberately NOT PostProcessMap(): its default regenerates tile numbers from
+// terrain, which would discard the mega-tile state the load just restored.
+// Goods are the thing that is missing, so goods are the thing this rebuilds.
+void TiledMap::RecreateGoodActors()
+{
+	// Same guard PostProcessTile uses: without a tileset there are no sprites
+	// to build, which is the headless case.
+	if (!m_tileSet || !world_Get()) return;
+
+	for (sint16 i = 0; i < m_mapBounds.bottom; i++)
+	{
+		for (sint16 j = 0; j < m_mapBounds.right; j++)
+		{
+			MapPoint pos(j, i);
+			TileInfo * tileInfo = world_Get()->GetTileInfoStoragePtr(pos);
+			if (!tileInfo) continue;
+
+			if (tileInfo->HasGoodActor())
+				tileInfo->DeleteGoodActor();
+
+			sint32 goodIndex;
+			if (world_Get()->GetGood(pos, goodIndex))
+				tileInfo->SetGoodActor(
+					g_theResourceDB->Get(goodIndex)->GetSpriteID(), pos);
+		}
+	}
+}
+
 void TiledMap::BreakMegaTile(MapPoint &pos)
 {
 	TileInfo * tileInfo = GetTileInfo(pos);

@@ -80,6 +80,16 @@ public:
     // Whole-map post-process (currently only WrldPoll calls this).
     virtual void PostProcessMap() = 0;
 
+    // Recreate every tile's good sprite from the world's good placement.
+    //
+    // Saves never carry TileInfo::m_goodActor -- it is a UI sprite pointer --
+    // so a restored world has the goods but none of the actors that draw them,
+    // and every resource on the map is invisible until something else happens
+    // to post-process that tile. This is deliberately NOT PostProcessMap():
+    // that regenerates tile numbers from terrain by default and would discard
+    // the mega-tile state the save just restored. Goods only.
+    virtual void RecreateGoodActors() = 0;
+
     // Composited refresh + invalidations.
     virtual void Refresh() = 0;
     virtual void InvalidateMap() = 0;
@@ -110,6 +120,7 @@ void RedrawTile(MapPoint const &pos);
 void PostProcessTile(MapPoint &pos, TileInfo *info);
 void TileChanged(MapPoint &pos);
 void PostProcessMap();
+void RecreateGoodActors();
 
 void Refresh();
 void InvalidateMap();

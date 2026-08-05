@@ -1730,6 +1730,20 @@ test('pan-pixel-proof',
   suite : 'integration',
 )
 
+# #14230: goods are placed by the world but drawn by a UI actor that saves do
+# not carry. Nothing recreated them on load, so every resource on the map was
+# invisible after loading any save -- on both render paths, silently. Cheap to
+# check and it stayed broken precisely because nothing checked it.
+test('goods-reload',
+  find_program('test/goods_reload.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
 test('gpu-world-fallbacks',
   find_program('test/gpu_world_fallbacks.py'),
   args : [join_paths(meson.project_build_root(), 'ctp2')],

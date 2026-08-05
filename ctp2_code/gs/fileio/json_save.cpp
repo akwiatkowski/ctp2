@@ -132,6 +132,7 @@
 #include "gs/database/EndGameDB.h"          // endgamedb_Get()->m_nRec
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/core/game_observer.h"          // NotifyUnitSpawned
+#include "gs/core/tiledmap_observer.h"      // RecreateGoodActors
 #include "gs/world/cellunitlist.h"          // CellUnitList (ArmyData base)
 #include "gs/utility/UnitDynArr.h"          // UnitDynamicArray
 #include "ctp/ctp2_utils/BitMask.h"        // BitMask (m_roundTheWorldMask)
@@ -5441,6 +5442,17 @@ bool LoadJson(char const *path)
         // fixtures may call LoadJson without gameinit (no unit DB).
         if (world_Get() && unitpool_Get())
             unitpool_Get()->RecreateActors();
+
+        // Same story for the map's goods: TileInfo::m_goodActor is a UI
+        // sprite pointer and is never serialised (see from_json for TileInfo),
+        // so a restored world knows where every resource is but has nothing
+        // to draw it with.  Recreating them here rather than in a caller means
+        // every load entry point gets them -- the UI load dialog, headless
+        // --load-game, and the test-API load_game -- which is exactly why
+        // RecreateActors above lives here too.  Goes through the tiledmap
+        // observer: headless registers no Impl and short-circuits.
+        if (world_Get())
+            tiledmap_observer::RecreateGoodActors();
     }
     catch (nlohmann::json::exception const &e)
     {

@@ -180,6 +180,11 @@ public:
 	void			PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 									BOOL regenTilenum = TRUE);
 	void			PostProcessMap(BOOL regenTilenums = TRUE);
+	// Rebuild every tile's good sprite from the world's good placement, and
+	// nothing else. For the load path: saves carry the goods but not the
+	// actors that draw them. See tiledmap_observer::Impl for why this is not
+	// PostProcessMap().
+	void			RecreateGoodActors();
 
 	void			BreakMegaTile(MapPoint &pos);
 	void			TileChanged(MapPoint &pos);

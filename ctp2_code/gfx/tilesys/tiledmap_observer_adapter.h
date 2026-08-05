@@ -13,6 +13,7 @@ public:
     void PostProcessTile(MapPoint &pos, TileInfo *info) override;
     void TileChanged(MapPoint &pos) override;
     void PostProcessMap() override;
+    void RecreateGoodActors() override;
     void Refresh() override;
     void InvalidateMap() override;
     void InvalidateMix() override;

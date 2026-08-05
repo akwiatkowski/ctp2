@@ -43,6 +43,11 @@ struct RecordingSpy : tiledmap_observer::Impl {
         ++postProcessMapCalls;
     }
 
+    int recreateGoodActorsCalls = 0;
+    void RecreateGoodActors() override {
+        ++recreateGoodActorsCalls;
+    }
+
     int refreshCalls = 0;
     void Refresh() override {
         ++refreshCalls;
@@ -154,6 +159,17 @@ TEST_CASE("tiledmap_observer::PostProcessMap dispatches to Impl")
     CHECK(spy.postProcessMapCalls == 1);
 }
 
+TEST_CASE("tiledmap_observer::RecreateGoodActors dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    tiledmap_observer::RecreateGoodActors();
+    CHECK(spy.recreateGoodActorsCalls == 1);
+    // Distinct from PostProcessMap on purpose: that one regenerates tile
+    // numbers and would undo part of what a load just restored.
+    CHECK(spy.postProcessMapCalls == 0);
+}
+
 TEST_CASE("tiledmap_observer::Refresh dispatches to Impl")
 {
     RecordingSpy spy;
@@ -215,6 +231,7 @@ TEST_CASE("Null fan-outs are no-ops when no Impl registered")
     tiledmap_observer::PostProcessTile(pt, nullptr);
     tiledmap_observer::TileChanged(pt);
     tiledmap_observer::PostProcessMap();
+    tiledmap_observer::RecreateGoodActors();
     tiledmap_observer::Refresh();
     tiledmap_observer::InvalidateMap();
     tiledmap_observer::InvalidateMix();

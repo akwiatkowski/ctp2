@@ -25,6 +25,11 @@ void TiledMapObserverAdapter::PostProcessMap()
     if (tiledmap_Get()) tiledmap_Get()->PostProcessMap();
 }
 
+void TiledMapObserverAdapter::RecreateGoodActors()
+{
+    if (tiledmap_Get()) tiledmap_Get()->RecreateGoodActors();
+}
+
 void TiledMapObserverAdapter::Refresh()
 {
     if (tiledmap_Get()) tiledmap_Get()->Refresh();

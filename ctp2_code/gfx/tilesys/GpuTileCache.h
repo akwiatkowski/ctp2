@@ -60,11 +60,10 @@ inline uint64_t TerrainCellSignature(uint16_t tileNum, uint8_t tilesetIndex,
 // improvements, goody hut, grid). Those cannot go in the structured layout
 // above -- it is already full -- so this hashes them in.
 //
-// Both quad paths share ONE GpuTileCache, so a worldmap key must never equal a
-// window key or one path would be served the other's image. Bit 63 makes that
-// impossible rather than unlikely: TerrainCellSignature packs into bits 0..55,
-// so a structured key always has the top byte clear, and every key from here
-// always has bit 63 set.
+// All three key spaces share ONE GpuTileCache and must stay disjoint, or a path
+// gets served another path's image. A structured TerrainCellSignature always has
+// its top byte clear; a whole-map key always sets bit 63; a window key always
+// sets bit 62 and never 63.
 inline uint64_t WorldmapCellSignature(uint64_t terrainSignature, uint64_t overlayState)
 {
 	// splitmix64 finaliser: cheap, and mixes every input bit into every output
@@ -76,6 +75,24 @@ inline uint64_t WorldmapCellSignature(uint64_t terrainSignature, uint64_t overla
 	h = (h ^ (h >> 27)) * 0x94D049BB133111EBULL;
 	h ^=  h >> 31;
 	return h | (1ULL << 63);
+}
+
+// Key for a WINDOW-path (quad) cell. That path composites the same per-cell
+// overlays into its cached tile as the whole-map path does, so its key has to
+// carry them too. TerrainCellSignature does not: a tile cached while a cell had
+// a river kept that river after the river was removed, and was handed to every
+// other cell sharing the terrain signature -- rivers outliving their cell, and
+// rivers appearing on cells that never had one.
+inline uint64_t WindowCellSignature(uint64_t terrainSignature, uint64_t overlayState)
+{
+	// Same finaliser as the whole-map key, different namespace bit.
+	uint64_t h = terrainSignature ^ (overlayState + 0x9E3779B97F4A7C15ULL
+	                                 + (terrainSignature << 6)
+	                                 + (terrainSignature >> 2));
+	h = (h ^ (h >> 30)) * 0xBF58476D1CE4E5B9ULL;
+	h = (h ^ (h >> 27)) * 0x94D049BB133111EBULL;
+	h ^=  h >> 31;
+	return (h & ~(1ULL << 63)) | (1ULL << 62);
 }
 
 // The atlas rect a signature is mapped to. (atlasX, atlasY) is the top-left

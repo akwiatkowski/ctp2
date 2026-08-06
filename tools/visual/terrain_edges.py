@@ -177,6 +177,19 @@ def capture_mode(binary, out_dir, mode_name, seed, players, pairs, patterns, rad
         center = visible_center(client)
         client.expect_ok("camera_debug_center", center["x"], center["y"])
 
+        # Warm-up capture, discarded. The FIRST measured capture would otherwise
+        # be racing start-up: the renderer, the tile atlas and the whole-map
+        # target are all still coming up, and capture_settled's 10s budget was
+        # occasionally spent before any terrain appeared at all — the run then
+        # died with "never reached 500 terrain pixels", which looks like a
+        # rendering failure and is not one. Absorbing that here costs one
+        # capture and makes every measured one start from a live renderer.
+        if reveal_radius > 0:
+            client.expect_ok("debug_reveal_patch", center["x"], center["y"],
+                             reveal_radius)
+        capture_settled(client, center, str(out_dir / f"{mode_name}-warmup.bmp"),
+                        crop_size)
+
         for pair_spec in pairs:
             terrain_a, terrain_b = resolve_pair(lookup, pair_spec)
             for pattern in patterns:

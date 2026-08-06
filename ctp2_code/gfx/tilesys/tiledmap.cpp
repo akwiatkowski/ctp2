@@ -4603,13 +4603,31 @@ void TiledMap::BuildTerrainQuads()
 			sint32 tilesetIndex =
 				g_theTerrainDB->Get(tileInfo->GetTerrainType())->GetTilesetIndex();
 
-			uint64_t sig = TerrainCellSignature(
-				tileInfo->GetTileNum(),
-				(uint8_t) tilesetIndex,
-				(uint8_t) tileInfo->GetTransition(0),
-				(uint8_t) tileInfo->GetTransition(1),
-				(uint8_t) tileInfo->GetTransition(2),
-				(uint8_t) tileInfo->GetTransition(3));
+			// The key has to cover the OVERLAYS as well as the terrain, because
+			// DrawWorldmapCellOverlays composites them into the cached tile a
+			// few lines below. TerrainCellSignature alone does not: it packs the
+			// tile number, tileset index and four transitions and nothing else.
+			// So a tile composited while a cell had a river kept that river
+			// after the river was removed, and was handed to every other cell
+			// sharing the terrain signature -- rivers that outlive their cell
+			// and rivers appearing on cells that never had one.
+			//
+			// Caught by the whole-map parity test, and worth noting which way
+			// round: the residual it was reporting was the REFERENCE being
+			// stale, not the path under test. The whole-map key has carried the
+			// overlays since P13 step 3, so it dropped the river correctly while
+			// this path went on drawing it.
+			uint64_t sig = WindowCellSignature(
+				TerrainCellSignature(
+					tileInfo->GetTileNum(),
+					(uint8_t) tilesetIndex,
+					(uint8_t) tileInfo->GetTransition(0),
+					(uint8_t) tileInfo->GetTransition(1),
+					(uint8_t) tileInfo->GetTransition(2),
+					(uint8_t) tileInfo->GetTransition(3)),
+				WorldmapCellOverlayState(tileInfo, pos, m_localVision,
+					g_isGridOn != 0, WorldmapVisibleOwners(pos),
+					WorldmapFogFlags()));
 
 			GpuTileSlot slot;
 			if (m_gpuTileCache->Get(sig, slot) == GpuTileCache::MISS)

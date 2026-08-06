@@ -4344,10 +4344,14 @@ int TiledMap::BuildWorldmapQuads()
 			bool rastered = false;
 			if (aui_SDL::GpuRasterEnabled() && m_zoomLevel == k_ZOOM_LARGEST)
 			{
-				bool overlayFree = !WorldmapCellFogged(pos)
-				    && tileInfo->GetRiverPiece() == -1
-				    && !g_isGridOn
-				    && !CellHasCpuOnlyImprovementLayer(world_Get()->GetCell(pos), pos);
+				// Fog, rivers and the grid are rasterised now (fog and fogged
+				// rivers via BlendFast at decode time, so still bit-exact —
+				// including the legacy fogged-river last-row quirk). What still
+				// forces the CPU composite: the improvement layer (roads and
+				// friends have neighbour-dependent geometry) and national
+				// borders on any owned-and-seen cell.
+				bool overlayFree =
+				    !CellHasCpuOnlyImprovementLayer(world_Get()->GetCell(pos), pos);
 				if (overlayFree && profiledb_Get()
 				    && profiledb_Get()->GetShowPoliticalBorders())
 				{
@@ -4371,7 +4375,11 @@ int TiledMap::BuildWorldmapQuads()
 					size_t const before = dirty.size();
 					if (s_tilesetGpuRaster.ComposeCell(m_tileSet,
 							tileInfo->GetTileNum(), (uint16) tilesetIndex,
-							trans, drawX, drawY, dirty))
+							trans,
+							WorldmapCellFogged(pos), k_FOW_COLOR, k_FOW_BLEND_VALUE,
+							(int) tileInfo->GetRiverPiece(),
+							g_isGridOn ? (int) colorset_Get()->GetColor(COLOR_BLACK) : -1,
+							drawX, drawY, dirty))
 					{
 						rastered = true;
 						++m_worldmapRasterCells;

@@ -775,6 +775,37 @@ std::string CmdDebugFindGood(const char * args)
 	return Ok("debug_find_good", result);
 }
 
+// Nearest cell carrying a river piece. Rivers are placed at map generation and
+// nothing queries them, which makes "does a river render correctly" impossible
+// to aim at — a test that guesses a position measures whatever happens to be
+// there, which is how the raster overlay oracle first passed with the
+// fogged-river decode deliberately broken.
+std::string CmdDebugFindRiver(const char * args)
+{
+	sint32 fx = 0, fy = 0;
+	if (!args || sscanf(args, "%d %d", &fx, &fy) != 2)
+		return Err("debug_find_river", "bad_args");
+	World * w = world_Get();
+	TiledMap * map = tiledmap_Get();
+	if (!w || !map) return Err("debug_find_river", "no_world");
+
+	sint32 bestD = 0x7fffffff, bx = -1, by = -1;
+	for (sint32 y = 0; y < w->GetYHeight(); ++y)
+		for (sint32 x = 0; x < w->GetXWidth(); ++x)
+		{
+			MapPoint p(x, y);
+			TileInfo * ti = map->GetTileInfo(p);
+			if (!ti || ti->GetRiverPiece() == -1) continue;
+			sint32 const d = (x - fx) * (x - fx) + (y - fy) * (y - fy);
+			if (d < bestD) { bestD = d; bx = x; by = y; }
+		}
+	if (bx < 0) return Err("debug_find_river", "no_river_on_map");
+
+	json result;
+	result["pos"] = { {"x", bx}, {"y", by} };
+	return Ok("debug_find_river", result);
+}
+
 // Opaque pixel count from the last icon the GPU decoder built. Border icons
 // render as nothing on the whole-map path and this says whether the decode
 // produced anything to draw.
@@ -1075,6 +1106,40 @@ std::string CmdDebugTilesetStats(const char * /*args*/)
 	for (auto const & kv : layoutCounts)
 		if (kv.second > biggest) biggest = kv.second;
 	result["largest_layout_tiles"] = biggest;
+
+	// River overlays: which RLE run kinds do they actually use? SHADOW runs
+	// read the DESTINATION (they darken the terrain under the river), so a
+	// pre-decoded river texture can only be bit-exact if rivers never use
+	// them. Measure instead of assuming.
+	{
+		int rivers = 0, copyRuns = 0, skipRuns = 0, shadowRuns = 0;
+		for (uint16 r = 0; r < k_MAX_RIVERS; ++r)
+		{
+			Pixel16 const * d = ts->GetRiverData(r);
+			if (!d) continue;
+			++rivers;
+			uint16 const rowStart = (uint16) *d++;
+			uint16 const rowEnd   = (uint16) *d++;
+			Pixel16 const * tbl = d;
+			Pixel16 const * rows = tbl + (rowEnd - rowStart + 1);
+			for (sint32 rj = rowStart; rj <= rowEnd; ++rj)
+			{
+				if ((sint16) tbl[rj - rowStart] == -1) continue;
+				Pixel16 const * rowData = rows + tbl[rj - rowStart];
+				Pixel16 tag;
+				do {
+					tag = *rowData++;
+					switch ((tag & 0x0F00) >> 8) {
+					case k_TILE_SKIP_RUN_ID:   ++skipRuns; break;
+					case k_TILE_COPY_RUN_ID:   ++copyRuns; rowData += (tag & 0x00FF); break;
+					case k_TILE_SHADOW_RUN_ID: ++shadowRuns; break;
+					}
+				} while ((tag & 0xF000) == 0);
+			}
+		}
+		result["rivers"] = { {"count", rivers}, {"copy_runs", copyRuns},
+		                     {"skip_runs", skipRuns}, {"shadow_runs", shadowRuns} };
+	}
 	return Ok("debug_tileset_stats", result);
 }
 #endif
@@ -3861,6 +3926,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_vision_stats ", 0) == 0)              return CmdDebugVisionStats(line.c_str() + 19);
     if (line.rfind("debug_render_explored_as_visible ", 0) == 0) return CmdDebugRenderExploredAsVisible(line.c_str() + 33);
     if (line.rfind("debug_find_good ", 0) == 0)                 return CmdDebugFindGood(line.c_str() + 16);
+    if (line.rfind("debug_find_river ", 0) == 0)                return CmdDebugFindRiver(line.c_str() + 17);
     if (line.rfind("debug_worldmap_sprites ", 0) == 0)          return CmdDebugWorldmapSprites(line.c_str() + 23);
     if (line == "debug_icon_alpha")                             return CmdDebugIconAlpha(nullptr);
     if (line.rfind("debug_set_grid ", 0) == 0)                  return CmdDebugSetGrid(line.c_str() + 15);

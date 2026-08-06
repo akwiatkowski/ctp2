@@ -1871,6 +1871,20 @@ test('gpu-raster-parity',
   suite : 'p13',
 )
 
+# #15615: the raster path's overlay families — rivers, fog, the grid — must be
+# bit-equal to the CPU composite, same bar as the terrain. gpu-raster-parity
+# cannot see them: it paints patches (which clears rivers) and runs fully lit.
+# This one runs the same natural map lit / grid-on / fogged with the flag off
+# and on, and requires ZERO differing pixels.
+test('raster-overlay-parity',
+  find_program('test/raster_overlay_parity.py'),
+  timeout : 420,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'p13',
+)
+
 test('worldmap-transition-parity',
   find_program('../tools/visual/terrain_edges.py'),
   args : [

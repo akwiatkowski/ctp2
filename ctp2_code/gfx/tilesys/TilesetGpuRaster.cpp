@@ -47,6 +47,19 @@ uint64_t DefaultKey(int layoutId, int edge, uint16_t from)
 	     | ((uint64_t) (uint16_t) edge << 32)
 	     | ((uint64_t) from << 16) | 0xFFFFULL;
 }
+
+// The one conversion every entry goes through. Fog is applied HERE, at decode
+// time, with the same pixelutils_BlendFast the CPU composite calls per pixel —
+// in 16-bit space, before expansion — which is what keeps fogged entries
+// bit-equal to DrawBlendedTile/DrawBlendedOverlay where a GPU blend over 8888
+// could only approximate the 565-space rounding.
+uint32_t Conv(Pixel16 v, bool fogged, uint16_t fogColor, int fogBlend)
+{
+	return pixelutils_16to8888(
+		fogged ? pixelutils_BlendFast(v, fogColor, fogBlend) : v);
+}
+
+uint64_t FogBit(bool fogged) { return fogged ? (1ULL << 62) : 0ULL; }
 }
 
 void TilesetGpuRaster::Reset()
@@ -57,6 +70,8 @@ void TilesetGpuRaster::Reset()
 	m_base.clear();
 	m_strips.clear();
 	m_defaults.clear();
+	m_rivers.clear();
+	m_grid.clear();
 	m_shelfX = m_shelfY = m_shelfH = 0;
 	m_atlasBroken = false;
 	m_generatedFrom = nullptr;
@@ -142,12 +157,14 @@ int TilesetGpuRaster::LayoutOf(TileSet *ts, uint16_t tileNum)
 	return id;
 }
 
-TilesetGpuRaster::Entry const &TilesetGpuRaster::BaseEntry(TileSet *ts, uint16_t tileNum)
+TilesetGpuRaster::Entry const &TilesetGpuRaster::BaseEntry(TileSet *ts, uint16_t tileNum,
+                                                           bool fogged, uint16_t fogColor, int fogBlend)
 {
-	auto const found = m_base.find(tileNum);
+	uint32_t const key = (uint32_t) tileNum | (fogged ? 0x80000000u : 0u);
+	auto const found = m_base.find(key);
 	if (found != m_base.end()) return found->second;
 
-	Entry &e = m_base[tileNum];
+	Entry &e = m_base[key];
 	BaseTile *bt = ts->GetBaseTile(tileNum);
 	Pixel16 const *p = bt ? bt->GetTileData() : nullptr;
 	if (!p) return e;
@@ -164,7 +181,7 @@ TilesetGpuRaster::Entry const &TilesetGpuRaster::BaseEntry(TileSet *ts, uint16_t
 		{
 			Pixel16 const v = *p++;
 			if (v >= k_NUM_TRANSITIONS)
-				pixels[(size_t) y * k_TILE_PIXEL_WIDTH + x] = pixelutils_16to8888(v);
+				pixels[(size_t) y * k_TILE_PIXEL_WIDTH + x] = Conv(v, fogged, fogColor, fogBlend);
 		}
 	}
 	int ax = 0, ay = 0;
@@ -209,9 +226,10 @@ bool TilesetGpuRaster::UploadSplat(Entry &e,
 }
 
 TilesetGpuRaster::Entry const &TilesetGpuRaster::StripEntry(
-	TileSet *ts, int layoutId, int edge, uint16_t from, uint16_t to)
+	TileSet *ts, int layoutId, int edge, uint16_t from, uint16_t to,
+	bool fogged, uint16_t fogColor, int fogBlend)
 {
-	uint64_t const key = StripKey(layoutId, edge, from, to);
+	uint64_t const key = StripKey(layoutId, edge, from, to) | FogBit(fogged);
 	auto const found = m_strips.find(key);
 	if (found != m_strips.end()) return found->second;
 
@@ -225,15 +243,16 @@ TilesetGpuRaster::Entry const &TilesetGpuRaster::StripEntry(
 	// so entry n of the stream lands at position n of the layout's list.
 	std::vector<uint32_t> vals(pos.size());
 	for (size_t n = 0; n < pos.size(); ++n)
-		vals[n] = pixelutils_16to8888(stream[n]);
+		vals[n] = Conv(stream[n], fogged, fogColor, fogBlend);
 	UploadSplat(e, pos, vals);
 	return e;
 }
 
 TilesetGpuRaster::Entry const &TilesetGpuRaster::DefaultEntry(
-	TileSet *ts, int layoutId, int edge, uint16_t from)
+	TileSet *ts, int layoutId, int edge, uint16_t from,
+	bool fogged, uint16_t fogColor, int fogBlend)
 {
-	uint64_t const key = DefaultKey(layoutId, edge, from);
+	uint64_t const key = DefaultKey(layoutId, edge, from) | FogBit(fogged);
 	auto const found = m_defaults.find(key);
 	if (found != m_defaults.end()) return found->second;
 
@@ -255,7 +274,7 @@ TilesetGpuRaster::Entry const &TilesetGpuRaster::DefaultEntry(
 		int const sx = StartPixel(y);
 		int const ex = k_TILE_PIXEL_WIDTH - sx;
 		for (int x = sx; x < ex; ++x)
-			full[(size_t) y * k_TILE_PIXEL_WIDTH + x] = pixelutils_16to8888(*p++);
+			full[(size_t) y * k_TILE_PIXEL_WIDTH + x] = Conv(*p++, fogged, fogColor, fogBlend);
 	}
 	std::vector<uint32_t> vals(pos.size());
 	for (size_t n = 0; n < pos.size(); ++n)
@@ -264,8 +283,122 @@ TilesetGpuRaster::Entry const &TilesetGpuRaster::DefaultEntry(
 	return e;
 }
 
+TilesetGpuRaster::Entry const &TilesetGpuRaster::RiverEntry(
+	TileSet *ts, int riverPiece,
+	bool fogged, uint16_t fogColor, int fogBlend)
+{
+	uint32_t const key = (uint32_t) (uint16_t) riverPiece | (fogged ? 0x80000000u : 0u);
+	auto const found = m_rivers.find(key);
+	if (found != m_rivers.end()) return found->second;
+
+	Entry &e = m_rivers[key];
+	if (riverPiece < 0 || riverPiece >= k_MAX_RIVERS) return e;
+	Pixel16 const *d = ts->GetRiverData((uint16) riverPiece);
+	if (!d) return e;
+
+	// The overlay RLE: header start/end rows, a row-offset table, then per-row
+	// SKIP / COPY runs. Rivers contain NO shadow runs (measured: 667 copy,
+	// 1075 skip, 0 shadow across all 16 pieces), which is precisely what makes
+	// a pre-decoded texture possible — a shadow run reads the DESTINATION and
+	// could not be baked. Bail if one ever appears (a modded tileset), keeping
+	// the cell on the CPU.
+	//
+	// DrawOverlay places row j at destination y + j with y = 0 on the
+	// whole-map scratch — the overlay's own row range carries its vertical
+	// position, so the entry offset is (0, start), NOT headroom-based.
+	uint16 const rowStart = (uint16) *d++;
+	uint16 const rowEnd   = (uint16) *d++;
+	// Legacy quirk, preserved deliberately: DrawBlendedOverlay (the fogged
+	// draw) iterates j < end where DrawOverlay iterates j <= end — a fogged
+	// river is drawn WITHOUT its last row. Bit-equality means keeping that.
+	int const rowLast = fogged ? (int) rowEnd - 1 : (int) rowEnd;
+	if (rowLast < (int) rowStart) return e;
+
+	Pixel16 const *tbl = d;
+	Pixel16 const *rows = tbl + (rowEnd - rowStart + 1);
+	int const h = rowLast - (int) rowStart + 1;
+	std::vector<uint32_t> pixels((size_t) k_TILE_PIXEL_WIDTH * h, 0u);
+	int maxX = 0;
+	for (int j = (int) rowStart; j <= rowLast; ++j)
+	{
+		if ((sint16) tbl[j - rowStart] == -1) continue;
+		Pixel16 const *rowData = rows + tbl[j - rowStart];
+		int x = 0;
+		Pixel16 tag;
+		do {
+			tag = *rowData++;
+			switch ((tag & 0x0F00) >> 8) {
+			case k_TILE_SKIP_RUN_ID:
+				x += (tag & 0x00FF);
+				break;
+			case k_TILE_COPY_RUN_ID:
+			{
+				int len = (tag & 0x00FF);
+				while (len--)
+				{
+					if (x >= k_TILE_PIXEL_WIDTH) return e;   // malformed
+					pixels[(size_t) (j - rowStart) * k_TILE_PIXEL_WIDTH + x] =
+						Conv(*rowData++, fogged, fogColor, fogBlend);
+					if (x > maxX) maxX = x;
+					++x;
+				}
+				break;
+			}
+			default:
+				return e;   // shadow (reads dest) or unknown: not bakeable
+			}
+		} while ((tag & 0xF000) == 0);
+	}
+
+	int const w = maxX + 1;
+	// Repack to the tight width before upload.
+	std::vector<uint32_t> tight((size_t) w * h, 0u);
+	for (int j = 0; j < h; ++j)
+		for (int x = 0; x < w; ++x)
+			tight[(size_t) j * w + x] = pixels[(size_t) j * k_TILE_PIXEL_WIDTH + x];
+
+	int ax = 0, ay = 0;
+	if (!Pack(w, h, ax, ay)) return e;
+	aui_SDL::UploadTilesetAtlasRect(ax, ay, w, h, tight.data(), w * 4);
+	e.ok = true;
+	e.ax = ax; e.ay = ay;
+	e.w = w; e.h = h;
+	e.ox = 0; e.oy = (int) rowStart;
+	return e;
+}
+
+TilesetGpuRaster::Entry const &TilesetGpuRaster::GridEntry(uint16_t color)
+{
+	auto const found = m_grid.find(color);
+	if (found != m_grid.end()) return found->second;
+
+	Entry &e = m_grid[color];
+	// DrawTileBorder: two pixels of `color` at the left diamond edge of every
+	// diamond row, placed headroom-down like the terrain. Keyed by the colour
+	// VALUE because it comes from the loaded colorset, not a constant.
+	std::vector<uint32_t> pixels((size_t) k_TILE_PIXEL_WIDTH * k_TILE_PIXEL_HEIGHT, 0u);
+	uint32_t const c = pixelutils_16to8888(color);
+	for (int y = 0; y < k_TILE_PIXEL_HEIGHT; ++y)
+	{
+		int const sx = StartPixel(y);
+		pixels[(size_t) y * k_TILE_PIXEL_WIDTH + sx] = c;
+		pixels[(size_t) y * k_TILE_PIXEL_WIDTH + sx + 1] = c;
+	}
+	int ax = 0, ay = 0;
+	if (!Pack(k_TILE_PIXEL_WIDTH, k_TILE_PIXEL_HEIGHT, ax, ay)) return e;
+	aui_SDL::UploadTilesetAtlasRect(ax, ay, k_TILE_PIXEL_WIDTH, k_TILE_PIXEL_HEIGHT,
+	                                pixels.data(), k_TILE_PIXEL_WIDTH * 4);
+	e.ok = true;
+	e.ax = ax; e.ay = ay;
+	e.w = k_TILE_PIXEL_WIDTH; e.h = k_TILE_PIXEL_HEIGHT;
+	e.ox = 0; e.oy = k_TILE_PIXEL_HEADROOM;
+	return e;
+}
+
 bool TilesetGpuRaster::ComposeCell(TileSet *ts, uint16_t tileNum, uint16_t fromIndex,
                                    uint8_t const transitions[4],
+                                   bool fogged, uint16_t fogColor, int fogBlend,
+                                   int riverPiece, int gridColor,
                                    int destX, int destY,
                                    std::vector<aui_SDL::GpuQuad> &out)
 {
@@ -277,7 +410,7 @@ bool TilesetGpuRaster::ComposeCell(TileSet *ts, uint16_t tileNum, uint16_t fromI
 		m_generatedFrom = ts;
 	}
 
-	Entry const &base = BaseEntry(ts, tileNum);
+	Entry const &base = BaseEntry(ts, tileNum, fogged, fogColor, fogBlend);
 	if (!base.ok) return false;
 
 	int const layoutId = LayoutOf(ts, tileNum);
@@ -286,7 +419,9 @@ bool TilesetGpuRaster::ComposeCell(TileSet *ts, uint16_t tileNum, uint16_t fromI
 
 	// Collect first, emit after: a cell must be all-or-nothing, or a missing
 	// strip would leave marker holes showing whatever was under the tile.
-	aui_SDL::GpuQuad quads[5];
+	// Order matches the CPU composite exactly: terrain (base + strips), then
+	// the river over it, then the grid on top. The list is drawn in order.
+	aui_SDL::GpuQuad quads[7];
 	int count = 0;
 	quads[count++] = { base.ax, base.ay, base.w, base.h,
 	                   destX + base.ox, destY + base.oy, base.w, base.h, tex };
@@ -297,7 +432,8 @@ bool TilesetGpuRaster::ComposeCell(TileSet *ts, uint16_t tileNum, uint16_t fromI
 		{
 			if (m_layouts[layoutId].pos[edge].empty()) continue;
 			Entry const &strip = StripEntry(ts, layoutId, edge,
-			                                fromIndex, transitions[edge]);
+			                                fromIndex, transitions[edge],
+			                                fogged, fogColor, fogBlend);
 			Entry const *use = &strip;
 			if (!strip.ok)
 			{
@@ -305,7 +441,8 @@ bool TilesetGpuRaster::ComposeCell(TileSet *ts, uint16_t tileNum, uint16_t fromI
 				// positional default buffer. No default buffer either would
 				// mean the DEFAULT_PIXEL constant path — rare, and not worth
 				// a third entry kind; the cell just stays on the CPU.
-				Entry const &def = DefaultEntry(ts, layoutId, edge, fromIndex);
+				Entry const &def = DefaultEntry(ts, layoutId, edge, fromIndex,
+				                                fogged, fogColor, fogBlend);
 				if (!def.ok) return false;
 				use = &def;
 			}
@@ -313,6 +450,24 @@ bool TilesetGpuRaster::ComposeCell(TileSet *ts, uint16_t tileNum, uint16_t fromI
 			                   destX + use->ox, destY + use->oy,
 			                   use->w, use->h, tex };
 		}
+	}
+
+	if (riverPiece >= 0)
+	{
+		Entry const &river = RiverEntry(ts, riverPiece, fogged, fogColor, fogBlend);
+		if (!river.ok) return false;
+		quads[count++] = { river.ax, river.ay, river.w, river.h,
+		                   destX + river.ox, destY + river.oy,
+		                   river.w, river.h, tex };
+	}
+
+	if (gridColor >= 0)
+	{
+		Entry const &grid = GridEntry((uint16_t) gridColor);
+		if (!grid.ok) return false;
+		quads[count++] = { grid.ax, grid.ay, grid.w, grid.h,
+		                   destX + grid.ox, destY + grid.oy,
+		                   grid.w, grid.h, tex };
 	}
 
 	for (int i = 0; i < count; ++i)

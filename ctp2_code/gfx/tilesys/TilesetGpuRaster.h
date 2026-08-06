@@ -51,14 +51,26 @@ class TileSet;
 class TilesetGpuRaster
 {
 public:
-	// Emit the GPU quads that reproduce DrawTransitionTile(tileNum,
-	// transitions) at cell-slot position (destX, destY) — destY is the SLOT
-	// top; the diamond lands k_TILE_PIXEL_HEADROOM below it, exactly as the
-	// CPU composite places it. Returns false (appending nothing) when this
-	// cell cannot be GPU-rasterised — missing tileset data, atlas exhausted —
-	// and the caller keeps the CPU path for that cell.
+	// Emit the GPU quads that reproduce the whole-map cell composite at
+	// cell-slot position (destX, destY): terrain (DrawTransitionTile or, when
+	// fogged, DrawBlendedTile — same substitution, BlendFast applied per
+	// 16-bit pixel), then the river overlay, then the grid outline, in the
+	// order the CPU path draws them. destY is the SLOT top; the diamond lands
+	// k_TILE_PIXEL_HEADROOM below it.
+	//
+	// Fog is applied AT DECODE TIME with the same pixelutils_BlendFast the CPU
+	// uses, in 16-bit space before conversion — which is what keeps fogged
+	// cells bit-exact where a GPU blend could only approximate. fogColor and
+	// fogBlend are the caller's k_FOW constants (they live in tiledmap.h).
+	//
+	// riverPiece -1 = no river; gridColor -1 = grid off, else the Pixel16 the
+	// CPU grid draws with. Returns false (appending nothing) when any needed
+	// entry cannot be produced — missing tileset data, atlas exhausted — and
+	// the caller keeps the CPU path for that cell.
 	bool ComposeCell(TileSet *ts, uint16_t tileNum, uint16_t fromIndex,
 	                 uint8_t const transitions[4],
+	                 bool fogged, uint16_t fogColor, int fogBlend,
+	                 int riverPiece, int gridColor,
 	                 int destX, int destY,
 	                 std::vector<aui_SDL::GpuQuad> &out);
 
@@ -88,11 +100,17 @@ private:
 	};
 
 	int LayoutOf(TileSet *ts, uint16_t tileNum);
-	Entry const &BaseEntry(TileSet *ts, uint16_t tileNum);
+	Entry const &BaseEntry(TileSet *ts, uint16_t tileNum,
+	                       bool fogged, uint16_t fogColor, int fogBlend);
 	Entry const &StripEntry(TileSet *ts, int layoutId, int edge,
-	                        uint16_t from, uint16_t to);
+	                        uint16_t from, uint16_t to,
+	                        bool fogged, uint16_t fogColor, int fogBlend);
 	Entry const &DefaultEntry(TileSet *ts, int layoutId, int edge,
-	                          uint16_t from);
+	                          uint16_t from,
+	                          bool fogged, uint16_t fogColor, int fogBlend);
+	Entry const &RiverEntry(TileSet *ts, int riverPiece,
+	                        bool fogged, uint16_t fogColor, int fogBlend);
+	Entry const &GridEntry(uint16_t color);
 	bool Pack(int w, int h, int &ax, int &ay);
 	bool UploadSplat(Entry &e,
 	                 std::vector<std::pair<int16_t, int16_t>> const &pos,
@@ -104,9 +122,11 @@ private:
 	std::unordered_map<uint64_t, int> m_layoutByHash;
 	std::unordered_map<uint16_t, int> m_layoutOfTile;   // tileNum -> id, -1 none
 
-	std::unordered_map<uint32_t, Entry> m_base;       // tileNum
-	std::unordered_map<uint64_t, Entry> m_strips;     // layout|edge|from|to
-	std::unordered_map<uint64_t, Entry> m_defaults;   // layout|edge|from
+	std::unordered_map<uint32_t, Entry> m_base;       // tileNum | fog bit
+	std::unordered_map<uint64_t, Entry> m_strips;     // layout|edge|from|to|fog
+	std::unordered_map<uint64_t, Entry> m_defaults;   // layout|edge|from|fog
+	std::unordered_map<uint32_t, Entry> m_rivers;     // riverPiece | fog bit
+	std::unordered_map<uint32_t, Entry> m_grid;       // Pixel16 color
 
 	// Shelf packer over the static atlas texture.
 	int m_shelfX = 0, m_shelfY = 0, m_shelfH = 0;

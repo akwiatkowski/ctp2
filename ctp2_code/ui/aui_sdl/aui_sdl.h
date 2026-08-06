@@ -168,8 +168,28 @@ public:
 	static void UploadQuadAtlasSlot(int x, int y, int w, int h,
 	                                void const *pixels, int pitch);
 
+	// P14 (GPU rasterisation): the whole-map terrain composite moves off the
+	// 1999 CPU rasteriser. Instead of compositing base + transition strips into
+	// a scratch surface per distinct cell appearance, the tileset itself is
+	// decoded ONCE into this static atlas — base tiles with their transition
+	// markers left transparent, plus transition strips pre-splatted into
+	// diamond positions — and a cell becomes 1-5 GPU quads. The space is
+	// additive (tiles + strips), not multiplicative (combinations), so nothing
+	// here is ever evicted. Opt-in via CTP2_GPU_RASTER until parity is proven.
+	static bool GpuRasterEnabled();
+	static SDL_Texture *TilesetAtlasTexture() { return m_tilesetAtlasTexture; }
+	static bool EnsureTilesetAtlas(int w, int h);
+	static void UploadTilesetAtlasRect(int x, int y, int w, int h,
+	                                   void const *pixels, int pitch);
+
 	// One terrain cell to draw: atlas source rect -> world-texture dest rect.
-	struct GpuQuad { int sx, sy, sw, sh; int dx, dy, dw, dh; };
+	// tex: which texture the quad samples. nullptr means the shared quad atlas
+	// (the overwhelmingly common case, and the only one the window-mirror path
+	// ever uses). The GPU-raster path (P14) sets it to the tileset atlas so a
+	// cell can composite as base + transition-strip quads with no per-cell
+	// upload at all.
+	struct GpuQuad { int sx, sy, sw, sh; int dx, dy, dw, dh;
+	                 SDL_Texture *tex = nullptr; };
 	// The per-frame draw list is rebuilt by the tile pass (BeginQuadFrame +
 	// AddQuad) and consumed by the present (QuadDrawList). It persists between
 	// presents so camera-only frames reuse it without a rebuild.
@@ -337,6 +357,10 @@ protected:
 	static SDL_Texture *	m_quadAtlasTexture;
 	static int		m_quadAtlasW;
 	static int		m_quadAtlasH;
+	// P14: static decoded-tileset atlas (base layers + pre-splatted strips).
+	static SDL_Texture *	m_tilesetAtlasTexture;
+	static int		m_tilesetAtlasW;
+	static int		m_tilesetAtlasH;
 	static bool		m_quadFrameComplete;
 	static char const *	m_quadFrameIncompleteReason;
 	static std::vector<GpuQuad> m_quadDrawList;

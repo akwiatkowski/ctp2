@@ -53,6 +53,10 @@ float aui_SDL::m_panTargetY = 0.0f;
 SDL_Texture *aui_SDL::m_quadAtlasTexture = nullptr;
 int aui_SDL::m_quadAtlasW = 0;
 int aui_SDL::m_quadAtlasH = 0;
+// P14: static decoded-tileset atlas for GPU terrain rasterisation.
+SDL_Texture *aui_SDL::m_tilesetAtlasTexture = nullptr;
+int aui_SDL::m_tilesetAtlasW = 0;
+int aui_SDL::m_tilesetAtlasH = 0;
 bool aui_SDL::m_quadFrameComplete = true;
 char const *aui_SDL::m_quadFrameIncompleteReason = nullptr;
 std::vector<aui_SDL::GpuQuad> aui_SDL::m_quadDrawList;
@@ -347,7 +351,10 @@ bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &clears,
 		// opaque black, so they tessellate correctly without one. (A changed cell
 		// therefore needs its overlapping neighbours redrawn too; that belongs to
 		// the dirty-update path, not here.)
-		CTP2_SDL_RenderTextureWindow(m_renderer, m_quadAtlasTexture,
+		//
+		// q.tex null means the shared quad atlas; the GPU-raster path (P14)
+		// points its quads at the decoded-tileset atlas instead.
+		CTP2_SDL_RenderTextureWindow(m_renderer, q.tex ? q.tex : m_quadAtlasTexture,
 			(float)q.sx, (float)q.sy, (float)q.sw, (float)q.sh,
 			(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh);
 	}
@@ -428,6 +435,58 @@ void aui_SDL::UploadQuadAtlasSlot(int x, int y, int w, int h,
 	if (!m_quadAtlasTexture) return;
 	SDL_Rect rect = { x, y, w, h };
 	CTP2_SDL_UpdateTexture(m_quadAtlasTexture, &rect, pixels, pitch);
+}
+
+bool aui_SDL::GpuRasterEnabled()
+{
+	// Opt-in, cached (P14). GPU terrain rasterisation composites cells from the
+	// decoded-tileset atlas instead of the CPU scratch composite. It only has
+	// meaning on the whole-map path, whose builder is where the composite
+	// happens, so it implies GpuWorldmapEnabled. Default OFF until the parity
+	// oracle proves it bit-equal; flip mirrors how every other flag here earned
+	// its default.
+	static int s_enabled = -1;
+	if (s_enabled < 0)
+	{
+		char const * e = getenv("CTP2_GPU_RASTER");
+		bool const requested = e && e[0] && strcmp(e, "0") != 0;
+		s_enabled = (requested && GpuWorldmapEnabled()) ? 1 : 0;
+	}
+	return s_enabled != 0;
+}
+
+bool aui_SDL::EnsureTilesetAtlas(int w, int h)
+{
+	// STREAMING like the quad atlas: entries are decoded on the CPU exactly once
+	// (they are pure functions of the tileset file) and uploaded; the GPU only
+	// ever samples. Blend mode matters the same way it does for the quad atlas —
+	// the transparent surround and the transition-marker holes must not clobber
+	// what is already on the target.
+	if (!m_renderer || w <= 0 || h <= 0) return false;
+	if (m_tilesetAtlasTexture && m_tilesetAtlasW == w && m_tilesetAtlasH == h)
+		return true;
+	if (m_tilesetAtlasTexture)
+	{
+		SDL_DestroyTexture(m_tilesetAtlasTexture);
+		m_tilesetAtlasTexture = nullptr;
+	}
+	m_tilesetAtlasTexture = SDL_CreateTexture(m_renderer,
+		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, w, h);
+	if (!m_tilesetAtlasTexture)
+		return false;
+	SDL_SetTextureBlendMode(m_tilesetAtlasTexture, SDL_BLENDMODE_BLEND);
+	CTP2_SDL_SetTextureNearest(m_tilesetAtlasTexture);
+	m_tilesetAtlasW = w;
+	m_tilesetAtlasH = h;
+	return true;
+}
+
+void aui_SDL::UploadTilesetAtlasRect(int x, int y, int w, int h,
+                                     void const *pixels, int pitch)
+{
+	if (!m_tilesetAtlasTexture) return;
+	SDL_Rect rect = { x, y, w, h };
+	CTP2_SDL_UpdateTexture(m_tilesetAtlasTexture, &rect, pixels, pitch);
 }
 
 void aui_SDL::MarkQuadFrameIncomplete(char const *reason)

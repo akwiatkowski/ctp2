@@ -82,6 +82,8 @@
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
 #include "ui/aui_sdl/aui_sdl.h"               // GPU world diagnostics
 #include "gfx/tilesys/tiledmap.h"             // debug terrain-overlay fallback
+#include "gfx/tilesys/tileset.h"              // debug_tileset_stats (GPU raster probe)
+#include "gfx/tilesys/BaseTile.h"             // debug_tileset_stats (GPU raster probe)
 #include "gfx/spritesys/director.h"            // debug combat flash
 #include "ui/interface/scenarioeditor.h"       // debug scenario start flags
 
@@ -856,6 +858,9 @@ std::string CmdDebugWorldmapBuild(const char * args)
 	// batch emits quads that reference atlas slots and draws them afterwards,
 	// so a slot recycled mid-build makes an already-emitted quad sample pixels
 	// that belong to a different cell.
+	// P14: how many cells the GPU raster path composited this build (0 when
+	// CTP2_GPU_RASTER is off or every cell carried overlays).
+	result["raster_cells"] = tiledmap_Get()->LastWorldmapRasterCount();
 	result["atlas_slots_used"] = tiledmap_Get()->GpuTileCacheSize();
 	result["atlas_capacity"]   = tiledmap_Get()->GpuTileCacheCapacity();
 	result["atlas_evictions"]  = (int64_t) tiledmap_Get()->GpuTileCacheEvictions();
@@ -981,6 +986,96 @@ std::string CmdDebugGpuWorldmapProbe(const char * args)
 	}
 	SDL_DestroyTexture(target);
 	return Ok("debug_gpu_worldmap_probe", result);
+}
+
+// GPU-rasterisation feasibility probe. DrawTransitionTile's inner loop reads a
+// raw Pixel16 stream over the tile diamond where values 0..3 are inline
+// MARKERS: each consumes the next pixel from transition strip 0..3. Whether
+// that composite can move to the GPU as "one base quad + up to four strip
+// quads" hinges on the marker LAYOUT: if the (marker, position) map is shared
+// across base tiles, a transition strip can be pre-splatted into diamond
+// positions once per (from, to, which) — an additive space. If every base tile
+// has its own layout, the splat multiplies by base-tile count. This measures
+// which world we live in, instead of guessing.
+std::string CmdDebugTilesetStats(const char * /*args*/)
+{
+	TiledMap * map = tiledmap_Get();
+	TileSet * ts = map ? map->GetTileSet() : nullptr;
+	if (!ts)
+		return Err("debug_tileset_stats", "no_tileset");
+
+	auto startPixel = [](int y) {
+		return (y < k_TILE_PIXEL_HEADROOM)
+		       ? 2 * ((k_TILE_PIXEL_HEADROOM - 1) - y)
+		       : 2 * (y - k_TILE_PIXEL_HEADROOM);
+	};
+
+	int tiles = 0;
+	int tilesWithMarkers = 0;
+	std::map<uint64_t, int> layoutCounts;   // layout hash -> #tiles
+	int minCount[4] = {1 << 30, 1 << 30, 1 << 30, 1 << 30};
+	int maxCount[4] = {0, 0, 0, 0};
+
+	for (uint16 i = 0; i < k_MAX_BASE_TILES; ++i)
+	{
+		BaseTile * bt = ts->GetBaseTile(i);
+		if (!bt) continue;
+		Pixel16 * data = bt->GetTileData();
+		if (!data) continue;
+		++tiles;
+
+		// Walk the diamond exactly as DrawTransitionTile does and hash the
+		// sequence of (marker, y, x) positions. FNV-1a over the triples: two
+		// tiles share a hash iff (collisions aside) they share a layout.
+		uint64_t h = 1469598103934665603ULL;
+		int counts[4] = {0, 0, 0, 0};
+		Pixel16 const * p = data;
+		for (int y = 0; y < k_TILE_PIXEL_HEIGHT; ++y)
+		{
+			int const sx = startPixel(y);
+			int const ex = k_TILE_PIXEL_WIDTH - sx;
+			for (int x = sx; x < ex; ++x)
+			{
+				Pixel16 const v = *p++;
+				if (v < 4)
+				{
+					++counts[v];
+					uint64_t const trip = ((uint64_t) v << 32)
+					                    | ((uint64_t) (uint16) y << 16)
+					                    | (uint64_t) (uint16) x;
+					h ^= trip;
+					h *= 1099511628211ULL;
+				}
+			}
+		}
+		if (counts[0] + counts[1] + counts[2] + counts[3] > 0)
+		{
+			++tilesWithMarkers;
+			++layoutCounts[h];
+			for (int k = 0; k < 4; ++k)
+			{
+				if (counts[k] < minCount[k]) minCount[k] = counts[k];
+				if (counts[k] > maxCount[k]) maxCount[k] = counts[k];
+			}
+		}
+	}
+
+	json result;
+	result["base_tiles"] = tiles;
+	result["tiles_with_markers"] = tilesWithMarkers;
+	result["distinct_layouts"] = (int) layoutCounts.size();
+	json counts = json::array();
+	for (int k = 0; k < 4; ++k)
+		counts.push_back({ {"min", tilesWithMarkers ? minCount[k] : 0},
+		                   {"max", maxCount[k]} });
+	result["marker_counts"] = counts;
+	// How many tiles share the most common layout — if this equals
+	// tiles_with_markers, the layout is universal.
+	int biggest = 0;
+	for (auto const & kv : layoutCounts)
+		if (kv.second > biggest) biggest = kv.second;
+	result["largest_layout_tiles"] = biggest;
+	return Ok("debug_tileset_stats", result);
 }
 #endif
 
@@ -3776,6 +3871,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_worldmap_pixel ", 0) == 0)            return CmdDebugWorldmapPixel(line.c_str() + 21);
     if (line == "debug_gpu_worldmap_probe")                     return CmdDebugGpuWorldmapProbe(nullptr);
     if (line.rfind("debug_gpu_worldmap_probe ", 0) == 0)        return CmdDebugGpuWorldmapProbe(line.c_str() + 25);
+    if (line == "debug_tileset_stats")                          return CmdDebugTilesetStats(nullptr);
 #endif
     if (line == "debug_deselect")                               return CmdDebugDeselect();
     if (line.rfind("debug_combat_flash ", 0) == 0)              return CmdDebugCombatFlash(line.c_str() + 19);

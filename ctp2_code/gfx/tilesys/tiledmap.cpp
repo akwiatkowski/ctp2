@@ -123,6 +123,7 @@
 #include "gs/world/TileInfo.h"
 #include "gfx/tilesys/tileset.h"
 #include "gfx/tilesys/GpuTileCache.h"   // P11 G1: terrain quad cache + signature
+#include "gfx/tilesys/TilesetGpuRaster.h" // P14: GPU terrain rasterisation
 #include "ui/aui_sdl/aui_sdl.h"         // P11 G1: GPU quad atlas + draw list
 #include "gfx/tilesys/tileutils.h"
 #include "gs/gameobj/TradeRoute.h"
@@ -3859,6 +3860,12 @@ sint32 TiledMap::Refresh()
 // all actors are step 3; this path deliberately does not attempt them.
 static uint64_t const k_WORLDMAP_CELL_UNDRAWN = 0;
 
+// P14: the decoded-tileset raster brain. File-static because only the
+// singleton main map reaches BuildWorldmapQuads (the radar/thumbnail guard
+// returns first), and the state is a pure function of the loaded tileset --
+// ComposeCell resets itself when the TileSet pointer changes.
+static TilesetGpuRaster s_tilesetGpuRaster;
+
 void TiledMap::InvalidateWorldmap()
 {
 	m_worldmapCellSig.clear();
@@ -4233,6 +4240,7 @@ int TiledMap::BuildWorldmapQuads()
 
 	std::vector<aui_SDL::GpuQuad> dirty;
 	m_worldmapMisses = 0;
+	m_worldmapRasterCells = 0;
 	m_worldmapUploads = 0;
 	m_worldmapMinX = m_worldmapMinY = 1 << 30;
 	m_worldmapMaxX = m_worldmapMaxY = -(1 << 30);
@@ -4316,19 +4324,87 @@ int TiledMap::BuildWorldmapQuads()
 			size_t const cellIdx = static_cast<size_t>(i) * mapWidth + j;
 			if (m_worldmapCellSig[cellIdx] == sig) continue;
 
+			// Absolute map-pixel destination, computed before the composite is
+			// chosen because BOTH composites need it. NOTE this cannot use
+			// maputils_MapXY2PixelXY: that consults GetMapViewRect() and is
+			// view-RELATIVE. Rows step by HALF THE DIAMOND (24), not half the
+			// 72px grid cell — the extra 24px is headroom above the diamond.
+			sint32 drawX = 0;
+			sint32 slotY = 0;
+			maputils_MapXY2WorldmapPixelXY(j, i, &drawX, &slotY);
+			sint32 const drawY = slotY;
+
+			// P14: GPU rasterisation. A cell whose picture is PURE TERRAIN
+			// (no river, improvements, hut, grid, borders or fog) composites as
+			// 1-5 quads from the decoded-tileset atlas — no CPU scratch, no
+			// per-appearance atlas slot, nothing evictable. Cells with overlays
+			// keep the CPU composite below; ComposeCell also refuses (returning
+			// false, emitting nothing) when tileset data is missing, so the
+			// fallback is per-cell and pixel-perfect either way.
+			bool rastered = false;
+			if (aui_SDL::GpuRasterEnabled() && m_zoomLevel == k_ZOOM_LARGEST)
+			{
+				bool overlayFree = !WorldmapCellFogged(pos)
+				    && tileInfo->GetRiverPiece() == -1
+				    && !g_isGridOn
+				    && !CellHasCpuOnlyImprovementLayer(world_Get()->GetCell(pos), pos);
+				if (overlayFree && profiledb_Get()
+				    && profiledb_Get()->GetShowPoliticalBorders())
+				{
+					// Conservative: ANY owned-and-seen cell might need border
+					// edges (that depends on its neighbours). Interior cells of
+					// an empire could be rastered too, but correctness first —
+					// the fallback is the reference renderer.
+					sint32 const owner = GetVisibleCellOwner(pos);
+					Player * const visP = player_Get(selitem_Get()->GetVisiblePlayer());
+					if (owner >= 0 && visP
+					    && (visP->HasSeen(owner) || g_fog_toggle || g_god))
+						overlayFree = false;
+				}
+				if (overlayFree)
+				{
+					uint8_t const trans[4] = {
+						(uint8_t) tileInfo->GetTransition(0),
+						(uint8_t) tileInfo->GetTransition(1),
+						(uint8_t) tileInfo->GetTransition(2),
+						(uint8_t) tileInfo->GetTransition(3) };
+					size_t const before = dirty.size();
+					if (s_tilesetGpuRaster.ComposeCell(m_tileSet,
+							tileInfo->GetTileNum(), (uint16) tilesetIndex,
+							trans, drawX, drawY, dirty))
+					{
+						rastered = true;
+						++m_worldmapRasterCells;
+						// Seam duplicate applies to every quad of the cell.
+						if (drawX + tileW > wrapW)
+						{
+							for (size_t qi = before, qe = dirty.size(); qi < qe; ++qi)
+							{
+								aui_SDL::GpuQuad w = dirty[qi];
+								w.dx -= wrapW;
+								dirty.push_back(w);
+							}
+						}
+					}
+				}
+			}
+
 			// One more distinct signature than the atlas holds means the next
 			// Get() can recycle a slot this batch already emitted a quad for.
-			// Draw what we have first; see the batching note above.
-			if (atlasCapacity > 0
+			// Draw what we have first; see the batching note above. Raster
+			// cells stay out of this bound — they never touch the LRU atlas,
+			// so nothing can invalidate their quads mid-batch.
+			if (!rastered && atlasCapacity > 0
 			    && batchSigs.find(sig) == batchSigs.end()
 			    && (int) batchSigs.size() >= atlasCapacity)
 			{
 				if (!flushBatch()) { drawFailed = true; break; }
 			}
-			batchSigs.insert(sig);
+			if (!rastered)
+				batchSigs.insert(sig);
 
 			GpuTileSlot slot;
-			if (m_gpuTileCache->Get(sig, slot) == GpuTileCache::MISS)
+			if (!rastered && m_gpuTileCache->Get(sig, slot) == GpuTileCache::MISS)
 			{
 				++m_worldmapMisses;
 				LockThisSurface(m_gpuScratchTile.get());
@@ -4389,52 +4465,27 @@ int TiledMap::BuildWorldmapQuads()
 				UnlockSurface();
 			}
 
-			// Absolute map-pixel destination. NOTE this cannot use
-			// maputils_MapXY2PixelXY: that consults GetMapViewRect() and is
-			// therefore view-RELATIVE — there is no absolute map->pixel
-			// converter in the engine, because until now nothing needed one.
-			// The projection itself is plain isometric arithmetic: a column is
-			// one tile wide, odd rows are nudged half a tile, and rows advance
-			// by half a tile height because they interleave (the same nudge
-			// maputils applies for `mapY & 0x01`).
-			// The absolute projection now lives in maputils beside the
-			// view-relative one, so terrain and anything else placed into this
-			// texture agree on where a tile is.
-			sint32 drawX = 0;
-			sint32 slotY = 0;
-			maputils_MapXY2WorldmapPixelXY(j, i, &drawX, &slotY);
-			// Rows step by HALF THE DIAMOND (k_TILE_PIXEL_HEIGHT/2 = 24), not
-			// half the grid cell. The 72px grid height includes 24px of
-			// headroom above the diamond for elevation; stepping by 36 spaces
-			// tiles 1.5x too far apart and they touch only at the corners,
-			// leaving black diamonds between them.
-			// NOTE for the camera work: DrawTransitionTile places the diamond
-			// k_TILE_PIXEL_HEADROOM (24px) DOWN inside its slot, so a row's
-			// diamond sits at drawY + 24, not drawY. That offset is uniform, so
-			// tessellation is unaffected (measured: shifting the slot up by 24
-			// leaves coverage identical at 162/900), but whatever maps camera
-			// position to this texture must account for it. Not folded in here
-			// because it would place row 0 at y = -24, off the texture.
-			sint32 const drawY = slotY;
-
-			aui_SDL::GpuQuad q;
-			q.sx = slot.atlasX; q.sy = slot.atlasY; q.sw = tileW; q.sh = tileH;
-			q.dx = drawX; q.dy = drawY;
-			q.dw = tileW; q.dh = tileH;
-			dirty.push_back(q);
-			// A cell in the last column of an ODD row starts half a stride in and
-			// so runs past the wrap period, into the texture's spare stride. The
-			// pixels beyond wrapW belong, by wrap, at the far left -- and nothing
-			// else paints there, because even rows start flush at x=0 and odd rows
-			// half a stride further right. Left alone that is a half-stride
-			// black zigzag down the seam column. Emit the same tile again one
-			// period back (SDL clips the negative part) so [0, wrapW) is a
-			// complete periodic image and the present can sample it modulo wrapW.
-			if (drawX + tileW > wrapW)
+			if (!rastered)
 			{
-				aui_SDL::GpuQuad w = q;
-				w.dx = drawX - wrapW;
-				dirty.push_back(w);
+				aui_SDL::GpuQuad q;
+				q.sx = slot.atlasX; q.sy = slot.atlasY; q.sw = tileW; q.sh = tileH;
+				q.dx = drawX; q.dy = drawY;
+				q.dw = tileW; q.dh = tileH;
+				dirty.push_back(q);
+				// A cell in the last column of an ODD row starts half a stride in
+				// and so runs past the wrap period, into the texture's spare
+				// stride. The pixels beyond wrapW belong, by wrap, at the far
+				// left -- and nothing else paints there. Emit the same tile again
+				// one period back (SDL clips the negative part) so [0, wrapW) is
+				// a complete periodic image and the present can sample it modulo
+				// wrapW. (Raster cells did their own duplicate above, covering
+				// all of their quads.)
+				if (drawX + tileW > wrapW)
+				{
+					aui_SDL::GpuQuad w = q;
+					w.dx = drawX - wrapW;
+					dirty.push_back(w);
+				}
 			}
 			if (m_worldmapMinX > drawX) m_worldmapMinX = drawX;
 			if (m_worldmapMaxX < drawX) m_worldmapMaxX = drawX;

@@ -660,6 +660,9 @@ public:
 	int				LastWorldmapRedrawCount() const { return m_worldmapRedrawn; }
 	int				m_worldmapRedrawn = 0;
 	int				m_worldmapMisses = 0;
+	int			LastWorldmapRasterCount() const { return m_worldmapRasterCells; }
+	// P14: cells composited by the GPU raster path this build (probe).
+	int				m_worldmapRasterCells = 0;
 	int				m_worldmapUploads = 0;
 	int				m_worldmapMinX = 0, m_worldmapMaxX = 0;
 	int				m_worldmapMinY = 0, m_worldmapMaxY = 0;

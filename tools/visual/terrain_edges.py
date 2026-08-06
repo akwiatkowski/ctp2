@@ -43,6 +43,11 @@ MODE_ENV = {
     "cpu":      {"CTP2_GPU_QUADS": "0", "CTP2_GPU_WORLDMAP": "0"},
     "gpu":      {"CTP2_GPU_QUADS": "1", "CTP2_GPU_WORLDMAP": "0"},
     "worldmap": {"CTP2_GPU_QUADS": "1", "CTP2_GPU_WORLDMAP": "1"},
+    # P14: GPU terrain rasterisation on top of the whole-map path. Compared
+    # against "worldmap" (CPU-composited tiles), the ONLY variable is who
+    # rasterised the terrain pixels, so the expected difference is zero.
+    "raster":   {"CTP2_GPU_QUADS": "1", "CTP2_GPU_WORLDMAP": "1",
+                 "CTP2_GPU_RASTER": "1"},
 }
 
 

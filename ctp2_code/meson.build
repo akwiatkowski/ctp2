@@ -1461,6 +1461,7 @@ gfxtilesys = static_library('libgfxtilesys', [
 	'gfx/tilesys/tiledraw.cpp',
 	'gfx/tilesys/tiledrawroad.cpp',
 	'gfx/tilesys/GpuTileCache.cpp',
+	'gfx/tilesys/TilesetGpuRaster.cpp',
 	'gfx/tilesys/TileHighlight.cpp',
 	'gs/world/TileInfo.cpp',
 	'gfx/tilesys/tileset.cpp',
@@ -1843,6 +1844,33 @@ test('terrain-edge-parity',
 # It sits in its own suite rather than 'integration' so an unfinished, opt-in,
 # default-off path does not gate the shipping suite. Move it into
 # 'integration' once it goes green.
+# P14: GPU terrain rasterisation must be BIT-EQUAL to the CPU composite it
+# replaces. Reference is 'worldmap' (whole-map path, CPU-composited tiles);
+# the raster mode differs only in who produced the terrain pixels, both decode
+# through pixelutils_16to8888 and alpha is binary, so the honest threshold is
+# (near) zero — 0.01 leaves room for nothing but a real defect.
+test('gpu-raster-parity',
+  find_program('../tools/visual/terrain_edges.py'),
+  args : [
+    '--binary', join_paths(meson.project_build_root(), 'ctp2'),
+    '--out', join_paths(meson.project_build_root(), 'gpu-raster-parity'),
+    '--modes', 'worldmap', 'raster',
+    '--reference', 'worldmap',
+    '--pairs', 'grassland:plains', 'plains:desert', 'forest:hill',
+    '--patterns', 'vertical', 'checker',
+    '--crop-size', '320',
+    '--reveal-radius', '60',
+    '--lit',
+    '--max-diff-ratio', '0.01',
+    '--check',
+  ],
+  timeout : 600,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'p13',
+)
+
 test('worldmap-transition-parity',
   find_program('../tools/visual/terrain_edges.py'),
   args : [

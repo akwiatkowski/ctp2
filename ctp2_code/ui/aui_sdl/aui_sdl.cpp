@@ -439,17 +439,23 @@ void aui_SDL::UploadQuadAtlasSlot(int x, int y, int w, int h,
 
 bool aui_SDL::GpuRasterEnabled()
 {
-	// Opt-in, cached (P14). GPU terrain rasterisation composites cells from the
-	// decoded-tileset atlas instead of the CPU scratch composite. It only has
-	// meaning on the whole-map path, whose builder is where the composite
-	// happens, so it implies GpuWorldmapEnabled. Default OFF until the parity
-	// oracle proves it bit-equal; flip mirrors how every other flag here earned
-	// its default.
+	// DEFAULT ON (P14). GPU terrain rasterisation composites pure-terrain cells
+	// from the decoded-tileset atlas instead of the CPU scratch composite. It
+	// only has meaning on the whole-map path, whose builder is where the
+	// composite happens, so it implies GpuWorldmapEnabled; CTP2_GPU_RASTER=0
+	// opts back into the CPU composite for every cell.
+	//
+	// The flip's evidence, same bar as every other default here: bit-equal to
+	// the CPU composite (gpu-raster-parity: diff_ratio 0.000, mean_error 0.0,
+	// and the oracle fails on a one-pixel stream shift), 78% of a fresh map's
+	// cells composited on the GPU, and whole-map atlas misses 514 -> 0. Cells
+	// with overlays and any cell whose tileset data is missing keep the CPU
+	// composite per cell, so correctness never depends on this flag.
 	static int s_enabled = -1;
 	if (s_enabled < 0)
 	{
 		char const * e = getenv("CTP2_GPU_RASTER");
-		bool const requested = e && e[0] && strcmp(e, "0") != 0;
+		bool const requested = (e && e[0]) ? (strcmp(e, "0") != 0) : true;
 		s_enabled = (requested && GpuWorldmapEnabled()) ? 1 : 0;
 	}
 	return s_enabled != 0;

@@ -251,15 +251,30 @@ void aui_SDL::RenderWorldmapSpriteQuads(SDL_Renderer *renderer,
 
 bool aui_SDL::GpuWorldmapEnabled()
 {
-	// Opt-in, cached. ADR-003's whole-map target. It reuses the terrain-quad
-	// machinery (atlas + tile cache), so it implies GpuQuadsEnabled; without
-	// quads there is nothing to draw into it. Default OFF — the ADR-002 window
-	// mirror remains the shipping path until this substrate is proven.
+	// DEFAULT ON (P13, ADR-003): the whole map on one render target, windowed by
+	// the camera. It reuses the terrain-quad machinery (atlas + tile cache), so
+	// it implies GpuQuadsEnabled; without quads there is nothing to draw into
+	// it. CTP2_GPU_WORLDMAP=0 opts back into the ADR-002 window mirror, which
+	// stays as the fallback for a driver that refuses the texture size
+	// (EnsureWorldmapTexture returning false lands there on its own).
+	//
+	// What changed to justify the flip: the path now composites everything the
+	// window mirror does -- terrain and transitions, rivers, roads and
+	// improvements, the grid, both national-border styles, units, cities,
+	// goods, and fog (step 4) -- and matches the quad path at diff_ratio
+	// 0.000-0.019 across 15 terrain-pair/pattern combinations, at the north and
+	// south map edges and across the X wrap seam, with picking agreeing on
+	// 30/30 screen points.
+	//
+	// It is also the only path that can be correct on its own terms: the window
+	// mirror gives up and hands the frame back to the CPU whenever a cell has a
+	// river, an improvement, the grid, cell text or fog -- which on a real map,
+	// mid-game, is most frames.
 	static int s_enabled = -1;
 	if (s_enabled < 0)
 	{
 		char const * e = getenv("CTP2_GPU_WORLDMAP");
-		bool const requested = e && e[0] && strcmp(e, "0") != 0;
+		bool const requested = (e && e[0]) ? (strcmp(e, "0") != 0) : true;
 		s_enabled = (requested && GpuQuadsEnabled()) ? 1 : 0;
 	}
 	return s_enabled != 0;

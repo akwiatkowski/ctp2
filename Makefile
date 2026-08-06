@@ -23,6 +23,13 @@
 # test
 #   Run the test suite.
 #
+# test-render
+#   Every pixel oracle for the renderer. The only tests that look at a
+#   presented frame; run after touching gfx/ or ui/aui_sdl/.
+#
+# test-p13
+#   Whole-map transition parity (its own suite, not in test-full).
+#
 # gateway / gateway-build / gateway-test
 #   The Crystal observability gateway (gateway/): `make gateway` builds the
 #   game + gateway and serves HTTP on :8666 with a spawned headless game.
@@ -207,6 +214,25 @@ test-integration: build
 test-pan-pixel: build
 	@echo "Running P11 GPU camera pixel/glide proof..."
 	meson test -C build pan-pixel-proof --print-errorlogs
+
+# Every pixel oracle for the renderer, in one target (~1.5 min). These are the
+# only tests that look at a presented frame, and since P13 became the default
+# they guard the whole-map path rather than the ADR-002 window mirror. Run this
+# after touching anything under gfx/ or ui/aui_sdl/ — the unit tiers cannot see
+# a rendering regression at all.
+test-render: build
+	@echo "Running renderer pixel oracles..."
+	meson test -C build slice-ui pan-pixel-proof gpu-world-fallbacks \
+		terrain-edge-parity worldmap-fog worldmap-borders goods-reload \
+		--print-errorlogs
+
+# P13 whole-map transition parity (~2 min). Its own suite, deliberately: it
+# compares two game processes frame-by-frame and is the most sensitive check
+# here, so it should not gate the shipping suite on a bad day. Not included in
+# `make test-full` for the same reason — run it explicitly.
+test-p13: build
+	@echo "Running P13 whole-map transition parity..."
+	meson test -C build --suite p13 --print-errorlogs
 
 # Full test suite — fast + unit + integration + smoke + scenario.
 # ~8 minutes (dominated by the integration tier).  Run pre-release or when
@@ -436,7 +462,10 @@ ci-tier-a:
 	@.ci/tiers/tier-a.sh && echo "tier-a done"
 
 .PHONY: all deps setup build setup-sanitized build-sanitized sanitized-smoke setup-ubsan build-ubsan ubsan-smoke setup-release release release-check seed-sweep test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
-        gateway gateway-build gateway-test \
+        test-integration test-pan-pixel test-render test-p13 test-full \
+        coverage coverage-setup coverage-summary coverage-html run repro \
+        timelapse timelapse-render timelapse-caption-smoke \
+        gateway gateway-build gateway-test gateway-e2e \
         ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a
 
 SRCDIRS=\

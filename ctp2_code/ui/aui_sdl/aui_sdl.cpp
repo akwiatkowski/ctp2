@@ -143,9 +143,42 @@ void aui_SDL::PresentWorldmapWindow(SDL_Renderer *renderer,
 	else             CTP2_SDL_SetTextureLinear(m_worldmapTexture);
 
 	float const srcW = viewW / zoom;
-	float const srcH = viewH / zoom;
-	float const srcY = (float) m_worldmapOriginY + (viewH - srcH) * 0.5f - offY;
+	float       srcH = viewH / zoom;
+	float       srcY = (float) m_worldmapOriginY + (viewH - srcH) * 0.5f - offY;
 	float       srcX = (float) m_worldmapOriginX + (viewW - srcW) * 0.5f - offX;
+
+	// Y does NOT wrap. The view rect runs past the map at the north and south
+	// edges -- m_mapViewRect.top goes negative up there, so the origin does too
+	// -- and a source rect that starts outside the texture does not politely
+	// return nothing: it samples something, so the top of the screen showed a
+	// completely different part of the world. Measured at the north edge:
+	// origin y = -384, and the frame matched the correct one at no shift at all
+	// (0.95 of pixels differing). The south edge showed the same thing as a
+	// 96px slip.
+	//
+	// Clip the rect to the texture and shrink the DESTINATION by the same
+	// amount, so the missing rows simply are not drawn. Flip clears before this
+	// runs, so what is left uncovered stays black -- which is what is above the
+	// north pole and below the south one.
+	float dstY = 0.0f;
+	float dstH = viewH;
+	float const texH = (float) m_worldmapH;
+	if (srcY < 0.0f)
+	{
+		float const cut = -srcY;
+		srcY  = 0.0f;
+		srcH -= cut;
+		dstY  = cut * zoom;
+		dstH -= cut * zoom;
+	}
+	if (texH > 0.0f && srcY + srcH > texH)
+	{
+		float const cut = (srcY + srcH) - texH;
+		srcH -= cut;
+		dstH -= cut * zoom;
+	}
+	if (srcH <= 0.0f || dstH <= 0.0f)
+		return;   // the view is entirely off the map; the clear already did it
 
 	// The map wraps in X, so the texture is periodic and a window that straddles
 	// the seam is two draws, not one. A single rect ran off the end of the
@@ -159,7 +192,7 @@ void aui_SDL::PresentWorldmapWindow(SDL_Renderer *renderer,
 		// The view holds a whole period (or the wrap is unknown): there is no
 		// seam to split at, so present it as-is rather than tiling it.
 		CTP2_SDL_RenderTextureWindow(renderer, m_worldmapTexture,
-			srcX, srcY, srcW, srcH, 0.0f, 0.0f, viewW, viewH);
+			srcX, srcY, srcW, srcH, 0.0f, dstY, viewW, dstH);
 		return;
 	}
 
@@ -169,7 +202,7 @@ void aui_SDL::PresentWorldmapWindow(SDL_Renderer *renderer,
 	float const headSrcW = (srcX + srcW <= wrap) ? srcW : (wrap - srcX);
 	float const headDstW = headSrcW * zoom;
 	CTP2_SDL_RenderTextureWindow(renderer, m_worldmapTexture,
-		srcX, srcY, headSrcW, srcH, 0.0f, 0.0f, headDstW, viewH);
+		srcX, srcY, headSrcW, srcH, 0.0f, dstY, headDstW, dstH);
 
 	if (headSrcW < srcW)
 	{
@@ -177,7 +210,7 @@ void aui_SDL::PresentWorldmapWindow(SDL_Renderer *renderer,
 		float const tailSrcW = srcW - headSrcW;
 		CTP2_SDL_RenderTextureWindow(renderer, m_worldmapTexture,
 			0.0f, srcY, tailSrcW, srcH,
-			headDstW, 0.0f, tailSrcW * zoom, viewH);
+			headDstW, dstY, tailSrcW * zoom, dstH);
 	}
 }
 

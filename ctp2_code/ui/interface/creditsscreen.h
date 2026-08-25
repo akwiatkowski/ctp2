@@ -6,6 +6,9 @@
 
 class CreditsWindow;
 
+#include <memory>
+#include <vector>
+
 #include "ui/aui_ctp2/c3window.h"
 
 class aui_Control;
@@ -59,42 +62,30 @@ public:
 
 	void ShowSecretImage();
 
-protected:
-
-	CreditsWindow() : C3Window() {}
-
 	void InitCommonLdl(MBCHAR *ldlBlock);
-
-	void CleanPointers();
-
-	void CleanUp(aui_Control *control);
 
 private:
 
-	sint32 m_numberOfBackgroundAnims;
-	sint32 m_numberOfTriggeredAnims;
+	std::vector<std::unique_ptr<c3_SimpleAnimation>> m_backgroundAnims;
+	std::vector<std::unique_ptr<c3_TriggeredAnimation>> m_triggeredAnims;
 
-	aui_Static *m_background;
-	aui_Static *m_border;
+	std::unique_ptr<aui_Static> m_background;
+	std::unique_ptr<aui_Static> m_border;
 
-	ctp2_Button *m_exitButton;
+	std::unique_ptr<ctp2_Button> m_exitButton;
 
-	aui_Button *m_pauseButton;
+	std::unique_ptr<aui_Button> m_pauseButton;
 
-	aui_Static *m_secretImage;
-	aui_Button *m_secretButton;
+	std::unique_ptr<aui_Static> m_secretImage;
+	std::unique_ptr<aui_Button> m_secretButton;
 
-	c3_SimpleAnimation **m_backgroundAnim;
-	c3_TriggeredAnimation **m_triggeredAnim;
-
-
-	c3_CreditsText *m_creditsText;
+	std::unique_ptr<c3_CreditsText> m_creditsText;
 
 	bool m_animating;
 
 	sint32 m_animationSpeed;
 
-	uint32 lastIdle;
+	uint32 m_lastIdleTicks;
 };
 
 

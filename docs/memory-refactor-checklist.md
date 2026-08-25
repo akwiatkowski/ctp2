@@ -95,7 +95,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [x] `ui/interface/loadsavemapwindow.cpp` — done 2026-08-03: 9 window controls are unique_ptr; list-item members left raw (c3_ListItem frees children)
 - [x] `ui/interface/messageadvice.cpp` — done 2026-08-03: 5 controls are unique_ptr; list ITEMS still deleted by hand (not members)
 - [ ] `ui/interface/spnewgameplayersscreen.cpp` (14/2/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/interface/messagemodal.cpp` (10/6/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/messagemodal.cpp` (10/6/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: text box/eye-point helpers → `unique_ptr` members (replacing the raw union on the modal side), response button/action `tech_WLList`s → `vector<unique_ptr>`; **fixed a real leak** — `~MessageModal` never freed the eye-point helper (its sibling `~MessageWindow` did).
 - [ ] `ui/interface/messagewin.cpp` (9/7/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/interface/greatlibrary.cpp` (11/5/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/interface/battleevent.cpp` (7/8/0) — ⚪ leave · _pool/arena allocator_

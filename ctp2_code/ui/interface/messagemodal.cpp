@@ -103,7 +103,6 @@ AUI_ERRCODE MessageModal::InitCommon( MBCHAR *ldlBlock, Message data )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	m_messageText = nullptr;
 	m_message = data;
 
 	m_leftBar = nullptr;
@@ -186,17 +185,13 @@ AUI_ERRCODE MessageModal::CreateStandardTextBox( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlBlock, "MessageTextBox" );
-	m_messageText = new aui_HyperTextBox( &errcode, aui_UniqueId(), textBlock );
+	m_messageText.reset(new aui_HyperTextBox( &errcode, aui_UniqueId(), textBlock ));
 	Assert( AUI_NEWOK( m_messageText, errcode ));
 	if ( !AUI_NEWOK( m_messageText, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-
-
-
-
 	m_messageText->SetDrawMask( k_AUI_REGION_DRAWFLAG_UPDATE );
 
-	AddControl( m_messageText );
+	AddControl( m_messageText.get() );
 
 	errcode = m_messageText->SetHyperText( m_message.GetText( ));
 	Assert( errcode == AUI_ERRCODE_OK );
@@ -227,11 +222,13 @@ AUI_ERRCODE MessageModal::CreateStandardEyePointBox( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_messageEyePoint.m_messageEyePointStandard = new MessageEyePointStandard( &errcode,
-						ldlBlock, this );
-	Assert( m_messageEyePoint.m_messageEyePointStandard != nullptr );
-	if ( m_messageEyePoint.m_messageEyePointStandard == nullptr )
+	m_eyePointStandard.reset(new MessageEyePointStandard( &errcode, ldlBlock, this ));
+	Assert( AUI_NEWOK( m_eyePointStandard, errcode ));
+	if ( !AUI_NEWOK( m_eyePointStandard, errcode ))
+	{
+		m_eyePointStandard.reset();
 		return AUI_ERRCODE_MEMALLOCFAILED;
+	}
 
 	return AUI_ERRCODE_OK;
 }
@@ -241,11 +238,13 @@ AUI_ERRCODE MessageModal::CreateDropdownEyePointBox( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_messageEyePoint.m_messageEyePointDropdown = new MessageEyePointDropdown( &errcode,
-						ldlBlock, this );
-	Assert( m_messageEyePoint.m_messageEyePointDropdown != nullptr );
-	if ( m_messageEyePoint.m_messageEyePointDropdown == nullptr )
+	m_eyePointDropdown.reset(new MessageEyePointDropdown( &errcode, ldlBlock, this ));
+	Assert( AUI_NEWOK( m_eyePointDropdown, errcode ));
+	if ( !AUI_NEWOK( m_eyePointDropdown, errcode ))
+	{
+		m_eyePointDropdown.reset();
 		return AUI_ERRCODE_MEMALLOCFAILED;
+	}
 
 	return AUI_ERRCODE_OK;
 }
@@ -255,15 +254,16 @@ AUI_ERRCODE MessageModal::CreateListboxEyePointBox( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_messageEyePoint.m_messageEyePointListbox = new MessageEyePointListbox( &errcode,
-						ldlBlock, this );
-	Assert( m_messageEyePoint.m_messageEyePointListbox != nullptr );
-	if ( m_messageEyePoint.m_messageEyePointListbox == nullptr )
+	m_eyePointListbox.reset(new MessageEyePointListbox( &errcode, ldlBlock, this ));
+	Assert( AUI_NEWOK( m_eyePointListbox, errcode ));
+	if ( !AUI_NEWOK( m_eyePointListbox, errcode ))
+	{
+		m_eyePointListbox.reset();
 		return AUI_ERRCODE_MEMALLOCFAILED;
+	}
 
 	return AUI_ERRCODE_OK;
 }
-
 
 AUI_ERRCODE MessageModal::CreateResponses( MBCHAR *ldlBlock )
 {
@@ -273,12 +273,9 @@ AUI_ERRCODE MessageModal::CreateResponses( MBCHAR *ldlBlock )
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "ModalResponseButton");
 	sint32			responseCount = 0;
 
-	m_messageModalResponseButton = new tech_WLList<ctp2_Button *>;
-	m_messageModalResponseAction = new tech_WLList<MessageModalResponseAction *>;
-
 	while (SlicButton * sButton = m_message.AccessData()->GetButton(responseCount))
     {
-		ctp2_Button	*       button  = new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock);
+		std::unique_ptr<ctp2_Button> button(new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock));
 		Assert( AUI_NEWOK( button, errcode ));
 		if ( !AUI_NEWOK( button, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -294,38 +291,30 @@ AUI_ERRCODE MessageModal::CreateResponses( MBCHAR *ldlBlock )
 		button->Resize((textlength + k_MODAL_BUTTON_TEXT_PADDING), button->Height());
 		button->SetText(text);
 
-		m_messageModalResponseButton->AddTail( button );
-
-
 		if ( lastbutton ) {
 			button->Move( lastbutton->X() -
 						  button->Width() -
 						  k_MODAL_BUTTON_SPACING, button->Y() );
 		} else {
-
-
-
-
 			button->Move(Width() - button->Width() - k_MODAL_BUTTON_SPACING - button->GetDim()->HorizontalPositionData(), button->Y());
 		}
 
-		MessageModalResponseAction	* action =
-            new MessageModalResponseAction( &m_message, responseCount );
-		Assert( action != nullptr );
-		if ( action == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
+		std::unique_ptr<MessageModalResponseAction> action(
+			new MessageModalResponseAction( &m_message, responseCount ));
 
-		m_messageModalResponseAction->AddTail( action );
+		button->SetAction( action.get() );
 
-		button->SetAction( action );
-
-		AddControl( button );
+		AddControl( button.get() );
 
 		button->ResetThis();
 
-		lastbutton = button;
+		lastbutton = button.get();
+
+		m_responseButtons.push_back(std::move(button));
+		m_responseActions.push_back(std::move(action));
 
 		responseCount++;
-	}
+    }
 
 	return AUI_ERRCODE_OK;
 }
@@ -333,33 +322,16 @@ AUI_ERRCODE MessageModal::CreateResponses( MBCHAR *ldlBlock )
 
 MessageModal::~MessageModal ()
 {
-	delete m_messageText;
-
-	if ( m_messageModalResponseAction ) {
-		ListPos position = m_messageModalResponseAction->GetHeadPosition();
-
-		for ( sint32 i = m_messageModalResponseAction->L(); i; i-- )
-        {
-			delete m_messageModalResponseAction->GetNext( position );
-		}
-
-		m_messageModalResponseAction->DeleteAll();
-		delete m_messageModalResponseAction;
-	}
-
-	if ( m_messageModalResponseButton )
-    {
-		ListPos position = m_messageModalResponseButton->GetHeadPosition();
-
-		for ( sint32 i = m_messageModalResponseButton->L(); i; i-- )
-        {
-			delete m_messageModalResponseButton->GetNext( position );
-		}
-
-		m_messageModalResponseButton->DeleteAll();
-		delete m_messageModalResponseButton;
-	}
-
+	// Buttons and actions must go before the base window tears down, in the
+	// order the hand-written teardown used; the eye-point helper (which owns
+	// its own button/dropdown/action set) is released with the members and
+	// fixes the old leak where it was never freed at all.
+	m_responseButtons.clear();
+	m_responseActions.clear();
+	m_messageText.reset();
+	m_eyePointStandard.reset();
+	m_eyePointDropdown.reset();
+	m_eyePointListbox.reset();
 }
 
 

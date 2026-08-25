@@ -82,7 +82,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/spriteeditor.cpp` (9/26/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/interface/victorywin.cpp` (31/3/0) — 🟡 moderate · _needs ownership review_
 - [x] `ui/interface/creditsscreen.cpp` (17/17/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: members → `unique_ptr`, anim arrays + credits pages/lines → `vector`, `Parse` no longer `delete this` (bool return), blend-scratch surfaces RAII'd; fixed font-index off-by-one (`>` → `>=`) and null-font deref on failed load.
-- [ ] `ui/interface/messageeyepoint.cpp` (20/10/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/messageeyepoint.cpp` (20/10/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: buttons/dropdowns/actions → `unique_ptr` members (`SetAction`/`AddControl`/`AddItem` verified non-owning), `m_action1/2` renamed `m_actionLeft/Right`; only sink-transfer `new`s remain.
 - [ ] `ui/interface/ancientwindows.cpp` (13/15/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/scenarioeditor.cpp` (19/9/0) — 🔴 hard · _void* ownership handoff_
 - [x] `ui/interface/messagewindow.cpp` — done 2026-08-03: 12 controls are unique_ptr, including 4 border bars that were leaking (allocated, AddControl'd, never freed)

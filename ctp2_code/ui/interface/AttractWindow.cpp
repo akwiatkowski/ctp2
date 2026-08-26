@@ -13,14 +13,16 @@
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_utils/primitives.h"
 
+#include <memory>
+
 #include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 
 
-static AttractWindow	*g_attractWindow;
+static std::unique_ptr<AttractWindow> g_attractWindow;
 
 AttractWindow * attractwindow_Get()
 {
-	return g_attractWindow;
+	return g_attractWindow.get();
 }
 
 #define k_ATTRACT_FINAL_STAGE		20
@@ -30,7 +32,7 @@ void AttractWindow::Initialize()
 {
 	AUI_ERRCODE		retval;
 
-	g_attractWindow = new AttractWindow(&retval, aui_UniqueId(), "AttractWindow", 16);
+	g_attractWindow.reset(new AttractWindow(&retval, aui_UniqueId(), "AttractWindow", 16));
 	Assert(g_attractWindow);
 	if (!g_attractWindow)
 		return;
@@ -44,8 +46,7 @@ void AttractWindow::Cleanup()
 	if (g_attractWindow) {
 		g_attractWindow->Hide();
 		c3ui_Get()->RemoveWindow(g_attractWindow->Id());
-		delete g_attractWindow;
-		g_attractWindow = nullptr;
+		g_attractWindow.reset();
 	}
 }
 
@@ -59,7 +60,6 @@ C3Window(retval, id, ldlBlock, bpp, type)
 
 AttractWindow::~AttractWindow()
 {
-	m_regions.DeleteAll();
 }
 
 AUI_ERRCODE AttractWindow::InitCommon()
@@ -115,12 +115,8 @@ AUI_ERRCODE AttractWindow::Idle()
 
 void AttractWindow::AppIdle()
 {
-	if(m_regions.GetCount() > 0) {
-		PointerList<AttractRegion>::Walker walk(&m_regions);
-		for(; walk.IsValid(); walk.Next()) {
-			AttractRegion *ar = walk.GetObj();
-			ar->m_region->SetAttract(true, GetTickCount() - ar->m_startTime);
-		}
+	for (auto &ar : m_regions) {
+		ar->m_region->SetAttract(true, GetTickCount() - ar->m_startTime);
 	}
 
 
@@ -263,20 +259,18 @@ void AttractWindow::RemoveControl(MBCHAR *ldlName)
 
 void AttractWindow::RemoveRegion(aui_Region *region)
 {
-	PointerList<AttractRegion>::Walker walk(&m_regions);
-	while(walk.IsValid()) {
-		if(walk.GetObj()->m_region == region) {
-			delete walk.Remove();
-		} else {
-			walk.Next();
-		}
+	for (auto regionIter = m_regions.begin(); regionIter != m_regions.end(); ) {
+		if ((*regionIter)->m_region == region)
+			regionIter = m_regions.erase(regionIter);
+		else
+			++regionIter;
 	}
 }
 
 void AttractWindow::AddRegion(aui_Region *region)
 {
-	AttractRegion *ar = new AttractRegion;
+	std::unique_ptr<AttractRegion> ar(new AttractRegion);
 	ar->m_region = region;
 	ar->m_startTime = GetTickCount();
-	m_regions.AddTail(ar);
+	m_regions.push_back(std::move(ar));
 }

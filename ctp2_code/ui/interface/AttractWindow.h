@@ -1,8 +1,10 @@
 #ifndef __ATTRACT_WINDOW_H__
 #define __ATTRACT_WINDOW_H__
 
+#include <memory>
+#include <vector>
+
 #include "ui/aui_ctp2/c3window.h"
-#include "ctp/ctp2_utils/pointerlist.h"
 
 struct AttractRegion {
 	aui_Region *m_region;
@@ -48,7 +50,8 @@ private:
 	sint32		m_attractStage;
 	uint32		m_finishTime;
 
-	PointerList<AttractRegion> m_regions;
+	// Owned highlight entries; each borrows its aui_Region.
+	std::vector<std::unique_ptr<AttractRegion>> m_regions;
 };
 
 // g_attractWindow demoted to file-scope `static` in AttractWindow.cpp.

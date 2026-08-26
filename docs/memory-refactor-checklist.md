@@ -149,7 +149,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/UnitControlPanel.cpp` (2/2/0) — 🔴 hard · _void* ownership handoff_
 - [x] `ui/interface/messageactions.cpp` (4/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): all four `new`s are transfer-to-sink `AddAction` calls — no ownership to convert.
 - [ ] `ui/interface/unitmanager.cpp` (4/0/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/AttractWindow.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/AttractWindow.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: global → static unique_ptr; owning `PointerList<AttractRegion>` → `vector<unique_ptr>` (also a P9 container conversion, −1 pointerlist).
 - [ ] `ui/interface/DomesticManagementDialog.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/soundscreen.cpp` (1/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/c3dialogs.cpp` (2/1/0) — 🔴 hard · _void* ownership handoff_

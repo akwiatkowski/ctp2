@@ -78,7 +78,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/sciencewin.cpp` (55/18/0) — 🔴 hard · _void* ownership handoff_
 - [x] `ui/interface/battleviewwindow.cpp` — done 2026-08-03: all 31 owned controls are unique_ptr members; destructor is just the global back-pointer reset
 - [ ] `ui/interface/loadsavewindow.cpp` (15/40/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/EndgameWindow.cpp` (31/14/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/EndgameWindow.cpp` (31/14/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: all 14 child controls → `unique_ptr`, 7 LDL-driven control arrays → `vector<unique_ptr>`, `c3_Animation::m_frames` → `unique_ptr`, blend scratch surfaces RAII'd; counts kept as LDL-driven sizes, in-class initializers replace `CleanPointers`.
 - [ ] `ui/interface/spriteeditor.cpp` (9/26/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/interface/victorywin.cpp` (31/3/0) — 🟡 moderate · _needs ownership review_
 - [x] `ui/interface/creditsscreen.cpp` (17/17/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: members → `unique_ptr`, anim arrays + credits pages/lines → `vector`, `Parse` no longer `delete this` (bool return), blend-scratch surfaces RAII'd; fixed font-index off-by-one (`>` → `>=`) and null-font deref on failed load.

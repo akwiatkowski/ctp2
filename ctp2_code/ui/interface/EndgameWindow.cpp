@@ -90,11 +90,11 @@ extern sint32		g_ScreenHeight;
 
 
 
-static EndGameWindow *	g_endgameWindow = nullptr;
+static std::unique_ptr<EndGameWindow>	g_endgameWindow;
 
 EndGameWindow * endgamewindow_Get()
 {
-	return g_endgameWindow;
+	return g_endgameWindow.get();
 }
 
 
@@ -213,14 +213,14 @@ sint32 endgamewindow_Initialize()
 
 
 
-	g_endgameWindow = new EndGameWindow(&errcode, aui_UniqueId(), k_LDL_ENDGAME_WINDOW,
-		k_ENDGAME_BITS_PER_PIXEL, AUI_WINDOW_TYPE_POPUP);
-	TestControl(g_endgameWindow);
+	g_endgameWindow.reset(new EndGameWindow(&errcode, aui_UniqueId(), k_LDL_ENDGAME_WINDOW,
+		k_ENDGAME_BITS_PER_PIXEL, AUI_WINDOW_TYPE_POPUP));
+	TestControl(g_endgameWindow.get());
 
-	keypress_RegisterHandler(g_endgameWindow);
+	keypress_RegisterHandler(g_endgameWindow.get());
 
 	sint32 snd_id = g_theSoundDB->FindTypeIndex(k_ENDGAME_AMBIENT_SOUND);
-	if(soundmgr_Get()) soundmgr_Get()->AddLoopingSound(SOUNDTYPE_SFX, (uintptr_t)g_endgameWindow, snd_id);
+	if(soundmgr_Get()) soundmgr_Get()->AddLoopingSound(SOUNDTYPE_SFX, (uintptr_t)g_endgameWindow.get(), snd_id);
 
 	Assert(AUI_SUCCESS(errcode));
 	if(!AUI_SUCCESS(errcode)) return(-1);
@@ -239,14 +239,13 @@ sint32 endgamewindow_Cleanup()
 
 	if(!g_endgameWindow) return(0);
 
-	if(soundmgr_Get()) soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX, (uintptr_t)g_endgameWindow);
+	if(soundmgr_Get()) soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX, (uintptr_t)g_endgameWindow.get());
 
 	c3ui_Get()->RemoveWindow(g_endgameWindow->Id());
 
-	keypress_RemoveHandler(g_endgameWindow);
+	keypress_RemoveHandler(g_endgameWindow.get());
 
-	delete g_endgameWindow;
-	g_endgameWindow = nullptr;
+	g_endgameWindow.reset();
 
 	return(0);
 }
@@ -352,33 +351,30 @@ AUI_ERRCODE c3_Blend::DrawBlendImage(aui_Surface *destSurf, RECT *destRect)
 
 	RECT srcRect = { 0, 0, srcSurf->Width(), srcSurf->Height() };
 
-	aui_Surface *backSurface = aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom);
+	std::unique_ptr<aui_Surface> backSurface(aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom));
 	Assert(AUI_NEWOK(backSurface, errcode));
 
-	c3ui_Get()->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(backSurface.get(), 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
 
 	if(m_imagebltflag == AUI_IMAGEBASE_BLTFLAG_CHROMAKEY) {
 
-		aui_Surface *frontSurface = aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom);
+		std::unique_ptr<aui_Surface> frontSurface(aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom));
 		Assert(AUI_NEWOK(frontSurface, errcode));
 
-		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface.get(), 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
-		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, srcSurf, &srcRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface.get(), 0, 0, srcSurf, &srcRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
 
-		primitives_BlendSurfaces(frontSurface, backSurface, destSurf, destRect, m_blendVal);
-
-		delete frontSurface;
+		primitives_BlendSurfaces(frontSurface.get(), backSurface.get(), destSurf, destRect, m_blendVal);
 	} else {
 
-		primitives_BlendSurfaces(srcSurf, backSurface, destSurf, destRect, m_blendVal);
+		primitives_BlendSurfaces(srcSurf, backSurface.get(), destSurf, destRect, m_blendVal);
 	}
 
 
 	aui_Image *highlightImage = GetImage( 1, AUI_IMAGEBASE_SUBSTATE_STATE );
 	if(!highlightImage) {
-		delete backSurface;
 		return AUI_ERRCODE_OK;
 	}
 
@@ -386,7 +382,7 @@ AUI_ERRCODE c3_Blend::DrawBlendImage(aui_Surface *destSurf, RECT *destRect)
 
 	RECT highlightRect = { 0, 0, highlightSurf->Width(), highlightSurf->Height() };
 
-	c3ui_Get()->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(backSurface.get(), 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
 
 	sint32 highlightBlendVal = m_blendVal * 3;
@@ -401,24 +397,20 @@ AUI_ERRCODE c3_Blend::DrawBlendImage(aui_Surface *destSurf, RECT *destRect)
 
 	if(m_imagebltflag == AUI_IMAGEBASE_BLTFLAG_CHROMAKEY) {
 
-		aui_Surface *frontSurface = aui_Factory::new_Surface(errcode, highlightRect.right,
-			highlightRect.bottom);
+		std::unique_ptr<aui_Surface> frontSurface(aui_Factory::new_Surface(errcode, highlightRect.right,
+			highlightRect.bottom));
 		Assert(AUI_NEWOK(frontSurface, errcode));
 
-		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface.get(), 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
-		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, highlightSurf,
+		c3ui_Get()->TheBlitter()->Blt(frontSurface.get(), 0, 0, highlightSurf,
 			&highlightRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
 
-		primitives_BlendSurfaces(frontSurface, backSurface, destSurf, destRect, highlightBlendVal);
-
-		delete frontSurface;
+		primitives_BlendSurfaces(frontSurface.get(), backSurface.get(), destSurf, destRect, highlightBlendVal);
 	} else {
 
-		primitives_BlendSurfaces(highlightSurf, backSurface, destSurf, destRect, highlightBlendVal);
+		primitives_BlendSurfaces(highlightSurf, backSurface.get(), destSurf, destRect, highlightBlendVal);
 	}
-
-	delete backSurface;
 
 	return AUI_ERRCODE_OK;
 }
@@ -449,20 +441,13 @@ public:
 		c3_Blend(retval, id, x, y, width, height, text, maxLength)
 		{
 
-			m_frames = nullptr;
 			m_currentFrame = 0;
 			m_animationSpeed = 100;
 			lastIdle = GetTickCount();
 		}
 
-	~c3_Animation() override { delete m_frames; }
-
 
 	AUI_ERRCODE Idle() override;
-
-protected:
-
-	c3_Animation() : c3_Blend() {}
 
 	void InitCommonLdl(MBCHAR *ldlBlock);
 
@@ -470,7 +455,7 @@ protected:
 
 private:
 
-	aui_StringTable *m_frames;
+	std::unique_ptr<aui_StringTable> m_frames;
 
 	sint32 m_currentFrame;
 
@@ -524,7 +509,7 @@ void c3_Animation::InitCommonLdl(MBCHAR *ldlBlock)
 	m_animationSpeed			= datablock->GetInt(k_C3_ANIMATION_SPEED);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_C3_ANIMATION_FRAMES);
-	m_frames = new aui_StringTable(&errcode, ldlString);
+	m_frames.reset(new aui_StringTable(&errcode, ldlString));
 	Assert(m_frames);
 
 	m_currentFrame = 0;
@@ -554,8 +539,6 @@ EndGameWindow::EndGameWindow(AUI_ERRCODE *retval, sint32 id, MBCHAR *ldlBlock, s
 	m_blendSpeed = 100;
 	lastIdle = GetTickCount();
 
-	CleanPointers();
-
 	InitCommonLdl(ldlBlock);
 }
 
@@ -567,65 +550,37 @@ EndGameWindow::EndGameWindow(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y,
 
 	m_blendSpeed = 100;
 	lastIdle = GetTickCount();
-
-	CleanPointers();
 }
 
+// Children release in the order the hand-written teardown used (button,
+// border, feedback stack, embryo tank, background); every child is owned
+// here even though the aui parent list keeps non-owning pointers.
 EndGameWindow::~EndGameWindow()
 {
+	m_exitButton.reset();
+	m_border.reset();
 
-	int index;
+	m_stageLights.clear();
+	m_chanceOfFailure.reset();
+	m_splicerRatio.reset();
+	m_containmentFieldRatio.reset();
+	m_ecdRatio.reset();
+	m_turnsRemaining.reset();
+	m_turnProgress.reset();
+	m_progressBackground.reset();
+	m_labels.clear();
+	m_darkenArea.reset();
 
-	CleanUp(m_exitButton);
-	CleanUp(m_border);
+	m_splicer.clear();
 
-	if(m_stageLights) {
-		for(index = m_numberOfStageLights-1; index >= 0; index--) CleanUp(m_stageLights[index]);
-		delete [] m_stageLights;
-	}
-	CleanUp(m_chanceOfFailure);
-	CleanUp(m_splicerRatio);
-	CleanUp(m_containmentFieldRatio);
-	CleanUp(m_ecdRatio);
-	CleanUp(m_turnsRemaining);
-	CleanUp(m_turnProgress);
-	CleanUp(m_progressBackground);
-	if(m_labels) {
-		for(index = m_numberOfLabels-1; index >= 0; index--) CleanUp(m_labels[index]);
-		delete [] m_labels;
-	}
-	CleanUp(m_darkenArea);
-
-	if(m_splicer) {
-		for(index = m_numberOfSplicers-1; index >= 0; index--) CleanUp(m_splicer[index]);
-		delete [] m_splicer;
-	}
-
-
-
-
-	if(m_ECD) {
-		for(index = m_numberOfECDs-1; index >= 0; index--) CleanUp(m_ECD[index]);
-		delete [] m_ECD;
-	}
-	if(m_containmentField) {
-		for(index = m_numberOfContainmentFields-1; index >= 0; index--) CleanUp(m_containmentField[index]);
-		delete [] m_containmentField;
-	}
-	if(m_embryoStage) {
-		for(index = m_numberOfStages-1; index >= 0; index--) CleanUp(m_embryoStage[index]);
-		delete [] m_embryoStage;
-	}
-	CleanUp(m_embryoGlow);
-	CleanUp(m_embryoTank);
-	CleanUp(m_brokenTank);
-	if(m_backgroundAnim) {
-		for(index = m_numberOfBackgroundAnims-1; index >= 0; index--) CleanUp(m_backgroundAnim[index]);
-		delete [] m_backgroundAnim;
-	}
-	CleanUp(m_background);
-
-	CleanPointers();
+	m_ECD.clear();
+	m_containmentField.clear();
+	m_embryoStage.clear();
+	m_embryoGlow.reset();
+	m_embryoTank.reset();
+	m_brokenTank.reset();
+	m_backgroundAnim.clear();
+	m_background.reset();
 }
 
 void EndGameWindow::SetStage(sint32 stage, sint32 lastStage)
@@ -883,14 +838,14 @@ AUI_ERRCODE EndGameWindow::Idle()
 
 	lastIdle = GetTickCount() + (m_blendSpeed - deltaTime);
 
-	UpdateBlend(blendTime, m_embryoTank);
-	UpdateBlend(blendTime, m_embryoGlow);
-	for(index = m_numberOfStages-1; index >= 0; index--) UpdateBlend(blendTime, m_embryoStage[index]);
-	for(index = m_numberOfSplicers-1; index >= 0; index--) UpdateBlend(blendTime, m_splicer[index]);
+	UpdateBlend(blendTime, m_embryoTank.get());
+	UpdateBlend(blendTime, m_embryoGlow.get());
+	for(index = m_numberOfStages-1; index >= 0; index--) UpdateBlend(blendTime, m_embryoStage[index].get());
+	for(index = m_numberOfSplicers-1; index >= 0; index--) UpdateBlend(blendTime, m_splicer[index].get());
 
-	for(index = m_numberOfECDs-1; index >= 0; index--) UpdateBlend(blendTime, m_ECD[index]);
+	for(index = m_numberOfECDs-1; index >= 0; index--) UpdateBlend(blendTime, m_ECD[index].get());
 	for(index = m_numberOfContainmentFields-1; index >= 0; index--)
-		UpdateBlend(blendTime, m_containmentField[index]);
+		UpdateBlend(blendTime, m_containmentField[index].get());
 
 	return AUI_ERRCODE_OK;
 }
@@ -920,228 +875,166 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_splicerName			= datablock->GetString(k_LDL_ENDGAME_SPLICER_NAME);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_BACKGROUND);
-	m_background = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+	m_background.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_background);
 
 	m_numberOfBackgroundAnims = datablock->GetInt(k_LDL_ENDGAME_BACKANIM_COUNT);
-	// TODO(phase-2): class-member array allocation — wave 3 migration
-	m_backgroundAnim = new c3_Animation *[m_numberOfBackgroundAnims];
+	m_backgroundAnim.resize(m_numberOfBackgroundAnims > 0 ? m_numberOfBackgroundAnims : 0);
 
 	for(index = 0; index < m_numberOfBackgroundAnims; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_BACKANIM_BASE, index+1);
-		m_backgroundAnim[index] = new c3_Animation(&errcode, aui_UniqueId(), ldlString);
+		m_backgroundAnim[index].reset(new c3_Animation(&errcode, aui_UniqueId(), ldlString));
 		Assert(m_backgroundAnim[index]);
 		m_backgroundAnim[index]->SetBlend(k_C3_BLEND_MAXBLEND);
 	}
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_EMBRYO_TANK);
-	m_embryoTank = new c3_Blend(&errcode, aui_UniqueId(), ldlString);
+	m_embryoTank.reset(new c3_Blend(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_embryoTank);
 
 	m_embryoTank->HideThis();
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_BROKEN_TANK);
-	m_brokenTank = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+	m_brokenTank.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_brokenTank);
 
 	m_brokenTank->HideThis();
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_EMBRYO_GLOW);
-	m_embryoGlow = new c3_Animation(&errcode, aui_UniqueId(), ldlString);
+	m_embryoGlow.reset(new c3_Animation(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_embryoGlow);
 
 	m_embryoGlow->HideThis();
 
 	m_numberOfStages = datablock->GetInt(k_LDL_ENDGAME_STAGE_COUNT);
-	// TODO(phase-2): class-member array allocation — wave 3 migration
-	m_embryoStage = new c3_Blend *[m_numberOfStages];
+	m_embryoStage.resize(m_numberOfStages > 0 ? m_numberOfStages : 0);
 
 	for(index = 0; index < m_numberOfStages; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_STAGE_BASE, index+1);
-		m_embryoStage[index] = new c3_Blend(&errcode, aui_UniqueId(), ldlString);
+		m_embryoStage[index].reset(new c3_Blend(&errcode, aui_UniqueId(), ldlString));
 		Assert(m_embryoStage[index]);
 		m_embryoStage[index]->HideThis();
 	}
 
 	m_numberOfContainmentFields = datablock->GetInt(k_LDL_ENDGAME_CONTAIN_COUNT);
-	// TODO(phase-2): class-member array allocation — wave 3 migration
-	m_containmentField = new c3_Blend *[m_numberOfContainmentFields];
+	m_containmentField.resize(m_numberOfContainmentFields > 0 ? m_numberOfContainmentFields : 0);
 
 	for(index = 0; index < m_numberOfContainmentFields; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_CONTAIN_BASE, index+1);
-		m_containmentField[index] = new c3_Blend(&errcode, aui_UniqueId(), ldlString);
+		m_containmentField[index].reset(new c3_Blend(&errcode, aui_UniqueId(), ldlString));
 		Assert(m_containmentField[index]);
 		m_containmentField[index]->HideThis();
 	}
 
 	m_numberOfECDs = datablock->GetInt(k_LDL_ENDGAME_ECD_COUNT);
-	// TODO(phase-2): class-member array allocation — wave 3 migration
-	m_ECD = new c3_Blend *[m_numberOfECDs];
+	m_ECD.resize(m_numberOfECDs > 0 ? m_numberOfECDs : 0);
 
 	for(index = 0; index < m_numberOfECDs; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_ECD_BASE, index+1);
-		m_ECD[index] = new c3_Blend(&errcode, aui_UniqueId(), ldlString);
+		m_ECD[index].reset(new c3_Blend(&errcode, aui_UniqueId(), ldlString));
 		Assert(m_ECD[index]);
 		m_ECD[index]->HideThis();
 	}
 
 	m_numberOfSplicers = datablock->GetInt(k_LDL_ENDGAME_SPLICER_COUNT);
-	// TODO(phase-2): class-member array allocation — wave 3 migration
-	m_splicer = new c3_Blend *[m_numberOfSplicers];
+	m_splicer.resize(m_numberOfSplicers > 0 ? m_numberOfSplicers : 0);
 
 
 	for(index = 0; index < m_numberOfSplicers; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_SPLICER_BASE, index+1);
-		m_splicer[index] = new c3_Blend(&errcode, aui_UniqueId(), ldlString);
+		m_splicer[index].reset(new c3_Blend(&errcode, aui_UniqueId(), ldlString));
 		Assert(m_splicer[index]);
 		m_splicer[index]->HideThis();
-
-
-
-
-
 	}
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_DARKEN_AREA);
-	m_darkenArea = new c3_DarkenArea(&errcode, aui_UniqueId(), ldlString);
+	m_darkenArea.reset(new c3_DarkenArea(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_darkenArea);
 
 	m_numberOfLabels = datablock->GetInt(k_LDL_ENDGAME_FB_LABEL_COUNT);
-	// TODO(phase-2): class-member array allocation — wave 3 migration
-	m_labels = new aui_Static *[m_numberOfLabels];
+	m_labels.resize(m_numberOfLabels > 0 ? m_numberOfLabels : 0);
 
 	for(index = 0; index < m_numberOfLabels; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_FB_LABEL_BASE, index+1);
-		m_labels[index] = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+		m_labels[index].reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
 		Assert(m_labels[index]);
 	}
 
 	m_numberOfStageLights = datablock->GetInt(k_LDL_ENDGAME_FB_LIGHT_COUNT);
-	// TODO(phase-2): class-member array allocation — wave 3 migration
-	m_stageLights = new c3_ColoredStatic *[m_numberOfStageLights];
+	m_stageLights.resize(m_numberOfStageLights > 0 ? m_numberOfStageLights : 0);
 
 	for(index = 0; index < m_numberOfStageLights; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_FB_LIGHT_BASE, index+1);
-		m_stageLights[index] = new c3_ColoredStatic(&errcode, aui_UniqueId(), ldlString);
+		m_stageLights[index].reset(new c3_ColoredStatic(&errcode, aui_UniqueId(), ldlString));
 		Assert(m_stageLights[index]);
 	}
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_PROGRESS_BG);
-	m_progressBackground = new c3_ColoredStatic(&errcode, aui_UniqueId(), ldlString);
+	m_progressBackground.reset(new c3_ColoredStatic(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_progressBackground);
 	m_progressBackground->SetColor(k_ENDGAME_FB_STAGE_GREY);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_TURN_PROGRESS);
-	m_turnProgress = new c3_YetAnotherProgressBar(&errcode, aui_UniqueId(), ldlString);
+	m_turnProgress.reset(new c3_YetAnotherProgressBar(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_turnProgress);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_TURNS_REMAINING);
-	m_turnsRemaining = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+	m_turnsRemaining.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_turnsRemaining);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_ECD_RATIO);
-	m_ecdRatio = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+	m_ecdRatio.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_ecdRatio);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_CONTAIN_RATIO);
-	m_containmentFieldRatio = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+	m_containmentFieldRatio.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_containmentFieldRatio);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_SPLICER_RATIO);
-	m_splicerRatio = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+	m_splicerRatio.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_splicerRatio);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_FAILURE_CHANCE);
-	m_chanceOfFailure = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+	m_chanceOfFailure.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_chanceOfFailure);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_BORDER);
-	m_border = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+	m_border.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
 	Assert(m_border);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_EXIT_BUTTON);
-	m_exitButton = new c3_Button(&errcode, aui_UniqueId(), ldlString, endgamewindow_ExitButtonActionCallback);
+	m_exitButton.reset(new c3_Button(&errcode, aui_UniqueId(), ldlString, endgamewindow_ExitButtonActionCallback));
 	Assert(m_exitButton);
 
-	AddControl(m_exitButton);
-	AddControl(m_border);
-	AddControl(m_chanceOfFailure);
-	AddControl(m_splicerRatio);
-	AddControl(m_containmentFieldRatio);
-	AddControl(m_ecdRatio);
-	AddControl(m_turnsRemaining);
-	AddControl(m_turnProgress);
-	AddControl(m_progressBackground);
+	AddControl(m_exitButton.get());
+	AddControl(m_border.get());
+	AddControl(m_chanceOfFailure.get());
+	AddControl(m_splicerRatio.get());
+	AddControl(m_containmentFieldRatio.get());
+	AddControl(m_ecdRatio.get());
+	AddControl(m_turnsRemaining.get());
+	AddControl(m_turnProgress.get());
+	AddControl(m_progressBackground.get());
 	for(index = m_numberOfStageLights-1; index >= 0; index--)
-		AddControl(m_stageLights[index]);
+		AddControl(m_stageLights[index].get());
 	for(index = m_numberOfLabels-1; index >= 0; index--)
-		AddControl(m_labels[index]);
-	AddControl(m_darkenArea);
+		AddControl(m_labels[index].get());
+	AddControl(m_darkenArea.get());
 
 	for(index = m_numberOfSplicers-1; index >= 0; index--)
-		AddControl(m_splicer[index]);
+		AddControl(m_splicer[index].get());
 	for(index = m_numberOfECDs-1; index >= 0; index--)
-		AddControl(m_ECD[index]);
+		AddControl(m_ECD[index].get());
 	for(index = m_numberOfContainmentFields-1; index >= 0; index--)
-		AddControl(m_containmentField[index]);
+		AddControl(m_containmentField[index].get());
 	for(index = m_numberOfStages-1; index >= 0; index--)
-		AddControl(m_embryoStage[index]);
-	AddControl(m_embryoGlow);
-	AddControl(m_embryoTank);
-	AddControl(m_brokenTank);
+		AddControl(m_embryoStage[index].get());
+	AddControl(m_embryoGlow.get());
+	AddControl(m_embryoTank.get());
+	AddControl(m_brokenTank.get());
 	for(index = m_numberOfBackgroundAnims-1; index >= 0; index--)
-		AddControl(m_backgroundAnim[index]);
-	AddControl(m_background);
-}
-
-void EndGameWindow::CleanPointers()
-{
-
-	m_embryoTankName = nullptr;
-	m_containmentFieldName = nullptr;
-	m_ECDName = nullptr;
-	m_splicerName = nullptr;
-
-	m_numberOfStages = 0;
-	m_numberOfContainmentFields = 0;
-	m_numberOfECDs = 0;
-	m_numberOfSplicers = 0;
-	m_numberOfBackgroundAnims = 0;
-	m_numberOfLabels = 0;
-	m_numberOfStageLights = 0;
-
-	m_background = nullptr;
-	m_backgroundAnim = nullptr;
-	m_border = nullptr;
-	m_exitButton = nullptr;
-	m_embryoTank = nullptr;
-	m_brokenTank = nullptr;
-	m_embryoGlow = nullptr;
-	m_embryoStage = nullptr;
-	m_containmentField = nullptr;
-	m_ECD = nullptr;
-	m_splicer = nullptr;
-
-	m_darkenArea = nullptr;
-	m_labels = nullptr;
-	m_progressBackground = nullptr;
-	m_turnProgress = nullptr;
-	m_turnsRemaining = nullptr;
-	m_ecdRatio = nullptr;
-	m_containmentFieldRatio = nullptr;
-	m_splicerRatio = nullptr;
-	m_chanceOfFailure = nullptr;
-	m_stageLights = nullptr;
-}
-
-void EndGameWindow::CleanUp(aui_Control *control)
-{
-
-	if(!control) return;
-
-	DeleteControl(control);
-
-	delete control;
+		AddControl(m_backgroundAnim[index].get());
+	AddControl(m_background.get());
 }
 
 void EndGameWindow::UpdateBlend(sint32 deltaTime, c3_Blend *blendControl)

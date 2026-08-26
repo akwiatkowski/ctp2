@@ -142,7 +142,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/scenariowindow.cpp` (4/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/rankingtab.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/interface/spnewgamediffscreen.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/interface/citymanager.cpp` (3/1/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/citymanager.cpp` (3/1/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: window global → static unique_ptr; OK/Cancel buttons → unique_ptr; `m_bg` stays raw (registry-owned via UnloadImage, documented).
 - [ ] `ui/interface/intelligencewindow.cpp` (4/0/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/interface/CityEspionage.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/helptile.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_

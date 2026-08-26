@@ -1,10 +1,15 @@
 #ifndef CITY_MANAGER_H__
 #define CITY_MANAGER_H__
 
+#include <memory>
+
 class CityManagerWindow : public aui_Window
 {
 private:
-	ctp2_Button *m_ok, *m_cancel;
+	// Owned here; the window's control list borrows them for drawing.
+	std::unique_ptr<ctp2_Button> m_ok, m_cancel;
+
+	// Registry-owned: released via aui_ui_Get()->UnloadImage, never delete.
 	aui_Image *m_bg;
 
 public:

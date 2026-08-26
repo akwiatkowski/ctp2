@@ -1,4 +1,6 @@
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_window.h"
 #include "ui/aui_common/aui_ui.h"
@@ -16,19 +18,19 @@
 #include "gs/database/StrDB.h"
 
 
-static CityManagerWindow *s_cityManagerWindow = nullptr;
+static std::unique_ptr<CityManagerWindow> s_cityManagerWindow;
 
 void CityManagerWindow::Open()
 {
 	if (!s_cityManagerWindow)
     {
 	    AUI_ERRCODE err = AUI_ERRCODE_OK;
-		s_cityManagerWindow = new CityManagerWindow(&err,
+		s_cityManagerWindow.reset(new CityManagerWindow(&err,
 													aui_UniqueId(),
-													"CITY_MANAGER_WINDOW");
+													"CITY_MANAGER_WINDOW"));
 		Assert(err == AUI_ERRCODE_OK);
 
-		c3ui_Get()->AddWindow(s_cityManagerWindow);
+		c3ui_Get()->AddWindow(s_cityManagerWindow.get());
 	}
 
 	s_cityManagerWindow->Show();
@@ -45,8 +47,7 @@ void CityManagerWindow::Cleanup()
         }
 	}
 
-    delete s_cityManagerWindow;
-	s_cityManagerWindow = nullptr;
+    s_cityManagerWindow.reset();
 }
 
 CityManagerWindow::CityManagerWindow(AUI_ERRCODE *retval,
@@ -57,7 +58,6 @@ CityManagerWindow::CityManagerWindow(AUI_ERRCODE *retval,
 				 16,
 				 AUI_WINDOW_TYPE_STANDARD)
 {
-	m_ok = m_cancel = nullptr;
 	m_bg = nullptr;
 	ldlBlock = uiutils_ChooseLdl(ldlBlock, "CITY_MANAGER_WINDOW");
 
@@ -67,15 +67,8 @@ CityManagerWindow::CityManagerWindow(AUI_ERRCODE *retval,
 
 CityManagerWindow::~CityManagerWindow()
 {
-	if(m_ok) {
-		DeleteControl(m_ok);
-		m_ok = nullptr;
-	}
-
-	if(m_cancel) {
-		DeleteControl(m_cancel);
-		m_cancel = nullptr;
-	}
+	m_ok.reset();
+	m_cancel.reset();
 
 	if(m_bg) {
 		aui_ui_Get()->UnloadImage(m_bg);
@@ -101,24 +94,24 @@ AUI_ERRCODE CityManagerWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "OK_BUTTON");
 
 	AUI_ERRCODE ret;
-	m_ok = new ctp2_Button(&ret, aui_UniqueId(), controlBlock,
+	m_ok.reset(new ctp2_Button(&ret, aui_UniqueId(), controlBlock,
 						   "CTP2_BUTTON_TEXT_RIGHT_LARGE",
 						   386, 414,
 						   100, 20,
 
 						   CityManagerWindowButtonCallback,
-						   this);
-	AddControl(m_ok);
+						   this));
+	AddControl(m_ok.get());
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "CANCEL_BUTTON");
-	m_cancel = new ctp2_Button(&ret, aui_UniqueId(), controlBlock,
+	m_cancel.reset(new ctp2_Button(&ret, aui_UniqueId(), controlBlock,
 							   "CTP2_BUTTON_TEXT_RIGHT_LARGE",
 							   526, 414,
 							   100, 20,
 
 							   CityManagerWindowButtonCallback,
-							   this);
-	AddControl(m_cancel);
+							   this));
+	AddControl(m_cancel.get());
 
 
 	m_bg = aui_ui_Get()->LoadImage("CM.tga");

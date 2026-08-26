@@ -196,7 +196,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/gameobj/Player.cpp` (193/33/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/ArmyData.cpp` (121/17/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/CityData.cpp` (68/2/0) — ⚪ leave · _pool/arena allocator_
-- [ ] `gs/gameobj/UnitData.cpp` (51/7/0) — 🟡 moderate · _single-owner member_
+- [x] `gs/gameobj/UnitData.cpp` (51/7/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: cargo list/city data/round-the-world mask → unique_ptr (JSON bridge + net_unit updated; GetCargoList/GetCityData return `.get()`); the unit-type-change path's silent leak of a prior cargo list is gone (reset frees it). m_lesser/m_greater stay raw (intrusive pool links, documented). Remaining news are SlicObject/Net sinks.
 - [x] `gs/gameobj/DiplomaticRequestData.cpp` (46/2/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: Accept/Reject switches fill a scoped `unique_ptr<SlicObject>` (bail paths just return); the single tail `Execute(so.release())` keeps the sink contract; so2 likewise.
 - [ ] `gs/gameobj/bldque.cpp` (42/5/0) — ⚪ leave · _pool/arena allocator_
 - [x] `gs/gameobj/endgame.cpp` (22/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): SlicObject/NetEndGame sink transfers only.

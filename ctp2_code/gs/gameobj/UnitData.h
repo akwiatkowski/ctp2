@@ -230,8 +230,9 @@ private:
 
 	Army m_army;
 	MapPoint m_pos;
-	UnitDynamicArray   *m_cargo_list;
-	CityData *m_city_data;
+	// Owned; GetCargoList()/GetCityData() hand out non-owning pointers.
+	std::unique_ptr<UnitDynamicArray> m_cargo_list;
+	std::unique_ptr<CityData> m_city_data;
 
 	SpriteStatePtr m_sprite_state;
 
@@ -248,7 +249,7 @@ private:
 
 	Unit m_target_city;
 
-	BitMask *m_roundTheWorldMask;
+	std::unique_ptr<BitMask> m_roundTheWorldMask;
 
 	// Auto-explore state: when set, the per-turn hook in Player re-issues a
 	// GOTO toward m_exploreTarget (an unexplored tile chosen by BFS over the
@@ -393,8 +394,8 @@ public:
 	void SetVeteran();
 	void UnVeteran();
 
-	UnitDynamicArray* GetCargoList() const { return m_cargo_list; }
-	CityData* GetCityData() const { return m_city_data; }
+	UnitDynamicArray* GetCargoList() const { return m_cargo_list.get(); }
+	CityData* GetCityData() const { return m_city_data.get(); }
 	void InitializeCityData(sint32 settlerType = -1);
 
 #ifdef _DEBUG

@@ -346,17 +346,17 @@ void UnitData::Create(const sint32 t,
 	&& rec->GetCargoDataPtr()
 	&&(0 < rec->GetCargoDataPtr()->GetMaxCargo())
 	){
-		m_cargo_list = new UnitDynamicArray(rec->GetCargoDataPtr()->GetMaxCargo());
+		m_cargo_list.reset(new UnitDynamicArray(rec->GetCargoDataPtr()->GetMaxCargo()));
 	} else {
-		m_cargo_list = nullptr;
+		m_cargo_list.reset();
 	}
 
 	if(rec->GetHasPopAndCanBuild())
 	{
-		m_city_data = new CityData(m_owner, i, m_pos);
+		m_city_data.reset(new CityData(m_owner, i, m_pos));
 	}
 	else
-		m_city_data = nullptr;
+		m_city_data.reset();
 
 	m_sprite_state = std::make_shared<SpriteState>(rec->GetDefaultSprite()->GetValue());
 
@@ -367,7 +367,7 @@ void UnitData::Create(const sint32 t,
 
 	m_transport.m_id = (0);
 
-	m_roundTheWorldMask = new BitMask(world_Get()->GetXWidth());
+	m_roundTheWorldMask.reset(new BitMask(world_Get()->GetXWidth()));
 	m_roundTheWorldMask->SetBit(m_pos.x);
 
 	m_isExploring   = false;
@@ -380,13 +380,10 @@ UnitData::UnitData(nlohmann::json const &j) : GameObj(0)
 	m_text[0] = 0;
 #endif
 
-	m_cargo_list           = nullptr;
-	m_city_data            = nullptr;
 	m_actor                = nullptr;
 	m_sprite_state         = nullptr;
 	m_lesser               = nullptr;
 	m_greater              = nullptr;
-	m_roundTheWorldMask    = nullptr;
 
 	from_json(j, *this);
 
@@ -447,9 +444,9 @@ UnitData::~UnitData()
 	// back to the actor's cached m_pos for whatever it needs.
 	if (m_actor) m_actor->SetState(nullptr);
 
-	delete m_cargo_list;
-	delete m_city_data;
-	delete m_roundTheWorldMask;
+	m_cargo_list.reset();
+	m_city_data.reset();
+	m_roundTheWorldMask.reset();
 	delete m_lesser;
 	delete m_greater;
 }
@@ -3661,7 +3658,7 @@ double UnitData::GetDefense(const Unit &attacker) const
 		// finally calculate city defence buildings, so they're not subject to bonuses.
 		if(cell->GetCity().m_id != (0))
 		{
-			const CityData *cityData = cell->GetCity().GetData()->m_city_data;
+			const CityData *cityData = cell->GetCity().GetData()->m_city_data.get();
 			Assert(cityData);
 
 			base += cityData->GetDefendersBonus();
@@ -5392,7 +5389,7 @@ void UnitData::SetType(sint32 type)
 	     && 0 < rec->GetCargoDataPtr()->GetMaxCargo()
 	       )
 	{
-		m_cargo_list = new UnitDynamicArray(rec->GetCargoDataPtr()->GetMaxCargo());
+		m_cargo_list.reset(new UnitDynamicArray(rec->GetCargoDataPtr()->GetMaxCargo()));
 	}
 
 	// Some more stuff has to be done like we have in CreateUnit

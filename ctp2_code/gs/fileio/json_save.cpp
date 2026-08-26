@@ -1963,12 +1963,11 @@ void from_json(nlohmann::json const &j, UnitData &u)
     j.at("army")            .get_to(u.m_army);
     j.at("pos")             .get_to(u.m_pos);
 
-    delete u.m_cargo_list;
-    u.m_cargo_list = nullptr;
+    u.m_cargo_list.reset();
     auto const &cargo = j.at("cargo_list");
     if (cargo.at("present").get<bool>())
     {
-        u.m_cargo_list = new UnitDynamicArray;
+        u.m_cargo_list.reset(new UnitDynamicArray);
         for (auto const &id_json : cargo.at("units"))
         {
             ID id(0);
@@ -1977,13 +1976,12 @@ void from_json(nlohmann::json const &j, UnitData &u)
         }
     }
 
-    delete u.m_city_data;
-    u.m_city_data = nullptr;
+    u.m_city_data.reset();
     if (!j.at("city_data").is_null())
     {
         // CityData has no default ctor; use the (owner, hc, pos) form
         // with placeholders — from_json overwrites all of these.
-        u.m_city_data = new CityData(0, Unit(0), MapPoint(0, 0));
+        u.m_city_data.reset(new CityData(0, Unit(0), MapPoint(0, 0)));
         j.at("city_data").get_to(*u.m_city_data);
     }
 
@@ -1991,11 +1989,10 @@ void from_json(nlohmann::json const &j, UnitData &u)
     j.at("temp_visibility_array").get_to(u.m_temp_visibility_array);
     j.at("transport")            .get_to(u.m_transport);
 
-    delete u.m_roundTheWorldMask;
-    u.m_roundTheWorldMask = nullptr;
+    u.m_roundTheWorldMask.reset();
     if (!j.at("round_the_world_mask").is_null())
     {
-        u.m_roundTheWorldMask = new BitMask(1);  // dummy size; replaced by from_json
+        u.m_roundTheWorldMask.reset(new BitMask(1));  // dummy size; replaced by from_json
         j.at("round_the_world_mask").get_to(*u.m_roundTheWorldMask);
     }
 

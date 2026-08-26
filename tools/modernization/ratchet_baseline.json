@@ -3,8 +3,8 @@
     "c_allocation": 69,
     "dynarray_uses": 337,
     "pointerlist_uses": 567,
-    "raw_delete": 1543,
-    "raw_new": 4149,
+    "raw_delete": 1536,
+    "raw_new": 4142,
     "type_erased_casting": 2512,
     "unsafe_string_api": 17
   },

@@ -75,7 +75,7 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 		m_prev->SetNext( this );
 
 	snprintf(iconDataBlock, sizeof(iconDataBlock), "%s.%s", ldlBlock, "icon" );
-	m_icon = new MessageIconButton( &errcode, aui_UniqueId(), iconDataBlock );
+	m_icon.reset(new MessageIconButton( &errcode, aui_UniqueId(), iconDataBlock ));
 	Assert( AUI_NEWOK( m_icon, errcode ));
 	if ( !AUI_NEWOK( m_icon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -123,7 +123,7 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 	}
 #endif
 
-	AddControl( m_icon );
+	AddControl( m_icon.get() );
 
 
 
@@ -138,11 +138,9 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 		SetupAnimation( pos - messagelist->GetOffset( ));
 	}
 
-	m_messageOpenAction = new MessageOpenAction( this );
-	Assert( m_messageOpenAction != nullptr );
-	if ( m_messageOpenAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
+	m_messageOpenAction.reset(new MessageOpenAction( this ));
 
-	m_icon->SetAction( m_messageOpenAction );
+	m_icon->SetAction( m_messageOpenAction.get() );
 
 	if ( MBCHAR *text = ( MBCHAR * ) data->AccessData()->GetMsgCaption() )
 		SetTipWindowText( text );
@@ -155,12 +153,12 @@ void MessageIconWindow::ChangeIcon( const MBCHAR *image, const MBCHAR *image2 )
 {
 	char nonConstImage[_MAX_PATH];
 	strlcpy(nonConstImage, image, sizeof(nonConstImage));
-	((aui_ImageBase *)m_icon)->SetImage( nonConstImage,
+	((aui_ImageBase *)m_icon.get())->SetImage( nonConstImage,
 										 0,
 										 AUI_IMAGEBASE_SUBSTATE_STATE );
 	if ( image2 ) {
 		strlcpy(nonConstImage, image2, sizeof(nonConstImage));
-		((aui_ImageBase *)m_icon)->SetImage( nonConstImage,
+		((aui_ImageBase *)m_icon.get())->SetImage( nonConstImage,
 											 1,
 											 AUI_IMAGEBASE_SUBSTATE_STATE );
 	}
@@ -269,15 +267,8 @@ AUI_ERRCODE MessageIconWindow::Idle( )
 
 MessageIconWindow::~MessageIconWindow()
 {
-	if ( m_icon ) {
-		delete m_icon;
-		m_icon = nullptr;
-	}
-
-	if ( m_messageOpenAction ) {
-		delete m_messageOpenAction;
-		m_messageOpenAction = nullptr;
-	}
+	m_icon.reset();
+	m_messageOpenAction.reset();
 
 	if ( m_next ) {
 		m_next->SetPrev( m_prev );

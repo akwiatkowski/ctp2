@@ -137,7 +137,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/MapCopyBuffer.cpp` (2/4/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/interface/spnewgamemapshapescreen.cpp` (3/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/trademanager.cpp` (4/1/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/messageiconwindow.cpp` (2/3/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/messageiconwindow.cpp` (2/3/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: icon button + open action → `unique_ptr` (accessors return `.get()`); the tip-window delete is aui tip ownership, left as-is.
 - [ ] `ui/interface/musictrackscreen.cpp` (5/0/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/scenariowindow.cpp` (4/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/rankingtab.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_

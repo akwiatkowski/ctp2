@@ -34,38 +34,13 @@
 
 MapCopyBuffer::MapCopyBuffer()
 {
-	m_width = m_height = 0;
-	m_cells = nullptr;
-}
-
-MapCopyBuffer::~MapCopyBuffer()
-{
-	if(m_cells) {
-		sint32 x;
-		for(x = 0; x < m_width; x++) {
-			delete [] m_cells[x];
-		}
-		delete [] m_cells;
-	}
 }
 
 void MapCopyBuffer::SetSize(sint32 w, sint32 h)
 {
-	sint32 x;
-	if(m_cells) {
-		for(x = 0; x < m_width; x++) {
-			delete [] m_cells[x];
-		}
-		delete [] m_cells;
-	}
-
 	m_width = w;
 	m_height = h;
-
-	m_cells = new CellInfo *[m_width];
-	for(x = 0; x < m_width; x++) {
-		m_cells[x] = new CellInfo[m_height];
-	}
+	m_cells.assign(static_cast<size_t>(w) * static_cast<size_t>(h), CellInfo{});
 }
 
 void MapCopyBuffer::Copy(MapPoint &pos, sint32 w, sint32 h)
@@ -73,8 +48,6 @@ void MapCopyBuffer::Copy(MapPoint &pos, sint32 w, sint32 h)
 	if(w == 0 || h == 0) return;
 
 	SetSize(w, h);
-	Assert(m_cells);
-	if(!m_cells) return;
 
 	// x and y are orthogonal coordinates now
 	for (sint32 y = 0; y < h; ++y)
@@ -86,8 +59,8 @@ void MapCopyBuffer::Copy(MapPoint &pos, sint32 w, sint32 h)
 			if (cur.IsValid())
 			{
 				Cell * cell = world_Get()->GetCell(cur.GetRC());
-				m_cells[x][y].m_terrain = (uint8) cell->GetTerrain();
-				m_cells[x][y].m_env		= cell->GetEnv();
+				At(x, y).m_terrain = (uint8) cell->GetTerrain();
+				At(x, y).m_env		= cell->GetEnv();
 			}
 		}
 	}
@@ -95,9 +68,6 @@ void MapCopyBuffer::Copy(MapPoint &pos, sint32 w, sint32 h)
 
 void MapCopyBuffer::Paste(MapPoint &pos)
 {
-	Assert(m_cells);
-	if(!m_cells) return;
-
 	// x and y are orthogonal coordinates now
 	for (sint32 y = 0; y < m_height; ++y)
 	{
@@ -109,8 +79,8 @@ void MapCopyBuffer::Paste(MapPoint &pos)
 			{
 				MapPoint	wrapped = cur.GetRC();
 				Cell * cell = world_Get()->GetCell(wrapped);
-				cell->SetEnv(m_cells[x][y].m_env);
-				world_Get()->SmartSetTerrain(wrapped, m_cells[x][y].m_terrain, 0);
+				cell->SetEnv(At(x, y).m_env);
+				world_Get()->SmartSetTerrain(wrapped, At(x, y).m_terrain, 0);
 			}
 		}
 	}
@@ -128,7 +98,7 @@ void MapCopyBuffer::Save(const MBCHAR *fileName)
 	sint32 y;
 	for(x = 0; x < m_width; x++) {
 		for(y = 0; y < m_height; y++) {
-			fwrite(&m_cells[x][y], 1, sizeof(CellInfo), f);
+			fwrite(&At(x, y), 1, sizeof(CellInfo), f);
 		}
 	}
 	fclose(f);
@@ -167,7 +137,7 @@ void MapCopyBuffer::Load(const MBCHAR *filename)
 	size_t r;
 	for(x = 0; x < m_width; x++) {
 		for(y = 0; y < m_height; y++) {
-			r = fread(&m_cells[x][y], 1, sizeof(CellInfo), f);
+			r = fread(&At(x, y), 1, sizeof(CellInfo), f);
 			Assert(r == sizeof(CellInfo));
 			if(r != sizeof(CellInfo)) {
 				fclose(f);

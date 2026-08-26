@@ -39,6 +39,8 @@
 class ctp2_Window;
 class ctp2_Switch;
 class ctp2_ListBox;
+#include <memory>
+
 class MapCopyBuffer;
 class FileDialog;
 class ctp2_Button;
@@ -143,8 +145,8 @@ class ScenarioEditor {
 	SCEN_MAP_MODE m_mapMode;
 	MapPoint m_regionStart;
 	sint32 m_regionWidth, m_regionHeight;
-	MapCopyBuffer *m_copyBuffer;
-	FileDialog *m_fileDialog;
+	std::unique_ptr<MapCopyBuffer> m_copyBuffer;
+	std::unique_ptr<FileDialog> m_fileDialog;
 	bool m_initializing;
 	sint32 m_placeNationFlag;
 	bool m_isGivingAdvances;

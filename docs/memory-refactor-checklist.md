@@ -134,7 +134,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/statswindow.cpp` (3/3/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/MainControlPanel.cpp` (6/0/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/DiplomacyDetails.cpp` (3/3/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/MapCopyBuffer.cpp` (2/4/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/MapCopyBuffer.cpp` (2/4/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: jagged `CellInfo**` new[] grid → flat `vector<CellInfo>` with an At(x,y) accessor (column-major like the original); scenarioeditor's `m_copyBuffer`/`m_fileDialog` → unique_ptr.
 - [ ] `ui/interface/spnewgamemapshapescreen.cpp` (3/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/trademanager.cpp` (4/1/0) — 🔴 hard · _void* ownership handoff_
 - [x] `ui/interface/messageiconwindow.cpp` (2/3/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: icon button + open action → `unique_ptr` (accessors return `.get()`); the tip-window delete is aui tip ownership, left as-is.

@@ -269,8 +269,6 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
     m_regionStart               (),
     m_regionWidth               (0),
     m_regionHeight              (0),
-	m_copyBuffer                (nullptr),
-	m_fileDialog                (nullptr),
 	m_initializing              (true),
 	m_placeNationFlag           (0),
 	m_isGivingAdvances          (false)
@@ -515,8 +513,8 @@ ScenarioEditor::~ScenarioEditor()
 	delete [] m_terrainSwitches;
 	delete [] m_terrainImpSwitches;
 
-	delete m_copyBuffer;
-	delete m_fileDialog;
+	m_copyBuffer.reset();
+	m_fileDialog.reset();
 }
 
 AUI_ERRCODE ScenarioEditor::Initialize()
@@ -2307,7 +2305,7 @@ void ScenarioEditor::LoadMap(aui_Control *control, uint32 action, uint32 data, v
 	if(!s_scenarioEditor) return;
 
 	if(!s_scenarioEditor->m_fileDialog) {
-		s_scenarioEditor->m_fileDialog = new FileDialog();
+		s_scenarioEditor->m_fileDialog.reset(new FileDialog());
 	}
 
 	MBCHAR path[_MAX_PATH];
@@ -2325,7 +2323,7 @@ void ScenarioEditor::SaveMap(aui_Control *control, uint32 action, uint32 data, v
 	if(!s_scenarioEditor) return;
 
 	if(!s_scenarioEditor->m_fileDialog) {
-		s_scenarioEditor->m_fileDialog = new FileDialog();
+		s_scenarioEditor->m_fileDialog.reset(new FileDialog());
 	}
 	MBCHAR path[_MAX_PATH];
 	civpaths_Get()->GetSavePath(C3SAVEDIR_MAP, path);
@@ -2556,7 +2554,7 @@ void ScenarioEditor::Copy()
 		return;
 
 	if(!m_copyBuffer)
-		m_copyBuffer = new MapCopyBuffer;
+		m_copyBuffer.reset(new MapCopyBuffer);
 
 	m_copyBuffer->Copy(m_regionStart, m_regionWidth, m_regionHeight);
 }
@@ -2646,7 +2644,7 @@ void ScenarioEditor::SaveClip(aui_Control *control, uint32 action, uint32 data, 
 	if(!s_scenarioEditor->m_copyBuffer) return;
 
 	if(!s_scenarioEditor->m_fileDialog) {
-		s_scenarioEditor->m_fileDialog = new FileDialog();
+		s_scenarioEditor->m_fileDialog.reset(new FileDialog());
 	}
 
 	MBCHAR path[_MAX_PATH];
@@ -2661,7 +2659,7 @@ void ScenarioEditor::LoadClip(aui_Control *control, uint32 action, uint32 data, 
 	if(!s_scenarioEditor) return;
 
 	if(!s_scenarioEditor->m_fileDialog) {
-		s_scenarioEditor->m_fileDialog = new FileDialog();
+		s_scenarioEditor->m_fileDialog.reset(new FileDialog());
 	}
 
 	MBCHAR path[_MAX_PATH];
@@ -2674,7 +2672,7 @@ void ScenarioEditor::FileAction(FileDialog *dialog, uint32 action, const MBCHAR 
 	Assert(s_scenarioEditor);
 	if(!s_scenarioEditor) return;
 
-	Assert(dialog == s_scenarioEditor->m_fileDialog);
+	Assert(dialog == s_scenarioEditor->m_fileDialog.get());
 	uint32 mode = (uintptr_t)cookie;
 
 	if(action == k_FILE_DIALOG_CANCEL) return;
@@ -2721,7 +2719,7 @@ void ScenarioEditor::FileAction(FileDialog *dialog, uint32 action, const MBCHAR 
 		case k_SCEN_FILE_LOAD_CLIP:
 		{
 			if(!s_scenarioEditor->m_copyBuffer) {
-				s_scenarioEditor->m_copyBuffer = new MapCopyBuffer();
+				s_scenarioEditor->m_copyBuffer.reset(new MapCopyBuffer());
 			}
 
 			s_scenarioEditor->m_copyBuffer->Load(filePath);

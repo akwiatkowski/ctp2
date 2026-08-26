@@ -7,8 +7,10 @@
 
 class MessageList;
 
+#include <memory>
+#include <vector>
+
 #include "gs/gameobj/Player.h"         // PLAYER_INDEX
-#include "ui/aui_common/tech_wllist.h"    // tech_WLList
 
 class Message;
 class MessageIconWindow;
@@ -21,7 +23,14 @@ public:
 	virtual ~MessageList();
 
 	PLAYER_INDEX	GetPlayer( ) { return m_player; }
-	tech_WLList<MessageIconWindow *>	*GetList( ) { return m_iconList; }
+
+	// The icons form a prev/next chain used for animation; new icons need
+	// the current tail and the count to place themselves.
+	MessageIconWindow	*GetTailIcon()
+	{
+		return m_iconList.empty() ? nullptr : m_iconList.back().get();
+	}
+	uint32 GetIconCount( ) const { return static_cast<uint32>(m_iconList.size()); }
 
 	AUI_ERRCODE CreateMessage( Message data );
 
@@ -35,8 +44,12 @@ public:
 
 private:
 	PLAYER_INDEX							m_player;
-	tech_WLList<MessageIconWindow *>		*m_iconList;
-	uint32									m_offset;
+
+	// The icon windows are owned here, in creation order; each icon window
+	// carries a non-owning back-pointer to its MessageWindow, which this
+	// class deletes first.
+	std::vector<std::unique_ptr<MessageIconWindow>>	m_iconList;
+	uint32									m_offset = 0;
 
 };
 

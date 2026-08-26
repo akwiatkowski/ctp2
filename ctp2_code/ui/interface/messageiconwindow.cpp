@@ -62,11 +62,11 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 	m_currentY = 0;
 	m_targetY = 0;
 	m_acceleration = 0;
-	tech_WLList<MessageIconWindow *> *list = messagelist->GetList();
-	if ( list->L() == 0 )
+	MessageIconWindow *tail = messagelist->GetTailIcon();
+	if ( tail == nullptr )
 		m_prev = nullptr;
 	else
-		m_prev = list->GetTail();
+		m_prev = tail;
 
 	m_next = nullptr;
 	m_messageList = messagelist;
@@ -129,7 +129,7 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 
 
 
-	uint32 pos = messagelist->GetList()->L();
+	uint32 pos = messagelist->GetIconCount();
 
 	if ( pos > ( g_messageMaxVisible + messagelist->GetOffset() )) {
 		if(data->GetOwner() == selitem_Get()->GetVisiblePlayer())

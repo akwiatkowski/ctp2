@@ -118,7 +118,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/spnewgamemapsizescreen.cpp` (5/3/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/custommapscreen.cpp` (6/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/testwindow.cpp` (4/4/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/interface/messagelist.cpp` (3/5/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/messagelist.cpp` (3/5/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: icon list → `vector<unique_ptr<MessageIconWindow>>` (windows stay list-owned via release-after-link); dead `GetList` accessor replaced by `GetTailIcon`/`GetIconCount`.
 - [ ] `ui/interface/battle.cpp` (7/1/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `ui/interface/SpecialAttackWindow.cpp` (4/4/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/spnewgametribescreen.cpp` (7/1/0) — ⚪ leave · _mostly g_/s_ singletons_
@@ -147,7 +147,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/CityEspionage.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/helptile.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/UnitControlPanel.cpp` (2/2/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/messageactions.cpp` (4/0/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/messageactions.cpp` (4/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): all four `new`s are transfer-to-sink `AddAction` calls — no ownership to convert.
 - [ ] `ui/interface/unitmanager.cpp` (4/0/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/interface/AttractWindow.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/interface/DomesticManagementDialog.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_

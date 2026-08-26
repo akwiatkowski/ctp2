@@ -33,22 +33,16 @@ extern uint8			g_messageIconSpacing;
 
 MessageList::MessageList(PLAYER_INDEX player)
 :
-	m_player    (player),
-	m_iconList  (new tech_WLList<MessageIconWindow *>),
-	m_offset    (0)
+	m_player    (player)
 {
 }
 
 MessageList::~MessageList( )
 {
-	MessageIconWindow	*iconWindow = nullptr;
-	MessageWindow		*window = nullptr;
-	ListPos position = m_iconList->GetHeadPosition();
-
-	for ( uint32 count = m_iconList->L(); count; count-- ) {
-		iconWindow = m_iconList->GetNext( position );
+	for (auto &iconEntry : m_iconList) {
+		MessageIconWindow *iconWindow = iconEntry.get();
 		if (iconWindow) {
-			window = iconWindow->GetWindow();
+			MessageWindow *window = iconWindow->GetWindow();
 
 			if (window) {
 				if ( c3ui_Get()->GetWindow( iconWindow->Id( )))
@@ -63,37 +57,36 @@ MessageList::~MessageList( )
 			delete iconWindow;
 		}
 	}
-
-	m_iconList->DeleteAll( );
-	delete m_iconList;
 }
 
 AUI_ERRCODE MessageList::CreateMessage( Message data )
 {
 	AUI_ERRCODE			errcode = AUI_ERRCODE_OK;
-	MessageIconWindow	*mIconWindow = nullptr;
-	MessageWindow		*mWindow = nullptr;
 	MBCHAR				windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	mIconWindow = new MessageIconWindow( &errcode,
+	std::unique_ptr<MessageIconWindow> createdIcon(new MessageIconWindow( &errcode,
 										 aui_UniqueId(),
 										 "MessageIconWindow",
 										 data,
 										 16,
-										 this );
-	Assert( AUI_NEWOK( mIconWindow, errcode ));
-	if ( !AUI_NEWOK( mIconWindow, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
+										 this ));
+	Assert( AUI_NEWOK( createdIcon, errcode ));
+	if ( !AUI_NEWOK( createdIcon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_iconList->AddTail( mIconWindow );
+	MessageIconWindow *mIconWindow = createdIcon.get();
+	m_iconList.push_back(std::move(createdIcon));
 
 	strlcpy( windowBlock, "StandardMessageWindow", sizeof(windowBlock) );
 
-	mWindow = new MessageWindow( &errcode, aui_UniqueId(), windowBlock,
-								 16, data, mIconWindow );
-	Assert( AUI_NEWOK( mWindow, errcode ));
-	if ( !AUI_NEWOK( mWindow, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
+	std::unique_ptr<MessageWindow> createdWindow(new MessageWindow( &errcode, aui_UniqueId(), windowBlock,
+								 16, data, mIconWindow ));
+	Assert( AUI_NEWOK( createdWindow, errcode ));
+	if ( !AUI_NEWOK( createdWindow, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	mIconWindow->SetWindow( mWindow );
+	mIconWindow->SetWindow( createdWindow.get() );
+	// Ownership of the window passes to this list; it is released ahead of
+	// the icon window in the destructor and in Remove().
+	createdWindow.release();
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
 	Assert( AUI_SUCCESS(errcode) );
@@ -107,13 +100,11 @@ AUI_ERRCODE MessageList::CreateMessage( Message data )
 
 void MessageList::HideVisibleWindows( )
 {
-	if ( !m_iconList ) return;
+	if ( m_iconList.empty() ) return;
 
-	ListPos position = m_iconList->GetHeadPosition();
-
-	for ( uint32 count = m_iconList->L(); count; count-- )
+	for (auto &iconEntry : m_iconList)
     {
-		MessageIconWindow * iconWindow = m_iconList->GetNext( position );
+		MessageIconWindow * iconWindow = iconEntry.get();
 		if (iconWindow)
         {
 			MessageWindow * window = iconWindow->GetWindow();
@@ -196,7 +187,7 @@ void MessageList::CheckVisibleMessages( )
 void MessageList::CheckMaxMessages( )
 {
 
-	uint32 count = m_iconList->L();
+	uint32 count = m_iconList.size();
 	uint32 maxCount = ( m_offset + g_messageMaxVisible );
 
 	if ( count > maxCount )
@@ -223,10 +214,9 @@ void MessageList::ChangeOffset( sint32 offset, int flag )
 	uint32 minCount = m_offset;
 	uint32 maxCount = ( m_offset + g_messageMaxVisible );
 	uint32 count = 0;
-	ListPos position = m_iconList->GetHeadPosition();
 
-	for ( uint32 i = m_iconList->L(); i; i-- ) {
-		MessageIconWindow *iconWindow = m_iconList->GetNext( position );
+	for (auto &iconEntry : m_iconList) {
+		MessageIconWindow *iconWindow = iconEntry.get();
 
 		if (iconWindow) {
 			if ( count >= minCount ) {
@@ -265,20 +255,25 @@ void MessageList::Remove( MessageIconWindow *iconWindow,
 	if ( c3ui_Get()->GetWindow( window->Id( )))
 		window->ShowWindow(FALSE);
 
-	ListPos position = m_iconList->Find( iconWindow );
-	Assert( position != nullptr );
-	m_iconList->DeleteAt( position );
+	auto found = std::find_if(m_iconList.begin(), m_iconList.end(),
+		[iconWindow](std::unique_ptr<MessageIconWindow> const &entry)
+		{ return entry.get() == iconWindow; });
+	Assert( found != m_iconList.end() );
+	if (found == m_iconList.end()) return;
+
+	m_iconList.erase(found);
 
 	if ( iconWindow == iconWindow->GetCurrentMessageIconWindow())
 		iconWindow->SetCurrentIconButton( nullptr );
 
-	position = m_iconList->GetHeadPosition();
-	for ( uint32 count = 0; count < m_iconList->L(); count++ ) {
-		MessageIconWindow *iw = m_iconList->GetNext( position );
+	uint32 count = 0;
+	for (auto &iconEntry : m_iconList) {
+		MessageIconWindow *iw = iconEntry.get();
 		if (( count >= m_offset ) &&
 			( count < ( m_offset + g_messageMaxVisible ))) {
 			iw->SetupAnimation( count - m_offset );
 		}
+		count++;
 	}
 
 	delete window;

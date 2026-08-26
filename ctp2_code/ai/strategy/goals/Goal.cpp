@@ -2757,7 +2757,7 @@ bool Goal::Get_Totally_Complete() const
 	if (order_record->GetUnitPretest_CanStealTechnology())
 	{
 		sint32 num = 0;
-		delete [] player_Get(m_playerId)->m_advances->CanAskFor(player_Get(target_owner)->m_advances, num);
+		player_Get(m_playerId)->m_advances->CanAskFor(player_Get(target_owner)->m_advances, num);
 
 		if(num <= 0)
 			return true;

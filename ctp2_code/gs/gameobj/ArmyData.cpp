@@ -1754,8 +1754,8 @@ ORDER_RESULT ArmyData::StealTechnology(const MapPoint &point)
     for(sint32 i = 0; i < m_nElements; i++) {
         if(m_array[i].GetDBRec()->HasStealTechnology()) {
             sint32 num;
-            uint8 *canSteal = player_Get(m_owner)->m_advances->CanAskFor(safe_player(c.GetOwner())->m_advances,
-                                                                       num);
+            const std::vector<uint8_t> canSteal =
+                player_Get(m_owner)->m_advances->CanAskFor(safe_player(c.GetOwner())->m_advances, num);
             if(num > 0) {
 
                 if(player_Get(m_owner)->IsRobot()
@@ -1777,14 +1777,12 @@ ORDER_RESULT ArmyData::StealTechnology(const MapPoint &point)
                     }
                 }
                 slicengine_Get()->Execute(so);
-                delete [] canSteal;
                 return ORDER_RESULT_INCOMPLETE;
             } else {
                 SlicObject *so = new SlicObject("102NoAdvancesToSteal");
                 so->AddRecipient(m_owner);
                 so->AddCivilisation(c.GetOwner());
                 slicengine_Get()->Execute(so);
-                delete [] canSteal;
                 return ORDER_RESULT_ILLEGAL;
             }
         }
@@ -8768,7 +8766,7 @@ void ArmyData::GetAdvanceFromCityAssault(const Unit &c,
 										 PLAYER_INDEX otherPlayer)
 {
 	sint32 num;
-	uint8 *canAskFor = player_Get(m_owner)->m_advances->
+	const std::vector<uint8_t> canAskFor = player_Get(m_owner)->m_advances->
 		CanAskFor(player_Get(otherPlayer)->m_advances, num);
 
 	if(num > 0) {
@@ -8791,8 +8789,6 @@ void ArmyData::GetAdvanceFromCityAssault(const Unit &c,
 			}
 		}
 	}
-
-	delete [] canAskFor;
 }
 
 void ArmyData::IndicateAdded()

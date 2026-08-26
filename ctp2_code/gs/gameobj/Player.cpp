@@ -519,7 +519,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 		}
 	}
 	m_advances->ResetCanResearch(someAdvanceIHave);
-	uint8 *canResearch = m_advances->CanResearch();
+	const std::vector<uint8_t> &canResearch = m_advances->CanResearch();
 
 	for(i = 0; i < m_advances->GetNum(); i++) {
 		if(canResearch[i]) {
@@ -527,7 +527,6 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 			break;
 		}
 	}
-	delete [] canResearch;
 
 	m_strengths->Calculate();
 
@@ -1500,11 +1499,11 @@ void Player::BeginTurnScience()
 		sint32 num;
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
 			if(player_Get(i)) {
-				uint8* canGet = player_Get(i)->m_advances->CanOffer(m_advances, num);
+				const std::vector<uint8_t> canGet =
+					player_Get(i)->m_advances->CanOffer(m_advances, num);
 				for(j = 0; j < g_theAdvanceDB->NumRecords(); j++) {
-					mergedCanGet[j] = mergedCanGet[j] || canGet[j];
+					mergedCanGet[j] = mergedCanGet[j] || canGet[static_cast<size_t>(j)];
 				}
-				delete [] canGet;
 			}
 		}
 

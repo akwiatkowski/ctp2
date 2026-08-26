@@ -201,9 +201,9 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/gameobj/bldque.cpp` (42/5/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/endgame.cpp` (22/0/0) — 🟡 moderate · _needs ownership review_
 - [x] `gs/gameobj/Vision.cpp` (12/9/0) — ✅ done · _m_unseenCells -> unique_ptr, m_array uint16** -> vector<vector>; quadtree cell-content news left (separate ownership)_
-- [ ] `gs/gameobj/CityEvent.cpp` (16/2/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/unitevent.cpp` (16/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/GoodyHuts.cpp` (14/0/0) — 🟡 moderate · _needs ownership review_
+- [x] `gs/gameobj/CityEvent.cpp` (16/2/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: remaining matches are SlicObject/NetInfo sink transfers + the `CanAskFor` scratch array (now `vector` via Advances API change); ticked as noise-free.
+- [x] `gs/gameobj/unitevent.cpp` (16/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): every `new` is a SlicObject handed to `Execute` (deletes after handling) or a NetInfo sink enqueue — non-ownership noise.
+- [x] `gs/gameobj/GoodyHuts.cpp` (14/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): same SlicObject sink-transfer pattern throughout.
 - [ ] `gs/gameobj/PlayerEvent.cpp` (14/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/messagedata.cpp` (11/3/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/Advances.cpp` (12/0/0) — 🟡 moderate · _needs ownership review_

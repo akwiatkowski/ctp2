@@ -523,7 +523,7 @@ sint32 sci_advancescreen_loadList( )
 
 
 
-	uint8 *			advances		= p->m_advances->CanResearch();
+	const std::vector<uint8_t> &advances = p->m_advances->CanResearch();
 	sint32 const	advanceCount	= g_theAdvanceDB->NumRecords();
 	sint32			curItemIndex	= 0;
 
@@ -553,8 +553,6 @@ sint32 sci_advancescreen_loadList( )
 			curItemIndex++;
 		}
 	}
-
-	delete advances;
 
 	s_advanceList->SortByColumn(0,TRUE);
 

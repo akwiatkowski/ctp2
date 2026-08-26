@@ -4280,7 +4280,7 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 	{
 		// Steal random advance
 		sint32  num;
-		uint8 * canSteal    = player_Get(m_owner)->m_advances->CanAskFor
+		const std::vector<uint8_t> canSteal = player_Get(m_owner)->m_advances->CanAskFor
 		                        (player_Get(c.GetOwner())->m_advances, num);
 		if (num > 0)
 		{
@@ -4304,8 +4304,6 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 			// Nothing worthwhile found
 			orderResult = ORDER_RESULT_SUCCEEDED_INCOMPLETE;
 		}
-
-		delete [] canSteal;
 	}
 
 	SlicObject	*   so;
@@ -4606,7 +4604,7 @@ void UnitData::HearGossip(Unit c)
 
 			sint32 i;
 			sint32 num;
-			uint8 *canSteal = player_Get(m_owner)->m_advances->
+			const std::vector<uint8_t> canSteal = player_Get(m_owner)->m_advances->
 			    CanAskFor(player_Get(c.GetOwner())->m_advances, num);
 
 			for(i=0; i<num; i++) {
@@ -4621,8 +4619,6 @@ void UnitData::HearGossip(Unit c)
 					break;
 				}
 			}
-
-			delete [] canSteal;
 			break;
 		}
 

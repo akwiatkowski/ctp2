@@ -197,7 +197,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/gameobj/ArmyData.cpp` (121/17/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/CityData.cpp` (68/2/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/UnitData.cpp` (51/7/0) — 🟡 moderate · _single-owner member_
-- [ ] `gs/gameobj/DiplomaticRequestData.cpp` (46/2/0) — 🟡 moderate · _needs ownership review_
+- [x] `gs/gameobj/DiplomaticRequestData.cpp` (46/2/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: Accept/Reject switches fill a scoped `unique_ptr<SlicObject>` (bail paths just return); the single tail `Execute(so.release())` keeps the sink contract; so2 likewise.
 - [ ] `gs/gameobj/bldque.cpp` (42/5/0) — ⚪ leave · _pool/arena allocator_
 - [x] `gs/gameobj/endgame.cpp` (22/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): SlicObject/NetEndGame sink transfers only.
 - [x] `gs/gameobj/Vision.cpp` (12/9/0) — ✅ done · _m_unseenCells -> unique_ptr, m_array uint16** -> vector<vector>; quadtree cell-content news left (separate ownership)_

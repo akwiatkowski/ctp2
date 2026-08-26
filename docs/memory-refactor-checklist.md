@@ -213,7 +213,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [x] `gs/gameobj/FeatTracker.cpp` — done 2026-08-03: m_activeList held by value
 - [ ] `gs/gameobj/GameObj.cpp` (0/9/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/TradeBids.cpp` (2/5/0) — ⚪ leave · _pool/arena allocator_
-- [ ] `gs/gameobj/Happy.cpp` (5/1/0) — 🟡 moderate · _needs ownership review_
+- [x] `gs/gameobj/Happy.cpp` (5/1/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: m_tracker → unique_ptr (JSON bridge reset/reconstruct); remaining news are SlicObject sinks.
 - [ ] `gs/gameobj/AgreementData.cpp` (5/1/0) — 🔴 · _refcounted SlicObject (AddRef/Release)_
 - [x] `gs/gameobj/CTP2Combat.cpp` (3/2/0) — ✅ done · _CombatField::m_field 2D array -> vector<vector>; fixed new[]/scalar-delete UB_
 - [ ] `gs/gameobj/MessagePool.cpp` (5/0/0) — 🟡 moderate · _needs ownership review_

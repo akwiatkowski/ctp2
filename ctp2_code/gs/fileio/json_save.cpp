@@ -1339,13 +1339,15 @@ void from_json(nlohmann::json const &j, Happy &h)
         h.m_timedChanges.push_back(timer);
     }
 
-    // m_tracker is owned by Happy: delete + reconstruct on load.
-    delete h.m_tracker;
-    h.m_tracker = nullptr;
+    // m_tracker is owned by Happy: reconstruct on load (reset frees any old).
     if (j.contains("tracker"))
     {
-        h.m_tracker = new HappyTracker();
+        h.m_tracker.reset(new HappyTracker());
         j.at("tracker").get_to(*h.m_tracker);
+    }
+    else
+    {
+        h.m_tracker.reset();
     }
 }
 

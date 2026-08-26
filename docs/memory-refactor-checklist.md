@@ -74,7 +74,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 - [ ] `ui/interface/knowledgewin.cpp` (53/37/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/infowin.cpp` (84/6/0) — 🟡 moderate · _needs ownership review_
-- [ ] `ui/interface/spnewgamewindow.cpp` (4/69/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/spnewgamewindow.cpp` (4/69/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: all ~60 member-control deletes across SPNewGameWindow/SPProfileBox/SPWorldBox/SPRulesBox/SPDropDownListItem → `unique_ptr` members (the 69 deletes were the dtor sweep); local `spNewStringTable` scratch → RAII; only sink-owned list items remain.
 - [ ] `ui/interface/sciencewin.cpp` (55/18/0) — 🔴 hard · _void* ownership handoff_
 - [x] `ui/interface/battleviewwindow.cpp` — done 2026-08-03: all 31 owned controls are unique_ptr members; destructor is just the global back-pointer reset
 - [ ] `ui/interface/loadsavewindow.cpp` (15/40/0) — 🔴 hard · _void* ownership handoff_

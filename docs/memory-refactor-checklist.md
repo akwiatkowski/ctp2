@@ -130,7 +130,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/agesscreen.cpp` (7/0/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [x] `ui/interface/ControlTabPanel.cpp` (6/0/0) — ✅ done · `m_ldlBlock` now uses `unique_ptr<MBCHAR[]>`, fixing the `new[]`/scalar-delete mismatch; local formatter uses `snprintf`.
 - [ ] `ui/interface/progresswindow.cpp` (3/3/0) — 🟡 · _window lifecycle (ref-param + c3ui)_
-- [ ] `ui/interface/text_hasher.h` (2/4/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/text_hasher.h` (2/4/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: bucket array → `vector<unique_ptr<Translation>>`, chain links → unique_ptr via m_next; Translation keeps ownership of the copied key/data payloads (contract unchanged).
 - [ ] `ui/interface/statswindow.cpp` (3/3/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/MainControlPanel.cpp` (6/0/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/DiplomacyDetails.cpp` (3/3/0) — 🔴 hard · _void* ownership handoff_

@@ -4,6 +4,8 @@
 #ifndef __VICTORYWIN_H__
 #define __VICTORYWIN_H__
 
+#include <memory>
+
 #include "ui/aui_ctp2/ctp2_listitem.h"
 #include "ui/aui_common/aui_action.h"
 
@@ -117,14 +119,14 @@ public:
 	HighScoreWindowPopup( sint32 type );
 	~HighScoreWindowPopup( );
 
-	c3_PopupWindow	*m_window;
+	// Owned here; the c3ui window list borrows the window for display.
+	std::unique_ptr<c3_PopupWindow>	m_window;
 
-	c3_Static		*m_title;
-	ctp2_ListBox	*m_list;
-	ctp2_Button		*m_continueButton;
-	ctp2_Button		*m_quitButton;
-	ctp2_Button		*m_creditsButton;
-	HighScoreDB		*m_highScoreDB;
+	std::unique_ptr<ctp2_ListBox>	m_list;
+	std::unique_ptr<ctp2_Button>	m_continueButton;
+	std::unique_ptr<ctp2_Button>	m_quitButton;
+	std::unique_ptr<ctp2_Button>	m_creditsButton;
+	std::unique_ptr<HighScoreDB>	m_highScoreDB;
 
 public:
 	sint32  Initialize ( MBCHAR *windowBlock );
@@ -133,7 +135,7 @@ public:
 
 	void    RemoveWindow( );
 	void    DisplayWindow( );
-	c3_PopupWindow *GetWindow() { return m_window; }
+	c3_PopupWindow *GetWindow() { return m_window.get(); }
 };
 
 AUI_ACTION_BASIC(CloseVictoryWindowAction);

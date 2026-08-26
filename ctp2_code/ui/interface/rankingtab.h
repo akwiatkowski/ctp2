@@ -62,8 +62,6 @@ private:
 
 	bool            m_line_graph;
 	LineGraph     * m_infoGraph;
-	double        **m_infoGraphData;
-	sint32          m_infoYCount;
 	ctp2_Window    *m_info_window;
 	ctp2_DropDown  *m_rankingDropDown;
 	ctp2_Button    *m_lineOrZeroSumButton;
@@ -89,7 +87,6 @@ private:
 
 	void UpdateGraph();
 
-	void CleanupGraph();
 
 	static void SelectRankingActionCallback(aui_Control *control,
 		uint32 action, uint32 data, void *cookie);

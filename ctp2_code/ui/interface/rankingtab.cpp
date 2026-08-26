@@ -71,8 +71,6 @@ RankingTab::RankingTab(ctp2_Window *parent)
     m_line_graph         (true), // Has to be set again
     m_infoGraph          (static_cast<LineGraph *>(aui_Ldl::GetObject(
                           "InfoDialog", "TabGroup.Tab3.TabPanel.InfoGraph"))),
-    m_infoGraphData      (nullptr),
-    m_infoYCount         (0),
     m_info_window        (parent),
     m_rankingDropDown    (static_cast<ctp2_DropDown*>(aui_Ldl::GetObject(
                           "InfoDialog.TabGroup.Tab3.TabPanel.RankSelect.Pulldown"))),
@@ -205,24 +203,8 @@ void RankingTab::LoadData()
 
 }
 
-void RankingTab::CleanupGraph()
-{
-
-	if (m_infoGraphData)
-	{
-		for (sint32 i = 0 ; i < m_infoYCount; ++i)
-		{
-			delete m_infoGraphData[i];
-		}
-		delete [] m_infoGraphData;
-		m_infoGraphData = nullptr;
-		m_infoYCount    = 0;
-	}
-}
-
 void RankingTab::UpdateGraph()
 {
-	CleanupGraph();
 	sint32 category = m_rankingDropDown->GetSelectedItem();
 	if (category == m_rankingOverall)
 		category = kRankingOverall;
@@ -238,7 +220,8 @@ void RankingTab::UpdateGraph()
 		category = kRankingWonders;
 
 	sint32 infoXCount = 0;
-	m_infoGraph->GenrateGraph(infoXCount, m_infoYCount, &m_infoGraphData, category);
+	sint32 infoYCount = 0;
+	m_infoGraph->GenrateGraph(infoXCount, infoYCount, category);
 
 	ctp2_TabGroup *tabGroup = (ctp2_TabGroup *)aui_Ldl::GetObject("InfoDialog.TabGroup");
 	if(tabGroup->GetCurrentTab() == (ctp2_Tab *)aui_Ldl::GetObject("InfoDialog.TabGroup.Tab3"))
@@ -351,5 +334,4 @@ RankingTab::~RankingTab()
 		s_current_ranking_tab = nullptr;
 	}
 
-	CleanupGraph();
 }

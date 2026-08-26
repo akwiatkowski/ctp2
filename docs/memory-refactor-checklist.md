@@ -140,7 +140,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [x] `ui/interface/messageiconwindow.cpp` (2/3/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: icon button + open action → `unique_ptr` (accessors return `.get()`); the tip-window delete is aui tip ownership, left as-is.
 - [ ] `ui/interface/musictrackscreen.cpp` (5/0/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/scenariowindow.cpp` (4/1/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/interface/rankingtab.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/rankingtab.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: `GenrateGraph` lost its `double***` out-param — SetLineData copies, so the grid is function-local; m_infoGraphData/CleanupGraph gone from rankingtab + timelinetab (+ loadsavewindow's manual free). **Also fixed**: timelinetab.cpp:135 scalar-deleted the array-new'd row-pointer array.
 - [ ] `ui/interface/spnewgamediffscreen.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [x] `ui/interface/citymanager.cpp` (3/1/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: window global → static unique_ptr; OK/Cancel buttons → unique_ptr; `m_bg` stays raw (registry-owned via UnloadImage, documented).
 - [ ] `ui/interface/intelligencewindow.cpp` (4/0/0) — 🔴 hard · _void* ownership handoff_

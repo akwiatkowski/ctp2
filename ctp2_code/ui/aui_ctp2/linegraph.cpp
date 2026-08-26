@@ -577,7 +577,6 @@ void LineGraph::SetYAxisName(MBCHAR *name)
 
 void LineGraph::GenrateGraph(sint32     &infoXCount,
                              sint32     &infoYCount,
-                             double ***  infoGraphData,
                              sint32      category)
 {
 	infoYCount = 0;
@@ -638,26 +637,23 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 	infoXCount = std::max<sint32>(1, infoXCount);
 	infoYCount = std::max<sint32>(1, infoYCount);
 
-	Assert(!*infoGraphData);
-	// TODO(phase-2): ownership transfer out of function — needs separate strategy
-	*infoGraphData = new double *[infoYCount];
+	infoXCount = std::max<sint32>(1, infoXCount);
+	infoYCount = std::max<sint32>(1, infoYCount);
 
-	for (i = 0 ; i < infoYCount; i++)
-	{
-		// TODO(phase-2): ownership transfer out of function — needs separate strategy
-		(*infoGraphData)[i] = new double[infoXCount];
-		std::fill((*infoGraphData)[i], (*infoGraphData)[i] + infoXCount, 0.0);
-	}
+	// Scratch grid for this call only — SetLineData copies the rows, so the
+	// data never needs to outlive this function (and callers never free it).
+	std::vector<std::vector<double>> graphData(
+		static_cast<size_t>(infoYCount), std::vector<double>(infoXCount, 0.0));
 
 	sint32 playerCount = 0;
-	for ( i = 0 ; i < k_MAX_PLAYERS ; i++ )
+	for (i = 0 ; i < k_MAX_PLAYERS ; i++)
 	{
 		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
 			for (sint32 round = 0 ; round < infoXCount ; ++round)
 			{
 				sint32 strValue = GetCombinedStrength(*player_Get(i)->m_strengths, round, category);
-				(*infoGraphData)[playerCount][round] = strValue;
+				graphData[playerCount][round] = strValue;
 
 				while (strValue > maxPower)
 					maxPower += 10.0;
@@ -677,7 +673,7 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 		for (sint32 round = 0 ; round < infoXCount ; ++round)
 		{
 			sint32 strValue = GetCombinedStrength(*walk2.GetObj()->m_strengths, round, category);
-			(*infoGraphData)[playerCount][round] = strValue;
+			graphData[playerCount][round] = strValue;
 
 			while (strValue > maxPower)
 				maxPower += 10.0;
@@ -688,7 +684,13 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 
 	Assert(playerCount == infoYCount);
 
-	SetLineData(infoYCount, infoXCount, (*infoGraphData), color.data());
+	std::vector<double *> graphRows(static_cast<size_t>(infoYCount));
+	for (i = 0 ; i < infoYCount ; i++)
+	{
+		graphRows[static_cast<size_t>(i)] = graphData[static_cast<size_t>(i)].data();
+	}
+
+	SetLineData(infoYCount, infoXCount, graphRows.data(), color.data());
 	SetGraphBounds(minRound, curRound, minPower, maxPower);
 	RenderGraph();
 }

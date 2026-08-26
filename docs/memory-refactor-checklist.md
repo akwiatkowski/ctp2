@@ -101,7 +101,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/battleevent.cpp` (7/8/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `ui/interface/citywindow.cpp` (9/5/0) — ⚪ leave · _pool/arena allocator_
 - [x] `ui/interface/wondermoviewindow.cpp` — done 2026-08-03: 7 owned controls are unique_ptr members; AddControl takes .get() (non-owning)
-- [ ] `ui/interface/hotseatlist.cpp` (10/4/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/hotseatlist.cpp` (10/4/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: window/list → `unique_ptr` (list items stay sink-owned via `c3_ListBox::Clear`), legal-civ flag array → `vector<bool>`, scenario `SaveInfo` local → RAII.
 - [ ] `ui/interface/tileimptracker.cpp` (12/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/km_screen.cpp` (10/3/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/dipwizard.cpp` (4/8/0) — 🔴 hard · _void* ownership handoff_

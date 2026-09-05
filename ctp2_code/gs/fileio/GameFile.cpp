@@ -206,7 +206,8 @@ MBCHAR * scenario_name_buf() { return g_scenarioName; }
 // old binary .c2g now fails with GAMEFILE_ERR_LOAD_FAILED.
 static uint32 DispatchRestore(MBCHAR const *filepath)
 {
-	civapp_Get()->InitializeGame();
+	if (civapp_Get()->InitializeGame() != 0)
+		return GAMEFILE_ERR_LOAD_FAILED;
 	bool const ok = json_save::LoadJson(filepath);
 	return ok ? GAMEFILE_ERR_LOAD_OK : GAMEFILE_ERR_LOAD_FAILED;
 }

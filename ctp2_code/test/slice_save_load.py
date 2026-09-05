@@ -27,8 +27,11 @@ Exit code 0 = pass, 1 = fail.
 """
 
 import argparse
+import json
 import os
 import sys
+import tempfile
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ctp2_client import Ctp2Client, Ctp2Error  # noqa: E402
@@ -205,6 +208,25 @@ def run_slice(client, mode):
     # smoke verb does not take arguments for — and the clock bugs they
     # guard live in headless serve mode (serveRound was headless-only).
     if mode != "headless":
+        # The UI command goes through CivApp::LoadSavedGame, including its
+        # progress window, error reporting and return to the main menu.
+        with tempfile.TemporaryDirectory(prefix="ctp2-bad-load-") as folder:
+            missing = Path(folder) / "missing.json"
+            result = client.command("load_game", missing)
+            assert result.get("detail") == "load_failed", result
+            assert client.result("query_cities")["cities"][0]["name"] == name
+            partial = json.loads(Path(SAVE_PATH).read_text())
+            partial["turn"]["round"] = "invalid"
+            for contents in ('{"magic":', '{"magic":"wrong"}', json.dumps(partial)):
+                broken = Path(folder) / "broken.json"
+                broken.write_text(contents)
+                result = client.command("load_game", broken)
+                assert result.get("detail") == "load_failed", result
+                result = client.command("query_cities")
+                assert result.get("detail") == "game_not_loaded", result
+                client.expect_ok("load_game", SAVE_PATH)
+                assert client.result("query_cities")["cities"][0]["name"] == name
+        print("  UI load failures return to menu and a valid save still loads")
         return
 
     # Clock regression (the serveRound bug): end_turn AFTER load must
@@ -242,13 +264,14 @@ def main():
     ap.add_argument("binary", help="path to ctp2 or ctp2_headless")
     ap.add_argument("--mode", required=True, choices=["headless", "ui"])
     ap.add_argument("--log", default=None, help="capture game stdout/stderr here")
+    ap.add_argument("--cwd", default=None, help="launch directory for installed-startup checks")
     args = ap.parse_args()
 
     log = args.log or f"/tmp/ctp2_slice_{args.mode}.log"
     print(f"[slice] {args.mode}: {args.binary} (game log -> {log})")
 
     try:
-        with Ctp2Client(args.binary, args.mode, log_path=log) as client:
+        with Ctp2Client(args.binary, args.mode, log_path=log, cwd=args.cwd) as client:
             run_slice(client, args.mode)
     except (Ctp2Error, AssertionError) as e:
         print(f"[slice] FAIL ({args.mode}): {e}")

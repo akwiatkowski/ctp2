@@ -3853,8 +3853,9 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 	FILE * fin = fopen(name, "r");
 	if (fin == nullptr) {
 		civapp_log->error("LoadSavedGame: could not open '{}'", name);
+		ProgressWindow::EndProgress(g_theProgressWindow);
 		c3errors_ErrorDialog("Load save game", "Could not open %s", name);
-		return 0;
+		return 1;
 	}
 	fclose(fin);
 	civapp_log->info("LoadSavedGame: file '{}' exists and is readable", name);
@@ -3887,7 +3888,15 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 
 	// Actor recreation for JSON-loaded units happens inside LoadJson
 	// (json_save.cpp), shared with the headless and test-API load paths.
-	GameFile::RestoreGame(name);
+	if (!GameFile::RestoreGame(name)) {
+		civapp_log->error("LoadSavedGame: restoration failed for '{}'", name);
+		ProgressWindow::EndProgress(g_theProgressWindow);
+		// Restore may have partially populated the replacement game. Dispose
+		// of it before returning to the menu; it must never become playable.
+		EndGame();
+		c3errors_ErrorDialog("Load save game", "Could not restore %s", name);
+		return 1;
+	}
 
 	ProgressTo( 1290 );
 

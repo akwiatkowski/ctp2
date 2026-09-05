@@ -1549,7 +1549,9 @@ std::string CmdLoadGame(const char * args)
     if (!args[0])
         return Err("load_game", "bad_args");
     gc_log->info("load_game: {}", args);
-    if (!GameFile::RestoreGame(args))
+    bool const restored = is_headless() ? GameFile::RestoreGame(args)
+                                       : civapp_Get()->LoadSavedGame(args) == 0;
+    if (!restored)
         return Err("load_game", "load_failed");
     return Ok("load_game");
 }

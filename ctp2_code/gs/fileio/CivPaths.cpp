@@ -114,11 +114,22 @@ void CivPaths_CleanupCivPaths()
 
 
 CivPaths::CivPaths ()
+	: m_hdPath("."), m_cdPath("."), m_defaultPath("default"),
+	  m_localizedPath("english"), m_dataPath("ctp2_data"),
+	  m_scenariosPath("scenarios"), m_savePath("save"),
+	  m_saveGamePath("games"), m_saveQueuePath("queues"), m_saveMPPath("mp"),
+	  m_saveSCENPath("scen"), m_saveMapPath("maps"), m_saveClipsPath("clips"),
+	  m_assetPaths{"gamedata", "gamedata", "aidata", "uidata", "uidata/layouts",
+	               "uidata/fonts", "graphics", "graphics/sprites", "graphics/tiles",
+	               "graphics/patterns", "graphics/pictures", "graphics/icons",
+	               "graphics/cursors", "sound", "videos"}
 {
     std::fill(m_desktopPath, m_desktopPath + _MAX_PATH, 0);
 
     FILE *  fin = fopen("civpaths.txt", "r");
-    Assert(fin);
+    // civpaths.txt is an optional override of the standard data layout.
+    // Installed games must also start when launched outside the checkout.
+    if (fin) {
 
 	// fgets a single line into `dst`, trim trailing \n / \r.
 	auto readPath = [fin](std::string &dst) {
@@ -158,6 +169,7 @@ CivPaths::CivPaths ()
 	}
 
 	fclose(fin);
+    }
 
 	// Prefer the canonical user-local install when it is complete. An empty or
 	// partially installed CTP2_HOME deliberately falls back to the historical

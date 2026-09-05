@@ -2,6 +2,22 @@
 
 Short log of non-trivial design decisions. Newest first.
 
+## ADR-007 — Standard data paths are built-in defaults (2026-09-05)
+
+**Context.** CivPaths required a working-directory `civpaths.txt` before it could
+select an installed `CTP2_HOME`, so launching outside the checkout crashed.
+
+**Decision.** Initialize the standard layout in CivPaths and treat the existing
+configuration file as an optional override. Apply the installed home afterwards.
+
+**Alternatives.** Copying a required configuration file into each installation
+would make existing installations require migration. Finding the source checkout
+from the executable would retain a development-only runtime dependency.
+
+**Consequences.** Existing installs launch from arbitrary directories. Custom
+checkout configurations keep working; standard layout changes must update these
+defaults alongside `civpaths.txt`. The CLI startup regression uses an empty directory.
+
 ## ADR-006 — Cache overlay stamps and composite shadowed cells on the GPU (2026-09-05)
 
 **Context.** Improvements and political borders forced whole-map cells through CPU

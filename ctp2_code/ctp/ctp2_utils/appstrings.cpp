@@ -3,6 +3,8 @@
  */
 
 #include "ctp/c3.h"
+#include "gs/fileio/CivPaths.h"
+#include "ctp/ctp2_utils/c3files.h"
 #include "ctp/ctp2_utils/appstrings.h"
 
 #if defined(HAVE_SYS_TYPES_H)
@@ -25,6 +27,12 @@ static size_t	    s_numAppStrings     = 0;
 void appstrings_Initialize()
 {
 	FILE *inFile = fopen("appstr.txt", "rt");
+	if (!inFile) {
+		if (!civpaths_Get()) CivPaths_InitCivPaths();
+		MBCHAR path[_MAX_PATH];
+		if (civpaths_Get()->FindFile(C3DIR_GAMEDATA, "appstr.txt", path, true))
+			inFile = fopen(path, "rt");
+	}
 	if (!inFile) {
 		c3errors_FatalDialog("appstr.txt", "Unable to open appstr.txt. Terminating app.");
 	}

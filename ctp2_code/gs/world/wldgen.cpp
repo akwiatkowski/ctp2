@@ -773,6 +773,8 @@ void World::GenerateGoods()
 		b = 4;
 		a = 8;
 	} else {
+		// Resource-free maps still need the same value table before and after load.
+		ComputeGoodsValues();
 		return;
 	}
 

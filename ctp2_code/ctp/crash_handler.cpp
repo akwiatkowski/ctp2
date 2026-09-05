@@ -39,7 +39,7 @@ std::atomic<unsigned> s_ringHead{0};
 int           s_logFd     = -1;
 volatile sig_atomic_t s_inHandler = 0;
 
-constexpr int kSignals[] = { SIGSEGV, SIGBUS, SIGILL, SIGFPE, SIGABRT };
+constexpr int kSignals[] = { SIGSEGV, SIGBUS, SIGILL, SIGFPE, SIGABRT, SIGTRAP };
 
 void WriteBoth(const char * s, size_t n)
 {
@@ -79,7 +79,8 @@ void Handler(int sig, siginfo_t * info, void *)
               sig == SIGBUS  ? "SIGBUS"  :
               sig == SIGILL  ? "SIGILL"  :
               sig == SIGFPE  ? "SIGFPE"  :
-              sig == SIGABRT ? "SIGABRT" : "?");
+              sig == SIGABRT ? "SIGABRT" :
+              sig == SIGTRAP ? "SIGTRAP" : "?");
     WriteBoth(") fault address 0x");
     {
         // hex, async-safe

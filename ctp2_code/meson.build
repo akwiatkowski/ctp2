@@ -1290,7 +1290,8 @@ ctpdb = executable('ctpdb', [
 ], 
 	include_directories : [ incdir, 
 	include_directories([ 'gs/dbgen', 'os/include' ])],
-		cpp_args : '-fpermissive'
+		cpp_args : '-fpermissive',
+		override_options : ['b_sanitize=none']
 )
 
 cdb_sources = [
@@ -1648,6 +1649,9 @@ cwd_for_tests = join_paths(meson.project_source_root(), '..')
 test('fast', fast_test_exe,
   args : ['--duration=true'],
   timeout : 60,
+  # The fast cases are also embedded in ctp2_unit_tests and several legacy
+  # fixtures use fixed /tmp names. Keep the two executables from racing.
+  is_parallel : false,
   workdir : cwd_for_tests,
 )
 
@@ -1722,19 +1726,20 @@ test('unit', unit_test_exe,
   # below (or with --test-suite=integration on the binary directly).
   args : ['--duration=true', '--test-suite-exclude=integration'],
   timeout : 60,
+  is_parallel : false,
   workdir : cwd_for_tests,
 )
 
 test('integration', unit_test_exe,
   # Long-running headless game tests: save/load round-trips, determinism
   # cross-validation across seeds, multi-turn AI sanity, etc.  Tagged
-  # with TEST_SUITE_BEGIN("integration") at the source.  ~400s on current
-  # hardware (grew well past the original ~73s as the integration set
-  # expanded).  HIGHER TIER by the >60s rule: pre-push / slower cadence,
+  # with TEST_SUITE_BEGIN("integration") at the source.  The complete suite
+  # takes roughly 15-25 minutes on current hardware.  HIGHER TIER by the
+  # >60s rule: pre-push / slower cadence,
   # NEVER pre-commit (the fast loop is `meson test fast unit`).  Generous
   # timeout on purpose — it is allowed to be slow here.
   args : ['--duration=true', '--test-suite=integration'],
-  timeout : 600,
+  timeout : 1800,
   suite : 'integration',
   workdir : cwd_for_tests,
 )

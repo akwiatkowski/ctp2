@@ -225,6 +225,47 @@ TEST_CASE("json_save: LoadJson rejects missing file")
     CHECK_FALSE(json_save::LoadJson("/tmp/this_path_does_not_exist_xx.json"));
 }
 
+TEST_CASE("json_save: LoadJson rejects a non-object envelope")
+{
+    char const *path = "/tmp/ctp2_phase_a_array_root.json";
+    {
+        std::ofstream out(path);
+        out << R"(["CTP2-JSON", 1])";
+    }
+    CHECK_FALSE(json_save::LoadJson(path));
+    std::remove(path);
+}
+
+TEST_CASE("json_save: LoadJson rejects oversized player arrays")
+{
+    char const *path = "/tmp/ctp2_phase_a_too_many_players.json";
+    nlohmann::json doc = {
+        {"magic", json_save::MAGIC},
+        {"schema_version", json_save::SCHEMA_VERSION},
+        {"players", nlohmann::json::array()},
+    };
+    for (sint32 i = 0; i <= k_MAX_PLAYERS; ++i)
+        doc["players"].push_back({{"alive", false}});
+    {
+        std::ofstream out(path);
+        out << doc;
+    }
+    CHECK_FALSE(json_save::LoadJson(path));
+    std::remove(path);
+}
+
+TEST_CASE("json_save: LoadJson rejects oversized files before parsing")
+{
+    char const *path = "/tmp/ctp2_phase_a_oversized.json";
+    {
+        std::ofstream out(path, std::ios::binary);
+        out.seekp(128 * 1024 * 1024);
+        out.put('\n');
+    }
+    CHECK_FALSE(json_save::LoadJson(path));
+    std::remove(path);
+}
+
 // --- Phase B round-trip tests for the 4 top-level subtypes ---
 //
 // Each test constructs the subtype with non-default values, round-
@@ -486,16 +527,31 @@ TEST_CASE("json round-trip: Cell preserves scalar fields")
     CHECK(j2["cell_owner"]       == j["cell_owner"]);
 }
 
-TEST_CASE("json round-trip: Cell omits nested pointer-typed data by design")
+TEST_CASE("json round-trip: Cell preserves ruins and clears absent ruins")
+{
+    Cell cell;
+    nlohmann::json saved = cell;
+    saved["goody_hut"] = {{"value", 1234}, {"type_value", 5678}};
+    saved.get_to(cell);
+    REQUIRE(cell.GetGoodyHut() != nullptr);
+    CHECK(nlohmann::json(cell)["goody_hut"] == saved["goody_hut"]);
+
+    saved["goody_hut"] = nullptr;
+    saved.get_to(cell);
+    CHECK(cell.GetGoodyHut() == nullptr);
+    saved.erase("goody_hut");
+    saved.get_to(cell);
+    CHECK(cell.GetGoodyHut() == nullptr);
+}
+
+TEST_CASE("json round-trip: Cell omits transient nested data")
 {
     Cell c;
     nlohmann::json j = c;
-    // m_unit_army, m_objects, m_jabba are pointer-typed nested data
-    // that needs the contained types (CellUnitList, DynamicArray<ID>,
-    // GoodyHut) to be JSON-serialisable first — Phase D/E.
+    // Unit/object references are reconstructed separately; ruins persist.
     CHECK_FALSE(j.contains("unit_army"));
     CHECK_FALSE(j.contains("objects"));
-    CHECK_FALSE(j.contains("goody_hut"));
+    CHECK(j["goody_hut"].is_null());
     CHECK_FALSE(j.contains("jabba"));
 }
 

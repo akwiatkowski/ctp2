@@ -32,6 +32,7 @@
 #include "gs/utility/RandGen.h"
 #include "gs/gameobj/GameSettings.h"
 #include "gs/world/Cell.h"
+#include "gs/gameobj/GoodyHuts.h"
 #include "gs/world/TileInfo.h"
 #include "gs/world/UnseenCell.h"
 #include "gs/world/World.h"
@@ -356,7 +357,7 @@ void from_json(nlohmann::json const &j, RandomGenerator &rng)
 
 // --- World-layer bridges (Phase C-1) ------------------------------------
 // Scalar fields only.  Nested pointer-typed data (CellUnitList,
-// DynamicArray<ID>, GoodyHut on Cell; PointerList<UnseenInstallationInfo>
+// DynamicArray<ID> on Cell; PointerList<UnseenInstallationInfo>
 // etc. on UnseenCell; GoodActor* on TileInfo) is deferred to Phase D/E
 // when the contained types get their own to_json/from_json.
 
@@ -376,6 +377,7 @@ void to_json(nlohmann::json &j, Cell const &c)
         // through the ID base.  An empty city has id 0.
         {"city",             static_cast<ID const &>(c.m_city)},
         {"cell_owner",       c.m_cellOwner},
+        {"goody_hut",        c.m_jabba ? nlohmann::json(*c.m_jabba) : nlohmann::json(nullptr)},
     };
 }
 
@@ -403,6 +405,16 @@ void from_json(nlohmann::json const &j, Cell &c)
     // every load (SetCity sets k_BIT_ENV_CITY for any non-zero id).
     c.m_city = Unit(city_id.m_id);
     j.at("cell_owner")      .get_to(c.m_cellOwner);
+
+    // Older saves omitted ruins. Do not invent their randomized rewards on
+    // load: restore both saved values without consuming the game RNG.
+    std::unique_ptr<GoodyHut> hut;
+    if (j.contains("goody_hut") && !j["goody_hut"].is_null()) {
+        hut = std::make_unique<GoodyHut>(0, 0);
+        j["goody_hut"].get_to(*hut);
+    }
+    c.DeleteGoodyHut();
+    c.m_jabba = hut.release();
 }
 
 void to_json(nlohmann::json &j, TileInfo const &t)
@@ -5135,6 +5147,11 @@ nlohmann::json ctpai_state_to_json()
 
 namespace json_save {
 
+namespace
+{
+constexpr std::streamoff kMaxSaveBytes = 128 * 1024 * 1024;
+}
+
 // Compose the full game state into a single JSON document and write to
 // `path`.  Mirrors GameFile::Save's binary archive order (gs/fileio/
 // GameFile.cpp:336-538) so the JSON top-level keys appear in the same
@@ -5253,6 +5270,15 @@ bool LoadJson(char const *path)
 		          << "' for reading\n";
 		return false;
 	}
+	in.seekg(0, std::ios::end);
+	std::streamoff const fileSize = in.tellg();
+	if (fileSize < 0 || fileSize > kMaxSaveBytes)
+	{
+		std::cerr << "[json_save] LoadJson: file exceeds "
+		          << kMaxSaveBytes << " byte limit at '" << path << "'\n";
+		return false;
+	}
+	in.seekg(0, std::ios::beg);
 
     nlohmann::json doc;
     try
@@ -5266,19 +5292,52 @@ bool LoadJson(char const *path)
         return false;
     }
 
-    if (!doc.contains("magic") || doc["magic"] != MAGIC)
+    if (!doc.is_object())
+    {
+        std::cerr << "[json_save] LoadJson: top level must be an object in '"
+                  << path << "'\n";
+        return false;
+    }
+    if (!doc.contains("magic") || !doc["magic"].is_string()
+        || doc["magic"] != MAGIC)
     {
         std::cerr << "[json_save] LoadJson: bad magic in '" << path
                   << "' (expected \"" << MAGIC << "\")\n";
         return false;
     }
     if (!doc.contains("schema_version")
-        || doc["schema_version"].get<int>() != SCHEMA_VERSION)
+        || !doc["schema_version"].is_number_integer()
+        || doc["schema_version"] != SCHEMA_VERSION)
     {
         std::cerr << "[json_save] LoadJson: schema_version mismatch in '"
                   << path << "' (expected " << SCHEMA_VERSION << ")\n";
         return false;
     }
+    if (doc.contains("players")
+        && (!doc["players"].is_array() || doc["players"].size() > k_MAX_PLAYERS))
+    {
+        std::cerr << "[json_save] LoadJson: players must be an array with at most "
+                  << k_MAX_PLAYERS << " entries in '" << path << "'\n";
+        return false;
+    }
+    if (doc.contains("ai_state"))
+    {
+        auto const &ai = doc["ai_state"];
+        if (!ai.is_object()
+            || (ai.contains("diplomats")
+                && (!ai["diplomats"].is_array()
+                    || ai["diplomats"].size() > k_MAX_PLAYERS)))
+        {
+            std::cerr << "[json_save] LoadJson: invalid or oversized ai_state in '"
+                      << path << "'\n";
+            return false;
+        }
+    }
+
+	// Loading replaces the current game state. Drop events queued by the
+	// throwaway game used to initialise the singletons before the overlay.
+	if (gevmanager_Get())
+		gevmanager_Get()->NotifyResync();
 
     // Populate game-state singletons in place.  Pattern: gameinit_
     // Initialize has already run with archive=NULL (the "fresh game"

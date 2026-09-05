@@ -185,7 +185,8 @@ TEST_CASE("json_save world block: cells have the locked Phase C-1 key set")
     // into Phase C-2 by accident.
     CHECK_FALSE(cell.contains("unit_army"));
     CHECK_FALSE(cell.contains("objects"));
-    CHECK_FALSE(cell.contains("goody_hut"));
+    REQUIRE(cell.contains("goody_hut"));
+    CHECK((cell["goody_hut"].is_null() || cell["goody_hut"].is_object()));
     CHECK_FALSE(cell.contains("jabba"));
 
     // No m_-prefix leakage (Decision #2 snake_case enforcement).

@@ -8,13 +8,16 @@ conf.set_quoted('VERSION', meson.version())
 # a build identifier ("ctp2_build" key in JSON saves).  Falls back to
 # "unknown" outside a git checkout.  Run with check:false so a missing
 # git binary or non-checkout doesn't fail configure.
+build_revision = configuration_data()
 git_sha_result = run_command('git', 'rev-parse', '--short=12', 'HEAD',
                              check: false)
 if git_sha_result.returncode() == 0
-    conf.set_quoted('CTP2_BUILD_SHA', git_sha_result.stdout().strip())
+    build_revision.set_quoted('CTP2_BUILD_SHA', git_sha_result.stdout().strip())
 else
-    conf.set_quoted('CTP2_BUILD_SHA', 'unknown')
+    build_revision.set_quoted('CTP2_BUILD_SHA', 'unknown')
 endif
+
+configure_file(output : 'build_revision.h', configuration : build_revision)
 
 conf.set('SHOW_ASSERTS', get_option('buildtype').startswith('debug'))
 conf.set('USE_LOGGING', get_option('buildtype').startswith('debug'))

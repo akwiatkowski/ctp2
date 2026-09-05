@@ -157,12 +157,8 @@ extern PointerList<Player>   *g_deadPlayer;
 // installationpool_Get() / wonder_tracker_Get() / exclusions_Get() / feattracker_Get() /
 // are extern'd by their respective headers (already included above).
 
-// CTP2_BUILD_SHA is injected by meson into config.h (run_command git
-// rev-parse --short).  Fall back to "unknown" if config.h hasn't been
-// regenerated.
-#ifndef CTP2_BUILD_SHA
-#define CTP2_BUILD_SHA "unknown"
-#endif
+// Build identity is isolated so revision changes only rebuild save-file writers.
+#include "build_revision.h"
 
 // --- save-file string codec (public: unit-tested) ----------------------
 

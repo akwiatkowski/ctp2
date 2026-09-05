@@ -52,15 +52,22 @@ def probe(binary, mode, fixture, make_fixture):
     with Ctp2Client(str(binary), "ui", seed=42, players=4, socket_path=sock,
                     env=env, log_path=f"/tmp/ctp2-goods-{tag}.log") as c:
         if make_fixture:
-            c.expect_ok("new_game")
-            c.expect_ok("start_game")
-            c.wait_game_loaded()
+            # Fresh installations can explicitly have no resources.
+            richness = c.result("debug_set_good_richness", 50)["was"]
+            try:
+                c.expect_ok("new_game")
+                c.expect_ok("start_game")
+                c.wait_game_loaded()
+            finally:
+                c.expect_ok("debug_set_good_richness", richness)
             c.expect_ok("save_game", fixture)
         else:
             c.expect_ok("load_game", fixture)
         c.expect_ok("debug_deselect")
 
         center = visible_center(c)
+        # The random starting viewport is not guaranteed to contain a good.
+        center = c.result("debug_find_good", center["x"], center["y"])["pos"]
         c.expect_ok("camera_debug_center", center["x"], center["y"])
         c.expect_ok("debug_reveal_patch", center["x"], center["y"], 60)
         # Centre once more so a full frame is composited before reading the

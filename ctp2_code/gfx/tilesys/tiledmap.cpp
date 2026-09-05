@@ -302,6 +302,27 @@ namespace
               | k_MASK_ENV_ROAD | k_MASK_ENV_CANAL_TUNNEL);
         state = (state << 32) ^ env;
 
+        // Equal improvement counts do not mean equal pictures: a farm and
+        // a mine can have identical terrain/environment bits.
+        if (cell)
+            for (sint32 index = 0; index < cell->GetNumDBImprovements(); ++index)
+                state = state * 0x100000001B3ULL ^ uint64_t(cell->GetDBImprovement(index));
+
+        // DrawRoads connects to neighbouring roads, tunnels and cities.
+        uint64_t connections = 0;
+        if (world_Get())
+            for (int direction = NORTH; direction < NOWHERE; ++direction) {
+                MapPoint neighbor;
+                if (pos.GetNeighborPosition(WORLD_DIRECTION(direction), neighbor)
+                    && (world_Get()->IsAnyRoad(neighbor) || world_Get()->IsTunnel(neighbor)
+                        || world_Get()->IsCity(neighbor)))
+                    connections |= uint64_t(1) << direction;
+            }
+        state = state * 0x100000001B3ULL ^ connections;
+        // Ruins have two stamps, selected by the column's parity.
+        if (world_Get() && world_Get()->GetGoodyHut(pos))
+            state = state * 0x100000001B3ULL ^ uint64_t(pos.x & 1);
+
         // Borders depend on the neighbours' owners as the BORDER code sees
         // them, so the key must be built from the same function the drawing
         // uses -- World::GetOwner and GetVisibleCellOwner are not the same.
@@ -3974,7 +3995,7 @@ uint64_t TiledMap::CellSignatureAt(sint32 mapX, sint32 mapY)
 // view-relative position and bails on a negative one, so it cannot draw into a
 // tile-sized scratch surface without being given a destination first.
 void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo,
-                                        bool lineBorders, bool fogged)
+                                        bool lineBorders, bool fogged, bool drawGrid)
 {
 	MapPoint cellPos = pos;
 
@@ -4073,7 +4094,7 @@ void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo,
 		}
 	}
 
-	if (g_isGridOn)
+	if (g_isGridOn && drawGrid)
 	{
 		if (m_zoomLevel == k_ZOOM_LARGEST)
 			DrawTileBorder(nullptr, 0, 0, colorset_Get()->GetColor(COLOR_BLACK));
@@ -4334,53 +4355,47 @@ int TiledMap::BuildWorldmapQuads()
 			maputils_MapXY2WorldmapPixelXY(j, i, &drawX, &slotY);
 			sint32 const drawY = slotY;
 
-			// P14: GPU rasterisation. A cell whose picture is PURE TERRAIN
-			// (no river, improvements, hut, grid, borders or fog) composites as
-			// 1-5 quads from the decoded-tileset atlas — no CPU scratch, no
-			// per-appearance atlas slot, nothing evictable. Cells with overlays
-			// keep the CPU composite below; ComposeCell also refuses (returning
-			// false, emitting nothing) when tileset data is missing, so the
-			// fallback is per-cell and pixel-perfect either way.
+			// Raster terrain, then reuse the existing improvement/border rules
+			// to emit cached overlay quads. Failed entries reject the whole cell.
 			bool rastered = false;
 			if (aui_SDL::GpuRasterEnabled() && m_zoomLevel == k_ZOOM_LARGEST)
 			{
-				// Fog, rivers and the grid are rasterised now (fog and fogged
-				// rivers via BlendFast at decode time, so still bit-exact —
-				// including the legacy fogged-river last-row quirk). What still
-				// forces the CPU composite: the improvement layer (roads and
-				// friends have neighbour-dependent geometry) and national
-				// borders on any owned-and-seen cell.
-				bool overlayFree =
-				    !CellHasCpuOnlyImprovementLayer(world_Get()->GetCell(pos), pos);
-				if (overlayFree && profiledb_Get()
-				    && profiledb_Get()->GetShowPoliticalBorders())
+				uint8_t const trans[4] = {
+					(uint8_t) tileInfo->GetTransition(0),
+					(uint8_t) tileInfo->GetTransition(1),
+					(uint8_t) tileInfo->GetTransition(2),
+					(uint8_t) tileInfo->GetTransition(3) };
+				size_t const before = dirty.size();
+				if (s_tilesetGpuRaster.ComposeCell(m_tileSet,
+						tileInfo->GetTileNum(), (uint16) tilesetIndex, trans,
+						WorldmapCellFogged(pos), k_FOW_COLOR, k_FOW_BLEND_VALUE,
+						(int) tileInfo->GetRiverPiece(), -1, drawX, drawY, dirty))
 				{
-					// Conservative: ANY owned-and-seen cell might need border
-					// edges (that depends on its neighbours). Interior cells of
-					// an empire could be rastered too, but correctness first —
-					// the fallback is the reference renderer.
-					sint32 const owner = GetVisibleCellOwner(pos);
-					Player * const visP = player_Get(selitem_Get()->GetVisiblePlayer());
-					if (owner >= 0 && visP
-					    && (visP->HasSeen(owner) || g_fog_toggle || g_god))
-						overlayFree = false;
-				}
-				if (overlayFree)
-				{
-					uint8_t const trans[4] = {
-						(uint8_t) tileInfo->GetTransition(0),
-						(uint8_t) tileInfo->GetTransition(1),
-						(uint8_t) tileInfo->GetTransition(2),
-						(uint8_t) tileInfo->GetTransition(3) };
-					size_t const before = dirty.size();
-					if (s_tilesetGpuRaster.ComposeCell(m_tileSet,
-							tileInfo->GetTileNum(), (uint16) tilesetIndex,
-							trans,
-							WorldmapCellFogged(pos), k_FOW_COLOR, k_FOW_BLEND_VALUE,
-							(int) tileInfo->GetRiverPiece(),
-							g_isGridOn ? (int) colorset_Get()->GetColor(COLOR_BLACK) : -1,
-							drawX, drawY, dirty))
+					TileOverlayCapture capture{s_tilesetGpuRaster, dirty, drawX, drawY, tileW, tileH};
+					LockThisSurface(m_gpuScratchTile.get());
+					if (m_surfBase)
 					{
+						m_gpuOverlayCapture = &capture;
+						// River already emitted; grid must follow improvements and borders.
+						DrawWorldmapCellOverlays(pos, nullptr, true, WorldmapCellFogged(pos), false);
+						m_gpuOverlayCapture = nullptr;
+					}
+					else capture.ok = false;
+					UnlockSurface();
+					if (capture.ok && g_isGridOn)
+						capture.ok = s_tilesetGpuRaster.Grid(colorset_Get()->GetColor(COLOR_BLACK), drawX, drawY, dirty);
+					if (capture.ok)
+					{
+						bool const shadowed = std::any_of(dirty.begin() + before, dirty.end(),
+						    [](aui_SDL::GpuQuad const &q) { return q.blend == SDL_BLENDMODE_MOD; });
+						if (shadowed)
+						{
+							aui_SDL::GpuQuad boundary{0, 0, 0, 0, drawX, drawY, tileW, tileH};
+							boundary.operation = aui_SDL::QuadOperation::BeginCell;
+							dirty.insert(dirty.begin() + before, boundary);
+							boundary.operation = aui_SDL::QuadOperation::EndCell;
+							dirty.push_back(boundary);
+						}
 						rastered = true;
 						++m_worldmapRasterCells;
 						// Seam duplicate applies to every quad of the cell.
@@ -4394,6 +4409,7 @@ int TiledMap::BuildWorldmapQuads()
 							}
 						}
 					}
+					else dirty.resize(before);
 				}
 			}
 

@@ -188,8 +188,11 @@ public:
 	// ever uses). The GPU-raster path (P14) sets it to the tileset atlas so a
 	// cell can composite as base + transition-strip quads with no per-cell
 	// upload at all.
+	enum class QuadOperation { Draw, BeginCell, EndCell };
 	struct GpuQuad { int sx, sy, sw, sh; int dx, dy, dw, dh;
-	                 SDL_Texture *tex = nullptr; };
+	                 SDL_Texture *tex = nullptr;
+	                 SDL_BlendMode blend = SDL_BLENDMODE_BLEND;
+	                 QuadOperation operation = QuadOperation::Draw; };
 	// The per-frame draw list is rebuilt by the tile pass (BeginQuadFrame +
 	// AddQuad) and consumed by the present (QuadDrawList). It persists between
 	// presents so camera-only frames reuse it without a rebuild.
@@ -364,6 +367,8 @@ protected:
 	static bool		m_quadFrameComplete;
 	static char const *	m_quadFrameIncompleteReason;
 	static std::vector<GpuQuad> m_quadDrawList;
+	static SDL_Texture *m_rasterCellTexture;
+	static int m_rasterCellW, m_rasterCellH;
 	static std::map<ModernSpriteAtlas const *, SDL_Texture *> m_spriteAtlasTextures;
 	static std::map<ModernSpriteAtlas const *, SDL_Texture *> m_desaturatedSpriteAtlasTextures;
 	static std::map<std::tuple<void const *, int, int, uint16, bool, int, bool>, SDL_Texture *> m_mapIconTextures;

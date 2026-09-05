@@ -30,6 +30,10 @@ FIXTURE = "/tmp/ctp2-raster-overlay.sav"
 RADIUS = 20
 
 
+class NoRiverOnMap(RuntimeError):
+    pass
+
+
 def read_bmp_rgb(path):
     data = Path(path).read_bytes()
     off = struct.unpack_from("<I", data, 10)[0]
@@ -75,21 +79,19 @@ def capture(mode_on, out):
             # have no rivers anywhere (measured: debug_find_river returned
             # no_river_on_map on a real run). A scene without a river cannot
             # test river parity, so regenerate until the map has one.
-            for attempt in range(8):
-                c.expect_ok("new_game")
-                c.expect_ok("start_game")
-                c.wait_game_loaded()
-                probe = c.command("debug_find_river", 0, 0)
-                if probe.get("status") == "ok":
-                    break
-            else:
-                raise RuntimeError("no river on 8 generated maps — cannot "
-                                   "exercise river parity")
+            c.expect_ok("new_game")
+            c.expect_ok("start_game")
+            c.wait_game_loaded()
+            probe = c.command("debug_find_river", 0, 0)
+            if probe.get("detail") == "no_river_on_map":
+                raise NoRiverOnMap("generated map has no river")
+            assert probe.get("status") == "ok", probe
             c.expect_ok("save_game", FIXTURE)
-        else:
-            c.expect_ok("load_game", FIXTURE)
+        # Both renderers start from the same restored state and tile caches.
+        c.expect_ok("load_game", FIXTURE)
         c.expect_ok("debug_deselect")
         c.expect_ok("set_show_city_names", 0)
+        c.expect_ok("debug_worldmap_sprites", 0)
 
         armies = c.result("query_armies").get("armies", [])
         if not armies:
@@ -147,7 +149,15 @@ def main():
     if Path(FIXTURE).exists():
         Path(FIXTURE).unlink()
 
-    ref = capture(False, out)
+    # A new process returns to the main menu; new_game cannot be repeated
+    # while the previous map is still open.
+    for attempt in range(8):
+        try:
+            ref = capture(False, out)
+            break
+        except NoRiverOnMap:
+            if attempt == 7:
+                raise
     test = capture(True, out)
 
     failures = []

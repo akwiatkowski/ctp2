@@ -111,6 +111,7 @@ class CityData;
 class EffectActor;
 class GoodActor;
 class GpuTileCache;
+struct TileOverlayCapture;
 class Path;
 class TerrainImprovementRecord;
 class TileInfo;
@@ -387,7 +388,7 @@ public:
 	// quad path's does not. See the .cpp.
 	void		DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo,
 	                                     bool lineBorders = false,
-	                                     bool fogged = false);
+	                                     bool fogged = false, bool drawGrid = true);
 	// Atlas cache occupancy, for diagnostics. The cache is shared between the
 	// quad and whole-map paths and evicts LRU when full, which matters: an
 	// eviction DURING a batch can rewrite a slot that quads already emitted in
@@ -669,6 +670,7 @@ public:
 	int				m_worldmapTileW = 0, m_worldmapTileH = 0;
 private:
 	std::unique_ptr<aui_Surface>	m_gpuScratchTile;
+	TileOverlayCapture *m_gpuOverlayCapture = nullptr;
 
 	MapPoint		m_hiliteMouseTile;
 	BOOL			m_drawHilite;

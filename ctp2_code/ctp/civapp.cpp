@@ -3208,6 +3208,10 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				smoketest_send_response("error", cmd, "not_sdl");
 #endif
 			}
+			else if (strcmp(cmd, "debug_close_build_manager") == 0) {
+				EditQueue::Hide();
+				smoketest_send_response("ok", cmd, nullptr);
+			}
 			else if (strncmp(cmd, "camera_debug_center", 19) == 0) {
 				// camera_debug_center [x y]
 				// TEMPORARY (P11 pixel-proof debug): synchronously center the

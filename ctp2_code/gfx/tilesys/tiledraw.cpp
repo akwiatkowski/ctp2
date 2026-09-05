@@ -66,6 +66,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gfx/tilesys/TilesetGpuRaster.h"
 #include "ui/interface/backgroundwin.h"
 #include "gfx/tilesys/tiledmap.h"               // tiledraw.h does not exist
 
@@ -875,6 +876,11 @@ void TiledMap::DrawColoredBorderEdge(aui_Surface *surf, const MapPoint &pos, Pix
 void TiledMap::DrawColoredBorderEdgeAt(sint32 x, sint32 y, Pixel16 selectColorPixel,
                                        WORLD_DIRECTION side, sint32 dashMode)
 {
+	if (m_gpuOverlayCapture)
+	{
+		m_gpuOverlayCapture->Border(m_tileHitMask, side, selectColorPixel, dashMode, x, y);
+		return;
+	}
 	uint8	* surfBase = m_surfBase;
 	if (!surfBase) return;
 	sint32  surfPitch = m_surfPitch;
@@ -1555,6 +1561,13 @@ sint32 TiledMap::DrawBlendedOverlay(aui_Surface *surface, Pixel16 *data, sint32 
 
     if (x >= surfWidth - k_TILE_GRID_WIDTH) return 0;
     if (y >= surfHeight - k_TILE_GRID_HEIGHT) return 0;
+
+	if (m_gpuOverlayCapture)
+	{
+		m_gpuOverlayCapture->Overlay(data, TilesetGpuRaster::OverlayMode::Fogged,
+		                             color, blend, flags, x, y);
+		return 0;
+	}
 
 	bool const bpp32 = surface ? (surface->BitsPerPixel() == 32)
 	                           : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
@@ -2508,6 +2521,12 @@ void TiledMap::DrawBlackScaledLow(aui_Surface *surface, const MapPoint &pos, sin
 sint32 TiledMap::DrawOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, sint32 y, sint32 flags)
 {
 	if (!data) return 0;
+	if (m_gpuOverlayCapture)
+	{
+		m_gpuOverlayCapture->Overlay(data, TilesetGpuRaster::OverlayMode::Normal,
+		                             0, 0, flags, x, y);
+		return 0;
+	}
 
 	uint8 * surfBase;
 	sint32	surfWidth;
@@ -2839,6 +2858,12 @@ void TiledMap::DrawColorBlendedOverlayScaled(aui_Surface *surface, Pixel16 *data
 sint32 TiledMap::DrawColorizedOverlay(Pixel16 *data, aui_Surface *surface, sint32 x, sint32 y, Pixel16 color)
 {
 	if (!data || (x < 0) || (y < 0)) return 0;
+	if (m_gpuOverlayCapture)
+	{
+		m_gpuOverlayCapture->Overlay(data, TilesetGpuRaster::OverlayMode::Colorized,
+		                             color, 0, 0, x, y);
+		return 0;
+	}
 
 	uint8 * surfBase;
 	sint32	surfWidth;

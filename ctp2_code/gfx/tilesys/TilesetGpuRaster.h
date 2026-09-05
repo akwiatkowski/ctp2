@@ -47,6 +47,7 @@
 #include "ui/aui_sdl/aui_sdl.h"
 
 class TileSet;
+struct TILEHITMASK;
 
 class TilesetGpuRaster
 {
@@ -78,6 +79,17 @@ public:
 	// tileset file, so nothing else ever invalidates them.
 	void Reset();
 
+	// Overlay selection stays in TiledMap; this cache only decodes the selected
+	// RLE stamp once. Shadow masks multiply the destination on the GPU.
+	enum class OverlayMode { Normal, Fogged, Colorized };
+	bool Overlay(uint16_t const *data, OverlayMode mode, uint16_t color, int blend,
+	             int flags, int x, int y, int clipW, int clipH,
+	             int destX, int destY, std::vector<aui_SDL::GpuQuad> &out);
+	bool Border(TILEHITMASK const *mask, int side, uint16_t color, int dash,
+	            int x, int y, int clipW, int clipH, int destX, int destY,
+	            std::vector<aui_SDL::GpuQuad> &out);
+	bool Grid(uint16_t color, int x, int y, std::vector<aui_SDL::GpuQuad> &out);
+
 	// Diagnostics for the probe commands.
 	int Entries() const { return (int) (m_base.size() + m_strips.size() + m_defaults.size()); }
 	int Layouts() const { return (int) m_layouts.size(); }
@@ -98,6 +110,12 @@ private:
 		// is what makes a strip splat a fixed permutation of the strip.
 		std::vector<std::pair<int16_t, int16_t>> pos[4];
 	};
+	struct OverlayEntry { Entry pixels, shadow; bool ok = false; };
+	bool UploadImage(Entry &entry, std::vector<uint32_t> const &pixels,
+	                 int w, int h, int ox, int oy);
+	void Append(Entry const &entry, int x, int y, int clipW, int clipH,
+	            int destX, int destY, SDL_BlendMode blend,
+	            std::vector<aui_SDL::GpuQuad> &out);
 
 	int LayoutOf(TileSet *ts, uint16_t tileNum);
 	Entry const &BaseEntry(TileSet *ts, uint16_t tileNum,
@@ -127,10 +145,33 @@ private:
 	std::unordered_map<uint64_t, Entry> m_defaults;   // layout|edge|from|fog
 	std::unordered_map<uint32_t, Entry> m_rivers;     // riverPiece | fog bit
 	std::unordered_map<uint32_t, Entry> m_grid;       // Pixel16 color
+	std::unordered_map<uint16_t const *, std::unordered_map<uint64_t, OverlayEntry>> m_overlays;
+	std::unordered_map<uint32_t, Entry> m_borders;
 
 	// Shelf packer over the static atlas texture.
 	int m_shelfX = 0, m_shelfY = 0, m_shelfH = 0;
 	bool m_atlasBroken = false;
+};
+
+// Stack-local context while the existing overlay drawing rules emit quads.
+// A failed entry rejects the entire cell, preserving the CPU fallback.
+struct TileOverlayCapture
+{
+	TilesetGpuRaster &raster;
+	std::vector<aui_SDL::GpuQuad> &out;
+	int destX, destY, width, height;
+	bool ok = true;
+	void Overlay(uint16_t const *data, TilesetGpuRaster::OverlayMode mode,
+	             uint16_t color, int blend, int flags, int x, int y)
+	{
+		if (ok) ok = raster.Overlay(data, mode, color, blend, flags, x, y,
+		                           width, height, destX, destY, out);
+	}
+	void Border(TILEHITMASK const *mask, int side, uint16_t color, int dash, int x, int y)
+	{
+		if (ok) ok = raster.Border(mask, side, color, dash, x, y, width, height,
+		                          destX, destY, out);
+	}
 };
 
 #endif

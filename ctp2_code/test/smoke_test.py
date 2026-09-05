@@ -21,7 +21,7 @@ GAME_BINARY = (
 )
 GAME_BINARY = os.path.abspath(GAME_BINARY)
 
-SOCKET_PATH = "/tmp/ctp2-smoke.sock"
+SOCKET_PATH = os.environ.get("CTP2_SMOKE_SOCKET", "/tmp/ctp2-smoke.sock")
 TIMEOUT_INIT = 30
 
 

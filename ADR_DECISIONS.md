@@ -2,6 +2,28 @@
 
 Short log of non-trivial design decisions. Newest first.
 
+## ADR-006 — Cache overlay stamps and composite shadowed cells on the GPU (2026-09-05)
+
+**Context.** Improvements and political borders forced whole-map cells through CPU
+composition. Their existing selection rules encode road connectivity and visibility;
+shadow runs also depend on the destination pixels.
+
+**Decision.** Reuse those selection rules while capturing their drawing calls as
+cached atlas quads. Decode colour pixels and multiplicative shadow masks separately.
+Composite shadowed cells into one reusable transparent GPU target before placing them
+on the map, preserving the CPU cell boundaries. Keep CPU fallback for unsupported
+entries or a full atlas. Include improvement types, road connections and ruin variants
+in the shared tile cache key.
+
+**Alternatives.** Reimplementing road and visibility rules would duplicate gameplay
+logic. Drawing shadows directly onto the whole map would darken overlapping neighbours.
+Precompositing every improvement variant would retain CPU work and multiply cache entries.
+
+**Consequences.** The native-zoom renderer can draw improvements and either border style
+without uploading a CPU-composited tile. Generated stamps remain disposable caches.
+The presented-frame parity test requires exact pixels and a visibly populated fixture;
+`make test-render` runs it with the other renderer gates in an isolated installation.
+
 ## ADR-005 — One configurable home for installed data and generated assets (2026-09-04)
 
 **Context.** The engine historically depended on the repository working directory for
@@ -27,7 +49,6 @@ and tests can isolate all mutable state with a temporary `CTP2_HOME`. The instal
 deletes source data; removing the in-tree copy remains a separate explicit user action after
 visual verification.
 
-
 ## ADR-004 — Networking is opt-in at compile time (2026-09-04)
 
 **Context.** Multiplayer is outside the completion target, but the normal SDL build still
@@ -47,7 +68,6 @@ the dependency and attack surface.
 **Consequences.** Shipping/default binaries have no Anet dependency or transport symbols.
 The opt-in configuration must remain buildable, but multiplayer behavior is not part of the
 single-player completion gate.
-
 
 ## ADR-003 — Whole-map GPU texture; the camera owns zoom (2026-08-03)
 

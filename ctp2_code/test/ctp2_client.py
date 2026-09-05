@@ -27,7 +27,7 @@ import socket
 import subprocess
 import time
 
-SOCKET_PATH = "/tmp/ctp2-smoke.sock"
+SOCKET_PATH = os.environ.get("CTP2_SMOKE_SOCKET", "/tmp/ctp2-smoke.sock")
 
 
 class Ctp2Error(Exception):
@@ -74,10 +74,21 @@ class Ctp2Client:
             args, cwd=self.cwd, env=env, stdout=self._log, stderr=subprocess.STDOUT
         )
 
-        self._wait_for_socket(socket_wait)
-        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.sock.connect(socket_path)
-        self.sock.settimeout(timeout)
+        try:
+            self._wait_for_socket(socket_wait)
+            self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            self.sock.connect(socket_path)
+            self.sock.settimeout(timeout)
+        except Exception:
+            self.proc.terminate()
+            try:
+                self.proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                self.proc.kill()
+                self.proc.wait()
+            if self._log not in (None, subprocess.DEVNULL):
+                self._log.close()
+            raise
         self._buf = b""
 
     # -- lifecycle --------------------------------------------------------
@@ -125,7 +136,13 @@ class Ctp2Client:
         while b"\n" not in self._buf:
             chunk = self.sock.recv(65536)
             if not chunk:
-                raise Ctp2Error(f"connection closed during '{line}'")
+                self.proc.poll()
+                suffix = (
+                    f" (process exit code {self.proc.returncode})"
+                    if self.proc.returncode is not None
+                    else ""
+                )
+                raise Ctp2Error(f"connection closed during '{line}'{suffix}")
             self._buf += chunk
         raw, self._buf = self._buf.split(b"\n", 1)
         return json.loads(raw)

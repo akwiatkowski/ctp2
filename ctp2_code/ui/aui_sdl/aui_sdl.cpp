@@ -34,6 +34,8 @@ int aui_SDL::m_viewportW = 1920;
 int aui_SDL::m_viewportH = 1080;
 // P13 step 1: whole-map render target (ADR-003). Null unless opted in.
 SDL_Texture *aui_SDL::m_worldmapTexture = nullptr;
+SDL_Texture *aui_SDL::m_rasterCellTexture = nullptr;
+int aui_SDL::m_rasterCellW = 0, aui_SDL::m_rasterCellH = 0;
 int aui_SDL::m_worldmapW = 0;
 int aui_SDL::m_worldmapH = 0;
 int aui_SDL::m_worldmapWrapW = 0;
@@ -342,8 +344,44 @@ bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &clears,
 		}
 	}
 
+	int cellX = 0, cellY = 0;
 	for (GpuQuad const & q : quads)
 	{
+		if (q.operation == QuadOperation::BeginCell)
+		{
+			// Shadows must see this cell's transparent surround, not the
+			// previously drawn neighbours underneath that surround.
+			if (!m_rasterCellTexture || m_rasterCellW != q.dw || m_rasterCellH != q.dh)
+			{
+				if (m_rasterCellTexture) SDL_DestroyTexture(m_rasterCellTexture);
+				m_rasterCellTexture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888,
+				    SDL_TEXTUREACCESS_TARGET, q.dw, q.dh);
+				m_rasterCellW = q.dw; m_rasterCellH = q.dh;
+				if (m_rasterCellTexture)
+				{
+					SDL_SetTextureBlendMode(m_rasterCellTexture, SDL_BLENDMODE_BLEND);
+					CTP2_SDL_SetTextureNearest(m_rasterCellTexture);
+				}
+			}
+			if (!m_rasterCellTexture || !CTP2_SDL_SetRenderTarget(m_renderer, m_rasterCellTexture))
+			{
+				CTP2_SDL_SetRenderTarget(m_renderer, prev);
+				return false;
+			}
+			SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 0);
+			SDL_RenderClear(m_renderer);
+			cellX = q.dx; cellY = q.dy;
+			continue;
+		}
+		if (q.operation == QuadOperation::EndCell)
+		{
+			CTP2_SDL_SetRenderTarget(m_renderer, m_worldmapTexture);
+			CTP2_SDL_RenderTextureWindow(m_renderer, m_rasterCellTexture,
+			    0, 0, (float)q.dw, (float)q.dh,
+			    (float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh);
+			cellX = cellY = 0;
+			continue;
+		}
 		// NO per-quad clear. Rows step half a tile height but the quad rect is a
 		// full tile tall, so clearing a cell's rect erases the bottom half of the
 		// row above it -- drawing top-to-bottom, each row wiped its predecessor
@@ -354,9 +392,13 @@ bool aui_SDL::DrawWorldmapQuads(std::vector<GpuQuad> const &clears,
 		//
 		// q.tex null means the shared quad atlas; the GPU-raster path (P14)
 		// points its quads at the decoded-tileset atlas instead.
-		CTP2_SDL_RenderTextureWindow(m_renderer, q.tex ? q.tex : m_quadAtlasTexture,
+		SDL_Texture *texture = q.tex ? q.tex : m_quadAtlasTexture;
+		SDL_SetTextureBlendMode(texture, q.blend);
+		CTP2_SDL_RenderTextureWindow(m_renderer, texture,
 			(float)q.sx, (float)q.sy, (float)q.sw, (float)q.sh,
-			(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh);
+			(float)(q.dx - cellX), (float)(q.dy - cellY), (float)q.dw, (float)q.dh);
+		if (q.blend != SDL_BLENDMODE_BLEND)
+			SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 	}
 
 	CTP2_SDL_SetRenderTarget(m_renderer, prev);
@@ -396,6 +438,11 @@ int aui_SDL::SampleWorldmapCoverage(int grid)
 
 void aui_SDL::DestroyWorldmapTexture()
 {
+	if (m_rasterCellTexture)
+	{
+		SDL_DestroyTexture(m_rasterCellTexture);
+		m_rasterCellTexture = nullptr;
+	}
 	if (m_worldmapTexture)
 	{
 		SDL_DestroyTexture(m_worldmapTexture);

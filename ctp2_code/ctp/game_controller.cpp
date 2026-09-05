@@ -779,6 +779,17 @@ std::string CmdDebugFindGood(const char * args)
 	return Ok("debug_find_good", result);
 }
 
+std::string CmdDebugSetGoodRichness(const char *args)
+{
+	int richness = -1;
+	if (!args || sscanf(args, "%d", &richness) != 1 || richness < 0 || richness > 100)
+		return Err("debug_set_good_richness", "bad_args");
+	if (!profiledb_Get()) return Err("debug_set_good_richness", "no_profile");
+	int const previous = profiledb_Get()->PercentRichness();
+	profiledb_Get()->SetPercentRichness(richness);
+	return Ok("debug_set_good_richness", {{"was", previous}});
+}
+
 // Nearest cell carrying a river piece. Rivers are placed at map generation and
 // nothing queries them, which makes "does a river render correctly" impossible
 // to aim at — a test that guesses a position measures whatever happens to be
@@ -1023,6 +1034,29 @@ std::string CmdDebugGpuWorldmapProbe(const char * args)
 	return Ok("debug_gpu_worldmap_probe", result);
 }
 
+std::string CmdDebugPlaceImprovement(const char *args)
+{
+	int x, y, type;
+	if (!args || sscanf(args, "%d %d %d", &x, &y, &type) != 3)
+		return Err("debug_place_improvement", "bad_args");
+	World *w = world_Get();
+	TiledMap *map = tiledmap_Get();
+	if (!w || !map || !g_theTerrainImprovementDB)
+		return Err("debug_place_improvement", "no_world");
+	if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+		return Err("debug_place_improvement", "out_of_bounds");
+	if (type < 0 || type >= g_theTerrainImprovementDB->NumRecords())
+		return Err("debug_place_improvement", "bad_improvement");
+	MapPoint pos(x, y);
+	auto const *rec = g_theTerrainImprovementDB->Get(type);
+	auto const *effect = terrainutil_GetTerrainEffect(rec, pos);
+	if (!effect) return Err("debug_place_improvement", "no_terrain_effect");
+	w->GetCell(pos)->InsertDBImprovement(type);
+	map->InvalidateWorldmap();
+	map->BuildTerrainQuads();
+	return Ok("debug_place_improvement", {{"tileset_index", effect->GetTilesetIndex()}});
+}
+
 // GPU-rasterisation feasibility probe. DrawTransitionTile's inner loop reads a
 // raw Pixel16 stream over the tile diamond where values 0..3 are inline
 // MARKERS: each consumes the next pixel from transition strip 0..3. Whether
@@ -1115,11 +1149,14 @@ std::string CmdDebugTilesetStats(const char * /*args*/)
 	// read the DESTINATION (they darken the terrain under the river), so a
 	// pre-decoded river texture can only be bit-exact if rivers never use
 	// them. Measure instead of assuming.
+	for (int family = 0; family < 3; ++family)
 	{
-		int rivers = 0, copyRuns = 0, skipRuns = 0, shadowRuns = 0;
-		for (uint16 r = 0; r < k_MAX_RIVERS; ++r)
+		int rivers = 0, copyRuns = 0, skipRuns = 0, shadowRuns = 0, colorRuns = 0;
+		int const limit = family == 0 ? k_MAX_RIVERS : family == 1 ? k_MAX_IMPROVEMENTS : MAPICON_MAX;
+		for (uint16 r = 0; r < limit; ++r)
 		{
-			Pixel16 const * d = ts->GetRiverData(r);
+			Pixel16 const * d = family == 0 ? ts->GetRiverData(r)
+			    : family == 1 ? ts->GetImprovementData(r) : ts->GetMapIconData(r);
 			if (!d) continue;
 			++rivers;
 			uint16 const rowStart = (uint16) *d++;
@@ -1137,12 +1174,14 @@ std::string CmdDebugTilesetStats(const char * /*args*/)
 					case k_TILE_SKIP_RUN_ID:   ++skipRuns; break;
 					case k_TILE_COPY_RUN_ID:   ++copyRuns; rowData += (tag & 0x00FF); break;
 					case k_TILE_SHADOW_RUN_ID: ++shadowRuns; break;
+					case k_TILE_COLORIZE_RUN_ID: ++colorRuns; break;
 					}
 				} while ((tag & 0xF000) == 0);
 			}
 		}
-		result["rivers"] = { {"count", rivers}, {"copy_runs", copyRuns},
-		                     {"skip_runs", skipRuns}, {"shadow_runs", shadowRuns} };
+		result[family == 0 ? "rivers" : family == 1 ? "improvements" : "map_icons"] =
+		    { {"count", rivers}, {"copy_runs", copyRuns}, {"skip_runs", skipRuns},
+		      {"shadow_runs", shadowRuns}, {"colorize_runs", colorRuns} };
 	}
 	return Ok("debug_tileset_stats", result);
 }
@@ -3939,6 +3978,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_vision_stats ", 0) == 0)              return CmdDebugVisionStats(line.c_str() + 19);
     if (line.rfind("debug_render_explored_as_visible ", 0) == 0) return CmdDebugRenderExploredAsVisible(line.c_str() + 33);
     if (line.rfind("debug_find_good ", 0) == 0)                 return CmdDebugFindGood(line.c_str() + 16);
+    if (line.rfind("debug_set_good_richness ", 0) == 0)          return CmdDebugSetGoodRichness(line.c_str() + 24);
     if (line.rfind("debug_find_river ", 0) == 0)                return CmdDebugFindRiver(line.c_str() + 17);
     if (line.rfind("debug_worldmap_sprites ", 0) == 0)          return CmdDebugWorldmapSprites(line.c_str() + 23);
     if (line == "debug_icon_alpha")                             return CmdDebugIconAlpha(nullptr);
@@ -3951,6 +3991,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line == "debug_gpu_worldmap_probe")                     return CmdDebugGpuWorldmapProbe(nullptr);
     if (line.rfind("debug_gpu_worldmap_probe ", 0) == 0)        return CmdDebugGpuWorldmapProbe(line.c_str() + 25);
     if (line == "debug_tileset_stats")                          return CmdDebugTilesetStats(nullptr);
+    if (line.rfind("debug_place_improvement ", 0) == 0)          return CmdDebugPlaceImprovement(line.c_str() + 24);
 #endif
     if (line == "debug_deselect")                               return CmdDebugDeselect();
     if (line.rfind("debug_combat_flash ", 0) == 0)              return CmdDebugCombatFlash(line.c_str() + 19);

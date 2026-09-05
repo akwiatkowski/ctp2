@@ -1953,6 +1953,16 @@ test('raster-overlay-parity',
   suite : 'p13',
 )
 
+test('gpu-improvement-parity',
+  python3,
+  args : [files('test/gpu_improvement_parity.py'),
+          join_paths(meson.project_build_root(), 'ctp2_render')],
+  timeout : 420,
+  is_parallel : false,
+  workdir : cwd_for_tests,
+  suite : 'p13',
+)
+
 test('worldmap-transition-parity',
   find_program('../tools/visual/terrain_edges.py'),
   args : [

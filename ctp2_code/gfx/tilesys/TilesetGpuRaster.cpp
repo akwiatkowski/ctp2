@@ -13,6 +13,7 @@
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/tilesys/tileset.h"
 #include "gfx/tilesys/BaseTile.h"
+#include "gfx/tilesys/tiledmap.h"
 #include "gs/world/TileInfo.h"        // k_NUM_TRANSITIONS
 
 namespace
@@ -72,6 +73,8 @@ void TilesetGpuRaster::Reset()
 	m_defaults.clear();
 	m_rivers.clear();
 	m_grid.clear();
+	m_overlays.clear();
+	m_borders.clear();
 	m_shelfX = m_shelfY = m_shelfH = 0;
 	m_atlasBroken = false;
 	m_generatedFrom = nullptr;
@@ -393,6 +396,148 @@ TilesetGpuRaster::Entry const &TilesetGpuRaster::GridEntry(uint16_t color)
 	e.w = k_TILE_PIXEL_WIDTH; e.h = k_TILE_PIXEL_HEIGHT;
 	e.ox = 0; e.oy = k_TILE_PIXEL_HEADROOM;
 	return e;
+}
+
+bool TilesetGpuRaster::UploadImage(Entry &e, std::vector<uint32_t> const &pixels,
+                                  int w, int h, int ox, int oy)
+{
+	if (!Pack(w, h, e.ax, e.ay)) return false;
+	aui_SDL::UploadTilesetAtlasRect(e.ax, e.ay, w, h, pixels.data(), w * 4);
+	e.w = w; e.h = h; e.ox = ox; e.oy = oy; e.ok = true;
+	return true;
+}
+
+void TilesetGpuRaster::Append(Entry const &e, int x, int y, int clipW, int clipH,
+                              int destX, int destY, SDL_BlendMode blend,
+                              std::vector<aui_SDL::GpuQuad> &out)
+{
+	int const left = std::max(0, x + e.ox), top = std::max(0, y + e.oy);
+	int const right = std::min(clipW, x + e.ox + e.w);
+	int const bottom = std::min(clipH, y + e.oy + e.h);
+	if (right <= left || bottom <= top) return;
+	out.push_back({e.ax + left - x - e.ox, e.ay + top - y - e.oy,
+	               right - left, bottom - top, destX + left, destY + top,
+	               right - left, bottom - top, aui_SDL::TilesetAtlasTexture(), blend});
+}
+
+bool TilesetGpuRaster::Overlay(uint16_t const *data, OverlayMode mode,
+                               uint16_t color, int blend, int flags, int x, int y,
+                               int clipW, int clipH, int destX, int destY,
+                               std::vector<aui_SDL::GpuQuad> &out)
+{
+	if (!data) return true;
+	uint64_t const key = uint64_t(color) | (uint64_t(uint32_t(blend)) << 16)
+	                     | (uint64_t(mode) << 48);
+	auto &variants = m_overlays[data];
+	auto found = variants.find(key);
+	if (found == variants.end())
+	{
+		OverlayEntry entry;
+		int const first = data[0], last = data[1];
+		if (first > last || last >= k_TILE_GRID_HEIGHT) return false;
+		int const end = mode == OverlayMode::Fogged ? last - 1 : last;
+		if (end < first) { entry.ok = true; }
+		else
+		{
+			int const h = end - first + 1, w = k_TILE_GRID_WIDTH;
+			std::vector<uint32_t> pixels(size_t(w) * h, 0u);
+			// White leaves the destination unchanged under MOD. 127/255 with
+			// UNORM rounding yields floor(channel/2) for every 8-bit channel,
+			// unlike 128/255. Verified exhaustively on the Metal renderer.
+			std::vector<uint32_t> shadows(size_t(w) * h, 0xffffffffu);
+			bool hasPixels = false, hasShadow = false, valid = true;
+			uint16_t const *table = data + 2, *rows = table + last - first + 1;
+			for (int row = first; row <= end && valid; ++row)
+			{
+				if (int16_t(table[row - first]) == -1) continue;
+				uint16_t const *p = rows + table[row - first];
+				int column = 0, runs = 0;
+				uint16_t tag;
+				do
+				{
+					tag = *p++;
+					int const length = tag & 0xff, kind = (tag >> 8) & 0xf;
+					if (column + length > w || ++runs > w + 1)
+					{ valid = false; break; }
+					for (int n = 0; n < length; ++n)
+					{
+						size_t const at = size_t(row - first) * w + column++;
+						switch (kind)
+						{
+						case k_TILE_SKIP_RUN_ID: break;
+						case k_TILE_COPY_RUN_ID:
+							pixels[at] = Conv(*p++, mode == OverlayMode::Fogged, color, blend);
+							hasPixels = true;
+							break;
+						case k_TILE_SHADOW_RUN_ID:
+							shadows[at] = 0xff7f7f7fu; hasShadow = true;
+							break;
+						case k_TILE_COLORIZE_RUN_ID:
+							if (mode != OverlayMode::Colorized) { valid = false; break; }
+							pixels[at] = pixelutils_16to8888(color); hasPixels = true;
+							break;
+						default: valid = false; break;
+						}
+					}
+				} while (valid && (tag & 0xf000) == 0);
+			}
+			entry.ok = valid;
+			if (valid && hasPixels) entry.ok = UploadImage(entry.pixels, pixels, w, h, 0, first);
+			if (entry.ok && hasShadow) entry.ok = UploadImage(entry.shadow, shadows, w, h, 0, first);
+		}
+		found = variants.emplace(key, entry).first;
+	}
+	OverlayEntry const &entry = found->second;
+	if (!entry.ok) return false;
+	if (!(flags & k_OVERLAY_FLAG_NOSHADOWS))
+		Append(entry.shadow, x, y, clipW, clipH, destX, destY, SDL_BLENDMODE_MOD, out);
+	if (!(flags & k_OVERLAY_FLAG_SHADOWSONLY))
+		Append(entry.pixels, x, y, clipW, clipH, destX, destY, SDL_BLENDMODE_BLEND, out);
+	return true;
+}
+
+bool TilesetGpuRaster::Border(TILEHITMASK const *mask, int side, uint16_t color,
+                              int dash, int x, int y, int clipW, int clipH,
+                              int destX, int destY, std::vector<aui_SDL::GpuQuad> &out)
+{
+	uint32_t const key = uint32_t(color) | (uint32_t(side) << 16) | (uint32_t(dash != 0) << 24);
+	auto found = m_borders.find(key);
+	if (found == m_borders.end())
+	{
+		Entry entry;
+		// Native-zoom DrawColoredBorderEdgeAt geometry, including its black
+		// outer pixel on east edges. Other zooms keep the existing CPU path.
+		int const w = k_TILE_GRID_WIDTH + 2, h = k_TILE_PIXEL_HEIGHT;
+		std::vector<uint32_t> pixels(size_t(w) * h, 0u);
+		bool const north = side == NORTHWEST || side == NORTHEAST;
+		bool const west = side == NORTHWEST || side == SOUTHWEST;
+		for (int row = 0; row < h; ++row)
+		{
+			int const i = row + k_TILE_PIXEL_HEADROOM;
+			if (north && i >= (k_TILE_PIXEL_HEADROOM + k_TILE_GRID_HEIGHT) / 2) break;
+			if (!north && i + 1 < (k_TILE_PIXEL_HEADROOM + k_TILE_GRID_HEIGHT) / 2) continue;
+			if (dash && (row & 2)) continue;
+			int const start = mask[i].start, end = mask[i].end;
+			if (start < 0 || end + 1 > w) continue;
+			int const at = west ? start : end - 2;
+			if (at < 0 || at + 2 >= w) return false;
+			for (int n = 0; n < 3; ++n)
+				pixels[size_t(row) * w + at + n] = pixelutils_16to8888(!west && n == 2 ? 0 : color);
+		}
+		UploadImage(entry, pixels, w, h, 0, 0);
+		found = m_borders.emplace(key, entry).first;
+	}
+	if (!found->second.ok) return false;
+	Append(found->second, x, y, clipW, clipH, destX, destY, SDL_BLENDMODE_BLEND, out);
+	return true;
+}
+
+bool TilesetGpuRaster::Grid(uint16_t color, int x, int y, std::vector<aui_SDL::GpuQuad> &out)
+{
+	Entry const &e = GridEntry(color);
+	if (!e.ok) return false;
+	Append(e, 0, 0, k_TILE_GRID_WIDTH + 2, k_TILE_GRID_HEIGHT, x, y, SDL_BLENDMODE_BLEND, out);
+	return true;
 }
 
 bool TilesetGpuRaster::ComposeCell(TileSet *ts, uint16_t tileNum, uint16_t fromIndex,

@@ -6,6 +6,8 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 
 ## Overall Progress
 
+- **GPU overlay rasterization completed 2026-09-05 (ADR-006):** native-zoom improvements, roads, ruins, both border styles and grid use cached GPU stamps with cell-local shadows. All 11 renderer gates pass; CPU fallback remains available. Permanent installation contains all 463 sprite atlases; manual windowed acceptance is pending.
+
 - **Player ownership completed 2026-09-05:** owned player subsystems use `unique_ptr`; constructors initialize members without overwriting C++ objects with `memset`. JSON, UI and networking consumers use borrowed pointers. `raw_delete` fell from 1423 to 1396; fast/unit tests pass.
 
 - **Original Definition of Done (M1–M8): COMPLETE and formally declared 2026-07-10.** The P7 close-out documentation pass has landed (the "Remaining Legacy-Risk Areas" consolidation below), and a final verification pass (`make test` + `make ubsan-smoke` + integration/scenario suites, clean worktree) is green. Nothing remains to declare the original DoD met.
@@ -76,6 +78,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P9 | Container modernization (PointerList/DynamicArray → std) | ratchets live (576+353); burn-down 0/n | multi-session |
 | P10 | Type-erased casting burn-down (`type_erased_casting=2487`) | redundant I/O/API cast cleanups: −157 total | opportunistic |
 | P11 | GPU-path rendering | **Stage 1 ✅. Stage 2 A–F ✅ DEFAULT-ON 2026-07-17** (buttery pan ADR-002 + pixel proof, hw cursor, pinch zoom, edge/key scroll on the eased camera; `CTP2_GPU_LAYERS=0` opts out). Quads (G) parked. Tail: modern-sprite atlas polish (mirrored/scaled facings, Good/Effect, v2 parity). | tail open on `p11-stage2-gpu-world` |
+| P14 | GPU overlay rasterization | Improvements, roads, ruins, borders and grid complete at native zoom; 11 renderer gates pass. | manual acceptance pending |
 | — | Modern-asset converter + first-run (was M10) | **un-parked 2026-07-14**; required before atlas-backed GPU compositing | staged |
 
 **Recommended next order (2026-07-13):** the original DoD is declared; crash-class work (P1/P3/P4/P5) is complete or at its practical floor. The remaining moves, best-ROI first:

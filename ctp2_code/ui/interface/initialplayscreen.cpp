@@ -53,7 +53,9 @@
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "gs/utility/gameinit.h"
 #include "ui/interface/loadsavewindow.h"
+#if CTP2_ENABLE_NETWORKING
 #include "ui/netshell/netshell.h"
+#endif
 #include "ui/interface/optionswindow.h"
 #include "gs/database/profileDB.h"          // profiledb_Get()
 #include "ui/interface/scenariowindow.h"
@@ -225,7 +227,9 @@ initialplayscreen_mpPress(aui_Control *control, uint32 action, uint32 data, void
 
 	control->Enable(FALSE);
 
+#if CTP2_ENABLE_NETWORKING
 	NetShell::Enter( k_NS_FLAGS_CREATE );
+#endif
 }
 
 void initialplayscreen_hotseatPress(aui_Control *control, uint32 action, uint32 data, void *cookie)

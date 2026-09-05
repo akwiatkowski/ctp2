@@ -612,9 +612,11 @@ CivApp::~CivApp() = default;
 void CivApp::InitializeAppUI()
 {
 	civapp_log->info("InitializeAppUI: called");
+#if CTP2_ENABLE_NETWORKING
 	// Set CTP2 specific data for the Anet library (multiplayer only)
 	NETFunc::GameType	= GAMEID;				// CTP2 game id for Anet
 	NETFunc::DllPath	= "dll" FILE_SEP "net";	// Anet DLLs are in dll\net (relative to executable)
+#endif
 
 	if (g_useIntroMovie && !g_no_shell)
 	{
@@ -1560,7 +1562,9 @@ sint32 CivApp::QuickInit(HINSTANCE hInstance, int iCmdShow)
 
 void CivApp::CleanupAppUI()
 {
+#if CTP2_ENABLE_NETWORKING
 	NetShell::Leave( k_NS_FLAGS_DESTROY );
+#endif
 
 	// Clean up any opened screens
 	greatlibrary_Cleanup();
@@ -3981,12 +3985,16 @@ sint32 CivApp::QuitToSPShell()
 
 sint32 CivApp::QuitToLobby()
 {
+#if !CTP2_ENABLE_NETWORKING
+	return QuitToSPShell();
+#else
 	if (m_gameLoaded) {
 		CleanupGame(false);
 		StartMessageSystem();
 	}
 
 	return NetShell::Enter( k_NS_FLAGS_RETURN );
+#endif
 }
 
 void CivApp::QuitGame()

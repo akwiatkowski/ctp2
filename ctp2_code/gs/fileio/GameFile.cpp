@@ -59,7 +59,9 @@
 #include "CivilisationRecord.h"
 #include "gs/fileio/CivPaths.h"               // civpaths_Get()
 #include "gs/fileio/civscenarios.h"
+#if CTP2_ENABLE_NETWORKING
 #include "ui/netshell/netshell.h"               // gamesetup_Get()
+#endif
 #include "ai/ctpai.h"
 #include "gs/gameobj/Diffcly.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"  // diplomaticrequestpool_Get()
@@ -256,6 +258,11 @@ static uint32 CompressData(uint8 *inbuf, size_t insize,
 
 bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 {
+#if !CTP2_ENABLE_NETWORKING
+	(void)saveFile;
+	(void)info;
+	return false;
+#else
 	sint32		n;
 
 	n = c3files_fread(info->gameName, sizeof(uint8), _MAX_PATH, saveFile);
@@ -475,6 +482,7 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 	}
 
 	return true;
+#endif
 }
 
 
@@ -484,6 +492,11 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 
 bool GameFile::LoadBasicGameInfo(FILE *saveFile, SaveInfo *info)
 {
+#if !CTP2_ENABLE_NETWORKING
+	(void)saveFile;
+	(void)info;
+	return false;
+#else
 	sint32		n;
 
 	n = c3files_fread(info->gameName, sizeof(uint8), _MAX_PATH, saveFile);
@@ -647,6 +660,7 @@ bool GameFile::LoadBasicGameInfo(FILE *saveFile, SaveInfo *info)
 	}
 
 	return true;
+#endif
 }
 
 
@@ -657,6 +671,11 @@ bool GameFile::LoadBasicGameInfo(FILE *saveFile, SaveInfo *info)
 
 void GameFile::SaveExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 {
+#if !CTP2_ENABLE_NETWORKING
+	(void)saveFile;
+	(void)info;
+	return;
+#else
 	MBCHAR		*functionName = "GameFile::SaveExtendedGameInfo";
 	MBCHAR		*errorString = "Unable to write save file.";
 
@@ -870,6 +889,7 @@ void GameFile::SaveExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 		c3errors_FatalDialog(functionName, errorString);
 		return;
 	}
+#endif
 }
 
 void GameFile::SetProfileFromExtendedInfo(SaveInfo *info)
@@ -897,6 +917,7 @@ void GameFile::SetProfileFromExtendedInfo(SaveInfo *info)
 		profiledb_Get()->SetSaveNote(info->note);
 	}
 
+#if CTP2_ENABLE_NETWORKING
 	nf_GameSetup temp = gamesetup_Get();
 	gamesetup_Get() = info->gameSetup;
 
@@ -907,6 +928,7 @@ void GameFile::SetProfileFromExtendedInfo(SaveInfo *info)
 
 	gamesetup_Get().SetLaunched(true);
 	gamesetup_Get().Pack();
+#endif
 
 	profiledb_Get()->SetTutorialAdvice(info->options.tutorialadvice);
 
@@ -974,6 +996,7 @@ void GameFile::GetExtendedInfoFromProfile(SaveInfo *info)
 	strlcpy(info->civName, profiledb_Get()->GetCivName(), sizeof(info->civName));
 	strlcpy(info->note, profiledb_Get()->GetSaveNote(), sizeof(info->note));
 
+#if CTP2_ENABLE_NETWORKING
 	info->gameSetup = gamesetup_Get();
 
 	memset(
@@ -986,6 +1009,7 @@ void GameFile::GetExtendedInfoFromProfile(SaveInfo *info)
 			   0,
 			   8 * sizeof(TribeSlot));
 	}
+#endif
 
 	info->options.tutorialadvice = profiledb_Get()->IsTutorialAdvice();
 	info->options.leftrightclickmove = profiledb_Get()->IsUseLeftClick();

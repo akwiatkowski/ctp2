@@ -19,6 +19,7 @@ endif
 conf.set('SHOW_ASSERTS', get_option('buildtype').startswith('debug'))
 conf.set('USE_LOGGING', get_option('buildtype').startswith('debug'))
 conf.set('_DEBUG', get_option('buildtype').startswith('debug'))
+conf.set10('CTP2_ENABLE_NETWORKING', get_option('anet'))
 
 if get_option('buildtype').startswith('debug')
 	add_global_arguments('-D_DEBUG', language : ['c', 'cpp'])
@@ -205,7 +206,11 @@ add_global_arguments('-DHAVE_STRING_H', language : ['c', 'cpp'])
 add_global_arguments('-Wno-non-pod-varargs', language : ['cpp'])
 add_global_arguments('-Wno-implicit-function-declaration', language : ['c'])
 
-anet = subproject('anet').get_variable('libanet')
+network_dependencies = []
+if get_option('anet')
+	anet = subproject('anet').get_variable('libanet')
+	network_dependencies += anet
+endif
 
 freetype = subproject('freetype-1.3.1').get_variable('libfreetype')
 
@@ -952,8 +957,6 @@ game_entry_sources = [
 	'test/smoketest_server.cpp',
 ]
 
-main_sources = game_core_sources + game_entry_sources
-
 # ---------------------------------------------------------------------------
 # Phase 1i probe: engine-only compile target.
 #
@@ -1205,6 +1208,64 @@ ui_sources_in_core = [
 	'ui/slic_debug/watchlist.cpp',
 ]
 
+# The gameplay core still contains dormant packet/replication shims. They are
+# harmless without an ingress, and removing them is a separate protocol rewrite.
+# The default game does not compile or link the legacy Anet transport or its
+# multiplayer shell. Opting in restores the historical build unchanged.
+legacy_network_sources = [
+	'net/io/net_anet.cpp',
+	'net/io/net_thread.cpp',
+	'ui/netshell/allinonewindow.cpp',
+	'ui/netshell/connectionselectwindow.cpp',
+	'ui/netshell/dialogboxwindow.cpp',
+	'ui/netshell/gameselectwindow.cpp',
+	'ui/netshell/lobbychangewindow.cpp',
+	'ui/netshell/lobbywindow.cpp',
+	'ui/netshell/netfunc.cpp',
+	'ui/netshell/netshell.cpp',
+	'ui/netshell/netshell_game.cpp',
+	'ui/netshell/ns_aiplayer.cpp',
+	'ui/netshell/ns_aiplayersetup.cpp',
+	'ui/netshell/ns_chatbox.cpp',
+	'ui/netshell/ns_civlistbox.cpp',
+	'ui/netshell/ns_customlistbox.cpp',
+	'ui/netshell/ns_game.cpp',
+	'ui/netshell/ns_gamesetup.cpp',
+	'ui/netshell/ns_gplayer.cpp',
+	'ui/netshell/ns_header.cpp',
+	'ui/netshell/ns_headerswitch.cpp',
+	'ui/netshell/ns_improvements.cpp',
+	'ui/netshell/ns_item.cpp',
+	'ui/netshell/ns_lobby.cpp',
+	'ui/netshell/ns_player.cpp',
+	'ui/netshell/ns_playersetup.cpp',
+	'ui/netshell/ns_rplayer.cpp',
+	'ui/netshell/ns_server.cpp',
+	'ui/netshell/ns_session.cpp',
+	'ui/netshell/ns_spinner.cpp',
+	'ui/netshell/ns_string.cpp',
+	'ui/netshell/ns_transport.cpp',
+	'ui/netshell/ns_tribes.cpp',
+	'ui/netshell/ns_units.cpp',
+	'ui/netshell/ns_window.cpp',
+	'ui/netshell/ns_wonders.cpp',
+	'ui/netshell/passwordscreen.cpp',
+	'ui/netshell/playereditwindow.cpp',
+	'ui/netshell/playerselectwindow.cpp',
+	'ui/netshell/serverselectwindow.cpp',
+]
+
+active_game_core_sources = game_core_sources
+if not get_option('anet')
+	active_game_core_sources = []
+	foreach src : game_core_sources
+		if not (src in legacy_network_sources)
+			active_game_core_sources += src
+		endif
+	endforeach
+endif
+main_sources = active_game_core_sources + game_entry_sources
+
 # Engine-only = game_core_sources minus UI strings and gfx adapter strings.
 # Generated entries (slic lgen/pgen) survive — they're engine-side.
 # meson's `in` operator on a mixed-type array compares safely without
@@ -1451,7 +1512,7 @@ gfxspritesys = static_library('libgfxspritesys', [
 	'gfx/spritesys/SpriteStateDB.cpp',
 	'gfx/spritesys/spritelow.cpp'],
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet, sdl ])
+		dependencies : [ cdb_header, sdl ] + network_dependencies)
 
 gfxtilesys = static_library('libgfxtilesys', [
 	'gfx/tilesys/maputils.cpp',
@@ -1468,7 +1529,7 @@ gfxtilesys = static_library('libgfxtilesys', [
 	'gfx/tilesys/tileutils.cpp',
 	'gfx/tilesys/workmap.cpp'],
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet, sdl ])
+		dependencies : [ cdb_header, sdl ] + network_dependencies)
 
 # mapgen plugins
 p_crater = shared_library('crater', 'mapgen/Crater.cpp', 
@@ -1489,7 +1550,7 @@ p_plasma2 = shared_library('plasma2', 'mapgen/PlasmaGen2.cpp',
 # main exe
 executable('ctp2', main_sources,
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+		dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
 		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs' ],
 		link_args : [ use_ld ],
 		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ])
@@ -1498,7 +1559,7 @@ executable('ctp2', main_sources,
 # but extra smoke/debug commands stay out of the regular player executable.
 executable('ctp2_render', main_sources + ['ctp/render_main.cpp'],
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+		dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
 		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DRENDER_TOOL_BUILD' ],
 		link_args : [ use_ld ],
 		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
@@ -1507,7 +1568,7 @@ executable('ctp2_render', main_sources + ['ctp/render_main.cpp'],
 # headless exe — simulation core without UI/audio/render
 # Same sources as ctp2 for now; stubs out UI at runtime via g_headlessMode.
 # Future: split game_core_sources into engine_sources + ui_sources.
-headless_sources = game_core_sources + [
+headless_sources = active_game_core_sources + [
 	'ctp/headless_main.cpp',
 	'ctp/headless_game_observer.cpp',
 	'ctp/civ3_main.cpp',
@@ -1516,7 +1577,7 @@ headless_sources = game_core_sources + [
 
 executable('ctp2_headless', headless_sources,
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+		dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
 		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DHEADLESS_BUILD', '-DUNIT_TEST_BUILD' ],
 		link_args : [ use_ld ],
 		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ])
@@ -1526,7 +1587,7 @@ executable('ctp2_headless', headless_sources,
 # Not built by default; run `meson compile -C build ctp2_engine_only`.
 static_library('ctp2_engine_only', engine_only_sources,
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+		dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
 		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs',
 				'-DHEADLESS_BUILD', '-DUNIT_TEST_BUILD' ],
 		build_by_default : false)
@@ -1573,9 +1634,9 @@ cpp_fast_test_sources = [
   'test/smoketest_server.cpp',
 ]
 
-fast_test_exe = executable('ctp2_fast_tests', cpp_fast_test_sources + game_core_sources,
+fast_test_exe = executable('ctp2_fast_tests', cpp_fast_test_sources + active_game_core_sources,
   include_directories : [ incdir, doctest_incdir ],
-  dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+  dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
   cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DUNIT_TEST_BUILD' ],
   link_args : [ use_ld ],
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
@@ -1646,9 +1707,9 @@ cpp_test_sources = [
   'test/smoketest_server.cpp',
 ]
 
-unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + game_core_sources,
+unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + active_game_core_sources,
   include_directories : [ incdir, doctest_incdir ],
-  dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+  dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
   cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DUNIT_TEST_BUILD' ],
   link_args : [ use_ld ],
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],

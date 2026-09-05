@@ -46,7 +46,9 @@
 #include "ui/aui_ctp2/c3_dropdown.h"
 #include "ui/aui_ctp2/c3_listitem.h"
 #include "net/general/network.h"
+#if CTP2_ENABLE_NETWORKING
 #include "ui/netshell/netshell.h"
+#endif
 
 // New includes for the new interface
 // because we return to the main menu now, not the SP menu
@@ -106,14 +108,18 @@ sint32	optionsscreen_displayMyWindow( sint32 from )
 
 
 	g_optionsWindow->SaveGameButton()->Enable(
+#if CTP2_ENABLE_NETWORKING
 		!(netfunc_Get() && !network_Get().IsHost()) &&
+#endif
 		from &&
 		!g_isCheatModeOn );
 
 
 	g_optionsWindow->LoadGameButton()->Enable(
-		!netfunc_Get()
-		&& from
+#if CTP2_ENABLE_NETWORKING
+		!netfunc_Get() &&
+#endif
+		from
 		);
 
 	if ( !network_Get().IsActive() &&

@@ -40,19 +40,20 @@
 #include "ui/aui_common/aui_stringtable.h"
 #include "ui/aui_ctp2/c3_button.h"
 #include "ui/aui_ctp2/c3_listitem.h"
+#include "ui/aui_ctp2/c3_static.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/ctp2_dropdown.h"
-#include "ui/netshell/dialogboxwindow.h"
+#include "ui/aui_common/aui_uniqueid.h"
 #include "gs/utility/Globals.h"                // allocated::...
-#include "ui/netshell/ns_gamesetup.h"
-#include "ui/netshell/ns_item.h"
 #include "ui/interface/spnewgamewindow.h"
 #include "gs/database/StrDB.h"                  // stringdb_Get()
 #include "gs/database/profileDB.h"              // profiledb_Get()
+#if CTP2_ENABLE_NETWORKING
 #include "ui/netshell/netshell.h"               // gamesetup_Get()
+#endif
 
-static DialogBoxWindow *s_agesScreen	= nullptr;
+static C3Window *s_agesScreen	= nullptr;
 
 static aui_Button		*s_back				= nullptr;
 static c3_Static		*s_name				= nullptr;
@@ -88,7 +89,9 @@ void agesscreen_setStartAge( sint32 index )
 	s_startDropDown->SetSelectedItem( index );
 
 	s_startAge = index;
+#if CTP2_ENABLE_NETWORKING
 	gamesetup_Get().SetStartAge(static_cast<char>(index));
+#endif
 	profiledb_Get()->SetSPStartingAge(index);
 }
 
@@ -106,7 +109,9 @@ void agesscreen_setEndAge( sint32 index )
 	s_endDropDown->SetSelectedItem( index );
 
 	s_endAge = index;
+#if CTP2_ENABLE_NETWORKING
 	gamesetup_Get().SetEndAge(static_cast<char>(index));
+#endif
 	profiledb_Get()->SetSPEndingAge(index);
 }
 
@@ -152,10 +157,11 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	s_agesScreen = new DialogBoxWindow(
+	s_agesScreen = new C3Window(
 		&errcode,
+		aui_UniqueId(),
 		windowBlock,
-		nullptr );
+		16 );
 	Assert( AUI_NEWOK(s_agesScreen, errcode) );
 	if ( !AUI_NEWOK(s_agesScreen, errcode) ) return errcode;
 
@@ -222,9 +228,10 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 
 
 		{
-			ns_ListItem *item = new ns_ListItem(
+			SingleListItem *item = new SingleListItem(
 				&errcode,
 				name,
+				i,
 				"listitems.ageitem" );
 			Assert( AUI_NEWOK(item,errcode) );
 			if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -240,9 +247,10 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 
 		{
 
-			ns_ListItem *item = new ns_ListItem(
+			SingleListItem *item = new SingleListItem(
 				&errcode,
 				name,
+				i,
 				"listitems.ageitem" );
 			Assert( AUI_NEWOK(item,errcode) );
 			if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;

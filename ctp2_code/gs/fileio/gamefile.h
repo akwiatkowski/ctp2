@@ -62,7 +62,9 @@ enum SAVEINFOLOAD
 
 #include "gs/core/pixel_types.h"
 #include "ctp/ctp2_utils/pointerlist.h"
+#if CTP2_ENABLE_NETWORKING
 #include "ui/netshell/ns_gamesetup.h"
+#endif
 #include "gs/world/MapPoint.h"
 #include "gs/fileio/StartingPosition.h"
 #include "gs/fileio/civscenarios.h"
@@ -99,7 +101,9 @@ public:
 	MBCHAR					civList[k_MAX_PLAYERS][k_MAX_NAME_LEN];
 	CivGuid                 networkGUID[k_MAX_PLAYERS];
 
+#if CTP2_ENABLE_NETWORKING
 	nf_GameSetup gameSetup;
+#endif
 
 	struct OptionScreenSettings
 	{

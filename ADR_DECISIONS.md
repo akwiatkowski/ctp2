@@ -2,6 +2,27 @@
 
 Short log of non-trivial design decisions. Newest first.
 
+## ADR-004 — Networking is opt-in at compile time (2026-09-04)
+
+**Context.** Multiplayer is outside the completion target, but the normal SDL build still
+linked Anet and compiled the legacy network transport and lobby UI. That expanded the runtime
+and security surface while giving single-player no benefit.
+
+**Decision.** Meson's `anet` option defaults to `false`. Normal `ctp2` and
+`ctp2_headless` builds omit Anet, transport threads, and netshell UI and compile guarded
+single-player entry paths. `-Danet=true` retains the source-compatible multiplayer build for
+future work. The small `net/general` replication shims still referenced by gameplay remain in
+both configurations until those call sites are separated.
+
+**Alternatives considered.** Deleting networking was rejected because source preservation was
+requested. Leaving it linked but hiding multiplayer UI was rejected because it would retain
+the dependency and attack surface.
+
+**Consequences.** Shipping/default binaries have no Anet dependency or transport symbols.
+The opt-in configuration must remain buildable, but multiplayer behavior is not part of the
+single-player completion gate.
+
+
 ## ADR-003 — Whole-map GPU texture; the camera owns zoom (2026-08-03)
 
 **Context.** ADR-002's window mirror gives a buttery pan but only a screen+margin texture, so

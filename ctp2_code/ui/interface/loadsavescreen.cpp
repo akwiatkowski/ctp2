@@ -73,8 +73,10 @@
 #include "ui/aui_ctp2/keypress.h"
 #include "ui/interface/loadsavewindow.h"
 #include "ui/interface/MessageBoxDialog.h"
+#if CTP2_ENABLE_NETWORKING
 #include "ui/netshell/netshell.h"                   // gamesetup_Get()
 #include "ui/netshell/ns_gamesetup.h"
+#endif
 #include "ui/interface/optionswindow.h"
 #include "gs/gameobj/Player.h"                     // player_Get()
 #include "gs/database/profileDB.h"                  // profiledb_Get()
@@ -706,10 +708,11 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 		}
 	}
 
+	uint32 i;
+#if CTP2_ENABLE_NETWORKING
 	nf_GameSetup gs;
 
 	sint32 j = 0;
-	uint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++)
 	{
 		if ( player_Get(i) )
@@ -740,6 +743,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 		}
 	}
 	saveInfo->gameSetup = gs;
+#endif
 
 	MBCHAR	path[_MAX_PATH];
 	MBCHAR	fullPath[_MAX_PATH];
@@ -817,6 +821,9 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 
 void loadsavescreen_LoadMPGame()
 {
+#if !CTP2_ENABLE_NETWORKING
+	return;
+#else
 	if(!g_loadsaveWindow) {
 		Assert(netfunc_Get() && !netfunc_Get()->IsHost());
 		// HACK FIXME I still don't understand what's going on, but now
@@ -850,12 +857,16 @@ void loadsavescreen_LoadMPGame()
 
 	snprintf(path, sizeof(path), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
 	civapp_Get()->PostLoadSaveGameAction(path);
+#endif
 }
 
 /////////////////////////////////////////////////////////////
 
 void loadsavescreen_SaveMPGame()
 {
+#if !CTP2_ENABLE_NETWORKING
+	return;
+#else
 	SaveInfo		*saveInfo = g_loadsaveWindow->GetSaveInfoToSave();
 
 	Assert( saveInfo != nullptr );
@@ -915,6 +926,7 @@ void loadsavescreen_SaveMPGame()
 
 	// SAM021899 changed to make a save request
 	allocated::reassign(g_savedGameRequest, new SaveInfo(saveInfo));
+#endif
 
 //	GameFile::SaveGame(saveInfo->pathName, saveInfo);
 
@@ -972,6 +984,7 @@ void loadsavescreen_SaveSCENGame()
 	}
 
 	// Create a default gamesetup.
+#if CTP2_ENABLE_NETWORKING
 	nf_GameSetup gs;
 
 	// Must save which tribes were used.
@@ -999,6 +1012,7 @@ void loadsavescreen_SaveSCENGame()
 	}
 
 	saveInfo->gameSetup = gs;
+#endif
 
 	MBCHAR	path[_MAX_PATH];
 

@@ -138,6 +138,15 @@ extern sint32 g_debugOwner;
 #include "ai/ctpai.h"
 #include "net/general/chatlist.h"
 #include "sound/soundmanager.h"
+
+#if !CTP2_ENABLE_NETWORKING
+// Single-player UI code still asks whether the old lobby exists. Keep that
+// compatibility query local without linking the legacy multiplayer shell.
+NETFunc *netfunc_Get()
+{
+	return nullptr;
+}
+#endif
 #include "sound/gamesounds.h"
 #include "ui/interface/progresswindow.h"
 extern ProgressWindow		*g_theProgressWindow;
@@ -238,6 +247,7 @@ Network::Network() :
 {
 	m_noThread = FALSE;
 
+#if CTP2_ENABLE_NETWORKING
 	if(m_noThread) {
 		m_netIO = new ActivNetIO;
 		m_netIO->Init(this);
@@ -245,6 +255,11 @@ Network::Network() :
 		m_netIO = new NetThread;
 		m_netIO->Init(this);
 	}
+#else
+	// Single-player builds have no transport or worker thread.  The legacy
+	// Network facade remains as an inactive compatibility shim for game code.
+	m_netIO = nullptr;
+#endif
 
 	for(auto & i : m_playerData) {
 		i = nullptr;
@@ -452,6 +467,10 @@ Network::Cleanup()
 
 void Network::SetLaunchFromNetFunc(BOOL fromSave)
 {
+#if !CTP2_ENABLE_NETWORKING
+	(void)fromSave;
+	return;
+#else
 	m_launchFromNetFunc = TRUE;
 	m_fromSave = fromSave;
 	m_readyToStart = FALSE;
@@ -466,10 +485,14 @@ void Network::SetLaunchFromNetFunc(BOOL fromSave)
 	}
 
 	m_newPlayerList->DeleteAll();
+#endif
 }
 
 void Network::InitFromNetFunc()
 {
+#if !CTP2_ENABLE_NETWORKING
+	return;
+#else
 	m_initialized = TRUE;
 	m_iAmHost = NETFunc::IsHost();
 	m_iAmClient = !m_iAmHost;
@@ -548,6 +571,7 @@ void Network::InitFromNetFunc()
 			c3_AbortMessage(nonConstStr, k_UTILITY_PROGRESS_ABORT, network_AbortCallback);
 		}
 	}
+#endif
 }
 
 void Network::SetNSPlayerInfo(uint16 id,

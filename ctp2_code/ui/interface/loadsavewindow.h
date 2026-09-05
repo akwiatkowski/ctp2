@@ -10,6 +10,8 @@ class LoadSaveWindow;
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/fileio/gamefile.h"
 #include "ui/aui_ctp2/c3_popupwindow.h"
+#include "ui/aui_ctp2/c3_static.h"
+#include "ui/aui_common/aui_action.h"
 #include "ui/aui_ctp2/c3_listitem.h"
 
 class c3_Static;

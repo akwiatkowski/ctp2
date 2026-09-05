@@ -1740,7 +1740,14 @@ test('integration', unit_test_exe,
 )
 
 # e2e smoke test: launches the real game binary and drives it via Unix socket
-find_program('python3', required : true)
+python3 = find_program('python3', required : true)
+test('asset-installer', python3,
+  args : [join_paths(meson.project_source_root(), '..', 'tools', 'assets',
+                     'test_install_ctp2_home.py')],
+  timeout : 30,
+  suite : 'unit',
+  workdir : join_paths(meson.project_source_root(), '..', 'tools', 'assets'),
+)
 test('smoke',
   find_program('test/smoke_test.py'),
   args : [join_paths(meson.project_build_root(), 'ctp2')],

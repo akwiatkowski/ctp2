@@ -6,6 +6,11 @@
 
 namespace
 {
+constexpr std::streamoff kMaxManifestBytes = 4 * 1024 * 1024;
+constexpr int kMaxAtlasDimension = 16384;
+constexpr size_t kMaxActions = 32;
+constexpr size_t kMaxFrames = 65536;
+
 bool require_string(nlohmann::json const &doc, char const *key, std::string &value, std::string &error)
 {
 	if (!doc.contains(key) || !doc[key].is_string())
@@ -64,9 +69,26 @@ bool ModernSpriteManifestParse(nlohmann::json const &doc, ModernSpriteManifest &
 		error = "atlas dimensions must be positive";
 		return false;
 	}
+	if (parsed.atlasWidth > kMaxAtlasDimension || parsed.atlasHeight > kMaxAtlasDimension)
+	{
+		error = "atlas dimensions exceed supported limit";
+		return false;
+	}
+	if (parsed.atlasPng == "." || parsed.atlasPng == ".."
+		|| parsed.atlasPng.find('/') != std::string::npos
+		|| parsed.atlasPng.find('\\') != std::string::npos)
+	{
+		error = "atlas png must be a file name";
+		return false;
+	}
 	if (!doc.contains("actions") || !doc["actions"].is_array())
 	{
 		error = "actions must be an array";
+		return false;
+	}
+	if (doc["actions"].size() > kMaxActions)
+	{
+		error = "too many actions";
 		return false;
 	}
 	for (nlohmann::json const &action_doc : doc["actions"])
@@ -93,6 +115,11 @@ bool ModernSpriteManifestParse(nlohmann::json const &doc, ModernSpriteManifest &
 		if (!action_doc.contains("frames") || !action_doc["frames"].is_array())
 		{
 			error = "frames must be an array";
+			return false;
+		}
+		if (action_doc["frames"].size() > kMaxFrames)
+		{
+			error = "too many frames";
 			return false;
 		}
 		std::set<int> distinct_frames;
@@ -128,8 +155,9 @@ bool ModernSpriteManifestParse(nlohmann::json const &doc, ModernSpriteManifest &
 				return false;
 			}
 			if (frame.rect.x < 0 || frame.rect.y < 0 || frame.rect.w <= 0 || frame.rect.h <= 0
-				|| frame.rect.x + frame.rect.w > parsed.atlasWidth
-				|| frame.rect.y + frame.rect.h > parsed.atlasHeight)
+				|| frame.rect.x > parsed.atlasWidth || frame.rect.y > parsed.atlasHeight
+				|| frame.rect.w > parsed.atlasWidth - frame.rect.x
+				|| frame.rect.h > parsed.atlasHeight - frame.rect.y)
 			{
 				error = "frame rect exceeds atlas bounds";
 				return false;
@@ -156,6 +184,14 @@ bool ModernSpriteManifestLoad(char const *path, ModernSpriteManifest &out, std::
 		error = "could not open manifest";
 		return false;
 	}
+	input.seekg(0, std::ios::end);
+	std::streamoff const fileSize = input.tellg();
+	if (fileSize < 0 || fileSize > kMaxManifestBytes)
+	{
+		error = "manifest exceeds size limit";
+		return false;
+	}
+	input.seekg(0, std::ios::beg);
 	nlohmann::json doc;
 	try
 	{

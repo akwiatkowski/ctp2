@@ -87,6 +87,7 @@ public:
 	void InitCDPath();
 
 	MBCHAR *GetSavePath(C3SAVEDIR dir, MBCHAR *path);
+	MBCHAR *GetUserPath(const MBCHAR *filename, MBCHAR *path) const;
 
 
 

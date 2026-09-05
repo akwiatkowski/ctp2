@@ -56,6 +56,34 @@ TEST_CASE("modern sprite manifest parser rejects out-of-bounds rects")
 	CHECK(error == "frame rect exceeds atlas bounds");
 }
 
+TEST_CASE("modern sprite manifest parser rejects unsafe atlas paths")
+{
+	nlohmann::json doc = {
+		{"source", "GU04.SPR"},
+		{"atlas", {{"png", "../GU04.png"}, {"width", 16}, {"height", 16}}},
+		{"actions", nlohmann::json::array()},
+	};
+
+	ModernSpriteManifest manifest;
+	std::string error;
+	CHECK_FALSE(ModernSpriteManifestParse(doc, manifest, error));
+	CHECK(error == "atlas png must be a file name");
+}
+
+TEST_CASE("modern sprite manifest parser rejects oversized atlases")
+{
+	nlohmann::json doc = {
+		{"source", "GU04.SPR"},
+		{"atlas", {{"png", "GU04.png"}, {"width", 16385}, {"height", 16}}},
+		{"actions", nlohmann::json::array()},
+	};
+
+	ModernSpriteManifest manifest;
+	std::string error;
+	CHECK_FALSE(ModernSpriteManifestParse(doc, manifest, error));
+	CHECK(error == "atlas dimensions exceed supported limit");
+}
+
 TEST_CASE("modern sprite manifest loader reads validated json files")
 {
 	char const *path = "/tmp/ctp2_modern_sprite_manifest_test.json";
@@ -80,6 +108,22 @@ TEST_CASE("modern sprite manifest loader reads validated json files")
 	CHECK(ModernSpriteManifestLoad(path, manifest, error));
 	CHECK(error.empty());
 	CHECK(manifest.atlasWidth == 16);
+	std::remove(path);
+}
+
+TEST_CASE("modern sprite manifest loader rejects oversized files")
+{
+	char const *path = "/tmp/ctp2_modern_sprite_manifest_oversized.json";
+	{
+		std::ofstream out(path, std::ios::binary);
+		out.seekp(4 * 1024 * 1024);
+		out.put('\n');
+	}
+
+	ModernSpriteManifest manifest;
+	std::string error;
+	CHECK_FALSE(ModernSpriteManifestLoad(path, manifest, error));
+	CHECK(error == "manifest exceeds size limit");
 	std::remove(path);
 }
 

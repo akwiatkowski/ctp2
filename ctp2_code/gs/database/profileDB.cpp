@@ -504,8 +504,7 @@ BOOL ProfileDB::Init(BOOL forTutorial)
 	}
 	else
 	{
-		profileTxtFile = civpaths_Get()->FindFile(C3DIR_DIRECT, "userprofile.txt",
-		                                      profileName);
+		profileTxtFile = civpaths_Get()->GetUserPath("userprofile.txt", profileName);
 		if (!profileTxtFile || !c3files_PathIsValid(profileTxtFile))
 		{
 			profileTxtFile = civpaths_Get()->FindFile(C3DIR_GAMEDATA,
@@ -725,7 +724,9 @@ void ProfileDB::Save()
 		return;
 	}
 
-	FILE *file = c3files_fopen(C3DIR_DIRECT, "userprofile.txt", "w");
+	MBCHAR profileName[_MAX_PATH];
+	MBCHAR *profilePath = civpaths_Get()->GetUserPath("userprofile.txt", profileName);
+	FILE *file = profilePath ? fopen(profilePath, "w") : nullptr;
 	if(file) {
 		PointerList<ProfileVar>::Walker walk(&m_vars);
 		while(walk.IsValid()) {

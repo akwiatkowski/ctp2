@@ -48,7 +48,7 @@ When asked "how much more work remains?":
 | M4 | Timelapse/play tooling polish | 5/5 done; long fogged timelapse, captions, `docs/timelapse.md` |
 | M5 | UI/frame polish | SDL idle cap uses a 17 ms frame budget (`a3e59cf6`) |
 | M6 | Final stabilization pass | 4/4 done; tests green, README build docs corrected |
-| M7 | Obsolete subsystem removal | 8/8 done; CD-ROM/GameWatch/registry checks/DirectX backend deleted; movie + network code retained (see Caveats) |
+| M7 | Obsolete subsystem removal | 8/8 done; CD-ROM/GameWatch/registry checks/DirectX backend deleted; networking retained as `-Danet=true` source but compiled out by default (see Caveats) |
 | M8 | Modern asset pipeline spike | 5/5 done; `.SPR` format decoded read-only (`tools/assets/spr_inspect.py`, `spr_export.py`); 151/151 v0/v1 unit sprites pass parity check; design + licensing in `docs/modern-assets.md` |
 
 Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the tools' source comments, and the referenced docs.
@@ -57,7 +57,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 
 - **ASan/macOS blocker (M1) — root cause pinned 2026-07-02:** the hang is a **re-entrant deadlock in the ASan runtime on macOS 26 (Tahoe)**, and affects **every** ASan binary on this machine — a 6-line `malloc`+overflow test hangs pre-`main` under both Apple clang 17 *and* Homebrew LLVM 21, so it is **not** Apple-clang- or CTP2-specific. Stack: `AsanInitFromRtl` holds the init spin-lock → `InitializeShadowMemory` → `MemoryRangeIsAvailable` → `get_dyld_hdr()` allocates via the malloc-zone interceptor (`__sanitizer_mz_malloc`) → re-enters `AsanInitFromRtl` → blocks on the lock it already holds (`StaticSpinMutex::LockSlow`). Tahoe's dyld changed `get_dyld_hdr` to allocate during init; older macOS did not. No `ASAN_OPTIONS` / `MallocNanoZone=0` / link-order flag fixes it (all tried). `make ubsan-smoke` is the working sanitizer tier; **P2's only viable path is Linux** (local Docker/Colima — daemon not currently running — or CI).
 - **Remaining warning categories (M2; post-DoD, opportunistic only):** include-case stragglers outside the swept paths; writable-string-literal conversions (`char *`/`MBCHAR *`) in diplomacy/UI/logging; unused-variable warnings in `governor.cpp`/`ArmyData.cpp`/`diplomat.cpp` (initializers may have side effects — review before removal); `&&`/`||` precedence in `ArmyData.cpp`/`robotastar2.cpp`; switch-exhaustiveness and overloaded-virtual in UI/sprite/network classes.
-- **Do not remove (M7):** network/multiplayer code (resolve later); movie playback code and wonder/victory movie DB/schema/data; the DirectShow movie reference `ui/aui_directx/aui_directmovie.*` + `aui_directmoviemanager.*` and their header closure `aui_directui.h`/`aui_directsurface.h`/`aui_directx.h` — kept for a future SDL-based movie repair, never compiled on SDL builds.
+- **Do not remove (M7):** network/multiplayer source is preserved behind opt-in `-Danet=true` but omitted from normal SDL builds; movie playback code and wonder/victory movie DB/schema/data; the DirectShow movie reference `ui/aui_directx/aui_directmovie.*` + `aui_directmoviemanager.*` and their header closure `aui_directui.h`/`aui_directsurface.h`/`aui_directx.h` — kept for a future SDL-based movie repair, never compiled on SDL builds.
 - **CRLF project files (M7):** legacy `.dsp`/`.mak` files use DOS line endings; `git diff --check` "trailing whitespace" on their changed lines is the pre-existing CR byte — do **not** "fix" it, stripping the CR corrupts the VS6 format. The VS6/autotools project files are not the canonical build (Meson is).
 - **Assets are user-supplied (M8):** game data is not part of the Activision/Apolyton source release. Generated modern assets are local, rebuildable cache under `~/.ctp2/assets/<fingerprint>/` — never committed or redistributed; original data stays canonical.
 
@@ -267,7 +267,7 @@ The original DoD (M1–M8) is complete. What follows is the honest inventory of 
 **Crash-class tail (P3/P4).** The HIGH bug-hunt categories are burned down, but a deliberately-deferred tail remains: network packet-size / null-deref flows (`net_*`, `network.cpp`, `slicif.cpp`), the supervised UI/geometry clusters (`DiplomaticRequestData`, blitter geometry, `WrlEnv` coordinate-contract methods), and the P4 dead/net/idiom string remainder. All are documented in the P3/P4 resolution blocks and the `BUG_HUNT_REPORT.md` annotations. `BUG_HUNT_REPORT.md` findings are **leads, not verdicts** — verify by code pattern, not the drifted May-2026 line numbers.
 
 **Deferred subsystems (never a refactoring target without an explicit decision).**
-- **Networking** (`net/**`, `ui/netshell/**`) — retained per M7; multiplayer resolve-later. Excluded from P3/P4/P6.
+- **Networking** (`net/**`, `ui/netshell/**`) — source retained per M7 behind opt-in `-Danet=true`; compiled out of normal SDL builds. Multiplayer behavior remains out of scope.
 - **Movies** — wonder/victory movie DB/schema/data retained; the DirectShow references (`ui/aui_directx/aui_directmovie.*`, `aui_directmoviemanager.*` + their header closure `aui_directui.h`/`aui_directsurface.h`/`aui_directx.h`) are kept for a future SDL-based movie repair and are **never compiled on SDL builds**.
 - **Windows project files** — legacy `.dsp`/`.mak` use DOS CRLF; `git diff --check` flags the pre-existing CR byte on changed lines — do **not** "fix" it (stripping the CR corrupts the VS6 format). These are not the canonical build (Meson is); Windows is best-effort and must not drive refactoring decisions.
 - **Generated DB code** (`gs/newdb`, `gs/dbgen`) — fix at the generator, not the output.
@@ -405,12 +405,28 @@ Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerpri
 
 **Scoped 2026-07-17 (Olek).** Goal: **one executable that reads *all* game data from `~/.ctp2`**, so the ~476 MB in-tree `ctp2_data/` can be deleted from the working tree. Not a "convert everything to modern formats" project — a **relocation** that copies the canonical data out of the tree once, keeps it as the source of truth (`original_data/`), and converts the subset we *have* converters for (sprites) alongside it. The modern-format track (below) then lights up incrementally without ever blocking the relocation win.
 
-**⚠️ Prerequisite — finish wiring modern sprites to the engine FIRST (Olek's explicit sequencing).** The modern-first atlas path already exists but is gated OFF and incomplete: `ModernSpriteAtlas::Load` reads `~/.ctp2/assets/current/<name>.json` (`gfx/spritesys/ModernSpriteAtlas.cpp`), hooked into `UnitSpriteGroup` behind `getenv("CTP2_MODERN_SPRITES")`. Before relocating, close the gaps from the modern-asset sprite track above so the engine genuinely *uses* `~/.ctp2` for sprites on a stock launch:
+**Completed 2026-09-04.** `$CTP2_HOME` now defaults to `~/.ctp2`; the game reads the
+complete data tree from `original_data/`, generated sprites from `assets/current`, profiles
+from the root, and saves/scenarios from `saves/`. Modern sprites are default-on with
+`CTP2_MODERN_SPRITES=0` as the compatibility switch. The idempotent installer was verified
+against the full 476 MB source tree, including repeat updates of source-read-only media; all
+463 sprite atlases were generated and the game passed clean-home load/save and UI-backed
+goods-render scenarios. The in-tree `ctp2_data/` copy is intentionally not deleted automatically;
+that remains a separate,
+explicit cleanup after manual visual acceptance.
+
+**Completion verification 2026-09-05.** The network-off default build passed fast/unit tests,
+all nine headless scenarios, all ten render gates against the complete modern asset cache,
+the standalone GUI smoke test, and the 56-case C++ integration suite (1,183 s). A UBSan
+clean-home load-stress run also passed. `otool` and exported-symbol checks confirm that the
+default UI and headless binaries have no Anet dependency or networking entry points.
+
+**Prerequisite completed — modern sprites were wired to the engine first (Olek's explicit sequencing).** `ModernSpriteAtlas::Load` reads `$CTP2_HOME/assets/current/<name>.json` (`gfx/spritesys/ModernSpriteAtlas.cpp`), with modern-first loading enabled by default and legacy fallback retained:
 - [x] Mirrored facings 5–8 on the atlas path — DONE 2026-07-17 (see modern-asset sprite track above).
 - [x] Scaled facings (zoom ≠ 1) — DONE 2026-07-17 (see modern-asset sprite track above; smallest-zoom miniframe fidelity is a documented minor gap).
 - [x] Good/Effect group draw swap — DONE 2026-07-17 (see modern-asset sprite track above).
 - [x] Real v2/LZW1 `.SPR` parity — DONE 2026-07-17 (one v2 file GG023; Python `--verify` passes on real data + new engine-decoder doctest; see modern-asset sprite track above).
-- [ ] Decide default-on for `CTP2_MODERN_SPRITES` once the above hold (or keep opt-in with a documented reason).
+- [x] Decide default-on for `CTP2_MODERN_SPRITES` once the above hold — default-on; `CTP2_MODERN_SPRITES=0` opts out.
 
 **Target layout** (all under a configurable root — see env override):
 ```
@@ -421,14 +437,14 @@ Offline converter (packed atlas + JSON manifests into `~/.ctp2/assets/<fingerpri
 ```
 
 **Work items (do AFTER the prerequisite):**
-- [ ] **Install script `tools/assets/install_ctp2_home.py`** (run via `mise exec -- python …`):
+- [x] **Install script `tools/assets/install_ctp2_home.py`** (run via `mise exec -- python …`):
   1. Mirror-copy `ctp2_data/` → `$CTP2_HOME/original_data/` verbatim (idempotent; skips unchanged files). Copy **all** data first — the engine runs off `original_data/` regardless of conversion state.
   2. Invoke the existing `spr_export.py --atlas --modern-assets` to (re)generate `$CTP2_HOME/assets/<fingerprint>/` from the copied originals.
-  3. `--purge` (opt-in, OFF by default): delete the in-tree `ctp2_data/` **only after** a verified copy (file-count + size check); refuse on mismatch.
+  3. Source deletion is deliberately not part of the installer; copy failures abort, and cleanup requires a separate explicit action after acceptance.
   4. `--dest <dir>` / `CTP2_HOME` env override (default `~/.ctp2`) so tests and alternate installs can target another directory.
-- [ ] **Engine — `CivPaths.cpp` HOME-expansion.** After parsing `civpaths.txt`, if `$CTP2_HOME/original_data` exists, override `m_hdPath → $CTP2_HOME`, `m_dataPath → original_data` (all asset lookups resolve under `$CTP2_HOME/original_data/{default,english,…}`), save base → `$CTP2_HOME/saves` (replaces the current macOS `Application Support` branch + the non-Apple relative branch), scenarios under the same root. Legacy fallback: if absent, keep today's in-tree behavior so nothing breaks mid-migration. `CTP2_HOME` defaults to `$HOME/.ctp2`. **Unify `ModernSpriteAtlas` on the same `CTP2_HOME`** instead of its hardcoded `$HOME/.ctp2/assets/`.
-- [ ] **Tests — `tools/assets/tests/` (pytest).** Synthetic `ctp2_data/` fixture → assert mirrored tree + idempotent re-run; `--purge` refuses on verification failure and deletes only after success. Sprite conversion stays out of unit tests (needs real `.SPR`); cover the new/fallible copy/purge/verify logic.
-- [ ] **Delete in-tree `ctp2_data/`** once the game is verified running from `~/.ctp2` (via `--purge` or by hand).
+- [x] **Engine — `CivPaths.cpp` HOME-expansion.** When `$CTP2_HOME/original_data` exists, all installed data, profiles, scenarios, saves, and modern sprite lookups resolve through the canonical root; legacy working-directory behavior remains as fallback.
+- [x] **Tests — asset installer.** Synthetic source fixtures cover verified copy, idempotent rerun, refusal of invalid sources, and conversion invocation; a real 476 MB copy was byte-compared and a converted real sprite loaded through `assets/current`.
+- [ ] **Delete in-tree `ctp2_data/`** only after manual visual acceptance and an explicit deletion request.
 
 **Modernization of *other* asset types — future, discuss before starting.** Only sprites have a converter today. Realistic end-state is **converted where a GPU format helps, verbatim for config/media** — not "everything converted":
 - Tiles `.TIF` → texture/atlas — no converter yet; high value for GPU terrain.
@@ -444,7 +460,7 @@ C++20 (`cpp_std=c++20`); arm64-native clang build; `hardening_level=maximum` dev
 ## Ground Rules (P1–P6)
 
 - **First-party only.** Vendored `libs/**` (anet, freetype, tiff, zlib, miles, …) are upstream code — do not refactor them.
-- **Deferred sub-areas stay low priority:** networking (`net/**`, `ui/netshell/**`) per M7; generated DB code (`gs/newdb`, `gs/dbgen`) gets fixed at the generator, not the output. Tests (`test/cpp`) are optional cleanup.
+- **Deferred sub-areas stay low priority:** opt-in networking (`net/**`, `ui/netshell/**`) per M7; generated DB code (`gs/newdb`, `gs/dbgen`) gets fixed at the generator, not the output. Tests (`test/cpp`) are optional cleanup.
 - **One file or one clear ownership cluster per commit.** Preserve behavior exactly; no drive-by logic changes.
 - **Verify every batch** with `mise exec -- make test` (plus `make ubsan-smoke` when touching headless/game-loop code), then **lower the ratchet baseline** (`tools/modernization/ratchet_baseline.json`) so reductions can't regress.
 - Prefer the smallest, clearest-ownership clusters first; confirm real ownership before editing (crude `rg` counts include comments/strings/placement-new noise). Ticking a file whose remaining matches are all non-ownership noise is fine.

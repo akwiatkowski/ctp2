@@ -104,7 +104,8 @@ private:
 bool ModernSpritesEnabled();
 
 // Given a legacy sprite filename ("GU04.SPR", "GX22.SPR", ...), return the path
-// to its generated atlas manifest under ~/.ctp2/assets/current/<base>.json, or
+// to its generated atlas manifest under $CTP2_HOME/assets/current/<base>.json
+// (default ~/.ctp2), or
 // an empty string if the modern cache has no manifest for it. The "current"
 // pointer is maintained by tools/assets/spr_export.py --modern-assets.
 std::string ModernAssetManifestPath(char const * spriteFileName);

@@ -2,6 +2,32 @@
 
 Short log of non-trivial design decisions. Newest first.
 
+## ADR-005 — One configurable home for installed data and generated assets (2026-09-04)
+
+**Context.** The engine historically depended on the repository working directory for
+`ctp2_data`, while converted sprites lived separately under a hard-coded `~/.ctp2/assets`.
+That made the source checkout part of the runtime installation and let profiles and saves
+leak back into the working tree.
+
+**Decision.** `$CTP2_HOME` is the single installed-data root, defaulting to `~/.ctp2`. Its
+stable layout is `original_data/` for the complete verbatim game data, `assets/` for
+fingerprinted generated caches with a `current` pointer, and `saves/` for mutable games and
+scenario data. The engine, profile database, sprite loader, converter, and installer all use
+that root. Modern sprites are default-on and may be disabled with
+`CTP2_MODERN_SPRITES=0`; every asset type without a modern converter continues to load from
+`original_data`. If `original_data` is absent, the existing working-directory layout remains
+as a compatibility fallback.
+
+**Alternatives considered.** Making converted files canonical was rejected because only
+sprites currently have a converter and original/mod data remains authoritative. Removing the
+legacy fallback immediately was rejected because it would make migration needlessly brittle.
+
+**Consequences.** A checkout is no longer required after running the idempotent installer,
+and tests can isolate all mutable state with a temporary `CTP2_HOME`. The installer never
+deletes source data; removing the in-tree copy remains a separate explicit user action after
+visual verification.
+
+
 ## ADR-004 — Networking is opt-in at compile time (2026-09-04)
 
 **Context.** Multiplayer is outside the completion target, but the normal SDL build still

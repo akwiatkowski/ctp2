@@ -253,13 +253,17 @@ std::string ModernAssetManifestPath(char const * spriteFileName)
     if (dot != std::string::npos)
         name = name.substr(0, dot);
 
+    char const * configured = getenv("CTP2_HOME");
     char const * home = getenv("HOME");
-    if (!home || !home[0])
+    if ((!configured || !configured[0]) && (!home || !home[0]))
         return std::string();
 
-    // The converter maintains ~/.ctp2/assets/current -> <fingerprint> (symlink),
+    // The converter maintains $CTP2_HOME/assets/current -> <fingerprint>
+    // (default ~/.ctp2),
     // with a "current.txt" holding the fingerprint where symlinks are absent.
-    std::string const root = std::string(home) + "/.ctp2/assets/";
+    std::string const root = configured && configured[0]
+        ? std::string(configured) + "/assets/"
+        : std::string(home) + "/.ctp2/assets/";
     std::string candidate = root + "current/" + name + ".json";
     if (FILE * f = fopen(candidate.c_str(), "r")) { fclose(f); return candidate; }
 

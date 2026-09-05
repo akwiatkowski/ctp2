@@ -22,13 +22,16 @@ namespace
 
     // Guard against absurd allocations from a corrupt/hostile header.
     int const k_MAX_DIM = 16384;
+    size_t const k_MAX_PIXELS = 64 * 1024 * 1024;
+    long const k_MAX_FILE_BYTES = 256L * 1024 * 1024;
 }
 
 bool png_decode_rgba(uint8_t const * data, size_t size,
                      int & width, int & height,
                      std::vector<uint8_t> & rgba)
 {
-    if (!data || size < 8 || std::memcmp(data, k_PNG_SIG, 8) != 0)
+    if (!data || size < 8 || size > static_cast<size_t>(k_MAX_FILE_BYTES)
+        || std::memcmp(data, k_PNG_SIG, 8) != 0)
         return false;
 
     int              w = 0;
@@ -56,6 +59,7 @@ bool png_decode_rgba(uint8_t const * data, size_t size,
             // Only the converter's exact shape: RGBA8, no interlace.
             if (bitDepth != 8 || colorType != 6 || interlace != 0) return false;
             if (w <= 0 || h <= 0 || w > k_MAX_DIM || h > k_MAX_DIM) return false;
+            if (static_cast<size_t>(w) * static_cast<size_t>(h) > k_MAX_PIXELS) return false;
             haveIhdr = true;
         }
         else if (std::memcmp(type, "IDAT", 4) == 0)
@@ -107,10 +111,13 @@ bool png_load_rgba(char const * path,
     if (!fp)
         return false;
 
-    fseek(fp, 0, SEEK_END);
+    if (fseek(fp, 0, SEEK_END) != 0)
+    {
+        fclose(fp);
+        return false;
+    }
     long const fileLen = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-    if (fileLen <= 8)
+    if (fileLen <= 8 || fileLen > k_MAX_FILE_BYTES || fseek(fp, 0, SEEK_SET) != 0)
     {
         fclose(fp);
         return false;

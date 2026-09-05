@@ -91,6 +91,10 @@ GOODACTION_MAX = 1
 EFFECT_ACTION_NAMES = ("PLAY", "FLASH")
 
 TRANSPARENT = None  # marker for an unset pixel
+MAX_INPUT_BYTES = 256 * 1024 * 1024
+MAX_MANIFEST_BYTES = 4 * 1024 * 1024
+MAX_ATLAS_DIMENSION = 16384
+MAX_ATLAS_PIXELS = 64 * 1024 * 1024
 
 
 class SprExportError(Exception):
@@ -180,6 +184,10 @@ def decode_frame(frame: bytes, width: int, height: int) -> list[list]:
 
     Cells hold a Pixel16 int (opaque) or ``TRANSPARENT``.
     """
+    if (width <= 0 or height <= 0 or width > MAX_ATLAS_DIMENSION
+            or height > MAX_ATLAS_DIMENSION
+            or width * height > MAX_ATLAS_PIXELS):
+        raise SprExportError(f"invalid frame dimensions {width}x{height}")
     if len(frame) < 2:
         return [[TRANSPARENT] * width for _ in range(height)]
     u16 = struct.unpack(f"<{len(frame) // 2}H", frame[: (len(frame) // 2) * 2])
@@ -363,6 +371,10 @@ def pack_atlas(frames: list[dict], max_width: int = 2048) -> tuple[int, int, byt
     atlas_height = y + row_height
     if atlas_width == 0 or atlas_height == 0:
         return 1, 1, b"\x00\x00\x00\x00"
+    if (atlas_width > MAX_ATLAS_DIMENSION or atlas_height > MAX_ATLAS_DIMENSION
+            or atlas_width * atlas_height > MAX_ATLAS_PIXELS):
+        raise SprExportError(
+            f"atlas dimensions exceed supported limit: {atlas_width}x{atlas_height}")
 
     atlas = bytearray(atlas_width * atlas_height * 4)
     for frame in frames:
@@ -417,7 +429,10 @@ def source_set_fingerprint(path: str) -> str:
 
 def modern_assets_root() -> str:
     """Root of the user-local modern-asset cache."""
-    return os.path.expanduser(os.path.join("~", ".ctp2", "assets"))
+    ctp2_home = os.environ.get("CTP2_HOME")
+    if not ctp2_home:
+        ctp2_home = os.path.expanduser(os.path.join("~", ".ctp2"))
+    return os.path.join(ctp2_home, "assets")
 
 
 def modern_assets_dir(path: str) -> str:
@@ -462,7 +477,10 @@ def _read_faced_frames(buf: bytes, offset: int, version: int):
     pos += 2                          # first_frame
     nf = spr._u16(buf, pos)
     pos += 2
-    if nf == 0 or nf > 512:
+    if (width == 0 or height == 0 or width > MAX_ATLAS_DIMENSION
+            or height > MAX_ATLAS_DIMENSION
+            or width * height > MAX_ATLAS_PIXELS
+            or nf == 0 or nf > 512):
         return None
 
     # Size tables are interleaved per facing: ssizes[j], then msizes[j].
@@ -594,6 +612,8 @@ def _resolve_actions(info: "spr.SprInfo", buf: bytes):
 
 
 def export(path: str, out_dir: str, action_filter: str | None, atlas: bool = False) -> int:
+    if os.path.getsize(path) > MAX_INPUT_BYTES:
+        raise SprExportError(f"input exceeds {MAX_INPUT_BYTES} byte limit: {path}")
     info = spr.inspect(path)
     with open(path, "rb") as f:
         buf = f.read()
@@ -771,6 +791,9 @@ def validate_manifest_data(manifest: dict) -> list[str]:
 
 
 def validate_manifest(path: str) -> int:
+    if os.path.getsize(path) > MAX_MANIFEST_BYTES:
+        print(f"BAD {path}: manifest exceeds size limit", file=sys.stderr)
+        return 1
     with open(path) as f:
         manifest = json.load(f)
     errors = validate_manifest_data(manifest)
@@ -784,6 +807,8 @@ def validate_manifest(path: str) -> int:
 
 def verify(path: str) -> int:
     """Run the per-row width invariant across every frame of a sprite."""
+    if os.path.getsize(path) > MAX_INPUT_BYTES:
+        raise SprExportError(f"input exceeds {MAX_INPUT_BYTES} byte limit: {path}")
     info = spr.inspect(path)
     with open(path, "rb") as f:
         buf = f.read()
@@ -966,7 +991,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--atlas", action="store_true",
                     help="write one packed atlas PNG and rect manifest instead of per-frame PNGs")
     ap.add_argument("--modern-assets", action="store_true",
-                    help="write to ~/.ctp2/assets/<source-fingerprint>/")
+                    help="write to $CTP2_HOME/assets/<source-fingerprint>/ (default: ~/.ctp2)")
     ap.add_argument("--self-test", action="store_true",
                     help="run synthetic decoder self-tests; does not read assets")
     ap.add_argument("--validate-manifest", metavar="JSON",

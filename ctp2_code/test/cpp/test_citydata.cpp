@@ -23,6 +23,8 @@
 #include "gs/gameobj/GameSettings.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "ctp/civapp.h"
+#include "gs/core/game.h"
+#include <array>
 
 // Minimal fixture: CityData ctor dereferences world_Get(), player_arr_Get(),
 // g_theCitySizeDB and g_theResourceDB.  After the trampoline migration,
@@ -242,8 +244,7 @@ TEST_CASE_FIXTURE(CityDataFixture, "CityData science and crime defaults")
 //----------------------------------------------------------------------------
 // Heavy fixture: loads all real game databases from ctp2_data/.
 // Databases are loaded once (static) and reused across tests for speed.
-// Each test gets a fresh World; Player array remains null (defensive null
-// checks in production code handle this gracefully).
+// Each test owns a fresh session and one Player for the economy checks.
 //----------------------------------------------------------------------------
 
 #include "ctp/civapp.h"
@@ -258,13 +259,14 @@ TEST_CASE_FIXTURE(CityDataFixture, "CityData science and crime defaults")
 struct HeavyCityDataFixture
 {
     static bool s_dbsLoaded;
-    static CivApp *s_app;
-
-    World *world = nullptr;
-    Player *player = nullptr;
+    CivApp app;
+    std::array<Player *, k_MAX_PLAYERS> players{};
+    std::unique_ptr<Player> player;
+    std::unique_ptr<SelectedItem> selected;
 
     HeavyCityDataFixture()
     {
+        civapp_Set(&app);
         if (!s_dbsLoaded)
         {
             set_headless(true);
@@ -280,67 +282,43 @@ struct HeavyCityDataFixture
             profiledb_Set(new ProfileDB());
             profiledb_Get()->Init(FALSE);
 
-            // CivApp must exist before trampoline-routed _Set calls
-            // (gamesettings_Set / civilisationpool_Set write into
-            // civapp_Get()->GetGame()).
-            s_app = new CivApp();
-            civapp_Set(s_app);
-            if (!s_app->InitializeAppDB())
+            if (!app.InitializeAppDB())
             {
                 fprintf(stderr, "[HeavyFixture] WARNING: InitializeAppDB failed\n");
             }
-
-            gamesettings_Set(new GameSettings());
-            civilisationpool_Set(new CivilisationPool());
 
             fprintf(stderr, "[HeavyFixture] Databases loaded.\n");
             s_dbsLoaded = true;
         }
 
-        // civapp_Get() may have been nulled by a previous test's fixture
-        // destructor.  Restore it FIRST so the trampoline-routed
-        // foo_Set calls below find the live Game container.
-        civapp_Set(s_app);
-
-        world = new World(MapPoint(64, 48), false, false);
-        world_Set(world);
-
-        player_arr_Set(new Player *[k_MAX_PLAYERS]);
-        for (int i = 0; i < k_MAX_PLAYERS; ++i)
-        {
-            player_arr_Get()[i] = nullptr;
-        }
-
-        // SelectedItem and SlicEngine must exist before Player construction.
-        // Player::InitPlayer calls Advances::InitialAdvance which calls
-        // slicengine_Get()->CallMod, and other sub-objects may query selitem_Get().
-        selitem_Set(new SelectedItem(1));
+        world_Set(new World(MapPoint(64, 48), false, false));
+        gamesettings_Set(new GameSettings());
+        civilisationpool_Set(new CivilisationPool());
+        player_arr_Set(players.data());
+        selected = std::make_unique<SelectedItem>(1);
+        selitem_Set(selected.get());
         slicengine_Set(new SlicEngine());
         rand_ptr_Set(new RandomGenerator(12345));
         // Test fixture: no real game setup. Default to 0 players, year 0;
         // the test exercises CityData logic, not TurnCount semantics.
         turn_Set(new TurnCount(0, 0));
 
-        player = new Player(0, 0, PLAYER_TYPE_HUMAN);
+        // Player registers itself in the legacy array; the fixture owns it.
+        player = std::make_unique<Player>(0, 0, PLAYER_TYPE_HUMAN);
     }
 
     ~HeavyCityDataFixture()
     {
-        // Intentionally leak player, world, player array, selected_item,
-        // and slic_engine. Their destructors access globals in ways not set
-        // up in the test harness.
-        world_Set(nullptr);
+        // Destroy session state while its trampoline accessors still work.
+        player.reset();
         player_arr_Set(nullptr);
+        app.GetGame()->Cleanup();
         selitem_Set(nullptr);
-        slicengine_Set(nullptr);
         civapp_Set(nullptr);
-        rand_ptr_Set(nullptr);
-        turn_Set(nullptr);
     }
 };
 
 bool HeavyCityDataFixture::s_dbsLoaded = false;
-CivApp *HeavyCityDataFixture::s_app = nullptr;
 
 TEST_CASE_FIXTURE(HeavyCityDataFixture, "Heavy fixture loads real ConstDB")
 {

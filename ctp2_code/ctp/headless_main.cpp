@@ -44,21 +44,12 @@ extern sint32  g_runInBackground;
 #include "gs/utility/Globals.h"   // set_headless()
 extern sint32  g_oldRandSeed;        // gameinit.cpp reads this as the RNG seed override
 
-// Headless mode needs a CurPlayer callback because CtpAi::BeginTurn and
-// BeginMapAnalysis assert(player == player_view::CurPlayer()).  In the
-// interactive game CurPlayer is backed by selitem_Get(); headless has
-// no selected item, so we track the currently processing player manually.
-static sint32 s_headlessCurPlayer = 0;
-static sint32 HeadlessCurPlayer() { return s_headlessCurPlayer; }
-
 // File-static logger.  Anonymous namespace = internal linkage.  Name
 // appears as [headless] in the spdlog pattern, matching the historical
 // [HEADLESS] fprintf prefix.
 namespace {
 auto headless_log = civlog::Get("headless");
 }  // namespace
-
-static void SetHeadlessCurPlayer(sint32 player) { s_headlessCurPlayer = player; }
 
 static void print_usage(const char *prog)
 {
@@ -177,9 +168,6 @@ int main(int argc, char **argv)
     // etc., the headless build needs to allocate a SelectedItem instance.
     // Reuse the same SelectedItem-backed callbacks the UI build uses.
     RegisterUIPlayerView();
-    // Override CurPlayer so AI asserts (player == CurPlayer()) pass and
-    // the active player's round is returned.
-    player_view::RegisterCurPlayer(&HeadlessCurPlayer);
     headless_log->info("observers + player_view registered");
 
     // ---- Interactive serve mode -----------------------------------------
@@ -231,10 +219,8 @@ int main(int argc, char **argv)
                 // direct call.
                 sint32 e = civapp_Get()->InitializeGameHeadless();
                 if (e == 0) {
-                    // Point HeadlessCurPlayer at the human so AI asserts that
-                    // compare player == CurPlayer() hold for human-owned actions.
                     if (Player * human = game_controller::HumanPlayer())
-                        s_headlessCurPlayer = human->GetOwner();
+                        player_view::SetCurrentPlayer(human->GetOwner());
                     smoketest_send_response("ok", cmd, nullptr);
                 } else {
                     smoketest_send_response("error", cmd, "init_failed");
@@ -260,13 +246,13 @@ int main(int argc, char **argv)
                         for (int i = 0; i < n; ++i) {
                             game_controller::RunRound(
                                 turn_Get() ? turn_Get()->GetSessionRound() : 0,
-                                &SetHeadlessCurPlayer);
+                                nullptr);
                         }
                         // Park CurPlayer back on the human so queries
                         // (query_turn reads CurPlayer's round) and AI
                         // asserts see the driver's viewpoint.
                         if (Player * human = game_controller::HumanPlayer())
-                            s_headlessCurPlayer = human->GetOwner();
+                            player_view::SetCurrentPlayer(human->GetOwner());
                         char detail[48];
                         snprintf(detail, sizeof(detail), "round=%d",
                                  (int)(turn_Get() ? turn_Get()->GetSessionRound() : 0));
@@ -352,7 +338,7 @@ int main(int argc, char **argv)
         // Run turns
         for (sint32 t = 0; t < maxTurns; ++t) {
             headless_log->info("Turn {} / {}", t + 1, maxTurns);
-            game_controller::RunRound(t, &SetHeadlessCurPlayer);
+            game_controller::RunRound(t, nullptr);
         }
 
         headless_log->info("Completed {} turns", maxTurns);

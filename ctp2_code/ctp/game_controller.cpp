@@ -399,15 +399,19 @@ std::string CmdEndTurn(const char * args)
     int turns = 1;
     if (args && *args && sscanf(args, "%d", &turns) != 1)
         return Err("end_turn", "bad_args");
-    if (turns < 1 || turns > 20)
+    constexpr int kMaxAutomatedTurns = 50;
+    if (turns < 1 || turns > kMaxAutomatedTurns)
         return Err("end_turn", "out_of_range");
 
-    sint32 const startRound = turn_Get() ? turn_Get()->GetRound() : 0;
+    // GetRound() reflects the currently viewed player's recorded round.  Just
+    // after loading, that can lag the session clock by one round; automation
+    // must advance from the canonical session value instead.
+    sint32 const startRound = turn_Get() ? turn_Get()->GetSessionRound() : 0;
     for (int i = 0; i < turns; ++i)
         game_controller::RunRound(startRound + i, nullptr);
 
     json result;
-    result["round"] = turn_Get() ? turn_Get()->GetRound() : startRound + turns;
+    result["round"] = turn_Get() ? turn_Get()->GetSessionRound() : startRound + turns;
     return Ok("end_turn", result);
 }
 
@@ -2482,8 +2486,17 @@ std::string CmdAttack(const char * args)
         Unit unit = ad->Access(u);
         if (UnitData * ud = unit.AccessData()) ud->SetExploring(false);
     }
-    army.ClearOrders();
-    army.AddOrders(UNIT_ORDER_MOVE_TO, dest);
+    // The command itself is an explicit confirmation to attack this known
+    // target.  Mark the defender as seen before the queued move; otherwise
+    // the legacy interactive path reveals it, cancels the order for a UI
+    // confirmation, and headless automation can never issue the follow-up in
+    // the same turn.
+    ad->CheckWasEnemyVisible(dest);
+    // Queue movement through GEV_MoveOrder.  Executing a point order directly
+    // from this command leaves no current event, so Battle() inserts its
+    // GEV_Battle "after current" into nowhere and the assault silently stalls.
+    if (!army_QueueMovePath(human->GetOwner(), army, src, dest, true))
+        return Err("attack", "no_path");
     if (gevmanager_Get()) gevmanager_Get()->Process();
 
     // Report what the battlefield looks like afterwards.

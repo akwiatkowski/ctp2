@@ -21,9 +21,11 @@ class MapPoint;
 
 // Pathfinds from src to dest for army owned by owner.  If a full path is
 // found, queues a GEV_MoveOrder event and returns true.  If pathfinding
-// fails or the path is broken, returns false.
+// fails or the path is broken, returns false.  allowAttack confirms that the
+// final occupied tile may start combat; ordinary movement leaves it false.
 bool army_QueueMovePath(sint32 owner, Army &army,
-                        const MapPoint &src, const MapPoint &dest);
+                        const MapPoint &src, const MapPoint &dest,
+                        bool allowAttack = false);
 
 // Pathfinds from src to dest for army owned by owner.  If a full path is
 // found, clears existing orders and directly adds a UNIT_ORDER_MOVE with the

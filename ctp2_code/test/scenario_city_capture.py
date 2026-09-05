@@ -65,6 +65,16 @@ def run(client):
     print(f"  brink: {len(army['units'])} units at {army['pos']} "
           f"vs {city['name']} {cpos} (pop {city['population']})")
 
+    # The fixture was saved after the human stack had moved into position.
+    # Refresh it while still at peace; declaring war first gives the AI a
+    # chance to destroy the stack before it can make a real attack.
+    if army["moves_left"] <= 0:
+        client.expect_ok("end_turn")
+        army = stack_next_to(client, cpos)
+        assert army and army["moves_left"] > 0, (
+            "fixture stack did not regain movement at the peaceful turn boundary"
+        )
+
     # War on. (The fixture is saved pre-declaration so this path runs too.)
     r = client.command("declare_war", ENEMY)
     assert r.get("status") == "ok" or r.get("detail") == "already_at_war", (
@@ -93,8 +103,19 @@ def run(client):
         a = stack_next_to(client, cpos)
         if a is None:
             break
+        print(f"  wave {wave + 1}: moves_left={a['moves_left']}")
         r = client.command("attack", a["index"], *cpos)
+        # Diplomacy keeps running during the intervening AI round, so the
+        # opponent can negotiate a ceasefire before the next assault wave.
+        # Resume the scenario's declared-war premise instead of treating that
+        # legitimate diplomatic outcome as an attack-engine failure.
+        if r.get("detail") == "not_at_war":
+            war = client.command("declare_war", ENEMY)
+            assert war.get("status") == "ok", f"redeclare_war failed: {war}"
+            assert war["result"]["at_war"], f"redeclare_war did not take: {war}"
+            r = client.command("attack", a["index"], *cpos)
         assert r.get("status") == "ok", f"attack failed: {r}"
+        print(f"  wave {wave + 1}: {r['result']}")
         own = [c for c in client.result("query_cities")["cities"]
                if (c["pos"]["x"], c["pos"]["y"]) == cpos and c["owner"] != ENEMY]
         if own:

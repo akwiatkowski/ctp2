@@ -7,7 +7,9 @@
 //   2. The save file's version stored in the magic matches what
 //      gamefile_CurrentVersion() returns.
 //   3. Round-trip preserves *structure* (player count, leader names, alive
-//      set, city positions for cities seen in both runs).
+//      set). City positions are checked immediately after load in
+//      test_city_visibility.cpp; later AI turns can found different cities
+//      with the same name.
 //
 // What the round-trip tests DO NOT assert:
 //   AI-decision determinism after load.  Player score / gold / num_cities and
@@ -232,20 +234,6 @@ static void compare_metrics_soft(const Metrics &cont, const Metrics &loaded,
                     << ",gold=" << loaded.players[i].gold
                     << ",cities=" << loaded.players[i].num_cities
                     << "} — known engine limitation, see BUG_HUNT_REPORT.md");
-        }
-    }
-
-    // Cities that appear in BOTH runs must agree on position (a city that
-    // existed before the save should not teleport on load).
-    for (const auto &cc : cont.cities) {
-        for (const auto &lc : loaded.cities) {
-            if (cc.name == lc.name && cc.player_idx == lc.player_idx) {
-                INFO("shared city " << cc.name);
-                CHECK(cc.x == lc.x);
-                CHECK(cc.y == lc.y);
-                // population is allowed to drift (one extra growth turn).
-                break;
-            }
         }
     }
 

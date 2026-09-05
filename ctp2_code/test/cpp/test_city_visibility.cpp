@@ -23,6 +23,7 @@
 #include "ctp/c3.h"
 #include "doctest.h"
 #include "headless_test_config.h"
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -195,6 +196,11 @@ TEST_CASE("City visibility: save+load preserves visibility")
     for (const auto &c : after_cities) {
         INFO("after-load player " << c.player_idx << " city '" << c.name
              << "' visible=" << (c.visible_owner ? "yes" : "no"));
+        auto saved = std::find_if(before_cities.begin(), before_cities.end(),
+            [&](CityRow const &city) { return city.player_idx == c.player_idx && city.name == c.name; });
+        REQUIRE(saved != before_cities.end());
+        CHECK(c.x == saved->x);
+        CHECK(c.y == saved->y);
         CHECK(c.visible_owner);
     }
 }

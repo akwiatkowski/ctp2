@@ -211,16 +211,7 @@ TEST_CASE("City visibility: save+load preserves visibility")
     std::vector<CityRow> after_cities;
     REQUIRE(parse_cities(after, after_cities));
 
-    // Known limitation: full save/load round-trip does not currently
-    // restore every city — see test_save_load.cpp's comments on
-    // "AI-decision determinism after load" and the planned save-format
-    // rework.  If load yields 0 cities, skip the per-city assertion
-    // rather than failing on a pre-existing issue.
-    if (after_cities.empty()) {
-        WARN("save+load yielded 0 cities (known limitation, not the bug "
-             "this test is hunting). Skipping per-city visibility checks.");
-        return;
-    }
+    REQUIRE(after_cities.size() == before_cities.size());
 
     for (const auto &c : after_cities) {
         INFO("after-load player " << c.player_idx << " city '" << c.name

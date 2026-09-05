@@ -60,7 +60,7 @@ def crop_pixels(path):
     return [row[left:left + cw] for row in px[top:top + ch]]
 
 
-def capture(mode_on, out):
+def capture(binary, mode_on, out):
     env = os.environ.copy()
     env.update({"CTP2_GPU_LAYERS": "1", "CTP2_GPU_CAMERA": "1",
                 "CTP2_GPU_QUADS": "1", "CTP2_GPU_WORLDMAP": "1",
@@ -71,7 +71,7 @@ def capture(mode_on, out):
     env["CTP2_SMOKE_SOCKET"] = sock
 
     shots = {}
-    with Ctp2Client(str(ROOT / "build" / "ctp2"), "ui", seed=42, players=4,
+    with Ctp2Client(binary, "ui", seed=42, players=4,
                     socket_path=sock, env=env,
                     log_path=str(out / f"{tag}.log")) as c:
         if not mode_on:
@@ -144,6 +144,7 @@ def capture(mode_on, out):
 
 
 def main():
+    binary = str(Path(sys.argv[1]).resolve())
     out = Path("/tmp/ctp2-raster-overlay")
     out.mkdir(parents=True, exist_ok=True)
     if Path(FIXTURE).exists():
@@ -153,12 +154,12 @@ def main():
     # while the previous map is still open.
     for attempt in range(8):
         try:
-            ref = capture(False, out)
+            ref = capture(binary, False, out)
             break
         except NoRiverOnMap:
             if attempt == 7:
                 raise
-    test = capture(True, out)
+    test = capture(binary, True, out)
 
     failures = []
     for state in ("lit", "grid", "fogged"):

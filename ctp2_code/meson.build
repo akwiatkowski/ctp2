@@ -1576,7 +1576,7 @@ headless_sources = active_game_core_sources + [
 	'test/smoketest_server.cpp',
 ]
 
-executable('ctp2_headless', headless_sources,
+headless_exe = executable('ctp2_headless', headless_sources,
 		include_directories : incdir,
 		dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
 		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DHEADLESS_BUILD', '-DUNIT_TEST_BUILD' ],
@@ -1711,6 +1711,16 @@ cpp_test_sources = [
   'test/smoketest_server.cpp',
 ]
 
+# Subprocess tests must exercise this build, including sanitizer/feature flags.
+# They use popen(), so quote the path for the shell as well as the C string.
+python3 = find_program('python3', required : true)
+headless_test_config = configuration_data()
+headless_command = run_command(python3, '-c',
+  'import shlex, sys; print(shlex.quote(sys.argv[1]))',
+  headless_exe.full_path(), check : true).stdout().strip()
+headless_test_config.set_quoted('CTP2_HEADLESS_COMMAND', headless_command)
+configure_file(output : 'headless_test_config.h', configuration : headless_test_config)
+
 unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + active_game_core_sources,
   include_directories : [ incdir, doctest_incdir ],
   dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
@@ -1731,6 +1741,7 @@ test('unit', unit_test_exe,
 )
 
 test('integration', unit_test_exe,
+  depends : headless_exe,
   # Long-running headless game tests: save/load round-trips, determinism
   # cross-validation across seeds, multi-turn AI sanity, etc.  Tagged
   # with TEST_SUITE_BEGIN("integration") at the source.  The complete suite
@@ -1745,7 +1756,6 @@ test('integration', unit_test_exe,
 )
 
 # e2e smoke test: launches the real game binary and drives it via Unix socket
-python3 = find_program('python3', required : true)
 test('asset-installer', python3,
   args : [join_paths(meson.project_source_root(), '..', 'tools', 'assets',
                      'test_install_ctp2_home.py')],
@@ -1951,6 +1961,7 @@ test('gpu-raster-parity',
 # and on, and requires ZERO differing pixels.
 test('raster-overlay-parity',
   find_program('test/raster_overlay_parity.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
   timeout : 420,
   is_parallel : false,
   priority : -1,

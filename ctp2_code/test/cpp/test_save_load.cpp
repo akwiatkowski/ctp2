@@ -21,6 +21,7 @@
 
 #include "ctp/c3.h"
 #include "doctest.h"
+#include "headless_test_config.h"
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
@@ -29,30 +30,9 @@
 #include <string>
 #include <vector>
 
-static const char *HEADLESS_CANDIDATES[] = {
-    "./build/ctp2_headless",
-    "./build-sanitized/ctp2_headless",
-    "./ctp2_headless",
-    nullptr,
-};
-
-static const char *find_headless_binary()
-{
-    for (const char **p = HEADLESS_CANDIDATES; *p; ++p) {
-        if (std::FILE *f = std::fopen(*p, "r")) {
-            std::fclose(f);
-            return *p;
-        }
-    }
-    return nullptr;
-}
-
 static std::string run_headless(const char *args)
 {
-    const char *bin = find_headless_binary();
-    if (!bin) {
-        return "[ERROR] ctp2_headless binary not found";
-    }
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     char cmd[1024];
     std::snprintf(cmd, sizeof(cmd), "%s %s 2>&1", bin, args);
@@ -76,11 +56,7 @@ static std::string run_headless(const char *args)
 
 static int run_headless_capture(const char *args, std::string *captured_stderr)
 {
-    const char *bin = find_headless_binary();
-    if (!bin) {
-        if (captured_stderr) *captured_stderr = "[ERROR] ctp2_headless binary not found";
-        return -1;
-    }
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     char cmd[1024];
     std::snprintf(cmd, sizeof(cmd), "%s %s 2>&1", bin, args);

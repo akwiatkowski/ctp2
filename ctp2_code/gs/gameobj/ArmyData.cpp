@@ -1755,7 +1755,7 @@ ORDER_RESULT ArmyData::StealTechnology(const MapPoint &point)
         if(m_array[i].GetDBRec()->HasStealTechnology()) {
             sint32 num;
             const std::vector<uint8_t> canSteal =
-                player_Get(m_owner)->m_advances->CanAskFor(safe_player(c.GetOwner())->m_advances, num);
+                player_Get(m_owner)->m_advances->CanAskFor(safe_player(c.GetOwner())->m_advances.get(), num);
             if(num > 0) {
 
                 if(player_Get(m_owner)->IsRobot()
@@ -8767,7 +8767,7 @@ void ArmyData::GetAdvanceFromCityAssault(const Unit &c,
 {
 	sint32 num;
 	const std::vector<uint8_t> canAskFor = player_Get(m_owner)->m_advances->
-		CanAskFor(player_Get(otherPlayer)->m_advances, num);
+		CanAskFor(player_Get(otherPlayer)->m_advances.get(), num);
 
 	if(num > 0) {
 		sint32 which = civrand().Next(num);

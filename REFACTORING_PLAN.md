@@ -6,6 +6,8 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 
 ## Overall Progress
 
+- **Player ownership completed 2026-09-05:** owned player subsystems use `unique_ptr`; constructors initialize members without overwriting C++ objects with `memset`. JSON, UI and networking consumers use borrowed pointers. `raw_delete` fell from 1423 to 1396; fast/unit tests pass.
+
 - **Original Definition of Done (M1–M8): COMPLETE and formally declared 2026-07-10.** The P7 close-out documentation pass has landed (the "Remaining Legacy-Risk Areas" consolidation below), and a final verification pass (`make test` + `make ubsan-smoke` + integration/scenario suites, clean worktree) is green. Nothing remains to declare the original DoD met.
 - **Current phase: mechanical modernization loop (2026-07-17, /goal-driven) — ratchet burn-down, clarity renames, small safe modernization.** **P11 GPU rendering Stage 2 is COMPLETE and default-on as of 2026-07-17**: buttery trackpad pan (ADR-002), hardware cursor, pinch zoom all ship on a stock launch. The modern-asset sprite track remains the open P11 tail. Memory safety & stability remains open (P2 Linux ASan, P6 RAII).
 - **Modernization Phase 2 scoped 2026-07-12** (analysis pass: modern / safe / fast-on-modern-machines): **P8** perf build tier — measured **5.3× wall / 8.6× CPU** from a release build (every existing tier was `-O0`+`-ftrapv`; outcome bit-identical, so optimization does not break determinism); **P9** container modernization (954 legacy `PointerList`/`DynamicArray`/`SimpleDynamicArray` uses); **P10** type-erased-cast burn-down (2487 after redundant file-I/O and binary-read cast cleanups); **P11** GPU rendering Stage 2 un-parked with M10 on 2026-07-14. Verified-already-modern list added so items don't get re-proposed (C++20, hardening max, UBSan tier, arena-pooled A*, JSON saves).
@@ -68,7 +70,7 @@ Detailed notes live in git history (e.g. `git log --oneline --grep 'M7'`), the t
 | P3 | HIGH-severity findings, category batches | DANGEROUS_SHIFT + DIVISION_BY_ZERO done. MISSING_BOUNDS_CHECK + NULL_DEREFERENCE HIGH tiers **verified & burned down 2026-07-02/03**: ~25 genuine crash bugs fixed, the rest already-fixed (g_player→safe_player migration), false-positive, or the supervised/P4/net tail. Both sections carry resolution blocks. | tail = supervised/P4/net |
 | P4 | Unsafe string APIs (`unsafe_string_api=39`, first-party) | ✅ complete — 85 conversions (92→57) + dead-code deletion 57→39 + live `GetLabel` sizeof(ptr) bug fixed. Tail = deferred-net(~22)/idiom-cascade(~17). | complete |
 | P5 | JSON-load derived-cache audit | ✅ 1/1 done | complete |
-| P6 | Mechanical RAII conversion (was M11) | 17/574 files; ratchet raw_new 4799, raw_delete 1845 | multi-session |
+| P6 | Mechanical RAII conversion (was M11) | Player ownership completed; ratchet raw_new 4130, raw_delete 1396. Historical file count needs reconciliation. | multi-session |
 | P7 | Close-out docs, declare DoD (was M9) | ✅ 2/2 done | complete |
 | P8 | Performance build tier (release + thin-LTO) | ✅ 1/1 done — `make release` / `release-check`; 8.6–9.3× CPU banked | complete |
 | P9 | Container modernization (PointerList/DynamicArray → std) | ratchets live (576+353); burn-down 0/n | multi-session |

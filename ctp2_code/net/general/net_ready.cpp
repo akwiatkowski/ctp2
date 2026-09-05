@@ -37,7 +37,7 @@ void NetReadiness::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(!player_Get(owner))
 		return;
 
-	MilitaryReadiness *readiness = player_Get(owner)->m_readiness;
+	MilitaryReadiness *readiness = player_Get(owner)->m_readiness.get();
 
 	uint8 level;
 	PULLBYTE(level);

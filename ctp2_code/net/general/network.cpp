@@ -1346,7 +1346,7 @@ void Network::SetReady(uint16 id)
 	for(p = 0; p < k_MAX_PLAYERS; p++) {
 		if(!player_Get(p)) continue;
 		chunkPackets.AddTail(new NetPlayer(player_Get(p)));
-		chunkPackets.AddTail(new NetResearch(player_Get(p)->m_advances));
+		chunkPackets.AddTail(new NetResearch(player_Get(p)->m_advances.get()));
 		chunkPackets.AddTail(
 					new NetDifficulty(player_Get(p)->GetDifficulty()));
 		Assert(civilisationpool_Get()->IsValid(*player_Get(p)->m_civilisation));
@@ -1455,9 +1455,9 @@ void Network::SetReady(uint16 id)
 		chunkPackets.AddTail( new NetInfo(NET_INFO_CODE_GOLD,
 											  p, player_Get(p)->m_gold->GetLevel()));
 
-		chunkPackets.AddTail(new NetReadiness(player_Get(p)->m_readiness));
+		chunkPackets.AddTail(new NetReadiness(player_Get(p)->m_readiness.get()));
 
-		chunkPackets.AddTail(new NetPlayerHappy((uint8)p, player_Get(p)->m_global_happiness, TRUE));
+		chunkPackets.AddTail(new NetPlayerHappy((uint8)p, player_Get(p)->m_global_happiness.get(), TRUE));
 
 		chunkPackets.AddTail(new NetCivilization(player_Get(p)->m_civilisation->AccessData()));
 
@@ -3978,7 +3978,7 @@ void Network::SetRobotName(sint32 player)
 	if(!player_Get(player))
 		return;
 
-	Civilisation *civ = player_Get(player)->m_civilisation;
+	Civilisation *civ = player_Get(player)->m_civilisation.get();
 	StringId strId;
 	if(civ->GetGender() == GENDER_MALE) {
 		strId = g_theCivilisationDB->Get(civ->GetCivilisation())->GetLeaderNameMale();

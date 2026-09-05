@@ -1033,7 +1033,7 @@ void SlicEngine::SetTutorialActive(BOOL on)
 		EnableMessageClass(k_NON_TUTORIAL_MESSAGE_CLASS);
 		if(player_arr_Get() && player_Get(m_tutorialPlayer)) {
 			sint32 i;
-			DynamicArray<Message> *msgs = player_Get(m_tutorialPlayer)->m_messages;
+			DynamicArray<Message> *msgs = player_Get(m_tutorialPlayer)->m_messages.get();
 			for(i = 0; i < msgs->Num(); i++) {
 				if(msgs->Access(i).AccessData()->GetSlicSegment() &&
 				   msgs->Access(i).AccessData()->GetSlicSegment()->GetFilenum() == k_TUTORIAL_FILE) {

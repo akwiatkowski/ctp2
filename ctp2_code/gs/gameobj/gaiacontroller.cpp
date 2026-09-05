@@ -182,7 +182,7 @@ void GaiaController::RecomputeCoverage()
 	sint32 radius = GetTowerRadius();
 
 	const DynamicArray<Installation> *tile_imps =
-		player_ptr->m_allInstallations;
+		player_ptr->m_allInstallations.get();
 
 	m_coveredCells.Reset( false );
 	m_numTowersBuilt = 0;
@@ -1019,7 +1019,7 @@ void GaiaController::ComputeTowerPositions()
 	m_maxPercentCoverage *= (float) 1.2;
 
 	const DynamicArray<Installation> *tile_imps =
-		player_ptr->m_allInstallations;
+		player_ptr->m_allInstallations.get();
 
 	sint32 type;
 	for(sint32 i = 0; i < tile_imps->Num(); i++) {

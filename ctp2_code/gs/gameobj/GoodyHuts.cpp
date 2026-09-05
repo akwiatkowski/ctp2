@@ -295,7 +295,7 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 
 		case GOODY_ADVANCE:
 		{
-			Advances const *    advances     = player_Get(owner)->m_advances;
+			Advances const *    advances     = player_Get(owner)->m_advances.get();
 			std::vector<AdvanceType> possible(g_theAdvanceDB->NumRecords());
 			size_t              nextPossible = 0;
 			sint32 const        maxNovelty   = risk.GetMaxAdvanceLeap();
@@ -353,7 +353,7 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 
 		case GOODY_UNIT:
 		{
-			Advances const *    advances     = player_Get(owner)->m_advances;
+			Advances const *    advances     = player_Get(owner)->m_advances.get();
 			std::vector<sint32> possible(g_theUnitDB->NumRecords());
 			size_t              nextPossible = 0;
 			sint32 const        maxNovelty   = risk.GetMaxUnitAdvanceLeap();

@@ -490,7 +490,7 @@ sint32 TiledMap::Initialize(RECT *viewRect)
 
 	CalculateMetrics();
 
-	m_localVision = player_Get(selitem_Get()->GetVisiblePlayer())->m_vision;
+	m_localVision = player_Get(selitem_Get()->GetVisiblePlayer())->m_vision.get();
 
 	Assert(m_localVision);
 
@@ -6628,7 +6628,7 @@ void TiledMap::CopyVision()
 	if (player_Get(newPlayer))
 	{
 		m_localVision->SetAmOnScreen(false);
-		m_localVision = player_Get(newPlayer)->m_vision;
+		m_localVision = player_Get(newPlayer)->m_vision.get();
 		m_oldPlayer   = newPlayer;
 		m_localVision->SetAmOnScreen(true);
 	}

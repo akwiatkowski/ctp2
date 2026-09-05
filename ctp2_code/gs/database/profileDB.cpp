@@ -702,12 +702,11 @@ void ProfileDB::SetDifficulty(uint32 x)
 			{
 				if (player_Get(p))
 				{
-					delete player_Get(p)->m_difficulty;
-					player_Get(p)->m_difficulty =
+					player_Get(p)->m_difficulty.reset(
 					    new Difficulty(x,
 					                   p,
 					                   !player_Get(p)->IsRobot()
-					                  );
+					                  ));
 				}
 			}
 		}

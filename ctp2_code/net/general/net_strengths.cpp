@@ -14,7 +14,7 @@ void NetStrengths::Packetize(uint8 *buf, uint16 &size)
 {
 	size = 0;
 	PUSHID(k_PACKET_STRENGTH_ID);
-	Strengths *str = player_Get(m_player)->m_strengths;
+	Strengths *str = player_Get(m_player)->m_strengths.get();
 
 	PUSHLONG(m_player);
 	PUSHLONG(player_Get(m_player)->m_current_round);
@@ -40,7 +40,7 @@ void NetStrengths::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	sint32 round;
 	PULLLONG(round);
 
-	Strengths *str = player_Get(m_player)->m_strengths;
+	Strengths *str = player_Get(m_player)->m_strengths.get();
 
 	sint32 i;
 	for(i = sint32(STRENGTH_CAT_NONE) + 1; i < sint32(STRENGTH_CAT_MAX); i++) {
@@ -60,7 +60,7 @@ void NetFullStrengths::Packetize(uint8 *buf, uint16 &size)
 {
 	size = 0;
 	PUSHID(k_PACKET_FULL_STRENGTHS_ID);
-	Strengths *str = player_Get(m_player)->m_strengths;
+	Strengths *str = player_Get(m_player)->m_strengths.get();
 	PUSHLONG(m_player);
 	PUSHLONG(m_startRound);
 	PUSHLONG(m_endRound);
@@ -91,7 +91,7 @@ void NetFullStrengths::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLLONG(m_startRound);
 	PULLLONG(m_endRound);
 
-	Strengths *str = player_Get(m_player)->m_strengths;
+	Strengths *str = player_Get(m_player)->m_strengths.get();
 
 	sint32 n;
 	PULLLONG(n);
@@ -117,7 +117,7 @@ void NetScores::Packetize(uint8 *buf, uint16 &size)
 	size = 0;
 	PUSHID(k_PACKET_SCORES_ID);
 
-	Score *sc = player_Get(m_player)->m_score;
+	Score *sc = player_Get(m_player)->m_score.get();
 	Assert(sc);
 
 	PUSHLONG(m_player);
@@ -144,7 +144,7 @@ void NetScores::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(!player_Get(m_player))
 		return;
 
-	Score *sc = player_Get(m_player)->m_score;
+	Score *sc = player_Get(m_player)->m_score.get();
 	Assert(sc);
 
 	PULLLONG(sc->m_cities_recaptured);

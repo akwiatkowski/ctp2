@@ -3303,14 +3303,14 @@ void to_json(nlohmann::json &j, Player const &p)
         {"all_armies",       ids_from_armies(p.m_all_armies)},
         {"all_cities",       ids_from_units(p.m_all_cities)},
         {"all_units",        ids_from_units(p.m_all_units)},
-        {"trader_units",     ids_from_units(p.m_traderUnits)},
-        {"messages",                ids_from_handles(p.m_messages)},
-        {"trade_offers",            ids_from_handles(p.m_tradeOffers)},
-        {"requests",                ids_from_handles(p.m_requests)},
-        {"agreed",                  ids_from_handles(p.m_agreed)},
-        {"all_installations",       ids_from_handles(p.m_allInstallations)},
-        {"all_radar_installations", ids_from_handles(p.m_allRadarInstallations)},
-        {"terrain_improvements",    ids_from_handles(p.m_terrainImprovements)},
+        {"trader_units",     ids_from_units(p.m_traderUnits.get())},
+        {"messages",                ids_from_handles(p.m_messages.get())},
+        {"trade_offers",            ids_from_handles(p.m_tradeOffers.get())},
+        {"requests",                ids_from_handles(p.m_requests.get())},
+        {"agreed",                  ids_from_handles(p.m_agreed.get())},
+        {"all_installations",       ids_from_handles(p.m_allInstallations.get())},
+        {"all_radar_installations", ids_from_handles(p.m_allRadarInstallations.get())},
+        {"terrain_improvements",    ids_from_handles(p.m_terrainImprovements.get())},
     };
 }
 
@@ -3485,7 +3485,7 @@ void from_json(nlohmann::json const &j, Player &p)
     load_army_ids("all_armies",   p.m_all_armies);
     load_unit_ids("all_cities",   p.m_all_cities);
     load_unit_ids("all_units",    p.m_all_units);
-    load_unit_ids("trader_units", p.m_traderUnits);
+    load_unit_ids("trader_units", p.m_traderUnits.get());
 
     // Per-player DynamicArray<Handle> ID arrays for pool-backed handles.
     // Handles construct from uint32. Backing pools are restored earlier
@@ -3499,13 +3499,13 @@ void from_json(nlohmann::json const &j, Player &p)
             dst->Insert(h);
         }
     };
-    load_handles("messages",                p.m_messages);
-    load_handles("trade_offers",            p.m_tradeOffers);
-    load_handles("requests",                p.m_requests);
-    load_handles("agreed",                  p.m_agreed);
-    load_handles("all_installations",       p.m_allInstallations);
-    load_handles("all_radar_installations", p.m_allRadarInstallations);
-    load_handles("terrain_improvements",    p.m_terrainImprovements);
+    load_handles("messages",    p.m_messages.get());
+    load_handles("trade_offers",    p.m_tradeOffers.get());
+    load_handles("requests",    p.m_requests.get());
+    load_handles("agreed",    p.m_agreed.get());
+    load_handles("all_installations",    p.m_allInstallations.get());
+    load_handles("all_radar_installations",    p.m_allRadarInstallations.get());
+    load_handles("terrain_improvements",    p.m_terrainImprovements.get());
 }
 
 // Phase D — Foreigner

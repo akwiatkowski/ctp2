@@ -4278,7 +4278,7 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 		// Steal random advance
 		sint32  num;
 		const std::vector<uint8_t> canSteal = player_Get(m_owner)->m_advances->CanAskFor
-		                        (player_Get(c.GetOwner())->m_advances, num);
+		                        (player_Get(c.GetOwner())->m_advances.get(), num);
 		if (num > 0)
 		{
 			sint32 count = 0;
@@ -4602,7 +4602,7 @@ void UnitData::HearGossip(Unit c)
 			sint32 i;
 			sint32 num;
 			const std::vector<uint8_t> canSteal = player_Get(m_owner)->m_advances->
-			    CanAskFor(player_Get(c.GetOwner())->m_advances, num);
+			    CanAskFor(player_Get(c.GetOwner())->m_advances.get(), num);
 
 			for(i=0; i<num; i++) {
 				if (canSteal[i]) {
@@ -4652,7 +4652,7 @@ void UnitData::HearGossip(Unit c)
 			so->AddLocation(center);
 			slicengine_Get()->Execute(so);
 
-			player_Get(m_owner)->m_vision->CopyCircle(player_Get(oplayer)->m_vision,
+			player_Get(m_owner)->m_vision->CopyCircle(player_Get(oplayer)->m_vision.get(),
 													center,
 													g_theConstDB->Get(0)->GetGossipMapRadius());
 

@@ -168,8 +168,7 @@ void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner)
 	    (old_owner >= 0) && player_Get(old_owner)
 	   )
 	{
-	    delete player_Get(pi)->m_advances;
-		player_Get(pi)->m_advances = new Advances(*(player_Get(old_owner)->m_advances));
+	    player_Get(pi)->m_advances.reset(new Advances(*(player_Get(old_owner)->m_advances)));
 		player_Get(pi)->m_advances->SetOwner(pi);
 		player_Get(old_owner)->GiveMap(pi);
 	}

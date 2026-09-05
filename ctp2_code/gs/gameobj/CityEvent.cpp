@@ -232,7 +232,7 @@ STDEHANDLER(CaptureCityEvent)
 			sint32 num;
 			const std::vector<uint8_t> canSteal =
 				player_Get(newOwner)->m_advances->CanAskFor(
-				  player_Get(originalOwner)->m_advances, num);
+				  player_Get(originalOwner)->m_advances.get(), num);
 			if(num > 0){
 				sint32 i;
 				sint32 count = 0;

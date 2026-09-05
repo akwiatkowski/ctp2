@@ -2018,7 +2018,7 @@ std::string QueryResearch()
     if (!g_theAdvanceDB)
         return Err("query_research", "no_advance_db");
 
-    Advances * adv = human->m_advances;
+    Advances * adv = human->m_advances.get();
     sint32 researching = adv->GetResearching();
 
     json result;
@@ -2951,7 +2951,7 @@ std::string CmdSetRates(const char * args)
     if (rations >= 0) human->SetRationsLevel(rations);
     if (gevmanager_Get()) gevmanager_Get()->Process();
 
-    PlayerHappiness * h = human->m_global_happiness;
+    PlayerHappiness * h = human->m_global_happiness.get();
     json result;
     result["workday"] = { {"level", h ? h->GetUnitlessWorkday() : 0}, {"expectation", human->GetWorkdayExpectation()} };
     result["wages"]   = { {"level", h ? h->GetUnitlessWages()   : 0}, {"expectation", human->GetWagesExpectation()} };
@@ -3449,7 +3449,7 @@ std::string QueryMap()
     World * w = world_Get();
     if (!w)
         return Err("query_map", "no_world");
-    Vision * vis = human->m_vision;
+    Vision * vis = human->m_vision.get();
 
     const sint32 W = w->GetXWidth();
     const sint32 H = w->GetYHeight();
@@ -3635,7 +3635,7 @@ json PlayerJson(sint32 p, Player * pl)
         econ["max_science_rate"] = grec ? grec->GetMaxScienceRate() : 1.0;
         // Current slider levels live in the happiness object (Player::Get*Level
         // is unimplemented for workday/wages); expectations come from the gov.
-        PlayerHappiness * h = pl->m_global_happiness;
+        PlayerHappiness * h = pl->m_global_happiness.get();
         econ["workday"]  = { {"level", h ? h->GetUnitlessWorkday() : 0}, {"expectation", pl->GetWorkdayExpectation()} };
         econ["wages"]    = { {"level", h ? h->GetUnitlessWages()   : 0}, {"expectation", pl->GetWagesExpectation()} };
         econ["rations"]  = { {"level", h ? h->GetUnitlessRations() : 0}, {"expectation", pl->GetRationsExpectation()} };

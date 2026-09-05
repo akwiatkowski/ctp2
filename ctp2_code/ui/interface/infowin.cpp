@@ -751,12 +751,12 @@ sint32 infowin_UpdateScoreList( )
 
 	Score *score = nullptr;
 	if(player_Get(curPlayer)) {
-		score = player_Get(curPlayer)->m_score;
+		score = player_Get(curPlayer)->m_score.get();
 	} else {
 		Player *deadPlayer = Player::GetDeadPlayer(curPlayer);
 		Assert(deadPlayer);
 		if(deadPlayer) {
-			score = deadPlayer->m_score;
+			score = deadPlayer->m_score.get();
 		}
 	}
 	if(score) {
@@ -1349,8 +1349,8 @@ sint32 infowin_GetCivScore( sint32 player )
 	}
 	if (!pl) return 0;
 
-	Score *         score   = pl->m_score;
-	Difficulty *    diff    = pl->m_difficulty;
+	Score *         score   = pl->m_score.get();
+	Difficulty *    diff    = pl->m_difficulty.get();
 
 	return score->GetTotalScore() + diff->GetBaseScore();
 }
@@ -1789,7 +1789,7 @@ void InfoScoreListItem::Update()
 	if (!pl)
 		return;
 
-	Score *score = pl->m_score;
+	Score *score = pl->m_score.get();
 
 	subItem = (c3_Static *)GetChildByIndex(0);
 	strlcpy(strbuf, score->GetScoreString((SCORE_CATEGORY)m_index), sizeof(strbuf));

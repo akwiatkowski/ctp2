@@ -1158,7 +1158,7 @@ sint32 victorywin_LoadScoreData( )
 	if(!pl)
 		return 0;
 
-	Score *score = pl->m_score;
+	Score *score = pl->m_score.get();
 	sint32 totalValue = score->GetTotalScore();
 	snprintf(strbuf, sizeof(strbuf),"%d",totalValue);
 	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(6), strbuf, ldlBlock);

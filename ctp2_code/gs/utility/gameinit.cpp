@@ -2280,8 +2280,7 @@ void gameinit_ResetMapSize()
     {
 		if (g_player[i])
         {
-			delete g_player[i]->m_vision;
-			g_player[i]->m_vision = new Vision(i);
+			g_player[i]->m_vision.reset(new Vision(i));
 		}
 	}
 

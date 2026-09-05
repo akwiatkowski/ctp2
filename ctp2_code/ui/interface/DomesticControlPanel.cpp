@@ -293,7 +293,7 @@ void DomesticControlPanel::UpdateScience()
 		return;
 	}
 
-	Advances *advances = player->m_advances;
+	Advances *advances = player->m_advances.get();
 	AdvanceType currentAdvance = advances->GetResearching();
 	sint32 numberOfTurns = advances->TurnsToNextAdvance();
 	BOOL alreadyHas = player->HasAdvance(advances->GetResearching());

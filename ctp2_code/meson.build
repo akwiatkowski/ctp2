@@ -1743,6 +1743,13 @@ test('unit', unit_test_exe,
   workdir : cwd_for_tests,
 )
 
+test('cli-save-resume', python3,
+  args : [files('test/cli_save_resume.py'), headless_exe],
+  timeout : 360,
+  suite : 'integration',
+  workdir : cwd_for_tests,
+)
+
 test('integration', unit_test_exe,
   depends : headless_exe,
   # Long-running headless game tests: save/load round-trips, determinism

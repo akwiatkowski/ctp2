@@ -338,7 +338,8 @@ int main(int argc, char **argv)
         // Run turns
         for (sint32 t = 0; t < maxTurns; ++t) {
             headless_log->info("Turn {} / {}", t + 1, maxTurns);
-            game_controller::RunRound(t, nullptr);
+            // A resumed game continues its saved clock, not the CLI loop index.
+            game_controller::RunRound(turn_Get()->GetSessionRound(), nullptr);
         }
 
         headless_log->info("Completed {} turns", maxTurns);

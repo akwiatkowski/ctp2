@@ -262,8 +262,36 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 
 ### SAVE_LOAD_AI_DETERMINISM
 
-- **gs/fileio/GameFile.cpp** — Save+load does not round-trip enough engine state to make load deterministic. A game saved at turn N and resumed for M more turns diverges from a continuous run of N+M turns: player scores, gold, num_cities, and the set of founded cities drift. `g_rand` is serialized (`GameFile.cpp:355`); the divergence appears to come from AI strategy / Goal / Plan / Strategist evaluation state that is rebuilt from scratch rather than restored. Symptom is newly visible after commit `169999b7` repaired the load path (which previously silently `exit(0)`-ed mid-init, masking this issue). The planned save format rework (SQLite-backed, structured rather than raw archive) is expected to address this; see refactoring plan. Until then, `test_save_load.cpp` reports drift via `MESSAGE("WARN: ...")` without failing.
-  *Fix scope: identify which subsystems' `Serialize()` methods omit AI-decision-driving state, or replace the archive-based format with a structured representation that captures the full deterministic input set.*
+- **2026-09-05 investigation, JSON saves:** three independent restoration defects
+  were fixed: the headless CLI reset the saved round to zero; Cell deserialization
+  bypassed the land-area counters; Diplomat deserialization restored the personality
+  name while retaining the throwaway game's personality pointer. A strict
+  `cli-save-resume` regression compares the first resumed round's players, AI state,
+  world, RNG and action log against an uninterrupted run, for both CLI load modes.
+- **Remaining first decision:** seed 42, four players, save at round 25 and resume
+  for 15 rounds versus 40 uninterrupted rounds. Gameplay sections still match at
+  round 39. During that round both runs create Roman settler unit `268435476`, army
+  `3489660942`, at `(31,34)`. Action-log entry 384 is `MoveOrder` toward `(37,22)`
+  followed by `SettleOrder` continuously, but `EntrenchOrder` after loading.
+- **Traced cause:** at `CtpAi::AddSettleTargets`, both runs report settlement
+  threshold 600 and zero newly generated targets; `Scheduler::CountGoalsOfType`
+  reports four retained land-settlement goals continuously versus zero after load.
+  These persistent scheduler goals are absent from JSON. The new settler is created
+  after target generation and can only use retained goals that turn. Rebuilding the
+  settlement-value cache alone did not change the result and was not retained.
+- **Next fix:** persist scheduler goals and their necessary dependencies, or define
+  and verify regeneration at a consistent turn boundary. This is a gameplay decision;
+  clearing continuous-run AI history merely to equalize the test would change play.
+  Longer metric comparisons remain warning-only for this specifically reproduced
+  limitation. Subprocess failures, missing output and malformed metrics now fail.
+
+Reproduce with the selected build from the repository root:
+
+```sh
+mise exec -- ./build-singleplayer/ctp2_headless --new-game --players 4 --seed 42 --turns 25 --json-save /tmp/ctp2-before25.json
+mise exec -- ./build-singleplayer/ctp2_headless --new-game --players 4 --seed 42 --turns 40 --json-save /tmp/ctp2-cont40.json
+mise exec -- ./build-singleplayer/ctp2_headless --load-game /tmp/ctp2-before25.json --turns 15 --json-save /tmp/ctp2-resume40.json
+```
 
 
 ### BUFFER_OVERFLOW

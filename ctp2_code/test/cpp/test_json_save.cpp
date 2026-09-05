@@ -46,6 +46,7 @@
 #include "gs/diplomacy/diplomacy_types.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ai/diplomacy/Diplomat.h"
+#include "PersonalityRecord.h"
 #include "ai/diplomacy/Foreigner.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/player.h"
@@ -1575,11 +1576,13 @@ TEST_CASE("json round-trip: Threat preserves all 8 fields + nested ThreatData")
 TEST_CASE("json round-trip: Diplomat preserves persisted subset + nested lists")
 {
     Diplomat orig;
+    std::string const personality = g_thePersonalityDB
+        ? g_thePersonalityDB->Get(0)->GetNameText() : "Strategic";
     // Drive non-default via JSON since most public setters touch
     // player_Get() / database globals.
     nlohmann::json j{
         {"player_id",                        2},
-        {"personality_name",                 "Strategic"},
+        {"personality_name",                 personality},
         {"best_strategic_states",            nlohmann::json::array({
             nlohmann::json{{"priority", 1}, {"db_index", 10}, {"spy_str_id", -1},
                            {"advice_str_id", -1}, {"news_str_id", -1}},
@@ -1612,7 +1615,9 @@ TEST_CASE("json round-trip: Diplomat preserves persisted subset + nested lists")
     // Round-trip back through JSON.
     nlohmann::json j2 = orig;
     CHECK(j2["player_id"]                     == 2);
-    CHECK(j2["personality_name"]              == "Strategic");
+    CHECK(j2["personality_name"]              == personality);
+    if (g_thePersonalityDB)
+        CHECK(orig.GetPersonality() == g_thePersonalityDB->Get(0));
     CHECK(j2["best_strategic_states"].size()  == 2);
     CHECK(j2["threats"].size()                == 1);
     CHECK(j2["threats"][0]["detail"]["type"]  == static_cast<int>(THREAT_DESTROY_CITY));

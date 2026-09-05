@@ -159,6 +159,7 @@ extern PointerList<Player>   *g_deadPlayer;
 
 // Build identity is isolated so revision changes only rebuild save-file writers.
 #include "build_revision.h"
+#include "PersonalityRecord.h"
 
 // --- save-file string codec (public: unit-tested) ----------------------
 
@@ -400,7 +401,11 @@ void from_json(nlohmann::json const &j, Cell &c)
     // city with only k_BIT_ENV_CITY_RADIUS set) to full CITY tiles on
     // every load (SetCity sets k_BIT_ENV_CITY for any non-zero id).
     c.m_city = Unit(city_id.m_id);
-    j.at("cell_owner")      .get_to(c.m_cellOwner);
+    sint32 const owner = j.at("cell_owner").get<sint32>();
+    if (owner < -1 || owner >= k_MAX_PLAYERS)
+        throw nlohmann::json::other_error::create(532, "invalid cell owner", &j);
+    // SetOwner also updates the land-area totals used by strength and AI.
+    c.SetOwner(owner);
 
     // Older saves omitted ruins. Do not invent their randomized rewards on
     // load: restore both saved values without consuming the game RNG.
@@ -1690,6 +1695,13 @@ void from_json(nlohmann::json const &j, Diplomat &d)
 {
     j.at("player_id")                       .get_to(d.m_playerId);
     j.at("personality_name")                .get_to(d.m_personalityName);
+    if (g_thePersonalityDB && !d.m_personalityName.empty()) {
+        sint32 index;
+        if (!g_thePersonalityDB->GetNamedItem(d.m_personalityName.c_str(), index))
+            throw nlohmann::json::other_error::create(532, "unknown AI personality", &j);
+        // The fresh game's personality can differ from the one being loaded.
+        d.m_personality = g_thePersonalityDB->Get(index);
+    }
 
     d.m_bestStrategicStates.clear();
     for (auto const &state_json : j.at("best_strategic_states"))

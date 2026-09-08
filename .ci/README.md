@@ -37,3 +37,20 @@ post-commit runs, gated on that Tier B invocation succeeding.
 Run one CI invocation at a time: tiers share build directories and state. No
 nightly service or hosted workflow is installed automatically. A hosted macOS /
 Linux build matrix remains separate work and needs an asset provisioning policy.
+
+For supervised background work, use the single approvable command prefix
+`mise exec -- python3 tools/job.py`:
+
+```sh
+mise exec -- python3 tools/job.py start scenarios mise exec -- meson test -C build --suite scenario --no-suite marathon
+mise exec -- python3 tools/job.py status scenarios
+mise exec -- python3 tools/job.py logs scenarios
+mise exec -- python3 tools/job.py stop scenarios
+mise exec -- python3 tools/job.py self-test
+```
+
+Jobs run from the repository root, with metadata and combined output in
+`build/jobs/`. Stop verifies process identities, sends TERM to the job and its
+descendants (including separate test sessions), then kills survivors after five
+seconds. Only recorded jobs can be stopped. Reusing an inactive name replaces its
+log. Status reports whether the process is running; check the log for test results.

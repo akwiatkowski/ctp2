@@ -91,6 +91,7 @@
 #include "gs/fileio/gamefile.h"
 #include "gfx/gfx_utils/gfx_options.h"
 #include "gfx/spritesys/GoodActor.h"
+#include "gfx/spritesys/TradeActor.h"
 #include "gs/gameobj/GoodyHuts.h"
 #include "ui/aui_ctp2/grabitem.h"
 #include "gs/world/MapPoint.h"
@@ -2980,6 +2981,11 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 	}
 }
 
+void TiledMap::PaintTradeActor(TradeActor *actor)
+{
+    actor->Draw(GetLocalVision(), m_buildingGpuSprites, m_gpuSpriteOffsetX, m_gpuSpriteOffsetY);
+}
+
 void TiledMap::PaintGoodActor(GoodActor *actor, bool fog)
 {
 	Assert(actor != nullptr);
@@ -2987,7 +2993,7 @@ void TiledMap::PaintGoodActor(GoodActor *actor, bool fog)
 
 	if (m_buildingGpuSprites) {
 		if (actor->AddGpuSpriteQuad(actor->GetX() + m_gpuSpriteOffsetX,
-		                            actor->GetY() + m_gpuSpriteOffsetY, GetScale()))
+		                            actor->GetY() + m_gpuSpriteOffsetY, GetScale(), fog))
 			++s_goodEmitted;
 		else {
 			++s_goodDeclined;
@@ -6017,8 +6023,14 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
 	// offset to hit the tile the user sees. No-op unless the GPU camera is on.
 	else if (aui_SDL::GpuCameraEnabled())
 	{
-		x -= static_cast<sint32>(aui_SDL::CameraOffX());
-		y -= static_cast<sint32>(aui_SDL::CameraOffY());
+        // Both mirror and window-quads present the same view-relative pixels.
+        // Invert zoom as well as pan, including when a sprite forces fallback.
+        x = static_cast<sint32>(camera_window::ScreenToTexture(
+            static_cast<float>(x), aui_SDL::ViewportW(), 0.0f,
+            aui_SDL::CameraOffX(), aui_SDL::CameraZoom()));
+        y = static_cast<sint32>(camera_window::ScreenToTexture(
+            static_cast<float>(y), aui_SDL::ViewportH(), 0.0f,
+            aui_SDL::CameraOffY(), aui_SDL::CameraZoom()));
 	}
 
 	if (!(m_mapViewRect.top & 1)) y -= GetZoomTileHeadroom();

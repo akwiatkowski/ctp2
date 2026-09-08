@@ -31,6 +31,14 @@ TEST_CASE("modern sprite manifest parser accepts atlas rects")
 	CHECK(manifest.atlasPng == "GU04.png");
 	REQUIRE(manifest.actions.size() == 1);
 	CHECK(manifest.actions[0].frames.size() == 2);
+
+    for (auto const &entry : {std::pair{"ACTION_1", "ATTACK"},
+                              std::pair{"ACTION_3", "VICTORY"},
+                              std::pair{"ACTION_4", "WORK"}}) {
+        doc["actions"][0]["name"] = entry.first;
+        REQUIRE(ModernSpriteManifestParse(doc, manifest, error));
+        CHECK(manifest.actions[0].name == entry.second);
+    }
 }
 
 TEST_CASE("modern sprite manifest parser rejects out-of-bounds rects")

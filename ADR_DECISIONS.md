@@ -2,6 +2,36 @@
 
 Short log of non-trivial design decisions. Newest first.
 
+## ADR-011 — Shared presentation and explicit sprite fallback (2026-09-08)
+
+**Context:** Installed V20 sprite manifests used ACTION_1/ACTION_3 instead of
+ATTACK/VICTORY. Software drawing fell back to SPR, but whole-map presentation
+ignored incomplete sprite frames. The CPU mirror also subtracted a margin
+already absent from its painter coordinates, and screenshot readback duplicated
+presentation policy. Goods omitted fog state and trade actors emitted no quads.
+
+**Decision:** Export canonical unit action names and accept the old names when
+reading manifests. Route desktop and screenshot world presentation through
+PresentWorldFrame, using the CPU mirror whenever sprite submission is incomplete.
+Software mirror pixels use origin zero; window quads include their content margin.
+Mirror source clipping also shrinks its destination to prevent SDL stretching
+the remaining pixels near an edge. Picking inverts both zoom and pan on either path. Debug camera setters hold their
+requested target/home zoom so fixed-pose tests do not drift during animation ticks.
+Pass goods fog into GPU modulation, and emit trade sprites from the normal actor
+painter. Keep CPU actor painting for fallback, with a macOS sample-based profiler
+and presented-pixel tests documenting the cost and behavior.
+
+**Alternatives:** Reinstalling every atlas would leave existing installations
+broken. Dropping failed actors or checking quad counts alone hides missing pixels.
+Skipping CPU drawing before checking the entire frame would leave the fallback
+surface incomplete. Separate desktop/readback fixes would invite another drift.
+
+**Consequences:** Whole-map fallback preserves actors at the cost of CPU composition.
+Pixel tests isolate actor changes, including missing-atlas installations and fogged
+goods. GPU health bars use the same four-pixel height as the software painter.
+Profiling measures CPU stacks, not GPU execution time or frame rate; further CPU
+elimination needs a measured fallback design, not unconditional draw suppression.
+
 ## ADR-010 — Reproducible renderer evidence and explicit GPU coverage (2026-09-08)
 
 **Context.** UI tests discarded their seed, forced camera refreshes after actor

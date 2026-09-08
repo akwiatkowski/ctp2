@@ -251,6 +251,9 @@ public:
 	// from Flip it re-composited the wrong texture entirely, leaving every
 	// screenshot test blind to the whole-map path for a whole phase. Two copies
 	// of this arithmetic is how that happens; there is now one.
+    static bool WindowQuadsReady() { return GpuQuadsEnabled() && QuadAtlasTexture() && QuadFrameComplete(); }
+    static bool WholeMapReady() { return GpuWorldmapEnabled() && WorldmapTexture() && !SpriteFrameIncompleteReason(); }
+    static void PresentWorldFrame(SDL_Renderer *renderer, float w, float h, float zoom, float offX, float offY);
 	static void PresentWorldmapWindow(SDL_Renderer *renderer,
 	                                  float viewW, float viewH,
 	                                  float zoom, float offX, float offY);

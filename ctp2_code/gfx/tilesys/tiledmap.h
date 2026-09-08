@@ -56,6 +56,7 @@
 //----------------------------------------------------------------------------
 
 class   TiledMap;
+class TradeActor;
 struct  TILEHITMASK;
 
 #define k_BORDER_SOLID              0
@@ -246,6 +247,7 @@ public:
 
 	void			ProcessLayerSprites(RECT *processRect, sint32 layer);
 	void			PaintGoodActor(GoodActor *actor, bool fog = false);
+    void PaintTradeActor(TradeActor *actor);
 
 	void			ProcessUnit(Unit unit);
 	void			ProcessUnit(CellUnitList *list);

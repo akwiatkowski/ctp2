@@ -213,9 +213,9 @@ public:
 				// the screen, but the sub-tile GPU pan samples the off-screen
 				// margins every frame — after a ScrollMap the whole surface has
 				// shifted, so a screen-clipped mirror would leave one-tile-stale
-				// margins for the glide to slide into. The present windows the
-				// screen out at the fixed (94,72) content offset
-				// (aui_SDL::WorldContentOff*).
+				// margins for the glide to slide into. Preserve the painter's
+                // coordinates: PresentWorldFrame samples software pixels at
+                // origin zero; only GPU window quads add WorldContentOff*.
 				RECT whole = { 0, 0, srcSurf->Width(), srcSurf->Height() };
 				m_blitter->Blt(m_worldSurface, 0, 0, srcSurf, &whole, flags);
 				++m_worldContentVersion;

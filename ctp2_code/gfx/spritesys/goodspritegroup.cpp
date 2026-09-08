@@ -141,7 +141,7 @@ bool GoodSpriteGroup::AddGpuSpriteQuad(GOODACTION action, sint32 frame, sint32 d
 	if (action <= GOODACTION_NONE || action >= GOODACTION_MAX)
 	                                 { s_gpuFallbackReason = "good-bad-action";  return false; }
 	if (outlineColor != 0)           { s_gpuFallbackReason = "good-outline";     return false; }
-	if (flags != k_DRAWFLAGS_NORMAL) { s_gpuFallbackReason = "good-drawflags";   return false; }
+	if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_FOGGED)) { s_gpuFallbackReason = "good-drawflags";   return false; }
 
 	ModernSpriteRect const * r = m_modernAtlas->FindRect("IDLE", 0, frame);
 	if (!r)                          { s_gpuFallbackReason = "good-no-rect";     return false; }
@@ -163,6 +163,8 @@ bool GoodSpriteGroup::AddGpuSpriteQuad(GOODACTION action, sint32 frame, sint32 d
 	q.dh = static_cast<int>(r->h * scale);
 	q.mirror = reversed;
 	q.alpha = 255;
+    if (flags & k_BIT_DRAWFLAGS_FOGGED)
+        q.red = q.green = q.blue = 128;
 	aui_SDL::AddSpriteQuad(q);
 	return true;
 }

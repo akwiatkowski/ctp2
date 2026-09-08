@@ -137,10 +137,8 @@ sint32 backgroundWin_Initialize(bool fullscreen)
 		c3ui_Get()->SetWorldWindow( g_background );
 
 #if defined(__AUI_USE_SDL__)
-	// P11 2a (ADR-001): the GPU world layer is a 1:1 mirror of this window's
-	// surface, and the present windows the screen viewport out of it at the
-	// window's margin — the offsets baked into aui_SDL must match the layout
-	// established above (window at (-k_TILE_GRID_WIDTH, -k_TILE_GRID_HEIGHT)).
+    // GPU window quads and sprite coordinate conversion use the background
+    // layout's margin. The CPU mirror retains painter coordinates directly.
 	static_assert(aui_SDL::WorldContentOffX() == k_TILE_GRID_WIDTH,
 	              "GPU world content offset X must equal the background window margin");
 	static_assert(aui_SDL::WorldContentOffY() == k_TILE_GRID_HEIGHT,

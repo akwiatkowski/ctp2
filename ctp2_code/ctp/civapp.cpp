@@ -2969,22 +2969,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 								// set to -- so every screenshot test was blind to the
 								// whole-map path, and the tile-gap and transition bugs
 								// in it could only be found by looking at the game.
-								if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture()) {
-									// Filtering, the seam split and the source rect are
-									// all inside PresentWorldmapWindow, which Flip
-									// calls too -- sharing the function is what keeps
-									// this oracle honest, rather than a comment
-									// asking the next edit to mirror it by hand.
-									aui_SDL::PresentWorldmapWindow(renderer, W, H, z, offX, offY);
-									// Mirror Flip: sprites are drawn over the
-									// windowed terrain on this path, not into
-									// the texture.
-									aui_SDL::RenderWorldmapSpriteQuads(renderer, W, H, z, offX, offY);
-								} else {
-									windowed(aui_SDL::WorldTexture(),
-										(float)aui_SDL::WorldContentOffX(),
-										(float)aui_SDL::WorldContentOffY());
-								}
+								aui_SDL::PresentWorldFrame(renderer, W, H, z, offX, offY);
 								// P11 C: fog mask darkens the world between the world
 								// and UI copies (mirrors Flip's present).
 								if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())
@@ -3152,7 +3137,10 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				float offX = 0.0f, offY = 0.0f;
 				sscanf(cmd + 17, "%f %f", &offX, &offY);
 #ifdef USE_SDL
+                // Hold the requested debug pose instead of easing toward an
+                // older target while a pixel oracle waits for actor repaint.
 				aui_SDL::SetCameraOffset(offX, offY);
+                aui_SDL::SetPanTarget(offX, offY);
 				char detail[64];
 				snprintf(detail, sizeof(detail), "off=%.1f,%.1f", offX, offY);
 				smoketest_send_response("ok", cmd, detail);
@@ -3169,7 +3157,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				float zoom = 1.0f;
 				sscanf(cmd + 18, "%f", &zoom);
 #ifdef USE_SDL
-				aui_SDL::SetCamera(aui_SDL::CameraOffX(), aui_SDL::CameraOffY(), zoom);
+                aui_SDL::SetCamera(aui_SDL::CameraOffX(), aui_SDL::CameraOffY(), zoom);
+                aui_SDL::SetHomeZoom(aui_SDL::CameraZoom());
 				char detail[64];
 				snprintf(detail, sizeof(detail), "zoom=%.3f", aui_SDL::CameraZoom());
 				smoketest_send_response("ok", cmd, detail);

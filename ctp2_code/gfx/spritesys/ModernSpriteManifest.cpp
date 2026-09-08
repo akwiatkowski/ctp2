@@ -108,6 +108,11 @@ bool ModernSpriteManifestParse(nlohmann::json const &doc, ModernSpriteManifest &
 		{
 			return false;
 		}
+        // Earlier V20 exports named only MOVE/IDLE. Accept those installed
+        // manifests while new exports use the engine's complete action names.
+        if (action.name == "ACTION_1") action.name = "ATTACK";
+        if (action.name == "ACTION_3") action.name = "VICTORY";
+        if (action.name == "ACTION_4") action.name = "WORK";
 		if (action.width <= 0 || action.height <= 0 || action.numFrames <= 0 || action.facings <= 0)
 		{
 			error = "action dimensions, frame count, and facings must be positive";

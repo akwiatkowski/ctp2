@@ -51,6 +51,7 @@
 #include "gfx/tilesys/tiledmap.h"
 #include "gfx/spritesys/Anim.h"
 #include "gfx/spritesys/TradeActor.h"
+#include "ui/aui_sdl/aui_sdl.h"
 
 #include <memory>
 #include "gfx/spritesys/GoodActor.h"
@@ -254,7 +255,7 @@ std::unique_ptr<Anim> TradeActor::CreateAnim(GOODACTION action)
 	return std::make_unique<Anim>(*origAnim);
 }
 
-void TradeActor::Draw(const Vision *tileLocalVision)
+void TradeActor::Draw(const Vision *tileLocalVision, bool emitGpu, sint32 gpuOffsetX, sint32 gpuOffsetY)
 {
 	uint16			flags = k_DRAWFLAGS_NORMAL;
 	Pixel16			color = 0x0000;
@@ -269,6 +270,11 @@ void TradeActor::Draw(const Vision *tileLocalVision)
 		xoff = k_ACTOR_CENTER_OFFSET_X;
 		yoff = k_ACTOR_CENTER_OFFSET_Y;
 
+        // Use the same animation frame and offsets as the software painter.
+        if (emitGpu && !m_goodSpriteGroup->AddGpuSpriteQuad(
+                m_curGoodAction, m_frame, m_x + xoff + gpuOffsetX,
+                m_y + yoff + gpuOffsetY, m_facing, scale, color, flags))
+            aui_SDL::MarkSpriteFrameIncomplete(GoodSpriteGroup::GpuFallbackReason());
 		m_goodSpriteGroup->Draw(m_curGoodAction, m_frame, m_x+xoff, m_y+yoff, m_facing,
 									tiledmap_Get()->GetScale(), m_transparency, color, flags);
 	}

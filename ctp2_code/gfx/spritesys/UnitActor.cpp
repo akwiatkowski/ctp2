@@ -1838,7 +1838,9 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged) 
     if (black == 0x0000)
       black = 0x0001;
     if (profiledb_Get()->GetShowEnemyHealth() || m_playerNum == selitem_Get()->GetVisiblePlayer()) {
-      iconRect.bottom += 4;
+      // DrawSpecialIndicators advances the CPU top without its bottom.
+      // The health bar is four pixels high, not a full herald plus four.
+      iconRect.bottom = iconRect.top + 4;
       RECT healthBar = iconRect;
       if (!AddGpuSolidRect(healthBar, black))
         return fail("unit-health-bar");

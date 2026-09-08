@@ -75,14 +75,6 @@ def mean_brightness(path, state):
     """Mean brightness of the explored world in the centred crop."""
     w, h, px = read_bmp_rgb(path)
     left, top, cw, ch = crop_box(w, h)
-    # The CPU window mirror subtracts the background-window margin at present;
-    # quad/world-map geometry currently does not. Compare the SAME map patch,
-    # not different terrain under identical screen rectangles. The full-frame
-    # registration discrepancy remains visible in the acceptance gallery.
-    if not state["worldmap"] and not state["complete"]:
-        dx, dy = state["world_content_off"]
-        left -= dx
-        top -= dy
     assert 0 <= left and 0 <= top and left + cw <= w and top + ch <= h
     total = n = 0
     for y in range(top, top + ch):

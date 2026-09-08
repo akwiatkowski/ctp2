@@ -1907,6 +1907,19 @@ test('ui-seed',
   suite : 'integration',
 )
 
+foreach renderer_check : ['gpu-actor-parity', 'gpu-trade-animation']
+  test(renderer_check,
+    python3,
+    args : [join_paths(meson.project_source_root(), 'test', renderer_check.replace('-', '_') + '.py'),
+            join_paths(meson.project_build_root(), 'ctp2_render')],
+    timeout : 240,
+    is_parallel : false,
+    priority : -1,
+    workdir : cwd_for_tests,
+    suite : 'integration',
+  )
+endforeach
+
 test('gpu-sprite-refresh',
   python3,
   args : [files('test/gpu_sprite_refresh.py'), join_paths(meson.project_build_root(), 'ctp2')],

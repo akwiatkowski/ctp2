@@ -9,7 +9,7 @@ under `CTP2_HOME` (default `~/.ctp2`); licensed assets stay outside the reposito
 | `make ci-tier-b` | Player UI, headless and test builds; unit tests; eight short headless scenarios; fast/installation/CI/harness checks; save replays through rounds 11, 40 and 75 |
 | `make ci-nightly` | Sanitized headless/unit build; full C++ unit and integration suite; eight short headless scenarios; 500-round campaign plus deep save/load |
 | `.ci/tiers/tier-d.sh` | Standalone UBSan build and full C++ suite |
-| `make test-render` | Thirteen pixel/renderer checks, including seeded UI scenes and sprite lifecycles; requires a desktop session |
+| `make test-render` | Fifteen pixel/renderer checks, including seeded UI scenes and sprite lifecycles; requires a desktop session |
 
 Each tier returns nonzero on failure and records its result in `.ci/state.json`.
 Logs, doctest XML and parsed failures live in `.ci/log/`; `context_path` identifies
@@ -70,10 +70,18 @@ base save, presented screenshots and renderer state. Replay a failing scene:
 CTP2_HOME="$PWD/build/render-home" mise exec -- python3 ctp2_code/test/worldmap_fog.py --fixture /absolute/path/to/base.sav
 ```
 
-The CPU mirror and whole-map paths currently register their views differently
-by the background-window margin (94/72 pixels). Fog measurement accounts for
-that projection difference to sample the same map patch; this does not repair
-the visible registration discrepancy. Full-frame gallery images preserve it.
+Desktop and screenshot readback share world presentation and fallback policy.
+CPU mirror pixels use origin zero, while GPU window quads include their content
+margin. The fog oracle now samples identical screen rectangles in both paths.
+
+`gpu-actor-parity` isolates attack/victory sprite pixels across three engine
+scales, mirrored facings and smooth camera transforms. It also checks visible
+and fogged resource colours. A separate installation without modern atlases
+exercises actual whole-map fallback; disabling modern sprites alone disables GPU
+mode and would miss that case. Pixel masks allow one pixel at rasterization edges
+and exclude independently animated armies. `gpu-trade-animation` creates a real
+funded route and checks appearance, movement and removal with a stationary camera.
+These two Python image checks require Pillow.
 
 Generate the sprite review matrix and per-scene GPU coverage table:
 
@@ -102,3 +110,14 @@ opacity without advancing gameplay. The runtime lifecycle regression uses
 it does not use the fixed-pose hook or recenter after tested transitions.
 Full-frame matching percentages are review aids, not acceptance thresholds:
 background pixels can overwhelm a missing sprite.
+
+Profile duplicate actor painting on macOS with the system sampler:
+
+```sh
+CTP2_HOME="$PWD/build/render-home" mise exec -- python3 tools/visual/profile_sprites.py
+```
+
+The tool captures matched 40-actor CPU/GPU scenes, renderer state and ten seconds
+of main-thread stacks per mode. Run it without another game or build competing
+for CPU time. Sample counts include sleeping stacks and are not FPS or GPU timing.
+CPU painting remains required for whole-map sprite fallback and CPU-made overlays.

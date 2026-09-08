@@ -134,6 +134,39 @@ bool aui_SDL::GpuQuadsEnabled()
 	return s_enabled != 0;
 }
 
+// Shared by the desktop present and screenshot readback: fallback and source
+// coordinates must not diverge between the image oracle and the actual game.
+void aui_SDL::PresentWorldFrame(SDL_Renderer *renderer, float w, float h,
+                                float zoom, float offX, float offY)
+{
+    if (WholeMapReady()) {
+        PresentWorldmapWindow(renderer, w, h, zoom, offX, offY);
+        RenderWorldmapSpriteQuads(renderer, w, h, zoom, offX, offY);
+    } else {
+        // Software actors/terrain are painted at screen coordinates. Only
+        // GPU window quads include the oversized texture's content margin.
+        float const baseX = WindowQuadsReady() ? WorldContentOffX() : 0.0f;
+        float const baseY = WindowQuadsReady() ? WorldContentOffY() : 0.0f;
+        float const srcW = w / zoom, srcH = h / zoom;
+        float const srcX = baseX + (w - srcW) * 0.5f - offX;
+        float const srcY = baseY + (h - srcH) * 0.5f - offY;
+        int texW = 0, texH = 0;
+        CTP2_SDL_GetTextureSize(WorldTexture(), &texW, &texH);
+        // SDL clips an out-of-bounds source but stretches that clipped region
+        // across the original destination. Clip both rectangles together so
+        // a pan/zoom near the mirror edge cannot move every tile and actor.
+        float const left = std::max(0.0f, srcX);
+        float const top = std::max(0.0f, srcY);
+        float const right = std::min(static_cast<float>(texW), srcX + srcW);
+        float const bottom = std::min(static_cast<float>(texH), srcY + srcH);
+        if (right > left && bottom > top)
+            CTP2_SDL_RenderTextureWindow(renderer, WorldTexture(),
+                left, top, right - left, bottom - top,
+                (left - srcX) * zoom, (top - srcY) * zoom,
+                (right - left) * zoom, (bottom - top) * zoom);
+    }
+}
+
 void aui_SDL::PresentWorldmapWindow(SDL_Renderer *renderer,
                                     float viewW, float viewH,
                                     float zoom, float offX, float offY)

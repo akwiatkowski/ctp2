@@ -762,6 +762,37 @@ std::string CmdDebugWorldmapSprites(const char * args)
 	return Ok("debug_worldmap_sprites", result);
 }
 
+// Deterministic resource fixtures use the terrain's resource slot (0 clears).
+std::string CmdDebugSetGood(const char *args)
+{
+    int x, y, slot;
+    if (!args || sscanf(args, "%d %d %d", &x, &y, &slot) != 3)
+        return Err("debug_set_good", "bad_args");
+    World *w = world_Get();
+    if (!w || x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("debug_set_good", "bad_position");
+    auto const *terrain = g_theTerrainDB->Get(w->GetTerrainType(MapPoint(x, y)));
+    if (slot < 0 || slot > 4 || slot > terrain->GetNumResources())
+        return Err("debug_set_good", "bad_resource_slot");
+    w->SetGood(x, y, slot);
+    if (tiledmap_Get()) {
+        tiledmap_Get()->RecreateGoodActors();
+        tiledmap_Get()->Refresh();
+        tiledmap_Get()->InvalidateMix();
+    }
+    return Ok("debug_set_good");
+}
+
+std::string CmdDebugTradeAnimation(const char *args)
+{
+    int enabled;
+    if (!args || sscanf(args, "%d", &enabled) != 1 || (enabled != 0 && enabled != 1))
+        return Err("debug_trade_animation", "bad_args");
+    if (!profiledb_Get()) return Err("debug_trade_animation", "no_profile");
+    profiledb_Get()->SetTradeAnim(enabled);
+    return Ok("debug_trade_animation");
+}
+
 std::string CmdDebugFindGood(const char * args)
 {
 	sint32 fx = 0, fy = 0;
@@ -4041,6 +4072,8 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_explore_patch ", 0) == 0)             return CmdDebugExplorePatch(line.c_str() + 20);
     if (line.rfind("debug_vision_stats ", 0) == 0)              return CmdDebugVisionStats(line.c_str() + 19);
     if (line.rfind("debug_render_explored_as_visible ", 0) == 0) return CmdDebugRenderExploredAsVisible(line.c_str() + 33);
+    if (line.rfind("debug_set_good ", 0) == 0)                  return CmdDebugSetGood(line.c_str() + 15);
+    if (line.rfind("debug_trade_animation ", 0) == 0)           return CmdDebugTradeAnimation(line.c_str() + 22);
     if (line.rfind("debug_find_good ", 0) == 0)                 return CmdDebugFindGood(line.c_str() + 16);
     if (line.rfind("debug_set_good_richness ", 0) == 0)          return CmdDebugSetGoodRichness(line.c_str() + 24);
     if (line.rfind("debug_find_river ", 0) == 0)                return CmdDebugFindRiver(line.c_str() + 17);

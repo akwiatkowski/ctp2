@@ -228,7 +228,7 @@ test-pan-pixel: build
 # when the original game data lives outside this checkout.
 RENDER_HOME ?= $(CURDIR)/build/render-home
 RENDER_DATA ?= $(CURDIR)/ctp2_data
-RENDER_TESTS ?= ui-seed slice-ui pan-pixel-proof gpu-world-fallbacks gpu-sprite-refresh terrain-edge-parity \
+RENDER_TESTS ?= ui-seed slice-ui pan-pixel-proof gpu-world-fallbacks gpu-sprite-refresh gpu-actor-parity gpu-trade-animation terrain-edge-parity \
 	worldmap-fog worldmap-borders goods-reload gpu-raster-parity \
 	raster-overlay-parity gpu-improvement-parity worldmap-transition-parity
 test-render:

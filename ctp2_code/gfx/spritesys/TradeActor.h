@@ -34,7 +34,7 @@ public:
 
 	std::unique_ptr<Anim>	CreateAnim(GOODACTION action);
 
-	void			Draw(const Vision *tileLocalVision);
+	void			Draw(const Vision *tileLocalVision, bool emitGpu, sint32 gpuOffsetX, sint32 gpuOffsetY);
 	void			DrawText(sint32 x, sint32 y, MBCHAR *goodText);
 
 	BOOL			IsAnimating();

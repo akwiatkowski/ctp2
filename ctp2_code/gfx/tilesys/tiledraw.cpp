@@ -4943,6 +4943,20 @@ TiledMap::DrawTerrainOverlay(aui_Surface *surf)
 
 		DrawBlendedOverlayScaledIntoMix(data, x, y, destWidth, destHeight, m_overlayColor, k_FOW_BLEND_VALUE);
 	}
+	if (m_buildingGpuSprites) {
+		SDL_Texture *texture = aui_SDL::EnsureMapIconTexture(data,
+		    k_TILE_PIXEL_WIDTH, k_TILE_GRID_HEIGHT, m_overlayColor, true, k_FOW_BLEND_VALUE);
+		if (texture) {
+			aui_SDL::GpuSpriteQuad q;
+			q.texture = texture;
+			q.sx = 0; q.sy = 0; q.sw = k_TILE_PIXEL_WIDTH; q.sh = k_TILE_GRID_HEIGHT;
+			q.dx = x + m_gpuSpriteOffsetX; q.dy = y + m_gpuSpriteOffsetY;
+			q.dw = destWidth; q.dh = destHeight;
+			q.mirror = false; q.alpha = 255;
+			aui_SDL::AddSpriteQuad(q);
+		} else aui_SDL::MarkSpriteFrameIncomplete("terrain-overlay");
+	}
+
 	AddDirtyToMix(x, y, destWidth, destHeight);
 }
 

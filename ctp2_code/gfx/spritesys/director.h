@@ -285,7 +285,6 @@ class Director {
   void DrawActiveUnits(RECT* paintRect, sint32 layer);
 
   void DrawActiveEffects(RECT* paintRect, sint32 layer);
-  bool AddActiveEffectGpuSpriteQuads(RECT* paintRect, sint32 offsetX, sint32 offsetY);
   void DrawTradeRouteAnimations(RECT* paintRect, sint32 layer);
 
   uint32 ProcessActiveUnits();

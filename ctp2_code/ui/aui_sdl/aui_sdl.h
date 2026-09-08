@@ -278,8 +278,9 @@ public:
 	static int SampleWorldmapCoverage(int grid);
 	static void DestroyWorldmapTexture();
 	static void MarkQuadFrameIncomplete(char const *reason = nullptr);
-	static bool QuadFrameComplete() { return m_quadFrameComplete; }
-	static char const *QuadFrameIncompleteReason() { return m_quadFrameIncompleteReason; }
+	static bool QuadFrameComplete() { return m_quadFrameComplete && !m_spriteFrameIncompleteReason; }
+	static char const *QuadFrameIncompleteReason() { return m_quadFrameIncompleteReason ? m_quadFrameIncompleteReason : m_spriteFrameIncompleteReason; }
+	static void MarkSpriteFrameIncomplete(char const *reason) { if (!m_spriteFrameIncompleteReason) m_spriteFrameIncompleteReason = reason; }
 	static std::vector<GpuQuad> const &QuadDrawList() { return m_quadDrawList; }
 
 	struct GpuSpriteQuad { SDL_Texture *texture; int sx, sy, sw, sh; int dx, dy, dw, dh; bool mirror; uint8 alpha; uint8 red = 255, green = 255, blue = 255; bool additive = false; bool screen_space = false; };
@@ -287,7 +288,7 @@ public:
 	static void ReleaseSpriteAtlasTexture(ModernSpriteAtlas const *atlas);
 	static SDL_Texture *EnsureMapIconTexture(void const *data, int w, int h, uint16 color, bool blend = false, int blendValue = 0, bool dither = false);
 	static SDL_Texture *EnsureSolidColorTexture(uint16 color);
-	static void BeginSpriteFrame() { m_spriteDrawList.clear(); }
+	static void BeginSpriteFrame() { m_spriteDrawList.clear(); m_spriteFrameIncompleteReason = nullptr; }
 	static void AddSpriteQuad(GpuSpriteQuad const &q) { m_spriteDrawList.push_back(q); }
 	static std::vector<GpuSpriteQuad> const &SpriteDrawList() { return m_spriteDrawList; }
 
@@ -366,6 +367,7 @@ protected:
 	static int		m_tilesetAtlasH;
 	static bool		m_quadFrameComplete;
 	static char const *	m_quadFrameIncompleteReason;
+	static inline char const *m_spriteFrameIncompleteReason = nullptr;
 	static std::vector<GpuQuad> m_quadDrawList;
 	static SDL_Texture *m_rasterCellTexture;
 	static int m_rasterCellW, m_rasterCellH;

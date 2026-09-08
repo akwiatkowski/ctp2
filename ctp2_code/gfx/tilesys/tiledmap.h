@@ -671,6 +671,11 @@ public:
 private:
 	std::unique_ptr<aui_Surface>	m_gpuScratchTile;
 	TileOverlayCapture *m_gpuOverlayCapture = nullptr;
+	void BeginGpuSpriteFrame();
+	void EndGpuSpriteFrame();
+	bool m_buildingGpuSprites = false;
+	sint32 m_gpuSpriteOffsetX = 0;
+	sint32 m_gpuSpriteOffsetY = 0;
 
 	MapPoint		m_hiliteMouseTile;
 	BOOL			m_drawHilite;

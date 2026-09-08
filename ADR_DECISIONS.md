@@ -2,6 +2,26 @@
 
 Short log of non-trivial design decisions. Newest first.
 
+## ADR-009 — Refresh GPU sprites through the normal actor painter (2026-09-08)
+
+**Context.** GPU sprite quads were built only when terrain refreshed. Idle frames,
+creation, removal, and active movement could leave sprites stale. The separate
+GPU tile loop also chose only one actor, omitting units sharing a city tile.
+Camera recentering in renderer tests hid the refresh dependency.
+
+**Decision.** Rebuild the dynamic GPU sprite list during each full `RepaintSprites`
+pass. Emit quads through the existing unit, good, and effect painters, using current
+actor coordinates and the same visibility/stacking decisions as CPU drawing.
+Keep terrain cached independently, and reset sprite fallback state per sprite frame.
+Scroll-strip paints do not replace the full view's list.
+
+**Alternatives.** Refreshing terrain every frame adds unnecessary work. Maintaining
+a second GPU actor-selection loop duplicates visibility and animation rules.
+
+**Consequences.** City labels and placement overlays join the dynamic pass. The
+`gpu-sprite-refresh` renderer regression creates and disbands a city garrison with
+a stationary camera, checking movement, quad counts, and presented map pixels.
+
 ## ADR-008 — Persist AI decision history and scheduler identity (2026-09-06)
 
 **Context.** Rebuilding AI schedulers after loading discarded retained settlement

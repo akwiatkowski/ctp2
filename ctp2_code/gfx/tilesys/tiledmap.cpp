@@ -187,7 +187,7 @@ namespace
         OverlayScratch &scratch = s_scratch[slot];
 
         auto fail = [](char const *reason) {
-            aui_SDL::MarkQuadFrameIncomplete(reason);
+            aui_SDL::MarkSpriteFrameIncomplete(reason);
             return false;
         };
 
@@ -2851,6 +2851,10 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 	if (actor->GetUnitVisibility() & (1 << selitem_Get()->GetVisiblePlayer()))
 	{
 
+		if (m_buildingGpuSprites && !actor->AddGpuSpriteQuad(
+		        actor->GetX() + m_gpuSpriteOffsetX, actor->GetY() + m_gpuSpriteOffsetY, GetScale(), fog))
+			aui_SDL::MarkSpriteFrameIncomplete(actor->GpuSpriteFallbackReason());
+
 		if (actor->Draw(fog)) {
 
 			RECT rect;
@@ -2981,6 +2985,17 @@ void TiledMap::PaintGoodActor(GoodActor *actor, bool fog)
 	Assert(actor != nullptr);
 	if (actor == nullptr) return;
 
+	if (m_buildingGpuSprites) {
+		if (actor->AddGpuSpriteQuad(actor->GetX() + m_gpuSpriteOffsetX,
+		                            actor->GetY() + m_gpuSpriteOffsetY, GetScale()))
+			++s_goodEmitted;
+		else {
+			++s_goodDeclined;
+			s_goodReason = GoodSpriteGroup::GpuFallbackReason();
+			aui_SDL::MarkSpriteFrameIncomplete(s_goodReason);
+		}
+	}
+
 	(void) actor->Draw(fog);
 
 	RECT rect;
@@ -3007,6 +3022,9 @@ void TiledMap::PaintEffectActor(EffectActor *actor)
 {
 	Assert(actor != nullptr);
 	if (actor == nullptr) return;
+
+	if (m_buildingGpuSprites && !actor->AddGpuSpriteQuad(m_gpuSpriteOffsetX, m_gpuSpriteOffsetY))
+		aui_SDL::MarkSpriteFrameIncomplete("effect-sprite");
 
 	actor->Draw();
 
@@ -3053,11 +3071,13 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 
 			if (world_Get()->IsGood(pos) && m_localVision->IsExplored(pos))
 			{
+				if (m_buildingGpuSprites) ++s_goodCellsSeen;
 				TileInfo *curTileInfo = GetTileInfo(pos);
 				Assert(curTileInfo);
 				if (curTileInfo)
 				{
                     GoodActor * curGoodActor = curTileInfo->GetGoodActor();
+                    if (m_buildingGpuSprites && !curGoodActor) ++s_goodNoActor;
                     if (curGoodActor)
                     {
 					    curGoodActor->PositionActor(pos);
@@ -3479,6 +3499,40 @@ sint32 TiledMap::OffsetSprites(RECT *paintRect, sint32 deltaX, sint32 deltaY)
 	return 0;
 }
 
+void TiledMap::BeginGpuSpriteFrame()
+{
+	aui_SDL::BeginSpriteFrame();
+	m_buildingGpuSprites = true;
+	s_goodCellsSeen = s_goodNoActor = s_goodDeclined = s_goodEmitted = 0;
+	s_goodReason = "";
+	sint32 baseX, baseY;
+	maputils_TileX2MapXAbs(m_mapViewRect.left, m_mapViewRect.top, &baseX);
+	maputils_MapXY2PixelXY(baseX, m_mapViewRect.top, &baseX, &baseY);
+	m_gpuSpriteOffsetX = aui_SDL::WorldContentOffX() - baseX;
+	m_gpuSpriteOffsetY = aui_SDL::WorldContentOffY() - baseY;
+	sint32 mapX, mapY;
+	maputils_TileX2MapXAbs(m_mapViewRect.left, m_mapViewRect.top, &mapX);
+	maputils_MapXY2WorldmapPixelXY(mapX, m_mapViewRect.top, &mapX, &mapY);
+	aui_SDL::SetWorldmapSpriteBase(mapX, mapY);
+}
+
+void TiledMap::EndGpuSpriteFrame()
+{
+	if (profiledb_Get()->GetShowCityNames()
+	    && (!c3ui_Get() || !AddGpuOverlayQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight(),
+	                                         0, "city-names", &TiledMap::DrawCityNames)))
+		aui_SDL::MarkSpriteFrameIncomplete("city-names");
+
+	if (ScenarioEditor::ShowStartFlags())
+	{
+		if (!c3ui_Get() || !AddGpuOverlayQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight(),
+		                                      1, "scenario-start-flags", &TiledMap::DrawStartingLocations))
+			aui_SDL::MarkSpriteFrameIncomplete("scenario-start-flags");
+	}
+
+	m_buildingGpuSprites = false;
+}
+
 sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolling)
 {
 	if(!ReadyToDraw())
@@ -3494,6 +3548,11 @@ sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolli
 	{
 		m_nextPlayer = FALSE;
 	}
+
+	// Rebuild dynamic sprites on each normal frame, after Director::Process.
+	// Scroll-strip/radar paints must not replace the main view's complete list.
+	bool const gpuSprites = this == tiledmap_Get() && !scrolling && aui_SDL::GpuQuadsEnabled();
+	if (gpuSprites) BeginGpuSpriteFrame();
 
 	screenmanager_Get()->LockSurface(surf);
 
@@ -3523,6 +3582,8 @@ sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolli
 	{
 		tiledmap_Get()->DrawStartingLocations(surf, 0);
 	}
+
+	if (gpuSprites) EndGpuSpriteFrame();
 
 	return 0;
 }
@@ -4580,7 +4641,6 @@ void TiledMap::BuildTerrainQuads()
 	// Clear the list up front so any early return presents an empty world (black)
 	// rather than stale quads left at the wrong scale.
 	aui_SDL::BeginQuadFrame();
-	aui_SDL::BeginSpriteFrame();
 
 	if (!m_tileSet || !m_localVision)   { aui_SDL::MarkQuadFrameIncomplete("world-setup"); return; }
 
@@ -4614,25 +4674,6 @@ void TiledMap::BuildTerrainQuads()
 	sint32 baseY = m_mapViewRect.top;
 	maputils_TileX2MapXAbs(m_mapViewRect.left, m_mapViewRect.top, &baseX);
 	maputils_MapXY2PixelXY(baseX, baseY, &baseX, &baseY);
-
-	// P13: where the view's top-left sits in the whole-map texture, from the SAME
-	// projection the tile builder draws with. Derived once per frame from the view
-	// rect rather than measured off whichever cell a loop happens to reach, so it
-	// can never be stale (the old site sat behind an IsExplored continue and froze
-	// on a fully-unexplored view) nor cell-dependent.
-	//
-	// This is provably the same value the per-cell measurement produced:
-	// maputils_MapXY2PixelXY subtracts viewLeft*tileWidth and the smooth-scroll
-	// offsets from every cell, so both cancel in (worldmap(cell) - draw(cell)),
-	// leaving worldmap(viewOrigin).
-	{
-		sint32 originMapX = m_mapViewRect.left;
-		maputils_TileX2MapXAbs(m_mapViewRect.left, m_mapViewRect.top, &originMapX);
-		sint32 originWorldmapX = 0, originWorldmapY = 0;
-		maputils_MapXY2WorldmapPixelXY(originMapX, m_mapViewRect.top,
-		                               &originWorldmapX, &originWorldmapY);
-		aui_SDL::SetWorldmapSpriteBase(originWorldmapX, originWorldmapY);
-	}
 
 	// Mirror RepaintTiles' visible-cell iteration (m_mapViewRect + wrap/bounds).
 	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
@@ -4748,115 +4789,6 @@ void TiledMap::BuildTerrainQuads()
 			aui_SDL::AddQuad(q);
 		}
 	}
-
-	s_goodCellsSeen = s_goodNoActor = s_goodDeclined = s_goodEmitted = 0;   // PROBE
-	PLAYER_INDEX const player = selitem_Get()->GetVisiblePlayer();
-	double const scale = GetScale();
-	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
-	{
-		if (!(world_Get()->IsYwrap() || (i >= 0 && i < mapHeight))) continue;
-		for (sint32 j = m_mapViewRect.left; j < m_mapViewRect.right; j++)
-		{
-			if (!(world_Get()->IsXwrap() || (j >= 0 && j < mapWidth))) continue;
-
-			sint32 drawX = j, drawY = i;
-			maputils_TileX2MapXAbs(drawX, drawY, &drawX);
-			maputils_MapXY2PixelXY(drawX, drawY, &drawX, &drawY);
-			drawX -= baseX;
-			drawY -= baseY;
-
-			sint32 wj = j, wi = i;
-			maputils_WrapPoint(wj, wi, &wj, &wi);
-			MapPoint pos = MapPoint(maputils_TileX2MapX(wj, wi), wi);
-			if (!m_renderEverything && !m_localVision->IsExplored(pos)) continue;
-
-			if (   (drawX < m_surfaceRect.left)
-			    || (drawX > (m_surfaceRect.right  - GetZoomTilePixelWidth()))
-			    || (drawY < m_surfaceRect.top)
-			    || (drawY > (m_surfaceRect.bottom - (GetZoomTilePixelHeight() + GetZoomTileHeadroom()))))
-				continue;
-
-			if (world_Get()->IsGood(pos))
-			{
-				++s_goodCellsSeen;   // PROBE
-				TileInfo * tileInfo = GetTileInfo(pos);
-				GoodActor * goodActor = tileInfo ? tileInfo->GetGoodActor() : nullptr;
-				if (!goodActor) ++s_goodNoActor;   // PROBE
-				if (goodActor)
-				{
-					goodActor->PositionActor(pos);
-					if (!goodActor->AddGpuSpriteQuad(drawX + aui_SDL::WorldContentOffX(),
-					                                drawY + aui_SDL::WorldContentOffY(), scale))
-					{
-						++s_goodDeclined;   // PROBE
-						s_goodReason = GoodSpriteGroup::GpuFallbackReason();   // PROBE
-						aui_SDL::MarkQuadFrameIncomplete(GoodSpriteGroup::GpuFallbackReason());
-					}
-					else ++s_goodEmitted;   // PROBE
-				}
-			}
-
-			Unit top;
-			if (!world_Get()->GetTopVisibleUnit(player, pos, top)) continue;
-			UnitActorPtr actor = top.GetActor();
-			if (!actor) continue;
-
-			bool const fog = m_localVision && m_localVision->IsExplored(pos) && !m_localVision->IsVisible(pos);
-			if (!actor->AddGpuSpriteQuad(drawX + aui_SDL::WorldContentOffX(),
-			                         drawY + aui_SDL::WorldContentOffY(), scale, fog))
-				aui_SDL::MarkQuadFrameIncomplete(actor->GpuSpriteFallbackReason());
-		}
-	}
-
-	Director *director = director_Get();
-	if (director && !director->AddActiveEffectGpuSpriteQuads(
-			&m_mapViewRect,
-			aui_SDL::WorldContentOffX() - baseX,
-			aui_SDL::WorldContentOffY() - baseY))
-		aui_SDL::MarkQuadFrameIncomplete("effect-sprite");
-
-	if (m_overlayActive)
-	{
-		m_overlayActive = false;
-		if (m_overlayRec)
-		{
-			TerrainImprovementRecord::Effect const * effect =
-				(m_overlayRec->GetClassTerraform() || m_overlayRec->GetClassOceanform())
-				? m_overlayRec->GetTerrainEffect(0)
-				: terrainutil_GetTerrainEffect(m_overlayRec, m_overlayPos);
-			Pixel16 *data = effect ? m_tileSet->GetImprovementData((uint16)effect->GetTilesetIndex()) : nullptr;
-			SDL_Texture *texture = aui_SDL::EnsureMapIconTexture(data,
-				k_TILE_PIXEL_WIDTH, k_TILE_GRID_HEIGHT, m_overlayColor, true, k_FOW_BLEND_VALUE);
-			if (texture)
-			{
-				sint32 x, y;
-				maputils_MapXY2PixelXY(m_overlayPos.x, m_overlayPos.y, &x, &y);
-				aui_SDL::GpuSpriteQuad q;
-				q.texture = texture;
-				q.sx = 0; q.sy = 0; q.sw = k_TILE_PIXEL_WIDTH; q.sh = k_TILE_GRID_HEIGHT;
-				q.dx = x - baseX + aui_SDL::WorldContentOffX();
-				q.dy = y - baseY + aui_SDL::WorldContentOffY();
-				q.dw = GetZoomTilePixelWidth();
-				q.dh = GetZoomTileGridHeight();
-				q.mirror = false;
-				q.alpha = 255;
-				aui_SDL::AddSpriteQuad(q);
-			}
-		}
-	}
-
-	if (profiledb_Get()->GetShowCityNames()
-	    && (!c3ui_Get() || !AddGpuOverlayQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight(),
-	                                         0, "city-names", &TiledMap::DrawCityNames)))
-		aui_SDL::MarkQuadFrameIncomplete("city-names");
-
-	if (ScenarioEditor::ShowStartFlags())
-	{
-		if (!c3ui_Get() || !AddGpuOverlayQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight(),
-		                                      1, "scenario-start-flags", &TiledMap::DrawStartingLocations))
-			aui_SDL::MarkQuadFrameIncomplete("scenario-start-flags");
-	}
-
 }
 
 void TiledMap::ScrollPixels(sint32 deltaX, sint32 deltaY, aui_Surface *surf)

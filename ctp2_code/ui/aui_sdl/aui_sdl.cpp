@@ -953,7 +953,7 @@ aui_SDL::~aui_SDL()
 		for (auto &entry : m_solidColorTextures)
 			SDL_DestroyTexture(entry.second);
 		m_solidColorTextures.clear();
-		m_spriteDrawList.clear();
+		BeginSpriteFrame();
 		if (m_quadAtlasTexture) {
 			SDL_DestroyTexture(m_quadAtlasTexture);
 			m_quadAtlasTexture = nullptr;

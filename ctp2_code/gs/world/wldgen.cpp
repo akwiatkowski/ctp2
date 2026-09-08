@@ -3388,3 +3388,15 @@ void World::WholePlayerLandArea(int * a_Array) const
 }
 
 #endif
+
+void World::RebuildPathing()
+{
+    // AllocateMap replaces cells, but the heuristic also stores dimensions and
+    // wrapping topology. Rebuild both after loading a different world.
+    XY_Coords.Init(m_size.y, m_size.x);
+    auto heuristic = std::make_unique<A_Star_Heuristic_Cost>(
+        m_size.y, m_size.x, m_isYwrap, m_isXwrap);
+    delete A_star_heuristic;
+    A_star_heuristic = heuristic.release();
+    if (world_Get() == this) A_star_heuristic->Update();
+}

@@ -22,7 +22,12 @@
 
 
 
+#include <nlohmann/json.hpp>
+class MapAnalysis;
+
 class BoundingRect {
+    friend void to_json(nlohmann::json &j, MapAnalysis const &m);
+    friend void from_json(nlohmann::json const &j, MapAnalysis &m);
 
 public:
 	BoundingRect() : m_isValid(false), m_xWrapOk(false), m_yWrapOk(false),

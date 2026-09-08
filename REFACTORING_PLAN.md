@@ -6,7 +6,11 @@ Plain Markdown so any LLM (OpenAI, Claude, local models) can read and update it.
 
 ## Overall Progress
 
+- **Selected stability batch, 2026-09-06:** scheduler graph/history now survives JSON save/load (ADR-008); seed-42 CLI replays match through round 75 in both load modes. JSON/SPR readers validate input bounds and failed sprite loads release partial state. Live/retired player and message-window shutdown bugs are fixed; the destructor dependency audit is recorded in `BUG_HUNT_REPORT.md`. All 11 renderer gates pass after fixing black scaled terrain and strengthening the visibility oracle. Tier B and the 585-case unit suite pass; full sanitized integration and the 500-round campaign remain under verification. Human P13/P14 acceptance remains pending.
+
 - **GPU overlay rasterization completed 2026-09-05 (ADR-006):** native-zoom improvements, roads, ruins, both border styles and grid use cached GPU stamps with cell-local shadows. All 11 renderer gates pass; CPU fallback remains available. Permanent installation contains all 463 sprite atlases; manual windowed acceptance is pending.
+
+- **Commit review, 2026-09-08:** the modernization baseline now records 4096 raw `new` sites and 1393 `delete` sites (down 34 and 3). The dead-player lifetime fix and regression fixture require two additional net `PointerList` mentions (566 total); these reference the existing retired-player list, not a new production container. An unused declaration and unnecessary test casts were removed; cast counts remain at 2512.
 
 - **Player ownership completed 2026-09-05:** owned player subsystems use `unique_ptr`; constructors initialize members without overwriting C++ objects with `memset`. JSON, UI and networking consumers use borrowed pointers. `raw_delete` fell from 1423 to 1396; fast/unit tests pass.
 
@@ -280,7 +284,9 @@ The original DoD (M1–M8) is complete. What follows is the honest inventory of 
 
 **Asset licensing (M8).** Game data is not part of the Activision/Apolyton source release — it is user-supplied and non-redistributable. Generated modern assets are local, rebuildable cache under `~/.ctp2/assets/<fingerprint>/`, never committed; original data stays canonical.
 
-**Infrastructure caveat.** The local CI daemon (`.ci/daemon.sh`) is **not running** and `.ci/state.json` is stale — restart it before trusting `jq '.tier_a.status' .ci/state.json`, or agents read a month-old green.
+**Infrastructure caveat.** CI status is a snapshot, not proof of a running daemon
+or a check against the current worktree. Inspect the recorded timestamp, revision
+and log before relying on `.ci/state.json`; see `.ci/README.md` for the current gates.
 
 ### P8 — Performance build tier (release + LTO evaluation)
 
@@ -491,6 +497,8 @@ For any LLM continuing this work:
 
 - **Fast/pre-commit:** `make test` (ratchets + fast + unit doctests).
 - **UB:** `make ubsan-smoke` (new game + turns under UBSan).
+- **Current-build CI:** `make ci-tier-b` builds the UI/headless/tests and runs units, eight short scenarios, harness/installer/CI checks and save replays. `make ci-nightly` runs the full C++ suite, short scenarios and a 500-round deep-save campaign under UBSan on macOS or ASan+UBSan on Linux. C/D explicitly configure single-player `debugoptimized` builds. Scheduling is separate; see `.ci/README.md`.
+- **Renderer:** `make test-render` runs eleven windowed/pixel gates, including visible terrain through engine-zoom changes and clean process exit.
 - **Integration:** `meson test -C build --suite integration` — slices (headless + real-window UI incl. the P11 pixel oracle), JSON round-trips, determinism, multi-turn AI (~7 min).
 - **Scenario (9 tests):** `meson test -C build --suite scenario` — fixture reloads (`load-stress`), city capture, cargo/path resume, **combat-invariant matrix**, **seed sweep** (3 seeds CI), **undersea city** (nano-age via `create_unit`/`grant_advance` cheats), **conquest ending** (the game actually finishes), **long-game soak** (300 rounds + economy-corruption invariants + deep save/load at round 300).
 - **Release tier (per milestone):** `make release-check` — the soak + a 20-seed × 60-turn sweep on the optimized binary (~1.5 min total); `make seed-sweep` for the sweep alone.
@@ -508,7 +516,7 @@ mise exec -- make release-check                     # per milestone, optimized t
 ## Known Blockers / Caveats
 
 - ASan hangs pre-`main` on this macOS/Apple clang setup (see Caveats); `make ubsan-smoke` is the working sanitizer path until P2 lands the Linux tier.
-- The local CI daemon (`.ci/daemon.sh`) is **not running** and `.ci/state.json` is stale (last update 2026-06-07, branch `wave1-ctp2-namespace`). Restart it before relying on `jq '.tier_a.status' .ci/state.json`, or agents will read a month-old green.
-- `BUG_HUNT_REPORT.md` has no fixed/open tracking — 963 findings, ~63 fixed in May 2026, no annotations since. P1's checkbox includes fixing that.
+- CI state records the last invocation; check its timestamp and log against the current worktree. A manually run green tier does not establish that a daemon or nightly schedule is installed.
+- `BUG_HUNT_REPORT.md` contains historical leads and dated resolution/audit notes. Verify the current code and the relevant resolution before treating an old finding as open.
 - Windows is best-effort and should not drive refactoring decisions unless Olek asks.
 - Avoid `MBCHAR *` UI string-literal cleanup unless intentionally doing a broader UI const-correctness batch.

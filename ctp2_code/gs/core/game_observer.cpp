@@ -258,10 +258,10 @@ void GameObserverRegistry::NotifyMessageMinimize(const Message& msg)
     }
 }
 
-void GameObserverRegistry::NotifyMessageWindowDestroy(const Message& msg)
+void GameObserverRegistry::NotifyMessageWindowDestroy(const MessageData& data)
 {
     for (auto* obs : m_observers) {
-        obs->OnMessageWindowDestroy(msg);
+        obs->OnMessageWindowDestroy(data);
     }
 }
 

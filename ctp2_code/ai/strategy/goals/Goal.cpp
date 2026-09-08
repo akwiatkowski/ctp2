@@ -4312,7 +4312,10 @@ bool Goal::FindTransporters(const Agent_ptr & agent_ptr, std::list< std::pair<Ut
 	// Probably more stuff needs to be done here
 	m_current_needed_strength.Set_Transport(static_cast<sint8>(agent_ptr->Get_Army()->Num()));
 
-	transporter_list.sort(std::greater<std::pair<Utility,class Agent *> >());
+	// Keep equal-utility transporters in agent order across save/load.
+    transporter_list.sort([](auto const &a, auto const &b) {
+        return a.first > b.first;
+    });
 	return transporter_list.size() > 0;
 }
 

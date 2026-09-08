@@ -26,6 +26,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "ctp/ctp2_utils/bounded_json.h"
 #include "gs/fileio/json_save.h"
 
 #include "gs/utility/TurnCnt.h"
@@ -605,12 +606,26 @@ void to_json(nlohmann::json &j, World const &w)
 
 void from_json(nlohmann::json const &j, World &w)
 {
-    // Free any existing map state and reallocate at the saved size.
-    // Matches the binary load path at wldgen.cpp:2385.
+    // Validate dimensions and dense storage before allocation or destroying the
+    // current world. XY coordinates double X, and map cells have substantial
+    // per-cell state; one million cells is a generous allocation ceiling.
+    for (auto key : {"size_x", "size_y"}) {
+        auto const &v = j.at(key);
+        bool valid = v.is_number_unsigned() ? v.get<uint64_t>() > 0 && v.get<uint64_t>() <= 16383
+            : v.is_number_integer() && v.get<int64_t>() > 0 && v.get<int64_t>() <= 16383;
+        if (!valid) throw nlohmann::json::other_error::create(503, "invalid world dimensions", &j);
+    }
+    sint32 size_x = j.at("size_x").get<sint32>();
+    sint32 size_y = j.at("size_y").get<sint32>();
+    size_t count = size_t(size_x) * size_y;
+    if (count > 1024 * 1024 || !j.at("cells").is_array() || j.at("cells").size() != size_t(size_x)
+        || !j.at("tile_info_storage").is_array() || j.at("tile_info_storage").size() != count)
+        throw nlohmann::json::other_error::create(503, "invalid world storage size", &j);
+    for (auto const &column : j.at("cells"))
+        if (!column.is_array() || column.size() != size_t(size_y))
+            throw nlohmann::json::other_error::create(503, "invalid world column size", &j);
     w.FreeMap();
 
-    sint32 size_x  = j.at("size_x").get<sint32>();
-    sint32 size_y  = j.at("size_y").get<sint32>();
     bool   xwrap   = j.at("is_xwrap").get<bool>();
     bool   ywrap   = j.at("is_ywrap").get<bool>();
     w.m_isXwrap    = xwrap ? 1 : 0;
@@ -718,6 +733,9 @@ void from_json(nlohmann::json const &j, World &w)
     // path at wldgen.cpp does the full NumberContinents for the same
     // reason).
     w.FindContinentNeighbors();
+
+    w.RebuildPathing();
+
 }
 
 // --- Player-layer leaf bridges (Phase D-1) -----------------------------
@@ -2518,6 +2536,19 @@ void to_json(nlohmann::json &j, Vision const &v)
 
 void from_json(nlohmann::json const &j, Vision &v)
 {
+    // Check dimensions before narrowing or allocating. Vision belongs to the
+    // current world; accepting a different grid also corrupts spatial lookups.
+    for (auto key : {"width", "height"}) {
+        auto const &value = j.at(key);
+        if (!value.is_number_integer() || value <= 0 || value > 32767)
+            throw nlohmann::json::other_error::create(501, "invalid Vision dimensions", &j);
+    }
+    auto width = j.at("width").get<sint32>();
+    auto height = j.at("height").get<sint32>();
+    if (!world_Get() || width != world_Get()->GetWidth() || height != world_Get()->GetHeight()
+        || !j.at("grid").is_array() || j.at("grid").size() != size_t(width) * height
+        || !j.at("unseen_cells").is_array() || j.at("unseen_cells").size() > size_t(width) * height)
+        throw nlohmann::json::other_error::create(501, "Vision grid size mismatch", &j);
     // Tear down existing storage (matches Vision::Serialize's load branch).
     v.m_array.clear();
     v.DeleteUnseenCells();
@@ -2546,10 +2577,15 @@ void from_json(nlohmann::json const &j, Vision &v)
     v.m_unseenCells = std::make_unique<UnseenCellQuadTree>(v.m_width, v.m_height, v.m_isYwrap);
     for (auto const &entry : j.at("unseen_cells"))
     {
-        UnseenCell *uc = new UnseenCell(MapPoint(0, 0));
+        auto uc = std::make_unique<UnseenCell>(MapPoint(0, 0));
         entry.get_to(*uc);
-        UnseenCellCarton carton(uc);
+        MapPoint pos;
+        uc->GetPos(pos);
+        if (pos.x < 0 || pos.y < 0 || pos.x >= width || pos.y >= height)
+            throw nlohmann::json::other_error::create(501, "unseen cell outside Vision grid", &entry);
+        UnseenCellCarton carton(uc.get());
         v.m_unseenCells->Insert(carton);
+        uc.release();
     }
 }
 
@@ -5138,6 +5174,7 @@ namespace {
 nlohmann::json ctpai_state_to_json()
 {
     nlohmann::json j;
+    json_save::SaveAiHistory(j);
     j["diplomat_next_id"] = Diplomat::PeekNextId();
     j["agreements"]       = AgreementMatrix::s_agreements;
 
@@ -5278,22 +5315,9 @@ bool LoadJson(char const *path)
 		          << "' for reading\n";
 		return false;
 	}
-	in.seekg(0, std::ios::end);
-	std::streamoff const fileSize = in.tellg();
-	if (fileSize < 0 || fileSize > kMaxSaveBytes)
-	{
-		std::cerr << "[json_save] LoadJson: file exceeds "
-		          << kMaxSaveBytes << " byte limit at '" << path << "'\n";
-		return false;
-	}
-	in.seekg(0, std::ios::beg);
-
     nlohmann::json doc;
-    try
-    {
-        in >> doc;
-    }
-    catch (nlohmann::json::parse_error const &e)
+    try { doc = ReadBoundedJson(in, kMaxSaveBytes); }
+    catch (nlohmann::json::exception const &e)
     {
         std::cerr << "[json_save] LoadJson: parse error at '" << path
                   << "': " << e.what() << "\n";
@@ -5496,6 +5520,10 @@ bool LoadJson(char const *path)
         // world_Get() == nullptr (MapAnalysis::Resize would deref it).
         if (world_Get())
             CtpAi::Resize();
+
+        // Restore history after Resize, which can copy schedulers and discard
+        // their pointer relationships.
+        RestoreAiHistory(doc.value("ai_state", nlohmann::json::object()));
 
         // Units/cities were restored without gfx state (UnitData's
         // from_json intentionally leaves m_actor null).  Recreate the

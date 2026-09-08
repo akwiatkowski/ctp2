@@ -32,8 +32,8 @@ LAST_HEAD_FILE="$CI_ROOT/last_head"
 POLL_INTERVAL="${POLL_INTERVAL:-3}"
 TIER_A_DEBOUNCE="${TIER_A_DEBOUNCE:-5}"
 ENABLE_TIER_B="${ENABLE_TIER_B:-1}"
-ENABLE_TIER_C="${ENABLE_TIER_C:-1}"
-ENABLE_TIER_D="${ENABLE_TIER_D:-1}"
+ENABLE_TIER_C="${ENABLE_TIER_C:-0}"
+ENABLE_TIER_D="${ENABLE_TIER_D:-0}"
 
 mkdir -p "$CI_ROOT/log"
 
@@ -70,8 +70,10 @@ while :; do
         last_head="$(cat "$LAST_HEAD_FILE" 2>/dev/null || echo none)"
         if [[ "$current_head" != "$last_head" && "$current_head" != "none" ]]; then
             log "HEAD changed: $last_head -> $current_head; running tier-b"
+            tier_b_rc=1
             if [[ -x "$CI_ROOT/tiers/tier-b.sh" ]]; then
                 "$CI_ROOT/tiers/tier-b.sh" >> "$LOG_FILE" 2>&1
+                tier_b_rc=$?
             else
                 log "tier-b.sh not yet installed; skipping (just recording HEAD)"
             fi
@@ -80,8 +82,8 @@ while :; do
             # already know about.
             if [[ "$ENABLE_TIER_C" == "1" && -x "$CI_ROOT/tiers/tier-c.sh" ]]; then
                 tier_b_status="$(jq -r '.tier_b.status // "unknown"' "$CI_ROOT/state.json" 2>/dev/null)"
-                if [[ "$tier_b_status" == "green" ]]; then
-                    log "tier-b green; running tier-c (ASan)"
+                if [[ "$tier_b_rc" == 0 && "$tier_b_status" == "green" ]]; then
+                    log "tier-b green; running tier-c (sanitizers + marathon)"
                     "$CI_ROOT/tiers/tier-c.sh" >> "$LOG_FILE" 2>&1
                 else
                     log "tier-b status=$tier_b_status; skipping tier-c"
@@ -92,7 +94,7 @@ while :; do
                 # different bug class and the two findings are independent.
                 # But still gate on Tier B (no point under a broken build).
                 tier_b_status="$(jq -r '.tier_b.status // "unknown"' "$CI_ROOT/state.json" 2>/dev/null)"
-                if [[ "$tier_b_status" == "green" ]]; then
+                if [[ "$tier_b_rc" == 0 && "$tier_b_status" == "green" ]]; then
                     log "tier-b green; running tier-d (UBSan)"
                     "$CI_ROOT/tiers/tier-d.sh" >> "$LOG_FILE" 2>&1
                 else

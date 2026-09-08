@@ -52,6 +52,8 @@ size_t const    k_targets_per_continent     = 25;
 
 class SettleMap
 {
+    friend void to_json(nlohmann::json &j, SettleMap const &s);
+    friend void from_json(nlohmann::json const &j, SettleMap &s);
 public:
 	struct SettleTarget
 	{

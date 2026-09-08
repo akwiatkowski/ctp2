@@ -2087,7 +2087,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_QUIT, SDL_QUIT);
 			if (n <= 0) break;
 			gDone = TRUE;
-			DoFinalCleanup();
+			DoFinalCleanup(0);
 		}
 
 		// Process keyboard events
@@ -2449,7 +2449,7 @@ int SDLMessageHandler(const SDL_Event &event)
 	case SDL_QUIT:
 		gDone = TRUE;
 
-		DoFinalCleanup();
+		DoFinalCleanup(0);
 
 #ifndef __AUI_USE_SDL__
 		DestroyWindow( hwnd );
@@ -2606,7 +2606,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		if (hwnd != gHwnd) break;
 
 		gDone = TRUE;
-		DoFinalCleanup();
+		DoFinalCleanup(0);
 		DestroyWindow(hwnd);
 		gHwnd = NULL;
 		return 0;

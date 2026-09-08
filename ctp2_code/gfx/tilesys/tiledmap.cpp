@@ -4132,7 +4132,7 @@ int TiledMap::BuildWorldmapQuads()
 	// not the allocation.
 	int const wrapW = static_cast<int>(mapWidth) * strideX;
 	int const texW = wrapW + strideX;
-	int const texH = static_cast<int>(mapHeight) * (k_TILE_PIXEL_HEIGHT / 2) + k_TILE_GRID_HEIGHT;
+	int const texH = static_cast<int>(mapHeight) * (GetZoomTilePixelHeight() / 2) + tileH;
 	if (!aui_SDL::EnsureWorldmapTexture(texW, texH))
 		return 0;   // driver refused the size — caller stays on the ADR-002 path
 	aui_SDL::SetWorldmapWrap(wrapW);
@@ -4143,12 +4143,13 @@ int TiledMap::BuildWorldmapQuads()
 	int const k_ATLAS_ROWS = 32;
 	if (!m_gpuTileCache || m_gpuTileCache->TileW() != tileW || m_gpuTileCache->TileH() != tileH)
 	{
+		// Resizing the atlas invalidates both its slots and the whole-map image.
+		InvalidateWorldmap();
 		m_gpuTileCache = std::make_unique<GpuTileCache>(
 			k_ATLAS_COLS, k_ATLAS_ROWS, tileW, tileH);
 		AUI_ERRCODE err = AUI_ERRCODE_OK;
 		m_gpuScratchTile.reset(aui_Factory::new_Surface(err, tileW, tileH,
 			nullptr, FALSE, FALSE, FALSE, /*bpp=*/32));
-		InvalidateWorldmap();   // atlas slots moved; every cell must redraw
 	}
 	if (!m_gpuScratchTile) return 0;
 	aui_SDL::EnsureQuadAtlas(m_gpuTileCache->AtlasW(), m_gpuTileCache->AtlasH());
@@ -4594,6 +4595,8 @@ void TiledMap::BuildTerrainQuads()
 
 	if (!m_gpuTileCache || m_gpuTileCache->TileW() != tileW || m_gpuTileCache->TileH() != tileH)
 	{
+		// Resizing the atlas invalidates both its slots and the whole-map image.
+		InvalidateWorldmap();
 		m_gpuTileCache = std::make_unique<GpuTileCache>(
 			k_ATLAS_COLS, k_ATLAS_ROWS, tileW, tileH);
 		AUI_ERRCODE err = AUI_ERRCODE_OK;

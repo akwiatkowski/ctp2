@@ -115,7 +115,6 @@ Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils
 
 extern  OzoneDatabase               *g_theUVDB;
 extern sint32                       g_isGridOn;
-extern PointerList<Player> *        g_deadPlayer;
 
 
 

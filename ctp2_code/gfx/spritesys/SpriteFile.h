@@ -193,15 +193,6 @@ protected:
 	unsigned	m_version;
 	unsigned	m_spr_compression;
 
-	SPRITEFILEERR	ReadFull_v13(UnitSpriteGroup *s);
-	SPRITEFILEERR	ReadFull_v20(UnitSpriteGroup *s);
-
-	SPRITEFILEERR	ReadBasic_v13(UnitSpriteGroup *s);
-	SPRITEFILEERR	ReadBasic_v20(UnitSpriteGroup *s);
-
-	SPRITEFILEERR	ReadIndexed_v13(UnitSpriteGroup *s,GAME_ACTION index);
-	SPRITEFILEERR	ReadIndexed_v20(UnitSpriteGroup *s,GAME_ACTION index);
-
 	SPRITEFILEERR	Write_v13(UnitSpriteGroup *s);
 	SPRITEFILEERR	Write_v20(UnitSpriteGroup *s);
 
@@ -215,6 +206,18 @@ protected:
 	uint8 *DeCompressData_LZW1(void *Data, size_t CompressedLen, size_t ActualLen);
 
 private:
+    void CheckReadSize(size_t bytes);
+    uint16 *ReadFrame(int width, int height, uint32 size, uint32 &actual, bool compressed);
+    void ReadFrames(Sprite *s, bool faced, bool shadow, bool basic, bool skip = false);
+    void ReadGeneral(Sprite **sprite, bool basic);
+    void ReadGroupSprite(SpriteGroup *group, GAME_ACTION action, bool basic);
+    void ReadGroupAnim(SpriteGroup *group, GAME_ACTION action, bool basic);
+    void ReadUnitMetadata(UnitSpriteGroup *group, bool legacy);
+    void ReadUnitGroup(UnitSpriteGroup *group, bool basic, int selected);
+    void ReadGoodGroup(GoodSpriteGroup *group, bool basic);
+    long m_fileSize = 0;
+    size_t m_decodedBytes = 0;
+    bool m_reading = false;
 	FILE *      m_file;
 	fpos_t      m_filePos;
 	MBCHAR		m_filename[_MAX_PATH];

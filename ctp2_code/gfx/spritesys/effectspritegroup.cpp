@@ -196,9 +196,9 @@ void EffectSpriteGroup::Load(MBCHAR const * filename)
 	SPRITEFILETYPE				type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
 	{
-		file->Read(this);
+		auto result = file->Read(this);
 		file->CloseRead();
-		m_loadType = LOADTYPE_FULL;
+		m_loadType = result == SPRITEFILEERR_OK ? LOADTYPE_FULL : LOADTYPE_NONE;
 	}
 	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }

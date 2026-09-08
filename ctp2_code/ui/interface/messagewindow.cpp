@@ -569,7 +569,8 @@ MessageWindow::~MessageWindow ()
 
 
 
-	if (messagepool_Get()->IsValid(m_message)) {
+	// Destructive UI actions drain after Game has released its pools.
+	if (messagepool_Get() && messagepool_Get()->IsValid(m_message)) {
 
 		m_message.AccessData()->SetMessageWindow(nullptr);
 	}

@@ -1116,14 +1116,16 @@ void MessageData::EyeDropdownCallback(sint32 index)
 
 void MessageData::KillMessageWindow( )
 {
-	if (gameobservers_Get()) gameobservers_Get()->NotifyMessageWindowDestroy(Message(m_id));
+    // During pool destruction the owning unique_ptr is already null. Pass
+    // the still-live data to observers instead of looking it up by handle.
+	if (gameobservers_Get()) gameobservers_Get()->NotifyMessageWindowDestroy(*this);
 	m_window = nullptr;
 }
 
 void MessageData::IgnoreMessage( )
 {
 	if (m_window && gameobservers_Get()) {
-		gameobservers_Get()->NotifyMessageWindowDestroy(Message(m_id));
+		gameobservers_Get()->NotifyMessageWindowDestroy(*this);
 	}
 	m_window = nullptr;
 }

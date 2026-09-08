@@ -30,6 +30,8 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/events/GameEventManager.h"
 
+extern PointerList<Player> *g_deadPlayer;
+
 namespace Ctp2 {
 
 Game::Game() = default;
@@ -89,7 +91,7 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     // gameinit_InitializeScenarioPlayers).  Game adopts the raw array
     // pointer matching the legacy g_player shape; Cleanup tears down
     // inner Players + array.  Adopt-only — no fresh-create branch.
-    if (player_arr_Get()) m_playerArr = player_arr_Get();
+    if (player_arr_Get()) AdoptPlayers(player_arr_Get());
 }
 
 // Game::LoadGame / Game::SaveGame deleted (Phase 0.C-4): never called
@@ -118,6 +120,14 @@ void Game::Cleanup() {
     // `delete g_player[i]; delete[] g_player` block becomes a no-op (it
     // guards on `if (g_player)`).  Then free the adopted storage.
     if (m_playerArr) {
+        // Retired players still own a civilisation handle. Destroy them while
+        // the same pools as the live players remain available. The legacy
+        // cleanup skips this list once we clear the live-player array.
+        if (g_deadPlayer) {
+            g_deadPlayer->DeleteAll();
+            delete g_deadPlayer;
+            g_deadPlayer = nullptr;
+        }
         player_arr_Set(nullptr);
         for (sint32 i = 0; i < k_MAX_PLAYERS; ++i) {
             delete m_playerArr[i];

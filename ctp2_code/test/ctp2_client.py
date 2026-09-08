@@ -106,7 +106,7 @@ class Ctp2Client:
             time.sleep(0.1)
         raise Ctp2Error("socket never appeared")
 
-    def close(self):
+    def close(self, *, check_exit=True):
         try:
             self._rpc("quit")
         except Exception:
@@ -115,19 +115,25 @@ class Ctp2Client:
             self.sock.close()
         except Exception:
             pass
+        timed_out = False
         try:
             self.proc.wait(timeout=10)
-        except Exception:
+        except subprocess.TimeoutExpired:
+            timed_out = True
             self.proc.kill()
             self.proc.wait()
-        if self._log not in (None, subprocess.DEVNULL):
-            self._log.close()
+        finally:
+            if self._log not in (None, subprocess.DEVNULL):
+                self._log.close()
+        if check_exit and (timed_out or self.proc.returncode != 0):
+            reason = "timed out" if timed_out else f"exited {self.proc.returncode}"
+            raise Ctp2Error(f"game shutdown {reason}; see game log")
 
     def __enter__(self):
         return self
 
     def __exit__(self, *exc):
-        self.close()
+        self.close(check_exit=exc[0] is None)
 
     # -- protocol ---------------------------------------------------------
 

@@ -54,7 +54,7 @@ MessageList::~MessageList( )
 				delete window;
 			}
 
-			delete iconWindow;
+			iconEntry.reset();
 		}
 	}
 }
@@ -261,6 +261,9 @@ void MessageList::Remove( MessageIconWindow *iconWindow,
 	Assert( found != m_iconList.end() );
 	if (found == m_iconList.end()) return;
 
+	// Erasing a unique_ptr destroys the icon. Keep it alive until the window
+	// and current-icon references have been detached below.
+	auto removedIcon = std::move(*found);
 	m_iconList.erase(found);
 
 	if ( iconWindow == iconWindow->GetCurrentMessageIconWindow())
@@ -277,7 +280,7 @@ void MessageList::Remove( MessageIconWindow *iconWindow,
 	}
 
 	delete window;
-	delete iconWindow;
+	removedIcon.reset();
 
 	CheckVisibleMessages();
 }

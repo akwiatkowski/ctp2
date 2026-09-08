@@ -80,6 +80,7 @@ public:
 
     // Raw access to the adopted Player** array (matches legacy g_player
     // shape).  Returns nullptr before NewGame.
+    void AdoptPlayers(Player **players) { m_playerArr = players; }
     Player **       GetPlayerArray()       { return m_playerArr; }
     Player * const* GetPlayerArray() const { return m_playerArr; }
 

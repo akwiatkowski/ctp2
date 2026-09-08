@@ -268,7 +268,7 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
   name while retaining the throwaway game's personality pointer. A strict
   `cli-save-resume` regression compares the first resumed round's players, AI state,
   world, RNG and action log against an uninterrupted run, for both CLI load modes.
-- **Remaining first decision:** seed 42, four players, save at round 25 and resume
+- **Original failing decision:** seed 42, four players, save at round 25 and resume
   for 15 rounds versus 40 uninterrupted rounds. Gameplay sections still match at
   round 39. During that round both runs create Roman settler unit `268435476`, army
   `3489660942`, at `(31,34)`. Action-log entry 384 is `MoveOrder` toward `(37,22)`
@@ -276,14 +276,17 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 - **Traced cause:** at `CtpAi::AddSettleTargets`, both runs report settlement
   threshold 600 and zero newly generated targets; `Scheduler::CountGoalsOfType`
   reports four retained land-settlement goals continuously versus zero after load.
-  These persistent scheduler goals are absent from JSON. The new settler is created
+  These persistent scheduler goals were absent from JSON. The new settler is created
   after target generation and can only use retained goals that turn. Rebuilding the
   settlement-value cache alone did not change the result and was not retained.
-- **Next fix:** persist scheduler goals and their necessary dependencies, or define
-  and verify regeneration at a consistent turn boundary. This is a gameplay decision;
-  clearing continuous-run AI history merely to equalize the test would change play.
-  Longer metric comparisons remain warning-only for this specifically reproduced
-  limitation. Subprocess failures, missing output and malformed metrics now fail.
+- **Fixed 2026-09-06:** persist the scheduler graph, settlement scores
+  and empire bounds (ADR-008); restore after scheduler resizing; use stable
+  utility-only ordering. The CLI now refreshes the pathfinding heuristic at the
+  same round boundary as interactive play. Both CLI load modes match uninterrupted
+  gameplay through round 75, including exact AI-state equality immediately after
+  loading. Malformed graph ownership, references and numeric fields are rejected
+  without replacing the destination scheduler. This does not establish replay
+  equivalence for older saves that never stored AI history.
 
 Reproduce with the selected build from the repository root:
 
@@ -292,6 +295,70 @@ mise exec -- ./build-singleplayer/ctp2_headless --new-game --players 4 --seed 42
 mise exec -- ./build-singleplayer/ctp2_headless --new-game --players 4 --seed 42 --turns 40 --json-save /tmp/ctp2-cont40.json
 mise exec -- ./build-singleplayer/ctp2_headless --load-game /tmp/ctp2-before25.json --turns 15 --json-save /tmp/ctp2-resume40.json
 ```
+
+### AUTOSAVE_AND_SHUTDOWN_LIFETIMES
+
+**Fixed 2026-09-06.** Removing a dead AI agent cleaned typed goals
+but retained matches in generic goal templates. Autosave then encountered an
+unowned agent reference. Removal now covers both lists; serialization still
+rejects broken references rather than dropping them from the save.
+
+Message shutdown exposed two separate ownership mistakes. `MessageList` manually
+deleted icons already owned by `unique_ptr`, and message-window callbacks queried
+the pool while its owning pointer was being reset. Icons now have one owner;
+destruction observers receive the still-live `MessageData` directly, and deferred
+window destruction tolerates an already-destroyed pool. Live and retired players
+are destroyed before their civilization pool, including partial-startup cleanup.
+Focused lifetime tests and the windowed autosave/exit path exercise these cases.
+
+The scenario client now treats a nonzero exit or forced shutdown as failure.
+Normal application exits explicitly return zero; tests previously ignored exit
+status and could report success despite a shutdown crash.
+
+Destructor dependency audit (2026-09-06):
+
+| Destruction path | Dependency and verified ordering |
+|---|---|
+| Live/retired `Player` | Civilization handle destruction calls the civilization pool. Both player lists are released before that pool; partial startup adopts the array before cleanup. Player collections otherwise contain non-owning handles. |
+| `Vision` → `UnseenCell` → `UnitActor` | Unseen cells detach actor state before releasing the actor. Actor destruction checks sprite registries before releasing sprite references. |
+| `SlicEngine` → messages | The engine releases its current message and notifies the message pool before that pool is destroyed. SLIC button contexts are reference counted. |
+| `MessagePool` → `MessageData` → window observer | Resetting the pool clears its trampoline before destructors run. Passing `const MessageData&` removes the invalid self-lookup; delayed window deletion checks pool availability. Research callbacks check player availability. |
+| `UnitPool` → `UnitData` → `CityData` | Unit destruction removes actor registry entries by ID, without a pool lookup. City destruction checks unit/trade handle validity. Trade storage is destroyed before unit storage on cleanup and replaced first on reload, preventing route-kill cascades into retiring pools. |
+| `ArmyData` → `Order`, trade records, trackers | Destructors release their owned lists, paths and event arguments; no unit/army/message trampoline lookup is needed. |
+| `World` → cells | World storage is released after unit/army pools; cells release owned storage rather than killing the units represented by their handles. |
+
+The audit covers the `Game::Cleanup` ownership tree and its UI callbacks, not
+every unrelated application/global destructor. Runtime evidence includes the
+real-player/retired-player/partial-startup regressions, the message-pool observer
+regression, in-process scenario reloads and windowed clean exits. Native ASan
+coverage remains unavailable on this macOS host; UBSan is the working sanitizer.
+
+### JSON_AND_SPR_INPUT_BOUNDARIES
+
+**Hardened 2026-09-06.** JSON file readers bound bytes and nesting;
+world and scenario-map validation rejects unsafe dimensions and references before
+replacing storage. Scenario maps preflight all supplied sections, including player
+slots, coordinates, type tables and bitmasks. SPR readers check file positions,
+short reads, frame counts, decoded sizes, row offsets and LZW references, and own
+partial allocations until successful loading. Failed groups clear images and
+animations. Full, basic and indexed reads pass on all 463 installed legacy files;
+crafted truncation and malformed-input tests cover rejection paths.
+
+### BLACK_TERRAIN_AFTER_ENGINE_ZOOM
+
+**Reproduced and fixed 2026-09-06.** The fallback renderer check
+reported success while scaled terrain was black. Its renderer flags and small
+pixel changes could be satisfied by city sprites, borders and UI. A terrain-only
+coverage check now rejects that frame (188 samples before the fix).
+
+Scaled tile blitters attempted to lock the atlas scratch surface twice and
+rejected exact-fit tiles at its bottom edge. They now reuse the existing lock
+and accept exact-fit bounds. Atlas resizing invalidates whole-map signatures
+before rebuilding the cache, and the target height uses the active zoom metrics.
+The strengthened windowed check passes through city building, autosave, zoom
+changes and clean shutdown with visible terrain.
+All eleven renderer checks subsequently pass with these fixes, including
+terrain-edge, raster-overlay and world-map transition parity.
 
 
 ### BUFFER_OVERFLOW

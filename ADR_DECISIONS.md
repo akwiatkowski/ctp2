@@ -2,6 +2,33 @@
 
 Short log of non-trivial design decisions. Newest first.
 
+## ADR-008 — Persist AI decision history and scheduler identity (2026-09-06)
+
+**Context.** Rebuilding AI schedulers after loading discarded retained settlement
+goals. Seed 42 first diverged at round 39 after saving at round 25. Settlement
+scores and empire bounds also contain history that the current world cannot
+reconstruct. Equal-utility pointer sorting introduced process-dependent ties.
+
+**Decision.** Serialize the scheduler graph using stable agent/goal indices,
+including generic goals, typed/active order, matches and commitments. Validate
+ownership, references and numeric bounds in temporary storage before swapping
+the graph into the scheduler. Restore after scheduler resizing, which can copy
+objects. Persist settlement scores and empire bounds alongside it. Keep these
+bridges in the AI module; the save layer calls two AI-history entry points.
+Use stable utility sorting and refresh the CLI pathfinding heuristic at the same
+round boundary as interactive play.
+
+**Alternatives.** Regenerating all goals loses earlier decisions. Serializing
+addresses cannot preserve identity across processes. Recomputing settlement
+scores and empire bounds from current positions loses growth and exploration
+history.
+
+**Consequences.** New saves preserve AI state across a load. Older saves without
+this state retain the regeneration fallback and do not gain exact replay
+guarantees. Replay tests compare AI, world, players, RNG and action logs through
+rounds 11, 40 and 75 in both CLI load modes. These are bounded regression checks,
+not a proof of determinism for every possible campaign.
+
 ## ADR-007 — Standard data paths are built-in defaults (2026-09-05)
 
 **Context.** CivPaths required a working-directory `civpaths.txt` before it could

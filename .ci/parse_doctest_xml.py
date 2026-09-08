@@ -13,6 +13,7 @@
 #
 # Designed for the CI daemon — keep output deterministic and small.
 
+import argparse
 import json
 import sys
 import xml.etree.ElementTree as ET
@@ -51,6 +52,16 @@ def parse_expressions(case_node, case_name, info_stack, failures):
                     "message": f"{child.get('type', 'CHECK')}({original}) failed: {expanded}",
                     "info": list(info_stack),
                 })
+        elif tag in ("Exception", "FatalErrorOccurred", "Message"):
+            if tag == "Message" and child.get("type") not in ("FATAL ERROR", "CHECK", "REQUIRE"):
+                continue
+            message = " ".join(child.itertext()).strip()
+            failures.append({
+                "test": case_name, "file": child.get("filename", ""),
+                "line": int(child.get("line", "0") or 0),
+                "type": child.get("type", tag), "original": "", "expanded": "",
+                "message": message, "info": list(info_stack),
+            })
 
 
 def parse(xml_text):
@@ -91,16 +102,43 @@ def parse(xml_text):
 
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] != "-":
-        with open(sys.argv[1], "r", encoding="utf-8", errors="replace") as f:
-            xml_text = f.read()
-    else:
-        xml_text = sys.stdin.read()
-
-    result = parse(xml_text)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("path", nargs="?", default="-")
+    ap.add_argument("--exit-code", type=int, default=0)
+    args = ap.parse_args()
+    try:
+        if args.path == "-":
+            xml_text = sys.stdin.read()
+        else:
+            with open(args.path, encoding="utf-8", errors="replace") as f:
+                xml_text = f.read()
+        result = runner_result(xml_text, args.exit_code)
+    except OSError as error:
+        result = runner_result("", args.exit_code, str(error))
     json.dump(result, sys.stdout, indent=2)
     sys.stdout.write("\n")
+    return 1 if result["tests"]["failed"] else 0
+
+
+def runner_result(xml_text, exit_code, error=""):
+    """A passing unit report cannot erase a later scenario/sanitizer failure."""
+    try:
+        result = parse(xml_text)
+        if not result["tests"]["passed"] and not result["tests"]["failed"]:
+            error = "report contains no executed tests"
+    except (ET.ParseError, ValueError) as exc:
+        result = {"tests": {"passed": 0, "failed": 0, "skipped": 0}, "failures": []}
+        error = error or f"invalid or incomplete doctest report: {exc}"
+    if exit_code or error:
+        result["tests"]["failed"] += 1
+        result["failures"].append({
+            "test": "CI build/run", "file": "", "line": 0, "type": "RUNNER",
+            "original": "complete CI tier", "expanded": f"exit code {exit_code}",
+            "message": error or f"CI tier exited {exit_code}; see context_path",
+            "info": [],
+        })
+    return result
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

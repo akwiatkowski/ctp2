@@ -2169,63 +2169,27 @@ void gameinit_Cleanup()
 	// This must come before g_theArmyPool, since this is needed
 	CtpAi::Cleanup();
 
-	{ auto * p = installationpool_Get(); allocated::clear(p); installationpool_Set(p); };
-	{ auto * p = messagepool_Get(); allocated::clear(p); messagepool_Set(p); };
+	// Startup may fail before NewGame adopts the player array. Give the
+	// session owner that storage before destroying any dependent pools.
+	if (civapp_Get() && civapp_Get()->GetGame()) {
+		auto *game = civapp_Get()->GetGame();
+		if (g_player) game->AdoptPlayers(g_player);
+		game->Cleanup();
+	}
 	allocated::clear(g_theCriticalMessagesPrefs);
 
-	if (g_player)
-	{
-		for (size_t i = 0; i < k_MAX_PLAYERS; i++)
-		{
-			delete g_player[i];
-		}
-
-		delete [] g_player;
-		g_player = nullptr;
-
-		if (g_deadPlayer)
-		{
-			g_deadPlayer->DeleteAll();
-			allocated::clear(g_deadPlayer);
-		}
-	}
-
-	{ auto * p = agreementpool_Get(); allocated::clear(p); agreementpool_Set(p); };
-	{ auto * p = civilisationpool_Get(); allocated::clear(p); civilisationpool_Set(p); };
-	{ auto * p = diplomaticrequestpool_Get(); allocated::clear(p); diplomaticrequestpool_Set(p); };
-	{ auto * p = terrimprovepool_Get(); allocated::clear(p); terrimprovepool_Set(p); };
-	delete slicengine_Get();
-	slicengine_Set(nullptr);
-	// TopTen / UnitPool / ArmyPool / Pollution are owned by Ctp2::Game;
-	// CivApp::CleanupGame has already reset m_topten/m_unitPool/etc., so
-	// the trampoline-routed Get returns null and these become no-ops.
-	{ TopTen   * p = topten_Get();   allocated::clear(p); topten_Set(p);   }
-	{ Pollution * p = pollution_Get(); allocated::clear(p); pollution_Set(p); }
-	{ auto * p = tradepool_Get(); allocated::clear(p); tradepool_Set(p); };
-	{ UnitPool * p = unitpool_Get(); allocated::clear(p); unitpool_Set(p); }
 	allocated::clear(g_theInstallationTree);
 	allocated::clear(g_theUnitTree);
 	player_view::Cleanup();
-	{ auto * p = tradepool_Get(); allocated::clear(p); tradepool_Set(p); };
-	{ auto * p = tradeofferpool_Get(); allocated::clear(p); tradeofferpool_Set(p); };
-	{ auto * p = turn_Get(); allocated::clear(p); turn_Set(p); };
-	{ auto * p = world_Get(); allocated::clear(p); world_Set(p); };
-	{ auto * p = gamesettings_Get(); allocated::clear(p); gamesettings_Set(p); };
-	{ ArmyPool * p = armypool_Get(); allocated::clear(p); armypool_Set(p); }
-	{ auto * p = wonder_tracker_Get(); allocated::clear(p); wonder_tracker_Set(p); };
-	{ auto * p = achievementtracker_Get(); allocated::clear(p); achievementtracker_Set(p); };
 
 
 
 
-	{ auto * p = tradebids_Get(); allocated::clear(p); tradebids_Set(p); };
-	{ auto * p = eventtracker_Get(); allocated::clear(p); eventtracker_Set(p); };
 	allocated::clear(g_wormhole);
 
 	allocated::clear(g_theOrderPond);
 	allocated::clear(g_theUnseenPond);
 
-	{ auto * p = feattracker_Get(); allocated::clear(p); feattracker_Set(p); };
 
 
 #ifdef _DEBUG
@@ -2233,7 +2197,6 @@ void gameinit_Cleanup()
 #endif
 	Astar_Cleanup();
 
-	{ auto * p = rand_ptr(); allocated::clear(p); rand_ptr_Set(p); };
 	roboinit_Cleanup();
 }
 

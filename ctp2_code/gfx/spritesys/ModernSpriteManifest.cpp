@@ -1,3 +1,4 @@
+#include "ctp/ctp2_utils/bounded_json.h"
 #include "gfx/spritesys/ModernSpriteManifest.h"
 
 #include <fstream>
@@ -184,18 +185,10 @@ bool ModernSpriteManifestLoad(char const *path, ModernSpriteManifest &out, std::
 		error = "could not open manifest";
 		return false;
 	}
-	input.seekg(0, std::ios::end);
-	std::streamoff const fileSize = input.tellg();
-	if (fileSize < 0 || fileSize > kMaxManifestBytes)
-	{
-		error = "manifest exceeds size limit";
-		return false;
-	}
-	input.seekg(0, std::ios::beg);
 	nlohmann::json doc;
 	try
 	{
-		input >> doc;
+		doc = ReadBoundedJson(input, kMaxManifestBytes);
 	}
 	catch (nlohmann::json::exception const &exc)
 	{

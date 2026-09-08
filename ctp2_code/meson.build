@@ -932,6 +932,7 @@ game_core_sources = [
 	'ai/diplomacy/proposalanalysis.cpp',
 	'ai/strategy/scheduler/Plan.cpp',
 	'ai/strategy/scheduler/scheduler.cpp',
+	'ai/strategy/scheduler/scheduler_json.cpp',
 	'ai/strategy/goals/Goal.cpp',
 	'ai/strategy/squads/squad_Strength.cpp',
 	'ai/strategy/agents/agent.cpp',
@@ -1750,6 +1751,17 @@ test('cli-save-resume', python3,
   workdir : cwd_for_tests,
 )
 
+foreach replay : [['cli-save-replay', '25', '15'], ['cli-save-replay-long', '50', '25']]
+  test(replay[0], python3,
+    args : [files('test/cli_save_resume.py'), headless_exe,
+            '--checkpoint', replay[1], '--resume-turns', replay[2]],
+    timeout : 600,
+    suite : 'integration',
+    workdir : cwd_for_tests,
+    is_parallel : false,
+  )
+endforeach
+
 test('integration', unit_test_exe,
   depends : headless_exe,
   # Long-running headless game tests: save/load round-trips, determinism
@@ -1772,6 +1784,16 @@ test('asset-installer', python3,
   timeout : 30,
   suite : 'unit',
   workdir : join_paths(meson.project_source_root(), '..', 'tools', 'assets'),
+)
+test('client-harness', python3,
+  args : [files('test/test_ctp2_client.py')],
+  timeout : 30,
+  suite : 'unit',
+)
+test('ci-results', python3,
+  args : [join_paths(meson.project_source_root(), '..', '.ci', 'test_results.py')],
+  timeout : 60,
+  suite : 'unit',
 )
 test('smoke',
   find_program('test/smoke_test.py'),
@@ -2106,7 +2128,7 @@ test('scenario-long-game',
   is_parallel : false,
   priority : -1,
   workdir : cwd_for_tests,
-  suite : 'scenario',
+  suite : ['scenario', 'marathon'],
 )
 
 # Conquest ending: forces a 2-opponent game to an actual victory (capture

@@ -395,9 +395,9 @@ void UnitSpriteGroup::LoadBasic(MBCHAR const * filename)
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
 	{
-		file->ReadBasic(this);
+		auto result = file->ReadBasic(this);
 		file->CloseRead();
-		m_loadType = LOADTYPE_BASIC;
+		m_loadType = result == SPRITEFILEERR_OK ? LOADTYPE_BASIC : LOADTYPE_NONE;
 	}
 	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }
@@ -412,9 +412,9 @@ void UnitSpriteGroup::LoadIndexed(MBCHAR const * filename, GAME_ACTION index)
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
 	{
-		file->ReadIndexed(this, index);
+		auto result = file->ReadIndexed(this, index);
 		file->CloseRead();
-		m_loadType = LOADTYPE_FULL;
+		m_loadType = result == SPRITEFILEERR_OK ? LOADTYPE_FULL : LOADTYPE_NONE;
 	}
 }
 
@@ -426,9 +426,9 @@ void UnitSpriteGroup::LoadFull(MBCHAR const * filename)
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
 	{
-		file->ReadFull(this);
+		auto result = file->ReadFull(this);
 		file->CloseRead();
-		m_loadType = LOADTYPE_FULL;
+		m_loadType = result == SPRITEFILEERR_OK ? LOADTYPE_FULL : LOADTYPE_NONE;
 	}
 	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }

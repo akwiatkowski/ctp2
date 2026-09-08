@@ -60,8 +60,14 @@ class Agent;
 #include "gs/gameobj/ArmyData.h"
 #include "gs/world/World.h"          // world_Get()
 
+#include <nlohmann/json.hpp>
+class Scheduler;
+
 class Agent
 {
+    friend void to_json(nlohmann::json &j, Scheduler const &s);
+    friend void from_json(nlohmann::json const &j, Scheduler &s);
+
 public:
 #if defined(_DEBUG)
 	typedef std::list<Goal_ptr, dbgallocator<Goal_ptr> > Goal_Ref_List;

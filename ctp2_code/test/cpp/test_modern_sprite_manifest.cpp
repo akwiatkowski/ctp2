@@ -123,7 +123,7 @@ TEST_CASE("modern sprite manifest loader rejects oversized files")
 	ModernSpriteManifest manifest;
 	std::string error;
 	CHECK_FALSE(ModernSpriteManifestLoad(path, manifest, error));
-	CHECK(error == "manifest exceeds size limit");
+    CHECK(error.find("exceeds size limit") != std::string::npos);
 	std::remove(path);
 }
 

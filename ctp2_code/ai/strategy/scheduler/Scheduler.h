@@ -55,8 +55,14 @@ class GoalRecord;
 class Scheduler;
 class Army;
 
+#include <nlohmann/json.hpp>
+class Scheduler;
+
 class Scheduler
 {
+    friend void to_json(nlohmann::json &j, Scheduler const &s);
+    friend void from_json(nlohmann::json const &j, Scheduler &s);
+
 
 public:
 
@@ -113,6 +119,8 @@ public:
 	static sint32 s_max_match_list_cycles;
 
 	static void ResizeAll(const PLAYER_INDEX & newMaxPlayerId);
+
+	static size_t Count() { return s_theSchedulers.size(); }
 
 	static Scheduler & GetScheduler(const sint32 & playerId);
 

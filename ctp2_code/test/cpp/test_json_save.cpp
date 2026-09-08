@@ -16,6 +16,8 @@
 #include "doctest.h"
 #include <new>  // ::operator new placement form
 #include "gs/fileio/json_save.h"
+#include "gs/utility/MapFile.h"
+#include "gfx/spritesys/ModernSpriteManifest.h"
 #include "gs/fileio/action_log.h"
 #include "gs/world/Cell.h"
 #include "gs/world/TileInfo.h"
@@ -219,6 +221,18 @@ TEST_CASE("json_save: LoadJson rejects malformed JSON")
         out << "this is not json at all";
     }
     CHECK_FALSE(json_save::LoadJson(path));
+}
+
+TEST_CASE("json_save: LoadJson rejects excessive nesting before restoring state")
+{
+    char const *path = "/tmp/ctp2_deep_save.json";
+    {
+        std::ofstream out(path);
+        out << R"({"magic":"CTP2-JSON","schema_version":1,"nested":)"
+            << std::string(256, '[') << "0" << std::string(256, ']') << "}";
+    }
+    CHECK_FALSE(json_save::LoadJson(path));
+    std::remove(path);
 }
 
 TEST_CASE("json_save: LoadJson rejects missing file")
@@ -3470,7 +3484,7 @@ TEST_CASE("SlicSegment destructor is safe to call twice (pool teardown pattern)"
     // operator new (which routes through Pool<SlicSegment>) to the global
     // placement-new declared in <new>.
     alignas(SlicSegment) unsigned char storage[sizeof(SlicSegment)];
-    SlicSegment *seg = ::new (static_cast<void *>(storage)) SlicSegment();
+    SlicSegment *seg = ::new (storage) SlicSegment();
 
     // Populate vector members with heap-allocated buffers via the JSON path.
     nlohmann::json j = {
@@ -4150,4 +4164,30 @@ TEST_CASE("action_log carrier: Set with a non-array resets to empty (defensive)"
     action_log::Set(nlohmann::json("not an array"));
     CHECK(action_log::Count() == 0);
     CHECK(action_log::Get().is_array());
+}
+
+TEST_CASE("json_save: MapPoint rejects narrowing and fractional coordinates")
+{
+    for (auto value : {nlohmann::json(-32769), nlohmann::json(32768),
+                       nlohmann::json(UINT64_MAX), nlohmann::json(1.5)}) {
+        MapPoint point(2, 3);
+        auto j = nlohmann::json(point);
+        j["x"] = value;
+        CHECK_THROWS_AS(j.get_to(point), nlohmann::json::exception);
+        CHECK(point.x == 2);
+        CHECK(point.y == 3);
+    }
+}
+
+TEST_CASE("JSON file readers bound nesting before parsing map or manifest state")
+{
+    auto path = "/tmp/ctp2-nested-map-manifest.json";
+    { std::ofstream out(path); out << std::string(256, '[') << "0" << std::string(256, ']'); }
+    MapFile map;
+    CHECK_FALSE(map.Load(path));
+    ModernSpriteManifest manifest;
+    std::string error;
+    CHECK_FALSE(ModernSpriteManifestLoad(path, manifest, error));
+    CHECK(error.find("nesting") != std::string::npos);
+    std::remove(path);
 }

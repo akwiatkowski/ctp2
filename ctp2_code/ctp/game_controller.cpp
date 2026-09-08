@@ -45,6 +45,7 @@
 #include "gs/fileio/action_log.h"             // action_log::Get / Count / Clear
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
 #include "gs/core/game_observer.h"            // gameobservers_Get()
+#include "robot/pathing/A_Star_Heuristic_Cost.h"
 #include "gs/core/player_view.h"              // player_view::SetCurrentPlayer
 #include "gs/core/tiledmap_observer.h"        // render-fixture tile postprocess
 #include "gs/gameobj/MovePath.h"              // army_QueueMovePath
@@ -129,6 +130,11 @@ void RunRound(sint32 round, SetCurrentPlayerFn set_current_player)
     };
 
     if (turn_Get()) turn_Get()->SkipToRound(round);
+    // Automation bypasses StartNewYear/BeginNewRound, which refresh this
+    // terrain-cost cache in interactive play. Refresh at the same boundary
+    // so new roads affect paths equally before and after loading a save.
+    if (world_Get() && world_Get()->A_star_heuristic)
+        world_Get()->A_star_heuristic->Update();
 
     for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
         if (!player_Get(p) || player_Get(p)->IsDead()) continue;

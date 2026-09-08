@@ -49,6 +49,18 @@ def expect_visible_change(label, path_a, path_b, minimum=1):
     print(f"[gpu-fallbacks] PASS: {label} changed {changed} sampled pixels")
 
 
+def expect_world_visible(path):
+    with open(path, "rb") as source:
+        data = source.read()
+    width, height = _bmp_dims(data)
+    # Exclude the top bar, minimap and bottom controls: UI pixels must not
+    # make an empty terrain texture look like a successful world render.
+    visible = sum(max(_bmp_pixel(data, x, y)) > 24
+                  for y in range(32, height - 200, 4)
+                  for x in range(300, width - 20, 4))
+    assert visible > 1000, f"world is mostly black: only {visible} terrain samples"
+
+
 def clear_visible_terrain_layers(client, pos, radius=60):
     client.expect_ok("debug_clear_terrain_layers", pos["x"], pos["y"], radius)
 
@@ -78,12 +90,15 @@ def run(binary):
             client.wait_game_loaded()
 
             city = client.result("build_city")["pos"]
+            client.expect_ok("debug_close_build_manager")
+            client.expect_ok("debug_reveal_patch", city["x"], city["y"], 20)
             clear_visible_terrain_layers(client, city)
             cities = client.result("query_cities")["cities"]
             city_index = next(c["index"] for c in cities if c["pos"] == city)
             client.expect_ok("set_show_city_names", 0)
             client.expect_ok("camera_debug_center", city["x"], city["y"])
             client.expect_ok("screenshot_presented", screenshot)
+            expect_world_visible(screenshot)
             gpu = client.result("query_gpu_world")
             assert gpu["enabled"] and gpu["complete"], gpu
             print("[gpu-fallbacks] PASS: city actor base renders on GPU")
@@ -168,6 +183,7 @@ def run(binary):
             gpu = client.result("query_gpu_world")
             assert gpu["enabled"] and gpu["complete"], gpu
             print("[gpu-fallbacks] PASS: city names stay on GPU path while zoomed")
+            expect_world_visible(screenshot)
 
             client.expect_ok("set_zoom_level", 0)
             client.expect_ok("camera_debug_set", 0, 0)
@@ -212,12 +228,14 @@ def run(binary):
             gpu = client.result("query_gpu_world")
             assert gpu["enabled"] and gpu["complete"], gpu
             print("[gpu-fallbacks] PASS: zoomed engine view stays on GPU path")
+            expect_world_visible(after)
             expect_visible_change("engine zoom", before, after, minimum=10)
 
             client.expect_ok("set_zoom_level", 0)
             flash = {"x": city["x"] + 1, "y": city["y"]}
             client.expect_ok("camera_debug_center", flash["x"], flash["y"])
             client.expect_ok("screenshot_presented", before)
+            expect_world_visible(before)
             client.expect_ok("debug_combat_flash", flash["x"], flash["y"])
             client.expect_ok("screenshot_presented", after)
             gpu = client.result("query_gpu_world")

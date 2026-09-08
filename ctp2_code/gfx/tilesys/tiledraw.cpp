@@ -1125,8 +1125,8 @@ sint32 TiledMap::DrawDitheredTile(aui_Surface *surface, sint32 x, sint32 y, Pixe
         surface = m_surface;
         if (!surface) return 0;
     }
-    if (x >= surface->Width() - k_TILE_PIXEL_WIDTH) return 0;
-    if (y >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
+    if (x > surface->Width() - k_TILE_PIXEL_WIDTH) return 0;
+    if (y > surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 
 	uint8	* surfBase = m_surfBase;
 	sint32 surfPitch = m_surfPitch;
@@ -1165,11 +1165,13 @@ void TiledMap::DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos,
 	sint32  surfHeight;
 	sint32  surfPitch;
 
-    SurfaceLock lock    = SurfaceLock(surface);
+    // The atlas composer already holds this lock; SDL rejects locking it twice.
+    bool const alreadyLocked = surface && surface == m_lockedSurface && m_surfIsLocked;
+    SurfaceLock lock(alreadyLocked ? nullptr : surface);
 
-	if (!surface)
+	if (!surface || alreadyLocked)
     {
-		surface     = m_surface;
+        if (!surface) surface = m_surface;
 		pSurfBase   = m_surfBase;
 		surfWidth   = m_surfWidth;
 		surfHeight  = m_surfHeight;
@@ -1187,9 +1189,10 @@ void TiledMap::DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos,
         return;
     }
 
+    // A tile may exactly fill the scratch surface used by the GPU cache.
     if (!surface ||
-        (x >= surface->Width() - destWidth) ||
-        (y >= surface->Height() - destHeight)
+        (x > surface->Width() - destWidth) ||
+        (y > surface->Height() - destHeight)
        )
     {
         return;
@@ -1366,11 +1369,13 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
 	sint32  surfHeight;
 	sint32  surfPitch;
 
-    SurfaceLock lock    = SurfaceLock(surface);
+    // The atlas composer already holds this lock; SDL rejects locking it twice.
+    bool const alreadyLocked = surface && surface == m_lockedSurface && m_surfIsLocked;
+    SurfaceLock lock(alreadyLocked ? nullptr : surface);
 
-	if (!surface)
+	if (!surface || alreadyLocked)
     {
-		surface     = m_surface;
+        if (!surface) surface = m_surface;
 		pSurfBase   = m_surfBase;
 		surfWidth   = m_surfWidth;
 		surfHeight  = m_surfHeight;
@@ -1389,8 +1394,8 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
     }
 
 	if (!surface ||
-        (x >= surface->Width() - destWidth) ||
-		(y >= surface->Height() - destHeight)
+        (x > surface->Width() - destWidth) ||
+		(y > surface->Height() - destHeight)
        )
     {
 		return;
@@ -3521,11 +3526,13 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
 	sint32	surfHeight;
 	sint32	surfPitch;
 
-    SurfaceLock lock    = SurfaceLock(surface);
+    // The atlas composer already holds this lock; SDL rejects locking it twice.
+    bool const alreadyLocked = surface && surface == m_lockedSurface && m_surfIsLocked;
+    SurfaceLock lock(alreadyLocked ? nullptr : surface);
 
-	if (!surface)
+	if (!surface || alreadyLocked)
     {
-        surface     = m_surface;
+        if (!surface) surface = m_surface;
 		surfBase    = m_surfBase;
 		surfWidth   = m_surfWidth;
 		surfHeight  = m_surfHeight;
@@ -3545,7 +3552,7 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
 
 	if (!surface ||
         (x > surface->Width() - destWidth) ||
-		(y >= surface->Height() - destHeight)
+		(y > surface->Height() - destHeight)
        )
     {
 		return;

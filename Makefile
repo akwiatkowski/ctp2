@@ -478,12 +478,18 @@ ci-reset:
 ci-tier-a:
 	@.ci/tiers/tier-a.sh && echo "tier-a done"
 
+ci-tier-b:
+	@.ci/tiers/tier-b.sh
+
+ci-nightly:
+	@.ci/tiers/tier-c.sh
+
 .PHONY: all deps setup build setup-sanitized build-sanitized sanitized-smoke setup-ubsan build-ubsan ubsan-smoke setup-release release release-check seed-sweep test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
         test-integration test-pan-pixel test-render test-p13 test-full \
         coverage coverage-setup coverage-summary coverage-html run repro \
         timelapse timelapse-render timelapse-caption-smoke \
         gateway gateway-build gateway-test gateway-e2e \
-        ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a
+        ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a ci-tier-b ci-nightly
 
 SRCDIRS=\
 	ctp2_code \

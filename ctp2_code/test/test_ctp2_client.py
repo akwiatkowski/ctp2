@@ -35,5 +35,17 @@ class ShutdownTest(unittest.TestCase):
         self.client(-11).__exit__(ValueError, ValueError("original"), None)
 
 
+class SeedTest(unittest.TestCase):
+    def test_ui_start_forwards_seed_and_players(self):
+        client = Ctp2Client.__new__(Ctp2Client)
+        client.mode, client.seed, client.players = "ui", 123, 4
+        client._rpc = Mock()
+        client.command("start_game")
+        client._rpc.assert_called_once_with("start_game 123 4")
+        client.seed = 0
+        with self.assertRaises(ValueError):
+            client.command("start_game")
+
+
 if __name__ == "__main__":
     unittest.main()

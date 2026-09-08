@@ -56,6 +56,8 @@ class Ctp2Client:
         else:
             raise ValueError(f"unknown mode: {mode!r}")
 
+        self.seed = seed
+        self.players = players
         self.mode = mode
         self.socket_path = socket_path
         self.timeout = timeout
@@ -155,6 +157,10 @@ class Ctp2Client:
 
     def command(self, verb, *args):
         """Send a verb (+ optional args) and return the parsed response dict."""
+        if self.mode == "ui" and verb == "start_game" and not args:
+            if not 0 < self.seed <= 2147483647:
+                raise ValueError("UI test seed must be a positive signed 32-bit integer")
+            args = (self.seed, self.players)
         line = verb if not args else verb + " " + " ".join(str(a) for a in args)
         return self._rpc(line)
 

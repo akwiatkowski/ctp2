@@ -2633,8 +2633,20 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					smoketest_send_response("error", cmd, "not_on_main_menu");
 				}
 			}
-			else if (strcmp(cmd, "start_game") == 0) {
+			else if (strcmp(cmd, "start_game") == 0 || strncmp(cmd, "start_game ", 11) == 0) {
 				if (m_appLoaded && !m_gameLoaded) {
+                    if (cmd[10] != '\0') {
+                        int seed = 0, players = 0;
+                        char extra = 0;
+                        if (sscanf(cmd + 11, "%d %d %c", &seed, &players, &extra) != 2
+                            || seed <= 0 || players < 2 || players > k_MAX_PLAYERS) {
+                            smoketest_send_response("error", cmd, "bad_seed_or_players");
+                            return 0;
+                        }
+                        // Match headless initialization; zero is the legacy clock-seed sentinel.
+                        g_oldRandSeed = seed;
+                        profiledb_Get()->SetNPlayers(players);
+                    }
 					spnewgamescreen_startPress(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 					smoketest_send_response("ok", cmd, nullptr);
 				} else {
@@ -3906,7 +3918,14 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 
 	if (!turn_Get()->IsHotSeat())
 	{
-		selitem_Get()->NextUnmovedUnit(TRUE, TRUE);
+        // InitializeGame queued view work before JSON restored the world.
+        // Finish that work, then establish a selection in the restored session.
+        director_Get()->CatchUp();
+        selitem_Get()->SelectFirstUnit();
+        tiledmap_Get()->CopyVision();
+        if (radar_map_Get()) radar_map_Get()->CenterMap(selitem_Get()->GetCurSelectPos());
+        tiledmap_Get()->Refresh();
+        tiledmap_Get()->InvalidateMix();
 	}
 
 	ProgressWindow::EndProgress( g_theProgressWindow );

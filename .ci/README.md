@@ -9,7 +9,7 @@ under `CTP2_HOME` (default `~/.ctp2`); licensed assets stay outside the reposito
 | `make ci-tier-b` | Player UI, headless and test builds; unit tests; eight short headless scenarios; fast/installation/CI/harness checks; save replays through rounds 11, 40 and 75 |
 | `make ci-nightly` | Sanitized headless/unit build; full C++ unit and integration suite; eight short headless scenarios; 500-round campaign plus deep save/load |
 | `.ci/tiers/tier-d.sh` | Standalone UBSan build and full C++ suite |
-| `make test-render` | Eleven pixel/renderer checks; requires a desktop session |
+| `make test-render` | Thirteen pixel/renderer checks, including seeded UI scenes and sprite lifecycles; requires a desktop session |
 
 Each tier returns nonzero on failure and records its result in `.ci/state.json`.
 Logs, doctest XML and parsed failures live in `.ci/log/`; `context_path` identifies
@@ -54,3 +54,51 @@ Jobs run from the repository root, with metadata and combined output in
 descendants (including separate test sessions), then kills survivors after five
 seconds. Only recorded jobs can be stopped. Reusing an inactive name replaces its
 log. Status reports whether the process is running; check the log for test results.
+
+## GPU and sprite acceptance
+
+`make test-render` now checks that UI seed 42 reproduces the same terrain and
+starting armies in two processes, while seed 43 changes the map. The client
+passes its seed/player count to `start_game`; UI seed zero is rejected because
+zero means clock-seeded initialization in the legacy engine. Profile settings
+still affect generation, so a retained save is the authoritative replay input.
+
+The fog check retains each run under `build/worldmap-fog/<timestamp>/` with its
+base save, presented screenshots and renderer state. Replay a failing scene:
+
+```sh
+CTP2_HOME="$PWD/build/render-home" mise exec -- python3 ctp2_code/test/worldmap_fog.py --fixture /absolute/path/to/base.sav
+```
+
+The CPU mirror and whole-map paths currently register their views differently
+by the background-window margin (94/72 pixels). Fog measurement accounts for
+that projection difference to sample the same map patch; this does not repair
+the visible registration discrepancy. Full-frame gallery images preserve it.
+
+Generate the sprite review matrix and per-scene GPU coverage table:
+
+```sh
+CTP2_HOME="$PWD/build/render-home" mise exec -- python3 tools/visual/render_gallery.py --families sprites --zooms 0 4 5
+```
+
+Open the generated `index.html`. `run.json` records options, `base-fixture.json`
+retains the scene, `manifest.jsonl` records each capture, and `coverage.md`
+reports actual GPU-rasterized and CPU-composited cells during forced rebuilds.
+These counts exclude unchanged cached cells and do not measure frame time.
+Engine zoom 5 is native size and enables GPU terrain rasterization; zooms 0
+and 4 exercise CPU-composited terrain presented through the whole-map texture.
+The older `cells_redrawn` diagnostic counts submitted quads, not unique cells.
+
+The matrix samples archer move/attack/idle/victory/work actions at first/middle/
+last frames, stored and mirrored facings, three engine zooms, transparency and
+fog; it also includes goods, city defenses and an effect. Missing source poses
+remain explicit skips, never passes. This is representative coverage, not
+all frames of all 463 assets. Both modes normally use modern atlases; use
+`--legacy-reference` to compare against legacy SPR software drawing instead.
+
+`debug_sprite_pose` is exposed only by `ctp2_render`. It fixes visual pose and
+opacity without advancing gameplay. The runtime lifecycle regression uses
+`ctp2`, normal drawing and real selection/visibility/death/cargo operations;
+it does not use the fixed-pose hook or recenter after tested transitions.
+Full-frame matching percentages are review aids, not acceptance thresholds:
+background pixels can overwhelm a missing sprite.

@@ -1897,6 +1897,16 @@ test('gpu-world-fallbacks',
   suite : 'integration',
 )
 
+test('ui-seed',
+  python3,
+  args : [files('test/ui_seed.py'), join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
 test('gpu-sprite-refresh',
   python3,
   args : [files('test/gpu_sprite_refresh.py'), join_paths(meson.project_build_root(), 'ctp2')],

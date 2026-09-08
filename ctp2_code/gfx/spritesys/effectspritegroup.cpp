@@ -144,13 +144,14 @@ void EffectSpriteGroup::DrawDirect(aui_Surface *surf, EFFECTACTION action, sint3
 bool EffectSpriteGroup::AddGpuSpriteQuad(EFFECTACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 SdrawX, sint32 SdrawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack)
 {
-	if (!m_modernAtlas || action != EFFECTACTION_PLAY || m_sprites[action] == nullptr)
+	if (!m_modernAtlas || action <= EFFECTACTION_NONE || action >= EFFECTACTION_MAX || m_sprites[action] == nullptr)
 		return false;
-	if (outlineColor != 0 || flags != k_DRAWFLAGS_NORMAL || specialDelayProcess || directionalAttack)
+	if (outlineColor != 0 || (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY)) || specialDelayProcess || directionalAttack)
 		return false;
 
-	ModernSpriteRect const * r = m_modernAtlas->FindRect("PLAY", 0, frame);
-	if (!r)
+    // Combat flashes use FLASH alone; PLAY effects may also carry a flash layer.
+	ModernSpriteRect const * r = action == EFFECTACTION_PLAY ? m_modernAtlas->FindRect("PLAY", 0, frame) : nullptr;
+	if (action == EFFECTACTION_PLAY && !r)
 		return false;
 	ModernSpriteRect const * flash = nullptr;
 	if (m_sprites[EFFECTACTION_FLASH] != nullptr) {
@@ -175,7 +176,7 @@ bool EffectSpriteGroup::AddGpuSpriteQuad(EFFECTACTION action, sint32 frame, sint
 		q.dw = static_cast<int>(rect.w * scale);
 		q.dh = static_cast<int>(rect.h * scale);
 		q.mirror = reversed;
-		q.alpha = 255;
+		q.alpha = (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) ? static_cast<uint8>(transparency * 255 / 15) : 255;
 		q.additive = additive;
 		aui_SDL::AddSpriteQuad(q);
 	};
@@ -185,7 +186,7 @@ bool EffectSpriteGroup::AddGpuSpriteQuad(EFFECTACTION action, sint32 frame, sint
 
 	if (flash)
 		addQuad(*flash, m_sprites[EFFECTACTION_FLASH]->GetHotPoint(), true);
-	addQuad(*r, m_sprites[action]->GetHotPoint(), false);
+	if (r) addQuad(*r, m_sprites[action]->GetHotPoint(), false);
 	return true;
 }
 

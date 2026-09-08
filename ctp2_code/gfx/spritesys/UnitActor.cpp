@@ -796,7 +796,33 @@ void UnitActor::GetNextAction(bool isVisible) {
   m_curUnitAction = (UNITACTION)m_curAction->GetActionType();
 }
 
+int UnitActor::SetRenderPose(int action, int frame, int facing, int opacity, bool fogged) {
+  if (action < 0 || action >= UNITACTION_MAX || facing < 0 || facing >= k_MAX_FACINGS || opacity < 0 || opacity > 15)
+    return 0;
+  auto const pose = static_cast<UNITACTION>(action);
+  FullLoad(pose);
+  Sprite *sprite = m_unitSpriteGroup ? m_unitSpriteGroup->GetGroupSprite(static_cast<GAME_ACTION>(action)) : nullptr;
+  if (!sprite || !sprite->GetNumFrames()) return 0;
+  int const count = static_cast<int>(sprite->GetNumFrames());
+  if (frame == -1) frame = count - 1;
+  if (frame == -2) frame = count / 2;
+  if (frame < 0 || frame >= count) return 0;
+  if (!m_curAction) GetNextAction();
+  m_curUnitAction = pose;
+  m_frame = frame;
+  m_facing = facing;
+  m_transparency = static_cast<uint16>(opacity);
+  m_renderFogged = fogged;
+  m_renderPose = true;
+  return count;
+}
+
 void UnitActor::Process() {
+  // Gallery captures must compare the same action/frame in both renderers.
+  if (m_renderPose) {
+    PositionActor(GetPos());
+    return;
+  }
   if (!m_curAction)
     GetNextAction();
 
@@ -1411,6 +1437,7 @@ void UnitActor::DrawForceField(bool fogged) {
 }
 
 bool UnitActor::Draw(bool fogged) {
+  fogged = fogged || m_renderFogged;
   if (m_hidden)
     return false;
 
@@ -1592,6 +1619,7 @@ void UnitActor::DrawDirect(aui_Surface* surf,
 }
 
 bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged) {
+  fogged = fogged || m_renderFogged;
   m_gpuSpriteFallbackReason = nullptr;
   auto fail = [this](char const *reason) {
     m_gpuSpriteFallbackReason = reason;

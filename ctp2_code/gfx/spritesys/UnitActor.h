@@ -110,6 +110,8 @@ class UnitActor : public Actor {
   void SetSize(sint32 size) { m_size = size; }
   sint32 GetSize() const { return m_size; }
 
+  // Only the render-tool command exposes fixed poses; ordinary actors keep animating.
+  int SetRenderPose(int action, int frame, int facing, int opacity, bool fogged);
   void Process() override;
   void DumpAllActions();
   void EndTurnProcess();
@@ -305,6 +307,8 @@ class UnitActor : public Actor {
   sint32 m_facing;
   sint32 m_lastMoveFacing;
   sint32 m_frame;
+  bool m_renderPose = false;
+  bool m_renderFogged = false;
   uint16 m_transparency;
   char const *m_gpuSpriteFallbackReason = nullptr;
 

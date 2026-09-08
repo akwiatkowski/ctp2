@@ -24,6 +24,8 @@ it: the count returns to zero while the explored bit stays set. That is what
 debug_explore_patch does, and debug_vision_stats reports the resulting counts so
 a failure can distinguish "fog was not drawn" from "fog was never created".
 """
+import argparse
+import json
 import os
 import struct
 import sys
@@ -41,7 +43,7 @@ MODE_ENV = {
 }
 
 CROP = 320
-FIXTURE = "/tmp/ctp2-worldmap-fog.sav"
+FIXTURE = None
 RADIUS = 20
 
 
@@ -69,10 +71,19 @@ def crop_box(w, h):
     return (w - cw) // 2, (h - ch) // 2, cw, ch
 
 
-def mean_brightness(path):
+def mean_brightness(path, state):
     """Mean brightness of the explored world in the centred crop."""
     w, h, px = read_bmp_rgb(path)
     left, top, cw, ch = crop_box(w, h)
+    # The CPU window mirror subtracts the background-window margin at present;
+    # quad/world-map geometry currently does not. Compare the SAME map patch,
+    # not different terrain under identical screen rectangles. The full-frame
+    # registration discrepancy remains visible in the acceptance gallery.
+    if not state["worldmap"] and not state["complete"]:
+        dx, dy = state["world_content_off"]
+        left -= dx
+        top -= dy
+    assert 0 <= left and 0 <= top and left + cw <= w and top + ch <= h
     total = n = 0
     for y in range(top, top + ch):
         for x in range(left, left + cw):
@@ -84,7 +95,7 @@ def mean_brightness(path):
     return (total / (3 * n)) if n else 0.0, n
 
 
-def capture(mode, out, make_fixture):
+def capture(mode, out, make_fixture, seed=42):
     env = os.environ.copy()
     env.update({"CTP2_GPU_LAYERS": "1", "CTP2_GPU_CAMERA": "1"})
     env.update(MODE_ENV[mode])
@@ -92,7 +103,7 @@ def capture(mode, out, make_fixture):
     sock = f"/tmp/ctp2-fog-{mode}-{os.getpid()}.sock"
     env["CTP2_SMOKE_SOCKET"] = sock
 
-    with Ctp2Client(str(ROOT / "build" / "ctp2"), "ui", seed=42, players=4,
+    with Ctp2Client(str(ROOT / "build" / "ctp2"), "ui", seed=seed, players=4,
                     socket_path=sock, env=env,
                     log_path=str(out / f"{mode}.log")) as c:
         if make_fixture:
@@ -100,6 +111,7 @@ def capture(mode, out, make_fixture):
             c.expect_ok("start_game")
             c.wait_game_loaded()
             c.expect_ok("save_game", FIXTURE)
+            c.expect_ok("load_game", FIXTURE)
         else:
             c.expect_ok("load_game", FIXTURE)
         c.expect_ok("debug_deselect")
@@ -110,6 +122,8 @@ def capture(mode, out, make_fixture):
             raise RuntimeError("no army to centre on")
         pos = armies[0]["pos"]
 
+        states = {}
+
         def settle(name):
             path = out / f"{mode}-{name}.bmp"
             previous = None
@@ -118,6 +132,7 @@ def capture(mode, out, make_fixture):
                 c.expect_ok("screenshot_presented", str(path))
                 current = path.read_bytes()
                 if previous == current:
+                    states[name] = c.result("query_gpu_world")
                     return path
                 previous = current
                 time.sleep(0.2)
@@ -129,19 +144,27 @@ def capture(mode, out, make_fixture):
 
         c.expect_ok("debug_reveal_patch", pos["x"], pos["y"], RADIUS)
         lit = settle("lit")
-        return fogged, lit, vision, c.result("query_gpu_world")
+        (out / f"{mode}-state.json").write_text(json.dumps(states, indent=2))
+        return fogged, lit, vision, states
 
 
 def main():
-    out = Path("/tmp/ctp2-worldmap-fog")
+    global FIXTURE
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--fixture", type=Path, help="replay a retained base save")
+    parser.add_argument("--out", type=Path, default=ROOT / "build" / "worldmap-fog" / time.strftime("%Y%m%d-%H%M%S"))
+    args = parser.parse_args()
+    out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=True)
-    if Path(FIXTURE).exists():
-        Path(FIXTURE).unlink()
+    FIXTURE = str(args.fixture.resolve() if args.fixture else out / "base.sav")
+    print(f"Fog evidence: {out}; replay with --fixture {FIXTURE}", flush=True)
 
     drops = {}
     failures = []
     for i, mode in enumerate(("gpu", "worldmap")):
-        fogged, lit, vision, gpu = capture(mode, out, make_fixture=(i == 0))
+        fogged, lit, vision, states = capture(mode, out, make_fixture=(i == 0 and not args.fixture), seed=args.seed)
+        gpu = states["lit"]
         if vision["fogged"] < 100:
             failures.append(f"{mode}: only {vision['fogged']} cells ended up "
                             f"fogged — the scene never entered the state under "
@@ -151,8 +174,8 @@ def main():
                                        and gpu.get("worldmap_texture")):
             failures.append(f"not on the whole-map path: {gpu}")
             continue
-        bf, nf = mean_brightness(fogged)
-        bl, nl = mean_brightness(lit)
+        bf, nf = mean_brightness(fogged, states["fogged"])
+        bl, nl = mean_brightness(lit, states["lit"])
         drops[mode] = 1.0 - (bf / bl) if bl else 0.0
         print(f"[fog] {mode:8s} fogged={bf:6.1f} lit={bl:6.1f} "
               f"darkening={drops[mode]:.3f} ({vision['fogged']} fogged cells)")

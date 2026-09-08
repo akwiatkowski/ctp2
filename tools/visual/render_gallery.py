@@ -2,6 +2,7 @@
 """Generate CPU-left/GPU-right screenshots for human renderer review."""
 
 import argparse
+import html
 import json
 import os
 import re
@@ -117,6 +118,7 @@ def make_base_fixture(binary, out_dir, seed, players):
     with Ctp2Client(str(binary), "ui", seed=seed, players=players,
                     socket_path=socket, env=env,
                     log_path=str(out_dir / "base.log")) as client:
+        client.expect_ok("debug_set_good_richness", 50)
         client.expect_ok("new_game")
         client.expect_ok("start_game")
         client.wait_game_loaded()
@@ -126,12 +128,13 @@ def make_base_fixture(binary, out_dir, seed, players):
     return fixture
 
 
-def open_client(binary, out_dir, mode, fixture):
+def open_client(binary, out_dir, mode, fixture, legacy_reference=False):
     env = os.environ.copy()
     env["CTP2_GPU_LAYERS"] = "1"
     env["CTP2_GPU_CAMERA"] = "1"
-    env["CTP2_GPU_QUADS"] = "1" if mode == "gpu" else "0"
-    env.setdefault("CTP2_MODERN_SPRITES", "1")
+    for flag in ("CTP2_GPU_QUADS", "CTP2_GPU_WORLDMAP", "CTP2_GPU_RASTER"):
+        env[flag] = "1" if mode == "gpu" else "0"
+    env["CTP2_MODERN_SPRITES"] = "0" if mode == "cpu" and legacy_reference else "1"
     socket = f"/tmp/ctp2-gallery-{mode}-{os.getpid()}.sock"
     env["CTP2_SMOKE_SOCKET"] = socket
     client = Ctp2Client(str(binary), "ui", socket_path=socket, env=env,
@@ -176,7 +179,7 @@ def compose_pair(cpu_bmp, gpu_bmp, out_png, title):
     img = Image.new("RGB", (w, h), (24, 24, 24))
     draw = ImageDraw.Draw(img)
     draw.text((8, 8), f"CPU  {title}", fill=(235, 235, 235), font=font)
-    draw.text((cpu.width + 8, 8), f"GPU  pixel accuracy {accuracy:.4f}%", fill=(235, 235, 235), font=font)
+    draw.text((cpu.width + 8, 8), f"GPU  full-frame matching pixels {accuracy:.4f}%", fill=(235, 235, 235), font=font)
     img.paste(cpu, (0, label_h))
     img.paste(gpu, (cpu.width, label_h))
     img.save(out_png)
@@ -189,16 +192,24 @@ def compose_pair(cpu_bmp, gpu_bmp, out_png, title):
 
 
 def capture_case(client, out_dir, local_index, total, index, name, mode, fixture, apply_case, reveal_radius):
-    client.expect_ok("load_game", fixture)
+    reuse = name.startswith("sprite ") and " archer " in name
+    if not reuse or not getattr(client, "gallery_pose_scene", False):
+        client.expect_ok("load_game", fixture)
+        client.gallery_base_center = visible_center(client)
+        client.gallery_pose_scene = reuse
+        client.gallery_pose_actor = False
     client.expect_ok("debug_deselect")
     client.expect_ok("set_show_city_names", 0)
     client.expect_ok("debug_scenario_start_flags", 0)
     validate_human_alive(client, f"{name} before setup")
-    center = visible_center(client)
+    center = dict(client.gallery_base_center)
     ok = apply_case(client, center)
     if ok is False:
         return {"case": name, "skipped": True, "reason": "fixture command failed"}
-    reveal_patch(client, center, reveal_radius)
+    if " fogged" in name:
+        client.expect_ok("debug_explore_patch", center["x"], center["y"], reveal_radius)
+    else:
+        reveal_patch(client, center, reveal_radius)
     validate_human_alive(client, f"{name} after setup")
     r = client.command("camera_debug_center", center["x"], center["y"])
     if r.get("status") != "ok" and r.get("detail") == "modal":
@@ -210,13 +221,21 @@ def capture_case(client, out_dir, local_index, total, index, name, mode, fixture
     tmp_dir.mkdir(exist_ok=True)
     bmp = tmp_dir / f"{base}-{mode}.bmp"
     print(f"[{mode}] {local_index}/{total} temporary capture -> {bmp}", flush=True)
-    r = client.command("screenshot_map_only", bmp)
+    coverage = client.result("debug_worldmap_build", "rebuild") if mode == "gpu" else None
+    # Give the normal 75 ms actor tick a frame after changing camera/pose.
+    time.sleep(0.15)
+    if "combat flash" in name or name.endswith(" effect"):
+        client.expect_ok("debug_combat_flash", center["x"], center["y"])
+        time.sleep(0.1)
+    r = client.command("screenshot_presented", bmp)
     if r.get("status") != "ok":
         raise Ctp2Error(f"screenshot failed: {r}")
     validate_human_alive(client, f"{name} after screenshot")
     record = {"case": name, "bmp": bmp}
     if mode == "gpu":
         record["gpu"] = client.result("query_gpu_world")
+        record["coverage"] = coverage
+        assert record["gpu"]["worldmap_texture"], record["gpu"]
     return record
 
 
@@ -254,8 +273,8 @@ def load_accuracy_records(path):
     return data
 
 
-def capture_mode(binary, out_dir, mode, fixture, cases, limit, reveal_radius):
-    client = open_client(binary, out_dir, mode, fixture)
+def capture_mode(binary, out_dir, mode, fixture, cases, limit, reveal_radius, legacy_reference=False):
+    client = open_client(binary, out_dir, mode, fixture, legacy_reference)
     records = []
     try:
         total = len(cases) if not limit else min(len(cases), limit)
@@ -317,6 +336,49 @@ def gallery_cases(zooms):
             yield f"gallery z{zlabel} unit {unit.lower()}", lambda c, center, u=unit, z=zoom: gallery_case(c, center, z, "unit", u)
 
 
+def sprite_cases(zooms):
+    # Fixed action/frame/facing removes timing differences between CPU/GPU captures.
+    for zoom in zooms:
+        for action, label in enumerate(("move", "attack", "idle", "victory", "work")):
+            for facing in (0, 4, 5, 7):
+                for frame in (0, -2, -1):
+                    name = f"sprite z{zoom_label(zoom)} archer {label} facing{facing} frame{frame}"
+                    def apply(c, center, z=zoom, a=action, f=frame, d=facing):
+                        set_zoom(c, z)
+                        # Place the actor away from the initial stack and city labels.
+                        center.update(safe_patch_center(c, center, 3))
+                        grass = next(t for t in c.result("query_terrains")["terrains"] if t.get("internal") == "TERRAIN_GRASSLAND")
+                        c.expect_ok("debug_set_terrain", center["x"], center["y"], grass["id"])
+                        if not c.gallery_pose_actor:
+                            c.expect_ok("create_unit", "UNIT_ARCHER", center["x"], center["y"])
+                            c.gallery_pose_actor = True
+                        result = c.command("debug_sprite_pose", center["x"], center["y"], a, f, d)
+                        if result.get("detail") == "unsupported_pose":
+                            return False
+                        if result.get("status") != "ok":
+                            raise Ctp2Error(str(result))
+                    yield name, apply
+        for label, opacity, fog in (("transparent", 8, 0), ("fogged", 15, 1)):
+            def shaded(c, center, z=zoom, opacity=opacity, fog=fog):
+                set_zoom(c, z)
+                center.update(safe_patch_center(c, center, 3))
+                grass = next(t for t in c.result("query_terrains")["terrains"] if t.get("internal") == "TERRAIN_GRASSLAND")
+                c.expect_ok("debug_set_terrain", center["x"], center["y"], grass["id"])
+                if not c.gallery_pose_actor:
+                    c.expect_ok("create_unit", "UNIT_ARCHER", center["x"], center["y"])
+                    c.gallery_pose_actor = True
+                c.expect_ok("debug_sprite_pose", center["x"], center["y"], 0, 0, 5, opacity, fog)
+            yield f"sprite z{zoom_label(zoom)} archer {label}", shaded
+        for state in ("lit", "fogged"):
+            def good(c, center, z=zoom):
+                set_zoom(c, z)
+                center.update(c.result("debug_find_good", center["x"], center["y"])["pos"])
+            yield f"good z{zoom_label(zoom)} {state}", good
+        for kind in ("city", "city_walls", "city_forcefield", "underwater_city"):
+            yield f"sprite z{zoom_label(zoom)} {kind}", lambda c, center, z=zoom, k=kind: gallery_case(c, center, z, k)
+        yield f"sprite z{zoom_label(zoom)} effect", lambda c, center, z=zoom: combat_flash(c, center, z)
+
+
 def preferred_terrain(terrains, names, fallback_index):
     for name in names:
         for key, terrain in terrains.items():
@@ -373,6 +435,9 @@ def gallery_case(client, center, zoom, kind, arg=None):
         target["y"] = max(0, min(world["height"] - 1, target["y"]))
         center["x"] = target["x"]
         center["y"] = target["y"]
+    if kind.startswith("city"):
+        grass = next(t for t in client.result("query_terrains")["terrains"] if t.get("internal") == "TERRAIN_GRASSLAND")
+        client.expect_ok("debug_set_terrain", target["x"], target["y"], grass["id"])
     command_args = [kind, target["x"], target["y"]]
     if arg:
         command_args.append(arg)
@@ -395,6 +460,7 @@ def main():
     parser.add_argument("--render-binary", default=str(ROOT / "build" / "ctp2_render"),
                         help="binary used when scene cases need render-tool-only commands")
     parser.add_argument("--out", default=str(ROOT / "build" / "render-gallery"))
+    parser.add_argument("--legacy-reference", action="store_true", help="use legacy SPR software drawing for the CPU reference")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--players", type=int, default=4)
     parser.add_argument("--radius", type=int, default=4)
@@ -404,7 +470,7 @@ def main():
                         help="-1 keeps the game's default zoom")
     parser.add_argument("--patterns", nargs="*", default=list(PATTERNS), choices=list(PATTERNS))
     parser.add_argument("--families", nargs="*", default=["terrain", "overlay", "gallery"],
-                        choices=["terrain", "overlay", "gallery", "scene"])
+                        choices=["terrain", "overlay", "gallery", "scene", "sprites"])
     parser.add_argument("--limit", type=int, default=0, help="0 means no limit")
     parser.add_argument("--continue", "--continue-run", dest="continue_run", action="store_true",
                         help="reuse the latest output directory and render the next missing cases")
@@ -420,6 +486,7 @@ def main():
     fixture = out_dir / "base-fixture.json"
     if not fixture.exists():
         fixture = make_base_fixture(binary, out_dir, args.seed, args.players)
+    (out_dir / "run.json").write_text(json.dumps(vars(args), indent=2))
     manifest = out_dir / "manifest.jsonl"
     accuracy_path = out_dir / "pixel-accuracy.json"
 
@@ -436,6 +503,8 @@ def main():
         cases.extend(overlay_cases(args.zooms))
     if "gallery" in args.families:
         cases.extend(gallery_cases(args.zooms))
+    if "sprites" in args.families:
+        cases.extend(sprite_cases(args.zooms))
     if "scene" in args.families:
         cases.extend(scene_cases(terrains, args.zooms))
     indexed_cases = [(index, name, apply_case) for index, (name, apply_case) in enumerate(cases, start=1)]
@@ -447,7 +516,7 @@ def main():
         indexed_cases = indexed_cases[:args.limit]
     print(f"planned: {len(indexed_cases)} cases", flush=True)
 
-    cpu_records = capture_mode(binary, out_dir, "cpu", fixture, indexed_cases, 0, args.reveal_radius)
+    cpu_records = capture_mode(binary, out_dir, "cpu", fixture, indexed_cases, 0, args.reveal_radius, args.legacy_reference)
     gpu_records = capture_mode(binary, out_dir, "gpu", fixture, indexed_cases, 0, args.reveal_radius)
     accuracy_records = load_accuracy_records(accuracy_path) if args.continue_run else []
     accuracy_by_file = {record["file"]: record for record in accuracy_records}
@@ -478,12 +547,32 @@ def main():
                 "compared_pixels": accuracy["compared_pixels"],
             }
             accuracy_by_file[out_png.name] = accuracy_record
-            record = {"file": out_png.name, "case": cpu_record["case"], "gpu": gpu_record.get("gpu", {}), **accuracy_record}
+            record = {"file": out_png.name, "case": cpu_record["case"], "gpu": gpu_record.get("gpu", {}), "coverage": gpu_record.get("coverage"), **accuracy_record}
             f.write(json.dumps(record, sort_keys=True) + "\n")
             print(f"{record['file']} pixel_accuracy={accuracy_record['pixel_accuracy']:.4f}%")
     accuracy_records = [accuracy_by_file[name] for name in sorted(accuracy_by_file)]
     with accuracy_path.open("w") as f:
         json.dump({"results": accuracy_records}, f, indent=2, sort_keys=True)
+    records = [json.loads(line) for line in manifest.read_text().splitlines()]
+    rows = []
+    for record in records:
+        title = html.escape(record["case"])
+        if record.get("skipped"):
+            rows.append(f"<article><h2>{title}</h2><p>Unsupported fixture/pose; not accepted.</p></article>")
+        else:
+            filename = html.escape(record["file"])
+            details = html.escape(json.dumps({k: record.get(k) for k in ("gpu", "coverage")}, indent=2))
+            rows.append(f'<article><h2>{title}</h2><a href="{filename}"><img loading="lazy" src="{filename}"></a><details><summary>GPU coverage</summary><pre>{details}</pre></details></article>')
+    (out_dir / "index.html").write_text('<!doctype html><meta charset="utf-8"><title>Renderer acceptance gallery</title><style>body{font:16px system-ui;background:#171717;color:#eee;margin:24px}img{max-width:100%}article{margin:36px 0}pre{white-space:pre-wrap}</style><h1>Renderer acceptance gallery</h1><p>CPU composition left; whole-map GPU right. Both use modern atlases unless --legacy-reference is selected. Matching background pixels are not proof of sprite correctness. Review silhouettes, anchors, facing, fog and transparency. Unsupported poses remain explicit.</p>' + ''.join(rows))
+    coverage_rows = ["# GPU coverage from captured scenes", "",
+                     "Counts describe changed map cells in an explicit rebuild, not frame time or total GPU utilization.", "",
+                     "| Scene | GPU raster cells | CPU-composited cells | Sprite fallback |", "|---|---:|---:|---|"]
+    for record in records:
+        coverage = record.get("coverage") or {}
+        gpu = record.get("gpu") or {}
+        if not record.get("skipped"):
+            coverage_rows.append(f"| {record['case']} | {coverage.get('raster_cells', 'unknown')} | {coverage.get('cpu_cells', 'unknown')} | {gpu.get('sprite_fallback_reason') or 'none reported'} |")
+    (out_dir / "coverage.md").write_text("\n".join(coverage_rows) + "\n")
     count = len(cpu_records)
     print(f"wrote {count} review images to {out_dir}")
     print(f"wrote pixel accuracy to {accuracy_path}")

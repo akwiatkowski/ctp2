@@ -2,6 +2,26 @@
 
 Short log of non-trivial design decisions. Newest first.
 
+## ADR-010 — Reproducible renderer evidence and explicit GPU coverage (2026-09-08)
+
+**Context.** UI tests discarded their seed, forced camera refreshes after actor
+changes, and the gallery's map-only screenshot used the old window-quad path.
+A fog comparison also sampled different map patches when the reference fell
+back to the CPU window mirror. Flags and background-dominated pixel agreement
+could conceal missing sprites.
+
+**Decision.** Forward UI seeds/player counts through the smoke protocol; retain
+fog scenes for replay; compare fog over matching map coordinates. Use presented
+composition for gallery captures, explicit renderer flags, and fixed poses
+exposed only by the render tool. Exercise lifecycle transitions through the
+normal runtime. Report GPU and CPU cell counts separately from submitted quads.
+
+**Consequences.** Gallery output is review evidence, not blanket acceptance.
+The CPU/world-map registration discrepancy remains visible. Unsupported poses
+are recorded as skips. CPU sprite drawing still runs alongside GPU emission;
+removing it requires a separate completeness/fallback decision. The new runtime
+checks exposed and fixed post-load view initialization and FLASH-only GPU effects.
+
 ## ADR-009 — Refresh GPU sprites through the normal actor painter (2026-09-08)
 
 **Context.** GPU sprite quads were built only when terrain refreshed. Idle frames,

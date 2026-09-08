@@ -278,6 +278,7 @@ public:
 	static int SampleWorldmapCoverage(int grid);
 	static void DestroyWorldmapTexture();
 	static void MarkQuadFrameIncomplete(char const *reason = nullptr);
+	static char const *SpriteFrameIncompleteReason() { return m_spriteFrameIncompleteReason; }
 	static bool QuadFrameComplete() { return m_quadFrameComplete && !m_spriteFrameIncompleteReason; }
 	static char const *QuadFrameIncompleteReason() { return m_quadFrameIncompleteReason ? m_quadFrameIncompleteReason : m_spriteFrameIncompleteReason; }
 	static void MarkSpriteFrameIncomplete(char const *reason) { if (!m_spriteFrameIncompleteReason) m_spriteFrameIncompleteReason = reason; }

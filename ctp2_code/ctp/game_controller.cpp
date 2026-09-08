@@ -85,6 +85,7 @@
 #include "gfx/tilesys/tiledmap.h"             // debug terrain-overlay fallback
 #include "gfx/tilesys/tileset.h"              // debug_tileset_stats (GPU raster probe)
 #include "gfx/tilesys/BaseTile.h"             // debug_tileset_stats (GPU raster probe)
+#include "gfx/spritesys/UnitActor.h"
 #include "gfx/spritesys/director.h"            // debug combat flash
 #include "ui/interface/scenarioeditor.h"       // debug scenario start flags
 
@@ -913,6 +914,7 @@ std::string CmdDebugWorldmapBuild(const char * args)
 	// P14: how many cells the GPU raster path composited this build (0 when
 	// CTP2_GPU_RASTER is off or every cell carried overlays).
 	result["raster_cells"] = tiledmap_Get()->LastWorldmapRasterCount();
+	result["cpu_cells"] = tiledmap_Get()->m_worldmapCpuCells;
 	result["atlas_slots_used"] = tiledmap_Get()->GpuTileCacheSize();
 	result["atlas_capacity"]   = tiledmap_Get()->GpuTileCacheCapacity();
 	result["atlas_evictions"]  = (int64_t) tiledmap_Get()->GpuTileCacheEvictions();
@@ -1203,6 +1205,52 @@ std::string CmdDebugDeselect()
 		tiledmap_Get()->BuildTerrainQuads();
 	return Ok("debug_deselect");
 }
+
+// Selection and visibility transitions deliberately do not force a terrain refresh.
+std::string CmdDebugActorState(const char *args)
+{
+    int index = -1, member = 0;
+    char state[32] = {0};
+    if (sscanf(args, "%d %d %31s", &index, &member, state) != 3)
+        return Err("debug_actor_state", "bad_args");
+    Player *human = HumanPlayer();
+    auto *armies = human ? human->GetAllArmiesList() : nullptr;
+    if (!armies || index < 0 || index >= armies->Num())
+        return Err("debug_actor_state", "bad_army");
+    Army army = armies->Access(index);
+    if (member < 0 || member >= army.Num()) return Err("debug_actor_state", "bad_member");
+    Unit unit = army.Access(member);
+    if (strcmp(state, "select") == 0 && selitem_Get()) selitem_Get()->SetSelectUnit(unit);
+    else if (strcmp(state, "visible") == 0) unit.AccessData()->SetVisible(human->GetOwner());
+    else if (strcmp(state, "hidden") == 0) {
+        unit.AccessData()->UnsetVisible(human->GetOwner());
+        // Expire the normal one-turn visibility grace period as well.
+        unit.AccessData()->BeginTurnVision(human->GetOwner());
+    }
+    else if (strcmp(state, "die") == 0) unit.Kill(CAUSE_REMOVE_ARMY_OUTOFFUEL, -1);
+    else return Err("debug_actor_state", "bad_state");
+    return Ok("debug_actor_state");
+}
+
+#ifdef RENDER_TOOL_BUILD
+std::string CmdDebugSpritePose(const char *args)
+{
+    int x, y, action, frame, facing, opacity = 15, fogged = 0;
+    if (sscanf(args, "%d %d %d %d %d %d %d", &x, &y, &action, &frame, &facing, &opacity, &fogged) < 5)
+        return Err("debug_sprite_pose", "bad_args");
+    World *world = world_Get();
+    if (!world || x < 0 || y < 0 || x >= world->GetXWidth() || y >= world->GetYHeight())
+        return Err("debug_sprite_pose", "bad_position");
+    Unit unit;
+    MapPoint pos(x, y);
+    if (!world->GetTopVisibleUnitNotCity(pos, unit) && !world->GetTopVisibleUnit(pos, unit))
+        return Err("debug_sprite_pose", "no_actor");
+    auto actor = unit.GetActor();
+    int const count = actor ? actor->SetRenderPose(action, frame, facing, opacity, fogged != 0) : 0;
+    if (!count) return Err("debug_sprite_pose", "unsupported_pose");
+    return Ok("debug_sprite_pose", {{"frames", count}});
+}
+#endif
 
 std::string CmdDebugCombatFlash(const char * args)
 {
@@ -3947,6 +3995,14 @@ std::string QueryGpuWorld()
                           {"reason", s_goodReason} }; }   // PROBE
     result["terrain_quads"] = aui_SDL::QuadDrawList().size();
     result["sprite_quads"] = aui_SDL::SpriteDrawList().size();
+    result["sprite_fallback_reason"] = aui_SDL::SpriteFrameIncompleteReason() ? aui_SDL::SpriteFrameIncompleteReason() : "";
+    if (tiledmap_Get()) {
+        result["last_terrain_build"] = {
+            {"submitted_quads", tiledmap_Get()->LastWorldmapRedrawCount()},
+            {"gpu_raster", tiledmap_Get()->LastWorldmapRasterCount()},
+            {"cpu_composited", tiledmap_Get()->m_worldmapCpuCells},
+            {"uploads", tiledmap_Get()->m_worldmapUploads}};
+    }
     // The exact inputs to the present's source rect. Reported so a parity run
     // can compare the two paths' geometry directly instead of inferring it by
     // correlating presented pixels — tile art is periodic, so a correlation
@@ -4002,6 +4058,10 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_place_improvement ", 0) == 0)          return CmdDebugPlaceImprovement(line.c_str() + 24);
 #endif
     if (line == "debug_deselect")                               return CmdDebugDeselect();
+    if (line.rfind("debug_actor_state ", 0) == 0)              return CmdDebugActorState(line.c_str() + 18);
+#ifdef RENDER_TOOL_BUILD
+    if (line.rfind("debug_sprite_pose ", 0) == 0)              return CmdDebugSpritePose(line.c_str() + 18);
+#endif
     if (line.rfind("debug_combat_flash ", 0) == 0)              return CmdDebugCombatFlash(line.c_str() + 19);
     if (line.rfind("debug_scenario_start_flags ", 0) == 0)      return CmdDebugScenarioStartFlags(line.c_str() + 27);
     if (line.rfind("debug_cloak_army ", 0) == 0)                return CmdDebugCloakArmy(line.c_str() + 17);

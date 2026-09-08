@@ -4324,6 +4324,7 @@ int TiledMap::BuildWorldmapQuads()
 	std::vector<aui_SDL::GpuQuad> dirty;
 	m_worldmapMisses = 0;
 	m_worldmapRasterCells = 0;
+	m_worldmapCpuCells = 0;
 	m_worldmapUploads = 0;
 	m_worldmapMinX = m_worldmapMinY = 1 << 30;
 	m_worldmapMaxX = m_worldmapMaxY = -(1 << 30);
@@ -4486,8 +4487,10 @@ int TiledMap::BuildWorldmapQuads()
 			{
 				if (!flushBatch()) { drawFailed = true; break; }
 			}
-			if (!rastered)
+			if (!rastered) {
+                ++m_worldmapCpuCells;
 				batchSigs.insert(sig);
+            }
 
 			GpuTileSlot slot;
 			if (!rastered && m_gpuTileCache->Get(sig, slot) == GpuTileCache::MISS)

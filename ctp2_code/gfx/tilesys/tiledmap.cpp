@@ -134,6 +134,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
 #include "gfx/spritesys/UnitSpriteGroup.h"
+#include "gfx/spritesys/SpriteGroupList.h" // fixture GetSprite/ReleaseSprite
 #include "gs/world/UnseenCell.h"
 #include "gs/world/World.h"                      // world_Get()
 
@@ -3535,8 +3536,61 @@ void TiledMap::EndGpuSpriteFrame()
 		                                      1, "scenario-start-flags", &TiledMap::DrawStartingLocations))
 			aui_SDL::MarkSpriteFrameIncomplete("scenario-start-flags");
 	}
-
+	SubmitRenderFixtures();
 	m_buildingGpuSprites = false;
+}
+extern SpriteGroupList* g_unitSpriteGroupList;
+extern SpriteGroupList* g_citySpriteGroupList;
+
+void TiledMap::ClearRenderFixtures()
+{
+// Release held sprite refs (mirror UnitActor teardown) and empty the list.
+// render_new_scene calls this; fixtures never outlive the sprite lists in
+// test runs, so no reload-generation guard is needed.
+for (RenderFixture const &fixture : m_renderFixtures) {
+    if (!fixture.group)
+        continue;
+    if (fixture.groupType == GROUPTYPE_CITY) {
+        if (g_citySpriteGroupList)
+            g_citySpriteGroupList->ReleaseSprite(fixture.spriteIndex, LOADTYPE_BASIC);
+    } else {
+        if (g_unitSpriteGroupList)
+            g_unitSpriteGroupList->ReleaseSprite(fixture.spriteIndex, LOADTYPE_BASIC);
+    }
+}
+m_renderFixtures.clear();
+}
+
+sint32 TiledMap::AddRenderUnitFixture(RenderFixture const &fixture)
+{
+m_renderFixtures.push_back(fixture);
+return static_cast<sint32>(m_renderFixtures.size()) - 1;
+}
+
+void TiledMap::SubmitRenderFixtures()
+{
+// Per-frame resubmission: quad lists are rebuilt every frame, so harness
+// placements must be re-emitted alongside actor quads. Runs inside the GPU
+// sprite frame (m_buildingGpuSprites still true on entry).
+double const scale = GetScale();
+sint32 const xoffset = static_cast<sint32>(k_ACTOR_CENTER_OFFSET_X * scale);
+sint32 const yoffset = static_cast<sint32>(k_ACTOR_CENTER_OFFSET_Y * scale);
+for (RenderFixture const &fixture : m_renderFixtures) {
+    if (!fixture.group) {
+        aui_SDL::MarkSpriteFrameIncomplete("fixture-no-group");
+        continue;
+    }
+    sint32 px = 0, py = 0;
+    maputils_MapXY2PixelXY(fixture.mapX, fixture.mapY, &px, &py);
+    uint16 flags = k_DRAWFLAGS_NORMAL;
+    if (fixture.fogged)
+        flags |= k_BIT_DRAWFLAGS_FOGGED;
+    if (!fixture.group->AddGpuSpriteQuad(fixture.action, fixture.frame,
+            px + m_gpuSpriteOffsetX + xoffset, py + m_gpuSpriteOffsetY + yoffset,
+            fixture.facing, scale, 0, 0, flags, FALSE, FALSE)) {
+        aui_SDL::MarkSpriteFrameIncomplete("fixture-atlas-decline");
+    }
+}
 }
 
 sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolling)

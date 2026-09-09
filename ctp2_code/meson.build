@@ -1929,6 +1929,15 @@ test('gpu-sprite-refresh',
   workdir : cwd_for_tests,
   suite : 'integration',
 )
+test('render-fixtures',
+  python3,
+  args : [files('test/render_fixtures.py'), join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
 
 test('terrain-edge-parity',
   find_program('../tools/visual/terrain_edges.py'),

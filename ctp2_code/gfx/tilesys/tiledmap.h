@@ -100,6 +100,7 @@ void       tiledmap_Set(TiledMap *p);
 #include "gfx/tilesys/tileset.h"        // TileSet
 #include "gfx/tilesys/tileutils.h"
 #include "gs/gameobj/Vision.h"
+#include "gfx/spritesys/UnitSpriteGroup.h" // UNITACTION for render fixtures
 #include "gs/world/World.h"
 
 class Army;
@@ -677,6 +678,29 @@ private:
 	void BeginGpuSpriteFrame();
 	void EndGpuSpriteFrame();
 	bool m_buildingGpuSprites = false;
+public:
+// P11 render fixtures (ctp2-306): sprite placements owned by the test
+// harness, not by game objects. Submitted every GPU sprite frame in
+// EndGpuSpriteFrame so screenshots see them without any Unit/Army existing.
+// Tile/fog ops apply immediately (world state persists); only sprite quads
+// need per-frame resubmission.
+struct RenderFixture {
+    sint32 spriteIndex = -1; // sprite DB index; -1 = empty slot
+    GROUPTYPE groupType = GROUPTYPE_UNIT;
+    UNITACTION action = UNITACTION_IDLE;
+    sint32 frame = 0;
+    sint32 facing = 0;
+    sint32 mapX = 0, mapY = 0; // tile coords; converted to pixels at submit
+    double scale = 1.0;
+    bool fogged = false;
+    UnitSpriteGroup *group = nullptr; // held ref; released on clear
+};
+void ClearRenderFixtures(); // releases held sprite refs, empties the list
+sint32 AddRenderUnitFixture(RenderFixture const &fixture); // index or -1
+sint32 RenderFixtureCount() const { return static_cast<sint32>(m_renderFixtures.size()); }
+private:
+void SubmitRenderFixtures(); // called from EndGpuSpriteFrame
+std::vector<RenderFixture> m_renderFixtures;
 	sint32 m_gpuSpriteOffsetX = 0;
 	sint32 m_gpuSpriteOffsetY = 0;
 

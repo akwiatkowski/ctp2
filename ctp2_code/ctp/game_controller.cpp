@@ -86,6 +86,8 @@
 #include "gfx/tilesys/tileset.h"              // debug_tileset_stats (GPU raster probe)
 #include "gfx/tilesys/BaseTile.h"             // debug_tileset_stats (GPU raster probe)
 #include "gfx/spritesys/UnitActor.h"
+#include "SpriteRecord.h" // render fixtures: default sprite index
+#include "gfx/spritesys/SpriteGroupList.h" // render fixtures: GetSprite
 #include "gfx/spritesys/director.h"            // debug combat flash
 #include "ui/interface/scenarioeditor.h"       // debug scenario start flags
 
@@ -193,6 +195,8 @@ void RunRound(sint32 round, SetCurrentPlayerFn set_current_player)
 }
 
 }  // namespace game_controller
+extern SpriteGroupList* g_unitSpriteGroupList;
+extern SpriteGroupList* g_citySpriteGroupList;
 
 // Owned by tiledmap.cpp; the graphics options screen is the only other writer.
 extern sint32 g_isGridOn;
@@ -262,7 +266,8 @@ sint32 ResolveUnitType(const char * name)
     return -1;
 }
 
-#if defined(RENDER_TOOL_BUILD)
+// Ungated: render_set_tile uses the same side-effect-free terrain path in all
+// builds (the render_ prefix, not RENDER_TOOL_BUILD, marks fixture intent).
 // Only the render-fixture terrain path needs this; the gameplay path gets its
 // movement mask from World::SmartSetTerrain.
 uint32 MovementMaskFromTerrain(const TerrainRecord * rec)
@@ -279,7 +284,6 @@ uint32 MovementMaskFromTerrain(const TerrainRecord * rec)
     if (rec->GetMovementTypeSpace())        movement |= k_MOVEMENT_TYPE_SPACE;
     return movement;
 }
-#endif
 
 // {"status":"ok","cmd":"<verb>","result":{...}}  (result omitted if null)
 std::string Ok(const char * verb, const json & result = json())
@@ -1282,6 +1286,181 @@ std::string CmdDebugSpritePose(const char *args)
     return Ok("debug_sprite_pose", {{"frames", count}});
 }
 #endif
+
+// render_camera_pose <offX> <offY> <zoom> — set a fixed camera pose for
+// zoom-matrix tests (ctp2-266). Offset, pan target and home zoom are set
+// together so the TickCamera ease holds the pose instead of gliding home;
+// zoom clamps to MinSafeZoom inside SetCamera. The render_ prefix marks it
+// as screenshot-fixture state, not gameplay.
+std::string CmdRenderCameraPose(const char * args)
+{
+    float offX = 0.0f, offY = 0.0f, zoom = 1.0f;
+    if (sscanf(args, "%f %f %f", &offX, &offY, &zoom) != 3)
+        return Err("render_camera_pose", "bad_args");
+    if (!(zoom > 0.0f) || !(offX == offX) || !(offY == offY))
+        return Err("render_camera_pose", "bad_pose");
+    aui_SDL::SetCamera(offX, offY, zoom);
+    aui_SDL::SetPanTarget(offX, offY);
+    aui_SDL::SetHomeZoom(aui_SDL::CameraZoom());
+    json result;
+    result["camera"] = { {"offX", aui_SDL::CameraOffX()},
+                         {"offY", aui_SDL::CameraOffY()},
+                         {"zoom", aui_SDL::CameraZoom()} };
+    return Ok("render_camera_pose", result);
+}
+// render_new_scene — clear P11 render fixtures (ctp2-306). No game state is
+// touched: units, cities and terrain stay as they are; only the harness-owned
+// sprite placements are dropped. Start every render-fixture test with this.
+std::string CmdRenderNewScene(const char * args)
+{
+    (void)args;
+    if (!tiledmap_Get())
+        return Err("render_new_scene", "no_tiledmap");
+    tiledmap_Get()->ClearRenderFixtures();
+    json result;
+    result["fixtures"] = 0;
+    return Ok("render_new_scene", result);
+}
+
+static bool ParseRenderAction(const char *name, UNITACTION &out)
+{
+    if (!name || !name[0] || strcmp(name, "MOVE") == 0) { out = UNITACTION_MOVE; return true; }
+    if (strcmp(name, "ATTACK") == 0)  { out = UNITACTION_ATTACK;  return true; }
+    if (strcmp(name, "IDLE") == 0)    { out = UNITACTION_IDLE;    return true; }
+    if (strcmp(name, "VICTORY") == 0) { out = UNITACTION_VICTORY; return true; }
+    if (strcmp(name, "WORK") == 0)    { out = UNITACTION_WORK;    return true; }
+    return false;
+}
+
+// render_add_unit_sprite <UNIT_ID|index> <x> <y> [ACTION] [frame] [facing] [fog]
+// — place a unit sprite quad without creating a Unit (ctp2-306/307). The
+// sprite group is resolved exactly like UnitActor (default sprite for the
+// human's government) and held by the tiled map until render_new_scene, so
+// every frame submits the quad with no gameplay side effects. ACTION is one
+// of MOVE/ATTACK/IDLE/VICTORY/WORK (default MOVE); fog marks it fogged.
+// City-capable types are rejected in v1 (city sprite choice needs a live
+// CityData); cities keep the game-backed debug_gallery_case path.
+std::string CmdRenderAddUnitSprite(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("render_add_unit_sprite", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human || !g_theUnitDB)
+        return Err("render_add_unit_sprite", "no_human_player");
+    if (!tiledmap_Get() || !world_Get())
+        return Err("render_add_unit_sprite", "no_world");
+
+    char name[128] = {0};
+    char actionName[32] = {0};
+    int x = -1, y = -1, frame = 0, facing = 0, fog = 0;
+    int parsed = sscanf(args, "%127s %d %d %31s %d %d %d",
+                        name, &x, &y, actionName, &frame, &facing, &fog);
+    if (parsed < 3)
+        return Err("render_add_unit_sprite", "bad_args");
+    UNITACTION action = UNITACTION_MOVE;
+    if (parsed >= 4 && !ParseRenderAction(actionName, action))
+        return Err("render_add_unit_sprite", "bad_action");
+    if (frame < 0 || facing < 0 || facing > 7) // 8-directional sprites (k_MAX_FACINGS)
+        return Err("render_add_unit_sprite", "bad_pose");
+
+    sint32 type = ResolveUnitType(name);
+    if (type < 0 || type >= g_theUnitDB->NumRecords())
+        return Err("render_add_unit_sprite", "bad_unit_type");
+    World * w = world_Get();
+    if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("render_add_unit_sprite", "bad_position");
+
+    auto const *rec = g_theUnitDB->Get(type, human->GetGovernmentType());
+    bool const isCity = rec && rec->GetHasPopAndCanBuild();
+    if (!rec || isCity)
+        return Err("render_add_unit_sprite", "city_type_unsupported");
+    sint32 const spriteIndex = rec->GetDefaultSprite()->GetValue();
+    if (!g_unitSpriteGroupList)
+        return Err("render_add_unit_sprite", "no_sprite_list");
+    UnitSpriteGroup *group = static_cast<UnitSpriteGroup *>(
+        g_unitSpriteGroupList->GetSprite(static_cast<uint32>(spriteIndex),
+                                        GROUPTYPE_UNIT, LOADTYPE_BASIC, static_cast<GAME_ACTION>(0)));
+    if (!group) {
+        aui_SDL::MarkSpriteFrameIncomplete("fixture-no-group");
+        return Err("render_add_unit_sprite", "no_sprite_group");
+    }
+
+    TiledMap::RenderFixture fixture;
+    fixture.group = group;
+    fixture.spriteIndex = spriteIndex;
+    fixture.groupType = GROUPTYPE_UNIT;
+    fixture.action = action;
+    fixture.frame = frame;
+    fixture.facing = facing;
+    fixture.mapX = x;
+    fixture.mapY = y;
+    fixture.fogged = fog != 0;
+    sint32 const index = tiledmap_Get()->AddRenderUnitFixture(fixture);
+    json result;
+    result["fixture"] = index;
+    result["sprite"] = spriteIndex;
+    result["action"] = static_cast<int>(action);
+    return Ok("render_add_unit_sprite", result);
+}
+
+// render_set_tile <x> <y> <terrain-index> — set terrain the side-effect-free
+// way (ctp2-306): plain SetTerrain plus quad rebuild, never the
+// scenario-editor SmartSetTerrain path, so neighbours and gameplay state are
+// untouched. The render_ prefix (ctp2-308) keeps it unconfusable with the
+// gameplay debug_set_terrain verb.
+std::string CmdRenderSetTile(const char * args)
+{
+    sint32 x = 0, y = 0, terrain = 0;
+    if (sscanf(args, "%d %d %d", &x, &y, &terrain) != 3)
+        return Err("render_set_tile", "bad_args");
+    World *w = world_Get();
+    if (!w)
+        return Err("render_set_tile", "no_world");
+    if (!g_theTerrainDB || terrain < 0 || terrain >= g_theTerrainDB->NumRecords())
+        return Err("render_set_tile", "bad_terrain");
+    if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("render_set_tile", "out_of_bounds");
+
+    w->SetTerrain(x, y, terrain);
+    w->SetMovementType(x, y, MovementMaskFromTerrain(g_theTerrainDB->Get(terrain)));
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
+    json result;
+    result["pos"] = { {"x", x}, {"y", y} };
+    result["terrain"] = terrain;
+    return Ok("render_set_tile", result);
+}
+
+// render_set_fog <x> <y> <mode> — set per-cell fog without a unit observer
+// (ctp2-306). mode 0 = visible, 1 = explored-but-fogged (radius covers the
+// cell; whole-map unexplore stays whole-map-only by engine design).
+std::string CmdRenderSetFog(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("render_set_fog", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human || !human->m_vision || !world_Get())
+        return Err("render_set_fog", "no_vision");
+    sint32 x = 0, y = 0, mode = 0;
+    if (sscanf(args, "%d %d %d", &x, &y, &mode) != 3)
+        return Err("render_set_fog", "bad_args");
+    World * w = world_Get();
+    if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("render_set_fog", "out_of_bounds");
+
+    MapPoint pos(x, y);
+    human->m_vision->AddExplored(pos, 1.0);
+    if (mode == 0)
+        human->m_vision->AddVisible(pos, 1.0);
+    else
+        human->m_vision->RemoveVisible(pos, 1.0);
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
+    json result;
+    result["pos"] = { {"x", x}, {"y", y} };
+    result["fogged"] = mode != 0;
+    return Ok("render_set_fog", result);
+}
 
 std::string CmdDebugCombatFlash(const char * args)
 {
@@ -4113,6 +4292,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line == "query_armies")                                 return QueryArmies();
     if (line.rfind("move_army ", 0) == 0)                       return CmdMoveArmy(line.c_str() + 10);
     if (line.rfind("auto_explore ", 0) == 0)                    return CmdAutoExplore(line.c_str() + 13);
+    if (line.rfind("render_camera_pose ", 0) == 0)                return CmdRenderCameraPose(line.c_str() + 19);
     if (line == "query_map")                                    return QueryMap();
     if (line == "query_world")                                  return QueryWorld();
     if (line == "query_players")                                return QueryPlayers();
@@ -4129,6 +4309,11 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("set_material_tax ", 0) == 0)                return CmdSetMaterialTax(line.c_str() + 17);
     if (line.rfind("grant_advance ", 0) == 0)                   return CmdGrantAdvance(line.c_str() + 14);
     if (line.rfind("create_unit ", 0) == 0)                     return CmdCreateUnit(line.c_str() + 12);
+    if (line.rfind("render_new_scene ", 0) == 0)              return CmdRenderNewScene(line.c_str() + 17);
+    if (line == "render_new_scene")                           return CmdRenderNewScene("");
+    if (line.rfind("render_add_unit_sprite ", 0) == 0)        return CmdRenderAddUnitSprite(line.c_str() + 23);
+    if (line.rfind("render_set_tile ", 0) == 0)               return CmdRenderSetTile(line.c_str() + 16);
+    if (line.rfind("render_set_fog ", 0) == 0)                return CmdRenderSetFog(line.c_str() + 15);
     if (line.rfind("declare_war ", 0) == 0)                     return CmdDeclareWar(line.c_str() + 12);
     if (line.rfind("attack ", 0) == 0)                          return CmdAttack(line.c_str() + 7);
     if (line.rfind("bombard ", 0) == 0)                         return CmdBombard(line.c_str() + 8);

@@ -2,6 +2,70 @@
 
 Short log of non-trivial design decisions. Newest first.
 
+## ADR-013 — P11 close-out: quads+raster supersede shaders; CPU fallback retained (2026-09-09)
+
+**Context:** P11's remaining tail (Stage-2 E shader flags, Stage-3 G5 CPU-path
+retirement, render fixtures, zoom matrix, dummy-video, tolerance metric) was
+audited against the shipped default-on stack (LAYERS→CAMERA→QUADS→WORLDMAP→
+RASTER, modern-first atlases, SDL3). Gallery audit: 81/81 sprite scenes zero
+fallback, walls/forcefield parity uniform at 95.48% (capture-tick delta, not a
+gap); 2 CPU cells there are by-design composite cells.
+
+**Decision:** E (SDL3 GPU-API fragment shaders) is retired — the shader-free
+quad + raster-overlay approach covers fog/desat/grid with pixel parity, so
+shaders buy nothing. G5 (retire CPU path) is declined: the fallback is load-
+bearing for missing-atlas installs (proven by gpu-actor-parity fallback mode)
+and cut-content WORK frames. CPU fallback stays as the correctness net with
+per-frame reason reporting. Dummy-video (309/310) declined: hidden-window
+rendering works on dev and CI runners; a no-video abstraction is cost without
+a consumer. Tolerance metric (311) declined: exact-RGB oracles are green.
+Render fixtures landed instead (`render_new_scene/add_unit_sprite/set_tile/
+set_fog/camera_pose` + `render-fixtures` integration test incl. 0.5–2.0 zoom
+matrix); the `render_` prefix split (308) keeps fixture verbs unconfusable
+with gameplay debug verbs. Tile/overlay exporter requirements (258): quads
+sample the tile cache + sprite atlases; any exporter must preserve the
+signature-keyed whole-cell composite contract.
+
+**Alternatives:** Deleting the CPU path would strand missing-atlas installs.
+Keeping E open would invite a second rendering backend with no parity gain.
+
+**Open (not P11-blocking, tracked as ctp2-721):** three dev-only pixel gates
+(gpu-actor-parity, gpu-trade-animation, gpu-sprite-refresh) fail identically
+at clean HEAD — debug-created units never paint while idle (byte-identical
+captures, no errors). CI never runs the integration suite. Suspects:
+idle-present gating (presents only fire on camera motion/mouse), stale
+oracle readback when QuadFrameComplete is false, per-unit visibility for
+debug-created units.
+acceptance. Tier-C cost note: marathon wall is dominated by JSON AI-history
+autosave serialization (finding, 2026-09-09), not rendering.
+
+## ADR-012 — Sanitizer hardening: init storable sentinels, validate enum loads, size slots from the save (2026-09-09)
+
+**Context:** UBSan `halt_on_error` aborted three suites. A default-constructed
+`Order` held an indeterminate `m_eventType`, so serializing it was an invalid
+enum load; `TerrainImprovementData(ID)` left both bools uninitialized (value 176
+loaded as bool). Headless `--load-game` sized player slots from the profile
+(`NumPlayers=4`), not the save: a 5-player save restored 4 Players and the
+empire-bounds size check rightly rejected it.
+
+**Decision:** Initialize both members to their storable sentinels and
+range-check `GAME_EVENT`/`UNIT_ORDER_TYPE` before `static_cast`, so corrupt
+saves reject cleanly instead of aborting. Peek the save's alive count and call
+`SetNPlayers` before `RestoreGame`; the bounds error now reports both sizes.
+Keep the strict shape contract — growing slots beyond the gameinit shape would
+need invented civs/types, so sizing-from-save is the permanent design unless
+that requirement changes.
+
+**Alternatives:** Zero-initializing the members would store a value outside the
+valid enum range on some builds; sentinel-init keeps every stored value
+representable. Growing player slots in the loader was rejected (see above).
+
+**Consequences:** Full UBSan unit suite 643 passed, 0 failed, 0 findings;
+500/500 marathon rounds plus deep save/load to round 520; 8/8 scenario tests.
+JSON/SPR readers now validate input bounds at every layer (enum range,
+`RequireSprite` frame/offset/truncation guards), with failed sprite loads
+releasing partial state and logging the reason.
+
 ## ADR-011 — Shared presentation and explicit sprite fallback (2026-09-08)
 
 **Context:** Installed V20 sprite manifests used ACTION_1/ACTION_3 instead of

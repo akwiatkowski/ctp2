@@ -2909,6 +2909,19 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 							c3ui_Get()->Invalidate(nullptr);
 							c3ui_Get()->Draw();
 						}
+						// Prime the layer mirrors: per-frame mirroring is
+						// muted under layered present (perf), so the world/UI
+						// layer surfaces hold whatever the last unmuted pass
+						// left — usually nothing in a headless run. Mirror
+						// the freshly drawn background once; this also bumps
+						// content versions so Flip/readback see the change.
+						if (c3ui_Get() && background_Get()
+						    && background_Get()->TheSurface()) {
+							aui_Surface *bgs = background_Get()->TheSurface();
+							RECT full = { 0, 0, bgs->Width(), bgs->Height() };
+							c3ui_Get()->BltToSecondary(0, 0, bgs, &full,
+							    k_AUI_BLITTER_FLAG_COPY);
+						}
 						// Present the redrawn frame: Draw repaints surfaces
 						// and rebuilds quad lists, but uploads happen in
 						// Flip — without it the readback below composites

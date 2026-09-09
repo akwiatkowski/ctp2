@@ -62,12 +62,14 @@ int aui_SDL::m_tilesetAtlasH = 0;
 bool aui_SDL::m_quadFrameComplete = true;
 char const *aui_SDL::m_quadFrameIncompleteReason = nullptr;
 std::vector<aui_SDL::GpuQuad> aui_SDL::m_quadDrawList;
+uint32 aui_SDL::m_quadListVersion = 0;
 std::map<ModernSpriteAtlas const *, SDL_Texture *> aui_SDL::m_spriteAtlasTextures;
 std::map<ModernSpriteAtlas const *, SDL_Texture *> aui_SDL::m_desaturatedSpriteAtlasTextures;
 std::map<std::tuple<void const *, int, int, uint16, bool, int, bool>, SDL_Texture *> aui_SDL::m_mapIconTextures;
 std::map<uint16, SDL_Texture *> aui_SDL::m_solidColorTextures;
 std::vector<aui_SDL::GpuSpriteQuad> aui_SDL::m_spriteDrawList;
 uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
+uint32 aui_SDL::m_spriteListVersion = 0;
 sint32 aui_SDL::m_SDLRefCount = 0;
 
 bool aui_SDL::GpuLayersEnabled()

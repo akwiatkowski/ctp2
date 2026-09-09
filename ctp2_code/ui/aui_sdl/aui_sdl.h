@@ -196,8 +196,14 @@ public:
 	// The per-frame draw list is rebuilt by the tile pass (BeginQuadFrame +
 	// AddQuad) and consumed by the present (QuadDrawList). It persists between
 	// presents so camera-only frames reuse it without a rebuild.
-	static void BeginQuadFrame() { m_quadDrawList.clear(); m_quadFrameComplete = true; m_quadFrameIncompleteReason = nullptr; }
-	static void AddQuad(GpuQuad const &q) { m_quadDrawList.push_back(q); }
+	// P13 close-out: quad/sprite lists are rebuilt every Draw but nothing
+	// versioned them, so Flip's redundant-present check skipped presents
+	// after list-only changes (new selection brackets, fresh fixtures) and
+	// the oracle read stale textures. Bump on every mutation; Flip treats a
+	// version change like a content change.
+	static uint32 QuadListVersion() { return m_quadListVersion; }
+	static void AddQuad(GpuQuad const &q) { m_quadDrawList.push_back(q); ++m_quadListVersion; }
+	static void BeginQuadFrame() { m_quadDrawList.clear(); m_quadFrameComplete = true; m_quadFrameIncompleteReason = nullptr; ++m_quadListVersion; }
 	// P13 step 1 (ADR-003) — whole-map GPU render target. Opt-in via
 	// CTP2_GPU_WORLDMAP; the ADR-002 window mirror stays the default path.
 	// Instead of a screen+margin texture rebuilt as the view scrolls, the ENTIRE
@@ -292,14 +298,14 @@ public:
 	static char const *QuadFrameIncompleteReason() { return m_quadFrameIncompleteReason ? m_quadFrameIncompleteReason : m_spriteFrameIncompleteReason; }
 	static void MarkSpriteFrameIncomplete(char const *reason) { if (!m_spriteFrameIncompleteReason) m_spriteFrameIncompleteReason = reason; }
 	static std::vector<GpuQuad> const &QuadDrawList() { return m_quadDrawList; }
-
 	struct GpuSpriteQuad { SDL_Texture *texture; int sx, sy, sw, sh; int dx, dy, dw, dh; bool mirror; uint8 alpha; uint8 red = 255, green = 255, blue = 255; bool additive = false; bool screen_space = false; };
+	static void BeginSpriteFrame() { m_spriteDrawList.clear(); m_spriteFrameIncompleteReason = nullptr; ++m_spriteListVersion; }
+	static void AddSpriteQuad(GpuSpriteQuad const &q) { m_spriteDrawList.push_back(q); ++m_spriteListVersion; }
+	static uint32 SpriteListVersion() { return m_spriteListVersion; }
 	static SDL_Texture *EnsureSpriteAtlasTexture(ModernSpriteAtlas const *atlas, bool desaturate = false);
 	static void ReleaseSpriteAtlasTexture(ModernSpriteAtlas const *atlas);
 	static SDL_Texture *EnsureMapIconTexture(void const *data, int w, int h, uint16 color, bool blend = false, int blendValue = 0, bool dither = false);
 	static SDL_Texture *EnsureSolidColorTexture(uint16 color);
-	static void BeginSpriteFrame() { m_spriteDrawList.clear(); m_spriteFrameIncompleteReason = nullptr; }
-	static void AddSpriteQuad(GpuSpriteQuad const &q) { m_spriteDrawList.push_back(q); }
 	static std::vector<GpuSpriteQuad> const &SpriteDrawList() { return m_spriteDrawList; }
 
 	// P13 step 3 (ADR-003): draw the world-space sprite quads -- units, cities,
@@ -379,6 +385,7 @@ protected:
 	static char const *	m_quadFrameIncompleteReason;
 	static inline char const *m_spriteFrameIncompleteReason = nullptr;
 	static std::vector<GpuQuad> m_quadDrawList;
+	static uint32 m_quadListVersion;
 	static SDL_Texture *m_rasterCellTexture;
 	static int m_rasterCellW, m_rasterCellH;
 	static std::map<ModernSpriteAtlas const *, SDL_Texture *> m_spriteAtlasTextures;
@@ -387,6 +394,7 @@ protected:
 	static std::map<uint16, SDL_Texture *> m_solidColorTextures;
 	static std::vector<GpuSpriteQuad> m_spriteDrawList;
 
+	static uint32 m_spriteListVersion;
 private:
 	static sint32		m_SDLRefCount;
 protected:

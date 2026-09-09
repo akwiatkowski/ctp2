@@ -2898,6 +2898,22 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					if (!renderer || !texture) {
 						smoketest_send_response("error", cmd, "no_renderer");
 					} else {
+						// Force a synchronous redraw before compositing: draw
+						// lists and software surfaces otherwise reflect
+						// whatever incidental UI tick ran last, so a capture
+						// taken right after a state change (new unit,
+						// selection, pose) reads stale lists. Same
+						// Invalidate+Draw the primary path uses below; the
+						// pair stays atomic (no Draw runs between the two).
+						if (c3ui_Get()) {
+							c3ui_Get()->Invalidate(nullptr);
+							c3ui_Get()->Draw();
+						}
+						// Present the redrawn frame: Draw repaints surfaces
+						// and rebuilds quad lists, but uploads happen in
+						// Flip — without it the readback below composites
+						// stale textures. Same call the camera tick uses.
+						c3ui_Get()->BltSecondaryToPrimary(0, false);
 						// Copy the screen texture into a same-size TARGET
 						// texture and read that back. Target state resets
 						// viewport/scale to 1:1 texture size, so the read
@@ -2947,6 +2963,30 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 											q.mirror);
 									}
 									CTP2_SDL_SetRenderTarget(renderer, target);
+								}
+								else {
+									// Oracle-only upload: tile repaints write the
+									// CPU world surface directly, bypassing the
+									// Blt mirror that bumps content versions — so
+									// Flip's upload-if-changed legitimately skips
+									// them, and a capture without this reads a
+									// stale texture. Screenshots are rare; upload
+									// unconditionally (live present path untouched).
+									aui_UI *uiLayer = aui_ui_Get();
+									aui_SDLSurface *worldSurf = (uiLayer && uiLayer->GpuLayers())
+									    ? static_cast<aui_SDLSurface *>(uiLayer->WorldSurface()) : nullptr;
+									aui_SDLSurface *uiSurf = (uiLayer && uiLayer->GpuLayers())
+									    ? static_cast<aui_SDLSurface *>(uiLayer->UiSurface()) : nullptr;
+									if (worldSurf && worldSurf->DDS()) {
+										SDL_Surface *ws = worldSurf->DDS();
+										CTP2_SDL_UpdateTexture(aui_SDL::WorldTexture(), nullptr,
+										    ws->pixels, ws->pitch);
+									}
+									if (uiSurf && uiSurf->DDS()) {
+										SDL_Surface *us = uiSurf->DDS();
+										CTP2_SDL_UpdateTexture(aui_SDL::UiTexture(), nullptr,
+										    us->pixels, us->pitch);
+									}
 								}
 								// P11 2a: mirror Flip's windowed present exactly — the
 								// world+fog layers are windowed from the (oversized)

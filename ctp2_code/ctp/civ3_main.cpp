@@ -1537,8 +1537,13 @@ void ParseCommandLine(PSTR szCmdLine)
 		}
 	}
 
+	// Match a short -s<name> flag, not the -s inside a --long-option.
+	// strstr("--smoke-test", "-s") hits, which launched every smoke run
+	// down the scenario path with garbage name "moke-test" — skipping the
+	// shell init the map view needs, so all pixel captures came back black.
 	MBCHAR * scenName = strstr(szCmdLine, "-s");
-
+	while (scenName && scenName != szCmdLine && *(scenName - 1) == '-')
+		scenName = strstr(scenName + 1, "-s");
 	if (nullptr != scenName) {
 
 

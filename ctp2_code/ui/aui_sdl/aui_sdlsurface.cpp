@@ -280,6 +280,8 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 				static float  s_shownZoom    = 1.0f;
 				static int    s_shownBaseX   = -1;
 				static int    s_shownBaseY   = -1;
+				static uint32 s_shownQuadV   = ~0u;
+				static uint32 s_shownSpriteV = ~0u;
 
 				bool const worldChanged = (worldV != s_shownWorldV);
 				bool const uiChanged    = (uiV    != s_shownUiV);
@@ -288,11 +290,19 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 				                       || (camZoom != s_shownZoom)
 				                       || (aui_SDL::WorldContentOffX() != s_shownBaseX)
 				                       || (aui_SDL::WorldContentOffY() != s_shownBaseY);
+				uint32 const quadV   = aui_SDL::QuadListVersion();
+				uint32 const spriteV = aui_SDL::SpriteListVersion();
+				bool const listsChanged = (quadV != s_shownQuadV)
+				                       || (spriteV != s_shownSpriteV);
 
 				// Fog has no version counter (conservative: never skip while GPU fog
 				// is on). Quads re-render the world texture per present, so they
 				// always count as a world change.
+				// Draw lists are rebuilt every Draw with no content-version
+				// signal of their own: a new selection bracket or fixture
+				// changes no surface, moves no camera, yet must present.
 				if (!worldChanged && !uiChanged && !camChanged && !fogOn
+				    && !listsChanged
 				    && !aui_SDL::GpuQuadsEnabled())
 				{
 					SDL_UnlockMutex(m_bltMutex);
@@ -423,6 +433,8 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 				s_shownZoom   = camZoom;
 				s_shownBaseX  = aui_SDL::WorldContentOffX();
 				s_shownBaseY  = aui_SDL::WorldContentOffY();
+				s_shownQuadV   = quadV;
+				s_shownSpriteV = spriteV;
 			}
 			else
 			{

@@ -1661,7 +1661,6 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged) 
   else if (selectType == SELECT_TYPE_LOCAL_ARMY)
     selectedUnit = Army(selectedID).GetTopVisibleUnit(selectedPlayer);
   bool const selected = selectedUnit.IsValid() && selectedUnit.GetActor().get() == this;
-
   Pixel16 color = 0;
   BOOL directionAttack = FALSE;
   sint32 xoffset = (sint32)(k_ACTOR_CENTER_OFFSET_X * scale);

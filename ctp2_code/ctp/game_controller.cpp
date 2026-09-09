@@ -4101,6 +4101,59 @@ std::string QueryPlayerCities(const char * args)
     result["cities"] = cities;
     return Ok("query_player_cities", result);
 }
+// query_paint_state <x> <y> — why a cell paints (or does not). Reports the
+// viewing-player identities, vision state, top object, visibility bits and
+// actor presence that PaintUnitActor branches on. Diagnostic only.
+std::string QueryPaintState(const char * args)
+{
+    sint32 x = 0, y = 0;
+    if (sscanf(args, "%d %d", &x, &y) != 2)
+        return Err("query_paint_state", "bad_args");
+    World *w = world_Get();
+    if (!w || x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("query_paint_state", "bad_position");
+    json result;
+    result["pos"] = { {"x", x}, {"y", y} };
+    result["human"] = HumanPlayer() ? HumanPlayer()->GetOwner() : -1;
+    result["visible_player_view"] = player_view::VisiblePlayer();
+    if (selitem_Get())
+        result["visible_player_selitem"] = selitem_Get()->GetVisiblePlayer();
+    MapPoint pos(x, y);
+    Cell *cell = w->GetCell(pos);
+    if (cell) {
+        Unit city = cell->GetCity();
+        result["has_city"] = city.IsValid();
+        result["num_units"] = cell->GetNumUnits();
+        if (city.IsValid()) {
+            result["city_owner"] = city.GetOwner();
+            if (city.GetActor())
+                result["city_actor_visibility"] = city.GetActor()->GetUnitVisibility();
+            else
+                result["city_actor_visibility"] = "no_actor";
+        }
+        if (cell->GetNumUnits() > 0) {
+            Unit top;
+            if (w->GetTopVisibleUnit(pos, top) && top.IsValid()) {
+                result["top_type"] = top.GetDBRec() ? 1 : 0;
+                result["top_owner"] = top.GetOwner();
+                result["top_visibility"] = top.GetVisibility();
+                if (top.GetActor())
+                    result["top_actor_visibility"] = top.GetActor()->GetUnitVisibility();
+                else
+                    result["top_actor_visibility"] = "no_actor";
+            } else {
+                result["top"] = "none_visible";
+            }
+        }
+    }
+    if (tiledmap_Get() && tiledmap_Get()->GetLocalVision()) {
+        const Vision *vision = tiledmap_Get()->GetLocalVision();
+        result["local_vision_owner"] = vision->GetOwner();
+        result["explored"] = vision->IsExplored(pos);
+        result["visible"] = vision->IsVisible(pos);
+    }
+    return Ok("query_paint_state", result);
+}
 
 // query_terrains — static dictionary mapping terrain ids (as reported by
 // query_map) to names, passability and base tile yields. Values come from
@@ -4300,6 +4353,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("query_player ", 0) == 0)                    return QueryPlayer(line.c_str() + 13);
     if (line == "query_turn")                                   return QueryTurn();
     if (line == "query_terrains")                               return QueryTerrains();
+    if (line.rfind("query_paint_state ", 0) == 0)                 return QueryPaintState(line.c_str() + 18);
     if (line == "query_names")                                  return QueryNames();
     if (line == "query_gpu_world")                              return QueryGpuWorld();
     if (line == "query_research")                               return QueryResearch();

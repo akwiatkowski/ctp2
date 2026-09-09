@@ -471,7 +471,7 @@ TEST_CASE("Save-load round-trip with 5 players")
     // Run C: load and continue 10 more turns
     std::string load_out;
     int load_rc = run_headless_capture(
-        "--load-game /tmp/midgame-5p.sav --turns 10 --export-metrics /tmp/loaded-5p.csv",
+        "--load-game /tmp/midgame-5p.sav --turns 10 --players 5 --export-metrics /tmp/loaded-5p.csv",
         &load_out);
     CAPTURE(load_out);
 

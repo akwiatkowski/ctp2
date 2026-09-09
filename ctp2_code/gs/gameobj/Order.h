@@ -82,6 +82,11 @@ public:
 		// json_save uses `new Order` and the prior default-ctor wipe
 		// caused Pool::Release_Pointer(-1) at first turn after load).
 		m_gameEventArgs = nullptr;
+		// Uninitialised m_eventType holds an indeterminate bit pattern;
+		// reading it (e.g. serialising a default-constructed Order) is an
+		// invalid enum load and aborts under UBSan halt_on_error. GEV_MAX
+		// is the "no event" sentinel, matching the parameterized ctor.
+		m_eventType = GEV_MAX;
 	}
 
 	~Order();

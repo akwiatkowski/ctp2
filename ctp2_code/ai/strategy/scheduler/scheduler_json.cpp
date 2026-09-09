@@ -341,9 +341,20 @@ void from_json(nlohmann::json const &j, MapAnalysis &m)
 {
     auto const &centers = j.at("centers");
     auto const &bounds = j.at("bounds");
+    // Sizes must match the live vectors, which CtpAi::Resize sized from the
+    // post-load player slots. A mismatch means the game was initialized with
+    // a different player count than the save was written with (e.g. headless
+    // --load-game without the --players N the save side used — gameinit
+    // inherits NumPlayers from the profile, not the save). Report both
+    // sizes; guessing across shapes would silently re-bin empire history.
     if (!centers.is_array() || centers.size() != m.m_empireCenter.size()
-        || !bounds.is_array() || bounds.size() != m.m_empireBoundingRect.size())
-        throw nlohmann::json::other_error::create(532, "invalid empire bounds count", &j);
+        || !bounds.is_array() || bounds.size() != m.m_empireBoundingRect.size()) {
+        std::string detail = "invalid empire bounds count: save centers="
+            + std::to_string(centers.size()) + " bounds=" + std::to_string(bounds.size())
+            + ", live centers=" + std::to_string(m.m_empireCenter.size())
+            + " bounds=" + std::to_string(m.m_empireBoundingRect.size());
+        throw nlohmann::json::other_error::create(532, detail, &j);
+    }
     centers.get_to(m.m_empireCenter);
     for (size_t i = 0; i < bounds.size(); ++i) {
         auto const &v = bounds[i];

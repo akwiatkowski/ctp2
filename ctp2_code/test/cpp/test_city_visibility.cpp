@@ -182,7 +182,7 @@ TEST_CASE("City visibility: save+load preserves visibility")
     // trip, not that load+run+vision-update works.
     std::string out2;
     rc = run_headless_capture(
-        "--load-game /tmp/ctp2_test_vis_save.json --turns 0 "
+        "--load-game /tmp/ctp2_test_vis_save.json --turns 0 --players 5 "
         "--export-metrics /tmp/ctp2_test_vis_after.csv",
         &out2);
     CAPTURE(out2);
@@ -248,7 +248,7 @@ TEST_CASE("Save/load: cities are restored to their owner player after load")
 
     std::string out2;
     rc = run_headless_capture(
-        "--load-game /tmp/ctp2_test_saveload_cities.json --turns 0 "
+        "--load-game /tmp/ctp2_test_saveload_cities.json --turns 0 --players 5 "
         "--export-metrics /tmp/ctp2_test_saveload_after.csv",
         &out2);
     CAPTURE(out2);

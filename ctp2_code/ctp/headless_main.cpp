@@ -34,10 +34,12 @@
 #include "ctp/crash_handler.h"                // crash_handler::Install
 #include "test/smoketest_server.h"            // smoketest_server_* (--serve)
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <chrono>
+#include <fstream>
 #include <thread>
 
 extern sint32  g_runInBackground;
@@ -274,6 +276,33 @@ int main(int argc, char **argv)
 
     if (loadGamePath) {
         headless_log->info("Loading saved game from {}", loadGamePath);
+        // Size player slots from the save, not the profile: gameinit
+        // allocates Players from ProfileDB::NumPlayers, and LoadJson only
+        // restores in place (dead slots are cleared, missing ones are NOT
+        // created). Without this, a 5-player save loaded under the default
+        // 4-player profile restores 4 Players, CtpAi::Resize sizes AI
+        // structures to 4, and the empire-bounds size check rightly rejects
+        // the 5-wide save. --players is only honored for --new-game.
+        {
+            std::ifstream in(loadGamePath);
+            if (in) {
+                try {
+                    nlohmann::json doc = nlohmann::json::parse(in);
+                    sint32 alive = 0;
+                    if (doc.is_object() && doc.contains("players") && doc.at("players").is_array()) {
+                        for (auto const &slot : doc.at("players"))
+                            if (slot.value("alive", false)) ++alive;
+                    }
+                    if (alive > 0) {
+                        alive = std::min<sint32>(alive, k_MAX_PLAYERS);
+                        profiledb_Get()->SetNPlayers(alive);
+                        headless_log->info("Sized {} player slots from save", alive);
+                    }
+                } catch (std::exception const &e) {
+                    headless_log->warn("Could not pre-size players from save: {}", e.what());
+                }
+            }
+        }
         if (!GameFile::RestoreGame(loadGamePath)) {
             headless_log->error("RestoreGame failed for {}", loadGamePath);
             return 1;

@@ -1775,6 +1775,19 @@ void from_json(nlohmann::json const &j, UnitState &s)
 // (Phase 1j finding, 2026-06-03). The Path JSON bridge itself lives
 // further down (search for "Mirrors Path::Serialize").
 
+// Range-checked GAME_EVENT load shared by the Order and SlicContext
+// bridges. Out-of-range integers must not reach static_cast (invalid
+// enum load is UB and aborts under UBSan halt_on_error); corrupt saves
+// get a clean rejection instead. GEV_MAX is storable (the "no event"
+// sentinel), so the bound is inclusive.
+static GAME_EVENT checked_game_event(nlohmann::json const &j, char const *key)
+{
+    sint32 const value = j.at(key).get<sint32>();
+    if (value < 0 || value > GEV_MAX)
+        throw nlohmann::json::other_error::create(503, "invalid game event type", &j);
+    return static_cast<GAME_EVENT>(value);
+}
+
 void to_json(nlohmann::json &j, Order const &o)
 {
     j = nlohmann::json{
@@ -1790,11 +1803,18 @@ void to_json(nlohmann::json &j, Order const &o)
 
 void from_json(nlohmann::json const &j, Order &o)
 {
-    o.m_order = static_cast<UNIT_ORDER_TYPE>(j.at("order").get<sint32>());
+    // Enum loads of out-of-range integers are undefined behavior (UBSan
+    // aborts under halt_on_error), so validate before static_cast — the
+    // same discipline as Order::OrderToEvent. GEV_MAX is storable (the
+    // "no event" sentinel written by to_json); UNIT_ORDER_MAX is not.
+    sint32 const order = j.at("order").get<sint32>();
+    if (order < 0 || order >= UNIT_ORDER_MAX)
+        throw nlohmann::json::other_error::create(503, "invalid order type", &j);
+    o.m_order = static_cast<UNIT_ORDER_TYPE>(order);
     j.at("round")   .get_to(o.m_round);
     j.at("point")   .get_to(o.m_point);
     j.at("argument").get_to(o.m_argument);
-    o.m_eventType = static_cast<GAME_EVENT>(j.at("event_type").get<sint32>());
+    o.m_eventType = checked_game_event(j, "event_type");
     if (j.contains("path") && !j.at("path").is_null()) {
         o.m_path = new Path();
         j.at("path").get_to(*o.m_path);
@@ -4611,7 +4631,7 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
     j.at("special_variables").get_to(s.m_specialVariables);
     s.m_isAlert         = j.at("is_alert").get<bool>();
     s.m_isHelp          = j.at("is_help").get<bool>();
-    s.m_event           = static_cast<GAME_EVENT>(j.at("event").get<int>());
+    s.m_event           = checked_game_event(j, "event");
     s.m_priority        = static_cast<GAME_EVENT_PRIORITY>(j.at("priority").get<int>());
     j.at("from_file").get_to(s.m_fromFile);
 

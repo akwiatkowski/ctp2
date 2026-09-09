@@ -1974,6 +1974,32 @@ TEST_CASE("json round-trip: Order deferred pointer fields are null in JSON")
         CHECK(el.key().substr(0, 2) != "m_");
 }
 
+TEST_CASE("json round-trip: default Order serializes a loadable event type")
+{
+    // The default ctor once left m_eventType uninitialised; reading the
+    // indeterminate enumerator is an invalid enum load and aborts under
+    // UBSan halt_on_error. GEV_MAX is the storable "no event" sentinel.
+    Order o;
+    nlohmann::json j = o;
+    CHECK(j["event_type"].get<sint32>() == GEV_MAX);
+    Order round;
+    j.get_to(round);
+    CHECK(round.m_eventType == GEV_MAX);
+}
+
+TEST_CASE("json load rejects out-of-range Order enum values")
+{
+    Order o;
+    nlohmann::json j = o;
+    nlohmann::json badEvent = j;
+    badEvent["event_type"] = 1 << 30;
+    Order round;
+    CHECK_THROWS_AS(badEvent.get_to(round), nlohmann::json::other_error);
+    nlohmann::json badOrder = j;
+    badOrder["order"] = -1;
+    CHECK_THROWS_AS(badOrder.get_to(round), nlohmann::json::other_error);
+}
+
 // Phase E-2 — CellUnitList tests
 //
 // CellUnitList's data members are protected, so we use a tiny test

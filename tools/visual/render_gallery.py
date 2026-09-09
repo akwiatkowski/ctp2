@@ -333,7 +333,8 @@ def gallery_cases(zooms):
         yield f"gallery z{zlabel} combat flash", lambda c, center, z=zoom: gallery_case(c, center, z, "combat_flash")
         yield f"gallery z{zlabel} terrain overlay", lambda c, center, z=zoom: gallery_case(c, center, z, "terrain_overlay")
         for unit in units:
-            yield f"gallery z{zlabel} unit {unit.lower()}", lambda c, center, u=unit, z=zoom: gallery_case(c, center, z, "unit", u)
+            water = unit in ("UNIT_SUBMARINE", "UNIT_NUCLEAR_SUBMARINE")
+            yield f"gallery z{zlabel} unit {unit.lower()}", lambda c, center, u=unit, z=zoom, w=water: gallery_case(c, center, z, "unit", u, w)
 
 
 def sprite_cases(zooms):
@@ -424,7 +425,7 @@ def city_defense(client, center, zoom, kind):
     center["y"] = pos["y"]
 
 
-def gallery_case(client, center, zoom, kind, arg=None):
+def gallery_case(client, center, zoom, kind, arg=None, water=False):
     set_zoom(client, zoom)
     target = dict(center)
     if kind.startswith("city") or kind == "underwater_city":
@@ -438,6 +439,9 @@ def gallery_case(client, center, zoom, kind, arg=None):
     if kind.startswith("city"):
         grass = next(t for t in client.result("query_terrains")["terrains"] if t.get("internal") == "TERRAIN_GRASSLAND")
         client.expect_ok("debug_set_terrain", target["x"], target["y"], grass["id"])
+    if water:
+        sea = next(t for t in client.result("query_terrains")["terrains"] if t.get("internal") == "TERRAIN_WATER_SHALLOW")
+        client.expect_ok("debug_set_terrain", target["x"], target["y"], sea["id"])
     command_args = [kind, target["x"], target["y"]]
     if arg:
         command_args.append(arg)

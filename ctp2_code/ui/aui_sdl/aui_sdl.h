@@ -254,6 +254,12 @@ public:
     static bool WindowQuadsReady() { return GpuQuadsEnabled() && QuadAtlasTexture() && QuadFrameComplete(); }
     static bool WholeMapReady() { return GpuWorldmapEnabled() && WorldmapTexture() && !SpriteFrameIncompleteReason(); }
     static void PresentWorldFrame(SDL_Renderer *renderer, float w, float h, float zoom, float offX, float offY);
+	// True when Flip presents the layered GPU composite (world/UI textures)
+	// instead of the software secondary surface. The secondary-to-primary
+	// mirror then serves only the screenshot oracle, which refreshes it
+	// synchronously on demand (see the screenshot handlers in civapp.cpp) —
+	// per-frame mirroring may be skipped. Mirrors Flip's `layered` condition.
+	static bool LayeredPresentActive();
 	static void PresentWorldmapWindow(SDL_Renderer *renderer,
 	                                  float viewW, float viewH,
 	                                  float zoom, float offX, float offY);

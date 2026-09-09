@@ -2849,6 +2849,14 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					smoketest_send_response("error", cmd, "bad_args");
 				} else {
 #ifdef USE_SDL
+					// The layered GPU present never shows the software primary;
+					// per-frame mirroring is muted there (see aui_Mouse), so
+					// refresh it synchronously before reading. No Draw can run
+					// in between, keeping the capture atomic.
+					if (c3ui_Get()) {
+						c3ui_Get()->Invalidate(nullptr);
+						c3ui_Get()->Draw();
+					}
 					aui_SDLSurface *sdlSurf = static_cast<aui_SDLSurface*>(c3ui_Get()->Primary());
 					if (sdlSurf && sdlSurf->DDS()) {
 						if (CTP2_SDL_SaveBMP(sdlSurf->DDS(), path)) {
@@ -2994,8 +3002,15 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						}
 						if (target) SDL_DestroyTexture(target);
 						// Atomic pair: capture the software primary in the
-						// same dispatch (no Draw can run in between).
+						// same dispatch (no Draw can run in between). The mirror
+						// may be muted under layered present, so refresh it
+						// synchronously first — same Invalidate+Draw the plain
+						// screenshot path uses.
 						if (ok && primPath[0]) {
+							if (c3ui_Get()) {
+								c3ui_Get()->Invalidate(nullptr);
+								c3ui_Get()->Draw();
+							}
 							aui_SDLSurface *prim = static_cast<aui_SDLSurface*>(c3ui_Get()->Primary());
 							ok = prim && prim->DDS()
 							  && CTP2_SDL_SaveBMP(prim->DDS(), primPath);

@@ -1132,6 +1132,15 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 	uint32 blitFlags;
 	LPVOID primaryBuf = nullptr;
 
+	// Layered GPU present shows world/UI textures, never the software
+	// secondary — the secondary-to-primary mirror then serves only the
+	// screenshot oracle, which refreshes it synchronously on demand (see the
+	// screenshot handlers in civapp.cpp). Skip the two full-frame software
+	// blits; cursor pickup/mix/restore and the present below still run.
+	// The accumulated dirty union keeps growing while muted; the next
+	// unmuted pass clamps it back to the surface, so that pass is full-frame.
+	bool const oracleMirror = !aui_SDL::LayeredPresentActive();
+
 	if (profiledb_Get() && profiledb_Get()->IsUseDirectXBlitter())
 	{
 		blitFlags = k_AUI_BLITTER_FLAG_COPY;
@@ -1139,8 +1148,11 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 	else
 	{
 		blitFlags = k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST;
-		errcode = aui_ui_Get()->Secondary()->Lock( nullptr, &primaryBuf, 0 );
-		Assert( errcode == AUI_ERRCODE_OK );
+		if (oracleMirror)
+		{
+			errcode = aui_ui_Get()->Secondary()->Lock( nullptr, &primaryBuf, 0 );
+			Assert( errcode == AUI_ERRCODE_OK );
+		}
 	}
 
 	#ifdef CTP2_DEBUG_LOGGING
@@ -1247,7 +1259,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 		}
 #endif
 
-		if (!civapp_Get()->IsInBackground()) // Actual Drawing
+		if (!civapp_Get()->IsInBackground() && oracleMirror) // Actual Drawing
 		{
 			errcode = aui_ui_Get()->BltToSecondary(
 				screenDirtyRect.left,
@@ -1282,15 +1294,24 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 		}
 	}
 
-	errcode = aui_ui_Get()->BltSecondaryToPrimary(blitFlags,
-	                                              true /*useAccumulatedDirty*/);
-	Assert( errcode == AUI_ERRCODE_OK );
-	if ( errcode != AUI_ERRCODE_OK )
+	if (oracleMirror)
 	{
-		retcode = AUI_ERRCODE_BLTFAILED;
+		errcode = aui_ui_Get()->BltSecondaryToPrimary(blitFlags,
+		                                              true /*useAccumulatedDirty*/);
+		Assert( errcode == AUI_ERRCODE_OK );
+		if ( errcode != AUI_ERRCODE_OK )
+		{
+			retcode = AUI_ERRCODE_BLTFAILED;
+		}
+	}
+	else
+	{
+		// The mirror is muted: still present (Flip's redundant-present check
+		// usually skips), just without the software copy it would upload.
+		aui_ui_Get()->Secondary()->Flip(nullptr);
 	}
 
-	if (!profiledb_Get() || !profiledb_Get()->IsUseDirectXBlitter())
+	if ((!profiledb_Get() || !profiledb_Get()->IsUseDirectXBlitter()) && oracleMirror)
 	{
 		errcode = aui_ui_Get()->Secondary()->Unlock( primaryBuf );
 		Assert( errcode == AUI_ERRCODE_OK );

@@ -184,6 +184,22 @@ AUI_ERRCODE aui_SDLSurface::Blank(const uint32 &color)
 	return AUI_ERRCODE_BLTFAILED;
 }
 
+bool aui_SDL::LayeredPresentActive()
+{
+	// Same condition as the `layered` branch in Flip below: the world and UI
+	// layer surfaces exist and their GPU textures are live, so the present
+	// shows the layered composite and never the software secondary.
+	aui_UI * const ui = aui_ui_Get();
+	if (!ui || !ui->GpuLayers())
+		return false;
+	aui_SDLSurface * const worldSurf =
+		static_cast<aui_SDLSurface *>(ui->WorldSurface());
+	aui_SDLSurface * const uiSurf =
+		static_cast<aui_SDLSurface *>(ui->UiSurface());
+	return WorldTexture() && UiTexture()
+	    && worldSurf && uiSurf && worldSurf->DDS() && uiSurf->DDS();
+}
+
 void aui_SDLSurface::Flip(RECT const *dirty)
 {
 	// Present the composited primary surface through the GPU: upload its

@@ -107,21 +107,21 @@ AUI_ERRCODE MessageAdvice::CreateWindowEdges( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageLeftBar" );
-	m_leftBar = new aui_Static( &errcode, aui_UniqueId(), imageBlock );
+	m_leftBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
 	Assert( AUI_NEWOK( m_leftBar, errcode ));
 	if ( !AUI_NEWOK( m_leftBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_leftBar->SetImageBltType( AUI_IMAGEBASE_BLTTYPE_TILE );
-	AddControl( m_leftBar );
+	AddControl(m_leftBar.get());
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageRightBar" );
-	m_rightBar = new aui_Static( &errcode, aui_UniqueId(), imageBlock );
+	m_rightBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
 	Assert( AUI_NEWOK( m_rightBar, errcode ));
 	if ( !AUI_NEWOK( m_rightBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_rightBar->SetImageBltType( AUI_IMAGEBASE_BLTTYPE_TILE );
-	AddControl( m_rightBar );
+	AddControl(m_rightBar.get());
 
 	strlcpy( imageBlock, "FancyAdviceTopBar", sizeof(imageBlock) );
-	m_topBar = new C3Window( &errcode, aui_UniqueId(), imageBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
+	m_topBar.reset(new C3Window( &errcode, aui_UniqueId(), imageBlock, 16, AUI_WINDOW_TYPE_FLOATING, false ));
 	Assert( AUI_NEWOK( m_topBar, errcode ));
 	if ( !AUI_NEWOK( m_topBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_topBar->SetTransparent( TRUE );
@@ -132,7 +132,7 @@ AUI_ERRCODE MessageAdvice::CreateWindowEdges( MBCHAR *ldlBlock )
 	m_topBar->Offset( m_x, m_y );
 
 	snprintf(imageBlock, sizeof(imageBlock), "FancyAdviceBottomBar" );
-	m_bottomBar = new C3Window( &errcode, aui_UniqueId(), imageBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
+	m_bottomBar.reset(new C3Window( &errcode, aui_UniqueId(), imageBlock, 16, AUI_WINDOW_TYPE_FLOATING, false ));
 	Assert( AUI_NEWOK( m_bottomBar, errcode ));
 	if ( !AUI_NEWOK( m_bottomBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_bottomBar->SetTransparent( TRUE );
@@ -192,14 +192,14 @@ AUI_ERRCODE MessageAdvice::CreateTextBox( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlBlock, "MessageTextBox" );
-	m_listBox = new C3ListBox( &errcode, aui_UniqueId(), textBlock );
+	m_listBox.reset(new C3ListBox( &errcode, aui_UniqueId(), textBlock ));
 	Assert( AUI_NEWOK( m_listBox, errcode ));
 	if ( !AUI_NEWOK( m_listBox, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_listBox->SetForceSelect( FALSE );
 	m_listBox->SetMultiSelect( FALSE );
 
-	AddControl( m_listBox );
+	AddControl(m_listBox.get());
 
 	return AUI_ERRCODE_OK;
 }
@@ -207,26 +207,8 @@ AUI_ERRCODE MessageAdvice::CreateTextBox( MBCHAR *ldlBlock )
 
 MessageAdvice::~MessageAdvice()
 {
-	if ( m_leftBar ) {
-		delete m_leftBar;
-		m_leftBar = nullptr;
-	}
-
-	if ( m_topBar ) {
-		delete m_topBar;
-		m_topBar = nullptr;
-	}
-
-	if ( m_rightBar ) {
-		delete m_rightBar;
-		m_rightBar = nullptr;
-	}
-
-	if ( m_bottomBar ) {
-		delete m_bottomBar;
-		m_bottomBar = nullptr;
-	}
-
+	// The bars and the list box free themselves. The list ITEMS do not: the
+	// box holds them as plain pointers, so they are still deleted by hand.
 	if ( m_listBox ) {
 		aui_Static *item = nullptr;
 		sint32 count = m_listBox->NumItems();
@@ -240,8 +222,6 @@ MessageAdvice::~MessageAdvice()
 			}
 		}
 
-		delete m_listBox;
-		m_listBox = nullptr;
 	}
 
 }
@@ -274,10 +254,10 @@ void MessageAdvice::MouseLDragAway (aui_MouseEvent *mouseData)
 void MessageAdvice::BringBorderToTop()
 {
 	if ( m_topBar )
-		c3ui_Get()->BringWindowToTop( m_topBar );
+		c3ui_Get()->BringWindowToTop( m_topBar.get() );
 
 	if ( m_bottomBar )
-		c3ui_Get()->BringWindowToTop( m_bottomBar );
+		c3ui_Get()->BringWindowToTop( m_bottomBar.get() );
 }
 
 
@@ -287,14 +267,14 @@ AUI_ERRCODE MessageAdvice::AddBordersToUI()
 
 	if ( m_topBar )
 	{
-		errcode = c3ui_Get()->AddWindow( m_topBar );
+		errcode = c3ui_Get()->AddWindow(m_topBar.get());
 		Assert( errcode == AUI_ERRCODE_OK );
 		if(	errcode != AUI_ERRCODE_OK ) return errcode;
 	}
 
 	if ( m_bottomBar )
 	{
-		errcode = c3ui_Get()->AddWindow( m_bottomBar );
+		errcode = c3ui_Get()->AddWindow(m_bottomBar.get());
 		Assert( errcode == AUI_ERRCODE_OK );
 		if(	errcode != AUI_ERRCODE_OK ) return errcode;
 	}

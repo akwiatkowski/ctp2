@@ -153,7 +153,7 @@ void TurnCount::InformNetwork()
 		                                          player_view::CurPlayer(),
 		                                          player_Get(player_view::CurPlayer())->m_gold->GetLevel()));
 		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
-		                                          new NetReadiness(player_Get(player_view::CurPlayer())->m_readiness));
+		                                          new NetReadiness(player_Get(player_view::CurPlayer())->m_readiness.get()));
 			// propagate PW each turn update
 		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
 		                                          new NetInfo(NET_INFO_CODE_MATERIALS,

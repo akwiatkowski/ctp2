@@ -87,6 +87,7 @@
 #include "ui/aui_ctp2/c3_static.h"
 #include "ui/aui_ctp2/c3blitter.h"
 #include "ctp/ctp2_utils/c3cmdline.h"
+#include "ctp/ctp2_utils/civlog.h"                     // pinch-zoom gesture tracing
 #include "ctp/ctp2_utils/c3debug.h"                    // c3debug_ExceptionStackTrace
 #include "ctp/ctp2_utils/c3errors.h"
 #include "ui/aui_ctp2/c3memmap.h"
@@ -176,6 +177,9 @@
 #endif
 #if defined(USE_SDL)
 #include "ui/aui_sdl/aui_sdlcompat.h"
+#include "ui/aui_sdl/aui_sdl.h"          // P11 F: aui_SDL camera (wheel-zoom)
+#include "ui/aui_common/pinch_detector.h" // P11 pinch zoom (touch devices)
+#include "os/osx/osx_pinch_monitor.h"     // P11 pinch zoom (macOS magnify)
 #include "ui/aui_sdl/aui_sdlmixercompat.h"
 #include "ui/aui_sdl/aui_sdlkeyboard.h"
 #endif
@@ -516,7 +520,8 @@ int ui_Initialize()
 		c3errors_FatalDialog(appstrings_GetString(APPSTR_FONTS),
 								appstrings_GetString(APPSTR_NOWINDOWSDIR));
 	}
-	strcat(s, FILE_SEP "fonts");
+	size_t const sLen = strlen(s);
+	snprintf(s + sLen, sizeof(s) - sLen, FILE_SEP "fonts");
 	g_c3ui->AddBitmapFontSearchPath(s);
 #elif defined(HAVE_X11)
 	Display *display = g_c3ui->getDisplay();
@@ -635,6 +640,329 @@ void ui_HandleMouseWheel(sint16 delta)
 	}
 }
 
+// P11 Stage 2 F/2c — macOS trackpad two-finger pan (buttery GPU glide, ADR-001).
+//
+// A trackpad two-finger scroll arrives as a bursty stream of SDL_MOUSEWHEEL events
+// with large, uneven deltas. Presenting one frame per event makes the map lurch in
+// chunky steps (the "no smoothness" failure). Instead we accumulate the commanded
+// pan into a TARGET offset (aui_SDL pan target); the per-frame camera tick eases the
+// displayed CameraOff toward it, so the motion is smooth at the frame rate and
+// decoupled from the event bursts. macOS keeps streaming decaying momentum events
+// after the finger lifts, so following the target also gives natural inertia. The
+// engine only ScrollMaps to RECENTER when the eased offset nears the pre-rendered
+// margin (see ui_RecenterPanIfNeeded), which the frame tick handles. Direction signs
+// are tuned for macOS natural scrolling and can be flipped in one place.
+void ui_HandleTrackpadPan(float wheelX, float wheelY)
+{
+	if (!g_civApp || !g_civApp->IsGameLoaded() || !g_tiledMap)
+		return;
+	// A list box under the pointer owns the gesture (scroll the list, not the map).
+	if (aui_ListBox::GetMouseFocusListBox())
+		return;
+
+	// Map pixels per wheel unit. A trackpad delivers small deltas at high rate;
+	// this scales them to a comfortable pan speed. Tunable to taste.
+	float const k_PAN_PIXELS_PER_WHEEL = 24.0f;
+
+	sint32 const tileStepX = g_tiledMap->GetZoomTilePixelWidth();
+	sint32 const halfRowStepY = g_tiledMap->GetZoomTilePixelHeight() / 2;
+	if (tileStepX < 1 || halfRowStepY < 1)
+		return;
+
+	if (aui_SDL::GpuCameraEnabled())
+	{
+		// Buttery path: feed the commanded delta into the camera target. CameraOff =
+		// -accumulatedPan, so the target moves by (-wheelX*k, +wheelY*k) (wheel.y is
+		// positive scrolling up; negating it makes scroll-up move the view north).
+		// The main-loop camera tick eases + recenters + presents — nothing to draw
+		// here, which is exactly what keeps the motion smooth (no per-event present).
+		// P13: the camera offset is in TEXTURE pixels but the finger moves in
+		// SCREEN pixels, and the present scales texture by zoom. Without the
+		// 1/zoom correction a drag moves the map by gesture*zoom on screen --
+		// sluggish when zoomed out, which is exactly when you want to cover
+		// ground. Dividing by zoom makes the map track the finger 1:1 at every
+		// zoom. No-op at zoom 1, so the legacy feel is unchanged.
+		float speed = k_PAN_PIXELS_PER_WHEEL;
+		if (aui_SDL::GpuWorldmapEnabled())
+		{
+			float const z = aui_SDL::CameraZoom();
+			if (z > 0.0f) speed /= z;
+		}
+		aui_SDL::AddPanTarget(-wheelX * speed, wheelY * speed);
+		return;
+	}
+
+	// No GPU camera: tile-stepped fallback. Accumulate and cross whole tiles via the
+	// engine scroll (reveals terrain + actors); the sub-tile remainder carries over.
+	static float s_accX = 0.0f;
+	static float s_accY = 0.0f;
+	s_accX += wheelX * k_PAN_PIXELS_PER_WHEEL;
+	s_accY -= wheelY * k_PAN_PIXELS_PER_WHEEL;
+
+	sint32 const dxTiles = static_cast<sint32>(s_accX / tileStepX);
+	sint32 const dyTiles = static_cast<sint32>(s_accY / halfRowStepY);
+	if (dxTiles == 0 && dyTiles == 0)
+		return;
+	if (g_tiledMap->ScrollMap(dxTiles, dyTiles))
+	{
+		s_accX -= dxTiles * tileStepX;
+		s_accY -= dyTiles * halfRowStepY;
+		g_tiledMap->RetargetTileSurface(nullptr);
+		g_tiledMap->Refresh();
+		g_tiledMap->InvalidateMap();
+		g_tiledMap->ValidateMix();
+	}
+	else
+	{
+		s_accX = 0.0f;
+		s_accY = 0.0f;
+	}
+}
+
+// P11 pinch zoom (v1) — trackpad pinch steps the ENGINE zoom, exactly like
+// the zoom keys / the control-panel ZoomPad. Shared gate + step executor for
+// both input sources (SDL touch events; macOS native magnify gestures).
+static void ui_StepPinchZoom(int steps)
+{
+	if (steps == 0)
+		return;
+
+	// Diagnostic for the "pinch does nothing" reports (CIVLOG_LEVEL=debug).
+	// Every line here is gated on a real gesture step, so idle frames stay
+	// silent and the interesting event can never be crowded out.
+	auto log = civlog::Get("pinch");
+	log->debug("StepPinchZoom steps={}", steps);
+
+	// Same gesture guards as the trackpad pan, plus no zooming under a modal
+	// (the map is frozen there; a zoom re-render would fight it).
+	if (!g_civApp || !g_civApp->IsGameLoaded() || !g_tiledMap) {
+		log->debug("  rejected: civApp={} loaded={} tiledMap={}",
+		           g_civApp != nullptr,
+		           g_civApp && g_civApp->IsGameLoaded(),
+		           g_tiledMap != nullptr);
+		return;
+	}
+	if (g_modalWindow > 0 || aui_ListBox::GetMouseFocusListBox()) {
+		log->debug("  rejected: modalWindow={} listBoxFocus={}",
+		           g_modalWindow, aui_ListBox::GetMouseFocusListBox() != nullptr);
+		return;
+	}
+
+	// P13 step 2.4 (ADR-003): on the whole-map path the camera owns zoom, so a
+	// pinch drives the camera continuously instead of stepping the engine's
+	// 6-level table. The engine stays at its native scale (it already sits at
+	// k_ZOOM_LARGEST by default -- measured), which is what makes the whole-map
+	// texture a fixed 1:1 render the camera can scale freely.
+	if (aui_SDL::GpuWorldmapEnabled()) {
+		// One engine "step" of intent becomes a proportional camera zoom, using
+		// the same ~1.08x per step the table's top end used, so the gesture
+		// keeps its familiar sensitivity.
+		float const k_STEP = 1.08f;
+		float z = aui_SDL::CameraZoom();
+		for (int n = steps; n > 0; --n) z *= k_STEP;
+		for (int n = steps; n < 0; ++n) z /= k_STEP;
+		aui_SDL::SetCamera(aui_SDL::CameraOffX(), aui_SDL::CameraOffY(), z);
+		log->debug("  camera zoom -> {} (engine not stepped)", aui_SDL::CameraZoom());
+		return;
+	}
+
+	auto stepZoom = [&log](bool zoomIn) {
+		double const oldScale = g_tiledMap->GetZoomScale(g_tiledMap->GetZoomLevel());
+		bool const changed = zoomIn ? g_tiledMap->ZoomIn() : g_tiledMap->ZoomOut();
+		log->debug("  {} level={} oldScale={} changed={}",
+		           zoomIn ? "ZoomIn" : "ZoomOut",
+		           g_tiledMap->GetZoomLevel(), oldScale, changed);
+		if (!changed)
+			return;
+
+		if (aui_SDL::GpuCameraEnabled()) {
+			double const newScale = g_tiledMap->GetZoomScale(g_tiledMap->GetZoomLevel());
+			if (newScale > 0.0)
+				aui_SDL::SetCamera(aui_SDL::CameraOffX(), aui_SDL::CameraOffY(),
+				                   static_cast<float>(oldScale / newScale));
+		}
+	};
+
+	for (; steps > 0; --steps)
+		stepZoom(true);
+	for (; steps < 0; ++steps)
+		stepZoom(false);
+}
+
+// SDL touch-event source: real touch devices (touchscreens; trackpads on
+// SDL2). PinchDetector turns raw two-finger geometry into whole zoom steps
+// and rejects two-finger scrolls (see pinch_detector.h). NOTE macOS/SDL3
+// forwards no trackpad touches by default — there the magnify source below
+// does the work; this stays for the platforms that do deliver fingers.
+void ui_HandlePinchZoom(SDL_TouchFingerEvent const &tf, Uint32 eventType)
+{
+	static PinchDetector s_pinch;
+
+	long long const id = CTP2_SDL_FingerId(tf);
+	int steps = 0;
+	switch (eventType)
+	{
+	case SDL_FINGERDOWN:
+		steps = s_pinch.Down(id, tf.x, tf.y);
+		break;
+	case SDL_FINGERMOTION:
+		steps = s_pinch.Motion(id, tf.x, tf.y);
+		break;
+	default:                       // FINGERUP (and SDL3's FINGER_CANCELED)
+		s_pinch.Up(id);
+		break;
+	}
+	ui_StepPinchZoom(steps);
+}
+
+// macOS native source: Cocoa magnify gestures accumulated by the NSEvent
+// monitor (os/osx/osx_pinch_monitor.mm), consumed once per frame from the
+// main loop. A full relaxed pinch sums to roughly ±1.0 magnification; one
+// engine zoom step per 0.30 gives 2-3 steps per gesture, matching the
+// touch-path ratio threshold.
+void ui_HandlePinchMagnify(float magnification)
+{
+	static float s_accum = 0.0f;
+	float const k_MAGNIFY_PER_STEP = 0.30f;
+
+	// Reached only when the Cocoa monitor actually saw a magnify gesture,
+	// so this line proves the native tap is alive (CIVLOG_LEVEL=debug).
+	civlog::Get("pinch")->debug("magnify={} accum={}", magnification, s_accum);
+
+	s_accum += magnification;
+	int steps = 0;
+	while (s_accum >= k_MAGNIFY_PER_STEP)
+	{
+		s_accum -= k_MAGNIFY_PER_STEP;
+		++steps;
+	}
+	while (s_accum <= -k_MAGNIFY_PER_STEP)
+	{
+		s_accum += k_MAGNIFY_PER_STEP;
+		--steps;
+	}
+	ui_StepPinchZoom(steps);
+}
+
+// P11 2c (ADR-001) — recenter the buttery pan. Called from the per-frame camera tick
+// after TickCamera has eased the displayed offset. When the offset nears the window
+// margin the world mirror fills, ScrollMap the engine by whole tiles and
+// slide BOTH the displayed offset and the target back by the same pixels (ShiftPan),
+// then re-render the world layer so the present shows the scrolled content at the
+// reduced offset. Net view position is unchanged — the ScrollMap is invisible — but
+// it keeps the GPU window inside the pre-rendered margin as the pan travels any
+// distance. Returns true if it recentered (so the caller re-renders / knows content
+// changed).
+static bool ui_RecenterPanIfNeeded()
+{
+	if (!g_tiledMap || !aui_SDL::GpuCameraEnabled())
+		return false;
+	// P13: the whole-map path has no margin to run out of and no ScrollMap
+	// underneath -- the camera slides over a texture that already holds the
+	// entire map, clamped to its edges in TickCamera. Recentring there would
+	// scroll the engine view for no reason and move the published origin out
+	// from under the pan.
+	if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture())
+		return false;
+
+	sint32 const tileStepX = g_tiledMap->GetZoomTilePixelWidth();
+	sint32 const halfRowStepY = g_tiledMap->GetZoomTilePixelHeight() / 2;
+	if (tileStepX < 1 || halfRowStepY < 1)
+		return false;
+
+	// Recenter once the displayed offset comes within one tile of the rendered
+	// margin edge (world content offset), so we never window past it into black.
+	// The margin can be SMALLER than the tile step (94px window margin vs a
+	// 96px tile column at zoom 1) — then wait until near the margin edge and
+	// force a single-tile scroll: the offset lands a couple of pixels on the
+	// other side of centre, still safely inside the margin.
+	auto axisTiles = [](float off, sint32 step, sint32 margin) -> sint32
+	{
+		float thresh = static_cast<float>(margin - step);
+		if (thresh <= 0.0f)
+			thresh = static_cast<float>(margin - 6);   // 6px safety strip
+		if (off <= thresh && off >= -thresh)
+			return 0;
+		// CameraOff = -accumulatedPan: whole tiles to scroll = -off/step,
+		// at least one in the crossed direction.
+		sint32 tiles = static_cast<sint32>(-off / step);
+		if (tiles == 0)
+			tiles = (off > 0.0f) ? -1 : 1;
+		return tiles;
+	};
+	float const ox = aui_SDL::CameraOffX();
+	float const oy = aui_SDL::CameraOffY();
+	// P13 step 0: budget, not raw margin. The present's source window already
+	// spends part of the margin overshooting the screen region whenever the
+	// camera is zoomed, so recentring against the full 94/72 let the pan run
+	// past rendered content — SDL then clipped the srcrect and rescaled the
+	// destination, which is what made the map teleport after a pinch.
+	sint32 const marginX = static_cast<sint32>(aui_SDL::PanBudgetX());
+	sint32 const marginY = static_cast<sint32>(aui_SDL::PanBudgetY());
+	sint32 const dxTiles = axisTiles(ox, tileStepX, marginX);
+	sint32 const dyTiles = axisTiles(oy, halfRowStepY, marginY);
+	if (dxTiles == 0 && dyTiles == 0)
+		return false;
+
+	// ONE combined ScrollMap call (the shape every legacy caller uses), then trust
+	// only the view rect for how far each axis actually moved. ScrollMap clamps
+	// its axes independently at map edges (Y at the poles; X on non-wrapping
+	// maps) — including PARTIAL clamps (scroll 1 of 3 requested tiles) — while
+	// still returning true if anything moved, so shifting the camera by the
+	// REQUESTED pixels would jump the view by tiles that never scrolled. The
+	// before/after m_mapViewRect delta gives the truth per axis. On a wrapping
+	// axis the rect can additionally be relabelled by a whole map dimension at
+	// the seam (a coordinate rename, not a visual move); recenter deltas are a
+	// few tiles and map dimensions are far larger, so |raw| > |requested|
+	// identifies the relabel (the visual scroll is then exactly the request —
+	// wrap never clamps).
+	RECT const before = *g_tiledMap->GetMapViewRect();
+	bool const moved  = g_tiledMap->ScrollMap(dxTiles, dyTiles);
+	RECT const after  = *g_tiledMap->GetMapViewRect();
+
+	auto actualAxis = [](sint32 raw, sint32 req) -> sint32
+	{
+		sint32 const rawAbs = (raw < 0) ? -raw : raw;
+		sint32 const reqAbs = (req < 0) ? -req : req;
+		return (rawAbs > reqAbs) ? req : raw;
+	};
+	sint32 const adx = moved ? actualAxis(after.left - before.left, dxTiles) : 0;
+	sint32 const ady = moved ? actualAxis(after.top  - before.top,  dyTiles) : 0;
+
+	if (adx != 0 || ady != 0)
+		aui_SDL::ShiftPan(static_cast<float>(adx * tileStepX),
+		                  static_cast<float>(ady * halfRowStepY));
+
+	// An axis that scrolled less than requested hit a map edge: clamp its target
+	// to the current offset so the ease stops pushing into the wall (the other
+	// axis keeps gliding).
+	if (adx != dxTiles)
+		aui_SDL::SetPanTarget(aui_SDL::CameraOffX(), aui_SDL::PanTargetY());
+	if (ady != dyTiles)
+		aui_SDL::SetPanTarget(aui_SDL::PanTargetX(), aui_SDL::CameraOffY());
+
+	if (adx == 0 && ady == 0)
+		return false;
+
+	// Content moved +N tiles / camera -N tiles: net view unchanged, but the
+	// world layer needs the scrolled content BEFORE the next present (ShiftPan
+	// already moved the offset — presenting old content at the moved offset would
+	// visibly jump for a frame). Redraw the background window synchronously and
+	// composite it via DrawOne, whose BltToSecondary mirror copies the whole
+	// window surface (margins included) into the world layer.
+	g_tiledMap->RetargetTileSurface(nullptr);
+	g_tiledMap->Refresh();
+	g_tiledMap->InvalidateMap();
+	g_tiledMap->ValidateMix();
+	if (c3ui_Get() && c3ui_Get()->GpuLayers() && background_Get())
+	{
+		g_tiledMap->CopyMixDirtyRects(background_Get()->GetDirtyList());
+		background_draw_handler(background_Get());
+		c3ui_Get()->DrawOne(background_Get());
+	}
+	return true;
+}
+
 bool compute_scroll_deltas(sint32 time,sint32 &deltaX,sint32 &deltaY)
 {
 
@@ -675,8 +1003,14 @@ bool ui_CheckForScroll()
 {
 	if (!g_tiledMap) return false;
 
-	sint32		hscroll = g_tiledMap->GetZoomTilePixelWidth();
-	sint32		vscroll = g_tiledMap->GetZoomTilePixelHeight()/2;
+	// Smoke-test sessions have no human at the controls: the SDL mouse sits
+	// at (0,0) forever, which reads as permanent edge-scroll-up-left and
+	// silently drags the view to the map corner (fighting any programmatic
+	// centering a harness does). No real input, no scroll.
+	if (g_smokeTest) return false;
+
+	sint32		tileStepX = g_tiledMap->GetZoomTilePixelWidth();
+	sint32		halfRowStepY = g_tiledMap->GetZoomTilePixelHeight()/2;
 
 	if (controlpanel_Get())
 		controlpanel_Get()->Idle();
@@ -766,6 +1100,16 @@ bool ui_CheckForScroll()
 
 			lastdeltaX = deltaX;
 			lastdeltaY = deltaY;
+
+		// Buttery path (same as the trackpad pan): feed the whole-tile step
+		// into the camera target; the frame tick eases and recenters. A
+		// negative target moves the view right/down (CameraOff = -pan).
+		if (aui_SDL::GpuCameraEnabled())
+		{
+			aui_SDL::AddPanTarget(-deltaX * static_cast<float>(tileStepX),
+			                      -deltaY * static_cast<float>(halfRowStepY));
+			return true;
+		}
 
 		g_tiledMap->SetScrolling(true);
 		if (!g_tiledMap->ScrollMap(deltaX, deltaY))
@@ -859,15 +1203,21 @@ bool ui_CheckForScroll()
 		sint32 accel = (accellTickDelta/k_TICKS_PER_ACCELERATION)+1;
 
 
-        smoothX = std::min<sint32>(deltaX * accel, hscroll);
-        smoothY = std::min<sint32>(deltaY * accel, vscroll);
+        smoothX = std::min<sint32>(deltaX * accel, tileStepX);
+        smoothY = std::min<sint32>(deltaY * accel, halfRowStepY);
 
-        if (smoothX < -hscroll)
-			smoothX = -hscroll;
-		if (smoothY < -vscroll)
-			smoothY = -vscroll;
+        if (smoothX < -tileStepX)
+			smoothX = -tileStepX;
+		if (smoothY < -halfRowStepY)
+			smoothY = -halfRowStepY;
 
-		if (g_smoothScroll) {
+		// Buttery path (same as the trackpad pan): whole-tile step into the
+		// camera target; eased + recentered by the frame tick. Negative
+		// target = view right/down (CameraOff = -pan).
+		if (aui_SDL::GpuCameraEnabled()) {
+			aui_SDL::AddPanTarget(-deltaX * static_cast<float>(tileStepX),
+			                      -deltaY * static_cast<float>(halfRowStepY));
+		} else if (g_smoothScroll) {
 			g_tiledMap->ScrollMapSmooth(smoothX, smoothY);
 		} else {
 		  	if (!g_tiledMap->ScrollMap(deltaX, deltaY))
@@ -1187,8 +1537,13 @@ void ParseCommandLine(PSTR szCmdLine)
 		}
 	}
 
+	// Match a short -s<name> flag, not the -s inside a --long-option.
+	// strstr("--smoke-test", "-s") hits, which launched every smoke run
+	// down the scenario path with garbage name "moke-test" — skipping the
+	// shell init the map view needs, so all pixel captures came back black.
 	MBCHAR * scenName = strstr(szCmdLine, "-s");
-
+	while (scenName && scenName != szCmdLine && *(scenName - 1) == '-')
+		scenName = strstr(scenName + 1, "-s");
 	if (nullptr != scenName) {
 
 
@@ -1471,7 +1826,7 @@ void main_InitializeLogs()
 #endif
 }
 
-#ifndef UNIT_TEST_BUILD
+#if !defined(UNIT_TEST_BUILD) && !defined(RENDER_TOOL_BUILD)
 
 #if defined(__GNUC__)
 
@@ -1525,7 +1880,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 #endif // __GNUC__
 
-#endif // UNIT_TEST_BUILD
+#endif // UNIT_TEST_BUILD / RENDER_TOOL_BUILD
 
 void main_DisplayPatchDisclaimer()
 {
@@ -1694,6 +2049,11 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 #ifdef __AUI_USE_SDL__
 	aui_sdlkbd_InitQueueMutex();
+#ifdef __APPLE__
+	// P11 pinch zoom: tap Cocoa magnify gestures (SDL3 forwards no trackpad
+	// touches by default; see os/osx/osx_pinch_monitor.h).
+	osx_InstallPinchMonitor();
+#endif
 #endif
 #ifdef __AUI_USE_DIRECTX__
 	MSG			msg;
@@ -1712,6 +2072,17 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		SDL_PumpEvents();  // Required on macOS for window visibility and OS event processing
 		SDL_Event event;
 
+#ifdef __APPLE__
+		// P11 pinch zoom: consume the magnification the Cocoa monitor
+		// accumulated during the pump — zoom re-renders run out here, never
+		// inside the event dispatch.
+		{
+			float const magnify = osx_ConsumePinchMagnification();
+			if (magnify != 0.0f)
+				ui_HandlePinchMagnify(magnify);
+		}
+#endif
+
 		// Consume only events the main thread handles.
 		// SDL_PeepEvents scans for the first event in the type range, skipping others,
 		// so mouse events (handled by the mouse thread) are not stolen.
@@ -1721,7 +2092,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_QUIT, SDL_QUIT);
 			if (n <= 0) break;
 			gDone = TRUE;
-			DoFinalCleanup();
+			DoFinalCleanup(0);
 		}
 
 		// Process keyboard events
@@ -1731,6 +2102,15 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 			// Re-enqueue for aui_sdlkeyboard
 			aui_sdlkbd_PushQueueEvent(event);
+			SDLMessageHandler(event);
+		}
+
+		// Process touch finger events (P11 pinch zoom; the trackpad is an
+		// indirect touch device on macOS, so pinches arrive as finger events)
+		while (true) {
+			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+			                       SDL_FINGERDOWN, CTP2_SDL_FINGER_RANGE_LAST);
+			if (n <= 0) break;
 			SDLMessageHandler(event);
 		}
 
@@ -1758,6 +2138,36 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		g_letUIProcess = FALSE;
 
 #ifdef __AUI_USE_SDL__
+		// P11 Stage 2 F: advance the smooth-camera physics each frame and
+		// re-present while it is still settling (momentum pan glide + the
+		// spring-back zoom). Cheap: no tile re-render, just re-composite the
+		// GPU layers with the updated transform.
+		{
+			// dt clock for the camera ease. 0 is the "no previous tick" sentinel:
+			// it MUST be reset whenever the camera is at rest, otherwise the first
+			// frame of the next gesture sees dt = the whole idle gap, TickCamera
+			// clamps it to 0.05s, and the ease factor saturates to 1.0 — a 100%
+			// snap-to-target pop at the start of every pan instead of an ease-in.
+			static Uint32 s_lastCamTick = 0;
+			if (aui_SDL::GpuCameraEnabled() && aui_SDL::CameraMoving())
+			{
+				Uint32 const nowCam = SDL_GetTicks();
+				float const camDt = (s_lastCamTick == 0) ? 0.016f
+				                  : (nowCam - s_lastCamTick) / 1000.0f;
+				s_lastCamTick = nowCam;
+				aui_SDL::TickCamera(camDt);
+				// P11 2c: after easing the offset, recenter via ScrollMap if it reached
+				// the rendered margin (keeps the buttery glide inside real content over
+				// any pan distance). Seamless — see ui_RecenterPanIfNeeded.
+				ui_RecenterPanIfNeeded();
+				if (c3ui_Get()) c3ui_Get()->BltSecondaryToPrimary(0, false);
+			}
+			else
+			{
+				s_lastCamTick = 0;
+			}
+		}
+
 		// Frame pacing: cap the loop to ~60 fps. When the engine is idle (no
 		// dirty rects -> no Flip -> no vsync block), this stops the loop from
 		// busy-spinning at 100% CPU / draining battery. When a vsync'd Flip
@@ -1834,6 +2244,13 @@ int SDLMessageHandler(const SDL_Event &event)
 		{
 			SDL_Keycode key = CTP2_SDL_GetKeycode(event.key);
 			SDL_Keymod mod = CTP2_SDL_GetKeymod(event.key);
+			// macOS conventions: Cmd+Q quits (the window-close box is not
+			// always reachable in fullscreen/borderless play). Ctrl+Q left alone.
+			if (key == SDLK_q && (mod & KMOD_GUI) && !(mod & KMOD_CTRL)) {
+				gDone = TRUE;
+				DoFinalCleanup(0);
+				return 0;
+			}
 			WPARAM wp = '\0';
 			switch (key) {
 
@@ -2012,11 +2429,13 @@ int SDLMessageHandler(const SDL_Event &event)
 			ui_HandleKeypress(wp, 0); \
 				break;
 
-  			SDLKCONV(SDLK_UP, SDLK_UP + 256);
-  			SDLKCONV(SDLK_DOWN, SDLK_DOWN + 256);
-  			SDLKCONV(SDLK_LEFT, SDLK_LEFT + 256);
-  			SDLKCONV(SDLK_RIGHT, SDLK_RIGHT + 256);
-  			SDLKCONVSHIFT(SDLK_F1, '1' + 128, '\0');
+			// Arrow keys: the engine wants Windows VK codes + 256 (see
+			// ui_HandleKeypress), NOT SDL keycodes + 256 — the commented
+			// version below mapped every arrow to garbage.
+			case SDLK_UP:    ui_HandleKeypress(VK_UP + 256, 0); break;
+			case SDLK_DOWN:  ui_HandleKeypress(VK_DOWN + 256, 0); break;
+			case SDLK_LEFT:  ui_HandleKeypress(VK_LEFT + 256, 0); break;
+			case SDLK_RIGHT: ui_HandleKeypress(VK_RIGHT + 256, 0); break;
   			SDLKCONVSHIFT(SDLK_F2, '2' + 128, '\0');
   			SDLKCONVSHIFT(SDLK_F3, '3' + 128, '\0');
   			SDLKCONVSHIFT(SDLK_F4, '4' + 128, '\0');
@@ -2044,7 +2463,7 @@ int SDLMessageHandler(const SDL_Event &event)
 	case SDL_QUIT:
 		gDone = TRUE;
 
-		DoFinalCleanup();
+		DoFinalCleanup(0);
 
 #ifndef __AUI_USE_SDL__
 		DestroyWindow( hwnd );
@@ -2052,6 +2471,26 @@ int SDLMessageHandler(const SDL_Event &event)
 #endif
 
 		return 0;
+#ifdef __AUI_USE_SDL__
+	case SDL_MOUSEWHEEL:
+		// P11 Stage 2 F: two-finger trackpad scroll (and the physical mouse
+		// wheel) pan the map. Ships default-on — real ScrollMap, reveals terrain.
+		// Zoom now lives on the pinch gesture, not the wheel. event.wheel.x/y are
+		// int on SDL2 and float on SDL3; the cast covers both and preserves the
+		// trackpad's fractional deltas on SDL3.
+		ui_HandleTrackpadPan(static_cast<float>(event.wheel.x),
+		                     static_cast<float>(event.wheel.y));
+		return 0;
+	case SDL_FINGERDOWN:
+	case SDL_FINGERUP:
+	case SDL_FINGERMOTION:
+#if defined(CTP2_USE_SDL3)
+	case SDL_EVENT_FINGER_CANCELED:
+#endif
+		// P11 pinch zoom: raw trackpad touches feed the pinch detector.
+		ui_HandlePinchZoom(event.tfinger, event.type);
+		return 0;
+#endif
 #ifndef __AUI_USE_SDL__
 	case k_MSWHEEL_ROLLMSG :
 		{
@@ -2181,7 +2620,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		if (hwnd != gHwnd) break;
 
 		gDone = TRUE;
-		DoFinalCleanup();
+		DoFinalCleanup(0);
 		DestroyWindow(hwnd);
 		gHwnd = NULL;
 		return 0;

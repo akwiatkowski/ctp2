@@ -8,17 +8,21 @@ conf.set_quoted('VERSION', meson.version())
 # a build identifier ("ctp2_build" key in JSON saves).  Falls back to
 # "unknown" outside a git checkout.  Run with check:false so a missing
 # git binary or non-checkout doesn't fail configure.
+build_revision = configuration_data()
 git_sha_result = run_command('git', 'rev-parse', '--short=12', 'HEAD',
                              check: false)
 if git_sha_result.returncode() == 0
-    conf.set_quoted('CTP2_BUILD_SHA', git_sha_result.stdout().strip())
+    build_revision.set_quoted('CTP2_BUILD_SHA', git_sha_result.stdout().strip())
 else
-    conf.set_quoted('CTP2_BUILD_SHA', 'unknown')
+    build_revision.set_quoted('CTP2_BUILD_SHA', 'unknown')
 endif
+
+configure_file(output : 'build_revision.h', configuration : build_revision)
 
 conf.set('SHOW_ASSERTS', get_option('buildtype').startswith('debug'))
 conf.set('USE_LOGGING', get_option('buildtype').startswith('debug'))
 conf.set('_DEBUG', get_option('buildtype').startswith('debug'))
+conf.set10('CTP2_ENABLE_NETWORKING', get_option('anet'))
 
 if get_option('buildtype').startswith('debug')
 	add_global_arguments('-D_DEBUG', language : ['c', 'cpp'])
@@ -45,6 +49,24 @@ incdir = []
 main_dependencies = []
 use_ld = []
 host_system = host_machine.system()
+
+# macOS-only native sources (Objective-C++): the trackpad pinch monitor
+# (os/osx/osx_pinch_monitor.mm) taps Cocoa magnify gestures that SDL3 does
+# not forward. Appended to game_core_sources below so every binary that
+# links civ3_main gets the symbols.
+osx_sources = []
+if host_system == 'darwin'
+	add_languages('objcpp', native : false)
+	main_dependencies += dependency('appleframeworks', modules : ['AppKit'])
+	osx_sources += ['os/osx/osx_pinch_monitor.mm']
+endif
+
+# libltdl (mapgen plugin loader). Resolved as a real dependency rather than a
+# raw '-lltdl' link flag: with Objective-C++ in the target the linker driver
+# language changes and bare -l flags no longer see the C++-language search
+# paths.
+ltdl = compiler.find_library('ltdl', dirs : ['/opt/homebrew/lib', '/usr/local/lib'])
+main_dependencies += ltdl
 
 if not win32
 	# use gold-linker by default if available (Linux only)
@@ -187,7 +209,11 @@ add_global_arguments('-DHAVE_STRING_H', language : ['c', 'cpp'])
 add_global_arguments('-Wno-non-pod-varargs', language : ['cpp'])
 add_global_arguments('-Wno-implicit-function-declaration', language : ['c'])
 
-anet = subproject('anet').get_variable('libanet')
+network_dependencies = []
+if get_option('anet')
+	anet = subproject('anet').get_variable('libanet')
+	network_dependencies += anet
+endif
 
 freetype = subproject('freetype-1.3.1').get_variable('libfreetype')
 
@@ -906,6 +932,7 @@ game_core_sources = [
 	'ai/diplomacy/proposalanalysis.cpp',
 	'ai/strategy/scheduler/Plan.cpp',
 	'ai/strategy/scheduler/scheduler.cpp',
+	'ai/strategy/scheduler/scheduler_json.cpp',
 	'ai/strategy/goals/Goal.cpp',
 	'ai/strategy/squads/squad_Strength.cpp',
 	'ai/strategy/agents/agent.cpp',
@@ -921,6 +948,11 @@ game_core_sources = [
 	'mapgen/PlasmaGen2.cpp',
 ]
 
+# civ3_main references the macOS pinch monitor; every consumer of the core
+# list also links civ3_main (game, headless, test runners), so the native
+# sources ride along here. Empty off-darwin.
+game_core_sources += osx_sources
+
 # Entry-point sources — added only to the game executable.
 # ctp/civ3_main.cpp is included in the test target with -DUNIT_TEST_BUILD
 # to suppress its main() function while keeping global definitions.
@@ -928,8 +960,6 @@ game_entry_sources = [
 	'ctp/civ3_main.cpp',
 	'test/smoketest_server.cpp',
 ]
-
-main_sources = game_core_sources + game_entry_sources
 
 # ---------------------------------------------------------------------------
 # Phase 1i probe: engine-only compile target.
@@ -1182,6 +1212,64 @@ ui_sources_in_core = [
 	'ui/slic_debug/watchlist.cpp',
 ]
 
+# The gameplay core still contains dormant packet/replication shims. They are
+# harmless without an ingress, and removing them is a separate protocol rewrite.
+# The default game does not compile or link the legacy Anet transport or its
+# multiplayer shell. Opting in restores the historical build unchanged.
+legacy_network_sources = [
+	'net/io/net_anet.cpp',
+	'net/io/net_thread.cpp',
+	'ui/netshell/allinonewindow.cpp',
+	'ui/netshell/connectionselectwindow.cpp',
+	'ui/netshell/dialogboxwindow.cpp',
+	'ui/netshell/gameselectwindow.cpp',
+	'ui/netshell/lobbychangewindow.cpp',
+	'ui/netshell/lobbywindow.cpp',
+	'ui/netshell/netfunc.cpp',
+	'ui/netshell/netshell.cpp',
+	'ui/netshell/netshell_game.cpp',
+	'ui/netshell/ns_aiplayer.cpp',
+	'ui/netshell/ns_aiplayersetup.cpp',
+	'ui/netshell/ns_chatbox.cpp',
+	'ui/netshell/ns_civlistbox.cpp',
+	'ui/netshell/ns_customlistbox.cpp',
+	'ui/netshell/ns_game.cpp',
+	'ui/netshell/ns_gamesetup.cpp',
+	'ui/netshell/ns_gplayer.cpp',
+	'ui/netshell/ns_header.cpp',
+	'ui/netshell/ns_headerswitch.cpp',
+	'ui/netshell/ns_improvements.cpp',
+	'ui/netshell/ns_item.cpp',
+	'ui/netshell/ns_lobby.cpp',
+	'ui/netshell/ns_player.cpp',
+	'ui/netshell/ns_playersetup.cpp',
+	'ui/netshell/ns_rplayer.cpp',
+	'ui/netshell/ns_server.cpp',
+	'ui/netshell/ns_session.cpp',
+	'ui/netshell/ns_spinner.cpp',
+	'ui/netshell/ns_string.cpp',
+	'ui/netshell/ns_transport.cpp',
+	'ui/netshell/ns_tribes.cpp',
+	'ui/netshell/ns_units.cpp',
+	'ui/netshell/ns_window.cpp',
+	'ui/netshell/ns_wonders.cpp',
+	'ui/netshell/passwordscreen.cpp',
+	'ui/netshell/playereditwindow.cpp',
+	'ui/netshell/playerselectwindow.cpp',
+	'ui/netshell/serverselectwindow.cpp',
+]
+
+active_game_core_sources = game_core_sources
+if not get_option('anet')
+	active_game_core_sources = []
+	foreach src : game_core_sources
+		if not (src in legacy_network_sources)
+			active_game_core_sources += src
+		endif
+	endforeach
+endif
+main_sources = active_game_core_sources + game_entry_sources
+
 # Engine-only = game_core_sources minus UI strings and gfx adapter strings.
 # Generated entries (slic lgen/pgen) survive — they're engine-side.
 # meson's `in` operator on a mixed-type array compares safely without
@@ -1206,7 +1294,8 @@ ctpdb = executable('ctpdb', [
 ], 
 	include_directories : [ incdir, 
 	include_directories([ 'gs/dbgen', 'os/include' ])],
-		cpp_args : '-fpermissive'
+		cpp_args : '-fpermissive',
+		override_options : ['b_sanitize=none']
 )
 
 cdb_sources = [
@@ -1378,11 +1467,12 @@ gfxutils = static_library('libgfxgfx_utils', [
 	'gfx/gfx_utils/ColorSet.cpp',
 	'gfx/gfx_utils/gfx_options.cpp',
 	'gfx/gfx_utils/pixelutils.cpp',
+	'gfx/gfx_utils/png_load.cpp',
 	'gfx/gfx_utils/targautils.cpp',
 	'gfx/gfx_utils/tiffutils.cpp',
 	'gfx/gfx_utils/videoutils.cpp'],
 		include_directories : incdir,
-		dependencies : [ cdb_header, tiff, sdl ])
+		dependencies : [ cdb_header, tiff, sdl, zlib ])
 
 gfxlayers = static_library('libgfxlayers', 'gfx/layers/citylayer.cpp',
 		include_directories : incdir,
@@ -1407,6 +1497,7 @@ gfxspritesys = static_library('libgfxspritesys', [
 	'gfx/spritesys/FacedSpriteWshadow.cpp',
 	'gfx/spritesys/goodspritegroup.cpp',
 	'gfx/spritesys/ModernSpriteManifest.cpp',
+	'gfx/spritesys/ModernSpriteAtlas.cpp',
 	'gfx/spritesys/Sprite.cpp',
 	'gfx/spritesys/spritefile.cpp',
 	'gfx/spritesys/SpriteGroup.cpp',
@@ -1426,7 +1517,7 @@ gfxspritesys = static_library('libgfxspritesys', [
 	'gfx/spritesys/SpriteStateDB.cpp',
 	'gfx/spritesys/spritelow.cpp'],
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet, sdl ])
+		dependencies : [ cdb_header, sdl ] + network_dependencies)
 
 gfxtilesys = static_library('libgfxtilesys', [
 	'gfx/tilesys/maputils.cpp',
@@ -1435,13 +1526,15 @@ gfxtilesys = static_library('libgfxtilesys', [
 	'gfx/tilesys/tiledmap.cpp',
 	'gfx/tilesys/tiledraw.cpp',
 	'gfx/tilesys/tiledrawroad.cpp',
+	'gfx/tilesys/GpuTileCache.cpp',
+	'gfx/tilesys/TilesetGpuRaster.cpp',
 	'gfx/tilesys/TileHighlight.cpp',
 	'gs/world/TileInfo.cpp',
 	'gfx/tilesys/tileset.cpp',
 	'gfx/tilesys/tileutils.cpp',
 	'gfx/tilesys/workmap.cpp'],
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet, sdl ])
+		dependencies : [ cdb_header, sdl ] + network_dependencies)
 
 # mapgen plugins
 p_crater = shared_library('crater', 'mapgen/Crater.cpp', 
@@ -1462,26 +1555,36 @@ p_plasma2 = shared_library('plasma2', 'mapgen/PlasmaGen2.cpp',
 # main exe
 executable('ctp2', main_sources,
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+		dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
 		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs' ],
-		link_args : [ '-lltdl', use_ld ],
+		link_args : [ use_ld ],
 		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ])
+
+# Render tooling binary: same initialized assets/UI substrate as ctp2 for now,
+# but extra smoke/debug commands stay out of the regular player executable.
+executable('ctp2_render', main_sources + ['ctp/render_main.cpp'],
+		include_directories : incdir,
+		dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
+		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DRENDER_TOOL_BUILD' ],
+		link_args : [ use_ld ],
+		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
+		build_by_default : false)
 
 # headless exe — simulation core without UI/audio/render
 # Same sources as ctp2 for now; stubs out UI at runtime via g_headlessMode.
 # Future: split game_core_sources into engine_sources + ui_sources.
-headless_sources = game_core_sources + [
+headless_sources = active_game_core_sources + [
 	'ctp/headless_main.cpp',
 	'ctp/headless_game_observer.cpp',
 	'ctp/civ3_main.cpp',
 	'test/smoketest_server.cpp',
 ]
 
-executable('ctp2_headless', headless_sources,
+headless_exe = executable('ctp2_headless', headless_sources,
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+		dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
 		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DHEADLESS_BUILD', '-DUNIT_TEST_BUILD' ],
-		link_args : [ '-lltdl', use_ld ],
+		link_args : [ use_ld ],
 		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ])
 
 # Phase 1i probe library: compile-only target for engine_only_sources.
@@ -1489,7 +1592,7 @@ executable('ctp2_headless', headless_sources,
 # Not built by default; run `meson compile -C build ctp2_engine_only`.
 static_library('ctp2_engine_only', engine_only_sources,
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+		dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
 		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs',
 				'-DHEADLESS_BUILD', '-DUNIT_TEST_BUILD' ],
 		build_by_default : false)
@@ -1514,8 +1617,14 @@ cpp_fast_test_sources = [
   'test/cpp/test_randgen.cpp',
   'test/cpp/test_scoped_rand.cpp',
   'test/cpp/test_mappoint.cpp',
+  'test/cpp/test_pinch_detector.cpp',
+  'test/cpp/test_camera_window.cpp',
 	'test/cpp/test_aui_blitter.cpp',
+	'test/cpp/test_png_load.cpp',
 	'test/cpp/test_modern_sprite_manifest.cpp',
+	'test/cpp/test_modern_sprite_atlas.cpp',
+	'test/cpp/test_spritefile_lzw1.cpp',
+	'test/cpp/test_gpu_tile_cache.cpp',
   'test/cpp/test_army.cpp',
   'test/cpp/test_barbarians.cpp',
   'test/cpp/test_bugfixes.cpp',
@@ -1530,11 +1639,11 @@ cpp_fast_test_sources = [
   'test/smoketest_server.cpp',
 ]
 
-fast_test_exe = executable('ctp2_fast_tests', cpp_fast_test_sources + game_core_sources,
+fast_test_exe = executable('ctp2_fast_tests', cpp_fast_test_sources + active_game_core_sources,
   include_directories : [ incdir, doctest_incdir ],
-  dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+  dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
   cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DUNIT_TEST_BUILD' ],
-  link_args : [ '-lltdl', use_ld ],
+  link_args : [ use_ld ],
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
 )
 
@@ -1544,6 +1653,9 @@ cwd_for_tests = join_paths(meson.project_source_root(), '..')
 test('fast', fast_test_exe,
   args : ['--duration=true'],
   timeout : 60,
+  # The fast cases are also embedded in ctp2_unit_tests and several legacy
+  # fixtures use fixed /tmp names. Keep the two executables from racing.
+  is_parallel : false,
   workdir : cwd_for_tests,
 )
 
@@ -1559,7 +1671,11 @@ cpp_test_sources = [
   'test/cpp/test_scoped_rand.cpp',
   'test/cpp/test_mappoint.cpp',
 	'test/cpp/test_aui_blitter.cpp',
+	'test/cpp/test_png_load.cpp',
 	'test/cpp/test_modern_sprite_manifest.cpp',
+	'test/cpp/test_modern_sprite_atlas.cpp',
+	'test/cpp/test_spritefile_lzw1.cpp',
+	'test/cpp/test_gpu_tile_cache.cpp',
   'test/cpp/test_army.cpp',
   'test/cpp/test_barbarians.cpp',
   'test/cpp/test_citydata.cpp',
@@ -1599,11 +1715,21 @@ cpp_test_sources = [
   'test/smoketest_server.cpp',
 ]
 
-unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + game_core_sources,
+# Subprocess tests must exercise this build, including sanitizer/feature flags.
+# They use popen(), so quote the path for the shell as well as the C string.
+python3 = find_program('python3', required : true)
+headless_test_config = configuration_data()
+headless_command = run_command(python3, '-c',
+  'import shlex, sys; print(shlex.quote(sys.argv[1]))',
+  headless_exe.full_path(), check : true).stdout().strip()
+headless_test_config.set_quoted('CTP2_HEADLESS_COMMAND', headless_command)
+configure_file(output : 'headless_test_config.h', configuration : headless_test_config)
+
+unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + active_game_core_sources,
   include_directories : [ incdir, doctest_incdir ],
-  dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+  dependencies : [ cdb_header, freetype, main_dependencies ] + network_dependencies,
   cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DUNIT_TEST_BUILD' ],
-  link_args : [ '-lltdl', use_ld ],
+  link_args : [ use_ld ],
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
 )
 
@@ -1614,25 +1740,61 @@ test('unit', unit_test_exe,
   # below (or with --test-suite=integration on the binary directly).
   args : ['--duration=true', '--test-suite-exclude=integration'],
   timeout : 60,
+  is_parallel : false,
   workdir : cwd_for_tests,
 )
 
+test('cli-save-resume', python3,
+  args : [files('test/cli_save_resume.py'), headless_exe],
+  timeout : 360,
+  suite : 'integration',
+  workdir : cwd_for_tests,
+)
+
+foreach replay : [['cli-save-replay', '25', '15'], ['cli-save-replay-long', '50', '25']]
+  test(replay[0], python3,
+    args : [files('test/cli_save_resume.py'), headless_exe,
+            '--checkpoint', replay[1], '--resume-turns', replay[2]],
+    timeout : 600,
+    suite : 'integration',
+    workdir : cwd_for_tests,
+    is_parallel : false,
+  )
+endforeach
+
 test('integration', unit_test_exe,
+  depends : headless_exe,
   # Long-running headless game tests: save/load round-trips, determinism
   # cross-validation across seeds, multi-turn AI sanity, etc.  Tagged
-  # with TEST_SUITE_BEGIN("integration") at the source.  ~400s on current
-  # hardware (grew well past the original ~73s as the integration set
-  # expanded).  HIGHER TIER by the >60s rule: pre-push / slower cadence,
+  # with TEST_SUITE_BEGIN("integration") at the source.  The complete suite
+  # takes roughly 15-25 minutes on current hardware.  HIGHER TIER by the
+  # >60s rule: pre-push / slower cadence,
   # NEVER pre-commit (the fast loop is `meson test fast unit`).  Generous
   # timeout on purpose — it is allowed to be slow here.
   args : ['--duration=true', '--test-suite=integration'],
-  timeout : 600,
+  timeout : 1800,
   suite : 'integration',
   workdir : cwd_for_tests,
 )
 
 # e2e smoke test: launches the real game binary and drives it via Unix socket
-find_program('python3', required : true)
+test('asset-installer', python3,
+  args : [join_paths(meson.project_source_root(), '..', 'tools', 'assets',
+                     'test_install_ctp2_home.py')],
+  timeout : 30,
+  suite : 'unit',
+  workdir : join_paths(meson.project_source_root(), '..', 'tools', 'assets'),
+)
+test('client-harness', python3,
+  args : [files('test/test_ctp2_client.py')],
+  timeout : 30,
+  suite : 'unit',
+)
+test('ci-results', python3,
+  args : [join_paths(meson.project_source_root(), '..', '.ci', 'test_results.py')],
+  timeout : 60,
+  suite : 'unit',
+)
 test('smoke',
   find_program('test/smoke_test.py'),
   args : [join_paths(meson.project_build_root(), 'ctp2')],
@@ -1665,6 +1827,277 @@ test('slice-ui',
   priority : -1,
   workdir : cwd_for_tests,
   suite : 'integration',
+)
+
+# P11 GPU camera pixel-proof: boots the UI build with CTP2_GPU_LAYERS +
+# CTP2_GPU_CAMERA, gets real terrain on screen, forces a 50px camera offset
+# and asserts the presented pixels actually shift. This is the only test that
+# exercises the layered present with a non-identity camera — slice-ui's
+# oracle runs the default single-texture path. One launch: the map is random
+# (no --seed in the UI build) but the camera point is chosen and revealed
+# deterministically, so it no longer depends on where the settler spawned.
+test('pan-pixel-proof',
+  find_program('test/pan_pixel_proof.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 420,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+# #14230: goods are placed by the world but drawn by a UI actor that saves do
+# not carry. Nothing recreated them on load, so every resource on the map was
+# invisible after loading any save -- on both render paths, silently. Cheap to
+# check and it stayed broken precisely because nothing checked it.
+test('goods-reload',
+  find_program('test/goods_reload.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+# #12839 (P13 step 4): fog is composited into the whole-map tiles. Checks that
+# fog darkens the world at all on that path, and that it darkens it by about as
+# much as the quad path does — deliberately a tolerance, not pixel equality:
+# the two paths blend and cache differently and this is not a bit-exact port.
+test('worldmap-fog',
+  find_program('test/worldmap_fog.py'),
+  timeout : 420,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+# #14260: political borders have two draw styles behind a graphics option, and
+# the whole-map path composited only one of them. Toggling an overlay and
+# requiring the presented pixels to change is the check that cannot pass
+# vacuously — the failure mode is drawing nothing while every flag looks right.
+test('worldmap-borders',
+  find_program('test/worldmap_borders.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+test('gpu-world-fallbacks',
+  find_program('test/gpu_world_fallbacks.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+test('ui-seed',
+  python3,
+  args : [files('test/ui_seed.py'), join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+foreach renderer_check : ['gpu-actor-parity', 'gpu-trade-animation']
+  test(renderer_check,
+    python3,
+    args : [join_paths(meson.project_source_root(), 'test', renderer_check.replace('-', '_') + '.py'),
+            join_paths(meson.project_build_root(), 'ctp2_render')],
+    timeout : 240,
+    is_parallel : false,
+    priority : -1,
+    workdir : cwd_for_tests,
+    suite : 'integration',
+  )
+endforeach
+
+test('gpu-sprite-refresh',
+  python3,
+  args : [files('test/gpu_sprite_refresh.py'), join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+test('render-fixtures',
+  python3,
+  args : [files('test/render_fixtures.py'), join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+test('terrain-edge-parity',
+  find_program('../tools/visual/terrain_edges.py'),
+  args : [
+    '--binary', join_paths(meson.project_build_root(), 'ctp2'),
+    '--out', join_paths(meson.project_build_root(), 'terrain-edge-parity'),
+    '--pairs', 'grassland:plains',
+    '--patterns', 'vertical', 'diagonal',
+    '--crop-size', '320',
+    '--check',
+  ],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+# P13 whole-map transition parity. Until this existed the CTP2_GPU_WORLDMAP
+# path had NO automated coverage at all -- it is opt-in and default off, and
+# every other test here (slice-ui, pan-pixel-proof, gpu-world-fallbacks,
+# terrain-edge-parity) runs with it off, so they guard the ADR-002 window
+# mirror and the P11 quad path instead.
+#
+# The reference is 'gpu', NOT 'cpu'. Against cpu the spatial metric is blind:
+# the shipping quad path scores diff_ratio 0.956 and the whole-map path 0.952,
+# indistinguishable because the known CPU/GPU framing offset swamps both.
+# Against gpu the two share the quad machinery and framing, so the only
+# variable left is the whole-map target itself -- measured baseline 0.000
+# across all 15 pair/pattern combinations.
+#
+# The threshold is tight on purpose. The metric was calibrated: genuinely
+# different terrain pairs score 0.925 and different patterns 0.524, so 0.02
+# leaves room for blend drift while still failing on any real divergence.
+#
+# STATUS: passes roughly 4 runs in 5. When it passes, captures score
+# diff_ratio 0.000-0.003 at coverage 1.000 -- against 0.52-0.65 at coverage
+# 0.892 before #14291, #13130 and the X-wrap seam fixes landed.
+#
+# The remaining flake is NOT a renderer defect, and it is worth knowing what it
+# is before anyone touches the threshold again. Two independent game processes
+# are compared, and fog is per-process state that DECAYS: a revealed radius
+# wears off over the seconds a capture takes to settle, by different amounts in
+# each process. Before step 4 (#12839) the whole-map path ignored fog entirely
+# so this was invisible; now that it draws fog, a desynchronised pair of frames
+# scores 0.6-0.9. --lit plus a per-attempt reveal suppresses most of it. Fully
+# fixing it means holding vision identical across two processes, which is a
+# harness problem, not a rendering one.
+#
+# It sits in its own suite for exactly this reason -- it does not gate anything.
+#
+# Note the direction flips once fog is controlled: the whole-map path draws
+# ~11% LESS than the quad path, not more. 0.892 is very close to the 239-of-269
+# probe ceiling (0.888) measured in fda82c49, whose commit message records that
+# the whole-map coverage never reached the geometry ceiling even after the row
+# step was fixed. Leftover inter-tile gaps are therefore the leading hypothesis
+# for the residual -- corroborated, but NOT established. Alignment analysis was
+# inconclusive: three methods disagreed on the displacement (-13,-24 / -86,-29
+# / +28,-8) and the landmark run landed on a map-edge tile.
+#
+# It sits in its own suite rather than 'integration' so an unfinished, opt-in,
+# default-off path does not gate the shipping suite. Move it into
+# 'integration' once it goes green.
+# P14: GPU terrain rasterisation must be BIT-EQUAL to the CPU composite it
+# replaces. Reference is 'worldmap' (whole-map path, CPU-composited tiles);
+# the raster mode differs only in who produced the terrain pixels, both decode
+# through pixelutils_16to8888 and alpha is binary, so the honest threshold is
+# (near) zero — 0.01 leaves room for nothing but a real defect.
+test('gpu-raster-parity',
+  find_program('../tools/visual/terrain_edges.py'),
+  args : [
+    '--binary', join_paths(meson.project_build_root(), 'ctp2'),
+    '--out', join_paths(meson.project_build_root(), 'gpu-raster-parity'),
+    '--modes', 'worldmap', 'raster',
+    '--reference', 'worldmap',
+    '--pairs', 'grassland:plains', 'plains:desert', 'forest:hill',
+    '--patterns', 'vertical', 'checker',
+    '--crop-size', '320',
+    '--reveal-radius', '60',
+    '--lit',
+    '--max-diff-ratio', '0.01',
+    '--check',
+  ],
+  timeout : 600,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'p13',
+)
+
+# #15615: the raster path's overlay families — rivers, fog, the grid — must be
+# bit-equal to the CPU composite, same bar as the terrain. gpu-raster-parity
+# cannot see them: it paints patches (which clears rivers) and runs fully lit.
+# This one runs the same natural map lit / grid-on / fogged with the flag off
+# and on, and requires ZERO differing pixels.
+test('raster-overlay-parity',
+  find_program('test/raster_overlay_parity.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 420,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'p13',
+)
+
+test('gpu-improvement-parity',
+  python3,
+  args : [files('test/gpu_improvement_parity.py'),
+          join_paths(meson.project_build_root(), 'ctp2_render')],
+  timeout : 420,
+  is_parallel : false,
+  workdir : cwd_for_tests,
+  suite : 'p13',
+)
+
+test('worldmap-transition-parity',
+  find_program('../tools/visual/terrain_edges.py'),
+  args : [
+    '--binary', join_paths(meson.project_build_root(), 'ctp2'),
+    '--out', join_paths(meson.project_build_root(), 'worldmap-transition-parity'),
+    '--modes', 'gpu', 'worldmap',
+    '--reference', 'gpu',
+    # Wider than terrain-edge-parity's single pair: transitions are composited
+    # per terrain pair, so one pair cannot speak for the rest. 'checker' is the
+    # stress case -- every neighbour differs, so every edge is a transition.
+    '--pairs', 'grassland:plains', 'grassland:forest', 'grassland:hill',
+               'plains:desert', 'forest:hill',
+    '--patterns', 'vertical', 'diagonal', 'checker',
+    '--crop-size', '320',
+    # Isolate transitions from fog, which this test does not measure. It used
+    # to reveal a radius per capture; that stopped working once step 4 (#12839)
+    # made the whole-map path draw fog, because visibility DECAYS -- a reveal
+    # wears off over the seconds a capture takes to settle, by different amounts
+    # in each mode's process, and the drift landed on whichever pair happened to
+    # be captured last as diff_ratio 0.6-0.8. --lit holds explored terrain at
+    # full brightness for the whole run instead and does not decay. Fog now has
+    # its own test (worldmap-fog), which is where it belongs.
+    # Both: the reveal EXPLORES the area (--lit only brightens what is already
+    # explored, so on its own it left ~9k comparable pixels instead of ~102k),
+    # and --lit then makes the brightness of that area independent of how much
+    # visibility has decayed by the time the frame settles.
+    '--reveal-radius', '60',
+    '--lit',
+    # 0.03. Was 0.06; the atlas-eviction corruption behind the 0.024-0.035
+    # residual is fixed (#15092) -- that was never the "start-up transient" it
+    # was first read as. A deterministic replay of this matrix on one saved map
+    # now scores 0.0000 on 14 of 15 captures and 0.0021 on the last.
+    #
+    # Not back to 0.02, because the OTHER failure mode is still open: fog state
+    # desynchronises between the two processes (#15107) and produces 0.6-0.85
+    # spikes that no threshold should accommodate. Tighten to 0.02 when that
+    # lands; until then this test flakes for that reason and no other.
+    '--max-diff-ratio', '0.03',
+    '--check',
+  ],
+  timeout : 900,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'p13',
 )
 
 # Expansion: the full second-city loop (settler production, move_army
@@ -1737,7 +2170,7 @@ test('scenario-long-game',
   is_parallel : false,
   priority : -1,
   workdir : cwd_for_tests,
-  suite : 'scenario',
+  suite : ['scenario', 'marathon'],
 )
 
 # Conquest ending: forces a 2-opponent game to an actual victory (capture

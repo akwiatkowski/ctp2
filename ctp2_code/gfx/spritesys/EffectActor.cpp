@@ -46,6 +46,7 @@
 #include "gfx/spritesys/director.h"
 #include "gfx/gfx_utils/colorset.h"
 #include "gfx/tilesys/maputils.h"
+#include "ui/aui_sdl/aui_sdl.h"
 
 #define k_doInvisible FALSE
 
@@ -341,6 +342,30 @@ void EffectActor::DrawDirectWithFlags(aui_Surface *surf, sint32 x, sint32 y, uin
 	m_effectSpriteGroup->DrawDirect(surf, m_curEffectAction, m_frame, m_x+xoffset, m_y+yoffset,
 								m_shX+xoffset, m_shY+yoffset, m_facing,
 								tiledmap_Get()->GetScale(), m_transparency, color, flags, specialDelayProcess);
+}
+
+bool EffectActor::AddGpuSpriteQuad(sint32 offsetX, sint32 offsetY)
+{
+	if (!m_effectSpriteGroup || !m_curAction)
+		return false;
+
+	uint16 flags = k_DRAWFLAGS_NORMAL;
+	if (m_transparency < 15)
+		flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
+
+	Pixel16 color = 0;
+	BOOL specialDelayProcess = m_curAction->SpecialDelayProcess();
+	sint32 xoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_X * tiledmap_Get()->GetScale());
+	sint32 yoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_Y * tiledmap_Get()->GetScale());
+
+	return m_effectSpriteGroup->AddGpuSpriteQuad(
+		m_curEffectAction, m_frame,
+		m_x + xoffset + offsetX,
+		m_y + yoffset + offsetY,
+		m_shX + xoffset + offsetX,
+		m_shY + yoffset + offsetY,
+		m_facing, tiledmap_Get()->GetScale(), m_transparency, color, flags,
+		specialDelayProcess, m_directionalAttack);
 }
 
 void EffectActor::DrawText(sint32 x, sint32 y, MBCHAR *effectText)

@@ -9,6 +9,8 @@ class MessageEyePointListbox;
 class MessageEyePointListItem;
 class MessageEyePointStandard;
 
+#include <memory>
+
 #include "ui/aui_common/auitypes.h"       // AUI_ERRCODE
 #include "ui/aui_ctp2/c3_listitem.h"
 #include "os/include/ctp2_inttypes.h"  // sintN
@@ -64,8 +66,10 @@ public:
 	virtual AUI_ERRCODE InitCommon( MBCHAR const *ldlBlock, MessageModal *window );
 
 private:
-	aui_Button						*m_button;
-	MessageStandardEyePointAction	*m_action;
+	// The eye-point button and its action are both owned here; the parent
+	// window's control list only borrows the button for layout/drawing.
+	std::unique_ptr<aui_Button>						m_button;
+	std::unique_ptr<MessageStandardEyePointAction>	m_action;
 };
 
 
@@ -91,11 +95,11 @@ private:
         MessageData *   a_Message
     );
 
-	aui_Button *                    m_button;
-	c3_DropDown *                   m_dropdown;
+	std::unique_ptr<aui_Button>                     m_button;
+	std::unique_ptr<c3_DropDown>                    m_dropdown;
 
-	MessageDropdownEyePointAction * m_action;
-	MessageDropdownAction *         m_dropaction;
+	std::unique_ptr<MessageDropdownEyePointAction>  m_action;
+	std::unique_ptr<MessageDropdownAction>          m_dropaction;
 };
 
 
@@ -115,10 +119,12 @@ public:
 	virtual AUI_ERRCODE InitCommon( MBCHAR const *ldlBlock, MessageModal *window );
 
 private:
-	aui_Button						*m_buttonLeft;
-	aui_Button						*m_buttonRight;
-	MessageListboxEyePointAction	*m_action1;
-	MessageListboxEyePointAction	*m_action2;
+	// Left/right eye-point paging buttons and their paired actions; the
+	// actions reference each other, the buttons live in the parent window.
+	std::unique_ptr<aui_Button>						m_buttonLeft;
+	std::unique_ptr<aui_Button>						m_buttonRight;
+	std::unique_ptr<MessageListboxEyePointAction>	m_actionLeft;
+	std::unique_ptr<MessageListboxEyePointAction>	m_actionRight;
 };
 
 #endif

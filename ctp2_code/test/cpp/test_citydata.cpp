@@ -23,6 +23,12 @@
 #include "gs/gameobj/GameSettings.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "ctp/civapp.h"
+#include "gs/core/game.h"
+#include "gs/utility/MapFile.h"
+#include "ai/strategy/scheduler/Scheduler.h"
+#include <array>
+#include <fstream>
+#include <unistd.h>
 
 // Minimal fixture: CityData ctor dereferences world_Get(), player_arr_Get(),
 // g_theCitySizeDB and g_theResourceDB.  After the trampoline migration,
@@ -37,6 +43,10 @@ struct CityDataFixture
     CTPDatabase<ResourceRecord> *stubResourceDB = nullptr;
     CTPDatabase<ConstRecord> *stubConstDB = nullptr;
     CTPDatabase<BuildingRecord> *stubBuildingDB = nullptr;
+    CTPDatabase<CitySizeRecord> *previousCitySizeDB = g_theCitySizeDB;
+    CTPDatabase<ResourceRecord> *previousResourceDB = g_theResourceDB;
+    CTPDatabase<ConstRecord> *previousConstDB = g_theConstDB;
+    CTPDatabase<BuildingRecord> *previousBuildingDB = g_theBuildingDB;
 
     CityDataFixture()
     {
@@ -74,18 +84,19 @@ struct CityDataFixture
 
     ~CityDataFixture()
     {
-        g_theCitySizeDB = nullptr;
-        g_theResourceDB = nullptr;
-        g_theConstDB = nullptr;
-        g_theBuildingDB = nullptr;
         // Game::Cleanup runs in ~CivApp via ~Game on m_game; it tears
         // down m_world and m_playerArr (incl. inner Players) for us.
-        civapp_Set(nullptr);
         delete app;
+        civapp_Set(nullptr);
         delete stubCitySizeDB;
         delete stubResourceDB;
         delete stubConstDB;
         delete stubBuildingDB;
+        // Stub tests can run between tests using the cached real databases.
+        g_theCitySizeDB = previousCitySizeDB;
+        g_theResourceDB = previousResourceDB;
+        g_theConstDB = previousConstDB;
+        g_theBuildingDB = previousBuildingDB;
     }
 };
 
@@ -242,13 +253,16 @@ TEST_CASE_FIXTURE(CityDataFixture, "CityData science and crime defaults")
 //----------------------------------------------------------------------------
 // Heavy fixture: loads all real game databases from ctp2_data/.
 // Databases are loaded once (static) and reused across tests for speed.
-// Each test gets a fresh World; Player array remains null (defensive null
-// checks in production code handle this gracefully).
+// Each test owns a fresh session and one Player for the economy checks.
 //----------------------------------------------------------------------------
 
 #include "ctp/civapp.h"
 #include "gs/fileio/CivPaths.h"
 #include "gs/utility/gameinit.h"
+#include "gs/core/game_observer.h"
+#include "gs/fileio/json_save.h"
+#include "gs/gameobj/MessagePool.h"
+#include "gs/gameobj/MessageData.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/utility/RandGen.h"
@@ -258,13 +272,14 @@ TEST_CASE_FIXTURE(CityDataFixture, "CityData science and crime defaults")
 struct HeavyCityDataFixture
 {
     static bool s_dbsLoaded;
-    static CivApp *s_app;
-
-    World *world = nullptr;
-    Player *player = nullptr;
+    CivApp app;
+    std::array<Player *, k_MAX_PLAYERS> players{};
+    std::unique_ptr<Player> player;
+    std::unique_ptr<SelectedItem> selected;
 
     HeavyCityDataFixture()
     {
+        civapp_Set(&app);
         if (!s_dbsLoaded)
         {
             set_headless(true);
@@ -280,67 +295,99 @@ struct HeavyCityDataFixture
             profiledb_Set(new ProfileDB());
             profiledb_Get()->Init(FALSE);
 
-            // CivApp must exist before trampoline-routed _Set calls
-            // (gamesettings_Set / civilisationpool_Set write into
-            // civapp_Get()->GetGame()).
-            s_app = new CivApp();
-            civapp_Set(s_app);
-            if (!s_app->InitializeAppDB())
+            if (!app.InitializeAppDB())
             {
                 fprintf(stderr, "[HeavyFixture] WARNING: InitializeAppDB failed\n");
             }
-
-            gamesettings_Set(new GameSettings());
-            civilisationpool_Set(new CivilisationPool());
 
             fprintf(stderr, "[HeavyFixture] Databases loaded.\n");
             s_dbsLoaded = true;
         }
 
-        // civapp_Get() may have been nulled by a previous test's fixture
-        // destructor.  Restore it FIRST so the trampoline-routed
-        // foo_Set calls below find the live Game container.
-        civapp_Set(s_app);
-
-        world = new World(MapPoint(64, 48), false, false);
-        world_Set(world);
-
-        player_arr_Set(new Player *[k_MAX_PLAYERS]);
-        for (int i = 0; i < k_MAX_PLAYERS; ++i)
-        {
-            player_arr_Get()[i] = nullptr;
-        }
-
-        // SelectedItem and SlicEngine must exist before Player construction.
-        // Player::InitPlayer calls Advances::InitialAdvance which calls
-        // slicengine_Get()->CallMod, and other sub-objects may query selitem_Get().
-        selitem_Set(new SelectedItem(1));
+        world_Set(new World(MapPoint(64, 48), false, false));
+        gamesettings_Set(new GameSettings());
+        civilisationpool_Set(new CivilisationPool());
+        player_arr_Set(players.data());
+        selected = std::make_unique<SelectedItem>(1);
+        selitem_Set(selected.get());
         slicengine_Set(new SlicEngine());
         rand_ptr_Set(new RandomGenerator(12345));
         // Test fixture: no real game setup. Default to 0 players, year 0;
         // the test exercises CityData logic, not TurnCount semantics.
         turn_Set(new TurnCount(0, 0));
 
-        player = new Player(0, 0, PLAYER_TYPE_HUMAN);
+        // Player registers itself in the legacy array; the fixture owns it.
+        player = std::make_unique<Player>(0, 0, PLAYER_TYPE_HUMAN);
     }
 
     ~HeavyCityDataFixture()
     {
-        // Intentionally leak player, world, player array, selected_item,
-        // and slic_engine. Their destructors access globals in ways not set
-        // up in the test harness.
-        world_Set(nullptr);
+        // Destroy session state while its trampoline accessors still work.
+        player.reset();
         player_arr_Set(nullptr);
+        app.GetGame()->Cleanup();
         selitem_Set(nullptr);
-        slicengine_Set(nullptr);
         civapp_Set(nullptr);
-        rand_ptr_Set(nullptr);
-        turn_Set(nullptr);
     }
 };
 
 bool HeavyCityDataFixture::s_dbsLoaded = false;
-CivApp *HeavyCityDataFixture::s_app = nullptr;
+
+extern PointerList<Player> *g_deadPlayer;
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "Game cleanup releases live and retired players before their civilisation pool")
+{
+    // Transfer the fixture's real Player and a heap array to Game, just as
+    // production startup does. Exercise both ownership paths with real handles.
+    auto **ownedPlayers = new Player *[k_MAX_PLAYERS]{};
+    ownedPlayers[0] = player.release();
+    player_arr_Set(ownedPlayers);
+    SUBCASE("retired player") {
+        REQUIRE(g_deadPlayer == nullptr);
+        g_deadPlayer = new PointerList<Player>;
+        g_deadPlayer->AddTail(ownedPlayers[0]);
+        ownedPlayers[0] = nullptr;
+    }
+    SUBCASE("live player") {}
+    SUBCASE("partial startup before adoption") {
+        gameinit_Cleanup();
+        CHECK(player_arr_Get() == nullptr);
+        CHECK(civilisationpool_Get() == nullptr);
+        return;
+    }
+    app.GetGame()->NewGame(1, 0, 12345);
+    app.GetGame()->Cleanup();
+    CHECK(player_arr_Get() == nullptr);
+    CHECK(g_deadPlayer == nullptr);
+    CHECK(civilisationpool_Get() == nullptr);
+    app.GetGame()->Cleanup();
+}
+
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "Message pool teardown passes live data to window observers")
+{
+    messagepool_Set(new MessagePool());
+    struct Observer : IGameObserver {
+        int destroyed = 0;
+        void OnMessageWindowDestroy(MessageData const &data) override {
+            CHECK(messagepool_Get() == nullptr);
+            CHECK(data.GetMessageWindow() != nullptr);
+            ++destroyed;
+        }
+    } observer;
+    auto &registry = GameObserverRegistry::Instance();
+    auto *previousRegistry = gameobservers_Get();
+    gameobservers_Set(&registry);
+    registry.Register(&observer);
+    auto message = messagepool_Get()->ServerCreate();
+    // Opaque identity only: the headless observer never dereferences the UI window.
+    char windowIdentity;
+    message.AccessData()->SetMessageWindow(reinterpret_cast<MessageWindow *>(&windowIdentity));
+    app.GetGame()->SetMessagesPtr(nullptr);
+    CHECK(observer.destroyed == 1);
+    registry.Unregister(&observer);
+    gameobservers_Set(previousRegistry);
+}
 
 TEST_CASE_FIXTURE(HeavyCityDataFixture, "Heavy fixture loads real ConstDB")
 {
@@ -845,4 +892,117 @@ TEST_CASE_FIXTURE(CityDataFixture, "CityData InitBeginTurnVariables resets turn 
     CHECK(city.WasTerrainPolluted() == false);
     CHECK(city.WasTerrainImprovementBuilt() == false);
     CHECK(city.WasImprovementBuilt() == false);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "JSON world dimensions reject narrowing before replacing storage")
+{
+    for (auto n : {nlohmann::json(-1), nlohmann::json(0), nlohmann::json(65536),
+                   nlohmann::json(UINT64_MAX), nlohmann::json(0.5)}) {
+        nlohmann::json invalid = {{"size_x", n}, {"size_y", 48}};
+        CHECK_THROWS_AS(invalid.get_to(*world_Get()), nlohmann::json::exception);
+        CHECK(world_Get()->GetWidth() == 64);
+        CHECK(world_Get()->GetHeight() == 48);
+    }
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "Scheduler rejects corrupt graph and numeric fields without replacing goals")
+{
+    Scheduler scheduler;
+    scheduler.SetPlayerId(0);
+    nlohmann::json valid = scheduler;
+    REQUIRE_FALSE(valid["goals"].empty());
+    REQUIRE_NOTHROW(valid.get_to(scheduler));
+    CHECK(nlohmann::json(scheduler) == valid);
+    std::vector<nlohmann::json> invalid;
+    auto j = valid;
+    j["goals"][0]["goal_type"] = UINT64_MAX;
+    invalid.push_back(j);
+    j = valid;
+    j["goals"][0]["playerId"] = uint64_t(1) << 32;
+    invalid.push_back(j);
+    j = valid;
+    j["goals"][0]["target_pos"]["x"] = 64;
+    invalid.push_back(j);
+    j = valid;
+    j["needed_strength"]["agent_count"] = 65536;
+    invalid.push_back(j);
+    j = valid;
+    j["needed_strength"]["attack_str"] = 1e100;
+    invalid.push_back(j);
+    j = valid;
+    j["active_goals"] = {0}; // Generic templates cannot own active slots.
+    invalid.push_back(j);
+    j = valid;
+    j["goals"][0]["matches"] = {{{"agent", 0}}}; // No agents exist.
+    invalid.push_back(j);
+    for (auto const &bad : invalid) {
+        CHECK_THROWS_AS(bad.get_to(scheduler), nlohmann::json::exception);
+        CHECK(nlohmann::json(scheduler) == valid);
+    }
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "Map JSON rejects malformed sections before changing the world")
+{
+    using nlohmann::json;
+    char path[] = "/tmp/ctp2-map-bounds-XXXXXX";
+    int fd = mkstemp(path);
+    REQUIRE(fd >= 0);
+    close(fd);
+    struct RemoveFile { char const *path; ~RemoveFile() { std::remove(path); } } cleanup{path};
+    auto load = [&](json const &doc) {
+        { std::ofstream out(path); out << doc; }
+        MapFile map;
+        return map.Load(path);
+    };
+    json const header = {{"magic", "CTP2-MAP"}, {"schema_version", 1}};
+    REQUIRE(load(header));
+    auto *world = world_Get();
+    auto *cell = world->GetCell(0, 0);
+    json base = header;
+    // A valid terrain section would replace storage if validation ran too late.
+    base["terrain"] = {{"width", 64}, {"height", 48},
+                       {"cells", std::vector<int>(64 * 48, 0)}};
+    for (auto bad : {json(-1), json(0), json(65536), json(UINT64_MAX), json(0.5)}) {
+        auto doc = base;
+        doc["terrain"]["width"] = bad;
+        CHECK_FALSE(load(doc));
+        CHECK(world->GetCell(0, 0) == cell);
+    }
+    std::vector<json> invalid;
+    auto doc = base;
+    doc["terrain"]["cells"][0] = 256;
+    invalid.push_back(doc);
+    doc = base;
+    doc["terrain_env"] = {{"width", 1}, {"height", 1}, {"cells", {0}}};
+    invalid.push_back(doc);
+    for (auto bad : {json(-1), json(k_MAX_PLAYERS), json(UINT64_MAX), json(0.5)}) {
+        doc = base;
+        doc["unit_types"] = {"UNIT_SETTLER"};
+        doc["units"] = {{{"x", 0}, {"y", 0}, {"stack", {{{"owner", bad}, {"type", 0}}}}}};
+        invalid.push_back(doc);
+    }
+    doc = base;
+    doc["cities"] = {{{"x", 64}, {"y", 0}}};
+    invalid.push_back(doc);
+    doc = base;
+    doc["vision"] = {{{"player", 0}, {"width", 1}, {"height", 1}, {"fog", {0}}}};
+    invalid.push_back(doc);
+    doc = base;
+    doc["advance_types"] = {"ADVANCE_AGRICULTURE"};
+    doc["advances"] = {{{"player", 0}, {"has", {1}}}};
+    invalid.push_back(doc);
+    doc = base;
+    doc["civilizations"] = {{{"civ", UINT64_MAX}}};
+    invalid.push_back(doc);
+    doc = base;
+    doc["cities"] = {{{"x", 0}, {"y", 0}, {"owner", 0}, {"size", 1},
+                       {"improvements", "0x1garbage"}, {"wonders", "0x0"}, {"name", "City"}}};
+    invalid.push_back(doc);
+    for (auto const &bad : invalid) {
+        CHECK_FALSE(load(bad));
+        CHECK(world_Get() == world);
+        CHECK(world->GetCell(0, 0) == cell);
+        CHECK(player_Get(0) == player.get());
+        CHECK_FALSE(player->m_disableChooseResearch);
+    }
 }

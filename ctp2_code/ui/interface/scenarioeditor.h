@@ -26,9 +26,9 @@
 //
 // - Added a private static variable and the accoriding access function
 //   to allow newly created cities to have the size displayed in the
-//   city pop spinner, by Martin Gühmann.
-// - Added GetLastPlayer() to get the last player in the game, by Martin Gühmann.
-// - Added a callback function for civ city style spinner. (Jan 4th 2005 Martin Gühmann)
+//   city pop spinner, by Martin Goehmann.
+// - Added GetLastPlayer() to get the last player in the game, by Martin Goehmann.
+// - Added a callback function for civ city style spinner. (Jan 4th 2005 Martin Goehmann)
 // - Fixed debug AI button. (10-Apr-2009 Maq)
 //
 //----------------------------------------------------------------------------
@@ -39,6 +39,8 @@
 class ctp2_Window;
 class ctp2_Switch;
 class ctp2_ListBox;
+#include <memory>
+
 class MapCopyBuffer;
 class FileDialog;
 class ctp2_Button;
@@ -135,7 +137,7 @@ class ScenarioEditor {
 	sint32 m_brushSize;
 	sint32 m_unitIndex;
 	sint32 m_cityStyle;
-	//Added by Martin Gühmann to add the pop number
+	//Added by Martin Goehmann to add the pop number
 	//displayed in the CityPopSpinner to new created cities.
 	sint32 m_newPopSize;
 	SCEN_START_LOC_MODE m_startLocMode;
@@ -143,8 +145,8 @@ class ScenarioEditor {
 	SCEN_MAP_MODE m_mapMode;
 	MapPoint m_regionStart;
 	sint32 m_regionWidth, m_regionHeight;
-	MapCopyBuffer *m_copyBuffer;
-	FileDialog *m_fileDialog;
+	std::unique_ptr<MapCopyBuffer> m_copyBuffer;
+	std::unique_ptr<FileDialog> m_fileDialog;
 	bool m_initializing;
 	sint32 m_placeNationFlag;
 	bool m_isGivingAdvances;
@@ -185,13 +187,14 @@ class ScenarioEditor {
 	static sint32 UnitIndex();
 	static bool PlaceCityMode();
 	static sint32 CityStyle();
-	//Function added by Martin Gühmann so that the
+	//Function added by Martin Goehmann so that the
 	//pop size displayed in the CityPopSpinner can
 	//be added to newly created cities.
 	static sint32 CitySize();
 	static bool PlaceStartFlags();
 	static bool ShowStartFlags();
 	static SCEN_START_LOC_MODE GetStartLocMode();
+	static void DebugSetStartFlags(SCEN_START_LOC_MODE mode);
 	static bool PasteMode();
 	static bool PaintHutMode();
 	static bool PaintRiverMode();

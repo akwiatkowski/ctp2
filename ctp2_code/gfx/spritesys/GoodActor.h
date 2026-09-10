@@ -97,6 +97,7 @@ public:
 	void			DrawSelectionBrackets();
 	bool			Draw(bool fogged = false);
 	void			DrawDirect(aui_Surface *surf, sint32 x, sint32 y, double scale);
+	bool			AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged);
 
 	void			DrawText(sint32 x, sint32 y, MBCHAR const * goodText);
 

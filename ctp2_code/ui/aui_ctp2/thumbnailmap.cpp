@@ -302,7 +302,7 @@ void ThumbnailMap::RenderMap(aui_Surface *surf)
             double      xPos    = (sint32)(k * m_tilePixelWidth);
 			double      yPos    = (sint32)(i * m_tilePixelHeight);
 			MapPoint	pos(j, i);
-			Vision *    vision  = player_Get(selitem_Get()->GetVisiblePlayer())->m_vision;
+			Vision *    vision  = player_Get(selitem_Get()->GetVisiblePlayer())->m_vision.get();
 
             UnseenCellCarton	cellCarton;
 			Unit				top;

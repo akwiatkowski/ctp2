@@ -76,7 +76,7 @@ void NetCity::Packetize(uint8* buf, uint16& size)
 	NetUnit::PacketizeUnit(&buf[6], unitSize, m_unitData);
 
 	size = 6 + unitSize;
-	CityData* cityData = m_unitData->m_city_data;
+	CityData* cityData = m_unitData->m_city_data.get();
 
 	PUSHBYTE(m_isInitialPacket);
 
@@ -190,7 +190,7 @@ void NetCity::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		unitData->m_city_data->m_owner = unitData->m_owner;
 
 		pos = 6 + unitSize;
-		CityData* cityData = unitData->m_city_data;
+		CityData* cityData = unitData->m_city_data.get();
 
 		double oldVision = cityData->GetVisionRadius();
 

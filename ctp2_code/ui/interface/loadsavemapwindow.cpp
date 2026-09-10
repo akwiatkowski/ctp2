@@ -103,38 +103,38 @@ AUI_ERRCODE LoadSaveMapWindow::InitCommonLdl(MBCHAR *ldlBlock)
 		"DeleteButton",
 		loadsavemapscreen_deletePress );
 
-	m_nameString = spNewStringTable(&errcode, "LSMSStringTable");
+	m_nameString.reset(spNewStringTable(&errcode, "LSMSStringTable"));
 	Assert(m_nameString);
 	if (!m_nameString) return AUI_ERRCODE_LOADFAILED;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "TitlePanel");
-	m_titlePanel = new c3_Static(&errcode, aui_UniqueId(), block);
+	m_titlePanel.reset(new c3_Static(&errcode, aui_UniqueId(), block));
 	Assert(m_titlePanel);
 	if (!m_titlePanel) return AUI_ERRCODE_LOADFAILED;
 
-	m_gameMapText = spNew_c3_Static(&errcode, block, "GameMapText");
+	m_gameMapText.reset(spNew_c3_Static(&errcode, block, "GameMapText"));
 	Assert(m_gameMapText);
 	if (!m_gameMapText) return AUI_ERRCODE_LOADFAILED;
 
-	m_gameMapTextBox = spNewTextEntry(&errcode, block, "GameMapTextBox");
+	m_gameMapTextBox.reset(spNewTextEntry(&errcode, block, "GameMapTextBox"));
 	Assert(m_gameMapTextBox);
 	if (!m_gameMapTextBox) return AUI_ERRCODE_LOADFAILED;
 	m_gameMapTextBox->SetIsFileName(TRUE);
 
-	m_saveMapText = spNew_c3_Static(&errcode, block, "SaveMapText");
+	m_saveMapText.reset(spNew_c3_Static(&errcode, block, "SaveMapText"));
 	Assert(m_saveMapText);
 	if (!m_saveMapText) return AUI_ERRCODE_LOADFAILED;
 
-	m_saveMapTextBox = spNewTextEntry(&errcode, block, "SaveMapTextBox");
+	m_saveMapTextBox.reset(spNewTextEntry(&errcode, block, "SaveMapTextBox"));
 	Assert(m_saveMapTextBox);
 	if (!m_saveMapTextBox) return AUI_ERRCODE_LOADFAILED;
 	m_saveMapTextBox->SetIsFileName(TRUE);
 
-	m_noteText = spNew_c3_Static(&errcode, block, "NoteText");
+	m_noteText.reset(spNew_c3_Static(&errcode, block, "NoteText"));
 	Assert(m_noteText);
 	if (!m_noteText) return AUI_ERRCODE_LOADFAILED;
 
-	m_noteTextBox = spNewTextEntry(&errcode, block, "NoteTextBox");
+	m_noteTextBox.reset(spNewTextEntry(&errcode, block, "NoteTextBox"));
 	Assert(m_noteTextBox);
 	if (!m_noteTextBox) return AUI_ERRCODE_LOADFAILED;
 
@@ -161,7 +161,7 @@ AUI_ERRCODE LoadSaveMapWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	if ( !AUI_NEWOK(m_mapTab, errcode) ) return AUI_ERRCODE_LOADFAILED;
 
 	snprintf(block, sizeof(block), "%s.pane.%s", tabBlock, "MapImage");
-	m_mapTabImage = new c3_Static(&errcode, aui_UniqueId(), block);
+	m_mapTabImage.reset(new c3_Static(&errcode, aui_UniqueId(), block));
 	Assert(m_mapTabImage);
 	if (!m_mapTabImage) return AUI_ERRCODE_LOADFAILED;
 
@@ -185,24 +185,24 @@ LoadSaveMapWindow::~LoadSaveMapWindow()
 {
 	CleanUpSaveMapInfo();
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; }
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
-	mycleanup(m_nameString);
+	m_nameString.reset();
 
-	mycleanup(m_titlePanel);
-	mycleanup(m_gameMapText);
-	mycleanup(m_gameMapTextBox);
-	mycleanup(m_saveMapText);
-	mycleanup(m_saveMapTextBox);
-	mycleanup(m_noteText);
-	mycleanup(m_noteTextBox);
+	m_titlePanel.reset();
+	m_gameMapText.reset();
+	m_gameMapTextBox.reset();
+	m_saveMapText.reset();
+	m_saveMapTextBox.reset();
+	m_noteText.reset();
+	m_noteTextBox.reset();
 
 	mycleanup(m_listOne);
 	mycleanup(m_listTwo);
 
 	mycleanup(m_tabGroup);
 	mycleanup(m_mapTab);
-	mycleanup(m_mapTabImage);
+	m_mapTabImage.reset();
 	mycleanup(m_mapTabImageBackup);
 
 	mycleanup(m_deleteButton);

@@ -48,7 +48,7 @@ public:
 
 	bool IsProcessing() const
     {
-        return(!m_activeEvents->IsEmpty() || !m_eventQueue->IsEmpty());
+        return(!m_activeEvents.IsEmpty() || !m_eventQueue->IsEmpty());
     }
 
 
@@ -92,7 +92,7 @@ private:
 	sint32						m_numDefenders;
 	BattleViewActor *           m_defenders[k_MAX_UNITS_PER_SIDE];
 	PointerList<BattleEvent> *  m_eventQueue;
-	PointerList<BattleEvent> *  m_activeEvents;
+	PointerList<BattleEvent> m_activeEvents;   // held by value
 	PointerList<BattleEvent>::Walker *
                                 m_walker;
 	BattleEvent	*               m_activeEvent;

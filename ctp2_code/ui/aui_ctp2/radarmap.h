@@ -227,7 +227,10 @@ private:
 	double		m_tilePixelWidth,
 				m_tilePixelHeight;
 	aui_Surface *m_tempSurface;
-	uint8		*m_tempBuffer;
+	// Pixel backing for m_tempSurface (owned here; the surface borrows a
+	// pointer into it). Sized/zeroed by CalculateMetrics on every map-size
+	// change.
+	std::vector<uint8>	m_tempBuffer;
 	RECT		m_mapViewRect;
 	MapPoint	m_lastCenteredPoint;
 	Unit		m_selectedCity;

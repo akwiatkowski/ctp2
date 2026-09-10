@@ -47,8 +47,13 @@ class MapAnalysis;
 
 #define SOME_EXPERIMENTAL_STUFF_IN_MAPANALYSIS
 
+#include <nlohmann/json.hpp>
+class MapAnalysis;
+
 class MapAnalysis
 {
+    friend void to_json(nlohmann::json &j, MapAnalysis const &m);
+    friend void from_json(nlohmann::json const &j, MapAnalysis &m);
 public:
 
     typedef std::vector<MapGrid<sint32> > MapGridVector;

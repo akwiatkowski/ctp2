@@ -491,7 +491,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		+ ((m_numPreReq + m_numEitherPreReq) - 1) * heightBetweenButtons)) / 2;
 
 	sint32 curPlayer = selitem_Get()->GetVisiblePlayer();
-	uint8 *adv = player_Get(curPlayer)->m_advances->CanResearch();
+	const std::vector<uint8_t> &adv = player_Get(curPlayer)->m_advances->CanResearch();
 
 	for ( i = 0; i < m_numPreReq; i++ )
 	{
@@ -654,8 +654,6 @@ AUI_ERRCODE Chart::Update( sint32 index )
 	{
 		m_leadsToButton[i++]->Hide();
 	}
-
-	delete adv;
 
 	ShouldDraw();
 

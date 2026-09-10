@@ -78,24 +78,8 @@ Sprite::Sprite()
 }
 
 
-Sprite::~Sprite()
-{
-	for (size_t i = 0; i < m_numFrames; ++i)
-	{
-		if (i < m_frames.size() && m_frames[i] != nullptr) {
-			delete [] (m_frames[i]);
-			m_frames[i] = nullptr;
-		}
-		if (i < m_miniframes.size() && m_miniframes[i] != nullptr) {
-			delete [] (m_miniframes[i]);
-			m_miniframes[i] = nullptr;
-		}
-	}
-	m_frames.clear();
-	m_framesSizes.clear();
-	m_miniframes.clear();
-	m_miniframesSizes.clear();
-}
+// No frame teardown here: each SpriteFrame releases its own buffer.
+Sprite::~Sprite() = default;
 
 
 void Sprite::Load(char const * filename)
@@ -118,55 +102,25 @@ void Sprite::Save(char const * filename)
 
 
 
-void Sprite::ImportTIFF(uint16 index, char **imageFiles,Pixel32 **imageData, size_t *size)
+void Sprite::ImportTIFF(uint16 index, char **imageFiles, std::vector<Pixel32> &imageData, size_t *size)
 {
-
-		*imageData = (Pixel32 *)StripTIF2Mem(imageFiles[index], &m_width, &m_height, size);
+	// StripTIF2Mem returns a malloc'd buffer; own it, copy into the vector,
+	// and let TifBuffer free the source. This gives every import path (TIFF
+	// and TGA) the SAME owning container — the old raw pointer was malloc'd
+	// here but array-allocated in ImportTGA, so the caller's uniform delete[]
+	// was undefined behaviour on TIFF sprites.
+	TifBuffer buf(StripTIF2Mem(imageFiles[index], &m_width, &m_height, size));
+	Pixel32 const * pixels = (Pixel32 const *)buf.get();
+	if (pixels)
+		imageData.assign(pixels, pixels + static_cast<size_t>(m_width) * m_height);
+	else
+		imageData.clear();
 }
-#if 0
-
-		if (tif)
-		{
-			uint16	width, height;
-
-			spriteutils_CreateQuarterSize((Pixel32 *)tif, m_width, m_height, (Pixel32 **)&minitif, TRUE);
-
-			char *shadowTif = StripTIF2Mem(shadowFiles[index], &width, &height);
-
-			if (shadowTif)
-			{
-
-				spriteutils_CreateQuarterSize((Pixel32 *)shadowTif, m_width, m_height, (Pixel32 **)&minishadow, FALSE);
-			}
-
-			size_t size;
-			Pixel16 *frame = spriteutils_RGB32ToEncoded((Pixel32 *)tif, (Pixel32 *)shadowTif, m_width, m_height, &size);
-			if (frame) {
-				SetFrameData(index, frame, size);
-			}
-
-			Pixel16	*miniframe = spriteutils_RGB32ToEncoded((Pixel32 *)minitif, (Pixel32 *)minishadow, m_width >> 1, m_height >> 1, &size);
-			if (miniframe) {
-				SetMiniFrameData(index, miniframe, size);
-			}
-
-			if (shadowTif)  free (shadowTif);
-			if (minishadow) free (minishadow);
-
-			if (tif) free(tif);
-			if (minitif) free(minitif);
-		}
-		else
-		{
-			printf("Could not find %s.\n", imageFiles[index]);
-		}
-}
-#endif
 
 
 
 
-void Sprite::ImportTGA(uint16 index, char **imageFiles,Pixel32 **imageData, size_t *size)
+void Sprite::ImportTGA(uint16 index, char **imageFiles, std::vector<Pixel32> &imageData, size_t *size)
 {
 	int		bpp;
 	int     w;
@@ -175,7 +129,7 @@ void Sprite::ImportTGA(uint16 index, char **imageFiles,Pixel32 **imageData, size
 	if (!Get_TGA_Dimension(imageFiles[index], w, h, bpp))
 	{
 		printf("Bad TGA Sprite File(%s)\n",imageFiles[index]);
-		*imageData = nullptr;
+		imageData.clear();
 		fcloseall();
 		exit(0);
 		return;
@@ -184,22 +138,22 @@ void Sprite::ImportTGA(uint16 index, char **imageFiles,Pixel32 **imageData, size
 	if (bpp!=4)
 	{
 		printf("TGA Sprite File not 32-bits(%s)\n",imageFiles[index]);
-		*imageData=nullptr;
+		imageData.clear();
 		fcloseall();
 		exit(0);
 		return;
 	}
 
-	*imageData = new Pixel32[w*h];
+	imageData.resize(static_cast<size_t>(w) * h);
 	if (size)
-		*size = w * h * sizeof(Pixel32);
+		*size = static_cast<size_t>(w) * h * sizeof(Pixel32);
 
-	Load_TGA_File_Simple(imageFiles[index],(unsigned char *)*imageData,w*sizeof(Pixel32),w,h);
+	Load_TGA_File_Simple(imageFiles[index],(unsigned char *)imageData.data(),w*sizeof(Pixel32),w,h);
 
 	m_width  = (uint16)w;
 	m_height = (uint16)h;
 
-	TGA2RGB32((Pixel32 *)*imageData,w*h);
+	TGA2RGB32(imageData.data(),w*h);
 }
 
 
@@ -210,20 +164,10 @@ void Sprite::Import(size_t nframes, char **imageFiles, char **shadowFiles)
 {
 	m_numFrames = static_cast<uint16>(nframes);
 
-	m_frames.assign(m_numFrames, nullptr);
-	m_framesSizes.resize(m_numFrames);
-
-	m_miniframes.assign(m_numFrames, nullptr);
-	m_miniframesSizes.resize(m_numFrames);
-
-	Pixel32 *image;
-	Pixel32 *miniimage;
-	size_t   imageSize;
-	size_t   miniimageSize;
-	Pixel32 *shadow;
-	Pixel32 *minishadow;
-	size_t   shadowSize;
-	size_t   minishadowSize;
+	m_frames.clear();
+	m_miniframes.clear();
+	m_frames.resize(m_numFrames);
+	m_miniframes.resize(m_numFrames);
 
 	for (uint16 i=0; i<m_numFrames; i++)
 	{
@@ -231,22 +175,22 @@ void Sprite::Import(size_t nframes, char **imageFiles, char **shadowFiles)
 
 		Pixel16 *data   = nullptr;
 		size_t dataSize = 0;
-		image		= nullptr;
-		imageSize       = 0;
-		miniimage	= nullptr;
-		miniimageSize   = 0;
-		shadow		= nullptr;
-		shadowSize      = 0;
-		minishadow	= nullptr;
-		minishadowSize  = 0;
+		// Owning buffers — freed automatically at loop end (the old raw
+		// pointers were freed with delete[] regardless of whether TIFF's
+		// malloc or TGA's array allocation produced them: UB on the TIFF
+		// path).
+		std::vector<Pixel32> image;
+		std::vector<Pixel32> miniimage;
+		std::vector<Pixel32> shadow;
+		std::vector<Pixel32> minishadow;
 
 		_splitpath(imageFiles[i],nullptr,nullptr,nullptr,ext);
 
 		if (strstr(strupr(ext),"TIF"))
-			ImportTIFF(i,imageFiles,&image,&imageSize);
+			ImportTIFF(i,imageFiles,image);
 		else
 			if (strstr(strupr(ext),"TGA"))
-				ImportTGA(i,imageFiles,&image, &imageSize);
+				ImportTGA(i,imageFiles,image);
 			else
 			{
 				printf("Unknown image file \"%s\"\n",imageFiles[i]);
@@ -257,64 +201,27 @@ void Sprite::Import(size_t nframes, char **imageFiles, char **shadowFiles)
 		_splitpath(shadowFiles[i],nullptr,nullptr,nullptr,ext);
 
 		if (strstr(strupr(ext),"TIF"))
-			ImportTIFF(i,shadowFiles,&shadow, &shadowSize);
+			ImportTIFF(i,shadowFiles,shadow);
 		else
 			if (strstr(strupr(ext),"TGA"))
-				ImportTGA(i,shadowFiles,&shadow, &shadowSize);
+				ImportTGA(i,shadowFiles,shadow);
 
-		if (image)
+		if (!image.empty())
 		{
+			Pixel32 * shadowPtr = shadow.empty() ? nullptr : shadow.data();
 
+			miniimage = spriteutils_CreateQuarterSize(image.data(), m_width, m_height, TRUE);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			spriteutils_CreateQuarterSize(image, m_width, m_height,&miniimage, TRUE);
-
-			data = spriteutils_RGB32ToEncoded(image,shadow, m_width, m_height, &dataSize);
+			data = spriteutils_RGB32ToEncoded(image.data(), shadowPtr, m_width, m_height, &dataSize);
 			SetFrameData(i, data, dataSize);
 
-			if (shadow)
-				spriteutils_CreateQuarterSize(shadow, m_width, m_height,&minishadow, FALSE);
+			if (!shadow.empty())
+				minishadow = spriteutils_CreateQuarterSize(shadow.data(), m_width, m_height, FALSE);
 
-			data = spriteutils_RGB32ToEncoded(miniimage, minishadow, m_width >> 1, m_height >> 1, &dataSize);
+			Pixel32 * minishadowPtr = minishadow.empty() ? nullptr : minishadow.data();
+			data = spriteutils_RGB32ToEncoded(miniimage.data(), minishadowPtr, m_width >> 1, m_height >> 1, &dataSize);
 			SetMiniFrameData(i, data, dataSize);
 		}
-
-				delete []image;
-				delete []shadow;
-			delete []miniimage;
-			delete []minishadow;
 
 		printf(".");
 	}
@@ -404,30 +311,30 @@ void Sprite::Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale, sint1
 	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 5) {
 			if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-				(this->*_DrawFlashLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+				(this->*_DrawFlashLow)(m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 			} else {
-				(this->*_DrawLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+				(this->*_DrawLow)(m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 			}
 		} else {
 			if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-				(this->*_DrawFlashLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+				(this->*_DrawFlashLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 			} else {
-				(this->*_DrawLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+				(this->*_DrawLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 			}
 		}
 	} else {
 		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 5) {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+					(this->*_DrawFlashLow)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 				} else {
-					(this->*_DrawLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+					(this->*_DrawLow)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 				}
 			} else {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+					(this->*_DrawFlashLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 				} else {
-					(this->*_DrawLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+					(this->*_DrawLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 				}
 			}
 		} else {
@@ -437,18 +344,18 @@ void Sprite::Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale, sint1
 
 			if (facing < 5) {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, FALSE);
 				} else {
-					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, FALSE);
 				}
 			} else {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, TRUE);
 				} else {
-					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, TRUE);
 				}
 			}
@@ -500,16 +407,16 @@ BOOL Sprite::HitTest(POINT mousePt, sint32 drawX, sint32 drawY, sint32 facing, d
 
 	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 5) {
-			return HitTestLow(mousePt, m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+			return HitTestLow(mousePt, m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 		} else {
-			return HitTestLowReversed(mousePt, m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+			return HitTestLowReversed(mousePt, m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 		}
 	} else {
 		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 5) {
-				return HitTestLow(mousePt, m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+				return HitTestLow(mousePt, m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 			} else {
-				return HitTestLowReversed(mousePt, m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+				return HitTestLowReversed(mousePt, m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 			}
 		} else {
 
@@ -517,10 +424,10 @@ BOOL Sprite::HitTest(POINT mousePt, sint32 drawX, sint32 drawY, sint32 facing, d
 			sint32 destHeight = (sint32)(m_height * scale);
 
 			if (facing < 5) {
-				return HitTestScaledLow(mousePt, (Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+				return HitTestScaledLow(mousePt, (Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 									transparency, outlineColor, flags, FALSE);
 			} else {
-				return HitTestScaledLow(mousePt, (Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+				return HitTestScaledLow(mousePt, (Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 									transparency, outlineColor, flags, TRUE);
 			}
 		}
@@ -563,30 +470,30 @@ void Sprite::DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint32 fa
 	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 5) {
 			if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-				(this->*_DrawFlashLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+				(this->*_DrawFlashLow)(m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 			} else {
-				(this->*_DrawLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+				(this->*_DrawLow)(m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 			}
 		} else {
 			if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-				(this->*_DrawFlashLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+				(this->*_DrawFlashLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 			} else {
-				(this->*_DrawLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+				(this->*_DrawLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 			}
 		}
 	} else {
 		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 5) {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+					(this->*_DrawFlashLow)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 				} else {
-					(this->*_DrawLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+					(this->*_DrawLow)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 				}
 			} else {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+					(this->*_DrawFlashLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 				} else {
-					(this->*_DrawLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+					(this->*_DrawLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 				}
 			}
 		} else {
@@ -596,18 +503,18 @@ void Sprite::DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint32 fa
 
 			if (facing < 5) {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, FALSE);
 				} else {
-					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, FALSE);
 				}
 			} else {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
-					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawFlashScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, TRUE);
 				} else {
-					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+					(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 										transparency, outlineColor, flags, TRUE);
 				}
 			}
@@ -642,28 +549,28 @@ void Sprite::DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing, double s
 	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 4 && facing > 0)
 		{
-			(this->*_DrawLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
+			(this->*_DrawLow)(m_frames[m_currentFrame].Pixels(), drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 		}
 		else if (facing == 4 || facing == 0)
 		{
-			(this->*_DrawLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+			(this->*_DrawLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 		}
 		else
 		{
-			(this->*_DrawLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
+			(this->*_DrawLowReversed)(m_frames[m_currentFrame].Pixels(), drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 		}
 	} else {
 		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 4 && facing > 0)
 			{
-				(this->*_DrawLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
+				(this->*_DrawLow)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 			}
 			else if (facing == 4 || facing == 0)
 			{
-				(this->*_DrawLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+				(this->*_DrawLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 			} else
 			{
-				(this->*_DrawLowReversed)(m_miniframes[m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
+				(this->*_DrawLowReversed)(m_miniframes[m_currentFrame].Pixels(), drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 			}
 		} else {
 
@@ -672,16 +579,16 @@ void Sprite::DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing, double s
 
 			if (facing < 4 && facing > 0)
 			{
-				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 					transparency, outlineColor, flags, FALSE);
 			}
 			else if (facing == 4 || facing == 0)
 			{
-				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 									transparency, outlineColor, flags, TRUE);
 			} else
 			{
-				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame], drawX, drawY, destWidth, destHeight,
+				(this->*_DrawScaledLow)((Pixel16 *)m_frames[m_currentFrame].Pixels(), drawX, drawY, destWidth, destHeight,
 									transparency, outlineColor, flags, TRUE);
 			}
 		}
@@ -697,7 +604,7 @@ Pixel16 *Sprite::GetFrameData(uint16 frameNum)
 	Assert(!m_frames.empty());
 	if (m_frames.empty()) return nullptr;
 
-	return m_frames[frameNum];
+	return m_frames[frameNum].Pixels();
 }
 
 size_t Sprite::GetFrameDataSize(uint16 frameNum)
@@ -705,16 +612,7 @@ size_t Sprite::GetFrameDataSize(uint16 frameNum)
 	Assert(frameNum < m_numFrames);
 	if (frameNum >= m_numFrames) return 0;
 
-	Assert(!m_framesSizes.empty());
-	if (m_framesSizes.empty()) return 0;
-
-#ifdef _WINDOWS
-	Assert(m_framesSizes[frameNum] == _msize(GetFrameData(frameNum)));
-
-	return _msize(GetFrameData(frameNum));
-#else
-	return m_framesSizes[frameNum];
-#endif
+	return m_frames[frameNum].Size();
 }
 
 Pixel16 *Sprite::GetMiniFrameData(uint16 frameNum)
@@ -725,7 +623,7 @@ Pixel16 *Sprite::GetMiniFrameData(uint16 frameNum)
 	Assert(!m_miniframes.empty());
 	if (m_miniframes.empty()) return nullptr;
 
-	return m_miniframes[frameNum];
+	return m_miniframes[frameNum].Pixels();
 }
 
 size_t Sprite::GetMiniFrameDataSize(uint16 frameNum)
@@ -733,16 +631,7 @@ size_t Sprite::GetMiniFrameDataSize(uint16 frameNum)
 	Assert(frameNum < m_numFrames);
 	if (frameNum >= m_numFrames) return NULL;
 
-	Assert(!m_miniframesSizes.empty());
-	if (m_miniframesSizes.empty()) return 0;
-
-#ifdef _WINDOWS
-	Assert(m_miniframesSizes[frameNum] == _msize(GetMiniFrameData(frameNum)));
-
-	return _msize(GetMiniFrameData(frameNum));
-#else
-	return m_miniframesSizes[frameNum];
-#endif
+	return m_miniframes[frameNum].Size();
 }
 
 void Sprite::SetFrameData(uint16 frameNum, Pixel16 *data, size_t size)
@@ -754,14 +643,7 @@ void Sprite::SetFrameData(uint16 frameNum, Pixel16 *data, size_t size)
 	Assert(!m_frames.empty());
 	if (m_frames.empty()) return;
 
-	m_frames[frameNum] = data;
-
-	Assert(!m_framesSizes.empty());
-	if (m_framesSizes.empty()) return;
-#ifdef _WINDOWS
-//	Assert(size == _msize(data));
-#endif
-	m_framesSizes[frameNum] = size;
+	m_frames[frameNum].Adopt(data, size);
 }
 
 
@@ -776,14 +658,7 @@ void Sprite::SetMiniFrameData(uint16 frameNum, Pixel16 *data, size_t size)
 	Assert(!m_miniframes.empty());
 	if (m_miniframes.empty()) return;
 
-	m_miniframes[frameNum] = data;
-
-	Assert(!m_miniframesSizes.empty());
-	if (m_miniframesSizes.empty()) return;
-#ifdef _WINDOWS
-//	Assert(size == _msize(data));
-#endif
-	m_miniframesSizes[frameNum] = size;
+	m_miniframes[frameNum].Adopt(data, size);
 }
 
 
@@ -833,33 +708,17 @@ sint32 Sprite::ParseFromTokens(Token *theToken)
 
 void Sprite::AllocateFrameArrays(size_t count)
 {
-    // Two-phase sprite loads (Basic then Full) reuse the same Sprite object.
-    // Free any previously allocated arrays and per-frame buffers before we
-    // reallocate; the old Asserts here were no-ops in release builds and
-    // silently leaked.  See lessons/ctp2.md (Anim buffer-reuse pattern).
-    for (size_t i = 0; i < m_numFrames; ++i)
-    {
-        if (i < m_frames.size() && m_frames[i])
-        {
-            delete [] m_frames[i];
-            m_frames[i] = nullptr;
-        }
-        if (i < m_miniframes.size() && m_miniframes[i])
-        {
-            delete [] m_miniframes[i];
-            m_miniframes[i] = nullptr;
-        }
-    }
-    m_frames.clear();
-    m_framesSizes.clear();
-    m_miniframes.clear();
-    m_miniframesSizes.clear();
+    // Two-phase sprite loads (Basic then Full) reuse the same Sprite object, so
+    // this has to discard whatever the previous load left behind. Assigning
+    // fresh SpriteFrames releases the old buffers; the old Asserts that guarded
+    // this were no-ops in release builds and silently leaked.
+    // See lessons/ctp2.md (Anim buffer-reuse pattern).
+    m_numFrames = static_cast<uint16>(count);
 
-    m_numFrames     = static_cast<uint16>(count);
-	m_frames.assign(m_numFrames, nullptr);
-	m_framesSizes.assign(m_numFrames, 0);
-	m_miniframes.assign(m_numFrames, nullptr);
-	m_miniframesSizes.assign(m_numFrames, 0);
+    m_frames.clear();
+    m_miniframes.clear();
+    m_frames.resize(m_numFrames);
+    m_miniframes.resize(m_numFrames);
 }
 
 void Sprite::Export(FILE *file)

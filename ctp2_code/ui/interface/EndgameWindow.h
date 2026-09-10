@@ -4,6 +4,9 @@
 #ifndef _BMH_END_GAME_WINDOW_H_
 #define _BMH_END_GAME_WINDOW_H_
 
+#include <memory>
+#include <vector>
+
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/keyboardhandler.h"
 
@@ -64,56 +67,51 @@ public:
 
 protected:
 
-	EndGameWindow() : C3Window() {}
-
 	void InitCommonLdl(MBCHAR *ldlBlock);
-
-	void CleanPointers();
-
-	void CleanUp(aui_Control *control);
 
 	void UpdateBlend(sint32 deltaTime, c3_Blend *blendControl);
 
 private:
 
-	MBCHAR *m_embryoTankName;
-	MBCHAR *m_containmentFieldName;
-	MBCHAR *m_ECDName;
-	MBCHAR *m_splicerName;
+	MBCHAR *m_embryoTankName = nullptr;
+	MBCHAR *m_containmentFieldName = nullptr;
+	MBCHAR *m_ECDName = nullptr;
+	MBCHAR *m_splicerName = nullptr;
 
-	sint32 m_numberOfStages;
-	sint32 m_numberOfContainmentFields;
-	sint32 m_numberOfECDs;
-	sint32 m_numberOfSplicers;
-	sint32 m_numberOfBackgroundAnims;
+	// LDL-driven sizes; the vectors below are resized to exactly these.
+	sint32 m_numberOfStages = 0;
+	sint32 m_numberOfContainmentFields = 0;
+	sint32 m_numberOfECDs = 0;
+	sint32 m_numberOfSplicers = 0;
+	sint32 m_numberOfBackgroundAnims = 0;
 
-	aui_Static *m_background;
-	aui_Static *m_border;
-	aui_Static *m_brokenTank;
-	c3_Blend *m_embryoTank;
-	c3_Blend **m_embryoStage;
-	c3_Blend **m_containmentField;
-	c3_Blend **m_ECD;
-	c3_Blend **m_splicer;
+	std::unique_ptr<aui_Static> m_background;
+	std::unique_ptr<aui_Static> m_border;
+	std::unique_ptr<aui_Static> m_brokenTank;
+	std::unique_ptr<c3_Blend> m_embryoTank;
+	std::vector<std::unique_ptr<c3_Blend>> m_embryoStage;
+	std::vector<std::unique_ptr<c3_Blend>> m_containmentField;
+	std::vector<std::unique_ptr<c3_Blend>> m_ECD;
+	std::vector<std::unique_ptr<c3_Blend>> m_splicer;
 
-	c3_Animation **m_backgroundAnim;
-	c3_Animation *m_embryoGlow;
+	std::vector<std::unique_ptr<c3_Animation>> m_backgroundAnim;
+	std::unique_ptr<c3_Animation> m_embryoGlow;
 
 
-	c3_DarkenArea *m_darkenArea;
-	sint32 m_numberOfLabels;
-	aui_Static **m_labels;
-	c3_ColoredStatic *m_progressBackground;
-	c3_YetAnotherProgressBar *m_turnProgress;
-	aui_Static *m_turnsRemaining;
-	aui_Static *m_ecdRatio;
-	aui_Static *m_containmentFieldRatio;
-	aui_Static *m_splicerRatio;
-	aui_Static *m_chanceOfFailure;
-	sint32 m_numberOfStageLights;
-	c3_ColoredStatic **m_stageLights;
+	std::unique_ptr<c3_DarkenArea> m_darkenArea;
+	sint32 m_numberOfLabels = 0;
+	std::vector<std::unique_ptr<aui_Static>> m_labels;
+	std::unique_ptr<c3_ColoredStatic> m_progressBackground;
+	std::unique_ptr<c3_YetAnotherProgressBar> m_turnProgress;
+	std::unique_ptr<aui_Static> m_turnsRemaining;
+	std::unique_ptr<aui_Static> m_ecdRatio;
+	std::unique_ptr<aui_Static> m_containmentFieldRatio;
+	std::unique_ptr<aui_Static> m_splicerRatio;
+	std::unique_ptr<aui_Static> m_chanceOfFailure;
+	sint32 m_numberOfStageLights = 0;
+	std::vector<std::unique_ptr<c3_ColoredStatic>> m_stageLights;
 
-	c3_Button *m_exitButton;
+	std::unique_ptr<c3_Button> m_exitButton;
 
 	sint32 m_blendSpeed;
 

@@ -25,6 +25,7 @@
 
 #include "ctp/c3.h"
 #include "doctest.h"
+#include "headless_test_config.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -36,33 +37,11 @@
 
 namespace {
 
-static const char *HEADLESS_CANDIDATES[] = {
-    "./build/ctp2_headless",
-    "./build-sanitized/ctp2_headless",
-    "./ctp2_headless",
-    nullptr,
-};
-
-const char *find_headless()
-{
-    for (const char **p = HEADLESS_CANDIDATES; *p; ++p) {
-        if (std::FILE *f = std::fopen(*p, "r")) {
-            std::fclose(f);
-            return *p;
-        }
-    }
-    return nullptr;
-}
-
 // Run ctp2_headless with the given CLI args.  Captures merged stdout+stderr
 // into `log` (if non-null).  Returns true iff the process exits cleanly (0).
 bool run_headless_raw(const char *args, std::string *log)
 {
-    const char *bin = find_headless();
-    if (!bin) {
-        if (log) *log = "[ERROR] ctp2_headless not found";
-        return false;
-    }
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     char cmd[1024];
     std::snprintf(cmd, sizeof(cmd), "%s %s 2>&1", bin, args);

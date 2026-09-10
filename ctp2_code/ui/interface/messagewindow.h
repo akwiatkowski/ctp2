@@ -4,6 +4,7 @@
 #ifndef __MESSAGE_WINDOW_H__
 #define __MESSAGE_WINDOW_H__
 
+#include <memory>
 #include "ui/aui_ctp2/c3_popupwindow.h"
 #include "ui/aui_common/aui_textbase.h"
 #include "gs/gameobj/message.h"
@@ -65,8 +66,8 @@ public:
 
 	PLAYER_INDEX		GetPlayer( ) { return m_player; }
 
-	aui_Button	*GetGreatLibraryButton( ) { return m_libraryIcon; }
-	MessageMinimizeAction *GetMinimizeAction() { return m_minimizeAction; }
+	aui_Button	*GetGreatLibraryButton( ) { return m_libraryIcon.get(); }
+	MessageMinimizeAction *GetMinimizeAction() { return m_minimizeAction.get(); }
 protected:
 
 	void BringBorderToTop();
@@ -90,8 +91,8 @@ protected:
 	AUI_ERRCODE CreateSubmitResponses( MBCHAR *ldlBlock );
 
 private:
-	aui_HyperTextBox						*m_messageText;
-	aui_Static						*m_turnText;
+	std::unique_ptr<aui_HyperTextBox>	m_messageText;
+	std::unique_ptr<aui_Static>	m_turnText;
 
 	MessageIconWindow				*m_iconWindow;
 
@@ -103,16 +104,14 @@ private:
 
 	MessageResponse					m_messageResponse;
 
-	aui_Button						*m_minimizeIcon;
-	aui_Button						*m_dismissIcon;
-	aui_Button						*m_libraryIcon;
+	std::unique_ptr<aui_Button>	m_minimizeIcon;
+	std::unique_ptr<aui_Button>	m_dismissIcon;
+	std::unique_ptr<aui_Button>	m_libraryIcon;
 
-	aui_Static						*m_leftBar;
-	aui_Static						*m_topBar;
-	aui_Static						*m_rightBar;
-	aui_Static						*m_bottomBar;
-
-
+	std::unique_ptr<aui_Static>	m_leftBar;
+	std::unique_ptr<aui_Static>	m_topBar;
+	std::unique_ptr<aui_Static>	m_rightBar;
+	std::unique_ptr<aui_Static>	m_bottomBar;
 
 
 
@@ -120,9 +119,11 @@ private:
 
 
 
-	MessageMinimizeAction			*m_minimizeAction;
-	MessageDismissAction			*m_dismissAction;
-	MessageLibraryAction			*m_libraryAction;
+
+
+	std::unique_ptr<MessageMinimizeAction>	m_minimizeAction;
+	std::unique_ptr<MessageDismissAction>	m_dismissAction;
+	std::unique_ptr<MessageLibraryAction>	m_libraryAction;
 };
 
 #endif

@@ -230,8 +230,9 @@ STDEHANDLER(CaptureCityEvent)
 
 			//Check if there are any advances to steal:
 			sint32 num;
-			uint8 *canSteal = player_Get(newOwner)->m_advances->CanAskFor(
-			                  player_Get(originalOwner)->m_advances, num);
+			const std::vector<uint8_t> canSteal =
+				player_Get(newOwner)->m_advances->CanAskFor(
+				  player_Get(originalOwner)->m_advances.get(), num);
 			if(num > 0){
 				sint32 i;
 				sint32 count = 0;
@@ -264,8 +265,6 @@ STDEHANDLER(CaptureCityEvent)
 				}
 				Assert(i < g_theAdvanceDB->NumRecords());
 			}
-
-			delete[] canSteal;
 		}
 		Assert(player_Get(newOwner));
 		player_Get(newOwner)->FulfillCaptureCityAgreement(city);

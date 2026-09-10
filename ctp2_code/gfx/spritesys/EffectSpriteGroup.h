@@ -30,9 +30,12 @@ enum EFFECTACTION {
 // Project dependencies
 //----------------------------------------------------------------------------
 
+#include <memory>               // std::unique_ptr
+
 #include "gfx/spritesys/SpriteGroup.h"
 
 class aui_Surface;
+class ModernSpriteAtlas;
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -41,7 +44,11 @@ class aui_Surface;
 class EffectSpriteGroup : public SpriteGroup
 {
 public:
-	EffectSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {};
+	// Constructor and destructor are out-of-line so the
+	// unique_ptr<ModernSpriteAtlas> member is created/destroyed where the
+	// (forward-declared) type is complete.
+	EffectSpriteGroup(GROUPTYPE type);
+	~EffectSpriteGroup();
 
 	void			Load(MBCHAR const * filename);
 	void			Save(MBCHAR const * filename,unsigned int version_id, unsigned int compression_mode) override;
@@ -53,9 +60,16 @@ public:
 
 	void			Draw(EFFECTACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 SdrawX, sint32 SdrawY, sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack = FALSE);
 	void			DrawDirect(aui_Surface *surf, EFFECTACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 SdrawX, sint32 SdrawY, sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack = FALSE);
+	bool			AddGpuSpriteQuad(EFFECTACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 SdrawX, sint32 SdrawY, sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack = FALSE);
 
 	sint32			Parse(uint16 id,GROUPTYPE group) override;
 	POINT			GetHotPoint(EFFECTACTION action, sint32 facing);
+
+private:
+	// Modern-first atlas for effect frames (null when CTP2_MODERN_SPRITES=0 or no
+	// generated manifest exists). The GPU path can replay FLASH as SDL additive
+	// blending; CPU atlas draws still leave additive blending to legacy sprites.
+	std::unique_ptr<ModernSpriteAtlas> m_modernAtlas;
 };
 
 #endif

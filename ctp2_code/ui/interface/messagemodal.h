@@ -33,6 +33,9 @@
 #ifndef __MESSAGEMODAL_H__
 #define __MESSAGEMODAL_H__
 
+#include <memory>
+#include <vector>
+
 #include "ui/interface/messagewindow.h"
 #include "ui/aui_ctp2/c3_popupwindow.h"
 
@@ -88,11 +91,16 @@ protected:
 	AUI_ERRCODE CreateListboxEyePointBox( MBCHAR *ldlBlock );
 
 private:
-	aui_HyperTextBox						*m_messageText;
+	std::unique_ptr<aui_HyperTextBox>	m_messageText;
 
 	Message							m_message;
 
-	MessageEyePoint					m_messageEyePoint;
+	// Exactly one eye-point helper is created (per the message's style);
+	// unique_ptr members replace the old raw-pointer union and fix the
+	// leak where ~MessageModal never freed it.
+	std::unique_ptr<MessageEyePointStandard>	m_eyePointStandard;
+	std::unique_ptr<MessageEyePointDropdown>	m_eyePointDropdown;
+	std::unique_ptr<MessageEyePointListbox>		m_eyePointListbox;
 
 	aui_Static						*m_leftBar;
 	aui_Static						*m_rightBar;
@@ -100,8 +108,10 @@ private:
 	C3Window						*m_topBar;
 	C3Window						*m_bottomBar;
 
-	tech_WLList<ctp2_Button *>			*m_messageModalResponseButton;
-	tech_WLList<MessageModalResponseAction *>	*m_messageModalResponseAction;
+	// Response buttons and their actions, in creation order; both owned
+	// here even though the buttons are also registered with the window.
+	std::vector<std::unique_ptr<ctp2_Button>>				m_responseButtons;
+	std::vector<std::unique_ptr<MessageModalResponseAction>>	m_responseActions;
 
 	POINT	m_offsetTop;
 	POINT	m_offsetBottom;

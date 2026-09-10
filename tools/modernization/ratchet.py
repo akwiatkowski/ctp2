@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -39,32 +40,61 @@ CHECKS = {
 }
 
 
-def count_matches(pattern: str) -> int:
-    command = ["rg", "--count-matches", "--no-heading"]
+# Comments and string/char literals are not code, and counting them made the
+# ratchet actively hostile to the cleanup it exists to encourage: documenting
+# why a buffer needs an array release, or naming `new Pixel16[]` in a comment
+# that explains an ownership fix, RAISED the counter and failed the check. The
+# words also appear in ordinary prose ("the new frame list", "delete the old
+# entry"), so the noise is not even confined to memory discussions.
+#
+# Matched left-to-right in one pass so that a "//" inside a string literal is
+# seen as string content rather than starting a comment, and a quote inside a
+# comment does not open a literal. Each match becomes a space, which keeps
+# tokens on either side from being glued into a new false match.
+NON_CODE_PATTERN = re.compile(
+    r'"(?:\\.|[^"\\\n])*"'      # string literal
+    r"|'(?:\\.|[^'\\\n])*'"     # character literal
+    r"|//[^\n]*"                # line comment
+    r"|/\*.*?\*/",              # block comment
+    re.DOTALL,
+)
+
+
+def iter_source_files() -> list[Path]:
+    """The first-party source files, selected by rg exactly as before.
+
+    File selection stays with rg deliberately. It honours .gitignore, so a
+    plain rglob picks up generated and ignored sources that were never in the
+    counted set — enough to swing three counters upward and make a pure
+    measurement change look like a regression.
+    """
+    command = ["rg", "--files"]
     for glob in SOURCE_GLOBS:
         command.extend(["--glob", glob])
     for glob in EXCLUDE_GLOBS:
         command.extend(["--glob", f"!{glob}"])
-    command.extend([pattern, str(SOURCE_ROOT)])
+    command.append(str(SOURCE_ROOT))
 
     result = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
-    if result.returncode == 1:
-        return 0
-    if result.returncode != 0:
+    if result.returncode not in (0, 1):
         sys.stderr.write(result.stderr)
-        raise RuntimeError(f"rg failed for pattern: {pattern}")
+        raise RuntimeError("rg failed to list source files")
+    return [Path(line) for line in result.stdout.splitlines() if line]
 
-    total = 0
-    for line in result.stdout.splitlines():
-        try:
-            total += int(line.rsplit(":", 1)[1])
-        except (IndexError, ValueError) as exc:
-            raise RuntimeError(f"unexpected rg output: {line}") from exc
-    return total
+
+def code_only(path: Path) -> str:
+    text = path.read_text(encoding="utf-8", errors="ignore")
+    return NON_CODE_PATTERN.sub(" ", text)
 
 
 def collect_counts() -> dict[str, int]:
-    return {name: count_matches(pattern) for name, pattern in CHECKS.items()}
+    compiled = {name: re.compile(pattern) for name, pattern in CHECKS.items()}
+    totals = {name: 0 for name in CHECKS}
+    for path in iter_source_files():
+        source = code_only(path)
+        for name, pattern in compiled.items():
+            totals[name] += len(pattern.findall(source))
+    return totals
 
 
 def load_baseline() -> dict[str, int]:

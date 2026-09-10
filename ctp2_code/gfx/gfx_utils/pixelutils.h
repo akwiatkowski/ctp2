@@ -11,6 +11,7 @@
 #define k_PERCENT_SHIFT		7
 
 #include "gfx/gfx_utils/pixeltypes.h"
+#include <vector>
 
 
 
@@ -27,7 +28,7 @@ typedef union
 
 void pixelutils_Initialize();
 
-Pixel16 *RGB32ToRGB16(char *buf, uint16 width, uint16 height);
+std::vector<Pixel16> RGB32ToRGB16(char *buf, uint16 width, uint16 height);
 
 void RGB32Components(Pixel32 pixel, Pixel16 *r, Pixel16 *g, Pixel16 *b, Pixel16 *a);
 Pixel32 ComponentsToRGB32(Pixel16 r, Pixel16 g, Pixel16 b, Pixel16 a) ;
@@ -504,6 +505,119 @@ Pixel32 pixelutils_BlendFast32_565(sint32 pixel1, sint32 pixel2, sint32 blend);
 inline Pixel32 pixelutils_Shadow32_565(Pixel32 pixel)
 {
   return ((pixel&0xF7DEF7DE)>>1);
+}
+
+// --- True ARGB8888 expanders (P11 Stage 2 B) --------------------------------
+// The 32-bit screen/world surfaces are ARGB8888 = 0xAARRGGBB (blue in the low
+// byte, per the SDL surface masks R=0x00FF0000 G=0x0000FF00 B=0x000000FF).
+// These expand a stored 16-bit pixel to that exact layout, fully opaque, using
+// bit-replication — the same math SDL's own 565->8888 blit uses — so an opaque
+// world pixel written through the expander is byte-identical to the historic
+// "compose 565 then let SDL convert" path. (Note: this differs from
+// ComponentsToRGB32(), which packs red in the low byte; do NOT use that helper
+// for raw surface writes.)
+inline Pixel32 pixelutils_565to8888(Pixel16 p)
+{
+	uint32 const r5 = (p >> 11) & 0x1F;
+	uint32 const g6 = (p >> 5)  & 0x3F;
+	uint32 const b5 =  p        & 0x1F;
+	uint32 const r8 = (r5 << 3) | (r5 >> 2);
+	uint32 const g8 = (g6 << 2) | (g6 >> 4);
+	uint32 const b8 = (b5 << 3) | (b5 >> 2);
+	return 0xFF000000u | (r8 << 16) | (g8 << 8) | b8;
+}
+
+inline Pixel32 pixelutils_555to8888(Pixel16 p)
+{
+	uint32 const r5 = (p >> 10) & 0x1F;
+	uint32 const g5 = (p >> 5)  & 0x1F;
+	uint32 const b5 =  p        & 0x1F;
+	uint32 const r8 = (r5 << 3) | (r5 >> 2);
+	uint32 const g8 = (g5 << 3) | (g5 >> 2);
+	uint32 const b8 = (b5 << 3) | (b5 >> 2);
+	return 0xFF000000u | (r8 << 16) | (g8 << 8) | b8;
+}
+
+// Expand using whichever 16-bit layout the display is in (565 vs 555).
+inline Pixel32 pixelutils_16to8888(Pixel16 p)
+{
+	return is_565_Get() ? pixelutils_565to8888(p) : pixelutils_555to8888(p);
+}
+
+// Truncate an ARGB8888 (0xAARRGGBB) pixel back down to RGB565. Used by the few
+// scaled/legacy blitters that must read the current destination pixel into
+// their 565 blend math when the surface is 32-bit; the value round-trips
+// 8888->565->8888 (minor precision loss only on those blended edge pixels).
+inline Pixel16 pixelutils_8888to565(Pixel32 p)
+{
+	uint32 const r8 = (p >> 16) & 0xFF;
+	uint32 const g8 = (p >> 8)  & 0xFF;
+	uint32 const b8 =  p        & 0xFF;
+	return static_cast<Pixel16>(((r8 >> 3) << 11) | ((g8 >> 2) << 5) | (b8 >> 3));
+}
+
+// Read one destination pixel as RGB565 regardless of surface depth (expands via
+// the 565 blend path; downconverts a 32-bit dest). Companion to StorePixel for
+// read-modify-write blitters.
+inline Pixel16 pixelutils_ReadPixel565(uint8 const * p, bool bpp32)
+{
+	return bpp32 ? pixelutils_8888to565(*reinterpret_cast<Pixel32 const *>(p))
+	             : *reinterpret_cast<Pixel16 const *>(p);
+}
+
+// Store one 565/555 pixel at a raw byte pointer, expanding to ARGB8888 when the
+// destination world surface is 32-bit. Lets a tile writer keep a single loop
+// body (bpp32 is loop-invariant → predicts well at -O2); in 16-bit mode it is
+// exactly the historic *(Pixel16*)p = v, so conversions are behaviour-
+// preserving until the world surface is flipped to 32-bit.
+inline void pixelutils_StorePixel(uint8 * p, Pixel16 v, bool bpp32)
+{
+	if (bpp32) *reinterpret_cast<Pixel32 *>(p) = pixelutils_16to8888(v);
+	else       *reinterpret_cast<Pixel16 *>(p) = v;
+}
+
+// --- True ARGB8888 per-pixel ops (for writers that read the destination) -----
+// Used by tile overlay shadow runs and the legacy sprite fallback (transparency
+// / additive / shadow / desaturate). These operate directly on 0xAARRGGBB and
+// are NOT byte-identical to "do it in 565 then expand" — that is expected and
+// acceptable (the atlas path is the primary sprite route; overlay shadows are a
+// minor visual detail). Alpha is preserved / forced opaque as noted per op.
+
+// Halve each RGB channel, keep alpha (mirrors pixelutils_Shadow's darken-to-50%).
+inline Pixel32 pixelutils_Shadow8888(Pixel32 p)
+{
+	return ((p >> 1) & 0x007F7F7Fu) | (p & 0xFF000000u);
+}
+
+// Grey out: replace RGB with their average, keep alpha (mirrors Desaturate_565).
+inline Pixel32 pixelutils_Desaturate8888(Pixel32 p)
+{
+	uint32 const r = (p >> 16) & 0xFF;
+	uint32 const g = (p >> 8)  & 0xFF;
+	uint32 const b =  p        & 0xFF;
+	uint32 const ave = (r + g + b) / 3;
+	return (p & 0xFF000000u) | (ave << 16) | (ave << 8) | ave;
+}
+
+// Blend src toward dst by blend/32 per channel: dst + blend*(src-dst)/32.
+// Matches pixelutils_BlendFast's weighting; result is opaque.
+inline Pixel32 pixelutils_BlendFast8888(Pixel32 src, Pixel32 dst, sint32 blend)
+{
+	sint32 const sr = (src >> 16) & 0xFF, sg = (src >> 8) & 0xFF, sb = src & 0xFF;
+	sint32 const dr = (dst >> 16) & 0xFF, dg = (dst >> 8) & 0xFF, db = dst & 0xFF;
+	uint32 const r = static_cast<uint32>(dr + ((blend * (sr - dr)) >> 5));
+	uint32 const g = static_cast<uint32>(dg + ((blend * (sg - dg)) >> 5));
+	uint32 const b = static_cast<uint32>(db + ((blend * (sb - db)) >> 5));
+	return 0xFF000000u | (r << 16) | (g << 8) | b;
+}
+
+// Saturating additive of src onto dst (for the selection flash), opaque.
+inline Pixel32 pixelutils_Additive8888(Pixel32 dst, Pixel32 src)
+{
+	uint32 r = ((dst >> 16) & 0xFF) + ((src >> 16) & 0xFF); if (r > 0xFF) r = 0xFF;
+	uint32 g = ((dst >> 8)  & 0xFF) + ((src >> 8)  & 0xFF); if (g > 0xFF) g = 0xFF;
+	uint32 b = ( dst        & 0xFF) + ( src        & 0xFF); if (b > 0xFF) b = 0xFF;
+	return 0xFF000000u | (r << 16) | (g << 8) | b;
 }
 
 

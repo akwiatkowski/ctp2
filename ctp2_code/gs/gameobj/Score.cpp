@@ -300,7 +300,7 @@ double Score::GetPartialScoreValue(SCORE_CATEGORY cat)
 
 
 
-	Difficulty *diff = pl->m_difficulty;
+	Difficulty *diff = pl->m_difficulty.get();
 	double ret = 0;
 
 	switch(cat)
@@ -407,7 +407,7 @@ const MBCHAR *Score::GetPartialScoreItemized(SCORE_CATEGORY cat)
 
 
 
-//	Difficulty *diff = pl->m_difficulty;
+//	Difficulty *diff = pl->m_difficulty.get();
 	sint32 count = GetPartialScoreCount(cat);
 	if(count<0)
 		count=0;

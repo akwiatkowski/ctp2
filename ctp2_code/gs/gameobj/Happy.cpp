@@ -149,7 +149,6 @@ Happy::Happy(Happy const & copyme)
 Happy::~Happy()
 {
 	m_timedChanges.clear();
-	delete m_tracker;
 }
 
 

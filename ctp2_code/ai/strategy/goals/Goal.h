@@ -70,8 +70,14 @@ enum SUB_TASK_TYPE
     SUB_TASK_UNGROUP
 };
 
+#include <nlohmann/json.hpp>
+class Scheduler;
+
 class Goal
 {
+    friend void to_json(nlohmann::json &j, Scheduler const &s);
+    friend void from_json(nlohmann::json const &j, Scheduler &s);
+
 public:
 
     enum REMOVAL_TIME

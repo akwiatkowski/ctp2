@@ -78,9 +78,10 @@ def run(client):
     print(f"  city yields after {t2['round']} rounds: food {y['food']}, "
           f"production {y['production']}, gold {y['gold']}, science {y['science']}")
 
-    # bad args stay errors
-    assert client.command("end_turn", 0).get("detail") == "bad_args"
-    assert client.command("end_turn", 9999).get("detail") == "bad_args"
+    # Malformed and out-of-range arguments stay distinct errors.
+    assert client.command("end_turn", "nope").get("detail") == "bad_args"
+    assert client.command("end_turn", 0).get("detail") == "out_of_range"
+    assert client.command("end_turn", 9999).get("detail") == "out_of_range"
 
     # Settle guard: the starting tile now has a city; a settler created ON it
     # must not be able to found another. Produce one and try.

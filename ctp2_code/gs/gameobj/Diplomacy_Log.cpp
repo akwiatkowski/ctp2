@@ -15,7 +15,7 @@
 
 Diplomacy_Log::Diplomacy_Log()
 {
-    strlcpy(m_filename, "logs\\diplomacy_log.txt", sizeof(m_filename));
+    strlcpy(m_filename, "logs/diplomacy_log.txt", sizeof(m_filename));
     m_player_bit_mask = 0xffffffff;
     FILE *fout = fopen(m_filename, "w");
     Assert(fout);

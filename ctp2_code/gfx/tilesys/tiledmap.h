@@ -56,6 +56,7 @@
 //----------------------------------------------------------------------------
 
 class   TiledMap;
+class TradeActor;
 struct  TILEHITMASK;
 
 #define k_BORDER_SOLID              0
@@ -99,6 +100,7 @@ void       tiledmap_Set(TiledMap *p);
 #include "gfx/tilesys/tileset.h"        // TileSet
 #include "gfx/tilesys/tileutils.h"
 #include "gs/gameobj/Vision.h"
+#include "gfx/spritesys/UnitSpriteGroup.h" // UNITACTION for render fixtures
 #include "gs/world/World.h"
 
 class Army;
@@ -110,6 +112,8 @@ class CellUnitList;
 class CityData;
 class EffectActor;
 class GoodActor;
+class GpuTileCache;
+struct TileOverlayCapture;
 class Path;
 class TerrainImprovementRecord;
 class TileInfo;
@@ -179,6 +183,11 @@ public:
 	void			PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 									BOOL regenTilenum = TRUE);
 	void			PostProcessMap(BOOL regenTilenums = TRUE);
+	// Rebuild every tile's good sprite from the world's good placement, and
+	// nothing else. For the load path: saves carry the goods but not the
+	// actors that draw them. See tiledmap_observer::Impl for why this is not
+	// PostProcessMap().
+	void			RecreateGoodActors();
 
 	void			BreakMegaTile(MapPoint &pos);
 	void			TileChanged(MapPoint &pos);
@@ -190,6 +199,11 @@ public:
 	void			DrawColoredHitMask(aui_Surface *surf, const MapPoint &pos, COLOR color);
 	void			DrawColoredHitMaskEdge(aui_Surface *surf, const MapPoint &pos, Pixel16 color, WORLD_DIRECTION d);
 	void			DrawColoredBorderEdge(aui_Surface *surf, const MapPoint &pos, Pixel16 color, WORLD_DIRECTION d, sint32 dashMode);
+	// Same edge, drawn at a destination the caller picks in the locked
+	// surface's own coordinates. Lets the whole-map tile builder composite line
+	// borders into a tile-sized scratch, which the view-relative entry point
+	// cannot reach. See the .cpp.
+	void			DrawColoredBorderEdgeAt(sint32 x, sint32 y, Pixel16 color, WORLD_DIRECTION d, sint32 dashMode);
 	void			DrawHitMask(aui_Surface *surf, const MapPoint &pos, RECT *mapViewRect, RECT *destRect);
 	void			SetHiliteMouseTile(MapPoint &pos);
 	void			DrawHiliteMouseTile(aui_Surface *destSurf);
@@ -234,6 +248,7 @@ public:
 
 	void			ProcessLayerSprites(RECT *processRect, sint32 layer);
 	void			PaintGoodActor(GoodActor *actor, bool fog = false);
+    void PaintTradeActor(TradeActor *actor);
 
 	void			ProcessUnit(Unit unit);
 	void			ProcessUnit(CellUnitList *list);
@@ -351,6 +366,53 @@ public:
 												BOOL fogged);
 
 	sint32			DrawBlackTile(aui_Surface *surface, sint32 x, sint32 y);
+	// P11 Stage 2 C: rasterize the fog-of-war mask into a screen-space surface
+	// (transparent, with fogged tiles stamped 50% black) for GPU compositing
+	// over the world texture. Uses the same tile geometry as the terrain pass.
+	void			BuildFogMask(aui_Surface *fogSurface);
+	// P11 Stage 2 C: true when GPU fog is active, so the CPU terrain pass renders
+	// UNFOGGED (the GPU composites the fog mask instead).
+	bool			GpuFogActive() const;
+	// P12: terrain/sprite GPU world renderer. Rebuilds the per-frame GPU draw list
+	// from the visible cells, filling the tile atlas on cache misses. CTP2_GPU_QUADS=0
+	// keeps the temporary CPU fallback. Called from Refresh after CPU passes unlock.
+	void			BuildTerrainQuads();
+	// P13 step 1 (ADR-003) — draw terrain into the whole-map GPU target, in
+	// absolute map-pixel space. Redraws only cells whose rendered content
+	// changed since last call (see m_worldmapCellSig), so pan and zoom never
+	// dirty anything. No-op unless CTP2_GPU_WORLDMAP is on. Returns the number
+	// of cells redrawn, so tests can assert that a pan costs zero.
+	int			BuildWorldmapQuads();
+	uint64_t	WorldmapVisibleOwners(MapPoint const &pos);
+	// Per-cell overlays composited into the whole-map tile image (P13 step 3).
+	// lineBorders / fogged: composite the LINE style of national border, and
+	// fog, into the tile. Only the whole-map path may ask for either -- its
+	// cache key carries the border settings and the cell's visibility, and the
+	// quad path's does not. See the .cpp.
+	void		DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo,
+	                                     bool lineBorders = false,
+	                                     bool fogged = false, bool drawGrid = true);
+	// Atlas cache occupancy, for diagnostics. The cache is shared between the
+	// quad and whole-map paths and evicts LRU when full, which matters: an
+	// eviction DURING a batch can rewrite a slot that quads already emitted in
+	// that same batch still point at.
+	int			GpuTileCacheSize() const;
+	int			GpuTileCacheCapacity() const;
+	uint64_t	GpuTileCacheEvictions() const;
+	// Whether this cell composites as fogged into its whole-map tile, and the
+	// globals deciding how fog looks (for the cache key). See the .cpp.
+	bool		WorldmapCellFogged(MapPoint const &pos) const;
+	uint64_t	WorldmapFogFlags() const;
+	// Draw explored terrain at full brightness regardless of current vision.
+	// Every render path honours this, so it is the deterministic way to take
+	// fog out of a comparison — unlike revealing a radius, which decays.
+	// The timelapse renderer already sets it around its own draw.
+	void		SetRenderExploredAsVisible(bool on) { m_renderExploredAsVisible = on; }
+	bool		RenderExploredAsVisible() const { return m_renderExploredAsVisible; }
+	uint64_t		CellSignatureAt(sint32 mapX, sint32 mapY);
+	// Drop all cached per-cell state, forcing a full rebuild (map changed size,
+	// tileset/zoom changed, or another game was loaded).
+	void			InvalidateWorldmap();
 	sint32			QuickBlackBackGround(aui_Surface *surface);
 	sint32			DrawDitheredTile(aui_Surface *surface, sint32 x, sint32 y, Pixel16 color);
 	void			DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos, sint32 x, sint32 y, sint32 destWidth, sint32 destHeight,Pixel16 color);
@@ -584,6 +646,64 @@ protected:
 	TILEHITMASK		m_tileHitMask[k_TILE_GRID_HEIGHT];
 
 	TileSet			*m_tileSet;
+
+	// P11 Stage 3 G1: terrain quad cache + scratch. m_gpuTileCache maps a cell's
+	// appearance signature to a zoom-sized atlas slot; m_gpuScratchTile is the
+	// compose-once buffer for a cache miss before upload to the atlas. Both are
+	// created lazily on the first BuildTerrainQuads; null unless quads are on.
+	std::unique_ptr<GpuTileCache>	m_gpuTileCache;
+	// P13 step 1: last signature drawn into the whole-map target, per cell
+	// (index = y * mapWidth + x). k_WORLDMAP_CELL_UNDRAWN means never drawn, so
+	// the first pass renders everything and later passes only the differences.
+	std::vector<uint64_t>		m_worldmapCellSig;
+	sint32				m_worldmapSigWidth = 0;
+public:
+	// P13 step 1 diagnostics: atlas misses and actual uploads on the last build.
+	// A miss count far above the atlas slot count means LRU is evicting slots
+	// before the deferred batch draw samples them.
+	int				LastWorldmapRedrawCount() const { return m_worldmapRedrawn; }
+	int				m_worldmapRedrawn = 0;
+	int				m_worldmapMisses = 0;
+	int			LastWorldmapRasterCount() const { return m_worldmapRasterCells; }
+	// P14: cells composited by the GPU raster path this build (probe).
+	int				m_worldmapRasterCells = 0;
+	int m_worldmapCpuCells = 0;
+	int				m_worldmapUploads = 0;
+	int				m_worldmapMinX = 0, m_worldmapMaxX = 0;
+	int				m_worldmapMinY = 0, m_worldmapMaxY = 0;
+	int				m_worldmapTileW = 0, m_worldmapTileH = 0;
+private:
+	std::unique_ptr<aui_Surface>	m_gpuScratchTile;
+	TileOverlayCapture *m_gpuOverlayCapture = nullptr;
+	void BeginGpuSpriteFrame();
+	void EndGpuSpriteFrame();
+	bool m_buildingGpuSprites = false;
+public:
+// P11 render fixtures (ctp2-306): sprite placements owned by the test
+// harness, not by game objects. Submitted every GPU sprite frame in
+// EndGpuSpriteFrame so screenshots see them without any Unit/Army existing.
+// Tile/fog ops apply immediately (world state persists); only sprite quads
+// need per-frame resubmission.
+struct RenderFixture {
+    sint32 spriteIndex = -1; // sprite DB index; -1 = empty slot
+    GROUPTYPE groupType = GROUPTYPE_UNIT;
+    UNITACTION action = UNITACTION_IDLE;
+    sint32 frame = 0;
+    sint32 facing = 0;
+    sint32 mapX = 0, mapY = 0; // tile coords; converted to pixels at submit
+    double scale = 1.0;
+    bool fogged = false;
+    uint16 transparency = 0; // 0 = opaque (mirrors UnitActor m_transparency)
+    UnitSpriteGroup *group = nullptr; // held ref; released on clear
+};
+void ClearRenderFixtures(); // releases held sprite refs, empties the list
+sint32 AddRenderUnitFixture(RenderFixture const &fixture); // index or -1
+sint32 RenderFixtureCount() const { return static_cast<sint32>(m_renderFixtures.size()); }
+private:
+void SubmitRenderFixtures(); // called from EndGpuSpriteFrame
+std::vector<RenderFixture> m_renderFixtures;
+	sint32 m_gpuSpriteOffsetX = 0;
+	sint32 m_gpuSpriteOffsetY = 0;
 
 	MapPoint		m_hiliteMouseTile;
 	BOOL			m_drawHilite;

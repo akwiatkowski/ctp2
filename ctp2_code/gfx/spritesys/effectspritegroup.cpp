@@ -38,7 +38,20 @@
 #include "gfx/spritesys/Anim.h"
 #include "gfx/spritesys/SpriteFile.h"
 #include "gfx/spritesys/Sprite.h"
+#include "gfx/spritesys/ModernSpriteAtlas.h"   // P11 modern-first atlas path
+#include "gfx/spritesys/screenmanager.h"       // screenmanager_Get()
+#include "ui/aui_common/aui_surface.h"         // aui_Surface::BitsPerPixel
+#include "ui/aui_sdl/aui_sdl.h"
 #include "gs/fileio/Token.h"
+
+// Out-of-line so the unique_ptr<ModernSpriteAtlas> member is created/destroyed
+// where the type is complete.
+EffectSpriteGroup::EffectSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {}
+EffectSpriteGroup::~EffectSpriteGroup()
+{
+	if (m_modernAtlas)
+		aui_SDL::ReleaseSpriteAtlasTexture(m_modernAtlas.get());
+}
 
 void EffectSpriteGroup::Draw(EFFECTACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 SdrawX, sint32 SdrawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack)
@@ -65,6 +78,25 @@ void EffectSpriteGroup::Draw(EFFECTACTION action, sint32 frame, sint32 drawX, si
 
 	if (action == EFFECTACTION_PLAY)
     {
+		// Modern-first atlas draw on the interactive path (into the
+		// ScreenManager's already-locked surface); the additive FLASH overlay
+		// above stays legacy. Falls back to the legacy PLAY draw below.
+		if (m_modernAtlas && outlineColor == 0)   // outline requested -> legacy
+		{
+			aui_Surface * surf = screenmanager_Get()->GetSurface();
+			uint8 *       base = screenmanager_Get()->GetSurfBase();
+			if (surf && base)
+			{
+				POINT const hp = m_sprites[action]->GetHotPoint();
+				if (ModernSpriteDrawUnfacedLocked(*m_modernAtlas, base,
+				        screenmanager_Get()->GetSurfPitch(), screenmanager_Get()->GetSurfWidth(),
+				        screenmanager_Get()->GetSurfHeight(), surf->BitsPerPixel() == 32,
+				        "PLAY", frame, drawX, drawY, facing, hp.x, hp.y, scale, transparency, flags))
+				{
+					return;
+				}
+			}
+		}
 		m_sprites[action]->Draw(drawX, drawY, facing, scale, transparency, outlineColor, flags);
 	}
 }
@@ -94,8 +126,68 @@ void EffectSpriteGroup::DrawDirect(aui_Surface *surf, EFFECTACTION action, sint3
 
 	if (action == EFFECTACTION_PLAY)
     {
+		// Modern-first atlas draw (any zoom); the additive FLASH overlay above
+		// stays legacy. Falls back when the atlas lacks the frame.
+		if (m_modernAtlas && outlineColor == 0)   // outline requested -> legacy
+		{
+			POINT const hp = m_sprites[action]->GetHotPoint();
+			if (ModernSpriteDrawUnfaced(*m_modernAtlas, surf, "PLAY", frame, drawX, drawY,
+			                            facing, hp.x, hp.y, scale, transparency, flags))
+			{
+				return;
+			}
+		}
 		m_sprites[action]->DrawDirect(surf, drawX, drawY, facing, scale, transparency, outlineColor, flags);
 	}
+}
+
+bool EffectSpriteGroup::AddGpuSpriteQuad(EFFECTACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 SdrawX, sint32 SdrawY,
+						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack)
+{
+	if (!m_modernAtlas || action <= EFFECTACTION_NONE || action >= EFFECTACTION_MAX || m_sprites[action] == nullptr)
+		return false;
+	if (outlineColor != 0 || (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY)) || specialDelayProcess || directionalAttack)
+		return false;
+
+    // Combat flashes use FLASH alone; PLAY effects may also carry a flash layer.
+	ModernSpriteRect const * r = action == EFFECTACTION_PLAY ? m_modernAtlas->FindRect("PLAY", 0, frame) : nullptr;
+	if (action == EFFECTACTION_PLAY && !r)
+		return false;
+	ModernSpriteRect const * flash = nullptr;
+	if (m_sprites[EFFECTACTION_FLASH] != nullptr) {
+		flash = m_modernAtlas->FindRect("FLASH", 0, frame);
+		if (!flash)
+			return false;
+	}
+
+	SDL_Texture * texture = aui_SDL::EnsureSpriteAtlasTexture(m_modernAtlas.get());
+	if (!texture)
+		return false;
+
+	bool const reversed = facing >= 5;
+	auto addQuad = [&](ModernSpriteRect const & rect, POINT const & hp, bool additive) {
+		int const destX = reversed ? (drawX - static_cast<int>((rect.w - hp.x) * scale))
+		                         : (drawX - static_cast<int>(hp.x * scale));
+		int const destY = drawY - static_cast<int>(hp.y * scale);
+		aui_SDL::GpuSpriteQuad q;
+		q.texture = texture;
+		q.sx = rect.x; q.sy = rect.y; q.sw = rect.w; q.sh = rect.h;
+		q.dx = destX; q.dy = destY;
+		q.dw = static_cast<int>(rect.w * scale);
+		q.dh = static_cast<int>(rect.h * scale);
+		q.mirror = reversed;
+		q.alpha = (flags & k_BIT_DRAWFLAGS_TRANSPARENCY) ? static_cast<uint8>(transparency * 255 / 15) : 255;
+		q.additive = additive;
+		aui_SDL::AddSpriteQuad(q);
+	};
+
+	(void)SdrawX;
+	(void)SdrawY;
+
+	if (flash)
+		addQuad(*flash, m_sprites[EFFECTACTION_FLASH]->GetHotPoint(), true);
+	if (r) addQuad(*r, m_sprites[action]->GetHotPoint(), false);
+	return true;
 }
 
 void EffectSpriteGroup::Load(MBCHAR const * filename)
@@ -105,10 +197,11 @@ void EffectSpriteGroup::Load(MBCHAR const * filename)
 	SPRITEFILETYPE				type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
 	{
-		file->Read(this);
+		auto result = file->Read(this);
 		file->CloseRead();
-		m_loadType = LOADTYPE_FULL;
+		m_loadType = result == SPRITEFILEERR_OK ? LOADTYPE_FULL : LOADTYPE_NONE;
 	}
+	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }
 
 void EffectSpriteGroup::Save
@@ -205,16 +298,14 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 
 		effectSprite->Import(numFrames, imageNames, shadowNames);
 
-		delete m_sprites[EFFECTACTION_PLAY];
-		m_sprites[EFFECTACTION_PLAY] = effectSprite;
+		m_sprites[EFFECTACTION_PLAY].reset(effectSprite);
 
 		printf("]\n");
 
 		Anim *effectAnim = new Anim;
 
 		effectAnim->ParseFromTokens(theToken.get());
-        delete m_anims[EFFECTACTION_PLAY];
-		m_anims[EFFECTACTION_PLAY] = effectAnim;
+        m_anims[EFFECTACTION_PLAY].reset(effectAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_EFFECT_SPRITE_FLASH, tmp)) return FALSE;
@@ -248,15 +339,13 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 
 		flashSprite->Import(flashNumFrames, imageNames, shadowNames);
 
-		delete m_sprites[EFFECTACTION_FLASH];
-		m_sprites[EFFECTACTION_FLASH] = flashSprite;
+		m_sprites[EFFECTACTION_FLASH].reset(flashSprite);
 		printf("]\n");
 
 		Anim *moveAnim = new Anim;
 
 		moveAnim->ParseFromTokens(theToken.get());
-        delete m_anims[EFFECTACTION_FLASH];
-		m_anims[EFFECTACTION_FLASH] = moveAnim;
+        m_anims[EFFECTACTION_FLASH].reset(moveAnim);
 
 	}
 

@@ -228,7 +228,7 @@ void graphicsscreen_Cleanup()
 	    keypress_RemoveHandler(s_graphicsWindow);
     }
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; };
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 	mycleanup(s_walk);
 	mycleanup(s_trade);
 	mycleanup(s_wonder);

@@ -279,15 +279,11 @@ sint32                          g_specialAttackMode = 0;
 
 Player::Player(const PLAYER_INDEX o, sint32 d, PLAYER_TYPE pt)
 {
-	memset(this, 0, sizeof(*this));
-
 	InitPlayer(o, d, pt) ;
 }
 
 Player::Player(const PLAYER_INDEX o, sint32 d, PLAYER_TYPE pt, const sint32 civ, GENDER gender)
 {
-	memset(this, 0, sizeof(*this));
-
 	InitPlayer(o, d, pt) ;
 	*m_civilisation = civilisationpool_Get()->Create(m_owner, civ, gender);
 }
@@ -310,28 +306,28 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	m_all_cities = new UnitDynamicArray;
 
 	m_all_units = new UnitDynamicArray;
-	m_traderUnits = new UnitDynamicArray;
-	m_capitol = new Unit;
-	m_gold = new Gold(o);
-	m_science = new Science;
-	m_tax_rate = new TaxRate;
-	m_difficulty = new Difficulty(diff,o, !treatAsRobot);
-	m_advances = new Advances(g_theAdvanceDB->NumRecords());
-	m_tradeOffers = new DynamicArray<TradeOffer>;
-	m_requests = new DynamicArray<DiplomaticRequest>;
-	m_agreed = new DynamicArray<Agreement>;
-	m_messages = new DynamicArray<Message>;
-	m_score = new Score(o);
+	m_traderUnits.reset(new UnitDynamicArray);
+	m_capitol.reset(new Unit);
+	m_gold.reset(new Gold(o));
+	m_science.reset(new Science);
+	m_tax_rate.reset(new TaxRate);
+	m_difficulty.reset(new Difficulty(diff,o, !treatAsRobot));
+	m_advances.reset(new Advances(g_theAdvanceDB->NumRecords()));
+	m_tradeOffers.reset(new DynamicArray<TradeOffer>);
+	m_requests.reset(new DynamicArray<DiplomaticRequest>);
+	m_agreed.reset(new DynamicArray<Agreement>);
+	m_messages.reset(new DynamicArray<Message>);
+	m_score.reset(new Score(o));
 
-	m_regard = new Regard() ;
-	m_strengths = new Strengths(o);
+	m_regard.reset(new Regard());
+	m_strengths.reset(new Strengths(o));
 
 	m_goodSalePrices.assign(g_theResourceDB->NumRecords(), 0);
 
 	m_oversea_lost_unit_count = 0;
 	m_home_lost_unit_count = 0;
 
-	m_global_happiness = new PlayerHappiness;
+	m_global_happiness.reset(new PlayerHappiness);
 
 	m_income_Percent = 0;
 
@@ -367,25 +363,23 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	memset(m_event_pollution, 0, sizeof(m_event_pollution));
 	memset(m_patience, 0, sizeof(m_patience));
 
-	m_vision = new Vision(m_owner);
+	m_vision.reset(new Vision(m_owner));
 	if (0 == m_owner) {
 		m_vision->SetTheWholeWorldExplored();
 	}
 
-	m_terrainImprovements = new DynamicArray<TerrainImprovement>;
+	m_terrainImprovements.reset(new DynamicArray<TerrainImprovement>);
 #ifdef BATTLE_FLAGS
 	m_battleFlags = new DynamicArray<MapPoint>;
 #endif
-	m_readiness = new MilitaryReadiness(o);
+	m_readiness.reset(new MilitaryReadiness(o));
 
-	m_materialPool = new MaterialPool(o);
-	m_allRadarInstallations = new DynamicArray<Installation>;
-	m_allInstallations = new DynamicArray<Installation>;
-	m_civilisation = new Civilisation ;
+	m_materialPool.reset(new MaterialPool(o));
+	m_allRadarInstallations.reset(new DynamicArray<Installation>);
+	m_allInstallations.reset(new DynamicArray<Installation>);
+	m_civilisation.reset(new Civilisation) ;
 
-	m_throne = nullptr;
-
-	m_slic_special_city = new Unit;
+	m_slic_special_city.reset(new Unit);
 
 	m_builtWonders = 0;
 	m_wonderBuildings = 0;
@@ -519,7 +513,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 		}
 	}
 	m_advances->ResetCanResearch(someAdvanceIHave);
-	uint8 *canResearch = m_advances->CanResearch();
+	const std::vector<uint8_t> &canResearch = m_advances->CanResearch();
 
 	for(i = 0; i < m_advances->GetNum(); i++) {
 		if(canResearch[i]) {
@@ -527,7 +521,6 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 			break;
 		}
 	}
-	delete [] canResearch;
 
 	m_strengths->Calculate();
 
@@ -588,43 +581,22 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 
 Player::~Player()
 {
-	delete m_vision;
-	delete m_terrainImprovements;
 #ifdef BATTLE_FLAGS
 	delete m_battleFlags;
 #endif
-	delete m_readiness;
-	delete m_materialPool;
-	delete m_allRadarInstallations;
-	delete m_allInstallations;
 	delete m_all_armies;
 	delete m_all_cities;
 	delete m_all_units;
-	delete m_traderUnits;
-	delete m_capitol;
-	delete m_gold;
-	delete m_science;
-	delete m_tax_rate;
-	delete m_difficulty;
-	delete m_advances;
-	delete m_tradeOffers;
-	delete m_requests;
-	delete m_agreed;
-	delete m_messages;
-	delete m_score;
-	delete m_regard;
-	delete m_strengths;
-	delete m_global_happiness;
 
 	if (m_civilisation)
 	{
 		if( civilisationpool_Get()->IsValid(*m_civilisation))
 			m_civilisation->Kill();
 
-		delete m_civilisation;
+		m_civilisation.reset();
 	}
 
-	delete m_slic_special_city;
+	m_slic_special_city.reset();
 	delete m_gaiaController;
 }
 
@@ -1500,11 +1472,11 @@ void Player::BeginTurnScience()
 		sint32 num;
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
 			if(player_Get(i)) {
-				uint8* canGet = player_Get(i)->m_advances->CanOffer(m_advances, num);
+				const std::vector<uint8_t> canGet =
+					player_Get(i)->m_advances->CanOffer(m_advances.get(), num);
 				for(j = 0; j < g_theAdvanceDB->NumRecords(); j++) {
-					mergedCanGet[j] = mergedCanGet[j] || canGet[j];
+					mergedCanGet[j] = mergedCanGet[j] || canGet[static_cast<size_t>(j)];
 				}
-				delete [] canGet;
 			}
 		}
 
@@ -3641,7 +3613,7 @@ void Player::SetResearching(AdvanceType advance)
 
 void Player::AddUnitVision(const MapPoint &pnt, double range)
 {
-	if(tiledmap_observer::GetLocalVision() == nullptr || m_vision != tiledmap_observer::GetLocalVision())
+	if(tiledmap_observer::GetLocalVision() == nullptr || m_vision.get() != tiledmap_observer::GetLocalVision())
 	{
 		m_vision->AddVisible(pnt, range);
 	}
@@ -3653,7 +3625,7 @@ void Player::AddUnitVision(const MapPoint &pnt, double range)
 
 void Player::RemoveUnitVision(const MapPoint &pnt, double range)
 {
-	if(tiledmap_observer::GetLocalVision() == nullptr || m_vision != tiledmap_observer::GetLocalVision())
+	if(tiledmap_observer::GetLocalVision() == nullptr || m_vision.get() != tiledmap_observer::GetLocalVision())
 	{
 		m_vision->RemoveVisible(pnt, range);
 	}
@@ -3982,7 +3954,7 @@ void Player::GiveMap(PLAYER_INDEX recipient)
 {
 	if (!player_Get(recipient))
 		return;
-	player_Get(recipient)->m_vision->MergeMap(m_vision);
+	player_Get(recipient)->m_vision->MergeMap(m_vision.get());
 	if (gameobservers_Get()) {
 		gameobservers_Get()->NotifyVisionCopied(m_owner, recipient);
 	}
@@ -5017,9 +4989,9 @@ void Player::AddMessage(Message &msg)
 			FILE *mfile;
 			static int openedFile = 0;
 			if(openedFile) {
-				mfile = fopen("logs\\messages.txt", "a");
+				mfile = fopen("logs/messages.txt", "a");
 			} else {
-				mfile = fopen("logs\\messages.txt", "w");
+				mfile = fopen("logs/messages.txt", "w");
 				openedFile = 1;
 			}
 			if(mfile) {
@@ -7015,8 +6987,7 @@ void Player::RemoveDeadPlayers()
 			g_deadPlayer->AddHead(player_Get(i));
 			player_Get(i)->m_score->SetFinalScore(player_Get(i)->m_score->GetTotalScore());
 
-			delete player_Get(i)->m_vision;
-			player_Get(i)->m_vision = nullptr;
+			player_Get(i)->m_vision.reset();
 
 			player_arr_Get()[i] = nullptr;
 			if (gameobservers_Get()) gameobservers_Get()->NotifyPlayerRemoved((PLAYER_INDEX)i);
@@ -8027,7 +7998,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 
 			if(network_Get().IsHost() && !network_Get().IsLocalPlayer(m_owner))
 			{
-				network_Get().QueuePacketToAll(new NetResearch(m_advances));
+				network_Get().QueuePacketToAll(new NetResearch(m_advances.get()));
 				network_Get().QueuePacket(network_Get().IndexToId(m_owner),
 									  new NetInfo(NET_INFO_CODE_CHOOSE_RESEARCH, advance));
 			}

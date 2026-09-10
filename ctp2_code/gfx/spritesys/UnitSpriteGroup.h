@@ -10,6 +10,7 @@
 //----------------------------------------------------------------------------
 
 #include <windows.h>          // BOOL, POINT
+#include <memory>             // std::unique_ptr
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -48,10 +49,13 @@ class aui_Surface;
 // Class declarations
 //----------------------------------------------------------------------------
 
+class ModernSpriteAtlas;
+
 class UnitSpriteGroup : public SpriteGroup
 {
 public:
 	UnitSpriteGroup(GROUPTYPE type);
+	~UnitSpriteGroup() override;
 
 	void			DeallocateStorage() override;
 	void			DeallocateFullLoadAnims() override;
@@ -60,7 +64,8 @@ public:
 	void			LoadIndexed(MBCHAR const * filename, GAME_ACTION index) override;
 	void			LoadFull(MBCHAR const * filename) override;
 
-	bool			GetImageFileName(MBCHAR * name, char * format, ...);
+	// nameSize = capacity of `name` in chars (the write is bounded by it).
+	bool			GetImageFileName(MBCHAR * name, size_t nameSize, char * format, ...);
 
 	void			Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode) override;
 
@@ -69,6 +74,10 @@ public:
 
 	void			DrawText(sint32 x, sint32 y, MBCHAR const * s) override;
 	void			DrawDirect(aui_Surface *surf, UNITACTION action, sint32 frame, sint32 drawX, sint32 drawY,
+							   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags,
+							   BOOL specialDelayProcess,
+							   BOOL directionalAttack);
+	bool			AddGpuSpriteQuad(UNITACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 							   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags,
 							   BOOL specialDelayProcess,
 							   BOOL directionalAttack);
@@ -98,7 +107,12 @@ public:
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack);
 
 private:
-
+	// Modern atlas draw for the interactive Draw path (writes into the
+	// ScreenManager's already-locked surface). Returns false to fall back to
+	// the legacy RLE draw. See the definition for the geometry.
+	bool			DrawModernInteractive(UNITACTION action, sint32 frame,
+						   sint32 drawX, sint32 drawY, sint32 facing, double scale,
+						   uint16 transparency, uint16 flags);
 
 	uint16			m_numFirePointsWork;
 	POINT			m_firePointsWork[k_NUM_FIREPOINTS][k_NUM_FACINGS];
@@ -107,7 +121,10 @@ private:
 
 	POINT			m_shieldPoints[UNITACTION_MAX][k_NUM_FACINGS];
 
-
+	// Modern-first atlas (P11 B1), populated on load when CTP2_MODERN_SPRITES
+	// is set and a generated manifest exists; else null and the legacy RLE
+	// sprites are drawn. Owned; freed in the out-of-line destructor.
+	std::unique_ptr<ModernSpriteAtlas> m_modernAtlas;
 };
 
 #endif

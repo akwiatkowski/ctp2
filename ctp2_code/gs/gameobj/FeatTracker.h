@@ -143,7 +143,7 @@ class FeatTracker {
 	static void CleanupEvents();
 
   private:
-	PointerList<Feat> *m_activeList;
+	PointerList<Feat> m_activeList;   // held by value
 	PointerList<Feat> *m_effectList[FEAT_EFFECT_MAX];
 	std::vector<uint8>		m_achieved;
 	std::vector<uint8>		m_buildingFeat;

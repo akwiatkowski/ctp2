@@ -482,7 +482,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.PopulationLabel");
 				st->SetText(interp);
 
-				Unit *capitol = player_Get(detailPlayer)->m_capitol;
+				Unit *capitol = player_Get(detailPlayer)->m_capitol.get();
 				if( capitol && capitol->m_id
 				&& (    capitol->GetCityData()->GetBuiltWonders()
 				    || (capitol->GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer())) != 0

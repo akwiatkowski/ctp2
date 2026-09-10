@@ -281,7 +281,7 @@ AUI_ERRCODE spnewgamediffscreen_Cleanup()
 		c3ui_Get()->RemoveWindow(s_spNewGameDiffScreen->Id());
 		keypress_RemoveHandler(s_spNewGameDiffScreen);
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; }
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 		mycleanup(s_diffListBox);
 		mycleanup(s_riskListBox);
 		mycleanup(s_skillLevel);

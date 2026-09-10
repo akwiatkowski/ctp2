@@ -76,8 +76,11 @@ enum LOADTYPE {
 // Project dependencies
 //----------------------------------------------------------------------------
 
+#include <memory>
+
 #include "gfx/spritesys/Action.h"
 #include "os/include/ctp2_inttypes.h"	// sint32, uint16
+#include "gfx/spritesys/Anim.h"
 #include "gfx/spritesys/FacedSprite.h"
 #include "gs/fileio/Token.h"
 
@@ -123,16 +126,16 @@ public:
 	LOADTYPE		GetLoadType() const { return m_loadType; }
 	void			SetLoadType(LOADTYPE type) { m_loadType = type; }
 
-	Sprite *        GetGroupSprite(GAME_ACTION action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_sprites[action] : nullptr; }
-	void			SetGroupSprite (GAME_ACTION action, Sprite *sprite) { if ((action >= 0) && (action < ACTION_MAX)) m_sprites[action] = sprite; }
+	Sprite *        GetGroupSprite(GAME_ACTION action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_sprites[action].get() : nullptr; }
+	void			SetGroupSprite (GAME_ACTION action, Sprite *sprite) { if ((action >= 0) && (action < ACTION_MAX)) AdoptSlot(m_sprites[action], sprite); }
 
-	Anim *          GetGroupAnim(uint32 action) const { return (action < ACTION_MAX) ? m_anims[action] : nullptr; }
-	void			SetGroupAnim (GAME_ACTION action, Anim *anim) { if ((action >= 0) && (action < ACTION_MAX)) m_anims[action] = anim; }
+	Anim *          GetGroupAnim(uint32 action) const { return (action < ACTION_MAX) ? m_anims[action].get() : nullptr; }
+	void			SetGroupAnim (GAME_ACTION action, Anim *anim) { if ((action >= 0) && (action < ACTION_MAX)) AdoptSlot(m_anims[action], anim); }
 
 	// Takes int (not GAME_ACTION) so callers passing UNITACTION_NONE (-1) or
 	// any other out-of-range value don't trigger an enum-load UBSan hit at
 	// entry.  Bounds-check then index is safe with an int.
-	Anim *          GetAnim(int action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_anims[action] : nullptr; }
+	Anim *          GetAnim(int action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_anims[action].get() : nullptr; }
 
 	sint32			GetWidth() const { return m_width; };
 	sint32			GetHeight() const { return m_height; };
@@ -161,8 +164,22 @@ protected:
 
 	LOADTYPE		m_loadType;
 
-	Sprite			*m_sprites[ACTION_MAX];
-	Anim			*m_anims  [ACTION_MAX];
+	// The group owns one sprite and one animation per action.
+	std::unique_ptr<Sprite>	m_sprites[ACTION_MAX];
+	std::unique_ptr<Anim>	m_anims  [ACTION_MAX];
+
+	// The sprite loader reads the current slot, hands it to a reader that fills
+	// it IN PLACE (allocating only when the slot is empty), then writes it back.
+	// So the incoming pointer is usually the one already held, and a bare
+	// reset() would destroy the object it had just been handed. Guarding the
+	// self-assignment keeps that path correct while still releasing a genuine
+	// replacement — which the previous raw-pointer setter silently leaked.
+	template <typename T>
+	static void AdoptSlot(std::unique_ptr<T> & slot, T * incoming)
+	{
+		if (slot.get() != incoming)
+			slot.reset(incoming);
+	}
 
 	bool			m_hasDeath;
 	bool			m_hasDirectional;

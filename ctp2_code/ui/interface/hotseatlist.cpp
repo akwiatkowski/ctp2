@@ -36,6 +36,8 @@
 #include "ui/interface/hotseatlist.h"
 
 #include <algorithm>			// std::fill
+#include <memory>
+#include <vector>
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -78,28 +80,30 @@
 #include "gs/fileio/gamefile.h"
 
 
-static HotseatList * g_hotseatList = nullptr;
+static std::unique_ptr<HotseatList> g_hotseatList;
 
 HotseatList * hotseatlist_Get()
 {
-    return g_hotseatList;
+    return g_hotseatList.get();
 }
 
 void hotseatlist_DisplayWindow(HotseatListCallback *callback)
 {
     if (!g_hotseatList) {
-        g_hotseatList = new HotseatList(callback);
+        g_hotseatList.reset(new HotseatList(callback));
     }
     g_hotseatList->DisplayWindow();
 }
 
 void hotseatlist_Cleanup()
 {
-    allocated::clear(g_hotseatList);
+    g_hotseatList.reset();
 }
 
 sint32       s_hotseatCivList[k_MAX_PLAYERS];
-bool        *s_legalCivList = nullptr;
+
+// One flag per civilisation DB record: whether players may pick it.
+std::vector<bool> s_legalCivList;
 bool         s_playerCivsLocked;
 
 
@@ -157,7 +161,7 @@ HotseatList::HotseatList( HotseatListCallback *callback, MBCHAR *ldlBlock )
 	else strlcpy(windowBlock, "HotseatListPopup", sizeof(windowBlock));
 
 	{
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		m_window.reset(new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false));
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -188,7 +192,7 @@ sint32 HotseatList::Initialize( MBCHAR *windowBlock )
 	m_window->AddOk(HotseatListButtonActionCallback);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerList" );
-	m_list = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
+	m_list.reset(new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr));
 	m_list->SetAbsorbancy(FALSE);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
@@ -237,13 +241,13 @@ HotseatList::~HotseatList()
 	if (m_list)
 	{
 		m_list->Clear();
-		delete m_list;
 	}
 
-	delete m_window;
+	m_list.reset();
+	m_window.reset();
 
-	allocated::clear(s_legalCivList);
-
+	s_legalCivList.clear();
+	s_legalCivList.shrink_to_fit();
 }
 
 void HotseatList::DisplayWindow( )
@@ -252,7 +256,7 @@ void HotseatList::DisplayWindow( )
 
 	UpdateData();
 
-	auiErr = c3ui_Get()->AddWindow(m_window);
+	auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	keypress_RegisterHandler(this);
@@ -289,11 +293,11 @@ sint32 HotseatList::UpdateData( )
 
 	Scenario *scen;
 	ScenarioPack *pack;
-	SaveInfo *info = nullptr;
+	std::unique_ptr<SaveInfo> info;
 	CivScenarios *cs = civscenarios_Get();
 	if(cs->FindScenario(scenario_name_buf(),
 								    &pack, &scen)) {
-		info = cs->LoadSaveInfo(scen);
+		info.reset(cs->LoadSaveInfo(scen));
 	}
 
 	for ( sint32 i = 0 ; i < profiledb_Get()->GetNPlayers() - 1; i++ )
@@ -310,8 +314,6 @@ sint32 HotseatList::UpdateData( )
 		m_list->AddItem((c3_ListItem *)item);
 		m_items[i] = item;
 	}
-	
-		delete info;
 
 	return 0;
 }
@@ -560,11 +562,9 @@ void HotseatListItem::EnterEmail()
 
 void hotseatlist_ClearOptions()
 {
-	delete [] s_legalCivList;
-	s_legalCivList = new bool[g_theCivilisationDB->NumRecords()];
+	s_legalCivList.assign(g_theCivilisationDB->NumRecords(), false);
 
 	std::fill(s_hotseatCivList, s_hotseatCivList + k_MAX_PLAYERS, 0);
-	std::fill(s_legalCivList, s_legalCivList + g_theCivilisationDB->NumRecords(), false);
 	s_playerCivsLocked = false;
 }
 
@@ -586,12 +586,12 @@ bool hotseatlist_PlayerCivsLocked()
 
 void hotseatlist_EnableAllCivs()
 {
-	std::fill(s_legalCivList, s_legalCivList + g_theCivilisationDB->NumRecords(), true);
+	std::fill(s_legalCivList.begin(), s_legalCivList.end(), true);
 }
 
 void hotseatlist_DisableAllCivs()
 {
-	std::fill(s_legalCivList, s_legalCivList + g_theCivilisationDB->NumRecords(), false);
+	std::fill(s_legalCivList.begin(), s_legalCivList.end(), false);
 }
 
 void hotseatlist_EnableCiv(sint32 civ)

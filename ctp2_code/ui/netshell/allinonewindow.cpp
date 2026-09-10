@@ -197,25 +197,25 @@ AUI_ERRCODE AllinoneWindow::InitCommon( )
 
 	m_aiplayerList = new tech_WLList<nf_AIPlayer *>;
 
-	m_messageRequestDenied = new ns_String("strings.system.requestdenied");
-	m_messageKicked = new ns_String("strings.system.kicked");
-	m_messageGameSetup = new ns_String("strings.system.gamesetup");
-	m_messageGameEnter = new ns_String("strings.system.gameenter");
-	m_messageGameHost = new ns_String("strings.system.gamehost");
-	m_messageGameCreate = new ns_String("strings.system.gamecreate");
-	m_messageLaunched = new ns_String("strings.system.launched");
+	m_messageRequestDenied.reset(new ns_String("strings.system.requestdenied"));
+	m_messageKicked.reset(new ns_String("strings.system.kicked"));
+	m_messageGameSetup.reset(new ns_String("strings.system.gamesetup"));
+	m_messageGameEnter.reset(new ns_String("strings.system.gameenter"));
+	m_messageGameHost.reset(new ns_String("strings.system.gamehost"));
+	m_messageGameCreate.reset(new ns_String("strings.system.gamecreate"));
+	m_messageLaunched.reset(new ns_String("strings.system.launched"));
 
 	m_receivedGuids = false;
 
-	m_playStyleValueStrings = new aui_StringTable(
+	m_playStyleValueStrings.reset(new aui_StringTable(
 		&errcode,
-		"strings.playstylevalues" );
+		"strings.playstylevalues" ));
 	Assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return AUI_ERRCODE_HACK;
 
-	m_PPTStrings = new aui_StringTable(
+	m_PPTStrings.reset(new aui_StringTable(
 		&errcode,
-		"strings.ppt" );
+		"strings.ppt" ));
 	Assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return AUI_ERRCODE_HACK;
 
@@ -839,15 +839,6 @@ AllinoneWindow::~AllinoneWindow()
 	}
 
 	delete m_aiplayerList;
-	delete m_messageKicked;
-	delete m_messageGameSetup;
-	delete m_messageGameEnter;
-	delete m_messageGameCreate;
-	delete m_messageGameHost;
-	delete m_messageLaunched;
-	delete m_playStyleValueStrings;
-	delete m_PPTStrings;
-	delete m_messageRequestDenied;
 
 	agesscreen_Cleanup();
 	spnewgamemapsizescreen_Cleanup();

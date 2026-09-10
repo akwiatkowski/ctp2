@@ -98,7 +98,7 @@ void NetVision::Packetize(uint8 *buf, uint16 &size)
 
 	uint8 *ptr = nullptr;
 	uint8 bitPos = 0;
-	Vision *vision = player_Get(m_owner)->m_vision;
+	Vision *vision = player_Get(m_owner)->m_vision.get();
 	sint32 w = vision->m_width;
 	sint32 bottom = m_row + m_numRows;
 	if(bottom > vision->m_height)
@@ -160,7 +160,7 @@ void NetVision::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	uint8 *         ptr     = nullptr;
 	uint8           bitPos  = 0;
-	Vision *        vision  = player_Get(m_owner)->m_vision;
+	Vision *        vision  = player_Get(m_owner)->m_vision.get();
 	sint32          w       = vision->m_width;
 	sint32 const    bottom  =
 	    std::min<sint32>(m_row + m_numRows, vision->m_height);

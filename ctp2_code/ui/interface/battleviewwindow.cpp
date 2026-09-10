@@ -141,75 +141,16 @@ BattleViewWindow::BattleViewWindow
     AUI_WINDOW_TYPE type
 )
 :
-	C3Window                (retval, id, ldlBlock, bpp, type),
-	m_battleView            (nullptr),
-//	RECT					m_battleViewRect;
-	m_topBorder             (nullptr),
-    m_leftBorder            (nullptr),
-    m_rightBorder           (nullptr),
-    m_bottomBorder          (nullptr),
-    m_exitButton            (nullptr),
-    m_retreatButton         (nullptr),
-    m_titleText             (nullptr),
-    m_attackersText         (nullptr),
-    m_attackersName         (nullptr),
-    m_attackersFlag         (nullptr),
-    m_defendersText         (nullptr),
-    m_defendersName         (nullptr),
-    m_defendersFlag         (nullptr),
-    m_terrainBonusText      (nullptr),
-    m_terrainBonusValue     (nullptr),
-    m_cityBonusText         (nullptr),
-    m_cityBonusValue        (nullptr),
-    m_citylandattackBonusText (nullptr),
-    m_citylandattackBonusValue (nullptr),
-    m_cityairattackBonusText (nullptr),
-    m_cityairattackBonusValue (nullptr),
-    m_cityseaattackBonusText (nullptr),
-    m_cityseaattackBonusValue (nullptr),
-    m_cityName              (nullptr),
-    m_fortBonusText         (nullptr),
-    m_fortBonusValue        (nullptr),
-    m_fortBonusImage        (nullptr),
-    m_fortifiedBonusText    (nullptr),
-    m_fortifiedBonusValue   (nullptr)
+	C3Window                (retval, id, ldlBlock, bpp, type)
+	// Controls default-construct empty and are built by InitCommonLdl.
 {
 	InitCommonLdl(ldlBlock);
 }
 
 
+// Every control frees itself; only the global back-pointer needs clearing.
 BattleViewWindow::~BattleViewWindow()
 {
-	delete m_battleView;
-	delete m_topBorder;
-	delete m_leftBorder;
-	delete m_rightBorder;
-	delete m_bottomBorder;
-	delete m_exitButton;
-	delete m_retreatButton;
-	delete m_titleText;
-	delete m_attackersText;
-	delete m_attackersName;
-	delete m_attackersFlag;
-	delete m_defendersText;
-	delete m_defendersName;
-	delete m_defendersFlag;
-	delete m_terrainBonusText;
-	delete m_terrainBonusValue;
-	delete m_cityBonusText;
-	delete m_cityBonusValue;
-	delete m_citylandattackBonusText;
-	delete m_citylandattackBonusValue;
-	delete m_cityairattackBonusText;
-	delete m_cityairattackBonusValue;
-	delete m_cityseaattackBonusText;
-	delete m_cityseaattackBonusValue;
-	delete m_cityName;
-	delete m_fortBonusText;
-	delete m_fortBonusValue;
-	delete m_fortBonusImage;
-	delete m_fortifiedBonusText;
-	delete m_fortifiedBonusValue;
 
 	Assert(this == g_battleViewWindow);
 	if (this == g_battleViewWindow)
@@ -224,125 +165,125 @@ AUI_ERRCODE BattleViewWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		errcode;
 
-	m_battleView = new BattleView();
+	m_battleView.reset(new BattleView());
 	Assert(m_battleView != nullptr);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TitleText");
-	m_titleText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_titleText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_titleText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "AttackersText");
-	m_attackersText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_attackersText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_attackersText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "AttackersName");
-	m_attackersName = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_attackersName.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_attackersName);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "AttackersFlag");
-	m_attackersFlag = new c3_Icon(&errcode, aui_UniqueId(), buttonBlock);
+	m_attackersFlag.reset(new c3_Icon(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_attackersFlag);
 	m_attackersFlag->SetMapIcon( MAPICON_FLAG );
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "DefendersText");
-	m_defendersText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_defendersText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_defendersText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "DefendersName");
-	m_defendersName = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_defendersName.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_defendersName);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "DefendersFlag");
-	m_defendersFlag = new c3_Icon(&errcode, aui_UniqueId(), buttonBlock);
+	m_defendersFlag.reset(new c3_Icon(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_defendersFlag);
 	m_defendersFlag->SetMapIcon( MAPICON_FLAG );
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TerrainBonusText");
-	m_terrainBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_terrainBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_terrainBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TerrainBonusValue");
-	m_terrainBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_terrainBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_terrainBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityBonusText");
-	m_cityBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_cityBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_cityBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityBonusValue");
-	m_cityBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_cityBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_cityBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityLandAttackBonusText");
-	m_citylandattackBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_citylandattackBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_citylandattackBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityLandAttackBonusValue");
-	m_citylandattackBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_citylandattackBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_citylandattackBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityAirAttackBonusText");
-	m_cityairattackBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_cityairattackBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_cityairattackBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityAirAttackBonusValue");
-	m_cityairattackBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_cityairattackBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_cityairattackBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CitySeaAttackBonusText");
-	m_cityseaattackBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_cityseaattackBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_cityseaattackBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CitySeaAttackBonusValue");
-	m_cityseaattackBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_cityseaattackBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_cityseaattackBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityName");
-	m_cityName = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_cityName.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_cityName);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortBonusText");
-	m_fortBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_fortBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_fortBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortBonusValue");
-	m_fortBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_fortBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_fortBonusValue);
 
 	m_fortBonusImage = nullptr;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortifiedBonusText");
-	m_fortifiedBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_fortifiedBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_fortifiedBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortifiedBonusValue");
-	m_fortifiedBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_fortifiedBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_fortifiedBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "ExitButton");
-	m_exitButton = new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock,
-		battleview_ExitButtonActionCallback);
+	m_exitButton.reset(new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock,
+		battleview_ExitButtonActionCallback));
 	Assert(m_exitButton != nullptr);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "RetreatButton");
-	m_retreatButton = new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock,
-		battleview_RetreatButtonActionCallback);
+	m_retreatButton.reset(new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock,
+		battleview_RetreatButtonActionCallback));
 	Assert(m_retreatButton != nullptr);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TopBorder");
-	m_topBorder = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_topBorder.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_topBorder);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "LeftBorder");
-	m_leftBorder = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_leftBorder.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_leftBorder);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "RightBorder");
-	m_rightBorder = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_rightBorder.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_rightBorder);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "BottomBorder");
-	m_bottomBorder = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_bottomBorder.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(m_bottomBorder);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "BattleViewArea");

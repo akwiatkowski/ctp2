@@ -7,6 +7,7 @@
 
 class BattleOrderBox;
 
+#include <memory>
 #include "ui/aui_ctp2/controlsheet.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"
@@ -69,23 +70,23 @@ private:
 
 	BOOL			m_stackDisplay;
 
-	c3_ColorIconButton	*m_unitImage;
-	c3_Static		*m_unitFortify;
-	c3_Static		*m_unitVeteran;
+	std::unique_ptr<c3_ColorIconButton>	m_unitImage;
+	std::unique_ptr<c3_Static>	m_unitFortify;
+	std::unique_ptr<c3_Static>	m_unitVeteran;
 
-	c3_Static		*m_unitARD;
-	c3_Static		*m_unitMovement;
+	std::unique_ptr<c3_Static>	m_unitARD;
+	std::unique_ptr<c3_Static>	m_unitMovement;
 
-	c3_Static		*m_unitARDText;
-	c3_Static		*m_unitMText;
+	std::unique_ptr<c3_Static>	m_unitARDText;
+	std::unique_ptr<c3_Static>	m_unitMText;
 
-	c3_Static		*m_activeDefenseIcon;
-	c3_Static		*m_veteranIcon;
+	std::unique_ptr<c3_Static>	m_activeDefenseIcon;
+	std::unique_ptr<c3_Static>	m_veteranIcon;
 
-	c3_Static		*m_fuelLabel;
-	c3_Static		*m_fuelBox;
+	std::unique_ptr<c3_Static>	m_fuelLabel;
+	std::unique_ptr<c3_Static>	m_fuelBox;
 
-	c3_Static		*m_unitName;
+	std::unique_ptr<c3_Static>	m_unitName;
 
 	c3_ColoredStatic *m_cargo[ k_CARGO_CAPACITY ];
 };

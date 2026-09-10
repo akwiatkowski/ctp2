@@ -81,8 +81,8 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "UnitTabButton" );
 
-	m_button = new c3_ColorIconButton(&errcode, aui_UniqueId(), 0, m_barHeight,
-			m_width, m_height - m_barHeight, "upba0119.tga", "" );
+	m_button.reset(new c3_ColorIconButton(&errcode, aui_UniqueId(), 0, m_barHeight,
+			m_width, m_height - m_barHeight, "upba0119.tga", "" ));
 
 	Assert(m_button);
 	if (!m_button) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -91,37 +91,37 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 
 	m_button->ShrinkToFit(TRUE);
 
-	errcode = AddSubControl(m_button);
+	errcode = AddSubControl(m_button.get());
 	Assert(errcode == AUI_ERRCODE_OK);
 
 		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Arrow" );
-		m_arrow = new c3_Static( &errcode, aui_UniqueId(), ldlBlock );
+		m_arrow.reset(new c3_Static( &errcode, aui_UniqueId(), ldlBlock ));
 		Assert( AUI_NEWOK( m_arrow, errcode) );
 		if ( !AUI_NEWOK(m_arrow, errcode) ) return errcode;
 
 		m_arrow->SetBlindness( TRUE );
 
-		errcode = m_button->AddSubControl( m_arrow );
+		errcode = m_button->AddSubControl(m_arrow.get());
 		Assert( errcode == AUI_ERRCODE_OK );
 
 		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Fortify" );
-		m_fortify = new c3_Static( &errcode, aui_UniqueId(), ldlBlock );
+		m_fortify.reset(new c3_Static( &errcode, aui_UniqueId(), ldlBlock ));
 		Assert( AUI_NEWOK( m_fortify, errcode) );
 		if ( !AUI_NEWOK(m_fortify, errcode) ) return errcode;
 
 		m_fortify->SetBlindness( TRUE );
 
-		errcode = m_button->AddSubControl( m_fortify );
+		errcode = m_button->AddSubControl(m_fortify.get());
 		Assert( errcode == AUI_ERRCODE_OK );
 
 		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Veteran" );
-		m_veteran = new c3_Static( &errcode, aui_UniqueId(), ldlBlock );
+		m_veteran.reset(new c3_Static( &errcode, aui_UniqueId(), ldlBlock ));
 		Assert( AUI_NEWOK( m_veteran, errcode) );
 		if ( !AUI_NEWOK(m_veteran, errcode) ) return errcode;
 
 		m_veteran->SetBlindness( TRUE );
 
-		errcode = m_button->AddSubControl( m_veteran );
+		errcode = m_button->AddSubControl(m_veteran.get());
 		Assert( errcode == AUI_ERRCODE_OK );
 
 		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Cargo" );
@@ -145,10 +145,10 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 
 
 
-	m_healthBar = new Thermometer( &errcode, aui_UniqueId(), 0, 0,
-		m_width, m_barHeight, "chart.tga", 50 );
+	m_healthBar.reset(new Thermometer( &errcode, aui_UniqueId(), 0, 0,
+		m_width, m_barHeight, "chart.tga", 50 ));
 
-	errcode = AddSubControl( m_healthBar );
+	errcode = AddSubControl(m_healthBar.get());
 	Assert( errcode == AUI_ERRCODE_OK );
 
 
@@ -157,14 +157,13 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 
 UnitTabButton::~UnitTabButton()
 {
-	RemoveControl( m_button );
-	RemoveControl( m_healthBar );
-	RemoveControl( m_arrow );
-	RemoveControl( m_fortify );
-	RemoveControl( m_veteran );
-
+	// The five owned controls release themselves. Order does not matter here:
+	// m_arrow, m_fortify and m_veteran are AddSubControl'd to m_button, and
+	// that is an observing registration -- the previous code deleted the
+	// button and its sub-controls both, which only works if neither owns the
+	// other. m_cargo is a plain array, so it is still freed by hand.
 	for (auto & i : m_cargo) {
-		RemoveControl( i );
+		DeleteControl( i );
 	}
 }
 
@@ -214,19 +213,19 @@ sint32 UnitTabButton::UpdateData( Unit *unit )
 	}
 	else {
 
-		AddSubControl( m_healthBar );
+		AddSubControl(m_healthBar.get());
 		sint32 healthPercent  = (sint32)( unit->GetHP() * 100  / unit->AccessData()->CalculateTotalHP());//GetDBRec()->GetMaxHP() );
 		m_healthBar->SetPercentFilled( healthPercent );
 
 		if ( unit->GetMovementPoints() ) {
-			m_button->AddSubControl( m_arrow );
+			m_button->AddSubControl(m_arrow.get());
 		}
 		else {
 			m_button->RemoveSubControl( m_arrow->Id() );
 		}
 
 		if ( unit->IsVeteran() ) {
-			m_button->AddSubControl( m_veteran );
+			m_button->AddSubControl(m_veteran.get());
 			m_fortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		}
 		else {
@@ -234,17 +233,17 @@ sint32 UnitTabButton::UpdateData( Unit *unit )
 		}
 
 		if ( unit->IsEntrenched() ) {
-			m_button->AddSubControl( m_fortify );
+			m_button->AddSubControl(m_fortify.get());
 
 			m_fortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		}
 		else if ( unit->IsAsleep() ) {
-			m_button->AddSubControl( m_fortify );
+			m_button->AddSubControl(m_fortify.get());
 
 			m_fortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		}
 		else if ( unit->IsEntrenching() ) {
-			m_button->AddSubControl( m_fortify );
+			m_button->AddSubControl(m_fortify.get());
 
 			m_fortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_GRAY) );
 		}

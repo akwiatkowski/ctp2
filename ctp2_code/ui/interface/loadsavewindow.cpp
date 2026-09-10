@@ -527,11 +527,10 @@ void LoadSaveWindow::GetPowerGraph(SaveInfo *info)
 	myGraph->EnableYNumber(FALSE);
 	myGraph->EnablePrecision(FALSE);
 
-	double **   graphData = nullptr;
 	sint32		 xCount;
 	sint32		 yCount;
 
-	myGraph->GenrateGraph(xCount, yCount, &graphData, kRankingOverall);
+	myGraph->GenrateGraph(xCount, yCount, kRankingOverall);
 	if(yCount <= 0) return;
 
 	info->powerGraphWidth   = width;
@@ -553,15 +552,6 @@ void LoadSaveWindow::GetPowerGraph(SaveInfo *info)
 	}
 
 	surf->Unlock(buffer);
-
-    if (graphData)
-    {
-		for (int i = 0; i < yCount; i++)
-        {
-			delete [] graphData[i];
-		}
-		delete [] graphData;
-	}
 }
 
 

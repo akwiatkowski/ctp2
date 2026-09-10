@@ -49,10 +49,6 @@ TimelineTab::TimelineTab(ctp2_Window *parent) :
 
 	m_info_window = parent;
 
-	m_infoGraphData = nullptr;
-
-	m_infoYCount = 0;
-
 	m_infoGraph->SetEventTracker(eventtracker_Get());
 
 	m_infoGraph->EnableYNumber(FALSE);
@@ -122,30 +118,14 @@ void TimelineTab::LoadData()
 	UpdateGraph();
 }
 
-void TimelineTab::CleanupGraph()
-{
-
-	if (m_infoGraphData)
-	{
-		for( sint32 i = 0 ; i < m_infoYCount ; i++ )
-		{
-			delete m_infoGraphData[i];
-			m_infoGraphData[i] = nullptr;
-		}
-		delete m_infoGraphData;
-		m_infoGraphData = nullptr;
-	}
-}
-
 void TimelineTab::UpdateGraph()
 {
-	CleanupGraph();
 	sint32 xCount = 0;
-	m_infoGraph->GenrateGraph(xCount, m_infoYCount, &m_infoGraphData, kRankingOverall);
+	sint32 yCount = 0;
+	m_infoGraph->GenrateGraph(xCount, yCount, kRankingOverall);
 	m_info_window->Draw();
 }
 
 TimelineTab::~TimelineTab()
 {
-	CleanupGraph();
 }

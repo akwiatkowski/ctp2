@@ -1,6 +1,9 @@
 #include "ctp/c3.h"
 #include "ui/interface/messagewin.h"
 
+#include <memory>
+#include <vector>
+
 #include "gs/utility/Globals.h"        // allocated::...
 #include "ui/aui_ctp2/SelItem.h"        // selitem_Get()
 
@@ -36,7 +39,9 @@ extern MessageModal *   g_modalMessage;
 extern sint32           g_ScreenWidth;
 extern sint32           g_ScreenHeight;
 
-tech_WLList<MessageList *>		*g_messageUserList = nullptr;
+// Per-player message lists, owned here; entries live from
+// messagewin_InitializePlayerMessage until messagewin_PurgeMessages.
+static std::vector<std::unique_ptr<MessageList>> g_messageUserList;
 
 PLAYER_INDEX			g_currentPlayerMessages = 0;
 
@@ -81,7 +86,7 @@ uint8 g_messageIconWidth = 33;
 
 AUI_ERRCODE messagewin_InitializeMessages( )
 {
-	g_messageUserList = new tech_WLList<MessageList *>;
+	g_messageUserList.clear();
 
 	ldl_datablock * block = aui_Ldl::FindDataBlock("MessageboxAttributes");
 	Assert( block != nullptr );
@@ -172,32 +177,24 @@ AUI_ERRCODE messagewin_InitializeMessages( )
 
 MessageList *messagewin_InitializePlayerMessage( PLAYER_INDEX index )
 {
-	if ( !g_messageUserList ) return nullptr;
-
 	if ( messagewin_GetPlayerMessageList( index )) return nullptr;
 
-	MessageList *list = new MessageList(index);
+	std::unique_ptr<MessageList> list(new MessageList(index));
 
-	g_messageUserList->AddTail( list );
+	MessageList *listPtr = list.get();
+	g_messageUserList.push_back(std::move(list));
 
-	return list;
+	return listPtr;
 }
 
 
 MessageList *messagewin_GetPlayerMessageList( PLAYER_INDEX index )
 {
-	if (g_messageUserList)
+	for (auto &userList : g_messageUserList)
     {
-	    ListPos position = g_messageUserList->GetHeadPosition();
-
-	    for (size_t count = g_messageUserList->L(); count > 0; --count)
+        if (userList->GetPlayer() == index)
         {
-		    MessageList * l_List = g_messageUserList->GetNext(position);
-
-            if (l_List->GetPlayer() == index)
-            {
-			    return l_List;
-            }
+			return userList.get();
         }
 	}
 
@@ -342,8 +339,8 @@ int messagewin_CleanupMessage( MessageIconWindow *iconWindow,
 							   MessageWindow *window )
 {
 
-	Assert ( g_messageUserList != nullptr );
-	if ( g_messageUserList == nullptr ) return -1;
+	Assert ( !g_messageUserList.empty() );
+	if ( g_messageUserList.empty() ) return -1;
 
 	MessageList *messagelist = messagewin_GetPlayerMessageList( window->GetPlayer() );
 	Assert( messagelist != nullptr );
@@ -364,27 +361,14 @@ int messagewin_CleanupMessage( MessageIconWindow *iconWindow,
 void messagewin_Cleanup()
 {
 	messagewin_PurgeMessages();
-    allocated::clear(g_messageUserList);
 }
-
 
 void messagewin_PurgeMessages()
 {
-	if (g_messageUserList)
-    {
-	    messagewin_LessMessagesIcon( FALSE, TRUE );
-	    messagewin_MoreMessagesIcon( FALSE, TRUE );
+	messagewin_LessMessagesIcon( FALSE, TRUE );
+	messagewin_MoreMessagesIcon( FALSE, TRUE );
 
-	    ListPos position = g_messageUserList->GetHeadPosition();
-	    for (size_t count = g_messageUserList->L(); count; --count)
-        {
-		    MessageList * & messagelist = g_messageUserList->GetNext(position);
-		    delete messagelist;
-		    messagelist = nullptr;
-	    }
-
-	    g_messageUserList->DeleteAll();
-    }
+	g_messageUserList.clear();
 }
 
 
@@ -423,141 +407,12 @@ int messagewin_MoreMessagesIcon( BOOL make, BOOL destroy )
 {
 
 return 1;
-#if 0   // CtP1 code?
-	static aui_Window *window = NULL;
-	static aui_Button *button = NULL;
-	static ChangeOffsetMessageIconButtonAction *action = NULL;
-
-	if ( make ) {
-
-		AUI_ERRCODE retval = AUI_ERRCODE_OK;
-
-		if ( !window ) {
-			MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-			MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-
-			strlcpy( windowBlock, "MoreMessagesIconWindow", sizeof(windowBlock) );
-
-			window = new aui_Window( &retval, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_STANDARD );
-			Assert( AUI_NEWOK( window, retval ));
-			if ( !AUI_NEWOK( window, retval )) return -1;
-
-			snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "icon" );
-			button = new aui_Button( &retval, aui_UniqueId(), buttonBlock );
-			Assert( AUI_NEWOK( button, retval ));
-			if ( !AUI_NEWOK( button, retval )) return -1;
-
-			action = new ChangeOffsetMessageIconButtonAction( 1,
-							messagewin_GetPlayerMessageList( selitem_Get()->GetVisiblePlayer( )),
-							SHOW_MESSAGE_OFFSET_RELATIVE );
-			Assert( action != NULL );
-			if ( action == NULL ) return -1;
-
-			button->SetAction( action );
-
-			retval = window->AddChild( button );
-			Assert( retval == AUI_ERRCODE_OK );
-			if ( retval != AUI_ERRCODE_OK ) return -1;
-		}
-
-		action->SetList(messagewin_GetPlayerMessageList(selitem_Get()->GetVisiblePlayer()));
-		window->Move( g_messageMoreX, g_messageMoreY );
-		retval = c3ui_Get()->AddWindow( window );
-		Assert( retval == AUI_ERRCODE_OK );
-		if ( retval != AUI_ERRCODE_OK ) return -1;
-
-	} else {
-		if ( window )
-			if ( c3ui_Get()->GetWindow( window->Id( )))
-				c3ui_Get()->RemoveWindow( window->Id( ));
-
-		if ( destroy ) {
-			if ( button ) {
-				if ( window )
-					window->RemoveChild( button->Id( ));
-				delete button;
-				button = NULL;
-			}
-
-			delete window;
-			window = NULL;
-
-			delete action;
-			action = NULL;
-		}
-	}
-
-	return 1;
-#endif
 }
 
 int messagewin_LessMessagesIcon( BOOL make, BOOL destroy )
 {
 
 return 1;
-#if 0   // CtP1 code?
-    static aui_Window *window = NULL;
-	static aui_Button *button = NULL;
-	static ChangeOffsetMessageIconButtonAction	*action = NULL;
-
-	if ( make ) {
-
-		AUI_ERRCODE retval = AUI_ERRCODE_OK;
-
-		if ( !window ) {
-			MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-			MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-
-			strlcpy( windowBlock, "LessMessagesIconWindow", sizeof(windowBlock) );
-
-			window = new aui_Window( &retval, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_STANDARD );
-			Assert( AUI_NEWOK( window, retval ));
-			if ( !AUI_NEWOK( window, retval )) return -1;
-
-			snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "icon" );
-			button = new aui_Button( &retval, aui_UniqueId(), buttonBlock );
-			Assert( AUI_NEWOK( button, retval ));
-			if ( !AUI_NEWOK( button, retval )) return -1;
-
-			action = new ChangeOffsetMessageIconButtonAction( -1,
-							messagewin_GetPlayerMessageList( selitem_Get()->GetVisiblePlayer( )),
-							SHOW_MESSAGE_OFFSET_RELATIVE );
-			Assert( action != NULL );
-			if ( action == NULL ) return -1;
-
-			button->SetAction( action );
-
-			retval = window->AddChild( button );
-			Assert( retval == AUI_ERRCODE_OK );
-			if ( retval != AUI_ERRCODE_OK ) return -1;
-		}
-
-		action->SetList(messagewin_GetPlayerMessageList(selitem_Get()->GetVisiblePlayer()));
-		window->Move( g_messageLessX, g_messageLessY );
-		retval = c3ui_Get()->AddWindow( window );
-		Assert( retval == AUI_ERRCODE_OK );
-		if ( retval != AUI_ERRCODE_OK ) return -1;
-
-	} else {
-		if ( window )
-			if ( c3ui_Get()->GetWindow( window->Id( )))
-				c3ui_Get()->RemoveWindow( window->Id( ));
-
-		if ( destroy ) {
-			if ( button ) {
-				if ( window )
-					window->RemoveChild( button->Id( ));
-				delete button;
-				button = NULL;
-			}
-			delete window;
-			window = NULL;
-			delete action;
-			action = NULL;
-		}
-	}
-	return 1;
-#endif
 }
 
 int messagewin_IsModalMessageDisplayed()

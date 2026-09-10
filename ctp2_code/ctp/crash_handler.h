@@ -6,7 +6,7 @@
 //
 //----------------------------------------------------------------------------
 //
-// On SIGSEGV/SIGBUS/SIGILL/SIGFPE/SIGABRT, writes a symbolised backtrace
+// On SIGSEGV/SIGBUS/SIGILL/SIGFPE/SIGABRT/SIGTRAP, writes a symbolised backtrace
 // and the most recently dispatched game events to stderr and to a crash
 // log file, then re-raises the signal (exit code / core dump unchanged).
 //

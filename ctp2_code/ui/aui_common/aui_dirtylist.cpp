@@ -44,10 +44,6 @@ aui_DirtyList::aui_DirtyList(
 	m_height( height ),
 	m_isEmpty( TRUE )
 {
-	m_rectMemory = new tech_Memory<RECT>;
-	Assert( m_rectMemory != nullptr );
-	if ( !m_rectMemory ) return;
-
 	if ( useSpans )
 	{
 		Assert( m_width > 0 && m_height > 0 );
@@ -62,8 +58,7 @@ aui_DirtyList::~aui_DirtyList()
 {
 	Flush();
 
-	delete m_rectMemory;
-	// m_spanListArray is std::vector, auto-freed
+	// m_rectMemory and m_spanListArray free themselves.
 }
 
 
@@ -76,7 +71,7 @@ AUI_ERRCODE aui_DirtyList::AddRect(
 
 	if ( left < right && top < bottom )
 	{
-		RECT *rect = m_rectMemory->New();
+		RECT *rect = m_rectMemory.New();
 		Assert( rect != nullptr );
 		if ( !rect ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -150,7 +145,7 @@ AUI_ERRCODE aui_DirtyList::SubtractRect( RECT *sub )
 					ListPos insertPosition = prevPosition;
 					for ( sint32 j = 1; j < num; j++ )
 					{
-						RECT *r = m_rectMemory->New();
+						RECT *r = m_rectMemory.New();
 						Assert( r != nullptr );
 						if ( !r ) return alteredList;
 
@@ -163,7 +158,7 @@ AUI_ERRCODE aui_DirtyList::SubtractRect( RECT *sub )
 			}
 			else if ( !num )
 			{
-				m_rectMemory->Delete( rect );
+				m_rectMemory.Delete( rect );
 				DeleteAt( prevPosition );
 			}
 			else
@@ -206,7 +201,7 @@ AUI_ERRCODE aui_DirtyList::Minimize( )
 				if ( Rectangle_SmartConsolidate( &conRect, curRect, nextRect ) )
 				{
 
-					m_rectMemory->Delete( nextRect );
+					m_rectMemory.Delete( nextRect );
 					DeleteAt( prevPos );
 
 					CopyRect( curRect, &conRect );
@@ -229,7 +224,7 @@ void aui_DirtyList::Flush( )
 
 	ListPos position = GetHeadPosition();
 	for ( sint32 i = L(); i; i-- )
-		m_rectMemory->Delete( GetNext( position ) );
+		m_rectMemory.Delete( GetNext( position ) );
 
 
 	DeleteAll();

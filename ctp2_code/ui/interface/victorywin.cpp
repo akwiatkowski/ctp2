@@ -33,6 +33,9 @@
 #include "ctp/c3.h"
 #include "ui/interface/victorywin.h"
 
+#include <array>
+#include <memory>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_ctp2/c3ui.h"
@@ -127,13 +130,16 @@ extern PointerList<Player>      *g_deadPlayer;
 extern sint32                   g_modalWindow;
 
 
-static VictoryWindow *          g_victoryWindow = nullptr;
+static std::unique_ptr<VictoryWindow> g_victoryWindow;
 
 static ctp2_Button              *s_okButton;
-static ctp2_Static              **s_staticControls;
-static aui_StringTable          *s_stringTable;
 
-static HighScoreWindowPopup     *s_highScoreWin;
+// Borrowed LDL controls indexed by the k_VICWIN_* enum; the LDL hierarchy
+// owns them (deleted with VictoryWindow's DeleteHierarchyFromRoot).
+static std::array<ctp2_Static *, k_VICWIN_STATIC_MAX> s_staticControls;
+static std::unique_ptr<aui_StringTable> s_stringTable;
+
+static std::unique_ptr<HighScoreWindowPopup>     s_highScoreWin;
 
 
 
@@ -151,7 +157,9 @@ static ctp2_ListBox             *s_wonderList;
 static ctp2_Static              *s_wonderBlock;
 
 
-static ctp2_Static              **s_wonderIcons;
+// Borrowed wonder-icon controls; owned by the LDL hierarchy like the
+// statics above (see the cleanup comment in victorywin_Cleanup).
+static std::array<ctp2_Static *, k_VICWIN_WONDERICON_MAX> s_wonderIcons;
 
 
 void VictoryWindowButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )
@@ -193,7 +201,7 @@ void HighScoreWinButtonActionCallback( aui_Control *control, uint32 action, uint
 	HighScoreWindowPopup *popup = (HighScoreWindowPopup *)cookie;
 	if (!popup) return;
 
-	if ((ctp2_Button*)control == popup->m_continueButton)
+	if ((ctp2_Button*)control == popup->m_continueButton.get())
 	{
 
 		popup->RemoveWindow();
@@ -215,11 +223,11 @@ void HighScoreWinButtonActionCallback( aui_Control *control, uint32 action, uint
 			}
 		}
 	}
-	else if ((ctp2_Button*)control == popup->m_creditsButton)
+        else if ((ctp2_Button*)control == popup->m_creditsButton.get())
 	{
 		open_CreditsScreen();
 	}
-	else if ((ctp2_Button*)control == popup->m_quitButton)
+	else if ((ctp2_Button*)control == popup->m_quitButton.get())
 	{
 		popup->RemoveWindow();
 		if(network_Get().IsActive()
@@ -271,7 +279,7 @@ sint32 victorywin_Initialize( sint32 type )
 
 	strlcpy(windowBlock, "VictoryWindow", sizeof(windowBlock));
 
-	g_victoryWindow = new VictoryWindow(&errcode);
+	g_victoryWindow.reset(new VictoryWindow(&errcode));
 	Assert( AUI_NEWOK(g_victoryWindow, errcode) );
 	if ( !AUI_NEWOK(g_victoryWindow, errcode) ) return -1;
 
@@ -286,9 +294,9 @@ sint32 victorywin_Initialize( sint32 type )
 	victorywin_Init_Controls(windowBlock);
 
 
-	s_highScoreWin = new HighScoreWindowPopup(type);
+	s_highScoreWin.reset(new HighScoreWindowPopup(type));
 
-	s_stringTable = new aui_StringTable( &errcode, "VictoryStrings" );
+	s_stringTable.reset(new aui_StringTable( &errcode, "VictoryStrings" ));
 	Assert( AUI_NEWOK(s_stringTable, errcode) );
 	if ( !AUI_NEWOK(s_stringTable, errcode) ) return -2;
 
@@ -328,9 +336,7 @@ void victorywin_Cleanup( )
 {
     // The individual "s_wonderIcons[i]" items will be deleted through
     // DeleteHierarchyFromRoot(s_VictoryWindowBlock) in the destructor
-    // of g_victoryWindow.
-    delete [] s_wonderIcons;
-    s_wonderIcons = nullptr;
+    // of g_victoryWindow; the arrays above only index them.
 
     if (s_graphList)
     {
@@ -345,13 +351,9 @@ void victorywin_Cleanup( )
         s_scoreList->Clear();
     }
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; }
-    {
-	    mycleanup(s_highScoreWin);
-	    mycleanup(s_stringTable);
-        mycleanup(g_victoryWindow);
-    }
-#undef mycleanup
+    s_highScoreWin.reset();
+    s_stringTable.reset();
+    g_victoryWindow.reset();
 }
 
 sint32 victorywin_AddWonders( MBCHAR *windowBlock )
@@ -361,7 +363,7 @@ sint32 victorywin_AddWonders( MBCHAR *windowBlock )
 
 	int i = 0;
 
-	s_wonderIcons = new ctp2_Static *[k_VICWIN_WONDERICON_MAX];
+	s_wonderIcons.fill(nullptr);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s", "TabGroup.Tab1.TabPanel.WonderList" );
 	s_wonderList = (ctp2_ListBox *)aui_Ldl::GetObject(windowBlock, controlBlock);
@@ -421,7 +423,7 @@ sint32 victorywin_Init_Controls( MBCHAR *windowBlock )
 	sint32 i = 0;
 
 	sint32 staticNum = k_VICWIN_STATIC_MAX;
-	s_staticControls = new ctp2_Static *[staticNum];
+	s_staticControls.fill(nullptr);
 
 	s_okButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, "CloseButton");
 	s_okButton->SetActionFuncAndCookie(VictoryWindowButtonActionCallback, nullptr);
@@ -797,7 +799,7 @@ HighScoreWindowPopup::HighScoreWindowPopup( sint32 type )
 	strlcpy(windowBlock, "HighScoreWindowPopup", sizeof(windowBlock));
 
 	{
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		m_window.reset(new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false));
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -806,14 +808,7 @@ HighScoreWindowPopup::HighScoreWindowPopup( sint32 type )
 		m_window->SetStronglyModal(TRUE);
 	}
 
-	m_continueButton = nullptr;
-	m_quitButton = nullptr;
-	m_creditsButton = nullptr;
-
-	m_list = nullptr;
-	m_title = nullptr;
-
-	m_highScoreDB = new HighScoreDB();
+	m_highScoreDB.reset(new HighScoreDB());
 
 	Initialize( windowBlock );
 
@@ -831,7 +826,7 @@ sint32 HighScoreWindowPopup::Initialize( MBCHAR *windowBlock )
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ContinueButton" );
-	m_continueButton = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, HighScoreWinButtonActionCallback, this);
+	m_continueButton.reset(new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, HighScoreWinButtonActionCallback, this));
 
 	Assert( AUI_NEWOK(m_continueButton, errcode) );
 	if ( !AUI_NEWOK(m_continueButton, errcode) ) return -1;
@@ -843,13 +838,13 @@ sint32 HighScoreWindowPopup::Initialize( MBCHAR *windowBlock )
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "QuitButton" );
-	m_quitButton = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, HighScoreWinButtonActionCallback, this);
+	m_quitButton.reset(new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, HighScoreWinButtonActionCallback, this));
 
 	Assert( AUI_NEWOK(m_quitButton, errcode) );
 	if ( !AUI_NEWOK(m_quitButton, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "HighScoreList" );
-	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
+	m_list.reset(new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr));
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
 
@@ -880,17 +875,13 @@ void HighScoreWindowPopup::Cleanup( )
 	    c3ui_Get()->RemoveWindow(m_window->Id());
     }
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; };
-    {
-	    mycleanup( m_continueButton );
-	    mycleanup( m_creditsButton );
-	    mycleanup( m_quitButton );
-	    mycleanup( m_list );
-	    mycleanup( m_title );
-	    mycleanup( m_highScoreDB );
-	    mycleanup( m_window );
-    }
-#undef mycleanup
+	// Same release order the mycleanup macro used.
+	m_continueButton.reset();
+	m_creditsButton.reset();
+	m_quitButton.reset();
+	m_list.reset();
+	m_highScoreDB.reset();
+	m_window.reset();
 }
 
 void HighScoreWindowPopup::DisplayWindow( )
@@ -900,7 +891,7 @@ void HighScoreWindowPopup::DisplayWindow( )
 	UpdateData();
 
 	g_modalWindow++;
-	auiErr = c3ui_Get()->AddWindow(m_window);
+	auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
@@ -1167,7 +1158,7 @@ sint32 victorywin_LoadScoreData( )
 	if(!pl)
 		return 0;
 
-	Score *score = pl->m_score;
+	Score *score = pl->m_score.get();
 	sint32 totalValue = score->GetTotalScore();
 	snprintf(strbuf, sizeof(strbuf),"%d",totalValue);
 	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(6), strbuf, ldlBlock);

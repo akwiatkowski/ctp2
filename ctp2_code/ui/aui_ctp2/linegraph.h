@@ -143,7 +143,6 @@ public:
 
 	void GenrateGraph(sint32     &infoXCount,
 	                             sint32     &infoYCount,
-	                             double ***  infoGraphData,
 	                             sint32      category);
 
 private:

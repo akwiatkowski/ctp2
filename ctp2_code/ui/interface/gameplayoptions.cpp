@@ -271,7 +271,7 @@ AUI_ERRCODE gameplayoptions_Initialize( )
 
 AUI_ERRCODE gameplayoptions_Cleanup()
 {
-#define mycleanup(mypointer) if(mypointer) { delete mypointer; mypointer = NULL; };
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
 	if ( !s_gameplayoptionsWindow  ) return AUI_ERRCODE_OK;
 

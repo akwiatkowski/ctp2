@@ -6,6 +6,7 @@
 #define __Text_Hasher_h__
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 template <class DATA_TYPE>  class Text_Hasher;
@@ -13,13 +14,15 @@ template <class DATA_TYPE>  class Translation;
 
 size_t const                MAX_KEY_CHARS   = 40;
 
+// One chain node: owns both the copied key and the data payload; the rest
+// of the bucket chain is owned through m_next.
 template <class DATA_TYPE>
 class Translation
 {
 public:
 	TCHAR *         m_key;
 	DATA_TYPE       m_data;
-	Translation *   m_next;
+	std::unique_ptr<Translation>   m_next;
 
 	Translation
 	(
@@ -76,7 +79,8 @@ public:
 
 protected:
 
-	Translation<DATA_TYPE> **   m_hash_table;
+	// Bucket heads; each head owns its whole chain through Translation::m_next.
+	std::vector<std::unique_ptr<Translation<DATA_TYPE>>>   m_hash_table;
 	size_t                      m_data_count;
 	size_t                      m_hash_table_size;
 	DATA_TYPE                   m_untranslated;
@@ -113,15 +117,11 @@ Text_Hasher<DATA_TYPE>::Text_Hasher
 	DATA_TYPE   untranslated_value
 )
 :
-    m_hash_table            (nullptr),
 	m_data_count            (0),
 	m_hash_table_size       (size + size/2),
 	m_untranslated          (untranslated_value)
 {
-	m_hash_table = new Translation<DATA_TYPE> *[m_hash_table_size];
-    std::fill(m_hash_table, m_hash_table + m_hash_table_size,
-              (Translation<DATA_TYPE> *) nullptr
-             );
+	m_hash_table.resize(m_hash_table_size);
 }
 
 
@@ -136,22 +136,6 @@ Text_Hasher<DATA_TYPE>::Text_Hasher
 template <class DATA_TYPE>
 Text_Hasher<DATA_TYPE>::~Text_Hasher()
 {
-	for (size_t i = 0; i < m_hash_table_size; ++i)
-	{
-		for
-        (
-            Translation<DATA_TYPE> * translation = m_hash_table[i];
-            translation;
-            // translation updated in loop
-        )
-		{
-			Translation<DATA_TYPE> * trash_me = translation;
-			translation = translation->m_next;
-			delete trash_me;
-		}
-	}
-
-	delete [] m_hash_table;
 }
 
 
@@ -182,9 +166,9 @@ DATA_TYPE Text_Hasher<DATA_TYPE>::Look_Up_Data
 
 	for
     (
-        Translation<DATA_TYPE> * translation = m_hash_table[Hash_The_String(key)];
+        Translation<DATA_TYPE> * translation = m_hash_table[Hash_The_String(key)].get();
         translation;
-        translation = translation->m_next
+        translation = translation->m_next.get()
     )
 	{
 #ifdef WIN32
@@ -211,11 +195,11 @@ void Text_Hasher<DATA_TYPE>::Add_To_Hash_Table
 )
 {
 	size_t                      hash_location   = Hash_The_String(key);
-	Translation<DATA_TYPE> *    translation     =
-        new Translation<DATA_TYPE>(key, the_data);
+	std::unique_ptr<Translation<DATA_TYPE>>    translation     =
+        std::make_unique<Translation<DATA_TYPE>>(key, the_data);
 
-	translation->m_next         = m_hash_table[hash_location];
-	m_hash_table[hash_location] = translation;
+	translation->m_next         = std::move(m_hash_table[hash_location]);
+	m_hash_table[hash_location] = std::move(translation);
 }
 
 

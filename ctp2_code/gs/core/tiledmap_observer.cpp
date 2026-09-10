@@ -21,6 +21,7 @@ void RedrawTile(MapPoint const &pos)                  { DISPATCH_VOID(RedrawTile
 void PostProcessTile(MapPoint &pos, TileInfo *info)   { DISPATCH_VOID(PostProcessTile, pos, info); }
 void TileChanged(MapPoint &pos)                       { DISPATCH_VOID(TileChanged, pos); }
 void PostProcessMap()                                 { DISPATCH_VOID(PostProcessMap); }
+void RecreateGoodActors()                             { DISPATCH_VOID(RecreateGoodActors); }
 
 void Refresh()                                        { DISPATCH_VOID(Refresh); }
 void InvalidateMap()                                  { DISPATCH_VOID(InvalidateMap); }

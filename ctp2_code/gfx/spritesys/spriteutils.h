@@ -23,6 +23,7 @@
 
 #include "os/include/ctp2_inttypes.h"  // sint##, uint##
 #include "gfx/gfx_utils/pixeltypes.h"     // Pixel##
+#include <vector>
 
 void spriteutils_MergeShadowMap(Pixel32 *buf, Pixel32 *shadowBuf, uint16 width, uint16 height);
 
@@ -35,7 +36,7 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, Pixel32 *shadowBuf, uint16 wi
 Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, uint16 width, uint16 height, size_t *size = nullptr);
 
 Pixel32 spriteutils_AveragePixel32(Pixel32 pixel1, Pixel32 pixel2, Pixel32 pixel3, Pixel32 pixel4);
-void spriteutils_CreateQuarterSize(Pixel32 *srcBuf, sint32 srcWidth, sint32 srcHeight, Pixel32 **destBuf, BOOL aa);
+std::vector<Pixel32> spriteutils_CreateQuarterSize(Pixel32 *srcBuf, sint32 srcWidth, sint32 srcHeight, BOOL aa);
 
 void spriteutils_ConvertPixelFormat(Pixel16 *frame, sint32 width, sint32 height, size_t bufferSize);
 

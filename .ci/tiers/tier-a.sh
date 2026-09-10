@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
-# tier-a.sh — fast tier. Build ctp2_fast_tests, run, parse, update state.
-#
-# Run by the daemon when `ninja -C build -n ctp2_fast_tests` shows pending
-# work and the debounce window has elapsed. Can also be invoked manually:
-#
-#     .ci/tiers/tier-a.sh
-#
-# Always exits 0 from the script's perspective — failure is communicated
-# via .ci/state.json (status: "red") and the STATUS_RED sentinel.
+# See .ci/README.md for coverage. Failures update state and return nonzero.
 
 set -uo pipefail
 
@@ -37,7 +29,7 @@ mise exec -- python3 "$CI_ROOT/update_state.py" \
 
 START=$(date +%s)
 
-{
+(
     echo "=== tier-a $TS (HEAD $HEAD_SHA) ==="
     echo "=== ninja -C build ctp2_fast_tests ==="
     mise exec -- ninja -C build ctp2_fast_tests
@@ -47,43 +39,19 @@ START=$(date +%s)
         exit $BUILD_RC
     fi
 
-    echo "=== ./build/ctp2_fast_tests ==="
-    ./build/ctp2_fast_tests -r=xml --no-version > "$XML_FILE" 2>>"$LOG_FILE"
-} >>"$LOG_FILE" 2>&1
+    echo "=== mise exec -- ./build/ctp2_fast_tests ==="
+    mise exec -- ./build/ctp2_fast_tests -r=xml --no-version > "$XML_FILE" 2>>"$LOG_FILE"
+) >>"$LOG_FILE" 2>&1
 RUN_RC=$?
 
 END=$(date +%s)
 DURATION=$((END - START))
 
-if [[ $RUN_RC -ne 0 && ! -s "$XML_FILE" ]]; then
-    # Build or runner failure before any XML emitted. Synthesize a failure
-    # record so the agent can see "build broken" in structured form.
-    cat > "$RESULT_JSON" <<EOF
-{
-  "tests": { "passed": 0, "failed": 1, "skipped": 0 },
-  "failures": [
-    {
-      "test": "tier-a build/run",
-      "file": "$LOG_FILE",
-      "line": 0,
-      "type": "BUILD",
-      "original": "ninja + ctp2_fast_tests",
-      "expanded": "exit code $RUN_RC",
-      "message": "tier-a failed before test run (build error or runner crash; see context_path)",
-      "info": []
-    }
-  ]
-}
-EOF
-    STATUS=red
+if mise exec -- python3 "$CI_ROOT/parse_doctest_xml.py" "$XML_FILE" \
+    --exit-code "$RUN_RC" > "$RESULT_JSON" 2>>"$LOG_FILE"; then
+    STATUS=green
 else
-    mise exec -- python3 "$CI_ROOT/parse_doctest_xml.py" "$XML_FILE" > "$RESULT_JSON" 2>>"$LOG_FILE"
-    FAILED=$(mise exec -- python3 -c "import json,sys; print(json.load(open('$RESULT_JSON'))['tests']['failed'])")
-    if [[ "$FAILED" == "0" ]]; then
-        STATUS=green
-    else
-        STATUS=red
-    fi
+    STATUS=red
 fi
 
 mise exec -- python3 "$CI_ROOT/update_state.py" \
@@ -101,4 +69,4 @@ ls -t "$LOG_DIR"/tier-a-*.log 2>/dev/null | tail -n +51 | xargs -I{} rm -f {} {%
 ls -t "$LOG_DIR"/tier-a-*.xml  2>/dev/null | tail -n +51 | xargs rm -f 2>/dev/null
 ls -t "$LOG_DIR"/tier-a-*.json 2>/dev/null | tail -n +51 | xargs rm -f 2>/dev/null
 
-exit 0
+[[ "$STATUS" == green ]]

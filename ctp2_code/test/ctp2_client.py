@@ -27,7 +27,7 @@ import socket
 import subprocess
 import time
 
-SOCKET_PATH = "/tmp/ctp2-smoke.sock"
+SOCKET_PATH = os.environ.get("CTP2_SMOKE_SOCKET", "/tmp/ctp2-smoke.sock")
 
 
 class Ctp2Error(Exception):
@@ -44,6 +44,7 @@ class Ctp2Client:
         players=4,
         socket_path=SOCKET_PATH,
         cwd=None,
+        env=None,
         log_path=None,
         timeout=120,
         socket_wait=60,
@@ -55,6 +56,8 @@ class Ctp2Client:
         else:
             raise ValueError(f"unknown mode: {mode!r}")
 
+        self.seed = seed
+        self.players = players
         self.mode = mode
         self.socket_path = socket_path
         self.timeout = timeout
@@ -70,13 +73,24 @@ class Ctp2Client:
 
         self._log = open(log_path, "w") if log_path else subprocess.DEVNULL
         self.proc = subprocess.Popen(
-            args, cwd=self.cwd, stdout=self._log, stderr=subprocess.STDOUT
+            args, cwd=self.cwd, env=env, stdout=self._log, stderr=subprocess.STDOUT
         )
 
-        self._wait_for_socket(socket_wait)
-        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.sock.connect(socket_path)
-        self.sock.settimeout(timeout)
+        try:
+            self._wait_for_socket(socket_wait)
+            self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            self.sock.connect(socket_path)
+            self.sock.settimeout(timeout)
+        except Exception:
+            self.proc.terminate()
+            try:
+                self.proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                self.proc.kill()
+                self.proc.wait()
+            if self._log not in (None, subprocess.DEVNULL):
+                self._log.close()
+            raise
         self._buf = b""
 
     # -- lifecycle --------------------------------------------------------
@@ -94,7 +108,7 @@ class Ctp2Client:
             time.sleep(0.1)
         raise Ctp2Error("socket never appeared")
 
-    def close(self):
+    def close(self, *, check_exit=True):
         try:
             self._rpc("quit")
         except Exception:
@@ -103,19 +117,25 @@ class Ctp2Client:
             self.sock.close()
         except Exception:
             pass
+        timed_out = False
         try:
             self.proc.wait(timeout=10)
-        except Exception:
+        except subprocess.TimeoutExpired:
+            timed_out = True
             self.proc.kill()
             self.proc.wait()
-        if self._log not in (None, subprocess.DEVNULL):
-            self._log.close()
+        finally:
+            if self._log not in (None, subprocess.DEVNULL):
+                self._log.close()
+        if check_exit and (timed_out or self.proc.returncode != 0):
+            reason = "timed out" if timed_out else f"exited {self.proc.returncode}"
+            raise Ctp2Error(f"game shutdown {reason}; see game log")
 
     def __enter__(self):
         return self
 
     def __exit__(self, *exc):
-        self.close()
+        self.close(check_exit=exc[0] is None)
 
     # -- protocol ---------------------------------------------------------
 
@@ -124,13 +144,23 @@ class Ctp2Client:
         while b"\n" not in self._buf:
             chunk = self.sock.recv(65536)
             if not chunk:
-                raise Ctp2Error(f"connection closed during '{line}'")
+                self.proc.poll()
+                suffix = (
+                    f" (process exit code {self.proc.returncode})"
+                    if self.proc.returncode is not None
+                    else ""
+                )
+                raise Ctp2Error(f"connection closed during '{line}'{suffix}")
             self._buf += chunk
         raw, self._buf = self._buf.split(b"\n", 1)
         return json.loads(raw)
 
     def command(self, verb, *args):
         """Send a verb (+ optional args) and return the parsed response dict."""
+        if self.mode == "ui" and verb == "start_game" and not args:
+            if not 0 < self.seed <= 2147483647:
+                raise ValueError("UI test seed must be a positive signed 32-bit integer")
+            args = (self.seed, self.players)
         line = verb if not args else verb + " " + " ".join(str(a) for a in args)
         return self._rpc(line)
 

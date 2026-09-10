@@ -1198,7 +1198,7 @@ void Director::DrawTradeRouteAnimations(RECT* paintRect, sint32 layer) {
     if (!maputils_TilePointInTileRect(tileX, pos.y, paintRect))
       continue;
 
-    tActor->Draw(tiledmap_Get()->GetLocalVision());
+    tiledmap_Get()->PaintTradeActor(tActor);
 
     RECT tempRect;
     tActor->GetBoundingRect(&tempRect);

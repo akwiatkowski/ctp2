@@ -23,6 +23,7 @@
 
 #include "ui/interface/backgroundwin.h"
 #include "ui/interface/controlpanelwindow.h"
+#include "ui/aui_sdl/aui_sdl.h"       // aui_SDL::WorldContentOff* (margin assert)
 
 
 #include "gs/database/profileDB.h"
@@ -126,7 +127,23 @@ sint32 backgroundWin_Initialize(bool fullscreen)
 	Assert( g_background != nullptr );
 	if ( !g_background ) return -1;
 
+	// P11 Stage 2 D: tell the UI which window is the world (background) window
+	// so per-layer GPU compositing can route its composite into the world layer
+	// and everything else into the UI layer. No-op unless CTP2_GPU_LAYERS is on.
+	// The window, not its surface: at this point the surface does not exist yet
+	// (windows create them lazily), and dynamic windows recreate theirs on
+	// hide/show — the UI resolves TheSurface() live at blit time.
+	if ( c3ui_Get() )
+		c3ui_Get()->SetWorldWindow( g_background );
 
+#if defined(__AUI_USE_SDL__)
+    // GPU window quads and sprite coordinate conversion use the background
+    // layout's margin. The CPU mirror retains painter coordinates directly.
+	static_assert(aui_SDL::WorldContentOffX() == k_TILE_GRID_WIDTH,
+	              "GPU world content offset X must equal the background window margin");
+	static_assert(aui_SDL::WorldContentOffY() == k_TILE_GRID_HEIGHT,
+	              "GPU world content offset Y must equal the background window margin");
+#endif
 
 
 
@@ -149,6 +166,34 @@ void backgroundWin_Cleanup()
 sint32 g_debugOwner = k_DEBUG_OWNER_NONE;
 #endif
 
+AUI_ERRCODE background_render_map_only(Background *back)
+{
+	aui_Surface	*   surface = (back)    ? back->TheSurface() : nullptr;
+
+    if (!surface || !tiledmap_Get())
+    {
+        // Busy initialising: postpone drawing until ready.
+        return AUI_ERRCODE_INVALIDPARAM;
+    }
+
+	tiledmap_Get()->UpdateMixFromMap(surface);
+
+	if (profiledb_Get()->IsWaterAnim())
+    {
+        tiledmap_Get()->DrawWater();
+    }
+
+	tradepool_Get()->Draw(surface);
+	tiledmap_Get()->RepaintSprites(surface, tiledmap_Get()->GetMapViewRect(), false);
+
+	if (director_Get())
+    {
+		director_Get()->GarbageCollectItems();
+	}
+
+	return AUI_ERRCODE_OK;
+}
+
 AUI_ERRCODE background_draw_handler(LPVOID bg)
 {
 	Background  *   back    = reinterpret_cast<Background *>(bg);
@@ -170,20 +215,9 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 		return AUI_ERRCODE_OK;
 	}
 
-	tiledmap_Get()->UpdateMixFromMap(surface);
-
-	if (profiledb_Get()->IsWaterAnim())
-    {
-        tiledmap_Get()->DrawWater();
-    }
-
-	tradepool_Get()->Draw(surface);
-	tiledmap_Get()->RepaintSprites(surface, tiledmap_Get()->GetMapViewRect(), false);
-
-	if (director_Get())
-    {
-		director_Get()->GarbageCollectItems();
-	}
+	AUI_ERRCODE const mapErr = background_render_map_only(back);
+	if (mapErr != AUI_ERRCODE_OK)
+		return mapErr;
 
 	tiledmap_Get()->DrawUnfinishedMove(surface);
 

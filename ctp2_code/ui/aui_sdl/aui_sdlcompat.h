@@ -63,6 +63,93 @@ inline bool CTP2_SDL_RenderTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 #endif
 }
 
+// P11 Stage 2 F (smooth camera): copy the whole texture into a destination
+// rectangle (offset + scale) instead of filling the render target. Used to
+// pan/zoom the world + fog layers on the GPU while the UI layer stays full
+// screen. SDL3 wants an SDL_FRect dest; SDL2 an SDL_Rect.
+inline bool CTP2_SDL_RenderTextureDst(SDL_Renderer *renderer, SDL_Texture *texture,
+                                      float x, float y, float w, float h)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_FRect dst = { x, y, w, h };
+	return SDL_RenderTexture(renderer, texture, nullptr, &dst);
+#else
+	SDL_Rect dst = { (int)x, (int)y, (int)w, (int)h };
+	return SDL_RenderCopy(renderer, texture, nullptr, &dst) == 0;
+#endif
+}
+
+// P11 Stage 3 G1 (terrain quads): copy a sub-rectangle of a source texture
+// (an atlas slot) into a destination rectangle of the current render target.
+// Used to draw each visible terrain cell from the tile atlas into the world
+// texture. SDL3 wants SDL_FRect src/dst; SDL2 SDL_Rect.
+inline bool CTP2_SDL_RenderTextureSrcDst(SDL_Renderer *renderer, SDL_Texture *texture,
+                                         int sx, int sy, int sw, int sh,
+                                         float dx, float dy, float dw, float dh)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_FRect src = { (float)sx, (float)sy, (float)sw, (float)sh };
+	SDL_FRect dst = { dx, dy, dw, dh };
+	return SDL_RenderTexture(renderer, texture, &src, &dst);
+#else
+	SDL_Rect src = { sx, sy, sw, sh };
+	SDL_Rect dst = { (int)dx, (int)dy, (int)dw, (int)dh };
+	return SDL_RenderCopy(renderer, texture, &src, &dst) == 0;
+#endif
+}
+
+inline bool CTP2_SDL_RenderTextureSrcDstFlip(SDL_Renderer *renderer, SDL_Texture *texture,
+                                             int sx, int sy, int sw, int sh,
+                                             float dx, float dy, float dw, float dh,
+                                             bool mirror)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_FRect src = { (float)sx, (float)sy, (float)sw, (float)sh };
+	SDL_FRect dst = { dx, dy, dw, dh };
+	return SDL_RenderTextureRotated(renderer, texture, &src, &dst, 0.0, nullptr,
+		mirror ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+#else
+	SDL_Rect src = { sx, sy, sw, sh };
+	SDL_Rect dst = { (int)dx, (int)dy, (int)dw, (int)dh };
+	return SDL_RenderCopyEx(renderer, texture, &src, &dst, 0.0, nullptr,
+		mirror ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE) == 0;
+#endif
+}
+
+// Texture pixel dimensions. SDL2 returns ints via SDL_QueryTexture; SDL3 returns
+// floats via SDL_GetTextureSize.
+inline void CTP2_SDL_QueryTextureSize(SDL_Texture *texture, int &w, int &h)
+{
+	w = 0; h = 0;
+#if defined(CTP2_USE_SDL3)
+	float fw = 0.0f, fh = 0.0f;
+	SDL_GetTextureSize(texture, &fw, &fh);
+	w = (int)fw; h = (int)fh;
+#else
+	SDL_QueryTexture(texture, nullptr, nullptr, &w, &h);
+#endif
+}
+
+// P11 2a (buttery pan, ADR-001): copy a FLOAT sub-rectangle of a source texture
+// into a destination rectangle. Same as CTP2_SDL_RenderTextureSrcDst but the
+// source rect is float, so the world viewport can be windowed into the oversized
+// world texture with sub-pixel precision (smooth pan) on SDL3. SDL2 rounds the
+// source to ints (SDL_Rect), so its pan is pixel- rather than sub-pixel-smooth.
+inline bool CTP2_SDL_RenderTextureWindow(SDL_Renderer *renderer, SDL_Texture *texture,
+                                         float sx, float sy, float sw, float sh,
+                                         float dx, float dy, float dw, float dh)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_FRect src = { sx, sy, sw, sh };
+	SDL_FRect dst = { dx, dy, dw, dh };
+	return SDL_RenderTexture(renderer, texture, &src, &dst);
+#else
+	SDL_Rect src = { (int)(sx + 0.5f), (int)(sy + 0.5f), (int)(sw + 0.5f), (int)(sh + 0.5f) };
+	SDL_Rect dst = { (int)dx, (int)dy, (int)dw, (int)dh };
+	return SDL_RenderCopy(renderer, texture, &src, &dst) == 0;
+#endif
+}
+
 inline bool CTP2_SDL_UpdateTexture(
 	SDL_Texture *texture,
 	SDL_Rect const *rect,
@@ -73,6 +160,26 @@ inline bool CTP2_SDL_UpdateTexture(
 	return SDL_UpdateTexture(texture, rect, pixels, pitch);
 #else
 	return SDL_UpdateTexture(texture, rect, pixels, pitch) == 0;
+#endif
+}
+
+// Linear sampling -- the right choice when MINIFYING, where nearest aliases
+// badly and shimmers as the source rect slides during a pan.
+inline bool CTP2_SDL_SetTextureLinear(SDL_Texture *texture)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR);
+#else
+	return SDL_SetTextureScaleMode(texture, SDL_ScaleModeLinear) == 0;
+#endif
+}
+
+inline bool CTP2_SDL_SetTextureNearest(SDL_Texture *texture)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+#else
+	return SDL_SetTextureScaleMode(texture, SDL_ScaleModeNearest) == 0;
 #endif
 }
 
@@ -350,6 +457,50 @@ inline bool CTP2_SDL_IsMouseButtonDown(SDL_Event const &event)
 	return event.type == SDL_MOUSEBUTTONDOWN;
 }
 
+inline void CTP2_SDL_ShowCursor()
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_ShowCursor();
+#else
+	SDL_ShowCursor(SDL_ENABLE);
+#endif
+}
+
+// Wrap an existing ARGB8888 pixel buffer in an SDL_Surface (no copy; the
+// buffer must outlive the surface). The two APIs order arguments differently.
+inline SDL_Surface *CTP2_SDL_CreateARGBSurfaceFrom(
+	Uint32 *pixels, int width, int height, int pitch)
+{
+#if defined(CTP2_USE_SDL3)
+	return SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_ARGB8888,
+	                             pixels, pitch);
+#else
+	return SDL_CreateRGBSurfaceWithFormatFrom(pixels, width, height, 32,
+	                                          pitch, SDL_PIXELFORMAT_ARGB8888);
+#endif
+}
+
+// Touch finger id — the struct field casing differs (SDL2 fingerId,
+// SDL3 fingerID). Event TYPE constants (SDL_FINGERDOWN etc.) come from
+// SDL_ENABLE_OLD_NAMES and need no wrapper.
+inline Sint64 CTP2_SDL_FingerId(SDL_TouchFingerEvent const &event)
+{
+#if defined(CTP2_USE_SDL3)
+	return static_cast<Sint64>(event.fingerID);
+#else
+	return event.fingerId;
+#endif
+}
+
+// Last event type in the contiguous finger range, for SDL_PeepEvents.
+// SDL3 appended FINGER_CANCELED (a lifted-by-the-OS finger) after MOTION;
+// SDL2's range ends at MOTION.
+#if defined(CTP2_USE_SDL3)
+#define CTP2_SDL_FINGER_RANGE_LAST SDL_EVENT_FINGER_CANCELED
+#else
+#define CTP2_SDL_FINGER_RANGE_LAST SDL_FINGERMOTION
+#endif
+
 inline Uint32 CTP2_SDL_GetMouseState(int *x, int *y)
 {
 #if defined(CTP2_USE_SDL3)
@@ -370,6 +521,55 @@ inline void CTP2_SDL_HideCursor()
 	SDL_HideCursor();
 #else
 	SDL_ShowCursor(SDL_DISABLE);
+#endif
+}
+
+// Fill an integer rect on the current target. SDL3 took SDL_RenderFillRect to
+// float rects; this keeps call sites in integer pixel space.
+inline bool CTP2_SDL_RenderFillRectI(SDL_Renderer *renderer, SDL_Rect const *rect)
+{
+#if defined(CTP2_USE_SDL3)
+	SDL_FRect const fr = { (float)rect->x, (float)rect->y,
+	                       (float)rect->w, (float)rect->h };
+	return SDL_RenderFillRect(renderer, &fr);
+#else
+	return SDL_RenderFillRect(renderer, rect) == 0;
+#endif
+}
+
+// Read a single ARGB pixel back from the current render target. Reading one
+// pixel rather than the whole target matters when the target is large — the
+// P13 whole-map texture is ~133MB, and a full readback to prove one value would
+// allocate all of it.
+inline bool CTP2_SDL_RenderReadPixelARGB(SDL_Renderer *renderer, int x, int y,
+                                         uint32 *out)
+{
+	SDL_Rect const rect = { x, y, 1, 1 };
+#if defined(CTP2_USE_SDL3)
+	SDL_Surface *px = SDL_RenderReadPixels(renderer, &rect);
+	if (!px)
+	{
+		return false;
+	}
+	SDL_Surface *argb = SDL_ConvertSurface(px, SDL_PIXELFORMAT_ARGB8888);
+	bool ok = false;
+	if (argb && argb->pixels)
+	{
+		*out = *static_cast<uint32 *>(argb->pixels);
+		ok = true;
+	}
+	if (argb) CTP2_SDL_DestroySurface(argb);
+	CTP2_SDL_DestroySurface(px);
+	return ok;
+#else
+	uint32 pixel = 0;
+	if (SDL_RenderReadPixels(renderer, &rect, SDL_PIXELFORMAT_ARGB8888,
+	                         &pixel, sizeof(pixel)) != 0)
+	{
+		return false;
+	}
+	*out = pixel;
+	return true;
 #endif
 }
 

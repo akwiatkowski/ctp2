@@ -100,7 +100,7 @@ def main():
     ap.add_argument("--head-branch")
     ap.add_argument("--duration-s", type=float)
     ap.add_argument("--status", choices=["green", "red", "running"])
-    ap.add_argument("--running-tier", choices=["A", "B", "C"])
+    ap.add_argument("--running-tier", choices=["A", "B", "C", "D"])
     ap.add_argument("--clear-running", action="store_true")
     ap.add_argument("--summary", help="free-text summary (tier C)")
     ap.add_argument("--context-path", help="path to raw log for failure context")

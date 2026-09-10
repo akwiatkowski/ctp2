@@ -45,6 +45,8 @@
 //----------------------------------------------------------------------------
 
 class SPDropDownListItem;
+#include <memory>
+
 class SPNewGameWindow;
 class SPProfileBox;
 class SPRulesBox;
@@ -208,17 +210,17 @@ public:
 	void	SetLeader(uint32 index);
 private:
 
-	c3_DropDown		*m_spClan;
-	c3_DropDown		*m_spGender;
-	C3TextField		*m_spName;
-	ctp2_Button		*m_spPreferences;
-	ctp2_Button		*m_spCustom;
+	std::unique_ptr<c3_DropDown>	m_spClan;
+	std::unique_ptr<c3_DropDown>	m_spGender;
+	std::unique_ptr<C3TextField>	m_spName;
+	std::unique_ptr<ctp2_Button>	m_spPreferences;
+	std::unique_ptr<ctp2_Button>	m_spCustom;
 
-	c3_Static		*m_PTOP;
-	c3_Static		*m_PHEADER;
-	c3_Static		*m_PBOT;
-	c3_Static		*m_PLEFT;
-	c3_Static		*m_PRIGHT;
+	std::unique_ptr<c3_Static>	m_PTOP;
+	std::unique_ptr<c3_Static>	m_PHEADER;
+	std::unique_ptr<c3_Static>	m_PBOT;
+	std::unique_ptr<c3_Static>	m_PLEFT;
+	std::unique_ptr<c3_Static>	m_PRIGHT;
 };
 
 
@@ -242,19 +244,19 @@ public:
 	uint32 GetNumOpponents() { return m_opponent->GetListBox()->GetSelectedItemIndex()+3; };
 
 private:
-	c3_DropDown		*m_mapSize,
-					*m_worldType,
-					*m_worldShape,
-					*m_difficulty,
-					*m_riskLevel,
-					*m_opponent;
-	ctp2_Button		*m_spCustom;
+	std::unique_ptr<c3_DropDown>	m_mapSize;
+	std::unique_ptr<c3_DropDown>	m_worldType;
+	std::unique_ptr<c3_DropDown>	m_worldShape;
+	std::unique_ptr<c3_DropDown>	m_difficulty;
+	std::unique_ptr<c3_DropDown>	m_riskLevel;
+	std::unique_ptr<c3_DropDown>	m_opponent;
+	std::unique_ptr<ctp2_Button>	m_spCustom;
 
-	c3_Static		*m_WTOP;
-	c3_Static		*m_WHEADER;
-	c3_Static		*m_WBOT;
-	c3_Static		*m_WLEFT;
-	c3_Static		*m_WRIGHT;
+	std::unique_ptr<c3_Static>	m_WTOP;
+	std::unique_ptr<c3_Static>	m_WHEADER;
+	std::unique_ptr<c3_Static>	m_WBOT;
+	std::unique_ptr<c3_Static>	m_WLEFT;
+	std::unique_ptr<c3_Static>	m_WRIGHT;
 
 };
 
@@ -273,16 +275,16 @@ public:
 	uint32 GetCombatRules();
 	uint32 GetPollutionRules();
 private:
-	c3_CheckBox			*m_spGenocide,
-						*m_spTrade,
-						*m_spCombat,
-						*m_spPollution;
+	std::unique_ptr<c3_CheckBox>	m_spGenocide;
+	std::unique_ptr<c3_CheckBox>	m_spTrade;
+	std::unique_ptr<c3_CheckBox>	m_spCombat;
+	std::unique_ptr<c3_CheckBox>	m_spPollution;
 
-	c3_Static		*m_RTOP;
-	c3_Static		*m_RHEADER;
-	c3_Static		*m_RBOT;
-	c3_Static		*m_RLEFT;
-	c3_Static		*m_RRIGHT;
+	std::unique_ptr<c3_Static>	m_RTOP;
+	std::unique_ptr<c3_Static>	m_RHEADER;
+	std::unique_ptr<c3_Static>	m_RBOT;
+	std::unique_ptr<c3_Static>	m_RLEFT;
+	std::unique_ptr<c3_Static>	m_RRIGHT;
 };
 
 
@@ -301,57 +303,57 @@ public:
 	void Update( );
 
 
-	ctp2_Button		*m_spStart;
-	c3_Static		*m_spOk;
-	ctp2_Button		*m_spReturn;
+	std::unique_ptr<ctp2_Button>	m_spStart;
+	std::unique_ptr<c3_Static>	m_spOk;
+	std::unique_ptr<ctp2_Button>	m_spReturn;
 
 
-	ctp2_Button		*m_spTribe;
-	ctp2_Button		*m_spDifficulty;
-	ctp2_Button		*m_spMapSize;
-	ctp2_Button		*m_spPlayers;
-	ctp2_Button		*m_spMap;
-	ctp2_Button		*m_spRules;
+	std::unique_ptr<ctp2_Button>	m_spTribe;
+	std::unique_ptr<ctp2_Button>	m_spDifficulty;
+	std::unique_ptr<ctp2_Button>	m_spMapSize;
+	std::unique_ptr<ctp2_Button>	m_spPlayers;
+	std::unique_ptr<ctp2_Button>	m_spMap;
+	std::unique_ptr<ctp2_Button>	m_spRules;
 
-	ctp2_Button		*m_spEditor;
+	std::unique_ptr<ctp2_Button>	m_spEditor;
 
-	ctp2_Button		*m_spScenario;
+	std::unique_ptr<ctp2_Button>	m_spScenario;
 
-	c3_Static		*m_spGeneral;
-	c3_Static		*m_spWorld;
-	c3_Static		*m_spCustom;
+	std::unique_ptr<c3_Static>	m_spGeneral;
+	std::unique_ptr<c3_Static>	m_spWorld;
+	std::unique_ptr<c3_Static>	m_spCustom;
 
-	C3TextField		*m_spName;
-
-
-
+	std::unique_ptr<C3TextField>	m_spName;
 
 
 
-	ctp2_Button		*m_mapTypeButton;
-	c3_Static		*m_mapTypeLabel;
-	ctp2_Button		*m_worldShapeButton;
-	c3_Static		*m_worldShapeLabel;
+
+
+
+	std::unique_ptr<ctp2_Button>	m_mapTypeButton;
+	std::unique_ptr<c3_Static>	m_mapTypeLabel;
+	std::unique_ptr<ctp2_Button>	m_worldShapeButton;
+	std::unique_ptr<c3_Static>	m_worldShapeLabel;
 
 	bool			m_useCustomMap;
 
-	c3_Static		*m_civilizationLabel;
-	c3_Static		*m_leaderNameLabel;
-	c3_Static		*m_difficultyLabel;
-	c3_Static		*m_worldSizeLabel;
-	c3_Static		*m_rulesLabel;
-	c3_Static		*m_playersLabel;
-	c3_Static		*m_worldTypeLabel;
+	std::unique_ptr<c3_Static>	m_civilizationLabel;
+	std::unique_ptr<c3_Static>	m_leaderNameLabel;
+	std::unique_ptr<c3_Static>	m_difficultyLabel;
+	std::unique_ptr<c3_Static>	m_worldSizeLabel;
+	std::unique_ptr<c3_Static>	m_rulesLabel;
+	std::unique_ptr<c3_Static>	m_playersLabel;
+	std::unique_ptr<c3_Static>	m_worldTypeLabel;
 
-	ctp2_Button		*m_quitButton;
+	std::unique_ptr<ctp2_Button>	m_quitButton;
 
-	c3_Static		*m_spTitle;
-	c3_Static		*m_spBackground;
+	std::unique_ptr<c3_Static>	m_spTitle;
+	std::unique_ptr<c3_Static>	m_spBackground;
 
-	aui_StringTable	*m_string;
+	std::unique_ptr<aui_StringTable>	m_string;
 
-	c3_Static		*m_scenarioName;
-	c3_Static		*m_scenarioStaticText;
+	std::unique_ptr<c3_Static>	m_scenarioName;
+	std::unique_ptr<c3_Static>	m_scenarioStaticText;
 
 };
 
@@ -363,7 +365,7 @@ public:
 	~SPDropDownListItem() override;
 	sint32 Compare(c3_ListItem *item2, uint32 column) override{return 0; };
 private:
-	c3_Static *m_myItem;
+	std::unique_ptr<c3_Static>	m_myItem;
 };
 
 

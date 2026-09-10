@@ -58,9 +58,6 @@ c3_PopupWindow::c3_PopupWindow
 )
 :
 	C3Window    (retval, id, ldlBlock, bpp, type, bevel),
-	m_title     (nullptr),
-	m_titleText (nullptr),
-	m_cancel    (nullptr),
 	m_ok        (nullptr)
 {
 	std::fill(m_border, m_border + POPUP_BORDER_MAX, (c3_Static *) nullptr);
@@ -83,9 +80,6 @@ c3_PopupWindow::c3_PopupWindow
 )
 :
 	C3Window    (retval, id, x, y, width, height, bpp, pattern, type, bevel),
-	m_title     (nullptr),
-	m_titleText (nullptr),
-	m_cancel    (nullptr),
 	m_ok        (nullptr)
 {
 	std::fill(m_border, m_border + POPUP_BORDER_MAX, (c3_Static *) nullptr);
@@ -186,6 +180,19 @@ AUI_ERRCODE c3_PopupWindow::Resize( sint32 width, sint32 height )
 }
 
 
+// Out of line: the owned controls are only forward declared in the header, and
+// an inline body would need them complete to emit this constructor's cleanup
+// path for the unique_ptr members.
+c3_PopupWindow::c3_PopupWindow()
+:
+	C3Window()
+{
+	// The four owned controls default-construct empty; m_border is still a
+	// plain array of pointers.
+	std::fill(m_border, m_border + POPUP_BORDER_MAX, (c3_Static *) nullptr);
+}
+
+
 c3_PopupWindow::~c3_PopupWindow( )
 {
 	for (auto & i : m_border)
@@ -193,10 +200,6 @@ c3_PopupWindow::~c3_PopupWindow( )
 		delete i;
 	}
 
-	delete m_title;
-	delete m_titleText;
-	delete m_cancel;
-	delete m_ok;
 }
 
 
@@ -231,21 +234,20 @@ sint32 c3_PopupWindow::AddTitle( MBCHAR *titleBlock )
 	else
 	{
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_title = new c3_Static(&errcode, aui_UniqueId(), "c3_PopupTitle");
+		m_title.reset(new c3_Static(&errcode, aui_UniqueId(), "c3_PopupTitle"));
 		TestControl(m_title);
 		char *ldlBlock = "c3_PopupTitle.c3_PopupTitleText";
-		m_titleText =
-			new c3_Static
+		m_titleText.reset(new c3_Static
 		        (&errcode,
 		         aui_UniqueId(),
 		         (titleBlock) ? titleBlock : ldlBlock
-		        );
+		        ));
 		TestControl(m_titleText);
 
-		m_title->AddSubControl(m_titleText);
+		m_title->AddSubControl(m_titleText.get());
 		m_title->Move((m_width - m_title->Width()) / 2, 0);
 
-		InsertChild(m_title, 0);
+		InsertChild(m_title.get(), 0);
 		m_title->SetParentWindow(this);
 		m_title->SetBlindness(true);
 	}
@@ -268,10 +270,10 @@ sint32 c3_PopupWindow::AddCancel
 	else
 	{
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_cancel = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, actionFunc, cookie);
+		m_cancel.reset(new c3_Button(&errcode, aui_UniqueId(), buttonBlock, actionFunc, cookie));
 		TestControl(m_cancel);
 		m_cancel->Move(17, m_height - m_cancel->Height() - 17);
-		InsertChild(m_cancel, 0);
+		InsertChild(m_cancel.get(), 0);
 		m_cancel->SetParentWindow(this);
 	}
 
@@ -293,10 +295,10 @@ sint32 c3_PopupWindow::AddOk
 	else
 	{
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_ok = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock, actionFunc, cookie );
+		m_ok.reset(new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock, actionFunc, cookie ));
 		TestControl( m_ok );
 		m_ok->Move( m_width - m_ok->Width() - 17, m_height - m_ok->Height() - 17);
-		InsertChild(m_ok, 0);
+		InsertChild(m_ok.get(), 0);
 		m_ok->SetParentWindow(this);
 	}
 
@@ -337,11 +339,11 @@ void c3_PopupWindow::kh_Close()
 {
 	if (m_cancel)
 	{
-		m_cancel->GetActionFunc()(m_cancel, AUI_BUTTON_ACTION_EXECUTE, 0, m_cancel->GetCookie());
+		m_cancel->GetActionFunc()(m_cancel.get(), AUI_BUTTON_ACTION_EXECUTE, 0, m_cancel->GetCookie());
 	}
 	else if (m_ok)
 	{
-		m_ok->GetActionFunc()(m_ok, AUI_BUTTON_ACTION_EXECUTE, 0, m_ok->GetCookie());
+		m_ok->GetActionFunc()(m_ok.get(), AUI_BUTTON_ACTION_EXECUTE, 0, m_ok->GetCookie());
 	}
 	// else No action: no close handler assigned
 }

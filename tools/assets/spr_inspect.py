@@ -205,8 +205,8 @@ def inspect(path: str) -> SprInfo:
     if version in (0x00020000, VERSION_V2):  # v20
         action_count = ACTION_MAX
         names = [f"ACTION_{i}" for i in range(action_count)]
-        names[0] = "MOVE"   # UNITACTION_MOVE as a GAME_ACTION index
-        names[2] = "IDLE"   # UNITACTION_IDLE as a GAME_ACTION index
+        # V20 keeps unit actions at their UNITACTION indices too.
+        names[:UNITACTION_MAX] = UNITACTIONS
         special_off = _i32(buf, pos + ACTION_MAX * 4)
     else:  # v0 / v13
         action_count = UNITACTION_MAX

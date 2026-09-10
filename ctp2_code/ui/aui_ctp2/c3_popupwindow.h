@@ -37,6 +37,7 @@
 #ifndef C3_POPUPWINDOW_H_
 #define C3_POPUPWINDOW_H_
 
+#include <memory>
 #include <algorithm>
 #include <string>
 
@@ -115,36 +116,30 @@ public:
 		void *cookie = nullptr,
 		MBCHAR *buttonBlock = "c3_PopupNo" );
 
-	c3_Static	*TitleText( ) { return m_titleText; }
-	c3_Static	*Title( ) { return m_title; }
+	c3_Static	*TitleText( ) { return m_titleText.get(); }
+	c3_Static	*Title( ) { return m_title.get(); }
 
-	c3_Button	*Cancel( ) const { return m_cancel; }
-	ctp2_Button	*Ok( ) const { return m_ok; }
+	c3_Button	*Cancel( ) const { return m_cancel.get(); }
+	ctp2_Button	*Ok( ) const { return m_ok.get(); }
 
 	void    kh_Close() override;
 	virtual void    PatternInfoRestore();
 	virtual void    PatternInfoSave();
 
 protected:
-	c3_PopupWindow()
-	:
-		C3Window    (),
-		m_title     (nullptr),
-		m_titleText (nullptr),
-		m_cancel    (nullptr),
-		m_ok        (nullptr)
-	{
-		std::fill(m_border, m_border + POPUP_BORDER_MAX, (c3_Static *) nullptr);
-	}
+	// Defined in the .cpp: the owned controls are forward declared here, and an
+	// inline body would need them complete to emit the constructor's cleanup
+	// path for the unique_ptr members.
+	c3_PopupWindow();
 
 private:
 	virtual AUI_ERRCODE InitCommon();
 
 	c3_Static *     m_border[POPUP_BORDER_MAX];
-	c3_Static *     m_title;
-	c3_Static *     m_titleText;
-	c3_Button *     m_cancel;
-	ctp2_Button	*   m_ok;
+	std::unique_ptr<c3_Static>	m_title;
+	std::unique_ptr<c3_Static>	m_titleText;
+	std::unique_ptr<c3_Button>	m_cancel;
+	std::unique_ptr<ctp2_Button>	m_ok;
 	/// Saved pattern information for borders and background
 	std::string     m_patternInfo[POPUP_BORDER_MAX + 1];
 };

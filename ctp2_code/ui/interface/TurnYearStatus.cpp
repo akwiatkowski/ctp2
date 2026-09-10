@@ -30,6 +30,7 @@
 
 #include "ctp/c3.h"
 #include "ui/interface/TurnYearStatus.h"
+#include "ui/aui_common/aui_stringtable.h"
 
 #include <memory>
 #include <sstream>

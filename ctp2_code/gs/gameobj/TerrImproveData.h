@@ -98,7 +98,20 @@ public:
 						   MapPoint pnt,
 						   sint32 type,
 						   sint32 extraData);
-	TerrainImprovementData(ID id) : GameObj(id.m_id) {}
+	TerrainImprovementData(ID id) :
+		GameObj(id.m_id),
+		m_owner(-1),
+		m_type(0),
+		m_point(),
+		m_turnsToComplete(0),
+		m_transformType(static_cast<TERRAIN_TYPES>(0)),
+		m_materialCost(0),
+		// Uninitialised bools serialize as non-0/1 integers; loading one
+		// back is an invalid bool load and aborts under UBSan
+		// halt_on_error (same class as Order::m_eventType).
+		m_isComplete(false),
+		m_isBuilding(false)
+	{}
 
 	sint32 GetType() const { return m_type; }
 

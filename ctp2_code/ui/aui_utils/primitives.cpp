@@ -120,29 +120,42 @@ PRIMITIVES_ERRCODE primitives_FrameRect16(
 
 	sint32      surfPitch = pSurface->Pitch();
 
+	// P11 Stage 2 B: scale destination pointer arithmetic to the surface depth.
+	// bpp32 is loop-invariant; with step==2 the byte offsets are identical to
+	// the historic (uint16 *) path, so 16-bit output is byte-for-byte unchanged.
+	bool const  bpp32   = pSurface && pSurface->BitsPerPixel() == 32;
+	sint32 const step   = bpp32 ? 4 : 2;
+
 	sint32      width   = right - left;
 	sint32      height  = bottom - top;
-	uint16 *    pDest   = (uint16 *)(pSurfBase + top * surfPitch + (left << 1));
-	sint32      inc1    = (surfPitch >> 1) - width;
-	sint32      inc2    = width - 1;
+	uint8 *     pDest   = pSurfBase + top * surfPitch + left * step;
+	sint32      inc1    = surfPitch - width * step;
+	sint32      inc2    = (width - 1) * step;
 
 	sint32 i;
 	for (i=width;i;i--)
-		*pDest++ = color;
+	{
+		pixelutils_StorePixel(pDest, color, bpp32);
+		pDest += step;
+	}
 
 	sint32 tempHeight = height - 2;
 	for (sint32 j=tempHeight;j;j--)
 	{
 		pDest += inc1;
-		*pDest = color;
+		pixelutils_StorePixel(pDest, color, bpp32);
 		pDest += inc2;
-		*pDest++ = color;
+		pixelutils_StorePixel(pDest, color, bpp32);
+		pDest += step;
 	}
 
 	pDest += inc1;
 
 	for (sint32 k = width; k > 0; --k)
-		*pDest++ = color;
+	{
+		pixelutils_StorePixel(pDest, color, bpp32);
+		pDest += step;
+	}
 
 	if (wasUnlocked) {
 		errcode = pSurface->Unlock((LPVOID)pSurfBase);
@@ -368,16 +381,24 @@ PRIMITIVES_ERRCODE primitives_PaintRect16(
 
 	sint32 surfPitch = pSurface->Pitch();
 
+	// P11 Stage 2 B: byte-stepped destination so a 32-bit world surface works;
+	// step==2 keeps 16-bit output byte-for-byte identical to the original.
+	bool const  bpp32   = pSurface && pSurface->BitsPerPixel() == 32;
+	sint32 const step   = bpp32 ? 4 : 2;
+
 	sint32 width = right - left;
 	sint32 height = bottom - top;
 
-	uint16 * pDestPixel = (uint16 *)(pSurfBase + top * surfPitch + (left << 1));
-	sint32 inc = (surfPitch >> 1) - width;
+	uint8 * pDestPixel = pSurfBase + top * surfPitch + left * step;
+	sint32 inc = surfPitch - width * step;
 
 	for (sint32 j=height;j;j--)
 	{
 		for (sint32 i=width;i;i--)
-			*pDestPixel++ = color;
+		{
+			pixelutils_StorePixel(pDestPixel, color, bpp32);
+			pDestPixel += step;
+		}
 		pDestPixel += inc;
 	}
 
@@ -1002,8 +1023,14 @@ PRIMITIVES_ERRCODE primitives_DrawLine16(
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
 	sint32      surfPitch   = pSurface->Pitch();
-	uint16 *    pDest       = (uint16 *)(pSurfBase + y1 * surfPitch + (x1 << 1));
-	*pDest = color;
+
+	// P11 Stage 2 B: Bresenham stays in pixel units; only the destination byte
+	// offset scales with depth. step==2 reproduces the original (x1 << 1).
+	bool const  bpp32       = pSurface && pSurface->BitsPerPixel() == 32;
+	sint32 const step       = bpp32 ? 4 : 2;
+
+	uint8 *     pDest       = pSurfBase + y1 * surfPitch + x1 * step;
+	pixelutils_StorePixel(pDest, color, bpp32);
 
 	if (absdx >= absdy)
 	{
@@ -1017,8 +1044,8 @@ PRIMITIVES_ERRCODE primitives_DrawLine16(
 			}
 			x1 += sdx;
 
-			pDest = (uint16 *)(pSurfBase + y1 * surfPitch + (x1 << 1));
-			*pDest = color;
+			pDest = pSurfBase + y1 * surfPitch + x1 * step;
+			pixelutils_StorePixel(pDest, color, bpp32);
 		}
 	}
 	else
@@ -1033,8 +1060,8 @@ PRIMITIVES_ERRCODE primitives_DrawLine16(
 			}
 			y1 += sdy;
 
-			pDest = (uint16 *)(pSurfBase + y1 * surfPitch + (x1 << 1));
-			*pDest = color;
+			pDest = pSurfBase + y1 * surfPitch + x1 * step;
+			pixelutils_StorePixel(pDest, color, bpp32);
 		}
 	}
 
@@ -3248,7 +3275,9 @@ void primitives_HackStencilDraw(aui_Surface *pSurface)
 
 #define PIXINC(a, b)		{a,b}
 #define SWAPVARS(a, b)		{ sint32 temp; temp = a; a = b; b = temp; }
-#define PIXADDR(x, y)		(pSurfBase + (y * surfPitch) + x * 2)
+// P11 Stage 2 B: x offset is byte-stepped (step is a local in each AA-line fn:
+// 2 for 16-bit, 4 for 32-bit). step==2 reproduces the original "x * 2".
+#define PIXADDR(x, y)		(pSurfBase + (y * surfPitch) + x * step)
 #define COVERAGE(dist)		(4)
 #define SQRTFUNC(val)		(sqrt(1/(1+val*val)))
 #define BLEND(p1, p2)		pixelutils_BlendFast(p1, p2, 8)
@@ -3278,6 +3307,12 @@ void primitives_DrawAALine16(aui_Surface *pSurface, sint32 x1, sint32 y1, sint32
 
 	sint32 surfPitch = pSurface->Pitch();
 
+	// P11 Stage 2 B: geometry stays in pixel units; the destination byte offset
+	// (step) and the per-pixel blend widen for a 32-bit surface. In 16-bit mode
+	// (step==2) this is byte-for-byte identical to the original path.
+	bool const  bpp32 = pSurface && pSurface->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
+
 	if (x1 > x2) {
 		SWAPVARS(x1, x2);
 		SWAPVARS(y1, y2);
@@ -3298,9 +3333,9 @@ void primitives_DrawAALine16(aui_Surface *pSurface, sint32 x1, sint32 y1, sint32
 
 	uint8 * mid_addr = PIXADDR(x1, y1);
 
-	sint32 addr_ainc = adj_pixinc_y[dir] * surfPitch + adj_pixinc_x[dir] * 2;
-	sint32 addr_dinc = diag_pixinc_y[dir] * surfPitch + diag_pixinc_x[dir] * 2;
-	sint32 addr_oinc = orth_pixinc_y[dir] * surfPitch + orth_pixinc_x[dir] * 2;
+	sint32 addr_ainc = adj_pixinc_y[dir] * surfPitch + adj_pixinc_x[dir] * step;
+	sint32 addr_dinc = diag_pixinc_y[dir] * surfPitch + diag_pixinc_x[dir] * step;
+	sint32 addr_oinc = orth_pixinc_y[dir] * surfPitch + orth_pixinc_x[dir] * step;
 
 	double slope = (double)dy / (double)dx;
 
@@ -3316,21 +3351,24 @@ void primitives_DrawAALine16(aui_Surface *pSurface, sint32 x1, sint32 y1, sint32
 
 	do {
 
-		*(Pixel16 *)mid_addr = pixelutils_Blend(color, *mid_addr, 13);
+		if (bpp32) { Pixel32 * d = (Pixel32 *)mid_addr; *d = pixelutils_BlendFast8888(pixelutils_16to8888(color), *d, 13); }
+		else       { *(Pixel16 *)mid_addr = pixelutils_Blend(color, *mid_addr, 13); }
 
 		for (
 				Pnow = Poinc - Pmid, now_addr = mid_addr + addr_oinc;
 				Pnow < Pmax;
 				Pnow += Poinc, now_addr += addr_oinc
 			)
-			*(Pixel16 *)now_addr =  pixelutils_Blend(color, *now_addr, COVERAGE(Pnow));
+			if (bpp32) { Pixel32 * d = (Pixel32 *)now_addr; *d = pixelutils_BlendFast8888(pixelutils_16to8888(color), *d, COVERAGE(Pnow)); }
+			else       { *(Pixel16 *)now_addr =  pixelutils_Blend(color, *now_addr, COVERAGE(Pnow)); }
 
 		for (
 				Pnow = Poinc + Pmid, now_addr = mid_addr - addr_oinc;
 				Pnow < Pmax;
 				Pnow += Poinc, now_addr -= addr_oinc
 			)
-			*(Pixel16 *)now_addr = pixelutils_Blend(color, *now_addr, COVERAGE(Pnow));
+			if (bpp32) { Pixel32 * d = (Pixel32 *)now_addr; *d = pixelutils_BlendFast8888(pixelutils_16to8888(color), *d, COVERAGE(Pnow)); }
+			else       { *(Pixel16 *)now_addr = pixelutils_Blend(color, *now_addr, COVERAGE(Pnow)); }
 
 				if (Bvar < 0) {
 					Bvar += Bainc;
@@ -3364,6 +3402,11 @@ void primitives_DrawDashedAALine16(aui_Surface *pSurface, sint32 x1, sint32 y1, 
 
 	sint32 surfPitch = pSurface->Pitch();
 
+	// P11 Stage 2 B: see primitives_DrawAALine16 — geometry unchanged, only the
+	// destination byte offset (step) and blend widen for a 32-bit surface.
+	bool const  bpp32 = pSurface && pSurface->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
+
 	if (x1 > x2) {
 		SWAPVARS(x1, x2);
 		SWAPVARS(y1, y2);
@@ -3383,9 +3426,9 @@ void primitives_DrawDashedAALine16(aui_Surface *pSurface, sint32 x1, sint32 y1, 
 
 	uint8 * mid_addr = PIXADDR(x1, y1);
 
-	sint32 addr_ainc = adj_pixinc_y[dir] * surfPitch + adj_pixinc_x[dir] * 2;
-	sint32 addr_dinc = diag_pixinc_y[dir] * surfPitch + diag_pixinc_x[dir] * 2;
-	sint32 addr_oinc = orth_pixinc_y[dir] * surfPitch + orth_pixinc_x[dir] * 2;
+	sint32 addr_ainc = adj_pixinc_y[dir] * surfPitch + adj_pixinc_x[dir] * step;
+	sint32 addr_dinc = diag_pixinc_y[dir] * surfPitch + diag_pixinc_x[dir] * step;
+	sint32 addr_oinc = orth_pixinc_y[dir] * surfPitch + orth_pixinc_x[dir] * step;
 
 	double slope = (double)dy / (double)dx;
 
@@ -3405,7 +3448,8 @@ void primitives_DrawDashedAALine16(aui_Surface *pSurface, sint32 x1, sint32 y1, 
 	do {
 
 		if ( draw ) {
-			*(Pixel16 *)mid_addr = pixelutils_Blend(color, *mid_addr, 13);
+			if (bpp32) { Pixel32 * d = (Pixel32 *)mid_addr; *d = pixelutils_BlendFast8888(pixelutils_16to8888(color), *d, 13); }
+			else       { *(Pixel16 *)mid_addr = pixelutils_Blend(color, *mid_addr, 13); }
 			draw--;
 			if ( !draw ) {
 				skip = length;
@@ -3424,7 +3468,8 @@ void primitives_DrawDashedAALine16(aui_Surface *pSurface, sint32 x1, sint32 y1, 
 				Pnow += Poinc, now_addr += addr_oinc
 			)
 			if ( draw  ) {
-				*(Pixel16 *)now_addr =  pixelutils_Blend(color, *now_addr, COVERAGE(Pnow));
+				if (bpp32) { Pixel32 * d = (Pixel32 *)now_addr; *d = pixelutils_BlendFast8888(pixelutils_16to8888(color), *d, COVERAGE(Pnow)); }
+				else       { *(Pixel16 *)now_addr =  pixelutils_Blend(color, *now_addr, COVERAGE(Pnow)); }
 				draw--;
 				if ( !draw ) {
 					skip = length;
@@ -3443,7 +3488,8 @@ void primitives_DrawDashedAALine16(aui_Surface *pSurface, sint32 x1, sint32 y1, 
 				Pnow += Poinc, now_addr -= addr_oinc
 			)
 			if ( draw ) {
-				*(Pixel16 *)now_addr = pixelutils_Blend(color, *now_addr, COVERAGE(Pnow));
+				if (bpp32) { Pixel32 * d = (Pixel32 *)now_addr; *d = pixelutils_BlendFast8888(pixelutils_16to8888(color), *d, COVERAGE(Pnow)); }
+				else       { *(Pixel16 *)now_addr = pixelutils_Blend(color, *now_addr, COVERAGE(Pnow)); }
 				draw--;
 				if ( !draw ) {
 					skip = length;

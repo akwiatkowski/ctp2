@@ -70,18 +70,10 @@ void spritegrouplist_Cleanup()
     allocated::clear(g_citySpriteGroupList);
 }
 
-SpriteGroupList::SpriteGroupList()
-{
-    std::fill(m_spriteList, m_spriteList + k_MAX_SPRITES, (SpriteGroup *) nullptr);
-}
+SpriteGroupList::SpriteGroupList() = default;
 
-SpriteGroupList::~SpriteGroupList()
-{
-	for (auto & i : m_spriteList)
-    {
-		delete i;
-	}
-}
+// Each slot releases its own group.
+SpriteGroupList::~SpriteGroupList() = default;
 
 #define _BASIC_SPRITE_LOAD_
 
@@ -93,7 +85,7 @@ SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE
 	}
 
 	char			inFile[_MAX_PATH];
-	SpriteGroup		*newSpriteGroup=m_spriteList[index];
+	SpriteGroup		*newSpriteGroup=m_spriteList[index].get();
 
 	switch (type)
 	{
@@ -158,7 +150,10 @@ SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE
 		 return SPRITELISTERR_NOTFOUND;
 	};
 
-    m_spriteList[index] = newSpriteGroup;
+    // Usually the pointer the slot already held -- the switch above only
+    // allocates when the slot was empty -- so guard the self-assignment.
+    if (m_spriteList[index].get() != newSpriteGroup)
+        m_spriteList[index].reset(newSpriteGroup);
 
 	return SPRITELISTERR_OK;
 }
@@ -171,7 +166,7 @@ SpriteGroup *SpriteGroupList::GetSprite(uint32 index, GROUPTYPE type, LOADTYPE l
 	if((index < 0) || (index >= k_MAX_SPRITES))
 		index = 0;
 
-	SpriteGroup *group = m_spriteList[index];
+	SpriteGroup *group = m_spriteList[index].get();
 
 	if (group)
 	{
@@ -210,7 +205,7 @@ SpriteGroup *SpriteGroupList::GetSprite(uint32 index, GROUPTYPE type, LOADTYPE l
 		 break;
 	}
 
-	return m_spriteList[index];
+	return m_spriteList[index].get();
 }
 
 
@@ -247,8 +242,7 @@ bool SpriteGroupList::ReleaseSprite(uint32 index, LOADTYPE loadType)
 
         if (basicRefs == 0)
         {
-		    delete m_spriteList[index];
-            m_spriteList[index] = nullptr;
+		    m_spriteList[index].reset();
 		    return true;
 	    }
         else if (basicRefs > 0)
@@ -294,7 +288,7 @@ void SpriteGroupList::RefreshBasicLoads(GROUPTYPE groupType)
 
 	for (sint32 i=0; i<k_MAX_SPRITES; i++)
 	{
-		UnitSpriteGroup *usg = (UnitSpriteGroup *)m_spriteList[i];
+		UnitSpriteGroup *usg = (UnitSpriteGroup *)m_spriteList[i].get();
 
 		if (usg && (usg->GetLoadType() == LOADTYPE_BASIC))
         {

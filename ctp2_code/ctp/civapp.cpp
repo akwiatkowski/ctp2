@@ -612,9 +612,11 @@ CivApp::~CivApp() = default;
 void CivApp::InitializeAppUI()
 {
 	civapp_log->info("InitializeAppUI: called");
+#if CTP2_ENABLE_NETWORKING
 	// Set CTP2 specific data for the Anet library (multiplayer only)
 	NETFunc::GameType	= GAMEID;				// CTP2 game id for Anet
 	NETFunc::DllPath	= "dll" FILE_SEP "net";	// Anet DLLs are in dll\net (relative to executable)
+#endif
 
 	if (g_useIntroMovie && !g_no_shell)
 	{
@@ -1560,7 +1562,9 @@ sint32 CivApp::QuickInit(HINSTANCE hInstance, int iCmdShow)
 
 void CivApp::CleanupAppUI()
 {
+#if CTP2_ENABLE_NETWORKING
 	NetShell::Leave( k_NS_FLAGS_DESTROY );
+#endif
 
 	// Clean up any opened screens
 	greatlibrary_Cleanup();
@@ -2629,8 +2633,20 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					smoketest_send_response("error", cmd, "not_on_main_menu");
 				}
 			}
-			else if (strcmp(cmd, "start_game") == 0) {
+			else if (strcmp(cmd, "start_game") == 0 || strncmp(cmd, "start_game ", 11) == 0) {
 				if (m_appLoaded && !m_gameLoaded) {
+                    if (cmd[10] != '\0') {
+                        int seed = 0, players = 0;
+                        char extra = 0;
+                        if (sscanf(cmd + 11, "%d %d %c", &seed, &players, &extra) != 2
+                            || seed <= 0 || players < 2 || players > k_MAX_PLAYERS) {
+                            smoketest_send_response("error", cmd, "bad_seed_or_players");
+                            return 0;
+                        }
+                        // Match headless initialization; zero is the legacy clock-seed sentinel.
+                        g_oldRandSeed = seed;
+                        profiledb_Get()->SetNPlayers(players);
+                    }
 					spnewgamescreen_startPress(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 					smoketest_send_response("ok", cmd, nullptr);
 				} else {
@@ -2833,6 +2849,14 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					smoketest_send_response("error", cmd, "bad_args");
 				} else {
 #ifdef USE_SDL
+					// The layered GPU present never shows the software primary;
+					// per-frame mirroring is muted there (see aui_Mouse), so
+					// refresh it synchronously before reading. No Draw can run
+					// in between, keeping the capture atomic.
+					if (c3ui_Get()) {
+						c3ui_Get()->Invalidate(nullptr);
+						c3ui_Get()->Draw();
+					}
 					aui_SDLSurface *sdlSurf = static_cast<aui_SDLSurface*>(c3ui_Get()->Primary());
 					if (sdlSurf && sdlSurf->DDS()) {
 						if (CTP2_SDL_SaveBMP(sdlSurf->DDS(), path)) {
@@ -2874,11 +2898,52 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					if (!renderer || !texture) {
 						smoketest_send_response("error", cmd, "no_renderer");
 					} else {
+						// Force a synchronous redraw before compositing: draw
+						// lists and software surfaces otherwise reflect
+						// whatever incidental UI tick ran last, so a capture
+						// taken right after a state change (new unit,
+						// selection, pose) reads stale lists. Same
+						// Invalidate+Draw the primary path uses below; the
+						// pair stays atomic (no Draw runs between the two).
+						if (c3ui_Get()) {
+							c3ui_Get()->Invalidate(nullptr);
+							c3ui_Get()->Draw();
+						}
+						// Prime the layer mirrors: per-frame mirroring is
+						// muted under layered present (perf), so the world/UI
+						// layer surfaces hold whatever the last unmuted pass
+						// left — usually nothing in a headless run. Mirror
+						// the freshly drawn background once; this also bumps
+						// content versions so Flip/readback see the change.
+						if (c3ui_Get() && background_Get()
+						    && background_Get()->TheSurface()) {
+							aui_Surface *bgs = background_Get()->TheSurface();
+							RECT full = { 0, 0, bgs->Width(), bgs->Height() };
+							c3ui_Get()->BltToSecondary(0, 0, bgs, &full,
+							    k_AUI_BLITTER_FLAG_COPY);
+						}
+						// Present the redrawn frame: Draw repaints surfaces
+						// and rebuilds quad lists, but uploads happen in
+						// Flip — without it the readback below composites
+						// stale textures. Same call the camera tick uses.
+						c3ui_Get()->BltSecondaryToPrimary(0, false);
 						// Copy the screen texture into a same-size TARGET
 						// texture and read that back. Target state resets
 						// viewport/scale to 1:1 texture size, so the read
 						// is exact regardless of HiDPI backbuffer scale or
 						// SDL_RenderSetLogicalSize on the window target.
+						// P11 Stage 2 D: mirror the exact present composite. With
+						// per-layer GPU compositing the visible frame is the world
+						// texture with the UI texture alpha-blended over it, so the
+						// readback must reproduce both layers (re-composing only the
+						// screen texture would read a stale/never-uploaded texture).
+						bool const layered = aui_SDL::GpuLayersEnabled()
+						                   && aui_SDL::WorldTexture()
+						                   && aui_SDL::UiTexture();
+						// Target is SCREEN-sized (the presented frame), from the
+						// screen texture — NOT the world texture, which is oversized
+						// by the pan margin (P11 2a). The world layer is windowed back
+						// to the screen below.
 						int texW = 0, texH = 0;
 						CTP2_SDL_GetTextureSize(texture, &texW, &texH);
 						SDL_Texture *target = SDL_CreateTexture(renderer,
@@ -2887,14 +2952,118 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						bool ok = false;
 						if (target && CTP2_SDL_SetRenderTarget(renderer, target)) {
 							SDL_RenderClear(renderer);
-							CTP2_SDL_RenderTexture(renderer, texture);
+							if (layered) {
+								if (aui_SDL::GpuQuadsEnabled() && aui_SDL::QuadAtlasTexture()
+								    && aui_SDL::QuadFrameComplete()) {
+									CTP2_SDL_SetRenderTarget(renderer, aui_SDL::WorldTexture());
+									SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+									SDL_RenderClear(renderer);
+									SDL_Texture * const atlas = aui_SDL::QuadAtlasTexture();
+									for (aui_SDL::GpuQuad const & q : aui_SDL::QuadDrawList()) {
+										CTP2_SDL_RenderTextureSrcDst(renderer, atlas,
+											q.sx, q.sy, q.sw, q.sh,
+											(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh);
+									}
+									for (aui_SDL::GpuSpriteQuad const & q : aui_SDL::SpriteDrawList()) {
+										if (q.screen_space)
+											continue;
+										SDL_SetTextureBlendMode(q.texture, q.additive ? SDL_BLENDMODE_ADD : SDL_BLENDMODE_BLEND);
+										SDL_SetTextureColorMod(q.texture, q.red, q.green, q.blue);
+										SDL_SetTextureAlphaMod(q.texture, q.alpha);
+										CTP2_SDL_RenderTextureSrcDstFlip(renderer, q.texture,
+											q.sx, q.sy, q.sw, q.sh,
+											(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh,
+											q.mirror);
+									}
+									CTP2_SDL_SetRenderTarget(renderer, target);
+								}
+								else {
+									// Oracle-only upload: tile repaints write the
+									// CPU world surface directly, bypassing the
+									// Blt mirror that bumps content versions — so
+									// Flip's upload-if-changed legitimately skips
+									// them, and a capture without this reads a
+									// stale texture. Screenshots are rare; upload
+									// unconditionally (live present path untouched).
+									aui_UI *uiLayer = aui_ui_Get();
+									aui_SDLSurface *worldSurf = (uiLayer && uiLayer->GpuLayers())
+									    ? static_cast<aui_SDLSurface *>(uiLayer->WorldSurface()) : nullptr;
+									aui_SDLSurface *uiSurf = (uiLayer && uiLayer->GpuLayers())
+									    ? static_cast<aui_SDLSurface *>(uiLayer->UiSurface()) : nullptr;
+									if (worldSurf && worldSurf->DDS()) {
+										SDL_Surface *ws = worldSurf->DDS();
+										CTP2_SDL_UpdateTexture(aui_SDL::WorldTexture(), nullptr,
+										    ws->pixels, ws->pitch);
+									}
+									if (uiSurf && uiSurf->DDS()) {
+										SDL_Surface *us = uiSurf->DDS();
+										CTP2_SDL_UpdateTexture(aui_SDL::UiTexture(), nullptr,
+										    us->pixels, us->pitch);
+									}
+								}
+								// P11 2a: mirror Flip's windowed present exactly — the
+								// world+fog layers are windowed from the (oversized)
+								// texture to the screen viewport, slid by CameraOff and
+								// scaled by CameraZoom (identity by default). UI stays
+								// full-screen. Must match aui_SDLSurface::Flip or the
+								// oracle diverges from the real frame.
+								bool  const cam  = aui_SDL::GpuCameraEnabled();
+								float const W    = (float)texW, H = (float)texH;
+								float const z    = cam ? aui_SDL::CameraZoom() : 1.0f;
+								float const offX = cam ? aui_SDL::CameraOffX() : 0.0f;
+								float const offY = cam ? aui_SDL::CameraOffY() : 0.0f;
+								auto windowed = [&](SDL_Texture *tex, float baseX, float baseY) {
+									float const srcW = W / z, srcH = H / z;
+									float const srcX = baseX + (W - srcW) * 0.5f - offX;
+									float const srcY = baseY + (H - srcH) * 0.5f - offY;
+									CTP2_SDL_RenderTextureWindow(renderer, tex,
+										srcX, srcY, srcW, srcH, 0.0f, 0.0f, W, H);
+								};
+								// P12: quad and mirrored paths share the same oversized
+								// world-space origin; only the producer differs.
+								//
+								// P13 step 2.1 (ADR-003): Flip presents the whole-map
+								// target when it is ready and the window mirror
+								// otherwise. The readback MUST branch the same way.
+								// While it did not, this oracle re-composited the
+								// window mirror no matter what CTP2_GPU_WORLDMAP was
+								// set to -- so every screenshot test was blind to the
+								// whole-map path, and the tile-gap and transition bugs
+								// in it could only be found by looking at the game.
+								aui_SDL::PresentWorldFrame(renderer, W, H, z, offX, offY);
+								// P11 C: fog mask darkens the world between the world
+								// and UI copies (mirrors Flip's present).
+								if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture())
+									windowed(aui_SDL::FogTexture(), 0.0f, 0.0f);
+								for (aui_SDL::GpuSpriteQuad const & q : aui_SDL::SpriteDrawList()) {
+									if (!q.screen_space)
+										continue;
+									SDL_SetTextureBlendMode(q.texture, q.additive ? SDL_BLENDMODE_ADD : SDL_BLENDMODE_BLEND);
+									SDL_SetTextureColorMod(q.texture, q.red, q.green, q.blue);
+									SDL_SetTextureAlphaMod(q.texture, q.alpha);
+									CTP2_SDL_RenderTextureSrcDstFlip(renderer, q.texture,
+										q.sx, q.sy, q.sw, q.sh,
+										(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh,
+										q.mirror);
+								}
+								CTP2_SDL_RenderTexture(renderer, aui_SDL::UiTexture());
+							} else {
+								CTP2_SDL_RenderTexture(renderer, texture);
+							}
 							ok = CTP2_SDL_SaveRendererPixels(renderer, path, texW, texH);
 							CTP2_SDL_SetRenderTarget(renderer, nullptr);
 						}
 						if (target) SDL_DestroyTexture(target);
 						// Atomic pair: capture the software primary in the
-						// same dispatch (no Draw can run in between).
+						// same dispatch (no Draw can run in between). The mirror
+						// may be muted under layered present, so refresh it
+						// synchronously first — same Invalidate+Draw the plain
+						// screenshot path uses.
 						if (ok && primPath[0]) {
+							if (c3ui_Get()) {
+								c3ui_Get()->Invalidate(nullptr);
+								c3ui_Get()->Draw();
+							}
 							aui_SDLSurface *prim = static_cast<aui_SDLSurface*>(c3ui_Get()->Primary());
 							ok = prim && prim->DDS()
 							  && CTP2_SDL_SaveBMP(prim->DDS(), primPath);
@@ -2910,6 +3079,299 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					smoketest_send_response("error", cmd, "not_sdl");
 #endif
 				}
+			}
+#ifdef RENDER_TOOL_BUILD
+			else if (strncmp(cmd, "screenshot_map_only ", 20) == 0) {
+				// screenshot_map_only <path>
+				// Render only the map layer: terrain, fog-visible map sprites, trade/map
+				// effects. No UI windows, modal overlays, mouse hilite, legal moves, or
+				// turn/gameplay processing. This is the map-to-texture seam for visual
+				// review and future offscreen map rendering.
+				char path[1024] = {0};
+				sscanf(cmd + 20, "%1023s", path);
+				bool ready = false;
+				if (!path[0]) {
+					smoketest_send_response("error", cmd, "bad_args");
+				} else if (!background_Get()) {
+					smoketest_send_response("error", cmd, "no_background");
+				} else if (!tiledmap_Get()) {
+					smoketest_send_response("error", cmd, "no_tiledmap");
+				} else {
+					tiledmap_Get()->BuildTerrainQuads();
+					if (background_render_map_only(background_Get()) != AUI_ERRCODE_OK) {
+						smoketest_send_response("error", cmd, "render_failed");
+					} else {
+						ready = true;
+					}
+				}
+				if (ready) {
+#ifdef USE_SDL
+					bool ok = false;
+					SDL_Renderer *renderer = aui_SDL::Renderer();
+					SDL_Texture  *screenTexture = aui_SDL::ScreenTexture();
+					bool const drawGpuWorld = renderer && screenTexture
+						&& aui_SDL::GpuLayersEnabled()
+						&& aui_SDL::GpuQuadsEnabled()
+						&& aui_SDL::WorldTexture()
+						&& aui_SDL::QuadAtlasTexture()
+						&& aui_SDL::QuadFrameComplete();
+
+					if (drawGpuWorld) {
+						int texW = 0, texH = 0;
+						CTP2_SDL_GetTextureSize(screenTexture, &texW, &texH);
+						SDL_Texture *target = SDL_CreateTexture(renderer,
+							SDL_PIXELFORMAT_ARGB8888,
+							SDL_TEXTUREACCESS_TARGET, texW, texH);
+						if (target && CTP2_SDL_SetRenderTarget(renderer, target)) {
+							CTP2_SDL_SetRenderTarget(renderer, aui_SDL::WorldTexture());
+							SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+							SDL_RenderClear(renderer);
+							SDL_Texture * const atlas = aui_SDL::QuadAtlasTexture();
+							for (aui_SDL::GpuQuad const & q : aui_SDL::QuadDrawList()) {
+								CTP2_SDL_RenderTextureSrcDst(renderer, atlas,
+									q.sx, q.sy, q.sw, q.sh,
+									(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh);
+							}
+							for (aui_SDL::GpuSpriteQuad const & q : aui_SDL::SpriteDrawList()) {
+								if (q.screen_space)
+									continue;
+								SDL_SetTextureBlendMode(q.texture, q.additive ? SDL_BLENDMODE_ADD : SDL_BLENDMODE_BLEND);
+								SDL_SetTextureColorMod(q.texture, q.red, q.green, q.blue);
+								SDL_SetTextureAlphaMod(q.texture, q.alpha);
+								CTP2_SDL_RenderTextureSrcDstFlip(renderer, q.texture,
+									q.sx, q.sy, q.sw, q.sh,
+									(float)q.dx, (float)q.dy, (float)q.dw, (float)q.dh,
+									q.mirror);
+							}
+
+							CTP2_SDL_SetRenderTarget(renderer, target);
+							SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+							SDL_RenderClear(renderer);
+							bool  const cam  = aui_SDL::GpuCameraEnabled();
+							float const W    = (float)texW, H = (float)texH;
+							float const z    = cam ? aui_SDL::CameraZoom() : 1.0f;
+							float const offX = cam ? aui_SDL::CameraOffX() : 0.0f;
+							float const offY = cam ? aui_SDL::CameraOffY() : 0.0f;
+							float const srcW = W / z, srcH = H / z;
+							float const srcX = (float)aui_SDL::WorldContentOffX() + (W - srcW) * 0.5f - offX;
+							float const srcY = (float)aui_SDL::WorldContentOffY() + (H - srcH) * 0.5f - offY;
+							CTP2_SDL_RenderTextureWindow(renderer, aui_SDL::WorldTexture(),
+								srcX, srcY, srcW, srcH, 0.0f, 0.0f, W, H);
+							if (aui_SDL::GpuFogEnabled() && aui_SDL::FogTexture()) {
+								float const fogSrcX = (W - srcW) * 0.5f - offX;
+								float const fogSrcY = (H - srcH) * 0.5f - offY;
+								CTP2_SDL_RenderTextureWindow(renderer, aui_SDL::FogTexture(),
+									fogSrcX, fogSrcY, srcW, srcH, 0.0f, 0.0f, W, H);
+							}
+							ok = CTP2_SDL_SaveRendererPixels(renderer, path, texW, texH);
+							CTP2_SDL_SetRenderTarget(renderer, nullptr);
+						}
+						if (target) SDL_DestroyTexture(target);
+					} else {
+						aui_SDLSurface *bs = static_cast<aui_SDLSurface *>(background_Get()->TheSurface());
+						aui_Surface *primary = c3ui_Get() ? c3ui_Get()->Primary() : nullptr;
+						int const viewW = primary ? primary->Width() : 0;
+						int const viewH = primary ? primary->Height() : 0;
+						SDL_Surface *src = bs ? bs->DDS() : nullptr;
+						SDL_Surface *shot = (src && viewW > 0 && viewH > 0) ? CTP2_SDL_CreateARGB8888Surface(viewW, viewH) : nullptr;
+						if (shot) {
+							SDL_Rect srect = { aui_SDL::WorldContentOffX(), aui_SDL::WorldContentOffY(), viewW, viewH };
+							SDL_Rect drect = { 0, 0, viewW, viewH };
+#if defined(CTP2_USE_SDL3)
+							bool const blitOk = SDL_BlitSurface(src, &srect, shot, &drect);
+#else
+							bool const blitOk = SDL_BlitSurface(src, &srect, shot, &drect) == 0;
+#endif
+							ok = blitOk && CTP2_SDL_SaveBMP(shot, path);
+							CTP2_SDL_DestroySurface(shot);
+						}
+					}
+					if (ok) {
+						smoketest_send_response("ok", cmd, drawGpuWorld ? "gpu_world" : "cpu_world");
+					} else {
+						smoketest_send_response("error", cmd, "save_failed");
+					}
+#else
+					smoketest_send_response("error", cmd, "not_sdl");
+#endif
+				}
+			}
+#endif
+			else if (strncmp(cmd, "camera_debug_set ", 17) == 0) {
+				// camera_debug_set <offX> <offY>
+				// TEMPORARY (P11 pixel-proof debug): force the GPU camera pan offset
+				// to exact pixel values, bypassing velocity/target integration, so
+				// a harness can verify that the presented frame actually shifts.
+				float offX = 0.0f, offY = 0.0f;
+				sscanf(cmd + 17, "%f %f", &offX, &offY);
+#ifdef USE_SDL
+                // Hold the requested debug pose instead of easing toward an
+                // older target while a pixel oracle waits for actor repaint.
+				aui_SDL::SetCameraOffset(offX, offY);
+                aui_SDL::SetPanTarget(offX, offY);
+				char detail[64];
+				snprintf(detail, sizeof(detail), "off=%.1f,%.1f", offX, offY);
+				smoketest_send_response("ok", cmd, detail);
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
+			}
+			else if (strncmp(cmd, "camera_debug_zoom ", 18) == 0) {
+				// camera_debug_zoom <zoom>
+				// Force the camera zoom directly, bypassing pinch integration and
+				// the detent, so a harness can check that sprites stay glued to
+				// their tiles at a zoom other than 1. Without this the harness
+				// could only ever test the one zoom where most errors vanish.
+				float zoom = 1.0f;
+				sscanf(cmd + 18, "%f", &zoom);
+#ifdef USE_SDL
+                aui_SDL::SetCamera(aui_SDL::CameraOffX(), aui_SDL::CameraOffY(), zoom);
+                aui_SDL::SetHomeZoom(aui_SDL::CameraZoom());
+				char detail[64];
+				snprintf(detail, sizeof(detail), "zoom=%.3f", aui_SDL::CameraZoom());
+				smoketest_send_response("ok", cmd, detail);
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
+			}
+			else if (strncmp(cmd, "camera_debug_pan ", 17) == 0) {
+				// camera_debug_pan <dx> <dy>
+				// TEMPORARY (P11 pixel-proof debug): add to the buttery-pan
+				// TARGET (screen px) exactly as trackpad input does, so a
+				// harness can exercise the real ease/recenter path and verify
+				// the glide passes through sub-tile positions.
+				float dx = 0.0f, dy = 0.0f;
+				sscanf(cmd + 17, "%f %f", &dx, &dy);
+#ifdef USE_SDL
+				if (aui_SDL::GpuCameraEnabled()) {
+					aui_SDL::AddPanTarget(dx, dy);
+					smoketest_send_response("ok", cmd, nullptr);
+				} else {
+					smoketest_send_response("error", cmd, "camera_off");
+				}
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
+			}
+			else if (strncmp(cmd, "pick_tile ", 10) == 0) {
+				// pick_tile <screenX> <screenY>
+				// Test seam: run the real screen->tile inversion the mouse uses
+				// and report the tile it lands on. Picking has no other
+				// observable output, so without this a harness can only check
+				// it by clicking and watching what gets selected -- which
+				// conflates the inversion with selection rules.
+#ifdef USE_SDL
+				int sx = 0, sy = 0;
+				if (tiledmap_Get() && sscanf(cmd + 10, "%d %d", &sx, &sy) == 2) {
+					POINT pt; pt.x = sx; pt.y = sy;
+					MapPoint tile;
+					BOOL const hit = tiledmap_Get()->MousePointToTilePos(pt, tile);
+					char detail[96];
+					snprintf(detail, sizeof(detail), "hit=%d tile=%d,%d",
+					         hit ? 1 : 0, tile.x, tile.y);
+					smoketest_send_response("ok", cmd, detail);
+				} else {
+					smoketest_send_response("error", cmd, "not_ready");
+				}
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
+			}
+			else if (strcmp(cmd, "debug_close_build_manager") == 0) {
+				EditQueue::Hide();
+				smoketest_send_response("ok", cmd, nullptr);
+			}
+			else if (strncmp(cmd, "camera_debug_center", 19) == 0) {
+				// camera_debug_center [x y]
+				// TEMPORARY (P11 pixel-proof debug): synchronously center the
+				// map view on (x, y) — or the current selection — and force a
+				// full terrain redraw (the dh_centerMap recipe), so a harness
+				// gets real terrain pixels in view without depending on
+				// director timing.
+#ifdef USE_SDL
+				if (g_modalWindow > 0) {
+					// background_draw_handler skips terrain under a modal
+					// (e.g. the Loading progress window) — report it so a
+					// harness can retry once the modal clears.
+					smoketest_send_response("error", cmd, "modal");
+				} else if (selitem_Get() && radar_map_Get() && tiledmap_Get()
+				    && background_Get()) {
+					MapPoint pos = selitem_Get()->GetCurSelectPos();
+					sint32 x = 0, y = 0;
+					if (sscanf(cmd + 19, "%d %d", &x, &y) == 2)
+						pos = MapPoint(x, y);
+					radar_map_Get()->CenterMap(pos);
+					tiledmap_Get()->Refresh();
+					tiledmap_Get()->InvalidateMap();
+					tiledmap_Get()->InvalidateMix();
+					background_draw_handler(background_Get());
+					RECT const * vr = tiledmap_Get()->GetMapViewRect();
+					char detail[96];
+					snprintf(detail, sizeof(detail),
+					         "pos=%d,%d view=%ld,%ld,%ld,%ld",
+					         pos.x, pos.y, (long)vr->left, (long)vr->top,
+					         (long)vr->right, (long)vr->bottom);
+					smoketest_send_response("ok", cmd, detail);
+				} else {
+					smoketest_send_response("error", cmd, "not_ready");
+				}
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
+			}
+			else if (strncmp(cmd, "camera_debug_layers ", 20) == 0) {
+				// camera_debug_layers <world.bmp> <ui.bmp> [bgwin.bmp]
+				// TEMPORARY (P11 pixel-proof debug): dump the CPU world and UI
+				// composite surfaces (and optionally the background window's
+				// own surface, to tell "terrain never drawn" from "terrain
+				// drawn but not composited/mirrored").
+				char worldPath[1024] = {0};
+				char uiPath[1024] = {0};
+				char bgPath[1024] = {0};
+				sscanf(cmd + 20, "%1023s %1023s %1023s", worldPath, uiPath, bgPath);
+#ifdef USE_SDL
+				aui_UI *ui = c3ui_Get();
+				bool ok = ui && ui->WorldSurface() && ui->UiSurface();
+				if (ok) {
+					aui_SDLSurface *ws = static_cast<aui_SDLSurface *>(ui->WorldSurface());
+					aui_SDLSurface *us = static_cast<aui_SDLSurface *>(ui->UiSurface());
+					ok = ws->DDS() && us->DDS()
+					  && CTP2_SDL_SaveBMP(ws->DDS(), worldPath)
+					  && CTP2_SDL_SaveBMP(us->DDS(), uiPath);
+					if (ok && bgPath[0] && background_Get()) {
+						aui_SDLSurface *bs = static_cast<aui_SDLSurface *>(
+							background_Get()->TheSurface());
+						ok = bs && bs->DDS() && CTP2_SDL_SaveBMP(bs->DDS(), bgPath);
+					}
+					if (ok && bgPath[0] && tiledmap_Get()) {
+						// Sibling dump: the tile renderer's own surface, to
+						// tell "tiles never painted" from "mix copy broken".
+						char mixPath[1040];
+						snprintf(mixPath, sizeof(mixPath), "%s.mix.bmp", bgPath);
+						aui_SDLSurface *ms = static_cast<aui_SDLSurface *>(
+							tiledmap_Get()->GetSurface());
+						if (ms && ms->DDS())
+							CTP2_SDL_SaveBMP(ms->DDS(), mixPath);
+					}
+				}
+				if (ok) {
+					// Diagnose world-layer routing: BltToSecondary routes a
+					// blit to the world layer only when its source surface
+					// IS the world-window key. Report whether the key
+					// resolves to the background window's live surface.
+					aui_Surface *key = ui->WorldSurfaceKey();
+					aui_Surface *live = background_Get()
+					                  ? background_Get()->TheSurface() : nullptr;
+					char detail[64];
+					snprintf(detail, sizeof(detail), "key_null=%d eq=%d",
+					         key == nullptr ? 1 : 0, key == live ? 1 : 0);
+					smoketest_send_response("ok", cmd, detail);
+				} else {
+					smoketest_send_response("error", cmd, "save_failed");
+				}
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
 			}
 			else if (strncmp(cmd, "render_map ", 11) == 0) {
 				// render_map <path> [zoom]
@@ -3348,7 +3810,13 @@ sint32 CivApp::Process()
 		}
 	}
 
-    return 0;
+	return 0;
+}
+
+sint32 CivApp::ProcessRenderTool()
+{
+	uint32 used_milliseconds = 0;
+	return ProcessUI(0, used_milliseconds);
 }
 
 sint32 CivApp::StartGame()
@@ -3454,8 +3922,9 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 	FILE * fin = fopen(name, "r");
 	if (fin == nullptr) {
 		civapp_log->error("LoadSavedGame: could not open '{}'", name);
+		ProgressWindow::EndProgress(g_theProgressWindow);
 		c3errors_ErrorDialog("Load save game", "Could not open %s", name);
-		return 0;
+		return 1;
 	}
 	fclose(fin);
 	civapp_log->info("LoadSavedGame: file '{}' exists and is readable", name);
@@ -3488,7 +3957,15 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 
 	// Actor recreation for JSON-loaded units happens inside LoadJson
 	// (json_save.cpp), shared with the headless and test-API load paths.
-	GameFile::RestoreGame(name);
+	if (!GameFile::RestoreGame(name)) {
+		civapp_log->error("LoadSavedGame: restoration failed for '{}'", name);
+		ProgressWindow::EndProgress(g_theProgressWindow);
+		// Restore may have partially populated the replacement game. Dispose
+		// of it before returning to the menu; it must never become playable.
+		EndGame();
+		c3errors_ErrorDialog("Load save game", "Could not restore %s", name);
+		return 1;
+	}
 
 	ProgressTo( 1290 );
 
@@ -3498,7 +3975,14 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 
 	if (!turn_Get()->IsHotSeat())
 	{
-		selitem_Get()->NextUnmovedUnit(TRUE, TRUE);
+        // InitializeGame queued view work before JSON restored the world.
+        // Finish that work, then establish a selection in the restored session.
+        director_Get()->CatchUp();
+        selitem_Get()->SelectFirstUnit();
+        tiledmap_Get()->CopyVision();
+        if (radar_map_Get()) radar_map_Get()->CenterMap(selitem_Get()->GetCurSelectPos());
+        tiledmap_Get()->Refresh();
+        tiledmap_Get()->InvalidateMix();
 	}
 
 	ProgressWindow::EndProgress( g_theProgressWindow );
@@ -3590,12 +4074,16 @@ sint32 CivApp::QuitToSPShell()
 
 sint32 CivApp::QuitToLobby()
 {
+#if !CTP2_ENABLE_NETWORKING
+	return QuitToSPShell();
+#else
 	if (m_gameLoaded) {
 		CleanupGame(false);
 		StartMessageSystem();
 	}
 
 	return NetShell::Enter( k_NS_FLAGS_RETURN );
+#endif
 }
 
 void CivApp::QuitGame()

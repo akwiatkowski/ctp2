@@ -1,11 +1,11 @@
 # Modern Asset Pipeline — Design
 
-Status: **design / spike** (M8 in `REFACTORING_PLAN.md`). The read-only
-decoders exist (`tools/assets/spr_inspect.py`, `tools/assets/spr_export.py`),
-and `spr_export.py --atlas --modern-assets` can walk `.SPR` files, pack decoded
-v0/v1 unit frames into one PNG atlas plus manifest rects, and write them under
-`~/.ctp2/assets/<fingerprint>/`. First-run conversion and engine integration
-are not built yet.
+Status: **implemented** (M8/P12 in `REFACTORING_PLAN.md`). Run
+`mise exec -- python3 tools/assets/install_ctp2_home.py <ctp2_data>` to copy the
+complete installation into `$CTP2_HOME` (default `~/.ctp2`) and generate sprite
+atlases. The engine loads valid modern sprites by default and falls back to the
+original data for missing/invalid atlases and for asset types without a
+converter. Set `CTP2_MODERN_SPRITES=0` to force legacy sprites.
 
 ## Goal
 
@@ -51,12 +51,11 @@ Consequences the design must honor:
 ## Output location
 
 ```
-~/.ctp2/assets/<source-fingerprint>/
+$CTP2_HOME/assets/<source-fingerprint>/
 ```
 
-- User-home, persistent (not a disposable cache). `~/.ctp2/` per the owner's
-  preference; a platform-specific path (XDG / `~/Library/Application Support`)
-  can be adopted later if desired.
+- User-home, persistent (not a disposable cache). `$CTP2_HOME` defaults to
+  `~/.ctp2`; tests and alternate installations can override it.
 - `<source-fingerprint>` is a hash of the source data so that pointing the
   converter at a different or updated data set produces a distinct,
   independently valid output tree rather than silently mixing versions. The
@@ -89,21 +88,22 @@ Offline tool, extending the existing read-only Python decoders
 (`spr_inspect.py` + `spr_export.py`), run via `mise`. It:
 
 1. Walks the original data set (sprites first; tiles/other assets later).
-2. Decodes each asset (implemented for v0/v1 unit sprites; v2 LZW1 normal-frame
-   decode is wired and synthetically tested, but still needs real-asset parity).
+2. Decodes unit, city, good, and effect sprites, including the real v2/LZW1
+   asset (`GG023.SPR`).
 3. Packs frames into atlases and writes the atlas + manifest. The current
    `--atlas --modern-assets` path accepts one `.SPR` file or a directory tree and
-   writes output under `~/.ctp2/assets/<source-fingerprint>/`.
+   writes output under `$CTP2_HOME/assets/<source-fingerprint>/` and updates
+   the stable `assets/current` pointer.
 4. Validates atlas manifests with `--validate-manifest <json>` and the engine's
-   `ModernSpriteManifest` parser before a future loader trusts them.
+   `ModernSpriteManifest` parser before the loader trusts them.
 
 Keeping the converter offline (rather than embedded in the engine) keeps all
-format knowledge in one place and makes it fast to iterate. A future "run it
-automatically on first launch" step can shell out to this tool.
+format knowledge in one place. The installer invokes it explicitly; game
+startup never mutates or regenerates assets.
 
 ## Engine fallback rule
 
-The engine's asset loaders gain a modern-first path:
+The engine's asset loaders use a modern-first path:
 
 > When a valid generated modern asset exists for the requested item (correct
 > `<source-fingerprint>`, manifest present and self-consistent), load it.
@@ -113,9 +113,9 @@ This keeps original-data and mod compatibility intact: nothing breaks if the
 modern assets are absent, partial, or invalidated — the game still runs from the
 canonical originals.
 
-## Open items before implementation
+## Remaining extensions
 
-- Real-asset v2 (LZW1) sprite pixel parity.
-- Non-unit asset types (tiles `.TIF`, cities, goods, effects, sounds).
-- First-run auto-conversion flow.
-- Whether/when to auto-invoke the converter on first launch.
+- Modern converters/loaders for tiles, pictures, audio, and video. Until then,
+  these load verbatim from `$CTP2_HOME/original_data`.
+- Optional full engine-versus-converter byte comparison for the single v2
+  sprite; both implementations already pass the same algorithm vectors.

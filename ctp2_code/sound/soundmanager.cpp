@@ -88,8 +88,6 @@ void SoundManager::Cleanup()
 
 SoundManager::SoundManager()
 :
-    m_sfxSounds                 (nullptr),
-    m_voiceSounds               (nullptr),
     m_soundWalker               (nullptr),
     m_sfxVolume                 (SLIDER_FULL),
     m_musicVolume               (SLIDER_FULL),
@@ -120,8 +118,6 @@ SoundManager::SoundManager()
     m_SDLInitFlags |= SDL_INIT_NOPARACHUTE;
 #endif
 
-	m_sfxSounds     = new PointerList<CivSound>;
-	m_voiceSounds   = new PointerList<CivSound>;
 	m_soundWalker   = new PointerList<CivSound>::Walker;
 
 	InitSoundDriver();
@@ -132,19 +128,14 @@ SoundManager::~SoundManager()
     DumpAllSounds();
     CleanupSoundDriver();
 
-    delete m_sfxSounds;
-    delete m_voiceSounds;
     delete m_soundWalker;
 }
 
 void SoundManager::DumpAllSounds()
 {
-	if (m_sfxSounds) {
-		m_sfxSounds->DeleteAll();
-	}
-	if (m_voiceSounds) {
-		m_voiceSounds->DeleteAll();
-	}
+	// DeleteAll frees the CivSounds; the lists free their own nodes.
+	m_sfxSounds.DeleteAll();
+	m_voiceSounds.DeleteAll();
 }
 
 void SoundManager::InitSoundDriver()
@@ -215,8 +206,8 @@ void SoundManager::Process(const uint32 &target_milliseconds,
         return;
     }
 
-	if (m_sfxSounds->GetCount() > 0) {
-		m_soundWalker->SetList(m_sfxSounds);
+	if (m_sfxSounds.GetCount() > 0) {
+		m_soundWalker->SetList(&m_sfxSounds);
 		while (m_soundWalker->IsValid()) {
 			sound = m_soundWalker->GetObj();
 			Assert(sound);
@@ -245,9 +236,9 @@ void SoundManager::Process(const uint32 &target_milliseconds,
 		}
 	}
 
-	if (m_voiceSounds->GetCount() > 0) {
+	if (m_voiceSounds.GetCount() > 0) {
 
-		m_soundWalker->SetList(m_voiceSounds);
+		m_soundWalker->SetList(&m_voiceSounds);
 		while (m_soundWalker->IsValid()) {
 			sound = m_soundWalker->GetObj();
 			Assert(sound);
@@ -327,19 +318,19 @@ SoundManager::AddSound(const SOUNDTYPE &type,
 
 	case SOUNDTYPE_SFX:
 		sound->SetVolume(m_sfxVolume);
-		found = FindSoundinList(m_sfxSounds, soundID);
+		found = FindSoundinList(&m_sfxSounds, soundID);
 		if (!found)
 		{
-			m_sfxSounds->AddTail(sound);
+			m_sfxSounds.AddTail(sound);
 		}
 		break;
 
 	case SOUNDTYPE_VOICE:
 		sound->SetVolume(m_voiceVolume);
-		found = FindSoundinList(m_voiceSounds, soundID);
+		found = FindSoundinList(&m_voiceSounds, soundID);
 		if (!found)
 		{
-			m_voiceSounds->AddTail(sound);
+			m_voiceSounds.AddTail(sound);
 		}
 		break;
 	}
@@ -388,12 +379,12 @@ SoundManager::AddLoopingSound(const SOUNDTYPE &type,
 
 	case SOUNDTYPE_SFX:
 		sound->SetVolume(m_sfxVolume);
-		m_sfxSounds->AddTail(sound);
+		m_sfxSounds.AddTail(sound);
 		break;
 
 	case SOUNDTYPE_VOICE:
 		sound->SetVolume(m_voiceVolume);
-		m_voiceSounds->AddTail(sound);
+		m_voiceSounds.AddTail(sound);
 		break;
 	}
 
@@ -434,10 +425,10 @@ SoundManager::TerminateAllLoopingSounds(const SOUNDTYPE &type)
 
 	switch (type) {
 	case SOUNDTYPE_SFX:
-			node = m_sfxSounds->GetHeadNode();
+			node = m_sfxSounds.GetHeadNode();
 		break;
 	case SOUNDTYPE_VOICE:
-			node = m_voiceSounds->GetHeadNode();
+			node = m_voiceSounds.GetHeadNode();
 		break;
 	}
 
@@ -467,10 +458,10 @@ SoundManager::TerminateSounds(const SOUNDTYPE &type)
 
 	switch (type) {
 	case SOUNDTYPE_SFX:
-			node = m_sfxSounds->GetHeadNode();
+			node = m_sfxSounds.GetHeadNode();
 		break;
 	case SOUNDTYPE_VOICE:
-			node = m_voiceSounds->GetHeadNode();
+			node = m_voiceSounds.GetHeadNode();
 		break;
 	}
 
@@ -513,7 +504,7 @@ SoundManager::SetVolume(const SOUNDTYPE &type, const uint32 &volume)
 	case SOUNDTYPE_SFX:
 		m_sfxVolume = volume;
 
-		m_soundWalker->SetList(m_sfxSounds);
+		m_soundWalker->SetList(&m_sfxSounds);
 		while (m_soundWalker->IsValid()) {
 			sound = m_soundWalker->GetObj();
 			sound->SetVolume(volume);
@@ -523,7 +514,7 @@ SoundManager::SetVolume(const SOUNDTYPE &type, const uint32 &volume)
 	case SOUNDTYPE_VOICE:
 		m_voiceVolume = volume;
 
-		m_soundWalker->SetList(m_voiceSounds);
+		m_soundWalker->SetList(&m_voiceSounds);
 		while (m_soundWalker->IsValid()) {
 			sound = m_soundWalker->GetObj();
 			sound->SetVolume(volume);
@@ -545,7 +536,7 @@ SoundManager::SetMasterVolume(const uint32 &volume)
 
 	CivSound *sound;
 
-	m_soundWalker->SetList(m_sfxSounds);
+	m_soundWalker->SetList(&m_sfxSounds);
 	while (m_soundWalker->IsValid()) {
 		sound = m_soundWalker->GetObj();
 		sound->SetVolume(volume);
@@ -553,7 +544,7 @@ SoundManager::SetMasterVolume(const uint32 &volume)
 	}
 	m_sfxVolume = volume;
 
-	m_soundWalker->SetList(m_voiceSounds);
+	m_soundWalker->SetList(&m_voiceSounds);
 	while (m_soundWalker->IsValid()) {
 		sound = m_soundWalker->GetObj();
 		sound->SetVolume(volume);
@@ -581,10 +572,10 @@ CivSound
 {
 	switch (type) {
 	case SOUNDTYPE_SFX:
-		m_soundWalker->SetList(m_sfxSounds);
+		m_soundWalker->SetList(&m_sfxSounds);
 		break;
 	case SOUNDTYPE_VOICE:
-		m_soundWalker->SetList(m_voiceSounds);
+		m_soundWalker->SetList(&m_voiceSounds);
 		break;
 	}
 
@@ -605,10 +596,10 @@ CivSound
 {
 	switch (type) {
 	case SOUNDTYPE_SFX:
-		m_soundWalker->SetList(m_sfxSounds);
+		m_soundWalker->SetList(&m_sfxSounds);
 		break;
 	case SOUNDTYPE_VOICE:
-		m_soundWalker->SetList(m_voiceSounds);
+		m_soundWalker->SetList(&m_voiceSounds);
 		break;
 	}
 
@@ -698,11 +689,11 @@ SoundManager::SetPosition(const SOUNDTYPE &type,
 	switch (type)
     {
 	case SOUNDTYPE_SFX:
-		node    = m_sfxSounds->GetHeadNode();
+		node    = m_sfxSounds.GetHeadNode();
 		volume  = m_sfxVolume;
 		break;
 	case SOUNDTYPE_VOICE:
-		node    = m_voiceSounds->GetHeadNode();
+		node    = m_voiceSounds.GetHeadNode();
 		volume  = m_voiceVolume;
 		break;
 	}

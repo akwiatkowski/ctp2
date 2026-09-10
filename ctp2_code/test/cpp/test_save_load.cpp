@@ -7,52 +7,37 @@
 //   2. The save file's version stored in the magic matches what
 //      gamefile_CurrentVersion() returns.
 //   3. Round-trip preserves *structure* (player count, leader names, alive
-//      set, city positions for cities seen in both runs).
+//      set). City positions are checked immediately after load in
+//      test_city_visibility.cpp; later AI turns can found different cities
+//      with the same name.
 //
 // What the round-trip tests DO NOT assert:
 //   AI-decision determinism after load.  Player score / gold / num_cities and
 //   post-save city sets are allowed to drift between a continuous run and a
-//   save+resume run.  The engine does not currently round-trip enough state
-//   to make load deterministic, and the planned save format rework will use
-//   a different representation than raw archive serialization.  See
-//   BUG_HUNT_REPORT.md ("Save/load AI determinism").
+//   save+resume run. Scheduler goals survive between turns but are absent
+//   from JSON saves. Seed 42 first differs at round 39: a newly built settler
+//   moves using a retained goal in the continuous run and entrenches after
+//   loading. See BUG_HUNT_REPORT.md (SAVE_LOAD_AI_DETERMINISM).
 //   These drifts are reported via WARN so they remain visible without
 //   failing CI.
 
 #include "ctp/c3.h"
 #include "doctest.h"
+#include "headless_test_config.h"
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #include <string>
 #include <vector>
 
-static const char *HEADLESS_CANDIDATES[] = {
-    "./build/ctp2_headless",
-    "./build-sanitized/ctp2_headless",
-    "./ctp2_headless",
-    nullptr,
-};
-
-static const char *find_headless_binary()
-{
-    for (const char **p = HEADLESS_CANDIDATES; *p; ++p) {
-        if (std::FILE *f = std::fopen(*p, "r")) {
-            std::fclose(f);
-            return *p;
-        }
-    }
-    return nullptr;
-}
-
 static std::string run_headless(const char *args)
 {
-    const char *bin = find_headless_binary();
-    if (!bin) {
-        return "[ERROR] ctp2_headless binary not found";
-    }
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     char cmd[1024];
     std::snprintf(cmd, sizeof(cmd), "%s %s 2>&1", bin, args);
@@ -68,7 +53,7 @@ static std::string run_headless(const char *args)
 
     int status = pclose(pipe);
     std::string result = "[EXIT_CODE] ";
-    result += std::to_string(WEXITSTATUS(status));
+    result += std::to_string(WIFEXITED(status) ? WEXITSTATUS(status) : -1);
     result += "\n";
     result += output;
     return result;
@@ -76,11 +61,7 @@ static std::string run_headless(const char *args)
 
 static int run_headless_capture(const char *args, std::string *captured_stderr)
 {
-    const char *bin = find_headless_binary();
-    if (!bin) {
-        if (captured_stderr) *captured_stderr = "[ERROR] ctp2_headless binary not found";
-        return -1;
-    }
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     char cmd[1024];
     std::snprintf(cmd, sizeof(cmd), "%s %s 2>&1", bin, args);
@@ -96,7 +77,7 @@ static int run_headless_capture(const char *args, std::string *captured_stderr)
 
     int status = pclose(pipe);
     if (captured_stderr) *captured_stderr = out;
-    return WEXITSTATUS(status);
+    return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
 }
 
 static bool file_exists_and_nonempty(const char *path)
@@ -163,6 +144,7 @@ struct Metrics {
 
 static bool parse_metrics(const char *path, Metrics &out)
 {
+    out = {};
     FILE *fp = std::fopen(path, "r");
     if (!fp) return false;
 
@@ -185,24 +167,49 @@ static bool parse_metrics(const char *path, Metrics &out)
             int got = std::sscanf(line, "%d,%255[^,],%15[^,],%d,%d,%d",
                                   &r.idx, leader, dead_str,
                                   &r.score, &r.gold, &r.num_cities);
-            if (got == 6) {
-                r.leader = leader;
-                r.dead = (std::strcmp(dead_str, "yes") == 0);
-                out.players.push_back(r);
-            }
+            if (got != 6) { std::fclose(fp); return false; }
+            r.leader = leader;
+            r.dead = (std::strcmp(dead_str, "yes") == 0);
+            out.players.push_back(r);
         } else if (section == SECTION_CITIES) {
             CityRow c;
             char name[256] = {0};
             int got = std::sscanf(line, "%d,%255[^,],%d,%d,%d",
                                   &c.player_idx, name, &c.x, &c.y, &c.population);
-            if (got == 5) {
-                c.name = name;
-                out.cities.push_back(c);
-            }
+            if (got != 5) { std::fclose(fp); return false; }
+            c.name = name;
+            out.cities.push_back(c);
         }
     }
     std::fclose(fp);
-    return true;
+    size_t expected_cities = 0;
+    for (auto const &player : out.players) {
+        if (player.num_cities < 0) return false;
+        expected_cities += player.num_cities;
+    }
+    return !out.players.empty() && section == SECTION_CITIES
+        && out.cities.size() == expected_cities;
+}
+
+TEST_CASE("Save-load metrics reject empty and truncated output")
+{
+    char path[] = "/tmp/ctp2-metrics-XXXXXX";
+    int descriptor = mkstemp(path);
+    REQUIRE(descriptor >= 0);
+    close(descriptor);
+    Metrics metrics;
+    for (const char *contents : {"", "# PLAYERS\n# CITIES\n",
+            "# PLAYERS\n0,Caesar,no,0\n",
+            "# PLAYERS\n0,Caesar,no,0,10,1\n# CITIES\n",
+            "# PLAYERS\n0,Caesar,no,0,10,1\n# CITIES\n0,Rome,2\n"}) {
+        std::ofstream(path) << contents;
+        CHECK_FALSE(parse_metrics(path, metrics));
+    }
+    std::ofstream(path) << "# PLAYERS\n0,Caesar,no,0,10,1\n# CITIES\n0,Rome,2,3,1\n";
+    REQUIRE(parse_metrics(path, metrics));
+    CHECK(metrics.players.size() == 1);
+    CHECK(metrics.cities.size() == 1);
+    std::remove(path);
 }
 
 static bool files_are_byte_identical(const char *a, const char *b)
@@ -256,20 +263,6 @@ static void compare_metrics_soft(const Metrics &cont, const Metrics &loaded,
                     << ",gold=" << loaded.players[i].gold
                     << ",cities=" << loaded.players[i].num_cities
                     << "} — known engine limitation, see BUG_HUNT_REPORT.md");
-        }
-    }
-
-    // Cities that appear in BOTH runs must agree on position (a city that
-    // existed before the save should not teleport on load).
-    for (const auto &cc : cont.cities) {
-        for (const auto &lc : loaded.cities) {
-            if (cc.name == lc.name && cc.player_idx == lc.player_idx) {
-                INFO("shared city " << cc.name);
-                CHECK(cc.x == lc.x);
-                CHECK(cc.y == lc.y);
-                // population is allowed to drift (one extra growth turn).
-                break;
-            }
         }
     }
 
@@ -378,23 +371,8 @@ TEST_CASE("Save-load round-trip: 10t save + 10t resume = 20t continuous")
         &load_out);
     CAPTURE(load_out);
 
-    if (load_rc != 0) {
-        INFO("Load path exited with code " << load_rc
-             << "; this is a known issue (UnitPool::Serialize TestMagic failure).");
-        WARN("Load round-trip failed; skipping metric comparison.");
-        return;
-    }
-
-    if (!file_exists_and_nonempty(loaded_20)) {
-        INFO("Load path succeeded but produced no metrics CSV.");
-        WARN("Missing loaded metrics; skipping comparison.");
-        return;
-    }
-
-    if (files_are_byte_identical(cont_metrics, loaded_20)) {
-        CHECK(true);
-        return;
-    }
+    REQUIRE(load_rc == 0);
+    REQUIRE(file_exists_and_nonempty(loaded_20));
 
     Metrics cont_m;
     Metrics loaded_m;
@@ -402,10 +380,7 @@ TEST_CASE("Save-load round-trip: 10t save + 10t resume = 20t continuous")
     bool load_ok = parse_metrics(loaded_20, loaded_m);
 
     REQUIRE(cont_ok);
-    if (!load_ok) {
-        WARN("Could not parse loaded metrics; skipping comparison.");
-        return;
-    }
+    REQUIRE(load_ok);
 
     compare_metrics_soft(cont_m, loaded_m, "10t+10t round-trip");
 }
@@ -448,23 +423,8 @@ TEST_CASE("Save-load round-trip: 25t save + 25t resume = 50t continuous")
         &load_out);
     CAPTURE(load_out);
 
-    if (load_rc != 0) {
-        INFO("Load path exited with code " << load_rc
-             << "; this is a known issue (UnitPool::Serialize TestMagic failure).");
-        WARN("Load round-trip failed; skipping metric comparison.");
-        return;
-    }
-
-    if (!file_exists_and_nonempty(loaded_50)) {
-        INFO("Load path succeeded but produced no metrics CSV.");
-        WARN("Missing loaded metrics; skipping comparison.");
-        return;
-    }
-
-    if (files_are_byte_identical(cont_metrics, loaded_50)) {
-        CHECK(true);
-        return;
-    }
+    REQUIRE(load_rc == 0);
+    REQUIRE(file_exists_and_nonempty(loaded_50));
 
     Metrics cont_m;
     Metrics loaded_m;
@@ -472,10 +432,7 @@ TEST_CASE("Save-load round-trip: 25t save + 25t resume = 50t continuous")
     bool load_ok = parse_metrics(loaded_50, loaded_m);
 
     REQUIRE(cont_ok);
-    if (!load_ok) {
-        WARN("Could not parse loaded metrics; skipping comparison.");
-        return;
-    }
+    REQUIRE(load_ok);
 
     compare_metrics_soft(cont_m, loaded_m, "25t+25t round-trip");
 }
@@ -514,27 +471,12 @@ TEST_CASE("Save-load round-trip with 5 players")
     // Run C: load and continue 10 more turns
     std::string load_out;
     int load_rc = run_headless_capture(
-        "--load-game /tmp/midgame-5p.sav --turns 10 --export-metrics /tmp/loaded-5p.csv",
+        "--load-game /tmp/midgame-5p.sav --turns 10 --players 5 --export-metrics /tmp/loaded-5p.csv",
         &load_out);
     CAPTURE(load_out);
 
-    if (load_rc != 0) {
-        INFO("Load path exited with code " << load_rc
-             << "; this is a known issue (UnitPool::Serialize TestMagic failure).");
-        WARN("Load round-trip failed; skipping metric comparison.");
-        return;
-    }
-
-    if (!file_exists_and_nonempty(loaded_5p)) {
-        INFO("Load path succeeded but produced no metrics CSV.");
-        WARN("Missing loaded metrics; skipping comparison.");
-        return;
-    }
-
-    if (files_are_byte_identical(cont_metrics, loaded_5p)) {
-        CHECK(true);
-        return;
-    }
+    REQUIRE(load_rc == 0);
+    REQUIRE(file_exists_and_nonempty(loaded_5p));
 
     Metrics cont_m;
     Metrics loaded_m;
@@ -542,10 +484,7 @@ TEST_CASE("Save-load round-trip with 5 players")
     bool load_ok = parse_metrics(loaded_5p, loaded_m);
 
     REQUIRE(cont_ok);
-    if (!load_ok) {
-        WARN("Could not parse loaded metrics; skipping comparison.");
-        return;
-    }
+    REQUIRE(load_ok);
 
     compare_metrics_soft(cont_m, loaded_m, "5-player 10t+10t round-trip");
 }
@@ -592,20 +531,13 @@ TEST_CASE("Save-load determinism across two different seeds")
             "--load-game /tmp/seed42.sav --turns 10 --export-metrics /tmp/seed42-load.csv",
             &out);
         CAPTURE(out);
-        if (rc != 0) {
-            WARN("Seed 42 load round-trip failed; skipping within-seed comparison.");
-        } else if (!file_exists_and_nonempty(seed42_load)) {
-            WARN("Seed 42 load produced no metrics; skipping comparison.");
-        } else {
-            Metrics cont_m;
-            Metrics load_m;
-            bool cok = parse_metrics(seed42_cont, cont_m);
-            bool lok = parse_metrics(seed42_load, load_m);
-            REQUIRE(cok);
-            if (lok) {
-                compare_metrics_soft(cont_m, load_m, "seed 42 round-trip");
-            }
-        }
+        REQUIRE(rc == 0);
+        REQUIRE(file_exists_and_nonempty(seed42_load));
+        Metrics cont_m;
+        Metrics load_m;
+        REQUIRE(parse_metrics(seed42_cont, cont_m));
+        REQUIRE(parse_metrics(seed42_load, load_m));
+        compare_metrics_soft(cont_m, load_m, "seed 42 round-trip");
     }
 
     // Seed 99 round-trip
@@ -633,20 +565,13 @@ TEST_CASE("Save-load determinism across two different seeds")
             "--load-game /tmp/seed99.sav --turns 10 --export-metrics /tmp/seed99-load.csv",
             &out);
         CAPTURE(out);
-        if (rc != 0) {
-            WARN("Seed 99 load round-trip failed; skipping within-seed comparison.");
-        } else if (!file_exists_and_nonempty(seed99_load)) {
-            WARN("Seed 99 load produced no metrics; skipping comparison.");
-        } else {
-            Metrics cont_m;
-            Metrics load_m;
-            bool cok = parse_metrics(seed99_cont, cont_m);
-            bool lok = parse_metrics(seed99_load, load_m);
-            REQUIRE(cok);
-            if (lok) {
-                compare_metrics_soft(cont_m, load_m, "seed 99 round-trip");
-            }
-        }
+        REQUIRE(rc == 0);
+        REQUIRE(file_exists_and_nonempty(seed99_load));
+        Metrics cont_m;
+        Metrics load_m;
+        REQUIRE(parse_metrics(seed99_cont, cont_m));
+        REQUIRE(parse_metrics(seed99_load, load_m));
+        compare_metrics_soft(cont_m, load_m, "seed 99 round-trip");
     }
 }
 

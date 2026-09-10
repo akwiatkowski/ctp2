@@ -44,8 +44,14 @@ class MapPoint;
 #include "os/include/ctp2_inttypes.h"      // sintN
 #include "ai/strategy/scheduler/scheduler_types.h"
 
+#include <nlohmann/json.hpp>
+class Scheduler;
+
 class Squad_Strength
 {
+    friend void to_json(nlohmann::json &j, Scheduler const &s);
+    friend void from_json(nlohmann::json const &j, Scheduler &s);
+
 public:
 	Squad_Strength(sint8 agent_count = 0)
 	: m_attack_str       (0.0),

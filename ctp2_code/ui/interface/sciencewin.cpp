@@ -1233,46 +1233,46 @@ ScienceWin::~ScienceWin( )
 	errcode = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( errcode == AUI_ERRCODE_OK );
 
-	RemoveControl( m_closeButton );
+	DeleteControl( m_closeButton );
 
-	RemoveControl( m_title );
+	DeleteControl( m_title );
 
-	RemoveControl( m_advanceList );
+	DeleteControl( m_advanceList );
 
-	RemoveControl( m_changeButton );
-	RemoveControl( m_researchBox );
-	RemoveControl( m_researchMeter );
-	RemoveControl( m_researchClock );
-	RemoveControl( m_turnsBox );
-	RemoveControl( m_costLabel );
-	RemoveControl( m_costBox );
-	RemoveControl( m_plusButton );
-	RemoveControl( m_minusButton );
-	RemoveControl( m_percentBox );
-	RemoveControl( m_sciLabel );
-	RemoveControl( m_sciBeaker );
-	RemoveControl( m_sciBox );
-	RemoveControl( m_libraryButton );
-	RemoveControl( m_tree );
-	RemoveControl( m_knownToLabel );
+	DeleteControl( m_changeButton );
+	DeleteControl( m_researchBox );
+	DeleteControl( m_researchMeter );
+	DeleteControl( m_researchClock );
+	DeleteControl( m_turnsBox );
+	DeleteControl( m_costLabel );
+	DeleteControl( m_costBox );
+	DeleteControl( m_plusButton );
+	DeleteControl( m_minusButton );
+	DeleteControl( m_percentBox );
+	DeleteControl( m_sciLabel );
+	DeleteControl( m_sciBeaker );
+	DeleteControl( m_sciBox );
+	DeleteControl( m_libraryButton );
+	DeleteControl( m_tree );
+	DeleteControl( m_knownToLabel );
 
 	for ( i= 0;i < k_EXTRA_PLAYERS;i++ ) {
-		RemoveControl( m_playerLabel[i] );
+		DeleteControl( m_playerLabel[i] );
 	}
-	RemoveControl( m_playerLabel );
+	DeleteControl( m_playerLabel );
 
 	for ( i = 0;i < k_EXTRA_PLAYERS;i++ ) {
-		RemoveControl( m_playerFlag[i] );
+		DeleteControl( m_playerFlag[i] );
 	}
-	RemoveControl( m_playerFlag );
+	DeleteControl( m_playerFlag );
 
-	RemoveControl( m_string );
+	DeleteControl( m_string );
 
 
 	if (m_window)
 		m_window->SetSurface(nullptr);
 
-	RemoveControl( m_window );
+	DeleteControl( m_window );
 }
 
 void ScienceWin::Display( )

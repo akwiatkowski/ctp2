@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
-# tier-b.sh — commit tier. Build ctp2 + ctp2_headless + ctp2_unit_tests,
-# run unit suite, parse, update state.
-#
-# Triggered by the daemon when HEAD moves. Always exits 0; failure is in
-# .ci/state.json + STATUS_RED.
+# See .ci/README.md for coverage. Failures update state and return nonzero.
 
 set -uo pipefail
 
@@ -30,10 +26,10 @@ mise exec -- python3 "$CI_ROOT/update_state.py" \
 
 START=$(date +%s)
 
-{
+(
     echo "=== tier-b $TS (HEAD $HEAD_SHA) ==="
-    echo "=== ninja -C build ctp2 ctp2_headless ctp2_unit_tests ==="
-    mise exec -- ninja -C build ctp2 ctp2_headless ctp2_unit_tests
+    echo "=== ninja -C build ctp2 ctp2_headless ctp2_unit_tests ctp2_fast_tests ==="
+    mise exec -- ninja -C build ctp2 ctp2_headless ctp2_unit_tests ctp2_fast_tests
     BUILD_RC=$?
     if [[ $BUILD_RC -ne 0 ]]; then
         echo "BUILD FAILED rc=$BUILD_RC"
@@ -41,53 +37,29 @@ START=$(date +%s)
     fi
 
     echo "=== ./build/ctp2_unit_tests ==="
-    ./build/ctp2_unit_tests -r=xml --no-version > "$XML_FILE" 2>>"$LOG_FILE"
+    mise exec -- ./build/ctp2_unit_tests -r=xml --no-version --test-suite-exclude=integration > "$XML_FILE" 2>>"$LOG_FILE"
     UNIT_RC=$?
 
-    # Scenario tier: campaign-save fixtures replayed through serve mode
-    # (~12s total). These caught a real reload bug on their first run;
-    # every promoted repro lands here automatically via the meson suite.
-    echo "=== meson test scenario + integration (headless) ==="
-    mise exec -- meson test -C build \
-        scenario-load-stress scenario-path-resume \
-        slice-headless expansion-headless
+    echo "=== current scenarios, fast tests, installation and save replays ==="
+    mise exec -- meson test -C build --no-rebuild --print-errorlogs \
+        --suite scenario --no-suite marathon || exit $?
+    mise exec -- meson test -C build --no-rebuild --print-errorlogs \
+        fast asset-installer client-harness ci-results cli-save-resume cli-save-replay cli-save-replay-long
     SCENARIO_RC=$?
     if [[ $UNIT_RC -ne 0 || $SCENARIO_RC -ne 0 ]]; then
         exit 1
     fi
-} >>"$LOG_FILE" 2>&1
+) >>"$LOG_FILE" 2>&1
 RUN_RC=$?
 
 END=$(date +%s)
 DURATION=$((END - START))
 
-if [[ $RUN_RC -ne 0 && ! -s "$XML_FILE" ]]; then
-    cat > "$RESULT_JSON" <<EOF
-{
-  "tests": { "passed": 0, "failed": 1, "skipped": 0 },
-  "failures": [
-    {
-      "test": "tier-b build/run",
-      "file": "$LOG_FILE",
-      "line": 0,
-      "type": "BUILD",
-      "original": "ninja ctp2 ctp2_headless ctp2_unit_tests + run",
-      "expanded": "exit code $RUN_RC",
-      "message": "tier-b failed before test run (build error or runner crash; see context_path)",
-      "info": []
-    }
-  ]
-}
-EOF
-    STATUS=red
+if mise exec -- python3 "$CI_ROOT/parse_doctest_xml.py" "$XML_FILE" \
+    --exit-code "$RUN_RC" > "$RESULT_JSON" 2>>"$LOG_FILE"; then
+    STATUS=green
 else
-    mise exec -- python3 "$CI_ROOT/parse_doctest_xml.py" "$XML_FILE" > "$RESULT_JSON" 2>>"$LOG_FILE"
-    FAILED=$(mise exec -- python3 -c "import json,sys; print(json.load(open('$RESULT_JSON'))['tests']['failed'])")
-    if [[ "$FAILED" == "0" ]]; then
-        STATUS=green
-    else
-        STATUS=red
-    fi
+    STATUS=red
 fi
 
 mise exec -- python3 "$CI_ROOT/update_state.py" \
@@ -109,4 +81,4 @@ ls -t "$LOG_DIR"/tier-b-*.log  2>/dev/null | tail -n +31 | xargs rm -f 2>/dev/nu
 ls -t "$LOG_DIR"/tier-b-*.xml  2>/dev/null | tail -n +31 | xargs rm -f 2>/dev/null
 ls -t "$LOG_DIR"/tier-b-*.json 2>/dev/null | tail -n +31 | xargs rm -f 2>/dev/null
 
-exit 0
+[[ "$STATUS" == green ]]

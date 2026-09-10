@@ -82,7 +82,6 @@ aui_UI::aui_UI
 )
 :
 	aui_Region                  (retval, 0, 0, 0, width, height),
-	m_dirtyRectInfoMemory       (nullptr),
 	m_dirtyRectInfoList         (nullptr),
 	m_hinst                     (hinst),
 	m_hwnd                      (hwnd),
@@ -217,10 +216,6 @@ AUI_ERRCODE aui_UI::InitCommon(
 	Assert( m_dirtyRectInfoList != nullptr );
 	if ( !m_dirtyRectInfoList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_dirtyRectInfoMemory = new tech_Memory<DirtyRectInfo>;
-	Assert( m_dirtyRectInfoMemory != nullptr );
-	if ( !m_dirtyRectInfoMemory ) return AUI_ERRCODE_MEMALLOCFAILED;
-
 	if ( ldlFilename )
 	{
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -288,7 +283,6 @@ aui_UI::~aui_UI()
 	delete m_destructiveActionList;
 	delete m_winList;
 	delete m_dirtyRectInfoList;
-	delete m_dirtyRectInfoMemory;
 
 	aui_Ldl::Remove(this);
 	delete m_ldl;
@@ -960,7 +954,7 @@ AUI_ERRCODE aui_UI::InsertDirtyRectInfo( RECT *rect, aui_Window *window )
 	if ( Rectangle_HasZeroArea( rect ) )
 		return AUI_ERRCODE_OK;
 
-	DirtyRectInfo *newDri = m_dirtyRectInfoMemory->New();
+	DirtyRectInfo *newDri = m_dirtyRectInfoMemory.New();
 	Assert( newDri != nullptr );
 	if ( !newDri ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -1019,7 +1013,7 @@ AUI_ERRCODE aui_UI::InsertDirtyRectInfo( RECT *rect, aui_Window *window )
 void aui_UI::FlushDirtyRectInfoList( )
 {
 	for ( sint32 i = m_dirtyRectInfoList->L(); i; i-- )
-		m_dirtyRectInfoMemory->Delete( m_dirtyRectInfoList->RemoveHead() );
+		m_dirtyRectInfoMemory.Delete( m_dirtyRectInfoList->RemoveHead() );
 }
 
 AUI_ERRCODE aui_UI::DrawOne(aui_Window *window)
@@ -1902,6 +1896,32 @@ AUI_ERRCODE aui_UI::TagMouseEvents( sint32 numEvents, aui_MouseEvent *events )
 	}
 
 	return AUI_ERRCODE_OK;
+}
+
+void aui_UI::EraseUiLayerRect( sint32 l, sint32 t, sint32 r, sint32 b )
+{
+	// Zero a rect of the 32-bit UI layer to fully transparent so the world
+	// layer shows through (the hole punch for world writes; see the header).
+	// Plain zeroing, not a ColorBlt: the blitters write opaque black for
+	// COLORREF 0, but the layer needs alpha 0.
+	if (!m_uiSurface) return;
+
+	l = std::max<sint32>(l, 0);
+	t = std::max<sint32>(t, 0);
+	r = std::min<sint32>(r, m_uiSurface->Width());
+	b = std::min<sint32>(b, m_uiSurface->Height());
+	if (l >= r || t >= b) return;
+
+	LPVOID buffer = nullptr;
+	if (m_uiSurface->Lock(nullptr, &buffer, 0) != AUI_ERRCODE_OK || !buffer)
+		return;
+	uint8 * const base = static_cast<uint8 *>(buffer);
+	sint32 const pitch = m_uiSurface->Pitch();
+	size_t const bytes = static_cast<size_t>(r - l) * 4;
+	for (sint32 y = t; y < b; ++y)
+		memset(base + static_cast<size_t>(y) * pitch
+		            + static_cast<size_t>(l) * 4, 0, bytes);
+	m_uiSurface->Unlock(buffer);
 }
 
 AUI_ERRCODE aui_UI::BltSecondaryToPrimary

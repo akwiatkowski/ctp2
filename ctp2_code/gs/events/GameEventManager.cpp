@@ -86,7 +86,6 @@ void gameEventManager_Cleanup()
 
 GameEventManager::GameEventManager()
 :
-	m_eventList         (new PointerList<GameEvent>),
 #if defined(_DEBUG)
 	m_eventHistory      (),
 #endif
@@ -108,11 +107,8 @@ GameEventManager::GameEventManager()
 
 GameEventManager::~GameEventManager()
 {
-	if (m_eventList)
-    {
-		m_eventList->DeleteAll();
-		delete m_eventList;
-	}
+	// DeleteAll frees the GameEvents; the list frees its own nodes.
+	m_eventList.DeleteAll();
 
 #ifdef _DEBUG
     for
@@ -206,16 +202,16 @@ GAME_EVENT_ERR GameEventManager::ArglistAddEvent(GAME_EVENT_INSERT insert,
 
 	switch(insert) {
 		case GEV_INSERT_Front:
-			m_eventList->AddHead(newEvent);
+			m_eventList.AddHead(newEvent);
 			break;
 		case GEV_INSERT_AfterCurrent:
 			if(m_processing)
-				m_eventList->InsertAt(m_eventList->GetHeadNode(), newEvent);
+				m_eventList.InsertAt(m_eventList.GetHeadNode(), newEvent);
 			else
-				m_eventList->AddHead(newEvent);
+				m_eventList.AddHead(newEvent);
 			break;
 		case GEV_INSERT_Tail:
-			m_eventList->AddTail(newEvent);
+			m_eventList.AddTail(newEvent);
 			break;
 		default:
 			return GEV_ERR_BadInsert;
@@ -241,7 +237,7 @@ GAME_EVENT_ERR GameEventManager::Process()
 	GAME_EVENT_ERR  err = GEV_ERR_OK;
 
     while ((GEV_ERR_OK == err)
-            && m_eventList->GetHead()
+            && m_eventList.GetHead()
             && !slicengine_Get()->AtBreak()
             && !m_needUserInput
             && !m_pauseCount
@@ -262,7 +258,7 @@ GAME_EVENT_ERR GameEventManager::Process()
 
 GAME_EVENT_ERR GameEventManager::ProcessHead()
 {
-	GameEvent *     event   = m_eventList->GetHead();
+	GameEvent *     event   = m_eventList.GetHead();
 
 	// Processing busy
 	m_processingEvent       = event->GetType();
@@ -283,8 +279,8 @@ GAME_EVENT_ERR GameEventManager::ProcessHead()
 
 	if (GEV_ERR_NeedUserInput != err)
     {
-		Assert(event == m_eventList->GetHead());
-		m_eventList->RemoveHead();
+		Assert(event == m_eventList.GetHead());
+		m_eventList.RemoveHead();
 		render_observer::DecrementPendingGameActions();
 
 #if defined(_DEBUG)
@@ -772,7 +768,7 @@ const char *GameEventManager::GetEventName(GAME_EVENT ev)
 
 bool GameEventManager::EventsPending() const
 {
-	return m_eventList->GetCount() > 0;
+	return m_eventList.GetCount() > 0;
 }
 
 void GameEventManager::GotUserInput()
@@ -793,6 +789,6 @@ void GameEventManager::Resume()
 
 void GameEventManager::NotifyResync()
 {
-	m_eventList->DeleteAll();
+	m_eventList.DeleteAll();
 	m_needUserInput = false;
 }

@@ -22,6 +22,8 @@
 
 #include "ctp/c3.h"
 #include "doctest.h"
+#include "headless_test_config.h"
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -32,31 +34,9 @@
 
 namespace {
 
-static const char *HEADLESS_CANDIDATES[] = {
-    "./build/ctp2_headless",
-    "./build-sanitized/ctp2_headless",
-    "./ctp2_headless",
-    nullptr,
-};
-
-const char *find_headless_binary()
-{
-    for (const char **p = HEADLESS_CANDIDATES; *p; ++p) {
-        if (std::FILE *f = std::fopen(*p, "r")) {
-            std::fclose(f);
-            return *p;
-        }
-    }
-    return nullptr;
-}
-
 int run_headless_capture(const char *args, std::string *captured)
 {
-    const char *bin = find_headless_binary();
-    if (!bin) {
-        if (captured) *captured = "[ERROR] ctp2_headless not found";
-        return -1;
-    }
+    const char *bin = CTP2_HEADLESS_COMMAND;
     char cmd[2048];
     std::snprintf(cmd, sizeof(cmd), "%s %s 2>&1", bin, args);
     FILE *pipe = popen(cmd, "r");
@@ -202,7 +182,7 @@ TEST_CASE("City visibility: save+load preserves visibility")
     // trip, not that load+run+vision-update works.
     std::string out2;
     rc = run_headless_capture(
-        "--load-game /tmp/ctp2_test_vis_save.json --turns 0 "
+        "--load-game /tmp/ctp2_test_vis_save.json --turns 0 --players 5 "
         "--export-metrics /tmp/ctp2_test_vis_after.csv",
         &out2);
     CAPTURE(out2);
@@ -211,20 +191,16 @@ TEST_CASE("City visibility: save+load preserves visibility")
     std::vector<CityRow> after_cities;
     REQUIRE(parse_cities(after, after_cities));
 
-    // Known limitation: full save/load round-trip does not currently
-    // restore every city — see test_save_load.cpp's comments on
-    // "AI-decision determinism after load" and the planned save-format
-    // rework.  If load yields 0 cities, skip the per-city assertion
-    // rather than failing on a pre-existing issue.
-    if (after_cities.empty()) {
-        WARN("save+load yielded 0 cities (known limitation, not the bug "
-             "this test is hunting). Skipping per-city visibility checks.");
-        return;
-    }
+    REQUIRE(after_cities.size() == before_cities.size());
 
     for (const auto &c : after_cities) {
         INFO("after-load player " << c.player_idx << " city '" << c.name
              << "' visible=" << (c.visible_owner ? "yes" : "no"));
+        auto saved = std::find_if(before_cities.begin(), before_cities.end(),
+            [&](CityRow const &city) { return city.player_idx == c.player_idx && city.name == c.name; });
+        REQUIRE(saved != before_cities.end());
+        CHECK(c.x == saved->x);
+        CHECK(c.y == saved->y);
         CHECK(c.visible_owner);
     }
 }
@@ -272,7 +248,7 @@ TEST_CASE("Save/load: cities are restored to their owner player after load")
 
     std::string out2;
     rc = run_headless_capture(
-        "--load-game /tmp/ctp2_test_saveload_cities.json --turns 0 "
+        "--load-game /tmp/ctp2_test_saveload_cities.json --turns 0 --players 5 "
         "--export-metrics /tmp/ctp2_test_saveload_after.csv",
         &out2);
     CAPTURE(out2);

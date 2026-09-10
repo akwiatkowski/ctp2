@@ -517,10 +517,10 @@ if (s_donkeys) {
 	delete s_turnButton;
 	s_turnButton = NULL;
 
-	RemoveControl( s_populationLabel );
-	RemoveControl( s_populationBox );
-	RemoveControl( s_yearString );
-	RemoveControl( s_yearBoxHolder );
+	DeleteControl( s_populationLabel );
+	DeleteControl( s_populationBox );
+	DeleteControl( s_yearString );
+	DeleteControl( s_yearBoxHolder );
 
 	CityWindow::Cleanup();
 

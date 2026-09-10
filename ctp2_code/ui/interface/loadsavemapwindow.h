@@ -39,6 +39,8 @@
 // Library dependencies
 //----------------------------------------------------------------------------
 
+#include <memory>
+
 // #include <>
 
 //----------------------------------------------------------------------------
@@ -146,11 +148,11 @@ public:
 
 	void BuildDefaultSaveMapName(MBCHAR *gameMapName, MBCHAR *name);
 
-	C3TextField* GetTextField() { return m_gameMapTextBox; }
+	C3TextField* GetTextField() { return m_gameMapTextBox.get(); }
 
 	c3_Button *GetDeleteButton( ) { return m_deleteButton; }
 	ctp2_Button *GetOkButton( ) { return Ok(); }
-	c3_Static *GetMapStatic( ) { return m_mapTabImage; }
+	c3_Static *GetMapStatic( ) { return m_mapTabImage.get(); }
 
 	c3_ListBox *GetListOne( ) const { return m_listOne; }
 	c3_ListBox *GetListTwo( ) const { return m_listTwo; }
@@ -160,7 +162,7 @@ private:
 	BOOL CreateSaveMapInfoIfNeeded( SaveMapInfo *&info );
 
 	uint32			 m_type;
-	aui_StringTable *m_nameString;
+	std::unique_ptr<aui_StringTable>	m_nameString;
 
 	GameMapInfo		*m_gameMapInfo;
 	SaveMapInfo		*m_saveMapInfo;
@@ -171,16 +173,16 @@ private:
 
 	PointerList<GameMapInfo> *m_fileList;
 
-	c3_Static		*m_titlePanel;
+	std::unique_ptr<c3_Static>	m_titlePanel;
 
-	c3_Static		*m_gameMapText;
-	C3TextField		*m_gameMapTextBox;
+	std::unique_ptr<c3_Static>	m_gameMapText;
+	std::unique_ptr<C3TextField>	m_gameMapTextBox;
 
-	c3_Static		*m_saveMapText;
-	C3TextField		*m_saveMapTextBox;
+	std::unique_ptr<c3_Static>	m_saveMapText;
+	std::unique_ptr<C3TextField>	m_saveMapTextBox;
 
-	c3_Static		*m_noteText;
-	C3TextField		*m_noteTextBox;
+	std::unique_ptr<c3_Static>	m_noteText;
+	std::unique_ptr<C3TextField>	m_noteTextBox;
 
 	c3_ListBox		*m_listOne;
 	c3_ListBox		*m_listTwo;
@@ -188,7 +190,7 @@ private:
 	aui_TabGroup	*m_tabGroup;
 
 	TextTab			*m_mapTab;
-	c3_Static		*m_mapTabImage;
+	std::unique_ptr<c3_Static>	m_mapTabImage;
 	aui_Image		*m_mapTabImageBackup;
 
 	c3_Button		*m_deleteButton;
@@ -208,8 +210,8 @@ public:
 	GameMapInfo	*GetGameMapInfo() const { return m_info; }
 
 private:
-	c3_Static	*m_itemIcon;
-	c3_Static	*m_itemText;
+	c3_Static *m_itemIcon;
+	c3_Static *m_itemText;
 	GameMapInfo	*m_info;
 
 };
@@ -225,8 +227,8 @@ public:
 	SaveMapInfo	*GetSaveMapInfo() const { return m_info; }
 
 private:
-	c3_Static	*m_itemIcon;
-	c3_Static	*m_itemText;
+	c3_Static *m_itemIcon;
+	c3_Static *m_itemText;
 	SaveMapInfo	*m_info;
 };
 

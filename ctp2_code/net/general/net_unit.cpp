@@ -407,7 +407,7 @@ void NetUnit::UnpacketizeUnit(uint8* buf, uint16& size, UnitData* unitData)
 	uint8 canHaveCargo = getbyte(ptr); ptr++;
 	if(canHaveCargo) {
 		if(!unitData->m_cargo_list) {
-			unitData->m_cargo_list = new UnitDynamicArray;
+			unitData->m_cargo_list.reset(new UnitDynamicArray);
 		}
 		uint8 transportedUnits = getbyte(ptr); ptr++;
 		unitData->m_cargo_list->Clear();

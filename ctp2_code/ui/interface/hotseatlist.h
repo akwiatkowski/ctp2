@@ -37,6 +37,8 @@
 class HotseatListItem;
 class HotseatList;
 
+#include <memory>
+
 #include "ui/aui_ctp2/c3_button.h"          // c3_Button
 #include "ui/aui_ctp2/c3_listbox.h"         // c3_ListBox
 #include "ui/aui_ctp2/c3_listitem.h"
@@ -101,9 +103,10 @@ public:
 	HotseatList( HotseatListCallback *callback = nullptr, MBCHAR *ldlBlock = nullptr );
 	~HotseatList() override;
 
-	c3_PopupWindow	*m_window;
+	// Owned here; the c3ui window list and the list box borrow them.
+	std::unique_ptr<c3_PopupWindow>	m_window;
 
-	c3_ListBox		*m_list;
+	std::unique_ptr<c3_ListBox>		m_list;
 	c3_Button		*m_ok;
 
 	HotseatListCallback *m_callback;

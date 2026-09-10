@@ -210,6 +210,7 @@ public:
 
     void FreeMap();
     void AllocateMap();
+    void RebuildPathing();
     void Reset(sint16 x, sint16 y, BOOL yWrap, BOOL xWrap);
 
     bool IsYwrap() const { return m_isYwrap != 0; }

@@ -377,15 +377,13 @@ public:
         }
     }
 
-    void OnMessageWindowDestroy(const Message& msg) override
+    void OnMessageWindowDestroy(const MessageData& data) override
     {
-        Message m = msg;
-        MessageData *data = m.AccessData();
-        if (data && data->GetMessageWindow()) {
-            messagewin_PrepareDestroyWindow(data->GetMessageWindow());
+        if (data.GetMessageWindow()) {
+            messagewin_PrepareDestroyWindow(data.GetMessageWindow());
         } else if (g_modalMessage &&
                    g_modalMessage->GetMessage() &&
-                   g_modalMessage->GetMessage()->m_id == m.m_id) {
+                   g_modalMessage->GetMessage()->m_id == data.m_id) {
             messagemodal_PrepareDestroyWindow();
         }
     }

@@ -1,6 +1,7 @@
 #ifndef __ALLINONEWINDOW_H__
 #define __ALLINONEWINDOW_H__
 
+#include <memory>
 #include "ui/netshell/ns_aiplayersetup.h"
 #include "ui/netshell/ns_window.h"
 #include "ui/aui_common/aui_action.h"
@@ -264,16 +265,16 @@ protected:
 	uint32 m_tickPlayer;
 	uint32 m_tickAIPlayer;
 
-	ns_String	*m_messageRequestDenied;
-	ns_String	*m_messageKicked;
-	ns_String	*m_messageGameSetup;
-	ns_String	*m_messageGameEnter;
-	ns_String	*m_messageGameHost;
-	ns_String	*m_messageGameCreate;
-	ns_String	*m_messageLaunched;
+	std::unique_ptr<ns_String>	m_messageRequestDenied;
+	std::unique_ptr<ns_String>	m_messageKicked;
+	std::unique_ptr<ns_String>	m_messageGameSetup;
+	std::unique_ptr<ns_String>	m_messageGameEnter;
+	std::unique_ptr<ns_String>	m_messageGameHost;
+	std::unique_ptr<ns_String>	m_messageGameCreate;
+	std::unique_ptr<ns_String>	m_messageLaunched;
 
-	aui_StringTable *m_playStyleValueStrings;
-	aui_StringTable *m_PPTStrings;
+	std::unique_ptr<aui_StringTable>	m_playStyleValueStrings;
+	std::unique_ptr<aui_StringTable>	m_PPTStrings;
 
 	bool m_shouldUpdateGame;
 	bool m_shouldUpdatePlayer;

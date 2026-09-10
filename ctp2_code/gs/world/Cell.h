@@ -185,8 +185,8 @@ public:
 	friend class NetCellList;
 	// JSON savegame bridges (json_save.cpp).  Phase C-1 covers the
 	// scalar fields only: the optional pointer-typed nested data
-	// (m_unit_army, m_objects, m_jabba) lands in Phase D/E once
-	// CellUnitList / DynamicArray<ID> / GoodyHut are JSON-serialisable.
+	// (m_unit_army, m_objects) is reconstructed separately. Ruins persist
+	// through GoodyHut's value/type JSON bridge.
 	friend void to_json(nlohmann::json &j, Cell const &c);
 	friend void from_json(nlohmann::json const &j, Cell &c);
 

@@ -48,16 +48,20 @@
 #include "gfx/spritesys/FacedSprite.h"
 #include "gfx/spritesys/Sprite.h"
 #include "gfx/spritesys/screenmanager.h"
+#include "ui/aui_common/aui_surface.h"       // aui_Surface::BitsPerPixel (modern draw)
 
 #include "gs/fileio/CivPaths.h"           // civpaths_Get()
 #include "ctp/ctp2_utils/c3files.h"
 
 #include "gfx/spritesys/SpriteFile.h"
 #include "gfx/spritesys/Anim.h"
+#include "gfx/spritesys/ModernSpriteAtlas.h"  // P11 B1 modern-first atlas path
+#include "ui/aui_sdl/aui_sdl.h"
 
 #include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 
 #include "gs/fileio/Token.h"
+#include "gs/utility/safety.h"          // safe_strcpy
 
 
 UnitSpriteGroup::UnitSpriteGroup(GROUPTYPE type)
@@ -88,8 +92,7 @@ void UnitSpriteGroup::DeallocateStorage()
 {
 	for (int i = UNITACTION_MOVE; i < UNITACTION_MAX; i++)
 	{
-		delete m_sprites[i];
-		m_sprites[i] = nullptr;
+		m_sprites[i].reset();
 	}
 }
 
@@ -104,8 +107,7 @@ void UnitSpriteGroup::DeallocateFullLoadAnims()
 {
 	for (int i = UNITACTION_MOVE; i < UNITACTION_MAX; i++)
 	{
-		delete m_anims[i];
-		m_anims[i] = nullptr;
+		m_anims[i].reset();
 	}
 }
 
@@ -152,6 +154,20 @@ void UnitSpriteGroup::Draw(UNITACTION action, sint32 frame, sint32 drawX, sint32
 		}
 	}
 
+	// Modern-first atlas draw on the INTERACTIVE main-map path (this Draw, unlike
+	// DrawDirect, is what UnitActor::Draw uses for the primary map). Composites
+	// from the atlas into the ScreenManager's already-locked surface; falls back
+	// to the legacy RLE draw below when the atlas lacks the frame or for a
+	// directional attack (a special multi-part legacy draw the atlas can't do).
+	// Gated by CTP2_MODERN_SPRITES via m_modernAtlas being non-null.
+	// outlineColor == 0 means "no outline"; the atlas draw doesn't render the
+	// legacy silhouette outline, so defer to legacy when one is requested.
+	if (m_modernAtlas && !directionalAttack && outlineColor == 0
+	    && DrawModernInteractive(action, frame, drawX, drawY, facing, scale, transparency, flags))
+	{
+		return;
+	}
+
 	if (m_sprites[action])
     {
     	if ((frame < 0) ||
@@ -174,6 +190,36 @@ void UnitSpriteGroup::Draw(UNITACTION action, sint32 frame, sint32 drawX, sint32
                 (drawX, drawY, facing, scale, transparency, outlineColor, flags);
 	    }
     }
+}
+
+// Modern atlas draw for the interactive path. Mirrors the faced geometry of the
+// DrawDirect hook (fold facings 5-7 onto their stored counterpart + right-edge
+// origin, scale the origin, Blit vs BlitScaled at zoom != 1) but composites into
+// the ScreenManager's ALREADY-LOCKED surface via the lock-free *Locked cores — a
+// nested Lock would stack over the ScreenManager's lock. Returns false (caller
+// falls back to legacy) when disabled, no surface, or the frame is absent.
+bool UnitSpriteGroup::DrawModernInteractive(UNITACTION action, sint32 frame,
+                                            sint32 drawX, sint32 drawY, sint32 facing,
+                                            double scale, uint16 transparency, uint16 flags)
+{
+	if (action < UNITACTION_MOVE || action > UNITACTION_WORK)
+		return false;
+
+	aui_Surface * surf = screenmanager_Get()->GetSurface();
+	uint8 *       base = screenmanager_Get()->GetSurfBase();
+	if (!m_modernAtlas || !surf || !base)
+		return false;
+
+	static char const * const kActionName[UNITACTION_MAX] =
+		{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };
+	POINT const hp = GetHotPoint(action, facing);
+	return ModernSpriteDrawFacedLocked(*m_modernAtlas, base,
+	                                   screenmanager_Get()->GetSurfPitch(),
+	                                   screenmanager_Get()->GetSurfWidth(),
+	                                   screenmanager_Get()->GetSurfHeight(),
+	                                   surf->BitsPerPixel() == 32,
+	                                   kActionName[action], frame, drawX, drawY,
+	                                   facing, hp.x, hp.y, scale, transparency, flags);
 }
 
 BOOL UnitSpriteGroup::HitTest(POINT mousePt, UNITACTION action, sint32 frame, sint32 drawX, sint32 drawY, sint32 facing,
@@ -221,6 +267,30 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 	if (action < UNITACTION_MOVE || action > UNITACTION_WORK)
 		return;
 
+	// Modern-first atlas draw (P11 B1): draw the frame from the atlas and skip
+	// the legacy RLE path. Falls through to legacy when the atlas lacks this
+	// frame/facing. The per-pixel draw flags (transparency/fog/desaturate) are
+	// applied by the atlas draw for parity; outline/feathering still fall to
+	// legacy.
+	//
+	// The atlas stores only facings 0..4; facings 5..7 reflect their stored
+	// counterpart (k_MAX_FACINGS - facing) drawn horizontally flipped, exactly
+	// like FacedSprite::Draw. The reversed draw origin measures the hot point
+	// from the frame's RIGHT edge, and everything scales with the zoom. At
+	// zoom != 1 the atlas is nearest-neighbour scaled (BlitScaled) — note the
+	// smallest zoom downscales the full frame rather than using the legacy
+	// precomputed miniframes (a minor, refinable fidelity difference).
+	if (m_modernAtlas && outlineColor == 0)   // outline requested -> legacy (atlas has no outline)
+	{
+		static char const * const kActionName[UNITACTION_MAX] =
+			{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };
+		POINT const hp = GetHotPoint(action, facing);
+		if (ModernSpriteDrawFaced(*m_modernAtlas, surf, kActionName[action], frame,
+		                          drawX, drawY, facing, hp.x, hp.y, scale,
+		                          transparency, flags))
+			return;
+	}
+
 
 
 
@@ -249,6 +319,75 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 	}
 }
 
+bool UnitSpriteGroup::AddGpuSpriteQuad(UNITACTION action, sint32 frame, sint32 drawX, sint32 drawY,
+						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags,
+						   BOOL specialDelayProcess, BOOL directionalAttack)
+{
+	if (action == UNITACTION_FAKE_DEATH)
+		action = UNITACTION_MOVE;
+	if (!m_modernAtlas || action < UNITACTION_MOVE || action > UNITACTION_WORK)
+		return false;
+	if (directionalAttack || specialDelayProcess || outlineColor != 0)
+		return false;
+	if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED | k_BIT_DRAWFLAGS_DESATURATED))
+		return false;
+	if (   (action == UNITACTION_IDLE && m_sprites[action] == nullptr)
+	    || (action == UNITACTION_ATTACK && m_sprites[action] == nullptr)
+	    || (action == UNITACTION_MOVE && m_sprites[UNITACTION_IDLE] == nullptr))
+	{
+		if (!m_sprites[UNITACTION_MOVE])
+			return false;
+		action = UNITACTION_MOVE;
+		frame = 0;
+	}
+
+	static char const * const kActionName[UNITACTION_MAX] =
+		{ "MOVE", "ATTACK", "IDLE", "VICTORY", "WORK" };
+
+	bool const reversed    = facing >= k_NUM_FACINGS;
+	bool const directional = m_modernAtlas->FacingCount(kActionName[action]) > 1;
+	int  const atlasFacing = directional ? (reversed ? (k_MAX_FACINGS - facing) : facing) : 0;
+	ModernSpriteRect const * r = m_modernAtlas->FindRect(kActionName[action], atlasFacing, frame);
+	if (!r)
+		return false;
+
+	bool const desaturate = !(flags & (k_BIT_DRAWFLAGS_TRANSPARENCY | k_BIT_DRAWFLAGS_FOGGED))
+	                   && (flags & k_BIT_DRAWFLAGS_DESATURATED);
+	SDL_Texture * texture = aui_SDL::EnsureSpriteAtlasTexture(m_modernAtlas.get(), desaturate);
+	if (!texture)
+		return false;
+
+	POINT const hp = GetHotPoint(action, facing);
+	int const destX = reversed ? (drawX - static_cast<int>((r->w - hp.x) * scale))
+	                         : (drawX - static_cast<int>(hp.x * scale));
+	int const destY = drawY - static_cast<int>(hp.y * scale);
+
+	aui_SDL::GpuSpriteQuad q;
+	q.texture = texture;
+	q.sx = r->x; q.sy = r->y; q.sw = r->w; q.sh = r->h;
+	q.dx = destX; q.dy = destY;
+	q.dw = static_cast<int>(r->w * scale);
+	q.dh = static_cast<int>(r->h * scale);
+	q.mirror = reversed;
+	q.alpha = (flags & k_BIT_DRAWFLAGS_TRANSPARENCY)
+		? static_cast<uint8>(transparency > 31 ? 255 : (transparency * 255) / 32)
+		: 255;
+	if (!(flags & k_BIT_DRAWFLAGS_TRANSPARENCY) && (flags & k_BIT_DRAWFLAGS_FOGGED))
+	{
+		q.red = q.green = q.blue = 128;
+	}
+	aui_SDL::AddSpriteQuad(q);
+	return true;
+}
+
+// Out-of-line so the unique_ptr<ModernSpriteAtlas> member is destroyed where
+// the type is complete.
+UnitSpriteGroup::~UnitSpriteGroup()
+{
+	if (m_modernAtlas)
+		aui_SDL::ReleaseSpriteAtlasTexture(m_modernAtlas.get());
+}
+
 void UnitSpriteGroup::LoadBasic(MBCHAR const * filename)
 {
 	auto file = std::make_unique<SpriteFile>(filename);
@@ -256,10 +395,11 @@ void UnitSpriteGroup::LoadBasic(MBCHAR const * filename)
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
 	{
-		file->ReadBasic(this);
+		auto result = file->ReadBasic(this);
 		file->CloseRead();
-		m_loadType = LOADTYPE_BASIC;
+		m_loadType = result == SPRITEFILEERR_OK ? LOADTYPE_BASIC : LOADTYPE_NONE;
 	}
+	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }
 
 
@@ -272,9 +412,9 @@ void UnitSpriteGroup::LoadIndexed(MBCHAR const * filename, GAME_ACTION index)
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
 	{
-		file->ReadIndexed(this, index);
+		auto result = file->ReadIndexed(this, index);
 		file->CloseRead();
-		m_loadType = LOADTYPE_FULL;
+		m_loadType = result == SPRITEFILEERR_OK ? LOADTYPE_FULL : LOADTYPE_NONE;
 	}
 }
 
@@ -286,10 +426,11 @@ void UnitSpriteGroup::LoadFull(MBCHAR const * filename)
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
 	{
-		file->ReadFull(this);
+		auto result = file->ReadFull(this);
 		file->CloseRead();
-		m_loadType = LOADTYPE_FULL;
+		m_loadType = result == SPRITEFILEERR_OK ? LOADTYPE_FULL : LOADTYPE_NONE;
 	}
+	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }
 
 void UnitSpriteGroup::Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode)
@@ -335,20 +476,22 @@ void UnitSpriteGroup::DrawText(sint32 x, sint32 y, MBCHAR const * s)
 
 
 bool
-UnitSpriteGroup::GetImageFileName(MBCHAR * name, char *format,...)
+UnitSpriteGroup::GetImageFileName(MBCHAR * name, size_t nameSize, char *format,...)
 {
    	va_list          v_args;
 	char			 fname[512];
 
     va_start(v_args, format);
-    vsnprintf(name, sizeof(name),format,v_args);
+    // nameSize is the caller's buffer capacity — sizeof(name) here would be
+    // the POINTER size (8) and truncate every generated filename.
+    vsnprintf(name, nameSize, format, v_args);
     va_end( v_args );
 
 	snprintf(fname, sizeof(fname),"%s.%s",name,"TGA");
 
 	if (c3files_PathIsValid(fname))
 	{
-		strcpy(name,fname);
+		safe_strcpy(name, fname, nameSize);
 		return true;
 	}
 
@@ -356,12 +499,16 @@ UnitSpriteGroup::GetImageFileName(MBCHAR * name, char *format,...)
 
 	if (c3files_PathIsValid(fname))
 	{
-		strcpy(name,fname);
+		safe_strcpy(name, fname, nameSize);
 		return true;
 	}
 
 	return false;
 }
+
+// Capacity of every per-frame image/shadow file-name buffer below AND the
+// bound GetImageFileName writes with — one constant so they cannot drift.
+static size_t const k_IMAGE_NAME_CHARS = 2 * k_MAX_NAME_LENGTH;
 
 /// @todo Repair major memory leaks when returning FALSE
 sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
@@ -370,13 +517,13 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 	std::vector<std::vector<std::vector<char>>> facedImageBuffers(
 	    k_NUM_FACINGS,
-	    std::vector<std::vector<char>>(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH)));
+	    std::vector<std::vector<char>>(k_MAX_NAMES, std::vector<char>(k_IMAGE_NAME_CHARS)));
 	std::vector<std::vector<std::vector<char>>> facedShadowBuffers(
 	    k_NUM_FACINGS,
-	    std::vector<std::vector<char>>(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH)));
+	    std::vector<std::vector<char>>(k_MAX_NAMES, std::vector<char>(k_IMAGE_NAME_CHARS)));
 
-	std::vector<std::vector<char>> imageBuffers(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH));
-	std::vector<std::vector<char>> shadowBuffers(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH));
+	std::vector<std::vector<char>> imageBuffers(k_MAX_NAMES, std::vector<char>(k_IMAGE_NAME_CHARS));
+	std::vector<std::vector<char>> shadowBuffers(k_MAX_NAMES, std::vector<char>(k_IMAGE_NAME_CHARS));
 
 	MBCHAR			*facedImageNames[k_NUM_FACINGS][k_MAX_NAMES];
 	MBCHAR			*facedShadowNames[k_NUM_FACINGS][k_MAX_NAMES];
@@ -447,25 +594,23 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		{
 			for (size_t k = 0; k < moveSprite->GetNumFrames(); ++k)
 			{
-				if (!GetImageFileName(facedShadowNames[j][k],"%sGU%#.3dMS%d.%d", prefixStr,  id, j+1, k+moveSprite->GetFirstFrame()))
-					GetImageFileName(facedShadowNames[j][k] ,"%sGU%#.2dMS%d.%d", prefixStr,  id, j+1, k+moveSprite->GetFirstFrame());
+				if (!GetImageFileName(facedShadowNames[j][k], k_IMAGE_NAME_CHARS, "%sGU%#.3dMS%d.%d", prefixStr,  id, j+1, k+moveSprite->GetFirstFrame()))
+					GetImageFileName(facedShadowNames[j][k], k_IMAGE_NAME_CHARS, "%sGU%#.2dMS%d.%d", prefixStr,  id, j+1, k+moveSprite->GetFirstFrame());
 
-				if (!GetImageFileName(facedImageNames[j][k], "%sGU%#.3dMA%d.%d", prefixStr, id,  j+1, k+moveSprite->GetFirstFrame()))
-					GetImageFileName(facedImageNames[j][k] , "%sGU%#.2dMA%d.%d", prefixStr, id,  j+1, k+moveSprite->GetFirstFrame());
+				if (!GetImageFileName(facedImageNames[j][k], k_IMAGE_NAME_CHARS, "%sGU%#.3dMA%d.%d", prefixStr, id,  j+1, k+moveSprite->GetFirstFrame()))
+					GetImageFileName(facedImageNames[j][k], k_IMAGE_NAME_CHARS, "%sGU%#.2dMA%d.%d", prefixStr, id,  j+1, k+moveSprite->GetFirstFrame());
 			}
 		}
 
 		moveSprite->Import(moveSprite->GetNumFrames(), facedImageNames, facedShadowNames);
 
-		delete m_sprites[UNITACTION_MOVE];
-		m_sprites[UNITACTION_MOVE] = moveSprite;
+		m_sprites[UNITACTION_MOVE].reset(moveSprite);
 		printf("]\n");
 
 		Anim *moveAnim = new Anim;
 
 		moveAnim->ParseFromTokens(theToken.get());
-		delete m_anims[UNITACTION_MOVE];
-		m_anims[UNITACTION_MOVE] = moveAnim;
+		m_anims[UNITACTION_MOVE].reset(moveAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_ATTACK, tmp)) return FALSE;
@@ -494,25 +639,23 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		{
 			for(i=0; i<attackSprite->GetNumFrames(); i++)
 			{
-				if (!GetImageFileName(facedShadowNames[j][i],"%sGU%#.3dAS%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame()))
-					GetImageFileName (facedShadowNames[j][i],"%sGU%#.2dAS%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame());
+				if (!GetImageFileName(facedShadowNames[j][i], k_IMAGE_NAME_CHARS, "%sGU%#.3dAS%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame()))
+					GetImageFileName(facedShadowNames[j][i], k_IMAGE_NAME_CHARS, "%sGU%#.2dAS%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame());
 
-				if (!GetImageFileName(facedImageNames [j][i],"%sGU%#.3dAA%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame()))
-					GetImageFileName (facedImageNames [j][i],"%sGU%#.2dAA%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame());
+				if (!GetImageFileName(facedImageNames [j][i], k_IMAGE_NAME_CHARS, "%sGU%#.3dAA%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame()))
+					GetImageFileName(facedImageNames [j][i], k_IMAGE_NAME_CHARS, "%sGU%#.2dAA%d.%d", prefixStr, id, j+1, i+attackSprite->GetFirstFrame());
 			}
 		}
 
 		attackSprite->Import(attackSprite->GetNumFrames(), facedImageNames, facedShadowNames);
 
-		delete m_sprites[UNITACTION_ATTACK];
-		m_sprites[UNITACTION_ATTACK] = attackSprite;
+		m_sprites[UNITACTION_ATTACK].reset(attackSprite);
 		printf("]\n");
 
 		Anim *attackAnim = new Anim;
 
 		attackAnim->ParseFromTokens(theToken.get());
-		delete m_anims[UNITACTION_ATTACK];
-		m_anims[UNITACTION_ATTACK] = attackAnim;
+		m_anims[UNITACTION_ATTACK].reset(attackAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_IDLE, tmp)) return FALSE;
@@ -527,10 +670,10 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 			for (size_t n = 0; n < idleSprite->GetNumFrames(); ++n)
 			{
-				if (!GetImageFileName(imageNames[n] ,"%sGU%#.3dIA%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame()))
-					GetImageFileName (imageNames[n] ,"%sGU%#.2dIA%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame());
-				if (!GetImageFileName(shadowNames[n],"%sGU%#.3dIS%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame()))
-					GetImageFileName (shadowNames[n],"%sGU%#.2dIS%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame());
+				if (!GetImageFileName(imageNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.3dIA%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame()))
+					GetImageFileName(imageNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.2dIA%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame());
+				if (!GetImageFileName(shadowNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.3dIS%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame()))
+					GetImageFileName(shadowNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.2dIS%d.%d", prefixStr, id, 4, n + idleSprite->GetFirstFrame());
 			}
 		}
 		else if (type == GROUPTYPE_CITY)
@@ -539,8 +682,8 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 			for (size_t n = 0; n < idleSprite->GetNumFrames(); ++n)
 			{
-				GetImageFileName(shadowNames[n], "%sGC%#.3dS.%d", prefixStr, id, n + idleSprite->GetFirstFrame());
-				GetImageFileName(imageNames[n] , "%sGC%#.3dA.%d", prefixStr, id, n + idleSprite->GetFirstFrame());
+				GetImageFileName(shadowNames[n], k_IMAGE_NAME_CHARS, "%sGC%#.3dS.%d", prefixStr, id, n + idleSprite->GetFirstFrame());
+				GetImageFileName(imageNames[n], k_IMAGE_NAME_CHARS, "%sGC%#.3dA.%d", prefixStr, id, n + idleSprite->GetFirstFrame());
 			}
 		}
 		else
@@ -549,15 +692,13 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		}
 
 		idleSprite->Import(idleSprite->GetNumFrames(), imageNames, shadowNames);
-		delete m_sprites[UNITACTION_IDLE];
-		m_sprites[UNITACTION_IDLE] = idleSprite;
+		m_sprites[UNITACTION_IDLE].reset(idleSprite);
 		printf("]\n");
 
 		Anim *idleAnim = new Anim;
 
 		idleAnim->ParseFromTokens(theToken.get());
-		delete m_anims[UNITACTION_IDLE];
-		m_anims[UNITACTION_IDLE] = idleAnim;
+		m_anims[UNITACTION_IDLE].reset(idleAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_VICTORY, tmp)) return FALSE;
@@ -581,22 +722,20 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		printf(" [Victory");
 		for(size_t n = 0; n < victorySprite->GetNumFrames(); ++n)
 		{
-			if (!GetImageFileName(shadowNames[n],"%sGU%#.3dVS%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame()))
-				GetImageFileName (shadowNames[n],"%sGU%#.2dVS%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame());
-			if (!GetImageFileName(imageNames[n], "%sGU%#.3dVA%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame()))
-				GetImageFileName (imageNames[n], "%sGU%#.2dVA%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame());
+			if (!GetImageFileName(shadowNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.3dVS%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame()))
+				GetImageFileName(shadowNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.2dVS%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame());
+			if (!GetImageFileName(imageNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.3dVA%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame()))
+				GetImageFileName(imageNames[n], k_IMAGE_NAME_CHARS, "%sGU%#.2dVA%d.%d", prefixStr, id, 4, n + victorySprite->GetFirstFrame());
 		}
 
 		victorySprite->Import(victorySprite->GetNumFrames(), imageNames, shadowNames);
-		delete m_sprites[UNITACTION_VICTORY];
-		m_sprites[UNITACTION_VICTORY] = victorySprite;
+		m_sprites[UNITACTION_VICTORY].reset(victorySprite);
 		printf("]\n");
 
 		Anim *victoryAnim = new Anim;
 
 		victoryAnim->ParseFromTokens(theToken.get());
-		delete m_anims[UNITACTION_VICTORY];
-		m_anims[UNITACTION_VICTORY] = victoryAnim;
+		m_anims[UNITACTION_VICTORY].reset(victoryAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_WORK, tmp)) return FALSE;
@@ -618,24 +757,22 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		{
 			for(size_t n = 0; n < workSprite->GetNumFrames(); ++n)
 			{
-				if (!GetImageFileName(facedShadowNames[j][n],"%sGU%#.3dWS%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame()))
-					GetImageFileName (facedShadowNames[j][n],"%sGU%#.2dWS%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame());
-				if (!GetImageFileName(facedImageNames[j][n] ,"%sGU%#.3dWA%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame()))
-					GetImageFileName (facedImageNames[j][n] ,"%sGU%#.2dWA%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame());
+				if (!GetImageFileName(facedShadowNames[j][n], k_IMAGE_NAME_CHARS, "%sGU%#.3dWS%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame()))
+					GetImageFileName(facedShadowNames[j][n], k_IMAGE_NAME_CHARS, "%sGU%#.2dWS%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame());
+				if (!GetImageFileName(facedImageNames[j][n], k_IMAGE_NAME_CHARS, "%sGU%#.3dWA%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame()))
+					GetImageFileName(facedImageNames[j][n], k_IMAGE_NAME_CHARS, "%sGU%#.2dWA%d.%d", prefixStr, id, j+1, n+workSprite->GetFirstFrame());
 			}
 		}
 
 
 		workSprite->Import(workSprite->GetNumFrames(), facedImageNames, facedShadowNames);
 
-		delete m_sprites[UNITACTION_WORK];
-		m_sprites[UNITACTION_WORK] = workSprite;
+		m_sprites[UNITACTION_WORK].reset(workSprite);
 		printf("]\n");
 
 		Anim *workAnim = new Anim;
 		workAnim->ParseFromTokens(theToken.get());
-		delete m_anims[UNITACTION_WORK];
-		m_anims[UNITACTION_WORK] = workAnim;
+		m_anims[UNITACTION_WORK].reset(workAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_FIREPOINTS, tmp)) return FALSE;
@@ -733,7 +870,7 @@ POINT UnitSpriteGroup::GetHotPoint(UNITACTION action, sint32 facing)
 		if (m_sprites[action]->GetType() == SPRITETYPE_FACED) {
 			if (facing >= k_NUM_FACINGS) facing = k_MAX_FACINGS - facing;
 			if (facing < 0 || facing >= k_NUM_FACINGS) return nullPoint;
-			return ((FacedSprite *)m_sprites[action])->GetHotPoint((uint16)facing);
+			return ((FacedSprite *)m_sprites[action].get())->GetHotPoint((uint16)facing);
 		} else {
 			return m_sprites[action]->GetHotPoint();
 		}
@@ -758,7 +895,7 @@ UnitSpriteGroup::SetHotPoint(UNITACTION action, sint32 facing,POINT pt)
 			if (facing >= k_NUM_FACINGS)
 				facing = k_MAX_FACINGS - facing;
 
-			((FacedSprite *)m_sprites[action])->SetHotPoint((uint16)facing,pt.x,pt.y);
+			((FacedSprite *)m_sprites[action].get())->SetHotPoint((uint16)facing,pt.x,pt.y);
 		}
 		else
 			m_sprites[action]->SetHotPoint(pt.x,pt.y);

@@ -82,13 +82,6 @@ C3Window( retval, id, x, y, width, height, bpp, pattern, type )
 
 WonderMovieWindow::~WonderMovieWindow()
 {
-	delete m_movieButton;
-	delete m_wonderName;
-	delete m_topBorder;
-	delete m_leftBorder;
-	delete m_rightBorder;
-	delete m_bottomBorder;
-	delete m_textBox;
 }
 
 
@@ -100,46 +93,46 @@ AUI_ERRCODE WonderMovieWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "MovieButton");
-	m_movieButton = new aui_MovieButton(&errcode, aui_UniqueId(), buttonBlock, wondermoviewin_MovieButtonCallback);
+	m_movieButton.reset(new aui_MovieButton(&errcode, aui_UniqueId(), buttonBlock, wondermoviewin_MovieButtonCallback));
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
-	AddControl(m_movieButton);
+	AddControl(m_movieButton.get());
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "WonderName");
-	m_wonderName = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_wonderName.reset(new c3_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
-	AddControl(m_wonderName);
+	AddControl(m_wonderName.get());
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TopBorder");
-	m_topBorder = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_topBorder.reset(new c3_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
-	AddControl(m_topBorder);
+	AddControl(m_topBorder.get());
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "LeftBorder");
-	m_leftBorder = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_leftBorder.reset(new c3_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
-	AddControl(m_leftBorder);
+	AddControl(m_leftBorder.get());
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "RightBorder");
-	m_rightBorder = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_rightBorder.reset(new c3_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
-	AddControl(m_rightBorder);
+	AddControl(m_rightBorder.get());
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "BottomBorder");
-	m_bottomBorder = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
+	m_bottomBorder.reset(new c3_Static(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
-	AddControl(m_bottomBorder);
+	AddControl(m_bottomBorder.get());
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "Text");
-	m_textBox = new ctp2_HyperTextBox(&errcode, aui_UniqueId(), buttonBlock);
+	m_textBox.reset(new ctp2_HyperTextBox(&errcode, aui_UniqueId(), buttonBlock));
 	Assert(errcode == AUI_ERRCODE_OK);
 	if(errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
-	AddControl(m_textBox);
+	AddControl(m_textBox.get());
 
 	return InitCommon();
 }

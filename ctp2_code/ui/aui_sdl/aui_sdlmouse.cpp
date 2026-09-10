@@ -31,9 +31,13 @@ aui_SDLMouse::GetInput()
       SDL_Event od;
       // check for one of the mouse events
       // SDL2: SDL_PeepEvents uses minType/maxType instead of event masks
+      // NB: upper bound is SDL_MOUSEBUTTONUP, NOT SDL_MOUSEWHEEL — the mouse
+      // path must NOT consume wheel events (it has no wheel handler and would
+      // drop them); wheel is left for the main loop, which drives the P11 F
+      // smooth-camera zoom (civ3_main.cpp SDLMessageHandler).
       int numElements =
          SDL_PeepEvents(&od, 1, SDL_GETEVENT,
-          		SDL_MOUSEMOTION, SDL_MOUSEWHEEL);
+          		SDL_MOUSEMOTION, SDL_MOUSEBUTTONUP);
       if (0 > numElements) {
          fprintf(stderr, "Mouse PeepEvents failed: %s\n", SDL_GetError());
          return AUI_ERRCODE_GETDEVICEDATAFAILED;

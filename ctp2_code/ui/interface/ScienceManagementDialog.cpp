@@ -209,7 +209,7 @@ void ScienceManagementDialog::UpdateScience()
 		return;
 	}
 
-	Advances *  advances        = player->m_advances;
+	Advances *  advances        = player->m_advances.get();
 	AdvanceType currentAdvance  = advances->GetResearching();
 	bool        alreadyHas      = player->HasAdvance(currentAdvance);
 

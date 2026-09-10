@@ -4,6 +4,7 @@
 #ifndef __UNITTABBUTTON_H__
 #define __UNITTABBUTTON_H__
 
+#include <memory>
 #include "ui/aui_common/aui_control.h"
 #include "ui/aui_ctp2/patternbase.h"
 
@@ -48,16 +49,16 @@ public:
 
 	AUI_ERRCODE InitCommon( );
 
-	c3_ColorIconButton	*IconButton( ) const { return m_button; }
+	c3_ColorIconButton	*IconButton( ) const { return m_button.get(); }
 
 	sint32	UpdateData( Unit *unit );
 
 private:
-	Thermometer			*m_healthBar;
-	c3_ColorIconButton		*m_button;
-	c3_Static			*m_fortify;
-	c3_Static			*m_veteran;
-	c3_Static			*m_arrow;
+	std::unique_ptr<Thermometer>	m_healthBar;
+	std::unique_ptr<c3_ColorIconButton>	m_button;
+	std::unique_ptr<c3_Static>	m_fortify;
+	std::unique_ptr<c3_Static>	m_veteran;
+	std::unique_ptr<c3_Static>	m_arrow;
 	c3_ColoredStatic	*m_cargo[ k_CARGO_CAPACITY ];
 
 	sint32	m_barHeight;

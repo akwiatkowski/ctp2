@@ -34,6 +34,8 @@
 #include "ui/interface/creditsscreen.h"
 
 #include <algorithm>	            // std::fill
+#include <memory>
+#include <vector>
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -92,11 +94,11 @@ size_t const	k_CreditsLineLen		= 80;
 size_t const	kCreditsTextNumFonts	= 6;
 uint32 const    NUMBER_INVALID          = static_cast<uint32>(-1);
 
-static CreditsWindow *  g_creditsWindow = nullptr;
+static std::unique_ptr<CreditsWindow>  g_creditsWindow;
 
 CreditsWindow * creditsscreen_GetWindow()
 {
-    return g_creditsWindow;
+    return g_creditsWindow.get();
 }
 
 AUI_ACTION_BASIC(RemoveCreditsAction);
@@ -114,7 +116,7 @@ void creditsscreen_ExitButtonActionCallback(aui_Control *control, uint32 action,
 		Assert(auiErr == AUI_ERRCODE_OK);
 		if (auiErr == AUI_ERRCODE_OK)
         {
-    		c3ui_Get()->AddAction(new RemoveCreditsAction());
+			c3ui_Get()->AddAction(new RemoveCreditsAction());
         }
 	}
 }
@@ -141,14 +143,14 @@ sint32 creditsscreen_Initialize()
     {
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	    g_creditsWindow = new CreditsWindow
+	    g_creditsWindow.reset(new CreditsWindow
             (&errcode, aui_UniqueId(), k_LDL_CREDITS_WINDOW,
 		     k_CREDITS_BITS_PER_PIXEL, AUI_WINDOW_TYPE_FLOATING
-            );
+            ));
 	    Assert(AUI_SUCCESS(errcode));
-	    if (!AUI_SUCCESS(errcode)) return -1;
+	    if (!AUI_SUCCESS(errcode)) { g_creditsWindow.reset(); return -1; }
 
-	    TestControl(g_creditsWindow);
+	    TestControl(g_creditsWindow.get());
 
         g_creditsWindow->Move((g_ScreenWidth - g_creditsWindow->Width()) / 2,
 		    (g_ScreenHeight - g_creditsWindow->Height()) / 2);
@@ -169,7 +171,7 @@ void creditsscreen_Cleanup()
             c3ui_Get()->RemoveWindow(g_creditsWindow->Id());
         }
 
-        allocated::clear(g_creditsWindow);
+        g_creditsWindow.reset();
     }
 }
 
@@ -181,10 +183,9 @@ public:
 
 	c3_SimpleAnimation(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock)
 	:	aui_Static(retval, id, ldlBlock),
-		m_frames(nullptr),
 		m_currentFrame(0),
 		m_animationSpeed(100),
-		lastIdle(GetTickCount())
+		m_lastIdleTicks(GetTickCount())
 	{
 		InitCommonLdl(ldlBlock);
 	};
@@ -192,16 +193,10 @@ public:
 	c3_SimpleAnimation(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y, sint32 width, sint32 height,
 		const MBCHAR *text = nullptr, uint32 maxLength = 0 )
 	:	aui_Static(retval, id, x, y, width, height, text, maxLength),
-		m_frames(nullptr),
 		m_currentFrame(0),
 		m_animationSpeed(100),
-		lastIdle(GetTickCount())
+		m_lastIdleTicks(GetTickCount())
 	{
-	};
-
-	~c3_SimpleAnimation() override
-	{
-		delete m_frames;
 	};
 
 
@@ -209,33 +204,25 @@ public:
 
 	AUI_ERRCODE Idle() override;
 
-protected:
-
-	c3_SimpleAnimation()
-	:	aui_Static(),
-		m_frames(nullptr)
-	{
-	};
-
 	void InitCommonLdl(MBCHAR *ldlBlock);
 
 	void UpdateAnimation(sint32 deltaTime);
 
 private:
 
-	aui_StringTable *m_frames;
+	std::unique_ptr<aui_StringTable> m_frames;
 
 	sint32 m_currentFrame;
 
 	sint32 m_animationSpeed;
 
-	uint32 lastIdle;
+	uint32 m_lastIdleTicks;
 };
 
 
 AUI_ERRCODE c3_SimpleAnimation::Idle()
 {
-	sint32 deltaTime = GetTickCount() - lastIdle;
+	sint32 deltaTime = GetTickCount() - m_lastIdleTicks;
 
 	if(deltaTime < m_animationSpeed) return AUI_ERRCODE_OK;
 
@@ -248,7 +235,7 @@ AUI_ERRCODE c3_SimpleAnimation::Idle()
 		deltaTime -= m_animationSpeed;
 	} while((deltaTime - m_animationSpeed) > 0);
 
-	lastIdle = GetTickCount() + (m_animationSpeed - deltaTime);
+	m_lastIdleTicks = GetTickCount() + (m_animationSpeed - deltaTime);
 
 	UpdateAnimation(animationTime);
 
@@ -265,8 +252,8 @@ void c3_SimpleAnimation::InitCommonLdl(MBCHAR *ldlBlock)
 
 	MBCHAR ldlString[k_AUI_LDL_MAXBLOCK + 1];
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_C3_ANIMATION_FRAMES);
-	AUI_ERRCODE errcode;
-	m_frames = new aui_StringTable(&errcode, ldlString);
+	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
+	m_frames = std::make_unique<aui_StringTable>(&errcode, ldlString);
 	Assert(m_frames);
 
 	m_currentFrame = 0;
@@ -297,11 +284,10 @@ public:
 
 	c3_TriggeredAnimation(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock)
 	:	aui_Static(retval, id, ldlBlock),
-		m_frames(nullptr),
 		m_currentFrame(0),
 		m_blendSpeed(100),
 		m_blendVal(k_C3_ANIMATION_MAXBLEND),
-		lastIdle(GetTickCount())
+		m_lastIdleTicks(GetTickCount())
 	{
 		InitCommonLdl(ldlBlock);
 	};
@@ -309,17 +295,11 @@ public:
 	c3_TriggeredAnimation(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y, sint32 width, sint32 height,
 		const MBCHAR *text = nullptr, uint32 maxLength = 0 )
 	:	aui_Static(retval, id, x, y, width, height, text, maxLength),
-		m_frames(nullptr),
 		m_currentFrame(0),
 		m_blendSpeed(100),
 		m_blendVal(k_C3_ANIMATION_MAXBLEND),
-		lastIdle(GetTickCount())
+		m_lastIdleTicks(GetTickCount())
 	{
-	};
-
-	~c3_TriggeredAnimation() override
-	{
-		delete m_frames;
 	};
 
 	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0) override;
@@ -332,13 +312,7 @@ public:
 
 	void TriggerAnimationBlend();
 
-protected:
 
-	c3_TriggeredAnimation()
-	:	aui_Static(),
-		m_frames(nullptr)
-	{
-	};
 
 	virtual AUI_ERRCODE DrawBlendImage(aui_Surface *destSurf, RECT *destRect);
 
@@ -346,7 +320,7 @@ protected:
 
 private:
 
-	aui_StringTable *m_frames;
+	std::unique_ptr<aui_StringTable> m_frames;
 
 	sint32 m_currentFrame;
 
@@ -354,7 +328,7 @@ private:
 
 	sint32 m_blendVal;
 
-	uint32 lastIdle;
+	uint32 m_lastIdleTicks;
 };
 
 AUI_ERRCODE c3_TriggeredAnimation::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
@@ -400,53 +374,47 @@ AUI_ERRCODE c3_TriggeredAnimation::DrawBlendImage(aui_Surface *destSurf, RECT *d
 	RECT lastRect = { 0, 0, lastSurf->Width(), lastSurf->Height() };
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	aui_Surface *backSurface = aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom);
+	std::unique_ptr<aui_Surface> backSurface(aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom));
 	Assert(AUI_NEWOK(backSurface, errcode));
 
-	c3ui_Get()->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(backSurface.get(), 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
 
 	if(m_imagebltflag == AUI_IMAGEBASE_BLTFLAG_CHROMAKEY) {
 
-		aui_Surface *frontSurface = aui_Factory::new_Surface(errcode, lastRect.right, lastRect.bottom);
+		std::unique_ptr<aui_Surface> frontSurface(aui_Factory::new_Surface(errcode, lastRect.right, lastRect.bottom));
 		Assert(AUI_NEWOK(frontSurface, errcode));
 
-		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface.get(), 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
-		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, lastSurf, &lastRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface.get(), 0, 0, lastSurf, &lastRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
 
 
-		primitives_BlendSurfaces(frontSurface, backSurface, destSurf, destRect,
+		primitives_BlendSurfaces(frontSurface.get(), backSurface.get(), destSurf, destRect,
 			k_C3_ANIMATION_MAXBLEND - m_blendVal);
-
-		delete frontSurface;
 	} else {
 
-		primitives_BlendSurfaces(lastSurf, backSurface, destSurf, destRect,
+		primitives_BlendSurfaces(lastSurf, backSurface.get(), destSurf, destRect,
 			k_C3_ANIMATION_MAXBLEND - m_blendVal);
 	}
 
-	c3ui_Get()->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(backSurface.get(), 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
 
 	if(m_imagebltflag == AUI_IMAGEBASE_BLTFLAG_CHROMAKEY) {
 
-		aui_Surface *frontSurface = aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom);
+		std::unique_ptr<aui_Surface> frontSurface(aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom));
 		Assert(AUI_NEWOK(frontSurface, errcode));
 
-		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface.get(), 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
-		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, srcSurf, &srcRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface.get(), 0, 0, srcSurf, &srcRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
 
-		primitives_BlendSurfaces(frontSurface, backSurface, destSurf, destRect, m_blendVal);
-
-		delete frontSurface;
+		primitives_BlendSurfaces(frontSurface.get(), backSurface.get(), destSurf, destRect, m_blendVal);
 	} else {
 
-		primitives_BlendSurfaces(srcSurf, backSurface, destSurf, destRect, m_blendVal);
+		primitives_BlendSurfaces(srcSurf, backSurface.get(), destSurf, destRect, m_blendVal);
 	}
-
-	delete backSurface;
 
 	return AUI_ERRCODE_OK;
 }
@@ -457,7 +425,7 @@ AUI_ERRCODE c3_TriggeredAnimation::Idle()
 
 	if(m_blendVal >= k_C3_ANIMATION_MAXBLEND) return AUI_ERRCODE_OK;
 
-	sint32 deltaTime = GetTickCount() - lastIdle;
+	sint32 deltaTime = GetTickCount() - m_lastIdleTicks;
 
 	if(deltaTime < m_blendSpeed) return AUI_ERRCODE_OK;
 
@@ -470,7 +438,7 @@ AUI_ERRCODE c3_TriggeredAnimation::Idle()
 		deltaTime -= m_blendSpeed;
 	} while((deltaTime - m_blendSpeed) > 0);
 
-	lastIdle = GetTickCount() + (m_blendSpeed - deltaTime);
+	m_lastIdleTicks = GetTickCount() + (m_blendSpeed - deltaTime);
 
 
 	if(!m_blendVal) blendTime = k_C3_ANIMATION_BLEND_STEP;
@@ -492,10 +460,10 @@ void c3_TriggeredAnimation::InitCommonLdl(MBCHAR *ldlBlock)
 	m_blendSpeed			= datablock->GetInt(k_C3_ANIMATION_BLEND_SPEED);
 
 
-	AUI_ERRCODE errcode;
+	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR ldlString[k_AUI_LDL_MAXBLOCK + 1];
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_C3_ANIMATION_FRAMES);
-	m_frames = new aui_StringTable(&errcode, ldlString);
+	m_frames = std::make_unique<aui_StringTable>(&errcode, ldlString);
 	Assert(m_frames);
 
 	m_currentFrame = 0;
@@ -538,30 +506,25 @@ void c3_TriggeredAnimation::TriggerAnimationBlend()
 
 
 
+// One rendered line of credits text: a fixed-size string plus the index of
+// the font it is drawn with. Lines live in a page-owned std::vector, so no
+// manual allocation remains here.
 struct sCreditsLine
 {
 	MBCHAR			 m_text[k_CreditsLineLen];
 	uint32			 m_font;
-	sCreditsLine	*m_pNext;
 
 	sCreditsLine(uint32 font, MBCHAR *pText);
 };
 
 
+// One screen of credits: an ordered set of lines drawn top-down.
 class cCreditsPage
 {
 public:
 	void			 AddLine(uint32 font, MBCHAR *pText);
-	void			 ResetLines();
-	cCreditsPage();
-	~cCreditsPage();
 
-	cCreditsPage	*m_pNext;
-
-	uint32			 m_numLines;
-	sCreditsLine	*m_pLines;
-	sCreditsLine	*m_pCurrLine;
-
+	std::vector<sCreditsLine> m_lines;
 };
 
 enum eTokenType
@@ -582,8 +545,10 @@ enum eTokenType
 class c3_CreditsText : public aui_Static
 {
 public:
-	c3_CreditsText *Parse(FILE *textfile);
-	void Draw(aui_Surface *surface);
+	// Parses the credits text file into pages of lines. Returns false on a
+	// malformed file; the object stays usable (empty) and the CALLER decides
+	// on disposal — this method no longer deletes `this` internally.
+	bool Parse(FILE *textfile);
 	void ResetPages();
 
 	c3_CreditsText
@@ -594,9 +559,7 @@ public:
 	)
 	:	aui_Static(retval, id, ldlBlock),
 		m_lastIdle(GetTickCount()),
-		m_numPages(0),
-		m_pPages(nullptr),
-		m_pCurrPage(nullptr),
+		m_currPageIndex(0),
 		m_definingFont(false),
 		m_currFontNumber(0),
 		m_currFontSize(0),
@@ -625,9 +588,7 @@ public:
 	)
 	:	aui_Static(retval, id, x, y, width, height, text, maxLength),
 		m_lastIdle(GetTickCount()),
-		m_numPages(0),
-		m_pPages(nullptr),
-		m_pCurrPage(nullptr),
+		m_currPageIndex(0),
 		m_definingFont(false),
 		m_currFontNumber(0),
 		m_currFontSize(0),
@@ -639,15 +600,6 @@ public:
 
 	~c3_CreditsText() override
 	{
-		cCreditsPage *pFoo;
-		ResetPages();
-		while (m_pCurrPage)
-		{
-			pFoo = m_pCurrPage;
-			m_pCurrPage = m_pCurrPage->m_pNext;
-			delete pFoo;
-		}
-
 		for (auto & m_font : m_fonts)
 		{
 			if (m_font)
@@ -672,13 +624,12 @@ private:
 	uint32 GetFontSize(MBCHAR *pToken);
 	uint32 GetNumberFromToken(MBCHAR *pToken);
 	eTokenType TokenType(MBCHAR *pToken);
-	bool IsDelimeter(char c);
+	bool IsDelimiter(char c);
 	bool IsComment(char c);
 	void ReadToEOL(FILE *textfile);
 
-	uint32			 m_numPages;
-	cCreditsPage	*m_pPages;
-	cCreditsPage	*m_pCurrPage;
+	std::vector<cCreditsPage>	m_pages;
+	size_t			 m_currPageIndex;
 
 	aui_BitmapFont	*m_fonts[kCreditsTextNumFonts];
 
@@ -700,7 +651,6 @@ private:
 
 
 
-
 CreditsWindow::CreditsWindow(AUI_ERRCODE *retval, sint32 id, MBCHAR *ldlBlock, sint32 bpp,
 							 AUI_WINDOW_TYPE type, bool bevel)
 	:	C3Window(retval, id, ldlBlock, bpp, type, bevel)
@@ -708,9 +658,7 @@ CreditsWindow::CreditsWindow(AUI_ERRCODE *retval, sint32 id, MBCHAR *ldlBlock, s
 
 	m_animationSpeed = 10000;
 	m_animating = true;
-	lastIdle = GetTickCount();
-
-	CleanPointers();
+	m_lastIdleTicks = GetTickCount();
 
 	InitCommonLdl(ldlBlock);
 }
@@ -723,36 +671,25 @@ CreditsWindow::CreditsWindow(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y,
 
 	m_animationSpeed = 10000;
 	m_animating = true;
-	lastIdle = GetTickCount();
-
-	CleanPointers();
+	m_lastIdleTicks = GetTickCount();
 }
 
+// Children are released in the same order the hand-written teardown used
+// (buttons/text/anims/background); every child is owned here even though the
+// aui parent list keeps non-owning pointers for drawing.
 CreditsWindow::~CreditsWindow()
 {
+	m_exitButton.reset();
+	m_secretButton.reset();
+	m_pauseButton.reset();
+	m_border.reset();
+	m_secretImage.reset();
 
-	int index;
+	m_creditsText.reset();
 
-	CleanUp(m_exitButton);
-	CleanUp(m_secretButton);
-	CleanUp(m_pauseButton);
-	CleanUp(m_border);
-	CleanUp(m_secretImage);
-
-
-	CleanUp(m_creditsText);
-
-	if(m_backgroundAnim) {
-		for(index = m_numberOfBackgroundAnims-1; index >= 0; index--) CleanUp(m_backgroundAnim[index]);
-		delete [] m_backgroundAnim;
-	}
-	if(m_triggeredAnim) {
-		for(index = m_numberOfTriggeredAnims-1; index >= 0; index--) CleanUp(m_triggeredAnim[index]);
-		delete [] m_triggeredAnim;
-	}
-	CleanUp(m_background);
-
-	CleanPointers();
+	m_backgroundAnims.clear();
+	m_triggeredAnims.clear();
+	m_background.reset();
 }
 
 AUI_ERRCODE CreditsWindow::Idle()
@@ -760,9 +697,7 @@ AUI_ERRCODE CreditsWindow::Idle()
 
 	if(!m_animating) return AUI_ERRCODE_OK;
 
-	int index = 0;
-
-	sint32 deltaTime = GetTickCount() - lastIdle;
+	sint32 deltaTime = GetTickCount() - m_lastIdleTicks;
 
 	if(deltaTime < m_animationSpeed) return AUI_ERRCODE_OK;
 
@@ -772,16 +707,11 @@ AUI_ERRCODE CreditsWindow::Idle()
 		deltaTime -= m_animationSpeed;
 	} while((deltaTime - m_animationSpeed) > 0);
 
-	lastIdle = GetTickCount() - deltaTime;
+	m_lastIdleTicks = GetTickCount() - deltaTime;
 
 
-	for(index = m_numberOfTriggeredAnims-1; index >= 0; index--)
-		m_triggeredAnim[index]->TriggerAnimationStep();
-
-
-
-
-
+	for(auto animIter = m_triggeredAnims.rbegin(); animIter != m_triggeredAnims.rend(); ++animIter)
+		(*animIter)->TriggerAnimationStep();
 
 	return AUI_ERRCODE_OK;
 }
@@ -794,33 +724,31 @@ void CreditsWindow::InitCommonLdl(MBCHAR *ldlBlock)
 
 	MBCHAR ldlString[k_AUI_LDL_MAXBLOCK + 1];
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_BACKGROUND);
-	AUI_ERRCODE errcode;
-	m_background = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
+	m_background = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_background);
 	m_background->IgnoreEvents(TRUE);
 
-	m_numberOfBackgroundAnims = datablock->GetInt(k_LDL_CREDITS_BACKANIM_COUNT);
-	m_backgroundAnim = m_numberOfBackgroundAnims > 0 ? new c3_SimpleAnimation *[m_numberOfBackgroundAnims] : nullptr;
+	sint32 numberOfBackgroundAnims = datablock->GetInt(k_LDL_CREDITS_BACKANIM_COUNT);
+	m_backgroundAnims.resize(numberOfBackgroundAnims > 0 ? numberOfBackgroundAnims : 0);
 
-	int index;
-
-	for(index = 0; index < m_numberOfBackgroundAnims; index++) {
+	for(sint32 index = 0; index < numberOfBackgroundAnims; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_CREDITS_BACKANIM_BASE, index+1);
-		m_backgroundAnim[index] = new c3_SimpleAnimation(&errcode, aui_UniqueId(), ldlString);
-		Assert(m_backgroundAnim[index]);
-		m_backgroundAnim[index]->IgnoreEvents(TRUE);
+		m_backgroundAnims[index] = std::make_unique<c3_SimpleAnimation>(&errcode, aui_UniqueId(), ldlString);
+		Assert(m_backgroundAnims[index]);
+		m_backgroundAnims[index]->IgnoreEvents(TRUE);
 	}
 
 	m_animationSpeed			= datablock->GetInt(k_C3_ANIMATION_SPEED);
 
-	m_numberOfTriggeredAnims = datablock->GetInt(k_LDL_CREDITS_TRIGGERANIM_COUNT);
-	m_triggeredAnim = m_numberOfTriggeredAnims > 0 ? new c3_TriggeredAnimation *[m_numberOfTriggeredAnims] : nullptr;
+	sint32 numberOfTriggeredAnims = datablock->GetInt(k_LDL_CREDITS_TRIGGERANIM_COUNT);
+	m_triggeredAnims.resize(numberOfTriggeredAnims > 0 ? numberOfTriggeredAnims : 0);
 
-	for(index = 0; index < m_numberOfTriggeredAnims; index++) {
+	for(sint32 index = 0; index < numberOfTriggeredAnims; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_CREDITS_TRIGGERANIM_BASE, index+1);
-		m_triggeredAnim[index] = new c3_TriggeredAnimation(&errcode, aui_UniqueId(), ldlString);
-		Assert(m_triggeredAnim[index]);
-		m_triggeredAnim[index]->IgnoreEvents(TRUE);
+		m_triggeredAnims[index] = std::make_unique<c3_TriggeredAnimation>(&errcode, aui_UniqueId(), ldlString);
+		Assert(m_triggeredAnims[index]);
+		m_triggeredAnims[index]->IgnoreEvents(TRUE);
 	}
 
 
@@ -837,12 +765,18 @@ void CreditsWindow::InitCommonLdl(MBCHAR *ldlBlock)
 		FILE *fp = c3files_fopen(C3DIR_UIDATA, k_CREDITS_FILENAME, "r");
 		Assert(fp);
 
-		m_creditsText = new c3_CreditsText(&errcode, aui_UniqueId(), ldlBlock);
-		Assert(m_creditsText);
+		std::unique_ptr<c3_CreditsText> creditsText =
+			std::make_unique<c3_CreditsText>(&errcode, aui_UniqueId(), ldlBlock);
+		Assert(creditsText);
 
-		m_creditsText = m_creditsText->Parse(fp);
+		if (!creditsText->Parse(fp))
+		{
+			creditsText.reset();
+		}
 
 		fclose(fp);
+
+		m_creditsText = std::move(creditsText);
 
 		if (m_creditsText)
 		{
@@ -855,82 +789,49 @@ void CreditsWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	{
 		m_creditsText->ResetPages();
 	}
-
-
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_SECRET_IMAGE);
-	m_secretImage = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+	m_secretImage = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_secretImage);
 	m_secretImage->IgnoreEvents(TRUE);
 	m_secretImage->Hide();
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_BORDER);
-	m_border = new aui_Static(&errcode, aui_UniqueId(), ldlString);
+	m_border = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_border);
 	m_border->IgnoreEvents(TRUE);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_PAUSE_BUTTON);
-	m_pauseButton = new aui_Button(&errcode, aui_UniqueId(), ldlString,
+	m_pauseButton = std::make_unique<aui_Button>(&errcode, aui_UniqueId(), ldlString,
 		creditsscreen_PauseButtonActionCallback);
 	Assert(m_pauseButton);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_SECRET_BUTTON);
-	m_secretButton = new aui_Button(&errcode, aui_UniqueId(), ldlString,
+	m_secretButton = std::make_unique<aui_Button>(&errcode, aui_UniqueId(), ldlString,
 		creditsscreen_SecretButtonActionCallback);
 	Assert(m_secretButton);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_EXIT_BUTTON);
-	m_exitButton = new ctp2_Button(&errcode, aui_UniqueId(), ldlString,
+	m_exitButton = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), ldlString,
 		creditsscreen_ExitButtonActionCallback);
 	Assert(m_exitButton);
 
-	AddControl(m_exitButton);
-	AddControl(m_secretButton);
-	AddControl(m_pauseButton);
-	AddControl(m_border);
-	AddControl(m_secretImage);
+	AddControl(m_exitButton.get());
+	AddControl(m_secretButton.get());
+	AddControl(m_pauseButton.get());
+	AddControl(m_border.get());
+	AddControl(m_secretImage.get());
 
 
 
 
 	if (m_creditsText)
-		AddControl(m_creditsText);
+		AddControl(m_creditsText.get());
 
-	for(index = m_numberOfBackgroundAnims-1; index >= 0; index--)
-		AddControl(m_backgroundAnim[index]);
-	for(index = m_numberOfTriggeredAnims-1; index >= 0; index--)
-		AddControl(m_triggeredAnim[index]);
-	AddControl(m_background);
-}
-
-void CreditsWindow::CleanPointers()
-{
-
-	m_numberOfBackgroundAnims = 0;
-	m_numberOfTriggeredAnims = 0;
-
-	m_background = nullptr;
-	m_backgroundAnim = nullptr;
-	m_triggeredAnim = nullptr;
-
-
-
-
-	m_creditsText = nullptr;
-	m_secretImage = nullptr;
-	m_border = nullptr;
-	m_pauseButton = nullptr;
-	m_secretButton = nullptr;
-	m_exitButton = nullptr;
-}
-
-void CreditsWindow::CleanUp(aui_Control *control)
-{
-
-	if(!control) return;
-
-	RemoveControl(control);
-
-	delete control;
+	for(auto animIter = m_backgroundAnims.rbegin(); animIter != m_backgroundAnims.rend(); ++animIter)
+		AddControl(animIter->get());
+	for(auto animIter = m_triggeredAnims.rbegin(); animIter != m_triggeredAnims.rend(); ++animIter)
+		AddControl(animIter->get());
+	AddControl(m_background.get());
 }
 
 void CreditsWindow::ToggleAnimation()
@@ -968,56 +869,16 @@ void CreditsWindow::ShowSecretImage()
 
 
 
-
 sCreditsLine::sCreditsLine(uint32 font, MBCHAR *pText)
 {
 	strlcpy(m_text, pText, sizeof(m_text));
 	m_font = font;
-	m_pNext = nullptr;
-};
-
-cCreditsPage::cCreditsPage()
-{
-	m_numLines = 0;
-	m_pLines = nullptr;
-	m_pCurrLine = nullptr;
-	m_pNext = nullptr;
-}
-
-cCreditsPage::~cCreditsPage()
-{
-	ResetLines();
-	while (m_pCurrLine)
-	{
-	    sCreditsLine * pFoo = m_pCurrLine;
-		m_pCurrLine = m_pCurrLine->m_pNext;
-		delete pFoo;
-	}
 }
 
 void cCreditsPage::AddLine(uint32 font, MBCHAR *pText)
 {
-	sCreditsLine *pLine = new sCreditsLine(font, pText);
-	if (m_numLines)
-	{
-		m_pCurrLine->m_pNext = pLine;
-	}
-	else
-	{
-		m_pLines = pLine;
-	}
-
-	m_numLines++;
-	m_pCurrLine = pLine;
+	m_lines.emplace_back(font, pText);
 }
-
-
-void cCreditsPage::ResetLines()
-{
-	m_pCurrLine = m_pLines;
-}
-
-
 
 
 AUI_ERRCODE c3_CreditsText::DrawThis(aui_Surface *pSurface, sint32 x, sint32 y)
@@ -1027,13 +888,11 @@ AUI_ERRCODE c3_CreditsText::DrawThis(aui_Surface *pSurface, sint32 x, sint32 y)
 
 	if (!pSurface) pSurface = m_window->TheSurface();
 
-	if (m_pCurrPage)
+	if (m_currPageIndex < m_pages.size())
 	{
-		RECT rect;
+		RECT rect = {};
 
-		m_pCurrPage->ResetLines();
-
-		sCreditsLine *pCurrLine = m_pCurrPage->m_pLines;
+		cCreditsPage &currPage = m_pages[m_currPageIndex];
 
 		sint32 initialX = 8;
 		sint32 initialY = 8;
@@ -1041,24 +900,23 @@ AUI_ERRCODE c3_CreditsText::DrawThis(aui_Surface *pSurface, sint32 x, sint32 y)
 
 		sint32 currY = 0;
 
-		while (pCurrLine)
+		for (sCreditsLine &currLine : currPage.m_lines)
 		{
-			aui_BitmapFont *pCurrFont = m_fonts[pCurrLine->m_font];
+			aui_BitmapFont *pCurrFont = m_fonts[currLine.m_font];
 
-			MBCHAR *pText = pCurrLine->m_text;
+			MBCHAR *pText = currLine.m_text;
 
 			sint32 width = pCurrFont->GetStringWidth(pText);
 			sint32 height = pCurrFont->GetMaxHeight();
-			sint32 x = centerX - width/2;
+			sint32 lineX = centerX - width/2;
 
 
-			SetRect(&rect, x, initialY+currY, x+width, initialY+currY+pCurrFont->GetMaxHeight());
+			SetRect(&rect, lineX, initialY+currY, lineX+width, initialY+currY+pCurrFont->GetMaxHeight());
 
 			pCurrFont->DrawString(pSurface, &rect, &rect, pText, 0,
 								  colorset_Get()->GetColorRef(COLOR_WHITE), 0);
 
 			currY += height + (height / 8);
-			pCurrLine = pCurrLine->m_pNext;
 		}
 
 
@@ -1071,7 +929,7 @@ AUI_ERRCODE c3_CreditsText::DrawThis(aui_Surface *pSurface, sint32 x, sint32 y)
 	return AUI_ERRCODE_OK;
 }
 
-c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
+bool c3_CreditsText::Parse(FILE *textfile)
 {
 	MBCHAR      currToken[128];
 	MBCHAR      errorStr[128];
@@ -1094,7 +952,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 
 			c = (char) fgetc(textfile);
 
-			for (i = 0; ((i < 127) && (!IsDelimeter(c))); i++, c = (char)fgetc(textfile) )
+			for (i = 0; ((i < 127) && (!IsDelimiter(c))); i++, c = (char)fgetc(textfile) )
 			{
 				currToken[i] = c;
 				if (IsComment(c))
@@ -1128,7 +986,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 
 			currToken[i] = '\0';
 
-			m_pCurrPage->AddLine(currFont, currToken);
+			m_pages[m_currPageIndex].AddLine(currFont, currToken);
 			m_currTextfileLine++;
 
 			gettingText = false;
@@ -1150,8 +1008,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 					snprintf(errorStr, sizeof(errorStr), "%s line %d: Bad font specifier '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 					MessageBoxDialog::Information(errorStr, "CreditsError");
 
-					delete this;
-					return nullptr;
+					return false;
 				}
 
 				gettingText = TRUE;
@@ -1170,16 +1027,14 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 						snprintf(errorStr, sizeof(errorStr), "%s line %d: Bad font filename '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 						MessageBoxDialog::Information(errorStr, "CreditsError");
 
-						delete this;
-						return nullptr;
+						return false;
 					}
 					break;
 				}
 				snprintf(errorStr, sizeof(errorStr), "%s line %d: Illegal text'%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 				MessageBoxDialog::Information(errorStr, "CreditsError");
 
-				delete this;
-				return nullptr;
+				return false;
 			}
 			case kFontDefinition:
 			{
@@ -1190,8 +1045,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 					snprintf(errorStr, sizeof(errorStr), "%s line %d: Bad font definition '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 					MessageBoxDialog::Information(errorStr, "CreditsError");
 
-					delete this;
-					return nullptr;
+					return false;
 				}
 				break;
 			}
@@ -1203,8 +1057,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 					snprintf(errorStr, sizeof(errorStr), "%s line %d: Bad font size '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 					MessageBoxDialog::Information(errorStr, "CreditsError");
 
-					delete this;
-					return nullptr;
+					return false;
 				}
 				break;
 			}
@@ -1224,15 +1077,14 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 			case kEndOfCredits:
 			{
 
-				return this;
+				return true;
 			}
 			case kBadToken:
 			{
 				snprintf(errorStr, sizeof(errorStr), "%s line %d: Bad token '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 				MessageBoxDialog::Information(errorStr, "CreditsError");
 
-				delete this;
-				return nullptr;
+				return false;
 			}
 		}
 
@@ -1242,25 +1094,13 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 	snprintf(errorStr, sizeof(errorStr), "%s line %d: Unexpected end of file found", k_CREDITS_FILENAME, m_currTextfileLine);
 	MessageBoxDialog::Information(errorStr, "CreditsError");
 
-	delete this;
-	return nullptr;
+	return false;
 }
 
 void c3_CreditsText::NewPage()
 {
-	cCreditsPage *  pNewPage = new cCreditsPage();
-
-	if (m_numPages)
-	{
-		m_pCurrPage->m_pNext = pNewPage;
-	}
-	else
-	{
-		m_pPages = pNewPage;
-	}
-
-	m_pCurrPage = pNewPage;
-	m_numPages++;
+	m_pages.emplace_back();
+	m_currPageIndex = m_pages.size() - 1;
 }
 
 void c3_CreditsText::ReadToEOL(FILE *textfile)
@@ -1280,7 +1120,7 @@ bool c3_CreditsText::IsComment(char c)
 	return (c == ';');
 }
 
-bool c3_CreditsText::IsDelimeter(char c)
+bool c3_CreditsText::IsDelimiter(char c)
 {
 	switch (c)
 	{
@@ -1288,6 +1128,8 @@ bool c3_CreditsText::IsDelimeter(char c)
 		{
 			m_currTextfileLine++;
 
+			// A newline is a delimiter too — deliberate fallthrough.
+			[[fallthrough]];
 		}
 		case '>':
 		case ' ':
@@ -1342,7 +1184,6 @@ eTokenType c3_CreditsText::TokenType(MBCHAR *pToken)
 
 	return kText;
 }
-
 bool c3_CreditsText::ParseFontDef(MBCHAR *pToken)
 {
 	MBCHAR errorStr[128];
@@ -1357,14 +1198,22 @@ bool c3_CreditsText::ParseFontDef(MBCHAR *pToken)
 	}
 
 	m_fonts[m_currFontNumber] = c3ui_Get()->LoadBitmapFont(pToken, m_currFontSize);
-	Assert(m_fonts);
+	Assert(m_fonts[m_currFontNumber] != nullptr);
+	if (!m_fonts[m_currFontNumber])
+	{
+		// The font file failed to load; report it instead of dereferencing.
+		snprintf(errorStr, sizeof(errorStr), "%s line %d: Could not load font '%s'", k_CREDITS_FILENAME, m_currTextfileLine, pToken);
+		MessageBoxDialog::Information(errorStr, "CreditsError");
+
+		return FALSE;
+	}
 
 	m_fonts[m_currFontNumber]->SetPointSize(m_currFontSize);
 
 	if ((m_currFontNumber + 1)> m_numFonts)
 		m_numFonts = m_currFontNumber + 1;
 
-	return (m_fonts[m_currFontNumber] != nullptr);
+	return TRUE;
 }
 
 
@@ -1376,17 +1225,17 @@ uint32 c3_CreditsText::GetFontSize(MBCHAR *pToken)
 
 uint32 c3_CreditsText::GetNumberFromToken(MBCHAR *pToken)
 {
-	MBCHAR *    pFoo    = pToken;
+	MBCHAR *    digitStart    = pToken;
 	size_t      len     = strlen(pToken);
 
 	for (size_t i = 0; i < len; ++i)
 	{
-		if (isdigit(*pFoo))
+		if (isdigit(*digitStart))
 		{
-			return atoi(pFoo);
+			return atoi(digitStart);
 		}
 
-		++pFoo;
+		++digitStart;
 	}
 
     return NUMBER_INVALID;
@@ -1396,17 +1245,15 @@ uint32 c3_CreditsText::GetNumberFromToken(MBCHAR *pToken)
 uint32 c3_CreditsText::GetFontNumber(MBCHAR *pToken)
 {
 	uint32 const retval = GetNumberFromToken(pToken);
-    return (retval > kCreditsTextNumFonts) ? NUMBER_INVALID : retval;
+
+	// kCreditsTextNumFonts is the size of m_fonts — a number equal to it is
+	// already one past the last slot (indices run 0..kCreditsTextNumFonts-1).
+    return (retval >= kCreditsTextNumFonts) ? NUMBER_INVALID : retval;
 }
 
 void c3_CreditsText::ResetPages()
 {
-	m_pCurrPage = m_pPages;
-
-	for (cCreditsPage * pFoo = m_pPages; pFoo; pFoo = pFoo->m_pNext)
-	{
-		pFoo->ResetLines();
-	}
+	m_currPageIndex = 0;
 }
 
 AUI_ERRCODE c3_CreditsText::Idle()
@@ -1429,14 +1276,12 @@ AUI_ERRCODE c3_CreditsText::Idle()
 
 
 
-	if (m_pCurrPage)
+	if (!m_pages.empty())
 	{
-		m_pCurrPage = m_pCurrPage->m_pNext;
-		if (m_pCurrPage == nullptr)
-		{
-
+		if (m_currPageIndex + 1 < m_pages.size())
+			m_currPageIndex++;
+		else
 			ResetPages();
-		}
 	}
 
 	GetParentWindow()->ShouldDraw();

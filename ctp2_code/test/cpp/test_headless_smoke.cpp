@@ -14,38 +14,16 @@
 
 #include "ctp/c3.h"
 #include "doctest.h"
+#include "headless_test_config.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
-// Common paths where the headless binary may live, relative to the test
-// working directory (project root when run via meson).
-static const char *HEADLESS_CANDIDATES[] = {
-    "./build/ctp2_headless",
-    "./build-sanitized/ctp2_headless",
-    "./ctp2_headless",   // if running directly from build dir
-    nullptr,
-};
-
-static const char *find_headless_binary()
-{
-    for (const char **p = HEADLESS_CANDIDATES; *p; ++p) {
-        if (std::FILE *f = std::fopen(*p, "r")) {
-            std::fclose(f);
-            return *p;
-        }
-    }
-    return nullptr;
-}
 
 // Run the headless binary with given arguments and return its stderr output.
 // Returns empty string on failure (cannot spawn process).
 static std::string run_headless(const char *args)
 {
-    const char *bin = find_headless_binary();
-    if (!bin) {
-        return "[ERROR] ctp2_headless binary not found";
-    }
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     char cmd[1024];
     std::snprintf(cmd, sizeof(cmd), "%s %s 2>&1", bin, args);
@@ -178,10 +156,6 @@ TEST_CASE("Headless smoke: minimum turns (1 turn, 3 players)")
 {
     std::string output = run_headless("--new-game --turns 1 --players 3 --seed 42");
 
-    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
-        return; // skip — binary not built
-    }
-
     CHECK(!output.empty());
     CHECK(output.find("[EXIT_CODE] 0") == 0);
     CHECK(output.find("Completed 1 turns") != std::string::npos);
@@ -192,10 +166,6 @@ TEST_CASE("Headless smoke: minimum turns (1 turn, 3 players)")
 TEST_CASE("Headless smoke: minimum players (5 turns, 2 players)")
 {
     std::string output = run_headless("--new-game --turns 5 --players 2 --seed 42");
-
-    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
-        return; // skip — binary not built
-    }
 
     CHECK(!output.empty());
     CHECK(output.find("[EXIT_CODE] 0") == 0);
@@ -208,10 +178,6 @@ TEST_CASE("Headless smoke: large player count (10 turns, 8 players)")
 {
     std::string output = run_headless("--new-game --turns 10 --players 8 --seed 42");
 
-    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
-        return; // skip — binary not built
-    }
-
     CHECK(!output.empty());
     CHECK(output.find("[EXIT_CODE] 0") == 0);
     CHECK(output.find("Completed 10 turns") != std::string::npos);
@@ -222,10 +188,6 @@ TEST_CASE("Headless smoke: large player count (10 turns, 8 players)")
 TEST_CASE("Headless smoke: different seed 100 (20 turns, 3 players)")
 {
     std::string output = run_headless("--new-game --turns 20 --players 3 --seed 100");
-
-    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
-        return; // skip — binary not built
-    }
 
     CHECK(!output.empty());
     CHECK(output.find("[EXIT_CODE] 0") == 0);
@@ -238,10 +200,6 @@ TEST_CASE("Headless smoke: different seed 999 (20 turns, 3 players)")
 {
     std::string output = run_headless("--new-game --turns 20 --players 3 --seed 999");
 
-    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
-        return; // skip — binary not built
-    }
-
     CHECK(!output.empty());
     CHECK(output.find("[EXIT_CODE] 0") == 0);
     CHECK(output.find("Completed 20 turns") != std::string::npos);
@@ -252,10 +210,6 @@ TEST_CASE("Headless smoke: different seed 999 (20 turns, 3 players)")
 TEST_CASE("Headless smoke: baseline output is non-empty (10 turns, 3 players)")
 {
     std::string output = run_headless("--new-game --turns 10 --players 3 --seed 42");
-
-    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
-        return; // skip — binary not built
-    }
 
     CHECK(!output.empty());
 }

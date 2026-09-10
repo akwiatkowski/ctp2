@@ -107,17 +107,13 @@ void watchlist_AddExpression(char *exp)
 
 WatchList::WatchList(WatchListCallback callback, MBCHAR *ldlBlock)
 :   m_window                (nullptr),
-    m_list                  (nullptr),
-    m_newButton             (nullptr),
-    m_clearButton           (nullptr),
-    m_exitButton            (nullptr),
 	m_callback              (callback)
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
     strlcpy(windowBlock, ldlBlock ? ldlBlock : "WatchListPopup", sizeof(windowBlock));
 
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		m_window.reset(new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false));
 		Assert( AUI_NEWOK(m_window, errcode) );
 	if (AUI_NEWOK(m_window, errcode))
     {
@@ -137,16 +133,14 @@ WatchList::~WatchList()
 	    c3ui_Get()->RemoveWindow(m_window->Id());
     }
 
+    // Cleared before release so the window (declared first, so destroyed
+    // last) still hosts a valid list while entries go away. The guard stays:
+    // the controls are only built by Initialize, so they can still be empty.
     if (m_list)
     {
 	    m_list->Clear();
     }
 
-	delete m_list;
-	delete m_newButton;
-    delete m_clearButton;
-    delete m_exitButton;
-	delete m_window;
 }
 
 void WatchListActionCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -204,7 +198,7 @@ sint32 WatchList::Initialize(MBCHAR *windowBlock)
 
 
 	snprintf( controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "WatchList" );
-	m_list = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, WatchListActionCallback, this);
+	m_list.reset(new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, WatchListActionCallback, this));
 	m_list->SetAbsorbancy(FALSE);
 	m_list->Clear();
 
@@ -213,13 +207,13 @@ sint32 WatchList::Initialize(MBCHAR *windowBlock)
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "NewButton");
-	m_newButton = new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this);
+	m_newButton.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this));
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ClearButton");
-	m_clearButton = new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this);
+	m_clearButton.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this));
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton");
-	m_exitButton = new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this);
+	m_exitButton.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this));
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
 	Assert( AUI_SUCCESS(errcode) );
@@ -233,7 +227,7 @@ void WatchList::DisplayWindow()
 
 	UpdateData();
 
-	auiErr = c3ui_Get()->AddWindow(m_window);
+	auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	keypress_RegisterHandler(this);

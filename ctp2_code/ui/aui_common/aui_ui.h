@@ -106,7 +106,6 @@ protected:
 	aui_UI()
 	:
 		aui_Region                  (),
-		m_dirtyRectInfoMemory       (nullptr),
 		m_dirtyRectInfoList         (nullptr),
 		m_hinst                     ((HINSTANCE) INVALID_HANDLE_VALUE),
 		m_hwnd                      ((HWND) INVALID_HANDLE_VALUE),
@@ -115,6 +114,14 @@ protected:
 		m_ldl                       (nullptr),
 		m_primary                   (nullptr),
 		m_secondary                 (nullptr),
+		m_worldSurface              (nullptr),
+		m_uiSurface                 (nullptr),
+		m_worldWindow               (nullptr),
+		m_gpuLayers                 (false),
+		m_fogSurface                (nullptr),
+		m_gpuFog                    (false),
+		m_worldContentVersion       (0),
+		m_uiContentVersion          (0),
 		m_blitter                   (nullptr),
 		m_memmap                    (nullptr),
 		m_mouse                     (nullptr),
@@ -187,7 +194,51 @@ public:
 		AccumulateSecondaryDirty(destx, desty,
 		                         destx + (srcRect->right - srcRect->left),
 		                         desty + (srcRect->bottom - srcRect->top));
-		return m_blitter->Blt(m_secondary, destx, desty, srcSurf, srcRect, flags);
+		AUI_ERRCODE const rc =
+			m_blitter->Blt(m_secondary, destx, desty, srcSurf, srcRect, flags);
+		// P11 Stage 2 D: mirror each composite write into a world-only or a
+		// UI-only layer so they can be GPU-composited separately (fog on the
+		// world, pan/zoom the world). The background window's surface is the
+		// world; every other source (UI windows, cursor, fills) is UI. The UI
+		// layer is screen-sized and shares the secondary's coordinates.
+		if (m_gpuLayers)
+		{
+			if (srcSurf && srcSurf == WorldSurfaceKey())
+			{
+				// P11 2b (ADR-001): the background window IS an oversized world
+				// render — its surface extends one tile-grid past the screen on
+				// every side (window at (-94,-72)), terrain AND actors drawn by
+				// the legacy pipeline. Mirror the WHOLE window surface 1:1 (not
+				// the incoming rect): the composite pipeline clips its rects to
+				// the screen, but the sub-tile GPU pan samples the off-screen
+				// margins every frame — after a ScrollMap the whole surface has
+				// shifted, so a screen-clipped mirror would leave one-tile-stale
+				// margins for the glide to slide into. Preserve the painter's
+                // coordinates: PresentWorldFrame samples software pixels at
+                // origin zero; only GPU window quads add WorldContentOff*.
+				RECT whole = { 0, 0, srcSurf->Width(), srcSurf->Height() };
+				m_blitter->Blt(m_worldSurface, 0, 0, srcSurf, &whole, flags);
+				++m_worldContentVersion;
+				// Punch a transparent hole in the UI layer (screen coords): in
+				// z-order the world is the bottom-most window, so a world write
+				// means whatever the UI layer held here (a closed window, a
+				// fill) is stale — anything genuinely above will be re-blitted
+				// right after by its own window in the same composite pass.
+				// Without this, closed windows ghost forever over the world.
+				EraseUiLayerRect(destx, desty,
+				                 destx + (srcRect->right - srcRect->left),
+				                 desty + (srcRect->bottom - srcRect->top));
+				++m_uiContentVersion;
+			}
+			else
+			{
+				m_blitter->Blt(m_uiSurface, destx, desty, srcSurf, srcRect, flags);
+				// Stamp the write so the present can tell "UI pixels changed"
+				// from "identical frame" (see the content versions below).
+				++m_uiContentVersion;
+			}
+		}
+		return rc;
 	};
 
 	// useAccumulatedDirty: the per-frame mouse presents pass true — every
@@ -211,7 +262,15 @@ public:
 	{
 		AccumulateSecondaryDirty(destRect->left, destRect->top,
 		                         destRect->right, destRect->bottom);
-		return m_blitter->ColorBlt(m_secondary, destRect, color, flags);
+		AUI_ERRCODE const rc = m_blitter->ColorBlt(m_secondary, destRect, color, flags);
+		// P11 Stage 2 D: color/image fills are background/UI chrome, never the
+		// world window — mirror them into the UI layer (see BltToSecondary).
+		if (m_gpuLayers)
+		{
+			m_blitter->ColorBlt(m_uiSurface, destRect, color, flags);
+			++m_uiContentVersion;
+		}
+		return rc;
 	};
 
 	sint32 PrimaryHeight()  { return m_primary->Height(); };
@@ -243,6 +302,32 @@ public:
 
 	aui_Surface		*Secondary( ) const { return m_secondary; }
 	aui_Surface		*Primary( ) const { return m_primary; }
+	// P11 Stage 2 D: per-layer GPU compositing surfaces + configuration.
+	aui_Surface		*WorldSurface( ) const { return m_worldSurface; }
+	aui_Surface		*UiSurface( ) const { return m_uiSurface; }
+	bool			GpuLayers( ) const { return m_gpuLayers; }
+	void			SetWorldWindow( aui_Window *w ) { m_worldWindow = w; }
+	// The world window's CURRENT surface (or null) — the source-surface key
+	// BltToSecondary classifies world writes by. Resolved live because windows
+	// create their surfaces lazily and drop/rebuild them on hide/resize.
+	aui_Surface		*WorldSurfaceKey( ) const
+	{ return m_worldWindow ? m_worldWindow->TheSurface() : nullptr; }
+	// Zero (ARGB 0x00000000 = transparent) a rect of the UI layer, clamped to
+	// the surface. See the world-blit hole punch in BltToSecondary.
+	void			EraseUiLayerRect( sint32 l, sint32 t, sint32 r, sint32 b );
+	aui_Surface		*FogSurface( ) const { return m_fogSurface; }
+	bool			GpuFog( ) const { return m_gpuFog; }
+	// P11 2c (ADR-001) — layer content versions. Monotonic counters bumped on
+	// every write to the UI layer (the BltToSecondary/ColorBltToSecondary
+	// chokepoints above) and to the world layer (the world mirror above).
+	// The GPU present compares them against what it last uploaded/showed: an
+	// unchanged version means the texture upload can be skipped, and an entirely
+	// unchanged frame (same versions + same camera) can skip the vsync-blocking
+	// present altogether. That matters because the mouse thread also presents;
+	// during a trackpad glide the cursor is still, and without the skip its
+	// redundant presents each block on vsync and starve the 60fps camera tick.
+	uint32			WorldContentVersion( ) const { return m_worldContentVersion; }
+	uint32			UiContentVersion( ) const { return m_uiContentVersion; }
 	aui_Blitter		*TheBlitter( ) const { return m_blitter; }
 	aui_MemMap		*TheMemMap( ) const { return m_memmap; }
 	aui_Mouse		*TheMouse( ) const { return m_mouse; }
@@ -425,7 +510,8 @@ protected:
 	AUI_ERRCODE InsertDirtyRectInfo( RECT *rect, aui_Window *window );
 	void FlushDirtyRectInfoList( );
 
-	tech_Memory<DirtyRectInfo>		*m_dirtyRectInfoMemory;
+	// Held by value: created with the UI, destroyed with it, never replaced.
+	tech_Memory<DirtyRectInfo>		m_dirtyRectInfoMemory;
 	tech_WLList<DirtyRectInfo *>	*m_dirtyRectInfoList;
 
 	HINSTANCE		m_hinst;
@@ -437,6 +523,27 @@ protected:
 
 	aui_Surface		*m_primary;
 	aui_Surface		*m_secondary;
+
+	// P11 Stage 2 D: per-layer GPU compositing. When m_gpuLayers is set (by the
+	// SDL UI when CTP2_GPU_LAYERS is on), every BltToSecondary/ColorBltToSecondary
+	// is mirrored into a world-only or UI-only screen-sized surface so the two
+	// layers can be GPU-composited independently. m_worldWindow is the background
+	// window; a write whose source is that window's CURRENT surface is world,
+	// everything else is UI. The window pointer (not its surface) is stored
+	// because windows create their surfaces lazily and drop/rebuild them on
+	// hide/resize — a surface pointer captured once goes stale (or is null).
+	aui_Surface		*m_worldSurface;
+	aui_Surface		*m_uiSurface;
+	// P11 2c: content versions for the layer surfaces (see accessors above).
+	uint32			m_worldContentVersion;
+	uint32			m_uiContentVersion;
+	aui_Window		*m_worldWindow;
+	bool			m_gpuLayers;
+	// P11 Stage 2 C: fog-of-war mask surface (32-bit, screen-sized, transparent
+	// except fogged tiles = 50% black). Composited over the world layer on the
+	// GPU. Built by TiledMap from vision state. Set when m_gpuFog is on.
+	aui_Surface		*m_fogSurface;
+	bool			m_gpuFog;
 
 	// Running union of every rect written into m_secondary via
 	// BltToSecondary/ColorBltToSecondary since the last present.

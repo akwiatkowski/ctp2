@@ -26,12 +26,14 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "ctp/ctp2_utils/bounded_json.h"
 #include "gs/fileio/json_save.h"
 
 #include "gs/utility/TurnCnt.h"
 #include "gs/utility/RandGen.h"
 #include "gs/gameobj/GameSettings.h"
 #include "gs/world/Cell.h"
+#include "gs/gameobj/GoodyHuts.h"
 #include "gs/world/TileInfo.h"
 #include "gs/world/UnseenCell.h"
 #include "gs/world/World.h"
@@ -132,6 +134,7 @@
 #include "gs/database/EndGameDB.h"          // endgamedb_Get()->m_nRec
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/core/game_observer.h"          // NotifyUnitSpawned
+#include "gs/core/tiledmap_observer.h"      // RecreateGoodActors
 #include "gs/world/cellunitlist.h"          // CellUnitList (ArmyData base)
 #include "gs/utility/UnitDynArr.h"          // UnitDynamicArray
 #include "ctp/ctp2_utils/BitMask.h"        // BitMask (m_roundTheWorldMask)
@@ -155,12 +158,9 @@ extern PointerList<Player>   *g_deadPlayer;
 // installationpool_Get() / wonder_tracker_Get() / exclusions_Get() / feattracker_Get() /
 // are extern'd by their respective headers (already included above).
 
-// CTP2_BUILD_SHA is injected by meson into config.h (run_command git
-// rev-parse --short).  Fall back to "unknown" if config.h hasn't been
-// regenerated.
-#ifndef CTP2_BUILD_SHA
-#define CTP2_BUILD_SHA "unknown"
-#endif
+// Build identity is isolated so revision changes only rebuild save-file writers.
+#include "build_revision.h"
+#include "PersonalityRecord.h"
 
 // --- save-file string codec (public: unit-tested) ----------------------
 
@@ -355,7 +355,7 @@ void from_json(nlohmann::json const &j, RandomGenerator &rng)
 
 // --- World-layer bridges (Phase C-1) ------------------------------------
 // Scalar fields only.  Nested pointer-typed data (CellUnitList,
-// DynamicArray<ID>, GoodyHut on Cell; PointerList<UnseenInstallationInfo>
+// DynamicArray<ID> on Cell; PointerList<UnseenInstallationInfo>
 // etc. on UnseenCell; GoodActor* on TileInfo) is deferred to Phase D/E
 // when the contained types get their own to_json/from_json.
 
@@ -375,6 +375,7 @@ void to_json(nlohmann::json &j, Cell const &c)
         // through the ID base.  An empty city has id 0.
         {"city",             static_cast<ID const &>(c.m_city)},
         {"cell_owner",       c.m_cellOwner},
+        {"goody_hut",        c.m_jabba ? nlohmann::json(*c.m_jabba) : nlohmann::json(nullptr)},
     };
 }
 
@@ -401,7 +402,21 @@ void from_json(nlohmann::json const &j, Cell &c)
     // city with only k_BIT_ENV_CITY_RADIUS set) to full CITY tiles on
     // every load (SetCity sets k_BIT_ENV_CITY for any non-zero id).
     c.m_city = Unit(city_id.m_id);
-    j.at("cell_owner")      .get_to(c.m_cellOwner);
+    sint32 const owner = j.at("cell_owner").get<sint32>();
+    if (owner < -1 || owner >= k_MAX_PLAYERS)
+        throw nlohmann::json::other_error::create(532, "invalid cell owner", &j);
+    // SetOwner also updates the land-area totals used by strength and AI.
+    c.SetOwner(owner);
+
+    // Older saves omitted ruins. Do not invent their randomized rewards on
+    // load: restore both saved values without consuming the game RNG.
+    std::unique_ptr<GoodyHut> hut;
+    if (j.contains("goody_hut") && !j["goody_hut"].is_null()) {
+        hut = std::make_unique<GoodyHut>(0, 0);
+        j["goody_hut"].get_to(*hut);
+    }
+    c.DeleteGoodyHut();
+    c.m_jabba = hut.release();
 }
 
 void to_json(nlohmann::json &j, TileInfo const &t)
@@ -591,12 +606,26 @@ void to_json(nlohmann::json &j, World const &w)
 
 void from_json(nlohmann::json const &j, World &w)
 {
-    // Free any existing map state and reallocate at the saved size.
-    // Matches the binary load path at wldgen.cpp:2385.
+    // Validate dimensions and dense storage before allocation or destroying the
+    // current world. XY coordinates double X, and map cells have substantial
+    // per-cell state; one million cells is a generous allocation ceiling.
+    for (auto key : {"size_x", "size_y"}) {
+        auto const &v = j.at(key);
+        bool valid = v.is_number_unsigned() ? v.get<uint64_t>() > 0 && v.get<uint64_t>() <= 16383
+            : v.is_number_integer() && v.get<int64_t>() > 0 && v.get<int64_t>() <= 16383;
+        if (!valid) throw nlohmann::json::other_error::create(503, "invalid world dimensions", &j);
+    }
+    sint32 size_x = j.at("size_x").get<sint32>();
+    sint32 size_y = j.at("size_y").get<sint32>();
+    size_t count = size_t(size_x) * size_y;
+    if (count > 1024 * 1024 || !j.at("cells").is_array() || j.at("cells").size() != size_t(size_x)
+        || !j.at("tile_info_storage").is_array() || j.at("tile_info_storage").size() != count)
+        throw nlohmann::json::other_error::create(503, "invalid world storage size", &j);
+    for (auto const &column : j.at("cells"))
+        if (!column.is_array() || column.size() != size_t(size_y))
+            throw nlohmann::json::other_error::create(503, "invalid world column size", &j);
     w.FreeMap();
 
-    sint32 size_x  = j.at("size_x").get<sint32>();
-    sint32 size_y  = j.at("size_y").get<sint32>();
     bool   xwrap   = j.at("is_xwrap").get<bool>();
     bool   ywrap   = j.at("is_ywrap").get<bool>();
     w.m_isXwrap    = xwrap ? 1 : 0;
@@ -704,6 +733,9 @@ void from_json(nlohmann::json const &j, World &w)
     // path at wldgen.cpp does the full NumberContinents for the same
     // reason).
     w.FindContinentNeighbors();
+
+    w.RebuildPathing();
+
 }
 
 // --- Player-layer leaf bridges (Phase D-1) -----------------------------
@@ -1338,13 +1370,15 @@ void from_json(nlohmann::json const &j, Happy &h)
         h.m_timedChanges.push_back(timer);
     }
 
-    // m_tracker is owned by Happy: delete + reconstruct on load.
-    delete h.m_tracker;
-    h.m_tracker = nullptr;
+    // m_tracker is owned by Happy: reconstruct on load (reset frees any old).
     if (j.contains("tracker"))
     {
-        h.m_tracker = new HappyTracker();
+        h.m_tracker.reset(new HappyTracker());
         j.at("tracker").get_to(*h.m_tracker);
+    }
+    else
+    {
+        h.m_tracker.reset();
     }
 }
 
@@ -1551,7 +1585,7 @@ void from_json(nlohmann::json const &j, Feat &f)
 void to_json(nlohmann::json &j, FeatTracker const &ft)
 {
     nlohmann::json active = nlohmann::json::array();
-    PointerList<Feat>::Walker walk(ft.m_activeList);
+    PointerList<Feat>::Walker walk(const_cast<PointerList<Feat> *>(&ft.m_activeList));
     while (walk.IsValid())
     {
         active.push_back(*walk.GetObj());
@@ -1578,12 +1612,12 @@ void to_json(nlohmann::json &j, FeatTracker const &ft)
 void from_json(nlohmann::json const &j, FeatTracker &ft)
 {
     // Rebuild m_activeList from the JSON array.
-    ft.m_activeList->DeleteAll();
+    ft.m_activeList.DeleteAll();
     for (auto const &feat_json : j.at("active"))
     {
         Feat *feat = new Feat(0, 0);  // dummy ctor args; overwritten by JSON
         feat_json.get_to(*feat);
-        ft.m_activeList->AddTail(feat);
+        ft.m_activeList.AddTail(feat);
     }
 
     // Achieved / building_feat: sized by current DB.  If the JSON
@@ -1679,6 +1713,13 @@ void from_json(nlohmann::json const &j, Diplomat &d)
 {
     j.at("player_id")                       .get_to(d.m_playerId);
     j.at("personality_name")                .get_to(d.m_personalityName);
+    if (g_thePersonalityDB && !d.m_personalityName.empty()) {
+        sint32 index;
+        if (!g_thePersonalityDB->GetNamedItem(d.m_personalityName.c_str(), index))
+            throw nlohmann::json::other_error::create(532, "unknown AI personality", &j);
+        // The fresh game's personality can differ from the one being loaded.
+        d.m_personality = g_thePersonalityDB->Get(index);
+    }
 
     d.m_bestStrategicStates.clear();
     for (auto const &state_json : j.at("best_strategic_states"))
@@ -1734,6 +1775,19 @@ void from_json(nlohmann::json const &j, UnitState &s)
 // (Phase 1j finding, 2026-06-03). The Path JSON bridge itself lives
 // further down (search for "Mirrors Path::Serialize").
 
+// Range-checked GAME_EVENT load shared by the Order and SlicContext
+// bridges. Out-of-range integers must not reach static_cast (invalid
+// enum load is UB and aborts under UBSan halt_on_error); corrupt saves
+// get a clean rejection instead. GEV_MAX is storable (the "no event"
+// sentinel), so the bound is inclusive.
+static GAME_EVENT checked_game_event(nlohmann::json const &j, char const *key)
+{
+    sint32 const value = j.at(key).get<sint32>();
+    if (value < 0 || value > GEV_MAX)
+        throw nlohmann::json::other_error::create(503, "invalid game event type", &j);
+    return static_cast<GAME_EVENT>(value);
+}
+
 void to_json(nlohmann::json &j, Order const &o)
 {
     j = nlohmann::json{
@@ -1749,11 +1803,18 @@ void to_json(nlohmann::json &j, Order const &o)
 
 void from_json(nlohmann::json const &j, Order &o)
 {
-    o.m_order = static_cast<UNIT_ORDER_TYPE>(j.at("order").get<sint32>());
+    // Enum loads of out-of-range integers are undefined behavior (UBSan
+    // aborts under halt_on_error), so validate before static_cast — the
+    // same discipline as Order::OrderToEvent. GEV_MAX is storable (the
+    // "no event" sentinel written by to_json); UNIT_ORDER_MAX is not.
+    sint32 const order = j.at("order").get<sint32>();
+    if (order < 0 || order >= UNIT_ORDER_MAX)
+        throw nlohmann::json::other_error::create(503, "invalid order type", &j);
+    o.m_order = static_cast<UNIT_ORDER_TYPE>(order);
     j.at("round")   .get_to(o.m_round);
     j.at("point")   .get_to(o.m_point);
     j.at("argument").get_to(o.m_argument);
-    o.m_eventType = static_cast<GAME_EVENT>(j.at("event_type").get<sint32>());
+    o.m_eventType = checked_game_event(j, "event_type");
     if (j.contains("path") && !j.at("path").is_null()) {
         o.m_path = new Path();
         j.at("path").get_to(*o.m_path);
@@ -1962,12 +2023,11 @@ void from_json(nlohmann::json const &j, UnitData &u)
     j.at("army")            .get_to(u.m_army);
     j.at("pos")             .get_to(u.m_pos);
 
-    delete u.m_cargo_list;
-    u.m_cargo_list = nullptr;
+    u.m_cargo_list.reset();
     auto const &cargo = j.at("cargo_list");
     if (cargo.at("present").get<bool>())
     {
-        u.m_cargo_list = new UnitDynamicArray;
+        u.m_cargo_list.reset(new UnitDynamicArray);
         for (auto const &id_json : cargo.at("units"))
         {
             ID id(0);
@@ -1976,13 +2036,12 @@ void from_json(nlohmann::json const &j, UnitData &u)
         }
     }
 
-    delete u.m_city_data;
-    u.m_city_data = nullptr;
+    u.m_city_data.reset();
     if (!j.at("city_data").is_null())
     {
         // CityData has no default ctor; use the (owner, hc, pos) form
         // with placeholders — from_json overwrites all of these.
-        u.m_city_data = new CityData(0, Unit(0), MapPoint(0, 0));
+        u.m_city_data.reset(new CityData(0, Unit(0), MapPoint(0, 0)));
         j.at("city_data").get_to(*u.m_city_data);
     }
 
@@ -1990,11 +2049,10 @@ void from_json(nlohmann::json const &j, UnitData &u)
     j.at("temp_visibility_array").get_to(u.m_temp_visibility_array);
     j.at("transport")            .get_to(u.m_transport);
 
-    delete u.m_roundTheWorldMask;
-    u.m_roundTheWorldMask = nullptr;
+    u.m_roundTheWorldMask.reset();
     if (!j.at("round_the_world_mask").is_null())
     {
-        u.m_roundTheWorldMask = new BitMask(1);  // dummy size; replaced by from_json
+        u.m_roundTheWorldMask.reset(new BitMask(1));  // dummy size; replaced by from_json
         j.at("round_the_world_mask").get_to(*u.m_roundTheWorldMask);
     }
 
@@ -2498,6 +2556,19 @@ void to_json(nlohmann::json &j, Vision const &v)
 
 void from_json(nlohmann::json const &j, Vision &v)
 {
+    // Check dimensions before narrowing or allocating. Vision belongs to the
+    // current world; accepting a different grid also corrupts spatial lookups.
+    for (auto key : {"width", "height"}) {
+        auto const &value = j.at(key);
+        if (!value.is_number_integer() || value <= 0 || value > 32767)
+            throw nlohmann::json::other_error::create(501, "invalid Vision dimensions", &j);
+    }
+    auto width = j.at("width").get<sint32>();
+    auto height = j.at("height").get<sint32>();
+    if (!world_Get() || width != world_Get()->GetWidth() || height != world_Get()->GetHeight()
+        || !j.at("grid").is_array() || j.at("grid").size() != size_t(width) * height
+        || !j.at("unseen_cells").is_array() || j.at("unseen_cells").size() > size_t(width) * height)
+        throw nlohmann::json::other_error::create(501, "Vision grid size mismatch", &j);
     // Tear down existing storage (matches Vision::Serialize's load branch).
     v.m_array.clear();
     v.DeleteUnseenCells();
@@ -2526,10 +2597,15 @@ void from_json(nlohmann::json const &j, Vision &v)
     v.m_unseenCells = std::make_unique<UnseenCellQuadTree>(v.m_width, v.m_height, v.m_isYwrap);
     for (auto const &entry : j.at("unseen_cells"))
     {
-        UnseenCell *uc = new UnseenCell(MapPoint(0, 0));
+        auto uc = std::make_unique<UnseenCell>(MapPoint(0, 0));
         entry.get_to(*uc);
-        UnseenCellCarton carton(uc);
+        MapPoint pos;
+        uc->GetPos(pos);
+        if (pos.x < 0 || pos.y < 0 || pos.x >= width || pos.y >= height)
+            throw nlohmann::json::other_error::create(501, "unseen cell outside Vision grid", &entry);
+        UnseenCellCarton carton(uc.get());
         v.m_unseenCells->Insert(carton);
+        uc.release();
     }
 }
 
@@ -3303,14 +3379,14 @@ void to_json(nlohmann::json &j, Player const &p)
         {"all_armies",       ids_from_armies(p.m_all_armies)},
         {"all_cities",       ids_from_units(p.m_all_cities)},
         {"all_units",        ids_from_units(p.m_all_units)},
-        {"trader_units",     ids_from_units(p.m_traderUnits)},
-        {"messages",                ids_from_handles(p.m_messages)},
-        {"trade_offers",            ids_from_handles(p.m_tradeOffers)},
-        {"requests",                ids_from_handles(p.m_requests)},
-        {"agreed",                  ids_from_handles(p.m_agreed)},
-        {"all_installations",       ids_from_handles(p.m_allInstallations)},
-        {"all_radar_installations", ids_from_handles(p.m_allRadarInstallations)},
-        {"terrain_improvements",    ids_from_handles(p.m_terrainImprovements)},
+        {"trader_units",     ids_from_units(p.m_traderUnits.get())},
+        {"messages",                ids_from_handles(p.m_messages.get())},
+        {"trade_offers",            ids_from_handles(p.m_tradeOffers.get())},
+        {"requests",                ids_from_handles(p.m_requests.get())},
+        {"agreed",                  ids_from_handles(p.m_agreed.get())},
+        {"all_installations",       ids_from_handles(p.m_allInstallations.get())},
+        {"all_radar_installations", ids_from_handles(p.m_allRadarInstallations.get())},
+        {"terrain_improvements",    ids_from_handles(p.m_terrainImprovements.get())},
     };
 }
 
@@ -3485,7 +3561,7 @@ void from_json(nlohmann::json const &j, Player &p)
     load_army_ids("all_armies",   p.m_all_armies);
     load_unit_ids("all_cities",   p.m_all_cities);
     load_unit_ids("all_units",    p.m_all_units);
-    load_unit_ids("trader_units", p.m_traderUnits);
+    load_unit_ids("trader_units", p.m_traderUnits.get());
 
     // Per-player DynamicArray<Handle> ID arrays for pool-backed handles.
     // Handles construct from uint32. Backing pools are restored earlier
@@ -3499,13 +3575,13 @@ void from_json(nlohmann::json const &j, Player &p)
             dst->Insert(h);
         }
     };
-    load_handles("messages",                p.m_messages);
-    load_handles("trade_offers",            p.m_tradeOffers);
-    load_handles("requests",                p.m_requests);
-    load_handles("agreed",                  p.m_agreed);
-    load_handles("all_installations",       p.m_allInstallations);
-    load_handles("all_radar_installations", p.m_allRadarInstallations);
-    load_handles("terrain_improvements",    p.m_terrainImprovements);
+    load_handles("messages",    p.m_messages.get());
+    load_handles("trade_offers",    p.m_tradeOffers.get());
+    load_handles("requests",    p.m_requests.get());
+    load_handles("agreed",    p.m_agreed.get());
+    load_handles("all_installations",    p.m_allInstallations.get());
+    load_handles("all_radar_installations",    p.m_allRadarInstallations.get());
+    load_handles("terrain_improvements",    p.m_terrainImprovements.get());
 }
 
 // Phase D — Foreigner
@@ -4555,7 +4631,7 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
     j.at("special_variables").get_to(s.m_specialVariables);
     s.m_isAlert         = j.at("is_alert").get<bool>();
     s.m_isHelp          = j.at("is_help").get<bool>();
-    s.m_event           = static_cast<GAME_EVENT>(j.at("event").get<int>());
+    s.m_event           = checked_game_event(j, "event");
     s.m_priority        = static_cast<GAME_EVENT_PRIORITY>(j.at("priority").get<int>());
     j.at("from_file").get_to(s.m_fromFile);
 
@@ -5118,6 +5194,7 @@ namespace {
 nlohmann::json ctpai_state_to_json()
 {
     nlohmann::json j;
+    json_save::SaveAiHistory(j);
     j["diplomat_next_id"] = Diplomat::PeekNextId();
     j["agreements"]       = AgreementMatrix::s_agreements;
 
@@ -5134,6 +5211,11 @@ nlohmann::json ctpai_state_to_json()
 }  // namespace
 
 namespace json_save {
+
+namespace
+{
+constexpr std::streamoff kMaxSaveBytes = 128 * 1024 * 1024;
+}
 
 // Compose the full game state into a single JSON document and write to
 // `path`.  Mirrors GameFile::Save's binary archive order (gs/fileio/
@@ -5238,7 +5320,14 @@ bool SaveJson(char const *path)
                   << "' for writing\n";
         return false;
     }
-    out << doc.dump(2);
+    // Compact dump for soak runs (CTP2_JSON_COMPACT=1): same document, no
+    // indentation. Pretty stays default — diffs of saves are a debugging
+    // workflow (see header). Measured 2026-09-10 on a 5.5 MB round-160
+    // save: pretty 5.5 MB, compact 2.2 MB; dump+write well under the DOM
+    // build either way (saves run ~0.3 s at round 160, ~0.4 s at round 235).
+    char const *compactEnv = getenv("CTP2_JSON_COMPACT");
+    bool const compact = compactEnv && compactEnv[0] && strcmp(compactEnv, "0") != 0;
+    out << (compact ? doc.dump() : doc.dump(2));
     return out.good();
 }
 
@@ -5253,32 +5342,61 @@ bool LoadJson(char const *path)
 		          << "' for reading\n";
 		return false;
 	}
-
     nlohmann::json doc;
-    try
-    {
-        in >> doc;
-    }
-    catch (nlohmann::json::parse_error const &e)
+    try { doc = ReadBoundedJson(in, kMaxSaveBytes); }
+    catch (nlohmann::json::exception const &e)
     {
         std::cerr << "[json_save] LoadJson: parse error at '" << path
                   << "': " << e.what() << "\n";
         return false;
     }
 
-    if (!doc.contains("magic") || doc["magic"] != MAGIC)
+    if (!doc.is_object())
+    {
+        std::cerr << "[json_save] LoadJson: top level must be an object in '"
+                  << path << "'\n";
+        return false;
+    }
+    if (!doc.contains("magic") || !doc["magic"].is_string()
+        || doc["magic"] != MAGIC)
     {
         std::cerr << "[json_save] LoadJson: bad magic in '" << path
                   << "' (expected \"" << MAGIC << "\")\n";
         return false;
     }
     if (!doc.contains("schema_version")
-        || doc["schema_version"].get<int>() != SCHEMA_VERSION)
+        || !doc["schema_version"].is_number_integer()
+        || doc["schema_version"] != SCHEMA_VERSION)
     {
         std::cerr << "[json_save] LoadJson: schema_version mismatch in '"
                   << path << "' (expected " << SCHEMA_VERSION << ")\n";
         return false;
     }
+    if (doc.contains("players")
+        && (!doc["players"].is_array() || doc["players"].size() > k_MAX_PLAYERS))
+    {
+        std::cerr << "[json_save] LoadJson: players must be an array with at most "
+                  << k_MAX_PLAYERS << " entries in '" << path << "'\n";
+        return false;
+    }
+    if (doc.contains("ai_state"))
+    {
+        auto const &ai = doc["ai_state"];
+        if (!ai.is_object()
+            || (ai.contains("diplomats")
+                && (!ai["diplomats"].is_array()
+                    || ai["diplomats"].size() > k_MAX_PLAYERS)))
+        {
+            std::cerr << "[json_save] LoadJson: invalid or oversized ai_state in '"
+                      << path << "'\n";
+            return false;
+        }
+    }
+
+	// Loading replaces the current game state. Drop events queued by the
+	// throwaway game used to initialise the singletons before the overlay.
+	if (gevmanager_Get())
+		gevmanager_Get()->NotifyResync();
 
     // Populate game-state singletons in place.  Pattern: gameinit_
     // Initialize has already run with archive=NULL (the "fresh game"
@@ -5430,6 +5548,10 @@ bool LoadJson(char const *path)
         if (world_Get())
             CtpAi::Resize();
 
+        // Restore history after Resize, which can copy schedulers and discard
+        // their pointer relationships.
+        RestoreAiHistory(doc.value("ai_state", nlohmann::json::object()));
+
         // Units/cities were restored without gfx state (UnitData's
         // from_json intentionally leaves m_actor null).  Recreate the
         // actors here so EVERY load entry point — the UI load dialog,
@@ -5441,6 +5563,17 @@ bool LoadJson(char const *path)
         // fixtures may call LoadJson without gameinit (no unit DB).
         if (world_Get() && unitpool_Get())
             unitpool_Get()->RecreateActors();
+
+        // Same story for the map's goods: TileInfo::m_goodActor is a UI
+        // sprite pointer and is never serialised (see from_json for TileInfo),
+        // so a restored world knows where every resource is but has nothing
+        // to draw it with.  Recreating them here rather than in a caller means
+        // every load entry point gets them -- the UI load dialog, headless
+        // --load-game, and the test-API load_game -- which is exactly why
+        // RecreateActors above lives here too.  Goes through the tiledmap
+        // observer: headless registers no Impl and short-circuits.
+        if (world_Get())
+            tiledmap_observer::RecreateGoodActors();
     }
     catch (nlohmann::json::exception const &e)
     {

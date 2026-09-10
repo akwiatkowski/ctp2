@@ -72,15 +72,14 @@ CriticalMessagesData::~CriticalMessagesData()
 
 CriticalMessagesPrefs::CriticalMessagesPrefs()
 {
-	 m_messagesList=new PointerList<CriticalMessagesData>;
 	 Load();
 }
 
 CriticalMessagesPrefs::~CriticalMessagesPrefs()
 {
 
-	m_messagesList->DeleteAll();
-	delete m_messagesList;
+	// The list frees its nodes; DeleteAll frees the messages they point to.
+	m_messagesList.DeleteAll();
 }
 
 sint32 CriticalMessagesPrefs::IsEnabled(const char *name)
@@ -114,14 +113,14 @@ void CriticalMessagesPrefs::SetEnabled(const char *name, bool enable)
 		CriticalMessagesData *newdata=new CriticalMessagesData;
 		newdata->m_messageName = name;
 		newdata->m_messageEnabled=enable;
-		m_messagesList->AddTail(newdata);
+		m_messagesList.AddTail(newdata);
 		Save();
 	}
 }
 
 void CriticalMessagesPrefs::EnableAll()
 {
-	PointerList<CriticalMessagesData>::Walker walk(m_messagesList);
+	PointerList<CriticalMessagesData>::Walker walk(&m_messagesList);
 	for(; walk.IsValid(); walk.Next()) {
 		walk.GetObj()->m_messageEnabled = true;
 	}
@@ -165,9 +164,9 @@ void CriticalMessagesPrefs::Save()
 		return;
 
 	PointerList<CriticalMessagesData>::PointerListNode *curDataPtr;
-	if(m_messagesList && m_messagesList->GetCount())
+	if(m_messagesList.GetCount())
 	{
-		curDataPtr=m_messagesList->GetHeadNode();
+		curDataPtr=m_messagesList.GetHeadNode();
 		while(curDataPtr)
 		{
 			fprintf(filePtr,"%s:%i\n",curDataPtr->GetObj()->m_messageName.c_str(),
@@ -182,9 +181,9 @@ void CriticalMessagesPrefs::Save()
 PointerList<CriticalMessagesData>::PointerListNode *CriticalMessagesPrefs::FindMessage(const char *name)
 {
 	PointerList<CriticalMessagesData>::PointerListNode *curDataPtr;
-	if(m_messagesList && m_messagesList->GetCount())
+	if(m_messagesList.GetCount())
 	{
-		curDataPtr=m_messagesList->GetHeadNode();
+		curDataPtr=m_messagesList.GetHeadNode();
 		while(curDataPtr)
 		{
 			if(stricmp(name, curDataPtr->GetObj()->m_messageName.c_str())==0)

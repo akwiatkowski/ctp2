@@ -490,7 +490,7 @@ void km_screen_Cleanup()
 {
 	g_isKMScreen    = FALSE;
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; };
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
 	if (c3ui_Get() && s_km_screen)
 	{

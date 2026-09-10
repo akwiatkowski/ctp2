@@ -163,23 +163,23 @@ AUI_ERRCODE MessageWindow::CreateWindowEdges( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageLeftBar" );
-	m_leftBar = new aui_Static( &errcode, aui_UniqueId(), imageBlock );
+	m_leftBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
 	Assert( AUI_NEWOK( m_leftBar, errcode ));
 	if ( !AUI_NEWOK( m_leftBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageTopBar" );
-	m_topBar = new aui_Static( &errcode, aui_UniqueId(), imageBlock );
+	m_topBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
 	Assert( AUI_NEWOK( m_topBar, errcode ));
 	if ( !AUI_NEWOK( m_topBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_topBar->SetImageBltType( AUI_IMAGEBASE_BLTTYPE_TILE );
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageRightBar" );
-	m_rightBar = new aui_Static( &errcode, aui_UniqueId(), imageBlock );
+	m_rightBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
 	Assert( AUI_NEWOK( m_rightBar, errcode ));
 	if ( !AUI_NEWOK( m_rightBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageBottomBar" );
-	m_bottomBar = new aui_Static( &errcode, aui_UniqueId(), imageBlock );
+	m_bottomBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
 	Assert( AUI_NEWOK( m_bottomBar, errcode ));
 	if ( !AUI_NEWOK( m_bottomBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_bottomBar->SetImageBltType( AUI_IMAGEBASE_BLTTYPE_TILE );
@@ -228,10 +228,10 @@ AUI_ERRCODE MessageWindow::CreateWindowEdges( MBCHAR *ldlBlock )
 
 
 
-	AddControl( m_leftBar );
-	AddControl( m_topBar );
-	AddControl( m_rightBar );
-	AddControl( m_bottomBar );
+	AddControl(m_leftBar.get());
+	AddControl(m_topBar.get());
+	AddControl(m_rightBar.get());
+	AddControl(m_bottomBar.get());
 
 
 	return AUI_ERRCODE_OK;
@@ -244,13 +244,13 @@ AUI_ERRCODE MessageWindow::CreateTurnText( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlBlock, "TurnTextBox" );
-	m_turnText = new aui_Static( &errcode, aui_UniqueId(), textBlock );
+	m_turnText.reset(new aui_Static( &errcode, aui_UniqueId(), textBlock ));
 	Assert( AUI_NEWOK( m_turnText, errcode ));
 	if ( !AUI_NEWOK( m_turnText, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_turnText->TextFlags() = k_AUI_BITMAPFONT_DRAWFLAG_JUSTLEFT | k_AUI_BITMAPFONT_DRAWFLAG_WORDWRAP;
 
-	AddControl( m_turnText );
+	AddControl(m_turnText.get());
 
 	MBCHAR	copyBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
@@ -264,7 +264,7 @@ AUI_ERRCODE MessageWindow::CreateTurnText( MBCHAR *ldlBlock )
 		snprintf(copyBlock, sizeof(copyBlock), "%s", TurnYearStatus::GetYearString(m_message.AccessData()->GetTimeStamp(), -1));
 	}
 
-	errcode = ((aui_TextBase *)m_turnText)->SetText( copyBlock );
+	errcode = ((aui_TextBase *)m_turnText.get())->SetText( copyBlock );
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
@@ -279,13 +279,13 @@ AUI_ERRCODE MessageWindow::CreateStandardTextBox( MBCHAR *ldlBlock )
 
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlBlock, "MessageTextBox" );
 
-	m_messageText = new aui_HyperTextBox( &errcode, aui_UniqueId(), textBlock );
+	m_messageText.reset(new aui_HyperTextBox( &errcode, aui_UniqueId(), textBlock ));
 	Assert( AUI_NEWOK( m_messageText, errcode ));
 	if ( !AUI_NEWOK( m_messageText, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_messageText->TextFlags() = k_AUI_BITMAPFONT_DRAWFLAG_JUSTLEFT | k_AUI_BITMAPFONT_DRAWFLAG_WORDWRAP;
 
-	AddControl( m_messageText );
+	AddControl(m_messageText.get());
 
 
 	errcode = m_messageText->SetHyperText( m_message.GetText( ));
@@ -302,19 +302,19 @@ AUI_ERRCODE MessageWindow::CreateStandardDismissButton( MBCHAR *ldlBlock )
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardDismissButton" );
-	m_dismissIcon = new aui_Button( &errcode, aui_UniqueId(), buttonBlock );
+	m_dismissIcon.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
 	Assert( AUI_NEWOK( m_dismissIcon, errcode ));
 	if ( !AUI_NEWOK( m_dismissIcon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	errcode = AddControl( m_dismissIcon );
+	errcode = AddControl(m_dismissIcon.get());
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
-	m_dismissAction = new MessageDismissAction( this );
+	m_dismissAction.reset(new MessageDismissAction( this ));
 	Assert( m_dismissAction != nullptr );
 	if ( m_dismissAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_dismissIcon->SetAction( m_dismissAction );
+	m_dismissIcon->SetAction(m_dismissAction.get());
 
 	return AUI_ERRCODE_OK;
 }
@@ -326,19 +326,19 @@ AUI_ERRCODE MessageWindow::CreateStandardMinimizeButton( MBCHAR *ldlBlock )
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardMinimizeButton" );
-	m_minimizeIcon = new aui_Button( &errcode, aui_UniqueId(), buttonBlock );
+	m_minimizeIcon.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
 	Assert( AUI_NEWOK( m_minimizeIcon, errcode ));
 	if ( !AUI_NEWOK( m_minimizeIcon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	errcode = AddControl( m_minimizeIcon );
+	errcode = AddControl(m_minimizeIcon.get());
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
-	m_minimizeAction = new MessageMinimizeAction( this );
+	m_minimizeAction.reset(new MessageMinimizeAction( this ));
 	Assert( m_minimizeAction != nullptr );
 	if ( m_minimizeAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_minimizeIcon->SetAction( m_minimizeAction );
+	m_minimizeIcon->SetAction(m_minimizeAction.get());
 
 	m_minimizeIcon->Move(Width() - m_minimizeIcon->Width() - 22, 20);
 
@@ -355,19 +355,19 @@ AUI_ERRCODE MessageWindow::CreateGreatLibraryButton( MBCHAR *ldlBlock )
 		 m_message.AccessData()->GetGreatLibraryButton() ) {
 
 		snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "GreatLibraryButton" );
-		m_libraryIcon = new aui_Button( &errcode, aui_UniqueId(), buttonBlock );
+		m_libraryIcon.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
 		Assert( AUI_NEWOK( m_libraryIcon, errcode ));
 		if ( !AUI_NEWOK( m_libraryIcon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-		errcode = AddControl( m_libraryIcon );
+		errcode = AddControl(m_libraryIcon.get());
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
-		m_libraryAction = new MessageLibraryAction( this );
+		m_libraryAction.reset(new MessageLibraryAction( this ));
 		Assert( m_libraryAction != nullptr );
 		if ( m_libraryAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-		m_libraryIcon->SetAction( m_libraryAction );
+		m_libraryIcon->SetAction(m_libraryAction.get());
 	}
 
 	return AUI_ERRCODE_OK;
@@ -567,17 +567,10 @@ MessageWindow::~MessageWindow ()
 
 	RemoveBordersFromUI();
 
-	if ( m_messageText ) {
-		delete m_messageText;
-		m_messageText = nullptr;
-	}
 
-	if ( m_turnText ) {
-		delete m_turnText;
-		m_turnText = nullptr;
-	}
 
-	if (messagepool_Get()->IsValid(m_message)) {
+	// Destructive UI actions drain after Game has released its pools.
+	if (messagepool_Get() && messagepool_Get()->IsValid(m_message)) {
 
 		m_message.AccessData()->SetMessageWindow(nullptr);
 	}
@@ -622,41 +615,11 @@ MessageWindow::~MessageWindow ()
 
 
 
-	if ( m_minimizeIcon )
-	{
-		delete m_minimizeIcon;
-		m_minimizeIcon = nullptr;
-	}
 
-	if ( m_minimizeAction )
-	{
-		delete m_minimizeAction;
-		m_minimizeAction = nullptr;
-	}
 
-	if ( m_dismissIcon )
-	{
-		delete m_dismissIcon;
-		m_dismissIcon = nullptr;
-	}
 
-	if ( m_dismissAction )
-	{
-		delete m_dismissAction;
-		m_dismissAction = nullptr;
-	}
 
-	if ( m_libraryIcon )
-	{
-		delete m_libraryIcon;
-		m_libraryIcon = nullptr;
-	}
 
-	if ( m_libraryAction )
-	{
-		delete m_libraryAction;
-		m_libraryAction = nullptr;
-	}
 
 	if ( m_messageEyePoint.m_messageEyePointStandard )
 	{

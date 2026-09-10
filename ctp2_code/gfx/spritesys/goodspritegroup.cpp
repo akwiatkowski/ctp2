@@ -45,9 +45,20 @@
 #include "ctp/ctp2_utils/c3files.h"
 #include "gfx/spritesys/SpriteFile.h"
 #include "gfx/spritesys/Anim.h"
+#include "gfx/spritesys/ModernSpriteAtlas.h"   // P11 modern-first atlas path
+#include "ui/aui_common/aui_surface.h"         // aui_Surface::BitsPerPixel
+#include "ui/aui_sdl/aui_sdl.h"
 #include "gs/fileio/Token.h"
 
 
+// Out-of-line so the unique_ptr<ModernSpriteAtlas> member is created/destroyed
+// where the type is complete.
+GoodSpriteGroup::GoodSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {}
+GoodSpriteGroup::~GoodSpriteGroup()
+{
+	if (m_modernAtlas)
+		aui_SDL::ReleaseSpriteAtlasTexture(m_modernAtlas.get());
+}
 
 void GoodSpriteGroup::Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags)
@@ -68,6 +79,26 @@ void GoodSpriteGroup::Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32
     }
 
 	m_sprites[action]->SetCurrentFrame((uint16)frame);
+
+	// Modern-first atlas draw on the interactive path (into the ScreenManager's
+	// already-locked surface); falls back to the legacy RLE draw below.
+	if (m_modernAtlas && outlineColor == 0)   // outline requested -> legacy
+	{
+		aui_Surface * surf = screenmanager_Get()->GetSurface();
+		uint8 *       base = screenmanager_Get()->GetSurfBase();
+		if (surf && base)
+		{
+			POINT const hp = m_sprites[action]->GetHotPoint();
+			if (ModernSpriteDrawUnfacedLocked(*m_modernAtlas, base,
+			        screenmanager_Get()->GetSurfPitch(), screenmanager_Get()->GetSurfWidth(),
+			        screenmanager_Get()->GetSurfHeight(), surf->BitsPerPixel() == 32,
+			        "IDLE", frame, drawX, drawY, facing, hp.x, hp.y, scale, transparency, flags))
+			{
+				return;
+			}
+		}
+	}
+
 	m_sprites[action]->Draw(drawX, drawY, facing, scale, transparency, outlineColor, flags);
 }
 
@@ -83,7 +114,59 @@ void GoodSpriteGroup::DrawDirect(aui_Surface *surf, GOODACTION action, sint32 fr
 	if (m_sprites[action] == nullptr) return;
 
 	m_sprites[action]->SetCurrentFrame((uint16)frame);
+
+	// Modern-first atlas draw (any zoom); falls back to the legacy RLE draw
+	// when the atlas lacks the frame or an unsupported flag is set.
+	if (m_modernAtlas && outlineColor == 0)   // outline requested -> legacy
+	{
+		POINT const hp = m_sprites[action]->GetHotPoint();
+		if (ModernSpriteDrawUnfaced(*m_modernAtlas, surf, "IDLE", frame, drawX, drawY,
+		                            facing, hp.x, hp.y, scale, transparency, flags))
+		{
+			return;
+		}
+	}
+
 	m_sprites[action]->DrawDirect(surf, drawX, drawY, facing, scale, transparency, outlineColor, flags);
+}
+
+char const * GoodSpriteGroup::s_gpuFallbackReason = "good-sprite";
+
+bool GoodSpriteGroup::AddGpuSpriteQuad(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
+						   sint32 facing, double scale, Pixel16 outlineColor, uint16 flags)
+{
+	// One reason per rejection. A single "good-sprite" told you a good fell back
+	// but not which condition did it, which is most of the diagnosis.
+	if (!m_modernAtlas)              { s_gpuFallbackReason = "good-no-atlas";    return false; }
+	if (action <= GOODACTION_NONE || action >= GOODACTION_MAX)
+	                                 { s_gpuFallbackReason = "good-bad-action";  return false; }
+	if (outlineColor != 0)           { s_gpuFallbackReason = "good-outline";     return false; }
+	if (flags & ~(k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_FOGGED)) { s_gpuFallbackReason = "good-drawflags";   return false; }
+
+	ModernSpriteRect const * r = m_modernAtlas->FindRect("IDLE", 0, frame);
+	if (!r)                          { s_gpuFallbackReason = "good-no-rect";     return false; }
+
+	SDL_Texture * texture = aui_SDL::EnsureSpriteAtlasTexture(m_modernAtlas.get());
+	if (!texture)                    { s_gpuFallbackReason = "good-no-texture";  return false; }
+
+	POINT const hp = GetHotPoint(action);
+	bool const reversed = facing >= 5;
+	int const destX = reversed ? (drawX - static_cast<int>((r->w - hp.x) * scale))
+	                         : (drawX - static_cast<int>(hp.x * scale));
+	int const destY = drawY - static_cast<int>(hp.y * scale);
+
+	aui_SDL::GpuSpriteQuad q;
+	q.texture = texture;
+	q.sx = r->x; q.sy = r->y; q.sw = r->w; q.sh = r->h;
+	q.dx = destX; q.dy = destY;
+	q.dw = static_cast<int>(r->w * scale);
+	q.dh = static_cast<int>(r->h * scale);
+	q.mirror = reversed;
+	q.alpha = 255;
+    if (flags & k_BIT_DRAWFLAGS_FOGGED)
+        q.red = q.green = q.blue = 128;
+	aui_SDL::AddSpriteQuad(q);
+	return true;
 }
 
 POINT GoodSpriteGroup::GetHotPoint(GOODACTION action)
@@ -103,10 +186,11 @@ void GoodSpriteGroup::LoadBasic(MBCHAR const * filename)
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
 	{
-		file->ReadBasic(this);
+		auto result = file->ReadBasic(this);
 		file->CloseRead();
-		m_loadType = LOADTYPE_BASIC;
+		m_loadType = result == SPRITEFILEERR_OK ? LOADTYPE_BASIC : LOADTYPE_NONE;
 	}
+	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }
 
 void GoodSpriteGroup::LoadFull(MBCHAR const * filename)
@@ -116,10 +200,11 @@ void GoodSpriteGroup::LoadFull(MBCHAR const * filename)
 	SPRITEFILETYPE	type;
 	if (SPRITEFILEERR_OK == file->Open(&type))
 	{
-		file->ReadFull(this);
+		auto result = file->ReadFull(this);
 		file->CloseRead();
-		m_loadType = LOADTYPE_FULL;
+		m_loadType = result == SPRITEFILEERR_OK ? LOADTYPE_FULL : LOADTYPE_NONE;
 	}
+	ModernSpriteLoadIfEnabled(m_modernAtlas, filename);
 }
 
 void GoodSpriteGroup::Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode)
@@ -139,8 +224,7 @@ void GoodSpriteGroup::DeallocateStorage()
 {
     for (int i = GOODACTION_IDLE; i < GOODACTION_MAX; i++)
     {
-	    delete m_sprites[i];
-        m_sprites[i] = nullptr;
+	    m_sprites[i].reset();
     }
 }
 
@@ -148,8 +232,7 @@ void GoodSpriteGroup::DeallocateFullLoadAnims()
 {
     for (int i = GOODACTION_IDLE; i < GOODACTION_MAX; i++)
     {
-        delete m_anims[i];
-        m_anims[i] = nullptr;
+        m_anims[i].reset();
     }
 }
 
@@ -214,14 +297,12 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 		}
 
 		idleSprite->Import(numFrames, imageNames, shadowNames);
-		delete m_sprites[GOODACTION_IDLE];
-		m_sprites[GOODACTION_IDLE] = idleSprite;
+		m_sprites[GOODACTION_IDLE].reset(idleSprite);
 		printf("]\n");
 
 		Anim *idleAnim = new Anim;
 		idleAnim->ParseFromTokens(theToken.get());
-		delete m_anims[GOODACTION_IDLE];
-		m_anims[GOODACTION_IDLE] = idleAnim;
+		m_anims[GOODACTION_IDLE].reset(idleAnim);
 	}
 
 

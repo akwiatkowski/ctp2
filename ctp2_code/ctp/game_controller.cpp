@@ -27,6 +27,8 @@
 #include "ctp/civapp.h"                       // civapp_Get()->IsGameLoaded()
 #include "ctp/ctp2_utils/civlog.h"            // civlog::Get
 #include "gs/utility/Globals.h"               // k_MAX_PLAYERS, k_GAME_OBJ_TYPE_*
+#include "gs/utility/MoveFlags.h"             // k_MOVEMENT_TYPE_* render fixture terrain env
+#include "gs/utility/safety.h"                // safe_shift_left_u64
 #include "gs/gameobj/player.h"                // player_Get, Player
 #include "gs/gameobj/Army.h"                  // Army
 #include "gs/gameobj/ArmyData.h"              // ArmyData::Settle / CanSettle
@@ -37,12 +39,15 @@
 #include "gs/gameobj/Vision.h"                // Vision::IsVisible / IsExplored
 #include "gs/world/World.h"                   // world_Get(), GetCell
 #include "gs/world/Cell.h"                    // Cell terrain / city / units
+#include "gs/world/TileInfo.h"                // debug_set_terrain fixture cleanup
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/fileio/action_log.h"             // action_log::Get / Count / Clear
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()->Process()
 #include "gs/core/game_observer.h"            // gameobservers_Get()
+#include "robot/pathing/A_Star_Heuristic_Cost.h"
 #include "gs/core/player_view.h"              // player_view::SetCurrentPlayer
+#include "gs/core/tiledmap_observer.h"        // render-fixture tile postprocess
 #include "gs/gameobj/MovePath.h"              // army_QueueMovePath
 #include "gs/gameobj/Events.h"                // GEV_ExploreOrder / AI events
 #include "gs/gameobj/Score.h"                 // Score::GetTotalScore
@@ -52,6 +57,7 @@
 #include "ConstRecord.h"                      // g_theConstDB (end-of-game year)
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 #include "TerrainRecord.h"                    // g_theTerrainDB, TerrainRecord
+#include "TerrainImprovementRecord.h"         // debug terrain overlay
 #include "BuildingRecord.h"                   // g_theBuildingDB, BuildingRecord
 #include "WonderRecord.h"                     // g_theWonderDB, WonderRecord
 #include "GovernmentRecord.h"                 // g_theGovernmentDB, GovernmentRecord
@@ -70,10 +76,20 @@
 #include "AdvanceRecord.h"                    // g_theAdvanceDB, AdvanceRecord
 #include "gs/gameobj/Advances.h"              // Advances::CanResearch/GetCost
 #include "gs/gameobj/terrainutil.h"           // terrainutil_CanPlayerBuildAt/cost/time
+#include "gs/gameobj/unitutil.h"              // unitutil_GetSeaCity / city type
 #include "gs/gameobj/TerrImprove.h"           // TerrainImprovement
 #include "gs/gameobj/TerrImprovePool.h"       // terrimprovepool_Get
 #include "gs/database/profileDB.h"            // profiledb_Get()->IsAIOn()
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
+#include "ui/aui_sdl/aui_sdl.h"               // GPU world diagnostics
+#include "gfx/tilesys/tiledmap.h"             // debug terrain-overlay fallback
+#include "gfx/tilesys/tileset.h"              // debug_tileset_stats (GPU raster probe)
+#include "gfx/tilesys/BaseTile.h"             // debug_tileset_stats (GPU raster probe)
+#include "gfx/spritesys/UnitActor.h"
+#include "SpriteRecord.h" // render fixtures: default sprite index
+#include "gfx/spritesys/SpriteGroupList.h" // render fixtures: GetSprite
+#include "gfx/spritesys/director.h"            // debug combat flash
+#include "ui/interface/scenarioeditor.h"       // debug scenario start flags
 
 using json = nlohmann::json;
 
@@ -117,6 +133,11 @@ void RunRound(sint32 round, SetCurrentPlayerFn set_current_player)
     };
 
     if (turn_Get()) turn_Get()->SkipToRound(round);
+    // Automation bypasses StartNewYear/BeginNewRound, which refresh this
+    // terrain-cost cache in interactive play. Refresh at the same boundary
+    // so new roads affect paths equally before and after loading a save.
+    if (world_Get() && world_Get()->A_star_heuristic)
+        world_Get()->A_star_heuristic->Update();
 
     for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
         if (!player_Get(p) || player_Get(p)->IsDead()) continue;
@@ -174,6 +195,14 @@ void RunRound(sint32 round, SetCurrentPlayerFn set_current_player)
 }
 
 }  // namespace game_controller
+extern SpriteGroupList* g_unitSpriteGroupList;
+extern SpriteGroupList* g_citySpriteGroupList;
+
+// Owned by tiledmap.cpp; the graphics options screen is the only other writer.
+extern sint32 g_isGridOn;
+
+extern int s_goodCellsSeen, s_goodNoActor, s_goodDeclined, s_goodEmitted;   // PROBE
+extern char const * s_goodReason;   // PROBE
 
 namespace {
 
@@ -218,6 +247,42 @@ std::string ToUtf8(const char * s)
         }
     }
     return out;
+}
+
+sint32 ResolveUnitType(const char * name)
+{
+    if (!g_theUnitDB || !name || !*name)
+        return -1;
+
+    sint32 type = -1;
+    if (sscanf(name, "%d", &type) == 1)
+        return (type >= 0 && type < g_theUnitDB->NumRecords()) ? type : -1;
+
+    for (sint32 i = 0; i < g_theUnitDB->NumRecords(); ++i) {
+        const UnitRecord * rec = g_theUnitDB->Get(i);
+        if (rec && rec->GetIDText() && strcmp(rec->GetIDText(), name) == 0)
+            return i;
+    }
+    return -1;
+}
+
+// Ungated: render_set_tile uses the same side-effect-free terrain path in all
+// builds (the render_ prefix, not RENDER_TOOL_BUILD, marks fixture intent).
+// Only the render-fixture terrain path needs this; the gameplay path gets its
+// movement mask from World::SmartSetTerrain.
+uint32 MovementMaskFromTerrain(const TerrainRecord * rec)
+{
+    uint32 movement = 0;
+    if (!rec)
+        return movement;
+    if (rec->GetMovementTypeLand())         movement |= k_MOVEMENT_TYPE_LAND;
+    if (rec->GetMovementTypeSea())          movement |= k_MOVEMENT_TYPE_WATER;
+    if (rec->GetMovementTypeAir())          movement |= k_MOVEMENT_TYPE_AIR;
+    if (rec->GetMovementTypeMountain())     movement |= k_MOVEMENT_TYPE_MOUNTAIN;
+    if (rec->GetMovementTypeTrade())        movement |= k_MOVEMENT_TYPE_TRADE;
+    if (rec->GetMovementTypeShallowWater()) movement |= k_MOVEMENT_TYPE_SHALLOW_WATER;
+    if (rec->GetMovementTypeSpace())        movement |= k_MOVEMENT_TYPE_SPACE;
+    return movement;
 }
 
 // {"status":"ok","cmd":"<verb>","result":{...}}  (result omitted if null)
@@ -335,6 +400,1281 @@ std::string CmdBuildCity()
         }
     }
     return Err("build_city", "no_settler_found");
+}
+
+std::string CmdEndTurn(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("end_turn", "game_not_loaded");
+
+    int turns = 1;
+    if (args && *args && sscanf(args, "%d", &turns) != 1)
+        return Err("end_turn", "bad_args");
+    constexpr int kMaxAutomatedTurns = 50;
+    if (turns < 1 || turns > kMaxAutomatedTurns)
+        return Err("end_turn", "out_of_range");
+
+    // GetRound() reflects the currently viewed player's recorded round.  Just
+    // after loading, that can lag the session clock by one round; automation
+    // must advance from the canonical session value instead.
+    sint32 const startRound = turn_Get() ? turn_Get()->GetSessionRound() : 0;
+    for (int i = 0; i < turns; ++i)
+        game_controller::RunRound(startRound + i, nullptr);
+
+    json result;
+    result["round"] = turn_Get() ? turn_Get()->GetSessionRound() : startRound + turns;
+    return Ok("end_turn", result);
+}
+
+std::string CmdSetShowCityNames(const char * args)
+{
+    int on = 0;
+    if (sscanf(args, "%d", &on) != 1)
+        return Err("set_show_city_names", "bad_args");
+
+    profiledb_Get()->SetShowCityNames(on != 0);
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
+    json result;
+    result["show_city_names"] = profiledb_Get()->GetShowCityNames() != FALSE;
+    return Ok("set_show_city_names", result);
+}
+
+std::string CmdDebugTerrainOverlay(const char * args)
+{
+    sint32 x = 0, y = 0;
+    if (sscanf(args, "%d %d", &x, &y) != 2)
+        return Err("debug_terrain_overlay", "bad_args");
+    if (!tiledmap_Get())
+        return Err("debug_terrain_overlay", "no_tiledmap");
+    MapPoint pos(x, y);
+    const TerrainImprovementRecord *rec = nullptr;
+    for (sint32 i = 0; g_theTerrainImprovementDB && i < g_theTerrainImprovementDB->NumRecords(); ++i) {
+        const TerrainImprovementRecord *candidate = g_theTerrainImprovementDB->Get(i);
+        const TerrainImprovementRecord::Effect *effect = candidate
+            ? ((candidate->GetClassTerraform() || candidate->GetClassOceanform())
+                ? candidate->GetTerrainEffect(0)
+                : terrainutil_GetTerrainEffect(candidate, pos))
+            : nullptr;
+        if (effect && effect->GetTilesetIndex() > 0) {
+            rec = candidate;
+            break;
+        }
+    }
+    if (!rec)
+        return Err("debug_terrain_overlay", "no_overlay_record");
+
+    tiledmap_Get()->SetTerrainOverlay(const_cast<TerrainImprovementRecord *>(rec), pos, 0xffff);
+    tiledmap_Get()->BuildTerrainQuads();
+    return Ok("debug_terrain_overlay");
+}
+
+std::string CmdDebugSetTerrain(const char * args)
+{
+	sint32 x = 0, y = 0, terrain = 0;
+	if (sscanf(args, "%d %d %d", &x, &y, &terrain) != 3)
+		return Err("debug_set_terrain", "bad_args");
+	World *w = world_Get();
+	if (!w)
+		return Err("debug_set_terrain", "no_world");
+	if (!g_theTerrainDB || terrain < 0 || terrain >= g_theTerrainDB->NumRecords())
+		return Err("debug_set_terrain", "bad_terrain");
+	if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+		return Err("debug_set_terrain", "out_of_bounds");
+
+	MapPoint pos(x, y);
+#if defined(RENDER_TOOL_BUILD)
+	// Render fixtures must not invoke scenario-editor terrain logic: it can rewrite
+	// neighbours and let gameplay consequences leak into visual comparison runs.
+	w->SetTerrain(x, y, terrain);
+	w->SetMovementType(x, y, MovementMaskFromTerrain(g_theTerrainDB->Get(terrain)));
+	for (sint32 dy = -1; dy <= 1; ++dy) {
+		for (sint32 dx = -1; dx <= 1; ++dx) {
+			sint32 const px = x + dx;
+			sint32 const py = y + dy;
+			if (px < 0 || py < 0 || px >= w->GetXWidth() || py >= w->GetYHeight())
+				continue;
+			MapPoint p(px, py);
+			tiledmap_observer::PostProcessTile(p, w->GetTileInfo(p));
+			tiledmap_observer::RedrawTile(p);
+		}
+	}
+#else
+	w->SmartSetTerrain(pos, terrain, 0);
+#endif
+	if (tiledmap_Get()) {
+		if (TileInfo *tileInfo = tiledmap_Get()->GetTileInfo(pos))
+			tileInfo->SetRiverPiece(-1);
+		tiledmap_Get()->BuildTerrainQuads();
+	}
+
+	json result;
+	result["pos"] = { {"x", x}, {"y", y} };
+	result["terrain"] = terrain;
+	return Ok("debug_set_terrain", result);
+}
+
+std::string CmdDebugClearRivers(const char * args)
+{
+	sint32 cx = 0, cy = 0, radius = 0;
+	if (sscanf(args, "%d %d %d", &cx, &cy, &radius) != 3 || radius < 0)
+		return Err("debug_clear_rivers", "bad_args");
+	World *w = world_Get();
+	TiledMap *map = tiledmap_Get();
+	if (!w || !map)
+		return Err("debug_clear_rivers", "no_world");
+
+	for (sint32 dy = -radius; dy <= radius; ++dy) {
+		for (sint32 dx = -radius; dx <= radius; ++dx) {
+			sint32 const x = cx + dx;
+			sint32 const y = cy + dy;
+			if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+				continue;
+			MapPoint pos(x, y);
+			if (TileInfo *tileInfo = map->GetTileInfo(pos))
+				tileInfo->SetRiverPiece(-1);
+		}
+	}
+	map->BuildTerrainQuads();
+	return Ok("debug_clear_rivers");
+}
+
+std::string CmdDebugClearTerrainLayers(const char * args)
+{
+	sint32 cx = 0, cy = 0, radius = 0;
+	if (sscanf(args, "%d %d %d", &cx, &cy, &radius) != 3 || radius < 0)
+		return Err("debug_clear_terrain_layers", "bad_args");
+	World *w = world_Get();
+	TiledMap *map = tiledmap_Get();
+	if (!w || !map)
+		return Err("debug_clear_terrain_layers", "no_world");
+
+	uint32 const envMask = k_MASK_ENV_INSTALLATION
+	                   | k_MASK_ENV_MINE
+	                   | k_MASK_ENV_IRRIGATION
+	                   | k_MASK_ENV_ROAD
+	                   | k_MASK_ENV_CANAL_TUNNEL;
+	for (sint32 dy = -radius; dy <= radius; ++dy) {
+		for (sint32 dx = -radius; dx <= radius; ++dx) {
+			sint32 const x = cx + dx;
+			sint32 const y = cy + dy;
+			if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+				continue;
+			MapPoint pos(x, y);
+			if (TileInfo *tileInfo = map->GetTileInfo(pos))
+				tileInfo->SetRiverPiece(-1);
+			if (Cell *cell = w->GetCell(pos)) {
+				cell->SetEnv(cell->GetEnv() & ~envMask);
+				while (cell->GetNumImprovements() > 0)
+					cell->RemoveImprovement(cell->AccessImprovement(0));
+				while (cell->GetNumDBImprovements() > 0)
+					cell->RemoveDBImprovement(cell->GetDBImprovement(0));
+				cell->DeleteGoodyHut();
+			}
+		}
+	}
+	map->BuildTerrainQuads();
+	return Ok("debug_clear_terrain_layers");
+}
+
+// Toggle the tile grid. It is a global the graphics options screen owns, with
+// no way in from a test; the grid is the one per-cell overlay that affects
+// EVERY cell at once, which makes it the decisive check that the whole-map
+// path composites overlays at all (P13 step 3).
+std::string CmdDebugSetGrid(const char * args)
+{
+	int on = -1;
+	if (!args || sscanf(args, "%d", &on) != 1 || (on != 0 && on != 1))
+		return Err("debug_set_grid", "bad_args");
+
+	::g_isGridOn = on;
+	// Every cached cell image is now stale: the grid is part of the whole-map
+	// tile picture, not a separate pass.
+	if (tiledmap_Get())
+	{
+		tiledmap_Get()->InvalidateWorldmap();
+		tiledmap_Get()->BuildTerrainQuads();
+	}
+	json result;
+	result["grid"] = on;
+	return Ok("debug_set_grid", result);
+}
+
+// Political border display: on/off and which STYLE. Both live in the graphics
+// options screen with no way in from a test, and the style matters: smooth
+// borders stamp a corner icon while the line style draws a colored edge through
+// completely different code. The whole-map path composited only the icon style
+// for a while (#14260), which no test could have caught without this.
+std::string CmdDebugSetBorders(const char * args)
+{
+	int on = -1, smooth = -1;
+	if (!args || sscanf(args, "%d %d", &on, &smooth) != 2
+	 || (on != 0 && on != 1) || (smooth != 0 && smooth != 1))
+		return Err("debug_set_borders", "bad_args");
+	if (!profiledb_Get())
+		return Err("debug_set_borders", "no_profile");
+
+	// Report what they WERE. These settings persist to userprofile.txt on exit,
+	// so a test that changes them silently changes the user's game (and the
+	// next test run's baseline). Returning the previous values lets a caller
+	// put them back.
+	json result;
+	result["was"] = { {"borders", profiledb_Get()->GetShowPoliticalBorders() ? 1 : 0},
+	                  {"smooth",  profiledb_Get()->IsSmoothBorders() ? 1 : 0} };
+
+	profiledb_Get()->SetShowPoliticalBorders(on);
+	profiledb_Get()->SetShowSmooth(smooth);
+	// Borders are part of the whole-map tile picture, so every cached cell
+	// image is stale — same reasoning as the grid above.
+	if (tiledmap_Get())
+	{
+		tiledmap_Get()->InvalidateWorldmap();
+		tiledmap_Get()->BuildTerrainQuads();
+	}
+	result["borders"] = on;
+	result["smooth"]  = smooth;
+	return Ok("debug_set_borders", result);
+}
+
+// Put a patch into FOG: explored, but not currently visible.
+//
+// There was no way to reach that state from a test, and it is the state most
+// of an explored map is in for most of a game. debug_reveal_patch only ever
+// produces lit terrain, so the whole-map path's handling of fog (#12839) could
+// not be developed or tested at all.
+//
+// Note Vision::AddExplored is NOT "explore without seeing" — it is the same
+// FillCircle(CIRCLE_OP_ADD) call as AddVisible. Visibility is a REFERENCE
+// COUNT in the low bits with the explored flag as the top bit, so adding sets
+// both and there is no add-explored-only primitive. Fog is made by dropping
+// the reference again: the count returns to zero (unless a unit really can see
+// the cell, which is correct) while the explored bit stays set.
+std::string CmdDebugExplorePatch(const char * args)
+{
+	sint32 x = 0, y = 0, radius = 0;
+	if (!args || sscanf(args, "%d %d %d", &x, &y, &radius) != 3 || radius < 0)
+		return Err("debug_explore_patch", "bad_args");
+	World *w = world_Get();
+	Player *human = HumanPlayer();
+	if (!w || !human || !human->m_vision)
+		return Err("debug_explore_patch", "no_world");
+	if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+		return Err("debug_explore_patch", "bad_position");
+
+	MapPoint const pos(x, y);
+	double const r = static_cast<double>(radius);
+	human->m_vision->AddVisible(pos, r);
+	human->m_vision->RemoveVisible(pos, r);
+	if (tiledmap_Get()) {
+		tiledmap_Get()->CopyVision();
+		tiledmap_Get()->BuildTerrainQuads();
+	}
+	json result;
+	result["pos"] = { {"x", x}, {"y", y} };
+	result["radius"] = radius;
+	return Ok("debug_explore_patch", result);
+}
+
+// Draw explored terrain at full brightness, ignoring current vision.
+//
+// The deterministic way to take fog OUT of a comparison. Revealing a radius
+// does not do that: visibility decays, so two processes capturing the same
+// scene drift apart during the seconds a capture takes to settle, and once the
+// whole-map path started drawing fog (#12839) that drift became the largest
+// difference in a transition-parity run. This flag is honoured by every render
+// path and does not decay.
+std::string CmdDebugRenderExploredAsVisible(const char * args)
+{
+	int on = -1;
+	if (!args || sscanf(args, "%d", &on) != 1 || (on != 0 && on != 1))
+		return Err("debug_render_explored_as_visible", "bad_args");
+	if (!tiledmap_Get())
+		return Err("debug_render_explored_as_visible", "no_tiledmap");
+
+	tiledmap_Get()->SetRenderExploredAsVisible(on != 0);
+	// Fog is baked into the whole-map tile pictures, so every cached cell image
+	// is now stale — same reasoning as the grid and the border settings.
+	tiledmap_Get()->InvalidateWorldmap();
+	tiledmap_Get()->BuildTerrainQuads();
+
+	json result;
+	result["render_explored_as_visible"] = on;
+	return Ok("debug_render_explored_as_visible", result);
+}
+
+// Explored / visible cell counts over a square patch, read from BOTH the
+// human player's Vision and the one the tile map is actually rendering
+// through. Fog is "explored and not visible", and nothing could observe that
+// state: a test could set it up and screenshot the result, but if the frame
+// did not change there was no way to tell whether fog failed to draw or the
+// visibility never moved in the first place. Reporting both sides also catches
+// the two drifting apart, which is a real possibility -- CopyVision aliases
+// m_localVision to whichever player is being viewed, not necessarily the human.
+std::string CmdDebugVisionStats(const char * args)
+{
+	sint32 x = 0, y = 0, radius = 0;
+	if (!args || sscanf(args, "%d %d %d", &x, &y, &radius) != 3 || radius < 0)
+		return Err("debug_vision_stats", "bad_args");
+	World *w = world_Get();
+	Player *human = HumanPlayer();
+	if (!w || !human || !human->m_vision)
+		return Err("debug_vision_stats", "no_world");
+
+	Vision const * local = tiledmap_Get() ? tiledmap_Get()->GetLocalVision() : nullptr;
+
+	sint32 cells = 0;
+	sint32 humanExplored = 0, humanVisible = 0;
+	sint32 localExplored = 0, localVisible = 0;
+	for (sint32 dy = -radius; dy <= radius; ++dy)
+	{
+		for (sint32 dx = -radius; dx <= radius; ++dx)
+		{
+			sint32 const cx = x + dx, cy = y + dy;
+			if (cx < 0 || cy < 0 || cx >= w->GetXWidth() || cy >= w->GetYHeight())
+				continue;
+			MapPoint const pos(cx, cy);
+			++cells;
+			if (human->m_vision->IsExplored(pos)) ++humanExplored;
+			if (human->m_vision->IsVisible(pos))  ++humanVisible;
+			if (local)
+			{
+				if (local->IsExplored(pos)) ++localExplored;
+				if (local->IsVisible(pos))  ++localVisible;
+			}
+		}
+	}
+
+	json result;
+	result["cells"]  = cells;
+	result["human"]  = { {"explored", humanExplored}, {"visible", humanVisible} };
+	result["local"]  = { {"explored", localExplored}, {"visible", localVisible},
+	                     {"present", local != nullptr} };
+	// The cells that should render fogged.
+	result["fogged"] = localExplored - localVisible;
+	return Ok("debug_vision_stats", result);
+}
+
+// Nearest map good to a position. Goods are placed at generation and there is
+// no query for them, which makes "does a good render" awkward to test.
+std::string CmdDebugWorldmapSprites(const char * args)
+{
+	int on = -1;
+	if (!args || sscanf(args, "%d", &on) != 1 || (on != 0 && on != 1))
+		return Err("debug_worldmap_sprites", "bad_args");
+	aui_SDL::SetWorldmapSprites(on != 0);
+	json result; result["sprites"] = on;
+	return Ok("debug_worldmap_sprites", result);
+}
+
+// Deterministic resource fixtures use the terrain's resource slot (0 clears).
+std::string CmdDebugSetGood(const char *args)
+{
+    int x, y, slot;
+    if (!args || sscanf(args, "%d %d %d", &x, &y, &slot) != 3)
+        return Err("debug_set_good", "bad_args");
+    World *w = world_Get();
+    if (!w || x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("debug_set_good", "bad_position");
+    auto const *terrain = g_theTerrainDB->Get(w->GetTerrainType(MapPoint(x, y)));
+    if (slot < 0 || slot > 4 || slot > terrain->GetNumResources())
+        return Err("debug_set_good", "bad_resource_slot");
+    w->SetGood(x, y, slot);
+    if (tiledmap_Get()) {
+        tiledmap_Get()->RecreateGoodActors();
+        tiledmap_Get()->Refresh();
+        tiledmap_Get()->InvalidateMix();
+    }
+    return Ok("debug_set_good");
+}
+
+std::string CmdDebugTradeAnimation(const char *args)
+{
+    int enabled;
+    if (!args || sscanf(args, "%d", &enabled) != 1 || (enabled != 0 && enabled != 1))
+        return Err("debug_trade_animation", "bad_args");
+    if (!profiledb_Get()) return Err("debug_trade_animation", "no_profile");
+    profiledb_Get()->SetTradeAnim(enabled);
+    return Ok("debug_trade_animation");
+}
+
+std::string CmdDebugFindGood(const char * args)
+{
+	sint32 fx = 0, fy = 0;
+	if (!args || sscanf(args, "%d %d", &fx, &fy) != 2)
+		return Err("debug_find_good", "bad_args");
+	World * w = world_Get();
+	if (!w) return Err("debug_find_good", "no_world");
+
+	sint32 bestD = 0x7fffffff, bx = -1, by = -1;
+	for (sint32 y = 0; y < w->GetYHeight(); ++y)
+		for (sint32 x = 0; x < w->GetXWidth(); ++x)
+		{
+			MapPoint p(x, y);
+			if (!w->IsGood(p)) continue;
+			sint32 const d = (x - fx) * (x - fx) + (y - fy) * (y - fy);
+			if (d < bestD) { bestD = d; bx = x; by = y; }
+		}
+	if (bx < 0) return Err("debug_find_good", "no_good_on_map");
+
+	json result;
+	result["pos"] = { {"x", bx}, {"y", by} };
+	return Ok("debug_find_good", result);
+}
+
+std::string CmdDebugSetGoodRichness(const char *args)
+{
+	int richness = -1;
+	if (!args || sscanf(args, "%d", &richness) != 1 || richness < 0 || richness > 100)
+		return Err("debug_set_good_richness", "bad_args");
+	if (!profiledb_Get()) return Err("debug_set_good_richness", "no_profile");
+	int const previous = profiledb_Get()->PercentRichness();
+	profiledb_Get()->SetPercentRichness(richness);
+	return Ok("debug_set_good_richness", {{"was", previous}});
+}
+
+// Nearest cell carrying a river piece. Rivers are placed at map generation and
+// nothing queries them, which makes "does a river render correctly" impossible
+// to aim at — a test that guesses a position measures whatever happens to be
+// there, which is how the raster overlay oracle first passed with the
+// fogged-river decode deliberately broken.
+std::string CmdDebugFindRiver(const char * args)
+{
+	sint32 fx = 0, fy = 0;
+	if (!args || sscanf(args, "%d %d", &fx, &fy) != 2)
+		return Err("debug_find_river", "bad_args");
+	World * w = world_Get();
+	TiledMap * map = tiledmap_Get();
+	if (!w || !map) return Err("debug_find_river", "no_world");
+
+	sint32 bestD = 0x7fffffff, bx = -1, by = -1;
+	for (sint32 y = 0; y < w->GetYHeight(); ++y)
+		for (sint32 x = 0; x < w->GetXWidth(); ++x)
+		{
+			MapPoint p(x, y);
+			TileInfo * ti = map->GetTileInfo(p);
+			if (!ti || ti->GetRiverPiece() == -1) continue;
+			sint32 const d = (x - fx) * (x - fx) + (y - fy) * (y - fy);
+			if (d < bestD) { bestD = d; bx = x; by = y; }
+		}
+	if (bx < 0) return Err("debug_find_river", "no_river_on_map");
+
+	json result;
+	result["pos"] = { {"x", bx}, {"y", by} };
+	return Ok("debug_find_river", result);
+}
+
+// Opaque pixel count from the last icon the GPU decoder built. Border icons
+// render as nothing on the whole-map path and this says whether the decode
+// produced anything to draw.
+std::string CmdDebugIconAlpha(const char * args)
+{
+	if (!tiledmap_Get() || !tiledmap_Get()->GetTileSet())
+		return Err("debug_icon_alpha", "no_tileset");
+	TileSet * ts = tiledmap_Get()->GetTileSet();
+
+	json result;
+	json icons = json::array();
+	MAPICON const probe[] = { MAPICON_POLBORDERNW, MAPICON_POLBORDERSW,
+	                          MAPICON_POLBORDERNE, MAPICON_POLBORDERSE };
+	char const * names[] = { "NW", "SW", "NE", "SE" };
+	for (int i = 0; i < 4; ++i)
+	{
+		Pixel16 * data = ts->GetMapIconData(probe[i]);
+		POINT dim = ts->GetMapIconDimensions(probe[i]);
+		json e;
+		e["edge"] = names[i];
+		e["has_data"] = (data != nullptr);
+		e["w"] = dim.x; e["h"] = dim.y;
+		if (data && dim.x > 0 && dim.y > 0)
+		{
+			aui_SDL::EnsureMapIconTexture(data, dim.x, dim.y, 0x7c00);
+			e["opaque_pixels"] = aui_SDL::LastIconOpaquePixels();
+		}
+		icons.push_back(e);
+	}
+	result["icons"] = icons;
+	return Ok("debug_icon_alpha", result);
+}
+
+std::string CmdDebugRevealPatch(const char * args)
+{
+	sint32 x = 0, y = 0, radius = 0;
+	if (sscanf(args, "%d %d %d", &x, &y, &radius) != 3 || radius < 0)
+		return Err("debug_reveal_patch", "bad_args");
+	World *w = world_Get();
+	Player *human = HumanPlayer();
+	if (!w || !human || !human->m_vision)
+		return Err("debug_reveal_patch", "no_world");
+	if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+		return Err("debug_reveal_patch", "bad_position");
+
+	MapPoint pos(x, y);
+	double const revealRadius = static_cast<double>(radius);
+	human->m_vision->AddExplored(pos, revealRadius);
+	human->m_vision->AddVisible(pos, revealRadius);
+	if (tiledmap_Get()) {
+		tiledmap_Get()->CopyVision();
+		tiledmap_Get()->BuildTerrainQuads();
+	}
+	json result;
+	result["pos"] = { {"x", x}, {"y", y} };
+	result["radius"] = radius;
+	return Ok("debug_reveal_patch", result);
+}
+
+#if defined(RENDER_TOOL_BUILD) && defined(USE_SDL)
+// P13 step 1 — build (or incrementally update) the whole-map GPU target and
+// report how many cells were redrawn. The count IS the contract: the first call
+// draws the explored map, and a call that follows a pan or zoom must draw zero.
+std::string CmdDebugWorldmapBuild(const char * args)
+{
+	if (!aui_SDL::GpuWorldmapEnabled())
+		return Err("debug_worldmap_build", "worldmap_disabled");
+	if (!tiledmap_Get())
+		return Err("debug_worldmap_build", "no_tiledmap");
+
+	// "rebuild" forces a full recomposite; otherwise the dirty path applies.
+	if (args && strstr(args, "rebuild") != nullptr)
+		tiledmap_Get()->InvalidateWorldmap();
+	// Drive it through Refresh, the only context where the tile composite works.
+	tiledmap_Get()->RetargetTileSurface(nullptr);
+	tiledmap_Get()->Refresh();
+	int const redrawn = tiledmap_Get()->LastWorldmapRedrawCount();
+	json result;
+	result["cells_redrawn"] = redrawn;
+	// Atlas occupancy. Evictions during a build are the interesting number: the
+	// batch emits quads that reference atlas slots and draws them afterwards,
+	// so a slot recycled mid-build makes an already-emitted quad sample pixels
+	// that belong to a different cell.
+	// P14: how many cells the GPU raster path composited this build (0 when
+	// CTP2_GPU_RASTER is off or every cell carried overlays).
+	result["raster_cells"] = tiledmap_Get()->LastWorldmapRasterCount();
+	result["cpu_cells"] = tiledmap_Get()->m_worldmapCpuCells;
+	result["atlas_slots_used"] = tiledmap_Get()->GpuTileCacheSize();
+	result["atlas_capacity"]   = tiledmap_Get()->GpuTileCacheCapacity();
+	result["atlas_evictions"]  = (int64_t) tiledmap_Get()->GpuTileCacheEvictions();
+	result["texture_w"] = aui_SDL::WorldmapW();
+	result["texture_h"] = aui_SDL::WorldmapH();
+	result["has_texture"] = aui_SDL::WorldmapTexture() != nullptr;
+	// Sampled in the same call, with the target still bound: a count read from a
+	// later command cannot tell a drawing bug from a discarded render target.
+	result["dx_range"] = { tiledmap_Get()->m_worldmapMinX, tiledmap_Get()->m_worldmapMaxX };
+	result["dy_range"] = { tiledmap_Get()->m_worldmapMinY, tiledmap_Get()->m_worldmapMaxY };
+	result["tile_wh"] = { tiledmap_Get()->m_worldmapTileW, tiledmap_Get()->m_worldmapTileH };
+	result["zoom_level"] = (int)tiledmap_Get()->GetZoomLevel();
+	result["zoom_largest"] = (int)k_ZOOM_LARGEST;
+	result["zoom_tile_wh"] = { (int)tiledmap_Get()->GetZoomTilePixelWidth(),
+	                           (int)tiledmap_Get()->GetZoomTilePixelHeight() };
+	result["atlas_misses"] = tiledmap_Get()->m_worldmapMisses;
+	result["atlas_uploads"] = tiledmap_Get()->m_worldmapUploads;
+	result["coverage_hits"] = aui_SDL::SampleWorldmapCoverage(30);
+	result["coverage_samples"] = 900;
+	return Ok("debug_worldmap_build", result);
+}
+
+// Read one ARGB pixel back out of the whole-map target, in absolute map-pixel
+// coordinates. This is the oracle for "did terrain actually land where the map
+// says it should", independent of any camera or present.
+std::string CmdDebugWorldmapPixel(const char * args)
+{
+	int x = 0, y = 0;
+	if (!args || sscanf(args, "%d %d", &x, &y) != 2)
+		return Err("debug_worldmap_pixel", "bad_args");
+	SDL_Renderer * renderer = aui_SDL::Renderer();
+	SDL_Texture *  target   = aui_SDL::WorldmapTexture();
+	if (!renderer || !target)
+		return Err("debug_worldmap_pixel", "no_worldmap_texture");
+	if (x < 0 || y < 0 || x >= aui_SDL::WorldmapW() || y >= aui_SDL::WorldmapH())
+		return Err("debug_worldmap_pixel", "out_of_bounds");
+
+	SDL_Texture * const prev = SDL_GetRenderTarget(renderer);
+	uint32 pixel = 0;
+	bool ok = false;
+	if (CTP2_SDL_SetRenderTarget(renderer, target))
+		ok = CTP2_SDL_RenderReadPixelARGB(renderer, x, y, &pixel);
+	CTP2_SDL_SetRenderTarget(renderer, prev);
+	if (!ok)
+		return Err("debug_worldmap_pixel", "readback_failed");
+
+	json result;
+	result["x"] = x;
+	result["y"] = y;
+	result["argb"] = pixel;
+	result["rgb"] = pixel & 0x00FFFFFFu;
+	return Ok("debug_worldmap_pixel", result);
+}
+
+// P13 step 1 probe. ADR-003 puts the WHOLE map in one GPU render target instead
+// of the screen+margin window mirror, so the first question to settle is whether
+// a texture that size can be created, rendered into, and read back at all — the
+// Gigantic map is 6,580 x 5,040px (~133MB at 32bpp) against a 16,384^2 Metal
+// limit. Reports the measured answer rather than the arithmetic.
+std::string CmdDebugGpuWorldmapProbe(const char * args)
+{
+	World * w = world_Get();
+	if (!w)
+		return Err("debug_gpu_worldmap_probe", "no_world");
+	SDL_Renderer * renderer = aui_SDL::Renderer();
+	if (!renderer)
+		return Err("debug_gpu_worldmap_probe", "no_renderer");
+
+	// Whole-map extent at native zoom: one tile grid per column, half a grid per
+	// row (isometric rows interleave), matching the tileset constants the world
+	// mirror is pinned to.
+	int const mapW = static_cast<int>(w->GetXWidth());
+	int const mapH = static_cast<int>(w->GetYHeight());
+	// Optional "<tilesX> <tilesY>" override, so the worst case (Gigantic, 70x140)
+	// can be probed without generating a Gigantic game.
+	int overrideW = 0, overrideH = 0;
+	bool const overridden = args && sscanf(args, "%d %d", &overrideW, &overrideH) == 2
+	                        && overrideW > 0 && overrideH > 0;
+	int const tilesX = overridden ? overrideW : mapW;
+	int const tilesY = overridden ? overrideH : mapH;
+	int const texW = tilesX * k_TILE_GRID_WIDTH;
+	int const texH = tilesY * (k_TILE_GRID_HEIGHT / 2);
+
+	json result;
+	result["map_tiles_x"] = tilesX;
+	result["map_tiles_y"] = tilesY;
+	result["overridden"] = overridden;
+	result["texture_w"] = texW;
+	result["texture_h"] = texH;
+	result["bytes"] = static_cast<double>(texW) * texH * 4.0;
+
+	SDL_Texture * target = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
+		SDL_TEXTUREACCESS_TARGET, texW, texH);
+	if (!target)
+	{
+		result["created"] = false;
+		result["sdl_error"] = SDL_GetError();
+		return Ok("debug_gpu_worldmap_probe", result);
+	}
+	result["created"] = true;
+
+	// Clear to a known colour and read it back from the FAR corner: allocation
+	// alone proves nothing if the driver cannot actually target a texture this
+	// large, and the far corner is what a silently-clamped size would miss.
+	bool readback_ok = false;
+	uint32 pixel = 0;
+	if (CTP2_SDL_SetRenderTarget(renderer, target))
+	{
+		SDL_SetRenderDrawColor(renderer, 0x12, 0x34, 0x56, 255);
+		SDL_RenderClear(renderer);
+		readback_ok = CTP2_SDL_RenderReadPixelARGB(renderer, texW - 1, texH - 1, &pixel);
+		CTP2_SDL_SetRenderTarget(renderer, nullptr);
+	}
+	result["readback"] = readback_ok;
+	if (readback_ok)
+	{
+		result["pixel"] = pixel & 0x00FFFFFFu;
+		result["pixel_matches"] = ((pixel & 0x00FFFFFFu) == 0x00123456u);
+	}
+	else
+	{
+		result["sdl_error"] = SDL_GetError();
+	}
+	SDL_DestroyTexture(target);
+	return Ok("debug_gpu_worldmap_probe", result);
+}
+
+std::string CmdDebugPlaceImprovement(const char *args)
+{
+	int x, y, type;
+	if (!args || sscanf(args, "%d %d %d", &x, &y, &type) != 3)
+		return Err("debug_place_improvement", "bad_args");
+	World *w = world_Get();
+	TiledMap *map = tiledmap_Get();
+	if (!w || !map || !g_theTerrainImprovementDB)
+		return Err("debug_place_improvement", "no_world");
+	if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+		return Err("debug_place_improvement", "out_of_bounds");
+	if (type < 0 || type >= g_theTerrainImprovementDB->NumRecords())
+		return Err("debug_place_improvement", "bad_improvement");
+	MapPoint pos(x, y);
+	auto const *rec = g_theTerrainImprovementDB->Get(type);
+	auto const *effect = terrainutil_GetTerrainEffect(rec, pos);
+	if (!effect) return Err("debug_place_improvement", "no_terrain_effect");
+	w->GetCell(pos)->InsertDBImprovement(type);
+	map->InvalidateWorldmap();
+	map->BuildTerrainQuads();
+	return Ok("debug_place_improvement", {{"tileset_index", effect->GetTilesetIndex()}});
+}
+
+// GPU-rasterisation feasibility probe. DrawTransitionTile's inner loop reads a
+// raw Pixel16 stream over the tile diamond where values 0..3 are inline
+// MARKERS: each consumes the next pixel from transition strip 0..3. Whether
+// that composite can move to the GPU as "one base quad + up to four strip
+// quads" hinges on the marker LAYOUT: if the (marker, position) map is shared
+// across base tiles, a transition strip can be pre-splatted into diamond
+// positions once per (from, to, which) — an additive space. If every base tile
+// has its own layout, the splat multiplies by base-tile count. This measures
+// which world we live in, instead of guessing.
+std::string CmdDebugTilesetStats(const char * /*args*/)
+{
+	TiledMap * map = tiledmap_Get();
+	TileSet * ts = map ? map->GetTileSet() : nullptr;
+	if (!ts)
+		return Err("debug_tileset_stats", "no_tileset");
+
+	auto startPixel = [](int y) {
+		return (y < k_TILE_PIXEL_HEADROOM)
+		       ? 2 * ((k_TILE_PIXEL_HEADROOM - 1) - y)
+		       : 2 * (y - k_TILE_PIXEL_HEADROOM);
+	};
+
+	int tiles = 0;
+	int tilesWithMarkers = 0;
+	std::map<uint64_t, int> layoutCounts;   // layout hash -> #tiles
+	int minCount[4] = {1 << 30, 1 << 30, 1 << 30, 1 << 30};
+	int maxCount[4] = {0, 0, 0, 0};
+
+	for (uint16 i = 0; i < k_MAX_BASE_TILES; ++i)
+	{
+		BaseTile * bt = ts->GetBaseTile(i);
+		if (!bt) continue;
+		Pixel16 * data = bt->GetTileData();
+		if (!data) continue;
+		++tiles;
+
+		// Walk the diamond exactly as DrawTransitionTile does and hash the
+		// sequence of (marker, y, x) positions. FNV-1a over the triples: two
+		// tiles share a hash iff (collisions aside) they share a layout.
+		uint64_t h = 1469598103934665603ULL;
+		int counts[4] = {0, 0, 0, 0};
+		Pixel16 const * p = data;
+		for (int y = 0; y < k_TILE_PIXEL_HEIGHT; ++y)
+		{
+			int const sx = startPixel(y);
+			int const ex = k_TILE_PIXEL_WIDTH - sx;
+			for (int x = sx; x < ex; ++x)
+			{
+				Pixel16 const v = *p++;
+				if (v < 4)
+				{
+					++counts[v];
+					uint64_t const trip = ((uint64_t) v << 32)
+					                    | ((uint64_t) (uint16) y << 16)
+					                    | (uint64_t) (uint16) x;
+					h ^= trip;
+					h *= 1099511628211ULL;
+				}
+			}
+		}
+		if (counts[0] + counts[1] + counts[2] + counts[3] > 0)
+		{
+			++tilesWithMarkers;
+			++layoutCounts[h];
+			for (int k = 0; k < 4; ++k)
+			{
+				if (counts[k] < minCount[k]) minCount[k] = counts[k];
+				if (counts[k] > maxCount[k]) maxCount[k] = counts[k];
+			}
+		}
+	}
+
+	json result;
+	result["base_tiles"] = tiles;
+	result["tiles_with_markers"] = tilesWithMarkers;
+	result["distinct_layouts"] = (int) layoutCounts.size();
+	json counts = json::array();
+	for (int k = 0; k < 4; ++k)
+		counts.push_back({ {"min", tilesWithMarkers ? minCount[k] : 0},
+		                   {"max", maxCount[k]} });
+	result["marker_counts"] = counts;
+	// How many tiles share the most common layout — if this equals
+	// tiles_with_markers, the layout is universal.
+	int biggest = 0;
+	for (auto const & kv : layoutCounts)
+		if (kv.second > biggest) biggest = kv.second;
+	result["largest_layout_tiles"] = biggest;
+
+	// River overlays: which RLE run kinds do they actually use? SHADOW runs
+	// read the DESTINATION (they darken the terrain under the river), so a
+	// pre-decoded river texture can only be bit-exact if rivers never use
+	// them. Measure instead of assuming.
+	for (int family = 0; family < 3; ++family)
+	{
+		int rivers = 0, copyRuns = 0, skipRuns = 0, shadowRuns = 0, colorRuns = 0;
+		int const limit = family == 0 ? k_MAX_RIVERS : family == 1 ? k_MAX_IMPROVEMENTS : MAPICON_MAX;
+		for (uint16 r = 0; r < limit; ++r)
+		{
+			Pixel16 const * d = family == 0 ? ts->GetRiverData(r)
+			    : family == 1 ? ts->GetImprovementData(r) : ts->GetMapIconData(r);
+			if (!d) continue;
+			++rivers;
+			uint16 const rowStart = (uint16) *d++;
+			uint16 const rowEnd   = (uint16) *d++;
+			Pixel16 const * tbl = d;
+			Pixel16 const * rows = tbl + (rowEnd - rowStart + 1);
+			for (sint32 rj = rowStart; rj <= rowEnd; ++rj)
+			{
+				if ((sint16) tbl[rj - rowStart] == -1) continue;
+				Pixel16 const * rowData = rows + tbl[rj - rowStart];
+				Pixel16 tag;
+				do {
+					tag = *rowData++;
+					switch ((tag & 0x0F00) >> 8) {
+					case k_TILE_SKIP_RUN_ID:   ++skipRuns; break;
+					case k_TILE_COPY_RUN_ID:   ++copyRuns; rowData += (tag & 0x00FF); break;
+					case k_TILE_SHADOW_RUN_ID: ++shadowRuns; break;
+					case k_TILE_COLORIZE_RUN_ID: ++colorRuns; break;
+					}
+				} while ((tag & 0xF000) == 0);
+			}
+		}
+		result[family == 0 ? "rivers" : family == 1 ? "improvements" : "map_icons"] =
+		    { {"count", rivers}, {"copy_runs", copyRuns}, {"skip_runs", skipRuns},
+		      {"shadow_runs", shadowRuns}, {"colorize_runs", colorRuns} };
+	}
+	return Ok("debug_tileset_stats", result);
+}
+#endif
+
+
+std::string CmdDebugDeselect()
+{
+	if (!selitem_Get())
+		return Err("debug_deselect", "no_selitem");
+	selitem_Get()->Deselect(selitem_Get()->GetVisiblePlayer());
+	if (tiledmap_Get())
+		tiledmap_Get()->BuildTerrainQuads();
+	return Ok("debug_deselect");
+}
+
+// Selection and visibility transitions deliberately do not force a terrain refresh.
+std::string CmdDebugActorState(const char *args)
+{
+    int index = -1, member = 0;
+    char state[32] = {0};
+    if (sscanf(args, "%d %d %31s", &index, &member, state) != 3)
+        return Err("debug_actor_state", "bad_args");
+    Player *human = HumanPlayer();
+    auto *armies = human ? human->GetAllArmiesList() : nullptr;
+    if (!armies || index < 0 || index >= armies->Num())
+        return Err("debug_actor_state", "bad_army");
+    Army army = armies->Access(index);
+    if (member < 0 || member >= army.Num()) return Err("debug_actor_state", "bad_member");
+    Unit unit = army.Access(member);
+    if (strcmp(state, "select") == 0 && selitem_Get()) selitem_Get()->SetSelectUnit(unit);
+    else if (strcmp(state, "visible") == 0) unit.AccessData()->SetVisible(human->GetOwner());
+    else if (strcmp(state, "hidden") == 0) {
+        unit.AccessData()->UnsetVisible(human->GetOwner());
+        // Expire the normal one-turn visibility grace period as well.
+        unit.AccessData()->BeginTurnVision(human->GetOwner());
+    }
+    else if (strcmp(state, "die") == 0) unit.Kill(CAUSE_REMOVE_ARMY_OUTOFFUEL, -1);
+    else return Err("debug_actor_state", "bad_state");
+    return Ok("debug_actor_state");
+}
+
+#ifdef RENDER_TOOL_BUILD
+std::string CmdDebugSpritePose(const char *args)
+{
+    int x, y, action, frame, facing, opacity = 15, fogged = 0;
+    if (sscanf(args, "%d %d %d %d %d %d %d", &x, &y, &action, &frame, &facing, &opacity, &fogged) < 5)
+        return Err("debug_sprite_pose", "bad_args");
+    World *world = world_Get();
+    if (!world || x < 0 || y < 0 || x >= world->GetXWidth() || y >= world->GetYHeight())
+        return Err("debug_sprite_pose", "bad_position");
+    Unit unit;
+    MapPoint pos(x, y);
+    if (!world->GetTopVisibleUnitNotCity(pos, unit) && !world->GetTopVisibleUnit(pos, unit))
+        return Err("debug_sprite_pose", "no_actor");
+    auto actor = unit.GetActor();
+    int const count = actor ? actor->SetRenderPose(action, frame, facing, opacity, fogged != 0) : 0;
+    if (!count) return Err("debug_sprite_pose", "unsupported_pose");
+    return Ok("debug_sprite_pose", {{"frames", count}});
+}
+#endif
+
+// render_camera_pose <offX> <offY> <zoom> — set a fixed camera pose for
+// zoom-matrix tests (ctp2-266). Offset, pan target and home zoom are set
+// together so the TickCamera ease holds the pose instead of gliding home;
+// zoom clamps to MinSafeZoom inside SetCamera. The render_ prefix marks it
+// as screenshot-fixture state, not gameplay.
+std::string CmdRenderCameraPose(const char * args)
+{
+    float offX = 0.0f, offY = 0.0f, zoom = 1.0f;
+    if (sscanf(args, "%f %f %f", &offX, &offY, &zoom) != 3)
+        return Err("render_camera_pose", "bad_args");
+    if (!(zoom > 0.0f) || !(offX == offX) || !(offY == offY))
+        return Err("render_camera_pose", "bad_pose");
+    aui_SDL::SetCamera(offX, offY, zoom);
+    aui_SDL::SetPanTarget(offX, offY);
+    aui_SDL::SetHomeZoom(aui_SDL::CameraZoom());
+    json result;
+    result["camera"] = { {"offX", aui_SDL::CameraOffX()},
+                         {"offY", aui_SDL::CameraOffY()},
+                         {"zoom", aui_SDL::CameraZoom()} };
+    return Ok("render_camera_pose", result);
+}
+// render_new_scene — clear P11 render fixtures (ctp2-306). No game state is
+// touched: units, cities and terrain stay as they are; only the harness-owned
+// sprite placements are dropped. Start every render-fixture test with this.
+std::string CmdRenderNewScene(const char * args)
+{
+    (void)args;
+    if (!tiledmap_Get())
+        return Err("render_new_scene", "no_tiledmap");
+    tiledmap_Get()->ClearRenderFixtures();
+    json result;
+    result["fixtures"] = 0;
+    return Ok("render_new_scene", result);
+}
+
+static bool ParseRenderAction(const char *name, UNITACTION &out)
+{
+    if (!name || !name[0] || strcmp(name, "MOVE") == 0) { out = UNITACTION_MOVE; return true; }
+    if (strcmp(name, "ATTACK") == 0)  { out = UNITACTION_ATTACK;  return true; }
+    if (strcmp(name, "IDLE") == 0)    { out = UNITACTION_IDLE;    return true; }
+    if (strcmp(name, "VICTORY") == 0) { out = UNITACTION_VICTORY; return true; }
+    if (strcmp(name, "WORK") == 0)    { out = UNITACTION_WORK;    return true; }
+    return false;
+}
+
+// render_add_unit_sprite <UNIT_ID|index> <x> <y> [ACTION] [frame] [facing] [fog] [opacity]
+// — place a unit sprite quad without creating a Unit (ctp2-306/307). The
+// sprite group is resolved exactly like UnitActor (default sprite for the
+// human's government) and held by the tiled map until render_new_scene, so
+// every frame submits the quad with no gameplay side effects. ACTION is one
+// of MOVE/ATTACK/IDLE/VICTORY/WORK (default MOVE); fog marks it fogged.
+// Negative frames resolve like SetRenderPose (-1 = last, -2 = middle), so
+// gallery matrices migrate verbatim. Opacity (default 15) mirrors the pose
+// opacity for transparent/fogged variants.
+// City-capable types are rejected in v1 (city sprite choice needs a live
+// CityData); cities keep the game-backed debug_gallery_case path.
+std::string CmdRenderAddUnitSprite(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("render_add_unit_sprite", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human || !g_theUnitDB)
+        return Err("render_add_unit_sprite", "no_human_player");
+    if (!tiledmap_Get() || !world_Get())
+        return Err("render_add_unit_sprite", "no_world");
+
+    char name[128] = {0};
+    char actionName[32] = {0};
+    int x = -1, y = -1, frame = 0, facing = 0, fog = 0, opacity = 15;
+    int parsed = sscanf(args, "%127s %d %d %31s %d %d %d %d",
+                        name, &x, &y, actionName, &frame, &facing, &fog, &opacity);
+    if (parsed < 3)
+        return Err("render_add_unit_sprite", "bad_args");
+    UNITACTION action = UNITACTION_MOVE;
+    if (parsed >= 4 && !ParseRenderAction(actionName, action))
+        return Err("render_add_unit_sprite", "bad_action");
+    if (facing < 0 || facing > 7 || opacity < 0 || opacity > 15)
+        return Err("render_add_unit_sprite", "bad_pose");
+
+    sint32 type = ResolveUnitType(name);
+    if (type < 0 || type >= g_theUnitDB->NumRecords())
+        return Err("render_add_unit_sprite", "bad_unit_type");
+    World * w = world_Get();
+    if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("render_add_unit_sprite", "bad_position");
+
+    auto const *rec = g_theUnitDB->Get(type, human->GetGovernmentType());
+    bool const isCity = rec && rec->GetHasPopAndCanBuild();
+    if (!rec || isCity)
+        return Err("render_add_unit_sprite", "city_type_unsupported");
+    sint32 const spriteIndex = rec->GetDefaultSprite()->GetValue();
+    if (!g_unitSpriteGroupList)
+        return Err("render_add_unit_sprite", "no_sprite_list");
+    UnitSpriteGroup *group = static_cast<UnitSpriteGroup *>(
+        g_unitSpriteGroupList->GetSprite(static_cast<uint32>(spriteIndex),
+                                        GROUPTYPE_UNIT, LOADTYPE_BASIC, static_cast<GAME_ACTION>(0)));
+    if (!group) {
+        aui_SDL::MarkSpriteFrameIncomplete("fixture-no-group");
+        return Err("render_add_unit_sprite", "no_sprite_group");
+    }
+    if (frame < 0) {
+        Sprite *sprite = group->GetGroupSprite(static_cast<GAME_ACTION>(action));
+        sint32 const count = sprite ? static_cast<sint32>(sprite->GetNumFrames()) : 0;
+        if (count <= 0)
+            return Err("render_add_unit_sprite", "no_frames");
+        frame = (frame == -1) ? count - 1 : count / 2;
+        if (frame < 0 || frame >= count)
+            return Err("render_add_unit_sprite", "bad_frame");
+    }
+
+    TiledMap::RenderFixture fixture;
+    fixture.group = group;
+    fixture.spriteIndex = spriteIndex;
+    fixture.groupType = GROUPTYPE_UNIT;
+    fixture.action = action;
+    fixture.frame = frame;
+    fixture.facing = facing;
+    fixture.mapX = x;
+    fixture.mapY = y;
+    fixture.fogged = fog != 0;
+    fixture.transparency = static_cast<uint16>(opacity);
+    sint32 const index = tiledmap_Get()->AddRenderUnitFixture(fixture);
+    json result;
+    result["fixture"] = index;
+    result["sprite"] = spriteIndex;
+    result["action"] = static_cast<int>(action);
+    return Ok("render_add_unit_sprite", result);
+}
+
+// render_set_tile <x> <y> <terrain-index> — set terrain the side-effect-free
+// way (ctp2-306): plain SetTerrain plus quad rebuild, never the
+// scenario-editor SmartSetTerrain path, so neighbours and gameplay state are
+// untouched. The render_ prefix (ctp2-308) keeps it unconfusable with the
+// gameplay debug_set_terrain verb.
+std::string CmdRenderSetTile(const char * args)
+{
+    sint32 x = 0, y = 0, terrain = 0;
+    if (sscanf(args, "%d %d %d", &x, &y, &terrain) != 3)
+        return Err("render_set_tile", "bad_args");
+    World *w = world_Get();
+    if (!w)
+        return Err("render_set_tile", "no_world");
+    if (!g_theTerrainDB || terrain < 0 || terrain >= g_theTerrainDB->NumRecords())
+        return Err("render_set_tile", "bad_terrain");
+    if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("render_set_tile", "out_of_bounds");
+
+    w->SetTerrain(x, y, terrain);
+    w->SetMovementType(x, y, MovementMaskFromTerrain(g_theTerrainDB->Get(terrain)));
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
+    json result;
+    result["pos"] = { {"x", x}, {"y", y} };
+    result["terrain"] = terrain;
+    return Ok("render_set_tile", result);
+}
+
+// render_set_fog <x> <y> <mode> — set per-cell fog without a unit observer
+// (ctp2-306). mode 0 = visible, 1 = explored-but-fogged (radius covers the
+// cell; whole-map unexplore stays whole-map-only by engine design).
+std::string CmdRenderSetFog(const char * args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("render_set_fog", "game_not_loaded");
+    Player * human = HumanPlayer();
+    if (!human || !human->m_vision || !world_Get())
+        return Err("render_set_fog", "no_vision");
+    sint32 x = 0, y = 0, mode = 0;
+    if (sscanf(args, "%d %d %d", &x, &y, &mode) != 3)
+        return Err("render_set_fog", "bad_args");
+    World * w = world_Get();
+    if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("render_set_fog", "out_of_bounds");
+
+    MapPoint pos(x, y);
+    human->m_vision->AddExplored(pos, 1.0);
+    if (mode == 0)
+        human->m_vision->AddVisible(pos, 1.0);
+    else
+        human->m_vision->RemoveVisible(pos, 1.0);
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
+    json result;
+    result["pos"] = { {"x", x}, {"y", y} };
+    result["fogged"] = mode != 0;
+    return Ok("render_set_fog", result);
+}
+
+std::string CmdDebugCombatFlash(const char * args)
+{
+    sint32 x = 0, y = 0;
+    if (sscanf(args, "%d %d", &x, &y) != 2)
+        return Err("debug_combat_flash", "bad_args");
+    if (!director_Get())
+        return Err("debug_combat_flash", "no_director");
+
+    MapPoint pos(x, y);
+    director_Get()->AddCombatFlash(pos);
+    director_Get()->HandleNextAction();
+
+    json result;
+    result["pos"] = { {"x", x}, {"y", y} };
+    return Ok("debug_combat_flash", result);
+}
+
+std::string CmdDebugScenarioStartFlags(const char * args)
+{
+    int on = 0;
+    if (sscanf(args, "%d", &on) != 1)
+        return Err("debug_scenario_start_flags", "bad_args");
+
+    ScenarioEditor::DebugSetStartFlags(on ? SCEN_START_LOC_MODE_PLAYER : SCEN_START_LOC_MODE_NONE);
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
+
+    json result;
+    result["show_start_flags"] = on != 0;
+    return Ok("debug_scenario_start_flags", result);
+}
+
+std::string CmdDebugCloakArmy(const char * args)
+{
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("debug_cloak_army", "bad_args");
+    Player * human = HumanPlayer();
+    if (!human || !human->GetAllArmiesList())
+        return Err("debug_cloak_army", "no_human_player");
+    if (idx < 0 || idx >= human->GetAllArmiesList()->Num())
+        return Err("debug_cloak_army", "bad_army_index");
+
+    Army army = human->GetAllArmiesList()->Access(idx);
+    if (!army.IsValid() || !army.AccessData() || army.Num() < 1)
+        return Err("debug_cloak_army", "invalid_army");
+    Unit unit = army.AccessData()->Access(0);
+    if (!unit.IsValid())
+        return Err("debug_cloak_army", "invalid_unit");
+    unit.Cloak();
+    return Ok("debug_cloak_army");
+}
+
+std::string CmdDebugCityDefense(const char * args)
+{
+    struct SavedImprovements { sint32 cityId; uint64 improvements; };
+    static std::vector<SavedImprovements> s_saved;
+
+    int cityIdx = -1;
+    char kind[32] = {0};
+    if (sscanf(args, "%d %31s", &cityIdx, kind) != 2)
+        return Err("debug_city_defense", "bad_args");
+    Player * human = HumanPlayer();
+    if (!human || !human->GetAllCitiesList())
+        return Err("debug_city_defense", "no_human_player");
+    if (cityIdx < 0 || cityIdx >= human->GetAllCitiesList()->Num())
+        return Err("debug_city_defense", "bad_city_index");
+
+    Unit city = human->GetAllCitiesList()->Access(cityIdx);
+    CityData * cd = city.IsValid() && city.GetData() ? city.GetData()->GetCityData() : nullptr;
+    if (!cd)
+        return Err("debug_city_defense", "invalid_city");
+
+    if (strcmp(kind, "clear") == 0) {
+        for (size_t i = 0; i < s_saved.size(); ++i) {
+            if (s_saved[i].cityId != city.m_id) continue;
+            cd->SetImprovements(s_saved[i].improvements);
+            s_saved.erase(s_saved.begin() + i);
+            if (tiledmap_Get())
+                tiledmap_Get()->BuildTerrainQuads();
+            return Ok("debug_city_defense");
+        }
+        if (tiledmap_Get())
+            tiledmap_Get()->BuildTerrainQuads();
+        return Ok("debug_city_defense");
+    }
+
+    sint32 building = -1;
+    for (sint32 i = 0; g_theBuildingDB && i < g_theBuildingDB->NumRecords(); ++i) {
+        const BuildingRecord *rec = g_theBuildingDB->Get(i);
+        if (!rec) continue;
+        if ((strcmp(kind, "walls") == 0 && rec->GetCityWalls())
+            || (strcmp(kind, "forcefield") == 0 && rec->GetForceField())) {
+            building = i;
+            break;
+        }
+    }
+    if (building < 0)
+        return Err("debug_city_defense", "no_matching_building");
+
+    bool saved = false;
+    for (SavedImprovements const &entry : s_saved)
+        saved = saved || entry.cityId == city.m_id;
+    if (!saved)
+        s_saved.push_back({city.m_id, cd->GetImprovements()});
+
+    cd->SetImprovements(cd->GetImprovements() | safe_shift_left_u64(building));
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
+
+    json result;
+    result["city"] = cityIdx;
+    result["building"] = building;
+    result["kind"] = kind;
+    return Ok("debug_city_defense", result);
+}
+
+std::string CmdDebugGalleryCase(const char * args)
+{
+    char kind[64] = {0};
+    char arg[128] = {0};
+    sint32 x = 0, y = 0;
+    int parsed = sscanf(args, "%63s %d %d %127s", kind, &x, &y, arg);
+    if (parsed < 3)
+        return Err("debug_gallery_case", "bad_args");
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("debug_gallery_case", "game_not_loaded");
+    Player * human = HumanPlayer();
+    World * w = world_Get();
+    if (!human || !w)
+        return Err("debug_gallery_case", "no_world");
+    if (x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("debug_gallery_case", "bad_position");
+
+    MapPoint pos(x, y);
+    CmdDebugClearTerrainLayers((std::to_string(x) + " " + std::to_string(y) + " 60").c_str());
+
+    if (strcmp(kind, "underwater_city") == 0) {
+        w->SmartSetTerrain(pos, TERRAIN_WATER_SHELF, 0);
+        w->SetMovementType(x, y, k_MOVEMENT_TYPE_WATER | k_MOVEMENT_TYPE_SHALLOW_WATER);
+        if (tiledmap_Get())
+            tiledmap_Get()->BuildTerrainQuads();
+        Unit city = human->CreateCity(unitutil_GetSeaCity(), pos, CAUSE_NEW_CITY_INITIAL, nullptr, CITY_STYLE_EDITOR);
+        if (!city.IsValid())
+            return Err("debug_gallery_case", "create_city_failed");
+    } else if (strcmp(kind, "city") == 0 || strcmp(kind, "city_walls") == 0 || strcmp(kind, "city_forcefield") == 0) {
+        Unit city = human->CreateCity(unitutil_GetCityTypeFor(pos), pos, CAUSE_NEW_CITY_INITIAL, nullptr, CITY_STYLE_EDITOR);
+        if (!city.IsValid())
+            return Err("debug_gallery_case", "create_city_failed");
+        CityData * cd = city.GetData() ? city.GetData()->GetCityData() : nullptr;
+        if (cd && strcmp(kind, "city") != 0) {
+            char defenseArgs[64];
+            sint32 cityIdx = human->GetAllCitiesList()->Num() - 1;
+            snprintf(defenseArgs, sizeof(defenseArgs), "%d %s", (int)cityIdx,
+                     strcmp(kind, "city_walls") == 0 ? "walls" : "forcefield");
+            CmdDebugCityDefense(defenseArgs);
+        }
+    } else if (strcmp(kind, "unit") == 0) {
+        sint32 const type = ResolveUnitType(parsed >= 4 ? arg : "UNIT_MARINE");
+        if (type < 0)
+            return Err("debug_gallery_case", "bad_unit_type");
+        Unit u = human->CreateUnit(type, pos, Unit(), false, CAUSE_NEW_ARMY_INITIAL);
+        if (!u.IsValid())
+            return Err("debug_gallery_case", "create_unit_failed");
+    } else if (strcmp(kind, "combat_flash") == 0) {
+        director_Get()->AddCombatFlash(pos);
+        director_Get()->HandleNextAction();
+    } else if (strcmp(kind, "terrain_overlay") == 0) {
+        char overlayArgs[64];
+        snprintf(overlayArgs, sizeof(overlayArgs), "%d %d", (int)x, (int)y);
+        return CmdDebugTerrainOverlay(overlayArgs);
+    } else {
+        return Err("debug_gallery_case", "unknown_kind");
+    }
+
+    if (tiledmap_Get())
+        tiledmap_Get()->BuildTerrainQuads();
+    json result;
+    result["kind"] = kind;
+    result["pos"] = { {"x", x}, {"y", y} };
+    if (parsed >= 4)
+        result["arg"] = arg;
+    return Ok("debug_gallery_case", result);
+}
+
+std::string CmdSetZoomLevel(const char * args)
+{
+    int level = 0;
+    if (sscanf(args, "%d", &level) != 1 || level < k_ZOOM_SMALLEST || level > k_ZOOM_LARGEST)
+        return Err("set_zoom_level", "bad_args");
+    if (!tiledmap_Get())
+        return Err("set_zoom_level", "no_tiledmap");
+
+    while (tiledmap_Get()->GetZoomLevel() < level && tiledmap_Get()->ZoomIn()) {}
+    while (tiledmap_Get()->GetZoomLevel() > level && tiledmap_Get()->ZoomOut()) {}
+    tiledmap_Get()->BuildTerrainQuads();
+
+    json result;
+    result["zoom_level"] = tiledmap_Get()->GetZoomLevel();
+    return Ok("set_zoom_level", result);
 }
 
 // set_production <city_idx> <what>
@@ -486,7 +1826,9 @@ std::string CmdLoadGame(const char * args)
     if (!args[0])
         return Err("load_game", "bad_args");
     gc_log->info("load_game: {}", args);
-    if (!GameFile::RestoreGame(args))
+    bool const restored = is_headless() ? GameFile::RestoreGame(args)
+                                       : civapp_Get()->LoadSavedGame(args) == 0;
+    if (!restored)
         return Err("load_game", "load_failed");
     return Ok("load_game");
 }
@@ -998,7 +2340,7 @@ std::string QueryResearch()
     if (!g_theAdvanceDB)
         return Err("query_research", "no_advance_db");
 
-    Advances * adv = human->m_advances;
+    Advances * adv = human->m_advances.get();
     sint32 researching = adv->GetResearching();
 
     json result;
@@ -1462,8 +2804,17 @@ std::string CmdAttack(const char * args)
         Unit unit = ad->Access(u);
         if (UnitData * ud = unit.AccessData()) ud->SetExploring(false);
     }
-    army.ClearOrders();
-    army.AddOrders(UNIT_ORDER_MOVE_TO, dest);
+    // The command itself is an explicit confirmation to attack this known
+    // target.  Mark the defender as seen before the queued move; otherwise
+    // the legacy interactive path reveals it, cancels the order for a UI
+    // confirmation, and headless automation can never issue the follow-up in
+    // the same turn.
+    ad->CheckWasEnemyVisible(dest);
+    // Queue movement through GEV_MoveOrder.  Executing a point order directly
+    // from this command leaves no current event, so Battle() inserts its
+    // GEV_Battle "after current" into nowhere and the assault silently stalls.
+    if (!army_QueueMovePath(human->GetOwner(), army, src, dest, true))
+        return Err("attack", "no_path");
     if (gevmanager_Get()) gevmanager_Get()->Process();
 
     // Report what the battlefield looks like afterwards.
@@ -1711,19 +3062,7 @@ std::string CmdCreateUnit(const char * args)
     if (sscanf(args, "%127s %d %d", name, &x, &y) != 3)
         return Err("create_unit", "bad_args");
 
-    sint32 type = -1;
-    if (sscanf(name, "%d", &type) != 1)
-    {
-        for (sint32 i = 0; i < g_theUnitDB->NumRecords(); ++i)
-        {
-            const UnitRecord * rec = g_theUnitDB->Get(i);
-            if (rec && rec->GetIDText() && strcmp(rec->GetIDText(), name) == 0)
-            {
-                type = i;
-                break;
-            }
-        }
-    }
+    sint32 type = ResolveUnitType(name);
     if (type < 0 || type >= g_theUnitDB->NumRecords())
         return Err("create_unit", "bad_unit_type");
 
@@ -1943,7 +3282,7 @@ std::string CmdSetRates(const char * args)
     if (rations >= 0) human->SetRationsLevel(rations);
     if (gevmanager_Get()) gevmanager_Get()->Process();
 
-    PlayerHappiness * h = human->m_global_happiness;
+    PlayerHappiness * h = human->m_global_happiness.get();
     json result;
     result["workday"] = { {"level", h ? h->GetUnitlessWorkday() : 0}, {"expectation", human->GetWorkdayExpectation()} };
     result["wages"]   = { {"level", h ? h->GetUnitlessWages()   : 0}, {"expectation", human->GetWagesExpectation()} };
@@ -2441,7 +3780,7 @@ std::string QueryMap()
     World * w = world_Get();
     if (!w)
         return Err("query_map", "no_world");
-    Vision * vis = human->m_vision;
+    Vision * vis = human->m_vision.get();
 
     const sint32 W = w->GetXWidth();
     const sint32 H = w->GetYHeight();
@@ -2627,7 +3966,7 @@ json PlayerJson(sint32 p, Player * pl)
         econ["max_science_rate"] = grec ? grec->GetMaxScienceRate() : 1.0;
         // Current slider levels live in the happiness object (Player::Get*Level
         // is unimplemented for workday/wages); expectations come from the gov.
-        PlayerHappiness * h = pl->m_global_happiness;
+        PlayerHappiness * h = pl->m_global_happiness.get();
         econ["workday"]  = { {"level", h ? h->GetUnitlessWorkday() : 0}, {"expectation", pl->GetWorkdayExpectation()} };
         econ["wages"]    = { {"level", h ? h->GetUnitlessWages()   : 0}, {"expectation", pl->GetWagesExpectation()} };
         econ["rations"]  = { {"level", h ? h->GetUnitlessRations() : 0}, {"expectation", pl->GetRationsExpectation()} };
@@ -2775,6 +4114,59 @@ std::string QueryPlayerCities(const char * args)
     result["cities"] = cities;
     return Ok("query_player_cities", result);
 }
+// query_paint_state <x> <y> — why a cell paints (or does not). Reports the
+// viewing-player identities, vision state, top object, visibility bits and
+// actor presence that PaintUnitActor branches on. Diagnostic only.
+std::string QueryPaintState(const char * args)
+{
+    sint32 x = 0, y = 0;
+    if (sscanf(args, "%d %d", &x, &y) != 2)
+        return Err("query_paint_state", "bad_args");
+    World *w = world_Get();
+    if (!w || x < 0 || y < 0 || x >= w->GetXWidth() || y >= w->GetYHeight())
+        return Err("query_paint_state", "bad_position");
+    json result;
+    result["pos"] = { {"x", x}, {"y", y} };
+    result["human"] = HumanPlayer() ? HumanPlayer()->GetOwner() : -1;
+    result["visible_player_view"] = player_view::VisiblePlayer();
+    if (selitem_Get())
+        result["visible_player_selitem"] = selitem_Get()->GetVisiblePlayer();
+    MapPoint pos(x, y);
+    Cell *cell = w->GetCell(pos);
+    if (cell) {
+        Unit city = cell->GetCity();
+        result["has_city"] = city.IsValid();
+        result["num_units"] = cell->GetNumUnits();
+        if (city.IsValid()) {
+            result["city_owner"] = city.GetOwner();
+            if (city.GetActor())
+                result["city_actor_visibility"] = city.GetActor()->GetUnitVisibility();
+            else
+                result["city_actor_visibility"] = "no_actor";
+        }
+        if (cell->GetNumUnits() > 0) {
+            Unit top;
+            if (w->GetTopVisibleUnit(pos, top) && top.IsValid()) {
+                result["top_type"] = top.GetDBRec() ? 1 : 0;
+                result["top_owner"] = top.GetOwner();
+                result["top_visibility"] = top.GetVisibility();
+                if (top.GetActor())
+                    result["top_actor_visibility"] = top.GetActor()->GetUnitVisibility();
+                else
+                    result["top_actor_visibility"] = "no_actor";
+            } else {
+                result["top"] = "none_visible";
+            }
+        }
+    }
+    if (tiledmap_Get() && tiledmap_Get()->GetLocalVision()) {
+        const Vision *vision = tiledmap_Get()->GetLocalVision();
+        result["local_vision_owner"] = vision->GetOwner();
+        result["explored"] = vision->IsExplored(pos);
+        result["visible"] = vision->IsVisible(pos);
+    }
+    return Ok("query_paint_state", result);
+}
 
 // query_terrains — static dictionary mapping terrain ids (as reported by
 // query_map) to names, passability and base tile yields. Values come from
@@ -2856,6 +4248,56 @@ std::string QueryNames()
     return Ok("query_names", result);
 }
 
+std::string QueryGpuWorld()
+{
+    json result;
+    result["enabled"] = aui_SDL::GpuQuadsEnabled();
+    // Reported separately from "enabled": the whole-map target is opt-in and
+    // implies quads, so a parity test that only checked "enabled" could not
+    // tell the P13 path from the ADR-002 one and would silently compare a
+    // path against itself.
+    result["worldmap"] = aui_SDL::GpuWorldmapEnabled();
+    // The flag alone does NOT mean the frame came from the whole-map target:
+    // the present falls back to the ADR-002 window mirror whenever the texture
+    // is absent (aui_sdlsurface.cpp, "Falls back ... if the target is not
+    // ready"). A parity test that checks only the flag passes that fallback as
+    // if it had measured the P13 path.
+    result["worldmap_texture"] = aui_SDL::WorldmapTexture() != nullptr;
+    result["complete"] = aui_SDL::QuadFrameComplete();
+    char const *reason = aui_SDL::QuadFrameIncompleteReason();
+    result["fallback_reason"] = reason ? reason : "";
+    { result["goods"] = { {"cells", s_goodCellsSeen}, {"no_actor", s_goodNoActor},
+                          {"declined", s_goodDeclined}, {"emitted", s_goodEmitted},
+                          {"reason", s_goodReason} }; }   // PROBE
+    result["terrain_quads"] = aui_SDL::QuadDrawList().size();
+    result["sprite_quads"] = aui_SDL::SpriteDrawList().size();
+    result["sprite_fallback_reason"] = aui_SDL::SpriteFrameIncompleteReason() ? aui_SDL::SpriteFrameIncompleteReason() : "";
+    if (tiledmap_Get()) {
+        result["last_terrain_build"] = {
+            {"submitted_quads", tiledmap_Get()->LastWorldmapRedrawCount()},
+            {"gpu_raster", tiledmap_Get()->LastWorldmapRasterCount()},
+            {"cpu_composited", tiledmap_Get()->m_worldmapCpuCells},
+            {"uploads", tiledmap_Get()->m_worldmapUploads}};
+    }
+    // The exact inputs to the present's source rect. Reported so a parity run
+    // can compare the two paths' geometry directly instead of inferring it by
+    // correlating presented pixels — tile art is periodic, so a correlation
+    // peak can sit a whole tile off and still look convincing.
+    result["worldmap_origin"] = { aui_SDL::WorldmapOriginX(), aui_SDL::WorldmapOriginY() };
+    // Terrain, sprites and picking must all agree on where the view's top-left
+    // sits in the whole-map texture. Picking inverts through the origin; sprites
+    // are placed through the sprite base. Any difference between these two is
+    // exactly the "click the unit, select its neighbour" error, in texture
+    // pixels, so report it rather than leaving it to be inferred from pixels.
+    result["worldmap_sprite_base"] = { aui_SDL::WorldmapSpriteBaseX(), aui_SDL::WorldmapSpriteBaseY() };
+    result["worldmap_size"] = { aui_SDL::WorldmapW(), aui_SDL::WorldmapH() };
+    result["world_content_off"] = { aui_SDL::WorldContentOffX(), aui_SDL::WorldContentOffY() };
+    result["camera"] = { {"zoom", aui_SDL::CameraZoom()},
+                         {"off_x", aui_SDL::CameraOffX()},
+                         {"off_y", aui_SDL::CameraOffY()} };
+    return Ok("query_gpu_world", result);
+}
+
 }  // namespace
 
 namespace game_controller {
@@ -2865,6 +4307,45 @@ std::string Dispatch(const std::string & line, bool & handled)
     handled = true;
 
     if (line == "build_city")                                  return CmdBuildCity();
+    if (line.rfind("end_turn", 0) == 0)                         return CmdEndTurn(line.c_str() + 8);
+    if (line.rfind("set_show_city_names ", 0) == 0)             return CmdSetShowCityNames(line.c_str() + 20);
+    if (line.rfind("debug_terrain_overlay ", 0) == 0)           return CmdDebugTerrainOverlay(line.c_str() + 22);
+    if (line.rfind("debug_set_terrain ", 0) == 0)               return CmdDebugSetTerrain(line.c_str() + 18);
+    if (line.rfind("debug_clear_rivers ", 0) == 0)              return CmdDebugClearRivers(line.c_str() + 19);
+    if (line.rfind("debug_clear_terrain_layers ", 0) == 0)      return CmdDebugClearTerrainLayers(line.c_str() + 27);
+    if (line.rfind("debug_reveal_patch ", 0) == 0)              return CmdDebugRevealPatch(line.c_str() + 19);
+    if (line.rfind("debug_explore_patch ", 0) == 0)             return CmdDebugExplorePatch(line.c_str() + 20);
+    if (line.rfind("debug_vision_stats ", 0) == 0)              return CmdDebugVisionStats(line.c_str() + 19);
+    if (line.rfind("debug_render_explored_as_visible ", 0) == 0) return CmdDebugRenderExploredAsVisible(line.c_str() + 33);
+    if (line.rfind("debug_set_good ", 0) == 0)                  return CmdDebugSetGood(line.c_str() + 15);
+    if (line.rfind("debug_trade_animation ", 0) == 0)           return CmdDebugTradeAnimation(line.c_str() + 22);
+    if (line.rfind("debug_find_good ", 0) == 0)                 return CmdDebugFindGood(line.c_str() + 16);
+    if (line.rfind("debug_set_good_richness ", 0) == 0)          return CmdDebugSetGoodRichness(line.c_str() + 24);
+    if (line.rfind("debug_find_river ", 0) == 0)                return CmdDebugFindRiver(line.c_str() + 17);
+    if (line.rfind("debug_worldmap_sprites ", 0) == 0)          return CmdDebugWorldmapSprites(line.c_str() + 23);
+    if (line == "debug_icon_alpha")                             return CmdDebugIconAlpha(nullptr);
+    if (line.rfind("debug_set_grid ", 0) == 0)                  return CmdDebugSetGrid(line.c_str() + 15);
+    if (line.rfind("debug_set_borders ", 0) == 0)               return CmdDebugSetBorders(line.c_str() + 18);
+#if defined(RENDER_TOOL_BUILD) && defined(USE_SDL)
+    if (line == "debug_worldmap_build")                         return CmdDebugWorldmapBuild("");
+    if (line.rfind("debug_worldmap_build ", 0) == 0)            return CmdDebugWorldmapBuild(line.c_str() + 21);
+    if (line.rfind("debug_worldmap_pixel ", 0) == 0)            return CmdDebugWorldmapPixel(line.c_str() + 21);
+    if (line == "debug_gpu_worldmap_probe")                     return CmdDebugGpuWorldmapProbe(nullptr);
+    if (line.rfind("debug_gpu_worldmap_probe ", 0) == 0)        return CmdDebugGpuWorldmapProbe(line.c_str() + 25);
+    if (line == "debug_tileset_stats")                          return CmdDebugTilesetStats(nullptr);
+    if (line.rfind("debug_place_improvement ", 0) == 0)          return CmdDebugPlaceImprovement(line.c_str() + 24);
+#endif
+    if (line == "debug_deselect")                               return CmdDebugDeselect();
+    if (line.rfind("debug_actor_state ", 0) == 0)              return CmdDebugActorState(line.c_str() + 18);
+#ifdef RENDER_TOOL_BUILD
+    if (line.rfind("debug_sprite_pose ", 0) == 0)              return CmdDebugSpritePose(line.c_str() + 18);
+#endif
+    if (line.rfind("debug_combat_flash ", 0) == 0)              return CmdDebugCombatFlash(line.c_str() + 19);
+    if (line.rfind("debug_scenario_start_flags ", 0) == 0)      return CmdDebugScenarioStartFlags(line.c_str() + 27);
+    if (line.rfind("debug_cloak_army ", 0) == 0)                return CmdDebugCloakArmy(line.c_str() + 17);
+    if (line.rfind("debug_city_defense ", 0) == 0)              return CmdDebugCityDefense(line.c_str() + 19);
+    if (line.rfind("debug_gallery_case ", 0) == 0)              return CmdDebugGalleryCase(line.c_str() + 19);
+    if (line.rfind("set_zoom_level ", 0) == 0)                  return CmdSetZoomLevel(line.c_str() + 15);
     if (line.rfind("set_production ", 0) == 0)                  return CmdSetProduction(line.c_str() + 15);
     if (line.rfind("save_game ", 0) == 0)                       return CmdSaveGame(line.c_str() + 10);
     if (line.rfind("load_game ", 0) == 0)                       return CmdLoadGame(line.c_str() + 10);
@@ -2877,6 +4358,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line == "query_armies")                                 return QueryArmies();
     if (line.rfind("move_army ", 0) == 0)                       return CmdMoveArmy(line.c_str() + 10);
     if (line.rfind("auto_explore ", 0) == 0)                    return CmdAutoExplore(line.c_str() + 13);
+    if (line.rfind("render_camera_pose ", 0) == 0)                return CmdRenderCameraPose(line.c_str() + 19);
     if (line == "query_map")                                    return QueryMap();
     if (line == "query_world")                                  return QueryWorld();
     if (line == "query_players")                                return QueryPlayers();
@@ -2884,7 +4366,9 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("query_player ", 0) == 0)                    return QueryPlayer(line.c_str() + 13);
     if (line == "query_turn")                                   return QueryTurn();
     if (line == "query_terrains")                               return QueryTerrains();
+    if (line.rfind("query_paint_state ", 0) == 0)                 return QueryPaintState(line.c_str() + 18);
     if (line == "query_names")                                  return QueryNames();
+    if (line == "query_gpu_world")                              return QueryGpuWorld();
     if (line == "query_research")                               return QueryResearch();
     if (line.rfind("set_research ", 0) == 0)                    return CmdSetResearch(line.c_str() + 13);
     if (line.rfind("query_terraform ", 0) == 0)                 return QueryTerraform(line.c_str() + 16);
@@ -2892,6 +4376,11 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("set_material_tax ", 0) == 0)                return CmdSetMaterialTax(line.c_str() + 17);
     if (line.rfind("grant_advance ", 0) == 0)                   return CmdGrantAdvance(line.c_str() + 14);
     if (line.rfind("create_unit ", 0) == 0)                     return CmdCreateUnit(line.c_str() + 12);
+    if (line.rfind("render_new_scene ", 0) == 0)              return CmdRenderNewScene(line.c_str() + 17);
+    if (line == "render_new_scene")                           return CmdRenderNewScene("");
+    if (line.rfind("render_add_unit_sprite ", 0) == 0)        return CmdRenderAddUnitSprite(line.c_str() + 23);
+    if (line.rfind("render_set_tile ", 0) == 0)               return CmdRenderSetTile(line.c_str() + 16);
+    if (line.rfind("render_set_fog ", 0) == 0)                return CmdRenderSetFog(line.c_str() + 15);
     if (line.rfind("declare_war ", 0) == 0)                     return CmdDeclareWar(line.c_str() + 12);
     if (line.rfind("attack ", 0) == 0)                          return CmdAttack(line.c_str() + 7);
     if (line.rfind("bombard ", 0) == 0)                         return CmdBombard(line.c_str() + 8);

@@ -135,8 +135,8 @@ void scorewarn_Cleanup()
     {
     	c3ui_Get()->RemoveWindow( g_scorewarn->Id() );
 	    keypress_RemoveHandler(g_scorewarn);
-        RemoveControl(s_message);
-    	RemoveControl(g_scorewarn);
+        DeleteControl(s_message);
+    	DeleteControl(g_scorewarn);
     }
 }
 
@@ -298,11 +298,11 @@ void disclaimer_Cleanup()
     {
 	    c3ui_Get()->RemoveWindow( s_disclaimerWindow->Id() );
 
-	    RemoveControl(s_disclaimerLabel);
-	    RemoveControl(s_disclaimerAcceptButton);
-	    RemoveControl(s_disclaimerDeclineButton);
-	    RemoveControl(s_disclaimerTextBox);
+	    DeleteControl(s_disclaimerLabel);
+	    DeleteControl(s_disclaimerAcceptButton);
+	    DeleteControl(s_disclaimerDeclineButton);
+	    DeleteControl(s_disclaimerTextBox);
 
-	    RemoveControl(s_disclaimerWindow);
+	    DeleteControl(s_disclaimerWindow);
     }
 }

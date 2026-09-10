@@ -186,7 +186,7 @@ AUI_ERRCODE graphicsresscreen_Initialize( )
 
 AUI_ERRCODE graphicsresscreen_Cleanup()
 {
-#define mycleanup(mypointer) if(mypointer) { delete mypointer; mypointer = NULL; };
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 
 	if ( !s_graphicsResScreen  ) return AUI_ERRCODE_OK;
 

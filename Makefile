@@ -23,6 +23,13 @@
 # test
 #   Run the test suite.
 #
+# test-render
+#   Every pixel oracle for the renderer. The only tests that look at a
+#   presented frame; run after touching gfx/ or ui/aui_sdl/.
+#
+# test-p13
+#   Whole-map transition parity (its own suite, not in test-full).
+#
 # gateway / gateway-build / gateway-test
 #   The Crystal observability gateway (gateway/): `make gateway` builds the
 #   game + gateway and serves HTTP on :8666 with a spawned headless game.
@@ -195,14 +202,57 @@ repro:
 
 # Slower integration suite — headless game subprocess tests + the in-binary
 # "integration" doctest set (save/load, determinism, multi-turn AI).
-# ~7 minutes.  HIGHER TIER (>60s rule): pre-push / slower cadence, never
+# ~15-25 minutes.  HIGHER TIER (>60s rule): pre-push / slower cadence, never
 # pre-commit.  The pre-commit loop is `make test` (~4s).
 test-integration: build
 	@echo "Running integration suite (headless game tests)..."
 	meson test -C build integration
 
+# UI-only P11 proof: forces GPU camera offsets and verifies presented pixels move,
+# then checks the smooth pan path passes through sub-tile positions. Opens the UI
+# binary, so keep it out of the fast pre-commit loop.
+test-pan-pixel: build
+	@echo "Running P11 GPU camera pixel/glide proof..."
+	meson test -C build pan-pixel-proof --print-errorlogs
+
+# Every pixel oracle for the renderer, in one target. These are the
+# only tests that look at a presented frame, and since P13 became the default
+# they guard the whole-map path rather than the ADR-002 window mirror. Run this
+# after touching anything under gfx/ or ui/aui_sdl/ — the unit tiers cannot see
+# a rendering regression at all.
+# Keep the command prefix stable for reusable display-access approval:
+#   mise exec -- make test-render
+#   mise exec -- make test-render RENDER_TESTS=worldmap-borders
+# The isolated installation is prepared once; no personal saves/profile touched.
+# Override RENDER_HOME to reuse an existing test installation, or RENDER_DATA
+# when the original game data lives outside this checkout.
+RENDER_HOME ?= $(CURDIR)/build/render-home
+RENDER_DATA ?= $(CURDIR)/ctp2_data
+RENDER_TESTS ?= ui-seed slice-ui pan-pixel-proof gpu-world-fallbacks gpu-sprite-refresh gpu-actor-parity gpu-trade-animation terrain-edge-parity \
+	worldmap-fog worldmap-borders goods-reload gpu-raster-parity \
+	raster-overlay-parity gpu-improvement-parity worldmap-transition-parity
+test-render:
+	meson compile -C build ctp2 ctp2_render
+	@if ! test -d "$(RENDER_HOME)/original_data/default/gamedata" || \
+	    ! test -d "$(RENDER_HOME)/assets/current"; then \
+		python3 tools/assets/install_ctp2_home.py "$(RENDER_DATA)" \
+			--ctp2-home "$(RENDER_HOME)"; \
+	fi
+	@echo "Running renderer pixel oracles..."
+	@render_run=$$(mktemp -d /tmp/ctp2-render.XXXXXX) || exit 1; \
+		CTP2_HOME="$(RENDER_HOME)" CTP2_SMOKE_SOCKET="$$render_run/smoke.sock" \
+		meson test -C build --no-rebuild $(RENDER_TESTS) --print-errorlogs
+
+# P13 whole-map transition parity (~2 min). Its own suite, deliberately: it
+# compares two game processes frame-by-frame and is the most sensitive check
+# here, so it should not gate the shipping suite on a bad day. Not included in
+# `make test-full` for the same reason — run it explicitly.
+test-p13: build
+	@echo "Running P13 whole-map transition parity..."
+	meson test -C build --suite p13 --print-errorlogs
+
 # Full test suite — fast + unit + integration + smoke + scenario.
-# ~8 minutes (dominated by the integration tier).  Run pre-release or when
+# ~20-30 minutes (dominated by the integration tier).  Run pre-release or when
 # investigating a regression — not in the fast loop.
 test-full: build
 	@echo "Running full test suite..."
@@ -428,9 +478,18 @@ ci-reset:
 ci-tier-a:
 	@.ci/tiers/tier-a.sh && echo "tier-a done"
 
+ci-tier-b:
+	@.ci/tiers/tier-b.sh
+
+ci-nightly:
+	@.ci/tiers/tier-c.sh
+
 .PHONY: all deps setup build setup-sanitized build-sanitized sanitized-smoke setup-ubsan build-ubsan ubsan-smoke setup-release release release-check seed-sweep test modernization-ratchet modernization-ratchet-update clean-build local playtest doc smoke-test run-hd \
-        gateway gateway-build gateway-test \
-        ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a
+        test-integration test-pan-pixel test-render test-p13 test-full \
+        coverage coverage-setup coverage-summary coverage-html run repro \
+        timelapse timelapse-render timelapse-caption-smoke \
+        gateway gateway-build gateway-test gateway-e2e \
+        ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a ci-tier-b ci-nightly
 
 SRCDIRS=\
 	ctp2_code \

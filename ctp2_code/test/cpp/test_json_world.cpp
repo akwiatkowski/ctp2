@@ -19,6 +19,7 @@
 
 #include "ctp/c3.h"
 #include "doctest.h"
+#include "headless_test_config.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -30,32 +31,11 @@
 
 namespace {
 
-char const *HEADLESS_CANDIDATES[] = {
-    "./build/ctp2_headless",
-    "./build-sanitized/ctp2_headless",
-    "./ctp2_headless",
-    nullptr,
-};
-
-char const *find_headless_binary()
-{
-    for (char const **p = HEADLESS_CANDIDATES; *p; ++p)
-    {
-        if (std::FILE *f = std::fopen(*p, "r"))
-        {
-            std::fclose(f);
-            return *p;
-        }
-    }
-    return nullptr;
-}
-
 // Run headless with the given args, return exit code; stderr+stdout
 // merged into `out` for diagnostic context on failure.
 int run_headless(char const *args, std::string &out)
 {
-    char const *bin = find_headless_binary();
-    if (!bin) { out = "[ERROR] ctp2_headless not found"; return -1; }
+    char const *bin = CTP2_HEADLESS_COMMAND;
 
     char cmd[1024];
     std::snprintf(cmd, sizeof(cmd), "%s %s 2>&1", bin, args);
@@ -185,7 +165,8 @@ TEST_CASE("json_save world block: cells have the locked Phase C-1 key set")
     // into Phase C-2 by accident.
     CHECK_FALSE(cell.contains("unit_army"));
     CHECK_FALSE(cell.contains("objects"));
-    CHECK_FALSE(cell.contains("goody_hut"));
+    REQUIRE(cell.contains("goody_hut"));
+    CHECK((cell["goody_hut"].is_null() || cell["goody_hut"].is_object()));
     CHECK_FALSE(cell.contains("jabba"));
 
     // No m_-prefix leakage (Decision #2 snake_case enforcement).

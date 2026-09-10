@@ -427,7 +427,8 @@ public:
 	void Push(char *c) {
 		size_t const    s = strlen(c) + 1;
 		Grow(s);
-		strcpy(body + size - s, c);
+		// s bytes (terminator included) were just reserved by Grow.
+		memcpy(body + size - s, c, s);
 	}
 
 	void Pop(char *c) {

@@ -53,6 +53,23 @@ void aui_mouse_RequestTerminate() { g_mouseShouldTerminateThread = TRUE; }
 #include "gs/database/profileDB.h"
 
 #include "ui/aui_ctp2/c3ui.h"
+#ifdef __AUI_USE_SDL__
+#include "ui/aui_sdl/aui_sdl.h"       // P11: hardware cursor in layered mode
+#endif
+
+// P11 pan polish: with the layered GPU present, the software cursor's
+// pickup/mix/restore blits bake stale screen-coord pixels into the
+// persistent UI layer (they slide against the GPU-panned world). In that
+// mode the OS cursor is used and every software cursor path below is
+// skipped.
+static inline bool mouse_UsesHardwareCursor()
+{
+#ifdef __AUI_USE_SDL__
+	return aui_SDL::HardwareCursorEnabled();
+#else
+	return false;
+#endif
+}
 
 #include "ui/aui_common/aui_hypertextbox.h"
 
@@ -104,6 +121,7 @@ AUI_ERRCODE aui_Mouse::InitCommon( )
 	m_suspendCount = 0;
 	m_showCount = 0;
 	m_reset = TRUE;
+	m_hwCursorShown = nullptr;
 #ifndef __AUI_USE_SDL__
 	m_thread = NULL;
 	m_threadId = 0;
@@ -719,8 +737,40 @@ AUI_ERRCODE aui_Mouse::SetHotspot( sint32 x, sint32 y, sint32 index )
 
 
 
+void aui_Mouse::SyncHardwareCursor( )
+{
+#ifdef __AUI_USE_SDL__
+	if (!aui_SDL::HardwareCursorEnabled())
+		return;
+
+	aui_Cursor * const cursor =
+		(IsHidden() || !m_curCursor) ? nullptr : *m_curCursor;
+	if (cursor == m_hwCursorShown)
+		return;
+	m_hwCursorShown = cursor;
+
+	if (cursor && cursor->TheSurface())
+	{
+		POINT hotspot;
+		cursor->GetHotspot(hotspot);
+		aui_SDL::SetHardwareCursor(cursor->TheSurface(), hotspot.x, hotspot.y);
+	}
+	else
+	{
+		aui_SDL::SetHardwareCursor(nullptr, 0, 0);
+	}
+#endif
+}
+
 AUI_ERRCODE aui_Mouse::ReactToInput( )
 {
+	// Hardware-cursor mode: the OS draws (and moves) the cursor; the whole
+	// software pickup/mix/present dance below must not run — its restore
+	// blits would bake stale screen pixels into the persistent UI layer.
+	SyncHardwareCursor();
+	if (mouse_UsesHardwareCursor())
+		return AUI_ERRCODE_OK;
+
 	if ( IsHidden() || (!*m_curCursor)) return AUI_ERRCODE_OK;
 
 	POINT hotspot;
@@ -925,6 +975,7 @@ AUI_ERRCODE aui_Mouse::HandleAnim( )
 
 			m_time = now;
 
+			SyncHardwareCursor();
 			return AUI_ERRCODE_HANDLED;
 		}
 	}
@@ -980,32 +1031,39 @@ AUI_ERRCODE	aui_Mouse::BltWindowToPrimary( aui_Window *window )
 		RECT windowMixRect = mixRect;
 		OffsetRect( &windowMixRect, -windowX, -windowY );
 
-		errcode = aui_ui_Get()->TheBlitter()->Blt(
-			m_prevPickup,
-			rect.left,
-			rect.top,
-			windowSurface,
-			&windowMixRect,
-			k_AUI_BLITTER_FLAG_COPY );
-		Assert( errcode == AUI_ERRCODE_OK );
-		if ( errcode != AUI_ERRCODE_OK )
-		{
-			retcode = AUI_ERRCODE_BLTFAILED;
-			break;
-		}
+		// Hardware-cursor mode: composite the window rect only; the OS draws
+		// the cursor, so no pickup/mix/restore around the blit.
+		bool const hwCursor = mouse_UsesHardwareCursor();
 
-		errcode = aui_ui_Get()->TheBlitter()->Blt(
-			windowSurface,
-			windowMixRect.left,
-			windowMixRect.top,
-			(*m_curCursor)->TheSurface(),
-			&rect,
-			k_AUI_BLITTER_FLAG_CHROMAKEY );
-		Assert( errcode == AUI_ERRCODE_OK );
-		if ( errcode != AUI_ERRCODE_OK )
+		if ( !hwCursor )
 		{
-			retcode = AUI_ERRCODE_BLTFAILED;
-			break;
+			errcode = aui_ui_Get()->TheBlitter()->Blt(
+				m_prevPickup,
+				rect.left,
+				rect.top,
+				windowSurface,
+				&windowMixRect,
+				k_AUI_BLITTER_FLAG_COPY );
+			Assert( errcode == AUI_ERRCODE_OK );
+			if ( errcode != AUI_ERRCODE_OK )
+			{
+				retcode = AUI_ERRCODE_BLTFAILED;
+				break;
+			}
+
+			errcode = aui_ui_Get()->TheBlitter()->Blt(
+				windowSurface,
+				windowMixRect.left,
+				windowMixRect.top,
+				(*m_curCursor)->TheSurface(),
+				&rect,
+				k_AUI_BLITTER_FLAG_CHROMAKEY );
+			Assert( errcode == AUI_ERRCODE_OK );
+			if ( errcode != AUI_ERRCODE_OK )
+			{
+				retcode = AUI_ERRCODE_BLTFAILED;
+				break;
+			}
 		}
 
 #ifdef _DEBUG
@@ -1040,18 +1098,21 @@ AUI_ERRCODE	aui_Mouse::BltWindowToPrimary( aui_Window *window )
 			break;
 		}
 
-		errcode = aui_ui_Get()->TheBlitter()->Blt(
-			windowSurface,
-			windowMixRect.left,
-			windowMixRect.top,
-			m_prevPickup,
-			&rect,
-			k_AUI_BLITTER_FLAG_COPY );
-		Assert( errcode == AUI_ERRCODE_OK );
-		if ( errcode != AUI_ERRCODE_OK )
+		if ( !hwCursor )
 		{
-			retcode = AUI_ERRCODE_BLTFAILED;
-			break;
+			errcode = aui_ui_Get()->TheBlitter()->Blt(
+				windowSurface,
+				windowMixRect.left,
+				windowMixRect.top,
+				m_prevPickup,
+				&rect,
+				k_AUI_BLITTER_FLAG_COPY );
+			Assert( errcode == AUI_ERRCODE_OK );
+			if ( errcode != AUI_ERRCODE_OK )
+			{
+				retcode = AUI_ERRCODE_BLTFAILED;
+				break;
+			}
 		}
 	}
 
@@ -1071,6 +1132,15 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 	uint32 blitFlags;
 	LPVOID primaryBuf = nullptr;
 
+	// Layered GPU present shows world/UI textures, never the software
+	// secondary — the secondary-to-primary mirror then serves only the
+	// screenshot oracle, which refreshes it synchronously on demand (see the
+	// screenshot handlers in civapp.cpp). Skip the two full-frame software
+	// blits; cursor pickup/mix/restore and the present below still run.
+	// The accumulated dirty union keeps growing while muted; the next
+	// unmuted pass clamps it back to the surface, so that pass is full-frame.
+	bool const oracleMirror = !aui_SDL::LayeredPresentActive();
+
 	if (profiledb_Get() && profiledb_Get()->IsUseDirectXBlitter())
 	{
 		blitFlags = k_AUI_BLITTER_FLAG_COPY;
@@ -1078,8 +1148,11 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 	else
 	{
 		blitFlags = k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST;
-		errcode = aui_ui_Get()->Secondary()->Lock( nullptr, &primaryBuf, 0 );
-		Assert( errcode == AUI_ERRCODE_OK );
+		if (oracleMirror)
+		{
+			errcode = aui_ui_Get()->Secondary()->Lock( nullptr, &primaryBuf, 0 );
+			Assert( errcode == AUI_ERRCODE_OK );
+		}
 	}
 
 	#ifdef CTP2_DEBUG_LOGGING
@@ -1135,36 +1208,40 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 		RECT windowMixRect = mixRect;
 		OffsetRect( &windowMixRect, -windowX, -windowY );
 
-		errcode = aui_ui_Get()->TheBlitter()->Blt(
-			m_prevPickup,
-			rect.left,
-			rect.top,
-			windowSurface,
-			&windowMixRect,
-			k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST );
-		Assert( errcode == AUI_ERRCODE_OK );
-		if ( errcode != AUI_ERRCODE_OK )
+		// Hardware-cursor mode: composite the dirty rect only; the OS draws
+		// the cursor, so no pickup/mix/restore around the blit.
+		bool const hwCursor = mouse_UsesHardwareCursor();
+
+		if ( !hwCursor )
 		{
-			retcode = AUI_ERRCODE_BLTFAILED;
-			break;
+			errcode = aui_ui_Get()->TheBlitter()->Blt(
+				m_prevPickup,
+				rect.left,
+				rect.top,
+				windowSurface,
+				&windowMixRect,
+				k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST );
+			Assert( errcode == AUI_ERRCODE_OK );
+			if ( errcode != AUI_ERRCODE_OK )
+			{
+				retcode = AUI_ERRCODE_BLTFAILED;
+				break;
+			}
+
+			errcode = aui_ui_Get()->TheBlitter()->Blt(
+				windowSurface,
+				windowMixRect.left,
+				windowMixRect.top,
+				(*m_curCursor)->TheSurface(),
+				&rect,
+				k_AUI_BLITTER_FLAG_CHROMAKEY | k_AUI_BLITTER_FLAG_FAST);
+			Assert( errcode == AUI_ERRCODE_OK );
+			if ( errcode != AUI_ERRCODE_OK )
+			{
+				retcode = AUI_ERRCODE_BLTFAILED;
+				break;
+			}
 		}
-
-		errcode = aui_ui_Get()->TheBlitter()->Blt(
-			windowSurface,
-			windowMixRect.left,
-			windowMixRect.top,
-			(*m_curCursor)->TheSurface(),
-			&rect,
-			k_AUI_BLITTER_FLAG_CHROMAKEY | k_AUI_BLITTER_FLAG_FAST);
-		Assert( errcode == AUI_ERRCODE_OK );
-		if ( errcode != AUI_ERRCODE_OK )
-		{
-			retcode = AUI_ERRCODE_BLTFAILED;
-			break;
-		}
-
-
-
 
 #ifdef SEIZUREBLIT
 		{
@@ -1182,7 +1259,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 		}
 #endif
 
-		if (!civapp_Get()->IsInBackground()) // Actual Drawing
+		if (!civapp_Get()->IsInBackground() && oracleMirror) // Actual Drawing
 		{
 			errcode = aui_ui_Get()->BltToSecondary(
 				screenDirtyRect.left,
@@ -1198,31 +1275,43 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 			}
 		}
 
-		errcode = aui_ui_Get()->TheBlitter()->Blt(
-			windowSurface,
-			windowMixRect.left,
-			windowMixRect.top,
-			m_prevPickup,
-			&rect,
-			k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST);
+		if ( !hwCursor )
+		{
+			errcode = aui_ui_Get()->TheBlitter()->Blt(
+				windowSurface,
+				windowMixRect.left,
+				windowMixRect.top,
+				m_prevPickup,
+				&rect,
+				k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST);
 
+			Assert( errcode == AUI_ERRCODE_OK );
+			if ( errcode != AUI_ERRCODE_OK )
+			{
+				retcode = AUI_ERRCODE_BLTFAILED;
+				break;
+			}
+		}
+	}
+
+	if (oracleMirror)
+	{
+		errcode = aui_ui_Get()->BltSecondaryToPrimary(blitFlags,
+		                                              true /*useAccumulatedDirty*/);
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK )
 		{
 			retcode = AUI_ERRCODE_BLTFAILED;
-			break;
 		}
 	}
-
-	errcode = aui_ui_Get()->BltSecondaryToPrimary(blitFlags,
-	                                              true /*useAccumulatedDirty*/);
-	Assert( errcode == AUI_ERRCODE_OK );
-	if ( errcode != AUI_ERRCODE_OK )
+	else
 	{
-		retcode = AUI_ERRCODE_BLTFAILED;
+		// The mirror is muted: still present (Flip's redundant-present check
+		// usually skips), just without the software copy it would upload.
+		aui_ui_Get()->Secondary()->Flip(nullptr);
 	}
 
-	if (!profiledb_Get() || !profiledb_Get()->IsUseDirectXBlitter())
+	if ((!profiledb_Get() || !profiledb_Get()->IsUseDirectXBlitter()) && oracleMirror)
 	{
 		errcode = aui_ui_Get()->Secondary()->Unlock( primaryBuf );
 		Assert( errcode == AUI_ERRCODE_OK );
@@ -1259,6 +1348,20 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundColorToPrimary(
 	for ( sint32 j = colorAreas->L(); j; j-- )
 	{
 		RECT *screenDirtyRect = colorAreas->GetNext( position );
+
+		// Hardware-cursor mode: plain fill, no cursor carve-out to mix.
+		if ( mouse_UsesHardwareCursor() )
+		{
+			errcode = aui_ui_Get()->ColorBltToSecondary(
+				screenDirtyRect, color, 0 );
+			Assert( errcode == AUI_ERRCODE_OK );
+			if ( errcode != AUI_ERRCODE_OK )
+			{
+				retcode = AUI_ERRCODE_BLTFAILED;
+				break;
+			}
+			continue;
+		}
 
 		RECT clippedScreenCursorRect = screenCursorRect;
 		Rectangle_Clip( &clippedScreenCursorRect, screenDirtyRect );
@@ -1381,6 +1484,26 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundImageToPrimary(
 
 		RECT *screenDirtyRect = imageAreas->GetNext( position );
 
+		// Hardware-cursor mode: plain image blit, no cursor carve-out.
+		if ( mouse_UsesHardwareCursor() )
+		{
+			RECT imageDirtyRect = *screenDirtyRect;
+			OffsetRect( &imageDirtyRect, -imageRect->left, -imageRect->top );
+			errcode = aui_ui_Get()->BltToSecondary(
+				screenDirtyRect->left,
+				screenDirtyRect->top,
+				image->TheSurface(),
+				&imageDirtyRect,
+				k_AUI_BLITTER_FLAG_COPY );
+			Assert( errcode == AUI_ERRCODE_OK );
+			if ( errcode != AUI_ERRCODE_OK )
+			{
+				retcode = AUI_ERRCODE_BLTFAILED;
+				break;
+			}
+			continue;
+		}
+
 		RECT clippedScreenCursorRect = screenCursorRect;
 		Rectangle_Clip( &clippedScreenCursorRect, screenDirtyRect );
 
@@ -1487,6 +1610,14 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundImageToPrimary(
 AUI_ERRCODE aui_Mouse::Erase( )
 {
 	AUI_ERRCODE errcode;
+
+	// Hardware-cursor mode: no software cursor was ever drawn — restoring
+	// the pickup would bake stale screen pixels into the UI layer.
+	if ( mouse_UsesHardwareCursor() )
+	{
+		m_reset = TRUE;
+		return AUI_ERRCODE_OK;
+	}
 
 	POINT hotspot;
 	(*m_curCursor)->GetHotspot(hotspot);

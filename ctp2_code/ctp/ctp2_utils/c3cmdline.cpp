@@ -2640,7 +2640,7 @@ void OvertimeCostCommand::Execute(sint32 argc, char **argv)
 void LearnWhatCommand::Execute(sint32 argc, char **argv)
 {
 	PLAYER_INDEX	player = selitem_Get()->GetVisiblePlayer();
-	uint8 *advances = player_Get(player)->m_advances->CanResearch();
+	const std::vector<uint8_t> &advances = player_Get(player)->m_advances->CanResearch();
 	sint32 i, n = g_theAdvanceDB->NumRecords();
 	DPRINTF(k_DBG_GAMESTATE, ("Can research:\n"));
 	for(i = 0; i < n; i++) {

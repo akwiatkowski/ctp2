@@ -348,6 +348,20 @@ void GoodActor::DrawDirect(aui_Surface *surf, sint32 x, sint32 y, double scale) 
     m_transparency, color, flags);
 }
 
+bool GoodActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged) {
+  if (!m_goodSpriteGroup)
+    return false;
+
+  uint16 flags = k_DRAWFLAGS_NORMAL | (fogged ? k_BIT_DRAWFLAGS_FOGGED : 0);
+  Pixel16 color = 0x0000;
+  sint32 xoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_X * scale);
+  sint32 yoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_Y * scale);
+
+  return m_goodSpriteGroup->AddGpuSpriteQuad(
+      GOODACTION_IDLE, m_frame, x + xoffset, y + yoffset, m_facing, scale,
+      color, flags);
+}
+
 void GoodActor::DrawText(sint32 x, sint32 y, MBCHAR const * goodText) {
   m_goodSpriteGroup->DrawText(x, y, goodText);
 }
@@ -397,5 +411,4 @@ void GoodActor::GetBoundingRect(RECT *rect) const {
 
   OffsetRect(rect, m_x + xoff, m_y + yoff);
 }
-
 

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Decode CTP2 ``.SPR`` unit-sprite frames to debug PNGs (read-only).
+"""Decode CTP2 ``.SPR`` sprite frames to debug PNGs / atlases (read-only).
 
 Second slice of the M8 "modern asset pipeline" spike (see
-``REFACTORING_PLAN.md``). Given a unit ``.SPR`` this decodes the run-length
+``REFACTORING_PLAN.md``). Given a ``.SPR`` this decodes the run-length
 encoded 16-bit frames into RGBA and writes one PNG per action / facing /
-frame. It never modifies the original ``.SPR`` — original assets stay
-canonical; the PNGs are a rebuildable debug artifact.
+frame (or a packed atlas). UNIT sprites (incl. city ``GC*``), GOOD and EFFECT
+containers are all supported. It never modifies the original ``.SPR`` —
+original assets stay canonical; the output is a rebuildable debug artifact.
 
 Format reference
 ----------------
@@ -79,7 +80,21 @@ SHADOW_RUN_ID = 0x0E
 FEATHERED_RUN_ID = 0x0F
 EMPTY_TABLE_ENTRY = 0xFFFF
 
+# SpriteFile.h SPRITEFILETYPE enum (mirrored in spr_inspect.SPRITEFILETYPES).
+SPRITEFILETYPE_EFFECT = 6
+SPRITEFILETYPE_GOOD = 7
+
+# Per-group action counts for the non-UNIT container walk.
+#   GoodSpriteGroup.h:  GOODACTION_IDLE=0, GOODACTION_MAX=1  -> 1 action, IDLE.
+#   EffectSpriteGroup.h: EFFECTACTION_PLAY=0, _FLASH=1, _MAX=2 -> PLAY, FLASH.
+GOODACTION_MAX = 1
+EFFECT_ACTION_NAMES = ("PLAY", "FLASH")
+
 TRANSPARENT = None  # marker for an unset pixel
+MAX_INPUT_BYTES = 256 * 1024 * 1024
+MAX_MANIFEST_BYTES = 4 * 1024 * 1024
+MAX_ATLAS_DIMENSION = 16384
+MAX_ATLAS_PIXELS = 64 * 1024 * 1024
 
 
 class SprExportError(Exception):
@@ -169,6 +184,10 @@ def decode_frame(frame: bytes, width: int, height: int) -> list[list]:
 
     Cells hold a Pixel16 int (opaque) or ``TRANSPARENT``.
     """
+    if (width <= 0 or height <= 0 or width > MAX_ATLAS_DIMENSION
+            or height > MAX_ATLAS_DIMENSION
+            or width * height > MAX_ATLAS_PIXELS):
+        raise SprExportError(f"invalid frame dimensions {width}x{height}")
     if len(frame) < 2:
         return [[TRANSPARENT] * width for _ in range(height)]
     u16 = struct.unpack(f"<{len(frame) // 2}H", frame[: (len(frame) // 2) * 2])
@@ -297,7 +316,15 @@ def grid_to_rgba_bytes(grid: list[list], width: int, height: int) -> bytes:
 
 
 def write_png(path: str, width: int, height: int, rgba: bytes) -> None:
-    """Write an 8-bit RGBA PNG with no third-party dependencies."""
+    """Write an 8-bit RGBA PNG with no third-party dependencies.
+
+    Engine-decode contract (the modern-first C++ loader relies on this exact
+    shape so it can decode with the already-linked zlib and no un-filtering):
+    colour type 6 (RGBA), bit depth 8, no interlace, filter type 0 on every
+    scanline, and a single IDAT chunk. Decoding is then: inflate the IDAT,
+    then drop one leading zero byte per row to recover raw RGBA. ``--self-test``
+    pins this structure.
+    """
     def chunk(kind: bytes, data: bytes) -> bytes:
         return (struct.pack(">I", len(data)) + kind + data
                 + struct.pack(">I", zlib.crc32(kind + data) & 0xFFFFFFFF))
@@ -344,6 +371,10 @@ def pack_atlas(frames: list[dict], max_width: int = 2048) -> tuple[int, int, byt
     atlas_height = y + row_height
     if atlas_width == 0 or atlas_height == 0:
         return 1, 1, b"\x00\x00\x00\x00"
+    if (atlas_width > MAX_ATLAS_DIMENSION or atlas_height > MAX_ATLAS_DIMENSION
+            or atlas_width * atlas_height > MAX_ATLAS_PIXELS):
+        raise SprExportError(
+            f"atlas dimensions exceed supported limit: {atlas_width}x{atlas_height}")
 
     atlas = bytearray(atlas_width * atlas_height * 4)
     for frame in frames:
@@ -396,16 +427,45 @@ def source_set_fingerprint(path: str) -> str:
     return digest.hexdigest()[:16]
 
 
+def modern_assets_root() -> str:
+    """Root of the user-local modern-asset cache."""
+    ctp2_home = os.environ.get("CTP2_HOME")
+    if not ctp2_home:
+        ctp2_home = os.path.expanduser(os.path.join("~", ".ctp2"))
+    return os.path.join(ctp2_home, "assets")
+
+
 def modern_assets_dir(path: str) -> str:
     """User-local output directory for modern assets derived from ``path``."""
-    return os.path.expanduser(os.path.join("~", ".ctp2", "assets", source_set_fingerprint(path)))
+    return os.path.join(modern_assets_root(), source_set_fingerprint(path))
+
+
+def update_current_pointer(fingerprint_dir: str) -> None:
+    """Point ``<root>/current`` at the freshly generated fingerprint dir.
+
+    The engine has no sha256 to reproduce the content fingerprint, so it looks
+    up manifests under a stable ``current`` symlink instead. Regenerating the
+    cache re-points it (this is the cache-invalidation mechanism)."""
+    link = os.path.join(modern_assets_root(), "current")
+    target = os.path.basename(fingerprint_dir.rstrip("/"))  # relative → the fp dir
+    try:
+        if os.path.islink(link) or os.path.exists(link):
+            os.remove(link)
+        os.symlink(target, link)
+    except OSError:
+        # Fall back to a plain text pointer where symlinks are unavailable.
+        with open(link + ".txt", "w") as f:
+            f.write(target + "\n")
 
 
 def _read_faced_frames(buf: bytes, offset: int, version: int):
     """Parse a FACED action's header + size tables + normal frame payloads.
 
-    Returns (width, height, num_frames, frames[facing][frame] = bytes) or None
-    if the action is not a decodable faced/normal sprite.
+    Returns (width, height, num_frames, frames[facing][frame] = bytes, stype,
+    is_v2, end_offset) or None if the action is not a decodable faced/normal
+    sprite. ``end_offset`` is the byte position just past the action's frame
+    payloads (the start of the following ``Anim`` block in a GOOD/EFFECT
+    container), so callers can walk sequentially like the engine's ReadFull.
     """
     stype = spr._u16(buf, offset)
     pos = offset + 2
@@ -417,7 +477,10 @@ def _read_faced_frames(buf: bytes, offset: int, version: int):
     pos += 2                          # first_frame
     nf = spr._u16(buf, pos)
     pos += 2
-    if nf == 0 or nf > 512:
+    if (width == 0 or height == 0 or width > MAX_ATLAS_DIMENSION
+            or height > MAX_ATLAS_DIMENSION
+            or width * height > MAX_ATLAS_PIXELS
+            or nf == 0 or nf > 512):
         return None
 
     # Size tables are interleaved per facing: ssizes[j], then msizes[j].
@@ -448,32 +511,136 @@ def _read_faced_frames(buf: bytes, offset: int, version: int):
             pos += size
         for i in range(nf):
             pos += msizes[j][i]  # skip mini (zoomed-out) frames
-    return width, height, nf, frames, stype, is_v2
+    return width, height, nf, frames, stype, is_v2, pos
+
+
+def _header_end(version: int) -> int:
+    """Byte offset just past the file header (tag, version, [compression], type)."""
+    return 8 + (4 if version == spr.VERSION_V2 else 0) + 4
+
+
+def _skip_anim_full(buf: bytes, pos: int) -> int:
+    """Advance past one ``ReadAnimDataFull`` block and return the new position.
+
+    Layout (spritefile.cpp ReadAnimDataFull): uint16 type, num_frames,
+    playback_time, delay; then num_frames * (uint16 frame, POINT delta,
+    uint16 transparency). A zero num_frames is clamped to 1 by the engine.
+    """
+    num = spr._u16(buf, pos + 2)
+    if num == 0:
+        num = 1
+    pos += 8                       # type, num_frames, playback_time, delay
+    pos += num * 2                 # frames (uint16)
+    pos += num * spr.POINT_SIZE    # deltas (POINT)
+    pos += num * 2                 # transparencies (uint16)
+    return pos
+
+
+def _walk_non_unit_offsets(buf: bytes, version: int, type_id: int) -> list[tuple[str, int]]:
+    """Return [(action_name, sprite_header_offset)] for GOOD/EFFECT sprites.
+
+    Mirrors the engine's sequential readers (SpriteFile::ReadFull(GoodSpriteGroup)
+    and Read(EffectSpriteGroup)): GOOD is a 1-entry offset table followed by a
+    present-flag + sprite + anim; EFFECT is a present-flag + sprite +
+    anim-present-flag + anim, repeated for PLAY then FLASH.
+    """
+    pos = _header_end(version)
+    result: list[tuple[str, int]] = []
+    if type_id == SPRITEFILETYPE_GOOD:
+        pos += GOODACTION_MAX * 4           # leading offset table (unused; read sequentially)
+        if spr._u32(buf, pos):              # sprite-present flag
+            result.append(("IDLE", pos + 4))
+        return result
+    if type_id == SPRITEFILETYPE_EFFECT:
+        for name in EFFECT_ACTION_NAMES:
+            sprite_present = spr._u32(buf, pos)
+            pos += 4
+            if not sprite_present:
+                continue
+            sprite_off = pos
+            result.append((name, sprite_off))
+            parsed = _read_faced_frames(buf, sprite_off, version)
+            if not parsed:
+                break
+            pos = parsed[6]                 # end of frame payloads
+            anim_present = spr._u32(buf, pos)
+            pos += 4
+            if anim_present:
+                pos = _skip_anim_full(buf, pos)
+        return result
+    return []
+
+
+_PREFIX_GROUP = {
+    "GU": spr.SPRITEFILETYPE_UNIT,   # unit
+    "GC": spr.SPRITEFILETYPE_UNIT,   # city (stored as a UNIT container)
+    "GG": SPRITEFILETYPE_GOOD,       # good
+    "GX": SPRITEFILETYPE_EFFECT,     # effect
+}
+
+
+def _effective_group(info: "spr.SprInfo") -> int | None:
+    """Return the group layout to read ``info`` with.
+
+    The engine loads a sprite by its filename prefix (GROUPTYPE) and ignores
+    the .SPR ``type`` field, which is occasionally junk — e.g. GG023.SPR (the
+    only compressed v2 file) stores type 24 but is a normal GOOD container.
+    So trust the type field when it names a known group, else fall back to the
+    GU/GC/GG/GX filename prefix exactly as SpriteGroupList::LoadSprite does.
+    """
+    if info.type_id in (spr.SPRITEFILETYPE_UNIT, SPRITEFILETYPE_GOOD, SPRITEFILETYPE_EFFECT):
+        return info.type_id
+    return _PREFIX_GROUP.get(os.path.basename(info.path)[:2].upper())
+
+
+def _resolve_actions(info: "spr.SprInfo", buf: bytes):
+    """Return the decodable action headers for any supported sprite type.
+
+    UNIT (incl. city GC* sprites) uses the offset table the inspector already
+    parses; GOOD/EFFECT are walked here. Returns None for files that match no
+    known group layout.
+    """
+    group = _effective_group(info)
+    if group == spr.SPRITEFILETYPE_UNIT:
+        # inspect() only populates actions when the type field itself is UNIT;
+        # every real GU/GC file has the correct type, so this branch is exact.
+        return info.actions
+    if group in (SPRITEFILETYPE_GOOD, SPRITEFILETYPE_EFFECT):
+        return [spr._read_action_header(buf, off, name)
+                for name, off in _walk_non_unit_offsets(buf, info.version, group)]
+    return None
 
 
 def export(path: str, out_dir: str, action_filter: str | None, atlas: bool = False) -> int:
+    if os.path.getsize(path) > MAX_INPUT_BYTES:
+        raise SprExportError(f"input exceeds {MAX_INPUT_BYTES} byte limit: {path}")
     info = spr.inspect(path)
-    if info.type_name != "UNIT":
-        print(f"error: {path} is {info.type_name}, not UNIT", file=sys.stderr)
-        return 1
     with open(path, "rb") as f:
         buf = f.read()
+    actions = _resolve_actions(info, buf)
+    if actions is None:
+        print(f"skip: {os.path.basename(path)} is {info.type_name}, not decodable",
+              file=sys.stderr)
+        return 2
 
     os.makedirs(out_dir, exist_ok=True)
     base = os.path.splitext(os.path.basename(path))[0]
     written = 0
     atlas_frames: list[dict] = []
+    group = _effective_group(info)
     manifest = {
         "source": os.path.basename(path),
         "version": info.version_name,
         "source_fingerprint": source_fingerprint(path),
-        "type": info.type_name,
+        # Effective group (how the engine loads it), not the raw type field —
+        # which is junk on GG023 (stored 24, read as GOOD).
+        "type": spr.SPRITEFILETYPES[group] if group is not None else info.type_name,
         # Draw flags (transparency/fog/desaturate) are runtime render options,
         # not stored per frame in the .SPR; the renderer-relevant per-frame
         # metadata is the sprite type, size and hot points captured below.
         "actions": [],
     }
-    for action in info.actions:
+    for action in actions:
         if action_filter and action.name != action_filter:
             continue
         if action.sprite_type not in ("FACED", "NORMAL"):
@@ -481,7 +648,7 @@ def export(path: str, out_dir: str, action_filter: str | None, atlas: bool = Fal
         parsed = _read_faced_frames(buf, action.offset, info.version)
         if not parsed:
             continue
-        width, height, nf, frames, stype, _ = parsed
+        width, height, nf, frames, stype, _, _ = parsed
         entry = {
             "name": action.name,
             "sprite_type": action.sprite_type,
@@ -624,6 +791,9 @@ def validate_manifest_data(manifest: dict) -> list[str]:
 
 
 def validate_manifest(path: str) -> int:
+    if os.path.getsize(path) > MAX_MANIFEST_BYTES:
+        print(f"BAD {path}: manifest exceeds size limit", file=sys.stderr)
+        return 1
     with open(path) as f:
         manifest = json.load(f)
     errors = validate_manifest_data(manifest)
@@ -636,21 +806,24 @@ def validate_manifest(path: str) -> int:
 
 
 def verify(path: str) -> int:
-    """Run the per-row width invariant across every frame of a unit sprite."""
+    """Run the per-row width invariant across every frame of a sprite."""
+    if os.path.getsize(path) > MAX_INPUT_BYTES:
+        raise SprExportError(f"input exceeds {MAX_INPUT_BYTES} byte limit: {path}")
     info = spr.inspect(path)
-    if info.type_name != "UNIT":
-        print(f"skip: {os.path.basename(path)} is {info.type_name}, not UNIT")
-        return 0
     with open(path, "rb") as f:
         buf = f.read()
+    actions = _resolve_actions(info, buf)
+    if actions is None:
+        print(f"skip: {os.path.basename(path)} is {info.type_name}, not decodable")
+        return 0
     total_checked = total_bad = 0
-    for action in info.actions:
+    for action in actions:
         if action.sprite_type not in ("FACED", "NORMAL"):
             continue
         parsed = _read_faced_frames(buf, action.offset, info.version)
         if not parsed:
             continue
-        width, height, nf, frames, stype, _ = parsed
+        width, height, nf, frames, stype, _, _ = parsed
         for facing_frames in frames:
             for frame in facing_frames:
                 c, m = verify_frame(frame, width, height)
@@ -753,14 +926,63 @@ def self_test() -> int:
             print("self-test failed: source-set fingerprint", file=sys.stderr)
             return 1
 
-    print("self-test OK: LZW1 streams + atlas packer")
+    # Filename-prefix fallback: the engine loads by GROUPTYPE, so a junk type
+    # field (GG023 stores 24) must still resolve to its prefix's group.
+    junk = spr.SprInfo(path="graphics/GG023.SPR", size=0, version=spr.VERSION_V2,
+                       version_name="v2", compression=1, type_id=24,
+                       type_name="unknown(24)")
+    if _effective_group(junk) != SPRITEFILETYPE_GOOD:
+        print("self-test failed: prefix fallback for junk type", file=sys.stderr)
+        return 1
+    known = spr.SprInfo(path="GX22.SPR", size=0, version=0, version_name="v0",
+                        compression=None, type_id=SPRITEFILETYPE_EFFECT,
+                        type_name="EFFECT")
+    if _effective_group(known) != SPRITEFILETYPE_EFFECT:
+        print("self-test failed: effective group for known type", file=sys.stderr)
+        return 1
+
+    # PNG engine-decode contract: colour type 6 / depth 8 / no interlace,
+    # a single IDAT, and filter byte 0 on every scanline. The modern-first
+    # C++ loader assumes exactly this, so pin it here.
+    with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
+        write_png(tmp.name, 2, 2, bytes(range(2 * 2 * 4)))
+        blob = open(tmp.name, "rb").read()
+    if blob[:8] != b"\x89PNG\r\n\x1a\n":
+        print("self-test failed: PNG signature", file=sys.stderr)
+        return 1
+
+    def _png_chunks(data):
+        pos, out = 8, []
+        while pos < len(data):
+            length = struct.unpack_from(">I", data, pos)[0]
+            kind = data[pos + 4:pos + 8]
+            out.append((kind, data[pos + 8:pos + 8 + length]))
+            pos += 12 + length
+        return out
+
+    chunks = _png_chunks(blob)
+    ihdr = next(payload for kind, payload in chunks if kind == b"IHDR")
+    w, h, depth, colour, comp, filt, interlace = struct.unpack(">IIBBBBB", ihdr)
+    if (depth, colour, comp, filt, interlace) != (8, 6, 0, 0, 0):
+        print("self-test failed: PNG IHDR not RGBA8/no-interlace", file=sys.stderr)
+        return 1
+    idats = [payload for kind, payload in chunks if kind == b"IDAT"]
+    if len(idats) != 1:
+        print("self-test failed: PNG must have a single IDAT", file=sys.stderr)
+        return 1
+    raw = zlib.decompress(idats[0])
+    if len(raw) != h * (1 + w * 4) or any(raw[j * (1 + w * 4)] != 0 for j in range(h)):
+        print("self-test failed: PNG scanline filter bytes must be 0", file=sys.stderr)
+        return 1
+
+    print("self-test OK: LZW1 streams + atlas packer + group resolver + PNG contract")
     return 0
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        description="Export CTP2 unit .SPR frames to debug PNGs (read-only).")
-    ap.add_argument("path", nargs="?", help="path to a unit .SPR or directory of .SPR files")
+        description="Export CTP2 .SPR frames to debug PNGs / atlases (read-only).")
+    ap.add_argument("path", nargs="?", help="path to a .SPR or directory of .SPR files")
     ap.add_argument("-o", "--out-dir", default="spr_export",
                     help="output directory for PNGs (default: ./spr_export)")
     ap.add_argument("--action", help="only export this action (e.g. MOVE)")
@@ -769,7 +991,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--atlas", action="store_true",
                     help="write one packed atlas PNG and rect manifest instead of per-frame PNGs")
     ap.add_argument("--modern-assets", action="store_true",
-                    help="write to ~/.ctp2/assets/<source-fingerprint>/")
+                    help="write to $CTP2_HOME/assets/<source-fingerprint>/ (default: ~/.ctp2)")
     ap.add_argument("--self-test", action="store_true",
                     help="run synthetic decoder self-tests; does not read assets")
     ap.add_argument("--validate-manifest", metavar="JSON",
@@ -786,8 +1008,12 @@ def main(argv: list[str] | None = None) -> int:
             return verify(args.path)
         out_dir = modern_assets_dir(args.path) if args.modern_assets else args.out_dir
         if os.path.isdir(args.path):
-            return export_tree(args.path, out_dir, args.action, args.atlas)
-        return export(args.path, out_dir, args.action, args.atlas)
+            rc = export_tree(args.path, out_dir, args.action, args.atlas)
+        else:
+            rc = export(args.path, out_dir, args.action, args.atlas)
+        if args.modern_assets and rc == 0:
+            update_current_pointer(out_dir)  # engine reads <root>/current/<base>.json
+        return rc
     except (OSError, spr.SprError, SprExportError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

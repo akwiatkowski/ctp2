@@ -138,8 +138,6 @@ RadarMap::~RadarMap()
 {
 	delete m_mapSurface;
 	delete m_tempSurface;
-	if (m_tempBuffer)
-		free(m_tempBuffer);
 }
 
 //---------------------------------------------------------------------------
@@ -166,7 +164,7 @@ void RadarMap::InitCommon()
 	m_mapSurface = nullptr;
 	m_mapSize = nullptr;
 	m_tempSurface = nullptr;
-	m_tempBuffer = nullptr;
+	m_tempBuffer.clear();
 
 	m_tilePixelWidth = 0.0;
 	m_tilePixelHeight = 0.0;
@@ -275,8 +273,6 @@ void RadarMap::CalculateMetrics()
 	if (!world_Get()) return;
 
 	delete m_tempSurface;
-	if (m_tempBuffer)
-		free(m_tempBuffer);
 
 	m_mapSize = world_Get()->GetSize();
 
@@ -286,7 +282,9 @@ void RadarMap::CalculateMetrics()
 	uint32 width = m_mapSize->x * 2;
 	uint32 height = m_mapSize->y;
 
-	m_tempBuffer = (uint8 *)calloc((width + 2) * (height + 2), 2);
+	// Zeroed on every resize (as the old calloc was); the surface borrows a
+	// pointer past the 1-pixel guard row/column.
+	m_tempBuffer.assign(static_cast<size_t>(width + 2) * (height + 2) * 2, 0);
 
 	AUI_ERRCODE err;
 	m_tempSurface = new aui_Surface(&err, width, height, 16, 2*(width + 2), &m_tempBuffer[2*((width + 2) + (1))]);

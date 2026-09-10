@@ -141,7 +141,7 @@ SourceList::SourceList(SourceListCallback *callback, MBCHAR *ldlBlock)
 	else strlcpy(windowBlock,"SourceListPopup", sizeof(windowBlock));
 
 	{
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		m_window.reset(new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false));
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -162,14 +162,9 @@ SourceList::~SourceList()
     {
 	    c3ui_Get()->RemoveWindow(m_window->Id());
     }
+    // Controls are released in reverse declaration order, so the window --
+    // declared first -- outlives every control it hosts.
 
-	delete m_continue;
-	delete m_list;
-	delete m_window;
-	delete m_exit;
-	delete m_step;
-	delete m_stepInto;
-	delete m_status;
 	// m_callback : reference only
 	// m_segment  : reference only
 }
@@ -204,20 +199,20 @@ void SourceListButtonCallback(aui_Control *control, uint32 action, uint32 data, 
 		if(!g_sourceList)
 			return;
 
-		if(control == g_sourceList->m_continue) {
+		if(control == g_sourceList->m_continue.get()) {
 			g_sourceList->Continue();
 		}
 
-		if(control == g_sourceList->m_exit) {
+		if(control == g_sourceList->m_exit.get()) {
 			sourcelist_Remove();
 		}
 
-		if(control == g_sourceList->m_step) {
+		if(control == g_sourceList->m_step.get()) {
 
 			g_sourceList->StepInto();
 		}
 
-		if(control == g_sourceList->m_stepInto) {
+		if(control == g_sourceList->m_stepInto.get()) {
 			g_sourceList->StepInto();
 		}
 	}
@@ -232,38 +227,38 @@ sint32 SourceList::Initialize(MBCHAR *windowBlock)
 
 
 	snprintf( controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "SourceList" );
-	m_list = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, SourceListActionCallback, this);
+	m_list.reset(new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, SourceListActionCallback, this));
 	m_list->SetAbsorbancy(FALSE);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) )
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ContinueButton");
-	m_continue = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
+	m_continue.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this));
 	Assert(AUI_NEWOK(m_continue, errcode));
 	if( !AUI_NEWOK(m_continue, errcode))
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton");
-	m_exit = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
+	m_exit.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this));
 	Assert(AUI_NEWOK(m_exit, errcode));
 	if( !AUI_NEWOK(m_exit, errcode))
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "StepButton");
-	m_step = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
+	m_step.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this));
 	Assert(AUI_NEWOK(m_step, errcode));
 	if( !AUI_NEWOK(m_step, errcode))
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "StepIntoButton");
-	m_stepInto = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
+	m_stepInto.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this));
 	Assert(AUI_NEWOK(m_stepInto, errcode));
 	if( !AUI_NEWOK(m_stepInto, errcode))
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Status");
-	m_status = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	m_status.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
 	Assert(AUI_NEWOK(m_status, errcode));
 	if(!AUI_NEWOK(m_status, errcode))
 		return -1;
@@ -281,11 +276,12 @@ void SourceList::Cleanup()
         c3ui_Get()->RemoveWindow(m_window->Id());
     }
 
-#define mycleanup(mypointer) delete mypointer; mypointer = NULL;
-    mycleanup(m_continue);
-    mycleanup(m_list);
-    mycleanup(m_window);
-#undef mycleanup
+    // Released here so the list can be rebuilt; the window goes last, after
+    // the controls it hosts. (This replaced a local `delete p; p = NULL;`
+    // macro that hid the release behind a name.)
+    m_continue.reset();
+    m_list.reset();
+    m_window.reset();
 
     m_callback = nullptr;
 }
@@ -297,7 +293,7 @@ void SourceList::DisplayWindow(SlicSegment *segment)
 	m_segment = segment;
 	UpdateData();
 
-	auiErr = c3ui_Get()->AddWindow(m_window);
+	auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	keypress_RegisterHandler(this);

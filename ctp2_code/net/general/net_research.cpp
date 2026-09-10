@@ -39,7 +39,7 @@ void NetResearch::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(!player_Get(owner))
 		return;
 
-	m_adv = player_Get(owner)->m_advances;
+	m_adv = player_Get(owner)->m_advances.get();
 	sint32 i;
 	sint32 d;
 	for(i = 0; i < m_adv->m_size; i += 8) {

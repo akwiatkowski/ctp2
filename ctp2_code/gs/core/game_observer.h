@@ -19,6 +19,7 @@ class Army;
 class CityData;
 class EndGame;     // gs/gameobj/EndGame.h — fwd-decl for Wave C endgame-window bridge
 class Message;
+class MessageData;
 class Player;
 class UnitState;   // gs/gameobj/UnitState.h — game-state half of the UnitActor split
 
@@ -112,7 +113,7 @@ public:
     virtual void OnModalMessageDismissed(sint32 player) {}
     virtual void OnMessageShow(const Message& msg) {}
     virtual void OnMessageMinimize(const Message& msg) {}
-    virtual void OnMessageWindowDestroy(const Message& msg) {}
+    virtual void OnMessageWindowDestroy(const MessageData& data) {}
     virtual void OnMessageRead(const Message& msg) {}
 
     // --- UI refresh requests (no-ops in headless) ---
@@ -245,7 +246,7 @@ public:
     void NotifyModalMessageDismissed(sint32 player);
     void NotifyMessageShow(const Message& msg);
     void NotifyMessageMinimize(const Message& msg);
-    void NotifyMessageWindowDestroy(const Message& msg);
+    void NotifyMessageWindowDestroy(const MessageData& data);
     void NotifyMessageRead(const Message& msg);
 
     // --- UI refresh ---

@@ -48,8 +48,14 @@ class Plan;
 
 #include "ai/strategy/scheduler/scheduler_types.h"
 
+#include <nlohmann/json.hpp>
+class Scheduler;
+
 class Plan
 {
+    friend void to_json(nlohmann::json &j, Scheduler const &s);
+    friend void from_json(nlohmann::json const &j, Scheduler &s);
+
 private:
 	Plan();
 public:

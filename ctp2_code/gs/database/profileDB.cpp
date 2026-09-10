@@ -260,7 +260,6 @@ ProfileDB::ProfileDB()
     m_spEndingAge                       (-1),
     m_showCityProduction                (TRUE),
     // Add above this line new profile options
-    m_vars                              (new PointerList<ProfileVar>),
     m_loadedFromTutorial                (FALSE)
 {
 	for (auto & player : m_ai_personality)
@@ -486,10 +485,9 @@ ProfileDB::~ProfileDB()
 {
 	Save();
 
-	if (m_vars)
 	{
-		m_vars->DeleteAll();
-		delete m_vars;
+		// DeleteAll frees the ProfileVars; the list frees its own nodes.
+		m_vars.DeleteAll();
 	}
 }
 
@@ -506,8 +504,7 @@ BOOL ProfileDB::Init(BOOL forTutorial)
 	}
 	else
 	{
-		profileTxtFile = civpaths_Get()->FindFile(C3DIR_DIRECT, "userprofile.txt",
-		                                      profileName);
+		profileTxtFile = civpaths_Get()->GetUserPath("userprofile.txt", profileName);
 		if (!profileTxtFile || !c3files_PathIsValid(profileTxtFile))
 		{
 			profileTxtFile = civpaths_Get()->FindFile(C3DIR_GAMEDATA,
@@ -596,7 +593,7 @@ BOOL ProfileDB::Parse(FILE *file)
 
 
 
-		PointerList<ProfileVar>::Walker walk(m_vars);
+		PointerList<ProfileVar>::Walker walk(&m_vars);
 		bool found = false;
 		while(walk.IsValid() && !found) {
 			ProfileVar *var = walk.GetObj();
@@ -704,12 +701,11 @@ void ProfileDB::SetDifficulty(uint32 x)
 			{
 				if (player_Get(p))
 				{
-					delete player_Get(p)->m_difficulty;
-					player_Get(p)->m_difficulty =
+					player_Get(p)->m_difficulty.reset(
 					    new Difficulty(x,
 					                   p,
 					                   !player_Get(p)->IsRobot()
-					                  );
+					                  ));
 				}
 			}
 		}
@@ -719,7 +715,7 @@ void ProfileDB::SetDifficulty(uint32 x)
 void ProfileDB::Var(char *name, PROF_VAR_TYPE type, sint32 *numValue,
                     char *stringValue, bool visible)
 {
-	m_vars->AddTail(new ProfileVar(name, type, numValue, stringValue, visible));
+	m_vars.AddTail(new ProfileVar(name, type, numValue, stringValue, visible));
 }
 
 void ProfileDB::Save()
@@ -728,9 +724,11 @@ void ProfileDB::Save()
 		return;
 	}
 
-	FILE *file = c3files_fopen(C3DIR_DIRECT, "userprofile.txt", "w");
+	MBCHAR profileName[_MAX_PATH];
+	MBCHAR *profilePath = civpaths_Get()->GetUserPath("userprofile.txt", profileName);
+	FILE *file = profilePath ? fopen(profilePath, "w") : nullptr;
 	if(file) {
-		PointerList<ProfileVar>::Walker walk(m_vars);
+		PointerList<ProfileVar>::Walker walk(&m_vars);
 		while(walk.IsValid()) {
 			ProfileVar *var = walk.GetObj();
 			fprintf(file, "%s=", var->m_name);
@@ -760,7 +758,8 @@ sint32 ProfileDB::GetValueByName(const char * name) const
 {
 	for
 	(
-	    PointerList<ProfileVar>::Walker walk(m_vars);
+	    PointerList<ProfileVar>::Walker walk(
+	        const_cast<PointerList<ProfileVar> *>(&m_vars));
 	    walk.IsValid();
 	    walk.Next()
 	)
@@ -785,7 +784,7 @@ sint32 ProfileDB::GetValueByName(const char * name) const
 
 void ProfileDB::SetValueByName(const char *name, sint32 value)
 {
-	PointerList<ProfileVar>::Walker walk(m_vars);
+	PointerList<ProfileVar>::Walker walk(&m_vars);
 	while(walk.IsValid()) {
 		ProfileVar *var = walk.GetObj();
 		if(stricmp(var->m_name, name) == 0) {

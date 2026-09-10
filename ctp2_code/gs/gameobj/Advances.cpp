@@ -394,11 +394,11 @@ void Advances::InitialAdvance(AdvanceType adv)
 	}
 }
 
-uint8 * Advances::CanResearch() const
+const std::vector<uint8_t> & Advances::CanResearch() const
 {
-	uint8 *  research = new uint8[m_size];
-	std::copy(m_canResearch.begin(), m_canResearch.end(), research);
-	return research;
+	// m_canResearch is kept up to date by GiveAdvance/ResetCanResearch; a
+	// reference avoids copying the whole table for every caller.
+	return m_canResearch;
 }
 
 BOOL Advances::CanResearch(sint32 advance) const
@@ -801,12 +801,12 @@ void Advances::AddAlienLifeAdvance()
 
 }
 
-uint8*
+std::vector<uint8_t>
 Advances::CanAskFor(Advances* otherCivAdvances, sint32 &num) const
 {
 
     Assert(0<m_size);
-	uint8* askFor = new uint8[m_size];
+	std::vector<uint8_t> askFor(m_size, FALSE);
 
 	num = 0;
 	for(sint32 adv = 0; adv < m_size; adv++) {
@@ -823,12 +823,12 @@ Advances::CanAskFor(Advances* otherCivAdvances, sint32 &num) const
 	return askFor;
 }
 
-uint8*
+std::vector<uint8_t>
 Advances::CanOffer(Advances* otherCivAdvances, sint32 &num) const
 {
 
     Assert(0<m_size);
-	uint8* offer = new uint8[m_size];
+	std::vector<uint8_t> offer(m_size, FALSE);
 
 	num = 0;
 	for(sint32 adv = 0; adv < m_size; adv++) {

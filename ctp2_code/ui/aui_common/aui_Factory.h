@@ -37,13 +37,18 @@
 
 class aui_Factory {
 public:
+	// bpp == 0 means "use the global display depth" (c3ui BitsPerPixel()),
+	// preserving the historic behaviour. Pass an explicit depth (e.g. 32) to
+	// force a surface's format regardless of the global depth — used by the
+	// 32-bit world surface migration (P11 Stage 2 B).
 	static aui_Surface *new_Surface(AUI_ERRCODE &retval,
 	                                const sint32 &width,
 	                                const sint32 &height,
 	                                void *data = nullptr,
 	                                const BOOL &isPrimary = FALSE,
 	                                const BOOL &useVideoMemory = FALSE,
-	                                const BOOL &takeOwnership = FALSE
+	                                const BOOL &takeOwnership = FALSE,
+	                                sint32 bpp = 0
 	                               );
 
 	static aui_Mouse *new_Mouse(AUI_ERRCODE &retval,

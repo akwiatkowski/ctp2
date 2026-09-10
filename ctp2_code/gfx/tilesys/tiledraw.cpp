@@ -66,6 +66,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gfx/tilesys/TilesetGpuRaster.h"
 #include "ui/interface/backgroundwin.h"
 #include "gfx/tilesys/tiledmap.h"               // tiledraw.h does not exist
 
@@ -124,6 +125,13 @@ static COLOR		g_curSelectColor = COLOR_SELECT_0;
 static sint32		g_nano_flash = 0;
 static sint32		g_bio_flash = 0;
 
+// P11 Stage 2 B: world pixels are stored through pixelutils_StorePixel(), which
+// expands 565/555 -> ARGB8888 when the locked world surface is 32-bit. Terrain
+// writers only copy the source or blend toward a constant, so an opaque 16-bit
+// result expands byte-identically to the historic "compose 565, SDL-convert"
+// path. bpp32 is loop-invariant, so it predicts well at -O2.
+// ponytail: if a release profile shows this per-pixel branch hot, templatize
+// the writers on the destination pixel type instead of branching per pixel.
 #define k_POP_BOX_SIZE_MINIMUM	10
 
 namespace
@@ -287,7 +295,7 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 	if (!ReadyToDraw())
 		return drewSomething;
 
-	bool	    fog                     = !m_localVision->IsVisible(pos);
+	bool	    fog                     = !m_localVision->IsVisible(pos) && !GpuFogActive();
 	bool        visiblePlayerOwnsThis   =
 	    (selitem_Get()->GetVisiblePlayer() == world_Get()->GetOwner(pos));
 	uint32		env                     = 0x00000000;
@@ -578,6 +586,8 @@ void TiledMap::DrawHitMask(aui_Surface *surf, const MapPoint &pos)
 
 	uint8 *     pSurfBase   = lock.Base();
 	sint32      surfPitch   = surf->Pitch();
+	bool const  bpp32       = surf && surf->BitsPerPixel() == 32;
+	sint32 const step       = bpp32 ? 4 : 2;
 
 	sint32 num = k_TILE_GRID_HEIGHT - k_TILE_PIXEL_HEADROOM;
 	sint32 den = height;
@@ -599,14 +609,14 @@ void TiledMap::DrawHitMask(aui_Surface *surf, const MapPoint &pos)
 		}
 		tot += num;
 
-		Pixel16 * pDestPixel = (Pixel16 *)(pSurfBase + ((y+row) * surfPitch) + ((x+start) << 1));
-		*pDestPixel++ = selectColorPixel;
-		*pDestPixel = selectColorPixel;
+		uint8 * pDestPixel = pSurfBase + ((y+row) * surfPitch) + ((x+start) * step);
+		pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32); pDestPixel += step;
+		pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32);
 
-		pDestPixel += (end-start-2);
+		pDestPixel += (end-start-2) * step;
 
-		*pDestPixel++ = selectColorPixel;
-		*pDestPixel = selectColorPixel;
+		pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32); pDestPixel += step;
+		pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32);
 
 		row++;
 	}
@@ -639,6 +649,9 @@ void TiledMap::DrawColoredHitMask(aui_Surface *surf, const MapPoint &pos, COLOR 
 
 	uint8 * surfBase    = screenmanager_Get()->GetSurfBase();
 	sint32	surfPitch   = screenmanager_Get()->GetSurfPitch();
+	bool const  bpp32   = screenmanager_Get()->GetSurface() &&
+	                      screenmanager_Get()->GetSurface()->BitsPerPixel() == 32;
+	sint32 const step   = bpp32 ? 4 : 2;
 
 	sint32 num = k_TILE_GRID_HEIGHT - k_TILE_PIXEL_HEADROOM;
 	sint32 den = height;
@@ -662,10 +675,10 @@ void TiledMap::DrawColoredHitMask(aui_Surface *surf, const MapPoint &pos, COLOR 
 		}
 		tot += num;
 
-		Pixel16 * pDestPixel = (Pixel16 *)(surfBase + ((y+row) * surfPitch) + ((x+start) << 1));
-		*pDestPixel = selectColorPixel;
-		pDestPixel += (end-start);
-		*pDestPixel = selectColorPixel;
+		uint8 * pDestPixel = surfBase + ((y+row) * surfPitch) + ((x+start) * step);
+		pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32);
+		pDestPixel += (end-start) * step;
+		pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32);
 
 		row++;
 	}
@@ -696,6 +709,8 @@ void TiledMap::DrawHitMask(aui_Surface *surf, const MapPoint &pos, RECT *mapView
 
 	uint8 * pSurfBase   = lock.Base();
 	sint32  surfPitch   = surf->Pitch();
+	bool const  bpp32   = surf && surf->BitsPerPixel() == 32;
+	sint32 const step   = bpp32 ? 4 : 2;
 
 	sint32 num = k_TILE_GRID_HEIGHT - k_TILE_PIXEL_HEADROOM;
 	sint32 den = height;
@@ -720,10 +735,10 @@ void TiledMap::DrawHitMask(aui_Surface *surf, const MapPoint &pos, RECT *mapView
 		}
 		tot += num;
 
-		Pixel16 * pDestPixel = (Pixel16 *)(pSurfBase + ((y+row) * surfPitch) + ((x+start) << 1));
-		*pDestPixel = selectColorPixel;
-		pDestPixel += (end-start);
-		*pDestPixel = selectColorPixel;
+		uint8 * pDestPixel = pSurfBase + ((y+row) * surfPitch) + ((x+start) * step);
+		pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32);
+		pDestPixel += (end-start) * step;
+		pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32);
 
 		row++;
 	}
@@ -753,6 +768,9 @@ void TiledMap::DrawColoredHitMaskEdge(aui_Surface *surf, const MapPoint &pos, Pi
 
 	uint8	* surfBase = screenmanager_Get()->GetSurfBase();
 	sint32  surfPitch = screenmanager_Get()->GetSurfPitch();
+	bool const  bpp32 = screenmanager_Get()->GetSurface() &&
+	                    screenmanager_Get()->GetSurface()->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
 
 	sint32 num = k_TILE_GRID_HEIGHT - k_TILE_PIXEL_HEADROOM;
 	sint32 den = height;
@@ -795,16 +813,16 @@ void TiledMap::DrawColoredHitMaskEdge(aui_Surface *surf, const MapPoint &pos, Pi
 			continue;
 		}
 
-		Pixel16 * pDestPixel = (Pixel16 *)(surfBase + ((y+row) * surfPitch) + ((x+start) << 1));
+		uint8 * pDestPixel = surfBase + ((y+row) * surfPitch) + ((x+start) * step);
 		if(west) {
-			*pDestPixel = selectColorPixel;
-			*(pDestPixel + 1) = selectColorPixel;
+			pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32);
+			pixelutils_StorePixel(pDestPixel + step, selectColorPixel, bpp32);
 		}
-		pDestPixel += (end-start);
+		pDestPixel += (end-start) * step;
 
 		if(!west) {
-			*pDestPixel = selectColorPixel;
-			*(pDestPixel - 1) = selectColorPixel;
+			pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32);
+			pixelutils_StorePixel(pDestPixel - step, selectColorPixel, bpp32);
 		}
 
 		row++;
@@ -833,14 +851,43 @@ void TiledMap::DrawColoredBorderEdge(aui_Surface *surf, const MapPoint &pos, Pix
 	sint32 height = GetZoomTilePixelHeight();
 
 	if (!surf) surf = m_surface;
+	if (!surf) return;
 
 	if (x >= surf->Width()-width) return;
 	if (y >= surf->Height() - height) return;
 
 	AddDirtyToMix(x, y, width, height);
 
+	DrawColoredBorderEdgeAt(x, y, selectColorPixel, side, dashMode);
+}
+
+// The pixel work of DrawColoredBorderEdge, at a destination the caller chooses.
+//
+// Split out for the whole-map path (P13 step 3). The writing half was always
+// composite-target oriented -- it goes through m_surfBase/m_surfPitch, the
+// surface the caller locked -- but the position came from
+// maputils_MapXY2PixelXY, which is view-RELATIVE, and the clip tested a
+// full-screen surface. Into a tile-sized scratch that projection lands
+// somewhere else entirely and the clip rejects everything, which is why line
+// borders were the one overlay the whole-map tiles never got.
+//
+// x/y are in the locked surface's own coordinates: view-relative on the CPU
+// path, the tile's origin (0,0) when compositing one whole-map tile.
+void TiledMap::DrawColoredBorderEdgeAt(sint32 x, sint32 y, Pixel16 selectColorPixel,
+                                       WORLD_DIRECTION side, sint32 dashMode)
+{
+	if (m_gpuOverlayCapture)
+	{
+		m_gpuOverlayCapture->Border(m_tileHitMask, side, selectColorPixel, dashMode, x, y);
+		return;
+	}
 	uint8	* surfBase = m_surfBase;
+	if (!surfBase) return;
 	sint32  surfPitch = m_surfPitch;
+	bool const  bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
+
+	sint32 const height = GetZoomTilePixelHeight();
 
     sint32 num = k_TILE_GRID_HEIGHT - k_TILE_PIXEL_HEADROOM;
 	sint32 den = height;
@@ -889,18 +936,25 @@ void TiledMap::DrawColoredBorderEdge(aui_Surface *surf, const MapPoint &pos, Pix
 			continue;
 		}
 
-		Pixel16 * pDestPixel = (Pixel16 *)(surfBase + ((y+row) * surfPitch) + ((x+start) << 1)); //EMOD change here
+		// The destination is the caller's now, so clip against the surface
+		// actually locked rather than trusting the projection to be on-screen.
+		// Three pixels are written from each end, hence the margins.
+		sint32 const destY = y + row;
+		if (destY < 0 || destY >= m_surfHeight) { row++; continue; }
+		if (x + start < 0 || x + end + 1 > m_surfWidth) { row++; continue; }
+
+		uint8 * pDestPixel = surfBase + (destY * surfPitch) + ((x+start) * step); //EMOD change here
 		if(west) {
-			*pDestPixel = selectColorPixel;
-			*(pDestPixel + 1) = selectColorPixel;
-			*(pDestPixel + 2) = selectColorPixel;
+			pixelutils_StorePixel(pDestPixel, selectColorPixel, bpp32);
+			pixelutils_StorePixel(pDestPixel + step, selectColorPixel, bpp32);
+			pixelutils_StorePixel(pDestPixel + 2*step, selectColorPixel, bpp32);
 		}
-		pDestPixel += (end-start);
+		pDestPixel += (end-start) * step;
 
 		if(!west) {
-			*pDestPixel = 0; selectColorPixel;
-			*(pDestPixel - 1) = selectColorPixel;
-			*(pDestPixel - 2) = selectColorPixel;
+			pixelutils_StorePixel(pDestPixel, 0, bpp32); selectColorPixel;
+			pixelutils_StorePixel(pDestPixel - step, selectColorPixel, bpp32);
+			pixelutils_StorePixel(pDestPixel - 2*step, selectColorPixel, bpp32);
 		}
 
 		row++;
@@ -960,20 +1014,98 @@ sint32 TiledMap::DrawBlackTile(aui_Surface *surface, sint32 x, sint32 y) //EMOD 
 
 	uint8	*surfBase = m_surfBase;
 	sint32 surfPitch = m_surfPitch;
+	bool const bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
 
 	for (sint32 j=0; j<k_TILE_PIXEL_HEIGHT; j++)
 	{
 		sint32  startX      = StartPixel(j);
 		sint32  endX        = k_TILE_PIXEL_WIDTH - startX;
-		unsigned short *
-                destPixel   = (unsigned short *)(surfBase + ((y + j) * surfPitch) + ((x+startX) * 2));
+		uint8 * destPixel   = surfBase + ((y + j) * surfPitch) + ((x+startX) * step);
 
 		for (sint32 i = startX; i < endX; i++) {
-			*destPixel++ = 0x0000;
+			pixelutils_StorePixel(destPixel, 0x0000, bpp32);
+			destPixel += step;
 		}
 	}
 
 	return 0;
+}
+
+void TiledMap::BuildFogMask(aui_Surface *fogSurface)
+{
+	// Rasterize the fog-of-war mask into a screen-space ARGB8888 surface for
+	// GPU compositing over the world texture (P11 Stage 2 C). Fogged tiles
+	// (explored but not currently visible) get a 50%-black diamond; unexplored
+	// tiles need no mask because the world layer is already opaque black there
+	// (DrawBlackTile); visible tiles stay transparent. Tile geometry mirrors the
+	// terrain pass exactly (same StartPixel diamond + maputils screen coords),
+	// so the mask aligns with the terrain by construction. Default zoom only for
+	// now — zoomed tile scaling is a follow-up.
+	if (!fogSurface || !ReadyToDraw() || !m_localVision) return;
+
+	LPVOID      buffer  = nullptr;
+	AUI_ERRCODE errcode = fogSurface->Lock(nullptr, &buffer, 0);
+	if (errcode != AUI_ERRCODE_OK || !buffer) return;
+
+	uint8 * const base  = static_cast<uint8 *>(buffer);
+	sint32 const  pitch = fogSurface->Pitch();
+	sint32 const  sw    = fogSurface->Width();
+	sint32 const  sh    = fogSurface->Height();
+
+	// Clear the whole mask transparent (ARGB 0x00000000).
+	memset(base, 0, static_cast<size_t>(sh) * pitch);
+
+	sint32 mapWidth, mapHeight;
+	GetMapMetrics(&mapWidth, &mapHeight);
+
+	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
+	{
+		if (!(world_Get()->IsYwrap() || (i >= 0 && i < mapHeight))) continue;
+		for (sint32 j = m_mapViewRect.left; j < m_mapViewRect.right; j++)
+		{
+			if (!(world_Get()->IsXwrap() || (j >= 0 && j < mapWidth))) continue;
+
+			sint32 wj = j, wi = i;
+			maputils_WrapPoint(wj, wi, &wj, &wi);
+			MapPoint pos(maputils_TileX2MapX(wj, wi), wi);
+
+			if (!m_localVision->IsExplored(pos)) continue;
+			bool const fog = !m_renderEverything && !m_renderExploredAsVisible
+			               && !m_localVision->IsVisible(pos);
+			if (!fog) continue;
+
+			sint32 x, y;
+			maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y);
+			if (   x < m_surfaceRect.left
+			    || x > (m_surfaceRect.right  - GetZoomTilePixelWidth())
+			    || y < m_surfaceRect.top
+			    || y > (m_surfaceRect.bottom - (GetZoomTilePixelHeight() + GetZoomTileHeadroom())))
+				continue;
+
+			// Stamp the tile diamond (same StartPixel span pattern as
+			// DrawBlackTile). Only the alpha byte is written: ARGB8888 is
+			// little-endian on the target (arm64/x86), so byte +3 of each
+			// 4-byte pixel is A; R/G/B stay 0 from the clear, giving black+50%.
+			sint32 const ytop = y + k_TILE_PIXEL_HEADROOM;
+			for (sint32 dj = 0; dj < k_TILE_PIXEL_HEIGHT; dj++)
+			{
+				sint32 const py = ytop + dj;
+				if (py < 0 || py >= sh) continue;
+				sint32 const startX = StartPixel(dj);
+				sint32 const endX   = k_TILE_PIXEL_WIDTH - startX;
+				uint8 * row = base + py * pitch;
+				for (sint32 di = startX; di < endX; di++)
+				{
+					sint32 const px = x + di;
+					if (px < 0 || px >= sw) continue;
+					row[px * 4 + 3] = 0x80;   // alpha ~128/255 = ~50%
+				}
+			}
+		}
+	}
+
+	fogSurface->Unlock(buffer);
 }
 
 
@@ -993,23 +1125,23 @@ sint32 TiledMap::DrawDitheredTile(aui_Surface *surface, sint32 x, sint32 y, Pixe
         surface = m_surface;
         if (!surface) return 0;
     }
-    if (x >= surface->Width() - k_TILE_PIXEL_WIDTH) return 0;
-    if (y >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
+    if (x > surface->Width() - k_TILE_PIXEL_WIDTH) return 0;
+    if (y > surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 
 	uint8	* surfBase = m_surfBase;
 	sint32 surfPitch = m_surfPitch;
+	bool const bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
 
 	for(sint32 j=0; j<k_TILE_PIXEL_HEIGHT; j++)
     {
 		sint32  startX      = StartPixel(j);
 		sint32  endX        = k_TILE_PIXEL_WIDTH - startX;
 		sint32  offset      = j & 0x01;
-		unsigned short *
-    		destPixel       = (unsigned short *)(surfBase + ((y + j) * surfPitch) + ((x+startX) * 2));
-		destPixel += offset;
+		uint8 * destPixel   = surfBase + ((y + j) * surfPitch) + ((x+startX+offset) * step);
 		for (sint32 i=startX; i<endX; i+=2) {
-				*destPixel = color;
-				destPixel+=2;
+				pixelutils_StorePixel(destPixel, color, bpp32);
+				destPixel += 2 * step;
 		}
 	}
 
@@ -1033,11 +1165,13 @@ void TiledMap::DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos,
 	sint32  surfHeight;
 	sint32  surfPitch;
 
-    SurfaceLock lock    = SurfaceLock(surface);
+    // The atlas composer already holds this lock; SDL rejects locking it twice.
+    bool const alreadyLocked = surface && surface == m_lockedSurface && m_surfIsLocked;
+    SurfaceLock lock(alreadyLocked ? nullptr : surface);
 
-	if (!surface)
+	if (!surface || alreadyLocked)
     {
-		surface     = m_surface;
+        if (!surface) surface = m_surface;
 		pSurfBase   = m_surfBase;
 		surfWidth   = m_surfWidth;
 		surfHeight  = m_surfHeight;
@@ -1055,13 +1189,18 @@ void TiledMap::DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos,
         return;
     }
 
+    // A tile may exactly fill the scratch surface used by the GPU cache.
     if (!surface ||
-        (x >= surface->Width() - destWidth) ||
-        (y >= surface->Height() - destHeight)
+        (x > surface->Width() - destWidth) ||
+        (y > surface->Height() - destHeight)
        )
     {
         return;
     }
+
+	bool const  bpp32   = surface ? (surface->BitsPerPixel() == 32)
+	                              : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step   = bpp32 ? 4 : 2;
 
 	sint32  vaccum      = destHeight*2 - k_TILE_PIXEL_HEIGHT;
 	sint32  vincx       = destHeight*2;
@@ -1093,10 +1232,10 @@ void TiledMap::DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos,
 				} else {
 					haccum += hincxy;
 
-					Pixel16 * pDestPixel = (Pixel16 *)
-                        (pSurfBase + (vdestpos * surfPitch) + (hdestpos << 1));
-					pDestPixel += offset;
-					*pDestPixel = color;
+					uint8 * pDestPixel =
+                        pSurfBase + (vdestpos * surfPitch) + (hdestpos * step);
+					pDestPixel += offset * step;
+					pixelutils_StorePixel(pDestPixel, color, bpp32);
 
 					hdestpos+=2;
 				}
@@ -1127,8 +1266,15 @@ sint32 TiledMap::DrawBlendedTile(aui_Surface *surface, const MapPoint &pos,sint3
         if (!surface) return 0;
     }
 
-    if (xpos >= surface->Width() - k_TILE_PIXEL_WIDTH) return 0;
-    if (ypos >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
+    // Strictly greater, matching DrawTransitionTile: a tile whose right or
+    // bottom edge lands exactly on the surface edge FITS. This is the fogged
+    // twin of that function -- the two are alternatives for the same tile at
+    // the same position, so accepting different positions is a bug either way.
+    // With >= a tile flush against the edge drew unfogged and vanished when
+    // fogged, and no tile at all could be drawn into a surface exactly one
+    // tile wide, which is what the whole-map path composites into.
+    if (xpos > surface->Width() - k_TILE_PIXEL_WIDTH) return 0;
+    if (ypos > surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 
 	TileInfo * tileInfo = GetTileInfo(pos);
 	Assert(tileInfo);
@@ -1163,6 +1309,8 @@ sint32 TiledMap::DrawBlendedTile(aui_Surface *surface, const MapPoint &pos,sint3
 	Pixel16 *   dataPtr             = data;
 	uint8 *     pSurfBase           = m_surfBase;
 	sint32      surfPitch           = m_surfPitch;
+	bool const  bpp32               = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step               = bpp32 ? 4 : 2;
 
 	Pixel16 transPixel = 0;
 
@@ -1194,10 +1342,10 @@ sint32 TiledMap::DrawBlendedTile(aui_Surface *surface, const MapPoint &pos,sint3
 					srcPixel = DEFAULT_PIXEL[srcPixel];
 				}
 			}
-			Pixel16 * pDestPixel = (Pixel16 *)
-                (pSurfBase + ((y+ypos) * surfPitch) + ((x+xpos) << 1));
+			uint8 * pDestPixel =
+                pSurfBase + ((y+ypos) * surfPitch) + ((x+xpos) * step);
 
-			*pDestPixel = pixelutils_BlendFast(srcPixel,color,blend);
+			pixelutils_StorePixel(pDestPixel, pixelutils_BlendFast(srcPixel,color,blend), bpp32);
 		}
 	}
 
@@ -1221,11 +1369,13 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
 	sint32  surfHeight;
 	sint32  surfPitch;
 
-    SurfaceLock lock    = SurfaceLock(surface);
+    // The atlas composer already holds this lock; SDL rejects locking it twice.
+    bool const alreadyLocked = surface && surface == m_lockedSurface && m_surfIsLocked;
+    SurfaceLock lock(alreadyLocked ? nullptr : surface);
 
-	if (!surface)
+	if (!surface || alreadyLocked)
     {
-		surface     = m_surface;
+        if (!surface) surface = m_surface;
 		pSurfBase   = m_surfBase;
 		surfWidth   = m_surfWidth;
 		surfHeight  = m_surfHeight;
@@ -1244,8 +1394,8 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
     }
 
 	if (!surface ||
-        (x >= surface->Width() - destWidth) ||
-		(y >= surface->Height() - destHeight)
+        (x > surface->Width() - destWidth) ||
+		(y > surface->Height() - destHeight)
        )
     {
 		return;
@@ -1288,6 +1438,10 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
 
 	Pixel16 srcPixel;
 	Pixel16 transPixel = 0;
+
+	bool const  bpp32   = surface ? (surface->BitsPerPixel() == 32)
+	                              : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step   = bpp32 ? 4 : 2;
 
 	sint32  vaccum      = destHeight*2 - k_TILE_PIXEL_HEIGHT;
 	sint32  vincx       = destHeight*2;
@@ -1362,10 +1516,10 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
 				} else {
 					haccum += hincxy;
 
-					Pixel16 * pDestPixel = (Pixel16 *)
-                        (pSurfBase + (vdestpos * surfPitch) + (hdestpos << 1));
+					uint8 * pDestPixel =
+                        pSurfBase + (vdestpos * surfPitch) + (hdestpos * step);
 
-					*pDestPixel = pixelutils_BlendFast(srcPixel,color,blend);
+					pixelutils_StorePixel(pDestPixel, pixelutils_BlendFast(srcPixel,color,blend), bpp32);
 
 					hdestpos++;
 				}
@@ -1413,6 +1567,17 @@ sint32 TiledMap::DrawBlendedOverlay(aui_Surface *surface, Pixel16 *data, sint32 
     if (x >= surfWidth - k_TILE_GRID_WIDTH) return 0;
     if (y >= surfHeight - k_TILE_GRID_HEIGHT) return 0;
 
+	if (m_gpuOverlayCapture)
+	{
+		m_gpuOverlayCapture->Overlay(data, TilesetGpuRaster::OverlayMode::Fogged,
+		                             color, blend, flags, x, y);
+		return 0;
+	}
+
+	bool const bpp32 = surface ? (surface->BitsPerPixel() == 32)
+	                           : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step = bpp32 ? 4 : 2;
+
 	uint16		start = (uint16)*data++;
 	uint16		end = (uint16)*data++;
 	Pixel16		*table = data;
@@ -1422,8 +1587,8 @@ sint32 TiledMap::DrawBlendedOverlay(aui_Surface *surface, Pixel16 *data, sint32 
     {
 		if ((sint16)table[j-start] == -1) continue;
 
-	    unsigned short *    destPixel = (unsigned short *)
-            (surfBase + ((y + j) * surfPitch) + (x * 2));
+	    uint8 *    destPixel =
+            (surfBase + ((y + j) * surfPitch) + (x * step));
 
 		Pixel16 *   rowData = dataStart + table[j-start];
 		Pixel16		tag;
@@ -1433,18 +1598,19 @@ sint32 TiledMap::DrawBlendedOverlay(aui_Surface *surface, Pixel16 *data, sint32 
 
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
-						destPixel += (tag & 0x00FF);
+						destPixel += (tag & 0x00FF) * step;
 					break;
 				case k_TILE_COPY_RUN_ID			: {
 						short len = (tag & 0x00FF);
 
 						for (short i=0; i<len; i++) {
 							if (!(flags & k_OVERLAY_FLAG_SHADOWSONLY)) {
-								*destPixel++ = pixelutils_BlendFast(*rowData,color,blend);
+								pixelutils_StorePixel(destPixel, pixelutils_BlendFast(*rowData,color,blend), bpp32);
+								destPixel += step;
 								rowData++;
 							} else {
 								rowData++;
-								destPixel++;
+								destPixel += step;
 							}
 						}
 
@@ -1454,10 +1620,16 @@ sint32 TiledMap::DrawBlendedOverlay(aui_Surface *surface, Pixel16 *data, sint32 
 						sint32 len = (sint32)(tag & 0x00FF);
 						for (sint32 i=0; i<len; i++) {
 							if (!(flags & k_OVERLAY_FLAG_NOSHADOWS)) {
-								*destPixel = pixelutils_Shadow(*destPixel);
-								destPixel++;
+								if (bpp32) {
+									Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+									*d = pixelutils_Shadow8888(*d);
+								} else {
+									Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+									*d = pixelutils_Shadow(*d);
+								}
+								destPixel += step;
 							} else {
-								destPixel++;
+								destPixel += step;
 							}
 						}
 					}
@@ -1514,7 +1686,11 @@ void TiledMap::DrawBlendedOverlayScaled(aui_Surface *surface,Pixel16 *data, sint
 	Pixel16		emptyRow[2];
 	emptyRow[0] = (k_TILE_SKIP_RUN_ID << 8) | k_TILE_GRID_WIDTH;
 
-	surfBase += (surfPitch * y + x * 2);
+	bool const  bpp32       = surface ? (surface->BitsPerPixel() == 32)
+	                                  : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step       = bpp32 ? 4 : 2;
+
+	surfBase += (surfPitch * y + x * step);
 
 	uint16		vstart      = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
@@ -1564,17 +1740,17 @@ void TiledMap::DrawBlendedOverlayScaled(aui_Surface *surface,Pixel16 *data, sint
 				} else {
 					haccum += hincxy;
 
-					Pixel16	*   destPixel = (Pixel16 *)
-                        (surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * 2));
+					uint8 *     destPixel =
+                        surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * step);
 
-					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *destPixel, 0, 0, flags);
+					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *reinterpret_cast<Pixel16 *>(destPixel), 0, 0, flags);
 
 					if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY || pixel3 != k_MEDIUM_KEY || pixel4 != k_MEDIUM_KEY) {
 
 						pixel = pixel3;
 
 
-						*destPixel = pixelutils_BlendFast(pixel,color,blend);
+						pixelutils_StorePixel(destPixel, pixelutils_BlendFast(pixel,color,blend), bpp32);
 
 					}
 
@@ -1605,6 +1781,9 @@ sint32 TiledMap::DrawBlendedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, Pi
 
 	sint32      surfPitch   = screenmanager_Get()->GetSurfPitch();
 	uint8 *     surfBase    = screenmanager_Get()->GetSurfBase();
+	bool const  bpp32       = screenmanager_Get()->GetSurface() &&
+	                          screenmanager_Get()->GetSurface()->BitsPerPixel() == 32;
+	sint32 const step       = bpp32 ? 4 : 2;
 	uint16		start       = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
 	Pixel16	*   table       = data;
@@ -1614,8 +1793,8 @@ sint32 TiledMap::DrawBlendedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, Pi
     {
 		if ((sint16)table[j-start] == -1) continue;
 
-    	unsigned short *    destPixel   = (unsigned short *)
-            (surfBase + ((y + j) * surfPitch) + (x * 2));
+    	uint8 *             destPixel   =
+            (surfBase + ((y + j) * surfPitch) + (x * step));
 
 		Pixel16 *   rowData = dataStart + table[j-start];
 		Pixel16		tag;
@@ -1625,13 +1804,14 @@ sint32 TiledMap::DrawBlendedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, Pi
 
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
-						destPixel += (tag & 0x00FF);
+						destPixel += (tag & 0x00FF) * step;
 					break;
 				case k_TILE_COPY_RUN_ID			: {
 						short len = (tag & 0x00FF);
 
 						for (short i=0; i<len; i++) {
-							*destPixel++ = pixelutils_BlendFast(*rowData,color,blend);
+							pixelutils_StorePixel(destPixel, pixelutils_BlendFast(*rowData,color,blend), bpp32);
+							destPixel += step;
 							rowData++;
 						}
 
@@ -1640,8 +1820,14 @@ sint32 TiledMap::DrawBlendedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, Pi
 				case k_TILE_SHADOW_RUN_ID		: {
 						sint32 len = (sint32)(tag & 0x00FF);
 						for (sint32 i=0; i<len; i++) {
-							*destPixel = pixelutils_Shadow(*destPixel);
-							destPixel++;
+							if (bpp32) {
+								Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+								*d = pixelutils_Shadow8888(*d);
+							} else {
+								Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+								*d = pixelutils_Shadow(*d);
+							}
+							destPixel += step;
 						}
 					}
 					break;
@@ -1663,8 +1849,11 @@ void TiledMap::DrawBlendedOverlayScaledIntoMix(Pixel16 *data, sint32 x, sint32 y
 	if (x >= surfWidth - destWidth) return;
 	if (y >= surfHeight - destHeight) return;
 
+	bool const  bpp32       = screenmanager_Get()->GetSurface() && screenmanager_Get()->GetSurface()->BitsPerPixel() == 32;
+	sint32 const step       = bpp32 ? 4 : 2;
+
 	sint32      surfPitch   = screenmanager_Get()->GetSurfPitch();
-	uint8 *     surfBase    = screenmanager_Get()->GetSurfBase() + (surfPitch * y + x * 2);
+	uint8 *     surfBase    = screenmanager_Get()->GetSurfBase() + (surfPitch * y + x * step);
 	uint16		vstart      = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
 	Pixel16	*   table       = data;
@@ -1713,17 +1902,17 @@ void TiledMap::DrawBlendedOverlayScaledIntoMix(Pixel16 *data, sint32 x, sint32 y
 				} else {
 					haccum += hincxy;
 
-					Pixel16 * destPixel = (Pixel16 *)
-                        (surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * 2));
+					uint8 * destPixel =
+                        surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * step);
 
-					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *destPixel, 0, 0, 0);
+					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *reinterpret_cast<Pixel16 *>(destPixel), 0, 0, 0);
 
 					if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY || pixel3 != k_MEDIUM_KEY || pixel4 != k_MEDIUM_KEY) {
 
 						pixel = pixel3;
 
 
-						*destPixel = pixelutils_BlendFast(pixel,color,blend);
+						pixelutils_StorePixel(destPixel, pixelutils_BlendFast(pixel,color,blend), bpp32);
 
 					}
 
@@ -1753,6 +1942,9 @@ sint32 TiledMap::DrawDitheredOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, B
 
 	sint32      surfPitch   = screenmanager_Get()->GetSurfPitch();
 	uint8 *     surfBase    = screenmanager_Get()->GetSurfBase();
+	bool const  bpp32       = screenmanager_Get()->GetSurface() &&
+	                          screenmanager_Get()->GetSurface()->BitsPerPixel() == 32;
+	sint32 const step       = bpp32 ? 4 : 2;
 	uint16		start       = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
 	Pixel16	*   table       = data;
@@ -1762,8 +1954,8 @@ sint32 TiledMap::DrawDitheredOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, B
     {
 		if ((sint16)table[j-start] == -1) continue;
 
-		unsigned short *    destPixel =
-            (unsigned short *)(surfBase + ((y + j) * surfPitch) + (x * 2));
+		uint8 *             destPixel =
+            (surfBase + ((y + j) * surfPitch) + (x * step));
 
 		Pixel16 *   rowData = dataStart + table[j-start];
 		sint32      hpos    = 0;
@@ -1774,7 +1966,7 @@ sint32 TiledMap::DrawDitheredOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, B
 
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
-						destPixel += (tag & 0x00FF);
+						destPixel += (tag & 0x00FF) * step;
 						hpos += (tag & 0x00FF);
 					break;
 				case k_TILE_COPY_RUN_ID			: {
@@ -1783,11 +1975,12 @@ sint32 TiledMap::DrawDitheredOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, B
 						for (short i=0; i<len; i++) {
 							if ((hpos + j) & 1) {
 								if (fogged)
-									*destPixel++ = pixelutils_BlendFast(*rowData,k_FOW_COLOR,k_FOW_BLEND_VALUE);
+									pixelutils_StorePixel(destPixel, pixelutils_BlendFast(*rowData,k_FOW_COLOR,k_FOW_BLEND_VALUE), bpp32);
 								else
-									*destPixel++ = *rowData;
+									pixelutils_StorePixel(destPixel, *rowData, bpp32);
+								destPixel += step;
 							} else {
-								destPixel++;
+								destPixel += step;
 							}
 
 							hpos++;
@@ -1799,8 +1992,14 @@ sint32 TiledMap::DrawDitheredOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, B
 				case k_TILE_SHADOW_RUN_ID		: {
 						sint32 len = (sint32)(tag & 0x00FF);
 						for (sint32 i=0; i<len; i++) {
-							*destPixel = pixelutils_Shadow(*destPixel);
-							destPixel++;
+							if (bpp32) {
+								Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+								*d = pixelutils_Shadow8888(*d);
+							} else {
+								Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+								*d = pixelutils_Shadow(*d);
+							}
+							destPixel += step;
 							hpos++;
 						}
 					}
@@ -1825,8 +2024,11 @@ void TiledMap::DrawDitheredOverlayScaledIntoMix(Pixel16 *data, sint32 x, sint32 
 	if (x >= surfWidth - destWidth) return;
 	if (y >= surfHeight - destHeight) return;
 
+	bool const  bpp32       = screenmanager_Get()->GetSurface() && screenmanager_Get()->GetSurface()->BitsPerPixel() == 32;
+	sint32 const step       = bpp32 ? 4 : 2;
+
 	sint32      surfPitch   = screenmanager_Get()->GetSurfPitch();
-	uint8 *     surfBase    = screenmanager_Get()->GetSurfBase() + (surfPitch * y + x * 2);
+	uint8 *     surfBase    = screenmanager_Get()->GetSurfBase() + (surfPitch * y + x * step);
 	uint16		vstart      = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
 	Pixel16	*   table       = data;
@@ -1840,7 +2042,7 @@ void TiledMap::DrawDitheredOverlayScaledIntoMix(Pixel16 *data, sint32 x, sint32 
 
 	Pixel16		emptyRow[2];
 	emptyRow[0] = (k_TILE_SKIP_RUN_ID << 8) | k_TILE_GRID_WIDTH;
-	Pixel16	*   destPixel;
+	uint8 *     destPixel;
 
 	for (sint32 vpos1 = 0; vpos1 < vend; ++vpos1)
     {
@@ -1878,9 +2080,9 @@ void TiledMap::DrawDitheredOverlayScaledIntoMix(Pixel16 *data, sint32 x, sint32 
 				} else {
 					haccum += hincxy;
 
-					destPixel = (Pixel16 *)(surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * 2));
+					destPixel = surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * step);
 
-					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *destPixel, 0, 0, 0);
+					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *reinterpret_cast<Pixel16 *>(destPixel), 0, 0, 0);
 
 					if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY || pixel3 != k_MEDIUM_KEY || pixel4 != k_MEDIUM_KEY) {
 
@@ -1888,9 +2090,9 @@ void TiledMap::DrawDitheredOverlayScaledIntoMix(Pixel16 *data, sint32 x, sint32 
 
 						if ((hdestpos + vdestpos) & 1) {
 							if (fogged)
-								*destPixel = pixelutils_BlendFast(pixel,k_FOW_COLOR,k_FOW_BLEND_VALUE);
+								pixelutils_StorePixel(destPixel, pixelutils_BlendFast(pixel,k_FOW_COLOR,k_FOW_BLEND_VALUE), bpp32);
 							else
-								*destPixel = pixel;
+								pixelutils_StorePixel(destPixel, pixel, bpp32);
 						}
 					}
 
@@ -1923,6 +2125,8 @@ sint32 TiledMap::DrawDitheredOverlay(aui_Surface *surface, Pixel16 *data, sint32
 
 	uint8 *     surfBase    = m_surfBase;
 	sint32      surfPitch   = m_surfPitch;
+	bool const  bpp32       = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step       = bpp32 ? 4 : 2;
 	uint16		start       = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
 	Pixel16	*   table       = data;
@@ -1932,8 +2136,8 @@ sint32 TiledMap::DrawDitheredOverlay(aui_Surface *surface, Pixel16 *data, sint32
     {
 		if ((sint16)table[j-start] == -1) continue;
 
-		unsigned short * destPixel  =
-            (unsigned short *)(surfBase + ((y + j) * surfPitch) + (x * 2));
+		uint8 * destPixel  =
+            (surfBase + ((y + j) * surfPitch) + (x * step));
 		Pixel16 *       rowData     = dataStart + table[j-start];
 
 		Pixel16		tag;
@@ -1942,18 +2146,18 @@ sint32 TiledMap::DrawDitheredOverlay(aui_Surface *surface, Pixel16 *data, sint32
 
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
-						destPixel += (tag & 0x00FF);
+						destPixel += (tag & 0x00FF) * step;
 					break;
 				case k_TILE_COPY_RUN_ID			: {
 						short len = (tag & 0x00FF);
 
 						if (j & 0x01)
-							destPixel++;
+							destPixel += step;
 
 						for (short i=0; i<len; i++) {
 							if (i & 0x01)
-								*destPixel = color;
-							destPixel++;
+								pixelutils_StorePixel(destPixel, color, bpp32);
+							destPixel += step;
 							rowData++;
 						}
 
@@ -1962,8 +2166,14 @@ sint32 TiledMap::DrawDitheredOverlay(aui_Surface *surface, Pixel16 *data, sint32
 				case k_TILE_SHADOW_RUN_ID		: {
 						sint32 len = (sint32)(tag & 0x00FF);
 						for (sint32 i=0; i<len; i++) {
-							*destPixel = pixelutils_Shadow(*destPixel);
-							destPixel++;
+							if (bpp32) {
+								Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+								*d = pixelutils_Shadow8888(*d);
+							} else {
+								Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+								*d = pixelutils_Shadow(*d);
+							}
+							destPixel += step;
 						}
 					}
 					break;
@@ -1979,20 +2189,27 @@ void TiledMap::DrawDitheredOverlayScaled(aui_Surface *surface, Pixel16 *data, si
 {
 	if (!data || (x < 0) || (y < 0)) return;
 
-	if (!surface)
-    {
-        surface = m_surface;
-        if (!surface) return;
-    }
+	// A null surface means "the current composite target" -- m_surfBase and
+	// friends -- exactly as DrawColorizedOverlay treats it, and that is what the
+	// whole-map tile builder sets up per cell. Substituting m_surface and bailing
+	// when it is absent (always, on the whole-map path) made the grid the one
+	// overlay that silently drew nothing there, while rivers, roads and borders
+	// -- all DrawColorizedOverlay -- worked.
+	sint32 boundsWidth  = surface ? surface->Width()  : m_surfWidth;
+	sint32 boundsHeight = surface ? surface->Height() : m_surfHeight;
+	if (!surface && !m_surfBase) return;
 
-    if (x >= surface->Width() - destWidth) return;
-    if (y >= surface->Height() - destHeight) return;
+    if (x >= boundsWidth  - destWidth)  return;
+    if (y >= boundsHeight - destHeight) return;
 
 	Pixel16		emptyRow[2];
 	emptyRow[0] = (k_TILE_SKIP_RUN_ID << 8) | k_TILE_GRID_WIDTH;
 
+	bool const  bpp32       = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step       = bpp32 ? 4 : 2;
+
 	sint32      surfPitch   = m_surfPitch;
-	uint8 *     surfBase    = m_surfBase + (y * surfPitch + x * 2);
+	uint8 *     surfBase    = m_surfBase + (y * surfPitch + x * step);
 	uint16		vstart      = (uint16)*data++;
 	uint16	    end         = (uint16)*data++;
 	Pixel16	*   table       = data;
@@ -2043,11 +2260,11 @@ void TiledMap::DrawDitheredOverlayScaled(aui_Surface *surface, Pixel16 *data, si
 				} else {
 					haccum += hincxy;
 
-					Pixel16 * destPixel = (Pixel16 *)
-                        (surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * 2));
-					destPixel += offset;
+					uint8 * destPixel =
+                        surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * step);
+					destPixel += offset * step;
 
-					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *destPixel, 0, 0, 0);
+					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *reinterpret_cast<Pixel16 *>(destPixel), 0, 0, 0);
 
 					if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY || pixel3 != k_MEDIUM_KEY || pixel4 != k_MEDIUM_KEY) {
 
@@ -2055,7 +2272,7 @@ void TiledMap::DrawDitheredOverlayScaled(aui_Surface *surface, Pixel16 *data, si
 
 
 						if ((hdestpos+vdestpos) & 0x01)
-							*destPixel = color;
+							pixelutils_StorePixel(destPixel, color, bpp32);
 
 					}
 
@@ -2085,22 +2302,29 @@ sint32 TiledMap::DrawTileBorder(aui_Surface *surface, sint32 x, sint32 y, Pixel1
 	y+=k_TILE_PIXEL_HEADROOM;
     if (y < 0) return 0;
 
-	if (!surface)
-    {
-        surface = m_surface;
-        if (!surface) return 0;
-    }
-    if (x > surface->Width() - k_TILE_PIXEL_WIDTH) return 0;
-    if (y > surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
+	// A null surface means "the current composite target" -- m_surfBase and
+	// friends -- exactly as DrawColorizedOverlay treats it, and that is what the
+	// whole-map tile builder sets up per cell. Substituting m_surface and bailing
+	// when it is absent (always, on the whole-map path) made the grid the one
+	// overlay that silently drew nothing there, while rivers, roads and borders
+	// -- all DrawColorizedOverlay -- worked.
+	sint32 boundsWidth  = surface ? surface->Width()  : m_surfWidth;
+	sint32 boundsHeight = surface ? surface->Height() : m_surfHeight;
+	if (!surface && !m_surfBase) return 0;
+    if (x > boundsWidth  - k_TILE_PIXEL_WIDTH)  return 0;
+    if (y > boundsHeight - k_TILE_PIXEL_HEIGHT) return 0;
+
+	bool const  bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
 
 	for (sint32 j = 0; j < k_TILE_PIXEL_HEIGHT; j++)
     {
 		sint32              startX      = StartPixel(j);
-	    unsigned short *    destPixel   =
-            (unsigned short *)(m_surfBase + ((y + j) * m_surfPitch) + ((x+startX) * 2));
+	    uint8 *             destPixel   =
+            (m_surfBase + ((y + j) * m_surfPitch) + ((x+startX) * step));
 
-		*destPixel++ = color;
-		*destPixel = color;
+		pixelutils_StorePixel(destPixel, color, bpp32); destPixel += step;
+		pixelutils_StorePixel(destPixel, color, bpp32);
 	}
 
 	return 0;
@@ -2129,6 +2353,8 @@ void TiledMap::DrawTileBorderScaled(aui_Surface *surface, const MapPoint &pos, s
 
 	uint8 * pSurfBase   = m_surfBase;
 	sint32  surfPitch   = m_surfPitch;
+	bool const  bpp32   = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step   = bpp32 ? 4 : 2;
 	sint32	vaccum      = destHeight*2 - k_TILE_PIXEL_HEIGHT;;
 	sint32	vincx       = destHeight*2;
     sint32  vincxy      = (destHeight - k_TILE_PIXEL_HEIGHT) * 2;
@@ -2137,7 +2363,7 @@ void TiledMap::DrawTileBorderScaled(aui_Surface *surface, const MapPoint &pos, s
 	sint32	vdestpos    = y;
 	sint32	vend        = k_TILE_PIXEL_HEIGHT - 1;
 
-	uint16 *pDestPixel;
+	uint8 *pDestPixel;
 
 	for (sint32 vpos1 = 0; vpos1 < vend; ++vpos1)
     {
@@ -2161,10 +2387,10 @@ void TiledMap::DrawTileBorderScaled(aui_Surface *surface, const MapPoint &pos, s
 				} else {
 					haccum += hincxy;
 
-					pDestPixel = (Pixel16 *)(pSurfBase + (vdestpos * surfPitch) + (hdestpos << 1));
+					pDestPixel = pSurfBase + (vdestpos * surfPitch) + (hdestpos * step);
 					if (hpos == startX || hpos == startX+1 ||
 						hpos == endX-2 || hpos == endX-1)
-						*pDestPixel = color;
+						pixelutils_StorePixel(pDestPixel, color, bpp32);
 
 					hdestpos++;
 				}
@@ -2211,6 +2437,8 @@ void TiledMap::DrawBlackScaledLow(aui_Surface *surface, const MapPoint &pos, sin
     Pixel16 *   dataPtr     = data;
 	uint8 *     pSurfBase   = m_surfBase;
 	sint32      surfPitch   = m_surfPitch;
+	bool const  bpp32       = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step       = bpp32 ? 4 : 2;
 
 	sint32      vaccum      = destHeight*2 - k_TILE_PIXEL_HEIGHT;
 	sint32      vincx       = destHeight*2;
@@ -2274,10 +2502,10 @@ void TiledMap::DrawBlackScaledLow(aui_Surface *surface, const MapPoint &pos, sin
 					haccum += hincxy;
 
 
-					Pixel16 * pDestPixel = (Pixel16 *)
-                        (pSurfBase + (vdestpos * surfPitch) + (hdestpos << 1));
+					uint8 * pDestPixel =
+                        pSurfBase + (vdestpos * surfPitch) + (hdestpos * step);
 
-					*pDestPixel = 0x0000;
+					pixelutils_StorePixel(pDestPixel, 0x0000, bpp32);
 
 					hdestpos++;
 				}
@@ -2298,6 +2526,12 @@ void TiledMap::DrawBlackScaledLow(aui_Surface *surface, const MapPoint &pos, sin
 sint32 TiledMap::DrawOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, sint32 y, sint32 flags)
 {
 	if (!data) return 0;
+	if (m_gpuOverlayCapture)
+	{
+		m_gpuOverlayCapture->Overlay(data, TilesetGpuRaster::OverlayMode::Normal,
+		                             0, 0, flags, x, y);
+		return 0;
+	}
 
 	uint8 * surfBase;
 	sint32	surfWidth;
@@ -2341,14 +2575,17 @@ sint32 TiledMap::DrawOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 	Pixel16	*   dataStart   = table + (end - start + 1);
 
 	sint32 len;
+	bool const bpp32 = surface ? (surface->BitsPerPixel() == 32)
+	                           : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step = bpp32 ? 4 : 2;
 
 	for (sint32 j = start; j <= end; j++)
     {
 		if ((y+j) >= surfHeight) continue;
 		if ((sint16)table[j-start] == -1) continue;
 
-        unsigned short *    destPixel   =
-		    (unsigned short *)(surfBase + ((y + j) * surfPitch) + (x * 2));
+        uint8 *    destPixel   =
+		    surfBase + ((y + j) * surfPitch) + (x * step);
 
 		Pixel16	*   rowData = dataStart + table[j-start];
 		Pixel16		tag;
@@ -2357,19 +2594,17 @@ sint32 TiledMap::DrawOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
-						destPixel += (tag & 0x00FF);
+						destPixel += (tag & 0x00FF) * step;
 					break;
 				case k_TILE_COPY_RUN_ID			: {
 						len = (tag & 0x00FF);
 
 						while (len--) {
 							if (!(flags & k_OVERLAY_FLAG_SHADOWSONLY)) {
-								*destPixel++ = *rowData++;
-							} else {
-								destPixel++;
-								rowData++;
+								pixelutils_StorePixel(destPixel, *rowData, bpp32);
 							}
-
+							destPixel += step;
+							rowData++;
 						}
 					}
 					break;
@@ -2377,11 +2612,15 @@ sint32 TiledMap::DrawOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 						len = (tag & 0x00FF);
 						while (len--) {
 							if (!(flags & k_OVERLAY_FLAG_NOSHADOWS)) {
-								*destPixel = pixelutils_Shadow(*destPixel);
-								destPixel++;
-							} else {
-								destPixel++;
+								if (bpp32) {
+									Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+									*d = pixelutils_Shadow8888(*d);
+								} else {
+									Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+									*d = pixelutils_Shadow(*d);
+								}
 							}
+							destPixel += step;
 						}
 					}
 					break;
@@ -2441,14 +2680,17 @@ sint32 TiledMap::DrawColorBlendedOverlay(aui_Surface *surface, Pixel16 *data, si
 	Pixel16	*   dataStart   = table + (end - start + 1);
 
 	sint32 len;
+	bool const bpp32 = surface ? (surface->BitsPerPixel() == 32)
+	                           : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step = bpp32 ? 4 : 2;
 
 	for (sint32 j = start; j <= end; j++)
     {
 		if ((y+j) >= surfHeight) continue;
 		if ((sint16)table[j-start] == -1) continue;
 
-		unsigned short *    destPixel =
-            (unsigned short *)(surfBase + ((y + j) * surfPitch) + (x * 2));
+		uint8 *    destPixel =
+            (surfBase + ((y + j) * surfPitch) + (x * step));
 		Pixel16 *           rowData     = dataStart + table[j-start];
 		Pixel16		tag;
 
@@ -2457,22 +2699,28 @@ sint32 TiledMap::DrawColorBlendedOverlay(aui_Surface *surface, Pixel16 *data, si
 
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
-						destPixel += (tag & 0x00FF);
+						destPixel += (tag & 0x00FF) * step;
 					break;
 				case k_TILE_COPY_RUN_ID			: {
 						len = (tag & 0x00FF);
 
 						while (len--) {
-							*destPixel = pixelutils_BlendFast(color, *rowData++, 8);
-							destPixel++;
+							pixelutils_StorePixel(destPixel, pixelutils_BlendFast(color, *rowData++, 8), bpp32);
+							destPixel += step;
 						}
 					}
 					break;
 				case k_TILE_SHADOW_RUN_ID		: {
 						len = (tag & 0x00FF);
 						while (len--) {
-							*destPixel = pixelutils_Shadow(*destPixel);
-							destPixel++;
+							if (bpp32) {
+								Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+								*d = pixelutils_Shadow8888(*d);
+							} else {
+								Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+								*d = pixelutils_Shadow(*d);
+							}
+							destPixel += step;
 						}
 					}
 					break;
@@ -2523,7 +2771,11 @@ void TiledMap::DrawColorBlendedOverlayScaled(aui_Surface *surface, Pixel16 *data
 		return;
 	}
 
-	surfBase += (y * surfPitch + x * 2);
+	bool const  bpp32       = surface ? (surface->BitsPerPixel() == 32)
+	                                  : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step       = bpp32 ? 4 : 2;
+
+	surfBase += (y * surfPitch + x * step);
 
 	uint16		vstart      = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
@@ -2574,17 +2826,17 @@ void TiledMap::DrawColorBlendedOverlayScaled(aui_Surface *surface, Pixel16 *data
 				} else {
 					haccum += hincxy;
 
-					Pixel16 * destPixel = (Pixel16 *)
-                        (surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * 2));
+					uint8 * destPixel =
+                        surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * step);
 
-					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *destPixel, 0, 0, 0);
+					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *reinterpret_cast<Pixel16 *>(destPixel), 0, 0, 0);
 
 					if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY || pixel3 != k_MEDIUM_KEY || pixel4 != k_MEDIUM_KEY) {
 
 						pixel = pixel3;
 
 
-						*destPixel = pixelutils_BlendFast(color, pixel, 8);
+						pixelutils_StorePixel(destPixel, pixelutils_BlendFast(color, pixel, 8), bpp32);
 					}
 
 					pixel1 = pixel3;
@@ -2611,6 +2863,12 @@ void TiledMap::DrawColorBlendedOverlayScaled(aui_Surface *surface, Pixel16 *data
 sint32 TiledMap::DrawColorizedOverlay(Pixel16 *data, aui_Surface *surface, sint32 x, sint32 y, Pixel16 color)
 {
 	if (!data || (x < 0) || (y < 0)) return 0;
+	if (m_gpuOverlayCapture)
+	{
+		m_gpuOverlayCapture->Overlay(data, TilesetGpuRaster::OverlayMode::Colorized,
+		                             color, 0, 0, x, y);
+		return 0;
+	}
 
 	uint8 * surfBase;
 	sint32	surfWidth;
@@ -2649,20 +2907,23 @@ sint32 TiledMap::DrawColorizedOverlay(Pixel16 *data, aui_Surface *surface, sint3
 	Pixel16		*dataStart = table + (end - start + 1);
 
 	sint32 len;
+	bool const bpp32 = surface ? (surface->BitsPerPixel() == 32)
+	                           : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step = bpp32 ? 4 : 2;
 
 	for (sint32 j = start; j <= end; j++)
     {
 		if ((y+j) >= surfHeight) continue;
 		if ((sint16)table[j-start] == -1) continue;
 
-		unsigned short *    destPixel =
-            (unsigned short *)(surfBase + ((y + j) * surfPitch) + (x * 2));
+		uint8 *    destPixel =
+            (surfBase + ((y + j) * surfPitch) + (x * step));
 		// Right-edge clamp: the RLE decoder below blindly trusted that the
 		// sprite fits within the surface row. ASan caught a heap-buffer-
 		// overflow when a unit at the right edge of the viewport had a
 		// selection bracket whose colorize run reached past surfWidth.
-		unsigned short *    destRowEnd  =
-            (unsigned short *)(surfBase + ((y + j) * surfPitch)) + surfWidth;
+		uint8 *    destRowEnd  =
+            (surfBase + ((y + j) * surfPitch)) + surfWidth * step;
 		Pixel16	*           rowData     = dataStart + table[j-start];
 		Pixel16		tag;
 
@@ -2671,14 +2932,15 @@ sint32 TiledMap::DrawColorizedOverlay(Pixel16 *data, aui_Surface *surface, sint3
 
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
-						destPixel += (tag & 0x00FF);
+						destPixel += (tag & 0x00FF) * step;
 						if (destPixel >= destRowEnd) goto rowDone;
 					break;
 				case k_TILE_COPY_RUN_ID			: {
 						len = (tag & 0x00FF);
 						while (len--) {
 							if (destPixel >= destRowEnd) goto rowDone;
-							*destPixel++ = *rowData++;
+							pixelutils_StorePixel(destPixel, *rowData++, bpp32);
+							destPixel += step;
 						}
 					}
 					break;
@@ -2686,8 +2948,14 @@ sint32 TiledMap::DrawColorizedOverlay(Pixel16 *data, aui_Surface *surface, sint3
 						len = (tag & 0x00FF);
 						while (len--) {
 							if (destPixel >= destRowEnd) goto rowDone;
-							*destPixel = pixelutils_Shadow(*destPixel);
-							destPixel++;
+							if (bpp32) {
+								Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+								*d = pixelutils_Shadow8888(*d);
+							} else {
+								Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+								*d = pixelutils_Shadow(*d);
+							}
+							destPixel += step;
 						}
 					}
 					break;
@@ -2695,8 +2963,8 @@ sint32 TiledMap::DrawColorizedOverlay(Pixel16 *data, aui_Surface *surface, sint3
 						len = (tag & 0x00FF);
 						while (len--) {
 							if (destPixel >= destRowEnd) goto rowDone;
-							*destPixel = color;
-							destPixel++;
+							pixelutils_StorePixel(destPixel, color, bpp32);
+							destPixel += step;
 						}
 					}
 					break;
@@ -2723,6 +2991,9 @@ sint32 TiledMap::DrawColorizedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, 
 	sint32 surfWidth  = screenmanager_Get()->GetSurfWidth();
 	sint32 surfHeight = screenmanager_Get()->GetSurfHeight();
 	sint32 surfPitch = screenmanager_Get()->GetSurfPitch();
+	bool const  bpp32 = screenmanager_Get()->GetSurface() &&
+	                    screenmanager_Get()->GetSurface()->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
 
 	uint16		start = (uint16)*data++;
 	uint16		end = (uint16)*data++;
@@ -2736,13 +3007,13 @@ sint32 TiledMap::DrawColorizedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, 
 		if ((y+j) >= surfHeight) continue;
 		if ((sint16)table[j-start] == -1) continue;
 
-		unsigned short *    destPixel   =
-            (unsigned short *)(surfBase + ((y + j) * surfPitch) + (x * 2));
+		uint8 *             destPixel   =
+            (surfBase + ((y + j) * surfPitch) + (x * step));
 		// Right-edge clamp — see companion DrawColorizedOverlay above. Without
 		// this the COLORIZE run for selection brackets near the right edge of
 		// the viewport writes past the row, producing ASan heap-buffer-overflow.
-		unsigned short *    destRowEnd  =
-            (unsigned short *)(surfBase + ((y + j) * surfPitch)) + surfWidth;
+		uint8 *             destRowEnd  =
+            (surfBase + ((y + j) * surfPitch)) + surfWidth * step;
 
 		Pixel16 *           rowData     = dataStart + table[j-start];
 
@@ -2753,14 +3024,15 @@ sint32 TiledMap::DrawColorizedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, 
 
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
-						destPixel += (tag & 0x00FF);
+						destPixel += (tag & 0x00FF) * step;
 						if (destPixel >= destRowEnd) goto rowDone;
 					break;
 				case k_TILE_COPY_RUN_ID			: {
 						len = (tag & 0x00FF);
 						while (len--) {
 							if (destPixel >= destRowEnd) goto rowDone;
-							*destPixel++ = *rowData++;
+							pixelutils_StorePixel(destPixel, *rowData++, bpp32);
+							destPixel += step;
 						}
 					}
 					break;
@@ -2768,8 +3040,14 @@ sint32 TiledMap::DrawColorizedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, 
 						len = (tag & 0x00FF);
 						while (len--) {
 							if (destPixel >= destRowEnd) goto rowDone;
-							*destPixel = pixelutils_Shadow(*destPixel);
-							destPixel++;
+							if (bpp32) {
+								Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+								*d = pixelutils_Shadow8888(*d);
+							} else {
+								Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+								*d = pixelutils_Shadow(*d);
+							}
+							destPixel += step;
 						}
 					}
 					break;
@@ -2778,8 +3056,8 @@ sint32 TiledMap::DrawColorizedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, 
 
 						while (len--) {
 							if (destPixel >= destRowEnd) goto rowDone;
-							*destPixel = color;
-							destPixel++;
+							pixelutils_StorePixel(destPixel, color, bpp32);
+							destPixel += step;
 						}
 					}
 					break;
@@ -2844,7 +3122,11 @@ void TiledMap::DrawScaledOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, 
         lock = SurfaceLock(nullptr);
 	}
 
-	surfBase += (y * surfPitch + x * 2);
+	bool const  bpp32       = surface ? (surface->BitsPerPixel() == 32)
+	                                  : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step       = bpp32 ? 4 : 2;
+
+	surfBase += (y * surfPitch + x * step);
 
 	uint16      vstart      = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
@@ -2896,16 +3178,16 @@ void TiledMap::DrawScaledOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, 
 				} else {
 					haccum += hincxy;
 
-					Pixel16 * destPixel = (Pixel16 *)
-                        (surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * 2));
+					uint8 * destPixel =
+                        surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * step);
 
-					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *destPixel, 0, 0, flags);
+					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *reinterpret_cast<Pixel16 *>(destPixel), 0, 0, flags);
 
 					if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY || pixel3 != k_MEDIUM_KEY || pixel4 != k_MEDIUM_KEY) {
 
 						pixel = pixel3;
 
-						*destPixel = pixel;
+						pixelutils_StorePixel(destPixel, pixel, bpp32);
 					}
 
 					pixel1 = pixel3;
@@ -2942,10 +3224,13 @@ void TiledMap::DrawScaledOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y,
 
 	sint32  surfPitch   = screenmanager_Get()->GetSurfPitch();
 
+	bool const  bpp32   = screenmanager_Get()->GetSurface() && screenmanager_Get()->GetSurface()->BitsPerPixel() == 32;
+	sint32 const step   = bpp32 ? 4 : 2;
+
 	Pixel16		emptyRow[2];
 	emptyRow[0] = (k_TILE_SKIP_RUN_ID << 8) | k_TILE_GRID_WIDTH;
 
-	uint8 * surfBase    = screenmanager_Get()->GetSurfBase() + (y * surfPitch + x * 2);
+	uint8 * surfBase    = screenmanager_Get()->GetSurfBase() + (y * surfPitch + x * step);
 
 	uint16			vstart = (uint16)*data++;
 	uint16			end = (uint16)*data++;
@@ -2996,16 +3281,16 @@ void TiledMap::DrawScaledOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y,
 				} else {
 					haccum += hincxy;
 
-					Pixel16 * destPixel = (Pixel16 *)
-                        (surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * 2));
+					uint8 * destPixel =
+                        surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * step);
 
-					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *destPixel, 0, 0, 0);
+					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *reinterpret_cast<Pixel16 *>(destPixel), 0, 0, 0);
 
 					if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY || pixel3 != k_MEDIUM_KEY || pixel4 != k_MEDIUM_KEY) {
 
 						pixel = pixel3;
 
-						*destPixel = pixel;
+						pixelutils_StorePixel(destPixel, pixel, bpp32);
 					}
 
 					pixel1 = pixel3;
@@ -3117,10 +3402,12 @@ void TiledMap::DrawTransitionTile(aui_Surface *surface, const MapPoint &pos, sin
 	Pixel16 *   dataPtr         = data;
 	uint8 *     pSurfBase       = m_surfBase;
 	sint32      surfPitch       = m_surfPitch;
+	bool const  bpp32           = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step           = bpp32 ? 4 : 2;
 
 	Pixel16 srcPixel;
 
-	uint16 *pDestPixel = (Pixel16 *)(pSurfBase + ypos * surfPitch + 2 * xpos);
+	uint8 *pDestPixel = pSurfBase + ypos * surfPitch + xpos * step;
 
 	{
 		for (sint32 y = 0; y < k_TILE_PIXEL_HEIGHT; y++)
@@ -3167,10 +3454,10 @@ L1:
 #else
 				Pixel16* pedx;
                                 int edx = endX;
-                                uint16* edi = pDestPixel;
+                                uint8* edi = pDestPixel;
                                 Pixel16* esi = dataPtr;
                                 int ecx = startX;
-                                edi += edx;
+                                edi += edx * step;
                                 ecx -= edx;
                                 Pixel16* ebx = transDataPtr;
 L0:
@@ -3182,14 +3469,14 @@ L0:
                                 pedx = tileData[ax];
                                 if (pedx == nullptr)
                                     goto L2;
-                                tileData[ax] = pedx;
-                                dx = pedx[-1];
+                                tileData[ax] = pedx + 1;
+                                dx = *pedx;
                                 goto L1;
 L2:
                                 dx = *ebx;
 L1:
                                 ++ebx;
-                                edi[ecx] = dx;
+                                pixelutils_StorePixel(edi + ecx * step, dx, bpp32);
                                 ++ecx;
                                 if (ecx != 0)
                                     goto L0;
@@ -3215,10 +3502,10 @@ L1:
 							srcPixel = DEFAULT_PIXEL[srcPixel];
 						}
 					}
-					pDestPixel[x] = srcPixel;
+					pixelutils_StorePixel(pDestPixel + x * step, srcPixel, bpp32);
 				}
 			}
-			pDestPixel += (surfPitch>>1);
+			pDestPixel += surfPitch;
 		}
 	}
 
@@ -3239,11 +3526,13 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
 	sint32	surfHeight;
 	sint32	surfPitch;
 
-    SurfaceLock lock    = SurfaceLock(surface);
+    // The atlas composer already holds this lock; SDL rejects locking it twice.
+    bool const alreadyLocked = surface && surface == m_lockedSurface && m_surfIsLocked;
+    SurfaceLock lock(alreadyLocked ? nullptr : surface);
 
-	if (!surface)
+	if (!surface || alreadyLocked)
     {
-        surface     = m_surface;
+        if (!surface) surface = m_surface;
 		surfBase    = m_surfBase;
 		surfWidth   = m_surfWidth;
 		surfHeight  = m_surfHeight;
@@ -3263,11 +3552,14 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
 
 	if (!surface ||
         (x > surface->Width() - destWidth) ||
-		(y >= surface->Height() - destHeight)
+		(y > surface->Height() - destHeight)
        )
     {
 		return;
 	}
+
+	bool const   bpp32 = surface->BitsPerPixel() == 32;
+	sint32 const step  = bpp32 ? 4 : 2;
 
 	TileInfo *  tileInfo = GetTileInfo(pos);
 	Assert(tileInfo != nullptr);
@@ -3380,9 +3672,9 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
 				} else {
 					haccum += hincxy;
 
-					Pixel16 * pDestPixel = (Pixel16 *)
-                        (surfBase + (vdestpos * surfPitch) + (hdestpos << 1));
-					*pDestPixel = srcPixel;
+					uint8 * pDestPixel =
+                        surfBase + (vdestpos * surfPitch) + (hdestpos * step);
+					pixelutils_StorePixel(pDestPixel, srcPixel, bpp32);
 
 					hdestpos++;
 				}
@@ -4412,14 +4704,17 @@ sint32 TiledMap::DrawColorBlendedOverlay(aui_Surface *surface, Pixel16 *data, si
 	Pixel16		*dataStart = table + (end - start + 1);
 
 	sint32 len;
+	bool const bpp32 = surface ? (surface->BitsPerPixel() == 32)
+	                           : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step = bpp32 ? 4 : 2;
 
 	for (sint32 j = start; j <= end; j++)
 	{
 		if ((y+j) >= surfHeight) continue;
 		if ((sint16)table[j-start] == -1) continue;
 
-		unsigned short * destPixel = (unsigned short *)
-		    (surfBase + ((y + j) * surfPitch) + (x * 2));
+		uint8 * destPixel =
+		    (surfBase + ((y + j) * surfPitch) + (x * step));
 
 		Pixel16 *   rowData = dataStart + table[j-start];
 		Pixel16		tag;
@@ -4428,22 +4723,28 @@ sint32 TiledMap::DrawColorBlendedOverlay(aui_Surface *surface, Pixel16 *data, si
 
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
-						destPixel += (tag & 0x00FF);
+						destPixel += (tag & 0x00FF) * step;
 					break;
 				case k_TILE_COPY_RUN_ID			: {
 						len = (tag & 0x00FF);
 
 						while (len--) {
-							*destPixel = pixelutils_BlendFast(color, *rowData++, blendValue);
-							destPixel++;
+							pixelutils_StorePixel(destPixel, pixelutils_BlendFast(color, *rowData++, blendValue), bpp32);
+							destPixel += step;
 						}
 					}
 					break;
 				case k_TILE_SHADOW_RUN_ID		: {
 						len = (tag & 0x00FF);
 						while (len--) {
-							*destPixel = pixelutils_Shadow(*destPixel);
-							destPixel++;
+							if (bpp32) {
+								Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+								*d = pixelutils_Shadow8888(*d);
+							} else {
+								Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+								*d = pixelutils_Shadow(*d);
+							}
+							destPixel += step;
 						}
 					}
 					break;
@@ -4502,7 +4803,11 @@ void TiledMap::DrawColorBlendedOverlayScaled(aui_Surface *surface, Pixel16 *data
 	Pixel16		emptyRow[2];
 	emptyRow[0] = (k_TILE_SKIP_RUN_ID << 8) | k_TILE_GRID_WIDTH;
 
-	surfBase += (y * surfPitch + x * 2);
+	bool const  bpp32       = surface ? (surface->BitsPerPixel() == 32)
+	                                  : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step       = bpp32 ? 4 : 2;
+
+	surfBase += (y * surfPitch + x * step);
 
 	uint16			vstart = (uint16)*data++;
 	uint16			end = (uint16)*data++;
@@ -4552,17 +4857,17 @@ void TiledMap::DrawColorBlendedOverlayScaled(aui_Surface *surface, Pixel16 *data
 				} else {
 					haccum += hincxy;
 
-					Pixel16 * destPixel = (Pixel16 *)
-                        (surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * 2));
+					uint8 * destPixel =
+                        surfBase + ((vdestpos-y) * surfPitch) + ((hdestpos-x) * step);
 
-					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *destPixel, 0, 0, 0);
+					ProcessRun(&rowData1, &rowData2, &pixel3, &pixel4, hpos, *reinterpret_cast<Pixel16 *>(destPixel), 0, 0, 0);
 
 					if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY || pixel3 != k_MEDIUM_KEY || pixel4 != k_MEDIUM_KEY) {
 
 						pixel = pixel3;
 
 
-						*destPixel = pixelutils_BlendFast(color, pixel, blendValue);
+						pixelutils_StorePixel(destPixel, pixelutils_BlendFast(color, pixel, blendValue), bpp32);
 					}
 
 					pixel1 = pixel3;
@@ -4638,6 +4943,20 @@ TiledMap::DrawTerrainOverlay(aui_Surface *surf)
 
 		DrawBlendedOverlayScaledIntoMix(data, x, y, destWidth, destHeight, m_overlayColor, k_FOW_BLEND_VALUE);
 	}
+	if (m_buildingGpuSprites) {
+		SDL_Texture *texture = aui_SDL::EnsureMapIconTexture(data,
+		    k_TILE_PIXEL_WIDTH, k_TILE_GRID_HEIGHT, m_overlayColor, true, k_FOW_BLEND_VALUE);
+		if (texture) {
+			aui_SDL::GpuSpriteQuad q;
+			q.texture = texture;
+			q.sx = 0; q.sy = 0; q.sw = k_TILE_PIXEL_WIDTH; q.sh = k_TILE_GRID_HEIGHT;
+			q.dx = x + m_gpuSpriteOffsetX; q.dy = y + m_gpuSpriteOffsetY;
+			q.dw = destWidth; q.dh = destHeight;
+			q.mirror = false; q.alpha = 255;
+			aui_SDL::AddSpriteQuad(q);
+		} else aui_SDL::MarkSpriteFrameIncomplete("terrain-overlay");
+	}
+
 	AddDirtyToMix(x, y, destWidth, destHeight);
 }
 

@@ -4,6 +4,8 @@
 #ifndef __MESSAGEICONWINDOW_H__
 #define __MESSAGEICONWINDOW_H__
 
+#include <memory>
+
 #include "ui/aui_common/aui_window.h"
 #include "ui/interface/messagewindow.h"
 
@@ -51,7 +53,7 @@ public:
 	MessageWindow	*GetWindow()	{ return m_messageWindow; }
 	void SetWindow( MessageWindow *window ) { m_messageWindow = window; }
 
-	MessageIconButton		*GetIconButton( ) { return m_icon; }
+	MessageIconButton		*GetIconButton( ) { return m_icon.get(); }
 
 	Message					*GetMessage( )
 				{ return ( m_messageWindow ? m_messageWindow->GetMessage() : nullptr ); }
@@ -71,7 +73,7 @@ public:
 	void SetCurrentIconButton( MessageIconButton *iconButton );
 	MessageIconWindow *GetCurrentMessageIconWindow( ) { return m_currentIconWindow; }
 
-	MessageOpenAction		*GetMessageOpenAction( ) { return m_messageOpenAction; }
+	MessageOpenAction		*GetMessageOpenAction( ) { return m_messageOpenAction.get(); }
 
 	void SetNext( MessageIconWindow *iconWindow ) { m_next = iconWindow; }
 	void SetPrev( MessageIconWindow *iconWindow ) { m_prev = iconWindow; }
@@ -89,8 +91,10 @@ public:
 
 
 protected:
-	MessageOpenAction		*m_messageOpenAction;
-	MessageIconButton		*m_icon;
+	// Owned here; the icon button is registered with this window (non-owning
+	// child list) and the action is only stored by the button.
+	std::unique_ptr<MessageOpenAction>		m_messageOpenAction;
+	std::unique_ptr<MessageIconButton>		m_icon;
 	MessageWindow			*m_messageWindow;
 	static MessageIconWindow	*m_currentIconWindow;
 	MessageList				*m_messageList;

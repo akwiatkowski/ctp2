@@ -34,6 +34,8 @@
 #include "ctp/ctp2_utils/c3files.h"
 #include "gs/fileio/CivPaths.h"
 
+#include <filesystem>
+
 #ifdef WIN32
 #include <shlobj.h>
 #endif
@@ -41,6 +43,22 @@
 static CivPaths *g_civPaths = nullptr;
 CivPaths * civpaths_Get()        { return g_civPaths; }
 void       civpaths_Set(CivPaths *p) { g_civPaths = p; }
+
+namespace
+{
+std::string Ctp2Home()
+{
+	if (char const *configured = getenv("CTP2_HOME"); configured && configured[0])
+		return configured;
+
+	char const *home = getenv("HOME");
+#ifdef WIN32
+	if (!home || !home[0])
+		home = getenv("USERPROFILE");
+#endif
+	return home && home[0] ? std::string(home) + "/.ctp2" : std::string();
+}
+}
 
 #include "gs/fileio/prjfile.h"
 extern ProjectFile *g_ImageMapPF;
@@ -96,11 +114,22 @@ void CivPaths_CleanupCivPaths()
 
 
 CivPaths::CivPaths ()
+	: m_hdPath("."), m_cdPath("."), m_defaultPath("default"),
+	  m_localizedPath("english"), m_dataPath("ctp2_data"),
+	  m_scenariosPath("scenarios"), m_savePath("save"),
+	  m_saveGamePath("games"), m_saveQueuePath("queues"), m_saveMPPath("mp"),
+	  m_saveSCENPath("scen"), m_saveMapPath("maps"), m_saveClipsPath("clips"),
+	  m_assetPaths{"gamedata", "gamedata", "aidata", "uidata", "uidata/layouts",
+	               "uidata/fonts", "graphics", "graphics/sprites", "graphics/tiles",
+	               "graphics/patterns", "graphics/pictures", "graphics/icons",
+	               "graphics/cursors", "sound", "videos"}
 {
     std::fill(m_desktopPath, m_desktopPath + _MAX_PATH, 0);
 
     FILE *  fin = fopen("civpaths.txt", "r");
-    Assert(fin);
+    // civpaths.txt is an optional override of the standard data layout.
+    // Installed games must also start when launched outside the checkout.
+    if (fin) {
 
 	// fgets a single line into `dst`, trim trailing \n / \r.
 	auto readPath = [fin](std::string &dst) {
@@ -140,6 +169,23 @@ CivPaths::CivPaths ()
 	}
 
 	fclose(fin);
+    }
+
+	// Prefer the canonical user-local install when it is complete. An empty or
+	// partially installed CTP2_HOME deliberately falls back to the historical
+	// working-directory layout, so existing developer setups keep working.
+	std::string const ctp2Home = Ctp2Home();
+	bool const useCtp2Home = !ctp2Home.empty() &&
+		std::filesystem::is_directory(std::filesystem::path(ctp2Home) / "original_data");
+	if (useCtp2Home)
+	{
+		m_hdPath = ctp2Home;
+		m_cdPath.clear();
+		m_dataPath = "original_data";
+		m_scenariosPath = (std::filesystem::path(ctp2Home) / "original_data" /
+			"default" / "Scenarios").string();
+		m_savePath = "saves";
+	}
 
 	MBCHAR	tempPath[_MAX_PATH];
 	MBCHAR	fullPath[_MAX_PATH];
@@ -150,6 +196,9 @@ CivPaths::CivPaths ()
 	// prevents issues when the game is launched from different working
 	// directories.
 #if defined(__APPLE__)
+	if (useCtp2Home) {
+		snprintf(tempPath, sizeof(tempPath), "%s%s%s", m_hdPath.c_str(), FILE_SEP, m_savePath.c_str());
+	} else {
 	const char *home = getenv("HOME");
 	if (home) {
 		snprintf(tempPath, sizeof(tempPath), "%s/Library/Application Support/CallToPower2/%s",
@@ -157,6 +206,7 @@ CivPaths::CivPaths ()
 	} else {
 		// Fallback: use the relative path from civpaths.txt
 		snprintf(tempPath, sizeof(tempPath), "%s%s%s", m_hdPath.c_str(), FILE_SEP, m_savePath.c_str());
+	}
 	}
 #else
 	snprintf(tempPath, sizeof(tempPath), "%s%s%s", m_hdPath.c_str(), FILE_SEP, m_savePath.c_str());
@@ -319,6 +369,22 @@ MBCHAR *CivPaths::GetSavePath(C3SAVEDIR dir, MBCHAR *path)
 	}
 
 	return nullptr;
+}
+
+
+MBCHAR *CivPaths::GetUserPath(const MBCHAR *filename, MBCHAR *path) const
+{
+	Assert(filename != nullptr);
+	Assert(path != nullptr);
+
+	int const written = snprintf(path, _MAX_PATH, "%s%s%s",
+	                             m_hdPath.c_str(), FILE_SEP, filename);
+	if (written < 0 || written >= _MAX_PATH) {
+		path[0] = '\0';
+		return nullptr;
+	}
+
+	return path;
 }
 
 

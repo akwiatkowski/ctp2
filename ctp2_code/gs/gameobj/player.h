@@ -171,7 +171,6 @@ class Installation;
 class CreateUnitRequest;
 class UnitActor;
 class ID;
-class Throne;
 class EndGame;
 class GaiaController;
 class CityData;
@@ -211,161 +210,159 @@ public:
 // See the Serialize implementation for more details.
 //----------------------------------------------------------------------------
 
-	PLAYER_INDEX     m_owner;
-	PLAYER_TYPE      m_playerType;
+	PLAYER_INDEX     m_owner{};
+	PLAYER_TYPE      m_playerType{};
 
-	uint32           m_diplomatic_mute;
-	uint32           mask_alliance;
-	uint32           m_mask_hostile;
-	DIPLOMATIC_STATE m_diplomatic_state[k_MAX_PLAYERS];
+	uint32           m_diplomatic_mute{};
+	uint32           mask_alliance{};
+	uint32           m_mask_hostile{};
+	DIPLOMATIC_STATE m_diplomatic_state[k_MAX_PLAYERS]{};
 
-	sint32           m_government_type;
-	sint32           m_tradeTransportPoints;
-	sint32           m_usedTradeTransportPoints;
-	uint32           m_pollution_history[k_MAX_POLLUTION_HISTORY];
-	sint32           m_event_pollution[k_MAX_EVENT_POLLUTION_TURNS];
-	BOOL             m_terrainPollution ;
-	BOOL             m_deepOceanVisible;
-	sint32           m_patience[k_MAX_PLAYERS] ;
-	sint32           m_sent_requests_this_turn[k_MAX_PLAYERS];
+	sint32           m_government_type{};
+	sint32           m_tradeTransportPoints{};
+	sint32           m_usedTradeTransportPoints{};
+	uint32           m_pollution_history[k_MAX_POLLUTION_HISTORY]{};
+	sint32           m_event_pollution[k_MAX_EVENT_POLLUTION_TURNS]{};
+	BOOL             m_terrainPollution{};
+	BOOL             m_deepOceanVisible{};
+	sint32           m_patience[k_MAX_PLAYERS]{};
+	sint32           m_sent_requests_this_turn[k_MAX_PLAYERS]{};
 
-	double           m_materialsTax;
+	double           m_materialsTax{};
 
-	sint32           m_home_lost_unit_count;
-	sint32           m_oversea_lost_unit_count;
-	uint64           m_builtWonders;
-	uint64           m_wonderBuildings;
+	sint32           m_home_lost_unit_count{};
+	sint32           m_oversea_lost_unit_count{};
+	uint64           m_builtWonders{};
+	uint64           m_wonderBuildings{};
 
-	double           m_income_Percent;
+	double           m_income_Percent{};
 
-	uint32           m_embassies;
-	uint32           m_productionFromFranchises;
+	uint32           m_embassies{};
+	uint32           m_productionFromFranchises{};
 
-	sint32           m_assasinationModifier;
-	sint32           m_assasinationTimer;
-	BOOL             m_isDead;
-	BOOL             m_first_city;
+	sint32           m_assasinationModifier{};
+	sint32           m_assasinationTimer{};
+	BOOL             m_isDead{};
+	BOOL             m_first_city{};
 
-	sint32           m_totalArmiesCreated;
-	BOOL             m_hasUsedCityView;
-	BOOL             m_hasUsedWorkView;
-	BOOL             m_hasUsedProductionControls;
+	sint32           m_totalArmiesCreated{};
+	BOOL             m_hasUsedCityView{};
+	BOOL             m_hasUsedWorkView{};
+	BOOL             m_hasUsedProductionControls{};
 
-	sint32           m_total_production;
-	BOOL             m_is_turn_over;                // Used
-	BOOL             m_end_turn_soon;               // Maybe unused
-	sint32           m_powerPoints;
-	sint32           m_lastActionCost;
-	MapPoint         m_setupCenter;
-	sint32           m_setupRadius;
-	BOOL             m_doneSettingUp;
+	sint32           m_total_production{};
+	BOOL             m_is_turn_over{};                // Used
+	BOOL             m_end_turn_soon{};               // Maybe unused
+	sint32           m_powerPoints{};
+	sint32           m_lastActionCost{};
+	MapPoint         m_setupCenter{};
+	sint32           m_setupRadius{};
+	BOOL             m_doneSettingUp{};
 
-	uint32           m_contactedPlayers;
-	BOOL             m_endingTurn;                  // Unused
-	sint32           m_set_government_type;
-	sint32           m_change_government_turn;
-	BOOL             m_changed_government_this_turn;
-	sint32           m_pop_science;
-	sint32           m_num_revolted;
+	uint32           m_contactedPlayers{};
+	BOOL             m_endingTurn{};                  // Unused
+	sint32           m_set_government_type{};
+	sint32           m_change_government_turn{};
+	BOOL             m_changed_government_this_turn{};
+	sint32           m_pop_science{};
+	sint32           m_num_revolted{};
 
-	BOOL             m_can_build_capitalization;
-	BOOL             m_can_build_infrastructure;
+	BOOL             m_can_build_capitalization{};
+	BOOL             m_can_build_infrastructure{};
 
-	sint32           m_last_attacked[k_MAX_PLAYERS];
+	sint32           m_last_attacked[k_MAX_PLAYERS]{};
 
-	BOOL             m_can_use_terra_tab;
-	BOOL             m_can_use_space_tab;
-	BOOL             m_can_use_sea_tab;
-	BOOL             m_can_use_space_button;
+	BOOL             m_can_use_terra_tab{};
+	BOOL             m_can_use_space_tab{};
+	BOOL             m_can_use_sea_tab{};
+	BOOL             m_can_use_space_button{};
 
-	GUID             m_networkGuid;
-	uint16           m_networkId;
-	sint32           m_networkGroup;
+	GUID             m_networkGuid{};
+	uint16           m_networkId{};
+	sint32           m_networkGroup{};
 
-	sint32           m_civRevoltingCitiesShouldJoin;
+	sint32           m_civRevoltingCitiesShouldJoin{};
 
-	BOOL             m_hasWonTheGame;
-	BOOL             m_hasLostTheGame;
+	BOOL             m_hasWonTheGame{};
+	BOOL             m_hasLostTheGame{};
 
-	BOOL             m_disableChooseResearch;
+	BOOL             m_disableChooseResearch{};
 
-	BOOL             m_openForNetwork;
+	BOOL             m_openForNetwork{};
 
-	sint32           m_virtualGoldSpent;
+	sint32           m_virtualGoldSpent{};
 
-	sint32           m_current_round;
+	sint32           m_current_round{};
 
-	sint32           m_maxCityCount;
+	sint32           m_maxCityCount{};
 
-	sint32           m_age;
+	sint32           m_age{};
 
-	sint32           m_researchGoal;
+	sint32           m_researchGoal{};
 
-	sint32           m_broken_alliances_and_cease_fires;
+	sint32           m_broken_alliances_and_cease_fires{};
 
 //----------------------------------------------------------------------------
 // Changing the order below this line should not break anything.
 //----------------------------------------------------------------------------
 
-	DynamicArray<Army>               *m_all_armies;               // Serialized
-	UnitDynamicArray                 *m_all_cities;               // Serialized
+	DynamicArray<Army>               *m_all_armies{};               // Serialized
+	UnitDynamicArray                 *m_all_cities{};               // Serialized
 
-	UnitDynamicArray                 *m_all_units;                // Serialized
-	UnitDynamicArray                 *m_traderUnits;              // Serialized
-	Unit                             *m_capitol;                  // Serialized
+	UnitDynamicArray                 *m_all_units{};                // Serialized
+	std::unique_ptr<UnitDynamicArray> m_traderUnits;              // Serialized
+	std::unique_ptr<Unit> m_capitol;                  // Serialized
 
-	Regard                           *m_regard;                   // Serialized
-	Gold                             *m_gold;                     // Serialized
-	Science                          *m_science;                  // Serialized
-	TaxRate                          *m_tax_rate;                 // Serialized
-	Difficulty                       *m_difficulty;               // Serialized
-	Advances                         *m_advances;                 // Serialized
-	MaterialPool                     *m_materialPool;
+	std::unique_ptr<Regard> m_regard;                   // Serialized
+	std::unique_ptr<Gold> m_gold;                     // Serialized
+	std::unique_ptr<Science> m_science;                  // Serialized
+	std::unique_ptr<TaxRate> m_tax_rate;                 // Serialized
+	std::unique_ptr<Difficulty> m_difficulty;               // Serialized
+	std::unique_ptr<Advances> m_advances;                 // Serialized
+	std::unique_ptr<MaterialPool> m_materialPool;
 
-	DynamicArray<TradeOffer>         *m_tradeOffers;              // Serialized
+	std::unique_ptr<DynamicArray<TradeOffer>> m_tradeOffers;              // Serialized
 #ifdef BATTLE_FLAGS
 	DynamicArray<MapPoint>           *m_battleFlags;              // Serialized
 #endif
 
-	DynamicArray<DiplomaticRequest>  *m_requests;                 // Serialized
-	DynamicArray<Agreement>          *m_agreed;                   // Serialized
-	DynamicArray<Message>            *m_messages;                 // Serialized
+	std::unique_ptr<DynamicArray<DiplomaticRequest>> m_requests;                 // Serialized
+	std::unique_ptr<DynamicArray<Agreement>> m_agreed;                   // Serialized
+	std::unique_ptr<DynamicArray<Message>> m_messages;                 // Serialized
 
-	Vision                           *m_vision;                   // Serialized
+	std::unique_ptr<Vision> m_vision;                   // Serialized
 
-	DynamicArray<TerrainImprovement> *m_terrainImprovements;      // Serialized
-	DynamicArray<Installation>       *m_allRadarInstallations;    // Serialized
-	DynamicArray<Installation>       *m_allInstallations;         // Serialized
+	std::unique_ptr<DynamicArray<TerrainImprovement>> m_terrainImprovements;      // Serialized
+	std::unique_ptr<DynamicArray<Installation>> m_allRadarInstallations;    // Serialized
+	std::unique_ptr<DynamicArray<Installation>> m_allInstallations;         // Serialized
 
-	MilitaryReadiness                *m_readiness;
-	PlayerHappiness                  *m_global_happiness;         // Serialized
-	Civilisation                     *m_civilisation;             // Serialized
+	std::unique_ptr<MilitaryReadiness> m_readiness;
+	std::unique_ptr<PlayerHappiness> m_global_happiness;         // Serialized
+	std::unique_ptr<Civilisation> m_civilisation;             // Serialized
 
-	Throne                           *m_throne;                   // Not serialized
-
-	Strengths                        *m_strengths;                // Serialized
-	Score                            *m_score;                    // Serialized
-	EndGame                          *m_endGame;                  // Serialized
+	std::unique_ptr<Strengths> m_strengths;                // Serialized
+	std::unique_ptr<Score> m_score;                   // Serialized
+	EndGame                          *m_endGame{};                  // Serialized
 	std::vector<sint32>               m_goodSalePrices;
 	std::string                       m_email;                    // Serialized
-	GaiaController                   *m_gaiaController;           // Serialized
+	GaiaController                   *m_gaiaController{};           // Serialized
 
-	CreateUnitRequest                *m_unitRequestList;
+	CreateUnitRequest                *m_unitRequestList{};
 
-	Unit                             *m_slic_special_city;        // Not serialized
-	BOOL                              m_hasGlobalRadar;           // Not serialized and unused
+	std::unique_ptr<Unit> m_slic_special_city;        // Not serialized
+	BOOL                              m_hasGlobalRadar{};           // Not serialized and unused
 
 #ifdef _DEBUG_INCOMPATIBLE
 
-	ATTITUDE_TYPE                     m_attitude[k_MAX_PLAYERS];  // Not serialized
+	ATTITUDE_TYPE                     m_attitude[k_MAX_PLAYERS]{};  // Not serialized
 #endif
 
-	MBCHAR                            m_descrip_string[256];      // Not serialized, maybe used
-	sint32                            m_starting_index;           // Not serialzed and unused
-	sint32                            m_governorPwReserve;        // Not serialied, maybe used
-	sint16                            m_cargoCapacity;            // Not serialized possibly used.
-	double                            m_energysupply;
-	double                            m_breadbasket;
+	MBCHAR                            m_descrip_string[256]{};      // Not serialized, maybe used
+	sint32                            m_starting_index{};           // Not serialzed and unused
+	sint32                            m_governorPwReserve{};        // Not serialied, maybe used
+	sint16                            m_cargoCapacity{};            // Not serialized possibly used.
+	double                            m_energysupply{};
+	double                            m_breadbasket{};
 
 	friend class NetInfo;
 	friend class NetDifficulty;
@@ -443,7 +440,7 @@ public:
 	void EndTurn();
 	void EndTurnSoon();
 	void ProcessUnitOrders(bool currentOnly = false);
-	Civilisation *GetCivilisation() const { return (m_civilisation) ; }
+	Civilisation *GetCivilisation() const { return m_civilisation.get(); }
 	void GetPluralCivName(MBCHAR *s) ;
 	void GetSingularCivName(MBCHAR *s) ;
 	const MBCHAR *GetLeaderName() ;
@@ -488,11 +485,11 @@ public:
 	Army GetArmy(sint32 s_index);
 	UnitDynamicArray *GetAllUnitList() { return m_all_units; }
 	UnitDynamicArray *GetAllCitiesList() { return m_all_cities; }
-	UnitDynamicArray *GetTradersList() { return m_traderUnits; }
-	DynamicArray<TradeOffer>* GetTradeOffersList() { return m_tradeOffers; }
+	UnitDynamicArray *GetTradersList() { return m_traderUnits.get(); }
+	DynamicArray<TradeOffer>* GetTradeOffersList() { return m_tradeOffers.get(); }
 	DynamicArray<Army> *GetAllArmiesList() { return m_all_armies; }
-	DynamicArray<TerrainImprovement> *GetAllTileimpsList() { return m_terrainImprovements; } //emod
-	DynamicArray<Installation> *GetAllInstallationsList() { return 	m_allInstallations; } //emod
+	DynamicArray<TerrainImprovement> *GetAllTileimpsList() { return m_terrainImprovements.get(); } //emod
+	DynamicArray<Installation> *GetAllInstallationsList() { return m_allInstallations.get(); } //emod
 
 	Unit GetTopSelectedArmy(const sint32 selected_army);
 
@@ -559,7 +556,7 @@ public:
 	void DumpRequests() ;
 	void RemoveAgreementReferences(Agreement a) ;
 	void RemoveDiplomaticReferences(DiplomaticRequest a) ;
-	DynamicArray<Agreement> *GetAgreements() const { return (m_agreed) ; }
+	DynamicArray<Agreement> *GetAgreements() const { return m_agreed.get(); }
 	Agreement FindAgreement(const AGREEMENT_TYPE agreement, const PLAYER_INDEX otherParty) const ;
 	Agreement FindAgreement(const AGREEMENT_TYPE agreement) const ;
 	Agreement FindAgreement(const PLAYER_INDEX otherParty) const ;
@@ -577,7 +574,7 @@ public:
 	bool HaveNoPiracyAgreement(PLAYER_INDEX otherParty);
 
 	bool FulfillCaptureCityAgreement(Unit city) ;
-	DynamicArray<DiplomaticRequest>	*GetRequests() const { return (m_requests) ; }
+	DynamicArray<DiplomaticRequest>	*GetRequests() const { return m_requests.get(); }
 	void RequestGreeting(const PLAYER_INDEX recipient) ;
 	void RequestDemandAdvance(const PLAYER_INDEX recipient, AdvanceType advance) ;
 	void RequestDemandCity(const PLAYER_INDEX recipient, Unit &city) ;
@@ -619,7 +616,7 @@ public:
 	void RemoveMessageReferences(Message msg) ;
 	void DumpMessages() ;
 	void SendTestMessage() ;
-	DynamicArray<Message> *GetMessages() const { return (m_messages) ; }
+	DynamicArray<Message> *GetMessages() const { return m_messages.get(); }
 	void NotifyModalMessageDestroyed();
 
 
@@ -823,7 +820,7 @@ public:
 	void   RegisterProfessionalChange(bool on, Unit &u);
 
 
-	Difficulty* GetDifficulty() { return m_difficulty; }
+	Difficulty* GetDifficulty() { return m_difficulty.get(); }
 
 	sint32 GetBaseContentment() const;
 
@@ -934,7 +931,7 @@ public:
 
 	double GetPercentProductionToMilitary() const;
 
-	Regard *GetRegard() const { return (m_regard) ; }
+	Regard *GetRegard() const { return m_regard.get(); }
 
 	ATTITUDE_TYPE GetAttitude(PLAYER_INDEX player) const ;
 	void SetAttitude(PLAYER_INDEX player, ATTITUDE_TYPE attitude) ;

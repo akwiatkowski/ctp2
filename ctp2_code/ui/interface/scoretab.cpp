@@ -93,7 +93,7 @@ void ScoreTab::Update()
 	if (!pl)
 		return;
 
-	Score *     score       = pl->m_score;
+	Score *     score       = pl->m_score.get();
 	MBCHAR      commaNumber[80];
 
 	m_difficulty->SetText(m_difficultyStrings->GetString(gamesettings_Get()->GetDifficulty()));

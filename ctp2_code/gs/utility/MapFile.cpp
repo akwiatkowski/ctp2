@@ -31,10 +31,12 @@
 ///     to keep portability with JSON's 53-bit safe integer range
 
 #include "ctp/c3.h"
+#include "ctp/ctp2_utils/bounded_json.h"
 #include "gs/utility/MapFile.h"
 
 #include <fstream>
 #include <sstream>
+#include <string_view>
 #include <vector>
 
 #include <nlohmann/json.hpp>
@@ -42,6 +44,8 @@
 #include "AdvanceRecord.h"              // g_theAdvanceDB
 #include "TerrainImprovementRecord.h"   // g_theTerrainImprovementDB
 #include "UnitRecord.h"                 // g_theUnitDB
+#include "TerrainRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/outcom/AICause.h"
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
@@ -77,7 +81,124 @@ std::string u64_to_hex(uint64 v)
 
 uint64 hex_to_u64(std::string const & s)
 {
-	return std::stoull(s, nullptr, 0);
+	size_t end = 0;
+	uint64 value;
+	try { value = std::stoull(s, &end, 0); }
+	catch (std::exception const &) {
+		throw nlohmann::json::other_error::create(532, "Invalid map bitmask", nullptr);
+	}
+	if (s.empty() || s.front() == '-' || end != s.size())
+		throw nlohmann::json::other_error::create(532, "Invalid map bitmask", nullptr);
+	return value;
+}
+
+void require_map(bool valid, char const * message)
+{
+	if (!valid) throw nlohmann::json::other_error::create(532, message, nullptr);
+}
+
+uint64 map_integer(nlohmann::json const & value, uint64 maximum)
+{
+	require_map(value.is_number_integer(), "Map value must be an integer");
+	// Check signedness before conversion: get<int>() silently narrows JSON integers.
+	require_map(value.is_number_unsigned() || value.get<int64_t>() >= 0,
+	            "Negative map value");
+	auto number = value.get<uint64>();
+	require_map(number <= maximum, "Map integer outside supported range");
+	return number;
+}
+
+// Validate every supplied section before terrain loading destroys current units.
+// Limits follow the int16 coordinates/specialist counts and int8 terrain storage.
+void validate_map(nlohmann::json const & doc)
+{
+	require_map(map_integer(doc.at("schema_version"), kSchemaVersion) == kSchemaVersion,
+	            "Unsupported map schema");
+	require_map(world_Get() != nullptr, "Map loading requires an active world");
+	uint64 w = world_Get()->GetXWidth(), h = world_Get()->GetYHeight();
+	if (doc.contains("terrain")) {
+		w = map_integer(doc.at("terrain").at("width"), 16383);
+		h = map_integer(doc.at("terrain").at("height"), 16383);
+	}
+	require_map(w > 0 && h > 0 && w * h <= 1024 * 1024, "Invalid map dimensions");
+	auto grid = [&](nlohmann::json const & section, char const * field) {
+		require_map(map_integer(section.at("width"), 16383) == w &&
+		            map_integer(section.at("height"), 16383) == h,
+		            "Map section dimensions do not match terrain");
+		auto const & cells = section.at(field);
+		require_map(cells.is_array() && cells.size() == w * h, "Map cell count mismatch");
+	};
+	auto position = [&](nlohmann::json const & entry) {
+		map_integer(entry.at("x"), w - 1);
+		map_integer(entry.at("y"), h - 1);
+	};
+	for (auto name : {"terrain", "terrain_env", "huts"}) {
+		if (!doc.contains(name)) continue;
+		auto const & section = doc.at(name);
+		grid(section, "cells");
+		for (auto const & cell : section.at("cells")) {
+			if (std::string_view(name) == "huts") cell.get<bool>();
+			else if (std::string_view(name) == "terrain") {
+				require_map(g_theTerrainDB && g_theTerrainDB->NumRecords() > 0, "Missing terrain DB");
+				map_integer(cell, std::min(127, g_theTerrainDB->NumRecords() - 1));
+			} else map_integer(cell, UINT32_MAX);
+		}
+	}
+	for (auto name : {"unit_types", "improvement_types", "advance_types", "units",
+	                  "improvements", "cities", "vision", "advances", "civilizations"}) {
+		if (!doc.contains(name)) continue;
+		require_map(doc.at(name).is_array(), "Map section must be an array");
+	}
+	for (auto name : {"unit_types", "improvement_types", "advance_types"}) {
+		if (!doc.contains(name)) continue;
+		for (auto const & entry : doc.at(name)) entry.get_ref<std::string const &>();
+	}
+	for (auto name : {"units", "improvements", "cities"}) {
+		if (!doc.contains(name)) continue;
+		for (auto const & entry : doc.at(name)) {
+			position(entry);
+			if (std::string_view(name) == "cities") {
+				map_integer(entry.at("owner"), k_MAX_PLAYERS - 1);
+				require_map(map_integer(entry.at("size"), INT16_MAX) > 0, "Invalid city population");
+				hex_to_u64(entry.at("improvements").get_ref<std::string const &>());
+				hex_to_u64(entry.at("wonders").get_ref<std::string const &>());
+				entry.at("name").get_ref<std::string const &>();
+			} else {
+				bool units = std::string_view(name) == "units";
+				auto const & entries = entry.at(units ? "stack" : "types");
+				require_map(entries.is_array(), "Map cell entries must be an array");
+				auto const & names = doc.at(units ? "unit_types" : "improvement_types");
+				for (auto const & item : entries) {
+					if (units) map_integer(item.at("owner"), k_MAX_PLAYERS - 1);
+					auto type = map_integer(units ? item.at("type") : item, INT32_MAX);
+					require_map(type < names.size(), "Map type reference outside name table");
+				}
+			}
+		}
+	}
+	for (auto name : {"vision", "advances"}) {
+		if (!doc.contains(name)) continue;
+		for (auto const & entry : doc.at(name)) {
+			map_integer(entry.at("player"), k_MAX_PLAYERS - 1);
+			if (std::string_view(name) == "vision") {
+				grid(entry, "fog");
+				for (auto const & fog : entry.at("fog")) map_integer(fog, UINT16_MAX);
+			} else {
+				auto const & has = entry.at("has");
+				require_map(has.is_array() && has.size() == doc.at("advance_types").size(),
+				            "Map advance count mismatch");
+				for (auto const & value : has) value.get<bool>();
+			}
+		}
+	}
+	if (doc.contains("civilizations")) {
+		require_map(doc.at("civilizations").size() <= k_MAX_PLAYERS, "Too many civilizations");
+		for (auto const & entry : doc.at("civilizations")) {
+			require_map(g_theCivilisationDB && g_theCivilisationDB->NumRecords() > 0, "Missing civilization DB");
+			map_integer(entry.value("civ", nlohmann::json(0)), g_theCivilisationDB->NumRecords() - 1);
+			entry.value("leader", std::string{});
+		}
+	}
 }
 
 // DB id-string lookup mirrors the old SaveDBNames helper: prefer the
@@ -135,7 +256,7 @@ bool MapFile::Load(MBCHAR const * filename)
 	if (!in) return false;
 
 	nlohmann::json doc;
-	try { in >> doc; }
+	try { doc = ReadBoundedJson(in, 128 * 1024 * 1024); }
 	catch (nlohmann::json::exception const & e)
 	{
 		DPRINTF(k_DBG_GAMESTATE,
@@ -151,6 +272,10 @@ bool MapFile::Load(MBCHAR const * filename)
 
 	try
 	{
+		validate_map(doc);
+		m_unitTypeMap.clear();
+		m_improvementTypeMap.clear();
+		m_advanceTypeMap.clear();
 		// Order matches the old SaveMap dispatch + type-table-before-refs
 		// invariant: each *_types section populates a map consumed by its
 		// ref section.

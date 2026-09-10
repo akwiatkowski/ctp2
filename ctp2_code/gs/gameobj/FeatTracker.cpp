@@ -97,7 +97,6 @@ Feat::~Feat()
 
 FeatTracker::FeatTracker()
 {
-	m_activeList = new PointerList<Feat>;
 	sint32 i;
 	for(i = FEAT_EFFECT_NONE + 1; i < FEAT_EFFECT_MAX; i++)
 	{
@@ -114,8 +113,8 @@ FeatTracker::FeatTracker()
 
 FeatTracker::~FeatTracker()
 {
-	m_activeList->DeleteAll();
-	delete m_activeList;
+	// DeleteAll frees the Feats; the list frees its own nodes.
+	m_activeList.DeleteAll();
 
 	for(auto & i : m_effectList)
 	{
@@ -259,7 +258,7 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 	m_achieved[type] = true;
 
 	Feat * theFeat = new Feat(type, player, round);
-	m_activeList->AddTail(theFeat);
+	m_activeList.AddTail(theFeat);
 
 	AddFeatToEffectLists(theFeat);
 
@@ -382,7 +381,7 @@ sint32 FeatTracker::GetMaxEffect(FEAT_EFFECT effect, sint32 player)
 
 void FeatTracker::BeginTurn(sint32 player)
 {
-	PointerList<Feat>::Walker walk(m_activeList);
+	PointerList<Feat>::Walker walk(const_cast<PointerList<Feat> *>(&m_activeList));
 	while(walk.IsValid())
 	{
 		Feat *feat = walk.GetObj();
@@ -511,7 +510,7 @@ bool FeatTracker::HasFeat(sint32 type) const
 //EMOD added to check if a player achieved a feat 5-11-2006
 bool FeatTracker::PlayerHasFeat(sint32 type, sint32 player) const
 {
-	PointerList<Feat>::Walker walk(m_activeList);
+	PointerList<Feat>::Walker walk(const_cast<PointerList<Feat> *>(&m_activeList));
 	while(walk.IsValid())
 	{
 		Feat *feat = walk.GetObj();

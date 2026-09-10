@@ -1,17 +1,5 @@
 #!/usr/bin/env bash
-# tier-d.sh — UBSan tier.  Build ctp2_headless under -Db_sanitize=undefined
-# and run the unit + integration suites under UBSan.  Catches semantic
-# UB ASan does not: invalid enum loads, signed integer overflow, null
-# member calls, alignment violations.
-#
-# Complements tier-c (ASan).  The two sanitizers find different bugs:
-# ASan = spatial (OOB, UAF, double-free), UBSan = semantic (enum cast,
-# signed overflow, null deref).  Overlap is small; both are worth
-# their compile time.
-#
-# Triggered by the daemon when tier-b just went green (no point firing
-# UBSan on a broken build).  Always exits 0; failure goes to .ci/state.json
-# + STATUS_RED with the UBSan summary captured to context_path.
+# See .ci/README.md for coverage. Failures update state and return nonzero.
 
 set -uo pipefail
 
@@ -36,22 +24,22 @@ mise exec -- python3 "$CI_ROOT/update_state.py" \
     --head-sha "$HEAD_SHA" --head-subject "$HEAD_SUBJECT" --head-branch "$HEAD_BRANCH" \
     >/dev/null
 
-# UBSan output is verbose; tune to fail-fast on first error so the daemon
-# captures a focused report.  detect_leaks=0 because the codebase has
-# documented singleton leaks (g_theStringDB, etc.) that aren't actionable
-# without a larger ownership refactor.
-export ASAN_OPTIONS="halt_on_error=1:abort_on_error=1:print_summary=1:print_stacktrace=1:detect_leaks=0:exitcode=1"
+export UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"
 
 START=$(date +%s)
 
-{
+(
     echo "=== tier-d $TS (HEAD $HEAD_SHA) ==="
 
-    if [[ ! -d "$CTP2_ROOT/build-ubsan" ]]; then
+    if [[ ! -f "$CTP2_ROOT/build-ubsan/build.ninja" ]]; then
         echo "=== meson setup build-ubsan -Db_sanitize=undefined -Db_lundef=false ==="
         ( cd ctp2_code && mise exec -- meson setup ../build-ubsan \
+            -Danet=false -Dbuildtype=debugoptimized \
             -Db_sanitize=undefined -Db_lundef=false ) || exit $?
     fi
+
+    mise exec -- meson configure build-ubsan \
+        -Danet=false -Dbuildtype=debugoptimized -Db_sanitize=undefined || exit $?
 
     echo "=== ninja -C build-ubsan ctp2_unit_tests ctp2_headless ==="
     mise exec -- ninja -C build-ubsan ctp2_unit_tests ctp2_headless
@@ -62,40 +50,18 @@ START=$(date +%s)
     fi
 
     echo "=== ./build-ubsan/ctp2_unit_tests (UBSan) ==="
-    ./build-ubsan/ctp2_unit_tests -r=xml --no-version > "$XML_FILE" 2>>"$LOG_FILE"
-} >>"$LOG_FILE" 2>&1
+    mise exec -- ./build-ubsan/ctp2_unit_tests -r=xml --no-version > "$XML_FILE" 2>>"$LOG_FILE"
+) >>"$LOG_FILE" 2>&1
 RUN_RC=$?
 
 END=$(date +%s)
 DURATION=$((END - START))
 
-if [[ $RUN_RC -ne 0 && ! -s "$XML_FILE" ]]; then
-    cat > "$RESULT_JSON" <<EOF
-{
-  "tests": { "passed": 0, "failed": 1, "skipped": 0 },
-  "failures": [
-    {
-      "test": "tier-d build/run",
-      "file": "$LOG_FILE",
-      "line": 0,
-      "type": "BUILD",
-      "original": "ninja ctp2_unit_tests ctp2_headless (asan) + run",
-      "expanded": "exit code $RUN_RC",
-      "message": "tier-d failed before test run (asan build error or sanitizer crash; see context_path)",
-      "info": []
-    }
-  ]
-}
-EOF
-    STATUS=red
+if mise exec -- python3 "$CI_ROOT/parse_doctest_xml.py" "$XML_FILE" \
+    --exit-code "$RUN_RC" > "$RESULT_JSON" 2>>"$LOG_FILE"; then
+    STATUS=green
 else
-    mise exec -- python3 "$CI_ROOT/parse_doctest_xml.py" "$XML_FILE" > "$RESULT_JSON" 2>>"$LOG_FILE"
-    FAILED=$(mise exec -- python3 -c "import json,sys; print(json.load(open('$RESULT_JSON'))['tests']['failed'])")
-    if [[ "$FAILED" == "0" ]]; then
-        STATUS=green
-    else
-        STATUS=red
-    fi
+    STATUS=red
 fi
 
 mise exec -- python3 "$CI_ROOT/update_state.py" \
@@ -115,3 +81,5 @@ if [[ ! -s "$METRICS_CSV" ]]; then
     echo "timestamp,head_sha,status,duration_s" > "$METRICS_CSV"
 fi
 echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),$HEAD_SHA,$STATUS,$DURATION" >> "$METRICS_CSV"
+
+[[ "$STATUS" == green ]]

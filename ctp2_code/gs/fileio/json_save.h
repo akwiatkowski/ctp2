@@ -69,6 +69,14 @@ inline void to_json(nlohmann::json &j, MapPointData const &p)
 
 inline void from_json(nlohmann::json const &j, MapPointData &p)
 {
+    // Validate before narrowing: get_to<int16_t> otherwise silently wraps.
+    for (auto key : {"x", "y", "z"}) {
+        auto const &value = j.at(key);
+        if (!value.is_number_integer()
+            || (value.is_number_unsigned() ? value.get<uint64_t>() > 32767
+                : value.get<int64_t>() < -32768 || value.get<int64_t>() > 32767))
+            throw nlohmann::json::other_error::create(501, "MapPoint coordinate out of range", &j);
+    }
     j.at("x").get_to(p.x);
     j.at("y").get_to(p.y);
     j.at("z").get_to(p.z);
@@ -101,6 +109,10 @@ inline void from_json(nlohmann::json const &j, ID &id)
 // --- Top-level save / load entry points ---
 
 namespace json_save {
+    // Implemented with the AI serializers; keep subsystem details out of the writer.
+    void SaveAiHistory(nlohmann::json &j);
+    void RestoreAiHistory(nlohmann::json const &j);
+
 
 // Constants advertising the file format.
 constexpr char const *MAGIC          = "CTP2-JSON";

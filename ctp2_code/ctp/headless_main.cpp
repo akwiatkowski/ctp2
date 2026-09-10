@@ -34,22 +34,17 @@
 #include "ctp/crash_handler.h"                // crash_handler::Install
 #include "test/smoketest_server.h"            // smoketest_server_* (--serve)
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <chrono>
+#include <fstream>
 #include <thread>
 
 extern sint32  g_runInBackground;
 #include "gs/utility/Globals.h"   // set_headless()
 extern sint32  g_oldRandSeed;        // gameinit.cpp reads this as the RNG seed override
-
-// Headless mode needs a CurPlayer callback because CtpAi::BeginTurn and
-// BeginMapAnalysis assert(player == player_view::CurPlayer()).  In the
-// interactive game CurPlayer is backed by selitem_Get(); headless has
-// no selected item, so we track the currently processing player manually.
-static sint32 s_headlessCurPlayer = 0;
-static sint32 HeadlessCurPlayer() { return s_headlessCurPlayer; }
 
 // File-static logger.  Anonymous namespace = internal linkage.  Name
 // appears as [headless] in the spdlog pattern, matching the historical
@@ -57,8 +52,6 @@ static sint32 HeadlessCurPlayer() { return s_headlessCurPlayer; }
 namespace {
 auto headless_log = civlog::Get("headless");
 }  // namespace
-
-static void SetHeadlessCurPlayer(sint32 player) { s_headlessCurPlayer = player; }
 
 static void print_usage(const char *prog)
 {
@@ -177,9 +170,6 @@ int main(int argc, char **argv)
     // etc., the headless build needs to allocate a SelectedItem instance.
     // Reuse the same SelectedItem-backed callbacks the UI build uses.
     RegisterUIPlayerView();
-    // Override CurPlayer so AI asserts (player == CurPlayer()) pass and
-    // the active player's round is returned.
-    player_view::RegisterCurPlayer(&HeadlessCurPlayer);
     headless_log->info("observers + player_view registered");
 
     // ---- Interactive serve mode -----------------------------------------
@@ -231,10 +221,8 @@ int main(int argc, char **argv)
                 // direct call.
                 sint32 e = civapp_Get()->InitializeGameHeadless();
                 if (e == 0) {
-                    // Point HeadlessCurPlayer at the human so AI asserts that
-                    // compare player == CurPlayer() hold for human-owned actions.
                     if (Player * human = game_controller::HumanPlayer())
-                        s_headlessCurPlayer = human->GetOwner();
+                        player_view::SetCurrentPlayer(human->GetOwner());
                     smoketest_send_response("ok", cmd, nullptr);
                 } else {
                     smoketest_send_response("error", cmd, "init_failed");
@@ -260,13 +248,13 @@ int main(int argc, char **argv)
                         for (int i = 0; i < n; ++i) {
                             game_controller::RunRound(
                                 turn_Get() ? turn_Get()->GetSessionRound() : 0,
-                                &SetHeadlessCurPlayer);
+                                nullptr);
                         }
                         // Park CurPlayer back on the human so queries
                         // (query_turn reads CurPlayer's round) and AI
                         // asserts see the driver's viewpoint.
                         if (Player * human = game_controller::HumanPlayer())
-                            s_headlessCurPlayer = human->GetOwner();
+                            player_view::SetCurrentPlayer(human->GetOwner());
                         char detail[48];
                         snprintf(detail, sizeof(detail), "round=%d",
                                  (int)(turn_Get() ? turn_Get()->GetSessionRound() : 0));
@@ -288,6 +276,33 @@ int main(int argc, char **argv)
 
     if (loadGamePath) {
         headless_log->info("Loading saved game from {}", loadGamePath);
+        // Size player slots from the save, not the profile: gameinit
+        // allocates Players from ProfileDB::NumPlayers, and LoadJson only
+        // restores in place (dead slots are cleared, missing ones are NOT
+        // created). Without this, a 5-player save loaded under the default
+        // 4-player profile restores 4 Players, CtpAi::Resize sizes AI
+        // structures to 4, and the empire-bounds size check rightly rejects
+        // the 5-wide save. --players is only honored for --new-game.
+        {
+            std::ifstream in(loadGamePath);
+            if (in) {
+                try {
+                    nlohmann::json doc = nlohmann::json::parse(in);
+                    sint32 alive = 0;
+                    if (doc.is_object() && doc.contains("players") && doc.at("players").is_array()) {
+                        for (auto const &slot : doc.at("players"))
+                            if (slot.value("alive", false)) ++alive;
+                    }
+                    if (alive > 0) {
+                        alive = std::min<sint32>(alive, k_MAX_PLAYERS);
+                        profiledb_Get()->SetNPlayers(alive);
+                        headless_log->info("Sized {} player slots from save", alive);
+                    }
+                } catch (std::exception const &e) {
+                    headless_log->warn("Could not pre-size players from save: {}", e.what());
+                }
+            }
+        }
         if (!GameFile::RestoreGame(loadGamePath)) {
             headless_log->error("RestoreGame failed for {}", loadGamePath);
             return 1;
@@ -352,7 +367,8 @@ int main(int argc, char **argv)
         // Run turns
         for (sint32 t = 0; t < maxTurns; ++t) {
             headless_log->info("Turn {} / {}", t + 1, maxTurns);
-            game_controller::RunRound(t, &SetHeadlessCurPlayer);
+            // A resumed game continues its saved clock, not the CLI loop index.
+            game_controller::RunRound(turn_Get()->GetSessionRound(), nullptr);
         }
 
         headless_log->info("Completed {} turns", maxTurns);

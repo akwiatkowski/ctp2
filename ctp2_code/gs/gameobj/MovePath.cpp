@@ -41,7 +41,8 @@ static bool army_ComputeMovePath(sint32 owner, Army &army,
 }
 
 bool army_QueueMovePath(sint32 owner, Army &army,
-                        const MapPoint &src, const MapPoint &dest)
+                        const MapPoint &src, const MapPoint &dest,
+                        bool allowAttack)
 {
 	auto good_path = std::make_unique<Path>();
 	if (!army_ComputeMovePath(owner, army, src, dest, good_path.get())) {
@@ -56,8 +57,8 @@ bool army_QueueMovePath(sint32 owner, Army &army,
 	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
 	                       GEA_Army, army,
 	                       GEA_Path, good_path.release(),
-	                       GEA_MapPoint, src,
-	                       GEA_Int, 0,
+	                       GEA_MapPoint, allowAttack ? dest : src,
+	                       GEA_Int, allowAttack ? 1 : 0,
 	                       GEA_End);
 	return true;
 }

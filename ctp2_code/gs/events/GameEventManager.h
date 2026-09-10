@@ -164,13 +164,14 @@ public:
 	void NotifyResync();
 	GAME_EVENT GetProcessingEvent() const { return m_processingEvent; };
 
-	GameEvent* GetHeadEvent(){ return m_eventList->GetHead(); };
+	GameEvent* GetHeadEvent(){ return m_eventList.GetHead(); };
 private:
 	bool CheckArg(sint32 num, char got, char want);
 	bool VerifyArgs(GAME_EVENT type, va_list *vl);
 
 	/// Unhandled events
-	PointerList<GameEvent> *m_eventList;
+	// Held by value: created with the owner, never replaced.
+	PointerList<GameEvent> m_eventList;
 
 #ifdef _DEBUG
 	/// History of recently handled events

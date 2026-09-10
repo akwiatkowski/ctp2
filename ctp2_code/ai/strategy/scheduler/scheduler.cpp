@@ -1217,7 +1217,11 @@ bool Scheduler::Prioritize_Goals()
 			}
 		}
 
-		m_goals_of_type[goal_type].sort(std::greater<Sorted_Goal_ptr>());
+		// Pair comparison breaks ties by pointer address, which changes on load.
+        // list::sort is stable: compare utility only to retain saved goal order.
+        m_goals_of_type[goal_type].sort([](auto const &a, auto const &b) {
+            return a.first > b.first;
+        });
 
 		++generic_goal_iter;
 		AI_DPRINTF(k_DBG_SCHEDULER_ALL, m_playerId, goal_type, -1, ("\n"));
@@ -1438,6 +1442,10 @@ void Scheduler::Remove_Matches_For_Agent
     const Agent_ptr & agent
 )
 {
+	// Generic goal templates also cache matches. A dead agent must disappear
+	// from those lists before deletion, including between turns/autosaves.
+	for (auto goal : m_generic_goals)
+		goal->Remove_Match(agent);
 	for(sint32 i = 0; i < g_theGoalDB->NumRecords(); i++)
 	{
 		Sorted_Goal_List & goal_list = m_goals_of_type[i];
@@ -1887,7 +1895,10 @@ void Scheduler::Assign_Garrison()
 	{
 		Unit city = player_Get(m_playerId)->GetCityFromIndex(i);
 
-		garrisonAgents[i].sort();
+		// Preserve agent order for equal costs, independent of allocation addresses.
+        garrisonAgents[i].sort([](auto const &a, auto const &b) {
+            return a.first < b.first;
+        });
 
 		sint8  needed_garrison           = city.CD()->GetNeededGarrison();
 		double needed_garrison_strength  = city.CD()->GetNeededGarrisonStrength();

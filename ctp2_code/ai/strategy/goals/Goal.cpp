@@ -2757,7 +2757,7 @@ bool Goal::Get_Totally_Complete() const
 	if (order_record->GetUnitPretest_CanStealTechnology())
 	{
 		sint32 num = 0;
-		delete [] player_Get(m_playerId)->m_advances->CanAskFor(player_Get(target_owner)->m_advances, num);
+		player_Get(m_playerId)->m_advances.get()->CanAskFor(player_Get(target_owner)->m_advances.get(), num);
 
 		if(num <= 0)
 			return true;
@@ -4312,7 +4312,10 @@ bool Goal::FindTransporters(const Agent_ptr & agent_ptr, std::list< std::pair<Ut
 	// Probably more stuff needs to be done here
 	m_current_needed_strength.Set_Transport(static_cast<sint8>(agent_ptr->Get_Army()->Num()));
 
-	transporter_list.sort(std::greater<std::pair<Utility,class Agent *> >());
+	// Keep equal-utility transporters in agent order across save/load.
+    transporter_list.sort([](auto const &a, auto const &b) {
+        return a.first > b.first;
+    });
 	return transporter_list.size() > 0;
 }
 

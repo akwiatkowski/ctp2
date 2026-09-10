@@ -61,11 +61,14 @@ enum GOODACTION {
 // Project dependencies
 //----------------------------------------------------------------------------
 
+#include <memory>                        // std::unique_ptr
+
 #include "os/include/ctp2_inttypes.h"    // sint32, uint16
 #include "gfx/gfx_utils/pixeltypes.h"		// Pixel16
 #include "gfx/spritesys/SpriteGroup.h"	// SpriteGroup, GROUPTYPE
 
 class aui_Surface;
+class ModernSpriteAtlas;
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -74,7 +77,11 @@ class aui_Surface;
 class GoodSpriteGroup : public SpriteGroup
 {
 public:
-	GoodSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {};
+	// Constructor and destructor are out-of-line so the
+	// unique_ptr<ModernSpriteAtlas> member is created/destroyed where the
+	// (forward-declared) type is complete.
+	GoodSpriteGroup(GROUPTYPE type);
+	~GoodSpriteGroup();
 
 	void			DeallocateStorage() override;
 	void			DeallocateFullLoadAnims() override;
@@ -90,6 +97,11 @@ public:
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags);
 	void			DrawDirect(aui_Surface *surf, GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags);
+	bool			AddGpuSpriteQuad(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
+						   sint32 facing, double scale, Pixel16 outlineColor, uint16 flags);
+	// Why the last AddGpuSpriteQuad declined, for the frame-incomplete report.
+	static char const * GpuFallbackReason() { return s_gpuFallbackReason; }
+	static char const * s_gpuFallbackReason;
 
 	void			DrawText(sint32 x, sint32 y, MBCHAR const * s) override;
 
@@ -97,6 +109,11 @@ public:
 
 
 	sint32			Parse(uint16 id,GROUPTYPE group) override;
+
+private:
+	// Modern-first atlas for this good sprite (null unless CTP2_MODERN_SPRITES
+	// is set and a generated manifest exists). Goods are non-faced.
+	std::unique_ptr<ModernSpriteAtlas> m_modernAtlas;
 };
 
 #endif

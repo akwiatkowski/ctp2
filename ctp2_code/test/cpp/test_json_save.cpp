@@ -16,6 +16,8 @@
 #include "doctest.h"
 #include <new>  // ::operator new placement form
 #include "gs/fileio/json_save.h"
+#include "gs/utility/MapFile.h"
+#include "gfx/spritesys/ModernSpriteManifest.h"
 #include "gs/fileio/action_log.h"
 #include "gs/world/Cell.h"
 #include "gs/world/TileInfo.h"
@@ -46,6 +48,7 @@
 #include "gs/diplomacy/diplomacy_types.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ai/diplomacy/Diplomat.h"
+#include "PersonalityRecord.h"
 #include "ai/diplomacy/Foreigner.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/player.h"
@@ -220,9 +223,62 @@ TEST_CASE("json_save: LoadJson rejects malformed JSON")
     CHECK_FALSE(json_save::LoadJson(path));
 }
 
+TEST_CASE("json_save: LoadJson rejects excessive nesting before restoring state")
+{
+    char const *path = "/tmp/ctp2_deep_save.json";
+    {
+        std::ofstream out(path);
+        out << R"({"magic":"CTP2-JSON","schema_version":1,"nested":)"
+            << std::string(256, '[') << "0" << std::string(256, ']') << "}";
+    }
+    CHECK_FALSE(json_save::LoadJson(path));
+    std::remove(path);
+}
+
 TEST_CASE("json_save: LoadJson rejects missing file")
 {
     CHECK_FALSE(json_save::LoadJson("/tmp/this_path_does_not_exist_xx.json"));
+}
+
+TEST_CASE("json_save: LoadJson rejects a non-object envelope")
+{
+    char const *path = "/tmp/ctp2_phase_a_array_root.json";
+    {
+        std::ofstream out(path);
+        out << R"(["CTP2-JSON", 1])";
+    }
+    CHECK_FALSE(json_save::LoadJson(path));
+    std::remove(path);
+}
+
+TEST_CASE("json_save: LoadJson rejects oversized player arrays")
+{
+    char const *path = "/tmp/ctp2_phase_a_too_many_players.json";
+    nlohmann::json doc = {
+        {"magic", json_save::MAGIC},
+        {"schema_version", json_save::SCHEMA_VERSION},
+        {"players", nlohmann::json::array()},
+    };
+    for (sint32 i = 0; i <= k_MAX_PLAYERS; ++i)
+        doc["players"].push_back({{"alive", false}});
+    {
+        std::ofstream out(path);
+        out << doc;
+    }
+    CHECK_FALSE(json_save::LoadJson(path));
+    std::remove(path);
+}
+
+TEST_CASE("json_save: LoadJson rejects oversized files before parsing")
+{
+    char const *path = "/tmp/ctp2_phase_a_oversized.json";
+    {
+        std::ofstream out(path, std::ios::binary);
+        out.seekp(128 * 1024 * 1024);
+        out.put('\n');
+    }
+    CHECK_FALSE(json_save::LoadJson(path));
+    std::remove(path);
 }
 
 // --- Phase B round-trip tests for the 4 top-level subtypes ---
@@ -486,16 +542,31 @@ TEST_CASE("json round-trip: Cell preserves scalar fields")
     CHECK(j2["cell_owner"]       == j["cell_owner"]);
 }
 
-TEST_CASE("json round-trip: Cell omits nested pointer-typed data by design")
+TEST_CASE("json round-trip: Cell preserves ruins and clears absent ruins")
+{
+    Cell cell;
+    nlohmann::json saved = cell;
+    saved["goody_hut"] = {{"value", 1234}, {"type_value", 5678}};
+    saved.get_to(cell);
+    REQUIRE(cell.GetGoodyHut() != nullptr);
+    CHECK(nlohmann::json(cell)["goody_hut"] == saved["goody_hut"]);
+
+    saved["goody_hut"] = nullptr;
+    saved.get_to(cell);
+    CHECK(cell.GetGoodyHut() == nullptr);
+    saved.erase("goody_hut");
+    saved.get_to(cell);
+    CHECK(cell.GetGoodyHut() == nullptr);
+}
+
+TEST_CASE("json round-trip: Cell omits transient nested data")
 {
     Cell c;
     nlohmann::json j = c;
-    // m_unit_army, m_objects, m_jabba are pointer-typed nested data
-    // that needs the contained types (CellUnitList, DynamicArray<ID>,
-    // GoodyHut) to be JSON-serialisable first — Phase D/E.
+    // Unit/object references are reconstructed separately; ruins persist.
     CHECK_FALSE(j.contains("unit_army"));
     CHECK_FALSE(j.contains("objects"));
-    CHECK_FALSE(j.contains("goody_hut"));
+    CHECK(j["goody_hut"].is_null());
     CHECK_FALSE(j.contains("jabba"));
 }
 
@@ -1519,11 +1590,13 @@ TEST_CASE("json round-trip: Threat preserves all 8 fields + nested ThreatData")
 TEST_CASE("json round-trip: Diplomat preserves persisted subset + nested lists")
 {
     Diplomat orig;
+    std::string const personality = g_thePersonalityDB
+        ? g_thePersonalityDB->Get(0)->GetNameText() : "Strategic";
     // Drive non-default via JSON since most public setters touch
     // player_Get() / database globals.
     nlohmann::json j{
         {"player_id",                        2},
-        {"personality_name",                 "Strategic"},
+        {"personality_name",                 personality},
         {"best_strategic_states",            nlohmann::json::array({
             nlohmann::json{{"priority", 1}, {"db_index", 10}, {"spy_str_id", -1},
                            {"advice_str_id", -1}, {"news_str_id", -1}},
@@ -1556,7 +1629,9 @@ TEST_CASE("json round-trip: Diplomat preserves persisted subset + nested lists")
     // Round-trip back through JSON.
     nlohmann::json j2 = orig;
     CHECK(j2["player_id"]                     == 2);
-    CHECK(j2["personality_name"]              == "Strategic");
+    CHECK(j2["personality_name"]              == personality);
+    if (g_thePersonalityDB)
+        CHECK(orig.GetPersonality() == g_thePersonalityDB->Get(0));
     CHECK(j2["best_strategic_states"].size()  == 2);
     CHECK(j2["threats"].size()                == 1);
     CHECK(j2["threats"][0]["detail"]["type"]  == static_cast<int>(THREAT_DESTROY_CITY));
@@ -1897,6 +1972,32 @@ TEST_CASE("json round-trip: Order deferred pointer fields are null in JSON")
     CHECK_FALSE(j.contains("m_index"));
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("json round-trip: default Order serializes a loadable event type")
+{
+    // The default ctor once left m_eventType uninitialised; reading the
+    // indeterminate enumerator is an invalid enum load and aborts under
+    // UBSan halt_on_error. GEV_MAX is the storable "no event" sentinel.
+    Order o;
+    nlohmann::json j = o;
+    CHECK(j["event_type"].get<sint32>() == GEV_MAX);
+    Order round;
+    j.get_to(round);
+    CHECK(round.m_eventType == GEV_MAX);
+}
+
+TEST_CASE("json load rejects out-of-range Order enum values")
+{
+    Order o;
+    nlohmann::json j = o;
+    nlohmann::json badEvent = j;
+    badEvent["event_type"] = 1 << 30;
+    Order round;
+    CHECK_THROWS_AS(badEvent.get_to(round), nlohmann::json::other_error);
+    nlohmann::json badOrder = j;
+    badOrder["order"] = -1;
+    CHECK_THROWS_AS(badOrder.get_to(round), nlohmann::json::other_error);
 }
 
 // Phase E-2 — CellUnitList tests
@@ -3409,7 +3510,7 @@ TEST_CASE("SlicSegment destructor is safe to call twice (pool teardown pattern)"
     // operator new (which routes through Pool<SlicSegment>) to the global
     // placement-new declared in <new>.
     alignas(SlicSegment) unsigned char storage[sizeof(SlicSegment)];
-    SlicSegment *seg = ::new (static_cast<void *>(storage)) SlicSegment();
+    SlicSegment *seg = ::new (storage) SlicSegment();
 
     // Populate vector members with heap-allocated buffers via the JSON path.
     nlohmann::json j = {
@@ -4089,4 +4190,30 @@ TEST_CASE("action_log carrier: Set with a non-array resets to empty (defensive)"
     action_log::Set(nlohmann::json("not an array"));
     CHECK(action_log::Count() == 0);
     CHECK(action_log::Get().is_array());
+}
+
+TEST_CASE("json_save: MapPoint rejects narrowing and fractional coordinates")
+{
+    for (auto value : {nlohmann::json(-32769), nlohmann::json(32768),
+                       nlohmann::json(UINT64_MAX), nlohmann::json(1.5)}) {
+        MapPoint point(2, 3);
+        auto j = nlohmann::json(point);
+        j["x"] = value;
+        CHECK_THROWS_AS(j.get_to(point), nlohmann::json::exception);
+        CHECK(point.x == 2);
+        CHECK(point.y == 3);
+    }
+}
+
+TEST_CASE("JSON file readers bound nesting before parsing map or manifest state")
+{
+    auto path = "/tmp/ctp2-nested-map-manifest.json";
+    { std::ofstream out(path); out << std::string(256, '[') << "0" << std::string(256, ']'); }
+    MapFile map;
+    CHECK_FALSE(map.Load(path));
+    ModernSpriteManifest manifest;
+    std::string error;
+    CHECK_FALSE(ModernSpriteManifestLoad(path, manifest, error));
+    CHECK(error.find("nesting") != std::string::npos);
+    std::remove(path);
 }

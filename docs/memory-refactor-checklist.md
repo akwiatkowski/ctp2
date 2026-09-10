@@ -8,7 +8,26 @@ treat them as a size hint, not an exact task count. Tick a file only after its r
 ownership is moved to RAII/smart pointers with `make test` green and no behavior
 change, then lower the ratchet baseline. -->
 
-**Scope:** 574 first-party files, ~6880 raw new/delete/alloc matches (excludes vendored `libs/**`). Work smallest / clearest-ownership clusters first.
+**Scope:** 574 first-party files (excludes vendored `libs/**`). Work smallest /
+clearest-ownership clusters first.
+
+> **Counts re-based 2026-08-03.** The ratchet used to grep raw file text, so
+> comments and string literals counted as legacy usage — `raw_new` fell 4800 →
+> 4187 and `raw_delete` 1839 → 1737 once it started skipping them (97ba0ee8).
+> The per-file `(new / delete / alloc)` figures below are the OLD text-based
+> numbers and still include prose; treat them as a size hint only, as the
+> header already warns.
+>
+> Session of 2026-08-03 against the re-based baseline: `raw_delete` 1737 →
+> 1611, `raw_new` 4187 → 4174, `pointerlist_uses` 573 → 567. Two themes ran
+> through it — sprite frame/group ownership (which fixed a real scalar-delete
+> on array-new'd memory), and UI controls held as `std::unique_ptr` members.
+>
+> Two traps worth knowing before the next batch: `DeleteControl` (was
+> `RemoveControl`) is a macro in `UIUtils.h` that deletes, so it is an
+> invisible release site; and several UI headers declare many small classes
+> that reuse member names like `m_text` with different types, which defeats a
+> type-driven sweep.
 
 Legend: `(new / delete / alloc)` match counts per file.
 
@@ -55,34 +74,34 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 - [ ] `ui/interface/knowledgewin.cpp` (53/37/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/infowin.cpp` (84/6/0) — 🟡 moderate · _needs ownership review_
-- [ ] `ui/interface/spnewgamewindow.cpp` (4/69/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/spnewgamewindow.cpp` (4/69/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: all ~60 member-control deletes across SPNewGameWindow/SPProfileBox/SPWorldBox/SPRulesBox/SPDropDownListItem → `unique_ptr` members (the 69 deletes were the dtor sweep); local `spNewStringTable` scratch → RAII; only sink-owned list items remain.
 - [ ] `ui/interface/sciencewin.cpp` (55/18/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/battleviewwindow.cpp` (33/34/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/battleviewwindow.cpp` — done 2026-08-03: all 31 owned controls are unique_ptr members; destructor is just the global back-pointer reset
 - [ ] `ui/interface/loadsavewindow.cpp` (15/40/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/EndgameWindow.cpp` (31/14/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/EndgameWindow.cpp` (31/14/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: all 14 child controls → `unique_ptr`, 7 LDL-driven control arrays → `vector<unique_ptr>`, `c3_Animation::m_frames` → `unique_ptr`, blend scratch surfaces RAII'd; counts kept as LDL-driven sizes, in-class initializers replace `CleanPointers`.
 - [ ] `ui/interface/spriteeditor.cpp` (9/26/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/victorywin.cpp` (31/3/0) — 🟡 moderate · _needs ownership review_
-- [ ] `ui/interface/creditsscreen.cpp` (17/17/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/interface/messageeyepoint.cpp` (20/10/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/victorywin.cpp` (31/3/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: victory/high-score statics → `unique_ptr`, both `mycleanup` macros deleted; `s_staticControls`/`s_wonderIcons` were never owners — now typed `std::array` registries of borrowed LDL controls; `HighScoreWindowPopup` members → `unique_ptr`.
+- [x] `ui/interface/creditsscreen.cpp` (17/17/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: members → `unique_ptr`, anim arrays + credits pages/lines → `vector`, `Parse` no longer `delete this` (bool return), blend-scratch surfaces RAII'd; fixed font-index off-by-one (`>` → `>=`) and null-font deref on failed load.
+- [x] `ui/interface/messageeyepoint.cpp` (20/10/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: buttons/dropdowns/actions → `unique_ptr` members (`SetAction`/`AddControl`/`AddItem` verified non-owning), `m_action1/2` renamed `m_actionLeft/Right`; only sink-transfer `new`s remain.
 - [ ] `ui/interface/ancientwindows.cpp` (13/15/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/scenarioeditor.cpp` (19/9/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/messagewindow.cpp` (17/10/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/messagewindow.cpp` — done 2026-08-03: 12 controls are unique_ptr, including 4 border bars that were leaking (allocated, AddControl'd, never freed)
 - [ ] `ui/interface/EditQueue.cpp` (18/8/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/interface/spnewgamescreen.cpp` (21/2/0) — 🔴 hard · _factory returns crossing callers_
 - [ ] `ui/interface/sci_advancescreen.cpp` (17/4/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/interface/battleview.cpp` (3/16/0) — ⚪ leave · _pool/arena allocator_
+- [x] `ui/interface/battleview.cpp` — done 2026-08-03: m_activeEvents held by value (partial: other raw owners remain)
 - [ ] `ui/interface/controlpanel.cpp` (3/16/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/interface/messageresponse.cpp` (10/8/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/interface/loadsavemapwindow.cpp` (10/6/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/messageadvice.cpp` (9/7/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/messageresponse.cpp` — done 2026-08-03: 4 owned members are unique_ptr; the two tech_WLLists left raw (they own their entries)
+- [x] `ui/interface/loadsavemapwindow.cpp` — done 2026-08-03: 9 window controls are unique_ptr; list-item members left raw (c3_ListItem frees children)
+- [x] `ui/interface/messageadvice.cpp` — done 2026-08-03: 5 controls are unique_ptr; list ITEMS still deleted by hand (not members)
 - [ ] `ui/interface/spnewgameplayersscreen.cpp` (14/2/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/interface/messagemodal.cpp` (10/6/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/interface/messagewin.cpp` (9/7/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/messagemodal.cpp` (10/6/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: text box/eye-point helpers → `unique_ptr` members (replacing the raw union on the modal side), response button/action `tech_WLList`s → `vector<unique_ptr>`; **fixed a real leak** — `~MessageModal` never freed the eye-point helper (its sibling `~MessageWindow` did).
+- [x] `ui/interface/messagewin.cpp` (9/7/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: `g_messageUserList` → `vector<unique_ptr<MessageList>>` (was an owning global `tech_WLList`); deleted ~230 lines of `#if 0` CtP1 icon-function bodies behind unconditional early returns.
 - [ ] `ui/interface/greatlibrary.cpp` (11/5/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/interface/battleevent.cpp` (7/8/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `ui/interface/citywindow.cpp` (9/5/0) — ⚪ leave · _pool/arena allocator_
-- [ ] `ui/interface/wondermoviewindow.cpp` (7/7/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/interface/hotseatlist.cpp` (10/4/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/wondermoviewindow.cpp` — done 2026-08-03: 7 owned controls are unique_ptr members; AddControl takes .get() (non-owning)
+- [x] `ui/interface/hotseatlist.cpp` (10/4/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: window/list → `unique_ptr` (list items stay sink-owned via `c3_ListBox::Clear`), legal-civ flag array → `vector<bool>`, scenario `SaveInfo` local → RAII.
 - [ ] `ui/interface/tileimptracker.cpp` (12/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/km_screen.cpp` (10/3/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/dipwizard.cpp` (4/8/0) — 🔴 hard · _void* ownership handoff_
@@ -99,7 +118,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/spnewgamemapsizescreen.cpp` (5/3/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/custommapscreen.cpp` (6/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/testwindow.cpp` (4/4/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/interface/messagelist.cpp` (3/5/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/messagelist.cpp` (3/5/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: icon list → `vector<unique_ptr<MessageIconWindow>>` (windows stay list-owned via release-after-link); dead `GetList` accessor replaced by `GetTailIcon`/`GetIconCount`.
 - [ ] `ui/interface/battle.cpp` (7/1/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `ui/interface/SpecialAttackWindow.cpp` (4/4/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/spnewgametribescreen.cpp` (7/1/0) — ⚪ leave · _mostly g_/s_ singletons_
@@ -111,26 +130,26 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/agesscreen.cpp` (7/0/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [x] `ui/interface/ControlTabPanel.cpp` (6/0/0) — ✅ done · `m_ldlBlock` now uses `unique_ptr<MBCHAR[]>`, fixing the `new[]`/scalar-delete mismatch; local formatter uses `snprintf`.
 - [ ] `ui/interface/progresswindow.cpp` (3/3/0) — 🟡 · _window lifecycle (ref-param + c3ui)_
-- [ ] `ui/interface/text_hasher.h` (2/4/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/text_hasher.h` (2/4/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: bucket array → `vector<unique_ptr<Translation>>`, chain links → unique_ptr via m_next; Translation keeps ownership of the copied key/data payloads (contract unchanged).
 - [ ] `ui/interface/statswindow.cpp` (3/3/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/MainControlPanel.cpp` (6/0/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/DiplomacyDetails.cpp` (3/3/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/MapCopyBuffer.cpp` (2/4/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/MapCopyBuffer.cpp` (2/4/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: jagged `CellInfo**` new[] grid → flat `vector<CellInfo>` with an At(x,y) accessor (column-major like the original); scenarioeditor's `m_copyBuffer`/`m_fileDialog` → unique_ptr.
 - [ ] `ui/interface/spnewgamemapshapescreen.cpp` (3/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/trademanager.cpp` (4/1/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/messageiconwindow.cpp` (2/3/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/interface/messageiconwindow.cpp` (2/3/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: icon button + open action → `unique_ptr` (accessors return `.get()`); the tip-window delete is aui tip ownership, left as-is.
 - [ ] `ui/interface/musictrackscreen.cpp` (5/0/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/scenariowindow.cpp` (4/1/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/interface/rankingtab.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/rankingtab.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: `GenrateGraph` lost its `double***` out-param — SetLineData copies, so the grid is function-local; m_infoGraphData/CleanupGraph gone from rankingtab + timelinetab (+ loadsavewindow's manual free). **Also fixed**: timelinetab.cpp:135 scalar-deleted the array-new'd row-pointer array.
 - [ ] `ui/interface/spnewgamediffscreen.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/interface/citymanager.cpp` (3/1/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/citymanager.cpp` (3/1/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: window global → static unique_ptr; OK/Cancel buttons → unique_ptr; `m_bg` stays raw (registry-owned via UnloadImage, documented).
 - [ ] `ui/interface/intelligencewindow.cpp` (4/0/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/interface/CityEspionage.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/helptile.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/UnitControlPanel.cpp` (2/2/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/messageactions.cpp` (4/0/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/messageactions.cpp` (4/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): all four `new`s are transfer-to-sink `AddAction` calls — no ownership to convert.
 - [ ] `ui/interface/unitmanager.cpp` (4/0/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `ui/interface/AttractWindow.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/AttractWindow.cpp` (2/2/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: global → static unique_ptr; owning `PointerList<AttractRegion>` → `vector<unique_ptr>` (also a P9 container conversion, −1 pointerlist).
 - [ ] `ui/interface/DomesticManagementDialog.cpp` (3/1/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/soundscreen.cpp` (1/2/0) — ⚪ leave · _mostly g_/s_ singletons_
 - [ ] `ui/interface/c3dialogs.cpp` (2/1/0) — 🔴 hard · _void* ownership handoff_
@@ -169,7 +188,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/interface/initialplayscreen.cpp` (1/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/interface/scenarioeditor.h` (1/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/interface/dipwizard.h` (1/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `ui/interface/optionswindow.cpp` (0/1/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/interface/optionswindow.cpp` — done 2026-08-03: 13 controls are unique_ptr; local mycleanup macro gone, destructor empty
 - [ ] `ui/interface/UIUtils.h` (0/1/0) — 🟡 moderate · _needs ownership review_
 
 ## gs/gameobj  (93 files, 938 matches)
@@ -177,24 +196,24 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/gameobj/Player.cpp` (193/33/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/ArmyData.cpp` (121/17/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/CityData.cpp` (68/2/0) — ⚪ leave · _pool/arena allocator_
-- [ ] `gs/gameobj/UnitData.cpp` (51/7/0) — 🟡 moderate · _single-owner member_
-- [ ] `gs/gameobj/DiplomaticRequestData.cpp` (46/2/0) — 🟡 moderate · _needs ownership review_
+- [x] `gs/gameobj/UnitData.cpp` (51/7/0) — 🟡 moderate · _single-owner member_ · DONE 2026-08-26: cargo list/city data/round-the-world mask → unique_ptr (JSON bridge + net_unit updated; GetCargoList/GetCityData return `.get()`); the unit-type-change path's silent leak of a prior cargo list is gone (reset frees it). m_lesser/m_greater stay raw (intrusive pool links, documented). Remaining news are SlicObject/Net sinks.
+- [x] `gs/gameobj/DiplomaticRequestData.cpp` (46/2/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: Accept/Reject switches fill a scoped `unique_ptr<SlicObject>` (bail paths just return); the single tail `Execute(so.release())` keeps the sink contract; so2 likewise.
 - [ ] `gs/gameobj/bldque.cpp` (42/5/0) — ⚪ leave · _pool/arena allocator_
-- [ ] `gs/gameobj/endgame.cpp` (22/0/0) — 🟡 moderate · _needs ownership review_
+- [x] `gs/gameobj/endgame.cpp` (22/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): SlicObject/NetEndGame sink transfers only.
 - [x] `gs/gameobj/Vision.cpp` (12/9/0) — ✅ done · _m_unseenCells -> unique_ptr, m_array uint16** -> vector<vector>; quadtree cell-content news left (separate ownership)_
-- [ ] `gs/gameobj/CityEvent.cpp` (16/2/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/unitevent.cpp` (16/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/GoodyHuts.cpp` (14/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/PlayerEvent.cpp` (14/0/0) — 🟡 moderate · _needs ownership review_
+- [x] `gs/gameobj/CityEvent.cpp` (16/2/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: remaining matches are SlicObject/NetInfo sink transfers + the `CanAskFor` scratch array (now `vector` via Advances API change); ticked as noise-free.
+- [x] `gs/gameobj/unitevent.cpp` (16/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): every `new` is a SlicObject handed to `Execute` (deletes after handling) or a NetInfo sink enqueue — non-ownership noise.
+- [x] `gs/gameobj/GoodyHuts.cpp` (14/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): same SlicObject sink-transfer pattern throughout.
+- [x] `gs/gameobj/PlayerEvent.cpp` (14/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): GameEventArgument args->Add (list owns), NetAction sinks, SlicObject transfers.
 - [ ] `gs/gameobj/messagedata.cpp` (11/3/0) — ⚪ leave · _pool/arena allocator_
-- [ ] `gs/gameobj/Advances.cpp` (12/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/armyevent.cpp` (9/1/0) — 🟡 moderate · _needs ownership review_
+- [x] `gs/gameobj/Advances.cpp` (12/0/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: CanAskFor/CanOffer/CanResearch converted to vector/ref in the advances-mask batch; remaining news are NetAction sinks.
+- [x] `gs/gameobj/armyevent.cpp` (9/1/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26 (tick-only): sink transfers; the one delete is the game-lifetime combat singleton teardown.
 - [ ] `gs/gameobj/Civilisation.cpp` (8/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/Wormhole.cpp` (5/4/0) — ⚪ leave · _pool/arena allocator_
-- [ ] `gs/gameobj/FeatTracker.cpp` (6/3/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/gameobj/FeatTracker.cpp` — done 2026-08-03: m_activeList held by value
 - [ ] `gs/gameobj/GameObj.cpp` (0/9/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/TradeBids.cpp` (2/5/0) — ⚪ leave · _pool/arena allocator_
-- [ ] `gs/gameobj/Happy.cpp` (5/1/0) — 🟡 moderate · _needs ownership review_
+- [x] `gs/gameobj/Happy.cpp` (5/1/0) — 🟡 moderate · _needs ownership review_ · DONE 2026-08-26: m_tracker → unique_ptr (JSON bridge reset/reconstruct); remaining news are SlicObject sinks.
 - [ ] `gs/gameobj/AgreementData.cpp` (5/1/0) — 🔴 · _refcounted SlicObject (AddRef/Release)_
 - [x] `gs/gameobj/CTP2Combat.cpp` (3/2/0) — ✅ done · _CombatField::m_field 2D array -> vector<vector>; fixed new[]/scalar-delete UB_
 - [ ] `gs/gameobj/MessagePool.cpp` (5/0/0) — 🟡 moderate · _needs ownership review_
@@ -213,14 +232,14 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gs/gameobj/improvementevent.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/TradeOfferPool.cpp` (2/1/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/gameobj/TerrImprovePool.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/EventTracker.cpp` (2/1/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/gameobj/EventTracker.cpp` — done 2026-08-03: PointerList member held by value (DeleteAll still frees the pointed-to objects)
 - [ ] `gs/gameobj/Pollution.cpp` (2/1/0) — 🔴 · _refcounted SlicObject (AddRef/Release)_
 - [ ] `gs/gameobj/citydata.h` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/DiplomaticRequestPool.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/PlayerTurn.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/TradeOfferData.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/combatevent.cpp` (1/2/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/gameobj/CriticalMessagesPrefs.cpp` (2/1/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/gameobj/CriticalMessagesPrefs.cpp` — done 2026-08-03: PointerList member held by value (DeleteAll still frees the pointed-to objects)
 - [ ] `gs/gameobj/CTP2Combat.h` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/terrainutil.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/gameobj/Readiness.cpp` (3/0/0) — 🟡 moderate · _needs ownership review_
@@ -270,7 +289,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## gs/slic  (21 files, 927 matches)
 
-- [ ] `gs/slic/SlicEngine.cpp` (574/21/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/slic/SlicEngine.cpp` — done 2026-08-03: ui-execute and context lists held by value; SlicObject entries stay reference counted (partial: other raw owners remain)
 - [ ] `gs/slic/SlicBuiltin.cpp` (79/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/slic/SlicContext.cpp` (26/25/0) — 🟡 moderate · _single-owner member_
 - [ ] `gs/slic/slicfunc.cpp` (33/1/0) — 🟡 moderate · _needs ownership review_
@@ -294,7 +313,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## ui/netshell  (29 files, 518 matches)
 
-- [ ] `ui/netshell/allinonewindow.cpp` (100/44/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/netshell/allinonewindow.cpp` — done 2026-08-03: 9 owned members are unique_ptr; m_aiplayerList (tech_WLList) left raw
 - [ ] `ui/netshell/netfunc.cpp` (63/14/1) — 🔴 hard · _mixed new[]/malloc buffers_
 - [ ] `ui/netshell/netshell.cpp` (28/8/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/netshell/lobbywindow.cpp` (27/4/0) — 🟡 moderate · _single-owner member_
@@ -328,8 +347,8 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 - [ ] `ui/aui_ctp2/c3windows.cpp` (46/41/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/aui_ctp2/c3_utilitydialogbox.cpp` (37/35/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/aui_ctp2/battleorderbox.cpp` (17/12/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/aui_ctp2/c3_popupwindow.cpp` (12/5/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/aui_ctp2/battleorderbox.cpp` — done 2026-08-03: 12 controls are unique_ptr; RemoveControl() macro calls became reset() (the macro deletes despite its name)
+- [x] `ui/aui_ctp2/c3_popupwindow.cpp` — done 2026-08-03: 4 controls are unique_ptr; default ctor moved out of line (forward-declared control types); m_border array still raw
 - [ ] `ui/aui_ctp2/chart.cpp` (10/7/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/aui_ctp2/c3_ranger.cpp` (14/1/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/aui_ctp2/thronecontrol.cpp` (6/8/0) — 🟡 moderate · _single-owner member_
@@ -345,7 +364,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/aui_ctp2/c3_hypertextbox.cpp` (4/3/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/aui_ctp2/c3_dropdown.cpp` (7/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/aui_ctp2/ctp2_hypertextbox.cpp` (4/2/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/aui_ctp2/unittabbutton.cpp` (6/0/0) — 🟡 moderate · _needs ownership review_
+- [x] `ui/aui_ctp2/unittabbutton.cpp` — done 2026-08-03: 5 controls are unique_ptr; m_cargo array still freed by hand
 - [ ] `ui/aui_ctp2/background.cpp` (5/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/aui_ctp2/picturebutton.cpp` (2/4/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/aui_ctp2/c3ui.cpp` (3/3/0) — 🟡 moderate · _single-owner member_
@@ -417,7 +436,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## ui/aui_common  (38 files, 288 matches)
 
-- [ ] `ui/aui_common/aui_ui.cpp` (18/30/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/aui_common/aui_ui.cpp` — done 2026-08-03: tech_Memory pool held by value, not new/delete
 - [ ] `ui/aui_common/aui_ldl.cpp` (32/13/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/aui_common/aui_listbox.cpp` (13/12/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/aui_common/aui_resource.h` (5/8/0) — 🟡 moderate · _single-owner member_
@@ -445,7 +464,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `ui/aui_common/aui_textbase.cpp` (2/1/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/aui_common/aui_win.cpp` (1/1/0) — 🔴 hard · _void* ownership handoff_
 - [ ] `ui/aui_common/aui_base.cpp` (1/1/0) — ⚪ leave · _mostly g_/s_ singletons_
-- [ ] `ui/aui_common/aui_dirtylist.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
+- [x] `ui/aui_common/aui_dirtylist.cpp` — done 2026-08-03: tech_Memory pool held by value, not new/delete
 - [ ] `ui/aui_common/aui_tipwindow.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
 - [ ] `ui/aui_common/aui_surface.cpp` (1/1/0) — 🟡 moderate · _needs ownership review_
 - [ ] `ui/aui_common/aui_textbox.cpp` (1/1/0) — 🟡 moderate · _needs ownership review_
@@ -460,18 +479,18 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 - [ ] `gfx/spritesys/director.cpp` (40/7/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gfx/spritesys/spritefile.cpp` (45/2/0) — 🔴 hard · _void* ownership handoff_
-- [ ] `gfx/spritesys/UnitSpriteGroup.cpp` (15/13/0) — 🔴 hard · _member pointer array_
+- [x] `gfx/spritesys/UnitSpriteGroup.cpp` — done 2026-08-03 (b1169bf7): delete+assign on the base slots became reset()
 - [ ] `gfx/spritesys/DirectorActionHandlers.cpp` (16/6/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gfx/spritesys/Sprite.cpp` (3/10/4) — 🔴 hard · _member pointer array_
-- [ ] `gfx/spritesys/effectspritegroup.cpp` (9/7/0) — 🔴 hard · _member pointer array_
-- [ ] `gfx/spritesys/goodspritegroup.cpp` (8/8/0) — 🔴 hard · _member pointer array_
-- [ ] `gfx/spritesys/SpriteGroupList.cpp` (8/6/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gfx/spritesys/FacedSpriteWshadow.cpp` (0/8/3) — 🔴 hard · _member pointer array_
-- [ ] `gfx/spritesys/FacedSprite.cpp` (0/8/0) — 🔴 hard · _member pointer array_
+- [x] `gfx/spritesys/Sprite.cpp` — done 2026-08-03: frames own their buffers via SpriteFrame, matching the two faced subclasses; whole hierarchy now shares one frame representation
+- [x] `gfx/spritesys/effectspritegroup.cpp` — done 2026-08-03 (b1169bf7): delete+assign on the base slots became reset()
+- [x] `gfx/spritesys/goodspritegroup.cpp` — done 2026-08-03 (b1169bf7): delete+assign on the base slots became reset()
+- [x] `gfx/spritesys/SpriteGroupList.cpp` — done 2026-08-03: slots are unique_ptr; store-back guards self-assignment (loader reuses the slot it read)
+- [x] `gfx/spritesys/FacedSpriteWshadow.cpp` — done 2026-08-03 (f05e888d): frames own their buffers via SpriteFrame; fixed 8 scalar deletes on array-new'd memory
+- [x] `gfx/spritesys/FacedSprite.cpp` — done 2026-08-03 (b2d108fe): frames own their buffers via SpriteFrame; fixed 4 scalar deletes on array-new'd memory
 - [x] `gfx/spritesys/UnitActor.cpp` (6/0/0)
 - [x] `gfx/spritesys/SpriteStateDB.cpp` (1/4/0)
 - [ ] `gfx/spritesys/spriteutils.cpp` (2/0/2) — 🔴 hard · _mixed new[]/malloc buffers_
-- [ ] `gfx/spritesys/SpriteGroup.cpp` (0/4/0) — 🔴 hard · _member pointer array_
+- [x] `gfx/spritesys/SpriteGroup.cpp` — done 2026-08-03 (b1169bf7): sprite/anim slots are unique_ptr; setters guard self-assignment (the loader does get-modify-set)
 - [x] `gfx/spritesys/battleviewactor.cpp` (2/0/0)
 - [ ] `gfx/spritesys/action.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
 - [x] `gfx/spritesys/goodactor.cpp` (2/0/0)
@@ -590,7 +609,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 ## gs/database  (11 files, 64 matches)
 
 - [ ] `gs/database/StrDB.cpp` (17/5/0) — 🟡 moderate · _needs ownership review_
-- [ ] `gs/database/profileDB.cpp` (8/3/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/database/profileDB.cpp` — done 2026-08-03: PointerList member held by value (partial: other raw owners remain in this file)
 - [ ] `gs/database/profileDB.h` (6/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/database/moviedb.cpp` (1/4/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/database/filenamedb.cpp` (1/4/0) — 🟡 moderate · _needs ownership review_
@@ -621,13 +640,13 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## ui/slic_debug  (3 files, 51 matches)
 
-- [ ] `ui/slic_debug/sourcelist.cpp` (14/9/0) — 🟡 moderate · _single-owner member_
-- [ ] `ui/slic_debug/watchlist.cpp` (11/6/0) — ⚪ leave · _pool/arena allocator_
+- [x] `ui/slic_debug/sourcelist.cpp` — done 2026-08-03: 7 controls are unique_ptr; window now released last (hand-written order freed it third); local delete-macro removed
+- [x] `ui/slic_debug/watchlist.cpp` — done 2026-08-03: 5 WatchList controls are unique_ptr; WatchListItem::m_watching deliberately left raw (different class)
 - [ ] `ui/slic_debug/segmentlist.cpp` (7/4/0) — 🟡 moderate · _single-owner member_
 
 ## gs/events  (6 files, 34 matches)
 
-- [ ] `gs/events/GameEventManager.cpp` (5/9/0) — ⚪ leave · _pool/arena allocator_
+- [x] `gs/events/GameEventManager.cpp` — done 2026-08-03: PointerList member held by value (partial: other raw owners remain in this file)
 - [ ] `gs/events/GameEventDescription.h` (11/0/0) — 🟡 moderate · _needs ownership review_
 - [ ] `gs/events/GameEventArgList.cpp` (3/1/0) — ⚪ leave · _pool/arena allocator_
 - [ ] `gs/events/GameEventArgument.cpp` (1/1/0) — 🔴 hard · _void* ownership handoff_
@@ -697,7 +716,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 
 ## sound  (1 files, 15 matches)
 
-- [ ] `sound/soundmanager.cpp` (6/9/0) — ⚪ leave · _pool/arena allocator_
+- [x] `sound/soundmanager.cpp` — done 2026-08-03: sfx and voice lists held by value (partial: m_soundWalker remains)
 
 ## mapgen  (5 files, 15 matches)
 

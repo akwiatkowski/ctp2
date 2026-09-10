@@ -39,6 +39,7 @@
 //----------------------------------------------------------------------------
 
 #include <list>     // std::list
+#include <memory>
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -133,7 +134,8 @@ class Happy
 //----------------------------------------------------------------------------
 
 		std::list<HappyTimer>   m_timedChanges;
-		HappyTracker *          m_tracker;
+		// Owned; GetHappyTracker() hands out a non-owning pointer.
+		std::unique_ptr<HappyTracker> m_tracker;
 
 		friend class NetHappy;
 
@@ -219,7 +221,7 @@ class Happy
 
 		void ForceRevolt();
 		void CountAffectivePop(CityData &cd);
-		HappyTracker *GetHappyTracker() { return m_tracker; }
+		HappyTracker *GetHappyTracker() { return m_tracker.get(); }
 		void Copy(Happy *copy);
 	};
 

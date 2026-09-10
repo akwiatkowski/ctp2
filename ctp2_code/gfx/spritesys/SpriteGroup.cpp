@@ -50,18 +50,12 @@ SpriteGroup::SpriteGroup(GROUPTYPE type)
     m_hasDeath          (false),
     m_hasDirectional    (false)
 {
-    std::fill(m_sprites, m_sprites + ACTION_MAX, (Sprite *) nullptr);
-    std::fill(m_anims, m_anims + ACTION_MAX, (Anim *) nullptr);
+    // m_sprites / m_anims default-construct empty.
 }
 
-SpriteGroup::~SpriteGroup()
-{
-    for (int i = 0; i < ACTION_MAX; ++i)
-    {
-        delete m_anims[i];
-        delete m_sprites[i];
-    }
-}
+// Defined here rather than in the header so Sprite and Anim are complete types
+// where the unique_ptr destructors are instantiated.
+SpriteGroup::~SpriteGroup() = default;
 
 
 size_t SpriteGroup::GetNumFrames(GAME_ACTION action) const
@@ -76,8 +70,7 @@ void SpriteGroup::DeallocateStorage()
 {
     for (int i = ACTION_0; i < ACTION_MAX; i++)
     {
-        delete m_sprites[i];
-        m_sprites[i] = nullptr;
+        m_sprites[i].reset();
     }
 }
 
@@ -85,8 +78,7 @@ void SpriteGroup::DeallocateFullLoadAnims()
 {
     for (int i = ACTION_0; i < ACTION_MAX; i++)
     {
-        delete m_anims[i];
-        m_anims[i] = nullptr;
+        m_anims[i].reset();
     }
 }
 

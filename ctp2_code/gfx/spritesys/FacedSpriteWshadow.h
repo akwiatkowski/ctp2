@@ -126,15 +126,14 @@ public:
 	void	SetNumFrames(uint16 num) override    { m_shadowFrameCount = num; }
 
 protected:
-	std::vector<Pixel16*>	m_frames[k_NUM_FACINGS];
-	std::vector<size_t>		m_framesSizes[k_NUM_FACINGS];
-	std::vector<Pixel16*>	m_miniframes[k_NUM_FACINGS];
-	std::vector<size_t>		m_miniframesSizes[k_NUM_FACINGS];
+	// One frame list per facing, in four variants: full/mini x image/shadow.
+	// SpriteFrame carries its own size and releases its own buffer, so these
+	// need no teardown pass — see the note on SpriteFrame in Sprite.h.
+	std::vector<SpriteFrame>	m_frames[k_NUM_FACINGS];
+	std::vector<SpriteFrame>	m_miniframes[k_NUM_FACINGS];
 
-	std::vector<Pixel16*>	m_shadowFrames[k_NUM_FACINGS];
-	std::vector<size_t>		m_shadowFramesSizes[k_NUM_FACINGS];
-	std::vector<Pixel16*>	m_miniShadowFrames[k_NUM_FACINGS];
-	std::vector<size_t>		m_miniShadowFramesSizes[k_NUM_FACINGS];
+	std::vector<SpriteFrame>	m_shadowFrames[k_NUM_FACINGS];
+	std::vector<SpriteFrame>	m_miniShadowFrames[k_NUM_FACINGS];
 
 	uint16			m_hasShadow;
 

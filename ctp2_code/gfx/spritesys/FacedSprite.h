@@ -105,12 +105,12 @@ public:
 	void	SetNumFrames(uint16 num) override    { m_facedFrameCount = num; }
 
 protected:
-	std::vector<Pixel16*>	m_frames[k_NUM_FACINGS];
-	std::vector<size_t>		m_framesSizes[k_NUM_FACINGS];
-	std::vector<Pixel16*>	m_miniframes[k_NUM_FACINGS];
-	std::vector<size_t>		m_miniframesSizes[k_NUM_FACINGS];
+	// One frame list per facing. SpriteFrame owns its buffer, so these need no
+	// destructor pass of their own — see the note on SpriteFrame in Sprite.h.
+	std::vector<SpriteFrame>	m_frames[k_NUM_FACINGS];
+	std::vector<SpriteFrame>	m_miniframes[k_NUM_FACINGS];
 	POINT			m_hotPoints[k_NUM_FACINGS];
-    size_t          m_facedFrameCount;          // number of valid entries per facing in the Pixel16 ** variables
+    size_t          m_facedFrameCount;          // valid entries per facing in m_frames / m_miniframes
 };
 
 #endif

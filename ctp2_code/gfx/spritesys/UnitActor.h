@@ -110,6 +110,8 @@ class UnitActor : public Actor {
   void SetSize(sint32 size) { m_size = size; }
   sint32 GetSize() const { return m_size; }
 
+  // Only the render-tool command exposes fixed poses; ordinary actors keep animating.
+  int SetRenderPose(int action, int frame, int facing, int opacity, bool fogged);
   void Process() override;
   void DumpAllActions();
   void EndTurnProcess();
@@ -144,6 +146,8 @@ class UnitActor : public Actor {
   void DrawText(sint32 x, sint32 y, MBCHAR* unitText);
 
   void DrawDirect(aui_Surface* surf, sint32 x, sint32 y, double scale);
+  bool AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged = false);
+  char const *GpuSpriteFallbackReason() const { return m_gpuSpriteFallbackReason; }
 
   bool IsAnimating() const;
 
@@ -303,7 +307,10 @@ class UnitActor : public Actor {
   sint32 m_facing;
   sint32 m_lastMoveFacing;
   sint32 m_frame;
+  bool m_renderPose = false;
+  bool m_renderFogged = false;
   uint16 m_transparency;
+  char const *m_gpuSpriteFallbackReason = nullptr;
 
   UNITACTION m_curUnitAction;
 

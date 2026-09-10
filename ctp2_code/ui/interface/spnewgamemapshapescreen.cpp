@@ -278,7 +278,7 @@ void spnewgamemapshapescreen_Cleanup()
 		}
 		MapShapeSelector().swap(s_checkBox);
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; }
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 		mycleanup(s_group);
 		mycleanup(s_ewLabel);//Earth like world: East-West wrap world
 		mycleanup(s_dwLabel);//Doughnut world

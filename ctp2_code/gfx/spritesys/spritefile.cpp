@@ -42,6 +42,9 @@
 #include "ctp/ctp2_utils/c3files.h"
 #include "ctp/ctp2_utils/c3errors.h"
 
+#include <array>
+#include <filesystem>
+#include <stdexcept>
 #include "gfx/spritesys/Sprite.h"
 #include "gfx/spritesys/FacedSprite.h"
 #include "gfx/spritesys/FacedSpriteWshadow.h"
@@ -113,7 +116,7 @@ void SpriteFile::WriteSpriteData(Sprite *s)
 		spriteutils_ConvertPixelFormatForFile(s->GetFrameData(i), s->GetWidth(), s->GetHeight(), s->GetFrameDataSize(i));
 
 		size_t          size            = s->GetFrameDataSize(i);
-		uint8 *         CompressedData  = CompressData((void *)s->GetFrameData(i), size);
+		uint8 *         CompressedData  = CompressData(s->GetFrameData(i), size);
         size_t const    compressed_size = size;
 
 	    if (m_version>k_SPRITEFILE_VERSION1)
@@ -184,7 +187,7 @@ void SpriteFile::WriteFacedSpriteData(FacedSprite *s)
 												s->GetWidth(), s->GetHeight(), normal_ssizes[j][i]);
 
 			size_t  size            = normal_ssizes[j][i];
-		    uint8 * CompressedData  = CompressData((void *)s->GetFrameData(j,i),size);
+		    uint8 * CompressedData  = CompressData(s->GetFrameData(j,i),size);
 			size_t  compressed_size = size;
 
 			if(m_version>k_SPRITEFILE_VERSION1)
@@ -358,546 +361,164 @@ void SpriteFile::WriteAnimData(Anim *a)
 
 
 
-void SpriteFile::ReadSpriteDataBasic(Sprite *s)
+namespace {
+constexpr size_t kMaxSpriteBytes = 128 * 1024 * 1024;
+constexpr size_t kMaxFrameBytes = 64 * 1024 * 1024;
+constexpr uint16 kMaxSpriteFrames = 800; // Legacy size-table capacity.
+
+void RequireSprite(bool condition, char const *message)
 {
-	uint16		data16;
-	ReadData(&data16, sizeof(data16));
-	s->SetWidth(data16);
-
-	ReadData(&data16, sizeof(data16));
-	s->SetHeight(data16);
-
-	uint32		data32;
-	ReadData(&data32, sizeof(data32));
-	sint32 x = (sint32)data32;
-
-	ReadData(&data32, sizeof(data32));
-	sint32 y = (sint32)data32;
-	s->SetHotPoint(x, y);
-
-	ReadData(&data16, sizeof(data16));
-	s->SetFirstFrame(data16);
-
-	ReadData(&data16, sizeof(data16));
-	s->AllocateFrameArrays(data16);
-
-
-	if (s->GetNumFrames() > 800) {
-		Assert(s->GetNumFrames() <= 800);
-		return;
-	}
-	uint32		ssizes[800];
-	ReadData((uint8 *)ssizes, sizeof(uint32) * s->GetNumFrames());
-
-	uint32		msizes[800];
-	ReadData((uint8 *)msizes, sizeof(uint32) * s->GetNumFrames());
-
-	uint32  size            = ssizes[0];
-	std::vector<uint8> compressed(size);
-
-	uint32	actual_size;
-	if(m_version>k_SPRITEFILE_VERSION1)
-		ReadData(&actual_size,sizeof(uint32));
-	else
-		actual_size = size;
-
-	ReadData((void *)compressed.data(), size);
-
-	Pixel16	*   ActualData = (Pixel16 *) DeCompressData(compressed.data(),size,actual_size);
-	// compressed buffer freed automatically at scope exit; ActualData
-	// is owned by `s` after SetFrameData below.
-
-	spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth(), s->GetHeight(), actual_size);
-
-	s->SetFrameData(0, ActualData, actual_size);
-
-	uint16		i;
-	for (i=1; i<s->GetNumFrames(); i++)
-	{
-		size = ssizes[i];
-
-	    if(m_version>k_SPRITEFILE_VERSION1)
-		  size += sizeof(size);
-
-		SetFilePos(GetFilePos() + size);
-	}
-
-	size        = msizes[0];
-	// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
-	ActualData  = (Pixel16 *)new uint8[size];
-	ReadData((void *)ActualData, size);
-
-	spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth()/2, s->GetHeight()/2, size);
-
-	s->SetMiniFrameData(0, ActualData, size);
-
-	for (i=1; i<s->GetNumFrames(); i++)
-	{
-		size = msizes[i];
-		SetFilePos(GetFilePos() + size);
-	}
-
-	s->SetNumFrames(1);
+    if (!condition) throw std::runtime_error(message);
 }
 
-void SpriteFile::ReadSpriteDataFull(Sprite *s)
+void ValidateFrame(Pixel16 const *data, size_t bytes, int width, int height)
 {
-	uint16	data16;
-	ReadData(&data16, sizeof(data16));
-	s->SetWidth(data16);
-
-	ReadData(&data16, sizeof(data16));
-	s->SetHeight(data16);
-
-	uint32	data32;
-	ReadData(&data32, sizeof(data32));
-	sint32  x = (sint32)data32;
-
-	ReadData(&data32, sizeof(data32));
-	sint32  y = (sint32)data32;
-	s->SetHotPoint(x, y);
-
-	ReadData(&data16, sizeof(data16));
-	s->SetFirstFrame(data16);
-
-	ReadData(&data16, sizeof(data16));
-	s->AllocateFrameArrays(data16);
-
-    if (s->GetNumFrames() > 800) {
-		Assert(s->GetNumFrames() <= 800);
-		return;
-	}
-    uint32		ssizes[800];
-	ReadData((uint8 *)ssizes, sizeof(uint32) * s->GetNumFrames());
-
-	uint32		msizes[800];
-	ReadData((uint8 *)msizes, sizeof(uint32) * s->GetNumFrames());
-
-	uint32		actual_size;
-	uint16		i;
-	for (i=0; i<s->GetNumFrames(); i++)
-	{
-		uint32  size            = ssizes[i];
-		std::vector<uint8> compressed(size);
-
-		if(m_version>k_SPRITEFILE_VERSION1)
-		    ReadData(&actual_size,sizeof(uint32));
-		else
-			actual_size = size;
-
-		ReadData((void *)compressed.data(), size);
-
-		Pixel16 * ActualData = (Pixel16 *)DeCompressData(compressed.data(),size,actual_size);
-
-		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth(), s->GetHeight(), actual_size);
-		s->SetFrameData(i, ActualData, actual_size);
-	}
-
-	for (i=0; i<s->GetNumFrames(); i++)
-	{
-		uint32      size        = msizes[i];
-		// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
-		Pixel16 *   ActualData  = (Pixel16 *) new uint8[size];
-		ReadData((void *)ActualData, size);
-		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth()/2, s->GetHeight()/2, size);
-		s->SetMiniFrameData(i, ActualData, size);
-	}
+    size_t words = bytes / sizeof(Pixel16);
+    RequireSprite(bytes % sizeof(Pixel16) == 0 && words >= size_t(height) + 1,
+                  "truncated sprite row table");
+    for (int y = 0; y < height; ++y) {
+        auto offset = data[1 + y];
+        if (offset == k_EMPTY_TABLE_ENTRY) continue;
+        size_t pos = 1 + height + size_t(offset);
+        RequireSprite(pos < words, "sprite row offset outside frame");
+        auto tag = data[pos++] & 0x0fff;
+        int x = 0;
+        while ((tag & 0xf000) == 0) {
+            auto op = (tag >> 8) & 0xf;
+            size_t length = tag & 0xff;
+            size_t payload = 0;
+            switch (op) {
+                case k_CHROMAKEY_RUN_ID: case k_SHADOW_RUN_ID: x += length; break;
+                case k_COPY_RUN_ID: x += length; payload = length; break;
+                case k_FEATHERED_RUN_ID: ++x; payload = 1; break;
+                default: throw std::runtime_error("invalid sprite run opcode");
+            }
+            RequireSprite(x <= width && payload < words - pos,
+                          "sprite run exceeds row or frame");
+            pos += payload;
+            tag = data[pos++];
+        }
+    }
+}
 }
 
-void SpriteFile::SkipSpriteData()
+Pixel16 *SpriteFile::ReadFrame(int width, int height, uint32 size, uint32 &actual, bool compressed)
 {
-	uint16		data16;
-	ReadData(&data16, sizeof(data16));
-
-	ReadData(&data16, sizeof(data16));
-
-	uint32		data32;
-	ReadData(&data32, sizeof(data32));
-
-	ReadData(&data32, sizeof(data32));
-
-	ReadData(&data16, sizeof(data16));
-
-	uint16		numFrames;
-	ReadData(&numFrames, sizeof(numFrames));
-
-	uint32		ssizes[800];
-	ReadData((uint8 *)ssizes, sizeof(uint32) * numFrames);
-
-	uint32		msizes[800];
-	ReadData((uint8 *)msizes, sizeof(uint32) * numFrames);
-
-	uint16		i;
-	for (i=0; i<numFrames; i++)
-	{
-		SetFilePos(GetFilePos() + ssizes[i]);
-	}
-
-	for (i=0; i<numFrames; i++)
-	{
-		SetFilePos(GetFilePos() + msizes[i]);
-	}
+    actual = size;
+    if (compressed) ReadData(&actual, sizeof(actual));
+    RequireSprite(actual <= kMaxFrameBytes && actual % sizeof(Pixel16) == 0,
+                  "invalid decoded sprite frame size");
+    RequireSprite(size <= kMaxFrameBytes, "sprite frame is too large");
+    CheckReadSize(size);
+    RequireSprite(m_decodedBytes <= kMaxSpriteBytes - actual, "decoded sprite exceeds size limit");
+    m_decodedBytes += actual;
+    if (size == 0 && actual == 0) return nullptr;
+    auto pixels = std::make_unique<Pixel16[]>(actual / sizeof(Pixel16));
+    if (compressed) {
+        std::vector<uint8> input(size);
+        ReadData(input.data(), size);
+        std::unique_ptr<uint8[]> decoded(DeCompressData(input.data(), size, actual));
+        std::memcpy(pixels.get(), decoded.get(), actual);
+    } else {
+        ReadData(pixels.get(), size);
+    }
+    ValidateFrame(pixels.get(), actual, width, height);
+    spriteutils_ConvertPixelFormat(pixels.get(), width, height, actual);
+    return pixels.release();
 }
 
-void SpriteFile::ReadFacedSpriteDataBasic(FacedSprite *s)
+void SpriteFile::ReadFrames(Sprite *s, bool faced, bool shadow, bool basic, bool skip)
 {
-	uint16		data16;
-	ReadData(&data16, sizeof(data16));
-	s->SetWidth(data16);
-
-	ReadData(&data16, sizeof(data16));
-	s->SetHeight(data16);
-
-	POINT		points[k_NUM_FACINGS];
-	ReadData((void *)points, sizeof(POINT) * k_NUM_FACINGS);
-	s->SetHotPoints(points);
-
-	ReadData(&data16, sizeof(data16));
-	s->SetFirstFrame(data16);
-
-	ReadData(&data16, sizeof(data16));
-	s->AllocateFrameArrays(data16);
-
-	uint16		j;
-	size_t		ssizes[k_MAX_FACINGS][512];
-	size_t		msizes[k_MAX_FACINGS][512];
-
-	for (j=0; j<k_NUM_FACINGS; j++)
-	{
-		ReadData((uint8 *)ssizes[j], sizeof(uint32) * s->GetNumFrames());
-		ReadData((uint8 *)msizes[j], sizeof(uint32) * s->GetNumFrames());
-	}
-
-	uint16		i;
-	size_t		actual_size;
-
-	for (j=0; j<k_NUM_FACINGS; j++)
-	{
-      	// Read normal size sprites
-		size_t  size            = ssizes[j][0];
-
-		/* Guard against corrupt or malicious sprite files that declare
-		   an impossibly large compressed size.  Without this check, a
-		   garbage 32-bit value (e.g. 0xFFFFFFFF) causes ASan to abort
-		   with "allocation-size-too-big".  64 MiB is generous for a
-		   single sprite frame; legitimate data is usually < 1 MiB. */
-		if (size > 64 * 1024 * 1024) {
-			continue;
-		}
-		std::vector<uint8> compressed(size);
-
-		if (m_version>k_SPRITEFILE_VERSION1)
-		   ReadData(&actual_size,sizeof(uint32));
-		else
-		   actual_size = size;
-
-		ReadData((void *)compressed.data(), size);
-
-		Pixel16 * ActualData = (Pixel16 *)DeCompressData(compressed.data(),size,actual_size);
-
-		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth(), s->GetHeight(), actual_size);
-		s->SetFrameData(j, 0, ActualData, actual_size);
-
-		for (i=1; i<s->GetNumFrames(); i++)
-		{
-			size = ssizes[j][i];
-
-			if (m_version>k_SPRITEFILE_VERSION1)
-			   size += sizeof(size);
-
-			SetFilePos(GetFilePos() + size);
-			s->SetFrameData(j, i, nullptr, 0);
-		}
-
-	      // Read small size sprites (zoomed out)
-		size = msizes[j][0];
-		// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
-		ActualData = (Pixel16 *)new uint8[size];
-		ReadData((void *)ActualData, size);
-		spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth()/2, s->GetHeight()/2, size);
-		s->SetMiniFrameData(j, 0, ActualData, size);
-
-		for (i=1; i<s->GetNumFrames(); i++)
-		{
-			SetFilePos(GetFilePos() +  msizes[j][i]);
-			s->SetMiniFrameData(j, i, nullptr, 0);
-		}
-	}
-
-	s->SetNumFrames(1);
+    uint16 width, height, first, frames;
+    ReadData(&width, sizeof(width));
+    ReadData(&height, sizeof(height));
+    RequireSprite(width > 0 && height > 0 && width <= 8192 && height <= 8192,
+                  "invalid sprite dimensions");
+    s->SetWidth(width);
+    s->SetHeight(height);
+    auto *f = faced && !shadow ? static_cast<FacedSprite *>(s) : nullptr;
+    auto *sh = shadow ? static_cast<FacedSpriteWshadow *>(s) : nullptr;
+    if (faced) {
+        POINT points[k_NUM_FACINGS];
+        ReadData(points, sizeof(points));
+        if (shadow) sh->SetHotPoints(points); else f->SetHotPoints(points);
+    } else {
+        sint32 x, y;
+        ReadData(&x, sizeof(x));
+        ReadData(&y, sizeof(y));
+        s->SetHotPoint(x, y);
+    }
+    ReadData(&first, sizeof(first));
+    ReadData(&frames, sizeof(frames));
+    RequireSprite(frames > 0 && frames <= kMaxSpriteFrames, "invalid sprite frame count");
+    s->SetFirstFrame(first);
+    if (!skip) s->AllocateFrameArrays(basic ? 1 : frames);
+    uint16 hasShadow = 0;
+    if (shadow) {
+        ReadData(&hasShadow, sizeof(hasShadow));
+        RequireSprite(hasShadow <= 1, "invalid sprite shadow flag");
+        sh->SetHasShadow(hasShadow);
+    }
+    int facings = faced ? k_NUM_FACINGS : 1;
+    int layers = hasShadow ? 4 : 2;
+    // Tables and payloads are interleaved by facing, then normal/mini/shadow.
+    std::array<std::array<std::array<uint32, kMaxSpriteFrames>, 4>, k_NUM_FACINGS> sizes{};
+    for (int face = 0; face < facings; ++face)
+        for (int layer = 0; layer < layers; ++layer)
+            ReadData(sizes[face][layer].data(), sizeof(uint32) * frames);
+    for (int face = 0; face < facings; ++face) {
+        for (int layer = 0; layer < layers; ++layer) {
+            for (uint16 frame = 0; frame < frames; ++frame) {
+                uint32 size = sizes[face][layer][frame];
+                bool compressed = !shadow && layer == 0 && m_version > k_SPRITEFILE_VERSION1;
+                if (skip || (basic && frame != 0)) {
+                    RequireSprite(size <= kMaxFrameBytes, "sprite frame is too large");
+                    SetFilePos(GetFilePos() + size + (compressed ? sizeof(uint32) : 0));
+                    continue;
+                }
+                uint32 actual;
+                bool mini = layer % 2 != 0;
+                Pixel16 *data = ReadFrame(mini ? width / 2 : width, mini ? height / 2 : height,
+                                          size, actual, compressed);
+                if (shadow) {
+                    switch (layer) {
+                        case 0: sh->SetFrameData(face, frame, data, actual); break;
+                        case 1: sh->SetMiniFrameData(face, frame, data, actual); break;
+                        case 2: sh->SetShadowFrameData(face, frame, data, actual); break;
+                        case 3: sh->SetMiniShadowFrameData(face, frame, data, actual); break;
+                    }
+                } else if (faced) {
+                    if (mini) f->SetMiniFrameData(face, frame, data, actual);
+                    else f->SetFrameData(face, frame, data, actual);
+                } else {
+                    if (mini) s->SetMiniFrameData(frame, data, actual);
+                    else s->SetFrameData(frame, data, actual);
+                }
+            }
+        }
+    }
 }
 
-void SpriteFile::ReadFacedSpriteDataFull(FacedSprite *s)
+void SpriteFile::ReadSpriteDataBasic(Sprite *s) { ReadFrames(s, false, false, true); }
+void SpriteFile::ReadSpriteDataFull(Sprite *s) { ReadFrames(s, false, false, false); }
+void SpriteFile::SkipSpriteData() { Sprite s; ReadFrames(&s, false, false, false, true); }
+void SpriteFile::ReadFacedSpriteDataBasic(FacedSprite *s) { ReadFrames(s, true, false, true); }
+void SpriteFile::ReadFacedSpriteDataFull(FacedSprite *s) { ReadFrames(s, true, false, false); }
+void SpriteFile::SkipFacedSpriteData() { FacedSprite s; ReadFrames(&s, true, false, false, true); }
+void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s) { ReadFrames(s, true, true, false); }
+
+void SpriteFile::ReadSpriteDataGeneralBasic(Sprite **sprite) { ReadGeneral(sprite, true); }
+void SpriteFile::ReadSpriteDataGeneralFull(Sprite **sprite) { ReadGeneral(sprite, false); }
+
+void SpriteFile::ReadGeneral(Sprite **sprite, bool basic)
 {
-	uint16		data16;
-	ReadData(&data16, sizeof(data16));
-	s->SetWidth(data16);
-
-	ReadData(&data16, sizeof(data16));
-	s->SetHeight(data16);
-
-	POINT		points[k_NUM_FACINGS];
-	ReadData((void *)points, sizeof(POINT) * k_NUM_FACINGS);
-	s->SetHotPoints(points);
-
-	ReadData(&data16, sizeof(data16));
-	s->SetFirstFrame(data16);
-
-	ReadData(&data16, sizeof(data16));
-	s->AllocateFrameArrays(data16);
-
-	uint16		j;
-	if (s->GetNumFrames() > 800) {
-		Assert(s->GetNumFrames() <= 800);
-		return;
-	}
-	uint32		ssizes[k_MAX_FACINGS][800];
-	uint32		msizes[k_MAX_FACINGS][800];
-
-	for (j=0; j<k_NUM_FACINGS; j++)
-	{
-		ReadData((uint8 *)ssizes[j], sizeof(uint32) * s->GetNumFrames());
-		ReadData((uint8 *)msizes[j], sizeof(uint32) * s->GetNumFrames());
-	}
-
-	uint16		i;
-	Pixel16	*   ActualData;
-	uint32		actual_size;
-	for (j=0; j<k_NUM_FACINGS; j++)
-	{
-		for (i=0; i<s->GetNumFrames(); i++)
-		{
-			uint32  size            = ssizes[j][i];
-			std::vector<uint8> compressed(size);
-
-			if (m_version>k_SPRITEFILE_VERSION1)
-			   ReadData(&actual_size,sizeof(uint32));
-			else
-			   actual_size = size;
-
-			ReadData((void *)compressed.data(), size);
-
-			Pixel16 * ActualData = (Pixel16 *)DeCompressData(compressed.data(),size,actual_size);
-
-	spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth(), s->GetHeight(), actual_size);
-			s->SetFrameData(j, i, ActualData, actual_size);
-		}
-
-		for (i=0; i<s->GetNumFrames(); i++)
-		{
-			uint32 size = msizes[j][i];
-			// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
-			ActualData= (Pixel16 *) new uint8[size];
-			ReadData((void *)ActualData, size);
-			spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth()/2, s->GetHeight()/2, size);
-			s->SetMiniFrameData(j, i, ActualData, size);
-		}
-	}
-}
-
-void SpriteFile::SkipFacedSpriteData()
-{
-	uint16		data16;
-	ReadData(&data16, sizeof(data16));
-
-	ReadData(&data16, sizeof(data16));
-
-	POINT		points[k_NUM_FACINGS];
-	ReadData((void *)points, sizeof(POINT) * k_NUM_FACINGS);
-
-	ReadData(&data16, sizeof(data16));
-
-	uint16		numFrames;
-	ReadData(&numFrames, sizeof(numFrames));
-
-	uint16		j;
-	uint32		ssizes[k_NUM_FACINGS][800];
-	uint32		msizes[k_NUM_FACINGS][800];
-
-	for (j=0; j<k_NUM_FACINGS; j++)
-	{
-		ReadData((uint8 *)ssizes[j], sizeof(uint32) * numFrames);
-		ReadData((uint8 *)msizes[j], sizeof(uint32) * numFrames);
-	}
-
-	uint16		i;
-	for (j=0; j<k_NUM_FACINGS; j++)
-	{
-		for (i=0; i<numFrames; i++)
-		{
-			SetFilePos(GetFilePos() + ssizes[j][i]);
-		}
-
-		for (i=0; i<numFrames; i++)
-		{
-			SetFilePos(GetFilePos() + msizes[j][i]);
-		}
-	}
-}
-
-void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
-{
-	uint16		data16;
-	ReadData(&data16, sizeof(data16));
-	s->SetWidth(data16);
-
-	ReadData(&data16, sizeof(data16));
-	s->SetHeight(data16);
-
-	POINT		points[k_NUM_FACINGS];
-	ReadData((void *)points, sizeof(POINT) * k_NUM_FACINGS);
-	s->SetHotPoints(points);
-
-	ReadData(&data16, sizeof(data16));
-	s->SetFirstFrame(data16);
-
-	ReadData(&data16, sizeof(data16));
-	s->AllocateFrameArrays(data16);
-
-	ReadData(&data16, sizeof(data16));
-	s->SetHasShadow(data16);
-
-	uint16		j;
-	uint32		ssizes[k_NUM_FACINGS][800];
-	uint32		msizes[k_NUM_FACINGS][800];
-	uint32		sh_ssizes[k_NUM_FACINGS][800];
-	uint32		sh_msizes[k_NUM_FACINGS][800];
-
-	for (j=0; j<k_NUM_FACINGS; j++)
-	{
-		ReadData((uint8 *)ssizes[j], sizeof(uint32) * s->GetNumFrames());
-		ReadData((uint8 *)msizes[j], sizeof(uint32) * s->GetNumFrames());
-
-		if(s->GetHasShadow())
-		{
-			ReadData((uint8 *)sh_ssizes[j], sizeof(uint32) * s->GetNumFrames());
-			ReadData((uint8 *)sh_msizes[j], sizeof(uint32) * s->GetNumFrames());
-		}
-	}
-
-    uint16      i;
-	Pixel16	*   data;
-	for (j=0; j<k_NUM_FACINGS; j++)
-	{
-		for (i=0; i<s->GetNumFrames(); i++)
-		{
-			uint32 size = ssizes[j][i];
-			if(size != 0)
-			{
-				// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
-				data = (Pixel16 *) new uint8[size];
-				ReadData((void *)data, size);
-					spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth(), s->GetHeight(), size);
-			}
-			else
-			{
-				data = nullptr;
-			}
-			s->SetFrameData(j, i, data, size);
-		}
-
-		for (i=0; i<s->GetNumFrames(); i++)
-		{
-	        uint32  size = msizes[j][i];
-			if(size != 0)
-			{
-				// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
-				data = (Pixel16 *) new uint8[size];
-				ReadData((void *)data, size);
-				spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth()/2, s->GetHeight()/2, size);
-			}
-			else
-			{
-				data = nullptr;
-			}
-			s->SetMiniFrameData(j, i, data, size);
-		}
-		if(s->GetHasShadow())
-		{
-
-			for (i=0; i<s->GetNumFrames(); i++)
-			{
-				uint32 size = sh_ssizes[j][i];
-				if(size != 0)
-				{
-					// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
-					data = (Pixel16 *) new uint8[size];
-					ReadData((void *)data, size);
-					spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth(), s->GetHeight(), size);
-				}
-				else
-				{
-					data = nullptr;
-				}
-				s->SetShadowFrameData(j, i, data, size);
-			}
-
-			for (i=0; i<s->GetNumFrames(); i++)
-			{
-				uint32 size = sh_msizes[j][i];
-				if(size != 0)
-				{
-					// TODO(phase-2): type-aliasing cast (Pixel16*)new uint8[N] — not mechanically safe
-					data = (Pixel16 *) new uint8[size];
-					ReadData((void *)data, size);
-					spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth()/2, s->GetHeight()/2, size);
-				}
-				else
-				{
-					data = nullptr;
-				}
-				s->SetMiniShadowFrameData(j, i, data, size);
-			}
-		}
-	}
-}
-
-void SpriteFile::ReadSpriteDataGeneralBasic(Sprite **sprite)
-{
-	uint16		data16;
-	ReadData(&data16, sizeof(data16));
-
-	if ((SPRITETYPE)data16 == SPRITETYPE_NORMAL)
-	{
-		if (*sprite == nullptr)
-			*sprite = new Sprite;
-		(*sprite)->SetType(data16);
-		ReadSpriteDataBasic(*sprite);
-	}
-	else if ((SPRITETYPE)data16 == SPRITETYPE_FACED)
-	{
-		if (*sprite == nullptr)
-			*sprite = (Sprite *) new FacedSprite;
-		(*sprite)->SetType(data16);
-		ReadFacedSpriteDataBasic((FacedSprite *)*sprite);
-	}
-	else
-		Assert(FALSE);
-
-}
-
-void SpriteFile::ReadSpriteDataGeneralFull(Sprite **sprite)
-{
-	uint16		data16;
-	ReadData(&data16, sizeof(data16));
-
-	if ((SPRITETYPE)data16 == SPRITETYPE_NORMAL)
-	{
-		if (*sprite == nullptr)
-			*sprite = new Sprite;
-		(*sprite)->SetType(data16);
-		ReadSpriteDataFull(*sprite);
-	}
-	else if ((SPRITETYPE)data16 == SPRITETYPE_FACED)
-	{
-		if (*sprite == nullptr)
-			*sprite = (Sprite *) new FacedSprite;
-		(*sprite)->SetType(data16);
-		ReadFacedSpriteDataFull((FacedSprite *)*sprite);
-	}
-	else
-		Assert(FALSE);
-
+    uint16 type;
+    ReadData(&type, sizeof(type));
+    RequireSprite(type == SPRITETYPE_NORMAL || type == SPRITETYPE_FACED, "invalid sprite type");
+    std::unique_ptr<Sprite> parsed(type == SPRITETYPE_NORMAL ? new Sprite : new FacedSprite);
+    parsed->SetType(type);
+    ReadFrames(parsed.get(), type == SPRITETYPE_FACED, false, basic);
+    *sprite = parsed.release(); // Group's setter releases the prior owned sprite.
 }
 
 void SpriteFile::SkipSpriteDataGeneral()
@@ -914,24 +535,19 @@ void SpriteFile::SkipSpriteDataGeneral()
 		SkipFacedSpriteData();
 	}
 	else
-		Assert(FALSE);
+		throw std::runtime_error("invalid sprite type");
 
 }
 
 void SpriteFile::ReadSpriteDataGeneral(FacedSpriteWshadow **sprite)
 {
-	uint16		data16;
-	ReadData(&data16, sizeof(data16));
-
-	if ((SPRITETYPE)data16 == SPRITETYPE_FACEDWSHADOW)
-	{
-		*sprite = new FacedSpriteWshadow;
-		(*sprite)->SetType(data16);
-		ReadFacedSpriteWshadowData((FacedSpriteWshadow *)*sprite);
-	}
-	else
-		Assert(FALSE);
-
+    uint16 type;
+    ReadData(&type, sizeof(type));
+    RequireSprite(type == SPRITETYPE_FACEDWSHADOW, "invalid shadow sprite type");
+    auto parsed = std::make_unique<FacedSpriteWshadow>();
+    parsed->SetType(type);
+    ReadFacedSpriteWshadowData(parsed.get());
+    *sprite = parsed.release();
 }
 
 void SpriteFile::ReadAnimDataBasic(Anim *a)
@@ -960,26 +576,21 @@ void SpriteFile::ReadAnimDataFull(Anim *a)
 	ReadData(&data16, sizeof(data16));
 	a->SetDelay(data16);
 
-	// Validate: corrupt sprite files may have 0 frames
-	uint16 numFrames = a->GetNumFrames();
-	if (numFrames == 0) {
-		numFrames = 1;
-		a->SetNumFrames(numFrames);
-		a->SetPlaybackTime(0);
-	}
+    uint16 numFrames = a->GetNumFrames();
+    RequireSprite(numFrames > 0 && numFrames <= kMaxSpriteFrames, "invalid animation frame count");
 
 	// Always (re)allocate buffers sized for the just-read numFrames.
 	// Why: the Anim may have been partially populated by an earlier
 	// ReadAnimDataBasic call whose numFrames differed from this one's.
 	// Reusing the old buffer caused a heap-buffer-overflow in fread.
 	a->ResizeFrames(numFrames);
-	ReadData((void *)a->GetFrames(), sizeof(uint16) * numFrames);
+	ReadData(a->GetFrames(), sizeof(uint16) * numFrames);
 
 	a->ResizeDeltas(numFrames);
-	ReadData((void *)a->GetDeltas(), sizeof(POINT) * numFrames);
+	ReadData(a->GetDeltas(), sizeof(POINT) * numFrames);
 
 	a->ResizeTransparencies(numFrames);
-	ReadData((void *)a->GetTransparencies(), sizeof(uint16) * numFrames);
+	ReadData(a->GetTransparencies(), sizeof(uint16) * numFrames);
 }
 
 void SpriteFile::SkipAnimData()
@@ -989,6 +600,7 @@ void SpriteFile::SkipAnimData()
 
 	uint16		numFrames;
 	ReadData(&numFrames, sizeof(numFrames));
+	RequireSprite(numFrames > 0 && numFrames <= kMaxSpriteFrames, "invalid animation frame count");
 
 	ReadData(&data16, sizeof(data16));
 	ReadData(&data16, sizeof(data16));
@@ -1000,6 +612,7 @@ void SpriteFile::SkipAnimData()
 
 SPRITEFILEERR SpriteFile::Create(SPRITEFILETYPE type,unsigned version,unsigned compression_mode)
 {
+    m_reading = false;
 	MBCHAR			path[_MAX_PATH];
 
 #if defined(__MAKESPR__) || defined(__SPRITETEST__)
@@ -1122,7 +735,7 @@ SpriteFile::Write_v13(UnitSpriteGroup *s)
 
 	POINT		NoData;
 	for(i=0;i<k_NUM_FACINGS;i++)
-  		WriteData((uint8 *)&NoData, sizeof(POINT));
+		WriteData((uint8 *)&NoData, sizeof(POINT));
 
 	for (i=0; i<UNITACTION_MAX; i++)
 		WriteData((uint8 *)s->GetShieldPoints((UNITACTION)i), sizeof(POINT) * k_NUM_FACINGS);
@@ -1346,7 +959,7 @@ SPRITEFILEERR SpriteFile::Write(GoodSpriteGroup *s)
 
 	}
 
-	SetFilePos(k_SPRITEFILE_HEADER_SIZE);
+	SetFilePos(k_SPRITEFILE_HEADER_SIZE + (m_version == k_SPRITEFILE_VERSION2 ? sizeof(uint32) : 0));
 
 	for (i=0; i<GOODACTION_MAX; i++)
 	{
@@ -1373,773 +986,276 @@ SPRITEFILEERR SpriteFile::CloseWrite()
 }
 
 
-SPRITEFILEERR SpriteFile::Open(SPRITEFILETYPE *type)
+SPRITEFILEERR SpriteFile::Open(SPRITEFILETYPE *type) try
 {
-	if (m_file)
-    {
-        c3files_fclose(m_file);
+    if (m_file) c3files_fclose(m_file);
+    m_file = std::filesystem::path(m_filename).is_absolute()
+        ? std::fopen(m_filename, "rb")
+        : c3files_fopen(C3DIR_SPRITES, m_filename, "rb");
+    if (!m_file) return SPRITEFILEERR_NOOPEN;
+    m_reading = true;
+    m_decodedBytes = 0;
+    RequireSprite(std::fseek(m_file, 0, SEEK_END) == 0, "cannot size sprite file");
+    m_fileSize = GetFilePos();
+    RequireSprite(m_fileSize >= 12 && size_t(m_fileSize) <= kMaxSpriteBytes, "invalid sprite file size");
+    SetFilePos(0);
+    uint32 data;
+    ReadData(&data, sizeof(data));
+    RequireSprite(data == k_SPRITEFILE_TAG, "invalid sprite file tag");
+    ReadData(&m_version, sizeof(m_version));
+    RequireSprite(m_version == k_SPRITEFILE_VERSION0 || m_version == k_SPRITEFILE_VERSION1
+                  || m_version == k_SPRITEFILE_VERSION2, "unsupported sprite file version");
+    m_spr_compression = SPRDATA_REGULAR;
+    if (m_version == k_SPRITEFILE_VERSION2) {
+        ReadData(&data, sizeof(data));
+        RequireSprite(data < SPRDATA_MAX, "invalid sprite compression mode");
+        // Shipping v2 files use LZW1, including the copy-mode header.
+        m_spr_compression = SPRDATA_LZW1;
     }
-    m_file = c3files_fopen(C3DIR_SPRITES, m_filename, "rb");
-
-//	Assert(m_file != NULL);
-	if (m_file == nullptr) return SPRITEFILEERR_NOOPEN;
-
-	uint32			data;
-	SPRITEFILEERR	err = ReadData(&data, sizeof(data));
-
-	if (data != k_SPRITEFILE_TAG)
-	{
-		c3errors_ErrorDialog("SpriteFile", "BAD FILE.  Looking for valid SPR.");
-		return SPRITEFILEERR_BADTAG;
-	}
-
-	err = ReadData(&data, sizeof(data));
-
-	m_version = data;
-	switch(m_version)
-	{
-	   case k_SPRITEFILE_VERSION2:
-			err = ReadData(&data, sizeof(data));
-			m_spr_compression = data;
-			m_spr_compression = SPRDATA_LZW1;
-
-	   case k_SPRITEFILE_VERSION0:
-	   case k_SPRITEFILE_VERSION1:
-			break;
-
-	   default:
-		c3errors_ErrorDialog("SpriteFile", "\"%s\": Bad Sprite File Version %d.%d.",
-						   	 m_filename,(data >> 16), data & 0x0000FFFF);
-		return SPRITEFILEERR_BADVERSION;
-
-	}
-
-	err = ReadData(&data, sizeof(data));
-	Assert(err == SPRITEFILEERR_OK);
-	*type = (SPRITEFILETYPE)data;
-
-	return SPRITEFILEERR_OK;
+    ReadData(&data, sizeof(data));
+    // The old v2 goods writer sought to byte 12 (the v1 header size),
+    // overwriting type with the first sprite offset, 24. GG023 ships this
+    // layout. Its body still uses the normal bounded goods parser.
+    if (m_version == k_SPRITEFILE_VERSION2 && data == 24) data = SPRITEFILETYPE_GOOD;
+    RequireSprite(data < SPRITEFILETYPE_MAX, "invalid sprite file type");
+    *type = static_cast<SPRITEFILETYPE>(data);
+    return SPRITEFILEERR_OK;
+}
+catch (std::exception const &error) {
+    std::fprintf(stderr, "[sprite] %s: %s\n", m_filename, error.what());
+    CloseRead();
+    return SPRITEFILEERR_READERR;
 }
 
-SPRITEFILEERR SpriteFile::Read(Sprite **s, Anim **anim)
+SPRITEFILEERR SpriteFile::Read(Sprite **s, Anim **anim) try
 {
-	uint32			 soffset=0;
-	uint32			 aoffset=0;
-	SPRITEFILEERR	err;
-
-	err = ReadData(&soffset, sizeof(soffset));
-	err = ReadData(&aoffset, sizeof(aoffset));
-
-	*s = new Sprite;
-	ReadSpriteDataFull(*s);
-
-	*anim = new Anim;
-	ReadAnimDataFull(*anim);
-
-	return SPRITEFILEERR_OK;
+    uint32 offsets[2];
+    ReadData(offsets, sizeof(offsets));
+    auto sprite = std::make_unique<Sprite>();
+    ReadSpriteDataFull(sprite.get());
+    auto animation = std::make_unique<Anim>();
+    ReadAnimDataFull(animation.get());
+    *s = sprite.release();
+    *anim = animation.release();
+    return SPRITEFILEERR_OK;
+}
+catch (std::exception const &error) {
+    std::fprintf(stderr, "[sprite] %s: %s\n", m_filename, error.what());
+    return SPRITEFILEERR_READERR;
 }
 
-SPRITEFILEERR SpriteFile::Read(FacedSprite **s, Anim **anim)
+SPRITEFILEERR SpriteFile::Read(FacedSprite **s, Anim **anim) try
 {
-	uint32			 soffset=0;
-	uint32			 aoffset=0;
-	SPRITEFILEERR	err;
-
-	err = ReadData(&soffset, sizeof(soffset));
-	err = ReadData(&aoffset, sizeof(aoffset));
-
-	*s = new FacedSprite;
-	ReadFacedSpriteDataFull(*s);
-
-	*anim = new Anim;
-	ReadAnimDataFull(*anim);
-
-	return SPRITEFILEERR_OK;
+    uint32 offsets[2];
+    ReadData(offsets, sizeof(offsets));
+    auto sprite = std::make_unique<FacedSprite>();
+    ReadFacedSpriteDataFull(sprite.get());
+    auto animation = std::make_unique<Anim>();
+    ReadAnimDataFull(animation.get());
+    *s = sprite.release();
+    *anim = animation.release();
+    return SPRITEFILEERR_OK;
+}
+catch (std::exception const &error) {
+    std::fprintf(stderr, "[sprite] %s: %s\n", m_filename, error.what());
+    return SPRITEFILEERR_READERR;
 }
 
-SPRITEFILEERR SpriteFile::Read(FacedSpriteWshadow **s, Anim **anim)
+SPRITEFILEERR SpriteFile::Read(FacedSpriteWshadow **s, Anim **anim) try
 {
-	uint32			 soffset=0;
-	uint32			 aoffset=0;
-	SPRITEFILEERR	err;
-
-	err = ReadData(&soffset, sizeof(soffset));
-	err = ReadData(&aoffset, sizeof(aoffset));
-
-	*s = new FacedSpriteWshadow;
-	ReadFacedSpriteWshadowData(*s);
-
-	*anim = new Anim;
-	ReadAnimDataFull(*anim);
-
-	return SPRITEFILEERR_OK;
+    uint32 offsets[2];
+    ReadData(offsets, sizeof(offsets));
+    auto sprite = std::make_unique<FacedSpriteWshadow>();
+    ReadFacedSpriteWshadowData(sprite.get());
+    auto animation = std::make_unique<Anim>();
+    ReadAnimDataFull(animation.get());
+    *s = sprite.release();
+    *anim = animation.release();
+    return SPRITEFILEERR_OK;
 }
-
-SPRITEFILEERR SpriteFile::Read(SpriteGroup **s, Anim **anim)
-{
-	return SPRITEFILEERR_OK;
+catch (std::exception const &error) {
+    std::fprintf(stderr, "[sprite] %s: %s\n", m_filename, error.what());
+    return SPRITEFILEERR_READERR;
 }
 
 
+SPRITEFILEERR SpriteFile::Read(SpriteGroup **, Anim **) { return SPRITEFILEERR_READERR; }
+SPRITEFILEERR SpriteFile::Read(CitySpriteGroup **, Anim **) { return SPRITEFILEERR_READERR; }
 
-
-
-
-
-
-
-SPRITEFILEERR
-SpriteFile::ReadBasic_v13(UnitSpriteGroup *s)
+void SpriteFile::ReadGroupSprite(SpriteGroup *group, GAME_ACTION action, bool basic)
 {
-	uint16	i;
-	uint32	data32;
-
-	for (i=0; i<UNITACTION_MAX; i++)
-	{
-		ReadData(&data32, sizeof(data32));
-	}
-
-	for (i=0; i<UNITACTION_MAX; i++)
-	{
-		Sprite		*sprite;
-
-		ReadData(&data32, sizeof(data32));
-
-		if (data32) {
-			if (i==UNITACTION_MOVE) {
-				sprite = s->GetGroupSprite((GAME_ACTION)i);
-				ReadSpriteDataGeneralBasic(&sprite);
-				s->SetGroupSprite((GAME_ACTION)i, sprite);
-
-				Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
-
-				if (anim == nullptr)
-					anim = new Anim;
-
-				ReadAnimDataBasic(anim);
-
-				s->SetGroupAnim((GAME_ACTION)i, anim);
-			} else
-			if (i==UNITACTION_IDLE) {
-				if (profiledb_Get() && profiledb_Get()->IsUnitAnim()) {
-
-					sprite = s->GetGroupSprite((GAME_ACTION)i);
-					ReadSpriteDataGeneralFull(&sprite);
-					s->SetGroupSprite((GAME_ACTION)i, sprite);
-
-					Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
-					if (anim == nullptr)
-						anim = new Anim;
-					ReadAnimDataFull(anim);
-					s->SetGroupAnim((GAME_ACTION)i, anim);
-				} else {
-
-					sprite = s->GetGroupSprite((GAME_ACTION)i);
-					ReadSpriteDataGeneralBasic(&sprite);
-					s->SetGroupSprite((GAME_ACTION)i, sprite);
-
-					Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
-					if (anim == nullptr)
-						anim = new Anim;
-					ReadAnimDataBasic(anim);
-
-					s->SetGroupAnim((GAME_ACTION)i, anim);
-				}
-			} else {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-				SkipSpriteDataGeneral();
-				s->SetGroupSprite((GAME_ACTION)i, nullptr);
-
-				SkipAnimData();
-				s->SetGroupAnim((GAME_ACTION)i, nullptr);
-			}
-		}
-	}
-
-	uint16	data16;
-	ReadData(&data16, sizeof(uint16));
-
-	POINT		pointBuffer[k_NUM_FACINGS];
- 	for (i=0; i<k_NUM_FIREPOINTS; i++)
- 	{
- 		ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-
- 	}
-
-	ReadData(&data16, sizeof(uint16));
-
-	for (i=0; i<k_NUM_FIREPOINTS; i++)
-	{
-		ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-
-	}
-
-	ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-
-
-	for (i=0; i<UNITACTION_MAX; i++)
-	{
-		ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-		memcpy(s->GetShieldPoints((UNITACTION)i), pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-	}
-
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDeath(0 != data16);
-
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDirectional(0 != data16);
-
-	return SPRITEFILEERR_OK;
+    Sprite *sprite = nullptr;
+    ReadGeneral(&sprite, basic);
+    group->SetGroupSprite(action, sprite);
 }
 
-
-SPRITEFILEERR
-SpriteFile::ReadBasic_v20(UnitSpriteGroup *s)
+void SpriteFile::ReadGroupAnim(SpriteGroup *group, GAME_ACTION action, bool basic)
 {
-	int     offsets[ACTION_MAX+1];
-	ReadData((void *)offsets, sizeof(int) * (ACTION_MAX+1));
+    auto animation = std::make_unique<Anim>();
+    if (basic) ReadAnimDataBasic(animation.get()); else ReadAnimDataFull(animation.get());
+    group->SetGroupAnim(action, animation.release());
+}
 
-	int		i;
-	for (i=0; i<ACTION_MAX; i++)
-	{
-	  s->SetGroupSprite((GAME_ACTION)i,nullptr);
-	  s->SetGroupAnim  ((GAME_ACTION)i,nullptr);
-	}
+void SpriteFile::ReadUnitMetadata(UnitSpriteGroup *group, bool legacy)
+{
+    uint16 data;
+    POINT points[k_NUM_FACINGS];
+    if (legacy) {
+        for (int list = 0; list < 2; ++list) {
+            ReadData(&data, sizeof(data));
+            for (int i = 0; i < k_NUM_FIREPOINTS; ++i) ReadData(points, sizeof(points));
+        }
+        ReadData(points, sizeof(points));
+    }
+    for (int i = 0; i < UNITACTION_MAX; ++i)
+        ReadData(group->GetShieldPoints(static_cast<UNITACTION>(i)), sizeof(points));
+    ReadData(&data, sizeof(data));
+    group->SetHasDeath(data != 0);
+    ReadData(&data, sizeof(data));
+    group->SetHasDirectional(data != 0);
+}
 
-
-	Sprite		*sprite;
-	Anim		*anim;
-
-    if(offsets[UNITACTION_IDLE]>0)
-	{
-
- 		SetFilePos(offsets[UNITACTION_IDLE]);
-
-		sprite = s->GetGroupSprite((GAME_ACTION)UNITACTION_IDLE);
-		anim   = s->GetGroupAnim  ((GAME_ACTION)UNITACTION_IDLE);
-
-		if(	anim == nullptr)
-			anim = new Anim;
-
-#ifdef __MAKESPR__
-	   ReadSpriteDataGeneralBasic(&sprite);
-	   ReadAnimDataBasic(anim);
-#else
-		if (profiledb_Get() && profiledb_Get()->IsUnitAnim())
-		{
-			ReadSpriteDataGeneralFull(&sprite);
-			ReadAnimDataFull(anim);
-		}
-		else
-		{
-			ReadSpriteDataGeneralBasic(&sprite);
-			ReadAnimDataBasic(anim);
-		}
+void SpriteFile::ReadUnitGroup(UnitSpriteGroup *group, bool basic, int selected)
+{
+    RequireSprite(selected >= -1 && selected < ACTION_MAX, "invalid unit action index");
+    bool legacy = m_version == k_SPRITEFILE_VERSION0;
+    sint32 offsets[ACTION_MAX + 1];
+    int count = legacy ? UNITACTION_MAX : ACTION_MAX;
+    ReadData(offsets, sizeof(sint32) * (legacy ? count : count + 1));
+    if (selected == -1) {
+        group->DeallocateStorage();
+        group->DeallocateFullLoadAnims();
+    }
+    for (int i = 0; i < count; ++i) {
+        uint32 present = offsets[i] > 0;
+        if (legacy) ReadData(&present, sizeof(present));
+        if (!present) continue;
+        bool keep = selected >= 0 ? i == selected : !basic || i == UNITACTION_MOVE || i == UNITACTION_IDLE;
+        if (!keep) {
+            if (legacy) { SkipSpriteDataGeneral(); SkipAnimData(); }
+            continue;
+        }
+        if (!legacy) SetFilePos(offsets[i]);
+        bool oneFrame = basic;
+#ifndef __MAKESPR__
+        if (i == UNITACTION_IDLE && profiledb_Get() && profiledb_Get()->IsUnitAnim()) oneFrame = false;
 #endif
-	    s->SetGroupSprite((GAME_ACTION)UNITACTION_IDLE,sprite);
-	    s->SetGroupAnim  ((GAME_ACTION)UNITACTION_IDLE,anim);
-	}
-
-	if(offsets[UNITACTION_MOVE]>0)
-	{
-
- 		SetFilePos(offsets[UNITACTION_MOVE]);
-
-		sprite = s->GetGroupSprite((GAME_ACTION)UNITACTION_MOVE);
-		anim   = s->GetGroupAnim  ((GAME_ACTION)UNITACTION_MOVE);
-
-		if(	anim == nullptr)
-			anim = new Anim;
-
-		 ReadSpriteDataGeneralBasic(&sprite);
-		 ReadAnimDataBasic(anim);
-
-	     s->SetGroupSprite((GAME_ACTION)UNITACTION_MOVE,sprite);
-	     s->SetGroupAnim  ((GAME_ACTION)UNITACTION_MOVE,anim);
-	}
-
-	SetFilePos(offsets[ACTION_MAX]);
-
-	for (i=0; i<UNITACTION_MAX; i++)
-		ReadData((void *)s->GetShieldPoints((UNITACTION)i), sizeof(POINT) * k_NUM_FACINGS);
-
-	uint16	data16;
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDeath(0 != data16);
-
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDirectional(0 != data16);
-
-	return SPRITEFILEERR_OK;
+        auto action = static_cast<GAME_ACTION>(i);
+        ReadGroupSprite(group, action, oneFrame);
+        ReadGroupAnim(group, action, oneFrame);
+    }
+    if (!legacy) SetFilePos(offsets[ACTION_MAX]);
+    ReadUnitMetadata(group, legacy);
 }
 
-SPRITEFILEERR
-SpriteFile::ReadBasic(UnitSpriteGroup *s)
+void SpriteFile::ReadGoodGroup(GoodSpriteGroup *group, bool basic)
 {
-	switch(m_version)
-	{
-	case	k_SPRITEFILE_VERSION1:
-	case	k_SPRITEFILE_VERSION2:
-			return ReadBasic_v20(s);
-			break;
-
-	case	k_SPRITEFILE_VERSION0:
-	default:
-			return ReadBasic_v13(s);
-	}
+    uint32 offsets[GOODACTION_MAX];
+    ReadData(offsets, sizeof(offsets));
+    group->DeallocateStorage();
+    group->DeallocateFullLoadAnims();
+    for (int i = 0; i < GOODACTION_MAX; ++i) {
+        uint32 present;
+        ReadData(&present, sizeof(present));
+        if (!present) continue;
+        auto action = static_cast<GAME_ACTION>(i);
+        ReadGroupSprite(group, action, basic);
+        ReadGroupAnim(group, action, basic);
+    }
 }
 
-SPRITEFILEERR SpriteFile::ReadFull_v13(UnitSpriteGroup *s)
+SPRITEFILEERR SpriteFile::ReadBasic(UnitSpriteGroup *s) try
 {
-	uint16	i;
-	uint32	data32;
-
-	for (i=0; i<UNITACTION_MAX; i++)
-	{
-		ReadData(&data32, sizeof(data32));
-	}
-
-	for (i=0; i<UNITACTION_MAX; i++)
-	{
-
-		ReadData(&data32, sizeof(data32));
-		if (data32)
-		{
-		    Sprite *    sprite = s->GetGroupSprite((GAME_ACTION)i);
-
-			ReadSpriteDataGeneralFull(&sprite);
-			s->SetGroupSprite((GAME_ACTION)i, sprite);
-
-			Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
-
-			if (anim== nullptr) {
-				anim = new Anim;
-			}
-			ReadAnimDataFull(anim);
-			s->SetGroupAnim((GAME_ACTION)i, anim);
-		}
-	}
-
-	uint16	data16;
-	ReadData(&data16, sizeof(uint16));
-
-	POINT		pointBuffer[k_NUM_FACINGS];
-	for (i=0; i<k_NUM_FIREPOINTS; i++)
-	{
-		ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-
-	}
-
-	ReadData(&data16, sizeof(uint16));
-
-	for (i=0; i<k_NUM_FIREPOINTS; i++)
-	{
-		ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-
-	}
-
-	ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-
-
-	for (i=0; i<UNITACTION_MAX; i++)
-	{
-		ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-		memcpy(s->GetShieldPoints((UNITACTION)i), pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-	}
-
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDeath(0 != data16);
-
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDirectional(0 != data16);
-
-	return SPRITEFILEERR_OK;
+    ReadUnitGroup(s, true, -1);
+    return SPRITEFILEERR_OK;
+}
+catch (std::exception const &error) {
+    std::fprintf(stderr, "[sprite] %s: %s\n", m_filename, error.what());
+    s->DeallocateStorage();
+    s->DeallocateFullLoadAnims();
+    return SPRITEFILEERR_READERR;
 }
 
-SPRITEFILEERR SpriteFile::ReadFull_v20(UnitSpriteGroup *s)
+SPRITEFILEERR SpriteFile::ReadFull(UnitSpriteGroup *s) try
 {
-	int     offsets[ACTION_MAX+1];
-	ReadData((void *)offsets, sizeof(offsets));
-
-	uint16 i;
-	for(i = 0; i<ACTION_MAX; i++)
-	{
-		if (offsets[i]>0)
-		{
-			Sprite *    sprite  = s->GetGroupSprite((GAME_ACTION)i);
-
-			ReadSpriteDataGeneralFull(&sprite);
-
-			s->SetGroupSprite((GAME_ACTION)i, sprite);
-
-			Anim *      anim    = s->GetGroupAnim((GAME_ACTION)i);
-
-			if (anim== nullptr) {
-				anim = new Anim;
-			}
-			ReadAnimDataFull(anim);
-			s->SetGroupAnim((GAME_ACTION)i, anim);
-		}
-	}
-
-	for (i=0; i<UNITACTION_MAX; i++)
-		ReadData((void *)s->GetShieldPoints((UNITACTION)i), sizeof(POINT) * k_NUM_FACINGS);
-
-	uint16 data16;
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDeath(0 != data16);
-
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDirectional(0 != data16);
-
-	return SPRITEFILEERR_OK;
+    ReadUnitGroup(s, false, -1);
+    return SPRITEFILEERR_OK;
+}
+catch (std::exception const &error) {
+    std::fprintf(stderr, "[sprite] %s: %s\n", m_filename, error.what());
+    s->DeallocateStorage();
+    s->DeallocateFullLoadAnims();
+    return SPRITEFILEERR_READERR;
 }
 
-
-
-
-SPRITEFILEERR SpriteFile::ReadFull(UnitSpriteGroup *s)
+SPRITEFILEERR SpriteFile::ReadIndexed(UnitSpriteGroup *s, GAME_ACTION action) try
 {
-	switch(m_version)
-	{
-	case	k_SPRITEFILE_VERSION1:
-	case	k_SPRITEFILE_VERSION2:
-			return ReadFull_v20(s);
-			break;
-
-	case	k_SPRITEFILE_VERSION0:
-	default:
-			return ReadFull_v13(s);
-	}
+    ReadUnitGroup(s, false, action);
+    return SPRITEFILEERR_OK;
+}
+catch (std::exception const &error) {
+    std::fprintf(stderr, "[sprite] %s: %s\n", m_filename, error.what());
+    s->DeallocateStorage();
+    s->DeallocateFullLoadAnims();
+    return SPRITEFILEERR_READERR;
 }
 
-
-
-
-SPRITEFILEERR
-SpriteFile::ReadIndexed_v13(UnitSpriteGroup *s,GAME_ACTION action)
+SPRITEFILEERR SpriteFile::ReadBasic(GoodSpriteGroup *s) try
 {
-	uint32		offsets[ACTION_MAX+1];
-	uint32		data32 = static_cast<uint32>(GetFilePos());
-	SetFilePos(offsets[action]-(action+1)*sizeof(uint32));
-	ReadData(&data32, sizeof(data32));
-
-	if (data32)
-	{
-		Sprite * sprite = s->GetGroupSprite(action);
-
-		ReadSpriteDataGeneralFull(&sprite);
-		s->SetGroupSprite(action, sprite);
-
-		Anim *  anim = s->GetGroupAnim(action);
-
-		if (anim== nullptr)
-			anim = new Anim;
-
-		ReadAnimDataFull(anim);
-		s->SetGroupAnim(action, anim);
-	}
-
-	uint16	data16;
-	ReadData(&data16, sizeof(uint16));
-
-	POINT		pointBuffer[k_NUM_FACINGS];
-	uint16	i;
-
-	for (i=0; i<k_NUM_FIREPOINTS; i++)
-	{
-		ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-
-	}
-
-	ReadData(&data16, sizeof(uint16));
-
-	for (i=0; i<k_NUM_FIREPOINTS; i++)
-	{
-		ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-
-	}
-
-	ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-
-
-	for (i=0; i<UNITACTION_MAX; i++)
-	{
-		ReadData((void *)pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-		POINT *	thePoints = s->GetShieldPoints((UNITACTION)i);
-		memcpy(thePoints, pointBuffer, sizeof(POINT) * k_NUM_FACINGS);
-	}
-
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDeath(0 != data16);
-
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDirectional(0 != data16);
-
-	return SPRITEFILEERR_OK;
+    ReadGoodGroup(s, true);
+    return SPRITEFILEERR_OK;
+}
+catch (std::exception const &error) {
+    std::fprintf(stderr, "[sprite] %s: %s\n", m_filename, error.what());
+    s->DeallocateStorage();
+    s->DeallocateFullLoadAnims();
+    return SPRITEFILEERR_READERR;
 }
 
-
-
-
-SPRITEFILEERR
-SpriteFile::ReadIndexed_v20(UnitSpriteGroup *s,GAME_ACTION action)
+SPRITEFILEERR SpriteFile::ReadFull(GoodSpriteGroup *s) try
 {
-	int     offsets[ACTION_MAX];
-    ReadData((void *)offsets, sizeof(int) * (ACTION_MAX+1));
-
-    if (offsets[action]>0)
-	{
-		Sprite *    sprite  = s->GetGroupSprite(action);
-		Anim *      anim    = s->GetGroupAnim(action);
-
-		if (anim== nullptr)
-			anim = new Anim;
-
-		ReadSpriteDataGeneralFull(&sprite);
-	    ReadAnimDataFull(anim);
-
-		s->SetGroupSprite(action, sprite);
-		s->SetGroupAnim  (action, anim);
-	}
-
-	SetFilePos(offsets[ACTION_MAX]);
-
-	for (size_t i = 0; i < UNITACTION_MAX; ++i)
-	{
-		ReadData((void *)s->GetShieldPoints((UNITACTION)i), sizeof(POINT) * k_NUM_FACINGS);
-	}
-
-	uint16	data16;
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDeath(0 != data16);
-
-	ReadData(&data16, sizeof(uint16));
-	s->SetHasDirectional(0 != data16);
-
-	return SPRITEFILEERR_OK;
+    ReadGoodGroup(s, false);
+    return SPRITEFILEERR_OK;
+}
+catch (std::exception const &error) {
+    std::fprintf(stderr, "[sprite] %s: %s\n", m_filename, error.what());
+    s->DeallocateStorage();
+    s->DeallocateFullLoadAnims();
+    return SPRITEFILEERR_READERR;
 }
 
-
-
-
-
-SPRITEFILEERR SpriteFile::ReadIndexed(UnitSpriteGroup *s,GAME_ACTION action)
+SPRITEFILEERR SpriteFile::ReadIndexed(GoodSpriteGroup *s, GAME_ACTION action) try
 {
-	switch(m_version)
-	{
-	case	k_SPRITEFILE_VERSION1:
-	case	k_SPRITEFILE_VERSION2:
-			return ReadIndexed_v20(s,action);
-			break;
-
-	case	k_SPRITEFILE_VERSION0:
-	default:
-			return ReadFull_v13(s);
-	}
+    RequireSprite(action >= 0 && action < GOODACTION_MAX, "invalid goods action index");
+    ReadGoodGroup(s, false);
+    return SPRITEFILEERR_OK;
+}
+catch (std::exception const &error) {
+    std::fprintf(stderr, "[sprite] %s: %s\n", m_filename, error.what());
+    s->DeallocateStorage();
+    s->DeallocateFullLoadAnims();
+    return SPRITEFILEERR_READERR;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-SPRITEFILEERR SpriteFile::Read(EffectSpriteGroup *s)
+SPRITEFILEERR SpriteFile::Read(EffectSpriteGroup *s) try
 {
-	uint32	data32;
-
-	Sprite	*sprite = nullptr;
-	Anim	*anim;
-
-	ReadData(&data32, sizeof(data32));
-	if (data32) {
-		ReadSpriteDataGeneralFull(&sprite);
-		s->SetGroupSprite((GAME_ACTION)EFFECTACTION_PLAY, sprite);
-
-		ReadData(&data32, sizeof(data32));
-		if(data32) {
-			anim = new Anim;
-			ReadAnimDataFull(anim);
-			s->SetGroupAnim((GAME_ACTION)EFFECTACTION_PLAY, anim);
-		}
-	}
-
-	sprite = nullptr;
-
-	ReadData(&data32, sizeof(data32));
-	if (data32) {
-		ReadSpriteDataGeneralFull(&sprite);
-		s->SetGroupSprite((GAME_ACTION)EFFECTACTION_FLASH, sprite);
-
-		ReadData(&data32, sizeof(data32));
-		if(data32) {
-			anim = new Anim;
-			ReadAnimDataFull(anim);
-			s->SetGroupAnim((GAME_ACTION)EFFECTACTION_FLASH, anim);
-		}
-	}
-
-	return SPRITEFILEERR_OK;
+    s->DeallocateStorage();
+    s->DeallocateFullLoadAnims();
+    for (auto action : {EFFECTACTION_PLAY, EFFECTACTION_FLASH}) {
+        uint32 present;
+        ReadData(&present, sizeof(present));
+        if (!present) continue;
+        ReadGroupSprite(s, static_cast<GAME_ACTION>(action), false);
+        ReadData(&present, sizeof(present));
+        if (present) ReadGroupAnim(s, static_cast<GAME_ACTION>(action), false);
+    }
+    return SPRITEFILEERR_OK;
 }
-
-SPRITEFILEERR SpriteFile::ReadBasic(GoodSpriteGroup *s)
-{
-	uint16	i;
-	uint32	data32;
-
-	for (i=0; i<GOODACTION_MAX; i++)
-	{
-		ReadData(&data32, sizeof(data32));
-	}
-
-	for (i=0; i<GOODACTION_MAX; i++)
-	{
-		ReadData(&data32, sizeof(data32));
-		if (data32)
-		{
-		    Sprite * sprite = s->GetGroupSprite((GAME_ACTION)i);
-			ReadSpriteDataGeneralBasic(&sprite);
-			s->SetGroupSprite((GAME_ACTION)i, sprite);
-
-			Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
-			if (anim == nullptr)
-				anim = new Anim;
-
-			ReadAnimDataBasic(anim);
-			s->SetGroupAnim((GAME_ACTION)i, anim);
-		}
-	}
-
-	return SPRITEFILEERR_OK;
-}
-
-SPRITEFILEERR SpriteFile::ReadFull(GoodSpriteGroup *s)
-{
-	uint16	i;
-	uint32	data32;
-
-	for (i=0; i<GOODACTION_MAX; i++)
-	{
-		ReadData(&data32, sizeof(data32));
-	}
-
-	for (i=0; i<GOODACTION_MAX; i++)
-	{
-		ReadData(&data32, sizeof(data32));
-		if (data32)
-		{
-    		Sprite * sprite = s->GetGroupSprite((GAME_ACTION)i);
-			ReadSpriteDataGeneralFull(&sprite);
-			s->SetGroupSprite((GAME_ACTION)i, sprite);
-
-			Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
-			if (anim == nullptr)
-				anim = new Anim;
-
-			ReadAnimDataFull(anim);
-			s->SetGroupAnim((GAME_ACTION)i, anim);
-		}
-	}
-
-	return SPRITEFILEERR_OK;
-}
-
-
-SPRITEFILEERR SpriteFile::ReadIndexed(GoodSpriteGroup *s,GAME_ACTION index)
-{
-	uint32 	offsets[GOODACTION_MAX];
-	for (unsigned int & offset : offsets)
-		ReadData(&offset, sizeof(uint32));
-
-	SetFilePos(GetFilePos()+offsets[index]);
-
-	uint32	data32;
-	ReadData(&data32, sizeof(data32));
-
-	if (data32)
-	{
-		Sprite * sprite = s->GetGroupSprite(index);
-		ReadSpriteDataGeneralFull(&sprite);
-		s->SetGroupSprite(index, sprite);
-
-		Anim *anim = s->GetGroupAnim(index);
-
-		if (anim == nullptr)
-			anim = new Anim;
-
-		ReadAnimDataFull(anim);
-		s->SetGroupAnim(index, anim);
-	}
-
-	return SPRITEFILEERR_OK;
-}
-
-
-
-
-SPRITEFILEERR SpriteFile::Read(CitySpriteGroup **s, Anim **anim)
-{
-	return SPRITEFILEERR_OK;
+catch (std::exception const &error) {
+    std::fprintf(stderr, "[sprite] %s: %s\n", m_filename, error.what());
+    s->DeallocateStorage();
+    s->DeallocateFullLoadAnims();
+    return SPRITEFILEERR_READERR;
 }
 
 SPRITEFILEERR SpriteFile::CloseRead()
@@ -2193,12 +1309,18 @@ SPRITEFILEERR SpriteFile::WriteData(uint32 data)
 	return (countWritten == 4) ? SPRITEFILEERR_OK : SPRITEFILEERR_WRITEERR;
 }
 
+void SpriteFile::CheckReadSize(size_t bytes)
+{
+    long pos = GetFilePos();
+    RequireSprite(m_file && pos >= 0 && pos <= m_fileSize
+                  && bytes <= size_t(m_fileSize - pos), "truncated sprite data");
+}
+
 SPRITEFILEERR SpriteFile::ReadData(void *data, size_t bytes)
 {
-	size_t	countRead = c3files_fread(data, 1, bytes, m_file);
-	Assert(countRead == bytes);
-
-	return (countRead == bytes) ? SPRITEFILEERR_OK : SPRITEFILEERR_READERR;
+    CheckReadSize(bytes);
+    RequireSprite(c3files_fread(data, 1, bytes, m_file) == bytes, "cannot read sprite data");
+    return SPRITEFILEERR_OK;
 }
 
 /**
@@ -2213,45 +1335,16 @@ SPRITEFILEERR SpriteFile::ReadData(void *data, size_t bytes)
  */
 long SpriteFile::GetFilePos()
 {
-	sint32	err = c3files_fgetpos(m_file, &m_filePos);
-	Assert(err == 0);
-
-#ifdef WIN32
-	return static_cast<long>(m_filePos);
-#elif defined(LINUX)
-	return m_filePos.__pos;
-#else
-	/* macOS and other BSDs: fpos_t is a scalar type (__darwin_off_t). */
-	return static_cast<long>(m_filePos);
-#endif
+    RequireSprite(m_file != nullptr, "sprite file is not open");
+    long pos = std::ftell(m_file);
+    RequireSprite(pos >= 0, "cannot query sprite position");
+    return pos;
 }
 
-/**
- * Seek to an absolute byte offset in the sprite file.
- *
- * @param pos  Target byte offset from the start of the file.
- *
- * @note fpos_t representation differs by platform (see GetFilePos).
- *       The #else branch for macOS was missing, leaving filePos uninitialised.
- */
 void SpriteFile::SetFilePos(long pos)
 {
-	fpos_t		filePos;
-	sint32		err;
-
-#ifdef WIN32
-	filePos = pos;
-#elif defined(LINUX)
-	err = c3files_fgetpos(m_file, &filePos);
-	Assert(err == 0);
-	filePos.__pos = pos;
-#else
-	/* macOS and other BSDs: fpos_t is a scalar, assign directly. */
-	filePos = pos;
-#endif
-
-	err = c3files_fsetpos(m_file, &filePos);
-	Assert(err == 0);
+    RequireSprite(m_file && pos >= 0 && (!m_reading || pos <= m_fileSize), "invalid sprite offset");
+    RequireSprite(std::fseek(m_file, pos, SEEK_SET) == 0, "cannot seek sprite file");
 }
 
 
@@ -2285,7 +1378,7 @@ SpriteFile::CompressData  (void *Data, size_t &DataLen)
 uint8 *
 SpriteFile::DeCompressData(void *Data, size_t CompressedLen, size_t ActualLen)
 {
-	uint8 *ReturnVal = (uint8 *)Data;
+	uint8 *ReturnVal = nullptr;
 
 	switch(m_spr_compression)
 	{
@@ -2300,7 +1393,7 @@ SpriteFile::DeCompressData(void *Data, size_t CompressedLen, size_t ActualLen)
 
 	default:
 
-		c3errors_ErrorDialog("SpriteFile:", "Bad Compression Mode %d",m_spr_compression);
+		throw std::runtime_error("invalid sprite compression mode");
 	};
 
 	return ReturnVal;
@@ -2315,7 +1408,7 @@ SpriteFile::CompressData_Default  (void *Data, size_t &DataLen)
 	// TODO(phase-2): ownership transfer out of function — needs separate strategy
 	uint8 *ReturnVal = new uint8[DataLen];
 
-	memcpy((void *)ReturnVal,Data,DataLen);
+	memcpy(ReturnVal,Data,DataLen);
 
   return ReturnVal;
 }
@@ -2323,26 +1416,12 @@ SpriteFile::CompressData_Default  (void *Data, size_t &DataLen)
 uint8 *
 SpriteFile::DeCompressData_Default(void *Data, size_t CompressedLen, size_t ActualLen)
 {
-  // TODO(phase-2): ownership transfer out of function — needs separate strategy
-  uint8 *ReturnVal = new uint8[ActualLen];
-
-  memcpy((void *)ReturnVal,Data,ActualLen);
-
-  return ReturnVal;
+    RequireSprite(Data && ActualLen <= kMaxFrameBytes && CompressedLen == ActualLen,
+                  "invalid raw sprite length");
+    auto result = std::make_unique<uint8[]>(ActualLen);
+    std::memcpy(result.get(), Data, ActualLen);
+    return result.release();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 uint8 *
 SpriteFile::CompressData_LZW1(void *Data, size_t &DataLen)
@@ -2462,62 +1541,42 @@ end_of_compression:
 uint8 *
 SpriteFile::DeCompressData_LZW1(void *Data, size_t CompressedLen, size_t ActualLen)
 {
- size_t  src_len=CompressedLen;
- size_t  dst_len=ActualLen;
-
- // TODO(phase-2): ownership transfer out of function — needs separate strategy
- uint8  *ReturnVal  = new uint8[ActualLen];
- uint8  *p_src_first=(uint8 *)Data;
- uint8  *p_dst_first=ReturnVal;
-
- uint32 loops=0;
- uint32 subloops=0;
-
- uint16 controlbits=0;
- uint16 control=0;
- uint8 *p_src=p_src_first+LZW1_FLAG_BYTES;
- uint8 *p_dst=p_dst_first;
- uint8 *p_src_post=p_src_first+src_len;
-
- if (*p_src_first==LZW1_FLAG_COPY)
- {
-	memcpy(p_dst_first,p_src_first+LZW1_FLAG_BYTES,src_len-LZW1_FLAG_BYTES);
-    dst_len=src_len-LZW1_FLAG_BYTES;
-	return ReturnVal;
- }
-
- while (p_src<p_src_post)
- {
-	subloops++;
-
-	if(subloops>25)
-	{
-		loops ++;
-		subloops=0;
-	}
-	if (controlbits==0)
-	{
-		control=*p_src++;
-		control|=(*p_src++)<<8;
-		controlbits=16;
-	}
-    if (control&1)
-    {
-		uint16  offset  = (*p_src&0xF0)<<4;
-		uint16  len     = 1+(*p_src++&0xF);
-		offset+=*p_src++&0xFF;
-		uint8 * p       = p_dst-offset;
-
-		while (len--)
-			*p_dst++=*p++;
-	}
-    else
-       *p_dst++=*p_src++;
-
-	control>>=1;
-	controlbits--;
- }
-
-
- return ReturnVal;
+    RequireSprite(Data && CompressedLen >= LZW1_FLAG_BYTES && ActualLen <= kMaxFrameBytes,
+                  "invalid LZW1 sprite header or length");
+    auto const *input = static_cast<uint8 const *>(Data);
+    RequireSprite(input[0] == LZW1_FLAG_COPY || input[0] == LZW1_FLAG_COMPRESS,
+                  "invalid LZW1 compression flag");
+    auto output = std::make_unique<uint8[]>(ActualLen);
+    if (input[0] == LZW1_FLAG_COPY) {
+        RequireSprite(CompressedLen - LZW1_FLAG_BYTES == ActualLen, "LZW1 copy length mismatch");
+        std::memcpy(output.get(), input + LZW1_FLAG_BYTES, ActualLen);
+        return output.release();
+    }
+    size_t src = LZW1_FLAG_BYTES, dst = 0;
+    uint16 control = 0;
+    unsigned bits = 0;
+    while (src < CompressedLen) {
+        if (bits == 0) {
+            RequireSprite(CompressedLen - src >= 2, "truncated LZW1 control word");
+            control = input[src] | (uint16(input[src + 1]) << 8);
+            src += 2;
+            bits = 16;
+        }
+        if (control & 1) {
+            RequireSprite(CompressedLen - src >= 2, "truncated LZW1 reference");
+            size_t offset = ((input[src] & 0xf0) << 4) | input[src + 1];
+            size_t length = 1 + (input[src] & 0xf);
+            src += 2;
+            RequireSprite(offset > 0 && offset <= dst && length <= ActualLen - dst,
+                          "LZW1 reference outside output");
+            while (length--) { output[dst] = output[dst - offset]; ++dst; }
+        } else {
+            RequireSprite(src < CompressedLen && dst < ActualLen, "LZW1 literal outside output");
+            output[dst++] = input[src++];
+        }
+        control >>= 1;
+        --bits;
+    }
+    RequireSprite(dst == ActualLen, "LZW1 decoded length mismatch");
+    return output.release();
 }

@@ -51,11 +51,17 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("binary")
     ap.add_argument("--log", default=None)
+    ap.add_argument("--startup-timeout", type=int, default=60)
     args = ap.parse_args()
     log = args.log or "/tmp/ctp2_scenario_load_stress.log"
     print(f"[load-stress] headless: {args.binary} (game log -> {log})")
     try:
-        with Ctp2Client(args.binary, "headless", log_path=log) as client:
+        with Ctp2Client(
+            args.binary,
+            "headless",
+            log_path=log,
+            socket_wait=args.startup_timeout,
+        ) as client:
             run(client)
     except (Ctp2Error, AssertionError) as e:
         print(f"[load-stress] FAIL: {e}")

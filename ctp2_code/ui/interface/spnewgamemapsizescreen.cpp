@@ -286,7 +286,7 @@ AUI_ERRCODE spnewgamemapsizescreen_Cleanup()
 		delete [] s_checkBox;
 		s_checkBox = nullptr;
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = NULL; }
+#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
 		mycleanup(s_group);
 		mycleanup(s_spNewGameMapSizeScreen);
 #undef mycleanup

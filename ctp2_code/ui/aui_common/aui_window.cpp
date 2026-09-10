@@ -124,7 +124,7 @@ AUI_ERRCODE aui_Window::CreateSurface( )
 	Assert( m_surface == nullptr );
 	if ( !m_surface )
 	{
-		m_surface = aui_Factory::new_Surface(errcode, m_width, m_height);
+		m_surface = aui_Factory::new_Surface(errcode, m_width, m_height, nullptr, FALSE, FALSE, FALSE, m_bpp);
 
 		Assert( AUI_NEWOK(m_surface,errcode) );
 		if ( !AUI_NEWOK(m_surface,errcode) ) return errcode;
@@ -146,7 +146,7 @@ aui_Window::~aui_Window()
     delete m_surface;
     delete m_dirtyList;
     delete m_grabRegion;
-    free(m_stencil);
+    aui_DestroyStencil(m_stencil);
     delete m_focusControl;
     delete m_focusList;
 }
@@ -693,7 +693,7 @@ void aui_Window::SetStencilFromImage(const MBCHAR *imageFileName)
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 	if(m_stencil) {
-		free(m_stencil);
+		aui_DestroyStencil(m_stencil);
 	}
 
 	aui_Image *image = aui_ui_Get()->LoadImage((MBCHAR *)imageFileName);

@@ -61,6 +61,8 @@
 
 #include "gs/outcom/AICause.h"
 #include <algorithm>                    // std::fill
+#include <unordered_set>                // whole-map batch signature set
+#include <vector>
 #include "gs/gameobj/ArmyData.h"
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_blitter.h"
@@ -89,6 +91,7 @@
 #include "gs/fileio/gamefile.h"
 #include "gfx/gfx_utils/gfx_options.h"
 #include "gfx/spritesys/GoodActor.h"
+#include "gfx/spritesys/TradeActor.h"
 #include "gs/gameobj/GoodyHuts.h"
 #include "ui/aui_ctp2/grabitem.h"
 #include "gs/world/MapPoint.h"
@@ -120,6 +123,9 @@
 #include "gfx/tilesys/TileDrawRoad.h"
 #include "gs/world/TileInfo.h"
 #include "gfx/tilesys/tileset.h"
+#include "gfx/tilesys/GpuTileCache.h"   // P11 G1: terrain quad cache + signature
+#include "gfx/tilesys/TilesetGpuRaster.h" // P14: GPU terrain rasterisation
+#include "ui/aui_sdl/aui_sdl.h"         // P11 G1: GPU quad atlas + draw list
 #include "gfx/tilesys/tileutils.h"
 #include "gs/gameobj/TradeRoute.h"
 #include "gs/gameobj/TradeRouteData.h"
@@ -128,6 +134,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
 #include "gfx/spritesys/UnitSpriteGroup.h"
+#include "gfx/spritesys/SpriteGroupList.h" // fixture GetSprite/ReleaseSprite
 #include "gs/world/UnseenCell.h"
 #include "gs/world/World.h"                      // world_Get()
 
@@ -148,6 +155,8 @@ sint32      g_tileImprovementMode   = 0;
 BOOL        g_isTransportOn         = FALSE;
 sint32      g_isFastCpu             = 1;
 sint32      g_isGridOn              = 0;
+int s_goodCellsSeen = 0, s_goodNoActor = 0, s_goodDeclined = 0, s_goodEmitted = 0;   // PROBE
+char const * s_goodReason = "";   // PROBE
 sint32      g_placeGoodsMode        = FALSE;
 BOOL	    g_drawArmyClumps;
 
@@ -163,6 +172,188 @@ double s_zoomTileScale[k_MAX_ZOOM_LEVELS] =			{0.50526, 0.58947, 0.71578, 0.8, 0
 namespace
 {
     RECT const          RECT_INVISIBLE      = {0, 0, 0, 0};
+
+    struct OverlayScratch
+    {
+        std::unique_ptr<aui_Surface> surface;
+        SDL_Texture *texture = nullptr;
+        sint32 w = 0;
+        sint32 h = 0;
+    };
+
+    bool AddGpuOverlayQuad(TiledMap *map, sint32 w, sint32 h, sint32 slot,
+                           char const *reason,
+                           void (TiledMap::*draw)(aui_Surface *, sint32))
+    {
+        static OverlayScratch s_scratch[2];
+        OverlayScratch &scratch = s_scratch[slot];
+
+        auto fail = [](char const *reason) {
+            aui_SDL::MarkSpriteFrameIncomplete(reason);
+            return false;
+        };
+
+        if (!map || !aui_SDL::Renderer() || w <= 0 || h <= 0)
+            return fail(reason);
+        if (!scratch.surface || scratch.w != w || scratch.h != h)
+        {
+            if (scratch.texture)
+            {
+                SDL_DestroyTexture(scratch.texture);
+                scratch.texture = nullptr;
+            }
+            AUI_ERRCODE err = AUI_ERRCODE_OK;
+            scratch.surface.reset(aui_Factory::new_Surface(err, w, h, nullptr, FALSE, FALSE, FALSE, 16));
+            scratch.w = w;
+            scratch.h = h;
+        }
+        if (!scratch.surface)
+            return fail(reason);
+
+        LPVOID bits = nullptr;
+        if (scratch.surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
+            return fail(reason);
+        Pixel16 const transparent = 0xf81fu;
+        for (sint32 y = 0; y < h; ++y)
+        {
+            Pixel16 *row = reinterpret_cast<Pixel16 *>(static_cast<uint8 *>(bits) + y * scratch.surface->Pitch());
+            std::fill(row, row + w, transparent);
+        }
+        scratch.surface->Unlock(bits);
+
+        (map->*draw)(scratch.surface.get(), 0);
+
+        if (!scratch.texture)
+        {
+            scratch.texture = SDL_CreateTexture(aui_SDL::Renderer(), SDL_PIXELFORMAT_ARGB8888,
+                                                SDL_TEXTUREACCESS_STREAMING, w, h);
+            if (!scratch.texture)
+                return fail(reason);
+            SDL_SetTextureBlendMode(scratch.texture, SDL_BLENDMODE_BLEND);
+        }
+
+        if (scratch.surface->Lock(nullptr, &bits, 0) != AUI_ERRCODE_OK || !bits)
+            return fail(reason);
+        std::vector<uint32> rgba(static_cast<size_t>(w) * static_cast<size_t>(h));
+        bool anyPixel = false;
+        for (sint32 y = 0; y < h; ++y)
+        {
+            Pixel16 *row = reinterpret_cast<Pixel16 *>(static_cast<uint8 *>(bits) + y * scratch.surface->Pitch());
+            for (sint32 x = 0; x < w; ++x) {
+                if (row[x] != transparent) {
+                    anyPixel = true;
+                    rgba[static_cast<size_t>(y) * static_cast<size_t>(w) + x] =
+                        pixelutils_16to8888(row[x]) | 0xff000000u;
+                }
+            }
+        }
+        if (!anyPixel) {
+            scratch.surface->Unlock(bits);
+            return true;
+        }
+        CTP2_SDL_UpdateTexture(scratch.texture, nullptr, rgba.data(), w * 4);
+        scratch.surface->Unlock(bits);
+
+        aui_SDL::GpuSpriteQuad q;
+        q.texture = scratch.texture;
+        q.sx = 0; q.sy = 0; q.sw = w; q.sh = h;
+        q.dx = 0; q.dy = 0;
+        q.dw = w; q.dh = h;
+        q.mirror = false;
+        q.alpha = 255;
+        q.screen_space = true;
+        aui_SDL::AddSpriteQuad(q);
+        return true;
+    }
+
+    // Everything that changes what the per-cell OVERLAYS look like, folded into
+    // one value so a cached whole-map tile is rebuilt exactly when its
+    // appearance changes and never otherwise.
+    //
+    // Terrain state is deliberately absent -- TerrainCellSignature already
+    // carries it, and this is combined with that. Visibility and ownership ARE
+    // here: DrawImprovementsLayer draws a remembered (last-seen) cell for
+    // territory the visible player does not own, so the same road can render
+    // differently depending on who is looking.
+    // Everything the composited tile picture depends on that is NOT the terrain
+    // itself. Display options belong here as much as world state does: they
+    // change what a cached tile should look like, so leaving one out means the
+    // map keeps showing the old setting until something else dirties the cell.
+    uint64_t WorldmapCellOverlayState(TileInfo const *tileInfo, MapPoint const &pos,
+                                      Vision const *vision, bool gridOn,
+                                      uint64_t visibleOwners, uint64_t fogFlags)
+    {
+        bool const bordersOn = profiledb_Get()
+                            && profiledb_Get()->GetShowPoliticalBorders();
+        bool const smoothBorders = profiledb_Get()
+                                && profiledb_Get()->IsSmoothBorders() != 0;
+        uint64_t state = (gridOn ? 1u : 0u)
+                       | (bordersOn ? 2u : 0u)
+                       | (smoothBorders ? 4u : 0u)
+                       // Whether fog composites into the tile at all, and which
+                       // of the two fog looks is in force. Both change the
+                       // cached picture of every fogged cell at once.
+                       | (fogFlags << 3);
+        state = (state << 16) | (uint64_t)(uint16_t)(tileInfo ? tileInfo->GetRiverPiece() : -1);
+
+        Cell * const cell = world_Get() ? world_Get()->GetCell(pos) : nullptr;
+        uint64_t env = cell ? cell->GetEnv() : 0u;
+        // Only the bits that reach the improvement layer; the rest of GetEnv
+        // changes constantly and would defeat the cache.
+        env &= (k_MASK_ENV_INSTALLATION | k_MASK_ENV_MINE | k_MASK_ENV_IRRIGATION
+              | k_MASK_ENV_ROAD | k_MASK_ENV_CANAL_TUNNEL);
+        state = (state << 32) ^ env;
+
+        // Equal improvement counts do not mean equal pictures: a farm and
+        // a mine can have identical terrain/environment bits.
+        if (cell)
+            for (sint32 index = 0; index < cell->GetNumDBImprovements(); ++index)
+                state = state * 0x100000001B3ULL ^ uint64_t(cell->GetDBImprovement(index));
+
+        // DrawRoads connects to neighbouring roads, tunnels and cities.
+        uint64_t connections = 0;
+        if (world_Get())
+            for (int direction = NORTH; direction < NOWHERE; ++direction) {
+                MapPoint neighbor;
+                if (pos.GetNeighborPosition(WORLD_DIRECTION(direction), neighbor)
+                    && (world_Get()->IsAnyRoad(neighbor) || world_Get()->IsTunnel(neighbor)
+                        || world_Get()->IsCity(neighbor)))
+                    connections |= uint64_t(1) << direction;
+            }
+        state = state * 0x100000001B3ULL ^ connections;
+        // Ruins have two stamps, selected by the column's parity.
+        if (world_Get() && world_Get()->GetGoodyHut(pos))
+            state = state * 0x100000001B3ULL ^ uint64_t(pos.x & 1);
+
+        // Borders depend on the neighbours' owners as the BORDER code sees
+        // them, so the key must be built from the same function the drawing
+        // uses -- World::GetOwner and GetVisibleCellOwner are not the same.
+        state = state * 0x100000001B3ULL ^ visibleOwners;
+
+        uint64_t counts = (uint64_t)(cell ? cell->GetNumImprovements() : 0)
+                        | ((uint64_t)(cell ? cell->GetNumDBImprovements() : 0) << 8)
+                        | ((world_Get() && world_Get()->GetGoodyHut(pos)) ? (1ULL << 16) : 0)
+                        | ((vision && vision->IsVisible(pos))             ? (1ULL << 17) : 0)
+                        | ((uint64_t)(uint8_t)(world_Get() ? world_Get()->GetOwner(pos) : -1) << 24);
+        return state * 0x100000001B3ULL ^ counts;
+    }
+
+    bool CellHasCpuOnlyImprovementLayer(Cell *cell, MapPoint const &pos)
+    {
+        if (!cell)
+            return false;
+
+        uint32 const env = cell->GetEnv();
+        uint32 const mask = k_MASK_ENV_INSTALLATION
+                          | k_MASK_ENV_MINE
+                          | k_MASK_ENV_IRRIGATION
+                          | k_MASK_ENV_ROAD
+                          | k_MASK_ENV_CANAL_TUNNEL;
+        return (env & mask)
+            || cell->GetNumImprovements() > 0
+            || cell->GetNumDBImprovements() > 0
+            || world_Get()->GetGoodyHut(pos) != nullptr;
+    }
 }
 
 TiledMap::TiledMap(MapPoint &size)
@@ -283,6 +474,7 @@ TiledMap::~TiledMap()
 	delete m_oldMixDirtyList;
 	delete m_mapDirtyList;
 	delete m_tileSet;
+	// m_gpuTileCache / m_gpuScratchTile are unique_ptr — freed automatically
 	// m_localVision    not deleted: reference only
 	// m_surface        not deleted: reference only
 	// m_surfBase       not deleted: reference only
@@ -296,7 +488,11 @@ sint32 TiledMap::Initialize(RECT *viewRect)
 	sint32			h = viewRect->bottom - viewRect->top;
 	AUI_ERRCODE		errcode;
 
-	m_mapSurface = aui_Factory::new_Surface(errcode, w, h);
+	// P11 Stage 2 B2.3: the world surface is 32-bit ARGB8888. The tile, sprite
+	// and primitive writers all expand-at-store into 32-bit now (dormant paths
+	// activated by this flip), and the implicit m_mapSurface->secondary
+	// SDL_BlitSurface 565->8888 convert self-neutralizes into a 32->32 copy.
+	m_mapSurface = aui_Factory::new_Surface(errcode, w, h, nullptr, FALSE, FALSE, FALSE, 32);
 	Assert(m_mapSurface);
 	if (!m_mapSurface) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -317,7 +513,7 @@ sint32 TiledMap::Initialize(RECT *viewRect)
 
 	CalculateMetrics();
 
-	m_localVision = player_Get(selitem_Get()->GetVisiblePlayer())->m_vision;
+	m_localVision = player_Get(selitem_Get()->GetVisiblePlayer())->m_vision.get();
 
 	Assert(m_localVision);
 
@@ -564,6 +760,8 @@ AUI_ERRCODE TiledMap::RenderFullMap(aui_Surface *dest, sint32 zoomLevel)
 	// make the timelapse move. Same maputils projection as the tiles, so the
 	// markers sit on the correct iso tiles.
 	{
+		bool const   bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+		sint32 const step  = bpp32 ? 4 : 2;
 		sint32 const tw   = GetZoomTilePixelWidth();
 		sint32 const th   = GetZoomTilePixelHeight();
 		sint32 const hr   = GetZoomTileHeadroom();
@@ -585,11 +783,11 @@ AUI_ERRCODE TiledMap::RenderFullMap(aui_Surface *dest, sint32 zoomLevel)
 				for (sint32 dy = -half; dy <= half; ++dy) {
 					sint32 const yy = my + dy;
 					if (yy < 0 || yy >= m_surfHeight) continue;
-					Pixel16 * row = (Pixel16 *)(m_surfBase + yy * m_surfPitch);
+					uint8 * row = m_surfBase + yy * m_surfPitch;
 					for (sint32 dx = -half; dx <= half; ++dx) {
 						sint32 const xx = mx + dx;
 						if (xx < 0 || xx >= m_surfWidth) continue;
-						row[xx] = col;
+						pixelutils_StorePixel(row + xx * step, col, bpp32);
 					}
 				}
 			}
@@ -1585,6 +1783,43 @@ void TiledMap::PostProcessMap(BOOL regenTilenums)
 	}
 }
 
+// Rebuild the good sprites, and only those.
+//
+// A save carries where the goods ARE (World's cell data) but not the actors
+// that draw them: TileInfo::m_goodActor is a UI sprite pointer and json_save
+// deliberately skips it. Nothing recreated them afterwards, so every resource
+// on the map was invisible after loading any save, on every render path --
+// while a new game showed them, because PostProcessMap runs during map
+// generation.
+//
+// Deliberately NOT PostProcessMap(): its default regenerates tile numbers from
+// terrain, which would discard the mega-tile state the load just restored.
+// Goods are the thing that is missing, so goods are the thing this rebuilds.
+void TiledMap::RecreateGoodActors()
+{
+	// Same guard PostProcessTile uses: without a tileset there are no sprites
+	// to build, which is the headless case.
+	if (!m_tileSet || !world_Get()) return;
+
+	for (sint16 i = 0; i < m_mapBounds.bottom; i++)
+	{
+		for (sint16 j = 0; j < m_mapBounds.right; j++)
+		{
+			MapPoint pos(j, i);
+			TileInfo * tileInfo = world_Get()->GetTileInfoStoragePtr(pos);
+			if (!tileInfo) continue;
+
+			if (tileInfo->HasGoodActor())
+				tileInfo->DeleteGoodActor();
+
+			sint32 goodIndex;
+			if (world_Get()->GetGood(pos, goodIndex))
+				tileInfo->SetGoodActor(
+					g_theResourceDB->Get(goodIndex)->GetSpriteID(), pos);
+		}
+	}
+}
+
 void TiledMap::BreakMegaTile(MapPoint &pos)
 {
 	TileInfo * tileInfo = GetTileInfo(pos);
@@ -1842,7 +2077,8 @@ sint32 TiledMap::CalculateWrap
 
 	sint32  terrainType;
 	bool    fog = !m_renderEverything && !m_renderExploredAsVisible
-	              && !m_localVision->IsVisible(tempPos);
+	              && !m_localVision->IsVisible(tempPos)
+	              && !GpuFogActive();   // P11 C: GPU fog composites the mask instead
 	if (fog)
 	{
 		UnseenCellCarton ucell;
@@ -2018,7 +2254,7 @@ sint32 TiledMap::CalculateWrapClipped(
 
 	sint32	terrainType;
 
-	bool    fog = !m_localVision->IsVisible(tempPos);
+	bool    fog = !m_localVision->IsVisible(tempPos) && !GpuFogActive();
 
 	if (fog)
 	{
@@ -2271,7 +2507,7 @@ sint32 TiledMap::CalculateHatWrap(
 
 	TileInfo *tileInfo;
 
-	bool    fog = !m_localVision->IsVisible(pos);
+	bool    fog = !m_localVision->IsVisible(pos) && !GpuFogActive();
 	if (fog)
 	{
 		UnseenCellCarton ucell;
@@ -2617,6 +2853,10 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 	if (actor->GetUnitVisibility() & (1 << selitem_Get()->GetVisiblePlayer()))
 	{
 
+		if (m_buildingGpuSprites && !actor->AddGpuSpriteQuad(
+		        actor->GetX() + m_gpuSpriteOffsetX, actor->GetY() + m_gpuSpriteOffsetY, GetScale(), fog))
+			aui_SDL::MarkSpriteFrameIncomplete(actor->GpuSpriteFallbackReason());
+
 		if (actor->Draw(fog)) {
 
 			RECT rect;
@@ -2742,10 +2982,26 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 	}
 }
 
+void TiledMap::PaintTradeActor(TradeActor *actor)
+{
+    actor->Draw(GetLocalVision(), m_buildingGpuSprites, m_gpuSpriteOffsetX, m_gpuSpriteOffsetY);
+}
+
 void TiledMap::PaintGoodActor(GoodActor *actor, bool fog)
 {
 	Assert(actor != nullptr);
 	if (actor == nullptr) return;
+
+	if (m_buildingGpuSprites) {
+		if (actor->AddGpuSpriteQuad(actor->GetX() + m_gpuSpriteOffsetX,
+		                            actor->GetY() + m_gpuSpriteOffsetY, GetScale(), fog))
+			++s_goodEmitted;
+		else {
+			++s_goodDeclined;
+			s_goodReason = GoodSpriteGroup::GpuFallbackReason();
+			aui_SDL::MarkSpriteFrameIncomplete(s_goodReason);
+		}
+	}
 
 	(void) actor->Draw(fog);
 
@@ -2773,6 +3029,9 @@ void TiledMap::PaintEffectActor(EffectActor *actor)
 {
 	Assert(actor != nullptr);
 	if (actor == nullptr) return;
+
+	if (m_buildingGpuSprites && !actor->AddGpuSpriteQuad(m_gpuSpriteOffsetX, m_gpuSpriteOffsetY))
+		aui_SDL::MarkSpriteFrameIncomplete("effect-sprite");
 
 	actor->Draw();
 
@@ -2819,11 +3078,13 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 
 			if (world_Get()->IsGood(pos) && m_localVision->IsExplored(pos))
 			{
+				if (m_buildingGpuSprites) ++s_goodCellsSeen;
 				TileInfo *curTileInfo = GetTileInfo(pos);
 				Assert(curTileInfo);
 				if (curTileInfo)
 				{
                     GoodActor * curGoodActor = curTileInfo->GetGoodActor();
+                    if (m_buildingGpuSprites && !curGoodActor) ++s_goodNoActor;
                     if (curGoodActor)
                     {
 					    curGoodActor->PositionActor(pos);
@@ -3245,6 +3506,95 @@ sint32 TiledMap::OffsetSprites(RECT *paintRect, sint32 deltaX, sint32 deltaY)
 	return 0;
 }
 
+void TiledMap::BeginGpuSpriteFrame()
+{
+	aui_SDL::BeginSpriteFrame();
+	m_buildingGpuSprites = true;
+	s_goodCellsSeen = s_goodNoActor = s_goodDeclined = s_goodEmitted = 0;
+	s_goodReason = "";
+	sint32 baseX, baseY;
+	maputils_TileX2MapXAbs(m_mapViewRect.left, m_mapViewRect.top, &baseX);
+	maputils_MapXY2PixelXY(baseX, m_mapViewRect.top, &baseX, &baseY);
+	m_gpuSpriteOffsetX = aui_SDL::WorldContentOffX() - baseX;
+	m_gpuSpriteOffsetY = aui_SDL::WorldContentOffY() - baseY;
+	sint32 mapX, mapY;
+	maputils_TileX2MapXAbs(m_mapViewRect.left, m_mapViewRect.top, &mapX);
+	maputils_MapXY2WorldmapPixelXY(mapX, m_mapViewRect.top, &mapX, &mapY);
+	aui_SDL::SetWorldmapSpriteBase(mapX, mapY);
+}
+
+void TiledMap::EndGpuSpriteFrame()
+{
+	if (profiledb_Get()->GetShowCityNames()
+	    && (!c3ui_Get() || !AddGpuOverlayQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight(),
+	                                         0, "city-names", &TiledMap::DrawCityNames)))
+		aui_SDL::MarkSpriteFrameIncomplete("city-names");
+
+	if (ScenarioEditor::ShowStartFlags())
+	{
+		if (!c3ui_Get() || !AddGpuOverlayQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight(),
+		                                      1, "scenario-start-flags", &TiledMap::DrawStartingLocations))
+			aui_SDL::MarkSpriteFrameIncomplete("scenario-start-flags");
+	}
+	SubmitRenderFixtures();
+	m_buildingGpuSprites = false;
+}
+extern SpriteGroupList* g_unitSpriteGroupList;
+extern SpriteGroupList* g_citySpriteGroupList;
+
+void TiledMap::ClearRenderFixtures()
+{
+// Release held sprite refs (mirror UnitActor teardown) and empty the list.
+// render_new_scene calls this; fixtures never outlive the sprite lists in
+// test runs, so no reload-generation guard is needed.
+for (RenderFixture const &fixture : m_renderFixtures) {
+    if (!fixture.group)
+        continue;
+    if (fixture.groupType == GROUPTYPE_CITY) {
+        if (g_citySpriteGroupList)
+            g_citySpriteGroupList->ReleaseSprite(fixture.spriteIndex, LOADTYPE_BASIC);
+    } else {
+        if (g_unitSpriteGroupList)
+            g_unitSpriteGroupList->ReleaseSprite(fixture.spriteIndex, LOADTYPE_BASIC);
+    }
+}
+m_renderFixtures.clear();
+}
+
+sint32 TiledMap::AddRenderUnitFixture(RenderFixture const &fixture)
+{
+m_renderFixtures.push_back(fixture);
+return static_cast<sint32>(m_renderFixtures.size()) - 1;
+}
+
+void TiledMap::SubmitRenderFixtures()
+{
+// Per-frame resubmission: quad lists are rebuilt every frame, so harness
+// placements must be re-emitted alongside actor quads. Runs inside the GPU
+// sprite frame (m_buildingGpuSprites still true on entry).
+double const scale = GetScale();
+sint32 const xoffset = static_cast<sint32>(k_ACTOR_CENTER_OFFSET_X * scale);
+sint32 const yoffset = static_cast<sint32>(k_ACTOR_CENTER_OFFSET_Y * scale);
+for (RenderFixture const &fixture : m_renderFixtures) {
+    if (!fixture.group) {
+        aui_SDL::MarkSpriteFrameIncomplete("fixture-no-group");
+        continue;
+    }
+    sint32 px = 0, py = 0;
+    maputils_MapXY2PixelXY(fixture.mapX, fixture.mapY, &px, &py);
+    uint16 flags = k_DRAWFLAGS_NORMAL;
+    if (fixture.transparency < 15)
+        flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
+    if (fixture.fogged)
+        flags |= k_BIT_DRAWFLAGS_FOGGED;
+    if (!fixture.group->AddGpuSpriteQuad(fixture.action, fixture.frame,
+            px + m_gpuSpriteOffsetX + xoffset, py + m_gpuSpriteOffsetY + yoffset,
+            fixture.facing, scale, fixture.transparency, 0, flags, FALSE, FALSE)) {
+        aui_SDL::MarkSpriteFrameIncomplete("fixture-atlas-decline");
+    }
+}
+}
+
 sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolling)
 {
 	if(!ReadyToDraw())
@@ -3260,6 +3610,11 @@ sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolli
 	{
 		m_nextPlayer = FALSE;
 	}
+
+	// Rebuild dynamic sprites on each normal frame, after Director::Process.
+	// Scroll-strip/radar paints must not replace the main view's complete list.
+	bool const gpuSprites = this == tiledmap_Get() && !scrolling && aui_SDL::GpuQuadsEnabled();
+	if (gpuSprites) BeginGpuSpriteFrame();
 
 	screenmanager_Get()->LockSurface(surf);
 
@@ -3289,6 +3644,8 @@ sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolli
 	{
 		tiledmap_Get()->DrawStartingLocations(surf, 0);
 	}
+
+	if (gpuSprites) EndGpuSpriteFrame();
 
 	return 0;
 }
@@ -3511,7 +3868,9 @@ sint32 TiledMap::PaintColoredTile(sint32 x, sint32 y, COLOR color)
 	surfHeight = screenmanager_Get()->GetSurfHeight();
 	surfPitch = screenmanager_Get()->GetSurfPitch();
 
-	unsigned short	*destPixel;
+	bool const   bpp32 = surface && surface->BitsPerPixel() == 32;
+	sint32 const step  = bpp32 ? 4 : 2;
+	uint8	*destPixel;
 
 	y+=k_TILE_PIXEL_HEADROOM;
 
@@ -3533,14 +3892,17 @@ if (y >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 		}
 		endX = k_TILE_PIXEL_WIDTH - startX;
 
-		destPixel = (unsigned short *)(surfBase + ((y + j) * surfPitch) + ((x+startX) * 2));
+		destPixel = surfBase + ((y + j) * surfPitch) + ((x+startX) * step);
 
 		for (sint32 i=startX; i<endX; i++) {
-			if (*destPixel == 352)  {
-				*destPixel = 352;
+			if (bpp32) {
+				Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel);
+				*d = pixelutils_BlendFast8888(*d, pixelutils_16to8888(pixelColor), 20);
+			} else {
+				Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel);
+				*d = pixelutils_BlendFast(*d, pixelColor, 20);
 			}
-			*destPixel = pixelutils_BlendFast(*destPixel, pixelColor, 20);
-			destPixel++;
+			destPixel += step;
 		}
 	}
 
@@ -3549,6 +3911,11 @@ if (y >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 	return 0;
 }
 
+
+bool TiledMap::GpuFogActive() const
+{
+	return c3ui_Get() && c3ui_Get()->GpuFog();
+}
 
 sint32 TiledMap::Refresh()
 {
@@ -3592,7 +3959,901 @@ sint32 TiledMap::Refresh()
 
 	UnlockSurface();
 
+	// P11 Stage 2 C: rebuild the GPU fog mask from the same view, in sync with
+	// the world render. Separate surface + lock (not the world map surface), so
+	// it runs after UnlockSurface. No-op unless GPU fog is enabled.
+	if (c3ui_Get() && c3ui_Get()->GpuFog())
+		BuildFogMask(c3ui_Get()->FogSurface());
+
+	// P12: rebuild the GPU world draw list (and fill the atlas on cache misses)
+	// from the same view. Runs after UnlockSurface — it does its own scratch-
+	// surface locking. CTP2_GPU_QUADS=0 keeps the temporary CPU fallback.
+	if (aui_SDL::GpuQuadsEnabled())
+		BuildTerrainQuads();
+
+	// P13 step 1 (ADR-003): update the whole-map target from the SAME point in
+	// the frame. It composites cache misses through the identical scratch-lock
+	// path BuildTerrainQuads uses, which only behaves correctly here — after
+	// UnlockSurface. Called from outside a render pass the composite silently
+	// produced empty tiles. Dirty-tracked, so this is free once the map is drawn.
+	if (aui_SDL::GpuWorldmapEnabled())
+		BuildWorldmapQuads();
+
 	return 0;
+}
+
+// P11 Stage 3 G1 — terrain quad renderer.
+//
+// Rebuild the per-frame draw list of visible terrain cells as GPU quads. Each
+// cell's composited appearance is keyed by TerrainCellSignature; on a cache
+// miss the cell is composited exactly once (reusing the legacy tile draw into a
+// zoom-sized scratch surface) and uploaded into its atlas slot. On a hit we just
+// reference the cached slot. The present (aui_SDLSurface::Flip) then draws each
+// quad from the atlas into the world texture. The atlas slot size follows the
+// current engine zoom level; changing zoom rebuilds the cache at the new size.
+// P13 step 1 (ADR-003) — whole-map GPU render target, terrain only.
+//
+// The difference from BuildTerrainQuads is what the destination means. There,
+// quads land in a screen+margin texture at view-relative coordinates, so every
+// scroll invalidates the lot. Here they land in a texture the size of the WHOLE
+// map at absolute map-pixel coordinates, so a cell's destination never changes
+// and panning costs nothing. Only cells whose rendered content actually changed
+// are redrawn, keyed on the same signature the atlas cache uses.
+//
+// Terrain only, by design (step 1). Rivers, improvements, grid, cell text and
+// all actors are step 3; this path deliberately does not attempt them.
+static uint64_t const k_WORLDMAP_CELL_UNDRAWN = 0;
+
+// P14: the decoded-tileset raster brain. File-static because only the
+// singleton main map reaches BuildWorldmapQuads (the radar/thumbnail guard
+// returns first), and the state is a pure function of the loaded tileset --
+// ComposeCell resets itself when the TileSet pointer changes.
+static TilesetGpuRaster s_tilesetGpuRaster;
+
+void TiledMap::InvalidateWorldmap()
+{
+	m_worldmapCellSig.clear();
+	m_worldmapSigWidth = 0;
+	// Drop the tile cache too. Clearing only the cell signatures forces quads to
+	// be re-EMITTED but every signature still HITs, so nothing is re-composited
+	// and any diagnostic that swaps out the composite step silently does
+	// nothing (measured: 1322 cells redrawn, 0 misses, 0 uploads).
+	m_gpuTileCache.reset();
+}
+
+// Current rendered signature of a cell, or k_WORLDMAP_CELL_UNDRAWN if the cell
+// draws no terrain (unexplored, or no base tile).
+uint64_t TiledMap::WorldmapVisibleOwners(MapPoint const &pos)
+{
+	MapPoint cell = pos;
+	uint64_t owners = (uint64_t)(uint8_t)GetVisibleCellOwner(cell);
+	static WORLD_DIRECTION const dirs[] =
+		{ NORTHWEST, SOUTHWEST, NORTHEAST, SOUTHEAST };
+	for (int n = 0; n < 4; ++n)
+	{
+		MapPoint adj;
+		sint32 owner = -1;
+		if (pos.GetNeighborPosition(dirs[n], adj))
+			owner = GetVisibleCellOwner(adj);
+		owners |= ((uint64_t)(uint8_t)owner) << ((n + 1) * 8);
+	}
+	return owners;
+}
+
+int TiledMap::GpuTileCacheSize() const
+{
+	return m_gpuTileCache ? m_gpuTileCache->Size() : -1;
+}
+
+int TiledMap::GpuTileCacheCapacity() const
+{
+	return m_gpuTileCache ? m_gpuTileCache->Capacity() : -1;
+}
+
+uint64_t TiledMap::GpuTileCacheEvictions() const
+{
+	return m_gpuTileCache ? m_gpuTileCache->Evictions() : 0;
+}
+
+// P13 step 4 (#12839): is this cell drawn fogged in its whole-map tile?
+//
+// Same test DrawATile makes on the CPU path. Explored-but-not-currently-visible
+// is fog; unexplored is not fog but plain black, which the target is already
+// cleared to. GpuFogActive() means the separate screen-space mask is doing the
+// job and compositing it into the tile as well would double it.
+bool TiledMap::WorldmapCellFogged(MapPoint const &pos) const
+{
+	if (!m_localVision) return false;
+	if (m_renderEverything || m_renderExploredAsVisible) return false;
+	if (GpuFogActive()) return false;
+	return m_localVision->IsExplored(pos) && !m_localVision->IsVisible(pos);
+}
+
+// The globals that decide how fog LOOKS, for the cache key. Per-cell visibility
+// is already in the key (WorldmapCellOverlayState); these are what make every
+// cached tile stale at once when the engine or the player flips them.
+uint64_t TiledMap::WorldmapFogFlags() const
+{
+	uint64_t flags = 0;
+	if (!(m_renderEverything || m_renderExploredAsVisible) && !GpuFogActive())
+		flags |= 1u;                    // fog composites into tiles at all
+	if (g_isFastCpu)
+		flags |= 2u;                    // blended rather than dithered
+	return flags;
+}
+
+uint64_t TiledMap::CellSignatureAt(sint32 mapX, sint32 mapY)
+{
+	MapPoint pos = MapPoint(mapX, mapY);
+	if (!m_renderEverything && !m_localVision->IsExplored(pos))
+		return k_WORLDMAP_CELL_UNDRAWN;
+	TileInfo * tileInfo = GetTileInfo(pos);
+	if (!tileInfo) return k_WORLDMAP_CELL_UNDRAWN;
+	if (!m_tileSet->GetBaseTile(tileInfo->GetTileNum())) return k_WORLDMAP_CELL_UNDRAWN;
+	sint32 const tilesetIndex =
+		g_theTerrainDB->Get(tileInfo->GetTerrainType())->GetTilesetIndex();
+	// MUST match what BuildWorldmapQuads stores in m_worldmapCellSig, overlays
+	// included. The dirty pre-pass compares the two: if they are computed
+	// differently every cell looks changed every frame, every neighbour is
+	// marked undrawn, and the path silently redraws the whole map on every pan
+	// -- correct output, none of the point.
+	return WorldmapCellSignature(
+		TerrainCellSignature(tileInfo->GetTileNum(), (uint8_t) tilesetIndex,
+			(uint8_t) tileInfo->GetTransition(0), (uint8_t) tileInfo->GetTransition(1),
+			(uint8_t) tileInfo->GetTransition(2), (uint8_t) tileInfo->GetTransition(3)),
+		WorldmapCellOverlayState(tileInfo, pos, m_localVision, g_isGridOn != 0,
+			WorldmapVisibleOwners(pos), WorldmapFogFlags()));
+}
+
+// P13 step 3: the per-cell overlays for one whole-map tile, drawn into the
+// surface the caller has locked (the scratch tile), at its origin.
+//
+// Same content and same order as the CPU path in DrawATile: river over the
+// terrain, then the improvement layer (roads, mines, irrigation, installations,
+// goody huts), then the grid on top. Passing nullptr as the surface targets the
+// locked surface, which is how workmap and resourcemap already reuse these
+// routines for their own views.
+//
+// National borders are NOT here. DrawNationalBorders computes its own
+// view-relative position and bails on a negative one, so it cannot draw into a
+// tile-sized scratch surface without being given a destination first.
+void TiledMap::DrawWorldmapCellOverlays(MapPoint const &pos, TileInfo *tileInfo,
+                                        bool lineBorders, bool fogged, bool drawGrid)
+{
+	MapPoint cellPos = pos;
+
+	sint16 const river = tileInfo ? tileInfo->GetRiverPiece() : -1;
+	if (river != -1 && m_tileSet)
+	{
+		// The river follows its tile into fog, the same four-way choice
+		// DrawATile makes. A bright river over darkened terrain would read as a
+		// glowing seam through the fog.
+		Pixel16 * const data = m_tileSet->GetRiverData(river);
+		if (m_zoomLevel == k_ZOOM_LARGEST)
+		{
+			if (!fogged)
+				DrawOverlay(nullptr, data, 0, 0);
+			else if (g_isFastCpu)
+				DrawBlendedOverlay(nullptr, data, 0, 0, k_FOW_COLOR, k_FOW_BLEND_VALUE);
+			else
+				DrawDitheredOverlay(nullptr, data, 0, 0, k_FOW_COLOR);
+		}
+		else
+		{
+			if (!fogged)
+				DrawScaledOverlay(nullptr, data, 0, 0,
+					GetZoomTilePixelWidth(), GetZoomTileGridHeight());
+			else if (g_isFastCpu)
+				DrawBlendedOverlayScaled(nullptr, data, 0, 0,
+					GetZoomTilePixelWidth(), GetZoomTileGridHeight(),
+					k_FOW_COLOR, k_FOW_BLEND_VALUE);
+			else
+				DrawDitheredOverlayScaled(nullptr, data, 0, 0,
+					GetZoomTilePixelWidth(), GetZoomTileGridHeight(), k_FOW_COLOR);
+		}
+	}
+
+	DrawImprovementsLayer(nullptr, cellPos, 0, 0);
+
+
+	if (profiledb_Get() && profiledb_Get()->GetShowPoliticalBorders() && m_tileSet)
+	{
+		sint32 const owner = GetVisibleCellOwner(cellPos);
+		Player * const visP = player_Get(selitem_Get()->GetVisiblePlayer());
+		if (owner >= 0 && visP && (visP->HasSeen(owner) || g_fog_toggle || g_god))
+		{
+			Pixel16 const color = colorset_Get()->GetPlayerColor(owner);
+			// P13 step 3 (#14260): both border STYLES, matching DrawNationalBorders.
+			// The smooth style stamps a corner icon; the line style draws a
+			// colored edge. Only the icon style used to composite here, so a
+			// player with smooth borders off saw no borders at all on the
+			// whole-map path -- and the setting is in the graphics options, so
+			// it is a plain user preference rather than a corner case.
+			//
+			// The line style is gated on the CALLER, not just the setting,
+			// because this routine is shared with the quad path -- and that
+			// path's tile cache is keyed on TerrainCellSignature alone, with no
+			// border state in it. Compositing a border there poisons the cached
+			// tile for every other cell that shares its terrain signature.
+			// Measured when this was ungated: the quad path's own coverage
+			// against the whole-map path went to 1.87 with diff_ratio 0.9.
+			// Only the whole-map key (WorldmapCellOverlayState) carries the
+			// border settings, so only the whole-map path may draw them.
+			bool const smooth = profiledb_Get()->IsSmoothBorders() != 0;
+			if (smooth || lineBorders)
+			{
+				struct BorderEdge { WORLD_DIRECTION dir; MAPICON icon; sint32 dy; };
+				static BorderEdge const edges[] = {
+					{ NORTHWEST, MAPICON_POLBORDERNW, 18 },
+					{ SOUTHWEST, MAPICON_POLBORDERSW, 46 },
+					{ NORTHEAST, MAPICON_POLBORDERNE, 22 },
+					{ SOUTHEAST, MAPICON_POLBORDERSE, 48 },
+				};
+				for (BorderEdge const & edge : edges)
+				{
+					MapPoint adj;
+					if (!cellPos.GetNeighborPosition(edge.dir, adj))
+						continue;
+					if (GetVisibleCellOwner(adj) == owner)
+						continue;
+					if (smooth)
+					{
+						Pixel16 * const icon = m_tileSet->GetMapIconData(edge.icon);
+						if (icon)
+							DrawColorizedOverlay(icon, nullptr, 0, edge.dy, color);
+					}
+					else
+					{
+						// Tile-local x, and the same headroom offset the CPU
+						// entry point applies before it starts drawing -- the
+						// diamond sits that far down inside its slot on both
+						// paths.
+						DrawColoredBorderEdgeAt(0,
+							(sint32)((double)k_TILE_PIXEL_HEADROOM * m_scale),
+							color, edge.dir, k_BORDER_SOLID);
+					}
+				}
+			}
+		}
+	}
+
+	if (g_isGridOn && drawGrid)
+	{
+		if (m_zoomLevel == k_ZOOM_LARGEST)
+			DrawTileBorder(nullptr, 0, 0, colorset_Get()->GetColor(COLOR_BLACK));
+		else
+			DrawTileBorderScaled(nullptr, cellPos, 0, 0,
+				GetZoomTilePixelWidth(), GetZoomTileGridHeight(),
+				colorset_Get()->GetColor(COLOR_BLACK));
+	}
+}
+
+int TiledMap::BuildWorldmapQuads()
+{
+	if (!aui_SDL::GpuWorldmapEnabled()) return 0;
+	// Only the singleton main map owns the single global target; radar and
+	// thumbnail maps are separate TiledMap instances with their own views.
+	if (this != tiledmap_Get())        return 0;
+	if (!m_tileSet || !m_localVision)  return 0;
+
+	sint32 mapWidth, mapHeight;
+	GetMapMetrics(&mapWidth, &mapHeight);
+	if (mapWidth <= 0 || mapHeight <= 0) return 0;
+
+	int const tileW = GetZoomTilePixelWidth();
+	int const tileH = GetZoomTileGridHeight();
+	if (tileW <= 0 || tileH <= 0) return 0;
+
+	// The whole map at native tile size. Rows interleave by half a grid height,
+	// so the map is mapHeight half-steps tall plus the bottom row's remainder.
+	// Same stride the whole-map projection addresses with (see
+	// maputils_MapXY2WorldmapPixelXY) -- the engine's, not the asset constant.
+	int const strideX = GetZoomTilePixelWidth();
+	// The map wraps in X, so the image is periodic with this width; the texture
+	// is one stride wider only so the half-stride overhang of odd rows has
+	// somewhere to land. Everything that SAMPLES the texture must use the period,
+	// not the allocation.
+	int const wrapW = static_cast<int>(mapWidth) * strideX;
+	int const texW = wrapW + strideX;
+	int const texH = static_cast<int>(mapHeight) * (GetZoomTilePixelHeight() / 2) + tileH;
+	if (!aui_SDL::EnsureWorldmapTexture(texW, texH))
+		return 0;   // driver refused the size — caller stays on the ADR-002 path
+	aui_SDL::SetWorldmapWrap(wrapW);
+
+	// The atlas the quads sample from is shared with BuildTerrainQuads; build it
+	// on the same terms so a mode switch does not thrash the cache.
+	int const k_ATLAS_COLS = 32;
+	int const k_ATLAS_ROWS = 32;
+	if (!m_gpuTileCache || m_gpuTileCache->TileW() != tileW || m_gpuTileCache->TileH() != tileH)
+	{
+		// Resizing the atlas invalidates both its slots and the whole-map image.
+		InvalidateWorldmap();
+		m_gpuTileCache = std::make_unique<GpuTileCache>(
+			k_ATLAS_COLS, k_ATLAS_ROWS, tileW, tileH);
+		AUI_ERRCODE err = AUI_ERRCODE_OK;
+		m_gpuScratchTile.reset(aui_Factory::new_Surface(err, tileW, tileH,
+			nullptr, FALSE, FALSE, FALSE, /*bpp=*/32));
+	}
+	if (!m_gpuScratchTile) return 0;
+	aui_SDL::EnsureQuadAtlas(m_gpuTileCache->AtlasW(), m_gpuTileCache->AtlasH());
+
+	bool firstBuild = false;
+	if (m_worldmapSigWidth != mapWidth
+	    || m_worldmapCellSig.size() != static_cast<size_t>(mapWidth) * mapHeight)
+	{
+		firstBuild = true;
+		m_worldmapCellSig.assign(static_cast<size_t>(mapWidth) * mapHeight,
+		                         k_WORLDMAP_CELL_UNDRAWN);
+		m_worldmapSigWidth = mapWidth;
+	}
+
+	// A cell's quad rect is a full GRID tile tall (headroom + diamond) but rows
+	// advance by half a diamond, so a rect overlaps the diamonds of several rows.
+	// Clearing a changed cell therefore erases correct pixels belonging to its
+	// neighbours, and they have to be redrawn.
+	//
+	// The subtlety that cost 11% of the map: it is NOT enough to widen the dirty
+	// set, because the widened set is what gets cleared as well, and its new
+	// border erases ITS neighbours in turn. No radius terminates that. The fix is
+	// that the two sets are different jobs -- clear only the cells that actually
+	// changed, redraw those plus everyone overlapping them:
+	//
+	//   clear set C = cells whose own signature changed
+	//   draw set  D = C + every cell whose diamond intersects a rect of C
+	//
+	// Then every pixel a clear removed belongs to some cell in D and comes back,
+	// and nothing outside D was touched. Skipped on the first build: nothing is
+	// drawn yet, so there is nothing to erase and every explored cell is dirty.
+	//
+	// Reach, in row steps: upward a rect covers gridHeight/rowStep - 1 = 2 rows
+	// (the 24px headroom sits above the diamond, over the row two steps up);
+	// downward diamondHeight/rowStep - 1 = 1. Derived from the zoom metrics
+	// rather than hardcoded, because both scale with the zoom level. Sideways a
+	// rect is exactly one column stride wide and adjacent rows are offset half a
+	// stride, so +-1 column covers it.
+	std::vector<aui_SDL::GpuQuad> clears;
+	bool const xWraps = world_Get() && world_Get()->IsXwrap();
+	if (!firstBuild)
+	{
+		sint32 const rowStep  = GetZoomTilePixelHeight() / 2;
+		sint32 const rowsUp   = rowStep > 0
+			? (GetZoomTileGridHeight()  + rowStep - 1) / rowStep - 1 : 0;
+		sint32 const rowsDown = rowStep > 0
+			? (GetZoomTilePixelHeight() + rowStep - 1) / rowStep - 1 : 0;
+
+		std::vector<size_t> touched;
+		for (sint32 i = 0; i < mapHeight; i++)
+			for (sint32 j = 0; j < mapWidth; j++)
+			{
+				size_t const idx = static_cast<size_t>(i) * mapWidth + j;
+				uint64_t const cur = CellSignatureAt(j, i);
+				// A cell with nothing drawn yet (newly explored) has no stale
+				// pixels to erase, so it belongs in D but not in C -- and the emit
+				// pass already picks it up on the signature mismatch. Clearing it
+				// would drag its whole neighbourhood into the redraw for nothing,
+				// every turn vision expands.
+				if (cur != k_WORLDMAP_CELL_UNDRAWN
+				    && m_worldmapCellSig[idx] != cur
+				    && m_worldmapCellSig[idx] != k_WORLDMAP_CELL_UNDRAWN)
+					touched.push_back(idx);
+			}
+		for (size_t idx : touched)
+		{
+			sint32 const ci = static_cast<sint32>(idx / mapWidth);
+			sint32 const cj = static_cast<sint32>(idx % mapWidth);
+
+			sint32 clearX = 0, clearY = 0;
+			maputils_MapXY2WorldmapPixelXY(cj, ci, &clearX, &clearY);
+			aui_SDL::GpuQuad c;
+			c.sx = c.sy = c.sw = c.sh = 0;   // clears sample nothing
+			c.dx = clearX; c.dy = clearY;
+			c.dw = tileW;  c.dh = tileH;
+			clears.push_back(c);
+			// Seam cells are drawn twice (see the emit pass), so both copies have
+			// to be erased or the wrapped one keeps showing the old terrain.
+			if (clearX + tileW > wrapW)
+			{
+				aui_SDL::GpuQuad w = c;
+				w.dx = clearX - wrapW;
+				clears.push_back(w);
+			}
+
+			for (sint32 di = -rowsUp; di <= rowsDown; ++di)
+				for (sint32 dj = -1; dj <= 1; ++dj)
+				{
+					sint32 const ni = ci + di;
+					if (ni < 0 || ni >= mapHeight) continue;
+					// Neighbour in MAP x, wrapped -- because "next to" here means
+					// next to in the TEXTURE, and a column's texture position is
+					// (mapX + mapY/2) mod mapWidth. Bounds-checking mapX instead of
+					// wrapping it silently dropped the cells across the texture's
+					// seam, which in map coordinates is not an edge at all but a
+					// DIAGONAL line (the +mapY/2 term moves it half a column per
+					// row). That is why the loss showed up as a diagonal chain of
+					// missing tiles, and why it depended on where the map put the
+					// camera rather than on anything about the terrain.
+					sint32 nj = cj + dj;
+					if (xWraps)
+						nj = ((nj % mapWidth) + mapWidth) % mapWidth;
+					else if (nj < 0 || nj >= mapWidth)
+						continue;
+					m_worldmapCellSig[static_cast<size_t>(ni) * mapWidth + nj] =
+						k_WORLDMAP_CELL_UNDRAWN;
+				}
+		}
+	}
+
+	std::vector<aui_SDL::GpuQuad> dirty;
+	m_worldmapMisses = 0;
+	m_worldmapRasterCells = 0;
+	m_worldmapCpuCells = 0;
+	m_worldmapUploads = 0;
+	m_worldmapMinX = m_worldmapMinY = 1 << 30;
+	m_worldmapMaxX = m_worldmapMaxY = -(1 << 30);
+
+	// A quad records WHERE in the atlas its pixels are, and the batch is drawn
+	// only after the whole map has been walked. The atlas is an LRU cache, so a
+	// cell late in the walk can evict a slot that an earlier quad in the SAME
+	// batch still points at -- and that earlier quad then samples whatever
+	// replaced it. It shows up as a scatter of cells wearing another cell's
+	// terrain, so it reads as a transition or projection bug rather than a cache
+	// one, and it is terrain-dependent because which signatures collide depends
+	// on what is on the map.
+	//
+	// Not hypothetical: on a 48x96 map the atlas (1024 slots) saturates after
+	// the second painted patch and then evicts continuously -- 1181 evictions
+	// over a 15-capture parity run, with 4 captures showing diff_ratio up to
+	// 0.035 against the quad path. Enlarging the atlas hid it, which is how it
+	// was confirmed, but that only buys headroom: this path composites the WHOLE
+	// map, so the number of distinct cell appearances scales with the map and
+	// will always be able to exceed any fixed atlas.
+	//
+	// The fix is to bound the batch instead. Once a batch has touched as many
+	// distinct signatures as the cache can hold, draw what is accumulated and
+	// start a new one; anything evicted after that belongs to a batch already on
+	// the texture. Clears ride with the first flush because they must all land
+	// before any drawing (a later cell's clear would erase an earlier cell's
+	// overlap), and clearing is independent of the atlas.
+	std::unordered_set<uint64_t> batchSigs;
+	int const atlasCapacity = m_gpuTileCache->Capacity();
+	bool clearsPending = true;
+	int emitted = 0;
+	bool drawFailed = false;
+	auto flushBatch = [&]() -> bool
+	{
+		if (dirty.empty()) return true;
+		std::vector<aui_SDL::GpuQuad> const noClears;
+		bool const ok = aui_SDL::DrawWorldmapQuads(
+			clearsPending ? clears : noClears, dirty);
+		clearsPending = false;
+		emitted += static_cast<int>(dirty.size());
+		dirty.clear();
+		batchSigs.clear();
+		return ok;
+	};
+	for (sint32 i = 0; i < mapHeight; i++)
+	{
+		for (sint32 j = 0; j < mapWidth; j++)
+		{
+			// j is a MAP x here (the loop walks map space directly), unlike
+			// BuildTerrainQuads whose j walks the view rect in tile space.
+			MapPoint pos = MapPoint(j, i);
+
+			// Unexplored cells stay the opaque black the target was cleared to,
+			// matching CalculateWrap's BlackTile.
+			if (!m_renderEverything && !m_localVision->IsExplored(pos)) continue;
+
+			TileInfo * tileInfo = GetTileInfo(pos);
+			if (!tileInfo) continue;
+			if (!m_tileSet->GetBaseTile(tileInfo->GetTileNum())) continue;
+
+			sint32 const tilesetIndex =
+				g_theTerrainDB->Get(tileInfo->GetTerrainType())->GetTilesetIndex();
+			// P13 step 3: the whole-map image includes the per-cell overlays
+			// (river, roads and other improvements, goody hut, grid) that the
+			// window path leaves to the CPU, so the key has to cover them too.
+			// Bit 63 keeps these keys disjoint from the window path's, which
+			// shares this cache.
+			uint64_t const sig = WorldmapCellSignature(
+				TerrainCellSignature(
+					tileInfo->GetTileNum(),
+					(uint8_t) tilesetIndex,
+					(uint8_t) tileInfo->GetTransition(0),
+					(uint8_t) tileInfo->GetTransition(1),
+					(uint8_t) tileInfo->GetTransition(2),
+					(uint8_t) tileInfo->GetTransition(3)),
+				WorldmapCellOverlayState(tileInfo, pos, m_localVision, g_isGridOn != 0,
+			WorldmapVisibleOwners(pos), WorldmapFogFlags()));
+
+			// The whole point of this path: unchanged cells cost nothing, so a
+			// pan or a zoom redraws zero tiles.
+			size_t const cellIdx = static_cast<size_t>(i) * mapWidth + j;
+			if (m_worldmapCellSig[cellIdx] == sig) continue;
+
+			// Absolute map-pixel destination, computed before the composite is
+			// chosen because BOTH composites need it. NOTE this cannot use
+			// maputils_MapXY2PixelXY: that consults GetMapViewRect() and is
+			// view-RELATIVE. Rows step by HALF THE DIAMOND (24), not half the
+			// 72px grid cell — the extra 24px is headroom above the diamond.
+			sint32 drawX = 0;
+			sint32 slotY = 0;
+			maputils_MapXY2WorldmapPixelXY(j, i, &drawX, &slotY);
+			sint32 const drawY = slotY;
+
+			// Raster terrain, then reuse the existing improvement/border rules
+			// to emit cached overlay quads. Failed entries reject the whole cell.
+			bool rastered = false;
+			if (aui_SDL::GpuRasterEnabled() && m_zoomLevel == k_ZOOM_LARGEST)
+			{
+				uint8_t const trans[4] = {
+					(uint8_t) tileInfo->GetTransition(0),
+					(uint8_t) tileInfo->GetTransition(1),
+					(uint8_t) tileInfo->GetTransition(2),
+					(uint8_t) tileInfo->GetTransition(3) };
+				size_t const before = dirty.size();
+				if (s_tilesetGpuRaster.ComposeCell(m_tileSet,
+						tileInfo->GetTileNum(), (uint16) tilesetIndex, trans,
+						WorldmapCellFogged(pos), k_FOW_COLOR, k_FOW_BLEND_VALUE,
+						(int) tileInfo->GetRiverPiece(), -1, drawX, drawY, dirty))
+				{
+					TileOverlayCapture capture{s_tilesetGpuRaster, dirty, drawX, drawY, tileW, tileH};
+					LockThisSurface(m_gpuScratchTile.get());
+					if (m_surfBase)
+					{
+						m_gpuOverlayCapture = &capture;
+						// River already emitted; grid must follow improvements and borders.
+						DrawWorldmapCellOverlays(pos, nullptr, true, WorldmapCellFogged(pos), false);
+						m_gpuOverlayCapture = nullptr;
+					}
+					else capture.ok = false;
+					UnlockSurface();
+					if (capture.ok && g_isGridOn)
+						capture.ok = s_tilesetGpuRaster.Grid(colorset_Get()->GetColor(COLOR_BLACK), drawX, drawY, dirty);
+					if (capture.ok)
+					{
+						bool const shadowed = std::any_of(dirty.begin() + before, dirty.end(),
+						    [](aui_SDL::GpuQuad const &q) { return q.blend == SDL_BLENDMODE_MOD; });
+						if (shadowed)
+						{
+							aui_SDL::GpuQuad boundary{0, 0, 0, 0, drawX, drawY, tileW, tileH};
+							boundary.operation = aui_SDL::QuadOperation::BeginCell;
+							dirty.insert(dirty.begin() + before, boundary);
+							boundary.operation = aui_SDL::QuadOperation::EndCell;
+							dirty.push_back(boundary);
+						}
+						rastered = true;
+						++m_worldmapRasterCells;
+						// Seam duplicate applies to every quad of the cell.
+						if (drawX + tileW > wrapW)
+						{
+							for (size_t qi = before, qe = dirty.size(); qi < qe; ++qi)
+							{
+								aui_SDL::GpuQuad w = dirty[qi];
+								w.dx -= wrapW;
+								dirty.push_back(w);
+							}
+						}
+					}
+					else dirty.resize(before);
+				}
+			}
+
+			// One more distinct signature than the atlas holds means the next
+			// Get() can recycle a slot this batch already emitted a quad for.
+			// Draw what we have first; see the batching note above. Raster
+			// cells stay out of this bound — they never touch the LRU atlas,
+			// so nothing can invalidate their quads mid-batch.
+			if (!rastered && atlasCapacity > 0
+			    && batchSigs.find(sig) == batchSigs.end()
+			    && (int) batchSigs.size() >= atlasCapacity)
+			{
+				if (!flushBatch()) { drawFailed = true; break; }
+			}
+			if (!rastered) {
+                ++m_worldmapCpuCells;
+				batchSigs.insert(sig);
+            }
+
+			GpuTileSlot slot;
+			if (!rastered && m_gpuTileCache->Get(sig, slot) == GpuTileCache::MISS)
+			{
+				++m_worldmapMisses;
+				LockThisSurface(m_gpuScratchTile.get());
+				if (m_surfBase)
+				{
+					++m_worldmapUploads;
+					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
+					// Base terrain plus its transitions. P13 step 4 (#12839):
+					// a fogged cell takes the blended or dithered variant, the
+					// same choice DrawATile makes on the CPU path, so fog is
+					// part of the cached tile picture instead of a separate
+					// pass. Per-cell visibility is already in the signature, so
+					// a cell that gains or loses sight recomposites by itself.
+					bool const fogged = WorldmapCellFogged(pos);
+					if (m_zoomLevel == k_ZOOM_LARGEST)
+					{
+						if (!fogged)
+							DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
+						else if (g_isFastCpu)
+							DrawBlendedTile(m_gpuScratchTile.get(), pos, 0, 0,
+								k_FOW_COLOR, k_FOW_BLEND_VALUE);
+						else
+							DrawDitheredTile(m_gpuScratchTile.get(), 0, 0, k_FOW_COLOR);
+					}
+					else
+					{
+						if (!fogged)
+							DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
+								GetZoomTilePixelWidth(), GetZoomTilePixelHeight());
+						else if (g_isFastCpu)
+							DrawBlendedTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
+								GetZoomTilePixelWidth(), GetZoomTilePixelHeight(),
+								k_FOW_COLOR, k_FOW_BLEND_VALUE);
+						else
+							DrawDitheredTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
+								GetZoomTilePixelWidth(), GetZoomTilePixelHeight(),
+								k_FOW_COLOR);
+					}
+
+					// P13 step 3: the per-cell overlays, in the order the CPU
+					// path draws them. nullptr targets the surface locked
+					// above -- the scratch tile -- which is how workmap and
+					// resourcemap already reuse these same routines for their
+					// own views.
+					//
+					// Line borders and fog only here: this path's key
+					// (WorldmapCellOverlayState) carries the border settings,
+					// the neighbours' owners and the cell's visibility, so a
+					// bordered or fogged tile is a distinct cache entry. The
+					// quad path's key is terrain alone, so anything conditional
+					// baked into a tile there leaks onto unrelated cells.
+					DrawWorldmapCellOverlays(pos, tileInfo, /*lineBorders=*/true,
+					                         fogged);
+
+					aui_SDL::UploadQuadAtlasSlot(slot.atlasX, slot.atlasY, tileW, tileH,
+						m_surfBase, m_surfPitch);
+				}
+				UnlockSurface();
+			}
+
+			if (!rastered)
+			{
+				aui_SDL::GpuQuad q;
+				q.sx = slot.atlasX; q.sy = slot.atlasY; q.sw = tileW; q.sh = tileH;
+				q.dx = drawX; q.dy = drawY;
+				q.dw = tileW; q.dh = tileH;
+				dirty.push_back(q);
+				// A cell in the last column of an ODD row starts half a stride in
+				// and so runs past the wrap period, into the texture's spare
+				// stride. The pixels beyond wrapW belong, by wrap, at the far
+				// left -- and nothing else paints there. Emit the same tile again
+				// one period back (SDL clips the negative part) so [0, wrapW) is
+				// a complete periodic image and the present can sample it modulo
+				// wrapW. (Raster cells did their own duplicate above, covering
+				// all of their quads.)
+				if (drawX + tileW > wrapW)
+				{
+					aui_SDL::GpuQuad w = q;
+					w.dx = drawX - wrapW;
+					dirty.push_back(w);
+				}
+			}
+			if (m_worldmapMinX > drawX) m_worldmapMinX = drawX;
+			if (m_worldmapMaxX < drawX) m_worldmapMaxX = drawX;
+			if (m_worldmapMinY > drawY) m_worldmapMinY = drawY;
+			if (m_worldmapMaxY < drawY) m_worldmapMaxY = drawY;
+			m_worldmapTileW = tileW; m_worldmapTileH = tileH;
+			m_worldmapCellSig[cellIdx] = sig;
+		}
+		if (drawFailed) break;
+	}
+
+	// Clear first, draw second: doing them per-quad would let a later cell's
+	// clear erase an earlier cell's already-drawn overlap. `clears` is the
+	// changed cells; `dirty` is those plus the neighbours they overlap. This is
+	// the final flush; earlier ones happen mid-walk when the atlas would
+	// otherwise recycle a slot this batch is still referencing.
+	if (drawFailed || !flushBatch())
+	{
+		// The batch never landed; forget what we claimed to have drawn so the
+		// next call retries rather than leaving the target permanently stale.
+		InvalidateWorldmap();
+		return 0;
+	}
+	// P13 step 2.1: publish where the screen's top-left sits inside the
+	// whole-map texture, so the present can window it directly. Exactly the
+	// projection the quads are drawn with -- no headroom correction.
+	//
+	// There used to be a + k_TILE_PIXEL_HEADROOM here, reasoning that
+	// DrawTransitionTile places each diamond 24px down inside its slot. It does
+	// -- but it does so on BOTH paths. Screen y=0 on the CPU/quad path is the
+	// view's top-left tile SLOT, headroom included, and that slot is exactly
+	// what this projection returns. Adding the headroom windowed the texture 24
+	// rows too low, so the whole world presented 24px too high. Measured against
+	// the quad path across all 15 pair/pattern captures: a uniform (0,-24) shift
+	// and, once corrected for, diff_ratio 0.000 -- the two paths agree pixel for
+	// pixel. Nothing else about the whole-map present was wrong.
+	//
+	// This makes the window origin equal the sprite base (set from the same
+	// projection in BuildTerrainQuads) rather than differing from it. They are
+	// published separately because they answer different questions, but they can
+	// no longer disagree -- and picking, which converts screen -> texture through
+	// the origin and texture -> view-relative through the base, stays correct
+	// because it reads both rather than restating either.
+	{
+		sint32 const vy = m_mapViewRect.top;
+		sint32 originMapX = m_mapViewRect.left;
+		maputils_TileX2MapXAbs(m_mapViewRect.left, vy, &originMapX);
+		sint32 originX = 0, originY = 0;
+		maputils_MapXY2WorldmapPixelXY(originMapX, vy, &originX, &originY);
+		aui_SDL::SetWorldmapOrigin(originX, originY);
+	}
+
+	// Total across every flush, not just the last one — the count is the
+	// contract this path is tested on ("a pan redraws zero cells").
+	m_worldmapRedrawn = emitted;
+	return m_worldmapRedrawn;
+}
+
+void TiledMap::BuildTerrainQuads()
+{
+	// Only the singleton main world map drives the (single, global) quad draw
+	// list. The radar and thumbnail maps are separate TiledMap instances with
+	// their own small views; letting them run would clobber the main map's list
+	// (BeginQuadFrame clears it) and blank the world. Guard BEFORE the clear.
+	if (this != tiledmap_Get()) return;
+
+	// Clear the list up front so any early return presents an empty world (black)
+	// rather than stale quads left at the wrong scale.
+	aui_SDL::BeginQuadFrame();
+
+	if (!m_tileSet || !m_localVision)   { aui_SDL::MarkQuadFrameIncomplete("world-setup"); return; }
+
+	// Atlas geometry: a cols x rows grid of zoom-sized tile slots. 1024 slots easily
+	// holds the distinct edge combinations on a real map (interiors share one
+	// signature); LRU absorbs any overflow. Both atlas dims stay < 4096 so any
+	// GPU accepts the texture (3008 x 2304).
+	int const k_ATLAS_COLS = 32;
+	int const k_ATLAS_ROWS = 32;
+	int const tileW = GetZoomTilePixelWidth();
+	int const tileH = GetZoomTileGridHeight();
+
+	if (!m_gpuTileCache || m_gpuTileCache->TileW() != tileW || m_gpuTileCache->TileH() != tileH)
+	{
+		// Resizing the atlas invalidates both its slots and the whole-map image.
+		InvalidateWorldmap();
+		m_gpuTileCache = std::make_unique<GpuTileCache>(
+			k_ATLAS_COLS, k_ATLAS_ROWS, tileW, tileH);
+		AUI_ERRCODE err = AUI_ERRCODE_OK;
+		m_gpuScratchTile.reset(aui_Factory::new_Surface(err, tileW, tileH,
+			nullptr, FALSE, FALSE, FALSE, /*bpp=*/32));
+	}
+	if (!m_gpuScratchTile) { aui_SDL::MarkQuadFrameIncomplete("scratch-surface"); return; }
+
+	aui_SDL::EnsureQuadAtlas(m_gpuTileCache->AtlasW(), m_gpuTileCache->AtlasH());
+
+	sint32 mapWidth, mapHeight;
+	GetMapMetrics(&mapWidth, &mapHeight);
+
+	sint32 baseX;
+	sint32 baseY = m_mapViewRect.top;
+	maputils_TileX2MapXAbs(m_mapViewRect.left, m_mapViewRect.top, &baseX);
+	maputils_MapXY2PixelXY(baseX, baseY, &baseX, &baseY);
+
+	// Mirror RepaintTiles' visible-cell iteration (m_mapViewRect + wrap/bounds).
+	for (sint32 i = m_mapViewRect.top; i < m_mapViewRect.bottom; i++)
+	{
+		if (!(world_Get()->IsYwrap() || (i >= 0 && i < mapHeight))) continue;
+		for (sint32 j = m_mapViewRect.left; j < m_mapViewRect.right; j++)
+		{
+			if (!(world_Get()->IsXwrap() || (j >= 0 && j < mapWidth))) continue;
+
+			sint32 drawX = j, drawY = i;
+			maputils_TileX2MapXAbs(drawX, drawY, &drawX);
+			maputils_MapXY2PixelXY(drawX, drawY, &drawX, &drawY);
+			drawX -= baseX;
+			drawY -= baseY;
+
+			sint32 wj = j, wi = i;
+			maputils_WrapPoint(wj, wi, &wj, &wi);
+			MapPoint pos = MapPoint(maputils_TileX2MapX(wj, wi), wi);
+
+			// Only explored cells draw terrain (unexplored stays the black the
+			// world texture was cleared to — matching CalculateWrap's BlackTile).
+			if (!m_renderEverything && !m_localVision->IsExplored(pos)) continue;
+
+			// Same on-surface clip as CalculateWrap.
+			if (   (drawX < m_surfaceRect.left)
+			    || (drawX > (m_surfaceRect.right  - GetZoomTilePixelWidth()))
+			    || (drawY < m_surfaceRect.top)
+			    || (drawY > (m_surfaceRect.bottom - (GetZoomTilePixelHeight() + GetZoomTileHeadroom()))))
+				continue;
+
+			TileInfo * tileInfo = GetTileInfo(pos);
+			if (!tileInfo) continue;
+			if (!m_tileSet->GetBaseTile(tileInfo->GetTileNum())) continue;
+
+			if (tileInfo->GetRiverPiece() != -1)
+				aui_SDL::MarkQuadFrameIncomplete("terrain-rivers");
+			if (CellHasCpuOnlyImprovementLayer(world_Get()->GetCell(pos), pos))
+				aui_SDL::MarkQuadFrameIncomplete("terrain-improvements");
+			if (g_isGridOn)
+				aui_SDL::MarkQuadFrameIncomplete("terrain-grid");
+			if (graphicsoptions_Get() && graphicsoptions_Get()->IsCellTextOn())
+				aui_SDL::MarkQuadFrameIncomplete("terrain-cell-text");
+			if (!m_renderEverything && !m_renderExploredAsVisible && !m_localVision->IsVisible(pos) && !GpuFogActive())
+				aui_SDL::MarkQuadFrameIncomplete("terrain-cpu-fog");
+
+			sint32 tilesetIndex =
+				g_theTerrainDB->Get(tileInfo->GetTerrainType())->GetTilesetIndex();
+
+			// The key has to cover the OVERLAYS as well as the terrain, because
+			// DrawWorldmapCellOverlays composites them into the cached tile a
+			// few lines below. TerrainCellSignature alone does not: it packs the
+			// tile number, tileset index and four transitions and nothing else.
+			// So a tile composited while a cell had a river kept that river
+			// after the river was removed, and was handed to every other cell
+			// sharing the terrain signature -- rivers that outlive their cell
+			// and rivers appearing on cells that never had one.
+			//
+			// Caught by the whole-map parity test, and worth noting which way
+			// round: the residual it was reporting was the REFERENCE being
+			// stale, not the path under test. The whole-map key has carried the
+			// overlays since P13 step 3, so it dropped the river correctly while
+			// this path went on drawing it.
+			uint64_t sig = WindowCellSignature(
+				TerrainCellSignature(
+					tileInfo->GetTileNum(),
+					(uint8_t) tilesetIndex,
+					(uint8_t) tileInfo->GetTransition(0),
+					(uint8_t) tileInfo->GetTransition(1),
+					(uint8_t) tileInfo->GetTransition(2),
+					(uint8_t) tileInfo->GetTransition(3)),
+				WorldmapCellOverlayState(tileInfo, pos, m_localVision,
+					g_isGridOn != 0, WorldmapVisibleOwners(pos),
+					WorldmapFogFlags()));
+
+			GpuTileSlot slot;
+			if (m_gpuTileCache->Get(sig, slot) == GpuTileCache::MISS)
+			{
+				// Compose this cell once into the scratch tile, then upload it to
+				// its atlas slot. Clear scratch to transparent first so the
+				// diamond's surround (and headroom) stays alpha 0 and neighbouring
+				// quads tessellate cleanly. DrawTransitionTile writes via the
+				// locked m_surf* members, so target the scratch through
+				// LockThisSurface and place the tile at scratch origin (0,0).
+				LockThisSurface(m_gpuScratchTile.get());
+				if (m_surfBase)
+				{
+					memset(m_surfBase, 0, (size_t) m_surfPitch * m_surfHeight);
+					// Base terrain plus its transitions.
+					if (m_zoomLevel == k_ZOOM_LARGEST)
+						DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
+					else
+						DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
+							GetZoomTilePixelWidth(), GetZoomTilePixelHeight());
+
+					// P13 step 3: the per-cell overlays, in the order the CPU
+					// path draws them. nullptr targets the surface locked
+					// above -- the scratch tile -- which is how workmap and
+					// resourcemap already reuse these same routines for their
+					// own views.
+					DrawWorldmapCellOverlays(pos, tileInfo);
+
+					aui_SDL::UploadQuadAtlasSlot(slot.atlasX, slot.atlasY, tileW, tileH,
+						m_surfBase, m_surfPitch);
+				}
+				UnlockSurface();
+			}
+
+			aui_SDL::GpuQuad q;
+			q.sx = slot.atlasX; q.sy = slot.atlasY; q.sw = tileW; q.sh = tileH;
+			q.dx = drawX + aui_SDL::WorldContentOffX();
+			q.dy = drawY + aui_SDL::WorldContentOffY();
+			q.dw = tileW; q.dh = tileH;
+			aui_SDL::AddQuad(q);
+		}
+	}
 }
 
 void TiledMap::ScrollPixels(sint32 deltaX, sint32 deltaY, aui_Surface *surf)
@@ -3603,110 +4864,62 @@ void TiledMap::ScrollPixels(sint32 deltaX, sint32 deltaY, aui_Surface *surf)
 	if (errcode != AUI_ERRCODE_OK)
 		return;
 
-	sint32	 h = surf->Height();
-	sint32	 w = surf->Width();
-	sint32	 copyWidth = (w - abs(deltaX))>>1;
-	sint32	 copyHeight = h - abs(deltaY);
-
-	sint32		pitch = surf->Pitch();
-
-	uint32		 *srcPtr;
-	uint32		 *destPtr;
-	sint32		 dx = abs(deltaX);
-	sint32		 dy = abs(deltaY);
-	sint32		 i;
-	sint32		 j;
-
-	sint32		slop;
+	sint32 const h     = surf->Height();
+	sint32 const w     = surf->Width();
+	sint32 const pitch = surf->Pitch();
+	// Pixel size in bytes: 2 (RGB565) or 4 (ARGB8888). The scroll is a plain
+	// rectangular shift of existing content + black fill of the newly exposed
+	// strip (the caller redraws that strip afterwards), so it works for any
+	// depth as a per-row memmove — no more 2-pixels-per-uint32-word math.
+	// P11 Stage 2 B: replaced the 16bpp-only word copy so the pan optimization
+	// survives the 32-bit world surface. (Not exercised by the pixel oracle;
+	// verify by panning a 32-bit map.)
+	sint32 const bpp   = surf->BitsPerPixel() / 8;
+	uint8 * const base = reinterpret_cast<uint8 *>(buffer);
+	// Clamp the shift to the surface dimensions: a shift >= the whole surface
+	// degenerates to "everything is newly exposed" (full clear), which the
+	// unclamped loops did NOT handle — with dy > h the reveal loop's start row
+	// (h - dy) went negative and memset wrote BELOW the buffer (SIGSEGV / silent
+	// heap corruption; hit 2026-07-16 when an unbounded camera pan asked
+	// ScrollMap for a ~1050px scroll on a ~912px surface).
+	sint32 const dx    = std::min<sint32>(abs(deltaX), w);
+	sint32 const dy    = std::min<sint32>(abs(deltaY), h);
 
 	if (deltaX)
 	{
-
-		if (deltaX<0)
+		sint32 const copyBytes = (w - dx) * bpp;
+		sint32 const fillBytes = dx * bpp;
+		for (sint32 i = 0; i < h; i++)
 		{
-
-			srcPtr =	(uint32 *)(buffer + (w - dx) * 2 - 4);
-			destPtr =	(uint32 *)(buffer + w * 2 - 4);
-
-			Assert((uintptr_t)srcPtr >=(uintptr_t)buffer);
-			Assert((uintptr_t)destPtr>=(uintptr_t)buffer);
-
-			slop = (pitch>>2) + copyWidth;
-
-			for (i=0; i<h; i++)
+			uint8 * const row = base + i * pitch;
+			if (deltaX > 0)                     // content moves left; expose the right edge
 			{
-				for (j=0; j<copyWidth; j++)
-					*destPtr-- = *srcPtr--;
-
-				for (j=0; j<(dx>>1); j++)
-					*destPtr-- = 0x00000000;
-
-				srcPtr += slop;
-				destPtr += (slop + (dx>>1));
+				memmove(row, row + fillBytes, copyBytes);
+				memset(row + copyBytes, 0, fillBytes);
+			}
+			else                                // content moves right; expose the left edge
+			{
+				memmove(row + fillBytes, row, copyBytes);
+				memset(row, 0, fillBytes);
 			}
 		}
-		else
-		{
-			srcPtr =	(uint32 *)(buffer + dx * 2);
-			destPtr =	(uint32 *)buffer;
-			slop = (pitch / 4) - copyWidth;
-			for (i=0; i<h; i++)
-			{
-				for (j=0; j<copyWidth; j++)
-					*destPtr++ = *srcPtr++;
-				for (j=0; j<dx/2; j++)
-					*destPtr++ = 0x00000000;
-
-				srcPtr += slop;
-				destPtr += (slop - dx/2);
-			}
-		}
-
 	}
-	else
+	else if (deltaY)
 	{
-		if (deltaY)
+		sint32 const rowBytes = w * bpp;
+		if (deltaY > 0)                         // content moves up; expose the bottom rows
 		{
-			if (deltaY < 0)
-			{
-				srcPtr =	(uint32 *)(buffer + (pitch * (h - dy- 1)));
-				destPtr =	(uint32 *)(buffer + (pitch * (h - 1)));
-				slop = (pitch / 4) + (w >> 1);
-				for (i=0; i<copyHeight; i++)
-				{
-					for (j=0; j<w>>1; j++)
-						*destPtr++ = *srcPtr++;
-					srcPtr -= slop;
-					destPtr -= slop;
-				}
-				for (i=0; i<dy; i++)
-				{
-					for (j=0; j<w>>1; j++)
-						*destPtr++ = 0x00000000;
-					destPtr -= slop;
-				}
-			}
-			else
-			{
-				srcPtr =	(uint32 *)(buffer + (pitch * dy));
-				destPtr =	(uint32 *)(buffer);
-				slop = (pitch / 4) - (w >> 1);
-				for (i=0; i<copyHeight; i++)
-				{
-					for (j=0; j<w>>1; j++)
-						*destPtr++ = *srcPtr++;
-
-					srcPtr += slop;
-					destPtr += slop;
-				}
-				for (i=0; i<dy; i++)
-				{
-					for (j=0; j<w>>1; j++)
-						*destPtr++ = 0x00000000;
-
-					destPtr += slop;
-				}
-			}
+			for (sint32 i = 0; i < h - dy; i++)
+				memcpy(base + i * pitch, base + (i + dy) * pitch, rowBytes);
+			for (sint32 i = h - dy; i < h; i++)
+				memset(base + i * pitch, 0, rowBytes);
+		}
+		else                                    // content moves down; expose the top rows
+		{
+			for (sint32 i = h - 1; i >= dy; i--)
+				memcpy(base + i * pitch, base + (i - dy) * pitch, rowBytes);
+			for (sint32 i = 0; i < dy; i++)
+				memset(base + i * pitch, 0, rowBytes);
 		}
 	}
 
@@ -4163,7 +5376,7 @@ sint32 TiledMap::RedrawHat(
 	TileInfo		*tileInfo;
 
 	sint32		terrainType;
-	bool		fog = !m_localVision->IsVisible(tempPos);
+	bool		fog = !m_localVision->IsVisible(tempPos) && !GpuFogActive();
 	if (fog)
     {
 		UnseenCellCarton ucell;
@@ -4833,6 +6046,48 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
   	sint32  x = point.x + xoff;
 	sint32  y = point.y + yoff;
 
+	// P13 step 2.5 (ADR-003): on the whole-map path the camera owns zoom, so a
+	// pick must invert the present's windowing -- not just its pan. Reuses the
+	// exact inverse of the terms the present uses (camera_window.h), so the two
+	// cannot drift apart; the round-trip is unit-tested across the full zoom and
+	// offset range. Texture position minus the published origin is the
+	// view-relative pixel the rest of this function already expects, and at zoom
+	// 1 with no pan it reduces to the legacy value exactly.
+	if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture())
+	{
+		float const z = aui_SDL::CameraZoom();
+		float const ox = static_cast<float>(aui_SDL::WorldmapOriginX());
+		float const oy = static_cast<float>(aui_SDL::WorldmapOriginY());
+		// Two different origins are in play here, and using one for both jobs is
+		// what made a click land on the neighbouring tile. ox/oy is where the
+		// present WINDOWS the texture, so it is the right base for the screen ->
+		// texture inversion. But converting texture -> view-relative must
+		// subtract the TRUE texture position of the view's top-left, which is
+		// the sprite base -- the projection the tile builder actually draws
+		// with. The two differ by a fixed (k_TILE_GRID_WIDTH/4, headroom), which
+		// is a quarter tile across and half a row down: enough to select the
+		// wrong tile every time.
+		float const bx = static_cast<float>(aui_SDL::WorldmapSpriteBaseX());
+		float const by = static_cast<float>(aui_SDL::WorldmapSpriteBaseY());
+		x = static_cast<sint32>(camera_window::ScreenToTexture(
+			static_cast<float>(x), aui_SDL::ViewportW(), ox, aui_SDL::CameraOffX(), z) - bx);
+		y = static_cast<sint32>(camera_window::ScreenToTexture(
+			static_cast<float>(y), aui_SDL::ViewportH(), oy, aui_SDL::CameraOffY(), z) - by);
+	}
+	// P11 2c (ADR-001): the sub-tile GPU pan slides the visible world by CameraOff
+	// while the engine view stays tile-aligned, so a pick must shift by the same
+	// offset to hit the tile the user sees. No-op unless the GPU camera is on.
+	else if (aui_SDL::GpuCameraEnabled())
+	{
+        // Both mirror and window-quads present the same view-relative pixels.
+        // Invert zoom as well as pan, including when a sprite forces fallback.
+        x = static_cast<sint32>(camera_window::ScreenToTexture(
+            static_cast<float>(x), aui_SDL::ViewportW(), 0.0f,
+            aui_SDL::CameraOffX(), aui_SDL::CameraZoom()));
+        y = static_cast<sint32>(camera_window::ScreenToTexture(
+            static_cast<float>(y), aui_SDL::ViewportH(), 0.0f,
+            aui_SDL::CameraOffY(), aui_SDL::CameraZoom()));
+	}
 
 	if (!(m_mapViewRect.top & 1)) y -= GetZoomTileHeadroom();
 
@@ -5395,7 +6650,7 @@ void TiledMap::CopyVision()
 	if (player_Get(newPlayer))
 	{
 		m_localVision->SetAmOnScreen(false);
-		m_localVision = player_Get(newPlayer)->m_vision;
+		m_localVision = player_Get(newPlayer)->m_vision.get();
 		m_oldPlayer   = newPlayer;
 		m_localVision->SetAmOnScreen(true);
 	}
@@ -5479,7 +6734,10 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 	if ((x < 0) || (y < 0))
 		return 0;
 
-	unsigned short	*destPixel;
+	bool const bpp32 = surface ? (surface->BitsPerPixel() == 32)
+	                           : (m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32);
+	sint32 const step = bpp32 ? 4 : 2;
+	uint8		*destPixel;
 
 	uint16		start	= (uint16)*data++;
 	uint16		end		= (uint16)*data++;
@@ -5497,7 +6755,7 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 
 	for (sint32 j = start; j <= end; j++)
 	{
-		destPixel = (unsigned short *)(surfBase + ((y + j) * surfPitch) + (x * 2));
+		destPixel = surfBase + ((y + j) * surfPitch) + (x * step);
 
 		if ((y+j) >= surfHeight)
 			return 0;
@@ -5515,7 +6773,7 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 			switch ((tag & 0x0F00) >> 8)
 			{
 				case	k_TILE_SKIP_RUN_ID	:
-						destPixel	+= len;
+						destPixel	+= len * step;
 						xoff		+= len;
 						break;
 
@@ -5526,7 +6784,7 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 						if (xoff<0)
 						{
 							looplen   += xoff;
-							destPixel -= xoff;
+							destPixel -= xoff * step;
 							rowData	  -= xoff;
 						}
 						else
@@ -5536,11 +6794,10 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 						for (i=0; i<looplen; i++)
 						{
 							if (!(flags & k_OVERLAY_FLAG_SHADOWSONLY))
-
-				destPixel[i] = rowData[i];
+								pixelutils_StorePixel(destPixel + i * step, rowData[i], bpp32);
 						}
 
-						destPixel += len;
+						destPixel += len * step;
 						rowData   += len;
 						break;
 
@@ -5551,7 +6808,7 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 						if (xoff<0)
 						{
 							looplen += xoff;
-							destPixel -= xoff;
+							destPixel -= xoff * step;
 						}
 						else
 							if (xoff>surfPitch)
@@ -5560,10 +6817,21 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 						for (i=0; i<looplen; i++)
 						{
 					  		if (!(flags & k_OVERLAY_FLAG_NOSHADOWS))
-				destPixel[i] = pixelutils_Shadow(destPixel[i]);
+							{
+								if (bpp32)
+								{
+									Pixel32 * d = reinterpret_cast<Pixel32 *>(destPixel + i * step);
+									*d = pixelutils_Shadow8888(*d);
+								}
+								else
+								{
+									Pixel16 * d = reinterpret_cast<Pixel16 *>(destPixel + i * step);
+									*d = pixelutils_Shadow(*d);
+								}
+							}
 						}
 
-						destPixel += len;
+						destPixel += len * step;
 						break;
 			}
 
@@ -5590,6 +6858,8 @@ TiledMap::DrawTransitionTileClipped(aui_Surface *surface, MapPoint &pos, sint32 
 	sint32 surfWidth	= m_surfWidth;
 	sint32 surfHeight	= m_surfHeight;
 	sint32 surfPitch	= m_surfPitch;
+	bool const bpp32 = m_lockedSurface && m_lockedSurface->BitsPerPixel() == 32;
+	sint32 const step = bpp32 ? 4 : 2;
 
 	ypos+=k_TILE_PIXEL_HEADROOM;
 
@@ -5660,14 +6930,14 @@ TiledMap::DrawTransitionTileClipped(aui_Surface *surface, MapPoint &pos, sint32 
 			if (xsrc<0)
 				continue;
 
-			xsrc<<=1;
+			sint32 const xbyte = xsrc * step;
 
-		  	if (xsrc>=surfPitch)
+		  	if (xbyte>=surfPitch)
 				continue;
 
-			Pixel16 * pDestPixel = (Pixel16 *)(pSurfBase + (ysrc*surfPitch+xsrc));
+			uint8 * pDestPixel = pSurfBase + (ysrc*surfPitch + xbyte);
 
-			*pDestPixel = srcPixel;
+			pixelutils_StorePixel(pDestPixel, srcPixel, bpp32);
 		}
 	}
 }

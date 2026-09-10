@@ -141,7 +141,12 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// RESIZABLE: the renderer's logical size letterboxes/scales the game res to
 	//   any window size; mouse coords are mapped back via SDL_RenderWindowToLogical
 	//   in aui_SDLMouse so input stays correct when the window is not 1:1.
-	Uint64 windowFlags = CTP2_SDL_WINDOW_SHOWN | CTP2_SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+	Uint64 windowFlags = CTP2_SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+#if defined(RENDER_TOOL_BUILD)
+	windowFlags |= SDL_WINDOW_HIDDEN;
+#else
+	windowFlags |= CTP2_SDL_WINDOW_SHOWN;
+#endif
 	if (g_SDL_flags) {
 		windowFlags |= SDL_WINDOW_FULLSCREEN;
 	}
@@ -177,6 +182,71 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		m_width, m_height);
 	if (!m_screenTexture) {
 		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+	}
+
+	// P11 Stage 2 D: when per-layer GPU compositing is enabled, create separate
+	// world + UI layer textures (world composited under, UI alpha-blended over).
+	// Dormant until the two-layer present is wired; the default single-texture
+	// present is unaffected.
+	if (aui_SDL::GpuLayersEnabled()) {
+		// P12: both streaming and full-GPU paths use one oversized world texture.
+		// Screen top-left lives at WorldContentOffX/Y inside it; the camera pans by
+		// moving the source window. Quad mode only changes HOW the world texture is
+		// filled (render target instead of CPU upload), not its coordinate system.
+		int const worldMargin = aui_SDL::WorldMargin();
+		// P13 step 0: the camera's pan budget and safe zoom range are both
+		// functions of the screen size it windows out of the world texture.
+		aui_SDL::SetViewportSize(m_width, m_height);
+		m_worldTexture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888,
+			aui_SDL::GpuQuadsEnabled()
+				? SDL_TEXTUREACCESS_TARGET : SDL_TEXTUREACCESS_STREAMING,
+			m_width + 2 * worldMargin, m_height + 2 * worldMargin);
+		m_uiTexture = SDL_CreateTexture(m_renderer,
+			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, m_width, m_height);
+		if (m_uiTexture) {
+			SDL_SetTextureBlendMode(m_uiTexture, SDL_BLENDMODE_BLEND);
+			// A freshly created streaming texture has undefined contents; clear
+			// it to fully transparent (ARGB 0x00000000) so, until the UI
+			// composite is redirected into it, the alpha overlay contributes
+			// nothing and the presented frame matches the single-texture path.
+			// Lock the streaming texture and zero its pixels. Guard on the
+			// returned pixels pointer, not the return code: SDL_LockTexture
+			// yields int(0)=ok on SDL2 but bool(true)=ok on SDL3, so a `== 0`
+			// test would misfire on the SDL3 default backend.
+			void * pixels = nullptr;
+			int    pitch  = 0;
+			SDL_LockTexture(m_uiTexture, nullptr, &pixels, &pitch);
+			if (pixels) {
+				// Clear the whole locked region (all rows at full pitch,
+				// padding included) so every pixel is fully transparent
+				// (ARGB 0x00000000). memset takes the pointer directly.
+				memset(pixels, 0, static_cast<size_t>(m_height) * pitch);
+				SDL_UnlockTexture(m_uiTexture);
+			}
+		}
+		if (!m_worldTexture || !m_uiTexture) {
+			c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+		}
+	}
+
+	// P11 Stage 2 C: fog-of-war mask texture, composited over the world texture
+	// on the GPU (between the world and UI copies) to darken fogged terrain.
+	// Requires GpuLayersEnabled (implied by GpuFogEnabled). Created transparent.
+	if (aui_SDL::GpuFogEnabled()) {
+		m_fogTexture = SDL_CreateTexture(m_renderer,
+			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, m_width, m_height);
+		if (m_fogTexture) {
+			SDL_SetTextureBlendMode(m_fogTexture, SDL_BLENDMODE_BLEND);
+			void * pixels = nullptr;
+			int    pitch  = 0;
+			SDL_LockTexture(m_fogTexture, nullptr, &pixels, &pitch);
+			if (pixels) {
+				memset(pixels, 0, static_cast<size_t>(m_height) * pitch);
+				SDL_UnlockTexture(m_fogTexture);
+			}
+		} else {
+			c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+		}
 	}
 
 	fprintf(stderr, "[SDLUI] Requested screen: %dx%d @ %dbpp; renderer + ARGB8888 streaming texture\n",
@@ -223,6 +293,48 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	fprintf(stderr, "[SDLUI] Secondary surface: %dx%d @ 32bpp\n", m_secondary->Width(), m_secondary->Height());
 
 	m_pixelFormat = m_primary->PixelFormat();
+
+	// P11 Stage 2 D: per-layer GPU compositing. Create the world-only and
+	// UI-only composite surfaces (32-bit, screen-sized, NOT-primary — they are
+	// uploaded to their own GPU textures in Flip, never self-present). The UI
+	// surface starts fully transparent so the world shows through everywhere the
+	// UI has not drawn; the aui_UI chokepoint mirrors each composite write into
+	// one of these two layers. Gated so the default single-texture path is
+	// untouched.
+	if (aui_SDL::GpuLayersEnabled()) {
+		// P12: keep the CPU mirror oversized too while the migration is hybrid; the
+		// GPU quad path may stop depending on it later, but the layer dimensions stay
+		// identical across renderers.
+		int const worldMargin = aui_SDL::WorldMargin();
+		m_worldSurface = new aui_SDLSurface(&errcode, m_width + 2 * worldMargin,
+			m_height + 2 * worldMargin, 32, nullptr, FALSE);
+		if (!AUI_NEWOK(m_worldSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
+		m_uiSurface = new aui_SDLSurface(&errcode, m_width, m_height, 32, nullptr, FALSE);
+		if (!AUI_NEWOK(m_uiSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
+
+		// Zero both surfaces (ARGB 0x00000000). The world layer is fully
+		// repainted by the opaque background window each frame; the UI layer
+		// stays transparent until UI composites into it.
+		SDL_Surface *ws = static_cast<aui_SDLSurface *>(m_worldSurface)->DDS();
+		SDL_Surface *us = static_cast<aui_SDLSurface *>(m_uiSurface)->DDS();
+		if (ws && ws->pixels) memset(ws->pixels, 0, static_cast<size_t>(ws->h) * ws->pitch);
+		if (us && us->pixels) memset(us->pixels, 0, static_cast<size_t>(us->h) * us->pitch);
+
+		m_gpuLayers = true;
+		fprintf(stderr, "[SDLUI] Per-layer GPU compositing ON: world + UI surfaces %dx%d @ 32bpp\n",
+			m_width, m_height);
+	}
+
+	// P11 Stage 2 C: fog mask surface — TiledMap stamps fogged-tile diamonds
+	// here (50% black); Flip uploads it to m_fogTexture. Transparent to start.
+	if (aui_SDL::GpuFogEnabled()) {
+		m_fogSurface = new aui_SDLSurface(&errcode, m_width, m_height, 32, nullptr, FALSE);
+		if (!AUI_NEWOK(m_fogSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
+		SDL_Surface *fs = static_cast<aui_SDLSurface *>(m_fogSurface)->DDS();
+		if (fs && fs->pixels) memset(fs->pixels, 0, static_cast<size_t>(fs->h) * fs->pitch);
+		m_gpuFog = true;
+		fprintf(stderr, "[SDLUI] GPU fog mask ON: fog surface %dx%d @ 32bpp\n", m_width, m_height);
+	}
 
 	return AUI_ERRCODE_OK;
 }

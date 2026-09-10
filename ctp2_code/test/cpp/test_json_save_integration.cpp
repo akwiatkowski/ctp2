@@ -19,6 +19,7 @@
 
 #include "ctp/c3.h"
 #include "doctest.h"
+#include "headless_test_config.h"
 #include <nlohmann/json.hpp>
 
 #include <cstdio>
@@ -31,31 +32,9 @@
 
 namespace {
 
-static const char *HEADLESS_CANDIDATES[] = {
-    "./build/ctp2_headless",
-    "./build-sanitized/ctp2_headless",
-    "./ctp2_headless",
-    nullptr,
-};
-
-const char *find_headless()
-{
-    for (const char **p = HEADLESS_CANDIDATES; *p; ++p) {
-        if (std::FILE *f = std::fopen(*p, "r")) {
-            std::fclose(f);
-            return *p;
-        }
-    }
-    return nullptr;
-}
-
 bool run_save(const char *json_path, std::string *log)
 {
-    const char *bin = find_headless();
-    if (!bin) {
-        if (log) *log = "[ERROR] ctp2_headless not found";
-        return false;
-    }
+    const char *bin = CTP2_HEADLESS_COMMAND;
     char cmd[1024];
     std::snprintf(cmd, sizeof(cmd),
                   "%s --new-game --turns 3 --players 3 --seed 42 "
@@ -169,8 +148,7 @@ TEST_CASE("SaveJson composite: full game state writes all expected top-level key
 
 TEST_CASE("LoadJson round-trip: save / load / save preserves all state")
 {
-    const char *bin = find_headless();
-    REQUIRE(bin);
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     const char *patha = "/tmp/ctp2_rt_a.json";
     const char *pathb = "/tmp/ctp2_rt_b.json";
@@ -273,8 +251,7 @@ TEST_CASE("LoadJson derived cache (P5): stale good_value is recomputed from the 
     // from the saved map).  A correct recompute reproduces the SOURCE map's
     // values; the pre-fix "leave it alone" behaviour would surface the
     // fresh seed-999 map's values instead.
-    const char *bin = find_headless();
-    REQUIRE(bin);
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     const char *patha = "/tmp/ctp2_p5_good_a.json";
     const char *pathc = "/tmp/ctp2_p5_good_corrupt.json";
@@ -344,8 +321,7 @@ TEST_CASE("Phase G converter: binary save → JSON save via --load-game --json-s
     // savegame the engine can read) to the new JSON format.  This test
     // is the Phase G acceptance check that the conversion path works
     // end-to-end against a freshly-produced binary save.
-    const char *bin = find_headless();
-    REQUIRE(bin);
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     const char *binpath  = "/tmp/ctp2_g_binsave.c2g";
     const char *jsonpath = "/tmp/ctp2_g_converted.json";
@@ -426,8 +402,7 @@ TEST_CASE("Phase G-3: --save-game writes JSON by default")
     // write path was deleted.  This test verifies that --save-game (which
     // calls GameFile::SaveGame) produces a file that starts with the JSON
     // object marker rather than the legacy CTP0XXX magic header.
-    const char *bin = find_headless();
-    REQUIRE(bin);
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     const char *path = "/tmp/ctp2_g3_default.save";
     std::remove(path);
@@ -476,8 +451,7 @@ TEST_CASE("UTF-8: SaveJson handles 8-player games with Latin-1 civ names")
     // After the fix: utf8_safe() in json_save.cpp expands Latin-1 bytes
     // ≥ 0x80 into two-byte UTF-8 on the write side, lossless for the
     // common case.
-    const char *bin = find_headless();
-    REQUIRE(bin);
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     const char *path = "/tmp/ctp2_utf8_8p.save";
     std::remove(path);
@@ -540,8 +514,7 @@ bool run_headless(const char *cmd, std::string *log)
 
 TEST_CASE("N-turn determinism: load+advance K turns → same JSON across runs")
 {
-    const char *bin = find_headless();
-    REQUIRE(bin);
+    const char *bin = CTP2_HEADLESS_COMMAND;
 
     const char *snap = "/tmp/ctp2_det_snapshot.json";
     const char *out_b = "/tmp/ctp2_det_run_b.json";

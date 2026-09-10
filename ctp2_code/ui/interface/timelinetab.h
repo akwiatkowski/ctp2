@@ -35,9 +35,7 @@ private:
 
 	LineGraph * m_infoGraph;
 
-	double **m_infoGraphData;
 
-	sint32 m_infoYCount;
 
 	ctp2_Window *m_info_window;
 
@@ -47,7 +45,6 @@ private:
 
 	void LoadData();
 
-	void CleanupGraph();
 
 	void doButtonCallback(ctp2_Button *button);
 

@@ -16,17 +16,7 @@ SlicSymTab::SlicSymTab(sint32 size) :
 
 SlicSymTab::~SlicSymTab()
 {
-	
-#if 0
-
-
-		for(sint32 i = 0; i < m_numEntries; i++) {
-			if(m_array[i])
-				delete m_array[i];
-		}
-#endif
-		delete [] m_array;
-	
+	delete [] m_array;
 }
 
 void SlicSymTab::PostSerialize()
@@ -42,67 +32,22 @@ void SlicSymTab::Add(SlicNamedSymbol *sym)
 {
 	StringHash<SlicNamedSymbol>::Add(sym);
 
-#if 0
-	PSlicNamedSymbol *psym = slicif_find_sym(sym->GetName(), 0);
-	if(psym) {
-		Assert(psym->m_index < m_numEntries);
-		sym->SetIndex(psym->m_index);
-		m_array[sym->GetIndex()] = sym;
-		sint32 index = psym->m_index;
-		free(g_slicSymTab[index]->m_name);
-		if(g_slicSymTab[index]->m_region) {
-			free(g_slicSymTab[index]->m_region);
-		}
-		free(g_slicSymTab[index]);
-
-		g_slicSymTab[index] = NULL;
-	} else {
-#endif
-		if(m_numEntries >= m_arraySize) {
-			SlicNamedSymbol **newArray = new SlicNamedSymbol *[m_arraySize * 2];
-			memcpy(newArray, m_array, m_arraySize * sizeof(SlicNamedSymbol *));
-			delete [] m_array;
-			m_array = newArray;
-			m_arraySize *= 2;
-		}
-		sym->SetIndex(m_numEntries);
-		m_array[m_numEntries] = sym;
-		m_numEntries++;
-
+	if(m_numEntries >= m_arraySize) {
+		SlicNamedSymbol **newArray = new SlicNamedSymbol *[m_arraySize * 2];
+		memcpy(newArray, m_array, m_arraySize * sizeof(SlicNamedSymbol *));
+		delete [] m_array;
+		m_array = newArray;
+		m_arraySize *= 2;
+	}
+	sym->SetIndex(m_numEntries);
+	m_array[m_numEntries] = sym;
+	m_numEntries++;
 }
 
 void SlicSymTab::Add(sint32 index)
 {
-#if 0
-	Assert(index >= 0);
-	Assert(index < g_slicSymTabNumEntries);
-	PSlicNamedSymbol *psym = g_slicSymTab[index];
-	if(!psym)
-		return;
-	Assert(index < m_numEntries);
-
-	SlicNamedSymbol *newSym = new SlicNamedSymbol(index);
-	m_array[index] = newSym;
-	free(g_slicSymTab[index]->m_name);
-	if(g_slicSymTab[index]->m_region) {
-		free(g_slicSymTab[index]->m_region);
-	}
-	free(g_slicSymTab[index]);
-	g_slicSymTab[index] = NULL;
-
-	switch(newSym->GetType()) {
-		case SLIC_SYM_FUNC:
-			newSym->SetFunction(slicengine_Get()->GetFunction(newSym->GetName()));
-			newSym->DelName();
-			break;
-		case SLIC_SYM_IVAR:
-			break;
-		default:
-			break;
-	}
-
-	StringHash<SlicNamedSymbol>::Add(newSym);
-#endif
+	// Dead entry point: the #if 0 body that consumed slicif's parallel
+	// symbol table was disabled long ago; nothing may call this overload.
 	Assert(FALSE);
 }
 

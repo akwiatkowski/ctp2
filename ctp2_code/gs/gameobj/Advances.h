@@ -137,11 +137,11 @@ public:
 	sint32 GetCost() const;
 	sint32 GetCost(const AdvanceType adv) const;
 
-	uint8* CanResearch() const;
+	const std::vector<uint8_t> &CanResearch() const;
 	BOOL CanResearch(sint32 advance) const;
 	void ResetCanResearch(sint32 justGot);
-	uint8* CanAskFor(Advances* otherCivAdvances, sint32 &num) const;
-	uint8* CanOffer(Advances* otherCivAdvances, sint32 &num) const;
+	std::vector<uint8_t> CanAskFor(Advances* otherCivAdvances, sint32 &num) const;
+	std::vector<uint8_t> CanOffer(Advances* otherCivAdvances, sint32 &num) const;
 
 	sint32 GetDiscovered() const { return m_discovered; }
 

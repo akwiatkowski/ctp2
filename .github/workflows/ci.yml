@@ -28,6 +28,8 @@ jobs:
             runner: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Install mise
+        uses: jdx/mise-action@v2
 
       - name: Install macOS deps
         if: startsWith(matrix.runner, 'macos')
@@ -39,27 +41,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ninja-build pkg-config libtiff-dev zlib1g-dev \
             byacc flex cmake libasound2-dev libpulse-dev
-          # Ubuntu 24.04 predates SDL3 packaging; build pinned releases.
-          curl -L https://github.com/libsdl-org/SDL/releases/download/release-3.2.10/SDL-3.2.10.tar.gz -o /tmp/sdl3.tar.gz
+          # Ubuntu 24.04 predates SDL3 packaging; build pinned releases
+          # (versions verified against the GitHub releases API).
+          curl -L https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz -o /tmp/sdl3.tar.gz
           tar -xzf /tmp/sdl3.tar.gz -C /tmp
-          cmake -S /tmp/SDL-3.2.10 -B /tmp/SDL-3.2.10/build \
+          cmake -S /tmp/SDL3-3.4.16 -B /tmp/SDL3-3.4.16/build \
             -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=OFF
-          sudo cmake --build /tmp/SDL-3.2.10/build --target install -- -j"$(nproc)"
-          curl -L https://github.com/libsdl-org/SDL_mixer/releases/download/release-3.2.0/SDL_mixer-3.2.0.tar.gz -o /tmp/mixer.tar.gz
+          sudo cmake --build /tmp/SDL3-3.4.16/build --target install -- -j"$(nproc)"
+          curl -L https://github.com/libsdl-org/SDL_mixer/releases/download/release-3.2.4/SDL3_mixer-3.2.4.tar.gz -o /tmp/mixer.tar.gz
           tar -xzf /tmp/mixer.tar.gz -C /tmp
-          cmake -S /tmp/SDL_mixer-3.2.0 -B /tmp/SDL_mixer-3.2.0/build \
+          cmake -S /tmp/SDL3_mixer-3.2.4 -B /tmp/SDL3_mixer-3.2.4/build \
             -DCMAKE_BUILD_TYPE=Release
-          sudo cmake --build /tmp/SDL_mixer-3.2.0/build --target install -- -j"$(nproc)"
+          sudo cmake --build /tmp/SDL3_mixer-3.2.4/build --target install -- -j"$(nproc)"
           sudo ldconfig
-
-      - name: Install mise + Python
-        uses: jdx/mise-action@v2
 
       - name: Install Meson
         run: |
           mise exec -- pip install meson
           mise exec -- meson --version
-          mise exec -- ninja --version || brew install ninja
+          (mise exec -- ninja --version || ninja --version) 2>/dev/null
 
       - name: Configure
         run: mise exec -- meson setup build-ci ctp2_code -Danet=false -Dbuildtype=release

@@ -342,18 +342,6 @@ void NetCity2::Packetize(uint8* buf, uint16 &size)
 		((uint8)m_data->m_buildInfrastructure << 7);
 	PUSHBYTE(flags);
 
-#if 0
-	DPRINTF(k_DBG_NET, ("city: %d, %d, %d, %d, %d, %d, %d, %d, %d\n",
-						m_data->m_spied_upon,
-						m_data->m_franchise_owner,
-						m_data->m_franchiseTurnsRemaining,
-						m_data->m_ignore_happiness,
-						m_data->m_watchfulTurns,
-						m_data->m_bioInfectionTurns,
-						m_data->m_nanoInfectionTurns,
-						m_data->m_convertedTo,
-						m_data->m_convertedBy));
-#endif
 
 	PUSHBYTE((sint8)m_data->m_spied_upon);
 
@@ -469,18 +457,6 @@ void NetCity2::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	uint8 isInitialPacket;
 	PULLBYTE(isInitialPacket);
 
-#if 0
-	DPRINTF(k_DBG_NET, ("city: %d, %d, %d, %d, %d, %d, %d, %d, %d\n",
-						m_data->m_spied_upon,
-						m_data->m_franchise_owner,
-						m_data->m_franchiseTurnsRemaining,
-						m_data->m_ignore_happiness,
-						m_data->m_watchfulTurns,
-						m_data->m_bioInfectionTurns,
-						m_data->m_nanoInfectionTurns,
-						m_data->m_convertedTo,
-						m_data->m_convertedBy));
-#endif
 
 	if(m_data->m_owner == network_Get().GetPlayerIndex() &&
 		!isInitialPacket) {

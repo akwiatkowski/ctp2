@@ -280,32 +280,6 @@ STDEHANDLER(CtpAi_SettleEvent)
 	if (!args->GetArmy(0, army))
 		return GEV_HD_Continue;
 
-#if 0
-	PLAYER_INDEX const  owner       = army->GetOwner();
-	Player *            player_ptr  = player_Get(owner);
-	Assert(player_ptr != NULL);
-
-	static sint32 last_settle = turn_Get()->GetSessionRound();
-	static sint32 last_player = PLAYER_UNASSIGNED;
-
-	if (!network_Get().IsActive())
-	{
-		if( player_ptr->IsRobot()
-		&&!(network_Get().IsClient()
-		&&  network_Get().IsLocalPlayer(owner))
-		&&!(network_Get().IsHost()
-		&&  owner == player_view::VisiblePlayer())
-		&&  last_settle == turn_Get()->GetSessionRound()
-		&& last_player == owner
-		  )
-		{
-			return GEV_HD_Stop;
-		}
-	}
-
-	last_settle = turn_Get()->GetSessionRound();
-	last_player = owner;
-#endif
 	return GEV_HD_Continue;
 }
 
@@ -1562,14 +1536,6 @@ void CtpAi::FinishBeginTurn(const PLAYER_INDEX player)
 	if (Player::IsThisPlayerARobot(player))
 	{
 		CtpAi::MakeRoomForNewUnits(player);
-#if 0
-		// No idea if this should be done like this,
-		// transport can also move out sleeping units
-		// to execute the new action :
-		CtpAi::MoveOutofCityTransportUnits(player);
-
-		CtpAi::UnGroupGarrisonUnits(player);
-#endif
 	}
 
 	Governor::GetGovernor(player).FillEmptyBuildQueues();

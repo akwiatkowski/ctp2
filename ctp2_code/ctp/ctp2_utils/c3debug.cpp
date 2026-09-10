@@ -65,22 +65,6 @@ sint32	s_logLinesThisFile=0;
 
 FILE* g_theLogFile = nullptr;
 
-#if 0
-MBCHAR const * c3debug_GetLogFileName(void)
-{
-	return s_logFileName;
-}
-
-sint32 *c3debug_GetLogFileNumber(void)
-{
-	return &s_logFileNumber;
-}
-
-sint32 *c3debug_GetLogLinesThisFile(void)
-{
-	return &s_logLinesThisFile;
-}
-#endif
 
 void c3debug_InitDebugLog()
 {

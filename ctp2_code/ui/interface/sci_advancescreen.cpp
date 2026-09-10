@@ -766,27 +766,6 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 
 	s_glStats->SetHyperText(givesText);
 
-#if 0
-    snprintf(variableFile, sizeof(variableFile), g_theAdvanceDB->Get(index)->GetIcon()->GetVari() );
-
-    text = (char *)(g_GreatLibPF->getData(variableFile, &size));
-
-    if (text == NULL) {
-        s_glStats->SetHyperText(" ");
-        return(0);
-    }
-
-    terminated_text = new char[size+1];
-    memcpy(terminated_text, text, size);
-    terminated_text[size] = 0;
-
-    g_GreatLibPF->freeData(text);
-
-    s_glStats->SetHyperText(terminated_text);
-
-    delete [] terminated_text;
-
-#endif
 
 	if(s_sci_advanceScreen)
 		s_sci_advanceScreen->ShouldDraw(TRUE);

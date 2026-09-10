@@ -227,42 +227,6 @@ namespace
 
 void  TiledMap::DrawRectMetrics()
 {
-	#if 0
-	if(num_loops<1.0)
-	   num_loops=1.0;
-
-	double ratio=num_rects/num_loops;
-
-	MBCHAR  text[256];
-
-	snprintf(text, sizeof(text),"%4.2f",ratio);
-
-	if (screenmanager_Get() && screenmanager_Get()->GetSurface())
-	{
-		if (m_font)
-		{
-			sint32 width = m_font->GetStringWidth(text);
-			sint32 height = m_font->GetMaxHeight();
-
-			RECT		tempRect = {0, 0, width, height};
-			OffsetRect(&tempRect, 200, 200);
-
-			aui_Surface *tempSurf = screenmanager_Get()->GetSurface();
-			screenmanager_Get()->UnlockSurface();
-
-			m_font->DrawString(tempSurf, &tempRect, &tempRect, text, 0, GetColorRef(COLOR_YELLOW), 0);
-			OffsetRect(&tempRect, -1, -1);
-			m_font->DrawString(tempSurf, &tempRect, &tempRect, text, 0, GetColorRef(COLOR_PURPLE), 0);
-
-			tempRect.right++;
-			tempRect.bottom++;
-
-			screenmanager_Get()->LockSurface(tempSurf);
-
-			AddDirtyRectToMix(tempRect);
-		}
-  }
-#endif
 
 }
 
@@ -621,12 +585,6 @@ void TiledMap::DrawHitMask(aui_Surface *surf, const MapPoint &pos)
 		row++;
 	}
 
-#if 0
-	// Add a timer and a possibility to disable the blinking
-	// Move it into the calling method, so that the blinking in the scenario editor would be correct
-	g_curSelectColor = (COLOR)(g_curSelectColor + 1);
-	if (g_curSelectColor > COLOR_SELECT_2) g_curSelectColor = COLOR_SELECT_0;
-#endif
 }
 
 void TiledMap::DrawColoredHitMask(aui_Surface *surf, const MapPoint &pos, COLOR color)
@@ -662,10 +620,6 @@ void TiledMap::DrawColoredHitMask(aui_Surface *surf, const MapPoint &pos, COLOR 
 
 	for (sint32 i = k_TILE_PIXEL_HEADROOM; i < k_TILE_GRID_HEIGHT;)
 	{
-#if 0
-		start = (sint32) ((double)m_tileHitMask[i].start * m_scale);
-		end = (sint32)((double)m_tileHitMask[i].end * m_scale);
-#endif
 		sint32 start = m_tileHitMask[i].start;
 		sint32 end   = m_tileHitMask[i].end  ;
 
@@ -721,10 +675,6 @@ void TiledMap::DrawHitMask(aui_Surface *surf, const MapPoint &pos, RECT *mapView
 
 	for (sint32 i = k_TILE_PIXEL_HEADROOM; i < k_TILE_GRID_HEIGHT;)
 	{
-#if 0
-		start = (sint32) ((double)m_tileHitMask[i].start * m_scale);
-		end   = (sint32)((double)m_tileHitMask[i].end * m_scale);
-#endif
 		sint32 start = m_tileHitMask[i].start;
 		sint32 end   = m_tileHitMask[i].end  ;
 
@@ -795,10 +745,6 @@ void TiledMap::DrawColoredHitMaskEdge(aui_Surface *surf, const MapPoint &pos, Pi
 		if(north && i >= (k_TILE_PIXEL_HEADROOM + k_TILE_GRID_HEIGHT) / 2)
 			break;
 
-#if 0
-		start = (sint32) ((double)m_tileHitMask[i].start * m_scale);
-		end = (sint32)((double)m_tileHitMask[i].end * m_scale);
-#endif
 		sint32 start = m_tileHitMask[i].start;
 		sint32 end   = m_tileHitMask[i].end  ;
 
@@ -913,10 +859,6 @@ void TiledMap::DrawColoredBorderEdgeAt(sint32 x, sint32 y, Pixel16 selectColorPi
 		if(north && i >= (k_TILE_PIXEL_HEADROOM + k_TILE_GRID_HEIGHT) / 2)
 			break;
 
-#if 0
-		start = (sint32) ((double)m_tileHitMask[i].start * m_scale);
-		end = (sint32)((double)m_tileHitMask[i].end * m_scale);
-#endif
 		sint32 start = m_tileHitMask[i].start;
 		sint32 end   = m_tileHitMask[i].end  ;
 

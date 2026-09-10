@@ -2522,14 +2522,6 @@ void Network::SendChatText(MBCHAR *str, sint32 len)
 	NetChat *chatPacket = new NetChat(m_chatMask, str, (sint16)len);
 	chatPacket->AddRef();
 	if (IsActive()) {
-#if 0
-		MBCHAR tempStr[_MAX_PATH];
-		memcpy(tempStr, str, len);
-		tempStr[len] = 0;
-		if (chatbox_Get()) {
-			chatbox_Get()->AddLine(GetPlayerIndex(), tempStr);
-		}
-#endif
 
 		if(network_Get().IsHost()) {
 			for(sint32 p = 0; p < k_MAX_PLAYERS; p++) {

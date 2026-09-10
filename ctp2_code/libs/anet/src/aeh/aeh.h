@@ -274,24 +274,6 @@ void aeh_signature_toString(unsigned long crc, char *buf);
 --------------------------------------------------------------------------*/
 int aeh_addComment(aeh_t *aeh, const char *comment);
 
-#if 0
-/*--------------------------------------------------------------------------
- Get the nth comment from aeh.
- Usually there is only one comment and an n=1 call will suffice.
- No more than len characters are written to comment.
- Returns aeh_RES_OK on success,
-		 aeh_RES_EMPTY if there is no nth comment.
---------------------------------------------------------------------------*/
-int aeh_getComment(aeh_t *aeh, char *comment, int len, int n);
-
-/*--------------------------------------------------------------------------
- Get the name of the last (deepest) known module in the stack trace.
- No more than len characters are written to name.
- Returns aeh_RES_OK on success,
-		 aeh_RES_EMPTY if the stack trace contains no known modules.
---------------------------------------------------------------------------*/
-int aeh_getLastModule(aeh_t *aeh, char *name, int len);
-#endif
 
 /*--------------------------------------------------------------------------
  Convert crash info from an object format (aeh_t) to a binary stream

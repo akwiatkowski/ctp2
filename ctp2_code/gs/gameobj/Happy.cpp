@@ -331,13 +331,6 @@ void Happy::RecalcPollutionHappiness(CityData &cd, Player *p)
 	m_happiness -= m_pop_ent;
 	m_happiness += CalcPopEntertain(cd, p);
 
-#if 0
-	double saveHappiness = m_happiness;
-	sint32 delta;
-
-	CalcHappiness(cd, true, delta, false);
-	Assert(ceil(saveHappiness) == ceil(m_happiness));
-#endif
 
 	CalcCrime(cd, p);
 }

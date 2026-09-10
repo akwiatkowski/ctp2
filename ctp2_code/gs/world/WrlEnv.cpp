@@ -66,23 +66,6 @@ TERRAIN_TYPES World::GetTerrainType(const MapPoint &pos) const
 	return GetCell(pos)->GetTerrainType();
 }
 
-#if 0
-
-bool World::EnvIsWater(const uint32 env) const
-{
-	return (env & (k_MASK_ENV_MOVEMENT_TYPE & (k_BIT_MOVEMENT_TYPE_WATER | k_BIT_MOVEMENT_TYPE_SHALLOW_WATER)) != 0;
-}
-
-bool World::IsWater(const MapPoint &pos) const
-{
-	return EnvIsWater(GetCell(pos)->m_env);
-}
-
-bool World::IsWater(const sint32 x, const sint32 y) const
-{
-	return EnvIsWater(m_map[x][y]->m_env);
-}
-#endif
 
 bool World::EnvIsShallowWater(const uint32 env) const
 {
@@ -518,24 +501,6 @@ const char * World::GetTerrainName (const MapPoint &pos)
 	return stringdb_Get()->GetNameStr(id);
 }
 
-#if 0
-TileInfo *World::GetTileInfo(const MapPoint &pos)
-{
-	Cell *cell = GetCell(pos);
-	Assert(cell != NULL);
-	if (cell == NULL) return NULL;
-
-	return cell->GetTileInfo();
-}
-void World::SetTileInfo(const MapPoint &pos, TileInfo *tileInfo)
-{
-	Cell *cell = GetCell(pos);
-	Assert(cell != NULL);
-	if (cell == NULL) return;
-
-	cell->SetTileInfo(tileInfo);
-}
-#endif
 
 BOOL World::IsConnectedToCity(const MapPoint &pnt, sint32 owner,
 							  uint8* array) const
@@ -789,25 +754,6 @@ void World::CutImprovements(const MapPoint &point)
 		network_Get().Enqueue(thisCell, point.x, point.y);
 	}
 
-#if 0
-	if(thisCell->GetOwner() >= 0) {
-
-		sint32 fromOwner = thisCell->GetOwner();
-		thisCell->SetOwner(-1);
-		uint32 packpos = network_Get().PackedPos(point);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
-									  packpos, -1));
-
-		sint32 d;
-		for(d = (sint32)NORTH; d < (sint32)NOWHERE; d++) {
-			if(point.GetNeighborPosition((WORLD_DIRECTION)d, neighbor)) {
-				if(!IsConnectedToCity(neighbor, fromOwner)) {
-					ChangeOwner(neighbor, fromOwner, -1);
-				}
-			}
-		}
-	}
-#endif
 }
 
 double World::GetDefenseBonus(const MapPoint &point) const

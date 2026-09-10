@@ -385,10 +385,6 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		return 0;
 	}
 
-#if 0
-	MapPoint point;
-	tiledmap_Get()->GetMouseTilePos(point);
-#endif
 
 	switch (kf) {
 #ifdef _PLAYTEST
@@ -769,20 +765,6 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		 break;
 #endif
 
-#if 0
-	case KEY_FUNCTION_ENDSLICE:
-		if(network_Get().IsActive()) {
-			if(network_Get().IsMyTurn() ||
-			   (network_Get().IsHost() &&
-				player_Get(selitem_Get()->GetCurPlayer())->IsRobot())) {
-				turn_Get()->EndThisSliceBeginNewSlice();
-			}
-		} else {
-			turn_Get()->EndThisSliceBeginNewSlice();
-		}
-		move = FALSE;
-		break;
-#endif
     case KEY_FUNCTION_ENDTURN:
 #ifdef _PLAYTEST
         if (selitem_Get()->GetCurPlayer() != selitem_Get()->GetVisiblePlayer())
@@ -994,20 +976,6 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 //#endif
 
 #ifdef _DEBUG
-#if 0
-	case KEY_FUNCTION_CRC:
-		if(g_debugOwner != k_DEBUG_OWNER_CRC) {
-            if (!g_dataCheck) {
-                g_dataCheck = new DataCheck();
-            }
-			g_debugOwner = k_DEBUG_OWNER_CRC;
-			g_dataCheck->BeginTurn();
-			g_dataCheck->SetDisplay(1);
-		} else {
-			g_debugOwner = k_DEBUG_OWNER_NONE;
-		}
-		break;
-#endif
 #endif
 	case KEY_FUNCTION_HELP_MODE_TOGGLE:
 		break;
@@ -1066,44 +1034,8 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break;
 
 	case KEY_FUNCTION_CONTROL_NEXT:
-#if 0
-		if(controlpanel_Get()) {
-
-			if(g_cp_productionTab &&
-			   (g_cp_productionTab->GetMode() == PRODTAB_MODE_CHANGE ||
-				g_cp_productionTab->GetMode() == PRODTAB_MODE_QUEUE)) {
-				c3_ListBox *plist = g_cp_productionTab->GetPurchaseList();
-				if(plist && plist->NumItems() > 0) {
-					sint32 curIndex = plist->GetSelectedItemIndex();
-					if(curIndex >= plist->NumItems() - 1) {
-						curIndex = -1;
-					}
-					plist->SelectItem(curIndex + 1);
-					plist->GetVerticalRanger()->SetValue(0, curIndex + 1 - 2);
-				}
-			}
-		}
-#endif
 		break;
 	case KEY_FUNCTION_CONTROL_PREV:
-#if 0
-		if(controlpanel_Get()) {
-
-			if(g_cp_productionTab &&
-			   (g_cp_productionTab->GetMode() == PRODTAB_MODE_CHANGE ||
-				g_cp_productionTab->GetMode() == PRODTAB_MODE_QUEUE)) {
-				c3_ListBox *plist = g_cp_productionTab->GetPurchaseList();
-				if(plist && plist->NumItems() > 0) {
-					sint32 curIndex = plist->GetSelectedItemIndex();
-					if(curIndex <= 0) {
-						curIndex = plist->NumItems();
-					}
-					plist->SelectItem(curIndex - 1);
-					plist->GetVerticalRanger()->SetValue(0, curIndex - 1 - 2);
-				}
-			}
-		}
-#endif
 		break;
 	case KEY_FUNCTION_CLOSE:
 		if(g_currentMessageWindow) {
@@ -1163,12 +1095,6 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			Unit city;
 			if(selitem_Get()->GetSelectedCity(city)) {
 				city.GetData()->GetCityData()->GetBuildQueue()->Clear();
-#if 0
-				if(g_cp_productionTab) {
-					g_cp_productionTab->LoadCityData(city);
-					g_cp_productionTab->FillQueueList(city);
-				}
-#endif
 			}
 		}
 		break;

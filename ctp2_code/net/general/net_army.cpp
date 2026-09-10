@@ -14,152 +14,27 @@
 NetNewArmy::NetNewArmy(PLAYER_INDEX player, const ArmyList &army,
 					   sint32 armyIndex, CAUSE_NEW_ARMY cause)
 {
-#if 0
-	m_index = armyIndex;
-	m_player = player;
-	m_numUnits = (uint8)army.Num();
-	m_cause = cause;
-	for(sint32 i = 0; i < m_numUnits; i++) {
-		m_unitId[i] = uint32(army.Get(i));
-	}
-#endif
 }
 
 void NetNewArmy::Packetize(uint8 *buf, uint16 &size)
 {
-#if 0
-	size = 0;
-	PUSHID(k_PACKET_NEW_ARMY_ID);
-
-	PUSHLONG(m_player);
-	PUSHLONG(m_index);
-	PUSHLONG(m_cause);
-	PUSHBYTE(m_numUnits);
-	for(sint32 i = 0; i < m_numUnits; i++) {
-		PUSHLONG(m_unitId[i]);
-	}
-#endif
 }
 
 void NetNewArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 {
-#if 0
-	sint32 pos = 0;
-	uint16 packid;
-	sint32 i;
-	PULLID(packid);
-	Assert(packid == k_PACKET_NEW_ARMY_ID);
-
-	PULLLONG(m_player);
-	PULLLONG(m_index);
-	PULLLONGTYPE(m_cause, CAUSE_NEW_ARMY);
-	PULLBYTE(m_numUnits);
-
-	Assert(m_numUnits <= k_MAX_ARMY_SIZE);
-
-	for(i = 0; i < m_numUnits; i++) {
-		PULLLONG(m_unitId[i]);
-	}
-
-	Assert(pos == size);
-
-	if(network_Get().IsHost()) {
-		Assert(m_player == network_Get().IdToIndex(id));
-		if(m_player != network_Get().IdToIndex(id))
-			return;
-	}
-
-	Assert(player_Get(m_player)->m_all_armies->Num() == m_index);
-	if(player_Get(m_player)->m_all_armies->Num() != m_index)
-		return;
-
-	static ArmyList al;
-	al.Clear();
-	for(i = 0; i < m_numUnits; i++) {
-		Unit unit(m_unitId[i]);
-		Assert(unitpool_Get()->IsValid(unit));
-		al.Insert(unit);
-	}
-	player_Get(m_player)->CopyArmyIntoPlayer(al, m_cause,
-										   TRUE);
-#endif
 }
 
 NetRemoveArmy::NetRemoveArmy(PLAYER_INDEX player, const ArmyList &army,
 							 sint32 armyIndex, CAUSE_REMOVE_ARMY cause)
 {
-#if 0
-	m_index = armyIndex;
-	m_player = player;
-	m_numUnits = uint8(army.Num());
-	m_cause = cause;
-	for(sint32 i = 0; i < m_numUnits; i++) {
-		m_unitId[i] = uint32(army.Get(i));
-	}
-#endif
 }
 
 void NetRemoveArmy::Packetize(uint8 *buf, uint16 &size)
 {
-#if 0
-	size = 0;
-	PUSHID(k_PACKET_REMOVE_ARMY_ID);
-
-	PUSHLONG(m_player);
-	PUSHLONG(m_index);
-	PUSHLONG(m_cause);
-	PUSHBYTE(m_numUnits);
-	for(sint32 i = 0; i < m_numUnits; i++) {
-		PUSHLONG(m_unitId[i]);
-	}
-#endif
 }
 
 void NetRemoveArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 {
-#if 0
-	sint32 pos = 0;
-	uint16 packid;
-	sint32 i;
-	PULLID(packid);
-	Assert(packid == k_PACKET_REMOVE_ARMY_ID);
-
-	PULLLONG(m_player);
-	PULLLONG(m_index);
-	PULLLONGTYPE(m_cause, CAUSE_REMOVE_ARMY);
-	PULLBYTE(m_numUnits);
-
-	Assert(m_numUnits <= k_MAX_ARMY_SIZE);
-
-	for(i = 0; i < m_numUnits; i++) {
-		PULLLONG(m_unitId[i]);
-	}
-
-	if(network_Get().IsHost()) {
-		Assert(m_player == network_Get().IdToIndex(id));
-		if(m_player != network_Get().IdToIndex(id))
-			return;
-	}
-
-#ifdef _DEBUG
-	static ArmyList al;
-	al.Clear();
-	for(i = 0; i < m_numUnits; i++) {
-		Unit unit(m_unitId[i]);
-		Assert(unitpool_Get()->IsValid(unit));
-		al.Insert(unit);
-	}
-
-	ArmyList *realAl = player_Get(m_player)->GetArmy(m_index);
-	Assert(m_numUnits == realAl->Num());
-	for(i = 0; i < m_numUnits; i++) {
-		Assert(al[i] == realAl->Access(i));
-	}
-#endif
-
-	player_Get(m_player)->RemoveArmyFromPlayer(m_index, m_cause,
-											 TRUE, -1);
-#endif
 }
 
 NetArmy::NetArmy(ArmyData *data)

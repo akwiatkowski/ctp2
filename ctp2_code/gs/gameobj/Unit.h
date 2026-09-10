@@ -519,10 +519,6 @@ public:
 	bool AiGetCargoMovementPoints(double &min_move_points,
 	                              bool  &first) const;
 
-#if 0
-	void SetLastBattle(sint32 turn);
-	sint32 GetLastBattle() const;
-#endif
 	bool IsInjured() const;
 
 	void RecalculateResources();

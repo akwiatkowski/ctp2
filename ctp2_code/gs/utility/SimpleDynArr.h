@@ -45,9 +45,6 @@ public:
 	void DelIndex(sint32 i);
 	bool IsPresent(T const & chk) const;
 
-#if 0
-	const T * GetArray() const { return m_array; }
-#endif
 
 private:
     /// Stored data items

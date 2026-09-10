@@ -431,21 +431,6 @@ double Agent::GetRoundsPrecise(const MapPoint & pos, sint32 & cells) const
 		return 0.0;
 	}
 
-#if 0
-	// This would care about shallow water and the like but it is too slow.
-	uint32 move_union = m_army->GetMovementType();
-	if(m_army->HasCargo()
-	&&!m_army->GetMovementTypeAir()
-	){
-		move_union |= m_army->GetCargoMovementType();
-	}
-
-	float cost = 0.0f;
-	g_city_astar.FindCantEnterPenaltyDistance(m_playerId, Get_Pos(), pos, cost, cells, move_union);
-
-	move_point_cost = static_cast<double>(cost);
-	cells *= cells;
-#endif
 
 	cells = MapPoint::GetSquaredDistance(Get_Pos(), pos);
 	if (cells > 0)
@@ -559,42 +544,6 @@ bool Agent::EstimateTransportUtility(const Agent_ptr transport, Utility & utilit
 	return true;
 }
 
-#if 0
-void Agent::Follow_Path(const Path & found_path, const sint32 & order_type)
-{
-	Assert(Get_Can_Be_Executed());
-
-	Path *tmpPath = new Path(found_path);
-	MapPoint target_pos = tmpPath->GetEnd();
-
-	sint32 range = 0;
-	if (order_type >= 0)
-	{
-		(void) g_theOrderDB->Get(order_type)->GetRange(range);
-	}
-
-	Assert(range < 10);
-
-	while (range > 0)
-	{
-		tmpPath->SnipEnd();
-		range--;
-	}
-
-	gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
-	                       GEV_MoveOrder,
-	                       GEA_Army, m_army,
-	                       GEA_Path, tmpPath,
-	                       GEA_MapPoint, target_pos,
-	                       GEA_Int, (order_type == -1),
-	                       GEA_End
-	                      );
-
-	Set_Target_Pos(target_pos);
-	Set_Target_Order(order_type);
-	Set_Can_Be_Executed(false);
-}
-#endif
 
 bool Agent::Can_Execute_Order(const sint32 & order_type) const
 {

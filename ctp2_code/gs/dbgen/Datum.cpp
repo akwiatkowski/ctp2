@@ -742,9 +742,6 @@ void Datum::ExportDestructor(FILE *outfile)
 	}
 }
 
-#if 0
-void Datum::ExportOperatorEqual(FILE *outfile) // == not implemented
-#endif
 
 void Datum::ExportOperatorAssignment(FILE *outfile)
 {

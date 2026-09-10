@@ -570,12 +570,6 @@ SPDropDownListItem::~SPDropDownListItem()
 {
 
 }
-#if 0
-sint32 SPDropDownListItem::Compare(c3_ListItem *item2, uint32 column)
-{
-
-}
-#endif
 
 
 

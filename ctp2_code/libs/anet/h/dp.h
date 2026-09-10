@@ -467,13 +467,6 @@ typedef struct dp_s {
 	dp_karma_t	 enumPlayers_karma;		/* karma of session we're interested in. */
 	playerHdl_t	 enumPlayers_handle;	/* handle to master we're interested in. */
 
-#if 0
-	/* Following fields support multi-cast simulation by dpSend. */
-	byte		 mc_buf[dp_MAXPACKETLEN];	/* Holding pen while multicasting */
-	int 		 mc_len;	/* Length of user data. */
-	int			 mc_next;	/* Index into players[].  Next guy to send it to, or -1 if done. */
-	int		 mc_sysMessage;	/* whether system message */
-#endif
 
 	/* Following field supports reliable data transmission. */
 	dpio_t		*dpio;

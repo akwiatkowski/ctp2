@@ -187,12 +187,6 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
           uid.GetMoveSoundID());
 			}
 		}
-#if 0
-		else if(oldVisionRange != m_unitData->m_vision_range) {
-			player_Get(m_unitData->GetOwner())->RemoveUnitVision(m_unitData->m_pos, oldVisionRange);
-			player_Get(m_unitData->GetOwner())->AddUnitVision(m_unitData->m_pos, m_unitData->m_vision_range);
-		}
-#endif
 
 		if(oldowner != m_unitData->m_owner) {
 			DPRINTF(k_DBG_NET, ("Resetting unit %lx (type %d) from owner %d to %d\n",
@@ -259,15 +253,6 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 		unitpool_Get()->Insert(m_unitData);
 
-#if 0
-		if(m_unitData->m_vision_range != oldVisionRange) {
-			double newRange = m_unitData->m_vision_range;
-			m_unitData->m_vision_range = oldVisionRange;
-			m_unitData->RemoveUnitVision();
-			m_unitData->m_vision_range = newRange;
-			m_unitData->AddUnitVision();
-		}
-#endif
 
 		if(m_unitData->GetDBRec()->GetHasPopAndCanBuild()) {
 			m_unitData->GetCityData()->NetworkInitialize();
@@ -319,24 +304,6 @@ void NetUnit::PacketizeUnit(uint8* buf, uint16& size, UnitData* unitData)
 
 	putlong(ptr, unitData->m_temp_visibility_array.m_array_index); ptr += sizeof(unitData->m_temp_visibility_array.m_array_index);
 
-#if 0
-	uint32 mask = 0;
-	sint32 i;
-
-	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(player_Get(i)) {
-			mask |= (1 << i);
-		}
-	}
-
-	putlong(ptr, mask); ptr += 4;
-
-	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(!player_Get(i)) continue;
-		putbyte(ptr, unitData->m_temp_visibility_array.m_array_index[i]);
-		ptr++;
-	}
-#endif
 
 	putlong(ptr, (uint32)unitData->m_army); ptr += 4;
 
@@ -379,15 +346,6 @@ void NetUnit::UnpacketizeUnit(uint8* buf, uint16& size, UnitData* unitData)
 	memcpy(&unitData->m_movement_points, ptr, sizeof(double)); ptr += sizeof(double);
 
 	unitData->m_temp_visibility_array.m_array_index = getlong(ptr); ptr += sizeof(unitData->m_temp_visibility_array.m_array_index);
-#if 0
-	uint32 mask = getlong(ptr); ptr += 4;
-
-	for (sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-		if(!player_Get(i)) continue;
-		if(!(mask & (1 << i))) continue;
-		unitData->m_temp_visibility_array.m_array_index[i] = getbyte(ptr); ptr++;
-	}
-#endif
 
 	unitData->m_army = Army(getlong(ptr)); ptr += 4;
 

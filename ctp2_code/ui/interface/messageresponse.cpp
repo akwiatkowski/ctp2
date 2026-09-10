@@ -295,20 +295,6 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 
 	window->AddControl(m_submitButton.get());
 
-#if 0
-    // This code block determines the maximum length of all submit button texts,
-    // but the resulting textlength is never used.
-	aui_BitmapFont *    font        = m_submitButton->GetTextFont();
-	Assert(font);
-	sint32              textlength  = g_messageRespButtonWidth;
-	sint32              i           = 0;
-
-	while (SlicButton * subButton = window->GetMessage()->AccessData()->GetButton(i++))
-    {
-        textlength  = std::max<sint32>
-                        (textlength, font->GetStringWidth(subButton->GetName()));
-	}
-#endif
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseDropdown" );
 	m_dropdown.reset(new c3_DropDown( &errcode, aui_UniqueId(), buttonBlock ));

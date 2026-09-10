@@ -508,55 +508,6 @@ void NationalManagementDialog::UpdateGovernor()
 
 void NationalManagementDialog::UpdateBuildQueue()
 {
-#if 0
-
-	for(sint32 index = 0; index <
-		m_buildDropDown->GetListBox()->NumItems(); index++) {
-
-		ctp2_ListItem *item =
-			static_cast<ctp2_ListItem*>(
-			m_buildDropDown->GetListBox()->GetItemByIndex(index));
-
-		if(item) {
-
-			delete static_cast<BuildQueueDropdownItem*>(item->GetUserData());
-
-			item->SetUserData(NULL);
-		}
-	}
-
-	m_buildDropDown->BuildListStart();
-
-	m_buildDropDown->Clear();
-
-	for(index = 0; index < g_theUnitDB->NumRecords(); index++) {
-		if(CanBuild(k_GAME_OBJ_TYPE_UNIT, index))
-			m_buildDropDown->AddItem(
-			CreateBuildQueueItem(k_GAME_OBJ_TYPE_UNIT, index));
-	}
-
-	for(index = 0; index < g_theBuildingDB->NumRecords(); index++) {
-		if(CanBuild(k_GAME_OBJ_TYPE_IMPROVEMENT, index))
-			m_buildDropDown->AddItem(
-			CreateBuildQueueItem(k_GAME_OBJ_TYPE_IMPROVEMENT, index));
-	}
-
-	for(index = 0; index < g_theWonderDB->NumRecords(); index++) {
-		if(CanBuild(k_GAME_OBJ_TYPE_WONDER, index))
-			m_buildDropDown->AddItem(
-			CreateBuildQueueItem(k_GAME_OBJ_TYPE_WONDER, index));
-	}
-
-	m_buildDropDown->BuildListEnd();
-
-	tech_WLList<sint32> *selectedList = m_statusList->GetSelectedList();
-
-	if(selectedList->L() < 1) {
-		m_buildDropDown->Enable(FALSE);
-	} else {
-		m_buildDropDown->Enable(TRUE);
-	}
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -1105,43 +1056,6 @@ sint32 NationalManagementDialog::CompareResources(ctp2_ListItem *item1,
 			result = atoi(column1->GetText()) - atoi(column2->GetText());
 			break;
 
-#if 0
-			{
-				sint32 population1 = 0, population2 = 0;
-				cityData1->GetPop(population1);
-				cityData2->GetPop(population2);
-				result =(population1 - population2);
-			}
-			break;
-		case k_NMD_RES_HAPPINESS:
-			result =(cityData1->GetHappiness() -
-				cityData2->GetHappiness());
-			break;
-		case k_NMD_RES_PRODUCTION:
-			result =(cityData1->GetGrossCityProduction() -
-				cityData2->GetGrossCityProduction());
-			break;
-		case k_NMD_RES_FOOD:
-			result =(cityData1->GetGrossCityFood() -
-				cityData2->GetGrossCityFood());
-			break;
-		case k_NMD_RES_GOLD:
-			result =(cityData1->GetGrossCityGold() -
-				cityData2->GetGrossCityGold());
-			break;
-		case k_NMD_RES_SCIENCE:
-			result =(cityData1->GetScience() -
-				cityData2->GetScience());
-			break;
-		case k_NMD_RES_POLLUTION:
-			result =(cityData1->GetPollution() -
-				   cityData2->GetPollution());
-			break;
-		case k_NMD_RES_CRIME:
-			result =(sint32(cityData1->GetHappyCrime() * 100.0) -
-				   sint32(cityData2->GetHappyCrime() * 100.0));
-			break;
-#endif
 
 		default:
 			Assert(false);

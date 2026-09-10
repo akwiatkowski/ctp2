@@ -621,50 +621,6 @@ template <class T> sint32 AVL<T>::balance_insert_avl(AVL<T> **node,
 
 
 
-#if 0
-
-void print_avl(FILE *fout, AVL<T> *node, sint32 c)
-
-{ sint32 i;
-
-   if (c == 0)
-      fprintf (fout, "------------------------------------\n");
-
-   for (i=0; i<c; i++)
-      fprintf (fout, "  ");
-
-   if (t) {
-      fprintf (fout, "%6.4f %4d (%3d %3d)",  node->total_cost,
-      node->id, node->pos.x, node->pos.y);
-   }  else {
-      fprintf (fout, "%4d (%3d %3d) %6.4f ",
-         node->id,  node->pos.x, node->pos.y, node->total_cost);
-   }
-
-   switch (node->m_balance){
-   case AVL_LEFT: fprintf (fout, "L\n"); break;
-   case AVL_RIGHT: fprintf (fout, "R\n"); break;
-   case AVL_MID: fprintf (fout, "-\n"); break ;
-   default : fprintf (fout, "m_balance out of bounds\n"); break;
-   }
-
-   if (node->m_ptr[AVL_RIGHT] == NULL) {
-      if (node->m_balance == AVL_RIGHT) {
-         fprintf (stderr, "BALANCE ERROR\n");
-      }
-   }else {
-      print_avl(fout, node->m_ptr[AVL_RIGHT], t, c + 1);
-   }
-
-   if (node->m_ptr[AVL_LEFT] == NULL) {
-      if (node->m_balance == AVL_LEFT) {
-         fprintf (stderr, "BALANCE ERROR\n");
-      }
-   }else {
-      print_avl(fout, node->m_ptr[AVL_LEFT], t, c + 1);
-   }
-}
-#endif
 
 template <class T> sint32 AVL<T>::Search(AVL<T> *matchme,
                AVL<T> *node, AVL<T> **visited)

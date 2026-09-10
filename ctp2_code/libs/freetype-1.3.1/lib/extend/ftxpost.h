@@ -56,15 +56,6 @@ extern "C" {
 
   typedef struct TT_Post_25_  TT_Post_25;
 
-#if 0
-  /* format 4.0 table -- not implemented yet */
-
-  struct TT_Post_40_
-  {
-  };
-
-  typedef struct TT_Post_40_  TT_Post_40;
-#endif
 
 
   struct TT_Post_
@@ -77,9 +68,6 @@ extern "C" {
     {
       TT_Post_20  post20;
       TT_Post_25  post25;
-#if 0
-      TT_Post_40  post40;
-#endif
     } p;
   };
 

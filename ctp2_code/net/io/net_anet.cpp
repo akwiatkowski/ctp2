@@ -81,24 +81,6 @@ void ActivNetIO::PlayerCallback(dpid_t id,
 		m_got_end_players = TRUE;
 		if(m_isHost) {
 
-#if 0
-			PointerList<AnetPlayerData>::Walker walk(&m_playerList);
-			while(walk.IsValid()) {
-				uint8 buf[512];
-				buf[0] = 'H';
-				buf[1] = 'I';
-				putshort(&buf[2], m_pid);
-				dp_result_t res;
-				res = dpSend(m_dp,
-							 m_pid,
-							 walk.GetObj()->m_id,
-							 dp_SEND_RELIABLE,
-							 buf,
-							 4);
-				Assert(res == dp_RES_OK);
-				walk.Next();
-			}
-#endif
 		} else {
 			m_broadcastAddMessage = TRUE;
 			m_broadcastAddMessageTime = time(nullptr) - 10;

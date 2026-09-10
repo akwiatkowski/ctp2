@@ -244,73 +244,6 @@ public:
 			m_values = *map_from_ptr;
 	}
 
-#if 0
-
-	void Relax(const sint8 & cycles, const float & coefficient)
-	{
-		sint32 elem;
-		_Ty new_value;
-		_Ty adj_value;
-		bool rdiag;
-		bool cdiag;
-		sint8 delta_r, delta_c;
-
-		if (cycles <= 0)
-			return;
-
-		MapGridArray *map_tmp_ptr;
-		MapGridArray *map_from_ptr = &m_values;
-		MapGridArray *map_to_ptr = &s_scratch;
-
-		*map_to_ptr = *map_from_ptr;
-
-		for (sint8 cycle = 0; cycle < cycles; cycle++)
-		{
-			for (elem = 0; elem < m_values.size(); elem++)
-			{
-
-				new_value = (*map_from_ptr)[elem];
-
-				for (delta_r = -1; delta_r <= 1; delta_r++)
-				{
-					for (delta_c = -1; delta_c <= 1; delta_c++)
-					{
-
-						rdiag = (delta_r != 0);
-						cdiag = (delta_c != 0);
-
-						if ( !rdiag && !cdiag )
-							continue;
-
-						adj_value = GetRelaxValue( elem,
-							delta_r,
-							delta_c,
-							*map_from_ptr);
-
-
-						adj_value *= coefficient;
-
-
-						new_value = (new_value > adj_value ? new_value : adj_value);
-					}
-				}
-
-				(*map_to_ptr)[elem] = new_value;
-			}
-
-			map_tmp_ptr = map_from_ptr;
-			map_from_ptr = map_to_ptr;
-			map_to_ptr = map_tmp_ptr;
-		}
-
-
-
-
-		if (map_from_ptr != &m_values)
-			m_values = *map_from_ptr;
-
-	}
-#endif
 
 
 
@@ -397,46 +330,6 @@ public:
 
 private:
 
-#if 0
-
-
-
-
-	_Ty GetRelaxValue( const sint32 & src_elem,
-		const sint8 & delta_x,
-		const sint8 & delta_y,
-		const MapGridArray & map_from ) const
-	{
-
-
-
-
-
-
-		bool diagonal = (delta_x != 0 || delta_y != 0);
-
-		sint32 y = (sint32) (src_elem / m_xGridSize);
-		sint32 x = (src_elem - ( y * m_xGridSize));
-
-		x += delta_x;
-		y += delta_y;
-
-
-
-
-		if (y < 0) y = m_yGridSize - 1;
-		if (x < 0) x = m_xGridSize - 1;
-		if (y >= m_yGridSize) y = 0;
-		if (x >= m_xGridSize) x = 0;
-
-		Assert( (y * m_xGridSize) + x < map_from.size() );
-
-		if (diagonal)
-			return map_from[ (y * m_xGridSize) + x ] * RELAX_DIAGONAL;
-		else
-			return map_from[ (y * m_xGridSize) + x ] * RELAX_SHARED_SIDE;
-	}
-#endif
 
 	sint32 m_xSize;
 

@@ -4870,27 +4870,6 @@ sint32 Governor::ComputeBestMilitaryReadiness() const
 	sint32 new_level = 0;
 	(void) strategy.GetReadinessLevel(new_level);
 
-#if 0
-// Probably intended to test whether the economy is able to support the military budget.
-	Assert(player_Get(m_playerId));
-	Player * player_ptr = player_Get(m_playerId);
-
-	double max_support_cost = 1.0;
-	sint32 total_production = player_ptr->GetTotalProduction();
-
-	sint32 support_percent = 0;
-	if (strategy.GetMaxSupportCostPercent(support_percent))
-	{
-		max_support_cost = (static_cast<double>(support_percent) / 100.0);
-	}
-
-	if(total_production
-	&& player_ptr->GetReadinessCost() > (max_support_cost * total_production)
-	){
-		// Spending too much. However, like in real life,
-		// this fact is completely ignored.
-	}
-#endif
 
 	return new_level;
 }

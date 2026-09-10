@@ -39,17 +39,6 @@
 #include "gfx/spritesys/Sequence.h"
 #include "gfx/spritesys/UnitActor.h"
 
-#if 0
-#include "gfx/spritesys/Actor.h"
-#include "ctp/debugtools/debugmemory.h"
-#include "gfx/spritesys/director.h"
-#include "gfx/spritesys/EffectActor.h"
-#include "gfx/gfx_utils/pixelutils.h"
-#include "gs/database/profileDB.h"      // profiledb_Get()
-#include "gfx/spritesys/spriteutils.h"
-#include "ui/aui_common/tech_wllist.h"
-#include "gs/gameobj/Unit.h"
-#endif
 
 #define STOMPCHECK()
 

@@ -422,19 +422,6 @@ AUI_ERRCODE c3_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 
 
 
-#if 0
-
-				if (*ptr == '\n' && len == 1) {
-					ptr++;
-
-
-					m_curStaticPos.x = 0;
-					sint32 offset = m_virtualHeight - m_curStaticPos.y;
-					m_curStaticPos.y += offset;
-					m_virtualHeight += offset;
-					continue;
-				}
-#endif
 
 				aui_Static *hs = CreateHyperStatic(
 					ptr,

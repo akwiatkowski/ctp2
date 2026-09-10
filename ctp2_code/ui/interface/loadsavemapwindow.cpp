@@ -706,9 +706,6 @@ LSMGameMapsListItem::~LSMGameMapsListItem()
 
 sint32 LSMGameMapsListItem::Compare(c3_ListItem *item2, uint32 column)
 {
-#if 0
-	LSMGameMapsListItem *item = (LSMGameMapsListItem *)item2;
-#endif
 
 	return 0;
 }
@@ -747,9 +744,6 @@ LSMSaveMapsListItem::~LSMSaveMapsListItem()
 
 sint32 LSMSaveMapsListItem::Compare(c3_ListItem *item2, uint32 column)
 {
-#if 0
-	LSMSaveMapsListItem *item = (LSMSaveMapsListItem *)item2;
-#endif
 
 	return 0;
 }

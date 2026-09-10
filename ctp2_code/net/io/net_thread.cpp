@@ -591,9 +591,6 @@ TPacketData *NetThread::FindSplitStart(uint16 from)
 void NetThread::PacketReady(sint32 from, uint8* buf, sint32 size)
 {
 	Lock();
-#if 0
-	TPacketData *currentTail = m_incoming->GetTail();
-#endif
 	if(buf[0] == k_SPLIT_PACKET_HEAD && m_incoming->GetCount() > 0) {
 
 		TPacketData *splitStart = FindSplitStart((uint16)from);
@@ -614,26 +611,6 @@ void NetThread::PacketReady(sint32 from, uint8* buf, sint32 size)
 					break;
 			}
 		}
-#if 0
-		if((currentTail->m_buf &&
-			(currentTail->m_buf[0] != k_SPLIT_PACKET_HEAD))) {
-			Assert(buf[1] == k_SPLIT_PACKET_START);
-			m_incoming->AddTail(new TPacketData((uint16)from, 0, buf, size,
-												FALSE));
-		} else {
-			currentTail->Append(&buf[2], size - 2);
-			switch(buf[1]) {
-				case k_SPLIT_PACKET_BODY:
-					break;
-				case k_SPLIT_PACKET_END:
-					currentTail->RemoveSplitInfo();
-					break;
-				default:
-					Assert(FALSE);
-					break;
-			}
-		}
-#endif
 
 	} else {
 #ifdef _DEBUG

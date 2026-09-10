@@ -128,24 +128,6 @@ SpriteEditWindow *g_spriteEditWindow = nullptr;
 
 
 
-#if 0
-static ctp2_Button **s_statsButton = NULL;
-static c3_Switch *s_screensSwitch;
-
-static MBCHAR	s_buttonName[k_STATS_NUM_BUTTONS][256] ={
-	"CivButton",
-	"TradeButton",
-	"SciButton",
-	"UnitButton",
-	"LibButton",
-	"DipButton",
-	"OptionsButton",
-	"CityButton",
-
-};
-
-static aui_StringTable *s_statsString;
-#endif
 
 
 

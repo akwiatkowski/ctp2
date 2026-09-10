@@ -84,11 +84,7 @@ public:
 	typedef std::vector<Sorted_Agent_List, dbgallocator<Sorted_Agent_List> > Sorted_Agent_List_Vector;
 	typedef Sorted_Agent_List::iterator                                      Sorted_Agent_Iter;
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)	// does not compile with newer version
-	typedef std::deque<Scheduler, dbgallocator<Scheduler> > Scheduler_Vector;
-#else
 	typedef std::vector<Scheduler, dbgallocator<Scheduler> >                 Scheduler_Vector;
-#endif
 
 #else
 
@@ -109,11 +105,7 @@ public:
 	typedef std::vector<Sorted_Agent_List>                                   Sorted_Agent_List_Vector;
 	typedef Sorted_Agent_List::iterator                                      Sorted_Agent_Iter;
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)	// does not compile with newer version
-	typedef std::deque<Scheduler>                                            Scheduler_Vector;
-#else
 	typedef std::vector<Scheduler>                                           Scheduler_Vector;
-#endif
 #endif
 
 	static sint32 s_max_match_list_cycles;

@@ -56,38 +56,6 @@ sint16 PlasmaGenerator1::AverageVals(sint8 *map, sint32 x, sint32 y,
 	return sint8(total/ 4);
 }
 
-#if 0
-PlasmaGenerator1::Generate(sint16 *map, sint32 width, sint32 height)
-{
-	sint32 x, y;
-	sint16 range = 1000;
-	sint32 xstride = width/2;
-	sint32 ystride = height/2;
-	BOOL oddline = FALSE;
-
-	while(xstride && ystride) {
-		if(xstride < 1)
-			xstride = 1;
-		if(ystride < 1)
-			ystride = 1;
-		for(y = ystride; y < height - ystride; y += ystride) {
-			oddline = !oddline;
-			for(x = xstride; x < width - xstride; x += xstride) {
-				if((oddline) && !x)
-					x += xstride;
-				map[y * width + x] = sint16(rand() % (range * 2)) - range;
-				map[y * width + x] += AverageVals(map, x, y,
-												  xstride, ystride, width);
-
-			}
-		}
-		range >>= 1;
-		xstride >>= 1;
-		ystride >>= 1;
-	}
-	return TRUE;
-}
-#endif
 
 sint8 Rand1(sint8 base, sint8 delta)
 {

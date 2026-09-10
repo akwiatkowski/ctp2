@@ -101,32 +101,6 @@ const MBCHAR *TurnYearStatus::GetYearString(sint32 currentYear, sint32 round)
 
 	return buf;
 
-#if 0
-
-	std::stringstream yearString;
-
-	if (s_useCustomYear && g_pTurnLengthOverride)
-	{
-		uint32 round = turn_Get()->GetSessionRound();
-		if (round > s_turnLengthOverrideSize)
-		{
-			round = s_turnLengthOverrideSize;
-		}
-
-		yearString << s_pTurnLengthOverride[round].text << std::ends;
-	}
-	else
-	{
-
-		yearString << abs(currentYear) << " "
-			<< ((currentYear < 0) ?
-			stringdb_Get()->GetNameStr("str_tbl_ldl_BC") :
-			stringdb_Get()->GetNameStr("str_tbl_ldl_AD"))
-			<< std::ends;
-	}
-
-	return(yearString.str());
-#endif
 }
 
 const MBCHAR *TurnYearStatus::GetCurrentRound()
@@ -137,15 +111,6 @@ const MBCHAR *TurnYearStatus::GetCurrentRound()
 	                   turn_Get()->GetSessionRound();
 	snprintf(buf, sizeof(buf), "%d %s", round, stringdb_Get()->GetNameStr("str_ldl_Turns"));
 	return buf;
-#if 0
-
-	std::stringstream roundString;
-	roundString << turn_Get()->GetSessionRound() << " "
-		<< stringdb_Get()->GetNameStr("str_ldl_Turns")
-		<< std::ends;
-
-	return(roundString.str());
-#endif
 }
 
 void TurnYearStatus::BuildTurnLengthOverride()

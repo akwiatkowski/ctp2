@@ -1339,17 +1339,6 @@ STDEHANDLER(MoveUnitsEvent)
 							gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillPop,
 												   GEA_City, c.m_id,
 												   GEA_End);
-#if 0
-							if(network_Get().IsHost())
-							{
-								network_Get().Block(a.GetOwner());
-							}
-							c.CD()->ChangePopulation(-1);
-							if(network_Get().IsHost())
-							{
-								network_Get().Unblock(a.GetOwner());
-							}
-#endif
 						}
 
 						if (c.IsCapitol())

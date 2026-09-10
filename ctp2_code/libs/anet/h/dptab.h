@@ -830,20 +830,6 @@ typedef struct {
 
 /* Bundles of small transfers are sent with this header */
 #define dptab_SMALL_PACKET_ID		dppt_MAKE('d','%')
-#if 0
-/* Can't represent this in C */
-typedef struct {
-	unsigned char hops;		/* all vars in pkt have same hop count */
-	unsigned char subkeylen;	/* all vars in pkt have same subkeylen */
-	unsigned char keylen;
-	char key[keylen];			/* table's key in master table. */
-	array of {
-		unsigned char len;			/* length of user data */
-		char subkey[keylen];		/* item's subkey in table. */
-		char data[len];			/* actual data of transfer */
-	}
-} PACK dptab_small_packet_t;
-#endif
 
 /* Bytes of overhead in a dptab_small_packet.
  * This + keylen + subkeylen + varlen must be <= dpio_MAXLEN_RELIABLE
@@ -851,21 +837,6 @@ typedef struct {
  */
 #define dptab_SMALL_PACKET_HDRLEN (sizeof(dp_packetType_t)+4)
 
-#if 0
-/* Recipient of one of the above can send this to report an error
- * or reject a transmission.
- */
-#define dptab_REPLY_PACKET_ID		dppt_MAKE('d','#')
-typedef struct {
-	/* The error - either BAD (for bad CRC) or ALREADY (for stop sending,
-	 * please, I'm british :-)
-	 */
-	dp_result_t err;
-
-	/* Enough info to identify the transmission in question. */
-	unsigned char xferid;
-} PACK dptab_reply_packet_t;
-#endif
 
 /* Deleting a table entry */
 #define dptab_DELITEM_PACKET_ID		dppt_MAKE('d','$')

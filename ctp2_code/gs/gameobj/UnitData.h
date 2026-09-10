@@ -635,12 +635,6 @@ public:
 	void Cloak();
 	void Uncloak();
 
-#if 0
-	bool HasOpenRiftGate(MapPoint &destination) const;
-	bool OpenRiftGate(const MapPoint &destination);
-	bool IsTravellingRift() const;
-	void SetTravellingRift();
-#endif
 
 	sint32 GetStoredCityProduction() const;
 	sint32 GetNetCityProduction() const;
@@ -681,10 +675,6 @@ public:
 	bool AiGetCargoMovementPoints(double &min_move_points,
 	                              bool  &first) const;
 
-#if 0
-	void SetLastBattle(sint32 turn);
-	sint32 GetLastBattle() const;
-#endif
 
 	void EndTurn();
 	void RecalculateResources();

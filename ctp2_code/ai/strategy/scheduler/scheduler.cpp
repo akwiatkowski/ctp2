@@ -291,11 +291,6 @@ void Scheduler::Cleanup()
 	m_generic_goals.clear();
 }
 
-#if 0
-/// No longer used "Reason: should be able to regenerate state from game objects."
-
-/// No longer used "Reason: should be able to regenerate state from game objects."
-#endif
 
 void Scheduler::Initialize()
 {
@@ -762,11 +757,6 @@ void Scheduler::Match_Resources(const bool move_armies)
 					("\t\tGOAL_COMPLETE (goal: %x agent: %x)\n", goal_ptr));
 
 				committed_agents -= goal_ptr->Get_Agent_Count();
-#if 0
-				if(!goal_ptr->Is_Single_Agent())
-				{
-				}
-#endif
 				if(goal_ptr->Get_Removal_Time())
 				{
 					AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, goal_ptr->Get_Goal_Type(), -1,
@@ -1109,15 +1099,6 @@ bool Scheduler::Prioritize_Goals()
 		while(sorted_goal_iter != m_goals_of_type[goal_type].end())
 		{
 			Goal_ptr goal_ptr = sorted_goal_iter->second;
-#if 0
-			// Get_Totally_Complete also called in Compute_Raw_Priority
-			if(goal_ptr->Get_Totally_Complete())
-			{
-				if(!goal_ptr->Is_Single_Agent())
-				{
-				}
-			}
-#endif
 
 			if(goal_ptr->Get_Removal_Time())
 			{

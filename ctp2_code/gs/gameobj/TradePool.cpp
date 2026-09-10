@@ -92,13 +92,6 @@ sint32 TradePool::GetGoldValue(sint32 resource, sint32 n)
 {
 	return ((n * (n+1)) / 2) * g_theResourceDB->Get(resource)->GetGold();
 
-#if 0
-	sint32 terrain = resource % k_BASE_TERRAIN_TYPES;
- 	sint32 good = resource / k_BASE_TERRAIN_TYPES;
- 	sint32 gold = (n+1) *
-		g_theTerrainDB->Get(terrain)->GetGood(good)->GetGoodGoldValue();
-	return gold;
-#endif
 }
 
 sint32 TradePool::GetSingleGoodValue(sint32 resource, sint32 nth_good)

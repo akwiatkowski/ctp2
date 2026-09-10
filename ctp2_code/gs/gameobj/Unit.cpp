@@ -747,12 +747,6 @@ bool Unit::IsBeingTransported() const
 	return GetData()->IsBeingTransported();
 }
 
-#if 0
-void Unit::Transform()
-{
-	AccessData()->Transform();
-}
-#endif
 
 bool Unit::CanAtLeastOneCargoUnloadAt(const MapPoint & old_pos, const MapPoint & dest_pos, const bool & use_vision, bool check_move_points) const
 {
@@ -1778,32 +1772,6 @@ void Unit::Uncloak()
 	AccessData()->Uncloak();
 }
 
-#if 0
-bool Unit::CanOpenRiftGate() const
-{
-	return GetDBRec()->CreateRift();
-}
-
-bool Unit::HasOpenRiftGate(MapPoint &destination) const
-{
-	return GetDBRec()->CreateRift() && GetData()->HasOpenRiftGate(destination);
-}
-
-bool Unit::OpenRiftGate(const MapPoint &destination)
-{
-	return GetDBRec()->CreateRift() && AccessData()->OpenRiftGate(destination);
-}
-
-bool Unit::IsTravellingRift() const
-{
-	return GetData()->IsTravellingRift();
-}
-
-void Unit::SetTravellingRift()
-{
-	AccessData()->SetTravellingRift();
-}
-#endif
 
 bool Unit::HasResource(const sint32 resource) const
 {
@@ -1977,17 +1945,6 @@ bool Unit::GetCurrentOrderString(StringId &id) const
 	return GetData()->GetCurrentOrderString(id);
 }
 
-#if 0
-void Unit::SetOrders(UNIT_ORDER_TYPE order)
-{
-	AccessData()->SetOrders(order);
-}
-
-UNIT_ORDER_TYPE Unit::GetOrders() const
-{
-	return GetData()->GetOrders();
-}
-#endif
 
 double Unit::GetSupportCost() const
 {
@@ -2015,17 +1972,6 @@ bool Unit::AiGetCargoMovementPoints(double &min_move_points,
 	return GetData()->AiGetCargoMovementPoints(min_move_points, first);
 }
 
-#if 0
-void Unit::SetLastBattle(sint32 turn)
-{
-	AccessData()->SetLastBattle(turn);
-}
-
-sint32 Unit::GetLastBattle() const
-{
-	return GetData()->GetLastBattle();
-}
-#endif
 
 bool Unit::IsInjured() const
 {

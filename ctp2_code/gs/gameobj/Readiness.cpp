@@ -153,19 +153,6 @@ void MilitaryReadiness::SupportUnit(const Unit &u, sint32 gov)
 	network_Get().Unblock(m_owner);
 }
 
-#if 0
-//EMOD
-void MilitaryReadiness::SupportUnitGold(const Unit &u, sint32 gov)
-{
-	double unitCostGold = GetSupportCostGold(u);
-
-	m_costGold += unitCostGold;
-
-	network_Get().Block(m_owner);
-	ENQUEUE();
-	network_Get().Unblock(m_owner);
-}
-#endif
 
 double MilitaryReadiness::GetSupportCost(const Unit &u)
 {

@@ -1418,45 +1418,6 @@ void DipWizard::UpdateDetails()
 				} else {
 					text[0] = 0;
 				}
-#if 0
-				switch(m_viewResponseType) {
-					case RESPONSE_COUNTER:
-					{
-						SlicObject so;
-						so.AddPlayer(m_viewRecipient);
-						stringutils_Interpret(stringdb_Get()->GetNameStr("str_ldl_DipWizCounterProposal"), so, text);
-						break;
-					}
-					case RESPONSE_THREATEN:
-					{
-						sint32 threatDBIndex = diplomacyutil_GetDBIndex((THREAT_TYPE)m_viewThreat);
-						const DiplomacyThreatRecord *rec = g_theDiplomacyThreatDB->Get(threatDBIndex);
-						Assert(rec);
-						if(rec) {
-							StringId threatDetail = rec->GetDetails();
-							SlicObject so;
-							so.AddPlayer(m_viewSender);
-							so.AddPlayer(m_viewRecipient);
-							if(AddThreatData(so, threatDBIndex, m_viewThreatArg)) {
-								stringutils_Interpret(stringdb_Get()->GetNameStr(threatDetail), so, text);
-							} else {
-								strlcpy(text, stringdb_Get()->GetNameStr(threatDetail), sizeof(text));
-							}
-						}
-						break;
-					}
-					case RESPONSE_ACCEPT:
-						strlcpy(text, stringdb_Get()->GetNameStr("str_dip_ResponseAccept"), sizeof(text));
-						break;
-					case RESPONSE_REJECT:
-						strlcpy(text, stringdb_Get()->GetNameStr("str_dip_ResponseReject"), sizeof(text));
-						break;
-					default:
-
-						text[0] = 0;
-						break;
-				}
-#endif
 			}
 			st->SetText(text);
 		}

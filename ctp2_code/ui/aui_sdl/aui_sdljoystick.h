@@ -20,10 +20,6 @@ public:
 		uint32 lMax = 1000);
 	~aui_SDLJoystick() override;
 
-#if 0
-	void SetDevice( LPDIRECTINPUTDEVICE device ) { m_lpdid = device;};
-	LPDIRECTINPUTDEVICE Device( void ) { return m_lpdid;};
-#endif
 
 	void SetDeviceName( MBCHAR *name ) { strlcpy( m_deviceName, name, sizeof( m_deviceName ) ); };
 	MBCHAR *DeviceName( ) { return m_deviceName; };
@@ -33,21 +29,12 @@ public:
 
 protected:
 	aui_SDLJoystick() {}
-#if 0
-	AUI_ERRCODE CreateDirectJoystick( void );
-#endif
 
 public:
 	AUI_ERRCODE Acquire( ) override { return aui_SDLInput::Acquire(); }
 	AUI_ERRCODE Unacquire( ) override { return aui_SDLInput::Unacquire(); }
 
-#if 0
-	virtual AUI_ERRCODE GetInput( void );
-#endif
 protected:
-#if 0
-	LPDIRECTINPUTDEVICE2 	m_lpDI2Joystick;
-#endif
 	MBCHAR	m_deviceName[40];
 
 	uint32	m_lMax;

@@ -80,39 +80,6 @@ uint32 FaultGenerator::Release()
 	return 0;
 }
 
-#if 0
-void Shift(sint8 *map, sint32 x, sint32 y,
-		   sint32 width, sint32 height,
-		   sint32 xstep, sint32 ystep,
-		   sint32 count, sint32 raiselower)
-{
-	sint32 s;
-	for(s = 0; s < count; s++) {
-		sint8 old = map[y * width + x];
-		if(raiselower > 0) {
-			if(old < 127) {
-				map[y * width + x]++;
-			}
-		} else if(raiselower < 0) {
-			if(old > -127) {
-				map[y * width + x]--;
-			}
-		}
-		x += xstep;
-		if(x >= width) {
-			x = 0;
-		} else if(x < 0) {
-			x = width - 1;
-		}
-		y += ystep;
-		if(y >= height) {
-			y = 0;
-		} else if(y < 0) {
-			y = height - 1;
-		}
-	}
-}
-#endif
 void Shift(sint8 *map, sint32 sx, sint32 sy,
            sint32 width, sint32 height,
            bool   horiz, sint32 delta, double slope,

@@ -2079,16 +2079,6 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	//emod - destroy oneperciv buildings
 	m_city_data->DestroyOnePerCiv();
 
-#if 0
-	double oldVisionRange = (GetDBRec()->m_vision_range);
-	m_vision_range = GetDBRec()->m_vision_range;
-	if (player_Get(newo)->IsRobot() &&
-	   (!network_Get().IsClient() || !network_Get().IsLocalPlayer(newo)))
-	{
-		Difficulty *diff = player_Get(newo)->m_difficulty;
-		m_vision_range += diff->GetVisionBonus();
-	}
-#endif
 
 	if (is_conquest)
 	{
@@ -2124,20 +2114,6 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	UnitDynamicArray revealed_units;
 	DoVision(revealed_units);
 
-#if 0
-	Cell *cell = world_Get()->GetCell(m_pos);
-	for (sint32 i = 0; i < cell->GetNumUnits(); i++) {
-		if(cell->AccessUnit(i).GetOwner() != m_owner) {
-			gevmanager_Get()->Pause();
-			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
-								   GEA_Unit, cell->AccessUnit(i),
-								   GEA_Int, CAUSE_REMOVE_ARMY_DIPLOMACY,
-								   GEA_Player, m_owner,
-								   GEA_End);
-			gevmanager_Get()->Resume();
-		}
-	}
-#endif
 }
 
 void UnitData::ResetUnitOwner(const Unit &me, const PLAYER_INDEX new_owner,
@@ -2181,19 +2157,6 @@ void UnitData::ResetUnitOwner(const Unit &me, const PLAYER_INDEX new_owner,
 	}
 
 	m_owner = new_owner;
-#if 0
-	m_vision_range = GetDBRec()->m_vision_range;
-
-
-	if (player_Get(m_owner)->IsRobot() &&
-		(!network_Get().IsClient() || !network_Get().IsLocalPlayer(m_owner)))
-	{
-
-	    Difficulty *diff = player_Get(m_owner)->m_difficulty;
-		m_vision_range += diff->GetVisionBonus();
-
-	}
-#endif
 
 	player_Get(new_owner)->InsertUnitReference(me, new_cause, Unit()) ;
 
@@ -2991,16 +2954,6 @@ void UnitData::BeginTurn()
 		AdjacentIterator(m_pos, this);
 	}
 
-#if 0
-	if(Flag(k_UDF_IS_TRAVELLING_RIFT)) {
-		ClearFlag(k_UDF_IS_TRAVELLING_RIFT);
-		needsEnqueue = true;
-	}
-
-	if(Flag(k_UDF_OPEN_RIFT_GATE)) {
-		ClearFlag(k_UDF_OPEN_RIFT_GATE);
-	}
-#endif
 
 	if(Flag(k_UDF_USED_ACTIVE_DEFENSE)) {
 		ClearFlag(k_UDF_USED_ACTIVE_DEFENSE);
@@ -4491,34 +4444,6 @@ ORDER_RESULT UnitData::AssassinateRuler(Unit c)
 //leftover from CTP1 ?
 ORDER_RESULT UnitData::NullifyWalls(Unit c)
 {
-#if 0
-	if(StoppedBySpies(c)) {
-		return ORDER_RESULT_FAILED;
-	}
-
-	double chance, eliteChance, deathChance;
-	GetDBRec()->AssasinateRuler(chance, eliteChance, deathChance);
-
-	if(Flag(k_UDF_IS_VET))
-		chance = eliteChance;
-
-	c.ModifySpecialAttackChance(UNIT_ORDER_NULLIFY_WALLS, chance);
-
-	if(civrand().Next(100) >= sint32(chance * 100.0)) {
-		DPRINTF(k_DBG_GAMESTATE, ("City wall nullification failed."));
-
-		if(civrand().Next(100) < sint32(deathChance * 100.0)) {
-			Unit me(m_id);
-			me.Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
-		}
-		return ORDER_RESULT_FAILED;
-	}
-
-	DPRINTF(k_DBG_GAMESTATE, ("City wall nullification succeeded\n"));
-	c.CityNullifyWalls();
-	c.SetWatchful();
-	return ORDER_RESULT_SUCCEEDED;
-#endif
 	return ORDER_RESULT_FAILED;
 }
 
@@ -4905,41 +4830,6 @@ void UnitData::Uncloak()
 	ClearFlag(k_UDF_IS_CLOAKED);
 }
 
-#if 0
-bool UnitData::HasOpenRiftGate(MapPoint &destination) const
-{
-	if(!Flag(k_UDF_OPEN_RIFT_GATE))
-		return false;
-
-	destination = m_riftDestination;
-	return true;
-}
-
-bool UnitData::OpenRiftGate(const MapPoint &destination)
-{
-	Assert(player_Get(m_owner)->IsVisible(destination));
-	if(!player_Get(m_owner)->IsVisible(destination))
-		return false;
-
-	SetFlag(k_UDF_OPEN_RIFT_GATE);
-	m_riftDestination = destination;
-
-	m_movement_points = 0;
-	ClearFlag(k_UDF_FIRST_MOVE);
-
-	return true;
-}
-
-bool UnitData::IsTravellingRift() const
-{
-	return Flag(k_UDF_IS_TRAVELLING_RIFT);
-}
-
-void UnitData::SetTravellingRift()
-{
-	SetFlag(k_UDF_IS_TRAVELLING_RIFT);
-}
-#endif
 
 bool UnitData::HasResource(const sint32 resource) const
 {
@@ -5211,18 +5101,6 @@ bool UnitData::GetCurrentOrderString(StringId &id) const
 	return name && stringdb_Get()->GetStringID(name, id);
 }
 
-#if 0
-void UnitData::SetOrders(UNIT_ORDER_TYPE order)
-{
-	if(m_currentOrders != UNIT_ORDER_SLEEP) {
-		ClearFlag(k_UDF_IS_ASLEEP);
-	}
-	if(m_currentOrders != UNIT_ORDER_ENTRENCH) {
-		ClearFlag(k_UDF_IS_ENTRENCHED);
-		ClearFlag(k_UDF_IS_ENTRENCHING);
-	}
-}
-#endif
 
 // not used !
 double UnitData::GetOverseasDistress() const
@@ -5288,17 +5166,6 @@ bool UnitData::AiGetCargoMovementPoints(double &min_move_points,
 	}
 }
 
-#if 0
-void UnitData::SetLastBattle(sint32 turn)
-{
-	m_last_battle_turn = turn;
-}
-
-sint32 UnitData::GetLastBattle() const
-{
-	return m_last_battle_turn;
-}
-#endif
 
 void UnitData::SetIsInTransport(const Unit &transport)
 {
@@ -5692,65 +5559,6 @@ void UnitData::ExitWormhole(MapPoint &pos)
 	ClearFlag(k_UDF_IN_WORMHOLE);
 	player_Get(m_owner)->RecoveredProbe(Unit());
 
-#if 0
-	Cell *cell = world_Get()->GetCell(pos);
-	UnitDynamicArray revealedUnits;
-	Unit me(m_id);
-
-
-	if(cell->UnitArmy()) {
-		if(cell->UnitArmy()->GetOwner() == m_owner &&
-		   cell->UnitArmy()->Num() < k_MAX_ARMY_SIZE) {
-			SetPosAndNothingElse(pos);
-			m_army.ResetPos();
-			world_Get()->InsertUnit(pos, Unit(m_id), revealedUnits);
-			AddUnitVision();
-
-			SlicObject *so = new SlicObject("307EndGameProbeReturned");
-			so->AddUnit(Unit(m_id));
-			so->AddRecipient(m_owner);
-			so->AddCivilisation(m_owner);
-			slicengine_Get()->Execute(so);
-
-			if (cell->HasCity())
-			{
-				player_Get(m_owner)->RecoveredProbe(cell->GetCity());
-			}
-
-
-
-
-		} else {
-			WORLD_DIRECTION d = (WORLD_DIRECTION)civrand().Next(UP);
-			MapPoint npos;
-			do {
-				d = (WORLD_DIRECTION)((sint32)d + 1);
-				if((sint32)d >= (sint32)UP) {
-					d = (WORLD_DIRECTION)0;
-				}
-			} while(!pos.GetNeighborPosition(d, npos));
-
-			ExitWormhole(npos);
-		}
-	} else {
-		SetPosAndNothingElse(pos);
-		m_army.ResetPos();
-		world_Get()->InsertUnit(pos, Unit(m_id), revealedUnits);
-		AddUnitVision();
-
-		SlicObject *so = new SlicObject("307EndGameProbeReturned");
-		so->AddUnit(Unit(m_id));
-		so->AddRecipient(m_owner);
-		so->AddCivilisation(m_owner);
-		slicengine_Get()->Execute(so);
-
-		if (cell->HasCity())
-		{
-			player_Get(m_owner)->RecoveredProbe(cell->GetCity());
-		}
-
-	}
-#endif
 }
 
 bool UnitData::HasLeftMap() const
@@ -6228,21 +6036,6 @@ double UnitData::GetVisionRange() const
 
 void UnitData::CheckVisionRadius()
 {
-#if 0
-	if(m_vision_range != GetDBRec()->m_vision_range) {
-		bool add = false;
-		if(Flag(k_UDF_VISION_ADDED)) {
-			RemoveUnitVision();
-			add = true;
-
-		}
-		m_vision_range = GetDBRec()->m_vision_range;
-
-		if(add) {
-			AddUnitVision();
-		}
-	}
-#endif
 }
 
 void UnitData::SetTargetCity(const Unit &city)

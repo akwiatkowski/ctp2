@@ -1611,25 +1611,6 @@ void SlicEngine::RunWonderFinishedTriggers(const Unit &city, sint32 wondertype)
 	}
 }
 
-#if 0
-
-void SlicEngine::RunUnitSightedTriggers(const Unit &sighted, const Unit &sightedby)
-{
-	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_UNIT_SIGHTED]);
-	while(walk.IsValid()) {
-		if(walk.GetObj()->IsEnabled()) {
-			SlicObject *obj = new SlicObject(walk.GetObj());
-
-			obj->AddCivilisation(*player_Get(sighted.GetOwner())->m_civilisation);
-			obj->AddCivilisation(*player_Get(sightedby.GetOwner())->m_civilisation);
-			obj->AddUnit(sighted);
-			obj->AddUnit(sightedby);
-			Execute(obj);
-		}
-		walk.Next();
-	}
-}
-#endif
 
 void SlicEngine::RunEnslavementTriggers(const Unit &slaver, const Unit &city)
 {

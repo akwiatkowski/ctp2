@@ -1253,32 +1253,6 @@ void CityViewButtonActionCallback( aui_Control *control, uint32 action, uint32 d
 	bool This_Code_Is_Really_Really_Old = false;
 	Assert(This_Code_Is_Really_Really_Old);
 
-#if 0
-	int err;
-	AUI_ERRCODE auiErr;
-
-	PLAYER_INDEX	player ;
-
-	ID	item ;
-
-	SELECT_TYPE	state ;
-
-	MapPoint pos;
-
-	selitem_Get()->GetTopCurItem(player, item, state) ;
-	if (state != SELECT_TYPE_LOCAL_CITY)
-		return ;
-
-	err = cityviewwin_Initialize();
-	Assert( err == 0 );
-	if ( err != 0 ) return;
-
-	CityViewWindow_Update();
-
-	auiErr = c3ui_Get()->AddWindow( g_cityViewWindow );
-	Assert( auiErr == AUI_ERRCODE_OK );
-	if ( auiErr != AUI_ERRCODE_OK ) return;
-#endif
 }
 
 #define k_STATUS_WINDOW_HEIGHT		30

@@ -122,9 +122,6 @@ private:
 
 	static void AddMiscMapTargets(const PLAYER_INDEX player);
 
-#if 0
-	static void BombardAdjacentEnemies(const Army & army);
-#endif
 
 	static void BombardNearbyEnemies(const Army & army, const sint32 & max_rge);
 	static void ExpellAdjacentUnits(const Army & army);

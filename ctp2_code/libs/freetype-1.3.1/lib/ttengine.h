@@ -70,9 +70,6 @@
 
      void*   extension_component;  /* extensions dependent */
 
-#if 0
-     TT_Glyph_Loader_Callback  glCallback; /* glyph loader callback, if any */
-#endif
   };
 
   /* NOTE : The raster's lock is only acquired by the Render_Glyph and     */

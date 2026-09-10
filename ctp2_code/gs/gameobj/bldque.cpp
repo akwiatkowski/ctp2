@@ -912,13 +912,6 @@ void BuildQueue::HandleProductionStop()
 			break;
 #endif
 
-#if 0
-// TODO: check
-		case k_GAME_OBJ_TYPE_INFRASTRUCTURE:
-		case k_GAME_OBJ_TYPE_CAPITALIZATION:
-			m_city.CD()->StopInfrastructureCapitalization();
-			break;
-#endif
 		}
 	}
 }

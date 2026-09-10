@@ -71,28 +71,6 @@ void World::CityRadiusFunc(const MapPoint &pos)
 
 	switch(m_radiusOp) {
 		case WORLD_RADIUS_OP_SET_RADIUS:
-#if 0
-
-			if(GetCell(pos)->GetOwner() < 0) {
-				GetCell(pos)->SetOwner(m_insertCityOwner);
-				if(network_Get().IsHost()) {
-					uint32 packpos = network_Get().PackedPos(pos);
-					network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
-												  packpos, m_insertCityOwner));
-				}
-			} else if(!IsInsideCityRadiusOfPlayerOtherThan(pos, m_insertCityOwner,
-														   Unit(m_ignoreCity))) {
-				GetCell(pos)->SetOwner((sint8)m_insertCityOwner);
-				if(network_Get().IsHost()) {
-					uint32 packpos = network_Get().PackedPos(pos);
-					network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
-												  packpos, m_insertCityOwner));
-				}
-			}
-
-			m_radiusOp = WORLD_RADIUS_OP_SET_RADIUS;
-			GetCell(pos)->m_env |= k_BIT_ENV_CITY_RADIUS;
-#endif
 			break;
 		case WORLD_RADIUS_OP_IRRIGATION_CHECK:
 		{

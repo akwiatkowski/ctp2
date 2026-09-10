@@ -42,39 +42,8 @@
 
 #include <memory>
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-template<class _Ty>
-class dbgallocator : public std::allocator<_Ty>
-{
-public:
-    typedef std::allocator<_Ty> BaseAllocator;
-
-	pointer allocate(size_type _N, const void *buf)
-	{
-        if (_N > 0)
-        {
-            return BaseAllocator::allocate(_N, buf);
-        }
-	    else
-	    {
-            // MSVC6 std::allocator crashes when passing 0 as size
-		    buf = NULL;
-		    return (pointer) buf;
-	    }
-	};
-
-	void deallocate(void _FARQ *_P, size_type _N)
-	{
-        if (_P)
-        {
-            BaseAllocator::deallocate(_P, _N);
-        }
-    }
-};
-#else
 // TODO: Make the debug allocator std::allocator compliant.
 // Workaround: use the standard allocator.
 #define dbgallocator std::allocator
-#endif
 
 #endif // __C3DEBUGSTL_H__

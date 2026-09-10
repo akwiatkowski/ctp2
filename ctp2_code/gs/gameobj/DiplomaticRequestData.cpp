@@ -168,18 +168,6 @@ void DiplomaticRequestData::SetTarget(const Unit &city)
 void DiplomaticRequestData::SetGold(const Gold &amount)
 {
 	m_amount = amount ;
-#if 0
-	if(network_Get().IsClient())
-	{
-		network_Get().SendAction(new NetAction(NET_ACTION_SET_REQUEST_GOLD,
-										   (uint32)m_id,
-										   (uint32)m_amount.GetLevel()));
-	}
-	else
-	{
-		network_Get().Enqueue(this);
-	}
-#endif
 }
 
 

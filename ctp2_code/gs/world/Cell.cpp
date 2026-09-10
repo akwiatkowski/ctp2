@@ -87,13 +87,6 @@ int Cell::PlayerLandArea(int player)
 	return m_playerLandArea[player+1];
 }
 
-#if 0
-
-void Cell::RecalcPlayerLandArea()
-{
-	world_Get()->WholePlayerLandArea(m_playerLandArea);
-}
-#endif
 
 
 Cell::Cell()

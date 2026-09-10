@@ -412,15 +412,6 @@ AUI_ERRCODE Background::Idle()
 		delete s_savedEvents.RemoveHead();
 	}
 
-#if 0
-	if (hasSavedEvent) {
-		uint32 curTicks = GetTickCount();
-		if (curTicks > (savedEvent.time + doubleClickTimeout)) {
-			tiledmap_Get()->Click(&savedEvent, FALSE);
-			hasSavedEvent = FALSE;
-		}
-	}
-#endif
 	return AUI_ERRCODE_OK;
 }
 

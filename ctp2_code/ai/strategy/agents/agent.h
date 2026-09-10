@@ -146,9 +146,6 @@ public:
 	sint32           Get_Target_Order() const { return m_targetOrder; };
 	const MapPoint & Get_Target_Pos  () const { return m_targetPos;   };
 
-#if 0
-	void Follow_Path(const Path & found_path, const sint32 & order_type);
-#endif
 
 	bool Can_Execute_Order(const sint32 & order_type) const;
 

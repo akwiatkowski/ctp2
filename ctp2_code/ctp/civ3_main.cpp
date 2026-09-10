@@ -1284,18 +1284,6 @@ sint32 sharedsurface_Initialize( )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	return errcode; // Return ends code here needs to be considered if g_sharedSurface is really needed
 
-#if 0
-	Assert( g_sharedSurface == NULL );
-	if ( !g_sharedSurface )
-	{
-		g_sharedSurface = aui_Factory::new_Surface(errcode, k_SHARED_SURFACE_WIDTH, k_SHARED_SURFACE_HEIGHT);
-
-		Assert( AUI_NEWOK(g_sharedSurface,errcode) );
-		if ( !AUI_NEWOK(g_sharedSurface,errcode) ) return errcode;
-	}
-
-	return errcode;
-#endif
 }
 
 void sharedsurface_Cleanup( )

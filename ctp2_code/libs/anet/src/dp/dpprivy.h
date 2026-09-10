@@ -189,22 +189,6 @@ dp_result_t dp_broadcast_unreliable(dp_t *dp, void *buf, size_t size, playerHdl_
 --------------------------------------------------------------------------*/
 dp_result_t dp_broadcast_reliable(dp_t *dp, void *buf, size_t size, playerHdl_t *errHdl);
 
-#if 0
-/*--------------------------------------------------------------------------
- Get list of player handles corresponding to the broadcast group.
- Return number of handles, or -1 upon error.
- Note: will not return PLAYER_ME if there's only one player on this machine.
-
- If flags is DP_SEND_RELIABLE, never yields PLAYER_BROADCAST.
- If flags is DP_SEND_UNRELIABLE, yields PLAYER_BROADCAST only if
- idTo is dp_ID_BROADCAST and the driver prefers broadcast.
---------------------------------------------------------------------------*/
-int dp_getBroadcastHdls(dp_t *dp, playerHdl_t hdls[]
-#ifdef dp_ANET2
-		, int flags
-#endif
-	);
-#endif
 
 /*----------------------------------------------------------------------
  Use with caution.

@@ -200,20 +200,6 @@ dp_result_t pv_get(pv_t *pv, int player, int key, size_t *len, void *buf, int fl
 /* See dp_user_playerData_packet_t and dp_USER_PLAYERDATA_PACKET_ID
  * in dppkt.h
  */
-#if 0
-/*--------------------------------------------------------------------------
- Packet carrying a variable change.
- Note: large variables will require the reliable data transport to
- fragment and reassemble large packets...
---------------------------------------------------------------------------*/
-#define pv_USER_PLAYERDATA_PACKET_ID		dppt_MAKE('d','u')
-typedef struct {
-	size_t len PACK;			/* let them be huge */
-	dpid_t id PACK;
-	unsigned short key PACK;
-	void *data PACK;			/* only sent on local machine, ptrs ok */
-} pv_user_playerData_packet_t;
-#endif
 
 /* First (and maybe last) packet is sent with this header */
 #define pv_PLAYERDATA_INITIAL_PACKET_ID		dppt_MAKE('d','v')

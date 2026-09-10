@@ -796,16 +796,6 @@ void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force, sin
 				snprintf(objName, sizeof(objName), "261ReducePollutionBroken");
 			}
 			break;
-#if 0
-		case AGREEMENT_TYPE_PACT_CAPTURE_CITY:
-			tellAi = TRUE;
-			if(rounds > g_theConstDB->Get(0)->GetCaptureCityRounds()) {
-				sendMessage = TRUE;
-				snprintf(objName, sizeof(objName), "262CaptureCityBroken");
-				addCity = TRUE;
-			}
-			break;
-#endif
 		case AGREEMENT_TYPE_PACT_END_POLLUTION:
 			tellAi = TRUE;
 			if(rounds > g_theConstDB->Get(0)->GetEndPollutionRounds()) {
@@ -990,20 +980,6 @@ void AgreementData::BeginTurnOwner(sint32 currentRound)
 			}
 			break;
 		}
-#if 0
-		case AGREEMENT_TYPE_PACT_CAPTURE_CITY:
-		{
-			if(player_Get(m_recipient)) {
-				if(unitpool_Get()->IsValid(m_targetCity)) {
-					if(m_targetCity.GetOwner() == m_owner ||
-					   m_targetCity.GetOwner() == m_recipient) {
-
-					}
-				}
-			}
-			break;
-		}
-#endif
 		case AGREEMENT_TYPE_PACT_END_POLLUTION:
 		{
 			if(player_Get(m_owner)) {

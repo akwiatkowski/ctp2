@@ -592,22 +592,6 @@ bool Army::CanCreatePark()
 	return AccessData()->CanCreatePark();
 }
 
-#if 0
-bool Army::CanTravelRift(const MapPoint &newpos, MapPoint &dest)
-{
-	return AccessData()->CanTravelRift(newpos, dest);
-}
-
-bool Army::CanCreateRift(sint32 &uindex)
-{
-	return AccessData()->CanCreateRift(uindex);
-}
-
-bool Army::CanCreateRift()
-{
-	return AccessData()->CanCreateRift();
-}
-#endif
 
 bool Army::CanPillage(uint32 &uindex) const
 {

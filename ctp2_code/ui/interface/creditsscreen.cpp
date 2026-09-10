@@ -975,13 +975,6 @@ bool c3_CreditsText::Parse(FILE *textfile)
 			for (i = 0; ((i < k_CreditsLineLen) && (c != '\n')); i++, c = (char)fgetc(textfile) )
 			{
 				currToken[i] = c;
-#if 0
-
-				if (IsComment(c))
-				{
-					ReadToEOL(textfile);
-				}
-#endif
 			}
 
 			currToken[i] = '\0';

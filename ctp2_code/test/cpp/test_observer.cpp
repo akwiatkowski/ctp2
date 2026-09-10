@@ -525,25 +525,3 @@ TEST_CASE("GameObserverRegistry concrete override is dispatched") {
 // being iterated (range-for).  This is undefined behaviour with the current
 // std::vector-based implementation and typically crashes.
 // see #issue — observer self-removal during dispatch
-#if 0
-TEST_CASE("GameObserverRegistry self-unregister during callback is unsafe") {
-    GameObserverRegistry &reg = GameObserverRegistry::Instance();
-    struct SelfRemove : IGameObserver {
-        GameObserverRegistry* reg = nullptr;
-        int count = 0;
-        void OnTurnStart(sint32) override {
-            ++count;
-            if (reg) {
-                reg->Unregister(this);
-            }
-        }
-    };
-    SelfRemove s;
-    s.reg = &reg;
-    reg.Register(&s);
-    reg.NotifyTurnStart(0);  // UB: erases during range-for iteration
-    // If execution somehow reaches here, the observer should be gone.
-    reg.NotifyTurnStart(0);
-    CHECK(s.count == 1);
-}
-#endif

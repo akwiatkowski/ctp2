@@ -82,21 +82,6 @@ DiplomaticRequest DiplomaticRequestPool::Create(PLAYER_INDEX owner, PLAYER_INDEX
     }
 #endif // _DEBUG
 
-#if 0
-	if(network_Get().IsClient())
-		{
-		Assert(owner == network_Get().GetPlayerIndex());
-		if(owner == network_Get().GetPlayerIndex())
-			{
-			network_Get().AddCreatedObject(newData);
-			network_Get().SendAction(new NetAction(NET_ACTION_CREATE_DIP_REQUEST,
-											   (uint32)owner,
-											   (uint32)recipient,
-											   (uint32)request,
-											   (uint32)newRequest));
-			}
-		}
-#endif
 	return (newRequest) ;
 	}
 

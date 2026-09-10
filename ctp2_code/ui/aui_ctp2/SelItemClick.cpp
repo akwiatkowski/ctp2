@@ -1211,17 +1211,6 @@ void SelectedItem::SendGoodClick(const MapPoint &pos, const aui_MouseEvent *data
 							   GEA_City, destCity,
 							   GEA_End);
 	}
-#if 0
-	else
-	{
-		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_TradeBid,
-							   GEA_Player, player,
-							   GEA_Int, resIndex,
-							   GEA_City, homeCity,
-							   GEA_City, destCity,
-							   GEA_End);
-	}
-#endif
 }
 
 void SelectedItem::MoveArmyClick(const MapPoint &pos, const aui_MouseEvent *data, bool doubleClick)

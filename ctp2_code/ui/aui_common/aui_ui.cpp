@@ -796,19 +796,6 @@ AUI_ERRCODE aui_UI::ClipAndConsolidate()
 			{
 
 
-#if 0
-				if(windowStencil) {
-					RECT stencilRect = {
-						0, 0,
-						windowStencil->Width(),
-						windowStencil->Height()
-					};
-
-					g_ui->TheBlitter()->ColorStencilBlt(windowSurface, &stencilRect, windowStencil, &stencilRect, windowSurface->GetChromaKey(), 0);
-				} else {
-					window->Draw();
-				}
-#endif
 				windowDirtyList->Flush();
 				windowDirtyList->AddRect( &windowRect );
 
@@ -848,52 +835,6 @@ AUI_ERRCODE aui_UI::ClipAndConsolidate()
 					}
 				}
 
-#if 0
-				if ( m_colorAreas || m_imageAreas )
-				{
-					ListPos pos = windowDirtyList->GetHeadPosition();
-					for ( j = windowDirtyList->L(); j; j-- )
-					{
-						RECT *rect = windowDirtyList->GetNext( pos );
-
-
-
-
-
-
-
-
-
-
-
-						if ( m_imageAreas )
-						{
-							RECT clippedImageRect = *rect;
-							OffsetRect(
-								&clippedImageRect,
-								windowX,
-								windowY );
-							Rectangle_Clip(
-								&clippedImageRect,
-								&m_imageRect );
-							OffsetRect(
-								&clippedImageRect,
-								-m_imageRect.left,
-								-m_imageRect.top );
-
-							g_ui->TheBlitter()->Blt(
-								windowMixingSurface,
-								clippedImageRect.left + m_imageRect.left -
-									windowX,
-								clippedImageRect.top + m_imageRect.top -
-									windowY,
-								m_image->TheSurface(),
-								&clippedImageRect,
-								k_AUI_BLITTER_FLAG_COPY );
-						}
-					}
-				}
-#endif
 
 				if ( windowOpaqueControls )
 					window->DrawChildren();

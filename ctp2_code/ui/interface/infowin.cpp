@@ -583,20 +583,6 @@ sint32 infowin_UpdateCivData( )
 
 		const char *yearStr = diffutil_GetYearStringFromTurn(gamesettings_Get()->GetDifficulty(), turnFounded);
 
-#if 0
-		sint32 yearFounded = diffutil_GetYearFromTurn(profiledb_Get()->GetDifficulty(), turnFounded);
-
-		if (yearFounded > 0)
-		{
-			snprintf(strbuf, sizeof(strbuf),"%d AD",yearFounded);
-		}
-		else
-		{
-
-			yearFounded *= -1;
-			snprintf(strbuf, sizeof(strbuf),"%d BC",yearFounded);
-		}
-#endif
 		s_foundedBox->SetText(yearStr);
 
 		sint32 turnsOld = turn_Get()->GetSessionRound() - turnFounded;

@@ -165,12 +165,6 @@ private:
 	CellUnitList *m_unit_army;
 	DynamicArray<ID> *m_objects;
 
-#if 0
-	Pop m_aPop;
-	TradeDynamicArray *m_tradeRoutes;
-	DynamicArray<TerrainImprovement> *m_improvements;
-
-#endif
 	GoodyHut *m_jabba;
 
 public:
@@ -315,10 +309,6 @@ public:
 		return ((sint32)(m_cellOwner)) ;
 	}
 
-#if 0
-	TileInfo	*GetTileInfo(void) const;
-	void		SetTileInfo(TileInfo *tileInfo) { m_tileInfo = tileInfo; }
-#endif
 
 	GoodyHut	*GetGoodyHut();
 	void DeleteGoodyHut();

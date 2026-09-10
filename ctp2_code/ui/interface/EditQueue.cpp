@@ -402,16 +402,6 @@ bool EditQueue::IsShown()
 
 void EditQueue::AttachTo(ctp2_Window *attachToWindow)
 {
-#if 0
-	if(!s_editQueue) return;
-	if(!s_editQueue->m_window) return;
-
-	if(attachToWindow) {
-		attachToWindow->AddDockedWindow(s_editQueue->m_window);
-		s_editQueue->m_window->SetDock(attachToWindow);
-	}
-	s_editQueue->m_attachedToWindow = attachToWindow;
-#endif
 }
 
 static void setIntColumn(ctp2_Static *box, sint32 col, sint32 val)
@@ -697,18 +687,6 @@ void EditQueue::UpdateChoiceLists()
 			const UnitRecord *rec = g_theUnitDB->Get(i);
 
 			MBCHAR buf[k_MAX_NAME_LEN];
-#if 0
-			if(!rec->GetIsTrader()) {
-				snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_ldl_EditQueueUnitItemFormat"),
-						rec->GetNameText(),
-						(sint32)rec->GetAttack(),
-						(sint32)rec->GetZBRangeAttack(),
-						(sint32)rec->GetDefense(),
-						(sint32)(rec->GetMaxMovePoints() / 100.0));
-			} else {
-				snprintf(buf, sizeof(buf), "%s", rec->GetNameText());
-			}
-#endif
 			snprintf(buf, sizeof(buf), "%s", rec->GetNameText());
 
 			if(m_mode == EDIT_QUEUE_MODE_MULTI) {
@@ -2189,38 +2167,6 @@ void EditQueue::MultiActionButton(aui_Control *control, uint32 action, uint32 da
 void EditQueue::SaveCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {
 	if(action != AUI_BUTTON_ACTION_EXECUTE) return;
-#if 0
-
-	MBCHAR saveName[_MAX_PATH];
-	static MBCHAR saveFileName[_MAX_PATH];
-	if(!s_editQueue) return;
-	if(!s_editQueue->m_queueName) return;
-
-	if(s_editQueue->m_queueName->GetFieldText(saveName, _MAX_PATH) < 1) {
-		MessageBoxDialog::Information("str_ldl_EditQueueMustEnterName");
-		return;
-	}
-
-	civpaths_Get()->GetSavePath(C3SAVEDIR_QUEUES, saveFileName);
-	strlcat(saveFileName, FILE_SEP, sizeof(saveFileName));
-	strlcat(saveFileName, saveName, sizeof(saveFileName));
-
-	FILE *test = c3files_fopen(C3DIR_DIRECT, saveFileName, "r");
-	if(!test) {
-		Save(saveFileName);
-		s_editQueue->ExitLoadMode();
-	} else {
-		c3files_fclose(test);
-		MBCHAR buf[k_MAX_NAME_LEN];
-		const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_EditQueueReallyOverwrite");
-		if(!fmt) fmt = "Overwrite queue %s?";
-		snprintf(buf, sizeof(buf), fmt, saveName);
-
-		MessageBoxDialog::Query(buf, SaveQueryCallback, (void *)saveFileName);
-	}
-
-	s_editQueue->UpdateFileLists();
-#endif
 
 }
 

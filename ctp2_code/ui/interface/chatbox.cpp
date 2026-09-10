@@ -335,36 +335,6 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 
 		return TRUE;
 	}
-#if 0
-	else if (!strcmp(s, "/A") && !network_Get().IsActive())
-	{
-		if (selitem_Get()->GetCurPlayer() != selitem_Get()->GetVisiblePlayer())
-			return TRUE;
-
-		if(network_Get().IsActive())
-		{
-			turn_Get()->NetworkEndTurn();
-		}
-		else
-		{
-			selitem_Get()->Deselect(selitem_Get()->GetCurPlayer());
- 			turn_Get()->EndThisTurnBeginNewTurn();
-			selitem_Get()->SetPlayerOnScreen(selitem_Get()->GetCurPlayer());
-
-			NewTurnCount::StartNextPlayer(true);
-
-			director_Get()->AddCopyVision();
-
-			tiledmap_Get()->InvalidateMix();
-			tiledmap_Get()->InvalidateMap();
-			tiledmap_Get()->Refresh();
-			radar_map_Get()->Update();
-			turn_Get()->InformMessages();
-		}
-
-		return TRUE;
-	}
-#endif
 
 	// Sets the whole world for all players unexplored
 	else if (!strcmp(s, "/resetlos") && !network_Get().IsActive())
@@ -378,13 +348,6 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		}
 		director_Get()->AddCopyVision();
 	}
-#if 0
-	else if(!strcmp(s, "/goodmode") && !network_Get().IsActive())
-	{
-		extern sint32 g_placeGoodsMode;
-		g_placeGoodsMode = !g_placeGoodsMode;
-	}
-#endif
 
 	// Removes all the messages of a player and reloads the slic engine
 	else if (!strcmp(s, "/reloadslic") && !network_Get().IsActive())
@@ -468,47 +431,6 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 			}
 		}
 	}
-#if 0
-    else if (!strncmp(s, "/demo", 5) && !network_Get().IsActive())
-    {
-		sint32 i, n;
-		extern BOOL gDone;
-		MSG	msg;
-
-		MBCHAR *temp = s+5;
-		while(isspace(*temp))
-			temp++;
-
-		n = atoi(temp);
-
-		for (i=0; i<(n) && !gDone; i++) {
-			turn_Get()->NextRound();
-			do {
-				controlpanel_Get()->Idle();
-				if (civapp_Get())
-					civapp_Get()->Process();
-
-				while (PeekMessage(&msg, gHwnd, 0, 0, PM_REMOVE) ) {
-					if (msg.message == WM_QUIT)
-						gDone = TRUE;
-
-					TranslateMessage(&msg);
-
-					if (msg.message == WM_CHAR) {
-						if ((MBCHAR)msg.wParam == 0x1B)
-							i = n;
-					}
-
-					DispatchMessage(&msg);
-				}
-
-			} while (selitem_Get() && !gDone &&
-					 (selitem_Get()->GetCurPlayer() != selitem_Get()->GetVisiblePlayer()));
-
-		}
-		return TRUE;
-	}
-#endif
 
 	// Sets the names of the leader, the country
 	// and the personal discription, to the names from the database

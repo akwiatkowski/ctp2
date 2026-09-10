@@ -3787,68 +3787,6 @@ SFN_ERROR Slic_Terraform::Call(SlicArgList *args)
 	}
 
 	world_Get()->SmartSetTerrain(tpos, terrain, 0);
-#if 0
-	Cell *cell = world_Get()->GetCell(tpos);
-	cell->SetTerrain(terrain);
-	cell->SetEnv(cell->GetEnv() & ~(k_MASK_ENV_ROAD |
-										  k_MASK_ENV_IRRIGATION |
-										  k_MASK_ENV_MINE |
-										  k_MASK_ENV_CITY |
-										  k_MASK_ENV_INSTALLATION |
-										  k_MASK_ENV_CITY_RADIUS |
-										  k_MASK_ENV_GOOD));
-	DynamicArray<Installation> instArray;
-	installation_tree_Get()->RemoveAt(tpos, instArray);
-	instArray.KillList();
-
-	switch(terrain) {
-		case TERRAIN_FOREST:
-		case TERRAIN_PLAINS:
-		case TERRAIN_TUNDRA:
-		case TERRAIN_GLACIER:
-		case TERRAIN_GRASSLAND:
-		case TERRAIN_DESERT:
-		case TERRAIN_SWAMP:
-		case TERRAIN_JUNGLE:
-		case TERRAIN_HILL:
-		case TERRAIN_DEAD:
-		case TERRAIN_BROWN_HILL:
-		case TERRAIN_WHITE_HILL:
-		case TERRAIN_DEAD_HILL:
-			world_Get()->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_LAND);
-			break;
-		case TERRAIN_MOUNTAIN:
-		case TERRAIN_BROWN_MOUNTAIN:
-		case TERRAIN_WHITE_MOUNTAIN:
-			world_Get()->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_MOUNTAIN);
-			break;
-		case TERRAIN_WATER_SHALLOW:
-		case TERRAIN_WATER_BEACH:
-			world_Get()->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_SHALLOW_WATER | k_MOVEMENT_TYPE_WATER);
-			break;
-		case TERRAIN_WATER_DEEP:
-		case TERRAIN_WATER_VOLCANO:
-		case TERRAIN_WATER_SHELF:
-		case TERRAIN_WATER_TRENCH:
-		case TERRAIN_WATER_RIFT:
-			world_Get()->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_WATER);
-			break;
-		case TERRAIN_SPACE:
-			world_Get()->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_SPACE);
-			break;
-	}
-
-	tiledmap_observer::PostProcessTile(tpos, world_Get()->GetTileInfo(tpos));
-	tiledmap_observer::TileChanged(tpos);
-	for(WORLD_DIRECTION d = NORTH; d < UP; d = (WORLD_DIRECTION)((sint32)d + 1)) {
-		if(tpos.GetNeighborPosition(d, pos)) {
-			tiledmap_observer::PostProcessTile(pos, world_Get()->GetTileInfo(pos));
-			tiledmap_observer::TileChanged(pos);
-			tiledmap_observer::RedrawTile(pos);
-		}
-	}
-	tiledmap_observer::RedrawTile(tpos);
-#endif
 	return SFN_ERROR_OK;
 }
 
@@ -5317,35 +5255,6 @@ SFN_ERROR Slic_IsWonderInBuildList::Call(SlicArgList *args)
 SFN_ERROR Slic_IsEndgameInBuildList::Call(SlicArgList *args)
 {
 	return SFN_ERROR_BAD_FUNCTION;
-#if 0
-// Endgame now building wonder
-	if(args->Count() != 2)
-		return SFN_ERROR_NUM_ARGS;
-
-	m_result.m_int = 0;
-
-	Unit city;
-	sint32 index;
-
-	if(!args->GetCity(0, city))
-		return SFN_ERROR_TYPE_ARGS;
-
-	if(!args->GetInt(1, index))
-		return SFN_ERROR_TYPE_ARGS;
-
-	if(!unitpool_Get()->IsValid(city))
-		return SFN_ERROR_TYPE_ARGS;
-
-	BuildNode *bn = city.AccessData()->GetCityData()->GetBuildQueue()->GetHead();
-	while(bn) {
-		if(bn->m_category == k_GAME_OBJ_TYPE_ENDGAME_OBJECT &&
-		   bn->m_type == index) {
-			m_result.m_int = 1;
-			return SFN_ERROR_OK;
-		}
-	}
-	return SFN_ERROR_OK;
-#endif
 }
 
 SFN_ERROR Slic_IsUnitAtHead::Call(SlicArgList *args)
@@ -5498,28 +5407,6 @@ SFN_ERROR Slic_AddWonderToBuildList::Call(SlicArgList *args)
 SFN_ERROR Slic_AddEndgameToBuildList::Call(SlicArgList *args)
 {
 	return SFN_ERROR_BAD_FUNCTION;
-#if 0
-// Endgame now building wonder
-	if(args->Count() != 2)
-		return SFN_ERROR_NUM_ARGS;
-
-	Unit city;
-	sint32 type;
-	if(!args->GetCity(0, city))
-		return SFN_ERROR_TYPE_ARGS;
-
-	if(!args->GetInt(1, type))
-		return SFN_ERROR_TYPE_ARGS;
-
-	if(!unitpool_Get()->IsValid(city))
-		return SFN_ERROR_TYPE_ARGS;
-
-	if(type < 0 || type >= endgamedb_Get()->m_nRec)
-		return SFN_ERROR_OUT_OF_RANGE;
-
-	city.BuildEndGame(type);
-	return SFN_ERROR_OK;
-#endif
 }
 
 SFN_ERROR Slic_KillUnitFromBuildList::Call(SlicArgList *args)
@@ -5634,40 +5521,6 @@ SFN_ERROR Slic_KillWonderFromBuildList::Call(SlicArgList *args)
 SFN_ERROR Slic_KillEndgameFromBuildList::Call(SlicArgList *args)
 {
 	return SFN_ERROR_BAD_FUNCTION;
-#if 0
-// Endgame now building wonder
-	if(args->Count() != 2)
-		return SFN_ERROR_NUM_ARGS;
-
-	Unit city;
-	sint32 type;
-
-	if(!args->GetCity(0, city))
-		return SFN_ERROR_TYPE_ARGS;
-
-	if(!args->GetInt(1, type))
-		return SFN_ERROR_TYPE_ARGS;
-
-	if(!unitpool_Get()->IsValid(city))
-		return SFN_ERROR_TYPE_ARGS;
-
-	if(type < 0 || type >= endgamedb_Get()->m_nRec)
-		return SFN_ERROR_OUT_OF_RANGE;
-
-	BuildQueue *bq = city.GetData()->GetCityData()->GetBuildQueue();
-	BuildNode *bn;
-	PointerList<BuildNode>::Walker walk(bq->GetList());
-	while(walk.IsValid()) {
-		bn = walk.GetObj();
-		walk.Next();
-
-		if(bn->m_category == k_GAME_OBJ_TYPE_ENDGAME_OBJECT &&
-		   bn->m_type == type) {
-			bq->RemoveNode(bn, CAUSE_REMOVE_BUILD_ITEM_MANUAL);
-		}
-	}
-	return SFN_ERROR_OK;
-#endif
 }
 
 SFN_ERROR Slic_SetPW::Call(SlicArgList *args)

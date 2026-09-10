@@ -64,22 +64,6 @@ void AgreementPool::EndRound()
 		if(m_table[i])
 			{
 			AgreementData	*agreeData = (AgreementData *)(m_table[i]) ;
-#if 0
-
-
-
-
-			if (agreeData->GetAgreement() == AGREEMENT_TYPE_PACT_END_POLLUTION)
-				{
-
-				if (pollution_Get()->GetTrend() == k_TREND_DOWNWARD)
-					{
-
-					expired.Insert(m_table[i]->m_id) ;
-					}
-
-				}
-#endif
 
 			if (agreeData->IsExpired())
 				{

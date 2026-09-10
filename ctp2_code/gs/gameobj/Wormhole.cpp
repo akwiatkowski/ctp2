@@ -137,21 +137,6 @@ void Wormhole::BeginTurn(sint32 player)
 
 		delete walk.Remove();
 
-#if 0
-
-		if(walk.GetObj()->m_round + g_theConstDB->WormholeReturnTime() <= 0 /* g_turn->GetRound() — dead branch, see #if 0 */) {
-			EntryRecord *erec = walk.GetObj();
-			walk.Remove();
-			ere1c->m_unit.ExitWormhole(m_pos);
-
-			render_observer::AddShow(erec->m_unit);
-
-			delete erec;
-
-		} else {
-			walk.Next();
-		}
-#endif
 	}
 	if(network_Get().IsHost()) {
 		network_Get().QueuePacketToAll(new NetWormhole());

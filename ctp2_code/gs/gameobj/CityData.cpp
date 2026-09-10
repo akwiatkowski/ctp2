@@ -1235,9 +1235,6 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 	m_home_city.ResetCityOwner(newowner, false, CAUSE_REMOVE_CITY_HAPPINESS_REVOLT);
 	m_build_queue.Clear();
 
-#if 0
-	AddHappyTimer(50, 100, HAPPY_REASON_POST_REVOULTION_BLISS);
-#endif
 
 	world_Get()->GetCell(city_pos)->GetArmy(army) ;
 	n=army.Num() ;
@@ -1325,50 +1322,6 @@ void CityData::TeleportUnits(const MapPoint &pos, bool &revealed_foreign_units, 
 		                       GEA_End);
 	}
 
-#if 0
-
-
-
-
-
-
-
-	CellUnitList	units;
-	MapPoint city_pos;
-
-	sint32   i,
-	         n;
-
-	m_home_city.GetPos(city_pos);
-	world_Get()->GetCell(city_pos)->GetArmy(units);
-	n = units.Num();
-
-	revealed_foreign_units = false;
-	UnitDynamicArray revealed;
-	DynamicArray<Army> moveArmies;
-
-	for (i=0; i<n; i++){
-		revealed.Clear();
-		MapPoint oldpos;
-
-		units[i].GetPos(oldpos);
-
-		world_Get()->RemoveUnitReference(oldpos, units[i]);
-		units[i].SetPosition(pos, revealed);
-
-
-
-
-		if (0 < revealed.Num()) {
-			revealed_foreign_units = true;
-		}
-	}
-	for(i = 0; i < n; i++) {
-
-
-		units[i].GetArmy().ResetPos();
-	}
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -4299,15 +4252,6 @@ void CityData::DelTradeRoute(TradeRoute route)
 // CTP1
 void CityData::CheckTopTen()
 {
-#if 0
-	sint32	pos;
-
-	if (topten_Get()->IsTopTenCity(m_home_city, TOPTENTYPE_BIGGEST_CITY, pos)) {
-		m_currentlyTopTen = TRUE;
-	} else {
-		m_currentlyTopTen = FALSE;
-	}
-#endif
 }
 
 void CityData::CheatBuildFirstItem()
@@ -5101,41 +5045,11 @@ double CityData::GetCitySeaAttackBonus() const
 // not used (Hospitals ?)
 void CityData::ImprovementHealUnitsInCity() const
 {
-#if 0
-	CellUnitList a;
-	MapPoint pos;
-
-	m_home_city.GetPos(pos);
-	world_Get()->GetArmy(pos, a);
-
-	sint32 n = a.Num();
-	sint32 i;
-	for (i=0; i<n; i++) {
-		if (buildingutil_GetMovementTypeIsHealed(GetEffectiveBuildings(), a[i])) {
-			a[i].SetHPToMax();
-		}
-	}
-#endif
 }
 
 //no function: buildingutil_GetMovementTypeIsRefueled
 void CityData::ImprovementRefuelUnitsInCity() const
 {
-#if 0
-	CellUnitList a;
-	MapPoint pos;
-
-	m_home_city.GetPos(pos);
-	world_Get()->GetArmy(pos, a);
-
-	sint32 n = a.Num();
-	sint32 i;
-	for (i=0; i<n; i++) {
-		if (buildingutil_GetMovementTypeIsRefueled(GetEffectiveBuildings(), a[i])) {
-			a[i].SetFuelToMax();
-		}
-	}
-#endif
 }
 
 bool CityData::ImprovementCanRefuel(const Unit &u) const
@@ -5193,19 +5107,6 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 			break;
 		case RADIUS_OP_RESET_OWNER:
 		{
-#if 0
-			Cell *cell = world_Get()->GetCell(pos);
-			if(cell->GetOwner() == m_owner) {
-				MapPoint myPos;
-				m_home_city.GetPos(myPos);
-
-				if((pos == myPos) ||
-				   !world_Get()->IsInsideCityRadiusOfPlayerOtherThan(pos, m_radiusNewOwner, m_home_city)) {
-					cell->SetOwner(-1);
-					world_Get()->ChangeOwner(pos, -1, m_radiusNewOwner);
-				}
-			}
-#endif
 			break;
 		}
 		case RADIUS_OP_KILL_TILE:
@@ -6160,50 +6061,6 @@ void CityData::RemoveFront()
 
 void CityData::BuildWhat() const
 {
-#if 0
-
-	sint32 i, n;
-	Player *p = player_Get(m_owner);
-	sint32 enable, obsolete;
-
-	n = g_theUnitDB->NumRecords();
-
-	DPRINTF(k_DBG_GAMESTATE, ("Units:\n"));
-	for(i = 0; i < n; i++) {
-		enable = g_theUnitDB->Get(i, player_Get(m_owner)->GetGovernmentType())->m_enable;
-		obsolete = g_theUnitDB->Get(i, player_Get(m_owner)->GetGovernmentType())->m_obsolete;
-		if((p->m_advances->HasAdvance(enable) || (enable < 0)) &&
-		   ((!p->m_advances->HasAdvance(obsolete)) || (obsolete < 0))) {
-			DPRINTF(k_DBG_GAMESTATE, ("  %d(%s)\n", i,
-			                          stringdb_Get()->GetNameStr(g_theUnitDB->Get(i)->m_name)));
-		}
-	}
-
-	DPRINTF(k_DBG_GAMESTATE, ("Improvements:\n"));
-	n = g_theBuildingDB->NumRecords();
-	for(i = 0; i < n; i++) {
-		enable = buildingutil_Get(i, m_owner)->m_enable;
-		obsolete = buildingutil_Get(i, m_owner)->m_obsolete;
-		if((p->m_advances->HasAdvance(enable) || (enable < 0)) &&
-		   ((!p->m_advances->HasAdvance(obsolete)) || (obsolete < 0))) {
-			DPRINTF(k_DBG_GAMESTATE, ("  %d(%s)\n", i,
-			                          stringdb_Get()->GetNameStr(buildingutil_Get(i, m_owner)->m_name)));
-		}
-	}
-
-	DPRINTF(k_DBG_GAMESTATE, ("Wonders:\n"));
-	n = g_theWonderDB->NumRecords();
-	for(i = 0; i < n; i++) {
-		const WonderRecord *rec = wonderutil_Get(i);
-		enable = rec->m_enable;
-		obsolete = rec->m_obsolete;
-		if((p->m_advances->HasAdvance(enable) || (enable < 0)) &&
-		   ((!p->m_advances->HasAdvance(obsolete)) || (obsolete < 0))) {
-			DPRINTF(k_DBG_GAMESTATE, ("  %d(%s)\n", i,
-			                          stringdb_Get()->GetNameStr(rec->m_name)));
-		}
-	}
-#endif
 }
 
 // Used? - Yes.
@@ -6332,20 +6189,6 @@ void CityData::SetRoad() const
     {
 		cell->InsertDBImprovement(rec->GetIndex());
 	}
-#if 0
-	uint32 oenv = cell->GetEnv();
-	cell->SetEnv(cell->GetEnv() & ~(k_MASK_ENV_ROAD));
-
-	uint32 roadLevel;
-	roadLevel = terrainutil_GetBestRoad(m_owner, pos);
-	cell->SetEnv(cell->GetEnv() | (roadLevel << k_SHIFT_ENV_ROAD));
-
-	if(cell->GetEnv() != oenv) {
-		if(network_Get().IsHost()) {
-			network_Get().Enqueue(cell, pos.x, pos.y);
-		}
-	}
-#endif
 }
 
 void CityData::SetSize(sint32 size)

@@ -88,40 +88,6 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 
 	ChangeIcon(iconName, iconSelectedName);
 
-#if 0
-	switch( data->GetMsgType() )
-	{
-	case MESSAGE_TYPE_EVENT:
-		ChangeIcon( k_MESSAGE_ICON_PICTURE_WARNING,
-					k_MESSAGE_ICON_PICTURE_WARNING_SELECTED );
-		break;
-	case MESSAGE_TYPE_DIPLOMATIC:
-		ChangeIcon( k_MESSAGE_ICON_PICTURE_DIPLOMATIC,
-					k_MESSAGE_ICON_PICTURE_DIPLOMATIC_SELECTED );
-		break;
-	case MESSAGE_TYPE_TRADE:
-		ChangeIcon( k_MESSAGE_ICON_PICTURE_TRADE,
-					k_MESSAGE_ICON_PICTURE_TRADE_SELECTED );
-		break;
-	case MESSAGE_TYPE_MILITARY:
-		ChangeIcon( k_MESSAGE_ICON_PICTURE_MILITARY,
-					k_MESSAGE_ICON_PICTURE_MILITARY_SELECTED );
-		break;
-	case MESSAGE_TYPE_KNOWLEDGE:
-		ChangeIcon( k_MESSAGE_ICON_PICTURE_KNOWLEDGE,
-					k_MESSAGE_ICON_PICTURE_KNOWLEDGE_SELECTED );
-		break;
-	case MESSAGE_TYPE_WONDER:
-		ChangeIcon( k_MESSAGE_ICON_PICTURE_WONDER,
-					k_MESSAGE_ICON_PICTURE_WONDER_SELECTED );
-		break;
-	default:
-
-		ChangeIcon( k_MESSAGE_ICON_PICTURE_WARNING,
-					k_MESSAGE_ICON_PICTURE_WARNING_SELECTED );
-		break;
-	}
-#endif
 
 	AddControl( m_icon.get() );
 

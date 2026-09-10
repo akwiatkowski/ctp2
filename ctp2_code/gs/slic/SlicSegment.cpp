@@ -393,32 +393,6 @@ void SlicSegment::AddSpecials(SlicObject *obj)
 
 void SlicSegment::LinkTriggerSymbols()
 {
-#if 0
-	if(m_type != SLIC_OBJECT_TRIGGER)
-		return;
-
-	if(m_num_trigger_symbols <= 0) {
-
-
-		Assert(FALSE);
-		return;
-	}
-
-	if(m_uiComponent != NULL) {
-
-
-		return;
-	}
-
-	m_trigger_symbols = new SlicSymbol *[m_num_trigger_symbols];
-	for(sint32 i = 0; i < m_num_trigger_symbols; i++) {
-		m_trigger_symbols[i] = slicengine_Get()->GetSymbol(m_trigger_symbols_indices[i]);
-		Assert(m_trigger_symbols[i]);
-		if(m_trigger_symbols[i]) {
-			m_trigger_symbols[i]->AddTrigger(this);
-		}
-	}
-#endif
 }
 
 void SlicSegment::LinkParameterSymbols()

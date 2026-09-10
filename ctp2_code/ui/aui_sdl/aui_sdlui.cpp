@@ -38,6 +38,7 @@
 #include "ui/aui_common/aui_joystick.h"
 #include "ui/aui_sdl/aui_sdlsurface.h"
 #include "ui/aui_sdl/aui_sdlmouse.h"
+#include "ui/aui_sdl/aui_sdlcompat.h" // CTP2_SDL_Start/StopTextInput
 
 #include "ui/aui_sdl/aui_sdlui.h"
 
@@ -154,6 +155,11 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	if (!m_window) {
 		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
 	}
+	// Text input for city names/chat: enable once per window. ASCII keeps
+	// arriving via KEYDOWN; SDL_TEXTINPUT carries the rest (see handler).
+	CTP2_SDL_StartTextInput(m_window);
+	fprintf(stderr, "[SDLUI] display scale: %.2f (1.0 = no Retina scaling)\n",
+	        CTP2_SDL_GetWindowDisplayScale(m_window));
 
 	// Ensure cursor is hidden inside the window (macOS may need this after window creation)
 	CTP2_SDL_HideCursor();
@@ -358,6 +364,7 @@ aui_SDLUI::~aui_SDLUI( )
 		m_renderer = nullptr;
 	}
 	if ( m_window ) {
+		CTP2_SDL_StopTextInput(m_window);
 		SDL_DestroyWindow(m_window);
 		m_window = nullptr;
 		m_lpdds = nullptr;
@@ -380,9 +387,6 @@ AUI_ERRCODE aui_SDLUI::TearDownMouse()
 
 		if ( m_minimize || m_exclusiveMode )
 		{
-#if 0
-			SetCursorPos( m_mouse->X(), m_mouse->Y() );
-#endif
 		}
 
 		m_mouse->End();
@@ -449,16 +453,6 @@ AUI_ERRCODE aui_SDLUI::AltTabOut( )
 		DestroyNativeScreen();
 	}
 
-#if 0
-	while ( ShowCursor( TRUE ) < 0 )
-		;
-
-	if ( m_minimize || m_exclusiveMode )
-	{
-		while ( !IsIconic( m_hwnd ) )
-			::ShowWindow( m_hwnd, SW_MINIMIZE );
-	}
-#endif
 	if (civapp_Get())
 	{
 		civapp_Get()->SetInBackground(TRUE);
@@ -474,36 +468,6 @@ AUI_ERRCODE aui_SDLUI::AltTabIn( )
 
 	if ( !m_primary ) CreateNativeScreen( m_exclusiveMode );
 
-#if 0
-	if ( m_minimize || m_exclusiveMode )
-		while ( GetForegroundWindow() != m_hwnd )
-			::ShowWindow( m_hwnd, SW_RESTORE );
-	::ShowWindow(m_hwnd, SW_SHOWMAXIMIZED);
-
-	while ( ShowCursor( FALSE ) >= 0 )
-		;
-
-	if (g_exclusiveMode) {
-		RestoreMouse();
-	} else {
-		if ( m_minimize || m_exclusiveMode )
-		{
-			POINT point;
-			GetCursorPos( &point );
-			m_mouse->SetPosition( &point );
-		}
-
-		if (m_mouse) {
-			m_mouse->Acquire();
-			m_mouse->Resume();
-		}
-
-		main_HideTaskBar();
-
-		RECT clipRect = { 0, 0, m_width, m_height };
-		ClipCursor(&clipRect);
-	}
-#endif
 	if ( m_joystick ) m_joystick->Acquire();
 	if (m_keyboard) m_keyboard->Acquire();
 

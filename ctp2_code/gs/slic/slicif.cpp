@@ -1658,115 +1658,19 @@ void slicif_set_file_num(int num)
 
 void slicif_add_region(char *name, int x1, int y1, int x2, int y2)
 {
-#if 0
-	struct PSlicSymbol *rgnsym;
-
-#ifdef _DEBUG
-	extern FILE *debuglog;
-	fprintf(debuglog, "Adding region %s: (%d,%d)-(%d,%d)\n", name,
-			x1,y1,x2,y2);
-#endif
-
-	rgnsym = slicif_lookup_sym(name);
-	if(!rgnsym || rgnsym->m_type != SLIC_SYM_UNDEFINED) {
-		slic_parse_error = SLIC_ERROR_ALREADY_USED;
-		return;
-	}
-
-	rgnsym->m_type = SLIC_SYM_REGION;
-	rgnsym->m_region = (PSlicRegion *)malloc(sizeof(struct PSlicRegion));
-	rgnsym->m_region->x1 = x1;
-	rgnsym->m_region->y1 = y1;
-	rgnsym->m_region->x2 = x2;
-	rgnsym->m_region->y2 = y2;
-#endif
 }
 
 void slicif_start_complex_region(char *name)
 {
-#if 0
-	struct PSlicSymbol *rgnsym;
-
-#ifdef _DEBUG
-	extern FILE *debuglog;
-	fprintf(debuglog, "Complex region %s: ", name);
-#endif
-	rgnsym = slicif_lookup_sym(name);
-	if(!rgnsym || rgnsym->m_type != SLIC_SYM_UNDEFINED) {
-		slic_parse_error = SLIC_ERROR_ALREADY_USED;
-		return;
-	}
-
-	s_current_complex_region = rgnsym;
-#endif
 }
 
 void slicif_finish_complex_region()
 {
-#if 0
-#ifdef _DEBUG
-	extern FILE *debuglog;
-	fprintf(debuglog, "\n");
-#endif
-
-	s_current_complex_region = NULL;
-#endif
 
 }
 
 void slicif_add_region_to_complex(char *name)
 {
-#if 0
-	struct PSlicComplexRegion *oldhead, *chk;
-	struct PSlicSymbol *addregion;
-#ifdef _DEBUG
-	extern FILE *debuglog;
-#endif
-
-	if(s_current_complex_region == NULL) {
-		slic_parse_error = SLIC_ERROR_INTERNAL;
-		return;
-	}
-
-	addregion = slicif_find_sym(name, 1);
-	if(!addregion) {
-		slic_parse_error = SLIC_ERROR_UNKNOWN_REGION;
-		return;
-	}
-
-	if(addregion->m_type != SLIC_SYM_REGION &&
-	   addregion->m_type != SLIC_SYM_COMPLEX_REGION) {
-		slic_parse_error = SLIC_ERROR_SYMBOL_NOT_REGION;
-		return;
-	}
-
-	if(addregion->m_type == SLIC_SYM_REGION) {
-
-#ifdef _DEBUG
-		fprintf(debuglog, "[%d,%d - %d,%d] ",
-				addregion->m_region->x1,
-				addregion->m_region->y1,
-				addregion->m_region->x2,
-				addregion->m_region->y2);
-#endif
-		oldhead = s_current_complex_region->m_complex_region;
-		s_current_complex_region->m_complex_region = (PSlicComplexRegion *)malloc(sizeof(struct PSlicComplexRegion));
-		*s_current_complex_region->m_complex_region = *(struct PSlicComplexRegion *)addregion->m_region;
-		s_current_complex_region->m_complex_region->next = oldhead;
-	} else {
-
-		for(chk = addregion->m_complex_region; chk; chk = chk->next) {
-			struct PSlicComplexRegion *last = s_current_complex_region->m_complex_region;
-#ifdef _DEBUG
-			fprintf(debuglog, "[%d,%d - %d,%d] ",
-					chk->x1, chk->y1, chk->x2, chk->y2);
-#endif
-			s_current_complex_region->m_complex_region = (PSlicComplexRegion *)malloc(sizeof(struct PSlicComplexRegion));
-			*s_current_complex_region->m_complex_region = *chk;
-			s_current_complex_region->m_complex_region->next = last;
-		}
-	}
-#endif
 }
 
 void slicif_start_segment(char *name)
@@ -1946,29 +1850,6 @@ void slicif_add_valid_builtin(char *name)
 
 void slicif_add_local_struct(char *structtype, char *name)
 {
-#if 0
-	char errbuf[1024];
-	char localname[1024];
-	struct PSlicSymbol *sym;
-
-	SlicStruct *theStruct = slicengine_Get()->GetStruct(structtype);
-	if(!theStruct) {
-		snprintf(errbuf, sizeof(errbuf), "Unknown struct %s", structtype);
-		yyerror(errbuf);
-		return;
-	}
-
-	slicif_get_local_name(localname, name);
-	if((sym == slicif_find_sym(localname, 1))) {
-		snprintf(errbuf, sizeof(errbuf), "%s already defined locally", name);
-		yyerror(errbuf);
-		return;
-	}
-
-	sym = slicif_lookup_sym(localname);
-	sym->m_type = SLIC_SYM_STRUCT;
-	sym->m_structType = theStruct;
-#endif
 }
 
 void slicif_register_line(int line, int offset)
@@ -2231,14 +2112,6 @@ int slicif_find_db_value(void *dbptr, const char *recname, const char *valname)
 		yyerror(errbuf);
 		return 0;
 	}
-#if 0
-	//Looks like it interferes at other places
-	//but I leave it in for possible later use.
-	if(!conduit->IsTokenInDB(valname)){
-		snprintf(errbuf, sizeof(errbuf), "Token %s not found in %s", valname, conduit->GetName());
-		yyerror(errbuf);
-	}
-#endif
 
 	return conduit->GetValue(index, valname);
 }
@@ -2274,15 +2147,6 @@ int slicif_find_db_value_by_index(void *dbptr, int index, const char *valname)
 	if(!conduit)
 		return 0;
 
-#if 0
-	//Looks like it interferes at other places
-	//but I leave it in for possible later use.
-	if(!conduit->IsTokenInDB(valname)){
-		char errbuf[1024];
-		snprintf(errbuf, sizeof(errbuf), "Token %s not found in %s", valname, conduit->GetName());
-		yyerror(errbuf);
-	}
-#endif
 	return conduit->GetValue(index, valname);
 }
 
@@ -2324,14 +2188,6 @@ int slicif_find_db_array_value(void *dbptr, const char *recname, const char *val
 		yyerror(errbuf);
 		return 0;
 	}
-#if 0
-	//Looks like it interferes at other places
-	//but I leave it in for possible later use.
-	if(!conduit->IsTokenInDB(valname)){
-		snprintf(errbuf, sizeof(errbuf), "Token %s not found in %s", valname, conduit->GetName());
-		yyerror(errbuf);
-	}
-#endif
 
 	return conduit->GetValue(index, valname, val);
 }
@@ -2368,15 +2224,6 @@ int slicif_find_db_array_value_by_index(void *dbptr, int index, const char *valn
 	if(!conduit)
 		return 0;
 
-#if 0
-	//Looks like it interferes at other places
-	//but I leave it in for possible later use.
-	if(!conduit->IsTokenInDB(valname)){
-		char errbuf[1024];
-		snprintf(errbuf, sizeof(errbuf), "Token %s not found in %s", valname, conduit->GetName());
-		yyerror(errbuf);
-	}
-#endif
 	return conduit->GetValue(index, valname, val);
 }
 

@@ -5194,36 +5194,6 @@ bool ArmyData::CanBombard(const MapPoint &point) const
 		}
 	}
 
-#if 0
-	// This prevents the AI from figuring out wheather a uit can be bombarded
-	// Fix this first, before you enable it again.
-	// In case of doubt check the method's callers
-
-	// The actual bombard event is guarded by the CanBombardType method
-	// so it doesn't work anyway.
-
-	// EMOD Bombard tile Imps by E 20-JAN-2006
-	// This could harm the AI by bombarding every tileimp on its way
-
-	// Check for bombardable (= pillagable) tile improvements
-	Cell *  cell = world_Get()->GetCell(point);
-
-	if(m_owner != cell->GetOwner()) // Don't bombard your own terrain improvements
-	{
-		for(sint32 ti = 0; ti < cell->GetNumDBImprovements(); ++ti)
-		{
-			TerrainImprovementRecord const * trec =
-			    g_theTerrainImprovementDB->Get(cell->GetDBImprovement(ti));
-
-			if(!trec->GetCantPillage())
-			{
-				/// @todo Check m_array to find a suitable bombarder for
-				///       the improvement type (land, sea, etc.)
-				return CanBombard();
-			}
-		}
-	}
-#endif
 
 	// Nothing bombardable at this point
 	return false;
@@ -6909,19 +6879,6 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 										   GEA_City, city.m_id,
 										   GEA_End);
 
-#if 0
-					UnitDynamicArray killList;
-					city.GetNuked(killList);
-
-					for(j = 0; j < killList.Num(); j++) {
-						if(killList[j] != m_array[i]) {
-							if(killList[j].DeathEffectsHappy()) {
-								player_Get(killList[j].GetOwner())->RegisterLostUnits(1, pos, DEATH_EFFECT_CALC);
-							}
-						}
-						killList[j].Kill(CAUSE_REMOVE_ARMY_NUKE, GetOwner());
-					}
-#endif
 					return true;
 				}
 

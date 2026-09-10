@@ -963,35 +963,6 @@ void Director::TradeActorDestroy(TradeRoute routeToDestroy) {
   }
 }
 
-#if 0
-BOOL Director::IsActive(UnitActorPtr unitActor)
-{
-	ListPos		pos;
-	UnitActor	*actor;
-
-	pos = m_activeUnitList->Find(unitActor, m_activeUnitList->GetHeadPosition());
-	if (pos)
-	{
-
-
- 		actor = m_activeUnitList->GetNext(pos);
-		Assert(actor != NULL);
-		if (actor != NULL)
-		{
-
-			return TRUE;
-		}
-		else
-		{
-			return FALSE;
-		}
-	}
-	else
-	{
-		return FALSE;
-	}
-}
-#endif
 
 uint32 Director::ProcessActiveUnits() {
   if (m_activeUnitList.empty())

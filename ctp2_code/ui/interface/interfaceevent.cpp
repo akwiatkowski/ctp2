@@ -71,17 +71,6 @@ STDEHANDLER(InterfaceCreateCityEvent)
 
 STDEHANDLER(InterfaceMakePopEvent)
 {
-#if 0
-	if(profiledb_Get()->GetAutoOpenCityWindow()) {
-		static Unit city;
-		if(!args->GetCity(0, city)) return GEV_HD_Continue;
-		if(city.GetOwner() == selitem_Get()->GetVisiblePlayer() &&
-		   city.CD()->PopCount() == 1) {
-
-			EditQueue::Display(CityWindow::GetCityData(city));
-		}
-	}
-#endif
 	return GEV_HD_Continue;
 }
 

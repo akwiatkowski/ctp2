@@ -119,9 +119,6 @@ typedef int ser_result_t;		// Error/success status type.
 #define ser_RES_FULL	3
 #define ser_RES_BAD		5
 
-#if 0
-void CTB_Load(void);
-#endif
 
 ser_result_t CTB_hdl2adr(ser_t *ser, ser_hdl_t hdl, ser_adr_t *adr);
 ser_t *CTB_create(void);

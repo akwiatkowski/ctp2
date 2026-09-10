@@ -523,11 +523,6 @@ AUI_ERRCODE CityWindow::Display(CityData *city)
 	if(err == AUI_ERRCODE_OK) {
 		c3ui_Get()->BringWindowToTop(s_cityWindow->m_window);
 	}
-#if 0
-	ctp2_Static *resourceBox = (ctp2_Static *)aui_Ldl::GetObject("CityWindow.ResourceMapBox");
-	Assert(resourceBox);
-	resourceBox->Hide();
-#endif
 
 	s_cityWindow->Update();
 
@@ -1274,21 +1269,6 @@ void CityWindow::Resource(aui_Control *control, uint32 action, uint32 data, void
 
 
 
-#if 0
-
-	ctp2_Static *workerBox = (ctp2_Static *)aui_Ldl::GetObject("CityWindow.Tabs.Specialists.TabPanel.WorkerBox");
-	ctp2_Static *resourceBox = (ctp2_Static *)aui_Ldl::GetObject("CityWindow.ResourceMapBox");
-	Assert(workerBox);
-	Assert(resourceBox);
-
-	if(workerBox->IsHidden()) {
-		workerBox->Show();
-		resourceBox->Hide();
-	} else {
-		workerBox->Hide();
-		resourceBox->Show();
-	}
-#endif
 }
 
 void CityWindow::WorkerSpinnerCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)

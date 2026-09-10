@@ -2736,66 +2736,6 @@ ControlPanelWindow::CreateTileImpBanks()
 
 	row = column = 0;
 
-#if 0
-
-	for(current=0;current<g_theTerrainDB->NumRecords();current++)
-	{
-		found	 = false;
-		terraRec =g_theTerrainDB->Get(current);
-
-		if (terraRec==NULL)
-			continue;
-
-		if (column>=CP_TILEIMP_COLS)
-			continue;
-
-		thePaneLDL="tfLandButtonBank";
-		group_id  = CP_TILEIMP_LAND;
-
-		if ((!IsLand(terraRec))&&(!IsOcean(terraRec)))
-			continue;
-
-
-
-
-
-
-
-		snprintf(button_id, sizeof(button_id),"ControlPanelWindow.ControlPanel.ControlTabPanel.TilesTab.TabPanel.%s.b%d%d",thePaneLDL,column+1,row+1);
-
-		a_button=(ctp2_Button*)aui_Ldl::GetObject(button_id);
-
-		index=CP_MAX_BUTTONS_PER_BANK*group_id+row*CP_TILEIMP_COLS+column;
-
-		if (index<CP_MAX_TILEIMPBUTTONS)
-		{
-			if (a_button==NULL)
-			{
-				Assert(button_id=="Could not find button");
-				continue;
-			}
-			else
-			{
-				a_button->SetActionFuncAndCookie(TileImpButtonCallback2,(void *)terraRec->GetIndex());
-
-				irec = timpRec->GetIcon();
-
-   				if (irec!=NULL)
-   		 			a_button->ExchangeImage(4, 0, irec->GetIcon());
-
-				m_terraFormButtons[index] = a_button;
-
-				row ++;
-
-				if (row>=CP_TILEIMP_ROWS)
-				{
-					row = 0;
-					column ++;
-				}
-			}
-		}
-	}
-#endif
 }
 
 
@@ -3630,12 +3570,6 @@ ControlPanelWindow::TerraformButtonRedisplay(uint32 player_id,uint32 button)
 
    	if (irec!=nullptr) {
    		m_terraFormButtons[button]->ExchangeImage(4, 0, irec->GetIcon());
-#if 0
-		aui_TipWindow *tipwin = (aui_TipWindow *)m_terraFormButtons[button]->GetTipWindow();
-		if(tipwin) {
-			tipwin->SetTipText((char *)stringdb_Get()->GetNameStr(irec->GetTooltip()));
-		}
-#endif
 	}
 
    	m_tileImpButtons[button]->Enable(true);

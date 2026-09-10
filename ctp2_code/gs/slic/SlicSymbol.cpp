@@ -828,18 +828,6 @@ SlicArray * SlicSymbolData::GetArray() const
 	return nullptr;
 }
 
-#if 0
-void SlicSymbolData::SetStructMember(SlicStructInstance::Member *member)
-{
-	if(GetType() == SLIC_SYM_UNDEFINED) {
-		GetType() = SLIC_SYM_STRUCT_MEMBER;
-	} else {
-		Assert(GetType() == SLIC_SYM_STRUCT_MEMBER);
-	}
-
-	m_val.m_structMember = member;
-}
-#endif
 
 void SlicSymbolData::NotifyChange()
 {

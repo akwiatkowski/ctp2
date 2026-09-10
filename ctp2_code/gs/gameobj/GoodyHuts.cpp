@@ -434,35 +434,6 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 								   GEA_Int, CAUSE_NEW_CITY_GOODY_HUT,
 								   GEA_Int, -1,
 								   GEA_End);
-#if 0
-			Unit city = player_Get(owner)->CreateCity(0,
-										point,
-										CAUSE_NEW_CITY_GOODY_HUT,
-										NULL);
-			if(city.m_id == 0) {
-				so = new SlicObject("93BesetByNothing");
-				so->AddRecipient(owner);
-				slicengine_Get()->Execute(so);
-				break;
-			}
-			so = new SlicObject("80RuinBecomesCity") ;
-			so->AddRecipient(owner) ;
-			so->AddCity(city);
-			slicengine_Get()->Execute(so) ;
-			DPRINTF(k_DBG_GAMESTATE, ("You get a city!\n"));
-
-
-
-
-
-
-			if (player_view::VisiblePlayer() == owner) {
-				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
-										gamesounds_GetGameSoundID(GAMESOUNDS_GOODY_CITY),
-										point.x,
-										point.y);
-			}
-#endif
 			break;
 		}
 		case GOODY_GOLD:

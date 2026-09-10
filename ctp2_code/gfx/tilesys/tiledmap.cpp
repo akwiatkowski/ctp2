@@ -2779,65 +2779,6 @@ void TiledMap::DrawSomeText
 
 void TiledMap::PaintArmyActors(MapPoint &pos)
 {
-#if 0
-
-	Unit		topUnit;
-	UnitActor	*unitActor1 = NULL,
-				*unitActor2 = NULL,
-				*unitActor3 = NULL;
-
-	if (!world_Get()->GetTopVisibleUnit(pos, topUnit)) return;
-
-	unitActor1 = topUnit.GetActor();
-
-	Army		theArmy = topUnit.GetArmy();
-
-	for (sint32 i=0; i<theArmy.Num(); i++) {
-		Unit	unit = theArmy.Get(i);
-		if (unit == topUnit)
-			continue;
-
-		if (unitActor2 == NULL) {
-			unitActor2 = unit.GetActor();
-		} else if (unitActor3 == NULL) {
-			unitActor3 = unit.GetActor();
-		}
-	}
-
-	sint32	x, y;
-	double	scale = tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST);
-
-	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y);
-
-	Pixel16 *icon = m_tileSet->GetMapIconData(MAPICON_DAIS);
-
-	if (icon) {
-		DrawColorizedOverlayIntoMix(icon, x, y+24,
-						colorset_Get()->GetPlayerColor(theArmy.GetOwner()));
-	}
-
-	x += (k_ACTOR_CENTER_OFFSET_X * scale);
-	y += (k_ACTOR_CENTER_OFFSET_Y * scale);
-
-	if (unitActor2) {
-		unitActor2->DrawDirect(NULL,
-								x + k_UNIT_2_OFFSET_X,
-								y + k_UNIT_2_OFFSET_Y,
-								scale);
-	}
-	if (unitActor3) {
-		unitActor3->DrawDirect(NULL,
-								x + k_UNIT_3_OFFSET_X,
-								y + k_UNIT_3_OFFSET_Y,
-								scale);
-	}
-	if (unitActor1) {
-		unitActor1->DrawDirect(NULL,
-								x + k_UNIT_1_OFFSET_X,
-								y + k_UNIT_1_OFFSET_Y,
-								scale);
-	}
-#endif
 
 }
 
@@ -3064,17 +3005,6 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 			sint32      mapX    = maputils_TileX2MapX(tileX,tileY);
 			MapPoint    pos     = MapPoint(mapX, mapY);
 
-#if 0
-			if(world_Get()->IsCity(pos))
-			{
-				Unit city=world_Get()->GetCity(pos);
-
-				sint32 pop;
-
-				city.GetPop(pop);
-				DrawCityRadius(pos, COLOR_WHITE ,pop);
-			}
-#endif
 
 			if (world_Get()->IsGood(pos) && m_localVision->IsExplored(pos))
 			{
@@ -3365,39 +3295,6 @@ void TiledMap::ProcessLayerSprites(RECT *paintRect, sint32 layer)
 			{
 				ProcessUnit(CurrentCell->GetCity());
 				ProcessUnit(CurrentCell->UnitArmy());
-#if 0
-
-				unit = world_Get()->GetCell(pos)->GetCity();
-
-				if (unit.IsValid())
-				{
-					curUnitActor = unit.GetActor();
-
-					if (curUnitActor)
-						curUnitActor->Process();
-				}
-
-				CellUnitList * unitList = world_Get()->GetCell(pos)->UnitArmy();
-
-				if (unitList)
-				{
-					for (index=0; index < unitList->Num(); index++)
-					{
-						unit= unitList->Get(index);
-
-						if (unit.IsValid())
-						{
-							curUnitActor = unit.GetActor();
-
-							if (curUnitActor)
-							{
-								if (!curUnitActor->IsActive())
-									curUnitActor->Process();
-							}
-						}
-					}
-				}
-#endif
 			}
 		}
 	}
@@ -3770,44 +3667,6 @@ sint32 TiledMap::DrawCityRadius(const MapPoint &cpos, COLOR color, sint32 pop)
 	if (world_Get()->GetCell(cpos)->HasCity())
 	{
 		return 0; // Following code not used
-#if 0
-	    Pixel16 pixelColor = colorset_Get()->GetColor(color);
-		CityInfluenceIterator it(cpos, world_Get()->GetCity(cpos).CD()->GetSizeIndex());
-
-		for(it.Start(); !it.End(); it.Next()) {
-			MapPoint neighbor;
-			Cell *cell = world_Get()->GetCell(it.Pos());
-
-			if(it.Pos().GetNeighborPosition(NORTHWEST, neighbor)) {
-				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
-				   cell->GetCityOwner().m_id) {
-					DrawColoredHitMaskEdge(screenmanager_Get()->GetSurface(), it.Pos(), pixelColor, NORTHWEST);
-				}
-			}
-
-			if(it.Pos().GetNeighborPosition(SOUTHWEST, neighbor)) {
-				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
-				   cell->GetCityOwner().m_id) {
-					DrawColoredHitMaskEdge(screenmanager_Get()->GetSurface(), it.Pos(), pixelColor, SOUTHWEST);
-				}
-			}
-
-			if(it.Pos().GetNeighborPosition(NORTHEAST, neighbor)) {
-				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
-				   cell->GetCityOwner().m_id) {
-					DrawColoredHitMaskEdge(screenmanager_Get()->GetSurface(), it.Pos(), pixelColor, NORTHEAST);
-				}
-			}
-
-			if(it.Pos().GetNeighborPosition(SOUTHEAST, neighbor)) {
-				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
-				   cell->GetCityOwner().m_id) {
-					DrawColoredHitMaskEdge(screenmanager_Get()->GetSurface(), it.Pos(), pixelColor, SOUTHEAST);
-				}
-			}
-
-		}
-#endif
 	}
 	else
 	{
@@ -6333,22 +6192,6 @@ void TiledMap::HandleCheat(MapPoint &pos)
 			world_Get()->SmartSetTerrain(pos, tileNum, radius);
 		}
 
-#if 0
-
-		world_Get()->GetCell(pos)->CalcTerrainMoveCost();
-
-		if (world_Get()->GetCell(pos)->IsAnyUnitInCell()) {
-			if (!world_Get()->GetCell(pos)->UnitArmy()->CanEnter(pos)) {
-				world_Get()->GetCell(pos)->UnitArmy()->KillList(CAUSE_REMOVE_ARMY_CHEAT, -1);
-			}
-		}
-
-		if (world_Get()->HasCity(pos)) {
-			if (!world_Get()->CanEnter(pos, world_Get()->GetCell(pos)->GetCity().GetMovementType())) {
-				world_Get()->GetCell(pos)->GetCity().KillUnit(CAUSE_REMOVE_ARMY_CHEAT, -1);
-			}
-		}
-#endif
 
 
 

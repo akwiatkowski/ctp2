@@ -61,17 +61,6 @@ class aui_Surface;
 class SpriteState;
 // BOOL, POINT, RECT
 
-#if 0
-#include "gfx/gfx_utils/pixelutils.h"
-#include "gs/gameobj/XY_Coordinates.h"
-#include "gs/world/World.h"
-#include "ui/aui_common/tech_wllist.h"
-
-class SpriteGroup;
-class ProjectileActor;
-class EffectActor;
-class ActorPath;
-#endif
 
 class UnitActor : public Actor {
  public:

@@ -713,9 +713,6 @@
     TT_F26Dot6      threshold;
 
     /* this seems to be unused */
-#if 0
-    Int             cur_ppem;       /* ppem along the current proj vector */
-#endif
     Long            scale1;         /* scaling values along the current   */
     Long            scale2;         /* projection vector too..            */
     Bool            cached_metrics; /* the ppem is computed lazily. used  */
@@ -793,13 +790,6 @@
                             Int                 range,
                             ULong               IP );
 
-#if 0
-  /* Return a pointer to a given coderange record. */
-  /* Used only by the debugger.                    */
-  LOCAL_DEF
-  PCodeRange  Get_CodeRange( PExecution_Context  exec,
-                             Int                 range );
-#endif
 
   /* Set a given code range properties */
   LOCAL_DEF

@@ -277,19 +277,6 @@ int battleview_DefenderSort( const void *arg1, const void *arg2 )
 		return -1;
 	}
 
-#if 0
-
-	if (sa1->y < sa2->y) {
-		return -1;
-	} else
-	if (sa1->y == sa2->y) {
-		if (sa1->x < sa2->x)
-			return -1;
-		else
-			return 1;
-	} else
-		return 1;
-#endif
 }
 
 

@@ -262,20 +262,6 @@ Pixel16 test_BlendFast_565(sint32 pixel1, sint32 pixel2, sint32 blend)
 	Pixel16   answer=(Pixel16)(sum>>1);
 
 	return answer;
-#if 0
-	sint32 rb2, g2;
-	sint32 rb0, g0;
-
-	rb2 = (pixel2 & 0xF81F);
-
-
-	rb0 = ((rb2<<5)+((blend*((pixel1 & 0xF81F)-rb2))>>5)) & 0xF81F;
-
-	g2 = (pixel2 & 0x07E0);
-	g0 = (((g2<<5)+blend*((pixel1 & 0x07E0)-g2))>>5) & 0x07E0;
-
-	return (Pixel16)(rb0|g0);
-#endif
 }
 
 

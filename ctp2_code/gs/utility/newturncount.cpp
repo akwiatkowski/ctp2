@@ -128,18 +128,6 @@ void NewTurnCount::StartNextPlayer(bool stop)
 
 	player_Get(current_player)->EndTurn();
 
-#if 0
-
-	if((player_Get(current_player)->IsHuman()
-	|| (player_Get(current_player)->IsNetwork()
-	&&  network_Get().IsLocalPlayer(current_player)))
-	&&  player_view::CurPlayer() == player_view::VisiblePlayer()
-	){
-		player_Get(current_player)->m_endingTurn = TRUE;
-		player_Get(current_player)->ProcessUnitOrders();
-		player_Get(current_player)->m_endingTurn = FALSE;
-	}
-#endif
 
 	extern BOOL g_aPlayerIsDead;
 	if(!network_Get().IsClient() && g_aPlayerIsDead) {

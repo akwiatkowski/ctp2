@@ -944,28 +944,6 @@ void UnitControlPanel::GiveOrder(OrderRecord *order)  //emod4 this needs to work
 
 	controlpanel_Get()->BeginOrderDelivery(order);
 
-#if 0
-
-	Army army = GetSelectedArmy();
-	if(!armypool_Get()->IsValid(army))
-		return;
-
-
-	ArmyData *armyData = army.AccessData();
-	if(!armyData)
-		return;
-
-	ORDER_TEST orderTest = armyData->TestOrderHere(order, armyData->RetPos());
-
-	if((orderTest==ORDER_TEST_OK) &&
-		(!order->GetTargetPretestMovePosition()))
-		armyData->PerformOrder(order);
-	else {
-
-
-		controlpanel_Get()->BeginOrderDelivery(order);
-	}
-#endif
 }
 
 

@@ -367,14 +367,6 @@ TradeRouteData::CrossesWater() const
 StringId TradeRouteData::GetResourceName() const
 {
 	return g_theResourceDB->Get(m_sourceResource)->GetName();
-#if 0
-	sint32 terrain_type;
-	sint32 good;
-
-	terrain_type = m_sourceResource % k_BASE_TERRAIN_TYPES;
-	good = m_sourceResource / k_BASE_TERRAIN_TYPES;
-	return g_theTerrainDB->GetGoodName(terrain_type, good);
-#endif
 }
 
 

@@ -1,0 +1,109 @@
+name: ci
+
+# Asset policy: licensed game data lives outside the repo, so hosted runners
+# build and run asset-free checks only (fast + unit suites). Everything that
+# needs game data (integration, scenario, render, marathon tiers) runs on
+# maintained machines via the .ci/ tiers (see .ci/README.md).
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  tags:
+    - "v*"
+
+jobs:
+  build:
+    name: build ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-arm64
+            runner: macos-14
+          - os: macos-x64
+            runner: macos-15-intel
+          - os: linux-x64
+            runner: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install macOS deps
+        if: startsWith(matrix.runner, 'macos')
+        run: brew bundle --no-upgrade
+
+      - name: Install Linux deps
+        if: startsWith(matrix.runner, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build pkg-config libtiff-dev zlib1g-dev \
+            byacc flex cmake libasound2-dev libpulse-dev
+          # Ubuntu 24.04 predates SDL3 packaging; build pinned releases.
+          curl -L https://github.com/libsdl-org/SDL/releases/download/release-3.2.10/SDL-3.2.10.tar.gz -o /tmp/sdl3.tar.gz
+          tar -xzf /tmp/sdl3.tar.gz -C /tmp
+          cmake -S /tmp/SDL-3.2.10 -B /tmp/SDL-3.2.10/build \
+            -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=OFF
+          sudo cmake --build /tmp/SDL-3.2.10/build --target install -- -j"$(nproc)"
+          curl -L https://github.com/libsdl-org/SDL_mixer/releases/download/release-3.2.0/SDL_mixer-3.2.0.tar.gz -o /tmp/mixer.tar.gz
+          tar -xzf /tmp/mixer.tar.gz -C /tmp
+          cmake -S /tmp/SDL_mixer-3.2.0 -B /tmp/SDL_mixer-3.2.0/build \
+            -DCMAKE_BUILD_TYPE=Release
+          sudo cmake --build /tmp/SDL_mixer-3.2.0/build --target install -- -j"$(nproc)"
+          sudo ldconfig
+
+      - name: Install mise + Python
+        uses: jdx/mise-action@v2
+
+      - name: Install Meson
+        run: |
+          mise exec -- pip install meson
+          mise exec -- meson --version
+          mise exec -- ninja --version || brew install ninja
+
+      - name: Configure
+        run: mise exec -- meson setup build-ci ctp2_code -Danet=false -Dbuildtype=release
+
+      - name: Build
+        run: mise exec -- ninja -C build-ci ctp2 ctp2_render ctp2_headless ctp2_fast_tests ctp2_unit_tests
+
+      - name: Fast + unit tests
+        run: |
+          mise exec -- ./build-ci/ctp2_fast_tests -r=xml --no-version
+          CTP2_HOME=/tmp/empty-home mise exec -- meson test -C build-ci --suite unit --print-errorlogs
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctp2-${{ matrix.os }}
+          path: |
+            build-ci/ctp2*
+          if-no-files-found: error
+
+  release:
+    name: release ${{ matrix.os }}
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-arm64
+            runner: macos-14
+          - os: macos-x64
+            runner: macos-15-intel
+          - os: linux-x64
+            runner: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ctp2-${{ matrix.os }}
+          path: dist
+      - name: Package
+        run: tar -czf ctp2-${{ matrix.os }}.tar.gz -C dist .
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ctp2-${{ matrix.os }}.tar.gz
+          generate_release_notes: true

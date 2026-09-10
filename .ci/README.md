@@ -35,8 +35,12 @@ with cron or launchd. `ENABLE_TIER_C=1` / `ENABLE_TIER_D=1` explicitly restore
 post-commit runs, gated on that Tier B invocation succeeding.
 
 Run one CI invocation at a time: tiers share build directories and state. No
-nightly service or hosted workflow is installed automatically. A hosted macOS /
-Linux build matrix remains separate work and needs an asset provisioning policy.
+nightly service is installed automatically. Hosted coverage lives in
+`.github/workflows/ci.yml`: build matrix (macOS arm64 + x64, Ubuntu x64)
+compiling all main targets and running the asset-free fast + unit suites,
+plus tag-triggered (`v*`) release tarballs. Licensed game data never leaves
+maintained machines — that is the whole asset policy. Sanitizer/marathon
+runs stay on cron/launchd (see below).
 
 For supervised background work, use the single approvable command prefix
 `mise exec -- python3 tools/job.py`:

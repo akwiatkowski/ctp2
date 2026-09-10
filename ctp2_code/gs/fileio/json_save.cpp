@@ -5320,7 +5320,14 @@ bool SaveJson(char const *path)
                   << "' for writing\n";
         return false;
     }
-    out << doc.dump(2);
+    // Compact dump for soak runs (CTP2_JSON_COMPACT=1): same document, no
+    // indentation. Pretty stays default — diffs of saves are a debugging
+    // workflow (see header). Measured 2026-09-10 on a 5.5 MB round-160
+    // save: pretty 5.5 MB, compact 2.2 MB; dump+write well under the DOM
+    // build either way (saves run ~0.3 s at round 160, ~0.4 s at round 235).
+    char const *compactEnv = getenv("CTP2_JSON_COMPACT");
+    bool const compact = compactEnv && compactEnv[0] && strcmp(compactEnv, "0") != 0;
+    out << (compact ? doc.dump() : doc.dump(2));
     return out.good();
 }
 

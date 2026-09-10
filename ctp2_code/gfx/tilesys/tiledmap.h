@@ -693,6 +693,7 @@ struct RenderFixture {
     sint32 mapX = 0, mapY = 0; // tile coords; converted to pixels at submit
     double scale = 1.0;
     bool fogged = false;
+    uint16 transparency = 0; // 0 = opaque (mirrors UnitActor m_transparency)
     UnitSpriteGroup *group = nullptr; // held ref; released on clear
 };
 void ClearRenderFixtures(); // releases held sprite refs, empties the list

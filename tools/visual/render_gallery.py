@@ -191,7 +191,31 @@ def compose_pair(cpu_bmp, gpu_bmp, out_png, title):
     }
 
 
+# A capture that is (nearly) all black proves nothing: black matches black,
+# so a dead renderer scores ~100% parity. Refuse vacuous captures here
+# instead of discovering them from a suspiciously uniform accuracy table.
+# The dimmest real scene measured (fogged goods) still clears 1% easily;
+# 0.5% leaves wide margin while catching fully-black frames.
+MIN_CONTENT_FRACTION = 0.005
+
+
+def assert_capture_has_content(bmp_path, case_name):
+    from PIL import Image
+    with Image.open(bmp_path).convert("RGB") as img:
+        px = img.tobytes()
+    total = len(px) // 3
+    lit = sum(1 for i in range(0, len(px), 3) if px[i:i + 3] != b"\x00\x00\x00")
+    if lit < MIN_CONTENT_FRACTION * total:
+        raise Ctp2Error(
+            f"{case_name}: capture is {100.0 * lit / total:.2f}% lit "
+            f"(<{100.0 * MIN_CONTENT_FRACTION:.1f}% minimum) — renderer dead, "
+            f"not parity")
+
 def capture_case(client, out_dir, local_index, total, index, name, mode, fixture, apply_case, reveal_radius):
+    # Fixture-backed setup (ctp2-307) applies only to GPU-mode captures: CPU
+    # references must keep exercising the legacy software path. Apply lambdas
+    # read this flag to choose fixture verbs over game-mutating debug verbs.
+    client.fixture_mode = (mode == "gpu")
     reuse = name.startswith("sprite ") and " archer " in name
     if not reuse or not getattr(client, "gallery_pose_scene", False):
         client.expect_ok("load_game", fixture)
@@ -230,6 +254,7 @@ def capture_case(client, out_dir, local_index, total, index, name, mode, fixture
     r = client.command("screenshot_presented", bmp)
     if r.get("status") != "ok":
         raise Ctp2Error(f"screenshot failed: {r}")
+    assert_capture_has_content(bmp, f"{mode} {name}")
     validate_human_alive(client, f"{name} after screenshot")
     record = {"case": name, "bmp": bmp}
     if mode == "gpu":
@@ -318,6 +343,14 @@ def overlay_cases(zooms):
         yield f"city z{zlabel} forcefield", lambda c, center, z=zoom: city_defense(c, center, z, "forcefield")
 
 
+def fixture_unit(client, center, unit, action="IDLE", frame=0, facing=0, fog=0, opacity=15):
+    """Render-only sprite placement (ctp2-307): no Unit, no army, no vision
+    side effects. Clears the previous case's placements first."""
+    client.expect_ok("render_new_scene")
+    r = client.result("render_add_unit_sprite", unit, center["x"], center["y"],
+                      action, frame, facing, fog, opacity)
+    return r
+
 def gallery_cases(zooms):
     units = [
         "UNIT_SUBMARINE",
@@ -333,6 +366,7 @@ def gallery_cases(zooms):
         yield f"gallery z{zlabel} combat flash", lambda c, center, z=zoom: gallery_case(c, center, z, "combat_flash")
         yield f"gallery z{zlabel} terrain overlay", lambda c, center, z=zoom: gallery_case(c, center, z, "terrain_overlay")
         for unit in units:
+
             water = unit in ("UNIT_SUBMARINE", "UNIT_NUCLEAR_SUBMARINE")
             yield f"gallery z{zlabel} unit {unit.lower()}", lambda c, center, u=unit, z=zoom, w=water: gallery_case(c, center, z, "unit", u, w)
 
@@ -344,11 +378,17 @@ def sprite_cases(zooms):
             for facing in (0, 4, 5, 7):
                 for frame in (0, -2, -1):
                     name = f"sprite z{zoom_label(zoom)} archer {label} facing{facing} frame{frame}"
-                    def apply(c, center, z=zoom, a=action, f=frame, d=facing):
+                    def apply(c, center, z=zoom, a=action, f=frame, d=facing, label=label):
                         set_zoom(c, z)
                         # Place the actor away from the initial stack and city labels.
                         center.update(safe_patch_center(c, center, 3))
                         grass = next(t for t in c.result("query_terrains")["terrains"] if t.get("internal") == "TERRAIN_GRASSLAND")
+                        if getattr(c, "fixture_mode", False):
+                            c.expect_ok("render_set_tile", center["x"], center["y"], grass["id"])
+                            r = fixture_unit(c, center, "UNIT_ARCHER", label.upper(), f, d)
+                            if r.get("fixture", -1) < 0:
+                                return False
+                            return None
                         c.expect_ok("debug_set_terrain", center["x"], center["y"], grass["id"])
                         if not c.gallery_pose_actor:
                             c.expect_ok("create_unit", "UNIT_ARCHER", center["x"], center["y"])
@@ -364,6 +404,10 @@ def sprite_cases(zooms):
                 set_zoom(c, z)
                 center.update(safe_patch_center(c, center, 3))
                 grass = next(t for t in c.result("query_terrains")["terrains"] if t.get("internal") == "TERRAIN_GRASSLAND")
+                if getattr(c, "fixture_mode", False):
+                    c.expect_ok("render_set_tile", center["x"], center["y"], grass["id"])
+                    fixture_unit(c, center, "UNIT_ARCHER", "MOVE", 0, 5, fog, opacity)
+                    return None
                 c.expect_ok("debug_set_terrain", center["x"], center["y"], grass["id"])
                 if not c.gallery_pose_actor:
                     c.expect_ok("create_unit", "UNIT_ARCHER", center["x"], center["y"])
@@ -386,6 +430,20 @@ def preferred_terrain(terrains, names, fallback_index):
             if name in key:
                 return terrain
     return list(terrains.values())[fallback_index]
+
+
+def real_scene(client, center, zoom, terrain_a, terrain_b, unit):
+    set_zoom(client, zoom)
+    if getattr(client, "fixture_mode", False):
+        for dy in range(-2, 3):
+            for dx in range(-2, 3):
+                t = terrain_b if ((dx + dy) & 1) == 0 else terrain_a
+                client.expect_ok("render_set_tile", center["x"] + dx,
+                                 center["y"] + dy, t["id"])
+        fixture_unit(client, center, unit, "IDLE", 0, 0)
+        return None
+    paint_patch(client, center, terrain_a, terrain_b, "checker", 2)
+    return gallery_case(client, center, zoom, "unit", unit)
 
 
 def scene_cases(terrains, zooms):
@@ -442,6 +500,12 @@ def gallery_case(client, center, zoom, kind, arg=None, water=False):
     if water:
         sea = next(t for t in client.result("query_terrains")["terrains"] if t.get("internal") == "TERRAIN_WATER_SHALLOW")
         client.expect_ok("debug_set_terrain", target["x"], target["y"], sea["id"])
+    if kind == "unit" and getattr(client, "fixture_mode", False):
+        # Fixtures place sprites without water, armies, or vision edits.
+        fixture_unit(client, target, arg, "IDLE", 0, 0)
+        center["x"] = target["x"]
+        center["y"] = target["y"]
+        return True
     command_args = [kind, target["x"], target["y"]]
     if arg:
         command_args.append(arg)
@@ -450,12 +514,6 @@ def gallery_case(client, center, zoom, kind, arg=None, water=False):
         print(f"SKIP {kind} {arg or ''}: {r.get('detail')}")
         return False
     return True
-
-
-def real_scene(client, center, zoom, terrain_a, terrain_b, unit):
-    set_zoom(client, zoom)
-    paint_patch(client, center, terrain_a, terrain_b, "checker", 2)
-    return gallery_case(client, center, zoom, "unit", unit)
 
 
 def main():

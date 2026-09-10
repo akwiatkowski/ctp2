@@ -3583,11 +3583,13 @@ for (RenderFixture const &fixture : m_renderFixtures) {
     sint32 px = 0, py = 0;
     maputils_MapXY2PixelXY(fixture.mapX, fixture.mapY, &px, &py);
     uint16 flags = k_DRAWFLAGS_NORMAL;
+    if (fixture.transparency < 15)
+        flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
     if (fixture.fogged)
         flags |= k_BIT_DRAWFLAGS_FOGGED;
     if (!fixture.group->AddGpuSpriteQuad(fixture.action, fixture.frame,
             px + m_gpuSpriteOffsetX + xoffset, py + m_gpuSpriteOffsetY + yoffset,
-            fixture.facing, scale, 0, 0, flags, FALSE, FALSE)) {
+            fixture.facing, scale, fixture.transparency, 0, flags, FALSE, FALSE)) {
         aui_SDL::MarkSpriteFrameIncomplete("fixture-atlas-decline");
     }
 }

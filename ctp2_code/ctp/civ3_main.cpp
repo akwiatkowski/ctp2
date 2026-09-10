@@ -2244,6 +2244,13 @@ int SDLMessageHandler(const SDL_Event &event)
 		{
 			SDL_Keycode key = CTP2_SDL_GetKeycode(event.key);
 			SDL_Keymod mod = CTP2_SDL_GetKeymod(event.key);
+			// macOS conventions: Cmd+Q quits (the window-close box is not
+			// always reachable in fullscreen/borderless play). Ctrl+Q left alone.
+			if (key == SDLK_q && (mod & KMOD_GUI) && !(mod & KMOD_CTRL)) {
+				gDone = TRUE;
+				DoFinalCleanup(0);
+				return 0;
+			}
 			WPARAM wp = '\0';
 			switch (key) {
 
@@ -2422,11 +2429,13 @@ int SDLMessageHandler(const SDL_Event &event)
 			ui_HandleKeypress(wp, 0); \
 				break;
 
-  			SDLKCONV(SDLK_UP, SDLK_UP + 256);
-  			SDLKCONV(SDLK_DOWN, SDLK_DOWN + 256);
-  			SDLKCONV(SDLK_LEFT, SDLK_LEFT + 256);
-  			SDLKCONV(SDLK_RIGHT, SDLK_RIGHT + 256);
-  			SDLKCONVSHIFT(SDLK_F1, '1' + 128, '\0');
+			// Arrow keys: the engine wants Windows VK codes + 256 (see
+			// ui_HandleKeypress), NOT SDL keycodes + 256 — the commented
+			// version below mapped every arrow to garbage.
+			case SDLK_UP:    ui_HandleKeypress(VK_UP + 256, 0); break;
+			case SDLK_DOWN:  ui_HandleKeypress(VK_DOWN + 256, 0); break;
+			case SDLK_LEFT:  ui_HandleKeypress(VK_LEFT + 256, 0); break;
+			case SDLK_RIGHT: ui_HandleKeypress(VK_RIGHT + 256, 0); break;
   			SDLKCONVSHIFT(SDLK_F2, '2' + 128, '\0');
   			SDLKCONVSHIFT(SDLK_F3, '3' + 128, '\0');
   			SDLKCONVSHIFT(SDLK_F4, '4' + 128, '\0');

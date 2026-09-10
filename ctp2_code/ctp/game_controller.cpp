@@ -1332,12 +1332,15 @@ static bool ParseRenderAction(const char *name, UNITACTION &out)
     return false;
 }
 
-// render_add_unit_sprite <UNIT_ID|index> <x> <y> [ACTION] [frame] [facing] [fog]
+// render_add_unit_sprite <UNIT_ID|index> <x> <y> [ACTION] [frame] [facing] [fog] [opacity]
 // — place a unit sprite quad without creating a Unit (ctp2-306/307). The
 // sprite group is resolved exactly like UnitActor (default sprite for the
 // human's government) and held by the tiled map until render_new_scene, so
 // every frame submits the quad with no gameplay side effects. ACTION is one
 // of MOVE/ATTACK/IDLE/VICTORY/WORK (default MOVE); fog marks it fogged.
+// Negative frames resolve like SetRenderPose (-1 = last, -2 = middle), so
+// gallery matrices migrate verbatim. Opacity (default 15) mirrors the pose
+// opacity for transparent/fogged variants.
 // City-capable types are rejected in v1 (city sprite choice needs a live
 // CityData); cities keep the game-backed debug_gallery_case path.
 std::string CmdRenderAddUnitSprite(const char * args)
@@ -1352,15 +1355,15 @@ std::string CmdRenderAddUnitSprite(const char * args)
 
     char name[128] = {0};
     char actionName[32] = {0};
-    int x = -1, y = -1, frame = 0, facing = 0, fog = 0;
-    int parsed = sscanf(args, "%127s %d %d %31s %d %d %d",
-                        name, &x, &y, actionName, &frame, &facing, &fog);
+    int x = -1, y = -1, frame = 0, facing = 0, fog = 0, opacity = 15;
+    int parsed = sscanf(args, "%127s %d %d %31s %d %d %d %d",
+                        name, &x, &y, actionName, &frame, &facing, &fog, &opacity);
     if (parsed < 3)
         return Err("render_add_unit_sprite", "bad_args");
     UNITACTION action = UNITACTION_MOVE;
     if (parsed >= 4 && !ParseRenderAction(actionName, action))
         return Err("render_add_unit_sprite", "bad_action");
-    if (frame < 0 || facing < 0 || facing > 7) // 8-directional sprites (k_MAX_FACINGS)
+    if (facing < 0 || facing > 7 || opacity < 0 || opacity > 15)
         return Err("render_add_unit_sprite", "bad_pose");
 
     sint32 type = ResolveUnitType(name);
@@ -1384,6 +1387,15 @@ std::string CmdRenderAddUnitSprite(const char * args)
         aui_SDL::MarkSpriteFrameIncomplete("fixture-no-group");
         return Err("render_add_unit_sprite", "no_sprite_group");
     }
+    if (frame < 0) {
+        Sprite *sprite = group->GetGroupSprite(static_cast<GAME_ACTION>(action));
+        sint32 const count = sprite ? static_cast<sint32>(sprite->GetNumFrames()) : 0;
+        if (count <= 0)
+            return Err("render_add_unit_sprite", "no_frames");
+        frame = (frame == -1) ? count - 1 : count / 2;
+        if (frame < 0 || frame >= count)
+            return Err("render_add_unit_sprite", "bad_frame");
+    }
 
     TiledMap::RenderFixture fixture;
     fixture.group = group;
@@ -1395,6 +1407,7 @@ std::string CmdRenderAddUnitSprite(const char * args)
     fixture.mapX = x;
     fixture.mapY = y;
     fixture.fogged = fog != 0;
+    fixture.transparency = static_cast<uint16>(opacity);
     sint32 const index = tiledmap_Get()->AddRenderUnitFixture(fixture);
     json result;
     result["fixture"] = index;

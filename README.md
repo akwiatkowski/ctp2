@@ -1,115 +1,357 @@
-# Call to Power 2 — modern port work
+# Call to Power 2 — native macOS & Linux port
 
-This is my fork of the Call to Power 2 source code. The original Activision
-code was released in 2003; the Apolyton community kept it alive after that. I
-forked the code from the Apolyton tree to make the game engine build and run on
-modern macOS, and to separate the simulation from the old Windows UI so the
-game logic can be tested without graphics.
+Call to Power 2 is a turn-based 4X strategy game from 1999. Activision released
+its source in 2003 — written for Visual Studio 6, welded to DirectX, and mute,
+because the sound library could not be included. The Apolyton community has kept
+it compiling on Windows and Linux ever since, but macOS was never solved: their
+["Building on OSX"](https://github.com/civctp2/civctp2/issues/350) issue has been
+open since 2020. This fork runs the real, playable game natively on Apple
+Silicon — SDL3, a GPU render path, working audio, inertial trackpad panning and
+pinch zoom. No Wine, no VM, no Windows. Linux x86-64 builds from the same tree.
+You bring your own copy of the game data.
 
-## Goal
+- **Native on three targets.** macOS arm64, macOS x86-64 and Linux x86-64 all
+  build on every push in CI; tagged commits publish binaries.
+- **Modern feel.** SDL3 with GPU layer compositing: inertial trackpad pan,
+  pinch zoom, hardware cursor, 32-bit color. `CTP2_GPU_LAYERS=0` drops back to
+  the legacy CPU present if you want to compare.
+- **Sound works.** Activision could not ship the Miles sound library with the
+  source, so the released code was mute. Audio here runs on SDL3_mixer.
+- **Bring your own data.** A complete game installation was never part of the
+  source release. One script copies *your* copy into `~/.ctp2` and converts its
+  sprites into 463 modern texture atlases — on your machine, never committed.
+- **Far fewer crashes.** 963 catalogued static-analysis findings; all 54
+  CRITICAL ones verified in code and fixed; the HIGH crash classes (bad shifts,
+  division by zero, missing bounds checks, null derefs) burned down. The UBSan
+  tier runs 643 unit cases with zero findings.
+- **Headless and deterministic.** `ctp2_headless` runs the whole simulation with
+  no window, no GPU and no sound. Every RNG read goes through one seeded
+  accessor, so a seed replays identically. Saves round-trip through JSON.
+- **A 4X game an LLM can actually play.** The bundled gateway serves the running
+  engine over HTTP and exposes 51 MCP tools (`start_game`, `move_army`,
+  `set_production`, `declare_war`, …).
+- **Tests that look at pixels.** 290 fast + 643 unit C++ cases, 39 Meson tests,
+  and 15 renderer oracles that compare actual presented frames against the CPU
+  reference.
 
-The original game only built with Visual Studio and ran on Windows. The
-simulation code was mixed with Win32 window calls, DirectDraw rendering, and
-sound triggers. I wanted to:
+Five rounds of a seeded three-player game, no window, straight to CSV:
 
-- Build and run the game simulation on macOS (Apple Silicon).
-- Make the simulation deterministic and testable from a terminal.
-- Add a readable save-file format.
-- Clean up the code enough that future work is possible.
+```console
+$ ./build/ctp2_headless --new-game --players 3 --seed 42 --turns 5 --export-metrics -
+# PLAYERS
+player_idx,leader_name,is_dead,total_score,gold,num_cities
+0,Attila,no,0,500,0
+1,Julius Caesar,no,2090,100,1
+2,Tomoe,no,1900,523,2
 
-## Status
-
-- **macOS** is the platform I develop and test on. The headless binary builds
-  and runs.
-- **Linux** is targeted by the same Meson build but not tested yet.
-- **Windows** is best-effort only. The original VS 2017 solution is still in
-  the tree but not maintained as part of this fork.
-- No gameplay, balance, AI behaviour, or content changes. This is engine work
-  only.
-
-## What I did
-
-- Added a Meson build for the simulation target on macOS/Linux, so the old
-  Visual Studio project is no longer needed for headless work.
-- Created a headless mode (`ctp2_headless`) that runs the game with no
-  graphics, no sound, and no window manager. It can start a game, load/save,
-  and autoplay turns from the command line.
-- Added a JSON save format that round-trips the full game state. The original
-  binary `.c2g` format is still supported. The JSON work also fixed a bug
-  where the binary save header was writing uninitialized memory to disk.
-- Replaced random-number access throughout the simulation with one `civrand()`
-  accessor. Before, many parts of the code read the RNG state directly, which
-  broke reproducibility.
-- Split the game-state code from the UI/render code using observer interfaces
-  in `ctp2_code/gs/core/`. The simulation now talks through bridges like
-  `game_observer`, `battle_observer`, and `diplomacy_observer`. Real UI
-  implementations live in `ui/` and `gfx/`; the headless binary uses null
-  implementations. This means the simulation compiles and runs without linking
-  the graphics layer.
-- Moved some types that belonged in game state out of graphics code (`TileInfo`,
-  `DiplomacyTypes`, audio/colour/pixel types).
-- Replaced scattered `printf` logging with `spdlog` behind a thin wrapper.
-- Bumped the C++ standard to C++20.
-- Removed dead code: COM-style `Ic3CivArchive` / `IRobot` scaffolding, old
-  save-format paths, unused build entries.
-- Added a Python test harness under `ctp2_code/test/` with smoke tests,
-  autoplay runs, and a check that fails CI if new UI calls leak back into
-  game-state code.
-- Added save/load byte-equality checks to catch uninitialized memory and
-  iteration-order bugs.
-
-## How hard it was
-
-The biggest problem was that game logic was not separated from the user
-interface. Functions inside `CityData`, `ArmyData`, `Player`, combat,
-diplomacy, SLIC scripting, and file I/O were opening windows, drawing text,
-playing sounds, and reading the tile map directly. To run the simulation
-without the full Windows graphics stack I had to introduce the observer/bridge
-layer and move types to their proper places. This touched a large part of the
-codebase.
-
-Save/load was also difficult. The binary format was basically raw struct dumps
-with uninitialized padding and version-locked fields. Writing a JSON serializer
-that covers the whole game state (world, players, cities, armies, SLIC engine
-state, and so on) required understanding and mapping many interdependent
-structures.
-
-Determinism was tricky too. The game had many direct RNG accesses. Tracking
-them all down and routing them through one accessor took time, and the
-save/load round-trip tests caught several subtle bugs, including a SLIC segment
-hash overflow that corrupted state on reload.
-
-## Build
-
-On macOS / Linux:
-
-```sh
-mise exec -- make setup
-mise exec -- make build
-mise exec -- make test
+# CITIES
+player_idx,city_name,pos_x,pos_y,population,visible_owner,explored_owner
+1,Rome,34,11,1,yes,yes
+2,Nara,18,39,1,yes,yes
+2,Nagaoka,23,37,1,yes,yes
 ```
 
-This creates the headless binary in `build/`.
+Same seed, same numbers, every time.
+
+---
+
+## Contents
+
+- [Getting started](#getting-started)
+- [Playing](#playing)
+- [Headless mode](#headless-mode)
+- [The gateway: HTTP and MCP](#the-gateway-http-and-mcp)
+- [Tests](#tests)
+- [What is different from upstream](#what-is-different-from-upstream)
+- [Status and limitations](#status-and-limitations)
+- [Repository layout](#repository-layout)
+- [More documentation](#more-documentation)
+- [Credits and license](#credits-and-license)
+
+---
+
+## Getting started
+
+> **You need your own copy of Call to Power 2.** A complete installation's
+> graphics, sound and data were never part of the source release. This tree
+> carries the `ctp2_data/` directory inherited from the Apolyton project — text
+> databases, UI layouts and some assets — but that is not a playable data set on
+> its own. Any legal installation works: retail CD, GOG, Steam. You just need to
+> point at its `ctp2_data` directory.
+
+### 1. Install build dependencies
+
+**macOS** (Homebrew):
+
+```sh
+brew bundle              # or: make deps
+```
+
+**Linux** (Ubuntu 24.04 and similar):
+
+```sh
+sudo apt-get update
+sudo apt-get install -y meson ninja-build pkg-config libtiff-dev zlib1g-dev \
+    byacc flex cmake libasound2-dev libpulse-dev
+```
+
+Ubuntu 24.04 predates SDL3 packaging, so build SDL3 and SDL3_mixer from their
+releases (the exact versions CI uses are in
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml)):
+
+```sh
+curl -L https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz | tar -xz -C /tmp
+cmake -S /tmp/SDL3-3.4.16 -B /tmp/SDL3-3.4.16/build -DCMAKE_BUILD_TYPE=Release
+sudo cmake --build /tmp/SDL3-3.4.16/build --target install -- -j"$(nproc)"
+
+curl -L https://github.com/libsdl-org/SDL_mixer/releases/download/release-3.2.4/SDL3_mixer-3.2.4.tar.gz | tar -xz -C /tmp
+cmake -S /tmp/SDL3_mixer-3.2.4 -B /tmp/SDL3_mixer-3.2.4/build -DCMAKE_BUILD_TYPE=Release
+sudo cmake --build /tmp/SDL3_mixer-3.2.4/build --target install -- -j"$(nproc)"
+sudo ldconfig
+```
+
+### 2. Build
+
+```sh
+git clone https://github.com/akwiatkowski/ctp2.git
+cd ctp2
+make setup      # meson setup build ctp2_code --buildtype=debug
+make build      # meson compile -C build
+```
+
+This produces `build/ctp2` (the game), `build/ctp2_headless` (the simulation
+with no UI) and the test binaries. That is a debug build with every check on —
+fine to play, but `make release` builds an optimized, thin-LTO binary that runs
+turns about 5x faster in wall clock and produces bit-identical results.
+
+> A few `make` targets shell out through `mise exec --` (the maintainer's
+> toolchain manager). If you do not use [mise](https://mise.jdx.dev), either
+> install it or run the underlying `meson` / `python3` command directly — the
+> Makefile shows each one.
+
+### 3. Install your game data
+
+```sh
+python3 tools/assets/install_ctp2_home.py /path/to/your/ctp2_data
+```
+
+This copies the original data verbatim into `~/.ctp2/original_data/` and
+generates modern sprite atlases into `~/.ctp2/assets/`. Both stay on your
+machine; the atlases are derived from data you own and are rebuildable at any
+time. Set `CTP2_HOME` to install somewhere else, or pass
+`--skip-modern-assets` to copy the original data only.
+
+### 4. Play
+
+```sh
+make run                            # 1920x1080
+./build/ctp2 --resolution 2560x1440 # or pick your own
+```
+
+---
+
+## Playing
+
+Runtime switches, all optional:
+
+| Variable | Effect |
+|---|---|
+| `CTP2_HOME` | Data + save root (default `~/.ctp2`) |
+| `CTP2_GPU_LAYERS=0` | Legacy CPU present instead of GPU layer compositing |
+| `CTP2_GPU_WORLDMAP=0` | Legacy whole-map path |
+| `CTP2_GPU_RASTER=0` | CPU rasterization for roads, borders, grid, improvements |
+| `CTP2_MODERN_SPRITES=0` | Force the original `.SPR` sprites over the atlases |
+| `CIVLOG_LEVEL` | Log verbosity (`trace`…`error`) |
+
+If the game crashes, [`run_game.sh`](run_game.sh) runs the sanitized build and
+captures stdout plus a backtrace into `test/crashes/` — attach that to a bug
+report. Note that AddressSanitizer binaries currently hang before `main` on
+macOS 26 (a sanitizer-runtime bug that hits even a trivial program), so
+`make ubsan-smoke` is the working sanitizer tier there; ASan is fine on Linux.
+
+`make timelapse` records an AI-vs-AI game and renders the empires spreading
+across the map as a video. See [`docs/timelapse.md`](docs/timelapse.md).
+
+---
+
+## Headless mode
+
+`ctp2_headless` is the full simulation without graphics, sound or a window. It
+is what makes the engine testable, scriptable and reproducible.
+
+```sh
+./build/ctp2_headless --new-game --players 3 --seed 42 --turns 100 \
+    --save-game /tmp/turn100.json --export-metrics /tmp/metrics.csv
+./build/ctp2_headless --load-game /tmp/turn100.json --turns 10
+```
+
+| Flag | Meaning |
+|---|---|
+| `--new-game` | Generate a world and start |
+| `--players N` | Number of players (default 3) |
+| `--seed N` | Pin the RNG seed |
+| `--turns N` | Run N rounds, then exit |
+| `--save-game PATH` | Save the game as JSON and exit |
+| `--load-game PATH` | Load a JSON save instead of generating a world |
+| `--export-metrics PATH` | Per-player and per-city CSV (`-` for stdout) |
+| `--serve` | Listen on a command socket instead of autoplaying |
+
+The JSON save format round-trips the complete game state — world, players,
+cities, armies, scheduler graph, SLIC engine — and is diffable, which is how
+several state-corruption bugs were found in the first place. It is now the only
+save format: the legacy binary `.c2g` path has been removed, so saves made by
+the original game do not load here.
+
+---
+
+## The gateway: HTTP and MCP
+
+[`gateway/`](gateway/README.md) is a small Crystal server that fronts a running
+`--serve` game and gives it four faces on one port: a curl-shaped JSON API, a
+health endpoint, omniscient admin pages, and an MCP server.
+
+Building it needs [Crystal](https://crystal-lang.org):
+
+```sh
+cd gateway && shards build
+./bin/ctp2-gateway --spawn --spawn-args "--players 3 --seed 42"
+
+curl localhost:8666/healthz
+curl -X POST localhost:8666/api/cmd -d '{"cmd":"start_game"}'
+curl localhost:8666/api/cities
+```
+
+To let Claude play:
+
+```sh
+claude mcp add --transport http ctp2 http://localhost:8666/mcp
+```
+
+51 tools cover founding cities, moving armies, production, research, taxes,
+governors, trade, diplomacy and war, plus save/load checkpointing so a model can
+branch an experiment and come back. Game-level refusals (`no_settler_found`,
+`settle_rejected`) come back as tool errors with detail, so the model can adapt
+instead of guessing. Notes from real sessions live in
+[`docs/play-sessions/`](docs/play-sessions/).
+
+---
+
+## Tests
+
+```sh
+make test           # ratchets + fast + unit  (~4s, run before every commit)
+make test-full      # the long suite: integration, smoke, scenarios (~20-30 min)
+make test-render    # 15 renderer pixel oracles (needs a desktop session)
+make ubsan-smoke    # UndefinedBehaviorSanitizer tier
+```
+
+The renderer tests are the unusual ones: they drive the real game, read back the
+presented frame, and compare it pixel-by-pixel against the CPU reference path.
+That is how a GPU world layer that had silently been empty for an entire phase
+was eventually caught.
+
+A local tiered CI ([`.ci/README.md`](.ci/README.md)) runs the longer work —
+scenario suites, a 500-round campaign with save/load every turn, sanitizer
+builds — on machines that have the licensed game data. Hosted GitHub Actions
+builds all three platforms and runs the asset-free tiers, because the data must
+never leave your machine.
+
+`make test` also enforces a **modernization ratchet**: counts of raw
+`new`/`delete`, unsafe string APIs, C allocation and type-erased casts may fall,
+never rise.
+
+---
+
+## What is different from upstream
+
+Compared to the Apolyton `civctp2` tree this descends from:
+
+- **Meson + Ninja** instead of the Visual Studio solution and autotools.
+- **SDL3 only.** The DirectX backend and the SDL2 path are gone.
+- **All SDL input on the main thread.** The original `MouseThread` called SDL
+  concurrently with the main thread — fatal on macOS, racy everywhere else.
+- **GPU render path** for the world map, fog, overlays and camera, with the CPU
+  path kept as the pixel-level reference the tests compare against.
+- **Simulation separated from the UI** through observer interfaces in
+  `gs/core/` (`game_observer`, `battle_observer`, `diplomacy_observer`, …), so
+  game state compiles and runs without linking graphics at all.
+- **JSON saves**, one RNG accessor, `spdlog` instead of scattered `printf`,
+  C++20, and about 4,600 lines of dead `#if 0` and MSVC 6 scaffolding deleted.
+- **Modern asset pipeline** — `.SPR` sprites decoded and repacked into texture
+  atlases, locally, from data you own.
+
+[`COLLABORATION.md`](COLLABORATION.md) goes through what each tree could take
+from the other.
+
+---
+
+## Status and limitations
+
+- **macOS** (Apple Silicon and Intel) is the primary platform — developed and
+  played there daily.
+- **Linux x86-64** builds in CI on every push. Less play-tested.
+- **Windows** is not maintained here. The original VS solution is still in the
+  tree but nobody keeps it working.
+- **Single-player only.** The legacy Anet multiplayer stack is preserved behind
+  `-Danet=true` but is not built by default.
+- **No movies.** The intro and wonder videos used DirectShow and do not play on
+  SDL builds; the code is kept for a future SDL-based repair.
+- **Original saves do not load.** The binary `.c2g` reader was replaced by the
+  JSON format; games saved by the 1999 release cannot be resumed here.
+- **No gameplay changes.** No balance, AI-behaviour or content edits. This is
+  engine work — the game plays the way it played in 1999.
+
+---
 
 ## Repository layout
 
 ```
 ctp2_code/
-  gs/          game-state — simulation, file I/O, SLIC, world
-    core/        observer interfaces and type extractions
-    fileio/      binary + JSON save/load
-    gameobj/     cities, units, armies, players, pools
-    slic/        SLIC scripting engine
-    world/       map, cells, tiles
-  ui/          real UI implementations of the observers
-  gfx/         render side
-  ai/          AI, now talks to game-state through bridges
-  test/        Python harness, smoke tests, C++ unit tests
-  3rdparty/    nlohmann/json, spdlog, etc.
+  ctp/         app entry, main loop
+  gs/          game state — the simulation core
+    core/        observer interfaces (the UI/simulation seam)
+    gameobj/     Unit, Army, CityData, Player, pools
+    fileio/      JSON save/load, path resolution
+    slic/        SLIC scripting language (lexer, parser, VM)
+    database/    record DBs generated from ctp2_data text schemas
+    world/       map, cells, terrain
+  gfx/         sprites, tile renderer, GPU layers
+  ui/          aui_* widgets, interface windows
+  ai/          goal/plan/mission AI
+  sound/       SDL3_mixer audio
+  test/        Python harness, scenarios, pixel oracles, C++ doctest suites
+gateway/       Crystal HTTP + MCP server
+tools/         asset converter, timelapse, modernization ratchet, local CI
+docs/          design and reference documents
 ```
 
-## Scale
+## More documentation
 
-About 480 commits of my work sit on top of the imported upstream history, out
-of roughly 2,300 total commits in the repository. The changes are concentrated
-in the build system, save/load, core game-state interfaces, and test harness.
+| Document | What is in it |
+|---|---|
+| [`AGENT.md`](AGENT.md) | Onboarding: build, layout, the systemic 1999-era pitfalls |
+| [`REFACTORING_PLAN.md`](REFACTORING_PLAN.md) | What is done, what remains, in what order |
+| [`ADR_DECISIONS.md`](ADR_DECISIONS.md) | Why the non-obvious design choices were made |
+| [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) | The 963-finding static-analysis catalogue and its resolutions |
+| [`MEMORY_SAFETY_STRATEGY.md`](MEMORY_SAFETY_STRATEGY.md) | Sanitizer tiers and the RAII conversion plan |
+| [`docs/modern-assets.md`](docs/modern-assets.md) | Asset pipeline design and the licensing constraints |
+| [`gateway/README.md`](gateway/README.md) | HTTP routes, MCP tools, status-code contract |
+| [`.ci/README.md`](.ci/README.md) | Local CI tiers |
+
+---
+
+## Credits and license
+
+Call to Power II is copyright © 2001 Activision, Inc. Activision released the
+source code in 2003 under the terms in
+[`EULA - Source Code for CTP2.rtf`](EULA%20-%20Source%20Code%20for%20CTP2.rtf)
+and `Activision CTP2 Source Code_Readme.txt`. The
+[Apolyton CtP2 Source Code Project](https://github.com/civctp2/civctp2) kept it
+alive for two decades; this fork started from
+[RolandTaverner/ctp2](https://github.com/RolandTaverner/ctp2).
+
+A complete set of game data — graphics, sound, text, scenarios — is **not**
+covered by that release. Supply it from your own legal copy. The generated
+sprite atlases are derived works of that data: they live in `~/.ctp2` on your
+machine and must never be committed or redistributed. See
+[`docs/modern-assets.md`](docs/modern-assets.md) for the full reasoning.

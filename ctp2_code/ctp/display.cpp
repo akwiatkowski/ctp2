@@ -138,16 +138,12 @@ void display_EnumerateDisplayModes()
 #else
 	g_displayModes = new PointerList<CTPDisplayMode>;
 
-#if defined(CTP2_USE_SDL3)
 	int numModes = 0;
 	SDL_DisplayMode **sdlModes = SDL_GetFullscreenDisplayModes(
 		SDL_GetPrimaryDisplay(), &numModes);
 	if (!sdlModes) {
 		numModes = -1;
 	}
-#else
-	int numModes = SDL_GetNumDisplayModes(0);
-#endif
 	if (numModes < 0) {
 		// Fallback: pick common resolutions
 		static const struct { sint32 w; sint32 h; } s_commonModes[] = {
@@ -178,14 +174,9 @@ void display_EnumerateDisplayModes()
 
 	for (int i = 0; i < numModes; i++) {
 		SDL_DisplayMode sdlMode;
-#if defined(CTP2_USE_SDL3)
 		if (!sdlModes[i])
 			continue;
 		sdlMode = *sdlModes[i];
-#else
-		if (SDL_GetDisplayMode(0, i, &sdlMode) != 0)
-			continue;
-#endif
 
 		// Only consider modes with at least 16bpp equivalent
 		if (SDL_BITSPERPIXEL(sdlMode.format) < 16)
@@ -211,18 +202,14 @@ void display_EnumerateDisplayModes()
 
 		CTPDisplayMode *mode = new CTPDisplayMode;
 		if (!mode) {
-#if defined(CTP2_USE_SDL3)
 			SDL_free(sdlModes);
-#endif
 			return;
 		}
 		mode->width = sdlMode.w;
 		mode->height = sdlMode.h;
 		g_displayModes->AddTail(mode);
 	}
-#if defined(CTP2_USE_SDL3)
 	SDL_free(sdlModes);
-#endif
 #endif
 
 #ifdef __AUI_USE_DIRECTX__

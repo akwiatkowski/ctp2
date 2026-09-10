@@ -3177,11 +3177,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						if (shot) {
 							SDL_Rect srect = { aui_SDL::WorldContentOffX(), aui_SDL::WorldContentOffY(), viewW, viewH };
 							SDL_Rect drect = { 0, 0, viewW, viewH };
-#if defined(CTP2_USE_SDL3)
 							bool const blitOk = SDL_BlitSurface(src, &srect, shot, &drect);
-#else
-							bool const blitOk = SDL_BlitSurface(src, &srect, shot, &drect) == 0;
-#endif
 							ok = blitOk && CTP2_SDL_SaveBMP(shot, path);
 							CTP2_SDL_DestroySurface(shot);
 						}

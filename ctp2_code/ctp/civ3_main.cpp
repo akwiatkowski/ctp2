@@ -2114,6 +2114,14 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 			SDLMessageHandler(event);
 		}
 
+		// Text input (city names, chat): composed text arrives here; plain
+		// ASCII also arrives via KEYDOWN and is owned by that path.
+		while (true) {
+			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_TEXTINPUT, SDL_TEXTINPUT);
+			if (n <= 0) break;
+			SDLMessageHandler(event);
+		}
+
 		// Process mouse wheel events (ui_HandleMouseWheel is in this compilation unit)
 		while (true) {
 			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEWHEEL, SDL_MOUSEWHEEL);
@@ -2249,6 +2257,12 @@ int SDLMessageHandler(const SDL_Event &event)
 			if (key == SDLK_q && (mod & KMOD_GUI) && !(mod & KMOD_CTRL)) {
 				gDone = TRUE;
 				DoFinalCleanup(0);
+				return 0;
+			}
+			// Cmd+S reuses the keymap's ^s (SAVE_WORLD, quicksave) binding,
+			// so rebinding Ctrl+S remaps Cmd+S too. Control code, not 's'.
+			if (key == SDLK_s && (mod & KMOD_GUI) && !(mod & KMOD_CTRL)) {
+				ui_HandleKeypress('s' - 'a' + 1, 0);
 				return 0;
 			}
 			WPARAM wp = '\0';
@@ -2460,6 +2474,39 @@ int SDLMessageHandler(const SDL_Event &event)
 // 			}
 			break;
 		}
+	case SDL_TEXTINPUT:
+		// Composed text for city names/chat. ASCII (<0x80) is owned by the
+		// KEYDOWN macros above — feeding it here too would double every
+		// keystroke. Decode UTF-8; feed Latin-1 bytes (the engine's text
+		// encoding); drop the rest. Full IME composition UI is future work.
+		{
+			const char *p = event.text.text;
+			while (*p) {
+				unsigned char c = static_cast<unsigned char>(*p);
+				uint32_t cp = 0;
+				int len = 0;
+				if (c < 0x80) {
+					cp = c; len = 1;
+				} else if ((c & 0xE0) == 0xC0) {
+					cp = c & 0x1F; len = 2;
+				} else if ((c & 0xF0) == 0xE0) {
+					cp = c & 0x0F; len = 3;
+				} else if ((c & 0xF8) == 0xF0) {
+					cp = c & 0x07; len = 4;
+				} else {
+					break;
+				}
+				for (int i = 1; i < len && p[i]; ++i) {
+					if ((p[i] & 0xC0) != 0x80) { len = 0; break; }
+					cp = (cp << 6) | (p[i] & 0x3F);
+				}
+				if (len == 0) break;
+				p += len;
+				if (cp < 0x80 || cp > 0xFF) continue;
+				ui_HandleKeypress(static_cast<WPARAM>(cp), 0);
+			}
+		}
+		break;
 	case SDL_QUIT:
 		gDone = TRUE;
 
@@ -2484,9 +2531,7 @@ int SDLMessageHandler(const SDL_Event &event)
 	case SDL_FINGERDOWN:
 	case SDL_FINGERUP:
 	case SDL_FINGERMOTION:
-#if defined(CTP2_USE_SDL3)
 	case SDL_EVENT_FINGER_CANCELED:
-#endif
 		// P11 pinch zoom: raw trackpad touches feed the pinch detector.
 		ui_HandlePinchZoom(event.tfinger, event.type);
 		return 0;

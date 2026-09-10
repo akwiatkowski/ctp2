@@ -1,6 +1,5 @@
 #pragma once
 
-#if defined(CTP2_USE_SDL3)
 #define SDL_ENABLE_OLD_NAMES
 #include <SDL3_mixer/SDL_mixer.h>
 
@@ -11,7 +10,6 @@ inline MIX_Track *g_ctp2_sdl3Tracks[32] = {};
 
 #ifndef SDL_INIT_NOPARACHUTE
 #define SDL_INIT_NOPARACHUTE 0
-#endif
 
 inline int Mix_OpenAudio(int frequency, int format, int channels, int chunksize)
 {

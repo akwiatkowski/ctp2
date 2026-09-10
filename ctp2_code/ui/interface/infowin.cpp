@@ -215,16 +215,6 @@ void InfoButtonActionCallback( aui_Control *control, uint32 action, uint32 data,
 	{
 		infowin_ChangeSetting(k_INFOWIN_SCORE_SETTING);
 	}
-#if 0   // Inactive CTP1 functionality
-	else if ((c3_Button*)control == s_labButton)
-	{
-		infowin_DisplayLab();
-	}
-	else if ((c3_Button*)control == s_throneButton)
-	{
-
-	}
-#endif  // Inactive CTP1 functionality
 	else if ((c3_Button*)control == s_pollutionButton)
 	{
 		infowin_ChangeSetting(k_INFOWIN_POLLUTION_SETTING);
@@ -1349,38 +1339,6 @@ sint32 infowin_DisplayLab()
 
 sint32 infowin_LabReady()
 {
-#if 0   // Old CTP1 functionality, does nothing worthwhile
-
-	sint32 curPlayer =  selitem_Get()->GetVisiblePlayer();
-	Player *pl = player_Get(curPlayer);
-	if(!pl) {
-		PointerList<Player>::Walker walk(g_deadPlayer);
-		while(walk.IsValid()) {
-			if(walk.GetObj()->m_owner == selitem_Get()->GetVisiblePlayer()) {
-				pl = walk.GetObj();
-				break;
-			}
-			walk.Next();
-		}
-	}
-	if(!pl)
-		return 0;
-
-	Player *p = player_Get(curPlayer);
-	if(!p) {
-		p = Player::GetDeadPlayer(curPlayer);
-		Assert(p);
-		if(!p)
-			return FALSE;
-	}
-
-//	for (sint32 i = 0; i < g_theEndGameDB->m_nRec; i++)
-//	{
-
-
-//	}
-
-#endif // 0
 
 	return FALSE;
 }

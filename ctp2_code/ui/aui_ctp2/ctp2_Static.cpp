@@ -400,22 +400,6 @@ void ctp2_Static::MouseLDropInside( aui_MouseEvent *mouseData )
 void ctp2_Static::MouseRDropInside( aui_MouseEvent *mouseData )
 {
 
-#if 0
-	if ( !GetWhichSeesMouse() || GetWhichSeesMouse() == this ) {
-		SetWhichSeesMouse( this );
-	}
-
-	HandleGameSpecificRightClick((void *)this);
-	m_mouseCode = AUI_ERRCODE_HANDLED;
-
-
-
-
-
-
-
-
-#else
 	if ( !GetWhichSeesMouse() || GetWhichSeesMouse() == this ) {
 		SetWhichSeesMouse( this );
 
@@ -430,7 +414,6 @@ void ctp2_Static::MouseRDropInside( aui_MouseEvent *mouseData )
 	else {
 		MouseRDropOutside( mouseData );
 	}
-#endif
 }
 
 void ctp2_Static::SetDrawCallbackAndCookie(StaticDrawCallback *func, void *cookie,bool exclusive)

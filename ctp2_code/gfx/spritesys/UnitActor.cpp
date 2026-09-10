@@ -1950,14 +1950,6 @@ void UnitActor::DrawHerald() {
   if (m_y < 0 || m_y > screenmanager_Get()->GetSurfHeight() - rect.bottom)
     return;
 
-#if 0  // Unused
-	POINT		*pt;
-	if (m_curUnitAction == UNITACTION_IDLE && m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)UNITACTION_IDLE) == NULL) {
-		pt = m_unitSpriteGroup->GetShieldPoints(UNITACTION_MOVE);
-	} else {
-		pt = m_unitSpriteGroup->GetShieldPoints(m_curUnitAction);
-	}
-#endif
 
   OffsetRect(&rect, m_x + 0 - iconDim.x / 2, m_y + 0 - iconDim.y / 2);
 

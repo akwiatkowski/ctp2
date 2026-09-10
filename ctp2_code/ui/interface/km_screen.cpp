@@ -201,9 +201,6 @@ namespace
             KEY_FUNCTION_ENTER_COMMAND,
             KEY_FUNCTION_ENTER_COMMAND_ALTERNATE,
 #endif
-#if 0 // Old CTP1 functions
-            KEY_FUNCTION_TOGGLE_SPACE,
-#endif
         };
     TabDescriptor const TAB_MAP
         ("Map", sizeof(MAP_FUNCTION) / sizeof(MAP_FUNCTION[0]));

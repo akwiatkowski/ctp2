@@ -277,9 +277,6 @@ spnewgamescreen_returnPress(aui_Control *control, uint32 action, uint32 data, vo
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-#if 0 // not used
-	bool wasPBEMOrHotseat = gameinit_IsHotseatGame() || gameinit_IsEmailGame();
-#endif
 
 	gameinit_SetHotseatGame(FALSE);
 	gameinit_SetEmailGame(FALSE);

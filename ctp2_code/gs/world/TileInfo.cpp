@@ -68,29 +68,6 @@ TileInfo::~TileInfo()
 TILEINDEX TileInfo::GetTileNum()
 {
 	return m_tileNum;
-#if 0   // Unreachable code
-	if (g_fog_toggle)
-		return m_tileNum;
-	if ( g_god ) {
-		return m_tileNum;
-	}
-
-	if (!player_Get(selitem_Get()->GetVisiblePlayer())) return m_tileNum;
-
-	if(player_Get(selitem_Get()->GetVisiblePlayer())->m_hasGlobalRadar) {
-		return m_tileNum;
-	} else if (player_Get(selitem_Get()->GetVisiblePlayer()) &&
-		player_Get(selitem_Get()->GetVisiblePlayer())->GetDeepOceanVisible()) {
-		return m_tileNum;
-	} else {
-		if(g_theTerrainDB->Get(m_terrainType)->GetMovementTypeSea() &&
-			m_terrainType != TERRAIN_WATER_BEACH) {
-			return k_OCEAN_BEFORE_OCEANOGRAPHY_BASE_TILE;
-		} else {
-			return m_tileNum;
-		}
-	}
-#endif  // unreachable code
 }
 
 void TileInfo::SetGoodActor(sint32 index, MapPoint const & pos)

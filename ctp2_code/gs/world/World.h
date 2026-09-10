@@ -307,9 +307,6 @@ public:
 						 MapPoint player_start[k_MAX_PLAYERS], sint32 index,
 						 sint32 minDist, sint32 maxDist,
 						 BOOL ignoreTutorialRules);
-#if 0 // Unused
-    void FlattenCumScore(sint32 d, float **cum_score, const sint32 maxx, const sint32 maxy);
-#endif
     sint32 CalcStartNiceness(const sint32 x, const sint32 y, const sint32 d, sint32 **con);
 
     void FindPlayerStart(MapPoint player_start[k_MAX_PLAYERS],

@@ -550,12 +550,6 @@ sint32 Cell::GetScore() const
 void Cell::SetColor(sint32 c)
 
 {
-	#if 0   // unreachable
-#ifdef _DEBUG
-    m_color = c;
-    WhackScreen();
-#endif // _DEBUG
-#endif // unreachable
 }
 #endif // CELL_COLOR
 

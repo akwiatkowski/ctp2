@@ -69,7 +69,6 @@
 #include "ui/aui_ctp2/c3windows.h"
 #include "ui/interface/victorywindow.h"
 #include "ui/interface/infowin.h"
-#include "ui/aui_ctp2/c3fancywindow.h"
 #include "ui/aui_common/aui_stringtable.h"
 #include "ui/aui_ctp2/c3_popupwindow.h"
 #include "ui/interface/screenutils.h"

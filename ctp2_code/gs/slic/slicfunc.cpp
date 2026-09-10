@@ -1505,12 +1505,6 @@ SFN_ERROR Slic_EyeDropdown::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-#if 0   /// @todo Find out what this is supposed to do
-	startAt--;
-
-	SlicSymbolData *sym = args->m_argValue[1].m_symbol;
-	SlicObject *context = slicengine_Get()->GetContext();
-#endif
 
 	return SFN_ERROR_OK;
 }

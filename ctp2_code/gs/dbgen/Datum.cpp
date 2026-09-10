@@ -572,15 +572,6 @@ void Datum::ExportParseBitPairCase(FILE *outfile, char *recordName)
 {
 	/// @todo Find out if this function is needed.
 
-#if 0   // Useless or unreachable
-	Assert(m_type == DATUM_BIT_PAIR);
-	Assert(m_bitPairDatum);
-
-	return;
-	fprintf(outfile, "            case k_Token_%s_%s_Value:\n", recordName, m_name);
-	ExportBitPairDirectParse(outfile, recordName);
-	fprintf(outfile, "                break;\n");
-#endif
 }
 
 void Datum::ExportBitPairDirectParse(FILE *outfile, char *recordName)

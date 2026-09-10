@@ -328,25 +328,10 @@ void agesscreen_startDropDownCallback(
 
 
 
-#if 0
-
-	if ( s_startDropDown->GetSelectedItem() == s_numAges - 1 )
-	{
-		s_startDropDown->SetSelectedItem( s_numAges - 2 );
-	}
-	else
-	{
-		if ( s_startDropDown->GetSelectedItem() >=
-			 s_endDropDown->GetSelectedItem() )
-			s_endDropDown->SetSelectedItem(
-				s_startDropDown->GetSelectedItem() + 1 );
-	}
-#else
 	if ( s_startDropDown->GetSelectedItem() >
 		 s_endDropDown->GetSelectedItem() )
 		s_endDropDown->SetSelectedItem(
 			s_startDropDown->GetSelectedItem() );
-#endif
 
 }
 void agesscreen_endDropDownCallback(
@@ -360,25 +345,10 @@ void agesscreen_endDropDownCallback(
 
 
 
-#if 0
-
-	if ( s_endDropDown->GetSelectedItem() == 0 )
-	{
-		s_endDropDown->SetSelectedItem( 1 );
-	}
-	else
-	{
-		if ( s_endDropDown->GetSelectedItem() <=
-			 s_startDropDown->GetSelectedItem() )
-			s_startDropDown->SetSelectedItem(
-				s_endDropDown->GetSelectedItem() - 1 );
-	}
-#else
 	if ( s_endDropDown->GetSelectedItem() <
 		 s_startDropDown->GetSelectedItem() )
 		s_startDropDown->SetSelectedItem(
 			s_endDropDown->GetSelectedItem() );
-#endif
 
 }
 void agesscreen_backPress(aui_Control *control, uint32 action, uint32 data, void *cookie )

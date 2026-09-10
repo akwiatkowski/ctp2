@@ -3631,11 +3631,6 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
 	}
 }
 
-#if 0   // Unused (for water animations?)
-#define k_MAX_WATER_DISPLACEMENTS		14
-sint32			inctable[k_MAX_WATER_DISPLACEMENTS] = {1, 2, 1, 0, -1, 1, 0, -1, -2, -1, 0, 1,  -1, 0};
-sint32			tinc[2]={0,1};
-#endif
 
 void TiledMap::DrawWater()
 {

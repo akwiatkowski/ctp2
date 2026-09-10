@@ -167,10 +167,6 @@ void gslog_LogPlayerStats(sint32 player)
 		((totalProductionUnitUpkeep * 100) / totalProduction) : 0;
 	sint32 percentProductionPublicWorks = totalProduction ?
 		((totalProductionPublicWorks * 100) / totalProduction) : 0;
-#if 0   // Unused
-	sint32 percentProductionCityUse = 100 - (percentProductionCrime +
-		percentProductionUnitUpkeep + totalProductionPublicWorks);
-#endif
 
 	gslog_print("  Total Production: %d\n", totalProduction);
 	gslog_print("  Production Crime: %d (%d%%)\n", totalProductionCrime, percentProductionCrime);

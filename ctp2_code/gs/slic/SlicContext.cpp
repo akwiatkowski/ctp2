@@ -73,11 +73,6 @@ namespace
     {
         switch (builtin)
         {
-#if 0   // Unused CTP1 leftovers?
-	    case SLIC_BUILTIN_GLOBAL:
-	    case SLIC_BUILTIN_POP:
-	    case SLIC_BUILTIN_IMPROVEMENT:
-#endif
         default:
             return SLIC_SYM_UNDEFINED;
 

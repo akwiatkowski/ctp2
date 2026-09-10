@@ -3202,19 +3202,6 @@ ControlPanelWindow::PollUNITStatus()
 void
 ControlPanelWindow::PollTILEIMPStatus()
 {
-#if 0   /// @todo Find out what this code was supposed to do
-    if ((selitem_Get() == NULL)||(player_arr_Get()==NULL))
-		return;
-
-	sint32 p_index = selitem_Get()->GetVisiblePlayer();
-
-	Player *current=player_Get(p_index);
-
-	if (current==NULL)
-		return;
-
-	sint32		pw=current->GetMaterialsStored();
-#endif
 }
 
 void
@@ -3275,49 +3262,6 @@ ControlPanelWindow::CityPanelGetCurrent()
 void
 ControlPanelWindow::CityPanelRebuild()
 {
-	#if 0   // Unreachable
-	if (m_mainDropDown==NULL)
-		return;
-
-	m_mainDropDown->Clear();
-
-	sint32 p_index = selitem_Get()->GetVisiblePlayer();
-
-	Player *current=player_Get(p_index);
-
-	if (current==NULL)
-		return;
-
-	sint32 num=current->GetNumCities();
-
-	if (num<1)
-		return;
-
-
-
-
-
-
-	Unit city;
-	const MBCHAR *name;
-	ctp2_ListItem *item;
-	c3_Static *staticThing;
-
-	for(sint32 i=0;i<num;i++)
-	{
-		city = player_Get(selitem_Get()->GetVisiblePlayer())->GetCityFromIndex(i);
-
-		name=city.GetName();
-
-		item = (ctp2_ListItem *) aui_Ldl::BuildHierarchyFromRoot("InitPlayListItem");
-
-		staticThing = (c3_Static *)item->GetChildByIndex(0);
-
-		staticThing->SetText(name);
-
-		m_mainDropDown->AddItem(item);
-	}
-#endif
 }
 
 
@@ -3412,76 +3356,6 @@ ControlPanelWindow::UnitPanelGetCurrent()
 void
 ControlPanelWindow::UnitPanelRedisplay()
 {
-	#if 0   // Unreachable
-	Army army=UnitPanelGetCurrent();
-
-	Unit unit;
-
-	if (army.IsValid())
-		unit=army[0];
-
-	std::string   name("None");
-	const MBCHAR *order="";
-
-	double attack =0.0;
-	double defense=0.0;
-	double movement=0.0;
-
-	if (unit.IsValid())
-	{
-		name.assign(unit.GetDisplayName());
-		attack  =unit.GetAttack();
-		defense =unit.GetDefense();
-		movement=unit.GetMovementPoints();
-
-		StringId str_id;
-
-		if (unit.GetCurrentOrderString(str_id))
-			order =stringdb_Get()->GetNameStr(str_id);
-	}
-
-	BuildUnitListBox();
-
-	SetControlText((aui_Control *)m_unitType	,"%s"	,name.c_str());
- 	SetControlText((aui_Control *)m_unitAttack	,"%3.2f",attack  );
-	SetControlText((aui_Control *)m_unitDefense	,"%3.2f",defense );
-	SetControlText((aui_Control *)m_unitMove	,"%3.2f",movement);
-   	SetControlText((aui_Control *)m_unitStatus	,"%s"	,order);
-
-	if (unit.IsValid())
-	{
-		const IconRecord *irec = unit.GetDBRec()->GetDefaultIcon();
-
-		const MBCHAR *unitIconName = irec->GetLargeIcon();
-
-
-		if(unitIconName && strcmp(unitIconName, "NULL")) {
-			m_unitImage->SetImage((char *)unitIconName,
-				0, AUI_IMAGEBASE_SUBSTATE_STATE);
-			m_unitImage->SetImage((char *)unitIconName,
-				0, AUI_IMAGEBASE_SUBSTATE_STATEACTIVE);
-			m_unitImage->Enable(TRUE);
-			m_unitImage->ShouldDraw(TRUE);
-		} else {
-			m_unitImage->SetImage((char *)irec->GetIcon(),
-				0, AUI_IMAGEBASE_SUBSTATE_STATE);
-			m_unitImage->SetImage((char *)irec->GetIcon(),
-				0, AUI_IMAGEBASE_SUBSTATE_STATEACTIVE);
-			m_unitImage->Enable(TRUE);
-			m_unitImage->ShouldDraw(TRUE);
-		}
-	}
-
-
-
-
-
-
-	static_cast<aui_Control*>(
-		aui_Ldl::GetObject(
-		"ControlPanelWindow.ControlPanel.ControlTabPanel.UnitTab.TabPanel"
-		))->ShouldDraw();
-#endif
 }
 
 

@@ -132,25 +132,6 @@ Message MessagePool::ServerCreate()
 void MessagePool::DoNetwork(MessageData *newData)
 {
 
-	#if 0   // Unreachable
-    if(network_Get().IsClient()) {
-		Assert(newData->GetSender() == network_Get().GetPlayerIndex() ||
-			   newData->GetSender() == PLAYER_INDEX_INVALID);
-		if(newData->GetSender() == network_Get().GetPlayerIndex() ||
-			newData->GetSender() == PLAYER_INDEX_INVALID) {
-			network_Get().AddCreatedObject(newData);
-			network_Get().SendMessage(newData);
-		}
-	} else if(network_Get().IsHost()) {
-		if(newData->GetSender() != PLAYER_INDEX_INVALID) {
-			network_Get().Block(newData->GetSender());
-		}
-		network_Get().Enqueue(newData);
-		if(newData->GetSender() != PLAYER_INDEX_INVALID) {
-			network_Get().Unblock(newData->GetSender());
-		}
-	}
-#endif
 }
 
 void MessagePool::NotifySlicReload()

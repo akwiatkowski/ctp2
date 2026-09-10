@@ -1917,66 +1917,6 @@ Utility Goal::Compute_Raw_Priority()
 #endif //_DEBUG
 	}
 
-#if 0
-	if(!goal_rec->GetIsGlobalGoal())
-	{
-		cell_value += sqrt(static_cast<double>
-		(MapPoint::GetSquaredDistance(target_pos, empire_center))) * goal_rec->GetDistanceToHomeBonus();
-	}
-	else
-	{
-		if(world_Get()->IsOnSameContinent(target_pos, empire_center))
-		{
-			sint32 distance;
-			float costs = 0.0f;
-			g_city_astar.IsLandConnected(m_playerId, target_pos, empire_center, costs, distance);
-
-			cell_value += static_cast<double>(distance * goal_rec->GetDistanceToHomeBonus());
-		}
-		else
-		{
-			sint32 distance;
-			float costs = 0.0f;
-			g_city_astar.FindCityDist(m_playerId, target_pos, empire_center, costs, distance);
-
-			cell_value += static_cast<double>(distance * goal_rec->GetDistanceToHomeBonus());
-		}
-	}
-
-#if defined(_DEBUG) || defined(USE_LOGGING) // Add a debug report of goal computing (raw priority and all modifiers) - Calvitix
-	report_cell_HomeDistance = cell_value - report_cell_lastvalue;
-	report_cell_lastvalue    = cell_value;
-#endif //_DEBUG
-
-	if (foreign_empire_center.x != 0 && foreign_empire_center.y != 0)//Dangerious if the empire center has coords (0,0)
-	{
-		if(!goal_rec->GetIsGlobalGoal())
-		{
-			cell_value += sqrt(static_cast<double>
-			(MapPoint::GetSquaredDistance(target_pos, foreign_empire_center))) * goal_rec->GetDistanceToEnemyBonus();
-		}
-		else
-		{
-			if(world_Get()->IsOnSameContinent(target_pos, foreign_empire_center))
-			{
-				sint32 distance;
-				float costs = 0.0f;
-				g_city_astar.IsLandConnected(m_playerId, target_pos, foreign_empire_center, costs, distance);
-
-				cell_value += static_cast<double>(distance * goal_rec->GetDistanceToEnemyBonus());
-			}
-			else
-			{
-				sint32 distance;
-				float costs = 0.0f;
-				g_city_astar.FindCityDist(m_playerId, target_pos, foreign_empire_center, costs, distance);
-
-				cell_value += static_cast<double>(distance * goal_rec->GetDistanceToEnemyBonus());
-			}
-		}
-	}
-
-#else
 	cell_value += sqrt(static_cast<double>
 	(MapPoint::GetSquaredDistance(target_pos, empire_center))) * goal_rec->GetDistanceToHomeBonus();
 
@@ -1991,7 +1931,6 @@ Utility Goal::Compute_Raw_Priority()
 		cell_value += sqrt(static_cast<double>
 		(MapPoint::GetSquaredDistance(target_pos, foreign_empire_center))) * goal_rec->GetDistanceToEnemyBonus();
 	}
-#endif
 
 #if defined(_DEBUG) || defined(USE_LOGGING) // Add a debug report of goal computing (raw priority and all modifiers) - Calvitix
 	report_cell_EnemyDistance = cell_value - report_cell_lastvalue;

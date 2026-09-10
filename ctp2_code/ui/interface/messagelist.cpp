@@ -128,56 +128,6 @@ void MessageList::CheckVisibleMessages( )
 
 
 
-#if 0   // CTP1?
-	uint32 minCount = m_offset;
-	uint32 maxCount = ( m_offset + g_messageMaxVisible );
-	uint32 count = 0;
-	MessageIconWindow *iconWindow;
-
-	if ( !selitem_Get() || m_player != selitem_Get()->GetVisiblePlayer( )) {
-		HideVisibleWindows();
-		return;
-	}
-
-	ListPos position = m_iconList->GetHeadPosition();
-
-	for ( uint32 i = m_iconList->L(); i; i-- ) {
-		iconWindow = m_iconList->GetNext( position );
-
-		if (( count < maxCount ) && ( count >= minCount )) {
-			if ( !c3ui_Get()->GetWindow( iconWindow->Id( )))
-				if ( iconWindow->CheckShowWindow() ) {
-					c3ui_Get()->AddWindow( iconWindow );
-					if ( !BOUNCE_IT )
-
-						iconWindow->Move( iconWindow->X(), ( g_messageReadPositionY -
-								(( g_messageIconHeight + g_messageIconSpacing ) *
-								 ( count - minCount ))));
-
-				}
-		} else {
-			if ( c3ui_Get()->GetWindow( iconWindow->Id( )))
-				c3ui_Get()->RemoveWindow( iconWindow->Id( ));
-		}
-		count++;
-	}
-
-	if (( count <= minCount ) && ( m_offset > 0 )) {
-		ChangeOffset( -1, SHOW_MESSAGE_OFFSET_RELATIVE );
-		return;
-	}
-
-	if ( count > maxCount )
-		messagewin_MoreMessagesIcon( TRUE );
-	else
-		messagewin_MoreMessagesIcon( FALSE );
-
-	if ( m_offset > 0 )
-		messagewin_LessMessagesIcon( TRUE );
-	else
-		messagewin_LessMessagesIcon( FALSE );
-
-#endif
 
 }
 

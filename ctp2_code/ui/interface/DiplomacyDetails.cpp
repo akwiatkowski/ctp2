@@ -292,24 +292,12 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 					if (ctp2_Static * regard = (ctp2_Static *) item->GetChildByIndex(k_INT_REGARD_COL))
 					{
 						regard->SetDrawCallbackAndCookie(DrawPlayerRegard, (void *) p, true);
-#if 0   // buf filled, but never used
-						MBCHAR buf[k_MAX_NAME_LEN];
-						snprintf(buf, sizeof(buf), "%s: %d",
-								stringdb_Get()->GetNameStr("str_ldl_Regard"),
-								Diplomat::GetDiplomat(p).GetPublicRegard(detailPlayer));
-#endif
 						regard->SetActionFuncAndCookie(SelectItem, item);
 					}
 
 					if (ctp2_Static * strength = (ctp2_Static *)item->GetChildByIndex(k_INT_STRENGTH_COL))
 					{
 						strength->SetDrawCallbackAndCookie(DrawPlayerStrength, (void *) p, true);
-#if 0   // buf filled, but never used
-						MBCHAR buf[k_MAX_NAME_LEN];
-						snprintf(buf, sizeof(buf), "%s: %d",
-								stringdb_Get()->GetNameStr("str_ldl_Strength"),
-								MapAnalysis::GetMapAnalysis().TotalValue(p));
-#endif
 						strength->SetActionFuncAndCookie(SelectItem, item);
 					}
 

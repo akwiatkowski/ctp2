@@ -119,13 +119,6 @@ extern "C" {
 #include "dppackn.h"
 
 /* Names (or pieces of names) of standard tables used internally */
-#if 0  /* moved to anet.h */
-#define dp_KEY_SESSIONS			1	/* known sessions */
-#define dp_KEY_PLAYERS			3
-#define dp_KEY_SERVERPINGS		10	/* servers: ip adr, name, ping results */
-#define dp_KEY_SCORES			14	/* everyone's player score records */
-#define dp_KEY_USERS			30	/* user records */
-#endif
 
 #define dp_KEY_MYSESSIONS		2	/* sessions on this machine */
 #define dp_KEY_MYPLAYERS		4

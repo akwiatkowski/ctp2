@@ -4195,12 +4195,6 @@ void CivApp::PostLoadQuickSaveAction(sint32 player)
 	}
 }
 
-#if 0   // never used
-void CivApp::PostLoadSaveGameMapAction(MBCHAR const * name)
-{
-	c3ui_Get()->AddAction(new LoadSaveGameMapAction(name));
-}
-#endif
 
 void CivApp::PostRestartGameAction()
 {
@@ -4255,12 +4249,6 @@ void LoadSaveGameAction::Execute(aui_Control *control, uint32 action, uint32 dat
 	civapp_Get()->LoadSavedGame(m_filename);
 }
 
-#if 0   // never used
-void LoadSaveGameMapAction::Execute(aui_Control *control, uint32 action, uint32 data )
-{
-	civapp_Get()->LoadSavedGameMap(m_filename);
-}
-#endif
 void RestartGameAction::Execute(aui_Control *control, uint32 action, uint32 data )
 {
 	civapp_Get()->RestartGame();

@@ -1915,10 +1915,6 @@ bool Diplomat::LaunchNuclearAttackOnCity(const Unit & city)
 
 bool Diplomat::ExecuteThreat(const Threat & threat)
 {
-#if 0   // unused
-	const NewProposal & sender_proposal =
-		GetMyLastNewProposal(threat.receiverId);
-#endif
 	const Diplomat & receiver_diplomat = Diplomat::GetDiplomat(threat.receiverId);
 	StringId strId;
 	sint32 regard_cost=0;
@@ -2037,9 +2033,6 @@ bool Diplomat::ComputeThreatResponse(const PLAYER_INDEX foreignerId, Response & 
 	const Diplomat & foreign_diplomat = Diplomat::GetDiplomat(foreignerId);
 	const MapAnalysis & map_analysis = MapAnalysis::GetMapAnalysis();
 	const AgreementMatrix & agreements = AgreementMatrix::s_agreements;
-#if 0 // unused
-	const Response & receiver_response = GetDiplomat(foreignerId).GetMyLastResponse(m_playerId);
-#endif
 
 	ai::Agreement pact;
 
@@ -3913,9 +3906,6 @@ sint32 Diplomat::GetNextKeyAdvance() const
 	if (player_Get(m_playerId) == nullptr)
 		return -1;
 
-#if 0 // Not used
-	AdvanceType my_research = player_Get(m_playerId)->m_advances->GetResearching();
-#endif
 
 	for (sint32 advance_index = 0; advance_index < g_theAdvanceDB->NumRecords(); ++advance_index)
 	{

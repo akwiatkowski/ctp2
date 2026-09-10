@@ -246,31 +246,6 @@ RECT textutils_CenterText(
 
 	return bounds;
 
-#if 0   // unreachable
-	sint32 boundsWidth = bounds.right - bounds.left;
-	sint32 boundsHeight = bounds.bottom - bounds.top;
-	sint32 destWidth = pDestRect->right - pDestRect->left;
-	sint32 destHeight = pDestRect->bottom - pDestRect->top;
-
-	Assert(boundsWidth>=0);
-	Assert(boundsHeight>=0);
-
-
-
-
-    Assert(destWidth>=0);
-	Assert(destHeight>=0);
-
-	sint32 xOffset = (destWidth - boundsWidth)>>1;
-	sint32 yOffset = (destHeight - boundsHeight)>>1;
-
-	center.left = pDestRect->left + xOffset;
-	center.top = pDestRect->top + yOffset;
-	center.right = pDestRect->right - xOffset;
-	center.bottom = pDestRect->bottom - yOffset;
-
-	return center;
-#endif
 }
 
 

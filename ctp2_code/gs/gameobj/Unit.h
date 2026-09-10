@@ -470,13 +470,6 @@ public:
 	void Cloak();
 	void Uncloak();
 
-#if 0 // CTP1 space layer
-	bool CanOpenRiftGate() const;
-	bool HasOpenRiftGate(MapPoint &destination) const;
-	bool OpenRiftGate(const MapPoint &destination);
-	bool IsTravellingRift() const;
-	void SetTravellingRift();
-#endif
 
 	sint32 GetStoredCityProduction() const;
 	sint32 GetNetCityProduction() const;

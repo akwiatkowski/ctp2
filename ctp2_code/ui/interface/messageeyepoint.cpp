@@ -266,18 +266,6 @@ AUI_ERRCODE MessageEyePointDropdown::InitCommon(MBCHAR const * ldlBlock, Message
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
-#if 0   // Computation of maximum length of text, which is never used
-    {
-	    sint32              i           = 0;
-	    sint32              textlength  = g_messageEyeDropWidth;
-		aui_BitmapFont *    font        = m_button->GetTextFont();
-		Assert(font);
-	    while (MBCHAR const * text = window->GetMessage()->AccessData()->GetEyePointName(i++))
-        {
-            textlength = std::max(textlength, font->GetStringWidth(text));
-	    }
-    }
-#endif
 
 	m_dropaction.reset(new MessageDropdownAction( window, m_dropdown.get() ));
 	Assert( m_dropaction != nullptr );
@@ -309,18 +297,6 @@ AUI_ERRCODE MessageEyePointDropdown::InitCommon(MBCHAR const *ldlBlock, MessageM
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
-#if 0   // Computation of maximum length of text, which is never used
-    {
-	    sint32              i           = 0;
-	    sint32              textlength  = g_messageEyeDropWidth;
-		aui_BitmapFont *    font        = m_button->GetTextFont();
-		Assert(font);
-	    while (MBCHAR const * text = window->GetMessage()->AccessData()->GetEyePointName(i++))
-        {
-            textlength = std::max(textlength, font->GetStringWidth(text));
-	    }
-    }
-#endif
 
 	m_dropaction.reset(new MessageDropdownAction( nullptr, m_dropdown.get(), window ));
 

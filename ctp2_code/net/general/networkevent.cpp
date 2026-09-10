@@ -222,21 +222,6 @@ STDEHANDLER(NetEndAIClientTurnEvent)
 STDEHANDLER(NetCreatedWonderEvent)
 {
 	return GEV_HD_Continue;
-#if 0   // Unreachable: CtP1 code?
-	if(!network_Get().IsHost()) return GEV_HD_Continue;
-
-	Unit city;
-	sint32 type;
-
-	if(!args->GetCity(0, city)) return GEV_HD_Continue;
-	if(!args->GetInt(0, type)) return GEV_HD_Continue;
-
-	network_Get().Block(city.GetOwner());
-	network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CREATED_WONDER, city.m_id, type));
-	network_Get().Unblock(city.GetOwner());
-
-	return GEV_HD_Continue;
-#endif
 }
 
 void networkevent_Initialize()

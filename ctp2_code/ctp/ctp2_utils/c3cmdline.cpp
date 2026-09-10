@@ -2208,12 +2208,6 @@ void FliLogCommand::Execute(sint32 argc, char **argv)
 
 void ReloadFliCommand::Execute (sint32 argc, char **argv)
 {
-#if 0   /// @todo Find out what this code was supposed to do
-    Assert(argc == 2)
-    if (argc != 2) return;
-
-    PLAYER_INDEX p = atoi (argv[1]);
-#endif
 }
 
 void RobotMessagesCommand::Execute(sint32 argc, char **argv)
@@ -2841,14 +2835,6 @@ void HearGossipCommand::Execute(sint32 argc, char **argv)
 	BOOL DontUseThisCommandItSucks = FALSE;
 	Assert(DontUseThisCommandItSucks);
 	return;
-#if 0   // Unreachable
-	Assert(argc == 2);
-	if(argc != 2)
-		return;
-
-	player_Get(selitem_Get()->GetVisiblePlayer())->m_all_units->Access(0).AccessData()->HearGossip(
-		player_Get(atoi(argv[1]))->m_all_units->Access(0));
-#endif
 }
 
 void BombardCommand::Execute(sint32 argc, char **argv)
@@ -3125,9 +3111,6 @@ void TerrainImprovementCompleteCommand::Execute(sint32 argc, char **argv)
 	MapPoint point;
 	tiledmap_Get()->GetMouseTilePos(point);
 
-#if 0   // Unused
-	sint32 vplayer = selitem_Get()->GetVisiblePlayer();
-#endif
 
 	Cell *cell = world_Get()->GetCell(point);
 
@@ -3536,14 +3519,6 @@ void DumpFZRegardCommand::Execute(sint32 argc, char **argv)
 
 void SetFZRegardCommand::Execute(sint32 argc, char **argv)
 {
-#if 0   /// @todo Find out what this code is supposed to do
-    Assert(argc == 4)
-    if (argc != 4) return;
-
-    sint32 me = atoi(argv[1]);
-    sint32 him = atoi(argv[2]);
-    sint32 r = atoi(argv[3]);
-#endif
 }
 
 void TotalWarCommand::Execute(sint32 argc, char **argv)
@@ -5505,11 +5480,6 @@ void LoadAIPCommand::Execute(sint32 argc, char **argv)
 
 void WhoAmICommand::Execute(sint32 argc, char **argv)
 {
-#if 0   /// @todo Find out what this was supposed to do
-    Assert(argc==1)
-
-	char *aipName = NULL;
-#endif
 }
 
 void LogAICommand::Execute(sint32 argc, char **argv)

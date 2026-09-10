@@ -389,11 +389,6 @@ sint32 ResourceMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, s
 			else
 				DrawImprovements(pSurface, pos.y, i+x, x*48+nudge+xOff,y*12+yOff);
 
-#if 0   // Useless local variable updates
-            sint32 mapX = maputils_TileX2MapX(i+x,pos.y);
-			MapPoint tempPos( mapX, pos.y);
-			Cell *cell = world_Get()->GetCell(tempPos);
-#endif
 			index++;
 		}
 		if (y==2 || y==4) {
@@ -402,11 +397,6 @@ sint32 ResourceMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, s
 			else
 				DrawImprovements(pSurface, pos.y, i+x, x*48+nudge+xOff,y*12+yOff);
 
-#if 0   // Useless local variable updates
-			sint32 mapX = maputils_TileX2MapX(i+x,pos.y);
-			MapPoint tempPos (mapX, pos.y);
-			Cell *cell = world_Get()->GetCell(tempPos);
-#endif
 			index++;
 		}
 		pos = newpos;

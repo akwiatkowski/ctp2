@@ -695,41 +695,6 @@ void TurnCount::NetworkEndTurn(BOOL force)
 		return;
 	}
 
-	#if 0 // Unreachable
-	{
-		if(player_Get(player_view::CurPlayer())->IsNetwork())
-		{
-			for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-				if(player_Get(i) && !player_Get(i)->IsNetwork()) {
-					if(!player_Get(i)->IsTurnOver() && player_Get(i)->GetCurRound() == m_round) {
-						player_Get(i)->EndTurnSoon();
-					}
-				}
-			}
-			return;
-		}
-	}
-
-    EndThisTurnBeginNewTurn(FALSE);
-
-#ifdef _DEBUG
-	extern BOOL g_doingFastRounds;
-
-	if (!g_doingFastRounds)
-    {
-		tiledmap_observer::InvalidateMix();
-		tiledmap_observer::InvalidateMap();
-		tiledmap_observer::Refresh();
-		if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapUpdate(player_view::VisiblePlayer());
-	}
-#else
-	tiledmap_observer::InvalidateMix();
-	tiledmap_observer::InvalidateMap();
-	tiledmap_observer::Refresh();
-	if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapUpdate(player_view::VisiblePlayer());
-#endif
-
-#endif // Unreachable
 }
 
 void TurnCount::RunNewYearMessages()

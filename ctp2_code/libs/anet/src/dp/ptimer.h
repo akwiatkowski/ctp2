@@ -44,9 +44,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef ptimer_h
 #define ptimer_h
 
-#if 0 && defined(_WIN32) && !(defined(DEBUG) || defined(_DEBUG))
-#define PTIMER_ENABLE  /* code for time measurements using Pentium clock */
-#endif
 
 #ifdef PTIMER_ENABLE
 

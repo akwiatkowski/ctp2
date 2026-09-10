@@ -342,160 +342,6 @@ sint32 WorkMap::DrawSurface()
 
 return 0;
 
-#if 0   // Unreachable
-    for (sint32 j =0;j < 3;j++) {
-		pos.GetNeighborPosition(NORTHWEST, newpos);
-		pos = newpos;
-	}
-
-	tiledmap_Get()->GetMapBounds( m_mapBounds );
-	sint32 tileX;
-	maputils_MapX2TileX(pos.x, pos.y, &tileX);
-
-	m_mapViewRect.left = 3;
-	m_mapViewRect.right = 7;
-	m_mapViewRect.top = 2;
-	m_mapViewRect.bottom = 9;
-
-	sint32 nudge;
-	sint32 index = 0;
-
-	tiledmap_Get()->LockThisSurface(m_surface);
-
-	for (sint32 y = 0;y < 7;y++) {
-		if (y & 0x01) {
-			if ( !m_scale ) {
-				nudge = k_NUDGE;
-			}
-			else {
-				nudge = k_NUDGE / 2;
-			}
-			if (!pos.GetNeighborPosition(SOUTHWEST, newpos))
-				continue;
-		}
-		else {
-			if (!pos.GetNeighborPosition(SOUTHEAST, newpos))
-				continue;
-
-			nudge = 0;
-		}
-		maputils_MapX2TileX(pos.x,pos.y,&i);
-
-		sint32 x;
-		for (x = 0;x < 3;x++) {
-			if (x==0 && (y==0 || y==6)) continue;
-			if ( !m_scale )
-				CalculateWrap(m_surface, pos.y, i+x, x*96+nudge,y*24);
-			else
-				CalculateWrap(m_surface, pos.y, i+x, x*48+nudge,y*12);
-
-
-			sint32 mapX = maputils_TileX2MapX(i+x,pos.y);
-			MapPoint tempPos( mapX, pos.y);
-			Cell *cell = world_Get()->GetCell(tempPos);
-
-			BOOL drawBorder = FALSE;
-
-			if (cell->GetOwner() != m_unit.GetOwner()) {
-				if ( !m_scale ) {
-					tiledmap_Get()->DrawTileBorder(m_surface, x*96+nudge, y*24, colorset_Get()->GetPlayerColor(cell->GetOwner()));
-				}
-				else {
-					tiledmap_Get()->DrawTileBorderScaled(m_surface, pos, x*48+nudge, y*12,
-							tiledmap_Get()->GetZoomTilePixelWidth(),
-							tiledmap_Get()->GetZoomTilePixelHeight(),
-							colorset_Get()->GetPlayerColor(cell->GetOwner()));
-				}
-
-				drawBorder = TRUE;
-			}
-
-			delete m_worker[index];
-			m_worker[index] = NULL;
-			index++;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		}
-		if (y==2 || y==4) {
-			if ( !m_scale )
-				CalculateWrap(m_surface, pos.y, i+x, x*96+nudge,y*24);
-			else
-				CalculateWrap(m_surface, pos.y, i+x, x*48+nudge,y*12);
-
-			sint32 mapX = maputils_TileX2MapX(i+x,pos.y);
-			MapPoint tempPos (mapX, pos.y);
-			Cell *cell = world_Get()->GetCell(tempPos);
-
-			BOOL drawBorder = FALSE;
-
-			if (cell->GetOwner() != m_unit.GetOwner()) {
-				if ( !m_scale ) {
-					tiledmap_Get()->DrawTileBorder(m_surface, x*96+nudge, y*24, colorset_Get()->GetPlayerColor(cell->GetOwner()));
-				}
-				else {
-					tiledmap_Get()->DrawTileBorderScaled(m_surface, pos, x*48+nudge, y*12,
-									tiledmap_Get()->GetZoomTilePixelWidth(),
-									tiledmap_Get()->GetZoomTilePixelHeight(),
-									colorset_Get()->GetPlayerColor(cell->GetOwner()));
-				}
-				drawBorder = TRUE;
-			}
-
-			delete m_worker[index];
-			m_worker[index] = NULL;
-			index++;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		}
-		pos = newpos;
-	}
-
-	tiledmap_Get()->UnlockSurface();
-
-	tiledmap_Get()->SetZoomLevel(zoomLevel);
-	tiledmap_Get()->SetScale( scale );
-
-	return TRUE;
-#endif
 }
 
 sint32 WorkMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint32 yOff )
@@ -562,11 +408,6 @@ sint32 WorkMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint3
 			else
 				DrawImprovements(pSurface, pos.y, i+x, x*48+nudge+xOff,y*12+yOff);
 
-#if 0   // Useless local variable updates
-            sint32 mapX = maputils_TileX2MapX(i+x,pos.y);
-			MapPoint tempPos( mapX, pos.y);
-			Cell *cell = world_Get()->GetCell(tempPos);
-#endif
 			index++;
 		}
 		if (y==2 || y==4) {
@@ -575,11 +416,6 @@ sint32 WorkMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint3
 			else
 				DrawImprovements(pSurface, pos.y, i+x, x*48+nudge+xOff,y*12+yOff);
 
-#if 0   // Useless local variable updates
-			sint32 mapX = maputils_TileX2MapX(i+x,pos.y);
-			MapPoint tempPos (mapX, pos.y);
-			Cell *cell = world_Get()->GetCell(tempPos);
-#endif
 			index++;
 		}
 		pos = newpos;
@@ -1458,18 +1294,6 @@ void WorkMap::HandlePop( MapPoint point )
 	Cell *cell;
 	cell = world_Get()->GetCell(point);
 
-#if 0   // Unreachable
-	PLAYER_INDEX	player ;
-	ID	item ;
-	SELECT_TYPE	state ;
-
-	selitem_Get()->GetTopCurItem(player, item, state);
-	Assert(player == selitem_Get()->GetVisiblePlayer());
-	if(player != selitem_Get()->GetVisiblePlayer())
-		return;
-
-	Assert(m_unit != Unit());
-#endif
 }
 
 

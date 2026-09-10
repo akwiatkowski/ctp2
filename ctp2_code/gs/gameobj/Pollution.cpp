@@ -415,54 +415,6 @@ void pollution_NukeCell(MapPoint &pos, Cell *cell)
 {
 	bool CutNPasteCodeIsBad = false;
 	Assert(CutNPasteCodeIsBad);
-	#if 0 // CtP1?
-	if(cell->GetCanDie())
-	{
-		cell->Kill();
-
-		world_Get()->CutImprovements(pos);
-
-		if(world_Get()->GetCell(pos)->GetEnv() & k_BIT_ENV_INSTALLATION)
-		{
-			DynamicArray<Installation> instArray;
-			installation_tree_Get()->GetAt(pos, instArray);
-			instArray.KillList();
-		}
-		world_Get()->GetCell(pos)->SetEnv(
-						 world_Get()->GetCell(pos)->GetEnv() & ~(k_MASK_ENV_ROAD |
-																k_MASK_ENV_IRRIGATION |
-																k_MASK_ENV_MINE |
-																k_MASK_ENV_INSTALLATION |
-																k_MASK_ENV_CANAL_TUNNEL));
-		if(network_Get().IsHost())
-		{
-			network_Get().Enqueue(world_Get()->GetCell(pos), pos.x, pos.y);
-		}
-
-		cell->CalcTerrainMoveCost();
-		MapPoint nonConstPos = pos;
-
-		if (tiledmap_Get()) {
-			tiledmap_Get()->PostProcessTile(nonConstPos, world_Get()->GetTileInfo(nonConstPos));
-			tiledmap_Get()->TileChanged(nonConstPos);
-		}
-		MapPoint npos;
-		for(WORLD_DIRECTION d = NORTH; d < NOWHERE;
-			d = (WORLD_DIRECTION)((sint32)d + 1)) // No better idea of doing it?!
-		{
-			if(pos.GetNeighborPosition(d, npos))
-			{
-				if (tiledmap_Get()) {
-					tiledmap_Get()->PostProcessTile(
-												npos,
-												world_Get()->GetTileInfo(npos));
-					tiledmap_Get()->TileChanged(npos);
-				}
-			}
-		}
-		if (tiledmap_Get()) tiledmap_Get()->RedrawTile(&pos);
-	}
-#endif
 }
 
 void Pollution::AddNukePollution(const MapPoint &cpos)

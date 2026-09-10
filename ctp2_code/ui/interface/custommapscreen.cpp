@@ -29,8 +29,8 @@
 //   could cause problems in the new interface (Its removal could also cause
 //   problems, but I'm not sure what it did, so I don't know...)
 //   (JJB)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 // - Added random map settings option. (5-Apr-2009 Maq)
 //
 //----------------------------------------------------------------------------
@@ -500,14 +500,6 @@ void custommapscreen_setValues(
 	sint32 richness =
 		(sint32)g_theConstDB->Get(0)->GetRichnessManyGoods() * goodcount +
 		(sint32)g_theConstDB->Get(0)->GetRichnessFewGoods() * ( 10 - goodcount );
-#if 0   // Unused
-	sint32 riverCellWidth =
-		(sint32)g_theConstDB->Get(0)->GetRiverCellWidthManyGoods() * goodcount +
-		(sint32)g_theConstDB->Get(0)->GetRiverCellWidthFewGoods() * ( 10 - goodcount );
-	sint32 riverCellHeight =
-		(sint32)g_theConstDB->Get(0)->GetRiverCellHeightManyGoods() * goodcount +
-		(sint32)g_theConstDB->Get(0)->GetRiverCellHeightFewGoods() * ( 10 - goodcount );
-#endif
 	profiledb_Get()->SetPercentRichness( sint32(richness / 10) );
 }
 

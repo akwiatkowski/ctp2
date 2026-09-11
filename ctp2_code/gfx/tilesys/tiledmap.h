@@ -471,6 +471,7 @@ public:
   std::shared_ptr<UnitActor> GetClickedUnit(aui_MouseEvent *data);
 
 	bool		PointInMask(POINT hitPt) const;
+	// point is relative to the background window, including its scroll margins.
 	bool		MousePointToTilePos(POINT point, MapPoint &tilePos) const;
 	void		AdjustForOverlappingSprite(POINT point, MapPoint &pos);
 

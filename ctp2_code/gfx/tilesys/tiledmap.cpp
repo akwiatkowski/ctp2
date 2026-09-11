@@ -260,8 +260,13 @@ namespace
         // Screen-space but drawn in view-relative coords: on the whole-map path the
         // terrain is centred, so shift by the margin to land on it instead of the
         // view corner. Legacy presents left-anchored, matching the unshifted draw.
+        // Both presents slide by the camera pan, so the quad follows it (exact at
+        // zoom 1; under zoom the unscaled overlay recentres but edges may drift).
         bool const centred = aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture();
-        q.dx = centred ? -aui_SDL::WorldmapMarginX() : 0; q.dy = centred ? -aui_SDL::WorldmapMarginY() : 0;
+        float const panX = aui_SDL::GpuCameraEnabled() ? aui_SDL::CameraOffX() : 0.0f;
+        float const panY = aui_SDL::GpuCameraEnabled() ? aui_SDL::CameraOffY() : 0.0f;
+        q.dx = (centred ? -aui_SDL::WorldmapMarginX() : 0) + static_cast<sint32>(panX);
+        q.dy = (centred ? -aui_SDL::WorldmapMarginY() : 0) + static_cast<sint32>(panY);
         q.dw = w; q.dh = h;
         q.mirror = false;
         q.alpha = 255;
@@ -3433,9 +3438,12 @@ void TiledMap::PublishWorldmapOrigin() const
 	sint32 const rowc = (m_mapViewRect.top + m_mapViewRect.bottom) / 2;
 	sint32 vxc = 0, vyc = 0;
 	maputils_MapXY2PixelXY(maputils_TileX2MapX(tileXc, rowc), rowc, &vxc, &vyc);
+	// Center on the art (diamond middle), not the mapping vertex: art starts a
+	// headroom below the vertex and runs a tile height, so its middle sits at
+	// vertex + headroom + height/2. Keeps the pick off diamond boundaries.
 	aui_SDL::SetWorldmapMargin(
 		vxc + GetZoomTilePixelWidth() / 2 - (sint32)aui_SDL::ViewportW() / 2,
-		vyc + GetZoomTilePixelHeight() / 2 - (sint32)aui_SDL::ViewportH() / 2);
+		vyc + GetZoomTilePixelHeight() / 2 + GetZoomTileHeadroom() - (sint32)aui_SDL::ViewportH() / 2);
 }
 
 void TiledMap::BeginGpuSpriteFrame()
@@ -5968,15 +5976,19 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
 	sint32  y = point.y + yoff;
 
 	// P13 step 2.5 (ADR-003): on the whole-map path the camera owns zoom, so a
-	// pick must invert the present's windowing -- not just its pan. Reuses the
-	// exact inverse of the terms the present uses (camera_window.h), so the two
-	// cannot drift apart; the round-trip is unit-tested across the full zoom and
-	// offset range. Screen -> texture inverts the present (origin + margin +
-	// zoom/pan); texture -> view-relative subtracts the sprite base, the
-	// projection the tile builder draws with. On the whole-map path the tile
-	// art sits exactly on the mapping vertex (the headroom "phantom" was fixed
-	// in BuildWorldmapQuads), so the legacy headroom shift below must not fire.
+	// pick must invert the present's windowing -- not just its pan. Screen ->
+	// texture inverts the present (origin + margin + zoom/pan); texture ->
+	// view-relative subtracts the sprite base, the projection the tile builder
+	// draws with. Tile art starts a headroom below the mapping vertex on every
+	// path, so the legacy headroom shift below stays active here too.
 	bool const worldmapPick = aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture();
+	// Mouse events and GetMousePos are background-local. GPU windowing uses
+	// screen coordinates; undo the background's off-screen scroll margins first.
+	if ((worldmapPick || aui_SDL::GpuCameraEnabled()) && background_Get())
+	{
+		x += background_Get()->X();
+		y += background_Get()->Y();
+	}
 	if (worldmapPick)
 	{
         // Agree with the CURRENT view even when no repaint has run since it
@@ -6006,8 +6018,7 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
             static_cast<float>(y), aui_SDL::ViewportH(), 0.0f,
             aui_SDL::CameraOffY(), aui_SDL::CameraZoom()));
 	}
-
-	if (!(m_mapViewRect.top & 1) && !worldmapPick) y -= GetZoomTileHeadroom();
+	if (!(m_mapViewRect.top & 1)) y -= GetZoomTileHeadroom();
 	MapPoint		pos ((x / width) + m_mapViewRect.left,
                          (y / height) + m_mapViewRect.top/2
                         );

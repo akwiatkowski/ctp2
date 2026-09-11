@@ -533,9 +533,9 @@ void TiledMap::DrawHitMask(aui_Surface *surf, const MapPoint &pos)
 	sint32		 y;
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y);
 
-	if (x < 0) return;
+	// Tile art (both paths) starts a headroom below the mapping vertex: the
+	// diamond spans vertex+headroom .. vertex+headroom+tileHeight.
 	y += (sint32) ((double)k_TILE_PIXEL_HEADROOM * m_scale);
-	if (y < 0) return;
 
 	sint32 width = GetZoomTilePixelWidth();
 	sint32 height = GetZoomTilePixelHeight();

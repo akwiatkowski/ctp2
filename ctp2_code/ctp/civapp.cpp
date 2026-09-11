@@ -3249,6 +3249,30 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				smoketest_send_response("error", cmd, "not_sdl");
 #endif
 			}
+			else if (strncmp(cmd, "debug_mouse_tile ", 17) == 0) {
+#ifdef USE_SDL
+				// Exercise background-local picking and the presented tile cursor.
+				int sx = 0, sy = 0, visible = 1;
+				if (tiledmap_Get() && c3ui_Get() && c3ui_Get()->TheMouse()
+				    && sscanf(cmd + 17, "%d %d %d", &sx, &sy, &visible) >= 2) {
+					c3ui_Get()->TheMouse()->SetPosition(sx, sy);
+					MapPoint tile;
+					bool const hit = tiledmap_Get()->GetMouseTilePos(tile);
+					if (hit) {
+						tiledmap_Get()->SetHiliteMouseTile(tile);
+						tiledmap_Get()->DrawHilite(visible != 0);
+						tiledmap_Get()->InvalidateMap();
+					}
+					char detail[96];
+					snprintf(detail, sizeof(detail), "hit=%d tile=%d,%d", hit ? 1 : 0, tile.x, tile.y);
+					smoketest_send_response("ok", cmd, detail);
+				} else {
+					smoketest_send_response("error", cmd, "not_ready");
+				}
+#else
+				smoketest_send_response("error", cmd, "not_sdl");
+#endif
+			}
 			else if (strncmp(cmd, "pick_tile ", 10) == 0) {
 				// pick_tile <screenX> <screenY>
 				// Test seam: run the real screen->tile inversion the mouse uses
@@ -3260,6 +3284,10 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				int sx = 0, sy = 0;
 				if (tiledmap_Get() && sscanf(cmd + 10, "%d %d", &sx, &sy) == 2) {
 					POINT pt; pt.x = sx; pt.y = sy;
+					if (background_Get()) {
+						pt.x -= background_Get()->X();
+						pt.y -= background_Get()->Y();
+					}
 					MapPoint tile;
 					BOOL const hit = tiledmap_Get()->MousePointToTilePos(pt, tile);
 					char detail[96];

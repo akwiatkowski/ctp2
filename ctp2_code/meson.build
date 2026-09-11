@@ -1787,6 +1787,16 @@ test('ci-results', python3,
   timeout : 60,
   suite : 'unit',
 )
+test('worldmap-load-renders',
+  find_program('test/worldmap_load_renders.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 180,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
 test('smoke',
   find_program('test/smoke_test.py'),
   args : [join_paths(meson.project_build_root(), 'ctp2')],

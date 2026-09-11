@@ -103,27 +103,28 @@ inline float ZoomDetent(float zoom, float band = 0.04f)
 // P13 step 2.5 — the inverse of the present's windowing, for picking.
 //
 // The present maps texture rect (srcX, srcW = W/z) onto screen (0, W):
-//     srcX = originX + (W - W/z)/2 - offX
+//     srcX = originX + marginX + (W - W/z)/2 - offX
+// where marginX centres the screen inside the (margined) engine view.
 // so a screen x corresponds to texture x = srcX + sx/z. Picking is exactly that
 // inverse, and it lives here next to the forward terms so the two cannot drift
 // apart -- the same reason the pan budget lives here.
 inline float ScreenToTexture(float screenPos, float screenSize,
-                             float origin, float camOff, float zoom)
+                             float origin, float camOff, float zoom, float margin = 0.0f)
 {
 	if (zoom <= 0.0f)
-		return origin + screenPos - camOff;
-	float const src = origin + (screenSize - screenSize / zoom) * 0.5f - camOff;
+		return origin + margin + screenPos - camOff;
+	float const src = origin + margin + (screenSize - screenSize / zoom) * 0.5f - camOff;
 	return src + screenPos / zoom;
 }
 
 // Forward direction, used by the round-trip test and by anything that needs to
 // place a known texture position on screen.
 inline float TextureToScreen(float texPos, float screenSize,
-                             float origin, float camOff, float zoom)
+                             float origin, float camOff, float zoom, float margin = 0.0f)
 {
 	if (zoom <= 0.0f)
-		return texPos - origin + camOff;
-	float const src = origin + (screenSize - screenSize / zoom) * 0.5f - camOff;
+		return texPos - origin - margin + camOff;
+	float const src = origin + margin + (screenSize - screenSize / zoom) * 0.5f - camOff;
 	return (texPos - src) * zoom;
 }
 
@@ -132,31 +133,31 @@ inline float TextureToScreen(float texPos, float screenSize,
 // texture that already holds the entire map, so the only constraint is keeping
 // that window inside the texture.
 //
-// The present computes  src = origin + (S - S/z)/2 - off  and samples S/z of
-// texture, so staying in bounds means 0 <= src and src + S/z <= texSize, i.e.
-//     off <= origin + (S - S/z)/2                     (left/top edge)
-//     off >= origin + (S - S/z)/2 + S/z - texSize     (right/bottom edge)
+// The present computes  src = origin + margin + (S - S/z)/2 - off  and samples
+// S/z of texture, so staying in bounds means 0 <= src and src + S/z <= texSize:
+//     off <= origin + margin + (S - S/z)/2                 (left/top edge)
+//     off >= origin + margin + (S - S/z)/2 + S/z - texSize (right/bottom edge)
 // Returned as [low, high]; low > high when the map is smaller than the viewport
 // (zoomed out past fit), in which case both collapse to the centred position.
-inline float PanLimitHigh(float screenSize, float origin, float zoom)
+inline float PanLimitHigh(float screenSize, float origin, float zoom, float margin = 0.0f)
 {
-	if (zoom <= 0.0f) return origin;
-	return origin + (screenSize - screenSize / zoom) * 0.5f;
+	if (zoom <= 0.0f) return origin + margin;
+	return origin + margin + (screenSize - screenSize / zoom) * 0.5f;
 }
 
-inline float PanLimitLow(float screenSize, float texSize, float origin, float zoom)
+inline float PanLimitLow(float screenSize, float texSize, float origin, float zoom, float margin = 0.0f)
 {
-	if (zoom <= 0.0f) return origin;
-	return PanLimitHigh(screenSize, origin, zoom) + screenSize / zoom - texSize;
+	if (zoom <= 0.0f) return origin + margin;
+	return PanLimitHigh(screenSize, origin, zoom, margin) + screenSize / zoom - texSize;
 }
 
 // Clamp a pan offset into the allowed range, collapsing to the centred value
 // when the visible span exceeds the texture (nothing left to pan).
 inline float ClampPan(float off, float screenSize, float texSize,
-                      float origin, float zoom)
+                      float origin, float zoom, float margin = 0.0f)
 {
-	float const hi = PanLimitHigh(screenSize, origin, zoom);
-	float const lo = PanLimitLow(screenSize, texSize, origin, zoom);
+	float const hi = PanLimitHigh(screenSize, origin, zoom, margin);
+	float const lo = PanLimitLow(screenSize, texSize, origin, zoom, margin);
 	if (lo > hi) return (lo + hi) * 0.5f;
 	if (off > hi) return hi;
 	if (off < lo) return lo;

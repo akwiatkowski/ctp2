@@ -1135,12 +1135,11 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 	// Layered GPU present shows world/UI textures, never the software
 	// secondary — the secondary-to-primary mirror then serves only the
 	// screenshot oracle, which refreshes it synchronously on demand (see the
-	// screenshot handlers in civapp.cpp). Skip the two full-frame software
-	// blits; cursor pickup/mix/restore and the present below still run.
-	// The accumulated dirty union keeps growing while muted; the next
-	// unmuted pass clamps it back to the surface, so that pass is full-frame.
+	// screenshot handlers in civapp.cpp). Only that fullscreen mirror is
+	// skipped here; the per-dirty-rect composite below still runs because it
+	// carries the layer mirrors. Cursor pickup/mix/restore and the present
+	// below still run.
 	bool const oracleMirror = !aui_SDL::LayeredPresentActive();
-
 	if (profiledb_Get() && profiledb_Get()->IsUseDirectXBlitter())
 	{
 		blitFlags = k_AUI_BLITTER_FLAG_COPY;
@@ -1259,7 +1258,13 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 		}
 #endif
 
-		if (!civapp_Get()->IsInBackground() && oracleMirror) // Actual Drawing
+		// Layered present still needs this per-rect composite: BltToSecondary
+		// carries the world/UI layer mirrors (and content versions) the GPU
+		// present samples. Only the fullscreen primary mirror below stays
+		// muted (the screenshot oracle refreshes it on demand). Muting this
+		// too starved every layer surface: black menus live, stale textures
+		// in tests. Cost stays dirty-rect scoped, unlike the primary mirror.
+		if (!civapp_Get()->IsInBackground()) // Actual Drawing
 		{
 			errcode = aui_ui_Get()->BltToSecondary(
 				screenDirtyRect.left,

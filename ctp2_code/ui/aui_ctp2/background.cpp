@@ -216,6 +216,10 @@ void Background::MouseMoveInside(aui_MouseEvent *data)
 	if (tiledmap_Get() != nullptr) {
 		tiledmap_Get()->SetHiliteMouseTile(m_current_mouse_tile);
 		tiledmap_Get()->DrawHilite( TRUE );
+		// The tile cursor is a GPU overlay quad rebuilt in the sprite frame:
+		// without a repaint it freezes where the mouse was. Legacy drew it
+		// directly, so motion never needed to dirty the map.
+		tiledmap_Get()->InvalidateMap();
 	}
 }
 
@@ -249,6 +253,7 @@ void Background::MouseLDragInside( aui_MouseEvent *data )
 	if (tiledmap_Get() != nullptr) {
 		tiledmap_Get()->SetHiliteMouseTile(m_current_mouse_tile);
 		tiledmap_Get()->DrawHilite( TRUE );
+		tiledmap_Get()->InvalidateMap();
 	}
 
 

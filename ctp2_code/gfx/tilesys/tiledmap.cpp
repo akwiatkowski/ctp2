@@ -185,7 +185,7 @@ namespace
                            char const *reason,
                            void (TiledMap::*draw)(aui_Surface *, sint32))
     {
-        static OverlayScratch s_scratch[2];
+        static OverlayScratch s_scratch[3];
         OverlayScratch &scratch = s_scratch[slot];
 
         auto fail = [](char const *reason) {
@@ -257,7 +257,11 @@ namespace
         aui_SDL::GpuSpriteQuad q;
         q.texture = scratch.texture;
         q.sx = 0; q.sy = 0; q.sw = w; q.sh = h;
-        q.dx = 0; q.dy = 0;
+        // Screen-space but drawn in view-relative coords: on the whole-map path the
+        // terrain is centred, so shift by the margin to land on it instead of the
+        // view corner. Legacy presents left-anchored, matching the unshifted draw.
+        bool const centred = aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture();
+        q.dx = centred ? -aui_SDL::WorldmapMarginX() : 0; q.dy = centred ? -aui_SDL::WorldmapMarginY() : 0;
         q.dw = w; q.dh = h;
         q.mirror = false;
         q.alpha = 255;
@@ -451,7 +455,6 @@ TiledMap::TiledMap(MapPoint &size)
 		MBCHAR *    fontSizeString  = stringTable->GetString(1);
 
 		m_font = c3ui_Get()->LoadBitmapFont(fontNameString);
-		Assert(m_font);
 		m_font->SetPointSize(atoi(fontSizeString));
 
 		MBCHAR *    fString         = stringTable->GetString(2);
@@ -2004,6 +2007,10 @@ void TiledMap::DrawHiliteMouseTile(aui_Surface *destSurf)
 
 	DrawHitMask(destSurf, m_hiliteMouseTile);
 }
+void TiledMap::DrawTileCursorOverlay(aui_Surface *surf, sint32 /*layer*/)
+{
+	DrawHiliteMouseTile(surf);
+}
 
 sint32 TiledMap::RecalculateViewRect(RECT &myRect)
 {
@@ -2790,6 +2797,15 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 {
 	Assert(actor != nullptr);
 	if (actor == nullptr) return;
+	// P13 close-out: actor pixel coords are view-relative (MapXY2PixelXY
+	// subtracts the view origin) but are only refreshed on creation/move.
+	// Any later pan, scroll or centering leaves them stale, so sprites
+	// detach from their tiles by exactly the view delta. Reposition from
+	// authoritative state every paint (skipping actors whose action path is
+	// interpolating pixels mid-glide) — idempotent when the view is still,
+	// and correct for both the window and whole-map quad paths.
+	if (!actor->HasActivePath())
+		actor->PositionActor(actor->GetPos());
 
 	if (actor->GetUnitVisibility() & (1 << selitem_Get()->GetVisiblePlayer()))
 	{
@@ -3403,6 +3419,25 @@ sint32 TiledMap::OffsetSprites(RECT *paintRect, sint32 deltaX, sint32 deltaY)
 	return 0;
 }
 
+void TiledMap::PublishWorldmapOrigin() const
+{
+	if (this != tiledmap_Get()) return;
+	sint32 vy = m_mapViewRect.top;
+	sint32 originMapX = m_mapViewRect.left;
+	maputils_TileX2MapXAbs(m_mapViewRect.left, vy, &originMapX);
+	sint32 originX = 0, originY = 0;
+	maputils_MapXY2WorldmapPixelXY(originMapX, vy, &originX, &originY);
+	aui_SDL::SetWorldmapOrigin(originX, originY);
+	aui_SDL::SetWorldmapSpriteBase(originX, originY);
+	sint32 const tileXc = (m_mapViewRect.left + m_mapViewRect.right) / 2;
+	sint32 const rowc = (m_mapViewRect.top + m_mapViewRect.bottom) / 2;
+	sint32 vxc = 0, vyc = 0;
+	maputils_MapXY2PixelXY(maputils_TileX2MapX(tileXc, rowc), rowc, &vxc, &vyc);
+	aui_SDL::SetWorldmapMargin(
+		vxc + GetZoomTilePixelWidth() / 2 - (sint32)aui_SDL::ViewportW() / 2,
+		vyc + GetZoomTilePixelHeight() / 2 - (sint32)aui_SDL::ViewportH() / 2);
+}
+
 void TiledMap::BeginGpuSpriteFrame()
 {
 	aui_SDL::BeginSpriteFrame();
@@ -3414,25 +3449,44 @@ void TiledMap::BeginGpuSpriteFrame()
 	maputils_MapXY2PixelXY(baseX, m_mapViewRect.top, &baseX, &baseY);
 	m_gpuSpriteOffsetX = aui_SDL::WorldContentOffX() - baseX;
 	m_gpuSpriteOffsetY = aui_SDL::WorldContentOffY() - baseY;
-	sint32 mapX, mapY;
-	maputils_TileX2MapXAbs(m_mapViewRect.left, m_mapViewRect.top, &mapX);
-	maputils_MapXY2WorldmapPixelXY(mapX, m_mapViewRect.top, &mapX, &mapY);
-	aui_SDL::SetWorldmapSpriteBase(mapX, mapY);
+	// The present windows the whole-map texture by this origin, but it was
+	// published only at build time — every pan/zoom without a terrain change
+	// then sampled a stale region. Same projection the build publishes,
+	// refreshed per frame next to the sprite base it is defined to equal.
+	PublishWorldmapOrigin();
 }
 
-void TiledMap::EndGpuSpriteFrame()
+void TiledMap::SubmitOverlayQuads()
 {
+	if (this != tiledmap_Get()) return;
+	// Overlay scratch must hold the whole VIEW (drawn in view-relative coords),
+	// not just the screen: the centred window sits inside it by the margin, and
+	// a screen-sized scratch would clip the right/bottom of the visible map.
+	sint32 const overlayW = (m_mapViewRect.right - m_mapViewRect.left + 1) * GetZoomTilePixelWidth();
+	sint32 const overlayH = ((m_mapViewRect.bottom - m_mapViewRect.top) + 2) * GetZoomTilePixelHeight() / 2 + GetZoomTileHeadroom();
 	if (profiledb_Get()->GetShowCityNames()
-	    && (!c3ui_Get() || !AddGpuOverlayQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight(),
+	    && (!c3ui_Get() || !AddGpuOverlayQuad(this, overlayW, overlayH,
 	                                         0, "city-names", &TiledMap::DrawCityNames)))
 		aui_SDL::MarkSpriteFrameIncomplete("city-names");
 
 	if (ScenarioEditor::ShowStartFlags())
 	{
-		if (!c3ui_Get() || !AddGpuOverlayQuad(this, c3ui_Get()->SecondaryWidth(), c3ui_Get()->SecondaryHeight(),
+		if (!c3ui_Get() || !AddGpuOverlayQuad(this, overlayW, overlayH,
 		                                      1, "scenario-start-flags", &TiledMap::DrawStartingLocations))
 			aui_SDL::MarkSpriteFrameIncomplete("scenario-start-flags");
 	}
+	// Tile cursor: the background surface it is drawn on is never presented on
+	// the whole-map path, so submit it as an overlay there (legacy keeps the
+	// direct draw). View-relative coords, margin-shifted with the rest.
+	if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture()
+	    && (!c3ui_Get() || !AddGpuOverlayQuad(this, overlayW, overlayH,
+	                                         2, "tile-cursor", &TiledMap::DrawTileCursorOverlay)))
+		aui_SDL::MarkSpriteFrameIncomplete("tile-cursor");
+}
+
+void TiledMap::EndGpuSpriteFrame()
+{
+	SubmitOverlayQuads();
 	SubmitRenderFixtures();
 	m_buildingGpuSprites = false;
 }
@@ -3778,6 +3832,9 @@ bool TiledMap::GpuFogActive() const
 
 sint32 TiledMap::Refresh()
 {
+	// Fresh view windowing even when the build below aborts early (no tileset
+	// or vision yet): the present must never sample a stale region.
+	PublishWorldmapOrigin();
 	// Headless builds construct a TiledMap with no rendering surface.
 	// Refresh is purely a render-pass; no game state lives here.
 	if (!m_surface) return AUI_ERRCODE_OK;
@@ -3835,8 +3892,13 @@ sint32 TiledMap::Refresh()
 	// path BuildTerrainQuads uses, which only behaves correctly here — after
 	// UnlockSurface. Called from outside a render pass the composite silently
 	// produced empty tiles. Dirty-tracked, so this is free once the map is drawn.
-	if (aui_SDL::GpuWorldmapEnabled())
+	if (aui_SDL::GpuWorldmapEnabled()) {
 		BuildWorldmapQuads();
+		// Selection and other non-paint triggers land here with no sprite
+		// frame following: submit the overlays now or city names and the
+		// tile cursor wait for the next background repaint.
+		SubmitOverlayQuads();
+	}
 
 	return 0;
 }
@@ -4539,14 +4601,9 @@ int TiledMap::BuildWorldmapQuads()
 	// no longer disagree -- and picking, which converts screen -> texture through
 	// the origin and texture -> view-relative through the base, stays correct
 	// because it reads both rather than restating either.
-	{
-		sint32 const vy = m_mapViewRect.top;
-		sint32 originMapX = m_mapViewRect.left;
-		maputils_TileX2MapXAbs(m_mapViewRect.left, vy, &originMapX);
-		sint32 originX = 0, originY = 0;
-		maputils_MapXY2WorldmapPixelXY(originMapX, vy, &originX, &originY);
-		aui_SDL::SetWorldmapOrigin(originX, originY);
-	}
+	// P13 close-out: publish the sprite base from the same view (see
+	// PublishWorldmapOrigin) so present, sprites and picking cannot disagree.
+	PublishWorldmapOrigin();
 
 	// Total across every flush, not just the last one — the count is the
 	// contract this path is tested on ("a pan redraws zero cells").
@@ -5190,6 +5247,11 @@ bool TiledMap::ScrollMapSmooth(sint32 pdeltaX, sint32 pdeltaY)
 
 	RepaintSprites(m_surface, &tempRect, true);
 
+	// Whole-map texture follows the view: newly scrolled-in cells are UNDRAWN
+	// (opaque black) until composited. Dirty-tracked, so steady steps cost a
+	// signature walk. Both callees ignore non-main maps and a disabled path.
+	BuildWorldmapQuads();
+	PublishWorldmapOrigin();
 	return true;
 }
 
@@ -5909,29 +5971,26 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
 	// pick must invert the present's windowing -- not just its pan. Reuses the
 	// exact inverse of the terms the present uses (camera_window.h), so the two
 	// cannot drift apart; the round-trip is unit-tested across the full zoom and
-	// offset range. Texture position minus the published origin is the
-	// view-relative pixel the rest of this function already expects, and at zoom
-	// 1 with no pan it reduces to the legacy value exactly.
-	if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture())
+	// offset range. Screen -> texture inverts the present (origin + margin +
+	// zoom/pan); texture -> view-relative subtracts the sprite base, the
+	// projection the tile builder draws with. On the whole-map path the tile
+	// art sits exactly on the mapping vertex (the headroom "phantom" was fixed
+	// in BuildWorldmapQuads), so the legacy headroom shift below must not fire.
+	bool const worldmapPick = aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture();
+	if (worldmapPick)
 	{
-		float const z = aui_SDL::CameraZoom();
-		float const ox = static_cast<float>(aui_SDL::WorldmapOriginX());
-		float const oy = static_cast<float>(aui_SDL::WorldmapOriginY());
-		// Two different origins are in play here, and using one for both jobs is
-		// what made a click land on the neighbouring tile. ox/oy is where the
-		// present WINDOWS the texture, so it is the right base for the screen ->
-		// texture inversion. But converting texture -> view-relative must
-		// subtract the TRUE texture position of the view's top-left, which is
-		// the sprite base -- the projection the tile builder actually draws
-		// with. The two differ by a fixed (k_TILE_GRID_WIDTH/4, headroom), which
-		// is a quarter tile across and half a row down: enough to select the
-		// wrong tile every time.
-		float const bx = static_cast<float>(aui_SDL::WorldmapSpriteBaseX());
-		float const by = static_cast<float>(aui_SDL::WorldmapSpriteBaseY());
-		x = static_cast<sint32>(camera_window::ScreenToTexture(
-			static_cast<float>(x), aui_SDL::ViewportW(), ox, aui_SDL::CameraOffX(), z) - bx);
-		y = static_cast<sint32>(camera_window::ScreenToTexture(
-			static_cast<float>(y), aui_SDL::ViewportH(), oy, aui_SDL::CameraOffY(), z) - by);
+        // Agree with the CURRENT view even when no repaint has run since it
+        // moved (unit switch, scroll): publish first, invert second.
+        PublishWorldmapOrigin();
+        float const z = aui_SDL::CameraZoom();
+        float const ox = static_cast<float>(aui_SDL::WorldmapOriginX());
+        float const oy = static_cast<float>(aui_SDL::WorldmapOriginY());
+        float const bx = static_cast<float>(aui_SDL::WorldmapSpriteBaseX());
+        float const by = static_cast<float>(aui_SDL::WorldmapSpriteBaseY());
+        x = static_cast<sint32>(camera_window::ScreenToTexture(
+            static_cast<float>(x), aui_SDL::ViewportW(), ox, aui_SDL::CameraOffX(), z, static_cast<float>(aui_SDL::WorldmapMarginX())) - bx);
+        y = static_cast<sint32>(camera_window::ScreenToTexture(
+            static_cast<float>(y), aui_SDL::ViewportH(), oy, aui_SDL::CameraOffY(), z, static_cast<float>(aui_SDL::WorldmapMarginY())) - by);
 	}
 	// P11 2c (ADR-001): the sub-tile GPU pan slides the visible world by CameraOff
 	// while the engine view stays tile-aligned, so a pick must shift by the same
@@ -5948,8 +6007,7 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
             aui_SDL::CameraOffY(), aui_SDL::CameraZoom()));
 	}
 
-	if (!(m_mapViewRect.top & 1)) y -= GetZoomTileHeadroom();
-
+	if (!(m_mapViewRect.top & 1) && !worldmapPick) y -= GetZoomTileHeadroom();
 	MapPoint		pos ((x / width) + m_mapViewRect.left,
                          (y / height) + m_mapViewRect.top/2
                         );

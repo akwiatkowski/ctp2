@@ -471,6 +471,11 @@ void UnitActor::RemoveVision() {
   }
 }
 
+bool UnitActor::HasActivePath() const
+{
+	return m_curAction && m_curAction->GetPath() != nullptr;
+}
+
 void UnitActor::PositionActor(MapPoint const& pos) {
 #ifndef _TEST
   STOMPCHECK();

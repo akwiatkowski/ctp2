@@ -216,6 +216,14 @@ public:
 	// Where the screen's top-left sits inside the whole-map texture, in map
 	// pixels. Published each build by TiledMap; the present windows here.
 	static void SetWorldmapOrigin(int x, int y) { m_worldmapOriginX = x; m_worldmapOriginY = y; }
+	// View margin, in whole-map pixels: how far the visible (screen-centred)
+	// window sits inside the engine view. The view carries scroll margins, so
+	// its corner is NOT the screen corner; every windowing consumer (present,
+	// sprites, pick, readback) must add this after the origin. Published with
+	// the origin; zero when the view fits the screen.
+	static void SetWorldmapMargin(int x, int y) { m_worldmapMarginX = x; m_worldmapMarginY = y; }
+	static int WorldmapMarginX() { return m_worldmapMarginX; }
+	static int WorldmapMarginY() { return m_worldmapMarginY; }
 	// Whole-map pixel that view-relative (0,0) maps to, for SPRITES.
 	//
 	// Same projection as WorldmapOrigin, published separately because it answers
@@ -370,6 +378,8 @@ protected:
 	static int		m_worldmapH;
 	static int		m_worldmapWrapW;
 	static int		m_worldmapOriginX;
+	static int		m_worldmapMarginX;
+	static int		m_worldmapMarginY;
 	static int m_worldmapSpriteBaseX;
 	static int m_worldmapSpriteBaseY;
 	static int		m_worldmapOriginY;

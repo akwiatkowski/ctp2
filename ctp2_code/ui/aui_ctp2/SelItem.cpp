@@ -1167,6 +1167,12 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 				}
 			}
 		}
+		// A new selection can move the view (director CenterMap) and always
+		// changes what the map shows (vision, hilite): re-render, mirroring
+		// the keyboard-select path. Mouse selection never did this, so the
+		// whole-map texture kept the previous selection's content.
+		if (tiledmap_Get())
+			tiledmap_Get()->Refresh();
 		return;
 	}
 

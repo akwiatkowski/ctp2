@@ -40,6 +40,8 @@ int aui_SDL::m_worldmapW = 0;
 int aui_SDL::m_worldmapH = 0;
 int aui_SDL::m_worldmapWrapW = 0;
 int aui_SDL::m_worldmapOriginX = 0;
+int aui_SDL::m_worldmapMarginX = 0;
+int aui_SDL::m_worldmapMarginY = 0;
 int aui_SDL::m_worldmapSpriteBaseX = 0;
 int aui_SDL::m_worldmapSpriteBaseY = 0;
 bool aui_SDL::m_worldmapSpritesOn = true;
@@ -185,8 +187,8 @@ void aui_SDL::PresentWorldmapWindow(SDL_Renderer *renderer,
 
 	float const srcW = viewW / zoom;
 	float       srcH = viewH / zoom;
-	float       srcY = (float) m_worldmapOriginY + (viewH - srcH) * 0.5f - offY;
-	float       srcX = (float) m_worldmapOriginX + (viewW - srcW) * 0.5f - offX;
+	float       srcY = (float) m_worldmapOriginY + (float) m_worldmapMarginY + (viewH - srcH) * 0.5f - offY;
+	float       srcX = (float) m_worldmapOriginX + (float) m_worldmapMarginX + (viewW - srcW) * 0.5f - offX;
 
 	// Y does NOT wrap. The view rect runs past the map at the north and south
 	// edges -- m_mapViewRect.top goes negative up there, so the origin does too
@@ -266,8 +268,8 @@ void aui_SDL::RenderWorldmapSpriteQuads(SDL_Renderer *renderer,
 	// tiles they belong to at every zoom and pan.
 	float const srcW = viewW / zoom;
 	float const srcH = viewH / zoom;
-	float const srcX = (float) m_worldmapOriginX + (viewW - srcW) * 0.5f - offX;
-	float const srcY = (float) m_worldmapOriginY + (viewH - srcH) * 0.5f - offY;
+	float const srcX = (float) m_worldmapOriginX + (float) m_worldmapMarginX + (viewW - srcW) * 0.5f - offX;
+	float const srcY = (float) m_worldmapOriginY + (float) m_worldmapMarginY + (viewH - srcH) * 0.5f - offY;
 
 	for (GpuSpriteQuad const & q : m_spriteDrawList)
 	{
@@ -851,13 +853,13 @@ void aui_SDL::TickCamera(float dtSec)
 	if (GpuWorldmapEnabled() && m_worldmapTexture)
 	{
 		m_panTargetX = camera_window::ClampPan(m_panTargetX, ViewportW(),
-			(float)m_worldmapW, (float)m_worldmapOriginX, m_cameraZoom);
+			(float)m_worldmapW, (float)m_worldmapOriginX, m_cameraZoom, (float)m_worldmapMarginX);
 		m_panTargetY = camera_window::ClampPan(m_panTargetY, ViewportH(),
-			(float)m_worldmapH, (float)m_worldmapOriginY, m_cameraZoom);
+			(float)m_worldmapH, (float)m_worldmapOriginY, m_cameraZoom, (float)m_worldmapMarginY);
 		m_cameraOffX = camera_window::ClampPan(m_cameraOffX, ViewportW(),
-			(float)m_worldmapW, (float)m_worldmapOriginX, m_cameraZoom);
+			(float)m_worldmapW, (float)m_worldmapOriginX, m_cameraZoom, (float)m_worldmapMarginX);
 		m_cameraOffY = camera_window::ClampPan(m_cameraOffY, ViewportH(),
-			(float)m_worldmapH, (float)m_worldmapOriginY, m_cameraZoom);
+			(float)m_worldmapH, (float)m_worldmapOriginY, m_cameraZoom, (float)m_worldmapMarginY);
 	}
 	else
 	{

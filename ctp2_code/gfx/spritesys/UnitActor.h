@@ -139,6 +139,10 @@ class UnitActor : public Actor {
   char const *GpuSpriteFallbackReason() const { return m_gpuSpriteFallbackReason; }
 
   bool IsAnimating() const;
+  // True while a movement/attack action owns pixel positioning (its path
+  // interpolates m_x/m_y per frame). Paint-time repositioning must skip
+  // these actors or movement freezes mid-glide.
+  bool HasActivePath() const;
 
   // GetPos dispatches: when wired to a gs/UnitState (live unit via
   // UnitData, or fog-of-war snapshot via UnseenCell), reads go through

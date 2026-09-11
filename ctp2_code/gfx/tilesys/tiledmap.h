@@ -207,6 +207,17 @@ public:
 	void			DrawHitMask(aui_Surface *surf, const MapPoint &pos, RECT *mapViewRect, RECT *destRect);
 	void			SetHiliteMouseTile(MapPoint &pos);
 	void			DrawHiliteMouseTile(aui_Surface *destSurf);
+	// Overlay-quad entry point: same hilite, drawn into the shared scratch.
+	void			DrawTileCursorOverlay(aui_Surface *surf, sint32 layer);
+	// Publish the whole-map origin + margin for the current view. The present,
+	// sprites and picking all window through these; call after ANY view, zoom
+	// or viewport change (builds alone are not enough -- pans, unit switches
+	// and zooms move the view without rebuilding).
+	void			PublishWorldmapOrigin() const;
+	// Submit the screen-space overlays (city names, start flags, tile cursor)
+	// as GPU quads. Runs in the sprite frame and after Refresh builds, so
+	// overlays track selection/view changes that never start a sprite frame.
+	void			SubmitOverlayQuads();
 
 	void			SetTerrainOverlay(TerrainImprovementRecord *rec,MapPoint &pos,Pixel16 color);
 	void			DrawTerrainOverlay(aui_Surface *destSurf);

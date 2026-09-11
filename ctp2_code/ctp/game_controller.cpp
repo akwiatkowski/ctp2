@@ -4292,6 +4292,17 @@ std::string QueryGpuWorld()
     result["worldmap_sprite_base"] = { aui_SDL::WorldmapSpriteBaseX(), aui_SDL::WorldmapSpriteBaseY() };
     result["worldmap_size"] = { aui_SDL::WorldmapW(), aui_SDL::WorldmapH() };
     result["world_content_off"] = { aui_SDL::WorldContentOffX(), aui_SDL::WorldContentOffY() };
+    if (tiledmap_Get()) {
+        RECT const *vr = tiledmap_Get()->GetMapViewRect();
+        result["view_rect"] = {vr->left, vr->top, vr->right, vr->bottom};
+        sint32 sox = 0, soy = 0;
+        tiledmap_Get()->GetSmoothScrollOffsets(sox, soy);
+        result["smooth_offset"] = {sox, soy};
+        result["zoom_level"] = tiledmap_Get()->GetZoomLevel();
+        result["zoom_tile_wh"] = {tiledmap_Get()->GetZoomTilePixelWidth(),
+                                  tiledmap_Get()->GetZoomTilePixelHeight()};
+        result["worldmap_margin"] = {aui_SDL::WorldmapMarginX(), aui_SDL::WorldmapMarginY()};
+    }
     result["camera"] = { {"zoom", aui_SDL::CameraZoom()},
                          {"off_x", aui_SDL::CameraOffX()},
                          {"off_y", aui_SDL::CameraOffY()} };

@@ -640,8 +640,9 @@ char *DebugMemoryHeap_FastStrdup  (MemoryHeap heap, const char *string)
 	DebugMemory_EnsureInitialised();
 
 	ASSERT (string);
-	copy_of_string = (char *) DebugMemoryHeap_FastMalloc (heap, strlen (string + 1));
-	strcpy (copy_of_string, string);
+	size_t const string_size = strlen (string) + 1;
+	copy_of_string = (char *) DebugMemoryHeap_FastMalloc (heap, string_size);
+	memcpy (copy_of_string, string, string_size);
 
 	LOG ((LOG_DIAG, "FastStrdup: %p, %p", (void*)string, (void*)string));
 
@@ -1871,8 +1872,9 @@ char *DebugMemory_GuardedStrdup  (const char *file, int line, const char *string
 	char  *ptr;
 
 	DebugMemory_EnsureInitialised();
-	ptr = (char *) DebugMemory_GuardedBlockAlloc (file, line, debug_memory->default_heap, strlen (string) + 1, true, FILL_BYTE_STRDUP, debug_memory->open);
-	strcpy (ptr, string);
+	size_t const string_size = strlen (string) + 1;
+	ptr = (char *) DebugMemory_GuardedBlockAlloc (file, line, debug_memory->default_heap, string_size, true, FILL_BYTE_STRDUP, debug_memory->open);
+	memcpy (ptr, string, string_size);
 	return (ptr);
 }
 
@@ -1922,8 +1924,9 @@ char *DebugMemoryHeap_GuardedStrdup  (const char *file, int line, MemoryHeap hea
 
 	DebugMemory_EnsureInitialised();
 
-	ptr = (char *) DebugMemory_GuardedBlockAlloc (file, line, heap, strlen (string) + 1, true, FILL_BYTE_STRDUP, debug_memory->open);
-	strcpy (ptr, string);
+	size_t const string_size = strlen (string) + 1;
+	ptr = (char *) DebugMemory_GuardedBlockAlloc (file, line, heap, string_size, true, FILL_BYTE_STRDUP, debug_memory->open);
+	memcpy (ptr, string, string_size);
 	return (ptr);
 }
 

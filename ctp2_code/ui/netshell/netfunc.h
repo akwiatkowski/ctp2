@@ -75,8 +75,6 @@ enum STATUS {
 
 
 
-static void StringMix(int c, char *mix, char *msg, ...);
-
 
 static char *StringDup(char *s);
 
@@ -431,11 +429,16 @@ public:
 		memcpy(body + size - s, c, s);
 	}
 
-	void Pop(char *c) {
-		size_t const    s = strlen(first) + 1;
-
-		strcpy(c, first);
-		first += s;
+	void Pop(char *c, size_t cap) {
+		Assert(cap > 0);
+		// Bound both directions: read no further than the packet end,
+		// write no further than the caller's buffer.
+		size_t const avail = size_t(body + size - first);
+		size_t const n = strnlen(first, avail);
+		size_t const w = n < cap ? n : cap - 1;
+		memcpy(c, first, w);
+		c[w] = '\0';
+		first += n < avail ? n + 1 : avail;
 	}
 };
 

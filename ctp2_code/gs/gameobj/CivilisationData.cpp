@@ -316,8 +316,8 @@ MBCHAR* CivilisationData::GetPersonalityDescription()
 void CivilisationData::GetPluralCivName(MBCHAR *s)
 {
 	Assert(s!=nullptr) ;
-	// TODO(strlcpy): unknown dst size
-	strcpy(s, m_civilisation_name) ;
+	// dst capacity is the caller's contract; bound the read by the member.
+	strlcpy(s, m_civilisation_name, sizeof(m_civilisation_name)) ;
 }
 
 void CivilisationData::SetPluralCivName(const MBCHAR *s)
@@ -330,8 +330,8 @@ void CivilisationData::SetPluralCivName(const MBCHAR *s)
 void CivilisationData::GetCountryName(MBCHAR *s)
 {
 	Assert(s!=nullptr) ;
-	// TODO(strlcpy): unknown dst size
-	strcpy(s, m_country_name) ;
+	// dst capacity is the caller's contract; bound the read by the member.
+	strlcpy(s, m_country_name, sizeof(m_country_name)) ;
 }
 
 void CivilisationData::SetCountryName(const MBCHAR *s)
@@ -344,8 +344,8 @@ void CivilisationData::SetCountryName(const MBCHAR *s)
 void CivilisationData::GetSingularCivName(MBCHAR *s)
 {
 	Assert(s!=nullptr) ;
-	// TODO(strlcpy): unknown dst size
-	strcpy(s, m_singular_name) ;
+	// dst capacity is the caller's contract; bound the read by the member.
+	strlcpy(s, m_singular_name, sizeof(m_singular_name)) ;
 }
 
 void CivilisationData::SetSingularCivName(const MBCHAR *s)

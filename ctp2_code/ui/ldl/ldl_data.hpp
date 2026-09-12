@@ -95,12 +95,9 @@ class ldl_datablock {
 
 	void Dump(sint32 indent);
 
-	char *GetFullName(char *output);
+	char *GetFullName(char *output, size_t cap);
 
 public:
-
-	// get the full ldl path name
-	bool ContstructFullName( char *szName, ldl_datablock *dbParent, char *result );
 
 	// returns a pointer to the attribute for the given name, error only if bMustExist = TRUE
 	ldl_attribute *GetAttribute(const char *szName);

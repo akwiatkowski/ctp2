@@ -148,7 +148,7 @@ static cmp_t ldlif_compare_blocks(ldl_datablock *b1, ldl_datablock *b2)
 void ldlif_add_block_to_tree(ldl_datablock *block)
 {
 	char fullname[256];
-	block->GetFullName(fullname);
+	block->GetFullName(fullname, sizeof(fullname));
 
 	ldlif_log("Added: %s\n", fullname);
 
@@ -173,7 +173,7 @@ void ldlif_remove_block_from_tree(ldl_datablock *block)
 {
 	Comparable<ldl_datablock *> *myKey;
 	char fullname[256];
-	block->GetFullName(fullname);
+	block->GetFullName(fullname, sizeof(fullname));
 	ldl_datablock dummy(aui_UI::CalculateHash(fullname));
 	myKey = s_blockTree->Delete(&dummy);
 	

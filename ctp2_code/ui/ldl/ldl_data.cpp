@@ -90,30 +90,20 @@ ldl_datablock::~ldl_datablock()
 		ldlif_remove_block_from_tree(this);
 }
 
-char *ldl_datablock::GetFullName(char *output)
+char *ldl_datablock::GetFullName(char *output, size_t cap)
 {
 	if (m_parent)
     {
-		m_parent->GetFullName(output);
-		strcat(output, ".");
-		strcat(output, m_name);
+		m_parent->GetFullName(output, cap);
+		strlcat(output, ".", cap);
+		strlcat(output, m_name, cap);
 	}
     else
     {
-		strcpy(output, m_name);
+		strlcpy(output, m_name, cap);
 	}
 
 	return output;
-}
-
-bool ldl_datablock::ContstructFullName(
-		char *szName,
-		ldl_datablock *dbParent,
-		char *result )
-{
-	GetFullName(result);
-
-	return true;
 }
 
 ldl_attribute *ldl_datablock::GetLastAttribute( )

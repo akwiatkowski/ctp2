@@ -193,35 +193,6 @@ int adialup_willdial()
 
 
 
-void NETFunc::StringMix(int c, char *mix, char *msg, ...) {
-	va_list al;
-	va_start(al, msg);
-	// TODO(phase-2): strcpy → strlcpy — dst is `char *`, capacity unknown at call site
-	strcpy(mix, msg);
-
-	char * arg = va_arg(al, char *);
-	char str[] = "% ";
-
-	for(int i = 1; i <= c; i++) {
-		str[1] = static_cast<char>('0' + i);
-
-		char * next = strstr(mix, str);
-		if(next) {
-			char *tmp = strdup(next + strlen(str));
-			// TODO(phase-2): strcpy → strlcpy — dst is expression (`next + strlen(arg)`), capacity unknown at call site
-			strcpy(next + strlen(arg), tmp);
-			// TODO(phase-2): strncpy → strlcpy — non-standard length argument, requires manual review
-			strncpy(next, arg, strlen(arg));
-			free(tmp);
-		}
-
-		arg = va_arg(al, char *);
-	}
-
-	va_end(al);
-}
-
-
 char *NETFunc::StringDup(char *s) {
     if (!s) return nullptr;
     size_t const len = strlen(s) + 1;
@@ -954,9 +925,9 @@ void NETFunc::AIPlayer::Pack() {
 
 void NETFunc::AIPlayer::Unpack() {
 	first = body;
-	Pop(key.buf);
+	Pop(key.buf, sizeof(key.buf));
 	key.len = static_cast<short>(strlen(key.buf));
-	Pop(name);
+	Pop(name, sizeof(name));
 	Pop(group);
 }
 
@@ -1262,7 +1233,7 @@ void NETFunc::PlayerStat::Unpack() {
 	Pop(hasleft);
 	Pop(isingame);
 	Pop(*(dpid_t *)&key.buf);
-	Pop(name);
+	Pop(name, sizeof(name));
 	Pop(group);
 }
 
@@ -1415,7 +1386,7 @@ void NETFunc::PlayerSetup::Pack() {
 
 void NETFunc::PlayerSetup::Unpack() {
 	first = body;
-	Pop(description);
+	Pop(description, sizeof(description));
 }
 
 NETFunc::STATUS NETFunc::PlayerSetup::Load(FILE *f) {
@@ -1844,7 +1815,7 @@ void NETFunc::GameSetup::Pack() {
 
 void NETFunc::GameSetup::Unpack() {
 	first = body;
-	Pop(description);
+	Pop(description, sizeof(description));
 }
 
 NETFunc::STATUS NETFunc::GameSetup::Send(dp_t *p, dpid_t id, dpid_t from) {

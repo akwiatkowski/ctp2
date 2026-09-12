@@ -618,7 +618,7 @@ aui_Region *aui_Ldl::BuildHierarchyFromRoot(MBCHAR const * rootBlock)
 
 
 	char fullname[256];
-	dataBlock->GetFullName(fullname);
+	dataBlock->GetFullName(fullname, sizeof(fullname));
 
 	aui_Region *    myRegion    = nullptr;
 	AUI_ERRCODE		err         = BuildObjectFromType(objTypeString, fullname, &myRegion);
@@ -684,7 +684,7 @@ AUI_ERRCODE aui_Ldl::BuildHierarchyFromLeaf(ldl_datablock *parent, aui_Region *r
 
 
 		char fullname[256];
-		dataBlock->GetFullName(fullname);
+		dataBlock->GetFullName(fullname, sizeof(fullname));
 
 		aui_Region *    myRegion;
 		AUI_ERRCODE		err = BuildObjectFromType(objTypeString, fullname, &myRegion);
@@ -863,7 +863,7 @@ AUI_ERRCODE aui_Ldl::DeleteHierarchyFromRoot(MBCHAR const * rootBlock)
 		return errcode;
 
 	char fullname[256];
-	dataBlock->GetFullName(fullname);
+	dataBlock->GetFullName(fullname, sizeof(fullname));
 	aui_Region *region = (aui_Region *)GetObject(fullname);
 	Assert(region);
 	if (region) {
@@ -907,7 +907,7 @@ AUI_ERRCODE aui_Ldl::DeleteHierarchyFromLeaf(ldl_datablock *parent)
 		}
 
 		char fullname[256];
-		region = (aui_Region *)GetObject(dataBlock->GetFullName(fullname));
+		region = (aui_Region *)GetObject(dataBlock->GetFullName(fullname, sizeof(fullname)));
 		Assert(region);
 		if (!region)
 			return AUI_ERRCODE_INVALIDPARAM;

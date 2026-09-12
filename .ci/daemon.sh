@@ -113,9 +113,33 @@ while :; do
         pending="$(mise exec -- ninja -C build -n ctp2_fast_tests 2>/dev/null \
                    | grep -vE '^ninja:( no work to do| Entering directory)' || true)"
         if [[ -n "$pending" ]]; then
-            log "tier-a: pending work detected; running"
-            "$CI_ROOT/tiers/tier-a.sh" >> "$LOG_FILE" 2>&1
-            last_tier_a_run=$(date +%s)
+            # Diff-aware routing: a docs-only working-tree diff cannot have
+            # caused compile edges, so the pending work is stale-graph noise
+            # (regen, interrupted build, committed-but-unbuilt HEAD) — but
+            # real compile edges always win over the diff classification,
+            # and a clean diff with pending work still runs (real staleness).
+            changed="$(git status --porcelain=v1 --untracked-files=all 2>/dev/null \
+                       | sed -E 's/^.{3}//; s/.* -> //; s/^"//; s/"$//' || true)"
+            docs_only=0
+            if [[ -n "$changed" ]] \
+               && ! printf '%s\n' "$pending" | grep -qE '\-c .+\.(c|cc|cpp|cxx|mm)\b'; then
+                docs_only=1
+                while IFS= read -r path; do
+                    [[ -z "$path" ]] && continue
+                    case "$path" in
+                        *.md|*.markdown|*.rtf|*.htm|*.html|*.txt|\
+                        .scouts/*|docs/*|.ci/*|.github/*) ;;
+                        *) docs_only=0; break ;;
+                    esac
+                done <<< "$changed"
+            fi
+            if [[ "$docs_only" == "1" ]]; then
+                log "tier-a: pending work but diff is docs-only; skipping"
+            else
+                log "tier-a: pending work detected; running"
+                "$CI_ROOT/tiers/tier-a.sh" >> "$LOG_FILE" 2>&1
+                last_tier_a_run=$(date +%s)
+            fi
         fi
     fi
 

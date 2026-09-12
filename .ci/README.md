@@ -28,7 +28,10 @@ keeps long campaigns practical even when every turn serializes an autosave.
 
 `make ci-start` starts the optional working-tree/commit daemon; `ci-stop`,
 `ci-status`, `ci-watch` and `ci-failures` inspect/control it. The daemon runs
-Tier A after pending builds and Tier B after HEAD changes. The 300-turn Meson
+Tier A after pending builds and Tier B after HEAD changes. Tier A is
+diff-aware: when the working-tree diff is docs-only (`*.md`, `*.txt`,
+`.scouts/`, `docs/`, `.ci/`, `.github/`) and ninja's pending edges contain
+no compiles, the run is skipped — real source changes always trigger it. The 300-turn Meson
 soak is tagged `marathon`; Tier C runs the stronger 500-turn version separately.
 Sanitizer tiers are disabled on commits by default; schedule `mise exec -- make ci-nightly` separately
 with cron or launchd. `ENABLE_TIER_C=1` / `ENABLE_TIER_D=1` explicitly restore

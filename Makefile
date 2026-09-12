@@ -479,6 +479,21 @@ ci-stop:
 ci-status:
 	@if [ -f .ci/state.json ]; then cat .ci/state.json; else echo '{ "overall_status": "unknown" }'; fi
 
+# Install the daemon as a launchd agent (survives reboots, loads at login).
+# Idempotent: regenerates the plist and reloads the agent.
+ci-launchd-install:
+	@mkdir -p .ci/log ~/Library/LaunchAgents
+	@sed "s|__CTP2_ROOT__|$$(pwd)|g" .ci/com.olek.ctp2-ci.plist \
+		> ~/Library/LaunchAgents/com.olek.ctp2-ci.plist
+	@launchctl bootout gui/$$(id -u)/com.olek.ctp2-ci 2>/dev/null || true
+	@launchctl bootstrap gui/$$(id -u) ~/Library/LaunchAgents/com.olek.ctp2-ci.plist
+	@echo "launchd agent installed: ~/Library/LaunchAgents/com.olek.ctp2-ci.plist"
+
+ci-launchd-uninstall:
+	@launchctl bootout gui/$$(id -u)/com.olek.ctp2-ci 2>/dev/null || true
+	@rm -f ~/Library/LaunchAgents/com.olek.ctp2-ci.plist
+	@echo "launchd agent removed"
+
 ci-watch:
 	@tail -f .ci/log/daemon.log
 
@@ -508,7 +523,7 @@ ci-nightly:
         coverage coverage-setup coverage-summary coverage-html run repro \
         timelapse timelapse-render timelapse-caption-smoke \
         gateway gateway-build gateway-test gateway-e2e \
-        ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a ci-tier-b ci-nightly
+        ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a ci-tier-b ci-nightly ci-launchd-install ci-launchd-uninstall
 
 SRCDIRS=\
 	ctp2_code \

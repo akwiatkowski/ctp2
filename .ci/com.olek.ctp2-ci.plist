@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.olek.ctp2-ci</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>__CTP2_ROOT__/.ci/daemon.sh</string>
+	</array>
+	<key>WorkingDirectory</key>
+	<string>__CTP2_ROOT__</string>
+	<!-- Survives reboots (loads at login). No KeepAlive: a killed daemon
+	     stays down so `make ci-stop` keeps working without launchctl. -->
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardOutPath</key>
+	<string>__CTP2_ROOT__/.ci/log/launchd.out</string>
+	<key>StandardErrorPath</key>
+	<string>__CTP2_ROOT__/.ci/log/launchd.err</string>
+</dict>
+</plist>

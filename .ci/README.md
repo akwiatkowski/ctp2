@@ -30,7 +30,10 @@ reconfigured to the requested sanitizer, single-player mode (`anet=false`) and
 keeps long campaigns practical even when every turn serializes an autosave.
 
 `make ci-start` starts the optional working-tree/commit daemon; `ci-stop`,
-`ci-status`, `ci-watch` and `ci-failures` inspect/control it. The daemon runs
+`ci-status`, `ci-watch` and `ci-failures` inspect/control it. To survive
+reboots, `make ci-launchd-install` renders `.ci/com.olek.ctp2-ci.plist` into
+`~/Library/LaunchAgents/` and bootstraps it (RunAtLoad at login; no
+KeepAlive, so `ci-stop` still works). `ci-launchd-uninstall` removes it. The daemon runs
 Tier A after pending builds and Tier B after HEAD changes. Tier A is
 diff-aware: when the working-tree diff is docs-only (`*.md`, `*.txt`,
 `.scouts/`, `docs/`, `.ci/`, `.github/`) and ninja's pending edges contain

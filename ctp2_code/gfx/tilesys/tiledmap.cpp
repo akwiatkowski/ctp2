@@ -814,6 +814,86 @@ AUI_ERRCODE TiledMap::RenderFullMap(aui_Surface *dest, sint32 zoomLevel)
 	return AUI_ERRCODE_OK;
 }
 
+// DrawAllCityLabels -- name + population boxes for EVERY city, in the same
+// full-surface coords RenderFullMap uses (full-map view active while drawing).
+// Simplified DrawCityNames: black name box with player-color frame, white
+// name; population in black on a player-color box left of it. No fog filter.
+void TiledMap::DrawAllCityLabels(aui_Surface *dest, sint32 zoomLevel)
+{
+	World * w = world_Get();
+	if (!dest || !w || !m_tileSet || !m_font) return;
+	if (zoomLevel < 0)              zoomLevel = 0;
+	if (zoomLevel > k_ZOOM_LARGEST) zoomLevel = k_ZOOM_LARGEST;
+
+	sint32 const savedZoom     = m_zoomLevel;
+	RECT const   savedView     = m_mapViewRect;
+	RECT const   savedSurfRect = m_surfaceRect;
+	SetZoomLevel(zoomLevel);
+	sint32 const mw = w->GetXWidth();
+	sint32 const mh = w->GetYHeight();
+	m_mapViewRect.left = 0; m_mapViewRect.top = 0;
+	m_mapViewRect.right = mw; m_mapViewRect.bottom = mh;
+	m_surfaceRect.left = 0; m_surfaceRect.top = 0;
+	m_surfaceRect.right = dest->Width(); m_surfaceRect.bottom = dest->Height();
+
+	sint32 const tw = GetZoomTilePixelWidth();
+	sint32 const hr = GetZoomTileHeadroom();
+	COLORREF const white = colorset_Get()->GetColorRef(COLOR_WHITE);
+	COLORREF const black = colorset_Get()->GetColorRef(COLOR_BLACK);
+	Pixel16 const  black16 = colorset_Get()->GetColor(COLOR_BLACK);
+	for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+		Player * pl = player_Get(p);
+		if (!pl) continue;
+		UnitDynamicArray * cl = pl->GetAllCitiesList();
+		Pixel16 const pcol = colorset_Get()->GetPlayerColor(p);
+		for (sint32 i = 0; cl && i < cl->Num(); ++i) {
+			Unit u = cl->Access(i);
+			if (!u.IsValid() || !u.IsCity()) continue;
+			MapPoint pos;
+			u.GetPos(pos);
+			sint32 x, y;
+			maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y);
+			CityData * cityData = u.GetData() ? u.GetData()->GetCityData() : nullptr;
+			if (!cityData) continue;
+			MBCHAR const * name = cityData->GetName();
+			if (!name || !name[0]) continue;
+			sint32 const wn = m_font->GetStringWidth(name);
+			sint32 const hn = m_font->GetMaxHeight();
+			sint32 const cx = x + tw / 2;
+			sint32 const top = y + hr - hn - 6;
+			RECT rect = { cx - wn / 2, top, cx + (wn + 1) / 2, top + hn };
+			RECT boxRect = rect;
+			InflateRect(&boxRect, 2, 1);
+			RECT clipRect = primitives_GetScreenAdjustedRectCopy(dest, boxRect);
+			primitives_PaintRect16(dest, &clipRect, black16);
+			InflateRect(&boxRect, 1, 1);
+			clipRect = primitives_GetScreenAdjustedRectCopy(dest, boxRect);
+			primitives_FrameRect16(dest, &clipRect, pcol);
+			clipRect = primitives_GetScreenAdjustedRectCopy(dest, rect);
+			m_font->DrawString(dest, &rect, &clipRect, name, 0, white, 0);
+			MBCHAR str[16];
+			snprintf(str, sizeof(str), "%i", cityData->PopCount());
+			sint32 const pw = m_font->GetStringWidth(str);
+			RECT popRect = { 0, 0, pw + 4, hn + 4 };
+			OffsetRect(&popRect, boxRect.left - (pw + 4) - 4, boxRect.top);
+			clipRect = primitives_GetScreenAdjustedRectCopy(dest, popRect);
+			primitives_PaintRect16(dest, &clipRect, pcol);
+			primitives_FrameRect16(dest, &clipRect, black16);
+			RECT numRect = { 0, 0, pw, hn };
+			OffsetRect(&numRect,
+			           popRect.left + (popRect.right - popRect.left) / 2 - pw / 2,
+			           popRect.top + (popRect.bottom - popRect.top) / 2 - hn / 2);
+			clipRect = primitives_GetScreenAdjustedRectCopy(dest, numRect);
+			m_font->DrawString(dest, &numRect, &clipRect, str, 0, black, 0);
+		}
+	}
+
+	m_mapViewRect   = savedView;
+	m_surfaceRect   = savedSurfRect;
+	SetZoomLevel(savedZoom);
+	PublishWorldmapOrigin();
+}
+
 AUI_ERRCODE TiledMap::RenderPlayerView(aui_Surface *dest, sint32 zoomLevel,
                                        sint32 playerIndex, RECT *exploredPixelRect,
                                        std::vector<CityLabel> *cityLabels)

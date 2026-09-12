@@ -551,6 +551,10 @@ public:
 	//                     render state (surface, view rect, zoom, fog) after.
 	void		FullMapPixelSize(sint32 zoomLevel, sint32 *width, sint32 *height);
 	AUI_ERRCODE	RenderFullMap(aui_Surface *dest, sint32 zoomLevel);
+	// Draw EVERY city's name + population boxes onto dest in FULL-SURFACE
+	// coords (same projection RenderFullMap uses), for the labelled export.
+	// No fog filtering: the export is uncovered by design. Restores state.
+	void		DrawAllCityLabels(aui_Surface *dest, sint32 zoomLevel);
 	// One visible city, for the caller to label (name + population) on the
 	// rendered frame. px/py are FULL-SURFACE pixel coords of the city tile.
 	struct CityLabel { sint32 px; sint32 py; sint32 owner; sint32 pop; char name[64]; };

@@ -3439,6 +3439,49 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 #endif
 				}
 			}
+			else if (strncmp(cmd, "render_map_labeled ", 19) == 0) {
+				// render_map_labeled <path> [zoom]
+				// Like render_map (unfogged whole map) plus every city's name +
+				// population boxes drawn at 1:1 surface coords. Leaves render_map
+				// untouched for the timelapse tooling.
+				if (!m_gameLoaded) {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				} else {
+#ifdef USE_SDL
+					char pathBuf[1024] = {0};
+					int  zoom = 5;   // 1:1 native tiles by default here
+					sscanf(cmd + 19, "%1023s %d", pathBuf, &zoom);
+					TiledMap *tm = tiledmap_Get();
+					if (!pathBuf[0]) {
+						smoketest_send_response("error", cmd, "bad_args");
+					} else if (!tm) {
+						smoketest_send_response("error", cmd, "no_map");
+					} else {
+						sint32 SW = 0, SH = 0;
+						tm->FullMapPixelSize(zoom, &SW, &SH);
+						AUI_ERRCODE err = AUI_ERRCODE_OK;
+						aui_SDLSurface *off =
+							new aui_SDLSurface(&err, SW, SH, 16, nullptr, FALSE);
+						if (off && err == AUI_ERRCODE_OK && off->DDS()) {
+							tm->RenderFullMap(off, zoom);
+							tm->DrawAllCityLabels(off, zoom);
+							if (CTP2_SDL_SaveBMP(off->DDS(), pathBuf)) {
+								smoke_log->info("Labeled map rendered to {} ({}x{} zoom {})",
+								                pathBuf, SW, SH, zoom);
+								smoketest_send_response("ok", cmd, nullptr);
+							} else {
+								smoketest_send_response("error", cmd, "sdl_save_failed");
+							}
+						} else {
+							smoketest_send_response("error", cmd, "surface_alloc_failed");
+						}
+						delete off;
+					}
+#else
+					smoketest_send_response("error", cmd, "not_sdl");
+#endif
+				}
+			}
 			else if (strncmp(cmd, "render_map_player ", 18) == 0) {
 				// render_map_player <player> <path> [zoom]
 				// Fogged, cropped-to-explored isometric render from ONE empire's

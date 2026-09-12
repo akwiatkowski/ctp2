@@ -86,6 +86,9 @@ def main():
     ap.add_argument("--log-dir", default="/tmp/ctp2_seed_sweep")
     args = ap.parse_args()
 
+    if args.count <= 0:
+        ap.error("--count must be >= 1")
+
     os.makedirs(args.log_dir, exist_ok=True)
     seeds = [SEED_BASE + i for i in range(args.count)]
     print(f"[seed-sweep] {args.binary}: seeds {seeds[0]}..{seeds[-1]}, "

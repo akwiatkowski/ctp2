@@ -192,7 +192,7 @@ def main():
         with Ctp2Client(args.binary, "headless", players=PLAYERS, seed=42,
                         timeout=240, log_path=log) as client:
             run(client, args.rounds)
-    except (Ctp2Error, AssertionError) as e:
+    except (Ctp2Error, AssertionError, TimeoutError) as e:
         print(f"[long-game] FAIL: {e}")
         print(f"[long-game] see game log: {log}")
         return 1

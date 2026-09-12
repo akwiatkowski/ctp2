@@ -426,6 +426,41 @@ std::string CmdEndTurn(const char * args)
     return Ok("end_turn", result);
 }
 
+// enable_autoplay — flip every live slot to AI. Same effect as the UI-only
+// smoketest verb of the same name; this one lives in the shared dispatch so
+// headless soak drivers (which never pass through civapp) can use it.
+std::string CmdEnableAutoplay()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("enable_autoplay", "game_not_loaded");
+
+    sint32 flipped = 0;
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        if (player_Get(p)) {
+            player_Get(p)->m_playerType = PLAYER_TYPE_ROBOT;
+            ++flipped;
+        }
+    }
+    json result;
+    result["flipped"] = flipped;
+    return Ok("enable_autoplay", result);
+}
+
+// set_difficulty <0-5> — profile difficulty for the NEXT new game (Deity=5).
+// GameSettings reads the profile at setup; calling mid-game only affects
+// the next game. Trial tooling sets this before new_game.
+std::string CmdSetDifficulty(const char * args)
+{
+    int level = -1;
+    if (sscanf(args, "%d", &level) != 1 || level < 0 || level > 5)
+        return Err("set_difficulty", "bad_args");
+
+    profiledb_Get()->SetDifficulty((uint32) level);
+    json result;
+    result["difficulty"] = profiledb_Get()->GetDifficulty();
+    return Ok("set_difficulty", result);
+}
+
 std::string CmdSetShowCityNames(const char * args)
 {
     int on = 0;
@@ -2151,6 +2186,30 @@ json CityJson(sint32 owner, sint32 city_idx, const Unit & u)
         }
     }
     return c;
+}
+
+// query_all_cities — every city of every player, no fog filter. Trial and
+// observer tooling (an all-AI game has no meaningful human viewpoint).
+std::string QueryAllCities()
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("query_all_cities", "game_not_loaded");
+
+    json cities = json::array();
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        if (!player_Get(p)) continue;
+        UnitDynamicArray * list = player_Get(p)->GetAllCitiesList();
+        if (!list) continue;
+        for (sint32 i = 0; i < list->Num(); ++i) {
+            Unit u = list->Access(i);
+            if (!u.IsValid()) continue;
+            cities.push_back(CityJson(p, i, u));
+        }
+    }
+
+    json result;
+    result["cities"] = cities;
+    return Ok("query_all_cities", result);
 }
 
 // query_cities — every city visible to the human (fog-of-war filtered).
@@ -3910,7 +3969,6 @@ std::string QueryWorld()
 // whole game state with no fog-of-war filtering. They exist for the gateway's
 // admin panel and debugging — a driver that wants the player's perspective
 // must use the query_* family instead.
-
 // One player slot, shared by query_players and query_player so the two can
 // never drift apart.
 json PlayerJson(sint32 p, Player * pl)
@@ -3950,6 +4008,43 @@ json PlayerJson(sint32 p, Player * pl)
     j["num_armies"] = pl->GetAllArmiesList() ? pl->GetAllArmiesList()->Num() : 0;
     j["government"] = pl->GetGovernmentType();
     j["score"]      = pl->m_score ? pl->m_score->GetTotalScore() : 0;
+    // Science position for AI-trial tracking: tech count, current research,
+    // and the owned advance set (diff it across polls for last-completed).
+    j["num_advances"] = pl->NumAdvances();
+    {
+        json res;
+        sint32 researching = -1;
+        if (pl->m_advances) researching = pl->m_advances->GetResearching();
+        res["id"] = researching;
+        if (researching >= 0 && g_theAdvanceDB &&
+            researching < g_theAdvanceDB->NumRecords()) {
+            const AdvanceRecord * r = g_theAdvanceDB->Get(researching);
+            res["name"] = r ? ToUtf8(r->GetNameText()) : "";
+        }
+        j["researching"] = res;
+        json owned = json::array();
+        if (pl->m_advances && g_theAdvanceDB) {
+            for (sint32 i = 0; i < g_theAdvanceDB->NumRecords(); ++i) {
+                if (!pl->m_advances->HasAdvance(i)) continue;
+                const AdvanceRecord * r = g_theAdvanceDB->Get(i);
+                owned.push_back({ {"id", i},
+                                  {"name", r ? ToUtf8(r->GetNameText()) : ""} });
+            }
+        }
+        j["advances"] = owned;
+    }
+    // Wonders held across all cities (bitmask popcount per city).
+    {
+        sint32 wonders = 0;
+        UnitDynamicArray * cl = pl->GetAllCitiesList();
+        for (sint32 i = 0; cl && i < cl->Num(); ++i) {
+            Unit u = cl->Access(i);
+            if (!u.IsValid() || !u.IsCity() || !u.GetData()) continue;
+            CityData * cd = u.GetData()->GetCityData();
+            if (cd) wonders += __builtin_popcountll(cd->GetBuiltWonders());
+        }
+        j["num_wonders"] = wonders;
+    }
     // Economic rate dials the UI exposes but the API long ignored: the
     // science<->gold commerce split and the workday/wages/rations social
     // sliders. `expectation` is the government's neutral level for each slider
@@ -4318,8 +4413,10 @@ std::string Dispatch(const std::string & line, bool & handled)
     handled = true;
 
     if (line == "build_city")                                  return CmdBuildCity();
+    if (line == "enable_autoplay")                             return CmdEnableAutoplay();
     if (line.rfind("end_turn", 0) == 0)                         return CmdEndTurn(line.c_str() + 8);
     if (line.rfind("set_show_city_names ", 0) == 0)             return CmdSetShowCityNames(line.c_str() + 20);
+    if (line.rfind("set_difficulty ", 0) == 0)                  return CmdSetDifficulty(line.c_str() + 15);
     if (line.rfind("debug_terrain_overlay ", 0) == 0)           return CmdDebugTerrainOverlay(line.c_str() + 22);
     if (line.rfind("debug_set_terrain ", 0) == 0)               return CmdDebugSetTerrain(line.c_str() + 18);
     if (line.rfind("debug_clear_rivers ", 0) == 0)              return CmdDebugClearRivers(line.c_str() + 19);
@@ -4363,6 +4460,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line == "log_get")                                      return CmdLogGet();
     if (line == "log_clear")                                    return CmdLogClear();
     if (line == "query_cities")                                 return QueryCities();
+    if (line == "query_all_cities")                             return QueryAllCities();
     if (line.rfind("query_city ", 0) == 0)                      return QueryCity(line.c_str() + 11);
     if (line == "query_city")                                   return QueryCity("");
     if (line == "query_units")                                  return QueryUnits();

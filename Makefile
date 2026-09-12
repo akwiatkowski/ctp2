@@ -27,6 +27,10 @@
 #   Every pixel oracle for the renderer. The only tests that look at a
 #   presented frame; run after touching gfx/ or ui/aui_sdl/.
 #
+# trial
+#   Very long all-AI soak (8 players, Deity): status table every 10s with
+#   turn, cities + best, units, tech level + researching/last, wonders.
+#
 # test-p13
 #   Whole-map transition parity (its own suite, not in test-full).
 #
@@ -135,6 +139,16 @@ release:
 release-check: release
 	mise exec -- python3 ctp2_code/test/scenario_long_game.py build-release/ctp2_headless
 	mise exec -- python3 ctp2_code/test/scenario_seed_sweep.py build-release/ctp2_headless --count 20 --turns 60 --players 6
+
+# trial: very long all-AI soak tracking tech progress per player.
+# 8 AI players at Deity, status table every 10s (turn, cities + best,
+# units, tech level + researching/last completed, wonders). Override via
+# env, e.g. TRIAL_TURNS=100 TRIAL_PLAYERS=4 make trial (TRIAL_BINARY,
+# TRIAL_TURNS, TRIAL_PLAYERS, TRIAL_SEED, TRIAL_DIFFICULTY,
+# TRIAL_STATUS_EVERY, TRIAL_BATCH, TRIAL_TIMEOUT). Uses the debug headless
+# binary so AI asserts and crashes surface instead of being optimized away.
+trial: build
+	mise exec -- python3 ctp2_code/test/ai_trial.py build/ctp2_headless
 
 seed-sweep: release
 	mise exec -- python3 ctp2_code/test/scenario_seed_sweep.py build-release/ctp2_headless --count 20 --turns 60 --players 6

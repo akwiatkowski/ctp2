@@ -527,7 +527,7 @@ static inline void Log_MiddleToFile (char *message)
 	}
 }
 
-static inline void Log_MiddleCreateMessage (char *message, const char *message_text, LogClass log_class)
+static inline void Log_MiddleCreateMessage (char *message, size_t message_size, const char *message_text, LogClass log_class)
 {
 	int elapsed_time;
 	char *adjusted_text;
@@ -561,7 +561,7 @@ static inline void Log_MiddleCreateMessage (char *message, const char *message_t
 		}
 	}
 
-	sprintf (message, "[%12s::%15s::%5d@%7d] %s",
+	snprintf (message, message_size, "[%12s::%15s::%5d@%7d] %s",
 		log_class,
 		adjusted_module_scan,
 		logging->module_line,
@@ -596,10 +596,10 @@ void __cdecl Log_Middle (LogClass log_class, const char *format, ...)
 
 
 			va_start (variable_argument_list, format);
-			vsprintf (message_text, format, variable_argument_list);
+			vsnprintf (message_text, sizeof(message_text), format, variable_argument_list);
 			va_end (variable_argument_list);
 
-			Log_MiddleCreateMessage (message, message_text, log_class);
+			Log_MiddleCreateMessage (message, sizeof(message), message_text, log_class);
 
 			Log_MiddleToFile (message);
 			Log_MiddleToDebugger (message);

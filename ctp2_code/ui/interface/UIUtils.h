@@ -19,8 +19,3 @@ extern void BlockPop(MBCHAR *path) ;
 void ui_TruncateString( aui_Control *control, MBCHAR *str );
 
 MBCHAR *uiutils_ChooseLdl(MBCHAR *firstChoice, MBCHAR *fallback);
-
-
-
-
-MBCHAR *uiutils_AppendBlock(MBCHAR *destString, MBCHAR *srcString1, MBCHAR *srcString2);

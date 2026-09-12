@@ -151,28 +151,26 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
 
     LPCTSTR  szTmp = (module) ? (LPCTSTR) module : (LPCTSTR) "CTP 2";
 
+	size_t const titleChars = lstrlen(szTmp) + lstrlen(szTitleText) +
+	                          lstrlen(fmt) + 33000;
 #if defined(WIN32)
-	if ((szTitle = (LPTSTR)LocalAlloc(LMEM_FIXED, (lstrlen(szTmp) +
-			lstrlen(szTitleText) + lstrlen(fmt) + 33000)*sizeof(TCHAR))) == NULL)
+	if ((szTitle = (LPTSTR)LocalAlloc(LMEM_FIXED, titleChars*sizeof(TCHAR))) == NULL)
 		return;
 
    wsprintf(szTitle, szTitleText, szTmp);
 #else
-   if ((szTitle = (LPTSTR)malloc((lstrlen(szTmp) + lstrlen(szTitleText) +
-                                  lstrlen(fmt) + 33000
-                                 )*sizeof(TCHAR)
-                                )
+   if ((szTitle = (LPTSTR)malloc(titleChars*sizeof(TCHAR))
        ) == nullptr)
       return;
 
-   sprintf(szTitle, szTitleText, szTmp);
+   snprintf(szTitle, titleChars, szTitleText, szTmp);
 #endif
 
 	LPTSTR  szFmtTmp    = szTitle + lstrlen(szTitle) + 2;
 
 	va_list list;
 	va_start(list, fmt);
-	vsprintf(szFmtTmp, fmt, list);
+	vsnprintf(szFmtTmp, titleChars - (lstrlen(szTitle) + 2), fmt, list);
 	char Tmp[2000];
 	snprintf(Tmp, sizeof(Tmp), "%s\n\nContinue?", szFmtTmp);
 	va_end(list);

@@ -71,9 +71,3 @@ MBCHAR *uiutils_ChooseLdl(MBCHAR *firstChoice, MBCHAR *fallback)
 }
 
 
-MBCHAR *uiutils_AppendBlock(MBCHAR *destString, MBCHAR *srcString1, MBCHAR *srcString2)
-{
-	sprintf(destString, "%s.%s", srcString1, srcString2);
-
-	return destString;
-}

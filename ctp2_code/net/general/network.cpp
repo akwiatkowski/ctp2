@@ -2455,7 +2455,7 @@ void Network::SendChatText(MBCHAR *str, sint32 len)
 					if(player_Get(i)->m_networkGroup == player_Get(m_playerIndex)->m_networkGroup) {
 						char civname[1024];
 						player_Get(i)->m_civilisation->GetSingularCivName(civname);
-						sprintf(buf + strlen(buf), "%s(%s)  ",
+						snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s(%s)  ",
 								player_Get(i)->m_civilisation->GetLeaderName(),
 								civname);
 					}

@@ -14,6 +14,7 @@ def main() -> int:
         "advances": {"7": "Bronze Working"},
         "buildings": {"3": "Granary"},
         "wonders": {"5": "Stonehenge"},
+        "units": {"11": "Legion"},
     }
     events = [
         {"event": "GrantAdvance", "player": 1, "args": [{"kind": "advance", "value": 7}]},
@@ -28,6 +29,30 @@ def main() -> int:
     assert "Granary" in rendered_text
     assert "Stonehenge" in rendered_text
     assert "MoveOrder" not in rendered_text
+
+    # "what+where" enrichment: KillUnit resolves the unit id, and location
+    # args resolve to a known city name instead of raw coords.
+    cities = [{"owner": 1, "x": 10, "y": 10, "pop": 4, "name": "Rome"}]
+    ev2 = [
+        {"event": "KillUnit", "player": 0,
+         "args": [{"kind": "unit", "value": 11}]},
+        {"event": "CreateBuilding", "player": 1,
+         "args": [{"kind": "int", "value": 3},
+                  {"kind": "location", "x": 10, "y": 10}]},
+        {"event": "ImprovementComplete", "player": 1,
+         "args": [{"kind": "int", "value": 1},
+                  {"kind": "location", "x": 12, "y": 11}]},
+    ]
+    text2 = "\n".join(t for _, t in render.frame_captions(ev2, names, cities))
+    assert "Legion" in text2
+    assert "Granary in Rome" in text2
+    assert "near Rome" in text2
+    # Far-away unknown location falls back to coords
+    ev3 = [{"event": "CreateBuilding", "player": 1,
+            "args": [{"kind": "int", "value": 3},
+                     {"kind": "location", "x": 99, "y": 99}]}]
+    text3 = "\n".join(t for _, t in render.frame_captions(ev3, names, cities))
+    assert "at 99,99" in text3
 
     frame = {
         "turn": 12,

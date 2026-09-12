@@ -3937,6 +3937,7 @@ std::string QueryWorld()
             u.GetPos(pos);
             CityData * cd = u.GetData() ? u.GetData()->GetCityData() : nullptr;
             cities.push_back({ {"owner", p}, {"x", pos.x}, {"y", pos.y},
+                               {"name", ToUtf8(u.GetName())},
                                {"pop", cd ? cd->PopCount() : 0} });
         }
 

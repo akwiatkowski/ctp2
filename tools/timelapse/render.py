@@ -127,49 +127,70 @@ def first_arg(args, kind):
     return None
 
 
-def location_text(args):
+def location_text(args, cities=None):
     loc = first_arg(args, "location")
     if not loc:
         return None
-    return f"at {loc.get('x')},{loc.get('y')}"
+    lx, ly = loc.get("x"), loc.get("y")
+    if lx is None or ly is None:
+        return None
+    # Resolve raw coords to a city name when one is known this frame —
+    # "in Rome" / "near Rome" reads better than "at 42,17".
+    best, best_d = None, None
+    for c in cities or []:
+        d = abs(c["x"] - lx) + abs(c["y"] - ly)
+        if best_d is None or d < best_d:
+            best, best_d = c, d
+    if best is not None and best_d <= 4:
+        cname = best.get("name")
+        if cname:
+            return f"in {cname}" if best_d == 0 else f"near {cname}"
+    return f"at {lx},{ly}"
 
 
-def event_detail(event, args, names):
+def event_detail(event, args, names, cities=None):
     """Best-effort object/place text from the generic action-log args."""
     if event == "GrantAdvance":
         adv = first_arg(args, "advance") or first_arg(args, "int")
         name = lookup_name(names, "advances", arg_ident(adv))
+        return f": {name}" if name else ""
+    if event == "KillUnit":
+        unit = first_arg(args, "unit") or first_arg(args, "int")
+        name = lookup_name(names, "units", arg_ident(unit))
         return f": {name}" if name else ""
     if event == "CreateBuilding":
         # Building completion events carry the building id as an int in current
         # logs; keep this event-specific so unrelated ints are not mislabeled.
         bid = arg_ident(first_arg(args, "int"))
         name = lookup_name(names, "buildings", bid)
-        return f": {name}" if name else ""
+        where = location_text(args, cities)
+        return (f": {name}" if name else "") + (f" {where}" if where else "")
     if event == "CreateWonder":
         wonder = first_arg(args, "wonder") or first_arg(args, "int")
         name = lookup_name(names, "wonders", arg_ident(wonder))
-        return f": {name}" if name else ""
+        where = location_text(args, cities)
+        return (f": {name}" if name else "") + (f" {where}" if where else "")
     if event == "ImprovementComplete":
         # The terrain-improvement type is the output int; the improvement arg is
         # the placed object id and does not index the TerrainImprovement DB.
         imp = first_arg(args, "int") or first_arg(args, "improvement")
         name = lookup_name(names, "terrain_improvements", arg_ident(imp))
-        return f": {name}" if name else ""
+        where = location_text(args, cities)
+        return (f": {name}" if name else "") + (f" {where}" if where else "")
     if event == "CreateCity":
-        where = location_text(args)
+        where = location_text(args, cities)
         return f" {where}" if where else ""
     return ""
 
 
-def frame_captions(events, names=None):
+def frame_captions(events, names=None, cities=None):
     """This frame's events -> [(player_id, text)], curated beats only (max 3)."""
     picked = []
     for e in events or []:
         event = e.get("event")
         cap = EVENT_CAPTIONS.get(event)
         if cap:
-            detail = event_detail(event, e.get("args"), names)
+            detail = event_detail(event, e.get("args"), names, cities)
             picked.append((cap[0], e.get("player"), cap[1] + detail))
     picked.sort(key=lambda x: x[0])                # by priority
     return [(pid, verb) for _, pid, verb in picked[:3]]
@@ -271,7 +292,7 @@ def render_frame(frame, pal, protagonist, show_year, civ_by_pid, fonts, names=No
     cap_y = H * TILE
     draw.rectangle([0, cap_y, img_w, img_h], fill=(8, 9, 13))
     draw.text((12, cap_y + 8), "CHRONICLE", font=font_cap, fill=(120, 130, 150))
-    evs = frame_captions(frame.get("events"), names)
+    evs = frame_captions(frame.get("events"), names, frame.get("cities"))
     if evs:
         ty = cap_y + 8
         for pid, verb in evs:
@@ -358,7 +379,7 @@ def render_realart_frame(frame, show_year, civ_by_pid, protagonist, fonts, union
     cap_y = img.height - CAP_H
     draw.rectangle([0, cap_y, img.width, img.height], fill=(8, 9, 13))
     draw.text((12, cap_y + 8), "CHRONICLE", font=font_cap, fill=(120, 130, 150))
-    evs = frame_captions(frame.get("events"), names)
+    evs = frame_captions(frame.get("events"), names, frame.get("cities"))
     if evs:
         ty = cap_y + 8
         for pid, verb in evs:

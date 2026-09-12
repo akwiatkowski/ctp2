@@ -79,6 +79,8 @@
 #include "gs/utility/UnitDynArr.h"
 #include "ctp/ctp2_utils/BitMask.h"
 #include "CivilisationRecord.h"
+#include "gs/gameobj/GameSettings.h"
+#include "gs/database/profileDB.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -291,6 +293,11 @@ TEST_CASE("json_save: LoadJson rejects oversized files before parsing")
 
 TEST_CASE("json round-trip: GameSettings preserves all 7 scalar fields")
 {
+    // GameSettings' ctor reads profiledb_Get() — provide one headlessly.
+    // The ProfileDB ctor already sets sane defaults; Init() needs
+    // civpaths_Get() which this binary never initialises.
+    if (!profiledb_Get())
+        profiledb_Set(new ProfileDB());
     GameSettings orig;
     // Drive non-default values via the public setters that exist;
     // the bridge accesses the private members via friend declaration.
@@ -318,6 +325,8 @@ TEST_CASE("json round-trip: GameSettings preserves all 7 scalar fields")
 
 TEST_CASE("json round-trip: GameSettings key set is exactly the locked 7")
 {
+    if (!profiledb_Get())
+        profiledb_Set(new ProfileDB());
     GameSettings gs;
     nlohmann::json j = gs;
     CHECK(j.size() == 7);

@@ -53,6 +53,64 @@ namespace {
 auto headless_log = civlog::Get("headless");
 }  // namespace
 
+// Write one metrics snapshot (PLAYERS + CITIES sections) to fp.
+// Used for the end-state --export-metrics dump and, when
+// --metrics-interval is set, for the per-round timeline (each snapshot
+// preceded by a "# TURN n" marker so parsers can split rounds).
+static void write_metrics(FILE *fp)
+{
+    // --- per-player section ---
+    std::fprintf(fp, "# PLAYERS\n");
+    std::fprintf(fp, "player_idx,leader_name,is_dead,total_score,"
+                     "gold,num_cities\n");
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        if (!player_Get(p)) continue;
+        const char *name = player_Get(p)->GetLeaderName();
+        if (!name) name = "";
+        sint32 score = player_Get(p)->m_score
+                     ? player_Get(p)->m_score->GetTotalScore() : 0;
+        sint32 gold     = player_Get(p)->GetGold();
+        sint32 nCities  = player_Get(p)->GetNumCities();
+        std::fprintf(fp, "%d,%s,%s,%d,%d,%d\n",
+                     (int)p, name,
+                     player_Get(p)->IsDead() ? "yes" : "no",
+                     (int)score, (int)gold, (int)nCities);
+    }
+
+    // --- per-city section ---
+    // visible_owner / explored_owner: queried against the city
+    // owner's m_vision at the city tile.  A founded city must
+    // be visible to its own owner, otherwise the UI renders
+    // it fogged and the cell can't be clicked.  See
+    // test_city_visibility.cpp.
+    std::fprintf(fp, "\n# CITIES\n");
+    std::fprintf(fp, "player_idx,city_name,pos_x,pos_y,population,"
+                     "visible_owner,explored_owner\n");
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+        if (!player_Get(p)) continue;
+        UnitDynamicArray *cities = player_Get(p)->GetAllCitiesList();
+        if (!cities) continue;
+        for (sint32 ci = 0; ci < cities->Num(); ++ci) {
+            Unit u = cities->Access(ci);
+            const char *cname = u.GetName();
+            if (!cname) cname = "";
+            MapPoint pos;
+            u.GetPos(pos);
+            CityData *cd = u.GetCityData();
+            sint32 pop = cd ? cd->PopCount() : 0;
+            bool visible  = player_Get(p)->m_vision &&
+                            player_Get(p)->m_vision->IsVisible(pos);
+            bool explored = player_Get(p)->m_vision &&
+                            player_Get(p)->m_vision->IsExplored(pos);
+            std::fprintf(fp, "%d,%s,%d,%d,%d,%s,%s\n",
+                         (int)p, cname,
+                         (int)pos.x, (int)pos.y, (int)pop,
+                         visible  ? "yes" : "no",
+                         explored ? "yes" : "no");
+        }
+    }
+}
+
 static void print_usage(const char *prog)
 {
     fprintf(stderr,
@@ -71,6 +129,8 @@ static void print_usage(const char *prog)
         "  --json-load PATH        Overlay JSON savegame onto --new-game state\n"
         "  --export-metrics PATH   After running turns, dump per-player and per-city\n"
         "                          metrics as CSV to PATH (or '-' for stdout)\n"
+        "  --metrics-interval N    With --export-metrics, also write a snapshot\n"
+        "                          every N rounds, each marked '# TURN <round>'\n"
         "  --help                  Show this message\n",
         prog);
 }
@@ -92,6 +152,7 @@ int main(int argc, char **argv)
     const char *saveGamePath = nullptr;
     const char *loadGamePath = nullptr;
     const char *exportMetricsPath = nullptr;
+    sint32 metricsInterval = 0;
     // Phase A scaffold flag — writes the JSON skeleton header
     // ({"magic": "CTP2-JSON", "schema_version": 1}) after turns
     // complete.  Hidden from --help on purpose; not yet a real save
@@ -119,6 +180,8 @@ int main(int argc, char **argv)
             loadGamePath = argv[++i];
         } else if (strcmp(argv[i], "--export-metrics") == 0 && i + 1 < argc) {
             exportMetricsPath = argv[++i];
+        } else if (strcmp(argv[i], "--metrics-interval") == 0 && i + 1 < argc) {
+            metricsInterval = atoi(argv[++i]);
         } else if (strcmp(argv[i], "--json-save") == 0 && i + 1 < argc) {
             jsonSavePath = argv[++i];
         } else if (strcmp(argv[i], "--json-load") == 0 && i + 1 < argc) {
@@ -364,11 +427,33 @@ int main(int argc, char **argv)
             headless_log->info("Loaded — running {} turns", maxTurns);
         }
 
+        // Open the metrics file early when a timeline is requested so the
+        // per-round snapshots can stream into it during the turn loop.
+        FILE *metricsFp = nullptr;
+        if (exportMetricsPath && metricsInterval > 0) {
+            metricsFp = (strcmp(exportMetricsPath, "-") == 0)
+                ? stdout
+                : std::fopen(exportMetricsPath, "w");
+            if (!metricsFp)
+                headless_log->error("Could not open {} for writing",
+                                    exportMetricsPath);
+        }
+
         // Run turns
         for (sint32 t = 0; t < maxTurns; ++t) {
             headless_log->info("Turn {} / {}", t + 1, maxTurns);
             // A resumed game continues its saved clock, not the CLI loop index.
             game_controller::RunRound(turn_Get()->GetSessionRound(), nullptr);
+            if (metricsFp && (t + 1) % metricsInterval == 0) {
+                std::fprintf(metricsFp, "# TURN %d\n",
+                             (int)turn_Get()->GetSessionRound());
+                write_metrics(metricsFp);
+            }
+        }
+        if (metricsFp) {
+            if (metricsFp != stdout) std::fclose(metricsFp);
+            metricsFp = nullptr;
+            exportMetricsPath = nullptr;  // timeline already written
         }
 
         headless_log->info("Completed {} turns", maxTurns);
@@ -393,57 +478,7 @@ int main(int argc, char **argv)
             if (!fp) {
                 headless_log->error("Could not open {} for writing", exportMetricsPath);
             } else {
-                // --- per-player section ---
-                std::fprintf(fp, "# PLAYERS\n");
-                std::fprintf(fp, "player_idx,leader_name,is_dead,total_score,"
-                                 "gold,num_cities\n");
-                for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
-                    if (!player_Get(p)) continue;
-                    const char *name = player_Get(p)->GetLeaderName();
-                    if (!name) name = "";
-                    sint32 score = player_Get(p)->m_score
-                                 ? player_Get(p)->m_score->GetTotalScore() : 0;
-                    sint32 gold     = player_Get(p)->GetGold();
-                    sint32 nCities  = player_Get(p)->GetNumCities();
-                    std::fprintf(fp, "%d,%s,%s,%d,%d,%d\n",
-                                 (int)p, name,
-                                 player_Get(p)->IsDead() ? "yes" : "no",
-                                 (int)score, (int)gold, (int)nCities);
-                }
-
-                // --- per-city section ---
-                // visible_owner / explored_owner: queried against the city
-                // owner's m_vision at the city tile.  A founded city must
-                // be visible to its own owner, otherwise the UI renders
-                // it fogged and the cell can't be clicked.  See
-                // test_city_visibility.cpp.
-                std::fprintf(fp, "\n# CITIES\n");
-                std::fprintf(fp, "player_idx,city_name,pos_x,pos_y,population,"
-                                 "visible_owner,explored_owner\n");
-                for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
-                    if (!player_Get(p)) continue;
-                    UnitDynamicArray *cities = player_Get(p)->GetAllCitiesList();
-                    if (!cities) continue;
-                    for (sint32 ci = 0; ci < cities->Num(); ++ci) {
-                        Unit u = cities->Access(ci);
-                        const char *cname = u.GetName();
-                        if (!cname) cname = "";
-                        MapPoint pos;
-                        u.GetPos(pos);
-                        CityData *cd = u.GetCityData();
-                        sint32 pop = cd ? cd->PopCount() : 0;
-                        bool visible  = player_Get(p)->m_vision &&
-                                        player_Get(p)->m_vision->IsVisible(pos);
-                        bool explored = player_Get(p)->m_vision &&
-                                        player_Get(p)->m_vision->IsExplored(pos);
-                        std::fprintf(fp, "%d,%s,%d,%d,%d,%s,%s\n",
-                                     (int)p, cname,
-                                     (int)pos.x, (int)pos.y, (int)pop,
-                                     visible  ? "yes" : "no",
-                                     explored ? "yes" : "no");
-                    }
-                }
-
+                write_metrics(fp);
                 if (fp != stdout) std::fclose(fp);
                 headless_log->info("Metrics export complete");
             }

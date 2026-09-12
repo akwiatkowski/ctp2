@@ -14,7 +14,10 @@ under `CTP2_HOME` (default `~/.ctp2`); licensed assets stay outside the reposito
 Each tier returns nonzero on failure and records its result in `.ci/state.json`.
 Logs, doctest XML and parsed failures live in `.ci/log/`; `context_path` identifies
 the complete log. A build failure, missing/malformed report or failed scenario
-cannot be overwritten by a passing unit report. Any red tier sets `STATUS_RED`.
+cannot be overwritten by a passing unit report. A red gating tier (A or B) sets
+`STATUS_RED`, which merge.sh/review.sh refuse on. A red diagnostic tier (C or D —
+marathon/sanitizer runs) sets `STATUS_YELLOW` instead: a visible warning that does
+not gate orchestration.
 Run `mise exec -- python3 .ci/test_results.py` to verify failure reporting,
 including failed builds through all four real shell wrappers.
 

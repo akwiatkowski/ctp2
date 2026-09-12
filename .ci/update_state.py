@@ -14,7 +14,10 @@
 #   3. Pure HEAD update (called when daemon notices new HEAD before scheduling):
 #                      --head-sha SHA --head-subject TEXT
 #
-# Writes .ci/STATUS_RED iff any of tier_a/tier_b is red after the merge.
+# Writes .ci/STATUS_RED iff tier_a or tier_b is red after the merge —
+# those are the gating tiers merge.sh/review.sh refuse on. A red tier_c
+# or tier_d (sanitizer/marathon diagnostics) yields overall "yellow" and
+# .ci/STATUS_YELLOW instead: a warning that does not gate orchestration.
 # Writes failure JSON to .ci/failures/<sha>-tier-X.json when red.
 
 import argparse
@@ -28,6 +31,7 @@ from pathlib import Path
 CI_ROOT = Path(__file__).resolve().parent
 STATE_PATH = CI_ROOT / "state.json"
 STATUS_RED = CI_ROOT / "STATUS_RED"
+STATUS_YELLOW = CI_ROOT / "STATUS_YELLOW"
 FAILURES_DIR = CI_ROOT / "failures"
 
 SCHEMA_VERSION = 1
@@ -68,27 +72,38 @@ def atomic_write_json(path: Path, payload: dict):
 
 
 def recompute_overall_status(state):
-    statuses = []
-    for tier in ("tier_a", "tier_b", "tier_c", "tier_d"):
+    # Gating tiers (A: fast build+tests, B: commit gate) turn master RED.
+    # Diagnostic tiers (C: marathon/sanitizer soak, D: UBSan) only warn —
+    # a flaky marathon must not freeze orchestration like a red build does.
+    gating, diagnostic = [], []
+    for tier, bucket in (("tier_a", gating), ("tier_b", gating),
+                         ("tier_c", diagnostic), ("tier_d", diagnostic)):
         t = state.get(tier)
-        if t is None:
-            continue
-        statuses.append(t.get("status", "unknown"))
+        if t is not None:
+            bucket.append(t.get("status", "unknown"))
 
-    if "red" in statuses:
+    if "red" in gating:
         return "red"
+    if "red" in diagnostic:
+        return "yellow"
     if state.get("running"):
         return "running"
+    statuses = gating + diagnostic
     if all(s == "green" for s in statuses) and statuses:
         return "green"
     return "unknown"
 
 
-def update_status_red_sentinel(overall):
+def update_status_sentinels(overall):
     if overall == "red":
         STATUS_RED.touch()
-    elif STATUS_RED.exists():
-        STATUS_RED.unlink()
+        STATUS_YELLOW.unlink(missing_ok=True)
+    elif overall == "yellow":
+        STATUS_YELLOW.touch()
+        STATUS_RED.unlink(missing_ok=True)
+    else:
+        STATUS_RED.unlink(missing_ok=True)
+        STATUS_YELLOW.unlink(missing_ok=True)
 
 
 def main():
@@ -166,7 +181,7 @@ def main():
     state["updated_at"] = utcnow_iso()
 
     atomic_write_json(STATE_PATH, state)
-    update_status_red_sentinel(state["overall_status"])
+    update_status_sentinels(state["overall_status"])
 
     print(state["overall_status"])
 

@@ -485,7 +485,7 @@ ci-failures:
 	fi
 
 ci-reset:
-	@rm -f .ci/STATUS_RED .ci/state.json .ci/last_head; \
+	@rm -f .ci/STATUS_RED .ci/STATUS_YELLOW .ci/state.json .ci/last_head; \
 	rm -f .ci/failures/*.json .ci/log/*.log .ci/log/*.xml .ci/log/*.json 2>/dev/null; \
 	echo "CI state cleared"
 

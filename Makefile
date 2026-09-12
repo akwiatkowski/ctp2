@@ -62,6 +62,11 @@ all:
 	# for a description of its use.    # \
 	####################################
 
+# One ccache store for every worktree/build dir — workers jumping
+# branches still hit warm objects. Only affects build dirs configured
+# with ccache as compiler launcher (fresh `meson setup` auto-detects).
+export CCACHE_DIR ?= $(HOME)/.cache/ccache-ctp2
+
 # macOS dependency installation via Homebrew
 deps:
 	@echo "Installing CTP2 build dependencies..."

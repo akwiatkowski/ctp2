@@ -5,6 +5,9 @@ set -uo pipefail
 
 CTP2_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 CI_ROOT="$CTP2_ROOT/.ci"
+
+# Shared ccache store across worktrees (harmless when ccache absent).
+export CCACHE_DIR="${CCACHE_DIR:-$HOME/.cache/ccache-ctp2}"
 LOG_DIR="$CI_ROOT/log"
 TS="$(date -u +%Y%m%d-%H%M%S)"
 LOG_FILE="$LOG_DIR/tier-c-$TS.log"

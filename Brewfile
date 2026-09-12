@@ -16,6 +16,7 @@ brew "zlib"
 brew "meson"
 brew "ninja"
 brew "pkg-config"
+brew "ccache"
 
 # Parser generators (code generation)
 brew "byacc"

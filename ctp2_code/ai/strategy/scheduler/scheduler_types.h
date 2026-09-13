@@ -33,6 +33,7 @@
 #define __SCHEDULER_TYPES_H__ 1
 
 #include <list>       // std::list
+#include <memory>     // std::unique_ptr
 #include <utility>    // std::pair
 
 #include "ai/strategy/scheduler/Goal_And_Squad_Types.h"
@@ -58,20 +59,24 @@ typedef Agent*			Agent_ptr;
 typedef Goal*			Goal_ptr;
 typedef Plan*			Plan_ptr;
 
-typedef std::pair<Utility, Goal_ptr> Sorted_Goal_ptr;
-typedef std::pair<double, Agent_ptr> Sorted_Agent_ptr;
+// Sorted_Goal_Entry is the owning handle for a goal: it only appears in
+// Scheduler::m_goals_of_type. Everything else (Scheduler::m_goals,
+// Goal::m_agents, Agent::m_goal, Plan::m_the_agent) borrows raw pointers.
+typedef std::pair<Utility, std::unique_ptr<Goal> > Sorted_Goal_Entry;
+typedef std::pair<double, Agent_ptr>               Sorted_Agent_ptr;
 
 template<class _T1, class _T2>
 bool operator <
 (
-    const Sorted_Goal_ptr& _X,
-    const Sorted_Goal_ptr& _Y
+    const Sorted_Goal_Entry& _X,
+    const Sorted_Goal_Entry& _Y
 )
 {
 	return (_X.first < _Y.first);
 };
 
-typedef std::list<Agent_ptr> Agent_List;
-typedef std::list<Plan>      Plan_List;
+typedef std::list<Agent_ptr>             Agent_List;        // non-owning references
+typedef std::list<std::unique_ptr<Agent>> Agent_Owning_List; // sole owner: Scheduler::m_agents
+typedef std::list<Plan>                  Plan_List;
 
 #endif //__SCHEDULER_TYPES_H__

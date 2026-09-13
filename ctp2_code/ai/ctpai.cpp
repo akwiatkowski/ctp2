@@ -132,6 +132,7 @@
 #include "gs/utility/MoveFlags.h"
 #include <limits>
 #include <list>
+#include <memory>
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
 #include "ai/mapanalysis/settlemap.h"
@@ -234,12 +235,12 @@ void CtpAi::AddOwnerGoalsForCity(const Unit &city, const PLAYER_INDEX ownerId)
 		   || g_theGoalDB->Get(goal_type)->GetTargetTypeImprovement()
 		  )
 		{
-			Goal * goal_ptr = new Goal();
+			auto goal_ptr = std::make_unique<Goal>();
 			goal_ptr->Set_Type(goal_type);
 			goal_ptr->Set_Player_Index(ownerId);
 			goal_ptr->Set_Target_City(city);
 
-			scheduler.Add_New_Goal(goal_ptr);
+			scheduler.Add_New_Goal(std::move(goal_ptr));
 		}
 	}
 }
@@ -263,12 +264,12 @@ void CtpAi::AddForeignerGoalsForCity(const Unit &city, const PLAYER_INDEX foreig
 		   || g_theGoalDB->Get(goal_type)->GetTargetTypeImprovement()
 		  )
 		{
-			Goal * goal_ptr = new Goal();
+			auto goal_ptr = std::make_unique<Goal>();
 			goal_ptr->Set_Type(goal_type);
 			goal_ptr->Set_Player_Index(foreignerId);
 			goal_ptr->Set_Target_City(city);
 
-			scheduler.Add_New_Goal(goal_ptr);
+			scheduler.Add_New_Goal(std::move(goal_ptr));
 		}
 	}
 }
@@ -327,12 +328,12 @@ STDEHANDLER(CtpAi_KillCityEvent)
 			     )
 			   )
 			{
-				Goal * goal_ptr = new Goal();
+				auto goal_ptr = std::make_unique<Goal>();
 				goal_ptr->Set_Type( goal_type );
 				goal_ptr->Set_Player_Index( playerId );
 				goal_ptr->Set_Target_Pos( u.RetPos() );
 
-				scheduler.Add_New_Goal( goal_ptr );
+				scheduler.Add_New_Goal( std::move(goal_ptr) );
 
 				gfx_options_observer::AddTextToCell(u.RetPos(), "KILLED", 0);
 			}
@@ -380,12 +381,12 @@ STDEHANDLER(CtpAi_NukeCityUnit)
 					((world_Get()->IsWater(city.RetPos()) == TRUE) &&
 					(g_theGoalDB->Get(goal_type)->GetTargetTypeSettleSea())))
 				{
-					Goal * goal_ptr = new Goal();
+					auto goal_ptr = std::make_unique<Goal>();
 					goal_ptr->Set_Type( goal_type );
 					goal_ptr->Set_Player_Index( playerId );
 					goal_ptr->Set_Target_Pos( city.RetPos() );
 
-					scheduler.Add_New_Goal( goal_ptr );
+					scheduler.Add_New_Goal( std::move(goal_ptr) );
 
 					gfx_options_observer::AddTextToCell(city.RetPos(), "NUKED", 0);
 				}
@@ -484,7 +485,7 @@ void CtpAi::AddGoalsForArmy(const Army &army)
 {
 	PLAYER_INDEX    playerId = army.GetOwner();
 
-	Scheduler::GetScheduler(playerId).Add_New_Agent(new Agent(army));
+	Scheduler::GetScheduler(playerId).Add_New_Agent(std::make_unique<Agent>(army));
 
 	for (PLAYER_INDEX foreignerId = 0; foreignerId < CtpAi::s_maxPlayers; foreignerId++)
 	{
@@ -503,12 +504,12 @@ void CtpAi::AddGoalsForArmy(const Army &army)
 				     && (goal->GetTargetOwnerSelf() == (foreignerId == playerId))
 				  )
 				{
-					Goal_ptr     goal_ptr = new Goal();
+					auto goal_ptr = std::make_unique<Goal>();
 					goal_ptr->Set_Type(goal_type);
 					goal_ptr->Set_Player_Index(foreignerId);
 					goal_ptr->Set_Target_Army(army);
 
-					Scheduler::GetScheduler(foreignerId).Add_New_Goal(goal_ptr);
+					Scheduler::GetScheduler(foreignerId).Add_New_Goal(std::move(goal_ptr));
 				}
 			}
 		}
@@ -825,12 +826,12 @@ STDEHANDLER(CtpAi_ImprovementComplete)
 				if (playerId == owner && !goal_rec->GetTargetOwnerSelf())
 					continue;
 
-				Goal_ptr goal_ptr = new Goal();
+				auto goal_ptr = std::make_unique<Goal>();
 				goal_ptr->Set_Player_Index( playerId );
 				goal_ptr->Set_Type(static_cast<GOAL_TYPE>(goal_type));
 				goal_ptr->Set_Target_Pos( pos );
 
-				scheduler.Add_New_Goal( goal_ptr );
+				scheduler.Add_New_Goal( std::move(goal_ptr) );
 			}
 		}
 	}
@@ -1692,12 +1693,12 @@ void CtpAi::AddExploreTargets(const PLAYER_INDEX playerId)
 				// After completion of one exploration goal a human player
 				// explores the a map point nearby the old exploration target,
 				// in most cases a neighbour tile.
-				Goal * goal_ptr = new Goal();
+				auto goal_ptr = std::make_unique<Goal>();
 				goal_ptr->Set_Type( goal_type );
 				goal_ptr->Set_Player_Index( playerId );
 				goal_ptr->Set_Target_Pos( pos );
 
-				scheduler.Add_New_Goal( goal_ptr );
+				scheduler.Add_New_Goal( std::move(goal_ptr) );
 			}
 		}
 	}
@@ -1748,12 +1749,12 @@ void CtpAi::AddSettleTargets(const PLAYER_INDEX playerId)
 				 ((world_Get()->IsWater(settle_target.m_pos)) &&
 				 (g_theGoalDB->Get(goal_type)->GetTargetTypeSettleSea())))
 			{
-				Goal_ptr goal_ptr = new Goal();
+				auto goal_ptr = std::make_unique<Goal>();
 				goal_ptr->Set_Type( goal_type );
 				goal_ptr->Set_Player_Index( playerId );
 				goal_ptr->Set_Target_Pos( settle_target.m_pos );
 
-				scheduler.Add_New_Goal( goal_ptr );
+				scheduler.Add_New_Goal( std::move(goal_ptr) );
 
 				uint8   magnitude = (uint8) (((max_desired_goals - desired_goals) * 255) / max_desired_goals);
 				char buf[10];
@@ -1803,22 +1804,22 @@ void CtpAi::AddMiscMapTargets(const PLAYER_INDEX playerId)
 				if (cell->GetIsChokePoint() &&
 					g_theGoalDB->Get(goal_type)->GetTargetTypeChokePoint())
 				{
-					Goal * goal_ptr = new Goal();
+					auto goal_ptr = std::make_unique<Goal>();
 					goal_ptr->Set_Type( goal_type );
 					goal_ptr->Set_Player_Index( playerId );
 					goal_ptr->Set_Target_Pos( pos );
 
-					scheduler.Add_New_Goal( goal_ptr );
+					scheduler.Add_New_Goal( std::move(goal_ptr) );
 				}
 
 				if (cell->GetGoodyHut())
 				{
-					Goal * goal_ptr = new Goal();
+					auto goal_ptr = std::make_unique<Goal>();
 					goal_ptr->Set_Type( goal_type );
 					goal_ptr->Set_Player_Index( playerId );
 					goal_ptr->Set_Target_Pos( pos );
 
-					scheduler.Add_New_Goal( goal_ptr );
+					scheduler.Add_New_Goal( std::move(goal_ptr) );
 				}
 			}
 		}

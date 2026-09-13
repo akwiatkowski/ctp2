@@ -39,21 +39,21 @@ void to_json(nlohmann::json &j, Scheduler const &s)
         return it->second;
     };
     std::vector<Goal const *> goals;
-    for (auto goal : s.m_generic_goals) {
-        goalIds.emplace(goal, goals.size());
-        goals.push_back(goal);
+    for (auto const &goal : s.m_generic_goals) {
+        goalIds.emplace(goal.get(), goals.size());
+        goals.push_back(goal.get());
     }
     for (auto const &type : s.m_goals_of_type)
         for (auto const &entry : type) {
-            goalIds.emplace(entry.second, goals.size());
-            goals.push_back(entry.second);
+            goalIds.emplace(entry.second.get(), goals.size());
+            goals.push_back(entry.second.get());
         }
     j = {{"player", s.m_playerId}, {"needed_strength", strength(s.m_neededAgentStrength)},
          {"generic_count", s.m_generic_goals.size()}, {"agents", Json::array()},
          {"goals", Json::array()}, {"typed_goals", Json::array()},
          {"active_goals", Json::array()}};
-    for (auto ptr : s.m_agents) {
-        agentIds.emplace(ptr, agentIds.size());
+    for (auto const &ptr : s.m_agents) {
+        agentIds.emplace(ptr.get(), agentIds.size());
         auto const &a = *ptr;
         Json item{{"squad_strength", strength(a.m_squad_strength)},
             {"army", a.m_army},
@@ -94,7 +94,7 @@ void to_json(nlohmann::json &j, Scheduler const &s)
     for (auto const &type : s.m_goals_of_type) {
         Json entries = Json::array();
         for (auto const &entry : type)
-            entries.push_back({entry.first, reference(goalIds, entry.second, "scheduler type refers to an unowned goal")});
+            entries.push_back({entry.first, reference(goalIds, entry.second.get(), "scheduler type refers to an unowned goal")});
         j["typed_goals"].push_back(std::move(entries));
     }
     for (auto goal : s.m_goals) j["active_goals"].push_back(reference(goalIds, goal, "scheduler active list refers to an unowned goal"));
@@ -235,7 +235,7 @@ void from_json(nlohmann::json const &j, Scheduler &destination)
             g.m_matches.push_back(p);
         }
     }
-    // Validate ownership before releasing any unique_ptr. Each non-generic goal
+    // Validate ownership before moving any unique_ptr. Each non-generic goal
     // must occur in exactly one type list; active goals only borrow those nodes.
     std::unordered_set<size_t> owned;
     for (int i = 0; i < genericCount; ++i) {
@@ -260,20 +260,15 @@ void from_json(nlohmann::json const &j, Scheduler &destination)
         require(n >= static_cast<size_t>(genericCount) && active.insert(n).second, "invalid active goal");
         s.m_goals.push_back(goals[n].get());
     }
-    for (auto &a : agents) {
-        s.m_agents.push_back(a.get());
-        a.release();
-    }
-    for (int i = 0; i < genericCount; ++i) {
-        s.m_generic_goals.push_back(goals[i].get());
-        goals[i].release();
-    }
+    for (auto &a : agents)
+        s.m_agents.push_back(std::move(a));
+    for (int i = 0; i < genericCount; ++i)
+        s.m_generic_goals.push_back(std::move(goals[i]));
     s.m_goals_of_type.resize(types.size());
     for (size_t type = 0; type < types.size(); ++type)
         for (auto const &entry : types[type]) {
             auto n = index(entry[1], goals.size());
-            s.m_goals_of_type[type].emplace_back(entry[0].get<Utility>(), goals[n].get());
-            goals[n].release();
+            s.m_goals_of_type[type].emplace_back(entry[0].get<Utility>(), std::move(goals[n]));
         }
     // Swap only after the complete graph is valid. The temporary then destroys
     // the old graph while all pools and the game-session trampoline are alive.

@@ -54,6 +54,11 @@
 #include "gs/gameobj/Strengths.h"             // Strengths::GetStrength (rank inputs)
 #include "gs/gameobj/Civilisation.h"          // Civilisation::Get*CivName
 #include "gs/utility/TurnCnt.h"               // turn_Get()->GetRound/GetYear
+#include "gs/utility/newturncount.h"          // NewTurnCount::RunNewYearMessages
+#include "gs/gameobj/Barbarians.h"            // Barbarians::BeginYear
+#include "gs/gameobj/AgreementPool.h"         // agreementpool_Get()->EndRound
+#include "gs/gameobj/pollution.h"             // pollution_Get()->EndRound
+#include "gs/slic/SlicEngine.h"               // slicengine_Get()->RunYearlyTriggers
 #include "ConstRecord.h"                      // g_theConstDB (end-of-game year)
 #include "UnitRecord.h"                       // g_theUnitDB, UnitRecord
 #include "TerrainRecord.h"                    // g_theTerrainDB, TerrainRecord
@@ -133,11 +138,21 @@ void RunRound(sint32 round, SetCurrentPlayerFn set_current_player)
     };
 
     if (turn_Get()) turn_Get()->SkipToRound(round);
-    // Automation bypasses StartNewYear/BeginNewRound, which refresh this
-    // terrain-cost cache in interactive play. Refresh at the same boundary
-    // so new roads affect paths equally before and after loading a save.
+    // Automation bypasses TurnCount::BeginNewRound / NewTurnCount::StartNewYear,
+    // the interactive round-boundary maintenance path. Replicate its non-network,
+    // non-UI parts here so automated runs see the same year-boundary effects:
+    // terrain-cost refresh (new roads must affect paths), barbarian spawning,
+    // happiness-player rotation, expiring agreements, pollution processing and
+    // yearly SLIC triggers.
     if (world_Get() && world_Get()->A_star_heuristic)
         world_Get()->A_star_heuristic->Update();
+    Barbarians::BeginYear(round);
+    if (turn_Get()) turn_Get()->ChooseHappinessPlayer();
+    player_view::NextRound();
+    if (agreementpool_Get()) agreementpool_Get()->EndRound();
+    if (pollution_Get()) pollution_Get()->EndRound();
+    if (slicengine_Get()) slicengine_Get()->RunYearlyTriggers();
+    NewTurnCount::RunNewYearMessages();
 
     for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
         if (!player_Get(p) || player_Get(p)->IsDead()) continue;

@@ -438,9 +438,11 @@ AUI_ERRCODE c3_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 				Assert( hs != nullptr );
 				if ( !hs ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-				MBCHAR *cReturn = strrchr( hs->GetText(), '\r' );
-				if ( cReturn ) {
-					*cReturn = ' ';
+				std::string text = hs->GetText();
+				size_t cReturn = text.rfind( '\r' );
+				if ( cReturn != std::string::npos ) {
+					text[ cReturn ] = ' ';
+					hs->SetText( text.c_str() );
 				}
 
 

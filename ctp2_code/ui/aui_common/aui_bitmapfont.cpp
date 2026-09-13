@@ -84,7 +84,7 @@ aui_BitmapFont::aui_BitmapFont(
 
 void aui_BitmapFont::AttributesToDescriptor(
 	MBCHAR out[ k_AUI_BITMAPFONT_MAXDESCLEN + 1 ],
-	MBCHAR ttffile[ MAX_PATH + 1 ],
+	MBCHAR const ttffile[ MAX_PATH + 1 ],
 	sint32 pointSize,
 	sint32 bold,
 	sint32 italic )

@@ -140,11 +140,9 @@ AUI_ERRCODE aui_TextBox::AppendText
 
 	CalculateAppendedItems( text );
 
-	Assert( m_curLength + strlen( text ) <= m_maxLength );
+	Assert( m_text.size() + strlen( text ) <= m_maxLength );
 
-	strncat( m_text, text, m_maxLength - m_curLength );
-
-	m_curLength = strlen( m_text );
+	m_text.append( text, strnlen( text, m_maxLength - m_text.size() ) );
 
 	return AUI_ERRCODE_OK;
 }
@@ -157,7 +155,7 @@ AUI_ERRCODE aui_TextBox::CalculateItems(MBCHAR const * text)
 
 	if ( !text )
 	{
-		text = m_text;
+		text = m_text.c_str();
 
 		aui_Static **itemPtr = m_items;
 		for ( sint32 i = m_numItems; i; i-- )
@@ -209,15 +207,15 @@ AUI_ERRCODE aui_TextBox::CalculateItems(MBCHAR const * text)
 
 			std::vector<MBCHAR> tempCopy(length + 1);
             std::copy(cur, cur + length, tempCopy.data());
-            tempCopy[length] = '0';
+            tempCopy[length] = '\0';
 
 			if ( ++m_numItems > k_AUI_TEXTBOX_MAXITEMS )
 			{
 				m_numItems = k_AUI_TEXTBOX_MAXITEMS;
 				RemoveItem( (*itemPtr)->Id() );
 
-				memmove( m_text, m_text + m_maxLength - length, length );
-				memset( m_text + m_maxLength - length, '\0', length + 1 );
+				if ( m_text.size() > length )
+					m_text.erase( 0, m_text.size() - length );
 			}
 
 			(*itemPtr)->SetText(tempCopy.data());

@@ -83,7 +83,7 @@ AUI_ERRCODE StaticText::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	rect.left += 2;
 
-	textutils_SizedBoundedString(surface, m_text, &rect, m_size, COLOR_BUTTON_TEXT_PLAIN, 0);
+	textutils_SizedBoundedString(surface, GetText(), &rect, m_size, COLOR_BUTTON_TEXT_PLAIN, 0);
 
 	if ( surface == m_window->TheSurface() )
 		m_window->AddDirtyRect( &rect );

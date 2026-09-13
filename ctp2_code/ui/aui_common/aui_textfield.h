@@ -31,6 +31,7 @@
 #ifndef __AUI_TEXTFIELD_H__
 #define __AUI_TEXTFIELD_H__
 
+#include <string>
 #include "ui/aui_common/aui_bitmapfont.h"
 #include "ui/aui_common/aui_win.h"
 
@@ -131,7 +132,7 @@ protected:
 	BOOL	m_isFileName;
 
 	sint32	m_maxFieldLen;
-	MBCHAR *m_Text;
+	std::string m_Text;
 	sint32  m_selStart;
 	sint32  m_selEnd;
 

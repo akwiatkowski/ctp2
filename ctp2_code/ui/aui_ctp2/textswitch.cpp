@@ -99,23 +99,23 @@ AUI_ERRCODE TextSwitch::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 		}
 
-		if (m_text) {
+		if (GetText()[0]) {
 
 
 
 
-			textutils_CenteredDropString(surface, m_text, &rect, 9, COLOR_BUTTON_TEXT_HILITE, 0);
+			textutils_CenteredDropString(surface, GetText(), &rect, 9, COLOR_BUTTON_TEXT_HILITE, 0);
 		}
 	}
 	else
 	{
 
-		if (m_text) {
+		if (GetText()[0]) {
 
 
 
 
-			textutils_CenteredDropString(surface, m_text, &rect, 9, COLOR_BUTTON_TEXT_PLAIN, 0);
+			textutils_CenteredDropString(surface, GetText(), &rect, 9, COLOR_BUTTON_TEXT_PLAIN, 0);
 
 		}
 	}

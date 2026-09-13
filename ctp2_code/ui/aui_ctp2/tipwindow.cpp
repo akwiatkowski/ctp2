@@ -39,9 +39,9 @@ TipWindow::TipWindow(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y, sint32 
 
 AUI_ERRCODE TipWindow::FitWindowToText( )
 {
-	if ( m_text && m_surface)
+	if ( GetText()[0] && m_surface)
 	{
-		RECT rect = textutils_GetBounds(m_surface, m_text );
+		RECT rect = textutils_GetBounds(m_surface, GetText() );
 		rect.right += 10;
 		rect.bottom += 10;
 
@@ -68,10 +68,10 @@ AUI_ERRCODE TipWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	primitives_BevelRect16( surface, &rect, 1, 0, 16, 16 );
 
-	if ( m_text )
+	if ( GetText()[0] )
 	{
 
-		textutils_CenteredDropString(surface, m_text, &rect, 9, COLOR_BUTTON_TEXT_PLAIN, 0);
+		textutils_CenteredDropString(surface, GetText(), &rect, 9, COLOR_BUTTON_TEXT_PLAIN, 0);
 	}
 
 	m_dirtyList->AddRect( &rect );

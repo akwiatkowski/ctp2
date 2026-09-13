@@ -29,7 +29,6 @@ aui_TextField::aui_TextField(
 	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Win( retval, id, ldlBlock, ActionFunc, cookie ),
 	m_Font( nullptr ),
-	m_Text( nullptr ),
 	m_holdfont( nullptr )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -55,7 +54,6 @@ aui_TextField::aui_TextField(
 	aui_TextBase( nullptr ),
 	aui_Win( retval, id, x, y, width, height, ActionFunc, cookie ),
 	m_Font( nullptr ),
-	m_Text( nullptr ),
 	m_holdfont( nullptr )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -131,18 +129,14 @@ AUI_ERRCODE aui_TextField::InitCommon(
 
 	if ( !m_registered ) return AUI_ERRCODE_INVALIDPARAM;
 
-	delete[] m_Text;
-	m_Text = new MBCHAR[m_maxFieldLen + 1];
-	m_Text[m_maxFieldLen] = '\0';
-	if (text == nullptr)
-		*m_Text = '\0';
-	else
+	m_Text.clear();
+	if (text != nullptr)
 		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strncpy(m_Text, text, m_maxFieldLen);
-        //printf("%s L%d: aui_textfield text assigned: %s!\n", __FILE__, __LINE__, m_Text);
+		m_Text.assign( text, strnlen( text, m_maxFieldLen ) );
+        //printf("%s L%d: aui_textfield text assigned: %s!\n", __FILE__, __LINE__, m_Text.c_str());
 
 	// select nothing, move insertion point to end
-	m_selStart = m_selEnd = strlen(m_Text);
+	m_selStart = m_selEnd = (sint32) m_Text.size();
 
 	m_Font = aui_ui_Get()->LoadBitmapFont(m_desiredFont);
 	Assert(m_Font);
@@ -178,7 +172,6 @@ aui_TextField::~aui_TextField()
 		m_Font = nullptr;
 	}
 
-	delete[] m_Text;
 }
 
 
@@ -188,7 +181,7 @@ sint32 aui_TextField::GetFieldText( MBCHAR *text, sint32 maxCount )
 	if (n <= 0)
 		return 0;
 	// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
-	strncpy(text, m_Text, n-1);
+	strncpy(text, m_Text.c_str(), n-1);
 	text[n] = '\0';
 	return strlen(text);
 
@@ -199,15 +192,12 @@ BOOL aui_TextField::SetFieldText( const MBCHAR *text )
 {
 	m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
 
-	if (!m_Text) return FALSE;
+	if (!text) return FALSE;
 	// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
-	strncpy(m_Text, text, m_maxFieldLen);
-	// strncpy does not null-terminate when src length >= n; re-assert the
-	// sentinel byte at m_maxFieldLen in case it was clobbered by a prior bug.
-	m_Text[m_maxFieldLen] = '\0';
+	m_Text.assign( text, strnlen( text, m_maxFieldLen ) );
 
 	// select nothing, move insertion point to end
-	m_selStart = m_selEnd = (sint32) strlen(m_Text);
+	m_selStart = m_selEnd = (sint32) m_Text.size();
 
 	if ( GetKeyboardFocus() == this ) g_winFocus = this;
 
@@ -240,16 +230,10 @@ sint32 aui_TextField::SetMaxFieldLen( sint32 maxFieldLen )
 	// Reallocate the SDL-managed buffer so a later SetFieldText cannot
 	// overflow the heap. Preserve as much of the existing content as fits,
 	// then clamp the selection to the new length.
-	if (m_Text)
+	if ( m_Text.size() > (size_t) m_maxFieldLen )
+		m_Text.resize( m_maxFieldLen );
 	{
-		MBCHAR *newText = new MBCHAR[m_maxFieldLen + 1];
-		newText[m_maxFieldLen] = '\0';
-		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strncpy(newText, m_Text, m_maxFieldLen);
-		delete[] m_Text;
-		m_Text = newText;
-
-		sint32 newLen = (sint32) strlen(m_Text);
+		sint32 newLen = (sint32) m_Text.size();
 		if (m_selStart < 0)      m_selStart = 0;
 		if (m_selStart > newLen) m_selStart = newLen;
 		if (m_selEnd   < 0)      m_selEnd   = 0;
@@ -337,20 +321,20 @@ AUI_ERRCODE aui_TextField::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	SDL_Rect r1 = { rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top };
 	SDL_FillRect(SDLsurf, &r1, CTP2_SDL_MapRGB(SDLsurf, 0xff, 0xff, 0xff));
 
-	m_Font->DrawString(surface, &rect, &rect, m_Text,
+	m_Font->DrawString(surface, &rect, &rect, m_Text.c_str(),
 	                   k_AUI_BITMAPFONT_DRAWFLAG_JUSTLEFT,
 	                   RGB(20,20,20), 0);
 	// Clamp the cursor index against the actual text length before indexing.
 	// m_selStart can be left out-of-range by SetSelection callers or by
 	// stale state across resize/text changes; reading past the buffer here
 	// caused a heap-buffer-overflow in aui_textfield.cpp:533.
-	sint32 textLen = (sint32) strlen(m_Text);
+	sint32 textLen = (sint32) m_Text.size();
 	sint32 selPos  = m_selStart < 0      ? 0
 	               : m_selStart > textLen ? textLen
 	               : m_selStart;
 	char save = m_Text[selPos];
 	m_Text[selPos] = '\0';
-	int offset = m_Font->GetStringWidth(m_Text);
+	int offset = m_Font->GetStringWidth(m_Text.c_str());
 	m_Text[selPos] = save;
 	SDL_Rect r2 = { rect.left+offset-1, rect.top+2, 2, rect.bottom-rect.top-4 };
 	SDL_FillRect(SDLsurf, &r2, 0);
@@ -412,7 +396,7 @@ void aui_TextField::SetSelection(sint32 start, sint32 end)
 {
 	// Clamp the selection range to [0, strlen(m_Text)] so DrawThis cannot
 	// index past the buffer.
-	sint32 textLen = m_Text ? (sint32) strlen(m_Text) : 0;
+	sint32 textLen = (sint32) m_Text.size();
 	if (start < 0)       start = 0;
 	if (end   < 0)       end   = 0;
 	if (start > textLen) start = textLen;
@@ -448,7 +432,6 @@ void aui_TextField::KeyboardCallback(aui_KeyboardEvent *keyboardData)
 		return;
 	}
 
-	if (!m_Text) return;
 
 	uint32 key = keyboardData->key;
 
@@ -469,7 +452,7 @@ void aui_TextField::KeyboardCallback(aui_KeyboardEvent *keyboardData)
 			return;
 		case AUI_KEYBOARD_KEY_RIGHTARROW:
 		{
-			sint32 len = (sint32) strlen(m_Text);
+			sint32 len = (sint32) m_Text.size();
 			if (m_selStart < len) {
 				m_selStart++;
 				m_selEnd = m_selStart;
@@ -485,10 +468,7 @@ void aui_TextField::KeyboardCallback(aui_KeyboardEvent *keyboardData)
 	// Handle backspace (ASCII 8)
 	if (key == 8) {
 		if (m_selStart > 0) {
-			sint32 len = (sint32) strlen(m_Text);
-			for (sint32 i = m_selStart - 1; i < len; i++) {
-				m_Text[i] = m_Text[i + 1];
-			}
+			m_Text.erase( m_selStart - 1, 1 );
 			m_selStart--;
 			m_selEnd = m_selStart;
 			m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
@@ -498,11 +478,9 @@ void aui_TextField::KeyboardCallback(aui_KeyboardEvent *keyboardData)
 
 	// Handle delete (ASCII 127)
 	if (key == 127) {
-		sint32 len = (sint32) strlen(m_Text);
+		sint32 len = (sint32) m_Text.size();
 		if (m_selStart < len) {
-			for (sint32 i = m_selStart; i < len; i++) {
-				m_Text[i] = m_Text[i + 1];
-			}
+			m_Text.erase( m_selStart, 1 );
 			m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
 		}
 		return;
@@ -530,7 +508,7 @@ void aui_TextField::KeyboardCallback(aui_KeyboardEvent *keyboardData)
 			}
 		}
 
-		sint32 len = (sint32) strlen(m_Text);
+		sint32 len = (sint32) m_Text.size();
 		if (len >= m_maxFieldLen) {
 			return;
 		}
@@ -540,10 +518,7 @@ void aui_TextField::KeyboardCallback(aui_KeyboardEvent *keyboardData)
 		if (m_selStart > len) m_selStart = len;
 
 		// Insert character at cursor position
-		for (sint32 i = len; i >= m_selStart; i--) {
-			m_Text[i + 1] = m_Text[i];
-		}
-		m_Text[m_selStart] = ch;
+		m_Text.insert( m_selStart, 1, ch );
 		m_selStart++;
 		m_selEnd = m_selStart;
 		m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;

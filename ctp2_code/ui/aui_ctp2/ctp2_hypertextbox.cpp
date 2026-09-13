@@ -156,10 +156,12 @@ void ctp2_HyperTextBox::FormatText
 		Assert(hs);
 		if (!hs) return;
 
-		MBCHAR *		cReturn	= strrchr(hs->GetText(), '\r');
-		if (cReturn)
+		std::string text = hs->GetText();
+		size_t cReturn = text.rfind( '\r' );
+		if (cReturn != std::string::npos)
 		{
-			*cReturn = ' ';
+			text[ cReturn ] = ' ';
+			hs->SetText( text.c_str() );
 		}
 
 		m_hyperStaticList->AddTail(hs);

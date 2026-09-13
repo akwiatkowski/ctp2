@@ -68,12 +68,12 @@ AUI_ERRCODE Checkbox::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	if ( m_pattern )
 		m_pattern->Draw( surface, &buttonRect );
 
-	if ( m_text )
+	if ( GetText()[0] )
 		primitives_DropText(
 			surface,
 			buttonRect.right + 10,
 			buttonRect.top + 5,
-			m_text,
+			GetText(),
 			0xCCCC,
 			1 );
 

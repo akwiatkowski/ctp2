@@ -790,7 +790,7 @@ BOOL LoadSaveWindow::GetSaveName(MBCHAR *name)
 	return TRUE;
 }
 
-MBCHAR *LoadSaveWindow::GetLeaderName()
+MBCHAR const *LoadSaveWindow::GetLeaderName()
 {
 	Assert(m_playerText);
 	if (!m_playerText) return nullptr;
@@ -798,7 +798,7 @@ MBCHAR *LoadSaveWindow::GetLeaderName()
 	return m_playerText->GetText();
 }
 
-MBCHAR *LoadSaveWindow::GetCivName()
+MBCHAR const *LoadSaveWindow::GetCivName()
 {
 	Assert(m_civText);
 	if (!m_civText) return nullptr;

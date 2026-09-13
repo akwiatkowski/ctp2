@@ -82,6 +82,8 @@ class aui_TextBase;
 #define k_AUI_TEXTBASE_LDL_VERTCENTER			"vertcenter"
 #define k_AUI_TEXTBASE_LDL_WORDWRAP				"wordwrap"
 
+#include <string>
+
 #include "os/include/ctp2_inttypes.h"
 class aui_Surface;
 class aui_BitmapFont;
@@ -122,7 +124,7 @@ protected:
 		uint32 flags );
 
 public:
-	MBCHAR *GetText( ) const { return m_text; }
+	MBCHAR const *GetText( ) const { return m_text.c_str(); }
 	virtual AUI_ERRCODE	SetText(
 		const MBCHAR *text,
 		uint32 len = 0xffffffff );
@@ -170,9 +172,8 @@ protected:
 		aui_Surface *destSurf,
 		RECT *destRect );
 
-	MBCHAR		*m_text;
+	std::string	m_text;
 	uint32		m_maxLength;
-	uint32		m_curLength;
 
 	aui_BitmapFont	*m_textfont;
 	uint32			m_textflags;
@@ -184,7 +185,7 @@ protected:
 	sint32		m_textunderline;
 
 	BOOL		m_textreload;
-	MBCHAR		m_textttffile[ MAX_PATH + 1 ];
+	std::string	m_textttffile;
 	sint32		m_textpointsize;
 	sint32		m_textbold;
 	sint32		m_textitalic;

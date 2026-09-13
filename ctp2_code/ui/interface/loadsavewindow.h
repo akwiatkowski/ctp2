@@ -107,8 +107,8 @@ public:
 
 	BOOL GetGameName(MBCHAR *name);
 	BOOL GetSaveName(MBCHAR *name);
-	MBCHAR *GetLeaderName();
-	MBCHAR *GetCivName();
+	MBCHAR const *GetLeaderName();
+	MBCHAR const *GetCivName();
 	BOOL GetNote(MBCHAR *note);
 
 	void EnableFields( BOOL enable );
@@ -224,7 +224,7 @@ public:
 
 	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
-	MBCHAR *GetText( ) const { return m_itemText->GetText(); }
+	MBCHAR const *GetText( ) const { return m_itemText->GetText(); }
 
 	SaveInfo	*GetSaveInfo() const { return m_info; }
 

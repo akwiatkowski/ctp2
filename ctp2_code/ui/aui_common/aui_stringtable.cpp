@@ -48,7 +48,7 @@ aui_StringTable::aui_StringTable
 	size_t          numStrings
 )
 :
-	m_Strings       (numStrings, (MBCHAR *) nullptr)
+	m_Strings       (numStrings)
 {
     *retval = AUI_ERRCODE_OK;
 }
@@ -69,7 +69,7 @@ aui_StringTable::aui_StringTable
         return;
     }
 
-	m_Strings.resize(FindNumStringsFromLdl(block), (MBCHAR *) nullptr);
+	m_Strings.resize(FindNumStringsFromLdl(block));
 
     MBCHAR temp[k_AUI_LDL_MAXBLOCK + 1];
 
@@ -95,13 +95,7 @@ aui_StringTable::aui_StringTable
 
 aui_StringTable::~aui_StringTable()
 {
-    for
-    (auto & m_String : m_Strings)
-	{
-		delete [] m_String;
-	}
-
-    std::vector<MBCHAR *>().swap(m_Strings);
+    m_Strings.clear();
 }
 
 size_t aui_StringTable::FindNumStringsFromLdl(ldl_datablock * block)
@@ -144,12 +138,12 @@ size_t aui_StringTable::FindNumStringsFromLdl(ldl_datablock * block)
 
 
 
-MBCHAR * aui_StringTable::GetString( sint32 index ) const
+MBCHAR * aui_StringTable::GetString( sint32 index )
 {
 	Assert(index >= 0 && static_cast<size_t>(index) < m_Strings.size());
 	if (index < 0 || static_cast<size_t>(index) >= m_Strings.size()) return nullptr;
 
-	return m_Strings[index];
+	return m_Strings[index].data();
 }
 
 
@@ -159,24 +153,7 @@ AUI_ERRCODE aui_StringTable::SetString(const MBCHAR *text, sint32 index)
 	if (index < 0 || static_cast<size_t>(index) >= m_Strings.size())
         return AUI_ERRCODE_INVALIDPARAM;
 
-	if (text)
-	{
-		size_t const oldSize = m_Strings[index] ? 1 + strlen(m_Strings[index]) : 0;
-		size_t const newSize = 1 + strlen(text);
-
-		if (oldSize < newSize)
-		{
-			delete [] m_Strings[index];
-			m_Strings[index] = new MBCHAR[newSize];
-		}
-
-		strlcpy(m_Strings[index], text, newSize);
-	}
-	else
-	{
-		delete [] m_Strings[index];
-		m_Strings[index] = nullptr;
-	}
+	m_Strings[index] = text ? text : "";
 
 	return AUI_ERRCODE_OK;
 }

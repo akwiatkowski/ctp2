@@ -217,9 +217,7 @@ AUI_ERRCODE aui_TextBase::InitCommon(
 	BOOL shadow,
 	uint32 flags )
 {
-	m_text = nullptr,
-	m_maxLength = maxLength ? maxLength : k_AUI_TEXTBASE_DEFAULTMAXLENGTH,
-	m_curLength = 0;
+	m_maxLength = maxLength ? maxLength : k_AUI_TEXTBASE_DEFAULTMAXLENGTH;
 
 	m_textfont = nullptr;
 	m_textflags = flags;
@@ -231,49 +229,19 @@ AUI_ERRCODE aui_TextBase::InitCommon(
 	m_textunderline = underline;
 
 	m_textreload = TRUE;
-	memset( m_textttffile, 0, sizeof( m_textttffile ) );
-	strlcpy( m_textttffile, fontname, sizeof(m_textttffile) );
+	m_textttffile = fontname ? fontname : "";
 	m_textpointsize = fontsize;
 	m_textbold = bold;
 	m_textitalic = italic;
 
 	if ( text )
-	{
-		m_curLength = strlen( text );
-
-		if ( m_curLength > m_maxLength )
-			m_curLength = m_maxLength;
-
-		m_text = new MBCHAR[ m_maxLength + 1 ];
-		Assert( m_text != nullptr );
-		if ( !m_text ) return AUI_ERRCODE_MEMALLOCFAILED;
-
-		memset( m_text, '\0', m_maxLength + 1 );
-
-		// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
-		strncpy( m_text, text, m_maxLength );
-	}
-	else
-	{
-		if ( m_maxLength )
-		{
-
-			m_text = new MBCHAR[ m_maxLength + 1 ];
-			Assert( m_text != nullptr );
-			if ( !m_text ) return AUI_ERRCODE_MEMALLOCFAILED;
-
-			memset( m_text, '\0', m_maxLength + 1 );
-		}
-	}
-
+		m_text.assign( text, std::min<size_t>( strlen( text ), m_maxLength ) );
 	return AUI_ERRCODE_OK;
 }
 
 
 aui_TextBase::~aui_TextBase()
 {
-	delete [] m_text;
-
 	if (m_textfont && aui_ui_Get())
 	{
 		aui_ui_Get()->UnloadBitmapFont(m_textfont);
@@ -288,13 +256,9 @@ AUI_ERRCODE aui_TextBase::SetText(
 	Assert( text != nullptr );
 	if ( !text ) return AUI_ERRCODE_INVALIDPARAM;
 
-	memset( m_text, '\0', m_maxLength + 1 );
-
 	if ( maxlen > m_maxLength ) maxlen = m_maxLength;
 	// TODO(phase-2): strncpy → strlcpy — dst is `char *`, capacity unknown at call site
-	strncpy( m_text, text, maxlen );
-
-	m_curLength = strlen( m_text );
+	m_text.assign( text, strnlen( text, maxlen ) );
 
 	return AUI_ERRCODE_OK;
 }
@@ -334,10 +298,8 @@ AUI_ERRCODE aui_TextBase::AppendText(MBCHAR const * text)
 	Assert( text != nullptr );
 	if ( !text ) return AUI_ERRCODE_INVALIDPARAM;
 
-	Assert( m_curLength + strlen( text ) <= m_maxLength );
-	strncat( m_text, text, m_maxLength - m_curLength );
-
-	m_curLength = strlen( m_text );
+	Assert( m_text.size() + strlen( text ) <= m_maxLength );
+	m_text.append( text, strnlen( text, m_maxLength - m_text.size() ) );
 
 	return AUI_ERRCODE_OK;
 }
@@ -346,7 +308,7 @@ AUI_ERRCODE aui_TextBase::AppendText(MBCHAR const * text)
 void aui_TextBase::SetTextFont(MBCHAR const * ttffile)
 {
 	if ( !ttffile ) return;
-	strlcpy( m_textttffile, ttffile, sizeof(m_textttffile) );
+	m_textttffile = ttffile;
 	m_textreload = TRUE;
 }
 
@@ -381,13 +343,13 @@ void aui_TextBase::TextReloadFont( )
 	static MBCHAR descriptor[ k_AUI_BITMAPFONT_MAXDESCLEN + 1 ];
 	aui_BitmapFont::AttributesToDescriptor(
 		descriptor,
-		m_textttffile,
+		m_textttffile.c_str(),
 		m_textpointsize,
 		m_textbold,
 		m_textitalic );
 
 	fprintf(stderr, "[FONT] Loading font: descriptor='%s' file='%s' size=%d bold=%d italic=%d\n",
-		descriptor, m_textttffile, m_textpointsize, m_textbold, m_textitalic);
+		descriptor, m_textttffile.c_str(), m_textpointsize, m_textbold, m_textitalic);
 
 	m_textfont = aui_ui_Get()->LoadBitmapFont( descriptor );
 	fprintf(stderr, "[FONT] LoadBitmapFont returned %p\n", (void*)m_textfont);
@@ -413,7 +375,7 @@ AUI_ERRCODE aui_TextBase::DrawThisText(
 	RECT *destRect )
 {
 
-	if ( !m_text ) return AUI_ERRCODE_OK;
+	if ( m_text.empty() ) return AUI_ERRCODE_OK;
 
 	if ( m_textreload ) TextReloadFont();
 
@@ -421,7 +383,7 @@ AUI_ERRCODE aui_TextBase::DrawThisText(
 	if ( !m_textfont )
 	{
 		fprintf(stderr, "[FONT] DrawThisText: skipping text '%s' (no font loaded)\n",
-			m_text ? m_text : "(null)");
+			m_text.c_str());
 		return AUI_ERRCODE_OK;
 	}
 
@@ -433,7 +395,7 @@ AUI_ERRCODE aui_TextBase::DrawThisText(
 			destSurf,
 			&shadowRect,
 			nullptr,
-			m_text,
+			m_text.c_str(),
 			m_textflags,
 			m_textshadowcolor,
 			m_textunderline );
@@ -445,7 +407,7 @@ AUI_ERRCODE aui_TextBase::DrawThisText(
 		destSurf,
 		destRect,
 		nullptr,
-		m_text,
+		m_text.c_str(),
 		m_textflags,
 		m_textcolor,
 		m_textunderline );

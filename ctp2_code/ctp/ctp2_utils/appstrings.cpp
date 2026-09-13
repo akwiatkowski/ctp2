@@ -16,13 +16,14 @@
 #include <climits>
 #include <cstdio>
 #include <cstring>
+#include <string>
+#include <vector>
 
 #include "ctp/ctp2_utils/c3errors.h"
 #include "os/include/ctp2_config.h"
 #include "ctp/c3types.h"
 
-static MBCHAR **    s_appStrings        = nullptr;
-static size_t	    s_numAppStrings     = 0;
+static std::vector<std::string> s_appStrings;
 
 void appstrings_Initialize()
 {
@@ -37,40 +38,31 @@ void appstrings_Initialize()
 		c3errors_FatalDialog("appstr.txt", "Unable to open appstr.txt. Terminating app.");
 	}
 
-	s_appStrings = new MBCHAR *[APPSTR_MAX];
-	s_numAppStrings = APPSTR_MAX;
+	s_appStrings.resize(APPSTR_MAX);
 
 	MBCHAR inStr[_MAX_PATH];
 
-	for (size_t i=0; i<s_numAppStrings; i++) {
+	for (size_t i=0; i<s_appStrings.size(); i++) {
 		if (!fgets(inStr, _MAX_PATH, inFile)) {
 			c3errors_FatalDialog("appstr.txt", "Error in appstr.txt.  Terminating app.");
 		}
 		size_t len = strlen(inStr);
 		if (len > 0)
 			inStr[len - 1] = '\0';
-		s_appStrings[i] = new MBCHAR[sizeof(inStr) + 1];
-		memcpy(s_appStrings[i], inStr, len > 0 ? len : 1);
+		s_appStrings[i] = inStr;
 	}
-
+	fclose(inFile);
 }
 
 void appstrings_Cleanup()
 {
-	if (!s_appStrings) return;
-
-	for (size_t i=0; i<s_numAppStrings; i++) {
-		if (s_appStrings[i])
-		delete [] s_appStrings[i];
-	}
-	s_appStrings    = nullptr;
-	s_numAppStrings = 0;
+	s_appStrings.clear();
 }
 
 MBCHAR *appstrings_GetString(APPSTR stringID)
 {
-	if (stringID >= 0 && static_cast<size_t>(stringID) < s_numAppStrings) {
-		return s_appStrings[stringID];
+	if (stringID >= 0 && static_cast<size_t>(stringID) < s_appStrings.size()) {
+		return s_appStrings[stringID].data();
 	} else {
 		return nullptr;
 	}

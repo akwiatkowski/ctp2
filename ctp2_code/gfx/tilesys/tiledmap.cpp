@@ -3514,16 +3514,13 @@ void TiledMap::PublishWorldmapOrigin() const
 	maputils_MapXY2WorldmapPixelXY(originMapX, vy, &originX, &originY);
 	aui_SDL::SetWorldmapOrigin(originX, originY);
 	aui_SDL::SetWorldmapSpriteBase(originX, originY);
-	sint32 const tileXc = (m_mapViewRect.left + m_mapViewRect.right) / 2;
-	sint32 const rowc = (m_mapViewRect.top + m_mapViewRect.bottom) / 2;
-	sint32 vxc = 0, vyc = 0;
-	maputils_MapXY2PixelXY(maputils_TileX2MapX(tileXc, rowc), rowc, &vxc, &vyc);
-	// Center on the art (diamond middle), not the mapping vertex: art starts a
-	// headroom below the vertex and runs a tile height, so its middle sits at
-	// vertex + headroom + height/2. Keeps the pick off diamond boundaries.
-	aui_SDL::SetWorldmapMargin(
-		vxc + GetZoomTilePixelWidth() / 2 - (sint32)aui_SDL::ViewportW() / 2,
-		vyc + GetZoomTilePixelHeight() / 2 + GetZoomTileHeadroom() - (sint32)aui_SDL::ViewportH() / 2);
+	// The margin is the view-pixel offset of the presented window's top-left:
+	// which view px lands on destination px 0. The layered present draws the
+	// world surface at dst (0,0) and the tile renderer paints view-relative
+	// pixels straight onto it, so view px 0 sits at px 0 — the margin is zero.
+	// (The earlier symmetric-centre formula produced ~94-112px and shifted the
+	// whole-map window relative to both the software frame and picking.)
+	aui_SDL::SetWorldmapMargin(0, 0);
 }
 
 void TiledMap::BeginGpuSpriteFrame()

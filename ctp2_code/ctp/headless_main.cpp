@@ -62,7 +62,7 @@ static void write_metrics(FILE *fp)
     // --- per-player section ---
     std::fprintf(fp, "# PLAYERS\n");
     std::fprintf(fp, "player_idx,leader_name,is_dead,total_score,"
-                     "gold,num_cities\n");
+                     "gold,num_cities,num_advances,age,num_wonders\n");
     for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
         if (!player_Get(p)) continue;
         const char *name = player_Get(p)->GetLeaderName();
@@ -71,10 +71,15 @@ static void write_metrics(FILE *fp)
                      ? player_Get(p)->m_score->GetTotalScore() : 0;
         sint32 gold     = player_Get(p)->GetGold();
         sint32 nCities  = player_Get(p)->GetNumCities();
-        std::fprintf(fp, "%d,%s,%s,%d,%d,%d\n",
+        sint32 nAdv     = player_Get(p)->m_advances
+                        ? player_Get(p)->m_advances->GetDiscovered() : 0;
+        sint32 age      = player_Get(p)->m_age;
+        sint32 nWonders = __builtin_popcountll(player_Get(p)->GetBuiltWonders());
+        std::fprintf(fp, "%d,%s,%s,%d,%d,%d,%d,%d,%d\n",
                      (int)p, name,
                      player_Get(p)->IsDead() ? "yes" : "no",
-                     (int)score, (int)gold, (int)nCities);
+                     (int)score, (int)gold, (int)nCities,
+                     (int)nAdv, (int)age, (int)nWonders);
     }
 
     // --- per-city section ---

@@ -716,6 +716,17 @@ bool CivApp::InitializeAppDB()
 	ProgressWindow::BeginProgress
 		(g_theProgressWindow, "InitProgressWindow", 520);
 
+	// The ~50 databases publish into raw g_the*DB globals as they are
+	// allocated; those globals get reloaded in place (c3cmdline) and
+	// swapped for stubs (unit tests), so they stay raw pointers.  Roll
+	// back through CleanupAppDB() when any Parse()/ResolveReferences()
+	// below bails early — without it every failure path leaks the set.
+	struct DbInitGuard {
+		CivApp * app;
+		bool     committed = false;
+		~DbInitGuard() { if (!committed) app->CleanupAppDB(); }
+	} dbGuard{ this };
+
     // Create a set of empty databases
 	g_theAdvanceDB              = new CTPDatabase<AdvanceRecord>;
 	g_theAdvanceBranchDB        = new CTPDatabase<AdvanceBranchRecord>;
@@ -1334,6 +1345,7 @@ bool CivApp::InitializeAppDB()
 	ProgressWindow::EndProgress( g_theProgressWindow );
 
 	m_dbLoaded = true;
+	dbGuard.committed = true;
 
 	return true;
 }

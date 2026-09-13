@@ -51,6 +51,7 @@ FILE *debuglog = nullptr;
 #include <cstring>
 #include <cstdarg>
 #include <cstdio>
+#include <vector>
 
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSymbol.h"
@@ -84,11 +85,10 @@ static T slicif_read(PtrT &ptr) {
 }
 
 
-static struct PSlicObject **g_slicObjectArray = nullptr;
-int g_slicArraySize = 0;
+static std::vector<struct PSlicObject *> g_slicObjectArray;
 static int g_slicNumEntries = 0;
 
-struct PSlicObject ** slic_object_array_Get(void) { return g_slicObjectArray; }
+struct PSlicObject ** slic_object_array_Get(void) { return g_slicObjectArray.data(); }
 int slic_num_entries_Get(void) { return g_slicNumEntries; }
 
 namespace
@@ -152,26 +152,22 @@ void slicif_init()
 {
 	int i;
 
-	if(g_slicObjectArray) {
-		for(i = 0; i < g_slicNumEntries; i++) {
-			if(g_slicObjectArray[i]) {
-				if(g_slicObjectArray[i]->m_id) {
-					free(g_slicObjectArray[i]->m_id);
-				}
-				if(g_slicObjectArray[i]->m_trigger_symbols) {
-					free(g_slicObjectArray[i]->m_trigger_symbols);
-				}
-				if(g_slicObjectArray[i]->m_parameters) {
-					free(g_slicObjectArray[i]->m_parameters);
-				}
-				free(g_slicObjectArray[i]);
+	for(i = 0; i < g_slicNumEntries; i++) {
+		if(g_slicObjectArray[i]) {
+			if(g_slicObjectArray[i]->m_id) {
+				free(g_slicObjectArray[i]->m_id);
 			}
+			if(g_slicObjectArray[i]->m_trigger_symbols) {
+				free(g_slicObjectArray[i]->m_trigger_symbols);
+			}
+			if(g_slicObjectArray[i]->m_parameters) {
+				free(g_slicObjectArray[i]->m_parameters);
+			}
+			free(g_slicObjectArray[i]);
 		}
-		free(g_slicObjectArray);
 	}
 
-	g_slicObjectArray = nullptr;
-	g_slicArraySize = 0;
+	g_slicObjectArray.clear();
 	g_slicNumEntries = 0;
 	s_temp_name_counter = 0;
 }
@@ -229,17 +225,12 @@ void slicif_set_start(int symStart)
 
 void slicif_add_object(struct PSlicObject *obj)
 {
-	if(!g_slicObjectArray) {
-		g_slicObjectArray = (PSlicObject**)malloc(sizeof(struct PSlicObject *) * k_INITIAL_SLIC_SIZE);
-		g_slicArraySize = k_INITIAL_SLIC_SIZE;
+	if(g_slicObjectArray.empty()) {
+		g_slicObjectArray.resize(k_INITIAL_SLIC_SIZE);
 	}
 
-	if(g_slicNumEntries >= g_slicArraySize) {
-		struct PSlicObject **newArray = (PSlicObject **)malloc(sizeof(struct PSlicObject *) * g_slicArraySize * 2);
-		memcpy(newArray, g_slicObjectArray, sizeof(struct PSlicObject *) * g_slicArraySize);
-		free(g_slicObjectArray);
-		g_slicArraySize *= 2;
-		g_slicObjectArray = newArray;
+	if(g_slicNumEntries >= (int)g_slicObjectArray.size()) {
+		g_slicObjectArray.resize(g_slicObjectArray.size() * 2);
 	}
 
 	slicif_add_op(SOP_STOP);

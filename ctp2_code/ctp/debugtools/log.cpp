@@ -1,5 +1,7 @@
 #ifdef _DEBUG
 #include "ctp/c3.h"
+#include <memory>
+#include <string>
 #include "ctp/debugtools/log.h"
 #include "ctp/debugtools/breakpoint.h"
 
@@ -58,7 +60,7 @@ static const int HashTableSize = 1024;
 struct HashTableEntry
 {
 	HashTableEntry *next;
-	char *key;
+	std::string key;
 };
 
 typedef HashTableEntry * HashTableEntry_Ptr;
@@ -107,8 +109,7 @@ static void Hash_CloseEntry (HashTableEntry_Ptr entry)
 	{
 		Hash_CloseEntry (entry->next);
 
-		free (entry->key);
-		free (entry);
+		delete entry;
 	}
 }
 
@@ -132,7 +133,7 @@ static bool Hash_Exist (const char *hash_key)
 
 	while (hash_entry)
 	{
-		if (_stricmp (hash_key, hash_entry->key) == 0)
+		if (_stricmp (hash_key, hash_entry->key.c_str()) == 0)
 		{
 			return (true);
 		}
@@ -154,9 +155,9 @@ void Hash_Add (const char *hash_key)
 	{
 
 		hash_value = Hash (hash_key);
-		hash_entry = (HashTableEntry_Ptr) malloc (sizeof (HashTableEntry));
+		hash_entry = new HashTableEntry;
 
-		hash_entry->key = _strdup (hash_key);
+		hash_entry->key = hash_key;
 		hash_entry->next = hash_table.bucket[hash_value];
 
 		hash_table.bucket[hash_value] = hash_entry;
@@ -181,7 +182,7 @@ static void Hash_DumpEntry (HashTableEntry_Ptr entry, int bucket)
 			}
 		}
 
-		LOG ((LOG_LOG_CLASSES, "  %-20s [%04d-%s]", entry->key, bucket, bucket2));
+		LOG ((LOG_LOG_CLASSES, "  %-20s [%04d-%s]", entry->key.c_str(), bucket, bucket2));
 	}
 }
 
@@ -205,7 +206,7 @@ struct Logging
 	bool				to_file;
 	bool				to_debugger;
 	FILE				*log_file;
-	char *				log_filename;
+	std::string			log_filename;
 	bool				leave_open;
 
 	bool				log_all;
@@ -220,23 +221,11 @@ struct Logging
 	int					number;
 };
 
-static Logging *logging = nullptr;
+static std::unique_ptr<Logging> logging;
 
 void Log_Allocate()
 {
-	logging               = (Logging *)malloc(sizeof(Logging));
-	logging->open         = false;
-	logging->module_name  = nullptr;
-	logging->module_line  = 0;
-	logging->to_file      = false;
-	logging->to_debugger  = false;
-	logging->log_filename = nullptr;
-	logging->leave_open   = false;
-	logging->log_all      = false;
-	logging->base_time    = 0;
-	logging->log_file     = nullptr;
-	logging->line         = 0;
-	logging->number       = 0;
+	logging.reset(new Logging());  // value-init: fields zero/false/nullptr
 }
 
 static inline void Log_EnsureLogAllocated()
@@ -247,12 +236,12 @@ static inline void Log_EnsureLogAllocated()
 
 void Log_SetLoggingPtr(void *ptr)
 {
-	logging = (Logging *)ptr;
+	logging.reset((Logging *)ptr);   // takes ownership (legacy API, no callers)
 }
 
 void *Log_GetLoggingPtr(void)
 {
-	return (void *)logging;
+	return (void *)logging.get();
 }
 
 static void	Log_InitReadConfig (const char *config_filename, const char *log_filename)
@@ -332,7 +321,7 @@ static void	Log_InitReadConfig (const char *config_filename, const char *log_fil
 
 	if (logging->to_file)
 	{
-		logging->log_filename = _strdup (log_filename);
+		logging->log_filename = log_filename ? log_filename : "";
 	}
 }
 
@@ -380,7 +369,7 @@ void Log_Open (const char *config_file, int number )
 	logging->base_time    = timeGetTime();
 	logging->to_debugger  = false;
 	logging->to_file      = false;
-	logging->log_filename = nullptr;
+	logging->log_filename.clear();
 	logging->log_all      = false;
 
 	logging->leave_open   = true;
@@ -416,15 +405,9 @@ void Log_Close (void)
 	Hash_Close();
 	logging->open = false;
 
-	if (logging->log_filename)
-	{
-		free (logging->log_filename);
-	}
-
 	DeleteCriticalSection (&logging->entered);
 
-	free(logging);
-	logging = nullptr;
+	logging.reset();
 }
 
 void Log_Enable (LogClass log_class)
@@ -511,7 +494,7 @@ static inline void Log_MiddleToFile (char *message)
 	if (logging->to_file)
 	{
 		if (!logging->leave_open)
-			log_file = fopen (logging->log_filename, "a+t");
+			log_file = fopen (logging->log_filename.c_str(), "a+t");
 		else
 			log_file = logging->log_file;
 
@@ -530,46 +513,32 @@ static inline void Log_MiddleToFile (char *message)
 static inline void Log_MiddleCreateMessage (char *message, size_t message_size, const char *message_text, LogClass log_class)
 {
 	int elapsed_time;
-	char *adjusted_text;
-	char *adjusted_text_scan;
-	char *adjusted_module;
-	char *adjusted_module_scan;
 
 	elapsed_time = timeGetTime() - logging->base_time;
 
-	adjusted_module = _strdup (logging->module_name);
-	adjusted_module_scan = adjusted_module + (strlen (adjusted_module));
+	// Basename of the module path (after last '\\'), minus its last
+	// extension -- same result as the old in-place backward scan.
+	std::string adjusted_module(logging->module_name ? logging->module_name : "");
+	size_t const slash = adjusted_module.find_last_of('\\');
+	if (slash != std::string::npos) adjusted_module.erase(0, slash + 1);
+	size_t const dot = adjusted_module.find_last_of('.');
+	if (dot != std::string::npos) adjusted_module.resize(dot);
 
-	while ((adjusted_module != adjusted_module_scan) &&
-	       (* (adjusted_module_scan - 1) != '\\'))
+	std::string adjusted_text = message_text;
+	for (auto & ch : adjusted_text)
 	{
-
-		if (*adjusted_module_scan == '.')
+		if (ch < ' ')
 		{
-			*adjusted_module_scan = 0;
-		}
-
-		adjusted_module_scan--;
-	}
-
-	adjusted_text = _strdup (message_text);
-	for (adjusted_text_scan = adjusted_text; *adjusted_text_scan; adjusted_text_scan++)
-	{
-		if (*adjusted_text_scan < ' ')
-		{
-			*adjusted_text_scan = ' ';
+			ch = ' ';
 		}
 	}
 
 	snprintf (message, message_size, "[%12s::%15s::%5d@%7d] %s",
 		log_class,
-		adjusted_module_scan,
+		adjusted_module.c_str(),
 		logging->module_line,
 		elapsed_time,
-		adjusted_text);
-
-	free (adjusted_text);
-	free (adjusted_module);
+		adjusted_text.c_str());
 }
 
 void __cdecl Log_Middle (LogClass log_class, const char *format, ...)

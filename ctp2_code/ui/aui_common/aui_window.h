@@ -72,6 +72,7 @@ class aui_Mouse;
 class aui_Control;
 class aui_Surface;
 struct aui_Stencil;
+void aui_DestroyStencil(aui_Stencil *pStencil);
 
 class aui_Window : public aui_Region
 {
@@ -112,7 +113,6 @@ protected:
         m_grabRegion        (nullptr),
         m_ogX               (0),
 	    m_ogY               (0),
-        m_stencil           (nullptr),
         m_focusControl      (nullptr),
         m_focusList         (nullptr)
     { ; };
@@ -203,7 +203,7 @@ public:
 	BOOL IsDragging() { return m_isDragging; }
 
 	void SetStencilFromImage(const MBCHAR *imageFileName);
-	aui_Stencil *GetStencil() { return m_stencil; }
+	aui_Stencil *GetStencil() { return m_stencil.get(); }
 
 	virtual bool HandleKey(uint32 wParam);
 	aui_Control *GetFocusControl();
@@ -233,7 +233,10 @@ protected:
 	sint32 m_ogX;
 	sint32 m_ogY;
 
-	aui_Stencil *m_stencil;
+	// Sole owner; the stencil is one flexible allocation (struct +
+	// trailing spans) released by aui_DestroyStencil.
+	std::unique_ptr<aui_Stencil, decltype(&aui_DestroyStencil)> m_stencil
+	    {nullptr, &aui_DestroyStencil};
 
 	aui_Control *m_focusControl;
 	tech_WLList<aui_Region *> *m_focusList;

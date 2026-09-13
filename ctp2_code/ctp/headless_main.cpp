@@ -450,8 +450,9 @@ int main(int argc, char **argv)
             // A resumed game continues its saved clock, not the CLI loop index.
             game_controller::RunRound(turn_Get()->GetSessionRound(), nullptr);
             if (metricsFp && (t + 1) % metricsInterval == 0) {
-                std::fprintf(metricsFp, "# TURN %d\n",
-                             (int)turn_Get()->GetSessionRound());
+                std::fprintf(metricsFp, "# TURN %d year=%d\n",
+                             (int)turn_Get()->GetSessionRound(),
+                             (int)turn_Get()->GetSessionYear());
                 write_metrics(metricsFp);
             }
         }

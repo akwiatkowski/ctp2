@@ -429,11 +429,11 @@ void LoadSaveMapWindow::GetRadarMap(SaveMapInfo *info)
 
 	info->radarMapWidth = width;
 	info->radarMapHeight = height;
-	info->radarMapData = new Pixel16[width*height];
+	info->radarMapData.resize(width * height);
 
 	Pixel16		 *buffer;
 	Pixel16		 *bufferDataPtr;
-	Pixel16 *   radarDataPtr = info->radarMapData;
+	Pixel16 *   radarDataPtr = info->radarMapData.data();
 
 	if (surf->Lock(nullptr, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) return;
 	sint32      pitch = surf->Pitch();
@@ -501,7 +501,7 @@ void LoadSaveMapWindow::SetRadarMap(SaveMapInfo *info)
 	Pixel16		 *buffer;
 	Pixel16		 *bufferDataPtr;
 
-	Pixel16 *   radarDataPtr = info->radarMapData;
+	Pixel16 *   radarDataPtr = info->radarMapData.data();
 
 	if (surface->Lock(nullptr, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) {
 		delete surface;

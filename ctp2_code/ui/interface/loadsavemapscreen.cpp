@@ -160,7 +160,7 @@ void loadsavemapscreen_LoadGameMap()
 
 	MBCHAR		path[_MAX_PATH];
 
-	snprintf(path, sizeof(path), "%s\\%s", gameMapInfo->path, saveMapInfo->fileName);
+	snprintf(path, sizeof(path), "%s" FILE_SEP "%s", gameMapInfo->path, saveMapInfo->fileName);
 
 
 }
@@ -183,7 +183,7 @@ void loadsavemapscreen_SaveGameMap()
 
 	if (!civpaths_Get()->GetSavePath(C3SAVEDIR_MAP, path)) return;
 
-	snprintf(fullPath, sizeof(fullPath), "%s\\%s", path, saveMapInfo->gameMapName);
+	snprintf(fullPath, sizeof(fullPath), "%s" FILE_SEP "%s", path, saveMapInfo->gameMapName);
 
 	if (!c3files_PathIsValid(fullPath)) {
 		if (!c3files_CreateDirectory(fullPath)) {
@@ -194,7 +194,7 @@ void loadsavemapscreen_SaveGameMap()
 		}
 	}
 
-	snprintf(saveMapInfo->pathName, sizeof(saveMapInfo->pathName), "%s\\%s", fullPath, saveMapInfo->fileName);
+	snprintf(saveMapInfo->pathName, sizeof(saveMapInfo->pathName), "%s" FILE_SEP "%s", fullPath, saveMapInfo->fileName);
 
 	g_loadSaveMapWindow->GetRadarMap(saveMapInfo);
 
@@ -255,7 +255,7 @@ void loadsavemapscreen_deletePress(aui_Control *control, uint32 action, uint32 d
 
 	MBCHAR		path[_MAX_PATH];
 
-	snprintf(path, sizeof(path), "%s\\%s", gameMapInfo->path, saveMapInfo->fileName);
+	snprintf(path, sizeof(path), "%s" FILE_SEP "%s", gameMapInfo->path, saveMapInfo->fileName);
 #ifdef WIN32
 	if ( DeleteFile( path ) )
 #else // WIN32

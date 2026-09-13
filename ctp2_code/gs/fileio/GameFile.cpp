@@ -70,8 +70,10 @@
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/utility/gameinit.h"
 #include "gs/fileio/json_save.h"               // json_save::LoadJson (G-2)
+#include "ctp/ctp2_utils/bounded_json.h"       // ReadBoundedJson
 #include <cctype>                              // std::isspace (G-2)
 #include <cstdio>                              // std::fgetc (G-2)
+#include <fstream>
 #include "gs/gameobj/GameSettings.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/installation.h"
@@ -1422,8 +1424,7 @@ GameInfo::~GameInfo()
 SaveMapInfo::SaveMapInfo()
 :
 	radarMapWidth    (0),
-	radarMapHeight   (0),
-	radarMapData     (nullptr)
+	radarMapHeight   (0)
 {
 	gameMapName[0] = '\0';
 	fileName[0] = '\0';
@@ -1440,7 +1441,73 @@ GameMapInfo::GameMapInfo()
 }
 
 
-#define k_GAMEMAP_MAGIC_VALUE		"CTPMAP__"
+namespace {
+
+// JSON map-save format (replaces the CTPMAP__ binary layout).  One
+// nlohmann document: header block (name/note/radar preview, what the
+// old SaveExtendedGameMapInfo interleaved into the file head) plus the
+// full world cell state via the existing World bridge.  Pre-JSON map
+// files are not loadable — same policy as .c2g saves and .MAP scenarios.
+char const * const kGameMapMagic          = "CTP2-GAMEMAP";
+int          const kGameMapSchemaVersion  = 1;
+std::streamoff const kMaxGameMapBytes     = 128 * 1024 * 1024;
+
+nlohmann::json SaveMapInfoToJson(SaveMapInfo const &info)
+{
+	nlohmann::json radarData = nlohmann::json::array();
+	for (Pixel16 px : info.radarMapData)
+		radarData.push_back(px);
+
+	return nlohmann::json{
+		{"game_map_name", utf8_safe(info.gameMapName)},
+		{"note",          utf8_safe(info.note)},
+		{"radar_map", nlohmann::json{
+			{"width",  info.radarMapWidth},
+			{"height", info.radarMapHeight},
+			{"data",   std::move(radarData)}}},
+	};
+}
+
+// Fills the display fields only — fileName/pathName are set by the
+// caller (BuildSaveMapList) and intentionally left alone.  Throws
+// nlohmann::json::exception on malformed input.
+void SaveMapInfoFromJson(nlohmann::json const &j, SaveMapInfo &info)
+{
+	std::string const name = latin1_safe(j.at("game_map_name").get<std::string>());
+	std::string const note = latin1_safe(j.at("note").get<std::string>());
+	strlcpy(info.gameMapName, name.c_str(), sizeof(info.gameMapName));
+	strlcpy(info.note,        note.c_str(), sizeof(info.note));
+
+	auto const &radar  = j.at("radar_map");
+	sint32 const width  = radar.at("width").get<sint32>();
+	sint32 const height = radar.at("height").get<sint32>();
+	auto const &data   = radar.at("data");
+	// Radar previews are small thumbnails; cap well above any sane size.
+	if (width < 0 || height < 0 || width > 4096 || height > 4096
+	    || !data.is_array()
+	    || data.size() != static_cast<size_t>(width) * static_cast<size_t>(height))
+	{
+		throw nlohmann::json::other_error::create(
+			532, "invalid radar map in game map file", &j);
+	}
+
+	info.radarMapWidth  = width;
+	info.radarMapHeight = height;
+	info.radarMapData.clear();
+	info.radarMapData.reserve(data.size());
+	for (auto const &v : data)
+	{
+		auto const px = v.get<int64_t>();
+		if (px < 0 || px > 0xffff)
+		{
+			throw nlohmann::json::other_error::create(
+				532, "invalid radar pixel in game map file", &j);
+		}
+		info.radarMapData.push_back(static_cast<Pixel16>(px));
+	}
+}
+
+} // namespace
 
 void GameMapFile::RestoreGameMap(const MBCHAR *filename)
 {
@@ -1457,101 +1524,92 @@ GameMapFile::GameMapFile()
 
 uint32 GameMapFile::Save(const MBCHAR *filepath, SaveMapInfo *info)
 {
-    // Phase 0.C-4: body gutted — binary-format map I/O depended on
-    // CivArchive + World::SerializeJustMap, both gone. Scenario map
-    // save/load needs a JSON port (out of scope here).
-    (void)filepath; (void)info;
-    return GAMEFILE_ERR_STORE_FAILED;
+    World *w = world_Get();
+    if (!w)
+        return GAMEFILE_ERR_STORE_FAILED;
+
+    SaveMapInfo localInfo;
+    if (!info)
+    {
+        if (profiledb_Get())
+            GetExtendedInfoFromProfile(&localInfo);
+        info = &localInfo;
+    }
+
+    nlohmann::json doc;
+    doc["magic"]          = kGameMapMagic;
+    doc["schema_version"] = kGameMapSchemaVersion;
+    doc["info"]           = SaveMapInfoToJson(*info);
+    doc["world"]          = *w;
+
+    std::ofstream out(filepath);
+    if (!out)
+    {
+        c3errors_ErrorDialogFromDB("SAVE_ERROR", "SAVE_FAILED_TO_SAVE");
+        return GAMEFILE_ERR_STORE_FAILED;
+    }
+    out << doc.dump(2);
+    if (!out.good())
+    {
+        c3errors_FatalDialogFromDB("SAVE_ERROR", "SAVE_UNABLE_TO_WRITE_SAVEGAME");
+        return GAMEFILE_ERR_STORE_FAILED;
+    }
+    return GAMEFILE_ERR_STORE_OK;
 }
 
 uint32 GameMapFile::Restore(const MBCHAR *filepath)
 {
-    // Phase 0.C-4: body gutted — see GameMapFile::Save above.
-    (void)filepath;
-    return GAMEFILE_ERR_LOAD_FAILED;
-}
+    World *w = world_Get();
+    if (!w)
+        return GAMEFILE_ERR_LOAD_FAILED;
 
-bool GameMapFile::LoadExtendedGameMapInfo(FILE *saveFile, SaveMapInfo *info)
-{
-	sint32		n;
+    std::ifstream in(filepath);
+    if (!in)
+    {
+        c3errors_ErrorDialog("LOAD_ERROR", "LOAD_FAILED_TO_LOAD_GAME");
+        return GAMEFILE_ERR_LOAD_FAILED;
+    }
 
-	n = c3files_fread(info->gameMapName, sizeof(uint8), _MAX_PATH, saveFile);
-	if (n != _MAX_PATH) {
-		c3files_fclose(saveFile);
-		return false;
-	}
+    nlohmann::json doc;
+    try { doc = ReadBoundedJson(in, kMaxGameMapBytes); }
+    catch (nlohmann::json::exception const &)
+    {
+        c3errors_ErrorDialog("LOAD_ERROR", "LOAD_FAILED_TO_LOAD_GAME");
+        return GAMEFILE_ERR_LOAD_FAILED;
+    }
 
-	n = c3files_fread(info->note, sizeof(uint8), _MAX_PATH, saveFile);
-	if (n != _MAX_PATH) {
-		c3files_fclose(saveFile);
-		return false;
-	}
+    if (!doc.is_object() || !doc.contains("magic")
+        || !doc["magic"].is_string() || doc["magic"] != kGameMapMagic)
+    {
+        return GAMEFILE_ERR_LOAD_FAILED;
+    }
+    if (!doc.contains("schema_version")
+        || !doc["schema_version"].is_number_integer()
+        || doc["schema_version"] != kGameMapSchemaVersion)
+    {
+        return GAMEFILE_ERR_INCORRECT_VERSION;
+    }
 
-	n = c3files_fread(&info->radarMapWidth, sizeof(uint8), sizeof(info->radarMapWidth), saveFile);
-	if (n != sizeof(info->radarMapWidth)) {
-		c3files_fclose(saveFile);
-		return false;
-	}
-	n = c3files_fread(&info->radarMapHeight, sizeof(uint8), sizeof(info->radarMapHeight), saveFile);
-	if (n != sizeof(info->radarMapHeight)) {
-		c3files_fclose(saveFile);
-		return false;
-	}
+    try
+    {
+        doc.at("world").get_to(*w);
+    }
+    catch (nlohmann::json::exception const &)
+    {
+        return GAMEFILE_ERR_LOAD_FAILED;
+    }
 
-	if (info->radarMapHeight > 0 && info->radarMapWidth > 0) {
-		info->radarMapData = new Pixel16[info->radarMapWidth * info->radarMapHeight];
-		n = c3files_fread(info->radarMapData, sizeof(uint8),
-							sizeof(Pixel16) * info->radarMapWidth * info->radarMapHeight, saveFile);
-		if (n != (sint32)(info->radarMapWidth * info->radarMapHeight * sizeof(Pixel16))) {
-			c3files_fclose(saveFile);
-			return false;
-		}
-	}
+    // SerializeJustMap semantics: a saved map is terrain only — strip
+    // units, ownership and tile improvements the loaded cells carried.
+    for (sint32 x = 0; x < w->GetWidth(); ++x)
+    {
+        for (sint32 y = 0; y < w->GetHeight(); ++y)
+        {
+            w->GetCell(x, y)->ClearUnitsNStuff();
+        }
+    }
 
-	return true;
-}
-
-void GameMapFile::SaveExtendedGameMapInfo(FILE *saveFile, SaveMapInfo *info)
-{
-	MBCHAR const functionName[] = "GameMapFile::SaveExtendedGameMapInfo";
-	MBCHAR const errorString[]  = "Unable to write savemap file.";
-
-	sint32		n;
-
-
-
-
-	n = c3files_fwrite(info->gameMapName, sizeof(MBCHAR), _MAX_PATH, saveFile);
-	if (n != _MAX_PATH) {
-		c3errors_FatalDialog(functionName, errorString);
-		return;
-	}
-
-	n = c3files_fwrite(info->note, sizeof(MBCHAR), _MAX_PATH, saveFile);
-	if (n != _MAX_PATH) {
-		c3errors_FatalDialog(functionName, errorString);
-		return;
-	}
-
-	n = c3files_fwrite(&info->radarMapWidth, sizeof(uint8), sizeof(info->radarMapWidth), saveFile);
-	if (n != sizeof(info->radarMapWidth)) {
-		c3errors_FatalDialog(functionName, errorString);
-		return;
-	}
-	n = c3files_fwrite(&info->radarMapHeight, sizeof(uint8), sizeof(info->radarMapHeight), saveFile);
-	if (n != sizeof(info->radarMapHeight)) {
-		c3errors_FatalDialog(functionName, errorString);
-		return;
-	}
-	if (info->radarMapWidth > 0 && info->radarMapHeight > 0) {
-		n = c3files_fwrite(info->radarMapData, sizeof(uint8),
-							sizeof(Pixel16) * info->radarMapHeight * info->radarMapWidth,
-							saveFile);
-		if (n != (sint32)(sizeof(Pixel16) * info->radarMapHeight * info->radarMapWidth)) {
-			c3errors_FatalDialog(functionName, errorString);
-			return;
-		}
-	}
+    return GAMEFILE_ERR_LOAD_OK;
 }
 
 void GameMapFile::SetProfileFromExtendedInfo(SaveMapInfo *info)
@@ -1570,27 +1628,43 @@ bool GameMapFile::ValidateGameMapFile(MBCHAR const * path, SaveMapInfo *info)
 	MBCHAR		filepath[_MAX_PATH];
 	snprintf(filepath, sizeof(filepath), "%s%s%s", path, FILE_SEP, info->fileName);
 
-	FILE *  saveFile = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
-	if (saveFile == nullptr)
+	std::ifstream in(filepath);
+	if (!in)
 		return false;
 
-	MBCHAR  header[_MAX_PATH];
-	sint32	n = c3files_fread(header, sizeof(uint8), sizeof(k_GAMEMAP_MAGIC_VALUE), saveFile);
-	if (n!=sizeof(k_GAMEMAP_MAGIC_VALUE)) {
-		c3files_fclose(saveFile);
-		return false;
-	}
-
-	if (strcmp(header, k_GAMEMAP_MAGIC_VALUE) != 0) {
-		c3files_fclose(saveFile);
+	nlohmann::json doc;
+	try { doc = ReadBoundedJson(in, kMaxGameMapBytes); }
+	catch (nlohmann::json::exception const &)
+	{
 		return false;
 	}
 
-	bool success = LoadExtendedGameMapInfo(saveFile, info);
+	if (!doc.is_object() || !doc.contains("magic")
+	    || !doc["magic"].is_string() || doc["magic"] != kGameMapMagic
+	    || !doc.contains("schema_version")
+	    || !doc["schema_version"].is_number_integer()
+	    || doc["schema_version"] != kGameMapSchemaVersion)
+	{
+		return false;
+	}
 
-	c3files_fclose(saveFile);
+	// Parse into a scratch record so a malformed block can't leave the
+	// caller's info half-filled.
+	SaveMapInfo parsed;
+	try { SaveMapInfoFromJson(doc.at("info"), parsed); }
+	catch (nlohmann::json::exception const &)
+	{
+		return false;
+	}
 
-	return success;
+	// fileName/pathName belong to the caller (BuildSaveMapList) — copy
+	// only the fields that come from the file.
+	strlcpy(info->gameMapName, parsed.gameMapName, sizeof(info->gameMapName));
+	strlcpy(info->note,        parsed.note,        sizeof(info->note));
+	info->radarMapWidth  = parsed.radarMapWidth;
+	info->radarMapHeight = parsed.radarMapHeight;
+	info->radarMapData   = std::move(parsed.radarMapData);
+	return true;
 }
 
 PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
@@ -1608,7 +1682,7 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 	if (lpDirList == INVALID_HANDLE_VALUE) return list;
 #else
 	DIR * d = opendir(dirPath);
-	if (!dir) return list;
+	if (!d) return list;
 
 	struct stat     tmpstat;
 	struct dirent * dent = nullptr;

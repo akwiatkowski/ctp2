@@ -206,7 +206,7 @@ public:
 	MBCHAR					note[_MAX_PATH];
 	sint32					radarMapWidth;
 	sint32					radarMapHeight;
-	Pixel16					*radarMapData;
+	std::vector<Pixel16>	radarMapData;
 };
 
 class GameMapInfo {
@@ -224,9 +224,6 @@ public:
 
 	uint32 Save(const MBCHAR *filepath, SaveMapInfo *info) ;
 	uint32 Restore(const MBCHAR *filepath) ;
-
-	static bool LoadExtendedGameMapInfo(FILE *saveFile, SaveMapInfo *info);
-	static void SaveExtendedGameMapInfo(FILE *saveFile, SaveMapInfo *info);
 
 	static void SetProfileFromExtendedInfo(SaveMapInfo *info);
 	static void GetExtendedInfoFromProfile(SaveMapInfo *info);

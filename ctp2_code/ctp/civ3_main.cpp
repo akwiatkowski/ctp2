@@ -73,9 +73,6 @@
 #include "ui/interface/ancientwindows.h"
 #include "ctp/ctp2_utils/appstrings.h"
 #include "ui/aui_common/aui.h"
-#if !defined(__GNUC__)  // aui_DirectMovieManager is only referenced in the !__GNUC__ (DirectX) build below
-#include "ui/aui_directx/aui_directmoviemanager.h"
-#endif
 #include "ui/aui_common/aui_Factory.h"
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_ctp2/background.h"
@@ -162,10 +159,7 @@
 #include "ui/interface/workwindow.h"
 #include "gs/world/World.h"                      // world_Get()
 
-#if !defined(__GNUC__) // TODO: replacement needed (wine doesnt have these headers...)
-#include "ui/aui_ctp2/directvideo.h"
-#include "gfx/gfx_utils/videoutils.h"
-#endif
+
 
 #ifdef LINUX
 #include <sys/types.h>
@@ -290,9 +284,7 @@ void     civapp_Set(CivApp *p)        { g_civApp = p; }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 
-#ifdef __AUI_USE_SDL__
 int SDLMessageHandler(const SDL_Event &event);
-#endif
 
 #if defined(__GNUC__)
 int CivMain(int argc, char **argv);
@@ -451,9 +443,6 @@ int ui_Initialize()
 	if (!g_exclusiveMode)
 		main_HideTaskBar();
 
-#ifndef __AUI_USE_SDL__
-	is_565_Set(AUI_SURFACE_PIXELFORMAT_565 == g_c3ui->PixelFormat());
-#endif
 	// On SDL builds, g_is565Format keeps its default TRUE value.
 	// The primary window surface may be 32-bit, but game data is always 565.
 
@@ -589,11 +578,6 @@ int ui_Initialize()
 	SPLASH_STRING("Creating Keyboard...");
 
 	g_c3ui->RegisterObject(aui_Factory::new_Keyboard(auiErr));
-
-#if !defined(__GNUC__)
-	SPLASH_STRING("Creating Movie manager...");
-	g_c3ui->RegisterObject(new aui_DirectMovieManager());
-#endif
 
 	SPLASH_STRING("Starting Mouse...");
 	auiErr = g_c3ui->TheMouse()->Start();
@@ -1385,27 +1369,10 @@ static HWND s_taskBar   = nullptr;
 
 void main_HideTaskBar()
 {
-#ifndef __AUI_USE_SDL__
-	if (g_hideTaskBar)
-	{
-		s_taskBar = FindWindow("Shell_TrayWnd", NULL);
-
-		if (s_taskBar)
-		{
-			ShowWindow(s_taskBar, SW_HIDE);
-		}
-	}
-#endif // !__AUI_USE_SDL__
 }
 
 void main_RestoreTaskBar()
 {
-#ifndef __AUI_USE_SDL__
-	if (s_taskBar)
-	{
-		ShowWindow(s_taskBar, SW_SHOWDEFAULT);
-	}
-#endif
 }
 
 void ui_CivAppProcess()
@@ -1431,9 +1398,7 @@ void AtExitProc()
 	aui_mouse_RequestTerminate();
 
 	// Destroy the mutex used for the secondary keyboard event queue
-#ifdef __AUI_USE_SDL__
 	aui_sdlkbd_DestroyQueueMutex();
-#endif
 
     SDL_Quit();
 #endif
@@ -2035,28 +2000,19 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		// on that.
 	}
 
-#ifdef __AUI_USE_SDL__
 	aui_sdlkbd_InitQueueMutex();
 #ifdef __APPLE__
 	// P11 pinch zoom: tap Cocoa magnify gestures (SDL3 forwards no trackpad
 	// touches by default; see os/osx/osx_pinch_monitor.h).
 	osx_InstallPinchMonitor();
 #endif
-#endif
-#ifdef __AUI_USE_DIRECTX__
-	MSG			msg;
-	msg.wParam  = 0;
-#endif
 
 	for (gDone = FALSE; !gDone; )
 	{
-#ifdef __AUI_USE_SDL__
 		Uint32 frameStart = SDL_GetTicks();
-#endif
 		g_civApp->Process();
                 //printf("%s L%d: g_civApp->Process() done!\n", __FILE__, __LINE__);
 
-#ifdef __AUI_USE_SDL__
 		SDL_PumpEvents();  // Required on macOS for window visibility and OS event processing
 		SDL_Event event;
 
@@ -2115,25 +2071,10 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEWHEEL, SDL_MOUSEWHEEL);
 			if (n <= 0) break;
 			SDLMessageHandler(event);
-#else // __AUI_USE_SDL__
-
-		while (PeekMessage(&msg, gHwnd, 0, 0, PM_REMOVE) && !g_letUIProcess)
-		{
-			if (WM_QUIT == msg.message)
-			{
-				gDone = TRUE;
-			}
-			else
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-#endif // __AUI_USE_SDL__
 		}
 
 		g_letUIProcess = FALSE;
 
-#ifdef __AUI_USE_SDL__
 		// P11 Stage 2 F: advance the smooth-camera physics each frame and
 		// re-present while it is still settling (momentum pan glide + the
 		// spring-back zoom). Cheap: no tile re-render, just re-composite the
@@ -2173,14 +2114,9 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		Uint32 frameElapsed = SDL_GetTicks() - frameStart;
 		if (frameElapsed < k_TARGET_FRAME_MS)
 			SDL_Delay(k_TARGET_FRAME_MS - frameElapsed);
-#endif
 	}
 
-#ifdef __AUI_USE_SDL__
 	return 0;
-#else
-	return msg.wParam;
-#endif
 }
 
 void DoFinalCleanup(int exitCode)
@@ -2220,17 +2156,10 @@ void DoFinalCleanup(int exitCode)
 
 #define k_MSWHEEL_ROLLMSG		0xC7AF
 
-#ifdef __AUI_USE_SDL__
 int SDLMessageHandler(const SDL_Event &event)
 {
 	// Merge into WndProc with keycode converter and
 	// unchanged ui_HandleKeypress(wParam, lParam)
-#ifndef __AUI_USE_SDL__
-	if (!gDone && g_c3ui)
-	{
-		(void) g_c3ui->HandleWindowsMessage(hwnd, iMsg, wParam, lParam);
-	}
-#endif
 
 	static bool swallowNextChar = false;
 //could not find ui_HandleKeypress(wParam, lParm)! Could this mean this code was under reconstruction in trunk when the clone for linux was made???
@@ -2500,13 +2429,8 @@ int SDLMessageHandler(const SDL_Event &event)
 
 		DoFinalCleanup(0);
 
-#ifndef __AUI_USE_SDL__
-		DestroyWindow( hwnd );
-		gHwnd = NULL;
-#endif
 
 		return 0;
-#ifdef __AUI_USE_SDL__
 	case SDL_MOUSEWHEEL:
 		// P11 Stage 2 F: two-finger trackpad scroll (and the physical mouse
 		// wheel) pan the map. Ships default-on — real ScrollMap, reveals terrain.
@@ -2523,35 +2447,6 @@ int SDLMessageHandler(const SDL_Event &event)
 		// P11 pinch zoom: raw trackpad touches feed the pinch detector.
 		ui_HandlePinchZoom(event.tfinger, event.type);
 		return 0;
-#endif
-#ifndef __AUI_USE_SDL__
-	case k_MSWHEEL_ROLLMSG :
-		{
-			sint16 dir = HIWORD(wParam);
-			if (dir >= 0) dir = 1;
-			if (dir < 0) dir = -1;
-			ui_HandleMouseWheel(dir);
-		}
-
-	case WM_VSCROLL:
-		{
-		sint16 scrollCode = LOWORD(wParam);
-		if (scrollCode == SB_LINEDOWN) {
-			ui_HandleMouseWheel((sint16)-1);
-		}
-		else
-			if (scrollCode == SB_LINEUP) {
-				ui_HandleMouseWheel((sint16)1);
-			}
-		}
- 		break;
-	case WM_MOUSEWHEEL:
-		ui_HandleMouseWheel((sint16)HIWORD(wParam));
-		break;
-	}
-
-	return DefWindowProc(hwnd, iMsg, wParam, lParam);
-#else
 // this event is handled in aui_sdlmouse.cpp
 //          case SDL_MOUSEBUTTONDOWN:
 //              if (event.button.button == SDL_BUTTON_WHEELUP){
@@ -2567,127 +2462,8 @@ int SDLMessageHandler(const SDL_Event &event)
         //lynx: is a last default handling missing here??? DefWindowProc()
 
 	return 0;
-#endif
 }
 
-#elif defined(__AUI_USE_DIRECTX__)
-LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
-{
-	if (!gDone && g_c3ui)
-	{
-		(void) g_c3ui->HandleWindowsMessage(hwnd, iMsg, wParam, lParam);
-	}
-
-	static bool swallowNextChar = false;
-
-	switch (iMsg)
-	{
-	case WM_CHAR:
-		if (!swallowNextChar)
-		{
-			ui_HandleKeypress(wParam, lParam);
-		}
-		swallowNextChar = false;
-		break;
-
-	case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case VK_F1:
-		case VK_F2:
-		case VK_F3:
-		case VK_F4:
-		case VK_F5:
-		case VK_F6:
-		case VK_F7:
-		case VK_F8:
-		case VK_F9:
-			if(!(GetKeyState(VK_SHIFT) & 0x8000)) {
-				ui_HandleKeypress(wParam - VK_F1 + '1' + 128, lParam);
-			}
-			break;
-		case VK_F10:
-			if(!(GetKeyState(VK_SHIFT) & 0x8000)) {
-				ui_HandleKeypress(wParam - VK_F10 + '0' + 128, lParam);
-			}
-			break;
-		case VK_F11:
-			if(!(GetKeyState(VK_SHIFT) & 0x8000)) {
-				ui_HandleKeypress('!' + 128, lParam);
-			}
-			break;
-		case VK_F12:
-			if(!(GetKeyState(VK_SHIFT) & 0x8000)) {
-				ui_HandleKeypress('@' + 128, lParam);
-			}
-			break;
-		case VK_TAB:
-			ui_HandleKeypress('\t' + 128, lParam);
-			swallowNextChar = true;
-			return 0;
-		case VK_RETURN:
-			ui_HandleKeypress('\r' + 128, lParam);
-			swallowNextChar = true;
-			return 0;
-		case VK_BACK:
-			ui_HandleKeypress(8 + 128, lParam);
-			swallowNextChar = true;
-			return 0;
-		case VK_UP:
-		case VK_DOWN:
-		case VK_LEFT:
-		case VK_RIGHT:
-			ui_HandleKeypress(wParam + 256, lParam);
-			break;
-		}
-		break;
-	case WM_SYSKEYDOWN:
-
-		if(wParam == VK_F10) {
-			if(!(GetKeyState(VK_SHIFT) & 0x8000)) {
-				ui_HandleKeypress(wParam - VK_F10 + '0' + 128, lParam);
-			}
-		}
-		break;
-	case WM_CLOSE:
-		if (hwnd != gHwnd) break;
-
-		gDone = TRUE;
-		DoFinalCleanup(0);
-		DestroyWindow(hwnd);
-		gHwnd = NULL;
-		return 0;
-
-	case k_MSWHEEL_ROLLMSG :
-		{
-			sint16 dir = HIWORD(wParam);
-			if (dir >= 0) dir = 1;
-			if (dir < 0) dir = -1;
-			ui_HandleMouseWheel(dir);
-		}
-
-	case WM_VSCROLL:
-		{
-			sint16 scrollCode = LOWORD(wParam);
-			if (scrollCode == SB_LINEDOWN)
-			{
-				ui_HandleMouseWheel((sint16)-1);
-			}
-			else if (scrollCode == SB_LINEUP)
-			{
-				ui_HandleMouseWheel((sint16)1);
-			}
-		}
-		break;
-	case WM_MOUSEWHEEL:
-		ui_HandleMouseWheel((sint16)HIWORD(wParam));
-		break;
-	}
-#ifdef WIN32
-	return DefWindowProc(hwnd, iMsg, wParam, lParam);
-#endif
-}
-#endif// else: Compilation error
 
 void DisplayFrame(aui_Surface *surf)
 {
@@ -2714,15 +2490,9 @@ void DisplayFrame(aui_Surface *surf)
 
 BOOL ExitGame()
 {
-#if defined(__AUI_USE_SDL__)
 	static SDL_Event quit = { 0 };
 	quit.type = SDL_QUIT;
 	quit.quit.type = SDL_QUIT;
 	int e = SDL_PushEvent(&quit);
 	return (e != 0);
-#elif defined(WIN32)
-	return PostMessage(gHwnd, WM_CLOSE, 0, 0);
-#else
-	return TRUE;
-#endif
 }

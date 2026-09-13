@@ -1091,37 +1091,6 @@ PRIMITIVES_ERRCODE primitives_DrawText(
 	Assert(pString);
 	if (pString == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-#ifdef __AUI_USE_DIRECTX__
-	HDC hdc;
-	HRESULT hr;
-	COLORREF oldColor;
-	sint32 oldMode = 0;
-
-	hr = pDirectSurface->GetDC(&hdc);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_DSGETDCFAILED;
-
-	if (bg)
-		oldMode = SetBkMode(hdc,TRANSPARENT);
-
-	oldColor = SetTextColor(hdc, color);
-
-	HFONT hOldFont = NULL;
-	if (hfont_Get())
-		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
-
-	TextOut(hdc,x,y,pString,strlen(pString));
-
-	if (hfont_Get())
-		SelectObject(hdc,hOldFont);
-
-	SetTextColor(hdc, oldColor);
-
-	if (bg)
-		SetBkMode(hdc,oldMode);
-
-	hr = pDirectSurface->ReleaseDC(hdc);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_DSRELEASEDCFAILED;
-#endif // __AUI_USE_DIRECTX__
 
 	return PRIMITIVES_ERRCODE_OK;
 }
@@ -1137,51 +1106,12 @@ PRIMITIVES_ERRCODE primitives_DrawBoundedText(
 		BOOL bg
 		)
 {
-#ifdef __AUI_USE_DIRECTX__
-	HDC hdc;
-	HRESULT hr;
-	COLORREF oldColor;
-	sint32 oldMode = 0;
-#endif // __AUI_USE_DIRECTX__
 
 	Assert(pDirectSurface);
 	if (pDirectSurface==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 	Assert(pString);
 	if (pString==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-#ifdef __AUI_USE_DIRECTX__
-	hr = pDirectSurface->GetDC(&hdc);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_INVALIDPARAM;
-
-	if (bg)
-		oldMode = SetBkMode(hdc,TRANSPARENT);
-
-	oldColor = SetTextColor(hdc, colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_DROP));
-
-	HFONT hOldFont = NULL;
-	if (hfont_Get())
-		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
-
-	DrawText(hdc,pString,-1,bound,DT_WORDBREAK);
-
-	oldColor = SetTextColor(hdc, color);
-
-	RECT bound2 = *bound;
-	OffsetRect(&bound2, -1, -1);
-	DrawText(hdc,pString,-1,&bound2,DT_WORDBREAK);
-
-	if (hfont_Get())
-		SelectObject(hdc,hOldFont);
-
-	SetTextColor(hdc, oldColor);
-
-	if (bg)
-		SetBkMode(hdc,oldMode);
-
-	hr = pDirectSurface->ReleaseDC(hdc);
-	Assert(hr == AUI_ERRCODE_OK);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_DSRELEASEDCFAILED;
-#endif // __AUI_USE_DIRECTX__
 
 	return PRIMITIVES_ERRCODE_OK;
 }
@@ -1208,45 +1138,6 @@ PRIMITIVES_ERRCODE primitives_DrawTextBatch(
 	Assert(pString);
 	if (pString == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-#ifdef __AUI_USE_DIRECTX__
-	HDC hdc;
-	HRESULT hr;
-	COLORREF oldColor;
-	TEXTMETRIC tm;
-	sint32 oldMode = 0;
-
-	hr = pDirectSurface->GetDC(&hdc);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_DSGETDCFAILED;
-
-	if (bg)
-		oldMode = SetBkMode(hdc,TRANSPARENT);
-
-	GetTextMetrics(hdc,&tm);
-
-	oldColor = SetTextColor(hdc, color);
-
-	HFONT hOldFont = NULL;
-	if (hfont_Get())
-		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
-
-	for (sint32 i=0;i < numStrings;i++)
-	{
-		TextOut(hdc,x,y,pString[i],strlen(pString[i]));
-		y += tm.tmHeight + tm.tmExternalLeading;
-	}
-
-	if (hfont_Get())
-		SelectObject(hdc,hOldFont);
-
-	SetTextColor(hdc, oldColor);
-
-	if (bg)
-		SetBkMode(hdc,oldMode);
-
-	hr = pDirectSurface->ReleaseDC(hdc);
-	Assert(hr == AUI_ERRCODE_OK);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_DSRELEASEDCFAILED;
-#endif
 
 	return PRIMITIVES_ERRCODE_OK;
 }
@@ -1272,44 +1163,6 @@ PRIMITIVES_ERRCODE primitives_DropText(
 	Assert(pString);
 	if (pString==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-#ifdef __AUI_USE_DIRECTX__
-	HDC hdc;
-	HRESULT hr;
-	COLORREF oldColor;
-	sint32 oldMode = 0;
-
-	hr = pDirectSurface->GetDC(&hdc);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_DSGETDCFAILED;
-
-	if (bg)
-		oldMode = SetBkMode(hdc,TRANSPARENT);
-
-	oldColor = SetTextColor(hdc, 0);
-
-	HFONT hOldFont = NULL;
-	if (hfont_Get())
-		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
-
-	COLORREF	dropTextColor = colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_DROP);
-
-	SetTextColor(hdc, dropTextColor);
-	TextOut(hdc,x+1,y+1,pString,strlen(pString));
-
-	SetTextColor(hdc, color);
-	TextOut(hdc,x,y,pString,strlen(pString));
-
-	if (hfont_Get())
-		SelectObject(hdc,hOldFont);
-
-	SetTextColor(hdc, oldColor);
-
-	if (bg)
-		SetBkMode(hdc,oldMode);
-
-	hr = pDirectSurface->ReleaseDC(hdc);
-	Assert(hr == AUI_ERRCODE_OK);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACEUNLOCKFAILED;
-#endif // __AUI_USE_DIRECTX__
 
 	return PRIMITIVES_ERRCODE_OK;
 }
@@ -1336,46 +1189,6 @@ PRIMITIVES_ERRCODE primitives_ColoredDropText(
 	Assert(pString);
 	if (pString==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-#ifdef __AUI_USE_DIRECTX__
-	HDC hdc;
-	HRESULT hr;
-	COLORREF oldColor;
-	sint32 oldMode = 0;
-
-	hr = pDirectSurface->GetDC(&hdc);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_DSGETDCFAILED;
-
-	if (bg)
-		oldMode = SetBkMode(hdc,TRANSPARENT);
-
-	oldColor = SetTextColor(hdc, 0);
-
-	HFONT hOldFont = NULL;
-	if (hfont_Get())
-		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
-
-
-
-
-
-	SetTextColor(hdc, dropColor);
-	TextOut(hdc,x+1,y+1,pString,strlen(pString));
-
-	SetTextColor(hdc, textColor);
-	TextOut(hdc,x,y,pString,strlen(pString));
-
-	if (hfont_Get())
-		SelectObject(hdc,hOldFont);
-
-	SetTextColor(hdc, oldColor);
-
-	if (bg)
-		SetBkMode(hdc,oldMode);
-
-	hr = pDirectSurface->ReleaseDC(hdc);
-	Assert(hr == AUI_ERRCODE_OK);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACEUNLOCKFAILED;
-#endif // __AUI_USE_DIRECTX__
 
 	return PRIMITIVES_ERRCODE_OK;
 }
@@ -1394,51 +1207,6 @@ PRIMITIVES_ERRCODE primitives_DropTextCentered(
 	Assert(pString);
 	if (pString==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-#ifdef __AUI_USE_DIRECTX__
-	HDC			hdc;
-	HRESULT		hr;
-	COLORREF	oldColor;
-	sint32		oldMode = 0;
-	SIZE		size;
-	sint32		x,y;
-
-	hr = pDirectSurface->GetDC(&hdc);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_DSGETDCFAILED;
-
-	if (bg)
-		oldMode = SetBkMode(hdc,TRANSPARENT);
-
-	oldColor = SetTextColor(hdc, 0);
-
-	HFONT hOldFont = NULL;
-	if (hfont_Get())
-		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
-
-	COLORREF	dropTextColor = colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_DROP);
-
-	GetTextExtentPoint32(hdc, pString, strlen(pString),  &size);
-
-	x = destRect->left + (destRect->right-destRect->left)/2 - size.cx/2;
-	y = destRect->top + (destRect->bottom-destRect->top)/2 - size.cy/2;
-
-	SetTextColor(hdc, dropTextColor);
-	TextOut(hdc,x+1,y+1,pString,strlen(pString));
-
-	SetTextColor(hdc, color);
-	TextOut(hdc,x,y,pString,strlen(pString));
-
-	if (hfont_Get())
-		SelectObject(hdc,hOldFont);
-
-	SetTextColor(hdc, oldColor);
-
-	if (bg)
-		SetBkMode(hdc,oldMode);
-
-	hr = pDirectSurface->ReleaseDC(hdc);
-	Assert(hr == AUI_ERRCODE_OK);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACEUNLOCKFAILED;
-#endif // __AUI_USE_DIRECTX__
 
 	return PRIMITIVES_ERRCODE_OK;
 }
@@ -1458,53 +1226,6 @@ PRIMITIVES_ERRCODE primitives_ColoredDropTextCentered(
 	Assert(pString);
 	if (pString==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-#ifdef __AUI_USE_DIRECTX__
-	HDC			hdc;
-	HRESULT		hr;
-	COLORREF	oldColor;
-	sint32		oldMode = 0;
-	SIZE		size;
-	sint32		x,y;
-
-	hr = pDirectSurface->GetDC(&hdc);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_DSGETDCFAILED;
-
-	if (bg)
-		oldMode = SetBkMode(hdc,TRANSPARENT);
-
-	oldColor = SetTextColor(hdc, 0);
-
-	HFONT hOldFont = NULL;
-	if (hfont_Get())
-		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
-
-
-
-
-
-	GetTextExtentPoint32(hdc, pString, strlen(pString),  &size);
-
-	x = destRect->left + (destRect->right-destRect->left)/2 - size.cx/2;
-	y = destRect->top + (destRect->bottom-destRect->top)/2 - size.cy/2;
-
-	SetTextColor(hdc, dropColor);
-	TextOut(hdc,x+1,y+1,pString,strlen(pString));
-
-	SetTextColor(hdc, textColor);
-	TextOut(hdc,x,y,pString,strlen(pString));
-
-	if (hfont_Get())
-		SelectObject(hdc,hOldFont);
-
-	SetTextColor(hdc, oldColor);
-
-	if (bg)
-		SetBkMode(hdc,oldMode);
-
-	hr = pDirectSurface->ReleaseDC(hdc);
-	Assert(hr == AUI_ERRCODE_OK);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACEUNLOCKFAILED;
-#endif // __AUI_USE_DIRECTX__
 
 	return PRIMITIVES_ERRCODE_OK;
 }
@@ -1532,61 +1253,6 @@ PRIMITIVES_ERRCODE primitives_DropTextBatch(
 	Assert(pString);
 	if (pString == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-#ifdef __AUI_USE_DIRECTX__
-	HDC hdc;
-	HRESULT hr;
-	COLORREF oldColor;
-	TEXTMETRIC tm;
-	sint32 oldMode = 0;
-	sint32 saveY = y;
-
-	hr = pDirectSurface->GetDC(&hdc);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_DSGETDCFAILED;
-
-	if (bg)
-		oldMode = SetBkMode(hdc,TRANSPARENT);
-
-	GetTextMetrics(hdc,&tm);
-
-	oldColor = SetTextColor(hdc, 0);
-
-	HFONT hOldFont = NULL;
-	if (hfont_Get())
-		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
-
-	COLORREF	dropTextColor = colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_DROP);
-
-	SetTextColor(hdc, dropTextColor);
-
-	sint32 i;
-	for (i = 0; i < numStrings; i++)
-	{
-
-		TextOut(hdc,x+1,y+1,pString[i],strlen(pString[i]));
-		y += tm.tmHeight + tm.tmExternalLeading;
-	}
-
-	SetTextColor(hdc, color);
-	y = saveY;
-
-	for (i = 0; i < numStrings; i++)
-	{
-		TextOut(hdc,x,y,pString[i],strlen(pString[i]));
-		y += tm.tmHeight + tm.tmExternalLeading;
-	}
-
-	if (hfont_Get())
-		SelectObject(hdc,hOldFont);
-
-	SetTextColor(hdc, oldColor);
-
-	if (bg)
-		SetBkMode(hdc,oldMode);
-
-	hr = pDirectSurface->ReleaseDC(hdc);
-	Assert(hr == AUI_ERRCODE_OK);
-	if (hr != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_DSRELEASEDCFAILED;
-#endif // __AUI_USE_DIRECTX__
 
 	return PRIMITIVES_ERRCODE_OK;
 }

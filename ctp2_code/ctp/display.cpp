@@ -6,11 +6,7 @@
 #include "ctp/ctp2_utils/appstrings.h"
 
 #define COMPILE_MULTIMON_STUBS
-#ifdef __AUI_USE_DIRECTX__
-#include <multimon.h>
-#elif defined(__AUI_USE_SDL__)
 #include "ui/aui_sdl/aui_sdlcompat.h"
-#endif
 
 PointerList<CTPDisplayMode>	*g_displayModes = nullptr;
 #ifdef WIN32
@@ -122,20 +118,6 @@ HRESULT CALLBACK display_DisplayModeCallback(LPDDSURFACEDESC pdds, LPVOID lParam
 
 void display_EnumerateDisplayModes()
 {
-#ifdef __AUI_USE_DIRECTX__
-	HRESULT				hr;
-	LPDIRECTDRAW		dd;
-
-	hr = DirectDrawCreate(g_displayDevice.lpGUID, &dd, NULL);
-	Assert(hr == DD_OK);
-	if (hr != DD_OK) {
-		c3errors_FatalDialog(appstrings_GetString(APPSTR_DIRECTX),
-								appstrings_GetString(APPSTR_REINSTALLDIRECTX));
-		return;
-	}
-
-	g_displayModes = new PointerList<CTPDisplayMode>;
-#else
 	g_displayModes = new PointerList<CTPDisplayMode>;
 
 	int numModes = 0;
@@ -210,20 +192,7 @@ void display_EnumerateDisplayModes()
 		g_displayModes->AddTail(mode);
 	}
 	SDL_free(sdlModes);
-#endif
 
-#ifdef __AUI_USE_DIRECTX__
-	hr = dd->EnumDisplayModes(0, NULL, NULL, display_DisplayModeCallback);
-
-	if (g_displayModes->GetCount() < 1) {
-		c3errors_FatalDialog(appstrings_GetString(APPSTR_DIRECTX),
-							appstrings_GetString(APPSTR_NO16BIT));
-
-		return;
-	}
-
-	dd->Release();
-#endif
 }
 
 
@@ -244,102 +213,9 @@ BOOL display_IsLegalResolution(sint32 width, sint32 height)
 	return FALSE;
 }
 
-#ifdef __AUI_USE_DIRECTX__
-BOOL display_InitWindow( HINSTANCE hinst, int cmdshow )
-{
-	WNDCLASS wc;
-
-	gHInstance = hinst;
-
-	wc.style = CS_DBLCLKS;
-	wc.lpfnWndProc = WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hinst;
-	wc.hIcon = LoadIcon(hinst, MAKEINTATOM(IDI_APPLICATION));
-	wc.hCursor = NULL;
-	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = gszMainWindowClass;
-
-	if (!RegisterClass(&wc)) return FALSE;
-
-	DWORD	exStyle;
-
-	if (g_exclusiveMode)
-		exStyle = WS_EX_TOPMOST;
-	else
-		exStyle = WS_EX_APPWINDOW;
-
-
-
-
-	HWND hwnd = FindWindow(gszMainWindowClass, gszMainWindowName);
-	if(hwnd) {
-
-		if (IsIconic(hwnd)) {
-			ShowWindow(hwnd, SW_RESTORE);
-		}
-		SetForegroundWindow (hwnd);
-
-		exit(0);
-	}
-
-	gHwnd = CreateWindowEx(
-		exStyle,
-		gszMainWindowClass,
-		gszMainWindowName,
-		WS_POPUP | WS_VISIBLE,
-		0,
-		0,
-		g_ScreenWidth,
-		g_ScreenHeight,
-		NULL,
-		NULL,
-		hinst,
-		NULL);
-
-	Assert(gHwnd != NULL);
-	if (gHwnd == NULL) return FALSE;
-
-    SetFocus(gHwnd);
-	ShowWindow(gHwnd, cmdshow);
-    UpdateWindow(gHwnd);
-
-	return TRUE;
-}
-#endif
 
 int display_Initialize(HINSTANCE hInstance, int iCmdShow)
 {
-#ifdef __AUI_USE_DIRECTX__
-	display_EnumerateDisplayDevices();
-
-	DisplayDevice	*device = g_displayDevices->GetTail();
-
-	if (g_createDirectDrawOnSecondary && device != NULL) {
-
-		g_displayDevice = *device;
-
-		MONITORINFO	*monInfo = new MONITORINFO;
-
-		monInfo->cbSize = sizeof(MONITORINFO);
-		GetMonitorInfo(device->hMon, monInfo);
-
-		g_ScreenWidth = monInfo->rcMonitor.right - monInfo->rcMonitor.left;
-		g_ScreenHeight = monInfo->rcMonitor.bottom - monInfo->rcMonitor.top;
-
-		g_displayDevice.rect = monInfo->rcMonitor;
-
-		delete monInfo;
-	} else {
-
-		g_ScreenWidth = GetSystemMetrics(SM_CXSCREEN);
-		g_ScreenHeight = GetSystemMetrics(SM_CYSCREEN);
-
-		SetRect(&g_displayDevice.rect, 0, 0, g_ScreenWidth, g_ScreenHeight);
-	}
-#endif
 	display_EnumerateDisplayModes();
 
 	// If user specified --resolution, add it to the list and use it
@@ -384,9 +260,6 @@ int display_Initialize(HINSTANCE hInstance, int iCmdShow)
 		g_ScreenHeight = 600;
 	}
 
-#ifdef __AUI_USE_DIRECTX__
-	display_InitWindow(hInstance, iCmdShow);
-#endif
 
 	return 0;
 }
@@ -394,13 +267,6 @@ int display_Initialize(HINSTANCE hInstance, int iCmdShow)
 
 void display_Cleanup()
 {
-#ifdef __AUI_USE_DIRECTX__
-	if(g_displayDevices) {
-		g_displayDevices->DeleteAll();
-		delete g_displayDevices;
-		g_displayDevices = NULL;
-	}
-#endif
 	if(g_displayModes) {
 		g_displayModes->DeleteAll();
 		delete g_displayModes;

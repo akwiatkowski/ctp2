@@ -10,13 +10,9 @@
 #include "ui/aui_common/aui_Factory.h"
 #include "gs/fileio/CivPaths.h"
 #include "ui/aui_ctp2/c3ui.h"
-#include "ui/aui_ctp2/directvideo.h"
 
 #include "ui/aui_ctp2/videowindow.h"
 
-#ifdef __AUI_USE_DIRECTX__
-extern DirectVideo		*g_video;
-#endif
 
 
 
@@ -64,9 +60,6 @@ VideoWindow::VideoWindow(
 
 AUI_ERRCODE VideoWindow::InitCommon( )
 {
-#ifdef __AUI_USE_DIRECTX__
-	m_video = NULL,
-#endif
 	m_modal = FALSE;
 
 	return AUI_ERRCODE_OK;
@@ -78,46 +71,6 @@ AUI_ERRCODE VideoWindow::CreateVideoSurface(MBCHAR *name, BOOL modal)
 	HRESULT			hr;
 	AUI_ERRCODE		errcode;
 
-#ifdef __AUI_USE_DIRECTX__
-	m_video = new DirectVideo();
-	if (m_video == NULL) return AUI_ERRCODE_MEMALLOCFAILED;
-
-	m_modal = modal;
-
-	MBCHAR	fname[_MAX_PATH];
-	strlcpy(m_filename, name, sizeof(m_filename));
-
-	civpaths_Get()->FindFile(C3DIR_VIDEOS, name, fname);
-	hr = m_video->OpenStream(fname);
-	Assert(!hr);
-	if (hr != 0) {
-
-		c3errors_ErrorDialog("Video", "Error opening DirectMovie Indeo 5 video stream.  Be sure that DirectMovie and Indeo 5 are installed.");
-		return AUI_ERRCODE_MEMALLOCFAILED;
-	}
-
-	RECT rect;
-
-	m_video->GetVideoRect(&rect);
-
-
-
-
-	Resize(rect.right-rect.left+20, rect.bottom-rect.top+40);
-
-	m_surface = aui_Factory::new_Surface(errcode, m_width, m_height);
-	Assert( m_surface != NULL );
-	if ( !m_surface ) return AUI_ERRCODE_MEMALLOCFAILED;
-
-	m_video->Initialize((aui_DirectUI *)c3ui_Get(), (aui_Window *)this, m_modal);
-
-	OffsetRect(&rect, 10, 30);
-	if (m_modal) {
-		OffsetRect(&rect, X(), Y());
-	}
-
-	m_video->SetDestRect(&rect);
-#endif
 
 	return AUI_ERRCODE_OK;
 }
@@ -125,31 +78,11 @@ AUI_ERRCODE VideoWindow::CreateVideoSurface(MBCHAR *name, BOOL modal)
 
 VideoWindow::~VideoWindow()
 {
-#ifdef __AUI_USE_DIRECTX__
-	if (m_video != NULL) {
-
-		m_video->CloseStream();
-		delete m_video;
-		m_video = NULL;
-	}
-#endif
 }
 
 
 AUI_ERRCODE VideoWindow::Idle()
 {
-#ifdef __AUI_USE_DIRECTX__
-	if (m_video != NULL) {
-		m_video->Process();
-		if (m_video->Finished()) {
-
-			m_video->CloseStream();
-			delete m_video;
-			m_video = NULL;
-
-		}
-	}
-#endif
 	return AUI_ERRCODE_OK;
 }
 

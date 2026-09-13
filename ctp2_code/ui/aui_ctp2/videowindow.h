@@ -34,9 +34,6 @@ public:
 	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0 ) override;
 
 private:
-#ifdef __AUI_USE_DIRECTX__
-	DirectVideo		*m_video;
-#endif
 	MBCHAR			m_filename[_MAX_PATH];
 	BOOL			m_modal;
 };

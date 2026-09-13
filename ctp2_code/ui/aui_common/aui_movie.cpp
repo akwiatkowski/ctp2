@@ -36,12 +36,10 @@
 
 #include "ui/aui_common/aui_movie.h"
 
-#ifdef __AUI_USE_SDL__
 #include "ui/aui_sdl/aui_sdlcompat.h"
 #include "ui/aui_sdl/aui_sdlmixercompat.h"
 #include "sound/soundmanager.h"		// soundmgr_Get()
 #include "ui/aui_sdl/aui_sdlsurface.h"
-#endif
 
 WNDPROC aui_Movie::m_windowProc = nullptr;
 aui_Movie *aui_Movie::m_onScreenMovie = nullptr;
@@ -74,22 +72,12 @@ AUI_ERRCODE aui_Movie::InitCommon( MBCHAR const * filename )
 	memset( &m_rect, 0, sizeof( m_rect ) );
 	memset(&m_windowRect, 0, sizeof(m_windowRect));
 
-#ifdef __AUI_USE_DIRECTX__
-	m_aviFile = NULL;
-	m_aviStream = NULL;
-	memset( &m_aviFileInfo, 0, sizeof( m_aviFileInfo ) );
-	memset( &m_aviStreamInfo, 0, sizeof( m_aviStreamInfo ) );
-	m_getFrame = NULL;
-#endif
 	m_curFrame = 0;
 
 	AUI_ERRCODE errcode = SetFilename( filename );
 	Assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return errcode;
 
-#ifdef __AUI_USE_DIRECTX__
-	AVIFileInit();
-#endif
 
 	return AUI_ERRCODE_OK;
 }
@@ -99,9 +87,6 @@ aui_Movie::~aui_Movie()
 {
 	Unload();
 
-#ifdef __AUI_USE_DIRECTX__
-	AVIFileExit();
-#endif
 }
 
 
@@ -238,62 +223,6 @@ AUI_ERRCODE aui_Movie::Open(
 			SetDestRect( rect );
 
 		uint32 err;
-#ifdef __AUI_USE_DIRECTX__
-		err = AVIFileOpen(
-			&m_aviFile,
-			m_filename,
-			OF_READ,
-			NULL );
-		Assert( err == 0 );
-		if ( err ) return AUI_ERRCODE_HACK;
-
-
-		err = AVIFileInfo(
-			m_aviFile,
-			&m_aviFileInfo,
-			sizeof( m_aviFileInfo ) );
-		Assert( err == 0 );
-		if ( err ) return AUI_ERRCODE_HACK;
-
-		err = AVIFileGetStream(
-			m_aviFile,
-			&m_aviStream,
-			streamtypeVIDEO,
-			0 );
-		Assert( err == 0 );
-		if ( err ) return AUI_ERRCODE_HACK;
-
-
-		err = AVIStreamInfo(
-			m_aviStream,
-			&m_aviStreamInfo,
-			sizeof( m_aviStreamInfo ) );
-		Assert( err == 0 );
-		if ( err ) return AUI_ERRCODE_HACK;
-
-		BITMAPINFOHEADER bih;
-		memset( &bih, 0, sizeof( bih ) );
-		bih.biSize = sizeof( bih );
-		bih.biWidth = m_aviFileInfo.dwWidth;
-		bih.biHeight = m_aviFileInfo.dwHeight;
-		bih.biPlanes = 1;
-		bih.biBitCount = (uint16)aui_ui_Get()->BitsPerPixel();
-		bih.biCompression = BI_RGB;
-
-		m_getFrame = AVIStreamGetFrameOpen(
-			m_aviStream,
-			&bih );
-		Assert( m_getFrame != NULL );
-		if ( !m_getFrame ) return AUI_ERRCODE_HACK;
-
-		m_timePerFrame =
-			m_aviStreamInfo.dwScale * 1000 / m_aviStreamInfo.dwRate;
-
-		m_curFrame = m_aviStreamInfo.dwStart;
-
-		m_rect.right = m_rect.left + m_aviStreamInfo.rcFrame.right;
-		m_rect.bottom = m_rect.top + m_aviStreamInfo.rcFrame.bottom;
-#endif
 		m_isOpen = TRUE;
 		m_isPlaying = FALSE;
 		m_isPaused = FALSE;
@@ -310,25 +239,6 @@ AUI_ERRCODE aui_Movie::Close( )
 
 		Stop();
 
-#ifdef __AUI_USE_DIRECTX__
-		if ( m_getFrame )
-		{
-			AVIStreamGetFrameClose( m_getFrame );
-			m_getFrame = NULL;
-		}
-
-		if ( m_aviStream )
-		{
-			AVIStreamRelease( m_aviStream );
-			m_aviStream = NULL;
-		}
-
-		if ( m_aviFile )
-		{
-			AVIFileRelease( m_aviFile );
-			m_aviFile = NULL;
-		}
-#endif
 
 		m_isOpen = FALSE;
 	}
@@ -344,15 +254,6 @@ AUI_ERRCODE aui_Movie::Play( )
 
 		Open();
 
-#ifdef __AUI_USE_DIRECTX__
-		uint32 err = AVIStreamBeginStreaming(
-			m_aviStream,
-			0,
-			m_aviStreamInfo.dwLength,
-			1000 );
-		Assert( err == 0 );
-		if ( err ) return AUI_ERRCODE_HACK;
-#endif
 		m_isPlaying = TRUE;
 		m_isPaused = FALSE;
 
@@ -386,30 +287,14 @@ AUI_ERRCODE aui_Movie::PlayOnScreenMovie( )
 		mouse->Hide();
 	}
 
-#ifdef __AUI_USE_DIRECTX__
-	MSG msg;
-	m_windowProc = (WNDPROC)GetWindowLong( aui_ui_Get()->TheHWND(), GWL_WNDPROC );
-	SetWindowLong( aui_ui_Get()->TheHWND(), GWL_WNDPROC, (LONG)OnScreenMovieWindowProc );
-#endif
 
 	m_onScreenMovie = this;
 
 	while ( !m_isFinished && m_isPlaying )
 	{
-#ifdef __AUI_USE_DIRECTX__
-		while ( ShowCursor( FALSE ) >= 0 )
-			;
-#endif
 
 		Process();
 
-#ifdef __AUI_USE_DIRECTX__
-		if ( PeekMessage( &msg, aui_ui_Get()->TheHWND(), 0, 0, PM_REMOVE ) )
-		{
-			TranslateMessage( &msg );
-			DispatchMessage( &msg );
-		}
-#endif
 
 		if (mouse) {
 			numEvents = mouse->ManipulateInputs( mouseEvents, FALSE );
@@ -428,10 +313,6 @@ AUI_ERRCODE aui_Movie::PlayOnScreenMovie( )
 
 	m_onScreenMovie = nullptr;
 
-#ifdef __AUI_USE_DIRECTX__
-	SetWindowLong( aui_ui_Get()->TheHWND(), GWL_WNDPROC, (LONG)m_windowProc );
-	m_windowProc = NULL;
-#endif
 
 	if (mouse)
 		mouse->Show();
@@ -446,11 +327,6 @@ AUI_ERRCODE aui_Movie::Stop( )
 {
 	if ( m_isPlaying )
 	{
-#ifdef __AUI_USE_DIRECTX__
-		uint32 err = AVIStreamEndStreaming( m_aviStream );
-		Assert( err == 0 );
-		if ( err ) return AUI_ERRCODE_HACK;
-#endif
 
 		m_isPlaying = FALSE;
 		m_isPaused = FALSE;
@@ -496,65 +372,7 @@ AUI_ERRCODE aui_Movie::Process( )
 				( m_flags & k_AUI_MOVIE_PLAYFLAG_ONSCREEN ) ?
 				aui_ui_Get()->Secondary() :
 				m_surface;
-#ifdef __AUI_USE_DIRECTX__
-			uint8 *frame = (uint8 *)AVIStreamGetFrame( m_getFrame, m_curFrame );
-			Assert( frame != NULL );
-			if ( !frame ) return AUI_ERRCODE_HACK;
-
-			BITMAPINFOHEADER *bih = (BITMAPINFOHEADER *)frame;
-
-			sint32 bmpHeight = bih->biHeight;
-			sint32 bmpByteWidth = bih->biWidth * ( bih->biBitCount >> 3 );
-			sint32 bmpPitch = bmpByteWidth + ( uint32(-bmpByteWidth) & 0x3 );
-
-			frame += sizeof( BITMAPINFOHEADER );
-
-			uint8 *buffer = NULL;
-			AUI_ERRCODE errcode = surface->Lock( &m_rect, (LPVOID *)&buffer, 0 );
-			Assert( AUI_SUCCESS(errcode) );
-			if ( !AUI_SUCCESS(errcode) ) return AUI_ERRCODE_SURFACELOCKFAILED;
-
-			const uint8 *origBuffer = buffer;
-			const sint32 pitch = surface->Pitch();
-
-			if ( bmpHeight > 0 )
-			{
-				frame += bmpPitch * ( bmpHeight - 1 );
-
-				for ( sint32 i = bmpHeight; i; i-- )
-				{
-					memcpy( buffer, frame, bmpByteWidth );
-					buffer += pitch;
-					frame -= bmpPitch;
-				}
-			}
-			else
-			{
-
-
-				bmpHeight = -bmpHeight;
-
-				for ( sint32 i = bmpHeight; i; i-- )
-				{
-					memcpy( buffer, frame, bmpByteWidth );
-					buffer += pitch;
-					frame += bmpPitch;
-				}
-			}
-
-			errcode = surface->Unlock( (LPVOID)origBuffer );
-			Assert( AUI_SUCCESS(errcode) );
-			if ( !AUI_SUCCESS(errcode) ) return AUI_ERRCODE_SURFACEUNLOCKFAILED;
-
-			if ( ++m_curFrame == m_aviStreamInfo.dwLength )
-			{
-				m_curFrame = 0;
-				if ( !(m_flags & k_AUI_MOVIE_PLAYFLAG_LOOP) )
-					m_isFinished = TRUE;
-			}
-#else
 			m_isFinished = TRUE;
-#endif
 
 			m_lastFrameTime = time;
 
@@ -594,19 +412,11 @@ LRESULT CALLBACK OnScreenMovieWindowProc(
 
 			aui_Movie::m_onScreenMovie->Close();
 
-#ifdef __AUI_USE_DIRECTX__
-			PostMessage( aui_ui_Get()->TheHWND(), WM_CLOSE, 0, 0 );
-#endif
 
 			return 0;
 		}
 	}
 	LRESULT lr = 0;
-#ifdef __AUI_USE_DIRECTX__
-        lr = CallWindowProc(
-		(long(__stdcall *)(HWND, unsigned int, unsigned int, long))aui_Movie::m_windowProc,
-		hwnd, message, wParam, lParam );
-#endif
 
 	return lr;
 }

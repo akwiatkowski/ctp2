@@ -71,26 +71,6 @@ aui_Surface::aui_Surface(
 	m_saveBuffer = buffer;
 	if (!m_saveBuffer)
 	{
-#ifndef __AUI_USE_SDL__
-
-		if(hdc == NULL)
-			hdc = ::GetDC( aui_ui_Get()->TheHWND() );
-
-		m_hdc = CreateCompatibleDC( hdc );
-		Assert( m_hdc != NULL );
-		if ( !m_hdc ) return;
-
-		m_hbitmap = CreateCompatibleBitmap( hdc, m_width, m_height );
-		Assert( m_hbitmap != NULL );
-		if ( !m_hbitmap ) return;
-
-		::ReleaseDC( aui_ui_Get()->TheHWND(), hdc );
-
-		m_holdbitmap = (HBITMAP)SelectObject( m_hdc, m_hbitmap );
-
-		RECT rect = { 0, 0, m_width, m_height };
-		FillRect( m_hdc, &rect, (HBRUSH)GetStockObject( BLACK_BRUSH ) );
-#endif
 
 		m_saveBuffer = (uint8 *)(new uint32[ m_size >> 2 ]);
 		Assert( m_saveBuffer != nullptr );
@@ -114,12 +94,6 @@ AUI_ERRCODE aui_Surface::InitCommon( sint32 width, sint32 height, sint32 bpp, BO
 	m_chromaKey = 0x00000000,
 	m_isPrimary = isPrimary,
 	m_buffer = nullptr,
-#ifdef __AUI_USE_DIRECTX__
-	m_hdc = NULL,
-	m_dcIsGot = false,
-	m_hbitmap = NULL,
-	m_holdbitmap = NULL,
-#endif // __AUI_USE_DIRECTX__
 	m_saveBuffer = nullptr,
 	m_allocated = FALSE,
 	m_locksRemain = k_SURFACE_MAXLOCK;
@@ -162,14 +136,6 @@ aui_Surface::~aui_Surface()
 {
 	if ( m_allocated )
 	{
-#ifndef __AUI_USE_SDL__
-		SelectObject( m_hdc, m_holdbitmap );
-		DeleteObject( m_hbitmap );
-		DeleteObject( m_hdc );
-		m_hdc = NULL;
-		m_hbitmap = NULL;
-		m_holdbitmap = NULL;
-#endif
 
 		delete[] m_saveBuffer;
 		m_saveBuffer = m_buffer = nullptr;
@@ -288,103 +254,6 @@ AUI_ERRCODE aui_Surface::Unlock( LPVOID buffer )
 	return ManipulateLockList( nullptr, &buffer, AUI_SURFACE_LOCKOP_REMOVE );
 }
 
-#ifdef __AUI_USE_DIRECTX__
-AUI_ERRCODE aui_Surface::GetDC(HDC * hdc)
-{
-	Assert(hdc);
-	if (!hdc) return AUI_ERRCODE_INVALIDPARAM;
-
-	Assert(m_allocated && !m_dcIsGot);
-	if (!m_allocated || m_dcIsGot) return AUI_ERRCODE_SURFACELOCKFAILED;
-
-	*hdc = m_hdc;
-
-	if (!m_hdc) return AUI_ERRCODE_HACK;
-
-	m_dcIsGot = true;
-
-	BITMAPV4HEADER biv4h;
-	memset( &biv4h, 0, sizeof( biv4h ) );
-	biv4h.bV4Size          = sizeof( biv4h );
-	biv4h.bV4Width         = m_width;
-	biv4h.bV4Height        = -m_height;
-	biv4h.bV4Planes        = 1;
-	biv4h.bV4BitCount      = static_cast<WORD>(GetDeviceCaps(m_hdc, BITSPIXEL));
-	biv4h.bV4V4Compression = BI_RGB;
-
-	if(is_565_Get())
-	{
-
-		biv4h.bV4RedMask       = 0x0000F800u;
-		biv4h.bV4GreenMask     = 0x000007E0u;
-		biv4h.bV4BlueMask      = 0x0000001Fu;
-		biv4h.bV4V4Compression = BI_BITFIELDS;
-	}
-	else
-	{
-		biv4h.bV4RedMask       = 0x00007C00u;
-		biv4h.bV4GreenMask     = 0x000003E0u;
-		biv4h.bV4BlueMask      = 0x0000001Fu;
-
-	}
-
-	SetDIBits(
-		m_hdc,
-		m_hbitmap,
-		0,
-		m_height,
-		m_saveBuffer,
-		(BITMAPINFO*) &biv4h,
-		DIB_RGB_COLORS );
-
-	return AUI_ERRCODE_OK;
-}
-
-AUI_ERRCODE aui_Surface::ReleaseDC(HDC hdc)
-{
-	if (hdc != m_hdc) return AUI_ERRCODE_INVALIDPARAM;
-
-	Assert(m_allocated && m_dcIsGot);
-	if (!m_allocated || !m_dcIsGot) return AUI_ERRCODE_SURFACEUNLOCKFAILED;
-
-	m_dcIsGot = false;
-
-	BITMAPV4HEADER biv4h;
-	memset( &biv4h, 0, sizeof( biv4h ) );
-	biv4h.bV4Size          = sizeof( biv4h );
-	biv4h.bV4Width         = m_width;
-	biv4h.bV4Height        = -m_height;
-	biv4h.bV4Planes        = 1;
-	biv4h.bV4BitCount      = static_cast<WORD>(GetDeviceCaps(m_hdc, BITSPIXEL));
-	biv4h.bV4V4Compression = BI_RGB;
-
-	if(is_565_Get())
-	{
-		// For some reason the 555 masks are still used
-		biv4h.bV4RedMask       = 0x0000F800u;
-		biv4h.bV4GreenMask     = 0x000007E0u;
-		biv4h.bV4BlueMask      = 0x0000001Fu;
-		biv4h.bV4V4Compression = BI_BITFIELDS;
-	}
-	else
-	{
-		biv4h.bV4RedMask       = 0x00007C00u;
-		biv4h.bV4GreenMask     = 0x000003E0u;
-		biv4h.bV4BlueMask      = 0x0000001Fu;
-	}
-
-	GetDIBits(
-		m_hdc,
-		m_hbitmap,
-		0,
-		m_height,
-		m_saveBuffer,
-		(BITMAPINFO*) &biv4h,
-		DIB_RGB_COLORS );
-
-	return AUI_ERRCODE_OK;
-}
-#endif // __AUI_USE_DIRECTX__
 
 AUI_ERRCODE aui_Surface::Blank(const uint32 &color)
 {
@@ -400,15 +269,9 @@ AUI_ERRCODE aui_Surface::BlankRGB(const uint8 &red, const uint8 &green, const ui
 		              ((green & 0xF8) << 2) |
 		              ((blue & 0xF8) >> 3));
 	case AUI_SURFACE_PIXELFORMAT_565:
-#ifdef __AUI_USE_DIRECTX__
-		return Blank( ((red & 0xF8) << 8) |
-		              ((green & 0xF8) << 3) |
-		              ((blue & 0xF8) >> 3));
-#else
 		return Blank( ((red & 0xF8) << 8) |
 		              ((green & 0xFC) << 3) | //pixbug FC
 		              ((blue & 0xF8) >> 3));
-#endif
 	default:
 		Assert( FALSE );
 		break;

@@ -94,9 +94,6 @@ size_t const	GL_MAX_DB_NAME_SIZE	= 30;
 
 class Chart;
 class ctp2_HyperTextBox;
-#ifdef __AUI_USE_DIRECTX__
-class DirectVideo;
-#endif
 class ctp2_Static;
 class aui_StringTable;
 class ctp2_Button;

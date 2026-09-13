@@ -194,11 +194,7 @@ public:
 		RECT *imageRect,
 		aui_DirtyList *imageAreas );
 
-#ifdef __AUI_USE_SDL__
 	CTP2_SDL_Mutex *LPCS() const { return m_lpcs; }
-#else
-	LPCRITICAL_SECTION LPCS( void ) const { return m_lpcs; }
-#endif
 
 	AUI_ERRCODE CreatePrivateBuffers( );
 	void DestroyPrivateBuffers( );
@@ -208,11 +204,7 @@ public:
 
 protected:
 	static sint32 m_mouseRefCount;
-#ifdef __AUI_USE_SDL__
 	static CTP2_SDL_Mutex* m_lpcs;
-#else
-	static LPCRITICAL_SECTION m_lpcs;
-#endif
 
 	virtual AUI_ERRCODE Erase( );
 
@@ -241,27 +233,13 @@ protected:
 	// P11: cursor last installed as the OS cursor (hardware-cursor mode).
 	aui_Cursor	*m_hwCursorShown;
 
-#ifdef __AUI_USE_SDL__
 	SDL_Thread     *m_thread;
 	uint32          m_threadId;
-#elif defined(__AUI_USE_DIRECTX__)
-	HANDLE		m_thread;
-	DWORD		m_threadId;
-	HANDLE		m_threadEvent;
-	HANDLE		m_terminateEvent;
-	HANDLE		m_suspendEvent;
-	HANDLE		m_resumeEvent;
-	HANDLE		m_replyEvent;
-#endif
 
 	uint32		m_flags;
 };
 
 
-#ifdef __AUI_USE_SDL__
 int MouseThreadProc(void *param);
-#else
-DWORD WINAPI MouseThreadProc( LPVOID lpVoid );
-#endif
 
 #endif

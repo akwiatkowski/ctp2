@@ -53,9 +53,7 @@ void aui_mouse_RequestTerminate() { g_mouseShouldTerminateThread = TRUE; }
 #include "gs/database/profileDB.h"
 
 #include "ui/aui_ctp2/c3ui.h"
-#ifdef __AUI_USE_SDL__
 #include "ui/aui_sdl/aui_sdl.h"       // P11: hardware cursor in layered mode
-#endif
 
 // P11 pan polish: with the layered GPU present, the software cursor's
 // pickup/mix/restore blits bake stale screen-coord pixels into the
@@ -64,11 +62,7 @@ void aui_mouse_RequestTerminate() { g_mouseShouldTerminateThread = TRUE; }
 // skipped.
 static inline bool mouse_UsesHardwareCursor()
 {
-#ifdef __AUI_USE_SDL__
 	return aui_SDL::HardwareCursorEnabled();
-#else
-	return false;
-#endif
 }
 
 #include "ui/aui_common/aui_hypertextbox.h"
@@ -77,11 +71,7 @@ static inline bool mouse_UsesHardwareCursor()
 #include "ui/ldl/ldl_file.hpp"
 
 sint32 aui_Mouse::m_mouseRefCount = 0;
-#ifdef __AUI_USE_DIRECTX__
-LPCRITICAL_SECTION aui_Mouse::m_lpcs = NULL;
-#elif defined(__AUI_USE_SDL__)
 CTP2_SDL_Mutex *aui_Mouse::m_lpcs = nullptr;
-#endif
 
 #define k_AUI_MOUSE_THREAD_SLEEP_TIME	2
 
@@ -122,15 +112,6 @@ AUI_ERRCODE aui_Mouse::InitCommon( )
 	m_showCount = 0;
 	m_reset = TRUE;
 	m_hwCursorShown = nullptr;
-#ifndef __AUI_USE_SDL__
-	m_thread = NULL;
-	m_threadId = 0;
-	m_threadEvent = NULL;
-	m_terminateEvent = NULL;
-	m_suspendEvent = NULL;
-	m_resumeEvent = NULL;
-	m_replyEvent = NULL;
-#endif
 	m_flags = 0;
 
 	memset( m_cursors, 0, sizeof( m_cursors ) );
@@ -138,31 +119,17 @@ AUI_ERRCODE aui_Mouse::InitCommon( )
 	memset( m_inputs, 0, sizeof( m_inputs ) );
 
 	SetClip( nullptr );
-#ifdef __AUI_USE_DIRECTX__
-	GetCursorPos( &m_data.position );
-#elif defined(__AUI_USE_SDL__)
         int x = 0;
         int y = 0;
         Uint8 state = CTP2_SDL_GetMouseState(&x, &y);
         m_data.position.x = x;
         m_data.position.y = y;
-#endif
 
 	if ( !m_mouseRefCount++ )
 	{
-#ifdef __AUI_USE_DIRECTX__
-		m_lpcs = new CRITICAL_SECTION;
-#elif defined(__AUI_USE_SDL__)
 		m_lpcs = SDL_CreateMutex();
-#endif
 		Assert( m_lpcs != nullptr );
-#ifdef __AUI_USE_DIRECTX__
-		if ( m_lpcs )
-			InitializeCriticalSection( m_lpcs );
-		else
-#elif defined(__AUI_USE_SDL__)
 		if (!m_lpcs)
-#endif
 			return AUI_ERRCODE_MEMALLOCFAILED;
 	}
 
@@ -294,13 +261,7 @@ aui_Mouse::~aui_Mouse()
 	{
 		if ( m_lpcs )
 		{
-#ifdef __AUI_USE_SDL__
 			SDL_DestroyMutex(m_lpcs);
-#elif defined(__AUI_USE_DIRECTX__)
-
-			DeleteCriticalSection( m_lpcs );
-			delete m_lpcs;
-#endif
 			m_lpcs = nullptr;
 		}
 	}
@@ -422,32 +383,18 @@ AUI_ERRCODE aui_Mouse::Start( )
 
 	CreatePrivateBuffers();
 
-#ifdef __AUI_USE_DIRECTX__
-	m_thread =
-		CreateThread( NULL, 0, MouseThreadProc, (LPVOID)this, 0, &m_threadId );
-#elif defined(__AUI_USE_SDL__)
 	// On SDL/macOS, we process mouse input on the main thread instead of
 	// a separate thread. This avoids race conditions with SDL's event queue
 	// and rendering context which are not thread-safe.
 	// See: https://wiki.libsdl.org/SDL2/CategoryThread
 	m_thread = nullptr;
 	m_threadId = 0;
-#endif
 
 	m_curCursor = m_cursors + m_firstIndex;
 
 	if ( m_thread )
 	{
 
-#ifdef __AUI_USE_DIRECTX__
-		SetThreadPriority( m_thread, THREAD_PRIORITY_NORMAL );
-
-		m_threadEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-		m_terminateEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-		m_suspendEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-		m_resumeEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-		m_replyEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-#endif
 
 		Acquire();
 	}
@@ -497,61 +444,18 @@ AUI_ERRCODE aui_Mouse::End( )
 
 	if ( m_thread )
 	{
-#ifdef __AUI_USE_DIRECTX__
-		if ( m_threadEvent && m_terminateEvent )
-		{
-			SetEvent( m_terminateEvent );
-			SetEvent( m_threadEvent );
-
-			if ( WaitForSingleObject( m_thread, 2000 ) != WAIT_OBJECT_0 )
-				TerminateThread( m_thread, 1 );
-
-			CloseHandle( m_threadEvent );
-			m_threadEvent = NULL;
-
-			CloseHandle( m_terminateEvent );
-			m_terminateEvent = NULL;
-		}
-		else
-			TerminateThread( m_thread, 1 );
-#elif defined(__AUI_USE_SDL__)
 		g_mouseShouldTerminateThread = TRUE;
 		if (m_thread) {
 			SDL_WaitThread(m_thread, nullptr);
 			m_thread = nullptr;
 		}
-#endif
 
 		Erase();
 
-#ifdef __AUI_USE_DIRECTX__
-		if ( m_suspendEvent )
-		{
-			CloseHandle( m_suspendEvent );
-			m_suspendEvent = NULL;
-		}
-
-		if ( m_resumeEvent )
-		{
-			CloseHandle( m_resumeEvent );
-			m_resumeEvent = NULL;
-		}
-
-		if ( m_replyEvent )
-		{
-			CloseHandle( m_replyEvent );
-			m_replyEvent = NULL;
-		}
-
-		CloseHandle( m_thread );
-#endif
 		m_thread = nullptr;
 		m_threadId = 0;
 	}
 
-#ifdef __AUI_USE_DIRECTX__
-	SetCursorPos( m_data.position.x, m_data.position.y );
-#endif
 
 	return AUI_ERRCODE_OK;
 }
@@ -565,31 +469,7 @@ AUI_ERRCODE aui_Mouse::Suspend( BOOL eraseCursor )
 		m_suspendCount++;
 		return AUI_ERRCODE_OK;
 	}
-#ifdef __AUI_USE_SDL__
 	return AUI_ERRCODE_OK;
-#elif defined(__AUI_USE_DIRECTX__)
-	SetEvent( m_suspendEvent );
-	SetEvent( m_threadEvent );
-
-	if ( WaitForSingleObject( m_replyEvent, INFINITE ) == WAIT_OBJECT_0 )
-	{
-		ResetEvent( m_replyEvent );
-
-		if ( SuspendThread( m_thread ) != 0xffffffff )
-		{
-
-			if ( eraseCursor )
-			{
-				Erase();
-				Unacquire();
-			}
-
-			m_suspendCount++;
-
-			return AUI_ERRCODE_OK;
-		}
-	}
-#endif
 	return AUI_ERRCODE_SUSPENDFAILED;
 }
 
@@ -607,61 +487,17 @@ AUI_ERRCODE aui_Mouse::Resume( )
 		return AUI_ERRCODE_OK;
 	}
 
-#ifdef __AUI_USE_SDL__
 	return AUI_ERRCODE_OK;
-#elif defined(__AUI_USE_DIRECTX__)
-	if ( ResumeThread( m_thread ) != 0xffffffff )
-	{
-
-		if (!IsAcquired())
-        {
-            Acquire();
-        }
-
-		SetEvent( m_resumeEvent );
-
-		m_suspendCount = 0;
-
-		return AUI_ERRCODE_OK;
-	}
-#endif
 	return AUI_ERRCODE_RESUMEFAILED;
 }
 
 
 inline BOOL aui_Mouse::ShouldTerminateThread( )
 {
-#ifdef __AUI_USE_DIRECTX__
-	if ( WaitForSingleObject( m_threadEvent, 0 ) == WAIT_OBJECT_0 )
-	{
-		ResetEvent( m_threadEvent );
-
-		if ( WaitForSingleObject( m_terminateEvent, 0 ) == WAIT_OBJECT_0 )
-		{
-			ResetEvent( m_terminateEvent );
-			return TRUE;
-		}
-
-		if ( WaitForSingleObject( m_suspendEvent, 0 ) == WAIT_OBJECT_0 )
-		{
-			ResetEvent( m_suspendEvent );
-
-			SetEvent( m_replyEvent );
-			WaitForSingleObject( m_resumeEvent, INFINITE );
-
-			ResetEvent( m_resumeEvent );
-		}
-	}
-#elif defined(__AUI_USE_SDL__)
 	return g_mouseShouldTerminateThread;
-#endif
 	return FALSE;
 }
-#ifdef __AUI_USE_SDL__
 int MouseThreadProc(void *param)
-#elif defined(__AUI_USE_DIRECTX__)
-DWORD WINAPI MouseThreadProc( LPVOID param )
-#endif
 {
 	aui_Mouse *mouse = (aui_Mouse *)param;
 
@@ -739,7 +575,6 @@ AUI_ERRCODE aui_Mouse::SetHotspot( sint32 x, sint32 y, sint32 index )
 
 void aui_Mouse::SyncHardwareCursor( )
 {
-#ifdef __AUI_USE_SDL__
 	if (!aui_SDL::HardwareCursorEnabled())
 		return;
 
@@ -759,7 +594,6 @@ void aui_Mouse::SyncHardwareCursor( )
 	{
 		aui_SDL::SetHardwareCursor(nullptr, 0, 0);
 	}
-#endif
 }
 
 AUI_ERRCODE aui_Mouse::ReactToInput( )
@@ -1661,11 +1495,7 @@ sint32 aui_Mouse::ManipulateInputs( aui_MouseEvent *data, BOOL add )
 	sint32 numManipulated = 0;
 	static sint32 index = 0;
 
-#ifdef __AUI_USE_DIRECTX__
-	EnterCriticalSection( m_lpcs );
-#elif defined(__AUI_USE_SDL__)
 	CTP2_SDL_LockMutex(m_lpcs);
-#endif
 
 	if ( add )
 	{
@@ -1705,11 +1535,7 @@ sint32 aui_Mouse::ManipulateInputs( aui_MouseEvent *data, BOOL add )
 		index = 0;
 	}
 
-#ifdef __AUI_USE_DIRECTX__
-	LeaveCriticalSection( m_lpcs );
-#elif defined(__AUI_USE_SDL__)
 	CTP2_SDL_UnlockMutex(m_lpcs);
-#endif
 
 	return numManipulated;
 }

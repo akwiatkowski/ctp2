@@ -60,10 +60,6 @@
 
 #include "ui/ldl/ldl_file.hpp"
 
-#if defined(__AUI_USE_DIRECTX__)
-#include "ui/aui_common/dxver.h"
-extern BOOL g_exclusiveMode;
-#endif
 
 static aui_UI *g_ui = nullptr;
 
@@ -1431,233 +1427,7 @@ AUI_ERRCODE aui_UI::HandleWindowsMessage(
 	WPARAM wParam,
 	LPARAM lParam )
 {
-#ifdef __AUI_USE_DIRECTX__
-	AUI_ERRCODE errcode = AUI_ERRCODE_UNHANDLED;
-
-	if ( hwnd == m_hwnd )
-	switch( message )
-	{
-	case WM_PAINT:
-		PAINTSTRUCT ps;
-		BeginPaint( hwnd, &ps );
-
-		Invalidate( &ps.rcPaint );
-
-		EndPaint( hwnd, &ps );
-
-		errcode = AUI_ERRCODE_HANDLED;
-		break;
-
-	case WM_SETCURSOR:
-
-		if ( m_mouse && !m_mouse->IsSuspended() )
-		{
-			while ( ShowCursor( FALSE ) >= 0 )
-				;
-		}
-		else
-		{
-			while ( ShowCursor( TRUE ) < 0 )
-				;
-		}
-
-		errcode = AUI_ERRCODE_HANDLED;
-		break;
-
-	case WM_SYSKEYUP:
-
-		if ( !IsIconic( m_hwnd ) )
-		switch ( (int)wParam )
-		{
-		case VK_TAB:
-		case VK_ESCAPE:
-			AltTabOut();
-			errcode = AUI_ERRCODE_HANDLED;
-			break;
-		case VK_MENU:
-			errcode = AUI_ERRCODE_HANDLED;
-			break;
-		}
-		break;
-
-
-	case WM_ACTIVATE:
-
-		if ( LOWORD(wParam) == WA_INACTIVE )
-		{
-
-			if (g_exclusiveMode) {
-
-				if ( !IsChildWin( (HWND)lParam ) )
-				if ( !IsIconic( m_hwnd ) )
-				{
-					AltTabOut();
-					errcode = AUI_ERRCODE_HANDLED;
-				}
-			} else {
-				if ( !IsChildWin( (HWND)lParam ) )
-				{
-					AltTabOut();
-					errcode = AUI_ERRCODE_HANDLED;
-				}
-			}
-
-		}
-
-		else
-		{
-
-			if (g_exclusiveMode) {
-
-				if (IsIconic( m_hwnd ) )
-				{
-					AltTabIn();
-					errcode = AUI_ERRCODE_HANDLED;
-				}
-			} else {
-				AltTabIn();
-				errcode = AUI_ERRCODE_HANDLED;
-			}
-		}
-		break;
-
-
-	case WM_SYSCOMMAND:
-		{
-			if (LOWORD(wParam) == SC_SCREENSAVE) {
-				if (g_exclusiveMode) {
-
-					if ( !IsChildWin( (HWND)lParam ) )
-					if ( !IsIconic( m_hwnd ) )
-					{
-						AltTabOut();
-						errcode = AUI_ERRCODE_HANDLED;
-					}
-				} else {
-					if ( !IsChildWin( (HWND)lParam ) )
-					{
-						AltTabOut();
-						errcode = AUI_ERRCODE_HANDLED;
-					}
-				}
-			}
-		}
-		break;
-
-	case WM_KEYDOWN:
-#ifdef _DEBUG
-		{
-		static RECT resizer = { 0, 0, 0, 0 };
-
-		switch ( (int)wParam )
-		{
-		case VK_ESCAPE:
-
-			if ( m_editMode )
-				g_ui->SetEditRegion( NULL );
-			break;
-
-		case VK_F1:
-
-			if ( GetKeyState( VK_SHIFT ) < 0 ) {
-				if ( m_editMode ) {
-					aui_Region::PurgeUndoList();
-					SetEditMode( FALSE );
-				} else {
-					SetEditMode( TRUE );
-				}
-			}
-
-			errcode = AUI_ERRCODE_HANDLED;
-			break;
-
-		case VK_F2:
-
-			if ( m_editMode ) {
-				m_ldl->GetLdl()->WriteData();
-				errcode = AUI_ERRCODE_HANDLED;
-			}
-			break;
-
-		case 'Z':
-			if ( m_editMode ) {
-				if ( GetKeyState( VK_CONTROL ) < 0 ) {
-					aui_Region::UndoEdit( );
-					errcode = AUI_ERRCODE_HANDLED;
-				}
-			}
-			break;
-
-		case VK_LEFT:
-			if ( m_editMode ) {
-				if ( GetKeyState( VK_SHIFT ) < 0 )
-					SetRect( &resizer, -1, 0, 0, 0 );
-				else if ( GetKeyState( VK_CONTROL ) < 0 )
-					SetRect( &resizer, 0, 0, -1, 0 );
-				else
-					SetRect( &resizer, -1, 0, -1, 0 );
-
-				aui_Region::EditModeModifyRegion( resizer );
-
-				errcode = AUI_ERRCODE_HANDLED;
-			}
-			break;
-
-		case VK_UP:
-			if ( m_editMode ) {
-				if ( GetKeyState( VK_SHIFT ) < 0 )
-					SetRect( &resizer, 0, -1, 0, 0 );
-				else if ( GetKeyState( VK_CONTROL ) < 0 )
-					SetRect( &resizer, 0, 0, 0, -1 );
-				else
-					SetRect( &resizer, 0, -1, 0, -1 );
-
-				aui_Region::EditModeModifyRegion( resizer );
-
-				errcode = AUI_ERRCODE_HANDLED;
-			}
-			break;
-
-		case VK_RIGHT:
-			if ( m_editMode ) {
-				if ( GetKeyState( VK_SHIFT ) < 0 )
-					SetRect( &resizer, 0, 0, 1, 0 );
-				else if ( GetKeyState( VK_CONTROL ) < 0 )
-					SetRect( &resizer, 1, 0, 0, 0 );
-				else
-					SetRect( &resizer, 1, 0, 1, 0 );
-
-				aui_Region::EditModeModifyRegion( resizer );
-
-				errcode = AUI_ERRCODE_HANDLED;
-			}
-			break;
-
-		case VK_DOWN:
-			if ( m_editMode ) {
-				if ( GetKeyState( VK_SHIFT ) < 0 )
-					SetRect( &resizer, 0, 0, 0, 1 );
-				else if ( GetKeyState( VK_CONTROL ) < 0 )
-					SetRect( &resizer, 0, 1, 0, 0 );
-				else
-					SetRect( &resizer, 0, 1, 0, 1 );
-
-				aui_Region::EditModeModifyRegion( resizer );
-
-				errcode = AUI_ERRCODE_HANDLED;
-			}
-			break;
-
-		}
-		}
-#endif // _DEBUG
-		break;
-	}
-
-	return errcode;
-#else
 	return AUI_ERRCODE_UNHANDLED;
-#endif// __AUI_USE_DIRECTX__
 }
 
 AUI_ERRCODE aui_UI::AltTabOut( )
@@ -1676,41 +1446,13 @@ AUI_ERRCODE aui_UI::AltTabOut( )
 		m_primary = nullptr;
 	}
 
-#ifdef __AUI_USE_DIRECTX__
-	while ( ShowCursor( TRUE ) < 0 )
-		;
-
-	if ( m_minimize )
-	{
-		SetCursorPos( m_mouse->X(), m_mouse->Y() );
-
-		while ( !IsIconic( m_hwnd ) )
-			::ShowWindow( m_hwnd, SW_MINIMIZE );
-	}
-#endif
 	return AUI_ERRCODE_OK;
 }
 
 
 AUI_ERRCODE aui_UI::AltTabIn( )
 {
-#ifdef __AUI_USE_DIRECTX__
-	if ( m_minimize )
-		while ( GetForegroundWindow() != m_hwnd )
-			::ShowWindow( m_hwnd, SW_RESTORE );
-
-	while ( ShowCursor( FALSE ) >= 0 )
-		;
-#endif
 	if ( !m_primary ) CreateScreen();
-#ifdef __AUI_USE_DIRECTX__
-	if ( m_minimize )
-	{
-		POINT point;
-		GetCursorPos( &point );
-		m_mouse->SetPosition( &point );
-	}
-#endif
 	m_mouse->Acquire();
 	m_mouse->Resume();
 
@@ -1734,7 +1476,6 @@ AUI_ERRCODE aui_UI::Process( )
 	Idle();
 
 	// Scan human interface devices - when available
-#ifdef __AUI_USE_SDL__
 	// On SDL, mouse input is processed on the main thread (the mouse thread
 	// was removed to avoid SDL event queue race conditions). We need to
 	// pump input, update cursor animation, and blit the cursor here.
@@ -1744,7 +1485,6 @@ AUI_ERRCODE aui_UI::Process( )
 		m_mouse->ReactToInput();  // blit cursor
 		m_mouse->ManipulateInputs(m_mouse->GetLatestMouseEvent(), TRUE);
 	}
-#endif
 	if (m_mouse)    HandleMouseEvents();
 	if (m_keyboard) HandleKeyboardEvents();
 	if (m_joystick) HandleJoystickEvents();

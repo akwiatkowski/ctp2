@@ -39,9 +39,6 @@
 // Library dependencies
 //----------------------------------------------------------------------------
 
-#if defined(__AUI_USE_DIRECTX__)
-#include <dinput.h>	    	// DIK_...
-#endif
 
 // Not really a library, but needed in the export section
 #include "os/include/ctp2_inttypes.h"	// uint##
@@ -56,16 +53,6 @@ enum AUI_KEYBOARD_KEY
 {
 	AUI_KEYBOARD_KEY_FIRST              = 0,
 	AUI_KEYBOARD_KEY_INVALID            = 0,
-#if defined(__AUI_USE_DIRECTX__)
-	AUI_KEYBOARD_KEY_ESCAPE             = DIK_ESCAPE,
-	AUI_KEYBOARD_KEY_RETURN             = DIK_RETURN,
-	AUI_KEYBOARD_KEY_SPACE              = DIK_SPACE,
-	AUI_KEYBOARD_KEY_TAB                = DIK_TAB,
-	AUI_KEYBOARD_KEY_UPARROW            = DIK_UPARROW,
-	AUI_KEYBOARD_KEY_DOWNARROW          = DIK_DOWNARROW,
-	AUI_KEYBOARD_KEY_LEFTARROW          = DIK_LEFTARROW,
-	AUI_KEYBOARD_KEY_RIGHTARROW         = DIK_RIGHTARROW,
-#else
 	AUI_KEYBOARD_KEY_ESCAPE,
 	AUI_KEYBOARD_KEY_RETURN,
 	AUI_KEYBOARD_KEY_SPACE,
@@ -74,7 +61,6 @@ enum AUI_KEYBOARD_KEY
 	AUI_KEYBOARD_KEY_DOWNARROW,
 	AUI_KEYBOARD_KEY_LEFTARROW,
 	AUI_KEYBOARD_KEY_RIGHTARROW,
-#endif // __AUI_USE_DIRECTX__
 	AUI_KEYBOARD_KEY_LAST
 };
 

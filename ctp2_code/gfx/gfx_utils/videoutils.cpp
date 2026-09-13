@@ -3,7 +3,6 @@
 #include "gs/fileio/CivPaths.h"
 
 #include "ui/aui_ctp2/c3ui.h"
-#include "ui/aui_ctp2/directvideo.h"
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/videowindow.h"

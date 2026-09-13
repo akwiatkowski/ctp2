@@ -36,9 +36,6 @@
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_sdl/aui_sdlsurface.h"
-#if defined(__AUI_USE_DIRECTX__)
-#include "ui/aui_directx/aui_directsurface.h"
-#endif
 #include "ui/aui_common/aui_rectangle.h"
 
 #include "ui/aui_ctp2/c3blitter.h"

@@ -286,52 +286,6 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	else if (!strncmp(s, "/rnd", 4) && !network_Get().IsActive())
 	{
 		extern BOOL gDone;
-#ifdef __AUI_USE_DIRECTX__
-		MSG	msg;
-
-		MBCHAR * temp = s+4;
-		while (isspace(*temp))
-			temp++;
-
-		sint32 n = atoi(temp);
-
-		for (sint32 i = 0; i < n && !gDone; i++)
-		{
-			NewTurnCount::StartNextPlayer(false);
-
-			director_Get()->NextPlayer();
-			do
-			{
-				controlpanel_Get()->Idle();
-				if (civapp_Get())
-					civapp_Get()->Process();
-
-				while (PeekMessage(&msg, gHwnd, 0, 0, PM_REMOVE) && !g_letUIProcess)
-				{
-					if (msg.message == WM_QUIT)
-						gDone = TRUE;
-
-					TranslateMessage(&msg);
-
-					if (msg.message == WM_CHAR) {
-						if ((MBCHAR)msg.wParam == 0x1B)
-							i = n;
-					}
-
-					DispatchMessage(&msg);
-				}
-
-				g_letUIProcess = FALSE;
-
-			}
-			while
-			     (
-			          selitem_Get() != NULL
-			      &&  selitem_Get()->GetCurPlayer() != selitem_Get()->GetVisiblePlayer()
-			      && !gDone
-			     );
-		}
-#endif
 
 		return TRUE;
 	}

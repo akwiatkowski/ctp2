@@ -96,13 +96,6 @@ public:
 	sint32	GetFieldText( MBCHAR *text, sint32 maxCount );
 	BOOL	SetFieldText( const MBCHAR *text );
 
-#ifdef __AUI_USE_DIRECTX__
-	BOOL	IsMultiLine( void ) const { return m_multiLine; }
-	BOOL	SetMultiLine( BOOL multiLine );
-
-	BOOL	IsPasswordReady( void ) const { return m_passwordReady; }
-	BOOL	SetPasswordReady( BOOL passwordReady );
-#endif
 
 	BOOL	IsFileName( ) const { return m_isFileName; }
 	BOOL	SetIsFileName( BOOL isFileName );
@@ -119,11 +112,7 @@ public:
 		sint32 y ) override;
 
 	static WNDPROC	m_windowProc;
-#ifdef __AUI_USE_DIRECTX__
-	static void HitEnter( HWND hwnd );
-#else
 	void HitEnter();
-#endif
 	static BOOL IsFileName( HWND hwnd );
 	static sint32 GetMaxFieldLen( HWND hwnd );
 
@@ -149,28 +138,16 @@ protected:
 public:
 	sint32	m_textHeight;
 	MBCHAR	m_desiredFont[256];
-#ifdef __AUI_USE_DIRECTX__
-	HFONT	m_hfont;
-	HFONT	m_holdfont;
-#else
 	aui_BitmapFont *m_Font;
 	aui_BitmapFont *m_holdfont;
-#endif
 
 	void	MouseLGrabOutside(aui_MouseEvent * mouseData) override;
 	void	PostChildrenCallback(aui_MouseEvent * mouseData) override;
 
-#ifdef __AUI_USE_SDL__
 	void	KeyboardCallback(aui_KeyboardEvent * keyboardData) override;
-#endif
 };
 
 
-#ifdef __AUI_USE_DIRECTX__
-LRESULT CALLBACK TextFieldWindowProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam );
-int CALLBACK EnumTextFontsProc( LOGFONT *lplf, TEXTMETRIC *lptm, DWORD dwType, LPARAM lParam );
-#elif defined(__AUI_USE_SDL__)
 void TextFieldWindowProc(SDL_Event &event);
-#endif
 
 #endif

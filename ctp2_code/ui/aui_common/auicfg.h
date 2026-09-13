@@ -27,12 +27,7 @@
 #ifndef __AUICFG_H__
 #define __AUICFG_H__
 
-#if defined(WIN32)
-#define __AUI_USE_DIRECTX__ 1
-#define __AUI_USE_DIRECTMEDIA__ 1
-#else
 #define __AUI_USE_SDL__ 1
-#endif
 
 #include "ui/aui_common/aui_gamespecific.h"
 

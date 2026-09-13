@@ -62,7 +62,6 @@
 
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_common/aui_tabgroup.h"
-#include "ui/aui_ctp2/directvideo.h"
 #include "gs/fileio/CivPaths.h"
 #include "ui/aui_ctp2/ctp2_hypertextbox.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
@@ -122,10 +121,6 @@ GreatLibraryWindow::GreatLibraryWindow(AUI_ERRCODE * err)
 	m_techGameplayText      (nullptr),
 	m_techRequirementsText  (nullptr),
 	m_techVariablesText     (nullptr)
-#ifdef __AUI_USE_DIRECTX__
-	                              ,
-	m_techMovie             (NULL)
-#endif // __AUI_USE_DIRECTX__
 {
 	m_window = (ctp2_Window *) aui_Ldl::BuildHierarchyFromRoot(s_libraryWindowBlock);
 	Assert(m_window);
@@ -142,18 +137,6 @@ GreatLibraryWindow::~GreatLibraryWindow()
 
 AUI_ERRCODE GreatLibraryWindow::Idle ( )
 {
-#ifdef __AUI_USE_DIRECTX__
-	if (m_techMovie && m_techMovie->Open())
-    {
-		HRESULT hr = m_techMovie->PlayOne();
-		Assert(!FAILED(hr));
-		if (FAILED(hr)) {
-			m_techMovie->CloseStream();
-			delete m_techMovie;
-			m_techMovie = NULL;
-		}
-	}
-#endif
 	return AUI_ERRCODE_OK;
 }
 
@@ -232,26 +215,7 @@ sint32 GreatLibraryWindow::LoadVariablesText ( SlicObject &so )
 
 sint32 GreatLibraryWindow::LoadTechMovie ( )
 {
-#ifdef __AUI_USE_DIRECTX__
-	if (!m_techMovie) return 0;
-	if (!strcmp(m_movie_file,"null")) return 0;
-
-	MBCHAR fullPath[_MAX_PATH];
-	if (civpaths_Get()->FindFile(C3DIR_VIDEOS, m_movie_file, fullPath, TRUE)) {
-
-		soundmgr_Get()->ReleaseSoundDriver();
-
-		m_techMovie->OpenStream(fullPath);
-
-		soundmgr_Get()->ReacquireSoundDriver();
-	} else {
-		return 0;
-	}
-
-	return 1;
-#else
 	return 0;
-#endif // __AUI_USE_DIRECTX__
 }
 
 sint32 GreatLibraryWindow::LoadTechStill( )
@@ -273,12 +237,6 @@ sint32 GreatLibraryWindow::LoadTechStill( )
 
 void GreatLibraryWindow::PlayTechMovie ( )
 {
-#ifdef __AUI_USE_DIRECTX__
-	if (m_techMovie)
-    {
-        m_techMovie->PlayAll();
-    }
-#endif // __AUI_USE_DIRECTX__
 }
 
 sint32 GreatLibraryWindow::SetTechMode ( sint32 theMode, DATABASE theDatabase )

@@ -144,13 +144,6 @@ protected:
 	uint32		m_timePerFrame;
 	uint32		m_lastFrameTime;
 
-#if defined(__AUI_USE_DIRECTX__)
-	PAVIFILE			m_aviFile;
-	PAVISTREAM			m_aviStream;
-	AVIFILEINFO			m_aviFileInfo;
-	AVISTREAMINFO		m_aviStreamInfo;
-	PGETFRAME			m_getFrame;
-#endif
 	uint32				m_curFrame;
 };
 

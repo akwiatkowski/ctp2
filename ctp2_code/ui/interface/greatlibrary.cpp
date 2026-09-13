@@ -77,7 +77,6 @@
 #include "ui/aui_ctp2/ctp2_TabGroup.h"
 #include "ui/aui_ctp2/ctp2_textfield.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
-#include "ui/aui_ctp2/directvideo.h"
 #include "gs/utility/Globals.h"            // allocated::clear
 #include "GovernmentRecord.h"
 #include "ui/interface/greatlibrarywindow.h"
@@ -711,9 +710,6 @@ GreatLibrary::GreatLibrary(sint32 theMode)
     m_techTree                  (nullptr),
     m_techRequirementsText      (nullptr),
     m_techVariablesText         (nullptr),
-#ifdef __AUI_USE_DIRECTX__
-    m_techMovie                 (NULL),
-#endif // __AUI_USE_DIRECTX__
     m_techStillShot             (nullptr),
     m_string                    (nullptr),
     m_buttonString              (LIB_STRING_INDEX),
@@ -772,9 +768,6 @@ GreatLibrary::GreatLibrary(sint32 theMode)
 	m_window->SetTechStillShot ( m_techStillShot );
 	m_window->SetTechHistoricalText ( m_techHistoricalText );
 	m_window->SetTechGameplayText ( m_techGameplayText );
-#ifdef __AUI_USE_DIRECTX__
-	m_window->SetTechMovie ( m_techMovie );
-#endif // __AUI_USE_DIRECTX__
 	m_window->SetTechRequirementsText ( m_techRequirementsText );
 	m_window->SetTechVariablesText ( m_techVariablesText );
 
@@ -794,11 +787,6 @@ GreatLibrary::GreatLibrary(sint32 theMode)
 
 	if ( profiledb_Get()->IsLibraryAnim() ) {
 		m_techStillShot->Hide();
-#ifdef __AUI_USE_DIRECTX__
-		if (m_techMovie) {
-			if (m_techMovie->Open()) m_techMovie->CloseStream();
-		}
-#endif
 		if (!m_window->LoadTechMovie()) {
 			m_techStillShot->ShouldDraw();
 			m_techStillShot->Show();
@@ -867,11 +855,6 @@ void GreatLibrary::Initialize(MBCHAR const * windowBlock)
 
 		GetWindow()->SetDynamic(FALSE);
 
-#ifdef __AUI_USE_DIRECTX__
-		m_techMovie = new DirectVideo();
-		m_techMovie->Initialize((aui_DirectUI *)c3ui_Get(), (aui_Window *)GetWindow(), FALSE);
-		m_techMovie->SetDestRect(&rect);
-#endif
 	}
 
 	m_techStillShot = (ctp2_Static *)aui_Ldl::GetObject(windowBlock, "TechStillShot");
@@ -971,9 +954,6 @@ GreatLibrary::~GreatLibrary( )
     delete m_window;
     delete m_techTree;
     delete m_string;
-#ifdef __AUI_USE_DIRECTX__
-    delete m_techMovie;
-#endif // __AUI_USE_DIRECTX__
 }
 
 void GreatLibrary::Display( )
@@ -1124,13 +1104,6 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
 
 
 
-#ifdef __AUI_USE_DIRECTX__
-	if (m_techMovie) {
-		if (m_techMovie->Open()) m_techMovie->CloseStream();
-		delete m_techMovie;
-		m_techMovie = NULL;
-	}
-#endif
 
 	RECT rect = {
 		k_VIDEO_X,
@@ -1139,11 +1112,6 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
 		k_VIDEO_Y + k_VIDEO_HEIGHT};
 
 	if ( profiledb_Get()->IsLibraryAnim() ) {
-#ifdef __AUI_USE_DIRECTX__
-		m_techMovie = new DirectVideo();
-		m_techMovie->Initialize((aui_DirectUI *)c3ui_Get(), (aui_Window *)GetWindow(), FALSE);
-		m_techMovie->SetDestRect(&rect);
-#endif
 
 	}
 	else {
@@ -1152,9 +1120,6 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
 	}
 
 	m_window->SetTechTree(m_techTree);
-#ifdef __AUI_USE_DIRECTX__
-	m_window->SetTechMovie(m_techMovie);
-#endif // __AUI_USE_DIRECTX__
 	m_window->LoadGameplayText(so);
 	int const text_load_result = m_window->LoadHistoricalText(so);
 	m_historicalTab->Enable
@@ -1165,14 +1130,6 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
 	m_window->LoadVariablesText(so);
 
 	if ( profiledb_Get()->IsLibraryAnim() ) {
-#ifdef __AUI_USE_DIRECTX__
-		if (m_techMovie) {
-			if (m_techMovie->Open())
-				m_techMovie->CloseStream();
-		}
-		if (!g_greatLibrary->m_window->LoadTechMovie()) {
-		}
-#endif // __AUI_USE_DIRECTX__
 		if ( m_window->LoadTechStill() ) {
 			m_techStillShot->Show();
 			GetWindow()->ShouldDraw();

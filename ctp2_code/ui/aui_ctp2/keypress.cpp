@@ -191,14 +191,10 @@ PointerList<KeyboardHandler> g_keyboardHandlers;
 void keypress_QuitCallback( sint32 val )
 {
 	if ( val ) {
-#ifdef __AUI_USE_DIRECTX__
-        PostMessage(gHwnd, WM_CLOSE, 0, 0);
-#elif defined(__AUI_USE_SDL__)
 	static SDL_Event quit = { 0 };
         quit.type = SDL_QUIT;
         quit.quit.type = SDL_QUIT;
         int e = SDL_PushEvent(&quit);
-#endif
 	}
 }
 

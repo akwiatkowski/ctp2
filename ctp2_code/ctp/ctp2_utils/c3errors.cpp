@@ -41,6 +41,7 @@
 #include "gs/database/StrDB.h"      // stringdb_Get()
 
 #include <cstdlib>
+#include <vector>
 
 
 void c3errors_FatalDialog(const char* module, const char* fmt, ...)
@@ -159,9 +160,8 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
 
    wsprintf(szTitle, szTitleText, szTmp);
 #else
-   if ((szTitle = (LPTSTR)malloc(titleChars*sizeof(TCHAR))
-       ) == nullptr)
-      return;
+   std::vector<char> szTitleBuf(titleChars);
+   szTitle = szTitleBuf.data();
 
    snprintf(szTitle, titleChars, szTitleText, szTmp);
 #endif
@@ -183,8 +183,6 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
 
 #if defined(WIN32)
 	LocalFree(szTitle);
-#else
-   free(szTitle);
 #endif
 
 #ifndef _DEBUG

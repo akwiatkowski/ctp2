@@ -31,8 +31,6 @@
 #include "ctp/c3.h"
 #include "gfx/gfx_utils/gfx_options.h"
 
-#include "ctp/ctp2_utils/AvlTree.h"
-
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/utility/Globals.h"
@@ -46,14 +44,6 @@ void              graphicsoptions_Set(GraphicsOptions *p) { g_graphicsOptions = 
 
 namespace
 {
-
-cmp_t CellAVLCompare(CellText *obj1, CellText *obj2)
-{
-	if (obj1->m_key < obj2->m_key) return MIN_CMP;
-	if (obj1->m_key > obj2->m_key) return MAX_CMP;
-
-	return EQ_CMP;
-}
 
 /// Encode a map position into a value (for fast comparison)
 /// \param pos The map position to encode
@@ -70,13 +60,8 @@ GraphicsOptions::GraphicsOptions()
     m_armyTextOn              (false),
     m_cellTextOn              (false),
     m_armyNameOn              (false),
-    m_cellAVL                 (new AvlTree<CellText *>())
+    m_cellText                ()
 {
-}
-
-GraphicsOptions::~GraphicsOptions()
-{
-    delete m_cellAVL;
 }
 
 void GraphicsOptions::Initialize()
@@ -150,11 +135,8 @@ void GraphicsOptions::CellTextOff()
 
 CellText *GraphicsOptions::GetCellText(MapPoint const &pos)
 {
-	CellText dummyCellText;
-	dummyCellText.m_key = PackCellAVLKey(pos);
-
-	Comparable<CellText *> * avlObject = m_cellAVL->Search(&dummyCellText);
-	return (avlObject) ? avlObject->Key() : nullptr;
+	auto const it = m_cellText.find(PackCellAVLKey(pos));
+	return (it != m_cellText.end()) ? &it->second : nullptr;
 }
 
 bool GraphicsOptions::AddTextToCell(const MapPoint &pos, const char *text,
@@ -162,28 +144,15 @@ bool GraphicsOptions::AddTextToCell(const MapPoint &pos, const char *text,
 {
 	if (!m_cellTextOn) return false;
 
-	CellText * cellText = GetCellText(pos);
-	if (cellText)
-	{
-		delete [] cellText->m_text;
-		cellText->m_text = nullptr;
-	}
-
 	if (text)
 	{
-		size_t const textLen = strlen(text) + 1;
-		MBCHAR * newText = new MBCHAR[textLen];
-		memcpy(newText, text, textLen);
-
-		if (!cellText)
-		{
-			cellText = new CellText;
-			cellText->m_key = PackCellAVLKey(pos);
-			m_cellAVL->Insert(new Comparable<CellText *>(cellText, CellAVLCompare));
-		}
-
-		cellText->m_text = newText;
-		cellText->m_color = colorMagnitude;
+		CellText & cellText = m_cellText[PackCellAVLKey(pos)];
+		cellText.m_text  = text;
+		cellText.m_color = colorMagnitude;
+	}
+	else if (CellText * cellText = GetCellText(pos))
+	{
+		cellText->m_text.clear();
 	}
 
 	return true;
@@ -191,11 +160,5 @@ bool GraphicsOptions::AddTextToCell(const MapPoint &pos, const char *text,
 
 void GraphicsOptions::ResetCellText(const MapPoint &pos)
 {
-	CellText *cellText = GetCellText(pos);
-	if (cellText)
-	{
-		delete [] cellText->m_text;
-		m_cellAVL->Delete(cellText);
-		delete cellText;
-	}
+	m_cellText.erase(PackCellAVLKey(pos));
 }

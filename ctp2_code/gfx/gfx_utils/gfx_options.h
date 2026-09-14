@@ -38,24 +38,25 @@
 class CellText;
 class GraphicOptions;
 
+#include <map>
+#include <string>
+
 #include "gs/gameobj/Army.h"             // Army
 #include "os/include/ctp2_inttypes.h"    // uintN
 class MapPoint;
-template <class T> class AvlTree;
 
 class CellText
 {
 public:
-	uint32        m_key;
 	uint8	      m_color;
-	MBCHAR *      m_text;
+	std::string   m_text;
 };
 
 class GraphicsOptions
 {
 public:
 	GraphicsOptions();
-	~GraphicsOptions();
+	~GraphicsOptions() = default;
 
 	static void Initialize();
 	static void Cleanup();
@@ -83,7 +84,9 @@ private:
 	bool                      m_armyTextOn;
 	bool                      m_cellTextOn;
 	bool                      m_armyNameOn;
-	AvlTree<CellText *> *     m_cellAVL;
+	// Packed MapPoint key (PackCellAVLKey) -> overlay text.  Value
+	// semantics: the map owns the strings, no manual teardown needed.
+	std::map<uint32, CellText> m_cellText;
 };
 
 // g_graphicsOptions is file-static in gfx_options.cpp; access via accessors.

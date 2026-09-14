@@ -2279,7 +2279,7 @@ sint32 TiledMap::CalculateWrap
 				COLORREF bgColor = RGB(0, 0, 0);
 
 				DrawSomeText(false,
-							 cellText->m_text,
+							 cellText->m_text.c_str(),
 							 x + GetZoomTilePixelWidth()/2,
 							 y + GetZoomTilePixelHeight(),
 							 bgColor,

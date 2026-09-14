@@ -93,6 +93,8 @@ public:
 
 	void			ExportScript(MBCHAR const * name);
 
+	using SpriteGroup::Draw;
+
 	void			Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags);
 	void			DrawDirect(aui_Surface *surf, GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,

@@ -11,6 +11,9 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/player.h"     // PLAYER_UNASSIGNED
 #include "gs/fileio/gamefile.h"
+#include "gs/fileio/CivPaths.h"
+#include "gs/utility/gameinit.h"
+#include "gs/database/profileDB.h"
 #include <cstdio>
 #include <fstream>
 #include <string>
@@ -20,14 +23,37 @@ namespace {
 
 // Same trampoline shape as test_citydata: world_Set routes through
 // civapp_Get()->GetGame(), so a lightweight CivApp hosts the world.
+// SetTerrain recomputes movement data through g_theTerrainDB, so the
+// record DBs must be loaded — once per process, same pattern as
+// BuildQueueFixture / HeavyCityDataFixture.
 struct GameMapFixture
 {
+    static bool s_dbsLoaded;
+
     CivApp * app = nullptr;
 
     GameMapFixture()
     {
         app = new CivApp();
         civapp_Set(app);
+
+        if (!s_dbsLoaded)
+        {
+            set_headless(true);
+
+            fprintf(stderr, "[GameMapFixture] Loading databases...\n");
+            CivPaths_InitCivPaths();
+            gameinit_InitializeGameFiles();
+
+            profiledb_Set(new ProfileDB());
+            profiledb_Get()->Init(FALSE);
+
+            app->InitializeAppDB();
+
+            fprintf(stderr, "[GameMapFixture] Databases loaded.\n");
+            s_dbsLoaded = true;
+        }
+
         world_Set(new World(MapPoint(20, 20), false, false));
     }
 
@@ -37,6 +63,8 @@ struct GameMapFixture
         civapp_Set(nullptr);
     }
 };
+
+bool GameMapFixture::s_dbsLoaded = false;
 
 char const kMapPath[] = "/tmp/ctp2_test_gamemap.json";
 char const kBadPath[] = "/tmp/ctp2_test_gamemap_bad.json";

@@ -35,6 +35,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <memory>
 #include <ostream>
 #include <utility>
 
@@ -142,7 +143,7 @@ public:
 
 
    AvlNode *
-   Subtree(dir_t dir) const { return  mySubtree[dir]; }
+   Subtree(dir_t dir) const { return  mySubtree[dir].get(); }
 
 
 
@@ -161,11 +162,11 @@ public:
 
 
    static Comparable<KeyType> *
-   Insert(Comparable<KeyType> * item, AvlNode<KeyType> * & root);
+   Insert(Comparable<KeyType> * item, std::unique_ptr<AvlNode<KeyType>> & root);
 
 
    static Comparable<KeyType> *
-   Delete(KeyType key, AvlNode<KeyType> * & root, cmp_t cmp=EQ_CMP);
+   Delete(KeyType key, std::unique_ptr<AvlNode<KeyType>> & root, cmp_t cmp=EQ_CMP);
 
 
 
@@ -193,13 +194,14 @@ private:
 
 
    Comparable<KeyType> * myData;
-   AvlNode<KeyType>    * mySubtree[MAX_SUBTREES];
+   std::unique_ptr<AvlNode<KeyType>> mySubtree[MAX_SUBTREES];
    short      myBal;
 
    void
    Reset() {
       myBal = 0 ;
-      mySubtree[LEFT] = mySubtree[RIGHT] = nullptr ;
+      mySubtree[LEFT].reset();
+      mySubtree[RIGHT].reset();
    }
 
 
@@ -211,7 +213,7 @@ private:
 
    static Comparable<KeyType> *
    Insert(Comparable<KeyType> * item,
-             AvlNode<KeyType> * & root,
+             std::unique_ptr<AvlNode<KeyType>> & root,
              int & change);
 
 
@@ -221,7 +223,7 @@ private:
 
    static Comparable<KeyType> *
    Delete(KeyType key,
-             AvlNode<KeyType> * & root,
+             std::unique_ptr<AvlNode<KeyType>> & root,
              int & change,
              cmp_t cmp=EQ_CMP);
 
@@ -231,16 +233,16 @@ private:
 
 
    static int
-   RotateOnce(AvlNode<KeyType> * & root, dir_t dir);
+   RotateOnce(std::unique_ptr<AvlNode<KeyType>> & root, dir_t dir);
 
 
 
 
    static int
-   RotateTwice(AvlNode<KeyType> * & root, dir_t dir);
+   RotateTwice(std::unique_ptr<AvlNode<KeyType>> & root, dir_t dir);
 
    static int
-   ReBalance(AvlNode<KeyType> * & root);
+   ReBalance(std::unique_ptr<AvlNode<KeyType>> & root);
 
 
 
@@ -253,8 +255,8 @@ private:
 
 private:
 
-   AvlNode(const AvlNode<KeyType> &);
-   AvlNode & operator=(const AvlNode<KeyType> &);
+   AvlNode(const AvlNode<KeyType> &) = delete;
+   AvlNode & operator=(const AvlNode<KeyType> &) = delete;
 
 };
 
@@ -266,26 +268,28 @@ template <class KeyType>
 class AvlTree {
 private:
 
-   AvlTree(const AvlTree<KeyType> &);
-   AvlTree & operator=(const AvlTree<KeyType> &);
+   AvlTree(const AvlTree<KeyType> &) = delete;
+   AvlTree & operator=(const AvlTree<KeyType> &) = delete;
 
-   AvlNode<KeyType> * myRoot;
+   std::unique_ptr<AvlNode<KeyType>> myRoot;
 
 public:
 
-   AvlTree() : myRoot(nullptr) {};
-   ~AvlTree() {  delete myRoot; }
+   AvlTree() = default;
+   AvlTree(AvlTree<KeyType> &&) = default;
+   AvlTree & operator=(AvlTree<KeyType> &&) = default;
+   ~AvlTree() = default;
 
    void DumpTree(std::ostream & os) const;
 
    int
    IsEmpty() const {
-      return  (myRoot == NULL);
+      return  (myRoot == nullptr);
    }
 
    Comparable<KeyType> *
    Search(KeyType key, cmp_t cmp=EQ_CMP) {
-      return  AvlNode<KeyType>::Search(key, myRoot, cmp);
+      return  AvlNode<KeyType>::Search(key, myRoot.get(), cmp);
    }
 
    Comparable<KeyType> *
@@ -328,30 +332,27 @@ AvlNode<KeyType>::AvlNode(Comparable<KeyType> * item)
 }
 
 template <class KeyType>
-AvlNode<KeyType>::~AvlNode() {
-   if (mySubtree[LEFT])  delete  mySubtree[LEFT];
-   if (mySubtree[RIGHT]) delete  mySubtree[RIGHT];
-}
+AvlNode<KeyType>::~AvlNode() = default;
 
 
 template <class KeyType>
 int
-AvlNode<KeyType>::RotateOnce(AvlNode<KeyType> * & root, dir_t dir)
+AvlNode<KeyType>::RotateOnce(std::unique_ptr<AvlNode<KeyType>> & root, dir_t dir)
 {
    dir_t  otherDir = Opposite(dir);
-   AvlNode<KeyType> * oldRoot = root;
+   std::unique_ptr<AvlNode<KeyType>> oldRoot = std::move(root);
 
 
 
 
-   int  heightChange = (root->mySubtree[otherDir]->myBal == 0)
+   int  heightChange = (oldRoot->mySubtree[otherDir]->myBal == 0)
                           ? HEIGHT_NOCHANGE
                           : HEIGHT_CHANGE;
 
-   root = oldRoot->mySubtree[otherDir];
+   root = std::move(oldRoot->mySubtree[otherDir]);
 
-   oldRoot->mySubtree[otherDir] = root->mySubtree[dir];
-   root->mySubtree[dir] = oldRoot;
+   oldRoot->mySubtree[otherDir] = std::move(root->mySubtree[dir]);
+   root->mySubtree[dir] = std::move(oldRoot);
 
    oldRoot->myBal = -((dir == LEFT) ? --(root->myBal) : ++(root->myBal));
 
@@ -360,19 +361,19 @@ AvlNode<KeyType>::RotateOnce(AvlNode<KeyType> * & root, dir_t dir)
 
 template <class KeyType>
 int
-AvlNode<KeyType>::RotateTwice(AvlNode<KeyType> * & root, dir_t dir)
+AvlNode<KeyType>::RotateTwice(std::unique_ptr<AvlNode<KeyType>> & root, dir_t dir)
 {
    dir_t  otherDir = Opposite(dir);
-   AvlNode<KeyType> * oldRoot = root;
-   AvlNode<KeyType> * oldOtherDirSubtree = root->mySubtree[otherDir];
+   std::unique_ptr<AvlNode<KeyType>> oldRoot = std::move(root);
+   std::unique_ptr<AvlNode<KeyType>> oldOtherDirSubtree = std::move(oldRoot->mySubtree[otherDir]);
 
-   root = oldRoot->mySubtree[otherDir]->mySubtree[dir];
+   root = std::move(oldOtherDirSubtree->mySubtree[dir]);
 
-   oldRoot->mySubtree[otherDir] = root->mySubtree[dir];
-   root->mySubtree[dir] = oldRoot;
+   oldRoot->mySubtree[otherDir] = std::move(root->mySubtree[dir]);
+   root->mySubtree[dir] = std::move(oldRoot);
 
-   oldOtherDirSubtree->mySubtree[dir] = root->mySubtree[otherDir];
-   root->mySubtree[otherDir] = oldOtherDirSubtree;
+   oldOtherDirSubtree->mySubtree[dir] = std::move(root->mySubtree[otherDir]);
+   root->mySubtree[otherDir] = std::move(oldOtherDirSubtree);
 
    root->mySubtree[LEFT]->myBal  = - std::max<short>(root->myBal, 0);
    root->mySubtree[RIGHT]->myBal = - std::min<short>(root->myBal, 0);
@@ -383,7 +384,7 @@ AvlNode<KeyType>::RotateTwice(AvlNode<KeyType> * & root, dir_t dir)
 
 template <class KeyType>
 int
-AvlNode<KeyType>::ReBalance(AvlNode<KeyType> * & root) {
+AvlNode<KeyType>::ReBalance(std::unique_ptr<AvlNode<KeyType>> & root) {
    int  heightChange = HEIGHT_NOCHANGE;
 
    if (LEFT_IMBALANCE(root->myBal)) {
@@ -441,7 +442,7 @@ AvlNode<KeyType>::Search(KeyType key, AvlNode<KeyType> * root, cmp_t cmp)
             return root->myData;    // found
         }
 
-        root = root->mySubtree[(result < 0) ? LEFT : RIGHT];
+        root = root->mySubtree[(result < 0) ? LEFT : RIGHT].get();
     }
 
     return nullptr;    // not found
@@ -450,7 +451,7 @@ AvlNode<KeyType>::Search(KeyType key, AvlNode<KeyType> * root, cmp_t cmp)
 template <class KeyType>
 Comparable<KeyType> *
 AvlNode<KeyType>::Insert(Comparable<KeyType> *   item,
-                         AvlNode<KeyType>    * & root)
+                         std::unique_ptr<AvlNode<KeyType>> & root)
 {
    int  change;
    return  Insert(item, root, change);
@@ -458,7 +459,7 @@ AvlNode<KeyType>::Insert(Comparable<KeyType> *   item,
 
 template <class KeyType>
 Comparable<KeyType> *
-AvlNode<KeyType>::Delete(KeyType key, AvlNode<KeyType> * & root, cmp_t cmp)
+AvlNode<KeyType>::Delete(KeyType key, std::unique_ptr<AvlNode<KeyType>> & root, cmp_t cmp)
 {
    int  change;
    return  Delete(key, root, change, cmp);
@@ -467,13 +468,13 @@ AvlNode<KeyType>::Delete(KeyType key, AvlNode<KeyType> * & root, cmp_t cmp)
 template <class KeyType>
 Comparable<KeyType> *
 AvlNode<KeyType>::Insert(Comparable<KeyType> *   item,
-                         AvlNode<KeyType>    * & root,
+                         std::unique_ptr<AvlNode<KeyType>> & root,
                          int                   & change)
 {
 
     if (root == nullptr) {
 
-        root    = new AvlNode<KeyType>(item);
+        root.reset(new AvlNode<KeyType>(item));
         change  = HEIGHT_CHANGE;
         return  nullptr;
     }
@@ -505,7 +506,7 @@ AvlNode<KeyType>::Insert(Comparable<KeyType> *   item,
 template <class KeyType>
 Comparable<KeyType> *
 AvlNode<KeyType>::Delete(KeyType              key,
-                         AvlNode<KeyType> * & root,
+                         std::unique_ptr<AvlNode<KeyType>> & root,
                          int                & change,
                          cmp_t                cmp)
 {
@@ -532,18 +533,15 @@ AvlNode<KeyType>::Delete(KeyType              key,
 
         if ((root->mySubtree[LEFT] == nullptr) &&
             (root->mySubtree[RIGHT] == nullptr)) {
-            delete root;
-            root = nullptr;
+            root.reset();
             change = HEIGHT_CHANGE;
             return found;
         } else if ((root->mySubtree[LEFT] == nullptr) ||
                    (root->mySubtree[RIGHT] == nullptr)) {
-             AvlNode<KeyType> * toDelete = root;
-             root = root->mySubtree[(root->mySubtree[RIGHT]) ? RIGHT : LEFT];
+             std::unique_ptr<AvlNode<KeyType>> toDelete = std::move(root);
+             root = std::move(toDelete->mySubtree[(toDelete->mySubtree[RIGHT]) ? RIGHT : LEFT]);
              change = HEIGHT_CHANGE;
 
-             toDelete->mySubtree[LEFT] = toDelete->mySubtree[RIGHT] = nullptr;
-             delete  toDelete;
              return  found;
         } else {
 
@@ -673,7 +671,7 @@ static void Dump(std::ostream & os, const AvlNode<KeyType> * node, int level=0)
 template <class KeyType>
 void AvlTree<KeyType>::DumpTree(std::ostream & os) const
 {
-   Dump(os, myRoot);
+   Dump(os, myRoot.get());
 }
 
 #endif

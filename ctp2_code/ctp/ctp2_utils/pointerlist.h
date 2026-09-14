@@ -342,7 +342,7 @@ template <class T> void PointerList<T>::Remove(PointerListNode* node)
     if (!node)
         return;
 
-	if (node == m_head)
+    if (node == m_head)
     {
 		m_head = node->m_next;
         if (m_head)

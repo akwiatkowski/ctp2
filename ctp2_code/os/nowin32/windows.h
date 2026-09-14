@@ -27,7 +27,9 @@
 #error "WIN32 defined, but included windows.h from os/nowin32!"
 #endif
 
-#define HAVE_UNISTD_H
+#ifndef HAVE_UNISTD_H
+#define HAVE_UNISTD_H 1
+#endif
 
 #include <assert.h>
 #include <strings.h>

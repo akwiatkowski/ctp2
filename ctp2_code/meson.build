@@ -21,12 +21,15 @@ configure_file(output : 'build_revision.h', configuration : build_revision)
 
 conf.set('SHOW_ASSERTS', get_option('buildtype').startswith('debug'))
 conf.set('USE_LOGGING', get_option('buildtype').startswith('debug'))
-conf.set('_DEBUG', get_option('buildtype').startswith('debug'))
-conf.set10('CTP2_ENABLE_NETWORKING', get_option('anet'))
-
 if get_option('buildtype').startswith('debug')
+	# Value form so config.h's "#define _DEBUG 1" matches the -D_DEBUG
+	# command-line define instead of tripping -Wmacro-redefined.
+	conf.set('_DEBUG', 1)
 	add_global_arguments('-D_DEBUG', language : ['c', 'cpp'])
+else
+	conf.set('_DEBUG', false)
 endif
+conf.set10('CTP2_ENABLE_NETWORKING', get_option('anet'))
 
 # first look into our own bin folder, then search the PATH
 flex = find_program('../bin/flex', 'flex')
@@ -121,7 +124,9 @@ sdl = [dependency('sdl3'), dependency('SDL3_mixer')]
 	# FAST mode for release (minimal overhead, aborts on violation)
 	if host_system == 'darwin'
 		if get_option('buildtype').startswith('debug')
-			add_global_arguments('-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG', language : ['cpp'])
+			# Meson >= 1.9 injects -D_LIBCPP_HARDENING_MODE=..._FAST itself when
+			# asserts are on; undefine it first to avoid -Wmacro-redefined.
+			add_global_arguments('-U_LIBCPP_HARDENING_MODE', '-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG', language : ['cpp'])
 		else
 			add_global_arguments('-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST', language : ['cpp'])
 		endif

@@ -3,7 +3,7 @@
 // Project      : Call To Power 2
 // File type    : C++ source
 // Description  : CTP2 list item GUI component
-// Id           : $Id net_civ.cpp 442 2005-08-28 18:05:04Z Martin GÃ¼hmann $
+// Id           : $Id net_civ.cpp 442 2005-08-28 18:05:04Z Martin Gühmann $
 //
 //----------------------------------------------------------------------------
 //

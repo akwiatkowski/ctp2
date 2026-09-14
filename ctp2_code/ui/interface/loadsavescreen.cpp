@@ -78,7 +78,7 @@
 #include "ui/netshell/ns_gamesetup.h"
 #endif
 #include "ui/interface/optionswindow.h"
-#include "gs/gameobj/Player.h"                     // player_Get()
+#include "gs/gameobj/player.h"                     // player_Get()
 #include "gs/database/profileDB.h"                  // profiledb_Get()
 #include "ui/interface/spnewgamediffscreen.h"
 #include "ui/interface/spnewgameplayersscreen.h"

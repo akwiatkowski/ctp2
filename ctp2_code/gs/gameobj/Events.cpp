@@ -38,7 +38,7 @@
 #include "gs/events/GameEventManager.h"
 #include "gs/fileio/action_log.h"            // actionlog_tap_Initialize / _Cleanup
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Score.h"
 
 #include "gs/slic/SlicObject.h"

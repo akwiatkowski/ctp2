@@ -45,7 +45,7 @@
 #include "gs/gameobj/gaiacontroller.h"
 #include "gs/utility/Globals.h"            // k_GAME_OBJ_TYPE_IMPROVEMENT
 #include "gs/gameobj/installation.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_ctp2/radarmap.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/database/StrDB.h"

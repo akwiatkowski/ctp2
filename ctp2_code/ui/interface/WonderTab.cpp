@@ -50,7 +50,7 @@
 #include "gs/gameobj/GameSettings.h"
 #include "IconRecord.h"
 #include "ui/aui_ctp2/linegraph.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/database/profileDB.h"
 #include "ui/interface/rankingtab.h"
 #include "gs/database/StrDB.h"              // stringdb_Get()

@@ -90,7 +90,7 @@
 #include "gs/fileio/gamefile.h"     // save_file_version_Get()
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gs/gameobj/Player.h"  // player_Get()
+#include "gs/gameobj/player.h"  // player_Get()
 #include "gs/utility/safety.h"  // safe_player
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"

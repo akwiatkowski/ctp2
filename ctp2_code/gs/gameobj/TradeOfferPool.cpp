@@ -1,6 +1,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/TradeOfferPool.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "robot/aibackdoor/dynarr.h"
 
 #include "gs/utility/Globals.h"

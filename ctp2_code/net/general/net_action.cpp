@@ -42,7 +42,7 @@
 #include "net/general/net_traderoute.h"
 #include "net/general/net_unit.h"
 #include "gs/world/World.h"                      // world_Get()
-#include "gs/gameobj/Player.h"                     // player_arr_Get()
+#include "gs/gameobj/player.h"                     // player_arr_Get()
 #include "ui/aui_ctp2/SelItem.h"                    // selitem_Get()
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/Readiness.h"

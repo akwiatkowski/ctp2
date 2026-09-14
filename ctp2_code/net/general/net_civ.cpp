@@ -36,7 +36,7 @@
 #include "gs/gameobj/CivilisationPool.h"
 #include "CivilisationRecord.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 

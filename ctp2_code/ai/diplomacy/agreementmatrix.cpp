@@ -36,7 +36,7 @@
 
 #include <vector>
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "ai/diplomacy/diplomacyutil.h"
 #include "DiplomacyProposalRecord.h"

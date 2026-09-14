@@ -71,7 +71,7 @@ class UnitActor;
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/HappyTracker.h"
-#include "gs/gameobj/Player.h"             // player_Get
+#include "gs/gameobj/player.h"             // player_Get
 #include "gs/gameobj/Readiness.h"
 #include "gs/gameobj/TradeBids.h"
 #include "gs/gameobj/TradeOfferPool.h"

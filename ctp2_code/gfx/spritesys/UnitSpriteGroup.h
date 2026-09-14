@@ -69,6 +69,8 @@ public:
 
 	void			Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode) override;
 
+	using SpriteGroup::Draw;
+
 	void			Draw(UNITACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack);
 

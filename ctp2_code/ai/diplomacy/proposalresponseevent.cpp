@@ -45,7 +45,7 @@
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/mapanalysis/mapanalysis.h"
 #include "ai/diplomacy/AgreementMatrix.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "AdvanceRecord.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/gameobj/pollution.h"

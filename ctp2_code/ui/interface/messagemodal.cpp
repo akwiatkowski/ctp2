@@ -20,7 +20,7 @@
 #include "ui/interface/messageactions.h"
 #include "ui/interface/messagewindow.h"
 #include "ui/interface/messageeyepoint.h"
-#include "gs/gameobj/Player.h"             // player_Get()
+#include "gs/gameobj/player.h"             // player_Get()
 #include "ui/aui_ctp2/SelItem.h"            // selitem_Get()
 
 

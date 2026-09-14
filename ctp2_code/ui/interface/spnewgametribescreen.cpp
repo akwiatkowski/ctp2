@@ -77,7 +77,7 @@
 #include "CivilisationRecord.h"
 #include "gs/fileio/gamefile.h"
 #include "ui/aui_ctp2/keypress.h"
-#include "gs/gameobj/Player.h"                 // player_Get()
+#include "gs/gameobj/player.h"                 // player_Get()
 #include "gs/database/profileDB.h"              // profiledb_Get()
 #include "ui/aui_ctp2/SelItem.h"
 #include "ui/interface/spnewgamewindow.h"

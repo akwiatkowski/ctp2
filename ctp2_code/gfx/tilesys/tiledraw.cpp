@@ -82,7 +82,7 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/world/World.h"                  // world_Get()
 #include "gs/world/Cell.h"
 #include "gs/gameobj/Unit.h"

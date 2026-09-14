@@ -3,7 +3,7 @@
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 #include "ui/interface/c3dialogs.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 
 

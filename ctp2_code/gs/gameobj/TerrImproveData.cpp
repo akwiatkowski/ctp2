@@ -42,7 +42,7 @@
 #include "gs/gameobj/TerrImproveData.h"
 #include "gs/core/tiledmap_observer.h"
 #include "TerrainRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/Vision.h"
 #include "gs/gameobj/TerrImprove.h"

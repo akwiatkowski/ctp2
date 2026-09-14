@@ -287,8 +287,8 @@ public:
         PLAYER_INDEX        index
     )
     :   aui_Action      (),
-        m_iconWindow    (iconWindow),
-        m_index         (index)
+        m_index         (index),
+        m_iconWindow    (iconWindow)
     { ; };
 	MessageCleanupAction
     (
@@ -296,8 +296,8 @@ public:
         PLAYER_INDEX        index
     )
     :   aui_Action      (),
-        m_iconWindow    (window ? window->GetIconWindow() : nullptr),
-        m_index         (index)
+        m_index         (index),
+        m_iconWindow    (window ? window->GetIconWindow() : nullptr)
     { ; };
 	~MessageCleanupAction() override { ; };
 

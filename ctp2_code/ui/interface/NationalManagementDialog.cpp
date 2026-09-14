@@ -71,7 +71,7 @@
 
 #include "gs/events/GameEventManager.h"
 #include "ui/interface/MessageBoxDialog.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/database/StrDB.h"
 #include "UnitRecord.h"

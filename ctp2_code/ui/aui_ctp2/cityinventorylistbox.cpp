@@ -57,7 +57,7 @@
 #include "ui/interface/controlpanelwindow.h"
 #include "ui/aui_ctp2/c3listbox.h"
 #include "ui/aui_ctp2/cityinventorylistbox.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/interface/debugwindow.h"
 #include "UnitRecord.h"
 #include "gs/gameobj/wonderutil.h"

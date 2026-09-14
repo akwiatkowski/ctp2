@@ -45,7 +45,7 @@
 #include "gs/database/profileDB.h"
 #include "ui/interface/citywindow.h"
 #include "gs/gameobj/ArmyData.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gfx/spritesys/director.h"
 #include "ui/interface/EditQueue.h"
 #include "ui/interface/screenutils.h"

@@ -8,7 +8,7 @@
 
 #include "ctp/c3.h"
 #include "gs/core/game_observer.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Army.h"
 
 class HeadlessGameObserver : public IGameObserver {

@@ -2,7 +2,7 @@
 
 #include "gs/gameobj/Sci.h"
 #include "ai/ctpai.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"

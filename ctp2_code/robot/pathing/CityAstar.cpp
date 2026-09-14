@@ -53,7 +53,7 @@
 #include "gs/utility/Globals.h"
 #include "gs/utility/MoveFlags.h"
 #include "robot/pathing/Path.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "StrategyRecord.h"     // For accessing the strategy database
 #include "TerrainImprovementRecord.h"
 #include "gs/gameobj/terrainutil.h"

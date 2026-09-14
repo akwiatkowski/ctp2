@@ -55,7 +55,7 @@
 
 #include "ui/aui_common/aui_tipwindow.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "gfx/spritesys/director.h"

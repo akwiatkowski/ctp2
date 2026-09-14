@@ -120,7 +120,7 @@ class UnitActor;
 #include "gs/gameobj/HappyTracker.h"
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/Order.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Readiness.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/gameobj/TradeBids.h"

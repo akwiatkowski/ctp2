@@ -48,7 +48,7 @@
 #include "ai/diplomacy/diplomacyutil.h"
 
 #include "ui/aui_ctp2/SelItem.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gs/utility/UnitDynArr.h"

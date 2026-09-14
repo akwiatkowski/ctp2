@@ -33,7 +33,7 @@
 #include "gs/world/World.h"
 #include "gs/utility/PQueue.h"
 #include "gs/world/Cell.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/world/WorldDistance.h"
 #include "gs/gameobj/UnitData.h"

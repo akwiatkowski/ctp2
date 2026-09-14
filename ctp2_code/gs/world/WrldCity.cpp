@@ -37,7 +37,7 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/installationtree.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
 #include "net/general/network.h"

@@ -40,7 +40,7 @@
 #include "gs/gameobj/Vision.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/safety.h"          // safe_player
 #include "gs/world/Cell.h"
 #include "gs/core/tiledmap_observer.h"

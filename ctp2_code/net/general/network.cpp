@@ -93,7 +93,7 @@ extern sint32 g_debugOwner;
 #endif
 
 #include "gs/gameobj/UnitData.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "gs/gameobj/UnitPool.h"

@@ -3,7 +3,7 @@
 #include "net/io/net_util.h"
 
 #include "gs/gameobj/Diffcly.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 NetDifficulty::NetDifficulty(Difficulty* diff)
 {

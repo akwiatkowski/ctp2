@@ -2,7 +2,7 @@
 #include "gs/gameobj/EndGame.h"
 #include "gs/database/EndGameDB.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicEngine.h"

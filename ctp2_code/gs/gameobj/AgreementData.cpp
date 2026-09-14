@@ -35,7 +35,7 @@
 #include "ctp/ctp2_utils/c3errors.h"
 
 #include "gs/utility/Globals.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/Advances.h"

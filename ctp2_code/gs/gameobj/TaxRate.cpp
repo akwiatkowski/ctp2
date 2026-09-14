@@ -3,7 +3,7 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/database/DB.h"
 #include "GovernmentRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/safety.h"          // safe_player
 #include "net/general/network.h"
 #include "net/general/net_info.h"

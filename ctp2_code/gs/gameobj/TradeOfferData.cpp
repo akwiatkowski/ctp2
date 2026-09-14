@@ -30,7 +30,7 @@
 
 #include "ctp/c3.h"
 #include "gs/gameobj/TradeOfferData.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Gold.h"
 #include "net/general/network.h"
 #include "net/general/net_action.h"

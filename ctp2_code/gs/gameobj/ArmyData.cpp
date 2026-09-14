@@ -173,7 +173,7 @@ class UnitActor;
 #include "gs/gameobj/HappyTracker.h"
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/Order.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/gameobj/TradePool.h"
 #include "gs/gameobj/TradeRouteData.h"
@@ -536,7 +536,7 @@ CAUSE_REMOVE_ARMY ArmyData::GetRemoveCause() const
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-bool ArmyData::Insert(const Unit &id)
+bool ArmyData::Insert(Unit id)
 {
     Assert(m_nElements < k_MAX_ARMY_SIZE);
     if(m_nElements >= k_MAX_ARMY_SIZE)

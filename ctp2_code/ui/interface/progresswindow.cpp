@@ -109,7 +109,7 @@ void ProgressWindow::StartCountingTo( sint32 val, MBCHAR const * message )
 	m_nextValList.GetTail() = val;
 
 	Draw();
-	c3ui_Get()->Draw();
+	c3ui_Get()->DrawAll();
 }
 
 void ProgressWindow::EndProgress( ProgressWindow *&progwin )
@@ -136,7 +136,7 @@ void ProgressWindow::EndProgress( ProgressWindow *&progwin )
 			delete progwin;
 			progwin = nullptr;
 
-			c3ui_Get()->Draw();
+			c3ui_Get()->DrawAll();
 			c3ui_Get()->SetBackgroundColor( k_AUI_UI_NOCOLOR );
 		}
 	}

@@ -48,7 +48,7 @@
 #include "IconRecord.h"
 #include "OrderRecord.h"
 #include "gfx/gfx_utils/pixeltypes.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/database/profileDB.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "UnitRecord.h"

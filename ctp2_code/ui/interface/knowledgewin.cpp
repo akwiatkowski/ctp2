@@ -73,7 +73,7 @@
 #include "gs/utility/globals.h"
 #include "AdvanceRecord.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Readiness.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/ObjPool.h"
@@ -81,7 +81,7 @@
 #include "ui/interface/debugwindow.h"
 
 #include "gs/gameobj/UnitData.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/PlayHap.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/Sci.h"

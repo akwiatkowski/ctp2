@@ -260,7 +260,7 @@ sint32 c3_PopupWindow::AddCancel
 (
 	void (*actionFunc)( aui_Control *, uint32, uint32, void *),
 	void *cookie,
-	MBCHAR *buttonBlock
+	const MBCHAR *buttonBlock
 )
 {
 	if (m_cancel)
@@ -270,7 +270,7 @@ sint32 c3_PopupWindow::AddCancel
 	else
 	{
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_cancel.reset(new c3_Button(&errcode, aui_UniqueId(), buttonBlock, actionFunc, cookie));
+		m_cancel.reset(new c3_Button(&errcode, aui_UniqueId(), const_cast<MBCHAR *>(buttonBlock), actionFunc, cookie));
 		TestControl(m_cancel);
 		m_cancel->Move(17, m_height - m_cancel->Height() - 17);
 		InsertChild(m_cancel.get(), 0);
@@ -285,7 +285,7 @@ sint32 c3_PopupWindow::AddOk
 (
 	void (*actionFunc)( aui_Control *, uint32, uint32, void *),
 	void *cookie,
-	MBCHAR *buttonBlock
+	const MBCHAR *buttonBlock
 )
 {
 	if (m_ok)
@@ -295,7 +295,7 @@ sint32 c3_PopupWindow::AddOk
 	else
 	{
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_ok.reset(new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock, actionFunc, cookie ));
+		m_ok.reset(new ctp2_Button( &errcode, aui_UniqueId(), const_cast<MBCHAR *>(buttonBlock), actionFunc, cookie ));
 		TestControl( m_ok );
 		m_ok->Move( m_width - m_ok->Width() - 17, m_height - m_ok->Height() - 17);
 		InsertChild(m_ok.get(), 0);
@@ -309,7 +309,7 @@ sint32 c3_PopupWindow::AddClose
 (
 	void (*actionFunc)( aui_Control *, uint32, uint32, void *),
 	void *cookie,
-	MBCHAR *buttonBlock
+	const MBCHAR *buttonBlock
 )
 {
 	return AddOk(actionFunc, cookie, buttonBlock);
@@ -319,7 +319,7 @@ sint32 c3_PopupWindow::AddYes
 (
 	void (*actionFunc)( aui_Control *, uint32, uint32, void *),
 	void *cookie,
-	MBCHAR *buttonBlock
+	const MBCHAR *buttonBlock
 )
 {
 	return AddOk(actionFunc, cookie, buttonBlock);
@@ -329,7 +329,7 @@ sint32 c3_PopupWindow::AddNo
 (
 	void (*actionFunc)( aui_Control *, uint32, uint32, void *),
 	void *cookie,
-	MBCHAR *buttonBlock
+	const MBCHAR *buttonBlock
 )
 {
 	return AddCancel(actionFunc, cookie, buttonBlock);

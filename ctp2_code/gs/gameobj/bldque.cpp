@@ -59,7 +59,7 @@
 #include "gs/gameobj/ObjPool.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/world/MapPoint.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/citydata.h"
 #include "BuildingRecord.h"
 #include "gs/outcom/AICause.h"

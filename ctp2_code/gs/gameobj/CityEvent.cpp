@@ -44,7 +44,7 @@
 #include "gs/gameobj/CityEvent.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Unit.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/core/render_observer.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSegment.h"

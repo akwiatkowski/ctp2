@@ -48,7 +48,7 @@
 #include "gs/utility/ErrMsg.h"
 #include "gs/gameobj/FeatTracker.h"
 #include "GovernmentRecord.h"
-#include "gs/gameobj/Player.h"             // player_Get()
+#include "gs/gameobj/player.h"             // player_Get()
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "gs/gameobj/Unit.h"
 #include "WonderRecord.h"

@@ -7,7 +7,7 @@
 #include "gs/newdb/CTPDatabase.h"
 #include "BuildingRecord.h"
 #include "WonderRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include <algorithm>
 

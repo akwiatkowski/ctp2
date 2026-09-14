@@ -43,7 +43,7 @@
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
 #include "robot/aibackdoor/dynarr.h"
-#include "gs/gameobj/Player.h"                   // player_Get, player_arr_Get
+#include "gs/gameobj/player.h"                   // player_Get, player_arr_Get
 #include "net/general/net_info.h"
 #include "net/general/network.h"
 #include "gs/core/tiledmap_observer.h"

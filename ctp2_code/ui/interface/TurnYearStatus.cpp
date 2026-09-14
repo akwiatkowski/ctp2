@@ -40,7 +40,7 @@
 #include "gs/database/StrDB.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_ctp2/SelItem.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_utils/primitives.h"
 #include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "gs/fileio/gamefile.h"           // is_scenario_Get()

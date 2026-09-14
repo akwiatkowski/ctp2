@@ -72,7 +72,7 @@
 
 #include "gfx/gfx_utils/colorset.h"
 #include "ui/aui_ctp2/SelItem.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/UnitDynArr.h"
 #include "ui/interface/screenutils.h"
 #include "ui/interface/UIUtils.h"

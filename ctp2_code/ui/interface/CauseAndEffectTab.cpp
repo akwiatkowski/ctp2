@@ -61,7 +61,7 @@
 #include "gs/gameobj/Happy.h"
 #include "net/general/network.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "PopRecord.h"					// g_thePopDB
 #include "ui/aui_utils/primitives.h"
 #include "gs/database/profileDB.h"					// profiledb_Get()

@@ -37,7 +37,7 @@
 #include "gs/utility/TurnCnt.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "FeatRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "AdvanceRecord.h"
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/slic/SlicEngine.h"

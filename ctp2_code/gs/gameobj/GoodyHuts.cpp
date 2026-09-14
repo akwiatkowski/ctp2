@@ -38,7 +38,7 @@
 #include <vector>
 
 #include "ctp/ctp2_utils/c3math.h"         // AsPercentage
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/RandGen.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/outcom/AICause.h"

@@ -57,7 +57,7 @@
 
 #include "ui/aui_ctp2/keymap.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/fileio/gamefile.h"
 
 #include "net/general/network.h"

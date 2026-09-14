@@ -80,7 +80,7 @@
 #include "gs/gameobj/installationpool.h"       // installationpool_Get()
 #include "gs/gameobj/MessagePool.h"            // messagepool_Get()
 Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils/pixelutils.h
-#include "gs/gameobj/Player.h"                 // player_Get
+#include "gs/gameobj/player.h"                 // player_Get
 #include "gs/gameobj/pollution.h"
 #include "gs/database/profileDB.h"              // profiledb_Get()
 #include "gs/utility/RandGen.h"                // rand_ptr()

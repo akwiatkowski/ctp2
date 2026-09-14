@@ -66,7 +66,7 @@
 #include "gs/gameobj/GoodyHuts.h"
 #include "gs/utility/MoveFlags.h"
 #include "net/general/network.h"
-#include "gs/gameobj/Player.h"                 // player_Get
+#include "gs/gameobj/player.h"                 // player_Get
 #include "gs/utility/PQueue.h"
 #include "gs/database/profileDB.h"              // profiledb_Get()
 #include "gs/utility/RandGen.h"                // civrand()

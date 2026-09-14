@@ -50,7 +50,7 @@
 #include "ConstRecord.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/events/GameEventManager.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/gameobj/buildingutil.h"

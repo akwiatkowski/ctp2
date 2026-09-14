@@ -39,7 +39,7 @@
 #include "gs/events/GameEventUser.h"
 #include "gs/events/GameEventManager.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "gs/database/profileDB.h"
 #include "gs/core/render_observer.h"

@@ -14,7 +14,7 @@
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "DiplomacyRecord.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 
 

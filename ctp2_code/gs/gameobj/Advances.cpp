@@ -42,7 +42,7 @@
 #include "gs/gameobj/Advances.h"           // own declarations
 
 #include "AdvanceRecord.h"
-#include "gs/gameobj/Player.h"             // player_arr_Get()
+#include "gs/gameobj/player.h"             // player_arr_Get()
 #include "WonderRecord.h"
 #include "AgeRecord.h"
 #include "gs/database/StrDB.h"              // g_theStringDB

@@ -45,7 +45,7 @@ class HotseatList;
 #include "ui/aui_ctp2/c3_popupwindow.h"     // c3_PopupWindow
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_ctp2/keyboardhandler.h"
-#include "gs/gameobj/Player.h"             // PLAYER_INDEX
+#include "gs/gameobj/player.h"             // PLAYER_INDEX
 
 typedef void (HotseatListCallback)(sint32 launch,
 								   sint32 player,

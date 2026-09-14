@@ -46,7 +46,7 @@
 #include "net/general/net_info.h"
 #include "net/general/network.h"                    // g_network
 #include "gs/gameobj/Order.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/slic/SlicEngine.h"                 // slicengine_Get()
 #include "gs/slic/SlicObject.h"
 #include "gs/core/tiledmap_observer.h"

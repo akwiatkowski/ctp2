@@ -56,7 +56,7 @@
 #include "ui/aui_ctp2/keypress.h"
 #include "ui/interface/MainControlPanel.h"
 #include "net/general/network.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 #include "TerrainRecord.h"
 #include "ui/aui_ctp2/textbutton.h"

@@ -37,7 +37,7 @@
 
 #include "gs/gameobj/Civilisation.h"
 #include "gs/utility/Globals.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/message.h"
 #include "gs/utility/UnitDynArr.h"

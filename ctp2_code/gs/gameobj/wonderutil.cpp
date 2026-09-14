@@ -36,7 +36,7 @@
 
 #include "gs/database/StrDB.h"
 #include "gs/utility/ErrMsg.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/database/moviedb.h"
 #include "AgeRecord.h"
 

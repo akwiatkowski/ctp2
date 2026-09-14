@@ -46,7 +46,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/TaxRate.h"

@@ -3,7 +3,7 @@
 #include "net/general/net_player.h"
 #include "net/io/net_util.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/TaxRate.h"

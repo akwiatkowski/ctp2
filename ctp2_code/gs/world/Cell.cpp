@@ -59,7 +59,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/terrainutil.h"
 #include "gs/utility/MoveFlags.h"
 #include "gs/utility/Globals.h"

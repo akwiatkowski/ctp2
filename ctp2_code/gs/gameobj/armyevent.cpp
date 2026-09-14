@@ -53,7 +53,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/ArmyData.h"
 #include "WonderRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/safety.h"          // safe_player
 #include "gs/outcom/AICause.h"
 #include "ConstRecord.h"

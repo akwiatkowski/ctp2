@@ -33,7 +33,7 @@
 #include "gs/utility/safety.h"
 
 #include "gs/utility/Globals.h"        // k_GAME_OBJ_TYPE_WONDER
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "gs/gameobj/Unit.h"

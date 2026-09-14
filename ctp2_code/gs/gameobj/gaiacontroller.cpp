@@ -34,7 +34,7 @@
 
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/utility/TurnCnt.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "AdvanceRecord.h"
 #include "BuildingRecord.h"
 #include "TerrainImprovementRecord.h"

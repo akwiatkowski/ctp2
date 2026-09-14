@@ -59,7 +59,7 @@
 
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/mapanalysis/mapanalysis.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ai/diplomacy/ProposalAnalysis.h"
 #include "gs/slic/SlicSymbol.h"
 

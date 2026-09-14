@@ -3,7 +3,7 @@
 #include "net/general/network.h"
 #include "net/io/net_util.h"
 #include "net/general/net_cheat.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/world/MapPoint.h"

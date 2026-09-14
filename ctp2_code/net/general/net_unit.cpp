@@ -37,7 +37,7 @@
 #include "gs/gameobj/UnitPool.h"           // g_theUnitPool
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"              // world_Get()
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "gs/database/DB.h"
 #include "gs/newdb/UnitRec.h"

@@ -64,7 +64,7 @@
 #include "TerrainRecord.h"
 #include "gs/gameobj/Unit.h"
 #include "ui/aui_ctp2/SelItem.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "TerrainImprovementRecord.h"

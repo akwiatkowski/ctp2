@@ -30,7 +30,7 @@
 #include "gs/gameobj/GameSettings.h"
 #include "gs/database/profileDB.h"
 #include "net/general/network.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/EndGame.h"
 
 extern BOOL			g_setDifficultyUponLaunch;

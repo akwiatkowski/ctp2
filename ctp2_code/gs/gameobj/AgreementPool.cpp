@@ -5,7 +5,7 @@
 #include "gs/gameobj/AgreementData.h"
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/AgreementPool.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/pollution.h"
 #include "gs/outcom/AICause.h"
 #include "gs/utility/AgreementDynArr.h"

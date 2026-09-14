@@ -1,6 +1,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Unit.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/safety.h"          // safe_player
 #include "gs/gameobj/MessageData.h"
 #include "gs/gameobj/message.h"

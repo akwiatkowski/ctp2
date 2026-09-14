@@ -2,7 +2,7 @@
 #include "gs/utility/safety.h"
 
 #include "gs/gameobj/Gold.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/AgreementData.h"
 #include "gs/gameobj/Agreement.h"

@@ -2,7 +2,7 @@
 #include "gs/slic/SlicRecord.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/gameobj/MessagePool.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/slic/SlicSegment.h"
 #include "gs/slic/slicif.h"

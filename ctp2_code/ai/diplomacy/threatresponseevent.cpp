@@ -15,7 +15,7 @@
 #include "ai/diplomacy/ProposalAnalysis.h"
 #include "gs/gameobj/UnitPool.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 STDEHANDLER(DefaultReject_ThreatResponseEvent)
 {

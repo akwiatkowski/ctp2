@@ -57,7 +57,7 @@
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_ctp2/c3ui.h"
-#include "gs/gameobj/Player.h"                 // Player, player_Get
+#include "gs/gameobj/player.h"                 // Player, player_Get
 #include "gs/world/World.h"                  // world_Get()
 #include "gs/world/Cell.h"
 #include "gs/world/UnseenCell.h"

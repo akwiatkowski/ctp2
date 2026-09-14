@@ -39,7 +39,7 @@
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Unit.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/database/StrDB.h"
 #include "gs/events/GameEventManager.h"

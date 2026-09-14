@@ -54,7 +54,7 @@
 #include "gfx/spritesys/director.h"               // director_Get()
 #include "ui/aui_ctp2/radarmap.h"               // radar_map_Get()
 #include "gs/gameobj/Civilisation.h"
-#include "gs/gameobj/Player.h"                 // player_Get
+#include "gs/gameobj/player.h"                 // player_Get
 #include "gs/slic/SlicEngine.h"
 #include "ui/interface/radarwindow.h"
 #include "ui/aui_ctp2/ctp2_Window.h"

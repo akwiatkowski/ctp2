@@ -65,7 +65,7 @@
 #include "gs/world/Cell.h"
 
 #include "robot/aibackdoor/dynarr.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/RandGen.h"
 #include "UnitRecord.h"
 #include "WonderRecord.h"

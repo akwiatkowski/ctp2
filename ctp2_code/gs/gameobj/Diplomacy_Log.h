@@ -7,7 +7,7 @@
 class Diplomacy_Log;
 
 #include "gs/gameobj/AgreementTypes.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/DiplomaticTypes.h"
 class MapPoint;
 

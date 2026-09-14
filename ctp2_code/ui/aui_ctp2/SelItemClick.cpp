@@ -50,7 +50,7 @@
 #include "gfx/gfx_utils/gfx_options.h"
 #include "ui/interface/helptile.h"
 #include "robot/pathing/Path.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/database/profileDB.h"
 #include "gs/slic/QuickSlic.h"
 #include "gs/slic/SlicObject.h"

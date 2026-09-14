@@ -54,7 +54,7 @@
 #include "ui/aui_ctp2/c3ui.h"
 
 #include "ui/aui_ctp2/SelItem.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gfx/spritesys/director.h"
 #include "gs/database/profileDB.h"				// profiledb_Get()
 

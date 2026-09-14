@@ -1238,7 +1238,7 @@ int ui_Process()
 		do
         {
 			g_tiledMap->CopyMixDirtyRects(background_Get()->GetDirtyList());
-			g_c3ui->Draw();
+			g_c3ui->DrawAll();
 		}
         while (ui_CheckForScroll());
 

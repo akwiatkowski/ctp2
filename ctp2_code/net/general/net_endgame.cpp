@@ -38,7 +38,7 @@
 
 #include "gs/gameobj/EndGame.h" // Not part of the project
 #include "net/io/net_util.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "ctp/ctp2_utils/pointerlist.h"
 

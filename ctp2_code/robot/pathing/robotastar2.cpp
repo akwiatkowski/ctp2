@@ -42,7 +42,7 @@
 
 #include "gs/world/World.h"          // world_Get()
 #include "robot/aibackdoor/dynarr.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/RandGen.h"
 #include "gs/newdb/UnitRec.h"
 #include "gs/gameobj/Unit.h"

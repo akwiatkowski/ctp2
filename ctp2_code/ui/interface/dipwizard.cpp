@@ -70,7 +70,7 @@
 #include "gs/slic/SlicObject.h"
 #include "gs/utility/stringutils.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gs/utility/UnitDynArr.h"
 

@@ -116,7 +116,7 @@
 
 #include "ctp/ctp2_utils/c3cmdline.h"
 #include "ui/aui_ctp2/SelItem.h"                    // selitem_Get()
-#include "gs/gameobj/Player.h"                     // player_Get()
+#include "gs/gameobj/player.h"                     // player_Get()
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
 #include "ui/aui_ctp2/ctp2_Menu.h"

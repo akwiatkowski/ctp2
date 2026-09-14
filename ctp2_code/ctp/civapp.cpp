@@ -222,7 +222,7 @@
 #include "ui/interface/optionwarningscreen.h"
 #include "OrderRecord.h"
 #include "PersonalityRecord.h"
-#include "gs/gameobj/Player.h"                     // player_Get
+#include "gs/gameobj/player.h"                     // player_Get
 #include "gs/database/PlayListDB.h"
 #include "PollutionRecord.h"
 #include "PopRecord.h"
@@ -2867,7 +2867,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					// in between, keeping the capture atomic.
 					if (c3ui_Get()) {
 						c3ui_Get()->Invalidate(nullptr);
-						c3ui_Get()->Draw();
+						c3ui_Get()->DrawAll();
 					}
 					aui_SDLSurface *sdlSurf = static_cast<aui_SDLSurface*>(c3ui_Get()->Primary());
 					if (sdlSurf && sdlSurf->DDS()) {
@@ -2919,7 +2919,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						// pair stays atomic (no Draw runs between the two).
 						if (c3ui_Get()) {
 							c3ui_Get()->Invalidate(nullptr);
-							c3ui_Get()->Draw();
+							c3ui_Get()->DrawAll();
 						}
 						// Prime the layer mirrors: per-frame mirroring is
 						// muted under layered present (perf), so the world/UI
@@ -3074,7 +3074,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						if (ok && primPath[0]) {
 							if (c3ui_Get()) {
 								c3ui_Get()->Invalidate(nullptr);
-								c3ui_Get()->Draw();
+								c3ui_Get()->DrawAll();
 							}
 							aui_SDLSurface *prim = static_cast<aui_SDLSurface*>(c3ui_Get()->Primary());
 							ok = prim && prim->DDS()

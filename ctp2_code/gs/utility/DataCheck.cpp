@@ -363,7 +363,7 @@ sint32 DataCheck::IsChanged(sint32 t) const
 
 
 
-void DataCheck::draw_crc(aui_Surface *surf, char str1[80], sint32 t, sint32 x, sint32 y) const
+void DataCheck::draw_crc(aui_Surface *surf, const char *str1, sint32 t, sint32 x, sint32 y) const
 {
 	MBCHAR	str2[80];
 

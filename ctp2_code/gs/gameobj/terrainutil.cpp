@@ -68,7 +68,7 @@
 #include "gs/world/World.h"
 #include "TerrainImprovementRecord.h"
 #include "gs/world/Cell.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/utility/QuadTree.h"
 #include "gs/gameobj/UnitData.h"

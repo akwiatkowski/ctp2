@@ -32,7 +32,7 @@
 #include "net/general/net_chat.h"
 #include "net/io/net_util.h"
 #include "net/general/network.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 NetChat::NetChat(uint32 destmask, MBCHAR const * str, size_t len)
 	: m_destmask(destmask)

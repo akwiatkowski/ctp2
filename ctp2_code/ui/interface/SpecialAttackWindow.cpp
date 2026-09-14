@@ -41,7 +41,7 @@
 #include "ui/aui_ctp2/c3_static.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "gfx/tilesys/maputils.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/world/World.h"

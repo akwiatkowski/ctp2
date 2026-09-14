@@ -2,7 +2,7 @@
 
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/TradeOfferPool.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/safety.h"          // safe_player
 #include "net/general/net_info.h"
 #include "net/general/network.h"

@@ -42,7 +42,7 @@
 #include "gs/utility/safety.h"
 #include "gs/gameobj/PlayerEvent.h"
 #include "gs/gameobj/Events.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Wormhole.h"
 #include "gs/gameobj/PlayHap.h"

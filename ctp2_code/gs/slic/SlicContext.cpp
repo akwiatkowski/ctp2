@@ -38,7 +38,7 @@
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/slic/SlicFrame.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/events/GameEventArgList.h"

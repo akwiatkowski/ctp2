@@ -34,7 +34,7 @@
 
 #include "ctp/c3.h"
 #include "gs/gameobj/Wormhole.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "ConstRecord.h"

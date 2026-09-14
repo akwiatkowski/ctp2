@@ -39,7 +39,7 @@
 #include "gs/events/GameEventManager.h"
 
 #include "gs/outcom/AICause.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicEngine.h"

@@ -58,7 +58,7 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "ui/aui_ctp2/c3textfield.h"
 #include "gfx/gfx_utils/colorset.h"               // colorset_Get()
-#include "gs/gameobj/Player.h"                 // player_Get
+#include "gs/gameobj/player.h"                 // player_Get
 #include "gs/database/StrDB.h"                  // stringdb_Get()
 #include "gs/database/profileDB.h"              // profiledb_Get()
 #include "gs/utility/TurnCnt.h"                // g_turn

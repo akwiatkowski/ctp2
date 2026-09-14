@@ -34,7 +34,7 @@
 #include "ctp/c3.h"
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/gameobj/Unit.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/database/StrDB.h"
 #include "CivilisationRecord.h"
 #include "gs/gameobj/CivilisationPool.h"

@@ -54,7 +54,7 @@
 #include "gs/utility/gstypes.h"
 #include "ui/interface/infowin.h"            // InfoPlayerListItem should be moved to somewhere else so that infowin.h can be removed
 #include "ui/aui_ctp2/linegraph.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/database/StrDB.h"              // stringdb_Get()
 #include "gs/gameobj/Strengths.h"
 

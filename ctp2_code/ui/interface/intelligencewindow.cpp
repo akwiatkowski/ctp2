@@ -61,7 +61,7 @@
 #include "net/general/net_action.h"
 #include "net/general/network.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/database/StrDB.h"

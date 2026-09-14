@@ -1,6 +1,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Regard.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/database/StrDB.h"
 ;
 
@@ -8,7 +8,7 @@
 
 
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "net/general/network.h"
 

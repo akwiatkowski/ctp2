@@ -37,7 +37,7 @@
 
 #include "gs/utility/Globals.h"
 #include "AdvanceRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/message.h"

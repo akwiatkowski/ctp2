@@ -38,7 +38,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/database/StrDB.h"
 #include "gs/events/GameEventManager.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Strengths.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/mapanalysis/mapanalysis.h"

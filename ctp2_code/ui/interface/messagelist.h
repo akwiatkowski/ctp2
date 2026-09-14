@@ -10,7 +10,7 @@ class MessageList;
 #include <memory>
 #include <vector>
 
-#include "gs/gameobj/Player.h"         // PLAYER_INDEX
+#include "gs/gameobj/player.h"         // PLAYER_INDEX
 
 class Message;
 class MessageIconWindow;

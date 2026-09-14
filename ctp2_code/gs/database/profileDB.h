@@ -135,7 +135,7 @@ enum WORLD_SHAPE
 class ProfileVar
 {
 public:
-    ProfileVar(char *name, PROF_VAR_TYPE type, sint32 *numValue,
+    ProfileVar(const char *name, PROF_VAR_TYPE type, sint32 *numValue,
                char *stringValue, bool visible)
     :
         m_name          (name),
@@ -145,7 +145,7 @@ public:
         m_visible       (visible)
     { ; }
 
-    char *m_name;
+    const char *m_name;
     PROF_VAR_TYPE m_type;
     sint32 *m_numValue;
     char *m_stringValue;
@@ -433,7 +433,7 @@ public:
 
     BOOL Parse(FILE *file);
 
-    void Var(char *name, PROF_VAR_TYPE type, sint32 *numValue,
+    void Var(const char *name, PROF_VAR_TYPE type, sint32 *numValue,
              char *stringValue, bool visible = true);
     void Save();
 

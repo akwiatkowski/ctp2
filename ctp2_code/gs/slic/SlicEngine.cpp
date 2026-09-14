@@ -76,7 +76,7 @@
 #include "gs/slic/SlicFunc.h"
 #include "gs/slic/slicfuncai.h"
 #include "gs/slic/SlicSymTab.h"
-#include "gs/gameobj/Player.h"					// player_arr_Get()
+#include "gs/gameobj/player.h"					// player_arr_Get()
 #include "gs/gameobj/Unit.h"
 #include "gs/fileio/CivPaths.h"				// civpaths_Get()
 #include "gs/core/game_observer.h"             // gameobservers_Get()

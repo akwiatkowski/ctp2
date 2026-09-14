@@ -49,7 +49,7 @@
 #include "net/general/network.h"
 #include "gs/gameobj/GoodyHuts.h"
 #include "gs/core/tiledmap_observer.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Vision.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/gameobj/UnitData.h"

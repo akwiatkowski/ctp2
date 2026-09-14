@@ -49,7 +49,7 @@
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/Order.h"
 #include "gs/world/cellunitlist.h"
-#include "gs/gameobj/Player.h"         // player_Get()
+#include "gs/gameobj/player.h"         // player_Get()
 #include "ui/interface/controlpanelwindow.h"
 #include "OrderRecord.h"
 #include "ui/aui_common/aui_surface.h"

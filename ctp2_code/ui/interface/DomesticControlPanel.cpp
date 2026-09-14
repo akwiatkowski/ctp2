@@ -46,7 +46,7 @@
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_common/aui_surface.h"
 #include "IconRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/interface/sci_advancescreen.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gfx/gfx_utils/pixelutils.h"

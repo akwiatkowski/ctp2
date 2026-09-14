@@ -44,7 +44,7 @@
 #include "gs/slic/SlicFrame.h"
 #include "gs/gameobj/MessageData.h"
 #include "gs/gameobj/MessagePool.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/slic/SlicButton.h"
 #include "net/general/network.h"
 #include "ctp/civapp.h"

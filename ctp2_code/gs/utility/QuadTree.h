@@ -247,6 +247,8 @@ QuadTreeNode<T>::AddLeaf(QUADRANT quad, T obj)
 		case QUADRANT_NW:
 			return m_nw = new QuadTreeNode<T>(m_tree,
 											  this, obj, m_x, m_y, neww, newh);
+		case QUADRANT_ERROR:
+			break;
 	}
 	Assert(false);
 	return nullptr;
@@ -275,6 +277,8 @@ QuadTreeNode<T>::AddLeaf(QUADRANT quad, DynamicArray<T> &a_List)
 		case QUADRANT_NW:
 			return m_nw = new QuadTreeNode<T>(m_tree,
 											  this, a_List, m_x, m_y, neww, newh);
+		case QUADRANT_ERROR:
+			break;
 	}
 	Assert(false);
 	return nullptr;
@@ -330,6 +334,9 @@ QuadTreeNode<T>::AddList(DynamicArray<T> & a_List)
 				if(!m_nw) AddLeaf(newQuad, a_List);
 				else m_nw->AddList(a_List);
 				break;
+			case QUADRANT_ERROR:
+				Assert(false);
+				break;
 		}
 	}
 }
@@ -379,6 +386,9 @@ QuadTreeNode<T>::AddObject(T obj)
 				if(!m_nw) AddLeaf(newQuad, obj);
 				else m_nw->AddObject(obj);
 				break;
+			case QUADRANT_ERROR:
+				Assert(false);
+				break;
 		}
 	}
 }
@@ -418,6 +428,9 @@ QuadTreeNode<T>::RemoveObject(T obj)
 				Assert(m_nw);
 				if(!m_nw) return;
 				m_nw->RemoveObject(obj);
+				break;
+			case QUADRANT_ERROR:
+				Assert(false);
 				break;
 		}
 	}

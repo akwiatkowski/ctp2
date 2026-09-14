@@ -38,7 +38,7 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "gs/gameobj/pollution.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "WonderRecord.h"
 #include "net/general/network.h"
 #include "gs/slic/SlicSegment.h"

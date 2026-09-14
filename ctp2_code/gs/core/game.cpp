@@ -1,12 +1,12 @@
 #include "ctp/c3.h"
 #include "gs/core/game.h"
 
-#include "gs/gameobj/Player.h"  // player_arr_Get / player_arr_Set, k_MAX_PLAYERS via c3.h
+#include "gs/gameobj/player.h"  // player_arr_Get / player_arr_Set, k_MAX_PLAYERS via c3.h
 #include "gs/gameobj/ArmyPool.h"
 // CityPool: forward-declared in game.h as a future-tense placeholder; no
 // concrete class exists today (cities are owned per-player, not in a
 // dedicated pool). Drop the include until the class is introduced.
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/pollution.h"
 #include "gs/gameobj/TopTen.h"
 #include "gs/gameobj/UnitPool.h"

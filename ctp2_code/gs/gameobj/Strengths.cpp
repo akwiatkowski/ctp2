@@ -32,7 +32,7 @@
 #include "ctp/c3.h"
 #include "gs/utility/safety.h"
 #include "gs/gameobj/Strengths.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/UnitDynArr.h"
 #include "BuildingRecord.h"
 #include "WonderRecord.h"

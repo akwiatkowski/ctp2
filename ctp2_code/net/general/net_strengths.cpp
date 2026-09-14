@@ -2,7 +2,7 @@
 #include "net/general/net_strengths.h"
 #include "net/io/net_util.h"
 #include "gs/gameobj/Strengths.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Score.h"
 
 NetStrengths::NetStrengths(sint32 player)

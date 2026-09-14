@@ -32,7 +32,7 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Score.h"
 #include "gs/utility/safety.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Diffcly.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/utility/UnitDynArr.h"

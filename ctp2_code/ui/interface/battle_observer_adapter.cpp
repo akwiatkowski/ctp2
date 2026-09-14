@@ -28,7 +28,7 @@
 #include "ui/interface/battleview.h"
 #include "ui/aui_common/aui_button.h"            // AUI_BUTTON_ACTION_EXECUTE
 #include "ui/aui_ctp2/c3ui.h"
-#include "gfx/spritesys/Director.h"
+#include "gfx/spritesys/director.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/world/cellunitlist.h"

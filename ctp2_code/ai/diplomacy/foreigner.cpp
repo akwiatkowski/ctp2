@@ -36,7 +36,7 @@
 
 #include <functional>
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
 #include "ai/diplomacy/Diplomat.h"               // For human-human Email and HotSeat diplomacy

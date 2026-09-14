@@ -38,7 +38,7 @@
 #include "gs/gameobj/Happy.h"
 #include "gs/gameobj/UnitPool.h"       // UnitPool
 #include "gs/gameobj/PlayHap.h"
-#include "gs/gameobj/Player.h"         // player_Get
+#include "gs/gameobj/player.h"         // player_Get
 
 NetHappy::NetHappy(Unit city, Happy *data, BOOL isInitial)
 {

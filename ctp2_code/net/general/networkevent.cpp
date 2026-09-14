@@ -37,7 +37,7 @@
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
 #include "net/general/net_info.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/UnitData.h"
 

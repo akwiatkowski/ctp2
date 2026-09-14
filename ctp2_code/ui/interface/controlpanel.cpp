@@ -63,7 +63,7 @@
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/world/MapPoint.h"
 #include "gfx/tilesys/tiledmap.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "InstDB.h"
 

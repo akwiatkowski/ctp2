@@ -97,7 +97,7 @@ private:
 public:
 	SlicSegment();
 	SlicSegment(sint32 slicifIndex);
-	~SlicSegment();
+	virtual ~SlicSegment();
 
 	void *operator new(size_t size);
 	void operator delete(void *ptr);

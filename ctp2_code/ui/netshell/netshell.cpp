@@ -163,7 +163,7 @@ void NetShell::Leave( uint32 flags, BOOL safe )
 	if ( g_netshell )
 	{
 
-		aui_ui_Get()->Draw();
+		aui_ui_Get()->DrawAll();
 		aui_ui_Get()->SetBackgroundColor( k_AUI_UI_NOCOLOR );
 		aui_Image *prev = aui_ui_Get()->SetBackgroundImage( nullptr );
 		aui_ui_Get()->UnloadImage(prev);

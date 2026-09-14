@@ -76,7 +76,7 @@
 #include "gs/gameobj/Diplomacy_Log.h"
 #include "gs/gameobj/GameSettings.h"       // gamesettings_Get()
 #include "gs/utility/Globals.h"
-#include "gs/gameobj/Player.h"             // player_Get()
+#include "gs/gameobj/player.h"             // player_Get()
 #include "gs/core/audio_types.h"
 #include "gs/core/audio_observer.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
@@ -712,7 +712,7 @@ void ProfileDB::SetDifficulty(uint32 x)
 	}
 }
 
-void ProfileDB::Var(char *name, PROF_VAR_TYPE type, sint32 *numValue,
+void ProfileDB::Var(const char *name, PROF_VAR_TYPE type, sint32 *numValue,
                     char *stringValue, bool visible)
 {
 	m_vars.AddTail(new ProfileVar(name, type, numValue, stringValue, visible));

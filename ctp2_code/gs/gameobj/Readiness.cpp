@@ -43,7 +43,7 @@
 #include "gs/gameobj/Unit.h"
 #include "net/general/network.h"
 #include "WonderRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/outcom/AICause.h"
 #include "gs/newdb/UnitRec.h"
 #include "gs/gameobj/Army.h"

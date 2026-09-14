@@ -154,7 +154,7 @@ public:
     void SetOwner(PLAYER_INDEX p);
 
 
-    bool Insert(const Unit &id);
+    bool Insert(Unit id) override;
     void GetPos(MapPoint &pos) const override { pos = m_pos; }
     MapPoint RetPos() const { return m_pos; }
 

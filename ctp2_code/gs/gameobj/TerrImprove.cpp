@@ -3,7 +3,7 @@
 
 #include "net/general/net_info.h"             // NetInfo
 #include "net/general/network.h"              // g_network
-#include "gs/gameobj/Player.h"               // player_Get
+#include "gs/gameobj/player.h"               // player_Get
 #include "gs/core/player_view.h"
 #include "gs/gameobj/TerrImprovePool.h"      // terrimprovepool_Get()
 #include "gs/world/World.h"                // world_Get()

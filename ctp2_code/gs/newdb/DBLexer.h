@@ -115,7 +115,7 @@ public:
 
 	const char *GetTokenText();
 
-	void ReportError(char *fmt, ...);
+	void ReportError(const char *fmt, ...);
 	sint32 GetLineNumber();
 	const char *GetFilename();
 };

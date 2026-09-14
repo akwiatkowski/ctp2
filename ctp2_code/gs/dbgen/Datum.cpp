@@ -542,7 +542,7 @@ void Datum::ExportBitPairInitialization(FILE *outfile)
 			fprintf(outfile, "    m_%s = %lf;\n", m_bitPairDatum->m_name, m_hasValue ? val.floatValue : 0);
 			break;
 		case DATUM_STRUCT:
-			fprintf(outfile, "    memset(&m_%s, 0, sizeof(m_%s));\n", m_bitPairDatum->m_name, m_bitPairDatum->m_name);
+			fprintf(outfile, "    m_%s = {};\n", m_bitPairDatum->m_name);
 			break;
 		case DATUM_FILE:
 		case DATUM_STRING:
@@ -638,7 +638,7 @@ void Datum::ExportInitialization(FILE *outfile)
 		fprintf(outfile, "    m_%s = NULL;\n", m_name);
 		fprintf(outfile, "    m_num%s = 0;\n", m_name);
 	} else if(m_maxSize > 0) {
-			fprintf(outfile, "    memset(m_%s, 0, sizeof(m_%s));\n", m_name, m_name);
+			fprintf(outfile, "    for (auto &el : m_%s) el = {};\n", m_name);
 			fprintf(outfile, "    m_num%s = 0;\n", m_name);
 	} else {
 		switch(m_type) {
@@ -650,8 +650,7 @@ void Datum::ExportInitialization(FILE *outfile)
 				fprintf(outfile, "    m_%s = %lf;\n", m_name, m_hasValue ? val.floatValue : 0);
 				break;
 			case DATUM_STRUCT:
-				fprintf(outfile, "    memset((uint8*)&m_%s, 0, sizeof(m_%s));\n",
-						m_name, m_name);
+				fprintf(outfile, "    m_%s = {};\n", m_name);
 				break;
 			case DATUM_FILE:
 			case DATUM_STRING:

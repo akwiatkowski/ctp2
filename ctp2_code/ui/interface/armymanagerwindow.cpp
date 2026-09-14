@@ -57,7 +57,7 @@
 #include "ui/aui_ctp2/ctp2_listbox.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_ctp2/ctp2_button.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/outcom/AICause.h"
 
 #include "ctp/ctp2_utils/pointerlist.h"

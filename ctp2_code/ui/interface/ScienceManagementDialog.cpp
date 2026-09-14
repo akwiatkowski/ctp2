@@ -52,7 +52,7 @@
 #include "GovernmentRecord.h"
 #include "ui/interface/greatlibrary.h"           // k_MAX_GL_ENTRY
 #include "IconRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/fileio/prjfile.h"
 #include "ui/interface/sci_advancescreen.h"
 #include "gs/gameobj/Sci.h"

@@ -8,7 +8,7 @@
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/UnitPool.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 NetTradeOffer::NetTradeOffer(TradeOfferData* data) : m_offerData(data)
 {

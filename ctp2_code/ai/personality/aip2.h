@@ -2,7 +2,7 @@
 #ifndef __AIP2_H__
 #define __AIP2_H__
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include <string>
 #include <vector>

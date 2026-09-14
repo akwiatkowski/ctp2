@@ -50,7 +50,7 @@
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "gs/utility/gstypes.h"                // PLAYER_INDEX_VANDALS
-#include "gs/gameobj/Player.h"                 // k_MAX_PLAYERS
+#include "gs/gameobj/player.h"                 // k_MAX_PLAYERS
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_utils/textutils.h"
 #include "gs/utility/TurnCnt.h"                // g_turn

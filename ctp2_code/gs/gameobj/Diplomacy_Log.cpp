@@ -8,7 +8,7 @@
 #include "gs/core/player_view.h"
 
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "gs/gameobj/AgreementTypes.h"
 #include "gs/gameobj/DiplomaticTypes.h"

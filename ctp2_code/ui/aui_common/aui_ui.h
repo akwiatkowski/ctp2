@@ -116,12 +116,12 @@ protected:
 		m_secondary                 (nullptr),
 		m_worldSurface              (nullptr),
 		m_uiSurface                 (nullptr),
+		m_worldContentVersion       (0),
+		m_uiContentVersion          (0),
 		m_worldWindow               (nullptr),
 		m_gpuLayers                 (false),
 		m_fogSurface                (nullptr),
 		m_gpuFog                    (false),
-		m_worldContentVersion       (0),
-		m_uiContentVersion          (0),
 		m_blitter                   (nullptr),
 		m_memmap                    (nullptr),
 		m_mouse                     (nullptr),
@@ -431,7 +431,7 @@ public:
 
 	virtual AUI_ERRCODE DrawOne( aui_Window *window );
 
-	AUI_ERRCODE Draw( );
+	AUI_ERRCODE DrawAll( );
 
 	AUI_ERRCODE	AddWindow( aui_Window *window )
 	{ return AddChild( (aui_Region *)window ); }
@@ -445,7 +445,7 @@ public:
 	AUI_ERRCODE	ShowWindow( uint32 windowId );
 	AUI_ERRCODE	HideWindow( uint32 windowId );
 
-	virtual AUI_ERRCODE	Idle( aui_Region *recurse = nullptr );
+	virtual AUI_ERRCODE	IdleAll( aui_Region *recurse = nullptr );
 
 	AUI_ERRCODE	Invalidate( RECT *rect = nullptr );
 

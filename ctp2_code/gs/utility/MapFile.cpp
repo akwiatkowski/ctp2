@@ -50,7 +50,7 @@
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gs/gameobj/Player.h"          // player_Get()
+#include "gs/gameobj/player.h"          // player_Get()
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/unitutil.h"

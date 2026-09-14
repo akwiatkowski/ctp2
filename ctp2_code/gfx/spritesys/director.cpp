@@ -39,7 +39,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
-#include "gfx/spritesys/Director.h"
+#include "gfx/spritesys/director.h"
 
 #include <cinttypes>
 
@@ -64,7 +64,7 @@
 #include "gs/database/profileDB.h"  // profiledb_Get()
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/Army.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"

@@ -37,7 +37,7 @@
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/world/World.h"              // world_Get()
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()
 
 //----------------------------------------------------------------------------

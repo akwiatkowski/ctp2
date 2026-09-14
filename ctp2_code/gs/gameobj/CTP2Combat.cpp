@@ -47,7 +47,7 @@
 #include "gs/core/battle_observer.h"
 #include "gs/events/GameEventManager.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/database/profileDB.h"
 
 #include "gs/world/World.h"

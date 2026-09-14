@@ -7,7 +7,7 @@
 
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/AgreementPool.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/AgreementDynArr.h"
 
 NetAgreement::NetAgreement(AgreementData *data)

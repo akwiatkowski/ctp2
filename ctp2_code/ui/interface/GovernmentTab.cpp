@@ -8,7 +8,7 @@
 #include "ui/aui_ctp2/ctp2_listitem.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "GovernmentRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/database/StrDB.h"
 #include "gfx/gfx_utils/colorset.h"                   // colorset_Get()

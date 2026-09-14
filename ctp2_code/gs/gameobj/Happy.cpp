@@ -45,7 +45,7 @@
 #include "ctp/c3.h"                 // Pre-compiled header
 #include "gs/gameobj/Happy.h"              // Own declarations: consistency check
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ConstRecord.h"        // g_theConstDB
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/citydata.h"

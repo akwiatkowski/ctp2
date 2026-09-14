@@ -36,7 +36,7 @@
 #include "gs/gameobj/installationtree.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/core/tiledmap_observer.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Vision.h"
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/terrainutil.h"

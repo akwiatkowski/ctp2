@@ -21,7 +21,7 @@
 #include "ui/aui_ctp2/c3ui.h"
 
 #include "AdvanceRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/fileio/prjfile.h"

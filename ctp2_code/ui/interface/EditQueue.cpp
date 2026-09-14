@@ -76,7 +76,7 @@
 #include "gs/slic/SlicContext.h"
 
 #include "ui/aui_ctp2/ctp2_Static.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_ctp2/SelItem.h"
 
 #include "gs/utility/UnitDynArr.h"

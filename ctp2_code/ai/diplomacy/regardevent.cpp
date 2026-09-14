@@ -45,7 +45,7 @@
 
 #include "gs/outcom/AICause.h"
 #include "ai/diplomacy/Diplomat.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/ArmyPool.h"
 #include "robot/aibackdoor/dynarr.h"

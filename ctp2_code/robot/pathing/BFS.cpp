@@ -8,7 +8,7 @@ extern AVLHeap g_astar_mem;
 
 #include "gs/world/MapPoint.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "gs/world/Cell.h"
 #include "gs/gameobj/XY_Coordinates.h"

@@ -13,7 +13,7 @@
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_utils/primitives.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 UnitAstar *g_theTestPather;
 

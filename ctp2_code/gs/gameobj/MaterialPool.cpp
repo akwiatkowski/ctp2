@@ -33,7 +33,7 @@
 #include "net/general/network.h"
 #include "net/general/net_action.h"
 #include "net/general/net_info.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/safety.h"          // safe_player
 #include "ConstRecord.h"
 

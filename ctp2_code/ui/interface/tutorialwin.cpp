@@ -42,7 +42,7 @@
 #include "ui/aui_ctp2/c3_listbox.h"
 
 #include "gs/slic/SlicEngine.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ui/aui_ctp2/SelItem.h"
 
 #include "ctp/ctp2_utils/pointerlist.h"

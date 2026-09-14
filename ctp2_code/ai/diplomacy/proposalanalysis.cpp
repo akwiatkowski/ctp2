@@ -3,7 +3,7 @@
 
 #include <algorithm>            // std::max, std::min
 #include "gs/world/MapPoint.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "AdvanceRecord.h"
 #include "gs/gameobj/Unit.h"

@@ -3,7 +3,7 @@
 #include "net/general/net_army.h"
 #include "net/general/network.h"
 #include "net/io/net_util.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/Army.h"

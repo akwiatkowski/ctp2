@@ -42,7 +42,7 @@
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/Events.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/unitutil.h"

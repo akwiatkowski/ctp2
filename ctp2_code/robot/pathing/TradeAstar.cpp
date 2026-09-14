@@ -33,7 +33,7 @@
 #include "robot/pathing/TradeAstar.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 
 

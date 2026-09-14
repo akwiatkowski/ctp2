@@ -1,7 +1,7 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Readiness.h"
 #include "net/general/net_ready.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "net/io/net_util.h"
 
 NetReadiness::NetReadiness(MilitaryReadiness *data)

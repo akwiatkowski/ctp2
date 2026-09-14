@@ -580,7 +580,7 @@ aui_Window *aui_UI::BringWindowToTop( aui_Window *window )
 	return prevTopWindow;
 }
 
-AUI_ERRCODE aui_UI::Idle( aui_Region *recurse )
+AUI_ERRCODE aui_UI::IdleAll( aui_Region *recurse )
 {
 	if ( !recurse )
 	{
@@ -597,7 +597,7 @@ AUI_ERRCODE aui_UI::Idle( aui_Region *recurse )
 
 			ListPos childPosition = window->ChildList()->GetHeadPosition();
 			for ( sint32 j = window->ChildList()->L(); j; j-- )
-				Idle( window->ChildList()->GetNext( childPosition ) );
+				IdleAll( window->ChildList()->GetNext( childPosition ) );
 
 			if ( m_childListChanged )
 			{
@@ -613,7 +613,7 @@ AUI_ERRCODE aui_UI::Idle( aui_Region *recurse )
 
 		ListPos childPosition = recurse->ChildList()->GetHeadPosition();
 		for ( sint32 j = recurse->ChildList()->L(); j; j-- )
-			Idle( recurse->ChildList()->GetNext( childPosition ) );
+			IdleAll( recurse->ChildList()->GetNext( childPosition ) );
 	}
 
 	return AUI_ERRCODE_OK;
@@ -990,7 +990,7 @@ AUI_ERRCODE aui_UI::DrawOne(aui_Window *window)
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE aui_UI::Draw( )
+AUI_ERRCODE aui_UI::DrawAll( )
 {
 	if ( !m_primary ) return AUI_ERRCODE_OK;
 
@@ -1473,7 +1473,7 @@ BOOL aui_UI::MinimizeOnAltTabOut( BOOL minimize )
 
 AUI_ERRCODE aui_UI::Process( )
 {
-	Idle();
+	IdleAll();
 
 	// Scan human interface devices - when available
 	// On SDL, mouse input is processed on the main thread (the mouse thread

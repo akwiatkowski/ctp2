@@ -37,7 +37,7 @@
 #include "gs/gameobj/MessagePool.h"
 #include "gs/utility/UnitDynArr.h"
 #include "net/general/net_info.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 void NetMessage::Packetize(uint8 *buf, uint16 &size)
 {

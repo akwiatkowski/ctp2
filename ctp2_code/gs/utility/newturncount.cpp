@@ -47,7 +47,7 @@
 #include "gs/slic/SlicObject.h"
 #include "gs/core/game_observer.h"
 #include "gs/core/player_view.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/world/World.h"
 #include "gs/gameobj/Barbarians.h"
 #include "robot/pathing/A_Star_Heuristic_Cost.h"

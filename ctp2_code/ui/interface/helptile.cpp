@@ -65,7 +65,7 @@
 #include "gs/world/UnseenCell.h" //Unseen cell info is needed
 #include "gfx/tilesys/tiledmap.h"
 #include "ui/aui_ctp2/SelItem.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 extern sint32		g_fog_toggle;
 extern sint32		g_god;

@@ -65,7 +65,9 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 ) override;
 
-	virtual AUI_ERRCODE	SetHyperText( const MBCHAR *hyperText );
+	AUI_ERRCODE	SetHyperText(
+		const MBCHAR *hyperText,
+		uint32 maxlen = 0xffffffff ) override;
 	AUI_ERRCODE	AppendHyperText( const MBCHAR *hyperText ) override;
 
 	sint32 GetVirtualHeight( ) const { return m_virtualHeight; }

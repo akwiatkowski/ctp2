@@ -32,7 +32,7 @@
 #include "ai/diplomacy/CounterResponseEvent.h"
 
 #include <algorithm>    // std::max
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"

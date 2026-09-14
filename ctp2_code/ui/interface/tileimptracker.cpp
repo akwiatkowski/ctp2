@@ -44,7 +44,7 @@
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/TerrImprovePool.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gfx/tilesys/maputils.h"
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"

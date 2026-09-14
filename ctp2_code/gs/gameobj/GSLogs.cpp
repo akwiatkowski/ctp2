@@ -27,7 +27,7 @@
 
 #include "ctp/c3.h"
 #include "gs/gameobj/GSLogs.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/utility/UnitDynArr.h"

@@ -34,7 +34,7 @@
 
 #include <memory>
 
-#include "gfx/spritesys/Director.h"
+#include "gfx/spritesys/director.h"
 #include "gfx/spritesys/EffectActor.h"
 #include "gfx/spritesys/SpriteGroupList.h"
 #include "gfx/spritesys/UnitActor.h"

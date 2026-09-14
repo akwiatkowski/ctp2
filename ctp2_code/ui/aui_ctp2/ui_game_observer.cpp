@@ -13,11 +13,11 @@
 #include "ctp/c3.h"
 #include "ui/interface/backgroundwin.h"
 #include "gs/core/game_observer.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Army.h"
 #include "gs/utility/UnitDynArr.h"   // for Player::m_all_cities access
 #include "gs/database/profileDB.h"   // profiledb_Get()
-#include "gs/gameobj/Message.h"
+#include "gs/gameobj/message.h"
 #include "gs/gameobj/MessagePool.h"
 #include "gs/gameobj/GameOver.h"
 #include "gs/slic/SlicEngine.h"

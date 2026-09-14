@@ -8,7 +8,7 @@
 #include "gs/gameobj/ArmyPool.h"
 
 #include "robot/pathing/Path.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/ArmyData.h"
 

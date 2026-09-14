@@ -39,7 +39,7 @@
 
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"			 // world_Get()
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/directions.h"
 #include "ctp/ctp2_utils/c3math.h"
 

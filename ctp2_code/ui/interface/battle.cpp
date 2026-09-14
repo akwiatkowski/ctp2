@@ -37,7 +37,7 @@
 #include "gs/world/World.h"                  // world_Get()
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
-#include "gs/gameobj/Player.h"                 // player_Get()
+#include "gs/gameobj/player.h"                 // player_Get()
 #include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 
 #include "ui/interface/battleevent.h"

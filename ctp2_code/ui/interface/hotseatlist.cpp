@@ -58,7 +58,7 @@
 #include "ui/aui_ctp2/c3_popupwindow.h"
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 #include "ui/aui_ctp2/SelItem.h"
-#include "gs/gameobj/Player.h"					// player_Get
+#include "gs/gameobj/player.h"					// player_Get
 #include "gs/newdb/UnitRec.h"
 #include "gs/world/World.h"
 #include "gs/gameobj/Unit.h"

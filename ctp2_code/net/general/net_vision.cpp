@@ -37,7 +37,7 @@
 #include "gs/utility/gstypes.h"        // TERRAIN_TYPES
 #include "net/io/net_util.h"
 #include "gs/gameobj/Vision.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gfx/tilesys/tiledmap.h"       // tiledmap_Get()
 #include "ui/aui_ctp2/radarmap.h"       // radar_map_Get()
 #include "gs/world/UnseenCell.h"

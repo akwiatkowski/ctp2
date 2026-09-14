@@ -61,7 +61,7 @@ extern MovieDB			*g_theVictoryMovieDB;
 #include "ui/aui_ctp2/SelItem.h"
 
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 
 VictoryMovieWindow		*g_victoryMovieWindow = nullptr;
 

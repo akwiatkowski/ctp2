@@ -103,7 +103,7 @@
 
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/gameobj/wonderutil.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Advances.h"
 
 #include "gfx/spritesys/director.h"

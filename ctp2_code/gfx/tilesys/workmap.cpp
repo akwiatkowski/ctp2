@@ -10,7 +10,7 @@
 
 #include "ui/aui_utils/primitives.h"
 #include "gs/utility/Globals.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "ui/aui_ctp2/SelItem.h"            // selitem_Get()
 #include "gfx/spritesys/director.h"           // director_Get()

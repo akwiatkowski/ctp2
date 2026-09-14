@@ -65,7 +65,7 @@
 #include "ui/interface/MessageBoxDialog.h"
 #include "net/general/net_action.h"
 #include "net/general/network.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Readiness.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/slic/SlicContext.h"

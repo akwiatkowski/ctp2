@@ -1,7 +1,7 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/AchievementTracker.h"
 #include "gs/utility/safety.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "gs/fileio/gamefile.h"

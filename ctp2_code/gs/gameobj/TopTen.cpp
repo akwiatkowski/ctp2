@@ -4,7 +4,7 @@
 #include "ctp/ctp2_utils/c3debug.h"
 #include "gs/fileio/gamefile.h"
 #include "gs/utility/Globals.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/world/World.h"
 

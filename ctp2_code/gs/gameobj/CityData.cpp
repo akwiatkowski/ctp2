@@ -253,7 +253,7 @@
 #include "net/general/net_action.h"
 #include "net/general/net_info.h"
 #include "net/general/network.h"
-#include "gs/gameobj/Player.h"                     // player_arr_Get()
+#include "gs/gameobj/player.h"                     // player_arr_Get()
 #include "gs/gameobj/pollution.h"
 #include "PopRecord.h"
 #include "gs/database/profileDB.h"                  // profiledb_Get()

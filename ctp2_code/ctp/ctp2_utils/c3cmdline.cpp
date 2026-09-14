@@ -52,7 +52,7 @@
 #include "ctp/debugtools/debugmemory.h"
 #include "ctp/debugtools/log.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Strengths.h"
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"

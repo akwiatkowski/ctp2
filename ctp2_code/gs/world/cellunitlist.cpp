@@ -43,7 +43,7 @@
 #include "gs/world/cellunitlist.h"
 
 #include "gs/world/World.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/newdb/UnitRec.h"
 #include "gs/database/DB.h"
 #include "WonderRecord.h"

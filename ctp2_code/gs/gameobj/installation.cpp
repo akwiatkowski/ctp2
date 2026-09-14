@@ -2,7 +2,7 @@
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/installationpool.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/utility/safety.h"          // safe_player
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"

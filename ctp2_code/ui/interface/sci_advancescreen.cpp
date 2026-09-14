@@ -48,7 +48,7 @@
 #include "AdvanceRecord.h"
 #include "gs/database/StrDB.h"
 #include "ui/aui_ctp2/SelItem.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Sci.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/fileio/prjfile.h"

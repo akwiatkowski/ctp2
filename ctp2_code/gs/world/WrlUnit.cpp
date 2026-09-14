@@ -36,7 +36,7 @@
 #include "gs/utility/QuadTree.h"
 #include "gs/newdb/UnitRec.h"
 #include "gs/gameobj/Unit.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/core/player_view.h"
 #include "gs/gameobj/installationtree.h"
 #include "gs/gameobj/UnitData.h"

@@ -48,7 +48,7 @@
 #include "ResourceRecord.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/citydata.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/tradeutil.h"
 #include "gs/gameobj/TradeRouteData.h"
 

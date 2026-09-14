@@ -46,7 +46,7 @@
 #include "gs/gameobj/citydata.h"
 
 #include "gs/gameobj/UnitPool.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/BldQue.h"

@@ -152,9 +152,9 @@ aui_HyperTextBox::~aui_HyperTextBox()
 }
 
 
-AUI_ERRCODE aui_HyperTextBox::SetHyperText( const MBCHAR *hyperText )
+AUI_ERRCODE aui_HyperTextBox::SetHyperText( const MBCHAR *hyperText, uint32 maxlen )
 {
-	AUI_ERRCODE errcode = aui_HyperTextBase::SetHyperText( hyperText );
+	AUI_ERRCODE errcode = aui_HyperTextBase::SetHyperText( hyperText, maxlen );
 	Assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return errcode;
 

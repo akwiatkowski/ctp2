@@ -4,7 +4,7 @@
 #ifndef __NET_PLAYERDATA_H__
 #define __NET_PLAYERDATA_H__
 
-#include "ctp/ctp2_utils/PointerList.h"
+#include "ctp/ctp2_utils/pointerlist.h"
 #include "net/general/net_hash.h"
 #include "robot/aibackdoor/dynarr.h"
 

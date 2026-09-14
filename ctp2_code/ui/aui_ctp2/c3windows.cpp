@@ -83,7 +83,7 @@
 
 #include "ui/aui_ctp2/thumbnailmap.h"
 
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/ID.h"
 #include "ui/aui_ctp2/SelItem.h"
 

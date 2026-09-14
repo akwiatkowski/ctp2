@@ -53,7 +53,7 @@
 #include "gs/utility/Globals.h"                // allocated::clear
 #include "ui/interface/infowindow.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gs/gameobj/Player.h"                 // player_Get
+#include "gs/gameobj/player.h"                 // player_Get
 #include "ui/aui_ctp2/radarmap.h"
 #include "ui/interface/screenutils.h"
 #include "ui/aui_ctp2/staticpicture.h"

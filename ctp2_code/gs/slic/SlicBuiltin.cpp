@@ -66,7 +66,7 @@
 #include "CivilisationRecord.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "GovernmentRecord.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/Readiness.h"
 #include "ResourceRecord.h"
 #include "gs/slic/SlicSymbol.h"
@@ -80,7 +80,7 @@
 #include "gs/gameobj/wonderutil.h"
 
 #define DEF_MAKECOPY(t) \
-	SlicStructMemberData *MakeCopy(SlicStructInstance *parent) {\
+	SlicStructMemberData *MakeCopy(SlicStructInstance *parent) override {\
 		t *n = new t;\
 		n->m_parent = parent;\
 		return n;\

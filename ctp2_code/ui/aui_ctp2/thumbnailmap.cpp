@@ -37,7 +37,7 @@
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_ctp2/c3ui.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"              // world_Get()
 #include "gs/world/Cell.h"

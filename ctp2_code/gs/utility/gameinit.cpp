@@ -106,7 +106,7 @@ auto gameinit_log = civlog::Get("gameinit");
 #include "net/general/network.h"
 #include "gs/utility/newturncount.h"
 #include "gs/gameobj/Order.h"
-#include "gs/gameobj/Player.h"
+#include "gs/gameobj/player.h"
 #include "gs/database/PlayListDB.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/gameobj/pollution.h"

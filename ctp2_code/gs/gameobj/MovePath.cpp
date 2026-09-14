@@ -11,7 +11,7 @@
 
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
-#include "gs/gameobj/Player.h"       // player_Get, IsExplored (explore frontier)
+#include "gs/gameobj/player.h"       // player_Get, IsExplored (explore frontier)
 #include "gs/world/MapPoint.h"
 #include "gs/utility/directions.h"   // WORLD_DIRECTION
 #include "gs/events/GameEventManager.h"

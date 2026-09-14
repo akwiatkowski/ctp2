@@ -183,7 +183,10 @@ AUI_ERRCODE background_render_map_only(Background *back)
         tiledmap_Get()->DrawWater();
     }
 
-	tradepool_Get()->Draw(surface);
+	// The pool is torn down before ProcessUI finishes draining during
+	// CleanupGame -- a background redraw must not dereference it.
+	if (TradePool *tp = tradepool_Get())
+		tp->Draw(surface);
 	tiledmap_Get()->RepaintSprites(surface, tiledmap_Get()->GetMapViewRect(), false);
 
 	if (director_Get())

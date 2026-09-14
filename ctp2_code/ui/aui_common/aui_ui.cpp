@@ -1463,6 +1463,15 @@ BOOL aui_UI::MinimizeOnAltTabOut( BOOL minimize )
 
 AUI_ERRCODE aui_UI::Process( )
 {
+	// Teardown drain (CivApp::CleanupGame): flush queued actions without
+	// running idle handlers, input, or the draw pass -- those all reach
+	// into game state that is already gone.
+	if (m_drainOnly) {
+		HandleActions();
+		HandleDestructiveActions();
+		return AUI_ERRCODE_OK;
+	}
+
 	IdleAll();
 
 	// Scan human interface devices - when available

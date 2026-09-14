@@ -464,6 +464,13 @@ public:
 		LPARAM lParam );
 	virtual AUI_ERRCODE Process( );
 
+	// Teardown mode for CivApp::CleanupGame: Process() then runs only the
+	// action drain. Idle handlers, input, and the draw pass all assume a
+	// live game and crash on the half-destroyed state (null tradepool,
+	// pollution, player arrays) -- the pump exists to flush queued window
+	// actions, not to repaint.
+	void		SetDrainOnly( bool drainOnly ) { m_drainOnly = drainOnly; }
+
 	void AddAction( aui_Action *action );
 	void HandleActions( );
 
@@ -550,6 +557,10 @@ protected:
 	// Consumed + reset by BltSecondaryToPrimary(useAccumulatedDirty=true).
 	RECT			m_secondaryDirtyUnion;
 	BOOL			m_secondaryDirtyValid;
+
+	// Set by CivApp::CleanupGame for the duration of game teardown; see
+	// SetDrainOnly above.
+	bool			m_drainOnly = false;
 
 	void AccumulateSecondaryDirty(sint32 l, sint32 t, sint32 r, sint32 b)
 	{

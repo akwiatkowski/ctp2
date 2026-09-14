@@ -2393,6 +2393,14 @@ void CivApp::CleanupGame(bool keepScenInfo)
 	// it up front keeps ProcessUI out of the game-render path during cleanup.
 	m_gameLoaded = false;
 
+	// The drain pumps still reach idle handlers and the draw pass, which
+	// dereference the same torn-down state (trade pool, pollution, player
+	// arrays -- each surfaced as a shutdown SIGSEGV). Drain-only mode keeps
+	// the queued action flush while skipping everything that draws or
+	// probes game state.
+	if (c3ui_Get())
+		c3ui_Get()->SetDrainOnly(true);
+
 	// Clear per-session subsystems before legacy gameinit_Cleanup() runs.
 	// The Game container itself is owned by CivApp for its full lifetime
 	// (constructed eagerly in CivApp's ctor) — Cleanup() just empties it
@@ -2420,6 +2428,9 @@ void CivApp::CleanupGame(bool keepScenInfo)
 	CleanupGameUI();
 
 	ProcessUI(target_milliseconds, used_milliseconds);
+
+	if (c3ui_Get())
+		c3ui_Get()->SetDrainOnly(false);
 
 	gameinit_Cleanup();
 

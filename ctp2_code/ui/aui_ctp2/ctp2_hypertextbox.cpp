@@ -407,7 +407,7 @@ AUI_ERRCODE ctp2_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_HYPERTEXTBOX_LDL_RANGERY );
 
         if (aui_Ldl::FindDataBlock( block ) )
-			m_ranger = new c3_Ranger(
+			m_ranger = std::make_unique<c3_Ranger>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -418,7 +418,7 @@ AUI_ERRCODE ctp2_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
     MBCHAR * pattern = (m_pattern) ? m_pattern->GetFilename() : nullptr;
 
 	if ( !m_ranger )
-		m_ranger = new c3_Ranger(
+		m_ranger = std::make_unique<c3_Ranger>(
 			&errcode,
 			aui_UniqueId(),
 			m_width,
@@ -434,7 +434,7 @@ AUI_ERRCODE ctp2_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
 	Assert( AUI_NEWOK(m_ranger,errcode) );
 	if ( !AUI_NEWOK(m_ranger,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_ranger );
+	AddChild( m_ranger.get() );
 
 	SetRangerSize(m_ranger->Width());
 	return RepositionRanger();

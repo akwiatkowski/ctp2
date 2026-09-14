@@ -54,7 +54,7 @@ void World::FindCityDistances(sint32 player, const MapPoint &start)
 #endif
 
 	if(!m_distanceQueue) {
-		m_distanceQueue = new PQueue<DistItem>(32);
+		m_distanceQueue = std::make_unique<PQueue<DistItem>>(32);
 	}
 
 	ClearScratch();
@@ -131,7 +131,7 @@ void World::FindDistances(sint32 player, const MapPoint &start, sint32 numHits,
 						  FindDistanceCellCallback *cb, void *cookie)
 {
 	if(!m_distanceQueue) {
-		m_distanceQueue = new PQueue<DistItem>(32);
+		m_distanceQueue = std::make_unique<PQueue<DistItem>>(32);
 	}
 
 	ClearScratch();

@@ -39,7 +39,7 @@
 struct GameSoundData
 {
 	sint32		id;
-	MBCHAR *    name;
+	const MBCHAR *    name;
 };
 
 #include "gs/core/audio_types.h"

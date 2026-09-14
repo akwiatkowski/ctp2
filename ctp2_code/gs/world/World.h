@@ -61,6 +61,7 @@ enum MAP_GENERATOR
 #define k_WORLD_VERSION_MAJOR	0
 #define k_WORLD_VERSION_MINOR	0
 
+#include <memory>
 #include <vector>
 
 #include "gs/world/MapPoint.h"
@@ -172,7 +173,7 @@ class World : public CityRadiusCallback
 	BOOL            m_isInsideRadius;
 	uint32          m_ignoreCity;
 	sint32          m_cityOwnerCheck;
-	PQueue<DistItem> *m_distanceQueue;
+	std::unique_ptr<PQueue<DistItem>> m_distanceQueue;
 
 
 

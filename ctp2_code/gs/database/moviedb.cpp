@@ -30,7 +30,7 @@ void MovieDB::SetSize(sint32 s)
 	m_map = std::make_unique<MovieNameNode[]>(m_size);
 }
 
-sint32 MovieDB::FindTypeIndex(char *str) const
+sint32 MovieDB::FindTypeIndex(const char *str) const
 
 {
     sint32 i;

@@ -81,7 +81,6 @@ AUI_ERRCODE aui_HyperTextBox::InitCommonLdl( MBCHAR *ldlBlock )
 
 AUI_ERRCODE aui_HyperTextBox::InitCommon( )
 {
-	m_ranger = nullptr;
 	m_rangerSize = k_CONTROL_DEFAULT_SIZE;
 	m_alwaysRanger = FALSE;
 
@@ -116,7 +115,7 @@ AUI_ERRCODE aui_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_HYPERTEXTBOX_LDL_RANGERY );
 
 		if (aui_Ldl::GetLdl()->FindDataBlock(block))
-			m_ranger = new aui_Ranger(
+			m_ranger = std::make_unique<aui_Ranger>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -125,7 +124,7 @@ AUI_ERRCODE aui_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
 	}
 
 	if ( !m_ranger )
-		m_ranger = new aui_Ranger(
+		m_ranger = std::make_unique<aui_Ranger>(
 			&errcode,
 			aui_UniqueId(),
 			m_width,
@@ -140,7 +139,7 @@ AUI_ERRCODE aui_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
 	Assert( AUI_NEWOK(m_ranger,errcode) );
 	if ( !AUI_NEWOK(m_ranger,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_ranger );
+	AddChild( m_ranger.get() );
 
 	return RepositionRanger();
 }
@@ -148,7 +147,6 @@ AUI_ERRCODE aui_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
 
 aui_HyperTextBox::~aui_HyperTextBox()
 {
-	delete m_ranger;
 }
 
 

@@ -47,9 +47,9 @@
 #include "ctp/c3types.h"   // sint32 for event_description accessor
 
 struct GameEventDescription {
-	char *name;
-	char *description;
-	char *args;
+	const char *name;
+	const char *description;
+	const char *args;
 };
 
 #ifdef EVENT

@@ -229,7 +229,6 @@ World::~World()
 	FreeMap();  // m_map, m_tmpx, m_cellArray, m_water_next_too_land,
                 // m_land_next_too_water, m_water_size, m_land_size,
                 // m_tileInfoStorage
-	delete m_distanceQueue;
 	delete A_star_heuristic;
 
 	delete [] m_goodValue;

@@ -2,6 +2,7 @@
 #ifndef __PQUEUE_H__
 #define __PQUEUE_H__
 
+#include <algorithm>
 #include <memory>
 
 template <class T> class PQueue {
@@ -13,7 +14,7 @@ private:
 	void Grow() {
 		auto oldArray = std::move(m_array);
 		m_array = std::make_unique<T[]>(m_maxSize * 2);
-		memcpy(m_array.get(), oldArray.get(), sizeof(T) * m_maxSize);
+		std::move(oldArray.get(), oldArray.get() + m_maxSize, m_array.get());
 		m_maxSize *= 2;
 	}
 
@@ -22,8 +23,8 @@ private:
 			Grow();
 
 		if(m_nElements - index > 0) {
-			memmove(&m_array[index + 1], &m_array[index],
-					sizeof(T) * (m_nElements - index));
+			std::move_backward(&m_array[index], &m_array[m_nElements],
+							   &m_array[m_nElements + 1]);
 		}
 		m_nElements++;
 	}

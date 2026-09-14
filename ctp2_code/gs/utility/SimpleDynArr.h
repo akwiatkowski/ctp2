@@ -73,7 +73,7 @@ template <class T> void SimpleDynamicArray<T>::Grow()
 {
     auto oldarray = std::move(m_array);
     m_array = std::make_unique<T[]>(m_arraySize * 2);
-    memcpy(m_array.get(), oldarray.get(), m_arraySize * sizeof(T));
+    std::move(oldarray.get(), oldarray.get() + m_arraySize, m_array.get());
     m_arraySize *= 2;
 }
 
@@ -88,7 +88,7 @@ template <class T> void SimpleDynamicArray<T>::Insert(const T &val)
 template <class T> void SimpleDynamicArray<T>::DelIndex(sint32 i)
 {
     Assert((0 <= i) && (i < m_nElements));
-    memmove(&m_array[i], &m_array[i+1], m_nElements - i - 1);
+    std::move(&m_array[i + 1], &m_array[m_nElements], &m_array[i]);
     m_nElements--;
 }
 

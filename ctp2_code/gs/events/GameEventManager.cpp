@@ -514,7 +514,7 @@ bool GameEventManager::VerifyArgs(GAME_EVENT type, va_list *vl)
 		return false;
 
 	GameEventDescription *desc = &event_description(type);
-	char *argString = desc->args;
+	const char *argString = desc->args;
 	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] VerifyArgs: type=%d argString='%s'\n", type, argString ? argString : "(null)");
 	#endif
@@ -701,7 +701,7 @@ void GameEventManager::Dump()
 
 		fprintf(f, "%d: GEV_%s(", (sint32)ev, event_description(ev).name);
 
-		char *argString = event_description(ev).args;
+		const char *argString = event_description(ev).args;
 		BOOL first = TRUE;
 
 

@@ -142,7 +142,7 @@ class DataCheck
 		void SetDisplay(sint32 val);
 		void DisplayCRC(aui_Surface *surf) const;
 		void DumpChecksum();
-		void DumpSingleCRC(MBCHAR *grp, sint32 t);
+		void DumpSingleCRC(const MBCHAR *grp, sint32 t);
 		void draw_crc(aui_Surface *surf, const char *str1, sint32 t, sint32 x, sint32 y) const;
 		void draw_time(aui_Surface *surf, sint32 x, sint32 y) const;
 	};

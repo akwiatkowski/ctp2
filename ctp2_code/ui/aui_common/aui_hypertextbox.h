@@ -1,10 +1,11 @@
 #ifndef __AUI_HYPERTEXTBOX_H__
 #define __AUI_HYPERTEXTBOX_H__
 
+#include <memory>
+
 #include "ui/aui_common/aui_hypertextbase.h"
 #include "ui/aui_common/aui_control.h"
-
-class aui_Ranger;
+#include "ui/aui_common/aui_ranger.h"
 
 
 #define k_AUI_HYPERTEXTBOX_LDL_RANGERY			"rangery"
@@ -51,7 +52,7 @@ public:
 
 	AUI_ERRCODE Show( ) override;
 
-	aui_Ranger *GetRanger( ) const { return m_ranger; }
+	aui_Ranger *GetRanger( ) const { return m_ranger.get(); }
 
 	sint32		GetRangerSize( ) const { return m_rangerSize; }
 	AUI_ERRCODE	SetRangerSize( sint32 rangerSize )
@@ -77,7 +78,7 @@ protected:
 
 	AUI_ERRCODE	RepositionRanger( );
 
-	aui_Ranger	*m_ranger;
+	std::unique_ptr<aui_Ranger>	m_ranger;
 	sint32		m_rangerSize;
 	BOOL		m_alwaysRanger;
 

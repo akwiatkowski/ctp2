@@ -35,7 +35,7 @@ public:
 
 	void	SetSize(sint32 size);
 
-	sint32	FindTypeIndex(char *str) const;
+	sint32	FindTypeIndex(const char *str) const;
 	MBCHAR	*GetMovieFilename(sint32 index) const;
     void	SetName(sint32 count, char str[_MAX_PATH]);
     void	SetMovieFilename(sint32 count, MBCHAR *s);

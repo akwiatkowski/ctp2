@@ -1350,29 +1350,18 @@ SaveInfo::SaveInfo()
 //----------------------------------------------------------------------------
 SaveInfo::SaveInfo(SaveInfo *copyMe)
 {
-	memcpy(this, copyMe, sizeof(SaveInfo));
+	*this = *copyMe;
 
-	// memcpy above byte-copied copyMe's std::vector internals (pointer /
-	// size / capacity) over our own freshly default-constructed members.
-	// Those bytes alias copyMe's heap buffer, which we must NOT touch.
-	// Re-initialise the vector members in place with placement-new so they
-	// own nothing, then deep-copy below.  (Skip running their destructors —
-	// that would free copyMe's buffer.)
-	new (&radarMapData)   std::vector<Pixel16>();
-	new (&powerGraphData) std::vector<Pixel16>();
+	if (!(copyMe->radarMapWidth > 0 &&
+		  copyMe->radarMapHeight > 0)) {
 
-	if (copyMe->radarMapWidth > 0 &&
-		copyMe->radarMapHeight > 0 &&
-		!copyMe->radarMapData.empty()) {
-
-		radarMapData = copyMe->radarMapData;
+		radarMapData.clear();
 	}
 
-	if (copyMe->powerGraphWidth > 0 &&
-		copyMe->powerGraphHeight > 0 &&
-		!copyMe->powerGraphData.empty()) {
+	if (!(copyMe->powerGraphWidth > 0 &&
+		  copyMe->powerGraphHeight > 0)) {
 
-		powerGraphData = copyMe->powerGraphData;
+		powerGraphData.clear();
 	}
 
 }

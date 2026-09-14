@@ -4826,6 +4826,19 @@ void TiledMap::DrawColorBlendedOverlayScaled(aui_Surface *surface, Pixel16 *data
 
 
 
+// How long a single SetTerrainOverlay arm keeps emitting the GPU overlay
+// quad. The sprite draw list is rebuilt every repaint and only the LAST
+// rebuild reaches the presented frame, so a one-shot quad from a repaint
+// that gets superseded before present is never seen -- e.g. a second
+// repaint (camera move, forced redraw for a screenshot) clears the list
+// and re-emits nothing. A repaint-count TTL loses the same race when idle
+// frames repaint faster than the arm can reach a present, so the window
+// is wall-clock: one second is still a flash for the player while giving
+// any arm -> consume -> supersede -> capture sequence time to land. In
+// live play the terraform-targeting cursor re-arms the overlay on every
+// mouse move anyway, so the window only matters for a single arm.
+#define k_TERRAIN_OVERLAY_GPU_MS	1000
+
 void
 TiledMap::SetTerrainOverlay(TerrainImprovementRecord *rec,MapPoint &pos,Pixel16 color)
 {
@@ -4833,6 +4846,7 @@ TiledMap::SetTerrainOverlay(TerrainImprovementRecord *rec,MapPoint &pos,Pixel16 
 	m_overlayRec	=rec;
 	m_overlayPos	=pos;
 	m_overlayColor	=color;
+	m_overlayGpuUntil	=GetTickCount() + k_TERRAIN_OVERLAY_GPU_MS;
 }
 
 
@@ -4841,13 +4855,19 @@ TiledMap::SetTerrainOverlay(TerrainImprovementRecord *rec,MapPoint &pos,Pixel16 
 void
 TiledMap::DrawTerrainOverlay(aui_Surface *surf)
 {
-	if (!m_overlayActive)
+	bool const gpuAlive =
+	    (sint32)(GetTickCount() - m_overlayGpuUntil) < 0;
+	if (!m_overlayActive && !gpuAlive)
 		return;
 
+	bool const mixDraw = m_overlayActive;
 	m_overlayActive=false;
 
 	if (m_overlayRec==nullptr)
+	{
+		m_overlayGpuUntil = 0;
 		return;
+	}
 
 	const TerrainImprovementRecord::Effect * effect =
 	    (m_overlayRec->GetClassTerraform() || m_overlayRec->GetClassOceanform())
@@ -4855,14 +4875,20 @@ TiledMap::DrawTerrainOverlay(aui_Surface *surf)
 	    : terrainutil_GetTerrainEffect(m_overlayRec, m_overlayPos);
 
 	if (effect==nullptr)
+	{
+		m_overlayGpuUntil = 0;
 		return;
+	}
 
 	sint32 index   = effect->GetTilesetIndex();
 
 	Pixel16 *data    = m_tileSet->GetImprovementData((uint16)index);
 
 	if (data==nullptr)
+	{
+		m_overlayGpuUntil = 0;
 		return;
+	}
 
 	sint32 x;
 	sint32 y;
@@ -4871,16 +4897,23 @@ TiledMap::DrawTerrainOverlay(aui_Surface *surf)
 	sint32	destWidth  = k_TILE_PIXEL_WIDTH;
 	sint32	destHeight = k_TILE_GRID_HEIGHT;
 
-	if (GetZoomLevel() == k_ZOOM_NORMAL)
-		DrawBlendedOverlayIntoMix(data,x, y, m_overlayColor, k_FOW_BLEND_VALUE);
-	else
+	if (GetZoomLevel() != k_ZOOM_NORMAL)
 	{
 		destWidth	= GetZoomTilePixelWidth(),
 		destHeight	= GetZoomTileGridHeight();
-
-		DrawBlendedOverlayScaledIntoMix(data, x, y, destWidth, destHeight, m_overlayColor, k_FOW_BLEND_VALUE);
 	}
-	if (m_buildingGpuSprites) {
+
+	if (mixDraw)
+	{
+		if (GetZoomLevel() == k_ZOOM_NORMAL)
+			DrawBlendedOverlayIntoMix(data,x, y, m_overlayColor, k_FOW_BLEND_VALUE);
+		else
+			DrawBlendedOverlayScaledIntoMix(data, x, y, destWidth, destHeight, m_overlayColor, k_FOW_BLEND_VALUE);
+
+		AddDirtyToMix(x, y, destWidth, destHeight);
+	}
+
+	if (m_buildingGpuSprites && gpuAlive) {
 		SDL_Texture *texture = aui_SDL::EnsureMapIconTexture(data,
 		    k_TILE_PIXEL_WIDTH, k_TILE_GRID_HEIGHT, m_overlayColor, true, k_FOW_BLEND_VALUE);
 		if (texture) {
@@ -4893,8 +4926,6 @@ TiledMap::DrawTerrainOverlay(aui_Surface *surf)
 			aui_SDL::AddSpriteQuad(q);
 		} else aui_SDL::MarkSpriteFrameIncomplete("terrain-overlay");
 	}
-
-	AddDirtyToMix(x, y, destWidth, destHeight);
 }
 
 void

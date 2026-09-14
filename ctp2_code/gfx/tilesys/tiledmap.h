@@ -658,6 +658,7 @@ protected:
 	TerrainImprovementRecord	*m_overlayRec;
 	MapPoint					m_overlayPos;
 	Pixel16						m_overlayColor;
+	uint32						m_overlayGpuUntil;
 
 	TILEHITMASK		m_tileHitMask[k_TILE_GRID_HEIGHT];
 

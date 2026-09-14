@@ -397,6 +397,7 @@ TiledMap::TiledMap(MapPoint &size)
 	m_overlayRec            (nullptr),
 	m_overlayPos            (),
 	m_overlayColor          (0),
+	m_overlayGpuUntil       (0),
 	m_tileSet               (nullptr),
     m_hiliteMouseTile       (),
 	m_drawHilite            (false),

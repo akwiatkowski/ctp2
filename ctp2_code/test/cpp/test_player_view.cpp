@@ -142,7 +142,7 @@ constexpr std::size_t AI_GS_GAMEOBJ_H_BASELINE = 16;
 
 // gfx/ .cpp historically includes gs/database/ for record types used in
 // rendering.  Lock the count.
-constexpr std::size_t GFX_GS_DATABASE_CPP_BASELINE = 17;
+constexpr std::size_t GFX_GS_DATABASE_CPP_BASELINE = 16;
 
 // net/ .cpp includes gs/gameobj/ for serializing game objects across the
 // network.  Lock the count.
@@ -150,7 +150,7 @@ constexpr std::size_t NET_GS_GAMEOBJ_CPP_BASELINE = 208;
 
 // ui/ .cpp depends on gs/ broadly — that's architecturally fine.  Lock
 // the count anyway to detect new direct couplings.
-constexpr std::size_t UI_GS_CPP_BASELINE = 810;  // +5 from ui/aui_ctp2/trade_pool_draw.cpp (relocated TradePool::Draw from gs/gameobj/TradePool.cpp); +1 for P6 BuildingEvaluator consumed in ui/interface/EditQueue.cpp
+constexpr std::size_t UI_GS_CPP_BASELINE = 808;  // +5 from ui/aui_ctp2/trade_pool_draw.cpp (relocated TradePool::Draw from gs/gameobj/TradePool.cpp); +1 for P6 BuildingEvaluator consumed in ui/interface/EditQueue.cpp
 
 struct Violation {
     std::string file;

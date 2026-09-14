@@ -517,7 +517,10 @@ static inline void Log_MiddleCreateMessage (char *message, size_t message_size, 
 	elapsed_time = timeGetTime() - logging->base_time;
 
 	// Basename of the module path (after last '\\'), minus its last
-	// extension -- same result as the old in-place backward scan.
+	// extension.  The old in-place backward scan truncated at the first
+	// '.' after the last backslash (stripping all extensions); this keeps
+	// everything up to the last one -- identical for the single-extension
+	// filenames used here.
 	std::string adjusted_module(logging->module_name ? logging->module_name : "");
 	size_t const slash = adjusted_module.find_last_of('\\');
 	if (slash != std::string::npos) adjusted_module.erase(0, slash + 1);

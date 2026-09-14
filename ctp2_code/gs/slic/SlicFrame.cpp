@@ -1127,7 +1127,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			if(op == SOP_LBRK || slicengine_Get()->BreakRequested()) {
 				if(!cond || (cond->Eval() != 0)) {
 
-					slicengine_Get()->Break(m_segment, codePtr - m_segment->m_code,
+					slicengine_Get()->Break(m_segment, codePtr - m_segment->m_code.data(),
 										slicengine_Get()->GetContext(), m_stack,
 										m_messageData);
 					stopped = TRUE;

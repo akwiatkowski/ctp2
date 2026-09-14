@@ -4577,8 +4577,8 @@ void to_json(nlohmann::json &j, SlicSegment const &s)
         {"event",               static_cast<int>(s.m_event)},
         {"priority",            static_cast<int>(s.m_priority)},
         {"from_file",           s.m_fromFile},
-        {"id",                  s.m_id ? std::string(s.m_id) : std::string()},
-        {"code",                bytesToVec(s.m_code, s.m_codeSize)},
+        {"id",                  s.m_id},
+        {"code",                s.m_code},
         {"last_shown",
             std::vector<sint32>(s.m_lastShown, s.m_lastShown + k_MAX_PLAYERS)},
         {"ui_component",        optStringToJson(s.m_uiComponent)},
@@ -4609,15 +4609,11 @@ void to_json(nlohmann::json &j, SlicSegment const &s)
 
 void from_json(nlohmann::json const &j, SlicSegment &s)
 {
-    // Free any prior allocations (matches binary path's fresh-new ctor).
-    free(s.m_id);
-    free(s.m_code);
-    free(s.m_uiComponent);
-    free(s.m_filename);
-    s.m_id = nullptr;
-    s.m_code = nullptr;
-    s.m_uiComponent = nullptr;
-    s.m_filename = nullptr;
+    // Clear prior contents (matches binary path's fresh-new ctor).
+    s.m_id.clear();
+    s.m_code.clear();
+    s.m_uiComponent.clear();
+    s.m_filename.clear();
     s.m_trigger_symbols_indices.clear();
     s.m_parameter_indices.clear();
     s.m_trigger_symbols = nullptr;
@@ -4635,18 +4631,13 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
     s.m_priority        = static_cast<GAME_EVENT_PRIORITY>(j.at("priority").get<int>());
     j.at("from_file").get_to(s.m_fromFile);
 
-    std::string const id = j.at("id").get<std::string>();
-    s.m_id = static_cast<char *>(malloc(id.size() + 1));
-    if (s.m_id) std::memcpy(s.m_id, id.c_str(), id.size() + 1);
+    j.at("id").get_to(s.m_id);
 
     auto code = j.at("code").get<std::vector<uint8>>();
-    if (s.m_codeSize > 0)
-    {
-        s.m_code = static_cast<uint8 *>(malloc(s.m_codeSize));
-        if (s.m_code && !code.empty())
-            std::memcpy(s.m_code, code.data(),
-                        std::min<size_t>(code.size(), s.m_codeSize));
-    }
+    s.m_code.resize(s.m_codeSize);
+    if (s.m_codeSize > 0 && !code.empty())
+        std::memcpy(s.m_code.data(), code.data(),
+                    std::min<size_t>(code.size(), s.m_codeSize));
 
     auto trigIdx = j.at("trigger_symbol_indices").get<std::vector<sint32>>();
     if (s.m_num_trigger_symbols > 0)
@@ -4662,12 +4653,7 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
         s.m_lastShown[i] = (i < static_cast<sint32>(lastShown.size()))
                               ? lastShown[i] : 0;
 
-    if (!j.at("ui_component").is_null())
-    {
-        std::string ui = j.at("ui_component").get<std::string>();
-        s.m_uiComponent = static_cast<char *>(malloc(ui.size() + 1));
-        if (s.m_uiComponent) std::memcpy(s.m_uiComponent, ui.c_str(), ui.size() + 1);
-    }
+    jsonToOptString(j.at("ui_component"), s.m_uiComponent);
 
     auto paramIdx = j.at("parameter_indices").get<std::vector<sint32>>();
     if (s.m_num_parameters > 0)
@@ -4678,12 +4664,7 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
             s.m_parameter_indices[i] = paramIdx[i];
     }
 
-    if (!j.at("filename").is_null())
-    {
-        std::string fn = j.at("filename").get<std::string>();
-        s.m_filename = static_cast<char *>(malloc(fn.size() + 1));
-        if (s.m_filename) std::memcpy(s.m_filename, fn.c_str(), fn.size() + 1);
-    }
+    jsonToOptString(j.at("filename"), s.m_filename);
 
     if (s.m_type == SLIC_OBJECT_HANDLEEVENT && gevmanager_Get())
     {

@@ -31,6 +31,7 @@
 #ifndef __SLIC_SEGMENT_H__
 #define __SLIC_SEGMENT_H__
 
+#include <string>
 #include <vector>
 
 #include "gs/slic/slicif.h"
@@ -78,10 +79,10 @@ private:
 	sint32 m_firstLineNumber;
 
 
-	char *m_id;
-	unsigned char *m_code;
-	char *m_uiComponent;
-	char *m_filename;
+	std::string m_id;
+	std::vector<uint8> m_code;
+	std::string m_uiComponent;
+	std::string m_filename;
 
 	std::vector<sint32> m_trigger_symbols_indices;
 	SlicSymbolData **m_trigger_symbols;
@@ -104,7 +105,7 @@ public:
 	void SetPoolIndex(int index) { m_poolIndex = index; }
 	int GetPoolIndex() const { return m_poolIndex; }
 
-	const char* GetName() const { return m_id; }
+	const char* GetName() const { return m_id.empty() ? nullptr : m_id.c_str(); }
 	SLIC_OBJECT GetType() const { return m_type; }
 	void LinkTriggerSymbols();
 	void LinkParameterSymbols();
@@ -123,14 +124,14 @@ public:
 	    return(m_lastShown[player] != 0);
 	}
 
-	const char *GetUIComponent() const { return m_uiComponent; }
+	const char *GetUIComponent() const { return m_uiComponent.empty() ? nullptr : m_uiComponent.c_str(); }
 
 	SFN_ERROR Call(SlicArgList *args, SlicObject *&obj);
 
 	GAME_EVENT_HOOK_DISPOSITION GEVHookCallback(GAME_EVENT type, GameEventArgList *args) override;
 	void GetDescription(char *str, sint32 maxsize) override;
 
-	const char *GetFilename() { return m_filename; }
+	const char *GetFilename() { return m_filename.empty() ? nullptr : m_filename.c_str(); }
 	uint8 *FindNextLine(uint8 *start);
 	bool GetSourceLines(sint32 &firstLineNum, sint32 &firstLineOffset, sint32 &lastLineNum);
 	sint32 FindLineNumber(sint32 offset);

@@ -3441,7 +3441,7 @@ TEST_CASE("json round-trip: SlicSegment default-constructed (mostly null)")
     CHECK(round.GetType()       == orig.GetType());
     CHECK(round.IsEnabled()     == FALSE);
     CHECK(round.GetUIComponent() == nullptr);
-    CHECK(std::string(round.GetName()) == "");
+    CHECK(round.GetName() == nullptr);
 }
 
 TEST_CASE("json round-trip: SlicSegment with bytecode + filename + lastShown")

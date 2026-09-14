@@ -90,10 +90,10 @@ SlicSegment::SlicSegment()
     m_priority                  (PRIORITY_DEFAULT),
     m_fromFile                  (FALSE),
     m_firstLineNumber           (NOT_IN_USE),
-    m_id                        (nullptr),
-    m_code                      (nullptr),
-    m_uiComponent               (nullptr),
-    m_filename                  (nullptr),
+    m_id                        (),
+    m_code                      (),
+    m_uiComponent               (),
+    m_filename                  (),
     m_trigger_symbols           (nullptr),
 
     m_parameter_symbols         (nullptr),
@@ -134,10 +134,10 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
     m_priority                  (PRIORITY_DEFAULT),
     m_fromFile                  (FALSE),
     m_firstLineNumber           (NOT_IN_USE),
-    m_id                        (nullptr),
-    m_code                      (nullptr),
-    m_uiComponent               (nullptr),
-    m_filename                  (nullptr),
+    m_id                        (),
+    m_code                      (),
+    m_uiComponent               (),
+    m_filename                  (),
     m_trigger_symbols           (nullptr),
 
     m_parameter_symbols         (nullptr),
@@ -149,14 +149,19 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 	struct PSlicObject *pobj = slic_object_array_Get()[slicifIndex];
 
 	m_type = pobj->m_type;
-	m_id = pobj->m_id;
-	m_code = pobj->m_code;
+	m_id = pobj->m_id ? pobj->m_id : "";
+	free(pobj->m_id);
+	if (pobj->m_code && pobj->m_codeSize > 0)
+		m_code.assign(pobj->m_code, pobj->m_code + pobj->m_codeSize);
+	free(pobj->m_code);
 	m_codeSize = pobj->m_codeSize;
 	m_fromFile = pobj->m_from_file;
 	m_isAlert = pobj->m_is_alert;
 	m_isHelp  = pobj->m_is_help;
-	m_uiComponent = pobj->m_ui_component;
-	m_filename = pobj->m_filename;
+	m_uiComponent = pobj->m_ui_component ? pobj->m_ui_component : "";
+	free(pobj->m_ui_component);
+	m_filename = pobj->m_filename ? pobj->m_filename : "";
+	free(pobj->m_filename);
 
 	if (m_type == SLIC_OBJECT_TRIGGER)
 	{
@@ -201,7 +206,7 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 
 	if (slicengine_Get())
 	{
-		SlicSymbolData *sym = slicengine_Get()->GetSymbol(m_id);
+		SlicSymbolData *sym = slicengine_Get()->GetSymbol(m_id.c_str());
 
 		if (sym)
 		{
@@ -250,29 +255,10 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 //----------------------------------------------------------------------------
 SlicSegment::~SlicSegment()
 {
-	if(m_id)
-	{
-		free(m_id);
-		m_id = nullptr;
-	}
-
-	if(m_code)
-	{
-		free(m_code);
-		m_code = nullptr;
-	}
-
-	if(m_uiComponent)
-	{
-		free(m_uiComponent);
-		m_uiComponent = nullptr;
-	}
-
-	if(m_filename)
-	{
-		free(m_filename);
-		m_filename = nullptr;
-	}
+	std::string().swap(m_id);
+	std::vector<uint8>().swap(m_code);
+	std::string().swap(m_uiComponent);
+	std::string().swap(m_filename);
 
 	delete [] m_trigger_symbols;
 	delete [] m_parameter_symbols;
@@ -465,7 +451,7 @@ void SlicSegment::GetDescription(char *str, sint32 maxsize)
 	}
 
 	if(maxsize > 0) {
-		snprintf(str, (size_t)maxsize, "'%s': %s@%d", m_id, m_filename, m_firstLineNumber);
+		snprintf(str, (size_t)maxsize, "'%s': %s@%d", m_id.c_str(), m_filename.c_str(), m_firstLineNumber);
 	}
 }
 
@@ -509,16 +495,16 @@ GAME_EVENT_HOOK_DISPOSITION SlicSegment::GEVHookCallback(GAME_EVENT type, GameEv
 uint8 *SlicSegment::FindNextLine(uint8 *start)
 {
 	uint8* codePtr = start;
-	Assert(start >= m_code);
-	Assert(start < m_code + m_codeSize);
+	Assert(start >= m_code.data());
+	Assert(start < m_code.data() + m_codeSize);
 
-	if((start < m_code) || (start >= m_code + m_codeSize)) {
+	if((start < m_code.data()) || (start >= m_code.data() + m_codeSize)) {
 		return nullptr;
 	}
 
 	bool atEnd = false;
 
-	while(codePtr < m_code + m_codeSize) {
+	while(codePtr < m_code.data() + m_codeSize) {
 		SOP op = (SOP)*codePtr;
 		codePtr++;
 		switch(op) {
@@ -596,7 +582,7 @@ uint8 *SlicSegment::FindNextLine(uint8 *start)
 
 bool SlicSegment::GetSourceLines(sint32 &firstLineNum, sint32 &firstLineOffset, sint32 &lastLineNum)
 {
-	uint8 *codePtr = m_code;
+	uint8 *codePtr = m_code.data();
 	sint32 line = 0;
 	sint32 offset;
 
@@ -627,7 +613,7 @@ bool SlicSegment::GetSourceLines(sint32 &firstLineNum, sint32 &firstLineOffset, 
 		slicif_read_sint32(codePtr, &offset);
 
 		if(offset < 0) {
-			offset = SlicFrame::FindFileOffset(m_filename, line);
+			offset = SlicFrame::FindFileOffset(m_filename.c_str(), line);
 			slicif_store_sint32(codePtr, offset);
 		}
 		codePtr += sizeof(int);
@@ -645,7 +631,7 @@ sint32 SlicSegment::FindLineNumber(sint32 offset)
 {
 	sint32 curLine = -1;
 	bool foundOffset = false;
-	uint8 *codePtr = m_code;
+	uint8 *codePtr = m_code.data();
 
 	while(!foundOffset) {
 		codePtr = FindNextLine(codePtr);
@@ -662,7 +648,7 @@ sint32 SlicSegment::FindLineNumber(sint32 offset)
 		codePtr++;
 		curLine = *(sint32 *)codePtr;
 
-		if((codePtr - m_code) >= (sint32)(offset - ((sizeof(int) * 2) + sizeof(SlicConditional*) + 1))) {
+		if((codePtr - m_code.data()) >= (sint32)(offset - ((sizeof(int) * 2) + sizeof(SlicConditional*) + 1))) {
 			return curLine;
 		}
 		codePtr += sizeof(int);
@@ -676,7 +662,7 @@ uint8 *SlicSegment::GetCodePointer(sint32 lineNumber)
 {
 	bool foundLine = false;
 	sint32 curLine = -1;
-	uint8 *codePtr = m_code;
+	uint8 *codePtr = m_code.data();
 
 	while(!foundLine) {
 		codePtr = FindNextLine(codePtr);

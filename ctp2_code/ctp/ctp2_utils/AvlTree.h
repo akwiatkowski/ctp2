@@ -354,7 +354,7 @@ AvlNode<KeyType>::RotateOnce(std::unique_ptr<AvlNode<KeyType>> & root, dir_t dir
    oldRoot->mySubtree[otherDir] = std::move(root->mySubtree[dir]);
    root->mySubtree[dir] = std::move(oldRoot);
 
-   oldRoot->myBal = -((dir == LEFT) ? --(root->myBal) : ++(root->myBal));
+   root->mySubtree[dir]->myBal = -((dir == LEFT) ? --(root->myBal) : ++(root->myBal));
 
    return  heightChange;
 }

@@ -21,7 +21,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Redisign of the single player new game players screen by Martin Gühmann.
+// - Redisign of the single player new game players screen by Martin GÃ¼hmann.
 //   Instead of buttons to determine the number of players in a new game
 //   this screen now allows the player to specify the player index he wants
 //   to use determines the player color, he can also specify how many civs

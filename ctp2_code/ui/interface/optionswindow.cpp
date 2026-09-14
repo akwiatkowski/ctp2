@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Removed refferences to the civilisation database. (Aug 20th 2005 Martin Gühmann)
+// - Removed refferences to the civilisation database. (Aug 20th 2005 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

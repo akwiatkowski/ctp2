@@ -22,7 +22,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Slic AI functions of the patch added, by Martin Gühmann.
+// - Slic AI functions of the patch added, by Martin GÃ¼hmann.
 // - DeclareWar slic function added, by Peter Triggs.
 // - Marked Microsoft specific pragma, cleaned up export, voided DeclareWar.
 //

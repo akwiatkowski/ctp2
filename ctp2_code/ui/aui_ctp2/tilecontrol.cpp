@@ -22,7 +22,7 @@
 // Modifications from the original Activision code:
 //
 // - Tile help window now dims tiles under the fog of war.
-//   - Dec. 23rd 2004 - Martin Gühmann
+//   - Dec. 23rd 2004 - Martin GÃ¼hmann
 //
 //----------------------------------------------------------------------------
 
@@ -41,7 +41,7 @@
 #include "gfx/spritesys/GoodActor.h"
 
 
-// Added by Martin Gühmann
+// Added by Martin GÃ¼hmann
 extern sint32			g_isFastCpu; // Actual permernent set to 1
 
 
@@ -139,7 +139,7 @@ sint32 TileControl::DrawTile(
 
 	tiledmap_Get()->LockThisSurface(surface);
 
-// Added by Martin Gühmann
+// Added by Martin GÃ¼hmann
 	bool fog =((   tiledmap_Get()->GetLocalVision()
 	            && tiledmap_Get()->GetLocalVision()->IsExplored(pos)
 	            &&!tiledmap_Get()->GetLocalVision()->IsVisible(pos)));

@@ -25,9 +25,9 @@
 // Modifications from the original Activision code:
 //
 // - Added unitutil_GetSmallCityMaxSize to figure out the maximum population
-//   size a ring one city. - Oct. 6th 2004 Martin Gühmann
+//   size a ring one city. - Oct. 6th 2004 Martin GÃ¼hmann
 // - Added function to compare unit type quality, based on unit cargo capacity
-//   or on the units statistics like attack, defense and range. (19-May-2007 Martin Gühmann)
+//   or on the units statistics like attack, defense and range. (19-May-2007 Martin GÃ¼hmann)
 // - Added GetCityLandAttackBonus, GetCityAirAttackBonus and GetCitySeaAttackBonus
 //   for battleview window. (07-Mar-2009 Maq)
 //

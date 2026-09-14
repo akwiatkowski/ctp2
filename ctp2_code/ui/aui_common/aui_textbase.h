@@ -24,7 +24,7 @@
 //
 // - Initialised all members in the default constructor, to prevent a crash
 //   in the destructor.
-// - Added left and right to textblttype. (Aug 16th 2005 Martin Gühmann)
+// - Added left and right to textblttype. (Aug 16th 2005 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

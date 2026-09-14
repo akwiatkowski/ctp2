@@ -26,7 +26,7 @@
 //
 // - Added Update function so that the info window doesn't need to be closed
 //   for update during the turns. - Aug 7th 2005 Martin
-// - Added cleanup method. (Sep 13th 2005 Martin Gühmann)
+// - Added cleanup method. (Sep 13th 2005 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 #ifdef HAVE_PRAGMA_ONCE

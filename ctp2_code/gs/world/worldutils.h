@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Created file (24-Mar-2007 Martin Gühmann)
+// - Created file (24-Mar-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 #ifdef HAVE_PRAGMA_ONCE

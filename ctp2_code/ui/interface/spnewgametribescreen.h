@@ -26,7 +26,7 @@
 //
 // - Import structure cleaned up somewhat.
 // - Tribe index handling corrected.
-// - Replaced old civ selection button bank by list box. (2-Jan-2008 Martin Gühmann)
+// - Replaced old civ selection button bank by list box. (2-Jan-2008 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

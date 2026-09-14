@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Crashes prevented.
-// - Use of delete to free memory. (Sep 13th 2005 Martin Gähmann)
+// - Use of delete to free memory. (Sep 13th 2005 Martin GÃ¤hmann)
 //
 //----------------------------------------------------------------------------
 

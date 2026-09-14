@@ -32,7 +32,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - USE_LOGGING now works in a final version. (30-Jun-2008 Martin Gühmann)
+// - USE_LOGGING now works in a final version. (30-Jun-2008 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 #ifdef HAVE_PRAGMA_ONCE

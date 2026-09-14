@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Memory leak repaired.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

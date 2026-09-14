@@ -24,14 +24,14 @@
 //
 // Modifications from the original Activision code:
 //
-// - Redisign of the single player new game players screen by Martin Gühmann.
+// - Redisign of the single player new game players screen by Martin GÃ¼hmann.
 //   Instead of buttons to determine the number of players in a new game
 //   this screen now allows the player to specify the player index he wants
 //   to use determines the player color, he can also specify how many civs
 //   should be in the game at the start and how many civs in the game should
 //   be maximal in the game. The maximum number of players in one game is
 //   currently 32 and is hard encoded somewhere else.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

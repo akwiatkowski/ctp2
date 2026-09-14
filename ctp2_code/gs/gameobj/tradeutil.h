@@ -25,8 +25,8 @@
 // Modifications from the original Activision code:
 //
 // - Added tradeutil_GetNetTradeCosts function for trade route costs
-//   standardization. - June 5th 2005 Martin Gühmann
-// - Added some functionality from the old const database. (5-Aug-2007 Martin Gühmann)
+//   standardization. - June 5th 2005 Martin GÃ¼hmann
+// - Added some functionality from the old const database. (5-Aug-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

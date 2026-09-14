@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Standardized code (May 21th 2006 Martin Gühmann)
+// - Standardized code (May 21th 2006 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

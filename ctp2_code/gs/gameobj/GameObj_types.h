@@ -26,7 +26,7 @@
 //
 // - Moved CIV_INDEX and GENDER into this file to resolve
 //   cyclic header dependencies
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gühmann)
+// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 #ifndef __GS_GAMEOBJ__GAMEOBJ_TYPES__H__

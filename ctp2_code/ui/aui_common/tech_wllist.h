@@ -27,7 +27,7 @@
 // Modifications from the original Activision code:
 //
 // - Add typename in front of tech_WLList< T >::Link *tech_WLList< T >::NewLink
-//   to make the latest g++ and .NET compilers happy, by Martin Gühmann.
+//   to make the latest g++ and .NET compilers happy, by Martin GÃ¼hmann.
 //
 //----------------------------------------------------------------------------
 

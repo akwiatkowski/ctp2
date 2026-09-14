@@ -24,8 +24,8 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added get and set methods for the bombard members. (30-Apr-2008 Martin Gühmann)
-// - Redesigned AI, so that the matching algorithm is now a greedy algorithm. (13-Aug-2008 Martin Gühmann)
+// - Added get and set methods for the bombard members. (30-Apr-2008 Martin GÃ¼hmann)
+// - Redesigned AI, so that the matching algorithm is now a greedy algorithm. (13-Aug-2008 Martin GÃ¼hmann)
 //   - Added following methods: NothingNeeded, GetTotalMissingStrength, HasEnough, and Log_Debug_Infor
 //
 //----------------------------------------------------------------------------

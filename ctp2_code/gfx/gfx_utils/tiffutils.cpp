@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Removed unused local variables. (Sep 9th 2005 Martin G�hmann)
+// - Removed unused local variables. (Sep 9th 2005 Martin Gähmann)
 //
 //----------------------------------------------------------------------------
 
@@ -270,7 +270,7 @@ char *StripTIF2Mem(const char *filename, uint16 *width, uint16 *height, size_t *
 	return outBuf;
 }
 
-// Out-of-line so consumers of TifBuffer never spell the C deallocator —
+// Out-of-line so consumers of TifBuffer never spell the C deallocator â
 // the buffers come from the C allocator inside the loaders above.
 void tiffutils_BufferDeleter::operator()(char *pixels) const
 {

@@ -28,7 +28,7 @@
 // - Shifted buttons from the "Single Player" subscreen into this one to
 //   simplify the interface.
 //   (JJB)
-// - Removed civilisation database references. (Aug 20th 2005 Martin Gühmann)
+// - Removed civilisation database references. (Aug 20th 2005 Martin GÃ¼hmann)
 // - Repaired memory leaks.
 //
 //----------------------------------------------------------------------------

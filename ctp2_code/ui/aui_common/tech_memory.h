@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Variable scope corrected
-// - Initialized local variables. (Sep 9th 2005 Martin Gähmann)
+// - Initialized local variables. (Sep 9th 2005 Martin GÃ¤hmann)
 //
 //----------------------------------------------------------------------------
 

@@ -33,12 +33,12 @@
 //   * Added bool m_hasGovernmentsModified to the RecordDescription class
 // - Modified AddBitPair function to allow bit pairs to have default values
 //   so that when two records are merged, only the bit is merged
-//   in that is set. - Sep. 28th 2004 Martin Gühmann
+//   in that is set. - Sep. 28th 2004 Martin GÃ¼hmann
 // - Added ParseNum so that a certain number of entries can be parsed if
-//   braces are missing so that the old pollution database can be supported. (July 15th 2006 Martin Gühmann)
-// - Added default tokens for database records. (July 15th 2006 Martin Gühmann)
-// - Added map.txt support. (27-Mar-2007 Martin Gühmann)
-// - Added Const.txt support. (29-Jul-2007 Martin Gühmann)
+//   braces are missing so that the old pollution database can be supported. (July 15th 2006 Martin GÃ¼hmann)
+// - Added default tokens for database records. (July 15th 2006 Martin GÃ¼hmann)
+// - Added map.txt support. (27-Mar-2007 Martin GÃ¼hmann)
+// - Added Const.txt support. (29-Jul-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

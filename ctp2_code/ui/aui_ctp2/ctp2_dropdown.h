@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - ForceSelect can now be disabled. (Feb 4th 2007 Martin Gühmann)
+// - ForceSelect can now be disabled. (Feb 4th 2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

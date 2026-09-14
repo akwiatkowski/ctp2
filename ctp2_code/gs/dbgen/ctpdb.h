@@ -25,13 +25,13 @@
  * Modifications from the original Activision code:
  *
  * - Added akaName and defaultName to the structs namelist and namevalueflags
- *   for support of the old database format. (Aug 26th 2005 Martin Gühmann)
+ *   for support of the old database format. (Aug 26th 2005 Martin GÃ¼hmann)
  * - Added method to determine the number of entries that should be parsed
- *   in order to support the old pollution database. (July 15th 2006 Martin Gühmann)
- * - Added map.txt support. (27-Mar-2007 Martin Gühmann)
- * - Added Const.txt support. (29-Jul-2007 Martin Gühmann)
+ *   in order to support the old pollution database. (July 15th 2006 Martin GÃ¼hmann)
+ * - Added map.txt support. (27-Mar-2007 Martin GÃ¼hmann)
+ * - Added Const.txt support. (29-Jul-2007 Martin GÃ¼hmann)
  * - Added support for default values taken from other databases like the
- *   Const database. (9-Dec-2007 Martin Gühmann)
+ *   Const database. (9-Dec-2007 Martin GÃ¼hmann)
  *
  *----------------------------------------------------------------------------
  */

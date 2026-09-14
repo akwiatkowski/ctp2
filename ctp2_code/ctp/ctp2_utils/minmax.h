@@ -25,7 +25,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Created file (31-Mar-2007 Martin Gühmann)
+// - Created file (31-Mar-2007 Martin GÃ¼hmann)
 // - Moved min and max from c3.h so that we can use it also in the other
 //   projects so that we don't have to include everything from c3,h.
 //

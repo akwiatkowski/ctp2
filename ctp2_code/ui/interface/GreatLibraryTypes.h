@@ -29,7 +29,7 @@
 // - Increased maximum library text size to support the German version.
 // - Exported database name size max.
 // - Added function to look up an item name on creation index.
-// - Added alpha <-> index functions. (Sep 13th 2005 Martin Gühmann)
+// - Added alpha <-> index functions. (Sep 13th 2005 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 //

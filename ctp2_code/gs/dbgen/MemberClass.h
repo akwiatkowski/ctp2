@@ -26,10 +26,10 @@
 //
 // - Modified AddBitPair function to allow bit pairs to have default values
 //   so that when two records are merged, only the bit is merged
-//   in that is set. - Sep. 28th 2004 Martin Gühmann
-// - Parser for struct ADVANCE_CHANCES of DiffDB.txt can now be generated. (Jan 3rd 2006 Martin Gühmann)
+//   in that is set. - Sep. 28th 2004 Martin GÃ¼hmann
+// - Parser for struct ADVANCE_CHANCES of DiffDB.txt can now be generated. (Jan 3rd 2006 Martin GÃ¼hmann)
 // - Added ParseNum so that a certain number of entries can be parsed if
-//   braces are missing so that the old pollution database can be supported. (July 15th 2006 Martin Gühmann)
+//   braces are missing so that the old pollution database can be supported. (July 15th 2006 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

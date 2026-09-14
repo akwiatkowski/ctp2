@@ -25,8 +25,8 @@
 // Modifications from the original Activision code:
 //
 // - Added AI attack, defense, ranged, land bombard, sea bombard, and air bombard
-//   player power grids to the mapanalysis. (30-Apr-2008 Martin Gühmann)
-// - Fixed AI city rank calculation. (9-Nov-2009 Martin Gühmann)
+//   player power grids to the mapanalysis. (30-Apr-2008 Martin GÃ¼hmann)
+// - Fixed AI city rank calculation. (9-Nov-2009 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

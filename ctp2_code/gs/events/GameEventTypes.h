@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added GEV_ERR_ArgsInvalid to GAME_EVENT_ERR. (7-Nov-2007 Martin Gühmann)
+// - Added GEV_ERR_ArgsInvalid to GAME_EVENT_ERR. (7-Nov-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

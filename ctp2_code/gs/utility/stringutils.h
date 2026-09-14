@@ -34,7 +34,7 @@
 // - Microsoft extensions marked.
 // - Made the interpretation text size a parameter to support the German
 //   version.
-// - Removed unneeded inlcude file. (Aug 20th 2005 Martin Gühmann)
+// - Removed unneeded inlcude file. (Aug 20th 2005 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

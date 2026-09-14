@@ -24,8 +24,8 @@
 //
 // Modifications from the original Activision code:
 //
-// - Created file (24-Mar-2007 Martin Gühmann)
-// - Moved some functionality from the old map database. (24-Mar-2007 Martin Gühmann)
+// - Created file (24-Mar-2007 Martin GÃ¼hmann)
+// - Moved some functionality from the old map database. (24-Mar-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

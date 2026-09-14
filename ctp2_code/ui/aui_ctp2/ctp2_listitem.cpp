@@ -3,7 +3,7 @@
 // Project      : Call To Power 2
 // File type    : C++ source
 // Description  : CTP2 list item GUI component
-// Id           : $Id net_civ.cpp 442 2005-08-28 18:05:04Z Martin Gühmann $
+// Id           : $Id net_civ.cpp 442 2005-08-28 18:05:04Z Martin GÃ¼hmann $
 //
 //----------------------------------------------------------------------------
 //
@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added own Draw method. (2-Jan-2008 Martin G�hmann)
+// - Added own Draw method. (2-Jan-2008 Martin Gühmann)
 //
 //----------------------------------------------------------------------------
 

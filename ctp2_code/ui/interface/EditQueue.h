@@ -24,8 +24,8 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added National Manager button and functions callback. - July 24th 2005 Martin Gühmann
-// - Added a suggest build item button to the build manager for AI testing. (30-Jun-2008 Martin Gühmann)
+// - Added National Manager button and functions callback. - July 24th 2005 Martin GÃ¼hmann
+// - Added a suggest build item button to the build manager for AI testing. (30-Jun-2008 Martin GÃ¼hmann)
 // - Added stuff for reimplementing switch production penalty. (22-Jul-2009 Maq)
 //
 //----------------------------------------------------------------------------

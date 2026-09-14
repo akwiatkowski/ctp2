@@ -25,12 +25,12 @@
 // Modifications from the original Activision code:
 //
 // - Devided caravan costs by 10 so that we don't have to update const.txt.
-//   This allows better mod compatibility. - May 7th 2005 Martin Gühmann
-// - Removed .NET warnings - May 7th 2005 Martin Gühmann
-// - Standardized trade route cost calculation. - June 5th 2005 Martin Gühmann
+//   This allows better mod compatibility. - May 7th 2005 Martin GÃ¼hmann
+// - Removed .NET warnings - May 7th 2005 Martin GÃ¼hmann
+// - Standardized trade route cost calculation. - June 5th 2005 Martin GÃ¼hmann
 // - Added note that trade pact deals shouldn't be hardcoded 6.13.2007
-// - Added some functionality from the old const database. (5-Aug-2007 Martin Gühmann)
-// - Corrected meridian calculation. (29-Oct-2007 Martin Gühmann)
+// - Added some functionality from the old const database. (5-Aug-2007 Martin GÃ¼hmann)
+// - Corrected meridian calculation. (29-Oct-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Added terrainutil_GetMinimumProductionCost to retrieve the minimum
-//   costs of a tile improvement. (17-Jan-2008 Martin Gühmann)
+//   costs of a tile improvement. (17-Jan-2008 Martin GÃ¼hmann)
 // - Added terrainutil_GetHealRate to suppurt tileimprovement healing (24-Jul-2009 EPW)
 //----------------------------------------------------------------------------
 

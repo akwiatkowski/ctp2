@@ -26,7 +26,7 @@
 //
 // - Removed MS version specific code.
 // - Standardised <list> import.
-// - Moved settle_water argument inside SettleMap::GetSettleTargets. (May 20th 2006 Martin Gühmann)
+// - Moved settle_water argument inside SettleMap::GetSettleTargets. (May 20th 2006 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

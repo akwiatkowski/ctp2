@@ -21,7 +21,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Addion by Martin Gühmann: Two more world shape options,
+// - Addion by Martin GÃ¼hmann: Two more world shape options,
 //   flat world and Uranus world
 // - Improved import structure and compatibility.
 //

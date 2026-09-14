@@ -21,7 +21,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added emissary photo to the diplomatic manager by Martin Gühmann
+// - Added emissary photo to the diplomatic manager by Martin GÃ¼hmann
 // - removed new diplo attempt - E 12.27.2006
 //
 //----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ class DipWizard
 
 	static ctp2_Static *m_parchment, *m_responseDiplomat;
 
-	//Added by Martin Gühmann to display the emissary photo of recipient
+	//Added by Martin GÃ¼hmann to display the emissary photo of recipient
 	static ctp2_Static *m_emissary_photo;
 
 	static ctp2_ListBox *m_propList[DIP_WIZ_PROP_TAB_MAX];

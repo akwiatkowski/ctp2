@@ -26,7 +26,7 @@
 // Modifications from the original Activision code:
 //
 // - This file is not part of the original source code.
-// - File created. (Aug 15th 2005 Martin Gühmann)
+// - File created. (Aug 15th 2005 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

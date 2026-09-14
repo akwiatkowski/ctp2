@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Made default constructor work probably. (21-Jul-2007 Martin Gühmann)
+// - Made default constructor work probably. (21-Jul-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

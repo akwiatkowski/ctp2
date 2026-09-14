@@ -33,7 +33,7 @@
 //   * Added Modified and Modified delimiter tokens (chars '>' and ',') to
 //     assist in lexical analysis of new additional GovernmentsModified
 //     record syntax
-// - Added k_Token_Undefined. (29-Jul-2007 Martin Gühmann)
+// - Added k_Token_Undefined. (29-Jul-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

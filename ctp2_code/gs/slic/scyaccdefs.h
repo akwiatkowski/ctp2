@@ -27,7 +27,7 @@
 //
 // - Added more yy* symbols to be replaced by sc* symbols so that there are
 //   less problems with the other parser charing the same global symbols that
-//   caused usage of invalid memory. - May 28th 2005 Martin Gühmann
+//   caused usage of invalid memory. - May 28th 2005 Martin GÃ¼hmann
 //
 //----------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@
 #define yytoks sctoks
 #define yyv scv
 #define yyval scval
-// Added by Martin Gühmann to fix external linkage
+// Added by Martin GÃ¼hmann to fix external linkage
 // issures in the sliccmd parser
 #define yyssp scssp
 #define yyvsp scvsp

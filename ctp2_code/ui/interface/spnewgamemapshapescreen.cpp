@@ -24,11 +24,11 @@
 //
 // Modifications from the original Activision code:
 //
-// - Addion by Martin Gühmann: Two more world shape options,
+// - Addion by Martin GÃ¼hmann: Two more world shape options,
 //   flat world and Uranus world.
 // - Memory leak repaired.
 // - Restored compatibility.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -82,12 +82,12 @@ static c3_PopupWindow	*s_spNewGameMapShapeScreen	= nullptr;
 static aui_SwitchGroup	*s_group		= nullptr;
 static c3_Static	*s_ewLabel			= nullptr; // Earth world
 static c3_Static	*s_dwLabel			= nullptr; // Doughnut world
-//Added by Martin Gühmann
+//Added by Martin GÃ¼hmann
 static c3_Static	*s_uwLabel			= nullptr; // Uranus world
 static c3_Static	*s_fwLabel			= nullptr; // Flat world
 
 static MBCHAR const	checknames[WORLD_SHAPE_COUNT][50] = {
-	//Added two more shapes for more shape options by Martin Gühmann
+	//Added two more shapes for more shape options by Martin GÃ¼hmann
 	"MapShapeOne",   //Earth world (West-East wrap world)
 	"MapShapeTwo",   //Doughnut world
 	"MapShapeThree", //Flat world
@@ -282,7 +282,7 @@ void spnewgamemapshapescreen_Cleanup()
 		mycleanup(s_group);
 		mycleanup(s_ewLabel);//Earth like world: East-West wrap world
 		mycleanup(s_dwLabel);//Doughnut world
-		// Added by Martin Gühmann
+		// Added by Martin GÃ¼hmann
 		mycleanup(s_uwLabel);//Uranus like world: North-South wrap world
 		mycleanup(s_fwLabel);//Flat world
 		mycleanup(s_spNewGameMapShapeScreen);

@@ -29,7 +29,7 @@
 //   less problems with the other parser charing the same global symbols that
 //   caused usage of invalid memory. Actual this is done for sc.tab.c but what
 //   a defect is there is a defect here as well, the game just didn't fail.
-//   - May 28th 2005 Martin Gühmann
+//   - May 28th 2005 Martin GÃ¼hmann
 //
 //----------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@
 #define yytoks ldltoks
 #define yyv ldlv
 #define yyval ldlval
-// Added by Martin Gühmann to fix external linkage
+// Added by Martin GÃ¼hmann to fix external linkage
 // issures in the sliccmd parser
 #define yyssp ldlssp
 #define yyvsp ldlvsp

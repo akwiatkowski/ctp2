@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Roads now use the TileSetIndex from the TerrainImprovement database. (28-Feb-2008 Martin Gühmann)
+// - Roads now use the TileSetIndex from the TerrainImprovement database. (28-Feb-2008 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

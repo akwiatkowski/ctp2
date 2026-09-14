@@ -26,7 +26,7 @@
 //
 // - Memory leaks repaired.
 // - Replaced old difficulty and risk level selection button banks by new
-//   list boxes. (8-Jul-2007 Martin Gühmann)
+//   list boxes. (8-Jul-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

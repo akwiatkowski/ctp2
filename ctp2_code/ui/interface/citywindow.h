@@ -25,8 +25,8 @@
 // Modifications from the original Activision code:
 //
 // - Added OptimizeSpecialists function for specialists optimisation option.
-//   - April 7th 2005 Martin Gühmann
-// - Added National Manager button and functions callback. - July 24th 2005 Martin Gühmann
+//   - April 7th 2005 Martin GÃ¼hmann
+// - Added National Manager button and functions callback. - July 24th 2005 Martin GÃ¼hmann
 // - Completely redesigned the window. Removed some CW_PANELS that are not used. (28-Mar-2009 Maq)
 //
 //----------------------------------------------------------------------------

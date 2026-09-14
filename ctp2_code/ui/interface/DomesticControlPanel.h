@@ -34,7 +34,7 @@
 // - Microsoft C++ extensions marked for future GCC compilation.
 // - Functionality added to hide the data of the previous player for hotseat
 //   games.
-// - Added a progress bar to the advance select button. (Feb 4th 2007 Martin Gühmann)
+// - Added a progress bar to the advance select button. (Feb 4th 2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

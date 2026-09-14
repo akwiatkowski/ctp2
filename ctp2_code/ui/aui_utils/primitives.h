@@ -24,9 +24,9 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standardized code (May 21st 2006 Martin Gühmann)
-// - Added primitives_GetScreenAdjustedRectCopy function. (3-Mar-2007 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin GÃ¼hmann)
+// - Standardized code (May 21st 2006 Martin GÃ¼hmann)
+// - Added primitives_GetScreenAdjustedRectCopy function. (3-Mar-2007 Martin GÃ¼hmann)
 //
 //----------------------------------------------------------------------------
 

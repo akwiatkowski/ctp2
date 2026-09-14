@@ -26,10 +26,10 @@
 //
 // - #pragma once commented out.
 // - Added new token so that the loading of default strings can be
-//   prevented. (Jan 30th 2006 Martin Gühmann)
-// - Removed unused tokens. (July 15th 2006 Martin Gühmann)
+//   prevented. (Jan 30th 2006 Martin GÃ¼hmann)
+// - Removed unused tokens. (July 15th 2006 Martin GÃ¼hmann)
 // - Added new token so that the loading of default strings in scenarios
-//   can be skipped. (9-Apr-2007 Martin Gühmann)
+//   can be skipped. (9-Apr-2007 Martin GÃ¼hmann)
 // - Improved handling of "unexpected" EOF, caused by incorrect input.
 //
 //----------------------------------------------------------------------------

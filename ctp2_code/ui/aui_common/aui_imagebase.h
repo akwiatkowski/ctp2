@@ -34,6 +34,7 @@
 #ifndef AUI_IMAGEBASE_H__
 #define AUI_IMAGEBASE_H__
 
+#include <string>			// std::string
 #include <vector>			// std::vector
 
 class aui_ImageBase;
@@ -168,7 +169,7 @@ protected:
 	bool	m_chromaSpecified;
 
 	sint32 m_numberOfStateImageNames;
-	std::vector<MBCHAR *> m_stateImageNames;
+	std::vector<std::string> m_stateImageNames;
 
 	bool m_centerImage;
 };

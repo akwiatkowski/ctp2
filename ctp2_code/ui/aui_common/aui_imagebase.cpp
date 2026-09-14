@@ -206,7 +206,7 @@ AUI_ERRCODE aui_ImageBase::InitCommon(
 	if(m_loadOnDemand) {
 
 		m_numberOfStateImageNames = numStateImageGroups * AUI_IMAGEBASE_SUBSTATE_LAST;
-		m_stateImageNames.assign(m_numberOfStateImageNames, nullptr);
+		m_stateImageNames.resize(m_numberOfStateImageNames);
 	}
 
 	m_stateImageGroups =
@@ -225,13 +225,6 @@ AUI_ERRCODE aui_ImageBase::InitCommon(
 
 aui_ImageBase::~aui_ImageBase()
 {
-	if (!m_stateImageNames.empty())
-    {
-		for (int index = 0; index < m_numberOfStateImageNames; index++)
-        {
-			delete m_stateImageNames[index];
-        }
-	}
 
 	if (m_stateImageGroups)
 	{
@@ -264,9 +257,9 @@ aui_Image *aui_ImageBase::GetImage(
 		sint32 index = (state * AUI_IMAGEBASE_SUBSTATE_LAST) + substate;
 
 
-		if(m_stateImageNames[index] && (!m_stateImageGroups[state][substate]))
+		if(!m_stateImageNames[index].empty() && (!m_stateImageGroups[state][substate]))
 		{
-			m_stateImageGroups[ state ][ substate ] = aui_ui_Get()->LoadImage(m_stateImageNames[index]);
+			m_stateImageGroups[ state ][ substate ] = aui_ui_Get()->LoadImage(m_stateImageNames[index].c_str());
 			Assert( m_stateImageGroups[ state ][ substate ] != nullptr );
 
 			if ((m_chromaSpecified)&&(m_stateImageGroups[ state ][ substate ]!=nullptr))
@@ -324,8 +317,7 @@ aui_Image *aui_ImageBase::SetImage
 
 			sint32 index = (state * AUI_IMAGEBASE_SUBSTATE_LAST) + substate;
 
-			delete m_stateImageNames[index];
-			m_stateImageNames[index] = strdup(image);
+			m_stateImageNames[index] = image;
 			m_stateImageGroups[ state ][ substate ] = nullptr;
 		}
 		else
@@ -351,8 +343,7 @@ aui_Image *aui_ImageBase::SetImage
 
 			sint32 index = (state * AUI_IMAGEBASE_SUBSTATE_LAST) + substate;
 
-			delete m_stateImageNames[index];
-			m_stateImageNames[index] = nullptr;
+			m_stateImageNames[index].clear();
 		}
 
 		m_stateImageGroups[ state ][ substate ] = nullptr;

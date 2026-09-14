@@ -123,8 +123,6 @@ void FacedSprite::Import(size_t nframes, char *imageFiles[k_NUM_FACINGS][k_MAX_N
 				printf("Could not locate %s.  Aborting.\n\n", imageFiles[facing][i]);
 				exit(-1);
 			}
-
-			printf(".");
 		}
 	}
 }

@@ -222,8 +222,6 @@ void Sprite::Import(size_t nframes, char **imageFiles, char **shadowFiles)
 			data = spriteutils_RGB32ToEncoded(miniimage.data(), minishadowPtr, m_width >> 1, m_height >> 1, &dataSize);
 			SetMiniFrameData(i, data, dataSize);
 		}
-
-		printf(".");
 	}
 }
 

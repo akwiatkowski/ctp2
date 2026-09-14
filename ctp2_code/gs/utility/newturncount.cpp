@@ -108,7 +108,6 @@ void NewTurnCount::SetStopPlayer(const sint32 &player_index)
 
 void NewTurnCount::StartNextPlayer(bool stop)
 {
-	fprintf(stderr, "[TURN] StartNextPlayer stop=%d curPlayer=%d\n", stop, player_view::CurPlayer());
 	DPRINTF(1, ("NewTurnCount::StartNextPlayer(%d), curPlayer: %d\n", stop, player_view::CurPlayer()));
 
 	static bool warned=false;

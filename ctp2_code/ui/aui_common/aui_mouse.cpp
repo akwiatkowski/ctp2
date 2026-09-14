@@ -988,10 +988,6 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 		}
 	}
 
-	#ifdef CTP2_DEBUG_LOGGING
-	fprintf(stderr, "[MOUSE] BltDirtyRectInfoToPrimary: %d dirty rects\n", driList->L());
-	#endif
-
 	ListPos position = driList->GetHeadPosition();
 	for ( sint32 j = driList->L(); j; j-- )
 	{

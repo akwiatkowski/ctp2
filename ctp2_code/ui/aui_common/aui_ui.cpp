@@ -760,11 +760,6 @@ AUI_ERRCODE aui_UI::ClipAndConsolidate()
 
 		if ( !window->IsHidden() )
 		{
-			#ifdef CTP2_DEBUG_LOGGING
-			fprintf(stderr, "[AUI] ClipAndConsolidate: window id=%u dirty=%d\n",
-				window->Id(), window->m_dirtyList->L());
-			#endif
-
 			windowX = window->X();
 			windowY = window->Y();
 			windowWidth = window->Width();
@@ -995,11 +990,6 @@ AUI_ERRCODE aui_UI::DrawAll( )
 	if ( !m_primary ) return AUI_ERRCODE_OK;
 
 	AUI_ERRCODE errcode;
-
-	#ifdef CTP2_DEBUG_LOGGING
-	fprintf(stderr, "[AUI] Draw: children=%d dirtyList=%d dirtyRectInfo=%d\n",
-		m_childList->L(), m_dirtyList->L(), m_dirtyRectInfoList->L());
-	#endif
 
 	ClipAndConsolidate();
 

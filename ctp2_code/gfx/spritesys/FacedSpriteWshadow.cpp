@@ -102,8 +102,6 @@ void FacedSpriteWshadow::Import(uint16 nframes, char *imageFiles[k_NUM_FACINGS][
 						}
 					}
 			}
-
-			printf(".");
 		}
 	}
 }
@@ -132,8 +130,6 @@ void FacedSpriteWshadow::Import(uint16 nframes, char *imageFiles[k_NUM_FACINGS][
 				data = spriteutils_RGB32ToEncoded(minitif.data(), m_width >> 1, m_height >> 1, &dataSize);
 				SetMiniFrameData(facing, i, data, dataSize);
 			}
-
-			printf(".");
 		}
 	}
 }

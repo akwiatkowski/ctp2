@@ -355,8 +355,12 @@ void SlicFrame::AddArg(SS_TYPE type, SlicStackValue value)
 //----------------------------------------------------------------------------
 BOOL SlicFrame::DoInstruction(SOP op)
 {
-	unsigned char* codePtr = &m_segment->m_code[m_offset];
-	unsigned char* origCodePtr = &m_segment->m_code[m_offset];
+	// m_offset may sit exactly one past the last byte when the terminating
+	// opcode was just fetched — data()+size() is a valid pointer, while
+	// m_code[size] would trip the bounds check. Operand reads still go
+	// through codePtr only for instructions that carry them.
+	unsigned char* codePtr = m_segment->m_code.data() + m_offset;
+	unsigned char* origCodePtr = codePtr;
 #if defined(SLIC_DOUBLES)
 	double dval;
 #endif

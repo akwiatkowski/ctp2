@@ -1718,6 +1718,10 @@ headless_command = run_command(python3, '-c',
   'import shlex, sys; print(shlex.quote(sys.argv[1]))',
   headless_exe.full_path(), check : true).stdout().strip()
 headless_test_config.set_quoted('CTP2_HEADLESS_COMMAND', headless_command)
+# Pinned test profile: keeps test runs independent of the developer's
+# ~/.ctp2/userprofile.txt.  main.cpp exports it as CTP2_PROFILE.
+headless_test_config.set_quoted('CTP2_TEST_PROFILE',
+  join_paths(meson.project_source_root(), 'test', 'testprofile.txt'))
 configure_file(output : 'headless_test_config.h', configuration : headless_test_config)
 
 unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + active_game_core_sources,

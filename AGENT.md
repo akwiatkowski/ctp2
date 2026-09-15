@@ -175,8 +175,16 @@ instead of a socket.
 ```
 
 Flags: `--new-game`, `--load-game <path>`, `--turns N`, `--players N`,
-`--seed N`, `--save-game <path>`, `--export-metrics <path>`. Logs to
-stderr via spdlog (`[ts] [headless] [info] …`). Exits 0 on completion.
+`--seed N`, `--save-game <path>`, `--export-metrics <path>`,
+`--userprofile <path>`. Logs to stderr via spdlog
+(`[ts] [headless] [info] …`). Exits 0 on completion.
+
+Profile resolution is `ProfileDB` ctor arg > `CTP2_PROFILE` env >
+`~/.ctp2/userprofile.txt` > bundled `profile.txt`. Explicitly selected
+profiles are never written back, and headless never autosaves nor
+writes `userprofile.txt`. Test harnesses point `CTP2_PROFILE` at the
+pinned `ctp2_code/test/testprofile.txt` so results don't depend on the
+developer's personal profile.
 
 The metrics CSV has two sections — `# PLAYERS` (idx, leader, dead,
 score, gold, num_cities) and `# CITIES` (player_idx, name, x, y,

@@ -33,6 +33,14 @@ import sys
 # (Seed 42 is everywhere else already; start after it.)
 SEED_BASE = 1000
 
+# Pinned repo profile, not the developer's ~/.ctp2/userprofile.txt —
+# subprocess.run inherits os.environ into the headless children.
+os.environ.setdefault(
+    "CTP2_PROFILE",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "testprofile.txt"),
+)
+
 
 def run_seed(binary, seed, turns, players, log_dir):
     log_path = os.path.join(log_dir, f"seed_{seed}.log")

@@ -10,6 +10,9 @@ set -e
 BUILD_DIR="${1:-build-sanitized}"
 HEADLESS="./$BUILD_DIR/ctp2_headless"
 
+# Pinned repo profile, not the developer's ~/.ctp2/userprofile.txt.
+export CTP2_PROFILE="${CTP2_PROFILE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/ctp2_code/test/testprofile.txt}"
+
 echo "=== CTP2 Headless Smoke Tests ==="
 echo "Binary: $HEADLESS"
 echo ""

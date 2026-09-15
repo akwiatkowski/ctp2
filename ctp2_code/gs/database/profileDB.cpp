@@ -94,7 +94,7 @@ sint32 const                SLIDER_MIDDLE               = 5;
 sint32 const                USE_UNKNOWN                 = 0;
 }
 
-ProfileDB::ProfileDB()
+ProfileDB::ProfileDB(MBCHAR const * profilePath)
 :
     m_nPlayers                          (PLAYER_COUNT_DEFAULT),
     m_ai_on                             (FALSE),
@@ -272,6 +272,13 @@ ProfileDB::ProfileDB()
 	m_civName[0]            = 0;
 	m_saveNote[0]           = 0;
 	m_ruleSets[0]           = 0;
+
+	m_profilePath[0]        = 0;
+	if (profilePath && profilePath[0])
+	{
+		strlcpy(m_profilePath, profilePath, sizeof(m_profilePath));
+		m_dontSave = TRUE;   // never write back to an explicit profile
+	}
 
 	for (size_t map_pass = 0; map_pass < k_NUM_MAP_PASSES; ++map_pass)
 	{
@@ -496,11 +503,33 @@ BOOL ProfileDB::Init(BOOL forTutorial)
 	MBCHAR profileName[_MAX_PATH];
 	MBCHAR *profileTxtFile;
 
+	// Explicit profile selection: constructor argument first, then the
+	// CTP2_PROFILE environment variable (covers spawned binaries — the
+	// smoke-test GUI, ctp2_headless, popen'd test children — and any
+	// in-process test that didn't inject a path).  Explicit profiles are
+	// never written back: fixture files must not mutate under tests.
+	MBCHAR const * envProfile = getenv("CTP2_PROFILE");
+	bool const envOverride = envProfile && envProfile[0];
+	if (m_profilePath[0] || envOverride)
+	{
+		m_dontSave = TRUE;
+	}
+
 	if (forTutorial)
 	{
 		m_loadedFromTutorial = TRUE;
 		profileTxtFile = civpaths_Get()->FindFile(C3DIR_GAMEDATA,
 		                                      "tut_profile.txt", profileName);
+	}
+	else if (m_profilePath[0])
+	{
+		// No fallback: a missing explicit file yields constructor
+		// defaults, not some other machine's settings.
+		profileTxtFile = m_profilePath;
+	}
+	else if (envOverride)
+	{
+		profileTxtFile = const_cast<MBCHAR *>(envProfile);
 	}
 	else
 	{
@@ -523,7 +552,10 @@ BOOL ProfileDB::Init(BOOL forTutorial)
 			BOOL const      res             = Parse(pro_file);
 			fclose(pro_file);
 
-			if (res)
+			// Headless runs are automated: read the profile but never
+			// write it back, so test runs stay read-only w.r.t. the
+			// user's config file.
+			if (res && !is_headless())
 			{
 				Save();
 			}

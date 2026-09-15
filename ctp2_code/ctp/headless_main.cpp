@@ -136,6 +136,8 @@ static void print_usage(const char *prog)
         "                          metrics as CSV to PATH (or '-' for stdout)\n"
         "  --metrics-interval N    With --export-metrics, also write a snapshot\n"
         "                          every N rounds, each marked '# TURN <round>'\n"
+        "  --userprofile PATH      Read profile settings from PATH instead of\n"
+        "                          ~/.ctp2/userprofile.txt (same as CTP2_PROFILE)\n"
         "  --help                  Show this message\n",
         prog);
 }
@@ -191,6 +193,11 @@ int main(int argc, char **argv)
             jsonSavePath = argv[++i];
         } else if (strcmp(argv[i], "--json-load") == 0 && i + 1 < argc) {
             jsonLoadPath = argv[++i];
+        } else if (strcmp(argv[i], "--userprofile") == 0 && i + 1 < argc) {
+            // Explicit profile file for this run.  Feeds the same
+            // mechanism tests use via CTP2_PROFILE; ProfileDB::Init
+            // picks it up in InitializeEngine.
+            setenv("CTP2_PROFILE", argv[++i], 1);
         } else if (strcmp(argv[i], "--help") == 0) {
             print_usage(argv[0]);
             return 0;

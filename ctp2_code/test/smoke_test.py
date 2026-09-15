@@ -72,11 +72,18 @@ def main() -> int:
             candidate = os.path.dirname(candidate)
     print(f"[SMOKE] Launching game from cwd={game_cwd} ...")
     log_file = open("/tmp/ctp2-smoke-game.log", "w")
+    env = dict(os.environ)
+    env.setdefault(
+        "CTP2_PROFILE",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                     "testprofile.txt"),
+    )
     proc = subprocess.Popen(
         [GAME_BINARY, "smoke-test"],
         stdout=log_file,
         stderr=subprocess.STDOUT,
         cwd=game_cwd,
+        env=env,
     )
 
     try:

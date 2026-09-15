@@ -9,6 +9,15 @@ import subprocess
 import tempfile
 
 
+# Pinned repo profile, not the developer's ~/.ctp2/userprofile.txt —
+# subprocess.run inherits os.environ into the headless children.
+os.environ.setdefault(
+    "CTP2_PROFILE",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "testprofile.txt"),
+)
+
+
 def run(binary, folder, name, *args):
     save = folder / f"{name}.json"
     log = folder / f"{name}.log"

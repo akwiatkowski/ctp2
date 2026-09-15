@@ -56,6 +56,17 @@ class Ctp2Client:
         else:
             raise ValueError(f"unknown mode: {mode!r}")
 
+        # Tests run against the pinned repo profile, not the developer's
+        # ~/.ctp2/userprofile.txt — callers can still override via env.
+        overrides = env or {}
+        env = dict(os.environ)
+        env.update(overrides)
+        env.setdefault(
+            "CTP2_PROFILE",
+            os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "testprofile.txt"),
+        )
+
         self.seed = seed
         self.players = players
         self.mode = mode

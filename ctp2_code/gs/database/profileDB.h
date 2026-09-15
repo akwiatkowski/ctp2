@@ -409,9 +409,12 @@ private:
 	PointerList<ProfileVar> m_vars;
     BOOL m_loadedFromTutorial;
     BOOL m_dontSave;
+    // Explicit profile file override (tests, --userprofile, CTP2_PROFILE).
+    // Empty = the normal userprofile.txt / profile.txt resolution.
+    MBCHAR m_profilePath[_MAX_PATH];
 
 public:
-    ProfileDB();
+    ProfileDB(MBCHAR const * profilePath = nullptr);
     ~ProfileDB();
     BOOL Init(BOOL forTutorial);
 

@@ -4187,6 +4187,13 @@ void CivApp::QuitGame()
 
 void CivApp::AutoSave(sint32 player, bool isQuickSave)
 {
+	// Headless has no interactive player to protect from crashes, and the
+	// full JSON serialization per player-turn costs ~99% of a batch run's
+	// wall time.  Explicit saves (--save-game, save_game command) are
+	// unaffected.
+	if (is_headless())
+		return;
+
 	if ((network_Get().IsActive() && !network_Get().IsHost()) || network_Get().IsNetworkLaunch())
 		return;
 

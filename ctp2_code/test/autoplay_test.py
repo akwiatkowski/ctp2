@@ -95,11 +95,18 @@ def main() -> int:
 
     print(f"[AUTO] Launching {GAME_BINARY} from cwd={game_cwd}, target turns={TURNS}")
     log_file = open(GAME_LOG, "w")
+    env = dict(os.environ)
+    env.setdefault(
+        "CTP2_PROFILE",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                     "testprofile.txt"),
+    )
     proc = subprocess.Popen(
         [GAME_BINARY, "smoke-test"],
         stdout=log_file,
         stderr=subprocess.STDOUT,
         cwd=game_cwd,
+        env=env,
     )
 
     try:

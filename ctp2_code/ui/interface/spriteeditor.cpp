@@ -711,7 +711,9 @@ SpriteEditWindow::BeginAnimation()
 	m_actionObj->SetCurrentEndCondition(ACTIONEND_ANIMEND);
 	m_actionObj->SetCurActionCounter(0);
 	m_actionObj->SetFinished(FALSE);
-	m_actionObj->SetAnim(m_currentAnim);
+	// m_currentAnim is borrowed from the sprite group (not deleted at line
+	// 350); Action::SetAnim now takes ownership, so hand it a deep copy.
+	m_actionObj->SetAnim(std::make_unique<Anim>(*m_currentAnim));
 	m_currentAnim->SetType(ANIMTYPE_LOOPED);
 	m_actionObj->SetUnitsVisibility(1000);
 	m_actionObj->SetUnitVisionRange(1000);

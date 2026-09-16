@@ -93,6 +93,10 @@ public:
 	CellUnitList(const DynamicArray<Unit> &copyme);
 
 	virtual bool Insert(Unit id);
+	// Polymorphic base: Cell::m_unit_army (and net_cell.cpp) delete through
+	// CellUnitList* — the destructor must be virtual or those deletes are UB.
+	virtual ~CellUnitList() = default;
+
 	sint32 Del(const Unit &delme);
 	sint32 DelIndex(const sint32 index);
 

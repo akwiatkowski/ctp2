@@ -125,7 +125,7 @@ public:
 	void			SetActionType(sint32 action) { m_actionType=action;};
 	bool			GetIsSpecialActionType() const { return (m_actionType < 0 ); }
 
-	Anim *          GetAnim() const { return m_curAnim; }
+	Anim *          GetAnim() const { return m_curAnim.get(); }
 	sint32			GetAnimPos() const { return m_animPos; }
 	void			SetAnimPos(sint32 pos) { m_animPos=pos; }
 	sint32			GetAnimDelayEnd() const { return m_animDelayEnd; }
@@ -137,7 +137,7 @@ public:
 	virtual void	Process();
 	void			Process(ActionPtr pendingAction);
 
-	void			SetAnim(Anim *anim);
+	void			SetAnim(std::unique_ptr<Anim> anim);
 	void			CreatePath(sint32 x1, sint32 y1, sint32 x2, sint32 y2);
 
 	sint32			GetMaxActionCounter() const { return m_maxActionCounter; }
@@ -203,7 +203,7 @@ public:
 protected:
 	ACTIONEND			m_endCondition;
 
-	Anim         *m_curAnim;
+	std::unique_ptr<Anim> m_curAnim;
 	ActorPathPtr m_curPath;
 
 	sint32				m_maxActionCounter;

@@ -226,7 +226,7 @@ void BattleEvent::ProcessAttack()
 					if (anim) {
 						ActionPtr action(new Action(UNITACTION_ATTACK, ACTIONEND_ANIMEND));
 
-						action->SetAnim(anim.release());
+						action->SetAnim(std::move(anim));
 						actor->AddAction(std::move(action));
 					} else {
 						finished = TRUE;
@@ -300,7 +300,7 @@ void BattleEvent::ProcessExplode()
 						action = std::make_shared<Action>(EFFECTACTION_PLAY, ACTIONEND_ANIMEND);
 					}
 
-					action->SetAnim(anim.release());
+					action->SetAnim(std::move(anim));
 					actor->AddAction(std::move(action));
 					actor->Process();
 
@@ -386,7 +386,7 @@ void BattleEvent::ProcessDeath()
 						anim = actor->CreateAnim(UNITACTION_VICTORY);
 					}
 
-					action->SetAnim(anim.release());
+					action->SetAnim(std::move(anim));
 					actor->AddAction(std::move(action));
 
 					if (soundmgr_Get())

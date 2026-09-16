@@ -130,7 +130,6 @@ extern PointerList<Player>* g_deadPlayer;
 bool g_showHeralds = true;
 
 namespace {
-sint32 const CITY_TYPE_LAND = 0;
 sint32 const CITY_TYPE_WATER = 1;
 
 bool AddGpuMapIconQuad(TileSet *tileSet, MAPICON icon, sint32 x, sint32 y, Pixel16 color) {
@@ -337,7 +336,6 @@ UnitActor::UnitActor(SpriteStatePtr ss,
       m_unitVisionRange(visionRange),
       m_newUnitVisionRange(0.0),
       m_bVisSpecial(false),
-      m_moveActors(NULL),
       m_numOActors(0),
       m_hidden(false),
       m_hiddenUnderStack(false),
@@ -684,7 +682,7 @@ void UnitActor::AddIdle(bool NoIdleJustDelay) {
     idleAction->SetFacing(m_facing);
   }
 
-  idleAction->SetAnim(anim.release());
+  idleAction->SetAnim(std::move(anim));
 
   AddAction(std::move(idleAction));
 
@@ -707,7 +705,7 @@ void UnitActor::ActionQueueUpIdle(bool NoIdleJustDelay) {
   ActionPtr tempCurAction = std::make_shared<Action>(
       UNITACTION_IDLE, ACTIONEND_INTERRUPT, 0, NoIdleJustDelay);
 
-  tempCurAction->SetAnim(anim.release());
+  tempCurAction->SetAnim(std::move(anim));
 
   m_actionQueue.Push(std::move(tempCurAction));
 }
@@ -2617,7 +2615,7 @@ bool UnitActor::ActionMove(ActionPtr actionObj) {
   if (anim == nullptr)
     return false;
 
-  actionObj->SetAnim(anim.release());
+  actionObj->SetAnim(std::move(anim));
   actionObj->SetUnitsVisibility(GetUnitVisibility());
   actionObj->SetUnitVisionRange(GetUnitVisionRange());
   actionObj->SetMaxActionCounter(k_MAX_UNIT_MOVEMENT_ITERATIONS -
@@ -2715,7 +2713,7 @@ bool UnitActor::TryAnimation(ActionPtr actionObj, UNITACTION action) {
     actionObj->SetAnimPos(GetHoldingCurAnimPos(action));
     actionObj->SetSpecialDelayProcess(
         GetHoldingCurAnimSpecialDelayProcess(action));
-    actionObj->SetAnim(theAnim.release());
+    actionObj->SetAnim(std::move(theAnim));
     return true;
   }
 

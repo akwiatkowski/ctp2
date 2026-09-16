@@ -110,7 +110,7 @@ void BattleViewActor::AddIdle(BOOL NoIdleJustDelay)
 	}
 
 	m_curAction = std::make_shared<Action>(UNITACTION_IDLE, ACTIONEND_INTERRUPT);
-	m_curAction->SetAnim(anim.release());
+	m_curAction->SetAnim(std::move(anim));
 	m_curUnitAction = UNITACTION_IDLE;
 
 	if (soundmgr_Get())

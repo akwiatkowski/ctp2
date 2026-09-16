@@ -162,7 +162,7 @@ void GoodActor::AddIdle() {
 
   std::unique_ptr<Anim> anim = CreateAnim(GOODACTION_IDLE);
   if (anim) {
-    m_curAction->SetAnim(anim.release());
+    m_curAction->SetAnim(std::move(anim));
     m_curAction->SetDelay(0);
     m_curGoodAction = GOODACTION_IDLE;
   }

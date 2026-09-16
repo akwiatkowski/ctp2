@@ -90,6 +90,10 @@ public:
 
   explicit Actor(SpriteStatePtr ss);
   Actor(const Actor &rhs);
+  // Polymorphic root: instances are deleted through Actor-derived pointers
+  // (e.g. Director::TradeActorDestroy), so the destructor must be virtual or
+  // that delete is UB (-Wdelete-non-abstract-non-virtual-dtor).
+  virtual ~Actor() = default;
   Actor &operator=(const Actor &rhs);
 
 	void	SetX(sint32 x) { m_x = x; }

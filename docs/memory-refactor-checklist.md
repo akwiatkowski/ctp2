@@ -492,7 +492,7 @@ supervised tail. Re-run `tools/modernization/` triage after big clusters land.
 - [ ] `gfx/spritesys/spriteutils.cpp` (2/0/2) — 🔴 hard · _mixed new[]/malloc buffers_
 - [x] `gfx/spritesys/SpriteGroup.cpp` — done 2026-08-03 (b1169bf7): sprite/anim slots are unique_ptr; setters guard self-assignment (the loader does get-modify-set)
 - [x] `gfx/spritesys/battleviewactor.cpp` (2/0/0)
-- [ ] `gfx/spritesys/action.cpp` (1/1/0) — 🟡 moderate · _single-owner member_
+- [x] `gfx/spritesys/action.cpp` (1/1/0) — 🟡 moderate · _single-owner member_ · DONE 2026-09-15: `m_curAnim` → `std::unique_ptr<Anim>`; copy-ctor deep-copies via `make_unique`; `SetAnim` now takes ownership by `unique_ptr` (all 15 callers pass `std::move(anim)`, spriteeditor passes a deep copy of its borrowed anim — fixing a latent double-delete where Action's dtor freed the sprite group's Anim).
 - [x] `gfx/spritesys/goodactor.cpp` (2/0/0)
 - [x] `gfx/spritesys/TradeActor.cpp` (2/0/0)
 - [ ] `gfx/spritesys/goodactor_factory_impl.cpp` (1/1/0) — 🟡 moderate · _needs ownership review_

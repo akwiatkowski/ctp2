@@ -182,7 +182,6 @@ void dh_projectileMove(DQAction* itemAction,
   UnitActorPtr shootingActor = action->pshooting_actor.lock();
   UnitActorPtr targetActor = action->ptarget_actor.lock();
   MapPoint startPos = action->pmove_oldPos;
-  MapPoint endPos = action->pmove_newPos;
 
   Assert(shootingActor != nullptr && targetActor != nullptr);
 
@@ -208,7 +207,7 @@ void dh_projectileMove(DQAction* itemAction,
 
     Assert(actionObj);
     if (actionObj) {
-      actionObj->SetAnim(anim.release());
+      actionObj->SetAnim(std::move(anim));
       projectileEnd->AddAction(std::move(actionObj));
       director_Get()->ActiveEffectAdd(projectileEnd);
 
@@ -487,7 +486,7 @@ void dh_death(DQAction* itemAction,
     deadActionObj->SetStartMapPoint(action->dead_Pos);
     deadActionObj->SetEndMapPoint(action->dead_Pos);
 
-    deadActionObj->SetAnim(deathAnim.release());
+    deadActionObj->SetAnim(std::move(deathAnim));
 
     deadActionObj->SetUnitVisionRange(theDead->GetUnitVisionRange());
     deadActionObj->SetUnitsVisibility(theDead->GetUnitVisibility());
@@ -541,7 +540,7 @@ void dh_death(DQAction* itemAction,
       victorActionObj->SetStartMapPoint(action->victor_Pos);
       victorActionObj->SetEndMapPoint(action->victor_Pos);
 
-      victorActionObj->SetAnim(victorAnim.release());
+      victorActionObj->SetAnim(std::move(victorAnim));
 
       victorActionObj->SetUnitVisionRange(theVictor->GetUnitVisionRange());
       victorActionObj->SetUnitsVisibility(theVictor->GetUnitVisibility());
@@ -686,7 +685,7 @@ void dh_work(DQAction* itemAction,
   actionObj->SetSequence(seq);
   seq->AddRef();
 
-  actionObj->SetAnim(anim.release());
+  actionObj->SetAnim(std::move(anim));
 
   actor->AddAction(std::move(actionObj));
 
@@ -839,7 +838,7 @@ void dh_combatflash(DQAction* itemAction,
 
   if (anim) {
     ActionPtr actionObj(new Action(EFFECTACTION_FLASH, ACTIONEND_PATHEND));
-    actionObj->SetAnim(anim.release());
+    actionObj->SetAnim(std::move(anim));
     flash->AddAction(std::move(actionObj));
     director_Get()->ActiveEffectAdd(flash);
   }
@@ -1072,7 +1071,7 @@ void dh_faceoff(DQAction* itemAction,
     theAttacker->AddIdle(TRUE);
     return;
   }
-  AttackerActionObj->SetAnim(AttackerAnim.release());
+  AttackerActionObj->SetAnim(std::move(AttackerAnim));
 
   if (attackedIsAttackable) {
     if (theAttacked->GetLoadType() != LOADTYPE_FULL)
@@ -1098,7 +1097,7 @@ void dh_faceoff(DQAction* itemAction,
                                 AttackedPoints.y - AttackerPoints.y));
 
   if (AttackedAnim != nullptr) {
-    AttackedActionObj->SetAnim(AttackedAnim.release());
+    AttackedActionObj->SetAnim(std::move(AttackedAnim));
     AttackedActionObj->SetFacing(
         spriteutils_DeltaToFacing(AttackerPoints.x - AttackedPoints.x,
                                   AttackerPoints.y - AttackedPoints.y));
@@ -1233,7 +1232,7 @@ void dh_speceffect(DQAction* itemAction,
 
   if (anim) {
     ActionPtr actionObj(new Action(EFFECTACTION_PLAY, ACTIONEND_PATHEND));
-    actionObj->SetAnim(anim.release());
+    actionObj->SetAnim(std::move(anim));
     effectActor->AddAction(std::move(actionObj));
     director_Get()->ActiveEffectAdd(effectActor);
 
@@ -1285,7 +1284,7 @@ void dh_attackpos(DQAction* itemAction,
   if (AttackerAnim == nullptr)
     AttackerAnim = theAttacker->CreateAnim(UNITACTION_IDLE);
 
-  AttackerActionObj->SetAnim(AttackerAnim.release());
+  AttackerActionObj->SetAnim(std::move(AttackerAnim));
 
   POINT AttackerPoints;
   POINT AttackedPoints;

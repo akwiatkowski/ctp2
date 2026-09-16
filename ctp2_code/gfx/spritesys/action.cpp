@@ -96,7 +96,7 @@ Action::Action(const Action &rhs):
 {
     if (rhs.m_curAnim)
     {
-        m_curAnim = new Anim(*rhs.m_curAnim);
+        m_curAnim = std::make_unique<Anim>(*rhs.m_curAnim);
     }
 
     /// @todo Check copying of m_curPath, m_moveActors, m_revealedActors (NULLed in original code)
@@ -104,8 +104,7 @@ Action::Action(const Action &rhs):
 
 Action::~Action()
 {
-	delete m_curAnim;
-  m_curAnim = nullptr;
+	// m_curAnim is a unique_ptr now; nothing to free by hand.
 }
 
 void Action::Process()
@@ -167,20 +166,19 @@ void Action::Process(ActionPtr pendingAction)
 #endif
 }
 
-void Action::SetAnim(Anim *anim)
+void Action::SetAnim(std::unique_ptr<Anim> anim)
 {
 #ifndef _TEST
 	STOMPCHECK();
 #endif
 
-//	Assert(anim != NULL);
-	if (anim == nullptr) return;
+	if (!anim) return;
 
 	anim->SetFinished(false);
 
     m_maxActionCounter = anim->GetNumFrames();
 
-	m_curAnim = anim;
+	m_curAnim = std::move(anim);
 
 #ifndef _TEST
 	STOMPCHECK();

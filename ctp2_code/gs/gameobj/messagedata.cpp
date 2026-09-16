@@ -170,8 +170,16 @@ MessageData::MessageData(const ID id, MessageData *copy)
     std::fill(m_caption, m_caption + k_MAX_MSG_LEN, (MBCHAR) 0);
 
     Assert(copy);
-    // Extremely dangerous code: overwrite the block up to (excluding) m_text
-	memcpy(this, copy, (uint8*)&m_text - (uint8*)this);
+    // The prefix memcpy this ctor used for ~20 years also copied GameObj's
+    // pool bookkeeping (m_lesser/m_greater/m_killMeSoon/m_isFromPool) from
+    // the source object, silently re-linking this message into the pool tree
+    // of the original (and overwriting the vtable pointer, per
+    // -Wdynamic-class-memaccess). Every other prefix member is assigned
+    // explicitly below; these four had no explicit copy, so they are now.
+    m_owner = copy->m_owner;
+    m_sender = copy->m_sender;
+    m_advance = copy->m_advance;
+    m_expiration = copy->m_expiration;
 
     m_id = id;
 

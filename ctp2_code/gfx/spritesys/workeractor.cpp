@@ -60,7 +60,7 @@ WorkerActor::~WorkerActor()
 void WorkerActor::AddIdle()
 {
 	m_curAction = std::make_shared<Action>(UNITACTION_IDLE, ACTIONEND_ANIMEND);
-	m_curAction->SetAnim(CreateAnim(UNITACTION_IDLE).release());
+	m_curAction->SetAnim(CreateAnim(UNITACTION_IDLE));
 	m_curUnitAction = UNITACTION_IDLE;
 }
 

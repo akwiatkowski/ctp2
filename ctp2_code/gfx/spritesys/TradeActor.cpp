@@ -108,7 +108,7 @@ TradeActor::~TradeActor()
 void TradeActor::AddIdle()
 {
 	m_curAction = std::make_shared<Action>(GOODACTION_IDLE, ACTIONEND_INTERRUPT);
-	m_curAction->SetAnim(CreateAnim(GOODACTION_IDLE).release());
+	m_curAction->SetAnim(CreateAnim(GOODACTION_IDLE));
 	m_curGoodAction = GOODACTION_IDLE;
 }
 
@@ -170,7 +170,6 @@ void TradeActor::Process()
 
 
 			MapPoint tempDestPos = LookAtNextPos();
-			MapPoint tempCurPos = m_currentPos;
 
 			m_curAction->CreatePath(m_currentPos.x, m_currentPos.y, tempDestPos.x, tempDestPos.y);
 

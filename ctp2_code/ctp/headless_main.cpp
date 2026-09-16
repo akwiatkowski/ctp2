@@ -21,6 +21,7 @@
 #include "gs/core/player_view.h"              // player_view::RegisterCurPlayer
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/fileio/json_save.h"              // json_save::SaveJson (Phase A)
+#include "gs/fileio/action_log.h"             // action_log::SetRecording
 #include "gs/gameobj/Score.h"                 // Score::GetTotalScore
 #include "gs/gameobj/citydata.h"              // CityData::PopCount
 #include "gs/gameobj/Unit.h"                  // Unit::GetName / GetPos / CD
@@ -211,6 +212,10 @@ int main(int argc, char **argv)
     // Force headless mode before any initialization
     set_headless(true);
     g_runInBackground = true;
+
+    // Batch runs don't consume the action ledger (~2% of event runtime);
+    // it stays enabled for --serve, where the socket can query it.
+    action_log::SetRecording(serveMode);
 
     civapp_Set(new CivApp());
 

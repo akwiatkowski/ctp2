@@ -66,6 +66,21 @@ namespace action_log
 	{
 		return store().size();
 	}
+
+	namespace
+	{
+		bool s_recording = true;
+	}
+
+	void SetRecording(bool on)
+	{
+		s_recording = on;
+	}
+
+	bool IsRecording()
+	{
+		return s_recording;
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -303,6 +318,9 @@ STDEHANDLER(ActionLogTap)
 
 void actionlog_tap_Initialize()
 {
+	if (!action_log::IsRecording())
+		return;
+
 	GameEventManager * gev = gevmanager_Get();
 	if (!gev)
 		return;

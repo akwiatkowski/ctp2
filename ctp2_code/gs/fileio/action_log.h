@@ -52,6 +52,12 @@ namespace action_log
 
 	// Number of entries currently held.
 	std::size_t            Count();
+
+	// Enable/disable the per-event tap (actionlog_tap_Initialize).  On by
+	// default; headless batch runs turn it off — the ledger is only
+	// observable through --serve queries or the save carrier.
+	void                   SetRecording(bool on);
+	bool                   IsRecording();
 }
 
 // Register / unregister the event-bus tap.  Called from events_Initialize /

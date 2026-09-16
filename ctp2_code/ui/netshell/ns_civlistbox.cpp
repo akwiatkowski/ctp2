@@ -102,7 +102,7 @@ ns_CivListBox::ns_CivListBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon( (MBCHAR **)nullptr );
+	*retval = aui_SoundBase::InitCommon( (MBCHAR const **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 

@@ -16,7 +16,7 @@ aui_Win *g_winFocus = nullptr;
 aui_Win::aui_Win(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -56,7 +56,7 @@ aui_Win::aui_Win(
 }
 
 
-AUI_ERRCODE aui_Win::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_Win::InitCommonLdl( MBCHAR const *ldlBlock )
 {
 	return InitCommon();
 }

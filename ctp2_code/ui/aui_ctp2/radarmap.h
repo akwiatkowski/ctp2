@@ -64,7 +64,7 @@ class RadarMap : public aui_Control, public PatternBase
 public:
 	RadarMap(AUI_ERRCODE *retval,
 					sint32 id,
-					MBCHAR *ldlBlock,
+					MBCHAR const *ldlBlock,
 					ControlActionCallback *ActionFunc = nullptr,
 					void *cookie = nullptr);
 	RadarMap(AUI_ERRCODE *retval,
@@ -73,13 +73,13 @@ public:
 					sint32 y,
 					sint32 width,
 					sint32 height,
-					MBCHAR *pattern,
+					MBCHAR const *pattern,
 					ControlActionCallback *ActionFunc = nullptr,
 					void *cookie = nullptr);
 
 	~RadarMap() override;
 
-	void		InitCommonLdl(MBCHAR *ldlBlock);
+	void		InitCommonLdl(MBCHAR const *ldlBlock);
 	void		InitCommon();
 	AUI_ERRCODE	Resize( sint32 width, sint32 height ) override;
 

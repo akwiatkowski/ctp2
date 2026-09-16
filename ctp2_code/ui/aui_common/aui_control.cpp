@@ -86,7 +86,7 @@ aui_Control::aui_Control
 (
 	AUI_ERRCODE *           retval,
 	uint32                  id,
-	MBCHAR *                ldlBlock,
+	MBCHAR const *                ldlBlock,
 	ControlActionCallback * ActionFunc,
 	void *                  cookie
 )
@@ -126,7 +126,7 @@ aui_Control::aui_Control
 	aui_ImageBase           ((sint32) 0),
 	aui_TextBase            (nullptr),
 	aui_Region              (retval, id, x, y, width, height),
-	aui_SoundBase           ((MBCHAR **) nullptr),
+	aui_SoundBase           ((MBCHAR const **) nullptr),
 	m_stringTable           (nullptr),
 	m_allocatedTip          (false),
 	m_statusText            (nullptr),
@@ -145,7 +145,7 @@ aui_Control::aui_Control
 
 
 AUI_ERRCODE aui_Control::InitCommonLdl(
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 {
@@ -157,7 +157,7 @@ AUI_ERRCODE aui_Control::InitCommonLdl(
 	Assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return errcode;
 
-	MBCHAR *tip = block->GetString(k_AUI_CONTROL_LDL_TIPWINDOW);
+	MBCHAR const *tip = block->GetString(k_AUI_CONTROL_LDL_TIPWINDOW);
 	if (tip) {
 		m_tip = new aui_TipWindow(&errcode, aui_UniqueId(), "DefaultTipWindow");
 		Assert( AUI_NEWOK(m_tip,errcode) );
@@ -176,7 +176,7 @@ AUI_ERRCODE aui_Control::InitCommonLdl(
 		SetTipWindow( m_tip );
 	}
 
-	MBCHAR *shortcut = block->GetString(k_AUI_CONTROL_SHORTCUT);
+	MBCHAR const *shortcut = block->GetString(k_AUI_CONTROL_SHORTCUT);
 	m_keyboardAction = 0;
 	if(shortcut) {
 		if(shortcut[0] == '^') {
@@ -982,7 +982,7 @@ AUI_ERRCODE	aui_Control::Resize(sint32 width, sint32 height)
 	AUI_ERRCODE errorCode = aui_Region::Resize(width, height);
 
 	if(m_numberOfLayers) {
-		MBCHAR *ldlBlock = (MBCHAR *)GetLdlBlock();
+		MBCHAR const *ldlBlock = (MBCHAR *)GetLdlBlock();
 		if(!ldlBlock)
 
 			ldlBlock = aui_Ldl::GetBlock(this);

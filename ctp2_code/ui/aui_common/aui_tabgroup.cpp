@@ -40,7 +40,7 @@
 aui_TabGroup::aui_TabGroup(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock )
+	MBCHAR const *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
 	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
@@ -78,14 +78,14 @@ aui_TabGroup::aui_TabGroup(
 }
 
 
-AUI_ERRCODE aui_TabGroup::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_TabGroup::InitCommonLdl( MBCHAR const *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_TABGROUP_ALIGNMENT alignment = AUI_TABGROUP_ALIGNMENT_TOP;
-	MBCHAR *alignmentString = block->GetString( k_AUI_TABGROUP_LDL_ALIGNMENT );
+	MBCHAR const *alignmentString = block->GetString( k_AUI_TABGROUP_LDL_ALIGNMENT );
 	if ( alignmentString )
 	{
 		if ( !stricmp( alignmentString, k_AUI_TABGROUP_LDL_LEFT ) )

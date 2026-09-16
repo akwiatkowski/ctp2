@@ -11,6 +11,7 @@ extern int g_line_number;
 
 %}
 
+%option noinput nounput
 name		[a-zA-Z]+[a-zA-Z0-9_]*
 string      \"[^\"]*\"
 

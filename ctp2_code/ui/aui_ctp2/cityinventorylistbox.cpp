@@ -67,7 +67,7 @@ extern	DebugWindow			*g_debugWindow;
 
 CityInventoryListBox::CityInventoryListBox(AUI_ERRCODE *retval,
 			uint32 id,
-			MBCHAR *ldlBlock,
+			MBCHAR const *ldlBlock,
 			ControlActionCallback *ActionFunc,
 			void *cookie )
 	:
@@ -85,7 +85,7 @@ CityInventoryListBox::CityInventoryListBox (
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		ControlActionCallback *ActionFunc,
 		void *cookie):
 	aui_ImageBase( (sint32)0 ),
@@ -98,7 +98,7 @@ CityInventoryListBox::CityInventoryListBox (
 CityInventoryListBox::~CityInventoryListBox()
 = default;
 
-AUI_ERRCODE CityInventoryListBox::InitCommon(MBCHAR *ldlBlock)
+AUI_ERRCODE CityInventoryListBox::InitCommon(MBCHAR const *ldlBlock)
 {
 	m_buildMode = 0;
 	return AUI_ERRCODE_OK;

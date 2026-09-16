@@ -80,7 +80,7 @@ CTP2_SDL_Mutex *aui_Mouse::m_lpcs = nullptr;
 aui_Mouse::aui_Mouse
 (
 	AUI_ERRCODE *   retval,
-	MBCHAR *        ldlBlock
+	MBCHAR const *        ldlBlock
 )
 :
     aui_Base    (),
@@ -137,7 +137,7 @@ AUI_ERRCODE aui_Mouse::InitCommon( )
 }
 
 
-AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR const *ldlBlock )
 {
 	AUI_ERRCODE errcode = InitCommon();
 	Assert( AUI_SUCCESS(errcode) );
@@ -163,7 +163,7 @@ AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR *ldlBlock )
 
 				snprintf(temp, sizeof(temp), k_MOUSE_LDL_CURSOR "%d", i );
 
-				MBCHAR *filename = block->GetString( temp );
+				MBCHAR const *filename = block->GetString( temp );
 				if ( filename )
 				{
 					cursor = aui_ui_Get()->LoadCursor( filename );

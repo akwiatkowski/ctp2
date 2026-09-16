@@ -12,20 +12,20 @@ class c3_Icon : public c3_Static {
 public:
 	c3_Icon(AUI_ERRCODE *retval,
 						uint32 id,
-						MBCHAR *ldlBlock );
+						MBCHAR const *ldlBlock );
 	c3_Icon(AUI_ERRCODE *retval,
 						uint32 id,
 						sint32 x,
 						sint32 y,
 						sint32 width,
 						sint32 height,
-						MBCHAR *pattern,
-						MBCHAR *text,
+						MBCHAR const *pattern,
+						MBCHAR const *text,
 						uint32 maxLength,
 						uint32 bevelWidth,
 						uint32 bevelType);
 
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon();
 
 	void SetColor(COLOR color) { m_color = color; }

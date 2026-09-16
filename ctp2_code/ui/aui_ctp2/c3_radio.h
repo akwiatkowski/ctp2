@@ -18,7 +18,7 @@ public:
 	c3_Radio(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	c3_Radio(
@@ -28,7 +28,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		sint32 state = 0,
@@ -38,7 +38,7 @@ public:
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 protected:
 	c3_Radio() : aui_Radio() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( sint32 bevelWidth  );
 
 public:

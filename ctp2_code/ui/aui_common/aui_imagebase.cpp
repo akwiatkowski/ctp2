@@ -117,7 +117,7 @@ AUI_ERRCODE aui_ImageBase::InitCommonLdl(MBCHAR const *ldlBlock)
                                          : AUI_IMAGEBASE_BLTFLAG_COPY;
 
 	AUI_IMAGEBASE_BLTTYPE imageblttype = AUI_IMAGEBASE_BLTTYPE_COPY;
-	MBCHAR *type = block->GetString( k_AUI_IMAGEBASE_LDL_BLTTYPE );
+	MBCHAR const *type = block->GetString( k_AUI_IMAGEBASE_LDL_BLTTYPE );
 	if ( type )
 	{
 		if ( !stricmp( type, k_AUI_IMAGEBASE_LDL_STRETCH ) )
@@ -126,7 +126,7 @@ AUI_ERRCODE aui_ImageBase::InitCommonLdl(MBCHAR const *ldlBlock)
 			imageblttype = AUI_IMAGEBASE_BLTTYPE_TILE;
 	}
 
-	MBCHAR *flags = block->GetString(k_AUI_IMAGEBASE_LDL_BLTFLAG);
+	MBCHAR const *flags = block->GetString(k_AUI_IMAGEBASE_LDL_BLTFLAG);
 	if ((flags)&&(!m_chromaSpecified))
 	{
 		if (!stricmp(flags, k_AUI_IMAGEBASE_LDL_BLTFLAG_CHROMAKEY))

@@ -51,7 +51,7 @@ c3_PopupWindow::c3_PopupWindow
 (
 	AUI_ERRCODE *   retval,
 	uint32          id,
-	MBCHAR *        ldlBlock,
+	MBCHAR const *        ldlBlock,
 	sint32          bpp,
 	AUI_WINDOW_TYPE type,
 	bool            bevel
@@ -74,7 +74,7 @@ c3_PopupWindow::c3_PopupWindow
 	sint32 width,
 	sint32 height,
 	sint32 bpp,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	AUI_WINDOW_TYPE type,
 	bool bevel
 )
@@ -225,7 +225,7 @@ AUI_ERRCODE c3_PopupWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 }
 
 
-sint32 c3_PopupWindow::AddTitle( MBCHAR *titleBlock )
+sint32 c3_PopupWindow::AddTitle( MBCHAR const *titleBlock )
 {
 	if (m_title)
 	{

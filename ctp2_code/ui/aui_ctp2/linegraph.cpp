@@ -160,7 +160,7 @@ LineGraph::LineGraph
 (
     AUI_ERRCODE *           retval,
 	sint32                  id,
-	MBCHAR *                ldlBlock,
+	MBCHAR const *                ldlBlock,
 	ControlActionCallback * ActionFunc,
 	void *                  cookie,
 	EventTracker *          events
@@ -559,7 +559,7 @@ void LineGraph::SetGraphBounds(double minx, double maxx, double miny, double max
 	m_ymax = maxy;
 }
 
-void LineGraph::SetXAxisName(MBCHAR *name)
+void LineGraph::SetXAxisName(MBCHAR const *name)
 {
 	Assert(name);
 	if (!name) return;
@@ -567,7 +567,7 @@ void LineGraph::SetXAxisName(MBCHAR *name)
 	m_xAxisName = name;
 }
 
-void LineGraph::SetYAxisName(MBCHAR *name)
+void LineGraph::SetYAxisName(MBCHAR const *name)
 {
 	Assert(name);
 	if (!name) return;

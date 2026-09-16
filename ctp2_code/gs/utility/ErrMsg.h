@@ -10,12 +10,12 @@ class ErrorMsg {
    uint32 val;
 
 public:
-   char *str;
+   char const *str;
 
    ErrorMsg();
    ErrorMsg(sint32 v);
    void display();
-   char * msg() { return str; };
+   char const * msg() { return str; };
 };
 
 class ErrGSParse : public ErrorMsg{

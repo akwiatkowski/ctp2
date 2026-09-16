@@ -19,7 +19,7 @@
 StaticPicture::StaticPicture(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	MBCHAR *picture )
 :
 	aui_ImageBase( ldlBlock ),
@@ -57,13 +57,13 @@ StaticPicture::StaticPicture(
 }
 
 
-AUI_ERRCODE StaticPicture::InitCommon( MBCHAR *ldlBlock, MBCHAR *picture )
+AUI_ERRCODE StaticPicture::InitCommon( MBCHAR const *ldlBlock, MBCHAR const *picture )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
-	MBCHAR *name =
+	MBCHAR const *name =
 		block->GetString( picture ? picture : k_AUI_STATICIMAGE_LDL_IMAGE );
 	Assert( name != nullptr );
 	if ( name )
@@ -77,7 +77,7 @@ AUI_ERRCODE StaticPicture::InitCommon( MBCHAR *ldlBlock, MBCHAR *picture )
 }
 
 
-AUI_ERRCODE StaticPicture::InitCommon( MBCHAR *picture )
+AUI_ERRCODE StaticPicture::InitCommon( MBCHAR const *picture )
 {
 	MBCHAR filename[_MAX_PATH];
 

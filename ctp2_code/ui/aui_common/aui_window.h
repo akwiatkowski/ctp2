@@ -80,7 +80,7 @@ public:
 	aui_Window(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		sint32 bpp = 0,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD );
 	aui_Window(

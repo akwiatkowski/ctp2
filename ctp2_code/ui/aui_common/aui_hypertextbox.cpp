@@ -14,7 +14,7 @@
 aui_HyperTextBox::aui_HyperTextBox(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -63,7 +63,7 @@ aui_HyperTextBox::aui_HyperTextBox(
 }
 
 
-AUI_ERRCODE aui_HyperTextBox::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_HyperTextBox::InitCommonLdl( MBCHAR const *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
@@ -104,7 +104,7 @@ AUI_ERRCODE aui_HyperTextBox::InitCommon( )
 }
 
 
-AUI_ERRCODE aui_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_HyperTextBox::CreateRanger( MBCHAR const *ldlBlock )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 

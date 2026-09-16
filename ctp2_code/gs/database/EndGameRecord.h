@@ -39,6 +39,11 @@ private:
 public:
 	EndGameRecord();
 	~EndGameRecord() override;
+	// Database<T>::SetSize grows the record array by moving elements; the
+	// user-declared destructor suppresses the implicit move assignment (and
+	// the unique_ptr members delete copy assignment), so default it here.
+	EndGameRecord &operator=(EndGameRecord &&) = default;
+	EndGameRecord(EndGameRecord &&) = default;
 
 	BOOL ParseNumber(Token *token, sint32 &val);
 	BOOL ParseMultipleNumbers(Token *token, sint32 *array, sint32 count);

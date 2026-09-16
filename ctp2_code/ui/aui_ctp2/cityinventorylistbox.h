@@ -15,7 +15,7 @@ public:
 	CityInventoryListBox (
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	CityInventoryListBox (
@@ -25,7 +25,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	~CityInventoryListBox () override;
@@ -38,7 +38,7 @@ public:
 	void CutBuilding( const Unit &unit );
 
 protected:
-	AUI_ERRCODE InitCommon( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommon( MBCHAR const *ldlBlock );
 
 	const Unit *m_unit;
 	sint32 m_buildMode;

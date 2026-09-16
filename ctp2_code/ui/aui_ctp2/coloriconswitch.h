@@ -24,26 +24,26 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern,
-		MBCHAR *icon,
+		MBCHAR const *pattern,
+		MBCHAR const *icon,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 
 	ColorIconSwitch(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 
-	virtual AUI_ERRCODE	InitCommon( MBCHAR *ldlBlock, BOOL isLDL = FALSE);
+	virtual AUI_ERRCODE	InitCommon( MBCHAR const *ldlBlock, BOOL isLDL = FALSE);
 
 	~ColorIconSwitch() override;
 
 	AUI_ERRCODE Resize(sint32 width, sint32 height) override;
 	void	ResizePictureRect();
 
-	void SetIcon(MBCHAR *name);
+	void SetIcon(MBCHAR const *name);
 	void ShrinkToFit(BOOL fit) { m_shrinkToFit = fit; }
 
 	const MBCHAR *GetFilename() { return m_filename.c_str(); }

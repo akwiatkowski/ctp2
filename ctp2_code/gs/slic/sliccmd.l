@@ -18,6 +18,7 @@ int my_scinput(char *buf, int max_size);
 
 extern int sliccmd_first_token;
 %}
+%option noinput nounput
 
 string 		\"[^\"\n]*[\"\n]
 slicid      \'[^\'\n]*[\'\n]

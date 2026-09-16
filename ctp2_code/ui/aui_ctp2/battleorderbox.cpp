@@ -71,7 +71,7 @@
 
 BattleOrderBox::BattleOrderBox(AUI_ERRCODE *retval,
 					   uint32 id,
-					   MBCHAR *ldlBlock,
+					   MBCHAR const *ldlBlock,
 					   ControlActionCallback *ActionFunc,
 					   void *cookie)
 	:
@@ -88,7 +88,7 @@ BattleOrderBox::BattleOrderBox(AUI_ERRCODE *retval,
 					   sint32 y,
 					   sint32 width,
 					   sint32 height,
-					   MBCHAR *pattern,
+					   MBCHAR const *pattern,
 					   ControlActionCallback *ActionFunc,
 					   void *cookie)
 	:
@@ -99,7 +99,7 @@ BattleOrderBox::BattleOrderBox(AUI_ERRCODE *retval,
 	InitCommon(nullptr);
 }
 
-AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
+AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR const *ldlBlock)
 {
 	sint32			buttonBorder = 2;
 	sint32			cellWidth = (Width()-buttonBorder*2)/3;

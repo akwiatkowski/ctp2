@@ -24,8 +24,8 @@ ColorIconSwitch::ColorIconSwitch(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
-	MBCHAR *icon,
+	MBCHAR const *pattern,
+	MBCHAR const *icon,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 :
@@ -44,7 +44,7 @@ ColorIconSwitch::ColorIconSwitch(
 ColorIconSwitch::ColorIconSwitch(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -148,7 +148,7 @@ void ColorIconSwitch::ResizePictureRect()
 	}
 }
 
-void ColorIconSwitch::SetIcon(MBCHAR *name)
+void ColorIconSwitch::SetIcon(MBCHAR const *name)
 {
 	if (name == nullptr) return;
 
@@ -169,9 +169,9 @@ void ColorIconSwitch::SetIcon(MBCHAR *name)
 	ResizePictureRect();
 }
 
-AUI_ERRCODE ColorIconSwitch::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
+AUI_ERRCODE ColorIconSwitch::InitCommon( MBCHAR const *ldlBlock, BOOL isLDL)
 {
-	MBCHAR		*name;
+	MBCHAR const		*name;
 
 	if (isLDL) {
 		ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);

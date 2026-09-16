@@ -80,7 +80,7 @@
 
 
 static ArmyManagerWindow *s_armyWindow = nullptr;
-static MBCHAR *s_armyWindowBlock = "ArmyManager";
+static MBCHAR const *s_armyWindowBlock = "ArmyManager";
 
 ArmyManagerWindow::ArmyManagerWindow(AUI_ERRCODE *err)
 {

@@ -18,7 +18,7 @@ c3_Thumb::c3_Thumb(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 :
@@ -32,7 +32,7 @@ c3_Thumb::c3_Thumb(
 c3_Thumb::c3_Thumb(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 :

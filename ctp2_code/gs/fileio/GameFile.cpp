@@ -137,7 +137,7 @@ extern sint32                       g_isGridOn;
 
 
 struct MagicValue {
-	char *string;
+	char const *string;
 	sint32 version;
 };
 
@@ -678,8 +678,8 @@ void GameFile::SaveExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 	(void)info;
 	return;
 #else
-	MBCHAR		*functionName = "GameFile::SaveExtendedGameInfo";
-	MBCHAR		*errorString = "Unable to write save file.";
+	MBCHAR const *functionName = "GameFile::SaveExtendedGameInfo";
+	MBCHAR const *errorString = "Unable to write save file.";
 
 	sint32		n;
 

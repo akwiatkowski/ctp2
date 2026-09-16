@@ -22,7 +22,7 @@ public:
 		ACTION_LAST
 	};
 
-	ctp2_Tab(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock,
+	ctp2_Tab(AUI_ERRCODE *retval, uint32 id, MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr, void *cookie = nullptr);
 
 	~ctp2_Tab() override;

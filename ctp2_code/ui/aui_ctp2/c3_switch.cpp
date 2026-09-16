@@ -17,7 +17,7 @@
 c3_Switch::c3_Switch(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -41,7 +41,7 @@ c3_Switch::c3_Switch(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	ControlActionCallback *ActionFunc,
 	void *cookie,
 	sint32 state,
@@ -60,7 +60,7 @@ c3_Switch::c3_Switch(
 }
 
 
-AUI_ERRCODE c3_Switch::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE c3_Switch::InitCommonLdl( MBCHAR const *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );

@@ -16,7 +16,7 @@ public:
 	aui_TipWindow(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock );
+		MBCHAR const *ldlBlock );
 	aui_TipWindow(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -28,13 +28,13 @@ public:
 
 protected:
 	aui_TipWindow() : aui_Window() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
 
 public:
 
 	aui_Static *GetStatic( ) const { return m_staticTip; }
-	AUI_ERRCODE SetTipText(MBCHAR *text);
+	AUI_ERRCODE SetTipText(MBCHAR const *text);
 
 	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,

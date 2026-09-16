@@ -13,7 +13,7 @@
 aui_TipWindow::aui_TipWindow(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock )
+	MBCHAR const *ldlBlock )
 	:
 	aui_Window( retval, id, ldlBlock, 0, AUI_WINDOW_TYPE_TIP )
 {
@@ -45,7 +45,7 @@ aui_TipWindow::aui_TipWindow(
 }
 
 
-AUI_ERRCODE aui_TipWindow::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_TipWindow::InitCommonLdl( MBCHAR const *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
@@ -82,7 +82,7 @@ AUI_ERRCODE aui_TipWindow::InitCommonLdl( MBCHAR *ldlBlock )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE aui_TipWindow::SetTipText(MBCHAR *text)
+AUI_ERRCODE aui_TipWindow::SetTipText(MBCHAR const *text)
 {
 	if (!m_staticTip)
 		return AUI_ERRCODE_INVALIDPARAM;

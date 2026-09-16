@@ -66,18 +66,20 @@ template <class T> void  Database<T>::SetSize(const sint32 n)
 	memset(m_alphaToIndex.get(), 0, sizeof(sint32) * n);
 
 	if(oldrec) {
-		if(oldmax < m_max_nRec)
-		{
-			memcpy(m_rec.get(), oldrec.get(), sizeof(T) * oldmax);
-			memcpy(m_indexToAlpha.get(), oldalpha.get(), sizeof(sint32) * oldmax);
-			memcpy(m_alphaToIndex.get(), oldindex.get(), sizeof(sint32) * oldmax);
+		// Number of records to carry over into the grown array.
+		sint32 const carry = std::min(oldmax, m_max_nRec);
+		// Move per element, not memcpy: record types are polymorphic and hold
+		// owning members (e.g. EndGameRecord::m_requiredForStage is a
+		// unique_ptr). The old byte copy duplicated those pointers and left
+		// the originals in oldrec, whose destructor then freed them —
+		// dangling pointers in the grown array (-Wdynamic-class-memaccess
+		// pointed at the vtable half of the same problem). Move assignment
+		// transfers ownership and leaves oldrec's members null.
+		for (sint32 i = 0; i < carry; ++i) {
+			m_rec[i] = std::move(oldrec[i]);
 		}
-		else
-		{
-			memcpy(m_rec.get(), oldrec.get(), sizeof(T) * m_max_nRec);
-			memcpy(m_indexToAlpha.get(), oldalpha.get(), sizeof(sint32) * m_max_nRec);
-			memcpy(m_alphaToIndex.get(), oldindex.get(), sizeof(sint32) * m_max_nRec);
-		}
+		std::copy(oldalpha.get(), oldalpha.get() + carry, m_indexToAlpha.get());
+		std::copy(oldindex.get(), oldindex.get() + carry, m_alphaToIndex.get());
 	}
 }
 

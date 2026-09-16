@@ -52,7 +52,7 @@ C3DropDown::C3DropDown(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	sint32 buttonSize,
 	sint32 windowSize,
 	ControlActionCallback *ActionFunc,
@@ -64,7 +64,7 @@ C3DropDown::C3DropDown(
 	PatternBase(pattern)
 {
 
-	*retval = aui_SoundBase::InitCommon( (MBCHAR **)nullptr );
+	*retval = aui_SoundBase::InitCommon( (MBCHAR const **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -76,7 +76,7 @@ C3DropDown::C3DropDown(
 C3DropDown::C3DropDown(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie)
 	:

@@ -43,7 +43,7 @@ public:
 
 	static const aui_Control *GetOwner() { return m_owner; }
 
-	StatusBar(MBCHAR *ldlBlock);
+	StatusBar(MBCHAR const *ldlBlock);
 
 	// std::string self-clears; this entry point is kept for the existing
 	// 'shutdown' call sites but no longer touches a raw buffer.

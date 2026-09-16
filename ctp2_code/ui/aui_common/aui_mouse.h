@@ -98,12 +98,12 @@ public:
 
 	aui_Mouse(
 		AUI_ERRCODE *retval,
-		MBCHAR *ldlBlock );
+		MBCHAR const *ldlBlock );
 	~aui_Mouse() override;
 
 protected:
 	aui_Mouse() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
 
 	sint32 FindNumCursorsFromLdl( ldl_datablock *block );

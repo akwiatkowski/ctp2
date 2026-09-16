@@ -17,7 +17,7 @@ public:
 	c3_HeaderSwitch(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	c3_HeaderSwitch(
@@ -27,8 +27,8 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *text,
-		MBCHAR *pattern,
+		MBCHAR const *text,
+		MBCHAR const *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		sint32 state = 0,
@@ -39,7 +39,7 @@ public:
 
 protected:
 	c3_HeaderSwitch() : aui_Radio() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
 
 protected:

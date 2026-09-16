@@ -15,7 +15,7 @@ public:
 	TextSwitch(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr);
 	TextSwitch(
@@ -25,8 +25,8 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern = nullptr,
-		MBCHAR *text = nullptr,
+		MBCHAR const *pattern = nullptr,
+		MBCHAR const *text = nullptr,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );

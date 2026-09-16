@@ -69,7 +69,7 @@ public:
 	c3_PopupWindow(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		sint32 bpp,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD,
 		bool bevel = true );
@@ -81,7 +81,7 @@ public:
 		sint32 width,
 		sint32 height,
 		sint32 bpp,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD,
 		bool bevel = true );
 
@@ -94,7 +94,7 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 ) override;
 
-	sint32 AddTitle( MBCHAR *titleBlock = nullptr );
+	sint32 AddTitle( MBCHAR const *titleBlock = nullptr );
 	sint32 AddCancel(
 		void (*actionFunc)( aui_Control *, uint32, uint32, void *) = nullptr,
 		void *cookie = nullptr,

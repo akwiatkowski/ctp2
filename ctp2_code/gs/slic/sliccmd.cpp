@@ -56,7 +56,7 @@ void sliccmd_arg_exp(int value)
 	scerror("arguments not implemented");
 }
 
-void sliccmd_arg_id(char *id)
+void sliccmd_arg_id(char const *id)
 {
 	scerror("arguments not implemented");
 }
@@ -66,7 +66,7 @@ void sliccmd_arg_stringid(int id)
 	scerror("arguments not implemented");
 }
 
-void sliccmd_arg_string(char *string)
+void sliccmd_arg_string(char const *string)
 {
 	scerror("arguments not implemented");
 }
@@ -304,7 +304,7 @@ void *sliccmd_array_lookup_reference(char *arrayName, int index, char *memberNam
 	return member;
 }
 
-void sliccmd_error(char *s)
+void sliccmd_error(char const *s)
 {
 	if(sliccmd_use_dialogs) {
 		if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {

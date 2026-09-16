@@ -252,8 +252,8 @@ public:
 	static void RebuildMenus  ();
 
 	void    ResetTabGroup();
-	void    CreateTabGroup(MBCHAR *ldlBlock);
-	void    CreateTab(sint32 which,MBCHAR *name);
+	void    CreateTabGroup(MBCHAR const *ldlBlock);
+	void    CreateTab(sint32 which,MBCHAR const *name);
 
 	void    CreateTileImpBanks ();
 	void    ActivateTileImpBank(unsigned int group_id);
@@ -350,7 +350,7 @@ private:
 
 	BOOL    CursorOverControlPanel();
 
-	void    SetControlText(aui_Control *control,MBCHAR *fmt,...);
+	void    SetControlText(aui_Control *control,MBCHAR const *fmt,...);
 
 	ctp2_MenuBar    *m_mainMenuBar;
 

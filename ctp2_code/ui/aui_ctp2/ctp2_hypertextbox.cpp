@@ -286,7 +286,7 @@ void ctp2_HyperTextBox::FormatText
 ctp2_HyperTextBox::ctp2_HyperTextBox(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -334,7 +334,7 @@ ctp2_HyperTextBox::ctp2_HyperTextBox(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -355,7 +355,7 @@ ctp2_HyperTextBox::ctp2_HyperTextBox(
 }
 
 
-AUI_ERRCODE ctp2_HyperTextBox::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE ctp2_HyperTextBox::InitCommonLdl( MBCHAR const *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
@@ -396,7 +396,7 @@ ctp2_HyperTextBox::~ctp2_HyperTextBox()
 }
 
 
-AUI_ERRCODE ctp2_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
+AUI_ERRCODE ctp2_HyperTextBox::CreateRanger( MBCHAR const *ldlBlock )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -415,7 +415,7 @@ AUI_ERRCODE ctp2_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
 				this );
 	}
 
-    MBCHAR * pattern = (m_pattern) ? m_pattern->GetFilename() : nullptr;
+    MBCHAR const * pattern = (m_pattern) ? m_pattern->GetFilename() : nullptr;
 
 	if ( !m_ranger )
 		m_ranger = std::make_unique<c3_Ranger>(

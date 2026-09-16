@@ -84,7 +84,7 @@ public:
 	aui_Control(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	aui_Control(
@@ -122,7 +122,7 @@ protected:
 	{};
 
 	AUI_ERRCODE InitCommonLdl(
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc,
 		void *cookie );
 	AUI_ERRCODE InitCommon(

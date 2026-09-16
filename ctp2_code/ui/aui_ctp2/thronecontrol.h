@@ -72,7 +72,7 @@ public:
 	ThroneControl(
 		AUI_ERRCODE *retval,
 		sint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr);
 	ThroneControl(
@@ -82,7 +82,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	~ThroneControl() override;
@@ -129,7 +129,7 @@ public:
 
 protected:
 	ThroneControl() : aui_Control() {}
-	void InitCommonLdl( MBCHAR *ldlBlock );
+	void InitCommonLdl( MBCHAR const *ldlBlock );
 	void InitCommon(  );
 
 private:

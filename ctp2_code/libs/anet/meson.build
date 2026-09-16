@@ -36,7 +36,24 @@ sources = [
 	'src/tca/crypttab.c'
 	]
 
-c_args = [ '-Ddp_ANET2', '-DPACK=__attribute__ ((packed))', '-Wno-implicit-function-declaration' ]
+# Vendored 1999-era C: suppress legacy-idiom warning classes that have no
+# behaviour consequence here (anet is upstream code, excluded from the
+# modernization ratchet per docs/memory-refactor-checklist.md).
+c_args = [
+	'-Ddp_ANET2',
+	'-DPACK=__attribute__ ((packed))',
+	'-Wno-implicit-function-declaration',
+	'-Wno-pointer-sign',
+	'-Wno-deprecated-non-prototype',
+	'-Wno-deprecated-declarations',
+	'-Wno-switch',
+	'-Wno-pointer-to-int-cast',
+	'-Wno-unused-variable',
+	'-Wno-incompatible-pointer-types',
+	'-Wno-unused-value',
+	'-Wno-unused-but-set-variable',
+	'-Wno-knr-promoted-parameter',
+]
 
 if host_machine.system() == 'windows'
 	sources += [

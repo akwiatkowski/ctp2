@@ -37,7 +37,7 @@ class ctp2_MenuButton : public c3_Button
   public:
 	ctp2_MenuButton(AUI_ERRCODE *retval,
 					uint32 id,
-					MBCHAR *ldlBlock,
+					MBCHAR const *ldlBlock,
 					ControlActionCallback *ActionFunc = nullptr,
 					void *cookie = nullptr );
 

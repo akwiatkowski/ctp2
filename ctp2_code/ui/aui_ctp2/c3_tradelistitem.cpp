@@ -21,7 +21,7 @@
 
 
 
-c3_TradeListItem::c3_TradeListItem(AUI_ERRCODE *retval, TradeRoute *route, sint32 gold, sint32 resIndex, MBCHAR *ldlBlock)
+c3_TradeListItem::c3_TradeListItem(AUI_ERRCODE *retval, TradeRoute *route, sint32 gold, sint32 resIndex, MBCHAR const *ldlBlock)
 	:
 	c3_ListItem( retval, ldlBlock),
 	aui_ImageBase(ldlBlock),
@@ -35,7 +35,7 @@ c3_TradeListItem::c3_TradeListItem(AUI_ERRCODE *retval, TradeRoute *route, sint3
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
 
-AUI_ERRCODE c3_TradeListItem::InitCommonLdl(TradeRoute *route, sint32 gold, sint32 resIndex, MBCHAR *ldlBlock)
+AUI_ERRCODE c3_TradeListItem::InitCommonLdl(TradeRoute *route, sint32 gold, sint32 resIndex, MBCHAR const *ldlBlock)
 {
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		retval;

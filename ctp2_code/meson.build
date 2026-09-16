@@ -143,8 +143,15 @@ if not win32
 		# Layer 1: Stack protection — canaries on functions with arrays/alloca
 		add_global_arguments('-fstack-protector-strong', language : ['c', 'cpp'])
 
-		# Layer 1: libc fortification — compile-time + runtime bounds checking
-		add_global_arguments('-D_FORTIFY_SOURCE=3', language : ['c', 'cpp'])
+		# Layer 1: libc fortification — compile-time + runtime bounds checking.
+		# Apple clang predefines _FORTIFY_SOURCE=0 when -fsanitize=address is
+		# active (deliberate: fortify wrappers conflict with ASan interceptors),
+		# so re-defining it here produced a -Wmacro-redefined warning in every
+		# sanitized TU (284 in the 2026-09 census). ASan already catches the
+		# overflows fortify would, so leave the toolchain's value alone there.
+		if not (get_option('b_sanitize').contains('address') and host_machine.system() == 'darwin')
+			add_global_arguments('-D_FORTIFY_SOURCE=3', language : ['c', 'cpp'])
+		endif
 	endif
 
 	if hardening_level == 'strong' or hardening_level == 'maximum'

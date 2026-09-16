@@ -24,7 +24,7 @@ public:
 	TextTable(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = NULL,
 		void *cookie = NULL,
 		aui_Surface *surface = NULL);
@@ -36,7 +36,7 @@ public:
 		sint32 width,
 		sint32 height,
 		sint32 columns,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		ControlActionCallback *ActionFunc = NULL,
 		void *cookie = NULL,
 		uint32 size = 0,
@@ -46,18 +46,18 @@ public:
 protected:
 	TextTable() : aui_ListBox() {}
 	AUI_ERRCODE InitCommon( uint32 columns = 0, aui_Surface *surface = NULL );
-	AUI_ERRCODE InitCommon( MBCHAR *ldlBlock, aui_Surface *surface = NULL );
+	AUI_ERRCODE InitCommon( MBCHAR const *ldlBlock, aui_Surface *surface = NULL );
 	AUI_ERRCODE	CreateRangers( void );
 
 public:
 	void			InitHeaders( void );
-	BOOL			AddColumn( uint32 pos = 0, MBCHAR *text = NULL );
+	BOOL			AddColumn( uint32 pos = 0, MBCHAR const *text = NULL );
 	BOOL			RemoveColumn( uint32 pos = 0 ){return TRUE;};
-	BOOL			AddRow( uint32 pos = 0, MBCHAR *text = NULL );
+	BOOL			AddRow( uint32 pos = 0, MBCHAR const *text = NULL );
 	BOOL			RemoveRow( uint32 pos = 0 ){return TRUE;};
 
-	BOOL			SetTextEntry( uint32 row, uint32 col, MBCHAR *text );
-	BOOL			SetTextHeader( uint32 pos, MBCHAR *text );
+	BOOL			SetTextEntry( uint32 row, uint32 col, MBCHAR const *text );
+	BOOL			SetTextHeader( uint32 pos, MBCHAR const *text );
 	uint32			GetNumItems( void ) { return m_numItems; };
 
 	BOOL			CleanTextTable( void );

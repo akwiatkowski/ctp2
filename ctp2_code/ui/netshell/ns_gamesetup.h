@@ -55,6 +55,8 @@ public:
 	nf_GameSetup();
 	void Init( );
 	void SetKey(NETFunc::KeyStruct *k);
+	// Unhide the inherited virtual SetKey() overloads.
+	using NETFunc::GameSetup::SetKey;
 	void Pack() override;
 	void Unpack() override;
 

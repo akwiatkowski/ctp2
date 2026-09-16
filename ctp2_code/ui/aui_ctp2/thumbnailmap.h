@@ -80,7 +80,7 @@ class ThumbnailMap : public aui_Control, public PatternBase
 public:
 	ThumbnailMap(AUI_ERRCODE *retval,
 					sint32 id,
-					MBCHAR *ldlBlock,
+					MBCHAR const *ldlBlock,
 					ControlActionCallback *ActionFunc = nullptr,
 					void *cookie = nullptr);
 	ThumbnailMap(AUI_ERRCODE *retval,
@@ -89,13 +89,13 @@ public:
 					sint32 y,
 					sint32 width,
 					sint32 height,
-					MBCHAR *pattern,
+					MBCHAR const *pattern,
 					ControlActionCallback *ActionFunc = nullptr,
 					void *cookie = nullptr);
 
 	~ThumbnailMap() override;
 
-	void		InitCommonLdl(MBCHAR *ldlBlock);
+	void		InitCommonLdl(MBCHAR const *ldlBlock);
 	void		InitCommon();
 	AUI_ERRCODE	Resize( sint32 width, sint32 height ) override;
 

@@ -54,7 +54,7 @@
 
 ThumbnailMap::ThumbnailMap(AUI_ERRCODE *retval,
 							sint32 id,
-							MBCHAR *ldlBlock,
+							MBCHAR const *ldlBlock,
 							ControlActionCallback *ActionFunc,
 							void *cookie)
 :
@@ -72,7 +72,7 @@ ThumbnailMap::ThumbnailMap(AUI_ERRCODE *retval,
 							sint32 y,
 							sint32 width,
 							sint32 height,
-							MBCHAR *pattern,
+							MBCHAR const *pattern,
 							ControlActionCallback *ActionFunc,
 							void *cookie)
 	:
@@ -90,7 +90,7 @@ ThumbnailMap::~ThumbnailMap()
 	delete m_cityList;
 }
 
-void ThumbnailMap::InitCommonLdl(MBCHAR *ldlBlock)
+void ThumbnailMap::InitCommonLdl(MBCHAR const *ldlBlock)
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );

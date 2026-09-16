@@ -19,7 +19,7 @@ public:
 	c3_Slidometer(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	c3_Slidometer(
@@ -30,7 +30,7 @@ public:
 		sint32 width,
 		sint32 height,
 		BOOL isVertical,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		sint32 percentFilled = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
@@ -38,9 +38,9 @@ public:
 
 protected:
 	c3_Slidometer() : aui_Ranger() {}
-	AUI_ERRCODE InitCommon( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommon( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
-	AUI_ERRCODE CreateThumb( MBCHAR *ldlBlock );
+	AUI_ERRCODE CreateThumb( MBCHAR const *ldlBlock );
 
 	sint32	m_percentFilled;
 

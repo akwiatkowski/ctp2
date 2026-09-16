@@ -1117,7 +1117,7 @@ m_terraFormMode(false)
 
 	m_currentProgress = 0;
 
-	static MBCHAR *ldlControlBlock = "ControlPanelWindow.ControlPanel";
+	static MBCHAR const *ldlControlBlock = "ControlPanelWindow.ControlPanel";
 	MainControlPanel::Initialize(ldlControlBlock);
 
 
@@ -2131,7 +2131,7 @@ void ControlPanelWindow::ClearTargetingMode()
 }
 
 void
-ControlPanelWindow::CreateTabGroup(MBCHAR *ldlBlock)
+ControlPanelWindow::CreateTabGroup(MBCHAR const *ldlBlock)
 {
 	aui_Ldl::SetActionFuncAndCookie("ControlPanelWindow.ControlPanel.ControlTabPanel.DomesticTab", TabCallback, (void *)CP_TAB_CIV);
 	aui_Ldl::SetActionFuncAndCookie("ControlPanelWindow.ControlPanel.ControlTabPanel.CityTab",     TabCallback, (void *)CP_TAB_CITY);
@@ -2154,7 +2154,7 @@ ControlPanelWindow::CreateTabGroup(MBCHAR *ldlBlock)
 }
 
 void
-ControlPanelWindow::CreateTab(sint32 which,MBCHAR *name)
+ControlPanelWindow::CreateTab(sint32 which,MBCHAR const *name)
 {
 
 	if ((which<0)||(which>=CP_TAB_LAST)||(name==nullptr))
@@ -2252,7 +2252,7 @@ void ControlPanelWindow::AddMessage(Message &message,bool initializing)
 
 	ctp2_Static *staticThing = (ctp2_Static *)staticContainer->GetChildByIndex(0);
 
-	MBCHAR *iconName = g_theMessageIconFileDB->GetFilename(message.GetMsgType());
+	MBCHAR const *iconName = g_theMessageIconFileDB->GetFilename(message.GetMsgType());
 	if(!iconName)
 		iconName = k_MESSAGE_ICON_PICTURE_WARNING;
 	staticThing->SetImage(iconName);
@@ -2548,7 +2548,7 @@ ControlPanelWindow::CreateTileImpBanks()
 
 	sint32		index;
 	MBCHAR		button_id[256];
-	MBCHAR		*thePaneLDL;
+	MBCHAR const		*thePaneLDL;
 	ctp2_Button	*a_button;
 	const	TerrainImprovementRecord *timpRec;
 
@@ -2562,7 +2562,7 @@ ControlPanelWindow::CreateTileImpBanks()
 
 
 
-	char *panels[CP_TILEIMP_MAX] = {
+	char const *panels[CP_TILEIMP_MAX] = {
 			"tiLandButtonBank",
 			"tiSpecialButtonBank",
 			"tiOceanButtonBank",
@@ -3146,7 +3146,7 @@ ControlPanelWindow::AdjustToScreen()
 }
 
 void
-ControlPanelWindow::SetControlText(aui_Control *control,MBCHAR *fmt,...)
+ControlPanelWindow::SetControlText(aui_Control *control,MBCHAR const *fmt,...)
 {
 
 	if ((control==nullptr)||(fmt==nullptr))

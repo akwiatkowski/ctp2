@@ -14,7 +14,7 @@ class c3_TradeListItem : public c3_ListItem
 {
 public:
 
-	c3_TradeListItem(AUI_ERRCODE *retval, TradeRoute *route, sint32 gold, sint32 resIndex, MBCHAR *ldlBlock);
+	c3_TradeListItem(AUI_ERRCODE *retval, TradeRoute *route, sint32 gold, sint32 resIndex, MBCHAR const *ldlBlock);
 
 
 	virtual void Update(void);
@@ -26,7 +26,7 @@ protected:
 	c3_TradeListItem() : c3_ListItem() {}
 
 
-	AUI_ERRCODE InitCommonLdl(TradeRoute *route, sint32 gold, sint32 resIndex, MBCHAR *ldlBlock);
+	AUI_ERRCODE InitCommonLdl(TradeRoute *route, sint32 gold, sint32 resIndex, MBCHAR const *ldlBlock);
 
 public:
 

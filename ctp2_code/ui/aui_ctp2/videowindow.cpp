@@ -24,7 +24,7 @@ VideoWindow::VideoWindow(
 	sint32 width,
 	sint32 height,
 	sint32 bpp,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	MBCHAR *name,
 	BOOL modal,
 	AUI_WINDOW_TYPE type )

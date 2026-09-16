@@ -40,7 +40,7 @@
 
 void ProgressWindow::BeginProgress(
 	ProgressWindow *&progwin,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	sint32 maxval,
 	sint32 x, sint32 y)
 {
@@ -144,7 +144,7 @@ void ProgressWindow::EndProgress( ProgressWindow *&progwin )
 
 ProgressWindow::ProgressWindow(
 	AUI_ERRCODE *retval,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	sint32 x, sint32 y)
 	:
 	c3_PopupWindow(

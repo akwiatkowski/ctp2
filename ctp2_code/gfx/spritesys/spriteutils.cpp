@@ -214,7 +214,6 @@ char spriteutils_EncodeScanline(Pixel32 *scanline, sint32 width, Pixel16 **outBu
 	Pixel32         *scanPtr = scanline;
 	uint8           alpha;
 	sint32          pos;
-	Pixel16         *startPtr;
 	BOOL            empty = FALSE;
 	Pixel16         shadowPixel;
 
@@ -226,7 +225,6 @@ char spriteutils_EncodeScanline(Pixel32 *scanline, sint32 width, Pixel16 **outBu
 
 	pos = 0;
 
-	startPtr = *outBufPtr;
 
 
 	while (scanPtr < (scanline + width))
@@ -285,7 +283,6 @@ char spriteutils_EncodeScanlineWshadow(Pixel32 *scanline, sint32 width, Pixel16 
 	Pixel32         *scanPtr = scanline;
 	uint8           alpha;
 	sint32          pos;
-	Pixel16         *startPtr;
 	BOOL            empty = FALSE;
 	Pixel16         shadowPixel;
 
@@ -297,7 +294,6 @@ char spriteutils_EncodeScanlineWshadow(Pixel32 *scanline, sint32 width, Pixel16 
 
 	pos = 0;
 
-	startPtr = *outBufPtr;
 
 
 	while (scanPtr < (scanline + width)) {

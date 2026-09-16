@@ -15,7 +15,7 @@ public:
 	C3Spinner(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	C3Spinner(
@@ -26,14 +26,14 @@ public:
 		sint32 width,
 		sint32 height,
 		BOOL isVertical,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	~C3Spinner() override = default;
 
 protected:
 	C3Spinner() : aui_Ranger() {}
-	AUI_ERRCODE InitCommon( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommon( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( BOOL isVertical );
 	AUI_ERRCODE CreateButtons( );
 

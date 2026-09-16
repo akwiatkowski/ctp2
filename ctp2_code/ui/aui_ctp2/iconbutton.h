@@ -23,8 +23,8 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern,
-		MBCHAR *icon,
+		MBCHAR const *pattern,
+		MBCHAR const *icon,
 		uint16 color,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
@@ -32,11 +32,11 @@ public:
 	IconButton(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 
-	virtual AUI_ERRCODE	InitCommon( MBCHAR *ldlBlock, BOOL isLDL = FALSE);
+	virtual AUI_ERRCODE	InitCommon( MBCHAR const *ldlBlock, BOOL isLDL = FALSE);
 
 	~IconButton() override;
 

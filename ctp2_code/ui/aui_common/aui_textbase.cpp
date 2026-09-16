@@ -116,13 +116,13 @@ AUI_ERRCODE aui_TextBase::InitCommonLdl(MBCHAR const * ldlBlock, MBCHAR const * 
 		shadowcolor = RGB( red, green, blue );
 	}
 
-	MBCHAR * fontname = block->GetString( k_AUI_TEXTBASE_LDL_FONTNAME );
+	MBCHAR const * fontname = block->GetString( k_AUI_TEXTBASE_LDL_FONTNAME );
 	if ( !fontname )
 		fontname = k_AUI_TEXTBASE_DEFAULT_FONTNAME;
 
 	uint32 flags = k_AUI_BITMAPFONT_DRAWFLAG_JUSTCENTER |
 		k_AUI_BITMAPFONT_DRAWFLAG_VERTCENTER;
-	MBCHAR *type = block->GetString( k_AUI_TEXTBASE_LDL_BLTTYPE );
+	MBCHAR const *type = block->GetString( k_AUI_TEXTBASE_LDL_BLTTYPE );
 	if ( type )
 	{
 		if ( !stricmp( type, k_AUI_TEXTBASE_LDL_FILL ) )
@@ -207,7 +207,7 @@ AUI_ERRCODE aui_TextBase::InitCommonLdl(MBCHAR const * ldlBlock, MBCHAR const * 
 AUI_ERRCODE aui_TextBase::InitCommon(
 	const MBCHAR *text,
 	uint32 maxLength,
-	MBCHAR *fontname,
+	MBCHAR const *fontname,
 	sint32 fontsize,
 	COLORREF color,
 	COLORREF shadowcolor,

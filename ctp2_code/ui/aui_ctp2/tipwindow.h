@@ -14,8 +14,8 @@ public:
 	TipWindow(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
-		MBCHAR *text,
+		MBCHAR const *ldlBlock,
+		MBCHAR const *text,
 		sint32 bpp);
 	TipWindow(
 		AUI_ERRCODE *retval,
@@ -25,8 +25,8 @@ public:
 		sint32 width,
 		sint32 height,
 		sint32 bpp,
-		MBCHAR *pattern,
-		MBCHAR *text = nullptr );
+		MBCHAR const *pattern,
+		MBCHAR const *text = nullptr );
 
 	~TipWindow() override = default;
 

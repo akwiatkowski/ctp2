@@ -40,7 +40,7 @@
 
 aui_HyperTextBase::aui_HyperTextBase(
 	AUI_ERRCODE *retval,
-	MBCHAR *ldlBlock )
+	MBCHAR const *ldlBlock )
 {
 	*retval = InitCommonLdl( ldlBlock );
 	Assert( AUI_SUCCESS(*retval) );
@@ -49,7 +49,7 @@ aui_HyperTextBase::aui_HyperTextBase(
 
 aui_HyperTextBase::aui_HyperTextBase(
 	AUI_ERRCODE *retval,
-	MBCHAR *hyperText,
+	MBCHAR const *hyperText,
 	uint32 hyperMaxLen )
 {
 	*retval = InitCommon( hyperText, hyperMaxLen );
@@ -57,7 +57,7 @@ aui_HyperTextBase::aui_HyperTextBase(
 }
 
 
-AUI_ERRCODE aui_HyperTextBase::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_HyperTextBase::InitCommonLdl( MBCHAR const *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
@@ -73,7 +73,7 @@ AUI_ERRCODE aui_HyperTextBase::InitCommonLdl( MBCHAR *ldlBlock )
 
 
 AUI_ERRCODE aui_HyperTextBase::InitCommon(
-	MBCHAR *hyperText,
+	MBCHAR const *hyperText,
 	uint32 hyperMaxLen )
 {
 	m_hyperMaxLen = hyperMaxLen ?

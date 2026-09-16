@@ -17,7 +17,7 @@ public:
 	Thermometer(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	Thermometer(
@@ -27,7 +27,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		sint32 percentFilled = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
@@ -38,7 +38,7 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 ) override;
 
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 
 	sint32 GetPercentFilled() { return m_percentFilled; }
 	void SetPercentFilled( sint32 percentFilled );

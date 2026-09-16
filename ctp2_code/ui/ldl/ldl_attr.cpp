@@ -40,7 +40,7 @@ ldl_attribute *ldl_attribute::GetCopy()
 		case ATTRIBUTE_TYPE_BOOL: newattr = new ldl_attributeValue<bool>(this); break;
 		case ATTRIBUTE_TYPE_INT:  newattr = new ldl_attributeValue<int>(this); break;
 		case ATTRIBUTE_TYPE_DOUBLE: newattr = new ldl_attributeValue<double>(this); break;
-		case ATTRIBUTE_TYPE_STRING: newattr = new ldl_attributeValue<char *>(this); break;
+		case ATTRIBUTE_TYPE_STRING: newattr = new ldl_attributeValue<char const *>(this); break;
 	}
 	return newattr;
 }
@@ -63,10 +63,10 @@ double ldl_attribute::GetFloatValue()
 	return ((ldl_attributeValue<double> *)this)->GetValue();
 }
 
-char *ldl_attribute::GetStringValue()
+char const *ldl_attribute::GetStringValue()
 {
 	Assert(m_type == ATTRIBUTE_TYPE_STRING);
-	return ((ldl_attributeValue<char *> *)this)->GetValue();
+	return ((ldl_attributeValue<char const *> *)this)->GetValue();
 }
 
 char *ldl_attribute::GetValueText()

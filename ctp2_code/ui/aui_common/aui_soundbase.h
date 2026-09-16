@@ -21,18 +21,18 @@ class aui_SoundBase
 {
 public:
 
-	aui_SoundBase( MBCHAR *ldlBlock );
-	aui_SoundBase( MBCHAR **soundNames );
+	aui_SoundBase( MBCHAR const *ldlBlock );
+	aui_SoundBase( MBCHAR const **soundNames );
 	virtual ~aui_SoundBase();
 
 protected:
 	aui_SoundBase() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( MBCHAR **soundNames );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
+	AUI_ERRCODE InitCommon( MBCHAR const **soundNames );
 
 public:
 	aui_Sound	*GetSound( AUI_SOUNDBASE_SOUND sound ) const;
-	aui_Sound	*SetSound( AUI_SOUNDBASE_SOUND sound, MBCHAR *soundName );
+	aui_Sound	*SetSound( AUI_SOUNDBASE_SOUND sound, MBCHAR const *soundName );
 
 	AUI_ERRCODE	PlaySound( AUI_SOUNDBASE_SOUND sound );
 

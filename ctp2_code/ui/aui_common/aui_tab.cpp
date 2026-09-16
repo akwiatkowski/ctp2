@@ -40,7 +40,7 @@
 aui_Tab::aui_Tab(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -84,7 +84,7 @@ aui_Tab::aui_Tab(
 }
 
 
-AUI_ERRCODE aui_Tab::InitCommon( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_Tab::InitCommon( MBCHAR const *ldlBlock )
 {
 	if (!ldlBlock) return AUI_ERRCODE_INVALIDPARAM;
 

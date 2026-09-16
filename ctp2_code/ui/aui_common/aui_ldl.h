@@ -128,7 +128,7 @@ public:
 
 
 
-	static AUI_ERRCODE	BuildObjectFromType(MBCHAR *typeString, MBCHAR *ldlName,
+	static AUI_ERRCODE	BuildObjectFromType(MBCHAR const *typeString, MBCHAR const *ldlName,
 											aui_Region **theObject);
 
 

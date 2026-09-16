@@ -57,6 +57,7 @@ extern int include_stack_ptr;
 // g_slicWarnUndeclared removed in globals-cleanup batch 3 (no readers).
 
 %}
+%option noinput nounput
 string 		\"[^\"\n]*[\"\n]
 slicid      \'[^\'\n]*[\'\n]
 stringid    ID_[a-zA-Z_0-9]+

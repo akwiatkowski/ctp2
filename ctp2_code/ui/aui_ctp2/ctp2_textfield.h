@@ -18,7 +18,7 @@ public:
 	ctp2_TextField(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	ctp2_TextField(
@@ -28,8 +28,8 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern,
-		MBCHAR *text = nullptr,
+		MBCHAR const *pattern,
+		MBCHAR const *text = nullptr,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	~ctp2_TextField() override = default;
@@ -37,7 +37,7 @@ public:
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 
 protected:
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( sint32 bevelWidth  );
 
 public:

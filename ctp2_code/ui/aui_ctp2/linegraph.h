@@ -90,7 +90,7 @@ public:
 
 	LineGraph(AUI_ERRCODE *retval,
 	                sint32 id,
-	                MBCHAR *ldlBlock,
+	                MBCHAR const *ldlBlock,
 	                ControlActionCallback *ActionFunc = nullptr,
 	                void *cookie = nullptr,
 	                EventTracker *events = nullptr);
@@ -113,8 +113,8 @@ public:
 	void		SetIndicator(double val) { m_indicatorValue = val; }
 	void		HasIndicator(bool has) { m_hasIndicator = has; }
 
-	void		SetXAxisName(MBCHAR *name);
-	void		SetYAxisName(MBCHAR *name);
+	void		SetXAxisName(MBCHAR const *name);
+	void		SetYAxisName(MBCHAR const *name);
 
 	void		UpdateGraph(aui_Surface *surface, sint32 x, sint32 y);
 
@@ -147,7 +147,7 @@ public:
 
 private:
 	void		InitCommon();
-	void		InitCommonLdl(MBCHAR *ldlBlock);
+	void		InitCommonLdl(MBCHAR const *ldlBlock);
 
 	double			m_xmin;
 	double			m_xmax;

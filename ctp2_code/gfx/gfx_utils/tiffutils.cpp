@@ -34,36 +34,36 @@
 #include <tiffio.h>
 #include <vector>
 
-char *tiffutils_LoadTIF(const char *filename, uint16 *width, uint16 *height, size_t *size)
+char *tiffutils_LoadTIF(const char *filename, uint16_t *width, uint16_t *height, size_t *size)
 {
 	TIFF * tif = TIFFOpen(filename, "r");
 	if (tif)
 	{
-		uint32 w;
-		uint32 h;
+		uint32_t w;
+		uint32_t h;
 		TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
 		TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
 
 		size_t   npixels = w * h;
-		uint32 * raster  = (uint32 *) _TIFFmalloc(npixels * sizeof(uint32));
+		uint32_t * raster  = (uint32_t *) _TIFFmalloc(npixels * sizeof(uint32_t));
 		if (raster)
 		{
 			if (TIFFReadRGBAImage(tif, w, h, raster, 0))
 			{
-				char * destImage = (char *)malloc(npixels * sizeof(uint32));
+				char * destImage = (char *)malloc(npixels * sizeof(uint32_t));
 				if (!destImage) {
 					_TIFFfree(raster);
 					TIFFClose(tif);
 					return nullptr;
 				}
 				if (size)
-					*size = npixels * sizeof(uint32);
-				memcpy(destImage, raster, npixels * sizeof(uint32));
+					*size = npixels * sizeof(uint32_t);
+				memcpy(destImage, raster, npixels * sizeof(uint32_t));
 
 				_TIFFfree(raster);
 
-				*width = (uint16)w;
-				*height = (uint16)h;
+				*width = (uint16_t)w;
+				*height = (uint16_t)h;
 
 				return destImage;
 			}
@@ -74,11 +74,11 @@ char *tiffutils_LoadTIF(const char *filename, uint16 *width, uint16 *height, siz
 	return nullptr;
 }
 
-char *TIF2mem(const char *filename, uint16 *width, uint16 *height, size_t *size)
+char *TIF2mem(const char *filename, uint16_t *width, uint16_t *height, size_t *size)
 {
 	char    *image = nullptr;
-	uint32  w=0;
-	uint32  h=0;
+	uint32_t  w=0;
+	uint32_t  h=0;
 	TIFF    *tif = TIFFOpen(filename, "r");
 
 	if (tif) {
@@ -87,22 +87,22 @@ char *TIF2mem(const char *filename, uint16 *width, uint16 *height, size_t *size)
 
 		size_t npixels     = w * h;
 
-		image = (char *)malloc(npixels * sizeof(uint32));
+		image = (char *)malloc(npixels * sizeof(uint32_t));
 		if (!image) {
 			TIFFClose(tif);
 			return nullptr;
 		}
 
 		if (size)
-			*size = npixels * sizeof(uint32);
+			*size = npixels * sizeof(uint32_t);
 
-		char * raster = (char *) _TIFFmalloc(npixels * sizeof(uint32));
+		char * raster = (char *) _TIFFmalloc(npixels * sizeof(uint32_t));
 		if (raster) {
 			sint32 bytesPerRow = w * 4;
-			if (TIFFReadRGBAImage(tif, w, h, (uint32 *)raster, 0)) {
+			if (TIFFReadRGBAImage(tif, w, h, (uint32_t *)raster, 0)) {
 				char * imagePtr  = image;
 				char * rasterPtr = raster + (bytesPerRow * (h-1));
-				for (uint32 row = 0; row < h; row++) {
+				for (uint32_t row = 0; row < h; row++) {
 					memcpy(imagePtr, rasterPtr, bytesPerRow);
 					imagePtr += bytesPerRow;
 					rasterPtr -= bytesPerRow;
@@ -115,37 +115,37 @@ char *TIF2mem(const char *filename, uint16 *width, uint16 *height, size_t *size)
 		TIFFClose(tif);
 	}
 
-	*width = (uint16)w;
-	*height = (uint16)h;
+	*width = (uint16_t)w;
+	*height = (uint16_t)h;
 
 	return image;
 }
 
-int TIFGetMetrics(const char *filename, uint16 *width, uint16 *height)
+int TIFGetMetrics(const char *filename, uint16_t *width, uint16_t *height)
 {
 	TIFF *  tif = TIFFOpen(filename, "r");
 
 	if (tif)
     {
-	    uint32  w   = 0;
-        uint32  h   = 0;
+	    uint32_t  w   = 0;
+        uint32_t  h   = 0;
 
 		TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
 		TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
 
 		TIFFClose(tif);
 
-		*width = (uint16)w;
-		*height = (uint16)h;
+		*width = (uint16_t)w;
+		*height = (uint16_t)h;
 	}
 
 	return 0;
 }
 
-int TIFLoadIntoBuffer16(const char *filename, uint16 *width, uint16 *height, uint16 imageRowBytes, uint16 *buffer, BOOL is565)
+int TIFLoadIntoBuffer16(const char *filename, uint16_t *width, uint16_t *height, uint16_t imageRowBytes, uint16_t *buffer, bool is565)
 {
-	uint32  w=0;
-	uint32  h=0;
+	uint32_t  w=0;
+	uint32_t  h=0;
 	TIFF    *tif = TIFFOpen(filename, "r");
 
 	if (tif)
@@ -155,43 +155,43 @@ int TIFLoadIntoBuffer16(const char *filename, uint16 *width, uint16 *height, uin
 
 		sint32  bytesPerRow = w * 4;
 		size_t  npixels     = w * h;
-		char *  raster      = (char *) _TIFFmalloc(npixels * sizeof(uint32));
+		char *  raster      = (char *) _TIFFmalloc(npixels * sizeof(uint32_t));
 
         if (raster)
         {
-			if (TIFFReadRGBAImage(tif, w, h, (uint32 *)raster, 0))
+			if (TIFFReadRGBAImage(tif, w, h, (uint32_t *)raster, 0))
             {
 				char * imagePtr     = (char *)buffer;
 				char * rasterPtr    = raster + (bytesPerRow * (h-1));
 
-				uint32 *rasterPtrCopy;
-				uint16 *imagePtrCopy;
-				uint32 pixel;
+				uint32_t *rasterPtrCopy;
+				uint16_t *imagePtrCopy;
+				uint32_t pixel;
 	                  sint32  i;
 
 				if (is565) {
-					for (uint32 row = 0; row < h; row++) {
+					for (uint32_t row = 0; row < h; row++) {
 
-						imagePtrCopy = (uint16 *)imagePtr;
-						rasterPtrCopy = (uint32 *)rasterPtr;
+						imagePtrCopy = (uint16_t *)imagePtr;
+						rasterPtrCopy = (uint32_t *)rasterPtr;
 
 						for (i=0; i<(sint32)w; i++) {
 							pixel = *rasterPtrCopy++;
-							*imagePtrCopy++ = (uint16)(((pixel & 0x000000F8) << 8) | ((pixel & 0x0000FC00) >> 5) | ((pixel & 0x00F80000) >> 19));
+							*imagePtrCopy++ = (uint16_t)(((pixel & 0x000000F8) << 8) | ((pixel & 0x0000FC00) >> 5) | ((pixel & 0x00F80000) >> 19));
 						}
 
 						imagePtr += imageRowBytes;
 						rasterPtr -= bytesPerRow;
 					}
 				} else {
-					for (uint32 row = 0; row < h; row++) {
+					for (uint32_t row = 0; row < h; row++) {
 
-						imagePtrCopy = (uint16 *)imagePtr;
-						rasterPtrCopy = (uint32 *)rasterPtr;
+						imagePtrCopy = (uint16_t *)imagePtr;
+						rasterPtrCopy = (uint32_t *)rasterPtr;
 
 						for (i=0; i<(sint32)w; i++) {
 							pixel = *rasterPtrCopy++;
-							*imagePtrCopy++ = (uint16)(((pixel & 0x000000F8) << 7) | ((pixel & 0x0000F800) >> 6) | ((pixel & 0x00F80000) >> 19));
+							*imagePtrCopy++ = (uint16_t)(((pixel & 0x000000F8) << 7) | ((pixel & 0x0000F800) >> 6) | ((pixel & 0x00F80000) >> 19));
 						}
 
 						imagePtr += imageRowBytes;
@@ -207,8 +207,8 @@ int TIFLoadIntoBuffer16(const char *filename, uint16 *width, uint16 *height, uin
 		TIFFClose(tif);
 	}
 
-	*width = (uint16)w;
-	*height = (uint16)h;
+	*width = (uint16_t)w;
+	*height = (uint16_t)h;
 
 	return 0;
 }
@@ -216,18 +216,18 @@ int TIFLoadIntoBuffer16(const char *filename, uint16 *width, uint16 *height, uin
 
 
 
-char *StripTIF2Mem(const char *filename, uint16 *width, uint16 *height, size_t *size)
+char *StripTIF2Mem(const char *filename, uint16_t *width, uint16_t *height, size_t *size)
 {
 	TIFF *  tif = TIFFOpen(filename, "r");
 	if (!tif)
 	   return nullptr;
 
-	*width = static_cast<uint16>(-1);
-	*height = static_cast<uint16>(-1);
+	*width = static_cast<uint16_t>(-1);
+	*height = static_cast<uint16_t>(-1);
 
-	uint32      imageLength;
-	uint32      imageWidth;
-	uint32      RowsPerStrip;
+	uint32_t      imageLength;
+	uint32_t      imageWidth;
+	uint32_t      RowsPerStrip;
 	sint32      PhotometricInterpretation;
 
 	TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &imageWidth);
@@ -244,7 +244,7 @@ char *StripTIF2Mem(const char *filename, uint16 *width, uint16 *height, size_t *
 		*size = imageWidth * imageLength * 4;
 	char *  outBufPtr   = outBuf;
 
-	for (uint32 row = 0; row < imageLength; row += RowsPerStrip)
+	for (uint32_t row = 0; row < imageLength; row += RowsPerStrip)
 	{
 		tsize_t nrow = (row + RowsPerStrip > imageLength ? imageLength - row : RowsPerStrip);
 		if (TIFFReadEncodedStrip(tif, TIFFComputeStrip(tif, row, 0), buf.data(), nrow*LineSize)==-1)
@@ -264,8 +264,8 @@ char *StripTIF2Mem(const char *filename, uint16 *width, uint16 *height, size_t *
 
 	TIFFClose(tif);
 
-	*width  = (uint16) imageWidth;
-	*height = (uint16) imageLength;
+	*width  = (uint16_t) imageWidth;
+	*height = (uint16_t) imageLength;
 
 	return outBuf;
 }

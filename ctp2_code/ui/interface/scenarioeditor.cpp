@@ -166,10 +166,10 @@ extern MBCHAR               g_slic_filename[_MAX_PATH];
 
 extern void WhackScreen();
 
-static MBCHAR *s_scenarioEditorBlock = "ScenarioEditor";
+static MBCHAR const *s_scenarioEditorBlock = "ScenarioEditor";
 static ScenarioEditor *s_scenarioEditor = nullptr;
 static SCEN_START_LOC_MODE s_debugStartLocMode = SCEN_START_LOC_MODE_NONE;
-static MBCHAR *s_scenarioAddStuffBlock = "ScenAddStuffWindow";
+static MBCHAR const *s_scenarioAddStuffBlock = "ScenAddStuffWindow";
 
 #define k_TERRAIN_COLS_PER_ROW 6
 #define k_CITY_COLS_PER_ROW 6
@@ -184,10 +184,10 @@ static MBCHAR *s_scenarioAddStuffBlock = "ScenAddStuffWindow";
 #define k_MAX_ADD_GOLD_OR_PW 1000000
 #define MAX_CHARS 7
 
-static MBCHAR *k_WORLD_TAB_BUTTON = "ScenarioEditor.TabGroup.WorldButton";
-static MBCHAR *k_UNIT_TAB_BUTTON = "ScenarioEditor.TabGroup.UnitButton";
-static MBCHAR *k_CITY_TAB_BUTTON = "ScenarioEditor.TabGroup.CityButton";
-static MBCHAR *k_CIV_TAB_BUTTON = "ScenarioEditor.TabGroup.CivButton";
+static MBCHAR const *k_WORLD_TAB_BUTTON = "ScenarioEditor.TabGroup.WorldButton";
+static MBCHAR const *k_UNIT_TAB_BUTTON = "ScenarioEditor.TabGroup.UnitButton";
+static MBCHAR const *k_CITY_TAB_BUTTON = "ScenarioEditor.TabGroup.CityButton";
+static MBCHAR const *k_CIV_TAB_BUTTON = "ScenarioEditor.TabGroup.CivButton";
 
 char *s_scenTabNames[SCEN_TAB_MAX] = {
 	"World",

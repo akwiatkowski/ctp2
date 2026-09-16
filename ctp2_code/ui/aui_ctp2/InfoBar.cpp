@@ -125,7 +125,7 @@ InfoBar::InfoBar(AUI_ERRCODE *retval,
 				 sint32 width,
 				 sint32 height,
 				 sint32 bpp,
-				 MBCHAR *pattern )
+				 MBCHAR const *pattern )
 	: C3Window(retval,
 			   id,
 			   x, y, width, height,

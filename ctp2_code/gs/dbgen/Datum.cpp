@@ -790,12 +790,25 @@ void Datum::ExportOperatorAssignment(FILE *outfile)
 			fprintf(outfile, "%s}\n", ind);
 			fprintf(outfile, "%sm_num%s = rval.m_num%s;\n\n", ind, m_name, m_name);
 			break;
+
+		// Scalar types hold no array storage: nothing to free or copy.
+		case DATUM_BIT:
+		case DATUM_BIT_GROUP:
+		case DATUM_BIT_PAIR:
+		case DATUM_NONE:
+			break;
 		}
 	}
 	else if ( m_maxSize > 0 )
 	{
 		switch (m_type)
 		{
+		// Scalar types hold no array storage: nothing to free or copy.
+		case DATUM_BIT:
+		case DATUM_BIT_GROUP:
+		case DATUM_BIT_PAIR:
+		case DATUM_NONE:
+			break;
 		case DATUM_INT:
 		case DATUM_STRINGID:
 		case DATUM_RECORD:
@@ -862,6 +875,13 @@ void Datum::ExportOperatorAssignment(FILE *outfile)
 				       );
 				fprintf(outfile, "%s}\n\n", ind);
 			}
+			break;
+
+		// Scalar types hold no array storage: nothing to free or copy.
+		case DATUM_BIT:
+		case DATUM_BIT_GROUP:
+		case DATUM_BIT_PAIR:
+		case DATUM_NONE:
 			break;
 		}
 	}
@@ -1065,6 +1085,14 @@ void Datum::ExportMerge(FILE *outfile, char *recordName)
 				       );
 				fprintf(outfile, "            }\n");
 				fprintf(outfile, "    }\n");
+				break;
+
+		// Scalar types hold no array storage: nothing to free or copy.
+		case DATUM_BIT:
+		case DATUM_BIT_GROUP:
+		case DATUM_BIT_PAIR:
+		case DATUM_NONE:
+			break;
 			}
 
 	}
@@ -1106,6 +1134,13 @@ void Datum::ExportMerge(FILE *outfile, char *recordName)
 								m_bitPairDatum->m_name, m_bitPairDatum->m_name, m_bitPairDatum->m_name);
 					}
 					fprintf(outfile, "    }\n\n");
+					break;
+
+				// Scalar types hold no array storage: nothing to free or copy.
+				case DATUM_BIT:
+				case DATUM_BIT_GROUP:
+				case DATUM_BIT_PAIR:
+				case DATUM_NONE:
 					break;
 				}
 	}

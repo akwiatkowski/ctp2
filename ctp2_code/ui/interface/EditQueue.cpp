@@ -96,7 +96,7 @@
 
 static EditQueue *s_editQueue = nullptr;
 
-static MBCHAR *s_editQueueBlock = "BuildEditorWindow";
+static MBCHAR const *s_editQueueBlock = "BuildEditorWindow";
 
 
 EditQueue::EditQueue(AUI_ERRCODE *err)

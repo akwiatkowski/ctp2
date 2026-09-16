@@ -15,7 +15,7 @@
 #include "ui/interface/victorywin.h"
 
 
-static MBCHAR *s_VictoryWindowBlock = "VictoryWindow";
+static MBCHAR const *s_VictoryWindowBlock = "VictoryWindow";
 
 
 

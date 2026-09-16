@@ -810,6 +810,9 @@ public:
 	void SetGroup(unsigned char group);
 
 	void SetKey(KeyStruct *k);
+	// Unhide Key::SetKey() — this overload must not shadow the virtual no-arg
+	// form used polymorphically through Key*.
+	using Key::SetKey;
 
 	void Pack() override;
 
@@ -1335,7 +1338,7 @@ public:
 
 	STATUS Connect(char *file);
 
-	STATUS Join(Game *g, char *password = "");
+	STATUS Join(Game *g, char const *password = "");
 
 	STATUS Join(Lobby *l);
 

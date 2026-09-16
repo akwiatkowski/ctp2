@@ -79,8 +79,8 @@
 
 
 static UnitManager *s_unitManager = nullptr;
-static MBCHAR *s_unitManagerBlock = "UnitManager";
-static MBCHAR *s_unitManagerAdviceBlock = "UnitManagerAdviceWindow";
+static MBCHAR const *s_unitManagerBlock = "UnitManager";
+static MBCHAR const *s_unitManagerAdviceBlock = "UnitManagerAdviceWindow";
 bool UnitManager::sm_statsTabVisible = true;
 
 #define k_UNITMAN_STATS 0

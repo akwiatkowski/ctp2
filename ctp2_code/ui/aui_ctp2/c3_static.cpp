@@ -19,7 +19,7 @@ c3_Static::c3_Static
 (
 	AUI_ERRCODE *   retval,
 	uint32          id,
-	MBCHAR *        ldlBlock
+	MBCHAR const *        ldlBlock
 )
 :
 	aui_ImageBase   (ldlBlock),
@@ -42,8 +42,8 @@ c3_Static::c3_Static
 	sint32          y,
 	sint32          width,
 	sint32          height,
-	MBCHAR *        pattern,
-	MBCHAR *        text,
+	MBCHAR const *        pattern,
+	MBCHAR const *        text,
 	uint32          maxLength,
 	uint32          bevelWidth,
 	uint32          bevelType
@@ -61,7 +61,7 @@ c3_Static::c3_Static
 }
 
 
-AUI_ERRCODE c3_Static::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE c3_Static::InitCommonLdl( MBCHAR const *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );

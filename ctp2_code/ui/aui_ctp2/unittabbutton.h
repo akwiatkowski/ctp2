@@ -27,7 +27,7 @@ public:
 	UnitTabButton(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	UnitTabButton(
@@ -37,7 +37,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		sint32 barHeight = k_DEFAULT_HEALTHBAR_HEIGHT,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );

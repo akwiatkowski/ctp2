@@ -42,7 +42,7 @@ public:
 	aui_Tab(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	aui_Tab(
@@ -62,7 +62,7 @@ public:
 
 protected:
 	aui_Tab() : aui_Radio() {}
-	AUI_ERRCODE InitCommon( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommon( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( sint32 paneWidth, sint32 paneHeight );
 
 public:

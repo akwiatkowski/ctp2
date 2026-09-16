@@ -15,7 +15,7 @@ public:
 	c3_DropDown(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	c3_DropDown(
@@ -25,7 +25,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		sint32 buttonSize = 0,
 		sint32 windowSize = 0,
 		ControlActionCallback *ActionFunc = nullptr,
@@ -41,9 +41,9 @@ public:
 
 protected:
 	c3_DropDown() : aui_DropDown() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( sint32 buttonSize, sint32 windowSize );
-	AUI_ERRCODE CreateComponents( MBCHAR *ldlBlock = nullptr );
+	AUI_ERRCODE CreateComponents( MBCHAR const *ldlBlock = nullptr );
 
 protected:
 	AUI_ERRCODE	RepositionButton( ) override;

@@ -8,7 +8,7 @@
 #include "ui/aui_ctp2/ctp2_TabButton.h"
 #include "ui/aui_ctp2/ctp2_TabGroup.h"
 
-ctp2_Tab::ctp2_Tab(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock,
+ctp2_Tab::ctp2_Tab(AUI_ERRCODE *retval, uint32 id, MBCHAR const *ldlBlock,
 				   ControlActionCallback *ActionFunc, void *cookie) :
 aui_ImageBase(ldlBlock),
 aui_TextBase(ldlBlock, (MBCHAR const *) nullptr),

@@ -74,7 +74,7 @@ sint32 SpriteStateDB::GetDefaultVal(sint32 index) const
 	return m_map[index].m_default_val;
 }
 
-void SpriteStateDB::SetName(sint32 index, char str[_MAX_PATH])
+void SpriteStateDB::SetName(sint32 index, char const str[_MAX_PATH])
 
 {
  	Assert(0 <= index);

@@ -51,7 +51,7 @@ c3_Button::c3_Button
 (
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie
 )
@@ -80,7 +80,7 @@ c3_Button::c3_Button(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 :
@@ -97,7 +97,7 @@ c3_Button::c3_Button(
 }
 
 
-AUI_ERRCODE c3_Button::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE c3_Button::InitCommonLdl( MBCHAR const *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
@@ -183,7 +183,7 @@ c3_EditButton::c3_EditButton
 (
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie
 )
@@ -220,7 +220,7 @@ c3_EditButton::c3_EditButton
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	ControlActionCallback *ActionFunc,
 	void *cookie
 )
@@ -245,7 +245,7 @@ c3_EditButton::c3_EditButton
 }
 
 
-AUI_ERRCODE c3_EditButton::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE c3_EditButton::InitCommonLdl( MBCHAR const *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
@@ -267,7 +267,7 @@ AUI_ERRCODE c3_EditButton::InitCommonLdl( MBCHAR *ldlBlock )
     return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE c3_EditButton::CreateFieldAndActions( MBCHAR *ldlBlock )
+AUI_ERRCODE c3_EditButton::CreateFieldAndActions( MBCHAR const *ldlBlock )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 

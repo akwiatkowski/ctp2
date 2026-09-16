@@ -198,7 +198,7 @@ void ctp2_TextBuffer::Scroll(sint32 numLines)
 }
 
 
-void ctp2_TextBuffer::AddLine(MBCHAR *text, sint32 len, COLOR color)
+void ctp2_TextBuffer::AddLine(MBCHAR const *text, sint32 len, COLOR color)
 {
 	// Rotate: shift all lines down, reuse last line as new first line
 	std::string lastLine = std::move(m_rowData.back());
@@ -225,10 +225,10 @@ void ctp2_TextBuffer::AddLine(MBCHAR *text, sint32 len, COLOR color)
 	}
 }
 
-void ctp2_TextBuffer::AddText(MBCHAR *text, COLOR color)
+void ctp2_TextBuffer::AddText(MBCHAR const *text, COLOR color)
 {
-	MBCHAR		 *start;
-	MBCHAR		 *end;
+	MBCHAR const		 *start;
+	MBCHAR const		 *end;
 	sint32		col;
 
 	start = text;
@@ -245,7 +245,7 @@ void ctp2_TextBuffer::AddText(MBCHAR *text, COLOR color)
 		if (col >= m_numDisplayedColumns) {
 
 			sint32 tempCol = col;
-			MBCHAR *tempEnd = end;
+			MBCHAR const *tempEnd = end;
 
 			while (tempCol > 0 && *end != '\n') {
 				tempCol--;

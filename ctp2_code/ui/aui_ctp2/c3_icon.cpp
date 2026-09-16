@@ -20,7 +20,7 @@ extern TileSet		*g_tileSet;
 c3_Icon::c3_Icon(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock )
+	MBCHAR const *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
 	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
@@ -42,8 +42,8 @@ c3_Icon::c3_Icon(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
-	MBCHAR *text,
+	MBCHAR const *pattern,
+	MBCHAR const *text,
 	uint32 maxLength,
 	uint32 bevelWidth,
 	uint32 bevelType)
@@ -61,7 +61,7 @@ c3_Icon::c3_Icon(
 }
 
 
-AUI_ERRCODE c3_Icon::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE c3_Icon::InitCommonLdl( MBCHAR const *ldlBlock )
 {
 	return InitCommon();
 }

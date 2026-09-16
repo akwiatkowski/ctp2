@@ -18,7 +18,7 @@
 TextSwitch::TextSwitch(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie)
 	:
@@ -37,8 +37,8 @@ TextSwitch::TextSwitch(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
-	MBCHAR *text,
+	MBCHAR const *pattern,
+	MBCHAR const *text,
 	ControlActionCallback *ActionFunc,
 	void *cookie,
 	BOOL selected )

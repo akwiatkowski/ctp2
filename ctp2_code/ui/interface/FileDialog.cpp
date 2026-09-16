@@ -14,7 +14,7 @@
 #include <dirent.h>
 #endif
 
-static MBCHAR *s_block = "GenericFileDialog";
+static MBCHAR const *s_block = "GenericFileDialog";
 
 FileDialog::FileDialog()
 {

@@ -23,7 +23,7 @@ public:
 		sint32 height,
 		sint32 paneWidth,
 		sint32 paneHeight,
-		MBCHAR *pattern = nullptr,
+		MBCHAR const *pattern = nullptr,
 		Icon *icon = nullptr,
 		uint16 color = 0,
 		ControlActionCallback *ActionFunc = nullptr,

@@ -101,7 +101,7 @@ static void ButtonCallback	(aui_Control *control, uint32 action, uint32 data, vo
 ctp2_MenuBar::ctp2_MenuBar(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	sint32 bpp,
 	AUI_WINDOW_TYPE type,
 	bool bevel)
@@ -126,7 +126,7 @@ ctp2_MenuBar::ctp2_MenuBar(
 	sint32 width,
 	sint32 height,
 	sint32 bpp,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	AUI_WINDOW_TYPE type,
 	bool bevel)
 	:
@@ -218,7 +218,7 @@ AUI_ERRCODE ctp2_MenuBar::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 }
 
 ctp2_Menu *
-ctp2_MenuBar::GetMenu(MBCHAR *ldlParent,MBCHAR *menuname)
+ctp2_MenuBar::GetMenu(MBCHAR const *ldlParent, MBCHAR const *menuname)
 {
 	aui_Control *button=(aui_Control *)aui_Ldl::GetObject(ldlParent,menuname);
 

@@ -73,10 +73,10 @@ protected:
 
 private:
 
-	MBCHAR *m_embryoTankName = nullptr;
-	MBCHAR *m_containmentFieldName = nullptr;
-	MBCHAR *m_ECDName = nullptr;
-	MBCHAR *m_splicerName = nullptr;
+	MBCHAR const *m_embryoTankName = nullptr;
+	MBCHAR const *m_containmentFieldName = nullptr;
+	MBCHAR const *m_ECDName = nullptr;
+	MBCHAR const *m_splicerName = nullptr;
 
 	// LDL-driven sizes; the vectors below are resized to exactly these.
 	sint32 m_numberOfStages = 0;

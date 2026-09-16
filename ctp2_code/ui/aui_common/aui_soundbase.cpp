@@ -23,25 +23,25 @@ MBCHAR *aui_SoundBase::m_soundLdlKeywords[ AUI_SOUNDBASE_SOUND_LAST ] =
 };
 
 
-aui_SoundBase::aui_SoundBase( MBCHAR *ldlBlock )
+aui_SoundBase::aui_SoundBase( MBCHAR const *ldlBlock )
 {
 	InitCommonLdl( ldlBlock );
 }
 
 
-aui_SoundBase::aui_SoundBase( MBCHAR **soundNames )
+aui_SoundBase::aui_SoundBase( MBCHAR const **soundNames )
 {
 	InitCommon( soundNames );
 }
 
 
-AUI_ERRCODE aui_SoundBase::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_SoundBase::InitCommonLdl( MBCHAR const *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
-	MBCHAR *soundNames[ AUI_SOUNDBASE_SOUND_LAST ];
+	MBCHAR const *soundNames[ AUI_SOUNDBASE_SOUND_LAST ];
 	for ( sint32 i = 0; i < AUI_SOUNDBASE_SOUND_LAST; i++ )
 		soundNames[ i ] = block->GetString( m_soundLdlKeywords[ i ] );
 
@@ -51,7 +51,7 @@ AUI_ERRCODE aui_SoundBase::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE aui_SoundBase::InitCommon( MBCHAR **soundNames )
+AUI_ERRCODE aui_SoundBase::InitCommon( MBCHAR const **soundNames )
 {
 	memset( m_sounds, 0, sizeof( m_sounds ) );
 
@@ -86,7 +86,7 @@ aui_Sound *aui_SoundBase::GetSound( AUI_SOUNDBASE_SOUND sound ) const
 
 aui_Sound *aui_SoundBase::SetSound(
 	AUI_SOUNDBASE_SOUND sound,
-	MBCHAR *soundName )
+	MBCHAR const *soundName )
 {
 	aui_Sound *prevSound = GetSound( sound );
 
@@ -126,7 +126,11 @@ AUI_ERRCODE aui_SoundBase::PlaySound( AUI_SOUNDBASE_SOUND sound )
 		break;
 	case AUI_SOUNDBASE_SOUND_ENGAGE:
 	case AUI_SOUNDBASE_SOUND_TIP:
-
+	// Sentinel and unused kinds have no stock sound mapping.
+	case AUI_SOUNDBASE_SOUND_FIRST:  // == ACTIVATE
+	case AUI_SOUNDBASE_SOUND_DEACTIVATE:
+	case AUI_SOUNDBASE_SOUND_DISENGAGE:
+	case AUI_SOUNDBASE_SOUND_LAST:
 		break;
 	}
 

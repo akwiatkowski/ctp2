@@ -26,7 +26,7 @@
 ctp2_Window::ctp2_Window(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	sint32 bpp,
 	AUI_WINDOW_TYPE type,
 	bool bevel)
@@ -55,7 +55,7 @@ ctp2_Window::ctp2_Window(
 	sint32 width,
 	sint32 height,
 	sint32 bpp,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	AUI_WINDOW_TYPE type,
 	bool bevel)
 	:
@@ -166,7 +166,7 @@ AUI_ERRCODE ctp2_Window::DoneInstantiatingThis(const MBCHAR *ldlBlock)
 
 	ldl_datablock * block = aui_Ldl::FindDataBlock((MBCHAR *)ldlBlock);
 	if(block) {
-		MBCHAR *title = block->GetString("title");
+		MBCHAR const *title = block->GetString("title");
 		if(title) {
 			ctp2_Static *titleBar = (ctp2_Static *)aui_Ldl::GetObject((MBCHAR *)ldlBlock, "TitleBar");
 			if(!titleBar) {

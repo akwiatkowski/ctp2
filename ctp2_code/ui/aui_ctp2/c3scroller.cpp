@@ -22,7 +22,7 @@ C3Scroller::C3Scroller
 (
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie
 )
@@ -81,7 +81,7 @@ C3Scroller::C3Scroller
 	sint32 width,
 	sint32 height,
 	bool isVertical,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	ControlActionCallback *ActionFunc,
 	void *cookie
 )
@@ -104,7 +104,7 @@ C3Scroller::C3Scroller
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon((MBCHAR **) nullptr);
+	*retval = aui_SoundBase::InitCommon((MBCHAR const **) nullptr);
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 

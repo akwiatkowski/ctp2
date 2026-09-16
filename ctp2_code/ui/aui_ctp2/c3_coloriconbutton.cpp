@@ -29,8 +29,8 @@ c3_ColorIconButton::c3_ColorIconButton(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
-	MBCHAR *icon,
+	MBCHAR const *pattern,
+	MBCHAR const *icon,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 :
@@ -49,7 +49,7 @@ c3_ColorIconButton::c3_ColorIconButton(
 c3_ColorIconButton::c3_ColorIconButton(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -122,7 +122,7 @@ void c3_ColorIconButton::ResizePictureRect()
 	}
 }
 
-void c3_ColorIconButton::SetIcon(MBCHAR *name)
+void c3_ColorIconButton::SetIcon(MBCHAR const *name)
 {
 	if (name == nullptr) return;
 
@@ -145,9 +145,9 @@ void c3_ColorIconButton::SetIcon(MBCHAR *name)
 	ResizePictureRect();
 }
 
-AUI_ERRCODE c3_ColorIconButton::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
+AUI_ERRCODE c3_ColorIconButton::InitCommon( MBCHAR const *ldlBlock, BOOL isLDL)
 {
-	MBCHAR		*name;
+	MBCHAR const		*name;
 
 	if (isLDL) {
         ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);

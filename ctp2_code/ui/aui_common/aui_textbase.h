@@ -113,7 +113,7 @@ protected:
 	AUI_ERRCODE InitCommon(
 		const MBCHAR *text,
 		uint32 maxLength,
-		MBCHAR *fontname,
+		MBCHAR const *fontname,
 		sint32 fontsize,
 		COLORREF color,
 		COLORREF shadowcolor,

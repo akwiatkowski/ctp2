@@ -11,7 +11,7 @@ class ctp2_Tab;
 class ctp2_TabGroup : public aui_Control {
 public:
 
-	ctp2_TabGroup(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock,
+	ctp2_TabGroup(AUI_ERRCODE *retval, uint32 id, MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr, void *cookie = nullptr);
 
 	~ctp2_TabGroup() override;

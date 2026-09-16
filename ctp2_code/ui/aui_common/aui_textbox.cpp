@@ -14,7 +14,7 @@
 aui_TextBox::aui_TextBox(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -38,7 +38,7 @@ aui_TextBox::aui_TextBox(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *text,
+	MBCHAR const *text,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -55,7 +55,7 @@ aui_TextBox::aui_TextBox(
 }
 
 
-AUI_ERRCODE aui_TextBox::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_TextBox::InitCommonLdl( MBCHAR const *ldlBlock )
 {
 	return InitCommon();
 }

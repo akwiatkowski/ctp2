@@ -77,10 +77,10 @@ class MainControlPanel;
 class MainControlPanel
 {
 public:
-	MainControlPanel(MBCHAR *ldlBlock);
+	MainControlPanel(MBCHAR const *ldlBlock);
 	~MainControlPanel();
 
-	static void Initialize(MBCHAR *ldlBlock);
+	static void Initialize(MBCHAR const *ldlBlock);
 
 	static void InitializeEvents();
 

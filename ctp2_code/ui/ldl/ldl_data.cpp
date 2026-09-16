@@ -174,12 +174,12 @@ void ldl_datablock::Dump(sint32 indent) {
 	ldlif_log("}\n");
 }
 
-bool ldl_datablock::AttributeNameTaken(char *szName)
+bool ldl_datablock::AttributeNameTaken(char const *szName)
 {
 	return GetAttribute(szName) != nullptr;
 }
 
-void ldl_datablock::SetValue(char *name, int value)
+void ldl_datablock::SetValue(char const *name, int value)
 {
 	ldl_attribute *atr = GetAttribute(name);
 	if(atr) {

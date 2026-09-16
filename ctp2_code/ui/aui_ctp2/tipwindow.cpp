@@ -15,8 +15,8 @@
 TipWindow::TipWindow(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
-		MBCHAR *text,
+		MBCHAR const *ldlBlock,
+		MBCHAR const *text,
 		sint32 bpp)
 	:
 	C3Window(retval, id, ldlBlock, bpp, AUI_WINDOW_TYPE_TIP),
@@ -26,7 +26,7 @@ TipWindow::TipWindow(
 }
 
 TipWindow::TipWindow(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y, sint32 width, sint32 height, sint32 bpp,
-					 MBCHAR *pattern, MBCHAR *text)
+					 MBCHAR const *pattern, MBCHAR const *text)
 		:
 		C3Window( retval, id, x, y, width, height, bpp, pattern, AUI_WINDOW_TYPE_TIP ),
 		aui_TextBase( text )

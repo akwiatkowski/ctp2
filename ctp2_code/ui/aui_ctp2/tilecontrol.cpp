@@ -47,7 +47,7 @@ extern sint32			g_isFastCpu; // Actual permernent set to 1
 
 
 
-TileControl::TileControl(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock )
+TileControl::TileControl(AUI_ERRCODE *retval, uint32 id, MBCHAR const *ldlBlock )
 :
 	aui_ImageBase( ldlBlock ),
 	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),

@@ -66,10 +66,10 @@ public:
         // m_borderOffset
     {};
 
-	ctp2_ListBox(AUI_ERRCODE *retval,	uint32 id, MBCHAR *ldlBlock,
+	ctp2_ListBox(AUI_ERRCODE *retval,	uint32 id, MBCHAR const *ldlBlock,
 							ControlActionCallback *ActionFunc=nullptr, void *cookie=nullptr );
 	ctp2_ListBox(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y, sint32 width, sint32 height,
-							MBCHAR *pattern, sint32 bevelwidth = 0, sint32 beveltype = 0,
+							MBCHAR const *pattern, sint32 bevelwidth = 0, sint32 beveltype = 0,
 							ControlActionCallback *ActionFunc = nullptr, void *cookie = nullptr);
 
 	~ctp2_ListBox() override;
@@ -80,9 +80,9 @@ public:
 		return classId == m_ctp2_listboxClassId;
 	}
 
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon(sint32 bevelWidth, sint32 bevelType );
-	AUI_ERRCODE CreateRangersAndHeader( MBCHAR *ldlBlock = nullptr );
+	AUI_ERRCODE CreateRangersAndHeader( MBCHAR const *ldlBlock = nullptr );
 
 /// Clear the user data.
 /// \remarks Does not clear the list itself.

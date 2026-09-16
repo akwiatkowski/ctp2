@@ -609,7 +609,7 @@ aui_Region *aui_Ldl::BuildHierarchyFromRoot(MBCHAR const * rootBlock)
 	if (!dataBlock)
 		return nullptr;
 
-	MBCHAR			*objTypeString = dataBlock->GetString(k_AUI_LDL_OBJECTTYPE);
+	MBCHAR const		*objTypeString = dataBlock->GetString(k_AUI_LDL_OBJECTTYPE);
 	if (!objTypeString)
 		return nullptr;
 
@@ -675,7 +675,7 @@ AUI_ERRCODE aui_Ldl::BuildHierarchyFromLeaf(ldl_datablock *parent, aui_Region *r
 
 
 
-		MBCHAR			*objTypeString = dataBlock->GetString(k_AUI_LDL_OBJECTTYPE);
+		MBCHAR const		*objTypeString = dataBlock->GetString(k_AUI_LDL_OBJECTTYPE);
 		if (!objTypeString)
 			return AUI_ERRCODE_INVALIDPARAM;
 
@@ -738,8 +738,8 @@ AUI_ERRCODE aui_Ldl::BuildHierarchyFromLeaf(ldl_datablock *parent, aui_Region *r
 
 
 
-AUI_ERRCODE aui_Ldl::BuildObjectFromType(MBCHAR *typeString,
-										 MBCHAR *ldlName,
+AUI_ERRCODE aui_Ldl::BuildObjectFromType(MBCHAR const *typeString,
+										 MBCHAR const *ldlName,
 										 aui_Region **theObject)
 {
 	AUI_ERRCODE		retval = AUI_ERRCODE_OK;

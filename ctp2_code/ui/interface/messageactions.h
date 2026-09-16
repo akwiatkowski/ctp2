@@ -137,8 +137,8 @@ public:
     )
 	:   aui_Action  (),
         m_window    (window),
-        m_dropdown  (dropdown),
-        m_modal     (modal)
+        m_modal     (modal),
+        m_dropdown  (dropdown)
     { ; };
 	~MessageDropdownAction() override { ; };
 
@@ -324,8 +324,8 @@ public:
     )
     :   aui_Action      (),
         m_offset        (offset),
-        m_messagelist   (list),
-        m_offsetflag    (flag)
+        m_offsetflag    (flag),
+        m_messagelist   (list)
     { ; };
 	~ChangeOffsetMessageIconButtonAction() override { ; };
 

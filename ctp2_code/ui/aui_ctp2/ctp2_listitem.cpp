@@ -37,7 +37,7 @@
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_ctp2/patternbase.h"
 
-ctp2_ListItem::ctp2_ListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock)
+ctp2_ListItem::ctp2_ListItem(AUI_ERRCODE *retval, MBCHAR const *ldlBlock)
 :
 	aui_ImageBase(ldlBlock),
 	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),

@@ -52,7 +52,7 @@ public:
 	aui_MovieButton(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	aui_MovieButton(
@@ -76,8 +76,8 @@ protected:
 		m_fullScreen    (false)
 	{}
 
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( MBCHAR *movie );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
+	AUI_ERRCODE InitCommon( MBCHAR const *movie );
 
 public:
 	aui_Movie *SetMovie( const MBCHAR *movie );

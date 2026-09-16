@@ -6,6 +6,7 @@
 int g_dblexerLineNumber;
 %}
 
+%option noinput nounput
 string 		\"[^\"\n]*[\"\n]
 name		[a-zA-Z]+[a-zA-Z0-9_]*
 

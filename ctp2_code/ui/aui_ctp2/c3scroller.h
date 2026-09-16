@@ -21,7 +21,7 @@ public:
     (
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr
     );
@@ -34,7 +34,7 @@ public:
 		sint32 width,
 		sint32 height,
 		bool   isVertical,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr
     );

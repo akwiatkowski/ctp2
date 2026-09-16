@@ -48,7 +48,7 @@ public:
 	ctp2_MenuBar(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		sint32 bpp,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD, bool bevel = true );
 	ctp2_MenuBar(
@@ -59,11 +59,11 @@ public:
 		sint32 width,
 		sint32 height,
 		sint32 bpp,
-		MBCHAR *pattern,
+		MBCHAR const *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD, bool bevel = true );
 	~ctp2_MenuBar() override = default;
 
-	ctp2_Menu		*GetMenu(MBCHAR *ldlParent,MBCHAR *menuname);
+	ctp2_Menu		*GetMenu(MBCHAR const *ldlParent,MBCHAR const *menuname);
 	void			SetMenuCallback	(ctp2_Menu *menu,CTP2MenuCallback *callback);
 	void			AddMenuItem
     (

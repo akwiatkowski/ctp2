@@ -65,7 +65,7 @@ public:
 	void			LoadFull(MBCHAR const * filename) override;
 
 	// nameSize = capacity of `name` in chars (the write is bounded by it).
-	bool			GetImageFileName(MBCHAR * name, size_t nameSize, char * format, ...);
+	bool			GetImageFileName(MBCHAR * name, size_t nameSize, char const * format, ...);
 
 	void			Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode) override;
 

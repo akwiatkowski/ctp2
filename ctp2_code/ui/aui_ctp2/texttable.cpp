@@ -22,7 +22,7 @@
 TextTable::TextTable(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie,
 	aui_Surface *surface)
@@ -70,7 +70,7 @@ TextTable::TextTable(
 	sint32 width,
 	sint32 height,
 	sint32 columns,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	ControlActionCallback *ActionFunc,
 	void *cookie,
 	uint32 size,
@@ -113,7 +113,7 @@ TextTable::TextTable(
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
 
-AUI_ERRCODE TextTable::InitCommon( MBCHAR *ldlBlock, aui_Surface *surface )
+AUI_ERRCODE TextTable::InitCommon( MBCHAR const *ldlBlock, aui_Surface *surface )
 {
 
 	uint32 columns = 0;
@@ -270,7 +270,7 @@ void TextTable::InitHeaders( void )
 }
 
 
-BOOL TextTable::AddColumn( uint32 pos, MBCHAR *text )
+BOOL TextTable::AddColumn( uint32 pos, MBCHAR const *text )
 {
 	AUI_ERRCODE errcode;
 	uint32 i = 0;
@@ -303,7 +303,7 @@ BOOL TextTable::AddColumn( uint32 pos, MBCHAR *text )
 	return TRUE;
 }
 
-BOOL TextTable::AddRow( uint32 pos, MBCHAR *text )
+BOOL TextTable::AddRow( uint32 pos, MBCHAR const *text )
 {
 
 	uint32 i = 0;
@@ -343,7 +343,7 @@ BOOL TextTable::AddRow( uint32 pos, MBCHAR *text )
 	return TRUE;
 }
 
-BOOL TextTable::SetTextEntry( uint32 row, uint32 column, MBCHAR *text )
+BOOL TextTable::SetTextEntry( uint32 row, uint32 column, MBCHAR const *text )
 {
 	uint32 i,j;
 
@@ -373,7 +373,7 @@ BOOL TextTable::SetTextEntry( uint32 row, uint32 column, MBCHAR *text )
 }
 
 
-BOOL TextTable::SetTextHeader( uint32 pos, MBCHAR *text )
+BOOL TextTable::SetTextHeader( uint32 pos, MBCHAR const *text )
 {
 	uint32 i = 0;
 

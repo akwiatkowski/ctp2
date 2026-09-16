@@ -20,7 +20,7 @@
 c3_Radio::c3_Radio(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -45,7 +45,7 @@ c3_Radio::c3_Radio(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	ControlActionCallback *ActionFunc,
 	void *cookie,
 	sint32 state,
@@ -65,7 +65,7 @@ c3_Radio::c3_Radio(
 }
 
 
-AUI_ERRCODE c3_Radio::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE c3_Radio::InitCommonLdl( MBCHAR const *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );

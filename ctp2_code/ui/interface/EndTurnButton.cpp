@@ -10,7 +10,7 @@
 #include "ui/interface/AttractWindow.h"
 #include "gfx/spritesys/director.h"
 
-EndTurnButton::EndTurnButton(MBCHAR *ldlBlock) :
+EndTurnButton::EndTurnButton(MBCHAR const *ldlBlock) :
 m_endTurn(static_cast<ctp2_Button*>(aui_Ldl::GetObject(ldlBlock, "TurnButton")))
 {
 

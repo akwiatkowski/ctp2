@@ -23,11 +23,8 @@ public:
 	void Packetize(uint8 *buf, uint16 &size) override;
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
-	sint32 m_index;
-	PLAYER_INDEX m_player;
-	uint32 m_unitId[k_MAX_ARMY_SIZE];
-	uint8 m_numUnits;
-	CAUSE_NEW_ARMY m_cause;
+	// Packet bodies were never implemented (legacy multiplayer is stubbed);
+	// the write-only mirror fields of the ctor args are gone.
 };
 
 class NetRemoveArmy : public Packetizer
@@ -40,12 +37,7 @@ public:
 	void Packetize(uint8 *buf, uint16 &size) override;
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 
-private:
-	sint32 m_index;
-	PLAYER_INDEX m_player;
-	uint32 m_unitId[k_MAX_ARMY_SIZE];
-	uint8 m_numUnits;
-	CAUSE_REMOVE_ARMY m_cause;
+
 };
 
 class NetArmy : public Packetizer

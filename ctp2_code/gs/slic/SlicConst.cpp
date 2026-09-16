@@ -3,7 +3,7 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/diplomacy/diplomacy_types.h"
 
-char *slic_const_test_names[] = {
+char const *slic_const_test_names[] = {
 	"Continue",
 	"GetInput",
 	"Stop",

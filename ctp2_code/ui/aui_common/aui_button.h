@@ -56,7 +56,7 @@ public:
 	aui_Button(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	aui_Button(
@@ -86,7 +86,7 @@ protected:
         m_repeatCount   (0)
     {};
 
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 
 	void	KeyboardCallback(aui_KeyboardEvent * keyboardData) override;
 

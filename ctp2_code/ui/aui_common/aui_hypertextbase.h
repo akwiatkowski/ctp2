@@ -24,18 +24,18 @@ public:
 
 	aui_HyperTextBase(
 		AUI_ERRCODE *retval,
-		MBCHAR *ldlBlock );
+		MBCHAR const *ldlBlock );
 	aui_HyperTextBase(
 		AUI_ERRCODE *retval,
-		MBCHAR *hyperText,
+		MBCHAR const *hyperText,
 		uint32 hyperMaxLen );
 	virtual ~aui_HyperTextBase();
 
 protected:
 	aui_HyperTextBase() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon(
-		MBCHAR *hyperText,
+		MBCHAR const *hyperText,
 		uint32 hyperMaxLen );
 
 public:

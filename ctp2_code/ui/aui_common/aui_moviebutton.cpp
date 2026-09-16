@@ -15,7 +15,7 @@
 aui_MovieButton::aui_MovieButton(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -62,7 +62,7 @@ aui_MovieButton::aui_MovieButton(
 }
 
 
-AUI_ERRCODE aui_MovieButton::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_MovieButton::InitCommonLdl( MBCHAR const *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
@@ -75,7 +75,7 @@ AUI_ERRCODE aui_MovieButton::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE aui_MovieButton::InitCommon( MBCHAR *movie )
+AUI_ERRCODE aui_MovieButton::InitCommon( MBCHAR const *movie )
 {
 	m_movie = nullptr;
 

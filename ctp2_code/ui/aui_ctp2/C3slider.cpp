@@ -55,7 +55,7 @@
 C3Slider::C3Slider(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -100,7 +100,7 @@ C3Slider::C3Slider(
 	sint32 width,
 	sint32 height,
 	BOOL isVertical,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -124,7 +124,7 @@ C3Slider::C3Slider(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon((MBCHAR **)nullptr );
+	*retval = aui_SoundBase::InitCommon((MBCHAR const **)nullptr);
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -141,7 +141,7 @@ C3Slider::C3Slider(
 }
 
 
-AUI_ERRCODE C3Slider::InitCommon( MBCHAR *ldlBlock )
+AUI_ERRCODE C3Slider::InitCommon( MBCHAR const *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
@@ -159,7 +159,7 @@ AUI_ERRCODE C3Slider::InitCommon( )
 }
 
 
-AUI_ERRCODE C3Slider::CreateThumb( MBCHAR *ldlBlock )
+AUI_ERRCODE C3Slider::CreateThumb( MBCHAR const *ldlBlock )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 

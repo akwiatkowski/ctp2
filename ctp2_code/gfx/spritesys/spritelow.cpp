@@ -56,7 +56,6 @@ void Sprite::DrawLowClipped565(Pixel16 *frame, sint32 drawX, sint32 drawY, sint3
 	surfBase = m_surfBase + (drawY * surfPitch) + (drawX * step);
 
 	uint8			*destPixel;
-	Pixel16		*srcPixel = (Pixel16 *)frame;
 
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;
@@ -227,7 +226,6 @@ void Sprite::DrawLow565(Pixel16 *frame, sint32 drawX, sint32 drawY, sint32 width
 
 
 	uint8			*destPixel;
-	Pixel16		*srcPixel = (Pixel16 *)frame;
 
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;
@@ -384,7 +382,6 @@ void Sprite::DrawLowReversedClipped565(Pixel16 *frame, sint32 drawX, sint32 draw
 	surfBase = m_surfBase + (drawY * surfPitch) + (drawX * step);
 
 	uint8			*destPixel;
-	Pixel16		*srcPixel = (Pixel16 *)frame;
 
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;
@@ -553,7 +550,6 @@ void Sprite::DrawLowReversed565(Pixel16 *frame, sint32 drawX, sint32 drawY, sint
 
 
 	uint8			*destPixel;
-	Pixel16  *srcPixel = (Pixel16 *)frame;
 
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;
@@ -678,7 +674,6 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 	if (destRect.bottom > surfHeight) return;
 
 	uint8			*destPixel;
-	Pixel16			*srcPixel = (Pixel16 *)data;
 
 	Pixel16			*table = data+1;
 	Pixel16			*dataStart = table + m_height;
@@ -955,7 +950,6 @@ void Sprite::DrawFlashLow565(Pixel16 *frame, sint32 drawX, sint32 drawY, sint32 
 	if (destRect.bottom > surfHeight) return;
 
 	uint8			*destPixel;
-	Pixel16  *srcPixel = (Pixel16 *)frame;
 
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;
@@ -1040,7 +1034,6 @@ void Sprite::DrawFlashLowReversed565(Pixel16 *frame, sint32 drawX, sint32 drawY,
 	if (destRect.bottom > surfHeight) return;
 
 	uint8			*destPixel;
-	Pixel16  *srcPixel = (Pixel16 *)frame;
 
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;
@@ -1152,7 +1145,6 @@ void Sprite::DrawFlashScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 des
 	if (destRect.bottom > surfHeight) return;
 
 	uint8			*destPixel;
-	Pixel16			*srcPixel = (Pixel16 *)data;
 
 	Pixel16			*table = data+1;
 	Pixel16			*dataStart = table + m_height;
@@ -1414,7 +1406,6 @@ void Sprite::DrawReflectionLow565(Pixel16 *frame, sint32 drawX, sint32 drawY, si
 	if (destRect.bottom > surfHeight) return;
 
 	uint8			*destPixel;
-	Pixel16  *srcPixel = (Pixel16 *)frame;
 
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;

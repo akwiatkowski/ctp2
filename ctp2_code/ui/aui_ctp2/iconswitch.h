@@ -19,7 +19,7 @@ public:
 		uint32 id,
 		sint32 x,
 		sint32 y,
-		MBCHAR *pattern = nullptr,
+		MBCHAR const *pattern = nullptr,
 		Icon *icon = nullptr,
 		uint16 color = 0,
 		ControlActionCallback *ActionFunc = nullptr,

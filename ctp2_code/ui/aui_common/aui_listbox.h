@@ -83,7 +83,7 @@ public:
 	aui_ListBox(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	aui_ListBox(
@@ -99,9 +99,9 @@ public:
 
 protected:
 	aui_ListBox() : aui_Control() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
-	AUI_ERRCODE CreateRangersAndHeader( MBCHAR *ldlBlock = nullptr );
+	AUI_ERRCODE CreateRangersAndHeader( MBCHAR const *ldlBlock = nullptr );
 
 public:
 	AUI_ERRCODE	Resize( sint32 width, sint32 height ) override;

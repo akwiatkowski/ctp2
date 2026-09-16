@@ -54,7 +54,7 @@ public:
 	void *                      m_userData;
 	CTP2ItemCompareCallback *   m_compareCallback;
 
-	ctp2_ListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock);
+	ctp2_ListItem(AUI_ERRCODE *retval, MBCHAR const *ldlBlock);
 	~ctp2_ListItem() override;
 
 	AUI_ERRCODE Draw( aui_Surface *surface, sint32 x, sint32 y ) override;

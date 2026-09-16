@@ -17,7 +17,7 @@
 ctp2_Static::ctp2_Static(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock )
+	MBCHAR const *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
 	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
@@ -47,8 +47,8 @@ ctp2_Static::ctp2_Static(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
-	MBCHAR *text,
+	MBCHAR const *pattern,
+	MBCHAR const *text,
 	uint32 maxLength,
 	uint32 bevelWidth,
 	uint32 bevelType)
@@ -71,7 +71,7 @@ ctp2_Static::ctp2_Static(
 }
 
 
-AUI_ERRCODE ctp2_Static::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE ctp2_Static::InitCommonLdl( MBCHAR const *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );

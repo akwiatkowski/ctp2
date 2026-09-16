@@ -214,7 +214,7 @@ AUI_ERRCODE aui_Region::InitCommonLdl(MBCHAR const * ldlBlock)
 	if(block->GetAttributeType(k_AUI_REGION_LDL_BLINDNESS))
 		m_blind = block->GetBool(k_AUI_REGION_LDL_BLINDNESS);
 
-	if (MBCHAR * horizontalAnchor = block->GetString(k_AUI_LDL_HANCHOR))
+	if (MBCHAR const * horizontalAnchor = block->GetString(k_AUI_LDL_HANCHOR))
 	{
 		if (stricmp(horizontalAnchor, "right") == 0 )
         {
@@ -232,7 +232,7 @@ AUI_ERRCODE aui_Region::InitCommonLdl(MBCHAR const * ldlBlock)
 	else
 		m_dim->AnchorLeft();
 
-	if (MBCHAR * verticalAnchor = block->GetString(k_AUI_LDL_VANCHOR))
+	if (MBCHAR const * verticalAnchor = block->GetString(k_AUI_LDL_VANCHOR))
 	{
 		if (stricmp(verticalAnchor, "bottom") == 0)
         {

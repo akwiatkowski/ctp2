@@ -11,7 +11,7 @@ public:
 	aui_Static(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock );
+		MBCHAR const *ldlBlock );
 	aui_Static(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -25,7 +25,7 @@ public:
 
 protected:
 	aui_Static() : aui_Control() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
 };
 

@@ -19,7 +19,7 @@
 c3_ColoredSwitch::c3_ColoredSwitch(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 :
@@ -43,7 +43,7 @@ c3_ColoredSwitch::c3_ColoredSwitch(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	ControlActionCallback *ActionFunc,
 	void *cookie,
 	sint32 state,
@@ -62,7 +62,7 @@ c3_ColoredSwitch::c3_ColoredSwitch(
 }
 
 
-AUI_ERRCODE c3_ColoredSwitch::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE c3_ColoredSwitch::InitCommonLdl( MBCHAR const *ldlBlock )
 {
 	sint32		bevelWidth=k_C3_COLOREDSWITCH_DEFAULT_BEVELWIDTH;
 

@@ -56,7 +56,7 @@ public:
 	aui_ProgressBar(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock );
+		MBCHAR const *ldlBlock );
 	aui_ProgressBar(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -68,12 +68,12 @@ public:
 
 protected:
 	aui_ProgressBar() : aui_Control() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon(
 		AUI_PROGRESSBAR_ORIENTATION orientation,
 		AUI_PROGRESSBAR_TYPE type,
 		sint32 vps,
-		MBCHAR *image,
+		MBCHAR const *image,
 		COLORREF color,
 		sint32 curValue,
 		sint32 maxValue );
@@ -95,7 +95,7 @@ public:
 	sint32 GetValuesPerSecond( ) const { return m_vps; }
 	sint32 SetValuesPerSecond( sint32 vps );
 
-	aui_Image	*SetBarImage( MBCHAR *image );
+	aui_Image	*SetBarImage( MBCHAR const *image );
 	COLORREF	SetBarColor( COLORREF color );
 
 	AUI_ERRCODE DrawThis(

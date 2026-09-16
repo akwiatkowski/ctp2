@@ -98,12 +98,13 @@
 #define k_GROW_DB_STEP 10
 
 template <class T> CTPDatabase<T>::CTPDatabase()
-:
-    m_numRecords        (0),
+    // Initializer order must match the declaration order in CTPDatabase.h
+    // (m_records, m_numRecords, m_allocatedSize, ...) or -Wreorder-ctor fires
+:    m_numRecords        (0),
+    m_allocatedSize     (k_INITIAL_DB_SIZE),
     m_modifiedRecords   (),
     m_indexToAlpha      (nullptr),
-    m_alphaToIndex      (nullptr),
-    m_allocatedSize     (k_INITIAL_DB_SIZE)
+    m_alphaToIndex      (nullptr)
 {
 	m_records       = new T *[m_allocatedSize];
 	m_modifiedList  = new PointerList<GovernmentModifiedRecordNode> *[m_allocatedSize];

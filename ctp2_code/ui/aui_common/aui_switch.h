@@ -61,7 +61,7 @@ public:
 	aui_Switch(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *StateFunc = nullptr,
 		void *cookie = nullptr );
 	aui_Switch(
@@ -111,7 +111,7 @@ protected:
 		m_drawCookie            (nullptr)
 	{};
 
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( sint32 state, sint32 numStates );
 
 	sint32	m_state;

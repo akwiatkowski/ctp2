@@ -22,7 +22,7 @@
 
 UnitTabButton::UnitTabButton(AUI_ERRCODE *retval,
 					   uint32 id,
-					   MBCHAR *ldlBlock,
+					   MBCHAR const *ldlBlock,
 					   ControlActionCallback *ActionFunc,
 					   void *cookie)
 	:
@@ -43,7 +43,7 @@ UnitTabButton::UnitTabButton(AUI_ERRCODE *retval,
 					   sint32 y,
 					   sint32 width,
 					   sint32 height,
-					   MBCHAR *pattern,
+					   MBCHAR const *pattern,
 					   sint32 barHeight,
 					   ControlActionCallback *ActionFunc,
 					   void *cookie)

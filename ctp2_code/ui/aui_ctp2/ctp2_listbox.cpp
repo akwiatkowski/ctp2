@@ -63,7 +63,7 @@ uint32 ctp2_ListBox::m_ctp2_listboxClassId = aui_UniqueId();
 ctp2_ListBox::ctp2_ListBox(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -105,7 +105,7 @@ ctp2_ListBox::ctp2_ListBox(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	sint32 bevelWidth,
 	sint32 bevelType,
 	ControlActionCallback *ActionFunc,
@@ -120,7 +120,7 @@ ctp2_ListBox::ctp2_ListBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon( (MBCHAR **)nullptr );
+	*retval = aui_SoundBase::InitCommon( (MBCHAR const **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -161,7 +161,7 @@ ctp2_ListBox::~ctp2_ListBox()
 }
 
 
-AUI_ERRCODE ctp2_ListBox::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE ctp2_ListBox::InitCommonLdl( MBCHAR const *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
@@ -196,7 +196,7 @@ AUI_ERRCODE ctp2_ListBox::InitCommon(sint32 bevelWidth, sint32 bevelType)
 
 
 
-AUI_ERRCODE ctp2_ListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
+AUI_ERRCODE ctp2_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		*patternFilename = nullptr;

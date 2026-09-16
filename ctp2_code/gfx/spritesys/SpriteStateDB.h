@@ -35,7 +35,7 @@ public:
 	void SetSize(sint32 size);
 	sint32 FindTypeIndex(char *str) const;
 	sint32 GetDefaultVal(sint32 index) const;
-    void SetName(sint32 count, char str[_MAX_PATH]);
+    void SetName(sint32 count, char const str[_MAX_PATH]);
     void SetVal(sint32 count, sint32 val);
 
 	sint32 ParseASpriteState (Token *spriteToken, sint32 count);

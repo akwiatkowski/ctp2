@@ -92,6 +92,11 @@ void DrawTradeRouteSegment(aui_Surface *surf, MapPoint &pos, WORLD_DIRECTION dir
 		x2 = x1;
 		y2 = y1 + tiledmap_Get()->GetZoomTilePixelHeight()/2;
 		break;
+	// Vertical/sentinel directions never route trade: no segment to draw.
+	case DOWN :
+	case UP :
+	case NOWHERE :
+		break;
 	}
 
 	x1 += tiledmap_Get()->GetZoomTilePixelWidth()/2;
@@ -165,6 +170,12 @@ void DrawReversedTradeRouteSegment(aui_Surface *surf, MapPoint &pos, WORLD_DIREC
 	case WEST :			revDir = EAST;		break;
 	case SOUTHWEST :	revDir = NORTHEAST;	break;
 	case SOUTH :		revDir = NORTH;		break;
+	// Vertical/sentinel directions have no reverse; revDir stays NOWHERE
+	// and DrawTradeRouteSegment draws nothing for it.
+	case DOWN :
+	case UP :
+	case NOWHERE :
+		break;
 	}
 
 	DrawTradeRouteSegment(surf, pos, revDir, route, outline);

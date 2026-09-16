@@ -8,7 +8,7 @@
 aui_SwitchGroup::aui_SwitchGroup(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock )
+	MBCHAR const *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
 	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
@@ -44,7 +44,7 @@ aui_SwitchGroup::aui_SwitchGroup(
 }
 
 
-AUI_ERRCODE aui_SwitchGroup::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_SwitchGroup::InitCommonLdl( MBCHAR const *ldlBlock )
 {
 	return InitCommon();
 }

@@ -16,7 +16,7 @@ public:
 	aui_TextBox(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock,
+		MBCHAR const *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	aui_TextBox(
@@ -26,14 +26,14 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *text = nullptr,
+		MBCHAR const *text = nullptr,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 	~aui_TextBox() override;
 
 protected:
 	aui_TextBox() : aui_ListBox() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
 
 public:

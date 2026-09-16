@@ -74,7 +74,7 @@ void MainControlPanel::InitializeEvents()
 	gevmanager_Get()->AddCallback(GEV_BeginTurn, GEV_PRI_Post, &s_MainControlPanel_BeginTurn);
 }
 
-void MainControlPanel::Initialize(MBCHAR *ldlBlock)
+void MainControlPanel::Initialize(MBCHAR const *ldlBlock)
 {
 	if (!g_mainControlPanel)
 	{
@@ -172,7 +172,7 @@ aui_ProgressBar* MainControlPanel::GetProgressBar()
 	return s_progressBar;
 }
 
-MainControlPanel::MainControlPanel(MBCHAR *ldlBlock)
+MainControlPanel::MainControlPanel(MBCHAR const *ldlBlock)
 :
     m_controlTabPanel   (new ControlTabPanel(ldlBlock)),
     m_endTurnButton     (new EndTurnButton(ldlBlock)),

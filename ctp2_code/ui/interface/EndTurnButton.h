@@ -13,7 +13,7 @@ class ctp2_Button;
 class EndTurnButton {
 public:
 
-	EndTurnButton(MBCHAR *ldlBlock);
+	EndTurnButton(MBCHAR const *ldlBlock);
 
 
 	void UpdatePlayer(PLAYER_INDEX player);

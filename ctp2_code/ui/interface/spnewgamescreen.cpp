@@ -607,7 +607,7 @@ spnewgamescreen_pollutionPress(aui_Control *control, uint32 action, uint32 data,
 
 
 
-c3_Button* spNew_c3_Button(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe,
+c3_Button* spNew_c3_Button(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR const *ldlMe,
 					void (*callback)(aui_Control*,uint32,uint32,void*))
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -616,7 +616,7 @@ c3_Button* spNew_c3_Button(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe
 	return new c3_Button(errcode, aui_UniqueId(), textBlock, callback);
 }
 
-ctp2_Button* spNew_ctp2_Button(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe,
+ctp2_Button* spNew_ctp2_Button(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR const *ldlMe,
 							   void (*callback)(aui_Control*,uint32,uint32,void*))
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -630,8 +630,8 @@ ctp2_Button* spNew_ctp2_Button(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *l
 
 ctp2_Button*
 spNew_ctp2_Button(AUI_ERRCODE *errcode,
-				  MBCHAR *ldlParent,
-				  MBCHAR *ldlMe,
+				  MBCHAR const *ldlParent,
+				  MBCHAR const *ldlMe,
 				  MBCHAR *default_text,
 				  void (*callback)(aui_Control*,uint32,uint32,void*),
 				  MBCHAR *buttonFlavor)
@@ -654,7 +654,7 @@ spNew_ctp2_Button(AUI_ERRCODE *errcode,
 }
 
 
-c3_Switch* spNew_c3_Switch(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe,
+c3_Switch* spNew_c3_Switch(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR const *ldlMe,
 					void (*callback)(aui_Control*,uint32,uint32,void*), void *cookie)
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -665,7 +665,7 @@ c3_Switch* spNew_c3_Switch(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe
 
 aui_Switch* spNew_aui_Switch(
 	AUI_ERRCODE *errcode,
-	MBCHAR *ldlParent,MBCHAR *ldlMe,
+	MBCHAR const *ldlParent,MBCHAR const *ldlMe,
 	void (*callback)(aui_Control*,uint32,uint32,void*),
 	void *cookie)
 {
@@ -675,7 +675,7 @@ aui_Switch* spNew_aui_Switch(
 	return new aui_Switch( errcode, aui_UniqueId(), textBlock, callback, cookie );
 }
 
-c3_ListBox* spNew_c3_ListBox(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe,
+c3_ListBox* spNew_c3_ListBox(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR const *ldlMe,
 					void (*callback)(aui_Control*,uint32,uint32,void*),
 					void *cookie)
 {
@@ -685,7 +685,7 @@ c3_ListBox* spNew_c3_ListBox(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldl
 	return new c3_ListBox(errcode,aui_UniqueId(), textBlock, callback,cookie );
 }
 
-c3_DropDown* spNew_c3_DropDown(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe,
+c3_DropDown* spNew_c3_DropDown(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR const *ldlMe,
 					void (*callback)(aui_Control*,uint32,uint32,void*))
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -697,12 +697,12 @@ c3_DropDown* spNew_c3_DropDown(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *l
 	return myDropDown;
 }
 
-aui_StringTable* spNewStringTable(AUI_ERRCODE *errcode, MBCHAR *ldlme)
+aui_StringTable* spNewStringTable(AUI_ERRCODE *errcode, MBCHAR const *ldlme)
 {
 	return new aui_StringTable(errcode, ldlme);
 }
 
-void spFillDropDown(AUI_ERRCODE *retval, c3_DropDown *mydrop, aui_StringTable *mytable, MBCHAR *listitemparent, MBCHAR *listitemme)
+void spFillDropDown(AUI_ERRCODE *retval, c3_DropDown *mydrop, aui_StringTable *mytable, MBCHAR const *listitemparent, MBCHAR const *listitemme)
 {
 	for (sint32 i = 0; i < mytable->GetNumStrings(); ++i)
     {
@@ -723,7 +723,7 @@ void spFillListBox(AUI_ERRCODE *retval, c3_ListBox *mylist, aui_StringTable *myt
 	}
 }
 
-c3_Static* spNew_c3_Static(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe)
+c3_Static* spNew_c3_Static(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR const *ldlMe)
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
@@ -731,7 +731,7 @@ c3_Static* spNew_c3_Static(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe
 	return new c3_Static(errcode, aui_UniqueId(), textBlock);
 }
 
-C3TextField* spNewTextEntry(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe,
+C3TextField* spNewTextEntry(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR const *ldlMe,
 					void (*callback)(aui_Control*,uint32,uint32,void*),void *cookie )
 
 {
@@ -741,7 +741,7 @@ C3TextField* spNewTextEntry(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlM
 	return new C3TextField( errcode, aui_UniqueId(), textBlock, callback, cookie);
 }
 
-TwoChoiceButton* spNewTwoChoiceButton(AUI_ERRCODE *errcode, MBCHAR* ldlParent, MBCHAR *ldlMe,
+TwoChoiceButton* spNewTwoChoiceButton(AUI_ERRCODE *errcode, MBCHAR* ldlParent, MBCHAR const *ldlMe,
 					MBCHAR *ldlstringtable,uint32 state,
 					void (*callback)(aui_Control*,uint32,uint32,void*))
 {
@@ -759,7 +759,7 @@ TwoChoiceButton* spNewTwoChoiceButton(AUI_ERRCODE *errcode, MBCHAR* ldlParent, M
 	return mybutton;
 }
 
-C3Slider* spNew_C3Slider(AUI_ERRCODE *errcode, MBCHAR *ldlParent, MBCHAR *ldlMe,
+C3Slider* spNew_C3Slider(AUI_ERRCODE *errcode, MBCHAR const *ldlParent, MBCHAR const *ldlMe,
 	 					void (*callback)(aui_Control*,uint32,uint32,void*))
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -767,7 +767,7 @@ C3Slider* spNew_C3Slider(AUI_ERRCODE *errcode, MBCHAR *ldlParent, MBCHAR *ldlMe,
 
     return new C3Slider(errcode, aui_UniqueId(), textBlock, callback);
 }
-c3_CheckBox* spNew_c3_CheckBox(AUI_ERRCODE *errcode, MBCHAR* ldlParent, MBCHAR *ldlMe,
+c3_CheckBox* spNew_c3_CheckBox(AUI_ERRCODE *errcode, MBCHAR* ldlParent, MBCHAR const *ldlMe,
 					uint32 state, void (*callback)(aui_Control*,uint32,uint32,void*), void*cookie)
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -778,7 +778,7 @@ c3_CheckBox* spNew_c3_CheckBox(AUI_ERRCODE *errcode, MBCHAR* ldlParent, MBCHAR *
 
 	return mycheck;
 }
-aui_SwitchGroup* spNew_aui_SwitchGroup( AUI_ERRCODE *errcode, MBCHAR *ldlParent, MBCHAR *ldlMe )
+aui_SwitchGroup* spNew_aui_SwitchGroup( AUI_ERRCODE *errcode, MBCHAR const *ldlParent, MBCHAR const *ldlMe )
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );

@@ -85,7 +85,7 @@ int				Debug_FunctionNameOpenFromPDB(void);
 #endif // WIN32
 
 void Debug_FunctionNameClose ();
-char *Debug_FunctionNameGet (unsigned address);
+char const *Debug_FunctionNameGet (unsigned address);
 
 #define DEBUG_CODE_LIMIT 0x80000000
 #define BUFFER_SIZE      (2000)
@@ -188,8 +188,8 @@ static LONG _cdecl MemoryAccessExceptionFilter (LPEXCEPTION_POINTERS ep)
 
 
 
-static char *unknown = "(unknown)";
-static char *kernel  = "(kernel)";
+static char const *unknown = "(unknown)";
+static char const *kernel  = "(kernel)";
 static int function_name_open = 0;
 
 
@@ -458,7 +458,7 @@ void Debug_FunctionNameClose ()
 
 
 
-char *Debug_FunctionNameGet (unsigned address)
+char const *Debug_FunctionNameGet (unsigned address)
 {
   FUNCTION_ADDRESS *pointer;
 
@@ -488,7 +488,7 @@ char *Debug_FunctionNameGet (unsigned address)
 }
 
 
-char *Debug_FunctionNameAndOffsetGet (unsigned address, int *offset)
+char const *Debug_FunctionNameAndOffsetGet (unsigned address, int *offset)
 {
 	FUNCTION_ADDRESS *pointer;
 	*offset = 0;
@@ -567,7 +567,7 @@ unsigned char Debug_NumToChar (unsigned char byte)
 
 void DebugCallStack_DumpAddress (LogClass log_class, unsigned address)
 {
-	char	*caller_name;
+	char const *caller_name;
 	int		offset;
 
 	caller_name = Debug_FunctionNameAndOffsetGet (address, &offset);
@@ -801,7 +801,7 @@ void DebugCallStack_Show  (LogClass log_class, unsigned *call_stack, int number)
 {
 #ifdef WIN32
   unsigned caller;
-  char *caller_name;
+  char const *caller_name;
   int index;
 
 
@@ -848,7 +848,7 @@ void DebugCallStack_ShowToFile  (LogClass log_class, unsigned *call_stack, int n
 {
 #ifdef WIN32
 	unsigned caller;
-	char *caller_name;
+	char const *caller_name;
 	int index;
 
 	char allocator_name[1024];
@@ -897,7 +897,7 @@ void DebugCallStack_ShowToFile  (LogClass log_class, unsigned *call_stack, int n
 void DebugCallStack_ShowToAltFile  (LogClass log_class, unsigned *call_stack, int number, FILE *file)
 {
 	unsigned caller;
-	char *caller_name;
+	char const *caller_name;
 	int index = 3;
 
 	char buff[8196];
@@ -926,10 +926,10 @@ void DebugCallStack_ShowToAltFile  (LogClass log_class, unsigned *call_stack, in
 	fprintf(file, "\n");
 }
 
-char * c3debug_StackTrace()
+char const * c3debug_StackTrace()
 {
 	unsigned caller;
-	char *caller_name;
+	char const *caller_name;
 	int index;
 	MBCHAR function_name[16384];
 
@@ -961,14 +961,14 @@ char * c3debug_StackTrace()
 }
 
 #ifdef WIN32
-char * c3debug_ExceptionStackTrace(LPEXCEPTION_POINTERS exception)
+char const * c3debug_ExceptionStackTrace(LPEXCEPTION_POINTERS exception)
 {
 	if(!function_name_open) {
 		DebugCallStack_Open();
 	}
 
 	unsigned caller;
-	char *caller_name;
+	char const *caller_name;
 	int index;
 	MBCHAR function_name[_MAX_PATH];
 
@@ -1009,7 +1009,7 @@ char * c3debug_ExceptionStackTrace(LPEXCEPTION_POINTERS exception)
 }
 #endif // WIN32
 
-char * c3debug_ExceptionStackTraceFromFile(FILE *f)
+char const * c3debug_ExceptionStackTraceFromFile(FILE *f)
 {
 	if(!function_name_open) {
 		DebugCallStack_Open();
@@ -1017,7 +1017,7 @@ char * c3debug_ExceptionStackTraceFromFile(FILE *f)
 
 	unsigned caller;
 	char line[1024];
-	char *caller_name;
+	char const *caller_name;
 
 	int offset;
 

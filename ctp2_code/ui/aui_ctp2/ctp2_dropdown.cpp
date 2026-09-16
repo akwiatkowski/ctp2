@@ -57,7 +57,7 @@ ctp2_DropDown::ctp2_DropDown(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
+	MBCHAR const *pattern,
 	sint32 buttonSize,
 	sint32 windowSize,
 	ControlActionCallback *ActionFunc,
@@ -76,7 +76,7 @@ ctp2_DropDown::ctp2_DropDown(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon( (MBCHAR **)nullptr );
+	*retval = aui_SoundBase::InitCommon( (MBCHAR const **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -91,7 +91,7 @@ ctp2_DropDown::ctp2_DropDown(
 ctp2_DropDown::ctp2_DropDown(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie)
 	:
@@ -121,12 +121,12 @@ ctp2_DropDown::ctp2_DropDown(
 }
 
 
-AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR *ldlBlock )
+AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 {
 	static MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-    MBCHAR *    pattern = (m_pattern) ? m_pattern->GetFilename() : nullptr;
+    MBCHAR const *    pattern = (m_pattern) ? m_pattern->GetFilename() : nullptr;
 
 	if ( ldlBlock )
 	{

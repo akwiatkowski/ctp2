@@ -35,7 +35,7 @@ AUI_ERRCODE PatternBase::InitCommonLdl( MBCHAR const *ldlBlock, MBCHAR const *pa
 	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
-	MBCHAR *name = block->GetString( pattern ? pattern : "pattern" );
+	MBCHAR const *name = block->GetString( pattern ? pattern : "pattern" );
 
 	if (block->GetAttributeType( k_PATTERNBASE_LDL_SRCXPIX ) == ATTRIBUTE_TYPE_INT) {
 		m_srcX = block->GetInt( k_PATTERNBASE_LDL_SRCXPIX );

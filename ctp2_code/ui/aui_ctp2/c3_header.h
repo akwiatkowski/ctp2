@@ -15,7 +15,7 @@ public:
 	c3_Header(
 		AUI_ERRCODE *retval,
 		uint32 id,
-		MBCHAR *ldlBlock );
+		MBCHAR const *ldlBlock );
 	c3_Header(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -27,9 +27,9 @@ public:
 
 protected:
 	c3_Header() : aui_Header() {}
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
-	AUI_ERRCODE CreateSwitches( MBCHAR *ldlBlock = nullptr );
+	AUI_ERRCODE CreateSwitches( MBCHAR const *ldlBlock = nullptr );
 };
 
 #endif

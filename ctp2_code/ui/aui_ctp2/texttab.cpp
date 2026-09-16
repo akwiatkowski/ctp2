@@ -24,7 +24,7 @@
 TextTab::TextTab(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie)
 	:
@@ -50,8 +50,8 @@ TextTab::TextTab(
 	sint32 height,
 	sint32 paneWidth,
 	sint32 paneHeight,
-	MBCHAR *pattern,
-	MBCHAR *text,
+	MBCHAR const *pattern,
+	MBCHAR const *text,
 	ControlActionCallback *ActionFunc,
 	void *cookie,
 	BOOL selected )

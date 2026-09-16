@@ -13,7 +13,7 @@
 RadioGroup::RadioGroup(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock )
+	MBCHAR const *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
 	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
@@ -30,8 +30,8 @@ RadioGroup::RadioGroup(
 	sint32 y,
 	sint32 width,
 	sint32 height,
-	MBCHAR *pattern,
-	MBCHAR *text )
+	MBCHAR const *pattern,
+	MBCHAR const *text )
 	:
 	aui_ImageBase( (sint32)0 ),
 	aui_TextBase( text ),

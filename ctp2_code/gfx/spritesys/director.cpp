@@ -585,6 +585,11 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("  player: %d\n", action->player));
       break;
     }
+    // Debug dump only: newer queue kinds have no per-field dump yet.
+    case DQITEM_INVOKE_THRONE_ROOM:
+    case DQITEM_INVOKE_RESEARCH_ADVANCE:
+    case DQITEM_MAX:
+      break;
   }
 }
 

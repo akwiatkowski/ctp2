@@ -68,20 +68,20 @@ public:
 
 	ctp2_Static(AUI_ERRCODE *retval,
 						uint32 id,
-						MBCHAR *ldlBlock );
+						MBCHAR const *ldlBlock );
 	ctp2_Static(AUI_ERRCODE *retval,
 						uint32 id,
 						sint32 x,
 						sint32 y,
 						sint32 width,
 						sint32 height,
-						MBCHAR *pattern,
-						MBCHAR *text,
+						MBCHAR const *pattern,
+						MBCHAR const *text,
 						uint32 maxLength,
 						uint32 bevelWidth,
 						uint32 bevelType);
 
-	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
+	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon(uint32 bevelWidth, uint32 bevelType );
 
 	AUI_ERRCODE DrawThis(aui_Surface *surface,

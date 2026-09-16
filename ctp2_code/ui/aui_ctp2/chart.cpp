@@ -38,7 +38,7 @@ extern ProjectFile	*g_GreatLibPF;
 
 Chart::Chart( AUI_ERRCODE *retval,
 			 uint32 id,
-			 MBCHAR *ldlBlock,
+			 MBCHAR const *ldlBlock,
 			 ControlActionCallback *ActionFunc,
 			 void *cookie )
 	:
@@ -55,7 +55,7 @@ Chart::Chart( AUI_ERRCODE *retval,
 			 sint32 y,
 			 sint32 width,
 			 sint32 height,
-			 MBCHAR *pattern,
+			 MBCHAR const *pattern,
 			 ControlActionCallback *ActionFunc,
 			 void *cookie )
 	:
@@ -66,7 +66,7 @@ Chart::Chart( AUI_ERRCODE *retval,
 	InitCommon( nullptr );
 }
 
-AUI_ERRCODE Chart::InitCommon( MBCHAR *ldlBlock )
+AUI_ERRCODE Chart::InitCommon( MBCHAR const *ldlBlock )
 {
 	sint32 i;
 	AUI_ERRCODE errcode;

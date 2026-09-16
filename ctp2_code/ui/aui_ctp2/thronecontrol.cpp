@@ -56,7 +56,7 @@
 
 
 
-static MBCHAR *s_throneImage[ k_THRONE_IMAGES + 1 ];
+static MBCHAR const *s_throneImage[ k_THRONE_IMAGES + 1 ];
 
 static POINT	s_upgradeLoc[k_THRONE_IMAGES] = { 0, 230, 204, 204, 210, 300, 284, 380, 410, 250 };
 
@@ -89,7 +89,7 @@ void ZoomedImageActionCallback( aui_Control *control, uint32 action, uint32 data
 
 ThroneControl::ThroneControl(AUI_ERRCODE *retval,
 							sint32 id,
-							MBCHAR *ldlBlock,
+							MBCHAR const *ldlBlock,
 							ControlActionCallback *ActionFunc,
 							void *cookie)
 	:
@@ -107,7 +107,7 @@ ThroneControl::ThroneControl(AUI_ERRCODE *retval,
 							sint32 y,
 							sint32 width,
 							sint32 height,
-							MBCHAR *pattern,
+							MBCHAR const *pattern,
 							ControlActionCallback *ActionFunc,
 							void *cookie)
 	:
@@ -134,7 +134,7 @@ ThroneControl::~ThroneControl()
 #undef cleanup
 }
 
-void ThroneControl::InitCommonLdl(MBCHAR *ldlBlock)
+void ThroneControl::InitCommonLdl(MBCHAR const *ldlBlock)
 {
     ldl_datablock * datablock = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert(datablock);

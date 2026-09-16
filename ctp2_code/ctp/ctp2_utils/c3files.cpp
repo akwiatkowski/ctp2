@@ -68,6 +68,15 @@ FILE* c3files_fopen(C3DIR dirID, MBCHAR const * s1, MBCHAR const * s2, bool chec
 {
 	MBCHAR  s[_MAX_PATH];
 
+	// C3DIR_DIRECT does not consult the CivPaths search list (FindFile just
+	// copies the name through), so it stays usable in test harnesses that
+	// never initialise g_civPaths — guard the deref instead of crashing.
+	if (civpaths_Get() == nullptr) {
+		if (dirID != C3DIR_DIRECT)
+			return nullptr;
+		return fopen(s1, s2);
+	}
+
 	return civpaths_Get()->FindFile(dirID, s1, s, false, true, checkScenario) ? fopen(s, s2) : nullptr;
 }
 

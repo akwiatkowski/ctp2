@@ -25,18 +25,18 @@ class ldl;
 
 class ldl_attribute {
   protected:
-	char *m_name;
+	char const *m_name;
 	ATTRIBUTE_TYPE m_type;
 	ldl_attribute *m_next;
 	friend class ldl_attributelist;
 
   public:
-	ldl_attribute(char *name, ATTRIBUTE_TYPE type) { m_name = name; m_type = type; m_next = nullptr; }
+	ldl_attribute(char const *name, ATTRIBUTE_TYPE type) { m_name = name; m_type = type; m_next = nullptr; }
 
 	ldl_attribute *GetCopy();
 
 	ATTRIBUTE_TYPE GetType() { return m_type; }
-	char *GetName() { return m_name; }
+	char const *GetName() const { return m_name; }
 	const char *GetTypeName() {
 		switch(m_type) {
 			case ATTRIBUTE_TYPE_BOOL: return "bool";
@@ -50,7 +50,7 @@ class ldl_attribute {
 	bool GetBoolValue();
 	int GetIntValue();
 	double GetFloatValue();
-	char *GetStringValue();
+	char const *GetStringValue();
 
 	char *GetValueText();
 };
@@ -60,7 +60,7 @@ template <class Type> class ldl_attributeValue : public ldl_attribute {
 	Type m_value;
 
   public:
-	ldl_attributeValue(char *name, ATTRIBUTE_TYPE t, Type value) : ldl_attribute(name, t)
+	ldl_attributeValue(char const *name, ATTRIBUTE_TYPE t, Type value) : ldl_attribute(name, t)
 	{
 		m_value = value;
 	}

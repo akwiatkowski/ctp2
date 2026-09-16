@@ -26,7 +26,7 @@ static const MBCHAR *k_AUI_RANGER_LDL_AUTO_INCY		= "autoincy";
 aui_Ranger::aui_Ranger(
 	AUI_ERRCODE *retval,
 	uint32 id,
-	MBCHAR *ldlBlock,
+	MBCHAR const *ldlBlock,
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 	:
@@ -74,14 +74,14 @@ aui_Ranger::aui_Ranger(
 }
 
 
-AUI_ERRCODE aui_Ranger::InitCommonLdl( MBCHAR *ldlBlock )
+AUI_ERRCODE aui_Ranger::InitCommonLdl( MBCHAR const *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
 	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_RANGER_TYPE type;
-	MBCHAR *keyword = block->GetString( k_AUI_RANGER_LDL_TYPE );
+	MBCHAR const *keyword = block->GetString( k_AUI_RANGER_LDL_TYPE );
 	if ( !keyword )
 		type = AUI_RANGER_TYPE_SCROLLER;
 	else
@@ -244,7 +244,7 @@ aui_Button *aui_Ranger::CreateArrowButton(const MBCHAR *ldlBlock,
 	return arrowButton;
 }
 
-AUI_ERRCODE aui_Ranger::CreateButtonsAndThumb(MBCHAR *ldlBlock)
+AUI_ERRCODE aui_Ranger::CreateButtonsAndThumb(MBCHAR const *ldlBlock)
 {
 	static MBCHAR block[k_AUI_LDL_MAXBLOCK + 1];
 

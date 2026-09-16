@@ -377,6 +377,23 @@ void to_json(nlohmann::json &j, Cell const &c)
         {"cell_owner",       c.m_cellOwner},
         {"goody_hut",        c.m_jabba ? nlohmann::json(*c.m_jabba) : nlohmann::json(nullptr)},
     };
+
+    // m_objects: in-progress TERRAIN_IMPROVEMENT ids, TRADE_ROUTE ids,
+    // and completed IMPROVEMENT_DB entries.  Completed improvements
+    // exist ONLY here — TerrainImprovementData::Complete() kills the
+    // pool entry — so this is primary state, not derivable from the
+    // pools.  Restoring it verbatim also preserves the trade-route and
+    // in-progress improvement cell membership that the pool loads
+    // don't re-insert.
+    if (c.m_objects)
+    {
+        nlohmann::json objects = nlohmann::json::array();
+        for (sint32 i = 0; i < c.m_objects->Num(); ++i)
+        {
+            objects.push_back(c.m_objects->Access(i).m_id);
+        }
+        j["objects"] = std::move(objects);
+    }
 }
 
 void from_json(nlohmann::json const &j, Cell &c)
@@ -417,6 +434,26 @@ void from_json(nlohmann::json const &j, Cell &c)
     }
     c.DeleteGoodyHut();
     c.m_jabba = hut.release();
+
+    // m_objects restored verbatim.  Entries are plain IDs — nothing is
+    // dereferenced during load.  The referenced pools
+    // (TerrainImprovementPool, TradePool) load AFTER the world and key
+    // entries by their saved ids, so the restored ids resolve correctly
+    // once gameplay resumes.  Saves written before this field existed
+    // leave m_objects empty — matching their (lossy) semantics.
+    delete c.m_objects;
+    c.m_objects = nullptr;
+    if (j.contains("objects"))
+    {
+        for (auto const &id : j.at("objects"))
+        {
+            if (!c.m_objects)
+            {
+                c.m_objects = new DynamicArray<ID>;
+            }
+            c.m_objects->Insert(ID(id.get<uint32>()));
+        }
+    }
 }
 
 void to_json(nlohmann::json &j, TileInfo const &t)

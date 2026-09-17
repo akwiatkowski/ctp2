@@ -1002,8 +1002,6 @@ bool ArmyData::IsPatrolling() const
 
 void ArmyData::GetActors(Unit &excludeMe, std::vector<std::weak_ptr<UnitActor> > &restOfStack)
 {
-    sint32 n = 0;
-
     for(sint32 i = 0; i < m_nElements; ++i)
     {
         std::shared_ptr<UnitActor> a = m_array[i].GetActor();
@@ -2751,7 +2749,6 @@ void ArmyData::FixActors(MapPoint &opos, const MapPoint &npos, UnitDynamicArray 
   render_observer::UnitActorVec revealedActors;
   revealedActors.reserve(numRevealed);
 
-  sint32 numActors = 0;
 	if (numRevealed > 0) {
 		for (sint32 i = 0; i < numRevealed; ++i) {
 			if(revealedUnits[i].IsValid()) {
@@ -3516,7 +3513,6 @@ ORDER_RESULT ArmyData::ThrowParty(const MapPoint &point)
 		return ORDER_RESULT_ILLEGAL;
 
 	Unit c = GetAdjacentCity(point);
-	Unit u = m_array[uindex];
 
 	if(c.m_id == 0)
 		return ORDER_RESULT_ILLEGAL;
@@ -8543,12 +8539,6 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 		slicengine_Get()->Execute(so);
 	}
 
-	double defenders_bonus = 0.0;
-
-	if (c.m_id != (0))
-	{
-		defenders_bonus = c.GetDefendersBonus();
-	}
 
 //	double amr = 1.0 / GetHPModifier();
 //	double dmr = 1.0 / defender.GetHPModifier();
@@ -9009,7 +8999,6 @@ void ArmyData::ActionSuccessful(SPECATTACK attack, Unit &unit, Unit const & c)
 	{
 		if(soundID != -1)
 		{
-			sint32 visiblePlayer = player_view::VisiblePlayer();
 			{
 				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0, 	soundID, m_pos.x, m_pos.y);
 			}
@@ -9215,11 +9204,6 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 
 	bool useDefaultSuccessSound = false;
 
-	uint32 origVisibility = 0;
-	for(sint32 i = 0; i < m_nElements; i++)
-	{
-		origVisibility |= m_array[i].GetVisibility();
-	}
 
 	ORDER_RESULT result;
 	switch(order->m_order) {
@@ -11164,9 +11148,7 @@ void ArmyData::CheckHostileTerrain()
 
 void ArmyData::CheckMineField()
 {
-	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 	Cell *cell = world_Get()->GetCell(m_pos);
-	sint32 CellOwner = cell->GetOwner();
 		//EMOD If tile has tileimp that is a minefield then deduct HP
 	if(terrainutil_HasMinefield(m_pos)
 	){

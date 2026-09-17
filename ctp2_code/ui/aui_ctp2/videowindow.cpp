@@ -68,8 +68,6 @@ AUI_ERRCODE VideoWindow::InitCommon( )
 
 AUI_ERRCODE VideoWindow::CreateVideoSurface(MBCHAR *name, BOOL modal)
 {
-	HRESULT			hr;
-	AUI_ERRCODE		errcode;
 
 
 	return AUI_ERRCODE_OK;

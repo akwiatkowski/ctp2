@@ -573,19 +573,16 @@ STDEHANDLER(ReducePollution_NewProposalEvent)
 		return GEV_HD_Continue;
 
 	double reduce_percent = 0.05;
-	DIPLOMATIC_TONE tone = DIPLOMATIC_TONE_EQUAL;
 
 	if (sender_diplomat.GetPersonality()->GetDiscoveryEcotopian() &&
 		pollution_ratio < 1.0)
 	{
 		reduce_percent = (double)(receiver_pollution - sender_pollution) / receiver_pollution;
 		reduce_percent += 0.05;
-		tone = DIPLOMATIC_TONE_ANGRY;
 	}
 	else if (sender_diplomat.GetPersonality()->GetDiscoveryDiplomatic())
 	{
 		reduce_percent = 0.1;
-		tone = DIPLOMATIC_TONE_INDIGNANT;
 	}
 
 	reduce_percent = ProposalAnalysis::RoundPercentReduction(reduce_percent);
@@ -993,19 +990,16 @@ STDEHANDLER(PollutionPact_NewProposalEvent)
 		return GEV_HD_Continue;
 
 	double reduce_percent = 0.05;
-	DIPLOMATIC_TONE tone = DIPLOMATIC_TONE_EQUAL;
 
 	if (sender_diplomat.GetPersonality()->GetDiscoveryEcotopian() &&
 		pollution_ratio < 1.0)
 	{
 		reduce_percent = (double)(receiver_pollution - sender_pollution) / receiver_pollution;
 		reduce_percent += 0.05;
-		tone = DIPLOMATIC_TONE_ANGRY;
 	}
 	else if (sender_diplomat.GetPersonality()->GetDiscoveryDiplomatic())
 	{
 		reduce_percent = 0.1;
-		tone = DIPLOMATIC_TONE_EQUAL;
 	}
 
 	reduce_percent = ProposalAnalysis::RoundPercentReduction(reduce_percent);

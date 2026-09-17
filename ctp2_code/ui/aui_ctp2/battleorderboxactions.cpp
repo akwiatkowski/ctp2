@@ -45,7 +45,6 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 		if(!profiledb_Get()->IsAutoGroup()) {
 			if (unitpool_Get()->IsValid(m_unit)) {
 
-				Army army = m_army;
 
 				if ( m_army.m_id == (0) ) return;
 
@@ -65,23 +64,18 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 					m_army.AddOrders( UNIT_ORDER_GROUP_UNIT, nullptr, crap, (int)(m_unit) );
 				}
 
-				CellUnitList	*cellArmy;
-				cellArmy = world_Get()->GetCell(pos)->UnitArmy();
 
 
 			}
 		} else {
 
 			if ( unitpool_Get()->IsValid(m_unit) ) {
-				Army army = m_army;
 				m_unit.AccessData()->CreateOwnArmy();
 				selitem_Get()->SetSelectUnit( m_unit, FALSE );
 
-				CellUnitList	*cellArmy;
 				MapPoint	pos;
 
 				m_unit.GetPos(pos);
-				cellArmy = world_Get()->GetCell(pos)->UnitArmy();
 
 
 			}
@@ -97,28 +91,23 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 				m_bob->SetSingleUnit( m_unit );
 			}
 
-			CellUnitList	*cellArmy;
 			MapPoint	pos;
 
 			m_unit.GetPos(pos);
-			cellArmy = world_Get()->GetCell(pos)->UnitArmy();
 
 
 		}
 		break;
 	case C3_COLORICONBUTTON_ACTION_DOUBLECLK:
 		if ( unitpool_Get()->IsValid(m_unit) ) {
-			Army army = m_army;
 			Unit unit = m_unit;
 
 			unit.AccessData()->CreateOwnArmy();
 			selitem_Get()->SetSelectUnit( unit, TRUE, TRUE);
 
-			CellUnitList	*cellArmy;
 			MapPoint	pos;
 
 			unit.GetPos(pos);
-			cellArmy = world_Get()->GetCell(pos)->UnitArmy();
 
 
 		}

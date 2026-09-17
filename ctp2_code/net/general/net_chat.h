@@ -13,7 +13,7 @@ class NetChat : public Packetizer
 {
 public:
 	NetChat(uint32 dest, MBCHAR const * str, size_t len);
-	NetChat() : m_len(0), m_destmask(0) {}
+	NetChat() : m_destmask(0), m_len(0) {}
 	~NetChat() override = default;
 
 	void Packetize(uint8 *buf, uint16 &size) override;

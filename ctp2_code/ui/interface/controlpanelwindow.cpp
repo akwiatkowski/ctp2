@@ -2552,7 +2552,6 @@ ControlPanelWindow::CreateTileImpBanks()
 	ctp2_Button	*a_button;
 	const	TerrainImprovementRecord *timpRec;
 
-	const	IconRecord *irec;
 	bool	found;
 	uint32	 row = 0;
 	uint32	 column = 0;
@@ -2698,7 +2697,6 @@ ControlPanelWindow::CreateTileImpBanks()
 			{
 				a_button->SetActionFuncAndCookie(TileImpButtonCallback2,(void *)current);
 
-				irec = timpRec->GetIcon();
 
 
 
@@ -3573,7 +3571,6 @@ void ControlPanelWindow::TabCallback(aui_Control *control, uint32 action,
 
 		MainControlPanel *mcp = maincontrolpanel_Get();
 		switch(tab) {
-			case CP_TAB_UNIT:
 				MainControlPanel::UnitPanelActivated();
 				break;
 			case CP_TAB_CITY:

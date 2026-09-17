@@ -1469,7 +1469,6 @@ double UnitData::GetAttack(const UnitRecord *rec, const Unit defender) const
 void UnitData::Bombard(const UnitRecord *rec, Unit defender,
 					   bool isCounterBombardment)
 {
-	Cell *	cell    = world_Get()->GetCell(m_pos);
 	double armor = defender.GetDBRec()->GetArmor();
 	sint32 f = (armor > 0.0) ? (sint32)(rec->GetFirepower() / armor) : 0;
 	sint32 n;

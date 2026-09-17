@@ -468,7 +468,6 @@ private:
 AUI_ERRCODE c3_Animation::Idle()
 {
 
-	int index = 0;
 
 	sint32 deltaTime = GetTickCount() - lastIdle;
 
@@ -496,7 +495,6 @@ void c3_Animation::InitCommonLdl(MBCHAR *ldlBlock)
 	AUI_ERRCODE errcode;
 	MBCHAR ldlString[k_AUI_LDL_MAXBLOCK + 1];
 
-	aui_Ldl *theLdl = c3ui_Get()->GetLdl();
 
 	BOOL valid = aui_Ldl::IsValid( ldlBlock );
 	Assert(valid);
@@ -857,7 +855,6 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	MBCHAR ldlString[k_AUI_LDL_MAXBLOCK + 1];
 	int index;
 
-	aui_Ldl *theLdl = c3ui_Get()->GetLdl();
 
 	BOOL valid = aui_Ldl::IsValid( ldlBlock );
 	Assert(valid);

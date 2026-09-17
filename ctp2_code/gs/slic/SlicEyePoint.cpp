@@ -62,10 +62,10 @@ SlicEyePoint::SlicEyePoint(const MapPoint &point, const MBCHAR *name,
     m_name      (name ? name : ""),
     m_message   (new Message()),
     m_data      (data),
-    m_type      (type),
     m_unit      (unit),
     m_recipient (recipient),
-    m_segment   (segment)
+    m_segment   (segment),
+    m_type      (type)
 {
 }
 
@@ -74,10 +74,10 @@ SlicEyePoint::SlicEyePoint(SlicEyePoint *copy)
     m_name      (copy->m_name),
     m_message   (new Message(*copy->m_message)),
     m_data      (copy->m_data),
-    m_type      (copy->m_type),
     m_unit      (copy->m_unit),
     m_recipient (copy->m_recipient),
-    m_segment   (copy->m_segment)
+    m_segment   (copy->m_segment),
+    m_type      (copy->m_type)
 {
 }
 

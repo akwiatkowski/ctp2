@@ -632,9 +632,9 @@ ctp2_Button*
 spNew_ctp2_Button(AUI_ERRCODE *errcode,
 				  MBCHAR const *ldlParent,
 				  MBCHAR const *ldlMe,
-				  MBCHAR *default_text,
+				  MBCHAR const *default_text,
 				  void (*callback)(aui_Control*,uint32,uint32,void*),
-				  MBCHAR *buttonFlavor)
+				  MBCHAR const *buttonFlavor)
 {
 	MBCHAR		textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 

@@ -117,12 +117,11 @@
 //
 //----------------------------------------------------------------------------
 Plan::Plan()
-:
+:    m_the_agent         (nullptr),
     m_matching_value    (Goal::BAD_UTILITY),
-    m_the_agent         (nullptr),
     m_needs_cargo       (false),
-    m_needs_transporter (false),
-    m_cannot_be_used    (false)
+    m_cannot_be_used    (false),
+    m_needs_transporter (false)
 {
 }
 
@@ -146,8 +145,8 @@ Plan::Plan(Agent_ptr agent, bool needsCargo)
     m_the_agent         (agent),
     m_matching_value    (Goal::BAD_UTILITY),
     m_needs_cargo       (needsCargo),
-    m_needs_transporter (false),
-    m_cannot_be_used    (false)
+    m_cannot_be_used    (false),
+    m_needs_transporter (false)
 {
 }
 

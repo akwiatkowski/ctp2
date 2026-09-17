@@ -274,7 +274,6 @@ private:
 
 	ctp2_TextField *m_search_word;
 
-	aui_SwitchGroup *m_indexButtonSwitchGroup;
 	ctp2_Button		*m_searchButton;
 	ctp2_Button		*m_unitsButton;
 	ctp2_Button		*m_improveButton;
@@ -288,12 +287,8 @@ private:
 	ctp2_Button		*m_ordersButton;
 
 	ctp2_ListBox	*m_topics_list;
-	ctp2_Static		*m_indexLeft;
-	ctp2_Static		*m_indexMiddle;
-	ctp2_Static		*m_indexRight;
 
 	sint32			m_page;
-	bool			m_maxPage;
 	DATABASE		m_database;
 	DATABASE    m_listDatabase;
 	sint32			m_selectedIndex;

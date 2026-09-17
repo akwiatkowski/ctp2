@@ -52,7 +52,6 @@ class DiplomacyWindow {
 	ctp2_Menu *m_curMenu;
 	ctp2_Menu *m_threatMenu;
 
-	ctp2_TabGroup *m_tabGroup;
 
 	static ctp2_Button	*sm_detailsButton;
 	static ctp2_Button	*sm_warButton;

@@ -123,7 +123,6 @@ private:
 	ctp2_Static		*m_detailsFoodGovBonus;
 	ctp2_Static		*m_detailsFoodCrime;
 	ctp2_Static		*m_detailsFoodConsumed;
-	ctp2_Static		*m_detailsFoodSubTotal;
 	ctp2_Static		*m_detailsFoodStored;
 
 	ctp2_Static		*m_summaryFoodTotal;
@@ -148,7 +147,6 @@ private:
 	ctp2_Static		*m_detailsProductionFranchiseBioLoss;
 	ctp2_Static		*m_detailsProductionCrime;
 	ctp2_Static		*m_detailsProductionUnitUpkeep;
-	ctp2_Static		*m_detailsProductionSubTotal;
 	ctp2_Static		*m_detailsProductionPublicWorks;
 	ctp2_Static		*m_detailsProductionCityUse;
 

@@ -40,7 +40,6 @@ private:
 
 	sint32			m_topLine;
 
-	sint32			m_curLine;
 	sint32			m_numLines;
 	std::vector<std::string>			m_rowData;
 };

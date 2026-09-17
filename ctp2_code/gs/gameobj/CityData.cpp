@@ -336,14 +336,12 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	m_city_attitude                     (CITY_ATTITUDE_CONTENT),
 	m_collected_production_this_turn    (0),
 	m_gross_production                  (0),
-    m_gross_prod_before_bonuses         (0),
 	m_net_production                    (0),
 	m_production_lost_to_crime          (0),
 	m_built_improvements                (0),
 	m_builtWonders                      (0),
 	m_food_delta                        (0.0),
 	m_gross_food                        (0.0),
-    m_gross_food_before_bonuses         (0.0),
 	m_net_food                          (0.0),
 	m_food_lost_to_crime                (0.0),
 	m_food_consumed_this_turn           (0.0),
@@ -369,6 +367,8 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	m_convertedBy                       (CONVERTED_BY_NOTHING),
 	m_terrainWasPolluted                (false),
 	m_happinessAttacked                 (false),
+    m_gross_food_before_bonuses         (0.0),
+    m_gross_prod_before_bonuses         (0),
 	m_happinessAttackedBy               (PLAYER_UNASSIGNED),
 	m_terrainImprovementWasBuilt        (false),
 	m_improvementWasBuilt               (false),
@@ -1865,14 +1865,8 @@ double CityData::GetUtilisationRatio(uint32 const squaredDistance) const
 //----------------------------------------------------------------------------
 void CityData::CollectResources()
 {
-	sint32 fullFoodTerrainTotal = 0;
-	sint32 partFoodTerrainTotal = 0;
 
-	sint32 fullProdTerrainTotal = 0;
-	sint32 partProdTerrainTotal = 0;
 
-	sint32 fullGoldTerrainTotal = 0;
-	sint32 partGoldTerrainTotal = 0;
 
 #if !defined(NEW_RESOURCE_PROCESS)
 	sint32 fullSquaredRadius;
@@ -1884,7 +1878,6 @@ void CityData::CollectResources()
 	MapPoint cityPos = m_home_city.RetPos();
 
 	m_collectingResources.Clear();
-	size_t const    maxRing = static_cast<size_t>(g_theCitySizeDB->NumRecords());
 
 	std::fill(m_ringFood.begin(),       m_ringFood.end(),       0);
 	std::fill(m_ringProd.begin(),       m_ringProd.end(),       0);
@@ -4834,11 +4827,6 @@ bool CityData::ChangeCurrentlyBuildingItem(sint32 category, sint32 item_type)
 	const WonderRecord* wrec = nullptr;
 	const BuildingRecord* irec = nullptr;
 //	const EndGameRecord *egrec = NULL; // Maybe usefull later
-	sint32 oldCategory;
-	if(m_build_queue.GetHead())
-		oldCategory = m_build_queue.GetHead()->m_category;
-	else
-		oldCategory = -5;
 
 	switch(category) { // see Globals.h for k_GAME_OBJ_TYPE enum
 	case k_GAME_OBJ_TYPE_UNIT:
@@ -5119,7 +5107,6 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 			if(m_tilecount == m_whichtile) {
 				Cell *cell = world_Get()->GetCell(pos);
 				if(cell->GetCanDie()) {
-					MapPoint tmp = pos;
 
 
 
@@ -10692,8 +10679,6 @@ void CityData::AddCitySlum()
 			return;
 
 		for(it.Start(); !it.End(); it.Next()) {
-			Cell *ncell = world_Get()->GetCell(it.Pos());
-			Cell *ocell = world_Get()->GetCell(SpotFound);
 			sint32 UrbanImp = GetSlumTileAvailable(it.Pos());
 			if (UrbanImp < 0)
 				return;

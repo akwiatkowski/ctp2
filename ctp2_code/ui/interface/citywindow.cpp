@@ -148,8 +148,6 @@ static CityWindow                   *s_cityWindow = nullptr;
 static MBCHAR                       *s_cityWindowBlock = "CityWindow";
 static MBCHAR                       *s_cityStatsBlock = "CityStatisticsWindow";//advisor window
 
-static sint32 s_isBuilding = 1;
-static sint32 s_isWonder = 1;
 
 CityWindow::CityWindow(AUI_ERRCODE *err)
 :

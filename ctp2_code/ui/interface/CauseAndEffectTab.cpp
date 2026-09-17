@@ -71,7 +71,6 @@
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/wonderutil.h"
 
-static sint32 k_ONE_FIVE__NEG_TWO_TWO_CONVERSION = 3;
 static sint32 k_ZERO_FOUR__NEG_TWO_TWO_CONVERSION = 2;
 
 CauseAndEffectTab::CauseAndEffectTab(MBCHAR *ldlBlock) :
@@ -85,16 +84,12 @@ m_numberOfCities(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 m_population(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"PopulationValue"))),
 
-m_productionPublicWorksSpinner(static_cast<ctp2_Spinner*>(aui_Ldl::GetObject(ldlBlock,
-	"PWSpinner"))),
 
 m_happinessValue(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"HappinessValue"))),
 m_happinessBar(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"HappinessBar"))),
 
-m_commerceScienceTaxSpinner(static_cast<ctp2_Spinner*>(aui_Ldl::GetObject(ldlBlock,
-	"ScieTaxSpinner"))),
 
 m_government(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"CurrentGovernment"))),
@@ -138,6 +133,8 @@ m_summaryFoodStored(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 
 m_productionWorkdaySpinner(static_cast<C3Slider*>(aui_Ldl::GetObject(ldlBlock,
 	"Production.Modify.Primary.Slider"))),
+m_productionPublicWorksSpinner(static_cast<ctp2_Spinner*>(aui_Ldl::GetObject(ldlBlock,
+	"PWSpinner"))),
 m_productionHappinessValue(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Production.Modify.Primary.Value"))),
 m_productionCurValue(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
@@ -184,6 +181,8 @@ m_summaryProductionCityUse(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock
 
 m_commerceWagesSpinner(static_cast<C3Slider*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.Modify.Primary.Slider"))),
+m_commerceScienceTaxSpinner(static_cast<ctp2_Spinner*>(aui_Ldl::GetObject(ldlBlock,
+	"ScieTaxSpinner"))),
 m_commerceHappinessValue(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.Modify.Primary.Value"))),
 m_commerceCurValue(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
@@ -231,10 +230,10 @@ m_detailsCommerceUnitWages(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock
 	"Commerce.InformationDetails.UnitWages.Value"))),
 m_detailsCommerceScience(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.InformationDetails.Science.Value"))),
-m_detailsCommerceSavings(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
-	"Commerce.InformationDetails.Savings.Value"))),
 m_detailsCommerceConversionsGold(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.InformationDetails.ConversionsGold.Value"))),
+m_detailsCommerceSavings(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
+	"Commerce.InformationDetails.Savings.Value"))),
 m_detailsCommerceScieCrime(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.InformationDetails.ScieCrime.Value"))),
 m_detailsCommerceGoldCrime(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
@@ -493,7 +492,6 @@ void CauseAndEffectTab::UpdateCommerceSpinners()
 void CauseAndEffectTab::UpdateFoodValues()
 {
 
-	double totalFoodRequired = 0.0;
 	double totalFood = 0.0;
 	double totalFoodCrime = 0.0;
 	double totalFoodConsumed = 0.0;
@@ -552,7 +550,6 @@ void CauseAndEffectTab::UpdateFoodValues()
 		totalFoodFromBuildings += foodBuildingBonus;
 		totalFoodFarmers += farmersFood;
 		totalFoodGovBonus += foodGovBonus;
-		totalFoodRequired += foodRequired;
 		totalFood += food;
 		totalFeatWonderFood += featWonderFood;
 		totalFoodCrime += foodCrime;

@@ -68,7 +68,6 @@ extern sint32				g_god;
 
 static aui_StringTable *s_closeButtonStrings = nullptr;
 static c3_PopupWindow	*s_customMapWindow	= nullptr;
-static c3_Button	*s_back				= nullptr;
 static C3Slider		*s_wetdry			= nullptr,
 					*s_warmcold			= nullptr,
 					*s_oceanland		= nullptr,
@@ -90,8 +89,8 @@ static c3_Static	*s_wet				= nullptr,
 
 static sint32		s_useMode = 0;
 
-static aui_Switch		*s_RandomCustomMap	= nullptr,
-						*s_NULL				= nullptr;
+static aui_Switch		*s_RandomCustomMap	= nullptr;
+
 enum
 {
 	R_RANDOMCUSTOMMAP,

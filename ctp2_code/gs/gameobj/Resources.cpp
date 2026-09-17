@@ -74,7 +74,6 @@ Resources & Resources::operator = (Resources &copyme)
 //----------------------------------------------------------------------------
 void Resources::Resize(sint32 newSize)
 {
-	sint32 oldSize = (m_numGoods < newSize) ? m_numGoods : newSize;
 
 	m_numGoods = newSize;
 	m_supply.resize(newSize, 0);

@@ -1777,13 +1777,10 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
     std::fill(g_player, g_player + k_MAX_PLAYERS, (Player *) nullptr);
 	g_deadPlayer = new PointerList<Player>;
 
-	sint32 playerAlive;
 	sint32 diff = gamesettings_Get()->GetDifficulty();
 
-	sint32 numPlayersLoaded = 0;
 
 	sint32 i;
-	sint32 j;
 		//
 		//	Normal game code
 		CreateBarbarians(diff);

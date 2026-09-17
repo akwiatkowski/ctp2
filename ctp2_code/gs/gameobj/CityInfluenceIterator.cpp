@@ -284,7 +284,6 @@ void GenerateCityInfluence(const MapPoint &cpos, sint32 size)
 {
 	Assert(world_Get()->GetCell(cpos)->HasCity());
 	Unit					city		= world_Get()->GetCell(cpos)->GetCity();
-	sint32 const			intRadius	= RadiusFromIndex(size);
 	ClearScratch(cpos, size);
 	world_Get()->GetCell(cpos)->SetScratch(1);
 

@@ -105,7 +105,6 @@ private:
 	ctp2_Static		*m_statusText;
 	ctp2_Static		*m_statusBar;
 
-	ctp2_Button		*m_adviseButton;
 
 	ctp2_Button		*m_buildQueueButton;
 

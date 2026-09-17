@@ -202,7 +202,6 @@ Token::Token
 )
 :
     m_fin               (c3files_fopen(dir, fn, "r")),
-    m_len               (0),
     m_index             (0),
     m_val_string_len    (0),
     m_current_type      (TOKEN_UNKNOWN),
@@ -212,7 +211,6 @@ Token::Token
     m_imported_tokens   (it),
     m_dir               (dir),
     m_importFile		(nullptr),
-    m_savedLineNumber   (0),
     m_savedFin          (nullptr),
 	m_checkScenario     (true)
 {
@@ -243,7 +241,6 @@ Token::Token
 	 C3DIR	        dir
 )
 :	m_fin		        (c3files_fopen(dir, fn, "r")),
-    m_len               (0),
     m_index             (0),
     m_val_string_len    (0),
     m_current_type      (TOKEN_UNKNOWN),
@@ -253,7 +250,6 @@ Token::Token
     m_imported_tokens   (it),
     m_dir               (dir),
     m_importFile		(nullptr),
-    m_savedLineNumber   (0),
     m_savedFin          (nullptr),
 	m_checkScenario     (true)
 {

@@ -105,7 +105,7 @@ static void bExitPress( aui_Control *control, uint32 action, uint32 data, void *
 static
 sint32 removeMyWindow(uint32);
 
-static AUI_ERRCODE newC3Static(MBCHAR *parent,MBCHAR *name,c3_Static **mystatic)
+static AUI_ERRCODE newC3Static(MBCHAR const *parent,MBCHAR const *name,c3_Static **mystatic)
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;

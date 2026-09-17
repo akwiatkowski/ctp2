@@ -146,7 +146,6 @@ private:
 	sint32 m_armySelectionUnit;
 
 	enum { NUMBER_OF_ORDER_BUTTONS = 12 };
-	sint32 m_displayedOrderIndex[NUMBER_OF_ORDER_BUTTONS];
 	ctp2_Button *m_orderButton[NUMBER_OF_ORDER_BUTTONS];
 
 	std::pair<UnitControlPanel*, OrderRecord*>

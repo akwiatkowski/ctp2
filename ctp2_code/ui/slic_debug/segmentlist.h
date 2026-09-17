@@ -61,7 +61,6 @@ private:
 	c3_Button      *m_watchButton;
 	c3_Button      *m_exitButton;
 
-	SegmentListCallback *           m_callback;
 
     friend void SegmentListButtonCallback(aui_Control *control, uint32 action, uint32 data, void *cookie);
 };

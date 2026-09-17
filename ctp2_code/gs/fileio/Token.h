@@ -181,8 +181,7 @@ private:
 	FILE			*m_fin;
 	char			m_filename[_MAX_PATH];
 	char 			m_buf[k_MAX_TOKEN_LEN];
-	sint32			m_len,
-					m_index,
+	sint32			m_index,
 					m_val_string_len,
 					m_current_type;
 	double			m_val_number ;
@@ -198,7 +197,6 @@ private:
 	FILE			*m_importFile;
 
 	MBCHAR			m_savedFilename[_MAX_PATH];
-	sint32			m_savedLineNumber;
 	FILE			*m_savedFin;
 	bool			m_checkScenario;
 

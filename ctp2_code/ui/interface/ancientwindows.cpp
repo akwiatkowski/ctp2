@@ -30,21 +30,8 @@ extern StatsWindow				*g_statsWindow;
 
 
 
-static C3Window		*s_lowerRight = nullptr;
-static aui_Static	*s_imageLowerRight;
 
-static C3Window		*s_angelLeft = nullptr;
-static aui_Static	*s_imageAngelLeft;
-static C3Window		*s_angelRight = nullptr;
-static aui_Static	*s_imageAngelRight;
-static C3Window		*s_radarBorderRight = nullptr;
-static aui_Static	*s_imageRadarBorderRight;
-static C3Window		*s_controlLeft = nullptr;
-static c3_Static	*s_imageControlLeft;
-static C3Window		*s_controlRight = nullptr;
-static c3_Static	*s_imageControlRight;
 
-static BevelLessWindow *s_controlPiece = nullptr;
 
 
 

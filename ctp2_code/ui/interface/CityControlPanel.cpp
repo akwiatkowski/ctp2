@@ -401,7 +401,6 @@ void CityControlPanel::CitySelectActionCallback(aui_Control *control,
  				// City has changed, do the neccessary
 				selitem_Get()->SetSelectCity(cd->GetHomeCity());
 
-				MapPoint pos = cd->GetHomeCity().RetPos(); // Not needed
 
 			}
 		}

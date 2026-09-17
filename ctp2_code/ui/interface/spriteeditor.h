@@ -74,7 +74,7 @@ public:
 
 
 
-	void	InitializeControls(AUI_ERRCODE *errcode,MBCHAR *windowsBlock);
+	void	InitializeControls(AUI_ERRCODE *errcode,MBCHAR const *windowsBlock);
 	void	TopLevel();
 
 	void			LoadSprite(char *name=nullptr);

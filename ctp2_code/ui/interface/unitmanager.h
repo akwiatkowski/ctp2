@@ -73,7 +73,6 @@ private:
 	ctp2_ListBox *      m_statsList;
     ctp2_ListBox *      m_tacticalList;
     ctp2_ListBox *      m_adviceList;
-	ctp2_TabGroup *     m_tabGroup;
 	PointerList<UnitManagerCategoryInfo>
                         m_unitCategories;
 	uint32              m_lastDisbandedUnit;

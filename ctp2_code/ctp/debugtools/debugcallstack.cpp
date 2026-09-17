@@ -62,7 +62,6 @@
 #include "ctp/debugtools/log_off.h"
 #endif
 
-static bool debug_dump_whole_stack = false;
 
 
 

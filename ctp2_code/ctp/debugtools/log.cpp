@@ -21,7 +21,6 @@
 #define _stricmp strcasecmp
 #define _strdup strdup
 
-static pthread_mutex_t g_log_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static inline void InitializeCriticalSection(pthread_mutex_t *cs) { pthread_mutex_init(cs, nullptr); }
 static inline void EnterCriticalSection(pthread_mutex_t *cs) { pthread_mutex_lock(cs); }

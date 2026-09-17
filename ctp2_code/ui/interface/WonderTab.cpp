@@ -60,8 +60,6 @@
 #include "gs/gameobj/wonderutil.h"
 
 
-static sint32                   s_currentWonderDisplay;
-static c3_Button                *s_eventsInfoButton[17];
 
 extern PointerList<Player>      *g_deadPlayer;
 

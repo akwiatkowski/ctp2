@@ -55,7 +55,7 @@ public:
 	ctp2_Button(AUI_ERRCODE *retval,
 				uint32 id,
 				MBCHAR const *ldlBlock,
-				MBCHAR *ldlTemplate,
+				MBCHAR const *ldlTemplate,
 				sint32 x,
 				sint32 y,
 				sint32 width,
@@ -70,7 +70,7 @@ public:
 
 	~ctp2_Button() override;
 
-	AUI_ERRCODE InitCommonLdl(MBCHAR const *ldlBlock, MBCHAR *ldlTemplate,
+	AUI_ERRCODE InitCommonLdl(MBCHAR const *ldlBlock, MBCHAR const *ldlTemplate,
 		sint32 x, sint32 y, sint32 width, sint32 height);
 
 

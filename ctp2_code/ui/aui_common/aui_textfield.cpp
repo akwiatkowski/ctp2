@@ -312,7 +312,6 @@ AUI_ERRCODE aui_TextField::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	if ( !surface ) surface = m_window->TheSurface();
 
 	RECT rect = { 0, 0, m_width, m_height };
-	RECT srcRect = rect;
 	OffsetRect( &rect, m_x + x, m_y + y );
 	ToWindow( &rect );
 

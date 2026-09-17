@@ -141,8 +141,6 @@ void SoundManager::DumpAllSounds()
 void SoundManager::InitSoundDriver()
 {
 #if defined(USE_SDL)
-	int     use_digital     = 1;
-	int     use_MIDI        = 0;
 	int     output_rate     = 22050;	// 22khz @ 16 Bit mono
 	Uint16  output_format   = AUDIO_S16SYS;
 	int     output_channels = 1;		// WAV files are mono; Mix_QuickLoad_WAV does not convert
@@ -705,7 +703,6 @@ SoundManager::SetPosition(const SOUNDTYPE &type,
 		if (sound && (sound->GetAssociatedObject() == associatedObject))
         {
 #if defined(USE_SDL)
-            Mix_Chunk * myChunk = sound->GetAudio();
             // Why set the volume again?
 #else
             sint32 panValue = 64;

@@ -77,9 +77,6 @@ uint32 GetTickCount()
 	return SDL_GetTicks();
 }
 
-namespace {
-	int mbRetVal = 0;
-}
 
 sint32 MessageBox(HWND parent, const CHAR* msg, const CHAR* title, sint32 flags)
 {

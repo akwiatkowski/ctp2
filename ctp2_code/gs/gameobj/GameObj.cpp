@@ -36,11 +36,11 @@
 
 GameObj::GameObj(uint32 i)
 :
-    m_id            (i),
     m_lesser        (nullptr),
     m_greater       (nullptr),
-    m_isFromPool    (FALSE),
-    m_killMeSoon    (false)
+    m_killMeSoon    (false),
+    m_id            (i),
+    m_isFromPool    (FALSE)
 {
 }
 

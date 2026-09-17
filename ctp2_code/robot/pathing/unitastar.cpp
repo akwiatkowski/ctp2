@@ -1662,7 +1662,6 @@ bool UnitAstar::CheckIsDangerForPos(const MapPoint & pos)
 
 		//Check for hostile army
 		CellUnitList *  the_army = world_Get()->GetArmyPtr(neighbor);
-		Unit            the_city = world_Get()->GetCity(neighbor);
 
 		if (the_army && !the_army->IsCivilian())
 		{

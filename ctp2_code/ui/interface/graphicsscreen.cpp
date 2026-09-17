@@ -33,10 +33,6 @@ static C3Slider		*s_bright					= nullptr,
 static c3_Static	*s_unitSpeedN				= nullptr;
 static C3Slider		*s_unitSpeed				= nullptr;
 
-static c3_Static	*s_brightN					= nullptr,
-					*s_gammaN					= nullptr,
-					*s_colorN					= nullptr,
-					*s_contrastN				= nullptr;
 static aui_Switch	*s_walk						= nullptr,
 
 					*s_trade					= nullptr,
@@ -53,16 +49,11 @@ static aui_Switch	*s_walk						= nullptr,
 					*s_smooth					= nullptr,
 					*s_armyNames				= nullptr,
 					*s_goodAnims				= nullptr,
-					*s_cityProd					= nullptr,
-
-					*s_NULL						= nullptr;
+					*s_cityProd					= nullptr;
 
 static BOOL			s_gridToggled				= FALSE;
 static BOOL			s_cityInfluenceToggled		= FALSE;
 static BOOL			s_politicalBordersToggled	= FALSE;
-static BOOL			s_armyNamesToggled			= FALSE;
-static BOOL			s_civflagsToggled			= FALSE;
-static BOOL			s_smoothToggled				= FALSE;
 static BOOL			s_unitAnimToggled			= FALSE;
 static BOOL			s_goodAnimToggled			= FALSE;
 //static BOOL			s_showCityProdToggled		= FALSE;

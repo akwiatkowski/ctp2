@@ -90,8 +90,7 @@ SegmentList::SegmentList(SegmentListCallback *callback, MBCHAR *ldlBlock)
     m_window            (nullptr),
 	m_list              (nullptr),
 	m_watchButton       (nullptr),
-	m_exitButton        (nullptr),
-    m_callback          (callback)
+	m_exitButton        (nullptr)
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];

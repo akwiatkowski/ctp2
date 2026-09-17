@@ -218,10 +218,6 @@ void aui_Win::MouseMoveOutside( aui_MouseEvent *mouseData )
 
 void aui_Win::WinMouseMove( aui_MouseEvent *mouseData )
 {
-	POINT local =
-		{ mouseData->position.x - m_x, mouseData->position.y - m_y };
-	POINT screen =
-		{ local.x + m_offscreen.x, local.x + m_offscreen.y };
 
 
 	if ( m_mouseCode == AUI_ERRCODE_UNHANDLED )
@@ -261,8 +257,6 @@ void aui_Win::WinMouseLDrag( aui_MouseEvent *mouseData )
 {
 	if ( GetMouseOwnership() == this )
 	{
-		POINT   local   =
-		    { mouseData->position.x - m_x, mouseData->position.y - m_y };
 
 		m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_MOUSELDRAGOVER;
 		if ( m_mouseCode == AUI_ERRCODE_UNHANDLED )
@@ -303,8 +297,6 @@ void aui_Win::WinMouseRDrag( aui_MouseEvent *mouseData )
 {
 	if ( GetMouseOwnership() == this )
 	{
-		POINT   local   =
-		    { mouseData->position.x - m_x, mouseData->position.y - m_y };
 
 		m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_MOUSERDRAGOVER;
 		if ( m_mouseCode == AUI_ERRCODE_UNHANDLED )
@@ -326,10 +318,6 @@ void aui_Win::MouseLGrabInside( aui_MouseEvent *mouseData )
 
 		SetKeyboardFocus();
 
-		POINT local =
-		{ mouseData->position.x - m_x, mouseData->position.y - m_y };
-		POINT screen =
-		{ local.x + m_offscreen.x, local.x + m_offscreen.y };
 
 
 		m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_MOUSELGRABINSIDE;
@@ -357,10 +345,6 @@ void aui_Win::MouseLDropInside( aui_MouseEvent *mouseData )
 
 		PlaySound( AUI_SOUNDBASE_SOUND_EXECUTE );
 
-		POINT local =
-		{ mouseData->position.x - m_x, mouseData->position.y - m_y };
-		POINT screen =
-		{ local.x + m_offscreen.x, local.x + m_offscreen.y };
 
 
 		WinMouseMove( mouseData );
@@ -431,10 +415,6 @@ void aui_Win::MouseLDoubleClickInside( aui_MouseEvent *mouseData )
 
 		SetMouseOwnership();
 
-		POINT local =
-		{ mouseData->position.x - m_x, mouseData->position.y - m_y };
-		POINT screen =
-		{ local.x + m_offscreen.x, local.x + m_offscreen.y };
 
 
 		WinMouseMove( mouseData );

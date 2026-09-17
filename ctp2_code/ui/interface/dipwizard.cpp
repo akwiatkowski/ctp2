@@ -2543,26 +2543,6 @@ STDEHANDLER(DipWizNewProposalEvent)
 	return GEV_HD_Continue;
 }
 
-// Not called
-STDEHANDLER(DipWizContinueDiplomacyEvent)
-{
-	sint32 p1;
-	sint32 p2;
-	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
-	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
-
-	if(p1 == selitem_Get()->GetVisiblePlayer()) {
-
-		DipWizard::SetViewResponse(p1, p2, true);
-
-		RESPONSE_TYPE rtype = Diplomat::GetDiplomat(p2).GetResponsePending(p1).type;
-		/// @todo Probably need to do something here - this doesn't make sense
-	} else if(p2 == selitem_Get()->GetVisiblePlayer()) {
-
-		DipWizard::SetViewResponse(p1, p2, true);
-	}
-	return GEV_HD_Continue;
-}
 
 void DipWizard::InitializeEvents()
 {

@@ -222,7 +222,6 @@ AUI_ERRCODE aui_Movie::Open(
 		if ( rect )
 			SetDestRect( rect );
 
-		uint32 err;
 		m_isOpen = TRUE;
 		m_isPlaying = FALSE;
 		m_isPaused = FALSE;
@@ -368,11 +367,6 @@ AUI_ERRCODE aui_Movie::Process( )
 		if ( time - m_lastFrameTime > m_timePerFrame )
 		{
 
-			aui_Surface *surface =
-				( m_flags & k_AUI_MOVIE_PLAYFLAG_ONSCREEN ) ?
-				aui_ui_Get()->Secondary() :
-				m_surface;
-			m_isFinished = TRUE;
 
 			m_lastFrameTime = time;
 

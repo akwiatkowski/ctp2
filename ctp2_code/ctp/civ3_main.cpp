@@ -1013,8 +1013,6 @@ bool ui_CheckForScroll()
 	static bool     isMouseScrolling            = false;
 	static sint32   smoothX                     = 0;
 	static sint32   smoothY                     = 0;
-	static sint32	lastdeltaX                  = 0;
-	static sint32	lastdeltaY                  = 0;
 	static bool     scrolled_last_time          = false;
 	static uint32   scroll_start;
 
@@ -1082,8 +1080,6 @@ bool ui_CheckForScroll()
 			if (deltaX)
 				deltaY = 0;
 
-			lastdeltaX = deltaX;
-			lastdeltaY = deltaY;
 
 		// Buttery path (same as the trackpad pan): feed the whole-tile step
 		// into the camera target; the frame tick eases and recenters. A
@@ -1166,8 +1162,6 @@ bool ui_CheckForScroll()
 		else
 			smoothX = 0;
 
-		lastdeltaX = deltaX;
-		lastdeltaY = deltaY;
 
 
 
@@ -1365,7 +1359,6 @@ int main_Restart()
 	return g_civApp->RestartGame();
 }
 
-static HWND s_taskBar   = nullptr;
 
 void main_HideTaskBar()
 {

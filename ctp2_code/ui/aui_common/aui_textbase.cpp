@@ -427,7 +427,6 @@ uint32 aui_TextBase::FindNextWordBreak
 	if ( !text ) return 0;
 
 	uint32 totalLength = 0;
-	sint32 totalSize = 0;
 
 	// TODO?
 	return totalLength;

@@ -219,11 +219,6 @@ STDEHANDLER(NetEndAIClientTurnEvent)
 	return GEV_HD_Continue;
 }
 
-STDEHANDLER(NetCreatedWonderEvent)
-{
-	return GEV_HD_Continue;
-}
-
 void networkevent_Initialize()
 {
 	gevmanager_Get()->AddCallback(GEV_BeginTurn, GEV_PRI_Pre, &s_NetBeginTurnEvent);

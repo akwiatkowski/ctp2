@@ -190,7 +190,6 @@ extern CityAstar    g_city_astar;
 
 namespace
 {
-	sint32 const            MAX_DISTANCE                = 0x7fffffff;
 	Governor const          UniqueInvalidGovernor       = Governor(PLAYER_UNASSIGNED);
 	/// Value for a trade route not requiring caravans (should not occur)
 	double const            VALUE_FREE_LUNCH 	        =
@@ -1671,7 +1670,6 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 
 	double growth_rank     = the_map.GetGrowthRank    (city);
 	double production_rank = the_map.GetProductionRank(city);
-	double gold_rank       = the_map.GetCommerceRank  (city);
 	double terr_food_rank = (world_Get()->GetCell(pos)->GetFoodFromTerrain()) /
 		(double) World::GetAvgFoodFromTerrain();
 	double terr_prod_rank = (world_Get()->GetCell(pos)->GetShieldsFromTerrain()) /
@@ -3032,7 +3030,6 @@ sint32 Governor::ComputeMinimumWorkers(CityData *city,
 	double utilization_needed;
 	const CitySizeRecord *part_rec;
 	const CitySizeRecord *full_rec;
-	MapPoint cityPos = city->GetHomeCity().RetPos();
 
 	double crimeLossFood;
 	double grossFood;
@@ -3104,7 +3101,6 @@ sint32 Governor::ComputeMinimumWorkers(CityData *city,
 		}
 		part_size_pop = part_rec->GetMaxWorkers() - full_rec->GetMaxWorkers();
 
-		sint32 partSquaredRadius = part_rec->GetSquaredRadius();
 		sint32 fullSquaredRadius = full_rec->GetSquaredRadius();
 
 		DPRINTF(k_DBG_GOVERNOR, ("//  elapsed time per city and pop asignment ï¿½ = %f ms\n", t1.getElapsedTimeInMilliSec()));
@@ -4271,7 +4267,6 @@ sint32 Governor::GetNeededUnitType(const CityData *city, sint32 & list_num) cons
 
 	BUILD_UNIT_LIST max_list                = BUILD_UNIT_LIST_MAX;
 	sint32          max_production          = 0;
-	sint32          turns_to_build          = 9999;
 	sint32          needed_production;
 	sint32          type                    = CTPRecord::INDEX_INVALID;
 	sint32          cont;
@@ -4293,7 +4288,6 @@ sint32 Governor::GetNeededUnitType(const CityData *city, sint32 & list_num) cons
 	                                         build_settler_production_level;
 //	                      || city->GetNeededGarrisonStrength() * build_transport_production_level <= city->GetCurrentGarrisonStrength();
 
-	Scheduler & scheduler = Scheduler::GetScheduler(m_playerId);
 
 	for (list_num = 0; list_num < BUILD_UNIT_LIST_MAX; list_num++)
 	{
@@ -4336,7 +4330,6 @@ sint32 Governor::GetNeededUnitType(const CityData *city, sint32 & list_num) cons
 		needed_production =
 			GetDBUnitRec(list_ref.m_bestType)->GetShieldCost();
 
-		turns_to_build = city->HowMuchLonger(needed_production);
 
 		if
 		  (
@@ -4502,7 +4495,6 @@ double Governor::MaxiumGarrisonDefence(const MapPoint & pos) const
 		{
 			const UnitRecord* rec = GetDBUnitRec(list_ref.m_bestType);
 
-			double defence   = unitutil_GetPositionDefense(rec, true, pos, Unit());
 //			double defence   = rec->GetDefense(); // Raw defense
 			double firepower = static_cast<double>(rec->GetFirepower());
 			double hitpoints = static_cast<double>(rec->GetMaxHP());
@@ -4537,7 +4529,6 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 	CellUnitList garrison_army;
 	sint32 cont;
 
-	Scheduler & scheduler = Scheduler::GetScheduler(m_playerId);
 
 	for (list_num = BUILD_UNIT_LIST_SEA_TRANSPORT; list_num < BUILD_UNIT_LIST_MAX; list_num++)
 	{
@@ -4580,7 +4571,6 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 				needed_production =
 					GetDBUnitRec(list_ref.m_bestType)->GetShieldCost();
 
-				sint32 turns_to_build = city->HowMuchLonger(needed_production);
 				needed_production *= list_ref.m_desiredCount;
 				if(needed_production > 0)
 				{
@@ -4602,7 +4592,6 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 				needed_production =
 					GetDBUnitRec(list_ref.m_bestType)->GetShieldCost();
 
-				sint32 turns_to_build = city->HowMuchLonger(needed_production);
 				needed_production *= list_ref.m_maximumCount;
 				if(needed_production > 0)
 				{
@@ -4625,7 +4614,6 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 				needed_production =
 					GetDBUnitRec(list_ref.m_bestType)->GetShieldCost();
 
-				sint32 turns_to_build = city->HowMuchLonger(needed_production);
 				needed_production *= list_ref.m_maximumCount;
 				if(needed_production > 0)
 				{
@@ -4645,7 +4633,6 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 				needed_production =
 					GetDBUnitRec(list_ref.m_bestType)->GetShieldCost();
 
-				sint32 turns_to_build = city->HowMuchLonger(needed_production);
 				needed_production *= list_ref.m_desiredCount;
 				if(needed_production > 0)
 				{
@@ -4678,7 +4665,6 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 					needed_production =
 						GetDBUnitRec(list_ref.m_bestType)->GetShieldCost();
 
-					sint32 turns_to_build = city->HowMuchLonger(needed_production);
 					needed_production *= list_ref.m_desiredCount;
 					if(needed_production > 0)
 					{
@@ -4699,7 +4685,6 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 					needed_production =
 						GetDBUnitRec(list_ref.m_bestType)->GetShieldCost();
 
-					sint32 turns_to_build = city->HowMuchLonger(needed_production);
 					needed_production *= list_ref.m_maximumCount;
 					if(needed_production > 0)
 					{
@@ -4720,7 +4705,6 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 					needed_production =
 						GetDBUnitRec(list_ref.m_bestType)->GetShieldCost();
 
-					sint32 turns_to_build = city->HowMuchLonger(needed_production);
 					needed_production *= list_ref.m_maximumCount;
 					if(needed_production > 0)
 					{
@@ -4741,7 +4725,6 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 					needed_production =
 						GetDBUnitRec(list_ref.m_bestType)->GetShieldCost();
 
-					sint32 turns_to_build = city->HowMuchLonger(needed_production);
 					needed_production *= list_ref.m_desiredCount;
 					if(needed_production > 0)
 					{

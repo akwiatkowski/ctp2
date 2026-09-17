@@ -1361,7 +1361,6 @@ void Player::BeginTurnProduction()
 	sint32 n = m_all_cities->Num();
 	sint32 i;
 	sint32 mil_total=0;
-	sint32 mat_total=0;
 	sint32 delta;
 	sint32 materialsFromFranchise = 0;
 
@@ -1379,7 +1378,6 @@ void Player::BeginTurnProduction()
 		delta = m_all_cities->Access(i).CD()->ProcessProduction(false);
 #endif
 		mil_total += delta;
-		mat_total += delta;
 
 		m_total_production += delta;
 	}
@@ -2195,7 +2193,6 @@ bool Player::GetSlaveCity(const MapPoint &pos, Unit &city)
 	sint32 i;
 	sint32 j;
 
-	sint32 minDistance = 0x7fffffff;
 
 	CityDistQueue cityDistQueue;
 
@@ -2241,7 +2238,6 @@ bool Player::GetSlaveCity(const MapPoint &pos, Unit &city)
 
 	max_eval = (max_eval > 0) ? std::min(max_eval, cityDistQueue.size()) : cityDistQueue.size();
 
-	CityDistQueue::iterator max_iter = cityDistQueue.begin() + max_eval;
 
 	std::sort(cityDistQueue.begin(), cityDistQueue.end(), std::less<CityDist>());
 
@@ -5183,7 +5179,6 @@ void Player::RemoveWonder(sint32 which, bool destroyed)
 
 	if (!wonderutil_IsObsolete(which)) {
 		/// @todo Find out what was supposed to happen here: this is doing nothing
-		sint32 increaseRegard = wonderutil_GetIncreaseRegard(safe_shift_left_u64(which));
 
 	}
 
@@ -6394,7 +6389,6 @@ void Player::RemoveDeadPlayers()
 	}
 
 	sint32 i;
-	sint32 playersInGame = 0;
 	for(i = 1; i < k_MAX_PLAYERS; i++) {
 		if(player_Get(i) && player_Get(i)->m_isDead) {
 
@@ -6462,10 +6456,6 @@ void Player::RemoveDeadPlayers()
 	}
 	g_aPlayerIsDead = FALSE;
 
-	for (i=1; i < k_MAX_PLAYERS; i++) {
-		if (player_Get(i) && !player_Get(i)->m_isDead)
-			playersInGame++ ;
-	}
 }
 
 Player *Player::GetDeadPlayer(sint32 index)
@@ -6891,19 +6881,13 @@ sint32 Player::GetUnderseaStrength() const
 
 sint32 Player::GetRank(STRENGTH_CAT category) const
 {
-	sint16 rank = 1;
-	sint16 total = 0;
 	sint32 maxStrength = 0;
 	sint32 myStrength = m_strengths->GetStrength(category);
 	sint32 minStrength = myStrength;
 	sint32 hisStrength;
 	for(sint32 p = 1; p < k_MAX_PLAYERS; p++) {
 		if (player_Get(p)) {
-			total++;
 			hisStrength = player_Get(p)->m_strengths->GetStrength(category);
-			if (hisStrength > myStrength) {
-				rank++;
-			}
 			if (hisStrength > maxStrength)
 				maxStrength = hisStrength;
 			if (hisStrength < minStrength)
@@ -7494,7 +7478,6 @@ void Player::GiveArmyCommand(Army &army,
 	if(army.GetOwner() != m_owner)
 		return;
 
-	Unit aUnit = army.Access(0);
 	MapPoint apos;
 	army.GetPos(apos);
 	Unit aCity;
@@ -8463,7 +8446,6 @@ double Player::EnergySupply()
 				CityInfluenceIterator it(inst.RetPos(), radius);
 				for(it.Start(); !it.End(); it.Next())
 				{
-					Cell *radiuscell = world_Get()->GetCell(it.Pos());
 
 					if (rec->GetProducesEnergy())
 					{
@@ -8899,7 +8881,6 @@ void Player::MergeCivs(sint32 Merger, sint32 Mergee)  //Merger is the civ gainin
 	{
 		Unit	c = player_Get(Mergee)->m_all_cities->Get(i).m_id ;
 
-		CityData	*cityData = m_all_cities->Get(c).GetData()->GetCityData() ;
 
 		MapPoint newPos ;
 		double dist;

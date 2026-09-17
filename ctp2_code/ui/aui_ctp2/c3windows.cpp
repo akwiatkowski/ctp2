@@ -1261,13 +1261,10 @@ int c3windows_MakeStatusWindow( BOOL make )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	static C3TextField *textfield;
-	static C3TextField *textfield2;
 	static TextButton	 *button;
 	static TextButton	 *debugButton;
 	static TextButton	 *resourceButton;
 	static TextButton	 *cheatButton;
-	static TextButton	 *cityViewButton;
 	static TextButton	 *knowledgeButton;
 	static TextButton	 *diplomacyButton;
 
@@ -1484,7 +1481,6 @@ int c3windows_MakeDebugWindow( BOOL make )
 
 	static TextBox *textbox;
 	static TextButton *exitButton;
-	static C3TextField *textfield;
 
 	if ( make )
 	{

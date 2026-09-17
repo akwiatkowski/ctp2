@@ -60,8 +60,6 @@ AUI_ERRCODE ctp2_ListItem::Draw(aui_Surface *surface, sint32 x, sint32 y)
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	sint32 test   = IsHidden();
-	sint32 enable = IsDisabled();
 	if(!IsHidden()
 	&& !IsDisabled()
 	){

@@ -2,8 +2,8 @@
 #include "ui/aui_common/aui_joystick.h"
 
 aui_Joystick::aui_Joystick()
-:	aui_Base	(),
-	aui_Input	(),
+:	aui_Input	(),
+	aui_Base	(),
 	m_data	()
 { ; }
 

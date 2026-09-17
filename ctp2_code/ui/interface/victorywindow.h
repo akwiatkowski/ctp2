@@ -42,8 +42,6 @@ public:
 
 	ctp2_Window		*m_window;
 private:
-	ctp2_TabGroup	*m_tabGroup;
-	ctp2_Button		*m_okButton;
 
 };
 

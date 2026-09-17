@@ -232,7 +232,10 @@ void textutils_DeleteFont(
 {
 	Assert(hFont);
 	if (hFont==nullptr) return;
-	delete hFont;
+	// hfont_t has no definition anywhere: textutils_CreateFont is a stub
+	// that only ever returns nullptr, so there is nothing to free. The old
+	// `delete hFont` on the incomplete type was UB (-Wdelete-incomplete).
+	(void)hFont;
 }
 
 

@@ -116,7 +116,7 @@ class EditQueue {
 	ctp2_ListBox *m_listBeforeLoadSaveMode;
 	ctp2_Static *m_queueLabel;
 
-	ctp2_Button *m_loadModeLoadButton, *m_loadModeSaveButton;
+	ctp2_Button *m_loadModeLoadButton;
 
 	ctp2_Button *m_gotoCityButton;
 	ctp2_Button *m_nationalManagerButton;

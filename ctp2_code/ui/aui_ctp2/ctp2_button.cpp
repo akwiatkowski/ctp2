@@ -38,7 +38,7 @@ ctp2_Button::~ctp2_Button()
 
 
 
-AUI_ERRCODE ctp2_Button::InitCommonLdl(MBCHAR const *ldlBlock, MBCHAR *ldlTemplate,
+AUI_ERRCODE ctp2_Button::InitCommonLdl(MBCHAR const *ldlBlock, MBCHAR const *ldlTemplate,
 									   sint32 x, sint32 y,
 									   sint32 width, sint32 height)
 {

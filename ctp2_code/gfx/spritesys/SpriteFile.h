@@ -219,7 +219,6 @@ private:
     size_t m_decodedBytes = 0;
     bool m_reading = false;
 	FILE *      m_file;
-	fpos_t      m_filePos;
 	MBCHAR		m_filename[_MAX_PATH];
 };
 

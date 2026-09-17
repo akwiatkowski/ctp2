@@ -359,7 +359,6 @@ sint32 CityInventoryListBox::UpdateImage( const Unit &unit )
 	else if (bn) {
 
 		sint32 govType   = player_Get(unit.GetOwner())->GetGovernmentType();
-		sint32 completed = bq->GetPercentCompleted(unit.GetData()->GetCityData()->GetStoredCityProduction());
 
 		if (bn->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT) {
 			snprintf(str, sizeof(str), "%s", stringdb_Get()->GetNameStr(g_theBuildingDB->Get(bn->m_type, govType)->m_name));

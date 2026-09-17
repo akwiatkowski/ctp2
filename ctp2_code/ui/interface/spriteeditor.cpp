@@ -430,7 +430,7 @@ SpriteEditWindow::SetAnimation(sint32 anim)
 
 
 void
-SpriteEditWindow::InitializeControls(AUI_ERRCODE *errcode,MBCHAR *windowBlock)
+SpriteEditWindow::InitializeControls(AUI_ERRCODE *errcode,MBCHAR const *windowBlock)
 {
 
 	m_Load = spNew_ctp2_Button(errcode,windowBlock,"STLoadButton","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");

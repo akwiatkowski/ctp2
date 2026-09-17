@@ -93,7 +93,6 @@ private:
 
 	sint32	m_centerColor;
 
-	c3_HyperTipWindow	*m_tip[ k_TOTAL_BUTTONS ];
 
 	ctp2_Static	*m_left;
 	ctp2_Static	*m_right;

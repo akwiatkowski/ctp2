@@ -39,9 +39,6 @@ template <class type> const MBCHAR *ComparisonCharacter(type left, type right)
 template <class type> COLORREF ComparisonColor(type left, type right)
 {
 
-	static const sint32 LESS_THAN_CHARACTER = 0;
-	static const sint32 EQUAL_CHARACTER = 1;
-	static const sint32 GREATER_THAN_CHARACTER = 2;
 
 	if(left < right)
 		return(colorset_Get()->GetColorRef(COLOR_RED));
@@ -53,9 +50,6 @@ template <class type> COLORREF ComparisonColor(type left, type right)
 template <class type> COLORREF ComparisonColorOpposite(type left, type right)
 {
 
-	static const sint32 LESS_THAN_CHARACTER = 0;
-	static const sint32 EQUAL_CHARACTER = 1;
-	static const sint32 GREATER_THAN_CHARACTER = 2;
 
 	if(left > right)
 		return(colorset_Get()->GetColorRef(COLOR_RED));

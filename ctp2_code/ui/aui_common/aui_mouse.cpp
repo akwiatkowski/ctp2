@@ -83,8 +83,8 @@ aui_Mouse::aui_Mouse
 	MBCHAR const *        ldlBlock
 )
 :
-    aui_Base    (),
-	aui_Input   ()
+    aui_Input   (),
+	aui_Base    ()
 {
 	*retval = InitCommonLdl( ldlBlock );
 	Assert( AUI_SUCCESS(*retval) );
@@ -119,11 +119,11 @@ AUI_ERRCODE aui_Mouse::InitCommon( )
 	memset( m_inputs, 0, sizeof( m_inputs ) );
 
 	SetClip( nullptr );
-        int x = 0;
-        int y = 0;
-        Uint8 state = CTP2_SDL_GetMouseState(&x, &y);
-        m_data.position.x = x;
-        m_data.position.y = y;
+	int x = 0;
+	int y = 0;
+	CTP2_SDL_GetMouseState(&x, &y);
+	m_data.position.x = x;
+	m_data.position.y = y;
 
 	if ( !m_mouseRefCount++ )
 	{
@@ -1444,7 +1444,6 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundImageToPrimary(
 
 AUI_ERRCODE aui_Mouse::Erase( )
 {
-	AUI_ERRCODE errcode;
 
 	// Hardware-cursor mode: no software cursor was ever drawn — restoring
 	// the pickup would bake stale screen pixels into the UI layer.
@@ -1474,7 +1473,7 @@ AUI_ERRCODE aui_Mouse::Erase( )
 	RECT rect = mixRect;
 	OffsetRect( &rect, -image.x, -image.y );
 
-	errcode = aui_ui_Get()->BltToSecondary(
+	aui_ui_Get()->BltToSecondary(
 		mixRect.left,
 		mixRect.top,
 		m_prevPickup,

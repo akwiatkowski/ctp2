@@ -197,6 +197,7 @@ ProfileDB::ProfileDB(MBCHAR const * profilePath)
     m_moveHoldTime                      (500),
     m_battleSpeed                       (SLIDER_MIDDLE),
     m_showEnemyHealth                   (TRUE),
+    m_debugai                           (FALSE),
     m_scrollDelay                       (0),
     m_autoRenameCities                  (FALSE),
     m_autoOpenCityWindow                (TRUE),
@@ -228,7 +229,6 @@ ProfileDB::ProfileDB(MBCHAR const * profilePath)
     m_showOrderUnion                    (FALSE),
     m_recentAtTop                       (FALSE),
     m_cityClick                         (FALSE),
-    m_dontSave                          (FALSE),
     m_endTurnWithEmptyBuildQueues       (FALSE),
     m_runInBackground                   (FALSE),
     m_autoExpireTreatyTurn              (k_EXPIRATION_NEVER),
@@ -249,7 +249,6 @@ ProfileDB::ProfileDB(MBCHAR const * profilePath)
     m_AIMilitiaUnit                     (FALSE),
     m_OneCityChallenge                  (FALSE),
     m_NRG                               (FALSE),
-    m_debugai                           (FALSE),
     m_ruin                              (FALSE),
     m_NoCityLimit                       (FALSE),
     m_DebugCityAstar                    (FALSE),
@@ -260,7 +259,8 @@ ProfileDB::ProfileDB(MBCHAR const * profilePath)
     m_spEndingAge                       (-1),
     m_showCityProduction                (TRUE),
     // Add above this line new profile options
-    m_loadedFromTutorial                (FALSE)
+    m_loadedFromTutorial                (FALSE),
+    m_dontSave                          (FALSE)
 {
 	for (auto & player : m_ai_personality)
 	{

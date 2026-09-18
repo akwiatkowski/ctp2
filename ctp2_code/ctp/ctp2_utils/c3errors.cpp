@@ -54,7 +54,9 @@ void c3errors_FatalDialog(const char* module, const char* fmt, ...)
 	str[sizeof(str) - 1] = '\0';
 	va_end(list);
 
-	c3errors_ErrorDialog(module, str);
+	// "%s": str is an already-formatted message; passing it as the format
+	// would re-interpret any % in the caller's arguments.
+	c3errors_ErrorDialog(module, "%s", str);
 
 	Assert(FALSE);
 
@@ -73,24 +75,20 @@ void c3errors_FatalDialog(const char* module, const char* fmt, ...)
 
 void c3errors_FatalDialogFromDB(const char *module, const char *err, ...)
 {
+	// Titles are plain text (no format processing) — direct lookups are fine.
 	MBCHAR *    dbTitle;
 	if (!stringdb_Get()->GetText(module, &dbTitle))
-		c3errors_FatalDialog("string db", "%s missing from string db", module);
+		dbTitle = const_cast<MBCHAR *>((const MBCHAR *)module);
 
-	MBCHAR *    dbError;
-	if (!stringdb_Get()->GetText(err, &dbError))
-		c3errors_FatalDialog("string db", "%s missing from string db", err) ;
-
+	// The error BODY is a printf-style template from the db: GetTextOr's
+	// format_arg attribute lets the template flow into vsnprintf verbatim,
+	// with the call-site literal below as the missing-key fallback.
 	va_list		list;
 	MBCHAR	    str[_MAX_PATH];
 
-	// TODO: I've changed the second argument in the following from dbError (which made no sense)
-	//   into err.  I think that this is what was originally intended, but since the feature this
-	//   code implements is never actually used anywhere, I expect it makes little difference.
-	//   nevertheless, that this works should be checked at some point.  The same applies to the
-	//   next function (c3errors_ErrorDialogFromDB) - JJB
 	va_start(list, err) ;
-	vsnprintf(str, sizeof(str), dbError, list) ;
+	vsnprintf(str, sizeof(str),
+		stringdb_Get()->GetTextOr(err, "%s"), list) ;
 	str[sizeof(str) - 1] = '\0';
 	va_end(list) ;
 
@@ -113,18 +111,19 @@ void c3errors_FatalDialogFromDB(const char *module, const char *err, ...)
 
 void c3errors_ErrorDialogFromDB(const char *module, const char *err, ...)
 {
+    // Titles are plain text (no format processing) — direct lookups are fine.
     MBCHAR *    dbTitle;
 	if (!stringdb_Get()->GetText(module, &dbTitle))
-		c3errors_FatalDialog("string db", "%s missing from string db", module) ;
+		dbTitle = const_cast<MBCHAR *>((const MBCHAR *)module);
 
-    MBCHAR *    dbError;
-	if (!stringdb_Get()->GetText(err, &dbError))
-		c3errors_FatalDialog("string db", "%s missing from string db", err) ;
-
+	// The error BODY is a printf-style template from the db: GetTextOr's
+	// format_arg attribute lets it flow into vsnprintf verbatim, with the
+	// call-site literal as the missing-key fallback.
 	va_list		list;
 	MBCHAR	    str[_MAX_PATH];
 	va_start(list, err);
-	vsnprintf(str, sizeof(str), dbError, list);
+	vsnprintf(str, sizeof(str),
+		stringdb_Get()->GetTextOr(err, "%s"), list);
 	str[sizeof(str) - 1] = '\0';
 	va_end(list);
 
@@ -163,7 +162,9 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
    std::vector<char> szTitleBuf(titleChars);
    szTitle = szTitleBuf.data();
 
-   snprintf(szTitle, titleChars, szTitleText, szTmp);
+   // (szTitleText inlined: the local hid the literal from -Wformat checking;
+   // "%s Error" is the only value it ever holds.)
+   snprintf(szTitle, titleChars, "%s Error", szTmp);
 #endif
 
 	LPTSTR  szFmtTmp    = szTitle + lstrlen(szTitle) + 2;

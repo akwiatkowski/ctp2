@@ -52,7 +52,7 @@ LogClass LOG_MEMORY_FAIL = "MemoryFail";
 static LogClass LOG_LOG_CLASSES = "LogClasses";
 
 #define k_DEBUG_MAX_LOG_FILE_SIZE		(5 * 1024 * 1024)
-#define k_DEBUG_FILENAME				"logs" FILE_SEP "CivCTP_debug%#.3d.txt"
+#define k_DEBUG_FILENAME				"logs" FILE_SEP "CivCTP_debug%.3d.txt"
 
 static const int HashTableSize = 1024;
 
@@ -446,7 +446,7 @@ int Log_OutputEnabled (void)
 		return (false);
 	}
 
-	return (logging->to_file | logging->to_debugger) ? 1 : 0;
+	return (logging->to_file || logging->to_debugger) ? 1 : 0;
 }
 
 void Log_Begin (const char *module_name, int module_line)

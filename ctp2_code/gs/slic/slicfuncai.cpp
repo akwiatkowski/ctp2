@@ -728,7 +728,7 @@ SFN_ERROR Slic_ConsiderResponse::Call(SlicArgList *args)
 	Response response;
 
 	if (!ParseResponseSlicArgs(args, argNum, response))
-		SFN_ERROR_TYPE_ARGS;
+		return SFN_ERROR_TYPE_ARGS;
 
 	if (Diplomat::GetDiplomat(response.senderId).GetReceiverHasInitiative(response.receiverId))
 		Diplomat::GetDiplomat(response.receiverId).
@@ -753,7 +753,7 @@ SFN_ERROR Slic_SetResponse::Call(SlicArgList *args)
 	Response response;
 
 	if (!ParseResponseSlicArgs(args, argNum, response))
-		SFN_ERROR_TYPE_ARGS;
+		return SFN_ERROR_TYPE_ARGS;
 
 	if (Diplomat::GetDiplomat(response.senderId).GetReceiverHasInitiative(response.receiverId))
 		Diplomat::GetDiplomat(response.receiverId).
@@ -1381,8 +1381,9 @@ SFN_ERROR Slic_GetLastNewProposalType::Call(SlicArgList *args)
     if(!args->GetInt(argNum++, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-    if(type<0 || type >1)
+    if(type<0 || type >1) {
         return SFN_ERROR_OUT_OF_RANGE;
+    }
 
 	if(type==0){
         m_result.m_int =Diplomat::GetDiplomat(player).GetMyLastNewProposal(foreigner).detail.first_type;
@@ -1605,7 +1606,7 @@ SFN_ERROR Slic_GetNewProposalPriority::Call(SlicArgList *args)
 
 	m_result.m_int = Diplomat::GetDiplomat(player).GetNewProposalPriority(foreigner, (const enum PROPOSAL_TYPE) prop) ;
 
-	DPRINTF(k_DBG_SLIC, ("Slic_GetNewProposalPriority:player %d, foreigner %d, prop $d, returns %d\n",player,foreigner,prop, m_result.m_int));
+	DPRINTF(k_DBG_SLIC, ("Slic_GetNewProposalPriority:player %d, foreigner %d, prop %d, returns %d\n",player,foreigner,prop, m_result.m_int));
 
 	return SFN_ERROR_OK;
 }
@@ -2034,7 +2035,7 @@ SFN_ERROR Slic_SetEmbargo::Call(SlicArgList *args)
 
 	Diplomat::GetDiplomat(player).SetEmbargo(foreigner, (state==1 ? true:false));//convert state to bool
 
-	DPRINTF(k_DBG_SLIC, ("Slic_SetEmbargo:player %d, foreigner %d, state $d, returns %d\n",player,foreigner,state, m_result.m_int));
+	DPRINTF(k_DBG_SLIC, ("Slic_SetEmbargo:player %d, foreigner %d, state %d, returns %d\n",player,foreigner,state, m_result.m_int));
 
 	return SFN_ERROR_OK;
 }

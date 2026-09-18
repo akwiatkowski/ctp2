@@ -114,14 +114,15 @@ void NetDipProposal::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	bool execute;
 	NewProposal curProp = Diplomat::GetDiplomat(m_prop.senderId).GetMyLastNewProposal(m_prop.receiverId);
 	if(curProp == Diplomat::s_badNewProposal) {
-		DPRINTF(k_DBG_NET, ("Adding new proposal (%d,%d), current is bad, new id: 0x%lx\n", m_prop.senderId, m_prop.receiverId, m_prop.id));
+		// Proposal/Response ids are sint32: print with %x, not %lx.
+		DPRINTF(k_DBG_NET, ("Adding new proposal (%d,%d), current is bad, new id: 0x%x\n", m_prop.senderId, m_prop.receiverId, m_prop.id));
 		execute = true;
 	} else if(curProp.id != m_prop.id) {
-		DPRINTF(k_DBG_NET, ("Replacing proposal (%d,%d), old = 0x%lx, new=0x%lx\n", m_prop.senderId, m_prop.receiverId,
+		DPRINTF(k_DBG_NET, ("Replacing proposal (%d,%d), old = 0x%x, new=0x%x\n", m_prop.senderId, m_prop.receiverId,
 							curProp.id, m_prop.id));
 		execute = true;
 	} else {
-		DPRINTF(k_DBG_NET, ("Proposal ID's match (%d,%d), id = 0x%lx\n", m_prop.senderId, m_prop.receiverId, m_prop.id));
+		DPRINTF(k_DBG_NET, ("Proposal ID's match (%d,%d), id = 0x%x\n", m_prop.senderId, m_prop.receiverId, m_prop.id));
 		execute = false;
 	}
 
@@ -189,14 +190,14 @@ void NetDipResponse::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	bool execute;
 	Response curResp = Diplomat::GetDiplomat(m_resp.receiverId).GetMyLastResponse(m_resp.senderId);
 	if(curResp == Diplomat::s_badResponse) {
-		DPRINTF(k_DBG_NET, ("Adding new response (%d,%d), id: 0x%lx\n", m_resp.receiverId, m_resp.senderId, m_resp.id));
+		DPRINTF(k_DBG_NET, ("Adding new response (%d,%d), id: 0x%x\n", m_resp.receiverId, m_resp.senderId, m_resp.id));
 		execute = true;
 	} else if(curResp.id != m_resp.id) {
-		DPRINTF(k_DBG_NET, ("Replacing response (%d,%d), old id: 0x%lx, new id: 0x%lx\n",
+		DPRINTF(k_DBG_NET, ("Replacing response (%d,%d), old id: 0x%x, new id: 0x%x\n",
 							m_resp.receiverId, m_resp.senderId, curResp.id, m_resp.id));
 		execute = true;
 	} else {
-		DPRINTF(k_DBG_NET, ("Response IDs match (%d,%d), ID: 0x%lx\n", m_resp.receiverId, m_resp.senderId,
+		DPRINTF(k_DBG_NET, ("Response IDs match (%d,%d), ID: 0x%x\n", m_resp.receiverId, m_resp.senderId,
 							m_resp.id));
 		execute = false;
 	}

@@ -71,7 +71,7 @@ namespace Os
 }
 
 static C3Window				*s_initplayWindow		= nullptr;
-static MBCHAR				*s_initplayWindowLDLBlock = "InitPlayWindow";
+static const MBCHAR			*s_initplayWindowLDLBlock = "InitPlayWindow";
 
 sint32	initialplayscreen_displayMyWindow()
 {

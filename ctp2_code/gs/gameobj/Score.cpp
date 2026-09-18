@@ -258,6 +258,12 @@ sint32 Score::GetPartialScoreCount(SCORE_CATEGORY cat)
 			}
 			break;
 		}
+		case SCORE_CAT_CELEBRATIONS:
+		case SCORE_CAT_MAX:
+		{
+			// Sentinel/unused categories contribute no count.
+			break;
+		}
 	}
 	if(count<0)
 	{
@@ -282,6 +288,21 @@ sint32 Score::GetPartialScore(SCORE_CATEGORY cat)
 		case SCORE_CAT_RANK:
 		{
 			value /= 100;
+			break;
+		}
+		case SCORE_CAT_FEATS:
+		case SCORE_CAT_ADVANCES:
+		case SCORE_CAT_WONDERS:
+		case SCORE_CAT_CITIES0TO30:
+		case SCORE_CAT_CITIES30TO100:
+		case SCORE_CAT_CITIES100TO500:
+		case SCORE_CAT_CITIES500PLUS:
+		case SCORE_CAT_CITIES_RECAPTURED:
+		case SCORE_CAT_OPPONENTS_CONQUERED:
+		case SCORE_CAT_TYPE_OF_VICTORY:
+		case SCORE_CAT_CELEBRATIONS:
+		case SCORE_CAT_MAX:
+		{
 			break;
 		}
 	}
@@ -383,6 +404,11 @@ double Score::GetPartialScoreValue(SCORE_CATEGORY cat)
 			}
 			break;
 		}
+		case SCORE_CAT_CELEBRATIONS:
+		case SCORE_CAT_MAX:
+		{
+			break;
+		}
 	}
 	return (sint32)ret;
 
@@ -395,8 +421,9 @@ const MBCHAR *Score::GetPartialScoreItemized(SCORE_CATEGORY cat)
 	static MBCHAR buffer[80];
 	static MBCHAR commaValue[80];
 	static MBCHAR commaCount[80];
-	const MBCHAR *formatNormal = "%s x %s";
-	const MBCHAR *formatPercent = "%s%% x %s";
+	// Two literal formats picked by category; the ternary at the snprintf
+	// call keeps them string literals for -Wformat-nonliteral.
+	const bool isPercent = (cat == SCORE_CAT_POPULATION) || (cat == SCORE_CAT_RANK);
 
 	Player *pl = player_Get(m_owner);
 	if(!pl)
@@ -412,19 +439,13 @@ const MBCHAR *Score::GetPartialScoreItemized(SCORE_CATEGORY cat)
 	if(count<0)
 		count=0;
 	double value = GetPartialScoreValue(cat);
-	const MBCHAR *formatStr = formatNormal;
-
-	switch (cat)
-	{
-		case SCORE_CAT_POPULATION:
-		case SCORE_CAT_RANK:
-			formatStr = formatPercent;
-			break;
-	}
+	// (formatStr removed: both candidate formats are literals and are chosen
+	// inline below so the compiler can verify them.)
 
 	cpw_NumberToCommas((sint32 )value, commaValue, sizeof(commaValue));
 	cpw_NumberToCommas(count, commaCount, sizeof(commaCount));
-	snprintf(buffer, sizeof(buffer), formatStr, commaCount, commaValue);
+	snprintf(buffer, sizeof(buffer),
+		isPercent ? "%s%% x %s" : "%s x %s", commaCount, commaValue);
 
 	return buffer;
 }

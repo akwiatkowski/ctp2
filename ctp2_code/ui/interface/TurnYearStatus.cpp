@@ -96,7 +96,7 @@ const MBCHAR *TurnYearStatus::GetYearString(sint32 currentYear, sint32 round)
 		AUI_ERRCODE         errcode         = AUI_ERRCODE_OK;
 		auto                table           = std::make_unique<aui_StringTable>(&errcode, "YearStrings");
 		sint32 const        yearStringIndex = (currentYear < 0) ? 0 : 1;
-		snprintf(buf, sizeof(buf), "%ld%s", abs(currentYear), table->GetString(yearStringIndex));
+		snprintf(buf, sizeof(buf), "%d%s", abs(currentYear), table->GetString(yearStringIndex));
 	}
 
 	return buf;
@@ -148,7 +148,7 @@ void TurnYearStatus::BuildTurnLengthOverride()
 				rewind(fp);
 				for (int i = 0; i < count; i++)
 				{
-					fscanf(fp, "%d,%[^'\n']\n", &(s_pTurnLengthOverride[i].turn), &dummy);
+					fscanf(fp, "%d,%[^'\n']\n", &(s_pTurnLengthOverride[i].turn), dummy);
 					memset(s_pTurnLengthOverride[i].text, 0, 32);
 					strlcpy(s_pTurnLengthOverride[i].text, dummy, sizeof(s_pTurnLengthOverride[i].text));
 				}

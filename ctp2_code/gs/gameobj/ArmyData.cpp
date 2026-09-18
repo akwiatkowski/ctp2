@@ -1030,7 +1030,9 @@ void ArmyData::GetActors(Unit &excludeMe, std::vector<std::weak_ptr<UnitActor> >
 void ArmyData::GroupArmy(Army &army)
 {
     sint32 i;
-    DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx grouping army 0x%lx", m_id, army));
+    // ID handles are printed via .m_id (uint32): the ID class has several
+    // conversion operators, which are ambiguous for varargs arguments.
+    DPRINTF(k_DBG_GAMESTATE, ("Army 0x%x grouping army 0x%x", m_id, army.m_id));
 
     // PFT 17 Mar 05, E 18-Oct-2005:
     // Prevent some categories of units from grouping.
@@ -1058,7 +1060,7 @@ void ArmyData::GroupArmy(Army &army)
     bool atLeastOneAsleep = false;
 
     for(i = army.Num() - 1; i >= 0; i--) {
-        DPRINTF(k_DBG_GAMESTATE, ("Inserting unit 0x%lx\n", army[i]));
+        DPRINTF(k_DBG_GAMESTATE, ("Inserting unit 0x%x\n", army[i].m_id));
         gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
                                GEA_Unit, army[i],
                                GEA_Army, m_id,
@@ -1103,7 +1105,7 @@ void ArmyData::GroupArmy(Army &army)
 //----------------------------------------------------------------------------
 void ArmyData::GroupAllUnits()
 {
-    DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx grouping everyone\n", m_id));
+    DPRINTF(k_DBG_GAMESTATE, ("Army 0x%x grouping everyone\n", m_id));
     Cell *cell = world_Get()->GetCell(m_pos);
 
     CellUnitList *ul = cell->UnitArmy();
@@ -1124,8 +1126,8 @@ void ArmyData::GroupAllUnits()
 
                 ul->Access(i).GetArmy().SetRemoveCause(CAUSE_REMOVE_ARMY_GROUPING);
                 ul->Access(i).ChangeArmy(Army(m_id), CAUSE_NEW_ARMY_GROUPING);
-                DPRINTF(k_DBG_GAMESTATE, ("Grouped unit 0x%lx\n",
-                                          ul->Access(i)));
+                DPRINTF(k_DBG_GAMESTATE, ("Grouped unit 0x%x\n",
+                                          ul->Access(i).m_id));
             }
         }
     }
@@ -1164,7 +1166,7 @@ void ArmyData::GroupAllUnits()
 //----------------------------------------------------------------------------
 void ArmyData::GroupUnit(Unit unit)
 {
-    DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx grouping unit 0x%lx\n", m_id, unit));
+    DPRINTF(k_DBG_GAMESTATE, ("Army 0x%x grouping unit 0x%x\n", m_id, unit.m_id));
 
     Assert(unit.IsValid());
     if (!unit.IsValid())
@@ -2503,7 +2505,7 @@ ORDER_RESULT ArmyData::CauseUnhappiness(const MapPoint &point,
 		return ORDER_RESULT_FAILED;
 	}
 
-	DPRINTF(k_DBG_GAMESTATE, ("City 0x%lx will be %d less happy for %d turns\n",
+	DPRINTF(k_DBG_GAMESTATE, ("City 0x%x will be %d less happy for %d turns\n",
 							  uint32(c), amount, timer));
 
 	if(network_Get().IsHost()) {
@@ -3384,7 +3386,7 @@ ORDER_RESULT ArmyData::InciteUprising(const MapPoint &point)
 
 	sint32 const    cost            = static_cast<sint32>(baseCost + capitolPenalty);
 
-	DPRINTF(k_DBG_GAMESTATE, ("Cost to incite uprising: %ld\n", cost));
+	DPRINTF(k_DBG_GAMESTATE, ("Cost to incite uprising: %d\n", cost));
 
 	if(player_Get(m_owner)->m_gold->GetLevel() < cost)
 		return ORDER_RESULT_FAILED;
@@ -4005,7 +4007,7 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 		so->AddCity(city);
 		sint32 i;
 		for(i = 0; i < g_theWonderDB->NumRecords(); i++) {
-			if(i >= 64 || !safe_player(city.GetOwner())->m_builtWonders & safe_shift_left_u64(i))
+			if(i >= 64 || !(safe_player(city.GetOwner())->m_builtWonders & safe_shift_left_u64(i)))
 				continue;
 
 			if(wonderutil_Get(i, m_owner)->GetPreventConversion()) {
@@ -4789,8 +4791,8 @@ ORDER_RESULT ArmyData::CreatePark(const MapPoint &point)
 		return ORDER_RESULT_ILLEGAL;
 
 	if(!player_Get(m_owner)->IsRobot()
-	||  network_Get().IsClient()
-	&& network_Get().IsLocalPlayer(m_owner))
+	||  (network_Get().IsClient()
+	&& network_Get().IsLocalPlayer(m_owner)))
 		if(!VerifyAttack(UNIT_ORDER_CREATE_PARK, point,
 						 c.GetOwner()))
 			return ORDER_RESULT_ILLEGAL;
@@ -5316,7 +5318,7 @@ bool ArmyData::BombardCity(const MapPoint &point, bool doAnimations)
 			atLeastOneBombarded = true;
 
 			sint32 r = civrand().Next(100);
-			DPRINTF(k_DBG_GAMESTATE, ("Bombarding 0x%lx: r1 = %d\n", c.m_id, r));
+			DPRINTF(k_DBG_GAMESTATE, ("Bombarding 0x%x: r1 = %d\n", c.m_id, r));
 
 			prob = static_cast<sint32>(rec->GetZBRangeAttack() - buildingutil_GetCityWallsDefense(c.GetCityData()->GetImprovements(), m_owner));
 			if(prob < 0)
@@ -5357,7 +5359,7 @@ bool ArmyData::BombardCity(const MapPoint &point, bool doAnimations)
 				if(c.PopCount() > 1
 				&&(civrand().Next(100) < g_theConstDB->Get(0)->GetBombardKillPopChance() * prob)
 				){
-					DPRINTF(k_DBG_GAMESTATE, ("Removing one pop from 0x%lx\n", c.m_id));
+					DPRINTF(k_DBG_GAMESTATE, ("Removing one pop from 0x%x\n", c.m_id));
 					c.CD()->ChangePopulation(-1);
 				}
 			}
@@ -5992,7 +5994,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 			attackOrder->m_eventType = Order::OrderToEvent(order);
 		}
 		Assert(attackOrder->m_eventType < GEV_MAX && attackOrder->m_eventType >= 0);
-		DPRINTF(k_DBG_GAMESTATE, ("Adding event order for army 0x%lx, event = %s, targetPos = (%i, %i)\n", m_id, gevmanager_Get()->GetEventName(attackOrder->m_eventType), point.x, point.y));
+		DPRINTF(k_DBG_GAMESTATE, ("Adding event order for army 0x%x, event = %s, targetPos = (%i, %i)\n", m_id, gevmanager_Get()->GetEventName(attackOrder->m_eventType), point.x, point.y));
 		attackOrder->m_gameEventArgs = args;
 
 		m_orders->AddTail(attackOrder);
@@ -6019,7 +6021,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 			args->Add(new GameEventArgument(GEA_Int, argument));
 			o->m_gameEventArgs = args;
 
-			DPRINTF(k_DBG_GAMESTATE, ("Added explicit event order for army 0x%lx, event=%d\n", m_id, o->m_eventType));
+			DPRINTF(k_DBG_GAMESTATE, ("Added explicit event order for army 0x%x, event=%d\n", m_id, o->m_eventType));
 		}
 	}
 
@@ -6085,7 +6087,7 @@ void ArmyData::ClearOrders()
 {
 	if(m_orders->GetHead())
 	{
-		DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx clearing orders\n", m_id));
+		DPRINTF(k_DBG_GAMESTATE, ("Army 0x%x clearing orders\n", m_id));
 		if(network_Get().IsHost())
 		{
 			network_Get().Block(m_owner);
@@ -6180,7 +6182,7 @@ bool ArmyData::ExecuteOrders(bool propagate)
 		}
 	}
 
-	DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx Executing order %s @ (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name.c_str(), m_pos.x, m_pos.y, player_Get(m_owner)->m_current_round));
+	DPRINTF(k_DBG_GAMESTATE, ("Army 0x%x Executing order %s @ (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name.c_str(), m_pos.x, m_pos.y, player_Get(m_owner)->m_current_round));
 
 	while(keepGoing && m_nElements > 0 &&
 		  (order = m_orders->GetHead()) != nullptr) {
@@ -6412,6 +6414,8 @@ void ArmyData::InformAI(const UNIT_ORDER_TYPE order_type, const MapPoint &pos)
 
 	city_diplomat.LogViolationEvent(m_owner, PROPOSAL_TREATY_RESEARCH_PACT);
 	break;
+	default:
+		break;
 	}
 }
 
@@ -7307,6 +7311,9 @@ void ArmyData::UpdateZOCForMove(const MapPoint &pos, WORLD_DIRECTION d)
 			case SOUTHWEST:  dirs = N_F | NE_F | E_F; break;
 			case WEST:       dirs = N_F | NE_F | E_F | SE_F | S_F; break;
 			case NORTHWEST:  dirs = S_F | SE_F | E_F; break;
+			case DOWN:
+			case UP:
+			case NOWHERE:    break;
 		}
 
 	    std::vector<MapPoint> points;
@@ -7337,7 +7344,10 @@ void ArmyData::UpdateZOCForMove(const MapPoint &pos, WORLD_DIRECTION d)
 		case NORTHEAST:  dirs = N_F | NE_F | E_F; break;
 		case EAST:       dirs = N_F | NE_F | E_F | SE_F | S_F; break;
 		case SOUTHEAST:  dirs = S_F | SE_F | E_F; break;
-		}
+		case DOWN:
+		case UP:
+		case NOWHERE:    break;
+	}
 
 		for(dd = 0; dd < (sint32)NOWHERE; dd++) {
 			if(dirs & (1 << dd)) {
@@ -7397,7 +7407,7 @@ bool ArmyData::MoveIntoCell(const MapPoint &pos, UNIT_ORDER_TYPE order, WORLD_DI
 
 	if(!CanMoveIntoCell(pos, zocViolation, ignoreZoc, alliedCity))
 	{
-		DPRINTF(k_DBG_GAMESTATE, ("Move Failure: Army 0x%lx Executing order %s @ (%d,%d) to (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name.c_str(), m_pos.x, m_pos.y, pos.x, pos.y, player_Get(m_owner)->m_current_round));
+		DPRINTF(k_DBG_GAMESTATE, ("Move Failure: Army 0x%x Executing order %s @ (%d,%d) to (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name.c_str(), m_pos.x, m_pos.y, pos.x, pos.y, player_Get(m_owner)->m_current_round));
 
 		if(zocViolation)
 		{
@@ -7653,7 +7663,7 @@ void ArmyData::MoveUnits(const MapPoint &pos)
 			}
 
 			world_Get()->RemoveUnitReference(m_pos, m_array[i]);
-			bool r = m_array[i].MoveToPosition(pos, revealedUnits);
+			m_array[i].MoveToPosition(pos, revealedUnits);
 
 			if(m_array[i].GetNumCarried() > 0)
 			{
@@ -7669,10 +7679,10 @@ void ArmyData::MoveUnits(const MapPoint &pos)
 #if defined(_DEBUG) || defined(USE_LOGGING)
 				if(notReported)
 				{
-					DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx revealed %d units during move:\n", m_id, revealedUnits.Num()));
+					DPRINTF(k_DBG_GAMESTATE, ("Army 0x%x revealed %d units during move:\n", m_id, revealedUnits.Num()));
 					for(sint32 uu = 0; uu < revealedUnits.Num(); uu++)
 					{
-						DPRINTF(k_DBG_GAMESTATE, ("  Unit 0x%lx\n", revealedUnits[uu].m_id));
+						DPRINTF(k_DBG_GAMESTATE, ("  Unit 0x%x\n", revealedUnits[uu].m_id));
 					}
 					notReported = false;
 				}
@@ -8983,10 +8993,10 @@ void ArmyData::ActionSuccessful(SPECATTACK attack, Unit &unit, Unit const & c)
 			       (    m_owner == player_view::VisiblePlayer()
 			         || (unit.GetVisibility() & (1u << player_view::VisiblePlayer()))
 			       )
-			    || c.IsValid()
+			    || (c.IsValid()
 			    && (    c.GetOwner() == player_view::VisiblePlayer()
 			         || (c.GetVisibility() & (1u << player_view::VisiblePlayer()))
-			       )
+			       ))
 			     )
 			){
 				render_observer::AddCenterMap(m_pos);
@@ -9403,6 +9413,8 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 		case ORDER_RESULT_INCOMPLETE:
 			deduct = true;
 			break;
+		case ORDER_RESULT_ILLEGAL:
+			break;
 	}
 
 	if(result == ORDER_RESULT_SUCCEEDED
@@ -9415,6 +9427,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 			case UNIT_ORDER_ASSASSINATE:       sText = "176AssassinationCompleteVictim"; break;
 			case UNIT_ORDER_INDULGENCE:        sText = "155IndulgenceCompleteVictim"; break;
 			case UNIT_ORDER_INJOIN:            sText = "159InjunctionCompleteVictim"; break;
+			default:                           break;
 		}
 
 		if (sText)
@@ -9931,7 +9944,7 @@ void ArmyData::CheckAddEventOrder()
 		} else {
 			DPRINTF(k_DBG_GAMESTATE,
 			        ("CheckAddEventOrder: dropping ADD_EVENT order with "
-			         "null args (stale after savegame load), army %lx\n",
+			         "null args (stale after savegame load), army %x\n",
 			         (uint32)m_id));
 		}
 		delete order;
@@ -10585,7 +10598,7 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 			double cur_move_pts;
 			CurMinMovementPoints(cur_move_pts);
 
-			DPRINTF(k_DBG_FILE, ("army 0x%lx, cur_move_pts=%f, move_pos=<%d,%d>\n",m_id,cur_move_pts,move_pos.x,move_pos.y));
+			DPRINTF(k_DBG_FILE, ("army 0x%x, cur_move_pts=%f, move_pos=<%d,%d>\n",m_id,cur_move_pts,move_pos.x,move_pos.y));
 
 			if(move_pos != m_pos)
 			{//then first move army to move_pos
@@ -11122,9 +11135,9 @@ void ArmyData::CheckHostileTerrain()
 		if(civrand().Next(10000) < risk->GetBarbarianChance() * 10000)
 		{
 
-			if( !terrainutil_HasFort(m_pos)
+			if( (!terrainutil_HasFort(m_pos)
 			&& !terrainutil_HasAirfield(m_pos) // Added by E 5-28-2006
-			&& player_Get(m_owner)->HasWarWith(cellowner)  //added 5-24-2007 so your and friendly territory isn't hostile
+			&& player_Get(m_owner)->HasWarWith(cellowner))  //added 5-24-2007 so your and friendly territory isn't hostile
 			|| cellowner == PLAYER_UNASSIGNED //added 5-24-2007 wastelands should be hostile
 			){
 				for(sint32 i = 0; i < m_nElements; i++) {
@@ -11148,8 +11161,7 @@ void ArmyData::CheckHostileTerrain()
 
 void ArmyData::CheckMineField()
 {
-	Cell *cell = world_Get()->GetCell(m_pos);
-		//EMOD If tile has tileimp that is a minefield then deduct HP
+	//EMOD If tile has tileimp that is a minefield then deduct HP
 	if(terrainutil_HasMinefield(m_pos)
 	){
 		//TerrainRecord const * tirec = g_theTerrainImprovementDB->Get(world_Get()->GetCell(m_pos)->GetDBImprovement());

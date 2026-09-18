@@ -92,8 +92,7 @@ static aui_Switch		*s_genocide			= nullptr,
 						*s_NoGoodyHuts		= nullptr,
 						*s_UNITGOLD			= nullptr,
 						*s_CITYGOLD			= nullptr,
-						*s_NOCITYLIMIT		= nullptr,
-						*s_NULL				= nullptr;
+						*s_NOCITYLIMIT		= nullptr;
 ctp2_Button				*s_ages				= nullptr;
 static c3_Static		*m_ruleDetails		= nullptr;
 static aui_StringTable	*m_ruleDetailsStrings = nullptr;
@@ -284,7 +283,7 @@ void spnewgamerulesscreen_agesPress(aui_Control *control, uint32 action, uint32 
 {
 	if (m_ruleDetails && m_ruleDetailsStrings)
 	{
-		m_ruleDetails->SetText("", NULL);
+		m_ruleDetails->SetText("");
 		m_ruleDetails->Hide();
 		m_ruleDetails->Show();
 
@@ -307,7 +306,7 @@ void spnewgamerulesscreen_checkPress(aui_Control *control, uint32 action, uint32
 
 	if (m_ruleDetails && m_ruleDetailsStrings)
 	{
-		m_ruleDetails->SetText("", NULL);
+		m_ruleDetails->SetText("");
 		m_ruleDetails->Hide();
 
 		switch(checkbox)
@@ -332,7 +331,7 @@ void spnewgamerulesscreen_checkPress(aui_Control *control, uint32 action, uint32
 		if (rule >= 0)
 		{
 			m_ruleDetails->Show();
-			m_ruleDetails->SetText("", NULL);
+			m_ruleDetails->SetText("");
 
 			char buf[1024];
 			snprintf(buf, sizeof(buf), "%s", m_ruleDetailsStrings->GetString(rule));
@@ -340,7 +339,7 @@ void spnewgamerulesscreen_checkPress(aui_Control *control, uint32 action, uint32
 		}
 		else
 		{
-			m_ruleDetails->SetText("", NULL);
+			m_ruleDetails->SetText("");
 			m_ruleDetails->Hide();
 		}
 	}

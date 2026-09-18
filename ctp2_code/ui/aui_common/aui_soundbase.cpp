@@ -14,12 +14,13 @@
 
 MBCHAR *aui_SoundBase::m_soundLdlKeywords[ AUI_SOUNDBASE_SOUND_LAST ] =
 {
-	"activatesound",
-	"deactivatesound",
-	"engagesound",
-	"disengagesound",
-	"executesound",
-	"tipsound"
+	// const_cast required: member is declared MBCHAR* in aui_soundbase.h (not owned here)
+	const_cast<MBCHAR *>("activatesound"),
+	const_cast<MBCHAR *>("deactivatesound"),
+	const_cast<MBCHAR *>("engagesound"),
+	const_cast<MBCHAR *>("disengagesound"),
+	const_cast<MBCHAR *>("executesound"),
+	const_cast<MBCHAR *>("tipsound")
 };
 
 

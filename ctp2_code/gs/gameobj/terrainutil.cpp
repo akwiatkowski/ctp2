@@ -943,24 +943,24 @@ bool terrainutil_CanPlayerSpecialBuildAt(const TerrainImprovementRecord *rec, si
 	if(world_Get()->GetCity(pos).IsValid())
 		return false;
 
-		if(rec->GetNumIsRestrictedToGood () == 0) {
-			for(i = 0; i < rec->GetNumCantBuildOn(); i++) {
-				if(rec->GetCantBuildOnIndex(i) == cell->GetTerrain()) {
-					return false;
-				}
-			}
-		}
-		else {
-			sint32 good;
-			if (world_Get()->GetGood(pos, good)) {
-				for(i = 0; i < rec->GetNumIsRestrictedToGood(); i++) {
-					if(rec->GetIsRestrictedToGoodIndex(i) == good) {
-						return true;
-					}
-				}
+	if(rec->GetNumIsRestrictedToGood () == 0) {
+		for(i = 0; i < rec->GetNumCantBuildOn(); i++) {
+			if(rec->GetCantBuildOnIndex(i) == cell->GetTerrain()) {
 				return false;
 			}
 		}
+	}
+	else {
+		sint32 good;
+		if (world_Get()->GetGood(pos, good)) {
+			for(i = 0; i < rec->GetNumIsRestrictedToGood(); i++) {
+				if(rec->GetIsRestrictedToGoodIndex(i) == good) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
 	if(eff->GetNumIsWonder() > 0) {  //added for show on map code
 		if(terrainutil_HasWonder(pos)) {
 			return false;
@@ -1636,24 +1636,24 @@ bool terrainutil_CanPlayerSpecialBuildAt(sint32 impType, sint32 pl, const MapPoi
 	if(world_Get()->GetCity(pos).IsValid())
 		return false;
 
-		if(rec->GetNumIsRestrictedToGood () == 0) {
-			for(i = 0; i < rec->GetNumCantBuildOn(); i++) {
-				if(rec->GetCantBuildOnIndex(i) == cell->GetTerrain()) {
-					return false;
-				}
-			}
-		}
-		else {
-			sint32 good;
-			if (world_Get()->GetGood(pos, good)) {
-				for(i = 0; i < rec->GetNumIsRestrictedToGood(); i++) {
-					if(rec->GetIsRestrictedToGoodIndex(i) == good) {
-						return true;
-					}
-				}
+	if(rec->GetNumIsRestrictedToGood () == 0) {
+		for(i = 0; i < rec->GetNumCantBuildOn(); i++) {
+			if(rec->GetCantBuildOnIndex(i) == cell->GetTerrain()) {
 				return false;
 			}
 		}
+	}
+	else {
+		sint32 good;
+		if (world_Get()->GetGood(pos, good)) {
+			for(i = 0; i < rec->GetNumIsRestrictedToGood(); i++) {
+				if(rec->GetIsRestrictedToGoodIndex(i) == good) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
 	if(eff->GetNumIsWonder() > 0) {  //added for show on map code
 		if(terrainutil_HasWonder(pos)) {
 			return false;

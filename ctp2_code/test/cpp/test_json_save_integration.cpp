@@ -476,7 +476,8 @@ TEST_CASE("UTF-8: SaveJson handles 8-player games with Latin-1 civ names")
     // post-condition the UTF-8 fix protects).
     std::string raw;
     REQUIRE(read_file(path, raw));
-    REQUIRE_NOTHROW(nlohmann::json::parse(raw));
+    nlohmann::json parsed;
+    REQUIRE_NOTHROW(parsed = nlohmann::json::parse(raw));
 }
 
 // ---------------------------------------------------------------------------

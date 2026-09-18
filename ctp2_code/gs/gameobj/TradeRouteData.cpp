@@ -106,10 +106,13 @@ TradeRouteData::TradeRouteData
 
 	m_valid = GeneratePath();
 
-	DPRINTF(k_DBG_GAMESTATE, ("Created Trade Route from %s to %s, cost=%d, valid=%i\n",
+	// (Bug fix: the format promised a `valid=%i` conversion that no argument
+	// supplied — the log printed garbage for it. m_valid is generated above.)
+	DPRINTF(k_DBG_GAMESTATE, ("Created Trade Route from %s to %s, cost=%f, valid=%i\n",
 	                          m_sourceCity->GetCityData()->GetName(),
 	                          m_destinationCity->GetCityData()->GetName(),
-	                          m_transportCost
+	                          m_transportCost,
+	                          m_valid ? 1 : 0
 	                         )
 	       );
 }

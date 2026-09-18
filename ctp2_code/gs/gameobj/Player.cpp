@@ -940,7 +940,7 @@ bool Player::RemoveUnitReference(const Unit &kill_me, const CAUSE_REMOVE_ARMY ca
 	bool r = false;
 	MapPoint pos;
 
-	DPRINTF(k_DBG_GAMESTATE, ("Player::RemoveUnitReference(%lx, %d)\n",
+	DPRINTF(k_DBG_GAMESTATE, ("Player::RemoveUnitReference(%x, %d)\n",
 							  kill_me.m_id, cause));
 
 	if (!kill_me.IsCity())
@@ -2801,7 +2801,7 @@ void Player::AcceptTradeBid(const Unit &fromCity, sint32 resource, const Unit &t
 										   fromCity.m_id, resource, toCity.m_id,
 										   price));
 	}
-	TradeRoute route = CreateTradeRoute(fromCity,
+	CreateTradeRoute(fromCity,
 					 ROUTE_TYPE_RESOURCE, resource,
 					 toCity,
 					 toCity.GetOwner(),
@@ -3691,7 +3691,7 @@ Agreement Player::MakeCaptureCityPact(PLAYER_INDEX player, Unit &city)
 
 	a.SetExpires(g_theConstDB->Get(0)->GetPactCaptureCityExpires()) ;
 	a.SetTarget(city) ;
-	DPRINTF(k_DBG_INFO, ("Player #%d agrees with Player #%d to capture city id %d as part of a pact\n", m_owner, player, city)) ;
+	DPRINTF(k_DBG_INFO, ("Player #%d agrees with Player #%d to capture city id %d as part of a pact\n", m_owner, player, city.m_id)) ;
 
 	return a;
 }
@@ -6426,8 +6426,8 @@ void Player::RemoveDeadPlayers()
 
 #ifdef _DEBUG
 			for(j = 0; j < player_Get(i)->m_all_units->Num(); j++) {
-				DPRINTF(k_DBG_GAMESTATE, ("Unit %lx still alive\n",
-										  player_Get(i)->m_all_units->Access(j)));
+			DPRINTF(k_DBG_GAMESTATE, ("Unit %x still alive\n",
+										  player_Get(i)->m_all_units->Access(j).m_id));
 			}
 
 			Assert(player_Get(i)->m_all_units->Num() == 0);

@@ -16,7 +16,8 @@ int slicif_find_file(char *filename, char *fullpath)
 
 void slicif_report_error(char *s)
 {
-	c3errors_ErrorDialog("SLIC", s);
+	// "%s": s is caller-supplied text, not a template.
+	c3errors_ErrorDialog("SLIC", "%s", s);
 }
 
 int slicif_is_valid_string(char *s)

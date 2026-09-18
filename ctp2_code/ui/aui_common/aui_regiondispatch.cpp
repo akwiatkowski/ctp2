@@ -41,7 +41,7 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 
 
 		if ( handleIt )
-
+		{ // else below binds to if ( m_isMouseInside ), not to if ( handleIt )
 		if ( m_isMouseInside )
 		{
 			if ( wasMouseInside )
@@ -887,6 +887,7 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 					}
 				}
 			}
+		}
 		}
 	}
 
@@ -895,7 +896,7 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 	{
 
 		if ( handleIt )
-
+		{ // else below binds to if ( m_isMouseInside ), not to if ( handleIt )
 		if ( m_isMouseInside )
 		{
 			if ( input->lbutton )
@@ -1289,6 +1290,7 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 					}
 				}
 			}
+		}
 		}
 	}
 }
@@ -1307,7 +1309,7 @@ void aui_Region::MouseDispatchEdit( aui_MouseEvent *input, BOOL handleIt )
 		m_isMouseInside = IsInside( &input->position );
 
 		if ( handleIt )
-
+		{ // else below binds to if ( m_isMouseInside ), not to if ( handleIt )
 		if ( m_isMouseInside )
 		{
 			if ( wasMouseInside )
@@ -2117,6 +2119,7 @@ void aui_Region::MouseDispatchEdit( aui_MouseEvent *input, BOOL handleIt )
 					}
 				}
 			}
+		}
 		}
 	}
 
@@ -2125,7 +2128,7 @@ void aui_Region::MouseDispatchEdit( aui_MouseEvent *input, BOOL handleIt )
 	{
 
 		if ( handleIt )
-
+		{ // else below binds to if ( m_isMouseInside ), not to if ( handleIt )
 		if ( m_isMouseInside )
 		{
 			if ( input->lbutton )
@@ -2503,6 +2506,7 @@ void aui_Region::MouseDispatchEdit( aui_MouseEvent *input, BOOL handleIt )
 					}
 				}
 			}
+		}
 		}
 	}
 }

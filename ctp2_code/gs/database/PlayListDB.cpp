@@ -42,7 +42,7 @@ enum TOKEN_PLAYLIST {
 	TOKEN_PLAYLIST_MAX
 };
 
-TokenData g_playlist_token_data [TOKEN_PLAYLIST_MAX - TOKEN_MAX] = {
+TokenData g_playlist_token_data [static_cast<sint32>(TOKEN_PLAYLIST_MAX) - TOKEN_MAX] = {
     { TOKEN_PLAYLIST_NUM_SONGS,		"NUM_SONGS"},
 	{ TOKEN_PLAYLIST_SONG_LIST,		"SONG_LIST"},
 };
@@ -56,7 +56,7 @@ PlayListDB::~PlayListDB() = default;
 
 BOOL PlayListDB::Parse(MBCHAR *filename)
 {
-	auto playListToken = std::make_unique<Token>(filename, TOKEN_PLAYLIST_MAX - TOKEN_MAX,
+	auto playListToken = std::make_unique<Token>(filename, static_cast<sint32>(TOKEN_PLAYLIST_MAX) - TOKEN_MAX,
 									g_playlist_token_data, C3DIR_GAMEDATA);
 
 	sint32		val = 0;

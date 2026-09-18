@@ -41,6 +41,7 @@ ldl_attribute *ldl_attribute::GetCopy()
 		case ATTRIBUTE_TYPE_INT:  newattr = new ldl_attributeValue<int>(this); break;
 		case ATTRIBUTE_TYPE_DOUBLE: newattr = new ldl_attributeValue<double>(this); break;
 		case ATTRIBUTE_TYPE_STRING: newattr = new ldl_attributeValue<char const *>(this); break;
+		case ATTRIBUTE_TYPE_UNKNOWN: break;
 	}
 	return newattr;
 }
@@ -84,6 +85,8 @@ char *ldl_attribute::GetValueText()
 			break;
 		case ATTRIBUTE_TYPE_STRING:
 			snprintf(buf, sizeof(buf), "%s", GetStringValue());
+			break;
+		case ATTRIBUTE_TYPE_UNKNOWN:
 			break;
 	}
 	return buf;

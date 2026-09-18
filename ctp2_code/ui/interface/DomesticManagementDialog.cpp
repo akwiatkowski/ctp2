@@ -51,9 +51,9 @@ m_window(static_cast<ctp2_Window*>(
 m_closeButton(static_cast<ctp2_Button*>(aui_Ldl::GetObject(
 			  "DomesticDialog.CloseButton"))),
 m_causeAndEffectTab(new CauseAndEffectTab(
-					"DomesticDialog.TabGroup.Tab1.TabPanel")),
+					const_cast<MBCHAR *>("DomesticDialog.TabGroup.Tab1.TabPanel"))),
 m_governmentTab(new GovernmentTab(
-				"DomesticDialog.TabGroup.Tab2.TabPanel"))
+				const_cast<MBCHAR *>("DomesticDialog.TabGroup.Tab2.TabPanel")))
 {
 
 

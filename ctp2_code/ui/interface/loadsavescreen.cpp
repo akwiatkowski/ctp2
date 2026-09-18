@@ -109,9 +109,6 @@ LoadSaveWindow * loadsavewindow_Get()
     return g_loadsaveWindow;
 }
 
-static uint32               s_type              = LSS_TOTAL;
-static c3_Static *          s_name				= nullptr;
-static aui_StringTable *    s_nameString		= nullptr;
 
 
 
@@ -756,7 +753,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 
 	if(!useName) {
 
-		char *testchars="\\*\"/:|?<>";
+		const char *testchars="\\*\"/:|?<>";
 		bool charschanged=false;
 		for(i=0; i<strlen(saveInfo->gameName); i++)
 		{

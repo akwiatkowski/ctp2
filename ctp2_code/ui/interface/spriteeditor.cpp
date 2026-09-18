@@ -342,7 +342,7 @@ SpriteEditWindow::SpriteEditWindow(
 	m_spriteSurface=nullptr;
 
 	g_compression_buff = new unsigned char[COM_BUFF_SIZE];
-	LoadSprite("GU02");
+	LoadSprite(const_cast<char *>("GU02"));
 }
 
 SpriteEditWindow::~SpriteEditWindow()

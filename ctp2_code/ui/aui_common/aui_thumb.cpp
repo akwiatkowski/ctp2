@@ -185,10 +185,12 @@ void aui_Thumb::MouseLDropInside( aui_MouseEvent *mouseData )
 			m_mouseCode = AUI_ERRCODE_HANDLED;
 
 		if ( !HandleGameSpecificLeftClick( this ) )
-		if ( m_ActionFunc )
-			m_ActionFunc( this, AUI_THUMB_ACTION_DROP, 0, m_cookie );
-		else if ( m_action )
-			m_action->Execute( this, AUI_THUMB_ACTION_DROP, 0 );
+		{
+			if ( m_ActionFunc )
+				m_ActionFunc( this, AUI_THUMB_ACTION_DROP, 0, m_cookie );
+			else if ( m_action )
+				m_action->Execute( this, AUI_THUMB_ACTION_DROP, 0 );
+		}
 	}
 	else
 		MouseLDropOutside( mouseData );

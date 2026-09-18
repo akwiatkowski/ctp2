@@ -102,7 +102,7 @@ void BattleViewWindow::Initialize(SequenceWeakPtr seq)
 	if (g_battleViewWindow)
 		Cleanup();
 
-	g_battleViewWindow = new BattleViewWindow( &errcode, aui_UniqueId(), "BattleViewWindow", 16,
+	g_battleViewWindow = new BattleViewWindow( &errcode, aui_UniqueId(), const_cast<MBCHAR *>("BattleViewWindow"), 16,
 											AUI_WINDOW_TYPE_POPUP);
 
 	g_battleViewWindow->SetSequence(seq);
@@ -347,7 +347,7 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 	AUI_ERRCODE	errcode = AUI_ERRCODE_OK;
 	aui_StringTable	*table = new aui_StringTable(&errcode, "BattleViewTerrainTable");
 	Assert(errcode == AUI_ERRCODE_OK);
-	MBCHAR *imageName = nullptr;
+	const MBCHAR *imageName = nullptr;
 
 	const TerrainRecord *defTerrRec = g_theTerrainDB->Get(terrainType);
 	const TerrainRecord *attackTerrRec = g_theTerrainDB->Get(attackerTerrain);

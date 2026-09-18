@@ -73,7 +73,7 @@ void victorymoviewin_Initialize(SequenceWeakPtr seq)
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	if (g_victoryMovieWindow == nullptr) {
-		g_victoryMovieWindow = new VictoryMovieWindow(&errcode, aui_UniqueId(), "VictoryMovieWindow", 16);
+		g_victoryMovieWindow = new VictoryMovieWindow(&errcode, aui_UniqueId(), const_cast<MBCHAR *>("VictoryMovieWindow"), 16);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK)
 			g_victoryMovieWindow = nullptr;
@@ -101,7 +101,7 @@ void victorymoviewin_Initialize(SequenceWeakPtr seq)
 
 void victorymoviewin_DisplayVictoryMovie(GAME_OVER reason)
 {
-	MBCHAR		*whichMovie;
+	const MBCHAR	*whichMovie;
 
 	Assert(g_victoryMovieWindow != nullptr);
 	if (g_victoryMovieWindow == nullptr) return;
@@ -222,18 +222,5 @@ void CloseVictoryMovieAction::Execute(aui_Control *control, uint32 action, uint3
 	victorywin_Initialize(type);
 
 	victorywin_DisplayWindow(type);
-
-	if (s_result == GAME_OVER_WON_SCIENCE) {
-		EndGame *endGame = nullptr;
-
-		sint32 p = selitem_Get()->GetVisiblePlayer();
-		if (player_Get(p) != nullptr)
-			endGame = player_Get(p)->m_endGame;
-
-
-	}
-
-
-
 
 }

@@ -82,9 +82,6 @@ void Background::MouseLDragOver(aui_MouseEvent *data)
 {
 	if (IsDisabled()) return;
 
-	sint16 hold;
-
-	hold = 0;
 }
 
 void Background::MouseLGrabInside(aui_MouseEvent *data)

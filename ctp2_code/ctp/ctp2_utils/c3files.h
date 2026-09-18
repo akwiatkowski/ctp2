@@ -108,14 +108,16 @@ FILE*		c3files_fopen(C3DIR dirID, MBCHAR const *, MBCHAR const *, bool checkScen
 FILE*		c3files_freopen(const MBCHAR *, const MBCHAR *, FILE *);
 sint32		c3files_fclose(FILE *);
 
-sint32		c3files_fscanf(FILE *, const MBCHAR *, ...);
+// scanf(2,3): wrapper around vfscanf — format-checks callers' scanlists.
+sint32		c3files_fscanf(FILE *, const MBCHAR *, ...) __attribute__((format(scanf, 2, 3)));
 size_t		c3files_fread(void *, size_t, size_t, FILE *);
 sint32		c3files_fgetc(FILE *);
 sint32		c3files_fgetpos(FILE *, fpos_t *);
 MBCHAR*		c3files_fgets(MBCHAR *, sint32, FILE *);
 
 size_t		c3files_fwrite(const void *, size_t, size_t, FILE *);
-sint32		c3files_fprintf(FILE *, const MBCHAR *, ...);
+// printf(2,3): wrapper around vfprintf — format-checks callers.
+sint32		c3files_fprintf(FILE *, const MBCHAR *, ...) __attribute__((format(printf, 2, 3)));
 sint32		c3files_fputc(sint32, FILE *);
 sint32		c3files_fputs(const MBCHAR *, FILE *);
 

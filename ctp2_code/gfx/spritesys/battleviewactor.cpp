@@ -84,7 +84,9 @@ BattleViewActor::BattleViewActor(
 
 BattleViewActor::~BattleViewActor()
 {
-	DPRINTF(k_DBG_GAMESTATE, ("Deleting actor at %lx, unit=%lx\n", this, m_unitID.m_id));
+	// Pointers keep %lx via uintptr_t (battle.cpp idiom); ID handles print
+	// via .m_id (uint32) with %x (ArmyData.cpp idiom).
+	DPRINTF(k_DBG_GAMESTATE, ("Deleting actor at %lx, unit=%x\n", reinterpret_cast<uintptr_t>(this), m_unitID.m_id));
 
     DumpAllActions();
 

@@ -56,7 +56,7 @@ char g_last_debug_text[4096];
 extern DebugWindow *g_debugWindow;
 #endif
 
-#define k_FILENAME				"logs" FILE_SEP "civ3log%#.3d.txt"
+#define k_FILENAME				"logs" FILE_SEP "civ3log%.3d.txt"
 #define k_MAX_LOG_FILE_LINES	40000
 
 MBCHAR	s_logFileName[20];
@@ -148,7 +148,7 @@ void c3debug_dprintfPrefix
 				snprintf(s_logFileName, sizeof(s_logFileName), k_FILENAME, s_logFileNumber);
 				fclose(g_theLogFile);
 				g_theLogFile = fopen(s_logFileName, "a");
-				fprintf(g_theLogFile, "[Continued from Part %#.3d]\n\n", s_logFileNumber-1);
+				fprintf(g_theLogFile, "[Continued from Part %.3d]\n\n", s_logFileNumber-1);
 			}
 
 			char const * filename = strrchr(file, FILE_SEPC);
@@ -184,7 +184,7 @@ void c3debug_dprintf(char const * format, ...)
 				snprintf(s_logFileName, sizeof(s_logFileName), k_FILENAME, s_logFileNumber);
 				fclose(g_theLogFile);
 				g_theLogFile = fopen(s_logFileName, "a");
-				fprintf(g_theLogFile, "[Continued from Part %#.3d]\n\n", s_logFileNumber-1);
+				fprintf(g_theLogFile, "[Continued from Part %.3d]\n\n", s_logFileNumber-1);
 			}
 
 			va_start(list, format);
@@ -290,7 +290,7 @@ void c3debug_ExceptionExecute(CivExceptionFunction function)
 
 void c3debug_Assert(char const *s, char const * file, int line)
 {
-	DPRINTF(k_DBG_FIX, ("Assertion (%s) Failed in File:%s, Line:%ld\n", s, file, line));
+	DPRINTF(k_DBG_FIX, ("Assertion (%s) Failed in File:%s, Line:%d\n", s, file, line));
 #if defined(WIN32)
 	DPRINTF(k_DBG_FIX, ("Stack Trace: '%s'\n", c3debug_StackTrace()));
 #endif

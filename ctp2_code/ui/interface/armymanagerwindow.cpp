@@ -106,11 +106,11 @@ ArmyManagerWindow::ArmyManagerWindow(AUI_ERRCODE *err)
 		MBCHAR name[k_MAX_NAME_LEN];
 		snprintf(name, sizeof(name), "%s.InArmyBox.Unit%d", s_armyWindowBlock, i);
 		aui_Ldl::SetActionFuncAndCookie(name, ArmyManagerWindow::InArmy, nullptr);
-		(static_cast<ctp2_Static*>(aui_Ldl::GetObject(name,"UnitHealth")))->SetDrawCallbackAndCookie(ArmyManagerWindow::DrawHealthCallbackInArmy,(void *)i);
+		(static_cast<ctp2_Static*>(aui_Ldl::GetObject(name,"UnitHealth")))->SetDrawCallbackAndCookie(ArmyManagerWindow::DrawHealthCallbackInArmy,reinterpret_cast<void *>(static_cast<intptr_t>(i)));
 
 		snprintf(name, sizeof(name), "%s.OutOfArmyBox.Unit%d", s_armyWindowBlock, i);
 		aui_Ldl::SetActionFuncAndCookie(name, ArmyManagerWindow::OutOfArmy, nullptr);
-		(static_cast<ctp2_Static*>(aui_Ldl::GetObject(name,"UnitHealth")))->SetDrawCallbackAndCookie(ArmyManagerWindow::DrawHealthCallbackOutOfArmy,(void *)i);
+		(static_cast<ctp2_Static*>(aui_Ldl::GetObject(name,"UnitHealth")))->SetDrawCallbackAndCookie(ArmyManagerWindow::DrawHealthCallbackOutOfArmy,reinterpret_cast<void *>(static_cast<intptr_t>(i)));
 	}
 
 	*err = AUI_ERRCODE_OK;
@@ -377,8 +377,8 @@ void ArmyManagerWindow::Update()
 
 	ctp2_Static *armyTextlabel = (ctp2_Static *)aui_Ldl::GetObject(s_armyWindowBlock, "ArmyTextLabel");
 	if(armyTextlabel){
-		if((graphicsoptions_Get()
-		&&  graphicsoptions_Get()->IsArmyTextOn()
+		if(((graphicsoptions_Get()
+		&&  graphicsoptions_Get()->IsArmyTextOn())
 		||  profiledb_Get()->GetDebugAI())
 		&& m_army.IsValid()
 		&& m_army->GetDebugString()

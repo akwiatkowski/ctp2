@@ -60,7 +60,13 @@ host_system = host_machine.system()
 osx_sources = []
 if host_system == 'darwin'
 	add_languages('objcpp', native : false)
-	main_dependencies += dependency('appleframeworks', modules : ['AppKit'])
+	# include_type 'system' for every Homebrew-provided dependency: pkg-config
+	# deps (SDL3, libtiff, ...) also inject -I/opt/homebrew/include, which makes
+	# spdlog/fmt headers resolve as PROJECT includes from other deps' Cflags —
+	# re-enabling warnings inside those vendor headers (fmt 11/12's deprecated
+	# basic_string_view interop operator). -isystem everywhere keeps vendor
+	# headers warning-free regardless of include-path ordering.
+	main_dependencies += dependency('appleframeworks', modules : ['AppKit'], include_type : 'system')
 	osx_sources += ['os/osx/osx_pinch_monitor.mm']
 endif
 
@@ -80,21 +86,28 @@ if not win32
 		endif
 	endif
 
-# SDL3 is the only backend (sdl2 support dropped 2026-09-10: untested,
-# unbuilt in CI, every new API paid a compat branch).
-sdl = [dependency('sdl3'), dependency('SDL3_mixer')]
+	# SDL3 is the only backend (sdl2 support dropped 2026-09-10: untested,
+	# unbuilt in CI, every new API paid a compat branch).
+	# See the appleframeworks note above: all pkg-config deps get -isystem so
+	# the shared -I/opt/homebrew/include never turns vendor headers into
+	# project headers.
+	sdl = [dependency('sdl3', include_type : 'system'), dependency('SDL3_mixer', include_type : 'system')]
 	conf.set('USE_SDL', 1)
-
-	tiff = dependency('libtiff-4')
-	zlib = dependency('zlib')
+	tiff = dependency('libtiff-4', include_type : 'system')
+	zlib = dependency('zlib', include_type : 'system')
 
 	# Modern structured logging.  Replaces ad-hoc fprintf(stderr, "[TAG]...")
 	# calls that already exist for [HEADLESS] / [CIVAPP] traces.  Provides
 	# compile-time-filterable levels, named loggers per subsystem, sinks
 	# (stderr / file / rotating), and fmt-style format strings.
 	# Link fmt explicitly because current spdlog packages use external fmt.
-	spdlog = dependency('spdlog')
-	fmt = dependency('fmt')
+	# include_type 'system': spdlog/fmt headers land on the -isystem search
+	# path. Their internal FMT_DEPRECATED conversions (fmt's basic_string_view
+	# interop operator, marked deprecated in fmt 11) then stop firing
+	# -Wdeprecated-declarations inside /opt/homebrew headers — warnings we
+	# cannot fix in this repo's own source.
+	spdlog = dependency('spdlog', include_type : 'system')
+	fmt = dependency('fmt', include_type : 'system')
 
 	# GTK is only used for message dialogs on Linux
 	gtk = dependency('gtk+-3.0', required: false)
@@ -461,7 +474,6 @@ game_core_sources = [
 	'gs/utility/clock.cpp',
 	'gs/utility/DataCheck.cpp',
 	'gs/utility/DiplDynArr.cpp',
-	'gs/utility/ErrMsg.cpp',
 	'gs/utility/gameinit.cpp',
 	'gs/utility/MapFile.cpp',
 	'gs/utility/MsgDynArr.cpp',

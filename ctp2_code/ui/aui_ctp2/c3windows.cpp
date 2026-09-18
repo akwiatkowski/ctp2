@@ -1496,7 +1496,7 @@ int c3windows_MakeDebugWindow( BOOL make )
 			aui_UniqueId(),
 			windowX, windowY, windowWidth, windowHeight,
 			16,
-			k_PatternName,
+			const_cast<MBCHAR *>(k_PatternName),
 			AUI_WINDOW_TYPE_FLOATING );
 		Assert( g_debugWindow != nullptr );
 		if ( !g_debugWindow ) return -1;

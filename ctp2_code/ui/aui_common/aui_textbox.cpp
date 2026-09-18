@@ -195,7 +195,7 @@ AUI_ERRCODE aui_TextBox::CalculateItems(MBCHAR const * text)
 
 			if ( !length )
 			{
-				MBCHAR const * token = FindNextToken(cur, " \t\n", 1);
+				MBCHAR const * token = FindNextToken(cur, const_cast<MBCHAR *>(" \t\n"), 1);
 				if ( token )
 					length = token - cur + 1;
 				else

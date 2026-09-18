@@ -268,13 +268,15 @@ void ColorSet::Import(uint32 fileNumber)
         if (!token_ParseAnCloseBraceNext(&theToken))
         {
             // Missing closing brace: only generate a warning at this point.
-            c3errors_ErrorDialog(theToken.ErrStr(), "Missing close brace.");
+            // "%s": ErrStr() is a computed path, not a format template.
+            c3errors_ErrorDialog(theToken.ErrStr(), "%s", "Missing close brace.");
         }
     }
     catch (std::exception const & error)
     {
         std::vector<Pixel16>().swap(m_colors);
-        c3errors_FatalDialog(theToken.ErrStr(), error.what());
+        // "%s": ErrStr() is a computed path; error.what() is runtime text.
+        c3errors_FatalDialog(theToken.ErrStr(), "%s", error.what());
     }
 }
 

@@ -122,11 +122,13 @@ AUI_ERRCODE aui_Surface::InitCommon( sint32 width, sint32 height, sint32 bpp, BO
 
 
 	if ( bpp == 16 )
+	{
 		if (is_565_Get()) {
 			m_pixelFormat = AUI_SURFACE_PIXELFORMAT_565;
 		} else {
 			m_pixelFormat = AUI_SURFACE_PIXELFORMAT_555;
 		}
+	}
 
 	return AUI_ERRCODE_OK;
 }

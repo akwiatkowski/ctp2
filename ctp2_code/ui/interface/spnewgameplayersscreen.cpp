@@ -88,8 +88,6 @@ void CleanupControl(T * & a_Control)
 
 } // namespace
 
-static c3_Button    *s_back               = nullptr;
-static c3_Static    *s_name               = nullptr;
 
 static ctp2_Spinner *s_num_player_spinner = nullptr;
 static ctp2_Spinner *s_max_player_spinner = nullptr;

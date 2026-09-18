@@ -349,8 +349,8 @@ bool Astar::FindPath
 
 	best = c->m_point;
 
-	sint32  count       = 0;
 	sint32  loop_count  = 0;
+
 	bool    searching   = true;
 
 	do
@@ -462,7 +462,7 @@ bool Astar::FindPath
 			}
 		}
 
-		count++;
+
 
 		if (m_priority_queue.Len() < 1)
 		{
@@ -509,7 +509,7 @@ bool Astar::FindPath
 			searching = false;
 		}
 
-	} while (searching || (best && (k_ASTAR_BIG <= best->m_entry_cost )) && (nodes_opened < cutoff));
+	} while (searching || ((best && (k_ASTAR_BIG <= best->m_entry_cost)) && (nodes_opened < cutoff)));
 
 #ifdef SUPER_DEBUG_HEURISTIC
 	WhackScreen();

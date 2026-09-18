@@ -359,7 +359,6 @@ sint32 ResourceMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, s
 	m_mapViewRect.bottom = 9;
 
 	sint32 nudge = 0;
-	sint32 index = 0;
 
 	tiledmap_Get()->LockThisSurface(pSurface);
 
@@ -389,15 +388,12 @@ sint32 ResourceMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, s
 			else
 				DrawImprovements(pSurface, pos.y, i+x, x*48+nudge+xOff,y*12+yOff);
 
-			index++;
 		}
 		if (y==2 || y==4) {
 			if ( !m_scale )
 				DrawImprovements(pSurface, pos.y, i+x, x*96+nudge+xOff,y*24+yOff);
 			else
 				DrawImprovements(pSurface, pos.y, i+x, x*48+nudge+xOff,y*12+yOff);
-
-			index++;
 		}
 		pos = newpos;
 	}
@@ -752,11 +748,9 @@ void ResourceMap::DrawCityName(aui_Surface *surface, sint32 x, sint32 y, const U
 	snprintf(str, sizeof(str),"%i",pop);
 
     sint32  popEdgeSize = std::max(k_POP_BOX_SIZE, k_POP_BOX_SIZE_MINIMUM);
-	sint32  nudge       = 0;
-	if (pop > 9)
-		nudge = 4;
-	if (pop > 99)
-		nudge = 2;
+	// Note: a "nudge" x-offset (4 for pop > 9, 2 for pop > 99) was removed
+	// here; it was computed but never applied to popRect — the centered
+	// string below handles alignment, so the offset was dead.
 
 	RECT popRect = {x,
 					 y,

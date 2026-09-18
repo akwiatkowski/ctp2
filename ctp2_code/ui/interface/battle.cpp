@@ -266,7 +266,7 @@ void Battle::MakeAttackers(sint32 numAttackers, Army const &attackers)
 										attackers[i].GetType(), pos,  attackers[i].GetOwner());
 		m_attackers[i]->SetFacing(k_BATTLEVIEW_DEFAULT_ATTACKER_FACING);
 
-		DPRINTF(k_DBG_FIX, ("MakeAttackers: Actor with Unit id: %.8lx\n", m_attackers[i]->GetUnitID()));
+		DPRINTF(k_DBG_FIX, ("MakeAttackers: Actor with Unit id: %.8x\n", m_attackers[i]->GetUnitID().m_id));
 	}
 }
 
@@ -283,7 +283,7 @@ void Battle::MakeDefenders(sint32 numDefenders, CellUnitList const & defenders)
 										defenders[i].GetType(), pos,  defenders[i].GetOwner());
 		m_defenders[i]->SetFacing(k_BATTLEVIEW_DEFAULT_DEFENDER_FACING);
 		m_defenders[i]->SetFortified(defenders[i].IsEntrenched());
-		DPRINTF(k_DBG_FIX, ("MakeDefenders: Actor with Unit id: %.8lx\n", m_defenders[i]->GetUnitID()));
+		DPRINTF(k_DBG_FIX, ("MakeDefenders: Actor with Unit id: %.8x\n", m_defenders[i]->GetUnitID().m_id));
 	}
 }
 
@@ -312,14 +312,14 @@ BattleViewActor *Battle::ActorFromUnit(BOOL isDefender, Unit theUnit)
 	Assert(actor);
 
 	if (!actor) {
-		DPRINTF(k_DBG_FIX, ("ActorFromUnit: Unit %.8lx not found in Actor lists\n", theUnit));
+		DPRINTF(k_DBG_FIX, ("ActorFromUnit: Unit %.8x not found in Actor lists\n", theUnit.m_id));
 		for (i=0; i<m_numAttackers; i++) {
-		DPRINTF(k_DBG_FIX, ("ActorFromUnit: Attacker Actor with id: %.8lx\n",
-							m_attackers[i] ? static_cast<uint32>(m_attackers[i]->GetUnitID()) : 0xabcdef12));
+		DPRINTF(k_DBG_FIX, ("ActorFromUnit: Attacker Actor with id: %.8x\n",
+							m_attackers[i] ? static_cast<uint32>(m_attackers[i]->GetUnitID().m_id) : 0xabcdef12));
 		}
 		for (i=0; i<m_numDefenders; i++) {
-		DPRINTF(k_DBG_FIX, ("ActorFromUnit: Defender Actor with id: %.8lx\n",
-							m_defenders[i] ? static_cast<uint32>(m_defenders[i]->GetUnitID()) : 0xfedcba21));
+		DPRINTF(k_DBG_FIX, ("ActorFromUnit: Defender Actor with id: %.8x\n",
+							m_defenders[i] ? static_cast<uint32>(m_defenders[i]->GetUnitID().m_id) : 0xfedcba21));
 		}
 	}
 
@@ -425,7 +425,7 @@ void Battle::AddEvent(BattleEvent *event)
 
 void Battle::ShowEvent(BattleEvent *event)
 {
-	MBCHAR		*s;
+	const MBCHAR	*s;
 
 	switch (event->GetType()) {
 	case BATTLE_EVENT_TYPE_PLACEMENT :
@@ -439,6 +439,10 @@ void Battle::ShowEvent(BattleEvent *event)
 		break;
 	case BATTLE_EVENT_TYPE_DEATH :
 			s = "Death";
+		break;
+	case BATTLE_EVENT_TYPE_NONE :
+	case BATTLE_EVENT_TYPE_MAX :
+			s = "Unknown";
 		break;
 	}
 
@@ -456,7 +460,7 @@ void Battle::ShowEvent(BattleEvent *event)
 
 		switch (event->GetType()) {
 		case BATTLE_EVENT_TYPE_PLACEMENT :
-			DPRINTF(k_DBG_FIX, ("      positionActor  :  %#.8lx\n", data->positionActor));
+			DPRINTF(k_DBG_FIX, ("      positionActor  :  %#.8lx\n", reinterpret_cast<uintptr_t>(data->positionActor)));
 			DPRINTF(k_DBG_FIX, ("      positionColumn :  %d\n", data->positionColumn));
 			DPRINTF(k_DBG_FIX, ("      positionRow    :  %d\n", data->positionRow));
 			DPRINTF(k_DBG_FIX, ("      positionFacing :  %d\n", data->positionFacing));
@@ -464,20 +468,23 @@ void Battle::ShowEvent(BattleEvent *event)
 			DPRINTF(k_DBG_FIX, ("      positionIsDefen:  %d\n", data->positionIsDefender));
 			break;
 		case BATTLE_EVENT_TYPE_ATTACK :
-			DPRINTF(k_DBG_FIX, ("      attackActor    :  %#.8lx\n", data->attackActor));
+			DPRINTF(k_DBG_FIX, ("      attackActor    :  %#.8lx\n", reinterpret_cast<uintptr_t>(data->attackActor)));
 			DPRINTF(k_DBG_FIX, ("      attackSoundID  :  %d\n", data->attackSoundID));
 			DPRINTF(k_DBG_FIX, ("      attackHP       :  %#.2f\n", data->attackHP));
 			break;
 		case BATTLE_EVENT_TYPE_EXPLODE :
-			DPRINTF(k_DBG_FIX, ("      explodeVictim  :  %#.8lx\n", data->explodeVictim));
-			DPRINTF(k_DBG_FIX, ("      explodeActor   :  %#.8lx\n", data->explodeActor));
+			DPRINTF(k_DBG_FIX, ("      explodeVictim  :  %#.8lx\n", reinterpret_cast<uintptr_t>(data->explodeVictim)));
+			DPRINTF(k_DBG_FIX, ("      explodeActor   :  %#.8lx\n", reinterpret_cast<uintptr_t>(data->explodeActor)));
 			DPRINTF(k_DBG_FIX, ("      explodeSoundID :  %d\n", data->explodeSoundID));
 			DPRINTF(k_DBG_FIX, ("      explodeHP      :  %#.2f\n", data->explodeHP));
 			break;
 		case BATTLE_EVENT_TYPE_DEATH :
-			DPRINTF(k_DBG_FIX, ("      deathVictim    :  %#.8lx\n", data->deathVictim));
+			DPRINTF(k_DBG_FIX, ("      deathVictim    :  %#.8lx\n", reinterpret_cast<uintptr_t>(data->deathVictim)));
 			DPRINTF(k_DBG_FIX, ("      deathSoundID   :  %d\n", data->deathSoundID));
 			DPRINTF(k_DBG_FIX, ("      deathHP        :  %#.2f\n", data->deathHP));
+			break;
+		case BATTLE_EVENT_TYPE_NONE :
+		case BATTLE_EVENT_TYPE_MAX :
 			break;
 		}
 		DPRINTF(k_DBG_FIX, ("--\n"));

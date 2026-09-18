@@ -194,7 +194,7 @@ void keypress_QuitCallback( sint32 val )
 	static SDL_Event quit = { 0 };
         quit.type = SDL_QUIT;
         quit.quit.type = SDL_QUIT;
-        int e = SDL_PushEvent(&quit);
+        SDL_PushEvent(&quit);
 	}
 }
 
@@ -722,6 +722,8 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 				break;
 			}
+			default:
+				break;
 		}
 	}
 	break;

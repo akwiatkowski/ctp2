@@ -66,7 +66,7 @@ AUI_ERRCODE MessageList::CreateMessage( Message data )
 
 	std::unique_ptr<MessageIconWindow> createdIcon(new MessageIconWindow( &errcode,
 										 aui_UniqueId(),
-										 "MessageIconWindow",
+										 const_cast<MBCHAR *>("MessageIconWindow"),
 										 data,
 										 16,
 										 this ));

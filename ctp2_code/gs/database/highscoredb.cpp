@@ -3,7 +3,6 @@
 #include "ctp/ctp2_utils/c3files.h"
 
 #include "gs/fileio/Token.h"
-#include "gs/utility/ErrMsg.h"
 #include "gs/database/StrDB.h"
 
 #include "gs/database/highscoredb.h"

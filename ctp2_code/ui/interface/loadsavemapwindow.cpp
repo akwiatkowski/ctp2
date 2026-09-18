@@ -227,7 +227,7 @@ void LoadSaveMapWindow::FillListOne()
 	for ( ; walker.IsValid(); walker.Next())
     {
 		LSMGameMapsListItem *item = new LSMGameMapsListItem
-            (&errcode, "LSMGameMapsListItem", walker.GetObj());
+            (&errcode, const_cast<MBCHAR *>("LSMGameMapsListItem"), walker.GetObj());
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return;
 
@@ -256,7 +256,7 @@ void LoadSaveMapWindow::FillListTwo(GameMapInfo *info)
 		for ( ; walker.IsValid(); walker.Next())
         {
 			LSMSaveMapsListItem *item = new LSMSaveMapsListItem
-                (&errcode, "LSMSaveMapsListItem", walker.GetObj());
+                (&errcode, const_cast<MBCHAR *>("LSMSaveMapsListItem"), walker.GetObj());
 			Assert(errcode == AUI_ERRCODE_OK);
 			if (errcode != AUI_ERRCODE_OK) return;
 
@@ -593,7 +593,7 @@ void LoadSaveMapWindow::SetGameMapInfo(GameMapInfo *info)
 	}
 	else
 	{
-		SetGameMapName("");
+		SetGameMapName(const_cast<MBCHAR *>(""));
 		FillListTwo(nullptr);
 	}
 }
@@ -613,8 +613,8 @@ void LoadSaveMapWindow::SetSaveMapInfo(SaveMapInfo *info)
 		switch ( m_type )
 		{
 		case LSMS_LOAD_GAMEMAP:
-			SetSaveMapName("");
-			SetNote("");
+			SetSaveMapName(const_cast<MBCHAR *>(""));
+			SetNote(const_cast<MBCHAR *>(""));
 
 			SetRadarMap(nullptr);
 			break;

@@ -581,7 +581,7 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 
 	if(!found)
 	{
-		attractwindow_Get()->HighlightControl("ControlPanelWindow.ControlPanel.TurnButton");
+		attractwindow_Get()->HighlightControl(const_cast<MBCHAR *>("ControlPanelWindow.ControlPanel.TurnButton"));
 		if(profiledb_Get()->GetEndTurnSound())
 		{
 			soundmgr_Get()->AddGameSound(GAMESOUNDS_ENDTURN);
@@ -1519,7 +1519,7 @@ void SelectedItem::RegisterClick(const MapPoint &pos,  const aui_MouseEvent *dat
 		DPRINTF(k_DBG_GAMESTATE, ("POS %d %d : %s\n", pos.x, pos.y, leftDrag ? "DRAG" : (leftDrop ? "DROP" : "CLICK")));
 		DPRINTF(k_DBG_GAMESTATE, (" ai %d %d\n", converted.x, converted.y));
 		DPRINTF(k_DBG_GAMESTATE, (" xy %d %d\n", tileX, tileY));
-		DPRINTF(k_DBG_GAMESTATE, ("zoc 0x%lx, owner %d\n", world_Get()->GetCell(pos)->GetRawZoc(), world_Get()->GetCell(pos)->GetOwner()));
+		DPRINTF(k_DBG_GAMESTATE, ("zoc 0x%x, owner %d\n", world_Get()->GetCell(pos)->GetRawZoc(), world_Get()->GetCell(pos)->GetOwner()));
 		DPRINTF(k_DBG_GAMESTATE, ("\n"));
 #endif
 	}

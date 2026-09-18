@@ -786,15 +786,17 @@ void ctp2_HyperTextBox::MouseLDropInside( aui_MouseEvent *mouseData )
 
 
 				if ( !HandleGameSpecificLeftClick( this ) )
-				if ( m_ActionFunc )
-					m_ActionFunc( this, CTP2_HYPERLINK_ACTION_EXECUTE, 0, m_cookie );
-				else if ( m_action )
-					m_action->Execute( this, CTP2_HYPERLINK_ACTION_EXECUTE, 0 );
-				else {
+				{
+					if ( m_ActionFunc )
+						m_ActionFunc( this, CTP2_HYPERLINK_ACTION_EXECUTE, 0, m_cookie );
+					else if ( m_action )
+						m_action->Execute( this, CTP2_HYPERLINK_ACTION_EXECUTE, 0 );
+					else {
 
-					open_GreatLibrary();
-					if(GreatLibrary *gl = greatlibrary_Get()) {
-						gl->SetLibrary(m_selectedHyperLink->m_index, (DATABASE)m_selectedHyperLink->m_db);
+						open_GreatLibrary();
+						if(GreatLibrary *gl = greatlibrary_Get()) {
+							gl->SetLibrary(m_selectedHyperLink->m_index, (DATABASE)m_selectedHyperLink->m_db);
+						}
 					}
 				}
 			}

@@ -1267,56 +1267,56 @@ void MapAnalysis::DebugLog() const
     {
         if (m_threatGrid[player].GetMaxValue() > 0)
         {
-            DPRINTF(k_DBG_MAPANALYSIS, ("THREAT Map (player = %d): \n", player));
+            DPRINTF(k_DBG_MAPANALYSIS, ("THREAT Map (player = %zu): \n", player));
             DPRINTF(k_DBG_MAPANALYSIS, ("%s",
             m_threatGrid[player].GetDebugString().c_str()));
         }
 
         if (m_attackGrid[player].GetMaxValue() > 0)
         {
-            DPRINTF(k_DBG_MAPANALYSIS, ("ATTACK Map (player = %d): \n", player));
+            DPRINTF(k_DBG_MAPANALYSIS, ("ATTACK Map (player = %zu): \n", player));
             DPRINTF(k_DBG_MAPANALYSIS, ("%s",
             m_attackGrid[player].GetDebugString().c_str()));
         }
 
         if (m_defenseGrid[player].GetMaxValue() > 0)
         {
-            DPRINTF(k_DBG_MAPANALYSIS, ("DEFENSE Map (player = %d): \n", player));
+            DPRINTF(k_DBG_MAPANALYSIS, ("DEFENSE Map (player = %zu): \n", player));
             DPRINTF(k_DBG_MAPANALYSIS, ("%s",
             m_defenseGrid[player].GetDebugString().c_str()));
         }
 
         if (m_rangedGrid[player].GetMaxValue() > 0)
         {
-            DPRINTF(k_DBG_MAPANALYSIS, ("RANGED Map (player = %d): \n", player));
+            DPRINTF(k_DBG_MAPANALYSIS, ("RANGED Map (player = %zu): \n", player));
             DPRINTF(k_DBG_MAPANALYSIS, ("%s",
             m_rangedGrid[player].GetDebugString().c_str()));
         }
 
         if (m_bombardLandGrid[player].GetMaxValue() > 0)
         {
-            DPRINTF(k_DBG_MAPANALYSIS, ("BOMBARD_LAND Map (player = %d): \n", player));
+            DPRINTF(k_DBG_MAPANALYSIS, ("BOMBARD_LAND Map (player = %zu): \n", player));
             DPRINTF(k_DBG_MAPANALYSIS, ("%s",
             m_bombardLandGrid[player].GetDebugString().c_str()));
         }
 
         if (m_bombardSeaGrid[player].GetMaxValue() > 0)
         {
-            DPRINTF(k_DBG_MAPANALYSIS, ("BOMBARD_SEA Map (player = %d): \n", player));
+            DPRINTF(k_DBG_MAPANALYSIS, ("BOMBARD_SEA Map (player = %zu): \n", player));
             DPRINTF(k_DBG_MAPANALYSIS, ("%s",
             m_bombardSeaGrid[player].GetDebugString().c_str()));
         }
 
         if (m_bombardAirGrid[player].GetMaxValue() > 0)
         {
-            DPRINTF(k_DBG_MAPANALYSIS, ("BOMBARD_AIR Map (player = %d): \n", player));
+            DPRINTF(k_DBG_MAPANALYSIS, ("BOMBARD_AIR Map (player = %zu): \n", player));
             DPRINTF(k_DBG_MAPANALYSIS, ("%s",
             m_bombardAirGrid[player].GetDebugString().c_str()));
         }
 
         if (m_valueGrid[player].GetMaxValue() > 0)
         {
-            DPRINTF(k_DBG_MAPANALYSIS, ("VALUE Map (player = %d): \n", player));
+            DPRINTF(k_DBG_MAPANALYSIS, ("VALUE Map (player = %zu): \n", player));
             DPRINTF(k_DBG_MAPANALYSIS, ("%s",
             m_valueGrid[player].GetDebugString().c_str()));
         }

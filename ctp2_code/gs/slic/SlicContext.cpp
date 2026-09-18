@@ -1151,21 +1151,21 @@ void SlicContext::Dump()
 	if(m_cityList) {
 		n = m_cityList->Num();
 		for(i = 0; i < n; i++) {
-			DPRINTF(k_DBG_INFO, (" City.%d: %lx\n", i, m_cityList->Access(i)));
+			DPRINTF(k_DBG_INFO, (" City.%d: %x\n", i, m_cityList->Access(i).m_id));
 		}
 	}
 
 	if(m_unitList) {
 		n = m_unitList->Num();
 		for(i = 0; i < n; i++) {
-			DPRINTF(k_DBG_INFO, (" Unit.%d: %lx\n", i, m_unitList->Access(i)));
+			DPRINTF(k_DBG_INFO, (" Unit.%d: %x\n", i, m_unitList->Access(i).m_id));
 		}
 	}
 
 	if(m_playerList) {
 		n = m_playerList->Num();
 		for(i = 0; i < n; i++) {
-			DPRINTF(k_DBG_INFO, (" Civ.%d: %lx\n", i, (*m_playerList)[i]));
+			DPRINTF(k_DBG_INFO, (" Civ.%d: %d\n", i, (*m_playerList)[i]));
 		}
 	}
 

@@ -67,7 +67,8 @@ bool World::InsertUnit (const MapPoint &pos, Unit &id,
 
 sint32 World::RemoveUnitReference (const MapPoint &pos, const Unit &id)
 {
-	DPRINTF(k_DBG_GAMESTATE, ("World::RemoveUnitReference: id: 0x%lx\n",
+	// id.m_id is a uint32 id handle: %x, not %lx (expects unsigned long).
+	DPRINTF(k_DBG_GAMESTATE, ("World::RemoveUnitReference: id: 0x%x\n",
 							  id.m_id));
 
 	unit_tree_Get()->Remove(id);
@@ -123,10 +124,10 @@ BOOL World::IsCellZoc(const PLAYER_INDEX &owner, const MapPoint &pos,
     if (!player_isEnemy(owner, a->GetOwner()))
         return FALSE;
 
-	if(is_check_only_visible && !a->IsVisible(owner)) {
+    if(is_check_only_visible && !a->IsVisible(owner)) {
 
-		return FALSE;
-	}
+        return FALSE;
+    }
 
     for (i=0; i<n; i++) {
         if (!a->Get(i).IsNoZoc()) {

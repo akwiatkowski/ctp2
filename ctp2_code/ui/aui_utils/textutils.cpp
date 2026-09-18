@@ -45,13 +45,6 @@ HFONT hfont_Get()
 #define k_FONT_FILE_NAME	"ArialBd.ttf"
 #define k_FONT_FACE_NAME	"Arial Bold"
 
-namespace
-{
-	LONG RoundToNearest(double const a_Rational)
-	{
-		return static_cast<LONG>(0.5 + a_Rational);
-	}
-};	// namespace
 
 void textutils_Initialize()
 {

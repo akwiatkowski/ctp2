@@ -153,7 +153,8 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	}
 	m_window = CTP2_SDL_CreateWindow("Call to Power 2", m_width, m_height, windowFlags);
 	if (!m_window) {
-		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+		// "%s": SDL_GetError() is runtime text, not a format template.
+		c3errors_FatalDialog("aui_SDLUI", "%s", SDL_GetError());
 	}
 	// Text input for city names/chat: enable once per window. ASCII keeps
 	// arriving via KEYDOWN; SDL_TEXTINPUT carries the rest (see handler).
@@ -179,7 +180,8 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		m_renderer = CTP2_SDL_CreateRenderer(m_window, true);
 	}
 	if (!m_renderer) {
-		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+		// "%s": SDL_GetError() is runtime text, not a format template.
+		c3errors_FatalDialog("aui_SDLUI", "%s", SDL_GetError());
 	}
 	CTP2_SDL_SetRenderLogicalSize(m_renderer, m_width, m_height);
 	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
@@ -187,7 +189,8 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
 		m_width, m_height);
 	if (!m_screenTexture) {
-		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+		// "%s": SDL_GetError() is runtime text, not a format template.
+		c3errors_FatalDialog("aui_SDLUI", "%s", SDL_GetError());
 	}
 
 	// P11 Stage 2 D: when per-layer GPU compositing is enabled, create separate
@@ -231,7 +234,8 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 			}
 		}
 		if (!m_worldTexture || !m_uiTexture) {
-			c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+			// "%s": SDL_GetError() is runtime text, not a format template.
+		c3errors_FatalDialog("aui_SDLUI", "%s", SDL_GetError());
 		}
 	}
 
@@ -251,7 +255,8 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 				SDL_UnlockTexture(m_fogTexture);
 			}
 		} else {
-			c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+			// "%s": SDL_GetError() is runtime text, not a format template.
+		c3errors_FatalDialog("aui_SDLUI", "%s", SDL_GetError());
 		}
 	}
 
@@ -403,7 +408,7 @@ AUI_ERRCODE aui_SDLUI::RestoreMouse()
 	AUI_ERRCODE		auiErr;
 	BOOL			exclusive = TRUE;
 
-	aui_SDLMouse *mouse = new aui_SDLMouse( &auiErr, "CivMouse", exclusive );
+	aui_SDLMouse *mouse = new aui_SDLMouse( &auiErr, const_cast<MBCHAR *>("CivMouse"), exclusive );
 	Assert(mouse != nullptr);
 	if ( !mouse ) return AUI_ERRCODE_MEMALLOCFAILED;
 

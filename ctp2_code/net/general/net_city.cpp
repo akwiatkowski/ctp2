@@ -170,7 +170,7 @@ void NetCity::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	sint32 pos;
 
 	if(unitpool_Get()->IsValid(uid)) {
-		DPRINTF(k_DBG_NET, ("Net: received city %lx\n", (uint32)uid));
+		DPRINTF(k_DBG_NET, ("Net: received city %x\n", (uint32)uid));
 		UnitData* unitData = unitpool_Get()->AccessUnit(uid);
 		uint16 unitSize;
 		PLAYER_INDEX oldOwner = unitData->m_owner;

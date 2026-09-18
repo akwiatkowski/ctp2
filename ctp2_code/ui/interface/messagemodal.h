@@ -91,6 +91,13 @@ protected:
 	AUI_ERRCODE CreateListboxEyePointBox( MBCHAR *ldlBlock );
 
 private:
+	// c3_PopupWindow declares a private virtual InitCommon(); the public
+	// two-argument InitCommon above would otherwise hide it. This override
+	// keeps the override relationship explicit; it is never invoked because
+	// the base constructor dispatches to the base version and the base
+	// virtual is private.
+	AUI_ERRCODE InitCommon() override { return AUI_ERRCODE_OK; }
+
 	std::unique_ptr<aui_HyperTextBox>	m_messageText;
 
 	Message							m_message;

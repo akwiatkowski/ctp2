@@ -855,84 +855,6 @@ STDEHANDLER(ResearchPact_NewProposalEvent)
 	return GEV_HD_Continue;
 }
 
-STDEHANDLER(MilitaryPact_NewProposalEvent)
-{
-	PLAYER_INDEX sender;
-	PLAYER_INDEX receiver;
-
-	if (gameEventType == GEV_DesireMotivation)
-	{
-		sint32 desireType;
-
-		if (!args->GetInt(0, desireType))
-			return GEV_HD_Continue;
-
-		if ((MOTIVATION_TYPE) desireType != MOTIVATION_DESIRE_MAKE_FRIEND ||
-			(MOTIVATION_TYPE) desireType != MOTIVATION_DESIRE_ENLIST_FRIEND)
-			return GEV_HD_Continue;
-	}
-	else if (gameEventType == GEV_FearMotivation)
-	{
-		sint32 fearType;
-
-		if (!args->GetInt(0, fearType))
-			return GEV_HD_Continue;
-
-		if ((MOTIVATION_TYPE) fearType != MOTIVATION_FEAR_MILITARY_RANK)
-			return GEV_HD_Continue;
-	}
-	else
-		return GEV_HD_Continue;
-
-	if (!args->GetPlayer(0, sender))
-		return GEV_HD_Continue;
-
-	if (!args->GetPlayer(1, receiver))
-		return GEV_HD_Continue;
-
-	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);
-//	Diplomat & receiver_diplomat = Diplomat::GetDiplomat(receiver);
-
-	if (AgreementMatrix::s_agreements.HasAgreement(sender, receiver, PROPOSAL_TREATY_MILITARY_PACT))
-		return GEV_HD_Continue;
-
-
-	sint32 priority =
-		sender_diplomat.GetNewProposalPriority(receiver, PROPOSAL_TREATY_MILITARY_PACT);
-
-	if (priority <= 0)
-		return GEV_HD_Continue;
-
-	if (!sender_diplomat.TestEffectiveRegard(receiver, FRIEND_REGARD))
-			return GEV_HD_Continue;
-
-	if (sender_diplomat.GetLastHotwarAttack(receiver) < 10)
-		return GEV_HD_Continue;
-
-	if (sender_diplomat.GetBorderIncursionBy(receiver))
-		return GEV_HD_Continue;
-
-	if (sender_diplomat.GetTrust(receiver) < NEUTRAL_REGARD)
-		return GEV_HD_Continue;
-
-	if (!sender_diplomat.CanFormAlliance(receiver))
-		return GEV_HD_Continue;
-
-	NewProposal new_proposal;
-
-	new_proposal.priority = static_cast<sint16>(priority);
-	new_proposal.senderId = sender;
-	new_proposal.receiverId = receiver;
-	new_proposal.detail.first_type = PROPOSAL_TREATY_MILITARY_PACT;
-	new_proposal.detail.tone = DIPLOMATIC_TONE_EQUAL;
-
-	if (!sender_diplomat.GetNewProposalTimeout( new_proposal, 20 ) )
-	{
-		sender_diplomat.ConsiderNewProposal( receiver, new_proposal);
-	}
-
-	return GEV_HD_Continue;
-}
 
 STDEHANDLER(PollutionPact_NewProposalEvent)
 {
@@ -1857,7 +1779,7 @@ STDEHANDLER(RequestCity_NewProposalEvent)
 	new_proposal.detail.first_arg.cityId = city.m_id;
 
 	if (sender_diplomat.GetNewProposalTimeout( new_proposal, 20 ))
-		GEV_HD_Continue;
+		return GEV_HD_Continue;
 
 	sender_diplomat.ConsiderNewProposal(receiver, new_proposal);
 

@@ -30,7 +30,7 @@ void String_Search::Set_Search_Key
         char key_char =
             (s_case_sensitive) ? s_key[j] : static_cast<char>(tolower(s_key[j]));
 
-		s_skip_table[key_char] = s_key_length - j - 1;
+		s_skip_table[static_cast<unsigned char>(key_char)] = s_key_length - j - 1;
 	}
 }
 
@@ -66,7 +66,7 @@ bool String_Search::Search
 
 		while (string_char != key_char)
 		{
-			int t = s_skip_table[string_char];
+			int t = s_skip_table[static_cast<unsigned char>(string_char)];
 
 			i += (s_key_length-j > t) ? s_key_length-j : t;
 

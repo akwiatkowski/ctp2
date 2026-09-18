@@ -1086,7 +1086,6 @@ Pixel16 *tileutils_ExtractUpperRight(char *tif, uint16 width, uint16 height, sin
 	sint32		 i;
 	sint32		 j;
 	sint32		 pixelX;
-	sint32		 pixelY;
 	uint32		accum;
 	uint32		*image = (uint32 *)tif;
 
@@ -1101,10 +1100,8 @@ Pixel16 *tileutils_ExtractUpperRight(char *tif, uint16 width, uint16 height, sin
 		row = y+(k_TILE_PIXEL_HEIGHT-1)-i;
 		if (i<=23) {
 			pixelX = (x + k_TILE_PIXEL_WIDTH) - (23-i)*2-1;
-			pixelY = row;
 		} else {
 			pixelX = (x + k_TILE_PIXEL_WIDTH) - (i-24)*2-1;
-			pixelY = row;
 		}
 
 		accum = g_bitsTable[i];
@@ -1130,7 +1127,6 @@ Pixel16 *tileutils_ExtractLowerLeft(char *tif, uint16 width, uint16 height, sint
 	sint32		 i;
 	sint32		 j;
 	sint32		 pixelX;
-	sint32		 pixelY;
 	uint32		accum;
 	uint32		*image = (uint32 *)tif;
 
@@ -1145,10 +1141,8 @@ Pixel16 *tileutils_ExtractLowerLeft(char *tif, uint16 width, uint16 height, sint
 		row = (y + i);
 		if (i<=23) {
 			pixelX = (x + (23-i)*2);
-			pixelY = row;
 		} else {
 			pixelX = (x + (i-24)*2);
-			pixelY = row;
 		}
 
 		accum = g_bitsTable[i];
@@ -1374,11 +1368,9 @@ void tileutils_DumpAllTransitions(MBCHAR *filename, Pixel16 *t0, Pixel16 *t1, Pi
 sint32 tileutils_ExtractStencils(sint16 fromType, sint16 toType)
 {
 
-	MBCHAR		ageChar;
 	MBCHAR		filename[_MAX_PATH];
 
 	snprintf(filename, sizeof(filename), "gtft%.2d%.2d.tif", fromType, toType);
-	ageChar = 'f';
 
 	char	*tif;
 	uint16	 width=0;
@@ -1437,71 +1429,6 @@ sint32 tileutils_ExtractStencils(sint16 fromType, sint16 toType)
 	return 0;
 }
 
-uint16 *tileutils_GenerateAllWaterTable(uint16 width, uint16 height, uint16 x, uint16 y)
-{
-	uint16		*waterTable = new uint16[(height-y) * 2]; // TODO(phase-2): ownership transfer out of function
-	uint16		i;
-	uint16		 start;
-	uint16		 end;
-
-	for (i=y; i<height; i++) {
-		if ((i-y)<=23) {
-			start = (x + (23-(i-y))*2);
-			end = width - start - 1;
-		} else {
-			start = (x + ((i-y)-24)*2);
-			end = width - start - 1;
-		}
-
-		waterTable[(i-y)*2] = start;
-		waterTable[(i-y)*2+1] = end;
-	}
-
-	return waterTable;
-}
-
-uint16 *tileutils_ExtractWaterTable(Pixel32 *image, uint16 width, uint16 height, uint16 x, uint16 y)
-{
-	uint16		*waterTable = new uint16[(height-y) * 2]; // TODO(phase-2): ownership transfer out of function
-	BOOL		anyWater = FALSE;
-	Pixel16		 r;
-	Pixel16		 g;
-	Pixel16		 b;
-	Pixel16		 a;
-	uint16		 start;
-	uint16		 end;
-	uint16		 i;
-	uint16		 j;
-
-	for (i=y; i<height; i++) {
-		start = width;
-		end = 0;
-		for (j=0; j<width; j++) {
-			RGB32Components(image[width * i + j], &r, &g, &b, &a);
-			if (a > 0) {
-
-				if (j < start)
-					start = j;
-
-				if (j > end)
-					end = j;
-			}
-		}
-		waterTable[(i-y)*2] = start;
-		waterTable[(i-y)*2+1] = end;
-
-		if (!anyWater && end != 0)
-			anyWater = TRUE;
-	}
-
-	if (!anyWater) {
-		delete[] waterTable;
-
-		return nullptr;
-	}
-
-	return waterTable;
-}
 
 BaseTile	*g_baseTiles[k_MAX_BASE_TILES];
 
@@ -1647,23 +1574,13 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 
 
 
-	uint16		*waterTable;
-	uint32		waterTableLen = k_TILE_PIXEL_HEIGHT * 2 * sizeof(uint16);
-
-	if (baseType == TERRAIN_WATER_BEACH) {
-
-		waterTable = tileutils_ExtractWaterTable((Pixel32 *)tif, width, height, 0, 24);
-	} else {
-		if (g_theTerrainDB->Get(baseType)->GetMovementTypeSea() ||
-			g_theTerrainDB->Get(baseType)->GetMovementTypeShallowWater()) {
-
-			waterTable = tileutils_GenerateAllWaterTable(width, height, 0, 24);
-		} else {
-
-			waterTable = nullptr;
-			waterTableLen = 0;
-		}
-	}
+	// Note: a per-row water-span table used to be computed here
+	// (tileutils_ExtractWaterTable for beach tiles,
+	// tileutils_GenerateAllWaterTable for open water) into a local
+	// waterTable/waterTableLen pair — mirroring the SetTileData/SetTileDataLen
+	// pattern above. But BaseTile has no water members and never serializes
+	// one (see BaseTile.h), so the table was never consumed and its
+	// allocation leaked. Dead since the original Activision import; removed.
 
 
 

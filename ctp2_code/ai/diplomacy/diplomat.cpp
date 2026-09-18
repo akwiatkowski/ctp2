@@ -852,7 +852,7 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 	StringId strId;
 	REGARD_EVENT_TYPE regard_event_type = REGARD_EVENT_DIPLOMACY;
 	bool act_of_war = false;
-	char * trust_message = nullptr;
+	const char * trust_message = nullptr;
 
 	if (foreignerId == 0)
 		return;
@@ -1919,7 +1919,7 @@ bool Diplomat::ExecuteThreat(const Threat & threat)
 	StringId strId;
 	sint32 regard_cost=0;
 	sint32 trust_cost=0;
-	char *str_buf = nullptr;
+	const char *str_buf = nullptr;
 
 	switch (threat.detail.type)
 	{
@@ -1954,6 +1954,10 @@ bool Diplomat::ExecuteThreat(const Threat & threat)
 		receiver_diplomat.GetCurrentDiplomacy(threat.senderId).GetPreemptiveAttackTrustCost(trust_cost);
 		trust_cost /= 2;
 		str_buf = "Threatened to declare war.";
+		break;
+	case THREAT_NONE:
+	case THREAT_MAX:
+		// Sentinels: no regard/trust cost applies.
 		break;
 	}
 
@@ -2030,7 +2034,6 @@ bool Diplomat::ComputeThreatResponse(const PLAYER_INDEX foreignerId, Response & 
 				return false;
 		}
 
-	const Diplomat & foreign_diplomat = Diplomat::GetDiplomat(foreignerId);
 	const MapAnalysis & map_analysis = MapAnalysis::GetMapAnalysis();
 	const AgreementMatrix & agreements = AgreementMatrix::s_agreements;
 
@@ -2041,9 +2044,6 @@ bool Diplomat::ComputeThreatResponse(const PLAYER_INDEX foreignerId, Response & 
 	Unit atrisk_city;
 	bool threaten_destroy_city = false;
 	bool threaten_attack_city = (map_analysis.MostAtRiskCity(foreignerId, atrisk_city, m_playerId) > 50);
-	bool threaten_pirate = foreign_diplomat.GetTradeRoutePiracyRisk(m_playerId);
-	bool threaten_special_attack = (map_analysis.GetSpecialAttackers(m_playerId) > 0);
-	bool threaten_end_agreement = has_pacts;
 	bool threaten_embargo = !GetEmbargo(foreignerId);
 	sint32 turns_since_last_war = agreements.TurnsSinceLastWar(m_playerId, foreignerId);
 	bool threaten_declare_war = (turns_since_last_war > 5 || turns_since_last_war < 0);
@@ -2059,8 +2059,6 @@ bool Diplomat::ComputeThreatResponse(const PLAYER_INDEX foreignerId, Response & 
 	{
 		threaten_destroy_city = true;
 		threaten_attack_city = true;
-		threaten_pirate = true;
-		threaten_special_attack = true;
 	}
 
 	else if (GetPersonality()->GetAlignmentEvil() ||
@@ -2080,9 +2078,6 @@ bool Diplomat::ComputeThreatResponse(const PLAYER_INDEX foreignerId, Response & 
 
 			if (has_pacts || (regard > COLDWAR_REGARD))
 			{
-				threaten_pirate = false;
-				threaten_special_attack = false;
-				threaten_end_agreement  = false;
 				threaten_embargo = false;
 				threaten_declare_war = false;
 			}
@@ -2105,14 +2100,11 @@ bool Diplomat::ComputeThreatResponse(const PLAYER_INDEX foreignerId, Response & 
 			threaten_attack_city = false;
 			if (has_pacts || (regard > HOTWAR_REGARD))
 			{
-				threaten_special_attack = false;
 				threaten_declare_war = false;
-				threaten_end_agreement  = false;
 			}
 		}
 
 		threaten_embargo = false;
-		threaten_pirate = false;
 	}
 
 	else if (GetPersonality()->GetDiscoveryDiplomatic() &&
@@ -2133,9 +2125,7 @@ bool Diplomat::ComputeThreatResponse(const PLAYER_INDEX foreignerId, Response & 
 			threaten_attack_city = false;
 			if (has_pacts || (regard > HOTWAR_REGARD))
 			{
-				threaten_special_attack = false;
 				threaten_declare_war = false;
-				threaten_pirate = false;
 
 				threaten_embargo = false;
 			}
@@ -2152,10 +2142,7 @@ bool Diplomat::ComputeThreatResponse(const PLAYER_INDEX foreignerId, Response & 
 
 				threaten_destroy_city = false;
 				threaten_attack_city = false;
-				threaten_special_attack = false;
 				threaten_declare_war = false;
-				threaten_pirate = false;
-				threaten_end_agreement  = false;
 				threaten_embargo = false;
 			}
 		}
@@ -2163,10 +2150,7 @@ bool Diplomat::ComputeThreatResponse(const PLAYER_INDEX foreignerId, Response & 
 		{
 				threaten_destroy_city = false;
 				threaten_attack_city = false;
-				threaten_special_attack = false;
 				threaten_declare_war = false;
-				threaten_pirate = false;
-				threaten_end_agreement  = false;
 				threaten_embargo = false;
 		}
 	}
@@ -2392,7 +2376,6 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 {
 	Response response;
 	RESPONSE_TYPE other_response;
-	THREAT_TYPE threat_type;
 	PLAYER_INDEX other_player;
 
 	if (m_playerId == sender)
@@ -2406,7 +2389,6 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 	{
 		response = GetMyLastResponse(sender);
 
-		threat_type = Diplomat::GetDiplomat(sender).GetMyLastResponse(receiver).threat.type;
 		other_player = sender;
 		other_response = Diplomat::GetDiplomat(sender).GetMyLastResponse(receiver).type;
 	}
@@ -2568,6 +2550,12 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 			GEA_Player, sender,
 			GEA_Player, receiver,
 			GEA_End);
+		break;
+
+	case RESPONSE_INVALID:
+	case RESPONSE_ACCEPT:
+	case RESPONSE_MAX:
+		// RESPONSE_ACCEPT and invalid responses are handled/returned above.
 		break;
 	}
 }
@@ -3940,7 +3928,7 @@ StringId Diplomat::GetScienceAdvice(SlicContext & sc, StringId & advance_advice)
 
 	sint32 stop_researching_adv;
 	uint32 foreignerId;
-	for (foreignerId = 1; foreignerId < s_theDiplomats.size(); foreignerId)
+	for (foreignerId = 1; foreignerId < s_theDiplomats.size(); ++foreignerId)
 	{
 		if (TestEffectiveRegard(foreignerId, ALLIED_REGARD))
 			continue;

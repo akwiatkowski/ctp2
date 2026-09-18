@@ -90,7 +90,14 @@
 
 
 static DipWizard  *s_dipWizard;
-static MBCHAR     *s_dipWizardBlock = "DipWizard";
+// UI callbacks transport small IDs as opaque cookies; callbacks decode them
+// through intptr_t, so preserve that width rather than truncating to void*.
+static void *cookie_from_value(intptr_t value)
+{
+	return reinterpret_cast<void *>(value);
+}
+
+static const MBCHAR *s_dipWizardBlock = "DipWizard";
 
 ctp2_Static       *DipWizard::m_stages[DIP_WIZ_STAGE_MAX];
 ctp2_Button       *DipWizard::m_toneButtons[DIPLOMATIC_TONE_MAX];
@@ -178,7 +185,7 @@ DipWizard::DipWizard(AUI_ERRCODE *err)
 		Assert(m_toneButtons[i]);
 
 		if(m_toneButtons[i]) {
-			m_toneButtons[i]->SetActionFuncAndCookie(ToneButtonCallback, (void *)i);
+			m_toneButtons[i]->SetActionFuncAndCookie(ToneButtonCallback, cookie_from_value(i));
 		}
 
 		MBCHAR labelName[k_MAX_NAME_LEN];
@@ -227,13 +234,13 @@ DipWizard::DipWizard(AUI_ERRCODE *err)
 	m_exchList[DIP_WIZ_PROP_TAB_OFFER] = (ctp2_ListBox *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage2.Tabs.Offer.TabPanel.List");
 	m_exchList[DIP_WIZ_PROP_TAB_TREATY] = (ctp2_ListBox *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage2.Tabs.Treaty.TabPanel.List");
 
-	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage1.Tabs.Request", ProposalTabCallback, (void *)DIP_WIZ_PROP_TAB_REQUEST);
-	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage1.Tabs.Offer", ProposalTabCallback, (void *)DIP_WIZ_PROP_TAB_OFFER);
-	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage1.Tabs.Treaty", ProposalTabCallback, (void *)DIP_WIZ_PROP_TAB_TREATY);
+	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage1.Tabs.Request", ProposalTabCallback, cookie_from_value(DIP_WIZ_PROP_TAB_REQUEST));
+	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage1.Tabs.Offer", ProposalTabCallback, cookie_from_value(DIP_WIZ_PROP_TAB_OFFER));
+	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage1.Tabs.Treaty", ProposalTabCallback, cookie_from_value(DIP_WIZ_PROP_TAB_TREATY));
 
-	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage2.Tabs.Request", ExchangeTabCallback, (void *)DIP_WIZ_PROP_TAB_REQUEST);
-	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage2.Tabs.Offer", ExchangeTabCallback, (void *)DIP_WIZ_PROP_TAB_OFFER);
-	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage2.Tabs.Treaty", ExchangeTabCallback, (void *)DIP_WIZ_PROP_TAB_TREATY);
+	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage2.Tabs.Request", ExchangeTabCallback, cookie_from_value(DIP_WIZ_PROP_TAB_REQUEST));
+	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage2.Tabs.Offer", ExchangeTabCallback, cookie_from_value(DIP_WIZ_PROP_TAB_OFFER));
+	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "Stage2.Tabs.Treaty", ExchangeTabCallback, cookie_from_value(DIP_WIZ_PROP_TAB_TREATY));
 
 	m_parchment = (ctp2_Static *)aui_Ldl::GetObject(s_dipWizardBlock, "Details.Parchment");
 	m_responseDiplomat = (ctp2_Static *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage3.Diplomat");
@@ -435,8 +442,8 @@ void DipWizard::FillProposalLists()
 	for(i = 0; i < DIP_WIZ_PROP_TAB_MAX; i++) {
 		m_propList[i]->Clear();
 		m_exchList[i]->Clear();
-		m_propList[i]->SetActionFuncAndCookie(PropListCallback, (void *)i);
-		m_exchList[i]->SetActionFuncAndCookie(ExchListCallback, (void *)i);
+		m_propList[i]->SetActionFuncAndCookie(PropListCallback, cookie_from_value(i));
+		m_exchList[i]->SetActionFuncAndCookie(ExchListCallback, cookie_from_value(i));
 	}
 
 	const Diplomat & diplomat =
@@ -568,7 +575,7 @@ void DipWizard::FillProposalLists()
 				if(!item)
 					break;
 
-				item->SetUserData((void *)i);
+				item->SetUserData(cookie_from_value(i));
 
 				ctp2_Static *text = (ctp2_Static *)item->GetChildByIndex(0);
 				Assert(text);
@@ -597,7 +604,7 @@ void DipWizard::FillRecipientLists()
 		if(item) {
 			ctp2_Static *label = (ctp2_Static *)item->GetChildByIndex(0);
 			label->SetText((MBCHAR *)stringdb_Get()->GetNameStr("str_ldl_DipWizNoNation"));
-			item->SetUserData((void *)-1);
+			item->SetUserData(cookie_from_value(-1));
 			m_nations->AddItem(item);
 		}
 
@@ -616,7 +623,7 @@ void DipWizard::FillRecipientLists()
 				player_Get(pl)->m_civilisation->GetCountryName(buf);
 				label->SetText(buf);
 
-				item->SetUserData((void *)pl);
+				item->SetUserData(cookie_from_value(pl));
 
 				m_nations->AddItem(item);
 			}
@@ -633,7 +640,7 @@ void DipWizard::AddProposalItem(ctp2_ListBox *propList, const DiplomacyProposalR
 			if(label) {
 				label->SetText(stringdb_Get()->GetNameStr(rec->GetTitle()));
 			}
-			propItem->SetUserData((void *)rec->GetIndex());
+			propItem->SetUserData(cookie_from_value(rec->GetIndex()));
 			propList->AddItem(propItem);
 		}
 	}
@@ -2025,7 +2032,7 @@ void DipWizard::AddCityItems(ctp2_Menu *menu, sint32 player)
 			if(!(city.GetEverVisible() & (1 << selitem_Get()->GetVisiblePlayer())))
 				continue;
 		}
-		menu->AddItem(city.GetName(), nullptr, (void *)city.m_id);
+		menu->AddItem(city.GetName(), nullptr, cookie_from_value(city.m_id));
 	}
 }
 
@@ -2047,37 +2054,37 @@ void DipWizard::AddAgreementItems(ctp2_Menu *menu, sint32 player)
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_PEACE))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_PEACE);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_PEACE"), nullptr, (void *)PROPOSAL_TREATY_PEACE);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_PEACE"), nullptr, cookie_from_value(PROPOSAL_TREATY_PEACE));
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_TRADE_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_TRADE_PACT);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_TRADE_PACT"), nullptr, (void *)PROPOSAL_TREATY_TRADE_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_TRADE_PACT"), nullptr, cookie_from_value(PROPOSAL_TREATY_TRADE_PACT));
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_RESEARCH_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_RESEARCH_PACT);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_RESEARCH_PACT"), nullptr, (void *)PROPOSAL_TREATY_RESEARCH_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_RESEARCH_PACT"), nullptr, cookie_from_value(PROPOSAL_TREATY_RESEARCH_PACT));
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_MILITARY_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_MILITARY_PACT);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_MILITARY_PACT"), nullptr, (void *)PROPOSAL_TREATY_MILITARY_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_MILITARY_PACT"), nullptr, cookie_from_value(PROPOSAL_TREATY_MILITARY_PACT));
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_POLLUTION_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_POLLUTION_PACT);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_POLLUTION_PACT"), nullptr, (void *)PROPOSAL_TREATY_POLLUTION_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_POLLUTION_PACT"), nullptr, cookie_from_value(PROPOSAL_TREATY_POLLUTION_PACT));
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_ALLIANCE))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_ALLIANCE);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_ALLIANCE"), nullptr, (void *)PROPOSAL_TREATY_ALLIANCE);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_ALLIANCE"), nullptr, cookie_from_value(PROPOSAL_TREATY_ALLIANCE));
 	}
 }
 
@@ -2113,7 +2120,7 @@ void DipWizard::AddAdvanceItems(ctp2_Menu *menu, sint32 sender, sint32 receiver)
 			continue;
 		}
 
-		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), nullptr, (void *)a);
+		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), nullptr, cookie_from_value(a));
 	}
 }
 
@@ -2135,7 +2142,7 @@ void DipWizard::AddStopResearchItems(ctp2_Menu *menu, sint32 playerId)
 			continue;
 		}
 
-		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), nullptr, (void *)a);
+		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), nullptr, cookie_from_value(a));
 	}
 }
 
@@ -2151,7 +2158,7 @@ void DipWizard::AddThirdPartyItems(ctp2_Menu *menu, sint32 sender, sint32 receiv
 
 		MBCHAR civName[k_MAX_NAME_LEN];
 		player_Get(p)->GetCivilisation()->GetPluralCivName(civName);
-		menu->AddItem(civName, nullptr, (void *)p);
+		menu->AddItem(civName, nullptr, cookie_from_value(p));
 	}
 }
 
@@ -2605,7 +2612,7 @@ void DipWizard::DisplayResponseDiplomat(sint32 player)
 
 
 
-	m_responseDiplomat->SetDrawCallbackAndCookie(DrawDiplomatColor, (void *)player);
+	m_responseDiplomat->SetDrawCallbackAndCookie(DrawDiplomatColor, cookie_from_value(player));
 }
 
 void DipWizard::DisplayParchment(sint32 player)

@@ -60,7 +60,7 @@ void wondermoviewin_Initialize(SequenceWeakPtr seq)
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	if (g_wonderMovieWindow == nullptr) {
-		g_wonderMovieWindow = new WonderMovieWindow(&errcode, aui_UniqueId(), "WonderMovieWindow", 16);
+		g_wonderMovieWindow = new WonderMovieWindow(&errcode, aui_UniqueId(), const_cast<MBCHAR *>("WonderMovieWindow"), 16);
 		Assert(errcode == AUI_ERRCODE_OK);
 
 		g_wonderMovieWindow->SetSequence(seq);

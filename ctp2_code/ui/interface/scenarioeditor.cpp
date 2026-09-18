@@ -184,30 +184,25 @@ static MBCHAR const *s_scenarioAddStuffBlock = "ScenAddStuffWindow";
 #define k_MAX_ADD_GOLD_OR_PW 1000000
 #define MAX_CHARS 7
 
-static MBCHAR const *k_WORLD_TAB_BUTTON = "ScenarioEditor.TabGroup.WorldButton";
-static MBCHAR const *k_UNIT_TAB_BUTTON = "ScenarioEditor.TabGroup.UnitButton";
-static MBCHAR const *k_CITY_TAB_BUTTON = "ScenarioEditor.TabGroup.CityButton";
-static MBCHAR const *k_CIV_TAB_BUTTON = "ScenarioEditor.TabGroup.CivButton";
-
-char *s_scenTabNames[SCEN_TAB_MAX] = {
+const MBCHAR *s_scenTabNames[SCEN_TAB_MAX] = {
 	"World",
 	"Unit",
 	"City",
 	"Civ",
 };
 
-static char *s_playerSpinners[] = {
+static const char *s_playerSpinners[] = {
 	"UnitControls.Player",
 	"CityControls.Player",
 	"CivControls.Player"
 };
-#define k_NUM_PLAYER_SPINNERS (sizeof(s_playerSpinners) / sizeof(char *))
+#define k_NUM_PLAYER_SPINNERS (sizeof(s_playerSpinners) / sizeof(s_playerSpinners[0]))
 
 BOOL s_wasKeepingScore = FALSE;
 
 BOOL g_toeMode = FALSE;
 
-static char *s_modeSwitchNames[SCEN_START_LOC_MODE_MAX] = {
+static const char *s_modeSwitchNames[SCEN_START_LOC_MODE_MAX] = {
 	"TabGroup.Civ.FullModeSwitch",
 	"TabGroup.Civ.PlayerNoCivSwitch",
 	"TabGroup.Civ.PlayerWithCivSwitch",
@@ -236,6 +231,8 @@ void scenarioeditor_SetSaveOptionsFromMode()
 	case SCEN_START_LOC_MODE_CIV:
 		start_info_type_Set(STARTINFOTYPE_CIVS);
 
+		break;
+	case SCEN_START_LOC_MODE_MAX:
 		break;
 	}
 }
@@ -744,7 +741,7 @@ void ScenarioEditor::PopulateTerrainList()
 
 		m_terrainSwitches[t] = sw;
 
-		sw->SetActionFuncAndCookie(ScenarioEditor::TerrainSwitch, (void *)t);
+		sw->SetActionFuncAndCookie(ScenarioEditor::TerrainSwitch, reinterpret_cast<void *>(static_cast<intptr_t>(t)));
 		((aui_TipWindow *)sw->GetTipWindow())->SetTipText((MBCHAR *)trec->GetNameText());
 
 		col++;
@@ -846,7 +843,7 @@ void ScenarioEditor::PopulateUnitList(SCEN_UNIT_CAT cat)
 			sw->SetImage((char *)iconname, 1);
 		}
 
-		sw->SetActionFuncAndCookie(ScenarioEditor::UnitSwitch, (void *)ui);
+		sw->SetActionFuncAndCookie(ScenarioEditor::UnitSwitch, reinterpret_cast<void *>(static_cast<intptr_t>(ui)));
 
 		((aui_TipWindow *)sw->GetTipWindow())->SetTipText((MBCHAR *)rec->GetNameText());
 
@@ -858,7 +855,7 @@ void ScenarioEditor::PopulateUnitList(SCEN_UNIT_CAT cat)
 		{
 			sw->SetState(1);
 		}
-		sw->SetActionFuncAndCookie(ScenarioEditor::ExcludeSwitch, (void *)ui);
+		sw->SetActionFuncAndCookie(ScenarioEditor::ExcludeSwitch, reinterpret_cast<void *>(static_cast<intptr_t>(ui)));
 		col++;
 		if(col >= k_UNIT_COLS_PER_ROW) {
 			col = 0;
@@ -916,7 +913,7 @@ void ScenarioEditor::PopulateCityList()
 		Assert(sw);
 		if(!sw) break;
 
-		sw->SetActionFuncAndCookie(ScenarioEditor::CityStyleSwitch, (void *)cs);
+		sw->SetActionFuncAndCookie(ScenarioEditor::CityStyleSwitch, reinterpret_cast<void *>(static_cast<intptr_t>(cs)));
 		col++;
 		if(col >= k_CITY_COLS_PER_ROW) {
 			col = 0;
@@ -1019,7 +1016,7 @@ void ScenarioEditor::PopulateTerrainImprovementList()  //emod1 note  use this fo
 
 		m_terrainImpSwitches[t] = sw;
 
-		sw->SetActionFuncAndCookie(ScenarioEditor::TerrainImprovementSwitch, (void *)t);
+		sw->SetActionFuncAndCookie(ScenarioEditor::TerrainImprovementSwitch, reinterpret_cast<void *>(static_cast<intptr_t>(t)));
 		((aui_TipWindow *)sw->GetTipWindow())->SetTipText((MBCHAR *)rec->GetNameText());
 
 		col++;
@@ -1832,7 +1829,7 @@ void ScenarioEditor::UpdatePlayerSelect()
 	ctp2_DropDown *players = (ctp2_DropDown *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.Civ.PlayerSelect");
 	players->Clear();
 	const MBCHAR *plr_choice = stringdb_Get()->GetNameStr("str_player_choice");
-	AddDropDownItem(players, "ScenNationItem", (MBCHAR *)plr_choice);
+	AddDropDownItem(players, const_cast<MBCHAR *>("ScenNationItem"), (MBCHAR *)plr_choice);
 
     char str[k_MAX_NAME_LEN];
 	for (sint32 i = 1; i < k_MAX_PLAYERS; i++)
@@ -1840,7 +1837,7 @@ void ScenarioEditor::UpdatePlayerSelect()
 		if(player_Get(i))
 		{
 			player_Get(i)->GetCivilisation()->GetCountryName(str);
-			AddDropDownItem(players, "ScenNationItem", str);
+			AddDropDownItem(players, const_cast<MBCHAR *>("ScenNationItem"), str);
 		}
 	}
 
@@ -1880,7 +1877,7 @@ void ScenarioEditor::SetupNations()
 	for(i = 0; i < g_theCivilisationDB->NumRecords(); i++) {
 		const MBCHAR *name = stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(i)->GetCountryName());
 
-		AddDropDownItem(plgroup, "ScenNationItem", (MBCHAR *)name);
+		AddDropDownItem(plgroup, const_cast<MBCHAR *>("ScenNationItem"), (MBCHAR *)name);
 
 
 	}
@@ -1904,7 +1901,7 @@ void ScenarioEditor::SetupNations()
 	ctp2_DropDown *govs = (ctp2_DropDown *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.Civ.SetGovernment");
 	for (i = 0; i < g_theGovernmentDB->NumRecords(); i++)
 	{
-		AddDropDownItem(govs, "ScenNationItem", (MBCHAR *)stringdb_Get()->GetNameStr(g_theGovernmentDB->GetName(i)) );
+		AddDropDownItem(govs, const_cast<MBCHAR *>("ScenNationItem"), (MBCHAR *)stringdb_Get()->GetNameStr(g_theGovernmentDB->GetName(i)) );
 	}
 
 	if (p)
@@ -1951,7 +1948,7 @@ void ScenarioEditor::AddAddItem(ctp2_ListBox * a_List, const MBCHAR *text, sint3
 		return;
 
 	textBox->SetText(text);
-	item->SetUserData((void *)userData);
+	item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(userData)));
 	a_List->AddItem(item);
 }
 
@@ -2759,7 +2756,7 @@ void ScenarioEditor::SetupGlobalControls()
 
 		for (sint32 i = MAPSIZE_SMALL; i <= MAPSIZE_GIGANTIC; i++)
 		{
-			AddDropDownItem(dd, "ScenMapSizeItem", table->GetString(i));
+			AddDropDownItem(dd, const_cast<MBCHAR *>("ScenMapSizeItem"), table->GetString(i));
 			dd->SetSelectedItem(profiledb_Get()->GetMapSize());
 		}
 	}
@@ -2771,7 +2768,7 @@ void ScenarioEditor::SetupGlobalControls()
 		dd->Clear();
 		for (sint32 i = 0; i < g_theRiskDB->NumRecords(); i++)
 		{
-			AddDropDownItem(dd, "ScenBarbarianItem", g_theRiskDB->Get(i)->GetNameText());
+			AddDropDownItem(dd, const_cast<MBCHAR *>("ScenBarbarianItem"), g_theRiskDB->Get(i)->GetNameText());
 		}
 		dd->SetSelectedItem(profiledb_Get()->GetRiskLevel());
 	}
@@ -2783,7 +2780,7 @@ void ScenarioEditor::SetupGlobalControls()
 		dd->Clear();
 		for (sint32 i = 0; i < g_theDifficultyDB->NumRecords(); i++)
 		{
-			AddDropDownItem(dd, "ScenDifficultyItem", g_theDifficultyDB->Get(i)->GetNameText());
+			AddDropDownItem(dd, const_cast<MBCHAR *>("ScenDifficultyItem"), g_theDifficultyDB->Get(i)->GetNameText());
 		}
 		dd->SetSelectedItem(profiledb_Get()->GetDifficulty());
 	}
@@ -2915,7 +2912,7 @@ void ScenarioEditor::MapSize(aui_Control *control, uint32 action, uint32 data, v
 		return;
 
 	MessageBoxDialog::Query( "str_ldl_Confirm_Restart", "ConfirmMapSizeRestart",
-		ScenarioEditor::ChangeMapSizeCallback, (void*)mapSize );
+		ScenarioEditor::ChangeMapSizeCallback, reinterpret_cast<void *>(static_cast<intptr_t>(mapSize)) );
 
 
 
@@ -3049,6 +3046,8 @@ void ScenarioEditor::SetPlayerNation(aui_Control *control, uint32 action, uint32
 			s_scenarioEditor->m_placeNationFlag = nation;
 			break;
 		}
+		case SCEN_START_LOC_MODE_MAX:
+			break;
 	}
 
 

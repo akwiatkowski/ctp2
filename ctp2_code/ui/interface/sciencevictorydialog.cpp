@@ -402,8 +402,11 @@ void ScienceVictoryDialog::UpdateStatus(const GaiaController *gaiaController)
 {
 
 	char buffer[256];
-	snprintf(buffer, sizeof(buffer), stringdb_Get()->GetNameStr("str_ldl_SV_COUNTDOWN_SEQUENCE"),
-		gaiaController->TurnsToComplete());
+	// stringdb_FormatOr: localized countdown template with inline fallback.
+	snprintf(buffer, sizeof(buffer),
+	         stringdb_FormatOr("str_ldl_SV_COUNTDOWN_SEQUENCE",
+	                           "Gaia Controller online in %d turns..."),
+	         gaiaController->TurnsToComplete());
 	m_statusText->SetText(buffer);
 
 

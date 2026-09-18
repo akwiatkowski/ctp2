@@ -288,10 +288,12 @@ void aui_Tab::MouseLGrabInside( aui_MouseEvent *mouseData )
 		m_mouseCode = AUI_ERRCODE_HANDLEDEXCLUSIVE;
 
 		if ( !HandleGameSpecificLeftClick( this ) )
-		if ( 0 < m_state && m_state < m_numStates - 1 )
-			SetState( Mod(m_state+1,m_numStates) );
-		else
-			SetState( 1 );
+		{
+			if ( 0 < m_state && m_state < m_numStates - 1 )
+				SetState( Mod(m_state+1,m_numStates) );
+			else
+				SetState( 1 );
+		}
 
 		m_attributes |= k_CONTROL_ATTRIBUTE_ACTIVE;
 

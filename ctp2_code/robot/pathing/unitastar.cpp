@@ -83,10 +83,14 @@
 
 namespace
 {
+#ifdef _MSC_VER
 #pragma warning(disable:4309)
+#endif
     // Will generate a truncation warning, but only once.
     sint16 const    MARK_UNUSED16   = static_cast<sint16>(MARK_UNUSED);
+#ifdef _MSC_VER
 #pragma warning(default:4309)
+#endif
 }
 
 UnitAstar::UnitAstar()

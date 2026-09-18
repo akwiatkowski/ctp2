@@ -375,19 +375,19 @@ GameEventArgList *SlicArgList::CreateGameEventArgs(GAME_EVENT ev)
 			case GEAC_ARMY:
 				if(GetArmy(i, a)) {
 					newArgs->Add(new GameEventArgument(GEA_Army, a));
-					EVENTLOG(("0x%lx", a.m_id));
+				EVENTLOG(("0x%x", a.m_id));
 				}
 				break;
 			case GEAC_UNIT:
 				if(GetUnit(i, u)) {
 					newArgs->Add(new GameEventArgument(GEA_Unit, u));
-					EVENTLOG(("0x%lx", u.m_id));
+				EVENTLOG(("0x%x", u.m_id));
 				}
 				break;
 			case GEAC_CITY:
 				if(GetCity(i, city)) {
 					newArgs->Add(new GameEventArgument(GEA_City, city));
-					EVENTLOG(("0x%lx", city.m_id));
+				EVENTLOG(("0x%x", city.m_id));
 				}
 				break;
 			case GEAC_POP:
@@ -2252,8 +2252,9 @@ SFN_ERROR Slic_DoOutOfFuel::Call(SlicArgList *args) //Disabled?
 
 SFN_ERROR Slic_DoPillageOwnLand::Call(SlicArgList *args)
 {
-    if (args->Count() > 0)
+    if (args->Count() > 0) {
         return SFN_ERROR_NUM_ARGS;
+    }
 
 	Unit unit = slicengine_Get()->GetContext()->GetUnit(0);
 
@@ -2291,8 +2292,9 @@ SFN_ERROR Slic_DoCertainRevolution::Call(SlicArgList *args) //Disabled?
 
 SFN_ERROR Slic_DoFreeSlaves::Call(SlicArgList *args)
 {
-    if (args->Count() > 0)
+    if (args->Count() > 0) {
         return SFN_ERROR_NUM_ARGS;
+    }
 
 	Unit city = slicengine_Get()->GetContext()->GetCity(0);
 
@@ -7140,8 +7142,9 @@ SFN_ERROR Slic_AddSlaves::Call(SlicArgList *args)
 //EMODs
 SFN_ERROR Slic_KillCity::Call(SlicArgList *args)
 {
-    if (args->Count() > 0)
+    if (args->Count() > 0) {
         return SFN_ERROR_NUM_ARGS;
+    }
 
 	Unit city = slicengine_Get()->GetContext()->GetCity(0);
 	if (!city.IsValid())
@@ -7169,8 +7172,9 @@ SFN_ERROR Slic_KillCity::Call(SlicArgList *args)
 
 SFN_ERROR Slic_Pillage::Call(SlicArgList *args)
 {
-    if (args->Count() > 0)
+    if (args->Count() > 0) {
         return SFN_ERROR_NUM_ARGS;
+    }
 
 	Unit city = slicengine_Get()->GetContext()->GetCity(0);
 
@@ -7234,8 +7238,9 @@ SFN_ERROR Slic_Pillage::Call(SlicArgList *args)
 
 SFN_ERROR Slic_Plunder::Call(SlicArgList *args)
 {
-    if (args->Count() > 0)
+    if (args->Count() > 0) {
         return SFN_ERROR_NUM_ARGS;
+    }
 
 	Unit city = slicengine_Get()->GetContext()->GetCity(0);
 	if (!city.IsValid())
@@ -7298,8 +7303,9 @@ SFN_ERROR Slic_Plunder::Call(SlicArgList *args)
 
 SFN_ERROR Slic_Liberate::Call(SlicArgList *args)
 {
-    if (args->Count() > 0)
+    if (args->Count() > 0) {
         return SFN_ERROR_NUM_ARGS;
+    }
 
 	Unit city = slicengine_Get()->GetContext()->GetCity(0);
 

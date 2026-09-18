@@ -12,7 +12,7 @@ void BlockPush(MBCHAR *path, MBCHAR *addition)
 
 	Assert(addition != nullptr) ;
 
-	Assert(addition[0] != NULL) ;
+	Assert(addition[0] != '\0') ;
 
 	Assert(path != nullptr) ;
 
@@ -21,7 +21,7 @@ void BlockPush(MBCHAR *path, MBCHAR *addition)
 	Assert(addition[0] != '.') ;
 	Assert(addition[strlen(addition)] != '.') ;
 
-	if (path[0]!=NULL)
+	if (path[0]!='\0')
 		strlcat(path, ".", k_AUI_LDL_MAXBLOCK) ;
 
 	strlcat(path, addition, k_AUI_LDL_MAXBLOCK) ;
@@ -33,14 +33,14 @@ void BlockPop(MBCHAR *path)
 
 	Assert(path != nullptr) ;
 
-	Assert(path[0] != NULL) ;
+	Assert(path[0] != '\0') ;
 	p = strrchr(path, '.') ;
 
 	Assert(p!=nullptr) ;
 	if (p==nullptr)
 		return ;
 
-	*p = NULL ;
+	*p = '\0' ;
 	}
 
 void ui_TruncateString( aui_Control *control, MBCHAR *str )

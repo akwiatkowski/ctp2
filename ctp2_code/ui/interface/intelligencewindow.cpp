@@ -69,8 +69,8 @@
 
 
 static IntelligenceWindow   *s_intelligenceWindow = nullptr;
-static MBCHAR               *s_intelligenceBlock = "IntelligenceWindow";
-static MBCHAR               *s_intelligenceAdviceBlock = "IntelligenceAdvice";
+static const MBCHAR           *s_intelligenceBlock = "IntelligenceWindow";
+static const MBCHAR           *s_intelligenceAdviceBlock = "IntelligenceAdvice";
 ctp2_ListBox                *IntelligenceWindow::sm_list = nullptr;
 
 
@@ -268,7 +268,7 @@ void IntelligenceWindow::Update(ctp2_ListBox *theList)
 
 		if (ctp2_Static * flag = (ctp2_Static *) item->GetChildByIndex(k_INT_FLAG_COL))
         {
-			flag->SetDrawCallbackAndCookie(DrawPlayerFlag, (void *)p, false);
+			flag->SetDrawCallbackAndCookie(DrawPlayerFlag, reinterpret_cast<void *>(static_cast<intptr_t>(p)), false);
 			flag->SetActionFuncAndCookie(SelectItem, item);
 		}
 
@@ -282,7 +282,7 @@ void IntelligenceWindow::Update(ctp2_ListBox *theList)
 
 		if (ctp2_Static * regard = (ctp2_Static *)item->GetChildByIndex(k_INT_REGARD_COL))
         {
-			regard->SetDrawCallbackAndCookie(DrawPlayerRegard, (void *)p, true);
+			regard->SetDrawCallbackAndCookie(DrawPlayerRegard, reinterpret_cast<void *>(static_cast<intptr_t>(p)), true);
 			MBCHAR buf[k_MAX_NAME_LEN];
 			SetRegardTip(buf, p, visPl);
 			((aui_TipWindow *)regard->GetTipWindow())->SetTipText(buf);
@@ -291,7 +291,7 @@ void IntelligenceWindow::Update(ctp2_ListBox *theList)
 
 		if (ctp2_Static * strength = (ctp2_Static *)item->GetChildByIndex(k_INT_STRENGTH_COL))
         {
-			strength->SetDrawCallbackAndCookie(DrawPlayerStrength, (void *)p, true);
+			strength->SetDrawCallbackAndCookie(DrawPlayerStrength, reinterpret_cast<void *>(static_cast<intptr_t>(p)), true);
 			MBCHAR buf[k_MAX_NAME_LEN];
 			DIPLOMATIC_STRENGTH relativeStrength = player_Get(p)->GetRelativeStrength(visPl);
 
@@ -318,16 +318,16 @@ void IntelligenceWindow::Update(ctp2_ListBox *theList)
 
 		if (ctp2_Static * embassy = (ctp2_Static *)item->GetChildByIndex(k_INT_EMBASSY_COL))
         {
-			embassy->SetDrawCallbackAndCookie(DrawEmbassy, (void *)p, true);
+			embassy->SetDrawCallbackAndCookie(DrawEmbassy, reinterpret_cast<void *>(static_cast<intptr_t>(p)), true);
 			embassy->SetActionFuncAndCookie(SelectItem, item);
 		}
 
 		if (ctp2_Static * treaty = (ctp2_Static *)item->GetChildByIndex(k_INT_TREATIES_COL))
         {
-			treaty->SetDrawCallbackAndCookie(DrawTreaties, (void *)p, true);
+			treaty->SetDrawCallbackAndCookie(DrawTreaties, reinterpret_cast<void *>(static_cast<intptr_t>(p)), true);
 			treaty->SetActionFuncAndCookie(SelectItem, item);
 		}
-		item->SetUserData((void*) p);
+		item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(p)));
 		theList->AddItem(item);
 	}
 }
@@ -779,7 +779,7 @@ void IntelligenceWindow::DeclareWarOnSelected()
 	so.AddPlayer(player);
 	stringutils_Interpret(stringdb_Get()->GetNameStr("str_ldl_IW_CONFIRM_WAR"), so, buf, k_MAX_NAME_LEN);
 
-	MessageBoxDialog::Query(buf, "QueryDeclareWar", intelligence_DeclareWarCallback, (void *)player);
+	MessageBoxDialog::Query(buf, "QueryDeclareWar", intelligence_DeclareWarCallback, reinterpret_cast<void *>(static_cast<intptr_t>(player)));
 }
 
 void IntelligenceWindow::DeclareEmbargoOnSelected()
@@ -801,7 +801,7 @@ void IntelligenceWindow::DeclareEmbargoOnSelected()
 	so.AddPlayer(player);
 	stringutils_Interpret(stringdb_Get()->GetNameStr("str_ldl_IW_CONFIRM_EMBARGO"), so, buf, k_MAX_NAME_LEN);
 
-	MessageBoxDialog::Query(buf, "QueryDeclareEmbargo", intelligence_DeclarEmbargoCallback, (void *)player);
+	MessageBoxDialog::Query(buf, "QueryDeclareEmbargo", intelligence_DeclarEmbargoCallback, reinterpret_cast<void *>(static_cast<intptr_t>(player)));
 }
 
 void IntelligenceWindow::SendMessageToSelected()

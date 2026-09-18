@@ -48,7 +48,8 @@ void NetAgreement::UnpacketizeData(AgreementData *data,
 
 	PULLLONGTYPE(data->m_targetCity, Unit);
 
-	sint32 goldLevel;
+	// Consumed from the wire format but unused by the receiver.
+	[[maybe_unused]] sint32 goldLevel;
 	PULLLONG(goldLevel);
 }
 

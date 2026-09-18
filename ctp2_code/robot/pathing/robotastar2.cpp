@@ -134,12 +134,14 @@ bool RobotAstar2::AirliftPathCallback (const bool & can_enter,
 	{
 		if
 		  (
+		   (
 		        pos == m_dest
 		    &&
 		   (
 		        world_Get()->GetCell(pos)->GetNumUnits() > 0
 		    &&  world_Get()->GetArmyPtr(pos)->GetOwner() != m_army->GetOwner()
 		    && !m_army->CanFight(*world_Get()->GetArmyPtr(pos))
+		   )
 		   )
 		    ||
 		   (
@@ -327,6 +329,8 @@ bool RobotAstar2::EntryCost( const MapPoint &prev,
 		case PATH_TYPE_DEFENSIVE:
 			r = DefensivePathCallback(r, prev, pos, is_zoc, cost, entry);
 			break;
+		case PATH_TYPE_DEFAULT:
+			break;
 		}
 
 		if(m_is_robot && pos != m_army->RetPos() && pos != m_dest && cost < k_ASTAR_BIG)
@@ -378,6 +382,8 @@ void RobotAstar2::RecalcEntryCost(AstarPoint *parent,
 			case PATH_TYPE_DEFENSIVE:
 				DefensivePathCallback(true, parent->m_pos, node->m_pos, new_is_zoc,
 									  new_entry_cost, new_entry);
+				break;
+			case PATH_TYPE_DEFAULT:
 				break;
 		}
 	}

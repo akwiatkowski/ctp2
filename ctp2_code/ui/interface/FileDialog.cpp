@@ -136,7 +136,7 @@ void FileDialog::Fill()
 	while ((dent = readdir(dir))) {
 		snprintf(pattern, sizeof(pattern), "%s%s%s", m_dirPath, FILE_SEP, dent->d_name);
 		int rc = stat(pattern, &st);
-		if (!S_ISDIR(st.st_mode)) {
+		if (rc == 0 && !S_ISDIR(st.st_mode)) {
 			AddFile(dent->d_name, nullptr);
 		}
 	}

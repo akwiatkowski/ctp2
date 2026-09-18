@@ -206,7 +206,7 @@ extern FILE *debuglog;
 
 SLIC_ERROR slicif_run_parser(char *filename, int symStart);
 void slicif_add_object(struct PSlicObject* obj);
-void slicif_add_op(SOP op, ...);
+void slicif_add_op(int op, ...); // int (not SOP): va_start on a promoted enum param is UB
 void slicif_init();
 void slicif_cleanup();
 void slicif_set_start(int symStart);

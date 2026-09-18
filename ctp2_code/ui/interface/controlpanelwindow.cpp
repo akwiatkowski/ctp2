@@ -641,7 +641,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 				}
 				else
 				{
-					MessageBoxDialog::Query("str_ldl_ND_VERIFY_DISBAND", "VerifyDisbandCity", controlpanelwindow_DisbandCity, (void *)city.m_id);
+					MessageBoxDialog::Query("str_ldl_ND_VERIFY_DISBAND", "VerifyDisbandCity", controlpanelwindow_DisbandCity, reinterpret_cast<void *>(static_cast<intptr_t>(city.m_id)));
 				}
 				break;
 			}
@@ -2306,7 +2306,7 @@ void ControlPanelWindow::AddMessage(Message &message,bool initializing)
 	tabLabel->ShouldDraw(TRUE);
 
 
-	item->SetActionFuncAndCookie(controlpanelwindow_MessageListCallback, (void *)(uint32)message);
+	item->SetActionFuncAndCookie(controlpanelwindow_MessageListCallback, reinterpret_cast<void *>(static_cast<intptr_t>(static_cast<uint32>(message))));
 
 
 
@@ -2370,7 +2370,7 @@ void ControlPanelWindow::RemoveMessage(Message &message)
 
 	for (i=0; i<numItems; i++) {
 		listItem = (ctp2_ListItem *)m_messageList->GetItemByIndex(i);
-		if (listItem->GetCookie() == (void *)(uint32)message) {
+		if (listItem->GetCookie() == reinterpret_cast<void *>(static_cast<intptr_t>(static_cast<uint32>(message)))) {
 			m_messageList->RemoveItemByIndex(i);
 			delete listItem;
 			break;
@@ -2537,7 +2537,7 @@ ControlPanelWindow::CreateTileImpBanks()
 	for(i=0;i<CP_TILEIMP_MAX;i++)
 	{
 		if ((m_activatorButtons[i]!=nullptr)&&(i<CP_TILEIMP_MAX))
-			m_activatorButtons[i]->SetActionFuncAndCookie(TileImpSelectionCallback,(void *)i);
+			m_activatorButtons[i]->SetActionFuncAndCookie(TileImpSelectionCallback,reinterpret_cast<void *>(static_cast<intptr_t>(i)));
 
 		if (m_tileImpPanes[i]!=nullptr)
 			m_tileImpPanes[i]->Hide();
@@ -2687,7 +2687,9 @@ ControlPanelWindow::CreateTileImpBanks()
 #if defined(_DEBUG)
                 if (row < CP_TILEIMP_MAX)
                 {
-				    Assert(button_id=="Could not find button");
+				    // Report the missing button id; Assert() stringifies its
+				    // argument, so a comparison would only print source text.
+				    c3debug_Assert(button_id, __FILE__, __LINE__);
                 }
                 // else: No report. Used by a lot of mods for inaccessible tile improvements.
 #endif // _DEBUG
@@ -2695,7 +2697,7 @@ ControlPanelWindow::CreateTileImpBanks()
 			}
 			else
 			{
-				a_button->SetActionFuncAndCookie(TileImpButtonCallback2,(void *)current);
+				a_button->SetActionFuncAndCookie(TileImpButtonCallback2,reinterpret_cast<void *>(static_cast<intptr_t>(current)));
 
 
 
@@ -2883,7 +2885,7 @@ ControlPanelWindow::BuildUnitList ()
 			strlcpy(order, "  ", sizeof(order));
 			strlcat(order, stringdb_Get()->GetNameStr(string_index), sizeof(order));
 
-				m_contextMenu->AddItem(order, nullptr,(void *)i);
+				m_contextMenu->AddItem(order, nullptr,reinterpret_cast<void *>(static_cast<intptr_t>(i)));
 			}
 		}
 	}
@@ -3286,7 +3288,8 @@ ControlPanelWindow::CityPanelRedisplay()
 	SetControlText((aui_Control *)m_cityHappiness  ,"%3.2f",happiness);
 	SetControlText((aui_Control *)m_cityPopulation ,"%d",pop);
 	SetControlText((aui_Control *)m_cityGrowth	   ,"%d",growth);
-	SetControlText((aui_Control *)m_buildingItem   ,buildName);
+	// "%s": buildName is a computed building name, not a template.
+	SetControlText((aui_Control *)m_buildingItem   ,"%s",buildName);
 	SetControlText((aui_Control *)m_turnsRemaining ,"%d",buildRemaining);
 
 }
@@ -3544,16 +3547,16 @@ void cpw_NumberToCommas( uint64 number, MBCHAR *s, size_t size )
 	strlcpy( c, stringdb_Get()->GetNameStr("str_ldl_comma"), sizeof(c) );
 
 	if ( trillion ) {
-		snprintf(s, size, "%ld%s%.3ld%s%.3ld%s%.3ld%s%.3" PRIu64, trillion, c, billion, c, million, c, thousand, c, temp );
+		snprintf(s, size, "%d%s%.3d%s%.3d%s%.3d%s%.3" PRIu64, trillion, c, billion, c, million, c, thousand, c, temp );
 	}
 	else if ( billion ) {
-		snprintf(s, size, "%ld%s%.3ld%s%.3ld%s%.3" PRIu64, billion, c, million, c, thousand, c, temp );
+		snprintf(s, size, "%d%s%.3d%s%.3d%s%.3" PRIu64, billion, c, million, c, thousand, c, temp );
 	}
 	else if ( million ) {
-		snprintf(s, size, "%ld%s%.3ld%s%.3" PRIu64, million, c, thousand, c, temp );
+		snprintf(s, size, "%d%s%.3d%s%.3" PRIu64, million, c, thousand, c, temp );
 	}
 	else if ( thousand ) {
-		snprintf(s, size, "%ld%s%.3" PRIu64, thousand, c, temp );
+		snprintf(s, size, "%d%s%.3" PRIu64, thousand, c, temp );
 	}
 	else {
 		snprintf(s, size, "%" PRIu64, temp );
@@ -3569,8 +3572,8 @@ void ControlPanelWindow::TabCallback(aui_Control *control, uint32 action,
 
 		g_controlPanel->ClearTargetingMode();
 
-		MainControlPanel *mcp = maincontrolpanel_Get();
 		switch(tab) {
+			case CP_TAB_UNIT:
 				MainControlPanel::UnitPanelActivated();
 				break;
 			case CP_TAB_CITY:
@@ -3580,7 +3583,13 @@ void ControlPanelWindow::TabCallback(aui_Control *control, uint32 action,
 				ctp2_Static *tabLabel;
 				tabLabel = (static_cast<ctp2_Static*>(aui_Ldl::GetObject("ControlPanelWindow.ControlPanel.ControlTabPanel.MessageTab.TabButton.Label")));
 				tabLabel->SetTextColor(colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_PLAIN));
-				tabLabel->ShouldDraw(TRUE);
+				break;
+			case CP_TAB_CIV:
+			case CP_TAB_TILEIMP:
+				// No panel activation needed for these tabs.
+				break;
+			case CP_TAB_INVALID:
+			case CP_TAB_LAST:
 				break;
 		}
 	}

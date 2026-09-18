@@ -236,7 +236,7 @@ sint32 c3_PopupWindow::AddTitle( MBCHAR const *titleBlock )
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 		m_title.reset(new c3_Static(&errcode, aui_UniqueId(), "c3_PopupTitle"));
 		TestControl(m_title);
-		char *ldlBlock = "c3_PopupTitle.c3_PopupTitleText";
+		char const *ldlBlock = "c3_PopupTitle.c3_PopupTitleText";
 		m_titleText.reset(new c3_Static
 		        (&errcode,
 		         aui_UniqueId(),

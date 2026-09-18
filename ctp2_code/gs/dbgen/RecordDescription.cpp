@@ -71,7 +71,11 @@
 #include "os/include/ctp2_config.h"
 #include "os/include/ctp2_inttypes.h"
 
-#pragma warning(disable:4786)   // (Level ?)   identifier length over 255 (with templates)
+// MSVC C4786 (identifier >255 chars with templates); other compilers
+// reject the pragma, so guard it.
+#ifdef _MSC_VER
+#pragma warning(disable:4786)
+#endif
 
 #include <cstdio>
 #include <cstring>

@@ -367,9 +367,6 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	m_convertedBy                       (CONVERTED_BY_NOTHING),
 	m_terrainWasPolluted                (false),
 	m_happinessAttacked                 (false),
-    m_gross_food_before_bonuses         (0.0),
-    m_gross_prod_before_bonuses         (0),
-	m_happinessAttackedBy               (PLAYER_UNASSIGNED),
 	m_terrainImprovementWasBuilt        (false),
 	m_improvementWasBuilt               (false),
 	m_isInjoined                        (false),
@@ -414,6 +411,9 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	m_cityStyle                         (CITY_STYLE_GENERIC),
 	m_pos                               (center_point),
 	m_is_rioting                        (false),
+    m_gross_food_before_bonuses         (0.0),
+    m_gross_prod_before_bonuses         (0),
+	m_happinessAttackedBy               (PLAYER_UNASSIGNED),
 	m_home_city                         (hc),
 	m_min_turns_revolt                  (0),
 	m_build_queue                       (),
@@ -467,25 +467,25 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	m_gross_science                     (0.0),
 	m_science_lost_to_crime             (0.0),
 #endif
-	m_cityRadiusOp                      (RADIUS_OP_UKNOWN),
-	m_killList                          (nullptr),
-	m_radiusNewOwner                    (0),
-    m_tilecount                         (0),
-//            m_whichtile;
-    m_tempGoodAdder                     (nullptr),
-    m_tempGood                          (-1),
-    m_tempGoodCount                     (0),
-	m_sentInefficientMessageAlready     (false),
-	m_culture                           (0),      //emod
-	m_secthappy                         (0),      //emod
-	m_bonusFood                         (0.0),
 	m_bonusFoodCoeff                    (0.0),
+	m_bonusFood                         (0.0),
 	m_bonusProdCoeff                    (0.0),
 	m_bonusProd                         (0.0),
 	m_bonusGoldCoeff                    (0.0),
 	m_bonusGold                         (0.0),
 	m_bonusScieCoeff                    (0.0),
-	m_bonusScie                         (0.0)
+	m_bonusScie                         (0.0),
+	m_cityRadiusOp                      (RADIUS_OP_UKNOWN),
+	m_killList                          (nullptr),
+	m_radiusNewOwner                    (0),
+	m_tilecount                         (0),
+//            m_whichtile;
+	m_tempGoodAdder                     (nullptr),
+	m_tempGood                          (-1),
+	m_tempGoodCount                     (0),
+	m_sentInefficientMessageAlready     (false),
+	m_culture                           (0),      //emod
+	m_secthappy                         (0)      //emod
 
 #ifdef _DEBUG
   , m_ignore_happiness                  (false)
@@ -1714,7 +1714,7 @@ void CityData::PayFederalProduction (double percent_military,
 		m_net_production -= mat_paid;
 	}
 
-	DPRINTF(k_DBG_GAMESTATE, ("City %lx: S: %d, %d mil(%lf), %d mat(%lf)\n", (uint32)m_home_city, origShields, mil_paid, percent_military, mat_paid, percent_terrain));
+	DPRINTF(k_DBG_GAMESTATE, ("City %x: S: %d, %d mil(%lf), %d mat(%lf)\n", (uint32)m_home_city, origShields, mil_paid, percent_military, mat_paid, percent_terrain));
 	Assert (0 <= m_net_production);
 }
 
@@ -1989,9 +1989,9 @@ void CityData::CollectResourcesFinally()
 	sint32 fullGoldTerrainTotal = 0;
 	sint32 partGoldTerrainTotal = 0;
 
+#if defined(NEW_RESOURCE_PROCESS)
 	size_t const    maxRing = static_cast<size_t>(g_theCitySizeDB->NumRecords());
 
-#if defined(NEW_RESOURCE_PROCESS)
 	for (size_t i = 0; i < maxRing; ++i)
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Food: %d, Prod: %d, Gold: %d\n", m_ringFood[i], m_ringProd[i], m_ringGold[i]));
@@ -4392,7 +4392,7 @@ bool CityData::BeginTurn()
 	DoSupport(false);
 #else
 
-	sint32 temper = civrand().Next(50);
+	civrand().Next(50); // Result unused; call kept to preserve RNG sequence.
 	TryToBuild(); // Deal with capitalization/infrastructure. Otherwise, build the front item in this city's buildqueue.
 	//TryToBuild must before capitalisation computation and after production computation
 
@@ -4723,7 +4723,7 @@ bool CityData::BuildWonder(sint32 type)
 	if(rec == nullptr)
 		return false;
 
-	DPRINTF(k_DBG_GAMESTATE, ("City %lx: building wonder %s\n", (uint32)m_home_city,
+	DPRINTF(k_DBG_GAMESTATE, ("City %x: building wonder %s\n", (uint32)m_home_city,
 	                          stringdb_Get()->GetNameStr(rec->m_name)));
 
 	if(player_Get(m_owner)->HasAdvance(rec->GetEnableAdvanceIndex())) {
@@ -5364,6 +5364,8 @@ void CityData::ModifySpecialAttackChance(UNIT_ORDER_TYPE attack,
 		case UNIT_ORDER_SLAVE_RAID:
 			chance -= buildingutil_GetPreventSlavery(GetEffectiveBuildings(), m_owner);
 			break;
+		default:
+			break;
 	}
 }
 
@@ -5590,7 +5592,7 @@ void CityData::NanoInfect( sint32 player )
 {
 	m_nanoInfectedBy = player;
 	m_nanoInfectionTurns = g_theConstDB->Get(0)->GetNanoInfectionTurns();
-	DPRINTF(k_DBG_GAMESTATE, ("City %lx: all buildings and wonders destroyed\n", uint32(m_home_city)));
+	DPRINTF(k_DBG_GAMESTATE, ("City %x: all buildings and wonders destroyed\n", uint32(m_home_city)));
 
 	for(sint32 i = 0; i < g_theBuildingDB->NumRecords() && i < 64; i++)
 	{

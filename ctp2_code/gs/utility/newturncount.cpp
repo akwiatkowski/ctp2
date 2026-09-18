@@ -219,12 +219,9 @@ void NewTurnCount::StartNextPlayer(bool stop)
 
 void NewTurnCount::ChooseNextActivePlayer()
 {
-	sint32 count = 0;
-
 	do {
 		player_view::NextPlayer();
 		render_observer::NextPlayer();
-		count++;
 	} while( player_Get(player_view::CurPlayer()) == nullptr );
 }
 
@@ -341,7 +338,7 @@ void NewTurnCount::RunNewYearMessages()
 
 void NewTurnCount::SendMsgEndOfGameEarlyWarning()
 {
-	SendMsgToAllPlayers("73EndOfGameTimeIsRunningOut") ;
+	SendMsgToAllPlayers(const_cast<MBCHAR *>("73EndOfGameTimeIsRunningOut")) ;
 	if(network_Get().IsHost())
 	{
 		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TIMES_ALMOST_UP));

@@ -744,7 +744,7 @@ void TurnCount::RunNewYearMessages()
 
 void TurnCount::SendMsgEndOfGameEarlyWarning()
 {
-	SendMsgToAllPlayers("73EndOfGameTimeIsRunningOut") ;
+	SendMsgToAllPlayers(const_cast<MBCHAR *>("73EndOfGameTimeIsRunningOut")) ;
 	if(network_Get().IsHost()) {
 		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TIMES_ALMOST_UP));
 	}
@@ -920,7 +920,7 @@ void TurnCount::LogPlayerStats()
 {
 	PLAYER_INDEX    playerNum   = player_view::CurPlayer();
 	MBCHAR          filename[80];
-	snprintf(filename, sizeof(filename), "Playerlog%#.2d.txt", playerNum);
+	snprintf(filename, sizeof(filename), "Playerlog%.2d.txt", playerNum);
 	FILE *  logfile = fopen(filename, "rt");
 
 	if (logfile)

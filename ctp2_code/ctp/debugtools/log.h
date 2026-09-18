@@ -39,9 +39,11 @@ int Log_OutputEnabled (void);
 
 void Log_Begin (const char *module_name, int module_line);
 #if defined(WIN32)
-void __cdecl Log_Middle (LogClass log_class, const char *format, ...);
+// format(printf,2,3): printf wrapper; silences -Wformat-nonliteral at the
+// internal vsnprintf and checks every caller's arguments.
+void __cdecl Log_Middle (LogClass log_class, const char *format, ...) __attribute__((format(printf, 2, 3)));
 #else
-void Log_Middle(LogClass log_class, const char *format, ...);
+void Log_Middle(LogClass log_class, const char *format, ...) __attribute__((format(printf, 2, 3)));
 #endif
 void Log_End (void);
 

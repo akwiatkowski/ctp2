@@ -198,6 +198,10 @@ m_detailsCommerceBuildingUpkeep(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldl
 	"Commerce.InformationDetails.Upkeep.Value"))),
 m_detailsCommerceTotal(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.InformationDetails.Collected.Value"))),
+m_detailsCommerceScieCrime(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
+	"Commerce.InformationDetails.ScieCrime.Value"))),
+m_detailsCommerceGoldCrime(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
+	"Commerce.InformationDetails.GoldCrime.Value"))),
 m_detailsCommerceScienceBasic(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.InformationDetails.BasicScience.Value"))),
 m_detailsGoldFromCommerce(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
@@ -216,6 +220,8 @@ m_detailsCommerceFeatWonderGold(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldl
 	"Commerce.InformationDetails.FeatsWondersGold.Value"))),
 m_detailsCommerceTradeGold(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.InformationDetails.TradeGold.Value"))),
+m_detailsCommerceConversionsGold(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
+	"Commerce.InformationDetails.ConversionsGold.Value"))),
 m_detailsCommerceScienceGov(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.InformationDetails.ScieGovBonus.Value"))),
 m_detailsCommerceGoldGov(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
@@ -230,14 +236,8 @@ m_detailsCommerceUnitWages(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock
 	"Commerce.InformationDetails.UnitWages.Value"))),
 m_detailsCommerceScience(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.InformationDetails.Science.Value"))),
-m_detailsCommerceConversionsGold(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
-	"Commerce.InformationDetails.ConversionsGold.Value"))),
 m_detailsCommerceSavings(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.InformationDetails.Savings.Value"))),
-m_detailsCommerceScieCrime(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
-	"Commerce.InformationDetails.ScieCrime.Value"))),
-m_detailsCommerceGoldCrime(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
-	"Commerce.InformationDetails.GoldCrime.Value"))),
 m_summaryCommerceTotal(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"Commerce.InformationSummary.Collected.Value"))),
 m_summaryCommerceScieSubTotal(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
@@ -511,8 +511,6 @@ void CauseAndEffectTab::UpdateFoodValues()
 	{
 		CityData *cityData = (*cityList)[cityIndex].GetData()->GetCityData();
 
-		// Required.
-		double foodRequired = cityData->GetFoodRequired();
 
 		// Gross food.
 		double food = static_cast<double>(cityData->GetGrossCityFood());
@@ -1392,7 +1390,7 @@ void CauseAndEffectTab::OptimizeSlidersButtonActionCallback(aui_Control *control
 	governor.OptimizeSliders(sliders_setting);
 	governor.SetSliders(sliders_setting, true);
 
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %u ms\n", static_cast<uint32>(GetTickCount() - t1)));
 	DPRINTF(k_DBG_AI, ("\n"));
 
 	UpdateCities();

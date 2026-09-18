@@ -43,7 +43,8 @@ extern "C" { void ldlif_report_error(char *text); }
 
 void ldlif_report_error(char *text)
 {
-	c3errors_ErrorDialog("LDL", text);
+	// "%s": text is caller-supplied diagnostic text, not a template.
+	c3errors_ErrorDialog("LDL", "%s", text);
 }
 
 ldl_datablock *ldlif_find_block(char const * name)
@@ -96,7 +97,7 @@ void ldlif_init_log()
 #ifdef _DEBUG
 	FILE *f = fopen("ldlparselog.txt", "w");
 	if(f) {
-		fprintf(f, "%" PRId64 "\n", time(nullptr));
+		fprintf(f, "%" PRId64 "\n", static_cast<int64_t>(time(nullptr)));
 		fclose(f);
 	}
 #endif
@@ -119,7 +120,7 @@ void ldlif_indent_log(int indent)
 #ifdef _DEBUG
 	int i;
 	for(i = 0; i < indent; i++) {
-		ldlif_log("    ");
+		ldlif_log(const_cast<char *>("    "));
 	}
 #endif
 }
@@ -150,7 +151,7 @@ void ldlif_add_block_to_tree(ldl_datablock *block)
 	char fullname[256];
 	block->GetFullName(fullname, sizeof(fullname));
 
-	ldlif_log("Added: %s\n", fullname);
+	ldlif_log(const_cast<char *>("Added: %s\n"), fullname);
 
 	block->SetHash(aui_UI::CalculateHash(fullname));
 	Comparable<ldl_datablock *> *cmp = new Comparable<ldl_datablock *>(block, ldlif_compare_blocks);

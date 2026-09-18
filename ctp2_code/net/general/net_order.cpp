@@ -84,7 +84,8 @@ void NetOrder::Packetize(uint8 *buf, uint16 &size)
 		}
 	}
 
-	DPRINTF(k_DBG_NET, ("Packetizing order: type %d, Army %lx, Loc(%d,%d) Army Loc:(%d,%d) Path:%s\n",
+	// m_army.m_id is a uint32 id handle: %x, not %lx (expects unsigned long).
+	DPRINTF(k_DBG_NET, ("Packetizing order: type %d, Army %x, Loc(%d,%d) Army Loc:(%d,%d) Path:%s\n",
 						m_order, m_army.m_id,
 						(sint32)m_point.x,
 						(sint32)m_point.y,
@@ -143,7 +144,7 @@ void NetOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLSHORTTYPE(m_event, GAME_EVENT);
 
 	if(!armypool_Get()->IsValid(m_army)) {
-		DPRINTF(k_DBG_NET, ("Received order for invalid army %lx\n", m_army.m_id));
+		DPRINTF(k_DBG_NET, ("Received order for invalid army %x\n", m_army.m_id));
 		if(network_Get().IsHost()) {
 			network_Get().Resync(network_Get().IdToIndex(id));
 			return;
@@ -194,7 +195,7 @@ void NetOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		}
 	}
 
-	DPRINTF(k_DBG_NET, ("Unpacketized order: type %d, Army %lx, Loc(%d,%d) Army Loc(%d,%d) Path:%s\n",
+	DPRINTF(k_DBG_NET, ("Unpacketized order: type %d, Army %x, Loc(%d,%d) Army Loc(%d,%d) Path:%s\n",
 						m_order, m_army.m_id,
 						(sint32)m_point.x,
 						(sint32)m_point.y,

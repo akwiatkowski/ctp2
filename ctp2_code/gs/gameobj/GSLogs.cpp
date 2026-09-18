@@ -44,9 +44,12 @@
 #include "gs/database/profileDB.h"
 #include "ctp/ctp2_utils/c3math.h"		// AsPercentage
 
+#ifndef _BFR_
+// Only referenced inside the _BFR_-guarded log bodies below.
 static bool s_initialized		= false;
 static bool s_dip_initialized	= false;
 static int	s_populationHack[k_MAX_PLAYERS];
+#endif
 
 void gslog_print(char *fmt, ...)
 {

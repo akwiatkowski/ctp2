@@ -40,7 +40,7 @@ BOOL EndGameDatabase::Initialize(char *filename, C3DIR dir)
 {
 	m_abort_parse = FALSE;
 	auto token = std::make_unique<Token>(filename,
-							 TOKEN_ENDGAME_MAX_VAL - TOKEN_MAX,
+							 static_cast<sint32>(TOKEN_ENDGAME_MAX_VAL) - TOKEN_MAX,
 							 s_endgameTokenData, dir);
 
 	if(token->GetType() != TOKEN_NUMBER) {

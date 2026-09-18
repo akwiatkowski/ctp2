@@ -382,7 +382,7 @@ AUI_ERRCODE aui_UI::AddChild( aui_Region *child )
 {
 	Assert(this);
 	Assert( child != nullptr );
-	if ( !child || !this) return AUI_ERRCODE_INVALIDPARAM;
+	if ( !child ) return AUI_ERRCODE_INVALIDPARAM;
 
 	Assert( child->IsThisA( aui_Window::m_windowClassId ) );
 	if ( !child->IsThisA( aui_Window::m_windowClassId ) )
@@ -1047,7 +1047,7 @@ void aui_UI::SetEditRegion( aui_Region *region )
 
 	m_editRegion = region;
 
-	if ( aui_Ldl *theLdl = g_ui->GetLdl() ) {
+	if ( g_ui->GetLdl() ) {
 		if ( MBCHAR	*ldlBlock = aui_Ldl::GetBlock( region ) ) {
 			MBCHAR editBuffer[ 1024 ];
 			MBCHAR *p = editBuffer;
@@ -1055,7 +1055,7 @@ void aui_UI::SetEditRegion( aui_Region *region )
 
 			MBCHAR *lastName = ldlBlock;
 
-			for(; *ldlBlock; *ldlBlock++) {
+			for(; *ldlBlock; ldlBlock++) {
 				*p++ = *ldlBlock;
 				if (*ldlBlock == '.') {
 					*p++ = ' ';

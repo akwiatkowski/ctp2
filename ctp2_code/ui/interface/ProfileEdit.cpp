@@ -154,7 +154,7 @@ void ProfileEdit::FillList()
 			continue;
 		}
 
-		char *itemname = nullptr;
+		const char *itemname = nullptr;
 		switch(walk.GetObj()->m_type) {
 			case PV_NUM:
 				itemname = "ProfileEditNumItem";
@@ -212,6 +212,11 @@ void ProfileEdit::FillList()
 						field->SetFieldText(buf);
 						field->SetActionFuncAndCookie(SetNumVar, walk.GetObj());
 					}
+					break;
+				}
+				case PV_STRING:
+				{
+					// PV_STRING vars are skipped above; unreachable.
 					break;
 				}
 			}

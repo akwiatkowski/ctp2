@@ -92,7 +92,7 @@
 #include "ui/aui_ctp2/ctp2_hypertextbox.h"
 
 static DiplomacyDetails     *s_DiplomacyDetails;
-static MBCHAR               *s_DiplomacyDetailsBlock = "DiplomacyDetails";
+static const MBCHAR           *s_DiplomacyDetailsBlock = "DiplomacyDetails";
 
 #define k_INT_FLAG_COL      0
 #define k_INT_NATION_COL    1
@@ -277,7 +277,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 
 					if (ctp2_Static * flag = (ctp2_Static *) item->GetChildByIndex(k_INT_FLAG_COL))
 					{
-						flag->SetDrawCallbackAndCookie(DrawPlayerFlag, (void *)p, false);
+						flag->SetDrawCallbackAndCookie(DrawPlayerFlag, reinterpret_cast<void *>(static_cast<intptr_t>(p)), false);
 						flag->SetActionFuncAndCookie(SelectItem, (void *)item);
 					}
 
@@ -291,29 +291,29 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 
 					if (ctp2_Static * regard = (ctp2_Static *) item->GetChildByIndex(k_INT_REGARD_COL))
 					{
-						regard->SetDrawCallbackAndCookie(DrawPlayerRegard, (void *) p, true);
+						regard->SetDrawCallbackAndCookie(DrawPlayerRegard, reinterpret_cast<void *>(static_cast<intptr_t>(p)), true);
 						regard->SetActionFuncAndCookie(SelectItem, item);
 					}
 
 					if (ctp2_Static * strength = (ctp2_Static *)item->GetChildByIndex(k_INT_STRENGTH_COL))
 					{
-						strength->SetDrawCallbackAndCookie(DrawPlayerStrength, (void *) p, true);
+						strength->SetDrawCallbackAndCookie(DrawPlayerStrength, reinterpret_cast<void *>(static_cast<intptr_t>(p)), true);
 						strength->SetActionFuncAndCookie(SelectItem, item);
 					}
 
 					if (ctp2_Static * embassy = (ctp2_Static *)item->GetChildByIndex(k_INT_EMBASSY_COL))
 					{
-						embassy->SetDrawCallbackAndCookie(DrawEmbassy, (void *) p, true);
+						embassy->SetDrawCallbackAndCookie(DrawEmbassy, reinterpret_cast<void *>(static_cast<intptr_t>(p)), true);
 						embassy->SetActionFuncAndCookie(SelectItem, item);
 					}
 
 					if (ctp2_Static * treaty = (ctp2_Static *)item->GetChildByIndex(k_INT_TREATIES_COL))
 					{
-						treaty->SetDrawCallbackAndCookie(DrawTreaties, (void *) p, true);
+						treaty->SetDrawCallbackAndCookie(DrawTreaties, reinterpret_cast<void *>(static_cast<intptr_t>(p)), true);
 						treaty->SetActionFuncAndCookie(SelectItem, item);
 					}
 
-					item->SetUserData((void*)p);
+					item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(p)));
 					sm_list->AddItem(item);
 				}
 			}
@@ -323,7 +323,9 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 			strlcpy(needEmbassy,stringdb_Get()->GetNameStr("str_ldl_DipDetails_NoEmbassy"), sizeof(needEmbassy));
 
 			interp[0] = 0;
-			snprintf(interp, sizeof(interp), stringdb_Get()->GetNameStr("str_ldl_DipDetails_Pollution"), player_Get(detailPlayer)->GetPollutionLevel());
+			snprintf(interp, sizeof(interp),
+				stringdb_FormatOr("str_ldl_DipDetails_Pollution", "Pollution: %i"),
+				player_Get(detailPlayer)->GetPollutionLevel());
 			st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.PollutionLabel");
 			st->SetText(interp);
 
@@ -343,7 +345,9 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				st->SetText(interp);
 
 				interp[0] = 0;
-				snprintf(interp, sizeof(interp), stringdb_Get()->GetNameStr("str_ldl_DipDetails_Population"), player_Get(detailPlayer)->GetTotalPopulation()*k_PEOPLE_PER_POPULATION+player_Get(detailPlayer)->GetPartialPopulation());
+				snprintf(interp, sizeof(interp),
+				stringdb_FormatOr("str_ldl_DipDetails_Population", "Population: %i"),
+				player_Get(detailPlayer)->GetTotalPopulation()*k_PEOPLE_PER_POPULATION+player_Get(detailPlayer)->GetPartialPopulation());
 				st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.PopulationLabel");
 				st->SetText(interp);
 

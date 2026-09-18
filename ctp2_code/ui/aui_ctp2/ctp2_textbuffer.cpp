@@ -66,18 +66,17 @@ void ctp2_TextBuffer::DrawLine(sint32 lineNum, COLOR color)
 	MBCHAR							ch;
 	RECT							destRect;
 	COLORREF						colorRef = colorset_Get()->GetColorRef(color);
-	sint32							col;
-	sint32							top;
 
 
-	top = destRect.top = (m_topLine - lineNum + 1) * m_charHeight - m_charHeight;
+
+	destRect.top = (m_topLine - lineNum + 1) * m_charHeight - m_charHeight;
 
 	destRect.bottom = destRect.top + m_charHeight;
 	destRect.left = m_rect.left;
 	destRect.right = m_rect.left + m_charWidth;
 
 	s = m_rowData[lineNum].c_str();
-	col = 0;
+
 
 	while (*s != '\0') {
 		ch = *s;
@@ -108,7 +107,7 @@ void ctp2_TextBuffer::DrawLine(sint32 lineNum, COLOR color)
 		}
 
 		s++;
-		col++;
+
 		destRect.left += m_charWidth;
 		destRect.right += m_charWidth;
 	}

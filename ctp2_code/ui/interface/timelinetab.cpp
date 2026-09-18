@@ -35,8 +35,6 @@
 
 
 
-static sint32			s_currentWonderDisplay;
-static c3_Button		*s_eventsInfoButton[17];
 
 TimelineTab::TimelineTab(ctp2_Window *parent) :
 	m_rightButton(static_cast<ctp2_Button*>(

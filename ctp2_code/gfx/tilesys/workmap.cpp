@@ -380,7 +380,6 @@ sint32 WorkMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint3
 	m_mapViewRect.bottom = 9;
 
 	sint32 nudge;
-	sint32 index = 0;
 
 	tiledmap_Get()->LockThisSurface(pSurface);
 
@@ -408,7 +407,6 @@ sint32 WorkMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint3
 			else
 				DrawImprovements(pSurface, pos.y, i+x, x*48+nudge+xOff,y*12+yOff);
 
-			index++;
 		}
 		if (y==2 || y==4) {
 			if ( !m_scale )
@@ -416,7 +414,6 @@ sint32 WorkMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint3
 			else
 				DrawImprovements(pSurface, pos.y, i+x, x*48+nudge+xOff,y*12+yOff);
 
-			index++;
 		}
 		pos = newpos;
 	}
@@ -841,11 +838,9 @@ void WorkMap::DrawCityName(aui_Surface *surface, sint32 x, sint32 y, const Unit 
 	snprintf(str, sizeof(str),"%i",pop);
 
     sint32  popEdgeSize = std::max<sint32>(k_POP_BOX_SIZE_MINIMUM, k_POP_BOX_SIZE);
-	sint32  nudge       = 0;
-	if (pop > 9)
-		nudge = 4;
-	if (pop > 99)
-		nudge = 2;
+	// Note: a "nudge" x-offset (4 for pop > 9, 2 for pop > 99) was removed
+	// here; it was computed but never applied to popRect — the centered
+	// string below handles alignment, so the offset was dead.
 
 	RECT popRect = {x,
 					 y,
@@ -1011,7 +1006,7 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 	Assert(resourceIcon); if (!resourceIcon) return;
 	tiledmap_Get()->DrawColorizedOverlay(resourceIcon, surface, iconRect.left, iconRect.top, color);
 
-	snprintf(str, sizeof(str), "%ld", prod);
+	snprintf(str, sizeof(str), "%d", prod);
 
 	if (tiledmap_Get() && tiledmap_Get()->GetFont()) {
 		width = tiledmap_Get()->GetFont()->GetStringWidth(str);
@@ -1045,7 +1040,7 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 	Assert(resourceIcon); if (!resourceIcon) return;
 	tiledmap_Get()->DrawColorizedOverlay(resourceIcon, surface, iconRect.left, iconRect.top, color);
 
-	snprintf(str, sizeof(str), "%ld", food);
+	snprintf(str, sizeof(str), "%d", food);
 
 	if (tiledmap_Get() && tiledmap_Get()->GetFont()) {
 		width = tiledmap_Get()->GetFont()->GetStringWidth(str);
@@ -1291,11 +1286,10 @@ void WorkMap::HandlePop( MapPoint point )
 	point.y = (sint16)yy;
 
 
-	Cell *cell;
-	cell = world_Get()->GetCell(point);
-
+	// Note: a GetCell() lookup on the wrapped point used to sit here; the
+	// result was never read (World::GetCell is a pure lookup), so it was
+	// removed.
 }
-
 
 
 

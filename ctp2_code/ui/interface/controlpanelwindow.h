@@ -350,7 +350,8 @@ private:
 
 	BOOL    CursorOverControlPanel();
 
-	void    SetControlText(aui_Control *control,MBCHAR const *fmt,...);
+	// format(printf,2,3): wrapper (vsnprintf inside) — checks callers.
+	void    SetControlText(aui_Control *control,MBCHAR const *fmt,...) __attribute__((format(printf, 3, 4)));
 
 	ctp2_MenuBar    *m_mainMenuBar;
 

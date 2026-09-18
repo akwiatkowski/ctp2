@@ -261,7 +261,8 @@ void SlicFrame::SetValue(SlicSymbolData *sym, SS_TYPE type, SlicStackValue value
 				char buf[1024];
 				snprintf(buf, sizeof(buf), "In object %s, variables '%s' and '%s' are of different types", m_segment->GetName(), sym->GetName(), getsym->GetName());
 				if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
-					c3errors_ErrorDialog("Slic", buf);
+					// "%s": buf is an already-formatted diagnostic, not a template.
+				c3errors_ErrorDialog("Slic", "%s", buf);
 				}
 			}
 			break;
@@ -271,7 +272,8 @@ void SlicFrame::SetValue(SlicSymbolData *sym, SS_TYPE type, SlicStackValue value
 				char buf[1024];
 				snprintf(buf, sizeof(buf), "In object %s, variables '%s' and '%s' are of different types", m_segment->GetName(), sym->GetName(), getsym->GetName());
 				if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
-					c3errors_ErrorDialog("Slic", buf);
+					// "%s": buf is an already-formatted diagnostic, not a template.
+				c3errors_ErrorDialog("Slic", "%s", buf);
 				}
 			}
 			break;
@@ -1583,7 +1585,8 @@ void SlicFrame::ReportSFError(SFN_ERROR err, SlicSymbolData *sym)
 		snprintf(buf + len, sizeof(buf) - len, "%s", message);
 	}
 	if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
-		c3errors_ErrorDialog("Slic", buf);
+		// "%s": buf is an already-formatted diagnostic, not a template.
+				c3errors_ErrorDialog("Slic", "%s", buf);
 	}
 }
 

@@ -835,7 +835,8 @@ STDEHANDLER(ArmyMoveEvent)
 				if(order == UNIT_ORDER_MOVE ||
 				   order == UNIT_ORDER_MOVE_TO)
 				{
-					DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx clear orders, was not visible\n", army.m_id));
+				// army.m_id is a uint32 id handle: %x, not %lx (expects unsigned long).
+				DPRINTF(k_DBG_GAMESTATE, ("Army 0x%x clear orders, was not visible\n", army.m_id));
 					gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 										   GEV_ClearOrders,
 										   GEA_Army, army,

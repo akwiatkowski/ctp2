@@ -264,11 +264,6 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 	    (selitem_Get()->GetVisiblePlayer() == world_Get()->GetOwner(pos));
 	uint32		env                     = 0x00000000;
 	Cell *      cell                    = nullptr;
-	bool		isAirfield              = false;
-    bool		isListeningPost         = false;
-    bool        isRadar                 = false;
-    bool        isHealUnits             = false;
-    bool        isFort                  = false;
 	Pixel16	 *  data                    = nullptr;
 	bool		hasHut                  = false;
 
@@ -283,11 +278,6 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 	{
 		env = ucell.m_unseenCell->GetEnv();
 
-		isAirfield		= ucell.m_unseenCell->IsAirfield();
-		isListeningPost	= ucell.m_unseenCell->IsListeningPost();
-		isRadar			= ucell.m_unseenCell->IsRadar();
-		isHealUnits		= ucell.m_unseenCell->IsHealUnits();
-		isFort			= ucell.m_unseenCell->IsFort();
 		hasHut			= ucell.m_unseenCell->HasHut();
 
 		PointerList<UnseenImprovementInfo> *improvements = ucell.m_unseenCell->GetImprovements();
@@ -726,15 +716,6 @@ void TiledMap::DrawColoredHitMaskEdge(aui_Surface *surf, const MapPoint &pos, Pi
 	sint32 den = height;
 	sint32 tot = num;
 
-	sint32 startI;
-	sint32 endI;
-	if(side == NORTHWEST || side == NORTHEAST) {
-		startI = k_TILE_PIXEL_HEADROOM;
-		endI = k_TILE_PIXEL_HEADROOM + (k_TILE_GRID_HEIGHT / 2);
-	} else {
-		startI = k_TILE_PIXEL_HEADROOM + (k_TILE_GRID_HEIGHT / 2);
-		endI = k_TILE_GRID_HEIGHT;
-	}
 
 	bool west = (side == NORTHWEST) || (side == SOUTHWEST);
 	bool north = (side == NORTHWEST) || (side == NORTHEAST);
@@ -841,15 +822,6 @@ void TiledMap::DrawColoredBorderEdgeAt(sint32 x, sint32 y, Pixel16 selectColorPi
 
 	sint32 row = 0;
 
-	sint32 startI;
-	sint32 endI;
-	if(side == NORTHWEST || side == NORTHEAST) {
-		startI = k_TILE_PIXEL_HEADROOM;  // E - pixel headroom is the space on the tga above the square tileset.h has these values
-		endI = k_TILE_PIXEL_HEADROOM + (k_TILE_GRID_HEIGHT / 2);
-	} else {
-		startI = k_TILE_PIXEL_HEADROOM + (k_TILE_GRID_HEIGHT / 2);
-		endI = k_TILE_GRID_HEIGHT;
-	}
 
 	bool west = (side == NORTHWEST) || (side == SOUTHWEST);
 	bool north = (side == NORTHWEST) || (side == NORTHEAST);
@@ -894,7 +866,7 @@ void TiledMap::DrawColoredBorderEdgeAt(sint32 x, sint32 y, Pixel16 selectColorPi
 		pDestPixel += (end-start) * step;
 
 		if(!west) {
-			pixelutils_StorePixel(pDestPixel, 0, bpp32); selectColorPixel;
+			pixelutils_StorePixel(pDestPixel, 0, bpp32);
 			pixelutils_StorePixel(pDestPixel - step, selectColorPixel, bpp32);
 			pixelutils_StorePixel(pDestPixel - 2*step, selectColorPixel, bpp32);
 		}
@@ -1103,8 +1075,6 @@ void TiledMap::DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos,
     if (y < 0) return;
 
 	uint8 * pSurfBase;
-	sint32  surfWidth;
-	sint32  surfHeight;
 	sint32  surfPitch;
 
     // The atlas composer already holds this lock; SDL rejects locking it twice.
@@ -1115,15 +1085,11 @@ void TiledMap::DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos,
     {
         if (!surface) surface = m_surface;
 		pSurfBase   = m_surfBase;
-		surfWidth   = m_surfWidth;
-		surfHeight  = m_surfHeight;
 		surfPitch   = m_surfPitch;
 	}
     else if (lock.IsValid())
     {
         pSurfBase   = lock.Base();
-		surfWidth   = surface->Width();
-		surfHeight  = surface->Height();
 		surfPitch   = surface->Pitch();
 	}
     else
@@ -1147,7 +1113,8 @@ void TiledMap::DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos,
 	sint32  vaccum      = destHeight*2 - k_TILE_PIXEL_HEIGHT;
 	sint32  vincx       = destHeight*2;
 	sint32  vincxy      = (destHeight - k_TILE_PIXEL_HEIGHT) * 2 ;
-	sint32  vpos2       = (sint32)((double)(k_TILE_PIXEL_HEIGHT - destHeight) / (double)destHeight);
+	// vpos2 accumulated a vertical position that nothing ever read; dead
+	// accumulation, removed together with its loop-end increment below.
 	sint32  vdestpos    = y;
 	sint32  vend        = k_TILE_PIXEL_HEIGHT - 1;
 
@@ -1186,7 +1153,6 @@ void TiledMap::DrawDitheredTileScaled(aui_Surface *surface, const MapPoint &pos,
 			vdestpos++;
 		}
 
-        vpos2++;
 	}
 }
 
@@ -1307,8 +1273,6 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
     if (y < 0) return;
 
 	uint8 * pSurfBase;
-	sint32  surfWidth;
-	sint32  surfHeight;
 	sint32  surfPitch;
 
     // The atlas composer already holds this lock; SDL rejects locking it twice.
@@ -1319,15 +1283,11 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
     {
         if (!surface) surface = m_surface;
 		pSurfBase   = m_surfBase;
-		surfWidth   = m_surfWidth;
-		surfHeight  = m_surfHeight;
 		surfPitch   = m_surfPitch;
 	}
     else if (lock.IsValid())
     {
         pSurfBase   = lock.Base();
-		surfWidth   = surface->Width();
-		surfHeight  = surface->Height();
 		surfPitch   = surface->Pitch();
 	}
     else
@@ -1388,7 +1348,8 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
 	sint32  vaccum      = destHeight*2 - k_TILE_PIXEL_HEIGHT;
 	sint32  vincx       = destHeight*2;
 	sint32  vincxy      = (destHeight - k_TILE_PIXEL_HEIGHT) * 2 ;
-	sint32  vpos2       = (sint32)((double)(k_TILE_PIXEL_HEIGHT - destHeight) / (double)destHeight);
+	// vpos2 accumulated a vertical position that nothing ever read; dead
+	// accumulation, removed together with its loop-end increment below.
 	sint32  vdestpos    = y;
 	sint32  vend        = k_TILE_PIXEL_HEIGHT - 1;
 
@@ -1470,7 +1431,6 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
 			vaccum += vincxy;
 			vdestpos++;
 		}
-		vpos2++;
 	}
 }
 
@@ -1591,8 +1551,6 @@ void TiledMap::DrawBlendedOverlayScaled(aui_Surface *surface,Pixel16 *data, sint
 	if (!data || (x < 0) || (y < 0)) return;
 
 	uint8 *     surfBase;
-	sint32      surfWidth;
-	sint32      surfHeight;
 	sint32      surfPitch;
 
     SurfaceLock lock    = SurfaceLock(surface);
@@ -1601,15 +1559,11 @@ void TiledMap::DrawBlendedOverlayScaled(aui_Surface *surface,Pixel16 *data, sint
     {
 		surface     = m_surface;
 		surfBase    = m_surfBase;
-		surfWidth   = m_surfWidth;
-		surfHeight  = m_surfHeight;
 		surfPitch   = m_surfPitch;
 	}
     else if (lock.IsValid())
     {
         surfBase    = lock.Base();
-		surfWidth   = surface->Width();
-		surfHeight  = surface->Height();
 		surfPitch   = surface->Pitch();
 	}
     else
@@ -2189,7 +2143,8 @@ void TiledMap::DrawDitheredOverlayScaled(aui_Surface *surface, Pixel16 *data, si
 			Pixel16		 pixel2;
 			Pixel16		 pixel3;
 			Pixel16		 pixel4;
-			Pixel16		pixel;
+			// pixel held a copy of pixel3 that nothing ever read; removed
+			// together with its assignment below.
 
 			ProcessRun(&rowData1, &rowData2, &pixel1, &pixel2, -1, 0x0000, 0, 0, 0);
 
@@ -2210,7 +2165,6 @@ void TiledMap::DrawDitheredOverlayScaled(aui_Surface *surface, Pixel16 *data, si
 
 					if (pixel1 != k_MEDIUM_KEY || pixel2 != k_MEDIUM_KEY || pixel3 != k_MEDIUM_KEY || pixel4 != k_MEDIUM_KEY) {
 
-						pixel = pixel3;
 
 
 						if ((hdestpos+vdestpos) & 0x01)
@@ -2300,8 +2254,8 @@ void TiledMap::DrawTileBorderScaled(aui_Surface *surface, const MapPoint &pos, s
 	sint32	vaccum      = destHeight*2 - k_TILE_PIXEL_HEIGHT;;
 	sint32	vincx       = destHeight*2;
     sint32  vincxy      = (destHeight - k_TILE_PIXEL_HEIGHT) * 2;
-    sint32  vpos2       =
-        (sint32)((double)(k_TILE_PIXEL_HEIGHT - destHeight) / (double)destHeight);
+    // vpos2 accumulated a vertical position that nothing ever read; dead
+    // accumulation, removed together with its loop-end increment below.
 	sint32	vdestpos    = y;
 	sint32	vend        = k_TILE_PIXEL_HEIGHT - 1;
 
@@ -2341,7 +2295,6 @@ void TiledMap::DrawTileBorderScaled(aui_Surface *surface, const MapPoint &pos, s
 			vdestpos++;
 		}
 
-        vpos2++;
 	}
 }
 
@@ -2385,8 +2338,8 @@ void TiledMap::DrawBlackScaledLow(aui_Surface *surface, const MapPoint &pos, sin
 	sint32      vaccum      = destHeight*2 - k_TILE_PIXEL_HEIGHT;
 	sint32      vincx       = destHeight*2;
 	sint32      vincxy      = (destHeight - k_TILE_PIXEL_HEIGHT) * 2 ;
-	sint32      vpos2       =
-        (sint32)((double)(k_TILE_PIXEL_HEIGHT - destHeight) / (double)destHeight);
+	// vpos2 accumulated a vertical position that nothing ever read; dead
+	// accumulation, removed together with its loop-end increment below.
 	sint32      vdestpos    = y;
 	sint32      vend        = k_TILE_PIXEL_HEIGHT - 1;
 
@@ -2456,7 +2409,6 @@ void TiledMap::DrawBlackScaledLow(aui_Surface *surface, const MapPoint &pos, sin
 			vaccum += vincxy;
 			vdestpos++;
 		}
-		vpos2++;
 	}
 }
 
@@ -2476,7 +2428,6 @@ sint32 TiledMap::DrawOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 	}
 
 	uint8 * surfBase;
-	sint32	surfWidth;
 	sint32	surfHeight;
 	sint32	surfPitch;
 
@@ -2485,14 +2436,12 @@ sint32 TiledMap::DrawOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 	if (!surface)
     {
 		surfBase    = m_surfBase;
-		surfWidth   = m_surfWidth;
 		surfHeight  = m_surfHeight;
 		surfPitch   = m_surfPitch;
     }
     else if (lock.IsValid())
     {
 		surfBase    = lock.Base();
-		surfWidth   = surface->Width();
 		surfHeight  = surface->Height();
 		surfPitch   = surface->Pitch();
 	}
@@ -3022,8 +2971,6 @@ void TiledMap::DrawScaledOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, 
     if (!data || (x < 0) || (y < 0)) return;
 
 	uint8 * surfBase;
-	sint32	surfWidth;
-	sint32	surfHeight;
 	sint32	surfPitch;
 
     SurfaceLock lock    = SurfaceLock(surface);
@@ -3032,15 +2979,11 @@ void TiledMap::DrawScaledOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, 
     {
         surface     = m_surface;
 		surfBase    = m_surfBase;
-		surfWidth   = m_surfWidth;
-		surfHeight  = m_surfHeight;
 		surfPitch   = m_surfPitch;
     }
     else if (lock.IsValid())
     {
 		surfBase    = lock.Base();
-		surfWidth   = surface->Width();
-		surfHeight  = surface->Height();
 		surfPitch   = surface->Pitch();
 	}
     else
@@ -3464,8 +3407,6 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
     if (y < 0) return;
 
 	uint8 * surfBase;
-	sint32	surfWidth;
-	sint32	surfHeight;
 	sint32	surfPitch;
 
     // The atlas composer already holds this lock; SDL rejects locking it twice.
@@ -3476,15 +3417,11 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
     {
         if (!surface) surface = m_surface;
 		surfBase    = m_surfBase;
-		surfWidth   = m_surfWidth;
-		surfHeight  = m_surfHeight;
 		surfPitch   = m_surfPitch;
     }
     else if (lock.IsValid())
     {
 		surfBase    = lock.Base();
-		surfWidth   = surface->Width();
-		surfHeight  = surface->Height();
 		surfPitch   = surface->Pitch();
 	}
     else
@@ -3542,8 +3479,8 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
 	sint32 vaccum   = destHeight*2 - k_TILE_PIXEL_HEIGHT;
 	sint32 vincx    = destHeight*2;
 	sint32 vincxy   = (destHeight - k_TILE_PIXEL_HEIGHT) * 2 ;
-	sint32 vpos2    =
-        (sint32)((double)(k_TILE_PIXEL_HEIGHT - destHeight) / (double)destHeight);
+	// vpos2 accumulated a vertical position that nothing ever read; dead
+	// accumulation, removed together with its loop-end increment below.
 	sint32 vdestpos = y;
 	sint32 vend     = k_TILE_PIXEL_HEIGHT - 1;
 
@@ -3627,7 +3564,6 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
 			vdestpos++;
 		}
 
-        vpos2++;
 	}
 }
 
@@ -3687,7 +3623,6 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 						isWatchful           = FALSE,
 						isCapitol            = FALSE,
 						HasReligionIcon      = FALSE,
-						HasSpecialIcon       = FALSE,
 						isProdIcon			 = FALSE,
 						isPollutionRisk      = FALSE;
 				sint32	 bioInfectedOwner     = 0;
@@ -3729,7 +3664,6 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 					slaveBits            = ucell.m_unseenCell->GetSlaveBits();
 					isCapitol            = ucell.m_unseenCell->IsCapitol(); //emod
 					HasReligionIcon      = ucell.m_unseenCell->IsReligionIcon(); //emod
-					HasSpecialIcon       = ucell.m_unseenCell->IsSpecialIcon(); //emod
 					isPollutionRisk      = ucell.m_unseenCell->IsPollutionRisk();
 
 					if (pop > 0)
@@ -3831,7 +3765,6 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 							{
 								drawOurCity = true;
 								HasReligionIcon  = cityData->HasReligionIcon();
-								HasSpecialIcon   = cityData->HasSpecialIcon();
 
 								if (!cityData->GetBuildQueue()->GetHead()) {
 									drawQueueEmpty   = true;
@@ -4700,8 +4633,6 @@ void TiledMap::DrawColorBlendedOverlayScaled(aui_Surface *surface, Pixel16 *data
     if (!data || (x < 0) || (y < 0)) return;
 
 	uint8 * surfBase;
-	sint32	surfWidth;
-	sint32	surfHeight;
 	sint32	surfPitch;
 
 	SurfaceLock lock    = SurfaceLock(surface);
@@ -4709,15 +4640,11 @@ void TiledMap::DrawColorBlendedOverlayScaled(aui_Surface *surface, Pixel16 *data
 	if (!surface)
 	{
 		surfBase    = m_surfBase;
-		surfWidth   = m_surfWidth;
-		surfHeight  = m_surfHeight;
 		surfPitch   = m_surfPitch;
 	}
 	else if (lock.IsValid())
 	{
 		surfBase    = lock.Base();
-		surfWidth   = surface->Width();
-		surfHeight  = surface->Height();
 		surfPitch   = surface->Pitch();
 	}
 	else
@@ -5257,7 +5184,8 @@ void TiledMap::DrawChatText()
 			if(network_Get().IsActive()) {
 				if(network_Get().IsSpeedStyle() && selitem_Get()->GetCurPlayer() == selitem_Get()->GetVisiblePlayer()) {
 					time_t const timeleft = network_Get().GetTurnEndsAt() - time(nullptr);
-					snprintf(timebuf, sizeof(timebuf), "%s: %" PRId64, stringdb_Get()->GetNameStr("NETWORK_TIME_LEFT"), timeleft);
+					// time_t is long on darwin, so %ld matches; PRId64 (= lld) does not.
+					snprintf(timebuf, sizeof(timebuf), "%s: %ld", stringdb_Get()->GetNameStr("NETWORK_TIME_LEFT"), timeleft);
 					timeRect.right = timeRect.left + m_font->GetStringWidth(timebuf);
 					m_font->DrawString(tempSurf, &timeRect, &timeRect, timebuf, 0, GetColorRef(COLOR_BLACK), 0);
 					OffsetRect(&timeRect, -1, -1);

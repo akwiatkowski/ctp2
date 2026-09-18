@@ -750,10 +750,12 @@ void c3_HyperTextBox::MouseLDropInside( aui_MouseEvent *mouseData )
 
 
 				if ( !HandleGameSpecificLeftClick( this ) )
-				if ( m_ActionFunc )
-					m_ActionFunc( this, C3_HYPERLINK_ACTION_EXECUTE, 0, m_cookie );
-				else if ( m_action )
-					m_action->Execute( this, C3_HYPERLINK_ACTION_EXECUTE, 0 );
+				{
+					if ( m_ActionFunc )
+						m_ActionFunc( this, C3_HYPERLINK_ACTION_EXECUTE, 0, m_cookie );
+					else if ( m_action )
+						m_action->Execute( this, C3_HYPERLINK_ACTION_EXECUTE, 0 );
+				}
 			}
 			else {
 				m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;

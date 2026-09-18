@@ -465,10 +465,11 @@ GAME_EVENT_HOOK_DISPOSITION SlicSegment::GEVHookCallback(GAME_EVENT type, GameEv
 		so->SetResult((sint32)GEV_HD_Continue);
 		slicengine_Get()->Execute(so);
 
-		GAME_EVENT_HOOK_DISPOSITION disp = (GAME_EVENT_HOOK_DISPOSITION) so->GetResult();
+		// Result is a SLIC_CONSTANTS value, not a GAME_EVENT_HOOK_DISPOSITION
+		SLIC_CONSTANTS disp = (SLIC_CONSTANTS) so->GetResult();
 		so->Release();
 
-		Assert(disp >= GEV_HD_Continue && disp < GEV_HD_MAX);
+		Assert(disp >= SLIC_CONST_CONTINUE && disp < SLIC_CONST_MAX);
 		if (slicengine_Get()->AtBreak())
 			return GEV_HD_NeedUserInput;
 
@@ -501,8 +502,6 @@ uint8 *SlicSegment::FindNextLine(uint8 *start)
 	if((start < m_code.data()) || (start >= m_code.data() + m_codeSize)) {
 		return nullptr;
 	}
-
-	bool atEnd = false;
 
 	while(codePtr < m_code.data() + m_codeSize) {
 		SOP op = (SOP)*codePtr;
@@ -539,7 +538,6 @@ uint8 *SlicSegment::FindNextLine(uint8 *start)
 				break;
 			case SOP_STOP:
 
-				atEnd = TRUE;
 				break;
 			case SOP_END:
 			case SOP_AINDX:

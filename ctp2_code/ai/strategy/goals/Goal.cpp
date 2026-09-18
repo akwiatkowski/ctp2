@@ -521,7 +521,8 @@ Utility Goal::Recompute_Matching_Value(Plan_List & matches, const bool update, c
 	if(!update)
 	{
 		AI_DPRINTF(k_DBG_SCHEDULER_ALL, m_playerId, m_goal_type, -1,
-					("\tCompute Matching Value for goal: %x, %s, raw_match: %i\n", this, g_theGoalDB->Get(m_goal_type)->GetNameText(), m_raw_priority));
+					// Pointer-as-hex debug logs: uintptr_t + %lx (LP64-safe form of the legacy %x pointer print).
+					("\tCompute Matching Value for goal: %lx, %s, raw_match: %i\n", reinterpret_cast<uintptr_t>(this), g_theGoalDB->Get(m_goal_type)->GetNameText(), m_raw_priority));
 	}
 
 	const GoalRecord * goal_record  = g_theGoalDB->Get(m_goal_type);
@@ -581,14 +582,14 @@ Utility Goal::Recompute_Matching_Value(Plan_List & matches, const bool update, c
 	if(CtpAiDebug::DebugLogCheck(m_playerId, -1, -1))
 	{
 		AI_DPRINTF(k_DBG_SCHEDULER_ALL, m_playerId, m_goal_type, -1, ("\n"));
-		projected_strength          .Log_Debug_Info(k_DBG_SCHEDULER_ALL, m_playerId, m_goal_type, "The Projected Strength:  ");
-		m_current_needed_strength   .Log_Debug_Info(k_DBG_SCHEDULER_ALL, m_playerId, m_goal_type, "The Needed Strength:     ");
+		projected_strength          .Log_Debug_Info(k_DBG_SCHEDULER_ALL, m_playerId, m_goal_type, const_cast<char *>("The Projected Strength:  "));
+		m_current_needed_strength   .Log_Debug_Info(k_DBG_SCHEDULER_ALL, m_playerId, m_goal_type, const_cast<char *>("The Needed Strength:     "));
 		Squad_Strength strength;
 		strength.Set_Pos_Strength(Get_Target_Pos());
-		strength                    .Log_Debug_Info(k_DBG_SCHEDULER_ALL, m_playerId, m_goal_type, "The Target Pos Strength: ");
+		strength                    .Log_Debug_Info(k_DBG_SCHEDULER_ALL, m_playerId, m_goal_type, const_cast<char *>("The Target Pos Strength: "));
 		Squad_Strength grid_strength;
 		grid_strength.Set_Enemy_Grid_Strength(Get_Target_Pos(), m_playerId);
-		grid_strength               .Log_Debug_Info(k_DBG_SCHEDULER_ALL, m_playerId, m_goal_type, "The Target Grid Strength:");
+		grid_strength               .Log_Debug_Info(k_DBG_SCHEDULER_ALL, m_playerId, m_goal_type, const_cast<char *>("The Target Grid Strength:"));
 	}
 #endif
 
@@ -731,13 +732,13 @@ void Goal::Commit_Agents()
 		else if(Is_Satisfied() || Get_Totally_Complete())
 		{
 			AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, -1,
-				("\t\tNO AGENTS COMMITTED:           (goal: %x agent: %x, id: 0%x)\n", this, match_iter->Get_Agent(), match_iter->Get_Agent()->Get_Army().m_id));
+			("\t\tNO AGENTS COMMITTED:           (goal: %lx agent: %lx, id: 0%x)\n", reinterpret_cast<uintptr_t>(this), reinterpret_cast<uintptr_t>(match_iter->Get_Agent()), match_iter->Get_Agent()->Get_Army().m_id));
 			break;
 		}
 		else
 		{
 			AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, -1,
-				("\t\tAGENTS CAN BE COMMITTED:       (goal: %x agent: %x, id: 0%x)\n", this, match_iter->Get_Agent(), match_iter->Get_Agent()->Get_Army().m_id));
+			("\t\tAGENTS CAN BE COMMITTED:       (goal: %lx agent: %lx, id: 0%x)\n", reinterpret_cast<uintptr_t>(this), reinterpret_cast<uintptr_t>(match_iter->Get_Agent()), match_iter->Get_Agent()->Get_Army().m_id));
 
 			if(!match_iter->Get_Needs_Cargo())
 			{
@@ -772,7 +773,7 @@ void Goal::Commit_Transport_Agents()
 		else if(!Needs_Transporter() || Get_Totally_Complete())
 		{
 			AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, -1,
-				("\t\tNO TRANSPORT AGENTS COMMITTED: (goal: %x agent: %x, id: 0%x)\n", this, match_iter->Get_Agent(), match_iter->Get_Agent()->Get_Army().m_id));
+			("\t\tNO TRANSPORT AGENTS COMMITTED: (goal: %lx agent: %lx, id: 0%x)\n", reinterpret_cast<uintptr_t>(this), reinterpret_cast<uintptr_t>(match_iter->Get_Agent()), match_iter->Get_Agent()->Get_Army().m_id));
 			break;
 		}
 		else if(match_iter->Get_Cannot_Be_Used())
@@ -782,7 +783,7 @@ void Goal::Commit_Transport_Agents()
 		else if(match_iter->Get_Needs_Cargo())
 		{
 			AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, -1,
-				("\t\tTRANSPORT AGENTS COMMITTED:    (goal: %x agent: %x, id: 0%x)\n", this, match_iter->Get_Agent(), match_iter->Get_Agent()->Get_Army().m_id));
+			("\t\tTRANSPORT AGENTS COMMITTED:    (goal: %lx agent: %lx, id: 0%x)\n", reinterpret_cast<uintptr_t>(this), reinterpret_cast<uintptr_t>(match_iter->Get_Agent()), match_iter->Get_Agent()->Get_Army().m_id));
 
 			if(match_iter->Get_Agent()->Get_Army()->CanTransport())
 			{
@@ -1732,10 +1733,10 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 	MapPoint target_pos = Get_Target_Pos();
 
 	AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, -1,
-	("\t\t%9x,\t %9x,\t%9x (%3d,%3d),\t%s (%3d,%3d) (%3d,%3d),\t%8d,\t%8d,\t%8f,\t%8f,\t%8d,\t%8f,\t%8f,\t%8f,\t%8d,\t%8f,\t%8f,\t%8d,\t%9x,\t%s \n",
-	this,                                          // This goal
+	("\t\t%9lx,\t %9x,\t%9lx (%3d,%3d),\t%s (%3d,%3d) (%3d,%3d),\t%8d,\t%8d,\t%8f,\t%8f,\t%8d,\t%8f,\t%8f,\t%8f,\t%8d,\t%8f,\t%8f,\t%8d,\t%9lx,\t%s \n",
+	reinterpret_cast<uintptr_t>(this),                   // This goal
 	agent_ptr->Get_Army().m_id,                    // The army
-	agent_ptr,                                     // The agent
+	reinterpret_cast<uintptr_t>(agent_ptr),              // The agent
 	agent_ptr->Get_Pos().x,                        // Agent pos.x
 	agent_ptr->Get_Pos().y,                        // Agent pos.y
 	g_theGoalDB->Get(m_goal_type)->GetNameText(),  // Goal name
@@ -1755,7 +1756,7 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 	report_InVisionRange,                          // In vision range bonus
 	report_NoBarbsPresent,                         // If no Barbarian are present bonus
 	is_transporter,                                // Whether the agent is a transporter
-	agent_ptr->Get_Goal(),                         // The goal to that this agent is asigned to
+	reinterpret_cast<uintptr_t>(agent_ptr->Get_Goal()),  // The goal to that this agent is asigned to
 	(world_Get()->HasCity(target_pos) ? world_Get()->GetCity(target_pos).GetName() : "field")
 	));
 #endif //_DEBUG
@@ -2511,14 +2512,14 @@ bool Goal::Get_Totally_Complete() const
 				 && !goal_record->GetSquadClassStealth())
 			{
 				AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, 0,
-				    ("\t  GOAL %x (%s) (%3d,%3d): Diplomacy match failed : No permission to enter territory\n", this, g_theGoalDB->Get(m_goal_type)->GetNameText(),target_pos.x,target_pos.y));
+			    ("\t  GOAL %lx (%s) (%3d,%3d): Diplomacy match failed : No permission to enter territory\n", reinterpret_cast<uintptr_t>(this), g_theGoalDB->Get(m_goal_type)->GetNameText(),target_pos.x,target_pos.y));
 				return true;
 			}
 
 			if(!diplomacy_match)
 			{
 				AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, 0,
-				    ("\t  GOAL %x (%s) (%3d,%3d): Diplomacy match failed.\n", this, g_theGoalDB->Get(m_goal_type)->GetNameText(),target_pos.x,target_pos.y));
+			    ("\t  GOAL %lx (%s) (%3d,%3d): Diplomacy match failed.\n", reinterpret_cast<uintptr_t>(this), g_theGoalDB->Get(m_goal_type)->GetNameText(),target_pos.x,target_pos.y));
 
 				return true;
 			}
@@ -2526,7 +2527,7 @@ bool Goal::Get_Totally_Complete() const
 		else if(!goal_record->GetTargetOwnerNoContact())
 		{
 			AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, 0,
-			    ("\t  GOAL %x (%s) (%3d,%3d): Target owner not contacted.\n", this, g_theGoalDB->Get(m_goal_type)->GetNameText(),target_pos.x,target_pos.y));
+			    ("\t  GOAL %lx (%s) (%3d,%3d): Target owner not contacted.\n", reinterpret_cast<uintptr_t>(this), g_theGoalDB->Get(m_goal_type)->GetNameText(),target_pos.x,target_pos.y));
 
 			return true;
 		}
@@ -2575,7 +2576,7 @@ bool Goal::Get_Totally_Complete() const
 	if(player_Get(m_playerId)->GetGold() < order_record->GetGold())
 	{
 		AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, 0,
-		    ("GOAL %x (%s): Not enough gold to perform goal.\n", this, g_theGoalDB->Get(m_goal_type)->GetNameText()));
+		    ("GOAL %lx (%s): Not enough gold to perform goal.\n", reinterpret_cast<uintptr_t>(this), g_theGoalDB->Get(m_goal_type)->GetNameText()));
 
 		return true;
 	}
@@ -2954,8 +2955,8 @@ void Goal::Log_Debug_Info(const int &log) const
 		           m_goal_type,
 		           -1,
 		           (
-		                "\tGoal %9x,\t%s,\tRaw priority: %8d,\t(%3d,%3d) (%s)\n",
-		                this,
+	                "\tGoal %9lx,\t%s,\tRaw priority: %8d,\t(%3d,%3d) (%s)\n",
+	                reinterpret_cast<uintptr_t>(this),
 		                name,
 		                m_raw_priority,
 		                pos.x,
@@ -2975,8 +2976,8 @@ void Goal::Log_Debug_Info(const int &log) const
 		           m_goal_type,
 		           -1,
 		           (
-		                "\tGoal %9x,\t%s,\tBAD_UTILITY,\t(%d,%d) (%s)\n",
-		                this,
+	                "\tGoal %9lx,\t%s,\tBAD_UTILITY,\t(%d,%d) (%s)\n",
+	                reinterpret_cast<uintptr_t>(this),
 		                name,
 		                pos.x,
 		                pos.y,
@@ -3001,8 +3002,8 @@ void Goal::Log_Debug_Info(const int &log) const
 		{
 			SQUAD_CLASS goal_squad_class = g_theGoalDB->Get(m_goal_type)->GetSquadClass();
 			AI_DPRINTF(log, m_playerId, m_goal_type, -1,
-				("\t\t[%3d] match=%d %s (agent: %10x), goal class=%3x, squad class=%3x, test class=%d\t",
-					count++, value, g_theGoalDB->Get(m_goal_type)->GetNameText(), agent, goal_squad_class, agent->Get_Squad_Class(), ((goal_squad_class & agent->Get_Squad_Class()) == goal_squad_class)));
+			("\t\t[%3d] match=%d %s (agent: %10lx), goal class=%3x, squad class=%3x, test class=%d\t",
+				count++, value, g_theGoalDB->Get(m_goal_type)->GetNameText(), reinterpret_cast<uintptr_t>(agent), goal_squad_class, agent->Get_Squad_Class(), ((goal_squad_class & agent->Get_Squad_Class()) == goal_squad_class)));
 
 			agent->Log_Debug_Info(k_DBG_SCHEDULER_ALL, this);
 		}
@@ -3015,9 +3016,9 @@ void Goal::Log_Debug_Info(const int &log) const
 			           m_goal_type,
 			           -1,
 			             (
-			              "\t\t[%3d] First match with bad utility: In all, there were %d matches with bad utility.\n",
-			              count,
-			              m_matches.size() - count
+	              "\t\t[%3d] First match with bad utility: In all, there were %zu matches with bad utility.\n",
+	              count,
+	              m_matches.size() - count
 			             )
 			            );
 
@@ -3053,7 +3054,7 @@ void Goal::Log_Debug_Info(const int &log) const
 	}
 
 	if (m_agents.size() > 0)
-		AI_DPRINTF(log,  m_playerId, m_goal_type, -1, ("\t\t\tCommitted Agents (%d):\n", m_agents.size()));
+		AI_DPRINTF(log,  m_playerId, m_goal_type, -1, ("\t\t\tCommitted Agents (%zu):\n", m_agents.size()));
 
 	for( agent_iter  = m_agents.begin();
 		 agent_iter != m_agents.end();
@@ -3080,8 +3081,8 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 			{
 				Assert(false);
 				AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, first_army->Get_Army().m_id,
-					("GOAL %x (%d): FollowPathToTask::Can not send army needed for garrison to destination (x=%d,y=%d):\n", this,
-					m_goal_type, dest_pos.x, dest_pos.y));
+				("GOAL %lx (%d): FollowPathToTask::Can not send army needed for garrison to destination (x=%d,y=%d):\n", reinterpret_cast<uintptr_t>(this),
+				m_goal_type, dest_pos.x, dest_pos.y));
 				first_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 				uint8 magnitude = 220;
 				gfx_options_observer::AddTextToArmy(first_army->Get_Army(), "GARRISON", magnitude);
@@ -3219,8 +3220,8 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 		if(test != ORDER_TEST_OK && test == ORDER_TEST_NO_MOVEMENT)
 		{
 			AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, first_army->Get_Army().m_id,
-				("GOAL %x (%d): FollowPathToTask:: failed TestOrderHere( %s, (%d,%d))\n", this, m_goal_type,
-				order_rec->GetNameText(),dest_pos.x,dest_pos.y));
+			("GOAL %lx (%d): FollowPathToTask:: failed TestOrderHere( %s, (%d,%d))\n", reinterpret_cast<uintptr_t>(this), m_goal_type,
+			order_rec->GetNameText(),dest_pos.x,dest_pos.y));
 		}
 
 		return false;
@@ -3344,8 +3345,8 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 		if (!found)
 		{
 			AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, the_transport->Get_Army().m_id,
-			        ("GOAL %x (%d):GotoTransportTaskSolution:: No path found from army to destination (x=%d,y=%d) (SUB_TASK_TRANSPORT_TO_BOARD):\n",
-			        this, m_goal_type, dest_pos.x, dest_pos.y));
+		        ("GOAL %lx (%d):GotoTransportTaskSolution:: No path found from army to destination (x=%d,y=%d) (SUB_TASK_TRANSPORT_TO_BOARD):\n",
+		        reinterpret_cast<uintptr_t>(this), m_goal_type, dest_pos.x, dest_pos.y));
 			the_transport->Log_Debug_Info(k_DBG_SCHEDULER, this);
 			uint8 magnitude = 220;
 			std::vector<char> myString(256);
@@ -3432,8 +3433,8 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 		if(!found)
 		{
 			AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, the_army->Get_Army().m_id,
-			        ("GOAL %x (%d): GotoTransportTaskSolution: No path found from army to destination (x=%d,y=%d) (SUB_TASK_CARGO_TO_BOARD):\n",
-			        this, m_goal_type, dest_pos.x, dest_pos.y));
+		        ("GOAL %lx (%d): GotoTransportTaskSolution: No path found from army to destination (x=%d,y=%d) (SUB_TASK_CARGO_TO_BOARD):\n",
+		        reinterpret_cast<uintptr_t>(this), m_goal_type, dest_pos.x, dest_pos.y));
 			the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 			uint8 magnitude = 220;
 			std::vector<char> myString(256);
@@ -3565,8 +3566,8 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 			if (!found)
 			{
 				AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, the_army->Get_Army().m_id,
-				           ("GOAL %x (%s): GotoGoalTaskSolution: No path found from army (x=%d,y=%d) to goal (x=%d,y=%d) (SUB_TASK_GOAL):\n",
-				            this, g_theGoalDB->Get(m_goal_type)->GetNameText(), the_army->Get_Pos().x, the_army->Get_Pos().y, goal_pos.x, goal_pos.y));
+		           ("GOAL %lx (%s): GotoGoalTaskSolution: No path found from army (x=%d,y=%d) to goal (x=%d,y=%d) (SUB_TASK_GOAL):\n",
+		            reinterpret_cast<uintptr_t>(this), g_theGoalDB->Get(m_goal_type)->GetNameText(), the_army->Get_Pos().x, the_army->Get_Pos().y, goal_pos.x, goal_pos.y));
 				the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 				uint8 magnitude = 220;
 				std::vector<char> myString(256);
@@ -3592,8 +3593,8 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 			if (!found)
 			{
 				AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, the_army->Get_Army().m_id,
-				           ("GOAL %x (%d):GotoGoalTaskSolution: No path found from army (x=%d,y=%d) to goal (x=%d,y=%d) (SUB_TASK_RALLY):\n",
-				           this, m_goal_type, the_army->Get_Pos().x, the_army->Get_Pos().y, goal_pos.x, goal_pos.y));
+		           ("GOAL %lx (%d):GotoGoalTaskSolution: No path found from army (x=%d,y=%d) to goal (x=%d,y=%d) (SUB_TASK_RALLY):\n",
+		           reinterpret_cast<uintptr_t>(this), m_goal_type, the_army->Get_Pos().x, the_army->Get_Pos().y, goal_pos.x, goal_pos.y));
 				the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 				uint8 magnitude = 220;
 				std::vector<char> myString(256);
@@ -3608,8 +3609,8 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 			if (!found)
 			{
 				AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, the_army->Get_Army().m_id,
-				           ("GOAL %x (%d):GotoGoalTaskSolution: No path found from army (x=%d,y=%d) to goal (x=%d,y=%d) (SUB_TASK_TRANSPORT):\n",
-				           this, m_goal_type, the_army->Get_Pos().x, the_army->Get_Pos().y, goal_pos.x, goal_pos.y));
+		           ("GOAL %lx (%d):GotoGoalTaskSolution: No path found from army (x=%d,y=%d) to goal (x=%d,y=%d) (SUB_TASK_TRANSPORT):\n",
+		           reinterpret_cast<uintptr_t>(this), m_goal_type, the_army->Get_Pos().x, the_army->Get_Pos().y, goal_pos.x, goal_pos.y));
 				the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 				uint8 magnitude = 220;
 				std::vector<char> myString(256);

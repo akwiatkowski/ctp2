@@ -180,6 +180,19 @@ void Wormhole::Move()
 					m_horizontalMoves = k_HORIZONTAL_MOVES;
 				}
 				break;
+			// The wormhole only ever travels NORTHEAST/EAST/SOUTHEAST;
+			// every other direction is unreachable here.
+			case NORTH:
+			case NORTHWEST:
+			case WEST:
+			case SOUTHWEST:
+			case SOUTH:
+#if !defined(_SMALL_MAPPOINTS)
+			case DOWN:
+			case UP:
+#endif
+			case NOWHERE:
+				Assert(false);
 		}
 	}
 	DPRINTF(k_DBG_INFO, ("Wormhole now at %d,%d\n", m_pos.x, m_pos.y));

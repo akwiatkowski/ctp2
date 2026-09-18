@@ -1331,6 +1331,13 @@ void SelectedItem::MoveDrop(const MapPoint &pos, const aui_MouseEvent *data, boo
 				case SELECT_TYPE_LOCAL_CITY:
 					SelectCityClick(pos, data, doubleClick);
 					break;
+				case SELECT_TYPE_NONE:
+				case SELECT_TYPE_LOCAL_ARMY_UNLOADING:
+				case SELECT_TYPE_REMOTE_ARMY:
+				case SELECT_TYPE_REMOTE_CITY:
+				case SELECT_TYPE_TRADE_ROUTE:
+				case SELECT_TYPE_MAX:
+					break;
 			}
 		}
 		else

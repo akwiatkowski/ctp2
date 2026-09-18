@@ -128,7 +128,11 @@ DamageTracker s_trackedUnits[k_MAX_TRACKED_UNITS];
 #define COMBATRAND(x) (civrand().Next(x))
 
 static void combat_print(sint32 level, const char *fmt, ...)
+	__attribute__((format(printf, 2, 3)));
+static void combat_print(sint32 level, const char *fmt, ...)
 {
+	// (format(printf,2,3) on the forward declaration above — this body
+	// forwards fmt into vsnprintf; the attribute also checks every caller.)
 
 		char buf[1024];
 		va_list vl;
@@ -734,7 +738,7 @@ void CombatField::ReportUnits(bool initial)
 		for(sint32 y = 0; y < m_height; y++) {
 			CombatUnit cu = GetUnit(x, y);
 			if(cu.IsActive()) {
-				DPRINTF(k_DBG_GAMESTATE, ("Positioning unit %lx (%lf HP)\n", cu.m_unit, cu.GetHP()));
+				DPRINTF(k_DBG_GAMESTATE, ("Positioning unit %x (%lf HP)\n", cu.m_unit.m_id, cu.GetHP()));
 				battle_observer::AddPlacement(cu.m_unit, !m_isOffense, x, y, initial);
 			}
 		}
@@ -930,17 +934,17 @@ CTP2Combat::CTP2Combat
 
 	defenders.GetPos(m_defenderPos);
 
-	combat_print(k_COMBAT_DEBUG_VERBOSE, "Attacker: %lx, Defender: (%d,%d)\n", attackers[0].GetArmy().m_id,
+	combat_print(k_COMBAT_DEBUG_VERBOSE, "Attacker: %x, Defender: (%d,%d)\n", attackers[0].GetArmy().m_id,
 				 defenders[0].RetPos().x, defenders[0].RetPos().y);
 
 	sint32 i;
 	for(i = 0; i < attackers.Num(); i++)
 	{
-		combat_print(k_COMBAT_DEBUG_VERBOSE, "attacker[%d]: %lx @ %lfHP\n", i, attackers[i].m_id, attackers[i].GetHP());
+		combat_print(k_COMBAT_DEBUG_VERBOSE, "attacker[%d]: %x @ %lfHP\n", i, attackers[i].m_id, attackers[i].GetHP());
 	}
 	for(i = 0; i < defenders.Num(); i++)
 	{
-		combat_print(k_COMBAT_DEBUG_VERBOSE, "defender[%d]: %lx @ %lfHP, army=%lx\n", i, defenders[i].m_id, defenders[i].GetHP(), defenders[i].GetArmy().m_id);
+		combat_print(k_COMBAT_DEBUG_VERBOSE, "defender[%d]: %x @ %lfHP, army=%x\n", i, defenders[i].m_id, defenders[i].GetHP(), defenders[i].GetArmy().m_id);
 	}
 
 	Assert(player_Get(m_attacker));
@@ -1060,7 +1064,7 @@ void CTP2Combat::ExecuteRangedAttack(CombatField *attacker, sint32 attX, sint32 
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", killing %s.\n", defenseString);
 
 			if (m_battleActive) {
-				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
+				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %x\n", def->m_unit.m_id));
 				battle_observer::AddDeath(def->m_unit, defender == &m_defenders);
 			}
 			s_somethingDied = true;
@@ -1116,7 +1120,7 @@ void CTP2Combat::ExecuteRangedCounterAttackNC(CombatField *attacker, sint32 attX
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", killing %s.\n", defenseString);
 
 			if (m_battleActive) {
-				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
+				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %x\n", def->m_unit.m_id));
 				battle_observer::AddDeath(def->m_unit, defender == &m_defenders);
 			}
 			s_somethingDied = true;
@@ -1236,7 +1240,7 @@ void CTP2Combat::ExecuteAttack(CombatField *attacker, sint32 attX, sint32 attY,
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", killing %s.\n", defenseString);
 
 			if (m_battleActive) {
-				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
+				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %x\n", def->m_unit.m_id));
 				battle_observer::AddDeath(def->m_unit, defender == &m_defenders);
 			}
 			s_somethingDied = true;
@@ -1290,7 +1294,7 @@ void CTP2Combat::ExecuteCounterAttackNC(CombatField *attacker, sint32 attX, sint
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", killing %s.\n", defenseString);
 
 			if (m_battleActive) {
-				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
+				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %x\n", def->m_unit.m_id));
 				battle_observer::AddDeath(def->m_unit, defender == &m_defenders);
 			}
 			s_somethingDied = true;
@@ -1453,7 +1457,7 @@ bool CTP2Combat::IsDone()
 
 void CTP2Combat::Retreat()
 {
-	if(!this) return;
+	// 'this' is never null in well-defined C++; the old null check was dead code.
 	m_retreating = true;
 }
 

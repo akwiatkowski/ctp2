@@ -310,7 +310,9 @@ sint32 HotseatList::UpdateData( )
 		} else if(civ == profiledb_Get()->GetCivIndex()) {
 			civ = 1;
 		}
-		item = new HotseatListItem(&retval, i, civ, i == 0, "", ldlBlock);
+		// HotseatListItem still takes MBCHAR* (header owned elsewhere);
+		// empty-string default is read-only here.
+		item = new HotseatListItem(&retval, i, civ, i == 0, const_cast<MBCHAR *>(""), ldlBlock);
 		m_list->AddItem((c3_ListItem *)item);
 		m_items[i] = item;
 	}

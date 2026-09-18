@@ -153,7 +153,6 @@ static ctp2_ListBox             *s_scoreList;
 
 static ctp2_ListBox             *s_wonderList;
 
-static ctp2_Static              *s_wonderBlock;
 
 
 // Borrowed wonder-icon controls; owned by the LDL hierarchy like the
@@ -421,7 +420,7 @@ sint32 victorywin_Init_Controls( MBCHAR *windowBlock )
 
 	sint32 i = 0;
 
-	sint32 staticNum = k_VICWIN_STATIC_MAX;
+
 	s_staticControls.fill(nullptr);
 
 	s_okButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, "CloseButton");

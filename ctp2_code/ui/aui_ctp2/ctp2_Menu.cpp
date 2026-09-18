@@ -291,13 +291,13 @@ ctp2_Menu::Item *ctp2_Menu::CreateItem(MBCHAR *block, const MBCHAR *text, const 
 
 void ctp2_Menu::AddItem(const MBCHAR *text, const MBCHAR *shortcut, void *cookie)
 {
-	ctp2_Menu::Item *item = CreateItem("PlainMenuListItem", text, shortcut, nullptr, cookie);
+	ctp2_Menu::Item *item = CreateItem(const_cast<MBCHAR *>("PlainMenuListItem"), text, shortcut, nullptr, cookie);
 	Assert(item);
 }
 
 void ctp2_Menu::AddItemWithIcon(const MBCHAR *text, const MBCHAR *icon, const MBCHAR *shortcut, void *cookie)
 {
-	ctp2_Menu::Item *item = CreateItem("IconMenuListItem", text, shortcut, icon, cookie);
+	ctp2_Menu::Item *item = CreateItem(const_cast<MBCHAR *>("IconMenuListItem"), text, shortcut, icon, cookie);
 
 	Assert(item);
 }

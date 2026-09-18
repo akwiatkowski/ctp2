@@ -188,7 +188,9 @@ enum NET_ACTION {
 class NetAction : public Packetizer
 {
 public:
-	NetAction(NET_ACTION action, ...);
+	// sint32 (not NET_ACTION): va_start on a last named enum param is UB
+	// because enums undergo default argument promotion.
+	NetAction(sint32 action, ...);
 	NetAction();
 
 	void Packetize(uint8* buf, uint16& size) override;

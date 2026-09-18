@@ -845,33 +845,27 @@ void World::ComputeGoodsValues()
     std::vector<sint32> goodCounts(newGoodCount, 0);
 	MapPoint pos;
 	sint32 good;
-	sint32 totalGoods = 0;
 	for(pos.x = 0; pos.x < m_size.x; pos.x++) {
 		for(pos.y = 0; pos.y < m_size.y; pos.y++) {
 			if(GetGood(pos, good)) {
 				Assert((good >= 0) && (good < newGoodCount));
 
-				totalGoods++;
 				goodCounts[good]++;
 			}
 		}
 	}
 
-	sint32 maxGood = -1;
 	sint32 maxCount = 0;
-	sint32 minGood = -1;
 	sint32 minCount = 0x7fffffff;
 
 	sint32 i;
 	for(i = 0; i < newGoodCount; i++) {
 		if (goodCounts[i] > maxCount) {
 			maxCount = goodCounts[i];
-			maxGood = i;
 		}
 
 		if ((goodCounts[i] > 0) && (goodCounts[i] < minCount)) {
 			minCount = goodCounts[i];
-			minGood = i;
 		}
 	}
 
@@ -1086,7 +1080,6 @@ void World::GenerateDeepWater()
 	MapPoint tmp;
 	sint32 minx = 0;
 	sint32 miny = 0;
-	sint32 rmin;
 	sint32 ocount;
 	sint32 dcount;
 	sint32 k;
@@ -1121,7 +1114,6 @@ void World::GenerateDeepWater()
 	for (k=0; k<500 && find; k++) {
 
 		find = FALSE;
-		rmin = -2;
 
 		for (i=0; i<m_size.x; i++) {
 			for (j=0; j<m_size.y; j++) {
@@ -1171,7 +1163,6 @@ void World::GenerateDeepWater()
 						if (GetCell(tmp)->m_terrain_type == TERRAIN_WATER_RIFT) ocount++;
 
 					if ((ocount == 1) && (dcount < 2)){
-						rmin = m_map[i][j]->m_terrain_type;
 						minx = i;
 						miny = j;
 						find = TRUE;
@@ -2573,7 +2564,7 @@ bool World::ExportMap(MBCHAR const *filename)
 			BOOL hasRiver = IsRiver(pos);
 			BOOL hasGood = GetGood(pos, good);
 
-			fprintf(outfile, "%d,%d,%d,%d,%ld\t",
+			fprintf(outfile, "%d,%d,%d,%d,%u\t",
 					cell->GetTerrain(),
 					hasHut,
 					hasRiver,
@@ -2650,7 +2641,7 @@ bool World::ImportMap(MBCHAR const * filename)
 			sint32 terrainType;
 			uint32 env;
 
-			fscanf(infile, "%d,%d,%d,%d,%ld\t",
+			fscanf(infile, "%d,%d,%d,%d,%u\t",
 					&terrainType,
 					&hasHut,
 					&hasRiver,

@@ -64,8 +64,9 @@
 
 namespace
 {
-    bool    SUPPORT_MBCS      = false;
-    bool    SUPPORT_UNICODE   = false;
+    // Only referenced under _MBCS/_UNICODE builds; unused on this platform.
+    [[maybe_unused]] bool   SUPPORT_MBCS      = false;
+    [[maybe_unused]] bool   SUPPORT_UNICODE   = false;
 }
 
 sint32      aui_BitmapFont::s_bitmapFontRefCount    = 0;

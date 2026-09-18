@@ -496,7 +496,7 @@ void AgreementData::ExtractPlayer(sint32 indexId, sint32 memberId, MBCHAR *sExpa
 			break ;
 
 		case 4 :
-			snprintf(sExpanded, sizeof(sExpanded), "%ld", player_Get(civ->GetOwner())->GetGold()) ;
+			snprintf(sExpanded, sizeof(sExpanded), "%d", player_Get(civ->GetOwner())->GetGold()) ;
 			break ;
 
 		default :

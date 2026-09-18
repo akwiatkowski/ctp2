@@ -567,7 +567,7 @@ STDEHANDLER(CtpAi_StartNegotiationsEvent)
 		}
 	}
 
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 	return GEV_HD_Continue;
 }
@@ -632,7 +632,7 @@ STDEHANDLER(CtpAi_BeginSchedulerEvent)
 
 	scheduler.Reset_Agent_Execution();
 
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 	t1 = GetTickCount();
 	DPRINTF(k_DBG_AI, (LOG_SECTION_START));
@@ -640,7 +640,7 @@ STDEHANDLER(CtpAi_BeginSchedulerEvent)
 	DPRINTF(k_DBG_AI, ("//                         Player %d\n", playerId));
 
 	scheduler.Process_Goal_Changes();
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 	t1 = GetTickCount();
 	DPRINTF(k_DBG_AI, (LOG_SECTION_START));
@@ -648,7 +648,7 @@ STDEHANDLER(CtpAi_BeginSchedulerEvent)
 	DPRINTF(k_DBG_AI, ("//                 Player %d\n", playerId));
 
 	scheduler.Sort_Goals();
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 	Scheduler::s_needAnotherCycle = false;
 	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ProcessMatches,
@@ -694,7 +694,7 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 	scheduler.Compute_Agent_Strength();
 	scheduler.Recompute_Goal_Strength();
 	scheduler.Sort_Goal_Matches_If_Necessary();
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 	t1 = GetTickCount();
 	DPRINTF(k_DBG_AI, (LOG_SECTION_START));
@@ -704,7 +704,7 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 
 	scheduler.Match_Resources(player_ptr->IsRobot());
 
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 	// Modified by Martin Gï¿½hmann so that this can be exposed to const.txt
 	if ( cycle < g_theConstDB->Get(0)->GetMaxMatchListCycles() + diff_cycles || Scheduler::s_needAnotherCycle)
@@ -1112,7 +1112,7 @@ void CtpAi::BeginMapAnalysis(const PLAYER_INDEX player)
 	Diplomat::GetDiplomat(player).ClearEffectiveRegardCache();
 
 	MapAnalysis::GetMapAnalysis().BeginTurn();
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 }
 
 void CtpAi::BeginTurn(const PLAYER_INDEX player)
@@ -1165,7 +1165,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 			player_ptr->SetGovernmentType(government_type);
 	}
 
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 	t1 = GetTickCount();
 	DPRINTF(k_DBG_AI, (LOG_SECTION_START));
@@ -1188,7 +1188,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 		player_ptr->SetMaterialsTax(pw_percent/100.0);
 		player_ptr->SetTaxes(sci_percent/100.0);
 
-		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 		t1 = GetTickCount();
 		DPRINTF(k_DBG_AI, (LOG_SECTION_START));
@@ -1196,10 +1196,10 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 		DPRINTF(k_DBG_AI, ("//                 Player %d\n", player));
 
 		SetResearch(player);
-		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 	}
 
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 	GaiaController *gaia_controller = player_ptr->GetGaiaController();
 	if (player_ptr->IsRobot() &&
@@ -1211,7 +1211,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 		DPRINTF(k_DBG_AI, ("//							  Player %d\n", player));
 
 		gaia_controller->BuildProcessingTowers();
-		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 	}
 
 	t1 = GetTickCount();
@@ -1220,7 +1220,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 	DPRINTF(k_DBG_AI, ("//							  Player %d\n", player));
 
 	Governor::GetGovernor(player).PlaceTileImprovements();
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 	if (player_ptr->IsRobot() && !network_Get().IsClient())
 	{
@@ -1234,7 +1234,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 
 		player_ptr->SetReadinessLevel(level, FALSE);
 
-		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 		t1 = GetTickCount();
 		DPRINTF(k_DBG_AI, (LOG_SECTION_START));
@@ -1246,7 +1246,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 		Governor::GetGovernor(player).OptimizeSliders(sliders_setting);
 		Governor::GetGovernor(player).SetSliders(sliders_setting, true);
 
-		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 		t1 = GetTickCount();
 		DPRINTF(k_DBG_AI, (LOG_SECTION_START));
@@ -1255,7 +1255,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 
 		Governor::GetGovernor(player).ManageGoodsTradeRoutes();
 
-		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
+		DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 	}
 
 	AddSettleTargets (player);
@@ -1540,21 +1540,21 @@ void CtpAi::FinishBeginTurn(const PLAYER_INDEX player)
 	}
 
 	Governor::GetGovernor(player).FillEmptyBuildQueues();
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)  ));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)  ));
 
 	t1 = GetTickCount();
 	DPRINTF(k_DBG_AI, (LOG_SECTION_START));
 	DPRINTF(k_DBG_AI, ("// COMPUTE GARRISONS -- Turn %d\n", round));
 	DPRINTF(k_DBG_AI, ("//                      Player %d\n", player));
 	CtpAi::ComputeCityGarrisons(player);
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)  ));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)  ));
 
 	t1 = GetTickCount();
 	DPRINTF(k_DBG_AI, (LOG_SECTION_START));
 	DPRINTF(k_DBG_AI, ("// ASSIGN POPULATIONS -- Turn %d\n", round));
 	DPRINTF(k_DBG_AI, ("//						 Player %d\n", player));
 	Governor::GetGovernor(player).AssignPopulations();
-	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)  ));
+	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)  ));
 }
 
 void CtpAi::NetworkClientBeginTurn(PLAYER_INDEX player)
@@ -2098,11 +2098,11 @@ void CtpAi::ExecuteOpportunityActions(const PLAYER_INDEX player)
 
 	//	if(army.CanEntrench())
 	//	{
-			// We need to find something more interesting to do here
-			gevmanager_Get()->AddEvent( GEV_INSERT_AfterCurrent,
-									GEV_EntrenchOrder,
-									GEA_Army, army.m_id,
-									GEA_End);
+		// We need to find something more interesting to do here
+		gevmanager_Get()->AddEvent( GEV_INSERT_AfterCurrent,
+								GEV_EntrenchOrder,
+								GEA_Army, army.m_id,
+								GEA_End);
 	/*	}
 		else
 		{

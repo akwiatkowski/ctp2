@@ -24,6 +24,8 @@ public:
 	void PostSerialize();
 
 	void Add(SlicNamedSymbol *sym) override;
+	// Keep the base overloads visible; Add(sint32) below would hide them.
+	using StringHash<SlicNamedSymbol>::Add;
 	void Add(sint32 index);
 	const SlicNamedSymbol *Get(sint32 index) const;
 	SlicNamedSymbol *Access(sint32 index);

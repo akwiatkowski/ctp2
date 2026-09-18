@@ -345,7 +345,8 @@ void Plan::Commit_Agent_Common(Goal_ptr goal_ptr)
 		else
 			mask = k_DBG_SCHEDULER_DETAIL;
 
-		AI_DPRINTF(mask, m_the_agent->Get_Player_Number(), goal_ptr->Get_Goal_Type(), -1, ("\t\tEXECUTING GOAL:                (goal: %x agent: %x, id: 0%x)\n", goal_ptr, m_the_agent, m_the_agent->Get_Army().m_id));
+		// Pointer-as-hex debug logs: uintptr_t + %lx (LP64-safe form of the legacy %x pointer print).
+		AI_DPRINTF(mask, m_the_agent->Get_Player_Number(), goal_ptr->Get_Goal_Type(), -1, ("\t\tEXECUTING GOAL:                (goal: %lx agent: %lx, id: 0%x)\n", reinterpret_cast<uintptr_t>(goal_ptr), reinterpret_cast<uintptr_t>(m_the_agent), m_the_agent->Get_Army().m_id));
 
 		m_the_agent->Log_Debug_Info(mask, goal_ptr);
 		AI_DPRINTF(mask, m_the_agent->Get_Player_Number(), goal_ptr->Get_Goal_Type(), -1, ("\t\t\t\n"));

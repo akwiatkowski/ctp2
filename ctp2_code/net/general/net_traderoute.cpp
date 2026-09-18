@@ -136,13 +136,13 @@ void NetTradeRoute::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	m_routeData->RemoveFromCells();
 
 	m_routeData->m_path.Clear();
-    PLAYER_INDEX owner;
+
 	for(i = 0; i < numWp; i++) {
 		MapPoint pnt;
 		PULLSHORTTYPE(pnt.x, sint16);
 		PULLSHORTTYPE(pnt.y, sint16);
 		m_routeData->m_path.Insert(pnt);
-        owner = m_routeData->m_sourceCity.GetOwner();
+
 
 		world_Get()->GetCell(pnt)->AddTradeRoute(route);
 	}

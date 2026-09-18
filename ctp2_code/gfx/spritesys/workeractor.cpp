@@ -171,8 +171,10 @@ void WorkerActor::Draw()
 	uint16			flags = k_DRAWFLAGS_NORMAL;
 	Pixel16			color = 0x0000;
 
+	// Last two args are BOOL (uint32) specialDelayProcess/directionalAttack:
+	// NULL was an obfuscated 0; FALSE matches the sibling UnitActor call sites.
 	m_unitSpriteGroup->Draw(m_curUnitAction, m_frame, m_x+k_ACTOR_CENTER_OFFSET_X, m_y+k_ACTOR_CENTER_OFFSET_Y, m_facing,
-							1, m_transparency, color, flags, NULL, NULL);
+							1, m_transparency, color, flags, FALSE, FALSE);
 }
 
 void WorkerActor::DrawDirect(aui_Surface *surf, sint32 x, sint32 y, double scale)
@@ -180,8 +182,9 @@ void WorkerActor::DrawDirect(aui_Surface *surf, sint32 x, sint32 y, double scale
 	uint16			flags = k_DRAWFLAGS_NORMAL;
 	Pixel16			color = 0x0000;
 
+	// BOOL (uint32) specialDelayProcess/directionalAttack: 0 == FALSE, as above.
 	m_unitSpriteGroup->DrawDirect(surf, m_curUnitAction, m_frame, sint32(x+(k_ACTOR_CENTER_OFFSET_X*scale)), sint32(y+(k_ACTOR_CENTER_OFFSET_Y*scale)), m_facing,
-							scale, m_transparency, color, flags, NULL, NULL);
+							scale, m_transparency, color, flags, FALSE, FALSE);
 }
 
 void WorkerActor::DrawText(sint32 x, sint32 y, MBCHAR const * unitText)

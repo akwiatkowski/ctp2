@@ -213,7 +213,7 @@ sint32 endgamewindow_Initialize()
 
 
 
-	g_endgameWindow.reset(new EndGameWindow(&errcode, aui_UniqueId(), k_LDL_ENDGAME_WINDOW,
+	g_endgameWindow.reset(new EndGameWindow(&errcode, aui_UniqueId(), const_cast<MBCHAR *>(k_LDL_ENDGAME_WINDOW),
 		k_ENDGAME_BITS_PER_PIXEL, AUI_WINDOW_TYPE_POPUP));
 	TestControl(g_endgameWindow.get());
 

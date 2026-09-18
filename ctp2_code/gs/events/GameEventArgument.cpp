@@ -53,11 +53,11 @@ GameEventArgument::GameEventArgument(GAME_EVENT_ARGUMENT type, va_list *vl, bool
 	Init(type, vl, isAlwaysValid);
 }
 
-GameEventArgument::GameEventArgument(GAME_EVENT_ARGUMENT type, ...)
+GameEventArgument::GameEventArgument(sint32 type, ...)
 {
 	va_list vl;
 	va_start(vl, type);
-	Init(type, &vl);
+	Init(static_cast<GAME_EVENT_ARGUMENT>(type), &vl);
 	va_end(vl);
 }
 
@@ -357,7 +357,7 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 	    GameEventManager::ArgToName(m_type), (uint32)m_data.m_id,
 	    event ? GameEventManager::GetEventName(event->AddedDuring()) : "?");
 
-	DPRINTF(k_DBG_GAMESTATE, ("Missing object id %lx\n", (uint32)m_data.m_id));
+	DPRINTF(k_DBG_GAMESTATE, ("Missing object id %x\n", (uint32)m_data.m_id));
 
 	if(profiledb_Get() && profiledb_Get()->IsDebugSlicEvents())
 	{
@@ -374,7 +374,8 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 			             event->GetLine(),
 			             event->GetFile());
 
-			c3errors_ErrorDialog("Slic Event Error", buf);
+			// "%s": buf is an already-formatted diagnostic, not a template.
+			c3errors_ErrorDialog("Slic Event Error", "%s", buf);
 		}
 		else if(slicengine_Get()->GetContext())
 		{
@@ -388,7 +389,8 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 			             slicengine_Get()->GetContext()->GetFrame()->GetCurrentLine(),
 			             slicengine_Get()->GetContext()->GetFrame()->GetSlicSegment()->GetFilename());
 
-			c3errors_ErrorDialog("Slic Event Error", buf);
+			// "%s": buf is an already-formatted diagnostic, not a template.
+			c3errors_ErrorDialog("Slic Event Error", "%s", buf);
 		}
 		else
 		{
@@ -411,7 +413,8 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 			             GameEventManager::GetEventName(gevmanager_Get()->GetProcessingEvent()));
 			}
 
-			c3errors_ErrorDialog("Slic Event Source Error", buf);
+			// "%s": buf is an already-formatted diagnostic, not a template.
+			c3errors_ErrorDialog("Slic Event Source Error", "%s", buf);
 		}
 	}
 }

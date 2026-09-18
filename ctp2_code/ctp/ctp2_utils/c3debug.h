@@ -103,7 +103,9 @@ typedef void (* CivExceptionFunction) ();
 
 void	c3debug_InitDebugLog();
 void	c3debug_CloseDebugLog();
-void	c3debug_dprintf(char const * format, ...);
+// format(printf,1,2): printf wrapper — gives every DPRINTF caller compile-time
+// format checking and silences -Wformat-nonliteral at the internal forwarding.
+void	c3debug_dprintf(char const * format, ...) __attribute__((format(printf, 1, 2)));
 void	c3debug_dprintfPrefix(sint32 mask, char const * file, sint32 line);
 void	c3debug_SetDebugMask(sint32 mask, sint32 set);
 #if defined(WIN32)

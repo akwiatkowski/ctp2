@@ -243,14 +243,12 @@ aui_Mouse::~aui_Mouse()
 
 	End();
 
-	if ( m_cursors )
-	{
-		for (auto & m_cursor : m_cursors)
-			if ( m_cursor )
-				aui_ui_Get()->UnloadCursor( m_cursor );
+	// m_cursors is a fixed-size member array, so it is always non-null.
+	for (auto & m_cursor : m_cursors)
+		if ( m_cursor )
+			aui_ui_Get()->UnloadCursor( m_cursor );
 
-		memset( m_cursors, 0, sizeof( m_cursors ) );
-	}
+	memset( m_cursors, 0, sizeof( m_cursors ) );
 
 	DestroyPrivateBuffers();
 
@@ -618,7 +616,7 @@ AUI_ERRCODE aui_Mouse::ReactToInput( )
 
 	static int reactLogCount = 0;
 	if (++reactLogCount <= 20) {
-		fprintf(stderr, "[MOUSE-DRAW] pos=(%ld,%ld) hotspot=(%ld,%ld) image=(%ld,%ld) clip={%ld,%ld,%ld,%ld}\n",
+		fprintf(stderr, "[MOUSE-DRAW] pos=(%d,%d) hotspot=(%d,%d) image=(%d,%d) clip={%d,%d,%d,%d}\n",
 			m_data.position.x, m_data.position.y,
 			hotspot.x, hotspot.y,
 			image.x, image.y,

@@ -4,7 +4,6 @@
 
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/fileio/Token.h"
-#include "gs/utility/ErrMsg.h"
 #include "SoundRecord.h"
 #include "ctp/ctp2_utils/c3files.h"
 #include "gs/database/StrDB.h"
@@ -126,7 +125,8 @@ sint32 ThroneDB::CheckToken(Token *token, sint32 type, MBCHAR const *error)
 {
 
 	if(token->Next() != type) {
-		c3errors_ErrorDialog(token->ErrStr(), error);
+		// "%s": `error` is caller-supplied text, not a format template.
+		c3errors_ErrorDialog(token->ErrStr(), "%s", error);
 		g_abort_parse = TRUE;
 		return FALSE;
 	}

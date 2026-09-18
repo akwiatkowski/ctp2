@@ -41,6 +41,8 @@ public:
 	nf_PlayerSetup(NETFunc::Player *p);
 	nf_PlayerSetup();
 	void SetKey(NETFunc::KeyStruct *k);
+	// Unhide the inherited virtual SetKey() overloads.
+	using NETFunc::PlayerSetup::SetKey;
 	void Pack() override;
 	void Unpack() override;
 

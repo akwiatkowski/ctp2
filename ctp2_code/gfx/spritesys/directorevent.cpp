@@ -195,11 +195,14 @@ STDEHANDLER(DirectorActionSuccessful)
 		{
 			if(selitem_Get()->IsAutoCenterOn())
 			{
+				// Parenthesized for clarity: '&&' binds tighter than '||', so
+				// this is (unit visible to player) || (city valid && city
+				// visible to player) -- grouping preserved, just made explicit.
 				if((((unit.GetOwner() == selitem_Get()->GetVisiblePlayer()) ||
 					 (unit.GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer()))) ||
-					unitpool_Get()->IsValid(c) &&
-					((c.GetOwner() == selitem_Get()->GetVisiblePlayer()) ||
-					 (c.GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer()))))) {
+					(unitpool_Get()->IsValid(c) &&
+					 ((c.GetOwner() == selitem_Get()->GetVisiblePlayer()) ||
+					  (c.GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer())))))) {
 
 					director_Get()->AddCenterMap(attackPos);
 				}

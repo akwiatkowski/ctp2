@@ -148,7 +148,8 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			UnitDynamicArray revealed;
 			MapPoint newPos = m_unitData->m_pos;
-			DPRINTF(k_DBG_NET, ("Net: Unit %lx moved to %d,%d via unit packet\n",
+			// m_id is a uint32 network id: use %x, not %lx (which expects unsigned long).
+			DPRINTF(k_DBG_NET, ("Net: Unit %x moved to %d,%d via unit packet\n",
 								m_unitData->m_id, newPos.x, newPos.y));
 			m_unitData->m_pos = pnt;
 			bool addVision = false;
@@ -189,7 +190,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 
 		if(oldowner != m_unitData->m_owner) {
-			DPRINTF(k_DBG_NET, ("Resetting unit %lx (type %d) from owner %d to %d\n",
+			DPRINTF(k_DBG_NET, ("Resetting unit %x (type %d) from owner %d to %d\n",
 								uid.m_id, m_unitData->m_type,
 								oldowner, m_unitData->m_owner));
 			if(m_unitData->GetDBRec()->GetHasPopAndCanBuild()) {
@@ -413,7 +414,7 @@ void NetUnitMove::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(!u.IsValid())
 		return;
 
-	DPRINTF(k_DBG_NET, ("Net: Unit %lx moved to %d,%d via move packet\n",
+	DPRINTF(k_DBG_NET, ("Net: Unit %x moved to %d,%d via move packet\n",
 						m_id, m_point.x, m_point.y));
 	UnitData *ud = u.AccessData();
 
@@ -461,7 +462,7 @@ void NetUnitHP::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Assert(m_unit.IsValid());
 	if (m_unit.IsValid())
     {
-		DPRINTF(k_DBG_NET, ("NetUnitHP for %lx (owner=%d): %lf\n", m_unit.m_id, m_unit.GetOwner(), m_hp));
+		DPRINTF(k_DBG_NET, ("NetUnitHP for %x (owner=%d): %lf\n", m_unit.m_id, m_unit.GetOwner(), m_hp));
 		m_unit.SetHP(m_hp);
 	}
 }

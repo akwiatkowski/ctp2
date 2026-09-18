@@ -110,7 +110,7 @@ extern WorkMap                  *g_workMap;
 
 ctp2_Window                     *g_infoWindow = nullptr;
 
-static c3_Button                *s_exitButton;
+
 
 static sint32                   s_infoSetting;
 static sint32                   s_infoDataSetting;
@@ -148,7 +148,7 @@ static LineGraph                *s_pollutionGraph;
 
 static Thermometer              *s_pollutionTherm;
 
-static c3_Button                *s_returnButton;
+
 static c3_Button                *s_bigButton;
 static c3_Button                *s_wonderButton;
 static c3_Button                *s_strengthButton;

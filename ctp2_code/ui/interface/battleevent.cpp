@@ -171,7 +171,7 @@ void BattleEvent::ProcessPlacement()
 					bvw->GetAttackerPos(data->positionColumn, data->positionRow,
 													   &x, &y);
 				}
-				DPRINTF(k_DBG_GAMESTATE, ("Process placement for actor %lx (unit %lx)\n", data->positionActor, data->positionActor->GetUnitID().m_id));
+				DPRINTF(k_DBG_GAMESTATE, ("Process placement for actor %lx (unit %x)\n", reinterpret_cast<uintptr_t>(data->positionActor), data->positionActor->GetUnitID().m_id));
 
 				data->positionActor->SetX(x);
 				data->positionActor->SetY(y);
@@ -498,6 +498,9 @@ BattleViewActor *BattleEvent::GetActor()
 		break;
 	case BATTLE_EVENT_TYPE_DEATH:
 		actor = eventData->deathVictim;
+		break;
+	case BATTLE_EVENT_TYPE_NONE:
+	case BATTLE_EVENT_TYPE_MAX:
 		break;
 	}
 

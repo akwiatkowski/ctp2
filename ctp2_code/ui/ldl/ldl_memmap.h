@@ -11,6 +11,9 @@ public:
 	ldl_MemMap() {;}
 	~ldl_MemMap() override = default;
 
+	// Un-hide the base overload: this signature differs (char*, unsigned long*).
+	using tech_MemMap::GetFileBits;
+
 	virtual unsigned char *GetFileBits(
 		char *filename,
 		unsigned long *filesize = nullptr );

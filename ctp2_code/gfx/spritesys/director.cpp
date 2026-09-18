@@ -264,18 +264,22 @@ void Director::DumpItem(DQItem* item) {
                          action->move_oldPos.y));
       DPRINTF(k_DBG_UI, ("  move_newPos        :%d,%d\n", action->move_newPos.x,
                          action->move_newPos.y));
-      DPRINTF(k_DBG_UI, ("  moveArraySize      :%" PRIu64 "\n",
+      // Container sizes are size_t: print with %zu.
+      DPRINTF(k_DBG_UI, ("  moveArraySize      :%zu\n",
                          action->moveActors.size()));
       DPRINTF(k_DBG_UI, ("  moveActors         :"));
       for (UnitActorWeakPtr a : action->moveActors) {
-        DPRINTF(k_DBG_UI, ("%#.8lx  ", a.lock().get()));
+        // Actor pointers keep %lx via uintptr_t (battle.cpp idiom).
+        DPRINTF(k_DBG_UI,
+                ("%#.8lx  ", reinterpret_cast<uintptr_t>(a.lock().get())));
       }
       DPRINTF(k_DBG_UI, ("\n"));
-      DPRINTF(k_DBG_UI, ("  numRevealed        :%" PRIu64 "\n",
+      DPRINTF(k_DBG_UI, ("  numRevealed        :%zu\n",
                          action->revealedActors.size()));
       DPRINTF(k_DBG_UI, ("  revealedActors     :"));
       for (UnitActorWeakPtr a : action->revealedActors) {
-        DPRINTF(k_DBG_UI, ("%#.8lx  ", a.lock().get()));
+        DPRINTF(k_DBG_UI,
+                ("%#.8lx  ", reinterpret_cast<uintptr_t>(a.lock().get())));
       }
       DPRINTF(k_DBG_UI, ("\n"));
       DPRINTF(k_DBG_UI, ("  move_soundID       :%d\n", action->move_soundID));
@@ -293,7 +297,8 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("  pmove_newPos       :%d,%d\n",
                          action->pmove_newPos.x, action->pmove_newPos.y));
       DPRINTF(k_DBG_UI,
-              ("  end_projectile     :%#.8lx\n", action->end_projectile.get()));
+              ("  end_projectile     :%#.8lx\n",
+               reinterpret_cast<uintptr_t>(action->end_projectile.get())));
       DPRINTF(k_DBG_UI,
               ("  projectile_path    :%d\n", action->projectile_path));
     } break;
@@ -374,7 +379,8 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("  ss                 :%#.8lx (%d)\n", action->ss,
                          action->ss->GetIndex()));
       DPRINTF(k_DBG_UI, ("  type               :%d\n", action->type));
-      DPRINTF(k_DBG_UI, ("  id                 :%#.8lx\n", action->id));
+      // ID handles print via .m_id (uint32) with %x (ArmyData.cpp idiom).
+      DPRINTF(k_DBG_UI, ("  id                 :%#.8x\n", action->id.m_id));
     } break;
     case DQITEM_HIDE: {
       DQActionHideShow* action = (DQActionHideShow*)item->m_action;
@@ -409,7 +415,9 @@ void Director::DumpItem(DQItem* item) {
       DQActionFastKill* action = (DQActionFastKill*)item->m_action;
 
       DPRINTF(k_DBG_UI, ("Fast Kill\n"));
-      DPRINTF(k_DBG_UI, ("  dead               :%#.8lx\n", action->dead.get()));
+      DPRINTF(k_DBG_UI,
+              ("  dead               :%#.8lx\n",
+               reinterpret_cast<uintptr_t>(action->dead.get())));
     } break;
     case DQITEM_ADDVISION: {
       DQActionVision* action = (DQActionVision*)item->m_action;
@@ -444,7 +452,7 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI,
               ("  setowner_actor     :%#.8lx\n", action->setvisibility_actor));
       DPRINTF(k_DBG_UI,
-              ("  owner              :%#.8lx\n", action->visibilityFlag));
+              ("  owner              :%#.8x\n", action->visibilityFlag));
     } break;
     case DQITEM_SETVISIONRANGE: {
       DQActionSetVisionRange* action = (DQActionSetVisionRange*)item->m_action;
@@ -471,19 +479,21 @@ void Director::DumpItem(DQItem* item) {
                          action->move_oldPos.x, action->move_oldPos.y));
       DPRINTF(k_DBG_UI, ("  teleport_newPos        :%d,%d\n",
                          action->move_newPos.x, action->move_newPos.y));
-      DPRINTF(k_DBG_UI, ("  teleport_moveArraySize      :%" PRIu64 "\n",
+      DPRINTF(k_DBG_UI, ("  teleport_moveArraySize      :%zu\n",
                          action->moveActors.size()));
       DPRINTF(k_DBG_UI, ("  teleport_moveActors         :"));
       for (auto a : action->moveActors) {
-        DPRINTF(k_DBG_UI, ("%#.8lx  ", a.lock().get()));
+        DPRINTF(k_DBG_UI,
+                ("%#.8lx  ", reinterpret_cast<uintptr_t>(a.lock().get())));
       }
       DPRINTF(k_DBG_UI, ("\n"));
-      DPRINTF(k_DBG_UI, ("  teleport_numRevelead        :%" PRIu64 "\n",
+      DPRINTF(k_DBG_UI, ("  teleport_numRevelead        :%zu\n",
                          action->revealedActors.size()));
       DPRINTF(k_DBG_UI, ("  teleport_revealedActors     :"));
 
       for (auto a : action->revealedActors) {
-        DPRINTF(k_DBG_UI, ("%#.8lx  ", a.lock().get()));
+        DPRINTF(k_DBG_UI,
+                ("%#.8lx  ", reinterpret_cast<uintptr_t>(a.lock().get())));
       }
       DPRINTF(k_DBG_UI, ("\n"));
     } break;
@@ -504,7 +514,7 @@ void Director::DumpItem(DQItem* item) {
       DQActionUnitSelection* action = (DQActionUnitSelection*)item->m_action;
 
       DPRINTF(k_DBG_UI, ("Select Unit\n"));
-      DPRINTF(k_DBG_UI, ("  flags     :%#.8lx\n", action->flags));
+      DPRINTF(k_DBG_UI, ("  flags     :%#.8x\n", action->flags));
     } break;
     case DQITEM_ENDTURN: {
       //		DQActionEndTurn *action = (DQActionEndTurn
@@ -533,15 +543,16 @@ void Director::DumpItem(DQItem* item) {
 
       DPRINTF(k_DBG_UI, ("Play Wonder Movie\n"));
       DPRINTF(k_DBG_UI,
-              ("  which                :%ld\n", action->playwondermovie_which));
+              ("  which                :%d\n", action->playwondermovie_which));
     } break;
     case DQITEM_PLAYVICTORYMOVIE: {
       DQActionPlayVictoryMovie* action =
           (DQActionPlayVictoryMovie*)item->m_action;
 
       DPRINTF(k_DBG_UI, ("Play Victory Movie\n"));
-      DPRINTF(k_DBG_UI, ("  reason                :%ld\n",
-                         action->playvictorymovie_reason));
+      // GAME_OVER is an enum whose underlying type is unsigned: cast for %x.
+      DPRINTF(k_DBG_UI, ("  reason                :%x\n",
+                         static_cast<uint32>(action->playvictorymovie_reason)));
     } break;
     case DQITEM_MESSAGE: {
       //		DQActionMessage *action = (DQActionMessage
@@ -575,8 +586,8 @@ void Director::DumpItem(DQItem* item) {
       DQActionTerminateSound* action = (DQActionTerminateSound*)item->m_action;
 
       DPRINTF(k_DBG_UI, ("Terminate Sound\n"));
-      DPRINTF(k_DBG_UI, ("  terminate_sound_unit    :%#.8lx\n",
-                         action->terminate_sound_unit));
+      DPRINTF(k_DBG_UI, ("  terminate_sound_unit    :%#.8x\n",
+                         action->terminate_sound_unit.m_id));
       break;
     }
     case DQITEM_BEGIN_SCHEDULER: {
@@ -604,7 +615,7 @@ void Director::DumpInfo() {
   DPRINTF(k_DBG_UI, (" m_lastSequenceID :%d\n", m_lastSequenceID));
   DPRINTF(k_DBG_UI, (" ------------------\n"));
   DPRINTF(k_DBG_UI, (" Dispatched Items:\n"));
-  DPRINTF(k_DBG_UI, (" Count:%" PRIu64 "\n", m_dispatchedItems.size()));
+  DPRINTF(k_DBG_UI, (" Count:%zu\n", m_dispatchedItems.size()));
   DPRINTF(k_DBG_UI, (" ------------------\n"));
 
   for (const DQItemPtr& i : m_dispatchedItems) {
@@ -613,7 +624,7 @@ void Director::DumpInfo() {
 
   DPRINTF(k_DBG_UI, (" ------------------\n"));
   DPRINTF(k_DBG_UI, (" Active Units:\n"));
-  DPRINTF(k_DBG_UI, (" Count:%" PRIu64 "\n", m_activeUnitList.size()));
+  DPRINTF(k_DBG_UI, (" Count:%zu\n", m_activeUnitList.size()));
   DPRINTF(k_DBG_UI, (" ------------------\n"));
 
   for (UnitActorPtr a : m_activeUnitList) {
@@ -622,7 +633,7 @@ void Director::DumpInfo() {
 
   DPRINTF(k_DBG_UI, (" ------------------\n"));
   DPRINTF(k_DBG_UI, (" Queued Items:\n"));
-  DPRINTF(k_DBG_UI, (" Count:%" PRIu64 "\n", m_itemQueue.size()));
+  DPRINTF(k_DBG_UI, (" Count:%zu\n", m_itemQueue.size()));
   DPRINTF(k_DBG_UI, (" ------------------\n"));
 
   for (const DQItemPtr& i : m_itemQueue) {

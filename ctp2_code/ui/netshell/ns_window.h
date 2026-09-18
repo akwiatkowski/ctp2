@@ -30,6 +30,13 @@ protected:
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon( MBCHAR *tile, BOOL retired );
 
+private:
+	// c3_PopupWindow declares a private virtual InitCommon(); this overload
+	// would otherwise hide it. The override is never invoked: the base
+	// constructor dispatches to the base version, and nothing else can call
+	// a private virtual through this class.
+	AUI_ERRCODE InitCommon() override { return AUI_ERRCODE_OK; }
+
 public:
 	aui_Control	*FindControl( uint32 index );
 

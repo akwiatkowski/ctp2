@@ -238,7 +238,7 @@ const char *diffutil_GetYearStringFromTurn(sint32 diff, sint32 turn)
 	if(!suffix)
 		suffix = (year < 0) ? "BC" : "AD";
 
-	snprintf(buf, sizeof(buf), "%ld%s", abs(year), suffix);
+	snprintf(buf, sizeof(buf), "%d%s", abs(year), suffix);
 	return buf;
 }
 

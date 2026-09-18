@@ -2247,7 +2247,7 @@ void SlicEngine::RunSentCeaseFireTriggers(sint32 owner, sint32 recipient)
 	}
 }
 
-void SlicEngine::RunTrigger(TRIGGER_LIST tlist, ...)
+void SlicEngine::RunTrigger(sint32 tlist, ...)
 {
 	Assert(tlist >= TRIGGER_LIST_YEARLY);
 	Assert(tlist < TRIGGER_LIST_MAX);
@@ -2379,7 +2379,7 @@ void SlicEngine::SetTriggerKey(sint32 index, MBCHAR key)
 
 bool SlicEngine::IsKeyPressed(MBCHAR key) const
 {
-	return m_currentKeyTrigger && (m_currentKeyTrigger == m_triggerKey[key]);
+	return m_currentKeyTrigger && (m_currentKeyTrigger == m_triggerKey[static_cast<unsigned char>(key)]);
 }
 
 bool SlicEngine::RunKeyboardTrigger(MBCHAR key)
@@ -2980,6 +2980,12 @@ sint32 SlicEngine::CallMod(MOD_FUNC modFunc, sint32 def, ...)
 				sym = new SlicSymbolData(SLIC_SYM_ARMY);
 				sym->SetArmy(a);
 				slicArgs->AddArg(SA_TYPE_INT_VAR, sym);
+				break;
+			case ST_NONE:
+			case ST_ACTION:
+			case ST_POP:
+			case ST_END:
+				// Not valid CallMod argument types; skip.
 				break;
 		}
 	}

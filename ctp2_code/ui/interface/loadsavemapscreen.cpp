@@ -62,9 +62,6 @@ extern SPNewGameWindow		*g_spNewGameWindow;
 
 LoadSaveMapWindow				*g_loadSaveMapWindow = nullptr;
 
-static uint32 s_type = LSMS_TOTAL;
-static c3_Static					*s_name					= nullptr;
-static aui_StringTable				*s_nameString			= nullptr;
 
 sint32	loadsavemapscreen_displayMyWindow(uint32 type)
 {

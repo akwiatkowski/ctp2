@@ -425,9 +425,14 @@ SoundManager::TerminateAllLoopingSounds(const SOUNDTYPE &type)
 	case SOUNDTYPE_SFX:
 			node = m_sfxSounds.GetHeadNode();
 		break;
-	case SOUNDTYPE_VOICE:
-			node = m_voiceSounds.GetHeadNode();
-		break;
+case SOUNDTYPE_VOICE:
+		node = m_voiceSounds.GetHeadNode();
+	break;
+case SOUNDTYPE_NONE:
+case SOUNDTYPE_MUSIC:
+case SOUNDTYPE_MAX:
+	// No looping-sound list exists for these types.
+	break;
 	}
 
 	CivSound	*sound;
@@ -458,9 +463,14 @@ SoundManager::TerminateSounds(const SOUNDTYPE &type)
 	case SOUNDTYPE_SFX:
 			node = m_sfxSounds.GetHeadNode();
 		break;
-	case SOUNDTYPE_VOICE:
-			node = m_voiceSounds.GetHeadNode();
+case SOUNDTYPE_VOICE:
+		node = m_voiceSounds.GetHeadNode();
 		break;
+case SOUNDTYPE_NONE:
+case SOUNDTYPE_MUSIC:
+case SOUNDTYPE_MAX:
+	// No sound list exists for these types.
+	break;
 	}
 
 	CivSound	*sound;
@@ -519,8 +529,11 @@ SoundManager::SetVolume(const SOUNDTYPE &type, const uint32 &volume)
 			m_soundWalker->Next();
 		}
 		break;
-	case SOUNDTYPE_MUSIC:
+case SOUNDTYPE_MUSIC:
 		m_musicVolume = volume;
+		break;
+case SOUNDTYPE_NONE:
+case SOUNDTYPE_MAX:
 		break;
 	}
 }
@@ -572,9 +585,13 @@ CivSound
 	case SOUNDTYPE_SFX:
 		m_soundWalker->SetList(&m_sfxSounds);
 		break;
-	case SOUNDTYPE_VOICE:
+case SOUNDTYPE_VOICE:
 		m_soundWalker->SetList(&m_voiceSounds);
 		break;
+case SOUNDTYPE_NONE:
+case SOUNDTYPE_MUSIC:
+case SOUNDTYPE_MAX:
+		return nullptr;
 	}
 
 	while (m_soundWalker->IsValid()) {
@@ -596,9 +613,13 @@ CivSound
 	case SOUNDTYPE_SFX:
 		m_soundWalker->SetList(&m_sfxSounds);
 		break;
-	case SOUNDTYPE_VOICE:
+case SOUNDTYPE_VOICE:
 		m_soundWalker->SetList(&m_voiceSounds);
 		break;
+case SOUNDTYPE_NONE:
+case SOUNDTYPE_MUSIC:
+case SOUNDTYPE_MAX:
+		return nullptr;
 	}
 
 	while (m_soundWalker->IsValid()) {
@@ -682,7 +703,7 @@ SoundManager::SetPosition(const SOUNDTYPE &type,
 {
 	PointerList<CivSound>::PointerListNode *node = nullptr;
 
-	sint32 volume = 0;
+	[[maybe_unused]] sint32 volume = 0;
 
 	switch (type)
     {
@@ -690,9 +711,13 @@ SoundManager::SetPosition(const SOUNDTYPE &type,
 		node    = m_sfxSounds.GetHeadNode();
 		volume  = m_sfxVolume;
 		break;
-	case SOUNDTYPE_VOICE:
+case SOUNDTYPE_VOICE:
 		node    = m_voiceSounds.GetHeadNode();
 		volume  = m_voiceVolume;
+		break;
+case SOUNDTYPE_NONE:
+case SOUNDTYPE_MUSIC:
+case SOUNDTYPE_MAX:
 		break;
 	}
 

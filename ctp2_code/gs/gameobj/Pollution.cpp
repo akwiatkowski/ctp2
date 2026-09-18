@@ -318,7 +318,7 @@ void Pollution::EndRound()
 		network_Get().EnqueuePollution();
 	}
 
-	DPRINTF(k_DBG_FIX, ("Global Pollution Level: %ld\n", pollution));
+	DPRINTF(k_DBG_FIX, ("Global Pollution Level: %d\n", pollution));
 }
 
 sint32 Pollution::CalcTrend(sint32 level[], sint32 numPoints, double &offset, double &slope)

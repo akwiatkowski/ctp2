@@ -27,7 +27,7 @@ void CityManagerWindow::Open()
 	    AUI_ERRCODE err = AUI_ERRCODE_OK;
 		s_cityManagerWindow.reset(new CityManagerWindow(&err,
 													aui_UniqueId(),
-													"CITY_MANAGER_WINDOW"));
+													const_cast<MBCHAR *>("CITY_MANAGER_WINDOW")));
 		Assert(err == AUI_ERRCODE_OK);
 
 		c3ui_Get()->AddWindow(s_cityManagerWindow.get());
@@ -54,12 +54,12 @@ CityManagerWindow::CityManagerWindow(AUI_ERRCODE *retval,
 									 uint32 id,
 									 MBCHAR *ldlBlock)
 	: aui_Window(retval, id,
-				 uiutils_ChooseLdl(ldlBlock, "CITY_MANAGER_WINDOW"),
+				 uiutils_ChooseLdl(ldlBlock, const_cast<MBCHAR *>("CITY_MANAGER_WINDOW")),
 				 16,
 				 AUI_WINDOW_TYPE_STANDARD)
 {
 	m_bg = nullptr;
-	ldlBlock = uiutils_ChooseLdl(ldlBlock, "CITY_MANAGER_WINDOW");
+	ldlBlock = uiutils_ChooseLdl(ldlBlock, const_cast<MBCHAR *>("CITY_MANAGER_WINDOW"));
 
 	*retval = InitCommonLdl(ldlBlock);
 

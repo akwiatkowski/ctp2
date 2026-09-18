@@ -109,7 +109,6 @@
 #include "ui/interface/debugwindow.h"
 #include "gfx/spritesys/director.h"
 #include "gfx/spritesys/director_render_observer.h"  // RegisterDirectorRenderObserver
-#include "gs/utility/ErrMsg.h"
 #include "gs/fileio/gamefile.h"
 #include "gs/utility/gameinit.h"
 #include "gs/gameobj/GameOver.h"
@@ -573,7 +572,7 @@ int ui_Initialize()
 	SPLASH_STRING("Creating Mouse...");
 
 	BOOL const mouseExclusiveMode = TRUE;
-	g_c3ui->RegisterObject(aui_Factory::new_Mouse(auiErr, "CivMouse", mouseExclusiveMode));
+	g_c3ui->RegisterObject(aui_Factory::new_Mouse(auiErr, const_cast<MBCHAR *>("CivMouse"), mouseExclusiveMode));
 
 	SPLASH_STRING("Creating Keyboard...");
 
@@ -1661,9 +1660,11 @@ static LONG _cdecl main_CivExceptionHandler(LPEXCEPTION_POINTERS pException)
 
 void main_InitializeLogs()
 {
+#ifdef WIN32
 	time_t		ltime;
 	time(&ltime);
 	struct tm * now = localtime(&ltime);
+#endif
 
 #ifdef WIN32
 #if defined(_DEBUG) && defined(_DEBUGTOOLS)
@@ -1860,9 +1861,9 @@ void main_DisplayPatchDisclaimer()
 
 	if (!isDisclaimerShown)
 	{
+		// "%s": both strings are runtime lookup results, not templates.
 		c3errors_FatalDialog(appstrings_GetString(APPSTR_INITIALIZE),
-		                     appstrings_GetString(APPSTR_CANTFINDFILE)
-		                    );
+		                     "%s", appstrings_GetString(APPSTR_CANTFINDFILE));
 	}
 }
 

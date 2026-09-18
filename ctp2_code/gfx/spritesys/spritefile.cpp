@@ -782,8 +782,8 @@ SpriteFile::Write_v20(UnitSpriteGroup *s)
 					WriteFacedSpriteData((FacedSprite *)sprite);
 					break;
 			default:
-					c3errors_ErrorDialog("SpriteFile", "\"%s\": Bad Sprite Type %d at index %d.",
-										 m_filename,sprite->GetType(),i);
+				c3errors_ErrorDialog("SpriteFile", "\"%s\": Bad Sprite Type %d at index %zu.",
+									 m_filename,sprite->GetType(),i);
 			}
 
 			WriteAnimData(s->GetGroupAnim((UNITACTION)i));
@@ -1120,7 +1120,10 @@ void SpriteFile::ReadUnitGroup(UnitSpriteGroup *group, bool basic, int selected)
     RequireSprite(selected >= -1 && selected < ACTION_MAX, "invalid unit action index");
     bool legacy = m_version == k_SPRITEFILE_VERSION0;
     sint32 offsets[ACTION_MAX + 1];
-    int count = legacy ? UNITACTION_MAX : ACTION_MAX;
+    // UNITACTION_MAX (legacy v0 files, 5 unit actions) vs ACTION_MAX
+    // (GAME_ACTION count, current format) are distinct enums; the sprite
+    // file just stores a raw action count, so compare as plain int.
+    int count = legacy ? static_cast<int>(UNITACTION_MAX) : static_cast<int>(ACTION_MAX);
     ReadData(offsets, sizeof(sint32) * (legacy ? count : count + 1));
     if (selected == -1) {
         group->DeallocateStorage();
@@ -1226,7 +1229,10 @@ catch (std::exception const &error) {
 
 SPRITEFILEERR SpriteFile::ReadIndexed(GoodSpriteGroup *s, GAME_ACTION action) try
 {
-    RequireSprite(action >= 0 && action < GOODACTION_MAX, "invalid goods action index");
+    // action is GAME_ACTION (shared sprite-file action index) while
+    // GOODACTION_MAX bounds the goods enum; the file format intentionally
+    // reuses one action index space, so bound-check as plain int.
+    RequireSprite(action >= 0 && action < static_cast<int>(GOODACTION_MAX), "invalid goods action index");
     ReadGoodGroup(s, false);
     return SPRITEFILEERR_OK;
 }

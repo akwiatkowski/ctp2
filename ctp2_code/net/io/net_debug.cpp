@@ -6,17 +6,17 @@
 char* netdebug_NetErrToString(NET_ERR err)
 {
 	switch(err) {
-	case NET_ERR_OK:	return "NET_ERR_OK";
-	case NET_ERR_INVALIDADDR: return "NET_ERR_INVALIDADDR";
-	case NET_ERR_INVALIDPORT: return "NET_ERR_INVALIDPORT";
-	case NET_ERR_CONNCLOSED: return "NET_ERR_CONNCLOSED";
-	case NET_ERR_NODATA: return "NET_ERR_NODATA";
-	case NET_ERR_WRITEERR: return "NET_ERR_WEITEERR";
-	case NET_ERR_NOTIMPLEMENTED: return "NET_ERR_NOTIMPLEMENTED";
-	case NET_ERR_TRANSPORTERROR: return "NET_ERR_TRANSPORTERROR";
-	case NET_ERR_ALREADYOPEN: return "NET_ERR_ALREADYOPEN";
-	case NET_ERR_NOMORESESSIONS: return "NET_ERR_NOMORESESSIONS";
-	case NET_ERR_UNKNOWN: return "NET_ERR_UNKNOWN";
+	case NET_ERR_OK:	return const_cast<char*>("NET_ERR_OK");
+	case NET_ERR_INVALIDADDR: return const_cast<char*>("NET_ERR_INVALIDADDR");
+	case NET_ERR_INVALIDPORT: return const_cast<char*>("NET_ERR_INVALIDPORT");
+	case NET_ERR_CONNCLOSED: return const_cast<char*>("NET_ERR_CONNCLOSED");
+	case NET_ERR_NODATA: return const_cast<char*>("NET_ERR_NODATA");
+	case NET_ERR_WRITEERR: return const_cast<char*>("NET_ERR_WEITEERR");
+	case NET_ERR_NOTIMPLEMENTED: return const_cast<char*>("NET_ERR_NOTIMPLEMENTED");
+	case NET_ERR_TRANSPORTERROR: return const_cast<char*>("NET_ERR_TRANSPORTERROR");
+	case NET_ERR_ALREADYOPEN: return const_cast<char*>("NET_ERR_ALREADYOPEN");
+	case NET_ERR_NOMORESESSIONS: return const_cast<char*>("NET_ERR_NOMORESESSIONS");
+	case NET_ERR_UNKNOWN: return const_cast<char*>("NET_ERR_UNKNOWN");
 	default:
 	{
 		static char str[80];

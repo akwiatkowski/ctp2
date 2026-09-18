@@ -48,8 +48,10 @@ public:
 	~NetConsole();
 
 	void Idle();
-	void Print(const char *fmt, ...);
-	void Print(const char *fmt, va_list list);
+	// format(printf,2,3): printf wrapper (forwards to the va_list overload).
+	void Print(const char *fmt, ...) __attribute__((format(printf, 2, 3)));
+	// format(printf,2,0): fmt consumed via va_list — attribute checks callers.
+	void Print(const char *fmt, va_list list) __attribute__((format(printf, 2, 0)));
 };
 
 // g_netConsole demoted to file-scope `static` in netconsole.cpp.  External

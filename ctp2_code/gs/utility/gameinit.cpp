@@ -609,12 +609,12 @@ void gameinit_SpewUnits(sint32 player, MapPoint &pos)
 	}
 	else
 	{
-		fscanf(uFile, "%ld\n", &n);
+		fscanf(uFile, "%d\n", &n);
 
 		std::vector<sint32> uids(n);
 
 		for (i=0; i<n; i++) {
-			fscanf(uFile, "%ld\n", &uids[i]);
+			fscanf(uFile, "%d\n", &uids[i]);
 		}
 		fclose(uFile);
 

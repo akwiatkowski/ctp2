@@ -44,8 +44,6 @@ Pixel16		*tileutils_MakeTransition2(Pixel16 *sourceStencil);
 Pixel16		*tileutils_MakeTransition3(Pixel16 *sourceStencil);
 void		tileutils_DumpAllTransitions(MBCHAR *filename, Pixel16 *t0, Pixel16 *t1, Pixel16 *t2, Pixel16 *t3);
 
-uint16		*tileutils_GenerateAllWaterTable(uint16 width, uint16 height, uint16 x, uint16 y);
-uint16		*tileutils_ExtractWaterTable(Pixel32 *image, uint16 width, uint16 height, uint16 x, uint16 y);
 
 void		tileutils_BorkifyTile(Pixel16 *tileImage, BOOL useT0, BOOL useT1, BOOL useT2, BOOL useT3);
 

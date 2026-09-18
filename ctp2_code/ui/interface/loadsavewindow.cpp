@@ -260,7 +260,7 @@ void LoadSaveWindow::FillListOne()
     )
     {
 		m_listOne->AddItem
-            (new LSGamesListItem(&errcode, "LSGamesListItem", walker.GetObj()));
+            (new LSGamesListItem(&errcode, const_cast<MBCHAR *>("LSGamesListItem"), walker.GetObj()));
 	}
 }
 
@@ -300,7 +300,7 @@ void LoadSaveWindow::FillListTwo(GameInfo *info)
         )
         {
 			m_listTwo->AddItem
-                (new LSSavesListItem(&errcode, "LSSavesListItem", walker.GetObj()));
+                (new LSSavesListItem(&errcode, const_cast<MBCHAR *>("LSSavesListItem"), walker.GetObj()));
 		}
 	}
 }
@@ -320,7 +320,7 @@ void LoadSaveWindow::FillCivList(SaveInfo *info)
 		for (int i = 0; i < info->numCivs; i++)
         {
 			m_civsList->AddItem
-                (new LSCivsListItem(&errcode, "LSCivsListItem", info->civList[i]));
+                (new LSCivsListItem(&errcode, const_cast<MBCHAR *>("LSCivsListItem"), info->civList[i]));
 		}
 	}
 }
@@ -819,8 +819,7 @@ BOOL LoadSaveWindow::GetNote(MBCHAR *note)
 void LoadSaveWindow::SetGameInfo(GameInfo *info)
 {
 	m_gameInfo = info;
-	MBCHAR *noname = "";
-    SetGameName(info ? info->name : noname);
+    SetGameName(info ? info->name : const_cast<MBCHAR *>(""));
 	FillListTwo(info);
 }
 
@@ -847,10 +846,10 @@ void LoadSaveWindow::SetSaveInfo(SaveInfo *info)
 		case LSS_LOAD_MP:
 		case LSS_LOAD_SCEN:
 		case LSS_LOAD_SCEN_MP:
-			SetSaveName("");
-			SetLeaderName("");
-			SetCivName("");
-			SetNote("");
+			SetSaveName(const_cast<MBCHAR *>(""));
+			SetLeaderName(const_cast<MBCHAR *>(""));
+			SetCivName(const_cast<MBCHAR *>(""));
+			SetNote(const_cast<MBCHAR *>(""));
 
 			FillCivList(nullptr);
 

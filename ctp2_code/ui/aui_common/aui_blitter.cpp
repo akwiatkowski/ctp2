@@ -1347,8 +1347,7 @@ AUI_ERRCODE aui_Blitter::TileBlt8To8(
 						{
 							if ( *srcBuf != chromakey )
 								*destBuf = *srcBuf;
-							else
-								destBuf;
+							// chromakey: leave destination pixel untouched
 
 							if ( ++srcBuf == stopSrcHorizontal )
 								srcBuf = beginningSrcLine;
@@ -1527,8 +1526,7 @@ AUI_ERRCODE aui_Blitter::TileBlt16To16(
 						{
 							if ( *srcBuf != chromakey )
 								*destBuf = *srcBuf;
-							else
-								destBuf;
+							// chromakey: leave destination pixel untouched
 
 							if ( ++srcBuf == stopSrcHorizontal )
 								srcBuf = beginningSrcLine;
@@ -2272,7 +2270,7 @@ AUI_ERRCODE aui_Blitter::ColorBlt16(
 
 		const sint32 destDiff = destPitch - scanWidth;
 
-		uint16 *stopHorizontal = destBuf + scanWidth;
+		// stopHorizontal removed: it was only incremented, never read
 		const uint16 *stopVertical = destBuf +
 			destPitch * ( destRect->bottom - destRect->top );
 		sint32 width = scanWidth;
@@ -2285,7 +2283,6 @@ AUI_ERRCODE aui_Blitter::ColorBlt16(
 				*destBuf++ = color16;
 			} while ( --width );
 
-			stopHorizontal += destPitch;
 
 			width = scanWidth;
 		} while ( (destBuf += destDiff) != stopVertical );
@@ -2398,7 +2395,7 @@ AUI_ERRCODE aui_Blitter::ColorStencilBlt16(
 		const sint32 destDiff    = destPitch - scanWidth;
 		const sint32 stencilDiff = stencilPitch - (stencilRect->right - stencilRect->left);
 
-		uint16 *stopHorizontal = destBuf + scanWidth;
+		// stopHorizontal removed: it was only incremented, never read
 		const uint16 *stopVertical = destBuf +
 			destPitch * ( destRect->bottom - destRect->top );
 		sint32 width = scanWidth;
@@ -2413,7 +2410,6 @@ AUI_ERRCODE aui_Blitter::ColorStencilBlt16(
 				destBuf++;
 			} while ( --width );
 
-			stopHorizontal += destPitch;
 
 			width = scanWidth;
 			destBuf += destDiff;
@@ -2520,7 +2516,7 @@ AUI_ERRCODE aui_Blitter::StencilBlt16(
 		const sint32 stencilDiff = stencilPitch - (stencilRect->right - stencilRect->left);
 		const sint32 sourceDiff  = sourcePitch  - (sourceRect->right - sourceRect->left);
 
-		uint16 *stopHorizontal = destBuf + scanWidth;
+		// stopHorizontal removed: it was only incremented, never read
 		const uint16 *stopVertical = destBuf +
 			destPitch * ( destRect->bottom - destRect->top );
 		sint32 width = scanWidth;
@@ -2535,7 +2531,6 @@ AUI_ERRCODE aui_Blitter::StencilBlt16(
 				sourceBuf++;
 			} while ( --width );
 
-			stopHorizontal += destPitch;
 
 			width = scanWidth;
 			destBuf += destDiff;

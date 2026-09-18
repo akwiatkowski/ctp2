@@ -3966,7 +3966,7 @@ TEST_CASE("json round-trip: MessageData with text + buttons + eye_points")
 {
     MessageData orig(ID(0x2222), 0);
     orig.SetMsgText("Hello world");
-    orig.SetTitle("My Title");
+    orig.SetTitle(const_cast<MBCHAR *>("My Title"));
     orig.SetMsgCaption("My Caption");
 
     SlicObject *ctx = new SlicObject();

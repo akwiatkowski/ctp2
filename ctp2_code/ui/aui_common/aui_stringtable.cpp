@@ -77,7 +77,7 @@ aui_StringTable::aui_StringTable
     {
 		for (size_t i = 0; i < m_Strings.size(); ++i)
 		{
-			snprintf(temp, sizeof(temp), "%s%d", k_AUI_STRINGTABLE_LDL_STRING, i);
+			snprintf(temp, sizeof(temp), "%s%zu", k_AUI_STRINGTABLE_LDL_STRING, i);
 			SetString(block->GetString(temp), i);
 		}
 	}
@@ -85,7 +85,7 @@ aui_StringTable::aui_StringTable
     {
 		for (size_t i = 0; i < m_Strings.size(); ++i)
 		{
-			snprintf(temp, sizeof(temp), "%s%d", k_AUI_STRINGTABLE_LDL_STRING, i);
+			snprintf(temp, sizeof(temp), "%s%zu", k_AUI_STRINGTABLE_LDL_STRING, i);
 			SetString(stringdb_Get()->GetNameStr(block->GetString(temp)), i);
 		}
 	}

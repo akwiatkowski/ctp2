@@ -54,7 +54,9 @@ public:
     void AddText(const uint32 m, MBCHAR *text);
 
     void AddMask(uint32 m);
-    void AddText(const char *err, ...);
+    // format(printf,2,3): variadic wrapper — checks WPRINTF callers, silences
+    // -Wformat-nonliteral at the internal vsnprintf.
+    void AddText(const char *err, ...) __attribute__((format(printf, 2, 3)));
 
 private:
 		TextBox				*m_textBox;

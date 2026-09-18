@@ -870,7 +870,7 @@ AUI_ERRCODE aui_ListBox::CalculateDimensions( )
 		if ( j + 1 > m_numColumns ) m_numColumns = j + 1;
 
 		ListPos subPosition = item->ChildList()->GetHeadPosition();
-		for ( j; j; j-- )
+		for ( ; j; j-- )
 		{
 			aui_Item *subItem =
 				(aui_Item *)item->ChildList()->GetNext( subPosition );
@@ -1642,12 +1642,12 @@ void aui_ListBox::MouseLGrabInside( aui_MouseEvent *mouseData )
 
 
 				if ( !m_multiSelect
-					|| (m_multiSelect
+					|| ((m_multiSelect
 						&& !(mouseData->flags & k_MOUSE_EVENT_FLAG_LCONTROL
 							|| mouseData->flags & k_MOUSE_EVENT_FLAG_RCONTROL
 							|| mouseData->flags & k_MOUSE_EVENT_FLAG_LSHIFT
 							|| mouseData->flags & k_MOUSE_EVENT_FLAG_RSHIFT))
-						&& m_visualSelectedList->L() ) {
+						&& m_visualSelectedList->L()) ) {
 
 					while (m_visualSelectedList->L() > 0)
 						m_visualSelectedList->RemoveHead();

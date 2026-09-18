@@ -8,7 +8,7 @@
 
 
 BOOL aui_Win::m_registered = FALSE;
-MBCHAR *aui_Win::m_windowClass = "aui_Win";
+MBCHAR *aui_Win::m_windowClass = const_cast<MBCHAR *>("aui_Win");
 sint32 aui_Win::m_winRefCount = 0;
 tech_WLList<aui_Win *> *aui_Win::m_winList = nullptr;
 aui_Win *g_winFocus = nullptr;
@@ -436,10 +436,6 @@ void aui_Win::MouseRDoubleClickInside( aui_MouseEvent *mouseData )
 
 		SetMouseOwnership();
 
-		POINT local =
-		{ mouseData->position.x - m_x, mouseData->position.y - m_y };
-		POINT screen =
-		{ local.x + m_offscreen.x, local.x + m_offscreen.y };
 
 
 		WinMouseMove( mouseData );

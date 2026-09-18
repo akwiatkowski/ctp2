@@ -240,10 +240,12 @@ void ColorIconButton::MouseLDoubleClickInside( aui_MouseEvent *mouseData )
 			m_isRepeating = FALSE;
 
 			if ( !HandleGameSpecificLeftClick( this ) )
-			if ( m_ActionFunc )
-				m_ActionFunc( this, COLORICONBUTTON_ACTION_DOUBLECLK, 0, m_cookie );
-			else if ( m_action )
-				m_action->Execute( this, COLORICONBUTTON_ACTION_DOUBLECLK, 0 );
+			{
+				if ( m_ActionFunc )
+					m_ActionFunc( this, COLORICONBUTTON_ACTION_DOUBLECLK, 0, m_cookie );
+				else if ( m_action )
+					m_action->Execute( this, COLORICONBUTTON_ACTION_DOUBLECLK, 0 );
+			}
 		}
 
 		else
@@ -324,10 +326,12 @@ void ColorIconButton::MouseRDropInside( aui_MouseEvent *mouseData )
 			m_isRepeating = FALSE;
 
 			if ( !HandleGameSpecificRightClick( this ) )
-			if ( m_ActionFunc )
-				m_ActionFunc( this, COLORICONBUTTON_ACTION_RIGHTCLK, 0, m_cookie );
-			else if ( m_action )
-				m_action->Execute( this, COLORICONBUTTON_ACTION_RIGHTCLK, 0 );
+			{
+				if ( m_ActionFunc )
+					m_ActionFunc( this, COLORICONBUTTON_ACTION_RIGHTCLK, 0, m_cookie );
+				else if ( m_action )
+					m_action->Execute( this, COLORICONBUTTON_ACTION_RIGHTCLK, 0 );
+			}
 		}
 		else
 		{

@@ -542,7 +542,7 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
     if (!silent)
         c3errors_ErrorDialog("Paths", "'%s' not found in asset tree.", filename);
 
-	return nullptr;
+    return nullptr;
 }
 
 //----------------------------------------------------------------------------

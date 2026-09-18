@@ -1521,8 +1521,9 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 	if (profiledb_Get()->IsUseFingerprinting())
 		if (!ctpfinger_Check()) {
 
+			// "%s": both strings are runtime lookup results, not templates.
 			c3errors_FatalDialog(appstrings_GetString(APPSTR_INITIALIZE),
-									appstrings_GetString(APPSTR_CANTFINDFILE));
+									"%s", appstrings_GetString(APPSTR_CANTFINDFILE));
 		}
 
 	ProgressTo( 620 );
@@ -2539,8 +2540,6 @@ void CivApp::ProcessGraphicsCallback()
 sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_milliseconds)
 {
 	uint32          start_time_ms   = Os::GetTicks();
-	uint32          curTicks        = Os::GetTicks();
-	static uint32	lastTicks       = curTicks;
 
 	if (c3ui_Get()->TheMouse()) {
 		if (c3ui_Get()->TheMouse()->IsSuspended() )
@@ -2617,7 +2616,6 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 
 			}
 
-			lastTicks = curTicks;
 		}
 	}
 

@@ -842,11 +842,7 @@ void GreatLibrary::Initialize(MBCHAR const * windowBlock)
 
 
 	if ( profiledb_Get()->IsLibraryAnim() ) {
-		RECT rect = {
-			k_VIDEO_X,
-			k_VIDEO_Y,
-			k_VIDEO_X + k_VIDEO_WIDTH,
-			k_VIDEO_Y + k_VIDEO_HEIGHT};
+
 
 		GetWindow()->SetDynamic(FALSE);
 
@@ -982,7 +978,7 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
     if (theMode < 0)
         return 0;
 
-	m_selectedIndex = theMode;
+    m_selectedIndex = theMode;
 
 	if (!g_greatLibrary || !g_greatLibrary->m_window) return 0;
 
@@ -1067,6 +1063,10 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
 		enableGoal = true;
 		m_itemLabel->SetText(g_theTerrainImprovementDB->Get(theMode)->GetNameText());
 		break;
+	case DATABASE_DEFAULT:
+	case DATABASE_SEARCH:
+	case DATABASE_MAX:
+		break;
 	}
 
 	m_setGoalButton->Enable(enableGoal);
@@ -1100,11 +1100,7 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
 
 
 
-	RECT rect = {
-		k_VIDEO_X,
-		k_VIDEO_Y,
-		k_VIDEO_X + k_VIDEO_WIDTH,
-		k_VIDEO_Y + k_VIDEO_HEIGHT};
+
 
 	if ( profiledb_Get()->IsLibraryAnim() ) {
 
@@ -1182,21 +1178,18 @@ void GreatLibrary::HandleSetGoal( )
 
 		if(tmp == 1)
 		{
-			const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_GreatLibraryGoalSetTo");
-			if (!fmt) fmt = "Goal set to: %s";
-			snprintf(goal_set_message, sizeof(goal_set_message), fmt, selection_name);
+			// stringdb_FormatOr: i18n template with inline fallback (format_arg).
+			snprintf(goal_set_message, sizeof(goal_set_message), stringdb_FormatOr("str_ldl_GreatLibraryGoalSetTo", "Goal set to: %s"), selection_name);
 		}
 		else if(tmp == 0)
 		{
-			const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_GreatLibraryGoalKnown");
-			if (!fmt) fmt = "%s is already known. No goal was set.";
-			snprintf(goal_set_message, sizeof(goal_set_message), fmt, selection_name);
+			// stringdb_FormatOr: i18n template with inline fallback (format_arg).
+			snprintf(goal_set_message, sizeof(goal_set_message), stringdb_FormatOr("str_ldl_GreatLibraryGoalKnown", "%s is already known. No goal was set."), selection_name);
 		}
 		else
 		{
-			const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_GreatLibraryNoGoalPossible");
-			if (!fmt) fmt = "%s cannot be researched.";
-			snprintf(goal_set_message, sizeof(goal_set_message), fmt, selection_name);
+			// stringdb_FormatOr: i18n template with inline fallback (format_arg).
+			snprintf(goal_set_message, sizeof(goal_set_message), stringdb_FormatOr("str_ldl_GreatLibraryNoGoalPossible", "%s cannot be researched."), selection_name);
 		}
 
 		MessageBoxDialog::Information(goal_set_message, "InfoSetGoal");
@@ -2099,7 +2092,7 @@ void GreatLibrary::Add_Item_To_Topics_List
 	if(!box) return;
 
 	box->SetText(name);
-	item->SetUserData((void *) index);
+	item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(index)));
 	m_topics_list->AddItem(item);
 }
 

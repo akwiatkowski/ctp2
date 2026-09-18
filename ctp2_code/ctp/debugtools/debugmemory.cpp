@@ -1982,6 +1982,6 @@ void CDECL operator delete (void *mem)
 
 
 
-#endif MEMORY_LOGGED
+#endif // MEMORY_LOGGED
 
 #endif

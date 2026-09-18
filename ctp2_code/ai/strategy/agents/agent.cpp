@@ -528,18 +528,19 @@ bool Agent::EstimateTransportUtility(const Agent_ptr transport, Utility & utilit
 
 	utility = move_type_bonus + (trans_rounds * -100) - tile_count;
 
+	// Pointer-as-hex debug logs: uintptr_t + %lx; container sizes print as %zu.
 	AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_army->GetOwner(), Get_Goal_Type(), -1,
-	("\t %9x (%3d,%3d),\t%9x (%3d,%3d),\t%8d,\t%8d,\t%8d,\t%8d\n",
-	this,                                          // This agent
-	this->Get_Pos().x,                             // Agent pos.x
-	this->Get_Pos().y,                             // Agent pos.y
-	transport,                                     // Found transport
-	transport->Get_Pos().x,                        // Transport pos.x
-	transport->Get_Pos().y,                        // Transport pos.y
-	utility,                                       // Transport utility
-	move_type_bonus,                               // Movement bonus of transporter type
-	trans_rounds,                                  // Distance to transporter (Square rooted quare distance), not identical with path distance
-	tile_count));                                  // Rounds to target
+	("\t %9lx (%3d,%3d),\t%9lx (%3d,%3d),\t%8d,\t%8zu,\t%8d,\t%8d\n",
+	reinterpret_cast<uintptr_t>(this),               // This agent
+	this->Get_Pos().x,                               // Agent pos.x
+	this->Get_Pos().y,                               // Agent pos.y
+	reinterpret_cast<uintptr_t>(transport),          // Found transport
+	transport->Get_Pos().x,                          // Transport pos.x
+	transport->Get_Pos().y,                          // Transport pos.y
+	utility,                                         // Transport utility
+	move_type_bonus,                                 // Movement bonus of transporter type
+	trans_rounds,                                    // Distance to transporter (Square rooted quare distance), not identical with path distance
+	tile_count));                                    // Rounds to target
 
 	return true;
 }

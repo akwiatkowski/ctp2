@@ -64,8 +64,7 @@ static c3_Static        *s_trackerTimeN         = nullptr;
 static c3_Static        *s_trackerTimeV         = nullptr;
 static c3_Static        *s_trackerMatN          = nullptr;
 static c3_Static        *s_trackerMatV          = nullptr;
-static c3_Static        *s_trackerAdvN          = nullptr;
-static c3_Static        *s_trackerAdvV          = nullptr;
+
 static c3_Static        *s_trackerFoodN         = nullptr;
 static c3_Static        *s_trackerFoodV         = nullptr;
 static c3_Static        *s_trackerProductionN   = nullptr;

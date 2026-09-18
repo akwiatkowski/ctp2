@@ -26,7 +26,7 @@ ldl_datablock::ldl_datablock(PointerList<char> *templateNames)
 		if(temp) {
 			m_templates.AddTail(temp);
 		} else {
-			ldlif_log("Unknown template %s\n", walk.GetObj());
+			ldlif_log(const_cast<char *>("Unknown template %s\n"), walk.GetObj());
 		}
 		walk.Next();
 	}
@@ -151,17 +151,17 @@ void ldl_datablock::Dump(sint32 indent) {
 	PointerList<ldl_datablock>::Walker bwalk;
 	ldlif_indent_log(indent);
 
-	ldlif_log("%s", m_name);
+	ldlif_log(const_cast<char *>("%s"), m_name);
 
 	for(bwalk.SetList(&m_templates); bwalk.IsValid(); bwalk.Next()) {
-		ldlif_log(":%s", bwalk.GetObj()->GetName());
+		ldlif_log(const_cast<char *>(":%s"), bwalk.GetObj()->GetName());
 	}
-	ldlif_log(" {\n");
+	ldlif_log(const_cast<char *>(" {\n"));
 
 	ldl_attribute *attr = m_attributes.GetHead();
 	for(; attr ; attr = m_attributes.GetNext(attr)) {
 		ldlif_indent_log(indent);
-		ldlif_log("    %s %s %s\n", attr->GetTypeName(),
+		ldlif_log(const_cast<char *>("    %s %s %s\n"), attr->GetTypeName(),
 				  attr->GetName(),
 				  attr->GetValueText());
 	}
@@ -171,7 +171,7 @@ void ldl_datablock::Dump(sint32 indent) {
 	}
 
 	ldlif_indent_log(indent);
-	ldlif_log("}\n");
+	ldlif_log(const_cast<char *>("}\n"));
 }
 
 bool ldl_datablock::AttributeNameTaken(char const *szName)

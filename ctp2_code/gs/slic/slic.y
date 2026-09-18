@@ -157,7 +157,7 @@ messagebox: KW_MESSAGEBOX IDENTIFIER { slicif_start_segment($2.name); } body
 	{
 		struct PSlicObject *obj = malloc(sizeof(struct PSlicObject));
 #ifdef _DEBUG
-		fprintf(debuglog, "Parsed MessageBox %s\n", $2);
+		fprintf(debuglog, "Parsed MessageBox %s\n", $2.name);
 #endif
 		obj->m_type = SLIC_OBJECT_MESSAGEBOX;
 		obj->m_id = $2.name;
@@ -169,7 +169,7 @@ messagebox: KW_MESSAGEBOX IDENTIFIER { slicif_start_segment($2.name); } body
 	{
 		struct PSlicObject *obj = malloc(sizeof(struct PSlicObject));
 #ifdef _DEBUG
-		fprintf(debuglog, "Parsed AlertBox %s\n", $2);
+		fprintf(debuglog, "Parsed AlertBox %s\n", $2.name);
 #endif
 		obj->m_type = SLIC_OBJECT_MESSAGEBOX;
 		obj->m_id = $2.name;
@@ -181,7 +181,7 @@ messagebox: KW_MESSAGEBOX IDENTIFIER { slicif_start_segment($2.name); } body
 	{
 		struct PSlicObject *obj = malloc(sizeof(struct PSlicObject));
 #ifdef _DEBUG
-		fprintf(debuglog, "Parsed HelpBox %s\n", $2);
+		fprintf(debuglog, "Parsed HelpBox %s\n", $2.name);
 #endif
 		obj->m_type = SLIC_OBJECT_MESSAGEBOX;
 		obj->m_id = $2.name;
@@ -195,7 +195,7 @@ trigger: KW_TRIGGER IDENTIFIER { slicif_start_segment($2.name); } KW_WHEN trigge
 	{
 		struct PSlicObject *obj = malloc(sizeof(struct PSlicObject));
 #ifdef _DEBUG
-		fprintf(debuglog, "Parsed Trigger %s\n", $2);
+		fprintf(debuglog, "Parsed Trigger %s\n", $2.name);
 #endif
 
 		obj->m_is_alert = 0;
@@ -209,7 +209,7 @@ trigger: KW_TRIGGER IDENTIFIER { slicif_start_segment($2.name); } KW_WHEN trigge
 	{
 		struct PSlicObject *obj = malloc(sizeof(struct PSlicObject));
 #ifdef _DEBUG
-		fprintf(debuglog, "Parsed Trigger %s\n", $2);
+		fprintf(debuglog, "Parsed Trigger %s\n", $2.name);
 #endif
 		obj->m_is_alert = 0;
 		obj->m_is_help = 0;

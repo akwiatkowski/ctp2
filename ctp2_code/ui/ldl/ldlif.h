@@ -44,7 +44,9 @@ void ldlif_add_string_attribute(char *name, char *val);
 
 void ldlif_indent_log(int indent);
 void ldlif_init_log();
-void ldlif_log(char *fmt, ...);
+// format(printf,1,2): wrapper around vfprintf — silences -Wformat-nonliteral
+// internally and format-checks every caller.
+void ldlif_log(char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 void ldlif_allocate_stuff();
 void ldlif_deallocate_stuff();

@@ -51,7 +51,7 @@
 
 
 
-static MBCHAR *k_AUI_REGION_LDL_BLINDNESS	=	"mouseblind";
+static const MBCHAR *k_AUI_REGION_LDL_BLINDNESS	=	"mouseblind";
 
 aui_Region *                aui_Region::s_whichSeesMouse        = nullptr;
 aui_Region *                aui_Region::s_editChild             = nullptr;
@@ -1435,7 +1435,7 @@ void aui_Region::EditModeModifyRegion( RECT rect )
 
 			region->GetParent()->ShouldDraw();
 
-			if ( aui_Ldl *theLdl = aui_ui_Get()->GetLdl() ) {
+			if ( aui_ui_Get()->GetLdl() ) {
 				if ( MBCHAR	*ldlBlock = aui_Ldl::GetBlock( region ) ) {
 					aui_Ldl::ModifyAttributes( ldlBlock, dim );
 				}

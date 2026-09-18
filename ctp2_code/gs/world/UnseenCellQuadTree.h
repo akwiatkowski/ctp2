@@ -15,7 +15,9 @@ public:
 		QuadTree<UnseenCellCarton>(width, height, yWrap)
 	{
 	}
-	void Convert(MapPoint &pos) {}
+	// Intentional no-op override: unseen-cell positions must not be y-wrapped
+	// like QuadTree<T>::Convert does.
+	void Convert(MapPoint &pos) const override {}
 	void Clear() override;
 
 	~UnseenCellQuadTree()

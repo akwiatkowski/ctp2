@@ -1900,7 +1900,7 @@ void BringCityIntoAge(sint32 age, Unit c)
 
 bool UnitData::Settle()
 {
-	DPRINTF(k_DBG_GAMESTATE, ("Unit %lx settling\n", m_id));
+	DPRINTF(k_DBG_GAMESTATE, ("Unit %x settling\n", m_id));
 
 	if(!CanSettle(m_pos)) {
 		DPRINTF(k_DBG_GAMESTATE, ("CanSettle false!\n"));
@@ -2027,7 +2027,7 @@ void UnitData::BeginTurnVision(PLAYER_INDEX player)
 void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
                               sint32 is_conquest, const CAUSE_REMOVE_CITY cause)
 {
-	DPRINTF(k_DBG_GAMESTATE, ("ResetCityOwner: %lx, new: %d, old: %d, conq: %d, cause: %d\n",
+	DPRINTF(k_DBG_GAMESTATE, ("ResetCityOwner: %x, new: %d, old: %d, conq: %d, cause: %d\n",
 							  me.m_id, newo, me.IsValid() ? me.GetOwner() : -1, is_conquest, cause));
 
 	if (gameobservers_Get()) gameobservers_Get()->NotifyCityOwnerReset(me);
@@ -2767,7 +2767,7 @@ void UnitData::UndoVision()
 
 	en = instArray.Num();
 	for(i = 0; i < en; i++) {
-		if(!instArray[i].GetVisibility() & (1 << m_owner))
+		if(!(instArray[i].GetVisibility() & (1 << m_owner)))
 			continue;
 
 		Installation inst = instArray[i];
@@ -3597,10 +3597,10 @@ double UnitData::GetDefense(const Unit &attacker) const
 		bonuses += fort_bonus;
 
 		if(terrain_bonus > 0 &&
-			(myRec->GetMovementTypeLand() && world_Get()->IsLand(m_pos)) ||
+			((myRec->GetMovementTypeLand() && world_Get()->IsLand(m_pos)) ||
 			(myRec->GetMovementTypeMountain() && world_Get()->IsMountain(m_pos)) ||
 			(myRec->GetMovementTypeSea() && world_Get()->IsWater(m_pos)) ||
-			(myRec->GetMovementTypeSpace() && world_Get()->IsSpace(m_pos)))
+			(myRec->GetMovementTypeSpace() && world_Get()->IsSpace(m_pos))))
 		{
 			bonuses += terrain_bonus;
 		}
@@ -3850,10 +3850,10 @@ double UnitData::GetDefCounterAttack(const Unit &attacker) const
 		bonuses += fort_bonus;
 
 		if(terrain_bonus > 0 &&
-			(myRec->GetMovementTypeLand() && world_Get()->IsLand(m_pos)) ||
+			((myRec->GetMovementTypeLand() && world_Get()->IsLand(m_pos)) ||
 			(myRec->GetMovementTypeMountain() && world_Get()->IsMountain(m_pos)) ||
 			(myRec->GetMovementTypeSea() && world_Get()->IsWater(m_pos)) ||
-			(myRec->GetMovementTypeSpace() && world_Get()->IsSpace(m_pos)))
+			(myRec->GetMovementTypeSpace() && world_Get()->IsSpace(m_pos))))
 		{
 
 			bonuses += terrain_bonus;
@@ -5199,7 +5199,7 @@ void UnitData::SetOwner(PLAYER_INDEX newo)
 
 void UnitData::SetType(sint32 type)
 {
-	DPRINTF(k_DBG_GAMESTATE, ("Update unit 0x%lx From type %d to type %d @ (%d,%d), turn=%d\n", m_id, m_type, type, m_pos.x, m_pos.y, player_Get(m_owner)->m_current_round));
+	DPRINTF(k_DBG_GAMESTATE, ("Update unit 0x%x From type %d to type %d @ (%d,%d), turn=%d\n", m_id, m_type, type, m_pos.x, m_pos.y, player_Get(m_owner)->m_current_round));
 
 	if(GetDBRec()->GetUpgradeDoesNotHeal()) //This stuff preserves the hp,fuel, and movement points of the unit if flag is present.
 	{

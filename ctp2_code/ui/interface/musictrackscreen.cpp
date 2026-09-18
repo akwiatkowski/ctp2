@@ -52,7 +52,6 @@
 
 
 static c3_PopupWindow	*s_musicTrackScreen	= nullptr;
-static c3_Button		*s_accept			= nullptr;
 static c3_ListBox		*s_trackList		= nullptr;
 static aui_StringTable	*s_trackNames		= nullptr;
 static sint32			s_trackNum			= -1;

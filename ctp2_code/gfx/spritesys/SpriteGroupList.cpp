@@ -152,8 +152,9 @@ SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE
 
     // Usually the pointer the slot already held -- the switch above only
     // allocates when the slot was empty -- so guard the self-assignment.
-    if (m_spriteList[index].get() != newSpriteGroup)
+    if (m_spriteList[index].get() != newSpriteGroup) {
         m_spriteList[index].reset(newSpriteGroup);
+    }
 
 	return SPRITELISTERR_OK;
 }

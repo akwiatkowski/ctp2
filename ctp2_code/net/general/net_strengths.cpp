@@ -93,7 +93,9 @@ void NetFullStrengths::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	Strengths *str = player_Get(m_player)->m_strengths.get();
 
-	sint32 n;
+	// The sender transmits the record count, but the read loop below is
+	// bounded by m_startRound/m_endRound; consume the field and ignore it.
+	[[maybe_unused]] sint32 n;
 	PULLLONG(n);
 	sint32 r;
 	sint32 i;

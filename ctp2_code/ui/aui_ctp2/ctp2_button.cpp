@@ -179,7 +179,7 @@ void ctp2_Button::ResetCurrentRenderFlags() {
 	aui_Button::ResetCurrentRenderFlags();
 
 
-	if(!IsDisabled())
+	if(!IsDisabled()) {
 		if(!m_isToggle || !m_toggleState) {
 			AddRenderFlags(k_CTP2_BUTTON_LAYER_FLAG_UP);
 			RemoveRenderFlags(k_CTP2_BUTTON_LAYER_FLAG_UP_ON);
@@ -187,6 +187,7 @@ void ctp2_Button::ResetCurrentRenderFlags() {
 			AddRenderFlags(k_CTP2_BUTTON_LAYER_FLAG_UP_ON);
 			RemoveRenderFlags(k_CTP2_BUTTON_LAYER_FLAG_UP);
 		}
+	}
 }
 
 void ctp2_Button::SetAttract(bool on, uint32 ticksSinceStart)

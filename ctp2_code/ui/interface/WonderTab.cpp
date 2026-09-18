@@ -135,7 +135,7 @@ void WonderTab::AddWonderItem(sint32 wonder, sint32 player, sint32 turn)
 					st->SetText("error");
 				}
 
-				item->SetUserData((void*)turn);
+				item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(turn)));
 			}
 
 			st = (ctp2_Static *)box->GetChildByIndex(3);
@@ -208,6 +208,12 @@ void WonderTab::UpdateList()
 			case EVENT_TYPE_WONDER:
 				AddWonderItem(walk.GetObj()->m_dbIndex,
 							  walk.GetObj()->m_playerNum, walk.GetObj()->m_turn);
+				break;
+			case EVENT_TYPE_NONE:
+			case EVENT_TYPE_FEAT:
+			case EVENT_TYPE_AGES:
+			case EVENT_TYPE_MAX:
+				// Only wonders are listed on this tab.
 				break;
 		}
 	}

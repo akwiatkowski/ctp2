@@ -60,6 +60,16 @@ class	StringDB;
 StringDB * stringdb_Get();
 void       stringdb_Set(StringDB *p);
 
+// i18n format lookup with hardcoded fallback: returns the string-db template
+// for `key`, or `fallback` when the db has no such entry (missing translation,
+// early boot). format_arg(2) marks the RESULT as a printf format string so
+// callers can pass it directly to snprintf-family calls without
+// -Wformat-nonliteral (maximum-hardening builds) — while the compiler still
+// checks the call's arguments against the fallback literal at each site.
+// Mirrors the gettext _() idiom; the fallback literal must be defined inline
+// at the call site for the attribute to apply.
+MBCHAR const * stringdb_FormatOr(MBCHAR const * key, MBCHAR const * fallback) __attribute__((format_arg(2)));
+
 //----------------------------------------------------------------------------
 // Project dependencies
 //----------------------------------------------------------------------------
@@ -92,6 +102,11 @@ public:
 	(
 		StringId const &		index
 	) const;
+	// NOTE: GetNameStr results are printf-style i18n templates, but the KEY
+	// argument is not a literal format — so no format_arg here (it would
+	// check the key, not the template). Callers that feed the result into
+	// snprintf-family functions must use stringdb_FormatOr() below, whose
+	// inline fallback literal is what the compiler checks.
 	MBCHAR const *			GetNameStr(StringId const & n) const;
 	MBCHAR const *			GetNameStr(MBCHAR const * s) const;
 	bool					GetStringID
@@ -104,6 +119,16 @@ public:
 		MBCHAR const *			get_id,
 		MBCHAR **				new_text
 	) const;
+	// Localized-text lookup with inline hardcoded fallback, for printf-style
+	// use: format_arg(3) (member fn: this=1, get_id=2, fallback=3) marks the
+	// RESULT as a format string so it can be passed straight to
+	// vsnprintf/snprintf without -Wformat-nonliteral. Fallback must be a
+	// call-site literal for the attribute to apply.
+	MBCHAR const *			GetTextOr
+	(
+		MBCHAR const *			get_id,
+		MBCHAR const *			fallback
+	) const __attribute__((format_arg(3)));
 
 	void Export(MBCHAR * file);
 

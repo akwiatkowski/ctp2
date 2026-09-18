@@ -130,7 +130,7 @@ CityEspionage::~CityEspionage()
 	for (size_t unitIndex = 0; unitIndex < k_MAX_ARMY_SIZE; ++unitIndex)
 	{
 		MBCHAR  block [k_MAX_NAME_LEN];
-		snprintf(block, sizeof(block), "DialogBackground.FortifiedUnitsBox.Unit%i", unitIndex);
+		snprintf(block, sizeof(block), "DialogBackground.FortifiedUnitsBox.Unit%zu", unitIndex);
 
 		ctp2_Static * unitPicture  = static_cast<ctp2_Static *>
 		                                (aui_Ldl::GetObject(LDL_BLOCK, block));

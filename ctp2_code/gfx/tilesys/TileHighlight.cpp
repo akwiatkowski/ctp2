@@ -260,7 +260,8 @@ void TiledMap::DrawLegalMove
 		Path			goodPath(selitem_Get()->GetGoodPath());
 		MapPoint		currPos;
 		goodPath.Start(currPos);
-		sint32			line_segment_count	= 0;
+		// Note: no segment counter here — the army branch below needs one to
+		// place turn boxes, but this debug city path just draws a plain line.
 		COLOR			lineColor			= k_TURN_COLOR_GO;
 		sint32 const	xoffset				= (sint32) ((k_TILE_PIXEL_WIDTH * m_scale) / 2);
 		sint32 const	yoffset				= (sint32) (k_TILE_PIXEL_HEIGHT * m_scale);
@@ -269,9 +270,6 @@ void TiledMap::DrawLegalMove
 		{
 			prevPos = currPos;
 			goodPath.Next(currPos);
-
-			line_segment_count++;
-
 			if ((prevPos != currPos) &&
 				TileIsVisible(prevPos.x, prevPos.y) &&
 				TileIsVisible(currPos.x, currPos.y)
@@ -354,7 +352,8 @@ void TiledMap::DrawLegalMove
 	sint32			special_line_segment= -1;
 
 	COLOR			actual_line_color	= k_TURN_COLOR_GO;
-	COLOR			old_line_color		= k_TURN_COLOR_GO;// ??
+	// Note: an "old_line_color" tracking variable was removed here; it was
+	// assigned four times but never read — dead since the original import.
 	COLOR			lineColor			=
 		goodPath.IsEnd() ? k_TURN_COLOR_STOP : k_TURN_COLOR_GO;
 
@@ -536,8 +535,6 @@ void TiledMap::DrawLegalMove
 	} // while goodPath
 	// draw red (bad) part
 	prevPos			= currPos;
-	old_line_color	= lineColor;
-
 	Path			badPath(selitem_Get()->GetBadPath());
 //	sint32			badPath_old_index	= badPath.GetNextIndex(); // ??? not used
 	badPath.Start(currPos);
@@ -605,7 +602,7 @@ void TiledMap::DrawLegalMove
 		AddDirtyTileToMix(currPos);
 	}
 
-	old_line_color = actual_line_color;
+
 
 	while (!badPath.IsEnd())
 	{
@@ -652,7 +649,6 @@ void TiledMap::DrawLegalMove
 			{
 				actual_line_color = k_TURN_COLOR_STOP;
 			}
-			old_line_color = actual_line_color;
 
 			if (INSURFACE(x1, y1) && INSURFACE(x2, y2))
 			{
@@ -667,7 +663,7 @@ void TiledMap::DrawLegalMove
 
 	// Restart to add the turn count boxes.
 
-	old_line_color			= actual_line_color;
+
 	goodPath				= *selitem_Get()->GetGoodPath();
 	isFirstMove				= sel_army.GetFirstMoveThisTurn();
 	line_segment_count		= -1;
@@ -930,7 +926,6 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 		prevPos = currPos;
 		goodPath.Next(currPos);
 		uint16 lineColor = colorset_Get()->GetColor(k_TURN_COLOR_UNFINISHED);
-		double old;
 		double cost;
 		line_segement_count++;
 
@@ -939,7 +934,6 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 
 		if (currMovementPoints > 0)
 		{
-			old = currMovementPoints;
 			Assert(sel_army.m_id != (0));
 			cost = GetEntryCost(sel_army, currPos);
 

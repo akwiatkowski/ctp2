@@ -98,7 +98,7 @@ ChatBox::ChatBox()
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_chatWindow = new ChatWindow(&errcode, aui_UniqueId(), "ChatWindow", 16,
+	m_chatWindow = new ChatWindow(&errcode, aui_UniqueId(), const_cast<MBCHAR *>("ChatWindow"), 16,
 									AUI_WINDOW_TYPE_FLOATING, this);
 	Assert(AUI_NEWOK(m_chatWindow, errcode));
 	if (!m_chatWindow || errcode != AUI_ERRCODE_OK) return;

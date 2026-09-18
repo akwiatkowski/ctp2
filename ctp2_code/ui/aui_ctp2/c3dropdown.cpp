@@ -119,7 +119,6 @@ AUI_ERRCODE C3DropDown::CreateComponents( )
 
 	m_listBox->SetForceSelect( TRUE );
 
-	errcode;
 	m_listBoxWindow = new aui_Window(
 		&errcode,
 		aui_UniqueId(),

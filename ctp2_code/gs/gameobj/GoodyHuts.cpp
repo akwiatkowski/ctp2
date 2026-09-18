@@ -481,11 +481,11 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			so->AddRecipient(owner) ;
 			slicengine_Get()->Execute(so) ;
 			DPRINTF(k_DBG_GAMESTATE, ("You get unit %d\n", m_value));
-			Unit u = player_Get(owner)->CreateUnit(m_value,
-												 point,
-												 Unit(),
-												 FALSE,
-												 CAUSE_NEW_ARMY_GOODY_HUT);
+			player_Get(owner)->CreateUnit(m_value,
+										 point,
+										 Unit(),
+										 FALSE,
+										 CAUSE_NEW_ARMY_GOODY_HUT);
 
 
 

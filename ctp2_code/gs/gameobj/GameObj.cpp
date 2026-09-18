@@ -89,7 +89,7 @@ GameObj * GameObj_Access
 
     if (!p)
     {
-        DPRINTF(k_DBG_GAMESTATE, ("No such object %lx\n", id));
+        DPRINTF(k_DBG_GAMESTATE, ("No such object %x\n", id));
         c3errors_ErrorDialog("GameObj.cpp", "No such object");
     }
 
@@ -161,7 +161,7 @@ void GameObj_Insert
         }
         else
         {
-			DPRINTF(k_DBG_GAMESTATE, ("Insert duplicate %lx", ins->m_id));
+			DPRINTF(k_DBG_GAMESTATE, ("Insert duplicate %x", ins->m_id));
             c3errors_ErrorDialog
                 ("GameObj_Insert.cpp", "insert duplicate %d ", ins->m_id);
         }
@@ -178,7 +178,7 @@ void GameObj_Insert
 void GameObj_Delete(GameObj **p, uint32 id)
 {
    if (*p == nullptr) {
-	   DPRINTF(k_DBG_GAMESTATE, ("No such object %lx\n", id));
+	   DPRINTF(k_DBG_GAMESTATE, ("No such object %x\n", id));
       c3errors_ErrorDialog ("GameObj.cpp", "No such id %d", id);
    } else {
       if (id < (*p)->m_id) {

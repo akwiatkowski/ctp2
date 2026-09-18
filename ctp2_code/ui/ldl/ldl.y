@@ -105,6 +105,8 @@ extern void ldlif_report_error(char *text);
 void yyerror(char *s)
 {
 	char buf[1024];
-	sprintf(buf, "%s:%d: %s", ldlif_get_filename(), g_ldlLineNumber, s);
+	// snprintf, not sprintf: macOS deprecates the unchecked variant; the
+	// explicit size keeps the fixed 1024 buffer honest.
+	snprintf(buf, sizeof(buf), "%s:%d: %s", ldlif_get_filename(), g_ldlLineNumber, s);
 	ldlif_report_error(buf);
 }

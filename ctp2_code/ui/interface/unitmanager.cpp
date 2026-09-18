@@ -393,7 +393,7 @@ void UnitManager::UpdateStatsList()
 					child->SetText(buf);
 				}
 
-				item->SetUserData((void *)i);
+				item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(i)));
 				item->SetCompareCallback(CompareStatItems);
 
 				m_statsList->AddItem(item);
@@ -476,9 +476,9 @@ void UnitManager::UpdateTacticalList()
 
 		child = (ctp2_Static *)item->GetChildByIndex(k_TACTICAL_HEALTH_COL);
 		if(child) {
-			child->SetDrawCallbackAndCookie(DrawHealthBar, (void *)u.m_id);
+			child->SetDrawCallbackAndCookie(DrawHealthBar, reinterpret_cast<void *>(static_cast<intptr_t>(u.m_id)));
 		}
-		item->SetUserData((void *)u.m_id);
+		item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(u.m_id)));
 		item->SetCompareCallback(CompareTacticalItems);
 		m_tacticalList->AddItem(item);
 	}
@@ -561,7 +561,7 @@ void UnitManager::UpdateAdvice()
 	else
 		p = (sint32(100.0 * (pl->m_readiness->GetCost() / totalProd)));
 
-	snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_ldl_UpkeepPercentFormat"), p);
+	snprintf(buf, sizeof(buf), stringdb_FormatOr("str_ldl_UpkeepPercentFormat", "Military Upkeep: %d%% Prod."), p);
 
 	ctp2_Button *upkeepButt = (ctp2_Button *)aui_Ldl::GetObject(s_unitManagerAdviceBlock, "UpkeepButton");
 	Assert(upkeepButt);
@@ -867,7 +867,7 @@ void UnitManager::UpkeepButton(aui_Control *control, uint32 action, uint32 data,
 
 	if(strstr(butt->GetText(), "%")) {
 		pl->m_readiness->RecalcCost();
-		snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_ldl_UpkeepTotalFormat"), (sint32)pl->m_readiness->GetCost());
+		snprintf(buf, sizeof(buf), stringdb_FormatOr("str_ldl_UpkeepTotalFormat", "Military Upkeep: %d Prod."), (sint32)pl->m_readiness->GetCost());
 	} else {
 
 		double totalProd = pl->m_total_production;
@@ -880,7 +880,7 @@ void UnitManager::UpkeepButton(aui_Control *control, uint32 action, uint32 data,
 		else
 			p = (sint32(100.0 * (readinessCost / totalProd)));
 
-		snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_ldl_UpkeepPercentFormat"), p);
+		snprintf(buf, sizeof(buf), stringdb_FormatOr("str_ldl_UpkeepPercentFormat", "Military Upkeep: %d%% Prod."), p);
 	}
 	butt->SetText(buf);
 }

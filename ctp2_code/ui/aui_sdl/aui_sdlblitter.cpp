@@ -52,7 +52,7 @@ AUI_ERRCODE aui_SDLBlitter::Blt(
 		SDL_Rect sdst = { destx, desty, 0, 0 };
 
 		AUI_ERRCODE retcode = AUI_ERRCODE_OK;
-		if (SDL_BlitSurface(sdlSrc->DDS(), &ssrc, sdlDest->DDS(), &sdst) < 0) {
+		if (!SDL_BlitSurface(sdlSrc->DDS(), &ssrc, sdlDest->DDS(), &sdst)) {
 			fprintf(stderr, "SDL_Blt: Blit failed: %s\n", SDL_GetError());
 			retcode = AUI_ERRCODE_BLTFAILED;
 		}
@@ -88,7 +88,7 @@ AUI_ERRCODE aui_SDLBlitter::ColorBlt(
 
 		SDL_LockMutex(sdlDest->m_bltMutex);
 		AUI_ERRCODE retcode = AUI_ERRCODE_OK;
-		if (SDL_FillRect(sdlDest->DDS(), &sdst, mapped) < 0) {
+		if (!SDL_FillRect(sdlDest->DDS(), &sdst, mapped)) {
 			fprintf(stderr, "FillRect failed: %s\n", SDL_GetError());
 			retcode = AUI_ERRCODE_BLTFAILED;
 		}
@@ -133,7 +133,7 @@ AUI_ERRCODE aui_SDLBlitter::Blt16To16(
                         useChromaKey ? SDL_TRUE : SDL_FALSE,
                         sdlSrc->GetChromaKey());
 
-        if (SDL_BlitSurface(sdlSrc->DDS(), &ssrc, sdlDest->DDS(), &sdst) < 0) {
+        if (!SDL_BlitSurface(sdlSrc->DDS(), &ssrc, sdlDest->DDS(), &sdst)) {
                 fprintf(stderr, "%s L%d: Blit failed: %s\n", __FILE__, __LINE__, SDL_GetError());
                 retcode = AUI_ERRCODE_BLTFAILED;
             }
@@ -179,7 +179,7 @@ AUI_ERRCODE aui_SDLBlitter::ColorBlt16(
         SDL_Rect sdst = { destRect->left, destRect->top,
                           destRect->right-destRect->left, destRect->bottom-destRect->top
 	    };
-        if (SDL_FillRect(sdlDest->DDS(), &sdst, color) < 0)
+        if (!SDL_FillRect(sdlDest->DDS(), &sdst, color))
 	    {
             fprintf(stderr, "FillRect failed: %s\n", SDL_GetError());
             retcode = AUI_ERRCODE_BLTFAILED;
@@ -214,7 +214,7 @@ static AUI_ERRCODE SimpleHVStretch(SDL_Surface* src, SDL_Rect* rsrc,
 //    printf("StretchBlt %dx%d -> %dx%d\n", rsrc->w,rsrc->h, rdst->w,rdst->h);
     if (rdst->h <= 1 && rdst->w <= 1) {
 	// copy only (at most) the top-left pixel
-	if (SDL_BlitSurface(src, rdst, dst, rdst) < 0) {
+	if (!SDL_BlitSurface(src, rdst, dst, rdst)) {
 	    fprintf(stderr, "Blt failed: %s\n", SDL_GetError());
 	    return AUI_ERRCODE_BLTFAILED;
             }
@@ -222,13 +222,13 @@ static AUI_ERRCODE SimpleHVStretch(SDL_Surface* src, SDL_Rect* rsrc,
         }
 
     if (SDL_MUSTLOCK(src)) {
-	if (SDL_LockSurface(src) < 0) {
+	if (!SDL_LockSurface(src)) {
 	    fprintf(stderr, "StretchBlt: lock src failed: %s\n", SDL_GetError());
 	    return AUI_ERRCODE_BLTFAILED;
             }
         }
     if (SDL_MUSTLOCK(dst)) {
-	if (SDL_LockSurface(dst) < 0) {
+	if (!SDL_LockSurface(dst)) {
 	    fprintf(stderr, "StretchBlt: lock dst failed: %s\n", SDL_GetError());
 	    SDL_UnlockSurface(src);
 	    return AUI_ERRCODE_BLTFAILED;
@@ -296,7 +296,7 @@ static AUI_ERRCODE SimpleHStretch(SDL_Surface* src, SDL_Rect* rsrc,
 //    printf("StretchBlt H %dx%d -> %dx%d\n", rsrc->w,rsrc->h, rdst->w,rdst->h);
     if (rdst->w <= 1) {
 	// copy only (at most) the first line
-	if (SDL_BlitSurface(src, rdst, dst, rdst) < 0) {
+	if (!SDL_BlitSurface(src, rdst, dst, rdst)) {
 	    fprintf(stderr, "Blt failed: %s\n", SDL_GetError());
 	    return AUI_ERRCODE_BLTFAILED;
             }
@@ -313,7 +313,7 @@ static AUI_ERRCODE SimpleVStretch(SDL_Surface* src, SDL_Rect* rsrc,
 //    printf("StretchBlt V %dx%d -> %dx%d\n", rsrc->w,rsrc->h, rdst->w,rdst->h);
     if (rdst->h <= 1) {
 	// copy only (at most) the first column
-	if (SDL_BlitSurface(src, rdst, dst, rdst) < 0) {
+	if (!SDL_BlitSurface(src, rdst, dst, rdst)) {
 	    fprintf(stderr, "Blt failed: %s\n", SDL_GetError());
 	    return AUI_ERRCODE_BLTFAILED;
             }
@@ -358,7 +358,7 @@ AUI_ERRCODE aui_SDLBlitter::StretchBlt16To16(
         if (ssrc.w == sdst.w) {
             if (ssrc.h == sdst.h) {
                 //printf("%s L%d: Using normal blit!\n", __FILE__, __LINE__);
-                if (SDL_BlitSurface(sdlSrc->DDS(), &ssrc, sdlDest->DDS(), &sdst) < 0) {
+                if (!SDL_BlitSurface(sdlSrc->DDS(), &ssrc, sdlDest->DDS(), &sdst)) {
                     fprintf(stderr, "StrechBlt failed: %s\n", SDL_GetError());
                     retcode = AUI_ERRCODE_BLTFAILED;
                     }

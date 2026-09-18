@@ -5,7 +5,6 @@
 #include "gs/utility/Globals.h"
 #include "gs/fileio/Token.h"
 #include "gs/database/UVDB.h"
-#include "gs/utility/ErrMsg.h"
 
 	sint32	g_parse_uv_abort ;
 
@@ -187,7 +186,7 @@ TokenData	g_UVDB_token_data[TOKEN_UV_POLLUTION_MAX_VAL] =
 
 sint32 OzoneDatabase::ParseOzoneDatabase(char *filename, C3DIR dir)
 	{
-	auto uvToken = std::make_unique<Token>(filename, TOKEN_UV_POLLUTION_MAX_VAL - TOKEN_MAX, g_UVDB_token_data, dir) ;
+	auto uvToken = std::make_unique<Token>(filename, static_cast<sint32>(TOKEN_UV_POLLUTION_MAX_VAL) - TOKEN_MAX, g_UVDB_token_data, dir) ;
 
 	ParseAnOzone(uvToken.get()) ;
 	uvToken->Next() ;

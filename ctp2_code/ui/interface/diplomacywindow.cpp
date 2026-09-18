@@ -82,21 +82,21 @@
 #include "ai/diplomacy/Diplomat.h"
 
 
-static MBCHAR                 *s_dipWindowBlock = "DiplomacyWindow";
+static MBCHAR const           *s_dipWindowBlock = "DiplomacyWindow";
 static DiplomacyWindow        *s_dipWindow;
 
-static MBCHAR                 *k_DIP_WINDOW_ATTRACT_BUTTON = "ControlPanelWindow.ControlPanel.ShortcutPad.DiplomacyButton";
+static MBCHAR                 *k_DIP_WINDOW_ATTRACT_BUTTON = const_cast<MBCHAR *>("ControlPanelWindow.ControlPanel.ShortcutPad.DiplomacyButton");
 
 #define k_INTELLIGENCE_TAB    0
 #define k_NEGOTIATION_TAB     1
 #define k_CREATE_PROPOSAL_TAB 2
 
 char *DiplomacyWindow::sm_toneIcons[DIPLOMATIC_TONE_MAX] = {
-	"updi39.tga",
-	"updi40.tga",
-	"updi41.tga",
-	"updi42.tga",
-	"updi43.tga"
+	const_cast<char *>("updi39.tga"),
+	const_cast<char *>("updi40.tga"),
+	const_cast<char *>("updi41.tga"),
+	const_cast<char *>("updi42.tga"),
+	const_cast<char *>("updi43.tga")
 };
 
 DiplomacyWindow::DiplomacyWindow(AUI_ERRCODE *err)
@@ -546,7 +546,7 @@ void DiplomacyWindow::UpdateProposalList(ctp2_ListBox *propList, bool toPlayer)
 {
 	sint32 player = selitem_Get()->GetVisiblePlayer();
 	sint32 i;
-	bool selectedSomething = false;
+
 
 	Assert(propList);
 	if(propList) {
@@ -688,11 +688,10 @@ void DiplomacyWindow::UpdateProposalList(ctp2_ListBox *propList, bool toPlayer)
 						}
 					}
 
-					item->SetUserData((void *)i);
+					item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(i)));
 					propList->AddItem(item);
 
 					if(oldSelectedPlayer == i) {
-						selectedSomething = true;
 						propList->SelectItem(item);
 					}
 				}
@@ -1847,128 +1846,6 @@ void DiplomacyWindow::Send(aui_Control *control, uint32 action, uint32 data, voi
 
 }
 
-STDEHANDLER(DipWinContinueDiplomacyEvent)
-{
-	if(!s_dipWindow) return GEV_HD_Continue;
-
-	sint32 p1;
-	sint32 p2;
-	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
-	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
-
-	s_dipWindow->Update();
-	return GEV_HD_Continue;
-}
-
-STDEHANDLER(DipWinResponseReady)
-{
-	if(!s_dipWindow) return GEV_HD_Continue;
-
-	sint32 p1;
-	sint32 p2;
-	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
-	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
-
-	if(p1 == selitem_Get()->GetVisiblePlayer()) {
-
-		DiplomacyWindow::Display();
-		s_dipWindow->SetViewingResponse(p1, p2);
-
-		ctp2_ListBox *lb = (ctp2_ListBox *)aui_Ldl::GetObject(s_dipWindowBlock, "DiplomacyTabs.Negotiations.TabPanel.ProposalsMadeBox.List");
-		Assert(lb);
-		sint32 i;
-		for(i = 0; i < lb->NumItems(); i++) {
-			ctp2_ListItem *item = (ctp2_ListItem *)lb->GetItemByIndex(i);
-			if((intptr_t)item->GetUserData() == p2) {
-				lb->SelectItem(item);
-				break;
-			}
-		}
-
-		RESPONSE_TYPE rtype = Diplomat::GetDiplomat(p2).GetResponsePending(p1).type;
-
-		if((rtype == RESPONSE_COUNTER) || (rtype == RESPONSE_REJECT)) {
-
-			s_dipWindow->ShowSections(k_DIPWIN_RESPONSE | k_DIPWIN_RESPONSE_WITH_COUNTER | k_DIPWIN_PROPOSALS_MADE | k_DIPWIN_PROPOSALS_RECEIVED);
-		} else {
-			s_dipWindow->ShowSections(k_DIPWIN_RESPONSE | k_DIPWIN_PROPOSALS_MADE | k_DIPWIN_PROPOSALS_RECEIVED);
-		}
-	} else if(p2 == selitem_Get()->GetVisiblePlayer()) {
-
-		ctp2_ListBox *lb = (ctp2_ListBox *)aui_Ldl::GetObject(s_dipWindowBlock, "DiplomacyTabs.Negotiations.TabPanel.ProposalsReceivedBox.List");
-		Assert(lb);
-		sint32 i;
-		for(i = 0; i < lb->NumItems(); i++) {
-			ctp2_ListItem *item = (ctp2_ListItem *)lb->GetItemByIndex(i);
-			if((intptr_t)item->GetUserData() == p1) {
-				lb->SelectItem(item);
-				break;
-			}
-		}
-
-		if(!DiplomacyWindow::IsShown()) {
-			attractwindow_Get()->HighlightControl(k_DIP_WINDOW_ATTRACT_BUTTON);
-		} else {
-			attractwindow_Get()->RemoveControl(k_DIP_WINDOW_ATTRACT_BUTTON);
-
-			s_dipWindow->ShowReceivedProposalDetails();
-		}
-	}
-	return GEV_HD_Continue;
-}
-
-STDEHANDLER(DipWinNewProposalEvent)
-{
-	sint32 p1;
-	sint32 p2;
-	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
-	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
-
-	if(p2 == selitem_Get()->GetVisiblePlayer()) {
-
-		if(!attractwindow_Get()) {
-			AttractWindow::Initialize();
-		}
-
-		AttractWindow *aw = attractwindow_Get();
-		Assert(aw);
-		if(aw) {
-			if(!DiplomacyWindow::IsShown()) {
-				aw->HighlightControl(k_DIP_WINDOW_ATTRACT_BUTTON);
-			} else {
-				aw->RemoveControl(k_DIP_WINDOW_ATTRACT_BUTTON);
-			}
-		}
-
-		ctp2_ListBox *lb = (ctp2_ListBox *)aui_Ldl::GetObject(s_dipWindowBlock, "DiplomacyTabs.Negotiations.TabPanel.ProposalsReceivedBox.List");
-
-		if(lb) {
-			sint32 i;
-			for(i = 0; i < lb->NumItems(); i++) {
-				ctp2_ListItem *item = (ctp2_ListItem *)lb->GetItemByIndex(i);
-				Assert(item);
-				if(item && (intptr_t)item->GetUserData() == p1) {
-					lb->SelectItem(item);
-					break;
-				}
-			}
-		}
-	}
-	return GEV_HD_Continue;
-}
-
-STDEHANDLER(DipWinNewNegotiationEvent)
-{
-	sint32 p1;
-	sint32 p2;
-	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
-	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
-
-	if(p2 == selitem_Get()->GetVisiblePlayer()) {
-
-	}
-	return GEV_HD_Continue;
-}
 
 void DiplomacyWindow::InitializeEvents()
 {
@@ -2253,7 +2130,7 @@ void DiplomacyWindow::AddCityItems(ctp2_Menu *menu, sint32 player)
 	sint32 i;
 	for(i = 0; i < player_Get(player)->m_all_cities->Num(); i++) {
 		Unit city = player_Get(player)->m_all_cities->Access(i);
-		menu->AddItem(city.GetName(), nullptr, (void *)city.m_id);
+		menu->AddItem(city.GetName(), nullptr, reinterpret_cast<void *>(static_cast<intptr_t>(city.m_id)));
 	}
 }
 
@@ -2289,7 +2166,7 @@ void DiplomacyWindow::AddAdvanceItems(ctp2_Menu *menu, sint32 sender, sint32 rec
 			continue;
 		}
 
-		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), nullptr, (void *)a);
+		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), nullptr, reinterpret_cast<void *>(static_cast<intptr_t>(a)));
 	}
 }
 
@@ -2305,7 +2182,7 @@ void DiplomacyWindow::AddThirdPartyItems(ctp2_Menu *menu, sint32 sender, sint32 
 
 		MBCHAR civName[k_MAX_NAME_LEN];
 		player_Get(p)->GetCivilisation()->GetPluralCivName(civName);
-		menu->AddItem(civName, nullptr, (void *)p);
+		menu->AddItem(civName, nullptr, reinterpret_cast<void *>(static_cast<intptr_t>(p)));
 	}
 }
 

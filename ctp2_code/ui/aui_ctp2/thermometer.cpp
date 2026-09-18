@@ -99,20 +99,19 @@ AUI_ERRCODE Thermometer::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
         m_percentFilled=0;
     Assert(m_percentFilled <= 100);
 
-    if (100 < m_percentFilled)
-        m_percentFilled=100;
+	if (100 < m_percentFilled) {
+		m_percentFilled = 100;
+	}
 
 	if (m_percentFilled < 25) {
 		color = COLOR_RED;
-	} else
-		if (m_percentFilled < 50) {
-			color = COLOR_ORANGE;
-		} else
-			if (m_percentFilled < 75) {
-				color = COLOR_YELLOW;
-			} else {
-				color = COLOR_GREEN;
-			}
+	} else if (m_percentFilled < 50) {
+		color = COLOR_ORANGE;
+	} else if (m_percentFilled < 75) {
+		color = COLOR_YELLOW;
+	} else {
+		color = COLOR_GREEN;
+	}
 
 	if (rect.right > rect.left)
 		primitives_PaintRect16( surface, &rect, colorset_Get()->GetColor(color) );

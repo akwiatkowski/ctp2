@@ -61,7 +61,7 @@ aui_SDLSurface::aui_SDLSurface(
 		}
 		m_allocated = TRUE;
 		// clear it with black
-		if (SDL_FillRect(m_lpdds, nullptr, 0) < 0) {
+		if (!SDL_FillRect(m_lpdds, nullptr, 0)) {
 			fprintf(stderr, "aui_Surface: Failed to erase new surface: %s\n",
 			SDL_GetError());
 		}
@@ -137,7 +137,7 @@ AUI_ERRCODE aui_SDLSurface::Lock( RECT *rect, LPVOID *buffer, DWORD flags ){
     //printf("%s L%d: Locking mutex!\n", __FILE__, __LINE__);
     if (SDL_MUSTLOCK(m_lpdds)) {
         printf("%s L%d: Locking surface! Check this!\n", __FILE__, __LINE__);
-        if (SDL_LockSurface(m_lpdds) < 0) {
+        if (!SDL_LockSurface(m_lpdds)) {
             fprintf(stderr, "Cannot lock surface: %s\n", SDL_GetError());
             return AUI_ERRCODE_SURFACELOCKFAILED;
             }

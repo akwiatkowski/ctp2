@@ -54,7 +54,7 @@
 
 
 static c3_PopupWindow	*s_graphicsResScreen= nullptr;
-static c3_Button		*s_accept			= nullptr;
+
 static c3_ListBox		*s_resList			= nullptr;
 static c3_Static		*s_warning			= nullptr;
 static sint32			s_currentResIndex	= 0;

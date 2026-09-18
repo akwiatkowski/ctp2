@@ -596,17 +596,18 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			break;
 		}
 		case NET_INFO_CODE_ACK_OBJECT:
-			DPRINTF(k_DBG_NET, ("Net: Object %lx ACKed\n", m_data));
+		// m_data/m_data2... are uint32 network ids: use %x, not %lx (expects unsigned long).
+			DPRINTF(k_DBG_NET, ("Net: Object %x ACKed\n", m_data));
 			network_Get().HandleObjectACK(m_data);
 			break;
 		case NET_INFO_CODE_NAK_OBJECT:
-			DPRINTF(k_DBG_NET, ("Net: Object %lx NAKed, should be %lx\n",
+			DPRINTF(k_DBG_NET, ("Net: Object %x NAKed, should be %x\n",
 								m_data, m_data2));
 			network_Get().HandleObjectNAK(m_data, m_data2);
 			break;
 		case NET_INFO_CODE_KILL_IMPROVEMENT:
 		{
-			DPRINTF(k_DBG_NET, ("Net: Killing improvement %lx\n", m_data));
+			DPRINTF(k_DBG_NET, ("Net: Killing improvement %x\n", m_data));
 			TerrainImprovement imp(m_data);
 			if(terrimprovepool_Get()->IsValid(imp))
 				TerrainImprovement(m_data).Kill();
@@ -614,7 +615,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_KILL_INSTALLATION:
 		{
-			DPRINTF(k_DBG_NET, ("Net: Killing installation %lx\n", m_data));
+			DPRINTF(k_DBG_NET, ("Net: Killing installation %x\n", m_data));
 			Installation inst(m_data);
 			if(installationpool_Get()->IsValid(inst)) {
 				Installation(m_data).Kill();
@@ -669,7 +670,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			break;
 		case NET_INFO_CODE_BUILT_FRONT:
 		{
-			DPRINTF(k_DBG_NET, ("Server says city %lx built something\n",
+			DPRINTF(k_DBG_NET, ("Server says city %x built something\n",
 								m_data));
 			Unit city(m_data);
 			Assert(unitpool_Get()->IsValid(city));
@@ -690,7 +691,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_KILL_MESSAGE:
 		{
-			DPRINTF(k_DBG_NET, ("Server says kill message %lx\n", m_data));
+			DPRINTF(k_DBG_NET, ("Server says kill message %x\n", m_data));
 			Message message(m_data);
 
 			if(!messagepool_Get()->IsValid(message))
@@ -700,7 +701,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_KILL_DIP_REQUEST:
 		{
-			DPRINTF(k_DBG_NET, ("Server says kill dip request %lx\n", m_data));
+			DPRINTF(k_DBG_NET, ("Server says kill dip request %x\n", m_data));
 			DiplomaticRequest request(m_data);
 
 			network_Get().RemoveEnact(request);
@@ -711,7 +712,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_RESET_CITY_OWNER:
 		{
-			DPRINTF(k_DBG_NET, ("Server says reset city %lx to owner %d, conq: %d\n",
+			DPRINTF(k_DBG_NET, ("Server says reset city %x to owner %d, conq: %d\n",
 								m_data, m_data2, m_data3));
 			Unit unit(m_data);
 			if(unitpool_Get()->IsValid(unit)) {
@@ -779,7 +780,9 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_CHANGE_BUILD:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Player %d's build queue changed to %d,%d\n", m_data3, m_data4));
+			// Real bug: format had three conversions but two args; the sender
+			// (CityData) packs player, city, category, item — the player (m_data) was missing.
+			DPRINTF(k_DBG_NET, ("Server: Player %d's build queue changed to %d,%d\n", m_data, m_data3, m_data4));
 			Unit city(m_data2);
 			if(city.IsValid()) {
 				city.ChangeCurrentlyBuildingItem(m_data3, m_data4);
@@ -832,7 +835,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_ENACT_REQUEST:
 		case NET_INFO_CODE_ENACT_REQUEST_NEED_ACK:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Diplomatic request %lx enacted\n",
+			DPRINTF(k_DBG_NET, ("Server: Diplomatic request %x enacted\n",
 								m_data));
 			DiplomaticRequest req(m_data);
 			network_Get().RemoveEnact(req);
@@ -849,7 +852,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_REJECT_REQUEST:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Diplomatic request %lx rejected\n",
+			DPRINTF(k_DBG_NET, ("Server: Diplomatic request %x rejected\n",
 								m_data));
 			DiplomaticRequest req(m_data);
 
@@ -956,7 +959,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_REMOVE_BUILD_ITEM:
 		{
-			DPRINTF(k_DBG_NET, ("Server: City %lx had build item %d removed\n",
+			DPRINTF(k_DBG_NET, ("Server: City %x had build item %d removed\n",
 								m_data, m_data2));
 			Unit city(m_data);
 			Assert(unitpool_Get()->IsValid(city));
@@ -968,7 +971,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_HAPPINESS_ATTACK:
 		{
-			DPRINTF(k_DBG_NET, ("Server: City %lx suffered a happiness attack of %d for %d turns\n",
+			DPRINTF(k_DBG_NET, ("Server: City %x suffered a happiness attack of %d for %d turns\n",
 								m_data, m_data2, m_data3));
 			Unit city(m_data);
 			Assert(unitpool_Get()->IsValid(city));
@@ -980,21 +983,21 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_CLEAR_ORDERS:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Army %lx orders cleared\n",
+			DPRINTF(k_DBG_NET, ("Server: Army %x orders cleared\n",
 								m_data));
 			Army army(m_data);
 
 			if(armypool_Get()->IsValid(army)) {
 				army.ClearOrders();
 			} else {
-				DPRINTF(k_DBG_NET, ("Server: Received CLEAR_ORDERS for invalid army %lx\n", m_data));
+				DPRINTF(k_DBG_NET, ("Server: Received CLEAR_ORDERS for invalid army %x\n", m_data));
 			}
 
 			break;
 		}
 		case NET_INFO_CODE_EXECUTE_ORDERS:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Army %lx executing orders\n",
+			DPRINTF(k_DBG_NET, ("Server: Army %x executing orders\n",
 					m_data));
 			Army army(m_data);
 
@@ -1005,14 +1008,14 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				Assert(res);
 				gevmanager_Get()->Resume();
 			} else {
-				DPRINTF(k_DBG_NET, ("Server: Received EXECUTE_ORDERS for invalid army %lx\n", m_data));
+				DPRINTF(k_DBG_NET, ("Server: Received EXECUTE_ORDERS for invalid army %x\n", m_data));
 			}
 
 			break;
 		}
 		case NET_INFO_CODE_ADD_ARMY:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Player %d had army %lx inserted, cause: %d\n",
+			DPRINTF(k_DBG_NET, ("Server: Player %d had army %x inserted, cause: %d\n",
 								m_data, m_data3, m_data2));
 			Army army(m_data3);
 			if(!army.IsValid()) {
@@ -1028,7 +1031,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_SET_MOVEMENT_TO_ZERO:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Unit %lx movement set to 0\n", m_data));
+			DPRINTF(k_DBG_NET, ("Server: Unit %x movement set to 0\n", m_data));
 			Unit unit(m_data);
 			if(unit.IsValid()) {
 				unit.SetMovementPoints(0.0);
@@ -1040,7 +1043,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 		case NET_INFO_CODE_SET_ARMY:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Unit %lx now belongs to Army %lx\n",
+			DPRINTF(k_DBG_NET, ("Server: Unit %x now belongs to Army %x\n",
 								m_data, m_data2));
 			Unit unit(m_data);
 			Assert(unitpool_Get()->IsValid(unit) || network_Get().DeadUnit(unit.m_id));
@@ -1060,7 +1063,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 		case NET_INFO_CODE_CHANGE_ARMY:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Unit %lx changing armies to %lx from %lx\n",
+			DPRINTF(k_DBG_NET, ("Server: Unit %x changing armies to %x from %x\n",
 					m_data, m_data3, m_data2));
 			Unit unit(m_data);
 			if(!unit.IsValid()) {
@@ -1101,7 +1104,9 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_BUILD_WONDER:
 		{
-			DPRINTF(k_DBG_NET, ("Server: City %lx is building wonder %d\n"));
+		// Real bug: format had conversions but no args; sender (CityData) packs
+		// city id then wonder type — m_data and m_data2 were both missing.
+		DPRINTF(k_DBG_NET, ("Server: City %x is building wonder %d\n", m_data, m_data2));
 			Unit city(m_data);
 			Assert(unitpool_Get()->IsValid(city));
 			if(unitpool_Get()->IsValid(city)) {
@@ -1113,7 +1118,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_SEND_TRADE_BID:
 		{
-			DPRINTF(k_DBG_NET, ("server: Trade bid from %d, fc: %lx, res: %d, tc: %lx, price: %d",
+			DPRINTF(k_DBG_NET, ("server: Trade bid from %d, fc: %x, res: %d, tc: %x, price: %d",
 								m_data, m_data2, m_data3, m_data4, m_data5));
 			Assert(player_Get(m_data));
 			if(player_Get(m_data)) {
@@ -1129,7 +1134,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_SEND_SLAVE_TO:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Send a slave from %lx to %lx\n",
+			DPRINTF(k_DBG_NET, ("Server: Send a slave from %x to %x\n",
 								m_data, m_data2));
 			Unit fromCity(m_data);
 			Unit toCity(m_data2);
@@ -1148,7 +1153,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_BUILD_CAPITALIZATION:
 		{
-			DPRINTF(k_DBG_NET, ("Server: city %lx building capitalization\n", m_data));
+			DPRINTF(k_DBG_NET, ("Server: city %x building capitalization\n", m_data));
 			Unit city(m_data);
 			Assert(unitpool_Get()->IsValid(city));
 			if(unitpool_Get()->IsValid(city)) {
@@ -1158,7 +1163,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_BUILD_INFRASTRUCTURE:
 		{
-			DPRINTF(k_DBG_NET, ("Server: city %lx building infrastructure\n", m_data));
+			DPRINTF(k_DBG_NET, ("Server: city %x building infrastructure\n", m_data));
 			Unit city(m_data);
 			Assert(unitpool_Get()->IsValid(city));
 			if(unitpool_Get()->IsValid(city)) {
@@ -1168,7 +1173,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_BUILD_END_GAME:
 		{
-			DPRINTF(k_DBG_NET, ("Server: city %lx building end game %d\n", m_data, m_data2));
+			DPRINTF(k_DBG_NET, ("Server: city %x building end game %d\n", m_data, m_data2));
 			Unit city(m_data);
 			Assert(unitpool_Get()->IsValid(city));
 			if(unitpool_Get()->IsValid(city)) {
@@ -1183,7 +1188,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_TAKE_TRADE_OFFER:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Trade offer %lx taken by %d\n",
+			DPRINTF(k_DBG_NET, ("Server: Trade offer %x taken by %d\n",
 								m_data2, m_data));
 			if(player_Get(m_data)) {
 				TradeOffer offer(m_data2);
@@ -1198,7 +1203,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_SOLD_BUILDING:
 		{
-			DPRINTF(k_DBG_NET, ("City %lx sold building %d\n",
+			DPRINTF(k_DBG_NET, ("City %x sold building %d\n",
 								m_data, m_data2));
 			Unit city(m_data);
 			if(unitpool_Get()->IsValid(city)) {
@@ -1208,7 +1213,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_KILL_AGREEMENT:
 		{
-			DPRINTF(k_DBG_NET, ("Agreement %lx killed\n", m_data));
+			DPRINTF(k_DBG_NET, ("Agreement %x killed\n", m_data));
 			Agreement agreement(m_data);
 
 			if(agreementpool_Get()->IsValid(agreement)) {
@@ -1233,7 +1238,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 		case NET_INFO_CODE_CLEAR_QUEUE:
 		{
-			DPRINTF(k_DBG_NET, ("Build queue for city %lx cleared\n",
+			DPRINTF(k_DBG_NET, ("Build queue for city %x cleared\n",
 								m_data));
 			Unit city(m_data);
 			if(unitpool_Get()->IsValid(city)) {
@@ -1248,23 +1253,25 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_WONDER_BUILT:
 		{
-			DPRINTF(k_DBG_NET, ("Wonder %d built at %lx\n", m_data, m_data2));
+			DPRINTF(k_DBG_NET, ("Wonder %d built at %x\n", m_data, m_data2));
 			Unit city(m_data2);
 			if(unitpool_Get()->IsValid(city)) {
-			CityData *cd = city.GetData()->GetCityData();
-			if (m_data >= 0 && m_data < 64)
-				cd->SetWonders(cd->GetBuiltWonders() | ((uint64)1 << (uint64)m_data));
-				wonderutil_AddBuilt(m_data);
-				if(player_Get(cd->GetOwner())) {
-					player_Get(cd->GetOwner())->AddWonder(m_data, city);
+				CityData *cd = city.GetData()->GetCityData();
+				if (m_data >= 0 && m_data < 64)
+				{
+					cd->SetWonders(cd->GetBuiltWonders() | ((uint64)1 << (uint64)m_data));
+					wonderutil_AddBuilt(m_data);
+					if(player_Get(cd->GetOwner())) {
+						player_Get(cd->GetOwner())->AddWonder(m_data, city);
+					}
+					cd->GetBuildQueue()->SendMsgWonderComplete(cd, m_data);
 				}
-				cd->GetBuildQueue()->SendMsgWonderComplete(cd, m_data);
 			}
 			break;
 		}
 		case NET_INFO_CODE_SEND_OFFER_ACCEPT_MESSAGE:
 		{
-			DPRINTF(k_DBG_NET, ("Send offer accept message, Src: %lx, dest: %lx, res: %d\n",
+			DPRINTF(k_DBG_NET, ("Send offer accept message, Src: %x, dest: %x, res: %d\n",
 								m_data, m_data2, m_data3));
 			Unit src(m_data);
 			Unit dest(m_data2);
@@ -1310,7 +1317,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_RESET_UNIT_OWNER:
 		{
-			DPRINTF(k_DBG_NET, ("Reset unit %lx to owner %d, cause= %d\n",
+			DPRINTF(k_DBG_NET, ("Reset unit %x to owner %d, cause= %d\n",
 								m_data, m_data2, m_data3));
 			Unit unit(m_data);
 			if(unitpool_Get()->IsValid(m_data)) {
@@ -1331,14 +1338,14 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_NAK_ENACT:
 		{
-			DPRINTF(k_DBG_NET, ("Enact of %lx NAKed\n", m_data));
+			DPRINTF(k_DBG_NET, ("Enact of %x NAKed\n", m_data));
 			DiplomaticRequest req(m_data);
 			network_Get().RemoveEnact(req);
 			break;
 		}
 		case NET_INFO_CODE_REMOVE_ILLEGAL_ITEMS:
 		{
-			DPRINTF(k_DBG_NET, ("Server: remove illegal items at city %lx\n",
+			DPRINTF(k_DBG_NET, ("Server: remove illegal items at city %x\n",
 								m_data));
 			Unit city(m_data);
 			if(unitpool_Get()->IsValid(city)) {
@@ -1350,7 +1357,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_MAKE_UNIT_PERMANENT:
 		{
-			DPRINTF(k_DBG_NET, ("Server: Unit %lx is now a real unit\n",
+			DPRINTF(k_DBG_NET, ("Server: Unit %x is now a real unit\n",
 								m_data));
 			Unit unit(m_data);
 			if(unitpool_Get()->IsValid(unit)) {
@@ -1375,7 +1382,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_CLEAR_QUEUE_EXCEPT_HEAD:
 		{
-			DPRINTF(k_DBG_NET, ("Build queue for city %lx cleared\n",
+			DPRINTF(k_DBG_NET, ("Build queue for city %x cleared\n",
 								m_data));
 			Unit city(m_data);
 			if(unitpool_Get()->IsValid(city)) {
@@ -1425,7 +1432,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_WONDER_ALMOST_DONE:
 		{
-			DPRINTF(k_DBG_NET, ("Wonder %d almost finished by %d at %lx\n",
+			DPRINTF(k_DBG_NET, ("Wonder %d almost finished by %d at %x\n",
 								m_data2, m_data, m_data3));
 			if(unitpool_Get()->IsValid(m_data3)) {
 				SlicObject *so = new SlicObject("45WonderAlmostFinished");
@@ -1462,7 +1469,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_REVOLT_NOTICES:
 		{
-			DPRINTF(k_DBG_NET, ("Player %d's city %lx revolted to join %d (egalitarians = %d)\n",
+			DPRINTF(k_DBG_NET, ("Player %d's city %x revolted to join %d (egalitarians = %d)\n",
 								m_data, m_data3, m_data2, m_data4));
 			Unit city(m_data3);
 			if(unitpool_Get()->IsValid(city)) {
@@ -1607,7 +1614,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_VIOLATE_AGREEMENT:
 		{
-			DPRINTF(k_DBG_NET, ("Agreement %lx violated by %d\n", m_data, m_data2));
+			DPRINTF(k_DBG_NET, ("Agreement %x violated by %d\n", m_data, m_data2));
 			Agreement ag(m_data);
 			if(agreementpool_Get()->IsValid(ag)) {
 				ag.AccessData()->RecipientIsViolating((PLAYER_INDEX)m_data2, TRUE, turn_Get()->GetRound());
@@ -1616,7 +1623,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_SET_MAYOR:
 		{
-			DPRINTF(k_DBG_NET, ("set city 0x%lx mayor to %d,%d\n", m_data, m_data2, m_data3));
+			DPRINTF(k_DBG_NET, ("set city 0x%x mayor to %d,%d\n", m_data, m_data2, m_data3));
 			Unit city(m_data);
 			if(!city.IsValid()) {
 				network_Get().RequestResync(RESYNC_INVALID_UNIT);
@@ -1686,7 +1693,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_REMOTE_GROUP:
 		{
 
-			DPRINTF(k_DBG_NET, ("Server says group unit %lx into army %lx\n", m_data2, m_data));
+			DPRINTF(k_DBG_NET, ("Server says group unit %x into army %x\n", m_data2, m_data));
 			if(!armypool_Get()->IsValid(m_data)) {
 				network_Get().RequestResync(RESYNC_INVALID_ARMY_OTHER);
 				break;
@@ -1710,7 +1717,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_REMOTE_UNGROUP:
 		{
-			DPRINTF(k_DBG_NET, ("Server says ungrouping of Army %lx done (owner=%d)\n", m_data, m_data2));
+			DPRINTF(k_DBG_NET, ("Server says ungrouping of Army %x done (owner=%d)\n", m_data, m_data2));
 
 			if (static_cast<PLAYER_INDEX>(m_data2) == selitem_Get()->GetVisiblePlayer())
             {
@@ -1728,7 +1735,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_REENTER:
 		{
-			DPRINTF(k_DBG_NET, ("Reentry for army %lx\n", m_data));
+			DPRINTF(k_DBG_NET, ("Reentry for army %x\n", m_data));
 			if(!armypool_Get()->IsValid(m_data)) {
 				network_Get().RequestResync(RESYNC_INVALID_ARMY_OTHER);
 			} else {
@@ -1753,7 +1760,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_CREATED_WONDER:
 		{
-			DPRINTF(k_DBG_NET, ("Server says city %lx created wonder %d\n", m_data, m_data2));
+			DPRINTF(k_DBG_NET, ("Server says city %x created wonder %d\n", m_data, m_data2));
 			Unit city(m_data);
 			if(!city.IsValid()) {
 				network_Get().RequestResync(RESYNC_INVALID_UNIT);
@@ -1777,7 +1784,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_SET_EMBASSIES:
 		{
-			DPRINTF(k_DBG_NET, ("Server says embassies for player %d is %lx\n", m_data, m_data2));
+			DPRINTF(k_DBG_NET, ("Server says embassies for player %d is %x\n", m_data, m_data2));
 			if(player_Get(m_data)) {
 				player_Get(m_data)->m_embassies = m_data2;
 			}
@@ -1801,7 +1808,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_DISBANDED_CITY_SETTLER:
 		{
 			DPRINTF(k_DBG_NET,
-					("Server says unit %lx is a disbanded city settler\n", m_data)
+					("Server says unit %x is a disbanded city settler\n", m_data)
 				   );
 			Unit unit(m_data);
 			if (unit.IsValid())

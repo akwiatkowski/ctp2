@@ -4033,7 +4033,9 @@ void Governor::ComputeNextBuildItem(CityData *city, sint32 & cat, sint32 & type,
 		// else try next element
 	}
 
-	DPRINTF(k_DBG_AI, ("Nothing valid found to build in city at (%d,%d), increase production allocated to units?\n"));
+	// The (%d,%d) conversions had no arguments since the original Activision
+	// import; supply the city position the message has always promised.
+	DPRINTF(k_DBG_AI, ("Nothing valid found to build in city at (%d,%d), increase production allocated to units?\n", city->GetHomeCity().RetPos().x, city->GetHomeCity().RetPos().y));
 	cat = k_GAME_OBJ_TYPE_UNIT;
 	type = m_buildUnitList[BUILD_UNIT_LIST_DEFENSE].m_bestType;
 }
@@ -4415,7 +4417,7 @@ sint32 Governor::GetNeededUnitType(const CityData *city, sint32 & list_num) cons
 #if defined(_DEBUG)
 	UnitRecord const *	unit	= (type < 0) ? nullptr : GetDBUnitRec(type);
 	DPRINTF(k_DBG_GAMESTATE, ("Selected unit type: %s\n", unit ? unit->GetNameText() : "none"));
-	DPRINTF(k_DBG_GAMESTATE, ("Player: %lx\n", m_playerId));
+	DPRINTF(k_DBG_GAMESTATE, ("Player: %d\n", m_playerId));
 #endif
 
 	return type;

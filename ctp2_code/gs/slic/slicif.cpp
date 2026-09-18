@@ -388,7 +388,7 @@ void slicif_declare_fixed_array(char *name, SLIC_SYM type, int size)
 //              or implement the according behaviour of that function.
 //
 //----------------------------------------------------------------------------
-void slicif_add_op(SOP op, ...)
+void slicif_add_op(int op, ...)
 {
 	va_list vl;
 	double dval;
@@ -1320,15 +1320,15 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				break;
 			case SOP_JMP:
 				ival = slicif_read<int>(codePtr);
-				fprintf(debuglog, "jmp   0x%04lx\n", ival);
+				fprintf(debuglog, "jmp   0x%04x\n", ival);
 				break;
 			case SOP_BNT:
 				ival = slicif_read<int>(codePtr);
-				fprintf(debuglog, "bnt   0x%04lx\n", ival);
+				fprintf(debuglog, "bnt   0x%04x\n", ival);
 				break;
 			case SOP_BNEV:
 				ival = slicif_read<int>(codePtr);
-				fprintf(debuglog, "bnev  0x%04lx\n", ival);
+				fprintf(debuglog, "bnev  0x%04x\n", ival);
 				break;
 			case SOP_BUTN:
 				ival = slicif_read<int>(codePtr);
@@ -1343,12 +1343,12 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 					fprintf(debuglog, "Bad Mojo, button string arg doesn't have string type\n");
 					return;
 				}
-				fprintf(debuglog, "butn  0x%04lx,%d(%s)\n", ival,
+				fprintf(debuglog, "butn  0x%04x,%d(%s)\n", ival,
 						symval->GetIndex(), symval->GetName());
 				break;
 			case SOP_OCLS:
 				ival = slicif_read<int>(codePtr);
-				fprintf(debuglog, "ocls  0x%04lx\n", ival);
+				fprintf(debuglog, "ocls  0x%04x\n", ival);
 				break;
 			case SOP_STOP:
 				fprintf(debuglog, "stop\n");
@@ -1408,9 +1408,8 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 			case SOP_DBNAME:
 			{
 				//Get the database name:
-				int i;
 				dbName = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
@@ -1435,9 +1434,8 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 			case SOP_DBNAMEREF:
 			{
 				//Get the database name:
-				int i;
 				dbName = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
@@ -1446,7 +1444,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 				//Get the member name:
 				name = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
@@ -1469,9 +1467,8 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 			case SOP_DBNAMEARRAY:
 			{
 				//Get the database name:
-				int i;
 				dbName = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
@@ -1480,7 +1477,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 				//Get the member name:
 				name = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
@@ -1502,9 +1499,8 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 			case SOP_DBNAMECONSTARRAY:
 			{
 				//Get the database name:
-				int i;
 				dbName = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
@@ -1513,7 +1509,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 				//Get the member name:
 				name = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
@@ -1529,9 +1525,8 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 			case SOP_DB:
 			{
 				//Get the database name:
-				int i;
 				dbName = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
@@ -1547,16 +1542,15 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 			case SOP_DBREF:
 			{
 				//Get the database name:
-				int i;
 				dbName = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
 
 				//Get the member name:
 				name = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
@@ -1572,16 +1566,15 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 			case SOP_DBARRAY:
 			{
 				//Get the database name:
-				int i;
 				dbName = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
 
 				//Get the member name:
 				name = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
@@ -1599,9 +1592,8 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				//Added by Martin G�hmann to figure out via
 				//slic how many records the database contains
 				//Get the database name:
-				int i;
 				dbName = ((char*)codePtr);
-				for(i = 0; *((char*)codePtr) != '\0'; ++i){
+				while(*((char*)codePtr) != '\0'){
 					codePtr += sizeof(char);
 				}
 				codePtr += sizeof(char);
@@ -1801,7 +1793,7 @@ char *slicif_create_name(const char *base)
 {
 	size_t const nameSize = strlen(base) + 10;
 	char *name = (char *)malloc(nameSize);
-	snprintf(name, nameSize, "%s!%08lx", base, s_temp_name_counter++);
+	snprintf(name, nameSize, "%s!%08x", base, s_temp_name_counter++);
 	return name;
 }
 
@@ -1893,7 +1885,7 @@ void slicif_check_arg_symbol(SLIC_SYM type, const char *typeName)
 
 		if(type != SLIC_SYM_IVAR && type != SLIC_SYM_PLAYER && type != SLIC_SYM_LOCATION &&
 			type != SLIC_SYM_CITY && type != SLIC_SYM_UNIT && type != SLIC_SYM_ARMY) {
-			snprintf(errbuf, sizeof(errbuf), "Argument %u requires a symbol", s_currentEventArgument[s_parenLevel] + 1);
+			snprintf(errbuf, sizeof(errbuf), "Argument %zu requires a symbol", s_currentEventArgument[s_parenLevel] + 1);
 			yyerror(errbuf);
 		}
 		return;
@@ -1922,7 +1914,7 @@ void slicif_check_arg_symbol(SLIC_SYM type, const char *typeName)
 		return;
 	}
 	if(symType != type) {
-		snprintf(errbuf, sizeof(errbuf), "Type mismatch for argument %u, expected %s", s_currentEventArgument[s_parenLevel] + 1, typeName);
+		snprintf(errbuf, sizeof(errbuf), "Type mismatch for argument %zu, expected %s", s_currentEventArgument[s_parenLevel] + 1, typeName);
 		yyerror(errbuf);
 		return;
 	}
@@ -1984,7 +1976,7 @@ void slicif_check_num_args()
 
 	if((s_currentEvent < GEV_MAX) && s_parenLevel == 1) {
 		if((s_currentEventArgument[s_parenLevel]) != GameEventManager::GetNumArgs(s_currentEvent)) {
-			snprintf(errbuf, sizeof(errbuf), "Wrong number of arguments for event %s, expected %u",
+			snprintf(errbuf, sizeof(errbuf), "Wrong number of arguments for event %s, expected %zu",
 			        GameEventManager::GetEventName(s_currentEvent),
 			        GameEventManager::GetNumArgs(s_currentEvent));
 			yyerror(errbuf);

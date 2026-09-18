@@ -144,7 +144,7 @@ sint32 creditsscreen_Initialize()
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 	    g_creditsWindow.reset(new CreditsWindow
-            (&errcode, aui_UniqueId(), k_LDL_CREDITS_WINDOW,
+            (&errcode, aui_UniqueId(), const_cast<MBCHAR *>(k_LDL_CREDITS_WINDOW),
 		     k_CREDITS_BITS_PER_PIXEL, AUI_WINDOW_TYPE_FLOATING
             ));
 	    Assert(AUI_SUCCESS(errcode));
@@ -1256,11 +1256,9 @@ AUI_ERRCODE c3_CreditsText::Idle()
 	if (deltaTime < m_animationSpeed) return AUI_ERRCODE_OK;
 
 
-	sint32 animationTime = 0;
+	// Consume whole animation steps; the leftover delta keeps the next
+	// Idle() call's timing accurate.
 	do {
-
-		animationTime++;
-
 		deltaTime -= m_animationSpeed;
 	} while((deltaTime - m_animationSpeed) > 0);
 

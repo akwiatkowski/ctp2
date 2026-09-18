@@ -131,12 +131,15 @@ GameEventManager::~GameEventManager()
 
 
 GAME_EVENT_ERR GameEventManager::AddEvent(GAME_EVENT_INSERT insert,
-										  GAME_EVENT type, ...)
+										  sint32 type, ...)
 {
 	Assert((type >= (GAME_EVENT) 0) && (type < GEV_MAX));
 	if(type < (GAME_EVENT)0 || type >= GEV_MAX)
 		return GEV_ERR_BadEvent;
 
+	// va_start requires a non-enum last named parameter (default argument
+	// promotion makes enum UB there), so type arrives as sint32.
+	const GAME_EVENT event_type = static_cast<GAME_EVENT>(type);
 
 
 
@@ -150,12 +153,12 @@ GAME_EVENT_ERR GameEventManager::AddEvent(GAME_EVENT_INSERT insert,
 	if(m_processing) {
 		EVENTLOG(("    "));
 	}
-	EVENTLOG(("AddEvent: %s(", event_description(type).name));
+	EVENTLOG(("AddEvent: %s(", event_description(event_type).name));
 
 	va_list vl;
 	va_start(vl, type);
 
-	bool argsOk = VerifyArgs(type, &vl);
+	bool argsOk = VerifyArgs(event_type, &vl);
 	va_end(vl);
 
 	EVENTLOG(("): Serial: %d\n", m_serial));
@@ -167,11 +170,11 @@ GAME_EVENT_ERR GameEventManager::AddEvent(GAME_EVENT_INSERT insert,
 
 	va_start(vl, type);
 
-	GameEventArgList *argList = new GameEventArgList(&vl, type);
+	GameEventArgList *argList = new GameEventArgList(&vl, event_type);
 
 	va_end(vl);
 
-	return ArglistAddEvent(insert, type, argList);
+	return ArglistAddEvent(insert, event_type, argList);
 }
 
 GAME_EVENT_ERR GameEventManager::ArglistAddEvent(GAME_EVENT_INSERT insert,
@@ -567,31 +570,33 @@ bool GameEventManager::VerifyArgs(GAME_EVENT type, va_list *vl)
 #endif
 
 		switch(nextArg) {
-			case GEA_Army:
-				if(!CheckArg(argNum, *argString, GEAC_ARMY)) return false;
-				a = va_arg(*vl, Army);
-				DG_PRINT(EVENTLOGNAME, "0x%lx, ", a.m_id);
-				break;
-			case GEA_Unit:
-				if(!CheckArg(argNum, *argString, GEAC_UNIT)) return false;
-				u = va_arg(*vl, Unit);
-				DG_PRINT(EVENTLOGNAME, "0x%lx, ", u.m_id);
-				break;
-			case GEA_City:
-				if(!CheckArg(argNum, *argString, GEAC_CITY)) return false;
-				c = va_arg(*vl, Unit);
-				DG_PRINT(EVENTLOGNAME, "0x%lx, ", c.m_id);
-				break;
+		case GEA_Army:
+			if(!CheckArg(argNum, *argString, GEAC_ARMY)) return false;
+			a = va_arg(*vl, Army);
+			// m_id fields are uint32 id handles: %x, not %lx (expects unsigned long).
+			DG_PRINT(EVENTLOGNAME, "0x%x, ", a.m_id);
+			break;
+		case GEA_Unit:
+			if(!CheckArg(argNum, *argString, GEAC_UNIT)) return false;
+			u = va_arg(*vl, Unit);
+			DG_PRINT(EVENTLOGNAME, "0x%x, ", u.m_id);
+			break;
+		case GEA_City:
+			if(!CheckArg(argNum, *argString, GEAC_CITY)) return false;
+			c = va_arg(*vl, Unit);
+			DG_PRINT(EVENTLOGNAME, "0x%x, ", c.m_id);
+			break;
 			case GEA_Gold:
 				if(!CheckArg(argNum, *argString, GEAC_GOLD)) return false;
 				value = va_arg(*vl, sint32);
 				DG_PRINT(EVENTLOGNAME, "%d, ", value);
 				break;
-			case GEA_Path:
-				if(!CheckArg(argNum, *argString, GEAC_PATH)) return false;
-				path = va_arg(*vl, Path *);
-				DG_PRINT(EVENTLOGNAME, "0x%lx, ", path);
-				break;
+		case GEA_Path:
+			if(!CheckArg(argNum, *argString, GEAC_PATH)) return false;
+			path = va_arg(*vl, Path *);
+			// Path* is a pointer: print via uintptr_t cast, keeping %lx (battle.cpp idiom).
+			DG_PRINT(EVENTLOGNAME, "0x%lx, ", reinterpret_cast<uintptr_t>(path));
+			break;
 			case GEA_MapPoint:
 				if(!CheckArg(argNum, *argString, GEAC_MAPPOINT)) return false;
 				pos = va_arg(*vl, MapPoint);
@@ -623,16 +628,16 @@ bool GameEventManager::VerifyArgs(GAME_EVENT type, va_list *vl)
 				value = va_arg(*vl, sint32);
 				DG_PRINT(EVENTLOGNAME, "%d, ", value);
 				break;
-			case GEA_Improvement:
-				if(!CheckArg(argNum, *argString, GEAC_IMPROVEMENT)) return false;
-				imp = va_arg(*vl, TerrainImprovement);
-				DG_PRINT(EVENTLOGNAME, "0x%lx, ", imp.m_id);
-				break;
-			case GEA_TradeRoute:
-				if(!CheckArg(argNum, *argString, GEAC_TRADEROUTE)) return false;
-				route = va_arg(*vl, TradeRoute);
-				DG_PRINT(EVENTLOGNAME, "0x%lx, ", route.m_id);
-				break;
+		case GEA_Improvement:
+			if(!CheckArg(argNum, *argString, GEAC_IMPROVEMENT)) return false;
+			imp = va_arg(*vl, TerrainImprovement);
+			DG_PRINT(EVENTLOGNAME, "0x%x, ", imp.m_id);
+			break;
+		case GEA_TradeRoute:
+			if(!CheckArg(argNum, *argString, GEAC_TRADEROUTE)) return false;
+			route = va_arg(*vl, TradeRoute);
+			DG_PRINT(EVENTLOGNAME, "0x%x, ", route.m_id);
+			break;
 			case GEA_End:
 			if(*(argString) != 0) {
 #ifdef _DEBUG

@@ -60,7 +60,7 @@ void intromoviewin_Initialize()
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	if (g_introMovieWindow == nullptr) {
-		g_introMovieWindow = new IntroMovieWindow(&errcode, aui_UniqueId(), "IntroMovieWindow", 16);
+		g_introMovieWindow = new IntroMovieWindow(&errcode, aui_UniqueId(), const_cast<MBCHAR *>("IntroMovieWindow"), 16);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK)
 			g_introMovieWindow = nullptr;
@@ -71,7 +71,7 @@ void intromoviewin_Initialize()
 
 void intromoviewin_DisplayIntroMovie()
 {
-	MBCHAR		*whichMovie;
+	const MBCHAR	*whichMovie;
 
 	Assert(g_introMovieWindow != nullptr);
 	if (g_introMovieWindow == nullptr) return;

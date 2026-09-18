@@ -60,7 +60,7 @@
 
 extern PointerList<Player>      *g_deadPlayer;
 
-static sint32			s_minRound = 0;
+
 
 
 RankingTab * RankingTab::s_current_ranking_tab = nullptr;
@@ -90,17 +90,17 @@ RankingTab::RankingTab(ctp2_Window *parent)
 	m_rankingDropDown->Clear();
 
 	uint32 counter = 0;
-	Add_Dropdown_Category("str_ldl_RANKING_MILITARY");
+	Add_Dropdown_Category(const_cast<char *>("str_ldl_RANKING_MILITARY"));
 	m_rankingMilitary = counter++;
-	Add_Dropdown_Category("str_ldl_RANKING_ECONOMIC");
+	Add_Dropdown_Category(const_cast<char *>("str_ldl_RANKING_ECONOMIC"));
 	m_rankingEconomic = counter++;
-	Add_Dropdown_Category("str_ldl_RANKING_SCIENTIFIC");
+	Add_Dropdown_Category(const_cast<char *>("str_ldl_RANKING_SCIENTIFIC"));
 	m_rankingScientific = counter++;
-	Add_Dropdown_Category("str_ldl_RANKING_POLLUTION");
+	Add_Dropdown_Category(const_cast<char *>("str_ldl_RANKING_POLLUTION"));
 	m_rankingPollution = counter++;
-	Add_Dropdown_Category("str_ldl_RANKING_WONDERS");
+	Add_Dropdown_Category(const_cast<char *>("str_ldl_RANKING_WONDERS"));
 	m_rankingWonders = counter++;
-	Add_Dropdown_Category("str_ldl_RANKING_OVERALL");
+	Add_Dropdown_Category(const_cast<char *>("str_ldl_RANKING_OVERALL"));
 	m_rankingOverall = counter++;
 
 	m_rankingDropDown->SetSelectedItem(m_rankingOverall);

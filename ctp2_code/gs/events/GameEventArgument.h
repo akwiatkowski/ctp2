@@ -57,7 +57,9 @@ class GameEventArgument
 {
 public:
 	GameEventArgument(GAME_EVENT_ARGUMENT type, va_list *vl, bool isAlwaysValid = false);
-	GameEventArgument(GAME_EVENT_ARGUMENT type, ...);
+	// sint32 (not GAME_EVENT_ARGUMENT): va_start on a last named enum param
+	// is UB because enums undergo default argument promotion.
+	GameEventArgument(sint32 type, ...);
 	~GameEventArgument();
 
 	void Init(GAME_EVENT_ARGUMENT type, va_list *vl,  bool isAlwaysValid = false);

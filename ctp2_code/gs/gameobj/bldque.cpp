@@ -405,7 +405,7 @@ bool BuildQueue::BuildFrontUnit(bool forceFinish)
 		}
 		// End EMOD
 
-		DPRINTF(k_DBG_GAMESTATE, ("City %lx building unit: %s\n",
+		DPRINTF(k_DBG_GAMESTATE, ("City %x building unit: %s\n",
 								  (uint32)cd->GetHomeCity(),
 								  stringdb_Get()->GetNameStr(g_theUnitDB->Get(m_list->GetHead()->m_type)->m_name)));
 
@@ -427,7 +427,7 @@ bool BuildQueue::BuildFrontBuilding()
 {
 	if (m_list->GetHead()->m_cost <= m_city.CD()->GetStoredCityProduction()) {
 		DPRINTF(k_DBG_GAMESTATE, (
-				  "City %lx built improvement: %s\n",
+				  "City %x built improvement: %s\n",
 				  (uint32)m_city,
 				  stringdb_Get()->GetNameStr(g_theBuildingDB->Get(m_list->GetHead()->m_type)->m_name)));
 
@@ -452,7 +452,7 @@ bool BuildQueue::BuildFrontWonder()
 	}
 
 	if(m_list->GetHead()->m_cost <= m_city.CD()->GetStoredCityProduction()) {
-		DPRINTF(k_DBG_GAMESTATE, ("City %lx built wonder: %s\n",
+		DPRINTF(k_DBG_GAMESTATE, ("City %x built wonder: %s\n",
 								  (uint32)m_city,
 								  stringdb_Get()->GetNameStr(g_theWonderDB->Get(m_list->GetHead()->m_type)->GetName())));
 
@@ -495,8 +495,8 @@ bool BuildQueue::BuildFrontEndgame()
 
 
 		m_list->GetHead()->m_flags |= k_BUILD_NODE_FLAG_ALREADY_BUILT;
-		DPRINTF(k_DBG_GAMESTATE, ("City %lx built endgame object type %d\n",
-								  m_city, m_list->GetHead()->m_type));
+		DPRINTF(k_DBG_GAMESTATE, ("City %x built endgame object type %d\n",
+								  m_city.m_id, m_list->GetHead()->m_type));
 		player_Get(m_owner)->AddEndGameObject(m_city, m_list->GetHead()->m_type);
 		return true;
 	} else {
@@ -514,7 +514,7 @@ bool BuildQueue::BuildFront(sint32 &shieldstore, CityData *cd, const MapPoint &p
 	m_popcoststobuild_pending = false; // EMOD
 
     if (m_list->GetHead()) {
-		DPRINTF(k_DBG_GAMESTATE, ("BuildFront: City %lx building %d,%d\n",
+		DPRINTF(k_DBG_GAMESTATE, ("BuildFront: City %x building %d,%d\n",
 								  m_city.m_id, m_list->GetHead()->m_category,
 								  m_list->GetHead()->m_type));
 
@@ -556,7 +556,7 @@ bool BuildQueue::BuildFront(sint32 &shieldstore, CityData *cd, const MapPoint &p
         return true;
     } else {
 
-		DPRINTF(k_DBG_GAMESTATE, ("BuildFront: City %lx building nothing\n",
+		DPRINTF(k_DBG_GAMESTATE, ("BuildFront: City %x building nothing\n",
 								  m_city.m_id));
 
         if (!Player::IsThisPlayerARobot(m_owner) ||
@@ -579,7 +579,7 @@ bool BuildQueue::BuildFront(sint32 &shieldstore, CityData *cd, const MapPoint &p
 								  );
 
 				s = static_cast<sint32>(static_cast<double>(shieldstore) * penalty);
-				DPRINTF(k_DBG_GAMESTATE, ("Deducting %i shields for empty queue in city of %lx\n", s, m_city.m_id));
+			DPRINTF(k_DBG_GAMESTATE, ("Deducting %i shields for empty queue in city of %x\n", s, m_city.m_id));
 				shieldstore = s;
 			}
         }
@@ -748,7 +748,7 @@ void BuildQueue::FinishBuildFront(Unit &u)
 	//					   GEA_City, m_city,
 	//					   GEA_End);
 
-	DPRINTF(k_DBG_GAMESTATE, ("Setting rollover shieldstore to %d for %lx\n", rollOverShields, m_city.m_id));
+	DPRINTF(k_DBG_GAMESTATE, ("Setting rollover shieldstore to %d for %x\n", rollOverShields, m_city.m_id));
 	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_RollOverProduction,
 						   GEA_City, m_city,
 						   GEA_Int, rollOverShields,
@@ -1598,8 +1598,8 @@ void BuildQueue::FinishCreatingUnit(Unit &u)
 		const UnitRecord *rec = u.GetDBRec();
 
 		if(  !player_Get(m_owner)->IsRobot()
-		|| (  network_Get().IsClient()
-		&&    network_Get().IsLocalPlayer(m_owner)
+		|| (  (network_Get().IsClient()
+		&&    network_Get().IsLocalPlayer(m_owner))
 		||  (!network_Get().IsActive()
 		&&   !profiledb_Get()->AIPopCheat()
 		    )

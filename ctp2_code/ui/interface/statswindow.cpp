@@ -86,7 +86,6 @@ StatsWindow *g_statsWindow = nullptr;
 #define k_TURN_WINDOW_HEIGHT640	135
 
 static ctp2_Button **s_statsButton = nullptr;
-static c3_Switch *s_screensSwitch;
 
 static MBCHAR	s_buttonName[k_STATS_NUM_BUTTONS][256] ={
 	"CivButton",

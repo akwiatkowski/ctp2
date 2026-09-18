@@ -326,10 +326,12 @@ void aui_Button::MouseLDropInside( aui_MouseEvent *mouseData )
 			}
 
 			if ( !HandleGameSpecificLeftClick( this ) )
+			{ // else below binds to if ( m_ActionFunc ), not to this if
 			if ( m_ActionFunc )
 				m_ActionFunc( this, AUI_BUTTON_ACTION_EXECUTE, 0, m_cookie );
 			else if ( m_action )
 				m_action->Execute( this, AUI_BUTTON_ACTION_EXECUTE, 0 );
+			}
 		}
 		else
 		{

@@ -68,7 +68,7 @@
 
 
 void Debug_FunctionNameInit ();
-int Debug_FunctionNameOpen (char *map_file_name);
+int Debug_FunctionNameOpen (const char *map_file_name);
 
 #ifdef WIN32
 
@@ -298,7 +298,7 @@ void Debug_FunctionNameInit ()
 	fa_first = nullptr;
 }
 
-int Debug_FunctionNameOpen (char *map_file_name)
+int Debug_FunctionNameOpen (const char *map_file_name)
 {
   FILE *fp;
   char buffer[BUFFER_SIZE];
@@ -361,8 +361,10 @@ int Debug_FunctionNameOpen (char *map_file_name)
 }
 
 
-static HANDLE	hProc,
-				hThread;
+#if defined(_MSC_VER) && (_MSC_VER < 1400)
+// Only referenced by the legacy SymEnumerateSymbols path below.
+static HANDLE	hProc;
+#endif
 
 #ifdef WIN32
 

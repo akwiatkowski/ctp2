@@ -66,11 +66,13 @@ void WriteNum(long v)
 void Handler(int sig, siginfo_t * info, void *)
 {
     // A crash inside the handler (or on a second thread) must not recurse.
-    if (s_inHandler++) {
+    if (s_inHandler) {
         signal(sig, SIG_DFL);
         raise(sig);
         return;
     }
+    // Plain assignment: ++ on volatile sig_atomic_t is deprecated in C++20.
+    s_inHandler = 1;
 
     WriteBoth("\n==================== CTP2 CRASH ====================\nsignal ");
     WriteNum(sig);

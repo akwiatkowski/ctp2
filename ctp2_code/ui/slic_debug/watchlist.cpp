@@ -177,7 +177,7 @@ void WatchListButtonCallback(aui_Control *control, uint32 action, uint32 data, v
 		return;
 
 	if(control == g_watchList->GetNewButton()) {
-		g_watchList->AddExpression("");
+		g_watchList->AddExpression(const_cast<char *>(""));
 	}
 
 	if(control == g_watchList->GetClearButton()) {
@@ -260,7 +260,7 @@ sint32 WatchList::UpdateData()
 void WatchList::AddExpression(char *exp)
 {
 	AUI_ERRCODE retval = AUI_ERRCODE_OK;
-	WatchListItem *item = new WatchListItem(&retval, 0, exp, "WatchListItem");
+	WatchListItem *item = new WatchListItem(&retval, 0, exp, const_cast<MBCHAR *>("WatchListItem"));
 	m_list->AddItem(item);
 }
 

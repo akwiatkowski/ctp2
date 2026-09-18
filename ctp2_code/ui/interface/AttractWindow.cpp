@@ -32,7 +32,7 @@ void AttractWindow::Initialize()
 {
 	AUI_ERRCODE		retval;
 
-	g_attractWindow.reset(new AttractWindow(&retval, aui_UniqueId(), "AttractWindow", 16));
+	g_attractWindow.reset(new AttractWindow(&retval, aui_UniqueId(), const_cast<MBCHAR *>("AttractWindow"), 16));
 	Assert(g_attractWindow);
 	if (!g_attractWindow)
 		return;

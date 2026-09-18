@@ -129,7 +129,8 @@ public:
 		const MBCHAR *text,
 		uint32 len = 0xffffffff );
 
-	AUI_ERRCODE	SetText2(MBCHAR *fmt,...);
+	// format(printf,2,3): printf-style wrapper (vsnprintf inside).
+	AUI_ERRCODE	SetText2(MBCHAR *fmt,...) __attribute__((format(printf, 2, 3)));
 
 	virtual AUI_ERRCODE	AppendText(MBCHAR const * text);
 

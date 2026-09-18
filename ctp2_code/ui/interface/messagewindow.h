@@ -124,6 +124,14 @@ private:
 	std::unique_ptr<MessageMinimizeAction>	m_minimizeAction;
 	std::unique_ptr<MessageDismissAction>	m_dismissAction;
 	std::unique_ptr<MessageLibraryAction>	m_libraryAction;
+
+private:
+	// c3_PopupWindow declares a private virtual InitCommon(); the public
+	// InitCommon(Message, MessageIconWindow*) overload above would otherwise
+	// hide it. This override is never invoked: the base constructor
+	// dispatches to the base version, and nothing else can call a private
+	// virtual through this class.
+	AUI_ERRCODE InitCommon() override { return AUI_ERRCODE_OK; }
 };
 
 #endif

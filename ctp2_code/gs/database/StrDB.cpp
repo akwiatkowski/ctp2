@@ -282,6 +282,16 @@ bool StringDB::GetText(MBCHAR const * get_id, MBCHAR ** new_text) const
 	return GetStrNode(GetHead(get_id), get_id, new_text);
 }
 
+MBCHAR const * StringDB::GetTextOr(MBCHAR const * get_id, MBCHAR const * fallback) const
+{
+	// See the declaration in StrDB.h for the format_arg contract: the
+	// fallback literal at the call site is what the compiler checks.
+	MBCHAR * localized = nullptr;
+	if (!GetText(get_id, &localized))
+		return fallback;
+	return localized ? localized : fallback;
+}
+
 //----------------------------------------------------------------------------
 //
 // Name       : StringDB::GetIdStr
@@ -670,4 +680,13 @@ void StringDB::Export(MBCHAR * file)
 	}
 
 	c3files_fclose(fout);
+}
+
+MBCHAR const * stringdb_FormatOr(MBCHAR const * key, MBCHAR const * fallback)
+{
+	// Prefer the localized template; fall back to the caller's hardcoded
+	// literal when the string db is empty or lacks the key. See the
+	// declaration in StrDB.h for the format_arg contract.
+	MBCHAR const * localized = stringdb_Get()->GetNameStr(key);
+	return localized ? localized : fallback;
 }

@@ -546,7 +546,7 @@ sint32 sci_advancescreen_loadList( )
 			{
 				child->SetText(str);
 			}
-			item->SetUserData((void*)i);
+			item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(i)));
 			item->SetCompareCallback(ScienceSortCallback);
 
 			s_advanceList->AddItem( item );

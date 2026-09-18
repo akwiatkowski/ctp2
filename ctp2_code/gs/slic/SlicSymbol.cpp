@@ -669,26 +669,26 @@ void SlicSymbolData::GetDebugText(MBCHAR *text, sint32 len) const
 			break;
 		case SLIC_SYM_CITY:
 			if(GetCity(city)) {
-				snprintf(text, len, "City %lx: %s", city.m_id,
+				snprintf(text, len, "City %x: %s", city.m_id,
 						city.GetName());
 			} else {
-				snprintf(text, len, "Invalid city (%lx?)", m_val.m_city_id);
+				snprintf(text, len, "Invalid city (%x?)", m_val.m_city_id);
 			}
 			break;
 		case SLIC_SYM_UNIT:
 			if(GetUnit(u)) {
 
-				snprintf(text, len, "Unit %lx: %s", u.m_id,
+				snprintf(text, len, "Unit %x: %s", u.m_id,
 						u.IsValid() ? u.GetName() : "<DEAD>");
 			} else {
-				snprintf(text, len, "Invalid unit (%lx?)", m_val.m_unit_id);
+				snprintf(text, len, "Invalid unit (%x?)", m_val.m_unit_id);
 			}
 			break;
 		case SLIC_SYM_ARMY:
 			if(GetArmy(army)) {
-				snprintf(text, len, "Army %lx", army.m_id);
+				snprintf(text, len, "Army %x", army.m_id);
 			} else {
-				snprintf(text, len, "Invalid army (%lx?)", m_val.m_army_id);
+				snprintf(text, len, "Invalid army (%x?)", m_val.m_army_id);
 			}
 			break;
 		case SLIC_SYM_LOCATION:
@@ -806,6 +806,29 @@ void SlicSymbolData::SetType(SLIC_SYM type)
 		case SLIC_SYM_SVAR:
 			res = stringdb_Get()->GetStringID(GetName(), m_val.m_string_value);
 			Assert(res);
+			break;
+		// All other types need no per-type initialization here.
+		case SLIC_SYM_IVAR:
+#ifdef SLIC_DOUBLES
+		case SLIC_SYM_DVAR:
+#endif
+		case SLIC_SYM_ID:
+		case SLIC_SYM_REGION:
+		case SLIC_SYM_COMPLEX_REGION:
+		case SLIC_SYM_STRING:
+		case SLIC_SYM_CITY:
+		case SLIC_SYM_UNIT:
+		case SLIC_SYM_ARMY:
+		case SLIC_SYM_LOCATION:
+		case SLIC_SYM_BUILTIN:
+		case SLIC_SYM_STRUCT:
+		case SLIC_SYM_STRUCT_MEMBER:
+		case SLIC_SYM_PLAYER:
+		case SLIC_SYM_UFUNC:
+		case SLIC_SYM_POP:
+		case SLIC_SYM_PATH:
+		case SLIC_SYM_IMPROVEMENT:
+		case SLIC_SYM_UNDEFINED:
 			break;
 	}
 }

@@ -756,8 +756,8 @@ Network::Process()
 		}
 
 		BattleViewWindow *bvw = battleviewwindow_Get();
-		if(c3ui_Get() &&
-		   (bvw && c3ui_Get()->GetWindow(bvw->Id())) ||
+		if((c3ui_Get() &&
+		   (bvw && c3ui_Get()->GetWindow(bvw->Id()))) ||
 		   (diplomacyShouldPause)) {
 			if(m_battleViewOpenedTime < 0) {
 				m_battleViewOpenedTime = timeNow;
@@ -888,7 +888,7 @@ void Network::Init()
 		if(err == NET_ERR_OK) {
 			if(!profiledb_Get()->UseIPX()) {
 
-				err = m_netIO->SetLobby("california12.activision.com");
+				err = m_netIO->SetLobby(const_cast<char *>("california12.activision.com"));
 			}
 		}
 		if(err == NET_ERR_OK) {
@@ -1078,8 +1078,12 @@ void Network::AddPlayer(uint16 id,
 	PointerList<PlayerData>::Walker walk(m_newPlayerList);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->m_id == id) {
+			// (Bug fix: format promised three conversions but only `id` and
+			// `name` were supplied — the %d for the existing player's number
+			// read whatever was next in the varargs. Supply the existing
+			// player's id explicitly.)
 			DPRINTF(k_DBG_NET, ("AddPlayer(%d), but player %d (%s) is already in the new player list\n",
-			                    id, name));
+			                    id, walk.GetObj()->m_id, name));
 			return;
 		}
 		walk.Next();
@@ -2098,11 +2102,8 @@ Network::IndexToId(sint32 index)
 
 void Network::SetPlayerIndex(sint32 index, uint16 id)
 {
-	BOOL sendMessage = FALSE;
 	if(id == m_pid) {
 		m_playerIndex = index;
-	} else {
-		sendMessage = TRUE;
 	}
 	m_totalTimeUsed = 0;
 
@@ -2120,7 +2121,7 @@ void Network::SetPlayerIndex(sint32 index, uint16 id)
 	}
 
 	if(!m_playerData[index]) {
-		AddPlayer(id, "anotherclient");
+		AddPlayer(id, const_cast<char *>("anotherclient"));
 		m_playerData[index] = m_newPlayerList->RemoveTail();
 		m_playerData[index]->m_ready = TRUE;
 	}

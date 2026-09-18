@@ -108,7 +108,6 @@ Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/world/World.h"                  // world_Get()
 #include "gs/gameobj/Wormhole.h"
-#include <zlib.h>
 
 #ifndef WIN32
 #include <sys/types.h>
@@ -239,18 +238,6 @@ void GameFile::SaveGame(const MBCHAR *filename, SaveInfo *info)
 GameFile::GameFile()
 = default;
 
-static uint32 CompressData(uint8 *inbuf, size_t insize,
-                           uint8 **outbuf, size_t *outsize)
-{
-	uLong tsize = (uLong)(((double)insize * 1.01) + 12.5);
-
-	*outbuf = new uint8[tsize];
-
-	int err = compress2(*outbuf, &tsize, inbuf, insize, Z_DEFAULT_COMPRESSION);
-	*outsize = tsize;
-
-	return (err == Z_OK);
-}
 
 
 

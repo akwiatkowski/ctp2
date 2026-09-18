@@ -39,8 +39,9 @@ public:
 	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( BOOL fromLDL );
 
-	virtual void		SetTextFont(MBCHAR *name) { aui_TextBox::SetTextFont(name); }
-	virtual void		SetTextFontSize( uint8 size ) { aui_TextBox::SetTextFontSize(size); }
+	// SetTextFont/SetTextFontSize are inherited from aui_TextBox; the old
+	// forwarding declarations used mismatched signatures and hid the base
+	// overloads instead of overriding them.
 	AUI_ERRCODE	RepositionItems( ) override;
 
 protected:

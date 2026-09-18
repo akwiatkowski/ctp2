@@ -452,7 +452,7 @@ void spnewgametribescreen_addTribe(sint32 tribe)
 		if(!item)
 			return;
 
-		item->SetUserData((void *)tribe);
+		item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(tribe)));
 
 		ctp2_Static *text = (ctp2_Static *)item->GetChildByIndex(0);
 		Assert(text);

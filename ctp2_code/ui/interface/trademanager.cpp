@@ -76,8 +76,8 @@
 #include "gfx/tilesys/tiledmap.h"
 
 static TradeManager *   s_tradeManager      = nullptr;
-static MBCHAR *         s_tradeManagerBlock = "TradeManager";
-static MBCHAR *         s_tradeAdviceBlock  = "TradeAdvice";
+static MBCHAR const *   s_tradeManagerBlock = "TradeManager";
+static MBCHAR const *   s_tradeAdviceBlock  = "TradeAdvice";
 
 #define k_MAX_CITIES_PER_GOOD 5 //make this a constDB? - it should be 6.12.2007
 
@@ -335,7 +335,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 
 				sint32 op;
 				sint32 maxPrice[k_MAX_CITIES_PER_GOOD];
-				sint32 sellingPrice = -1;
+
 				Unit curDestCity;
 
 				sint32 i;
@@ -348,7 +348,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 
 				if(!city.CD()->HasResource(g) &&
 					city.CD()->IsSellingResourceTo(g, curDestCity) ) {
-					sellingPrice = tradeutil_GetTradeValue(player_id, curDestCity, g);
+					tradeutil_GetTradeValue(player_id, curDestCity, g);
 
 				//need to add something here where cities that have an improvement that needs a good will demand the good. May be increase the value of selling that good?
 
@@ -358,7 +358,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 				}
 				else {
 					curDestCity.m_id = 0;
-					sellingPrice = -1;
+
 				}
 
 				for(op = 1; op < k_MAX_PLAYERS; op++) {
@@ -483,7 +483,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 						if (ctp2_Static * nation = (ctp2_Static *)item->GetChildByIndex(k_NATION_COL_INDEX))
                         {
 							nation->SetDrawCallbackAndCookie
-                                (DrawNationColumn, (void *)data->m_destination.GetOwner());
+                                (DrawNationColumn, reinterpret_cast<void *>(static_cast<intptr_t>(data->m_destination.GetOwner())));
 						}
 
 						item->SetCompareCallback(CompareCreateItems);
@@ -726,7 +726,7 @@ void TradeManager::UpdateSummaryList()
 
 			if (ctp2_Static * piracy = (ctp2_Static *)item->GetChildByIndex(k_PIRACY_COL_SUM_INDEX))
             {
-				piracy->SetDrawCallbackAndCookie(DrawPiracyColumn, (void *)route.m_id);
+				piracy->SetDrawCallbackAndCookie(DrawPiracyColumn, reinterpret_cast<void *>(static_cast<intptr_t>(route.m_id)));
 			}
 
 			MBCHAR buf[20];
@@ -750,10 +750,10 @@ void TradeManager::UpdateSummaryList()
 			if (ctp2_Static * nation = (ctp2_Static *)item->GetChildByIndex(k_NATION_COL_SUM_INDEX))
             {
 				nation->SetDrawCallbackAndCookie
-                    (DrawNationColumn, (void *)route.GetDestination().GetOwner());
+                    (DrawNationColumn, reinterpret_cast<void *>(static_cast<intptr_t>(route.GetDestination().GetOwner())));
 			}
 
-			item->SetUserData((void *)route.m_id);
+			item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(route.m_id)));
 			item->SetCompareCallback(CompareSummaryItems);
 
 			m_summaryList->AddItem(item);

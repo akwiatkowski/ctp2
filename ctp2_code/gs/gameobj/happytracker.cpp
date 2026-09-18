@@ -13,10 +13,7 @@ namespace
 
 /// Reference count of cached string ids in ::sm_happinessNames
 int             s_refCount                      = 0;
-/// Number of stored happiness reasons in save game versions 64 or earlier
-size_t const    HAPPY_REASON_MAX_VERSION_64     = 29;
-/// Number of stored happiness reasons in save game versions 65 and 66
-size_t const    HAPPY_REASON_MAX_VERSION_66     = 30;
+
 
 } // namespace
 

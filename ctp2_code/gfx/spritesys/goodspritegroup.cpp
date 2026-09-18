@@ -163,8 +163,11 @@ bool GoodSpriteGroup::AddGpuSpriteQuad(GOODACTION action, sint32 frame, sint32 d
 	q.dh = static_cast<int>(r->h * scale);
 	q.mirror = reversed;
 	q.alpha = 255;
-    if (flags & k_BIT_DRAWFLAGS_FOGGED)
+    // Braced so the unconditional AddSpriteQuad below cannot be misread
+    // as part of this fogged-tint guard.
+    if (flags & k_BIT_DRAWFLAGS_FOGGED) {
         q.red = q.green = q.blue = 128;
+    }
 	aui_SDL::AddSpriteQuad(q);
 	return true;
 }

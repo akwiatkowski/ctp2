@@ -6375,11 +6375,13 @@ void TiledMap::HandleCheat(MapPoint &pos)
 
 					if (world_Get()->HasCity(pos)) {
 						if (world_Get()->GetCell(pos)->GetCity().GetOwner() == selitem_Get()->GetVisiblePlayer()) {
-							Unit id1 = p->CreateUnit(unitNum, pos, Unit(), FALSE, CAUSE_NEW_ARMY_CHEAT);
+						// Return value unused: only the created unit matters.
+						p->CreateUnit(unitNum, pos, Unit(), FALSE, CAUSE_NEW_ARMY_CHEAT);
 						}
 					} else {
 
-						Unit id1 = p->CreateUnit(unitNum, pos, Unit(), FALSE, CAUSE_NEW_ARMY_CHEAT);
+						// Return value unused: only the created unit matters.
+						p->CreateUnit(unitNum, pos, Unit(), FALSE, CAUSE_NEW_ARMY_CHEAT);
 					}
 				}
 			}

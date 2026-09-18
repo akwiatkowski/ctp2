@@ -262,7 +262,9 @@ public:
 	void RunWorkViewTriggers();
 	void RunSentCeaseFireTriggers(sint32 owner, sint32 recipient);
 
-	void RunTrigger(TRIGGER_LIST tlist, ...);
+	// sint32 (not TRIGGER_LIST): va_start on a last named enum param is UB
+	// because enums undergo default argument promotion.
+	void RunTrigger(sint32 tlist, ...);
 	MBCHAR GetTriggerKey(sint32 index);
 	void SetTriggerKey(sint32 index, MBCHAR key);
 	bool IsKeyPressed(MBCHAR key) const;

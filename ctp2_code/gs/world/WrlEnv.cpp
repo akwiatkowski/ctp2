@@ -467,13 +467,7 @@ bool World::IsInstallation(const MapPoint &pos) const
 
 sint32 World::GetColor(const MapPoint &pos) const
 {
-	int c = GetCell(pos)->m_color;
-
-	int foo;
-	if (0 <c) {
-		foo = 1;
-	}
-	return c;
+	return GetCell(pos)->m_color;
 
 }
 

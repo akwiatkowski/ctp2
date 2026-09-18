@@ -354,7 +354,10 @@ void DBLexer::ReportError(const char *fmt, ...)
 
 	va_end(list);
 
-	c3errors_ErrorDialog("Database", buf);
+	// "%s" indirection: buf holds an already-formatted message (which may
+	// contain % characters from database content); passing it as the format
+	// string would re-interpret them.
+	c3errors_ErrorDialog("Database", "%s", buf);
 }
 
 sint32 DBLexer::GetLineNumber()

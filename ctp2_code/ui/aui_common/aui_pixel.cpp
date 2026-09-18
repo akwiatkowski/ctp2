@@ -49,7 +49,7 @@ uint8 aui_Pixel::GetPaletteIndexedColor( uint8 red, uint8 green, uint8 blue, RGB
 	sint32  diff    = INT_MAX;
 	uint16  valMain = ColorCode555(red, green, blue);
 
-	for (uint8 i = 0; i < 256; i++)
+	for (sint32 i = 0; i < 256; i++) // sint32: uint8 can never reach 256 (infinite loop)
     {
 		uint16  valCompare = ColorCode555(rgbq[i].rgbRed, rgbq[i].rgbGreen, rgbq[i].rgbBlue);
 
@@ -225,7 +225,7 @@ sint32 aui_Pixel::Shift(sint32 x, sint32 add_noise, sint32 col, sint32 row)
         {
             noise = -noise;
         }
-        noise /= (sint32)((double)(RAND_MAX * RAND_MAX) / rscale);
+        noise /= (sint32)(((double)RAND_MAX * (double)RAND_MAX) / rscale);
     }
     x = ((x+4) >> 3) + noise;
 
@@ -341,13 +341,12 @@ double **aui_Pixel::MakeEdge(uint8 *image, sint32 width, sint32 height)
 
 void aui_Pixel::SeedRandom(uint32 seed)
 {
-	uint32 dum;
 	uint32 j;
 
 	srand(seed);
 
 	for (j=0; j < VECTOR_SIZE; j++)
-		dum = rand();
+		rand(); // discard: warms the RNG state before filling m_randRector
 
 	for (j=0; j < VECTOR_SIZE; j++)
 		m_randRector[j] = rand();

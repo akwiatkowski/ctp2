@@ -84,12 +84,13 @@ NetGameObj::~NetGameObj()
 void NetGameObj::AddCreated(GameObj *obj)
 {
 	if(!m_limbo->IsEmpty()) {
-		DPRINTF(k_DBG_NET, ("AddCreated: Sending object %lx straight to limbo\n",
+		// GameObj ids are uint32: print with %x, not %lx.
+		DPRINTF(k_DBG_NET, ("AddCreated: Sending object %x straight to limbo\n",
 							obj->m_id));
 		m_limbo->AddTail(new LimboID(obj->m_id));
 
 	} else {
-		DPRINTF(k_DBG_NET, ("AddCreated: %lx\n", obj->m_id));
+		DPRINTF(k_DBG_NET, ("AddCreated: %x\n", obj->m_id));
 		m_created->AddTail(new GameObjRecord(obj));
 		m_createdHash.Add(obj->m_id);
 	}
@@ -109,7 +110,7 @@ void NetGameObj::ACKObject(uint32 id)
 	if(!obj) {
 		LimboID *lID = m_limbo->GetHead();
 		if(lID && lID->m_id == id) {
-			DPRINTF(k_DBG_NET, ("ACKObject: Found object id %lx in limbo\n",
+			DPRINTF(k_DBG_NET, ("ACKObject: Found object id %x in limbo\n",
 								id));
 
 			m_limbo->RemoveHead();
@@ -153,7 +154,7 @@ void NetGameObj::TheReaper()
 	while(!m_created->IsEmpty()) {
 		GameObjRecord *obj = m_created->RemoveHead();
 
-		DPRINTF(k_DBG_NET, ("TheReaper: Sending object %lx to limbo\n",
+		DPRINTF(k_DBG_NET, ("TheReaper: Sending object %x to limbo\n",
 							obj->m_id));
 		m_limbo->AddTail(new LimboID(obj->m_id));
 		delete obj;
@@ -169,13 +170,13 @@ void NetGameObj::CheckReceived(uint32 id)
 #ifdef _DEBUG
 	if(!m_created->IsEmpty()) {
 		GameObjRecord *obj = m_created->GetHead();
-		DPRINTF(k_DBG_NET, ("CheckReceived: %lx (expecting %lx at some point)\n", id, obj->m_id));
+		DPRINTF(k_DBG_NET, ("CheckReceived: %x (expecting %x at some point)\n", id, obj->m_id));
 	} else {
-		DPRINTF(k_DBG_NET, ("CheckReceived: %lx (not expecting anything in particular)\n", id));
+		DPRINTF(k_DBG_NET, ("CheckReceived: %x (not expecting anything in particular)\n", id));
 	}
 #endif
 
-	DPRINTF(k_DBG_NET, ("CheckReceived: %lx\n", id));
+	DPRINTF(k_DBG_NET, ("CheckReceived: %x\n", id));
 
 	switch(id  & k_ID_TYPE_MASK) {
 		case k_BIT_GAME_OBJ_TYPE_UNIT:
@@ -223,7 +224,7 @@ void NetGameObj::CheckReceived(uint32 id)
 
 		default:
 			if(!m_created->IsEmpty()) {
-				DPRINTF(k_DBG_NET, ("NetGameObj: Received object id %lx, but have unACKed objects\n", id));
+				DPRINTF(k_DBG_NET, ("NetGameObj: Received object id %x, but have unACKed objects\n", id));
 
 				reap = TRUE;
 			}
@@ -237,7 +238,7 @@ void NetGameObj::CheckReceived(uint32 id)
 
 void NetGameObj::KillObject(uint32 id)
 {
-	DPRINTF(k_DBG_NET, ("NetGameObj: Killing object %lx\n", id));
+	DPRINTF(k_DBG_NET, ("NetGameObj: Killing object %x\n", id));
 	switch(id & k_ID_TYPE_MASK) {
 		case k_BIT_GAME_OBJ_TYPE_UNIT:
 		{
@@ -315,7 +316,7 @@ void NetGameObj::KillObject(uint32 id)
 
 void NetGameObj::FixKey(uint32 id)
 {
-	DPRINTF(k_DBG_NET, ("NetGameObj: Fixing key %lx\n", id));
+	DPRINTF(k_DBG_NET, ("NetGameObj: Fixing key %x\n", id));
 	switch(id & k_ID_TYPE_MASK) {
 		case k_BIT_GAME_OBJ_TYPE_UNIT:
 			unitpool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);

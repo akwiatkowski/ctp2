@@ -162,7 +162,9 @@ BOOL SlicParameterSymbol::GetCity(Unit &c) const
 	SlicArgList *argList = context->GetArgList();
 	if(!argList) {
 		if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
-			c3errors_ErrorDialog("SLIC Parameter %s used outside function call", GetName());
+			// (Bug fix: module and format were inverted — the symbol name was
+			// passed as the format string. Now module="SLIC", name is data.)
+			c3errors_ErrorDialog("SLIC", "Parameter %s used outside function call", GetName());
 		}
 		return FALSE;
 	}

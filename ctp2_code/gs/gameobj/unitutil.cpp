@@ -454,10 +454,10 @@ double unitutil_GetPositionDefense(const UnitRecord * rec, const bool isEntrench
 	def += (basedef * fort_bonus);
 
 	if(terrain_bonus > 0 &&
-		(rec->GetMovementTypeLand() && world_Get()->IsLand(pos)) ||
+		((rec->GetMovementTypeLand() && world_Get()->IsLand(pos)) ||
 		(rec->GetMovementTypeMountain() && world_Get()->IsMountain(pos)) ||
 		(rec->GetMovementTypeSea() && world_Get()->IsWater(pos)) ||
-		(rec->GetMovementTypeSpace() && world_Get()->IsSpace(pos)))
+		(rec->GetMovementTypeSpace() && world_Get()->IsSpace(pos))))
 	{
 		def += basedef * terrain_bonus;
 	}

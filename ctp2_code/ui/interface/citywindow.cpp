@@ -145,8 +145,8 @@ extern ProjectFile                  *g_GreatLibPF;
 
 
 static CityWindow                   *s_cityWindow = nullptr;
-static MBCHAR                       *s_cityWindowBlock = "CityWindow";
-static MBCHAR                       *s_cityStatsBlock = "CityStatisticsWindow";//advisor window
+static const MBCHAR                 *s_cityWindowBlock = "CityWindow";
+static const MBCHAR                 *s_cityStatsBlock = "CityStatisticsWindow";//advisor window
 
 
 CityWindow::CityWindow(AUI_ERRCODE *err)
@@ -385,7 +385,7 @@ CityWindow::CityWindow(AUI_ERRCODE *err)
 			Assert(m_unitButtons[unitButton]);
 			if(m_unitButtons[unitButton]) {
 				m_unitButtons[unitButton]->Enable(FALSE);
-				m_unitButtons[unitButton]->SetActionFuncAndCookie(UnitButtonCallback, (void *)unitButton);
+				m_unitButtons[unitButton]->SetActionFuncAndCookie(UnitButtonCallback, reinterpret_cast<void *>(static_cast<intptr_t>(unitButton)));
 			}
 
 			unitButton++;
@@ -869,7 +869,7 @@ void CityWindow::UpdateBuildTabs()
 	Assert(lb);
 	if(lb) {
 
-		PopulateQueueList(m_cityData, lb, "cw_InventoryListItem");
+		PopulateQueueList(m_cityData, lb, const_cast<char *>("cw_InventoryListItem"));
 	}
 
 	ctp2_Button *turnCountButton = (ctp2_Button *)aui_Ldl::GetObject(s_cityWindowBlock, "GarrisonSection.ItemProgress.IconBorder.IconButton.RadialButton");
@@ -2216,14 +2216,11 @@ void CityWindow::FillHappinessList()
 	ctp2_Static *happinessLabel = (ctp2_Static *)aui_Ldl::GetObject(s_cityWindowBlock, "StatisticsSection.HappinessTotalLabel");
 	if (happinessLabel)
 	{
-		const char *    format = stringdb_Get()->GetNameStr("str_code_CityWinTotalHappinessFormat");
-		if (!format)
-		{
-			format  = "%d";
-		}
-
 		char buf[k_MAX_NAME_LEN];
-		snprintf(buf, sizeof(buf), format, (sint32)m_cityData->GetHappiness());
+		// stringdb_FormatOr: localized "%d" template with inline fallback.
+		snprintf(buf, sizeof(buf),
+		         stringdb_FormatOr("str_code_CityWinTotalHappinessFormat", "%d"),
+		         (sint32)m_cityData->GetHappiness());
 	}
 
 	sint32 i;
@@ -2260,13 +2257,13 @@ void CityWindow::FillHappinessList()
 		{
 			ctp2_Static *   happyAmount = (ctp2_Static *)box->GetChildByIndex(2);
 			happyAmount->SetDrawCallbackAndCookie
-			    (DrawHappyIcons, (void *)(sint32)happies[i].amount, false);
+			    (DrawHappyIcons, reinterpret_cast<void *>(static_cast<intptr_t>(happies[i].amount)), false);
 		}
 		else
 		{
 			ctp2_Static *   unhappyAmount = (ctp2_Static *)box->GetChildByIndex(0);
 			unhappyAmount->SetDrawCallbackAndCookie
-			    (DrawUnhappyIcons, (void *)(sint32)happies[i].amount, false);
+			    (DrawUnhappyIcons, reinterpret_cast<void *>(static_cast<intptr_t>(happies[i].amount)), false);
 		}
 
 		char buf[20];
@@ -2382,14 +2379,13 @@ void CityWindow::FillPollutionList()
 	if(pollutionLabel2) {
 		sint32 pollution = m_cityData->GetPollution();
 		char buf[k_MAX_NAME_LEN];
-		const char *format2 = stringdb_Get()->GetNameStr("str_code_TotalPollutionFormat");
-		Assert(format2);
-		if(format2) {
-			snprintf(buf, sizeof(buf), format2,  m_cityData->GetPollution());
-			pollutionLabel2->SetText(buf);
-		} else {
-			pollutionLabel2->SetText("");
-		}
+		// stringdb_FormatOr: localized "Total pollution: %d" template with an
+		// inline fallback (missing db entry renders the raw value); the
+		// format_arg attribute keeps the snprintf format-checked.
+		snprintf(buf, sizeof(buf),
+		         stringdb_FormatOr("str_code_TotalPollutionFormat", "%d"),
+		         pollution);
+		pollutionLabel2->SetText(buf);
 		if (pollution > g_theConstDB->Get(0)->GetLocalPollutionLevel()) {
 			pollutionLabel2->SetTextColor(colorCritical);
 		} else
@@ -2418,7 +2414,7 @@ void CityWindow::FillPollutionList()
 			sublabel = (ctp2_Static *)label->GetChildByIndex(1);
 			snprintf(interp, sizeof(interp),"%i",m_cityData->GetPopulationPollution());
 			sublabel->SetText(interp);
-			item->SetUserData((void *)m_cityData->GetPopulationPollution());
+			item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(m_cityData->GetPopulationPollution())));
 			allAbsItems[numAbsItems++] = item;
 		}
 	}
@@ -2434,7 +2430,7 @@ void CityWindow::FillPollutionList()
 			sublabel = (ctp2_Static *)label->GetChildByIndex(1);
 			snprintf(interp, sizeof(interp),"%i",m_cityData->GetProductionPollution());
 			sublabel->SetText(interp);
-			item->SetUserData((void *)m_cityData->GetProductionPollution());
+			item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(m_cityData->GetProductionPollution())));
 			allAbsItems[numAbsItems++] = item;
 		}
 	}
@@ -2481,7 +2477,7 @@ void CityWindow::FillPollutionList()
 					sublabel = (ctp2_Static *)label->GetChildByIndex(1);
 					snprintf(interp, sizeof(interp),"%d",(sint32) value);
 					sublabel->SetText(interp);
-					item->SetUserData((void *)(sint32)value);
+					item->SetUserData(reinterpret_cast<void *>(static_cast<intptr_t>(value)));
 					allAbsItems[numAbsItems++] = item;
 				}
 			}
@@ -2508,7 +2504,10 @@ void CityWindow::FillStatsLists()
 	ctp2_Static *crimeBox2 = (ctp2_Static *)aui_Ldl::GetObject(s_cityWindowBlock, "StatisticsSection.CrimePercentage");
 	if(crimeBox2) {
 		MBCHAR buf[k_MAX_NAME_LEN];
-		snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_ldl_CityWinSpecTabCrimeFormat"), sint32(100.0 * m_cityData->GetHappyCrime()));
+		// stringdb_FormatOr: localized "%d%%" template with inline fallback.
+		snprintf(buf, sizeof(buf),
+		         stringdb_FormatOr("str_ldl_CityWinSpecTabCrimeFormat", "%d%%"),
+		         sint32(100.0 * m_cityData->GetHappyCrime()));
 		crimeBox2->SetText(buf);
 	}
 }

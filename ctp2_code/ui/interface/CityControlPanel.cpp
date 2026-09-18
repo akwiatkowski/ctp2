@@ -500,7 +500,7 @@ void CityControlPanel::UpdateBuildItem()
 	m_currentItem		= head ? head->m_type : -1;
 	m_currentTurns		= turns;
 	m_buildItemProgressBar->SetDrawCallbackAndCookie
-		(ProgressDrawCallback, (void *) m_currentCity.m_id);
+		(ProgressDrawCallback, reinterpret_cast<void *>(static_cast<intptr_t>(m_currentCity.m_id)));
 
 	if(numberOfItems < 1) {
 		ClearBuildItem();

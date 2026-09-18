@@ -51,7 +51,6 @@
 
 #include "ctp/ctp2_utils/c3errors.h"
 #include "ctp/ctp2_utils/c3files.h"
-#include "gs/utility/ErrMsg.h"
 #include "gs/utility/Globals.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "gs/fileio/CivPaths.h"           // g_CivPaths
@@ -464,7 +463,7 @@ sint32 Token::Next()
 				m_cur = getc(m_fin);
 				g_parse_line++;
 
-			} else if((m_cur == '\\')) {
+			} else if(m_cur == '\\') {
 				m_cur = getc(m_fin);
 				switch(m_cur) {
 				case EOF:
@@ -557,8 +556,8 @@ sint32 Token::Next()
 	if(GetType() == TOKEN_DO_NOT_IMPORT_DEFAULTS
 	|| GetType() == TOKEN_SCENARIO_DO_NOT_IMPORT_DEFAULTS
 	){
-		if(civpaths_Get()->GetCurScenarioPath()     == nullptr        // Load only defaults if this isn't a scenario
-		&& civpaths_Get()->GetCurScenarioPackPath() == nullptr
+		if((civpaths_Get()->GetCurScenarioPath()     == nullptr        // Load only defaults if this isn't a scenario
+		&& civpaths_Get()->GetCurScenarioPackPath() == nullptr)
 		|| GetType() == TOKEN_SCENARIO_DO_NOT_IMPORT_DEFAULTS  // But not if you have this token
 		){
 			g_load_defaults = false;

@@ -97,7 +97,9 @@ public:
 
 
 
-	GAME_EVENT_ERR AddEvent(GAME_EVENT_INSERT insert, GAME_EVENT type, ...);
+	// sint32 (not GAME_EVENT): va_start on a last named enum param is UB
+	// because enums undergo default argument promotion.
+	GAME_EVENT_ERR AddEvent(GAME_EVENT_INSERT insert, sint32 type, ...);
 
 	GAME_EVENT_ERR ArglistAddEvent(GAME_EVENT_INSERT insert, GAME_EVENT type,
 								   GameEventArgList *argList);
@@ -143,7 +145,8 @@ public:
 	void SetSynchronous(bool synchronous) { m_synchronous = synchronous; }
 
 #ifdef _DEBUG
-	void Log(const char *fmt, ...);
+	// format(printf,2,3): debug-only printf wrapper (vsnprintf inside).
+	void Log(const char *fmt, ...) __attribute__((format(printf, 2, 3)));
 	void Dump();
 #endif
 

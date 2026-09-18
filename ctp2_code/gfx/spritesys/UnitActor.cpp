@@ -633,10 +633,12 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
     if (tiledmap_Get()->GetLocalVision() != nullptr &&
         m_playerNum == selitem_Get()->GetVisiblePlayer() &&
         !m_isUnseenCellActor) {
+      // ID handles print via .m_id (uint32) with %x: the ID class has
+      // several conversion operators, ambiguous for varargs arguments.
       DPRINTF(
           k_DBG_INFO,
-          ("Removing vision for %lx, owner %d, range %lf, center: %d,%d\n",
-           (uint32)m_unitID, m_playerNum, m_unitVisionRange, GetPos().x, GetPos().y));
+          ("Removing vision for %x, owner %d, range %lf, center: %d,%d\n",
+           m_unitID.m_id, m_playerNum, m_unitVisionRange, GetPos().x, GetPos().y));
     }
   }
 
@@ -647,8 +649,8 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
         m_playerNum == selitem_Get()->GetVisiblePlayer() &&
         !m_isUnseenCellActor) {
       DPRINTF(k_DBG_INFO,
-              ("Adding vision for %lx, owner %d, range %lf, center: %d,%d\n",
-               m_unitID, m_playerNum, m_unitVisionRange, GetPos().x, GetPos().y));
+              ("Adding vision for %x, owner %d, range %lf, center: %d,%d\n",
+               m_unitID.m_id, m_playerNum, m_unitVisionRange, GetPos().x, GetPos().y));
     }
   }
 
@@ -2883,20 +2885,23 @@ void UnitActor::DrawCityImprovements(bool fogged) {
 
 #ifdef _DEBUG
 void UnitActor::DumpActor() {
-  DPRINTF(k_DBG_UI, ("Actor %#.8lx\n", this));
-  DPRINTF(k_DBG_UI, ("  m_unitID           :%#.8lx\n", m_unitID));
+  DPRINTF(k_DBG_UI, ("Actor %#.8lx\n", reinterpret_cast<uintptr_t>(this)));
+  DPRINTF(k_DBG_UI, ("  m_unitID           :%#.8x\n", m_unitID.m_id));
   DPRINTF(k_DBG_UI, ("  m_unitDBIndex      :%d\n", m_unitDBIndex));
-  DPRINTF(k_DBG_UI, ("  m_curAction        :%#.8lx\n", m_curAction));
+  DPRINTF(k_DBG_UI,
+          ("  m_curAction        :%#.8lx\n",
+           reinterpret_cast<uintptr_t>(m_curAction.get())));
 
   if (m_curAction) {
-    DPRINTF(k_DBG_UI, ("  m_curAction.m_actionType     :%ld\n",
+    DPRINTF(k_DBG_UI, ("  m_curAction.m_actionType     :%d\n",
                        m_curAction->m_actionType));
     DPRINTF(k_DBG_UI,
-            ("  m_curAction.m_finished       :%ld\n", m_curAction->Finished()));
+            ("  m_curAction.m_finished       :%d\n", m_curAction->Finished()));
 
     if (!m_curAction->GetSequence().expired()) {
-      DPRINTF(k_DBG_UI, ("Actor %#.8lx m_curAction:\n", this));
-      DPRINTF(k_DBG_UI, ("  m_curAction.m_sequence->m_sequenceID     :%ld\n",
+      DPRINTF(k_DBG_UI,
+              ("Actor %#.8lx m_curAction:\n", reinterpret_cast<uintptr_t>(this)));
+      DPRINTF(k_DBG_UI, ("  m_curAction.m_sequence->m_sequenceID     :%d\n",
                          m_curAction->GetSequence().lock()->GetSequenceID()));
       DQItemPtr item = m_curAction->GetSequence().lock()->GetItem();
       director_Get()->DumpItem(item.get());
@@ -2904,7 +2909,9 @@ void UnitActor::DumpActor() {
   }
   DPRINTF(k_DBG_UI, (" ------------------\n"));
 
-  DPRINTF(k_DBG_UI, ("  m_actionQueue         :%d\n", m_actionQueue.Size()));
+  // Pointer args keep %lx but go through uintptr_t (battle.cpp idiom);
+  // size_t uses %zu.
+  DPRINTF(k_DBG_UI, ("  m_actionQueue         :%zu\n", m_actionQueue.Size()));
   if (!m_actionQueue.Empty()) {
     unsigned i = 0;
     for (const ActionPtr& action : m_actionQueue.Container()) {
@@ -2912,11 +2919,11 @@ void UnitActor::DumpActor() {
 
       if (action) {
         DPRINTF(k_DBG_UI,
-                ("  action.m_actionType     :%ld\n", action->m_actionType));
+                ("  action.m_actionType     :%d\n", action->m_actionType));
         DPRINTF(k_DBG_UI,
-                ("  action.m_finished       :%ld\n", action->Finished()));
+                ("  action.m_finished       :%d\n", action->Finished()));
         if (!action->GetSequence().expired()) {
-          DPRINTF(k_DBG_UI, ("  action.m_sequence->m_sequenceID:%ld\n",
+          DPRINTF(k_DBG_UI, ("  action.m_sequence->m_sequenceID:%d\n",
                              action->GetSequence().lock()->GetSequenceID()));
           director_Get()->DumpItem(action->GetSequence().lock()->GetItem().get());
         }

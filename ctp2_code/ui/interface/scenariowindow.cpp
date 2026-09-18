@@ -138,7 +138,7 @@ void ScenarioWindow::FillListWithScenarios(ctp2_ListBox *available)
 {
 	int					i=0;
 	ScenarioPack		*scenPack;
-	MBCHAR				*ldlBlock = "ScenarioListItem";
+	const MBCHAR		*ldlBlock = "ScenarioListItem";
 
 	scenPack = m_scenarioPack;
 
@@ -282,6 +282,9 @@ void ScenarioWindow::SetMode(SCENARIO_WINDOW_MODE mode)
 			m_SaveButton->Hide();
 			m_NewButton->Show();
 			break;
+		case SCENARIO_WINDOW_MODE_NONE:
+		case SCENARIO_WINDOW_MODE_MAX:
+			break;
 
 	}
 	m_mode = mode;
@@ -310,10 +313,10 @@ ScenarioWindow::~ScenarioWindow()
 void ScenarioWindow::Initialize()
 {
 	if(s_ScenarioWindow) return;
-
 	AUI_ERRCODE retval = AUI_ERRCODE_OK;
 
-	s_ScenarioWindow = new ScenarioWindow(&retval, "ScenarioWindow");
+
+	s_ScenarioWindow = new ScenarioWindow(&retval, const_cast<MBCHAR *>("ScenarioWindow"));
 	Assert(retval == AUI_ERRCODE_OK);
 }
 
@@ -552,7 +555,7 @@ void ScenarioWindow::SavePress(aui_Control *control, uint32 action, uint32 data,
 		loadsavewindow_Get()->SetType(LSS_SAVE_GAME);
 
 		loadsavescreen_SaveGame(s_ScenarioWindow->m_scenario->m_path,
-								k_SCENARIO_DEFAULT_SAVED_GAME_NAME);
+								const_cast<MBCHAR *>(k_SCENARIO_DEFAULT_SAVED_GAME_NAME));
 	}
 }
 
@@ -597,6 +600,9 @@ void ScenarioWindow::BackPress(aui_Control *control, uint32 action, uint32 data,
 			break;
 		case SCENARIO_WINDOW_MODE_LOAD_SCEN:
 			s_ScenarioWindow->SetMode(SCENARIO_WINDOW_MODE_LOAD_PACK);
+			break;
+		case SCENARIO_WINDOW_MODE_NONE:
+		case SCENARIO_WINDOW_MODE_MAX:
 			break;
 	}
 }

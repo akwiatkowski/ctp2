@@ -423,11 +423,11 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 		m_unitImage->RemoveSubControl( m_unitFortify->Id() );
 	}
 
-	snprintf(s, sizeof(s), "%ld/%ld/%ld", (sint32)(theUnit.GetAttack() / 10.0),
+	snprintf(s, sizeof(s), "%d/%d/%d", (sint32)(theUnit.GetAttack() / 10.0),
 		(sint32)(theUnit.GetZBRange() / 10.0), (sint32)(theUnit.GetDefense() / 10.0) );
 	m_unitARD->SetText(s);
 
-	snprintf(s, sizeof(s), "%ld/%ld", (sint32)(theUnit.GetMovementPoints() / 100.0), (sint32)(theUnit.GetMaxMovePoints() / 100.0));
+	snprintf(s, sizeof(s), "%d/%d", (sint32)(theUnit.GetMovementPoints() / 100.0), (sint32)(theUnit.GetMaxMovePoints() / 100.0));
 	m_unitMovement->SetText(s);
 
 	sint32 healthPercent  = (sint32)( theUnit.GetHP() * 100  / theUnit->CalculateTotalHP());//.GetDBRec()->GetMaxHP() );

@@ -308,7 +308,8 @@ void sliccmd_error(char const *s)
 {
 	if(sliccmd_use_dialogs) {
 		if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
-			c3errors_ErrorDialog("SLIC Command", s);
+			// "%s": s is parser-generated text, not a template.
+			c3errors_ErrorDialog("SLIC Command", "%s", s);
 		}
 	} else {
 		DPRINTF(k_DBG_SLIC, ("SLIC Command Error: %s\n", s));

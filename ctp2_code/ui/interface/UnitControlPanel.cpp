@@ -514,13 +514,13 @@ void UnitControlPanel::UpdateSingleSelectionDisplay()
 	snprintf(valueString, sizeof(valueString), "%d", (sint32)(unit.GetDBRec()->GetFirepower()));
 	m_singleSelectionFirepower->SetText(valueString);
 
-	m_singleSelectionFuel->SetDrawCallbackAndCookie(FuelBarDrawCallback, (void *)unit.m_id);
+	m_singleSelectionFuel->SetDrawCallbackAndCookie(FuelBarDrawCallback, reinterpret_cast<void *>(static_cast<intptr_t>(unit.m_id)));
 
 	m_singleSelectionHealth->SetDrawCallbackAndCookie(
 		HealthBarActionCallback, reinterpret_cast<void*>(unit.m_id));
 
 	if(m_curCargo >= 0) {
-		m_singleSelectionIcon->SetDrawCallbackAndCookie(DrawCargoCallback, (void *)unit.m_id, false);
+		m_singleSelectionIcon->SetDrawCallbackAndCookie(DrawCargoCallback, reinterpret_cast<void *>(static_cast<intptr_t>(unit.m_id)), false);
 		if(cargo > 0) {
 			m_singleSelectionIcon->SetImageMapCallback(TransportImageCallback, (void *)this);
 		} else {
@@ -600,7 +600,7 @@ void UnitControlPanel::UpdateMultipleSelectionDisplay()
 				m_multipleSelectionButton[multiIndex]->SetActionFuncAndCookie(
 					MultiButtonActionCallback, &m_multiPair[multiIndex]);
 				if(army.IsValid() && army.Num() == 1) {
-					m_multipleSelectionHealth[multiIndex]->SetDrawCallbackAndCookie(HealthBarActionCallback, (void *)army[0].m_id);
+					m_multipleSelectionHealth[multiIndex]->SetDrawCallbackAndCookie(HealthBarActionCallback, reinterpret_cast<void *>(static_cast<intptr_t>(army[0].m_id)));
 				} else {
 					m_multipleSelectionHealth[multiIndex]->SetDrawCallbackAndCookie(nullptr, nullptr);
 				}
@@ -669,7 +669,7 @@ void UnitControlPanel::UpdateArmySelectionDisplay()
 			if(unitIconName && strcmp(unitIconName, "NULL") != 0) {
 				m_armySelectionButton[armyIndex]->ExchangeImage(0, 0,
 																unitIconName);
-				m_armySelectionHealth[armyIndex]->SetDrawCallbackAndCookie(HealthBarActionCallback, (void *)army[armyIndex].m_id);
+				m_armySelectionHealth[armyIndex]->SetDrawCallbackAndCookie(HealthBarActionCallback, reinterpret_cast<void *>(static_cast<intptr_t>(army[armyIndex].m_id)));
 			} else {
 				m_armySelectionButton[armyIndex]->ExchangeImage(0, 0, nullptr);
 				m_armySelectionHealth[armyIndex]->SetDrawCallbackAndCookie(nullptr, nullptr);
@@ -741,7 +741,7 @@ void UnitControlPanel::UpdateTransportSelectionDisplay()
 						butt->SetImage(icon, 1);
 						butt->Enable(TRUE);
 						m_transportSelectionCargo[i] = cargoList->Access(i).m_id;
-						m_transportSelectionHealth[i]->SetDrawCallbackAndCookie(HealthBarActionCallback, (void *)cargoList->Access(i).m_id);
+						m_transportSelectionHealth[i]->SetDrawCallbackAndCookie(HealthBarActionCallback, reinterpret_cast<void *>(static_cast<intptr_t>(cargoList->Access(i).m_id)));
 					}
 				}
 			}

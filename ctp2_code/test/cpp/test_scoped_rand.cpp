@@ -44,7 +44,7 @@ TEST_CASE("civrand() resolves to the fixture's generator inside scope")
     ScopedRand fixture(99);
     // The seed flows through: fixture.get() and civrand() must agree on the
     // next value because they reference the same underlying RNG.
-    sint32 const direct = fixture.get().Next();
+    fixture.get().Next();
     // Re-seed a fresh comparison generator to predict civrand()'s next
     // output: after one Next() call above, civrand() is offset by one.
     RandomGenerator predictor(99);

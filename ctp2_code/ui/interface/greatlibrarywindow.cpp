@@ -104,7 +104,6 @@ namespace
 {
 
 MBCHAR const         s_libraryWindowBlock[]  = "GreatLibrary";
-GreatLibraryWindow * s_libraryWindow         = nullptr;
 
 } // namespace
 

@@ -42,6 +42,16 @@ def difference(a, b, path=""):
             if left != right:
                 return difference(left, right, f"{path}/{i}")
     return f"{path}: {str(a)[:160]} != {str(b)[:160]}"
+def canonical_slic(engine):
+    """Compare persisted SLIC state without StringHash bucket order."""
+    engine = json.loads(json.dumps(engine))
+    engine["segments"].sort(key=lambda segment: segment["id"])
+    engine["constants"].sort(key=lambda constant: constant["name"])
+    engine["sym_tab"]["entries"].sort(
+        key=lambda entry: -1 if entry is None else entry["index"]
+    )
+    return engine
+
 
 
 def main():
@@ -76,6 +86,10 @@ def main():
                          str(folder / "before.json"), "--turns", "0")
             assert loaded["ai_state"] == before["ai_state"], difference(
                 loaded["ai_state"], before["ai_state"], f"{mode}: immediate AI restoration")
+            assert canonical_slic(loaded["slic_engine"]) == canonical_slic(before["slic_engine"]), (
+                f"{mode}: immediate SLIC restoration "
+                f"{difference(canonical_slic(loaded['slic_engine']), canonical_slic(before['slic_engine']), 'slic_engine')}"
+            )
             resumed = run(binary, folder, mode[2:], *setup, mode,
                           str(folder / "before.json"), "--turns", str(args.resume_turns))
             assert resumed["turn"]["round"] == final_round, resumed["turn"]
@@ -84,6 +98,10 @@ def main():
                     assert slot["data"]["current_round"] == final_round - 1
             for section in ("players", "ai_state", "world", "rng", "action_log"):
                 assert resumed[section] == continuous[section], f"{mode}: {difference(resumed[section], continuous[section], section)}"
+            assert canonical_slic(resumed["slic_engine"]) == canonical_slic(continuous["slic_engine"]), (
+                f"{mode}: resumed SLIC restoration "
+                f"{difference(canonical_slic(resumed['slic_engine']), canonical_slic(continuous['slic_engine']), 'slic_engine')}"
+            )
         print(f"PASS: installed startup; both CLI load modes match rounds {checkpoint}–{final_round}")
 
 

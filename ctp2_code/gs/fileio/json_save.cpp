@@ -4591,14 +4591,6 @@ void from_json(nlohmann::json const &j, SlicObject &o)
 // they're runtime pointers resolved post-load via LinkTriggerSymbols
 // / LinkParameterSymbols from the indices.  Same as the binary path.
 
-namespace {
-
-std::vector<uint8> bytesToVec(uint8 const *bytes, size_t n)
-{
-    return bytes ? std::vector<uint8>(bytes, bytes + n) : std::vector<uint8>();
-}
-
-}  // namespace
 
 void to_json(nlohmann::json &j, SlicSegment const &s)
 {
@@ -4703,6 +4695,7 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
 
     jsonToOptString(j.at("filename"), s.m_filename);
 
+
     if (s.m_type == SLIC_OBJECT_HANDLEEVENT && gevmanager_Get())
     {
         gevmanager_Get()->AddCallback(s.m_event, s.m_priority, &s);
@@ -4740,12 +4733,17 @@ void to_json(nlohmann::json &j, SlicSymTab const &t)
 
 void from_json(nlohmann::json const &j, SlicSymTab &t)
 {
+    // Reload has already populated the fresh engine's symbol hash. Replace
+    // that table, not just m_array: otherwise both generations coexist and
+    // StringHash::Access returns whichever duplicate happened to be prepended
+    // last. That changes symbol indices after a save/load resume.
+    t.StringHash<SlicNamedSymbol>::Clear();
+
     // Drop the placeholder array allocated by SlicSymTab(sint32) (the
-    // only public ctor in the unit-test path).  The (CivArchive&)
+    // only public ctor in the unit-test path). The (CivArchive&)
     // ctor leaves m_array uninitialised and lets Serialize allocate;
     // we do the same here.
     delete[] t.m_array;
-
     j.at("array_size").get_to(t.m_arraySize);
     j.at("num_entries").get_to(t.m_numEntries);
     t.m_array = new SlicNamedSymbol *[t.m_arraySize];
@@ -4849,8 +4847,31 @@ void from_json(nlohmann::json const &j, SlicEngine &e)
     j.at("tutorial_player").get_to(e.m_tutorialPlayer);
     e.m_tutorialActive = j.at("tutorial_active").get<bool>();
 
-    // SymTab: re-create from JSON; the existing SymTab was allocated
-    // by the SlicEngine ctor.
+    // Segments: reset the fresh-game hash and recreate the saved entries.
+    // SlicSegmentHash keeps a fixed m_segments[] array, so SetSize must
+    // follow Clear before any Add.
+    if (e.m_segmentHash)
+    {
+        auto const &segments_j = j.at("segments");
+        e.m_segmentHash->Clear();
+        e.m_segmentHash->SetSize(static_cast<sint32>(segments_j.size()));
+
+        // StringHash::ForEach writes collision chains head-first while Add
+        // prepends. Loading forward would reverse same-name segments, changing
+        // which one GetSegment resolves after a round-trip.
+        for (auto it = segments_j.rbegin(); it != segments_j.rend(); ++it)
+        {
+            auto *seg = new SlicSegment;
+            it->get_to(*seg);
+            e.m_segmentHash->Add(seg->GetName(), seg);
+        }
+    }
+
+    // SymTab symbols can point at segments, so load them after segments.
+    // Its clear deletes the symbols Reload installed; builtins point into
+    // that hash, so reset them before adding their saved replacements.
+    std::fill(e.m_builtins, e.m_builtins + SLIC_BUILTIN_MAX,
+              static_cast<SlicSymbolData const *>(nullptr));
     j.at("sym_tab").get_to(*e.m_symTab);
 
     // Constants: clear the hash and re-add each entry.
@@ -4865,27 +4886,6 @@ void from_json(nlohmann::json const &j, SlicEngine &e)
         }
     }
 
-    // Segments: clear the segment hash and re-add each entry.  Each
-    // segment registers itself with gevmanager_Get() on load (see F-14).
-    //
-    // Crucial: SlicSegmentHash owns a fixed-size m_segments[] array
-    // sized at SetSize().  StringHash::Clear() drains the hash buckets
-    // but leaves m_nextSegment and m_segments untouched — so calling
-    // Add() after a Clear() (with the hash already filled from gameinit's
-    // fresh-game SlicEngine::Reload) walks past the array bounds.
-    // Re-size the segment array to the incoming segment count.
-    if (e.m_segmentHash)
-    {
-        auto const &segments_j = j.at("segments");
-        e.m_segmentHash->Clear();
-        e.m_segmentHash->SetSize(static_cast<sint32>(segments_j.size()));
-        for (auto const &sj : segments_j)
-        {
-            auto *seg = new SlicSegment;
-            sj.get_to(*seg);
-            e.m_segmentHash->Add(seg->GetName(), seg);
-        }
-    }
 
     // Per-player records.
     for (auto & m_record : e.m_records)

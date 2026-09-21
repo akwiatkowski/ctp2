@@ -278,8 +278,6 @@ public:
 	void CheckPendingResearch();
 	void AddResearchOnUnblank(sint32 owner, MBCHAR *text);
 
-	SlicSymbolData *CheckForBuiltinWithIndex(MBCHAR *name, sint32 &index);
-
 	void AddConst(const MBCHAR *name, sint32 value);
 	bool FindConst(const MBCHAR *name, sint32 *value) const;
 

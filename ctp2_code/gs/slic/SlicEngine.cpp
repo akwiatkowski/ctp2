@@ -251,7 +251,9 @@ SlicEngine::~SlicEngine()
         if (m_triggerLists[i])
         {
 	        m_triggerLists[i]->DeleteAll();
-            std::unique_ptr<PointerList<SlicSegment>>(m_triggerLists[i]);
+            // Braces, not parens: `std::unique_ptr<T>(x);` parses as a
+            // declaration (shadow variable / zero-bound VLA), never deleting.
+            std::unique_ptr<PointerList<SlicSegment>>{m_triggerLists[i]};
         }
 	}
 
@@ -260,7 +262,8 @@ SlicEngine::~SlicEngine()
 		if (m_records[i])
         {
 			m_records[i]->DeleteAll();
-			std::unique_ptr<PointerList<SlicRecord>>(m_records[i]);
+			// Braces form — see comment above on the vexing parse.
+			std::unique_ptr<PointerList<SlicRecord>>{m_records[i]};
 		}
 	}
 
@@ -273,18 +276,23 @@ SlicEngine::~SlicEngine()
 	    m_uiExecuteObjects.DeleteAll();
 
 	for (i = 0; i < mod_MAX; ++i)
-    {
-	    std::unique_ptr<SlicModFunc>(m_modFunc[i]);
+	{
+	    // Braces form — a parenthesized temporary here would parse as a
+	    // declaration of variable `m_modFunc` and leak every entry.
+	    std::unique_ptr<SlicModFunc>{m_modFunc[i]};
     }
 
 
 	for (i = 0; i < SLIC_BUILTIN_MAX; ++i)
     {
-		std::unique_ptr<SlicStructDescription>(m_builtin_desc[i]);
+		// Braces form — see the vexing-parse note near the top.
+		std::unique_ptr<SlicStructDescription>{m_builtin_desc[i]};
         // m_builtins[i] not deleted: managed through m_symTab
 	}
-    std::unique_ptr<SlicStructDescription *[]>(m_builtin_desc);
-    std::unique_ptr<SlicSymbolData const *[]>(m_builtins);
+    // Braces form (parens parse as declarations; these two leaked the
+    // builtin tables since the RAII conversion).
+    std::unique_ptr<SlicStructDescription *[]>{m_builtin_desc};
+    std::unique_ptr<SlicSymbolData const *[]>{m_builtins};
 
 	slicif_cleanup();
 
@@ -2432,10 +2440,6 @@ void SlicEngine::AddResearchOnUnblank(sint32 owner, MBCHAR *text)
 	m_doResearchOnUnblank = TRUE;
 }
 
-SlicSymbolData *SlicEngine::CheckForBuiltinWithIndex(MBCHAR *name, sint32 &index)
-{
-	return FALSE;
-}
 
 void SlicEngine::AddConst(const MBCHAR *name, sint32 value)
 {

@@ -37,6 +37,13 @@ CHECKS = {
     # DynamicArray/SimpleDynamicArray are the memcpy-growth value arrays.
     "pointerlist_uses": r"\bPointerList\s*<",
     "dynarray_uses": r"\b(DynamicArray|SimpleDynamicArray)\s*<",
+    # RAII-conversion guard: a standalone `std::unique_ptr<T>(x);` statement
+    # with a plain-identifier or identifier[index] argument parses as a
+    # DECLARATION (shadow variable / zero-bound VLA), never a deleting
+    # temporary — the real delete silently never happens. Braces `{x}` are
+    # unambiguous. Call/field arguments (`f()`, `a.b`) cannot parse as
+    # declarators, so they are left unflagged to avoid false positives.
+    "unique_ptr_parens_delete": r"(?m)^\s*std::unique_ptr\s*<[^<>]*(?:<[^<>]*>)?[^<>]*>\s*\(\s*[A-Za-z_]\w*(?:\[[^\]]*\])?\s*\)\s*;",
 }
 
 

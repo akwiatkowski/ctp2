@@ -461,7 +461,8 @@ void sliccmd_parse_done(struct sliccmdExpValue *v, int action)
 	sym->GetIntValue((sint32 &)sliccmd_int_result);
 
 	if(v->type == EXP_VAL_TEMP_SYM) {
-		std::unique_ptr<SlicSymbolData>(sym);
+		// Braces form: parens parse as a declaration and never delete.
+		std::unique_ptr<SlicSymbolData>{sym};
 	}
 }
 

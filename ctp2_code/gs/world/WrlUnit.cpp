@@ -584,7 +584,7 @@ BOOL World::AdjacentToZOCUnit(const MapPoint &cpos, sint32 player, const Army &n
 
 			if (city.m_id == 0)
 			{
-				CellUnitList * units	= m_map[wpos.x][wpos.y]->m_unit_army;
+				CellUnitList * units	= m_map[wpos.x][wpos.y]->m_unit_army.get();
 				if (units && units->GetOwner() == player && units->CanEnter(cpos))
 				{
 					for (sint32 i = units->Num() - 1; i >= 0; i--)

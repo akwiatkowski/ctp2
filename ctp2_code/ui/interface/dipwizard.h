@@ -28,6 +28,7 @@
 
 #ifndef DIPWIZARD_H__
 #define DIPWIZARD_H__
+#include <memory>
 
 class ctp2_Window;
 class ctp2_ListBox;
@@ -96,8 +97,8 @@ class DipWizard
 	static ctp2_Window *m_goldRequestWindow;
 	static ctp2_Window *m_pollutionRequestWindow;
 	static ctp2_Window *m_percentRequestWindow;
-	static ctp2_Menu *m_curMenu;
-	static ctp2_Menu *m_threatMenu;
+	static std::unique_ptr<ctp2_Menu> m_curMenu;
+	static std::unique_ptr<ctp2_Menu> m_threatMenu;
 	static bool m_proposalDataPending;
 	static bool m_threatDataPending;
 

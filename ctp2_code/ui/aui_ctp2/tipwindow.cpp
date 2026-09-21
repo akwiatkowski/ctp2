@@ -41,7 +41,7 @@ AUI_ERRCODE TipWindow::FitWindowToText( )
 {
 	if ( GetText()[0] && m_surface)
 	{
-		RECT rect = textutils_GetBounds(m_surface, GetText() );
+		RECT rect = textutils_GetBounds(m_surface.get(), GetText() );
 		rect.right += 10;
 		rect.bottom += 10;
 
@@ -60,7 +60,7 @@ AUI_ERRCODE TipWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	if ( IsHidden() ) return AUI_ERRCODE_OK;
 
-	if (surface == nullptr) surface = m_surface;
+	if (surface == nullptr) surface = m_surface.get();
 
 	RECT rect = { 0, 0, m_width, m_height };
 

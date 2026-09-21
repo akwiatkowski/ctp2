@@ -33,6 +33,8 @@
 #include "gs/fileio/civscenarios.h"
 #include "gs/fileio/gamefile.h"
 
+#include <memory>
+
 #ifndef WIN32
 #include <sys/types.h>
 #include <dirent.h>
@@ -40,26 +42,23 @@
 
 
 
-static CivScenarios	*g_civScenarios = nullptr;
+static std::unique_ptr<CivScenarios> g_civScenarios;
 
 CivScenarios * civscenarios_Get()
 {
-	return g_civScenarios;
+	return g_civScenarios.get();
 }
 
 
 void CivScenarios::Initialize()
 {
-	g_civScenarios = new CivScenarios();
+	g_civScenarios = std::make_unique<CivScenarios>();
 }
 
 
 void CivScenarios::Cleanup()
 {
-	if (g_civScenarios) {
-		delete g_civScenarios;
-		g_civScenarios = nullptr;
-	}
+	g_civScenarios.reset();
 }
 
 
@@ -162,7 +161,7 @@ void CivScenarios::LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath)
 
 	if (numScenarios <= 0) return;
 
-	PointerList<MBCHAR>	*scenList = new PointerList<MBCHAR>;
+	auto scenList = std::make_unique<PointerList<MBCHAR>>();
 	for (i=0; i<numScenarios; i++) {
 		MBCHAR		scenPath[_MAX_PATH];
 		MBCHAR		scenListName[_MAX_PATH];
@@ -177,9 +176,9 @@ void CivScenarios::LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath)
 		r = stat(scenListName, &tmpstat);
 #endif
 		if (!r) {
-			MBCHAR *scenarioPath = new MBCHAR[strlen(scenPath)+1];
-			strlcpy(scenarioPath, scenPath, strlen(scenPath)+1);
-			scenList->AddTail(scenarioPath);
+			auto scenarioPath = std::make_unique<MBCHAR[]>(strlen(scenPath)+1);
+			strlcpy(scenarioPath.get(), scenPath, strlen(scenPath)+1);
+			scenList->AddTail(scenarioPath.release());
 		}
 	}
 
@@ -189,7 +188,7 @@ void CivScenarios::LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath)
 
 		pack->m_scenarios.resize(numScenarios);
 
-		PointerList<MBCHAR>::Walker walker(scenList);
+		PointerList<MBCHAR>::Walker walker(scenList.get());
 
 		i=0;
 		while (walker.IsValid()) {
@@ -204,7 +203,6 @@ void CivScenarios::LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath)
 
 	//This must be deleted always
 	scenList->DeleteAll();
-	delete scenList;
 }
 
 
@@ -235,9 +233,7 @@ void CivScenarios::LoadData()
 	struct dirent *dent = nullptr;
 #endif
 
-	MBCHAR				*fileListFileName;
-
-	PointerList<MBCHAR>	*packList = new PointerList<MBCHAR>;
+	auto packList = std::make_unique<PointerList<MBCHAR>>();
 	do {
 #ifndef WIN32
 		dent = readdir(dir);
@@ -263,11 +259,11 @@ void CivScenarios::LoadData()
 			r = stat(packListName, &tmpstat);
 #endif
 			if (!r) {
-				fileListFileName = new MBCHAR[strlen(name)+1];
+				auto fileListFileName = std::make_unique<MBCHAR[]>(strlen(name)+1);
 
-				strlcpy(fileListFileName, name, strlen(name)+1);
+				strlcpy(fileListFileName.get(), name, strlen(name)+1);
 
-				packList->AddTail(fileListFileName);
+				packList->AddTail(fileListFileName.release());
 			}
 		}
 #ifndef WIN32
@@ -279,34 +275,29 @@ void CivScenarios::LoadData()
 #endif
 
 	if (packList->GetCount() <= 0) {
-		delete packList;
-
 		return;
 	}
 
 	sint32 numScenarioPacks = packList->GetCount();
 	m_scenarioPacks.resize(numScenarioPacks);
 
-	PointerList<MBCHAR>::Walker *walker = new PointerList<MBCHAR>::Walker(packList);
+	PointerList<MBCHAR>::Walker walker(packList.get());
 
 	for (i=0; i<numScenarioPacks; i++) {
 		MBCHAR		packPath[_MAX_PATH];
 
-		fileListFileName = walker->GetObj();
-
-		snprintf(packPath, sizeof(packPath), "%s%s%s", rootPath, FILE_SEP, walker->GetObj());
+		std::unique_ptr<MBCHAR[]> fileListFileName(walker.GetObj());
+		snprintf(packPath, sizeof(packPath), "%s%s%s", rootPath, FILE_SEP, walker.GetObj());
 
 		strlcpy(m_scenarioPacks[i].m_path, packPath, sizeof(m_scenarioPacks[i].m_path));
 		m_scenarioPacks[i].m_index = i;
 		LoadScenarioPackData(&m_scenarioPacks[i], packPath);
 
-		delete [] fileListFileName;
 
-		walker->Next();
+		walker.Next();
 	}
 
-	delete walker;
-	delete packList;
+
 
 }
 
@@ -429,12 +420,11 @@ SaveInfo *CivScenarios::LoadSaveInfo(Scenario *scen)
 						k_SCENARIO_DEFAULT_SAVED_GAME_NAME);
 
 	if (c3files_PathIsValid(tempPath)) {
-		SaveInfo *info = new SaveInfo;
-		if(!GameFile::FetchExtendedSaveInfo(tempPath, info)) {
-			delete info;
+		auto info = std::make_unique<SaveInfo>();
+		if(!GameFile::FetchExtendedSaveInfo(tempPath, info.get())) {
 			return nullptr;
 		} else {
-			return info;
+			return info.release();
 		}
 	}
 

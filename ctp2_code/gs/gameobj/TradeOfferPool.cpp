@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/TradeOfferPool.h"
 #include "gs/gameobj/player.h"
 #include "robot/aibackdoor/dynarr.h"
@@ -8,13 +9,11 @@
 
 TradeOfferPool::TradeOfferPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_TRADE_OFFER)
 {
-	m_all_offers = new DynamicArray<TradeOffer>;
+	m_all_offers = std::make_unique<DynamicArray<TradeOffer>>();
 }
 
 TradeOfferPool::~TradeOfferPool()
 {
-	
-		delete m_all_offers;
 }
 
 TradeOffer TradeOfferPool::Create(Unit fromCity,
@@ -25,14 +24,12 @@ TradeOffer TradeOfferPool::Create(Unit fromCity,
 								  Unit toCity
 								  )
 {
-	TradeOfferData* newData;
 	TradeOffer newOffer(NewKey(k_BIT_GAME_OBJ_TYPE_TRADE_OFFER));
-
-	newData = new TradeOfferData(newOffer, fromCity,
+	auto newData = std::make_unique<TradeOfferData>(newOffer, fromCity,
 								 offerType, offerResource,
 								 askingType, askingResource,
 								 toCity);
-	Insert(newData);
+	Insert(newData.release());
 	player_Get(fromCity.GetOwner())->AddTradeOffer(newOffer);
 	m_all_offers->Insert(newOffer);
 

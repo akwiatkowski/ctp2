@@ -29,28 +29,26 @@
 
 #ifndef __STRING_HASH_H__
 #define __STRING_HASH_H__
+#include <memory>
+#include <vector>
 
 template <class T> class StringHashNode {
 public:
 
-	T *m_obj;
-	StringHashNode<T> *m_next;
+	std::unique_ptr<T> m_obj;
+	std::unique_ptr<StringHashNode<T>> m_next;
 
 	StringHashNode(const char *string, T *obj)
     :   m_obj   (obj),
         m_next  (nullptr)
     { ; };
 
-	~StringHashNode()
-    {
-		delete m_obj;
-        // m_next not deleted (intentional)
-	};
+	// m_obj/m_next are unique_ptr — chain frees itself
 };
 
 template <class T> class StringHash {
 protected:
-	StringHashNode<T> **m_table;
+	std::vector<std::unique_ptr<StringHashNode<T>>> m_table;
 	sint32 m_table_size;
 
 public:
@@ -76,11 +74,11 @@ public:
 	template <class Visitor>
 	void ForEach(Visitor const &visit) const
 	{
-		if (!m_table) return;
+		if (m_table.empty()) return;
 		for (sint32 i = 0; i < m_table_size; ++i)
 		{
-			for (StringHashNode<T> *node = m_table[i]; node; node = node->m_next)
-				visit(node->m_obj);
+			for (StringHashNode<T> *node = m_table[i].get(); node; node = node->m_next.get())
+				visit(node->m_obj.get());
 		}
 	}
 };
@@ -90,37 +88,20 @@ template <class T> StringHash<T>::StringHash(sint32 table_size)
 	// Assert validity of % and cast to uint16.
 	Assert(table_size > 0);
 	Assert(table_size < 0x10000);
-	m_table = new StringHashNode<T> *[table_size];
+	m_table.resize(table_size);   // value-init → all null
 	m_table_size = table_size;
-	for(sint32 i = 0; i < table_size; i++) {
-		m_table[i] = nullptr;
-	}
+
 }
 
 template <class T> StringHash<T>::~StringHash()
 {
-	if(m_table) {
-		for(sint32 i = 0; i < m_table_size; i++) {
-			while(m_table[i]) {
-				StringHashNode<T> *node = m_table[i];
-				m_table[i] = node->m_next;
-				delete node;
-			}
-		}
-		delete [] m_table;
-	}
+	// m_table is vector<unique_ptr> — nodes and chains free themselves
 }
 
 template <class T> void StringHash<T>::Clear()
 {
-	if(m_table) {
-		for(sint32 i = 0; i < m_table_size; i++) {
-			while(m_table[i]) {
-				StringHashNode<T> *node = m_table[i];
-				m_table[i] = node->m_next;
-				delete node;
-			}
-		}
+	for(auto & head : m_table) {
+		head.reset();
 	}
 }
 
@@ -145,11 +126,11 @@ template <class T> uint16 StringHash<T>::Key(const char *str)
 template <class T> const T *StringHash<T>::Get(const char *str)
 {
 	uint16 index = Key(str);
-	StringHashNode<T> *node = m_table[index];
+	StringHashNode<T> *node = m_table[index].get();
 	while(node) {
 		if(stricmp(node->m_obj->GetName(), str) == 0)
-			return node->m_obj;
-		node = node->m_next;
+			return node->m_obj.get();
+		node = node->m_next.get();
 	}
 	return nullptr;
 }
@@ -157,21 +138,21 @@ template <class T> const T *StringHash<T>::Get(const char *str)
 template <class T> T *StringHash<T>::Access(const char *str)
 {
 	uint16 index = Key(str);
-	StringHashNode<T> *node = m_table[index];
+	StringHashNode<T> *node = m_table[index].get();
 	while(node) {
 		if(stricmp(node->m_obj->GetName(), str) == 0)
-			return node->m_obj;
-		node = node->m_next;
+			return node->m_obj.get();
+		node = node->m_next.get();
 	}
 	return nullptr;
 }
 
 template <class T> void StringHash<T>::Add(const char *str, T *obj)
 {
-	StringHashNode<T> *node = new StringHashNode<T>(str, obj);
+	auto node = std::make_unique<StringHashNode<T>>(str, obj);
 	uint16 index = Key(str);
-	node->m_next = m_table[index];
-	m_table[index] = node;
+	node->m_next = std::move(m_table[index]);
+	m_table[index] = std::move(node);
 }
 
 template <class T> void StringHash<T>::Add(T *obj)
@@ -182,24 +163,25 @@ template <class T> void StringHash<T>::Add(T *obj)
 template <class T> T *StringHash<T>::Del(const char *str)
 {
 	uint16 index = Key(str);
-	StringHashNode<T> *node = m_table[index];
-	StringHashNode<T> *last = NULL;
+	StringHashNode<T> *node = m_table[index].get();
+	StringHashNode<T> *last = nullptr;
 	while(node) {
 		if(stricmp(node->m_obj->GetName(), str) == 0) {
+			// Unlink: splice node's tail into the predecessor slot
 			if(last) {
-				last->m_next = node->m_next;
+				last->m_next = std::move(node->m_next);
 			} else {
-				m_table[index] = node->m_next;
+				m_table[index] = std::move(node->m_next);
 			}
-			T *obj = node->m_obj;
-			node->m_obj = NULL;
-			delete node;
+			T *obj = node->m_obj.release();
+			// node is now unlinked; unique_ptr frees it
+			std::unique_ptr<StringHashNode<T>>{node};
 			return obj;
 		}
 		last = node;
-		node = node->m_next;
+		node = node->m_next.get();
 	}
-	return NULL;
+	return nullptr;
 }
 
 #endif

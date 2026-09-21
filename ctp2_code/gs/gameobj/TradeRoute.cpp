@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/TradeRoute.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
@@ -53,7 +54,7 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 	if(unitpool_Get()->IsValid(source) && unitpool_Get()->IsValid(dest)) {
 		if(source.GetOwner() != dest.GetOwner()) {
 			if(cause == CAUSE_KILL_TRADE_ROUTE_SENDER_KILLED) {
-				SlicObject *so = new SlicObject("360SenderKilledTradeRoute");
+				auto so = std::make_unique<SlicObject>("360SenderKilledTradeRoute");
 				ROUTE_TYPE type;
 				sint32 good;
 				GetSourceResource(type, good);
@@ -62,7 +63,7 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 				so->AddCity(dest);
 				so->AddCivilisation(source.GetOwner());
 				so->AddRecipient(dest.GetOwner());
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 		}
 	}
@@ -87,7 +88,7 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_TRADE_ROUTE, (uint32)*this, (uint32)cause));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_KILL_TRADE_ROUTE, (uint32)*this, (uint32)cause).release());
 	} else if(network_Get().IsClient()) {
 		network_Get().AddDeadUnit(m_id);
 	}

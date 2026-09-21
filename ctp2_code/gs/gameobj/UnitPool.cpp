@@ -25,6 +25,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/UnitPool.h"
 
 #include "ctp/ctp2_utils/civlog.h"
@@ -57,21 +58,22 @@ Unit UnitPool::Create (
     const Unit hc,
     std::shared_ptr<UnitActor> actor)
 {
-	UnitData *ptr = nullptr;
+	std::unique_ptr<UnitData> ptr;
 	Unit id(NewKey(k_BIT_GAME_OBJ_TYPE_UNIT));
 
 	Assert(owner < PLAYER_INDEX_INVALID);
 
 	sint32 trans_t = 0;
 	g_theUnitDB->Get(t, player_Get(owner)->GetGovernmentType())->GetTransType(trans_t);
-	ptr = new UnitData(t, trans_t, id, owner, pos, hc, actor);
+	ptr = std::make_unique<UnitData>(t, trans_t, id, owner, pos, hc, actor);
 
 	Assert(ptr);
 
-	Insert(ptr);
+	UnitData *ptrRaw = ptr.get();
+	Insert(ptr.release());
 	// Phase 3 slice 7a: fire spawn event AFTER pool insertion so
 	// observers' `Unit::GetActor()` / pool lookups succeed.
-	if (gameobservers_Get()) gameobservers_Get()->NotifyUnitSpawned(id, ptr->GetState());
+	if (gameobservers_Get()) gameobservers_Get()->NotifyUnitSpawned(id, ptrRaw->GetState());
 	return id;
 }
 
@@ -81,20 +83,21 @@ Unit UnitPool::Create (
     const PLAYER_INDEX owner,
     const MapPoint &actor_pos)
 {
-	UnitData *ptr = nullptr;
+	std::unique_ptr<UnitData> ptr;
 	Unit id(NewKey(k_BIT_GAME_OBJ_TYPE_UNIT));
 
 	Assert(owner < PLAYER_INDEX_INVALID);
 
 	sint32 trans_t = 0;
 	g_theUnitDB->Get(t, player_Get(owner)->GetGovernmentType())->GetTransType(trans_t);
-	ptr = new UnitData(t, trans_t, id, owner, actor_pos);
+	ptr = std::make_unique<UnitData>(t, trans_t, id, owner, actor_pos);
 
 	Assert(ptr);
 
-	Insert(ptr);
+	UnitData *ptrRaw = ptr.get();
+	Insert(ptr.release());
 	// Phase 3 slice 7a: fire spawn event AFTER pool insertion (see above).
-	if (gameobservers_Get()) gameobservers_Get()->NotifyUnitSpawned(id, ptr->GetState());
+	if (gameobservers_Get()) gameobservers_Get()->NotifyUnitSpawned(id, ptrRaw->GetState());
 	return id;
 }
 

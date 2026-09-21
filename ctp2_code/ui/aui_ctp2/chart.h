@@ -5,6 +5,9 @@
 #ifndef __CHART_H__
 #define __CHART_H__
 
+#include <array>
+#include <memory>
+
 #include "ui/aui_ctp2/ctp2_Static.h"
 
 
@@ -56,9 +59,9 @@ public:
 	AUI_ERRCODE Update( sint32 index );
 	AUI_ERRCODE Show() override;
 
-	ctp2_Button	*GetPreReqButton( sint32 index ) { return m_preReqButton[index]; }
-	ctp2_Button	*GetEitherPreReqButton( sint32 index ) { return m_eitherPreReqButton[index]; }
-	ctp2_Button	*GetLeadsToButton( sint32 index ) { return m_leadsToButton[index]; }
+	ctp2_Button	*GetPreReqButton( sint32 index ) { return m_preReqButton[index].get(); }
+	ctp2_Button	*GetEitherPreReqButton( sint32 index ) { return m_eitherPreReqButton[index].get(); }
+	ctp2_Button	*GetLeadsToButton( sint32 index ) { return m_leadsToButton[index].get(); }
 
 	sint32		GetPreReqIndex( sint32 index ) { return m_preReqIndex[index]; }
 	sint32		GetEitherPreReqIndex( sint32 index ) { return m_eitherPreReqIndex[index]; }
@@ -73,10 +76,10 @@ public:
 	sint32		SetTipInfo( ctp2_Button *button, sint32 index );
 
 private:
-	ctp2_Button	*m_preReqButton[ k_MAX_PREREQ ];
-	ctp2_Button	*m_eitherPreReqButton[ k_MAX_EITHER_PREREQ ];
-	ctp2_Button	*m_leadsToButton[ k_MAX_LEADS_TO ];
-	ctp2_Button	*m_centerButton;
+	std::array<std::unique_ptr<ctp2_Button>, k_MAX_PREREQ>			m_preReqButton;
+	std::array<std::unique_ptr<ctp2_Button>, k_MAX_EITHER_PREREQ>	m_eitherPreReqButton;
+	std::array<std::unique_ptr<ctp2_Button>, k_MAX_LEADS_TO>		m_leadsToButton;
+	std::unique_ptr<ctp2_Button>	m_centerButton;
 
 	sint32	m_preReqIndex[ k_MAX_PREREQ ];
 	sint32	m_eitherPreReqIndex[ k_MAX_EITHER_PREREQ ];
@@ -94,8 +97,8 @@ private:
 	sint32	m_centerColor;
 
 
-	ctp2_Static	*m_left;
-	ctp2_Static	*m_right;
+	std::unique_ptr<ctp2_Static>	m_left;
+	std::unique_ptr<ctp2_Static>	m_right;
 
 	sint32	m_heightBetweenButtons;
 	sint32	m_distFromCenter;

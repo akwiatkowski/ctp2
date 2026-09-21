@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -74,12 +75,9 @@ ServerSelectWindow::ServerSelectWindow(
 
 AUI_ERRCODE ServerSelectWindow::InitCommon( )
 {
-	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != nullptr );
-	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
-	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
+	m_controls = std::make_unique<aui_Control *[]>( m_numControls = CONTROL_MAX );
 
-	m_dbActionArray[ 0 ] = new DialogBoxPopDownAction;
+	m_dbActionArray[ 0 ] = std::make_unique<DialogBoxPopDownAction>();
 	Assert( m_dbActionArray[ 0 ] != nullptr );
 	if ( !m_dbActionArray[ 0 ] ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -89,56 +87,56 @@ AUI_ERRCODE ServerSelectWindow::InitCommon( )
 AUI_ERRCODE ServerSelectWindow::CreateControls( )
 {
 	AUI_ERRCODE     errcode = AUI_ERRCODE_OK;
-	aui_Control *   control = new c3_Static
+	std::unique_ptr<aui_Control>   control = std::make_unique<c3_Static>
         (&errcode, aui_UniqueId(), "serverselectwindow.titlestatictext");
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_TITLESTATICTEXT ] = control;
+	m_controls[ CONTROL_TITLESTATICTEXT ] = control.release();
 
-	control = new ns_ServerListBox(
+	control = std::make_unique<ns_ServerListBox>(
 		&errcode,
 		aui_UniqueId(),
 		"serverselectwindow.selectserverlistbox" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_SELECTSERVERLISTBOX ] = control;
+	m_controls[ CONTROL_SELECTSERVERLISTBOX ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"serverselectwindow.okbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_OKBUTTON ] = control;
+	m_controls[ CONTROL_OKBUTTON ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"serverselectwindow.cancelbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CANCELBUTTON ] = control;
+	m_controls[ CONTROL_CANCELBUTTON ] = control.release();
 
 
 	aui_Ldl::SetupHeirarchyFromRoot( "serverselectwindow" );
 
 
-	aui_Action *action;
+	std::unique_ptr<aui_Action> action;
 
-	action = new OKButtonAction;
+	action = std::make_unique<OKButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_OKBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_OKBUTTON ]->SetAction( action.release() );
 
-	action = new CancelButtonAction;
+	action = std::make_unique<CancelButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action.release() );
 
-	action = new ServerListBoxAction;
+	action = std::make_unique<ServerListBoxAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_SELECTSERVERLISTBOX ]->SetAction( action );
+	m_controls[ CONTROL_SELECTSERVERLISTBOX ]->SetAction( action.release() );
 
 
 
@@ -153,7 +151,7 @@ AUI_ERRCODE ServerSelectWindow::CreateControls( )
 
 ServerSelectWindow::~ServerSelectWindow()
 {
-	delete m_dbActionArray[ 0 ];
+	m_dbActionArray[ 0 ].reset();
 }
 
 void ServerSelectWindow::Update( bool wait )
@@ -163,9 +161,12 @@ void ServerSelectWindow::Update( bool wait )
 	c3_Button *b = (c3_Button *)(FindControl( ServerSelectWindow::CONTROL_OKBUTTON ));
 	if(wait)
 		if ( !s_dbw )
-		s_dbw = DialogBoxWindow::PopUp(
-			"waitserverdialogboxwindow",
-			m_dbActionArray );
+		{
+			aui_Action *actions[ 1 ] = { m_dbActionArray[ 0 ].get() };
+			s_dbw = DialogBoxWindow::PopUp(
+				"waitserverdialogboxwindow",
+				actions );
+		}
 	if(item)
 	{
 		b->Enable(TRUE);
@@ -192,9 +193,9 @@ AUI_ERRCODE ServerSelectWindow::Idle( )
 {
 	if (netfunc_Get())
     {
-        while (NETFunc::Message * m = netfunc_Get()->GetMessage())
+        while (std::unique_ptr<NETFunc::Message> m{netfunc_Get()->GetMessage()})
         {
-			netfunc_Get()->HandleMessage(m);
+			netfunc_Get()->HandleMessage(m.get());
 
 			switch ( m->GetCode() )
 			{
@@ -221,7 +222,6 @@ AUI_ERRCODE ServerSelectWindow::Idle( )
 				break;
 			}
 
-			delete m;
 		}
 
 		if(NETFunc::GetStatus() == NETFunc::START)

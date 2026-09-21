@@ -50,11 +50,11 @@ AUI_ERRCODE aui_Screen::InitCommon( uint32 id )
 	m_id = id;
 	m_showing = FALSE;
 
-	m_windowList = new tech_WLList<aui_Window *>;
+	m_windowList = std::make_unique<tech_WLList<aui_Window *>>();
 	Assert( m_windowList != nullptr );
 	if ( !m_windowList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_tempWindowList = new tech_WLList<aui_Window *>;
+	m_tempWindowList = std::make_unique<tech_WLList<aui_Window *>>();
 	Assert( m_tempWindowList != nullptr );
 	if ( !m_tempWindowList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -65,18 +65,7 @@ AUI_ERRCODE aui_Screen::InitCommon( uint32 id )
 aui_Screen::~aui_Screen()
 {
 	Hide();
-
-	if ( m_windowList )
-	{
-		delete m_windowList;
-		m_windowList = nullptr;
-	}
-
-	if ( m_tempWindowList )
-	{
-		delete m_tempWindowList;
-		m_tempWindowList = nullptr;
-	}
+	// m_windowList and m_tempWindowList are unique_ptr members, auto-freed.
 }
 
 

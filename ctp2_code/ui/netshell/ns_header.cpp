@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/netshell/ns_header.h"
 
 #include "ui/aui_common/aui_ui.h"
@@ -130,7 +131,7 @@ AUI_ERRCODE ns_Header::CreateSwitches( MBCHAR *ldlBlock )
 			if ( !aui_Ldl::GetLdl()->FindDataBlock( block ) )
 				break;
 
-			aui_Switch *theSwitch = new ns_HeaderSwitch(
+			auto theSwitch = std::make_unique<ns_HeaderSwitch>(
 				&errcode,
 				aui_UniqueId(),
 				block );
@@ -138,13 +139,13 @@ AUI_ERRCODE ns_Header::CreateSwitches( MBCHAR *ldlBlock )
 			if ( !AUI_NEWOK(theSwitch,errcode) )
 				return AUI_ERRCODE_MEMALLOCFAILED;
 
-			aui_Action *action = new aui_HeaderSwitchAction( i );
+			auto action = std::make_unique<aui_HeaderSwitchAction>( i );
 			Assert( action != nullptr );
 			if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-			theSwitch->SetAction( action );
+			theSwitch->SetAction( action.release() );
 
-			AddChild( theSwitch );
+			AddChild( theSwitch.release() );
 
 			i++;
 

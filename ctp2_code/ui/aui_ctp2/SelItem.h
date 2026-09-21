@@ -72,6 +72,7 @@ enum SELECT_MODE {
 };
 
 #include <vector>
+#include <memory>
 
 #include "gs/world/MapPoint.h"
 #include "robot/pathing/Path.h"
@@ -109,7 +110,8 @@ class SelectedItem
 
 	bool         m_is_pathing;
 	MapPoint     m_cur_mouse_tile;
-	Path *       m_good_path, m_bad_path;
+	std::unique_ptr<Path> m_good_path;
+	Path         m_bad_path;
 	bool         m_is_broken_path;
 	std::vector<MapPoint> m_waypoints;
 	PLAYER_INDEX m_player_on_screen;
@@ -202,7 +204,7 @@ public:
 	void SetDrawablePathDest(MapPoint &p);
 	void ConstructPath(bool &isCircular, double &cost);
 
-	Path *GetGoodPath() { return m_good_path; }
+	Path *GetGoodPath() { return m_good_path.get(); }
 	Path GetBadPath() { return m_bad_path; }
 
 	void SelectTradeRoute(const MapPoint &p);

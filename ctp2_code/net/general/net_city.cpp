@@ -35,6 +35,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
+
 
 #include "net/general/network.h"
 #include "net/general/net_city.h"
@@ -486,7 +488,7 @@ void NetCityBuildQueue::Packetize(uint8 *buf, uint16 &size)
 	PUSHLONG((uint32)m_cityData->m_home_city);
 	PUSHLONG(m_cityData->m_build_queue.m_list->GetCount());
 
-	PointerList<BuildNode>::Walker walk(m_cityData->m_build_queue.m_list);
+	PointerList<BuildNode>::Walker walk(m_cityData->m_build_queue.m_list.get());
 	while(walk.IsValid()) {
 		BuildNode *bn = walk.GetObj();
 		PUSHLONG(bn->m_cost);
@@ -520,7 +522,7 @@ void NetCityBuildQueue::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	BuildNode *bn = nullptr;
 	for(sint32 i = 0; i < len; i++) {
-		bn = new BuildNode;
+		bn = std::make_unique<BuildNode>().release();
 		PULLLONG(bn->m_cost);
 		PULLLONG(bn->m_type);
 		PULLLONG(bn->m_category);

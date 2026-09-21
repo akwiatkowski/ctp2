@@ -67,6 +67,7 @@ struct LineGraphData;
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "ui/aui_common/aui_control.h"
 #include "os/include/ctp2_inttypes.h"
@@ -139,7 +140,7 @@ public:
 
 	AUI_ERRCODE		DrawThis(aui_Surface *surface, sint32 x, sint32 y) override;
 
-	aui_Surface	*   GetGraphSurface() const { return m_surface; }
+	aui_Surface	*   GetGraphSurface() const { return m_surface.get(); }
 
 	void GenrateGraph(sint32     &infoXCount,
 	                             sint32     &infoYCount,
@@ -156,7 +157,7 @@ private:
 
 	sint32			m_numLines;
 	sint32			m_numSamples;
-	std::vector<double*>	m_lineData;
+	std::vector<std::unique_ptr<double[]>>	m_lineData;
 
 	bool			m_hasIndicator;
 	double			m_indicatorValue;
@@ -164,7 +165,7 @@ private:
 	std::string			m_xAxisName;
 	std::string			m_yAxisName;
 
-	aui_Surface *   m_surface;
+	std::unique_ptr<aui_Surface>   m_surface;
 
 	RECT			m_graphRect;
 	RECT			m_surfaceRect;

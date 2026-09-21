@@ -49,8 +49,8 @@ public:
 	void SetSequence(std::weak_ptr<Sequence> seq) { m_sequence = seq; }
 
 private:
-	aui_MovieButton		*m_movieButton;
-	c3_Static			*m_wonderName;
+	std::unique_ptr<aui_MovieButton>	m_movieButton;
+	std::unique_ptr<c3_Static>			m_wonderName;
 
   std::weak_ptr<Sequence>	m_sequence;
 };

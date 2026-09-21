@@ -43,6 +43,8 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/database/profileDB.h"
 #include "sound/soundmanager.h"
+#include <memory>
+
 
 #ifdef HAVE_STRING_H
 #include <cstring>
@@ -223,7 +225,6 @@ uint8 *c3files_loadbinaryfile(C3DIR dir, MBCHAR const * filename, sint32 *size)
 	if ( size ) *size = 0;
 
 	uint32 filesize;
-	uint8 *bits;
 
 	FILE *f = c3files_fopen(dir, filename, "rb");
 
@@ -242,7 +243,9 @@ uint8 *c3files_loadbinaryfile(C3DIR dir, MBCHAR const * filename, sint32 *size)
 		return nullptr;
 	}
 
-	bits = new uint8[filesize];
+	// unique_ptr guards the early-return path; released into the raw
+	// return value on success (callers still delete[] the buffer).
+	std::unique_ptr<uint8[]> bits = std::make_unique<uint8[]>(filesize);
 
 	Assert(bits != nullptr);
 	if (!bits) {
@@ -250,8 +253,7 @@ uint8 *c3files_loadbinaryfile(C3DIR dir, MBCHAR const * filename, sint32 *size)
 		return nullptr;
 	}
 
-	if (c3files_fread( bits, 1, filesize, f ) != filesize) {
-		delete [] bits;
+	if (c3files_fread( bits.get(), 1, filesize, f ) != filesize) {
 		c3files_fclose(f);
 		return nullptr;
 	}
@@ -260,7 +262,7 @@ uint8 *c3files_loadbinaryfile(C3DIR dir, MBCHAR const * filename, sint32 *size)
 
 	if ( size ) *size = filesize;
 
-	return bits;
+	return bits.release();
 }
 
 bool c3files_PathIsValid(MBCHAR *path)
@@ -335,15 +337,15 @@ bool c3files_getfilelist(C3SAVEDIR dirID, MBCHAR *ext, PointerList<MBCHAR> *list
 
 	if (lpFileList ==  INVALID_HANDLE_VALUE) return false;
 
-	MBCHAR *lpFileName = new MBCHAR[256];
-	strlcpy(lpFileName, fileData.cFileName, 256);
-	list->AddTail(lpFileName);
+	std::unique_ptr<MBCHAR[]> lpFileName = std::make_unique<MBCHAR[]>(256);
+	strlcpy(lpFileName.get(), fileData.cFileName, 256);
+	list->AddTail(lpFileName.release());
 
 	while (FindNextFile(lpFileList,&fileData))
 	{
-		lpFileName = new MBCHAR[256];
-		strlcpy(lpFileName, fileData.cFileName, 256);
-		list->AddTail(lpFileName);
+		lpFileName = std::make_unique<MBCHAR[]>(256);
+		strlcpy(lpFileName.get(), fileData.cFileName, 256);
+		list->AddTail(lpFileName.release());
 	}
 
 	FindClose(lpFileList);
@@ -366,9 +368,9 @@ bool c3files_getfilelist(C3SAVEDIR dirID, MBCHAR *ext, PointerList<MBCHAR> *list
                 if (ext != NULL && 0 != strcasecmp(p, ext)) {
 			continue;
 		}
-		MBCHAR *lpFileName = new char[NAME_MAX + 1];
-		strlcpy(lpFileName, dent->d_name, NAME_MAX + 1);
-		list->AddTail(lpFileName);
+		std::unique_ptr<MBCHAR[]> lpFileName = std::make_unique<MBCHAR[]>(NAME_MAX + 1);
+		strlcpy(lpFileName.get(), dent->d_name, NAME_MAX + 1);
+		list->AddTail(lpFileName.release());
 	}
 
 	closedir(dir);
@@ -390,24 +392,24 @@ bool c3files_getfilelist_ex(C3SAVEDIR dirID, MBCHAR *ext, PointerList<WIN32_FIND
 
 	strncat(path, strbuf, sizeof(path) - strlen(path) - 1);
 
-	WIN32_FIND_DATA *	lpFileData	= new WIN32_FIND_DATA;
-	HANDLE              lpFileList  = FindFirstFile(path, lpFileData);
+	// unique_ptr owns the scratch record until it is released into the
+	// owning PointerList; the trailing allocation is freed automatically.
+	std::unique_ptr<WIN32_FIND_DATA> lpFileData = std::make_unique<WIN32_FIND_DATA>();
+	HANDLE              lpFileList  = FindFirstFile(path, lpFileData.get());
 
 	if (lpFileList == INVALID_HANDLE_VALUE)
     {
-        delete lpFileData;
         return false;
     }
 
-	list->AddTail(lpFileData);
+	list->AddTail(lpFileData.release());
 
-	lpFileData = new WIN32_FIND_DATA;
-	while (FindNextFile(lpFileList,lpFileData))
+	lpFileData = std::make_unique<WIN32_FIND_DATA>();
+	while (FindNextFile(lpFileList,lpFileData.get()))
 	{
-		list->AddTail(lpFileData);
-		lpFileData = new WIN32_FIND_DATA;
+		list->AddTail(lpFileData.release());
+		lpFileData = std::make_unique<WIN32_FIND_DATA>();
 	}
-    delete lpFileData;
 
 	FindClose(lpFileList);
 

@@ -18,8 +18,8 @@ Pattern::Pattern(
 :
 	aui_Image( retval, filename )
 {
-	m_lightImage = new aui_Image( retval, lightFilename );
-	m_darkImage = new aui_Image( retval, darkFilename );
+	m_lightImage = std::make_unique<aui_Image>( retval, lightFilename );
+	m_darkImage = std::make_unique<aui_Image>( retval, darkFilename );
 }
 
 Pattern::Pattern(
@@ -32,20 +32,7 @@ Pattern::Pattern(
 {
 }
 
-Pattern::~Pattern( )
-{
-	if ( m_lightImage )
-	{
-		delete m_lightImage;
-		m_lightImage = nullptr;
-	}
-
-	if ( m_darkImage )
-	{
-		delete m_darkImage;
-		m_darkImage = nullptr;
-	}
-}
+Pattern::~Pattern( ) = default;
 
 AUI_ERRCODE Pattern::Draw( aui_Surface *pDestSurf, RECT *pDestRect )
 {
@@ -55,7 +42,7 @@ AUI_ERRCODE Pattern::Draw( aui_Surface *pDestSurf, RECT *pDestRect )
 	return c3ui_Get()->TheBlitter()->TileBlt(
 		pDestSurf,
 		pDestRect,
-		m_surface,
+		m_surface.get(),
 		&rect,
 		0,
 		0,
@@ -69,7 +56,7 @@ AUI_ERRCODE Pattern::Draw( aui_Surface *pDestSurf, RECT *pDestRect, RECT *pSrcRe
 	return c3ui_Get()->TheBlitter()->TileBlt(
 		pDestSurf,
 		pDestRect,
-		m_surface,
+		m_surface.get(),
 		pSrcRect,
 		0,
 		0,
@@ -82,7 +69,7 @@ AUI_ERRCODE Pattern::DrawDither( aui_Surface *pDestSurf, RECT *pDestRect, BOOL f
 	return c3ui_Get()->TheBlitter()->TileBlt(
 		pDestSurf,
 		pDestRect,
-		m_surface,
+		m_surface.get(),
 		&rect,
 		0,
 		0,
@@ -101,7 +88,7 @@ AUI_ERRCODE Pattern::DrawDither(
 	return c3ui_Get()->TheBlitter()->TileBlt(
 		pDestSurf,
 		pDestRect,
-		m_surface,
+		m_surface.get(),
 		&rect,
 		0,
 		0,

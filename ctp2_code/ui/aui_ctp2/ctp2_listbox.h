@@ -47,6 +47,7 @@ class ctp2_Listbox;
 #include "os/include/ctp2_inttypes.h"  // sint32, uint32
 #include "ui/aui_ctp2/patternbase.h"    // PatternBase
 #include <windows.h>        // BOOL, POINT
+#include <memory>
 
 struct  aui_MouseEvent;
 #include "ui/aui_ctp2/ctp2_listitem.h"
@@ -94,8 +95,7 @@ public:
             ctp2_ListItem * item = static_cast<ctp2_ListItem *>(this->GetItemByIndex(i));
             if (item)
             {
-                 T * info = static_cast<T *>(item->GetUserData());
-                 delete info;
+                 std::unique_ptr<T> info(static_cast<T *>(item->GetUserData()));
                  item->SetUserData(nullptr);
             }
         } // for

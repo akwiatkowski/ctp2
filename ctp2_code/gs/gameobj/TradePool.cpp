@@ -41,19 +41,17 @@ TradeRoute TradePool::Create(Unit sourceCity,
 							 PLAYER_INDEX paying_for,
 							 sint32 gold_in_return)
 {
-	TradeRouteData* newData;
 	TradeRoute newRoute(NewKey(k_BIT_GAME_OBJ_TYPE_TRADE_ROUTE));
 
-	newData = new TradeRouteData(newRoute, sourceCity, destCity, owner,
-								 sType, sResource, paying_for,
-								 gold_in_return);
+	auto newData = std::make_unique<TradeRouteData>(newRoute, sourceCity, destCity, owner,
+	                                                sType, sResource, paying_for,
+	                                                gold_in_return);
 	if(!newData->IsValid()) {
 
-		delete newData;
 		return {};
 	}
 
-	Insert(newData);
+	Insert(newData.release());
 
 	sourceCity.AddTradeRoute(newRoute);
 	destCity.AddTradeRoute(newRoute);

@@ -20,26 +20,13 @@ HighScoreDB::~HighScoreDB()
 
 	SaveHighScores();
 
-	HighScoreInfo *prevScore = m_highScoreInfo;
-	HighScoreInfo *nextScore = nullptr;
-
-	if (prevScore)
-	{
-		for (sint32 i = 0; i < m_nHighScores ; i++)
-		{
-			nextScore = prevScore->m_next;
-			delete prevScore;
-			prevScore = nextScore;
-		}
-
-		Assert( prevScore == nullptr );
-	}
+	// m_highScoreInfo owns the whole list via unique_ptr links.
 }
 
 void HighScoreDB::Initialize()
 {
 	m_nHighScores = 0;
-	m_highScoreInfo = nullptr;
+	m_highScoreInfo.reset();
 	LoadHighScores();
 }
 
@@ -49,7 +36,7 @@ sint32 HighScoreDB::AddHighScore(MBCHAR *name, sint32 score)
 	HighScoreInfo *prevScore = nullptr;
 	sint32 i = 0;
 
-	HighScoreInfo *newScore = new HighScoreInfo;
+	auto newScore = std::make_unique<HighScoreInfo>();
 	strlcpy(newScore->m_name, name, sizeof(newScore->m_name));
 	newScore->m_score = score;
 	newScore->m_next = nullptr;
@@ -57,29 +44,29 @@ sint32 HighScoreDB::AddHighScore(MBCHAR *name, sint32 score)
 	if (!m_nHighScores)
 	{
 
-		m_highScoreInfo = newScore;
+		m_highScoreInfo = std::move(newScore);
 		m_nHighScores++;
 		return 0;
 	}
 
 	if (m_highScoreInfo->m_score < newScore->m_score)
 	{
-		newScore->m_next = m_highScoreInfo;
-		m_highScoreInfo = newScore;
+		newScore->m_next = std::move(m_highScoreInfo);
+		m_highScoreInfo = std::move(newScore);
 		m_nHighScores++;
 
 		CheckMaxScores();
 		return 0;
 	}
 
-	nextScore = m_highScoreInfo->m_next;
-	prevScore = m_highScoreInfo;
+	nextScore = m_highScoreInfo->m_next.get();
+	prevScore = m_highScoreInfo.get();
 	for ( i = 0 ; i < m_nHighScores ; i++ )
 	{
 
 		if (!nextScore)
 		{
-			prevScore->m_next = newScore;
+			prevScore->m_next = std::move(newScore);
 			m_nHighScores++;
 
 			CheckMaxScores();
@@ -88,15 +75,15 @@ sint32 HighScoreDB::AddHighScore(MBCHAR *name, sint32 score)
 
 		if (nextScore->m_score < newScore->m_score)
 		{
-			newScore->m_next = nextScore;
-			prevScore->m_next = newScore;
+			newScore->m_next = std::move(prevScore->m_next);
+			prevScore->m_next = std::move(newScore);
 			m_nHighScores++;
 
 			CheckMaxScores();
 			return 0;
 		}
 		prevScore = nextScore;
-		nextScore = nextScore->m_next;
+		nextScore = nextScore->m_next.get();
 	}
 
 	return 0;
@@ -104,7 +91,7 @@ sint32 HighScoreDB::AddHighScore(MBCHAR *name, sint32 score)
 
 sint32 HighScoreDB::CheckMaxScores( )
 {
-	HighScoreInfo *nextScore = m_highScoreInfo;
+	HighScoreInfo *nextScore = m_highScoreInfo.get();
 	HighScoreInfo *prevScore = nullptr;
 
 	if (m_nHighScores > k_MAX_HIGH_SCORES)
@@ -114,12 +101,11 @@ sint32 HighScoreDB::CheckMaxScores( )
 		for (sint32 i = 0 ; i < k_MAX_HIGH_SCORES; i++)
 		{
 			prevScore = nextScore;
-			nextScore = nextScore->m_next;
+			nextScore = nextScore->m_next.get();
 		}
 
-		prevScore->m_next = nullptr;
-		delete nextScore;
-		nextScore = nullptr;
+		// reset() unlinks and deletes the tail node.
+		prevScore->m_next.reset();
 		m_nHighScores--;
 	}
 
@@ -134,11 +120,11 @@ HighScoreInfo *HighScoreDB::GetHighScoreInfo( sint32 index )
 
 	if (!m_highScoreInfo) return nullptr;
 
-	HighScoreInfo *nextScore = m_highScoreInfo;
+	HighScoreInfo *nextScore = m_highScoreInfo.get();
 
 	for (sint32 i = 0 ; i < index ; i++)
 	{
-		nextScore = nextScore->m_next;
+		nextScore = nextScore->m_next.get();
 	}
 
 	return nextScore;
@@ -213,13 +199,13 @@ void HighScoreDB::SaveHighScores( )
 
 	if (!fp) return;
 
-	HighScoreInfo *nextScore = m_highScoreInfo;
+	HighScoreInfo *nextScore = m_highScoreInfo.get();
 
 	for ( sint32 i = 0 ; i < m_nHighScores ; i++)
 	{
 
 		fprintf(fp, "{%s} %d\n", nextScore->m_name, nextScore->m_score);
-		nextScore = nextScore->m_next;
+		nextScore = nextScore->m_next.get();
 	}
 
 	fclose(fp);

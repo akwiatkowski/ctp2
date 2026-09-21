@@ -170,7 +170,7 @@ AUI_ERRCODE C3Slider::CreateThumb( MBCHAR const *ldlBlock )
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_THUMB );
 
 		if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
-			m_thumb = new C3Thumb(
+			m_thumb = std::make_unique<C3Thumb>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -179,7 +179,7 @@ AUI_ERRCODE C3Slider::CreateThumb( MBCHAR const *ldlBlock )
 	}
 
 	if ( !m_thumb )
-		m_thumb = new C3Thumb(
+		m_thumb = std::make_unique<C3Thumb>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -191,7 +191,7 @@ AUI_ERRCODE C3Slider::CreateThumb( MBCHAR const *ldlBlock )
 	if ( !AUI_NEWOK(m_thumb,errcode) )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_thumb );
+	AddChild( m_thumb.get() );
 
 	RepositionThumb( FALSE );
 

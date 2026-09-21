@@ -2,6 +2,8 @@
 #include "gs/gameobj/EndGame.h"
 #include "gs/database/EndGameDB.h"
 
+#include <memory>
+
 #include "gs/gameobj/player.h"
 
 #include "gs/slic/SlicObject.h"
@@ -54,28 +56,28 @@ void EndGame::AddObject(sint32 type)
 {
 	const EndGameRecord *egrec = endgamedb_Get()->Get(type);
 	if(egrec->NotifyLabBuilt()) {
-		SlicObject *so = new SlicObject("302EndGameOtherCivBuiltLab");
+		auto so = std::make_unique<SlicObject>("302EndGameOtherCivBuiltLab");
 		so->AddAllRecipientsBut(m_owner);
 		so->AddCivilisation(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		if(network_Get().IsHost()) {
 			network_Get().Block(m_owner);
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_OTHER_CIV_LAB_MSG,
-										  m_owner));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_OTHER_CIV_LAB_MSG,
+										  m_owner).release());
 			network_Get().Unblock(m_owner);
 		}
 
-		so = new SlicObject("308EndGameFinishedXLab");
+		so = std::make_unique<SlicObject>("308EndGameFinishedXLab");
 		so->AddRecipient(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	m_numBuilt[type]++;
 
 	if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().QueuePacketToAll(new NetEndGame(m_owner));
+		network_Get().QueuePacketToAll(std::make_unique<NetEndGame>(m_owner).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -107,14 +109,14 @@ BOOL EndGame::BeginSequence(sint32 currentRound)
 			return FALSE;
 	}
 
-	SlicObject *so = new SlicObject("303EndGameOtherCivStartedSequence");
+	auto so = std::make_unique<SlicObject>("303EndGameOtherCivStartedSequence");
 	so->AddAllRecipientsBut(m_owner);
 	so->AddCivilisation(m_owner);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_OTHER_CIV_SEQUENCE_MSG,
-									  m_owner));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_OTHER_CIV_SEQUENCE_MSG,
+									  m_owner).release());
 	}
 
 	m_currentStage = 0;
@@ -129,7 +131,7 @@ BOOL EndGame::BeginSequence(sint32 currentRound)
 
 void EndGame::BeginTurn(sint32 currentRound)
 {
-	SlicObject *so;
+	std::unique_ptr<SlicObject> so;
 
 	if(m_currentStage < 0 || m_currentStage >= endgamedb_Get()->GetNumStages())
 		return;
@@ -152,23 +154,23 @@ void EndGame::BeginTurn(sint32 currentRound)
         } else {
 			if (!HaveEnoughECDs() &&
 				(slicengine_Get()->GetSegment("061NeedEcd")->TestLastShown(m_owner, 5, currentRound))) {
-				so = new SlicObject("061NeedEcd");
+				so = std::make_unique<SlicObject>("061NeedEcd");
 				so->AddRecipient(m_owner);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 
 			if(!HaveEnoughFields() &&
 			   (slicengine_Get()->GetSegment("062NeedField")->TestLastShown(m_owner, 5, currentRound))) {
-				so = new SlicObject("062NeedField");
+				so = std::make_unique<SlicObject>("062NeedField");
 				so->AddRecipient(m_owner);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 
 			if(!HaveMaxSplicers() &&
 			   (slicengine_Get()->GetSegment("063ShouldBuildSplicer")->TestLastShown(m_owner, 5, currentRound))) {
-				so = new SlicObject("063ShouldBuildSplicer");
+				so = std::make_unique<SlicObject>("063ShouldBuildSplicer");
 				so->AddRecipient(m_owner);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 		}
 	} else if(m_currentStage == 2 &&
@@ -176,32 +178,32 @@ void EndGame::BeginTurn(sint32 currentRound)
 			  (((m_currentStageBegan + turnsForNextStage) -
 				currentRound) < 5)) {
 		if(slicengine_Get()->GetSegment("053AlienAlmostDone")->TestLastShown(m_owner, 5, currentRound)) {
-			so = new SlicObject("053AlienAlmostDone");
+			so = std::make_unique<SlicObject>("053AlienAlmostDone");
 			so->AddRecipient(m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
-			so = new SlicObject("054AlienAlmostDoneOthers");
+			so = std::make_unique<SlicObject>("054AlienAlmostDoneOthers");
 			so->AddAllRecipientsBut(m_owner);
 			so->AddCivilisation(m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
 			if(network_Get().IsHost()) {
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ALIEN_ALMOST_DONE_OTHERS_MSG,
-											  m_owner));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ALIEN_ALMOST_DONE_OTHERS_MSG,
+											  m_owner).release());
 			}
 		}
 	}
 
 	if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().QueuePacketToAll(new NetEndGame(m_owner));
+		network_Get().QueuePacketToAll(std::make_unique<NetEndGame>(m_owner).release());
 		network_Get().Unblock(m_owner);
 	}
 }
 
 void EndGame::AdvanceStage(sint32 currentRound)
 {
-	SlicObject *so;
+	std::unique_ptr<SlicObject> so;
 /*
 	sint32 cataclysm_chance = GetCataclysmChance();
 	if(cataclysm_chance > 0) {
@@ -216,14 +218,14 @@ void EndGame::AdvanceStage(sint32 currentRound)
 	m_currentStage++;
 	if(m_currentStage >= endgamedb_Get()->GetNumStages()) {
 
-		SlicObject *so = new SlicObject("309EndGameWon");
+		auto so = std::make_unique<SlicObject>("309EndGameWon");
 		so->AddAllRecipientsBut(m_owner);
 		so->AddCivilisation(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 		if(network_Get().IsHost()) {
 			network_Get().Block(m_owner);
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_WON_END_GAME,
-										  m_owner));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_WON_END_GAME,
+										  m_owner).release());
 			network_Get().Unblock(m_owner);
 		}
 
@@ -244,28 +246,28 @@ void EndGame::AdvanceStage(sint32 currentRound)
 
 	switch (m_currentStage) {
 	  case 1: {
-		  so = new SlicObject("059EmbryoStage2");
+		  so = std::make_unique<SlicObject>("059EmbryoStage2");
 		  so->AddRecipient(m_owner);
-		  slicengine_Get()->Execute(so);
+		  slicengine_Get()->Execute(std::move(so));
 
 
 
 
-		  so = new SlicObject("058AlienScrappedOwner");
+		  so = std::make_unique<SlicObject>("058AlienScrappedOwner");
 		  so->AddAllRecipientsBut(m_owner);
 		  so->AddCivilisation(m_owner);
-		  slicengine_Get()->Execute(so);
+		  slicengine_Get()->Execute(std::move(so));
 
 		  if(network_Get().IsHost()) {
-			  network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ALIEN_SCRAPPED_OWNER,
-											m_owner));
+			  network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ALIEN_SCRAPPED_OWNER,
+											m_owner).release());
 		  }
 		  break;
 	  }
 	  case 2: {
-		  so = new SlicObject("060EmbryoStage3");
+		  so = std::make_unique<SlicObject>("060EmbryoStage3");
 		  so->AddRecipient(m_owner);
-		  slicengine_Get()->Execute(so);
+		  slicengine_Get()->Execute(std::move(so));
 		  break;
 	  }
 	}
@@ -399,18 +401,18 @@ BOOL EndGame::MetRequirementsForNextStage()
 void EndGame::Cataclysm()
 {
 
-	SlicObject *so = new SlicObject("300EndGameCataclysm");
+	auto so = std::make_unique<SlicObject>("300EndGameCataclysm");
 	so->AddRecipient(m_owner);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
-	so = new SlicObject("301EndGameCataclysmOtherCiv");
+	so = std::make_unique<SlicObject>("301EndGameCataclysmOtherCiv");
 	so->AddAllRecipientsBut(m_owner);
 	so->AddCivilisation(m_owner);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CATACLYSM_OTHER,
-									  m_owner));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CATACLYSM_OTHER,
+									  m_owner).release());
 	}
 
 	Init();

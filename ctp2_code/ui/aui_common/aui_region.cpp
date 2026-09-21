@@ -58,7 +58,7 @@ aui_Region *                aui_Region::s_editChild             = nullptr;
 uint32                      aui_Region::s_editSelectionCount    = 0;
 uint32                      aui_Region::s_editSelectionCurrent  = 0;
 uint32                      aui_Region::s_editModeStatus        = AUI_EDIT_MODE_CHOOSE_REGION;
-tech_WLList<aui_Undo *> *   aui_Region::s_undoList              = nullptr;
+std::unique_ptr<tech_WLList<aui_Undo *>> aui_Region::s_undoList;
 uint32                      aui_Region::s_regionClassId         = aui_UniqueId();
 
 aui_Region::aui_Region
@@ -74,10 +74,10 @@ aui_Region::aui_Region
     m_y                         (0),
     m_width                     (0),
     m_height                    (0),
-    m_dim                       (new aui_Dimension()),
+    m_dim                       (std::make_unique<aui_Dimension>()),
     m_attributes                (0),
     m_parent                    (nullptr),
-    m_childList                 (new tech_WLList<aui_Region *>()),
+    m_childList                 (std::make_unique<tech_WLList<aui_Region *>>()),
     m_childListChanged          (false),
     m_blind                     (false),
     m_mouseCode                 (AUI_ERRCODE_UNHANDLED),
@@ -125,10 +125,10 @@ aui_Region::aui_Region
     m_y                         (y),
     m_width                     (width),
     m_height                    (height),
-    m_dim                       (new aui_Dimension()),
+    m_dim                       (std::make_unique<aui_Dimension>()),
     m_attributes                (0),
     m_parent                    (nullptr),
-    m_childList                 (new tech_WLList<aui_Region *>()),
+    m_childList                 (std::make_unique<tech_WLList<aui_Region *>>()),
     m_childListChanged          (false),
     m_blind                     (false),
     m_mouseCode                 (AUI_ERRCODE_UNHANDLED),
@@ -311,9 +311,7 @@ aui_Region::~aui_Region()
 
 	aui_Ldl::Remove(this);
 
-	delete m_dim;
-	delete m_childList;
-	// m_ldlBlock is std::string, auto-freed
+	// m_dim, m_childList and m_ldlBlock are RAII members, auto-freed
 }
 
 void aui_Region::DeleteChildren()
@@ -321,9 +319,9 @@ void aui_Region::DeleteChildren()
 	ListPos position = m_childList->GetHeadPosition();
 
 	for ( sint32 i = m_childList->L(); i; i-- ) {
-		aui_Region *child = m_childList->GetNext(position);
+		// m_childList owns its elements; release each child here.
+		std::unique_ptr<aui_Region> child(m_childList->GetNext(position));
 		child->DeleteChildren();
-		delete child;
 	}
 }
 
@@ -862,7 +860,7 @@ aui_DragDropWindow *aui_Region::CreateDragDropWindow( aui_Control *dragDropItem 
 
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	aui_DragDropWindow *ddw = new aui_DragDropWindow(
+	auto ddw = std::make_unique<aui_DragDropWindow>(
 		&errcode,
 		dragDropItem,
 		this,
@@ -870,9 +868,9 @@ aui_DragDropWindow *aui_Region::CreateDragDropWindow( aui_Control *dragDropItem 
 	Assert( AUI_NEWOK(ddw,errcode) );
 	if ( !AUI_NEWOK(ddw,errcode) ) return nullptr;
 
-	aui_ui_Get()->AddChild( ddw );
+	aui_ui_Get()->AddChild( ddw.get() );
 
-	return ddw;
+	return ddw.release();
 }
 
 
@@ -883,7 +881,7 @@ void aui_Region::DestroyDragDropWindow( aui_DragDropWindow *ddw )
 	if ( ddw )
 	{
 		aui_ui_Get()->RemoveChild( ddw->Id() );
-		delete ddw;
+		std::unique_ptr<aui_DragDropWindow> removed(ddw);
 	}
 }
 
@@ -1041,7 +1039,7 @@ AUI_ERRCODE aui_Region::AddUndo( )
 {
 	if (!s_undoList)
 	{
-		s_undoList = new tech_WLList<aui_Undo *>;
+		s_undoList = std::make_unique<tech_WLList<aui_Undo *>>();
 		Assert(s_undoList);
 		if (!s_undoList) return AUI_ERRCODE_MEMALLOCFAILED;
 	}
@@ -1050,7 +1048,7 @@ AUI_ERRCODE aui_Region::AddUndo( )
 	if ( m_parent != aui_ui_Get() )
 		(( aui_Control *)this)->ToScreen( &rect );
 
-	s_undoList->AddHead(new aui_Undo(this, rect));
+	s_undoList->AddHead(std::make_unique<aui_Undo>(this, rect).release());
 
 	return AUI_ERRCODE_OK;
 }
@@ -1062,10 +1060,10 @@ void aui_Region::PurgeUndoList( )
 		ListPos position = s_undoList->GetHeadPosition();
 		for (size_t i = s_undoList->L(); i > 0; --i)
         {
-			delete s_undoList->GetNext(position);
+			std::unique_ptr<aui_Undo> removed(s_undoList->GetNext(position));
 		}
 		s_undoList->DeleteAll();
-        allocated::clear(s_undoList);
+        s_undoList.reset();
 	}
 }
 
@@ -1111,7 +1109,7 @@ AUI_ERRCODE aui_Region::UndoEdit( )
 
 		if (s_undoList->IsEmpty())
         {
-            allocated::clear(s_undoList);
+            s_undoList.reset();
         }
 	}
 	return AUI_ERRCODE_OK;
@@ -1403,7 +1401,7 @@ void aui_Region::MouseLDropEditMode( aui_MouseEvent *mouseData )
 			m_editGrabPointAttributes = k_REGION_GRAB_NONE;
 
 			if ( ldlBlock ) {
-				aui_Ldl::ModifyAttributes( ldlBlock, m_dim );
+				aui_Ldl::ModifyAttributes( ldlBlock, m_dim.get() );
 			}
 		}
 	}

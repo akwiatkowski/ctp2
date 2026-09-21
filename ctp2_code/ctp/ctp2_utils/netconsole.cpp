@@ -39,27 +39,26 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include <memory>
+
 
 static int s_winsockInitialized = 0;
 
 #define k_MAX_SOCK_READ 2048
 
-static NetConsole *g_netConsole = nullptr;
+static std::unique_ptr<NetConsole> g_netConsole;
 
-NetConsole * netconsole_Get() { return g_netConsole; }
+NetConsole * netconsole_Get() { return g_netConsole.get(); }
 
 void netconsole_Initialize()
 {
 	if(!g_netConsole)
-		g_netConsole = new NetConsole(9999);
+		g_netConsole = std::make_unique<NetConsole>(9999);
 }
 
 void netconsole_Cleanup()
 {
-	if(g_netConsole) {
-		delete g_netConsole;
-		g_netConsole = nullptr;
-	}
+	g_netConsole.reset();
 }
 #if defined(WIN32)
 static void initWinsock()

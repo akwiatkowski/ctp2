@@ -74,17 +74,17 @@ AUI_ERRCODE PictureButton::InitCommon(MBCHAR const *upPicture, MBCHAR const *dow
 
 	AUI_ERRCODE retval = AUI_ERRCODE_OK;
 
-	delete m_upPicture;
+	m_upPicture.reset();
 	if (civpaths_Get()->FindFile(C3DIR_PICTURES, upName, path)) {
-		m_upPicture = new Picture(&retval, path);
+		m_upPicture = std::make_unique<Picture>(&retval, path);
 		Assert(retval == AUI_ERRCODE_OK);
 	} else {
 		m_upPicture = nullptr;
 	}
 
-	delete m_downPicture;
+	m_downPicture.reset();
 	if (civpaths_Get()->FindFile(C3DIR_PICTURES, downName, path)) {
-		m_downPicture = new Picture(&retval, path);
+		m_downPicture = std::make_unique<Picture>(&retval, path);
 		Assert(retval == AUI_ERRCODE_OK);
 	} else {
 		m_downPicture = nullptr;
@@ -93,11 +93,7 @@ AUI_ERRCODE PictureButton::InitCommon(MBCHAR const *upPicture, MBCHAR const *dow
 	return AUI_ERRCODE_OK;
 }
 
-PictureButton::~PictureButton()
-{
-	delete m_upPicture;
-	delete m_downPicture;
-}
+PictureButton::~PictureButton() = default;
 
 
 AUI_ERRCODE PictureButton::DrawThis( aui_Surface *surface, sint32 x, sint32 y )

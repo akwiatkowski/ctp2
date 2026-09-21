@@ -35,6 +35,8 @@
 #ifndef _TRADEROUTEDATA_H_
 #define _TRADEROUTEDATA_H_
 
+class Path;
+
 class TradeRouteData;
 
 #include "gs/gameobj/GameObj.h"
@@ -46,12 +48,13 @@ class TradeRouteData;
 #include "gs/gameobj/Army.h"
 
 #include <nlohmann/json.hpp>
+#include <memory>
 
 #define k_TRADEROUTE_NO_PATH		0
 #define k_TRADEROUTE_ORIGINAL_PATH	1
 #define k_TRADEROUTE_SELECTED_PATH	2
 
-class Path;
+
 
 class TradeRouteData : public GameObj,
 					   public CityRadiusCallback
@@ -103,7 +106,7 @@ private:
 	DynamicArray<MapPoint> m_setPath;
 	DynamicArray<MapPoint> m_setWayPoints;
 
-	Path *m_astarPath;
+	Path *m_astarPath;  // raw: *this = *copyme in copy-ctor needs copy-assign; unique_ptr member deletes it
 
 
 

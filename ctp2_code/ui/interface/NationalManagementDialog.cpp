@@ -84,6 +84,8 @@
 #include "gfx/spritesys/director.h"
 #include "net/general/network.h"
 #include "gs/utility/Globals.h"
+#include <memory>
+
 
 
 class BuildQueueDropdownItem {
@@ -126,11 +128,11 @@ static const sint32 k_NMD_SPEC_MERCHANT     = 7;
 static const sint32 k_NMD_SPEC_SCIENTIST    = 8;
 static const sint32 k_NMD_SPEC_COMBAT_UNITS = 9;
 
-static NationalManagementDialog * g_nationalManagementDialog = nullptr;
+static std::unique_ptr<NationalManagementDialog> g_nationalManagementDialog;
 
 NationalManagementDialog * nationalmanagementdialog_Get()
 {
-    return g_nationalManagementDialog;
+    return g_nationalManagementDialog.get();
 }
 
 // Unit ids round-trip through aui list-item user data as void*.  Keep the
@@ -152,7 +154,7 @@ void NationalManagementDialog::Open()
 {
 
 	if(!g_nationalManagementDialog) {
-		g_nationalManagementDialog = new NationalManagementDialog;
+		g_nationalManagementDialog = std::make_unique<NationalManagementDialog>();
 	}
 
 	g_nationalManagementDialog->Show();
@@ -193,8 +195,7 @@ void NationalManagementDialog::Cleanup()
 		aui_Ldl::DeleteHierarchyFromRoot("CityStatusWin");
 	}
 
-	delete g_nationalManagementDialog;
-	g_nationalManagementDialog = nullptr;
+	g_nationalManagementDialog.reset();
 }
 
 bool NationalManagementDialog::IsShown()
@@ -624,9 +625,9 @@ void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 
 	static MBCHAR stringBuffer[32];
 
-	CityData *cityData = new CityData(city.GetCityData());
+	auto cityData = std::make_unique<CityData>(city.GetCityData());
 
-	CityWindow::Project(cityData);
+	CityWindow::Project(cityData.get());
 
 	BOOL cityCritical = false;
 
@@ -732,7 +733,7 @@ void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 			column->SetTextColor(colorNorm);
 	}
 
-	delete cityData;
+	// cityData is a unique_ptr; auto-freed on return.
 }
 
 ctp2_ListItem *NationalManagementDialog::CreateStatusItem(const Unit &city)
@@ -775,8 +776,8 @@ void NationalManagementDialog::UpdateStatusItem(ctp2_ListItem *item,
 												const Unit &city)
 {
 
-	CityData *cityData = new CityData(city.GetCityData());
-	CityWindow::Project(cityData);
+	auto cityData = std::make_unique<CityData>(city.GetCityData());
+	CityWindow::Project(cityData.get());
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_STAT_CITY_NAME)) {
 		column->SetText(cityData->GetName());
@@ -824,7 +825,7 @@ void NationalManagementDialog::UpdateStatusItem(ctp2_ListItem *item,
 		} else
 			column->SetText(stringdb_Get()->GetNameStr("str_ldl_ND_NA"));
 	}
-	delete cityData;
+	// cityData is a unique_ptr; auto-freed on return.
 }
 
 //----------------------------------------------------------------------------
@@ -887,9 +888,9 @@ void NationalManagementDialog::UpdateSpecialistItem(ctp2_ListItem *item,
 
 	static MBCHAR stringBuffer[32];
 
-	CityData *cityData = new CityData(city.GetCityData());
+	auto cityData = std::make_unique<CityData>(city.GetCityData());
 
-	CityWindow::Project(cityData);
+	CityWindow::Project(cityData.get());
 
 	BOOL cityCritical = false;
 
@@ -956,7 +957,7 @@ void NationalManagementDialog::UpdateSpecialistItem(ctp2_ListItem *item,
 		else
 			column->SetTextColor(colorNorm);
 	}
-	delete cityData;
+	// cityData is a unique_ptr; auto-freed on return.
 }
 
 
@@ -1008,7 +1009,7 @@ ctp2_ListItem *NationalManagementDialog::CreateBuildQueueItem(uint32 category,
 	ctp2_ListItem *listItem = static_cast<ctp2_ListItem*>(
 		aui_Ldl::BuildHierarchyFromRoot("NationalBuildQueueListItem"));
 
-	listItem->SetUserData(new BuildQueueDropdownItem(category, type));
+	listItem->SetUserData(std::make_unique<BuildQueueDropdownItem>(category, type).release());
 
 	ctp2_Static *label = static_cast<ctp2_Static*>(
 		listItem->GetChildByIndex(0));

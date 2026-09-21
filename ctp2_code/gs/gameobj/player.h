@@ -306,10 +306,10 @@ public:
 // Changing the order below this line should not break anything.
 //----------------------------------------------------------------------------
 
-	DynamicArray<Army>               *m_all_armies{};               // Serialized
-	UnitDynamicArray                 *m_all_cities{};               // Serialized
+	std::unique_ptr<DynamicArray<Army>> m_all_armies;               // Serialized
+	std::unique_ptr<UnitDynamicArray> m_all_cities;               // Serialized
 
-	UnitDynamicArray                 *m_all_units{};                // Serialized
+	std::unique_ptr<UnitDynamicArray> m_all_units;                // Serialized
 	std::unique_ptr<UnitDynamicArray> m_traderUnits;              // Serialized
 	std::unique_ptr<Unit> m_capitol;                  // Serialized
 
@@ -323,7 +323,7 @@ public:
 
 	std::unique_ptr<DynamicArray<TradeOffer>> m_tradeOffers;              // Serialized
 #ifdef BATTLE_FLAGS
-	DynamicArray<MapPoint>           *m_battleFlags;              // Serialized
+	std::unique_ptr<DynamicArray<MapPoint>> m_battleFlags;              // Serialized
 #endif
 
 	std::unique_ptr<DynamicArray<DiplomaticRequest>> m_requests;                 // Serialized
@@ -345,7 +345,7 @@ public:
 	EndGame                          *m_endGame{};                  // Serialized
 	std::vector<sint32>               m_goodSalePrices;
 	std::string                       m_email;                    // Serialized
-	GaiaController                   *m_gaiaController{};           // Serialized
+	std::unique_ptr<GaiaController> m_gaiaController;           // Serialized
 
 	CreateUnitRequest                *m_unitRequestList{};
 
@@ -483,11 +483,11 @@ public:
 	uint32 GetAverageEventPollution() ;
 
 	Army GetArmy(sint32 s_index);
-	UnitDynamicArray *GetAllUnitList() { return m_all_units; }
-	UnitDynamicArray *GetAllCitiesList() { return m_all_cities; }
+	UnitDynamicArray *GetAllUnitList() { return m_all_units.get(); }
+	UnitDynamicArray *GetAllCitiesList() { return m_all_cities.get(); }
 	UnitDynamicArray *GetTradersList() { return m_traderUnits.get(); }
 	DynamicArray<TradeOffer>* GetTradeOffersList() { return m_tradeOffers.get(); }
-	DynamicArray<Army> *GetAllArmiesList() { return m_all_armies; }
+	DynamicArray<Army> *GetAllArmiesList() { return m_all_armies.get(); }
 	DynamicArray<TerrainImprovement> *GetAllTileimpsList() { return m_terrainImprovements.get(); } //emod
 	DynamicArray<Installation> *GetAllInstallationsList() { return m_allInstallations.get(); } //emod
 

@@ -53,6 +53,8 @@
 #include "gs/utility/safety.h"
 #include "gs/gameobj/BldQue.h"
 
+#include <memory>
+
 #include "ctp/ctp2_utils/c3errors.h"
 #include "ctp/ctp2_utils/c3files.h"
 #include "gs/fileio/gamefile.h"
@@ -107,7 +109,7 @@ namespace
 
 BuildQueue::BuildQueue()
 :
-	m_list                      (new PointerList<BuildNode>),
+	m_list                      (std::make_unique<PointerList<BuildNode>>()),
 	m_owner                     (PLAYER_UNASSIGNED),
 	m_city                      (),
 	m_wonderStarted             (NOTHING_THIS_TURN),
@@ -127,7 +129,7 @@ BuildQueue::~BuildQueue()
 	if (m_list)
     {
 		m_list->DeleteAll();
-		delete m_list;
+		m_list.reset();
 	}
 }
 
@@ -264,7 +266,7 @@ sint32 BuildQueue::Save(const MBCHAR *file)
 	FILE * fpQueue = c3files_fopen(C3DIR_DIRECT, file, "w");
 	if(!fpQueue) return 0;
 
-	PointerList<BuildNode>::Walker walk(m_list);
+	PointerList<BuildNode>::Walker walk(m_list.get());
 	while(walk.IsValid()) {
 		switch(walk.GetObj()->m_category) {
 			case k_GAME_OBJ_TYPE_UNIT:
@@ -327,12 +329,12 @@ void BuildQueue::EndTurn()
 void BuildQueue::Clear(bool fromServer)
 {
 	if(!fromServer && network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_CLEAR_QUEUE,
-										   (uint32)m_city));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CLEAR_QUEUE,
+										   (uint32)m_city).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CLEAR_QUEUE,
-									  (uint32)m_city));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CLEAR_QUEUE,
+									  (uint32)m_city).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -345,11 +347,11 @@ void BuildQueue::ClearAllButHead(bool fromServer)
 	if (m_list->GetCount() > 1)
     {
 	    if(!fromServer && network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		    network_Get().SendAction(new NetAction(NET_ACTION_CLEAR_QUEUE_EXCEPT_HEAD));
+		    network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CLEAR_QUEUE_EXCEPT_HEAD).release());
 	    } else if(network_Get().IsHost()) {
 		    network_Get().Block(m_owner);
-		    network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CLEAR_QUEUE_EXCEPT_HEAD,
-									      (uint32)m_city));
+		    network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CLEAR_QUEUE_EXCEPT_HEAD,
+									      (uint32)m_city).release());
 		    network_Get().Unblock(m_owner);
 	    }
 
@@ -368,11 +370,11 @@ bool BuildQueue::BuildFrontUnit(bool forceFinish)
 		m_city.GetPos(cpos);
 		if(world_Get()->GetCell(cpos)->GetNumUnits() >= k_MAX_ARMY_SIZE &&
 		   !g_theUnitDB->Get(m_list->GetHead()->m_type)->GetIsTrader()) {
-			SlicObject *so = new SlicObject("106CantBuildUnitCellIsFull");
+			auto so = std::make_unique<SlicObject>("106CantBuildUnitCellIsFull");
 			so->AddCity(m_city);
 			so->AddRecipient(m_owner);
 			so->AddAction(stringdb_Get()->GetNameStr(g_theUnitDB->Get(m_list->GetHead()->m_type)->m_name));
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			return false;
 		}
 
@@ -472,18 +474,18 @@ bool BuildQueue::BuildFrontWonder()
 			m_list->GetHead()->m_flags |= k_BUILD_NODE_FLAG_ALMOST_DONE;
 			if(network_Get().IsHost()) {
 				network_Get().Block(m_owner);
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_WONDER_ALMOST_DONE,
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_WONDER_ALMOST_DONE,
 											  m_owner, m_list->GetHead()->m_type,
-											  m_city.m_id));
+											  m_city.m_id).release());
 				network_Get().Unblock(m_owner);
 			}
 
-			SlicObject *so = new SlicObject("45WonderAlmostFinished");
+			auto so = std::make_unique<SlicObject>("45WonderAlmostFinished");
 			so->AddAllRecipientsBut(m_owner);
 			so->AddWonder(m_list->GetHead()->m_type);
 			so->AddCivilisation(m_owner);
 			so->AddCity(m_city);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 		return false;
 	}
@@ -601,7 +603,7 @@ void BuildQueue::FinishBuildFront(Unit &u)
 
 		bool            isEmpty     = m_list->GetCount() <= 1;
 		bool            doRemove    = false;
-		SlicObject *    so          = nullptr;
+		std::unique_ptr<SlicObject> so;
 
 		if ((m_list->GetHead()->m_category != k_GAME_OBJ_TYPE_UNIT)         ||
 		    !isEmpty                                                        ||
@@ -620,9 +622,9 @@ void BuildQueue::FinishBuildFront(Unit &u)
 			    !g_theUnitDB->Get(m_list->GetHead()->m_type)->GetOnlyBuildOne()
                )
             {
-				network_Get().SendAction(new NetAction(NET_ACTION_REMOVE_BUILD_ITEM,
+				network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_REMOVE_BUILD_ITEM,
 												   (uint32)m_city, 0,
-												   CAUSE_REMOVE_BUILD_ITEM_BUILT));
+												   CAUSE_REMOVE_BUILD_ITEM_BUILT).release());
 			}
 
 			switch(m_list->GetHead()->m_category) {
@@ -631,9 +633,9 @@ void BuildQueue::FinishBuildFront(Unit &u)
 					   (profiledb_Get()->IsNonContinuousUnitCompleteMessages() &&
 						u.GetDBRec()->GetOnlyBuildOne()) || isEmpty) {
 						if(isEmpty) {
-							so = new SlicObject("38UnitCompletedQueueEmpty");
+							so = std::make_unique<SlicObject>("38UnitCompletedQueueEmpty");
 						} else {
-							so = new SlicObject("38UnitCompleted");
+							so = std::make_unique<SlicObject>("38UnitCompleted");
 						}
 
 						so->AddUnit(u);
@@ -641,25 +643,25 @@ void BuildQueue::FinishBuildFront(Unit &u)
 					break;
 				case k_GAME_OBJ_TYPE_IMPROVEMENT:
 					if(isEmpty) {
-						so = new SlicObject("38BuildingBuiltQueueEmpty");
+						so = std::make_unique<SlicObject>("38BuildingBuiltQueueEmpty");
 					} else {
-						so = new SlicObject("38BuildingBuilt");
+						so = std::make_unique<SlicObject>("38BuildingBuilt");
 					}
 					so->AddBuilding(m_list->GetHead()->m_type);
 					break;
 				case k_GAME_OBJ_TYPE_WONDER:
 					if(isEmpty) {
-						so = new SlicObject("38WonderBuiltQueueEmpty");
+						so = std::make_unique<SlicObject>("38WonderBuiltQueueEmpty");
 					} else {
-						so = new SlicObject("38WonderBuilt");
+						so = std::make_unique<SlicObject>("38WonderBuilt");
 					}
 					so->AddWonder(m_list->GetHead()->m_type);
 					break;
 				case k_GAME_OBJ_TYPE_ENDGAME_OBJECT:
 					if(isEmpty) {
-						so = new SlicObject("38EndgameBuiltQueueEmpty");
+						so = std::make_unique<SlicObject>("38EndgameBuiltQueueEmpty");
 					} else {
-						so = new SlicObject("38EndgameBuilt");
+						so = std::make_unique<SlicObject>("38EndgameBuilt");
 					}
 	//				so->AddAction(stringdb_Get()->GetNameStr(g_theEndGameDB->Get(m_list->GetHead()->m_type)->m_name));
 					break;
@@ -672,7 +674,7 @@ void BuildQueue::FinishBuildFront(Unit &u)
 			if(profiledb_Get()->IsAllUnitCompleteMessages() ||
 			   (profiledb_Get()->IsNonContinuousUnitCompleteMessages() &&
 				g_theUnitDB->Get(m_list->GetHead()->m_type)->GetOnlyBuildOne())) {
-				so = new SlicObject("38UnitCompleted");
+				so = std::make_unique<SlicObject>("38UnitCompleted");
 
 				so->AddUnit(u);
 			}
@@ -717,7 +719,7 @@ void BuildQueue::FinishBuildFront(Unit &u)
 
 			if(u.IsValid())
 				so->AddUnit(u);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			m_city.AccessData()->GetCityData()->SetSentInefficientMessage();
 		}
 
@@ -738,8 +740,8 @@ void BuildQueue::FinishBuildFront(Unit &u)
 
 	if(network_Get().IsHost()) {
 		network_Get().Block(cd->GetHomeCity().GetOwner());
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILT_FRONT,
-									  (uint32)cd->GetHomeCity()));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_BUILT_FRONT,
+									  (uint32)cd->GetHomeCity()).release());
 		network_Get().Unblock(cd->GetHomeCity().GetOwner());
 	}
 
@@ -924,63 +926,63 @@ void BuildQueue::SendMsgWonderComplete(CityData *cd, sint32 wonder)
 
 void BuildQueue::SendMsgWonderCompleteOwner(CityData *cd, sint32 wonder)
 {
-	SlicObject *so = new SlicObject("46WonderComplete") ;
+	auto so = std::make_unique<SlicObject>("46WonderComplete") ;
 	so->AddCivilisation(m_owner) ;
 	so->AddWonder(wonder) ;
 	so->AddCity(cd->GetHomeCity()) ;
 	so->AddRecipient(m_owner) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void BuildQueue::SendMsgWonderCompleteEveryone(CityData *cd, sint32 wonder)
 {
-	SlicObject *so = new SlicObject("47WonderComplete") ;
+	auto so = std::make_unique<SlicObject>("47WonderComplete") ;
 	so->AddCivilisation(m_owner) ;
 	so->AddWonder(wonder) ;
 	so->AddCity(cd->GetHomeCity()) ;
 	so->AddAllRecipientsBut(m_owner);
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void BuildQueue::SendMsgWonderStopped(sint32 type)
 {
 	if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_WONDER_STOPPED,
-									  m_owner, type));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_WONDER_STOPPED,
+									  m_owner, type).release());
 		network_Get().Unblock(m_owner);
 	}
 
-	SlicObject *    so = new SlicObject("44aWonderStopped") ;
+	auto so = std::make_unique<SlicObject>("44aWonderStopped") ;
 	so->AddCivilisation(m_owner) ;
 	so->AddWonder(type) ;
 	so->AddAllRecipientsBut(m_owner);
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void BuildQueue::SendMsgWonderAlmostComplete()
 {
-	SlicObject *    so = new SlicObject("45WonderAlmostFinished") ;
+	auto so = std::make_unique<SlicObject>("45WonderAlmostFinished") ;
 	so->AddCivilisation(m_owner) ;
 	so->AddWonder(m_list->GetHead()->m_type) ;
 	so->AddAllRecipientsBut(m_owner);
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void BuildQueue::SendMsgWonderStarted(sint32 type)
 {
 	if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_WONDER_STARTED,
-									  m_owner, type));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_WONDER_STARTED,
+									  m_owner, type).release());
 		network_Get().Unblock(m_owner);
 	}
 
-	SlicObject *    so = new SlicObject("44WonderStarted") ;
+	auto so = std::make_unique<SlicObject>("44WonderStarted") ;
 	so->AddCivilisation(m_owner) ;
 	so->AddWonder(type) ;
 	so->AddAllRecipientsBut(m_owner);
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 #if defined(CTP1_HAS_RISEN_FROM_THE_GRAVE)
@@ -995,20 +997,20 @@ void BuildQueue::SendMsgWormholeProbeStarted(void)
 	if (!g_theUnitDB->Get(m_list->GetHead()->m_type)->GetWormholeProbe())
 		return ;
 
-	SlicObject * so = new SlicObject("63WormholeProbeStarted") ;
+	auto so = std::make_unique<SlicObject>("63WormholeProbeStarted") ;
     so->AddCivilisation(m_owner) ;
 	so->AddUnit(m_list->GetHead()->m_type) ;
 	so->AddAllRecipientsBut(m_owner);
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void BuildQueue::SendMsgWormholeProbeComplete(void)
 {
-	SlicObject	*so = new SlicObject("64WormholeProbeCompleted") ;
+	auto so = std::make_unique<SlicObject>("64WormholeProbeCompleted") ;
 	so->AddCivilisation(m_owner) ;
 	so->AddUnit(m_list->GetHead()->m_type) ;
 	so->AddAllRecipientsBut(m_owner);
-    slicengine_Get()->Execute(so) ;
+    slicengine_Get()->Execute(std::move(so)) ;
 }
 
 #endif // CTP1_HAS_RISEN_FROM_THE_GRAVE
@@ -1018,7 +1020,7 @@ void BuildQueue::RemoveHead()
     Assert(m_list->GetHead());
     if (m_list->GetHead())
     {
-        delete m_list->RemoveHead();
+        std::unique_ptr<BuildNode> deadNode(m_list->RemoveHead());
 
         // Check the new head, if any
         HandleProductionStart();
@@ -1070,7 +1072,7 @@ void BuildQueue::RawInsertTail(sint32 cat, sint32 t, sint32 cost)
 	}
 }
 
-    BuildNode *newNode = new BuildNode;
+    BuildNode *newNode = std::make_unique<BuildNode>().release();
     newNode->m_category = cat;
     newNode->m_type = t;
     newNode->m_cost = cost;
@@ -1119,7 +1121,7 @@ void BuildQueue::ReplaceHead(sint32 cat, sint32 t, sint32 cost)
 
 	if(cat == k_GAME_OBJ_TYPE_WONDER ||
 	   cat == k_GAME_OBJ_TYPE_IMPROVEMENT) {
-		PointerList<BuildNode>::Walker walk(m_list);
+		PointerList<BuildNode>::Walker walk(m_list.get());
 		if(walk.IsValid()) {
 
 			walk.Next();
@@ -1165,7 +1167,7 @@ bool BuildQueue::DoInsertChecks(sint32 cat, sint32 t, sint32 cost)
 
 		case k_GAME_OBJ_TYPE_WONDER :
 		{
-			PointerList<BuildNode>::Walker walk(m_list);
+			PointerList<BuildNode>::Walker walk(m_list.get());
 			while(walk.IsValid()) {
 				if(walk.GetObj()->m_category == k_GAME_OBJ_TYPE_WONDER &&
 				   walk.GetObj()->m_type == t) {
@@ -1190,7 +1192,7 @@ bool BuildQueue::DoInsertChecks(sint32 cat, sint32 t, sint32 cost)
 			if(!m_city.CanBuildBuilding(t))
 				return false;
 
-			PointerList<BuildNode>::Walker walk(m_list);
+			PointerList<BuildNode>::Walker walk(m_list.get());
 			while(walk.IsValid()) {
 				if(walk.GetObj()->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT &&
 				   walk.GetObj()->m_type == t) {
@@ -1303,7 +1305,7 @@ bool BuildQueue::RemoveNode( BuildNode *node, CAUSE_REMOVE_BUILD_ITEM cause )
 	bool found = false;
 	sint32 index = 0;
 
-	PointerList<BuildNode>::Walker walk(m_list);
+	PointerList<BuildNode>::Walker walk(m_list.get());
 
 	while(walk.IsValid()) {
 		if(walk.GetObj() == node) {
@@ -1330,7 +1332,7 @@ bool BuildQueue::RemoveNode( BuildNode *node, CAUSE_REMOVE_BUILD_ITEM cause )
 			}
 
 			found = true;
-			delete walk.Remove();
+			std::unique_ptr<BuildNode> deadNode(walk.Remove());
 			break;
 		} else {
 			walk.Next();
@@ -1341,14 +1343,14 @@ bool BuildQueue::RemoveNode( BuildNode *node, CAUSE_REMOVE_BUILD_ITEM cause )
 	if(found && cause == CAUSE_REMOVE_BUILD_ITEM_MANUAL) {
 		if(network_Get().IsClient()) {
 			if(network_Get().IsLocalPlayer(m_city.GetOwner())) {
-				network_Get().SendAction(new NetAction(NET_ACTION_REMOVE_BUILD_ITEM,
+				network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_REMOVE_BUILD_ITEM,
 												   (uint32)m_city, index,
-												   cause));
+												   cause).release());
 			}
 		} else if(network_Get().IsHost()) {
 			network_Get().Block(m_city.GetOwner());
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REMOVE_BUILD_ITEM,
-										  (uint32)m_city, index));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_REMOVE_BUILD_ITEM,
+										  (uint32)m_city, index).release());
 			network_Get().Unblock(m_city.GetOwner());
 		}
 	}
@@ -1361,7 +1363,7 @@ bool BuildQueue::InsertAfter( BuildNode *targetNode, BuildNode *node )
 	if(!node) return false;
 	if(!targetNode) return false;
 
-	PointerList<BuildNode>::Walker walk(m_list);
+	PointerList<BuildNode>::Walker walk(m_list.get());
 	while(walk.IsValid()) {
 		if(walk.GetObj() == targetNode) {
 			walk.InsertAfter(node);
@@ -1382,7 +1384,7 @@ bool BuildQueue::InsertIndex(sint32 index, BuildNode *node)
 	if(index >= m_list->GetCount()) {
 		m_list->AddTail(node);
 	} else {
-		PointerList<BuildNode>::Walker walk(m_list);
+		PointerList<BuildNode>::Walker walk(m_list.get());
 		while(walk.IsValid()) {
 			if(count == index) {
 				walk.Insert(node);
@@ -1399,7 +1401,7 @@ bool BuildQueue::RemoveNodeByIndex(sint32 index,
 									 CAUSE_REMOVE_BUILD_ITEM cause)
 {
 	sint32 count = 0;
-	PointerList<BuildNode>::Walker walk(m_list);
+	PointerList<BuildNode>::Walker walk(m_list.get());
 	bool found = false;
 
 	if (index == 0 && m_list->GetHead()) {
@@ -1409,7 +1411,7 @@ bool BuildQueue::RemoveNodeByIndex(sint32 index,
 	else {
 		while(walk.IsValid()) {
 			if(count == index) {
-				delete walk.Remove();
+				std::unique_ptr<BuildNode> deadNode(walk.Remove());
 				found = true;
 				break;
 			}
@@ -1439,12 +1441,12 @@ void BuildQueue::RemoveObjectsOfType(sint32 cat, sint32 type,
 									 CAUSE_REMOVE_BUILD_ITEM cause)
 {
 	BuildNode *bn;
-	PointerList<BuildNode>::Walker walk(m_list);
+	PointerList<BuildNode>::Walker walk(m_list.get());
 	while(walk.IsValid()) {
 		bn = walk.GetObj();
 		if(bn->m_category == cat &&
 		   bn->m_type == type) {
-			delete walk.Remove();
+			std::unique_ptr<BuildNode> deadNode(walk.Remove());
 		} else {
 			walk.Next();
 		}
@@ -1456,12 +1458,12 @@ void BuildQueue::RemoveIllegalItems(bool isClientAck)
 	if(network_Get().IsHost() && !network_Get().IsLocalPlayer(m_owner) &&
 	   !isClientAck) {
 		network_Get().QueuePacket(network_Get().IndexToId(m_owner),
-							  new NetInfo(NET_INFO_CODE_REMOVE_ILLEGAL_ITEMS,
-										  m_city.m_id));
+							  std::make_unique<NetInfo>(NET_INFO_CODE_REMOVE_ILLEGAL_ITEMS,
+										  m_city.m_id).release());
 		return;
 	}
 
-	PointerList<BuildNode>::Walker walk(m_list);
+	PointerList<BuildNode>::Walker walk(m_list.get());
 	BuildNode *bn;
 	while(walk.IsValid()) {
 		bn = walk.GetObj();
@@ -1556,10 +1558,10 @@ bool BuildQueue::InsertBefore(BuildNode *old,
 	if(!DoInsertChecks(cat, t, cost))
 		return false;
 
-	PointerList<BuildNode>::Walker walk(m_list);
+	PointerList<BuildNode>::Walker walk(m_list.get());
 	while(walk.IsValid()) {
 		if(walk.GetObj() == old) {
-			BuildNode *ins = new BuildNode;
+			BuildNode *ins = std::make_unique<BuildNode>().release();
 			ins->m_cost = cost;
 			ins->m_category = cat;
 			ins->m_type = t;
@@ -1676,7 +1678,7 @@ BuildNode *BuildQueue::GetHead()
 
 BuildNode *BuildQueue::GetNodeByIndex(sint32 index)
 {
-	PointerList<BuildNode>::Walker walk(m_list);
+	PointerList<BuildNode>::Walker walk(m_list.get());
 	sint32 i = 0;
 	while(walk.IsValid() && i < index) {
 		walk.Next();
@@ -1691,7 +1693,7 @@ void BuildQueue::MoveNodeUp(sint32 index)
 	if(index < 1 || index >= m_list->GetCount())
 		return;
 
-	PointerList<BuildNode>::Walker walk(m_list);
+	PointerList<BuildNode>::Walker walk(m_list.get());
 	sint32 i = 0;
 	while(walk.IsValid() && i < index) {
 		walk.Next();
@@ -1710,7 +1712,7 @@ void BuildQueue::MoveNodeDown(sint32 index)
 	if(index < 0 || index >= m_list->GetCount() - 1)
 		return;
 
-	PointerList<BuildNode>::Walker walk(m_list);
+	PointerList<BuildNode>::Walker walk(m_list.get());
 	sint32 i = 0;
 	while(walk.IsValid() && i < index) {
 		walk.Next();
@@ -1728,7 +1730,7 @@ bool BuildQueue::IsItemInQueue(uint32 cat, sint32 type)
 {
 	for
     (
-	PointerList<BuildNode>::Walker walk(m_list);
+	PointerList<BuildNode>::Walker walk(m_list.get());
         walk.IsValid();
         walk.Next()
     )
@@ -1768,12 +1770,12 @@ BuildQueue & BuildQueue::operator = (BuildQueue const & copy)
 
 		for
 		(
-		    PointerList<BuildNode>::Walker walk(copy.m_list);
+		    PointerList<BuildNode>::Walker walk(copy.m_list.get());
 		                                   walk.IsValid();
 		                                   walk.Next()
 		)
 		{
-			BuildNode* destBN = new BuildNode();
+			BuildNode* destBN = std::make_unique<BuildNode>().release();
 			BuildNode* sourBN = walk.GetObj();
 			memcpy(destBN, sourBN, sizeof(BuildNode));
 			m_list->AddTail(destBN);

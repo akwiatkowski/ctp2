@@ -1,6 +1,7 @@
 #include "ctp/c3.h"
 
 #include "ui/aui_common/tech_memmap.h"
+#include <memory>
 
 
 
@@ -48,15 +49,14 @@ unsigned char *tech_MemMap::GetFileBits
 		return nullptr;
 	}
 
-	unsigned char * bits = new unsigned char[filesize];
+	auto bits = std::make_unique<unsigned char[]>(filesize);
 
 	if (!bits) {
 		fclose(f);
 		return nullptr;
 	}
 
-	if ( fread( bits, 1, filesize, f ) != filesize ) {
-		delete[] bits;
+	if ( fread( bits.get(), 1, filesize, f ) != filesize ) {
 		fclose(f);
 		return nullptr;
 	}
@@ -65,14 +65,14 @@ unsigned char *tech_MemMap::GetFileBits
 
 	if ( outfilesize ) *outfilesize = filesize;
 
-	return bits;
+	return bits.release();
 }
 
 
 void tech_MemMap::ReleaseFileBits( unsigned char *&bits )
 {
 	if (bits) {
-		delete[] bits;
+		std::unique_ptr<unsigned char[]> deleter(bits);
 		bits = nullptr;
 	}
 }

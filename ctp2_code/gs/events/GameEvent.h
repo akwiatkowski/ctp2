@@ -49,6 +49,7 @@ class GameEvent;
 // Project dependencies
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include <string>
 
 #include "os/include/ctp2_inttypes.h"          // sint32
@@ -95,7 +96,7 @@ public:
 
 private:
 	GAME_EVENT          m_type;
-	GameEventArgList *  m_argList;
+	std::unique_ptr<GameEventArgList> m_argList;
 	sint32              m_resumeIndex;
 	GAME_EVENT          m_addedDuring;
 	sint32              m_serial;

@@ -19,65 +19,63 @@ class Army;
 #include "gs/gameobj/UnitTypes.h"
 #include "gs/diplomacy/diplomacy_types.h"
 #include <nlohmann/json.hpp>
+#include <cstring>
+#include <memory>
 #include <string>
 #include <vector>
-
 
 class SlicContext {
 private:
 	GameEventArgList *m_eventArgs;
 
-	SimpleDynamicArray<Unit> *m_cityList;
-	SimpleDynamicArray<Unit> *m_unitList;
-	SimpleDynamicArray<Army> *m_armyList;
-	SimpleDynamicArray<sint32> *m_playerList;
-	SimpleDynamicArray<sint32> *m_advanceList;
+	std::unique_ptr<SimpleDynamicArray<Unit>> m_cityList;
+	std::unique_ptr<SimpleDynamicArray<Unit>> m_unitList;
+	std::unique_ptr<SimpleDynamicArray<Army>> m_armyList;
+	std::unique_ptr<SimpleDynamicArray<sint32>> m_playerList;
+	std::unique_ptr<SimpleDynamicArray<sint32>> m_advanceList;
 
-	SimpleDynamicArray<MapPoint> *m_locationList;
-	SimpleDynamicArray<ai::Agreement> *m_agreementList;
-	SimpleDynamicArray<sint32> *m_intList;
-	SimpleDynamicArray<sint32> *m_unitRecordList;
-	SimpleDynamicArray<sint32> *m_goodList;
-	SimpleDynamicArray<sint32> *m_governmentList;
+	std::unique_ptr<SimpleDynamicArray<MapPoint>> m_locationList;
+	std::unique_ptr<SimpleDynamicArray<ai::Agreement>> m_agreementList;
+	std::unique_ptr<SimpleDynamicArray<sint32>> m_intList;
+	std::unique_ptr<SimpleDynamicArray<sint32>> m_unitRecordList;
+	std::unique_ptr<SimpleDynamicArray<sint32>> m_goodList;
+	std::unique_ptr<SimpleDynamicArray<sint32>> m_governmentList;
 
-	sint32 *m_calamityList;
-	sint32 m_numCalamities;
+	std::vector<sint32> m_calamityList;
 
-	sint32 *m_goldList;
-	sint32 m_numGolds;
+	std::vector<sint32> m_goldList;
 
-	sint32 *m_rankList;
-	sint32 m_numRanks;
+	std::vector<sint32> m_rankList;
 
-	sint32 *m_wonderList;
-	sint32 m_numWonders;
+	std::vector<sint32> m_wonderList;
 
 	std::vector<std::string> m_actionList;
 
-	sint32 *m_orderList;
-	sint32 m_numOrders;
+	std::vector<sint32> m_orderList;
 
-    sint32 *m_madlibNameList;
-    sint32 *m_madlibChoiceList;
-    sint32 m_numMadlibs;
+    std::vector<sint32> m_madlibNameList;
+    std::vector<sint32> m_madlibChoiceList;
 
-	sint32 *m_attitudeList;
-	sint32 m_numAttitudes;
+	std::vector<sint32> m_attitudeList;
 
-	sint32 *m_ageList;
-	sint32 m_numAges;
+	std::vector<sint32> m_ageList;
 
-	sint32 *m_buildingList;
-	sint32 m_numBuildings;
+	std::vector<sint32> m_buildingList;
 
-	uint32 *m_tradeBidList;
-	sint32 m_numTradeBids;
+	std::vector<uint32> m_tradeBidList;
 
-	SimpleDynamicArray<TradeOffer> *m_tradeOffersList;
+	std::unique_ptr<SimpleDynamicArray<TradeOffer>> m_tradeOffersList;
 
 protected:
-	sint32 *Expand(sint32 *list, sint32 size);
-	void CopyArray(sint32 *&to, sint32 *from, sint32 &tosize, sint32 size);
+	template <typename T>
+	static void Expand(std::unique_ptr<T[]> &list, sint32 size)
+	{
+		std::unique_ptr<T[]> newList = std::make_unique<T[]>(size + 1);
+		if (list) {
+			memcpy(newList.get(), list.get(), size * sizeof(T));
+		}
+		list = std::move(newList);
+	}
     sint32 Hash(char *name);
 
 public:

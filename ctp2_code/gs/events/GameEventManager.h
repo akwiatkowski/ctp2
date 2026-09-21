@@ -42,6 +42,8 @@
 // Library dependencies
 //----------------------------------------------------------------------------
 
+#include <memory>
+#include <array>
 #include <list>
 
 //----------------------------------------------------------------------------
@@ -181,7 +183,7 @@ private:
 	std::list<GameEvent*>   m_eventHistory;
 #endif
 
-	GameEventHook *m_hooks[GEV_MAX];
+	std::array<std::unique_ptr<GameEventHook>, GEV_MAX> m_hooks;
 
 	bool m_processing;
 

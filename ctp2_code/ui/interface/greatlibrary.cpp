@@ -68,6 +68,7 @@
 #include "ConceptRecord.h"
 #include "ui/aui_ctp2/controlsheet.h"
 #include <cstdlib>
+#include <memory>
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_hypertextbox.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"
@@ -125,29 +126,28 @@ static char const s_database_names[DATABASE_MAX][GL_MAX_DB_NAME_SIZE] =
 
 };
 
-static GreatLibrary	*g_greatLibrary = nullptr;
+static std::unique_ptr<GreatLibrary> g_greatLibrary;
 
 GreatLibrary * greatlibrary_Get()
 {
-	return g_greatLibrary;
+	return g_greatLibrary.get();
 }
 
-Text_Hasher<char *> * GreatLibrary::s_great_library_info = nullptr;
+std::unique_ptr<Text_Hasher<char *>> GreatLibrary::s_great_library_info;
 
 void GreatLibrary::Initialize_Great_Library_Data()
 {
     const int GREAT_LIBRARY_HASH_SIZE = 2000;
 
-    allocated::reassign(s_great_library_info,
-                        new Text_Hasher<char *>(GREAT_LIBRARY_HASH_SIZE, nullptr)
-                       );
+    s_great_library_info =
+        std::make_unique<Text_Hasher<char *>>(GREAT_LIBRARY_HASH_SIZE, nullptr);
 
     Load_Great_Library();
 }
 
 void GreatLibrary::Shutdown_Great_Library_Data()
 {
-    allocated::clear(s_great_library_info);
+    s_great_library_info.reset();
 }
 
 enum Read_Library_State
@@ -313,17 +313,17 @@ void GreatLibrary::Load_Great_Library()
 							*end_ptr = 0;
 
                             size_t  nameLength  = strlen(the_name);
-							char *  name_copy   = new char[nameLength + 1];
-                            strlcpy(name_copy, the_name, nameLength + 1);
+							auto    name_copy   = std::make_unique<char[]>(nameLength + 1);
+                            strlcpy(name_copy.get(), the_name, nameLength + 1);
 							name_copy[nameLength] = 0;
 
                             size_t  entryLength = strlen(the_entry);
-							char *  entry_copy  = new char[entryLength + 1];
-                            strlcpy(entry_copy, the_entry, entryLength + 1);
+							auto    entry_copy  = std::make_unique<char[]>(entryLength + 1);
+                            strlcpy(entry_copy.get(), the_entry, entryLength + 1);
 							entry_copy[entryLength] = 0;
 
 							s_great_library_info->Add_To_Hash_Table
-                                (name_copy, entry_copy);
+                                (name_copy.release(), entry_copy.release());
 
 							reading_what = LOOKING_FOR_NAME;
 						}
@@ -585,7 +585,7 @@ AUI_ERRCODE TechListItem::InitCommonLdl(MBCHAR const * ldlBlock)
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
 
 	AUI_ERRCODE		retval = AUI_ERRCODE_OK;
-	AddChild(new ctp2_Static(&retval, aui_UniqueId(), block));
+	AddChild(std::make_unique<ctp2_Static>(&retval, aui_UniqueId(), block).release());
 	Assert(AUI_SUCCESS(retval));
 
 	Update();
@@ -687,7 +687,7 @@ bool greatlibrary_Initialize( sint32 theMode, bool sci )
     }
     else
     {
-        g_greatLibrary = new GreatLibrary(theMode);
+        g_greatLibrary = std::make_unique<GreatLibrary>(theMode);
         g_greatLibrary->SetSci( sci );
     }
 
@@ -699,7 +699,7 @@ void greatlibrary_Cleanup()
     if (g_greatLibrary)
     {
         g_greatLibrary->Remove();
-        allocated::clear(g_greatLibrary);
+        g_greatLibrary.reset();
     }
 }
 
@@ -751,7 +751,7 @@ GreatLibrary::GreatLibrary(sint32 theMode)
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	m_window = new GreatLibraryWindow(&errcode);
+	m_window = std::make_unique<GreatLibraryWindow>(&errcode);
 	m_window->m_window->SetDraggable(TRUE);
 
 	Initialize("GreatLibrary");
@@ -759,7 +759,7 @@ GreatLibrary::GreatLibrary(sint32 theMode)
 	m_techTree->Update( theMode );
 	m_window->SetTechMode( theMode, DATABASE_ADVANCES );
 
-	m_window->SetTechTree ( m_techTree );
+	m_window->SetTechTree ( m_techTree.get() );
 	m_window->SetTechStillShot ( m_techStillShot );
 	m_window->SetTechHistoricalText ( m_techHistoricalText );
 	m_window->SetTechGameplayText ( m_techGameplayText );
@@ -851,26 +851,26 @@ void GreatLibrary::Initialize(MBCHAR const * windowBlock)
 	m_techStillShot = (ctp2_Static *)aui_Ldl::GetObject(windowBlock, "TechStillShot");
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	m_string = new aui_StringTable( &errcode, "LibraryStrings");
+	m_string = std::make_unique<aui_StringTable>( &errcode, "LibraryStrings");
 
 	ctp2_Static *control = (ctp2_Static *)aui_Ldl::GetObject(windowBlock, "Tabs.TechTreeTab.TabPanel");
-	m_techTree = new Chart(&errcode, aui_UniqueId(), "TechTree", nullptr, nullptr);
-	control->AddChild(m_techTree);
+	m_techTree = std::make_unique<Chart>(&errcode, aui_UniqueId(), "TechTree", nullptr, nullptr);
+	control->AddChild(m_techTree.get());
 
 	sint32 i;
 	for ( i = 0; i < k_MAX_PREREQ ; i++ )
 	{
-		m_techTree->GetPreReqButton(i)->SetActionFuncAndCookie( greatlibrary_PrereqActionCallback, m_techTree );
+		m_techTree->GetPreReqButton(i)->SetActionFuncAndCookie( greatlibrary_PrereqActionCallback, m_techTree.get() );
 	}
 
 	for ( i = 0; i < k_MAX_EITHER_PREREQ ; i++ )
 	{
-		m_techTree->GetEitherPreReqButton(i)->SetActionFuncAndCookie( greatlibrary_EitherPrereqActionCallback, m_techTree );
+		m_techTree->GetEitherPreReqButton(i)->SetActionFuncAndCookie( greatlibrary_EitherPrereqActionCallback, m_techTree.get() );
 	}
 
 	for ( i = 0; i < k_MAX_LEADS_TO ; i++ )
 	{
-		m_techTree->GetLeadsToButton(i)->SetActionFuncAndCookie( greatlibrary_LeadsToActionCallback, m_techTree );
+		m_techTree->GetLeadsToButton(i)->SetActionFuncAndCookie( greatlibrary_LeadsToActionCallback, m_techTree.get() );
 	}
 
 	m_tabGroup = (ctp2_TabGroup *)aui_Ldl::GetObject(windowBlock, "Tabs");
@@ -942,9 +942,9 @@ void GreatLibrary::Initialize(MBCHAR const * windowBlock)
 
 GreatLibrary::~GreatLibrary( )
 {
-    delete m_window;
-    delete m_techTree;
-    delete m_string;
+    m_window.reset();
+    m_techTree.reset();
+    m_string.reset();
 }
 
 void GreatLibrary::Display( )
@@ -1110,7 +1110,7 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
 		GetWindow()->ShouldDraw();
 	}
 
-	m_window->SetTechTree(m_techTree);
+	m_window->SetTechTree(m_techTree.get());
 	m_window->LoadGameplayText(so);
 	int const text_load_result = m_window->LoadHistoricalText(so);
 	m_historicalTab->Enable

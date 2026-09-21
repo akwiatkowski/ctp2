@@ -41,6 +41,8 @@
 #include "ctp/c3.h"                 // pre-compiled header
 #include "gs/gameobj/Advances.h"           // own declarations
 
+#include <memory>
+
 #include "AdvanceRecord.h"
 #include "gs/gameobj/player.h"             // player_arr_Get()
 #include "WonderRecord.h"
@@ -180,7 +182,7 @@ void Advances::UpdateCitySprites(BOOL forceUpdate)
 
             if (!forceUpdate && player_Get(m_owner) && civilisationpool_Get()->IsValid(*player_Get(m_owner)->m_civilisation)) {
                 sint32 i;
-                SlicObject *so;
+                std::unique_ptr<SlicObject> so;
 
                 for(i = 1; i < k_MAX_PLAYERS; i++) {
                     if (player_Get(i) && (i != m_owner) &&
@@ -191,16 +193,16 @@ void Advances::UpdateCitySprites(BOOL forceUpdate)
                 }
 
                 if (i == k_MAX_PLAYERS) {
-                    so = new SlicObject("131NewAgeFirst") ;
+                    so = std::make_unique<SlicObject>("131NewAgeFirst") ;
                     so->AddAge(m_age);
                     so->AddRecipient(m_owner) ;
-                    slicengine_Get()->Execute(so) ;
+                    slicengine_Get()->Execute(std::move(so)) ;
 
-                    so = new SlicObject("132NewAgeOthers") ;
+                    so = std::make_unique<SlicObject>("132NewAgeOthers") ;
                     so->AddCivilisation(m_owner) ;
                     so->AddAge(m_age);
                     so->AddAllRecipientsBut(m_owner) ;
-                    slicengine_Get()->Execute(so) ;
+                    slicengine_Get()->Execute(std::move(so)) ;
                 }
             }
 		}
@@ -273,9 +275,9 @@ Advances::GrantAdvance()
 	m_total_cost = m_total_cost + g_theAdvanceDB->Get(m_researching)->GetCost();
 
 	if(network_Get().IsActive() && network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADVANCE,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ADVANCE,
 									  m_owner, m_researching, m_discovered,
-									  player_Get(m_owner)->m_science->GetLevel()));
+									  player_Get(m_owner)->m_science->GetLevel()).release());
 	}
 
 	SetHasAdvance(m_researching);
@@ -318,7 +320,7 @@ void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
 
 		if (network_Get().IsClient())
 		{
-			network_Get().SendAction(new NetAction(NET_ACTION_ADVANCE_CHEAT, adv));
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_ADVANCE_CHEAT, adv).release());
 		}
 	}
 
@@ -329,10 +331,9 @@ void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
 
 	if (network_Get().IsActive() && network_Get().IsHost())
 	{
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADVANCE,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ADVANCE,
 		                              m_owner, adv, m_discovered,
-		                              player_Get(m_owner)->m_science->GetLevel()
-		                             )
+		                              player_Get(m_owner)->m_science->GetLevel()).release()
 		                 );
 	}
 }
@@ -364,8 +365,8 @@ void Advances::TakeAdvance(AdvanceType adv)
 		sint32 pointCost = g_theAdvanceDB->Get(adv)->GetPowerPoints();
 		player_Get(m_owner)->AddPoints(pointCost);
 		if(network_Get().IsClient()) {
-			network_Get().SendAction(new NetAction(NET_ACTION_TAKE_ADVANCE_CHEAT,
-											   adv));
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_TAKE_ADVANCE_CHEAT,
+											   adv).release());
 		}
 	}
 
@@ -389,8 +390,8 @@ void Advances::InitialAdvance(AdvanceType adv)
 	m_total_cost += g_theAdvanceDB->Get(adv)->GetCost();
 
 	if(network_Get().IsActive() && network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADVANCE,
-									  m_owner, adv, m_discovered));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ADVANCE,
+									  m_owner, adv, m_discovered).release());
 	}
 }
 
@@ -1089,7 +1090,7 @@ sint32 Advances::GetMinPrerequisites(sint32 adv) const
 sint32 Advances::GetProjectedScience() const
 {
 	if (!player_Get(m_owner)) return 0;
-	UnitDynamicArray *  cities  = player_Get(m_owner)->m_all_cities;
+	UnitDynamicArray *  cities  = player_Get(m_owner)->m_all_cities.get();
 	sint32 s = 0;
 	sint32 i;
 	for(i = 0; i < cities->Num(); i++)

@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_ctp2/c3ui.h"
@@ -14,7 +15,7 @@
 #include "ui/interface/messageadvice.h"
 
 
-MessageAdvice		*g_adviceMessageWindow = nullptr;
+std::unique_ptr<MessageAdvice>	g_adviceMessageWindow;
 
 int messageadvice_AddText( MBCHAR *text )
 {
@@ -24,13 +25,13 @@ int messageadvice_AddText( MBCHAR *text )
 	if ( !g_adviceMessageWindow ) {
 		strlcpy( windowBlock, "AdviceWindow", sizeof(windowBlock) );
 
-		g_adviceMessageWindow = new MessageAdvice( &errcode, aui_UniqueId(),
+		g_adviceMessageWindow = std::make_unique<MessageAdvice>( &errcode, aui_UniqueId(),
 											windowBlock, 16 );
 		Assert( AUI_NEWOK( g_adviceMessageWindow, errcode ));
 		if ( !AUI_NEWOK( g_adviceMessageWindow, errcode )) return -1;
 		g_adviceMessageWindow->SetDraggable( TRUE );
 
-		c3ui_Get()->AddWindow( g_adviceMessageWindow );
+		c3ui_Get()->AddWindow( g_adviceMessageWindow.get() );
 
 		g_adviceMessageWindow->AddBordersToUI();
 	}
@@ -49,8 +50,7 @@ int messageadvice_DestroyWindow( )
 
 		g_adviceMessageWindow->RemoveBordersFromUI();
 
-		delete g_adviceMessageWindow;
-		g_adviceMessageWindow = nullptr;
+		g_adviceMessageWindow.reset();
 	}
 
 	return 1;
@@ -107,21 +107,21 @@ AUI_ERRCODE MessageAdvice::CreateWindowEdges( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageLeftBar" );
-	m_leftBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
+	m_leftBar = std::make_unique<aui_Static>( &errcode, aui_UniqueId(), imageBlock );
 	Assert( AUI_NEWOK( m_leftBar, errcode ));
 	if ( !AUI_NEWOK( m_leftBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_leftBar->SetImageBltType( AUI_IMAGEBASE_BLTTYPE_TILE );
 	AddControl(m_leftBar.get());
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageRightBar" );
-	m_rightBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
+	m_rightBar = std::make_unique<aui_Static>( &errcode, aui_UniqueId(), imageBlock );
 	Assert( AUI_NEWOK( m_rightBar, errcode ));
 	if ( !AUI_NEWOK( m_rightBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_rightBar->SetImageBltType( AUI_IMAGEBASE_BLTTYPE_TILE );
 	AddControl(m_rightBar.get());
 
 	strlcpy( imageBlock, "FancyAdviceTopBar", sizeof(imageBlock) );
-	m_topBar.reset(new C3Window( &errcode, aui_UniqueId(), imageBlock, 16, AUI_WINDOW_TYPE_FLOATING, false ));
+	m_topBar = std::make_unique<C3Window>( &errcode, aui_UniqueId(), imageBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
 	Assert( AUI_NEWOK( m_topBar, errcode ));
 	if ( !AUI_NEWOK( m_topBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_topBar->SetTransparent( TRUE );
@@ -132,7 +132,7 @@ AUI_ERRCODE MessageAdvice::CreateWindowEdges( MBCHAR *ldlBlock )
 	m_topBar->Offset( m_x, m_y );
 
 	snprintf(imageBlock, sizeof(imageBlock), "FancyAdviceBottomBar" );
-	m_bottomBar.reset(new C3Window( &errcode, aui_UniqueId(), imageBlock, 16, AUI_WINDOW_TYPE_FLOATING, false ));
+	m_bottomBar = std::make_unique<C3Window>( &errcode, aui_UniqueId(), imageBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
 	Assert( AUI_NEWOK( m_bottomBar, errcode ));
 	if ( !AUI_NEWOK( m_bottomBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_bottomBar->SetTransparent( TRUE );
@@ -149,7 +149,7 @@ AUI_ERRCODE MessageAdvice::AppendText( MBCHAR *text )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	aui_Static *item;
 
-	item = new aui_Static( &errcode, aui_UniqueId(), "AdviceWindowItem" );
+	item = std::make_unique<aui_Static>( &errcode, aui_UniqueId(), "AdviceWindowItem" ).release();
 	Assert( AUI_NEWOK( item, errcode ));
 	if ( !AUI_NEWOK( item, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -168,19 +168,19 @@ AUI_ERRCODE MessageAdvice::CreateDismissButton( MBCHAR *ldlBlock )
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "DismissButton" );
-	m_dismissButton = new aui_Button( &errcode, aui_UniqueId(), buttonBlock );
+	m_dismissButton = std::make_unique<aui_Button>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_dismissButton, errcode ));
 	if ( !AUI_NEWOK( m_dismissButton, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	errcode = AddControl( m_dismissButton );
+	errcode = AddControl( m_dismissButton.get() );
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
-	m_dismissAction = new MessageAdviceDismissAction( );
+	m_dismissAction = std::make_unique<MessageAdviceDismissAction>( );
 	Assert( m_dismissAction != nullptr );
 	if ( m_dismissAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_dismissButton->SetAction( m_dismissAction );
+	m_dismissButton->SetAction( m_dismissAction.get() );
 
 	return AUI_ERRCODE_OK;
 }
@@ -192,7 +192,7 @@ AUI_ERRCODE MessageAdvice::CreateTextBox( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlBlock, "MessageTextBox" );
-	m_listBox.reset(new C3ListBox( &errcode, aui_UniqueId(), textBlock ));
+	m_listBox = std::make_unique<C3ListBox>( &errcode, aui_UniqueId(), textBlock );
 	Assert( AUI_NEWOK( m_listBox, errcode ));
 	if ( !AUI_NEWOK( m_listBox, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -217,7 +217,7 @@ MessageAdvice::~MessageAdvice()
 			item = (aui_Static *)m_listBox->GetItemByIndex( i );
 
 			if ( item ) {
-				delete item;
+				std::unique_ptr<aui_Static>{item};
 				item = nullptr;
 			}
 		}

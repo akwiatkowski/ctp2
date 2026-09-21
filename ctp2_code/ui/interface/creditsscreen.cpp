@@ -116,7 +116,7 @@ void creditsscreen_ExitButtonActionCallback(aui_Control *control, uint32 action,
 		Assert(auiErr == AUI_ERRCODE_OK);
 		if (auiErr == AUI_ERRCODE_OK)
         {
-			c3ui_Get()->AddAction(new RemoveCreditsAction());
+			c3ui_Get()->AddAction(std::make_unique<RemoveCreditsAction>());
         }
 	}
 }
@@ -143,10 +143,10 @@ sint32 creditsscreen_Initialize()
     {
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	    g_creditsWindow.reset(new CreditsWindow
+	    g_creditsWindow = std::make_unique<CreditsWindow>
             (&errcode, aui_UniqueId(), const_cast<MBCHAR *>(k_LDL_CREDITS_WINDOW),
 		     k_CREDITS_BITS_PER_PIXEL, AUI_WINDOW_TYPE_FLOATING
-            ));
+            );
 	    Assert(AUI_SUCCESS(errcode));
 	    if (!AUI_SUCCESS(errcode)) { g_creditsWindow.reset(); return -1; }
 

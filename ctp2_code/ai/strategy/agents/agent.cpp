@@ -315,7 +315,7 @@ bool Agent::FindPathToBoard(const uint32 & move_intersection, const MapPoint & d
 	{
 		if(const Order *order = m_army->GetOrder(0))
 		{
-			found_path = Path(order->m_path);
+			found_path = Path(order->m_path.get());
 			return true;
 		}
 	}
@@ -355,7 +355,7 @@ bool Agent::FindPath(const Army & army, const MapPoint & target_pos, const bool 
 	{
 		if(const Order *order = army->GetOrder(0))
 		{
-			found_path = Path(order->m_path);
+			found_path = Path(order->m_path.get());
 			return true;
 		}
 	}

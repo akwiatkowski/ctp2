@@ -34,10 +34,15 @@
 #ifndef __WORKMAP_H__
 #define __WORKMAP_H__
 
+#include <array>
+#include <memory>
+
 #include "ui/aui_ctp2/patternbase.h"
 #include "ui/aui_common/aui_control.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/world/MapPoint.h"
+#include "ui/aui_ctp2/c3_updateaction.h"
+#include "gfx/spritesys/workeractor.h"
 
 #define k_MAX_WORKERS	21
 
@@ -131,8 +136,8 @@ public:
 
 	void		HandlePop( MapPoint point );
 
-	void		SetUpdateAction(c3_UpdateAction *action) { m_updateAction = action; }
-	c3_UpdateAction *GetUpdateAction() { return m_updateAction; }
+	void		SetUpdateAction(c3_UpdateAction *action) { m_updateAction.reset(action); }
+	c3_UpdateAction *GetUpdateAction() { return m_updateAction.get(); }
 
 	AUI_ERRCODE			Idle( ) override;
 
@@ -148,7 +153,7 @@ public:
 				{
 					Assert(index >= 0 && index < k_MAX_WORKERS);
 					if (index < 0 && index >= k_MAX_WORKERS) return nullptr;
-					return m_worker[index];
+					return m_worker[index].get();
 				}
 
 	void		SetWorker(sint32 index, WorkerActor *actor)
@@ -157,19 +162,19 @@ public:
 					if (index < 0 && index >= k_MAX_WORKERS) return;
 
 					Assert(actor);
-					m_worker[index] = actor;
+					m_worker[index].reset(actor);
 				}
 
 	sint32		GetNumWorkers() { return m_numWorkers; }
 	void		SetNumWorkers(sint32 num) { m_numWorkers = num; }
 
 protected:
-	aui_Surface *m_surface;
+	std::unique_ptr<aui_Surface>	m_surface;
 
 	Unit		m_unit;
 
 	sint32		m_numWorkers;
-	WorkerActor *m_worker[k_MAX_WORKERS];
+	std::array<std::unique_ptr<WorkerActor>, k_MAX_WORKERS>	m_worker;
 
 	RECT		m_mapViewRect;
 	RECT		m_mapBounds;
@@ -181,9 +186,9 @@ protected:
 	sint32		m_totalProd;
 	sint32		m_totalGold;
 
-	aui_StringTable *m_string;
+	std::unique_ptr<aui_StringTable>	m_string;
 
-	c3_UpdateAction *m_updateAction;
+	std::unique_ptr<c3_UpdateAction>	m_updateAction;
 
 	MapPoint			m_current_mouse_tile;
 

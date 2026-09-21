@@ -28,6 +28,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_control.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -94,7 +96,7 @@ static void ButtonCallback	(aui_Control *control, uint32 action, uint32 data, vo
 
 	}
 
-	aui_ui_Get()->AddAction(new OpenMenuAction(menu));
+	aui_ui_Get()->AddAction(std::make_unique<OpenMenuAction>(menu).release());
 }
 
 
@@ -182,14 +184,14 @@ ctp2_MenuBar::AddChild(aui_Region *in_child)
 
 		m_runningWidth += width;
 
-		ctp2_Menu *menu=new ctp2_Menu(false,DefaultCallback);
+		std::unique_ptr<ctp2_Menu> menu = std::make_unique<ctp2_Menu>(false, DefaultCallback);
 		menu->SetSiblingArea(this);
 
-		child->SetActionFuncAndCookie (ButtonCallback,(void *)menu);
+		child->SetActionFuncAndCookie (ButtonCallback, menu.get());
 
 		ctp2_MenuButton *mbutt = (ctp2_MenuButton *)child;
-		mbutt->SetMenu(menu);
 		menu->SetMenuButton(mbutt);
+		mbutt->SetMenu(std::move(menu));
 	} else {
 
 		child->Move(Width() - m_rightRunningWidth - width, (Height() - height) / 2);
@@ -207,10 +209,10 @@ AUI_ERRCODE ctp2_MenuBar::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	RECT rect = { 0, 0, m_width, m_height };
 
 	if (m_pattern)
-		m_pattern->Draw( m_surface, &rect );
+		m_pattern->Draw( m_surface.get(), &rect );
 
 	if(m_bevel)
-		primitives_BevelRect16( m_surface, &rect, 3, 0, 16, 16 );
+		primitives_BevelRect16( m_surface.get(), &rect, 3, 0, 16, 16 );
 
 	m_dirtyList->AddRect( &rect );
 

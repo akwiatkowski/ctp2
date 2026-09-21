@@ -70,12 +70,19 @@
 
 #include "ui/interface/MessageBoxDialog.h"
 
+#include <array>
+#include <memory>
+
 extern sint32       g_ScreenWidth;
 extern sint32       g_ScreenHeight;
 extern C3Window		*g_toolbar;
 extern C3Window		*g_turnWindow;
 
 StatsWindow *g_statsWindow = nullptr;
+
+// g_statsWindow stays a raw global: other TUs declare it extern. This
+// static unique_ptr owns the object; the raw pointer aliases it.
+static std::unique_ptr<StatsWindow> s_statsWindowOwner;
 
 
 #define k_STATS_SCROLL		197
@@ -85,7 +92,7 @@ StatsWindow *g_statsWindow = nullptr;
 #define k_STATS_SCROLL640		122
 #define k_TURN_WINDOW_HEIGHT640	135
 
-static ctp2_Button **s_statsButton = nullptr;
+static std::array<std::unique_ptr<ctp2_Button>, k_STATS_NUM_BUTTONS> s_statsButton;
 
 static MBCHAR	s_buttonName[k_STATS_NUM_BUTTONS][256] ={
 	"CivButton",
@@ -99,7 +106,7 @@ static MBCHAR	s_buttonName[k_STATS_NUM_BUTTONS][256] ={
 
 };
 
-static aui_StringTable *s_statsString;
+static std::unique_ptr<aui_StringTable> s_statsString;
 
 
 
@@ -285,7 +292,7 @@ void StatsSwitchActionCallback( aui_Control *control, uint32 action, uint32 data
 
 		break;
 	case AUI_SWITCH_ACTION_OFF:
-		if ( s_statsButton ) {
+		if ( s_statsButton[0] ) {
 			if ( g_ScreenWidth >= 1024 || g_ScreenHeight >= 768 ) g_statsWindow->Offset( 0, k_STATS_SCROLL );
 			else g_statsWindow->Offset( 0, k_STATS_SCROLL640 );
 			statswindow_HideButtons();
@@ -364,7 +371,8 @@ int StatsWindow_Initialize( )
 	if ( g_statsWindow ) return 0;
 
 	strlcpy(windowBlock, "StatsWindow", sizeof(windowBlock));
-	g_statsWindow = new StatsWindow(&errcode, aui_UniqueId(), windowBlock, 16 );
+	s_statsWindowOwner = std::make_unique<StatsWindow>(&errcode, aui_UniqueId(), windowBlock, 16 );
+	g_statsWindow = s_statsWindowOwner.get();
 	Assert( AUI_NEWOK(g_statsWindow, errcode) );
 	if ( !AUI_NEWOK(g_statsWindow, errcode) ) return -1;
 
@@ -443,26 +451,26 @@ int StatsWindow_Initialize( )
 
 
 
-	s_statsButton = new ctp2_Button*[k_STATS_NUM_BUTTONS];
+
 
 	for ( i = 0;i < k_STATS_NUM_BUTTONS;i++ )
 	{
 		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, s_buttonName[i] );
 
 
- 		s_statsButton[i] = spNew_ctp2_Button(&errcode,
+ 		s_statsButton[i].reset(spNew_ctp2_Button(&errcode,
 		   									windowBlock,
 		   									s_buttonName[i],
 		   									s_buttonName[i],
 		   									StatsButtonActionCallback,
-											"CTP2_BUTTON_TITLE_BAR");
+											"CTP2_BUTTON_TITLE_BAR"));
 
 		Assert( AUI_NEWOK(s_statsButton[i], errcode) );
 		if ( !AUI_NEWOK(s_statsButton[i], errcode) ) return -10;
 
 	}
 
-	s_statsString = new aui_StringTable( &errcode, "StatsStrings" );
+	s_statsString = std::make_unique<aui_StringTable>( &errcode, "StatsStrings" );
 	TestControl( s_statsString );
 
 
@@ -548,14 +556,10 @@ int StatsWindow_Cleanup( )
 
 
 	for ( sint32 i = 0;i < k_STATS_NUM_BUTTONS;i++ ) {
-		delete s_statsButton[i];
-		s_statsButton[i] = nullptr;
+		s_statsButton[i].reset();
 	}
 
-	delete s_statsButton;
-	s_statsButton = nullptr;
-
-	DeleteControl( s_statsString );
+	s_statsString.reset();
 
 
 
@@ -572,7 +576,7 @@ int StatsWindow_Cleanup( )
 
 
 
-	delete g_statsWindow;
+	s_statsWindowOwner.reset();
 	g_statsWindow = nullptr;
 
 	return 0;
@@ -638,7 +642,7 @@ AUI_ERRCODE StatsWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	RECT rect = { 0, 0, m_width, m_height };
 
 	if (m_pattern!=nullptr)
-		m_pattern->Draw( m_surface, &rect );
+		m_pattern->Draw( m_surface.get(), &rect );
 
 
 

@@ -3,6 +3,7 @@
 
 
 #include "ui/aui_ctp2/c3_popupwindow.h"
+#include <memory>
 
 #define k_NS_WINDOW_TILE_LDL_NAME		"tile"
 #define k_NS_WINDOW_RETIRED_LDL_NAME	"retired"
@@ -28,7 +29,7 @@ protected:
 
 	ns_Window() : c3_PopupWindow() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( MBCHAR *tile, BOOL retired );
+	AUI_ERRCODE InitCommon( MBCHAR const *tile, BOOL retired );
 
 private:
 	// c3_PopupWindow declares a private virtual InitCommon(); this overload
@@ -40,7 +41,7 @@ private:
 public:
 	aui_Control	*FindControl( uint32 index );
 
-	aui_Image	*SetTile( MBCHAR *tile );
+	aui_Image	*SetTile( MBCHAR const *tile );
 	aui_Image	*GetTile( ) const { return m_tile; }
 
 	BOOL		IsRetired( ) const { return m_retired; }
@@ -68,7 +69,7 @@ public:
 protected:
 	sint32		m_numControls;
 
-	aui_Control	**m_controls;
+	std::unique_ptr<aui_Control *[]>	m_controls;
 
 	aui_Image	*m_tile;
 

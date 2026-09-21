@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/player.h"
 
@@ -57,7 +58,7 @@ DiplomaticRequestPool::DiplomaticRequestPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_DIP
 
 DiplomaticRequest DiplomaticRequestPool::Create(PLAYER_INDEX owner, PLAYER_INDEX recipient, REQUEST_TYPE request)
 	{
-	DiplomaticRequestData* newData;
+	std::unique_ptr<DiplomaticRequestData> newData;
 
 #ifdef _DEBUG
     if (g_theDiplomacyLog) {
@@ -68,8 +69,8 @@ DiplomaticRequest DiplomaticRequestPool::Create(PLAYER_INDEX owner, PLAYER_INDEX
 
 	DiplomaticRequest newRequest(NewKey(k_BIT_GAME_OBJ_TYPE_DIPLOMATIC_REQUEST));
 
-	newData = new DiplomaticRequestData(newRequest, owner, recipient, request, turn_Get() ? turn_Get()->GetRound() : 0) ;
-	Insert(newData) ;
+	newData = std::make_unique<DiplomaticRequestData>(newRequest, owner, recipient, request, turn_Get() ? turn_Get()->GetRound() : 0) ;
+	Insert(newData.release()) ;
 
 	player_Get(owner)->AddDiplomaticRequest(newRequest) ;
 	player_Get(owner)->IncrementSentRequests(recipient);
@@ -92,10 +93,10 @@ DiplomaticRequest DiplomaticRequestPool::Create(PLAYER_INDEX owner, PLAYER_INDEX
 DiplomaticRequestData *DiplomaticRequestPool::CreateData()
 {
 	DiplomaticRequest newRequest(NewKey(k_BIT_GAME_OBJ_TYPE_DIPLOMATIC_REQUEST));
-	DiplomaticRequestData *newData;
-	newData = new DiplomaticRequestData(newRequest, turn_Get() ? turn_Get()->GetRound() : 0);
-	Insert(newData);
-	return newData;
+	auto newData = std::make_unique<DiplomaticRequestData>(newRequest, turn_Get() ? turn_Get()->GetRound() : 0);
+	DiplomaticRequestData *newDataPtr = newData.get();
+	Insert(newData.release());
+	return newDataPtr;
 }
 
 

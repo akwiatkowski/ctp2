@@ -2,6 +2,7 @@
 // 1:1 forwarder from tiledmap_observer::Impl to tiledmap_Get().
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gfx/tilesys/tiledmap_observer_adapter.h"
 #include "gfx/tilesys/tiledmap.h"     // TiledMap, tiledmap_Get, tiledmap_Set
 
@@ -76,13 +77,13 @@ void RegisterTiledMapObserverAdapter()
 
 void tiledmap_factory_recreate(sint32 width, sint32 height)
 {
-    delete tiledmap_Get();
+    std::unique_ptr<TiledMap>(tiledmap_Get()).reset();
     MapPoint size(width, height);
-    tiledmap_Set(new TiledMap(size));
+    tiledmap_Set(std::make_unique<TiledMap>(size).release());
 }
 
 void tiledmap_factory_destroy()
 {
-    delete tiledmap_Get();
+    std::unique_ptr<TiledMap>(tiledmap_Get()).reset();
     tiledmap_Set(nullptr);
 }

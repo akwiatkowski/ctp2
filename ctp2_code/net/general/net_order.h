@@ -7,6 +7,7 @@
 #include "net/general/net_packet.h"
 #include "gs/gameobj/Army.h"
 #include "gs/world/MapPoint.h"
+#include <memory>
 
 class Path;
 enum UNIT_ORDER_TYPE;
@@ -26,7 +27,7 @@ private:
 	sint32 m_owner;
 	Army m_army;
 	UNIT_ORDER_TYPE m_order;
-	Path *m_path;
+	std::unique_ptr<Path> m_path;
 	MapPoint m_point;
 	sint32 m_argument;
 	GAME_EVENT m_event;

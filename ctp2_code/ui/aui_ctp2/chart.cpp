@@ -98,7 +98,7 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR const *ldlBlock )
 
         if (aui_Ldl::GetLdl()->FindDataBlock(block))
 		{
-			m_left = new ctp2_Static(
+			m_left = std::make_unique<ctp2_Static>(
 				&errcode,
 				aui_UniqueId(),
 				block );
@@ -111,7 +111,7 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR const *ldlBlock )
 
         if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 		{
-			m_right = new ctp2_Static(
+			m_right = std::make_unique<ctp2_Static>(
 				&errcode,
 				aui_UniqueId(),
 				block );
@@ -124,51 +124,51 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR const *ldlBlock )
 
         if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 		{
-			m_centerButton = new ctp2_Button(
+			m_centerButton = std::make_unique<ctp2_Button>(
 				&errcode,
 				aui_UniqueId(),
 				block,
 				ChartCenterActionCallback, this );
 
-			errcode = AddSubControl( m_centerButton );
+			errcode = AddSubControl( m_centerButton.get() );
 			Assert( errcode == AUI_ERRCODE_OK );
 			if ( errcode != AUI_ERRCODE_OK ) return AUI_ERRCODE_CONTROLFAILURE;
 
 			for ( i = 0; i < k_MAX_PREREQ; i++ )
 			{
-				m_preReqButton[i] = new ctp2_Button(
+				m_preReqButton[i] = std::make_unique<ctp2_Button>(
 					&errcode,
 					aui_UniqueId(),
 					block,
 					ChartPreReqActionCallback, this );
 
-				errcode = AddSubControl( m_preReqButton[i] );
+				errcode = AddSubControl( m_preReqButton[i].get() );
 				Assert( errcode == AUI_ERRCODE_OK );
 				if ( errcode != AUI_ERRCODE_OK ) return AUI_ERRCODE_CONTROLFAILURE;
 			}
 
 			for ( i = 0; i < k_MAX_EITHER_PREREQ; i++ )
 			{
-				m_eitherPreReqButton[i] = new ctp2_Button(
+				m_eitherPreReqButton[i] = std::make_unique<ctp2_Button>(
 					&errcode,
 					aui_UniqueId(),
 					block,
 					ChartEitherPreReqActionCallback, this );
 
-				errcode = AddSubControl( m_eitherPreReqButton[i] );
+				errcode = AddSubControl( m_eitherPreReqButton[i].get() );
 				Assert( errcode == AUI_ERRCODE_OK );
 				if ( errcode != AUI_ERRCODE_OK ) return AUI_ERRCODE_CONTROLFAILURE;
 			}
 
 			for ( i = 0; i < k_MAX_LEADS_TO;i++ )
 			{
-				m_leadsToButton[i] = new ctp2_Button(
+				m_leadsToButton[i] = std::make_unique<ctp2_Button>(
 					&errcode,
 					aui_UniqueId(),
 					block,
 					ChartLeadsToActionCallback, this );
 
-				errcode = AddSubControl( m_leadsToButton[i] );
+				errcode = AddSubControl( m_leadsToButton[i].get() );
 				Assert( errcode == AUI_ERRCODE_OK );
 				if ( errcode != AUI_ERRCODE_OK ) return AUI_ERRCODE_CONTROLFAILURE;
 			}
@@ -177,14 +177,14 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR const *ldlBlock )
 
 	if ( !m_centerButton )
 	{
-		m_centerButton = new ctp2_Button(
+		m_centerButton = std::make_unique<ctp2_Button>(
 			&errcode,
 			aui_UniqueId(),
 			nullptr, k_CHART_PATTERN,
 			0, 0, 100, 20,
 			ChartCenterActionCallback,
 			this );
-		errcode = AddSubControl( m_centerButton );
+		errcode = AddSubControl( m_centerButton.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return AUI_ERRCODE_CONTROLFAILURE;
 		aui_BitmapFont * font = m_centerButton->GetTextFont();
@@ -194,9 +194,9 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR const *ldlBlock )
 
 		for ( i = 0;i < k_MAX_PREREQ;i++ )
 		{
-			m_preReqButton[i] = new ctp2_Button( &errcode, aui_UniqueId(),
+			m_preReqButton[i] = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(),
 				nullptr, k_CHART_PATTERN, 0, 0, 100, 20, ChartPreReqActionCallback, this );
-			errcode = AddSubControl( m_preReqButton[i] );
+			errcode = AddSubControl( m_preReqButton[i].get() );
 			Assert( errcode == AUI_ERRCODE_OK );
 			if ( errcode != AUI_ERRCODE_OK ) return AUI_ERRCODE_CONTROLFAILURE;
 			m_preReqButton[i]->Hide();
@@ -209,9 +209,9 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR const *ldlBlock )
 
 		for ( i = 0;i < k_MAX_EITHER_PREREQ;i++ )
 		{
-			m_eitherPreReqButton[i] = new ctp2_Button( &errcode, aui_UniqueId(),
+			m_eitherPreReqButton[i] = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(),
 				nullptr, k_CHART_PATTERN, 0, 0, 100, 20, ChartEitherPreReqActionCallback, this );
-			errcode = AddSubControl( m_eitherPreReqButton[i] );
+			errcode = AddSubControl( m_eitherPreReqButton[i].get() );
 			Assert( errcode == AUI_ERRCODE_OK );
 			if ( errcode != AUI_ERRCODE_OK ) return AUI_ERRCODE_CONTROLFAILURE;
 			m_eitherPreReqButton[i]->Hide();
@@ -224,9 +224,9 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR const *ldlBlock )
 
 		for ( i = 0;i < k_MAX_LEADS_TO;i++ )
 		{
-			m_leadsToButton[i] = new ctp2_Button( &errcode, aui_UniqueId(),
+			m_leadsToButton[i] = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(),
 				nullptr, k_CHART_PATTERN, 0, 0, 100, 20, ChartLeadsToActionCallback, this );
-			errcode = AddSubControl( m_leadsToButton[i] );
+			errcode = AddSubControl( m_leadsToButton[i].get() );
 			Assert( errcode == AUI_ERRCODE_OK );
 			if ( errcode != AUI_ERRCODE_OK ) return AUI_ERRCODE_CONTROLFAILURE;
 			m_leadsToButton[i]->Hide();
@@ -251,22 +251,22 @@ Chart::~Chart()
 
 	for ( i = 0;i < k_MAX_PREREQ;i++ )
 	{
-		delete m_preReqButton[i];
+		m_preReqButton[i].reset();
 	}
 
 	for ( i = 0;i < k_MAX_EITHER_PREREQ;i++ )
 	{
-		delete m_eitherPreReqButton[i];
+		m_eitherPreReqButton[i].reset();
 	}
 
 	for ( i = 0;i < k_MAX_LEADS_TO;i++ )
 	{
-		delete m_leadsToButton[i];
+		m_leadsToButton[i].reset();
 	}
 
-	delete m_centerButton;
-	delete m_left;
-	delete m_right;
+	m_centerButton.reset();
+	m_left.reset();
+	m_right.reset();
 }
 
 
@@ -505,11 +505,11 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 		if (ldl)
 		{
-			aui_Ldl::Remove((void *)m_preReqButton[i]);
+			aui_Ldl::Remove(m_preReqButton[i].get());
 
 			MBCHAR name[k_MAX_NAME_LEN];
 			snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_preReqIndex[i])->m_name));
-			aui_Ldl::Associate((aui_Control *)m_preReqButton[i], name);
+			aui_Ldl::Associate(m_preReqButton[i].get(), name);
 		}
 
 		if ( player_Get(curPlayer)->HasAdvance(m_preReqIndex[i]) )
@@ -548,11 +548,11 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 		if (ldl)
 		{
-			aui_Ldl::Remove((void *)m_eitherPreReqButton[i]);
+			aui_Ldl::Remove(m_eitherPreReqButton[i].get());
 
 			MBCHAR name[k_MAX_NAME_LEN];
 			snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_eitherPreReqIndex[i])->m_name));
-			aui_Ldl::Associate((aui_Control *)m_eitherPreReqButton[i], name);
+			aui_Ldl::Associate(m_eitherPreReqButton[i].get(), name);
 		}
 
 		if ( player_Get(curPlayer)->HasAdvance(m_eitherPreReqIndex[i]) )
@@ -589,11 +589,11 @@ AUI_ERRCODE Chart::Update( sint32 index )
 	aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 	if (ldl)
 	{
-		aui_Ldl::Remove((void *)m_centerButton);
+		aui_Ldl::Remove(m_centerButton.get());
 
 		MBCHAR name[k_MAX_NAME_LEN];
 		snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_centerIndex)->m_name));
-		aui_Ldl::Associate((aui_Control *)m_centerButton, name);
+		aui_Ldl::Associate(m_centerButton.get(), name);
 	}
 
 	if ( player_Get(curPlayer)->HasAdvance(m_centerIndex) )
@@ -626,11 +626,11 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 		if (ldl)
 		{
-			aui_Ldl::Remove((void *)m_leadsToButton[i]);
+			aui_Ldl::Remove(m_leadsToButton[i].get());
 
 			MBCHAR name[k_MAX_NAME_LEN];
 			snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_leadsToIndex[i])->m_name));
-			aui_Ldl::Associate((aui_Control *)m_leadsToButton[i], name);
+			aui_Ldl::Associate(m_leadsToButton[i].get(), name);
 		}
 
 		if ( player_Get(curPlayer)->HasAdvance(m_leadsToIndex[i]) )

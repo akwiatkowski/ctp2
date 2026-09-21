@@ -32,7 +32,7 @@ void AttractWindow::Initialize()
 {
 	AUI_ERRCODE		retval;
 
-	g_attractWindow.reset(new AttractWindow(&retval, aui_UniqueId(), const_cast<MBCHAR *>("AttractWindow"), 16));
+	g_attractWindow = std::make_unique<AttractWindow>(&retval, aui_UniqueId(), const_cast<MBCHAR *>("AttractWindow"), 16);
 	Assert(g_attractWindow);
 	if (!g_attractWindow)
 		return;
@@ -154,15 +154,15 @@ void AttractWindow::DrawAttractiveStuff()
 	if (attractRect.bottom > Height()) OffsetRect(&attractRect, 0, Height() - attractRect.bottom);
 
 	tempRect = attractRect;
-	primitives_FrameRect16(m_surface, &tempRect, colorset_Get()->GetColor(COLOR_GREEN));
+	primitives_FrameRect16(m_surface.get(), &tempRect, colorset_Get()->GetColor(COLOR_GREEN));
 	InflateRect(&tempRect, -1, -1);
-	primitives_FrameRect16(m_surface, &tempRect, colorset_Get()->GetColor(COLOR_DARK_GREEN));
+	primitives_FrameRect16(m_surface.get(), &tempRect, colorset_Get()->GetColor(COLOR_DARK_GREEN));
 
 	if (m_attractStage > 1) {
 		tempRect = lastRect;
-		primitives_FrameRect16(m_surface, &tempRect, colorset_Get()->GetDarkColor(COLOR_GREEN));
+		primitives_FrameRect16(m_surface.get(), &tempRect, colorset_Get()->GetDarkColor(COLOR_GREEN));
 		InflateRect(&tempRect, -1, -1);
-		primitives_FrameRect16(m_surface, &tempRect, colorset_Get()->GetColor(COLOR_GREEN));
+		primitives_FrameRect16(m_surface.get(), &tempRect, colorset_Get()->GetColor(COLOR_GREEN));
 	}
 	lastRect = attractRect;
 }
@@ -174,7 +174,7 @@ void AttractWindow::ClearWindow()
 {
 	RECT rect = {0,0,Width(),Height()};
 
-	primitives_PaintRect16(m_surface, &rect, 0x0000);
+	primitives_PaintRect16(m_surface.get(), &rect, 0x0000);
 }
 
 
@@ -269,7 +269,7 @@ void AttractWindow::RemoveRegion(aui_Region *region)
 
 void AttractWindow::AddRegion(aui_Region *region)
 {
-	std::unique_ptr<AttractRegion> ar(new AttractRegion);
+	std::unique_ptr<AttractRegion> ar = std::make_unique<AttractRegion>();
 	ar->m_region = region;
 	ar->m_startTime = GetTickCount();
 	m_regions.push_back(std::move(ar));

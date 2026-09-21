@@ -75,30 +75,27 @@ extern MBCHAR       g_slic_filename[_MAX_PATH];
 extern BOOL         g_letUIProcess;
 extern HWND			gHwnd;
 
-static ChatBox		*g_chatBox = nullptr;
+static std::unique_ptr<ChatBox>	g_chatBox;
 
-ChatBox * chatbox_Get()                   { return g_chatBox; }
-void      chatbox_Set(ChatBox *p)             { g_chatBox = p; }
+ChatBox * chatbox_Get()                   { return g_chatBox.get(); }
+void      chatbox_Set(ChatBox *p)             { g_chatBox.reset(p); }
 
 
 void ChatBox::Initialize()
 {
-	g_chatBox = new ChatBox;
+	g_chatBox = std::make_unique<ChatBox>();
 }
 
 void ChatBox::Cleanup()
 {
-	
-		delete g_chatBox;
-
-	g_chatBox = nullptr;
+	g_chatBox.reset();
 }
 
 ChatBox::ChatBox()
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_chatWindow = new ChatWindow(&errcode, aui_UniqueId(), const_cast<MBCHAR *>("ChatWindow"), 16,
+	m_chatWindow = std::make_unique<ChatWindow>(&errcode, aui_UniqueId(), const_cast<MBCHAR *>("ChatWindow"), 16,
 									AUI_WINDOW_TYPE_FLOATING, this);
 	Assert(AUI_NEWOK(m_chatWindow, errcode));
 	if (!m_chatWindow || errcode != AUI_ERRCODE_OK) return;
@@ -112,8 +109,6 @@ ChatBox::~ChatBox()
 	{
 		c3ui_Get()->RemoveWindow(m_chatWindow->Id());
 	}
-
-	delete m_chatWindow;
 }
 
 void ChatBox::AddText(MBCHAR *text)
@@ -130,7 +125,7 @@ void ChatBox::SetActive(BOOL active)
 
 	if (active)
 	{
-		c3ui_Get()->AddWindow(m_chatWindow);
+		c3ui_Get()->AddWindow(m_chatWindow.get());
 		m_chatWindow->GetTextField()->SetKeyboardFocus();
 	}
 	else
@@ -186,8 +181,6 @@ ChatWindow::ChatWindow
 
 ChatWindow::~ChatWindow()
 {
-	delete m_textBox;
-	delete m_textField;
 	// m_chatBox not deleted: reference only
 }
 
@@ -197,20 +190,20 @@ AUI_ERRCODE ChatWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "ChatTextBox");
-	m_textBox = new c3_HyperTextBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
+	m_textBox = std::make_unique<c3_HyperTextBox>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(m_textBox, errcode) );
 	if ( !AUI_NEWOK(m_textBox, errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
-	AddControl(m_textBox);
+	AddControl(m_textBox.get());
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "ChatTextField");
-	m_textField = new C3TextField(&errcode, aui_UniqueId(), controlBlock,
+	m_textField = std::make_unique<C3TextField>(&errcode, aui_UniqueId(), controlBlock,
 									ChatWindow::ChatCallback, (void *)this);
 	Assert( AUI_NEWOK(m_textField, errcode) );
 	if ( !AUI_NEWOK(m_textField, errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_textField->SetMaxFieldLen(k_CHATBOX_LINE_LENGTH);
 
-	AddControl(m_textField);
+	AddControl(m_textField.get());
 
 	SetDraggable(TRUE);
 
@@ -493,7 +486,7 @@ AUI_ERRCODE ChatWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 	if ( IsHidden() ) return AUI_ERRCODE_OK;
 
 	if (surface == nullptr)
-		surface = m_surface;
+		surface = m_surface.get();
 
 	RECT rect = { 0, 0, m_width, m_height };
 

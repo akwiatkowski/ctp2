@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/interface/EndgameWindow.h"
 
@@ -196,8 +197,7 @@ void endgamewindow_ExitButtonActionCallback(aui_Control *control, uint32 action,
 		Assert(auiErr == AUI_ERRCODE_OK);
 		if(auiErr != AUI_ERRCODE_OK) return;
 
-		RemoveEndGameAction	*actionObj = new RemoveEndGameAction;
-		c3ui_Get()->AddAction(actionObj);
+		c3ui_Get()->AddAction(std::make_unique<RemoveEndGameAction>().release());
 	}
 }
 
@@ -213,8 +213,8 @@ sint32 endgamewindow_Initialize()
 
 
 
-	g_endgameWindow.reset(new EndGameWindow(&errcode, aui_UniqueId(), const_cast<MBCHAR *>(k_LDL_ENDGAME_WINDOW),
-		k_ENDGAME_BITS_PER_PIXEL, AUI_WINDOW_TYPE_POPUP));
+	g_endgameWindow = std::make_unique<EndGameWindow>(&errcode, aui_UniqueId(), const_cast<MBCHAR *>(k_LDL_ENDGAME_WINDOW),
+		k_ENDGAME_BITS_PER_PIXEL, AUI_WINDOW_TYPE_POPUP);
 	TestControl(g_endgameWindow.get());
 
 	keypress_RegisterHandler(g_endgameWindow.get());
@@ -507,7 +507,7 @@ void c3_Animation::InitCommonLdl(MBCHAR *ldlBlock)
 	m_animationSpeed			= datablock->GetInt(k_C3_ANIMATION_SPEED);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_C3_ANIMATION_FRAMES);
-	m_frames.reset(new aui_StringTable(&errcode, ldlString));
+	m_frames = std::make_unique<aui_StringTable>(&errcode, ldlString);
 	Assert(m_frames);
 
 	m_currentFrame = 0;
@@ -872,7 +872,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_splicerName			= datablock->GetString(k_LDL_ENDGAME_SPLICER_NAME);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_BACKGROUND);
-	m_background.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
+	m_background = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_background);
 
 	m_numberOfBackgroundAnims = datablock->GetInt(k_LDL_ENDGAME_BACKANIM_COUNT);
@@ -880,25 +880,25 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 
 	for(index = 0; index < m_numberOfBackgroundAnims; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_BACKANIM_BASE, index+1);
-		m_backgroundAnim[index].reset(new c3_Animation(&errcode, aui_UniqueId(), ldlString));
+		m_backgroundAnim[index] = std::make_unique<c3_Animation>(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_backgroundAnim[index]);
 		m_backgroundAnim[index]->SetBlend(k_C3_BLEND_MAXBLEND);
 	}
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_EMBRYO_TANK);
-	m_embryoTank.reset(new c3_Blend(&errcode, aui_UniqueId(), ldlString));
+	m_embryoTank = std::make_unique<c3_Blend>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_embryoTank);
 
 	m_embryoTank->HideThis();
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_BROKEN_TANK);
-	m_brokenTank.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
+	m_brokenTank = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_brokenTank);
 
 	m_brokenTank->HideThis();
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_EMBRYO_GLOW);
-	m_embryoGlow.reset(new c3_Animation(&errcode, aui_UniqueId(), ldlString));
+	m_embryoGlow = std::make_unique<c3_Animation>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_embryoGlow);
 
 	m_embryoGlow->HideThis();
@@ -908,7 +908,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 
 	for(index = 0; index < m_numberOfStages; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_STAGE_BASE, index+1);
-		m_embryoStage[index].reset(new c3_Blend(&errcode, aui_UniqueId(), ldlString));
+		m_embryoStage[index] = std::make_unique<c3_Blend>(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_embryoStage[index]);
 		m_embryoStage[index]->HideThis();
 	}
@@ -918,7 +918,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 
 	for(index = 0; index < m_numberOfContainmentFields; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_CONTAIN_BASE, index+1);
-		m_containmentField[index].reset(new c3_Blend(&errcode, aui_UniqueId(), ldlString));
+		m_containmentField[index] = std::make_unique<c3_Blend>(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_containmentField[index]);
 		m_containmentField[index]->HideThis();
 	}
@@ -928,7 +928,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 
 	for(index = 0; index < m_numberOfECDs; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_ECD_BASE, index+1);
-		m_ECD[index].reset(new c3_Blend(&errcode, aui_UniqueId(), ldlString));
+		m_ECD[index] = std::make_unique<c3_Blend>(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_ECD[index]);
 		m_ECD[index]->HideThis();
 	}
@@ -939,13 +939,13 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 
 	for(index = 0; index < m_numberOfSplicers; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_SPLICER_BASE, index+1);
-		m_splicer[index].reset(new c3_Blend(&errcode, aui_UniqueId(), ldlString));
+		m_splicer[index] = std::make_unique<c3_Blend>(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_splicer[index]);
 		m_splicer[index]->HideThis();
 	}
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_DARKEN_AREA);
-	m_darkenArea.reset(new c3_DarkenArea(&errcode, aui_UniqueId(), ldlString));
+	m_darkenArea = std::make_unique<c3_DarkenArea>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_darkenArea);
 
 	m_numberOfLabels = datablock->GetInt(k_LDL_ENDGAME_FB_LABEL_COUNT);
@@ -953,7 +953,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 
 	for(index = 0; index < m_numberOfLabels; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_FB_LABEL_BASE, index+1);
-		m_labels[index].reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
+		m_labels[index] = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_labels[index]);
 	}
 
@@ -962,45 +962,45 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 
 	for(index = 0; index < m_numberOfStageLights; index++) {
 		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_FB_LIGHT_BASE, index+1);
-		m_stageLights[index].reset(new c3_ColoredStatic(&errcode, aui_UniqueId(), ldlString));
+		m_stageLights[index] = std::make_unique<c3_ColoredStatic>(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_stageLights[index]);
 	}
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_PROGRESS_BG);
-	m_progressBackground.reset(new c3_ColoredStatic(&errcode, aui_UniqueId(), ldlString));
+	m_progressBackground = std::make_unique<c3_ColoredStatic>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_progressBackground);
 	m_progressBackground->SetColor(k_ENDGAME_FB_STAGE_GREY);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_TURN_PROGRESS);
-	m_turnProgress.reset(new c3_YetAnotherProgressBar(&errcode, aui_UniqueId(), ldlString));
+	m_turnProgress = std::make_unique<c3_YetAnotherProgressBar>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_turnProgress);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_TURNS_REMAINING);
-	m_turnsRemaining.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
+	m_turnsRemaining = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_turnsRemaining);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_ECD_RATIO);
-	m_ecdRatio.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
+	m_ecdRatio = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_ecdRatio);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_CONTAIN_RATIO);
-	m_containmentFieldRatio.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
+	m_containmentFieldRatio = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_containmentFieldRatio);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_SPLICER_RATIO);
-	m_splicerRatio.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
+	m_splicerRatio = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_splicerRatio);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_FAILURE_CHANCE);
-	m_chanceOfFailure.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
+	m_chanceOfFailure = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_chanceOfFailure);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_BORDER);
-	m_border.reset(new aui_Static(&errcode, aui_UniqueId(), ldlString));
+	m_border = std::make_unique<aui_Static>(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_border);
 
 	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_EXIT_BUTTON);
-	m_exitButton.reset(new c3_Button(&errcode, aui_UniqueId(), ldlString, endgamewindow_ExitButtonActionCallback));
+	m_exitButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), ldlString, endgamewindow_ExitButtonActionCallback);
 	Assert(m_exitButton);
 
 	AddControl(m_exitButton.get());

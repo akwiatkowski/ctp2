@@ -50,21 +50,7 @@ BaseTile::BaseTile()
 {
 }
 
-BaseTile::~BaseTile()
-{
-	if (WasQuickLoaded())
-	{
-		// Do nothing
-	}
-	else
-	{
-		
-			delete[] m_tileData;
-
-		
-			delete[] m_hatData;
-	}
-}
+BaseTile::~BaseTile() = default;
 
 BOOL BaseTile::Read(FILE *file)
 {
@@ -77,25 +63,23 @@ BOOL BaseTile::Read(FILE *file)
 	c3files_fread(&m_flags      , 1, sizeof(m_flags), file);
 	c3files_fread(&m_tileDataLen, 1, sizeof(m_tileDataLen), file);
 
-	m_tileData = new Pixel16[m_tileDataLen/2];
+	m_tileDataOwner = std::make_unique<Pixel16[]>(m_tileDataLen/2);
+	m_tileData      = m_tileDataOwner.get();
 	c3files_fread(m_tileData    , 1, m_tileDataLen, file);
 
 	uint16	size;
 	c3files_fread(&size         , 1, sizeof(size), file);
 
-	Pixel16		*hatData;
+	std::unique_ptr<Pixel16[]>	hatData;
 	if (size > 0)
 	{
-		hatData = new Pixel16[size/2];
-		c3files_fread(hatData, 1, size, file);
-	}
-	else
-	{
-		hatData = nullptr;
+		hatData = std::make_unique<Pixel16[]>(size/2);
+		c3files_fread(hatData.get(), 1, size, file);
 	}
 
-	m_hatDataLen = size;
-	m_hatData    = hatData;
+	m_hatDataLen   = size;
+	m_hatDataOwner = std::move(hatData);
+	m_hatData      = m_hatDataOwner.get();
 
 	return TRUE;
 }

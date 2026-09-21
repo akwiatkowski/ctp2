@@ -14,6 +14,8 @@ class SegmentList;
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_ctp2/keyboardhandler.h"
 
+#include <memory>
+
 class SlicSegment;
 
 typedef void (SegmentListCallback)(sint32 arg);
@@ -48,18 +50,20 @@ public:
 
 	void DisplayWindow();
 	void RemoveWindow();
+	c3_ListBox *GetList() const { return m_list.get(); }
 
-	c3_ListBox *GetList() const { return m_list; }
 	void kh_Close() override;
 
 private:
 	sint32 Initialize(MBCHAR *ldlBlock);
 	sint32 UpdateData();
 
-	c3_PopupWindow *m_window;
-	c3_ListBox     *m_list;
-	c3_Button      *m_watchButton;
-	c3_Button      *m_exitButton;
+	// Owned controls: ~aui_Region does not delete children, so the
+	// destructor releases these explicitly (in declaration order below).
+	std::unique_ptr<c3_PopupWindow> m_window;
+	std::unique_ptr<c3_ListBox>     m_list;
+	std::unique_ptr<c3_Button>      m_watchButton;
+	std::unique_ptr<c3_Button>      m_exitButton;
 
 
     friend void SegmentListButtonCallback(aui_Control *control, uint32 action, uint32 data, void *cookie);

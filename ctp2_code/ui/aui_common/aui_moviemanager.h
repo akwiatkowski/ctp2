@@ -38,6 +38,7 @@ class aui_MovieManager;
 #include "ui/aui_common/aui_movie.h"
 #include "ui/aui_common/aui_resource.h"
 #include "ctp/ctp2_utils/c3files.h"        // C3DIR
+#include <memory>
 
 class aui_MovieManager : aui_Base
 {
@@ -59,10 +60,10 @@ public:
 	{ return m_movieResource->RemoveSearchPath( path ); }
 
 	aui_Resource<aui_Movie> *MovieResource( ) const
-	{ return m_movieResource; }
+	{ return m_movieResource.get(); }
 
 protected:
-	aui_Resource<aui_Movie>	*m_movieResource;
+	std::unique_ptr<aui_Resource<aui_Movie>>	m_movieResource;
 };
 
 #endif

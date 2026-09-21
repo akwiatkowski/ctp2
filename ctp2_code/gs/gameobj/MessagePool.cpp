@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/player.h"
 #include "gs/utility/safety.h"          // safe_player
@@ -32,16 +33,14 @@ MessagePool::MessagePool() : ObjPool(k_BIT_GAME_OBJ_TYPE_MESSAGE)
 
 Message MessagePool::Create(PLAYER_INDEX owner, PLAYER_INDEX sender, MESSAGE_TYPE type, MBCHAR *msg)
 	{
-	MessageData* newData;
-
-	Message newRequest(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
-
-	newData = new MessageData(newRequest, owner, sender, type, msg, turn_Get() ? turn_Get()->GetYear() : 0) ;
-	Insert(newData) ;
+	Message newRequest(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE)) ;
+	auto newData = std::make_unique<MessageData>(newRequest, owner, sender, type, msg, turn_Get() ? turn_Get()->GetYear() : 0) ;
+	MessageData *newDataPtr = newData.get();
+	Insert(newData.release()) ;
 
 	if(Player * p = safe_player(owner))
 		p->AddMessage(newRequest) ;
-	DoNetwork(newData);
+	DoNetwork(newDataPtr);
 
 	return (newRequest) ;
 	}
@@ -59,48 +58,43 @@ Message MessagePool::Create(PLAYER_INDEX owner, PLAYER_INDEX sender, MESSAGE_TYP
 
 Message MessagePool::Create(PLAYER_INDEX owner, MBCHAR *msg)
 	{
-	MessageData* newData;
-
-	Message newMessage(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
-
-	newData = new MessageData(newMessage, owner, PLAYER_INDEX_INVALID, 0, msg, turn_Get() ? turn_Get()->GetYear() : 0) ;
-	Insert(newData) ;
+	Message newMessage(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE)) ;
+	auto newData = std::make_unique<MessageData>(newMessage, owner, PLAYER_INDEX_INVALID, 0, msg, turn_Get() ? turn_Get()->GetYear() : 0) ;
+	MessageData *newDataPtr = newData.get();
+	Insert(newData.release()) ;
 
 	if(Player * p = safe_player(owner))
 		p->AddMessage(newMessage) ;
 
-	DoNetwork(newData);
+	DoNetwork(newDataPtr);
 
 	return (newMessage) ;
 	}
 
 Message MessagePool::Recreate(PLAYER_INDEX owner, MBCHAR *msg, MBCHAR *title)
 	{
-	MessageData* newData;
-
-	Message newMessage(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
-
-	newData = new MessageData(newMessage, owner, PLAYER_INDEX_INVALID, 0, msg, turn_Get() ? turn_Get()->GetYear() : 0) ;
-	Insert(newData) ;
+	Message newMessage(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE)) ;
+	auto newData = std::make_unique<MessageData>(newMessage, owner, PLAYER_INDEX_INVALID, 0, msg, turn_Get() ? turn_Get()->GetYear() : 0) ;
+	MessageData *newDataPtr = newData.get();
+	Insert(newData.release()) ;
 
 	if(title)
-		newData->SetTitle(title);
+		newDataPtr->SetTitle(title);
 
 	if(Player * p = safe_player(owner))
 		p->AddMessage(newMessage) ;
 
-	DoNetwork(newData);
+	DoNetwork(newDataPtr);
 
 	return (newMessage) ;
 	}
 
 Message MessagePool::Create(PLAYER_INDEX owner, MessageData *copy)
 {
-	MessageData *newData;
 	Message newMessage(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
-	newData = new MessageData(newMessage, copy);
+	auto newData = std::make_unique<MessageData>(newMessage, copy);
 	newData->SetOwner(owner);
-	Insert(newData);
+	Insert(newData.release());
 	if(Player * p = safe_player(owner))
 		p->AddMessage(newMessage);
 
@@ -122,10 +116,9 @@ Message MessagePool::Create(PLAYER_INDEX owner, MessageData *copy)
 
 Message MessagePool::ServerCreate()
 {
-	MessageData *newData;
 	Message newRequest(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
-	newData = new MessageData(newRequest, turn_Get() ? turn_Get()->GetYear() : 0);
-	Insert(newData);
+	auto newData = std::make_unique<MessageData>(newRequest, turn_Get() ? turn_Get()->GetYear() : 0);
+	Insert(newData.release());
 	return newRequest;
 }
 

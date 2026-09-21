@@ -1,5 +1,7 @@
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 #include "ui/interface/c3dialogs.h"
 
@@ -22,35 +24,33 @@ ForeignTradeBidInfo::ForeignTradeBidInfo(sint32 player, Unit &fromCity,
 void c3dialogs_PostForeignTradeBidDialog(sint32 player, Unit &fromCity, Unit &toCity,
 								sint32 resource)
 {
-	ForeignTradeBidInfo			*info = new ForeignTradeBidInfo(player, fromCity,
-															toCity, resource);
+	std::unique_ptr<ForeignTradeBidInfo> info =
+		std::make_unique<ForeignTradeBidInfo>(player, fromCity, toCity, resource);
 
 
 
 
-	static c3_UtilityTextFieldPopup	*pop = nullptr;
+	static std::unique_ptr<c3_UtilityTextFieldPopup> pop;
 	if(!pop) {
-		pop = new c3_UtilityTextFieldPopup(
+		pop = std::make_unique<c3_UtilityTextFieldPopup>(
 			c3dialogs_ForeignTradeBidDialogCallback,
 			nullptr,
 			nullptr,
 			nullptr,
 			"ForeignTradeBidPopup",
-			(void *)info);
+			(void *)info.get());
 	}
-	pop->m_data = info;
+	pop->m_data = info.release();
 	pop->DisplayWindow();
 }
 
 void c3dialogs_ForeignTradeBidDialogCallback(MBCHAR const *text, sint32 accepted, void *data)
 {
-	ForeignTradeBidInfo	*info = (ForeignTradeBidInfo *)data;
+	std::unique_ptr<ForeignTradeBidInfo> info(static_cast<ForeignTradeBidInfo *>(data));
 
 	if (accepted) {
 		sint32 price = atoi(text);
 		player_Get(info->m_player)->SendTradeBid(info->m_fromCity, info->m_resource,
 												info->m_toCity, price);
 	}
-
-	delete info;
 }

@@ -2,6 +2,7 @@
 #define __NS_ITEM_H__
 
 #include "ui/aui_common/aui_item.h"
+#include <memory>
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_common/aui_window.h"
 #include "ui/aui_common/aui_blitter.h"
@@ -18,8 +19,7 @@
 #define k_NS_ITEM_DEFAULTWIDTH		60
 #define k_NS_ITEM_DEFAULTHEIGHT		25
 
-class c3_EditButton;
-class c3_Button;
+#include "ui/aui_ctp2/c3_button.h"
 
 
 
@@ -67,26 +67,25 @@ public:
 	BOOL IsAI( ) const { return m_isAI; }
 
 	aui_Control *GetHostItem( ) { return this; }
-	aui_Control *GetLaunchedItem( ) const { return m_launchedItem; }
-	aui_Control *GetNameItem( ) const { return m_nameItem; }
-	aui_Control *GetPingItem( ) const { return m_pingItem; }
+	aui_Control *GetLaunchedItem( ) const { return m_launchedItem.get(); }
+	aui_Control *GetNameItem( ) const { return m_nameItem.get(); }
+	aui_Control *GetPingItem( ) const { return m_pingItem.get(); }
 
-	aui_Control *GetTribeItem( ) const { return m_tribeItem; }
+	aui_Control *GetTribeItem( ) const { return m_tribeItem.get(); }
 	c3_Button *GetTribeButton( ) const
-	{ return m_tribeButton; }
+	{ return m_tribeButton.get(); }
 	void SetTribe( sint32 tribe );
 
 
 
 
 
-
-	aui_Control *GetCivpointsItem( ) const { return m_civpointsItem; }
-	c3_EditButton *GetCivpointsButton( ) const { return m_civpointsButton;}
+	aui_Control *GetCivpointsItem( ) const { return m_civpointsItem.get(); }
+	c3_EditButton *GetCivpointsButton( ) const { return m_civpointsButton.get();}
 	void SetCivpoints( sint32 civpoints );
 
-	aui_Control *GetPwpointsItem( ) const { return m_pwpointsItem; }
-	c3_EditButton *GetPwpointsButton( ) const { return m_pwpointsButton;}
+	aui_Control *GetPwpointsItem( ) const { return m_pwpointsItem.get(); }
+	c3_EditButton *GetPwpointsButton( ) const { return m_pwpointsButton.get();}
 	void SetPwpoints( sint32 pwpoints );
 
 protected:
@@ -100,21 +99,21 @@ protected:
 	void *m_player;
 	BOOL m_isAI;
 
-	c3_Static *m_launchedItem;
-	c3_Static *m_nameItem;
-	c3_Static *m_pingItem;
+	std::unique_ptr<c3_Static>	m_launchedItem;
+	std::unique_ptr<c3_Static>	m_nameItem;
+	std::unique_ptr<c3_Static>	m_pingItem;
 
-	c3_Static *m_tribeItem;
-	c3_Button *m_tribeButton;
-
-
+	std::unique_ptr<c3_Static>	m_tribeItem;
+	std::unique_ptr<c3_Button>	m_tribeButton;
 
 
-	c3_Static *m_civpointsItem;
-	c3_EditButton *m_civpointsButton;
 
-	c3_Static *m_pwpointsItem;
-	c3_EditButton *m_pwpointsButton;
+
+	std::unique_ptr<c3_Static>	m_civpointsItem;
+	std::unique_ptr<c3_EditButton>	m_civpointsButton;
+
+	std::unique_ptr<c3_Static>	m_pwpointsItem;
+	std::unique_ptr<c3_EditButton>	m_pwpointsButton;
 };
 
 
@@ -147,7 +146,7 @@ protected:
 	AUI_ERRCODE CreateNetShellObject( T *object );
 
 public:
-	NetShellT	*GetNetShellObject( ) const { return m_netShellT; }
+	NetShellT	*GetNetShellObject( ) const { return m_netShellT.get(); }
 
 	AUI_ERRCODE	SetIcon( MBCHAR *icon );
 	aui_Image	*GetIcon( ) const { return m_icon; }
@@ -158,7 +157,7 @@ public:
 		sint32 y = 0 ) override;
 
 protected:
-	NetShellT	*m_netShellT;
+	std::unique_ptr<NetShellT>	m_netShellT;
 	aui_Image	*m_icon;
 };
 
@@ -247,7 +246,7 @@ AUI_ERRCODE ns_Item<T,NetShellT>::CreateNetShellObject( T *object )
 {
 	if ( object )
 	{
-		m_netShellT = new NetShellT( object );
+		m_netShellT = std::make_unique<NetShellT>( object );
 		Assert( m_netShellT != nullptr );
 		if ( !m_netShellT ) return AUI_ERRCODE_MEMALLOCFAILED;
 	}
@@ -259,11 +258,7 @@ AUI_ERRCODE ns_Item<T,NetShellT>::CreateNetShellObject( T *object )
 template<class T,class NetShellT>
 ns_Item<T,NetShellT>::~ns_Item()
 {
-	if ( m_netShellT )
-	{
-		delete m_netShellT;
-		m_netShellT = nullptr;
-	}
+	m_netShellT.reset();
 
 	if ( m_icon )
 	{

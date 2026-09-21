@@ -70,6 +70,7 @@
 #include <cinttypes>
 
 #include <algorithm>                    // std::fill
+#include <memory>
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_stringtable.h"
@@ -231,10 +232,10 @@ extern sint32               g_ScreenHeight;
 extern KEYMAP               *theKeyMap;
 
 ctp2_MenuBar                *s_menubar=nullptr;
-static ControlPanelWindow   *g_controlPanel = nullptr;
+static std::unique_ptr<ControlPanelWindow> g_controlPanel;
 
-ControlPanelWindow * controlpanel_Get()              { return g_controlPanel; }
-void                 controlpanel_Set(ControlPanelWindow *p) { g_controlPanel = p; }
+ControlPanelWindow * controlpanel_Get()              { return g_controlPanel.get(); }
+void                 controlpanel_Set(ControlPanelWindow *p) { g_controlPanel.reset(p); }
 
 
 
@@ -536,7 +537,7 @@ sint32 controlpanelwindow_Initialize()
 		strlcpy(windowBlock, "ControlPanelWindow", sizeof(windowBlock));
 
 		AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
-		g_controlPanel = new ControlPanelWindow(&errcode, aui_UniqueId(), windowBlock, 16 );
+		g_controlPanel = std::make_unique<ControlPanelWindow>(&errcode, aui_UniqueId(), windowBlock, 16 );
 		Assert( AUI_NEWOK(g_controlPanel, errcode) );
 		if ( !AUI_NEWOK(g_controlPanel, errcode) ) return -1;
 
@@ -558,8 +559,7 @@ void controlpanelwindow_Cleanup()
 	tileimptracker_Cleanup();
 	specialAttackWindow_Cleanup();
 
-	delete g_controlPanel;
-	g_controlPanel = nullptr;
+	g_controlPanel.reset();
 }
 
 
@@ -1092,7 +1092,7 @@ m_terraFormMode(false)
 
 
 
-	m_contextMenu = new ctp2_Menu(true, ContextMenuCallback);
+	m_contextMenu = std::make_unique<ctp2_Menu>(true, ContextMenuCallback);
 
 
 
@@ -1192,7 +1192,7 @@ ControlPanelWindow::~ControlPanelWindow()
 		m_mainMenuBar = nullptr;
 	}
 
-	delete m_contextMenu;
+	// m_contextMenu is std::unique_ptr, auto-freed
 }
 
 
@@ -1699,10 +1699,10 @@ ControlPanelWindow::BeginOrderDelivery(OrderRecord *rec)
 
 		if(strcmp(rec->GetEventName(),"DisbandArmyOrder")==0)
 		{
-			OrderDataRec *callbackorder=new OrderDataRec;
+			auto callbackorder = std::make_unique<OrderDataRec>();
 			callbackorder->data=data;
 			callbackorder->rec=rec;
-			MessageBoxDialog::Query("str_ldl_Disband_selected_units", "VerifyDisbandUnit", ControlPanelWindow::PerformOrderAfterConfirmation, (void *)callbackorder);
+			MessageBoxDialog::Query("str_ldl_Disband_selected_units", "VerifyDisbandUnit", ControlPanelWindow::PerformOrderAfterConfirmation, (void *)callbackorder.release());
 		}
 		else
 		{
@@ -1723,7 +1723,7 @@ void ControlPanelWindow::PerformOrderAfterConfirmation(bool response, void *user
 	{
 		((OrderDataRec*)userData)->data->PerformOrder(((OrderDataRec*)userData)->rec);
 	}
-	delete (OrderDataRec*) userData;
+	std::unique_ptr<OrderDataRec> orderData((OrderDataRec*) userData);
 }
 
 
@@ -2372,7 +2372,7 @@ void ControlPanelWindow::RemoveMessage(Message &message)
 		listItem = (ctp2_ListItem *)m_messageList->GetItemByIndex(i);
 		if (listItem->GetCookie() == reinterpret_cast<void *>(static_cast<intptr_t>(static_cast<uint32>(message)))) {
 			m_messageList->RemoveItemByIndex(i);
-			delete listItem;
+			std::unique_ptr<ctp2_ListItem> itemOwner(listItem);
 			break;
 		}
 	}
@@ -2707,7 +2707,7 @@ ControlPanelWindow::CreateTileImpBanks()
 				aui_TipWindow *tipwin = (aui_TipWindow *)a_button->GetTipWindow();
 				if(!tipwin) {
 					AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-					tipwin = new aui_TipWindow(&errcode, aui_UniqueId(), "DefaultTipWindow");
+					tipwin = std::make_unique<aui_TipWindow>(&errcode, aui_UniqueId(), "DefaultTipWindow").release();
 					Assert( AUI_NEWOK(tipwin,errcode) );
 					if ( AUI_NEWOK(tipwin,errcode) ) {
 

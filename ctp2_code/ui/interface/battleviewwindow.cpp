@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/interface/battleviewwindow.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
@@ -53,9 +54,8 @@ void battleview_ExitButtonActionCallback( aui_Control *control, uint32 action, u
 	// directly.
 	extern Battle *BattleObserverAdapter_GetCurrentBattle();
 	Battle *currentBattle = BattleObserverAdapter_GetCurrentBattle();
-	RemoveBattleViewAction	*actionObj = new RemoveBattleViewAction(combat_Get() && g_battleViewWindow && g_battleViewWindow->GetBattleView() && currentBattle &&
-																	g_battleViewWindow->GetBattleView()->IsCurrentBattle(currentBattle));
-	c3ui_Get()->AddAction(actionObj);
+	c3ui_Get()->AddAction(std::make_unique<RemoveBattleViewAction>(combat_Get() && g_battleViewWindow && g_battleViewWindow->GetBattleView() && currentBattle &&
+																g_battleViewWindow->GetBattleView()->IsCurrentBattle(currentBattle)).release());
 
 }
 
@@ -102,8 +102,8 @@ void BattleViewWindow::Initialize(SequenceWeakPtr seq)
 	if (g_battleViewWindow)
 		Cleanup();
 
-	g_battleViewWindow = new BattleViewWindow( &errcode, aui_UniqueId(), const_cast<MBCHAR *>("BattleViewWindow"), 16,
-											AUI_WINDOW_TYPE_POPUP);
+	g_battleViewWindow = std::make_unique<BattleViewWindow>( &errcode, aui_UniqueId(), const_cast<MBCHAR *>("BattleViewWindow"), 16,
+											AUI_WINDOW_TYPE_POPUP).release();
 
 	g_battleViewWindow->SetSequence(seq);
 
@@ -122,7 +122,9 @@ void BattleViewWindow::Cleanup()
 
 		c3ui_Get()->RemoveWindow(g_battleViewWindow->Id());
 
-		delete g_battleViewWindow;
+		// Scoped temp deletes while the global still points at the window, so
+		// ~BattleViewWindow's `this == g_battleViewWindow` check still holds.
+		std::unique_ptr<BattleViewWindow>{g_battleViewWindow};
 		g_battleViewWindow = nullptr;
 	}
 
@@ -165,125 +167,125 @@ AUI_ERRCODE BattleViewWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		errcode;
 
-	m_battleView.reset(new BattleView());
+	m_battleView = std::make_unique<BattleView>();
 	Assert(m_battleView != nullptr);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TitleText");
-	m_titleText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_titleText = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_titleText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "AttackersText");
-	m_attackersText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_attackersText = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_attackersText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "AttackersName");
-	m_attackersName.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_attackersName = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_attackersName);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "AttackersFlag");
-	m_attackersFlag.reset(new c3_Icon(&errcode, aui_UniqueId(), buttonBlock));
+	m_attackersFlag = std::make_unique<c3_Icon>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_attackersFlag);
 	m_attackersFlag->SetMapIcon( MAPICON_FLAG );
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "DefendersText");
-	m_defendersText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_defendersText = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_defendersText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "DefendersName");
-	m_defendersName.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_defendersName = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_defendersName);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "DefendersFlag");
-	m_defendersFlag.reset(new c3_Icon(&errcode, aui_UniqueId(), buttonBlock));
+	m_defendersFlag = std::make_unique<c3_Icon>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_defendersFlag);
 	m_defendersFlag->SetMapIcon( MAPICON_FLAG );
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TerrainBonusText");
-	m_terrainBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_terrainBonusText = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_terrainBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TerrainBonusValue");
-	m_terrainBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_terrainBonusValue = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_terrainBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityBonusText");
-	m_cityBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_cityBonusText = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityBonusValue");
-	m_cityBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_cityBonusValue = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityLandAttackBonusText");
-	m_citylandattackBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_citylandattackBonusText = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_citylandattackBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityLandAttackBonusValue");
-	m_citylandattackBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_citylandattackBonusValue = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_citylandattackBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityAirAttackBonusText");
-	m_cityairattackBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_cityairattackBonusText = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityairattackBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityAirAttackBonusValue");
-	m_cityairattackBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_cityairattackBonusValue = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityairattackBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CitySeaAttackBonusText");
-	m_cityseaattackBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_cityseaattackBonusText = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityseaattackBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CitySeaAttackBonusValue");
-	m_cityseaattackBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_cityseaattackBonusValue = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityseaattackBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityName");
-	m_cityName.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_cityName = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityName);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortBonusText");
-	m_fortBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_fortBonusText = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_fortBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortBonusValue");
-	m_fortBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_fortBonusValue = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_fortBonusValue);
 
 	m_fortBonusImage = nullptr;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortifiedBonusText");
-	m_fortifiedBonusText.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_fortifiedBonusText = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_fortifiedBonusText);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortifiedBonusValue");
-	m_fortifiedBonusValue.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_fortifiedBonusValue = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_fortifiedBonusValue);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "ExitButton");
-	m_exitButton.reset(new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock,
-		battleview_ExitButtonActionCallback));
+	m_exitButton = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), buttonBlock,
+		battleview_ExitButtonActionCallback);
 	Assert(m_exitButton != nullptr);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "RetreatButton");
-	m_retreatButton.reset(new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock,
-		battleview_RetreatButtonActionCallback));
+	m_retreatButton = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), buttonBlock,
+		battleview_RetreatButtonActionCallback);
 	Assert(m_retreatButton != nullptr);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TopBorder");
-	m_topBorder.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_topBorder = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_topBorder);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "LeftBorder");
-	m_leftBorder.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_leftBorder = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_leftBorder);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "RightBorder");
-	m_rightBorder.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_rightBorder = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_rightBorder);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "BottomBorder");
-	m_bottomBorder.reset(new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock));
+	m_bottomBorder = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_bottomBorder);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "BattleViewArea");
@@ -345,7 +347,7 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 	sint32  attackerTerrain = battle->GetAttackersTerrainType();
 
 	AUI_ERRCODE	errcode = AUI_ERRCODE_OK;
-	aui_StringTable	*table = new aui_StringTable(&errcode, "BattleViewTerrainTable");
+	auto table = std::make_unique<aui_StringTable>(&errcode, "BattleViewTerrainTable");
 	Assert(errcode == AUI_ERRCODE_OK);
 	const MBCHAR *imageName = nullptr;
 
@@ -366,7 +368,7 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 	if(image)
 		m_battleView->SetBackgroundImage(image);
 
-	delete table;
+
 
 	double bonus = battle->GetTerrainBonus();
 	MBCHAR s[k_MAX_NAME_LEN];
@@ -375,7 +377,7 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 
 	if(battle->GetCityImage() != -1) {
 
-		aui_StringTable	*cityTable = new aui_StringTable(&errcode, "BattleViewCityTable");
+		auto cityTable = std::make_unique<aui_StringTable>(&errcode, "BattleViewCityTable");
 		Assert(errcode == AUI_ERRCODE_OK);
 		Assert(cityTable);
 
@@ -385,7 +387,7 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 
 		aui_Image *cityImage = c3ui_Get()->LoadImage(useSplit ? "UPBO006.tga" : cityTable->GetString(terrainType));
 		m_battleView->SetCityImage(cityImage);
-		delete cityTable;
+
 
 		m_cityName->SetText(battle->GetCityName());
 		m_cityName->Show();

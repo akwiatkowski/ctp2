@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -70,10 +71,7 @@ LobbyChangeWindow::LobbyChangeWindow(
 
 AUI_ERRCODE LobbyChangeWindow::InitCommon( )
 {
-	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != nullptr );
-	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
-	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
+	m_controls = std::make_unique<aui_Control *[]>( m_numControls = CONTROL_MAX );
 
 	return AUI_ERRCODE_OK;
 }
@@ -83,76 +81,76 @@ AUI_ERRCODE LobbyChangeWindow::CreateControls( )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 
-	aui_Control *control;
+	std::unique_ptr<aui_Control> control;
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbychangewindow.titlestatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_TITLESTATICTEXT ] = control;
+	m_controls[ CONTROL_TITLESTATICTEXT ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbychangewindow.currentlobbystatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CURRENTLOBBYSTATICTEXT ] = control;
+	m_controls[ CONTROL_CURRENTLOBBYSTATICTEXT ] = control.release();
 
-	control = new C3TextField(
+	control = std::make_unique<C3TextField>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbychangewindow.currentlobbytextfield" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CURRENTLOBBYTEXTFIELD ] = control;
+	m_controls[ CONTROL_CURRENTLOBBYTEXTFIELD ] = control.release();
 
-	control = new ns_LobbyListBox(
+	control = std::make_unique<ns_LobbyListBox>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbychangewindow.lobbieslistbox" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_LOBBIESLISTBOX ] = control;
+	m_controls[ CONTROL_LOBBIESLISTBOX ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbychangewindow.okbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_OKBUTTON ] = control;
+	m_controls[ CONTROL_OKBUTTON ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbychangewindow.cancelbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CANCELBUTTON ] = control;
+	m_controls[ CONTROL_CANCELBUTTON ] = control.release();
 
 
 	aui_Ldl::SetupHeirarchyFromRoot( "lobbychangewindow" );
 
 
-	aui_Action *action;
+	std::unique_ptr<aui_Action> action;
 
-	action = new OKButtonAction;
+	action = std::make_unique<OKButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_OKBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_OKBUTTON ]->SetAction( action.release() );
 
-	action = new CancelButtonAction;
+	action = std::make_unique<CancelButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action.release() );
 
-	action = new LobbyListBoxAction;
+	action = std::make_unique<LobbyListBoxAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_LOBBIESLISTBOX ]->SetAction( action );
+	m_controls[ CONTROL_LOBBIESLISTBOX ]->SetAction( action.release() );
 
 
 	aui_Header *hdr = ((aui_ListBox *)m_controls[ CONTROL_LOBBIESLISTBOX ])
@@ -181,9 +179,9 @@ void LobbyChangeWindow::Update()
 
 AUI_ERRCODE LobbyChangeWindow::Idle( )
 {
-    while (NETFunc::Message * m = netfunc_Get()->GetMessage())
+    while (std::unique_ptr<NETFunc::Message> m{netfunc_Get()->GetMessage()})
     {
-		netfunc_Get()->HandleMessage(m);
+		netfunc_Get()->HandleMessage(m.get());
 
 		switch ( m->GetCode() )
 		{
@@ -195,7 +193,6 @@ AUI_ERRCODE LobbyChangeWindow::Idle( )
 			break;
 		}
 
-		delete m;
 	}
 	return AUI_ERRCODE_OK;
 }

@@ -71,11 +71,11 @@ AUI_ERRCODE aui_TextBox::InitCommon( )
 
 	TextReloadFont();
 
-	aui_Static **itemPtr = m_items;
+	auto itemPtr = m_items.data();
 	for ( uint32 i = k_AUI_TEXTBOX_MAXITEMS; i; i--, itemPtr++ )
 	{
 		AUI_ERRCODE errcode;
-		*itemPtr = new aui_Static(
+		*itemPtr = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, m_width, m_textfont->GetMaxHeight(),
@@ -94,12 +94,7 @@ AUI_ERRCODE aui_TextBox::InitCommon( )
 }
 
 
-aui_TextBox::~aui_TextBox()
-{
-	aui_Static **itemPtr = m_items;
-	for ( uint32 i = k_AUI_TEXTBOX_MAXITEMS; i; i-- )
-		delete *itemPtr++;
-}
+aui_TextBox::~aui_TextBox() = default;
 
 
 AUI_ERRCODE aui_TextBox::SetText(
@@ -157,7 +152,7 @@ AUI_ERRCODE aui_TextBox::CalculateItems(MBCHAR const * text)
 	{
 		text = m_text.c_str();
 
-		aui_Static **itemPtr = m_items;
+		auto itemPtr = m_items.data();
 		for ( sint32 i = m_numItems; i; i-- )
 			RemoveItem( (*itemPtr++)->Id() );
 
@@ -171,7 +166,7 @@ AUI_ERRCODE aui_TextBox::CalculateItems(MBCHAR const * text)
 	if ( cur == stop ) return AUI_ERRCODE_OK;
 
 	uint32 length = 0;
-	aui_Static **itemPtr = m_items + m_curItem;
+	auto itemPtr = m_items.data() + m_curItem;
 
 
 	{
@@ -236,12 +231,12 @@ AUI_ERRCODE aui_TextBox::CalculateItems(MBCHAR const * text)
 
 			(*itemPtr)->SetTextItalic( m_curItalic );
 
-			AddItem( (aui_Item *)*itemPtr++ );
+			AddItem( (aui_Item *)(itemPtr++)->get() );
 
 			if ( ++m_curItem == k_AUI_TEXTBOX_MAXITEMS )
 			{
 				m_curItem = 0;
-				itemPtr = m_items;
+				itemPtr = m_items.data();
 			}
 		} while ( (cur += length) < stop );
 	}
@@ -295,7 +290,7 @@ void aui_TextBox::SetTextFont(MBCHAR const *ttffile )
 {
 	aui_TextBase::SetTextFont( ttffile );
 
-	aui_Static **itemPtr = m_items;
+	auto itemPtr = m_items.data();
 	for ( uint32 i = k_AUI_TEXTBOX_MAXITEMS; i; i--, itemPtr++ )
 		if (*itemPtr)
 			(*itemPtr)->SetTextFont( ttffile );
@@ -312,7 +307,7 @@ void aui_TextBox::SetTextFontSize( sint32 pointSize )
 
 	sint32 textHeight = m_textfont->GetMaxHeight();
 
-	aui_Static **itemPtr = m_items;
+	auto itemPtr = m_items.data();
 	for ( uint32 i = k_AUI_TEXTBOX_MAXITEMS; i; i--, itemPtr++ )
 	{
 		if (*itemPtr)

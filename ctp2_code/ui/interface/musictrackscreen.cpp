@@ -47,13 +47,14 @@
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_stringtable.h"
 #include "sound/soundmanager.h"
+#include <memory>
 
 
 
 
-static c3_PopupWindow	*s_musicTrackScreen	= nullptr;
-static c3_ListBox		*s_trackList		= nullptr;
-static aui_StringTable	*s_trackNames		= nullptr;
+static std::unique_ptr<c3_PopupWindow>	s_musicTrackScreen;
+static std::unique_ptr<c3_ListBox>		s_trackList;
+static std::unique_ptr<aui_StringTable>	s_trackNames;
 static sint32			s_trackNum			= -1;
 
 BOOL					g_musicTrackChosen = FALSE;
@@ -68,7 +69,7 @@ sint32	musictrackscreen_displayMyWindow()
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = c3ui_Get()->AddWindow(s_musicTrackScreen);
+	auiErr = c3ui_Get()->AddWindow(s_musicTrackScreen.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	aui_Item *item = s_trackList->GetSelectedItem();
@@ -121,7 +122,7 @@ AUI_ERRCODE musictrackscreen_Initialize( )
 	MBCHAR		windowBlock[k_AUI_LDL_MAXBLOCK + 1];
 	strlcpy(windowBlock, "MusicTrackScreen", sizeof(windowBlock));
 	{
-		s_musicTrackScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
+		s_musicTrackScreen = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
 		Assert( AUI_NEWOK(s_musicTrackScreen, errcode) );
 		if ( !AUI_NEWOK(s_musicTrackScreen, errcode) ) return errcode;
 
@@ -135,13 +136,13 @@ AUI_ERRCODE musictrackscreen_Initialize( )
 
 	MBCHAR		controlBlock[k_AUI_LDL_MAXBLOCK + 1];
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TrackList" );
-	s_trackList = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, MusicTrackListCallback, nullptr);
+	s_trackList = std::make_unique<c3_ListBox>( &errcode, aui_UniqueId(), controlBlock, MusicTrackListCallback, nullptr);
 	Assert( AUI_NEWOK(s_trackList, errcode) );
 	if ( !AUI_NEWOK(s_trackList, errcode) ) return errcode;
 	s_trackList->SetForceSelect(FALSE);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TrackNames");
-	s_trackNames = new aui_StringTable(&errcode, controlBlock);
+	s_trackNames = std::make_unique<aui_StringTable>(&errcode, controlBlock);
 	Assert(AUI_NEWOK(s_trackNames, errcode));
 	if (!AUI_NEWOK(s_trackNames, errcode)) return errcode;
 
@@ -152,9 +153,8 @@ AUI_ERRCODE musictrackscreen_Initialize( )
 	for (sint32 i = 0; i < s_trackNames->GetNumStrings(); ++i)
     {
 		s_trackList->AddItem
-            (new MusicTrackListItem
-                (&errcode, i, s_trackNames->GetString(i), controlBlock)
-            );
+            (std::make_unique<MusicTrackListItem>(&errcode, i, s_trackNames->GetString(i), controlBlock)
+            .release());
 	}
 
 	return AUI_ERRCODE_OK;
@@ -169,9 +169,9 @@ void musictrackscreen_Cleanup()
 	{
 		c3ui_Get()->RemoveWindow(s_musicTrackScreen->Id());
 	}
-    allocated::clear(s_trackNames);
-    allocated::clear(s_trackList);
-    allocated::clear(s_musicTrackScreen);
+    s_trackNames.reset();
+    s_trackList.reset();
+    s_musicTrackScreen.reset();
 }
 
 
@@ -216,13 +216,13 @@ AUI_ERRCODE MusicTrackListItem::InitCommonLdl(sint32 trackNum, MBCHAR *name, MBC
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		retval;
 
-	c3_Static		*subItem;
+	std::unique_ptr<c3_Static>	subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "TrackName");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block);
 	subItem->SetText(name);
 
-	AddChild(subItem);
+	AddChild(subItem.release());
 
 	m_trackNum = trackNum;
 

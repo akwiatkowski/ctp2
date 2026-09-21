@@ -845,7 +845,7 @@ CellUnitList::CellUnitList(const DynamicArray<Unit> &copyme)
 {
 	Assert(copyme.Num() < k_MAX_ARMY_SIZE);
 	if(copyme.Num() < k_MAX_ARMY_SIZE) {
-		memcpy(m_array, copyme.m_array, sizeof(Unit) * copyme.Num());
+		memcpy(m_array, copyme.m_array.get(), sizeof(Unit) * copyme.Num());
 		m_nElements = copyme.Num();
 		UpdateMoveIntersection();
 	}

@@ -76,13 +76,13 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 	m_arrow = nullptr;
 
 	for ( i = 0;i < k_CARGO_CAPACITY;i++ ) {
-		m_cargo[i] = nullptr;
+		// m_cargo is std::array<unique_ptr> - default null
 	}
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "UnitTabButton" );
 
-	m_button.reset(new c3_ColorIconButton(&errcode, aui_UniqueId(), 0, m_barHeight,
-			m_width, m_height - m_barHeight, "upba0119.tga", "" ));
+	m_button = std::make_unique<c3_ColorIconButton>(&errcode, aui_UniqueId(), 0, m_barHeight,
+			m_width, m_height - m_barHeight, "upba0119.tga", "" );
 
 	Assert(m_button);
 	if (!m_button) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -95,7 +95,7 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 	Assert(errcode == AUI_ERRCODE_OK);
 
 		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Arrow" );
-		m_arrow.reset(new c3_Static( &errcode, aui_UniqueId(), ldlBlock ));
+		m_arrow = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), ldlBlock );
 		Assert( AUI_NEWOK( m_arrow, errcode) );
 		if ( !AUI_NEWOK(m_arrow, errcode) ) return errcode;
 
@@ -105,7 +105,7 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 		Assert( errcode == AUI_ERRCODE_OK );
 
 		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Fortify" );
-		m_fortify.reset(new c3_Static( &errcode, aui_UniqueId(), ldlBlock ));
+		m_fortify = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), ldlBlock );
 		Assert( AUI_NEWOK( m_fortify, errcode) );
 		if ( !AUI_NEWOK(m_fortify, errcode) ) return errcode;
 
@@ -115,7 +115,7 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 		Assert( errcode == AUI_ERRCODE_OK );
 
 		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Veteran" );
-		m_veteran.reset(new c3_Static( &errcode, aui_UniqueId(), ldlBlock ));
+		m_veteran = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), ldlBlock );
 		Assert( AUI_NEWOK( m_veteran, errcode) );
 		if ( !AUI_NEWOK(m_veteran, errcode) ) return errcode;
 
@@ -127,13 +127,13 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Cargo" );
 
 		for ( i = 0;i < k_CARGO_CAPACITY;i++ ) {
-			m_cargo[i] = new c3_ColoredStatic( &errcode, aui_UniqueId(), ldlBlock );
+			m_cargo[i] = std::make_unique<c3_ColoredStatic>( &errcode, aui_UniqueId(), ldlBlock );
 			Assert( AUI_NEWOK( m_cargo[i], errcode) );
 			if ( !AUI_NEWOK(m_cargo[i], errcode) ) return errcode;
 
 			m_cargo[i]->SetBlindness( TRUE );
 
-			errcode = m_button->AddSubControl( m_cargo[i] );
+			errcode = m_button->AddSubControl( m_cargo[i].get() );
 			Assert( errcode == AUI_ERRCODE_OK );
 
 			m_cargo[i]->Move( (m_cargo[i]->Width() + k_CARGO_OFFSET) * i,
@@ -145,8 +145,8 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 
 
 
-	m_healthBar.reset(new Thermometer( &errcode, aui_UniqueId(), 0, 0,
-		m_width, m_barHeight, "chart.tga", 50 ));
+	m_healthBar = std::make_unique<Thermometer>( &errcode, aui_UniqueId(), 0, 0,
+		m_width, m_barHeight, "chart.tga", 50 );
 
 	errcode = AddSubControl(m_healthBar.get());
 	Assert( errcode == AUI_ERRCODE_OK );
@@ -162,9 +162,7 @@ UnitTabButton::~UnitTabButton()
 	// that is an observing registration -- the previous code deleted the
 	// button and its sub-controls both, which only works if neither owns the
 	// other. m_cargo is a plain array, so it is still freed by hand.
-	for (auto & i : m_cargo) {
-		DeleteControl( i );
-	}
+	// m_cargo is std::array<unique_ptr> - frees itself
 }
 
 AUI_ERRCODE UnitTabButton::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
@@ -264,7 +262,7 @@ sint32 UnitTabButton::UpdateData( Unit *unit )
 			for ( i = 0;i < k_CARGO_CAPACITY;i++ ) {
 
 				if ( i < maxCargo ) {
-					m_button->AddSubControl( m_cargo[i] );
+					m_button->AddSubControl( m_cargo[i].get() );
 
 					if ( i < currentCargo ) {
 						m_cargo[i]->SetColor( COLOR_GREEN );

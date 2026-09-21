@@ -1,5 +1,7 @@
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -31,10 +33,10 @@
 #include "gfx/spritesys/director.h"
 
 #include "gfx/spritesys/screenmanager.h"
-static Background		*g_background = nullptr;
+static std::unique_ptr<Background> g_background;
 
-Background * background_Get()             { return g_background; }
-void         background_Set(Background *p)    { g_background = p; }
+Background * background_Get()             { return g_background.get(); }
+void         background_Set(Background *p)    { g_background.reset(p); }
 
 
 void DumpSpanList(aui_DirtyList *list);
@@ -103,7 +105,7 @@ sint32 backgroundWin_Initialize(bool fullscreen)
 		backgroundWidth - widthAdjust - 3 * k_TILE_GRID_WIDTH / 2,
 		backgroundHeight - heightAdjust - k_TILE_GRID_HEIGHT );
 
-	g_background = new Background(
+	g_background = std::make_unique<Background>(
 		&errcode,
 		k_ID_BACKGROUND,
 		backgroundX, backgroundY, backgroundWidth, backgroundHeight,
@@ -119,7 +121,7 @@ sint32 backgroundWin_Initialize(bool fullscreen)
 	// (windows create them lazily), and dynamic windows recreate theirs on
 	// hide/show — the UI resolves TheSurface() live at blit time.
 	if ( c3ui_Get() )
-		c3ui_Get()->SetWorldWindow( g_background );
+		c3ui_Get()->SetWorldWindow( g_background.get() );
 
 #if defined(__AUI_USE_SDL__)
     // GPU window quads and sprite coordinate conversion use the background
@@ -143,8 +145,7 @@ void backgroundWin_Cleanup()
     	c3ui_Get()->RemoveWindow(g_background->Id());
     }
 
-	delete g_background;
-	g_background = nullptr;
+	g_background.reset();
 }
 
 #ifdef _PLAYTEST

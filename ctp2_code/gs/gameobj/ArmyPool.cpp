@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/Army.h"
@@ -14,41 +15,34 @@ ArmyPool::~ArmyPool()
 
 Army ArmyPool::Create(UnitDynamicArray &units)
 {
-	ArmyData *newData;
 	Army newArmy(NewKey(k_BIT_GAME_OBJ_TYPE_ARMY));
-
-	newData = new ArmyData(newArmy, units);
-	Insert(newData);
+	auto newData = std::make_unique<ArmyData>(newArmy, units);
+	Insert(newData.release());
 	return newArmy;
 }
 
 Army ArmyPool::Create(CellUnitList &units)
 {
-	ArmyData *newData;
 	Army newArmy(NewKey(k_BIT_GAME_OBJ_TYPE_ARMY));
-
-	newData = new ArmyData(newArmy, units);
-	Insert(newData);
+	auto newData = std::make_unique<ArmyData>(newArmy, units);
+	Insert(newData.release());
 	return newArmy;
 }
 
 Army ArmyPool::Create(const Unit &u)
 {
-	ArmyData *newData;
 	Army newArmy(NewKey(k_BIT_GAME_OBJ_TYPE_ARMY));
-
 	Unit bleah(u);
-	newData = new ArmyData(newArmy, bleah);
-	Insert(newData);
+	auto newData = std::make_unique<ArmyData>(newArmy, bleah);
+	Insert(newData.release());
 	return newArmy;
 }
 
 Army ArmyPool::Create()
 {
-	ArmyData *newData;
 	Army newArmy(NewKey(k_BIT_GAME_OBJ_TYPE_ARMY));
-	newData = new ArmyData(newArmy);
-	Insert(newData);
+	auto newData = std::make_unique<ArmyData>(newArmy);
+	Insert(newData.release());
 	return newArmy;
 }
 

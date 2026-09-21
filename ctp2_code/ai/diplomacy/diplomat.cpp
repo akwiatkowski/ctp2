@@ -115,6 +115,8 @@
 
 #include "net/general/net_diplomacy.h"
 #include "gs/utility/RandGen.h"            // rand_ptr()
+#include <memory>
+
 
 
 namespace
@@ -975,11 +977,11 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 
 		if (trust_message != nullptr && trust_cost != 0)
 		{
-			SlicObject *so = new SlicObject(trust_message) ;
+			auto so = std::make_unique<SlicObject>(trust_message) ;
 			so->AddCivilisation(foreignerId) ;
 			so->AddCivilisation(m_playerId) ;
 			so->AddRecipient(foreignerId);
-			slicengine_Get()->Execute(so) ;
+			slicengine_Get()->Execute(std::move(so)) ;
 		}
 
 		const DiplomacyProposalRecord * rec = g_theDiplomacyProposalDB->Get(s_proposalTypeToElemIndex[proposal_type]);
@@ -1586,11 +1588,11 @@ void Diplomat::Execute_Proposal( const PLAYER_INDEX & sender,
 				CancelAgreement(sender, receiver, PROPOSAL_TREATY_DECLARE_WAR);
 
 			// Maybe add to CancelAgreement as message from DB
-			SlicObject *so = new SlicObject("401WarOver");
+			auto so = std::make_unique<SlicObject>("401WarOver");
 			so->AddCivilisation(sender);
 			so->AddCivilisation(receiver);
 			so->AddAllRecipients();
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 
 		break;
@@ -1638,32 +1640,32 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 
 	if (m_playerId != 0 && foreignerId != 0)
 	{
-		SlicObject *so;
+		std::unique_ptr<SlicObject> so;
 
 		if (foreignerId == player_view::CurPlayer())
 		{
 
-			so = new SlicObject((MBCHAR *)"DIPLOMACY_POPUP_DECLARE_WAR");
+			so = std::make_unique<SlicObject>((MBCHAR *)"DIPLOMACY_POPUP_DECLARE_WAR");
 			so->AddRecipient(foreignerId);
 			so->AddCivilisation(foreignerId) ;
 			so->AddCivilisation(m_playerId) ;
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
-			so = new SlicObject((MBCHAR *)"128CivStartedWar");
+			so = std::make_unique<SlicObject>((MBCHAR *)"128CivStartedWar");
 			so->AddAllRecipientsBut(m_playerId, foreignerId);
 			so->AddCivilisation(m_playerId) ;
 			so->AddCivilisation(foreignerId) ;
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 
 		else
 		{
 
-			so = new SlicObject((MBCHAR *)"128CivStartedWar");
+			so = std::make_unique<SlicObject>((MBCHAR *)"128CivStartedWar");
 			so->AddAllRecipientsBut(m_playerId);
 			so->AddCivilisation(m_playerId) ;
 			so->AddCivilisation(foreignerId) ;
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 
@@ -1699,7 +1701,7 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 
 	if(network_Get().IsHost()) {
 		network_Get().Block(m_playerId);
-		network_Get().QueuePacketToAll(new NetAgreementMatrix());
+		network_Get().QueuePacketToAll(std::make_unique<NetAgreementMatrix>().release());
 		network_Get().Unblock(m_playerId);
 	}
 
@@ -3639,10 +3641,10 @@ void Diplomat::NextDiplomaticState( const PLAYER_INDEX & foreignerId )
                          (duration == expiryTurn - WARN_EXPIRY_TURN_COUNT)
                         )
                 {
-                    SlicObject * so = new SlicObject("001TreatyToExpire");
+                    auto so = std::make_unique<SlicObject>("001TreatyToExpire");
 				    so->AddRecipient(m_playerId);
 				    so->AddCivilisation(foreignerId);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			    }
             }
 	    }
@@ -3719,7 +3721,7 @@ void Diplomat::SetDiplomaticState(const PLAYER_INDEX & foreignerId, const AiStat
 			if (declare_war)
 			{
 				if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_playerId)) {
-					network_Get().SendAction(new NetAction(NET_ACTION_DECLARE_WAR, foreignerId));
+					network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_DECLARE_WAR, foreignerId).release());
 				}
 
 				DeclareWar(foreignerId);
@@ -5219,13 +5221,13 @@ void Diplomat::SendGreeting(const PLAYER_INDEX & foreignerId)
 		greeting = m_personality->GetWeakGreeting();
 	}
 
-	SlicObject *so = new SlicObject("DIPLOMACY_POPUP_GREETING");
+	auto so = std::make_unique<SlicObject>("DIPLOMACY_POPUP_GREETING");
 	so->AddRecipient(foreignerId);
 	so->AddCivilisation(m_playerId);
 	MBCHAR buf[k_MAX_NAME_LEN];
 	stringutils_Interpret(stringdb_Get()->GetNameStr(greeting), *so, buf);
 	so->AddAction(buf);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 }
 
 bool Diplomat::DesireWarWith(const PLAYER_INDEX foreignerId) const

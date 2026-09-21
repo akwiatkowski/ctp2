@@ -126,14 +126,14 @@ UnseenCell::UnseenCell(const MapPoint & point)
 #endif
 	m_tileInfo                      (nullptr),
 	m_point                         (point),
-	m_installations                 (new PointerList<UnseenInstallationInfo>),
-	m_improvements                  (new PointerList<UnseenImprovementInfo>),
+	m_installations                 (std::make_unique<PointerList<UnseenInstallationInfo>>()),
+	m_improvements                  (std::make_unique<PointerList<UnseenImprovementInfo>>()),
 	m_poolIndex                     (-1),
 	m_visibleCityOwner              (0)
 {
 	if (world_Get()->GetTileInfo(point))
 	{
-		m_tileInfo = new TileInfo(world_Get()->GetTileInfo(point));
+		m_tileInfo = std::make_unique<TileInfo>(world_Get()->GetTileInfo(point));
 	}
 
 	Cell * cell = world_Get()->GetCell(point);
@@ -156,22 +156,22 @@ UnseenCell::UnseenCell(const MapPoint & point)
 		// list for unfinished tile improvements.
 		for(i = 0; i < cell->GetNumDBImprovements(); i++) {
 			sint32 imp = cell->GetDBImprovement(i);
-			m_improvements->AddTail(new UnseenImprovementInfo(imp, 100));
+			m_improvements->AddTail(std::make_unique<UnseenImprovementInfo>(imp, 100).release());
 		}
 		for(i = 0; i < cell->GetNumImprovements(); i++) {
 			TerrainImprovement imp = cell->AccessImprovement(i);
 			if (imp.IsValid())
 			{
-				m_improvements->AddTail(new UnseenImprovementInfo(imp.GetType(),
-															      imp.PercentComplete()));
+				m_improvements->AddTail(std::make_unique<UnseenImprovementInfo>(imp.GetType(),
+															      imp.PercentComplete()).release());
 			}
 		}
 
 		DynamicArray<Installation> instArray;
 		installation_tree_Get()->GetAt(point, instArray);
 		for(i = 0; i < instArray.Num(); i++) {
-			m_installations->AddTail(new UnseenInstallationInfo(instArray[i].GetType(),
-														       instArray[i].GetVisibility()));
+			m_installations->AddTail(std::make_unique<UnseenInstallationInfo>(instArray[i].GetType(),
+														       instArray[i].GetVisibility()).release());
 		}
 
 		m_cell_owner = (sint8) cell->GetOwner();
@@ -196,9 +196,9 @@ UnseenCell::UnseenCell(const MapPoint & point)
 
 			if (actor) {
 
-				SpriteStatePtr newSS(new SpriteState(city.GetSpriteState()->GetIndex()));
+				SpriteStatePtr newSS(std::make_shared<SpriteState>(city.GetSpriteState()->GetIndex()));
 
-				UnitActorPtr newActor(new UnitActor(newSS,
+				UnitActorPtr newActor(std::make_shared<UnitActor>(newSS,
 												                    city,
 												                    city.GetType(),
 												                    point,
@@ -303,8 +303,8 @@ UnseenCell::UnseenCell()
 #endif
 	m_tileInfo                      (nullptr),
 	m_point                         (),
-	m_installations                 (new PointerList<UnseenInstallationInfo>),
-	m_improvements                  (new PointerList<UnseenImprovementInfo>),
+	m_installations                 (std::make_unique<PointerList<UnseenInstallationInfo>>()),
+	m_improvements                  (std::make_unique<PointerList<UnseenImprovementInfo>>()),
 	m_poolIndex                     (-1),
 	m_visibleCityOwner              (0)
 {
@@ -338,30 +338,69 @@ UnseenCell::UnseenCell(UnseenCell *old)
 		// already value-copied from old's, so it has the right pos).
 		m_actor->SetState(&m_snapshotState);
 	}
+}
 
-	if(old->m_tileInfo) {
-		m_tileInfo = new TileInfo(old->m_tileInfo);
-	}
+//----------------------------------------------------------------------------
+//
+// Name       : UnseenCell::operator=
+//
+// Description: Copy-assignment — deep-copies the owned members
+//              (m_tileInfo, m_installations, m_improvements) that the
+//              old memberwise copy used to alias.
+//
+//----------------------------------------------------------------------------
+UnseenCell &UnseenCell::operator=(const UnseenCell &other)
+{
+	if (this == &other) return *this;
 
-	m_installations = new PointerList<UnseenInstallationInfo>;
-	m_improvements = new PointerList<UnseenImprovementInfo>;
+	m_env                  = other.m_env;
+	m_terrain_type         = other.m_terrain_type;
+	m_move_cost            = other.m_move_cost;
+	m_flags                = other.m_flags;
+	m_bioInfectedOwner     = other.m_bioInfectedOwner;
+	m_nanoInfectedOwner    = other.m_nanoInfectedOwner;
+	m_convertedOwner       = other.m_convertedOwner;
+	m_franchiseOwner       = other.m_franchiseOwner;
+	m_injoinedOwner        = other.m_injoinedOwner;
+	m_happinessAttackOwner = other.m_happinessAttackOwner;
+	m_citySize             = other.m_citySize;
+	m_cityOwner            = other.m_cityOwner;
+	m_citySpriteIndex      = other.m_citySpriteIndex;
+	m_cell_owner           = other.m_cell_owner;
+	m_slaveBits            = other.m_slaveBits;
+#ifdef BATTLE_FLAGS
+	m_battleFlags          = other.m_battleFlags;
+#endif
+	m_point                = other.m_point;
+	m_cityName             = other.m_cityName;
+	m_actor                = other.m_actor;
+	m_snapshotState        = other.m_snapshotState;
+	m_poolIndex            = other.m_poolIndex;
+	m_visibleCityOwner     = other.m_visibleCityOwner;
 
+	m_tileInfo = other.m_tileInfo
+	             ? std::make_unique<TileInfo>(other.m_tileInfo.get())
+	             : nullptr;
+
+	m_installations = std::make_unique<PointerList<UnseenInstallationInfo>>();
 	{
-		PointerList<UnseenInstallationInfo>::Walker walk(old->m_installations);
+		PointerList<UnseenInstallationInfo>::Walker walk(other.m_installations.get());
 		while(walk.IsValid()) {
-			m_installations->AddTail(new UnseenInstallationInfo(walk.GetObj()));
+			m_installations->AddTail(std::make_unique<UnseenInstallationInfo>(walk.GetObj()).release());
 			walk.Next();
 		}
 	}
 
+	m_improvements = std::make_unique<PointerList<UnseenImprovementInfo>>();
 	{
-		PointerList<UnseenImprovementInfo>::Walker walk(old->m_improvements);
+		PointerList<UnseenImprovementInfo>::Walker walk(other.m_improvements.get());
 		while(walk.IsValid()) {
-			m_improvements->AddTail(new UnseenImprovementInfo(walk.GetObj()));
+			m_improvements->AddTail(std::make_unique<UnseenImprovementInfo>(walk.GetObj()).release());
 			walk.Next();
 		}
 	}
 
+	return *this;
 }
 
 //----------------------------------------------------------------------------
@@ -403,18 +442,14 @@ UnseenCell::~UnseenCell()
     if (m_actor) m_actor->SetState(nullptr);
     ReleaseActor(m_actor);
 
-    delete m_tileInfo;
-
 	if (m_installations)
     {
 		m_installations->DeleteAll();
-		delete m_installations;
 	}
 
 	if (m_improvements)
     {
 		m_improvements->DeleteAll();
-		delete m_improvements;
 	}
 }
 
@@ -585,7 +620,7 @@ sint32 UnseenCell::GetFoodProduced() const
 	sint32 food = GetFoodFromTerrain();
 
 	PointerList<UnseenImprovementInfo>::Walker walker =
-			PointerList<UnseenImprovementInfo>::Walker(m_improvements);
+			PointerList<UnseenImprovementInfo>::Walker(m_improvements.get());
 
 	for ( ; walker.IsValid(); walker.Next())
 	{
@@ -672,7 +707,7 @@ sint32 UnseenCell::GetShieldsProduced() const
 	sint32 shield = GetShieldsFromTerrain();
 
 	PointerList<UnseenImprovementInfo>::Walker walker =
-			PointerList<UnseenImprovementInfo>::Walker(m_improvements);
+			PointerList<UnseenImprovementInfo>::Walker(m_improvements.get());
 
 	for ( ; walker.IsValid(); walker.Next())
 	{
@@ -758,7 +793,7 @@ sint32 UnseenCell::GetGoldProduced() const
 	sint32 gold = GetGoldFromTerrain();
 
 	PointerList<UnseenImprovementInfo>::Walker walker =
-			PointerList<UnseenImprovementInfo>::Walker(m_improvements);
+			PointerList<UnseenImprovementInfo>::Walker(m_improvements.get());
 
 	for ( ; walker.IsValid(); walker.Next())
 	{

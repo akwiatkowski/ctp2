@@ -1,6 +1,7 @@
 #include "ctp/c3.h"
 
 #include <cinttypes>
+#include <memory>
 #include <string>
 
 #include "ui/ldl/ldlif.h"
@@ -33,11 +34,11 @@ class LDLString {
 	char * GetName() const { return const_cast<char *>(m_name.c_str()); }
 };
 
-StringHash<LDLString> *s_ldlStringHash = nullptr;
+std::unique_ptr<StringHash<LDLString>> s_ldlStringHash;
 
-PointerList<ldl_datablock> *s_blockStack = nullptr;
-AvlTree<ldl_datablock *> *s_blockTree = nullptr;
-PointerList<ldl_datablock> *s_topLevelList = nullptr;
+std::unique_ptr<PointerList<ldl_datablock>> s_blockStack;
+std::unique_ptr<AvlTree<ldl_datablock *>> s_blockTree;
+std::unique_ptr<PointerList<ldl_datablock>> s_topLevelList;
 
 extern "C" { void ldlif_report_error(char *text); }
 
@@ -72,7 +73,7 @@ char *ldlif_getnameptr(const char *name)
 		return str->GetName();
 	}
 
-	LDLString *newstr = new LDLString(name);
+	LDLString *newstr = std::make_unique<LDLString>(name).release();
 	s_ldlStringHash->Add(newstr);
 	return newstr->GetName();
 }
@@ -86,7 +87,7 @@ void ldlif_add_name(void **newnames, char *name, void *oldnames)
 {
 	PointerList<char> *namelist = (PointerList<char> *)oldnames;
 	if(!namelist) {
-		namelist = new PointerList<char>;
+		namelist = std::make_unique<PointerList<char>>().release();
 	}
 	namelist->AddHead(name);
 	*newnames = (void *)namelist;
@@ -130,7 +131,7 @@ void ldlif_start_block(void *names)
 	PointerList<char> *namelist = (PointerList<char> *)names;
 	Assert(namelist);
 
-	ldl_datablock *block = new ldl_datablock(namelist);
+	ldl_datablock *block = std::make_unique<ldl_datablock>(namelist).release();
 
 	if(s_blockStack->GetTail()) {
 		s_blockStack->GetTail()->AddChild(block);
@@ -154,12 +155,13 @@ void ldlif_add_block_to_tree(ldl_datablock *block)
 	ldlif_log(const_cast<char *>("Added: %s\n"), fullname);
 
 	block->SetHash(aui_UI::CalculateHash(fullname));
-	Comparable<ldl_datablock *> *cmp = new Comparable<ldl_datablock *>(block, ldlif_compare_blocks);
-	if(s_blockTree->Insert(cmp)) {
+	auto cmp = std::make_unique<Comparable<ldl_datablock *>>(block, ldlif_compare_blocks);
+	if(s_blockTree->Insert(cmp.get())) {
 		char buf[300];
 		snprintf(buf, sizeof(buf), "Duplicate block %s\n", fullname);
 		ldlif_report_error(buf);
-		delete cmp;
+	} else {
+		cmp.release();
 	}
 
 	PointerList<ldl_datablock> *childList = block->GetChildList();
@@ -172,14 +174,13 @@ void ldlif_add_block_to_tree(ldl_datablock *block)
 
 void ldlif_remove_block_from_tree(ldl_datablock *block)
 {
-	Comparable<ldl_datablock *> *myKey;
+	std::unique_ptr<Comparable<ldl_datablock *>> myKey;
 	char fullname[256];
 	block->GetFullName(fullname, sizeof(fullname));
 	ldl_datablock dummy(aui_UI::CalculateHash(fullname));
-	myKey = s_blockTree->Delete(&dummy);
-	
-		delete myKey;
-	
+	myKey.reset(s_blockTree->Delete(&dummy));
+
+
 }
 
 void *ldlif_end_block(void *names)
@@ -205,7 +206,7 @@ void *ldlif_end_block(void *names)
 
 	}
 
-	delete namelist;
+	std::unique_ptr<PointerList<char>>{namelist};
 	return block;
 
 }
@@ -218,49 +219,45 @@ void *ldlif_add_empty_block(void *names)
 
 void ldlif_add_bool_attribute(char *name, int val)
 {
-	ldl_attributeValue<bool> *attr = new ldl_attributeValue<bool>(name, ATTRIBUTE_TYPE_BOOL, val != 0);
+	ldl_attributeValue<bool> *attr = std::make_unique<ldl_attributeValue<bool>>(name, ATTRIBUTE_TYPE_BOOL, val != 0).release();
 	s_blockStack->GetTail()->AddAttribute(attr);
 }
 
 void ldlif_add_int_attribute(char *name, int val)
 {
-	ldl_attributeValue<int> *attr = new ldl_attributeValue<int>(name, ATTRIBUTE_TYPE_INT, val);
+	ldl_attributeValue<int> *attr = std::make_unique<ldl_attributeValue<int>>(name, ATTRIBUTE_TYPE_INT, val).release();
 	s_blockStack->GetTail()->AddAttribute(attr);
 }
 
 void ldlif_add_float_attribute(char *name, double val)
 {
-	ldl_attributeValue<double> *attr = new ldl_attributeValue<double>(name, ATTRIBUTE_TYPE_DOUBLE, val);
+	ldl_attributeValue<double> *attr = std::make_unique<ldl_attributeValue<double>>(name, ATTRIBUTE_TYPE_DOUBLE, val).release();
 	s_blockStack->GetTail()->AddAttribute(attr);
 }
 
 void ldlif_add_string_attribute(char *name, char *val)
 {
-	ldl_attributeValue<char *> *attr = new ldl_attributeValue<char *>(name, ATTRIBUTE_TYPE_STRING, val);
+	ldl_attributeValue<char *> *attr = std::make_unique<ldl_attributeValue<char *>>(name, ATTRIBUTE_TYPE_STRING, val).release();
 	s_blockStack->GetTail()->AddAttribute(attr);
 }
 
 void ldlif_allocate_stuff()
 {
-	s_ldlStringHash = new StringHash<LDLString>(1024);
-	s_blockStack = new PointerList<ldl_datablock>;
-	s_blockTree = new AvlTree<ldl_datablock *>;
-	s_topLevelList = new PointerList<ldl_datablock>;
+	s_ldlStringHash = std::make_unique<StringHash<LDLString>>(1024);
+	s_blockStack = std::make_unique<PointerList<ldl_datablock>>();
+	s_blockTree = std::make_unique<AvlTree<ldl_datablock *>>();
+	s_topLevelList = std::make_unique<PointerList<ldl_datablock>>();
 }
 
 void ldlif_deallocate_stuff()
 {
-	delete s_blockStack;
-	s_blockStack = nullptr;
+	s_blockStack.reset();
 
 	s_topLevelList->DeleteAll();
-	delete s_topLevelList;
-	s_topLevelList = nullptr;
+	s_topLevelList.reset();
 
-	delete s_ldlStringHash;
-	s_ldlStringHash = nullptr;
+	s_ldlStringHash.reset();
 
-	delete s_blockTree;
-	s_blockTree = nullptr;
+	s_blockTree.reset();
 
 }

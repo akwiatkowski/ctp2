@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/combatevent.h"
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/CTP2Combat.h"
@@ -113,7 +114,7 @@ STDEHANDLER(StartCombatEvent)
 		// Close previous screen - if still open
 		battle_observer::CloseBattleView();
 		combat_Get()->DeactivateBattle();
-		delete combat_Get();
+		std::unique_ptr<CTP2Combat>{combat_Get()};
 		combat_Set(nullptr);
 	}
 
@@ -126,7 +127,7 @@ STDEHANDLER(StartCombatEvent)
 	    a.GetOwner() != defender.GetOwner()
 	   )
 	{
-		combat_Set(new CTP2Combat(k_COMBAT_WIDTH, k_COMBAT_HEIGHT, *a.AccessData(), defender));
+		combat_Set(std::make_unique<CTP2Combat>(k_COMBAT_WIDTH, k_COMBAT_HEIGHT, *a.AccessData(), defender).release());
 	}
 
 	return GEV_HD_Continue;
@@ -140,6 +141,6 @@ void combatevent_Initialize()
 
 void combatevent_Cleanup()
 {
-	delete combat_Get();
+	std::unique_ptr<CTP2Combat>{combat_Get()};
 	combat_Set(nullptr);
 }

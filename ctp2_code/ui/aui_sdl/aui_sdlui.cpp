@@ -120,8 +120,7 @@ AUI_ERRCODE aui_SDLUI::DestroyNativeScreen()
 {
 	if (m_primary)
 	{
-		delete m_primary;
-		m_primary   = nullptr;
+		m_primary.reset();
 		m_lpdds     = nullptr;
 	}
 
@@ -268,7 +267,7 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// secondary is the surface presented to the GPU (see below), so the primary
 	// is created NOT-primary: aui_SDLSurface::Flip() presents only when
 	// m_isPrimary is set, and exactly one surface (the secondary) must present.
-	m_primary = new aui_SDLSurface(
+	m_primary = std::make_unique<aui_SDLSurface>(
 		&errcode,
 		m_width,
 		m_height,
@@ -281,7 +280,7 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 
 	// Keep aui_SDLUI::m_lpdds pointing at the primary's SDL surface for any
 	// consumers that read it (it used to be the window surface).
-	m_lpdds = static_cast<aui_SDLSurface *>(m_primary)->DDS();
+	m_lpdds = static_cast<aui_SDLSurface *>(m_primary.get())->DDS();
 
 	fprintf(stderr, "[SDLUI] Primary surface: %dx%d @ 32bpp\n", m_primary->Width(), m_primary->Height());
 
@@ -290,7 +289,7 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// pixel oracle) and then calls m_secondary->Flip(), which uploads these
 	// pixels to the screen texture and presents. That present path runs only
 	// when m_isPrimary is set, so the presenting surface must be created primary.
-	m_secondary = new aui_SDLSurface(
+	m_secondary = std::make_unique<aui_SDLSurface>(
 		&errcode,
 		m_width,
 		m_height,
@@ -317,17 +316,17 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		// GPU quad path may stop depending on it later, but the layer dimensions stay
 		// identical across renderers.
 		int const worldMargin = aui_SDL::WorldMargin();
-		m_worldSurface = new aui_SDLSurface(&errcode, m_width + 2 * worldMargin,
+		m_worldSurface = std::make_unique<aui_SDLSurface>(&errcode, m_width + 2 * worldMargin,
 			m_height + 2 * worldMargin, 32, nullptr, FALSE);
 		if (!AUI_NEWOK(m_worldSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
-		m_uiSurface = new aui_SDLSurface(&errcode, m_width, m_height, 32, nullptr, FALSE);
+		m_uiSurface = std::make_unique<aui_SDLSurface>(&errcode, m_width, m_height, 32, nullptr, FALSE);
 		if (!AUI_NEWOK(m_uiSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		// Zero both surfaces (ARGB 0x00000000). The world layer is fully
 		// repainted by the opaque background window each frame; the UI layer
 		// stays transparent until UI composites into it.
-		SDL_Surface *ws = static_cast<aui_SDLSurface *>(m_worldSurface)->DDS();
-		SDL_Surface *us = static_cast<aui_SDLSurface *>(m_uiSurface)->DDS();
+		SDL_Surface *ws = static_cast<aui_SDLSurface *>(m_worldSurface.get())->DDS();
+		SDL_Surface *us = static_cast<aui_SDLSurface *>(m_uiSurface.get())->DDS();
 		if (ws && ws->pixels) memset(ws->pixels, 0, static_cast<size_t>(ws->h) * ws->pitch);
 		if (us && us->pixels) memset(us->pixels, 0, static_cast<size_t>(us->h) * us->pitch);
 
@@ -339,9 +338,9 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	// P11 Stage 2 C: fog mask surface — TiledMap stamps fogged-tile diamonds
 	// here (50% black); Flip uploads it to m_fogTexture. Transparent to start.
 	if (aui_SDL::GpuFogEnabled()) {
-		m_fogSurface = new aui_SDLSurface(&errcode, m_width, m_height, 32, nullptr, FALSE);
+		m_fogSurface = std::make_unique<aui_SDLSurface>(&errcode, m_width, m_height, 32, nullptr, FALSE);
 		if (!AUI_NEWOK(m_fogSurface, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
-		SDL_Surface *fs = static_cast<aui_SDLSurface *>(m_fogSurface)->DDS();
+		SDL_Surface *fs = static_cast<aui_SDLSurface *>(m_fogSurface.get())->DDS();
 		if (fs && fs->pixels) memset(fs->pixels, 0, static_cast<size_t>(fs->h) * fs->pitch);
 		m_gpuFog = true;
 		fprintf(stderr, "[SDLUI] GPU fog mask ON: fog surface %dx%d @ 32bpp\n", m_width, m_height);
@@ -395,8 +394,7 @@ AUI_ERRCODE aui_SDLUI::TearDownMouse()
 		}
 
 		m_mouse->End();
-		delete m_mouse;
-		m_mouse = nullptr;
+		m_mouse.reset();
 	}
 
 	return AUI_ERRCODE_OK;
@@ -408,12 +406,11 @@ AUI_ERRCODE aui_SDLUI::RestoreMouse()
 	AUI_ERRCODE		auiErr;
 	BOOL			exclusive = TRUE;
 
-	aui_SDLMouse *mouse = new aui_SDLMouse( &auiErr, const_cast<MBCHAR *>("CivMouse"), exclusive );
+	auto mouse = std::make_unique<aui_SDLMouse>( &auiErr, const_cast<MBCHAR *>("CivMouse"), exclusive );
 	Assert(mouse != nullptr);
 	if ( !mouse ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	delete m_mouse;
-	m_mouse = mouse;
+	m_mouse = std::move(mouse);
 
 	m_mouse->SetAnimIndexes(m_savedMouseAnimFirstIndex, m_savedMouseAnimLastIndex);
 	m_mouse->SetCurrentCursor(m_savedMouseAnimCurIndex);

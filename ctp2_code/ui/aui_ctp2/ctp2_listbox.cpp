@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/aui_ctp2/ctp2_listitem.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"
 
@@ -154,8 +155,7 @@ ctp2_ListBox::~ctp2_ListBox()
 	ListPos position = m_pane->ChildList()->GetHeadPosition();
 	for ( sint32 i = m_pane->ChildList()->L(); i; i-- )
 	{
-		aui_Item *item = (aui_Item *)m_pane->ChildList()->GetNext(position);
-		delete item;
+		std::unique_ptr<aui_Item> item((aui_Item *)m_pane->ChildList()->GetNext(position));
 	}
 	m_pane->ChildList()->DeleteAll();
 }
@@ -212,21 +212,20 @@ AUI_ERRCODE ctp2_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 		if ( m_header )
 		{
 			RemoveChild( m_header->Id() );
-			delete m_header;
-			m_header = nullptr;
+			m_header.reset();
 		}
 
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_HEADER );
 
         if (aui_Ldl::FindDataBlock(block))
-			m_header = new c3_Header(
+			m_header = std::make_unique<c3_Header>(
 				&errcode,
 				aui_UniqueId(),
 				block );
 	}
 
 	if ( !m_header )
-		m_header = new c3_Header(
+		m_header = std::make_unique<c3_Header>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0 );
@@ -234,7 +233,7 @@ AUI_ERRCODE ctp2_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 	Assert( AUI_NEWOK(m_header,errcode) );
 	if ( !AUI_NEWOK(m_header,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_header );
+	AddChild( m_header.get() );
 
 	ListPos position = m_header->ChildList()->GetHeadPosition();
 	for ( sint32 i = m_header->ChildList()->L(); i; i-- )
@@ -246,7 +245,7 @@ AUI_ERRCODE ctp2_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERY );
 
         if (aui_Ldl::FindDataBlock(block))
-			m_verticalRanger = new c3_Ranger(
+			m_verticalRanger = std::make_unique<c3_Ranger>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -255,7 +254,7 @@ AUI_ERRCODE ctp2_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 	}
 
 	if ( !m_verticalRanger )
-		m_verticalRanger = new c3_Ranger(
+		m_verticalRanger = std::make_unique<c3_Ranger>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -269,14 +268,14 @@ AUI_ERRCODE ctp2_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 	if ( !AUI_NEWOK(m_verticalRanger,errcode) )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_verticalRanger );
+	AddChild( m_verticalRanger.get() );
 
 	if ( ldlBlock )
 	{
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERX );
 
         if (aui_Ldl::FindDataBlock(block))
-			m_horizontalRanger = new c3_Ranger(
+			m_horizontalRanger = std::make_unique<c3_Ranger>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -285,7 +284,7 @@ AUI_ERRCODE ctp2_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 	}
 
 	if ( !m_horizontalRanger )
-		m_horizontalRanger = new c3_Ranger(
+		m_horizontalRanger = std::make_unique<c3_Ranger>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -299,7 +298,7 @@ AUI_ERRCODE ctp2_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 	if ( !AUI_NEWOK(m_horizontalRanger,errcode) )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_horizontalRanger );
+	AddChild( m_horizontalRanger.get() );
 
 	sint32 maxRangerSize = m_verticalRanger->Width();
 	if ( m_horizontalRanger->Height() > maxRangerSize )
@@ -322,10 +321,9 @@ void ctp2_ListBox::Clear()
 	ListPos position = m_pane->ChildList()->GetHeadPosition();
 	for ( sint32 i = m_pane->ChildList()->L(); i; i-- )
 	{
-		aui_Item *item = (aui_Item *)m_pane->ChildList()->GetNext( position );
+		std::unique_ptr<aui_Item> item((aui_Item *)m_pane->ChildList()->GetNext( position ));
 
 		RemoveItem(item->Id());
-		delete item;
 
 	}
 	m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;

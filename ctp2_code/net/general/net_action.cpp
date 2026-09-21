@@ -30,6 +30,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
+
 #include "net/general/net_action.h"
 
 #include "gs/world/Cell.h"
@@ -458,18 +460,18 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			}
 
 			if((uint32)route != m_data[4]) {
-				network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
-													  m_data[4], (uint32)route));
+				network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT,
+													  m_data[4], (uint32)route).release());
 				TradeRoute otherRoute(m_data[4]);
 				if(tradepool_Get()->IsValid(otherRoute))
-					network_Get().QueuePacket(id, new NetTradeRoute(otherRoute.AccessData(), true));
+					network_Get().QueuePacket(id, std::make_unique<NetTradeRoute>(otherRoute.AccessData(), true).release());
 
 				if (route.IsValid()) {
-					network_Get().QueuePacket(id, new NetTradeRoute(route.AccessData(), true));
+					network_Get().QueuePacket(id, std::make_unique<NetTradeRoute>(route.AccessData(), true).release());
 				}
 			} else {
-				network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
-													  m_data[4]));
+				network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_ACK_OBJECT,
+													  m_data[4]).release());
 			}
 			break;
 		}
@@ -504,11 +506,11 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					Unit(m_data[5])
 					);
 				if((uint32)offer != m_data[6]) {
-					network_Get().QueuePacketBookmark(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
-																  m_data[6], (uint32)offer));
+					network_Get().QueuePacketBookmark(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT,
+																  m_data[6], (uint32)offer).release());
 				} else {
-					network_Get().QueuePacketBookmark(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
-																  m_data[6]));
+					network_Get().QueuePacketBookmark(id, std::make_unique<NetInfo>(NET_INFO_CODE_ACK_OBJECT,
+																  m_data[6]).release());
 				}
 				network_Get().Unfreeze(id);
 			}
@@ -533,7 +535,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(!network_Get().m_playerData[index])
 				break;
 
-			PlayerData *pd = network_Get().m_playerData[index];
+			PlayerData *pd = network_Get().m_playerData[index].get();
 			Assert(pd->m_createdUnits.Num() > 0);
 			if(pd->m_createdUnits.Num() <= 0) {
 				network_Get().Resync(index);
@@ -542,13 +544,11 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 
 			if(pd->m_createdUnits[0] == Unit(m_data[0])) {
-				network_Get().QueuePacket(id,
-									  new NetInfo(NET_INFO_CODE_ACK_OBJECT,
-												  m_data[0]));
+				network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_ACK_OBJECT,
+												  m_data[0]).release());
 			} else {
-				network_Get().QueuePacket(id,
-									  new NetInfo(NET_INFO_CODE_NAK_OBJECT,
-												  m_data[0], (uint32)pd->m_createdUnits[0]));
+				network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT,
+												  m_data[0], (uint32)pd->m_createdUnits[0]).release());
 			}
 
 			pd->m_createdUnits.DelIndex(0);
@@ -578,23 +578,19 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				network_Get().Unblock(index);
 				if((uint32)imp != m_data[4]) {
 					TerrainImprovement oops(m_data[4]);
-					network_Get().QueuePacket(id, new NetInfo(
-														  NET_INFO_CODE_NAK_OBJECT, m_data[4], (uint32)imp));
+					network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT, m_data[4], (uint32)imp).release());
 
 
 					if(terrimprovepool_Get()->IsValid(oops)) {
-						network_Get().QueuePacket(id,
-											  new NetTerrainImprovement(oops.AccessData()));
+						network_Get().QueuePacket(id, std::make_unique<NetTerrainImprovement>(oops.AccessData()).release());
 					}
 
 					if(terrimprovepool_Get()->IsValid(imp)) {
 
-						network_Get().QueuePacket(id,
-											  new NetTerrainImprovement(imp.AccessData()));
+						network_Get().QueuePacket(id, std::make_unique<NetTerrainImprovement>(imp.AccessData()).release());
 					}
 				} else {
-					network_Get().QueuePacket(id, new NetInfo(
-														  NET_INFO_CODE_ACK_OBJECT, m_data[4]));
+					network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_ACK_OBJECT, m_data[4]).release());
 				}
 			}
 			break;
@@ -609,18 +605,15 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Installation inst(m_data[3]);
 			MapPoint rpnt;
 			if(!installationpool_Get()->IsValid(inst)) {
-				network_Get().QueuePacket(id, new NetInfo(
-					NET_INFO_CODE_NAK_OBJECT, m_data[3], 0));
+				network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT, m_data[3], 0).release());
 				return;
 			}
 
 			inst.GetPos(rpnt);
 			if(inst.GetOwner() == index && rpnt == pnt && inst.GetType() == (sint32)m_data[0]) {
-				network_Get().QueuePacket(id, new NetInfo(
-					NET_INFO_CODE_ACK_OBJECT, m_data[3]));
+				network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_ACK_OBJECT, m_data[3]).release());
 			} else {
-				network_Get().QueuePacket(id, new NetInfo(
-					NET_INFO_CODE_NAK_OBJECT, m_data[3], (uint32)inst));
+				network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT, m_data[3], (uint32)inst).release());
 			}
 			break;
 		}
@@ -718,8 +711,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(player_Get(index)) {
 				player_Get(index)->SetWorkdayLevel(m_data[0]);
 				network_Get().Block(index);
-				network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_WORKDAY_LEVEL,
-													   index, m_data[0]));
+				network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_WORKDAY_LEVEL,
+													   index, m_data[0]).release());
 				network_Get().Unblock(index);
 			}
 			break;
@@ -728,8 +721,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(player_Get(index)) {
 				player_Get(index)->SetWagesLevel(m_data[0]);
 				network_Get().Block(index);
-				network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_WAGES_LEVEL,
-													   index, m_data[0]));
+				network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_WAGES_LEVEL,
+													   index, m_data[0]).release());
 				network_Get().Unblock(index);
 			}
 			break;
@@ -738,8 +731,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(player_Get(index)) {
 				player_Get(index)->SetRationsLevel(m_data[0]);
 				network_Get().Block(index);
-				network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_RATIONS_LEVEL,
-													   index, m_data[0]));
+				network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_RATIONS_LEVEL,
+													   index, m_data[0]).release());
 				network_Get().Unblock(index);
 			}
 			break;
@@ -760,11 +753,9 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DiplomaticRequest req = diplomaticrequestpool_Get()->Create(
 							   m_data[0], m_data[1], REQUEST_TYPE(m_data[2]));
 			if(req != DiplomaticRequest(m_data[3])) {
-				network_Get().QueuePacketBookmark(id, new NetInfo(
-							  NET_INFO_CODE_NAK_OBJECT, m_data[3], (uint32)req));
+				network_Get().QueuePacketBookmark(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT, m_data[3], (uint32)req).release());
 			} else {
-				network_Get().QueuePacketBookmark(id, new NetInfo(
-							  NET_INFO_CODE_ACK_OBJECT, m_data[3]));
+				network_Get().QueuePacketBookmark(id, std::make_unique<NetInfo>(NET_INFO_CODE_ACK_OBJECT, m_data[3]).release());
 			}
 			network_Get().Unfreeze(id);
 			break;
@@ -1265,8 +1256,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DiplomaticRequest req(m_data[0]);
 
 			if(!diplomaticrequestpool_Get()->IsValid(req)) {
-				network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_ENACT,
-													  m_data[0]));
+				network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_ENACT,
+													  m_data[0]).release());
 				break;
 			}
 			Assert(req.GetRecipient() == index);
@@ -1430,17 +1421,17 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				if(cityList) {
 					Assert(cityList->Num() > 0);
 					if(cityList->Num() > 0 && uint32(cityList->Get(0)) == m_data[0]) {
-						network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
-															  m_data[0]));
+						network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_ACK_OBJECT,
+															  m_data[0]).release());
 						cityList->DelIndex(0);
 					} else if(cityList->Num() > 0){
-						network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
+						network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT,
 															  m_data[0],
-															  uint32(cityList->Get(0))));
+															  uint32(cityList->Get(0))).release());
 						cityList->DelIndex(0);
 					} else {
-						network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
-															  m_data[0], 0));
+						network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT,
+															  m_data[0], 0).release());
 					}
 				}
 
@@ -1515,7 +1506,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								index, m_data[0], m_data[1]));
 
 			CAUSE_NEW_ARMY cause = (CAUSE_NEW_ARMY)m_data[1];
-			PlayerData *pd = network_Get().m_playerData[index];
+			PlayerData *pd = network_Get().m_playerData[index].get();
 			Assert((pd && pd->m_createdArmies.Num() > 0) || (cause == CAUSE_NEW_ARMY_UNGROUPING) || (cause == CAUSE_NEW_ARMY_GROUPING));
 			if((!pd || pd->m_createdArmies.Num() <= 0) && (cause != CAUSE_NEW_ARMY_UNGROUPING) && (cause != CAUSE_NEW_ARMY_GROUPING)) {
 				network_Get().Resync(index);
@@ -1527,14 +1518,13 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			}
 
 			if(pd->m_createdArmies[0] == Army(m_data[0])) {
-				network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
-													  m_data[0]));
+				network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_ACK_OBJECT,
+													  m_data[0]).release());
 			} else {
 				c3errors_ErrorDialog("NET TESTING", "NAK: Army 0x%x should be 0x%x",
 					m_data[0], pd->m_createdArmies[0].m_id);
-				network_Get().QueuePacket(id,
-									  new NetInfo(NET_INFO_CODE_NAK_OBJECT,
-												  m_data[0], (uint32)pd->m_createdArmies[0]));
+				network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT,
+												  m_data[0], (uint32)pd->m_createdArmies[0]).release());
 			}
 			pd->m_createdArmies.DelIndex(0);
 
@@ -1616,8 +1606,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d NAK'ed begin turn, trying again\n", index));
 			Assert(selitem_Get()->GetCurPlayer() == index);
 			if(selitem_Get()->GetCurPlayer() == index) {
-				network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_BEGIN_TURN,
-													  index));
+				network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_BEGIN_TURN,
+													  index).release());
 			}
 			break;
 		}
@@ -1856,15 +1846,14 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Client %d says offer %d/%d rejected\n",
 								index, m_data[0], m_data[1]));
-			network_Get().QueuePacket(network_Get().IndexToId(m_data[0]),
-								  new NetInfo(NET_INFO_CODE_OFFER_REJECTED_MESSAGE,
-											  m_data[0], m_data[1]));
+			network_Get().QueuePacket(network_Get().IndexToId(m_data[0]), std::make_unique<NetInfo>(NET_INFO_CODE_OFFER_REJECTED_MESSAGE,
+											  m_data[0], m_data[1]).release());
 			if(player_Get(m_data[0]) &&
 			   player_Get(m_data[1])) {
-				SlicObject *so = new SlicObject("91OfferRejected");
+				auto so = std::make_unique<SlicObject>("91OfferRejected");
 				so->AddRecipient(m_data[0]);
 				so->AddCivilisation(m_data[1]);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 			break;
 		}

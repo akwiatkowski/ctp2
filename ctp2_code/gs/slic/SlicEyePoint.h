@@ -4,8 +4,10 @@
 #ifndef __SLIC_EYE_POINT_H__
 #define __SLIC_EYE_POINT_H__
 
-#include <nlohmann/json.hpp>
+#include <memory>
 #include <string>
+
+#include <nlohmann/json.hpp>
 
 #include "gs/world/MapPoint.h"
 #include "gs/gameobj/Unit.h"
@@ -49,7 +51,7 @@ public:
 private:
 	MapPoint m_point;
 	std::string m_name;
-	Message *m_message;
+	std::unique_ptr<Message> m_message;
 	sint32 m_data;
 	Unit m_unit;
 	sint32 m_recipient;

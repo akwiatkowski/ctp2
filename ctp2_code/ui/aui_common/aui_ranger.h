@@ -32,6 +32,8 @@
 #define __AUI_RANGER_H__
 
 #include "ui/aui_common/aui_control.h"
+#include <memory>
+
 
 class aui_Control;
 class aui_Button;
@@ -139,7 +141,9 @@ public:
 	~aui_Ranger() override;
 
 protected:
-	aui_Ranger() : aui_Control() {}
+	// Out-of-line in aui_ranger.cpp: unique_ptr members over forward-declared
+	// aui_Button/aui_Thumb need complete types at ctor/dtor instantiation.
+	aui_Ranger();
 	AUI_ERRCODE	InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon(
 		AUI_RANGER_TYPE type,
@@ -161,11 +165,11 @@ protected:
 public:
 	AUI_ERRCODE	Resize( sint32 width, sint32 height ) override;
 
-	aui_Thumb	*GetThumb( ) const { return m_thumb; }
-	aui_Button	*GetIncrementXButton( ) const { return m_incXButton; }
-	aui_Button	*GetIncrementYButton( ) const { return m_incYButton; }
-	aui_Button	*GetDecrementXButton( ) const { return m_decXButton; }
-	aui_Button	*GetDecrementYButton( ) const { return m_decYButton; }
+	aui_Thumb	*GetThumb( ) const { return m_thumb.get(); }
+	aui_Button	*GetIncrementXButton( ) const { return m_incXButton.get(); }
+	aui_Button	*GetIncrementYButton( ) const { return m_incYButton.get(); }
+	aui_Button	*GetDecrementXButton( ) const { return m_decXButton.get(); }
+	aui_Button	*GetDecrementYButton( ) const { return m_decYButton.get(); }
 
 	sint32		GetValueX( ) const { return m_valX; }
 	sint32		GetValueY( ) const { return m_valY; }
@@ -227,7 +231,7 @@ protected:
 
 	virtual AUI_ERRCODE	RepositionButtons();
 
-	aui_Button *CreateArrowButton(const MBCHAR *ldlBlock,
+	std::unique_ptr<aui_Button> CreateArrowButton(const MBCHAR *ldlBlock,
 		const MBCHAR *autoLdlName, const MBCHAR *ldlName);
 
 	AUI_ERRCODE CreateButtonsAndThumb(MBCHAR const *ldlBlock = nullptr);
@@ -240,13 +244,13 @@ protected:
 	sint32		m_minThumbSize;
 	sint32		m_buttonSize;
 
-	aui_Control	*m_rangeContainer;
+	std::unique_ptr<aui_Control>	m_rangeContainer;
 
-	aui_Button	*m_incXButton;
-	aui_Button	*m_incYButton;
-	aui_Button	*m_decXButton;
-	aui_Button	*m_decYButton;
-	aui_Thumb	*m_thumb;
+	std::unique_ptr<aui_Button>	m_incXButton;
+	std::unique_ptr<aui_Button>	m_incYButton;
+	std::unique_ptr<aui_Button>	m_decXButton;
+	std::unique_ptr<aui_Button>	m_decYButton;
+	std::unique_ptr<aui_Thumb>	m_thumb;
 	sint32		m_overlap;
 
 	sint32		m_valX;

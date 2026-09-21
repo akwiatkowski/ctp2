@@ -167,7 +167,7 @@ extern MBCHAR               g_slic_filename[_MAX_PATH];
 extern void WhackScreen();
 
 static MBCHAR const *s_scenarioEditorBlock = "ScenarioEditor";
-static ScenarioEditor *s_scenarioEditor = nullptr;
+static std::unique_ptr<ScenarioEditor> s_scenarioEditor;
 static SCEN_START_LOC_MODE s_debugStartLocMode = SCEN_START_LOC_MODE_NONE;
 static MBCHAR const *s_scenarioAddStuffBlock = "ScenAddStuffWindow";
 
@@ -242,8 +242,6 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
 
 
 	m_window                    (nullptr),
-	m_terrainSwitches           (nullptr),
-	m_terrainImpSwitches        (nullptr),
 	m_addStuffWindow            (nullptr),
 //	ctp2_Switch *m_otherMapSwitch[k_NUM_OTHER_MAP_SWITCHES];
 	m_eraseButton               (nullptr),
@@ -507,8 +505,6 @@ ScenarioEditor::~ScenarioEditor()
 		aui_Ldl::DeleteHierarchyFromRoot(s_scenarioAddStuffBlock);
 	}
 
-	delete [] m_terrainSwitches;
-	delete [] m_terrainImpSwitches;
 
 	m_copyBuffer.reset();
 	m_fileDialog.reset();
@@ -520,7 +516,7 @@ AUI_ERRCODE ScenarioEditor::Initialize()
 		return AUI_ERRCODE_OK;
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	s_scenarioEditor = new ScenarioEditor(&err);
+	s_scenarioEditor = std::make_unique<ScenarioEditor>(&err);
 	Assert(err == AUI_ERRCODE_OK);
 
 	return err;
@@ -540,7 +536,7 @@ AUI_ERRCODE ScenarioEditor::Cleanup()
 			c3ui_Get()->RemoveWindow(s_scenarioEditor->m_window->Id());
 		}
 
-        allocated::clear(s_scenarioEditor);
+        s_scenarioEditor.reset();
 	}
 
 	return AUI_ERRCODE_OK;
@@ -700,8 +696,7 @@ void ScenarioEditor::PopulateTerrainList()
 	ctp2_ListItem *curItem = nullptr;
 	ctp2_Static *curItemBox = nullptr;
 
-	delete [] m_terrainSwitches;
-	m_terrainSwitches = new ctp2_Switch *[g_theTerrainDB->NumRecords()];
+	m_terrainSwitches.assign(g_theTerrainDB->NumRecords(), nullptr);
 
 	for (sint32 t = 0; t < g_theTerrainDB->NumRecords(); t++) {
 		if(col == 0) {
@@ -975,8 +970,7 @@ void ScenarioEditor::PopulateTerrainImprovementList()  //emod1 note  use this fo
 	ctp2_ListItem *curItem = nullptr;
 	ctp2_Static *curItemBox = nullptr;
 
-	delete [] m_terrainImpSwitches;
-	m_terrainImpSwitches = new ctp2_Switch *[g_theTerrainImprovementDB->NumRecords()];
+	m_terrainImpSwitches.assign(g_theTerrainImprovementDB->NumRecords(), nullptr);
 
 	for (sint32 t = 0; t < g_theTerrainImprovementDB->NumRecords(); t++) {
 		if(col == 0) {
@@ -2302,7 +2296,7 @@ void ScenarioEditor::LoadMap(aui_Control *control, uint32 action, uint32 data, v
 	if(!s_scenarioEditor) return;
 
 	if(!s_scenarioEditor->m_fileDialog) {
-		s_scenarioEditor->m_fileDialog.reset(new FileDialog());
+		s_scenarioEditor->m_fileDialog = std::make_unique<FileDialog>();
 	}
 
 	MBCHAR path[_MAX_PATH];
@@ -2320,7 +2314,7 @@ void ScenarioEditor::SaveMap(aui_Control *control, uint32 action, uint32 data, v
 	if(!s_scenarioEditor) return;
 
 	if(!s_scenarioEditor->m_fileDialog) {
-		s_scenarioEditor->m_fileDialog.reset(new FileDialog());
+		s_scenarioEditor->m_fileDialog = std::make_unique<FileDialog>();
 	}
 	MBCHAR path[_MAX_PATH];
 	civpaths_Get()->GetSavePath(C3SAVEDIR_MAP, path);
@@ -2551,7 +2545,7 @@ void ScenarioEditor::Copy()
 		return;
 
 	if(!m_copyBuffer)
-		m_copyBuffer.reset(new MapCopyBuffer);
+		m_copyBuffer = std::make_unique<MapCopyBuffer>();
 
 	m_copyBuffer->Copy(m_regionStart, m_regionWidth, m_regionHeight);
 }
@@ -2641,7 +2635,7 @@ void ScenarioEditor::SaveClip(aui_Control *control, uint32 action, uint32 data, 
 	if(!s_scenarioEditor->m_copyBuffer) return;
 
 	if(!s_scenarioEditor->m_fileDialog) {
-		s_scenarioEditor->m_fileDialog.reset(new FileDialog());
+		s_scenarioEditor->m_fileDialog = std::make_unique<FileDialog>();
 	}
 
 	MBCHAR path[_MAX_PATH];
@@ -2656,7 +2650,7 @@ void ScenarioEditor::LoadClip(aui_Control *control, uint32 action, uint32 data, 
 	if(!s_scenarioEditor) return;
 
 	if(!s_scenarioEditor->m_fileDialog) {
-		s_scenarioEditor->m_fileDialog.reset(new FileDialog());
+		s_scenarioEditor->m_fileDialog = std::make_unique<FileDialog>();
 	}
 
 	MBCHAR path[_MAX_PATH];
@@ -2716,7 +2710,7 @@ void ScenarioEditor::FileAction(FileDialog *dialog, uint32 action, const MBCHAR 
 		case k_SCEN_FILE_LOAD_CLIP:
 		{
 			if(!s_scenarioEditor->m_copyBuffer) {
-				s_scenarioEditor->m_copyBuffer.reset(new MapCopyBuffer());
+				s_scenarioEditor->m_copyBuffer = std::make_unique<MapCopyBuffer>();
 			}
 
 			s_scenarioEditor->m_copyBuffer->Load(filePath);
@@ -2895,7 +2889,7 @@ AUI_ACTION_BASIC(PostReopenEditorActionAction);
 
 void PostReopenEditorActionAction::Execute(aui_Control *control, uint32 action, uint32 data )
 {
-	c3ui_Get()->AddAction(new ReopenEditorAction);
+	c3ui_Get()->AddAction(std::make_unique<ReopenEditorAction>().release());
 }
 
 void ScenarioEditor::MapSize(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -2932,7 +2926,7 @@ void ScenarioEditor::ChangeMapSizeCallback(bool response, void *userData)
 
 	civapp_Get()->PostRestartGameAction();
 
-	c3ui_Get()->AddAction(new PostReopenEditorActionAction);
+	c3ui_Get()->AddAction(std::make_unique<PostReopenEditorActionAction>().release());
 }
 
 void ScenarioEditor::Year(aui_Control *control, uint32 action, uint32 data, void *cookie)

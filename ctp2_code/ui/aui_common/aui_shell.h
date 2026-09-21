@@ -34,6 +34,8 @@
 #include "ui/aui_common/aui_base.h"
 #include "ui/aui_common/tech_wllist.h"
 
+#include <memory>
+
 class aui_Screen;
 
 class aui_Shell : public aui_Base
@@ -58,7 +60,7 @@ public:
 
 protected:
 	aui_Screen          *m_curScreen;
-	tech_WLList<uint32> *m_screenHistory;
+	std::unique_ptr<tech_WLList<uint32>> m_screenHistory;
 };
 
 #endif

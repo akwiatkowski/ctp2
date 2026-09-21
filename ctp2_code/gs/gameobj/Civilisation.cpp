@@ -30,6 +30,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/Civilisation.h"
 
 #include "gs/gameobj/player.h"			    // player_arr_Get()
@@ -153,8 +154,8 @@ void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner)
 		return;
 	}
 
-	player_arr_Get()[pi] = new Player
-	    (PLAYER_INDEX(pi), 0, PLAYER_TYPE_ROBOT, CIV_INDEX_RANDOM, GENDER_RANDOM);
+	player_arr_Get()[pi] = std::make_unique<Player>
+	    (PLAYER_INDEX(pi), 0, PLAYER_TYPE_ROBOT, CIV_INDEX_RANDOM, GENDER_RANDOM).release();   // g_player owns its elements
 
 	if (network_Get().IsActive())
 	{
@@ -168,7 +169,7 @@ void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner)
 	    (old_owner >= 0) && player_Get(old_owner)
 	   )
 	{
-	    player_Get(pi)->m_advances.reset(new Advances(*(player_Get(old_owner)->m_advances)));
+	    player_Get(pi)->m_advances = std::make_unique<Advances>(*(player_Get(old_owner)->m_advances));
 		player_Get(pi)->m_advances->SetOwner(pi);
 		player_Get(old_owner)->GiveMap(pi);
 	}
@@ -178,11 +179,11 @@ void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner)
 	if (network_Get().IsHost())
 	{
 		network_Get().Block(old_owner);
-		network_Get().QueuePacketToAll(new NetPlayer(player_Get(pi)));
+		network_Get().QueuePacketToAll(std::make_unique<NetPlayer>(player_Get(pi)).release());
 
 		for (uint16 y = 0; y < world_Get()->GetYHeight(); y += k_VISION_STEP)
 		{
-			network_Get().QueuePacketToAll(new NetVision(pi, y, k_VISION_STEP));
+			network_Get().QueuePacketToAll(std::make_unique<NetVision>(pi, y, k_VISION_STEP).release());
 		}
 
 		network_Get().Unblock(old_owner);

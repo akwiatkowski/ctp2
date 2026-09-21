@@ -42,6 +42,8 @@
 //----------------------------------------------------------------------------
 
 #include <list>         // std::list
+#include <memory>       // std::unique_ptr
+
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -88,7 +90,7 @@ public:
 		BOOL useExclusiveMode = FALSE );
 	~C3UI() override;
 
-	aui_Resource<Pattern>	*GetPatternResource( ) const { return m_patternResource; }
+	aui_Resource<Pattern>	*GetPatternResource( ) const { return m_patternResource.get(); }
 
 	Pattern	*LoadPattern( MBCHAR const * name )
 		{ return m_patternResource->Load(name); }
@@ -103,7 +105,7 @@ public:
 	AUI_ERRCODE	RemovePatternSearchPath(MBCHAR const * path)
 		{ return m_patternResource->RemoveSearchPath(path); }
 
-	aui_Resource<Icon>	*GetIconResource( ) const { return m_iconResource; }
+	aui_Resource<Icon>	*GetIconResource( ) const { return m_iconResource.get(); }
 
 	Icon	*LoadIcon(MBCHAR const * name)
 		{ return m_iconResource->Load(name); }
@@ -118,7 +120,7 @@ public:
 	AUI_ERRCODE	RemoveIconSearchPath(MBCHAR const * path)
 		{ return m_iconResource->RemoveSearchPath(path); }
 
-	aui_Resource<Picture>	*GetPictureResource( ) const { return m_pictureResource; }
+	aui_Resource<Picture>	*GetPictureResource( ) const { return m_pictureResource.get(); }
 
 	Picture	*LoadPicture(MBCHAR const * name)
 		{ return m_pictureResource->Load(name); }
@@ -137,9 +139,9 @@ public:
 	bool        TopWindowIsNonBackground() const;
 
 private:
-	aui_Resource<Pattern> *         m_patternResource;
-	aui_Resource<Icon> *            m_iconResource;
-	aui_Resource<Picture> *         m_pictureResource;
+	std::unique_ptr<aui_Resource<Pattern>>  m_patternResource;
+	std::unique_ptr<aui_Resource<Icon>>     m_iconResource;
+	std::unique_ptr<aui_Resource<Picture>>  m_pictureResource;
     std::list<UiCleanupCallback>    m_cleanupActions;
 };
 

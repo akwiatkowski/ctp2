@@ -30,6 +30,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_static.h"
@@ -72,10 +74,7 @@ PlayerEditWindow::PlayerEditWindow(
 
 AUI_ERRCODE PlayerEditWindow::InitCommon( )
 {
-	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != nullptr );
-	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
-	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
+	m_controls = std::make_unique<aui_Control *[]>( m_numControls = CONTROL_MAX );
 
 	SetPlayerSetup( nullptr );
 
@@ -87,193 +86,193 @@ AUI_ERRCODE PlayerEditWindow::CreateControls( )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 
-	aui_Control *control;
+	std::unique_ptr<aui_Control> control;
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.titlestatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_TITLESTATICTEXT ] = control;
+	m_controls[ CONTROL_TITLESTATICTEXT ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.playernamestatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_PLAYERNAMESTATICTEXT ] = control;
+	m_controls[ CONTROL_PLAYERNAMESTATICTEXT ] = control.release();
 
-	control = new C3TextField(
+	control = std::make_unique<C3TextField>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.playernametextfield" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_PLAYERNAMETEXTFIELD ] = control;
+	m_controls[ CONTROL_PLAYERNAMETEXTFIELD ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.icqstatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_ICQSTATICTEXT ] = control;
+	m_controls[ CONTROL_ICQSTATICTEXT ] = control.release();
 
-	control = new C3TextField(
+	control = std::make_unique<C3TextField>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.icqtextfield" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_ICQTEXTFIELD ] = control;
+	m_controls[ CONTROL_ICQTEXTFIELD ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.emailstatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_EMAILSTATICTEXT ] = control;
+	m_controls[ CONTROL_EMAILSTATICTEXT ] = control.release();
 
-	control = new C3TextField(
+	control = std::make_unique<C3TextField>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.emailtextfield" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_EMAILTEXTFIELD ] = control;
+	m_controls[ CONTROL_EMAILTEXTFIELD ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.locationstatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_LOCATIONSTATICTEXT ] = control;
+	m_controls[ CONTROL_LOCATIONSTATICTEXT ] = control.release();
 
-	control = new C3TextField(
+	control = std::make_unique<C3TextField>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.locationtextfield" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_LOCATIONTEXTFIELD ] = control;
+	m_controls[ CONTROL_LOCATIONTEXTFIELD ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.experiencestatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_EXPERIENCESTATICTEXT ] = control;
+	m_controls[ CONTROL_EXPERIENCESTATICTEXT ] = control.release();
 
-	control = new aui_SwitchGroup(
+	control = std::make_unique<aui_SwitchGroup>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.experienceswitchgroup" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_EXPERIENCESWITCHGROUP ] = control;
+	m_controls[ CONTROL_EXPERIENCESWITCHGROUP ] = control.release();
 
 	{
-		control = new aui_Radio(
+		control = std::make_unique<aui_Radio>(
 			&errcode,
 			aui_UniqueId(),
 			"playereditwindow.experienceswitchgroup.experience0checkbox" );
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
-		m_controls[ CONTROL_EXPERIENCE0CHECKBOX ] = control;
+		m_controls[ CONTROL_EXPERIENCE0CHECKBOX ] = control.release();
 
-		control = new aui_Radio(
+		control = std::make_unique<aui_Radio>(
 			&errcode,
 			aui_UniqueId(),
 			"playereditwindow.experienceswitchgroup.experience1checkbox" );
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
-		m_controls[ CONTROL_EXPERIENCE1CHECKBOX ] = control;
+		m_controls[ CONTROL_EXPERIENCE1CHECKBOX ] = control.release();
 
-		control = new aui_Radio(
+		control = std::make_unique<aui_Radio>(
 			&errcode,
 			aui_UniqueId(),
 			"playereditwindow.experienceswitchgroup.experience2checkbox" );
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
-		m_controls[ CONTROL_EXPERIENCE2CHECKBOX ] = control;
+		m_controls[ CONTROL_EXPERIENCE2CHECKBOX ] = control.release();
 
-		control = new aui_Radio(
+		control = std::make_unique<aui_Radio>(
 			&errcode,
 			aui_UniqueId(),
 			"playereditwindow.experienceswitchgroup.experience3checkbox" );
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
-		m_controls[ CONTROL_EXPERIENCE3CHECKBOX ] = control;
+		m_controls[ CONTROL_EXPERIENCE3CHECKBOX ] = control.release();
 
-		control = new aui_Radio(
+		control = std::make_unique<aui_Radio>(
 			&errcode,
 			aui_UniqueId(),
 			"playereditwindow.experienceswitchgroup.experience4checkbox" );
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
-		m_controls[ CONTROL_EXPERIENCE4CHECKBOX ] = control;
+		m_controls[ CONTROL_EXPERIENCE4CHECKBOX ] = control.release();
 
-		control = new aui_Radio(
+		control = std::make_unique<aui_Radio>(
 			&errcode,
 			aui_UniqueId(),
 			"playereditwindow.experienceswitchgroup.experience5checkbox" );
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
-		m_controls[ CONTROL_EXPERIENCE5CHECKBOX ] = control;
+		m_controls[ CONTROL_EXPERIENCE5CHECKBOX ] = control.release();
 	}
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.playerinfostatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_PLAYERINFOSTATICTEXT ] = control;
+	m_controls[ CONTROL_PLAYERINFOSTATICTEXT ] = control.release();
 
-	control = new C3TextField(
+	control = std::make_unique<C3TextField>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.playerinfotextfield" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_PLAYERINFOTEXTFIELD ] = control;
+	m_controls[ CONTROL_PLAYERINFOTEXTFIELD ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.okbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_OKBUTTON ] = control;
+	m_controls[ CONTROL_OKBUTTON ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"playereditwindow.cancelbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CANCELBUTTON ] = control;
+	m_controls[ CONTROL_CANCELBUTTON ] = control.release();
 
 
 	aui_Ldl::SetupHeirarchyFromRoot( "playereditwindow" );
 
 
-	aui_Action *action;
+	std::unique_ptr<aui_Action> action;
 
-	action = new OKButtonAction;
+	action = std::make_unique<OKButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_OKBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_OKBUTTON ]->SetAction( action.release() );
 
-	action = new CancelButtonAction;
+	action = std::make_unique<CancelButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action.release() );
 
 
 	SetStronglyModal( TRUE );
@@ -499,7 +498,7 @@ void PlayerEditWindow::OKButtonAction::Execute(
 		}
 	} else {
 
-		p->SetPlayerSetup( new nf_PlayerSetup() );
+		p->SetPlayerSetup( std::make_unique<nf_PlayerSetup>().release() );
 
 		p->GetPlayerSetup()->SetName(name);
 		p->GetPlayerSetup()->SetIcq(icq);

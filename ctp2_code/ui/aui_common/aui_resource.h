@@ -43,6 +43,7 @@
 #include <stdio.h>			// sprintf
 #include <string.h>			// strcpy
 #include <string>			// std::string
+#include <memory>			// std::unique_ptr
 
 //----------------------------------------------------------------------------
 // Exported names
@@ -75,7 +76,7 @@ struct aui_ResourceElement
 		const MBCHAR *fullPath );
 	virtual ~aui_ResourceElement();
 
-	TT		*resource;
+	std::unique_ptr<TT>	resource;
 	std::string	name;
 	uint32	hash;
 	uint32	pathhash;
@@ -102,10 +103,10 @@ public:
 	BOOL FindFile( MBCHAR *fullPath, const MBCHAR *name );
 
 protected:
-	tech_WLList<aui_ResourceElement<T> *>	*m_resourceList;
+	std::unique_ptr<tech_WLList<aui_ResourceElement<T> *>>	m_resourceList;
 
 
-	static tech_WLList<MBCHAR *>			*m_pathList;
+	static std::unique_ptr<tech_WLList<MBCHAR *>>	m_pathList;
 
 	static sint32							m_resourceRefCount;
 };
@@ -132,7 +133,7 @@ aui_ResourceElement<TT>::aui_ResourceElement(
 	if ( !newName || !fullPath ) return;
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	resource = new TT( &errcode, fullPath );
+	resource = std::make_unique<TT>( &errcode, fullPath );
 	Assert( AUI_NEWOK(resource,errcode) );
 	if ( !AUI_NEWOK(resource,errcode) ) return;
 
@@ -140,15 +141,14 @@ aui_ResourceElement<TT>::aui_ResourceElement(
 	if (!AUI_SUCCESS(errcode))
 	{
 		// Temporary patch to prevent access to invalid memory
-		delete resource;
-		resource = nullptr;
+		resource.reset();
 	}
 }
 
 template<class TT>
 aui_ResourceElement<TT>::~aui_ResourceElement()
 {
-    delete resource;
+    // resource is std::unique_ptr, auto-freed
 }
 
 
@@ -159,18 +159,18 @@ aui_ResourceElement<TT>::~aui_ResourceElement()
 
 
 
-template<class T> tech_WLList<MBCHAR *> *aui_Resource<T>::m_pathList = nullptr;
+template<class T> std::unique_ptr<tech_WLList<MBCHAR *>> aui_Resource<T>::m_pathList;
 template<class T> sint32 aui_Resource<T>::m_resourceRefCount = 0;
 
 template<class T>
 aui_Resource<T>::aui_Resource()
 {
-	m_resourceList = new tech_WLList<aui_ResourceElement<T> *>;
+	m_resourceList = std::make_unique<tech_WLList<aui_ResourceElement<T> *>>();
 	Assert( m_resourceList != nullptr );
 
 	if ( !m_resourceRefCount++ )
 	{
-		m_pathList = new tech_WLList<MBCHAR *>;
+		m_pathList = std::make_unique<tech_WLList<MBCHAR *>>();
 		Assert( m_pathList != nullptr );
 	}
 }
@@ -179,19 +179,17 @@ template<class T>
 aui_Resource<T>::~aui_Resource()
 {
 	Assert(!m_resourceList || (m_resourceList->L() == 0));
-	delete m_resourceList;
-    m_resourceList = nullptr;
+	m_resourceList.reset();
 
 	if (!--m_resourceRefCount)
 	{
 		ListPos position = m_pathList->GetHeadPosition();
 		for ( sint32 i = m_pathList->L(); i; i-- )
 		{
-			MBCHAR *path = m_pathList->GetNext( position );
-			delete [] path;
+			// m_pathList elements are owned by the list; release here.
+			std::unique_ptr<MBCHAR[]> path(m_pathList->GetNext( position ));
 		}
-		delete m_pathList;
-		m_pathList = nullptr;
+		m_pathList.reset();
 	}
 }
 
@@ -222,14 +220,14 @@ AUI_ERRCODE aui_Resource<T>::AddSearchPath( const MBCHAR *path )
 		len++;
 	}
 
-	MBCHAR *newPath = new MBCHAR[ len + 1 ];
+	auto newPath = std::make_unique<MBCHAR[]>( len + 1 );
 	Assert( newPath != nullptr );
 	if ( !newPath ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	strncpy( newPath, path, len);
+	strncpy( newPath.get(), path, len);
 	newPath[len] = '\0';
 
-	m_pathList->AddTail( newPath );
+	m_pathList->AddTail( newPath.release() );
 
 	return AUI_ERRCODE_OK;
 }
@@ -247,7 +245,7 @@ AUI_ERRCODE aui_Resource<T>::RemoveSearchPath( const MBCHAR *path )
 		if ( strcmp( path, thisPath ) == 0 )
 		{
 			m_pathList->DeleteAt( prevPosition );
-			delete [] thisPath;
+			std::unique_ptr<MBCHAR[]> removed(thisPath);
 			return AUI_ERRCODE_OK;
 		}
 	}
@@ -299,7 +297,7 @@ T *aui_Resource<T>::Load( const MBCHAR *resName, C3DIR dir, uint32 size)
            )
 		{
 			re->refcount++;
-			return re->resource;
+			return re->resource.get();
 		}
 	}
 
@@ -341,12 +339,12 @@ T *aui_Resource<T>::Load( const MBCHAR *resName, C3DIR dir, uint32 size)
 		FindFile( fullPath, name );
 	}
 
-	aui_ResourceElement<T> *re = new aui_ResourceElement<T>( name, fullPath );
+	auto re = std::make_unique<aui_ResourceElement<T>>( name, fullPath );
 	Assert( re != nullptr );
 	if ( re )
 	{
-		m_resourceList->AddTail( re );
-		return re->resource;
+		m_resourceList->AddTail( re.get() );
+		return re.release()->resource.get();
 	}
 
 	return nullptr;
@@ -393,12 +391,12 @@ AUI_ERRCODE aui_Resource<T>::Unload( T *resource )
 		ListPos prevPosition = position;
 
 		aui_ResourceElement<T> *re = m_resourceList->GetNext( position );
-		if (resource == re->resource)
+		if (resource == re->resource.get())
         {
             if (!--re->refcount)
             {
 				m_resourceList->DeleteAt(prevPosition);
-			    delete re;
+			    std::unique_ptr<aui_ResourceElement<T>> removed(re);
             }
 			return AUI_ERRCODE_OK;
 		}
@@ -427,7 +425,7 @@ AUI_ERRCODE aui_Resource<T>::Unload( const MBCHAR *name )
 			if (!--re->refcount)
 			{
 				m_resourceList->DeleteAt(prevPosition);
-			    delete re;
+			    std::unique_ptr<aui_ResourceElement<T>> removed(re);
             }
 			return AUI_ERRCODE_OK;
 		}

@@ -5,6 +5,7 @@
 #include "ui/aui_common/aui_pixel.h"
 
 #include <vector>
+#include <memory>
 
 namespace
 {
@@ -242,31 +243,24 @@ sint32 aui_Pixel::ScaleRandom()
 }
 double **aui_Pixel::Alloc2D(sint32 width, sint32 height)
 {
-   // TODO(phase-2): ownership transfer out of function — needs separate strategy
-   double ** d2 = (double **) new double *[height];
-   if (d2 == nullptr)
-       return nullptr;
-
-   // TODO(phase-2): ownership transfer out of function — needs separate strategy
-   double * d1 = (double *) new double[width*height];
-   if (d1 == nullptr)
-   {
-       delete [] d2;
-       return nullptr;
-   }
+   auto d2 = std::make_unique<double *[]>(height);
+   auto d1 = std::make_unique<double[]>(width*height);
 
    for (sint32 y = 0; y < height; y++)
    {
-       d2[y] = d1 + y*width;
+       d2[y] = d1.get() + y*width;
    }
 
-   return d2;
+   d1.release();
+   return d2.release();
 }
 
 void aui_Pixel::Free2D(double **d)
 {
-	delete [] d[0];  // d1 in Alloc2D
-	delete [] d;     // d2 in Alloc2D
+	// Destruction order matches the original: row data (d[0]) first,
+	// then the row-pointer array (d).
+	std::unique_ptr<double *[]> d2(d);
+	std::unique_ptr<double[]> d1(d[0]);
 }
 
 double **aui_Pixel::ImageToDouble(uint8 *image24, sint32 width, sint32 height)

@@ -73,8 +73,8 @@ private:
 	POINT	m_offsetTop;
 	POINT	m_offsetBottom;
 
-	aui_Button						*m_dismissButton;
-	MessageAdviceDismissAction		*m_dismissAction;
+	std::unique_ptr<aui_Button>				m_dismissButton;
+	std::unique_ptr<MessageAdviceDismissAction>	m_dismissAction;
 
 	std::unique_ptr<C3ListBox>	m_listBox;
 

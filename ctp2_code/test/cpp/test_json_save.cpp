@@ -15,6 +15,7 @@
 #include "ctp/c3.h"
 #include "doctest.h"
 #include <new>  // ::operator new placement form
+#include <memory>
 #include "gs/fileio/json_save.h"
 #include "gs/utility/MapFile.h"
 #include "gfx/spritesys/ModernSpriteManifest.h"
@@ -297,7 +298,7 @@ TEST_CASE("json round-trip: GameSettings preserves all 7 scalar fields")
     // The ProfileDB ctor already sets sane defaults; Init() needs
     // civpaths_Get() which this binary never initialises.
     if (!profiledb_Get())
-        profiledb_Set(new ProfileDB());
+        profiledb_Set(std::make_unique<ProfileDB>().release());
     GameSettings orig;
     // Drive non-default values via the public setters that exist;
     // the bridge accesses the private members via friend declaration.
@@ -326,7 +327,7 @@ TEST_CASE("json round-trip: GameSettings preserves all 7 scalar fields")
 TEST_CASE("json round-trip: GameSettings key set is exactly the locked 7")
 {
     if (!profiledb_Get())
-        profiledb_Set(new ProfileDB());
+        profiledb_Set(std::make_unique<ProfileDB>().release());
     GameSettings gs;
     nlohmann::json j = gs;
     CHECK(j.size() == 7);
@@ -3258,7 +3259,7 @@ TEST_CASE("json round-trip: SlicSymbolData ARRAY composition (F-9 + F-11)")
 {
     // The F-9 SLIC_SYM_ARRAY case used to throw; verify it now round-
     // trips through the SlicArray bridge.
-    auto *arr = new SlicArray(SS_TYPE_INT, SLIC_SYM_IVAR);
+    auto *arr = std::make_unique<SlicArray>(SS_TYPE_INT, SLIC_SYM_IVAR).release();
     SlicStackValue v; v.m_int = 17;
     arr->Insert(0, SS_TYPE_INT, v);
 
@@ -3326,8 +3327,8 @@ TEST_CASE("json round-trip: SlicSymbolData STRUCT composition serialises")
     // from_json path can't resolve the description, and SlicStructInstance
     // requires one to construct.  Full load round-trip needs an engine
     // fixture (deferred to integration suite).
-    auto *desc = new SlicStructDescription("CompStruct", SLIC_BUILTIN_GLOBAL);
-    auto *inst = new SlicStructInstance(desc);
+    auto *desc = std::make_unique<SlicStructDescription>("CompStruct", SLIC_BUILTIN_GLOBAL).release();
+    auto *inst = std::make_unique<SlicStructInstance>(desc).release();
     SlicSymbolData orig(inst);  // takes ownership of inst
 
     nlohmann::json j = orig;
@@ -3359,9 +3360,9 @@ TEST_CASE("json round-trip: SlicSymTab empty")
 TEST_CASE("json round-trip: SlicSymTab with named-symbol entries")
 {
     SlicSymTab orig(/*size*/ 0);
-    auto *n1 = new SlicNamedSymbol("first",  SLIC_SYM_IVAR);
+    auto *n1 = std::make_unique<SlicNamedSymbol>("first",  SLIC_SYM_IVAR).release();
     n1->SetIntValue(10);
-    auto *n2 = new SlicNamedSymbol("second", SLIC_SYM_IVAR);
+    auto *n2 = std::make_unique<SlicNamedSymbol>("second", SLIC_SYM_IVAR).release();
     n2->SetIntValue(20);
     orig.Add(n1);  // takes ownership via the array, but dtor doesn't delete
     orig.Add(n2);  // entries (see SlicSymTab::~SlicSymTab #if 0 block)
@@ -3519,7 +3520,7 @@ TEST_CASE("SlicSegment destructor is safe to call twice (pool teardown pattern)"
     // operator new (which routes through Pool<SlicSegment>) to the global
     // placement-new declared in <new>.
     alignas(SlicSegment) unsigned char storage[sizeof(SlicSegment)];
-    SlicSegment *seg = ::new (storage) SlicSegment();
+    SlicSegment *seg = ::new (storage) SlicSegment();   // placement new
 
     // Populate vector members with heap-allocated buffers via the JSON path.
     nlohmann::json j = {
@@ -3813,8 +3814,10 @@ TEST_CASE("F-20 regression: SlicEngine::from_json safe on re-populated segment h
 
 TEST_CASE("json round-trip: SlicButton default-constructed")
 {
-    SlicObject *ctx = new SlicObject();
-    SlicButton orig(42, nullptr, 7, ctx);
+    // SlicButton AddRef's the context and Release's it in its dtor, which
+    // frees it (refcount 0 -> delete this) — release() hands ownership over.
+    auto ctx = std::make_unique<SlicObject>();
+    SlicButton orig(42, nullptr, 7, ctx.release());
 
     nlohmann::json j = orig;
     CHECK(j["name"] == 42);
@@ -3823,7 +3826,7 @@ TEST_CASE("json round-trip: SlicButton default-constructed")
     CHECK(j["message"] == 0u);
     CHECK(j["segment_name"] == "");
 
-    SlicButton round(0, nullptr, 0, new SlicObject());
+    SlicButton round(0, nullptr, 0, std::make_unique<SlicObject>().release());
     j.get_to(round);
     CHECK(round.GetOffset() == 7);
     CHECK(round.IsCloseEvent() == FALSE);
@@ -3834,10 +3837,10 @@ TEST_CASE("json round-trip: SlicButton default-constructed")
 
 TEST_CASE("json round-trip: SlicButton with context + segment name")
 {
-    SlicObject *ctx = new SlicObject();
+    auto ctx = std::make_unique<SlicObject>();
     ctx->SetIdle(3);
     ctx->AddInt(123);
-    SlicButton orig(99, nullptr, 13, ctx);
+    SlicButton orig(99, nullptr, 13, ctx.release());
     Message msg(0xABCD);
     orig.SetMessage(msg);
 
@@ -3969,13 +3972,13 @@ TEST_CASE("json round-trip: MessageData with text + buttons + eye_points")
     orig.SetTitle(const_cast<MBCHAR *>("My Title"));
     orig.SetMsgCaption("My Caption");
 
-    SlicObject *ctx = new SlicObject();
-    SlicButton *btn = new SlicButton(77, nullptr, 9, ctx);
+    auto ctx = std::make_unique<SlicObject>();
+    SlicButton *btn = std::make_unique<SlicButton>(77, nullptr, 9, ctx.release()).release();
     orig.AddButton(btn);
 
-    SlicEyePoint *eye = new SlicEyePoint(MapPoint(1, 2), "Eye1", 10,
+    SlicEyePoint *eye = std::make_unique<SlicEyePoint>(MapPoint(1, 2), "Eye1", 10,
                                           EYE_POINT_TYPE_GENERIC,
-                                          Unit(0x7777u), 1, nullptr);
+                                          Unit(0x7777u), 1, nullptr).release();
     orig.AddEyePoint(eye);
 
     nlohmann::json j = orig;
@@ -4027,12 +4030,12 @@ TEST_CASE("json round-trip: MessagePool with messages")
 {
     MessagePool orig;
 
-    MessageData *msg1 = new MessageData(ID(0x1001), 0);
+    MessageData *msg1 = std::make_unique<MessageData>(ID(0x1001), 0).release();
     msg1->SetOwner(0);
     msg1->SetMsgText("First message");
     orig.Insert(msg1);
 
-    MessageData *msg2 = new MessageData(ID(0x1002), 0);
+    MessageData *msg2 = std::make_unique<MessageData>(ID(0x1002), 0).release();
     msg2->SetOwner(1);
     msg2->SetMsgText("Second message");
     orig.Insert(msg2);
@@ -4054,7 +4057,7 @@ TEST_CASE("json round-trip: MessagePool preserves next_key")
 {
     MessagePool orig;
 
-    MessageData *msg1 = new MessageData(ID(0x1001), 0);
+    MessageData *msg1 = std::make_unique<MessageData>(ID(0x1001), 0).release();
     orig.Insert(msg1);
 
     // Advance the next-key counter so HackGetKey != default.

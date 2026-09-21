@@ -6,6 +6,8 @@
 
 class SpriteEditWindow;
 
+#include <memory>
+
 #include "ui/aui_ctp2/c3window.h"       // C3Window
 #include "os/include/ctp2_inttypes.h"  // sintNN, uintNN
 #include "gs/world/MapPoint.h"       // MapPoint
@@ -114,45 +116,45 @@ private:
 
 
 
-	UnitSpriteGroup		*m_currentSprite;
+	std::unique_ptr<UnitSpriteGroup>	m_currentSprite;
 	Anim				*m_currentAnim;
 	Sprite				*m_spriteData;
-	aui_Surface			*m_spriteSurface;
+	std::unique_ptr<aui_Surface>		m_spriteSurface;
 	RECT				m_spriteRect;
 
-	Action				*m_actionObj;
+	std::unique_ptr<Action>	m_actionObj;
 
 
 
 
 
 
-	ctp2_Button		*m_Load;
-	ctp2_Button		*m_Save;
+	std::unique_ptr<ctp2_Button>	m_Load;
+	std::unique_ptr<ctp2_Button>	m_Save;
 
-	C3TextField		*m_fileName;
+	std::unique_ptr<C3TextField>	m_fileName;
 
-	ctp2_Button		*m_MOVEAnim;
-	ctp2_Button		*m_ATTACKAnim;
-	ctp2_Button		*m_IDLEAnim;
-	ctp2_Button		*m_VICTORYAnim;
-	ctp2_Button		*m_WORKAnim;
+	std::unique_ptr<ctp2_Button>	m_MOVEAnim;
+	std::unique_ptr<ctp2_Button>	m_ATTACKAnim;
+	std::unique_ptr<ctp2_Button>	m_IDLEAnim;
+	std::unique_ptr<ctp2_Button>	m_VICTORYAnim;
+	std::unique_ptr<ctp2_Button>	m_WORKAnim;
 
-	ctp2_Button		*m_stepPlus;
-	ctp2_Button		*m_stepMinus;
-	ctp2_Button		*m_playOnce;
-	ctp2_Button		*m_playLoop;
-	ctp2_Button		*m_facingPlus;
-	ctp2_Button		*m_facingMinus;
+	std::unique_ptr<ctp2_Button>	m_stepPlus;
+	std::unique_ptr<ctp2_Button>	m_stepMinus;
+	std::unique_ptr<ctp2_Button>	m_playOnce;
+	std::unique_ptr<ctp2_Button>	m_playLoop;
+	std::unique_ptr<ctp2_Button>	m_facingPlus;
+	std::unique_ptr<ctp2_Button>	m_facingMinus;
 
-	C3Window		*m_largeImage;
+	std::unique_ptr<C3Window>		m_largeImage;
 	aui_Surface		*m_largeSurface;
 	RECT			m_largeRect;
 	RECT			m_largeRectAbs;
 
-	c3_Static		*m_hotCoordsCurrent;
-	c3_Static		*m_hotCoordsMouse;
-	c3_Static       *m_hotCoordsHerald;
+	std::unique_ptr<c3_Static>		m_hotCoordsCurrent;
+	std::unique_ptr<c3_Static>		m_hotCoordsMouse;
+	std::unique_ptr<c3_Static>		m_hotCoordsHerald;
 
 	float			m_widthRatio;
 	float			m_heightRatio;

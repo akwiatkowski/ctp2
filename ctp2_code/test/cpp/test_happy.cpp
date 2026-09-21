@@ -11,6 +11,7 @@
 #include "gs/database/profileDB.h"
 #include "ctp/civapp.h"
 #include "ConstRecord.h"
+#include <memory>
 
 struct HappyFixture
 {
@@ -27,10 +28,10 @@ struct HappyFixture
             CivPaths_InitCivPaths();
             gameinit_InitializeGameFiles();
 
-            profiledb_Set(new ProfileDB());
+            profiledb_Set(std::make_unique<ProfileDB>().release());
             profiledb_Get()->Init(FALSE);
 
-            s_app = new CivApp();
+            s_app = std::make_unique<CivApp>().release();
             s_app->InitializeAppDB();
 
             fprintf(stderr, "[HappyFixture] Databases loaded.\n");

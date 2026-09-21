@@ -93,6 +93,7 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 
 #include "GovernmentRecord.h"
+#include <memory>
 
 #define k_INITIAL_DB_SIZE 10
 #define k_GROW_DB_STEP 10
@@ -106,8 +107,8 @@ template <class T> CTPDatabase<T>::CTPDatabase()
     m_indexToAlpha      (nullptr),
     m_alphaToIndex      (nullptr)
 {
-	m_records       = new T *[m_allocatedSize];
-	m_modifiedList  = new PointerList<GovernmentModifiedRecordNode> *[m_allocatedSize];
+	m_records       = std::make_unique<T *[]>(m_allocatedSize).release();
+	m_modifiedList  = std::make_unique<PointerList<GovernmentModifiedRecordNode> *[]>(m_allocatedSize).release();
 }
 
 template <class T> CTPDatabase<T>::~CTPDatabase()
@@ -116,17 +117,17 @@ template <class T> CTPDatabase<T>::~CTPDatabase()
 	{
 		for (sint32 i = 0; i < m_numRecords; i++)
 		{
-			delete m_records[i];
+			std::unique_ptr<T>{m_records[i]};
 		}
-		delete [] m_records;
+		std::unique_ptr<T *[]>{m_records};
 	}
 
-	delete [] m_indexToAlpha;
-	delete [] m_alphaToIndex;
+	std::unique_ptr<sint32[]>{m_indexToAlpha};
+	std::unique_ptr<sint32[]>{m_alphaToIndex};
 
 	for (size_t j = 0; j < m_modifiedRecords.size(); ++j)
 	{
-		delete m_modifiedRecords[j];
+		std::unique_ptr<T>{m_modifiedRecords[j]};
 	}
 	m_modifiedRecords.clear();
 
@@ -137,10 +138,10 @@ template <class T> CTPDatabase<T>::~CTPDatabase()
 			if (m_modifiedList[k])
 			{
 				m_modifiedList[k]->DeleteAll();
-				delete m_modifiedList[k];
+				std::unique_ptr<PointerList<GovernmentModifiedRecordNode>>{m_modifiedList[k]};
 			}
 		}
-		delete [] m_modifiedList;
+		std::unique_ptr<PointerList<GovernmentModifiedRecordNode> *[]>{m_modifiedList};
 	}
 }
 
@@ -199,14 +200,14 @@ template <class T> const T * CTPDatabase<T>::Get(sint32 index,sint32 govIndex)
 template <class T> void CTPDatabase<T>::Grow()
 {
 	PointerList<GovernmentModifiedRecordNode> **oldList = m_modifiedList;
-	m_modifiedList = new PointerList<GovernmentModifiedRecordNode> *[m_allocatedSize + k_GROW_DB_STEP];
+	m_modifiedList = std::make_unique<PointerList<GovernmentModifiedRecordNode> *[]>(m_allocatedSize + k_GROW_DB_STEP).release();
 	memcpy(m_modifiedList, oldList, m_allocatedSize * sizeof(PointerList<GovernmentModifiedRecordNode> *));
-	delete [] oldList;
+	std::unique_ptr<PointerList<GovernmentModifiedRecordNode> *[]>{oldList};
 
 	T **oldRecords = m_records;
-	m_records = new T *[m_allocatedSize + k_GROW_DB_STEP];
+	m_records = std::make_unique<T *[]>(m_allocatedSize + k_GROW_DB_STEP).release();
 	memcpy(m_records, oldRecords, m_allocatedSize * sizeof(T *));
-	delete [] oldRecords;
+	std::unique_ptr<T *[]>{oldRecords};
 	m_allocatedSize += k_GROW_DB_STEP;
 }
 
@@ -249,7 +250,7 @@ template <class T> void CTPDatabase<T>::Add(T *obj)
 			// Add references to the modified list
 			if (!m_modifiedList[mainRecord])
 			{
-				m_modifiedList[mainRecord] = new PointerList<GovernmentModifiedRecordNode>;
+				m_modifiedList[mainRecord] = std::make_unique<PointerList<GovernmentModifiedRecordNode>>().release();
 			}
 
 			for (sint32 i = 0; i < obj->GenericGetNumGovernmentsModified(); i++)
@@ -260,8 +261,8 @@ template <class T> void CTPDatabase<T>::Add(T *obj)
 				{
 					DPRINTF(k_DBG_FIX, ("GovMod- Adding modified record %s, Gov Index %d \n",obj->GetIDText(),obj->GenericGetGovernmentsModifiedIndex(i)));
 					m_modifiedList[mainRecord]->AddHead
-						(new GovernmentModifiedRecordNode
-							(obj->GenericGetGovernmentsModifiedIndex(i), newIndex)
+						(std::make_unique<GovernmentModifiedRecordNode>
+							(obj->GenericGetGovernmentsModifiedIndex(i), newIndex).release()
 						);
 				}
 			}
@@ -279,8 +280,8 @@ template <class T> void CTPDatabase<T>::Add(T *obj)
 		obj->SetIndex(m_numRecords);
 		m_records[m_numRecords] = obj;
 
-		m_modifiedList[m_numRecords] = new PointerList<GovernmentModifiedRecordNode>();
-		m_modifiedList[m_numRecords]->AddHead(new GovernmentModifiedRecordNode());
+		m_modifiedList[m_numRecords] = std::make_unique<PointerList<GovernmentModifiedRecordNode>>().release();
+		m_modifiedList[m_numRecords]->AddHead(std::make_unique<GovernmentModifiedRecordNode>().release());
 		m_numRecords++;
 	}
 }
@@ -339,23 +340,22 @@ template <class T> bool CTPDatabase<T>::Parse(DBLexer *lex)
 
 	while (!lex->EndOfInput())
 	{
-		T * obj = new T();
+		auto obj = std::make_unique<T>();
 
 		if (obj->Parse(lex, m_numRecords))
 		{
-			Add(obj);
+			Add(obj.release());
 		}
 		else
 		{
-			delete obj;
 			isOk = false;
 		}
 	}
 
-	delete [] m_indexToAlpha;
-	delete [] m_alphaToIndex;
-	m_indexToAlpha = (m_numRecords > 0) ? new sint32[m_numRecords] : nullptr;
-	m_alphaToIndex = (m_numRecords > 0) ? new sint32[m_numRecords] : nullptr;
+	std::unique_ptr<sint32[]>{m_indexToAlpha};
+	std::unique_ptr<sint32[]>{m_alphaToIndex};
+	m_indexToAlpha = (m_numRecords > 0) ? std::make_unique<sint32[]>(m_numRecords).release() : nullptr;
+	m_alphaToIndex = (m_numRecords > 0) ? std::make_unique<sint32[]>(m_numRecords).release() : nullptr;
 
 	memset(m_indexToAlpha, 0, sizeof(sint32) * m_numRecords);
 	memset(m_alphaToIndex, 0, sizeof(sint32) * m_numRecords);
@@ -518,8 +518,8 @@ template <class T> bool CTPDatabase<T>::ParseRecordInArray(DBLexer *lex, sint32 
 {
 	std::vector<sint32> tmp(*array, *array + *numElements);
 	if(!ParseRecordInArray(lex, tmp)) return false;
-	delete [] *array;
-	*array = new sint32[tmp.size()];
+	std::unique_ptr<sint32[]>{*array};
+	*array = std::make_unique<sint32[]>(tmp.size()).release();
 	std::copy(tmp.begin(), tmp.end(), *array);
 	*numElements = static_cast<sint32>(tmp.size());
 	return true;

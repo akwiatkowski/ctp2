@@ -40,17 +40,19 @@
 #include "gs/utility/DataCheck.h"
 #include "gs/core/text_observer.h"         // text_observer::DrawText
 
+#include <memory>
+
 // Phase 0.C-5: ~50 database/pool/world includes dropped — they were
 // needed by the old CivArchive Serialize loop in BeginTurn (gutted in
 // Phase 0.C-4) and the CHECK_DB macro (removed alongside it).  The
 // surviving CRC-display code only touches m_crc[] / m_old_crc[] and
 // the CRC_TYPE_* enum.
 
-static DataCheck                *g_dataCheck = nullptr;
+static std::unique_ptr<DataCheck> g_dataCheck;
 
 DataCheck * datacheck_Get()
 {
-	return g_dataCheck;
+	return g_dataCheck.get();
 }
 
 
@@ -83,11 +85,7 @@ void DataCheck_Requiem()
 {
 
 
-	if (g_dataCheck)
-	{
-		delete g_dataCheck;
-		g_dataCheck = nullptr;
-	}
+	g_dataCheck.reset();
 
 }
 

@@ -35,7 +35,7 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern MessageModal *   g_modalMessage;
+extern std::unique_ptr<MessageModal> g_modalMessage;
 extern sint32           g_ScreenWidth;
 extern sint32           g_ScreenHeight;
 
@@ -179,7 +179,7 @@ MessageList *messagewin_InitializePlayerMessage( PLAYER_INDEX index )
 {
 	if ( messagewin_GetPlayerMessageList( index )) return nullptr;
 
-	std::unique_ptr<MessageList> list(new MessageList(index));
+	auto list = std::make_unique<MessageList>(index);
 
 	MessageList *listPtr = list.get();
 	g_messageUserList.push_back(std::move(list));
@@ -284,7 +284,7 @@ int messagewin_PrepareDestroyWindow( MessageWindow *window )
 
 
 
-	c3ui_Get()->AddDestructiveAction( new MessageCleanupAction( window, window->GetPlayer() ) );
+	c3ui_Get()->AddDestructiveAction( std::make_unique<MessageCleanupAction>( window, window->GetPlayer() ).release() );
 	return 1;
 }
 

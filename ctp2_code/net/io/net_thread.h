@@ -4,6 +4,7 @@
 #ifndef __NET_THREAD_H__
 #define __NET_THREAD_H__
 
+#include <memory>
 #include "net/io/net_io.h"
 #include "libs/anet/h/anet.h"
 #include "net/io/net_array.h"
@@ -51,18 +52,18 @@ public:
 
 	uint16 m_id;
 	sint32 m_flags;
-	uint8  *m_buf;
-	uint8 *m_actualBuf;
+	uint8  *m_buf;   // view into m_actualBuf (or owner when m_actualBuf null)
+	std::unique_ptr<uint8[]> m_actualBuf;
 	sint32 m_len;
 };
 
 class NetThread : public NetIO, public NetIOResponse
 {
 private:
-	ActivNetIO *m_anet;
-	PointerList<TPacketData> *m_outgoing[k_MAX_NETWORK_PLAYERS];
+	std::unique_ptr<ActivNetIO> m_anet;
+	std::unique_ptr<PointerList<TPacketData>> m_outgoing[k_MAX_NETWORK_PLAYERS];
 	uint16 m_ids[k_MAX_NETWORK_PLAYERS];
-	PointerList<TPacketData> *m_incoming;
+	std::unique_ptr<PointerList<TPacketData>> m_incoming;
 #ifndef USE_SDL
 	DWORD m_threadId;
 	HANDLE m_threadHandle;
@@ -77,7 +78,7 @@ private:
 	volatile BOOL m_exit, m_exited;
 	volatile sint32 m_setMaxPlayers;
 	volatile bool m_setLock;
-	SimpleDynamicArray<uint16> *m_kickPlayers;
+	std::unique_ptr<SimpleDynamicArray<uint16>> m_kickPlayers;
 	void Lock();
 	void Unlock();
 

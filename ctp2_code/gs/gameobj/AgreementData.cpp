@@ -34,6 +34,8 @@
 #include "gs/utility/safety.h"
 #include "ctp/ctp2_utils/c3errors.h"
 
+#include <memory>
+
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/player.h"
 #include "gs/gameobj/Unit.h"
@@ -829,10 +831,10 @@ void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force, sin
 	}
 
 	if(sendMessage) {
-		SlicObject *so1 = new SlicObject(objName);
+		auto so1 = std::make_unique<SlicObject>(objName);
 		size_t const objNameLen = strlen(objName);
 		snprintf(objName + objNameLen, sizeof(objName) - objNameLen, "ByYou");
-		SlicObject *so2 = new SlicObject(objName);
+		auto so2 = std::make_unique<SlicObject>(objName);
 
 		so1->AddCivilisation(m_recipient);
 		so1->AddRecipient(m_owner);
@@ -847,11 +849,9 @@ void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force, sin
 			so1->AddCity(m_targetCity);
 			so2->AddCity(m_targetCity);
 		}
-		slicengine_Get()->Execute(so1);
+		slicengine_Get()->Execute(std::move(so1));
 		if(slicengine_Get()->GetSegment(objName)) {
-			slicengine_Get()->Execute(so2);
-		} else {
-			delete so2;
+			slicengine_Get()->Execute(std::move(so2));
 		}
 
 
@@ -895,10 +895,10 @@ void AgreementData::OwnerIsViolating(PLAYER_INDEX curPlayer, sint32 currentRound
 	}
 
 	if(sendMessage) {
-		SlicObject *so1 = new SlicObject(objName);
+		auto so1 = std::make_unique<SlicObject>(objName);
 		size_t const objNameLen = strlen(objName);
 		snprintf(objName + objNameLen, sizeof(objName) - objNameLen, "ByYou");
-		SlicObject *so2 = new SlicObject(objName);
+		auto so2 = std::make_unique<SlicObject>(objName);
 
 		so1->AddCivilisation(m_owner);
 		so1->AddRecipient(m_recipient);
@@ -913,8 +913,8 @@ void AgreementData::OwnerIsViolating(PLAYER_INDEX curPlayer, sint32 currentRound
 			so1->AddCity(m_targetCity);
 			so2->AddCity(m_targetCity);
 		}
-		slicengine_Get()->Execute(so1);
-		slicengine_Get()->Execute(so2);
+		slicengine_Get()->Execute(std::move(so1));
+		slicengine_Get()->Execute(std::move(so2));
 
 
 		Agreement me(m_id);
@@ -946,7 +946,7 @@ void AgreementData::BeginTurnOwner(sint32 currentRound)
 		{
 			if(player_Get(m_recipient)) {
 
-				DynamicArray<Army> *armies = safe_player(m_recipient)->m_all_armies;
+				DynamicArray<Army> *armies = safe_player(m_recipient)->m_all_armies.get();
 				sint32 i;
 				sint32 n = armies->Num();
 				for(i = 0; i < n; i++) {

@@ -1,5 +1,7 @@
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui_mouse.h"
 
 #include "ui/aui_ctp2/c3ui.h"
@@ -7,25 +9,22 @@
 #include "ui/interface/cursormanager.h"
 
 
-static CursorManager		*g_cursorManager = nullptr;
+static std::unique_ptr<CursorManager> g_cursorManager;
 
-CursorManager * cursormanager_Get() { return g_cursorManager; }
+CursorManager * cursormanager_Get() { return g_cursorManager.get(); }
 
 
 void CursorManager::Initialize()
 {
 	Cleanup();
 
-	g_cursorManager = new CursorManager();
+	g_cursorManager = std::make_unique<CursorManager>();
 }
 
 
 void CursorManager::Cleanup()
 {
-	if (g_cursorManager != nullptr) {
-		delete g_cursorManager;
-		g_cursorManager = nullptr;
-	}
+	g_cursorManager.reset();
 }
 
 

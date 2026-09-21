@@ -31,6 +31,8 @@
 #ifndef __AUI_MOUSE_H__
 #define __AUI_MOUSE_H__
 
+#include <memory>
+
 #include "ui/aui_common/aui_base.h"
 #include "ui/aui_common/aui_input.h"
 #include "ui/aui_common/tech_wllist.h"
@@ -102,7 +104,9 @@ public:
 	~aui_Mouse() override;
 
 protected:
-	aui_Mouse() {}
+	// Out-of-line in aui_mouse.cpp: unique_ptr<aui_Surface> members over a
+	// forward-declared type need the complete type at ctor/dtor instantiation.
+	aui_Mouse();
 	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
 
@@ -212,9 +216,9 @@ protected:
 	double			m_sensitivity;
 
 	aui_MouseEvent	m_inputs[ k_MOUSE_MAXINPUT ];
-	aui_Surface		*m_privateMix;
-	aui_Surface		*m_pickup;
-	aui_Surface		*m_prevPickup;
+	std::unique_ptr<aui_Surface>	m_privateMix;
+	std::unique_ptr<aui_Surface>	m_pickup;
+	std::unique_ptr<aui_Surface>	m_prevPickup;
 
 	RECT		m_clip;
 	aui_Cursor	*m_cursors[ k_MOUSE_MAXNUMCURSORS ];

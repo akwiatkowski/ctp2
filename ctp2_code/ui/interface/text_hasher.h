@@ -5,6 +5,7 @@
 #ifndef __Text_Hasher_h__
 #define __Text_Hasher_h__
 
+#include <type_traits>
 #include <algorithm>
 #include <memory>
 #include <vector>
@@ -20,8 +21,8 @@ template <class DATA_TYPE>
 class Translation
 {
 public:
-	TCHAR *         m_key;
-	DATA_TYPE       m_data;
+	std::unique_ptr<TCHAR[]>                          m_key;
+	std::unique_ptr<std::remove_pointer_t<DATA_TYPE>[]> m_data;
 	std::unique_ptr<Translation>   m_next;
 
 	Translation
@@ -35,11 +36,7 @@ public:
         m_next      (nullptr)
 	{};
 
-	~Translation()
-	{
-		delete m_data;
-		delete m_key;
-	}
+	// m_key/m_data/m_next are unique_ptr — auto-freed (delete[] via array form)
 };
 
 
@@ -172,12 +169,12 @@ DATA_TYPE Text_Hasher<DATA_TYPE>::Look_Up_Data
     )
 	{
 #ifdef WIN32
-		if (!_tcsncmp(key, translation->m_key, MAX_KEY_CHARS))
+		if (!_tcsncmp(key, translation->m_key.get(), MAX_KEY_CHARS))
 #else
-		  if (!strncmp(key, translation->m_key, MAX_KEY_CHARS))
+		  if (!strncmp(key, translation->m_key.get(), MAX_KEY_CHARS))
 #endif // WIN32
 		{
-			return translation->m_data;
+			return translation->m_data.get();
 		}
 	}
 

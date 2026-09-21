@@ -44,6 +44,8 @@ template <class DATA_TYPE> class Pool;
 
 #include "list_array.h"
 
+#include <memory>
+
 //----------------------------------------------------------------------------
 // General declarations
 //----------------------------------------------------------------------------
@@ -96,9 +98,9 @@ bool Pool<DATA_TYPE>::Prepare_New_Chunk()
 	}
 	else
 	{
-		DATA_TYPE *     test                = new DATA_TYPE[chunk_size];
+		auto            test                = std::make_unique<DATA_TYPE[]>(chunk_size);
 
-		chunks.Append_Data(test);
+		chunks.Append_Data(test.release());
 
 		size_t const    first_new_element   = (chunks.size() - 1) * chunk_size;
 
@@ -134,8 +136,7 @@ Pool<DATA_TYPE>::~Pool()
 {
 	for (size_t i = 0; i < chunks.size(); ++i)
 	{
-		DATA_TYPE * bad_chunk = chunks.Return_Data_By_Number(i);
-		delete[] bad_chunk;
+		std::unique_ptr<DATA_TYPE[]> bad_chunk(chunks.Return_Data_By_Number(i));
 	}
 }
 

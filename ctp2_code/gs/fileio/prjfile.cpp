@@ -9,6 +9,7 @@
 #include <search.h>
 #include <cctype>
 #include <vector>
+#include <memory>
 
 #ifndef WIN32
 #ifdef HAVE_SYS_TYPES_H
@@ -223,22 +224,22 @@ void *ProjectFile::getData_DOS(PFEntry *entry, size_t & size, C3DIR dir)
 
     fseek(fp, 0, SEEK_END);
     size = ftell(fp);
-    char *data = (char *) malloc(size);
+    // Caller owns the returned buffer and releases it via freeData()/free().
+    std::unique_ptr<char, decltype(&free)> data((char *) malloc(size), &free);
     if (data == nullptr) {
         snprintf(m_error_string, sizeof(m_error_string), "Could not malloc data for record %s\n", tempstr);
         return(nullptr);
     }
 
     fseek(fp, 0, SEEK_SET);
-    if (fread(data, size, 1, fp) < 1) {
+    if (fread(data.get(), size, 1, fp) < 1) {
         snprintf(m_error_string, sizeof(m_error_string), "Could not read file \"%s\"", tempstr);
-        free(data);
         fclose(fp);
         return(nullptr);
     }
 
     fclose(fp);
-    return data;
+    return data.release();
 }
 
 void *ProjectFile::getData_ZFS(PFEntry *entry, size_t & size)
@@ -250,7 +251,8 @@ void *ProjectFile::getData_ZFS(PFEntry *entry, size_t & size)
     }
 
     size = entry->size;
-    char *  data = (char *) malloc(size);
+    // Caller owns the returned buffer and releases it via freeData()/free().
+    std::unique_ptr<char, decltype(&free)> data((char *) malloc(size), &free);
     if (data == nullptr)
     {
         snprintf(m_error_string, sizeof(m_error_string), "Could not malloc data for record %s\n",
@@ -259,14 +261,13 @@ void *ProjectFile::getData_ZFS(PFEntry *entry, size_t & size)
     }
 
     fseek(fp, entry->offset, SEEK_SET);
-    if (fread(data, size, 1, fp) < 1) {
+    if (fread(data.get(), size, 1, fp) < 1) {
         snprintf(m_error_string, sizeof(m_error_string), R"(Could not read record "%s" from "%s")" ,
                 entry->rname, m_paths[entry->path].dos_path);
-        free(data);
         return nullptr;
     }
 
-    return data;
+    return data.release();
 }
 
 void *ProjectFile::getData_ZMS(PFEntry *entry, size_t & size)

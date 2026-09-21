@@ -179,6 +179,19 @@ AUI_ERRCODE c3_Button::DrawThis(
 }
 
 
+c3_EditButton::c3_EditButton()
+:
+    c3_Button       (),
+    m_val           (k_C3_EDITBUTTON_DEFAULTVAL),
+    m_min           (k_C3_EDITBUTTON_DEFAULTMIN),
+    m_max           (k_C3_EDITBUTTON_DEFAULTMAX),
+    m_field         (nullptr),
+    m_origAction    (nullptr),
+    m_origCallback  (nullptr)
+{
+}
+
+
 c3_EditButton::c3_EditButton
 (
 	AUI_ERRCODE *retval,
@@ -278,14 +291,14 @@ AUI_ERRCODE c3_EditButton::CreateFieldAndActions( MBCHAR const *ldlBlock )
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_C3_EDITBUTTON_LDL_FIELD );
 
         if (aui_Ldl::FindDataBlock( block ) )
-			m_field = new C3TextField(
+			m_field = std::make_unique<C3TextField>(
 				&errcode,
 				aui_UniqueId(),
 				block );
 	}
 
 	if ( !m_field )
-		m_field = new C3TextField(
+		m_field = std::make_unique<C3TextField>(
 			&errcode,
 			aui_UniqueId(),
 			m_x, m_y, m_width, m_height,
@@ -296,7 +309,7 @@ AUI_ERRCODE c3_EditButton::CreateFieldAndActions( MBCHAR const *ldlBlock )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
 
-	aui_Ldl::Remove( m_field );
+	aui_Ldl::Remove( m_field.get() );
 
 	m_field->SetActionFuncAndCookie( c3_EditButtonFieldCallback, this );
 
@@ -312,7 +325,7 @@ AUI_ERRCODE c3_EditButton::CreateFieldAndActions( MBCHAR const *ldlBlock )
         m_origAction    = GetAction();
     }
 
-	SetActionFuncAndCookie( c3_EditButtonCallback, m_field );
+	SetActionFuncAndCookie( c3_EditButtonCallback, m_field.get() );
 
 	return AUI_ERRCODE_OK;
 }
@@ -320,8 +333,10 @@ AUI_ERRCODE c3_EditButton::CreateFieldAndActions( MBCHAR const *ldlBlock )
 
 c3_EditButton::~c3_EditButton( )
 {
-	delete m_field;
-
+	// m_field is a unique_ptr member, auto-freed.
+	// m_origAction is a borrowed pointer to the action previously installed
+	// on this control (see the union with m_origCookie); deleting it here is
+	// questionable but preserved as-is.
 	if (!m_origCallback)
     {
         delete m_origAction;    /// @todo Check this is OK: m_origAction is not allocated

@@ -38,6 +38,7 @@
 #include "gs/utility/UnitDynArr.h"
 #include "net/general/net_info.h"
 #include "gs/gameobj/player.h"
+#include <memory>
 
 void NetMessage::Packetize(uint8 *buf, uint16 &size)
 {
@@ -90,7 +91,7 @@ void NetMessage::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		if(messagepool_Get()->IsValid(msg)) {
 			m_data = messagepool_Get()->AccessMessage(msg);
 		} else {
-			m_data = new MessageData(msg, 0);
+			m_data = std::make_unique<MessageData>(msg, 0).release(); // ownership: messagepool Insert below
 		}
 	}
 
@@ -119,11 +120,11 @@ void NetMessage::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	}
 	if(network_Get().IsHost()) {
 		if(realmsg == msg) {
-			network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
-												  (uint32)msg));
+			network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_ACK_OBJECT,
+												  (uint32)msg).release());
 		} else {
-			network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
-												  (uint32)msg, (uint32)realmsg));
+			network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT,
+												  (uint32)msg, (uint32)realmsg).release());
 		}
 		player_Get(m_data->m_owner)->AddMessage(realmsg);
 		network_Get().Enqueue(m_data);

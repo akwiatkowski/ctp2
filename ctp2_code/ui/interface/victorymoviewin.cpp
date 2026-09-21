@@ -30,6 +30,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_button.h"
@@ -63,7 +65,7 @@ extern MovieDB			*g_theVictoryMovieDB;
 
 #include "gs/gameobj/player.h"
 
-VictoryMovieWindow		*g_victoryMovieWindow = nullptr;
+static std::unique_ptr<VictoryMovieWindow> g_victoryMovieWindow;
 
 static GAME_OVER		s_result;
 
@@ -72,11 +74,11 @@ void victorymoviewin_Initialize(SequenceWeakPtr seq)
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	if (g_victoryMovieWindow == nullptr) {
-		g_victoryMovieWindow = new VictoryMovieWindow(&errcode, aui_UniqueId(), const_cast<MBCHAR *>("VictoryMovieWindow"), 16);
+	if (!g_victoryMovieWindow) {
+		g_victoryMovieWindow = std::make_unique<VictoryMovieWindow>(&errcode, aui_UniqueId(), const_cast<MBCHAR *>("VictoryMovieWindow"), 16);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK)
-			g_victoryMovieWindow = nullptr;
+			g_victoryMovieWindow.reset();
 		Assert(g_victoryMovieWindow != nullptr);
 
 	}
@@ -156,7 +158,7 @@ void victorymoviewin_DisplayVictoryMovie(GAME_OVER reason)
 
 	AUI_ERRCODE		errcode;
 
-	errcode = c3ui_Get()->AddWindow(g_victoryMovieWindow);
+	errcode = c3ui_Get()->AddWindow(g_victoryMovieWindow.get());
 	Assert(errcode == AUI_ERRCODE_OK);
 
 }
@@ -171,8 +173,7 @@ void victorymoviewin_Cleanup()
 
 		c3ui_Get()->RemoveWindow(g_victoryMovieWindow->Id());
 
-		delete g_victoryMovieWindow;
-		g_victoryMovieWindow = nullptr;
+		g_victoryMovieWindow.reset();
 	}
 
 	director_Get()->ActionFinished(seq);
@@ -183,7 +184,7 @@ void victorymoviewin_MovieButtonCallback(aui_Control *control, uint32 action, ui
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	c3ui_Get()->AddAction(new CloseVictoryMovieAction);
+	c3ui_Get()->AddAction(std::make_unique<CloseVictoryMovieAction>());
 }
 
 

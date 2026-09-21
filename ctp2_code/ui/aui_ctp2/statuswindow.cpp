@@ -16,12 +16,12 @@ AUI_ERRCODE StatusWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	RECT rect = { 0, 0, m_width, m_height };
 
-	m_pattern->Draw( m_surface, &rect );
+	m_pattern->Draw( m_surface.get(), &rect );
 
-	primitives_BevelRect16( m_surface, &rect, 2, 0, 16, 16 );
+	primitives_BevelRect16( m_surface.get(), &rect, 2, 0, 16, 16 );
 
 	InflateRect(&rect, -2, -2);
-	primitives_BevelRect16( m_surface, &rect, 1, 1, 16, 16 );
+	primitives_BevelRect16( m_surface.get(), &rect, 1, 1, 16, 16 );
 
 #ifdef _PLAYTEST
 	command_line_Get().Draw();

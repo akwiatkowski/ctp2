@@ -35,10 +35,13 @@
 #ifndef __RESOURCEMAP_H__
 #define __RESOURCEMAP_H__
 
+#include <memory>
+
 #include "ui/aui_ctp2/patternbase.h"
 #include "ui/aui_common/aui_control.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/world/MapPoint.h"
+#include "ui/aui_ctp2/c3_updateaction.h"
 
 #define k_RESOURCEMAP_DEFAULT_SCALE				0
 #define k_RESOURCEMAP_LDL_SCALE					"scale"
@@ -117,8 +120,8 @@ public:
 
 	void		HandlePop( MapPoint point );
 
-	void		SetUpdateAction(c3_UpdateAction *action) { m_updateAction = action; }
-	c3_UpdateAction *GetUpdateAction() { return m_updateAction; }
+	void		SetUpdateAction(c3_UpdateAction *action) { m_updateAction.reset(action); }
+	c3_UpdateAction *GetUpdateAction() { return m_updateAction.get(); }
 
 	AUI_ERRCODE			Idle( ) override;
 
@@ -131,7 +134,7 @@ public:
 	void		GetOwningCity(Unit &c) { c = m_unit; }
 
 protected:
-	aui_Surface *   m_surface;
+	std::unique_ptr<aui_Surface>	m_surface;
 
 	Unit		m_unit;
 
@@ -145,9 +148,9 @@ protected:
 	sint32		m_totalProd;
 	sint32		m_totalGold;
 
-	aui_StringTable *m_string;
+	std::unique_ptr<aui_StringTable>	m_string;
 
-	c3_UpdateAction *m_updateAction;
+	std::unique_ptr<c3_UpdateAction>	m_updateAction;
 
 	MapPoint			m_current_mouse_tile;
 

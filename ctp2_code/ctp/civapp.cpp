@@ -263,6 +263,7 @@
 #include "ui/aui_ctp2/statuswindow.h"
 #include "StrategyRecord.h"
 #include "gs/database/StrDB.h"
+#include <memory>                       // std::make_unique
 #include <string>                       // std::string
 #include <vector>                       // std::vector (render_map_player labels)
 #include "gs/database/thronedb.h"                   // g_theThroneDB
@@ -300,7 +301,7 @@ extern MovieDB                  *g_theVictoryMovieDB;
 extern FilenameDB               *g_theMessageIconFileDB;
 extern PlayListDB               *g_thePlayListDB;
 extern StatsWindow          *g_statsWindow;
-extern SpriteEditWindow     *g_spriteEditWindow;
+extern std::unique_ptr<SpriteEditWindow> g_spriteEditWindow;
 extern aui_Surface          *g_sharedSurface;
 extern sint32               g_modalWindow;
 
@@ -728,56 +729,56 @@ bool CivApp::InitializeAppDB()
 	} dbGuard{ this };
 
     // Create a set of empty databases
-	g_theAdvanceDB              = new CTPDatabase<AdvanceRecord>;
-	g_theAdvanceBranchDB        = new CTPDatabase<AdvanceBranchRecord>;
-	g_theAdvanceListDB          = new CTPDatabase<AdvanceListRecord>;
-	g_theAgeDB                  = new CTPDatabase<AgeRecord>;
-	g_theAgeCityStyleDB         = new CTPDatabase<AgeCityStyleRecord>;
-	g_theBuildingDB             = new CTPDatabase<BuildingRecord>;
-	g_theBuildingBuildListDB    = new CTPDatabase<BuildingBuildListRecord>;
-	g_theBuildListSequenceDB    = new CTPDatabase<BuildListSequenceRecord>;
-	g_theCitySizeDB             = new CTPDatabase<CitySizeRecord>;
-	g_theCityStyleDB            = new CTPDatabase<CityStyleRecord>;
-	g_theCivilisationDB         = new CTPDatabase<CivilisationRecord>;
-	g_theConceptDB              = new CTPDatabase<ConceptRecord>;
-    g_theConstDB                = new CTPDatabase<ConstRecord>;
-	g_theDifficultyDB           = new CTPDatabase<DifficultyRecord>;
-	g_theDiplomacyDB            = new CTPDatabase<DiplomacyRecord>;
-	g_theDiplomacyProposalDB    = new CTPDatabase<DiplomacyProposalRecord>;
-	g_theDiplomacyThreatDB      = new CTPDatabase<DiplomacyThreatRecord>;
-	g_theEndGameObjectDB        = new CTPDatabase<EndGameObjectRecord>;
-	g_theFeatDB                 = new CTPDatabase<FeatRecord>;
-	g_theGlobalWarmingDB        = new CTPDatabase<GlobalWarmingRecord>;
-	g_theGoalDB                 = new CTPDatabase<GoalRecord>;
-	g_theGovernmentDB           = new CTPDatabase<GovernmentRecord>;
-	g_theIconDB                 = new CTPDatabase<IconRecord>;
-	g_theImprovementListDB      = new CTPDatabase<ImprovementListRecord>;
-	g_theMapDB                  = new CTPDatabase<MapRecord>;
-	g_theMapIconDB              = new CTPDatabase<MapIconRecord>;
-	g_theMessageIconFileDB      = new FilenameDB();
-	g_theOrderDB                = new CTPDatabase<OrderRecord>;
-	g_thePersonalityDB          = new CTPDatabase<PersonalityRecord>;
-	g_thePlayListDB             = new PlayListDB();
-	g_thePollutionDB            = new CTPDatabase<PollutionRecord>;
-	g_thePopDB                  = new CTPDatabase<PopRecord>;
-	g_theResourceDB             = new CTPDatabase<ResourceRecord>;
-	g_theRiskDB                 = new CTPDatabase<RiskRecord>;
-	g_theSoundDB                = new CTPDatabase<SoundRecord>;
-	g_theSpecialAttackInfoDB    = new CTPDatabase<SpecialAttackInfoRecord>;
-	g_theSpecialEffectDB        = new CTPDatabase<SpecialEffectRecord>;
-	g_theSpriteDB               = new CTPDatabase<SpriteRecord>;
-	g_theStrategyDB             = new CTPDatabase<StrategyRecord>;
-	stringdb_Set(new StringDB());
-	g_theTerrainDB              = new CTPDatabase<TerrainRecord>;
-	g_theTerrainImprovementDB   = new CTPDatabase<TerrainImprovementRecord>;
-	thronedb_Set(new ThroneDB());
-	g_theUVDB                   = new OzoneDatabase();
-	g_theUnitBuildListDB        = new CTPDatabase<UnitBuildListRecord>;
-	g_theUnitDB                 = new CTPDatabase<UnitRecord>;
-	g_theVictoryMovieDB         = new MovieDB();
-	g_theWonderDB               = new CTPDatabase<WonderRecord>;
-	g_theWonderBuildListDB      = new CTPDatabase<WonderBuildListRecord>;
-	g_theWonderMovieDB          = new CTPDatabase<WonderMovieRecord>;
+	g_theAdvanceDB              = std::make_unique<CTPDatabase<AdvanceRecord>>().release();
+	g_theAdvanceBranchDB        = std::make_unique<CTPDatabase<AdvanceBranchRecord>>().release();
+	g_theAdvanceListDB          = std::make_unique<CTPDatabase<AdvanceListRecord>>().release();
+	g_theAgeDB                  = std::make_unique<CTPDatabase<AgeRecord>>().release();
+	g_theAgeCityStyleDB         = std::make_unique<CTPDatabase<AgeCityStyleRecord>>().release();
+	g_theBuildingDB             = std::make_unique<CTPDatabase<BuildingRecord>>().release();
+	g_theBuildingBuildListDB    = std::make_unique<CTPDatabase<BuildingBuildListRecord>>().release();
+	g_theBuildListSequenceDB    = std::make_unique<CTPDatabase<BuildListSequenceRecord>>().release();
+	g_theCitySizeDB             = std::make_unique<CTPDatabase<CitySizeRecord>>().release();
+	g_theCityStyleDB            = std::make_unique<CTPDatabase<CityStyleRecord>>().release();
+	g_theCivilisationDB         = std::make_unique<CTPDatabase<CivilisationRecord>>().release();
+	g_theConceptDB              = std::make_unique<CTPDatabase<ConceptRecord>>().release();
+    g_theConstDB                = std::make_unique<CTPDatabase<ConstRecord>>().release();
+	g_theDifficultyDB           = std::make_unique<CTPDatabase<DifficultyRecord>>().release();
+	g_theDiplomacyDB            = std::make_unique<CTPDatabase<DiplomacyRecord>>().release();
+	g_theDiplomacyProposalDB    = std::make_unique<CTPDatabase<DiplomacyProposalRecord>>().release();
+	g_theDiplomacyThreatDB      = std::make_unique<CTPDatabase<DiplomacyThreatRecord>>().release();
+	g_theEndGameObjectDB        = std::make_unique<CTPDatabase<EndGameObjectRecord>>().release();
+	g_theFeatDB                 = std::make_unique<CTPDatabase<FeatRecord>>().release();
+	g_theGlobalWarmingDB        = std::make_unique<CTPDatabase<GlobalWarmingRecord>>().release();
+	g_theGoalDB                 = std::make_unique<CTPDatabase<GoalRecord>>().release();
+	g_theGovernmentDB           = std::make_unique<CTPDatabase<GovernmentRecord>>().release();
+	g_theIconDB                 = std::make_unique<CTPDatabase<IconRecord>>().release();
+	g_theImprovementListDB      = std::make_unique<CTPDatabase<ImprovementListRecord>>().release();
+	g_theMapDB                  = std::make_unique<CTPDatabase<MapRecord>>().release();
+	g_theMapIconDB              = std::make_unique<CTPDatabase<MapIconRecord>>().release();
+	g_theMessageIconFileDB      = std::make_unique<FilenameDB>().release();
+	g_theOrderDB                = std::make_unique<CTPDatabase<OrderRecord>>().release();
+	g_thePersonalityDB          = std::make_unique<CTPDatabase<PersonalityRecord>>().release();
+	g_thePlayListDB             = std::make_unique<PlayListDB>().release();
+	g_thePollutionDB            = std::make_unique<CTPDatabase<PollutionRecord>>().release();
+	g_thePopDB                  = std::make_unique<CTPDatabase<PopRecord>>().release();
+	g_theResourceDB             = std::make_unique<CTPDatabase<ResourceRecord>>().release();
+	g_theRiskDB                 = std::make_unique<CTPDatabase<RiskRecord>>().release();
+	g_theSoundDB                = std::make_unique<CTPDatabase<SoundRecord>>().release();
+	g_theSpecialAttackInfoDB    = std::make_unique<CTPDatabase<SpecialAttackInfoRecord>>().release();
+	g_theSpecialEffectDB        = std::make_unique<CTPDatabase<SpecialEffectRecord>>().release();
+	g_theSpriteDB               = std::make_unique<CTPDatabase<SpriteRecord>>().release();
+	g_theStrategyDB             = std::make_unique<CTPDatabase<StrategyRecord>>().release();
+	stringdb_Set(std::make_unique<StringDB>().release());
+	g_theTerrainDB              = std::make_unique<CTPDatabase<TerrainRecord>>().release();
+	g_theTerrainImprovementDB   = std::make_unique<CTPDatabase<TerrainImprovementRecord>>().release();
+	thronedb_Set(std::make_unique<ThroneDB>().release());
+	g_theUVDB                   = std::make_unique<OzoneDatabase>().release();
+	g_theUnitBuildListDB        = std::make_unique<CTPDatabase<UnitBuildListRecord>>().release();
+	g_theUnitDB                 = std::make_unique<CTPDatabase<UnitRecord>>().release();
+	g_theVictoryMovieDB         = std::make_unique<MovieDB>().release();
+	g_theWonderDB               = std::make_unique<CTPDatabase<WonderRecord>>().release();
+	g_theWonderBuildListDB      = std::make_unique<CTPDatabase<WonderBuildListRecord>>().release();
+	g_theWonderMovieDB          = std::make_unique<CTPDatabase<WonderMovieRecord>>().release();
 
     // Firstly get the string database up and running - so we can display texts
 	civapp_log->info("InitializeAppDB: Parsing StringDB");
@@ -1206,7 +1207,7 @@ bool CivApp::InitializeAppDB()
 	ProgressTo( 500 );
 
 	civapp_log->info("InitializeAppDB: Creating Exclusions, resolving references");
-    exclusions_Set(new Exclusions());
+    exclusions_Set(std::make_unique<Exclusions>().release());
 
 	if(!g_theUnitDB->ResolveReferences())               return false;
 	if(!g_theAdvanceDB->ResolveReferences())            return false;
@@ -1380,7 +1381,7 @@ sint32 CivApp::InitializeEngine()
 
 	CivPaths_InitCivPaths();
 
-	profiledb_Set(new ProfileDB);
+	profiledb_Set(std::make_unique<ProfileDB>().release());
 	if (!profiledb_Get()->Init(FALSE)) {
 		c3errors_FatalDialog("CivApp", "Unable to init the ProfileDB.");
 		return -1;
@@ -1616,7 +1617,7 @@ void CivApp::CleanupAppUI()
 void CivApp::CleanupAppDB()
 {
     allocated::clear(g_theMapDB);
-    { Exclusions *p = exclusions_Get(); delete p; exclusions_Set(nullptr); }
+    { std::unique_ptr<Exclusions> p(exclusions_Get()); exclusions_Set(nullptr); }
     allocated::clear(g_theMessageIconFileDB);
     allocated::clear(g_theRiskDB);
     allocated::clear(g_theWonderDB);
@@ -1629,7 +1630,7 @@ void CivApp::CleanupAppDB()
     allocated::clear(g_theResourceDB);
     allocated::clear(g_theGovernmentDB);
     allocated::clear(g_theConceptDB);
-    { ThroneDB *p = thronedb_Get(); delete p; thronedb_Set(nullptr); };
+    { std::unique_ptr<ThroneDB> p(thronedb_Get()); thronedb_Set(nullptr); };
     allocated::clear(g_theAgeDB);
     allocated::clear(g_theCityStyleDB);
     allocated::clear(g_theAgeCityStyleDB);
@@ -2165,7 +2166,7 @@ sint32 InitializeSpriteEditorUI()
 	ProgressTo( 120 );
 
 	errcode = SpriteEditWindow_Initialize();
-	auiErr = c3ui_Get()->AddWindow( g_spriteEditWindow );
+	auiErr = c3ui_Get()->AddWindow( g_spriteEditWindow.get() );
 	Assert(auiErr == AUI_ERRCODE_OK);
 	if ( auiErr != AUI_ERRCODE_OK ) return 11;
 
@@ -2483,7 +2484,7 @@ void CivApp::StartMessageSystem()
     }
 
     // SetMessagesPtr(new) deletes the previous via reset().
-    m_game->SetMessagesPtr(new MessagePool());
+    m_game->SetMessagesPtr(std::make_unique<MessagePool>().release());
     SlicEngine::Reload(g_slic_filename);
 }
 
@@ -3439,10 +3440,10 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						sint32 SW = 0, SH = 0;
 						tm->FullMapPixelSize(zoom, &SW, &SH);
 						AUI_ERRCODE err = AUI_ERRCODE_OK;
-						aui_SDLSurface *off =
-							new aui_SDLSurface(&err, SW, SH, 16, nullptr, FALSE);
+						auto off =
+							std::make_unique<aui_SDLSurface>(&err, SW, SH, 16, nullptr, FALSE);
 						if (off && err == AUI_ERRCODE_OK && off->DDS()) {
-							tm->RenderFullMap(off, zoom);
+							tm->RenderFullMap(off.get(), zoom);
 							if (CTP2_SDL_SaveBMP(off->DDS(), pathBuf)) {
 								smoke_log->info("Full map rendered to {} ({}x{} zoom {})",
 								                pathBuf, SW, SH, zoom);
@@ -3453,7 +3454,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						} else {
 							smoketest_send_response("error", cmd, "surface_alloc_failed");
 						}
-						delete off;
+						// off frees itself on scope exit
 					}
 #else
 					smoketest_send_response("error", cmd, "not_sdl");
@@ -3481,11 +3482,11 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						sint32 SW = 0, SH = 0;
 						tm->FullMapPixelSize(zoom, &SW, &SH);
 						AUI_ERRCODE err = AUI_ERRCODE_OK;
-						aui_SDLSurface *off =
-							new aui_SDLSurface(&err, SW, SH, 16, nullptr, FALSE);
+						auto off =
+							std::make_unique<aui_SDLSurface>(&err, SW, SH, 16, nullptr, FALSE);
 						if (off && err == AUI_ERRCODE_OK && off->DDS()) {
-							tm->RenderFullMap(off, zoom);
-							tm->DrawAllCityLabels(off, zoom);
+							tm->RenderFullMap(off.get(), zoom);
+							tm->DrawAllCityLabels(off.get(), zoom);
 							if (CTP2_SDL_SaveBMP(off->DDS(), pathBuf)) {
 								smoke_log->info("Labeled map rendered to {} ({}x{} zoom {})",
 								                pathBuf, SW, SH, zoom);
@@ -3496,7 +3497,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						} else {
 							smoketest_send_response("error", cmd, "surface_alloc_failed");
 						}
-						delete off;
+						// off frees itself on scope exit
 					}
 #else
 					smoketest_send_response("error", cmd, "not_sdl");
@@ -3524,12 +3525,12 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						sint32 SW = 0, SH = 0;
 						tm->FullMapPixelSize(zoom, &SW, &SH);
 						AUI_ERRCODE err = AUI_ERRCODE_OK;
-						aui_SDLSurface *off =
-							new aui_SDLSurface(&err, SW, SH, 16, nullptr, FALSE);
+						auto off =
+							std::make_unique<aui_SDLSurface>(&err, SW, SH, 16, nullptr, FALSE);
 						if (off && err == AUI_ERRCODE_OK && off->DDS()) {
 							RECT crop = {0, 0, 0, 0};
 							std::vector<TiledMap::CityLabel> labels;
-							tm->RenderPlayerView(off, zoom, player, &crop, &labels);
+							tm->RenderPlayerView(off.get(), zoom, player, &crop, &labels);
 							if (CTP2_SDL_SaveBMP(off->DDS(), pathBuf)) {
 								// detail: "crop=x,y,w,h cities=px~py~owner~pop~name;..."
 								std::string detail = "crop=" +
@@ -3555,7 +3556,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						} else {
 							smoketest_send_response("error", cmd, "surface_alloc_failed");
 						}
-						delete off;
+						// off frees itself on scope exit
 					}
 #else
 					smoketest_send_response("error", cmd, "not_sdl");
@@ -3945,7 +3946,7 @@ sint32 CivApp::InitializeGameHeadless()
 		civapp_log->debug("creating headless TiledMap (world={}x{})",
 		           world_Get()->GetXWidth(), world_Get()->GetYHeight());
 		MapPoint mapsize(world_Get()->GetXWidth(), world_Get()->GetYHeight());
-		tiledmap_Set(new TiledMap(mapsize));
+		tiledmap_Set(std::make_unique<TiledMap>(mapsize).release());
 	}
 
 	// See comment at the matching site in InitializeGameHeadless.
@@ -4234,23 +4235,23 @@ void CivApp::RestoreAutoSave(sint32 player)
 	MBCHAR		filename[_MAX_PATH];
 	snprintf(filename, sizeof(filename), "auto%d.sav", player);
 
-	c3ui_Get()->AddAction(new LoadSaveGameAction(filename));
+	c3ui_Get()->AddAction(std::make_unique<LoadSaveGameAction>(filename).release());
 }
 
 
 void CivApp::PostStartGameAction()
 {
-	c3ui_Get()->AddAction(new StartGameAction());
+	c3ui_Get()->AddAction(std::make_unique<StartGameAction>().release());
 }
 
 void CivApp::PostSpriteTestAction()
 {
-	c3ui_Get()->AddAction(new SpriteTestAction());
+	c3ui_Get()->AddAction(std::make_unique<SpriteTestAction>().release());
 }
 
 void CivApp::PostLoadSaveGameAction(MBCHAR const * name)
 {
-	c3ui_Get()->AddAction(new LoadSaveGameAction(name));
+	c3ui_Get()->AddAction(std::make_unique<LoadSaveGameAction>(name).release());
 }
 
 void CivApp::PostLoadQuickSaveAction(sint32 player)
@@ -4297,7 +4298,7 @@ void CivApp::PostLoadQuickSaveAction(sint32 player)
 
 void CivApp::PostRestartGameAction()
 {
-	c3ui_Get()->AddAction(new RestartGameAction());
+	c3ui_Get()->AddAction(std::make_unique<RestartGameAction>().release());
 }
 
 void CivApp::PostRestartGameSameMapAction()
@@ -4310,27 +4311,27 @@ void CivApp::PostRestartGameSameMapAction()
 		profiledb_Get()->SetCivIndex(p->GetCivilisation()->GetCivilisation());
 	}
 
-	c3ui_Get()->AddAction(new RestartGameSameMapAction());
+	c3ui_Get()->AddAction(std::make_unique<RestartGameSameMapAction>().release());
 }
 
 void CivApp::PostQuitToSPShellAction()
 {
-	c3ui_Get()->AddAction(new QuitToSPShellAction());
+	c3ui_Get()->AddAction(std::make_unique<QuitToSPShellAction>().release());
 }
 
 void CivApp::PostQuitToLobbyAction()
 {
-	c3ui_Get()->AddAction(new QuitToLobbyAction());
+	c3ui_Get()->AddAction(std::make_unique<QuitToLobbyAction>().release());
 }
 
 void CivApp::PostEndGameAction()
 {
-	c3ui_Get()->AddAction(new EndGameAction());
+	c3ui_Get()->AddAction(std::make_unique<EndGameAction>().release());
 }
 
 void CivApp::PostLoadScenarioGameAction(MBCHAR const * filename)
 {
-	c3ui_Get()->AddAction(new LoadScenarioGameAction(filename));
+	c3ui_Get()->AddAction(std::make_unique<LoadScenarioGameAction>(filename).release());
 }
 
 void StartGameAction::Execute(aui_Control *control, uint32 action, uint32 data )
@@ -4378,22 +4379,19 @@ void LoadScenarioGameAction::Execute(aui_Control *control, uint32 action, uint32
 
 void InitializeGreatLibrary()
 {
-    delete g_GreatLibPF;
-    g_GreatLibPF = new ProjectFile();
+    allocated::reassign(g_GreatLibPF, std::make_unique<ProjectFile>());
     AddSearchDirectories(g_GreatLibPF, C3DIR_GL, "gl.zfs");
 }
 
 void InitializeSoundPF()
 {
-    delete g_SoundPF;
-    g_SoundPF = new ProjectFile();
+    allocated::reassign(g_SoundPF, std::make_unique<ProjectFile>());
     AddSearchDirectories(g_SoundPF, C3DIR_SOUNDS, "sound.zfs");
 }
 
 void InitializeImageMaps()
 {
-    delete g_ImageMapPF;
-    g_ImageMapPF = new ProjectFile();
+    allocated::reassign(g_ImageMapPF, std::make_unique<ProjectFile>());
 
     if (c3ui_Get()->PixelFormat() == AUI_SURFACE_PIXELFORMAT_555)
     {

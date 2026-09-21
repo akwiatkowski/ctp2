@@ -25,6 +25,7 @@
 #include "ctp/c3.h"                 // sint32
 #include "gs/utility/RandGen.h"     // RandomGenerator, rand_ptr()
 #include "ctp/civapp.h"             // CivApp (trampoline host)
+#include <memory>                  // std::make_unique
 
 // After the rand_ptr trampoline migration, rand_ptr_Set adopts ownership
 // into the active Game's m_rand.  ScopedRand can no longer stack-allocate
@@ -42,7 +43,7 @@ public:
         : m_savedApp(civapp_Get())
     {
         civapp_Set(&m_app);
-        rand_ptr_Set(new RandomGenerator(seed));  // Game adopts ownership
+        rand_ptr_Set(std::make_unique<RandomGenerator>(seed).release());  // Game adopts ownership
     }
 
     ~ScopedRand()

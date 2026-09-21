@@ -91,6 +91,8 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     // gameinit_InitializeScenarioPlayers).  Game adopts the raw array
     // pointer matching the legacy g_player shape; Cleanup tears down
     // inner Players + array.  Adopt-only — no fresh-create branch.
+    // g_player stays a live alias of the adopted array — player_Get
+    // reads it for the whole session; Cleanup nulls it before freeing.
     if (player_arr_Get()) AdoptPlayers(player_arr_Get());
 }
 
@@ -125,15 +127,16 @@ void Game::Cleanup() {
         // cleanup skips this list once we clear the live-player array.
         if (g_deadPlayer) {
             g_deadPlayer->DeleteAll();
-            delete g_deadPlayer;
+            std::unique_ptr<PointerList<Player>>{g_deadPlayer};
             g_deadPlayer = nullptr;
         }
         player_arr_Set(nullptr);
+        // Slots stay raw Player* (legacy g_player shape); the array itself
+        // is a unique_ptr<Player*[]> — reset() does the delete[].
         for (sint32 i = 0; i < k_MAX_PLAYERS; ++i) {
-            delete m_playerArr[i];
+            std::unique_ptr<Player>{m_playerArr[i]};
         }
-        delete[] m_playerArr;
-        m_playerArr = nullptr;
+        m_playerArr.reset();
     }
 
     // Trackers and pools: null the legacy pointer first, then destroy.

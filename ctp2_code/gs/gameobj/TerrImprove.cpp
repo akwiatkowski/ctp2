@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/TerrImprove.h"
 
 #include "net/general/net_info.h"             // NetInfo
@@ -21,8 +22,8 @@ void TerrainImprovement::RemoveAllReferences()
 	if(network_Get().IsHost()) {
 		if(player_view::CurPlayer() == GetOwner())
 			network_Get().Block(GetOwner());
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_IMPROVEMENT,
-									  uint32(*this)));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_KILL_IMPROVEMENT,
+									  uint32(*this)).release());
 		if(player_view::CurPlayer() == GetOwner())
 			network_Get().Unblock(GetOwner());
 	}

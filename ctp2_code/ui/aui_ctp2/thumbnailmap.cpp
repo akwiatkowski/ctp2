@@ -85,10 +85,7 @@ ThumbnailMap::ThumbnailMap(AUI_ERRCODE *retval,
 }
 
 ThumbnailMap::~ThumbnailMap()
-{
-	delete m_mapSurface;
-	delete m_cityList;
-}
+= default;
 
 void ThumbnailMap::InitCommonLdl(MBCHAR const *ldlBlock)
 {
@@ -101,7 +98,7 @@ void ThumbnailMap::InitCommonLdl(MBCHAR const *ldlBlock)
 
 void ThumbnailMap::InitCommon()
 {
-	m_mapSurface = nullptr;
+	m_mapSurface.reset();
 	m_mapSize = nullptr;
 
 	m_tilePixelWidth = 0.0;
@@ -122,28 +119,27 @@ void ThumbnailMap::InitCommon()
 	m_displayUnitMovement = TRUE;
 	m_displayOverlay = TRUE;
 
-	m_cityList = nullptr;
+	m_cityList.reset();
 
 	// m_mapOverlay default constructed (empty)
 
 	m_cityFilterProc = nullptr;
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	m_mapSurface = aui_Factory::new_Surface(errcode, m_width, m_height);
+	m_mapSurface.reset(aui_Factory::new_Surface(errcode, m_width, m_height));
 	Assert( AUI_NEWOK(m_mapSurface, errcode) );
 
 	CalculateMetrics();
 
 	BuildCityList();
 
-	RenderMap(m_mapSurface);
+	RenderMap(m_mapSurface.get());
 }
 
 
 void ThumbnailMap::BuildCityList()
 {
-	delete m_cityList;
-	m_cityList = new DynamicArray<CityInfo>();
+	m_cityList = std::make_unique<DynamicArray<CityInfo>>();
 
 	for (size_t p = 0; p < k_MAX_PLAYERS; p++)
     {
@@ -231,13 +227,12 @@ AUI_ERRCODE	ThumbnailMap::Resize( sint32 width, sint32 height )
 	AUI_ERRCODE	errcode = aui_Region::Resize(width, height);
 	Assert(errcode == AUI_ERRCODE_OK);
 
-	delete m_mapSurface;
-	m_mapSurface = aui_Factory::new_Surface(errcode, width, height);
+	m_mapSurface.reset(aui_Factory::new_Surface(errcode, width, height));
 	Assert( AUI_NEWOK(m_mapSurface, errcode) );
 
 	CalculateMetrics();
 
-	RenderMap(m_mapSurface);
+	RenderMap(m_mapSurface.get());
 
 	return errcode;
 }
@@ -480,7 +475,7 @@ void ThumbnailMap::UpdateMap(aui_Surface *surf, sint32 x, sint32 y)
 
 
 
-	c3ui_Get()->TheBlitter()->Blt(surf, x, y, m_mapSurface, &rect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(surf, x, y, m_mapSurface.get(), &rect, k_AUI_BLITTER_FLAG_COPY);
 
 
 
@@ -537,7 +532,7 @@ void ThumbnailMap::MouseLGrabInside(aui_MouseEvent *data)
 			else if ( m_action )
 				m_action->Execute( this, C3_THUMBNAIL_ACTION_SELECTEDCITY, 0 );
 
-		    RenderMap(m_mapSurface);
+		    RenderMap(m_mapSurface.get());
 			break;
 		}
 	}
@@ -650,5 +645,5 @@ void ThumbnailMap::UpdateAll( )
 	m_mapSize = world_Get()->GetSize();
 
 	BuildCityList();
-	if (m_mapSurface) RenderAll(m_mapSurface);
+	if (m_mapSurface) RenderAll(m_mapSurface.get());
 }

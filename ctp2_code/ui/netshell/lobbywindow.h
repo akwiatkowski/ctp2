@@ -1,6 +1,7 @@
 #ifndef __LOBBYWINDOW_H__
 #define __LOBBYWINDOW_H__
 
+#include <memory>
 #include "ui/netshell/ns_window.h"
 #include "ui/aui_common/aui_action.h"
 #include "ui/netshell/ns_string.h"
@@ -82,13 +83,13 @@ public:
 	friend class WhisperSwitchAction;
 
 protected:
-	ns_String	*m_messageLobbyEnter;
+	std::unique_ptr<ns_String>	m_messageLobbyEnter;
 
-	aui_StringTable *m_PPStrings;
+	std::unique_ptr<aui_StringTable> m_PPStrings;
 
 	bool m_wait;
 
-	aui_Action *m_dbActionArray[ 1 ];
+	std::unique_ptr<aui_Action> m_dbActionArray[ 1 ];
 
 	AUI_ACTION_BASIC(ChangeButtonAction);
 };

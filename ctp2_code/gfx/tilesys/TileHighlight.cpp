@@ -890,7 +890,7 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 			return;
 	}
 
-	Path goodPath(sel_army.GetOrder(0)->m_path);
+	Path goodPath(sel_army.GetOrder(0)->m_path.get());
 
 	double 	currMovementPoints 	= 0.0;
 	sel_army.CurMinMovementPoints(currMovementPoints);

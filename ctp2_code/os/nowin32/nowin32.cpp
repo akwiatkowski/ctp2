@@ -13,6 +13,8 @@
 #include <cctype>
 #include "ui/aui_sdl/aui_sdlcompat.h"
 #include <string>
+#include <memory>
+
 
 #include "os/nowin32/windows.h"
 
@@ -26,7 +28,8 @@ char* _fullpath(char* absolute, const char* relative, size_t bufsize)
 		return nullptr;
 	}
 
-	char * ret = realpath(relative, nullptr);
+	// realpath(nullptr) malloc's; unique_ptr frees on every exit path.
+	std::unique_ptr<char, decltype(&free)> ret(realpath(relative, nullptr), &free);
 	if (!ret) {
 		int i = strlen(relative);
 		bool hasPoint = false;
@@ -46,7 +49,7 @@ char* _fullpath(char* absolute, const char* relative, size_t bufsize)
 					if (!strcasecmp(filename.c_str(), entry->d_name)) {
 						std::string const target =
 						    path + FILE_SEPC + entry->d_name;
-						ret = realpath(target.c_str(), nullptr);
+						ret.reset(realpath(target.c_str(), nullptr));
 						break;
 					}
 				}
@@ -57,9 +60,8 @@ char* _fullpath(char* absolute, const char* relative, size_t bufsize)
 
 	if(ret) {
 		// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
-		strncpy(absolute, ret, bufsize);
+		strncpy(absolute, ret.get(), bufsize);
 		absolute[bufsize - 1] = '\0';
-		free(ret);
 		return absolute;
 	} else {
 		absolute[0] = 0;

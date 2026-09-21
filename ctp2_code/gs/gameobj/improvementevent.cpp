@@ -26,6 +26,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/events/GameEventUser.h"
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/TerrImprove.h"
@@ -54,9 +55,9 @@ STDEHANDLER(ImprovementCompleteEvent)
 	imptype = imp->GetType();
 	owner = imp->GetOwner();
 
-	args->Add(new GameEventArgument(GEA_MapPoint, pos));
-	args->Add(new GameEventArgument(GEA_Int, imptype));
-	args->Add(new GameEventArgument(GEA_Player, owner));
+	args->Add(std::make_unique<GameEventArgument>(GEA_MapPoint, pos).release());
+	args->Add(std::make_unique<GameEventArgument>(GEA_Int, imptype).release());
+	args->Add(std::make_unique<GameEventArgument>(GEA_Player, owner).release());
 
 	TerrainImprovementData	tmpData(ID(imp), owner, pos, imptype, 0);
 	tmpData.Complete();

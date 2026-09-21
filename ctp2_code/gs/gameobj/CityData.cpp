@@ -217,6 +217,7 @@
 #include "gs/outcom/AICause.h"
 #include <algorithm>                    // std::max, std::min
 #include <cmath>                        // std::isfinite
+#include <memory>
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/Barbarians.h"
@@ -427,7 +428,7 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	m_sellingResources                  (),
 	m_buyingResources                   (),
 #endif
-	m_happy                             (new Happy()),
+	m_happy                             (std::make_unique<Happy>()),
 //	MBCHAR    m_name[k_MAX_NAME_LEN];
 //	sint32    *m_distanceToGood;
 	m_defensiveBonus                    (0.0),
@@ -552,7 +553,7 @@ CityData::~CityData()
 		}
 	}
 
-	delete m_happy;
+	m_happy.reset();
 }
 
 // Global to fix trade routes
@@ -854,7 +855,7 @@ void CityData::NetworkInitialize()
 
 CityData::CityData(CityData *copy)
 {
-	m_happy = new Happy;
+	m_happy = std::make_unique<Happy>();
 
 	//m_secthappy = 0; //emod - this set all sectarian happiness to 0 this is initializer?
 
@@ -912,7 +913,7 @@ void CityData::Copy(CityData *copy)
 	m_buyingResources = copy->m_buyingResources;
 	m_sellingResources = copy->m_sellingResources;
 
-	m_happy->Copy(copy->m_happy);
+	m_happy->Copy(copy->m_happy.get());
 
 	memcpy(m_name, copy->m_name, (strlen(copy->m_name) + 1) * sizeof(MBCHAR));
 	m_distanceToGood = copy->m_distanceToGood;
@@ -1199,10 +1200,10 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 		if(network_Get().IsHost())
 		{
 			network_Get().Block(orgowner);
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REVOLT_NOTICES,
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_REVOLT_NOTICES,
 			                              orgowner, newowner,
 			                              m_home_city.m_id,
-			                              joined_egalatarians));
+			                              joined_egalatarians).release());
 			network_Get().Unblock(orgowner);
 		}
 
@@ -1210,21 +1211,21 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 		// Need to make it more generic - E 9-6-2006
 		if(joined_egalatarians)
 		{
-			SlicObject *so = new SlicObject("011CityJoinedYourCiv");
+			auto so = std::make_unique<SlicObject>("011CityJoinedYourCiv");
 			so->AddRecipient(newowner);
 			so->AddCivilisation(orgowner);
 			so->AddCivilisation(newowner);
 			so->AddCity(m_home_city);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 		else
 		{
-			SlicObject *so = new SlicObject("010NewCiv");
+			auto so = std::make_unique<SlicObject>("010NewCiv");
 			so->AddAllRecipients();
 			so->AddCivilisation(orgowner);
 			so->AddCivilisation(newowner);
 			so->AddCity(m_home_city);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 
@@ -1508,18 +1509,18 @@ void CityData::DoLocalPollution()
 
 	if ((chance > 0.10) &&
 		(slicengine_Get()->GetSegment("080CityPollutionWarning")->TestLastShown(m_owner, 10, turn_Get()->GetRound()))) {
-		SlicObject *so = new SlicObject("080CityPollutionWarning");
+		auto so = std::make_unique<SlicObject>("080CityPollutionWarning");
 		so->AddCity(m_home_city);
 		so->AddRecipient(m_owner);
 		so->AddCivilisation(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	if(civrand().Next(1000) < chance * 1000) {
-		SlicObject *so = new SlicObject("040GrossPolluter");
+		auto so = std::make_unique<SlicObject>("040GrossPolluter");
 		so->AddCity(m_home_city);
 		so->AddRecipient(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		sint32 totalTiles=0;
 		MapPoint cpos;
@@ -3549,19 +3550,19 @@ bool CityData::GrowOrStarve()
 			{
 				if (m_starvation_turns == GetStarvationProtection())
 				{
-					SlicObject *so = new SlicObject("911CityWillStarveInitialWarning") ;
+					auto so = std::make_unique<SlicObject>("911CityWillStarveInitialWarning") ;
 					so->AddRecipient(GetOwner()) ;
 					so->AddCity(m_home_city) ;
 					so->AddPlayer(m_owner);
-					slicengine_Get()->Execute(so) ;
+					slicengine_Get()->Execute(std::move(so)) ;
 				}
 				else if (m_starvation_turns == (sint32)(GetStarvationProtection()/2))
 				{
-					SlicObject *so = new SlicObject("911CityWillStarveFoodStoresLow") ;
+					auto so = std::make_unique<SlicObject>("911CityWillStarveFoodStoresLow") ;
 					so->AddRecipient(GetOwner()) ;
 					so->AddCity(m_home_city) ;
 					so->AddPlayer(m_owner);
-					slicengine_Get()->Execute(so) ;
+					slicengine_Get()->Execute(std::move(so)) ;
 				}
 
 				m_starvation_turns--;
@@ -3900,11 +3901,11 @@ sint32 CityData::SupportBuildings(bool projectedOnly)
 					break;
 
 				SellBuilding(cheapBuilding, false);
-				SlicObject * so = new SlicObject("029NoMaint");
+				auto so = std::make_unique<SlicObject>("029NoMaint");
 				so->AddRecipient(GetOwner());
 				so->AddCity(m_home_city);
 				so->AddBuilding(cheapBuilding);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 
 			if(IsBankrupting())
@@ -4418,10 +4419,10 @@ bool CityData::BeginTurn()
 	{ // Deal with city starvation and growth/shrinkage
 		if (PopCount() < 1)
 		{
-			SlicObject *so = new SlicObject("265CityDestroyedByStarving");
+			auto so = std::make_unique<SlicObject>("265CityDestroyedByStarving");
 			so->AddRecipient(GetOwner());
 			so->AddCity(m_home_city);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
 			return false;
 		}
@@ -4431,11 +4432,11 @@ bool CityData::BeginTurn()
 	{
 		if(m_lastCelebrationMsg < 0 || (m_lastCelebrationMsg + 10 < turn_Get()->GetRound()))
 		{
-			SlicObject *so = new SlicObject("40CityIsCelebratingHappiness") ;
+			auto so = std::make_unique<SlicObject>("40CityIsCelebratingHappiness") ;
 			so->AddCity(m_home_city);
 			so->AddRecipient(m_owner);
 			so->AddPlayer(m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			m_lastCelebrationMsg = sint16(turn_Get()->GetRound());
 		}
 
@@ -4447,11 +4448,11 @@ bool CityData::BeginTurn()
 	&& !m_buildInfrastructure
 	&& !m_sentInefficientMessageAlready
 	){
-		SlicObject *so = new SlicObject("37CityQueueIsEmpty");
+		auto so = std::make_unique<SlicObject>("37CityQueueIsEmpty");
 		so->AddCity(m_home_city);
 		so->AddCivilisation(m_owner);
 		so->AddRecipient(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 		slicengine_Get()->RunWastingWorkTriggers(m_home_city);
 	}
 	m_sentInefficientMessageAlready = false;
@@ -4570,10 +4571,10 @@ void CityData::CheckRiot()
 								player_Get(m_owner)->GetRiotChance())) {
 			m_is_rioting = TRUE;
 
-			SlicObject *so = new SlicObject("100CityRioting");
+			auto so = std::make_unique<SlicObject>("100CityRioting");
 			so->AddCity(m_home_city);
 			so->AddRecipient(m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			player_Get(m_owner)->m_score->AddRiot();
 
 // EMOD to add graphics to rioting cities //need to change and add sprite and where to put effect sprite
@@ -4608,13 +4609,13 @@ bool CityData::BuildUnit(sint32 type)
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner))
 	{
-		network_Get().SendAction(new NetAction(NET_ACTION_BUILD, type, m_home_city));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_BUILD, type, m_home_city).release());
 	}
 	else if(network_Get().IsHost())
 	{
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILDING_UNIT,
-		                  type, (uint32)m_home_city));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_BUILDING_UNIT,
+		                  type, (uint32)m_home_city).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -4648,12 +4649,12 @@ bool CityData::BuildImprovement(sint32 type)
 	m_buildCapitalization = FALSE;
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_BUILD_IMP, type,
-		                     m_home_city));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_BUILD_IMP, type,
+		                     m_home_city).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILD_IMP, m_owner, type,
-		                  m_home_city));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_BUILD_IMP, m_owner, type,
+		                  m_home_city).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -4709,12 +4710,12 @@ bool CityData::BuildWonder(sint32 type)
 	m_buildCapitalization = FALSE;
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_BUILD_WONDER,
-		                     (uint32)m_home_city, type));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_BUILD_WONDER,
+		                     (uint32)m_home_city, type).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILD_WONDER,
-		                  (uint32)m_home_city, type));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_BUILD_WONDER,
+		                  (uint32)m_home_city, type).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -4811,14 +4812,14 @@ bool CityData::ChangeCurrentlyBuildingItem(sint32 category, sint32 item_type)
 	m_buildCapitalization = FALSE;
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_CHANGE_BUILD,
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CHANGE_BUILD,
 										   (uint32)m_home_city, category,
-										   item_type));
+										   item_type).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CHANGE_BUILD,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CHANGE_BUILD,
 									  m_owner, (uint32)m_home_city,
-									  category, item_type));
+									  category, item_type).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -4870,11 +4871,11 @@ bool CityData::ChangeCurrentlyBuildingItem(sint32 category, sint32 item_type)
 		if ((buildingutil_GetDesignatesCapitol(safe_shift_left_u64(item_type), m_owner)) &&
 			(player_Get(m_owner)->m_capitol->m_id != (0)))
 		{
-			SlicObject *so = new SlicObject("38IACapitolWarning");
+			auto so = std::make_unique<SlicObject>("38IACapitolWarning");
 			so->AddCity(*(player_Get(m_owner)->m_capitol));
 			so->AddCity(m_home_city);
 			so->AddRecipient(m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 
 		if(CanBuildBuilding(item_type)) {
@@ -5489,10 +5490,10 @@ void CityData::FinishUprising(Army &sa, UPRISING_CAUSE cause)
 
 	if (cause != UPRISING_CAUSE_INCITED)
     {
-		SlicObject *so = new SlicObject("206CrisisSlaveRevolt");
+		auto so = std::make_unique<SlicObject>("206CrisisSlaveRevolt");
 		so->AddCity(m_home_city);
 		so->AddRecipient(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	if (startedBattle)
@@ -5547,8 +5548,8 @@ void CityData::CleanupUprising(Army &sa)
 												  m_home_city);
 				if(network_Get().IsHost()) {
 					network_Get().Block(oldOwner);
-					network_Get().Enqueue(new NetInfo(NET_INFO_CODE_MAKE_UNIT_PERMANENT,
-												  sa[i].m_id));
+					network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_MAKE_UNIT_PERMANENT,
+												  sa[i].m_id).release());
 					network_Get().Unblock(oldOwner);
 				}
 			}
@@ -5625,10 +5626,10 @@ void CityData::SpreadBioTerror()
 		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetBioInfectionSpreadChance()
 			                          * 100.0)) {
 			c.BioInfect(0);
-			SlicObject *so = new SlicObject("047InfectedViaTrade");
+			auto so = std::make_unique<SlicObject>("047InfectedViaTrade");
 			so->AddCity(c);
 			so->AddRecipient(c.GetOwner());
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 }
@@ -5647,10 +5648,10 @@ void CityData::SpreadNanoTerror()
 		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetNanoInfectionSpreadChance()
 			                          * 100.0)) {
 			c.NanoInfect(0);
-			SlicObject *so = new SlicObject("047InfectedViaTrade");
+			auto so = std::make_unique<SlicObject>("047InfectedViaTrade");
 			so->AddCity(c);
 			so->AddRecipient(c.GetOwner());
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 }
@@ -6027,8 +6028,8 @@ bool CityData::BuyFront()
 	}
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_BUY_FRONT,
-		                     (uint32)m_home_city));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_BUY_FRONT,
+		                     (uint32)m_home_city).release());
 	}
 
 	if(!m_paidForBuyFront) {
@@ -6129,13 +6130,13 @@ void CityData::SellBuilding(sint32 which, bool byChoice)
 				return;
 
 			if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-				network_Get().SendAction(new NetAction(NET_ACTION_SELL_BUILDING,
+				network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SELL_BUILDING,
 					(uint32)m_home_city,
-					which));
+					which).release());
 			} else if(network_Get().IsHost()) {
 				network_Get().Block(m_owner);
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SOLD_BUILDING,
-											  (uint32)m_home_city, which));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SOLD_BUILDING,
+											  (uint32)m_home_city, which).release());
 			}
 
 			m_alreadySoldABuilding = TRUE;
@@ -7257,8 +7258,8 @@ sint32 CityData::GetOutgoingTrade() const
 void CityData::FinishBuilding()
 {
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_FINISH_BUILDING,
-		                     m_home_city.m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_FINISH_BUILDING,
+		                     m_home_city.m_id).release());
 	}
 
 	MapPoint pos;
@@ -7350,10 +7351,10 @@ void CityData::BuildInfrastructure()
 		return;
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_BUILD_INFRASTRUCTURE, m_home_city.m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_BUILD_INFRASTRUCTURE, m_home_city.m_id).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILD_INFRASTRUCTURE, m_home_city));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_BUILD_INFRASTRUCTURE, m_home_city).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -7374,10 +7375,10 @@ void CityData::BuildCapitalization()
 		return;
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_BUILD_CAPITALIZATION, m_home_city.m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_BUILD_CAPITALIZATION, m_home_city.m_id).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILD_CAPITALIZATION, m_home_city));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_BUILD_CAPITALIZATION, m_home_city).release());
 		network_Get().Unblock(m_owner);
 	}
 	m_buildInfrastructure = FALSE;
@@ -7475,8 +7476,8 @@ void CityData::Disband()
 		return;
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_DISBAND_CITY,
-										   (uint32)m_home_city));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_DISBAND_CITY,
+										   (uint32)m_home_city).release());
 	}
 
 	MapPoint pos;
@@ -7509,7 +7510,7 @@ void CityData::Disband()
 			if (network_Get().IsHost())
 			{
 				network_Get().Block(s.GetOwner());
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_DISBANDED_CITY_SETTLER, s.m_id));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_DISBANDED_CITY_SETTLER, s.m_id).release());
 				network_Get().Unblock(s.GetOwner());
 			}
 		}
@@ -7748,7 +7749,7 @@ void CityData::ChangeSpecialists(POP_TYPE type, sint32 delta)
 	} else if(network_Get().IsClient()) {
 
 		if(this == m_home_city.CD()) {
-			network_Get().SendAction(new NetAction(NET_ACTION_SET_SPECIALISTS, m_home_city.m_id, type, m_numSpecialists[type]));
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SET_SPECIALISTS, m_home_city.m_id, type, m_numSpecialists[type]).release());
 		}
 	}
 }
@@ -8040,11 +8041,11 @@ void CityData::SetUseGovernor(const bool &value)
 	if(!IsACopy()) {
 		if(network_Get().IsHost()) {
 			network_Get().Block(m_owner);
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor).release());
 			network_Get().Unblock(m_owner);
 		} else if(network_Get().IsClient()) {
 			if(network_Get().IsLocalPlayer(m_owner))
-				network_Get().SendAction(new NetAction(NET_ACTION_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
+				network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor).release());
 		}
 	}
 }
@@ -8060,11 +8061,11 @@ void CityData::SetBuildListSequenceIndex(const sint32 &value)
 	if(!IsACopy()) {
 		if(network_Get().IsHost()) {
 			network_Get().Block(m_owner);
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor).release());
 			network_Get().Unblock(m_owner);
 		} else if(network_Get().IsClient()) {
 			if(network_Get().IsLocalPlayer(m_owner))
-				network_Get().SendAction(new NetAction(NET_ACTION_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor));
+				network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SET_MAYOR, m_home_city.m_id, m_buildListSequenceIndex, m_useGovernor).release());
 		}
 	}
 }
@@ -10367,10 +10368,10 @@ void CityData::InsurgentSpawn()
 			if(civrand().Next(10000) < static_cast<sint32>(barbchance * 10000.0)) {
 				// Add some Barbarians nearby cpos.
 				Barbarians::AddBarbarians(cpos, m_owner, false, turn_Get()->GetRound());
-				SlicObject *so = new SlicObject("999InsurgentSpawn");
+				auto so = std::make_unique<SlicObject>("999InsurgentSpawn");
 				so->AddRecipient(m_owner);
 				so->AddCity(m_home_city);
-				slicengine_Get()->Execute(so);  //forgot this?
+				slicengine_Get()->Execute(std::move(so));  //forgot this?
 			}
 		}
 }
@@ -10395,11 +10396,11 @@ void CityData::RiotCasualties()
 		{
 			casualties *= -1 ; //random number of caualties
 			ChangePopulation(casualties);
-			SlicObject *so = new SlicObject("999RiotCasulaties");
+			auto so = std::make_unique<SlicObject>("999RiotCasulaties");
 			so->AddRecipient(m_owner);
 			so->AddCity(m_home_city);
 			so->AddGold(casualties);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 

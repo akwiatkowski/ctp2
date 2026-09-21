@@ -1345,14 +1345,14 @@ void CtpAi::MoveOutofCityTransportUnits(const PLAYER_INDEX playerId)
 					move_army.CanEnter(dest)
 				   )
 				{
-					Path * tmpPath = new Path;
+					std::unique_ptr<Path> tmpPath = std::make_unique<Path>();
 					tmpPath->SetStart(pos);
 					tmpPath->AddDir(static_cast<WORLD_DIRECTION>(dir));
 					tmpPath->Start(pos);
 
 					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
 										   GEA_Army,		move_army,
-										   GEA_Path,		tmpPath,
+									   GEA_Path,		tmpPath.release(),
 										   GEA_MapPoint,	dest,
 										   GEA_Int,			FALSE,
 										   GEA_End
@@ -1474,14 +1474,14 @@ void CtpAi::MakeRoomForNewUnits(const PLAYER_INDEX playerId)
 				{
 					if (move_army.CanEnter(dest))
 					{
-						Path *tmpPath = new Path;
+						std::unique_ptr<Path> tmpPath = std::make_unique<Path>();
 						tmpPath->SetStart(pos);
 						tmpPath->AddDir((WORLD_DIRECTION)j);
 						tmpPath->Start(pos);
 
 						gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
 							GEA_Army, move_army,
-							GEA_Path, tmpPath,
+						GEA_Path, tmpPath.release(),
 							GEA_MapPoint, dest,
 							GEA_Int, FALSE,
 							GEA_End);
@@ -2041,12 +2041,12 @@ void CtpAi::RefuelAirplane(const Army & army)
 		return;
 	}
 
-	Path *tmpPath = new Path(new_path);
+	std::unique_ptr<Path> tmpPath = std::make_unique<Path>(new_path);
 	MapPoint target_pos = tmpPath->GetEnd();
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
 		GEA_Army, army,
-		GEA_Path, tmpPath,
+		GEA_Path, tmpPath.release(),
 		GEA_MapPoint, target_pos,
 		GEA_Int, FALSE,
 		GEA_End);

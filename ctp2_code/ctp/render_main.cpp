@@ -1,3 +1,4 @@
+#include <memory>
 #include "ctp/c3.h"
 
 #include "ctp/civapp.h"
@@ -35,7 +36,7 @@ int main(int argc, char **argv)
 #endif
 
 	g_smokeTest = TRUE;
-	civapp_Set(new CivApp());
+	civapp_Set(std::make_unique<CivApp>().release());
 
 	if (civapp_Get()->InitializeApp(nullptr, 0) != 0) {
 		std::fprintf(stderr, "ctp2_render: InitializeApp failed\n");

@@ -35,6 +35,8 @@
 #define _NET_GAMEOBJ_H_
 
 #include "net/general/net_hash.h"
+#include <memory>
+
 
 class GameObj;
 
@@ -52,8 +54,8 @@ private:
 		uint32 m_id;
 	};
 
-	PointerList<GameObjRecord> *m_created;
-	PointerList<LimboID> *m_limbo;
+	std::unique_ptr<PointerList<GameObjRecord>> m_created;
+	std::unique_ptr<PointerList<LimboID>> m_limbo;
 	NetHash m_createdHash;
 
 	void TheReaper();

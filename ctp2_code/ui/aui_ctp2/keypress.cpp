@@ -40,6 +40,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/spritesys/UnitSpriteGroup.h"
@@ -152,6 +153,7 @@ extern sint32		g_is_rand_test;
 #endif
 
 KEYMAP *theKeyMap = nullptr;
+static std::unique_ptr<KEYMAP> s_keyMapOwner;
 
 extern DataCheck	*g_DataCheck;
 extern sint32		g_debugOwner;
@@ -168,7 +170,8 @@ extern sint32		g_isKMScreen;
 
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 c3_UtilityPlayerListPopup *g_networkPlayersScreen = nullptr;
-extern c3_UtilityTextMessagePopup		*g_utilityTextMessage;
+static std::unique_ptr<c3_UtilityPlayerListPopup> s_networkPlayersScreen;
+extern std::unique_ptr<c3_UtilityTextMessagePopup>	g_utilityTextMessage;
 
 #include "ui/interface/chatbox.h"
 
@@ -176,7 +179,7 @@ extern c3_UtilityTextMessagePopup		*g_utilityTextMessage;
 
 #include "ui/aui_ctp2/keyboardhandler.h"
 
-extern MessageModal *g_modalMessage;
+extern std::unique_ptr<MessageModal> g_modalMessage;
 extern MessageWindow	*g_currentMessageWindow;
 
 extern sint32 g_modalWindow;
@@ -217,18 +220,18 @@ void keypress_RemoveHandler(KeyboardHandler *handler)
 
 void init_keymap() {
 	if ( !theKeyMap )
-		theKeyMap = new KEYMAP(FALSE);
+		theKeyMap = (s_keyMapOwner = std::make_unique<KEYMAP>(FALSE)).get();
 
 }
 
 void init_defaultKeymap() {
 	if(!theKeyMap)
-		theKeyMap = new KEYMAP(TRUE);
+		theKeyMap = (s_keyMapOwner = std::make_unique<KEYMAP>(TRUE)).get();
 }
 
 void cleanup_keymap()
 {
-	delete theKeyMap;
+	s_keyMapOwner.reset();
 	theKeyMap = nullptr;
 }
 
@@ -994,7 +997,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 	case KEY_FUNCTION_NETWORK_PLAYERS_SCREEN:
 		if ( !g_networkPlayersScreen ) {
-			g_networkPlayersScreen = new c3_UtilityPlayerListPopup((c3_UtilityPlayerListCallback *)network_PlayerListCallback);
+			g_networkPlayersScreen = (s_networkPlayersScreen = std::make_unique<c3_UtilityPlayerListPopup>((c3_UtilityPlayerListCallback *)network_PlayerListCallback)).get();
 		}
 		g_networkPlayersScreen->DisplayWindow();
 		if ( network_Get().IsHost() ) {

@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/TradeOfferData.h"
 #include "gs/gameobj/player.h"
 #include "gs/gameobj/Gold.h"
@@ -48,25 +49,25 @@ BOOL TradeOfferData::Accept(PLAYER_INDEX player,
 		return FALSE;
 #endif
 
-	SlicObject *so = new SlicObject("363TradeOfferAccepted");
+	auto so = std::make_unique<SlicObject>("363TradeOfferAccepted");
 	so->AddRecipient(destCity.GetOwner());
 	so->AddCivilisation(m_fromCity.GetOwner());
 	so->AddCity(m_fromCity);
 	so->AddCity(destCity);
 	so->AddGood(m_offerResource);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SEND_OFFER_ACCEPT_MESSAGE,
-									  m_fromCity.m_id, destCity.m_id, m_offerResource));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SEND_OFFER_ACCEPT_MESSAGE,
+									  m_fromCity.m_id, destCity.m_id, m_offerResource).release());
 	}
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_ACCEPT_TRADE_OFFER,
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_ACCEPT_TRADE_OFFER,
 										   m_id,
 										   player,
 										   (uint32)sourceCity,
-										   (uint32)destCity));
+										   (uint32)destCity).release());
 		return FALSE;
 	}
 

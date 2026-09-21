@@ -32,6 +32,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/interface/sci_advancescreen.h"
 
 #include "ui/aui_common/aui_uniqueid.h"
@@ -79,7 +81,7 @@
 #include "gfx/spritesys/director.h"
 extern ProjectFile	*g_GreatLibPF;
 
-extern ScienceWin	*g_scienceWin;
+extern std::unique_ptr<ScienceWin>	g_scienceWin;
 
 #include "ui/interface/ScienceManagementDialog.h"
 
@@ -87,33 +89,33 @@ extern ScienceWin	*g_scienceWin;
 #include "sound/gamesounds.h"
 
 
-static C3Window		*s_sci_advanceScreen	= nullptr;
+static std::unique_ptr<C3Window>		s_sci_advanceScreen;
 
-static ctp2_Button	*s_back				= nullptr;
-static ctp2_Button	*s_cancel			= nullptr;
-static ctp2_Button	*s_goal				= nullptr;
-static ctp2_Static	*s_name				= nullptr;
-static ctp2_ListBox	*s_advanceList		= nullptr;
+static std::unique_ptr<ctp2_Button>		s_back;
+static std::unique_ptr<ctp2_Button>		s_cancel;
+static std::unique_ptr<ctp2_Button>		s_goal;
+static std::unique_ptr<ctp2_Static>		s_name;
+static std::unique_ptr<ctp2_ListBox>	s_advanceList;
 
-static ctp2_Static	*s_changeLabel		= nullptr;
-static ctp2_Static	*s_changeBox		= nullptr;
-static ctp2_Static	*s_turnsLabel		= nullptr;
-static ctp2_Static	*s_turnsBox			= nullptr;
+static std::unique_ptr<ctp2_Static>		s_changeLabel;
+static std::unique_ptr<ctp2_Static>		s_changeBox;
+static std::unique_ptr<ctp2_Static>		s_turnsLabel;
+static std::unique_ptr<ctp2_Static>		s_turnsBox;
 
-static ctp2_Static	*s_goaltext			= nullptr;
+static std::unique_ptr<ctp2_Static>		s_goaltext;
 
-static ctp2_Static	*s_background		= nullptr;
+static std::unique_ptr<ctp2_Static>		s_background;
 
-static ctp2_HyperTextBox	*s_glStats		= nullptr;
-static ctp2_HyperTextBox	*s_message		= nullptr;
+static std::unique_ptr<ctp2_HyperTextBox>	s_glStats;
+static std::unique_ptr<ctp2_HyperTextBox>	s_message;
 
-static aui_StringTable	*s_advanceString = nullptr;
+static std::unique_ptr<aui_StringTable>	s_advanceString;
 
 static sint32 s_oldResearching = -1;
 
 static SequenceWeakPtr		s_screenSequence;
 
-static bool *s_scienceGoalTree=nullptr;
+static std::unique_ptr<bool[]> s_scienceGoalTree;
 
 sint32 ScienceSortCallback(ctp2_ListItem *item1, ctp2_ListItem *item2, sint32 column);
 
@@ -239,7 +241,7 @@ sint32	sci_advancescreen_displayMyWindow( MBCHAR *messageText, sint32 from, Sequ
 	if(from != k_SCI_INCLUDE_CANCEL) {
 			soundmgr_Get()->AddGameSound(GAMESOUNDS_ADVANCE);
 	}
-	auiErr = c3ui_Get()->AddWindow(s_sci_advanceScreen);
+	auiErr = c3ui_Get()->AddWindow(s_sci_advanceScreen.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 
@@ -293,7 +295,7 @@ AUI_ERRCODE sci_advancescreen_Initialize( MBCHAR *messageText )
 	strlcpy(windowBlock, "SciAdvanceScreen", sizeof(windowBlock));
 
 	{
-		s_sci_advanceScreen = new C3Window( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_STANDARD, false);
+		s_sci_advanceScreen = std::make_unique<C3Window>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_STANDARD, false);
 		Assert( AUI_NEWOK(s_sci_advanceScreen, errcode) );
 		if ( !AUI_NEWOK(s_sci_advanceScreen, errcode) ) return errcode;
 
@@ -303,56 +305,56 @@ AUI_ERRCODE sci_advancescreen_Initialize( MBCHAR *messageText )
 		s_sci_advanceScreen->SetStronglyModal(TRUE);
 	}
 
-	s_background = new ctp2_Static( &errcode, aui_UniqueId(),
+	s_background = std::make_unique<ctp2_Static>( &errcode, aui_UniqueId(),
 		"SciAdvanceScreen.Background" );
 	s_background->Enable(false);
 
-	s_back = new ctp2_Button(&errcode, aui_UniqueId(),
+	s_back = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(),
 		"SciAdvanceScreen.Background.BackButton", sci_advancescreen_backPress);
-	s_cancel = new ctp2_Button(&errcode, aui_UniqueId(),
+	s_cancel = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(),
 		"SciAdvanceScreen.Background.CancelButton", sci_advancescreen_cancelPress);
-	s_goal = new ctp2_Button(&errcode, aui_UniqueId(),
+	s_goal = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(),
 		"SciAdvanceScreen.Background.GoalButton");
 
 	if(s_goal)
 		s_goal->SetActionFuncAndCookie(sci_advancescreen_GoalCallback, nullptr);
 
-	s_name = new ctp2_Static(&errcode, aui_UniqueId(), "SciAdvanceScreen.Background.Name");
+	s_name = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), "SciAdvanceScreen.Background.Name");
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Background.SciAdvanceList" );
-	s_advanceList = new ctp2_ListBox( &errcode, aui_UniqueId(), controlBlock,
+	s_advanceList = std::make_unique<ctp2_ListBox>( &errcode, aui_UniqueId(), controlBlock,
 		sci_advancescreen_listAction );
 	Assert( AUI_NEWOK(s_advanceList, errcode) );
 	if ( !AUI_NEWOK(s_advanceList, errcode) ) return errcode;
 
 	s_advanceList->SetForceSelect( TRUE );
 
-	s_changeLabel = new ctp2_Static( &errcode, aui_UniqueId(),
+	s_changeLabel = std::make_unique<ctp2_Static>( &errcode, aui_UniqueId(),
 		"SciAdvanceScreen.Background.ChangeLabel" );
-	s_changeBox = new ctp2_Static( &errcode, aui_UniqueId(),
+	s_changeBox = std::make_unique<ctp2_Static>( &errcode, aui_UniqueId(),
 		"SciAdvanceScreen.Background.ChangeBox" );
-	s_turnsLabel = new ctp2_Static( &errcode, aui_UniqueId(),
+	s_turnsLabel = std::make_unique<ctp2_Static>( &errcode, aui_UniqueId(),
 		"SciAdvanceScreen.Background.TurnsLabel" );
-	s_turnsBox = new ctp2_Static( &errcode, aui_UniqueId(),
+	s_turnsBox = std::make_unique<ctp2_Static>( &errcode, aui_UniqueId(),
 		"SciAdvanceScreen.Background.TurnsBox" );
-	s_goaltext = new ctp2_Static( &errcode, aui_UniqueId(),
+	s_goaltext = std::make_unique<ctp2_Static>( &errcode, aui_UniqueId(),
 		"SciAdvanceScreen.Background.ResearchGoal" );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Background.GlStats" );
-	s_glStats = new ctp2_HyperTextBox( &errcode, aui_UniqueId(), controlBlock,
+	s_glStats = std::make_unique<ctp2_HyperTextBox>( &errcode, aui_UniqueId(), controlBlock,
 		sci_advancescreen_StatsCallback );
 	Assert( AUI_NEWOK(s_glStats, errcode) );
 	if ( !AUI_NEWOK(s_glStats, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Background.Message" );
-	s_message = new ctp2_HyperTextBox( &errcode, aui_UniqueId(), controlBlock,
+	s_message = std::make_unique<ctp2_HyperTextBox>( &errcode, aui_UniqueId(), controlBlock,
 		sci_advancescreen_StatsCallback);
 
 	Assert( AUI_NEWOK(s_message, errcode) );
 	if ( !AUI_NEWOK(s_message, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "SciAdvanceString" );
-	s_advanceString = new aui_StringTable( &errcode, controlBlock );
+	s_advanceString = std::make_unique<aui_StringTable>( &errcode, controlBlock );
 	if ( !AUI_NEWOK(s_advanceString, errcode) ) return errcode;
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
@@ -374,7 +376,7 @@ void sci_advancescreen_Cleanup()
 
 	keypress_RemoveHandler(&s_keyboardHandler);
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
+#define mycleanup(mypointer) { mypointer.reset(); }
 	mycleanup(s_name);
 	mycleanup(s_back);
 	mycleanup(s_cancel);
@@ -392,8 +394,7 @@ void sci_advancescreen_Cleanup()
 	mycleanup(s_sci_advanceScreen);
 #undef mycleanup
 
-    delete [] s_scienceGoalTree;
-    s_scienceGoalTree = nullptr;
+    s_scienceGoalTree.reset();
 }
 
 
@@ -498,9 +499,9 @@ sint32 sci_advancescreen_loadList( )
 	MBCHAR str[_MAX_PATH];
 	if(!s_scienceGoalTree)
 	{
-		s_scienceGoalTree = new bool[g_theAdvanceDB->NumRecords()];
+		s_scienceGoalTree = std::make_unique<bool[]>(g_theAdvanceDB->NumRecords());
 	}
-	memset(s_scienceGoalTree,0,sizeof(bool)*g_theAdvanceDB->NumRecords());
+	memset(s_scienceGoalTree.get(),0,sizeof(bool)*g_theAdvanceDB->NumRecords());
 	if(p->m_researchGoal >= 0)
 	{
 		sci_advancescreen_fillgoalarray(p->m_researchGoal);

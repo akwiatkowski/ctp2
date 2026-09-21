@@ -1,4 +1,6 @@
 #include "ctp/c3.h"
+#include <memory>
+
 #include "net/general/network.h"
 #include "net/general/net_tradeoffer.h"
 #include "net/io/net_util.h"
@@ -42,7 +44,7 @@ void NetTradeOffer::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	network_Get().CheckReceivedObject((uint32)offer);
 
 	if(!tradeofferpool_Get()->IsValid(offer)) {
-		m_offerData = new TradeOfferData(offer);
+		m_offerData = std::make_unique<TradeOfferData>(offer).release();
 	} else {
 		m_offerData = tradeofferpool_Get()->AccessTradeOffer(offer);
 	}

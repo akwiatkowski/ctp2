@@ -70,6 +70,7 @@ enum SAVEINFOLOAD
 #include "gs/fileio/civscenarios.h"
 #include "gs/gameobj/CivilisationPool.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -163,7 +164,7 @@ public:
 	~GameInfo();
 	MBCHAR					name[_MAX_PATH];
 	MBCHAR					path[_MAX_PATH];
-	PointerList<SaveInfo>	*files;
+	std::unique_ptr<PointerList<SaveInfo>>	files;
 };
 
 class GameFile
@@ -212,9 +213,10 @@ public:
 class GameMapInfo {
 public:
 	GameMapInfo();
+	~GameMapInfo();
 	MBCHAR					name[_MAX_PATH];
 	MBCHAR					path[_MAX_PATH];
-	PointerList<SaveMapInfo>	*files;
+	std::unique_ptr<PointerList<SaveMapInfo>>	files;
 };
 
 class GameMapFile

@@ -33,6 +33,7 @@
 
 #include "ui/aui_common/aui_control.h"
 #include "ui/aui_common/aui_listbox.h"
+#include <memory>
 
 class aui_Surface;
 class aui_Button;
@@ -83,7 +84,9 @@ public:
 	~aui_DropDown() override;
 
 protected:
-	aui_DropDown() : aui_Control() {}
+	// Out-of-line in aui_dropdown.cpp: unique_ptr<aui_Window> member over a
+	// forward-declared type needs the complete type at ctor/dtor instantiation.
+	aui_DropDown();
 	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( sint32 buttonSize, sint32 windowSize );
 	AUI_ERRCODE CreateComponents( MBCHAR const *ldlBlock = nullptr );
@@ -97,11 +100,11 @@ public:
 
 	AUI_ERRCODE	Hide( ) override;
 
-	aui_Button	*GetButton( ) const { return m_button; }
-	aui_ListBox	*GetListBox( ) const { return m_listBox; }
-	aui_Window	*GetListBoxWindow( ) const { return m_listBoxWindow; }
+	aui_Button	*GetButton( ) const { return m_button.get(); }
+	aui_ListBox	*GetListBox( ) const { return m_listBox.get(); }
+	aui_Window	*GetListBoxWindow( ) const { return m_listBoxWindow.get(); }
 
-	aui_Static	*GetStaticPane( ) const { return m_staticPane; }
+	aui_Static	*GetStaticPane( ) const { return m_staticPane.get(); }
 
 	sint32		GetButtonSize( ) const { return m_buttonSize; }
 	AUI_ERRCODE	SetButtonSize( sint32 buttonSize )
@@ -136,11 +139,11 @@ protected:
 
 	AUI_ERRCODE	DrawSelectedItem( aui_Surface *surface, sint32 x, sint32 y );
 
-	aui_Button	*m_button;
-	aui_ListBox	*m_listBox;
-	aui_Window	*m_listBoxWindow;
+	std::unique_ptr<aui_Button>	m_button;
+	std::unique_ptr<aui_ListBox>	m_listBox;
+	std::unique_ptr<aui_Window>	m_listBoxWindow;
 
-	aui_Static	*m_staticPane;
+	std::unique_ptr<aui_Static>	m_staticPane;
 
 	sint32		m_buttonSize;
 	sint32		m_windowSize;

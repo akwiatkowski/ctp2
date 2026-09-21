@@ -84,16 +84,17 @@
 #include "gs/database/StrDB.h"                  // stringdb_Get()
 #include "ui/aui_ctp2/textradio.h"
 #include <vector>                   // std::vector
+#include <memory>
 //end includes
 
 extern sint32               g_isCheatModeOn;
 
 c3_PopupWindow              *g_spNewGameTribeScreen  = nullptr; //added
-static ctp2_ListBox         *s_CivListBox            = nullptr;
+static std::unique_ptr<ctp2_ListBox> s_CivListBox;
 //original gender buttons
-static c3_Static			*s_leaderNameStatic		 = nullptr;
-static C3TextField			*s_leaderNameTextField	 = nullptr;
-static aui_SwitchGroup		*s_maleFemaleSwitchGroup = nullptr;
+static std::unique_ptr<c3_Static>		s_leaderNameStatic;
+static std::unique_ptr<C3TextField>		s_leaderNameTextField;
+static std::unique_ptr<aui_SwitchGroup>	s_maleFemaleSwitchGroup;
 static GENDER				s_gender;
 sint32  const               INDEX_TRIBE_INVALID = -1;
 aui_Radio					*s_maleRadio = nullptr;
@@ -235,7 +236,7 @@ AUI_ERRCODE spnewgametribescreen_Initialize( aui_Control::ControlActionCallback 
 	strlcpy(windowBlock, "SPNewGameTribeScreen", sizeof(windowBlock));
 
 	{
-		g_spNewGameTribeScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		g_spNewGameTribeScreen = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false).release();
 		Assert( AUI_NEWOK(g_spNewGameTribeScreen, errcode) );
 		if ( !AUI_NEWOK(g_spNewGameTribeScreen, errcode) ) return errcode;
 
@@ -250,26 +251,26 @@ AUI_ERRCODE spnewgametribescreen_Initialize( aui_Control::ControlActionCallback 
 	g_spNewGameTribeScreen->AddTitle( controlBlock );
 	g_spNewGameTribeScreen->AddClose( callback );
 
-	s_CivListBox = (ctp2_ListBox *)aui_Ldl::BuildHierarchyFromRoot("SPNewGameTribeScreen.CivBox");
+	s_CivListBox.reset((ctp2_ListBox *)aui_Ldl::BuildHierarchyFromRoot("SPNewGameTribeScreen.CivBox"));
 
 	Assert(s_CivListBox);
 
 	spnewgametribescreen_addAllTribes();
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "leadernamestatic" );
-	s_leaderNameStatic = new c3_Static(&errcode, aui_UniqueId(), controlBlock );
+	s_leaderNameStatic = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "leadernametextfield" );
-	s_leaderNameTextField = new C3TextField(&errcode, aui_UniqueId(), controlBlock );
+	s_leaderNameTextField = std::make_unique<C3TextField>(&errcode, aui_UniqueId(), controlBlock );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "malefemaleswitchgroup" );
-	s_maleFemaleSwitchGroup = new aui_SwitchGroup( &errcode, aui_UniqueId(), controlBlock );
+	s_maleFemaleSwitchGroup = std::make_unique<aui_SwitchGroup>( &errcode, aui_UniqueId(), controlBlock );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "malefemaleswitchgroup.maleradio" );
-	s_maleRadio = new aui_Radio(&errcode, aui_UniqueId(), controlBlock, spnewgametribescreen_malePress );
+	s_maleRadio = std::make_unique<aui_Radio>(&errcode, aui_UniqueId(), controlBlock, spnewgametribescreen_malePress ).release();
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "malefemaleswitchgroup.femaleradio" );
-	s_femaleRadio = new aui_Radio(&errcode, aui_UniqueId(), controlBlock, spnewgametribescreen_femalePress );
+	s_femaleRadio = std::make_unique<aui_Radio>(&errcode, aui_UniqueId(), controlBlock, spnewgametribescreen_femalePress ).release();
 
 	if(is_scenario_Get() && start_info_type_Get() == STARTINFOTYPE_NOLOCS)
 	{
@@ -321,10 +322,10 @@ AUI_ERRCODE spnewgametribescreen_Cleanup()
 		c3ui_Get()->RemoveWindow(g_spNewGameTribeScreen->Id());
 		keypress_RemoveHandler(g_spNewGameTribeScreen);
 
-		allocated::clear(s_CivListBox);
-		allocated::clear(s_leaderNameStatic);
-		allocated::clear(s_leaderNameTextField);
-		allocated::clear(s_maleFemaleSwitchGroup);
+		s_CivListBox.reset();
+		s_leaderNameStatic.reset();
+		s_leaderNameTextField.reset();
+		s_maleFemaleSwitchGroup.reset();
 		allocated::clear(s_maleRadio);
 		allocated::clear(s_femaleRadio);
 		allocated::clear(g_spNewGameTribeScreen);
@@ -473,7 +474,7 @@ void spnewgametribescreen_removeTribe(sint32 tribe)
 		if(tribe == reinterpret_cast<intptr_t>(item->GetUserData()))
 		{
 			s_CivListBox->RemoveItemByIndex(i);
-			delete item;
+			std::unique_ptr<ctp2_ListItem> removed(item);
 			return;
 		}
 	}

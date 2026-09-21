@@ -41,6 +41,8 @@
 #ifndef __TILESET_H__
 #define __TILESET_H__
 
+#include <array>
+#include <memory>
 #include <vector>
 
 class TileSet;
@@ -350,7 +352,7 @@ public:
 	sint16			GetTransform(uint16 transformNum, uint16 index) { return m_transforms[transformNum][index]; }
 	uint16			GetNumTransforms() const { return m_numTransforms; }
 
-	BaseTile		*GetBaseTile(uint16 baseTileNum) const { return m_baseTiles[baseTileNum]; }
+	BaseTile		*GetBaseTile(uint16 baseTileNum) const { return m_baseTiles[baseTileNum].get(); }
 	Pixel16			*GetTransitionData(uint16 from, uint16 to, uint16 which) const { return m_transitions[from][to][which]; }
 
 	uint16			GetNumRiverTransforms() const { return m_numRiverTransforms; }
@@ -363,7 +365,7 @@ public:
 	uint16			GetMegaTileLength(sint32 megaTileNum) const { return m_megaTileLengths[megaTileNum]; }
 	MegaTileStep	GetMegaTileStep(sint32 megaTileNum, sint32 stepNum) const { return m_megaTileData[megaTileNum][stepNum]; }
 
-	Pixel16			*GetMapIconData(sint32 icon) { return m_mapIcons[icon]; }
+	Pixel16			*GetMapIconData(sint32 icon) { return m_mapIcons[icon].get(); }
 	POINT			GetMapIconDimensions(MAPICON icon) { return m_mapIconDimensions.at(icon); }
 
 	uint8			ReverseDirection(sint32 dir);
@@ -383,24 +385,28 @@ public:
 
 private:
 	uint16			m_numTransforms;
-	std::vector<sint16*>	m_transforms;
+	std::vector<sint16*>	m_transforms;   // owned in Load, borrowed in QuickLoad
+	std::vector<std::unique_ptr<sint16[]>>	m_transformOwners;   // Load-mode owners of m_transforms
 
 	uint16			m_numRiverTransforms;
-	std::vector<sint16*>	m_riverTransforms;
-	std::vector<Pixel16*>	m_riverData;
+	std::vector<sint16*>	m_riverTransforms;   // owned in Load, borrowed in QuickLoad
+	std::vector<std::unique_ptr<sint16[]>>	m_riverTransformOwners;   // Load-mode owners of m_riverTransforms
+	std::vector<Pixel16*>	m_riverData;   // owned in Load, borrowed in QuickLoad
+	std::vector<std::unique_ptr<Pixel16[]>>	m_riverDataOwners;   // Load-mode owners of m_riverData
 
-	BaseTile		*m_baseTiles[k_MAX_BASE_TILES];
-	Pixel16			*m_transitions[TERRAIN_MAX][TERRAIN_MAX][k_TRANSITIONS_PER_TILE];
+	std::array<std::unique_ptr<BaseTile>, k_MAX_BASE_TILES>	m_baseTiles;
+	Pixel16			*m_transitions[TERRAIN_MAX][TERRAIN_MAX][k_TRANSITIONS_PER_TILE];   // owned in Load, borrowed in QuickLoad
 
 	Pixel16			*m_improvementData[k_MAX_IMPROVEMENTS];
 
-	uint8			*m_tileSetData;
+	uint8			*m_tileSetData;   // mmap'd, or heap owned by m_tileSetDataOwner
+	std::unique_ptr<uint8[]>	m_tileSetDataOwner;
 
 	uint16			m_numMegaTiles;
 	uint16			m_megaTileLengths[k_MAX_MEGATILES];
 	MegaTileStep	m_megaTileData[k_MAX_MEGATILES][k_MAX_MEGATILE_STEPS];
 
-	std::vector<Pixel16*>	m_mapIcons;
+	std::vector<std::unique_ptr<Pixel16[]>>	m_mapIcons;
 	std::vector<POINT> m_mapIconDimensions;
 
 	BOOL			m_quick;

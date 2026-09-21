@@ -41,13 +41,15 @@
 
 #include "ctp/ctp2_utils/pointerlist.h"
 
+#include <memory>
+
 #include "sliccmd.tab.h"
 #include "gs/database/StrDB.h"
 #include "gs/slic/SlicDBConduit.h"
 #include "gs/database/profileDB.h"
 
 
-PointerList<SlicSymbolData> *s_symbolList = nullptr;
+static std::unique_ptr<PointerList<SlicSymbolData>> s_symbolList;
 
 int sliccmd_int_result;
 
@@ -459,7 +461,7 @@ void sliccmd_parse_done(struct sliccmdExpValue *v, int action)
 	sym->GetIntValue((sint32 &)sliccmd_int_result);
 
 	if(v->type == EXP_VAL_TEMP_SYM) {
-		delete sym;
+		std::unique_ptr<SlicSymbolData>(sym);
 	}
 }
 
@@ -499,17 +501,16 @@ void sliccmd_clear_symbols()
 		    s_symbolList->RemoveHead();
         }
 
-        delete s_symbolList;
-        s_symbolList = nullptr;
+        s_symbolList.reset();
 	}
 }
 
 void sliccmd_add_symbol_used(SlicSymbolData *sym)
 {
 	if(!s_symbolList)
-		s_symbolList = new PointerList<SlicSymbolData>;
+		s_symbolList = std::make_unique<PointerList<SlicSymbolData>>();
 
-	PointerList<SlicSymbolData>::Walker walk(s_symbolList);
+	PointerList<SlicSymbolData>::Walker walk(s_symbolList.get());
 	while(walk.IsValid()) {
 
 		if(walk.GetObj() == sym)
@@ -523,9 +524,9 @@ void sliccmd_add_symbol_used(SlicSymbolData *sym)
 void sliccmd_add_watch(SlicSymbolWatchCallback *watch)
 {
 	if(!s_symbolList)
-		s_symbolList = new PointerList<SlicSymbolData>;
+		s_symbolList = std::make_unique<PointerList<SlicSymbolData>>();
 
-	PointerList<SlicSymbolData>::Walker walk(s_symbolList);
+	PointerList<SlicSymbolData>::Walker walk(s_symbolList.get());
 	while(walk.IsValid()) {
 		walk.GetObj()->AddWatch(watch);
 		watch->WatchCallback(walk.GetObj(), true);
@@ -552,16 +553,16 @@ void *sliccmd_get_db_name_sym(void *dbptr, const char *name)
 
 	sint32 stringId = conduit->GetRecordNameID(name);
 	if(stringId >= 0) {
-		SlicSymbolData *sym = new SlicSymbolData(SLIC_SYM_SVAR);
+		auto sym = std::make_unique<SlicSymbolData>(SLIC_SYM_SVAR);
 		sym->SetStringId(stringId);
-		return sym;
+		return sym.release();
 	} else {
 
-		SlicSymbolData *sym = new SlicSymbolData(SLIC_SYM_STRING);
+		auto sym = std::make_unique<SlicSymbolData>(SLIC_SYM_STRING);
 
 		const MBCHAR *str = conduit->GetRecordName(name);
 		sym->SetString((char *)str);
-		return sym;
+		return sym.release();
 	}
 }
 
@@ -574,13 +575,13 @@ void *sliccmd_get_db_name_sym_by_index(void *dbptr, int index)
 
 	sint32 stringId = conduit->GetRecordNameIDByIndex(index);
 	if(stringId >= 0) {
-		SlicSymbolData *sym = new SlicSymbolData(SLIC_SYM_SVAR);
+		auto sym = std::make_unique<SlicSymbolData>(SLIC_SYM_SVAR);
 		sym->SetStringId(stringId);
-		return sym;
+		return sym.release();
 	} else {
-		SlicSymbolData *sym = new SlicSymbolData(SLIC_SYM_STRING);
+		auto sym = std::make_unique<SlicSymbolData>(SLIC_SYM_STRING);
 		const MBCHAR *str = conduit->GetRecordNameByIndex((sint32)index);
 		sym->SetString((char *)str);
-		return sym;
+		return sym.release();
 	}
 }

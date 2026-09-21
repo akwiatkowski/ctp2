@@ -49,8 +49,8 @@ SlicButton::SlicButton()
 :   m_name         (-1),
     m_isCloseEvent (TRUE),
     m_codeOffset   (0),
-    m_message      (new Message()),
-    m_context      (new SlicObject()),
+    m_message      (std::make_unique<Message>()),
+    m_context      (std::make_unique<SlicObject>().release()),
     m_segment      (nullptr)
 {
     m_context->AddRef();
@@ -60,7 +60,7 @@ SlicButton::SlicButton(StringId name, SlicSegment *segment,
                        sint32 codeOffset, SlicObject *context)
 :   m_name         (name),
     m_codeOffset   (codeOffset),
-    m_message      (new Message()),
+    m_message      (std::make_unique<Message>()),
     m_context      (context),
     m_segment      (segment)
 {
@@ -76,7 +76,7 @@ SlicButton::SlicButton(SlicButton *copy)
 :   m_name         (copy->m_name),
     m_isCloseEvent (copy->m_isCloseEvent),
     m_codeOffset   (copy->m_codeOffset),
-    m_message      (new Message(*copy->m_message)),
+    m_message      (std::make_unique<Message>(*copy->m_message)),
     m_context      (copy->m_context),
     m_segment      (copy->m_segment),
     m_segmentName  (copy->m_segmentName)
@@ -91,7 +91,7 @@ SlicButton::~SlicButton()
 #endif
 	m_context->Release();
 
-	delete m_message;
+	// m_message is unique_ptr — frees itself
 }
 
 void SlicButton::Callback()

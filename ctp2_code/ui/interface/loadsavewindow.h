@@ -7,6 +7,8 @@
 
 class LoadSaveWindow;
 
+#include <memory>
+
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/fileio/gamefile.h"
 #include "ui/aui_ctp2/c3_popupwindow.h"
@@ -119,68 +121,68 @@ public:
 	void SetSaveInfo(SaveInfo *info);
 
 	void CleanUpSaveInfo( );
-	SaveInfo *GetSaveInfoToSave( ) const { return m_saveInfoToSave; }
+	SaveInfo *GetSaveInfoToSave( ) const { return m_saveInfoToSave.get(); }
 
 	void BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name);
 
-	C3TextField* GetTextField() { return m_gameTextBox; }
+	C3TextField* GetTextField() { return m_gameTextBox.get(); }
 
 
-	ctp2_Button *GetDeleteButton( ) {return m_deleteButton; }
+	ctp2_Button *GetDeleteButton( ) {return m_deleteButton.get(); }
 	ctp2_Button *GetOkButton( ) { return Ok(); }
-	c3_Static *GetMapStatic( ) { return m_mapTabImage; }
+	c3_Static *GetMapStatic( ) { return m_mapTabImage.get(); }
 
-	c3_ListBox *GetListOne( ) const { return m_listOne; }
-	c3_ListBox *GetListTwo( ) const { return m_listTwo; }
+	c3_ListBox *GetListOne( ) const { return m_listOne.get(); }
+	c3_ListBox *GetListTwo( ) const { return m_listTwo.get(); }
 
 	bool NoName( );
 
 private:
-	bool        CreateSaveInfoIfNeeded(SaveInfo *& info);
+	bool        CreateSaveInfoIfNeeded(std::unique_ptr<SaveInfo> & info);
 
 	uint32			 m_type;
-	aui_StringTable *m_nameString;
+	std::unique_ptr<aui_StringTable> m_nameString;
 
 	GameInfo		*m_gameInfo;
 	SaveInfo		*m_saveInfo;
 
 
-	SaveInfo		*m_saveInfoRemember;
-	SaveInfo		*m_saveInfoToSave;
+	std::unique_ptr<SaveInfo>	m_saveInfoRemember;
+	std::unique_ptr<SaveInfo>	m_saveInfoToSave;
 
-	PointerList<GameInfo> *m_fileList;
+	std::unique_ptr<PointerList<GameInfo>> m_fileList;
 
-	c3_Static		*m_titlePanel;
+	std::unique_ptr<c3_Static>		m_titlePanel;
 
-	c3_Static		*m_gameText;
-	C3TextField		*m_gameTextBox;
+	std::unique_ptr<c3_Static>		m_gameText;
+	std::unique_ptr<C3TextField>	m_gameTextBox;
 
-	c3_Static		*m_saveText;
-	C3TextField		*m_saveTextBox;
+	std::unique_ptr<c3_Static>		m_saveText;
+	std::unique_ptr<C3TextField>	m_saveTextBox;
 
-	c3_Static		*m_noteText;
-	C3TextField		*m_noteTextBox;
+	std::unique_ptr<c3_Static>		m_noteText;
+	std::unique_ptr<C3TextField>	m_noteTextBox;
 
-	c3_Static		*m_playerText;
-	c3_Static		*m_civText;
+	std::unique_ptr<c3_Static>		m_playerText;
+	std::unique_ptr<c3_Static>		m_civText;
 
-	c3_ListBox		*m_listOne;
-	c3_ListBox		*m_listTwo;
+	std::unique_ptr<c3_ListBox>		m_listOne;
+	std::unique_ptr<c3_ListBox>		m_listTwo;
 
-	aui_TabGroup	*m_tabGroup;
+	std::unique_ptr<aui_TabGroup>	m_tabGroup;
 
-	TextTab			*m_powerTab;
-	c3_Static		*m_powerTabImage;
-	aui_Image		*m_powerTabImageBackup;
+	std::unique_ptr<TextTab>		m_powerTab;
+	std::unique_ptr<c3_Static>		m_powerTabImage;
+	std::unique_ptr<aui_Image>		m_powerTabImageBackup;
 
-	TextTab			*m_mapTab;
-	c3_Static		*m_mapTabImage;
-	aui_Image		*m_mapTabImageBackup;
+	std::unique_ptr<TextTab>		m_mapTab;
+	std::unique_ptr<c3_Static>		m_mapTabImage;
+	std::unique_ptr<aui_Image>		m_mapTabImageBackup;
 
-	TextTab			*m_civsTab;
-	c3_ListBox		*m_civsList;
+	std::unique_ptr<TextTab>		m_civsTab;
+	std::unique_ptr<c3_ListBox>		m_civsList;
 
-	ctp2_Button		*m_deleteButton;
+	std::unique_ptr<ctp2_Button>	m_deleteButton;
 	MBCHAR			m_mostRecentName[_MAX_PATH];
 };
 
@@ -196,7 +198,7 @@ public:
 	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
-	c3_Static *m_myItem;
+	std::unique_ptr<c3_Static> m_myItem;
 };
 
 class LSGamesListItem : public c3_ListItem
@@ -210,8 +212,8 @@ public:
 	GameInfo	*GetGameInfo() const { return m_info; }
 
 private:
-	c3_Static	*m_itemIcon;
-	c3_Static	*m_itemText;
+	std::unique_ptr<c3_Static>	m_itemIcon;
+	std::unique_ptr<c3_Static>	m_itemText;
 	GameInfo	*m_info;
 
 };
@@ -229,8 +231,8 @@ public:
 	SaveInfo	*GetSaveInfo() const { return m_info; }
 
 private:
-	c3_Static	*m_itemIcon;
-	c3_Static	*m_itemText;
+	std::unique_ptr<c3_Static>	m_itemIcon;
+	std::unique_ptr<c3_Static>	m_itemText;
 	SaveInfo	*m_info;
 };
 

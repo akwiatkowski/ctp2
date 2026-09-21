@@ -5,6 +5,8 @@
 #include "gs/utility/QuadTree.h"
 #include "gs/world/UnseenCell.h"
 
+#include <memory>
+
 class UnseenCellQuadTree : public QuadTree<UnseenCellCarton>
 {
 
@@ -31,7 +33,7 @@ inline void UnseenCellQuadTree::Clear()
 	sint32 i;
 	sint32 n = array.Num();
 	for(i = 0; i < n; i++) {
-		delete array[i].m_unseenCell;
+		std::unique_ptr<UnseenCell>{array[i].m_unseenCell};
 	}
 	QuadTree<UnseenCellCarton>::Clear();
 }

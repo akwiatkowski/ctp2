@@ -39,10 +39,10 @@ public:
 protected:
 	ns_HeaderSwitch() : aui_Radio() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( MBCHAR *icon );
+	AUI_ERRCODE InitCommon( MBCHAR const *icon );
 
 protected:
-	AUI_ERRCODE	SetIcon( MBCHAR *icon );
+	AUI_ERRCODE	SetIcon( MBCHAR const *icon );
 	aui_Image	*GetIcon( ) const { return m_icon; }
 
 	AUI_ERRCODE DrawThis(

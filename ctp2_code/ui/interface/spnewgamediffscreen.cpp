@@ -56,13 +56,15 @@
 
 #include "ui/aui_ctp2/keypress.h"
 
+#include <memory>
 
-static c3_PopupWindow   *s_spNewGameDiffScreen  = nullptr;
-static ctp2_ListBox     *s_diffListBox          = nullptr;
-static ctp2_ListBox     *s_riskListBox          = nullptr;
 
-static c3_Static *       s_skillLevel           = nullptr; // Skill level selection
-static c3_Static *       s_barbarianThreat      = nullptr; // Barbarian threat level selection
+static std::unique_ptr<c3_PopupWindow>   s_spNewGameDiffScreen;
+static std::unique_ptr<ctp2_ListBox>     s_diffListBox;
+static std::unique_ptr<ctp2_ListBox>     s_riskListBox;
+
+static std::unique_ptr<c3_Static>        s_skillLevel;      // Skill level selection
+static std::unique_ptr<c3_Static>        s_barbarianThreat; // Barbarian threat level selection
 
 static sint32            s_difficulty1          = 0;
 static sint32            s_difficulty2          = 0;
@@ -126,8 +128,8 @@ sint32	spnewgamediffscreen_displayMyWindow(BOOL viewMode,BOOL reinit)
 	for(i = 0; i < s_riskListBox->NumItems(); i++)
 		s_riskListBox->GetItemByIndex(i)->Enable(!viewMode);
 
-	auiErr = c3ui_Get()->AddWindow(s_spNewGameDiffScreen);
-	keypress_RegisterHandler(s_spNewGameDiffScreen);
+	auiErr = c3ui_Get()->AddWindow(s_spNewGameDiffScreen.get());
+	keypress_RegisterHandler(s_spNewGameDiffScreen.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -142,7 +144,7 @@ sint32 spnewgamediffscreen_removeMyWindow(uint32 action)
 	spnewgamediffscreen_setDifficulty2(s_riskListBox->GetSelectedItemIndex());
 
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( s_spNewGameDiffScreen->Id() );
-	keypress_RemoveHandler(s_spNewGameDiffScreen);
+	keypress_RemoveHandler(s_spNewGameDiffScreen.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -167,7 +169,7 @@ AUI_ERRCODE spnewgamediffscreen_Initialize( aui_Control::ControlActionCallback *
 	strlcpy(windowBlock, "SPNewGameDiffScreen", sizeof(windowBlock));
 
 	{
-		s_spNewGameDiffScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		s_spNewGameDiffScreen = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(s_spNewGameDiffScreen, errcode) );
 		if ( !AUI_NEWOK(s_spNewGameDiffScreen, errcode) ) return errcode;
 
@@ -182,11 +184,11 @@ AUI_ERRCODE spnewgamediffscreen_Initialize( aui_Control::ControlActionCallback *
 	s_spNewGameDiffScreen->AddTitle( controlBlock );
 	s_spNewGameDiffScreen->AddClose( callback );
 
-	s_skillLevel = spNew_c3_Static(&errcode,windowBlock,"SkillLevel");
-	s_barbarianThreat = spNew_c3_Static(&errcode,windowBlock,"BarbarianThreat");
+	s_skillLevel.reset(spNew_c3_Static(&errcode,windowBlock,"SkillLevel"));
+	s_barbarianThreat.reset(spNew_c3_Static(&errcode,windowBlock,"BarbarianThreat"));
 
-	s_diffListBox = (ctp2_ListBox *)aui_Ldl::BuildHierarchyFromRoot("SPNewGameDiffScreen.DiffBox");
-	s_riskListBox = (ctp2_ListBox *)aui_Ldl::BuildHierarchyFromRoot("SPNewGameDiffScreen.RiskBox");
+	s_diffListBox.reset((ctp2_ListBox *)aui_Ldl::BuildHierarchyFromRoot("SPNewGameDiffScreen.DiffBox"));
+	s_riskListBox.reset((ctp2_ListBox *)aui_Ldl::BuildHierarchyFromRoot("SPNewGameDiffScreen.RiskBox"));
 
 	Assert(s_diffListBox);
 	Assert(s_riskListBox);
@@ -279,15 +281,13 @@ AUI_ERRCODE spnewgamediffscreen_Cleanup()
 	if (s_spNewGameDiffScreen)
 	{
 		c3ui_Get()->RemoveWindow(s_spNewGameDiffScreen->Id());
-		keypress_RemoveHandler(s_spNewGameDiffScreen);
+		keypress_RemoveHandler(s_spNewGameDiffScreen.get());
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
-		mycleanup(s_diffListBox);
-		mycleanup(s_riskListBox);
-		mycleanup(s_skillLevel);
-		mycleanup(s_barbarianThreat);
-		mycleanup(s_spNewGameDiffScreen);
-#undef mycleanup
+		s_diffListBox.reset();
+		s_riskListBox.reset();
+		s_skillLevel.reset();
+		s_barbarianThreat.reset();
+		s_spNewGameDiffScreen.reset();
 	}
 
 	return AUI_ERRCODE_OK;

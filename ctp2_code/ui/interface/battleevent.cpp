@@ -55,8 +55,8 @@ void BattleEvent::Initialize()
 	m_type = BATTLE_EVENT_TYPE_NONE;
 	m_finished = FALSE;
 	m_animating = FALSE;
-	m_dataList = new PointerList<BattleEventData>;
-	m_walker = new PointerList<BattleEventData>::Walker(m_dataList);
+	m_dataList = std::make_unique<PointerList<BattleEventData>>();
+	m_walker = std::make_unique<PointerList<BattleEventData>::Walker>(m_dataList.get());
 }
 
 
@@ -65,18 +65,14 @@ BattleEvent::~BattleEvent()
 
 	if (m_dataList) {
 		m_dataList->DeleteAll();
-		delete m_dataList;
 	}
-
-	
-		delete m_walker;
 	
 }
 
 
 BOOL BattleEvent::HasActor(BattleViewActor *actor)
 {
-	m_walker->SetList(m_dataList);
+	m_walker->SetList(m_dataList.get());
 
 	while (m_walker->IsValid()) {
 		if (m_walker->GetObj()->actor == actor)
@@ -93,7 +89,7 @@ void BattleEvent::AddPositionData(BattleViewActor *actor, sint32 column, sint32 
 {
 	if (HasActor(actor)) return;
 
-	BattleEventData		*data = new BattleEventData;
+	auto data = std::make_unique<BattleEventData>();
 
 	data->positionActor = actor;
 	data->positionColumn = column;
@@ -102,7 +98,7 @@ void BattleEvent::AddPositionData(BattleViewActor *actor, sint32 column, sint32 
 	data->positionHP = hp;
 	data->positionIsDefender = isDefender;
 
-	m_dataList->AddTail(data);
+	m_dataList->AddTail(data.release());
 }
 
 
@@ -110,13 +106,13 @@ void BattleEvent::AddAttackData(BattleViewActor *actor, sint32 soundID, double h
 {
 	if (HasActor(actor)) return;
 
-	BattleEventData		*data = new BattleEventData;
+	auto data = std::make_unique<BattleEventData>();
 
 	data->attackActor = actor;
 	data->attackSoundID	= soundID;
 	data->attackHP = hp;
 
-	m_dataList->AddTail(data);
+	m_dataList->AddTail(data.release());
 }
 
 
@@ -125,14 +121,14 @@ void BattleEvent::AddExplosionData(BattleViewActor *actor, EffectActor *explodeA
 {
 	if (HasActor(actor)) return;
 
-	BattleEventData		*data = new BattleEventData;
+	auto data = std::make_unique<BattleEventData>();
 
 	data->explodeVictim = actor;
 	data->explodeActor = explodeActor;
 	data->explodeSoundID = soundID;
 	data->explodeHP = hp;
 
-	m_dataList->AddTail(data);
+	m_dataList->AddTail(data.release());
 }
 
 
@@ -140,13 +136,13 @@ void BattleEvent::AddDeathData(BattleViewActor *actor, sint32 soundID, double hp
 {
 	if (HasActor(actor)) return;
 
-	BattleEventData		*data = new BattleEventData;
+	auto data = std::make_unique<BattleEventData>();
 
 	data->deathVictim = actor;
 	data->deathSoundID = soundID;
 	data->deathHP = hp;
 
-	m_dataList->AddTail(data);
+	m_dataList->AddTail(data.release());
 }
 
 
@@ -154,7 +150,7 @@ void BattleEvent::ProcessPlacement()
 {
 	BattleEventData		*data;
 
-	m_walker->SetList(m_dataList);
+	m_walker->SetList(m_dataList.get());
 	while (m_walker->IsValid()) {
 		data = m_walker->GetObj();
 		Assert(data);
@@ -182,7 +178,7 @@ void BattleEvent::ProcessPlacement()
 
 
 
-			delete m_walker->Remove();
+			std::unique_ptr<BattleEventData>{m_walker->Remove()};
 		} else {
 			Assert(FALSE);
 			m_walker->Next();
@@ -204,7 +200,7 @@ void BattleEvent::ProcessAttack()
 
 	BOOL	nowAnimating = FALSE;
 
-	m_walker->SetList(m_dataList);
+	m_walker->SetList(m_dataList.get());
 	while (m_walker->IsValid()) {
 		data = m_walker->GetObj();
 		Assert(data);
@@ -214,7 +210,7 @@ void BattleEvent::ProcessAttack()
 			Assert(actor);
 			if (!actor) {
 
-				delete m_walker->Remove();
+				std::unique_ptr<BattleEventData>{m_walker->Remove()};
 			} else {
 				BOOL finished = FALSE;
 
@@ -224,7 +220,7 @@ void BattleEvent::ProcessAttack()
 
 					std::unique_ptr<Anim> anim = actor->CreateAnim(UNITACTION_ATTACK);
 					if (anim) {
-						ActionPtr action(new Action(UNITACTION_ATTACK, ACTIONEND_ANIMEND));
+						ActionPtr action = std::make_shared<Action>(UNITACTION_ATTACK, ACTIONEND_ANIMEND);
 
 						action->SetAnim(std::move(anim));
 						actor->AddAction(std::move(action));
@@ -251,7 +247,7 @@ void BattleEvent::ProcessAttack()
 				if (finished) {
 					actor->SetHitPoints(data->attackHP);
 
-					delete m_walker->Remove();
+					std::unique_ptr<BattleEventData>{m_walker->Remove()};
 				} else {
 					m_walker->Next();
 				}
@@ -274,7 +270,7 @@ void BattleEvent::ProcessExplode()
 
 	BOOL	nowAnimating = FALSE;
 
-	m_walker->SetList(m_dataList);
+	m_walker->SetList(m_dataList.get());
 	while (m_walker->IsValid()) {
 		data = m_walker->GetObj();
 		Assert(data);
@@ -335,8 +331,8 @@ void BattleEvent::ProcessExplode()
 					data->explodeVictim->SetHitPoints(data->explodeHP);
 				}
 
-				delete m_walker->Remove();
-				delete actor;
+				std::unique_ptr<BattleEventData>{m_walker->Remove()};
+				std::unique_ptr<EffectActor> actorOwner(actor);
 			} else {
 				m_walker->Next();
 			}
@@ -359,7 +355,7 @@ void BattleEvent::ProcessDeath()
 
 	BOOL	nowAnimating = FALSE;
 
-	m_walker->SetList(m_dataList);
+	m_walker->SetList(m_dataList.get());
 	while (m_walker->IsValid()) {
 		data = m_walker->GetObj();
 		Assert(data);
@@ -414,7 +410,7 @@ void BattleEvent::ProcessDeath()
 			if (finished) {
 
 
-				delete m_walker->Remove();
+				std::unique_ptr<BattleEventData>{m_walker->Remove()};
 				if(actor) {
 					battleviewwindow_Get()->RemoveActor(actor);
 				}
@@ -454,7 +450,7 @@ void BattleEvent::DrawExplosions(aui_Surface *surface)
 
 	BattleEventData *data;
 
-	m_walker->SetList(m_dataList);
+	m_walker->SetList(m_dataList.get());
 	while (m_walker->IsValid()) {
 		data = m_walker->GetObj();
 		Assert(data);
@@ -510,7 +506,7 @@ BattleViewActor *BattleEvent::GetActor()
 void BattleEvent::RemoveDeadActor(BattleViewActor *deadActor)
 {
 
-	PointerList<BattleEventData>::Walker walk(m_dataList);
+	PointerList<BattleEventData>::Walker walk(m_dataList.get());
 	for(; walk.IsValid(); walk.Next()) {
 		BattleEventData *data = walk.GetObj();
 

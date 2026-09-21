@@ -51,6 +51,13 @@
 
 
 
+c3_Ranger::c3_Ranger()
+:
+	aui_Ranger()
+{
+}
+
+
 c3_Ranger::c3_Ranger(
 	AUI_ERRCODE *retval,
 	uint32 id,
@@ -151,7 +158,7 @@ AUI_ERRCODE c3_Ranger::InitCommonLdl( MBCHAR const *ldlBlock )
 
 AUI_ERRCODE c3_Ranger::InitCommon( )
 {
-	memset( m_arrows, 0, sizeof( m_arrows ) );
+	for (auto &arrow : m_arrows) arrow.reset();
 
 	return AUI_ERRCODE_OK;
 }
@@ -174,7 +181,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 			snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_THUMB );
 
 			if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
-				m_thumb = new c3_Thumb(
+				m_thumb = std::make_unique<c3_Thumb>(
 					&errcode,
 					aui_UniqueId(),
 					block,
@@ -183,7 +190,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 		}
 
 		if ( !m_thumb )
-			m_thumb = new c3_Thumb(
+			m_thumb = std::make_unique<c3_Thumb>(
 				&errcode,
 				aui_UniqueId(),
 				0, 0, 0, 0,
@@ -195,7 +202,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 		if ( !AUI_NEWOK(m_thumb,errcode) )
 			return AUI_ERRCODE_MEMALLOCFAILED;
 
-		AddChild( m_thumb );
+		AddChild( m_thumb.get() );
 
 		RepositionThumb( FALSE );
 	}
@@ -211,7 +218,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 				snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_INCX );
 
                 if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
-					m_incXButton = new c3_Button(
+					m_incXButton = std::make_unique<c3_Button>(
 						&errcode,
 						aui_UniqueId(),
 						block,
@@ -220,7 +227,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 			}
 
 			if ( !m_incXButton ) {
-				m_incXButton = new c3_Button(
+				m_incXButton = std::make_unique<c3_Button>(
 					&errcode,
 					aui_UniqueId(),
 					0, 0, 0, 0,
@@ -237,7 +244,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 			snprintf(block, sizeof(block), "RangerRight");
             if (aui_Ldl::GetLdl()->FindDataBlock(block))
 			{
-				m_arrows[ i ] = new aui_Static(
+				m_arrows[ i ] = std::make_unique<aui_Static>(
 					&errcode,
 					aui_UniqueId(),
 					block );
@@ -246,12 +253,12 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 					return AUI_ERRCODE_MEMALLOCFAILED;
 
 				m_arrows[ i ]->SetBlindness( TRUE );
-				m_incXButton->AddChild( m_arrows[ i ] );
+				m_incXButton->AddChild( m_arrows[ i ].get() );
 
-				m_arrows[ i ]->GetDim()->SetParent( m_incXButton );
+				m_arrows[ i ]->GetDim()->SetParent( m_incXButton.get() );
 			}
 
-			AddChild( m_incXButton );
+			AddChild( m_incXButton.get() );
 
 			if ( m_incXButton->Width() > maxButtonSize )
 				maxButtonSize = m_incXButton->Width();
@@ -261,7 +268,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 				snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_DECX );
 
                 if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
-					m_decXButton = new c3_Button(
+					m_decXButton = std::make_unique<c3_Button>(
 						&errcode,
 						aui_UniqueId(),
 						block,
@@ -270,7 +277,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 			}
 
 			if ( !m_decXButton ) {
-				m_decXButton = new c3_Button(
+				m_decXButton = std::make_unique<c3_Button>(
 					&errcode,
 					aui_UniqueId(),
 					0, 0, 0, 0,
@@ -287,7 +294,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 			snprintf(block, sizeof(block), "RangerLeft" );
             if (aui_Ldl::GetLdl()->FindDataBlock(block))
 			{
-				m_arrows[ i ] = new aui_Static(
+				m_arrows[ i ] = std::make_unique<aui_Static>(
 					&errcode,
 					aui_UniqueId(),
 					block );
@@ -296,12 +303,12 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 					return AUI_ERRCODE_MEMALLOCFAILED;
 
 				m_arrows[ i ]->SetBlindness( TRUE );
-				m_decXButton->AddChild( m_arrows[ i ] );
+				m_decXButton->AddChild( m_arrows[ i ].get() );
 
-				m_arrows[ i ]->GetDim()->SetParent( m_decXButton );
+				m_arrows[ i ]->GetDim()->SetParent( m_decXButton.get() );
 			}
 
-			AddChild( m_decXButton );
+			AddChild( m_decXButton.get() );
 
 			if ( m_decXButton->Width() > maxButtonSize )
 				maxButtonSize = m_decXButton->Width();
@@ -315,7 +322,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 				snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_INCY );
 
                 if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
-					m_incYButton = new c3_Button(
+					m_incYButton = std::make_unique<c3_Button>(
 						&errcode,
 						aui_UniqueId(),
 						block,
@@ -324,7 +331,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 			}
 
 			if ( !m_incYButton )
-				m_incYButton = new c3_Button(
+				m_incYButton = std::make_unique<c3_Button>(
 					&errcode,
 					aui_UniqueId(),
 					0, 0, 0, 0,
@@ -340,7 +347,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 			snprintf(block, sizeof(block), "RangerDown");
             if (aui_Ldl::GetLdl()->FindDataBlock(block))
 			{
-				m_arrows[ i ] = new aui_Static(
+				m_arrows[ i ] = std::make_unique<aui_Static>(
 					&errcode,
 					aui_UniqueId(),
 					block );
@@ -349,12 +356,12 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 					return AUI_ERRCODE_MEMALLOCFAILED;
 
 				m_arrows[ i ]->SetBlindness( TRUE );
-				m_incYButton->AddChild( m_arrows[ i ] );
+				m_incYButton->AddChild( m_arrows[ i ].get() );
 
-				m_arrows[ i ]->GetDim()->SetParent( m_incYButton );
+				m_arrows[ i ]->GetDim()->SetParent( m_incYButton.get() );
 			}
 
-			AddChild( m_incYButton );
+			AddChild( m_incYButton.get() );
 
 			if ( m_incYButton->Height() > maxButtonSize )
 				maxButtonSize = m_incYButton->Height();
@@ -364,7 +371,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 				snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_DECY );
 
                 if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
-					m_decYButton = new c3_Button(
+					m_decYButton = std::make_unique<c3_Button>(
 						&errcode,
 						aui_UniqueId(),
 						block,
@@ -373,7 +380,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 			}
 
 			if ( !m_decYButton )
-				m_decYButton = new c3_Button(
+				m_decYButton = std::make_unique<c3_Button>(
 					&errcode,
 					aui_UniqueId(),
 					0, 0, 0, 0,
@@ -389,7 +396,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 			snprintf(block, sizeof(block), "RangerUp");
             if (aui_Ldl::GetLdl()->FindDataBlock(block))
 			{
-				m_arrows[ i ] = new aui_Static(
+				m_arrows[ i ] = std::make_unique<aui_Static>(
 					&errcode,
 					aui_UniqueId(),
 					block );
@@ -398,12 +405,12 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR const *ldlBlock )
 					return AUI_ERRCODE_MEMALLOCFAILED;
 
 				m_arrows[ i ]->SetBlindness( TRUE );
-				m_decYButton->AddChild( m_arrows[ i ] );
+				m_decYButton->AddChild( m_arrows[ i ].get() );
 
-				m_arrows[ i ]->GetDim()->SetParent( m_decYButton );
+				m_arrows[ i ]->GetDim()->SetParent( m_decYButton.get() );
 			}
 
-			AddChild( m_decYButton );
+			AddChild( m_decYButton.get() );
 
 			if ( m_decYButton->Height() > maxButtonSize )
 				maxButtonSize = m_decYButton->Height();
@@ -425,9 +432,9 @@ c3_Ranger::~c3_Ranger()
     {
 	    if ( m_arrow )
 	    {
-		    aui_Ldl::Remove(m_arrow);
+		    aui_Ldl::Remove(m_arrow.get());
 
-		    delete m_arrow;
+		    m_arrow.reset();
 	    }
     }
 }

@@ -2852,8 +2852,8 @@ void GrantAdvanceCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	if(network_Get().IsClient()) {
-		network_Get().SendCheat(new NetCheat(NET_CHEAT_GRANT_ADVANCE,
-		                                 atoi(argv[1])));
+		network_Get().SendCheat(std::make_unique<NetCheat>(NET_CHEAT_GRANT_ADVANCE,
+		                                 atoi(argv[1])).release());
 	}
 
 	player_Get(selitem_Get()->GetVisiblePlayer())->m_advances->GiveAdvance(atoi(argv[1]), CAUSE_SCI_UNKNOWN);
@@ -2864,7 +2864,7 @@ void GrantAllCommand::Execute(sint32 argc, char **argv)
 	Assert(argc == 1);
 
 	if(network_Get().IsClient()) {
-		network_Get().SendCheat(new NetCheat(NET_CHEAT_GRANT_ALL));
+		network_Get().SendCheat(std::make_unique<NetCheat>(NET_CHEAT_GRANT_ALL).release());
 	}
 
 	for(sint32 i = 0; i < g_theAdvanceDB->NumRecords(); i++) {
@@ -2951,8 +2951,8 @@ void CreateImprovementCommand::Execute(sint32 argc, char **argv)
 	Unit c(item);
 	c.AccessData()->m_city_data->m_built_improvements |= safe_shift_left_u64(atoi(argv[1]));
 	if(network_Get().IsClient()) {
-		network_Get().SendCheat(new NetCheat(NET_CHEAT_CREATE_IMPROVEMENT,
-		                                 (uint32)c, atoi(argv[1])));
+		network_Get().SendCheat(std::make_unique<NetCheat>(NET_CHEAT_CREATE_IMPROVEMENT,
+		                                 (uint32)c, atoi(argv[1])).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Enqueue(c.AccessData(), c.AccessData()->m_city_data);
 	}
@@ -4675,9 +4675,9 @@ void BequeathGoldCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	if(network_Get().IsClient() && !network_Get().SetupMode()) {
-		network_Get().SendCheat(new NetCheat(NET_CHEAT_ADD_GOLD,
+		network_Get().SendCheat(std::make_unique<NetCheat>(NET_CHEAT_ADD_GOLD,
 										 selitem_Get()->GetVisiblePlayer(),
-										 atoi(argv[1])));
+										 atoi(argv[1])).release());
 	}
 
 	amount.SetLevel(atoi(argv[1]));
@@ -4937,8 +4937,8 @@ void FloodCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	if(network_Get().IsClient()) {
-		network_Get().SendCheat(new NetCheat(NET_CHEAT_GLOBAL_WARMING,
-										 atoi(argv[1])));
+		network_Get().SendCheat(std::make_unique<NetCheat>(NET_CHEAT_GLOBAL_WARMING,
+										 atoi(argv[1])).release());
 	} else {
 		world_Get()->GlobalWarming(atoi(argv[1]));
 	}
@@ -4960,8 +4960,8 @@ void OzoneCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	if(network_Get().IsClient()) {
-		network_Get().SendCheat(new NetCheat(NET_CHEAT_OZONE_DEPLETION,
-										 atoi(argv[1])));
+		network_Get().SendCheat(std::make_unique<NetCheat>(NET_CHEAT_OZONE_DEPLETION,
+										 atoi(argv[1])).release());
 	} else {
 		world_Get()->OzoneDepletion();
 	}
@@ -5054,7 +5054,7 @@ AcceptOfferCommand::Execute(sint32 argc, char **argv)
 	if(visiblePlayer < 0 || visiblePlayer >= k_MAX_PLAYERS || !player_Get(visiblePlayer)) {
 		return;
 	}
-	UnitDynamicArray *cities = player_Get(visiblePlayer)->m_all_cities;
+	UnitDynamicArray *cities = player_Get(visiblePlayer)->m_all_cities.get();
 	sint32 city1index = atoi(argv[3]);
 	sint32 city2index = atoi(argv[4]);
 	Assert(city1index >= 0);
@@ -5355,7 +5355,7 @@ void UpgradeCity::Execute(sint32 argc, char** argv)
 	sint32 player = selitem_Get()->GetVisiblePlayer();
 	Unit u = player_Get(player)->GetCityFromIndex(city_idx);
 
-	SpriteStatePtr newSS(new SpriteState(90+upgLevel));
+	SpriteStatePtr newSS(std::make_shared<SpriteState>(90+upgLevel));
 
 	u.GetActor()->ChangeType(newSS, u.GetType(),  u, TRUE);
 }
@@ -5403,9 +5403,9 @@ void CreateCommand::Execute(sint32 argc, char** argv)
 
     for (i=0; i<num_new_units; i++) {
         if(network_Get().IsClient()) {
-	        network_Get().SendCheat(new NetCheat(NET_CHEAT_CREATE_UNIT,
+	        network_Get().SendCheat(std::make_unique<NetCheat>(NET_CHEAT_CREATE_UNIT,
 									         city_idx, type, player,
-									         pos.x, pos.y));
+									         pos.x, pos.y).release());
 	        return;
         }
 
@@ -5501,7 +5501,7 @@ void DipLogOnCommand::Execute (sint32 argc, char** argv)
 {
 #ifdef _DEBUG
     if (NULL == g_theDiplomacyLog) {
-        g_theDiplomacyLog = new Diplomacy_Log();
+        g_theDiplomacyLog = std::make_unique<Diplomacy_Log>().release();
     }
 
     if (argc ==1) {
@@ -5603,9 +5603,9 @@ void AddMaterialsCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	if(network_Get().IsClient() && !network_Get().SetupMode()) {
-		network_Get().SendCheat(new NetCheat(NET_CHEAT_ADD_MATERIALS,
+		network_Get().SendCheat(std::make_unique<NetCheat>(NET_CHEAT_ADD_MATERIALS,
 										 selitem_Get()->GetVisiblePlayer(),
-										 atoi(argv[1])));
+										 atoi(argv[1])).release());
 	}
 
 	player_Get(selitem_Get()->GetVisiblePlayer())->m_materialPool->
@@ -5864,11 +5864,11 @@ void SuperFastDebugModeCommand::Execute(sint32 argc, char **argv)
 
 void LoadDBCommand::Execute(sint32 argc, char **argv)
 {
-	DBLexer *lex;
+	std::unique_ptr<DBLexer> lex;
 	if (!strcmp(argv[1], "string")) {
 
-		delete stringdb_Get();
-		stringdb_Set(new StringDB());
+		{ std::unique_ptr<StringDB> old(stringdb_Get());
+		stringdb_Set(std::make_unique<StringDB>().release()); }
 		Assert(stringdb_Get());
 		if (stringdb_Get()) {
 			if(!stringdb_Get()->Parse(g_stringdb_filename)) {
@@ -5881,8 +5881,7 @@ void LoadDBCommand::Execute(sint32 argc, char **argv)
 	} else
 	if (!strcmp(argv[1], "advance")) {
 
-		delete g_theAdvanceDB;
-        g_theAdvanceDB = new CTPDatabase<AdvanceRecord>;
+		allocated::reassign(g_theAdvanceDB, std::make_unique<CTPDatabase<AdvanceRecord>>());
 		Assert(g_theAdvanceDB);
 		if (g_theAdvanceDB) {
 			if(!g_theAdvanceDB->Parse(C3DIR_GAMEDATA, g_advancedb_filename)) {
@@ -5895,8 +5894,7 @@ void LoadDBCommand::Execute(sint32 argc, char **argv)
 	} else
 	if (!strcmp(argv[1], "terrain")) {
 
-		delete g_theTerrainDB;
-        g_theTerrainDB = new CTPDatabase<TerrainRecord>;
+		allocated::reassign(g_theTerrainDB, std::make_unique<CTPDatabase<TerrainRecord>>());
 		if (g_theTerrainDB) {
 			if(!g_theTerrainDB->Parse(C3DIR_GAMEDATA, g_terrain_filename)) {
 				Assert(FALSE);
@@ -5910,16 +5908,14 @@ void LoadDBCommand::Execute(sint32 argc, char **argv)
 	} else
 	if (!strcmp(argv[1], "unit")) {
 
-		delete g_theUnitDB;
-        g_theUnitDB = new CTPDatabase<UnitRecord>;
+		allocated::reassign(g_theUnitDB, std::make_unique<CTPDatabase<UnitRecord>>());
 		Assert(g_theUnitDB);
 		if (g_theUnitDB) {
-			lex = new DBLexer(C3DIR_GAMEDATA, g_unitdb_filename);
-			if (!g_theUnitDB->Parse(lex)) {
+			lex = std::make_unique<DBLexer>(C3DIR_GAMEDATA, g_unitdb_filename);
+			if (!g_theUnitDB->Parse(lex.get())) {
 				Assert(FALSE);
 				return;
 			}
-			delete lex;
 
 		} else {
 			return;
@@ -5928,8 +5924,7 @@ void LoadDBCommand::Execute(sint32 argc, char **argv)
 	} else
 	if (!strcmp(argv[1], "const")) {
 
-		delete g_theConstDB;
-        g_theConstDB = new CTPDatabase<ConstRecord>;
+		allocated::reassign(g_theConstDB, std::make_unique<CTPDatabase<ConstRecord>>());
 
 		if (g_theConstDB) {
 			if(!g_theConstDB->Parse(C3DIR_GAMEDATA, g_constdb_filename)) {
@@ -5943,8 +5938,7 @@ void LoadDBCommand::Execute(sint32 argc, char **argv)
 	} else
 	if (!strcmp(argv[1], "wonder")) {
 
-		delete g_theWonderDB;
-		g_theWonderDB = new CTPDatabase<WonderRecord>;
+		allocated::reassign(g_theWonderDB, std::make_unique<CTPDatabase<WonderRecord>>());
 
 		if (g_theWonderDB) {
 			if(!g_theWonderDB->Parse(C3DIR_GAMEDATA, g_wonder_filename)) {
@@ -5957,8 +5951,7 @@ void LoadDBCommand::Execute(sint32 argc, char **argv)
 	} else
 	if (!strcmp(argv[1], "civ")) {
 
-		delete g_theCivilisationDB;
-		g_theCivilisationDB = new CTPDatabase<CivilisationRecord>;
+		allocated::reassign(g_theCivilisationDB, std::make_unique<CTPDatabase<CivilisationRecord>>());
 		if (g_theCivilisationDB) {
 			if(!g_theCivilisationDB->Parse(C3DIR_GAMEDATA, g_civilisation_filename)) {
 				Assert(FALSE);
@@ -5983,120 +5976,102 @@ void LoadDBCommand::Execute(sint32 argc, char **argv)
 	} else
 
 	if (!strcmp(argv[1], "ai")) {
-		delete g_theGoalDB;
-		g_theGoalDB = new CTPDatabase<GoalRecord>();
+		allocated::reassign(g_theGoalDB, std::make_unique<CTPDatabase<GoalRecord>>());
 		Assert(g_theGoalDB );
 		if (g_theGoalDB) {
-			lex = new DBLexer(C3DIR_AIDATA, g_goal_db_filename);
-			if (!g_theGoalDB->Parse(lex)) {
+			lex = std::make_unique<DBLexer>(C3DIR_AIDATA, g_goal_db_filename);
+			if (!g_theGoalDB->Parse(lex.get())) {
 				Assert(FALSE);
 				return;
 			}
-			delete lex;
 		} else {
 			return;
 		}
-		delete g_theUnitBuildListDB;
-		g_theUnitBuildListDB= new CTPDatabase<UnitBuildListRecord>();
+		allocated::reassign(g_theUnitBuildListDB, std::make_unique<CTPDatabase<UnitBuildListRecord>>());
 		Assert(g_theUnitBuildListDB);
 		if (g_theUnitBuildListDB) {
-			lex = new DBLexer(C3DIR_AIDATA, g_unit_buildlist_db_filename);
-			if (!g_theUnitBuildListDB->Parse(lex)) {
+			lex = std::make_unique<DBLexer>(C3DIR_AIDATA, g_unit_buildlist_db_filename);
+			if (!g_theUnitBuildListDB->Parse(lex.get())) {
 				Assert(FALSE);
 				return;
 			}
-			delete lex;
 		} else {
 			return;
 		}
-		delete g_theWonderBuildListDB;
-		g_theWonderBuildListDB= new CTPDatabase<WonderBuildListRecord>();
+		allocated::reassign(g_theWonderBuildListDB, std::make_unique<CTPDatabase<WonderBuildListRecord>>());
 		Assert(g_theWonderBuildListDB);
 		if (g_theWonderBuildListDB) {
-			lex = new DBLexer(C3DIR_AIDATA, g_wonder_buildlist_db_filename);
-			if (!g_theWonderBuildListDB->Parse(lex)) {
+			lex = std::make_unique<DBLexer>(C3DIR_AIDATA, g_wonder_buildlist_db_filename);
+			if (!g_theWonderBuildListDB->Parse(lex.get())) {
 				Assert(FALSE);
 				return;
 			}
-			delete lex;
 		} else {
 			return;
 		}
-		delete g_theBuildingBuildListDB;
-		g_theBuildingBuildListDB= new CTPDatabase<BuildingBuildListRecord>();
+		allocated::reassign(g_theBuildingBuildListDB, std::make_unique<CTPDatabase<BuildingBuildListRecord>>());
 		Assert(g_theBuildingBuildListDB);
 		if (g_theBuildingBuildListDB) {
-			lex = new DBLexer(C3DIR_AIDATA, g_building_buildlist_db_filename);
-			if (!g_theBuildingBuildListDB->Parse(lex)) {
+			lex = std::make_unique<DBLexer>(C3DIR_AIDATA, g_building_buildlist_db_filename);
+			if (!g_theBuildingBuildListDB->Parse(lex.get())) {
 				Assert(FALSE);
 				return;
 			}
-			delete lex;
 		} else {
 			return;
 		}
-		delete g_theImprovementListDB;
-		g_theImprovementListDB= new CTPDatabase<ImprovementListRecord>();
+		allocated::reassign(g_theImprovementListDB, std::make_unique<CTPDatabase<ImprovementListRecord>>());
 		Assert(g_theImprovementListDB);
 		if (g_theImprovementListDB) {
-			lex = new DBLexer(C3DIR_AIDATA, g_improvement_list_db_filename);
-			if (!g_theImprovementListDB->Parse(lex)) {
+			lex = std::make_unique<DBLexer>(C3DIR_AIDATA, g_improvement_list_db_filename);
+			if (!g_theImprovementListDB->Parse(lex.get())) {
 				Assert(FALSE);
 				return;
 			}
-			delete lex;
 		} else {
 			return;
 		}
-		delete g_theStrategyDB;
-		g_theStrategyDB = new CTPDatabase<StrategyRecord>();
+		allocated::reassign(g_theStrategyDB, std::make_unique<CTPDatabase<StrategyRecord>>());
 		Assert(g_theStrategyDB);
 		if (g_theStrategyDB) {
-			lex = new DBLexer(C3DIR_AIDATA, g_strategy_db_filename);
-			if (!g_theStrategyDB->Parse(lex)) {
+			lex = std::make_unique<DBLexer>(C3DIR_AIDATA, g_strategy_db_filename);
+			if (!g_theStrategyDB->Parse(lex.get())) {
 				Assert(FALSE);
 				return;
 			}
-			delete lex;
 		} else {
 			return;
 		}
-		delete g_theBuildListSequenceDB;
-		g_theBuildListSequenceDB = new CTPDatabase<BuildListSequenceRecord>();
+		allocated::reassign(g_theBuildListSequenceDB, std::make_unique<CTPDatabase<BuildListSequenceRecord>>());
 		Assert(g_theBuildListSequenceDB);
 		if (g_theBuildListSequenceDB) {
-			lex = new DBLexer(C3DIR_AIDATA, g_buildlist_sequence_db_filename);
-			if (!g_theBuildListSequenceDB->Parse(lex)) {
+			lex = std::make_unique<DBLexer>(C3DIR_AIDATA, g_buildlist_sequence_db_filename);
+			if (!g_theBuildListSequenceDB->Parse(lex.get())) {
 				Assert(FALSE);
 				return;
 			}
-			delete lex;
 		} else {
 			return;
 		}
-		delete g_theDiplomacyDB;
-		g_theDiplomacyDB= new CTPDatabase<DiplomacyRecord>();
+		allocated::reassign(g_theDiplomacyDB, std::make_unique<CTPDatabase<DiplomacyRecord>>());
 		Assert(g_theDiplomacyDB);
 		if (g_theDiplomacyDB) {
-			lex = new DBLexer(C3DIR_AIDATA, g_diplomacy_db_filename);
-			if (!g_theDiplomacyDB->Parse(lex)) {
+			lex = std::make_unique<DBLexer>(C3DIR_AIDATA, g_diplomacy_db_filename);
+			if (!g_theDiplomacyDB->Parse(lex.get())) {
 				Assert(FALSE);
 				return;
 			}
-			delete lex;
 		} else {
 			return;
 		}
-		delete g_theAdvanceListDB;
-		g_theAdvanceListDB= new CTPDatabase<AdvanceListRecord>();
+		allocated::reassign(g_theAdvanceListDB, std::make_unique<CTPDatabase<AdvanceListRecord>>());
 		Assert(g_theAdvanceListDB);
 		if (g_theAdvanceListDB) {
-			lex = new DBLexer(C3DIR_AIDATA, g_advance_list_db_filename);
-			if (!g_theAdvanceListDB->Parse(lex)) {
+			lex = std::make_unique<DBLexer>(C3DIR_AIDATA, g_advance_list_db_filename);
+			if (!g_theAdvanceListDB->Parse(lex.get())) {
 				Assert(FALSE);
 				return;
 			}
-			delete lex;
 		} else {
 			return;
 		}
@@ -6126,6 +6101,7 @@ void DRayTestCode::Execute(sint32 argc, char **argv)
 
 CommandLine::CommandLine()
 {
+	m_argc = 0;
 	m_len = 0;
 	m_displayHelp = FALSE;
 	m_persistent = FALSE;
@@ -6136,7 +6112,6 @@ CommandLine::CommandLine()
     m_flux_decay = 0.85;
 
 }
-
 void CommandLine::Draw()
 {
 	m_buf[m_len] = 0;
@@ -6422,10 +6397,8 @@ CommandLine::Clear()
 {
 	m_len = 0;
 	m_buf[m_len] = 0;
-	while(m_argc > 0) {
-		delete [] m_argv[m_argc - 1];
-		m_argc--;
-	}
+	m_argStorage.clear();
+	m_argc = 0;
 	if (statuswindow_Get())
 		statuswindow_Get()->Draw();
 }
@@ -6452,10 +6425,8 @@ CommandLine::Parse()
 			if(isspace(m_buf[p])) {
 				if(m_argc >= k_maxArgs)
 					return m_argc;
-				m_argv[m_argc] = new char[argpos + 1];
-				// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
-				strncpy(m_argv[m_argc], curarg, argpos);
-				m_argv[m_argc][argpos] = 0;
+				m_argStorage.emplace_back(curarg, argpos);
+				m_argv[m_argc] = m_argStorage.back().data();
 				m_argc++;
 				state = 1;
 			} else if(m_buf[p] == '"') {
@@ -6482,10 +6453,8 @@ CommandLine::Parse()
 		}
 	}
 	if((state == 0 || state == 2) && argpos > 0 && m_argc < k_maxArgs) {
-		m_argv[m_argc] = new char[argpos + 1];
-		// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
-		strncpy(m_argv[m_argc], curarg, argpos);
-		m_argv[m_argc][argpos] = 0;
+		m_argStorage.emplace_back(curarg, argpos);
+		m_argv[m_argc] = m_argStorage.back().data();
 		m_argc++;
 	}
 	return m_argc;

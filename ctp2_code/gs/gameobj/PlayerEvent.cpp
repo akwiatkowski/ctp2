@@ -41,6 +41,8 @@
 #include "ctp/c3.h"
 #include "gs/utility/safety.h"
 #include "gs/gameobj/PlayerEvent.h"
+
+#include <memory>
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/player.h"
 #include "gs/events/GameEventUser.h"
@@ -184,15 +186,15 @@ STDEHANDLER(BeginTurnAllCitiesEvent)
 		SlicSegment *       seg  = slicengine_Get()->GetSegment("GCReadyToActivateUs");
 		if (seg && !seg->TestLastShown(player, 10000, turn_Get()->GetSessionRound()))
 		{
-			SlicObject *    so   = new SlicObject("GCReadyToActivateUs");
+			auto so = std::make_unique<SlicObject>("GCReadyToActivateUs");
 			so->AddPlayer(player);
 			so->AddRecipient(player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
-			so = new SlicObject("GCReadyToActivateThem");
+			so = std::make_unique<SlicObject>("GCReadyToActivateThem");
 			so->AddPlayer(player);
 			so->AddAllRecipientsBut(player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 
@@ -335,11 +337,11 @@ STDEHANDLER(FinishBeginTurnEvent)
 	if(network_Get().IsHost())
 	{
 		network_Get().Block(p->m_owner);
-		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_GOLD,
-		                                       p->m_owner, p->m_gold->GetLevel()));
+		network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_GOLD,
+		                                       p->m_owner, p->m_gold->GetLevel()).release());
 		// propagate PW each turn update
-		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_MATERIALS,
-		                                       p->m_owner, p->m_materialPool->GetMaterials()));
+		network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_MATERIALS,
+		                                       p->m_owner, p->m_materialPool->GetMaterials()).release());
 		network_Get().Unblock(p->m_owner);
 	}
 
@@ -354,7 +356,7 @@ STDEHANDLER(FinishBeginTurnEvent)
 	if(network_Get().IsHost())
 	{
 		network_Get().SyncRand();
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TURN_SYNC));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_TURN_SYNC).release());
 	}
 
 	if(!network_Get().IsClient())
@@ -390,7 +392,7 @@ STDEHANDLER(CreateUnitEvent)
 		return GEV_HD_Stop;
 	}
 
-	args->Add(new GameEventArgument(GEA_Unit, u));
+	args->Add(std::make_unique<GameEventArgument>(GEA_Unit, u).release());
 	return GEV_HD_Continue;
 }
 
@@ -403,7 +405,7 @@ STDEHANDLER(SettleEvent)
 	{
 		if(player_Get(a.GetOwner())->Settle(a))
 		{
-			args->Add(new GameEventArgument(GEA_Int, 1));
+			args->Add(std::make_unique<GameEventArgument>(GEA_Int, 1).release());
 		}
 	}
 
@@ -419,7 +421,7 @@ STDEHANDLER(SettleInCityEvent)
 	{
 		if(player_Get(a.GetOwner())->SettleInCity(a))
 		{
-			args->Add(new GameEventArgument(GEA_Int, 1));
+			args->Add(std::make_unique<GameEventArgument>(GEA_Int, 1).release());
 		}
 	}
 
@@ -444,14 +446,14 @@ STDEHANDLER(CreateCityEvent)
 		Unit city = safe_player(player)->CreateCity(cityType, pos, (CAUSE_NEW_CITY)cause, nullptr, unitType);
 		if(city.IsValid())
 		{
-			args->Add(new GameEventArgument(GEA_City, city));
+			args->Add(std::make_unique<GameEventArgument>(GEA_City, city).release());
 
 			if(cause == CAUSE_NEW_CITY_GOODY_HUT)
 			{
-				SlicObject *so = new SlicObject("80RuinBecomesCity");
+				auto so = std::make_unique<SlicObject>("80RuinBecomesCity");
 				so->AddRecipient(player);
 				so->AddCity(city);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 				DPRINTF(k_DBG_GAMESTATE, ("You get a city!\n"));
 
 				gameobservers_Get()->NotifyCityFounded(player, city, pos, cause);
@@ -459,9 +461,9 @@ STDEHANDLER(CreateCityEvent)
 		}
 		else if(cause == CAUSE_NEW_CITY_GOODY_HUT)
 		{
-			SlicObject *so = new SlicObject("93BesetByNothing");
+			auto so = std::make_unique<SlicObject>("93BesetByNothing");
 			so->AddRecipient(player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 
 	}
@@ -484,14 +486,14 @@ STDEHANDLER(CreateImprovementEvent)
 		SlicSegment *	seg = slicengine_Get()->GetSegment("GCMinObelisksReachedUs");
 		if (seg && !seg->TestLastShown(player, 10000, turn_Get()->GetSessionRound()))
 		{
-			SlicObject *	so = new SlicObject("GCMinObelisksReachedUs");
+			auto so = std::make_unique<SlicObject>("GCMinObelisksReachedUs");
 			so->AddRecipient(player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
-			so = new SlicObject("GCMinObelisksReachedThem");
+			so = std::make_unique<SlicObject>("GCMinObelisksReachedThem");
 			so->AddPlayer(player);
 			so->AddAllRecipientsBut(player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 
@@ -523,8 +525,8 @@ STDEHANDLER(SendGoodEvent)
 	if(!args->GetCity(1, destCity)) return GEV_HD_Continue;
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_REQUEST_TRADE_ROUTE,
-		                                   resIndex, sourceCity.m_id, destCity.m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_REQUEST_TRADE_ROUTE,
+		                                   resIndex, sourceCity.m_id, destCity.m_id).release());
 	} else {
 		player_Get(sourceCity.GetOwner())->CreateTradeRoute(sourceCity, ROUTE_TYPE_RESOURCE,
 		                                                  resIndex, destCity,

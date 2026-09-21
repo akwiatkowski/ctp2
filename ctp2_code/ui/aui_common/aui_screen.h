@@ -4,6 +4,8 @@
 #include "ui/aui_common/aui_base.h"
 #include "ui/aui_common/tech_wllist.h"
 
+#include <memory>
+
 class aui_Window;
 
 
@@ -31,8 +33,8 @@ public:
 protected:
 	uint32 m_id;
 	BOOL m_showing;
-	tech_WLList<aui_Window *> *m_windowList;
-	tech_WLList<aui_Window *> *m_tempWindowList;
+	std::unique_ptr<tech_WLList<aui_Window *>> m_windowList;
+	std::unique_ptr<tech_WLList<aui_Window *>> m_tempWindowList;
 };
 
 #endif

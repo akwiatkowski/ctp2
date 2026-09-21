@@ -61,9 +61,11 @@
 
 #include "ctp/civapp.h"
 
+#include <memory>
 
 
-ScenarioWindow                      *s_ScenarioWindow = nullptr;
+
+static std::unique_ptr<ScenarioWindow>	s_ScenarioWindow;
 
 
 
@@ -316,7 +318,7 @@ void ScenarioWindow::Initialize()
 	AUI_ERRCODE retval = AUI_ERRCODE_OK;
 
 
-	s_ScenarioWindow = new ScenarioWindow(&retval, const_cast<MBCHAR *>("ScenarioWindow"));
+	s_ScenarioWindow = std::make_unique<ScenarioWindow>(&retval, const_cast<MBCHAR *>("ScenarioWindow"));
 	Assert(retval == AUI_ERRCODE_OK);
 }
 
@@ -358,8 +360,7 @@ void ScenarioWindow::Cleanup()
 
 	Hide();
 
-	delete s_ScenarioWindow;
-	s_ScenarioWindow = nullptr;
+	s_ScenarioWindow.reset();
 }
 
 void ScenarioWindow::SetExitCallback(aui_Control::ControlActionCallback *callback)
@@ -443,7 +444,7 @@ void ScenarioWindow::ScenarioSelect(aui_Control *control, uint32 action, uint32 
 					if (s_ScenarioWindow->GetExitCallback()) {
 						s_ScenarioWindow->GetExitCallback()(control, action, data, cookie);
 					} else {
-						c3ui_Get()->AddAction(new CloseScenarioScreenAction);
+						c3ui_Get()->AddAction(std::make_unique<CloseScenarioScreenAction>());
 					}
 
 				} else {
@@ -480,7 +481,7 @@ void ScenarioWindow::CancelPress(aui_Control *control, uint32 action, uint32 dat
 			civpaths_Get()->ClearCurScenarioPath();
 			civpaths_Get()->ClearCurScenarioPackPath();
 
-			c3ui_Get()->AddAction(new CloseScenarioScreenAction);
+			c3ui_Get()->AddAction(std::make_unique<CloseScenarioScreenAction>());
 		}
 }
 
@@ -497,7 +498,7 @@ void ScenarioWindow::OkPress(aui_Control *control, uint32 action, uint32 data, v
 		if (s_ScenarioWindow->GetExitCallback()) {
 			s_ScenarioWindow->GetExitCallback()(control, action, data, cookie);
 		} else {
-			c3ui_Get()->AddAction(new CloseScenarioScreenAction);
+			c3ui_Get()->AddAction(std::make_unique<CloseScenarioScreenAction>());
 		}
 	} else if (s_ScenarioWindow->GetMode() == SCENARIO_WINDOW_MODE_LOAD_PACK) {
 		if(s_ScenarioWindow->m_scenarioPack) {

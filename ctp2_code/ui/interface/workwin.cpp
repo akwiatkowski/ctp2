@@ -49,23 +49,25 @@
 
 #include "ui/interface/workwin.h"
 
+#include <memory>
+
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
 
-static WorkWindow	*g_workWindow = nullptr;
+static std::unique_ptr<WorkWindow>	g_workWindow;
 
-WorkWindow * workwindow_Get()             { return g_workWindow; }
-void         workwindow_Set(WorkWindow *p)    { g_workWindow = p; }
+WorkWindow * workwindow_Get()             { return g_workWindow.get(); }
+void         workwindow_Set(WorkWindow *p)    { g_workWindow.reset(p); }
 
-static ResourceMap		*g_resourceMap = nullptr;
+static std::unique_ptr<ResourceMap>	g_resourceMap;
 
-ResourceMap * resourcemap_Get()           { return g_resourceMap; }
-void          resourcemap_Set(ResourceMap *p) { g_resourceMap = p; }
+ResourceMap * resourcemap_Get()           { return g_resourceMap.get(); }
+void          resourcemap_Set(ResourceMap *p) { g_resourceMap.reset(p); }
 
 
 WorkMap *g_workMap = nullptr;
 
-static c3_Button			*s_exitButton;
+static std::unique_ptr<c3_Button>		s_exitButton;
 
 
 
@@ -107,8 +109,7 @@ void WorkExitButtonActionCallback( aui_Control *control, uint32 action, uint32 d
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 
-	WorkWinCleanupAction *tempAction = new WorkWinCleanupAction;
-	c3ui_Get()->AddAction( tempAction );
+	c3ui_Get()->AddAction( std::make_unique<WorkWinCleanupAction>() );
 }
 
 sint32 workwin_Initialize( )
@@ -150,7 +151,7 @@ sint32 workwin_Initialize( )
 
 	strlcpy(windowBlock, "WorkWindow", sizeof(windowBlock));
 
-	g_workWindow = new WorkWindow(&errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING);
+	g_workWindow = std::make_unique<WorkWindow>(&errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING);
 	Assert( AUI_NEWOK(g_workWindow, errcode) );
 	if ( !AUI_NEWOK(g_workWindow, errcode) ) return -1;
 
@@ -159,7 +160,7 @@ sint32 workwin_Initialize( )
 	g_workWindow->SetDraggable( TRUE );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ResourceMap" );
-	g_resourceMap = new ResourceMap( &errcode, aui_UniqueId(), controlBlock );
+	g_resourceMap = std::make_unique<ResourceMap>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(g_resourceMap, errcode) );
 	if ( !AUI_NEWOK(g_resourceMap, errcode) ) return -3;
 
@@ -173,7 +174,7 @@ sint32 workwin_Initialize( )
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton" );
-	s_exitButton = new c3_Button( &errcode, aui_UniqueId(), controlBlock, WorkExitButtonActionCallback );
+	s_exitButton = std::make_unique<c3_Button>( &errcode, aui_UniqueId(), controlBlock, WorkExitButtonActionCallback );
 	Assert( AUI_NEWOK(s_exitButton, errcode) );
 	if ( !AUI_NEWOK(s_exitButton, errcode) ) return -5;
 
@@ -190,16 +191,11 @@ sint32 workwin_Cleanup( )
 
 	c3ui_Get()->RemoveWindow( g_workWindow->Id() );
 
-	delete s_exitButton;
-	s_exitButton = nullptr;
+	s_exitButton.reset();
 
-	delete g_workWindow;
-	g_workWindow = nullptr;
+	g_workWindow.reset();
 
-	if (g_resourceMap) {
-		delete g_resourceMap;
-		g_resourceMap = nullptr;
-	}
+	g_resourceMap.reset();
 
 	return 0;
 }

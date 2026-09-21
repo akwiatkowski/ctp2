@@ -5,6 +5,8 @@
 #define __PICTUREBUTTON_H__
 
 #include "ui/aui_common/aui_button.h"
+#include <memory>
+
 
 class Picture;
 
@@ -42,12 +44,12 @@ public:
 		sint32 y = 0 ) override;
 
 
-	Picture *&UpPicture( ) { return m_upPicture; }
-	Picture *&DownPicture( ) { return m_downPicture; }
+	Picture *UpPicture( ) { return m_upPicture.get(); }
+	Picture *DownPicture( ) { return m_downPicture.get(); }
 
 protected:
-	Picture *m_upPicture;
-	Picture *m_downPicture;
+	std::unique_ptr<Picture> m_upPicture;
+	std::unique_ptr<Picture> m_downPicture;
 };
 
 #endif

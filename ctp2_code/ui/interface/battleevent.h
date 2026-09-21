@@ -3,6 +3,8 @@
 
 #include "ctp/ctp2_utils/pointerlist.h"
 
+#include <memory>
+
 
 
 
@@ -89,13 +91,13 @@ public:
 	void					AddDeathData(BattleViewActor *actor, sint32 soundID, double hp);
 
 	BattleViewActor			*GetActor();
-	PointerList<BattleEventData>	*GetDataList() { return m_dataList; }
+	PointerList<BattleEventData>	*GetDataList() { return m_dataList.get(); }
 
 	void RemoveDeadActor(BattleViewActor *actor);
 private:
 	BATTLE_EVENT_TYPE						m_type;
-	PointerList<BattleEventData>			*m_dataList;
-	PointerList<BattleEventData>::Walker	*m_walker;
+	std::unique_ptr<PointerList<BattleEventData>>			m_dataList;
+	std::unique_ptr<PointerList<BattleEventData>::Walker>	m_walker;
 	BOOL									m_animating;
 	BOOL									m_finished;
 };

@@ -9,11 +9,13 @@
 #include "gs/slic/SlicBuiltinEnum.h"
 #include "gs/slic/SlicSymbol.h"
 
+#include <memory>
+
 #define SLICSTRUCT(name, type) \
 class SlicStruct_##name : public SlicStructDescription {\
 public:\
     SlicStruct_##name();\
-    SlicSymbolData *CreateDataSymbol() { return new SlicSymbolData(type); }\
+    std::unique_ptr<SlicSymbolData> CreateDataSymbol() override { return std::make_unique<SlicSymbolData>(type); }\
 };
 
 
@@ -26,7 +28,7 @@ class SlicStruct_Global : public SlicStructDescription
 {
 public:
 	SlicStruct_Global();
-	SlicSymbolData *CreateDataSymbol() override { return nullptr; }
+	std::unique_ptr<SlicSymbolData> CreateDataSymbol() override { return nullptr; }
 };
 
 SLICSTRUCT(Unit, SLIC_SYM_UNIT);

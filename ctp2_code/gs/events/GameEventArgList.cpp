@@ -32,6 +32,7 @@
 #include "gs/events/GameEventArgList.h"
 
 #include <algorithm>
+#include <memory>
 #include "gs/gameobj/Army.h"
 #include "gs/events/GameEventArgument.h"
 #include "ctp/ctp2_utils/pointerlist.h"
@@ -43,11 +44,6 @@
 
 GameEventArgList::GameEventArgList(va_list *vl, GAME_EVENT eventType)
 {
-	std::fill(m_argLists,
-	          m_argLists + GEA_End,
-	          (PointerList<GameEventArgument> *) nullptr
-	         );
-
 	const char *argString = event_description(eventType).args;
 
 	while(vl) {
@@ -58,9 +54,9 @@ GameEventArgList::GameEventArgList(va_list *vl, GAME_EVENT eventType)
 			break;
 
 		if(!m_argLists[arg]) {
-			m_argLists[arg] = new PointerList<GameEventArgument>;
+			m_argLists[arg] = std::make_unique<PointerList<GameEventArgument>>();
 		}
-		m_argLists[arg]->AddTail(new GameEventArgument(arg, vl, *argString == '$'));
+		m_argLists[arg]->AddTail(std::make_unique<GameEventArgument>(arg, vl, *argString == '$').release());
 
 		// Each argument consumes two characters of the format string, but a
 		// va_list longer than the format would walk argString past its '\0'.
@@ -81,7 +77,7 @@ GameEventArgList::~GameEventArgList()
 		if (m_argList)
 		{
 			m_argList->DeleteAll();
-			delete m_argList;
+			m_argList.reset();
 		}
 	}
 }
@@ -93,7 +89,7 @@ void GameEventArgList::Add(GameEventArgument *arg)
 	Assert(arg->GetType() < GEA_End);
 
 	if(!m_argLists[arg->GetType()]) {
-		m_argLists[arg->GetType()] = new PointerList<GameEventArgument>;
+		m_argLists[arg->GetType()] = std::make_unique<PointerList<GameEventArgument>>();
 	}
 	m_argLists[arg->GetType()]->AddTail(arg);
 }
@@ -115,7 +111,7 @@ GameEventArgument *GameEventArgList::GetArg(GAME_EVENT_ARGUMENT argType,
 
 	for
 	(
-	    PointerList<GameEventArgument>::Walker walk(m_argLists[argType]);
+	    PointerList<GameEventArgument>::Walker walk(m_argLists[argType].get());
 	    walk.IsValid();
 	    walk.Next()
 	)
@@ -162,7 +158,7 @@ bool GameEventArgList::TestArgsOfType(GAME_EVENT type, GAME_EVENT_ARGUMENT argTy
 	sint32 i = 0;
 	for
 	(
-	    PointerList<GameEventArgument>::Walker walk(m_argLists[argType]);
+	    PointerList<GameEventArgument>::Walker walk(m_argLists[argType].get());
 	    walk.IsValid();
 	    walk.Next()
 	)

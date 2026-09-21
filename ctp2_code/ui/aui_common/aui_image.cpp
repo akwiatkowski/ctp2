@@ -40,6 +40,13 @@
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_sdl/aui_sdlcompat.h"
 
+aui_Image::aui_Image()
+:
+	aui_Base()
+{
+}
+
+
 aui_Image::aui_Image(
 	AUI_ERRCODE *retval,
 	MBCHAR const * filename )
@@ -113,8 +120,7 @@ AUI_ERRCODE aui_Image::Unload( )
 		m_format = nullptr;
 	}
 
-	delete  m_surface;
-	m_surface = nullptr;
+	m_surface.reset();
 
 	return AUI_ERRCODE_OK;
 }
@@ -123,7 +129,7 @@ AUI_ERRCODE aui_Image::LoadEmpty( sint32 width, sint32 height, sint32 bpp )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	m_surface = aui_Factory::new_Surface(errcode, width, height);
+	m_surface.reset(aui_Factory::new_Surface(errcode, width, height));
 
 	Assert( AUI_NEWOK(m_surface, errcode) );
 	return errcode;
@@ -135,7 +141,7 @@ AUI_ERRCODE aui_Image::LoadFileMapped( sint32 width, sint32 height,
 {
 	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
 
-	m_surface = new aui_Surface(
+	m_surface = std::make_unique<aui_Surface>(
 	    &retcode,
 	    width,
 	    height,
@@ -175,18 +181,18 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 		return AUI_ERRCODE_LOADFAILED;
 	}
 
-	RGBQUAD *rgbq = NULL;
+	std::unique_ptr<RGBQUAD[]> rgbq;
 	if ( bih.biBitCount == 8 &&
 		(bfh.bfOffBits - (sizeof(bih) + sizeof(bfh)) == (256 * sizeof( RGBQUAD ))) ) {
 
-		rgbq = new RGBQUAD[256];
+		rgbq = std::make_unique<RGBQUAD[]>(256);
 		Assert( rgbq != NULL );
 		if ( !rgbq ) {
 			aui_ui_Get()->TheMemMap()->ReleaseFileBits( filebits );
 			return AUI_ERRCODE_LOADFAILED;
 		}
 
-		memcpy( rgbq, filebits + foffset, ( 256 * sizeof( RGBQUAD ) ) );
+		memcpy( rgbq.get(), filebits + foffset, ( 256 * sizeof( RGBQUAD ) ) );
 		foffset += 256 * sizeof( RGBQUAD );
 	}
 
@@ -203,7 +209,6 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 	if ( !AUI_SUCCESS(errcode) )
 	{
 		aui_ui_Get()->TheMemMap()->ReleaseFileBits( filebits );
-		if ( rgbq ) delete [] rgbq;
 		return AUI_ERRCODE_LOADFAILED;
 	}
 
@@ -227,7 +232,7 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 				width,
 				height,
 				bmpPitch,
-				rgbq );
+				rgbq.get() );
 			Assert( AUI_SUCCESS(errcode) );
 			if ( !AUI_SUCCESS(errcode) )
 				retcode = AUI_ERRCODE_LOADFAILED;
@@ -271,7 +276,6 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 		break;
 	}
 
-	if ( rgbq ) delete [] rgbq;
 	aui_ui_Get()->TheMemMap()->ReleaseFileBits( filebits );
 
 	if ( bih.biHeight > 0 )

@@ -5106,8 +5106,8 @@ void Governor::ManageGoodsTradeRoutes()
 						GEA_Int, CAUSE_KILL_TRADE_ROUTE_SENDER_KILLED,
 						GEA_End);
 					if(network_Get().IsClient()) {
-						network_Get().SendAction(new NetAction(NET_ACTION_CANCEL_TRADE_ROUTE,
-														   (uint32)curDestRoute));
+						network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CANCEL_TRADE_ROUTE,
+														   (uint32)curDestRoute).release());
 					}
 				}
 

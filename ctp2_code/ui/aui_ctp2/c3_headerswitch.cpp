@@ -17,6 +17,13 @@
 
 
 
+c3_HeaderSwitch::c3_HeaderSwitch()
+:
+	aui_Radio()
+{
+}
+
+
 c3_HeaderSwitch::c3_HeaderSwitch(
 	AUI_ERRCODE *retval,
 	uint32 id,
@@ -103,7 +110,7 @@ AUI_ERRCODE c3_HeaderSwitch::InitCommonLdl( MBCHAR const *ldlBlock )
 
         if (aui_Ldl::FindDataBlock(imageBlock))
 		{
-			m_image = new c3_Static(
+			m_image = std::make_unique<c3_Static>(
 				&errcode,
 				aui_UniqueId(),
 				imageBlock );
@@ -129,13 +136,7 @@ AUI_ERRCODE c3_HeaderSwitch::InitCommon()
 }
 
 
-c3_HeaderSwitch::~c3_HeaderSwitch()
-{
-	if ( m_image ) {
-		delete m_image;
-		m_image = nullptr;
-	}
-}
+c3_HeaderSwitch::~c3_HeaderSwitch() = default;
 
 AUI_ERRCODE c3_HeaderSwitch::DrawThis(
 	aui_Surface *surface,

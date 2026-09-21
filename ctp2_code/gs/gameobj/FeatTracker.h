@@ -70,6 +70,8 @@ sint32 const	USE_CURRENT_ROUND			= -1;
 // Project dependencies
 //----------------------------------------------------------------------------
 
+#include <memory>
+#include <array>
 #include "ctp/c3types.h"			// MBCHAR, sint32
 #include "ctp/ctp2_utils/pointerlist.h"		// PointerList
 #include "gs/gameobj/Unit.h"				// Unit
@@ -144,7 +146,7 @@ class FeatTracker {
 
   private:
 	PointerList<Feat> m_activeList;   // held by value
-	PointerList<Feat> *m_effectList[FEAT_EFFECT_MAX];
+	std::array<std::unique_ptr<PointerList<Feat>>, FEAT_EFFECT_MAX> m_effectList;
 	std::vector<uint8>		m_achieved;
 	std::vector<uint8>		m_buildingFeat;
 };

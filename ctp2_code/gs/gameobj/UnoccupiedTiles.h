@@ -4,6 +4,8 @@
 #ifndef __UNOCCUPIED_TILES_H__
 #define __UNOCCUPIED_TILES_H__
 
+#include <memory>
+
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/EmptyTile.h"
 
@@ -30,7 +32,7 @@ class UnoccupiedTiles
 				m_numBestGoldTiles,
 				m_numBestTradeTiles ;
 
-		EmptyTile	*m_unordered[k_MAX_TILES_IN_LIST] ;
+		std::unique_ptr<EmptyTile>	m_unordered[k_MAX_TILES_IN_LIST] ;
 
 		sint32		m_bestFoodTiles[k_MAX_TILES_IN_LIST],
 					m_bestProductionTiles[k_MAX_TILES_IN_LIST],

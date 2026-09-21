@@ -108,7 +108,7 @@ static void Hash_CloseEntry (HashTableEntry_Ptr entry)
 	{
 		Hash_CloseEntry (entry->next);
 
-		delete entry;
+		std::unique_ptr<HashTableEntry>{entry};
 	}
 }
 
@@ -154,7 +154,7 @@ void Hash_Add (const char *hash_key)
 	{
 
 		hash_value = Hash (hash_key);
-		hash_entry = new HashTableEntry;
+		hash_entry = std::make_unique<HashTableEntry>().release();
 
 		hash_entry->key = hash_key;
 		hash_entry->next = hash_table.bucket[hash_value];

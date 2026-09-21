@@ -1,6 +1,7 @@
 #ifndef xCHAT_LIST_H__
 #define xCHAT_LIST_H__
 
+#include <memory>
 #include <string>
 
 #include "ctp/ctp2_utils/pointerlist.h"
@@ -33,12 +34,12 @@ class ChatList
 	}
 
 	void AddLine(sint32 sender, const char *text) {
-		m_list.AddHead(new ChatText(sender, text));
+		m_list.AddHead(std::make_unique<ChatText>(sender, text).release());
 	}
 
 	void RemoveExpired() {
 		while(m_list.GetTail() && (m_list.GetTail()->m_timeAdded + k_CHAT_TEXT_TIME < time(nullptr))) {
-			delete m_list.RemoveTail();
+			std::unique_ptr<ChatText>(m_list.RemoveTail());
 		}
 	}
 };

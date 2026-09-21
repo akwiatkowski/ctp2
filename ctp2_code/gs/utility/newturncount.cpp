@@ -81,6 +81,8 @@
 
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 #include "gs/gameobj/Gold.h"
+#include <memory>
+
 
 extern World                    *g_world;
 
@@ -121,7 +123,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	PLAYER_INDEX current_player = player_view::CurPlayer();
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_END_TURN));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_END_TURN).release());
 		return;
 	}
 
@@ -189,7 +191,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 
 	if(network_Get().IsHost())
 	{
-		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_TURN, next_player));
+		network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_BEGIN_TURN, next_player).release());
 	}
 
 	if((turn_Get()->IsHotSeat() || turn_Get()->IsEmail())
@@ -309,8 +311,8 @@ void NewTurnCount::RunNewYearMessages()
 			}
 			if(network_Get().IsHost())
 			{
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_GAME_OVER_OUT_OF_TIME,
-				                              highPlayer));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_GAME_OVER_OUT_OF_TIME,
+				                              highPlayer).release());
 			}
 
 			for(i = 0; i < k_MAX_PLAYERS; i++)
@@ -341,7 +343,7 @@ void NewTurnCount::SendMsgEndOfGameEarlyWarning()
 	SendMsgToAllPlayers(const_cast<MBCHAR *>("73EndOfGameTimeIsRunningOut")) ;
 	if(network_Get().IsHost())
 	{
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TIMES_ALMOST_UP));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_TIMES_ALMOST_UP).release());
 	}
 }
 
@@ -349,7 +351,7 @@ void NewTurnCount::SendMsgToAllPlayers(MBCHAR *s)
 {
 	sint32	i ;
 
-	SlicObject *so = new SlicObject(s) ;
+	auto so = std::make_unique<SlicObject>(s) ;
 
 	for(i=0; i<k_MAX_PLAYERS; i++)
 	{
@@ -358,7 +360,7 @@ void NewTurnCount::SendMsgToAllPlayers(MBCHAR *s)
 
 	}
 
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(so.release()) ;
 }
 
 BOOL NewTurnCount::VerifyEndTurn(BOOL force)
@@ -390,10 +392,10 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 				if(unit->AccessData()->CheckForRefuel())
 					continue;
 				if (unit->NeedsRefueling()) {
-					SlicObject *so = new SlicObject("16IAOutOfFuel") ;
+					auto so = std::make_unique<SlicObject>("16IAOutOfFuel") ;
 					so->AddRecipient(player->m_owner) ;
 					so->AddCivilisation(player->m_owner) ;
-					slicengine_Get()->Execute(so) ;
+					slicengine_Get()->Execute(so.release()) ;
 					return(FALSE);
 				}
 			}
@@ -415,10 +417,10 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 //				double fudge = (double)(g_theConstDB->StarvationWarningFudgeFactor()) / 100.0;
 				if ((city->GetProducedFood() < city->GetConsumedFood()) &&
 					(city->GetStarvationTurns() == 0)) {
-					SlicObject *so = new SlicObject("23IACityWillStarve") ;
+					auto so = std::make_unique<SlicObject>("23IACityWillStarve") ;
 					so->AddRecipient(player->m_owner) ;
 					so->AddCity(*unit) ;
-					slicengine_Get()->Execute(so) ;
+					slicengine_Get()->Execute(so.release()) ;
 					return(FALSE);
 				}
 			}
@@ -429,10 +431,10 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 		if (slicengine_Get()->GetSegment("21IACannotAffordMaintenance")->TestLastShown(player->m_owner, 1, turn_Get()->GetRound())) {
 			if (player->m_gold->BankruptcyImminent() &&
 				(player->CalcTotalBuildingUpkeep() > 0)) {
-				SlicObject *so = new SlicObject("21IACannotAffordMaintenance") ;
+				auto so = std::make_unique<SlicObject>("21IACannotAffordMaintenance") ;
 				so->AddRecipient(player->m_owner) ;
 				so->AddCivilisation(player->m_owner) ;
-				slicengine_Get()->Execute(so) ;
+				slicengine_Get()->Execute(so.release()) ;
 				return(FALSE);
 			}
 		}
@@ -454,10 +456,10 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 			prod_total *= fudge;
 			if (!(player->m_first_city) &&
 				(prod_total < player->m_readiness->GetCost())) {
-				SlicObject *so = new SlicObject("22IACannotAffordSupport") ;
+				auto so = std::make_unique<SlicObject>("22IACannotAffordSupport") ;
 				so->AddRecipient(player->m_owner) ;
 				so->AddCivilisation(player->m_owner) ;
-				slicengine_Get()->Execute(so) ;
+				slicengine_Get()->Execute(so.release()) ;
 				return(FALSE);
 			}
 		}

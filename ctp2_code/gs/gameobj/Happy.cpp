@@ -45,6 +45,8 @@
 #include "ctp/c3.h"                 // Pre-compiled header
 #include "gs/gameobj/Happy.h"              // Own declarations: consistency check
 
+#include <memory>
+
 #include "gs/gameobj/player.h"
 #include "ConstRecord.h"        // g_theConstDB
 #include "gs/gameobj/UnitPool.h"
@@ -106,7 +108,7 @@ Happy::Happy()
 	m_timed                 (0.0),
 	m_crime                 (0.0),
 	m_timedChanges          (0),
-	m_tracker               (new HappyTracker())
+	m_tracker               (std::make_unique<HappyTracker>())
 { ; }
 
 Happy::Happy(Happy const & copyme)
@@ -135,7 +137,7 @@ Happy::Happy(Happy const & copyme)
 	m_timed                 (copyme.m_timed),
 	m_crime                 (copyme.m_crime),
 	m_timedChanges          (copyme.m_timedChanges),
-	m_tracker               (new HappyTracker())
+	m_tracker               (std::make_unique<HappyTracker>())
 {
 	for (size_t i = 0; i < static_cast<size_t>(HAPPY_REASON_MAX); ++i)
 	{
@@ -206,9 +208,9 @@ double Happy::CalcTooManyCities(Player *p)
 		res = -s * (num_cities - t);
 
 		if (slicengine_Get()->GetSegment("28IAMaxCitiesReached")->TestLastShown(p->m_owner, 10, turn_Get()->GetRound())) {
-			SlicObject *so = new SlicObject("28IAMaxCitiesReached");
+			auto so = std::make_unique<SlicObject>("28IAMaxCitiesReached");
 			so->AddRecipient(p->m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 	m_tracker->SetHappiness(HAPPY_REASON_NUM_CITIES, res);
@@ -297,10 +299,10 @@ double Happy::CalcPeaceMovement(CityData &cd, Player *p)
 
 	if (((m_peace <= -1.0) && (prev_peace > -1.0)) || (m_peace <= -2.0)) {
 		if (slicengine_Get()->GetSegment("27IAWarDiscontentRising")->TestLastShown(p->m_owner, 10, turn_Get()->GetRound())) {
-			SlicObject *so = new SlicObject("27IAWarDiscontentRising") ;
+			auto so = std::make_unique<SlicObject>("27IAWarDiscontentRising") ;
 			so->AddRecipient(p->m_owner) ;
 			so->AddCivilisation(p->m_owner) ;
-			slicengine_Get()->Execute(so) ;
+			slicengine_Get()->Execute(std::move(so)) ;
 		}
 	}
 

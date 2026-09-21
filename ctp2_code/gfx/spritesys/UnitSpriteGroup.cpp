@@ -585,7 +585,7 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 			return FALSE;
 		}
 
-		FacedSprite *moveSprite = new FacedSprite;
+		auto moveSprite = std::make_unique<FacedSprite>();
 
 		moveSprite->ParseFromTokens(theToken.get());
 
@@ -604,13 +604,13 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		moveSprite->Import(moveSprite->GetNumFrames(), facedImageNames, facedShadowNames);
 
-		m_sprites[UNITACTION_MOVE].reset(moveSprite);
+		m_sprites[UNITACTION_MOVE] = std::move(moveSprite);
 		printf("]\n");
 
-		Anim *moveAnim = new Anim;
+		auto moveAnim = std::make_unique<Anim>();
 
 		moveAnim->ParseFromTokens(theToken.get());
-		m_anims[UNITACTION_MOVE].reset(moveAnim);
+		m_anims[UNITACTION_MOVE] = std::move(moveAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_ATTACK, tmp)) return FALSE;
@@ -630,7 +630,7 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		else
 			m_hasDirectional = FALSE;
 
-		FacedSprite *attackSprite = new FacedSprite;
+		auto attackSprite = std::make_unique<FacedSprite>();
 
 		attackSprite->ParseFromTokens(theToken.get());
 
@@ -649,19 +649,19 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		attackSprite->Import(attackSprite->GetNumFrames(), facedImageNames, facedShadowNames);
 
-		m_sprites[UNITACTION_ATTACK].reset(attackSprite);
+		m_sprites[UNITACTION_ATTACK] = std::move(attackSprite);
 		printf("]\n");
 
-		Anim *attackAnim = new Anim;
+		auto attackAnim = std::make_unique<Anim>();
 
 		attackAnim->ParseFromTokens(theToken.get());
-		m_anims[UNITACTION_ATTACK].reset(attackAnim);
+		m_anims[UNITACTION_ATTACK] = std::move(attackAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_IDLE, tmp)) return FALSE;
 	if (tmp)
 	{
-		Sprite *idleSprite = new Sprite;
+		auto idleSprite = std::make_unique<Sprite>();
 		idleSprite->ParseFromTokens(theToken.get());
 
 		if (type == GROUPTYPE_UNIT)
@@ -692,13 +692,13 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		}
 
 		idleSprite->Import(idleSprite->GetNumFrames(), imageNames, shadowNames);
-		m_sprites[UNITACTION_IDLE].reset(idleSprite);
+		m_sprites[UNITACTION_IDLE] = std::move(idleSprite);
 		printf("]\n");
 
-		Anim *idleAnim = new Anim;
+		auto idleAnim = std::make_unique<Anim>();
 
 		idleAnim->ParseFromTokens(theToken.get());
-		m_anims[UNITACTION_IDLE].reset(idleAnim);
+		m_anims[UNITACTION_IDLE] = std::move(idleAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_VICTORY, tmp)) return FALSE;
@@ -712,7 +712,7 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 			return FALSE;
 		}
 
-		Sprite *victorySprite = new Sprite;
+		auto victorySprite = std::make_unique<Sprite>();
 
 		if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_IS_DEATH, tmp)) return FALSE;
 		SetHasDeath(0 != tmp);
@@ -729,13 +729,13 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		}
 
 		victorySprite->Import(victorySprite->GetNumFrames(), imageNames, shadowNames);
-		m_sprites[UNITACTION_VICTORY].reset(victorySprite);
+		m_sprites[UNITACTION_VICTORY] = std::move(victorySprite);
 		printf("]\n");
 
-		Anim *victoryAnim = new Anim;
+		auto victoryAnim = std::make_unique<Anim>();
 
 		victoryAnim->ParseFromTokens(theToken.get());
-		m_anims[UNITACTION_VICTORY].reset(victoryAnim);
+		m_anims[UNITACTION_VICTORY] = std::move(victoryAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_WORK, tmp)) return FALSE;
@@ -748,7 +748,7 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 			return FALSE;
 		}
 
-		FacedSprite *workSprite = new FacedSprite;
+		auto workSprite = std::make_unique<FacedSprite>();
 
 		workSprite->ParseFromTokens(theToken.get());
 
@@ -767,12 +767,12 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 		workSprite->Import(workSprite->GetNumFrames(), facedImageNames, facedShadowNames);
 
-		m_sprites[UNITACTION_WORK].reset(workSprite);
+		m_sprites[UNITACTION_WORK] = std::move(workSprite);
 		printf("]\n");
 
-		Anim *workAnim = new Anim;
+		auto workAnim = std::make_unique<Anim>();
 		workAnim->ParseFromTokens(theToken.get());
-		m_anims[UNITACTION_WORK].reset(workAnim);
+		m_anims[UNITACTION_WORK] = std::move(workAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_UNIT_SPRITE_FIREPOINTS, tmp)) return FALSE;

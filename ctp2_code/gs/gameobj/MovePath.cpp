@@ -19,7 +19,7 @@
 #include "robot/pathing/UnitAstar.h"
 #include <memory>
 
-extern UnitAstar *g_theUnitAstar;
+extern std::unique_ptr<UnitAstar> g_theUnitAstar;
 
 static bool army_ComputeMovePath(sint32 owner, Army &army,
                                  const MapPoint &src, const MapPoint &dest,

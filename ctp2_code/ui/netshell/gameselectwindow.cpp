@@ -38,6 +38,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -105,10 +106,7 @@ AUI_ERRCODE GameSelectWindow::InitCommon( )
 {
 	g_gameSelectWindow = this;
 
-	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != nullptr );
-	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
-	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
+	m_controls = std::make_unique<aui_Control *[]>( m_numControls = CONTROL_MAX );
 
 	return AUI_ERRCODE_OK;
 }
@@ -121,7 +119,7 @@ AUI_ERRCODE GameSelectWindow::CreateControls( )
 
 
 
-	aui_Control *control;
+	std::unique_ptr<aui_Control> control;
 
 
 
@@ -131,21 +129,21 @@ AUI_ERRCODE GameSelectWindow::CreateControls( )
 
 
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"gameselectwindow.titlestatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_TITLESTATICTEXT ] = control;
+	m_controls[ CONTROL_TITLESTATICTEXT ] = control.release();
 
-	control = new ns_GameSetupListBox(
+	control = std::make_unique<ns_GameSetupListBox>(
 		&errcode,
 		aui_UniqueId(),
 		"gameselectwindow.gamenamelistbox" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_GAMENAMELISTBOX ] = control;
+	m_controls[ CONTROL_GAMENAMELISTBOX ] = control.release();
 
 
 
@@ -155,30 +153,30 @@ AUI_ERRCODE GameSelectWindow::CreateControls( )
 
 
 
-	control = spNew_ctp2_Button(
+	control.reset(spNew_ctp2_Button(
 		&errcode,
 		"gameselectwindow",
 		"deletebutton",
-		nullptr);
+		nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_DELETEBUTTON ] = control;
+	m_controls[ CONTROL_DELETEBUTTON ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"gameselectwindow.okbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_OKBUTTON ] = control;
+	m_controls[ CONTROL_OKBUTTON ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"gameselectwindow.cancelbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CANCELBUTTON ] = control;
+	m_controls[ CONTROL_CANCELBUTTON ] = control.release();
 
 
 
@@ -188,32 +186,32 @@ AUI_ERRCODE GameSelectWindow::CreateControls( )
 
 
 
-	aui_Action *action;
+	std::unique_ptr<aui_Action> action;
 
 
 
 
 
 
-	action = new DeleteButtonAction;
+	action = std::make_unique<DeleteButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_DELETEBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_DELETEBUTTON ]->SetAction( action.release() );
 
-	action = new OKButtonAction;
+	action = std::make_unique<OKButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_OKBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_OKBUTTON ]->SetAction( action.release() );
 
-	action = new CancelButtonAction;
+	action = std::make_unique<CancelButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action.release() );
 
-	action = new GameListBoxAction;
+	action = std::make_unique<GameListBoxAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_GAMENAMELISTBOX ]->SetAction( action );
+	m_controls[ CONTROL_GAMENAMELISTBOX ]->SetAction( action.release() );
 
 
 
@@ -248,7 +246,7 @@ nf_GameSetup *GameSelectWindow::GetGameSetup(NETFunc::Session *session) {
 	}
 
 	NETFunc::Game game = NETFunc::Game(session);
-	s = new nf_GameSetup(&game);
+	s = std::make_unique<nf_GameSetup>(&game).release();
 	l->InsertItem(s);
 
 	return s;
@@ -275,16 +273,14 @@ void GameSelectWindow::Update()
 
 AUI_ERRCODE GameSelectWindow::Idle( )
 {
-	while (NETFunc::Message * m = netfunc_Get()->GetMessage())
+	while (std::unique_ptr<NETFunc::Message> m{netfunc_Get()->GetMessage()})
     {
-		netfunc_Get()->HandleMessage(m);
+		netfunc_Get()->HandleMessage(m.get());
 
 		if (dp_SESSIONLOST_PACKET_ID == m->GetCode())
 		{
 			passwordscreen_displayMyWindow(PASSWORDSCREEN_MODE_CONNECTIONLOST);
 		}
-
-		delete m;
 	}
 
 	return AUI_ERRCODE_OK;
@@ -542,10 +538,7 @@ AUI_ERRCODE StartSelectingWindow::InitCommon( )
 {
 	g_startSelectingWindow = this;
 
-	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != nullptr );
-	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
-	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
+	m_controls = std::make_unique<aui_Control *[]>( m_numControls = CONTROL_MAX );
 
 	loadsavescreen_Initialize( StartSelectingLoadSaveCallback );
 
@@ -560,7 +553,7 @@ AUI_ERRCODE StartSelectingWindow::CreateControls( )
 
 
 
-	aui_Control *control;
+	std::unique_ptr<aui_Control> control;
 
 
 
@@ -570,57 +563,57 @@ AUI_ERRCODE StartSelectingWindow::CreateControls( )
 
 
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"startselectingwindow.titlestatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_TITLESTATICTEXT ] = control;
+	m_controls[ CONTROL_TITLESTATICTEXT ] = control.release();
 
-	control = spNew_ctp2_Button(
+	control.reset(spNew_ctp2_Button(
 		&errcode,
 		"startselectingwindow",
 		"newbutton",
-		nullptr);
+		nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_NEWBUTTON ] = control;
+	m_controls[ CONTROL_NEWBUTTON ] = control.release();
 
-	control = spNew_ctp2_Button(
+	control.reset(spNew_ctp2_Button(
 		&errcode,
 		"startselectingwindow",
 		"gamesetupbutton",
-		nullptr);
+		nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_GAMESETUPBUTTON ] = control;
+	m_controls[ CONTROL_GAMESETUPBUTTON ] = control.release();
 
-	control = spNew_ctp2_Button(
+	control.reset(spNew_ctp2_Button(
 		&errcode,
 		"startselectingwindow",
 		"savedbutton",
-		nullptr);
+		nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_SAVEDBUTTON ] = control;
+	m_controls[ CONTROL_SAVEDBUTTON ] = control.release();
 
-	control = spNew_ctp2_Button(
+	control.reset(spNew_ctp2_Button(
 		&errcode,
 		"startselectingwindow",
 		"scenariobutton",
-		nullptr);
+		nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_SCENARIOBUTTON ] = control;
+	m_controls[ CONTROL_SCENARIOBUTTON ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"startselectingwindow.cancelbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CANCELBUTTON ] = control;
+	m_controls[ CONTROL_CANCELBUTTON ] = control.release();
 
 
 
@@ -630,37 +623,37 @@ AUI_ERRCODE StartSelectingWindow::CreateControls( )
 
 
 
-	aui_Action *action;
+	std::unique_ptr<aui_Action> action;
 
 
 
 
 
 
-	action = new NewButtonAction;
+	action = std::make_unique<NewButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_NEWBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_NEWBUTTON ]->SetAction( action.release() );
 
-	action = new GameSetupButtonAction;
+	action = std::make_unique<GameSetupButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_GAMESETUPBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_GAMESETUPBUTTON ]->SetAction( action.release() );
 
-	action = new SavedButtonAction;
+	action = std::make_unique<SavedButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_SAVEDBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_SAVEDBUTTON ]->SetAction( action.release() );
 
-	action = new ScenarioButtonAction;
+	action = std::make_unique<ScenarioButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_SCENARIOBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_SCENARIOBUTTON ]->SetAction( action.release() );
 
-	action = new CancelButtonAction;
+	action = std::make_unique<CancelButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action.release() );
 
 
 
@@ -683,16 +676,14 @@ StartSelectingWindow::~StartSelectingWindow()
 
 AUI_ERRCODE StartSelectingWindow::Idle( )
 {
-	while (NETFunc::Message * m = netfunc_Get()->GetMessage())
+	while (std::unique_ptr<NETFunc::Message> m{netfunc_Get()->GetMessage()})
     {
-		netfunc_Get()->HandleMessage(m);
+		netfunc_Get()->HandleMessage(m.get());
 
 		if (dp_SESSIONLOST_PACKET_ID == m->GetCode())
 		{
 			passwordscreen_displayMyWindow(PASSWORDSCREEN_MODE_CONNECTIONLOST);
 		}
-
-		delete m;
 	}
 
 	return AUI_ERRCODE_OK;
@@ -718,7 +709,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 	ns_GameSetupListBox *listbox = (ns_GameSetupListBox *)w->
 		FindControl( GameSelectWindow::CONTROL_GAMENAMELISTBOX );
 
-	nf_GameSetup *s = new nf_GameSetup;
+	nf_GameSetup *s = std::make_unique<nf_GameSetup>().release();
 	if ( s )
 	{
 		char name[ dp_SNAMELEN + 1 ];
@@ -843,7 +834,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 	ns_GameSetupListBox *listbox = (ns_GameSetupListBox *)w->
 		FindControl( GameSelectWindow::CONTROL_GAMENAMELISTBOX );
 
-	nf_GameSetup *s = new nf_GameSetup;
+	nf_GameSetup *s = std::make_unique<nf_GameSetup>().release();
 	if ( s )
 	{
 		char name[ dp_SNAMELEN + 1 ];

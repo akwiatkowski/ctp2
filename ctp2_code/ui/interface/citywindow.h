@@ -46,6 +46,8 @@ class InventoryItemInfo;
 #include "os/include/ctp2_inttypes.h"      // sint32, uint32
 #include "gs/utility/gstypes.h"
 
+#include <memory>
+
 class ctp2_Window;
 class CityData;
 class aui_Control;
@@ -93,7 +95,7 @@ class CityWindow {
 	ctp2_Window *m_window;
 	ctp2_Window *m_statsWindow;
 	CityData *m_cityData;
-	PointerList<CityData> *m_cities;
+	std::unique_ptr<PointerList<CityData>> m_cities;
 	bool m_updating;
 
 	ctp2_Spinner *m_popSpinners[POP_MAX];

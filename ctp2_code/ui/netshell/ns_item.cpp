@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -39,13 +40,13 @@ AUI_ERRCODE ns_ListItem::InitCommonLdl(
 	AUI_ERRCODE		retval;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
-	c3_Static *subItem = new c3_Static(&retval, aui_UniqueId(), block);
-	AddChild(subItem);
+	auto subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block);
+	AddChild(subItem.get());
 
 	subItem->SetText( name );
 
 	Update();
-
+	subItem.release();
 	return AUI_ERRCODE_OK;
 }
 
@@ -70,17 +71,6 @@ ns_HPlayerItem::ns_HPlayerItem(
 
 ns_HPlayerItem::~ns_HPlayerItem()
 {
-
-
-
-
-
-	
-		delete m_civpointsButton;
-
-	
-		delete m_pwpointsButton;
-
 }
 
 AUI_ERRCODE ns_HPlayerItem::InitCommonLdl(
@@ -106,37 +96,37 @@ AUI_ERRCODE ns_HPlayerItem::InitCommonLdl(
 	SetImageBltFlag( AUI_IMAGEBASE_BLTFLAG_CHROMAKEY );
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "launched");
-	m_launchedItem = new c3_Static(&retval, aui_UniqueId(), block);
+	m_launchedItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block);
 	m_launchedItem->SetImageBltFlag( AUI_IMAGEBASE_BLTFLAG_CHROMAKEY );
 	m_launchedItem->SetBlindness( TRUE );
-	AddChild(m_launchedItem);
+	AddChild(m_launchedItem.get());
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "name");
-	m_nameItem = new c3_Static(&retval, aui_UniqueId(), block);
+	m_nameItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block);
 	m_nameItem->SetBlindness( TRUE );
-	AddChild(m_nameItem);
+	AddChild(m_nameItem.get());
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ping");
-	m_pingItem = new c3_Static(&retval, aui_UniqueId(), block);
+	m_pingItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block);
 	m_pingItem->SetBlindness( TRUE );
-	AddChild(m_pingItem);
+	AddChild(m_pingItem.get());
 
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "tribe");
-	m_tribeItem = new c3_Static(&retval, aui_UniqueId(), block);
+	m_tribeItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block);
 
 	aui_Control::ControlActionCallback TribesButtonCallback;
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "tribe.button");
-	m_tribeButton = new c3_Button(
+	m_tribeButton = std::make_unique<c3_Button>(
 		&retval,
 		aui_UniqueId(),
 		block,
 		TribesButtonCallback,
 		this );
 
-	m_tribeItem->AddChild(m_tribeButton);
+	m_tribeItem->AddChild(m_tribeButton.get());
 
-	AddChild(m_tribeItem);
+	AddChild(m_tribeItem.get());
 
 
 
@@ -158,36 +148,36 @@ AUI_ERRCODE ns_HPlayerItem::InitCommonLdl(
 
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "civpoints");
-	m_civpointsItem = new c3_Static(&retval, aui_UniqueId(),block);
+	m_civpointsItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(),block);
 
 	aui_Control::ControlActionCallback CivPointsButtonCallback;
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "civpoints.button");
-	m_civpointsButton = new c3_EditButton(
+	m_civpointsButton = std::make_unique<c3_EditButton>(
 		&retval,
 		aui_UniqueId(),
 		block,
 		CivPointsButtonCallback,
 		this );
 
-	m_civpointsItem->AddChild(m_civpointsButton);
+	m_civpointsItem->AddChild(m_civpointsButton.get());
 
-	AddChild(m_civpointsItem);
+	AddChild(m_civpointsItem.get());
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "pwpoints");
-	m_pwpointsItem = new c3_Static(&retval, aui_UniqueId(),block);
+	m_pwpointsItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(),block);
 
 	aui_Control::ControlActionCallback PwPointsButtonCallback;
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "pwpoints.button");
-	m_pwpointsButton = new c3_EditButton(
+	m_pwpointsButton = std::make_unique<c3_EditButton>(
 		&retval,
 		aui_UniqueId(),
 		block,
 		PwPointsButtonCallback,
 		this );
 
-	m_pwpointsItem->AddChild(m_pwpointsButton);
+	m_pwpointsItem->AddChild(m_pwpointsButton.get());
 
-	AddChild(m_pwpointsItem);
+	AddChild(m_pwpointsItem.get());
 
 	Update();
 

@@ -67,6 +67,7 @@
 
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"               // colorset_Get()
+#include <memory>
 
 
 static SourceList *g_sourceList = nullptr;
@@ -104,7 +105,7 @@ void sourcelist_Callback(sint32 arg)
 void sourcelist_Display(SlicSegment *segment)
 {
 	if(!g_sourceList) {
-		g_sourceList = new SourceList(sourcelist_Callback);
+		g_sourceList = std::make_unique<SourceList>(sourcelist_Callback).release();
 	}
 	g_sourceList->DisplayWindow(segment);
 }
@@ -141,7 +142,7 @@ SourceList::SourceList(SourceListCallback *callback, MBCHAR *ldlBlock)
 	else strlcpy(windowBlock,"SourceListPopup", sizeof(windowBlock));
 
 	{
-		m_window.reset(new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false));
+		m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -227,38 +228,38 @@ sint32 SourceList::Initialize(MBCHAR *windowBlock)
 
 
 	snprintf( controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "SourceList" );
-	m_list.reset(new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, SourceListActionCallback, this));
+	m_list = std::make_unique<c3_ListBox>(&errcode, aui_UniqueId(), controlBlock, SourceListActionCallback, this);
 	m_list->SetAbsorbancy(FALSE);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) )
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ContinueButton");
-	m_continue.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this));
+	m_continue = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
 	Assert(AUI_NEWOK(m_continue, errcode));
 	if( !AUI_NEWOK(m_continue, errcode))
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton");
-	m_exit.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this));
+	m_exit = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
 	Assert(AUI_NEWOK(m_exit, errcode));
 	if( !AUI_NEWOK(m_exit, errcode))
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "StepButton");
-	m_step.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this));
+	m_step = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
 	Assert(AUI_NEWOK(m_step, errcode));
 	if( !AUI_NEWOK(m_step, errcode))
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "StepIntoButton");
-	m_stepInto.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this));
+	m_stepInto = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
 	Assert(AUI_NEWOK(m_stepInto, errcode));
 	if( !AUI_NEWOK(m_stepInto, errcode))
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Status");
-	m_status.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
+	m_status = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert(AUI_NEWOK(m_status, errcode));
 	if(!AUI_NEWOK(m_status, errcode))
 		return -1;
@@ -346,8 +347,8 @@ sint32 SourceList::UpdateData()
 
 	for(i = firstLineNum; i <= lastLineNum; i++) {
 		fgets(line, 1024, f);
-		item = new SourceListItem(&retval, i - firstLineNum,
-								   m_segment, line, i, ldlBlock);
+		item = std::make_unique<SourceListItem>(&retval, i - firstLineNum,
+								   m_segment, line, i, ldlBlock).release();
 		m_list->AddItem((c3_ListItem *)item);
 
 	}
@@ -391,7 +392,7 @@ void SourceList::Continue()
 	for(i = 0; i < m_list->NumItems(); i++) {
 		SourceListItem *item = (SourceListItem *)m_list->GetItemByIndex(i);
 		if(item->m_activeBreak) {
-			c3ui_Get()->AddAction(new SourceListItemContinueAction(item));
+			c3ui_Get()->AddAction(std::make_unique<SourceListItemContinueAction>(item).release());
 			return;
 		}
 	}
@@ -455,12 +456,12 @@ AUI_ERRCODE SourceListItem::InitCommonLdl(SlicSegment *segment,
 	c3_Static *textItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Break");
-	breakItem = new c3_Static(&retval, aui_UniqueId(), block);
+	breakItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	breakItem->SetActionFuncAndCookie(SourceBreakItemCallback, this);
 	AddChild(breakItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Line");
-	textItem = new c3_Static(&retval, aui_UniqueId(), block);
+	textItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(textItem);
 
 	Update();
@@ -557,7 +558,7 @@ public:
 	                     uint32 action,
 	                     uint32 data) override
 	{
-		delete s_conditionalPopup;
+		std::unique_ptr<c3_UtilityTextFieldPopup>{s_conditionalPopup};
 		s_conditionalPopup = nullptr;
 	};
 };
@@ -586,20 +587,20 @@ void SourceListItemConditionalCallback(MBCHAR const *text, sint32 val2, void *da
 	}
 	item->SetBreak();
 
-	c3ui_Get()->AddAction(new KillConditionalPopupAction);
+	c3ui_Get()->AddAction(std::make_unique<KillConditionalPopupAction>().release());
 }
 
 void SourceListItem::EditConditional()
 {
 	SlicConditional *cond = m_segment->GetConditional(m_lineNumber);
 	if(!s_conditionalPopup)
-	s_conditionalPopup = new c3_UtilityTextFieldPopup(SourceListItemConditionalCallback,
+	s_conditionalPopup = std::make_unique<c3_UtilityTextFieldPopup>(SourceListItemConditionalCallback,
 													  nullptr,
 													  cond ? cond->GetExpression() : "",
 													  nullptr,
 													  "SourceListConditionalPopup",
 													  this,
-													  true);
+													  true).release();
 	s_conditionalPopup->DisplayWindow();
 
 }

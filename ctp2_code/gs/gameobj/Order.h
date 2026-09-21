@@ -4,6 +4,7 @@
 #ifndef __ORDER_H__
 #define __ORDER_H__
 
+#include <memory>
 #include <string>
 
 class Order;
@@ -49,45 +50,28 @@ class Path;
 class Order {
 	// JSON bridge — mirrors Order::Serialize at Order.cpp:146.
 	// Captures the 5 scalars + m_point (MapPoint).  OMITS m_path
-	// (Path *) and m_gameEventArgs (GameEventArgList *) — both
-	// pointer-typed sub-objects need their own bridges (Phase E-2
+	// (unique_ptr<Path>) and m_gameEventArgs (unique_ptr<GameEventArgList>)
+	// — both pointer-typed sub-objects need their own bridges (Phase E-2
 	// or later).  Also omits m_index (pool bookkeeping).
 	friend void to_json(nlohmann::json &j, Order const &o);
 	friend void from_json(nlohmann::json const &j, Order &o);
 
 public:
 	UNIT_ORDER_TYPE m_order;
-	Path *m_path;
+	std::unique_ptr<Path> m_path;
 	sint32 m_round;
 	MapPoint m_point;
 	sint32 m_argument;
 	sint32 m_index;
 
 	GAME_EVENT m_eventType;
-	GameEventArgList *m_gameEventArgs;
+	std::unique_ptr<GameEventArgList> m_gameEventArgs;
 
 	Order(UNIT_ORDER_TYPE order, Path *path, const MapPoint &point,
 		  sint32 argument, sint32 currentRound);
-	Order()
-	{
-		m_order = UNIT_ORDER_NONE;
-		m_path = nullptr;
-		m_round = -1;
-		m_argument = 0;
-		// m_index is intentionally NOT initialised here — Order::operator
-		// new (Order.cpp:209) has already populated it with the pool
-		// slot returned by g_theOrderPond->Get_Next_Pointer. Writing -1
-		// here would clobber that and corrupt Pool bookkeeping at delete
-		// time (caught 2026-06-03 by Phase 1j determinism test —
-		// json_save uses `new Order` and the prior default-ctor wipe
-		// caused Pool::Release_Pointer(-1) at first turn after load).
-		m_gameEventArgs = nullptr;
-		// Uninitialised m_eventType holds an indeterminate bit pattern;
-		// reading it (e.g. serialising a default-constructed Order) is an
-		// invalid enum load and aborts under UBSan halt_on_error. GEV_MAX
-		// is the "no event" sentinel, matching the parameterized ctor.
-		m_eventType = GEV_MAX;
-	}
+	// Out-of-line in Order.cpp: unique_ptr members over forward-declared
+	// Path/GameEventArgList need complete types at ctor/dtor instantiation.
+	Order();
 
 	~Order();
 

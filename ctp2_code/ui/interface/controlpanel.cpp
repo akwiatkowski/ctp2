@@ -1,5 +1,7 @@
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_ctp2/c3ui.h"
@@ -100,7 +102,7 @@ extern ProductionTabControl		*g_cp_productionTab;
 extern CityTabControl			*g_cp_cityTab;
 extern UnitsTabControl			*g_cp_unitsTab;
 
-ControlPanelWindow	*controlpanel_Get() = NULL;
+
 
 
 
@@ -111,31 +113,31 @@ static TextButton	*s_resourceButton;
 
 static TextButton	*cheatButton;
 
-static ControlSheet	*s_tileMenuControl;
-static ControlSheet	*s_landTileControl;
-static ControlSheet	*s_seaTileControl;
-static ControlSheet *s_spaceTileControl;
-static ControlSheet *s_terraTileControl;
+static std::unique_ptr<ControlSheet>	s_tileMenuControl;
+static std::unique_ptr<ControlSheet>	s_landTileControl;
+static std::unique_ptr<ControlSheet>	s_seaTileControl;
+static std::unique_ptr<ControlSheet>	s_spaceTileControl;
+static std::unique_ptr<ControlSheet>	s_terraTileControl;
 
-static ColorIconButton	*s_donkeys;
+static std::unique_ptr<ColorIconButton>	s_donkeys;
 
-static ctp2_Button *s_zoomPlusButton = NULL;
-static ctp2_Button *s_zoomMinusButton = NULL;
-static ctp2_Button *s_cityManagerButton = NULL;
-static ctp2_Button *s_tileImprovementButton = NULL;
-static ctp2_Button *s_turnButton = NULL;
+static std::unique_ptr<ctp2_Button>	s_zoomPlusButton;
+static std::unique_ptr<ctp2_Button>	s_zoomMinusButton;
+static std::unique_ptr<ctp2_Button>	s_cityManagerButton;
+static std::unique_ptr<ctp2_Button>	s_tileImprovementButton;
+static std::unique_ptr<ctp2_Button>	s_turnButton;
 
-static c3_Static *s_pwBox;
-static c3_Static *s_goldBox;
-static c3_Static *s_yearBoxHolder;
-static c3_ColoredSwitch *s_yearBox;
+static std::unique_ptr<c3_Static>	s_pwBox;
+static std::unique_ptr<c3_Static>	s_goldBox;
+static std::unique_ptr<c3_Static>	s_yearBoxHolder;
+static std::unique_ptr<c3_ColoredSwitch>	s_yearBox;
 
-static c3_Static *s_populationLabel;
-static c3_Static *s_populationBox;
+static std::unique_ptr<c3_Static>	s_populationLabel;
+static std::unique_ptr<c3_Static>	s_populationBox;
 
-static aui_ProgressBar	*s_progressBar;
+static std::unique_ptr<aui_ProgressBar>	s_progressBar;
 
-static aui_StringTable	*s_yearString;
+static std::unique_ptr<aui_StringTable>	s_yearString;
 
 extern sint32		g_tileImprovementMode;
 
@@ -248,7 +250,7 @@ sint32 controlpanelwindow_Initialize()
 
 	strlcpy(windowBlock, "ControlPanelWindow", sizeof(windowBlock));
 
-	controlpanel_Get() = new ControlPanelWindow(&errcode, k_ID_WINDOW_CONTROLPANEL, windowBlock, 16 );
+	controlpanel_Set(std::make_unique<ControlPanelWindow>(&errcode, k_ID_WINDOW_CONTROLPANEL, windowBlock, 16 ));
 	Assert( AUI_NEWOK(controlpanel_Get(), errcode) );
 	if ( !AUI_NEWOK(controlpanel_Get(), errcode) ) return -1;
 
@@ -438,12 +440,12 @@ sint32 controlpanelwindow_InitializeHats()
 	strlcpy(windowBlock, "ControlPanelRightHat", sizeof(windowBlock));
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ZoomPlusButton" );
-	s_zoomPlusButton = new ctp2_Button( &errcode, aui_UniqueId(), controlBlock, ZoomPlusButtonActionCallback );
+	s_zoomPlusButton = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(), controlBlock, ZoomPlusButtonActionCallback );
 	Assert( AUI_NEWOK(s_zoomPlusButton, errcode) );
 	if ( !AUI_NEWOK(s_zoomPlusButton, errcode) ) return -3;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ZoomMinusButton" );
-	s_zoomMinusButton = new ctp2_Button( &errcode, aui_UniqueId(), controlBlock, ZoomMinusButtonActionCallback );
+	s_zoomMinusButton = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(), controlBlock, ZoomMinusButtonActionCallback );
 	Assert( AUI_NEWOK(s_zoomMinusButton, errcode) );
 	if ( !AUI_NEWOK(s_zoomMinusButton, errcode) ) return -3;
 
@@ -462,10 +464,7 @@ sint32 controlpanelwindow_Cleanup( void )
 
 
 
-if (s_donkeys) {
-	delete s_donkeys;
-	s_donkeys = NULL;
-}
+	s_donkeys.reset();
 
 	ControlPanelWindow_TileImp_Cleanup();
 	ControlPanelWindow_Land_Cleanup();
@@ -477,55 +476,40 @@ if (s_donkeys) {
 
 	specialattackwindow_Cleanup();
 
-	delete s_tileMenuControl;
-	s_tileMenuControl = NULL;
-	delete s_landTileControl;
-	s_landTileControl = NULL;
-	delete s_seaTileControl;
-	s_seaTileControl = NULL;
-	delete s_spaceTileControl;
-	s_spaceTileControl = NULL;
-	delete s_terraTileControl;
-	s_terraTileControl = NULL;
+	s_tileMenuControl.reset();
+	s_landTileControl.reset();
+	s_seaTileControl.reset();
+	s_spaceTileControl.reset();
+	s_terraTileControl.reset();
 
 	controlpanelwindow_CleanupCitySelectedTabGroup();
 
-	delete s_yearBox;
-	s_yearBox = NULL;
+	s_yearBox.reset();
 
-	delete s_progressBar;
-	s_progressBar = NULL;
+	s_progressBar.reset();
 
-	delete s_goldBox;
-	s_goldBox = NULL;
+	s_goldBox.reset();
 
-	delete s_pwBox;
-	s_pwBox = NULL;
+	s_pwBox.reset();
 
-	delete s_zoomMinusButton;
-	s_zoomMinusButton = NULL;
+	s_zoomMinusButton.reset();
 
-	delete s_zoomPlusButton;
-	s_zoomPlusButton = NULL;
+	s_zoomPlusButton.reset();
 
-	delete s_tileImprovementButton;
-	s_tileImprovementButton = NULL;
+	s_tileImprovementButton.reset();
 
-	delete s_cityManagerButton;
-	s_cityManagerButton = NULL;
+	s_cityManagerButton.reset();
 
-	delete s_turnButton;
-	s_turnButton = NULL;
+	s_turnButton.reset();
 
-	DeleteControl( s_populationLabel );
-	DeleteControl( s_populationBox );
-	DeleteControl( s_yearString );
-	DeleteControl( s_yearBoxHolder );
+	s_populationLabel.reset();
+	s_populationBox.reset();
+	s_yearString.reset();
+	s_yearBoxHolder.reset();
 
 	CityWindow::Cleanup();
 
-	delete controlpanel_Get();
-	controlpanel_Get() = NULL;
+	controlpanel_Set(nullptr);
 
 	return 0;
 }
@@ -562,21 +546,22 @@ HideControlPanel()
 	HideElement(s_resourceButton        );
 	HideElement(cheatButton             );
 
-	HideElement(s_tileMenuControl       );
-	HideElement(s_landTileControl       );
-	HideElement(s_seaTileControl        );
-	HideElement(s_spaceTileControl      );
-	HideElement(s_terraTileControl      );
-	HideElement(s_donkeys               );
-	HideElement(s_zoomPlusButton        );
-	HideElement(s_zoomMinusButton       );
-	HideElement(s_cityManagerButton     );
-	HideElement(s_tileImprovementButton );
-	HideElement(s_turnButton            );
-	HideElement(s_pwBox                 );
-	HideElement(s_goldBox               );
-	HideElement(s_yearBoxHolder         );
-	HideElement(s_yearBox               );
-	HideElement(s_populationLabel       );
-	HideElement(s_populationBox         );
+	HideElement(s_tileMenuControl.get()   );
+	HideElement(s_landTileControl.get()   );
+	HideElement(s_seaTileControl.get()    );
+	HideElement(s_spaceTileControl.get()  );
+	HideElement(s_terraTileControl.get()  );
+	HideElement(s_donkeys.get()           );
+	HideElement(s_zoomPlusButton.get()    );
+	HideElement(s_zoomMinusButton.get()   );
+
+	HideElement(s_cityManagerButton.get() );
+	HideElement(s_tileImprovementButton.get());
+	HideElement(s_turnButton.get()        );
+	HideElement(s_pwBox.get()             );
+	HideElement(s_goldBox.get()           );
+	HideElement(s_yearBoxHolder.get()     );
+	HideElement(s_yearBox.get()           );
+	HideElement(s_populationLabel.get()   );
+	HideElement(s_populationBox.get()     );
 }

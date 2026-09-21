@@ -28,7 +28,7 @@ AUI_ERRCODE Picture::MakeMipmap( )
 
 	aui_Surface *pMipmap = nullptr;
 
-	aui_Surface *   pSrcSurf    = m_surface;
+	aui_Surface *   pSrcSurf    = m_surface.get();
 	uint16 *        pSrcBuffer  = nullptr;
 	sint32 errcode = pSrcSurf->Lock(nullptr, (LPVOID *)&pSrcBuffer, 0);
 
@@ -70,7 +70,7 @@ AUI_ERRCODE Picture::MakeMipmap( )
 		errcode = pSrcSurf->Unlock((LPVOID)pSrcBuffer);
 	}
 
-	m_mipmap = pMipmap;
+	m_mipmap.reset(pMipmap);
 
 	return AUI_ERRCODE_OK;
 }
@@ -124,10 +124,7 @@ Pixel16 Picture::AveragePixels( uint16 *pBuffer, sint32 width )
 
 
 
-Picture::~Picture()
-{
-	delete m_mipmap;
-}
+Picture::~Picture() = default;
 
 
 
@@ -154,13 +151,13 @@ AUI_ERRCODE Picture::Draw( aui_Surface *pDestSurf, RECT *pDestRect )
 
 	if (width == m_surface->Width() && height == m_surface->Height()) {
 		RECT srcRect = {0, 0, m_surface->Width(), m_surface->Height()};
-		c3ui_Get()->TheBlitter()->Blt(pDestSurf, pDestRect->left, pDestRect->top, m_surface, &srcRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(pDestSurf, pDestRect->left, pDestRect->top, m_surface.get(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
 		return AUI_ERRCODE_OK;
 	}
 
 	if (width == m_mipmap->Width() && height == m_mipmap->Height()) {
 		RECT srcRect = {0, 0, m_mipmap->Width(), m_mipmap->Height()};
-		c3ui_Get()->TheBlitter()->Blt(pDestSurf, pDestRect->left, pDestRect->top, m_mipmap, &srcRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(pDestSurf, pDestRect->left, pDestRect->top, m_mipmap.get(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
 		return AUI_ERRCODE_OK;
 	}
 
@@ -168,8 +165,8 @@ AUI_ERRCODE Picture::Draw( aui_Surface *pDestSurf, RECT *pDestRect )
 	BYTE *pMipBuffer;
 	BYTE *pDestBuffer;
 
-	aui_Surface *pSrcSurf = m_surface;
-	aui_Surface *pMipSurf = m_mipmap;
+	aui_Surface *pSrcSurf = m_surface.get();
+	aui_Surface *pMipSurf = m_mipmap.get();
 
 	Assert(pSrcSurf);
 	if (pSrcSurf==nullptr) return AUI_ERRCODE_INVALIDPARAM;

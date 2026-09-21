@@ -37,6 +37,7 @@
 #ifndef __DBLEXER_H__
 #define __DBLEXER_H__
 
+#include <memory>
 #include <string>
 
 template <class T> class StringHash;
@@ -76,13 +77,13 @@ public:
 class DBLexer
 {
 	FILE *m_file;
-	StringHash<DBToken> *m_tokenHash;
+	std::unique_ptr<StringHash<DBToken>> m_tokenHash;
 	char m_tokenText[k_TOKEN_HISTORY_SIZE][k_MAX_DBL_TOKEN];
 	sint32 m_tokenLine[k_TOKEN_HISTORY_SIZE];
 	sint32 m_whichTokenText;
 	sint32 m_nextToken;
 	bool m_atEnd;
-	PointerList<DBCustomTokens> *m_customTokenStack;
+	std::unique_ptr<PointerList<DBCustomTokens>> m_customTokenStack;
 	char m_filename[_MAX_PATH];
 	sint32 m_currentToken;
 

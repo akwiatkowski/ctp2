@@ -45,7 +45,7 @@ AUI_ERRCODE Icon::Draw( aui_Surface *pDestSurf,	RECT *pDestRect, uint32 color )
 	BYTE *pDestBuffer;
 	BYTE *pSrcBuffer;
 
-	aui_Surface *pSrcSurf = m_surface;
+	aui_Surface *pSrcSurf = m_surface.get();
 
 	Assert(pDestSurf);
 	if (pDestSurf==nullptr) return AUI_ERRCODE_INVALIDPARAM;

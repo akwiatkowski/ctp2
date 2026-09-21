@@ -31,6 +31,8 @@
 #include "ctp/c3.h"
 #include "ui/aui_common/aui_header.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_listbox.h"
@@ -114,7 +116,7 @@ AUI_ERRCODE aui_Header::CreateSwitches( MBCHAR const *ldlBlock )
 			if (!aui_Ldl::GetLdl()->FindDataBlock( block ) )
 				break;
 
-			aui_Switch *theSwitch = new aui_Switch(
+			auto theSwitch = std::make_unique<aui_Switch>(
 				&errcode,
 				aui_UniqueId(),
 				block );
@@ -122,13 +124,13 @@ AUI_ERRCODE aui_Header::CreateSwitches( MBCHAR const *ldlBlock )
 			if ( !AUI_NEWOK(theSwitch,errcode) )
 				return AUI_ERRCODE_MEMALLOCFAILED;
 
-			aui_Action *action = new aui_HeaderSwitchAction( i );
+			auto action = std::make_unique<aui_HeaderSwitchAction>( i );
 			Assert( action != nullptr );
 			if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-			theSwitch->SetAction( action );
+			theSwitch->SetAction( action.release() );
 
-			AddChild( theSwitch );
+			AddChild( theSwitch.release() );
 
 			i++;
 
@@ -147,9 +149,9 @@ aui_Header::~aui_Header()
 	{
 		aui_Switch *theSwitch = (aui_Switch *)m_childList->GetNext( position );
 		aui_Action *action = theSwitch->GetAction();
-		
-			delete action;
-		delete theSwitch;
+
+		std::unique_ptr<aui_Switch> switchOwner(theSwitch);
+		std::unique_ptr<aui_Action> actionOwner(action);
 	}
 }
 

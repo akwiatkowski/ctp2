@@ -64,17 +64,13 @@
 #include "ui/aui_ctp2/radarmap.h"
 #include "ui/aui_ctp2/linegraph.h"
 #include "ctp/ctp2_utils/AvlTree.h"
-
 #include "ui/ldl/ldl_user.h"
-
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 
-ldl *aui_Ldl::s_ldl = nullptr;
+std::unique_ptr<ldl> aui_Ldl::s_ldl;
 
-AvlTree<aui_LdlObject *>	*aui_Ldl::s_objectListByObject = nullptr;
-AvlTree<aui_LdlObject *>	*aui_Ldl::s_objectListByString = nullptr;
+std::unique_ptr<AvlTree<aui_LdlObject *>>	aui_Ldl::s_objectListByObject;
+std::unique_ptr<AvlTree<aui_LdlObject *>>	aui_Ldl::s_objectListByString;
 
 sint32						aui_Ldl::s_ldlRefCount = 0;
 
@@ -125,14 +121,14 @@ AUI_ERRCODE aui_Ldl::InitCommon( MBCHAR const *ldlFilename )
 
 	if (!s_objectListByObject)
 	{
-		s_objectListByObject = new AvlTree<aui_LdlObject *>;
+		s_objectListByObject = std::make_unique<AvlTree<aui_LdlObject *>>();
 		Assert( s_objectListByObject != nullptr );
 		if ( !s_objectListByObject ) return AUI_ERRCODE_MEMALLOCFAILED;
     }
 
     if (!s_objectListByString)
     {
-		s_objectListByString = new AvlTree<aui_LdlObject *>;
+		s_objectListByString = std::make_unique<AvlTree<aui_LdlObject *>>();
 		Assert( s_objectListByString != nullptr );
 		if ( !s_objectListByString ) return AUI_ERRCODE_MEMALLOCFAILED;
 	}
@@ -145,8 +141,8 @@ AUI_ERRCODE aui_Ldl::InitCommon( MBCHAR const *ldlFilename )
 #endif
 	strlcat(outDir, FILE_SEP "ldl_out", sizeof(outDir));
 
-    delete s_ldl;
-	s_ldl = new ldl( ldlFilename, outDir );
+    s_ldl.reset();
+	s_ldl = std::make_unique<ldl>( ldlFilename, outDir );
 	Assert( s_ldl != nullptr );
 	if ( !s_ldl ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -160,12 +156,9 @@ aui_Ldl::~aui_Ldl()
 {
     if (0 == --s_ldlRefCount)
     {
-    	delete s_ldl;
-        s_ldl = nullptr;
-	    delete s_objectListByObject;
-        s_objectListByObject = nullptr;
-	    delete s_objectListByString;
-        s_objectListByString = nullptr;
+    	s_ldl.reset();
+	    s_objectListByObject.reset();
+	    s_objectListByString.reset();
 
         aui_LdlObject * nextObject  = nullptr;
 	    for (aui_LdlObject * curObject = s_objectList; curObject; curObject = nextObject)
@@ -202,7 +195,7 @@ AUI_ERRCODE aui_Ldl::MakeSureBlockExists(MBCHAR const *ldlBlock)
 
 
 
-		block = new ldl_datablock(s_ldl, ldlBlock);
+		block = std::make_unique<ldl_datablock>(s_ldl.get(), ldlBlock).release();
 		Assert( block != nullptr );
 		if ( !block ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -235,7 +228,7 @@ AUI_ERRCODE aui_Ldl::MakeSureDefaultTemplateExists( )
 
 #if 1
 
-		format = new ldl_datablock( s_ldl, k_AUI_LDL_DEFAULTTEMPLATE );
+		format = std::make_unique<ldl_datablock>( s_ldl.get(), k_AUI_LDL_DEFAULTTEMPLATE ).release();
 		Assert( format != nullptr );
 		if ( !format ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -272,30 +265,30 @@ AUI_ERRCODE aui_Ldl::Associate(void *object, MBCHAR const * ldlBlock)
 
 	if ( GetBlock( object ) ) return AUI_ERRCODE_OK;
 
-	aui_LdlObject *ldlObject = new aui_LdlObject;
+	auto ldlObject = std::make_unique<aui_LdlObject>();
 	Assert( ldlObject != nullptr );
 	if ( !ldlObject ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	ldlObject->ldlBlock = new MBCHAR[ strlen( ldlBlock ) + 1 ];
+	ldlObject->ldlBlock = std::make_unique<MBCHAR[]>( strlen( ldlBlock ) + 1 );
 	Assert( ldlObject->ldlBlock != nullptr );
 	if ( !ldlObject->ldlBlock ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	ldlObject->object = object;
-	strlcpy( ldlObject->ldlBlock, ldlBlock, strlen( ldlBlock ) + 1 );
+	strlcpy( ldlObject->ldlBlock.get(), ldlBlock, strlen( ldlBlock ) + 1 );
 	ldlObject->hash = aui_UI::CalculateHash( ldlBlock );
 
 
 
 
-	Comparable<aui_LdlObject *> *objByObject = new Comparable<aui_LdlObject *>(ldlObject, CompareByObject);
-	if(s_objectListByObject->Insert(objByObject))
-		delete objByObject;
+	auto objByObject = std::make_unique<Comparable<aui_LdlObject *>>(ldlObject.get(), CompareByObject);
+	if(!s_objectListByObject->Insert(objByObject.get()))
+		objByObject.release();
 
-	Comparable<aui_LdlObject *> *objByString = new Comparable<aui_LdlObject *>(ldlObject, CompareByString);
-	if(s_objectListByString->Insert(objByString))
-		delete objByString;
+	auto objByString = std::make_unique<Comparable<aui_LdlObject *>>(ldlObject.get(), CompareByString);
+	if(!s_objectListByString->Insert(objByString.get()))
+		objByString.release();
 
-	return AppendLdlObject(ldlObject);
+	return AppendLdlObject(ldlObject.release());
 }
 
 AUI_ERRCODE aui_Ldl::AppendLdlObject(aui_LdlObject *object)
@@ -361,11 +354,8 @@ AUI_ERRCODE aui_Ldl::RemoveLdlObject(aui_LdlObject *object)
 
 void aui_Ldl::DeleteLdlObject( aui_LdlObject *ldlObject )
 {
-	if ( ldlObject )
-	{
-		delete [] ldlObject->ldlBlock;
-		delete ldlObject;
-	}
+	// ldlObject->ldlBlock is a unique_ptr, auto-freed
+	std::unique_ptr<aui_LdlObject> deleter(ldlObject);
 }
 
 
@@ -388,9 +378,9 @@ AUI_ERRCODE aui_Ldl::Remove( void *object )
 
 		if (foundObject) {
 
-			delete s_objectListByString->Delete(foundObject);
+			std::unique_ptr<Comparable<aui_LdlObject *>> byString(s_objectListByString->Delete(foundObject));
 
-			delete s_objectListByObject->Delete(foundObject);
+			std::unique_ptr<Comparable<aui_LdlObject *>> byObject(s_objectListByObject->Delete(foundObject));
 
 			RemoveLdlObject(foundObject);
 
@@ -414,8 +404,8 @@ AUI_ERRCODE aui_Ldl::Remove(MBCHAR const * ldlBlock)
 	aui_LdlObject		myObject;
 	myObject.hash = hash;
 
-	Comparable<aui_LdlObject *> * myKey =
-		s_objectListByString->Delete(&myObject);
+	std::unique_ptr<Comparable<aui_LdlObject *>> myKey(
+		s_objectListByString->Delete(&myObject));
 
 	if (myKey) {
 
@@ -428,7 +418,6 @@ AUI_ERRCODE aui_Ldl::Remove(MBCHAR const * ldlBlock)
 
 			DeleteLdlObject(ldlObject);
 		}
-		delete myKey;
 	}
 
 	return AUI_ERRCODE_OK;
@@ -452,7 +441,7 @@ MBCHAR *aui_Ldl::GetBlock( void *object )
 		aui_LdlObject *obj = myKey->Key();
 		Assert(obj);
 		if (obj) {
-			return obj->ldlBlock;
+			return obj->ldlBlock.get();
 		}
 	}
 
@@ -528,11 +517,11 @@ AUI_ERRCODE aui_Ldl::SetupHeirarchyFromRoot(MBCHAR const * rootBlock )
                 curObject = curObject->next
             )
             {
-				if ( strnicmp( rootBlock, curObject->ldlBlock, len ) == 0 )
+				if ( strnicmp( rootBlock, curObject->ldlBlock.get(), len ) == 0 )
 				{
 
 					AUI_ERRCODE errcode = SetupHeirarchyFromLeaf(
-						curObject->ldlBlock,
+						curObject->ldlBlock.get(),
 						(aui_Region *)curObject->object );
 					Assert( AUI_SUCCESS(errcode) );
 					if ( !AUI_SUCCESS(errcode) ) return errcode;
@@ -743,76 +732,76 @@ AUI_ERRCODE aui_Ldl::BuildObjectFromType(MBCHAR const *typeString,
 										 aui_Region **theObject)
 {
 	AUI_ERRCODE		retval = AUI_ERRCODE_OK;
-	aui_Region		*region = nullptr;
+	std::unique_ptr<aui_Region>	region;
 
 	if (!stricmp(typeString, "C3Window")) {
-		region = (aui_Region *) new C3Window(&retval, aui_UniqueId(), ldlName, 16);
+		region = std::make_unique<C3Window>(&retval, aui_UniqueId(), ldlName, 16);
 	} else
 	if(!stricmp(typeString, "ctp2_Window")) {
-		region = (aui_Region *) new ctp2_Window(&retval, aui_UniqueId(), ldlName, 16);
+		region = std::make_unique<ctp2_Window>(&retval, aui_UniqueId(), ldlName, 16);
 	} else
 	if (!stricmp(typeString, "C3Slider")) {
-		region = (aui_Region *) new C3Slider(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<C3Slider>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if (!stricmp(typeString, "c3_Button")) {
-		region = (aui_Region *) new c3_Button(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<c3_Button>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if (!stricmp(typeString, "c3_Static")) {
-		region = (aui_Region *) new c3_Static(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<c3_Static>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if(!stricmp(typeString, "ctp2_Static")) {
-		region = (aui_Region *) new ctp2_Static(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_Static>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if (!stricmp(typeString, "ctp2_Button")) {
-		region = (aui_Region *) new ctp2_Button(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_Button>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if (!stricmp(typeString, "ctp2_ListBox")) {
-		region = (aui_Region *) new ctp2_ListBox(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_ListBox>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if(!stricmp(typeString, "ctp2_LineGraph")) {
-		region = (aui_Region *) new LineGraph(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<LineGraph>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if (!stricmp(typeString, "ctp2_ListItem")) {
-		region = (aui_Region *) new ctp2_ListItem(&retval, ldlName);
+		region = std::make_unique<ctp2_ListItem>(&retval, ldlName);
 	} else
 	if (!stricmp(typeString, "ctp2_DropDown")) {
-		region = (aui_Region *) new ctp2_DropDown(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_DropDown>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if(!stricmp(typeString,  "ctp2_Spinner")) {
-		region = (aui_Region *) new ctp2_Spinner(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_Spinner>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if(!stricmp(typeString, "ctp2_HyperTextBox")) {
-		region = (aui_Region *)new ctp2_HyperTextBox(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_HyperTextBox>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if(!stricmp(typeString, "c3_HyperTextBox")) {
-		region = (aui_Region *)new c3_HyperTextBox(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<c3_HyperTextBox>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if(!stricmp(typeString, "ctp2_MenuBar")) {
-		region = (aui_Region *) new ctp2_MenuBar(&retval, aui_UniqueId(), ldlName, 16);
+		region = std::make_unique<ctp2_MenuBar>(&retval, aui_UniqueId(), ldlName, 16);
 	} else
 	if(!stricmp(typeString, "aui_switch")) {
-		region = (aui_Region *) new aui_Switch(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<aui_Switch>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if(!stricmp(typeString, "ctp2_Switch")) {
-		region = (aui_Region *) new ctp2_Switch(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_Switch>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if(!stricmp(typeString, "ctp2_TextField")) {
-		region = (aui_Region *) new ctp2_TextField(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_TextField>(&retval, aui_UniqueId(), ldlName);
 	} else
 	if(!stricmp(typeString, "ctp2_MenuButton")) {
-		region = (aui_Region *) new ctp2_MenuButton(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_MenuButton>(&retval, aui_UniqueId(), ldlName);
 	}
 	if(!stricmp(typeString, "ctp2_Tab")) {
-		region = (aui_Region *) new ctp2_Tab(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_Tab>(&retval, aui_UniqueId(), ldlName);
 	}
 	if(!stricmp(typeString, "ctp2_TabGroup")) {
-		region = (aui_Region *) new ctp2_TabGroup(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_TabGroup>(&retval, aui_UniqueId(), ldlName);
 	}
 	if(!stricmp(typeString, "ctp2_TabButton")) {
-		region = (aui_Region *) new ctp2_TabButton(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<ctp2_TabButton>(&retval, aui_UniqueId(), ldlName);
 	}
 	if(!stricmp(typeString, "RadarMap")) {
-		region = (aui_Region *) new RadarMap(&retval, aui_UniqueId(), ldlName);
+		region = std::make_unique<RadarMap>(&retval, aui_UniqueId(), ldlName);
 	}
 
 	Assert(region);
@@ -829,7 +818,7 @@ AUI_ERRCODE aui_Ldl::BuildObjectFromType(MBCHAR const *typeString,
 		return AUI_ERRCODE_INVALIDPARAM;
 	}
 
-	*theObject = region;
+	*theObject = region.release();
 
 	return AUI_ERRCODE_OK;
 }
@@ -867,7 +856,7 @@ AUI_ERRCODE aui_Ldl::DeleteHierarchyFromRoot(MBCHAR const * rootBlock)
 	aui_Region *region = (aui_Region *)GetObject(fullname);
 	Assert(region);
 	if (region) {
-		delete region;
+		std::unique_ptr<aui_Region> deleter(region);
 	} else {
 		return AUI_ERRCODE_INVALIDPARAM;
 	}
@@ -912,7 +901,7 @@ AUI_ERRCODE aui_Ldl::DeleteHierarchyFromLeaf(ldl_datablock *parent)
 		if (!region)
 			return AUI_ERRCODE_INVALIDPARAM;
 
-		delete region;
+		std::unique_ptr<aui_Region> deleter(region);
 		walk.Next();
 	}
 

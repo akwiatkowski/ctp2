@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/installationpool.h"
 #include "gs/gameobj/player.h"
 #include "gs/gameobj/XY_Coordinates.h"
@@ -13,15 +14,14 @@ Installation InstallationPool::Create(sint32 owner,
 									  MapPoint &pnt,
 									  sint32 type)
 {
-	InstallationData *newData;
 	Installation newInstallation(NewKey(k_BIT_GAME_OBJ_TYPE_INSTALLATION));
+	auto newData = std::make_unique<InstallationData>(newInstallation, owner, pnt, type);
+	InstallationData *newDataPtr = newData.get();
 
-	newData = new InstallationData(newInstallation, owner, pnt, type);
-
-	Insert(newData);
+	Insert(newData.release());
 	player_Get(owner)->AddInstallation(newInstallation);
 	world_Get()->InsertInstallation(newInstallation, pnt);
-	newData->DoVision();
+	newDataPtr->DoVision();
 	return newInstallation;
 }
 

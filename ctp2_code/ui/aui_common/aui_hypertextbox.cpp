@@ -1,6 +1,8 @@
 #include "ctp/c3.h"
 #include "ui/aui_common/aui_hypertextbox.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_window.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -383,7 +385,7 @@ AUI_ERRCODE aui_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 
 				if (m_hyperStaticList->L() > k_AUI_HYPERTEXTBOX_LDL_MAXSTATICS)
 				{
-					delete m_hyperStaticList->RemoveHead();
+					std::unique_ptr<aui_Static> staticOwner(m_hyperStaticList->RemoveHead());
 
 					sint32 topY = m_hyperStaticList->GetHead()->Y();
 					ListPos pos = m_hyperStaticList->GetHeadPosition();

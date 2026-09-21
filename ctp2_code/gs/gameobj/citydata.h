@@ -88,6 +88,7 @@ class CityData;
 #include "CitySizeRecord.h"
 #include <nlohmann/json.hpp>
 #include <vector>
+#include <memory>
 
 #define k_CITYDATA_VERSION_MAJOR    0
 #define k_CITYDATA_VERSION_MINOR    0
@@ -258,7 +259,7 @@ private:
 	Resources m_sellingResources;
 	Resources m_buyingResources;
 #endif
-	Happy     *m_happy;
+	std::unique_ptr<Happy> m_happy;
 
 	MBCHAR    m_name[k_MAX_NAME_LEN] ;
 
@@ -582,7 +583,7 @@ public:
 	void Revolt(sint32 &playerToJoin, bool causeIsExternal = false);
 	void TeleportUnits(const MapPoint &pos,  bool &revealed_foreign_units, sint32 foreigner);
 	void StopTradingWith(const PLAYER_INDEX bannedRecipient);
-	Happy *GetHappy() { return (m_happy); }
+	Happy *GetHappy() { return (m_happy.get()); }
 
 	MBCHAR *GetName() { return (m_name); }
 	void SetName(const MBCHAR *name);

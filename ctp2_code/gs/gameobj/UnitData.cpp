@@ -346,14 +346,14 @@ void UnitData::Create(const sint32 t,
 	&& rec->GetCargoDataPtr()
 	&&(0 < rec->GetCargoDataPtr()->GetMaxCargo())
 	){
-		m_cargo_list.reset(new UnitDynamicArray(rec->GetCargoDataPtr()->GetMaxCargo()));
+		m_cargo_list = std::make_unique<UnitDynamicArray>(rec->GetCargoDataPtr()->GetMaxCargo());
 	} else {
 		m_cargo_list.reset();
 	}
 
 	if(rec->GetHasPopAndCanBuild())
 	{
-		m_city_data.reset(new CityData(m_owner, i, m_pos));
+		m_city_data = std::make_unique<CityData>(m_owner, i, m_pos);
 	}
 	else
 		m_city_data.reset();
@@ -367,7 +367,7 @@ void UnitData::Create(const sint32 t,
 
 	m_transport.m_id = (0);
 
-	m_roundTheWorldMask.reset(new BitMask(world_Get()->GetXWidth()));
+	m_roundTheWorldMask = std::make_unique<BitMask>(world_Get()->GetXWidth());
 	m_roundTheWorldMask->SetBit(m_pos.x);
 
 	m_isExploring   = false;
@@ -447,8 +447,8 @@ UnitData::~UnitData()
 	m_cargo_list.reset();
 	m_city_data.reset();
 	m_roundTheWorldMask.reset();
-	delete m_lesser;
-	delete m_greater;
+	std::unique_ptr<GameObj>{m_lesser};
+	std::unique_ptr<GameObj>{m_greater};
 }
 
 //----------------------------------------------------------------------------
@@ -1911,10 +1911,10 @@ bool UnitData::Settle()
 
 	if (nearbyCity.IsValid())
 	{
-		SlicObject *so = new SlicObject("29IASettlingTooClose") ;
+		auto so = std::make_unique<SlicObject>("29IASettlingTooClose") ;
 		so->AddRecipient(m_owner);
 		so->AddCity(nearbyCity);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 			DPRINTF(k_DBG_GAMESTATE, ("Tile already owned!\n"));
 		return false;
 	}
@@ -2452,14 +2452,14 @@ ORDER_RESULT UnitData::InterceptTrade()
 			destOwnerCaught = true;
 		}
 
-		SlicObject *so;
+		std::unique_ptr<SlicObject> so;
 		if(fromCity.m_id != (0)) {
 			if(sourceOwnerCaught) {
 
-				so = new SlicObject("045TradePirated");
+				so = std::make_unique<SlicObject>("045TradePirated");
 				so->AddCivilisation(m_owner);
 			} else {
-				so = new SlicObject("045aTradePiratedUnknown");
+				so = std::make_unique<SlicObject>("045aTradePiratedUnknown");
 			}
 
 			so->AddRecipient(fromCity.GetOwner());
@@ -2469,16 +2469,16 @@ ORDER_RESULT UnitData::InterceptTrade()
 			sint32 resource;
 			route.GetSourceResource(type, resource);
 			so->AddGood(resource);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 		if(toCity.m_id != (0)) {
 			if(fromCity.m_id == (0) || toCity.GetOwner() != fromCity.GetOwner()) {
 				if(destOwnerCaught) {
 
-					so = new SlicObject("045TradePirated");
+					so = std::make_unique<SlicObject>("045TradePirated");
 					so->AddCivilisation(m_owner);
 				} else {
-					so = new SlicObject("045aTradePiratedUnknown");
+					so = std::make_unique<SlicObject>("045aTradePiratedUnknown");
 				}
 				so->AddRecipient(toCity.GetOwner());
 				so->AddCity(fromCity);
@@ -2487,7 +2487,7 @@ ORDER_RESULT UnitData::InterceptTrade()
 				sint32 resource;
 				route.GetSourceResource(type, resource);
 				so->AddGood(resource);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 		}
 		player_Get(m_owner)->AddGold(g_theConstDB->GoldFromPiracy());
@@ -3075,7 +3075,7 @@ void UnitData::EndTurn()
 		if(network_Get().IsHost())
 		{
 			network_Get().Block(m_owner);
-			network_Get().QueuePacketToAll(new NetUnitHP((uint32)m_id, m_hp));
+			network_Get().QueuePacketToAll(std::make_unique<NetUnitHP>((uint32)m_id, m_hp).release());
 			network_Get().Unblock(m_owner);
 		}
 	}
@@ -3088,10 +3088,10 @@ void UnitData::EndTurn()
 		){
 			render_observer::AddCenterMap(m_pos);
 			Barbarians::AddBarbarians(m_pos, cellowner, FALSE, turn_Get()->GetRound());
-			SlicObject *so = new SlicObject("999GuerrillaSpawn");
+			auto so = std::make_unique<SlicObject>("999GuerrillaSpawn");
 			so->AddRecipient(m_owner);
 			so->AddUnitRecord(GetType());
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 
 		if (rec->GetNumSettleImprovement())
@@ -4048,7 +4048,7 @@ bool UnitData::HasForceField() const
 
 bool UnitData::StoppedBySpies(const Unit &c)
 {
-	SlicObject	*so ;
+	std::unique_ptr<SlicObject> so ;
 	MapPoint pos;
 	c.GetPos(pos);
 	Cell *cell = world_Get()->GetCell(pos);
@@ -4070,19 +4070,19 @@ bool UnitData::StoppedBySpies(const Unit &c)
 			if(civrand().Next(100) <= static_cast<sint32>(chance * 100.0))
 			{
 				DPRINTF(k_DBG_GAMESTATE, ("Spy was stopped by spies stationed in city\n"));
-				so = new SlicObject("10zStoppedBySpies") ;
+				so = std::make_unique<SlicObject>("10zStoppedBySpies") ;
 				so->AddRecipient(c.GetOwner()) ;
 				so->AddCivilisation(m_owner) ;
 				so->AddCity(c) ;
 				so->AddUnitRecord(m_type);
-				slicengine_Get()->Execute(so) ;
+				slicengine_Get()->Execute(std::move(so)) ;
 
-				so = new SlicObject("11zStoppedBySpies") ;
+				so = std::make_unique<SlicObject>("11zStoppedBySpies") ;
 				so->AddRecipient(m_owner) ;
 				so->AddCivilisation(c.GetOwner()) ;
 				so->AddCity(c) ;
 				so->AddUnitRecord(m_type);
-				slicengine_Get()->Execute(so) ;
+				slicengine_Get()->Execute(std::move(so)) ;
 				Unit me(m_id);
 				me.Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
 
@@ -4110,7 +4110,7 @@ bool UnitData::StoppedBySpies(const Unit &c)
 //----------------------------------------------------------------------------
 ORDER_RESULT UnitData::InvestigateCity(Unit c)
 {
-	SlicObject	*so;
+	std::unique_ptr<SlicObject> so;
 
 	if(StoppedBySpies(c))
 	{
@@ -4141,35 +4141,35 @@ ORDER_RESULT UnitData::InvestigateCity(Unit c)
 		if(civrand().Next(100) < sint32(deathChance * 100.0))
 		{
 			Unit me(m_id);
-			so = new SlicObject("10aInvestigateCityFailed");
+			so = std::make_unique<SlicObject>("10aInvestigateCityFailed");
 			so->AddRecipient(c.GetOwner());
 			so->AddCivilisation(m_owner);
 			so->AddCity(c);
 			so->AddUnitRecord(m_type);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
-			so = new SlicObject("11aInvestigateCityFailed");
+			so = std::make_unique<SlicObject>("11aInvestigateCityFailed");
 			so->AddRecipient(m_owner);
 			so->AddCity(c);
 			so->AddUnitRecord(m_type);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
 			me.Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
 		}
 		else
 		{
-			so = new SlicObject("10aInvestigateCityFailedEsc");
+			so = std::make_unique<SlicObject>("10aInvestigateCityFailedEsc");
 			so->AddRecipient(c.GetOwner());
 			so->AddCivilisation(m_owner);
 			so->AddCity(c);
 			so->AddUnitRecord(m_type);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
-			so = new SlicObject("11aInvestigateCityFailedEsc");
+			so = std::make_unique<SlicObject>("11aInvestigateCityFailedEsc");
 			so->AddRecipient(m_owner);
 			so->AddCity(c);
 			so->AddUnitRecord(m_type);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 
 		return ORDER_RESULT_FAILED;
@@ -4255,44 +4255,44 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 		}
 	}
 
-	SlicObject	*   so;
+	std::unique_ptr<SlicObject> so;
 	if (ORDER_RESULT_SUCCEEDED == orderResult)
 	{
 		player_Get(m_owner)->m_advances->GiveAdvance(whichAdvance, CAUSE_SCI_COMBAT);
 
-		so = new SlicObject("11bStoleTechnology");
+		so = std::make_unique<SlicObject>("11bStoleTechnology");
 		so->AddRecipient(m_owner);
 		so->AddCivilisation(c.GetOwner());
 		so->AddAdvance(whichAdvance);
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
-		so = new SlicObject("186StealTechnologyVictim");
+		so = std::make_unique<SlicObject>("186StealTechnologyVictim");
 		so->AddRecipient(c.GetOwner());
 		so->AddCivilisation(m_owner);
 		so->AddAdvance(whichAdvance);
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		ActionSuccessful(SPECATTACK_STEALTECH, c);
 	}
 	else if (ORDER_RESULT_FAILED == orderResult)
 	{
-		so = new SlicObject("10bStealTechnologyFailed");
+		so = std::make_unique<SlicObject>("10bStealTechnologyFailed");
 		so->AddRecipient(c.GetOwner());
 		so->AddCivilisation(m_owner);
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
-		so = new SlicObject("11bStealTechnologyFailed");
+		so = std::make_unique<SlicObject>("11bStealTechnologyFailed");
 		so->AddRecipient(m_owner);
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		if (civrand().Next(100) < sint32(data->GetDeathChance() * 100.0))
 		{
@@ -4302,12 +4302,12 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 	}
 	else
 	{
-		so = new SlicObject("11bNothingToSteal");
+		so = std::make_unique<SlicObject>("11bNothingToSteal");
 		so->AddRecipient(m_owner);
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	return orderResult;
@@ -4347,23 +4347,23 @@ ORDER_RESULT UnitData::InciteRevolution(Unit c)
 	c.ModifySpecialAttackChance(UNIT_ORDER_INCITE_REVOLUTION, chance);
 	c.SetWatchful();
 
-	SlicObject	*so;
+	std::unique_ptr<SlicObject> so;
 	if(civrand().Next(100) >= sint32(chance * 100.0)) {
 		DPRINTF(k_DBG_GAMESTATE, ("Spy failed\n"));
 
-		so = new SlicObject("10cInciteRevolutionFailed");
+		so = std::make_unique<SlicObject>("10cInciteRevolutionFailed");
 		so->AddRecipient(c.GetOwner());
 		so->AddCivilisation(m_owner);
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
-		so = new SlicObject("11cInciteRevolutionFailed");
+		so = std::make_unique<SlicObject>("11cInciteRevolutionFailed");
 		so->AddRecipient(m_owner);
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		if(civrand().Next(100) < sint32(deathChance * 100.0)) {
 			Unit me(m_id);
@@ -4379,18 +4379,18 @@ ORDER_RESULT UnitData::InciteRevolution(Unit c)
 
 	ActionSuccessful(SPECATTACK_INCITEREVOLUTION, c);
 
-	so = new SlicObject("171InciteRevolutionCompleteVictim");
+	so = std::make_unique<SlicObject>("171InciteRevolutionCompleteVictim");
 	so->AddRecipient(city_owner);
 	so->AddCity(c);
 	so->AddUnitRecord(m_type);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	return ORDER_RESULT_SUCCEEDED;
 }
 
 ORDER_RESULT UnitData::AssassinateRuler(Unit c)
 {
-	SlicObject	*so ;
+	std::unique_ptr<SlicObject> so ;
 
 	if(StoppedBySpies(c)) {
 		return ORDER_RESULT_FAILED;
@@ -4413,17 +4413,17 @@ ORDER_RESULT UnitData::AssassinateRuler(Unit c)
 
 	if(civrand().Next(100) >= sint32(chance * 100.0)) {
 		DPRINTF(k_DBG_GAMESTATE, ("Assassination failed."));
-		so = new SlicObject("10dAssassinationFailed") ;
+		so = std::make_unique<SlicObject>("10dAssassinationFailed") ;
 		so->AddRecipient(c.GetOwner()) ;
 		so->AddCivilisation(m_owner) ;
 		so->AddCity(c) ;
-		slicengine_Get()->Execute(so) ;
+		slicengine_Get()->Execute(std::move(so)) ;
 
-		so = new SlicObject("11dAssassinationFailed") ;
+		so = std::make_unique<SlicObject>("11dAssassinationFailed") ;
 		so->AddRecipient(m_owner) ;
 		so->AddCivilisation(c.GetOwner()) ;
 		so->AddCity(c) ;
-		slicengine_Get()->Execute(so) ;
+		slicengine_Get()->Execute(std::move(so)) ;
 		if(civrand().Next(100) < sint32(deathChance * 100.0)) {
 			Unit me(m_id);
 			me.Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
@@ -4518,7 +4518,7 @@ void UnitData::HearGossip(Unit c)
 	sint32 cost;
 	sint32 maxCost = 0;
 	UnitDynamicArray maxCostUnits;
-	SlicObject *so = nullptr;
+	std::unique_ptr<SlicObject> so;
 
 	switch(civrand().Next(3)) {
 		case 0: {
@@ -4532,10 +4532,10 @@ void UnitData::HearGossip(Unit c)
 				if (canSteal[i]) {
 					player_Get(m_owner)->m_advances->GiveAdvance(i, CAUSE_SCI_COMBAT);
 
-					so = new SlicObject("146GossipCompleteAttacker") ;
+					so = std::make_unique<SlicObject>("146GossipCompleteAttacker") ;
 					so->AddRecipient(m_owner) ;
 					so->AddAdvance(i) ;
-					slicengine_Get()->Execute(so);
+					slicengine_Get()->Execute(std::move(so));
 
 					break;
 				}
@@ -4561,20 +4561,20 @@ void UnitData::HearGossip(Unit c)
 				}
 				if(maxCostUnits.Num() <= 0) {
 
-					so = new SlicObject("97GossipBoring");
+					so = std::make_unique<SlicObject>("97GossipBoring");
 					so->AddCivilisation(oplayer);
 					so->AddRecipient(m_owner);
-					slicengine_Get()->Execute(so);
+					slicengine_Get()->Execute(std::move(so));
 					return;
 				}
 				n = civrand().Next(maxCostUnits.Num());
 				maxCostUnits[n].GetPos(center);
 			}
-			so = new SlicObject("98GossipMap");
+			so = std::make_unique<SlicObject>("98GossipMap");
 			so->AddCivilisation(oplayer);
 			so->AddRecipient(m_owner);
 			so->AddLocation(center);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
 			player_Get(m_owner)->m_vision->CopyCircle(player_Get(oplayer)->m_vision.get(),
 													center,
@@ -4587,18 +4587,18 @@ void UnitData::HearGossip(Unit c)
 									  player_Get(c.GetOwner())->m_readiness->GetLevel()));
 			switch(player_Get(c.GetOwner())->m_readiness->GetLevel()) {
 				case 0:
-					so = new SlicObject("96GossipPeacetimeReadiness");
+					so = std::make_unique<SlicObject>("96GossipPeacetimeReadiness");
 					break;
 				case 1:
-					so = new SlicObject("95GossipAlertReadiness");
+					so = std::make_unique<SlicObject>("95GossipAlertReadiness");
 					break;
 				case 2:
-					so = new SlicObject("94GossipFullReadiness");
+					so = std::make_unique<SlicObject>("94GossipFullReadiness");
 					break;
 			}
 			so->AddRecipient(m_owner);
 			so->AddCivilisation(c.GetOwner());
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
 			break;
 		}
@@ -5241,7 +5241,7 @@ void UnitData::SetType(sint32 type)
 		&& rec->GetCargoDataPtr()
 		&&(m_cargo_list->Num() < rec->GetCargoDataPtr()->GetMaxCargo())
 		){
-			Unit* tmp;
+			std::unique_ptr<Unit[]> tmp;
 			m_cargo_list->ResizeCreate(rec->GetCargoDataPtr()->GetMaxCargo(), tmp);
 		}
 	//	else
@@ -5255,7 +5255,7 @@ void UnitData::SetType(sint32 type)
 	     && 0 < rec->GetCargoDataPtr()->GetMaxCargo()
 	       )
 	{
-		m_cargo_list.reset(new UnitDynamicArray(rec->GetCargoDataPtr()->GetMaxCargo()));
+		m_cargo_list = std::make_unique<UnitDynamicArray>(rec->GetCargoDataPtr()->GetMaxCargo());
 	}
 
 	// Some more stuff has to be done like we have in CreateUnit
@@ -5319,11 +5319,11 @@ bool UnitData::CanUpgrade(sint32 & upgradeType, sint32 & upgradeCosts) const
 void UnitData::Upgrade(const sint32 type, const sint32 costs)
 {
 	// Notify player of upgrades
-	SlicObject *so = new SlicObject("999UnitUpgraded");
+	auto so = std::make_unique<SlicObject>("999UnitUpgraded");
 	so->AddRecipient(m_owner);
 	so->AddUnitRecord(m_type);
 	so->AddUnitRecord(type);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	// And remove gold
 	player_Get(m_owner)->m_gold->SubGold(costs);
@@ -5412,10 +5412,10 @@ void UnitData::SetVeteran() //copy and make for elite units
 	if (!Flag(k_UDF_IS_VET))
 	{
 		SetFlag(k_UDF_IS_VET);
-		SlicObject *so = new SlicObject("250UnitGainedVeteranStatus");
+		auto so = std::make_unique<SlicObject>("250UnitGainedVeteranStatus");
 		so->AddUnit(Unit(m_id));
 		so->AddRecipient(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 }
 
@@ -5521,8 +5521,8 @@ sint32 UnitData::CreateOwnArmy()
 		return 1;
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_CREATE_OWN_ARMY,
-										   (uint32)m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CREATE_OWN_ARMY,
+										   (uint32)m_id).release());
 	}
 
 	Army newArmy = player_Get(m_owner)->GetNewArmy(CAUSE_NEW_ARMY_UNKNOWN);
@@ -5599,14 +5599,14 @@ void UnitData::ChangeArmy(const Army &army, CAUSE_NEW_ARMY cause)
 		if(cause != CAUSE_NEW_ARMY_INITIAL && cause != CAUSE_NEW_ARMY_REMOTE_UNGROUPING)
 			network_Get().Block(m_owner);
 
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CHANGE_ARMY,
-									  m_id, m_army, army));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CHANGE_ARMY,
+									  m_id, m_army, army).release());
 
 		if(cause != CAUSE_NEW_ARMY_INITIAL && cause != CAUSE_NEW_ARMY_REMOTE_UNGROUPING)
 			network_Get().Unblock(m_owner);
 	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner) && cause != CAUSE_NEW_ARMY_NETWORK) {
-		network_Get().SendAction(new NetAction(NET_ACTION_GROUP_ARMY,
-										   army.m_id, m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_GROUP_ARMY,
+										   army.m_id, m_id).release());
 	}
 
 	if (m_army.IsValid())
@@ -5625,8 +5625,8 @@ void UnitData::SetArmy(const Army &army)
 
 	if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_ARMY,
-									  m_id, (uint32)army));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_ARMY,
+									  m_id, (uint32)army).release());
 		network_Get().Unblock(m_owner);
 	}
 }
@@ -6140,10 +6140,10 @@ void UnitData::SetElite() //copy and make for elite units SetVeteran
 {
 	if (!Flag(k_UDF_IS_ELITE)) {
 		SetFlag(k_UDF_IS_ELITE);
-		SlicObject *so = new SlicObject("999UnitGainedEliteStatus");
+		auto so = std::make_unique<SlicObject>("999UnitGainedEliteStatus");
 		so->AddUnit(Unit(m_id));
 		so->AddRecipient(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 }
 

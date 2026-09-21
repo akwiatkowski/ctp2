@@ -29,6 +29,9 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <vector>
+#include <memory>
 #include "ui/interface/scorewarn.h"
 
 #include "ui/aui_common/aui.h"
@@ -52,9 +55,9 @@
 
 extern BOOL         g_launchIntoCheatMode;
 
-c3_PopupWindow	*   g_scorewarn = nullptr;
+std::unique_ptr<c3_PopupWindow>	g_scorewarn;
 
-static c3_Static *  s_message   = nullptr;
+static std::unique_ptr<c3_Static>	s_message;
 
 void scorewarn_OkButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
@@ -68,7 +71,7 @@ void scorewarn_AcceptWarningCallback( aui_Control *control, uint32 action, uint3
 {
 	if(optionsscreen_removeMyWindow(action)) {
 		AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( g_scorewarn->Id() );
-		keypress_RemoveHandler(g_scorewarn);
+		keypress_RemoveHandler(g_scorewarn.get());
 		Assert( auiErr == AUI_ERRCODE_OK );
 		if ( auiErr != AUI_ERRCODE_OK ) return;
 
@@ -87,7 +90,7 @@ void scorewarn_CancelButtonActionCallback( aui_Control *control, uint32 action, 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( g_scorewarn->Id() );
-	keypress_RemoveHandler(g_scorewarn);
+	keypress_RemoveHandler(g_scorewarn.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 
@@ -102,7 +105,7 @@ sint32 scorewarn_Initialize( )
 	strlcpy(windowBlock, "Scorewarn", sizeof(windowBlock));
 
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
-	g_scorewarn = new c3_PopupWindow(
+	g_scorewarn = std::make_unique<c3_PopupWindow>(
 		&errcode,
 		aui_UniqueId(),
 		windowBlock,
@@ -118,7 +121,7 @@ sint32 scorewarn_Initialize( )
 
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "Message");
-	s_message = new c3_Static(&errcode,	aui_UniqueId(),	buttonBlock);
+	s_message = std::make_unique<c3_Static>(&errcode,	aui_UniqueId(),	buttonBlock);
 	Assert(AUI_NEWOK(s_message, errcode));
 	if (!AUI_NEWOK(s_message, errcode)) return -1;
 
@@ -134,18 +137,18 @@ void scorewarn_Cleanup()
 	if (g_scorewarn)
     {
     	c3ui_Get()->RemoveWindow( g_scorewarn->Id() );
-	    keypress_RemoveHandler(g_scorewarn);
-        DeleteControl(s_message);
-    	DeleteControl(g_scorewarn);
+	    keypress_RemoveHandler(g_scorewarn.get());
+        s_message.reset();
+    	g_scorewarn.reset();
     }
 }
 
-static c3_PopupWindow	*s_disclaimerWindow = nullptr;
-static c3_Static		*s_disclaimerLabel = nullptr;
-static ctp2_Button		*s_disclaimerAcceptButton = nullptr;
-static ctp2_Button		*s_disclaimerDeclineButton = nullptr;
+static std::unique_ptr<c3_PopupWindow>	s_disclaimerWindow;
+static std::unique_ptr<c3_Static>		s_disclaimerLabel;
+static std::unique_ptr<ctp2_Button>		s_disclaimerAcceptButton;
+static std::unique_ptr<ctp2_Button>		s_disclaimerDeclineButton;
 static aui_Control::ControlActionCallback *s_disclaimerCallback = nullptr;
-static ctp2_HyperTextBox	*s_disclaimerTextBox = nullptr;
+static std::unique_ptr<ctp2_HyperTextBox>	s_disclaimerTextBox;
 
 void DisclaimerCloseAction::Execute(aui_Control *control, uint32 action, uint32 data)
 {
@@ -156,7 +159,7 @@ void disclaimer_AcceptButtonActionCallback(aui_Control *control, uint32 action, 
 {
 	if (action != AUI_BUTTON_ACTION_EXECUTE) return;
 
-	c3ui_Get()->AddAction(new DisclaimerCloseAction);
+	c3ui_Get()->AddAction(std::make_unique<DisclaimerCloseAction>().release());
 
 	if (s_disclaimerCallback)
 		s_disclaimerCallback(control, action, data, cookie);
@@ -171,7 +174,7 @@ void disclaimer_DeclineButtonActionCallback(aui_Control *control, uint32 action,
 
 	g_launchIntoCheatMode = FALSE;
 
-	c3ui_Get()->AddAction(new DisclaimerCloseAction);
+	c3ui_Get()->AddAction(std::make_unique<DisclaimerCloseAction>().release());
 }
 
 sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
@@ -179,7 +182,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	if (s_disclaimerWindow) {
-		errcode = c3ui_Get()->AddWindow( s_disclaimerWindow );
+		errcode = c3ui_Get()->AddWindow( s_disclaimerWindow.get() );
 
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -1;
@@ -192,7 +195,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 	MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	strlcpy(windowBlock, "DisclaimerScreen", sizeof(windowBlock));
 
-	s_disclaimerWindow = new c3_PopupWindow(
+	s_disclaimerWindow = std::make_unique<c3_PopupWindow>(
 		&errcode,
 		aui_UniqueId(),
 		windowBlock,
@@ -209,7 +212,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "TitleLabel");
-	s_disclaimerLabel = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
+	s_disclaimerLabel = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(AUI_NEWOK(s_disclaimerLabel, errcode));
 	if (!AUI_NEWOK(s_disclaimerLabel, errcode)) return -1;
 
@@ -217,7 +220,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "AgreeButton" );
-	s_disclaimerAcceptButton = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock,
+	s_disclaimerAcceptButton = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(), buttonBlock,
 		disclaimer_AcceptButtonActionCallback);
 	Assert( AUI_NEWOK(s_disclaimerAcceptButton, errcode) );
 	if ( !AUI_NEWOK(s_disclaimerAcceptButton, errcode) ) return -1;
@@ -227,7 +230,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "DisagreeButton" );
-	s_disclaimerDeclineButton = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock,
+	s_disclaimerDeclineButton = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(), buttonBlock,
 		disclaimer_DeclineButtonActionCallback);
 	Assert( AUI_NEWOK(s_disclaimerDeclineButton, errcode) );
 	if ( !AUI_NEWOK(s_disclaimerDeclineButton, errcode) ) return -1;
@@ -236,7 +239,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "DisclaimerText");
-	s_disclaimerTextBox = new ctp2_HyperTextBox(&errcode, aui_UniqueId(), buttonBlock, nullptr, nullptr);
+	s_disclaimerTextBox = std::make_unique<ctp2_HyperTextBox>(&errcode, aui_UniqueId(), buttonBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_disclaimerTextBox, errcode) );
 	if ( !AUI_NEWOK(s_disclaimerTextBox, errcode) ) return -1;
 
@@ -247,7 +250,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 
 
 
-	MBCHAR		*message;
+	std::vector<MBCHAR>	message;
 	sint32		filesize = 0;
 
 	FILE *f = fopen("disclaimer.txt", "rb");
@@ -263,23 +266,21 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 
 	fclose(f);
 
-	message = new MBCHAR[filesize+1];
-	memset(message, 0, filesize+1);
+	message.resize(filesize + 1);
 
 	f = fopen("disclaimer.txt", "rb");
 	if (!f)
 		goto Error;
 
-	c3files_fread( message, 1, filesize, f );
+	c3files_fread( message.data(), 1, filesize, f );
 
 	fclose(f);
 
-	s_disclaimerTextBox->SetHyperText(message);
-	delete [] message;
+	s_disclaimerTextBox->SetHyperText(message.data());
 
 	s_disclaimerCallback = callback;
 
-	errcode = c3ui_Get()->AddWindow( s_disclaimerWindow );
+	errcode = c3ui_Get()->AddWindow( s_disclaimerWindow.get() );
 
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return -1;
@@ -298,11 +299,11 @@ void disclaimer_Cleanup()
     {
 	    c3ui_Get()->RemoveWindow( s_disclaimerWindow->Id() );
 
-	    DeleteControl(s_disclaimerLabel);
-	    DeleteControl(s_disclaimerAcceptButton);
-	    DeleteControl(s_disclaimerDeclineButton);
-	    DeleteControl(s_disclaimerTextBox);
+	    s_disclaimerLabel.reset();
+	    s_disclaimerAcceptButton.reset();
+	    s_disclaimerDeclineButton.reset();
+	    s_disclaimerTextBox.reset();
 
-	    DeleteControl(s_disclaimerWindow);
+	    s_disclaimerWindow.reset();
     }
 }

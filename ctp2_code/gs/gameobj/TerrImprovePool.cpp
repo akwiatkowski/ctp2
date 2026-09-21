@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
@@ -109,15 +110,15 @@ TerrainImprovementPool::Create
 
 	// Add the new improvement to the map
 	TerrainImprovement newImprovement(NewKey(k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT));
-	TerrainImprovementData *	newData =
-		new TerrainImprovementData(newImprovement, owner, point, type, extraData);
+	auto newData =
+		std::make_unique<TerrainImprovementData>(newImprovement, owner, point, type, extraData);
 
 	if (network_Get().IsActive() && network_Get().IsHost())
 	{
-		network_Get().Enqueue(newData);
+		network_Get().Enqueue(newData.get());
 	}
 
-	Insert(newData);
+	Insert(newData.release());
 	world_Get()->InsertImprovement(newImprovement, point);
 	tiledmap_observer::RedrawTile(point);
 

@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_ctp2/c3ui.h"
@@ -55,7 +56,7 @@ AUI_ERRCODE MessageResponseListItem::InitCommonLdl(MBCHAR const * name, sint32 i
 	c3_Static		*subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "name");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->TextFlags() = k_AUI_BITMAPFONT_DRAWFLAG_JUSTCENTER;
 	AddChild(subItem);
 
@@ -107,13 +108,13 @@ MessageResponseStandard::MessageResponseStandard(
 
 AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow *window )
 {
-	m_messageResponseAction = nullptr;
+	m_messageResponseAction.reset();
 
-	m_messageResponseButton = new tech_WLList<ctp2_Button *>;
+	m_messageResponseButton = std::make_unique<tech_WLList<ctp2_Button *>>();
 	Assert( m_messageResponseButton != nullptr );
 	if ( m_messageResponseButton == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_messageResponseAction = new tech_WLList<MessageResponseAction *>;
+	m_messageResponseAction = std::make_unique<tech_WLList<MessageResponseAction *>>();
 	Assert( m_messageResponseAction != nullptr );
 	if ( m_messageResponseAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -129,7 +130,7 @@ AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow
 		MBCHAR const *  text    = sButton->GetName();
 
 		snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseButton");
-		ctp2_Button	*   button  = new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock);
+		ctp2_Button	*   button  = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), buttonBlock).release();
 		Assert( AUI_NEWOK( button, errcode ));
 		if ( !AUI_NEWOK( button, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -159,7 +160,7 @@ AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow
 		}
 
 		MessageResponseAction * action =
-            new MessageResponseAction(window, responseCount);
+            std::make_unique<MessageResponseAction>(window, responseCount).release();
 		Assert( action != nullptr );
 		if ( action == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -183,7 +184,7 @@ AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow
 		if(critical_messages_prefs_Get()->IsEnabled(((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName())>0)
 		{
 			snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardDontShowButton");
-			m_dontShowButton.reset(new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock ));
+			m_dontShowButton = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(), buttonBlock );
 			Assert( AUI_NEWOK( m_dontShowButton, errcode ));
 			m_dontShowButton->SetActionFuncAndCookie(	DontShowButtonActionCallback, this);
 			m_identifier = ((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName();
@@ -206,14 +207,13 @@ MessageResponseStandard::~MessageResponseStandard()
 			action = m_messageResponseAction->GetNext( position );
 
 			if ( action ) {
-				delete action;
+				std::unique_ptr<MessageResponseAction>{action};
 				action = nullptr;
 			}
 		}
 
 		m_messageResponseAction->DeleteAll();
-		delete m_messageResponseAction;
-		m_messageResponseAction = nullptr;
+		m_messageResponseAction.reset();
 	}
 
 	if ( m_messageResponseButton ) {
@@ -224,14 +224,13 @@ MessageResponseStandard::~MessageResponseStandard()
 			button = m_messageResponseButton->GetNext( position );
 
 			if ( button ) {
-				delete button;
+				std::unique_ptr<ctp2_Button>{button};
 				button = nullptr;
 			}
 		}
 
 		m_messageResponseButton->DeleteAll();
-		delete m_messageResponseButton;
-		m_messageResponseButton = nullptr;
+		m_messageResponseButton.reset();
 	}
 	// m_identifier is std::string, auto-freed
 
@@ -276,11 +275,11 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 	m_dropdown      = nullptr;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseButton");
-	m_submitButton.reset(new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock ));
+	m_submitButton = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_submitButton, errcode ));
 	if ( !AUI_NEWOK( m_submitButton, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_action.reset(new MessageResponseSubmitAction( window ));
+	m_action = std::make_unique<MessageResponseSubmitAction>( window );
 	Assert( m_action != nullptr );
 	if ( m_action == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -297,7 +296,7 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseDropdown" );
-	m_dropdown.reset(new c3_DropDown( &errcode, aui_UniqueId(), buttonBlock ));
+	m_dropdown = std::make_unique<c3_DropDown>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_dropdown, errcode ));
 	if ( !AUI_NEWOK( m_dropdown, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -308,7 +307,7 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 	while (SlicButton * sButton = window->GetMessage()->AccessData()->GetButton(i++))
     {
 		MessageResponseListItem	* item =
-            new MessageResponseListItem(&errcode, sButton->GetName(), i, buttonBlock);
+            std::make_unique<MessageResponseListItem>(&errcode, sButton->GetName(), i, buttonBlock).release();
 
 		if (item)
         {

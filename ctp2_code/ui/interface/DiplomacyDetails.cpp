@@ -32,6 +32,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/interface/DiplomacyDetails.h"
 
 #include "ui/aui_common/aui_ldl.h"
@@ -91,7 +93,7 @@
 
 #include "ui/aui_ctp2/ctp2_hypertextbox.h"
 
-static DiplomacyDetails     *s_DiplomacyDetails;
+static std::unique_ptr<DiplomacyDetails> s_DiplomacyDetails;
 static const MBCHAR           *s_DiplomacyDetailsBlock = "DiplomacyDetails";
 
 #define k_INT_FLAG_COL      0
@@ -108,8 +110,8 @@ static const MBCHAR           *s_DiplomacyDetailsBlock = "DiplomacyDetails";
 
 ctp2_Button                 *DiplomacyDetails::m_cancelButton = nullptr;
 ctp2_ListBox                *DiplomacyDetails::sm_list = nullptr;
-aui_StringTable             *DiplomacyDetails::sm_strengthImages = nullptr;
-aui_StringTable             *DiplomacyDetails::sm_embassyImages = nullptr;
+std::unique_ptr<aui_StringTable> DiplomacyDetails::sm_strengthImages;
+std::unique_ptr<aui_StringTable> DiplomacyDetails::sm_embassyImages;
 
 sint32                      DiplomacyDetails::detailPlayer;
 
@@ -133,15 +135,9 @@ DiplomacyDetails::~DiplomacyDetails()
 	if(m_window) {
 		aui_Ldl::DeleteHierarchyFromRoot(s_DiplomacyDetailsBlock);
 	}
-	if(sm_strengthImages) {
-		delete sm_strengthImages;
-		sm_strengthImages = nullptr;
-	}
+	sm_strengthImages.reset();
 
-	if(sm_embassyImages) {
-		delete sm_embassyImages;
-		sm_embassyImages = nullptr;
-	}
+	sm_embassyImages.reset();
 }
 
 AUI_ERRCODE DiplomacyDetails::Initialize()
@@ -151,7 +147,7 @@ AUI_ERRCODE DiplomacyDetails::Initialize()
 		return AUI_ERRCODE_OK;
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	s_DiplomacyDetails = new DiplomacyDetails(&err);
+	s_DiplomacyDetails = std::make_unique<DiplomacyDetails>(&err);
 
 	Assert(err == AUI_ERRCODE_OK);
 
@@ -163,8 +159,7 @@ AUI_ERRCODE DiplomacyDetails::Cleanup()
 	if(s_DiplomacyDetails) {
 		Hide();
 
-		delete s_DiplomacyDetails;
-		s_DiplomacyDetails = nullptr;
+		s_DiplomacyDetails.reset();
 	}
 	return AUI_ERRCODE_OK;
 }
@@ -940,10 +935,10 @@ void DiplomacyDetails::InitImageTables()
 {
 	AUI_ERRCODE err;
 	if(!sm_strengthImages) {
-		sm_strengthImages = new aui_StringTable(&err, "StrengthImages");
+		sm_strengthImages = std::make_unique<aui_StringTable>(&err, "StrengthImages");
 	}
 
 	if(!sm_embassyImages) {
-		sm_embassyImages = new aui_StringTable(&err, "EmbassyImages");
+		sm_embassyImages = std::make_unique<aui_StringTable>(&err, "EmbassyImages");
 	}
 }

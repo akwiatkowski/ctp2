@@ -28,6 +28,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/interface/loadsavemapwindow.h"
 
 #include "ctp/civ3_main.h"
@@ -58,8 +60,11 @@
 
 #include "ui/netshell/netshell.h"               // gamesetup_Get()
 
-extern SPNewGameWindow		*g_spNewGameWindow;
+extern std::unique_ptr<SPNewGameWindow> g_spNewGameWindow;
 
+// Owned by s_loadSaveMapWindowOwner; g_loadSaveMapWindow stays raw because it
+// is extern'd in loadsavemapwindow.cpp and spnewgamewindow.cpp.
+static std::unique_ptr<LoadSaveMapWindow> s_loadSaveMapWindowOwner;
 LoadSaveMapWindow				*g_loadSaveMapWindow = nullptr;
 
 
@@ -98,7 +103,8 @@ AUI_ERRCODE loadsavemapscreen_Initialize( aui_Control::ControlActionCallback *ca
 	MBCHAR		windowBlock[k_AUI_LDL_MAXBLOCK + 1];
 	strlcpy(windowBlock, "LoadSaveMapWindow", sizeof(windowBlock));
 
-	g_loadSaveMapWindow= new LoadSaveMapWindow(&errcode, aui_UniqueId(), windowBlock, 16 , AUI_WINDOW_TYPE_FLOATING);
+	s_loadSaveMapWindowOwner = std::make_unique<LoadSaveMapWindow>(&errcode, aui_UniqueId(), windowBlock, 16 , AUI_WINDOW_TYPE_FLOATING);
+	g_loadSaveMapWindow = s_loadSaveMapWindowOwner.get();
 	Assert( AUI_NEWOK(g_loadSaveMapWindow, errcode) );
 	if ( !AUI_NEWOK(g_loadSaveMapWindow, errcode) ) return errcode;
 
@@ -137,7 +143,7 @@ void loadsavemapscreen_Cleanup()
         c3ui_Get()->RemoveWindow(g_loadSaveMapWindow->Id());
     }
 
-    delete g_loadSaveMapWindow;
+    s_loadSaveMapWindowOwner.reset();
     g_loadSaveMapWindow = nullptr;
 }
 

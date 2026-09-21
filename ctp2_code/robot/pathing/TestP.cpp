@@ -1,4 +1,5 @@
 #include "gs/utility/globals.h"
+#include <memory>
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "robot/pathing/TestP.h"
@@ -15,7 +16,7 @@
 #include "ui/aui_utils/primitives.h"
 #include "gs/gameobj/player.h"
 
-UnitAstar *g_theTestPather;
+std::unique_ptr<UnitAstar> g_theTestPather;
 
 
 sint32 n;
@@ -32,7 +33,7 @@ void testloop(aui_Surface *surf)
 	static int tcount = 0;
 
     if (tcount == 0) {
-        g_theTestPather = new UnitAstar;
+        g_theTestPather = std::make_unique<UnitAstar>();
     }
 
 	tcount++;

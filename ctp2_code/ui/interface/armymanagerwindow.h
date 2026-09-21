@@ -11,6 +11,8 @@ class ArmyManagerWindow;
 #include "os/include/ctp2_inttypes.h"  // uint32
 #include "gs/utility/gstypes.h"        // k_MAX_ARMY_SIZE
 
+#include <memory>
+
 class ctp2_Window;
 class ctp2_ListItem;
 class ctp2_ListBox;
@@ -40,7 +42,7 @@ class ArmyManagerWindow {
 	ctp2_Window *m_window;
 	MapPoint m_pos;
 	Army m_army;
-	PointerList<ArmyListNode> *m_armies;
+	std::unique_ptr<PointerList<ArmyListNode>> m_armies;
 	Unit m_inArmy[k_MAX_ARMY_SIZE];
 	Unit m_outOfArmy[k_MAX_ARMY_SIZE];
 

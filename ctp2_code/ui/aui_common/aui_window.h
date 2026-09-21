@@ -66,11 +66,12 @@ enum AUI_WINDOW_TYPE
 #include "ui/aui_common/aui_dirtylist.h"
 #include "ui/aui_common/aui_mouse.h"
 #include "ctp/ctp2_utils/pointerlist.h"
+#include <memory>
 
 //class aui_UI;
 class aui_Mouse;
 class aui_Control;
-class aui_Surface;
+#include "ui/aui_common/aui_surface.h"
 struct aui_Stencil;
 void aui_DestroyStencil(aui_Stencil *pStencil);
 
@@ -131,9 +132,9 @@ public:
 	virtual AUI_ERRCODE MoveOG( );
 
 
-	aui_DirtyList *GetDirtyList( ) { return m_dirtyList; }
+	aui_DirtyList *GetDirtyList( ) { return m_dirtyList.get(); }
 
-	aui_Surface *TheSurface( ) const { return m_surface; }
+	aui_Surface *TheSurface( ) const { return m_surface.get(); }
 
 	BOOL		AreControlsOpaque( ) const { return m_opaqueControls; }
 	uint32		Type( ) const { return m_type; }
@@ -176,7 +177,7 @@ public:
 	uint32 SetDraggable( BOOL draggable );
 	uint32 SetDynamic( BOOL dynamic );
 
-	aui_Region *GrabRegion( ) const { return m_grabRegion; }
+	aui_Region *GrabRegion( ) const { return m_grabRegion.get(); }
 
 	AUI_ERRCODE Draw(
 		aui_Surface *surface = nullptr,
@@ -197,7 +198,7 @@ public:
 		sint32 right,
 		sint32 bottom );
 
-	void SetSurface( aui_Surface *surface ) { m_surface = surface; }
+	void SetSurface( aui_Surface *surface ) { m_surface.reset(surface); }
 	void SetType( AUI_WINDOW_TYPE type ) { m_type = type; }
 
 	BOOL IsDragging() { return m_isDragging; }
@@ -217,18 +218,18 @@ protected:
 	void MakeSureSurfaceIsValid( );
 	void DeleteSurfaceIfDynamic( );
 
-	aui_Surface	*m_surface;
+	std::unique_ptr<aui_Surface>	m_surface;
 
 	BOOL m_opaqueControls;
 	sint32 m_bpp;
 
 	AUI_WINDOW_TYPE m_type;
 
-	aui_DirtyList *m_dirtyList;
+	std::unique_ptr<aui_DirtyList> m_dirtyList;
 
 	BOOL		m_isDragging;
 	POINT		m_grabPoint;
-	aui_Region	*m_grabRegion;
+	std::unique_ptr<aui_Region>	m_grabRegion;
 
 	sint32 m_ogX;
 	sint32 m_ogY;
@@ -239,7 +240,7 @@ protected:
 	    {nullptr, &aui_DestroyStencil};
 
 	aui_Control *m_focusControl;
-	tech_WLList<aui_Region *> *m_focusList;
+	std::unique_ptr<tech_WLList<aui_Region *>> m_focusList;
 
 	void	PostChildrenCallback(aui_MouseEvent * mouseData) override;
 	void	MouseLDragOver(aui_MouseEvent * mouseData) override;

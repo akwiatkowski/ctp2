@@ -37,6 +37,8 @@
 /// \brief  The first window to display (defnitions).
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/interface/initialplaywindow.h"
 
 #include "ui/aui_common/aui.h"
@@ -116,7 +118,7 @@ InitPlayWindow::InitPlayWindow
                        (retval, ldlBlock, "OptionsButton", initialplayscreen_optionsPress)
                     ),
     m_background    (spNew_c3_Static(retval, ldlBlock, "Background")),
-    m_testBox       (new ctp2_Static
+    m_testBox       (std::make_unique<ctp2_Static>
                         (retval, aui_UniqueId(), "InitPlayWindow.TestTextBox")
                     )
 {

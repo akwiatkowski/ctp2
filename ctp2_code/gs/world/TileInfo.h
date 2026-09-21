@@ -71,6 +71,7 @@ class GoodActor;
 //----------------------------------------------------------------------------
 
 #include <nlohmann/json.hpp>
+#include <memory>
 
 typedef uint16 TILEINDEX;
 
@@ -79,6 +80,7 @@ class TileInfo
 public:
 	TileInfo();
 	TileInfo(TileInfo *copy);
+	TileInfo &operator=(const TileInfo &other);
 	~TileInfo();
 
 	uint8 GetTerrainType() const { return m_terrainType; }
@@ -95,7 +97,7 @@ public:
 	void SetRiverPiece(sint16 river) { m_riverPiece = static_cast<sint8>(river); }
 
 	void SetGoodActor(sint32 index, MapPoint const & pos);
-	GoodActor * GetGoodActor() const {return m_goodActor;}
+	GoodActor * GetGoodActor() const {return m_goodActor.get();}
 	bool HasGoodActor() const { return m_goodActor != nullptr; }
 	void DeleteGoodActor();
 
@@ -122,7 +124,7 @@ private:
 
 	uint8			m_transitions[k_NUM_TRANSITIONS];
 
-	GoodActor		*m_goodActor;
+	std::unique_ptr<GoodActor>	m_goodActor;
 
 	friend class NetCellList;
 	friend class NetCell;

@@ -10,6 +10,8 @@
  * directly to SDL/windows.
  */
 
+#include <memory>
+
 #include "ctp/c3.h"
 #include "ui/interface/backgroundwin.h"
 #include "gs/core/game_observer.h"
@@ -59,7 +61,7 @@
 #include "ui/aui_ctp2/ui_unit_actor_registry.h"
 
 extern MessageWindow         *g_currentMessageWindow;
-extern MessageModal          *g_modalMessage;
+extern std::unique_ptr<MessageModal>          g_modalMessage;
 
 class UIGameObserver : public IGameObserver {
 public:
@@ -372,7 +374,7 @@ public:
             return;
         }
         if (c3ui_Get()) {
-            c3ui_Get()->AddAction(new MessageOpenAction(
+            c3ui_Get()->AddAction(std::make_unique<MessageOpenAction>(
                 data->GetMessageWindow()->GetIconWindow()));
         }
     }
@@ -647,7 +649,7 @@ public:
     void OnUpdateScienceWindow(sint32 player) override
     {
         if (c3ui_Get() && player == selitem_Get()->GetVisiblePlayer()) {
-            c3ui_Get()->AddAction(new SW_UpdateAction);
+            c3ui_Get()->AddAction(std::make_unique<SW_UpdateAction>());
         }
     }
 

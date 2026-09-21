@@ -2,6 +2,7 @@
 #define __NS_CHATBOX_H__
 
 #include "ui/aui_ctp2/textbox.h"
+#include <memory>
 #include "ui/aui_common/aui_action.h"
 #include "ui/netshell/netfunc.h"
 
@@ -40,19 +41,19 @@ public:
 		sint32 y = 0 ) override;
 
 protected:
-	aui_TextBase *m_textstyleSystem;
-	aui_TextBase *m_textstyleChat;
-	aui_TextBase *m_textstyleWhisper;
+	std::unique_ptr<aui_TextBase>	m_textstyleSystem;
+	std::unique_ptr<aui_TextBase>	m_textstyleChat;
+	std::unique_ptr<aui_TextBase>	m_textstyleWhisper;
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE	CreateComponents( );
 
 public:
-	aui_TextField	*GetInputField( ) const { return m_inputField; }
+	aui_TextField	*GetInputField( ) const { return m_inputField.get(); }
 
 protected:
-	aui_TextField	*m_inputField;
+	std::unique_ptr<aui_TextField>	m_inputField;
 
 	AUI_ACTION_BASIC(InputFieldAction);
 };

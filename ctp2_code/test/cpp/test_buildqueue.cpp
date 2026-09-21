@@ -14,13 +14,14 @@
 #include "gs/utility/gameinit.h"
 #include "gs/database/profileDB.h"
 #include "ctp/civapp.h"
+#include <memory>
 
 struct BuildQueueFixture
 {
     static bool s_dbsLoaded;
-    static CivApp *s_app;
+    static std::unique_ptr<CivApp> s_app;
 
-    Player **stubPlayers = nullptr;
+    std::unique_ptr<Player *[]> stubPlayers;
 
     BuildQueueFixture()
     {
@@ -32,33 +33,31 @@ struct BuildQueueFixture
             CivPaths_InitCivPaths();
             gameinit_InitializeGameFiles();
 
-            profiledb_Set(new ProfileDB());
+            profiledb_Set(std::make_unique<ProfileDB>().release());
             profiledb_Get()->Init(FALSE);
 
-            s_app = new CivApp();
+            s_app = std::make_unique<CivApp>();
             s_app->InitializeAppDB();
 
             fprintf(stderr, "[BuildQueueFixture] Databases loaded.\n");
             s_dbsLoaded = true;
         }
 
-        stubPlayers = new Player *[k_MAX_PLAYERS];
-        for (int i = 0; i < k_MAX_PLAYERS; ++i)
-        {
-            stubPlayers[i] = nullptr;
-        }
-        player_arr_Set(stubPlayers);
+        // Fixture-owned array of empty player slots; player_arr_Set only
+        // publishes the pointer (no Game::NewGame adoption happens here).
+        stubPlayers = std::make_unique<Player *[]>(k_MAX_PLAYERS);
+        player_arr_Set(stubPlayers.get());
     }
 
     ~BuildQueueFixture()
     {
-        delete[] stubPlayers;
+        stubPlayers.reset();
         player_arr_Set(nullptr);
     }
 };
 
 bool BuildQueueFixture::s_dbsLoaded = false;
-CivApp *BuildQueueFixture::s_app = nullptr;
+std::unique_ptr<CivApp> BuildQueueFixture::s_app;
 
 TEST_CASE_FIXTURE(BuildQueueFixture, "BuildQueue starts empty")
 {

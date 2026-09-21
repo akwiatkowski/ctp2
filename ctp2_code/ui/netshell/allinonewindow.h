@@ -68,7 +68,7 @@ public:
 	MBCHAR m_lname[ 101 ];
 
 
-	tech_WLList<nf_AIPlayer *> *m_aiplayerList;
+	std::unique_ptr<tech_WLList<nf_AIPlayer *>>	m_aiplayerList;
 
 	bool m_receivedGuids;
 	CivGuid m_civGuids[k_MAX_PLAYERS];
@@ -283,7 +283,7 @@ protected:
 
 	bool m_joinedGame;
 
-	aui_Action *m_dbActionArray[ 1 ];
+	std::unique_ptr<aui_Action>	m_dbActionArray[ 1 ];
 
 	sint32 m_numAvailUnits;
 	aui_Switch *m_units[ k_UNITS_MAX ];

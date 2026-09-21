@@ -29,6 +29,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
+
 #include "net/general/net_civ.h"
 #include "net/general/network.h"
 #include "net/io/net_util.h"
@@ -87,7 +89,7 @@ void NetCivilization::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		return;
 
 	if(!civilisationpool_Get()->IsValid(cid)) {
-		m_data = new CivilisationData(cid);
+		m_data = std::make_unique<CivilisationData>(cid).release();
 	} else {
 		m_data = civilisationpool_Get()->AccessData(cid);
 	}

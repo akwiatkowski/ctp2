@@ -44,6 +44,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/slic/SlicSegment.h"
 #include "gs/slic/SlicError.h"
@@ -114,7 +115,7 @@ SlicFrame::SlicFrame(SlicSegment *segment, sint32 offset)
     m_argStackPtr  (-1),
     m_currentLine  (-1),
     m_segment      (segment),
-    m_stack        (new SlicStack),
+    m_stack        (std::make_unique<SlicStack>()),
   //m_argListArray
     m_argList      (nullptr),
     m_resultObject (nullptr),
@@ -129,7 +130,7 @@ SlicFrame::SlicFrame(SlicSegment *segment, sint32 offset, SlicStack *stack)
     m_argStackPtr  (-1),
     m_currentLine  (-1),
     m_segment      (segment),
-    m_stack        (stack),
+    m_stack        (stack),   // unique_ptr ctor — takes ownership
   //m_argListArray
     m_argList      (nullptr),
     m_resultObject (nullptr),
@@ -154,8 +155,7 @@ SlicFrame::SlicFrame(SlicSegment *segment, sint32 offset, SlicStack *stack)
 //----------------------------------------------------------------------------
 SlicFrame::~SlicFrame()
 {
-	delete m_stack;
-	delete m_messageData;
+	// m_stack / m_messageData are unique_ptr — free themselves
 
 	if (m_resultObject)
 	{
@@ -935,17 +935,17 @@ BOOL SlicFrame::DoInstruction(SOP op)
 				DPRINTF(k_DBG_SLIC, ("Bad Mojo, button string arg doesn't have string type\n"));
 				return FALSE;
 			}
-			slicengine_Get()->GetContext()->AddButton(new SlicButton(
+			slicengine_Get()->GetContext()->AddButton(std::make_unique<SlicButton>(
 				(StringId)symval->GetStringId(), m_segment,
-				ival, slicengine_Get()->GetContext()));
+				ival, slicengine_Get()->GetContext()).release());
 			break;
 		case SOP_OCLS:
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 
-			slicengine_Get()->GetContext()->AddButton(new SlicButton(
+			slicengine_Get()->GetContext()->AddButton(std::make_unique<SlicButton>(
 					 		 -1, m_segment, ival,
-							 slicengine_Get()->GetContext()));
+							 slicengine_Get()->GetContext()).release());
 			break;
 		case SOP_STOP:
 			stopped = TRUE;
@@ -1134,8 +1134,8 @@ BOOL SlicFrame::DoInstruction(SOP op)
 				if(!cond || (cond->Eval() != 0)) {
 
 					slicengine_Get()->Break(m_segment, codePtr - m_segment->m_code.data(),
-										slicengine_Get()->GetContext(), m_stack,
-										m_messageData);
+										slicengine_Get()->GetContext(), m_stack.get(),
+										m_messageData.get());
 					stopped = TRUE;
 				}
 			}
@@ -1479,7 +1479,7 @@ BOOL SlicFrame::RunAt(sint32 startOffset)
 void SlicFrame::ClearMessageData()
 {
 	if(!m_messageData) {
-		m_messageData = new MessageData(ID(), turn_Get() ? turn_Get()->GetYear() : 0);
+		m_messageData = std::make_unique<MessageData>(ID(), turn_Get() ? turn_Get()->GetYear() : 0);
 	}
 
 	m_messageData->m_owner = PLAYER_INDEX_INVALID;
@@ -1493,13 +1493,12 @@ void SlicFrame::ClearMessageData()
 
 void SlicFrame::DeleteMessageData()
 {
-	delete m_messageData;
-	m_messageData = nullptr;
+	m_messageData.reset();
 }
 
 void SlicFrame::SetMessageData(MessageData *data)
 {
-	m_messageData = data;
+	m_messageData.reset(data);
 }
 
 extern char g_missingSegment[256];

@@ -30,6 +30,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_button.h"
@@ -52,15 +54,15 @@
 
 
 
-WonderMovieWindow		*g_wonderMovieWindow = nullptr;
+static std::unique_ptr<WonderMovieWindow> g_wonderMovieWindow;
 
 
 void wondermoviewin_Initialize(SequenceWeakPtr seq)
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	if (g_wonderMovieWindow == nullptr) {
-		g_wonderMovieWindow = new WonderMovieWindow(&errcode, aui_UniqueId(), const_cast<MBCHAR *>("WonderMovieWindow"), 16);
+	if (!g_wonderMovieWindow) {
+		g_wonderMovieWindow = std::make_unique<WonderMovieWindow>(&errcode, aui_UniqueId(), const_cast<MBCHAR *>("WonderMovieWindow"), 16);
 		Assert(errcode == AUI_ERRCODE_OK);
 
 		g_wonderMovieWindow->SetSequence(seq);
@@ -103,7 +105,7 @@ void wondermoviewin_DisplayWonderMovie(sint32 id)
 
 	AUI_ERRCODE		errcode;
 
-	errcode = c3ui_Get()->AddWindow(g_wonderMovieWindow);
+	errcode = c3ui_Get()->AddWindow(g_wonderMovieWindow.get());
 	Assert(errcode == AUI_ERRCODE_OK);
 
 }
@@ -118,8 +120,7 @@ void wondermoviewin_Cleanup()
 
 		c3ui_Get()->RemoveWindow(g_wonderMovieWindow->Id());
 
-		delete g_wonderMovieWindow;
-		g_wonderMovieWindow = nullptr;
+		g_wonderMovieWindow.reset();
 	}
 
 	director_Get()->ActionFinished(seq);
@@ -130,7 +131,7 @@ void wondermoviewin_MovieButtonCallback(aui_Control *control, uint32 action, uin
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	c3ui_Get()->AddAction(new CloseMovieAction);
+	c3ui_Get()->AddAction(std::make_unique<CloseMovieAction>());
 }
 
 

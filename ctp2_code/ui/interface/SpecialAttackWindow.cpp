@@ -46,16 +46,18 @@
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/world/World.h"
 
+#include <memory>
+
 
 namespace
 {
     COLOR               s_saWindowBorderColor    = COLOR_GREEN;
 }
 
-SpecialAttackWindow     *g_theSpecialAttackWindow = nullptr;
-static c3_Static        *s_saWindowCostN          = nullptr;
-static c3_Static        *s_saWindowCostV          = nullptr;
-static c3_Static        *s_saWindowBackground     = nullptr;
+std::unique_ptr<SpecialAttackWindow>    g_theSpecialAttackWindow;
+static std::unique_ptr<c3_Static>       s_saWindowCostN;
+static std::unique_ptr<c3_Static>       s_saWindowCostV;
+static std::unique_ptr<c3_Static>       s_saWindowBackground;
 
 //----------------------------------------------------------------------------
 //
@@ -80,26 +82,26 @@ sint32 specialAttackWindow_Initialize()
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 	strlcpy(textBlock, "SpecialAttackWindow", sizeof(textBlock));
-	g_theSpecialAttackWindow = new SpecialAttackWindow( &errcode, aui_UniqueId(), textBlock, 16);
+	g_theSpecialAttackWindow = std::make_unique<SpecialAttackWindow>( &errcode, aui_UniqueId(), textBlock, 16);
 	Assert(AUI_NEWOK(g_theSpecialAttackWindow, errcode));
 	if(!AUI_SUCCESS(errcode)) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "SpecialAttackCostN");
     if (aui_Ldl::IsValid(controlBlock))
     {
-	    s_saWindowCostN = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
+	    s_saWindowCostN = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock);
     }
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "SpecialAttackCostV");
     if (aui_Ldl::IsValid(controlBlock))
     {
-	    s_saWindowCostV = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
+	    s_saWindowCostV = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock);
     }
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "Background");
     if (aui_Ldl::IsValid(controlBlock))
     {
-	    s_saWindowBackground = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	    s_saWindowBackground = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
     }
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot(textBlock);
@@ -175,7 +177,7 @@ void specialAttackWindow_DisplayData(MapPoint &p, sint32 type)
 	}
 
 	if(costs > 0){
-		c3ui_Get()->AddWindow(g_theSpecialAttackWindow);
+		c3ui_Get()->AddWindow(g_theSpecialAttackWindow.get());
 		g_theSpecialAttackWindow->ShouldDraw();
 	}
 	else{
@@ -206,17 +208,13 @@ sint32 specialAttackWindow_Cleanup()
 
 	c3ui_Get()->RemoveWindow(g_theSpecialAttackWindow->Id());
 
-	delete s_saWindowCostN;
-	s_saWindowCostN = nullptr;
+	s_saWindowCostN.reset();
 
-	delete s_saWindowCostV;
-	s_saWindowCostV = nullptr;
+	s_saWindowCostV.reset();
 
-	delete s_saWindowBackground;
-	s_saWindowBackground = nullptr;
+	s_saWindowBackground.reset();
 
-	delete g_theSpecialAttackWindow;
-	g_theSpecialAttackWindow = nullptr;
+	g_theSpecialAttackWindow.reset();
 
 	return 0;
 }
@@ -240,7 +238,7 @@ sint32 specialAttackWindow_Cleanup()
 //----------------------------------------------------------------------------
 AUI_ERRCODE SpecialAttackWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y)
 {
-	if ( !surface ) surface = m_surface;
+	if ( !surface ) surface = m_surface.get();
 
 	RECT rect = { 0, 0, m_width, m_height };
 

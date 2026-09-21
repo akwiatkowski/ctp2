@@ -40,6 +40,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_stringtable.h"
@@ -102,11 +104,11 @@ extern BOOL					g_setBarbarianRiskUponLaunch;
 extern sint32				g_barbarianRiskUponLaunch;
 
 SaveInfo *                  g_savedGameRequest  = nullptr;
-static LoadSaveWindow *     g_loadsaveWindow    = nullptr;
+static std::unique_ptr<LoadSaveWindow> g_loadsaveWindow;
 
 LoadSaveWindow * loadsavewindow_Get()
 {
-    return g_loadsaveWindow;
+    return g_loadsaveWindow.get();
 }
 
 
@@ -132,8 +134,8 @@ sint32	loadsavescreen_displayMyWindow(uint32 type)
 	if (retval == AUI_ERRCODE_OK)
     {
 		g_loadsaveWindow->SetType(type);
-		c3ui_Get()->AddWindow(g_loadsaveWindow);
-		keypress_RegisterHandler(g_loadsaveWindow);
+		c3ui_Get()->AddWindow(g_loadsaveWindow.get());
+		keypress_RegisterHandler(g_loadsaveWindow.get());
 	}
 
 	return retval;
@@ -145,7 +147,7 @@ sint32 loadsavescreen_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( g_loadsaveWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
-	keypress_RemoveHandler(g_loadsaveWindow);
+	keypress_RemoveHandler(g_loadsaveWindow.get());
 
 	return 1;
 }
@@ -159,7 +161,7 @@ AUI_ERRCODE loadsavescreen_Initialize( aui_Control::ControlActionCallback *callb
 	strlcpy(windowBlock, "LoadSaveWindow", sizeof(windowBlock));
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	g_loadsaveWindow= new LoadSaveWindow(&errcode, aui_UniqueId(), windowBlock, 16 , AUI_WINDOW_TYPE_STANDARD);
+	g_loadsaveWindow = std::make_unique<LoadSaveWindow>(&errcode, aui_UniqueId(), windowBlock, 16 , AUI_WINDOW_TYPE_STANDARD);
 	Assert( AUI_NEWOK(g_loadsaveWindow, errcode) );
 	if ( !AUI_NEWOK(g_loadsaveWindow, errcode) ) return errcode;
 
@@ -206,15 +208,15 @@ void loadsavescreen_Cleanup()
         {
 	        c3ui_Get()->RemoveWindow(g_loadsaveWindow->Id());
         }
-	    keypress_RemoveHandler(g_loadsaveWindow);
+	    keypress_RemoveHandler(g_loadsaveWindow.get());
 
-        allocated::clear(g_loadsaveWindow);
+        g_loadsaveWindow.reset();
     }
 }
 
 void loadsavescreen_PostCleanupAction()
 {
-	c3ui_Get()->AddAction(new LSCleanupAction);
+	c3ui_Get()->AddAction(std::make_unique<LSCleanupAction>().release());
 }
 
 void LSCleanupAction::Execute(aui_Control *control, uint32 action, uint32 data)
@@ -226,7 +228,7 @@ void LSCleanupAction::Execute(aui_Control *control, uint32 action, uint32 data)
 
 
 static MBCHAR s_tempPath[_MAX_PATH];
-static SaveInfo	*s_tempSaveInfo = nullptr;
+static std::unique_ptr<SaveInfo>	s_tempSaveInfo;
 
 
 
@@ -373,7 +375,7 @@ void loadsavescreen_TribeScreenActionCallback(aui_Control *control, uint32 actio
 			}
 		}
 
-		allocated::clear(s_tempSaveInfo);
+		s_tempSaveInfo.reset();
 	}
 
 	spnewgamediffscreen_Initialize(loadsavescreen_DifficultyScreenActionCallback);
@@ -552,7 +554,7 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 		}
 	}
 
-	allocated::clear(s_tempSaveInfo);
+	s_tempSaveInfo.reset();
 }
 
 void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
@@ -643,7 +645,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 
 
 		strlcpy(s_tempPath, path, sizeof(s_tempPath));
-		allocated::reassign(s_tempSaveInfo, new SaveInfo(saveInfo));
+		s_tempSaveInfo = std::make_unique<SaveInfo>(saveInfo);
 
 		if (s_tempSaveInfo->numPositions <= 3 || saveInfo->startInfoType == STARTINFOTYPE_NOLOCS)
 		{
@@ -809,7 +811,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 	g_loadsaveWindow->GetRadarMap(saveInfo);
 
 	// SAM021899 changed to make a save request
-	allocated::reassign(g_savedGameRequest, new SaveInfo(saveInfo));
+	allocated::reassign(g_savedGameRequest, std::make_unique<SaveInfo>(saveInfo).release());
 
 //	GameFile::SaveGame(saveInfo->pathName, saveInfo);
 }
@@ -922,7 +924,7 @@ void loadsavescreen_SaveMPGame()
 	g_loadsaveWindow->GetRadarMap(saveInfo);
 
 	// SAM021899 changed to make a save request
-	allocated::reassign(g_savedGameRequest, new SaveInfo(saveInfo));
+	allocated::reassign(g_savedGameRequest, std::make_unique<SaveInfo>(saveInfo).release());
 #endif
 
 //	GameFile::SaveGame(saveInfo->pathName, saveInfo);
@@ -1037,7 +1039,7 @@ void loadsavescreen_SaveSCENGame()
 	g_loadsaveWindow->GetRadarMap(saveInfo);
 
 	// SAM021899 changed to make a save request
-	allocated::reassign(g_savedGameRequest, new SaveInfo(saveInfo));
+	allocated::reassign(g_savedGameRequest, std::make_unique<SaveInfo>(saveInfo).release());
 
 //	GameFile::SaveGame(saveInfo->pathName, saveInfo);
 }
@@ -1381,7 +1383,7 @@ BOOL loadsavescreen_CheckOverwrite( )
     {
 		for
         (
-            PointerList<SaveInfo>::Walker walker = PointerList<SaveInfo>::Walker(gameInfo->files);
+            PointerList<SaveInfo>::Walker walker = PointerList<SaveInfo>::Walker(gameInfo->files.get());
             walker.IsValid();
             walker.Next()
         )

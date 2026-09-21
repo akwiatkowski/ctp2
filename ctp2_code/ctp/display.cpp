@@ -4,6 +4,9 @@
 
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "ctp/ctp2_utils/appstrings.h"
+#include "gs/utility/Globals.h"                    // allocated::clear
+
+#include <memory>
 
 #define COMPILE_MULTIMON_STUBS
 #include "ui/aui_sdl/aui_sdlcompat.h"
@@ -34,7 +37,7 @@ BOOL CALLBACK display_FindDeviceCallbackEx(GUID* lpGUID, LPSTR szName,
 {
 
 
-	DisplayDevice *p = new DisplayDevice;
+	auto p = std::make_unique<DisplayDevice>();
 
 	if (lpGUID)
 	{
@@ -50,7 +53,7 @@ BOOL CALLBACK display_FindDeviceCallbackEx(GUID* lpGUID, LPSTR szName,
 
 	p->hMon = hMonitor;
 
-	g_displayDevices->AddTail(p);
+	g_displayDevices->AddTail(p.release());
 
 	return TRUE;
 }
@@ -61,7 +64,7 @@ BOOL display_EnumerateDisplayDevices(void)
 	HMODULE hModule;
 	LPDIRECTDRAWENUMERATEEX pfnEnum;
 
-	g_displayDevices = new PointerList<DisplayDevice>;
+	g_displayDevices = std::make_unique<PointerList<DisplayDevice>>().release();
 
 	memset(&g_displayDevice, 0, sizeof(DisplayDevice));
 
@@ -105,11 +108,11 @@ HRESULT CALLBACK display_DisplayModeCallback(LPDDSURFACEDESC pdds, LPVOID lParam
 	}
 
 	if (bpp == 16 && legalSize) {
-		CTPDisplayMode *mode = new CTPDisplayMode;
+	auto mode = std::make_unique<CTPDisplayMode>();
 		mode->width = width;
 		mode->height = height;
 
-		g_displayModes->AddTail(mode);
+		g_displayModes->AddTail(mode.release());
 	}
 
     return S_FALSE;
@@ -118,7 +121,7 @@ HRESULT CALLBACK display_DisplayModeCallback(LPDDSURFACEDESC pdds, LPVOID lParam
 
 void display_EnumerateDisplayModes()
 {
-	g_displayModes = new PointerList<CTPDisplayMode>;
+	g_displayModes = std::make_unique<PointerList<CTPDisplayMode>>().release();
 
 	int numModes = 0;
 	SDL_DisplayMode **sdlModes = SDL_GetFullscreenDisplayModes(
@@ -144,11 +147,11 @@ void display_EnumerateDisplayModes()
 			{ 3840, 2160 },
 		};
 		for (auto s_commonMode : s_commonModes) {
-			CTPDisplayMode *mode = new CTPDisplayMode;
+			auto mode = std::make_unique<CTPDisplayMode>();
 			if (mode) {
 				mode->width  = s_commonMode.w;
 				mode->height = s_commonMode.h;
-				g_displayModes->AddTail(mode);
+				g_displayModes->AddTail(mode.release());
 			}
 		}
 		return;
@@ -182,14 +185,14 @@ void display_EnumerateDisplayModes()
 		if (alreadyAdded)
 			continue;
 
-		CTPDisplayMode *mode = new CTPDisplayMode;
+		auto mode = std::make_unique<CTPDisplayMode>();
 		if (!mode) {
 			SDL_free(sdlModes);
 			return;
 		}
 		mode->width = sdlMode.w;
 		mode->height = sdlMode.h;
-		g_displayModes->AddTail(mode);
+		g_displayModes->AddTail(mode.release());
 	}
 	SDL_free(sdlModes);
 
@@ -221,11 +224,11 @@ int display_Initialize(HINSTANCE hInstance, int iCmdShow)
 	// If user specified --resolution, add it to the list and use it
 	if (g_cmdlineResolutionSet && g_ScreenWidth > 0 && g_ScreenHeight > 0) {
 		if (!display_IsLegalResolution(g_ScreenWidth, g_ScreenHeight)) {
-			CTPDisplayMode *mode = new CTPDisplayMode;
+			auto mode = std::make_unique<CTPDisplayMode>();
 			if (mode) {
 				mode->width = g_ScreenWidth;
 				mode->height = g_ScreenHeight;
-				g_displayModes->AddTail(mode);
+				g_displayModes->AddTail(mode.release());
 			}
 		}
 	}
@@ -269,7 +272,6 @@ void display_Cleanup()
 {
 	if(g_displayModes) {
 		g_displayModes->DeleteAll();
-		delete g_displayModes;
-		g_displayModes = nullptr;
+		allocated::clear(g_displayModes);
 	}
 }

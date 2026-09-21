@@ -134,6 +134,7 @@ class MapPoint;
 #include "gs/gameobj/Unit.h"
 
 #include <nlohmann/json.hpp>
+#include <memory>
 
 class Cell {
 
@@ -162,10 +163,10 @@ private:
 // Changing the order below this line should not break anything.
 //----------------------------------------------------------------------------
 
-	CellUnitList *m_unit_army;
-	DynamicArray<ID> *m_objects;
+	std::unique_ptr<CellUnitList> m_unit_army;
+	std::unique_ptr<DynamicArray<ID>> m_objects;
 
-	GoodyHut *m_jabba;
+	std::unique_ptr<GoodyHut> m_jabba;
 
 public:
 

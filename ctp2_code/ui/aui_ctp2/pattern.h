@@ -5,6 +5,8 @@
 #define __PATTERN_H__
 
 #include "ui/aui_common/aui_image.h"
+#include <memory>
+
 
 
 class Pattern : public aui_Image
@@ -21,8 +23,8 @@ public:
 		MBCHAR const *filename = nullptr );
 	~Pattern() override;
 
-	aui_Image	*LightImage( ) const { return m_lightImage; }
-	aui_Image	*DarkImage( ) const { return m_darkImage; }
+	aui_Image	*LightImage( ) const { return m_lightImage.get(); }
+	aui_Image	*DarkImage( ) const { return m_darkImage.get(); }
 
 	AUI_ERRCODE Draw( aui_Surface *pDestSurf, RECT *pDestRect );
 
@@ -32,8 +34,8 @@ public:
 	AUI_ERRCODE DrawDither( aui_Surface *pDestSurf, RECT *pDestRect, BOOL flag, sint32 lighten, sint32 darken );
 
 protected:
-	aui_Image *m_lightImage;
-	aui_Image *m_darkImage;
+	std::unique_ptr<aui_Image> m_lightImage;
+	std::unique_ptr<aui_Image> m_darkImage;
 };
 
 #endif

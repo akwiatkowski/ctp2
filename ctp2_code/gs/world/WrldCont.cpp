@@ -30,6 +30,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "gs/world/World.h"
 
 #include "gs/world/Cell.h"
@@ -105,7 +107,7 @@ void World::NumberContinents()
         Old_Cont_Node * del_me = g_tunnel_list;
         g_tunnel_list = g_tunnel_list->m_next;
         GetCell(del_me->m_pos)->SetContinent((sint16)del_me->m_old_cont);
-        delete del_me;
+        std::unique_ptr<Old_Cont_Node>{del_me};
     }
 
     FindContinentNeighbors();
@@ -192,7 +194,7 @@ void World::GrowWater(MapPoint const & start)
         MapPointNode * ptr = finished_list;
         finished_list = finished_list->next;
         GetCell(ptr->pos)->SetContinent(m_water_continent_max);
-        delete ptr;
+        std::unique_ptr<MapPointNode>{ptr};
     }
 
     m_water_continent_max++;
@@ -208,7 +210,7 @@ void World::AddToWaterSearch
 {
     if (IsNewWater(pos))
     {
-        search_list = new MapPointNode(pos, search_list);
+        search_list = std::make_unique<MapPointNode>(pos, search_list).release();
         GetCell(pos)->SetContinent(SEARCHING_CONTINENT);
     }
 }
@@ -259,7 +261,7 @@ void World::ResetCanalsTunnels()
     {
         Old_Cont_Node * oldFirst    = g_tunnel_list;
         g_tunnel_list               = g_tunnel_list->m_next;
-        delete oldFirst;
+        std::unique_ptr<Old_Cont_Node>{oldFirst};
     }
 
     MapPoint pos;
@@ -278,7 +280,7 @@ void World::ResetCanalsTunnels()
                    sint32  old_cont_val = c->GetContinent();
                    if ((0 <= old_cont_val) && IsWater(pos))
                    {
-                       g_tunnel_list = new Old_Cont_Node(pos, g_tunnel_list, old_cont_val);
+                       g_tunnel_list = std::make_unique<Old_Cont_Node>(pos, g_tunnel_list, old_cont_val).release();
                    }
 
                    c->SetContinent(INVALID_CONTINENT);
@@ -372,7 +374,7 @@ void World::GrowLand(MapPoint const & start)
         finished_list = finished_list->next;
 
         GetCell(ptr->pos)->SetContinent(m_land_continent_max);
-        delete ptr;
+        std::unique_ptr<MapPointNode>{ptr};
     }
 
     m_land_continent_max++;
@@ -387,7 +389,7 @@ void World::AddToLandSearch
 {
     if (IsNewLand(pos))
     {
-        search_list = new MapPointNode(pos, search_list);
+        search_list = std::make_unique<MapPointNode>(pos, search_list).release();
         GetCell(pos)->SetContinent(SEARCHING_CONTINENT);
     }
 }

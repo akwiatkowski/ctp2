@@ -54,6 +54,7 @@
 #include "gs/utility/TurnCnt.h"            // turn_Get()
 #include "gs/utility/Globals.h"
 #include <vector>
+#include <memory>
 
 
 namespace
@@ -103,7 +104,7 @@ SlicObject::SlicObject(char const * id)
 	m_seconds               (1),
 	m_recipientList         (nullptr),
 	m_numRecipients         (0),
-	m_request               (new ID),
+	m_request               (std::make_unique<ID>()),
 	m_defaultAdvanceSet     (FALSE),
 	m_defaultAdvance        (INDEX_INVALID),
 	m_aborted               (FALSE),
@@ -118,7 +119,7 @@ SlicObject::SlicObject(char const * id)
 	m_argList               (nullptr)
 {
 	m_segment   = slicengine_Get()->GetSegment(m_id.c_str());
-	m_frame     = new SlicFrame(m_segment);
+	m_frame     = std::make_unique<SlicFrame>(m_segment);
 
     if (m_segment && !m_segment->IsHelp())
     {
@@ -132,11 +133,11 @@ SlicObject::SlicObject(SlicSegment *segment)
     m_refCount              (0),
     m_id                    ((segment && segment->GetName()) ? segment->GetName() : ""),
 	m_segment               (segment),
-	m_frame                 (new SlicFrame(segment)),
+	m_frame                 (std::make_unique<SlicFrame>(segment)),
 	m_seconds               (1),
 	m_recipientList         (nullptr),
 	m_numRecipients         (0),
-	m_request               (new ID),
+	m_request               (std::make_unique<ID>()),
 	m_defaultAdvanceSet     (FALSE),
 	m_defaultAdvance        (INDEX_INVALID),
 	m_aborted               (FALSE),
@@ -162,7 +163,7 @@ SlicObject::SlicObject(SlicSegment * segment, SlicObject * copy)
     m_refCount              (0),
     m_id                    ((segment && segment->GetName()) ? segment->GetName() : ""),
 	m_segment               (segment),
-	m_frame                 (new SlicFrame(segment)),
+	m_frame                 (std::make_unique<SlicFrame>(segment)),
 	m_seconds               (1),
 	m_recipientList         (nullptr),
 	m_numRecipients         (0),
@@ -180,7 +181,7 @@ SlicObject::SlicObject(SlicSegment * segment, SlicObject * copy)
 	m_result                (0),
 	m_argList               (nullptr)
 {
-	m_request               = new ID(*copy->m_request);
+	m_request               = std::make_unique<ID>(*copy->m_request);
 }
 
 SlicObject::SlicObject(char const * id, SlicContext *copy)
@@ -193,7 +194,7 @@ SlicObject::SlicObject(char const * id, SlicContext *copy)
 	m_seconds               (1),
 	m_recipientList         (nullptr),
 	m_numRecipients         (0),
-	m_request               (new ID),
+	m_request               (std::make_unique<ID>()),
 	m_defaultAdvanceSet     (FALSE),
 	m_defaultAdvance        (INDEX_INVALID),
 	m_aborted               (FALSE),
@@ -208,7 +209,7 @@ SlicObject::SlicObject(char const * id, SlicContext *copy)
 	m_argList               (nullptr)
 {
 	m_segment   = slicengine_Get()->GetSegment(m_id.c_str());
-	m_frame     = new SlicFrame(m_segment);
+	m_frame     = std::make_unique<SlicFrame>(m_segment);
 	if (m_segment && !m_segment->IsHelp())
     {
 		m_class = k_NON_TUTORIAL_MESSAGE_CLASS;
@@ -217,9 +218,7 @@ SlicObject::SlicObject(char const * id, SlicContext *copy)
 
 SlicObject::~SlicObject()
 {
-	delete [] m_recipientList;
-	delete m_frame;
-	delete m_request;
+	// m_recipientList / m_frame / m_request are unique_ptr — free themselves
 }
 
 sint32 SlicObject::AddRef()
@@ -247,7 +246,7 @@ bool SlicObject::IsValid() const
 
 void SlicObject::AddRecipient(const PLAYER_INDEX recip)
 {
-	m_recipientList = Expand(m_recipientList, m_numRecipients);
+	Expand(m_recipientList, m_numRecipients);
 	m_recipientList[m_numRecipients++] = recip;
 }
 
@@ -255,7 +254,7 @@ void SlicObject::AddAllRecipients()
 {
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
 		if(player_Get(i) && (!player_Get(i)->m_isDead)) {
-			m_recipientList = Expand(m_recipientList, m_numRecipients);
+			Expand(m_recipientList, m_numRecipients);
 			m_recipientList[m_numRecipients++] = i;
 		}
 	}
@@ -266,7 +265,7 @@ void SlicObject::AddAllRecipientsBut(PLAYER_INDEX loser1, PLAYER_INDEX loser2)
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
 		if(player_Get(i) && (!player_Get(i)->m_isDead) &&
            (i != loser1) && (i != loser2)) {
-			m_recipientList = Expand(m_recipientList, m_numRecipients);
+			Expand(m_recipientList, m_numRecipients);
 			m_recipientList[m_numRecipients++] = i;
 		}
 	}
@@ -288,7 +287,7 @@ void SlicObject::Execute()
 		return;
 
 	if(!m_frame) {
-		m_frame = new SlicFrame(m_segment);
+		m_frame = std::make_unique<SlicFrame>(m_segment);
 	}
 
 	if(m_segment->GetType() == SLIC_OBJECT_MESSAGEBOX) {
@@ -348,10 +347,10 @@ void SlicObject::Finish()
 			}
 
 			Message newMessage(messagepool_Get()->NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
-			MessageData * newData = new MessageData(newMessage, messageData);
+			auto newData = std::make_unique<MessageData>(newMessage, messageData);
 			newData->SetOwner(0);
 			newData->SetSlicSegment(m_segment);
-			messagepool_Get()->Insert(newData);
+			messagepool_Get()->Insert(newData.release());
 
 			if(newMessage.IsAlertBox()) {
 				gameobservers_Get()->NotifyRequestModalMessage(newMessage);
@@ -542,8 +541,7 @@ bool SlicObject::ConcernsPlayer(PLAYER_INDEX player) const
 
 void SlicObject::SetFrame(SlicFrame *frame)
 {
-	delete m_frame;
-	m_frame = frame;
+	m_frame.reset(frame);
 }
 
 void SlicObject::Continue()

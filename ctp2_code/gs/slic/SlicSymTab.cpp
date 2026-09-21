@@ -8,15 +8,12 @@ SlicSymTab::SlicSymTab(sint32 size) :
 	m_arraySize = m_numEntries = size;
 	if(m_arraySize == 0)
 		m_arraySize = 1;
-	m_array = new SlicNamedSymbol *[m_arraySize];
-	for(sint32 i = 0; i < m_arraySize; i++) {
-		m_array[i] = nullptr;
-	}
+	m_array = std::make_unique<SlicNamedSymbol *[]>(m_arraySize);   // value-init → all null
 }
 
 SlicSymTab::~SlicSymTab()
 {
-	delete [] m_array;
+	// m_array is unique_ptr — frees itself
 }
 
 void SlicSymTab::PostSerialize()
@@ -33,10 +30,9 @@ void SlicSymTab::Add(SlicNamedSymbol *sym)
 	StringHash<SlicNamedSymbol>::Add(sym);
 
 	if(m_numEntries >= m_arraySize) {
-		SlicNamedSymbol **newArray = new SlicNamedSymbol *[m_arraySize * 2];
-		memcpy(newArray, m_array, m_arraySize * sizeof(SlicNamedSymbol *));
-		delete [] m_array;
-		m_array = newArray;
+		auto newArray = std::make_unique<SlicNamedSymbol *[]>(m_arraySize * 2);
+		memcpy(newArray.get(), m_array.get(), m_arraySize * sizeof(SlicNamedSymbol *));
+		m_array = std::move(newArray);
 		m_arraySize *= 2;
 	}
 	sym->SetIndex(m_numEntries);
@@ -76,9 +72,8 @@ void SlicSymTab::Resize(sint32 num)
 	m_numEntries = num;
 	if(num <= m_arraySize)
 		return;
-	SlicNamedSymbol **oldarray = m_array;
-	m_array = new SlicNamedSymbol*[num];
-	memcpy(m_array, oldarray, m_arraySize * sizeof (SlicNamedSymbol *));
-	delete [] oldarray;
+	auto newArray = std::make_unique<SlicNamedSymbol *[]>(num);
+	memcpy(newArray.get(), m_array.get(), m_arraySize * sizeof (SlicNamedSymbol *));
+	m_array = std::move(newArray);
 	m_arraySize = num;
 }

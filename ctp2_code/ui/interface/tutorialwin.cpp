@@ -30,6 +30,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -61,10 +63,10 @@
 
 
 
-static TutorialWin	*g_tutorialWin = nullptr;
+static std::unique_ptr<TutorialWin>	g_tutorialWin;
 
-TutorialWin * tutorialwin_Get()           { return g_tutorialWin; }
-void          tutorialwin_Set(TutorialWin *p) { g_tutorialWin = p; }
+TutorialWin * tutorialwin_Get()           { return g_tutorialWin.get(); }
+void          tutorialwin_Set(TutorialWin *p) { g_tutorialWin.reset(p); }
 
 
 
@@ -132,14 +134,14 @@ sint32 tutorialwin_Initialize( )
 		return 0;
 	}
 
-	g_tutorialWin = new TutorialWin();
+	g_tutorialWin = std::make_unique<TutorialWin>();
 
 	return 0;
 }
 
 sint32 tutorialwin_Cleanup( )
 {
-	DeleteControl( g_tutorialWin );
+	g_tutorialWin.reset();
 
 	return 0;
 }
@@ -151,7 +153,7 @@ TutorialWin::TutorialWin( )
 
 	strlcpy(windowBlock,"TutorialWin", sizeof(windowBlock));
 
-	m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING );
+	m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING );
 	Assert( AUI_NEWOK(m_window, errcode) );
 	if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -172,25 +174,25 @@ sint32 TutorialWin::Initialize( MBCHAR *windowBlock )
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "List" );
-	m_list = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, tutorialwin_ListCallback, nullptr );
+	m_list = std::make_unique<c3_ListBox>( &errcode, aui_UniqueId(), controlBlock, tutorialwin_ListCallback, nullptr );
 	TestControl( m_list );
 	m_list->Hide();
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleButton" );
-	m_titleButton = new c3_Switch( &errcode, aui_UniqueId(), controlBlock, tutorialwin_SwitchCallback );
+	m_titleButton = std::make_unique<c3_Switch>( &errcode, aui_UniqueId(), controlBlock, tutorialwin_SwitchCallback );
 	TestControl( m_titleButton );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "EndButton" );
-	m_endButton = new c3_Button( &errcode, aui_UniqueId(), controlBlock, tutorialwin_ButtonCallback );
+	m_endButton = std::make_unique<c3_Button>( &errcode, aui_UniqueId(), controlBlock, tutorialwin_ButtonCallback );
 	TestControl( m_endButton );
 	m_endButton->Hide();
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton" );
-	m_exitButton = new c3_Button( &errcode, aui_UniqueId(), controlBlock, tutorialwin_ButtonCallback );
+	m_exitButton = std::make_unique<c3_Button>( &errcode, aui_UniqueId(), controlBlock, tutorialwin_ButtonCallback );
 	TestControl( m_exitButton );
 
 	snprintf(controlBlock, sizeof(controlBlock), "TutorialWinStrings" );
-	m_string = new aui_StringTable( &errcode, controlBlock );
+	m_string = std::make_unique<aui_StringTable>( &errcode, controlBlock );
 	TestControl( m_string );
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
@@ -203,18 +205,19 @@ TutorialWin::~TutorialWin( )
 {
 	Remove();
 
-	DeleteControl( m_list );
-	DeleteControl( m_titleButton );
-	DeleteControl( m_endButton );
-	DeleteControl( m_exitButton );
-	DeleteControl( m_string );
+	// unique_ptr members; reset in the original explicit order.
+	m_list.reset();
+	m_titleButton.reset();
+	m_endButton.reset();
+	m_exitButton.reset();
+	m_string.reset();
 
-	DeleteControl( m_window );
+	m_window.reset();
 }
 
 void TutorialWin::Display( )
 {
-	AUI_ERRCODE errcode = c3ui_Get()->AddWindow( m_window );
+	AUI_ERRCODE errcode = c3ui_Get()->AddWindow( m_window.get() );
 	Assert( errcode == AUI_ERRCODE_OK );
 
 
@@ -242,16 +245,16 @@ sint32 TutorialWin::UpdateData( )
 	m_list->Clear();
 
 	snprintf(ldlBlock, sizeof(ldlBlock), "TutorialListItem" );
-	SingleListItem *item;
+	std::unique_ptr<SingleListItem> item;
 
 	PointerList<SlicRecord>::Walker walk(recordList);
 
 	while(walk.IsValid()) {
 		strlcpy( title, walk.GetObj()->GetTitle(), sizeof(title) );
-		item = new SingleListItem( &errcode, title, i++, ldlBlock );
+		item = std::make_unique<SingleListItem>( &errcode, title, i++, ldlBlock );
 		TestControl( item );
 
-		m_list->AddItem( (c3_ListItem *)item );
+		m_list->AddItem( (c3_ListItem *)item.release() );
 
 		walk.Next();
 	}
@@ -269,19 +272,17 @@ sint32 TutorialWin::AddToList( MBCHAR *text, sint32 index )
 	if ( !recordList ) return -1;
 
 	snprintf(ldlBlock, sizeof(ldlBlock), "TutorialListItem" );
-	SingleListItem *item;
-
-	item = new SingleListItem( &errcode, text, index, ldlBlock );
+	auto item = std::make_unique<SingleListItem>( &errcode, text, index, ldlBlock );
 	TestControl( item );
 
-	m_list->AddItem( (c3_ListItem *)item );
+	m_list->AddItem( (c3_ListItem *)item.release() );
 
 	return 0;
 }
 
 sint32 TutorialWin::HandleSwitch( c3_Switch *button )
 {
-	if ( button == m_titleButton ) {
+	if ( button == m_titleButton.get() ) {
 		m_minimized = !m_minimized;
 		if ( !button->IsOn() ) {
 			m_window->Resize( m_window->Width(), k_MINIMIZED_HEIGHT );
@@ -300,10 +301,10 @@ sint32 TutorialWin::HandleSwitch( c3_Switch *button )
 
 sint32 TutorialWin::HandleButton( c3_Button *button )
 {
-	if ( button == m_endButton ) {
+	if ( button == m_endButton.get() ) {
 		c3_TextMessage( m_string->GetString(0), k_UTILITY_TEXTMESSAGE_YESNO, tutorialwin_DialogCallback );
 	}
-	else if ( button == m_exitButton ) {
+	else if ( button == m_exitButton.get() ) {
 		if ( m_titleButton->IsOn() ) {
 			m_titleButton->SetState( 0 );
 		}

@@ -83,7 +83,7 @@
 
 
 static MBCHAR const           *s_dipWindowBlock = "DiplomacyWindow";
-static DiplomacyWindow        *s_dipWindow;
+static std::unique_ptr<DiplomacyWindow> s_dipWindow;
 
 static MBCHAR                 *k_DIP_WINDOW_ATTRACT_BUTTON = const_cast<MBCHAR *>("ControlPanelWindow.ControlPanel.ShortcutPad.DiplomacyButton");
 
@@ -119,8 +119,8 @@ DiplomacyWindow::DiplomacyWindow(AUI_ERRCODE *err)
 	m_create_mode = DW_CREATE_MODE_NONE;
 	m_sendToCiv = -1;
 	m_sendTone = DIPLOMATIC_TONE(sint32(DIPLOMATIC_TONE_MAX) / 2);
-	m_curMenu = nullptr;
-	m_threatMenu = nullptr;
+	m_curMenu.reset();
+	m_threatMenu.reset();
 	m_getRequest = true;
 	m_sendCounter = false;
 	m_selectingProgramatically = false;
@@ -220,15 +220,9 @@ DiplomacyWindow::~DiplomacyWindow()
 		m_percentRequestWindow = nullptr;
 	}
 
-	if(m_curMenu) {
-		delete m_curMenu;
-		m_curMenu = nullptr;
-	}
+	m_curMenu.reset();
 
-	if(m_threatMenu) {
-		delete m_threatMenu;
-		m_threatMenu = nullptr;
-	}
+	m_threatMenu.reset();
 }
 
 AUI_ERRCODE DiplomacyWindow::Initialize()
@@ -238,7 +232,7 @@ AUI_ERRCODE DiplomacyWindow::Initialize()
 		return AUI_ERRCODE_OK;
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	s_dipWindow = new DiplomacyWindow(&err);
+	s_dipWindow = std::make_unique<DiplomacyWindow>(&err);
 
 	Assert(err == AUI_ERRCODE_OK);
 
@@ -250,8 +244,7 @@ AUI_ERRCODE DiplomacyWindow::Cleanup()
 	if(s_dipWindow) {
 		Hide();
 
-		delete s_dipWindow;
-		s_dipWindow = nullptr;
+		s_dipWindow.reset();
 	}
 	return AUI_ERRCODE_OK;
 }
@@ -2283,7 +2276,7 @@ bool DiplomacyWindow::ProposalContextMenu(sint32 proposal)
 	Assert(!m_curMenu);
 	
 
-		delete m_curMenu;
+		m_curMenu.reset();
 	
 
 	const DiplomacyProposalRecord *rec = g_theDiplomacyProposalDB->Get(proposal);
@@ -2292,13 +2285,13 @@ bool DiplomacyWindow::ProposalContextMenu(sint32 proposal)
 		return false;
 
 	bool needItems = true;
-	m_curMenu = new ctp2_Menu(true, DiplomacyWindow::MenuCallback);
+	m_curMenu = std::make_unique<ctp2_Menu>(true, DiplomacyWindow::MenuCallback);
 	switch(rec->GetArg1()) {
 		case k_DiplomacyProposal_Arg1_OwnCity_Bit:
-			AddCityItems(m_curMenu, selitem_Get()->GetVisiblePlayer());
+			AddCityItems(m_curMenu.get(), selitem_Get()->GetVisiblePlayer());
 			break;
 		case k_DiplomacyProposal_Arg1_HisCity_Bit:
-			AddCityItems(m_curMenu, m_sendToCiv);
+			AddCityItems(m_curMenu.get(), m_sendToCiv);
 			break;
 		case k_DiplomacyProposal_Arg1_OwnArmy_Bit:
 
@@ -2310,10 +2303,10 @@ bool DiplomacyWindow::ProposalContextMenu(sint32 proposal)
 
 			break;
 		case k_DiplomacyProposal_Arg1_OwnAdvance_Bit:
-			AddAdvanceItems(m_curMenu, selitem_Get()->GetVisiblePlayer(), m_sendToCiv);
+			AddAdvanceItems(m_curMenu.get(), selitem_Get()->GetVisiblePlayer(), m_sendToCiv);
 			break;
 		case k_DiplomacyProposal_Arg1_HisAdvance_Bit:
-			AddAdvanceItems(m_curMenu, m_sendToCiv, selitem_Get()->GetVisiblePlayer());
+			AddAdvanceItems(m_curMenu.get(), m_sendToCiv, selitem_Get()->GetVisiblePlayer());
 			break;
 
 
@@ -2372,7 +2365,7 @@ bool DiplomacyWindow::ProposalContextMenu(sint32 proposal)
 			needItems = false;
 			break;
 		case k_DiplomacyProposal_Arg1_ThirdParty_Bit:
-			AddThirdPartyItems(m_curMenu, selitem_Get()->GetVisiblePlayer(), m_sendToCiv);
+			AddThirdPartyItems(m_curMenu.get(), selitem_Get()->GetVisiblePlayer(), m_sendToCiv);
 			break;
 		default:
 
@@ -2382,8 +2375,7 @@ bool DiplomacyWindow::ProposalContextMenu(sint32 proposal)
 	}
 
 	if(m_curMenu->GetNumItems() < 1) {
-		delete m_curMenu;
-		m_curMenu = nullptr;
+		m_curMenu.reset();
 		if(needItems) {
 
 			return false;
@@ -2462,8 +2454,8 @@ void DiplomacyWindow::MenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sin
 	if(!s_dipWindow)
 		return;
 
-	Assert(menu == s_dipWindow->m_curMenu);
-	if(menu != s_dipWindow->m_curMenu)
+	Assert(menu == s_dipWindow->m_curMenu.get());
+	if(menu != s_dipWindow->m_curMenu.get())
 		return;
 
 	if(action == CTP2_MENU_ACTION_SELECT) {
@@ -2472,8 +2464,7 @@ void DiplomacyWindow::MenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sin
 		s_dipWindow->ProcessMenuCancel();
 	}
 
-	delete s_dipWindow->m_curMenu;
-	s_dipWindow->m_curMenu = nullptr;
+	s_dipWindow->m_curMenu.reset();
 }
 
 void DiplomacyWindow::GoldSpinner(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -2723,7 +2714,7 @@ bool DiplomacyWindow::ThreatContextMenu(sint32 threat)
 	Assert(!m_threatMenu);
 	
 
-		delete m_threatMenu;
+		m_threatMenu.reset();
 	
 
 	const DiplomacyThreatRecord *rec = g_theDiplomacyThreatDB->Get(threat);
@@ -2732,14 +2723,14 @@ bool DiplomacyWindow::ThreatContextMenu(sint32 threat)
 		return false;
 
 	bool needItems = true;
-	m_threatMenu = new ctp2_Menu(true, DiplomacyWindow::ThreatMenuCallback);
+	m_threatMenu = std::make_unique<ctp2_Menu>(true, DiplomacyWindow::ThreatMenuCallback);
 	switch(rec->GetArg1()) {
 		case k_DiplomacyThreat_Arg1_HisCity_Bit:
 		case k_DiplomacyThreat_Arg1_SpecialAttack_Bit:
-			AddCityItems(m_threatMenu, m_viewResponseReceiver);
+			AddCityItems(m_threatMenu.get(), m_viewResponseReceiver);
 			break;
 		case k_DiplomacyThreat_Arg1_ThirdParty_Bit:
-			AddThirdPartyItems(m_threatMenu, selitem_Get()->GetVisiblePlayer(), m_viewResponseReceiver);
+			AddThirdPartyItems(m_threatMenu.get(), selitem_Get()->GetVisiblePlayer(), m_viewResponseReceiver);
 			break;
 		default:
 			needItems = false;
@@ -2747,8 +2738,7 @@ bool DiplomacyWindow::ThreatContextMenu(sint32 threat)
 	}
 
 	if(m_threatMenu->GetNumItems() < 1) {
-		delete m_threatMenu;
-		m_threatMenu = nullptr;
+		m_threatMenu.reset();
 
 		if(needItems) {
 			return false;
@@ -2803,7 +2793,7 @@ void DiplomacyWindow::ThreatMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION actio
 	if(!lb)
 		return;
 
-	Assert(s_dipWindow->m_threatMenu && (s_dipWindow->m_threatMenu == menu));
+	Assert(s_dipWindow->m_threatMenu && (s_dipWindow->m_threatMenu.get() == menu));
 	if(s_dipWindow->m_threatMenu) {
 		if(action == CTP2_MENU_ACTION_CANCEL) {
 			s_dipWindow->m_sendThreat = sint32(THREAT_NONE);
@@ -2835,8 +2825,7 @@ void DiplomacyWindow::ThreatMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION actio
 			}
 		}
 
-		delete s_dipWindow->m_threatMenu;
-		s_dipWindow->m_threatMenu = nullptr;
+		s_dipWindow->m_threatMenu.reset();
 		s_dipWindow->Update();
 	}
 }

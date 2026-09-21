@@ -135,21 +135,21 @@ AUI_ERRCODE C3Spinner::CreateButtons( )
 
 	if ( m_isVertical )
 	{
-		m_incYButton = new TextButton( &errcode,
+		m_incYButton = std::make_unique<TextButton>( &errcode,
 			aui_UniqueId(), 0, 0, 0, 0, m_pattern->GetFilename(), "v", RangerButtonActionCallback, this );
-	    AddChild(m_incYButton);
-		m_decYButton = new TextButton( &errcode,
+	    AddChild(m_incYButton.get());
+		m_decYButton = std::make_unique<TextButton>( &errcode,
 			aui_UniqueId(), 0, 0, 0, 0, m_pattern->GetFilename(), "^", RangerButtonActionCallback, this );
-	    AddChild(m_decYButton);
+	    AddChild(m_decYButton.get());
 	}
 	else
 	{
-		m_incXButton = new TextButton( &errcode,
+		m_incXButton = std::make_unique<TextButton>( &errcode,
 			aui_UniqueId(), 0, 0, 0, 0, m_pattern->GetFilename(), ">", RangerButtonActionCallback, this );
-	    AddChild(m_incXButton);
-		m_decXButton = new TextButton( &errcode,
+	    AddChild(m_incXButton.get());
+		m_decXButton = std::make_unique<TextButton>( &errcode,
 			aui_UniqueId(), 0, 0, 0, 0, m_pattern->GetFilename(), "<", RangerButtonActionCallback, this );
-	    AddChild(m_decXButton);
+	    AddChild(m_decXButton.get());
 	}
 
 	RepositionButtons();

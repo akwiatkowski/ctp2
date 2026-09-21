@@ -13,6 +13,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <list>
+#include <memory>
 
 #ifdef USE_SDL
 #include "ui/aui_sdl/aui_sdlcompat.h"
@@ -158,7 +159,7 @@ public:
     {
 		for (typename List<T>::iterator i = this->begin(); i != this->end(); ++i)
         {
-			delete *i;
+			std::unique_ptr<T>( *i ).reset();
         }
 
 		this->clear();
@@ -175,8 +176,7 @@ public:
 		}
         else
         {
-			memcpy(*i, t, sizeof(T));
-			delete t;
+			std::unique_ptr<T>( t ).reset();
 			return *i;
 		}
 	}
@@ -187,7 +187,7 @@ public:
 
 		if (i != this->end())
         {
-			delete *i;
+			std::unique_ptr<T>( *i ).reset();
 			this->erase(i);
 		}
 	}
@@ -198,9 +198,9 @@ public:
 
 		if (i == this->end())
         {
-			T *n = new T(*t);
-			this->push_back(n);
-			return n;
+			auto n = std::make_unique<T>(*t);
+			this->push_back(n.get());
+			return n.release();
 		}
         else
         {
@@ -220,7 +220,7 @@ public:
         {
 			for (typename List<T>::iterator i = l->begin(); i != l->end(); ++i)
             {
-				Add(new T(**i));
+				Add(std::make_unique<T>(**i).release());
             }
         }
 	}
@@ -239,7 +239,7 @@ friend class NETFunc;
 	dpid_t sender;
 	size_t size;
 
-	bool newbody;
+	std::unique_ptr<char[]> bodyOwner;
 #define nf_PACKET_INITIALBYTE 'n'
 #define ns_PACKET_INITIALBYTE 's'
 public:
@@ -294,6 +294,9 @@ public:
 	Message();
 
 	Message(void *p, size_t s, dpid_t id, bool b = true);
+
+	Message(Message &&) = default;
+	Message &operator=(Message &&) = default;
 
 	virtual ~Message();
 
@@ -556,8 +559,8 @@ public:
 
 
 class Contact:public Key {
-	char	*name;
-	char	*number;
+	std::unique_ptr<char[]>	name;
+	std::unique_ptr<char[]>	number;
 public:
 
 	Contact(char *n, char *p);
@@ -687,6 +690,8 @@ public:
 class TransportSetup {
 	dp_transport_t		transport;
 	commInitReq_t		parameters;
+	std::unique_ptr<char[]> m_modeminit;
+	std::unique_ptr<char[]> m_phonenum;
 
 	STATUS status;
 	Transport::TYPE type;
@@ -704,7 +709,7 @@ public:
 
 	commInitReq_t		*GetParams();
 };
-static TransportSetup *transport;
+static std::unique_ptr<TransportSetup> transport;
 friend class TransportSetup;
 
 
@@ -837,7 +842,7 @@ public:
 
 	bool Handle(dp_t *p, Message *m, dpid_t from = dp_ID_BROADCAST);
 };
-AIPlayers *aiPlayers;
+std::unique_ptr<AIPlayers> aiPlayers;
 friend class AIPlayers;
 
 class Players;
@@ -976,7 +981,7 @@ public:
 
 	bool Handle(dp_t *p, Message *m, dpid_t from = dp_ID_BROADCAST);
 };
-PlayerStats *playerStats;
+std::unique_ptr<PlayerStats> playerStats;
 friend class PlayerStats;
 
 
@@ -1146,7 +1151,7 @@ class PlayerList {
 		void Change(Player *) override {};
 		void Destroy() override {};
 	};
-	static Players *players;
+	static std::unique_ptr<Players> players;
 	static int count;
 
 	PlayerList();

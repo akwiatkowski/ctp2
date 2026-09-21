@@ -32,6 +32,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include "ctp/c3.h"
 #include "gs/newdb/DBLexer.h"
 #include "gs/slic/StringHash.h"
@@ -69,7 +70,7 @@ DBToken::~DBToken()
 DBLexer::DBLexer(const C3DIR & c3dir, const char *file)
 {
 
-	m_tokenHash = new StringHash<DBToken>(SIZE_HASH_TABLE);
+	m_tokenHash = std::make_unique<StringHash<DBToken>>(SIZE_HASH_TABLE);
 
 	strlcpy(m_filename, file, sizeof(m_filename));
 	m_file = c3files_fopen(c3dir, m_filename, "r");
@@ -81,7 +82,7 @@ DBLexer::DBLexer(const C3DIR & c3dir, const char *file)
 	}
 
 	m_atEnd = false;
-	m_customTokenStack = new PointerList<DBCustomTokens>;
+	m_customTokenStack = std::make_unique<PointerList<DBCustomTokens>>();
 	sint32 i;
 	for(i = 0; i < k_TOKEN_HISTORY_SIZE; i++) {
 		m_tokenText[i][0] = 0;
@@ -98,11 +99,11 @@ DBLexer::DBLexer(const C3DIR & c3dir, const char *file)
 
 DBLexer::~DBLexer()
 {
-	delete m_tokenHash;
+	m_tokenHash.reset();
 
 	if(m_customTokenStack) {
 		m_customTokenStack->DeleteAll();
-		delete m_customTokenStack;
+		m_customTokenStack.reset();
 	}
 
 	if (m_file)
@@ -119,36 +120,35 @@ void DBLexer::SetTokens(const char **tokens, sint32 maxToken)
 		return;
 
 
-	DBCustomTokens *cust = new DBCustomTokens(tokens, maxToken - k_Token_Custom_Base);
-	m_customTokenStack->AddTail(cust);
+	m_customTokenStack->AddTail(std::make_unique<DBCustomTokens>(tokens, maxToken - k_Token_Custom_Base).release());
+	DBCustomTokens *cust = m_customTokenStack->GetTail();
 
 
-	delete m_tokenHash;
-	m_tokenHash = new StringHash<DBToken>(SIZE_HASH_TABLE);
+	m_tokenHash.reset();
+	m_tokenHash = std::make_unique<StringHash<DBToken>>(SIZE_HASH_TABLE);
 
 
 	sint32 i;
 	for(i = 0; i < cust->m_numTokens; i++) {
-		m_tokenHash->Add(new DBToken(cust->m_tokens[i], k_Token_Custom_Base + i));
+		m_tokenHash->Add(std::make_unique<DBToken>(cust->m_tokens[i], k_Token_Custom_Base + i).release());
 	}
 }
 
 void DBLexer::RestoreTokens()
 {
 
-	delete m_tokenHash;
-	m_tokenHash = new StringHash<DBToken>(SIZE_HASH_TABLE);
+	m_tokenHash.reset();
+	m_tokenHash = std::make_unique<StringHash<DBToken>>(SIZE_HASH_TABLE);
 
-	DBCustomTokens *old = m_customTokenStack->RemoveTail();
+	std::unique_ptr<DBCustomTokens> old{m_customTokenStack->RemoveTail()};
 	Assert(old);
-	delete old;
 
 	if(m_customTokenStack->GetTail()) {
 		DBCustomTokens *cust = m_customTokenStack->GetTail();
 
 		sint32 i;
 		for(i = 0; i < cust->m_numTokens; i++) {
-			m_tokenHash->Add(new DBToken(cust->m_tokens[i], k_Token_Custom_Base + i));
+			m_tokenHash->Add(std::make_unique<DBToken>(cust->m_tokens[i], k_Token_Custom_Base + i).release());
 		}
 	}
 }
@@ -294,8 +294,8 @@ bool DBLexer::GetFileAssignment(char *&filename)
 	std::string temp;
 	bool result = GetFileAssignment(temp);
 	if (result) {
-		delete [] filename;
-		filename = new char[temp.size() + 1];
+		std::unique_ptr<char[]>{filename};
+		filename = std::make_unique<char[]>(temp.size() + 1).release();
 		strlcpy(filename, temp.c_str(), temp.size() + 1);
 	}
 	return result;
@@ -316,8 +316,8 @@ bool DBLexer::GetFile(char *&filename)
 	std::string temp;
 	bool result = GetFile(temp);
 	if (result) {
-		delete [] filename;
-		filename = new char[temp.size() + 1];
+		std::unique_ptr<char[]>{filename};
+		filename = std::make_unique<char[]>(temp.size() + 1).release();
 		strlcpy(filename, temp.c_str(), temp.size() + 1);
 	}
 	return result;

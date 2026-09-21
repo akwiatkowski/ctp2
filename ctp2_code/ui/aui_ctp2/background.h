@@ -37,6 +37,7 @@
 #define __BACKGROUND_H__
 
 #include "ui/aui_common/aui_window.h"
+#include <memory>
 #include "gs/world/MapPoint.h"
 
 
@@ -70,8 +71,7 @@ public:
             m_current_mouse_tile.Set(-1,-1);
 #ifdef __USING_SPANS__
 
-			if ( m_dirtyList ) delete m_dirtyList;
-			m_dirtyList = new aui_DirtyList( TRUE, width, height );
+			m_dirtyList = std::make_unique<aui_DirtyList>( TRUE, width, height );
 #endif
         }
 

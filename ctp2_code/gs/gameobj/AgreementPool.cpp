@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/Advances.h"
@@ -27,11 +28,9 @@ AgreementPool::AgreementPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_AGREEMENT)
 
 Agreement AgreementPool::Create(PLAYER_INDEX owner, PLAYER_INDEX recipient, AGREEMENT_TYPE request)
 	{
-	AgreementData* newData;
-	Agreement newAgreement(NewKey(k_BIT_GAME_OBJ_TYPE_AGREEMENT));
-
-	newData = new AgreementData(newAgreement, owner, recipient, request, turn_Get()->GetRound()) ;
-	Insert(newData) ;
+	Agreement newAgreement(NewKey(k_BIT_GAME_OBJ_TYPE_AGREEMENT)) ;
+	auto newData = std::make_unique<AgreementData>(newAgreement, owner, recipient, request, turn_Get()->GetRound()) ;
+	Insert(newData.release()) ;
 
 	if(player_Get(owner))
 		player_Get(owner)->AddAgreement(newAgreement) ;

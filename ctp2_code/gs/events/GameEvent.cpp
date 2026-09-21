@@ -87,10 +87,7 @@ GameEvent::GameEvent
 	}
 }
 
-GameEvent::~GameEvent()
-{
-	delete m_argList;
-}
+GameEvent::~GameEvent() = default;
 
 GAME_EVENT_ERR GameEvent::Process()
 {
@@ -103,7 +100,7 @@ GAME_EVENT_ERR GameEvent::Process()
 	if(m_argList->TestArgs(m_type, this))
 	{
 		return gevmanager_Get()->ActivateHook
-		            (m_type, m_argList, m_resumeIndex, m_resumeIndex);
+		            (m_type, m_argList.get(), m_resumeIndex, m_resumeIndex);
 	}
 	else
 	{

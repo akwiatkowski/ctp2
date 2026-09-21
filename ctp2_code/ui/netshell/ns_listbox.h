@@ -33,6 +33,7 @@
 #define __NS_LISTBOX_H__
 
 #include "ui/aui_common/aui.h"
+#include <memory>
 #include "ui/netshell/ns_civlistbox.h"
 #include "ui/aui_common/aui_ranger.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -104,15 +105,15 @@ void ns_ListBox<T,NetShellT>::Insert( T *object )
 {
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	ns_Item<T,NetShellT> *item = new ns_Item<T,NetShellT>(
+	auto item = std::make_unique<ns_Item<T,NetShellT>>(
 		&errcode,
 		aui_UniqueId(),
-		"listitems.nsitem",
+		const_cast<MBCHAR *>("listitems.nsitem"),
 		object );
 	Assert( item != nullptr );
 	if ( !item ) return;
 
-	AddNetShellItem( item );
+	AddNetShellItem( item.release() );
 }
 
 
@@ -215,7 +216,7 @@ AUI_ERRCODE ns_ListBox<T,NetShellT>::InitCommonLdl( MBCHAR *ldlBlock )
 	m_artXOffset = block->GetInt( "xoffset" );
 	m_artYOffset = block->GetInt( "yoffset" );
 
-	char *image = block->GetString( "selectimage" );
+	char const *image = block->GetString( "selectimage" );
 	if(image)
 		m_itemsSelectImage = aui_ui_Get()->LoadImage( image );
 
@@ -250,11 +251,11 @@ ns_ListBox<T,NetShellT>::~ns_ListBox()
 		for ( sint32 j = item->ChildList()->L(); j; j-- )
 		{
 			ListPos prevChildPosition = childPosition;
-			delete item->ChildList()->GetNext( childPosition );
+			std::unique_ptr<aui_Region>( item->ChildList()->GetNext( childPosition ) ).reset();
 			item->ChildList()->DeleteAt( prevChildPosition );
 		}
 
-		delete item;
+		std::unique_ptr<aui_Item>( item ).reset();
 		m_pane->ChildList()->DeleteAt( prevPosition );
 	}
 
@@ -287,16 +288,16 @@ AUI_ERRCODE ns_ListBox<T,NetShellT>::AddNetShellItem(
 		{
 
 			AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-			ns_Item<T,NetShellT> *childItem = new ns_Item<T,NetShellT>(
+			auto childItem = std::make_unique<ns_Item<T,NetShellT>>(
 				&errcode,
 				aui_UniqueId(),
-				"listitems.nsitem",
+				const_cast<MBCHAR *>("listitems.nsitem"),
 				nullptr );
 			Assert( AUI_NEWOK(childItem,errcode) );
 			if ( !AUI_NEWOK(childItem,errcode) )
 				return AUI_ERRCODE_MEMALLOCFAILED;
 
-			item->AddChild( childItem );
+			item->AddChild( childItem.get() );
 
 			NetShellT *netShellObject = item->GetNetShellObject();
 			if ( netShellObject->type( i ) == ns_Accessor<NetShellT>::INT )
@@ -305,6 +306,8 @@ AUI_ERRCODE ns_ListBox<T,NetShellT>::AddNetShellItem(
 					k_AUI_BITMAPFONT_DRAWFLAG_JUSTCENTER |
 					k_AUI_BITMAPFONT_DRAWFLAG_VERTCENTER;
 			}
+
+			childItem.release();
 		}
 	}
 
@@ -337,9 +340,9 @@ AUI_ERRCODE ns_ListBox<T,NetShellT>::RemoveNetShellItem(
 
 			position = item->ChildList()->GetHeadPosition();
 			for ( sint32 j = item->ChildList()->L(); j; j-- )
-				delete item->ChildList()->GetNext( position );
+				std::unique_ptr<aui_Region>( item->ChildList()->GetNext( position ) ).reset();
 
-			delete item;
+			std::unique_ptr<ns_Item<T,NetShellT>>( item ).reset();
 
 			break;
 		}

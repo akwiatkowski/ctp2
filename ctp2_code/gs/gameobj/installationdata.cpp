@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/ID.h"
 #include "net/general/network.h"
@@ -278,8 +279,8 @@ sint32 InstallationData::AirfieldLastUsed() const
 void InstallationData::ChangeOwner(sint32 toOwner)
 {
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CHANGE_INSTALLATION_OWNER,
-									  m_id, m_owner, toOwner));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CHANGE_INSTALLATION_OWNER,
+									  m_id, m_owner, toOwner).release());
 	}
 
 	if(Player *owner = safe_player(m_owner))

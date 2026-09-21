@@ -51,7 +51,7 @@ const MapRecord *worldutils_FindBestMapSizeMatch(sint32 w, sint32 h)
 	return g_theMapDB->Get(closestRec);
 }
 
-double *worldutils_CreateSettings(const MapRecord *mapRec, sint32 level, sint32 &numSettings)
+std::unique_ptr<double[]> worldutils_CreateSettings(const MapRecord *mapRec, sint32 level, sint32 &numSettings)
 {
 	if(level < 0) {
 		level = 0;
@@ -62,7 +62,7 @@ double *worldutils_CreateSettings(const MapRecord *mapRec, sint32 level, sint32 
 	#define k_NUM_MAP_VARS 14 // Number of tokens which go into the output array
 	numSettings = k_NUM_MAP_VARS;
 
-	double* settings = new double[k_NUM_MAP_VARS];
+	auto settings = std::make_unique<double[]>(k_NUM_MAP_VARS);
 
 	const MapRecord::Settings* mapSetRec = mapRec->GetSettings(level);
 
@@ -84,4 +84,3 @@ double *worldutils_CreateSettings(const MapRecord *mapRec, sint32 level, sint32 
 	return settings;
 }
 
-void worldutils_DeleteSettings(double* settings){ delete[] settings;};

@@ -149,7 +149,7 @@ void MessageDismissAction::Execute( aui_Control *control, uint32 action, uint32 
 {
 	if ( action != ( uint32 )AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	c3ui_Get()->AddAction(new MessageDismissUIAction(m_window));
+	c3ui_Get()->AddAction(std::make_unique<MessageDismissUIAction>(m_window));
 }
 
 
@@ -300,7 +300,7 @@ void MessageResponseAction::Execute( aui_Control *control, uint32 action, uint32
 	if ( action != ( uint32 )AUI_BUTTON_ACTION_EXECUTE ) return;
 
 
-	c3ui_Get()->AddAction(new MessageResponseUIAction(m_window, m_response));
+	c3ui_Get()->AddAction(std::make_unique<MessageResponseUIAction>(m_window, m_response));
 }
 
 
@@ -313,7 +313,7 @@ void MessageModalResponseAction::Execute( aui_Control *control, uint32 action, u
 		m_message->AccessData()->GetButton( m_response )->Callback();
 	}
 
-	c3ui_Get()->AddAction( new MessageModalDestroyAction( ) );
+	c3ui_Get()->AddAction( std::make_unique<MessageModalDestroyAction>( ) );
 }
 
 
@@ -370,7 +370,7 @@ void MessageAdviceDismissAction::Execute( aui_Control *control, uint32 action, u
 {
 	if ( action != ( uint32 )AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	c3ui_Get()->AddAction( new MessageAdviceDestroyAction( ) );
+	c3ui_Get()->AddAction( std::make_unique<MessageAdviceDestroyAction>( ) );
 
 }
 

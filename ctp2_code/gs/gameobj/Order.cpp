@@ -131,29 +131,45 @@ sint32 orderinfo_MapAt(sint32 unitOrder)
     return g_orderInfoMap[unitOrder];
 }
 
+Order::Order()
+{
+	m_order = UNIT_ORDER_NONE;
+	// m_path default-constructs null (unique_ptr)
+	m_round = -1;
+	m_argument = 0;
+	// m_index is intentionally NOT initialised here — Order::operator
+	// new (below) has already populated it with the pool slot returned
+	// by g_theOrderPond->Get_Next_Pointer. Writing -1 here would
+	// clobber that and corrupt Pool bookkeeping at delete time (caught
+	// 2026-06-03 by Phase 1j determinism test — json_save uses
+	// `new Order` and the prior default-ctor wipe caused
+	// Pool::Release_Pointer(-1) at first turn after load).
+	// m_gameEventArgs default-constructs null (unique_ptr)
+	// Uninitialised m_eventType holds an indeterminate bit pattern;
+	// reading it (e.g. serialising a default-constructed Order) is an
+	// invalid enum load and aborts under UBSan halt_on_error. GEV_MAX
+	// is the "no event" sentinel, matching the parameterized ctor.
+	m_eventType = GEV_MAX;
+}
+
 Order::Order(UNIT_ORDER_TYPE order, Path *path, const MapPoint &point, sint32 arg, sint32 currentRound)
 {
 	m_order = order;
-	m_path = path;
+	m_path.reset(path);   // Order takes ownership of the caller's Path
 	m_round = currentRound;
 	m_point = point;
 	m_argument = arg;
-	m_gameEventArgs = nullptr;
+	// m_gameEventArgs default-constructs null (unique_ptr)
 	m_eventType = GEV_MAX;
 }
 
 Order::~Order()
-{
-	if(m_path) {
-		delete m_path;
-		m_path = nullptr;
-	}
-
-	if(m_gameEventArgs) {
-		delete m_gameEventArgs;
-		m_gameEventArgs = nullptr;
-	}
-}
+= default;
+// m_path / m_gameEventArgs are unique_ptr and free themselves.
+// Ownership escapes before destruction at two sites:
+//   ArmyData::RemovePathedOrder   — m_path.release()
+//   ArmyData::CheckAddEventOrder  — m_gameEventArgs.release() into
+//                                   gevmanager ArglistAddEvent
 
 void *Order::operator new(size_t size)
 {

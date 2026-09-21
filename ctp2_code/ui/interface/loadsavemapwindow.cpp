@@ -74,8 +74,6 @@ LoadSaveMapWindow::LoadSaveMapWindow(AUI_ERRCODE *retval, uint32 id,
 	m_fileList = nullptr;
 	m_gameMapInfo = nullptr;
 	m_saveMapInfo = nullptr;
-	m_saveMapInfoRemember = nullptr;
-	m_saveMapInfoToSave = nullptr;
 
 	m_type = LSMS_TOTAL;
 
@@ -97,18 +95,18 @@ AUI_ERRCODE LoadSaveMapWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	AddOk( loadsavemapscreen_executePress, nullptr, "c3_PopupOk" );
 	AddCancel( loadsavemapscreen_backPress );
 
-	m_deleteButton = spNew_c3_Button(
+	m_deleteButton.reset(spNew_c3_Button(
 		&errcode,
 		ldlBlock,
 		"DeleteButton",
-		loadsavemapscreen_deletePress );
+		loadsavemapscreen_deletePress ));
 
 	m_nameString.reset(spNewStringTable(&errcode, "LSMSStringTable"));
 	Assert(m_nameString);
 	if (!m_nameString) return AUI_ERRCODE_LOADFAILED;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "TitlePanel");
-	m_titlePanel.reset(new c3_Static(&errcode, aui_UniqueId(), block));
+	m_titlePanel = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), block);
 	Assert(m_titlePanel);
 	if (!m_titlePanel) return AUI_ERRCODE_LOADFAILED;
 
@@ -138,37 +136,37 @@ AUI_ERRCODE LoadSaveMapWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	Assert(m_noteTextBox);
 	if (!m_noteTextBox) return AUI_ERRCODE_LOADFAILED;
 
-	m_listOne = spNew_c3_ListBox(&errcode, ldlBlock, "ListOne",
-									loadsavemapscreen_ListOneHandler, (void *)this);
+	m_listOne.reset(spNew_c3_ListBox(&errcode, ldlBlock, "ListOne",
+									loadsavemapscreen_ListOneHandler, (void *)this));
 	Assert(m_listOne);
 	if (!m_listOne) return AUI_ERRCODE_LOADFAILED;
 
-	m_listTwo = spNew_c3_ListBox(&errcode, ldlBlock, "ListTwo",
-									loadsavemapscreen_ListTwoHandler, (void *)this);
+	m_listTwo.reset(spNew_c3_ListBox(&errcode, ldlBlock, "ListTwo",
+									loadsavemapscreen_ListTwoHandler, (void *)this));
 	Assert(m_listTwo);
 	if (!m_listTwo) return AUI_ERRCODE_LOADFAILED;
 
 	snprintf(tabGroupBlock, sizeof(tabGroupBlock), "%s.%s", ldlBlock, "LoadTabGroup" );
-	m_tabGroup = new aui_TabGroup( &errcode, aui_UniqueId(), tabGroupBlock );
+	m_tabGroup = std::make_unique<aui_TabGroup>( &errcode, aui_UniqueId(), tabGroupBlock );
 	Assert( AUI_NEWOK(m_tabGroup, errcode) );
 	if (!m_tabGroup) return AUI_ERRCODE_LOADFAILED;
 
 	m_tabGroup->SetDrawMask( k_AUI_REGION_DRAWFLAG_UPDATE );
 
 	snprintf(tabBlock, sizeof(tabBlock), "%s.%s", tabGroupBlock, "MapTab");
-	m_mapTab = new TextTab(&errcode, aui_UniqueId(), tabBlock, nullptr);
+	m_mapTab = std::make_unique<TextTab>(&errcode, aui_UniqueId(), tabBlock, nullptr);
 	Assert( AUI_NEWOK(m_mapTab, errcode) );
 	if ( !AUI_NEWOK(m_mapTab, errcode) ) return AUI_ERRCODE_LOADFAILED;
 
 	snprintf(block, sizeof(block), "%s.pane.%s", tabBlock, "MapImage");
-	m_mapTabImage.reset(new c3_Static(&errcode, aui_UniqueId(), block));
+	m_mapTabImage = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), block);
 	Assert(m_mapTabImage);
 	if (!m_mapTabImage) return AUI_ERRCODE_LOADFAILED;
 
 
 
 
-	m_mapTabImageBackup = new aui_Image(
+	m_mapTabImageBackup = std::make_unique<aui_Image>(
 		&errcode, m_mapTabImage->GetImage()->GetFilename() );
 	Assert(m_mapTabImageBackup);
 	if (!m_mapTabImageBackup) return AUI_ERRCODE_LOADFAILED;
@@ -185,7 +183,7 @@ LoadSaveMapWindow::~LoadSaveMapWindow()
 {
 	CleanUpSaveMapInfo();
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
+#define mycleanup(mypointer) { mypointer.reset(); }
 
 	m_nameString.reset();
 
@@ -226,8 +224,8 @@ void LoadSaveMapWindow::FillListOne()
 
 	for ( ; walker.IsValid(); walker.Next())
     {
-		LSMGameMapsListItem *item = new LSMGameMapsListItem
-            (&errcode, const_cast<MBCHAR *>("LSMGameMapsListItem"), walker.GetObj());
+		LSMGameMapsListItem *item = std::make_unique<LSMGameMapsListItem>
+            (&errcode, const_cast<MBCHAR *>("LSMGameMapsListItem"), walker.GetObj()).release();
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return;
 
@@ -251,12 +249,12 @@ void LoadSaveMapWindow::FillListTwo(GameMapInfo *info)
 
 	if ( info )
 	{
-		PointerList<SaveMapInfo>::Walker walker = PointerList<SaveMapInfo>::Walker(info->files);
+		PointerList<SaveMapInfo>::Walker walker = PointerList<SaveMapInfo>::Walker(info->files.get());
 
 		for ( ; walker.IsValid(); walker.Next())
         {
-			LSMSaveMapsListItem *item = new LSMSaveMapsListItem
-                (&errcode, const_cast<MBCHAR *>("LSMSaveMapsListItem"), walker.GetObj());
+			LSMSaveMapsListItem *item = std::make_unique<LSMSaveMapsListItem>
+                (&errcode, const_cast<MBCHAR *>("LSMSaveMapsListItem"), walker.GetObj()).release();
 			Assert(errcode == AUI_ERRCODE_OK);
 			if (errcode != AUI_ERRCODE_OK) return;
 
@@ -366,7 +364,7 @@ void LoadSaveMapWindow::SetType(uint32 type)
 	if (m_type == LSMS_SAVE_GAMEMAP) {
 
 		if ( CreateSaveMapInfoIfNeeded( m_saveMapInfoRemember ) )
-			m_saveMapInfo = m_saveMapInfoRemember;
+			m_saveMapInfo = m_saveMapInfoRemember.get();
 
 
 		CreateSaveMapInfoIfNeeded( m_saveMapInfoToSave );
@@ -379,14 +377,14 @@ void LoadSaveMapWindow::SetType(uint32 type)
 	}
 }
 
-BOOL LoadSaveMapWindow::CreateSaveMapInfoIfNeeded( SaveMapInfo *&info )
+BOOL LoadSaveMapWindow::CreateSaveMapInfoIfNeeded( std::unique_ptr<SaveMapInfo> &info )
 {
 	if ( info == nullptr) {
-		info = new SaveMapInfo();
+		info = std::make_unique<SaveMapInfo>();
 
-		GameMapFile::GetExtendedInfoFromProfile(info);
-		GetRadarMap(info);
-		SetRadarMap(info);
+		GameMapFile::GetExtendedInfoFromProfile(info.get());
+		GetRadarMap(info.get());
+		SetRadarMap(info.get());
 
 		m_tabGroup->ShouldDraw(TRUE);
 
@@ -398,17 +396,8 @@ BOOL LoadSaveMapWindow::CreateSaveMapInfoIfNeeded( SaveMapInfo *&info )
 
 void LoadSaveMapWindow::CleanUpSaveMapInfo( )
 {
-	if ( m_saveMapInfoToSave )
-	{
-		delete m_saveMapInfoToSave;
-		m_saveMapInfoToSave = nullptr;
-	}
-
-	if ( m_saveMapInfoRemember )
-	{
-		delete m_saveMapInfoRemember;
-		m_saveMapInfoRemember = nullptr;
-	}
+	m_saveMapInfoToSave.reset();
+	m_saveMapInfoRemember.reset();
 
 	m_saveMapInfo = nullptr;
 	m_gameMapInfo = nullptr;
@@ -504,8 +493,8 @@ void LoadSaveMapWindow::SetRadarMap(SaveMapInfo *info)
 	Pixel16 *   radarDataPtr = info->radarMapData.data();
 
 	if (surface->Lock(nullptr, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) {
-		delete surface;
-		delete image;
+		std::unique_ptr<aui_Surface>{surface};
+		std::unique_ptr<aui_Image>{image};
 		return;
 	}
 
@@ -624,7 +613,7 @@ void LoadSaveMapWindow::SetSaveMapInfo(SaveMapInfo *info)
 			SetSaveMapName(m_saveMapInfoToSave->fileName);
 			SetNote(m_saveMapInfoToSave->note);
 
-			SetRadarMap(m_saveMapInfoToSave);
+			SetRadarMap(m_saveMapInfoToSave.get());
 			break;
 		}
 	}

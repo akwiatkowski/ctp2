@@ -30,6 +30,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_surface.h"
@@ -98,7 +100,7 @@ AUI_ERRCODE C3DropDown::CreateComponents( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	m_button = new PictureButton(
+	m_button = std::make_unique<PictureButton>(
 		&errcode,
 		aui_UniqueId(),
 		0, 0, 15, 8,
@@ -108,7 +110,7 @@ AUI_ERRCODE C3DropDown::CreateComponents( )
 	Assert( AUI_NEWOK(m_button,errcode) );
 	if ( !AUI_NEWOK(m_button,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_listBox = new C3ListBox(
+	m_listBox = std::make_unique<C3ListBox>(
 		&errcode,
 		aui_UniqueId(),
 		0, 0, 0, 0,
@@ -119,7 +121,7 @@ AUI_ERRCODE C3DropDown::CreateComponents( )
 
 	m_listBox->SetForceSelect( TRUE );
 
-	m_listBoxWindow = new aui_Window(
+	m_listBoxWindow = std::make_unique<aui_Window>(
 		&errcode,
 		aui_UniqueId(),
 		0, 0, m_width + m_buttonSize, m_windowSize,
@@ -128,9 +130,9 @@ AUI_ERRCODE C3DropDown::CreateComponents( )
 	Assert( AUI_NEWOK(m_listBoxWindow,errcode) );
 	if ( !AUI_NEWOK(m_listBoxWindow,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_button );
+	AddChild( m_button.get() );
 
-	m_listBoxWindow->AddChild( m_listBox );
+	m_listBoxWindow->AddChild( m_listBox.get() );
 
 	RepositionButton();
 	RepositionListBoxWindow();

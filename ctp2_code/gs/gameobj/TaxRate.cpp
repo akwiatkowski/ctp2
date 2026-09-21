@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/TaxRate.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/database/DB.h"
@@ -32,16 +33,16 @@ void TaxRate::SetTaxRates(double s, sint32 owner)
 	}
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_TAX_RATES,
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_TAX_RATES,
 										   (sint32)(s * 100000.),
 										   0,
-										   0));
+										   0).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TAX_RATE,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_TAX_RATE,
 									  owner,
 									  (sint32)(s * 100000.),
-									  0, 0));
+									  0, 0).release());
 		network_Get().Unblock(owner);
 	}
 }

@@ -4,6 +4,8 @@
 class Picture;
 
 #include "ui/aui_common/aui_static.h"
+#include <memory>
+
 
 
 #define k_AUI_STATICIMAGE_LDL_IMAGE "image"
@@ -42,7 +44,7 @@ public:
 	void SetPicture(MBCHAR *picture);
 
 protected:
-	Picture *m_picture;
+	std::unique_ptr<Picture> m_picture;
 };
 
 #endif

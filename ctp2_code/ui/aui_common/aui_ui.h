@@ -45,6 +45,7 @@
 
 #include <windows.h>		// HINSTANCE etc.
 #include <algorithm>		// std::min/max (secondary dirty-union)
+#include <memory>			// std::unique_ptr (owned surfaces/mouse)
 
 //----------------------------------------------------------------------------
 // Exported names
@@ -179,7 +180,7 @@ public:
 
 	HINSTANCE	TheHINSTANCE( ) const { return m_hinst; }
 	HWND		TheHWND( ) const { return m_hwnd; }
-	aui_Ldl		*GetLdl( ) const { return m_ldl; }
+	aui_Ldl		*GetLdl( ) const { return m_ldl.get(); }
 
 	AUI_ERRCODE BltToSecondary
 	                          (
@@ -195,7 +196,7 @@ public:
 		                         destx + (srcRect->right - srcRect->left),
 		                         desty + (srcRect->bottom - srcRect->top));
 		AUI_ERRCODE const rc =
-			m_blitter->Blt(m_secondary, destx, desty, srcSurf, srcRect, flags);
+			m_blitter->Blt(m_secondary.get(), destx, desty, srcSurf, srcRect, flags);
 		// P11 Stage 2 D: mirror each composite write into a world-only or a
 		// UI-only layer so they can be GPU-composited separately (fog on the
 		// world, pan/zoom the world). The background window's surface is the
@@ -217,7 +218,7 @@ public:
                 // coordinates: PresentWorldFrame samples software pixels at
                 // origin zero; only GPU window quads add WorldContentOff*.
 				RECT whole = { 0, 0, srcSurf->Width(), srcSurf->Height() };
-				m_blitter->Blt(m_worldSurface, 0, 0, srcSurf, &whole, flags);
+				m_blitter->Blt(m_worldSurface.get(), 0, 0, srcSurf, &whole, flags);
 				++m_worldContentVersion;
 				// Punch a transparent hole in the UI layer (screen coords): in
 				// z-order the world is the bottom-most window, so a world write
@@ -232,7 +233,7 @@ public:
 			}
 			else
 			{
-				m_blitter->Blt(m_uiSurface, destx, desty, srcSurf, srcRect, flags);
+				m_blitter->Blt(m_uiSurface.get(), destx, desty, srcSurf, srcRect, flags);
 				// Stamp the write so the present can tell "UI pixels changed"
 				// from "identical frame" (see the content versions below).
 				++m_uiContentVersion;
@@ -262,12 +263,12 @@ public:
 	{
 		AccumulateSecondaryDirty(destRect->left, destRect->top,
 		                         destRect->right, destRect->bottom);
-		AUI_ERRCODE const rc = m_blitter->ColorBlt(m_secondary, destRect, color, flags);
+		AUI_ERRCODE const rc = m_blitter->ColorBlt(m_secondary.get(), destRect, color, flags);
 		// P11 Stage 2 D: color/image fills are background/UI chrome, never the
 		// world window — mirror them into the UI layer (see BltToSecondary).
 		if (m_gpuLayers)
 		{
-			m_blitter->ColorBlt(m_uiSurface, destRect, color, flags);
+			m_blitter->ColorBlt(m_uiSurface.get(), destRect, color, flags);
 			++m_uiContentVersion;
 		}
 		return rc;
@@ -285,7 +286,7 @@ public:
 		if(m_primary != nullptr)
 		{
 			RECT rect = {0, 0, PrimaryWidth(), PrimaryHeight()};
-			return m_blitter->ColorBlt(m_primary, &rect, RGB(0,0,0), 0);
+			return m_blitter->ColorBlt(m_primary.get(), &rect, RGB(0,0,0), 0);
 		}
 		else
 		{
@@ -297,14 +298,14 @@ public:
 	{
 		RECT rect = {0, 0, SecondaryWidth(), SecondaryHeight()};
 		AccumulateSecondaryDirty(rect.left, rect.top, rect.right, rect.bottom);
-		return m_blitter->ColorBlt(m_secondary, &rect, RGB(0,0,0), 0);
+		return m_blitter->ColorBlt(m_secondary.get(), &rect, RGB(0,0,0), 0);
 	}
 
-	aui_Surface		*Secondary( ) const { return m_secondary; }
-	aui_Surface		*Primary( ) const { return m_primary; }
+	aui_Surface		*Secondary( ) const { return m_secondary.get(); }
+	aui_Surface		*Primary( ) const { return m_primary.get(); }
 	// P11 Stage 2 D: per-layer GPU compositing surfaces + configuration.
-	aui_Surface		*WorldSurface( ) const { return m_worldSurface; }
-	aui_Surface		*UiSurface( ) const { return m_uiSurface; }
+	aui_Surface		*WorldSurface( ) const { return m_worldSurface.get(); }
+	aui_Surface		*UiSurface( ) const { return m_uiSurface.get(); }
 	bool			GpuLayers( ) const { return m_gpuLayers; }
 	void			SetWorldWindow( aui_Window *w ) { m_worldWindow = w; }
 	// The world window's CURRENT surface (or null) — the source-surface key
@@ -315,7 +316,7 @@ public:
 	// Zero (ARGB 0x00000000 = transparent) a rect of the UI layer, clamped to
 	// the surface. See the world-blit hole punch in BltToSecondary.
 	void			EraseUiLayerRect( sint32 l, sint32 t, sint32 r, sint32 b );
-	aui_Surface		*FogSurface( ) const { return m_fogSurface; }
+	aui_Surface		*FogSurface( ) const { return m_fogSurface.get(); }
 	bool			GpuFog( ) const { return m_gpuFog; }
 	// P11 2c (ADR-001) — layer content versions. Monotonic counters bumped on
 	// every write to the UI layer (the BltToSecondary/ColorBltToSecondary
@@ -328,23 +329,23 @@ public:
 	// redundant presents each block on vsync and starve the 60fps camera tick.
 	uint32			WorldContentVersion( ) const { return m_worldContentVersion; }
 	uint32			UiContentVersion( ) const { return m_uiContentVersion; }
-	aui_Blitter		*TheBlitter( ) const { return m_blitter; }
-	aui_MemMap		*TheMemMap( ) const { return m_memmap; }
-	aui_Mouse		*TheMouse( ) const { return m_mouse; }
-	aui_Keyboard	*TheKeyboard( ) const { return m_keyboard; }
-	aui_Joystick	*TheJoystick( ) const { return m_joystick; }
+	aui_Blitter		*TheBlitter( ) const { return m_blitter.get(); }
+	aui_MemMap		*TheMemMap( ) const { return m_memmap.get(); }
+	aui_Mouse		*TheMouse( ) const { return m_mouse.get(); }
+	aui_Keyboard	*TheKeyboard( ) const { return m_keyboard.get(); }
+	aui_Joystick	*TheJoystick( ) const { return m_joystick.get(); }
 
 	sint32 BitsPerPixel( ) const { return m_bpp; }
 	AUI_SURFACE_PIXELFORMAT PixelFormat( ) { return m_pixelFormat; }
 
 	uint32			DXVer( ) const { return m_dxver; }
 
-	aui_DirtyList	*GetDirtyList( ) { return m_dirtyList; }
+	aui_DirtyList	*GetDirtyList( ) { return m_dirtyList.get(); }
 
 	AUI_ERRCODE		FlushDirtyList( );
 
 	aui_Resource<aui_Image> *GetImageResource( ) const
-		{ return m_imageResource; }
+		{ return m_imageResource.get(); }
 
 	aui_Image	*LoadImage( const MBCHAR *name )
 		{ return m_imageResource->Load( name, C3DIR_PICTURES ); }
@@ -360,7 +361,7 @@ public:
 		{ return m_imageResource->RemoveSearchPath( path ); }
 
 	aui_Resource<aui_Cursor> *GetCursorResource( ) const
-		{ return m_cursorResource; }
+		{ return m_cursorResource.get(); }
 
 	aui_Cursor	*LoadCursor( const MBCHAR *name )
 		{ return m_cursorResource->Load( name, C3DIR_CURSORS ); }
@@ -376,7 +377,7 @@ public:
 		{ return m_cursorResource->RemoveSearchPath( path ); }
 
 	aui_Resource<aui_BitmapFont> *GetBitmapFontResource( ) const
-		{ return m_bitmapFontResource; }
+		{ return m_bitmapFontResource.get(); }
 
 
 
@@ -394,7 +395,7 @@ public:
 	AUI_ERRCODE	RemoveBitmapFontSearchPath( const MBCHAR *path )
 		{ return m_bitmapFontResource->RemoveSearchPath( path ); }
 
-	aui_AudioManager *TheAudioManager( ) const { return m_audioManager; }
+	aui_AudioManager *TheAudioManager( ) const { return m_audioManager.get(); }
 
 	aui_Sound	*LoadSound( const MBCHAR *name )
 		{ return m_audioManager ? m_audioManager->Load( name ) : nullptr; }
@@ -409,7 +410,7 @@ public:
 	AUI_ERRCODE	RemoveSoundSearchPath( const MBCHAR *path )
 		{ return m_audioManager ? m_audioManager->RemoveSearchPath( path ) : AUI_ERRCODE_HACK; }
 
-	aui_MovieManager *TheMovieManager( ) const { return m_movieManager; }
+	aui_MovieManager *TheMovieManager( ) const { return m_movieManager.get(); }
 
 	aui_Movie	*LoadMovie( const MBCHAR *name)
 		{ return m_movieManager ? m_movieManager->Load( name, C3DIR_VIDEOS  ) : nullptr; }
@@ -472,6 +473,8 @@ public:
 	void		SetDrainOnly( bool drainOnly ) { m_drainOnly = drainOnly; }
 
 	void AddAction( aui_Action *action );
+	// Owning overload: the action list deletes actions after Execute.
+	void AddAction( std::unique_ptr<aui_Action> action ) { AddAction(action.release()); }
 	void HandleActions( );
 
 
@@ -507,7 +510,7 @@ public:
 	};
 
 	tech_WLList<DirtyRectInfo *> *GetDirtyRectInfoList( )
-	{ return m_dirtyRectInfoList; }
+	{ return m_dirtyRectInfoList.get(); }
 
 protected:
 	AUI_ERRCODE	TagMouseEvents( sint32 numEvents, aui_MouseEvent *events );
@@ -519,17 +522,16 @@ protected:
 
 	// Held by value: created with the UI, destroyed with it, never replaced.
 	tech_Memory<DirtyRectInfo>		m_dirtyRectInfoMemory;
-	tech_WLList<DirtyRectInfo *>	*m_dirtyRectInfoList;
+	std::unique_ptr<tech_WLList<DirtyRectInfo *>>	m_dirtyRectInfoList;
 
 	HINSTANCE		m_hinst;
 	HWND			m_hwnd;
 	sint32			m_bpp;
 	AUI_SURFACE_PIXELFORMAT m_pixelFormat;
 
-	aui_Ldl			*m_ldl;
-
-	aui_Surface		*m_primary;
-	aui_Surface		*m_secondary;
+	std::unique_ptr<aui_Ldl>	m_ldl;
+	std::unique_ptr<aui_Surface>	m_primary;
+	std::unique_ptr<aui_Surface>	m_secondary;
 
 	// P11 Stage 2 D: per-layer GPU compositing. When m_gpuLayers is set (by the
 	// SDL UI when CTP2_GPU_LAYERS is on), every BltToSecondary/ColorBltToSecondary
@@ -538,9 +540,8 @@ protected:
 	// window; a write whose source is that window's CURRENT surface is world,
 	// everything else is UI. The window pointer (not its surface) is stored
 	// because windows create their surfaces lazily and drop/rebuild them on
-	// hide/resize — a surface pointer captured once goes stale (or is null).
-	aui_Surface		*m_worldSurface;
-	aui_Surface		*m_uiSurface;
+	std::unique_ptr<aui_Surface>	m_worldSurface;
+	std::unique_ptr<aui_Surface>	m_uiSurface;
 	// P11 2c: content versions for the layer surfaces (see accessors above).
 	uint32			m_worldContentVersion;
 	uint32			m_uiContentVersion;
@@ -548,8 +549,7 @@ protected:
 	bool			m_gpuLayers;
 	// P11 Stage 2 C: fog-of-war mask surface (32-bit, screen-sized, transparent
 	// except fogged tiles = 50% black). Composited over the world layer on the
-	// GPU. Built by TiledMap from vision state. Set when m_gpuFog is on.
-	aui_Surface		*m_fogSurface;
+	std::unique_ptr<aui_Surface>	m_fogSurface;
 	bool			m_gpuFog;
 
 	// Running union of every rect written into m_secondary via
@@ -579,18 +579,18 @@ protected:
 		}
 	}
 
-	aui_Blitter		*m_blitter;
-	aui_MemMap		*m_memmap;
-	aui_Mouse		*m_mouse;
-	aui_Keyboard	*m_keyboard;
-	aui_Joystick	*m_joystick;
-	aui_DirtyList	*m_dirtyList;
+	std::unique_ptr<aui_Blitter>	m_blitter;
+	std::unique_ptr<aui_MemMap>	m_memmap;
+	std::unique_ptr<aui_Mouse>	m_mouse;
+	std::unique_ptr<aui_Keyboard>	m_keyboard;
+	std::unique_ptr<aui_Joystick>	m_joystick;
+	std::unique_ptr<aui_DirtyList>	m_dirtyList;
 
 	COLORREF		m_color;
 	aui_Image		*m_image;
 	RECT			m_imageRect;
-	aui_DirtyList	*m_colorAreas;
-	aui_DirtyList	*m_imageAreas;
+	std::unique_ptr<aui_DirtyList>	m_colorAreas;
+	std::unique_ptr<aui_DirtyList>	m_imageAreas;
 
 	aui_Control		*m_virtualFocus;
 
@@ -599,22 +599,22 @@ protected:
 	BOOL			m_editMode;
 	aui_Region		*m_editRegion;
 	RECT			m_editRect;
-	aui_Window		*m_editWindow;
-	aui_Static		*m_localRectText;
-	aui_Static		*m_absoluteRectText;
-	aui_Static		*m_editModeLdlName;
+	std::unique_ptr<aui_Window>	m_editWindow;
+	std::unique_ptr<aui_Static>	m_localRectText;
+	std::unique_ptr<aui_Static>	m_absoluteRectText;
+	std::unique_ptr<aui_Static>	m_editModeLdlName;
 
-	aui_Resource<aui_Image>			*m_imageResource;
-	aui_Resource<aui_Cursor>		*m_cursorResource;
-	aui_Resource<aui_BitmapFont>	*m_bitmapFontResource;
-	aui_AudioManager				*m_audioManager;
-	aui_MovieManager				*m_movieManager;
+	std::unique_ptr<aui_Resource<aui_Image>>		m_imageResource;
+	std::unique_ptr<aui_Resource<aui_Cursor>>		m_cursorResource;
+	std::unique_ptr<aui_Resource<aui_BitmapFont>>	m_bitmapFontResource;
+	std::unique_ptr<aui_AudioManager>				m_audioManager;
+	std::unique_ptr<aui_MovieManager>				m_movieManager;
 
-	tech_WLList<aui_Action *>	*m_actionList;
+	std::unique_ptr<tech_WLList<aui_Action *>>	m_actionList;
 
-	tech_WLList<aui_Action *>	*m_destructiveActionList;
+	std::unique_ptr<tech_WLList<aui_Action *>>	m_destructiveActionList;
 
-	tech_WLList<HWND>			*m_winList;
+	std::unique_ptr<tech_WLList<HWND>>			m_winList;
 
 	BOOL m_minimize;
 

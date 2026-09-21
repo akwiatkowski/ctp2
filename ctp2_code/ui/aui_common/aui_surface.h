@@ -34,6 +34,8 @@
 #ifndef __AUI_SURFACE_H__
 #define __AUI_SURFACE_H__
 
+#include <memory>
+
 #include "ui/aui_common/aui_base.h"
 #ifdef USE_SDL
 #include "ui/aui_sdl/aui_sdlcompat.h"
@@ -162,9 +164,12 @@ protected:
 	uint32	m_chromaKey;
 
 	BOOL	m_isPrimary;
-
 	BOOL	m_allocated;
+	// m_saveBuffer is a non-owning view: it points either at caller-supplied
+	// memory or at m_saveBufferStore (which owns the heap allocation), or at
+	// SDL surface pixels in aui_SDLSurface::Lock.
 	uint8	*m_saveBuffer;
+	std::unique_ptr<uint32[]> m_saveBufferStore;
 
 	aui_SurfaceSubset m_locklist[ k_SURFACE_MAXLOCK ];
 	sint32	m_locksRemain;

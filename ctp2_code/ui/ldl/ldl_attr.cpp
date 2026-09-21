@@ -33,17 +33,19 @@
 #include "ui/ldl/ldl_file.hpp"
 #include "ldl_attr.hpp"
 
+#include <memory>
+
 ldl_attribute *ldl_attribute::GetCopy()
 {
-	ldl_attribute *newattr = nullptr;
+	std::unique_ptr<ldl_attribute> newattr;
 	switch(m_type) {
-		case ATTRIBUTE_TYPE_BOOL: newattr = new ldl_attributeValue<bool>(this); break;
-		case ATTRIBUTE_TYPE_INT:  newattr = new ldl_attributeValue<int>(this); break;
-		case ATTRIBUTE_TYPE_DOUBLE: newattr = new ldl_attributeValue<double>(this); break;
-		case ATTRIBUTE_TYPE_STRING: newattr = new ldl_attributeValue<char const *>(this); break;
+		case ATTRIBUTE_TYPE_BOOL: newattr = std::make_unique<ldl_attributeValue<bool>>(this); break;
+		case ATTRIBUTE_TYPE_INT:  newattr = std::make_unique<ldl_attributeValue<int>>(this); break;
+		case ATTRIBUTE_TYPE_DOUBLE: newattr = std::make_unique<ldl_attributeValue<double>>(this); break;
+		case ATTRIBUTE_TYPE_STRING: newattr = std::make_unique<ldl_attributeValue<char const *>>(this); break;
 		case ATTRIBUTE_TYPE_UNKNOWN: break;
 	}
-	return newattr;
+	return newattr.release();
 }
 
 bool ldl_attribute::GetBoolValue()

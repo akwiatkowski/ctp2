@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_ctp2/c3ui.h"
@@ -163,23 +164,23 @@ AUI_ERRCODE MessageWindow::CreateWindowEdges( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageLeftBar" );
-	m_leftBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
+	m_leftBar = std::make_unique<aui_Static>( &errcode, aui_UniqueId(), imageBlock );
 	Assert( AUI_NEWOK( m_leftBar, errcode ));
 	if ( !AUI_NEWOK( m_leftBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageTopBar" );
-	m_topBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
+	m_topBar = std::make_unique<aui_Static>( &errcode, aui_UniqueId(), imageBlock );
 	Assert( AUI_NEWOK( m_topBar, errcode ));
 	if ( !AUI_NEWOK( m_topBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_topBar->SetImageBltType( AUI_IMAGEBASE_BLTTYPE_TILE );
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageRightBar" );
-	m_rightBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
+	m_rightBar = std::make_unique<aui_Static>( &errcode, aui_UniqueId(), imageBlock );
 	Assert( AUI_NEWOK( m_rightBar, errcode ));
 	if ( !AUI_NEWOK( m_rightBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageBottomBar" );
-	m_bottomBar.reset(new aui_Static( &errcode, aui_UniqueId(), imageBlock ));
+	m_bottomBar = std::make_unique<aui_Static>( &errcode, aui_UniqueId(), imageBlock );
 	Assert( AUI_NEWOK( m_bottomBar, errcode ));
 	if ( !AUI_NEWOK( m_bottomBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_bottomBar->SetImageBltType( AUI_IMAGEBASE_BLTTYPE_TILE );
@@ -244,7 +245,7 @@ AUI_ERRCODE MessageWindow::CreateTurnText( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlBlock, "TurnTextBox" );
-	m_turnText.reset(new aui_Static( &errcode, aui_UniqueId(), textBlock ));
+	m_turnText = std::make_unique<aui_Static>( &errcode, aui_UniqueId(), textBlock );
 	Assert( AUI_NEWOK( m_turnText, errcode ));
 	if ( !AUI_NEWOK( m_turnText, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -279,7 +280,7 @@ AUI_ERRCODE MessageWindow::CreateStandardTextBox( MBCHAR *ldlBlock )
 
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlBlock, "MessageTextBox" );
 
-	m_messageText.reset(new aui_HyperTextBox( &errcode, aui_UniqueId(), textBlock ));
+	m_messageText = std::make_unique<aui_HyperTextBox>( &errcode, aui_UniqueId(), textBlock );
 	Assert( AUI_NEWOK( m_messageText, errcode ));
 	if ( !AUI_NEWOK( m_messageText, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -302,7 +303,7 @@ AUI_ERRCODE MessageWindow::CreateStandardDismissButton( MBCHAR *ldlBlock )
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardDismissButton" );
-	m_dismissIcon.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
+	m_dismissIcon = std::make_unique<aui_Button>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_dismissIcon, errcode ));
 	if ( !AUI_NEWOK( m_dismissIcon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -310,7 +311,7 @@ AUI_ERRCODE MessageWindow::CreateStandardDismissButton( MBCHAR *ldlBlock )
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
-	m_dismissAction.reset(new MessageDismissAction( this ));
+	m_dismissAction = std::make_unique<MessageDismissAction>( this );
 	Assert( m_dismissAction != nullptr );
 	if ( m_dismissAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -326,7 +327,7 @@ AUI_ERRCODE MessageWindow::CreateStandardMinimizeButton( MBCHAR *ldlBlock )
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardMinimizeButton" );
-	m_minimizeIcon.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
+	m_minimizeIcon = std::make_unique<aui_Button>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_minimizeIcon, errcode ));
 	if ( !AUI_NEWOK( m_minimizeIcon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -334,7 +335,7 @@ AUI_ERRCODE MessageWindow::CreateStandardMinimizeButton( MBCHAR *ldlBlock )
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
-	m_minimizeAction.reset(new MessageMinimizeAction( this ));
+	m_minimizeAction = std::make_unique<MessageMinimizeAction>( this );
 	Assert( m_minimizeAction != nullptr );
 	if ( m_minimizeAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -355,7 +356,7 @@ AUI_ERRCODE MessageWindow::CreateGreatLibraryButton( MBCHAR *ldlBlock )
 		 m_message.AccessData()->GetGreatLibraryButton() ) {
 
 		snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "GreatLibraryButton" );
-		m_libraryIcon.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
+		m_libraryIcon = std::make_unique<aui_Button>( &errcode, aui_UniqueId(), buttonBlock );
 		Assert( AUI_NEWOK( m_libraryIcon, errcode ));
 		if ( !AUI_NEWOK( m_libraryIcon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -363,7 +364,7 @@ AUI_ERRCODE MessageWindow::CreateGreatLibraryButton( MBCHAR *ldlBlock )
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
-		m_libraryAction.reset(new MessageLibraryAction( this ));
+		m_libraryAction = std::make_unique<MessageLibraryAction>( this );
 		Assert( m_libraryAction != nullptr );
 		if ( m_libraryAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -399,8 +400,8 @@ AUI_ERRCODE MessageWindow::CreateStandardEyePointBox( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_messageEyePoint.m_messageEyePointStandard = new MessageEyePointStandard( &errcode,
-						ldlBlock, this );
+	m_messageEyePoint.m_messageEyePointStandard = std::make_unique<MessageEyePointStandard>( &errcode,
+						ldlBlock, this ).release();
 	Assert( m_messageEyePoint.m_messageEyePointStandard != nullptr );
 	if ( m_messageEyePoint.m_messageEyePointStandard == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
@@ -413,8 +414,8 @@ AUI_ERRCODE MessageWindow::CreateDropdownEyePointBox( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_messageEyePoint.m_messageEyePointDropdown = new MessageEyePointDropdown( &errcode,
-						ldlBlock, this );
+	m_messageEyePoint.m_messageEyePointDropdown = std::make_unique<MessageEyePointDropdown>( &errcode,
+						ldlBlock, this ).release();
 	Assert( m_messageEyePoint.m_messageEyePointDropdown != nullptr );
 	if ( m_messageEyePoint.m_messageEyePointDropdown == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
@@ -427,8 +428,8 @@ AUI_ERRCODE MessageWindow::CreateListboxEyePointBox( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_messageEyePoint.m_messageEyePointListbox = new MessageEyePointListbox( &errcode,
-						ldlBlock, this );
+	m_messageEyePoint.m_messageEyePointListbox = std::make_unique<MessageEyePointListbox>( &errcode,
+						ldlBlock, this ).release();
 	Assert( m_messageEyePoint.m_messageEyePointListbox != nullptr );
 	if ( m_messageEyePoint.m_messageEyePointListbox == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
@@ -460,8 +461,8 @@ AUI_ERRCODE MessageWindow::CreateSelectResponses( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	m_messageResponse.m_messageResponseStandard = new MessageResponseStandard( &errcode,
-						ldlBlock, this );
+	m_messageResponse.m_messageResponseStandard = std::make_unique<MessageResponseStandard>( &errcode,
+						ldlBlock, this ).release();
 	Assert( m_messageResponse.m_messageResponseStandard != nullptr );
 	if ( m_messageResponse.m_messageResponseStandard == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
@@ -473,8 +474,8 @@ AUI_ERRCODE MessageWindow::CreateSubmitResponses( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_messageResponse.m_messageResponseDropdown = new MessageResponseDropdown( &errcode,
-						ldlBlock, this );
+	m_messageResponse.m_messageResponseDropdown = std::make_unique<MessageResponseDropdown>( &errcode,
+						ldlBlock, this ).release();
 	Assert( m_messageResponse.m_messageResponseDropdown != nullptr );
 	if ( m_messageResponse.m_messageResponseDropdown == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
@@ -623,13 +624,13 @@ MessageWindow::~MessageWindow ()
 
 	if ( m_messageEyePoint.m_messageEyePointStandard )
 	{
-		delete m_messageEyePoint.m_messageEyePointStandard;
+		std::unique_ptr<MessageEyePointStandard>{m_messageEyePoint.m_messageEyePointStandard};
 		m_messageEyePoint.m_messageEyePointStandard = nullptr;
 	}
 
 	if ( m_messageResponse.m_messageResponseStandard )
 	{
-		delete m_messageResponse.m_messageResponseStandard;
+		std::unique_ptr<MessageResponseStandard>{m_messageResponse.m_messageResponseStandard};
 		m_messageResponse.m_messageResponseStandard = nullptr;
 	}
 

@@ -57,6 +57,8 @@
 #include "gs/database/profileDB.h"
 
 #include "ui/interface/spnewgamewindow.h"
+#include <memory>
+
 #include "ui/interface/custommapscreen.h"
 
 #include "ui/aui_ctp2/keypress.h"
@@ -66,30 +68,30 @@
 
 extern sint32				g_god;
 
-static aui_StringTable *s_closeButtonStrings = nullptr;
-static c3_PopupWindow	*s_customMapWindow	= nullptr;
-static C3Slider		*s_wetdry			= nullptr,
-					*s_warmcold			= nullptr,
-					*s_oceanland		= nullptr,
-					*s_islandcontinent	= nullptr,
-					*s_homodiverse		= nullptr,
-					*s_goodcount		= nullptr;
-static c3_Static	*s_wet				= nullptr,
-					*s_dry				= nullptr,
-					*s_warm				= nullptr,
-					*s_cold				= nullptr,
-					*s_ocean			= nullptr,
-					*s_land				= nullptr,
-					*s_island			= nullptr,
-					*s_continent		= nullptr,
-					*s_homo				= nullptr,
-					*s_diverse			= nullptr,
-					*s_poor				= nullptr,
-					*s_rich				= nullptr;
+static std::unique_ptr<aui_StringTable> s_closeButtonStrings;
+static std::unique_ptr<c3_PopupWindow>	s_customMapWindow;
+static std::unique_ptr<C3Slider>		s_wetdry,
+					s_warmcold,
+					s_oceanland,
+					s_islandcontinent,
+					s_homodiverse,
+					s_goodcount;
+static std::unique_ptr<c3_Static>	s_wet,
+					s_dry,
+					s_warm,
+					s_cold,
+					s_ocean,
+					s_land,
+					s_island,
+					s_continent,
+					s_homo,
+					s_diverse,
+					s_poor,
+					s_rich;
 
 static sint32		s_useMode = 0;
 
-static aui_Switch		*s_RandomCustomMap	= nullptr;
+static std::unique_ptr<aui_Switch>		s_RandomCustomMap;
 
 enum
 {
@@ -102,7 +104,7 @@ static uint32 check[] =
 	R_RANDOMCUSTOMMAP,
 	GP_TOTAL
 };
-RandomGenerator             *custommapscreenRand=nullptr;
+static std::unique_ptr<RandomGenerator>  custommapscreenRand;
 
 sint32 custommapscreen_updateData()
 {
@@ -136,8 +138,8 @@ sint32	custommapscreen_displayMyWindow(BOOL viewMode, sint32 useMode)
 		s_customMapWindow->Ok()->SetText( s_closeButtonStrings->GetString( 0 ) );
 	}
 
-	auiErr = c3ui_Get()->AddWindow(s_customMapWindow);
-	keypress_RegisterHandler(s_customMapWindow);
+	auiErr = c3ui_Get()->AddWindow(s_customMapWindow.get());
+	keypress_RegisterHandler(s_customMapWindow.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -183,7 +185,7 @@ sint32 custommapscreen_removeMyWindow(uint32 action)
 	AUI_ERRCODE auiErr;
 
 	auiErr = c3ui_Get()->RemoveWindow( s_customMapWindow->Id() );
-	keypress_RemoveHandler(s_customMapWindow);
+	keypress_RemoveHandler(s_customMapWindow.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -201,13 +203,13 @@ AUI_ERRCODE custommapscreen_Initialize( aui_Control::ControlActionCallback *call
 
 	uint32 seed = GetTickCount();
 	srand(seed);
-	custommapscreenRand = new RandomGenerator(seed);
+	custommapscreenRand = std::make_unique<RandomGenerator>(seed);
 
 	if ( s_customMapWindow ) return AUI_ERRCODE_OK;
 
 	strlcpy(windowBlock, "CustomMapWindow", sizeof(windowBlock));
 	{
-		s_customMapWindow = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		s_customMapWindow = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(s_customMapWindow, errcode) );
 		if ( !AUI_NEWOK(s_customMapWindow, errcode) ) return errcode;
 
@@ -221,25 +223,25 @@ AUI_ERRCODE custommapscreen_Initialize( aui_Control::ControlActionCallback *call
 
 	s_customMapWindow->AddCancel( custommapscreen_cancelPress );
 
-	s_wetdry			= spNew_C3Slider(&errcode,windowBlock,"WetDrySlider",custommapscreen_wetdrySlide);
-	s_wet				= spNew_c3_Static(&errcode,windowBlock,"Wet");
-	s_dry				= spNew_c3_Static(&errcode,windowBlock,"Dry");
-	s_warmcold			= spNew_C3Slider(&errcode,windowBlock,"WarmColdSlider",custommapscreen_warmcoldSlide);
-	s_warm				= spNew_c3_Static(&errcode,windowBlock,"Warm");
-	s_cold				= spNew_c3_Static(&errcode,windowBlock,"Cold");
-	s_oceanland			= spNew_C3Slider(&errcode,windowBlock,"OceanLandSlider",custommapscreen_oceanlandSlide);
-	s_ocean				= spNew_c3_Static(&errcode,windowBlock,"Ocean");
-	s_land				= spNew_c3_Static(&errcode,windowBlock,"Land");
-	s_islandcontinent	= spNew_C3Slider(&errcode,windowBlock,"IslandContinentSlider",custommapscreen_islandcontinentSlide);
-	s_island			= spNew_c3_Static(&errcode,windowBlock,"Island");
-	s_continent			= spNew_c3_Static(&errcode,windowBlock,"Continent");
-	s_homodiverse		= spNew_C3Slider(&errcode,windowBlock,"HomoDiverseSlider",custommapscreen_homodiverseSlide);
-	s_homo				= spNew_c3_Static(&errcode,windowBlock,"Homo");
-	s_diverse			= spNew_c3_Static(&errcode,windowBlock,"Diverse");
-	s_goodcount			= spNew_C3Slider(&errcode,windowBlock,"GoodCountSlider",custommapscreen_goodcountSlide);
-	s_poor				= spNew_c3_Static(&errcode,windowBlock,"Poor");
-	s_rich				= spNew_c3_Static(&errcode,windowBlock,"Rich");
-	s_RandomCustomMap	= spNew_aui_Switch(&errcode, windowBlock, "RandomCustomMap", custommapscreen_checkPress, &check[R_RANDOMCUSTOMMAP  ]);
+	s_wetdry.reset(spNew_C3Slider(&errcode,windowBlock,"WetDrySlider",custommapscreen_wetdrySlide));
+	s_wet.reset(spNew_c3_Static(&errcode,windowBlock,"Wet"));
+	s_dry.reset(spNew_c3_Static(&errcode,windowBlock,"Dry"));
+	s_warmcold.reset(spNew_C3Slider(&errcode,windowBlock,"WarmColdSlider",custommapscreen_warmcoldSlide));
+	s_warm.reset(spNew_c3_Static(&errcode,windowBlock,"Warm"));
+	s_cold.reset(spNew_c3_Static(&errcode,windowBlock,"Cold"));
+	s_oceanland.reset(spNew_C3Slider(&errcode,windowBlock,"OceanLandSlider",custommapscreen_oceanlandSlide));
+	s_ocean.reset(spNew_c3_Static(&errcode,windowBlock,"Ocean"));
+	s_land.reset(spNew_c3_Static(&errcode,windowBlock,"Land"));
+	s_islandcontinent.reset(spNew_C3Slider(&errcode,windowBlock,"IslandContinentSlider",custommapscreen_islandcontinentSlide));
+	s_island.reset(spNew_c3_Static(&errcode,windowBlock,"Island"));
+	s_continent.reset(spNew_c3_Static(&errcode,windowBlock,"Continent"));
+	s_homodiverse.reset(spNew_C3Slider(&errcode,windowBlock,"HomoDiverseSlider",custommapscreen_homodiverseSlide));
+	s_homo.reset(spNew_c3_Static(&errcode,windowBlock,"Homo"));
+	s_diverse.reset(spNew_c3_Static(&errcode,windowBlock,"Diverse"));
+	s_goodcount.reset(spNew_C3Slider(&errcode,windowBlock,"GoodCountSlider",custommapscreen_goodcountSlide));
+	s_poor.reset(spNew_c3_Static(&errcode,windowBlock,"Poor"));
+	s_rich.reset(spNew_c3_Static(&errcode,windowBlock,"Rich"));
+	s_RandomCustomMap.reset(spNew_aui_Switch(&errcode, windowBlock, "RandomCustomMap", custommapscreen_checkPress, &check[R_RANDOMCUSTOMMAP  ]));
 
 	custommapscreen_updateData();
 
@@ -253,7 +255,7 @@ AUI_ERRCODE custommapscreen_Initialize( aui_Control::ControlActionCallback *call
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Name" );
 	s_customMapWindow->AddTitle( controlBlock );
 
-	s_closeButtonStrings = new aui_StringTable(
+	s_closeButtonStrings = std::make_unique<aui_StringTable>(
 		&errcode,
 		"CustomMapWindow.CloseButtonStrings" );
 
@@ -266,12 +268,12 @@ AUI_ERRCODE custommapscreen_Initialize( aui_Control::ControlActionCallback *call
 
 AUI_ERRCODE custommapscreen_Cleanup()
 {
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
+#define mycleanup(mypointer) { mypointer.reset(); }
 
 	if ( !s_customMapWindow  ) return AUI_ERRCODE_OK;
 
 	c3ui_Get()->RemoveWindow( s_customMapWindow->Id() );
-	keypress_RemoveHandler(s_customMapWindow);
+	keypress_RemoveHandler(s_customMapWindow.get());
 
 	mycleanup(s_closeButtonStrings);
 
@@ -296,8 +298,7 @@ AUI_ERRCODE custommapscreen_Cleanup()
 	mycleanup(s_RandomCustomMap);
 	mycleanup(custommapscreenRand);
 
-	delete s_customMapWindow;
-	s_customMapWindow = nullptr;
+	s_customMapWindow.reset();
 
 	return AUI_ERRCODE_OK;
 
@@ -322,7 +323,7 @@ void custommapscreen_backPress(aui_Control *control, uint32 action, uint32 data,
 
 			civapp_Get()->PostStartGameAction();
 
-			c3ui_Get()->AddAction( new SetupMapEditorAction );
+			c3ui_Get()->AddAction( std::make_unique<SetupMapEditorAction>().release() );
 		}
 	}
 }

@@ -117,10 +117,6 @@ Cell::Cell()
 
 Cell::~Cell()
 {
-	delete m_unit_army;
-	delete m_objects;
-	delete m_jabba;
-
 	m_playerLandArea[m_cellOwner+1]--;  // static!
 }
 
@@ -160,7 +156,7 @@ bool Cell::InsertUnit(Unit id)
 {
 	if(!m_unit_army)
 	{
-		m_unit_army = new CellUnitList;
+		m_unit_army = std::make_unique<CellUnitList>();
 	}
 
 	return m_unit_army->Insert(id);
@@ -172,8 +168,7 @@ bool Cell::RemoveUnitReference(const Unit &u)
 	{
 		if(m_unit_army->Num() <= 0)
 		{
-			delete m_unit_army;
-			m_unit_army = nullptr;
+			m_unit_army.reset();
 		}
 
 		return true;
@@ -556,7 +551,7 @@ void Cell::SetColor(sint32 c)
 void Cell::AddTradeRoute(TradeRoute route)
 {
 	if(!m_objects) {
-		m_objects = new DynamicArray<ID>;
+		m_objects = std::make_unique<DynamicArray<ID>>();
 	}
 	if(!m_objects->IsPresent(route)) {
 		m_objects->Insert(route);
@@ -583,8 +578,7 @@ void Cell::DelTradeRoute(TradeRoute route)
 
 		if (count <= 0)
 		{
-			delete m_objects;
-			m_objects = nullptr;
+			m_objects.reset();
 		}
 	}
 
@@ -649,7 +643,7 @@ TradeRoute Cell::GetTradeRoute(sint32 index) const
 void Cell::InsertImprovement(const TerrainImprovement &imp)
 {
 	if(!m_objects) {
-		m_objects = new DynamicArray<ID>;
+		m_objects = std::make_unique<DynamicArray<ID>>();
 	}
 
 	m_env |= k_BIT_ENV_HAS_IMPROVEMENT;
@@ -679,8 +673,7 @@ void Cell::RemoveImprovement(const TerrainImprovement &imp)
 
 		if (count <= 0)
 		{
-			delete m_objects;
-			m_objects = nullptr;
+			m_objects.reset();
 		}
 	}
 
@@ -766,7 +759,7 @@ void Cell::GetArmy(CellUnitList &al)
 
 CellUnitList *Cell::UnitArmy()
 {
-	return m_unit_army;
+	return m_unit_army.get();
 }
 
 Unit &Cell::AccessUnit(sint32 index)
@@ -863,14 +856,13 @@ void Cell::CreateGoodyHut()
 {
 	if (!m_jabba)
 	{
-		m_jabba = new GoodyHut();
+		m_jabba = std::make_unique<GoodyHut>();
 	}
 }
 
 void Cell::DeleteGoodyHut()
 {
-	delete m_jabba;
-	m_jabba = nullptr;
+	m_jabba.reset();
 }
 
 bool Cell::HasWormhole() const
@@ -923,8 +915,7 @@ void Cell::ClearUnitsNStuff()
 #endif
 
 	SetOwner(PLAYER_UNASSIGNED);
-	delete m_unit_army;
-	m_unit_army = nullptr;
+	m_unit_army.reset();
 
 	for (sint32 i = GetNumObjects() - 1; i >= 0; i--) {
 		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) != k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB)
@@ -1139,7 +1130,7 @@ double Cell::CalcTerrainFreightCost()
 
 GoodyHut *Cell::GetGoodyHut()
 {
-	return m_jabba;
+	return m_jabba.get();
 }
 
 sint32 Cell::GetNumObjects() const
@@ -1160,7 +1151,7 @@ void Cell::InsertDBImprovement(sint32 type)
 {
 	const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(type);
 	if(!m_objects)
-		m_objects = new DynamicArray<ID>;
+		m_objects = std::make_unique<DynamicArray<ID>>();
 	uint32 id = k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB | type;
 
 	sint32 i;

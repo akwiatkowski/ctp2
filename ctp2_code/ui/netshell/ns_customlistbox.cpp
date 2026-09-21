@@ -32,6 +32,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/netshell/netshell.h"
 #include "ui/netshell/ns_customlistbox.h"
@@ -70,7 +71,7 @@ bool NETFunc::ListHandler<nf_AIPlayer>::Handle(NETFunc::Message *m) {
 	} else if(m->GetCode() == NETFunc::Message::ADDAIPLAYER) {
 		t.Set(m->GetBodySize(), m->GetBody());
 
-		Insert(Add(new nf_AIPlayer(t)));
+		Insert(Add(std::make_unique<nf_AIPlayer>(t).release()));
 		return true;
 	} else if(m->GetCode() == NETFunc::Message::DELAIPLAYER) {
 		t.Set(m->GetBodySize(), m->GetBody());
@@ -184,16 +185,16 @@ ns_TransportListBox::ns_TransportListBox (
 
 		switch((*i)->GetType()) {
 		case NETFunc::Transport::INTERNET:
-			Insert(Add(new NETFunc::Internet(*(NETFunc::Internet *)*i)));
+			Insert(Add(std::make_unique<NETFunc::Internet>(*(NETFunc::Internet *)*i).release()));
 		break;
 		case NETFunc::Transport::IPX:
-			Insert(Add(new NETFunc::IPX(*(NETFunc::IPX *)*i)));
+			Insert(Add(std::make_unique<NETFunc::IPX>(*(NETFunc::IPX *)*i).release()));
 		break;
 		case NETFunc::Transport::MODEM:
-			Insert(Add(new NETFunc::Modem(*(NETFunc::Modem *)*i)));
+			Insert(Add(std::make_unique<NETFunc::Modem>(*(NETFunc::Modem *)*i).release()));
 		break;
 		case NETFunc::Transport::NULLMODEM:
-			Insert(Add(new NETFunc::NullModem(*(NETFunc::NullModem *)*i)));
+			Insert(Add(std::make_unique<NETFunc::NullModem>(*(NETFunc::NullModem *)*i).release()));
 		break;
 		default:
 		break;
@@ -313,31 +314,12 @@ ns_PlayerListBox::ns_PlayerListBox (
 	ActionFunc,
 	cookie )
 {
-	m_pingFastStyle = new aui_TextBase( "styles.ping.fast", (MBCHAR *)nullptr );
-	m_pingMedStyle = new aui_TextBase( "styles.ping.med", (MBCHAR *)nullptr );
-	m_pingSlowStyle = new aui_TextBase( "styles.ping.slow", (MBCHAR *)nullptr );
+	m_pingFastStyle = std::make_unique<aui_TextBase>( "styles.ping.fast", (MBCHAR *)nullptr );
+	m_pingMedStyle = std::make_unique<aui_TextBase>( "styles.ping.med", (MBCHAR *)nullptr );
+	m_pingSlowStyle = std::make_unique<aui_TextBase>( "styles.ping.slow", (MBCHAR *)nullptr );
 }
 
-ns_PlayerListBox::~ns_PlayerListBox()
-{
-	if ( m_pingFastStyle )
-	{
-		delete m_pingFastStyle;
-		m_pingFastStyle = nullptr;
-	}
-
-	if ( m_pingMedStyle )
-	{
-		delete m_pingMedStyle;
-		m_pingMedStyle = nullptr;
-	}
-
-	if ( m_pingSlowStyle )
-	{
-		delete m_pingSlowStyle;
-		m_pingSlowStyle = nullptr;
-	}
-}
+ns_PlayerListBox::~ns_PlayerListBox() = default;
 
 void ns_PlayerListBox::Insert( NETFunc::Player *player )
 {
@@ -417,31 +399,12 @@ ns_ServerListBox::ns_ServerListBox (
 	ActionFunc,
 	cookie )
 {
-	m_pingFastStyle = new aui_TextBase( "styles.ping.fast", (MBCHAR *)nullptr );
-	m_pingMedStyle = new aui_TextBase( "styles.ping.med", (MBCHAR *)nullptr );
-	m_pingSlowStyle = new aui_TextBase( "styles.ping.slow", (MBCHAR *)nullptr );
+	m_pingFastStyle = std::make_unique<aui_TextBase>( "styles.ping.fast", (MBCHAR *)nullptr );
+	m_pingMedStyle = std::make_unique<aui_TextBase>( "styles.ping.med", (MBCHAR *)nullptr );
+	m_pingSlowStyle = std::make_unique<aui_TextBase>( "styles.ping.slow", (MBCHAR *)nullptr );
 }
 
-ns_ServerListBox::~ns_ServerListBox()
-{
-	if ( m_pingFastStyle )
-	{
-		delete m_pingFastStyle;
-		m_pingFastStyle = nullptr;
-	}
-
-	if ( m_pingMedStyle )
-	{
-		delete m_pingMedStyle;
-		m_pingMedStyle = nullptr;
-	}
-
-	if ( m_pingSlowStyle )
-	{
-		delete m_pingSlowStyle;
-		m_pingSlowStyle = nullptr;
-	}
-}
+ns_ServerListBox::~ns_ServerListBox() = default;
 
 void ns_ServerListBox::Insert( NETFunc::Server *server )
 {
@@ -503,31 +466,12 @@ ns_GPlayerListBox::ns_GPlayerListBox (
 	cookie ),
 	m_hplayerlistbox( hplayerlistbox )
 {
-	m_pingFastStyle = new aui_TextBase( "styles.ping.fast", (MBCHAR *)nullptr );
-	m_pingMedStyle = new aui_TextBase( "styles.ping.med", (MBCHAR *)nullptr );
-	m_pingSlowStyle = new aui_TextBase( "styles.ping.slow", (MBCHAR *)nullptr );
+	m_pingFastStyle = std::make_unique<aui_TextBase>( "styles.ping.fast", (MBCHAR *)nullptr );
+	m_pingMedStyle = std::make_unique<aui_TextBase>( "styles.ping.med", (MBCHAR *)nullptr );
+	m_pingSlowStyle = std::make_unique<aui_TextBase>( "styles.ping.slow", (MBCHAR *)nullptr );
 }
 
-ns_GPlayerListBox::~ns_GPlayerListBox()
-{
-	if ( m_pingFastStyle )
-	{
-		delete m_pingFastStyle;
-		m_pingFastStyle = nullptr;
-	}
-
-	if ( m_pingMedStyle )
-	{
-		delete m_pingMedStyle;
-		m_pingMedStyle = nullptr;
-	}
-
-	if ( m_pingSlowStyle )
-	{
-		delete m_pingSlowStyle;
-		m_pingSlowStyle = nullptr;
-	}
-}
+ns_GPlayerListBox::~ns_GPlayerListBox() = default;
 
 void ns_GPlayerListBox::ColorCodePingTime( NETFunc::Player *player )
 {
@@ -564,11 +508,11 @@ void ns_GPlayerListBox::Insert( NETFunc::Player *player )
 	ns_ListBox<NETFunc::Player, ns_GPlayer>::Insert( player );
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	ns_HPlayerItem *item = new ns_HPlayerItem(
+	ns_HPlayerItem *item = std::make_unique<ns_HPlayerItem>(
 		&errcode,
 		player,
 		FALSE,
-		"listitems.hplayeritem" );
+		"listitems.hplayeritem" ).release();
 	Assert( AUI_NEWOK(item,errcode) );
 	if ( !AUI_NEWOK(item,errcode) ) return;
 
@@ -622,13 +566,11 @@ void ns_GPlayerListBox::Delete( NETFunc::Player *player )
 {
 	ns_ListBox<NETFunc::Player, ns_GPlayer>::Delete( player );
 
-	ns_HPlayerItem *item = FindHPlayerItem( player );
+	std::unique_ptr<ns_HPlayerItem> item(FindHPlayerItem( player ));
 	Assert( item != nullptr );
 	if ( !item ) return;
 
 	m_hplayerlistbox->RemoveItem( item->Id() );
-
-	delete item;
 
 	if ( NETFunc::IsHost() )
 	{
@@ -840,11 +782,11 @@ void ns_AIPlayerListBox::Insert( nf_AIPlayer *player )
 	ns_ListBox<nf_AIPlayer, ns_AIPlayer>::Insert( player );
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	ns_HPlayerItem *item = new ns_HPlayerItem(
+	ns_HPlayerItem *item = std::make_unique<ns_HPlayerItem>(
 		&errcode,
 		player,
 		TRUE,
-		"listitems.hplayeritem" );
+		"listitems.hplayeritem" ).release();
 	Assert( AUI_NEWOK(item,errcode) );
 	if ( !AUI_NEWOK(item,errcode) ) return;
 
@@ -885,13 +827,11 @@ void ns_AIPlayerListBox::Delete( nf_AIPlayer *player )
 {
 	ns_ListBox<nf_AIPlayer, ns_AIPlayer>::Delete( player );
 
-	ns_HPlayerItem *item = FindHPlayerItem( player );
+	std::unique_ptr<ns_HPlayerItem> item(FindHPlayerItem( player ));
 	Assert( item != nullptr );
 	if ( !item ) return;
 
 	m_hplayerlistbox->RemoveItem( item->Id() );
-
-	delete item;
 
 	if ( NETFunc::IsHost() )
 	{

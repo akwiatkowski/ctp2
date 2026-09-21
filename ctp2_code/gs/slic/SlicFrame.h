@@ -31,6 +31,8 @@
 #ifndef __SLIC_FRAME_H__
 #define __SLIC_FRAME_H__
 
+#include <memory>
+
 #include "gs/slic/SlicError.h"
 
 #include "gs/slic/slicif.h"
@@ -56,11 +58,11 @@ private:
 	sint32  m_currentLine;
 
 	SlicSegment *m_segment;
-	SlicStack   *m_stack;
+	std::unique_ptr<SlicStack> m_stack;
 	SlicArgList  m_argListArray[k_ARGLIST_STACK_SIZE];
 	SlicArgList *m_argList;
 	SlicObject  *m_resultObject;
-	MessageData *m_messageData;
+	std::unique_ptr<MessageData> m_messageData;
 
 public:
 	SlicFrame(SlicSegment *segment, sint32 offset = 0);
@@ -90,14 +92,14 @@ public:
 
 	void ClearMessageData();
 	void DeleteMessageData();
-	MessageData *GetMessageData() { return m_messageData; }
+	MessageData *GetMessageData() { return m_messageData.get(); }
 	void SetMessageData(MessageData *data);
 
 	void ReportSFError(SFN_ERROR err, SlicSymbolData *sym);
 
 	static sint32 FindFileOffset(const char *file, sint32 line);
 
-	SlicStack *GetStack() { return m_stack; }
+	SlicStack *GetStack() { return m_stack.get(); }
 
 	sint32 GetCurrentLine() { return m_currentLine; }
 	SlicSegment * GetSlicSegment() { return m_segment; }

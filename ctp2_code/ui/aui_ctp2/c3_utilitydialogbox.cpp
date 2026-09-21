@@ -33,6 +33,7 @@
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 
 #include <string>
+#include <memory>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -73,9 +74,9 @@ extern sint32   	g_modalWindow;
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
 
-c3_ExpelPopup *                 g_expelPopup            = nullptr;
-c3_UtilityAbortPopup *          g_utilityAbort          = nullptr;
-c3_UtilityTextMessagePopup *    g_utilityTextMessage    = nullptr;
+std::unique_ptr<c3_ExpelPopup>               g_expelPopup;
+std::unique_ptr<c3_UtilityAbortPopup>        g_utilityAbort;
+std::unique_ptr<c3_UtilityTextMessagePopup>  g_utilityTextMessage;
 
 
 void C3UtilityCityListButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )
@@ -122,7 +123,7 @@ void C3PiracyButtonCallback( aui_Control *control, uint32 action, uint32 data, v
 	c3_PiracyPopup *popup = (c3_PiracyPopup *)cookie;
 	if (!popup) return;
 
-	if ((c3_Button*)control == popup->m_pirate)
+	if ((c3_Button*)control == popup->m_pirate.get())
 	{
 
 
@@ -137,7 +138,7 @@ void C3PiracyButtonCallback( aui_Control *control, uint32 action, uint32 data, v
 			popup->RemoveWindow();
 		}
 	}
-	if ((c3_Button*)control == popup->m_cancel)
+	if ((c3_Button*)control == popup->m_cancel.get())
 	{
 
 
@@ -155,7 +156,7 @@ void C3ExpelButtonCallback( aui_Control *control, uint32 action, uint32 data, vo
 	c3_ExpelPopup *popup = (c3_ExpelPopup *)cookie;
 	if (!popup) return;
 
-	if ((c3_Button*)control == popup->m_attack)
+	if ((c3_Button*)control == popup->m_attack.get())
 	{
 		if (popup->m_callback)
 			popup->m_callback( EXPEL_ACTION_ATTACK );
@@ -164,7 +165,7 @@ void C3ExpelButtonCallback( aui_Control *control, uint32 action, uint32 data, vo
 
 	}
 
-	if ((c3_Button*)control == popup->m_expel)
+	if ((c3_Button*)control == popup->m_expel.get())
 	{
 		if (popup->m_callback)
 			popup->m_callback( EXPEL_ACTION_EXPEL );
@@ -172,7 +173,7 @@ void C3ExpelButtonCallback( aui_Control *control, uint32 action, uint32 data, vo
 		popup->RemoveWindow();
 	}
 
-	if ((c3_Button*)control == popup->m_cancel)
+	if ((c3_Button*)control == popup->m_cancel.get())
 	{
 		if (popup->m_callback)
 			popup->m_callback( EXPEL_ACTION_CANCEL );
@@ -192,7 +193,7 @@ void C3UtilityTextFieldButtonActionCallback( aui_Control *control, uint32 action
 	if (!popup) return;
 
 	if ((ctp2_Button*)control == popup->m_window->Ok() ||
-			(((aui_TextField *)control == popup->m_text) &&
+			(((aui_TextField *)control == popup->m_text.get()) &&
 				(action == AUI_TEXTFIELD_ACTION_EXECUTE)))
 	{
 
@@ -262,7 +263,7 @@ void C3AbortButtonActionCallback( aui_Control *control, uint32 action, uint32 da
 	c3_UtilityAbortPopup *popup = (c3_UtilityAbortPopup *)cookie;
 	if (!popup) return;
 
-	if ((ctp2_Button*)control == popup->m_abort)
+	if ((ctp2_Button*)control == popup->m_abort.get())
 	{
 		if (popup->m_callback)
 			popup->m_callback( FALSE );
@@ -280,7 +281,7 @@ void C3UtilityPlayerListButtonActionCallback( aui_Control *control, uint32 actio
 	c3_UtilityPlayerListPopup *popup = (c3_UtilityPlayerListPopup *)cookie;
 	if (!popup) return;
 
-	if ((ctp2_Button*)control == popup->m_kick)
+	if ((ctp2_Button*)control == popup->m_kick.get())
 	{
 
 		DoubleListItem *item = (DoubleListItem *) popup->m_list->GetSelectedItem();
@@ -293,7 +294,7 @@ void C3UtilityPlayerListButtonActionCallback( aui_Control *control, uint32 actio
 			popup->m_callback( playerIndex, TRUE, PLAYER_ACTION_KICK );
 		}
 	}
-	if ((ctp2_Button*)control == popup->m_open)
+	if ((ctp2_Button*)control == popup->m_open.get())
 	{
 
 		DoubleListItem *item = (DoubleListItem *) popup->m_list->GetSelectedItem();
@@ -306,7 +307,7 @@ void C3UtilityPlayerListButtonActionCallback( aui_Control *control, uint32 actio
 			popup->m_callback( playerIndex, TRUE, PLAYER_ACTION_OPEN );
 		}
 	}
-	if ((ctp2_Button*)control == popup->m_close)
+	if ((ctp2_Button*)control == popup->m_close.get())
 	{
 
 		DoubleListItem *item = (DoubleListItem *) popup->m_list->GetSelectedItem();
@@ -319,7 +320,7 @@ void C3UtilityPlayerListButtonActionCallback( aui_Control *control, uint32 actio
 			popup->m_callback( playerIndex, TRUE, PLAYER_ACTION_CLOSE );
 		}
 	}
-	if ((ctp2_Button*)control == popup->m_abort)
+	if ((ctp2_Button*)control == popup->m_abort.get())
 	{
 		if (popup->m_callback)
 			popup->m_callback( -1, FALSE, PLAYER_ACTION_MAX );
@@ -355,7 +356,7 @@ c3_UtilityCityListPopup::c3_UtilityCityListPopup( c3_UtilityCityListCallback *ca
 
 	{
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -395,7 +396,7 @@ sint32 c3_UtilityCityListPopup::Initialize( MBCHAR const *windowBlock )
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CityList" );
-	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
+	m_list = std::make_unique<ctp2_ListBox>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
 
@@ -410,12 +411,12 @@ c3_UtilityCityListPopup::~c3_UtilityCityListPopup( )
     if (m_list)
     {
         m_list->Clear();
-        delete m_list;
     }
-    delete m_title_label;
-    delete m_ok;
-    delete m_cancel;
-    delete m_window;
+    m_list.reset();
+    m_title_label.reset();
+    m_ok.reset();
+    m_cancel.reset();
+    m_window.reset();
 }
 
 void c3_UtilityCityListPopup::Cleanup()
@@ -423,12 +424,12 @@ void c3_UtilityCityListPopup::Cleanup()
     if (m_list)
     {
         m_list->Clear();
-        allocated::clear(m_list);
     }
-    allocated::clear(m_title_label);
-    allocated::clear(m_ok);
-    allocated::clear(m_cancel);
-    allocated::clear(m_window);
+    m_list.reset();
+    m_title_label.reset();
+    m_ok.reset();
+    m_cancel.reset();
+    m_window.reset();
 	m_callback = nullptr;
 }
 
@@ -436,7 +437,7 @@ void c3_UtilityCityListPopup::DisplayWindow( )
 {
 	UpdateData();
 
-	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
@@ -462,7 +463,7 @@ sint32 c3_UtilityCityListPopup::UpdateData( )
 	for ( sint32 i = 0 ; i < cityList->Num() ; i++ )
 	{
 		strlcpy(strbuf, (*cityList)[i].GetData()->GetCityData()->GetName(), sizeof(strbuf));
-		m_list->AddItem(new SingleListItem(&retval, strbuf, i, ldlBlock));
+		m_list->AddItem(std::make_unique<SingleListItem>(&retval, strbuf, i, ldlBlock).release());
 	}
 
 	return 0;
@@ -487,7 +488,7 @@ c3_PiracyPopup::c3_PiracyPopup( c3_PiracyCallback *callback, MBCHAR const *ldlBl
 
 	{
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -505,22 +506,22 @@ sint32 c3_PiracyPopup::Initialize( MBCHAR const *windowBlock )
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PirateButton" );
-	m_pirate = new c3_Button(&errcode, aui_UniqueId(), controlBlock, C3PiracyButtonCallback, this);
+	m_pirate = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, C3PiracyButtonCallback, this);
 	Assert( AUI_NEWOK(m_pirate, errcode) );
 	if ( !AUI_NEWOK(m_pirate, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CancelButton" );
-	m_cancel = new c3_Button(&errcode, aui_UniqueId(), controlBlock, C3PiracyButtonCallback, this);
+	m_cancel = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, C3PiracyButtonCallback, this);
 	Assert( AUI_NEWOK(m_cancel, errcode) );
 	if ( !AUI_NEWOK(m_cancel, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleLabel");
-	m_title_label = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
+	m_title_label = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_title_label, errcode) );
 	if ( !AUI_NEWOK(m_title_label, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerList" );
-	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
+	m_list = std::make_unique<ctp2_ListBox>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
 
@@ -535,12 +536,12 @@ c3_PiracyPopup::~c3_PiracyPopup( )
     if (m_list)
     {
         m_list->Clear();
-        delete m_list;
     }
-    delete m_title_label;
-    delete m_pirate;
-    delete m_cancel;
-    delete m_window;
+    m_list.reset();
+    m_title_label.reset();
+    m_pirate.reset();
+    m_cancel.reset();
+    m_window.reset();
 }
 
 void c3_PiracyPopup::Cleanup( )
@@ -548,12 +549,12 @@ void c3_PiracyPopup::Cleanup( )
     if (m_list)
     {
         m_list->Clear();
-        allocated::clear(m_list);
     }
-    allocated::clear(m_title_label);
-    allocated::clear(m_pirate);
-    allocated::clear(m_cancel);
-    allocated::clear(m_window);
+    m_list.reset();
+    m_title_label.reset();
+    m_pirate.reset();
+    m_cancel.reset();
+    m_window.reset();
 	m_callback = nullptr;
 }
 
@@ -561,7 +562,7 @@ void c3_PiracyPopup::DisplayWindow( )
 {
 	UpdateData();
 
-	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
@@ -588,7 +589,7 @@ sint32 c3_PiracyPopup::UpdateData( )
 	for ( sint32 i = 0 ; i < cityList->Num() ; i++ )
 	{
 		strlcpy(strbuf, (*cityList)[i].GetData()->GetCityData()->GetName(), sizeof(strbuf));
-		m_list->AddItem(new SingleListItem(&retval, strbuf, i, ldlBlock));
+		m_list->AddItem(std::make_unique<SingleListItem>(&retval, strbuf, i, ldlBlock).release());
 	}
 
 	return 0;
@@ -613,7 +614,7 @@ c3_ExpelPopup::c3_ExpelPopup( c3_ExpelCallback *callback, MBCHAR const *ldlBlock
 
 	{
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -631,22 +632,22 @@ sint32 c3_ExpelPopup::Initialize( MBCHAR const *windowBlock )
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "AttackButton" );
-	m_attack = new c3_Button(&errcode, aui_UniqueId(), controlBlock, C3ExpelButtonCallback, this);
+	m_attack = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, C3ExpelButtonCallback, this);
 	Assert( AUI_NEWOK(m_attack, errcode) );
 	if ( !AUI_NEWOK(m_attack, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExpelButton" );
-	m_expel = new c3_Button(&errcode, aui_UniqueId(), controlBlock, C3ExpelButtonCallback, this);
+	m_expel = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, C3ExpelButtonCallback, this);
 	Assert( AUI_NEWOK(m_expel, errcode) );
 	if ( !AUI_NEWOK(m_expel, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CancelButton" );
-	m_cancel = new c3_Button(&errcode, aui_UniqueId(), controlBlock, C3ExpelButtonCallback, this);
+	m_cancel = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, C3ExpelButtonCallback, this);
 	Assert( AUI_NEWOK(m_cancel, errcode) );
 	if ( !AUI_NEWOK(m_cancel, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleLabel");
-	m_title_label = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
+	m_title_label = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_title_label, errcode) );
 	if ( !AUI_NEWOK(m_title_label, errcode) ) return -1;
 
@@ -658,26 +659,26 @@ sint32 c3_ExpelPopup::Initialize( MBCHAR const *windowBlock )
 
 c3_ExpelPopup::~c3_ExpelPopup( )
 {
-    delete m_title_label;
-    delete m_attack;
-    delete m_expel;
-    delete m_cancel;
-    delete m_window;
+    m_title_label.reset();
+    m_attack.reset();
+    m_expel.reset();
+    m_cancel.reset();
+    m_window.reset();
 }
 
 void c3_ExpelPopup::Cleanup()
 {
-    allocated::clear(m_title_label);
-    allocated::clear(m_attack);
-    allocated::clear(m_expel);
-    allocated::clear(m_cancel);
-    allocated::clear(m_window);
+    m_title_label.reset();
+    m_attack.reset();
+    m_expel.reset();
+    m_cancel.reset();
+    m_window.reset();
 	m_callback = nullptr;
 }
 
 void c3_ExpelPopup::DisplayWindow( )
 {
-	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
@@ -720,7 +721,7 @@ c3_UtilityTextFieldPopup::c3_UtilityTextFieldPopup
 
 	{
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -772,14 +773,14 @@ sint32 c3_UtilityTextFieldPopup::Initialize( MBCHAR const *windowBlock )
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TextMessage");
-	m_title_label = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
+	m_title_label = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_title_label, errcode) );
 	if ( !AUI_NEWOK(m_title_label, errcode) ) return -1;
 	if (!m_title_text.empty())
 		m_title_label->SetText(m_title_text.c_str());
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TextField");
-	m_text = new C3TextField( &errcode, aui_UniqueId(), controlBlock,
+	m_text = std::make_unique<C3TextField>( &errcode, aui_UniqueId(), controlBlock,
 		C3UtilityTextFieldButtonActionCallback, this);
 	Assert( AUI_NEWOK(m_text, errcode) );
 	if ( !AUI_NEWOK(m_text, errcode) ) return -1;
@@ -792,36 +793,36 @@ sint32 c3_UtilityTextFieldPopup::Initialize( MBCHAR const *windowBlock )
 
 c3_UtilityTextFieldPopup::~c3_UtilityTextFieldPopup( )
 {
-    delete m_ok;
-    delete m_cancel;
-    delete m_text;
-    delete m_title_label;
-    delete m_window;
+    m_ok.reset();
+    m_cancel.reset();
+    m_text.reset();
+    m_title_label.reset();
+    m_window.reset();
 }
 
 void c3_UtilityTextFieldPopup::Cleanup()
 {
-    allocated::clear(m_ok);
-    allocated::clear(m_cancel);
-    allocated::clear(m_text);
-    allocated::clear(m_title_label);
-    allocated::clear(m_window);
+    m_ok.reset();
+    m_cancel.reset();
+    m_text.reset();
+    m_title_label.reset();
+    m_window.reset();
 }
 
 void c3_UtilityTextFieldPopup::DisplayWindow( )
 {
 	UpdateData();
 
-	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
-	keypress_RegisterHandler(m_window);
+	keypress_RegisterHandler(m_window.get());
 }
 
 void c3_UtilityTextFieldPopup::RemoveWindow( )
 {
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
-	keypress_RemoveHandler(m_window);
+	keypress_RemoveHandler(m_window.get());
 }
 
 sint32 c3_UtilityTextFieldPopup::UpdateData( )
@@ -871,7 +872,7 @@ c3_UtilityTextMessagePopup::c3_UtilityTextMessagePopup
 
 	{
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -928,7 +929,7 @@ sint32 c3_UtilityTextMessagePopup::Initialize( MBCHAR const *windowBlock )
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TextMessage");
-	m_text = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
+	m_text = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_text, errcode) );
 	if ( !AUI_NEWOK(m_text, errcode) ) return -1;
 
@@ -940,20 +941,20 @@ sint32 c3_UtilityTextMessagePopup::Initialize( MBCHAR const *windowBlock )
 
 c3_UtilityTextMessagePopup::~c3_UtilityTextMessagePopup( )
 {
-    delete m_ok;
-    delete m_cancel;
-    delete m_text;
-    delete m_title_label;
-    delete m_window;
+    m_ok.reset();
+    m_cancel.reset();
+    m_text.reset();
+    m_title_label.reset();
+    m_window.reset();
 }
 
 void c3_UtilityTextMessagePopup::Cleanup( )
 {
-    allocated::clear(m_ok);
-    allocated::clear(m_cancel);
-    allocated::clear(m_text);
-    allocated::clear(m_title_label);
-    allocated::clear(m_window);
+    m_ok.reset();
+    m_cancel.reset();
+    m_text.reset();
+    m_title_label.reset();
+    m_window.reset();
 	m_type = 0;
 }
 
@@ -961,10 +962,10 @@ void c3_UtilityTextMessagePopup::DisplayWindow( MBCHAR const *text )
 {
 	UpdateData(text);
 
-	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 
-	keypress_RegisterHandler(m_window);
+	keypress_RegisterHandler(m_window.get());
 }
 
 void c3_UtilityTextMessagePopup::RemoveWindow( )
@@ -972,9 +973,9 @@ void c3_UtilityTextMessagePopup::RemoveWindow( )
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 
-	keypress_RemoveHandler(m_window);
+	keypress_RemoveHandler(m_window.get());
 
-    allocated::clear(g_utilityTextMessage);
+    g_utilityTextMessage.reset();
 }
 
 sint32 c3_UtilityTextMessagePopup::UpdateData( MBCHAR const *text )
@@ -993,7 +994,7 @@ void c3_UtilityTextMessageCleanupAction::Execute(aui_Control *control,
 	if (g_utilityTextMessage)
     {
 		g_utilityTextMessage->Cleanup();
-        allocated::clear(g_utilityTextMessage);
+        g_utilityTextMessage.reset();
     }
 }
 
@@ -1025,7 +1026,7 @@ void c3_UtilityAbortCleanupAction::Execute(aui_Control *control,
 	if (g_utilityAbort)
     {
 		g_utilityAbort->Cleanup();
-        allocated::clear(g_utilityAbort);
+        g_utilityAbort.reset();
     }
 }
 
@@ -1038,7 +1039,7 @@ void c3_TextMessage(MBCHAR const *text, sint32 type, c3_UtilityTextMessageCallba
 
 	if (g_utilityTextMessage) return;
 
-	g_utilityTextMessage = new c3_UtilityTextMessagePopup( text, type, callback, ldlBlock );
+	g_utilityTextMessage = std::make_unique<c3_UtilityTextMessagePopup>( text, type, callback, ldlBlock );
 	g_utilityTextMessage->DisplayWindow(text);
 }
 
@@ -1047,7 +1048,7 @@ void c3_KillTextMessage( )
 	if (g_utilityTextMessage)
     {
 		g_utilityTextMessage->Cleanup();
-        allocated::clear(g_utilityTextMessage);
+        g_utilityTextMessage.reset();
     }
 }
 
@@ -1060,7 +1061,7 @@ void c3_AbortMessage(MBCHAR const *text, sint32 type, c3_AbortMessageCallback *c
 
 	if (g_utilityAbort) return;
 
-	g_utilityAbort = new c3_UtilityAbortPopup( text, type, callback, ldlBlock );
+	g_utilityAbort = std::make_unique<c3_UtilityAbortPopup>( text, type, callback, ldlBlock );
 	g_utilityAbort->DisplayWindow(text);
 }
 
@@ -1108,7 +1109,7 @@ c3_UtilityAbortPopup::c3_UtilityAbortPopup( MBCHAR const *text, sint32 type, c3_
 	}
 
 	{
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -1126,18 +1127,18 @@ sint32 c3_UtilityAbortPopup::Initialize( MBCHAR const *windowBlock )
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "AbortButton" );
-	m_abort = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, C3AbortButtonActionCallback, this);
+	m_abort = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), controlBlock, C3AbortButtonActionCallback, this);
 	TestControl( m_abort );
 
 	if (m_type == k_UTILITY_PROGRESS_ABORT)
 	{
 		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Meter" );
-		m_meter = new Thermometer(&errcode, aui_UniqueId(), controlBlock );
+		m_meter = std::make_unique<Thermometer>(&errcode, aui_UniqueId(), controlBlock );
 		TestControl( m_meter );
 	}
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TextMessage");
-	m_text = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
+	m_text = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_text, errcode) );
 	if ( !AUI_NEWOK(m_text, errcode) ) return -1;
 
@@ -1149,18 +1150,18 @@ sint32 c3_UtilityAbortPopup::Initialize( MBCHAR const *windowBlock )
 
 c3_UtilityAbortPopup::~c3_UtilityAbortPopup( )
 {
-    delete m_abort;
-    delete m_meter;
-    delete m_text;
-    delete m_window;
+    m_abort.reset();
+    m_meter.reset();
+    m_text.reset();
+    m_window.reset();
 }
 
 void c3_UtilityAbortPopup::Cleanup()
 {
-    allocated::clear(m_abort);
-    allocated::clear(m_meter);
-    allocated::clear(m_text);
-    allocated::clear(m_window);
+    m_abort.reset();
+    m_meter.reset();
+    m_text.reset();
+    m_window.reset();
 	m_type = 0;
 }
 
@@ -1175,7 +1176,7 @@ void c3_UtilityAbortPopup::DisplayWindow( MBCHAR const *text, sint32 percentFill
 	}
 	keypress_RegisterHandler(this);
 
-	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
@@ -1186,7 +1187,7 @@ void c3_UtilityAbortPopup::RemoveWindow( )
 
 	keypress_RemoveHandler(this);
 
-    allocated::clear(g_utilityAbort);
+    g_utilityAbort.reset();
 }
 
 sint32 c3_UtilityAbortPopup::UpdateData( MBCHAR const *text )
@@ -1237,7 +1238,7 @@ c3_UtilityPlayerListPopup::c3_UtilityPlayerListPopup( c3_UtilityPlayerListCallba
 
 	{
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -1255,23 +1256,23 @@ sint32 c3_UtilityPlayerListPopup::Initialize( MBCHAR const *windowBlock )
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "AbortButton" );
-	m_abort = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
+	m_abort = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
 	TestControl( m_abort );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "KickButton" );
-	m_kick = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
+	m_kick = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
 	TestControl( m_kick );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "OpenButton" );
-	m_open = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
+	m_open = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
 	TestControl( m_open );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CloseButton" );
-	m_close = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
+	m_close = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
 	TestControl( m_close );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerList" );
-	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
+	m_list = std::make_unique<ctp2_ListBox>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
 
@@ -1283,30 +1284,30 @@ sint32 c3_UtilityPlayerListPopup::Initialize( MBCHAR const *windowBlock )
 
 c3_UtilityPlayerListPopup::~c3_UtilityPlayerListPopup( )
 {
-    delete m_abort;
-    delete m_kick;
-    delete m_open;
-    delete m_close;
+    m_abort.reset();
+    m_kick.reset();
+    m_open.reset();
+    m_close.reset();
     if (m_list)
     {
         m_list->Clear();
-        delete m_list;
     }
-    delete m_window;
+    m_list.reset();
+    m_window.reset();
 }
 
 void c3_UtilityPlayerListPopup::Cleanup( )
 {
-    allocated::clear(m_abort);
-    allocated::clear(m_kick);
-    allocated::clear(m_open);
-    allocated::clear(m_close);
+    m_abort.reset();
+    m_kick.reset();
+    m_open.reset();
+    m_close.reset();
     if (m_list)
     {
         m_list->Clear();
-        allocated::clear(m_list);
     }
-    allocated::clear(m_window);
+    m_list.reset();
+    m_window.reset();
 	m_callback = nullptr;
 }
 
@@ -1314,7 +1315,7 @@ void c3_UtilityPlayerListPopup::DisplayWindow( )
 {
 	UpdateData();
 
-	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	keypress_RegisterHandler(this);
@@ -1348,13 +1349,13 @@ sint32 c3_UtilityPlayerListPopup::UpdateData( )
 		if (player_arr_Get()[i])
         {
 			strlcpy(strbuf, player_Get(i)->GetLeaderName(), sizeof(strbuf));
-            m_list->AddItem(new DoubleListItem
+            m_list->AddItem(std::make_unique<DoubleListItem>
                                 (&retval,
                                  strbuf,
                                  i,
                                  network_Get().GetStatusString(i),
                                  ldlBlock
-                                )
+                                ).release()
                            );
 		}
 	}
@@ -1431,10 +1432,10 @@ AUI_ERRCODE DoubleListItem::InitCommonLdl(MBCHAR const *name, sint32 value, MBCH
 	}
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
-	AddChild(new c3_Static(&retval, aui_UniqueId(), block));
+	AddChild(std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release());
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Text");
-	AddChild(new c3_Static(&retval, aui_UniqueId(), block));
+	AddChild(std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release());
 
 	Update();
 
@@ -1489,16 +1490,16 @@ void c3Expel_Initialize( c3_ExpelCallback callback )
 {
 	if ( g_expelPopup ) return;
 
-	g_expelPopup = new c3_ExpelPopup( callback );
+	g_expelPopup = std::make_unique<c3_ExpelPopup>( callback );
 }
 
 void c3Expel_Cleanup( )
 {
-    allocated::clear(g_expelPopup);
+    g_expelPopup.reset();
 }
 
 
-static c3_UtilityTextFieldPopup	*s_nameTheCityPopup;
+static std::unique_ptr<c3_UtilityTextFieldPopup>	s_nameTheCityPopup;
 static Unit						s_unit;
 
 void NameTheCityDialogBoxCallback(MBCHAR const * text, sint32 val2, void *data)
@@ -1527,7 +1528,7 @@ void c3_utilitydialogbox_NameCity(Unit city)
 
 	if ( !s_nameTheCityPopup ) {
 
-		s_nameTheCityPopup = new c3_UtilityTextFieldPopup(NameTheCityDialogBoxCallback,
+		s_nameTheCityPopup = std::make_unique<c3_UtilityTextFieldPopup>(NameTheCityDialogBoxCallback,
 									nullptr,
 									nameText,
 									nullptr,
@@ -1550,13 +1551,13 @@ void c3_utilitydialogbox_NameCity(Unit city)
 
 void c3_utilitydialogbox_NameCityCleanup()
 {
-    allocated::clear(s_nameTheCityPopup);
+    s_nameTheCityPopup.reset();
 }
 
 
 
 
-c3_UtilityTextFieldPopup		*s_genericTextEntryPopup = nullptr;
+std::unique_ptr<c3_UtilityTextFieldPopup>		s_genericTextEntryPopup;
 
 void c3_utilitydialogbox_TextFieldDialog(MBCHAR *titleText,
 								   MBCHAR *defaultText,
@@ -1567,7 +1568,7 @@ void c3_utilitydialogbox_TextFieldDialog(MBCHAR *titleText,
 
 	if ( !s_genericTextEntryPopup ) {
 
-		s_genericTextEntryPopup = new c3_UtilityTextFieldPopup(callback,
+		s_genericTextEntryPopup = std::make_unique<c3_UtilityTextFieldPopup>(callback,
 																titleText,
 																defaultText,
 																messageText,
@@ -1590,5 +1591,5 @@ void c3_utilitydialogbox_TextFieldDialog(MBCHAR *titleText,
 
 void c3_utilitydialogbox_CleanupTextFieldDialog()
 {
-    allocated::clear(s_genericTextEntryPopup);
+    s_genericTextEntryPopup.reset();
 }

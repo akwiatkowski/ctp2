@@ -22,6 +22,8 @@ class c3_EditButton;
 
 #include "ui/aui_ctp2/patternbase.h"
 #include "ui/aui_common/aui_action.h"
+#include <memory>
+
 #include "ui/aui_common/aui_button.h"
 
 class aui_Surface;
@@ -104,16 +106,10 @@ public:
 	void DoCallback( );
 
 protected:
-	c3_EditButton()
-    :
-        c3_Button       (),
-	    m_val           (k_C3_EDITBUTTON_DEFAULTVAL),
-	    m_min           (k_C3_EDITBUTTON_DEFAULTMIN),
-	    m_max           (k_C3_EDITBUTTON_DEFAULTMAX),
-        m_field         (nullptr),
-        m_origAction    (nullptr),
-	    m_origCallback  (nullptr)
-    {};
+	// Out-of-line in c3_button.cpp: unique_ptr<C3TextField> over a
+	// forward-declared type needs the complete type at ctor/dtor
+	// instantiation.
+	c3_EditButton();
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 
@@ -122,7 +118,7 @@ private:
 	sint32 m_min;
 	sint32 m_max;
 
-	C3TextField *m_field;
+	std::unique_ptr<C3TextField> m_field;
 
 	union
 	{

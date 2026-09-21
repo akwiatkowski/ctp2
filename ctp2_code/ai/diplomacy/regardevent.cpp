@@ -57,6 +57,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicEngine.h"
+#include <memory>
 
 STDEHANDLER(KillUnitRegardEvent)
 {
@@ -110,11 +111,11 @@ STDEHANDLER(KillUnitRegardEvent)
 			sint32 trust_cost;
 			if (diplomat.GetCurrentDiplomacy(killer).GetAttackCivilianTrustCost(trust_cost))
 			{
-				SlicObject *so = new SlicObject("TANoKillCivilian");
+				auto so = std::make_unique<SlicObject>("TANoKillCivilian");
 				so->AddRecipient(killer);
 				so->AddUnitRecord(u.GetType());
 				so->AddPlayer(u.GetOwner());
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 
 				Diplomat::ApplyGlobalTrustChange(killer, trust_cost, "Committed the war crime of killing a civilian unit.");
 			}

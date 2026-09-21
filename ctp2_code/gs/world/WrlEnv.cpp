@@ -34,6 +34,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
@@ -500,7 +502,6 @@ BOOL World::IsConnectedToCity(const MapPoint &pnt, sint32 owner,
 							  uint8* array) const
 {
 	MapPoint neighbor;
-	BOOL firstcall = FALSE;
 	Cell *thisCell = GetCell(pnt);
 
 	if(thisCell->GetCity().m_id != (0)) {
@@ -510,10 +511,12 @@ BOOL World::IsConnectedToCity(const MapPoint &pnt, sint32 owner,
 			return FALSE;
 	}
 
+	// The outermost call owns the visited-cell scratch map; recursive
+	// calls borrow it through the array parameter.
+	std::unique_ptr<uint8[]> ownedArray;
 	if(array == nullptr) {
-		array = new uint8[m_size.y * m_size.x];
-		memset(array, 0, m_size.y * m_size.x);
-		firstcall = TRUE;
+		ownedArray = std::make_unique<uint8[]>(m_size.y * m_size.x); // zero-initialized
+		array = ownedArray.get();
 	}
 
 	array[pnt.y * m_size.x + pnt.x] = 1;
@@ -526,17 +529,11 @@ BOOL World::IsConnectedToCity(const MapPoint &pnt, sint32 owner,
 				if((neighborCell->GetOwner() == (sint8)owner) ||
 				   (neighborCell->GetCity().m_id != (0))) {
 					if(IsConnectedToCity(neighbor, owner, array)) {
-						if(firstcall) {
-							delete [] array;
-						}
 						return TRUE;
 					}
 				}
 			}
 		}
-	}
-	if(firstcall) {
-		delete [] array;
 	}
 	return FALSE;
 }
@@ -561,7 +558,6 @@ bool World::IsContinentSharedWithOthers(const MapPoint &pnt,
 										uint8* array) const
 {
 	MapPoint neighbor;
-	BOOL firstcall = FALSE;
 	MapPoint pos;
 	Cell *thisCell = m_map[pnt.x][pnt.y];
 
@@ -569,10 +565,12 @@ bool World::IsContinentSharedWithOthers(const MapPoint &pnt,
 		thisCell->GetOwner() != owner)
 		return TRUE;
 
+	// The outermost call owns the visited-cell scratch map; recursive
+	// calls borrow it through the array parameter.
+	std::unique_ptr<uint8[]> ownedArray;
 	if(array == nullptr) {
-		array = new uint8[m_size.y * m_size.x];
-		memset(array, 0, m_size.y * m_size.x);
-		firstcall = TRUE;
+		ownedArray = std::make_unique<uint8[]>(m_size.y * m_size.x); // zero-initialized
+		array = ownedArray.get();
 	}
 
 	array[pnt.y * m_size.x + pnt.x] = 1;
@@ -583,17 +581,12 @@ bool World::IsContinentSharedWithOthers(const MapPoint &pnt,
 			if(!array[neighbor.y * m_size.x + neighbor.x]) {
 				if(!IsWater(neighbor)) {
 					if(IsContinentSharedWithOthers(neighbor, owner, array)) {
-						if(firstcall) {
-							delete [] array;
-						}
 						return TRUE;
 					}
 				}
 			}
 		}
 	}
-	if(firstcall)
-		delete [] array;
 	return FALSE;
 }
 
@@ -603,24 +596,24 @@ BOOL World::IsContinentBiggerThan(uint32 size,
 								  uint32 *cursize) const
 {
 	MapPoint neighbor;
-	BOOL firstcall = FALSE;
 	MapPoint pos;
 
+	// The outermost call owns the visited-cell scratch map and the running
+	// count; recursive calls borrow both through the parameters.  (The old
+	// code used `new uint32` uninitialized here — ownedSize starts at 0,
+	// which is what the counter semantics require.)
+	std::unique_ptr<uint8[]> ownedArray;
+	uint32 ownedSize = 0;
 	if(array == nullptr) {
-		array = new uint8[m_size.y * m_size.x];
-		memset(array, 0, m_size.y * m_size.x);
-		cursize = new uint32;
-		firstcall = TRUE;
+		ownedArray = std::make_unique<uint8[]>(m_size.y * m_size.x); // zero-initialized
+		array = ownedArray.get();
+		cursize = &ownedSize;
 	}
 
 	array[pnt.y * m_size.x + pnt.x] = 1;
 	if(!IsWater(pnt)) {
 		*cursize = *cursize + 1;
 		if(*cursize >= size) {
-			if(firstcall) {
-				delete [] array;
-				delete cursize;
-			}
 			return TRUE;
 		}
 	}
@@ -632,19 +625,11 @@ BOOL World::IsContinentBiggerThan(uint32 size,
 				if(!IsWater(neighbor)) {
 					if(IsContinentBiggerThan(size, neighbor, array, cursize) ||
 					   *cursize >= size) {
-						if(firstcall) {
-							delete [] array;
-							delete cursize;
-						}
 						return TRUE;
 					}
 				}
 			}
 		}
-	}
-	if(firstcall) {
-		delete [] array;
-		delete cursize;
 	}
 	return FALSE;
 }
@@ -664,8 +649,8 @@ void World::ChangeOwner(const MapPoint &point, sint32 fromOwner, sint32 toOwner)
 
 		if(network_Get().IsHost()) {
 			uint32 packpos = network_Get().PackedPos(point);
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
-										  packpos, toOwner));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CELL_OWNER,
+										  packpos, toOwner).release());
 		}
 
 		DynamicArray<Installation> instArray;

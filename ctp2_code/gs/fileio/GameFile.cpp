@@ -45,6 +45,7 @@
 #include "AgeRecord.h"
 #include "gs/gameobj/AgreementPool.h"         // agreementpool_Get()
 #include <algorithm>
+#include <memory>
 #include <vector>
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/BldQue.h"
@@ -1131,7 +1132,7 @@ bool GameFile::FetchExtendedSaveInfo(MBCHAR const * fullPath, SaveInfo *info)
 
 PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 {
-	PointerList<GameInfo> * list = new PointerList<GameInfo>;
+	PointerList<GameInfo> * list = std::make_unique<PointerList<GameInfo>>().release();
 
 	MBCHAR  dirPath[_MAX_PATH];
 	MBCHAR  path[_MAX_PATH];
@@ -1171,13 +1172,13 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 			if (!strcmp(name, ".")) continue;
 			if (!strcmp(name, "..")) continue;
 
-			gameInfo = new GameInfo();
+			gameInfo = std::make_unique<GameInfo>().release();
 
 			strlcpy(gameInfo->name, name, sizeof(gameInfo->name));
 
 			snprintf(gameInfo->path, sizeof(gameInfo->path), "%s%s%s", dirPath, FILE_SEP, name);
 
-			gameInfo->files = new PointerList<SaveInfo>;
+			gameInfo->files = std::make_unique<PointerList<SaveInfo>>();
 
 			list->AddTail(gameInfo);
 
@@ -1221,18 +1222,17 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 					time_t mtime = (time_t)((ull.QuadPart - 116444736000000000ULL) / 10000000ULL);
 #endif
 
-					SaveInfo		*saveInfo = new SaveInfo();
+					auto saveInfo = std::make_unique<SaveInfo>();
 
 					strlcpy(saveInfo->fileName, name, sizeof(saveInfo->fileName));
 
 					snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
 
-					if (!ValidateGameFile(gameInfo->path, saveInfo)) {
-						delete saveInfo;
+					if (!ValidateGameFile(gameInfo->path, saveInfo.get())) {
 						continue;
 					}
 
-					saves.push_back({saveInfo, mtime});
+					saves.push_back({saveInfo.release(), mtime});
 				}
 #ifdef WIN32
 			} while (FindNextFile(lpFileList, &fileData2));
@@ -1390,7 +1390,6 @@ GameInfo::~GameInfo()
     {
 		files->DeleteAll();
 	}
-	delete files;
 }
 
 
@@ -1414,6 +1413,14 @@ GameMapInfo::GameMapInfo()
 {
 	name[0] = '\0';
 	path[0] = '\0';
+}
+
+GameMapInfo::~GameMapInfo()
+{
+	if (files)
+	{
+		files->DeleteAll();
+	}
 }
 
 
@@ -1645,7 +1652,7 @@ bool GameMapFile::ValidateGameMapFile(MBCHAR const * path, SaveMapInfo *info)
 
 PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 {
-	PointerList<GameMapInfo> * list = new PointerList<GameMapInfo>;
+	PointerList<GameMapInfo> * list = std::make_unique<PointerList<GameMapInfo>>().release();
 	MBCHAR dirPath[_MAX_PATH];
 	MBCHAR path[_MAX_PATH];
 	if (!civpaths_Get()->GetSavePath(dir, dirPath)) return list;
@@ -1684,12 +1691,10 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 			if (!strcmp(name, ".")) continue;
 			if (!strcmp(name, "..")) continue;
 
-			gameInfo = new GameMapInfo();
+			gameInfo = std::make_unique<GameMapInfo>().release();
 			strlcpy(gameInfo->name, name, sizeof(gameInfo->name));
 			snprintf(gameInfo->path, sizeof(gameInfo->path), "%s%s%s", dirPath, FILE_SEP, name);
-			gameInfo->files = new PointerList<SaveMapInfo>;
-
-			list->AddTail(gameInfo);
+			gameInfo->files = std::make_unique<PointerList<SaveMapInfo>>();
 
 #ifdef WIN32
 			WIN32_FIND_DATA		fileData2;
@@ -1719,18 +1724,17 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 				if (!(fileData2.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 					name = fileData2.cFileName;
 #endif
-					SaveMapInfo		*saveInfo = new SaveMapInfo();
+					auto saveInfo = std::make_unique<SaveMapInfo>();
 
 					strlcpy(saveInfo->fileName, name, sizeof(saveInfo->fileName));
 
 					snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
 
-					if (!ValidateGameMapFile(gameInfo->path, saveInfo)) {
-						delete saveInfo;
+					if (!ValidateGameMapFile(gameInfo->path, saveInfo.get())) {
 						continue;
 					}
 
-					gameInfo->files->AddTail(saveInfo);
+					gameInfo->files->AddTail(saveInfo.release());
 				}
 #ifdef WIN32
 			} while (FindNextFile(lpFileList, &fileData2));

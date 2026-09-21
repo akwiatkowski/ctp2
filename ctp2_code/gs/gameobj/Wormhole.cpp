@@ -33,6 +33,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/Wormhole.h"
 #include "gs/gameobj/player.h"
 #include "gs/gameobj/XY_Coordinates.h"
@@ -68,7 +69,7 @@ Wormhole::Wormhole(sint32 discoverer, sint32 currentRound)
 	m_pos.x = sint16(civrand().Next(world_Get()->GetXWidth()));
 	m_curDir = NORTHEAST;
 
-	m_entries = new PointerList<EntryRecord>;
+	m_entries = std::make_unique<PointerList<EntryRecord>>();
 	m_discoveredAt = currentRound;
 
 	sint32 id = g_theResourceDB->Get(g_theResourceDB->FindRecordNameIndex(k_WORMHOLE_GOOD_ID_STR))->GetSpriteID();
@@ -86,7 +87,7 @@ Wormhole::Wormhole(sint32 discoverer, MapPoint &startPos, sint32 currentRound)
 	m_pos.x = startPos.x;
 	m_curDir = NORTHEAST;
 
-	m_entries = new PointerList<EntryRecord>;
+	m_entries = std::make_unique<PointerList<EntryRecord>>();
 	m_discoveredAt = currentRound;
 
 	sint32 id = g_theResourceDB->Get(g_theResourceDB->FindRecordNameIndex(k_WORMHOLE_GOOD_ID_STR))->GetSpriteID();
@@ -97,7 +98,7 @@ Wormhole::~Wormhole()
 {
 	if(m_entries) {
 		m_entries->DeleteAll();
-		delete m_entries;
+		m_entries.reset();
 	}
 
 	goodactor_factory_destroy(m_actor);
@@ -113,7 +114,7 @@ BOOL Wormhole::CheckEnter(const Unit &unit, sint32 currentRound)
 	if(m_pos != upos) {
 		return FALSE;
 	}
-	m_entries->AddTail(new EntryRecord(unit, currentRound));
+	m_entries->AddTail(std::make_unique<EntryRecord>(unit, currentRound).release());
 	return TRUE;
 }
 
@@ -121,10 +122,10 @@ void Wormhole::BeginTurn(sint32 player)
 {
 	Move();
 
-	PointerList<EntryRecord>::Walker walk(m_entries);
+	PointerList<EntryRecord>::Walker walk(m_entries.get());
 	while(walk.IsValid()) {
 		if(!unitpool_Get()->IsValid(walk.GetObj()->m_unit)) {
-			delete walk.Remove();
+			std::unique_ptr<EntryRecord>(walk.Remove());
 			continue;
 		}
 		if(walk.GetObj()->m_unit.GetOwner() != player) {
@@ -135,11 +136,11 @@ void Wormhole::BeginTurn(sint32 player)
 			walk.GetObj()->m_unit.Kill(CAUSE_REMOVE_ARMY_PROBE_RECOVERED, -1);
 		}
 
-		delete walk.Remove();
+		std::unique_ptr<EntryRecord>(walk.Remove());
 
 	}
 	if(network_Get().IsHost()) {
-		network_Get().QueuePacketToAll(new NetWormhole());
+		network_Get().QueuePacketToAll(std::make_unique<NetWormhole>().release());
 	}
 }
 

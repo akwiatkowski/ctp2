@@ -29,6 +29,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/aui_ctp2/ctp2_listitem.h"
 #include "ui/aui_ctp2/c3_hypertextbox.h"
 
@@ -160,7 +162,7 @@ AUI_ERRCODE c3_HyperTextBox::InitCommonLdl( MBCHAR const *ldlBlock )
 
 AUI_ERRCODE c3_HyperTextBox::InitCommon( )
 {
-	m_hyperLinkList = new tech_WLList<c3_HyperLink *>;
+	m_hyperLinkList = std::make_unique<tech_WLList<c3_HyperLink *>>();
 	Assert( m_hyperLinkList != nullptr );
 	if ( !m_hyperLinkList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -172,7 +174,6 @@ c3_HyperTextBox::~c3_HyperTextBox()
 	if (m_hyperLinkList)
     {
 		RemoveHyperLinks();
-		delete m_hyperLinkList;
 	}
 }
 
@@ -562,7 +563,7 @@ AUI_ERRCODE c3_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 
 				if ( m_hyperStaticList->L() > k_AUI_HYPERTEXTBOX_LDL_MAXSTATICS )
 				{
-					delete m_hyperStaticList->RemoveHead();
+					std::unique_ptr<aui_Static>{m_hyperStaticList->RemoveHead()};
 
 					sint32 topY = m_hyperStaticList->GetHead()->Y();
 					ListPos pos = m_hyperStaticList->GetHeadPosition();
@@ -574,7 +575,7 @@ AUI_ERRCODE c3_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 				}
 
 				if ( isHyperLink ) {
-					c3_HyperLink * hl = new c3_HyperLink;
+					auto hl = std::make_unique<c3_HyperLink>();
 
 					hl->m_static = hs;
 					hl->m_db = hyperLinkDB;
@@ -583,7 +584,7 @@ AUI_ERRCODE c3_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 					hl->m_oldColor = m_hyperColor;
 					hl->m_selectColor = RGB(0,0,255);
 
-					m_hyperLinkList->AddTail( hl );
+					m_hyperLinkList->AddTail( hl.release() );
 				}
 			}
 
@@ -605,7 +606,7 @@ void c3_HyperTextBox::RemoveHyperLinks( )
 {
 	for (sint32 i = m_hyperLinkList->L(); i; --i)
     {
-		delete m_hyperLinkList->RemoveTail();
+		std::unique_ptr<c3_HyperLink>{m_hyperLinkList->RemoveTail()};
     }
     m_selectedHyperLink = nullptr;
 }

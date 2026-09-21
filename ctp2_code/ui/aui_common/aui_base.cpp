@@ -26,6 +26,8 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
+
 #include "ctp/c3.h"
 #include "ui/aui_common/aui_base.h"
 
@@ -33,12 +35,12 @@ sint32 aui_Base::m_baseRefCount = 0;
 
 #define POLYNOMIAL 0x04c11db7L
 
-static uint32 *g_crcTable = nullptr;
+static std::unique_ptr<uint32[]> g_crcTable;
 
 void gen_crc_table()
 {
    if (!g_crcTable)
-      g_crcTable = new uint32[256];
+      g_crcTable = std::make_unique<uint32[]>(256);
    int i;
    int j;
    unsigned long crc_accum;
@@ -59,9 +61,7 @@ void gen_crc_table()
 
 void free_crc()
 {
-   
-      delete [] g_crcTable;
-   g_crcTable = nullptr;
+   g_crcTable.reset();
 }
 
 uint32 update_crc(uint32 crc_accum, const MBCHAR *data_blk_ptr, sint32 data_blk_size)

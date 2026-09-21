@@ -6,19 +6,21 @@
 
 class Token;
 
+#include <memory>
+
 #define k_MAX_HIGH_SCORES	10
 
 struct HighScoreInfo {
 	MBCHAR		m_name[256];
 	sint32		m_score;
-	HighScoreInfo	*m_next;
+	std::unique_ptr<HighScoreInfo>	m_next;
 };
 
 class HighScoreDB {
 
 public:
 	sint32		m_nHighScores;
-	HighScoreInfo	*m_highScoreInfo;
+	std::unique_ptr<HighScoreInfo>	m_highScoreInfo;
 
 	HighScoreDB();
 	~HighScoreDB();

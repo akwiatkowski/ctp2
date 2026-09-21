@@ -147,23 +147,27 @@ AUI_ERRCODE C3Scroller::CreateButtonsAndThumb( )
 
 	AUI_ERRCODE errcode;
 
-	m_thumb = new C3Thumb( &errcode, aui_UniqueId(), 0, 0, 0, 0, m_pattern->GetFilename(), RangerThumbActionCallback, this );
+	m_thumb = std::make_unique<C3Thumb>( &errcode, aui_UniqueId(), 0, 0, 0, 0, m_pattern->GetFilename(), RangerThumbActionCallback, this );
 	if ( m_isVertical )
 	{
-		button1 = m_incYButton = new c3_Button( &errcode,
+		m_incYButton = std::make_unique<c3_Button>( &errcode,
 			aui_UniqueId(), 0, 0, 0, 0, m_pattern->GetFilename(), RangerButtonActionCallback, this );
-		button2 = m_decYButton = new c3_Button( &errcode,
+		button1 = m_incYButton.get();
+		m_decYButton = std::make_unique<c3_Button>( &errcode,
 			aui_UniqueId(), 0, 0, 0, 0, m_pattern->GetFilename(), RangerButtonActionCallback, this );
+		button2 = m_decYButton.get();
 	}
 	else
 	{
-		button1 = m_incXButton = new TextButton( &errcode,
+		m_incXButton = std::make_unique<TextButton>( &errcode,
 			aui_UniqueId(), 0, 0, 0, 0, m_pattern->GetFilename(), ">", RangerButtonActionCallback, this );
-		button2 = m_decXButton = new TextButton( &errcode,
+		button1 = m_incXButton.get();
+		m_decXButton = std::make_unique<TextButton>( &errcode,
 			aui_UniqueId(), 0, 0, 0, 0, m_pattern->GetFilename(), "<", RangerButtonActionCallback, this );
+		button2 = m_decXButton.get();
 	}
 
-	AddChild( m_thumb );
+	AddChild( m_thumb.get() );
 	AddChild( button1 );
 	AddChild( button2 );
 

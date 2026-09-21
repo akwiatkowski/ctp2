@@ -31,6 +31,8 @@
 #ifndef __AUI_LDL_H__
 #define __AUI_LDL_H__
 
+#include <memory>
+
 #include "ui/aui_common/aui_base.h"
 #include "ui/aui_common/aui_control.h"
 
@@ -42,8 +44,8 @@ template <class T> class AvlTree;
 
 struct aui_LdlObject
 {
-	void			*object;
-	MBCHAR			*ldlBlock;
+	void							*object;
+	std::unique_ptr<MBCHAR[]>		ldlBlock;
 	uint32			hash;
 	aui_LdlObject	*prev;
 	aui_LdlObject	*next;
@@ -96,7 +98,7 @@ public:
 
 public:
 	static bool			IsValid(MBCHAR const * ldlBlock);
-	static ldl *        GetLdl( ) { return s_ldl; }
+	static ldl *        GetLdl( ) { return s_ldl.get(); }
 
 	static AUI_ERRCODE	Associate( void *object, MBCHAR const * ldlBlock);
 	static AUI_ERRCODE	Remove( void *object );
@@ -184,13 +186,13 @@ protected:
 	static AUI_ERRCODE	AppendLdlObject(aui_LdlObject *object);
 	static AUI_ERRCODE	RemoveLdlObject(aui_LdlObject *object);
 
-	static ldl			*s_ldl;
+	static std::unique_ptr<ldl>		s_ldl;
 
 	static aui_LdlObject				*s_objectList;
 	static aui_LdlObject				*s_objectListTail;
 
-	static AvlTree<aui_LdlObject *>		*s_objectListByObject;
-	static AvlTree<aui_LdlObject *>		*s_objectListByString;
+	static std::unique_ptr<AvlTree<aui_LdlObject *>>	s_objectListByObject;
+	static std::unique_ptr<AvlTree<aui_LdlObject *>>	s_objectListByString;
 
 	static sint32						s_ldlRefCount;
 

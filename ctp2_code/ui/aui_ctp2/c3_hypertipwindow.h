@@ -2,6 +2,8 @@
 #define __C3_HYPERTIPWINDOW_H__
 
 #include "ui/aui_common/aui_tipwindow.h"
+#include <memory>
+
 #include "ui/aui_ctp2/patternbase.h"
 
 class aui_HyperTextBox;
@@ -35,7 +37,7 @@ protected:
 
 public:
 
-	aui_HyperTextBox *GetHyperTip( ) const { return m_hyperTip; }
+	aui_HyperTextBox *GetHyperTip( ) const { return m_hyperTip.get(); }
 	AUI_ERRCODE SetHyperTipText(MBCHAR const *text);
 
 	AUI_ERRCODE DrawThis(
@@ -45,7 +47,7 @@ public:
 
 protected:
 	BOOL m_allocatedHyperTip;
-	aui_HyperTextBox	*m_hyperTip;
+	std::unique_ptr<aui_HyperTextBox>	m_hyperTip;
 };
 
 #endif

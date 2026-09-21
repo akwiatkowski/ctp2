@@ -41,6 +41,7 @@
 #include <cstring>
 #include <chrono>
 #include <fstream>
+#include <memory>
 #include <thread>
 
 extern sint32  g_runInBackground;
@@ -217,8 +218,7 @@ int main(int argc, char **argv)
     // it stays enabled for --serve, where the socket can query it.
     action_log::SetRecording(serveMode);
 
-    civapp_Set(new CivApp());
-
+    civapp_Set(std::make_unique<CivApp>().release());
     headless_log->info("Initializing engine...");
     sint32 err = civapp_Get()->InitializeEngine();
     if (err != 0) {

@@ -31,6 +31,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include "ctp/c3.h"
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/utility/safety.h"
@@ -100,7 +101,7 @@ FeatTracker::FeatTracker()
 	sint32 i;
 	for(i = FEAT_EFFECT_NONE + 1; i < FEAT_EFFECT_MAX; i++)
 	{
-		m_effectList[i] = nullptr;
+		// m_effectList is std::array<unique_ptr> - default null
 	}
 
 	m_achieved.assign(g_theFeatDB->NumRecords(), 0);
@@ -116,14 +117,7 @@ FeatTracker::~FeatTracker()
 	// DeleteAll frees the Feats; the list frees its own nodes.
 	m_activeList.DeleteAll();
 
-	for(auto & i : m_effectList)
-	{
-		if(i)
-		{
-			delete i;
-			i = nullptr;
-		}
-	}
+	// m_effectList is std::array<unique_ptr> - frees itself
 
 	// m_achieved and m_buildingFeat are std::vector<bool>, auto-freed
 }
@@ -132,7 +126,7 @@ FeatTracker::~FeatTracker()
 #define CHECK_FEAT_LIST(func, eff) \
 if(rec->func()) { \
     if(!m_effectList[eff]) {\
-        m_effectList[eff] = new PointerList<Feat>;\
+        m_effectList[eff] = std::make_unique<PointerList<Feat>>();\
     }\
     m_effectList[eff]->AddTail(feat);\
 }
@@ -257,26 +251,27 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 
 	m_achieved[type] = true;
 
-	Feat * theFeat = new Feat(type, player, round);
-	m_activeList.AddTail(theFeat);
+	auto theFeat = std::make_unique<Feat>(type, player, round);
+	m_activeList.AddTail(theFeat.get());
+	theFeat.release();
 
-	AddFeatToEffectLists(theFeat);
+	AddFeatToEffectLists(theFeat.get());
 
 	const MBCHAR *slicMessage;
-	SlicObject *so;
+	std::unique_ptr<SlicObject> so;
 	if(rec->GetSlicMessage(slicMessage))
 	{
-		so = new SlicObject((char *)slicMessage);
+		so = std::make_unique<SlicObject>((char *)slicMessage);
 	}
 	else
 	{
-		so = new SlicObject("MGenericFeatAccomplished");
+		so = std::make_unique<SlicObject>("MGenericFeatAccomplished");
 	}
 
 	so->AddPlayer(player);
 	so->AddRecipient(player);
 	so->AddInt(type);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	if (Player* p = safe_player(player)) {
 		p->m_score->AddFeat();
@@ -319,7 +314,7 @@ sint32 FeatTracker::GetEffect(FEAT_EFFECT effect, sint32 player, bool getTotal)
 
 	sint32 result = 0;
 	sint32 sub = 0;
-	PointerList<Feat>::Walker walk(m_effectList[effect]);
+	PointerList<Feat>::Walker walk(m_effectList[effect].get());
 	while(walk.IsValid())
 	{
 		if(walk.GetObj()->GetPlayer() == player)
@@ -392,7 +387,7 @@ void FeatTracker::BeginTurn(sint32 player)
 			{
 				walk.Remove();
 				RemoveFeatFromEffectLists(feat);
-				delete feat;
+				std::unique_ptr<Feat>{feat};
 				continue;
 			}
 		}
@@ -560,11 +555,11 @@ STDEHANDLER(AccomplishFeat)
 		// Propagate the information to the clients.
 		// Remark: player_Get(player) has been verified in GetPlayer.
 		network_Get().Block(player);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ACCOMPLISHED_FEAT,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ACCOMPLISHED_FEAT,
 									  featIndex,
 									  player,
 									  safe_player(player)->GetCurRound()
-									 )
+									 ).release()
 						 );
 		network_Get().Unblock(player);
 	}

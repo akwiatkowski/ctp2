@@ -1,6 +1,7 @@
 #ifndef __NS_CUSTOMLISTBOX_H__
 #define __NS_CUSTOMLISTBOX_H__
 
+#include <memory>
 #include "ui/netshell/ns_listbox.h"
 #include "ui/netshell/ns_session.h"
 #include "ui/netshell/ns_lobby.h"
@@ -118,17 +119,16 @@ public:
 
 			if ( test == NFT::m_version )
 			{
-				NFT *t;
+				std::unique_ptr<NFT> t;
 				do {
-					t = new NFT();
+					t = std::make_unique<NFT>();
 					t->SetKey(&(this->curkey));
 					if(t->Load(file) == NETFunc::OK) {
 
-						InsertItem(t);
+						InsertItem(t.release());
 					}
 					else {
-						delete t;
-						t = nullptr;
+						t.reset();
 					}
 				} while(t);
 			}
@@ -264,9 +264,9 @@ public:
 		void *cookie = nullptr );
 	~ns_PlayerListBox() override;
 
-	aui_TextBase *m_pingFastStyle;
-	aui_TextBase *m_pingMedStyle;
-	aui_TextBase *m_pingSlowStyle;
+	std::unique_ptr<aui_TextBase> m_pingFastStyle;
+	std::unique_ptr<aui_TextBase> m_pingMedStyle;
+	std::unique_ptr<aui_TextBase> m_pingSlowStyle;
 
 	void Insert( NETFunc::Player *object ) override;
 	void Change( NETFunc::Player *object ) override;
@@ -294,9 +294,9 @@ public:
 		void *cookie = nullptr );
 	~ns_ServerListBox() override;
 
-	aui_TextBase *m_pingFastStyle;
-	aui_TextBase *m_pingMedStyle;
-	aui_TextBase *m_pingSlowStyle;
+	std::unique_ptr<aui_TextBase> m_pingFastStyle;
+	std::unique_ptr<aui_TextBase> m_pingMedStyle;
+	std::unique_ptr<aui_TextBase> m_pingSlowStyle;
 
 	void Insert( NETFunc::Server *object ) override;
 	void Change( NETFunc::Server *object ) override;
@@ -331,9 +331,9 @@ public:
 
 	ns_HPlayerListBox *m_hplayerlistbox;
 
-	aui_TextBase *m_pingFastStyle;
-	aui_TextBase *m_pingMedStyle;
-	aui_TextBase *m_pingSlowStyle;
+	std::unique_ptr<aui_TextBase> m_pingFastStyle;
+	std::unique_ptr<aui_TextBase> m_pingMedStyle;
+	std::unique_ptr<aui_TextBase> m_pingSlowStyle;
 
 	void ColorCodePingTime( NETFunc::Player *object );
 };

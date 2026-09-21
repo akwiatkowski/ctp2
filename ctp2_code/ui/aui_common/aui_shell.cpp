@@ -17,7 +17,7 @@ AUI_ERRCODE aui_Shell::InitCommon( )
 {
 	m_curScreen = nullptr;
 
-	m_screenHistory = new tech_WLList<uint32>;
+	m_screenHistory = std::make_unique<tech_WLList<uint32>>();
 	Assert( m_screenHistory != nullptr );
 	if ( !m_screenHistory ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -25,14 +25,7 @@ AUI_ERRCODE aui_Shell::InitCommon( )
 }
 
 
-aui_Shell::~aui_Shell()
-{
-	if ( m_screenHistory )
-	{
-		delete m_screenHistory;
-		m_screenHistory = nullptr;
-	}
-}
+aui_Shell::~aui_Shell() = default;
 
 
 aui_Screen *aui_Shell::LeaveCurrentScreen( )

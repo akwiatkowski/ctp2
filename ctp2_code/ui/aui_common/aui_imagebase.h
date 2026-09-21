@@ -34,6 +34,7 @@
 #ifndef AUI_IMAGEBASE_H__
 #define AUI_IMAGEBASE_H__
 
+#include <memory>			// std::unique_ptr
 #include <string>			// std::string
 #include <vector>			// std::vector
 
@@ -156,7 +157,7 @@ protected:
 	aui_Image * LoadTheImage(MBCHAR const * name);
 
 	sint32					m_numStateImageGroups;
-	aui_StateImageGroup		*m_stateImageGroups;
+	std::unique_ptr<aui_StateImageGroup[]> m_stateImageGroups;
 
 
 	static MBCHAR const *   m_substateLdlKeywords[AUI_IMAGEBASE_SUBSTATE_LAST];

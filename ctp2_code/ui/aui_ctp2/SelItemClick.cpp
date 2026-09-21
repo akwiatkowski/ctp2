@@ -59,6 +59,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
 #include "gs/world/World.h"
+#include <memory>
 
 void SelectedItem::SetupClickFunctions()
 {
@@ -1253,11 +1254,11 @@ void SelectedItem::MoveArmyClick(const MapPoint &pos, const aui_MouseEvent *data
 			   )
 			{
 				// Reaching a shore: unload units?
-				SlicObject * so = new SlicObject("14IAAutoUnload");
+				auto so = std::make_unique<SlicObject>("14IAAutoUnload");   // refcounted
 				so->AddLocation(pos);
 				so->AddCivilisation(player);
 				so->AddRecipient(player);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 				return;
 			}
 		}
@@ -1390,11 +1391,11 @@ void SelectedItem::ActionClick(const MapPoint &pos, const aui_MouseEvent *data, 
 					(world_Get()->IsLand(pos))
 				   )
 				{
-					SlicObject *so = new SlicObject("14IAAutoUnload");
+					auto so = std::make_unique<SlicObject>("14IAAutoUnload");   // refcounted
 					so->AddLocation(pos);
 					so->AddCivilisation(player);
 					so->AddRecipient(player);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 					return;
 				}
 			}

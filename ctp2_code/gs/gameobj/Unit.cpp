@@ -58,6 +58,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/Unit.h"
 
 #include "ai/ctpai.h"
@@ -171,7 +172,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 	{
 		if(network_Get().IsHost())
 		{
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_UNIT, m_id));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_KILL_UNIT, m_id).release());
 		}
 		else
 		{
@@ -1051,11 +1052,11 @@ void Unit::ResetCityOwner(const PLAYER_INDEX newo, sint32 is_conquest,
 	AccessData()->ResetCityOwner(*this, newo, is_conquest, cause);
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_RESET_CITY_OWNER,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_RESET_CITY_OWNER,
 		                              (uint32)m_id,
 		                              (uint32)newo,
 		                              (uint32)is_conquest,
-		                              (uint32)cause));
+		                              (uint32)cause).release());
 		network_Get().Enqueue(AccessData(), AccessData()->GetCityData(), TRUE);
 
 		network_Get().AddResetCityOwnerHack(Unit(m_id));
@@ -1075,10 +1076,10 @@ void Unit::ResetUnitOwner(const PLAYER_INDEX newo,
                           CAUSE_REMOVE_ARMY rem_cause)
 {
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_RESET_UNIT_OWNER,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_RESET_UNIT_OWNER,
 		                              (uint32)m_id,
 		                              (uint32)newo,
-		                              (uint32)rem_cause));
+		                              (uint32)rem_cause).release());
 	}
 	AccessData()->ResetUnitOwner(*this, newo, rem_cause);
 
@@ -2504,10 +2505,10 @@ bool Unit::Sink(sint32 chance)
 			// Maybe something else than CAUSE_REMOVE_ARMY_DISBANDED
 			// or it least call it diferently
 
-			SlicObject *so = new SlicObject("999LostAtSea");
+			auto so = std::make_unique<SlicObject>("999LostAtSea");
 			so->AddRecipient(GetOwner());
 			so->AddUnitRecord(GetType());
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			KillUnit(CAUSE_REMOVE_ARMY_DISBANDED, -1);
 
 			return true;

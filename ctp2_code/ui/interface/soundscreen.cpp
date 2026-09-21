@@ -29,6 +29,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/c3_popupwindow.h"
 #include "ui/aui_ctp2/c3_button.h"
@@ -46,20 +48,12 @@
 #include "ui/aui_ctp2/keypress.h"
 
 
-static c3_PopupWindow *s_soundWindow	= nullptr;
-static C3Slider		*s_sfx				= nullptr,
-					*s_music			= nullptr,
-					*s_voice			= nullptr;
+static std::unique_ptr<c3_PopupWindow> s_soundWindow;
+static std::unique_ptr<C3Slider> s_sfx, s_music, s_voice;
 
-static c3_Static	*s_sfxN				= nullptr,
-					*s_musicN			= nullptr,
-					*s_voiceN			= nullptr;
-static c3_Static	*s_sfxmin			= nullptr,
-					*s_sfxmax			= nullptr,
-					*s_musicmin			= nullptr,
-					*s_musicmax			= nullptr,
-					*s_voicemin			= nullptr,
-					*s_voicemax			= nullptr;
+static std::unique_ptr<c3_Static> s_sfxN, s_musicN, s_voiceN;
+static std::unique_ptr<c3_Static> s_sfxmin, s_sfxmax, s_musicmin,
+								  s_musicmax, s_voicemin, s_voicemax;
 
 
 
@@ -72,9 +66,9 @@ sint32	soundscreen_displayMyWindow()
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = c3ui_Get()->AddWindow(s_soundWindow);
+	auiErr = c3ui_Get()->AddWindow(s_soundWindow.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
-	keypress_RegisterHandler(s_soundWindow);
+	keypress_RegisterHandler(s_soundWindow.get());
 
 	return retval;
 }
@@ -96,7 +90,7 @@ sint32 soundscreen_removeMyWindow(uint32 action)
 
 	auiErr = c3ui_Get()->RemoveWindow( s_soundWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
-	keypress_RemoveHandler(s_soundWindow);
+	keypress_RemoveHandler(s_soundWindow.get());
 
 	return 1;
 }
@@ -110,7 +104,7 @@ AUI_ERRCODE soundscreen_Initialize( )
 	if ( s_soundWindow ) return AUI_ERRCODE_OK;
 
 	strlcpy(windowBlock, "SoundWindow", sizeof(windowBlock));
-	s_soundWindow = new c3_PopupWindow(
+	s_soundWindow = std::make_unique<c3_PopupWindow>(
 		&errcode,
 		aui_UniqueId(),
 		windowBlock,
@@ -122,19 +116,19 @@ AUI_ERRCODE soundscreen_Initialize( )
 
 	s_soundWindow->SetStronglyModal(TRUE);
 
-	s_sfx				= spNew_C3Slider(&errcode,windowBlock,"SFXSlider",soundscreen_sfxSlide);
-	s_sfxN				= spNew_c3_Static(&errcode,windowBlock,"SFXName");
-	s_music				= spNew_C3Slider(&errcode,windowBlock,"MusicSlider",soundscreen_musicSlide);
-	s_musicN			= spNew_c3_Static(&errcode,windowBlock,"MusicName");
-	s_voice				= spNew_C3Slider(&errcode,windowBlock,"VoiceSlider",soundscreen_voiceSlide);
-	s_voiceN			= spNew_c3_Static(&errcode,windowBlock,"VoiceName");
+	s_sfx.reset(spNew_C3Slider(&errcode,windowBlock,"SFXSlider",soundscreen_sfxSlide));
+	s_sfxN.reset(spNew_c3_Static(&errcode,windowBlock,"SFXName"));
+	s_music.reset(spNew_C3Slider(&errcode,windowBlock,"MusicSlider",soundscreen_musicSlide));
+	s_musicN.reset(spNew_c3_Static(&errcode,windowBlock,"MusicName"));
+	s_voice.reset(spNew_C3Slider(&errcode,windowBlock,"VoiceSlider",soundscreen_voiceSlide));
+	s_voiceN.reset(spNew_c3_Static(&errcode,windowBlock,"VoiceName"));
 
-	s_sfxmin			= spNew_c3_Static(&errcode,windowBlock,"SFXMin");
-	s_sfxmax			= spNew_c3_Static(&errcode,windowBlock,"SFXMax");
-	s_musicmin			= spNew_c3_Static(&errcode,windowBlock,"MusicMin");
-	s_musicmax			= spNew_c3_Static(&errcode,windowBlock,"MusicMax");
-	s_voicemin			= spNew_c3_Static(&errcode,windowBlock,"VoiceMin");
-	s_voicemax			= spNew_c3_Static(&errcode,windowBlock,"VoiceMax");
+	s_sfxmin.reset(spNew_c3_Static(&errcode,windowBlock,"SFXMin"));
+	s_sfxmax.reset(spNew_c3_Static(&errcode,windowBlock,"SFXMax"));
+	s_musicmin.reset(spNew_c3_Static(&errcode,windowBlock,"MusicMin"));
+	s_musicmax.reset(spNew_c3_Static(&errcode,windowBlock,"MusicMax"));
+	s_voicemin.reset(spNew_c3_Static(&errcode,windowBlock,"VoiceMin"));
+	s_voicemax.reset(spNew_c3_Static(&errcode,windowBlock,"VoiceMax"));
 
 	s_sfx->SetValue(profiledb_Get()->GetSFXVolume(), 0);
 	s_voice->SetValue(profiledb_Get()->GetVoiceVolume(), 0);
@@ -159,34 +153,29 @@ AUI_ERRCODE soundscreen_Initialize( )
 
 AUI_ERRCODE soundscreen_Cleanup()
 {
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
-
 	if ( !s_soundWindow  ) return AUI_ERRCODE_OK;
 
 	c3ui_Get()->RemoveWindow( s_soundWindow->Id() );
-	keypress_RemoveHandler(s_soundWindow);
+	keypress_RemoveHandler(s_soundWindow.get());
 
+	// Same release order the mycleanup macro used.
+	s_sfx.reset();
+	s_sfxN.reset();
+	s_music.reset();
+	s_musicN.reset();
+	s_voice.reset();
+	s_voiceN.reset();
 
-	mycleanup(s_sfx);
-	mycleanup(s_sfxN);
-	mycleanup(s_music);
-	mycleanup(s_musicN);
-	mycleanup(s_voice);
-	mycleanup(s_voiceN);
+	s_sfxmin.reset();
+	s_sfxmax.reset();
+	s_musicmin.reset();
+	s_musicmax.reset();
+	s_voicemin.reset();
+	s_voicemax.reset();
 
-
-	mycleanup(s_sfxmin);
-	mycleanup(s_sfxmax);
-	mycleanup(s_musicmin);
-	mycleanup(s_musicmax);
-	mycleanup(s_voicemin);
-	mycleanup(s_voicemax);
-
-	delete s_soundWindow;
-	s_soundWindow = nullptr;
+	s_soundWindow.reset();
 
 	return AUI_ERRCODE_OK;
-#undef mycleanup
 }
 
 

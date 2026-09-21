@@ -30,6 +30,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -104,22 +106,31 @@ extern sint32				g_god;
 
 extern RECT g_backgroundViewport;
 
+// The window globals are extern'd raw pointers in other TUs (controlpanel.cpp,
+// c3debug.cpp, ...); ownership lives in these file-static unique_ptrs and the
+// globals alias them.
+static std::unique_ptr<DebugWindow>	s_debugWindowOwner;
 DebugWindow					*g_debugWindow;
 
 
 
 
 
+static std::unique_ptr<C3Window>	s_testWindowOwner;
+static std::unique_ptr<C3Window>	s_standardWindowOwner;
+static std::unique_ptr<C3Window>	s_floatingWindowOwner;
 C3Window		*g_testWindow = nullptr;
 C3Window		*g_standardWindow = nullptr;
 C3Window		*g_floatingWindow = nullptr;
 
-static TipWindow	*g_tipWindow = nullptr;
-static TipWindow	*g_thumbTipWindow = nullptr;
+// Owned here; the g_testWindow/g_standardWindow/g_floatingWindow globals above
+// stay raw because they are extern'd in controlpanel.cpp.
+static std::unique_ptr<TipWindow>	g_tipWindow;
+static std::unique_ptr<TipWindow>	g_thumbTipWindow;
 
 
-static TextTab *g_happyTab = nullptr;
-static IconButton *g_iconButton = nullptr;
+static std::unique_ptr<TextTab>		g_happyTab;
+static std::unique_ptr<IconButton>	g_iconButton;
 
 
 
@@ -224,7 +235,7 @@ void CheckboxCallback( aui_Control *control, uint32 action, uint32 data, void *c
 			sint32 controlX = 50;
 			sint32 controlY = 50;
 
-			g_iconButton = new IconButton(
+			g_iconButton = std::make_unique<IconButton>(
 				&errcode,
 				k_ID_ICONBUTTON_TESTWINDOW,
 				controlX,
@@ -241,7 +252,7 @@ void CheckboxCallback( aui_Control *control, uint32 action, uint32 data, void *c
 		if ( !g_happyTab )
 		{
 
-			g_happyTab = new TextTab(
+			g_happyTab = std::make_unique<TextTab>(
 				&errcode,
 				k_ID_TAB_HAPPY,
 				0,
@@ -255,12 +266,12 @@ void CheckboxCallback( aui_Control *control, uint32 action, uint32 data, void *c
 				TabCallbackHappy );
 			if ( !g_happyTab ) return;
 
-			errcode = g_happyTab->AddPaneControl( g_iconButton );
+			errcode = g_happyTab->AddPaneControl( g_iconButton.get() );
 			Assert( errcode == AUI_ERRCODE_OK );
 			if ( errcode != AUI_ERRCODE_OK ) return;
 		}
 
-		errcode = tabGroup->AddTab( g_happyTab );
+		errcode = tabGroup->AddTab( g_happyTab.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return;
 
@@ -375,17 +386,17 @@ void ModalRadioCallback( aui_Control *control, uint32 action, uint32 data, void 
 int c3windows_MakeTestWindow( BOOL make )
 {
 
-	static TextButton	*button = nullptr;
-	static TextTab		*sadTab = nullptr;
-	static Checkbox		*checkbox = nullptr;
-	static Checkbox		*dragcheckbox = nullptr;
-	static Checkbox		*transparentcheckbox = nullptr;
-	static TextTab		*indifferentTab = nullptr;
-	static TextRadio	*stronglyModalRadio = nullptr;
-	static TextRadio	*weaklyModalRadio = nullptr;
-	static RadioGroup	*modalRadioGroup = nullptr;
-	static aui_TabGroup	*moodyTabGroup = nullptr;
-	static C3Spinner	*spinner = nullptr;
+	static std::unique_ptr<TextButton>		button;
+	static std::unique_ptr<TextTab>		sadTab;
+	static std::unique_ptr<Checkbox>		checkbox;
+	static std::unique_ptr<Checkbox>		dragcheckbox;
+	static std::unique_ptr<Checkbox>		transparentcheckbox;
+	static std::unique_ptr<TextTab>		indifferentTab;
+	static std::unique_ptr<TextRadio>		stronglyModalRadio;
+	static std::unique_ptr<TextRadio>		weaklyModalRadio;
+	static std::unique_ptr<RadioGroup>	modalRadioGroup;
+	static std::unique_ptr<aui_TabGroup>	moodyTabGroup;
+	static std::unique_ptr<C3Spinner>	spinner;
 
 	if ( make )
 	{
@@ -400,11 +411,12 @@ int c3windows_MakeTestWindow( BOOL make )
 
 			snprintf(windowBlock, sizeof(windowBlock), "mywindow" );
 
-			g_testWindow = new C3Window(
+			s_testWindowOwner = std::make_unique<C3Window>(
 				&errcode,
 				k_ID_WINDOW_TEST,
 				windowBlock,
 				16 );
+			g_testWindow = s_testWindowOwner.get();
 			Assert( AUI_NEWOK(g_testWindow,errcode) );
 			if ( !AUI_NEWOK(g_testWindow,errcode) ) return -1;
 
@@ -417,7 +429,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 				snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "mybutton" );
 
-				button = new TextButton(
+				button = std::make_unique<TextButton>(
 					&errcode,
 					k_ID_BUTTON_TESTWINDOW,
 					controlBlock,
@@ -432,7 +444,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 				c3windows_MakeTipWindow();
 
-				button->SetTipWindow( g_tipWindow );
+				button->SetTipWindow( g_tipWindow.get() );
 
 			}
 
@@ -440,7 +452,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 				snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "myspinner" );
 
-				spinner = new C3Spinner(
+				spinner = std::make_unique<C3Spinner>(
 					&errcode,
 					k_ID_SPINNER,
 					controlBlock );
@@ -453,7 +465,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 				snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "mytabgroup" );
 
-				moodyTabGroup = new aui_TabGroup(
+				moodyTabGroup = std::make_unique<aui_TabGroup>(
 					&errcode,
 					k_ID_TABGROUP_MOODY,
 					controlBlock );
@@ -471,7 +483,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 					snprintf(tabBlock, sizeof(tabBlock), "%s.%s", controlBlock, "sadtab" );
 
-					sadTab = new TextTab(
+					sadTab = std::make_unique<TextTab>(
 						&errcode,
 						k_ID_TAB_SAD,
 						tabBlock,
@@ -488,12 +500,12 @@ int c3windows_MakeTestWindow( BOOL make )
 
 						snprintf(checkboxBlock, sizeof(checkboxBlock), "%s.pane.%s", tabBlock, "checkbox" );
 
-						checkbox = new Checkbox(
+						checkbox = std::make_unique<Checkbox>(
 							&errcode,
 							k_ID_CHECKBOX_TESTWINDOW,
 							checkboxBlock,
 							CheckboxCallback,
-							moodyTabGroup );
+							moodyTabGroup.get() );
 						Assert( AUI_NEWOK(checkbox,errcode) );
 						if ( !AUI_NEWOK(checkbox,errcode) ) return -1;
 
@@ -503,7 +515,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 						snprintf(checkboxBlock, sizeof(checkboxBlock), "%s.pane.%s", tabBlock, "dragcheckbox" );
 
-						dragcheckbox = new Checkbox(
+						dragcheckbox = std::make_unique<Checkbox>(
 							&errcode,
 							k_ID_DRAGCHECKBOX_TESTWINDOW,
 							checkboxBlock,
@@ -517,7 +529,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 						snprintf(checkboxBlock, sizeof(checkboxBlock), "%s.pane.%s", tabBlock, "transparentcheckbox" );
 
-						transparentcheckbox = new Checkbox(
+						transparentcheckbox = std::make_unique<Checkbox>(
 							&errcode,
 							k_ID_TRANSPARENTCHECKBOX_TESTWINDOW,
 							checkboxBlock,
@@ -533,7 +545,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 					snprintf(tabBlock, sizeof(tabBlock), "%s.%s", controlBlock, "indifferenttab" );
 
-					indifferentTab = new TextTab(
+					indifferentTab = std::make_unique<TextTab>(
 						&errcode,
 						k_ID_TAB_INDIFFERENT,
 						tabBlock,
@@ -550,7 +562,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 						snprintf(radiogroupBlock, sizeof(radiogroupBlock), "%s.pane.%s", tabBlock, "modalradiogroup" );
 
-						modalRadioGroup = new RadioGroup(
+						modalRadioGroup = std::make_unique<RadioGroup>(
 							&errcode,
 							k_ID_RADIOGROUP_MODAL,
 							radiogroupBlock );
@@ -566,7 +578,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 							snprintf(radioBlock, sizeof(radioBlock), "%s.%s", radiogroupBlock, "stronglymodalradio" );
 
-							stronglyModalRadio = new TextRadio(
+							stronglyModalRadio = std::make_unique<TextRadio>(
 								&errcode,
 								k_ID_RADIO_STRONGLYMODAL,
 								radioBlock,
@@ -580,7 +592,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 							snprintf(radioBlock, sizeof(radioBlock), "%s.%s", radiogroupBlock, "weaklymodalradio" );
 
-							weaklyModalRadio = new TextRadio(
+							weaklyModalRadio = std::make_unique<TextRadio>(
 								&errcode,
 								k_ID_RADIO_WEAKLYMODAL,
 								radioBlock,
@@ -606,78 +618,24 @@ int c3windows_MakeTestWindow( BOOL make )
 	{
 		if ( !g_testWindow ) return 0;
 
-		if ( button )
-		{
-			delete button;
-			button = nullptr;
-		}
-
-		if ( sadTab )
-		{
-			delete sadTab;
-			sadTab = nullptr;
-		}
-
-		if ( checkbox )
-		{
-			delete checkbox;
-			checkbox = nullptr;
-		}
-
-		if ( dragcheckbox )
-		{
-			delete dragcheckbox;
-			dragcheckbox = nullptr;
-		}
-
-		if ( transparentcheckbox )
-		{
-			delete transparentcheckbox;
-			transparentcheckbox = nullptr;
-		}
-
-		if ( indifferentTab )
-		{
-			delete indifferentTab;
-			indifferentTab = nullptr;
-		}
-
-		if ( stronglyModalRadio )
-		{
-			delete stronglyModalRadio;
-			stronglyModalRadio = nullptr;
-		}
-
-		if ( weaklyModalRadio )
-		{
-			delete weaklyModalRadio;
-			weaklyModalRadio = nullptr;
-		}
-
-		if ( modalRadioGroup )
-		{
-			delete modalRadioGroup;
-			modalRadioGroup = nullptr;
-		}
-
-		if ( moodyTabGroup )
-		{
-			delete moodyTabGroup;
-			moodyTabGroup = nullptr;
-		}
-
-		if ( spinner )
-		{
-			delete spinner;
-			spinner = nullptr;
-		}
+		button.reset();
+		sadTab.reset();
+		checkbox.reset();
+		dragcheckbox.reset();
+		transparentcheckbox.reset();
+		indifferentTab.reset();
+		stronglyModalRadio.reset();
+		weaklyModalRadio.reset();
+		modalRadioGroup.reset();
+		moodyTabGroup.reset();
+		spinner.reset();
 
 		c3windows_MakeTipWindow( FALSE );
 
 		if ( g_testWindow )
 		{
 			c3ui_Get()->RemoveWindow( g_testWindow->Id() );
-			delete g_testWindow;
+			s_testWindowOwner.reset();
 			g_testWindow = nullptr;
 		}
 	}
@@ -689,14 +647,14 @@ int c3windows_MakeStandardWindow( BOOL make )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	static C3Slider *slider;
-	static C3DropDown *dropdown;
-	static TextSwitch *i1;
-	static TextSwitch *i2;
-	static TextSwitch *i3;
-	static TextSwitch *i4;
-	static TextSwitch *i5;
-	static TextSwitch *i6;
+	static std::unique_ptr<C3Slider> slider;
+	static std::unique_ptr<C3DropDown> dropdown;
+	static std::unique_ptr<TextSwitch> i1;
+	static std::unique_ptr<TextSwitch> i2;
+	static std::unique_ptr<TextSwitch> i3;
+	static std::unique_ptr<TextSwitch> i4;
+	static std::unique_ptr<TextSwitch> i5;
+	static std::unique_ptr<TextSwitch> i6;
 
 	if ( make )
 	{
@@ -711,12 +669,13 @@ int c3windows_MakeStandardWindow( BOOL make )
 		sint32 windowX = ( g_ScreenWidth - windowWidth ) / 3;
 		sint32 windowY = ( g_ScreenHeight - windowHeight ) / 3;
 
-		g_standardWindow = new C3Window(
+		s_standardWindowOwner = std::make_unique<C3Window>(
 			&errcode,
 			k_ID_WINDOW_STANDARD,
 			windowX, windowY, windowWidth, windowHeight,
 			16,
 			k_PatternName );
+		g_standardWindow = s_standardWindowOwner.get();
 		Assert( g_standardWindow != nullptr );
 		if ( !g_standardWindow ) return -1;
 
@@ -729,7 +688,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 		sint32 controlX = windowWidth / 6;
 		sint32 controlY = windowHeight / 6;
 
-		slider = new C3Slider(
+		slider = std::make_unique<C3Slider>(
 			&errcode,
 			k_ID_SLIDER,
 			controlX,
@@ -765,7 +724,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 		windowX = 0;
 		windowY = 0;
 
-		g_thumbTipWindow = new TipWindow(
+		g_thumbTipWindow = std::make_unique<TipWindow>(
 			&errcode,
 			k_ID_WINDOW_TIP,
 			windowX, windowY, windowWidth, windowHeight,
@@ -777,7 +736,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 
 		C3Thumb *thumb = (C3Thumb *)slider->GetThumb();
 		if ( thumb )
-			thumb->SetTipWindow( g_thumbTipWindow );
+			thumb->SetTipWindow( g_thumbTipWindow.get() );
 
 
 
@@ -789,7 +748,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 		controlX = g_standardWindow->Width() / 6;
 		controlY = g_standardWindow->Height() - 2 * controlHeight;
 
-		dropdown = new C3DropDown(
+		dropdown = std::make_unique<C3DropDown>(
 			&errcode,
 			aui_UniqueId(),
 			controlX,
@@ -802,7 +761,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 		if ( !dropdown ) return -3;
 
 
-		i1 = new TextSwitch(
+		i1 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -810,7 +769,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 			k_PatternName,
 			"yes" );
 		if ( !i1 ) return -1;
-		i2 = new TextSwitch(
+		i2 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -818,7 +777,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 			k_PatternName,
 			"no" );
 		if ( !i2 ) return -2;
-		i3 = new TextSwitch(
+		i3 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -826,7 +785,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 			k_PatternName,
 			"i mean it" );
 		if ( !i3 ) return -3;
-		i4 = new TextSwitch(
+		i4 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -834,7 +793,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 			k_PatternName,
 			"anybody wanna peanut" );
 		if ( !i4 ) return -4;
-		i5 = new TextSwitch(
+		i5 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -842,7 +801,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 			k_PatternName,
 			"yes ma'am" );
 		if ( !i5 ) return -5;
-		i6 = new TextSwitch(
+		i6 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -850,22 +809,22 @@ int c3windows_MakeStandardWindow( BOOL make )
 			k_PatternName,
 			"yes sir" );
 		if ( !i6 ) return -6;
-		dropdown->AddItem( (aui_Item *)i1 );
-		dropdown->AddItem( (aui_Item *)i2 );
-		dropdown->AddItem( (aui_Item *)i3 );
-		dropdown->AddItem( (aui_Item *)i4 );
-		dropdown->AddItem( (aui_Item *)i5 );
-		dropdown->AddItem( (aui_Item *)i6 );
+		dropdown->AddItem( (aui_Item *)i1.get() );
+		dropdown->AddItem( (aui_Item *)i2.get() );
+		dropdown->AddItem( (aui_Item *)i3.get() );
+		dropdown->AddItem( (aui_Item *)i4.get() );
+		dropdown->AddItem( (aui_Item *)i5.get() );
+		dropdown->AddItem( (aui_Item *)i6.get() );
 
 
 
 
 
 
-		errcode = g_standardWindow->AddControl( slider );
+		errcode = g_standardWindow->AddControl( slider.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -4;
-		errcode = g_standardWindow->AddControl( dropdown );
+		errcode = g_standardWindow->AddControl( dropdown.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -4;
 
@@ -875,27 +834,18 @@ int c3windows_MakeStandardWindow( BOOL make )
 	{
 		if ( !g_standardWindow ) return 0;
 
-		delete slider;
-		slider = nullptr;
-		delete g_thumbTipWindow;
-		g_thumbTipWindow = nullptr;
-		delete dropdown;
-		dropdown = nullptr;
-		delete i1;
-		i1 = nullptr;
-		delete i2;
-		i2 = nullptr;
-		delete i3;
-		i3 = nullptr;
-		delete i4;
-		i4 = nullptr;
-		delete i5;
-		i5 = nullptr;
-		delete i6;
-		i6 = nullptr;
+		slider.reset();
+		g_thumbTipWindow.reset();
+		dropdown.reset();
+		i1.reset();
+		i2.reset();
+		i3.reset();
+		i4.reset();
+		i5.reset();
+		i6.reset();
 
 		c3ui_Get()->RemoveWindow( g_standardWindow->Id() );
-		delete g_standardWindow;
+		s_standardWindowOwner.reset();
 		g_standardWindow = nullptr;
 	}
 
@@ -919,7 +869,7 @@ int c3windows_MakeTipWindow( BOOL make )
 		sint32 windowX = 0;
 		sint32 windowY = 0;
 
-		g_tipWindow = new TipWindow(
+		g_tipWindow = std::make_unique<TipWindow>(
 			&errcode,
 			k_ID_WINDOW_TIP,
 			windowX, windowY, windowWidth, windowHeight,
@@ -933,8 +883,7 @@ int c3windows_MakeTipWindow( BOOL make )
 	{
 		if ( !g_tipWindow ) return 0;
 
-		delete g_tipWindow;
-		g_tipWindow = nullptr;
+		g_tipWindow.reset();
 	}
 
 	return 0;
@@ -944,20 +893,19 @@ int c3windows_MakeFloatingWindow( BOOL make )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	static C3ListBox *listbox;
-	static TextSwitch *items[ 14 ];
-	static TextSwitch *subItems[ 14 ][ 5 ];
-	static TextSwitch *h1;
-	static TextSwitch *h2;
-	static TextSwitch *h3;
-	static TextSwitch *h4;
-	static TextSwitch *h5;
-	static TextSwitch *h6;
+	static std::unique_ptr<C3ListBox> listbox;
+	static std::unique_ptr<TextSwitch> items[ 14 ];
+	static std::unique_ptr<TextSwitch> subItems[ 14 ][ 5 ];
+	static std::unique_ptr<TextSwitch> h1;
+	static std::unique_ptr<TextSwitch> h2;
+	static std::unique_ptr<TextSwitch> h3;
+	static std::unique_ptr<TextSwitch> h4;
+	static std::unique_ptr<TextSwitch> h5;
+	static std::unique_ptr<TextSwitch> h6;
 
 	if ( make )
 	{
 		if ( g_floatingWindow ) return 0;
-
 
 
 
@@ -967,13 +915,14 @@ int c3windows_MakeFloatingWindow( BOOL make )
 		sint32 windowX = 10;
 		sint32 windowY = 10;
 
-		g_floatingWindow = new C3Window(
+		s_floatingWindowOwner = std::make_unique<C3Window>(
 			&errcode,
 			k_ID_WINDOW_FLOATING,
 			windowX, windowY, windowWidth, windowHeight,
 			16,
 			k_PatternName,
 			AUI_WINDOW_TYPE_FLOATING );
+		g_floatingWindow = s_floatingWindowOwner.get();
 		Assert( g_floatingWindow != nullptr );
 		if ( !g_floatingWindow ) return -1;
 
@@ -989,7 +938,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 		sint32 controlX = windowWidth / 6;
 		sint32 controlY = windowHeight / 6;
 
-		listbox = new C3ListBox(
+		listbox = std::make_unique<C3ListBox>(
 			&errcode,
 			k_ID_LISTBOX,
 			controlX,
@@ -1009,7 +958,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 			static char s[ 50 ];
 			snprintf(s, sizeof(s), "row=%d col=%d", i, 0 );
 
-			items[ i ] = new TextSwitch(
+			items[ i ] = std::make_unique<TextSwitch>(
 				&errcode,
 				aui_UniqueId(),
 				0, 0,
@@ -1022,7 +971,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 			{
 				snprintf(s, sizeof(s), "row=%d col=%d", i, j+1 );
 
-				subItems[ i ][ j ] = new TextSwitch(
+				subItems[ i ][ j ] = std::make_unique<TextSwitch>(
 					&errcode,
 					aui_UniqueId(),
 					0, 0,
@@ -1031,16 +980,16 @@ int c3windows_MakeFloatingWindow( BOOL make )
 					s );
 				if ( !subItems[ i ][ j ] ) return -j * 1000;
 
-				items[ i ]->AddChild( subItems[ i ][ j ] );
+				items[ i ]->AddChild( subItems[ i ][ j ].get() );
 			}
 
-			listbox->AddItem( (aui_Item *)items[ i ] );
+			listbox->AddItem( (aui_Item *)items[ i ].get() );
 		}
 
 
 
 
-		h1 = new TextSwitch(
+		h1 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -1048,7 +997,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 			k_PatternName,
 			"name" );
 		if ( !h1 ) return -1;
-		h2 = new TextSwitch(
+		h2 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -1056,7 +1005,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 			k_PatternName,
 			"date" );
 		if ( !h2 ) return -2;
-		h3 = new TextSwitch(
+		h3 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -1064,7 +1013,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 			k_PatternName,
 			"stuff" );
 		if ( !h3 ) return -3;
-		h4 = new TextSwitch(
+		h4 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -1072,7 +1021,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 			k_PatternName,
 			"thing" );
 		if ( !h4 ) return -4;
-		h5 = new TextSwitch(
+		h5 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -1080,7 +1029,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 			k_PatternName,
 			"rate" );
 		if ( !h5 ) return -5;
-		h6 = new TextSwitch(
+		h6 = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0,
@@ -1088,19 +1037,19 @@ int c3windows_MakeFloatingWindow( BOOL make )
 			k_PatternName,
 			"creamescense" );
 		if ( !h6 ) return -6;
-		listbox->AddHeaderSwitch( h1 );
-		listbox->AddHeaderSwitch( h2 );
-		listbox->AddHeaderSwitch( h3 );
-		listbox->AddHeaderSwitch( h4 );
-		listbox->AddHeaderSwitch( h5 );
-		listbox->AddHeaderSwitch( h6 );
+		listbox->AddHeaderSwitch( h1.get() );
+		listbox->AddHeaderSwitch( h2.get() );
+		listbox->AddHeaderSwitch( h3.get() );
+		listbox->AddHeaderSwitch( h4.get() );
+		listbox->AddHeaderSwitch( h5.get() );
+		listbox->AddHeaderSwitch( h6.get() );
 
 
 
 
 
 
-		errcode = g_floatingWindow->AddControl( listbox );
+		errcode = g_floatingWindow->AddControl( listbox.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -4;
 
@@ -1109,36 +1058,24 @@ int c3windows_MakeFloatingWindow( BOOL make )
 	{
 		if ( !g_floatingWindow ) return 0;
 
-		delete listbox;
-		listbox = nullptr;
+		listbox.reset();
 		for ( sint32 i = 0; i < 14; i++ )
 		{
 			for ( sint32 j = 0; j < 5; j++ )
 			{
-				delete subItems[ i ][ j ];
-				subItems[ i ][ j ] = nullptr;
+				subItems[ i ][ j ].reset();
 			}
-			delete items[ i ];
-			items[ i ] = nullptr;
+			items[ i ].reset();
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		// h1-h6 were leaked before; the header switches are owned here too.
+		h1.reset();
+		h2.reset();
+		h3.reset();
+		h4.reset();
+		h5.reset();
+		h6.reset();
 		c3ui_Get()->RemoveWindow( g_floatingWindow->Id() );
-		delete g_floatingWindow;
+		s_floatingWindowOwner.reset();
 		g_floatingWindow = nullptr;
 	}
 
@@ -1181,7 +1118,7 @@ void KnowledgeButtonActionCallback( aui_Control *control, uint32 action, uint32 
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	c3_ExpelPopup *popup = new c3_ExpelPopup(nullptr);
+	auto popup = std::make_unique<c3_ExpelPopup>(nullptr);
 	popup->DisplayWindow();
 }
 
@@ -1197,8 +1134,8 @@ void DebugButtonActionCallback( aui_Control *control, uint32 action, uint32 data
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 }
 
-static aui_Window		*s_thumbWindow = nullptr;
-static ThumbnailMap		*s_thumbnail = nullptr;
+static std::unique_ptr<aui_Window>	s_thumbWindow;
+static std::unique_ptr<ThumbnailMap>	s_thumbnail;
 
 void ResourceButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
@@ -1222,12 +1159,7 @@ void ResourceButtonActionCallback( aui_Control *control, uint32 action, uint32 d
 
 
 
-
-
-
-
 }
-
 void CheatButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
 
@@ -1261,12 +1193,12 @@ int c3windows_MakeStatusWindow( BOOL make )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	static TextButton	 *button;
-	static TextButton	 *debugButton;
-	static TextButton	 *resourceButton;
-	static TextButton	 *cheatButton;
-	static TextButton	 *knowledgeButton;
-	static TextButton	 *diplomacyButton;
+	static std::unique_ptr<TextButton>	button;
+	static std::unique_ptr<TextButton>	debugButton;
+	static std::unique_ptr<TextButton>	resourceButton;
+	static std::unique_ptr<TextButton>	cheatButton;
+	static std::unique_ptr<TextButton>	knowledgeButton;
+	static std::unique_ptr<TextButton>	diplomacyButton;
 
 	if ( make )
 	{
@@ -1277,12 +1209,12 @@ int c3windows_MakeStatusWindow( BOOL make )
 		sint32 windowX = 0;
 		sint32 windowY = 27;
 
-		statuswindow_Set(new StatusWindow(
+		statuswindow_Set(std::make_unique<StatusWindow>(
 			&errcode,
 			k_ID_WINDOW_STATUS,
 			windowX, windowY, windowWidth, windowHeight,
 			16,
-			k_PatternName ));
+			k_PatternName ).release());
 		Assert( statuswindow_Get() != nullptr );
 		if ( !statuswindow_Get() ) return -1;
 		statuswindow_Get()->SetDraggable( TRUE );
@@ -1292,7 +1224,7 @@ int c3windows_MakeStatusWindow( BOOL make )
 		sint32 controlX = statuswindow_Get()->Width() / 2;
 		sint32 controlY = 5;
 
-		knowledgeButton = new TextButton(
+		knowledgeButton = std::make_unique<TextButton>(
 			&errcode,
 			aui_UniqueId(),
 			controlX,
@@ -1306,7 +1238,7 @@ int c3windows_MakeStatusWindow( BOOL make )
 
 		controlX += controlWidth + 6;
 
-		button = new TextButton(
+		button = std::make_unique<TextButton>(
 			&errcode,
 			k_ID_BUTTON_CONTROLWINDOW,
 			controlX,
@@ -1320,7 +1252,7 @@ int c3windows_MakeStatusWindow( BOOL make )
 
 		controlX += controlWidth + 6;
 
-		debugButton = new TextButton(
+		debugButton = std::make_unique<TextButton>(
 			&errcode,
 			aui_UniqueId(),
 			controlX,
@@ -1334,7 +1266,7 @@ int c3windows_MakeStatusWindow( BOOL make )
 
 			controlX += controlWidth + 6;
 
-		resourceButton = new TextButton(
+		resourceButton = std::make_unique<TextButton>(
 			&errcode,
 			aui_UniqueId(),
 			controlX,
@@ -1348,7 +1280,7 @@ int c3windows_MakeStatusWindow( BOOL make )
 
 		controlX += controlWidth + 6;
 
-		cheatButton = new TextButton(
+		cheatButton = std::make_unique<TextButton>(
 			&errcode,
 			aui_UniqueId(),
 			controlX,
@@ -1376,7 +1308,7 @@ int c3windows_MakeStatusWindow( BOOL make )
 
 
 		controlX += controlWidth + 6;
-		diplomacyButton = new TextButton(
+		diplomacyButton = std::make_unique<TextButton>(
 			&errcode,
 			aui_UniqueId(),
 			controlX,
@@ -1393,24 +1325,24 @@ int c3windows_MakeStatusWindow( BOOL make )
 
 
 
-		errcode = statuswindow_Get()->AddControl( button );
+		errcode = statuswindow_Get()->AddControl( button.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
-		errcode = statuswindow_Get()->AddControl( debugButton );
+		errcode = statuswindow_Get()->AddControl( debugButton.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
-		errcode = statuswindow_Get()->AddControl( resourceButton );
+		errcode = statuswindow_Get()->AddControl( resourceButton.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
-		errcode = statuswindow_Get()->AddControl( cheatButton );
+		errcode = statuswindow_Get()->AddControl( cheatButton.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
 
 
-		errcode = statuswindow_Get()->AddControl( diplomacyButton );
+		errcode = statuswindow_Get()->AddControl( diplomacyButton.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
-		errcode = statuswindow_Get()->AddControl( knowledgeButton );
+		errcode = statuswindow_Get()->AddControl( knowledgeButton.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
 
@@ -1451,24 +1383,17 @@ int c3windows_MakeStatusWindow( BOOL make )
 
 		c3ui_Get()->RemoveWindow( statuswindow_Get()->Id() );
 
-		delete button;
-		button = nullptr;
-		delete debugButton;
-		debugButton = nullptr;
-		delete resourceButton;
-		resourceButton = nullptr;
-		delete cheatButton;
-		cheatButton = nullptr;
+		button.reset();
+		debugButton.reset();
+		resourceButton.reset();
+		cheatButton.reset();
+		diplomacyButton.reset();
+		knowledgeButton.reset();
 
-		delete diplomacyButton;
-		diplomacyButton = nullptr ;
-		delete knowledgeButton;
-		knowledgeButton = nullptr;
+		s_thumbWindow.reset();
+		s_thumbnail.reset();
 
-		delete s_thumbWindow;
-		delete s_thumbnail;
-
-		delete statuswindow_Get();
+		std::unique_ptr<StatusWindow>{statuswindow_Get()};
 		statuswindow_Set(nullptr);
 	}
 
@@ -1479,8 +1404,8 @@ int c3windows_MakeDebugWindow( BOOL make )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	static TextBox *textbox;
-	static TextButton *exitButton;
+	static std::unique_ptr<TextBox> textbox;
+	static std::unique_ptr<TextButton> exitButton;
 
 	if ( make )
 	{
@@ -1491,13 +1416,14 @@ int c3windows_MakeDebugWindow( BOOL make )
 		sint32 windowX = 0;
 		sint32 windowY = g_ScreenHeight - windowHeight;
 
-		g_debugWindow = new DebugWindow(
+		s_debugWindowOwner = std::make_unique<DebugWindow>(
 			&errcode,
 			aui_UniqueId(),
 			windowX, windowY, windowWidth, windowHeight,
 			16,
 			const_cast<MBCHAR *>(k_PatternName),
 			AUI_WINDOW_TYPE_FLOATING );
+		g_debugWindow = s_debugWindowOwner.get();
 		Assert( g_debugWindow != nullptr );
 		if ( !g_debugWindow ) return -1;
 
@@ -1507,7 +1433,7 @@ int c3windows_MakeDebugWindow( BOOL make )
 		g_debugWindow->GrabRegion()->Resize( windowWidth, 20 );
 		g_debugWindow->SetDraggable( TRUE );
 
-		textbox = new TextBox(
+		textbox = std::make_unique<TextBox>(
 			&errcode,
 			aui_UniqueId(),
 			2,
@@ -1518,7 +1444,7 @@ int c3windows_MakeDebugWindow( BOOL make )
 		if ( !textbox ) return -3;
 
 
-		exitButton = new TextButton(
+		exitButton = std::make_unique<TextButton>(
 			&errcode,
 			aui_UniqueId(),
 			windowWidth - 12,
@@ -1528,19 +1454,19 @@ int c3windows_MakeDebugWindow( BOOL make )
 			k_PatternName,
 			"X",
 			DebugExitButtonActionCallback,
-			textbox );
+			textbox.get() );
 		if ( !exitButton ) return -3;
 
-		errcode = g_debugWindow->AddControl( textbox );
+		errcode = g_debugWindow->AddControl( textbox.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -4;
 
-		errcode = g_debugWindow->AddControl( exitButton );
+		errcode = g_debugWindow->AddControl( exitButton.get() );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -4;
 
 
-		g_debugWindow->SetTextBox(textbox);
+		g_debugWindow->SetTextBox(textbox.get());
 
 	}
 	else
@@ -1549,13 +1475,11 @@ int c3windows_MakeDebugWindow( BOOL make )
 
 		c3ui_Get()->RemoveWindow( g_debugWindow->Id() );
 
-		delete textbox;
-		textbox = nullptr;
+		textbox.reset();
 
-		delete exitButton;
-		exitButton = nullptr;
+		exitButton.reset();
 
-		delete g_debugWindow;
+		s_debugWindowOwner.reset();
 		g_debugWindow = nullptr;
 	}
 
@@ -1578,16 +1502,8 @@ void c3windows_Cleanup( )
 	radarwindow_Cleanup();
 	backgroundWin_Cleanup();
 
-	if ( g_iconButton )
-	{
-		delete g_iconButton;
-		g_iconButton = nullptr;
-	}
-	if ( g_happyTab )
-	{
-		delete g_happyTab;
-		g_happyTab = nullptr;
-	}
+	g_iconButton.reset();
+	g_happyTab.reset();
 
 	c3ui_Get()->UnloadIcon( k_IconName );
 }

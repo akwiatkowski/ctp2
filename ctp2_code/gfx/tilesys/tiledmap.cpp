@@ -62,6 +62,7 @@
 #include "gs/outcom/AICause.h"
 #include <algorithm>                    // std::fill
 #include <unordered_set>                // whole-map batch signature set
+#include <memory>
 #include <vector>
 #include "gs/gameobj/ArmyData.h"
 #include "ui/aui_common/aui.h"
@@ -139,8 +140,8 @@
 #include "gs/world/World.h"                      // world_Get()
 
 extern RECT             g_backgroundViewport;
-extern SpriteEditWindow *g_spriteEditWindow;
-extern GrabItem         *g_grabbedItem;
+extern std::unique_ptr<SpriteEditWindow> g_spriteEditWindow;
+extern std::unique_ptr<GrabItem> g_grabbedItem;
 extern sint32           g_tradeSelectedState;
 extern sint32           g_fog_toggle;
 extern sint32           g_god;
@@ -402,13 +403,13 @@ TiledMap::TiledMap(MapPoint &size)
     m_hiliteMouseTile       (),
 	m_drawHilite            (false),
 #ifdef __USING_SPANS__
-    m_mapDirtyList          (NULL),
-	m_mixDirtyList          (NULL),
-	m_oldMixDirtyList       (NULL),
+    m_mapDirtyList          (nullptr),
+	m_mixDirtyList          (nullptr),
+	m_oldMixDirtyList       (nullptr),
 #else
-    m_mapDirtyList          (new aui_DirtyList),
-	m_mixDirtyList          (new aui_DirtyList),
-	m_oldMixDirtyList       (new aui_DirtyList),
+    m_mapDirtyList          (std::make_unique<aui_DirtyList>()),
+	m_mixDirtyList          (std::make_unique<aui_DirtyList>()),
+	m_oldMixDirtyList       (std::make_unique<aui_DirtyList>()),
 #endif
 	m_localVision           (nullptr),
 	m_nextPlayer            (false),
@@ -452,8 +453,8 @@ TiledMap::TiledMap(MapPoint &size)
 	RegisterTiledMapObserverAdapter();
 
 	AUI_ERRCODE         errcode     = AUI_ERRCODE_OK;
-	aui_StringTable	*   stringTable =
-        new aui_StringTable(&errcode, "TiledMapFontStringTable");
+	std::unique_ptr<aui_StringTable> stringTable =
+        std::make_unique<aui_StringTable>(&errcode, "TiledMapFontStringTable");
 
 	if (AUI_NEWOK(stringTable, errcode))
     {
@@ -467,7 +468,7 @@ TiledMap::TiledMap(MapPoint &size)
 		strlcpy(m_fortifyString, fString, sizeof(m_fortifyString));
 	}
 
-	delete stringTable;
+	// stringTable freed by unique_ptr
 }
 
 TiledMap::~TiledMap()
@@ -478,11 +479,8 @@ TiledMap::~TiledMap()
 	{
 		c3ui_Get()->UnloadBitmapFont(m_font);
 	}
-	delete m_mapSurface;
-	delete m_mixDirtyList;
-	delete m_oldMixDirtyList;
-	delete m_mapDirtyList;
-	delete m_tileSet;
+	// m_mapSurface / m_mixDirtyList / m_oldMixDirtyList / m_mapDirtyList /
+	// m_tileSet are unique_ptr — freed automatically
 	// m_gpuTileCache / m_gpuScratchTile are unique_ptr — freed automatically
 	// m_localVision    not deleted: reference only
 	// m_surface        not deleted: reference only
@@ -501,20 +499,20 @@ sint32 TiledMap::Initialize(RECT *viewRect)
 	// and primitive writers all expand-at-store into 32-bit now (dormant paths
 	// activated by this flip), and the implicit m_mapSurface->secondary
 	// SDL_BlitSurface 565->8888 convert self-neutralizes into a 32->32 copy.
-	m_mapSurface = aui_Factory::new_Surface(errcode, w, h, nullptr, FALSE, FALSE, FALSE, 32);
+	m_mapSurface.reset(aui_Factory::new_Surface(errcode, w, h, nullptr, FALSE, FALSE, FALSE, 32));
 	Assert(m_mapSurface);
 	if (!m_mapSurface) return AUI_ERRCODE_MEMALLOCFAILED;
 
 
 
 
-	m_surface = m_mapSurface;
+	m_surface = m_mapSurface.get();
 
 #ifdef __USING_SPANS__
 
-	m_mixDirtyList = new aui_DirtyList( TRUE, w, h );
-	m_oldMixDirtyList = new aui_DirtyList( TRUE, w, h );
-	m_mapDirtyList = new aui_DirtyList( TRUE, w, h );
+	m_mixDirtyList = std::make_unique<aui_DirtyList>( TRUE, w, h );
+	m_oldMixDirtyList = std::make_unique<aui_DirtyList>( TRUE, w, h );
+	m_mapDirtyList = std::make_unique<aui_DirtyList>( TRUE, w, h );
 #endif
 
 	m_displayRect = m_surfaceRect = *viewRect;
@@ -553,7 +551,7 @@ void TiledMap::InitGrid(sint32 maxPixelsPerGridRectX, sint32 maxPixelsPerGridRec
 
 	for (sint32 i=0; i<m_gridHeight; i++)
 	{
-		m_gridRects[i] = new GridRect[m_gridWidth];
+		m_gridRects[i] = std::make_unique<GridRect[]>(m_gridWidth);
 
 		for(sint32 j=0; j<m_gridWidth; j++)
 		{
@@ -579,15 +577,9 @@ void TiledMap::InitGrid(sint32 maxPixelsPerGridRectX, sint32 maxPixelsPerGridRec
 
 void TiledMap::DeleteGrid()
 {
-	for (sint32 i=0; i<m_gridHeight; i++) {
-		delete m_gridRects[i];
-	}
-
+	// unique_ptr rows free themselves; clear() drops the array
 	m_gridRects.clear();
 }
-
-
-
 
 
 
@@ -933,7 +925,7 @@ AUI_ERRCODE TiledMap::RenderPlayerView(aui_Surface *dest, sint32 zoomLevel,
 	// = false so AddVisible doesn't fire tiledmap redraw side effects.)
 	Vision sightVision(playerIndex, false);
 	{
-		UnitDynamicArray * units = pl->m_all_units;
+		UnitDynamicArray * units = pl->m_all_units.get();
 		for (sint32 u = 0; units && u < units->Num(); ++u) {
 			Unit unit = units->Access(u);
 			if (!unit.IsValid()) continue;
@@ -1060,7 +1052,7 @@ void TiledMap::AddDirtyRect(RECT &rect, aui_DirtyList * a_List)
 		RECT tempRect = rect;
 
 #ifdef __GRIDDED_BLITS__
-	if (a_List == m_mixDirtyList) {
+	if (a_List == m_mixDirtyList.get()) {
 		CheckRectAgainstGrid(rect, a_List);
 	} else {
 
@@ -1116,32 +1108,32 @@ void TiledMap::AddDirtyTile(MapPoint &pos, aui_DirtyList * a_List)
 
 void TiledMap::AddDirtyToMap(sint32 left, sint32 top, sint32 width, sint32 height)
 {
-	AddDirty(left, top, width, height, m_mapDirtyList);
+	AddDirty(left, top, width, height, m_mapDirtyList.get());
 }
 
 void TiledMap::AddDirtyRectToMap(RECT &rect)
 {
-	AddDirtyRect(rect, m_mapDirtyList);
+	AddDirtyRect(rect, m_mapDirtyList.get());
 }
 
 void TiledMap::AddDirtyTileToMap(MapPoint &pos)
 {
-	AddDirtyTile(pos, m_mapDirtyList);
+	AddDirtyTile(pos, m_mapDirtyList.get());
 }
 
 void TiledMap::AddDirtyToMix(sint32 left, sint32 top, sint32 width, sint32 height)
 {
-	AddDirty(left, top, width, height, m_mixDirtyList);
+	AddDirty(left, top, width, height, m_mixDirtyList.get());
 }
 
 void TiledMap::AddDirtyRectToMix(RECT &rect)
 {
-	AddDirtyRect(rect, m_mixDirtyList);
+	AddDirtyRect(rect, m_mixDirtyList.get());
 }
 
 void TiledMap::AddDirtyTileToMix(MapPoint &pos)
 {
-	AddDirtyTile(pos, m_mixDirtyList);
+	AddDirtyTile(pos, m_mixDirtyList.get());
 }
 
 
@@ -1194,7 +1186,7 @@ void TiledMap::RestoreMixFromMap(aui_Surface *destSurf)
 		0,
 		0,
 		m_surface,
-		m_oldMixDirtyList,
+		m_oldMixDirtyList.get(),
 		k_AUI_BLITTER_FLAG_COPY );
 #else
 	m_oldMixDirtyList->Minimize();
@@ -1326,7 +1318,7 @@ void TiledMap::InvalidateMap()
 
 	m_mapDirtyList->Flush();
 
-	AddDirtyRect(tempRect, m_mapDirtyList);
+	AddDirtyRect(tempRect, m_mapDirtyList.get());
 }
 
 void TiledMap::ValidateMap()
@@ -1340,7 +1332,7 @@ void TiledMap::InvalidateMix()
 
 	m_mixDirtyList->Flush();
 
-	AddDirtyRect(tempRect, m_mixDirtyList);
+	AddDirtyRect(tempRect, m_mixDirtyList.get());
 
 	for (sint32 i=0; i<m_gridHeight; i++) {
 		for (sint32 j=0; j<m_gridWidth; j++) {
@@ -1350,7 +1342,7 @@ void TiledMap::InvalidateMix()
 
 
 m_oldMixDirtyList->Flush();
-AddDirtyRect(g_backgroundViewport, m_oldMixDirtyList);
+AddDirtyRect(g_backgroundViewport, m_oldMixDirtyList.get());
 }
 
 void TiledMap::ValidateMix()
@@ -1386,7 +1378,7 @@ void TiledMap::UpdateMixFromMap(aui_Surface *mixSurf)
 		0,
 		0,
 		m_surface,
-		m_mapDirtyList,
+		m_mapDirtyList.get(),
 		k_AUI_BLITTER_FLAG_COPY );
 
 #else
@@ -1418,10 +1410,9 @@ void TiledMap::UpdateMixFromMap(aui_Surface *mixSurf)
 
 void TiledMap::LoadTileset()
 {
-	TileSet *tileSet = new TileSet;
+	auto tileSet = std::make_unique<TileSet>();
 	tileSet->QuickLoadMapped();
-	delete m_tileSet;
-	m_tileSet = tileSet;
+	m_tileSet = std::move(tileSet);
 }
 
 sint16 TiledMap::TryRiver(BOOL bc, BOOL bn, BOOL bne, BOOL be, BOOL bse, BOOL bs, BOOL bsw, BOOL bw, BOOL bnw, BOOL cwater)
@@ -2516,7 +2507,7 @@ sint32 TiledMap::DrawImprovements(aui_Surface *surface,
 
 void TiledMap::RetargetTileSurface(aui_Surface *surf)
 {
-	m_surface = (surf) ? surf : m_mapSurface;
+	m_surface = (surf) ? surf : m_mapSurface.get();
 }
 
 sint32 TiledMap::RepaintTiles(RECT *repaintRect)
@@ -2816,7 +2807,7 @@ void TiledMap::DrawSomeText
 		surface = screenmanager_Get()->GetSurface();
 		if (!surface) return;
 	} else {
-		surface = m_mapSurface;
+		surface = m_mapSurface.get();
 	}
 
 	sint32  width = m_font->GetStringWidth(text);
@@ -4475,7 +4466,7 @@ int TiledMap::BuildWorldmapQuads()
 					(uint8_t) tileInfo->GetTransition(2),
 					(uint8_t) tileInfo->GetTransition(3) };
 				size_t const before = dirty.size();
-				if (s_tilesetGpuRaster.ComposeCell(m_tileSet,
+				if (s_tilesetGpuRaster.ComposeCell(m_tileSet.get(),
 						tileInfo->GetTileNum(), (uint16) tilesetIndex, trans,
 						WorldmapCellFogged(pos), k_FOW_COLOR, k_FOW_BLEND_VALUE,
 						(int) tileInfo->GetRiverPiece(), -1, drawX, drawY, dirty))
@@ -5400,7 +5391,7 @@ sint32 TiledMap::RedrawHat(
 				DrawDitheredOverlay(surface, baseTile->GetHatData(),drawx,drawy,k_FOW_COLOR);
 		}
 
-		if (m_surface == m_mapSurface)
+		if (m_surface == m_mapSurface.get())
 			AddDirtyToMap(drawx,drawy, k_TILE_PIXEL_WIDTH, k_TILE_PIXEL_HEIGHT);
 	}
 	else
@@ -5433,7 +5424,7 @@ sint32 TiledMap::RedrawHat(
 			}
 		}
 
-		if (m_surface == m_mapSurface)
+		if (m_surface == m_mapSurface.get())
 			AddDirtyToMap(drawx,drawy, GetZoomTilePixelWidth(), GetZoomTileGridHeight());
 
 	}

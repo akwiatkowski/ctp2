@@ -51,6 +51,7 @@ enum    C3_THUMBNAIL_ACTION
 #define k_THUMBNAIL_CITY_BLINK_RATE		1000
 
 #include <vector>
+#include <memory>
 
 #include "ui/aui_ctp2/patternbase.h"
 #include "ui/aui_common/aui_control.h"
@@ -146,7 +147,7 @@ public:
 	BOOL ShowTipWindow( aui_MouseEvent *mouseData );
 
 private:
-	aui_Surface						*m_mapSurface;
+	std::unique_ptr<aui_Surface>		m_mapSurface;
 	MapPoint						*m_mapSize;
 	std::vector<COLOR>					m_mapOverlay;
 
@@ -159,7 +160,7 @@ private:
 	TradeRoute						*m_selectedRoute;
 	Unit							m_selectedCity;
 
-	DynamicArray<CityInfo>			*m_cityList;
+	std::unique_ptr<DynamicArray<CityInfo>> m_cityList;
 
 	BOOL							m_displayUnits;
 	BOOL							m_displayLandOwnership;

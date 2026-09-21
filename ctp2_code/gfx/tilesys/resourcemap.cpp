@@ -127,11 +127,7 @@ ResourceMap::ResourceMap(AUI_ERRCODE *retval,
 }
 
 ResourceMap::~ResourceMap()
-{
-	delete m_surface;
-	delete m_string;
-	delete m_updateAction;
-}
+= default;
 
 void ResourceMap::InitCommonLdl(MBCHAR *ldlBlock)
 {
@@ -158,16 +154,16 @@ void ResourceMap::InitCommon( sint32 scale)
 
 	m_unit = Unit();
 
-	m_updateAction = nullptr;
+	m_updateAction.reset();
 
-	m_surface = aui_Factory::new_Surface(errcode,
+	m_surface.reset(aui_Factory::new_Surface(errcode,
 		tiledmap_Get()->GetZoomTilePixelWidth() * ((k_MAX_CITY_RADIUS * 2) + 1),
-		tiledmap_Get()->GetZoomTilePixelHeight() * ((k_MAX_CITY_RADIUS * 2) + 2));
+		tiledmap_Get()->GetZoomTilePixelHeight() * ((k_MAX_CITY_RADIUS * 2) + 2)));
 
 	Assert(m_surface);
 	if ( !m_surface ) return;
 
-	m_string = new aui_StringTable( &errcode, "ResourceMapStrings" );
+	m_string = std::make_unique<aui_StringTable>( &errcode, "ResourceMapStrings" );
 	Assert( m_string );
 }
 
@@ -273,7 +269,7 @@ sint32 ResourceMap::DrawSurface()
 	sint32 height = m_surface->Height();
 
 	RECT rect = {0,0,width,height};
-	primitives_PaintRect16(m_surface,&rect,0x0000);
+	primitives_PaintRect16(m_surface.get(),&rect,0x0000);
 
 	if (!m_unit.IsValid()) return -1;
 
@@ -302,11 +298,11 @@ sint32 ResourceMap::DrawSurface()
 	m_leftEdge = leftEdge;
 	m_topEdge = topEdge;
 
-	tiledmap_Get()->LockThisSurface(m_surface);
+	tiledmap_Get()->LockThisSurface(m_surface.get());
 
 	m_usedRect.left = m_usedRect.top = m_usedRect.right = m_usedRect.bottom = -1;
 
-	DrawResourceMapThing(m_surface, DrawATile);
+	DrawResourceMapThing(m_surface.get(), DrawATile);
 
 	tiledmap_Get()->UnlockSurface();
 
@@ -320,7 +316,7 @@ sint32 ResourceMap::DrawSurface()
 	m_mapViewRect.top = 2;
 	m_mapViewRect.bottom = 9;
 
-	DrawSprites(m_surface, nullptr);
+	DrawSprites(m_surface.get(), nullptr);
 
 	return 0;
 }
@@ -793,7 +789,7 @@ sint32 ResourceMap::UpdateFromSurface(aui_Surface *destSurface, RECT *destRect)
 	}
 
 	RECT rect = {m_usedRect.left,m_usedRect.top,m_usedRect.right,m_usedRect.bottom};
-	c3ui_Get()->TheBlitter()->StretchBlt(destSurface, destRect, m_surface, &rect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->StretchBlt(destSurface, destRect, m_surface.get(), &rect, k_AUI_BLITTER_FLAG_COPY);
 
 	return 0;
 }

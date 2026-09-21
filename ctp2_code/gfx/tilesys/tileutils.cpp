@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -81,12 +82,17 @@ Pixel32 *tileutils_LowPassFilter(Pixel32 *image, uint32 width, uint32 height)
 				  0.11111111, 0.11111111, 0.11111111,
 				  0.11111111, 0.11111111, 0.11111111 };
 
-	Pixel32	*filteredImage;
+	// RealConvolution returns an owning unique_ptr; released into the raw
+	// Pixel32* this function's contract hands to (currently dead) callers.
+	// image is a malloc'd buffer owned by the caller and consumed here.
+	std::unique_ptr<Pixel32, decltype(&std::free)> imageHolder(image, &std::free);
+	std::unique_ptr<Pixel32[]> filteredImage =
+		RealConvolution(image, width, height, 0, 0, LP1, 3, 3, g_lowPassScale, FALSE);
 
-	if (!RealConvolution(image, width, height, 0, 0, LP1, 3, 3, g_lowPassScale, FALSE, &filteredImage)) {
-		free(image);
-		return filteredImage;
+	if (filteredImage) {
+		return filteredImage.release();
 	} else {
+		imageHolder.release();
 		return nullptr;
 	}
 }
@@ -147,13 +153,13 @@ Pixel16 *tileutils_TGA2mem(char *filename, uint16 *width, uint16 *height)
 		return nullptr;
 	}
 
-	Pixel16 *   buffer = new Pixel16[w * h]; // TODO(phase-2): ownership transfer out of function
-	Load_TGA_File(filename, (uint8 *)buffer, (int)w*sizeof(Pixel16), w, h, nullptr, FALSE);
+	auto buffer = std::make_unique<Pixel16[]>(w * h);
+	Load_TGA_File(filename, (uint8 *)buffer.get(), (int)w*sizeof(Pixel16), w, h, nullptr, FALSE);
 
 	*width = (uint16)w;
 	*height = (uint16)h;
 
-	return buffer;
+	return buffer.release();
 }
 
 /**
@@ -434,14 +440,14 @@ Pixel16 *tileutils_EncodeTile(Pixel32 *buf, uint16 width, uint16 height, uint32 
 
 	int dataSize = (dataPtr - outBuf) * 2;
 
-	char *returnBuf = new char[dataSize+tableSize]; // TODO(phase-2): ownership transfer out of function
+	auto returnBuf = std::make_unique<char[]>(dataSize+tableSize);
 
-	memcpy(returnBuf, tableStart, tableSize);
-	memcpy(returnBuf+tableSize, outBuf, dataSize);
+	memcpy(returnBuf.get(), tableStart, tableSize);
+	memcpy(returnBuf.get()+tableSize, outBuf, dataSize);
 
 	*size = (dataSize + tableSize);
 
-	return (Pixel16 *)returnBuf;
+	return (Pixel16 *)returnBuf.release();
 }
 
 /**
@@ -742,15 +748,15 @@ Pixel16 *tileutils_EncodeTile16(Pixel16 *buf, uint16 width, uint16 height, uint3
 
 	int dataSize = (dataPtr - outBuf) * 2;
 
-	char *returnBuf = new char[dataSize+tableSize]; // TODO(phase-2): ownership transfer out of function
+	auto returnBuf = std::make_unique<char[]>(dataSize+tableSize);
 
-	memcpy(returnBuf, tableStart, tableSize);
-	memcpy(returnBuf+tableSize, outBuf, dataSize);
+	memcpy(returnBuf.get(), tableStart, tableSize);
+	memcpy(returnBuf.get()+tableSize, outBuf, dataSize);
 
 	*size = (dataSize + tableSize);
 
 
-	return (Pixel16 *)returnBuf;
+	return (Pixel16 *)returnBuf.release();
 }
 
 sint32 tileutils_ConvertPixelFormatFrom565(Pixel16 *data)
@@ -1031,13 +1037,13 @@ void tileutils_LoadStencil()
 
 Pixel16 *tileutils_CreateBorkBork()
 {
-	Pixel16		*bork = new Pixel16[48*94]; // TODO(phase-2): ownership transfer out of function
+	auto bork = std::make_unique<Pixel16[]>(48*94);
 	sint32		 i;
 	sint32		 j;
 	sint32		pixelX;
 	uint32		accum;
+	memset(bork.get(), 0xFF, sizeof(Pixel16)*48*94);
 
-	memset(bork, 0xFF, sizeof(Pixel16)*48*94);
 
 	for (i=0; i<k_TILE_PIXEL_HEIGHT; i++) {
 		if (i<=23) {
@@ -1076,9 +1082,8 @@ Pixel16 *tileutils_CreateBorkBork()
 
 
 
+	return bork.release();
 
-
-	return bork;
 }
 
 Pixel16 *tileutils_ExtractUpperRight(char *tif, uint16 width, uint16 height, sint32 x, sint32 y)
@@ -1089,8 +1094,8 @@ Pixel16 *tileutils_ExtractUpperRight(char *tif, uint16 width, uint16 height, sin
 	uint32		accum;
 	uint32		*image = (uint32 *)tif;
 
-	Pixel16		*data = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
-	Pixel16		*dataPtr = data;
+	auto data = std::make_unique<Pixel16[]>(g_stencilSize);
+	Pixel16		*dataPtr = data.get();
 	Pixel32		pix32;
 	Pixel16		pix16;
 	uint8		alpha;
@@ -1119,7 +1124,7 @@ Pixel16 *tileutils_ExtractUpperRight(char *tif, uint16 width, uint16 height, sin
 		}
 	}
 
-	return data;
+	return data.release();
 }
 
 Pixel16 *tileutils_ExtractLowerLeft(char *tif, uint16 width, uint16 height, sint32 x, sint32 y)
@@ -1130,8 +1135,8 @@ Pixel16 *tileutils_ExtractLowerLeft(char *tif, uint16 width, uint16 height, sint
 	uint32		accum;
 	uint32		*image = (uint32 *)tif;
 
-	Pixel16		*data = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
-	Pixel16		*dataPtr = data;
+	auto data = std::make_unique<Pixel16[]>(g_stencilSize);
+	Pixel16		*dataPtr = data.get();
 	Pixel32		pix32;
 	Pixel16		pix16;
 	uint8		alpha;
@@ -1160,22 +1165,22 @@ Pixel16 *tileutils_ExtractLowerLeft(char *tif, uint16 width, uint16 height, sint
 		}
 	}
 
-	return data;
+	return data.release();
 }
 
 Pixel16 *tileutils_LoadStencilImage(uint16 from, uint16 to)
 {
-	Pixel16		*data = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
+	auto data = std::make_unique<Pixel16[]>(g_stencilSize);
 	MBCHAR		fname[_MAX_PATH];
 	snprintf(fname, sizeof(fname), "output" FILE_SEP "xitions" FILE_SEP "gtft%.2d%.2d.bin", from, to);
 
 	FILE *      file = fopen(fname, "rb");
 	if (file != nullptr) {
-		fread(data, 1, g_stencilSize * sizeof(Pixel16), file);
+		fread(data.get(), 1, g_stencilSize * sizeof(Pixel16), file);
 		fclose(file);
 	}
 
-	return data;
+	return data.release();
 }
 
 Pixel16 *tileutils_MakeTransition1(Pixel16 *sourceStencil)
@@ -1187,8 +1192,8 @@ Pixel16 *tileutils_MakeTransition1(Pixel16 *sourceStencil)
 	uint16		off;
 	sint32		rowIndex;
 
-	Pixel16 *   data    = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
-	Pixel16 *   dataPtr = data;
+	auto data    = std::make_unique<Pixel16[]>(g_stencilSize);
+	Pixel16 *   dataPtr = data.get();
 	sint32      bottom  = k_TILE_PIXEL_HEIGHT-1;
 
 	for (i=0; i<k_TILE_PIXEL_HEIGHT; i++) {
@@ -1208,7 +1213,7 @@ Pixel16 *tileutils_MakeTransition1(Pixel16 *sourceStencil)
 		}
 	}
 
-	return data;
+	return data.release();
 }
 
 Pixel16 *tileutils_MakeTransition2(Pixel16 *sourceStencil)
@@ -1221,8 +1226,8 @@ Pixel16 *tileutils_MakeTransition2(Pixel16 *sourceStencil)
 	uint16		off;
 	sint32		rowIndex;
 
-	Pixel16	*   data    = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
-	Pixel16 *   dataPtr = data;
+	auto data    = std::make_unique<Pixel16[]>(g_stencilSize);
+	Pixel16 *   dataPtr = data.get();
 	sint32      bottom  = k_TILE_PIXEL_HEIGHT-1;
 
 	for (i=0; i<k_TILE_PIXEL_HEIGHT; i++) {
@@ -1250,7 +1255,7 @@ Pixel16 *tileutils_MakeTransition2(Pixel16 *sourceStencil)
 		}
 	}
 
-	return data;
+	return data.release();
 }
 
 Pixel16 *tileutils_MakeTransition3(Pixel16 *sourceStencil)
@@ -1263,8 +1268,8 @@ Pixel16 *tileutils_MakeTransition3(Pixel16 *sourceStencil)
 	uint16		off;
 	sint32		rowIndex;
 
-	Pixel16 *   data    = new Pixel16[g_stencilSize]; // TODO(phase-2): ownership transfer out of function
-	Pixel16 *   dataPtr = data;
+	auto data    = std::make_unique<Pixel16[]>(g_stencilSize);
+	Pixel16 *   dataPtr = data.get();
 
 	for (i=0; i<k_TILE_PIXEL_HEIGHT; i++) {
 		accum = g_bitsTable[i];
@@ -1291,7 +1296,7 @@ Pixel16 *tileutils_MakeTransition3(Pixel16 *sourceStencil)
 		}
 	}
 
-	return data;
+	return data.release();
 }
 
 void tileutils_DumpAllTransitions(MBCHAR *filename, Pixel16 *t0, Pixel16 *t1, Pixel16 *t2, Pixel16 *t3)
@@ -1430,7 +1435,7 @@ sint32 tileutils_ExtractStencils(sint16 fromType, sint16 toType)
 }
 
 
-BaseTile	*g_baseTiles[k_MAX_BASE_TILES];
+std::array<std::unique_ptr<BaseTile>, k_MAX_BASE_TILES>	g_baseTiles;
 
 
 
@@ -1451,7 +1456,7 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 	uint16		 width;
 	uint16		 height;
 
-	Pixel16 *   bork = tileutils_CreateBorkBork();
+	std::unique_ptr<Pixel16[]> bork(tileutils_CreateBorkBork());
 
 	MBCHAR		filename[_MAX_PATH];
 	snprintf(filename, sizeof(filename), "source" FILE_SEP "basetiles" FILE_SEP "GT%cB%.4d.tif", ageChar, tileNum);
@@ -1548,7 +1553,7 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 		accumList[y][accumIndex] = accum;
 	}
 
-	BaseTile	*baseTile = new BaseTile;
+	auto baseTile = std::make_unique<BaseTile>();
 
 	baseTile->SetBaseType((uint8)g_theTerrainDB->Get(baseType)->GetTilesetIndex());
 
@@ -1567,9 +1572,9 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 	Assert(len >= 0);
 	baseTile->SetTileDataLen(static_cast<uint16>(len*2));
 
-	Pixel16		*dataCopy = new Pixel16[len]; // TODO(phase-2): ownership transfer out of function
-	memcpy(dataCopy, tileData, len*2);
-	baseTile->SetTileData(dataCopy);
+	auto dataCopy = std::make_unique<Pixel16[]>(len);
+	memcpy(dataCopy.get(), tileData, len*2);
+	baseTile->SetTileData(dataCopy.release());
 
 
 
@@ -1589,22 +1594,20 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 
 
 	char		*hatTif=nullptr;
-	Pixel16		*hatData=nullptr;
+	std::unique_ptr<Pixel16[]>	hatData;
 	uint32		hatDataLen=0;
 
 	snprintf(filename, sizeof(filename), "source" FILE_SEP "hats" FILE_SEP "GTFh%.4d.tif", tileNum);
 	TifBuffer hatTifBuf(tileutils_TIF2mem(filename, &width, &height));
 	hatTif = hatTifBuf.get();
 	if (hatTif) {
-		hatData = (Pixel16 *)tileutils_EncodeTile((Pixel32 *)hatTif, width, height, &hatDataLen);
+		hatData.reset((Pixel16 *)tileutils_EncodeTile((Pixel32 *)hatTif, width, height, &hatDataLen));
 	}
 
 	baseTile->SetHatDataLen((uint16)hatDataLen);
-	baseTile->SetHatData(hatData);
+	baseTile->SetHatData(hatData.release());
 
-	g_baseTiles[tileNum] = baseTile;
-
-	delete[] bork;
+	g_baseTiles[tileNum] = std::move(baseTile);
 }
 
 uint16 tileutils_CompileImprovements(FILE *file)
@@ -1616,7 +1619,7 @@ uint16 tileutils_CompileImprovements(FILE *file)
 	uint16		 width;
 	uint16		 height;
 	uint16		 id;
-	Pixel16		*data;
+	std::unique_ptr<Pixel16[]>	data;
 	uint16		count = 0;
 #ifdef WIN32
 	struct _stat tmpstat;
@@ -1644,7 +1647,7 @@ uint16 tileutils_CompileImprovements(FILE *file)
 		TifBuffer tifBuf(tileutils_TIF2mem(filename, &width, &height));
 		tif = tifBuf.get();
 		if (tif) {
-			data = (Pixel16 *)tileutils_EncodeTile((Pixel32 *)tif, width, height, &dataLen);
+			data.reset((Pixel16 *)tileutils_EncodeTile((Pixel32 *)tif, width, height, &dataLen));
 
 			id = (uint16)i;
 
@@ -1652,7 +1655,7 @@ uint16 tileutils_CompileImprovements(FILE *file)
 
 			fwrite(&dataLen, 1, sizeof(uint32), file);
 
-			fwrite(data, 1, dataLen, file);
+			fwrite(data.get(), 1, dataLen, file);
 		}
 	}
 
@@ -1673,9 +1676,7 @@ void tileutils_EncodeTileset(MBCHAR *filename)
 		}
 	}
 
-	for (i=0; i<k_MAX_BASE_TILES; i++) {
-		g_baseTiles[i] = nullptr;
-	}
+	// g_baseTiles is an array of unique_ptr, default-null
 
 	tileutils_ParseTileset(filename);
 }
@@ -1686,7 +1687,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 	BOOL			done = FALSE;
 	std::vector<sint16> transforms[k_MAX_TRANSFORMS];
 	std::vector<sint16> riverTransforms[k_MAX_RIVER_TRANSFORMS];
-	Pixel16			*riverData[k_MAX_RIVER_TRANSFORMS];
+	std::array<std::unique_ptr<Pixel16[]>, k_MAX_RIVER_TRANSFORMS>	riverData;
 	uint32			riverDataLen[k_MAX_RIVER_TRANSFORMS];
 	uint16			megaTileLengths[k_MAX_MEGATILES];
 	MegaTileStep	megaTileData[k_MAX_MEGATILES][k_MAX_MEGATILE_STEPS];
@@ -1910,8 +1911,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 				uint32		dataLen=0;
 
-				if (tif) riverData[numRiverTransforms] = (Pixel16 *)tileutils_EncodeTile((Pixel32 *)tif, width, height, &dataLen);
-				else riverData[numRiverTransforms] = nullptr;
+				if (tif) riverData[numRiverTransforms].reset((Pixel16 *)tileutils_EncodeTile((Pixel32 *)tif, width, height, &dataLen));
 
 				riverDataLen[numRiverTransforms] = dataLen;
 
@@ -2055,8 +2055,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 						fwrite(g_baseTiles[i]->GetHatData(), 1, len16, tfile);
 					}
 
-					delete g_baseTiles[i];
-					g_baseTiles[i] = nullptr;
+					g_baseTiles[i].reset();
 				}
 			}
 			printf("...Base Tiles");
@@ -2073,12 +2072,10 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 				fwrite(&riverDataLen[i], 1, sizeof(uint32), tfile);
 
 				if (riverDataLen[i] > 0) {
-					fwrite(riverData[i], 1, riverDataLen[i], tfile);
+					fwrite(riverData[i].get(), 1, riverDataLen[i], tfile);
 				}
 
-				delete[] riverData[i];
-
-				riverData[i] = nullptr;
+				riverData[i].reset();
 			}
 
 			printf("...River Transforms");

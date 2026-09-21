@@ -71,9 +71,9 @@ C3UI::C3UI
 #endif
     m_cleanupActions    ()
 {
-	m_patternResource   = new aui_Resource<Pattern>;
-	m_iconResource      = new aui_Resource<Icon>;
-	m_pictureResource   = new aui_Resource<Picture>;
+	m_patternResource   = std::make_unique<aui_Resource<Pattern>>();
+	m_iconResource      = std::make_unique<aui_Resource<Icon>>();
+	m_pictureResource   = std::make_unique<aui_Resource<Picture>>();
 }
 
 //----------------------------------------------------------------------------
@@ -104,9 +104,8 @@ C3UI::~C3UI()
         (*p)();
     }
 
-    delete m_patternResource;
-    delete m_iconResource;
-    delete m_pictureResource;
+	// m_patternResource, m_iconResource, m_pictureResource are unique_ptr
+	// members, auto-freed.
 }
 
 //----------------------------------------------------------------------------

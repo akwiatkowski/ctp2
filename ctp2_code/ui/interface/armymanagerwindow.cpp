@@ -33,6 +33,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/interface/armymanagerwindow.h"
 
 #include "ui/aui_common/aui_uniqueid.h"
@@ -79,12 +81,12 @@
 #include "gs/gameobj/UnitData.h"
 
 
-static ArmyManagerWindow *s_armyWindow = nullptr;
+static std::unique_ptr<ArmyManagerWindow> s_armyWindow;
 static MBCHAR const *s_armyWindowBlock = "ArmyManager";
 
 ArmyManagerWindow::ArmyManagerWindow(AUI_ERRCODE *err)
 {
-	m_armies = new PointerList<ArmyListNode>;
+	m_armies = std::make_unique<PointerList<ArmyListNode>>();
 
 	m_window = (ctp2_Window *)aui_Ldl::BuildHierarchyFromRoot(s_armyWindowBlock);
 	Assert(m_window);
@@ -120,7 +122,6 @@ ArmyManagerWindow::~ArmyManagerWindow()
 {
 	if(m_armies) {
 		m_armies->DeleteAll();
-		delete m_armies;
 	}
 
 	if(m_window) {
@@ -134,7 +135,7 @@ AUI_ERRCODE ArmyManagerWindow::Initialize()
 		return AUI_ERRCODE_OK;
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	s_armyWindow = new ArmyManagerWindow(&err);
+	s_armyWindow = std::make_unique<ArmyManagerWindow>(&err);
 	Assert(err == AUI_ERRCODE_OK);
 
 	return err;
@@ -145,7 +146,7 @@ void ArmyManagerWindow::Cleanup()
 	if (s_armyWindow)
     {
 		Hide();
-        allocated::clear(s_armyWindow);
+        s_armyWindow.reset();
 	}
 }
 
@@ -488,7 +489,7 @@ void ArmyManagerWindow::RemoveDeadArmies()
 	Assert(armyList);
 	if(armyList) {
 
-		PointerList<ArmyListNode>::Walker walk(m_armies);
+		PointerList<ArmyListNode>::Walker walk(m_armies.get());
 		sint32 i = 0;
 
 		while(walk.IsValid()) {
@@ -498,7 +499,7 @@ void ArmyManagerWindow::RemoveDeadArmies()
 			   !armypool_Get()->IsValid(walk.GetObj()->m_army)) {
 				walk.Remove();
 				armyList->RemoveItemByIndex(i);
-				delete item;
+				std::unique_ptr<ctp2_ListItem> removedItem(item);
 			} else {
 				walk.Next();
 				i++;
@@ -518,7 +519,7 @@ void ArmyManagerWindow::UpdateList()
 	if(armyList) {
 		armyList->Clear();
 
-		PointerList<ArmyListNode>::Walker walk(m_armies);
+		PointerList<ArmyListNode>::Walker walk(m_armies.get());
 		while(walk.IsValid()) {
 			ctp2_ListItem *item = AddArmyItem(armyList, walk.GetObj());
 			if((walk.GetObj()->m_army == a) && (a.m_id != 0))
@@ -538,11 +539,11 @@ void ArmyManagerWindow::FillArmies()
 	if(!cell)
 		return;
 
-	PointerList<ArmyListNode>::Walker walk(m_armies);
+	PointerList<ArmyListNode>::Walker walk(m_armies.get());
 	while(walk.IsValid()) {
 
 		if(walk.GetObj()->m_army.m_id != 0) {
-			delete walk.Remove();
+				std::unique_ptr<ArmyListNode>{walk.Remove()};
 		} else {
 			walk.Next();
 		}
@@ -565,7 +566,7 @@ void ArmyManagerWindow::FillArmies()
 		Army a= u.GetArmy();
 		if(!a.IsValid() || (a.Num() < 2 && a.m_id != m_army.m_id)) continue;
 
-		m_armies->AddTail(new ArmyListNode(cell->AccessUnit(i).GetArmy()));
+		m_armies->AddTail(std::make_unique<ArmyListNode>(cell->AccessUnit(i).GetArmy()).release());
 	}
 
 	UpdateList();
@@ -578,7 +579,7 @@ void ArmyManagerWindow::NewArmy(aui_Control *control, uint32 action, uint32 data
 	Assert(s_armyWindow);
 	if(!s_armyWindow) return;
 
-	s_armyWindow->m_armies->AddTail(new ArmyListNode());
+	s_armyWindow->m_armies->AddTail(std::make_unique<ArmyListNode>().release());
 	ctp2_ListBox *armyList = (ctp2_ListBox *)aui_Ldl::GetObject(s_armyWindowBlock, "ArmiesList");
 	Assert(armyList);
 	if(armyList) {
@@ -706,10 +707,12 @@ void ArmyManagerWindow::AddSelectedUnits()
 		return;
 
 	ctp2_ListItem *item = (ctp2_ListItem *)armyList->GetSelectedItem();
+	std::unique_ptr<ArmyListNode> nodeOwner;
 	ArmyListNode *node;
 	if(!item)
 	{
-		node = new ArmyListNode();
+		nodeOwner = std::make_unique<ArmyListNode>();
+		node = nodeOwner.get();
 	}
 	else
 	{
@@ -768,7 +771,7 @@ void ArmyManagerWindow::AddSelectedUnits()
 	}
 
 	if(newArmy) {
-		m_armies->AddTail(new ArmyListNode(theArmy));
+		m_armies->AddTail(std::make_unique<ArmyListNode>(theArmy).release());
 		AddArmyItem(armyList, m_armies->GetTail());
 	}
 
@@ -852,7 +855,7 @@ void ArmyManagerWindow::RemoveSelectedUnits()
 					Army newArmy = player_Get(selitem_Get()->GetVisiblePlayer())->GetNewArmy(CAUSE_NEW_ARMY_UNGROUPING);
 					m_inArmy[i].ChangeArmy(newArmy, CAUSE_NEW_ARMY_UNGROUPING);
 
-					m_armies->AddTail(new ArmyListNode(newArmy));
+					m_armies->AddTail(std::make_unique<ArmyListNode>(newArmy).release());
 					AddArmyItem(armyList, m_armies->GetTail());
 				}
 			}

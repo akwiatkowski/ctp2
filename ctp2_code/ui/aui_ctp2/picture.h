@@ -6,6 +6,8 @@
 
 #include "ui/aui_common/aui_image.h"
 
+#include <memory>
+
 class aui_Surface;
 
 
@@ -20,7 +22,7 @@ public:
 		MBCHAR const *szFileName = nullptr );
 	~Picture() override;
 
-	aui_Surface *TheMipmap( ) const { return m_mipmap; }
+	aui_Surface *TheMipmap( ) const { return m_mipmap.get(); }
 
 	AUI_ERRCODE Draw( aui_Surface *pDestSurf, RECT *pDestRect );
 
@@ -29,7 +31,7 @@ public:
 protected:
 	uint16 AveragePixels( uint16 *pBuffer, sint32 width );
 
-	aui_Surface *m_mipmap;
+	std::unique_ptr<aui_Surface> m_mipmap;
 };
 
 #endif

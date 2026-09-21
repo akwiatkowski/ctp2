@@ -27,6 +27,7 @@
 #include "gs/utility/MapFile.h"
 #include "ai/strategy/scheduler/Scheduler.h"
 #include <array>
+#include <memory>
 #include <fstream>
 #include <unistd.h>
 
@@ -38,11 +39,11 @@
 // are pre-trampoline storage and still work as direct assignments.
 struct CityDataFixture
 {
-    CivApp * app = nullptr;
-    CTPDatabase<CitySizeRecord> *stubCitySizeDB = nullptr;
-    CTPDatabase<ResourceRecord> *stubResourceDB = nullptr;
-    CTPDatabase<ConstRecord> *stubConstDB = nullptr;
-    CTPDatabase<BuildingRecord> *stubBuildingDB = nullptr;
+    std::unique_ptr<CivApp> app;
+    std::unique_ptr<CTPDatabase<CitySizeRecord>> stubCitySizeDB;
+    std::unique_ptr<CTPDatabase<ResourceRecord>> stubResourceDB;
+    std::unique_ptr<CTPDatabase<ConstRecord>> stubConstDB;
+    std::unique_ptr<CTPDatabase<BuildingRecord>> stubBuildingDB;
     CTPDatabase<CitySizeRecord> *previousCitySizeDB = g_theCitySizeDB;
     CTPDatabase<ResourceRecord> *previousResourceDB = g_theResourceDB;
     CTPDatabase<ConstRecord> *previousConstDB = g_theConstDB;
@@ -52,13 +53,13 @@ struct CityDataFixture
     {
         // CivApp's eager m_game container hosts the trampoline targets
         // (world_Set / player_arr_Set / etc.).
-        app = new CivApp();
-        civapp_Set(app);
+        app = std::make_unique<CivApp>();
+        civapp_Set(app.get());
 
-        world_Set(new World(MapPoint(20, 20), false, false));
+        world_Set(std::make_unique<World>(MapPoint(20, 20), false, false).release());
 
         // CityData ctor checks player_Get(owner) before dereferencing
-        Player ** players = new Player *[k_MAX_PLAYERS];
+        Player ** players = std::make_unique<Player *[]>(k_MAX_PLAYERS).release();
         for (int i = 0; i < k_MAX_PLAYERS; ++i)
         {
             players[i] = nullptr;
@@ -69,29 +70,29 @@ struct CityDataFixture
         // ResetStarvationTurns() which reads g_theConstDB and buildingutil_*
         // which reads g_theBuildingDB. Empty databases (NumRecords() == 0)
         // are sufficient for basic instantiation tests.
-        stubCitySizeDB = new CTPDatabase<CitySizeRecord>();
-        g_theCitySizeDB = stubCitySizeDB;
+        stubCitySizeDB = std::make_unique<CTPDatabase<CitySizeRecord>>();
+        g_theCitySizeDB = stubCitySizeDB.get();
 
-        stubResourceDB = new CTPDatabase<ResourceRecord>();
-        g_theResourceDB = stubResourceDB;
+        stubResourceDB = std::make_unique<CTPDatabase<ResourceRecord>>();
+        g_theResourceDB = stubResourceDB.get();
 
-        stubConstDB = new CTPDatabase<ConstRecord>();
-        g_theConstDB = stubConstDB;
+        stubConstDB = std::make_unique<CTPDatabase<ConstRecord>>();
+        g_theConstDB = stubConstDB.get();
 
-        stubBuildingDB = new CTPDatabase<BuildingRecord>();
-        g_theBuildingDB = stubBuildingDB;
+        stubBuildingDB = std::make_unique<CTPDatabase<BuildingRecord>>();
+        g_theBuildingDB = stubBuildingDB.get();
     }
 
     ~CityDataFixture()
     {
         // Game::Cleanup runs in ~CivApp via ~Game on m_game; it tears
         // down m_world and m_playerArr (incl. inner Players) for us.
-        delete app;
+        app.reset();
         civapp_Set(nullptr);
-        delete stubCitySizeDB;
-        delete stubResourceDB;
-        delete stubConstDB;
-        delete stubBuildingDB;
+        stubCitySizeDB.reset();
+        stubResourceDB.reset();
+        stubConstDB.reset();
+        stubBuildingDB.reset();
         // Stub tests can run between tests using the cached real databases.
         g_theCitySizeDB = previousCitySizeDB;
         g_theResourceDB = previousResourceDB;
@@ -292,7 +293,7 @@ struct HeavyCityDataFixture
                 fprintf(stderr, "[HeavyFixture] WARNING: gameinit_InitializeGameFiles failed\n");
             }
 
-            profiledb_Set(new ProfileDB());
+            profiledb_Set(std::make_unique<ProfileDB>().release());
             profiledb_Get()->Init(FALSE);
 
             if (!app.InitializeAppDB())
@@ -304,17 +305,17 @@ struct HeavyCityDataFixture
             s_dbsLoaded = true;
         }
 
-        world_Set(new World(MapPoint(64, 48), false, false));
-        gamesettings_Set(new GameSettings());
-        civilisationpool_Set(new CivilisationPool());
+        world_Set(std::make_unique<World>(MapPoint(64, 48), false, false).release());
+        gamesettings_Set(std::make_unique<GameSettings>().release());
+        civilisationpool_Set(std::make_unique<CivilisationPool>().release());
         player_arr_Set(players.data());
         selected = std::make_unique<SelectedItem>(1);
         selitem_Set(selected.get());
-        slicengine_Set(new SlicEngine());
-        rand_ptr_Set(new RandomGenerator(12345));
+        slicengine_Set(std::make_unique<SlicEngine>().release());
+        rand_ptr_Set(std::make_unique<RandomGenerator>(12345).release());
         // Test fixture: no real game setup. Default to 0 players, year 0;
         // the test exercises CityData logic, not TurnCount semantics.
-        turn_Set(new TurnCount(0, 0));
+        turn_Set(std::make_unique<TurnCount>(0, 0).release());
 
         // Player registers itself in the legacy array; the fixture owns it.
         player = std::make_unique<Player>(0, 0, PLAYER_TYPE_HUMAN);
@@ -339,12 +340,12 @@ TEST_CASE_FIXTURE(HeavyCityDataFixture, "Game cleanup releases live and retired 
 {
     // Transfer the fixture's real Player and a heap array to Game, just as
     // production startup does. Exercise both ownership paths with real handles.
-    auto **ownedPlayers = new Player *[k_MAX_PLAYERS]{};
+    auto **ownedPlayers = std::make_unique<Player *[]>(k_MAX_PLAYERS).release();
     ownedPlayers[0] = player.release();
     player_arr_Set(ownedPlayers);
     SUBCASE("retired player") {
         REQUIRE(g_deadPlayer == nullptr);
-        g_deadPlayer = new PointerList<Player>;
+        g_deadPlayer = std::make_unique<PointerList<Player>>().release();
         g_deadPlayer->AddTail(ownedPlayers[0]);
         ownedPlayers[0] = nullptr;
     }
@@ -366,7 +367,7 @@ TEST_CASE_FIXTURE(HeavyCityDataFixture, "Game cleanup releases live and retired 
 
 TEST_CASE_FIXTURE(HeavyCityDataFixture, "Message pool teardown passes live data to window observers")
 {
-    messagepool_Set(new MessagePool());
+    messagepool_Set(std::make_unique<MessagePool>().release());
     struct Observer : IGameObserver {
         int destroyed = 0;
         void OnMessageWindowDestroy(MessageData const &data) override {

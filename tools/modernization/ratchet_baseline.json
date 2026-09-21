@@ -1,12 +1,12 @@
 {
   "counts": {
-    "c_allocation": 69,
-    "dynarray_uses": 337,
-    "pointerlist_uses": 566,
-    "raw_delete": 1393,
-    "raw_new": 4096,
-    "type_erased_casting": 2512,
-    "unsafe_string_api": 17
+    "c_allocation": 44,
+    "dynarray_uses": 333,
+    "pointerlist_uses": 563,
+    "raw_delete": 110,
+    "raw_new": 29,
+    "type_erased_casting": 2573,
+    "unsafe_string_api": 5
   },
   "description": "Maximum allowed legacy C/C++ pattern counts. Run `make modernization-ratchet-update` after intentional cleanup only.",
   "source_root": "ctp2_code"

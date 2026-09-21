@@ -11,6 +11,8 @@ class BattleView;
 #define k_BATTLEVIEW_DEFAULT_DEFENDER_FACING		5
 #define k_MAX_UNITS_PER_SIDE		                12
 
+#include <memory>
+#include <array>
 #include "ctp/ctp2_utils/pointerlist.h"
 
 class BattleViewActor;
@@ -79,23 +81,24 @@ public:
 	void DrawExplosions();
 	void DrawAttackers();
 	void DrawDefenders();
-	aui_Surface	* GetBattleSurface() const { return m_battleSurface; }
+	aui_Surface	* GetBattleSurface() const { return m_battleSurface.get(); }
 
 private:
 	Battle *                    m_battle;
 	RECT						m_battleViewRect;
-	aui_Surface	*               m_battleSurface;
+	std::unique_ptr<aui_Surface>  m_battleSurface;
 	aui_Image *                 m_backgroundImage;
 	aui_Image *                 m_cityImage;
 	sint32						m_numAttackers;
-	BattleViewActor *           m_attackers[k_MAX_UNITS_PER_SIDE];
+	std::array<std::unique_ptr<BattleViewActor>, k_MAX_UNITS_PER_SIDE>
+	                            m_attackers;
 	sint32						m_numDefenders;
-	BattleViewActor *           m_defenders[k_MAX_UNITS_PER_SIDE];
-	PointerList<BattleEvent> *  m_eventQueue;
+	std::array<std::unique_ptr<BattleViewActor>, k_MAX_UNITS_PER_SIDE>
+	                            m_defenders;
+	std::unique_ptr<PointerList<BattleEvent>> m_eventQueue;
 	PointerList<BattleEvent> m_activeEvents;   // held by value
-	PointerList<BattleEvent>::Walker *
+	std::unique_ptr<PointerList<BattleEvent>::Walker>
                                 m_walker;
-	BattleEvent	*               m_activeEvent;
 	double						m_cityBonus;
 	double						m_citylandattackBonus;
 	double						m_cityairattackBonus;

@@ -6,6 +6,8 @@
 
 #include "ui/aui_ctp2/c3_listitem.h"
 #include "ui/aui_ctp2/c3_listbox.h"
+#include <memory>
+
 
 class c3_PopupWindow;
 class c3_Button;
@@ -17,7 +19,7 @@ class aui_StringTable;
 
 class TutorialWin {
 public:
-	c3_PopupWindow	*m_window;
+	std::unique_ptr<c3_PopupWindow>	m_window;
 
 	TutorialWin( );
 	~TutorialWin( );
@@ -25,15 +27,15 @@ public:
 	sint32 Initialize( MBCHAR *windowBlock );
 protected:
 
-	c3_ListBox		*m_list;
+	std::unique_ptr<c3_ListBox>		m_list;
 
-	c3_Switch		*m_titleButton;
-	c3_Button		*m_endButton;
-	c3_Button		*m_exitButton;
+	std::unique_ptr<c3_Switch>		m_titleButton;
+	std::unique_ptr<c3_Button>		m_endButton;
+	std::unique_ptr<c3_Button>		m_exitButton;
 
 	BOOL		m_minimized;
 
-	aui_StringTable *m_string;
+	std::unique_ptr<aui_StringTable> m_string;
 
 public:
 	void Display( );

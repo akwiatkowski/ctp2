@@ -33,10 +33,12 @@
 #ifndef __WORLDUTILS__h__
 #define __WORLDUTILS__h__ 1
 
+#include <memory>
+
 #include "MapRecord.h"
 
 const MapRecord *worldutils_FindBestMapSizeMatch(sint32 w, sint32 h);
-double *worldutils_CreateSettings(const MapRecord *mapRec, sint32 level, sint32 &numSettings);
-void worldutils_DeleteSettings(double* settings);
+// Caller owns the returned settings array.
+std::unique_ptr<double[]> worldutils_CreateSettings(const MapRecord *mapRec, sint32 level, sint32 &numSettings);
 
 #endif

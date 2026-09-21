@@ -260,14 +260,14 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 
 	printf("Good Processing '%s'\n", scriptName);
 
-	MBCHAR *    imageNames[k_MAX_NAMES];
-	MBCHAR *    shadowNames[k_MAX_NAMES];
+	std::unique_ptr<MBCHAR[]>    imageNames[k_MAX_NAMES];
+	std::unique_ptr<MBCHAR[]>    shadowNames[k_MAX_NAMES];
 	size_t		i;
 
     for (i = 0; i < k_MAX_NAMES; i++)
     {
-        imageNames[i] =  new MBCHAR[k_MAX_NAME_LENGTH];
-        shadowNames[i] = new MBCHAR[k_MAX_NAME_LENGTH];
+        imageNames[i] =  std::make_unique<MBCHAR[]>(k_MAX_NAME_LENGTH);
+        shadowNames[i] = std::make_unique<MBCHAR[]>(k_MAX_NAME_LENGTH);
     }
 
 	if (!token_ParseAnOpenBraceNext(theToken.get())) return FALSE;
@@ -275,7 +275,7 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 	sint32 tmp;
 	if (!token_ParseValNext(theToken.get(), TOKEN_GOOD_SPRITE_IDLE, tmp)) return FALSE;
 	if (tmp) {
-		Sprite *idleSprite = new Sprite;
+		auto idleSprite = std::make_unique<Sprite>();
 		Assert(idleSprite);
 		if(!idleSprite) return FALSE;
 
@@ -290,29 +290,31 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 
 			snprintf(name, sizeof(name), "%sGG%.2dS.%zu.tif", prefixStr, id, i+idleSprite->GetFirstFrame());
 			// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
-			strncpy(shadowNames[i], name, k_MAX_NAME_LENGTH - 1);
+			strncpy(shadowNames[i].get(), name, k_MAX_NAME_LENGTH - 1);
 			shadowNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 
 			snprintf(name, sizeof(name), "%sGG%.2dA.%zu.tif", prefixStr, id, i+idleSprite->GetFirstFrame());
 			// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
-			strncpy(imageNames[i], name, k_MAX_NAME_LENGTH - 1);
+			strncpy(imageNames[i].get(), name, k_MAX_NAME_LENGTH - 1);
 			imageNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 		}
 
-		idleSprite->Import(numFrames, imageNames, shadowNames);
-		m_sprites[GOODACTION_IDLE].reset(idleSprite);
+		{ MBCHAR *rawImageNames[k_MAX_NAMES], *rawShadowNames[k_MAX_NAMES];
+		for (size_t ni = 0; ni < k_MAX_NAMES; ++ni) { rawImageNames[ni] = imageNames[ni].get(); rawShadowNames[ni] = shadowNames[ni].get(); }
+		idleSprite->Import(numFrames, rawImageNames, rawShadowNames); }
+		m_sprites[GOODACTION_IDLE] = std::move(idleSprite);
 		printf("]\n");
 
-		Anim *idleAnim = new Anim;
+		auto idleAnim = std::make_unique<Anim>();
 		idleAnim->ParseFromTokens(theToken.get());
-		m_anims[GOODACTION_IDLE].reset(idleAnim);
+		m_anims[GOODACTION_IDLE] = std::move(idleAnim);
 	}
 
 
     for (i = 0; i < k_MAX_NAMES; i++)
     {
-        delete [] imageNames[i];
-        delete [] shadowNames[i];
+        imageNames[i].reset();
+        shadowNames[i].reset();
     }
 
 	return TRUE;

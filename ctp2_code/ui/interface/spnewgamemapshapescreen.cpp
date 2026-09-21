@@ -53,11 +53,12 @@
 #include "ui/interface/spnewgamewindow.h"
 #include "ui/aui_ctp2/keypress.h"
 #include <vector>
+#include <memory>
 
 
 namespace
 {
-	typedef	std::vector<aui_Radio *>	MapShapeSelector;
+	typedef	std::vector<std::unique_ptr<aui_Radio>>	MapShapeSelector;
 
 	MapShapeSelector					s_checkBox;
     size_t        						s_mapShapeIndex;
@@ -76,15 +77,15 @@ namespace
 
 } // namespace
 
-static c3_PopupWindow	*s_spNewGameMapShapeScreen	= nullptr;
+static std::unique_ptr<c3_PopupWindow>	s_spNewGameMapShapeScreen;
 
 
-static aui_SwitchGroup	*s_group		= nullptr;
-static c3_Static	*s_ewLabel			= nullptr; // Earth world
-static c3_Static	*s_dwLabel			= nullptr; // Doughnut world
+static std::unique_ptr<aui_SwitchGroup>	s_group;
+static std::unique_ptr<c3_Static>	s_ewLabel; // Earth world
+static std::unique_ptr<c3_Static>	s_dwLabel; // Doughnut world
 //Added by Martin Gühmann
-static c3_Static	*s_uwLabel			= nullptr; // Uranus world
-static c3_Static	*s_fwLabel			= nullptr; // Flat world
+static std::unique_ptr<c3_Static>	s_uwLabel; // Uranus world
+static std::unique_ptr<c3_Static>	s_fwLabel; // Flat world
 
 static MBCHAR const	checknames[WORLD_SHAPE_COUNT][50] = {
 	//Added two more shapes for more shape options by Martin Gühmann
@@ -143,10 +144,10 @@ sint32 spnewgamemapshapescreen_displayMyWindow(BOOL viewMode, sint32 useMode)
 
 	s_useMode = useMode;
 
-	AUI_ERRCODE const auiErr = c3ui_Get()->AddWindow(s_spNewGameMapShapeScreen);
+	AUI_ERRCODE const auiErr = c3ui_Get()->AddWindow(s_spNewGameMapShapeScreen.get());
 	Assert(auiErr == AUI_ERRCODE_OK);
 
-	keypress_RegisterHandler(s_spNewGameMapShapeScreen);
+	keypress_RegisterHandler(s_spNewGameMapShapeScreen.get());
 
 	return retval;
 }
@@ -173,7 +174,7 @@ sint32 spnewgamemapshapescreen_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE const auiErr =
         c3ui_Get()->RemoveWindow( s_spNewGameMapShapeScreen->Id());
-	keypress_RemoveHandler(s_spNewGameMapShapeScreen);
+	keypress_RemoveHandler(s_spNewGameMapShapeScreen.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -200,7 +201,7 @@ AUI_ERRCODE spnewgamemapshapescreen_Initialize( aui_Control::ControlActionCallba
 	strlcpy(windowBlock, "SPNewGameMapShapeScreen", sizeof(windowBlock));
 
 	{
-		s_spNewGameMapShapeScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		s_spNewGameMapShapeScreen = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(s_spNewGameMapShapeScreen, errcode) );
 		if ( !AUI_NEWOK(s_spNewGameMapShapeScreen, errcode) ) return errcode;
 
@@ -217,24 +218,22 @@ AUI_ERRCODE spnewgamemapshapescreen_Initialize( aui_Control::ControlActionCallba
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Group" );
-	s_group = new aui_SwitchGroup( &errcode, aui_UniqueId(), controlBlock );
+	s_group = std::make_unique<aui_SwitchGroup>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_group, errcode) );
 	if ( !AUI_NEWOK(s_group, errcode) ) return errcode;
 
 	for (i = 0; i < WORLD_SHAPE_COUNT; ++i)
     {
 		snprintf(switchBlock, sizeof(switchBlock), "%s.%s", controlBlock, checknames[i]);
-		aui_Radio *	shape	=
-			new aui_Radio(&errcode, aui_UniqueId(), switchBlock);
-		s_checkBox.push_back(shape);
-        s_group->AddSwitch(shape);
+		s_checkBox.emplace_back(std::make_unique<aui_Radio>(&errcode, aui_UniqueId(), switchBlock));
+        s_group->AddSwitch(s_checkBox.back().get());
 	}
 	SelectShape(static_cast<size_t>(profiledb_Get()->GetWorldShape()));
 
-	s_ewLabel = spNew_c3_Static( &errcode, windowBlock, "EWLabel" );
-	s_dwLabel = spNew_c3_Static( &errcode, windowBlock, "DWLabel" );
-	s_uwLabel = spNew_c3_Static( &errcode, windowBlock, "UWLabel" );
-	s_fwLabel = spNew_c3_Static( &errcode, windowBlock, "FWLabel" );
+	s_ewLabel.reset(spNew_c3_Static( &errcode, windowBlock, "EWLabel" ));
+	s_dwLabel.reset(spNew_c3_Static( &errcode, windowBlock, "DWLabel" ));
+	s_uwLabel.reset(spNew_c3_Static( &errcode, windowBlock, "UWLabel" ));
+	s_fwLabel.reset(spNew_c3_Static( &errcode, windowBlock, "FWLabel" ));
 
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
@@ -269,24 +268,17 @@ void spnewgamemapshapescreen_Cleanup()
 	if (s_spNewGameMapShapeScreen)
 	{
 		c3ui_Get()->RemoveWindow(s_spNewGameMapShapeScreen->Id());
-		keypress_RemoveHandler(s_spNewGameMapShapeScreen);
+		keypress_RemoveHandler(s_spNewGameMapShapeScreen.get());
 
-		for
-		(auto & p : s_checkBox)
-		{
-			delete p;
-		}
-		MapShapeSelector().swap(s_checkBox);
+		s_checkBox.clear();
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
-		mycleanup(s_group);
-		mycleanup(s_ewLabel);//Earth like world: East-West wrap world
-		mycleanup(s_dwLabel);//Doughnut world
+		s_group.reset();
+		s_ewLabel.reset();//Earth like world: East-West wrap world
+		s_dwLabel.reset();//Doughnut world
 		// Added by Martin Gühmann
-		mycleanup(s_uwLabel);//Uranus like world: North-South wrap world
-		mycleanup(s_fwLabel);//Flat world
-		mycleanup(s_spNewGameMapShapeScreen);
-#undef mycleanup
+		s_uwLabel.reset();//Uranus like world: North-South wrap world
+		s_fwLabel.reset();//Flat world
+		s_spNewGameMapShapeScreen.reset();
 	}
 }
 

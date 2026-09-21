@@ -41,6 +41,7 @@
 #include "ui/aui_common/aui_joystick.h"
 
 #include <string>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -105,21 +106,10 @@ public:
 	}
 
 protected:
-	aui_Control()
-	:	aui_ImageBase       (),
-		aui_TextBase        (),
-		aui_Region          (),
-		aui_SoundBase       (),
-		m_stringTable       (nullptr),
-		m_allocatedTip      (false),
-		m_statusText        (nullptr),
-		m_numberOfLayers    (0),
-		m_imagesPerLayer    (0),
-		m_imageLayerList    (nullptr),
-		m_renderFlags       (k_AUI_CONTROL_LAYER_FLAG_ALWAYS)
-		// m_statusTextCopy default constructed (empty)
-		// m_layerRenderFlags default constructed (empty)
-	{};
+	// Out-of-line in aui_control.cpp: unique_ptr members over
+	// forward-declared aui_StringTable/aui_ImageList need complete types
+	// at ctor/dtor instantiation.
+	aui_Control();
 
 	AUI_ERRCODE InitCommonLdl(
 		MBCHAR const *ldlBlock,
@@ -131,7 +121,7 @@ protected:
 
 public:
 
-	aui_StringTable *m_stringTable;
+	std::unique_ptr<aui_StringTable> m_stringTable;
 
 	AUI_ERRCODE ResetThis( ) override;
 
@@ -243,8 +233,12 @@ protected:
 	ControlActionCallback *m_ActionFunc;
 
 	aui_Window		*m_window;
-	aui_Window		*m_tip;
-	BOOL			m_allocatedTip;
+	aui_Window		*m_tip;   // non-owning observer; see m_ownedTip
+	// Owns the tip window only when this control allocated it (LDL tip path).
+	// SetTipWindow() accepts externally owned windows and must NOT take
+	// ownership — the old m_allocatedTip flag did, which deleted shared
+	// global tip windows (e.g. g_tipWindow in c3windows.cpp).
+	std::unique_ptr<aui_Window> m_ownedTip;
 	BOOL			m_showingTip;
 
 	uint32			m_startWaitTime;
@@ -442,7 +436,7 @@ private:
 	sint32 m_imagesPerLayer;
 
 
-	aui_ImageList *m_imageLayerList;
+	std::unique_ptr<aui_ImageList> m_imageLayerList;
 
 	std::vector<sint32> m_layerRenderFlags;
 

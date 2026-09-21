@@ -48,6 +48,7 @@
 
 #include "ui/aui_ctp2/ctp2_dropdown.h"
 #include <string>
+#include <memory>
 
 
 ctp2_DropDown::ctp2_DropDown(
@@ -134,7 +135,7 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 
         if (aui_Ldl::FindDataBlock( block ) )
 		{
-			m_staticPane = new c3_Static(
+			m_staticPane = std::make_unique<c3_Static>(
 				&errcode,
 				aui_UniqueId(),
 				block );
@@ -144,12 +145,12 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 			Assert( AUI_NEWOK(m_staticPane,errcode) );
 			if ( !AUI_NEWOK(m_staticPane,errcode) ) return errcode;
 
-			AddChild(m_staticPane);
+			AddChild(m_staticPane.get());
 		}
 
         snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_BUTTON );
 		aui_Ldl::BuildHierarchyFromRoot(std::string(ldlBlock).append(".autobutton").c_str());
-        m_button = static_cast<aui_Button*>(aui_Ldl::GetObject(ldlBlock, "autobutton"));
+        m_button.reset(static_cast<aui_Button*>(aui_Ldl::GetObject(ldlBlock, "autobutton")));
 
 		if (m_button)
         {
@@ -158,7 +159,7 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR const *ldlBlock )
         }
         else if (aui_Ldl::FindDataBlock(block))
         {
-			m_button = new aui_Button(
+			m_button = std::make_unique<aui_Button>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -166,14 +167,14 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 
 			if ( m_button ) {
 				m_buttonSize = 0;
-				AddChild( m_button );
+				AddChild( m_button.get() );
 			}
 		}
 	}
 
 	if ( !m_button )
 
-		m_button = new aui_Button(
+		m_button = std::make_unique<aui_Button>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -187,14 +188,14 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_WINDOW );
 
         if (aui_Ldl::FindDataBlock( block ) ) {
-			m_listBoxWindow = new aui_Window(
+			m_listBoxWindow = std::make_unique<aui_Window>(
 				&errcode,
 				aui_UniqueId(),
 				block,
 				16, AUI_WINDOW_TYPE_POPUP );
 
 
-			aui_Ldl::Remove( m_listBoxWindow );
+			aui_Ldl::Remove( m_listBoxWindow.get() );
 
 			if ( m_listBoxWindow )
 			{
@@ -205,33 +206,33 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 			snprintf(block, sizeof(block), "%s.%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_WINDOW, k_AUI_DROPDOWN_LDL_LISTBOX );
 
             if (aui_Ldl::FindDataBlock( block ) )
-				m_listBox = new ctp2_ListBox(
+				m_listBox = std::make_unique<ctp2_ListBox>(
 					&errcode,
 					aui_UniqueId(),
 					block,
 					DropDownListBoxActionCallback, this );
 
 			if(m_listBoxWindow && m_listBox)
-				m_listBoxWindow->AddChild( m_listBox );
+				m_listBoxWindow->AddChild( m_listBox.get() );
 		}
 	}
 
 	if ( !m_listBoxWindow ) {
-		m_listBoxWindow = new aui_Window(
+		m_listBoxWindow = std::make_unique<aui_Window>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, m_width + m_buttonSize, m_windowSize,
 			16, AUI_WINDOW_TYPE_POPUP );
 
 		if(m_listBoxWindow && m_listBox)
-			m_listBoxWindow->AddChild( m_listBox );
+			m_listBoxWindow->AddChild( m_listBox.get() );
 	}
 
 	Assert( AUI_NEWOK(m_listBoxWindow,errcode) );
 	if ( !AUI_NEWOK(m_listBoxWindow,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	if ( !m_listBox ) {
-		m_listBox = new ctp2_ListBox(
+		m_listBox = std::make_unique<ctp2_ListBox>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -239,7 +240,7 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 			DropDownListBoxActionCallback, this );
 
 		if(m_listBoxWindow && m_listBox)
-			m_listBoxWindow->AddChild( m_listBox );
+			m_listBoxWindow->AddChild( m_listBox.get() );
 	}
 
 	Assert( AUI_NEWOK(m_listBox,errcode) );
@@ -273,7 +274,7 @@ AUI_ERRCODE ctp2_DropDown::RepositionListBoxWindow( )
 	if ( m_listBox->GetVerticalRanger()->GetMaximumY() )
 		listBoxWidth -= m_listBox->GetRangerSize();
 
-	ctp2_ListBox	*myListBox = (ctp2_ListBox *)m_listBox;
+	ctp2_ListBox	*myListBox = (ctp2_ListBox *)m_listBox.get();
 
 	myListBox->Resize( listBoxWidth - (myListBox->GetBevelWidth() * 2),
 						m_windowSize - (myListBox->GetBevelWidth() * 2));
@@ -327,7 +328,7 @@ AUI_ERRCODE ctp2_DropDown::RepositionButton( )
 
 void ctp2_DropDown::Clear()
 {
-	((ctp2_ListBox *)m_listBox)->Clear();
+	((ctp2_ListBox *)m_listBox.get())->Clear();
 }
 
 AUI_ERRCODE ctp2_DropDown::AddItem(ctp2_ListItem *item)
@@ -337,8 +338,8 @@ AUI_ERRCODE ctp2_DropDown::AddItem(ctp2_ListItem *item)
 
 	m_listBox->AddItem((aui_Item *)item);
 
-	ctp2_ListBox *myListBox = (ctp2_ListBox *)m_listBox;
-	sint32 height = ((ctp2_ListBox *)m_listBox)->GetMaxItemHeight() * m_listBox->NumItems() +
+	ctp2_ListBox *myListBox = (ctp2_ListBox *)m_listBox.get();
+	sint32 height = ((ctp2_ListBox *)m_listBox.get())->GetMaxItemHeight() * m_listBox->NumItems() +
 		(2 * myListBox->GetBevelWidth()) + 20;
 
 	SetWindowSize(height < 350 ? height : 350);
@@ -360,8 +361,8 @@ void ctp2_DropDown::BuildListEnd()
 
 	m_listBox->BuildListEnd();
 
-	ctp2_ListBox *myListBox = (ctp2_ListBox *)m_listBox;
-	sint32 height = ((ctp2_ListBox *)m_listBox)->GetMaxItemHeight() * m_listBox->NumItems() +
+	ctp2_ListBox *myListBox = (ctp2_ListBox *)m_listBox.get();
+	sint32 height = ((ctp2_ListBox *)m_listBox.get())->GetMaxItemHeight() * m_listBox->NumItems() +
 		(2 * myListBox->GetBevelWidth());
 
 	SetWindowSize(height < 350 ? height : 350);

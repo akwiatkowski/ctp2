@@ -39,6 +39,8 @@
 
 template <class T> class PointerList;
 
+#include <memory>
+
 class TradeBids {
 private:
 
@@ -66,7 +68,7 @@ private:
 
 	sint32 m_nextId[k_MAX_PLAYERS];
 
-	PointerList<Bid> *m_table[k_MAX_PLAYERS];
+	std::unique_ptr<PointerList<Bid>> m_table[k_MAX_PLAYERS];
 
 public:
 	TradeBids();

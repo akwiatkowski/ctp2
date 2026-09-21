@@ -46,6 +46,7 @@
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_utils/primitives.h"
 #include "ui/interface/UIUtils.h"
+#include <memory>
 
 c3_PopupWindow::c3_PopupWindow
 (
@@ -91,22 +92,22 @@ AUI_ERRCODE c3_PopupWindow::InitCommon()
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	m_border[POPUP_BORDER_UL] = new c3_Static(&errcode, aui_UniqueId(), "c3_PopupUL");
+	m_border[POPUP_BORDER_UL] = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), "c3_PopupUL").release();
 	Assert( AUI_NEWOK(m_border[POPUP_BORDER_UL], errcode) );
 	if ( !AUI_NEWOK(m_border[POPUP_BORDER_UL], errcode) ) return errcode;
 	m_border[POPUP_BORDER_UL]->Move( 0, 0 );
 
-	m_border[POPUP_BORDER_UR] = new c3_Static(&errcode, aui_UniqueId(), "c3_PopupUR");
+	m_border[POPUP_BORDER_UR] = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), "c3_PopupUR").release();
 	Assert( AUI_NEWOK(m_border[POPUP_BORDER_UR], errcode) );
 	if ( !AUI_NEWOK(m_border[POPUP_BORDER_UR], errcode) ) return errcode;
 	m_border[POPUP_BORDER_UR]->Move( m_width - m_border[POPUP_BORDER_UR]->Width(), 0 );
 
-	m_border[POPUP_BORDER_LL] = new c3_Static(&errcode, aui_UniqueId(), "c3_PopupLL");
+	m_border[POPUP_BORDER_LL] = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), "c3_PopupLL").release();
 	Assert( AUI_NEWOK(m_border[POPUP_BORDER_LL], errcode) );
 	if ( !AUI_NEWOK(m_border[POPUP_BORDER_LL], errcode) ) return errcode;
 	m_border[POPUP_BORDER_LL]->Move( 0, m_height - m_border[POPUP_BORDER_LL]->Height() );
 
-	m_border[POPUP_BORDER_LR] = new c3_Static(&errcode, aui_UniqueId(), "c3_PopupLR");
+	m_border[POPUP_BORDER_LR] = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), "c3_PopupLR").release();
 	Assert( AUI_NEWOK(m_border[POPUP_BORDER_LR], errcode) );
 	if ( !AUI_NEWOK(m_border[POPUP_BORDER_LR], errcode) ) return errcode;
 	m_border[POPUP_BORDER_LR]->Move( m_width - m_border[POPUP_BORDER_LR]->Width(),
@@ -115,25 +116,25 @@ AUI_ERRCODE c3_PopupWindow::InitCommon()
 	sint32 cornerHeight = m_border[POPUP_BORDER_UL]->Height();
 	sint32 cornerWidth = m_border[POPUP_BORDER_UL]->Width();
 
-	m_border[POPUP_BORDER_LEFT] = new c3_Static(&errcode, aui_UniqueId(), "c3_PopupLeft");
+	m_border[POPUP_BORDER_LEFT] = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), "c3_PopupLeft").release();
 	Assert( AUI_NEWOK(m_border[POPUP_BORDER_LEFT], errcode) );
 	if ( !AUI_NEWOK(m_border[POPUP_BORDER_LEFT], errcode) ) return errcode;
 	m_border[POPUP_BORDER_LEFT]->Move( 0, cornerHeight );
 	m_border[POPUP_BORDER_LEFT]->Resize( m_border[POPUP_BORDER_LEFT]->Width(), m_height - cornerHeight * 2 );
 
-	m_border[POPUP_BORDER_TOP] = new c3_Static(&errcode, aui_UniqueId(), "c3_PopupTop");
+	m_border[POPUP_BORDER_TOP] = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), "c3_PopupTop").release();
 	Assert( AUI_NEWOK(m_border[POPUP_BORDER_TOP], errcode) );
 	if ( !AUI_NEWOK(m_border[POPUP_BORDER_TOP], errcode) ) return errcode;
 	m_border[POPUP_BORDER_TOP]->Move( cornerWidth, 0 );
 	m_border[POPUP_BORDER_TOP]->Resize( m_width - cornerWidth * 2, m_border[POPUP_BORDER_TOP]->Height() );
 
-	m_border[POPUP_BORDER_RIGHT] = new c3_Static(&errcode, aui_UniqueId(), "c3_PopupRight");
+	m_border[POPUP_BORDER_RIGHT] = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), "c3_PopupRight").release();
 	Assert( AUI_NEWOK(m_border[POPUP_BORDER_RIGHT], errcode) );
 	if ( !AUI_NEWOK(m_border[POPUP_BORDER_RIGHT], errcode) ) return errcode;
 	m_border[POPUP_BORDER_RIGHT]->Move( m_width - m_border[POPUP_BORDER_RIGHT]->Width(), cornerHeight );
 	m_border[POPUP_BORDER_RIGHT]->Resize( m_border[POPUP_BORDER_RIGHT]->Width(), m_height - cornerHeight * 2 );
 
-	m_border[POPUP_BORDER_BOTTOM] = new c3_Static(&errcode, aui_UniqueId(), "c3_PopupBottom");
+	m_border[POPUP_BORDER_BOTTOM] = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), "c3_PopupBottom").release();
 	Assert( AUI_NEWOK(m_border[POPUP_BORDER_BOTTOM], errcode) );
 	if ( !AUI_NEWOK(m_border[POPUP_BORDER_BOTTOM], errcode) ) return errcode;
 	m_border[POPUP_BORDER_BOTTOM]->Move( cornerWidth, m_height - m_border[POPUP_BORDER_BOTTOM]->Height() );
@@ -197,7 +198,7 @@ c3_PopupWindow::~c3_PopupWindow( )
 {
 	for (auto & i : m_border)
 	{
-		delete i;
+		std::unique_ptr<c3_Static>{i};
 	}
 
 }
@@ -216,7 +217,7 @@ AUI_ERRCODE c3_PopupWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 		// the safety net so the binary degrades gracefully.
 		if (m_pattern)
 		{
-			m_pattern->Draw( m_surface, &rect );
+			m_pattern->Draw( m_surface.get(), &rect );
 		}
 		m_dirtyList->AddRect( &rect );
 	}
@@ -234,15 +235,14 @@ sint32 c3_PopupWindow::AddTitle( MBCHAR const *titleBlock )
 	else
 	{
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_title.reset(new c3_Static(&errcode, aui_UniqueId(), "c3_PopupTitle"));
+		m_title = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), "c3_PopupTitle");
 		TestControl(m_title);
 		char const *ldlBlock = "c3_PopupTitle.c3_PopupTitleText";
-		m_titleText.reset(new c3_Static
+		m_titleText = std::make_unique<c3_Static>
 		        (&errcode,
 		         aui_UniqueId(),
 		         (titleBlock) ? titleBlock : ldlBlock
-		        ));
-		TestControl(m_titleText);
+		        );
 
 		m_title->AddSubControl(m_titleText.get());
 		m_title->Move((m_width - m_title->Width()) / 2, 0);
@@ -270,7 +270,7 @@ sint32 c3_PopupWindow::AddCancel
 	else
 	{
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_cancel.reset(new c3_Button(&errcode, aui_UniqueId(), const_cast<MBCHAR *>(buttonBlock), actionFunc, cookie));
+		m_cancel = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), const_cast<MBCHAR *>(buttonBlock), actionFunc, cookie);
 		TestControl(m_cancel);
 		m_cancel->Move(17, m_height - m_cancel->Height() - 17);
 		InsertChild(m_cancel.get(), 0);
@@ -295,7 +295,7 @@ sint32 c3_PopupWindow::AddOk
 	else
 	{
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_ok.reset(new ctp2_Button( &errcode, aui_UniqueId(), const_cast<MBCHAR *>(buttonBlock), actionFunc, cookie ));
+		m_ok = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(), const_cast<MBCHAR *>(buttonBlock), actionFunc, cookie );
 		TestControl( m_ok );
 		m_ok->Move( m_width - m_ok->Width() - 17, m_height - m_ok->Height() - 17);
 		InsertChild(m_ok.get(), 0);

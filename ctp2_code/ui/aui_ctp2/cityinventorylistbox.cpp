@@ -31,6 +31,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_window.h"
@@ -107,7 +108,7 @@ AUI_ERRCODE CityInventoryListBox::InitCommon(MBCHAR const *ldlBlock)
 sint32 CityInventoryListBox::FillInventoryBox(const Unit &unit)
 {
 	AUI_ERRCODE		errcode;
-	aui_Static		*item;
+	std::unique_ptr<aui_Static>	item;
 	MBCHAR			str[80];
 	sint32			i;
 
@@ -128,7 +129,7 @@ sint32 CityInventoryListBox::FillInventoryBox(const Unit &unit)
 			if(improvements & ((uint64)1 << (uint64)i)) {
 				snprintf(str, sizeof(str), "%s    %i", stringdb_Get()->GetNameStr(g_theBuildingDB->Get(i)->m_name), buildingutil_Get(i, unit->GetOwner())->GetUpkeep());
 
-				item = new StaticTextItem(
+				item = std::make_unique<StaticTextItem>(
 					&errcode,
 					i,
 					5, 0, 100, 15,
@@ -139,7 +140,7 @@ sint32 CityInventoryListBox::FillInventoryBox(const Unit &unit)
 					k_GAME_OBJ_TYPE_IMPROVEMENT);
 				if (!item) return -i * 100;
 
-				AddItem( (aui_Item *)item );
+				AddItem( (aui_Item *)item.release() );
 			}
 		}
 
@@ -149,7 +150,7 @@ sint32 CityInventoryListBox::FillInventoryBox(const Unit &unit)
 				snprintf(str, sizeof(str), "%s", stringdb_Get()->GetNameStr(wonderutil_Get(i, unit->GetOwner())->m_name));
 
 				sint32 j = aui_UniqueId();
-				item = new StaticTextItem(
+				item = std::make_unique<StaticTextItem>(
 					&errcode,
 
 					j,
@@ -162,7 +163,7 @@ sint32 CityInventoryListBox::FillInventoryBox(const Unit &unit)
 					k_GAME_OBJ_TYPE_WONDER);
 				if (!item) return -i * 100;
 
-				AddItem( (aui_Item *)item );
+				AddItem( (aui_Item *)item.release() );
 			}
 		}
 
@@ -205,7 +206,7 @@ void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 	Player *p = player_Get(unit.GetOwner());
 	sint32 enable;
 	MBCHAR str[80];
-	StaticTextItem *item;
+	std::unique_ptr<StaticTextItem> item;
 	AUI_ERRCODE errcode;
 	bool isObsolete;
 	sint32 o;
@@ -239,7 +240,7 @@ void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 		{
 			snprintf(str, sizeof(str), "%s",stringdb_Get()->GetNameStr(rec->m_name));
 				sint32 j = aui_UniqueId();
-				item = new StaticTextItem(
+				item = std::make_unique<StaticTextItem>(
 					&errcode,
 					j,
 					5, 0, 100, 15,
@@ -251,7 +252,7 @@ void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 					i);
 				if (!item) return;
 
-				AddItem( (aui_Item *)item );
+				AddItem( (aui_Item *)item.release() );
 		}
 	}
 
@@ -275,7 +276,7 @@ void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 		{
 			snprintf(str, sizeof(str), "%s",stringdb_Get()->GetNameStr(rec->m_name));
 				sint32 j = aui_UniqueId();
-				item = new StaticTextItem(
+				item = std::make_unique<StaticTextItem>(
 					&errcode,
 					j,
 					5, 0, 100, 15,
@@ -287,7 +288,7 @@ void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 					i);
 				if (!item) return;
 
-				AddItem( (aui_Item *)item );
+				AddItem( (aui_Item *)item.release() );
 		}
 	}
 
@@ -305,7 +306,7 @@ void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 		if((p->m_advances->HasAdvance(enable) || (enable < 0))) {
 			snprintf(str, sizeof(str), "%s",stringdb_Get()->GetNameStr(rec->m_name));
 				sint32 j = aui_UniqueId();
-				item = new StaticTextItem(
+				item = std::make_unique<StaticTextItem>(
 					&errcode,
 					j,
 					5, 0, 100, 15,
@@ -317,7 +318,7 @@ void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 					i);
 				if (!item) return;
 
-				AddItem( (aui_Item *)item );
+				AddItem( (aui_Item *)item.release() );
 		}
 	}
 }

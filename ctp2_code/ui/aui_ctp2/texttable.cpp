@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -175,10 +176,10 @@ AUI_ERRCODE TextTable::InitCommon( uint32 columns, aui_Surface *surface )
 
 	AUI_ERRCODE errcode;
 
-	aui_Static **itemPtr = m_items;
+	auto itemPtr = m_items.data();
 	for ( i = k_TEXTTABLE_MAXITEMS; i; i-- )
 	{
-		*itemPtr = new aui_Static(
+		*itemPtr = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, m_item_width, m_item_height,
@@ -190,18 +191,18 @@ AUI_ERRCODE TextTable::InitCommon( uint32 columns, aui_Surface *surface )
 		itemPtr++;
 	}
 
-	TextSwitch **headerPtr = m_table_headers;
+	auto headerPtr = m_table_headers.begin();
 	for ( i = 0; i < m_columns; i++ )
 	{
 		snprintf(strbuf, sizeof(strbuf),"col-%d",i);
-		*headerPtr = new TextSwitch(
+		*headerPtr = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, m_item_width, m_item_height,
 			k_PatternName,
 			strbuf );
 		(*headerPtr)->IgnoreEvents(TRUE);
-		*headerPtr++;
+		headerPtr++;
 	}
 
 	return AUI_ERRCODE_OK;
@@ -212,7 +213,7 @@ AUI_ERRCODE TextTable::CreateRangers( void )
 {
 	AUI_ERRCODE errcode;
 
-	m_verticalRanger = new C3Scroller(
+	m_verticalRanger = std::make_unique<C3Scroller>(
 		&errcode,
 		aui_UniqueId(),
 		0, 0, 0, 0,
@@ -222,7 +223,7 @@ AUI_ERRCODE TextTable::CreateRangers( void )
 		this );
 	if ( !m_verticalRanger ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_horizontalRanger = new C3Scroller(
+	m_horizontalRanger = std::make_unique<C3Scroller>(
 		&errcode,
 		aui_UniqueId(),
 		0, 0, 0, 0,
@@ -232,8 +233,8 @@ AUI_ERRCODE TextTable::CreateRangers( void )
 		this );
 	if ( !m_horizontalRanger ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_verticalRanger );
-	AddChild( m_horizontalRanger );
+	AddChild( m_verticalRanger.get() );
+	AddChild( m_horizontalRanger.get() );
 
 	RepositionRangers();
 
@@ -242,21 +243,7 @@ AUI_ERRCODE TextTable::CreateRangers( void )
 }
 
 
-TextTable::~TextTable()
-{
-	uint32 i = 0;
-
-	aui_Static	**itemPtr = m_items;
-	for ( i = k_TEXTTABLE_MAXITEMS; i; i-- )
-		delete *itemPtr++;
-
-
-
-
-
-
-
-}
+TextTable::~TextTable() = default;
 
 void TextTable::InitHeaders( void )
 {
@@ -264,9 +251,9 @@ void TextTable::InitHeaders( void )
 
 	if ( !m_columns ) return;
 
-	TextSwitch **headerPtr = m_table_headers;
+	auto headerPtr = m_table_headers.begin();
 	for ( i = 0; i < m_columns ; i++ )
-		AddHeaderSwitch(*headerPtr++);
+		AddHeaderSwitch((headerPtr++)->get());
 }
 
 
@@ -276,7 +263,7 @@ BOOL TextTable::AddColumn( uint32 pos, MBCHAR const *text )
 	uint32 i = 0;
 	MBCHAR strbuf[256];
 
-	TextSwitch **headerPtr = m_table_headers;
+	auto headerPtr = m_table_headers.begin();
 
 	if (!pos || (pos > m_columns)) pos = m_columns;
 
@@ -287,12 +274,12 @@ BOOL TextTable::AddColumn( uint32 pos, MBCHAR const *text )
 	m_item_width = m_width / (m_columns + 1);
 
 	for ( i = 0 ; i < pos ; i++ )
-		*headerPtr++;
+		headerPtr++;
 
 	if (pos == m_columns)
 	{
 
-		*headerPtr = new TextSwitch(
+		*headerPtr = std::make_unique<TextSwitch>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, m_item_width, m_item_height,
@@ -321,19 +308,19 @@ BOOL TextTable::AddRow( uint32 pos, MBCHAR const *text )
 
 	if ( (m_numItems + m_columns) > k_TEXTTABLE_MAXITEMS ) return FALSE;
 
-	aui_Static **itemPtr = m_items;
+	auto itemPtr = m_items.data();
 	aui_Static *parent = NULL;
 
 	for ( i = 0 ; i < m_numItems ; i++ )
 		*itemPtr++;
 
-	parent = *itemPtr++;
+	parent = (*itemPtr++).get();
 	parent->SetText(strbuf);
 
 	for ( i = 1 ; i < m_columns ; i++ )
 	{
 
-		parent->AddChild(*itemPtr++);
+		parent->AddChild((*itemPtr++).get());
 	}
 
 	m_numItems = m_numItems + m_columns;
@@ -349,7 +336,7 @@ BOOL TextTable::SetTextEntry( uint32 row, uint32 column, MBCHAR const *text )
 
 	if (( row >= m_rows ) || ( column >= m_columns )) return FALSE;
 
-	aui_Static **itemPtr = m_items;
+	auto itemPtr = m_items.data();
 
 	for ( i = 0 ; i < m_rows ; i++ )
 	{
@@ -379,10 +366,10 @@ BOOL TextTable::SetTextHeader( uint32 pos, MBCHAR const *text )
 
 	if (pos >= m_columns) return FALSE;
 
-	TextSwitch **headerPtr = m_table_headers;
+	auto headerPtr = m_table_headers.begin();
 
 	for( i = 0 ; i < pos ; i++ )
-		*headerPtr++;
+		headerPtr++;
 
 	(*headerPtr)->SetText(text);
 
@@ -395,12 +382,12 @@ BOOL TextTable::CleanTextTable( void )
 {
 	uint32 i,j;
 
-	aui_Static **itemPtr = m_items;
+	auto itemPtr = m_items.data();
 	aui_Static *parent = NULL;
 
 	for ( i = 0 ; i < m_rows ; i++ )
 	{
-		parent = *itemPtr++;
+		parent = (*itemPtr++).get();
 		RemoveItem(parent->Id());
 
 		for ( j = 1 ; j < m_columns ; j++ )

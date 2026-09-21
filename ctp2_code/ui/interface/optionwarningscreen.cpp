@@ -30,6 +30,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ctp/civ3_main.h"
 #include "ctp/civapp.h"
 
@@ -68,17 +70,15 @@ WarningKeyboardHandler s_warningKeyboardHandler;
 
 
 static uint32	s_currentWarning = OWS_OWSTOTAL;
-static c3_PopupWindow *s_optionwarningscreenWindow	= nullptr;
-static ctp2_Button	*s_but1				= nullptr,
-					*s_but2				= nullptr,
-					*s_nevermind		= nullptr;
-static c3_Static			*s_message				= nullptr;
+static std::unique_ptr<c3_PopupWindow> s_optionwarningscreenWindow;
+static std::unique_ptr<ctp2_Button> s_but1, s_but2, s_nevermind;
+static std::unique_ptr<c3_Static> s_message;
 
-static aui_StringTable		*s_messageString	= nullptr,
-							*s_but1String		= nullptr,
-							*s_but2String		= nullptr;
+static std::unique_ptr<aui_StringTable> s_messageString, s_but1String,
+										s_but2String;
 
 static void optionwarningscreen_setMyWarning(uint32);
+
 
 sint32	optionwarningscreen_displayMyWindow(uint32 warning)
 {
@@ -89,7 +89,7 @@ sint32	optionwarningscreen_displayMyWindow(uint32 warning)
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = c3ui_Get()->AddWindow(s_optionwarningscreenWindow);
+	auiErr = c3ui_Get()->AddWindow(s_optionwarningscreenWindow.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RegisterHandler(&s_warningKeyboardHandler);
 
@@ -116,7 +116,7 @@ AUI_ERRCODE optionwarningscreen_Initialize( )
 	if ( s_optionwarningscreenWindow ) return AUI_ERRCODE_OK;
 
 	strlcpy(windowBlock, "OptionWarningWindow", sizeof(windowBlock));
-	s_optionwarningscreenWindow = new c3_PopupWindow(
+	s_optionwarningscreenWindow = std::make_unique<c3_PopupWindow>(
 		&errcode,
 		aui_UniqueId(),
 		windowBlock,
@@ -128,15 +128,15 @@ AUI_ERRCODE optionwarningscreen_Initialize( )
 
 	s_optionwarningscreenWindow->SetStronglyModal(TRUE);
 
-	s_but1 = spNew_ctp2_Button(&errcode,windowBlock,"But1Button",optionwarningscreen_but1Press);
-	s_but2 = spNew_ctp2_Button(&errcode,windowBlock,"But2Button",optionwarningscreen_but2Press);
-	s_nevermind = spNew_ctp2_Button(&errcode,windowBlock,"NeverMindButton",optionwarningscreen_nevermindPress);
+	s_but1.reset(spNew_ctp2_Button(&errcode,windowBlock,"But1Button",optionwarningscreen_but1Press));
+	s_but2.reset(spNew_ctp2_Button(&errcode,windowBlock,"But2Button",optionwarningscreen_but2Press));
+	s_nevermind.reset(spNew_ctp2_Button(&errcode,windowBlock,"NeverMindButton",optionwarningscreen_nevermindPress));
 
-	s_message			= spNew_c3_Static(&errcode,windowBlock,"Message");
+	s_message.reset(spNew_c3_Static(&errcode,windowBlock,"Message"));
 
-	s_messageString		= spNewStringTable(&errcode,"OWSMessageStringTable");
-	s_but1String		= spNewStringTable(&errcode,"OWSBut1StringTable");
-	s_but2String		= spNewStringTable(&errcode,"OWSBut2StringTable");
+	s_messageString.reset(spNewStringTable(&errcode,"OWSMessageStringTable"));
+	s_but1String.reset(spNewStringTable(&errcode,"OWSBut1StringTable"));
+	s_but2String.reset(spNewStringTable(&errcode,"OWSBut2StringTable"));
 
 	MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(block, sizeof(block), "%s.%s", windowBlock, "Name" );
@@ -150,31 +150,27 @@ AUI_ERRCODE optionwarningscreen_Initialize( )
 
 AUI_ERRCODE optionwarningscreen_Cleanup()
 {
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
-
 	if ( !s_optionwarningscreenWindow  ) return AUI_ERRCODE_OK;
 
 	c3ui_Get()->RemoveWindow( s_optionwarningscreenWindow->Id() );
 	keypress_RemoveHandler(&s_warningKeyboardHandler);
 
-	mycleanup(s_but1);
-	mycleanup(s_but2);
-	mycleanup(s_nevermind);
+	// Same release order the mycleanup macro used.
+	s_but1.reset();
+	s_but2.reset();
+	s_nevermind.reset();
 
-	mycleanup(s_message);
+	s_message.reset();
 
-	mycleanup(s_messageString);
-	mycleanup(s_but1String);
-	mycleanup(s_but2String);
+	s_messageString.reset();
+	s_but1String.reset();
+	s_but2String.reset();
 
-	delete s_optionwarningscreenWindow;
-	s_optionwarningscreenWindow = nullptr;
+	s_optionwarningscreenWindow.reset();
 
 	s_currentWarning = OWS_OWSTOTAL;
 
 	return AUI_ERRCODE_OK;
-
-#undef mycleanup
 }
 
 void optionwarningscreen_but1Press(aui_Control *control, uint32 action, uint32 data, void *cookie )

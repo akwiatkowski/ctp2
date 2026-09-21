@@ -19,6 +19,7 @@
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/ObjPool.h"  // k_BIT_GAME_OBJ_TYPE_UNIT etc.
 #include "gs/gameobj/pollution.h"
+#include <memory>
 
 TEST_CASE("Ctp2::Game can be default-constructed and destroyed") {
     Ctp2::Game game;
@@ -161,17 +162,18 @@ TEST_CASE("Ctp2::Game adopts a pre-existing Player[] array and releases it on cl
     // slots — no Player ctors required (they need full DBs).
     REQUIRE(player_arr_Get() == nullptr);
 
-    Player ** legacyArr = new Player*[k_MAX_PLAYERS];
+    auto legacyArr = std::make_unique<Player *[]>(k_MAX_PLAYERS);
     for (sint32 i = 0; i < k_MAX_PLAYERS; ++i) legacyArr[i] = nullptr;
-    player_arr_Set(legacyArr);
+    Player ** legacyArrRaw = legacyArr.get();
+    player_arr_Set(legacyArr.release());
 
     {
         Ctp2::Game game;
         game.NewGame(2, 0, /*randSeed*/ 42);
         // Game adopted the legacy array — both reachable through the
         // game's accessor and the legacy global return the same pointer.
-        CHECK(game.GetPlayerArray() == legacyArr);
-        CHECK(player_arr_Get() == legacyArr);
+        CHECK(game.GetPlayerArray() == legacyArrRaw);
+        CHECK(player_arr_Get() == legacyArrRaw);
         // Per-slot read goes through the same array.
         CHECK(game.GetPlayer(0) == nullptr);  // slot is empty
     }  // game destructed → Cleanup() called

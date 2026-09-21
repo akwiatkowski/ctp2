@@ -28,9 +28,10 @@
 #ifndef CTP2_MENUBUTTON_H__
 #define CTP2_MENUBUTTON_H__
 
-#include "ui/aui_ctp2/c3_button.h"
+#include <memory>
 
-class ctp2_Menu;
+#include "ui/aui_ctp2/c3_button.h"
+#include "ui/aui_ctp2/ctp2_Menu.h"	// complete type: unique_ptr<ctp2_Menu> member
 
 class ctp2_MenuButton : public c3_Button
 {
@@ -49,11 +50,11 @@ class ctp2_MenuButton : public c3_Button
 	}
 	static uint32 m_menuButtonClassId;
 
-	void SetMenu(ctp2_Menu *menu) { m_menu = menu; }
+	void SetMenu(std::unique_ptr<ctp2_Menu> menu) { m_menu = std::move(menu); }
 	void SetLeftNeighbor(ctp2_MenuButton *butt) { m_leftNeighbor = butt; }
 	void SetRightNeighbor(ctp2_MenuButton *butt) { m_rightNeighbor = butt; }
 
-	ctp2_Menu *GetMenu() { return m_menu; }
+	ctp2_Menu *GetMenu() { return m_menu.get(); }
 
   protected:
 	ctp2_MenuButton() : c3_Button() {}
@@ -63,7 +64,7 @@ class ctp2_MenuButton : public c3_Button
 
 	friend class ctp2_ListBox;
 
-	ctp2_Menu *m_menu;
+	std::unique_ptr<ctp2_Menu> m_menu;
 	ctp2_MenuButton *m_rightNeighbor, *m_leftNeighbor;
 };
 

@@ -458,7 +458,7 @@ public:
 	TileInfo   *GetTileInfo(const MapPoint &pos);
 	RECT		*GetMapViewRect() { return &m_mapViewRect; }
 
-	TileSet		*GetTileSet() { return m_tileSet; }
+	TileSet		*GetTileSet() { return m_tileSet.get(); }
 
 	void		DrawLabel(aui_Surface *surface, sint32 color, sint32 x, sint32 y);
 
@@ -628,7 +628,7 @@ protected:
 	bool				 m_isScrolling;
 
 	aui_Surface		*m_surface;
-	aui_Surface		*m_mapSurface;
+	std::unique_ptr<aui_Surface>	m_mapSurface;
 
 	aui_Surface		*m_lockedSurface;
 	uint8			*m_surfBase;
@@ -662,7 +662,7 @@ protected:
 
 	TILEHITMASK		m_tileHitMask[k_TILE_GRID_HEIGHT];
 
-	TileSet			*m_tileSet;
+	std::unique_ptr<TileSet>	m_tileSet;
 
 	// P11 Stage 3 G1: terrain quad cache + scratch. m_gpuTileCache maps a cell's
 	// appearance signature to a zoom-sized atlas slot; m_gpuScratchTile is the
@@ -725,9 +725,9 @@ std::vector<RenderFixture> m_renderFixtures;
 	MapPoint		m_hiliteMouseTile;
 	BOOL			m_drawHilite;
 
-	aui_DirtyList	*m_mapDirtyList;
-	aui_DirtyList	*m_mixDirtyList;
-	aui_DirtyList	*m_oldMixDirtyList;
+	std::unique_ptr<aui_DirtyList>	m_mapDirtyList;
+	std::unique_ptr<aui_DirtyList>	m_mixDirtyList;
+	std::unique_ptr<aui_DirtyList>	m_oldMixDirtyList;
 	Vision			*m_localVision;
 	BOOL			m_nextPlayer;
 
@@ -741,7 +741,7 @@ std::vector<RenderFixture> m_renderFixtures;
 	float			m_one_over_gridWidth;
 	float			m_one_over_gridHeight;
 
-	std::vector<GridRect*>	m_gridRects;
+	std::vector<std::unique_ptr<GridRect[]>>	m_gridRects;
 
 	RECT m_chatRect;
 };

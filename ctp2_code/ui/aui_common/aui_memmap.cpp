@@ -28,6 +28,8 @@
 #include "ctp/c3.h"
 #include "ui/aui_common/aui_memmap.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui_image.h"
 #include "ui/aui_common/aui_sound.h"
 #include "ui/aui_common/aui_movie.h"
@@ -43,11 +45,11 @@ aui_FileFormat * aui_MemMap::GetFileFormat(MBCHAR const * filename)
 	if ( GetFileExtension( filename, extension, sizeof(extension) ) )
 	{
 		if ( !strnicmp( extension, "bmp", 3 ) )
-			return new aui_BmpImageFormat;
+			return std::make_unique<aui_BmpImageFormat>().release();
 		if ( !strnicmp( extension, "wav", 3 ) )
-			return new aui_WavSoundFormat;
+			return std::make_unique<aui_WavSoundFormat>().release();
 		if ( !strnicmp( extension, "avi", 3 ) )
-			return new aui_AviMovieFormat;
+			return std::make_unique<aui_AviMovieFormat>().release();
 	}
 
 	return nullptr;
@@ -62,5 +64,5 @@ aui_FileFormat * aui_MemMap::GetFileFormat(MBCHAR const * filename)
 ///          is now responsible for NULLing format.
 void aui_MemMap::ReleaseFileFormat(aui_FileFormat * format)
 {
-	delete format;
+	std::unique_ptr<aui_FileFormat> deleter(format);
 }

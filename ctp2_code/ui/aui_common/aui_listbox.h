@@ -32,6 +32,8 @@
 #ifndef __AUI_LISTBOX_H__
 #define __AUI_LISTBOX_H__
 
+#include <memory>
+
 #include "ui/aui_common/aui_control.h"
 #include "ui/aui_common/aui_header.h"
 
@@ -98,7 +100,9 @@ public:
 	~aui_ListBox() override;
 
 protected:
-	aui_ListBox() : aui_Control() {}
+	// Out-of-line in aui_listbox.cpp: unique_ptr<aui_Ranger> members over a
+	// forward-declared type need the complete type at ctor/dtor instantiation.
+	aui_ListBox();
 	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateRangersAndHeader( MBCHAR const *ldlBlock = nullptr );
@@ -109,13 +113,13 @@ public:
 	AUI_ERRCODE Show( ) override;
 
 	aui_Control	*GetPane( ) const
-		{ return m_pane; }
+		{ return m_pane.get(); }
 	aui_Header	*GetHeader( ) const
-		{ return m_header; }
+		{ return m_header.get(); }
 	aui_Ranger	*GetVerticalRanger( ) const
-		{ return m_verticalRanger; }
+		{ return m_verticalRanger.get(); }
 	aui_Ranger	*GetHorizontalRanger( ) const
-		{ return m_horizontalRanger; }
+		{ return m_horizontalRanger.get(); }
 
 	void		SetAlwaysRanger( BOOL always ) { m_alwaysRanger = always; }
 
@@ -166,9 +170,9 @@ public:
 	}
 
 	tech_WLList<sint32>	*GetSelectedList( ) const
-		{ return m_selectedList; }
+		{ return m_selectedList.get(); }
 	tech_WLList<sint32>	*GetSelectedListLastTime( ) const
-		{ return m_selectedListLastTime; }
+		{ return m_selectedListLastTime.get(); }
 
 	aui_Item	*GetSelectedItem( ) const;
 	sint32		GetSelectedItemIndex( ) const;
@@ -275,11 +279,11 @@ protected:
 	friend class aui_DropDown;
 
 	static aui_DragDropWindow *m_dragDropWindow;
+	std::unique_ptr<aui_Control>	m_pane;
+	std::unique_ptr<aui_Header>	m_header;
+	std::unique_ptr<aui_Ranger>	m_verticalRanger;
+	std::unique_ptr<aui_Ranger>	m_horizontalRanger;
 
-	aui_Control	*m_pane;
-	aui_Header	*m_header;
-	aui_Ranger	*m_verticalRanger;
-	aui_Ranger	*m_horizontalRanger;
 
 	POINT		m_headerOffset;
 	POINT		m_verticalRangerOffset;
@@ -287,7 +291,7 @@ protected:
 	sint32		m_itemWidth;
 	sint32		m_itemHeight;
 
-	tech_WLList<sint32> *m_widthList;
+	std::unique_ptr<tech_WLList<sint32>> m_widthList;
 
 	sint32		m_rangerSize;
 
@@ -301,12 +305,13 @@ protected:
 
 	sint32		m_dragIndex;
 
-	tech_WLList<sint32>
-				*m_selectedList;
-	tech_WLList<sint32>
-				*m_selectedListLastTime;
-	tech_WLList<sint32>
-				*m_visualSelectedList;
+
+	std::unique_ptr<tech_WLList<sint32>>
+				m_selectedList;
+	std::unique_ptr<tech_WLList<sint32>>
+				m_selectedListLastTime;
+	std::unique_ptr<tech_WLList<sint32>>
+				m_visualSelectedList;
 
 	BOOL		m_scrolling;
 	sint32		m_scrollDx;

@@ -242,8 +242,8 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 	MBCHAR			name[k_MAX_NAME_LENGTH];
 	MBCHAR			scriptName[k_MAX_NAME_LENGTH];
 
-	MBCHAR			*imageNames[k_MAX_NAMES];
-	MBCHAR			*shadowNames[k_MAX_NAMES];
+	std::unique_ptr<MBCHAR[]>	imageNames[k_MAX_NAMES];
+	std::unique_ptr<MBCHAR[]>	shadowNames[k_MAX_NAMES];
 
 	size_t			i;
 
@@ -251,8 +251,8 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 
 	for (i = 0; i < k_MAX_NAMES; i++)
 	{
-		imageNames[i] =  new MBCHAR[k_MAX_NAME_LENGTH];
-		shadowNames[i] = new MBCHAR[k_MAX_NAME_LENGTH];
+		imageNames[i] =  std::make_unique<MBCHAR[]>(k_MAX_NAME_LENGTH);
+		shadowNames[i] = std::make_unique<MBCHAR[]>(k_MAX_NAME_LENGTH);
 	}
 
 	snprintf(prefixStr, sizeof(prefixStr), ".%s%d%s", FILE_SEP, id, FILE_SEP);
@@ -273,7 +273,7 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 	if (tmp)
 	{
 
-		Sprite *effectSprite = new Sprite;
+		auto effectSprite = std::make_unique<Sprite>();
 
 		effectSprite->ParseFromTokens(theToken.get());
 
@@ -287,32 +287,34 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 
 			snprintf(name, sizeof(name), "%sGX%.2dES.%zu.tif", prefixStr,  id, i+effectSprite->GetFirstFrame());
 			// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
-			strncpy(shadowNames[i], name, k_MAX_NAME_LENGTH - 1);
+			strncpy(shadowNames[i].get(), name, k_MAX_NAME_LENGTH - 1);
 			shadowNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 
 			snprintf(name, sizeof(name), "%sGX%.2dEA.%zu.tif", prefixStr, id, i+effectSprite->GetFirstFrame());
 			// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
-			strncpy(imageNames[i], name, k_MAX_NAME_LENGTH - 1);
+			strncpy(imageNames[i].get(), name, k_MAX_NAME_LENGTH - 1);
 			imageNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 		}
 
-		effectSprite->Import(numFrames, imageNames, shadowNames);
+		{ MBCHAR *rawImageNames[k_MAX_NAMES], *rawShadowNames[k_MAX_NAMES];
+		for (size_t ni = 0; ni < k_MAX_NAMES; ++ni) { rawImageNames[ni] = imageNames[ni].get(); rawShadowNames[ni] = shadowNames[ni].get(); }
+		effectSprite->Import(numFrames, rawImageNames, rawShadowNames); }
 
-		m_sprites[EFFECTACTION_PLAY].reset(effectSprite);
+		m_sprites[EFFECTACTION_PLAY] = std::move(effectSprite);
 
 		printf("]\n");
 
-		Anim *effectAnim = new Anim;
+		auto effectAnim = std::make_unique<Anim>();
 
 		effectAnim->ParseFromTokens(theToken.get());
-        m_anims[EFFECTACTION_PLAY].reset(effectAnim);
+        m_anims[EFFECTACTION_PLAY] = std::move(effectAnim);
 	}
 
 	if (!token_ParseValNext(theToken.get(), TOKEN_EFFECT_SPRITE_FLASH, tmp)) return FALSE;
 	if (tmp)
 	{
 
-		Sprite *flashSprite = new Sprite;
+		auto flashSprite = std::make_unique<Sprite>();
 
 		flashSprite->ParseFromTokens(theToken.get());
 
@@ -331,29 +333,31 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 		{
 			snprintf(name, sizeof(name), "%sGX%.2dFA.%zu.tif", prefixStr, id, i+flashSprite->GetFirstFrame());
 			// TODO(phase-2): strncpy → strlcpy — dst is char* or non-standard length, requires manual review
-			strncpy(imageNames[i], name, k_MAX_NAME_LENGTH - 1);
+			strncpy(imageNames[i].get(), name, k_MAX_NAME_LENGTH - 1);
 			imageNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 
 			shadowNames[i][0] = '\0';
 		}
 
-		flashSprite->Import(flashNumFrames, imageNames, shadowNames);
+		{ MBCHAR *rawImageNames[k_MAX_NAMES], *rawShadowNames[k_MAX_NAMES];
+		for (size_t ni = 0; ni < k_MAX_NAMES; ++ni) { rawImageNames[ni] = imageNames[ni].get(); rawShadowNames[ni] = shadowNames[ni].get(); }
+		flashSprite->Import(flashNumFrames, rawImageNames, rawShadowNames); }
 
-		m_sprites[EFFECTACTION_FLASH].reset(flashSprite);
+		m_sprites[EFFECTACTION_FLASH] = std::move(flashSprite);
 		printf("]\n");
 
-		Anim *moveAnim = new Anim;
+		auto moveAnim = std::make_unique<Anim>();
 
 		moveAnim->ParseFromTokens(theToken.get());
-        m_anims[EFFECTACTION_FLASH].reset(moveAnim);
+        m_anims[EFFECTACTION_FLASH] = std::move(moveAnim);
 
 	}
 
 
 	for (i = 0; i < k_MAX_NAMES; i++)
 	{
-		delete[] imageNames[i];
-		delete[] shadowNames[i];
+		imageNames[i].reset();
+		shadowNames[i].reset();
 	}
 
 	return TRUE;

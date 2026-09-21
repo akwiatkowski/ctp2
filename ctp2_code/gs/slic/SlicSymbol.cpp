@@ -33,6 +33,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/slic/SlicSymbol.h"
 
 #include "ctp/ctp2_utils/c3errors.h"
@@ -95,7 +96,7 @@ SlicSymbolData::SlicSymbolData(SlicStructDescription *structDesc)
 :   m_type  (SLIC_SYM_STRUCT)
 {
 	Init();
-	m_val.m_struct = new SlicStructInstance(structDesc);
+	m_val.m_struct = std::make_unique<SlicStructInstance>(structDesc).release();
 }
 
 SlicSymbolData::SlicSymbolData(SlicSymbolData const & copy)
@@ -109,7 +110,7 @@ SlicSymbolData::SlicSymbolData(SlicSymbolData const & copy)
 void SlicSymbolData::Init()
 {
 	memset(&m_val, 0, sizeof(m_val));
-	m_debugInfo = nullptr;
+	m_debugInfo.reset();
 }
 
 //----------------------------------------------------------------------------
@@ -136,32 +137,32 @@ SlicSymbolData::~SlicSymbolData()
         break;
 
     case SLIC_SYM_REGION:
-		delete m_val.m_region;
+		std::unique_ptr<PSlicRegion>{m_val.m_region};
         break;
 
     case SLIC_SYM_COMPLEX_REGION:
         while (m_val.m_complexRegion)
         {
 			PSlicComplexRegion *next = m_val.m_complexRegion->next;
-			delete m_val.m_complexRegion;
+			std::unique_ptr<PSlicComplexRegion>{m_val.m_complexRegion};
 			m_val.m_complexRegion = next;
 		}
         break;
 
     case SLIC_SYM_STRUCT:
-		delete m_val.m_struct;
+		std::unique_ptr<SlicStructInstance>{m_val.m_struct};
         break;
 
     case SLIC_SYM_ARRAY:
-		delete m_val.m_array;
+		std::unique_ptr<SlicArray>{m_val.m_array};
         break;
 
 	case SLIC_SYM_STRING:
-		delete m_val.m_hard_string;
+		std::unique_ptr<char[]>{m_val.m_hard_string};
         break;
     } // switch
 
-	delete m_debugInfo;
+	m_debugInfo.reset();
 }
 
 BOOL SlicSymbolData::GetIntValue(sint32 &value) const
@@ -324,8 +325,8 @@ BOOL SlicSymbolData::SetValueFromStackValue(SS_TYPE type, SlicStackValue value)
 				char buf[k_MAX_MSG_LEN];
 				if(value.m_sym->GetText(buf, k_MAX_MSG_LEN))
                 {
-                    delete [] m_val.m_hard_string;
-					m_val.m_hard_string = new MBCHAR[strlen(buf) + 1];
+                    std::unique_ptr<char[]>{m_val.m_hard_string};
+					m_val.m_hard_string = std::make_unique<MBCHAR[]>(strlen(buf) + 1).release();
 					strlcpy(m_val.m_hard_string, buf, strlen(buf) + 1);
 					return TRUE;
 				} else {
@@ -798,7 +799,7 @@ void SlicSymbolData::SetType(SLIC_SYM type)
 	switch(GetType()) {
 		case SLIC_SYM_ARRAY:
             Assert(!m_val.m_array);
-			m_val.m_array = new SlicArray(SS_TYPE_SYM, SLIC_SYM_UNDEFINED);
+			m_val.m_array = std::make_unique<SlicArray>(SS_TYPE_SYM, SLIC_SYM_UNDEFINED).release();
 			break;
 		case SLIC_SYM_FUNC:
 			m_val.m_function_object = slicengine_Get()->GetFunction(GetName());
@@ -863,7 +864,7 @@ void SlicSymbolData::NotifyChange()
 void SlicSymbolData::AddWatch(SlicSymbolWatchCallback *watch)
 {
 	if(!m_debugInfo) {
-		m_debugInfo = new SlicSymbolDebugInfo(this);
+		m_debugInfo = std::make_unique<SlicSymbolDebugInfo>(this);
 	}
 
 	m_debugInfo->AddWatch(watch);
@@ -883,26 +884,25 @@ void SlicSymbolData::RemoveWatch(SlicSymbolWatchCallback *watch)
 SlicSymbolDebugInfo::SlicSymbolDebugInfo(SlicSymbolData *sym)
 {
 	m_symbol = sym;
-	m_watchList = new PointerList<SlicSymbolWatchCallback>;
+	m_watchList = std::make_unique<PointerList<SlicSymbolWatchCallback>>();
 }
 
 SlicSymbolDebugInfo::~SlicSymbolDebugInfo()
 {
 	if(m_watchList) {
-		PointerList<SlicSymbolWatchCallback>::Walker walk(m_watchList);
+		PointerList<SlicSymbolWatchCallback>::Walker walk(m_watchList.get());
 		while(walk.IsValid()) {
 			walk.GetObj()->WatchVariableDeleted(m_symbol);
 			walk.Next();
 		}
-		delete m_watchList;
-		m_watchList = nullptr;
+		m_watchList.reset();
 	}
 }
 
 void SlicSymbolDebugInfo::AddWatch(SlicSymbolWatchCallback *watch)
 {
 	Assert(m_watchList);
-	PointerList<SlicSymbolWatchCallback>::Walker walk(m_watchList);
+	PointerList<SlicSymbolWatchCallback>::Walker walk(m_watchList.get());
 	while(walk.IsValid()) {
 
 		if(walk.GetObj() == watch)
@@ -914,7 +914,7 @@ void SlicSymbolDebugInfo::AddWatch(SlicSymbolWatchCallback *watch)
 
 void SlicSymbolDebugInfo::RemoveWatch(SlicSymbolWatchCallback *watch)
 {
-	PointerList<SlicSymbolWatchCallback>::Walker walk(m_watchList);
+	PointerList<SlicSymbolWatchCallback>::Walker walk(m_watchList.get());
 	while(walk.IsValid()) {
 		if(walk.GetObj() == watch) {
 			walk.Remove();
@@ -927,7 +927,7 @@ void SlicSymbolDebugInfo::RemoveWatch(SlicSymbolWatchCallback *watch)
 
 void SlicSymbolDebugInfo::NotifyChange(SlicSymbolData *sym)
 {
-	PointerList<SlicSymbolWatchCallback>::Walker walk(m_watchList);
+	PointerList<SlicSymbolWatchCallback>::Walker walk(m_watchList.get());
 	while(walk.IsValid()) {
 		walk.GetObj()->WatchCallback(sym, false);
 		walk.Next();
@@ -937,10 +937,10 @@ void SlicSymbolDebugInfo::NotifyChange(SlicSymbolData *sym)
 void SlicSymbolData::SetString(MBCHAR const * str)
 {
 	if(GetType() == SLIC_SYM_STRING) {
-        delete [] m_val.m_hard_string;
+        std::unique_ptr<char[]>{m_val.m_hard_string};
         if (str)
         {
-		    m_val.m_hard_string = new char[strlen(str) + 1];
+		    m_val.m_hard_string = std::make_unique<char[]>(strlen(str) + 1).release();
             strlcpy(m_val.m_hard_string, str, strlen(str) + 1);
         }
         else

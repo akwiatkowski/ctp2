@@ -96,6 +96,7 @@ enum AUI_EDIT_MODE_STATUS
 	AUI_EDIT_MODE_LAST
 };
 
+#include <memory>
 #include <string>
 
 #include "ui/aui_common/aui_base.h"        // aui_Base
@@ -148,12 +149,12 @@ public:
 	sint32	Width( ) const { return m_width; }
 	sint32	Height( ) const { return m_height; }
 
-	aui_Dimension	*GetDim( ) const { return m_dim; }
+	aui_Dimension	*GetDim( ) const { return m_dim.get(); }
 
 	aui_Region			*GetParent( ) const { return m_parent; }
 	virtual AUI_ERRCODE	SetParent( aui_Region *region );
 
-	tech_WLList<aui_Region *>	*ChildList( ) const { return m_childList; }
+	tech_WLList<aui_Region *>	*ChildList( ) const { return m_childList.get(); }
 
 	BOOL	IsInside( DWORD point ) const;
 	BOOL	IsInside( LPPOINT point ) const;
@@ -277,10 +278,10 @@ protected:
         m_y                         (0),
         m_width                     (0),
         m_height                    (0),
-        m_dim                       (new aui_Dimension()),
+        m_dim                       (std::make_unique<aui_Dimension>()),
         m_attributes                (0),
         m_parent                    (nullptr),
-        m_childList                 (new tech_WLList<aui_Region *>()),
+        m_childList                 (std::make_unique<tech_WLList<aui_Region *>>()),
         m_childListChanged          (false),
         m_blind                     (false),
         m_mouseCode                 (AUI_ERRCODE_UNHANDLED),
@@ -347,12 +348,12 @@ protected:
 	sint32		m_width;
 	sint32		m_height;
 
-	aui_Dimension	*m_dim;
+	std::unique_ptr<aui_Dimension>	m_dim;
 
 	uint32		m_attributes;
 
 	aui_Region	*m_parent;
-	tech_WLList<aui_Region *> *m_childList;
+	std::unique_ptr<tech_WLList<aui_Region *>> m_childList;
 
 	BOOL		m_childListChanged;
 
@@ -473,7 +474,7 @@ private:
 	static uint32		                s_editSelectionCurrent;
 	static aui_Region *                 s_editChild;
 	static uint32	        	        s_editModeStatus;
-	static tech_WLList<aui_Undo *> *    s_undoList;
+	static std::unique_ptr<tech_WLList<aui_Undo *>> s_undoList;
 };
 
 #endif

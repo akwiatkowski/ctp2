@@ -39,6 +39,7 @@
 #ifndef __SOUNDMANAGER_H__
 #define __SOUNDMANAGER_H__
 
+#include <memory>
 #include "sound/civsound.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "sound/gamesounds.h"
@@ -127,7 +128,7 @@ private:
 	PointerList<CivSound> m_sfxSounds;   // held by value
 	PointerList<CivSound> m_voiceSounds;   // held by value
 
-	PointerList<CivSound>::Walker *m_soundWalker;
+	std::unique_ptr<PointerList<CivSound>::Walker> m_soundWalker;
 
 	uint32					m_sfxVolume;
 	uint32					m_musicVolume;

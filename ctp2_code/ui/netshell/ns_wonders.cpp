@@ -43,15 +43,13 @@ ns_Wonders * nswonders_Get()            { return g_nsWonders; }
 void         nswonders_Set(ns_Wonders *p)   { g_nsWonders = p; }
 
 ns_Wonders::ns_Wonders()
-:
-    m_stringtable   (nullptr)
 {
 	Assert(g_theWonderDB->NumRecords() <= k_WONDERS_MAX);
     sint32      numWonders  =
         std::min(k_WONDERS_MAX, g_theWonderDB->NumRecords());
 
 	AUI_ERRCODE errcode     = AUI_ERRCODE_OK;
-	m_stringtable = new aui_StringTable( &errcode, numWonders );
+	m_stringtable = std::make_unique<aui_StringTable>( &errcode, numWonders );
 	Assert( AUI_NEWOK(m_stringtable,errcode) );
 	if ( !AUI_NEWOK(m_stringtable,errcode) ) return;
 
@@ -64,5 +62,5 @@ ns_Wonders::ns_Wonders()
 
 ns_Wonders::~ns_Wonders()
 {
-	delete m_stringtable;
+	m_stringtable.reset();
 }

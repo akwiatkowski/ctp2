@@ -46,6 +46,7 @@
 #include "ui/aui_ctp2/ctp2_dropdown.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "gs/utility/Globals.h"                // allocated::...
+#include <memory>
 #include "ui/interface/spnewgamewindow.h"
 #include "gs/database/StrDB.h"                  // stringdb_Get()
 #include "gs/database/profileDB.h"              // profiledb_Get()
@@ -53,14 +54,14 @@
 #include "ui/netshell/netshell.h"               // gamesetup_Get()
 #endif
 
-static C3Window *s_agesScreen	= nullptr;
+static std::unique_ptr<C3Window> s_agesScreen;
 
-static aui_Button		*s_back				= nullptr;
-static c3_Static		*s_name				= nullptr;
-static c3_Static		*s_start			= nullptr;
-static c3_Static		*s_end				= nullptr;
-static ctp2_DropDown	*s_startDropDown	= nullptr;
-static ctp2_DropDown	*s_endDropDown		= nullptr;
+static std::unique_ptr<aui_Button>		s_back;
+static std::unique_ptr<c3_Static>		s_name;
+static std::unique_ptr<c3_Static>		s_start;
+static std::unique_ptr<c3_Static>		s_end;
+static std::unique_ptr<ctp2_DropDown>	s_startDropDown;
+static std::unique_ptr<ctp2_DropDown>	s_endDropDown;
 
 
 static sint32 s_numAges = 0;
@@ -126,7 +127,7 @@ sint32	agesscreen_displayMyWindow(bool viewMode)
 	s_startDropDown->Enable( !viewMode );
 	s_endDropDown->Enable( !viewMode );
 
-	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(s_agesScreen);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(s_agesScreen.get());
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	return retval;
@@ -157,7 +158,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	s_agesScreen = new C3Window(
+	s_agesScreen = std::make_unique<C3Window>(
 		&errcode,
 		aui_UniqueId(),
 		windowBlock,
@@ -165,7 +166,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 	Assert( AUI_NEWOK(s_agesScreen, errcode) );
 	if ( !AUI_NEWOK(s_agesScreen, errcode) ) return errcode;
 
-	s_back = new aui_Button(
+	s_back = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"agesscreen.closebutton" );
@@ -175,14 +176,14 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 	if ( !callback ) callback = agesscreen_backPress;
 	s_back->SetActionFuncAndCookie(callback, nullptr);
 
-	s_name = spNew_c3_Static(&errcode,windowBlock,"NameStatic");
-	s_start = spNew_c3_Static(&errcode,windowBlock,"StartStatic");
-	s_end = spNew_c3_Static(&errcode,windowBlock,"EndStatic");
+	s_name.reset(spNew_c3_Static(&errcode,windowBlock,"NameStatic"));
+	s_start.reset(spNew_c3_Static(&errcode,windowBlock,"StartStatic"));
+	s_end.reset(spNew_c3_Static(&errcode,windowBlock,"EndStatic"));
 
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "StartDropDown" );
 
-	s_startDropDown = new ctp2_DropDown(
+	s_startDropDown = std::make_unique<ctp2_DropDown>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock,
@@ -193,7 +194,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "EndDropDown" );
 
-	s_endDropDown = new ctp2_DropDown(
+	s_endDropDown = std::make_unique<ctp2_DropDown>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock,
@@ -228,7 +229,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 
 
 		{
-			SingleListItem *item = new SingleListItem(
+			auto item = std::make_unique<SingleListItem>(
 				&errcode,
 				name,
 				i,
@@ -236,7 +237,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 			Assert( AUI_NEWOK(item,errcode) );
 			if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-			s_startDropDown->AddItem( (ctp2_ListItem *)item );
+			s_startDropDown->AddItem( (ctp2_ListItem *)item.release() );
 		}
 
 
@@ -247,7 +248,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 
 		{
 
-			SingleListItem *item = new SingleListItem(
+			auto item = std::make_unique<SingleListItem>(
 				&errcode,
 				name,
 				i,
@@ -255,7 +256,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 			Assert( AUI_NEWOK(item,errcode) );
 			if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-			s_endDropDown->AddItem( (ctp2_ListItem *)item );
+			s_endDropDown->AddItem( (ctp2_ListItem *)item.release() );
 		}
 	}
 
@@ -293,23 +294,23 @@ void agesscreen_Cleanup()
 	if (s_startDropDown)
 	{
 		s_startDropDown->Clear();
-        allocated::clear(s_startDropDown);
+        s_startDropDown.reset();
 	}
 	if (s_endDropDown)
 	{
 		s_endDropDown->Clear();
-        allocated::clear(s_endDropDown);
+        s_endDropDown.reset();
 	}
 
-    allocated::clear(s_name);
-	allocated::clear(s_start);
-	allocated::clear(s_end);
-	allocated::clear(s_back);
+    s_name.reset();
+	s_start.reset();
+	s_end.reset();
+	s_back.reset();
 
 	if (s_agesScreen)
 	{
 		c3ui_Get()->RemoveWindow(s_agesScreen->Id());
-		allocated::clear(s_agesScreen);
+		s_agesScreen.reset();
 	}
 }
 

@@ -45,6 +45,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "ui/aui_ctp2/radarmap.h"
 
@@ -134,11 +136,7 @@ RadarMap::RadarMap(AUI_ERRCODE *retval,
 //	RadarMap::~RadarMap
 //
 //---------------------------------------------------------------------------
-RadarMap::~RadarMap()
-{
-	delete m_mapSurface;
-	delete m_tempSurface;
-}
+RadarMap::~RadarMap() = default;
 
 //---------------------------------------------------------------------------
 //
@@ -161,9 +159,9 @@ void RadarMap::InitCommonLdl(MBCHAR const *ldlBlock)
 //---------------------------------------------------------------------------
 void RadarMap::InitCommon()
 {
-	m_mapSurface = nullptr;
+	m_mapSurface.reset();
 	m_mapSize = nullptr;
-	m_tempSurface = nullptr;
+	m_tempSurface.reset();
 	m_tempBuffer.clear();
 
 	m_tilePixelWidth = 0.0;
@@ -190,20 +188,20 @@ void RadarMap::InitCommon()
 	m_selectedCity.m_id = 0;
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	m_mapSurface = aui_Factory::new_Surface(errcode, m_width, m_height);
+	m_mapSurface.reset(aui_Factory::new_Surface(errcode, m_width, m_height));
 	Assert(AUI_NEWOK(m_mapSurface, errcode));
 
 	RECT rect = { 0, 0, m_width, m_height };
 
 	if ( m_pattern ) {
-		m_pattern->Draw( m_mapSurface, &rect );
+		m_pattern->Draw( m_mapSurface.get(), &rect );
 	}
 
 	if ( world_Get() ) {
 
 		CalculateMetrics();
 
-		RenderMap(m_mapSurface);
+		RenderMap(m_mapSurface.get());
 	}
 }
 
@@ -249,13 +247,12 @@ AUI_ERRCODE	RadarMap::Resize( sint32 width, sint32 height )
 	AUI_ERRCODE		errcode = aui_Region::Resize(width, height);
 	Assert(errcode == AUI_ERRCODE_OK);
 
-	delete m_mapSurface;
-	m_mapSurface = aui_Factory::new_Surface(errcode, width, height);
+	m_mapSurface.reset(aui_Factory::new_Surface(errcode, width, height));
 	Assert( AUI_NEWOK(m_mapSurface, errcode) );
 
 	CalculateMetrics();
 
-	RenderMap(m_mapSurface);
+	RenderMap(m_mapSurface.get());
 
 	return errcode;
 }
@@ -272,7 +269,7 @@ void RadarMap::CalculateMetrics()
 {
 	if (!world_Get()) return;
 
-	delete m_tempSurface;
+	m_tempSurface.reset();
 
 	m_mapSize = world_Get()->GetSize();
 
@@ -287,7 +284,7 @@ void RadarMap::CalculateMetrics()
 	m_tempBuffer.assign(static_cast<size_t>(width + 2) * (height + 2) * 2, 0);
 
 	AUI_ERRCODE err;
-	m_tempSurface = new aui_Surface(&err, width, height, 16, 2*(width + 2), &m_tempBuffer[2*((width + 2) + (1))]);
+	m_tempSurface = std::make_unique<aui_Surface>(&err, width, height, 16, 2*(width + 2), &m_tempBuffer[2*((width + 2) + (1))]);
 }
 
 //---------------------------------------------------------------------------
@@ -965,7 +962,7 @@ void RadarMap::RenderMap(aui_Surface *surface)
 	for(y = 0; y < m_mapSize->y; y++)
 		for(x = 0; x < m_mapSize->x; x++)
 		{
-			RenderTile(m_tempSurface, PosWorldToPosRadar(MapPoint(x, y)), MapPoint(x, y), player);
+			RenderTile(m_tempSurface.get(), PosWorldToPosRadar(MapPoint(x, y)), MapPoint(x, y), player);
 		}
 
     fRect const sRect = { 0.0,
@@ -979,7 +976,7 @@ void RadarMap::RenderMap(aui_Surface *surface)
                           static_cast<float>(m_tilePixelHeight * sRect.bottom)
                         };
 
-	primitives_Scale16(m_tempSurface, surface,
+	primitives_Scale16(m_tempSurface.get(), surface,
 		sRect,
 		dRect,
 		m_filter);
@@ -1195,7 +1192,7 @@ void RadarMap::UpdateMap(aui_Surface *surf, sint32 x, sint32 y)
 	RECT		destRect = {x, y, x + Width(), y + Height() };
 	RECT		srcRect = {0, 0, Width(), Height()};
 
-	c3ui_Get()->TheBlitter()->StretchBlt(surf, &destRect, m_mapSurface, &srcRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->StretchBlt(surf, &destRect, m_mapSurface.get(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
 
 	if(IsInteractive())
 		RenderViewRect(surf, x, y);
@@ -1243,7 +1240,7 @@ MapPoint RadarMap::CenterMap(MapPoint const & pos)
 
 	ComputeCenteredMap(pos, mapViewRect);
 	m_mapViewRect = *mapViewRect;
-	RenderMap(m_mapSurface);
+	RenderMap(m_mapSurface.get());
 
 	return LastPT;
 }
@@ -1317,7 +1314,7 @@ void RadarMap::Setup()
 {
 	CalculateMetrics();
 
-	RenderMap(m_mapSurface);
+	RenderMap(m_mapSurface.get());
 
 	if (tiledmap_Get())
     {
@@ -1335,7 +1332,7 @@ void RadarMap::Update( )
 
 	m_mapSize = world_Get()->GetSize();
 
-	RenderMap(m_mapSurface);
+	RenderMap(m_mapSurface.get());
 }
 
 //---------------------------------------------------------------------------
@@ -1354,7 +1351,7 @@ void RadarMap::RedrawTile( const MapPoint *point )
 
 	// modify with the offset values
     MapPoint offsetpos = PosWorldToPosRadar( *point);
-    RenderTile(m_tempSurface, offsetpos, *point, player);
+    RenderTile(m_tempSurface.get(), offsetpos, *point, player);
 
 	fRect sRect;
 	fRect dRect;
@@ -1379,14 +1376,14 @@ void RadarMap::RedrawTile( const MapPoint *point )
 		dRect.top    = sRect.top    * static_cast<float>(m_tilePixelHeight);
 		dRect.bottom = sRect.bottom * static_cast<float>(m_tilePixelHeight);
 
-		primitives_Scale16(m_tempSurface, m_mapSurface, sRect, dRect, m_filter);
+		primitives_Scale16(m_tempSurface.get(), m_mapSurface.get(), sRect, dRect, m_filter);
 
 		sRect.left = 0;
 		sRect.right = 1.0f + adjust;
 		dRect.left = 0;
 		dRect.right = sRect.right * static_cast<float>(m_tilePixelWidth/2);
 
-		primitives_Scale16(m_tempSurface, m_mapSurface, sRect, dRect, m_filter);
+		primitives_Scale16(m_tempSurface.get(), m_mapSurface.get(), sRect, dRect, m_filter);
 	}
 	else
 	{
@@ -1405,28 +1402,28 @@ void RadarMap::RedrawTile( const MapPoint *point )
 		dRect.top    = sRect.top    * static_cast<float>(m_tilePixelHeight);
 		dRect.bottom = sRect.bottom * static_cast<float>(m_tilePixelHeight);
 
-		primitives_Scale16(m_tempSurface, m_mapSurface, sRect, dRect, m_filter);
+		primitives_Scale16(m_tempSurface.get(), m_mapSurface.get(), sRect, dRect, m_filter);
 	}
 
-	RenderTileBorder(m_mapSurface, offsetpos, *point, player);
-	RenderCapitol(m_mapSurface, offsetpos, *point, player);
-	RenderTrade(m_mapSurface, offsetpos, *point, player);
+	RenderTileBorder(m_mapSurface.get(), offsetpos, *point, player);
+	RenderCapitol(m_mapSurface.get(), offsetpos, *point, player);
+	RenderTrade(m_mapSurface.get(), offsetpos, *point, player);
 
 	if (m_filter)
 	{
 		MapPoint neighbor;
 		if (point->GetNeighborPosition(NORTHEAST, neighbor))
-				RenderTileBorder(m_mapSurface, PosWorldToPosRadar(neighbor),neighbor, player);
+				RenderTileBorder(m_mapSurface.get(), PosWorldToPosRadar(neighbor),neighbor, player);
 		if (point->GetNeighborPosition(NORTHWEST, neighbor))
-				RenderTileBorder(m_mapSurface, PosWorldToPosRadar(neighbor),neighbor, player);
+				RenderTileBorder(m_mapSurface.get(), PosWorldToPosRadar(neighbor),neighbor, player);
 		if (point->GetNeighborPosition(EAST, neighbor))
-				RenderTileBorder(m_mapSurface, PosWorldToPosRadar(neighbor),neighbor, player);
+				RenderTileBorder(m_mapSurface.get(), PosWorldToPosRadar(neighbor),neighbor, player);
 		if (point->GetNeighborPosition(WEST, neighbor))
-				RenderTileBorder(m_mapSurface, PosWorldToPosRadar(neighbor),neighbor, player);
+				RenderTileBorder(m_mapSurface.get(), PosWorldToPosRadar(neighbor),neighbor, player);
 		if (point->GetNeighborPosition(SOUTHEAST, neighbor))
-				RenderTileBorder(m_mapSurface, PosWorldToPosRadar(neighbor),neighbor, player);
+				RenderTileBorder(m_mapSurface.get(), PosWorldToPosRadar(neighbor),neighbor, player);
 		if (point->GetNeighborPosition(SOUTHWEST, neighbor))
-				RenderTileBorder(m_mapSurface, PosWorldToPosRadar(neighbor),neighbor, player);
+				RenderTileBorder(m_mapSurface.get(), PosWorldToPosRadar(neighbor),neighbor, player);
 
 	}
 }
@@ -1556,7 +1553,7 @@ void RadarMap::MouseRGrabInside(aui_MouseEvent *data)
 		m_displayOffset[nrplayer].y = 0;
 	}
 
-	RenderMap(m_mapSurface);
+	RenderMap(m_mapSurface.get());
 
 }
 

@@ -28,6 +28,8 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
+
 #include "ctp/c3.h"
 #include "ui/interface/spriteeditor.h"
 
@@ -118,12 +120,12 @@ extern sint32 g_ScreenHeight;
 extern C3Window			*g_toolbar;
 
 
-extern unsigned char *g_compression_buff;
+extern std::unique_ptr<unsigned char[]> g_compression_buff;
 
 
 
 
-SpriteEditWindow *g_spriteEditWindow = nullptr;
+std::unique_ptr<SpriteEditWindow> g_spriteEditWindow;
 
 
 
@@ -227,7 +229,7 @@ int SpriteEditWindow_Initialize( )
 
 	strlcpy(windowBlock, "SpriteEditor", sizeof(windowBlock));
 
-	g_spriteEditWindow = new SpriteEditWindow(&errcode, aui_UniqueId(), windowBlock, 16 );
+	g_spriteEditWindow = std::make_unique<SpriteEditWindow>(&errcode, aui_UniqueId(), windowBlock, 16 );
 
 	Assert( AUI_NEWOK(g_spriteEditWindow, errcode));
 	if ( !AUI_NEWOK(g_spriteEditWindow, errcode) ) return -1;
@@ -257,11 +259,9 @@ void SpriteEditWindow_Cleanup()
 	    c3ui_Get()->RemoveWindow(g_spriteEditWindow->Id());
     }
 
-	delete [] g_compression_buff;
-    g_compression_buff = nullptr;
+	g_compression_buff.reset();
 
-	delete g_spriteEditWindow;
-	g_spriteEditWindow = nullptr;
+	g_spriteEditWindow.reset();
 }
 
 SpriteEditWindow::SpriteEditWindow(
@@ -302,7 +302,7 @@ SpriteEditWindow::SpriteEditWindow(
 	m_animation		=UNITACTION_MOVE;
 	m_currentAnim	=nullptr;
 
-	m_actionObj		= new Action();
+	m_actionObj		= std::make_unique<Action>();
 
 	aui_Dimension	*dimension=GetDim();
 
@@ -341,7 +341,7 @@ SpriteEditWindow::SpriteEditWindow(
 	m_currentSprite=nullptr;
 	m_spriteSurface=nullptr;
 
-	g_compression_buff = new unsigned char[COM_BUFF_SIZE];
+	g_compression_buff = std::make_unique<unsigned char[]>(COM_BUFF_SIZE);
 	LoadSprite(const_cast<char *>("GU02"));
 }
 
@@ -350,26 +350,26 @@ SpriteEditWindow::~SpriteEditWindow()
 //	m_currentAnim, m_spriteData: Not deleted (reference only)
 //	delete m_largeSurface   : TODO (crashes)
 //  delete m_actionObj      : TODO (crashes)
-	delete m_currentSprite;
-	delete m_spriteSurface;
-	delete m_Load;
-	delete m_Save;
-	delete m_fileName;
-	delete m_MOVEAnim;
-	delete m_ATTACKAnim;
-	delete m_IDLEAnim;
-	delete m_VICTORYAnim;
-	delete m_WORKAnim;
-	delete m_stepPlus;
-	delete m_stepMinus;
-	delete m_playOnce;
-	delete m_playLoop;
-	delete m_facingPlus;
-	delete m_facingMinus;
-	delete m_largeImage;
-	delete m_hotCoordsCurrent;
-	delete m_hotCoordsMouse;
-	delete m_hotCoordsHerald;
+	m_currentSprite.reset();
+	m_spriteSurface.reset();
+	m_Load.reset();
+	m_Save.reset();
+	m_fileName.reset();
+	m_MOVEAnim.reset();
+	m_ATTACKAnim.reset();
+	m_IDLEAnim.reset();
+	m_VICTORYAnim.reset();
+	m_WORKAnim.reset();
+	m_stepPlus.reset();
+	m_stepMinus.reset();
+	m_playOnce.reset();
+	m_playLoop.reset();
+	m_facingPlus.reset();
+	m_facingMinus.reset();
+	m_largeImage.reset();
+	m_hotCoordsCurrent.reset();
+	m_hotCoordsMouse.reset();
+	m_hotCoordsHerald.reset();
 }
 
 void
@@ -433,16 +433,16 @@ void
 SpriteEditWindow::InitializeControls(AUI_ERRCODE *errcode,MBCHAR const *windowBlock)
 {
 
-	m_Load = spNew_ctp2_Button(errcode,windowBlock,"STLoadButton","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
-	m_Save = spNew_ctp2_Button(errcode,windowBlock,"STSaveButton","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_Load.reset(spNew_ctp2_Button(errcode,windowBlock,"STLoadButton","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
+	m_Save.reset(spNew_ctp2_Button(errcode,windowBlock,"STSaveButton","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
 
-	m_fileName		= spNewTextEntry(errcode,windowBlock,"Name");
+	m_fileName.reset(spNewTextEntry(errcode,windowBlock,"Name"));
 
-	m_MOVEAnim  	=spNew_ctp2_Button(errcode,windowBlock,"STMOVEAnim"   ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
-	m_ATTACKAnim	=spNew_ctp2_Button(errcode,windowBlock,"STATTACKAnim" ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
-	m_IDLEAnim  	=spNew_ctp2_Button(errcode,windowBlock,"STIDLEAnim"   ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
-	m_VICTORYAnim	=spNew_ctp2_Button(errcode,windowBlock,"STVICTORYAnim","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
-	m_WORKAnim		=spNew_ctp2_Button(errcode,windowBlock,"STWORKAnim"   ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_MOVEAnim.reset(spNew_ctp2_Button(errcode,windowBlock,"STMOVEAnim"   ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
+	m_ATTACKAnim.reset(spNew_ctp2_Button(errcode,windowBlock,"STATTACKAnim" ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
+	m_IDLEAnim.reset(spNew_ctp2_Button(errcode,windowBlock,"STIDLEAnim"   ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
+	m_VICTORYAnim.reset(spNew_ctp2_Button(errcode,windowBlock,"STVICTORYAnim","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
+	m_WORKAnim.reset(spNew_ctp2_Button(errcode,windowBlock,"STWORKAnim"   ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
 
 	m_MOVEAnim		->SetActionFuncAndCookie(AnimCallback,(void *)UNITACTION_MOVE   );
 	m_ATTACKAnim	->SetActionFuncAndCookie(AnimCallback,(void *)UNITACTION_ATTACK );
@@ -450,12 +450,12 @@ SpriteEditWindow::InitializeControls(AUI_ERRCODE *errcode,MBCHAR const *windowBl
 	m_VICTORYAnim	->SetActionFuncAndCookie(AnimCallback,(void *)UNITACTION_VICTORY);
 	m_WORKAnim		->SetActionFuncAndCookie(AnimCallback,(void *)UNITACTION_WORK   );
 
-	m_stepPlus		=spNew_ctp2_Button(errcode,windowBlock,"STPlayStepPlus"	,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
-	m_stepMinus		=spNew_ctp2_Button(errcode,windowBlock,"STPlayStepMinus","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
-	m_playOnce		=spNew_ctp2_Button(errcode,windowBlock,"STPlayOnce"		,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
-	m_playLoop		=spNew_ctp2_Button(errcode,windowBlock,"STPlayLoop"		,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
-	m_facingPlus	=spNew_ctp2_Button(errcode,windowBlock,"STFacingPlus"	,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
-	m_facingMinus	=spNew_ctp2_Button(errcode,windowBlock,"STFacingMinus"	,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_stepPlus.reset(spNew_ctp2_Button(errcode,windowBlock,"STPlayStepPlus"	,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
+	m_stepMinus.reset(spNew_ctp2_Button(errcode,windowBlock,"STPlayStepMinus","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
+	m_playOnce.reset(spNew_ctp2_Button(errcode,windowBlock,"STPlayOnce"		,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
+	m_playLoop.reset(spNew_ctp2_Button(errcode,windowBlock,"STPlayLoop"		,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
+	m_facingPlus.reset(spNew_ctp2_Button(errcode,windowBlock,"STFacingPlus"	,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
+	m_facingMinus.reset(spNew_ctp2_Button(errcode,windowBlock,"STFacingMinus","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR"));
 
 	m_Load ->SetActionFuncAndCookie(FileButtonActionCallback,(void *)true );
 	m_Save ->SetActionFuncAndCookie(FileButtonActionCallback,(void *)false);
@@ -467,41 +467,41 @@ SpriteEditWindow::InitializeControls(AUI_ERRCODE *errcode,MBCHAR const *windowBl
 	m_facingPlus	->SetActionFuncAndCookie(FacingCallback	,(void *) 1);
 	m_facingMinus	->SetActionFuncAndCookie(FacingCallback	,(void *)-1);
 
-	m_largeImage = new C3Window(errcode, aui_UniqueId(),"STLargeImage", 16 );
+	m_largeImage = std::make_unique<C3Window>(errcode, aui_UniqueId(),"STLargeImage", 16 );
 
-	c3ui_Get()->AddWindow( m_largeImage );
+	c3ui_Get()->AddWindow( m_largeImage.get() );
 
-	m_hotCoordsCurrent = new c3_Static(errcode, aui_UniqueId(),"SpriteEditor.CoordsHotSpot");
-	m_hotCoordsMouse   = new c3_Static(errcode, aui_UniqueId(),"SpriteEditor.CoordsCursor" );
-	m_hotCoordsHerald  = new c3_Static(errcode, aui_UniqueId(),"SpriteEditor.CoordsHerald");
-
-
+	m_hotCoordsCurrent = std::make_unique<c3_Static>(errcode, aui_UniqueId(),"SpriteEditor.CoordsHotSpot");
+	m_hotCoordsMouse = std::make_unique<c3_Static>(errcode, aui_UniqueId(),"SpriteEditor.CoordsCursor" );
+	m_hotCoordsHerald = std::make_unique<c3_Static>(errcode, aui_UniqueId(),"SpriteEditor.CoordsHerald");
 
 
 
-	m_Load		->SetParent(g_spriteEditWindow);
-	m_Save		->SetParent(g_spriteEditWindow);
 
-	m_fileName	 ->SetParent(g_spriteEditWindow);
 
-	m_MOVEAnim   ->SetParent(g_spriteEditWindow);
-	m_ATTACKAnim ->SetParent(g_spriteEditWindow);
-	m_IDLEAnim   ->SetParent(g_spriteEditWindow);
-	m_VICTORYAnim->SetParent(g_spriteEditWindow);
-	m_WORKAnim	 ->SetParent(g_spriteEditWindow);
+	m_Load		->SetParent(g_spriteEditWindow.get());
+	m_Save		->SetParent(g_spriteEditWindow.get());
 
-	m_stepPlus	 ->SetParent(g_spriteEditWindow);
-	m_stepMinus	 ->SetParent(g_spriteEditWindow);
-	m_playOnce	 ->SetParent(g_spriteEditWindow);
-	m_playLoop	 ->SetParent(g_spriteEditWindow);
-	m_facingPlus ->SetParent(g_spriteEditWindow);
-	m_facingMinus->SetParent(g_spriteEditWindow);
+	m_fileName	 ->SetParent(g_spriteEditWindow.get());
 
-	m_largeImage ->SetParent(g_spriteEditWindow);
+	m_MOVEAnim   ->SetParent(g_spriteEditWindow.get());
+	m_ATTACKAnim ->SetParent(g_spriteEditWindow.get());
+	m_IDLEAnim   ->SetParent(g_spriteEditWindow.get());
+	m_VICTORYAnim->SetParent(g_spriteEditWindow.get());
+	m_WORKAnim	 ->SetParent(g_spriteEditWindow.get());
 
-	m_hotCoordsCurrent->SetParent(g_spriteEditWindow);
-	m_hotCoordsMouse  ->SetParent(g_spriteEditWindow);
-	m_hotCoordsHerald ->SetParent(g_spriteEditWindow);
+	m_stepPlus	 ->SetParent(g_spriteEditWindow.get());
+	m_stepMinus	 ->SetParent(g_spriteEditWindow.get());
+	m_playOnce	 ->SetParent(g_spriteEditWindow.get());
+	m_playLoop	 ->SetParent(g_spriteEditWindow.get());
+	m_facingPlus ->SetParent(g_spriteEditWindow.get());
+	m_facingMinus->SetParent(g_spriteEditWindow.get());
+
+	m_largeImage ->SetParent(g_spriteEditWindow.get());
+
+	m_hotCoordsCurrent->SetParent(g_spriteEditWindow.get());
+	m_hotCoordsMouse  ->SetParent(g_spriteEditWindow.get());
+	m_hotCoordsHerald ->SetParent(g_spriteEditWindow.get());
 
 	m_Load		->Show();
 	m_Save		->Show();
@@ -605,10 +605,10 @@ SpriteEditWindow::LoadSprite(char *name)
 	m_frame=0;
 	m_facing=k_DEFAULTSPRITEFACING;
 
-	delete m_currentSprite;
-    delete m_spriteSurface;
+	m_currentSprite.reset();
+    m_spriteSurface.reset();
 
-	m_currentSprite = new UnitSpriteGroup(GROUPTYPE_UNIT);
+	m_currentSprite = std::make_unique<UnitSpriteGroup>(GROUPTYPE_UNIT);
 	m_currentSprite->LoadFull(tbuffer);
 
 	uint32		i;
@@ -639,7 +639,7 @@ SpriteEditWindow::LoadSprite(char *name)
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	m_spriteSurface=new aui_Surface(&errcode,m_spriteRect.right,m_spriteRect.bottom,16);
+	m_spriteSurface = std::make_unique<aui_Surface>(&errcode,m_spriteRect.right,m_spriteRect.bottom,16);
 
 	m_spriteData = m_currentSprite->GetGroupSprite((GAME_ACTION)m_animation);
 
@@ -829,7 +829,7 @@ SpriteEditWindow::ReDrawLargeSprite( )
 		POINT pt;
 		static int cval=0;
 
-		c3ui_Get()->TheBlitter()->ColorBlt(m_spriteSurface,&m_spriteRect,RGB(64,64,64),k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->ColorBlt(m_spriteSurface.get(),&m_spriteRect,RGB(64,64,64),k_AUI_BLITTER_FLAG_COPY);
 
 		pt.x = 0;
 		pt.y = 0;
@@ -839,10 +839,10 @@ SpriteEditWindow::ReDrawLargeSprite( )
 
 		sav=m_currentSprite->GetHotPoint((UNITACTION)m_animation,m_facing);
 		m_currentSprite->SetHotPoint((UNITACTION)m_animation,m_facing,pt);
-		m_currentSprite->DrawDirect(m_spriteSurface,(UNITACTION)m_animation,m_frame,0,0,m_facing,1.0,15,0,k_DRAWFLAGS_NORMAL,false,false);
+		m_currentSprite->DrawDirect(m_spriteSurface.get(),(UNITACTION)m_animation,m_frame,0,0,m_facing,1.0,15,0,k_DRAWFLAGS_NORMAL,false,false);
 		m_currentSprite->SetHotPoint((UNITACTION)m_animation,m_facing,sav);
 
-		c3ui_Get()->TheBlitter()->StretchBlt(m_largeSurface,&m_largeRect,m_spriteSurface,&m_spriteRect,k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->StretchBlt(m_largeSurface,&m_largeRect,m_spriteSurface.get(),&m_spriteRect,k_AUI_BLITTER_FLAG_COPY);
 
 		char tbuffer[256];
 

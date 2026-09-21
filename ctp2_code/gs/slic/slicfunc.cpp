@@ -170,6 +170,7 @@ bool g_forceTurnDisplay = false;
 
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/CTP2Combat.h"
+#include <memory>
 
 extern FilenameDB	*g_theMessageIconFileDB;
 #define k_MESSAGE_TYPE_HASH_SIZE 16
@@ -186,7 +187,7 @@ void SlicArgList::ReleaseSymbols()
 {
     for (auto & arg : m_argValue)
     {
-	    delete arg.m_symbol;
+	    std::unique_ptr<SlicSymbolData>(arg.m_symbol);
     }
 }
 
@@ -359,7 +360,7 @@ bool SlicArgList::GetStringId(sint32 arg, StringId & value) const
 
 GameEventArgList *SlicArgList::CreateGameEventArgs(GAME_EVENT ev)
 {
-	GameEventArgList *newArgs = new GameEventArgList();
+	GameEventArgList *newArgs = std::make_unique<GameEventArgList>().release();
 	Army a;
 	Unit u;
 	Unit city;
@@ -374,19 +375,19 @@ GameEventArgList *SlicArgList::CreateGameEventArgs(GAME_EVENT ev)
 		switch(GameEventManager::ArgChar(ev, i)) {
 			case GEAC_ARMY:
 				if(GetArmy(i, a)) {
-					newArgs->Add(new GameEventArgument(GEA_Army, a));
+					newArgs->Add(std::make_unique<GameEventArgument>(GEA_Army, a).release());
 				EVENTLOG(("0x%x", a.m_id));
 				}
 				break;
 			case GEAC_UNIT:
 				if(GetUnit(i, u)) {
-					newArgs->Add(new GameEventArgument(GEA_Unit, u));
+					newArgs->Add(std::make_unique<GameEventArgument>(GEA_Unit, u).release());
 				EVENTLOG(("0x%x", u.m_id));
 				}
 				break;
 			case GEAC_CITY:
 				if(GetCity(i, city)) {
-					newArgs->Add(new GameEventArgument(GEA_City, city));
+					newArgs->Add(std::make_unique<GameEventArgument>(GEA_City, city).release());
 				EVENTLOG(("0x%x", city.m_id));
 				}
 				break;
@@ -396,7 +397,7 @@ GameEventArgList *SlicArgList::CreateGameEventArgs(GAME_EVENT ev)
 				break;
 			case GEAC_GOLD:
 				if(GetInt(i, value)) {
-					newArgs->Add(new GameEventArgument(GEA_Gold, value));
+					newArgs->Add(std::make_unique<GameEventArgument>(GEA_Gold, value).release());
 					EVENTLOG(("%d", value));
 				}
 				break;
@@ -406,37 +407,37 @@ GameEventArgList *SlicArgList::CreateGameEventArgs(GAME_EVENT ev)
 				break;
 			case GEAC_MAPPOINT:
 				if(GetPos(i, pos)) {
-					newArgs->Add(new GameEventArgument(GEA_MapPoint, pos));
+					newArgs->Add(std::make_unique<GameEventArgument>(GEA_MapPoint, pos).release());
 					EVENTLOG(("(%d,%d)", pos.x, pos.y));
 				}
 				break;
 			case GEAC_PLAYER:
 				if(GetPlayer(i, value)) {
-					newArgs->Add(new GameEventArgument(GEA_Player, value));
+					newArgs->Add(std::make_unique<GameEventArgument>(GEA_Player, value).release());
 					EVENTLOG(("%d", value));
 				}
 				break;
 			case GEAC_INT:
 				if(GetInt(i, value)) {
-					newArgs->Add(new GameEventArgument(GEA_Int, value));
+					newArgs->Add(std::make_unique<GameEventArgument>(GEA_Int, value).release());
 					EVENTLOG(("%d", value));
 				}
 				break;
 			case GEAC_DIRECTION:
 				if(GetInt(i, value)) {
-					newArgs->Add(new GameEventArgument(GEA_Direction, value));
+					newArgs->Add(std::make_unique<GameEventArgument>(GEA_Direction, value).release());
 					EVENTLOG(("%d", value));
 				}
 				break;
 			case GEAC_ADVANCE:
 				if(GetInt(i, value)) {
-					newArgs->Add(new GameEventArgument(GEA_Advance, value));
+					newArgs->Add(std::make_unique<GameEventArgument>(GEA_Advance, value).release());
 					EVENTLOG(("%d", value));
 				}
 				break;
 			case GEAC_WONDER:
 				if(GetInt(i, value)) {
-					newArgs->Add(new GameEventArgument(GEA_Wonder, value));
+					newArgs->Add(std::make_unique<GameEventArgument>(GEA_Wonder, value).release());
 					EVENTLOG(("%d", value));
 				}
 				break;
@@ -555,7 +556,7 @@ SFN_ERROR Slic_AddMessage::Call(SlicArgList *args)
 						 recip,
 						 args->m_argValue[1].m_segment->GetName()));
 
-	SlicObject *obj = new SlicObject(args->m_argValue[1].m_segment,
+	auto obj = std::make_unique<SlicObject>(args->m_argValue[1].m_segment,
 									 slicengine_Get()->GetContext());
 	obj->AddRecipient(recip);
 	obj->CopyFromBuiltins();
@@ -563,7 +564,7 @@ SFN_ERROR Slic_AddMessage::Call(SlicArgList *args)
 	{
 		obj->AddPlayer(recip);
 	}
-	slicengine_Get()->Execute(obj);
+	slicengine_Get()->Execute(std::move(obj));
 
 	return SFN_ERROR_OK;
 }
@@ -595,7 +596,7 @@ SFN_ERROR Slic_Message::Call(SlicArgList *args)
 						 recip,
 						 args->m_argValue[1].m_segment->GetName()));
 
-	SlicObject *obj = new SlicObject(args->m_argValue[1].m_segment,
+	auto obj = std::make_unique<SlicObject>(args->m_argValue[1].m_segment,
 									 slicengine_Get()->GetContext());
 	obj->AddRecipient(recip);
 	obj->CopyFromBuiltins();
@@ -603,7 +604,7 @@ SFN_ERROR Slic_Message::Call(SlicArgList *args)
 	{
 		obj->AddPlayer(recip);
 	}
-	slicengine_Get()->Execute(obj);
+	slicengine_Get()->Execute(std::move(obj));
 
 	return SFN_ERROR_OK;
 }
@@ -618,10 +619,10 @@ SFN_ERROR Slic_MessageAll::Call(SlicArgList *args)
 
 	DPRINTF(k_DBG_SLIC, ("Slic_MessageAll: %s\n",
 						 args->m_argValue[0].m_segment->GetName()));
-	SlicObject *obj = new SlicObject(args->m_argValue[0].m_segment,
+	auto obj = std::make_unique<SlicObject>(args->m_argValue[0].m_segment,
 									 slicengine_Get()->GetContext());
 	obj->AddAllRecipients();
-	slicengine_Get()->Execute(obj);
+	slicengine_Get()->Execute(std::move(obj));
 	return SFN_ERROR_OK;
 }
 
@@ -642,10 +643,10 @@ SFN_ERROR Slic_MessageAllBut::Call(SlicArgList *args)
 						 antiRecip,
 						 args->m_argValue[1].m_segment->GetName()));
 
-	SlicObject *obj = new SlicObject(args->m_argValue[1].m_segment,
+	auto obj = std::make_unique<SlicObject>(args->m_argValue[1].m_segment,
 									 slicengine_Get()->GetContext());
 	obj->AddAllRecipientsBut(antiRecip);
-	slicengine_Get()->Execute(obj);
+	slicengine_Get()->Execute(std::move(obj));
 	return SFN_ERROR_OK;
 }
 
@@ -705,11 +706,11 @@ SFN_ERROR Slic_EyePoint::Call(SlicArgList *args)
 			return SFN_ERROR_NOT_SEGMENT;
 		}
 
-		ep = new SlicEyePoint(point, text, 0, EYE_POINT_TYPE_GENERIC, unit,
-							  player, args->m_argValue[2].m_segment);
+		ep = std::make_unique<SlicEyePoint>(point, text, 0, EYE_POINT_TYPE_GENERIC, unit,
+							  player, args->m_argValue[2].m_segment).release();
 	} else {
-		ep = new SlicEyePoint(point, text, 0, EYE_POINT_TYPE_GENERIC, unit,
-							  0, nullptr);
+		ep = std::make_unique<SlicEyePoint>(point, text, 0, EYE_POINT_TYPE_GENERIC, unit,
+							  0, nullptr).release();
 	}
 	slicengine_Get()->GetContext()->AddEyePoint(ep);
 
@@ -1750,18 +1751,18 @@ SFN_ERROR Slic_DontAcceptTradeOffer::Call(SlicArgList *args)
 
 	if(network_Get().IsHost()) {
 		network_Get().QueuePacket(network_Get().IndexToId(player),
-							  new NetInfo(NET_INFO_CODE_OFFER_REJECTED_MESSAGE,
+							  std::make_unique<NetInfo>(NET_INFO_CODE_OFFER_REJECTED_MESSAGE,
 										  player,
-										  context->GetRecipient(0)));
+										  context->GetRecipient(0)).release());
 	} else if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_OFFER_REJECTED_MESSAGE,
-										   player, context->GetRecipient(0)));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_OFFER_REJECTED_MESSAGE,
+										   player, context->GetRecipient(0)).release());
 	}
 
-	SlicObject *so = new SlicObject("91OfferRejected");
+	auto so = std::make_unique<SlicObject>("91OfferRejected");
 	so->AddRecipient(player);
 	so->AddCivilisation(context->GetRecipient(0));
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 	return SFN_ERROR_OK;
 }
 
@@ -1797,9 +1798,9 @@ SFN_ERROR Slic_StealRandomAdvance::Call(SlicArgList *args)
 
 	if(network_Get().IsClient()) {
 		if(owner == player_view::VisiblePlayer()) {
-			network_Get().SendAction(new NetAction(NET_ACTION_STEAL_TECHNOLOGY,
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_STEAL_TECHNOLOGY,
 										   u.m_id, context->GetCity(0).m_id,
-										   -1));
+										   -1).release());
 		}
 	}
 
@@ -1846,9 +1847,9 @@ SFN_ERROR Slic_StealSpecificAdvance::Call(SlicArgList *args)
 
 	if(network_Get().IsClient()) {
 		if(u.GetOwner() == player_view::VisiblePlayer()) {
-			network_Get().SendAction(new NetAction(NET_ACTION_STEAL_TECHNOLOGY,
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_STEAL_TECHNOLOGY,
 										   u.m_id, context->GetCity(0).m_id,
-										   adv));
+										   adv).release());
 		}
 	}
 
@@ -2310,7 +2311,7 @@ SFN_ERROR Slic_DoFreeSlaves::Call(SlicArgList *args)
 	}
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_FREE_SLAVES, city.m_id).release());
 	}
 
     city.FreeSlaves();
@@ -4402,11 +4403,11 @@ SFN_ERROR Slic_BreakLeaveOurLands::Call(SlicArgList *args)
 		   ag.GetRecipient() == unitOwner &&
 		   ag.GetAgreement() == AGREEMENT_TYPE_DEMAND_LEAVE_OUR_LANDS) {
 			if(network_Get().IsClient()) {
-				network_Get().SendAction(new NetAction(NET_ACTION_VIOLATE_AGREEMENT,
-												   ag.m_id));
+				network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_VIOLATE_AGREEMENT,
+												   ag.m_id).release());
 			} else if(network_Get().IsHost()) {
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_VIOLATE_AGREEMENT,
-											  ag.m_id, unitOwner));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_VIOLATE_AGREEMENT,
+											  ag.m_id, unitOwner).release());
 			}
 
 			ag.AccessData()->RecipientIsViolating(unitOwner, TRUE, turn_Get()->GetRound());
@@ -4449,8 +4450,8 @@ SFN_ERROR Slic_BreakNoPiracy::Call(SlicArgList *args)
 		   ag.GetOwner() == victim &&
 		   ag.GetAgreement() == AGREEMENT_TYPE_NO_PIRACY) {
 			if(network_Get().IsClient()) {
-				network_Get().SendAction(new NetAction(NET_ACTION_VIOLATE_AGREEMENT,
-												   ag.m_id));
+				network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_VIOLATE_AGREEMENT,
+												   ag.m_id).release());
 			}
 
 			ag.AccessData()->RecipientIsViolating(pirate, TRUE, turn_Get()->GetRound());
@@ -6741,7 +6742,7 @@ SFN_ERROR Slic_FreeAllSlaves::Call(SlicArgList *args)
 
 	if(network_Get().IsClient())
 	{
-		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_FREE_SLAVES, city.m_id).release());
 	}
 
 	city.FreeSlaves();
@@ -7160,7 +7161,7 @@ SFN_ERROR Slic_KillCity::Call(SlicArgList *args)
 	}
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_FREE_SLAVES, city.m_id).release());
 	}
 	CityData *cd = city.GetData()->GetCityData();
 	sint32 PCount = cd->PopCount();
@@ -7191,7 +7192,7 @@ SFN_ERROR Slic_Pillage::Call(SlicArgList *args)
 	}
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_FREE_SLAVES, city.m_id).release());
 	}
 
 	sint32 pl;
@@ -7270,7 +7271,7 @@ SFN_ERROR Slic_Plunder::Call(SlicArgList *args)
 	}
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_FREE_SLAVES, city.m_id).release());
 	}
 
 	sint32 p = 0;
@@ -7322,7 +7323,7 @@ SFN_ERROR Slic_Liberate::Call(SlicArgList *args)
 	}
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_FREE_SLAVES, city.m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_FREE_SLAVES, city.m_id).release());
 	}
 
 	//if(!args->GetInt(0, cause))

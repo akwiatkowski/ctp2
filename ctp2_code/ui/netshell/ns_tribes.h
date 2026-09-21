@@ -15,6 +15,7 @@ class ns_HPlayerItem;
 #define k_TRIBES_MAX 100
 
 #include "ui/netshell/ns_item.h"
+#include <memory>
 #include "ui/aui_ctp2/c3_dropdown.h"
 #include "ui/aui_common/aui_stringtable.h"
 
@@ -26,10 +27,10 @@ public:
 	virtual ~ns_Tribes();
 
 	sint32 GetNumTribes( ) const { return m_stringtable->GetNumStrings(); }
-	aui_StringTable *GetStrings( ) const { return m_stringtable; }
+	aui_StringTable *GetStrings( ) const { return m_stringtable.get(); }
 
 private:
-	aui_StringTable *m_stringtable;
+	std::unique_ptr<aui_StringTable>	m_stringtable;
 };
 
 

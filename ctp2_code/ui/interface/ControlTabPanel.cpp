@@ -41,7 +41,7 @@ namespace
 std::unique_ptr<MBCHAR[]> AppendBlockName(MBCHAR const * ldlBlock, MBCHAR const * subBlock)
 {
 	size_t const newBlockSize = strlen(ldlBlock) + strlen(subBlock) + 2;
-	std::unique_ptr<MBCHAR[]> newBlock(new MBCHAR[newBlockSize]);
+	auto newBlock = std::make_unique<MBCHAR[]>(newBlockSize);
 	snprintf(newBlock.get(), newBlockSize, "%s.%s", ldlBlock, subBlock);
 	return newBlock;
 }
@@ -51,11 +51,11 @@ std::unique_ptr<MBCHAR[]> AppendBlockName(MBCHAR const * ldlBlock, MBCHAR const 
 ControlTabPanel::ControlTabPanel(MBCHAR const *ldlBlock)
 :
     m_ldlBlock                  (AppendBlockName(ldlBlock, "ControlTabPanel")),
-    m_domesticControlPanel      (new DomesticControlPanel(m_ldlBlock.get())),
-    m_cityControlPanel          (new CityControlPanel(m_ldlBlock.get())),
-    m_unitControlPanel          (new UnitControlPanel(m_ldlBlock.get())),
-    m_messageControlPanel       (new MessageControlPanel(m_ldlBlock.get())),
-    m_tilesControlPanel         (new TilesControlPanel(m_ldlBlock.get()))
+    m_domesticControlPanel      (std::make_unique<DomesticControlPanel>(m_ldlBlock.get())),
+    m_cityControlPanel          (std::make_unique<CityControlPanel>(m_ldlBlock.get())),
+    m_unitControlPanel          (std::make_unique<UnitControlPanel>(m_ldlBlock.get())),
+    m_messageControlPanel       (std::make_unique<MessageControlPanel>(m_ldlBlock.get())),
+    m_tilesControlPanel         (std::make_unique<TilesControlPanel>(m_ldlBlock.get()))
 {
 }
 

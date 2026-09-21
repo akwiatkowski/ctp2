@@ -121,7 +121,7 @@ AUI_ERRCODE TextBox::InitCommon( BOOL fromLDL )
 	m_curItalic = FALSE;
 
 	sint32 i;
-	aui_Static **itemPtr = m_items;
+	auto itemPtr = m_items.data();
 
 
 	TextReloadFont();
@@ -141,12 +141,12 @@ AUI_ERRCODE TextBox::InitCommon( BOOL fromLDL )
 
 	MBCHAR *fontName = font->GetTTFFile();
 
-	itemPtr = m_items;
+	itemPtr = m_items.data();
 	for (i = k_AUI_TEXTBOX_MAXITEMS; i; i--, itemPtr++ )
 	{
 		AUI_ERRCODE		errcode;
 
-		*itemPtr = new c3_Static(
+		*itemPtr = std::make_unique<c3_Static>(
 			&errcode,
 			aui_UniqueId(),
 			10, 0, m_width-20, 14,
@@ -180,21 +180,20 @@ AUI_ERRCODE TextBox::CreateRangers( MBCHAR const *ldlBlock )
 		if ( m_header )
 		{
 			RemoveChild( m_header->Id() );
-			delete m_header;
-			m_header = nullptr;
+			m_header.reset();
 		}
 
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_HEADER );
 
         if (aui_Ldl::GetLdl()->FindDataBlock(block))
-			m_header = new aui_Header(
+			m_header = std::make_unique<aui_Header>(
 				&errcode,
 				aui_UniqueId(),
 				block );
 	}
 
 	if ( !m_header )
-		m_header = new aui_Header(
+		m_header = std::make_unique<aui_Header>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0 );
@@ -202,7 +201,7 @@ AUI_ERRCODE TextBox::CreateRangers( MBCHAR const *ldlBlock )
 	Assert( AUI_NEWOK(m_header,errcode) );
 	if ( !AUI_NEWOK(m_header,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_header );
+	AddChild( m_header.get() );
 
 	ListPos position = m_header->ChildList()->GetHeadPosition();
 	for ( sint32 i = m_header->ChildList()->L(); i; i-- )
@@ -214,7 +213,7 @@ AUI_ERRCODE TextBox::CreateRangers( MBCHAR const *ldlBlock )
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERY );
 
         if (aui_Ldl::GetLdl()->FindDataBlock(block))
-			m_verticalRanger = new c3_Ranger(
+			m_verticalRanger = std::make_unique<c3_Ranger>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -223,7 +222,7 @@ AUI_ERRCODE TextBox::CreateRangers( MBCHAR const *ldlBlock )
 	}
 
 	if ( !m_verticalRanger )
-		m_verticalRanger = new c3_Ranger(
+		m_verticalRanger = std::make_unique<c3_Ranger>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -237,14 +236,14 @@ AUI_ERRCODE TextBox::CreateRangers( MBCHAR const *ldlBlock )
 	if ( !AUI_NEWOK(m_verticalRanger,errcode) )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_verticalRanger );
+	AddChild( m_verticalRanger.get() );
 
 	if ( ldlBlock )
 	{
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERX );
 
         if (aui_Ldl::GetLdl()->FindDataBlock(block))
-			m_horizontalRanger = new c3_Ranger(
+			m_horizontalRanger = std::make_unique<c3_Ranger>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -253,7 +252,7 @@ AUI_ERRCODE TextBox::CreateRangers( MBCHAR const *ldlBlock )
 	}
 
 	if ( !m_horizontalRanger )
-		m_horizontalRanger = new c3_Ranger(
+		m_horizontalRanger = std::make_unique<c3_Ranger>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -267,7 +266,7 @@ AUI_ERRCODE TextBox::CreateRangers( MBCHAR const *ldlBlock )
 	if ( !AUI_NEWOK(m_horizontalRanger,errcode) )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_horizontalRanger );
+	AddChild( m_horizontalRanger.get() );
 
     sint32 maxRangerSize =
         std::max(m_verticalRanger->Width(), m_horizontalRanger->Height());

@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <memory>
 #include "mapgen/Geometric.h"
 #include "mapgen/FaultGen.h"
 #include <cstdlib>
@@ -26,9 +27,9 @@ struct georect {
 #if defined(USE_COM_REPLACEMENT)
 extern "C" IMapGenerator *CoCreateGeometricMapGenerator()
 {
-	IMapGenerator *gen = new Geometric();
+	auto gen = std::make_unique<Geometric>();
 	gen->AddRef();
-	return gen;
+	return gen.release();
 }
 
 Geometric::~Geometric()
@@ -37,9 +38,9 @@ Geometric::~Geometric()
 #else
 STDAPI CoCreateMapGenerator(IUnknown **obj)
 {
-	Geometric *gen = new Geometric();
+	auto gen = std::make_unique<Geometric>();
 	gen->AddRef();
-	*obj = (IUnknown *)gen;
+	*obj = (IUnknown *)gen.release();
 	return S_OK;
 }
 
@@ -390,11 +391,10 @@ void Geometric::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight,
 	FixSeaFloor(outmap, outwidth, outheight);
 
 	if(numSettings >= 13) {
-		FaultGenerator *faults = new FaultGenerator();
-		faults->AddRef();
+		// unique_ptr destroys directly; no AddRef/Release pair needed.
+		auto faults = std::make_unique<FaultGenerator>();
 		faults->Generate(outmap, outwidth, outheight, randgen,
 						 &settings[11], 2);
-		faults->Release();
 	}
 
 #if !defined(USE_COM_REPLACEMENT)

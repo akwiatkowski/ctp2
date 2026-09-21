@@ -18,6 +18,7 @@ typedef sint32 StringId;
 #include "gs/diplomacy/diplomacy_types.h"
 
 #include "ui/aui_ctp2/ctp2_Menu.h"
+#include <memory>
 
 enum DW_CREATE_MODE {
 	DW_CREATE_MODE_NONE,
@@ -49,8 +50,8 @@ class DiplomacyWindow {
 	DW_CREATE_MODE m_create_mode;
 	sint32 m_sendToCiv;
 	DIPLOMATIC_TONE m_sendTone;
-	ctp2_Menu *m_curMenu;
-	ctp2_Menu *m_threatMenu;
+	std::unique_ptr<ctp2_Menu> m_curMenu;
+	std::unique_ptr<ctp2_Menu> m_threatMenu;
 
 
 	static ctp2_Button	*sm_detailsButton;

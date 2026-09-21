@@ -1,4 +1,6 @@
 #include "ctp/c3.h"
+#include <memory>
+
 #include "net/io/net_io.h"
 #include "net/io/net_anet.h"
 #include "net/io/net_util.h"
@@ -45,16 +47,16 @@ ActivNetIO::~ActivNetIO()
 	}
 
 	while (!m_playerList.IsEmpty()) {
-		delete m_playerList.RemoveHead();
+		std::unique_ptr<AnetPlayerData>(m_playerList.RemoveHead());
 	}
 
     int i;
 	for(i = 0; i < m_transports.GetSize(); i++) {
-		delete (dp_transport_t *)m_transports.Get(i);
+		std::unique_ptr<dp_transport_t>((dp_transport_t *)m_transports.Get(i));
 	}
 
 	for(i = 0; i < m_sessions.GetSize(); i++) {
-		delete (dp_session_t *)m_sessions.Get(i);
+		std::unique_ptr<dp_session_t>((dp_session_t *)m_sessions.Get(i));
 	}
 }
 
@@ -75,7 +77,7 @@ void ActivNetIO::PlayerCallback(dpid_t id,
 		if(flags & dp_EPC_FLAGS_LOCAL) {
 			m_pid = id;
 		}
-		m_playerList.AddTail(new AnetPlayerData(id, name));
+		m_playerList.AddTail(std::make_unique<AnetPlayerData>(id, name).release());
 		m_response->AddPlayer(id, name);
 	} else {
 		m_got_end_players = TRUE;
@@ -141,7 +143,7 @@ void
 ActivNetIO::TransportCallback(const dp_transport_t *fname,
 							   const comm_driverInfo_t *description)
 {
-	dp_transport_t* add = new dp_transport_t;
+	dp_transport_t* add = std::make_unique<dp_transport_t>().release();
 	*add = *fname;
 
 	sint32 id = m_transports.Add(add);
@@ -291,7 +293,7 @@ ActivNetIO::SessionCallback(dp_session_t *sDesc,
 {
 	if(sDesc) {
 
-		dp_session_t *add = new dp_session_t;
+		dp_session_t *add = std::make_unique<dp_session_t>().release();
 		*add = *sDesc;
 		sint32 idx = m_sessions.Add(add);
 
@@ -537,8 +539,8 @@ ActivNetIO::Idle()
 						if(res != dp_RES_OK)
 							return NET_ERR_WRITEERR;
 					}
-					AnetPlayerData* playerData = new AnetPlayerData(addPlayer->id,
-															addPlayer->name);
+					AnetPlayerData* playerData = std::make_unique<AnetPlayerData>(addPlayer->id,
+															addPlayer->name).release();
 					m_playerList.AddTail(playerData);
 
 					m_response->AddPlayer(addPlayer->id,
@@ -556,8 +558,7 @@ ActivNetIO::Idle()
 
 						AnetPlayerData* playerData = walk.GetObj();
 						if(delPlayer->id == playerData->m_id) {
-							walk.Remove();
-							delete playerData;
+							std::unique_ptr<AnetPlayerData>(walk.Remove());
 						} else {
 							walk.Next();
 						}
@@ -578,8 +579,7 @@ ActivNetIO::Idle()
 
 							AnetPlayerData* playerData = walk.GetObj();
 							if(delId == playerData->m_id) {
-								walk.Remove();
-								delete playerData;
+								std::unique_ptr<AnetPlayerData>(walk.Remove());
 							} else {
 								walk.Next();
 							}
@@ -593,8 +593,8 @@ ActivNetIO::Idle()
 										addId,
 										name,
 										512);
-						AnetPlayerData* playerData = new AnetPlayerData(idFrom,
-																		name);
+						AnetPlayerData* playerData = std::make_unique<AnetPlayerData>(idFrom,
+																		name).release();
 						m_playerList.AddTail(playerData);
 						m_response->AddPlayer(addId, name);
 					}

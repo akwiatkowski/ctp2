@@ -51,6 +51,8 @@
 #include "gs/database/profileDB.h"
 #include "robot/aibackdoor/pool.h"
 
+#include <memory>
+
 namespace
 {
 	sint32 const                NOT_IN_USE    = -1;
@@ -58,7 +60,7 @@ namespace
 	SLIC_OBJECT const           TYPE_DEFAULT        = SLIC_OBJECT_MESSAGEBOX;
 
 	size_t const                SEGMENT_POOL_SIZE   = 100;
-	Pool<SlicSegment> *         s_segmentPond       = nullptr;
+	std::unique_ptr<Pool<SlicSegment>> s_segmentPond;
 }
 
 //----------------------------------------------------------------------------
@@ -94,9 +96,9 @@ SlicSegment::SlicSegment()
     m_code                      (),
     m_uiComponent               (),
     m_filename                  (),
-    m_trigger_symbols           (nullptr),
+    m_trigger_symbols           (),
 
-    m_parameter_symbols         (nullptr),
+    m_parameter_symbols         (),
     m_poolIndex                 (NOT_IN_USE)
 {
 	std::fill(m_lastShown, m_lastShown + k_MAX_PLAYERS, 0);
@@ -138,9 +140,9 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
     m_code                      (),
     m_uiComponent               (),
     m_filename                  (),
-    m_trigger_symbols           (nullptr),
+    m_trigger_symbols           (),
 
-    m_parameter_symbols         (nullptr),
+    m_parameter_symbols         (),
     m_poolIndex                 (slicifIndex)
 {
 	std::fill(m_lastShown, m_lastShown + k_MAX_PLAYERS, 0);
@@ -260,14 +262,11 @@ SlicSegment::~SlicSegment()
 	std::string().swap(m_uiComponent);
 	std::string().swap(m_filename);
 
-	delete [] m_trigger_symbols;
-	delete [] m_parameter_symbols;
-
-	// Has to be set to NULL, because SlicSegments are deleted twice,
+	// Has to be emptied, because SlicSegments are deleted twice,
 	// first from the StringHashNode and then from the pool. Actuially,
 	// not a very nice design, but with this extra stuff it should be harmless.
-	m_trigger_symbols         = nullptr;
-	m_parameter_symbols       = nullptr;
+	std::vector<SlicSymbolData *>().swap(m_trigger_symbols);
+	std::vector<SlicSymbolData *>().swap(m_parameter_symbols);
 
 	// Same double-destruct concern for the vector members: free the heap
 	// buffer AND reset to a default-constructed empty vector so the implicit
@@ -298,7 +297,7 @@ void * SlicSegment::operator new(size_t)
 {
 	if (!s_segmentPond)
 	{
-		s_segmentPond = new Pool<SlicSegment>(SEGMENT_POOL_SIZE);
+		s_segmentPond = std::make_unique<Pool<SlicSegment>>(SEGMENT_POOL_SIZE);
 	}
 
 	int index;
@@ -386,8 +385,8 @@ void SlicSegment::LinkParameterSymbols()
 	if(m_type != SLIC_OBJECT_FUNCTION)
 		return;
 
-	delete [] m_parameter_symbols;
-	m_parameter_symbols = (m_num_parameters > 0) ? new SlicSymbolData *[m_num_parameters] : nullptr;
+	m_parameter_symbols.clear();
+	m_parameter_symbols.resize(m_num_parameters > 0 ? m_num_parameters : 0);
 	for(sint32 i = 0; i < m_num_parameters; i++) {
 		m_parameter_symbols[i] = slicengine_Get()->GetSymbol(m_parameter_indices[i]);
 		Assert(m_parameter_symbols[i]);
@@ -397,15 +396,15 @@ void SlicSegment::LinkParameterSymbols()
 void SlicSegmentHash::LinkTriggerSymbols(StringHash<SlicUITrigger> *uiHash)
 {
 	for(sint32 i = 0; i < m_table_size; i++) {
-		StringHashNode<SlicSegment> *node = m_table[i];
+		StringHashNode<SlicSegment> *node = m_table[i].get();
 		while(node) {
 			node->m_obj->LinkTriggerSymbols();
 			node->m_obj->LinkParameterSymbols();
 			if(node->m_obj->GetUIComponent()) {
-				SlicUITrigger *trig = new SlicUITrigger((char *)node->m_obj->GetUIComponent(), node->m_obj);
+				SlicUITrigger *trig = std::make_unique<SlicUITrigger>((char *)node->m_obj->GetUIComponent(), node->m_obj.get()).release();
 				uiHash->Add(trig->GetName(), trig);
 			}
-			node = node->m_next;
+			node = node->m_next.get();
 		}
 	}
 }
@@ -432,12 +431,13 @@ SFN_ERROR SlicSegment::Call(SlicArgList *args, SlicObject *&obj)
 	if(m_type != SLIC_OBJECT_FUNCTION)
 		return SFN_ERROR_NOT_A_FUNCTION;
 
-	obj = new SlicObject(this);
+	auto tmp = std::make_unique<SlicObject>(this);
+	obj = tmp.get();
 	obj->SetArgList(args);
 	obj->AddRef();
 	obj->CopyFromBuiltins();
 
-	slicengine_Get()->Execute(obj);
+	slicengine_Get()->Execute(std::move(tmp));
 
 	return SFN_ERROR_OK;
 }
@@ -459,15 +459,16 @@ GAME_EVENT_HOOK_DISPOSITION SlicSegment::GEVHookCallback(GAME_EVENT type, GameEv
 {
 	if (IsEnabled())
 	{
-		SlicObject *so = new SlicObject(this);
-		so->AddRef();
-		so->Snarf(args);
-		so->SetResult((sint32)GEV_HD_Continue);
-		slicengine_Get()->Execute(so);
+		auto so = std::make_unique<SlicObject>(this);
+		SlicObject *raw = so.get();
+		raw->AddRef();
+		raw->Snarf(args);
+		raw->SetResult((sint32)GEV_HD_Continue);
+		slicengine_Get()->Execute(std::move(so));
 
 		// Result is a SLIC_CONSTANTS value, not a GAME_EVENT_HOOK_DISPOSITION
-		SLIC_CONSTANTS disp = (SLIC_CONSTANTS) so->GetResult();
-		so->Release();
+		SLIC_CONSTANTS disp = (SLIC_CONSTANTS) raw->GetResult();
+		raw->Release();
 
 		Assert(disp >= SLIC_CONST_CONTINUE && disp < SLIC_CONST_MAX);
 		if (slicengine_Get()->AtBreak())
@@ -754,7 +755,7 @@ SlicConditional *SlicSegment::NewConditional(sint32 line, const char *expression
 		codePtr++;
 		codePtr += sizeof(int);
 		codePtr += sizeof(int);
-		*((SlicConditional **)codePtr) = new SlicConditional(expression);
+		*((SlicConditional **)codePtr) = std::make_unique<SlicConditional>(expression).release();
 		return *((SlicConditional **)codePtr);
 	}
 	return nullptr;
@@ -762,6 +763,5 @@ SlicConditional *SlicSegment::NewConditional(sint32 line, const char *expression
 
 void SlicSegment::Cleanup()
 {
-	delete s_segmentPond;
-	s_segmentPond = nullptr;
+	s_segmentPond.reset();
 }

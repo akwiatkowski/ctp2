@@ -126,7 +126,7 @@ NetHappy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
     bool const  isCheck = !m_isInitialPacket && (cd->GetOwner() == network_Get().GetPlayerIndex());
 	bool        resync  = false;
 
-	m_data = cd->m_happy;
+	m_data = cd->m_happy.get();
 #define PDCHK(x) {double tmp = x; PULLDOUBLE(x); if (isCheck) { Assert((tmp >= (x - 0.00000001)) && (tmp <= (x + 0.000000001))); if((tmp < (x - 0.000000001)) || (tmp > (x + 0.000000001))) resync = true; }}
 
 	PDCHK(m_data->m_happiness);

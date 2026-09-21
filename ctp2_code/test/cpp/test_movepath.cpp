@@ -11,8 +11,10 @@
 #include "gs/gameobj/MovePath.h"
 #include "gs/world/MapPoint.h"
 
+#include <memory>
+
 class UnitAstar;
-extern UnitAstar *g_theUnitAstar;
+extern std::unique_ptr<UnitAstar> g_theUnitAstar;
 
 TEST_CASE("army_AddMovePath returns false when pathfinder is unavailable") {
 	// g_theUnitAstar is null in the fast-test binary (no robot init), so any

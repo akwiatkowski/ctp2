@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_item.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -27,7 +28,7 @@ c3_ListItem::~c3_ListItem()
 	ListPos position = m_childList->GetHeadPosition();
 
 	for ( sint32 i = m_childList->L(); i; i-- )
-		delete m_childList->GetNext( position );
+		std::unique_ptr<aui_Region>{m_childList->GetNext( position )};
 }
 
 sint32 c3_ListItem::Compare(c3_ListItem *item2, uint32 column)
@@ -57,7 +58,7 @@ AUI_ERRCODE SingleListItem::InitCommonLdl(MBCHAR const *name, sint32 value, MBCH
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
     AUI_ERRCODE     retval = AUI_ERRCODE_OK;
-	AddChild(new c3_Static(&retval, aui_UniqueId(), block));
+	AddChild(std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release());
 
 	Update();
 

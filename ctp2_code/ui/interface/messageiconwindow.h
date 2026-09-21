@@ -50,8 +50,8 @@ public:
 
 	~MessageIconWindow( ) override;
 
-	MessageWindow	*GetWindow()	{ return m_messageWindow; }
-	void SetWindow( MessageWindow *window ) { m_messageWindow = window; }
+	MessageWindow	*GetWindow()	{ return m_messageWindow.get(); }
+	void SetWindow( MessageWindow *window ) { m_messageWindow.reset(window); }
 
 	MessageIconButton		*GetIconButton( ) { return m_icon.get(); }
 
@@ -95,7 +95,7 @@ protected:
 	// child list) and the action is only stored by the button.
 	std::unique_ptr<MessageOpenAction>		m_messageOpenAction;
 	std::unique_ptr<MessageIconButton>		m_icon;
-	MessageWindow			*m_messageWindow;
+	std::unique_ptr<MessageWindow>	m_messageWindow;
 	static MessageIconWindow	*m_currentIconWindow;
 	MessageList				*m_messageList;
 

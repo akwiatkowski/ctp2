@@ -42,15 +42,16 @@
 #include <algorithm>
 #include <cstdlib>
 #include <vector>
+#include <memory>
 #include "gs/outcom/IC3Rand.h"
 #include "mapgen/PlasmaGen2.h"
 
 #if defined(USE_COM_REPLACEMENT)
 extern "C" IMapGenerator *CoCreatePlasma2MapGenerator()
 {
-	IMapGenerator *gen = new PlasmaGenerator2();
+	auto gen = std::make_unique<PlasmaGenerator2>();
 	gen->AddRef();
-	return gen;
+	return gen.release();
 }
 
 PlasmaGenerator2::~PlasmaGenerator2()
@@ -59,9 +60,9 @@ PlasmaGenerator2::~PlasmaGenerator2()
 #else
 STDAPI CoCreateMapGenerator(IUnknown **obj)
 {
-	PlasmaGenerator2 *gen = new PlasmaGenerator2();
+	auto gen = std::make_unique<PlasmaGenerator2>();
 	gen->AddRef();
-	*obj = (IUnknown *)gen;
+	*obj = (IUnknown *)gen.release();
 	return S_OK;
 }
 

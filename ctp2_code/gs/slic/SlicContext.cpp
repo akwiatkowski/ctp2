@@ -160,52 +160,15 @@ namespace
 
 SlicContext::SlicContext()
 {
-	m_cityList = nullptr;
-	m_unitList = nullptr;
-	m_playerList = nullptr;
-	m_intList = nullptr;
-	m_unitRecordList = nullptr;
-	m_advanceList = nullptr;
-	m_agreementList = nullptr;
-	m_locationList = nullptr;
-	m_calamityList = nullptr;
-	m_numCalamities = 0;
-	m_goldList = nullptr;
-	m_numGolds = 0;
-	m_goodList = nullptr;
-	m_rankList = nullptr;
-	m_numRanks = 0;
-	m_wonderList = nullptr;
-	m_numWonders = 0;
-	m_tradeOffersList = nullptr;
-
-	m_governmentList = nullptr;
-	m_numOrders = 0;
-	m_orderList = nullptr;
-    m_numMadlibs = 0;
-    m_madlibNameList = nullptr;
-    m_madlibChoiceList = nullptr;
-	m_numAttitudes = 0;
-	m_attitudeList = nullptr;
-	m_numAges = 0;
-	m_ageList = nullptr;
-	m_buildingList = nullptr;
-	m_numBuildings = 0;
-	m_tradeBidList = nullptr;
-	m_numTradeBids = 0;
-	m_armyList = nullptr;
-
 	m_eventArgs = nullptr;
 }
 
 #define COPY_SIMPLE_ARRAY(name, type) \
     if(copy->name) {\
-        name = new SimpleDynamicArray<type>;\
+        name = std::make_unique<SimpleDynamicArray<type>>();\
         for(i = 0; i < copy->name->Num(); i++) {\
 			name->Insert(copy->name->Access(i));\
 		}\
-	} else {\
-		name = NULL;\
 	}
 
 SlicContext::SlicContext(SlicContext *copy)
@@ -224,68 +187,31 @@ SlicContext::SlicContext(SlicContext *copy)
 	COPY_SIMPLE_ARRAY(m_governmentList, sint32);
 	COPY_SIMPLE_ARRAY(m_advanceList, sint32);
 
-	CopyArray(m_calamityList, copy->m_calamityList,
-			  m_numCalamities, copy->m_numCalamities);
-	CopyArray(m_goldList, copy->m_goldList,
-			  m_numGolds, copy->m_numGolds);
-	CopyArray(m_rankList, copy->m_rankList,
-			  m_numRanks, copy->m_numRanks);
-	CopyArray(m_wonderList, copy->m_wonderList,
-			  m_numWonders, copy->m_numWonders);
-	CopyArray(m_orderList, copy->m_orderList,
-			  m_numOrders, copy->m_numOrders);
+	m_calamityList = copy->m_calamityList;
+	m_goldList = copy->m_goldList;
+	m_rankList = copy->m_rankList;
+	m_wonderList = copy->m_wonderList;
+	m_orderList = copy->m_orderList;
 
-	CopyArray(m_madlibChoiceList, copy->m_madlibChoiceList,
-			  m_numMadlibs, copy->m_numMadlibs);
-	CopyArray(m_madlibNameList, copy->m_madlibNameList,
-			  m_numMadlibs, copy->m_numMadlibs);
-	CopyArray(m_attitudeList, copy->m_attitudeList,
-			  m_numAttitudes, copy->m_numAttitudes);
-	CopyArray(m_ageList, copy->m_ageList,
-			  m_numAges, copy->m_numAges);
-	CopyArray(m_buildingList, copy->m_buildingList,
-			  m_numBuildings, copy->m_numBuildings);
-	CopyArray((sint32*&)m_tradeBidList, (sint32*&)copy->m_tradeBidList,
-			  m_numTradeBids, copy->m_numTradeBids);
+	m_madlibChoiceList = copy->m_madlibChoiceList;
+	m_madlibNameList = copy->m_madlibNameList;
+	m_attitudeList = copy->m_attitudeList;
+	m_ageList = copy->m_ageList;
+	m_buildingList = copy->m_buildingList;
+	m_tradeBidList = copy->m_tradeBidList;
 
 	m_actionList = copy->m_actionList;
 
 	m_eventArgs = copy->m_eventArgs;
 }
 
-SlicContext::~SlicContext()
-{
-	// m_eventArgs not deleted: reference only
-	delete m_cityList;
-	delete m_unitList;
-	delete m_armyList;
-	delete m_playerList;
-	delete m_advanceList;
-	delete m_locationList;
-	delete m_agreementList;
-	delete m_intList;
-	delete m_unitRecordList;
-	delete m_goodList;
-	delete m_governmentList;
-    delete m_tradeOffersList;
+SlicContext::~SlicContext() = default;
 
-	delete [] m_calamityList;
-	delete [] m_goldList;
-    delete [] m_rankList;
-    delete [] m_wonderList;
-	delete [] m_orderList;
-    delete [] m_madlibNameList;
-    delete [] m_madlibChoiceList;
-	delete [] m_attitudeList;
-    delete [] m_ageList;
-    delete [] m_buildingList;
-	delete [] m_tradeBidList;
-}
 
 void SlicContext::AddCity(const Unit &c)
 {
 	if(!m_cityList)
-		m_cityList = new SimpleDynamicArray<Unit>;
+		m_cityList = std::make_unique<SimpleDynamicArray<Unit>>();
 
 	m_cityList->Insert(c);
 }
@@ -293,35 +219,35 @@ void SlicContext::AddCity(const Unit &c)
 void SlicContext::AddUnit(const Unit &u)
 {
 	if(!m_unitList)
-		m_unitList = new SimpleDynamicArray<Unit>;
+		m_unitList = std::make_unique<SimpleDynamicArray<Unit>>();
 	m_unitList->Insert(u);
 }
 
 void SlicContext::AddArmy(const Army &a)
 {
 	if(!m_armyList)
-		m_armyList = new SimpleDynamicArray<Army>;
+		m_armyList = std::make_unique<SimpleDynamicArray<Army>>();
 	m_armyList->Insert(a);
 }
 
 void SlicContext::AddPlayer(const PLAYER_INDEX player)
 {
 	if(!m_playerList)
-		m_playerList = new SimpleDynamicArray<sint32>;
+		m_playerList = std::make_unique<SimpleDynamicArray<sint32>>();
 	m_playerList->Insert(player);
 }
 
 void SlicContext::AddInt(sint32 val)
 {
 	if(!m_intList)
-		m_intList = new SimpleDynamicArray<sint32>;
+		m_intList = std::make_unique<SimpleDynamicArray<sint32>>();
 	m_intList->Insert(val);
 }
 
 void SlicContext::AddUnitRecord(sint32 rec)
 {
 	if(!m_unitRecordList)
-		m_unitRecordList = new SimpleDynamicArray<sint32>;
+		m_unitRecordList = std::make_unique<SimpleDynamicArray<sint32>>();
 	m_unitRecordList->Insert(rec);
 }
 
@@ -333,7 +259,7 @@ void SlicContext::AddCivilisation(const PLAYER_INDEX player)
 void SlicContext::AddPlayer(const Civilisation &civ)
 {
 	if(!m_playerList)
-		m_playerList = new SimpleDynamicArray<sint32>;
+		m_playerList = std::make_unique<SimpleDynamicArray<sint32>>();
 	m_playerList->Insert(civ.GetOwner());
 }
 
@@ -345,7 +271,7 @@ void SlicContext::AddCivilisation(const Civilisation &civ)
 void SlicContext::AddAdvance(const AdvanceType advance)
 {
 	if(!m_advanceList)
-		m_advanceList = new SimpleDynamicArray<sint32>;
+		m_advanceList = std::make_unique<SimpleDynamicArray<sint32>>();
 
 	m_advanceList->Insert(advance);
 }
@@ -353,39 +279,35 @@ void SlicContext::AddAdvance(const AdvanceType advance)
 void SlicContext::AddLocation(const MapPoint &point)
 {
 	if(!m_locationList)
-		m_locationList = new SimpleDynamicArray<MapPoint>;
+		m_locationList = std::make_unique<SimpleDynamicArray<MapPoint>>();
 	m_locationList->Insert(point);
 }
 
 void SlicContext::AddCalamity(const sint32 calamity)
 {
-	m_calamityList = Expand(m_calamityList, m_numCalamities);
-	m_calamityList[m_numCalamities++] = calamity;
+	m_calamityList.push_back(calamity);
 }
 
 void SlicContext::AddGold(const sint32 goldAmount)
 {
-	m_goldList = Expand(m_goldList, m_numGolds);
-	m_goldList[m_numGolds++] = goldAmount;
+	m_goldList.push_back(goldAmount);
 }
 
 void SlicContext::AddGood(const sint32 goodIndex)
 {
 	if(!m_goodList)
-		m_goodList = new SimpleDynamicArray<sint32>;
+		m_goodList = std::make_unique<SimpleDynamicArray<sint32>>();
 	m_goodList->Insert(goodIndex);
 }
 
 void SlicContext::AddRank(const sint32 rank)
 {
-	m_rankList = Expand(m_rankList, m_numRanks);
-	m_rankList[m_numRanks++] = rank;
+	m_rankList.push_back(rank);
 }
 
 void SlicContext::AddWonder(const sint32 wonderIndex)
 {
-	m_wonderList = Expand(m_wonderList, m_numWonders);
-	m_wonderList[m_numWonders++] = wonderIndex;
+	m_wonderList.push_back(wonderIndex);
 }
 
 void SlicContext::AddAction(const MBCHAR *action)
@@ -401,30 +323,6 @@ void SlicContext::SetAction(sint32 index, const MBCHAR *action)
 	m_actionList[index] = action ? action : "";
 }
 
-sint32 *SlicContext::Expand(sint32 *list, sint32 size)
-{
-	sint32 *newList = new sint32[size + 1];
-	if(list) {
-
-		memcpy(newList, list, size * sizeof(sint32));
-		delete [] list;
-	}
-
-	return newList;
-}
-
-void SlicContext::CopyArray(sint32 *&to, sint32 *from,
-							sint32 &tosize, sint32 size)
-{
-	if(!from || size == 0) {
-		to = nullptr;
-		tosize = 0;
-		return;
-	}
-	to = new sint32[size];
-	memcpy(to, from, size * sizeof(sint32));
-	tosize = size;
-}
 
 Unit SlicContext::GetCity(sint32 index) const
 {
@@ -496,7 +394,7 @@ sint32 SlicContext::GetUnitRecord(sint32 index) const
 void SlicContext::SetPlayer(sint32 index, sint32 &player)
 {
 	if(!m_playerList)
-		m_playerList = new SimpleDynamicArray<sint32>;
+		m_playerList = std::make_unique<SimpleDynamicArray<sint32>>();
 
 	if(index < 0)
 		return;
@@ -513,7 +411,7 @@ void SlicContext::SetPlayer(sint32 index, sint32 &player)
 void SlicContext::SetInt(sint32 index, sint32 &val)
 {
 	if(!m_intList)
-		m_intList = new SimpleDynamicArray<sint32>;
+		m_intList = std::make_unique<SimpleDynamicArray<sint32>>();
 
 	if(index < 0)
 		return;
@@ -530,7 +428,7 @@ void SlicContext::SetInt(sint32 index, sint32 &val)
 void SlicContext::SetUnitRecord(sint32 index, sint32 rec)
 {
 	if(!m_unitRecordList)
-		m_unitRecordList = new SimpleDynamicArray<sint32>;
+		m_unitRecordList = std::make_unique<SimpleDynamicArray<sint32>>();
 
 	if(index < 0)
 		return;
@@ -547,7 +445,7 @@ void SlicContext::SetUnitRecord(sint32 index, sint32 rec)
 void SlicContext::SetUnit(sint32 index, Unit &u)
 {
 	if(!m_unitList)
-		m_unitList = new SimpleDynamicArray<Unit>;
+		m_unitList = std::make_unique<SimpleDynamicArray<Unit>>();
 
 	if(index < 0)
 		return;
@@ -563,7 +461,7 @@ void SlicContext::SetUnit(sint32 index, Unit &u)
 void SlicContext::SetArmy(sint32 index, Army &a)
 {
 	if(!m_armyList)
-		m_armyList = new SimpleDynamicArray<Army>;
+		m_armyList = std::make_unique<SimpleDynamicArray<Army>>();
 	if(index < 0)
 		return ;
 	if(index >= m_armyList->Num()) {
@@ -578,7 +476,7 @@ void SlicContext::SetArmy(sint32 index, Army &a)
 void SlicContext::SetCity(sint32 index, Unit &city)
 {
 	if(!m_cityList)
-		m_cityList = new SimpleDynamicArray<Unit>;
+		m_cityList = std::make_unique<SimpleDynamicArray<Unit>>();
 
 	if(index < 0)
 		return;
@@ -595,7 +493,7 @@ void SlicContext::SetCity(sint32 index, Unit &city)
 void SlicContext::SetLocation(sint32 index, MapPoint &point)
 {
 	if(!m_locationList)
-		m_locationList = new SimpleDynamicArray<MapPoint>;
+		m_locationList = std::make_unique<SimpleDynamicArray<MapPoint>>();
 
 	if(index < 0)
 		return;
@@ -662,28 +560,28 @@ sint32 SlicContext::GetNumLocations() const
 
 sint32 SlicContext::GetCalamity(sint32 index) const
 {
-	if(!m_calamityList)
+	if(m_calamityList.empty())
 		return 0;
-	Assert(index >= 0 && index < m_numCalamities);
+	Assert(index >= 0 && index < static_cast<sint32>(m_calamityList.size()));
 	return m_calamityList[index];
 }
 
 sint32 SlicContext::GetNumCalamities() const
 {
-	return m_numCalamities;
+	return static_cast<sint32>(m_calamityList.size());
 }
 
 sint32 SlicContext::GetGold(sint32 index) const
 {
-	if(!m_goldList)
+	if(m_goldList.empty())
 		return 0;
-	Assert(index >= 0 && index < m_numGolds);
+	Assert(index >= 0 && index < static_cast<sint32>(m_goldList.size()));
 	return m_goldList[index];
 }
 
 sint32 SlicContext::GetNumGolds() const
 {
-	return m_numGolds;
+	return static_cast<sint32>(m_goldList.size());
 }
 
 sint32 SlicContext::GetGood(sint32 index) const
@@ -697,7 +595,7 @@ sint32 SlicContext::GetGood(sint32 index) const
 void SlicContext::SetGood(sint32 index, sint32 &good)
 {
 	if(!m_goodList)
-		m_goodList = new SimpleDynamicArray<sint32>;
+		m_goodList = std::make_unique<SimpleDynamicArray<sint32>>();
 
 	if(index < 0)
 		return;
@@ -714,7 +612,7 @@ void SlicContext::SetGood(sint32 index, sint32 &good)
 void SlicContext::SetAdvance(sint32 index, sint32 &adv)
 {
 	if(!m_advanceList)
-		m_advanceList = new SimpleDynamicArray<sint32>;
+		m_advanceList = std::make_unique<SimpleDynamicArray<sint32>>();
 
 	if(index < 0)
 		return;
@@ -731,7 +629,7 @@ void SlicContext::SetAdvance(sint32 index, sint32 &adv)
 void SlicContext::SetGovernment(sint32 index, sint32 &gov)
 {
 	if(!m_governmentList)
-		m_governmentList = new SimpleDynamicArray<sint32>;
+		m_governmentList = std::make_unique<SimpleDynamicArray<sint32>>();
 
 	if(index < 0)
 		return;
@@ -764,15 +662,15 @@ bool SlicContext::HaveGoodOfType(sint32 good) const
 
 sint32 SlicContext::GetRank(sint32 index) const
 {
-	if(!m_rankList)
+	if(m_rankList.empty())
 		return 0;
-	Assert(index >= 0 && index < m_numRanks);
+	Assert(index >= 0 && index < static_cast<sint32>(m_rankList.size()));
 	return m_rankList[index];
 }
 
 sint32 SlicContext::GetNumRanks() const
 {
-	return m_numRanks;
+	return static_cast<sint32>(m_rankList.size());
 }
 
 sint32 SlicContext::GetWonder(sint32 index) const
@@ -783,15 +681,15 @@ sint32 SlicContext::GetWonder(sint32 index) const
 			return w;
 	}
 
-	if(!m_wonderList)
+	if(m_wonderList.empty())
 		return 0;
-	Assert(index >= 0 && index < m_numWonders);
+	Assert(index >= 0 && index < static_cast<sint32>(m_wonderList.size()));
 	return m_wonderList[index];
 }
 
 sint32 SlicContext::GetNumWonders() const
 {
-	return m_numWonders;
+	return static_cast<sint32>(m_wonderList.size());
 }
 
 MBCHAR *SlicContext::GetAction(sint32 index) const
@@ -822,7 +720,7 @@ bool SlicContext::ConcernsPlayer(PLAYER_INDEX player) const
 void SlicContext::AddAgreement(const ai::Agreement &agreement)
 {
 	if(!m_agreementList) {
-		m_agreementList = new SimpleDynamicArray<ai::Agreement>;
+		m_agreementList = std::make_unique<SimpleDynamicArray<ai::Agreement>>();
 	}
 
 	m_agreementList->Insert(agreement);
@@ -846,7 +744,7 @@ sint32 SlicContext::GetNumAgreements() const
 void SlicContext::AddTradeOffer(const TradeOffer &offer)
 {
 	if(!m_tradeOffersList)
-		m_tradeOffersList = new SimpleDynamicArray<TradeOffer>;
+		m_tradeOffersList = std::make_unique<SimpleDynamicArray<TradeOffer>>();
 
 	m_tradeOffersList->Insert(offer);
 }
@@ -868,7 +766,7 @@ TradeOffer SlicContext::GetTradeOffer(sint32 index) const
 void SlicContext::AddGovernment(const sint32 gov)
 {
 	if(!m_governmentList)
-		m_governmentList = new SimpleDynamicArray<sint32>;
+		m_governmentList = std::make_unique<SimpleDynamicArray<sint32>>();
 	m_governmentList->Insert(gov);
 }
 
@@ -887,8 +785,7 @@ sint32 SlicContext::GetGovernment(const sint32 index) const
 
 void SlicContext::AddOrder(UNIT_ORDER_TYPE order)
 {
-	m_orderList = Expand(m_orderList, m_numOrders);
-	m_orderList[m_numOrders++] = (sint32)order;
+	m_orderList.push_back((sint32)order);
 }
 
 void SlicContext::SetOrder(sint32 index, UNIT_ORDER_TYPE order)
@@ -896,57 +793,54 @@ void SlicContext::SetOrder(sint32 index, UNIT_ORDER_TYPE order)
 	if(index < 0)
 		return;
 
-	if(index >= m_numOrders) {
-		m_orderList = Expand(m_orderList, index);
-		m_numOrders = index + 1;
+	if(index >= static_cast<sint32>(m_orderList.size())) {
+		m_orderList.resize(index + 1);
 	}
 	m_orderList[index] = order;
 }
 
 sint32 SlicContext::GetNumOrders() const
 {
-	return m_numOrders;
+	return static_cast<sint32>(m_orderList.size());
 }
 
 UNIT_ORDER_TYPE SlicContext::GetOrder(const sint32 index) const
 {
-	if(!m_orderList || index < 0 || index >= m_numOrders)
+	if(index < 0 || index >= static_cast<sint32>(m_orderList.size()))
 		return UNIT_ORDER_NONE;
 	return (UNIT_ORDER_TYPE)m_orderList[index];
 }
 
 void SlicContext::AddBuilding(sint32 building)
 {
-	m_buildingList = Expand(m_buildingList, m_numBuildings);
-	m_buildingList[m_numBuildings++] = building;
+	m_buildingList.push_back(building);
 }
 
 sint32 SlicContext::GetNumBuildings() const
 {
-	return m_numBuildings;
+	return static_cast<sint32>(m_buildingList.size());
 }
 
 sint32 SlicContext::GetBuilding(sint32 index) const
 {
-	if(!m_buildingList || index < 0 || index >= m_numBuildings)
+	if(index < 0 || index >= static_cast<sint32>(m_buildingList.size()))
 		return -1;
 	return m_buildingList[index];
 }
 
 void SlicContext::AddTradeBid(uint32 bid)
 {
-	m_tradeBidList = (uint32*)Expand((sint32*)m_tradeBidList, m_numTradeBids);
-	m_tradeBidList[m_numTradeBids++] = bid;
+	m_tradeBidList.push_back(bid);
 }
 
 sint32 SlicContext::GetNumTradeBids() const
 {
-	return m_numTradeBids;
+	return static_cast<sint32>(m_tradeBidList.size());
 }
 
 uint32 SlicContext::GetTradeBid(sint32 index) const
 {
-	if(!m_tradeBidList || index < 0 || index >= m_numTradeBids)
+	if(index < 0 || index >= static_cast<sint32>(m_tradeBidList.size()))
 		return 0;
 	return m_tradeBidList[index];
 }
@@ -954,29 +848,26 @@ uint32 SlicContext::GetTradeBid(sint32 index) const
 void SlicContext::AddMadlib(char *name, const sint32 choice)
 {
 
-	m_madlibChoiceList = Expand(m_madlibChoiceList, m_numMadlibs);
-	m_madlibChoiceList[m_numMadlibs] = choice;
-
-	m_madlibNameList = Expand(m_madlibNameList, m_numMadlibs);
-	m_madlibNameList[m_numMadlibs++] = Hash(name);
+	m_madlibChoiceList.push_back(choice);
+	m_madlibNameList.push_back(Hash(name));
 }
 
 sint32 SlicContext::GetNumMadlibs() const
 {
-	return m_numMadlibs;
+	return static_cast<sint32>(m_madlibNameList.size());
 }
 
 sint32 SlicContext::GetMadlib(char *name)
 {
     int i;
 
-	if(!m_madlibNameList || !m_madlibChoiceList ||
-       !name || (m_numMadlibs <= 0))
+	if(m_madlibNameList.empty() || m_madlibChoiceList.empty() ||
+       !name)
 		return -1;
 
     sint32 nameHash = Hash(name);
 
-    for(i=0; i<m_numMadlibs; i++) {
+    for(i=0; i<static_cast<sint32>(m_madlibNameList.size()); i++) {
         if (m_madlibNameList[i] == nameHash) {
             return m_madlibChoiceList[i];
         }
@@ -987,18 +878,17 @@ sint32 SlicContext::GetMadlib(char *name)
 
 void SlicContext::AddAttitude(const sint32 tude)
 {
-	m_attitudeList = Expand(m_attitudeList, m_numAttitudes);
-	m_attitudeList[m_numAttitudes++] = tude;
+	m_attitudeList.push_back(tude);
 }
 
 sint32 SlicContext::GetNumAttitudes() const
 {
-	return m_numAttitudes;
+	return static_cast<sint32>(m_attitudeList.size());
 }
 
 sint32 SlicContext::GetAttitude(const sint32 index) const
 {
-	if(!m_attitudeList || index < 0 || index >= m_numAttitudes)
+	if(index < 0 || index >= static_cast<sint32>(m_attitudeList.size()))
 		return -1;
 
 	return m_attitudeList[index];
@@ -1006,18 +896,17 @@ sint32 SlicContext::GetAttitude(const sint32 index) const
 
 void SlicContext::AddAge(const sint32 tude)
 {
-	m_ageList = Expand(m_ageList, m_numAges);
-	m_ageList[m_numAges++] = tude;
+	m_ageList.push_back(tude);
 }
 
 sint32 SlicContext::GetNumAges() const
 {
-	return m_numAges;
+	return static_cast<sint32>(m_ageList.size());
 }
 
 sint32 SlicContext::GetAge(const sint32 index) const
 {
-	if(!m_ageList || index < 0 || index >= m_numAges)
+	if(index < 0 || index >= static_cast<sint32>(m_ageList.size()))
 		return -1;
 
 	return m_ageList[index];
@@ -1071,14 +960,14 @@ void SlicContext::DelLocation()
 
 void SlicContext::DelCalamity()
 {
-    if (m_numCalamities > 0)
-        m_numCalamities--;
+    if (!m_calamityList.empty())
+        m_calamityList.pop_back();
 }
 
 void SlicContext::DelGold()
 {
-    if (m_numGolds > 0)
-        m_numGolds--;
+    if (!m_goldList.empty())
+        m_goldList.pop_back();
 }
 
 void SlicContext::DelGood()
@@ -1089,14 +978,14 @@ void SlicContext::DelGood()
 
 void SlicContext::DelRank()
 {
-    if (m_numRanks > 0)
-        m_numRanks--;
+    if (!m_rankList.empty())
+        m_rankList.pop_back();
 }
 
 void SlicContext::DelWonder()
 {
-    if (m_numWonders > 0)
-        m_numWonders--;
+    if (!m_wonderList.empty())
+        m_wonderList.pop_back();
 }
 
 
@@ -1127,20 +1016,22 @@ void SlicContext::DelGovernment()
 
 void SlicContext::DelMadlib()
 {
-    if (m_numMadlibs > 0)
-        m_numMadlibs--;
+    if (!m_madlibNameList.empty()) {
+        m_madlibNameList.pop_back();
+        m_madlibChoiceList.pop_back();
+    }
 }
 
 void SlicContext::DelAttitude()
 {
-    if (m_numAttitudes > 0)
-        m_numAttitudes--;
+    if (!m_attitudeList.empty())
+        m_attitudeList.pop_back();
 }
 
 void SlicContext::DelAge()
 {
-    if (m_numAges > 0)
-        m_numAges--;
+    if (!m_ageList.empty())
+        m_ageList.pop_back();
 }
 
 #ifdef _DEBUG
@@ -1178,15 +1069,15 @@ void SlicContext::Dump()
 		}
 	}
 
-	if(m_calamityList) {
-		n = m_numCalamities;
+	if(!m_calamityList.empty()) {
+		n = static_cast<sint32>(m_calamityList.size());
 		for(i = 0; i < n; i++) {
 			DPRINTF(k_DBG_INFO, (" Calamity.%d: %d\n",i, m_calamityList[i]));
 		}
 	}
 
-	if(m_goldList) {
-		n = m_numGolds;
+	if(!m_goldList.empty()) {
+		n = static_cast<sint32>(m_goldList.size());
 		for(i = 0; i < n; i++) {
 			DPRINTF(k_DBG_INFO, (" Gold.%d: %d\n", i, m_goldList[i]));
 		}
@@ -1199,15 +1090,15 @@ void SlicContext::Dump()
 		}
 	}
 
-	if(m_rankList) {
-		n = m_numRanks;
+	if(!m_rankList.empty()) {
+		n = static_cast<sint32>(m_rankList.size());
 		for(i = 0; i < n; i++) {
 			DPRINTF(k_DBG_INFO, (" Rank.%d: %d\n", i, m_rankList[i]));
 		}
 	}
 
-	if(m_wonderList) {
-		n = m_numWonders;
+	if(!m_wonderList.empty()) {
+		n = static_cast<sint32>(m_wonderList.size());
 		for(i = 0; i < n; i++) {
 			DPRINTF(k_DBG_INFO, (" Wonder.%d: %d\n", i, m_wonderList[i]));
 		}
@@ -1312,9 +1203,9 @@ void SlicContext::Snarf(GameEventArgList *args)
 // Remark(s)  : MACRO
 //
 //----------------------------------------------------------------------------
-#define FILL_ARRAY(builtin, plainArray, arrayCount, setMethod)      \
+#define FILL_ARRAY(builtin, plainArray, setMethod)                  \
 {                                                                   \
-    sint32 const    count   = plainArray ? arrayCount : 0;          \
+    sint32 const    count   = static_cast<sint32>(plainArray.size());\
     SlicArray *     array   = ResizedArray(builtin, count);         \
 	if (count > 0)                                                  \
     {                                                               \
@@ -1359,9 +1250,9 @@ void SlicContext::FillBuiltins()
             }
         }
     }
-    FILL_ARRAY(SLIC_BUILTIN_BUILDING, m_buildingList, m_numBuildings, SetIntValue);
-    FILL_ARRAY(SLIC_BUILTIN_WONDER, m_wonderList, m_numWonders, SetIntValue);
-    FILL_ARRAY(SLIC_BUILTIN_GOLD, m_goldList, m_numGolds, SetIntValue);
+    FILL_ARRAY(SLIC_BUILTIN_BUILDING, m_buildingList, SetIntValue);
+    FILL_ARRAY(SLIC_BUILTIN_WONDER, m_wonderList, SetIntValue);
+    FILL_ARRAY(SLIC_BUILTIN_GOLD, m_goldList, SetIntValue);
 }
 
 #undef FILL
@@ -1378,8 +1269,7 @@ void SlicContext::FillBuiltins()
 				}\
 			}\
 		} else {\
-			delete list;\
-			list = NULL;\
+			list.reset();\
 		}
 
 void SlicContext::CopyFromBuiltins()

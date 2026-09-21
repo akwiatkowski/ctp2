@@ -33,6 +33,8 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/UnitEvent.h"
 
+#include <memory>
+
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
@@ -294,17 +296,17 @@ STDEHANDLER(UndergroundRailwayUnitEvent)
 
 	u->GetArmy()->ActionSuccessful(SPECATTACK_FREESLAVES, u, c);
 
-	SlicObject *so;
-	so = new SlicObject("163FreeslaveCompleteVictim") ;
+	std::unique_ptr<SlicObject> so;
+	so = std::make_unique<SlicObject>("163FreeslaveCompleteVictim") ;
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCity(c) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 
-	so = new SlicObject("165FreeslaveCompleteAgressor") ;
+	so = std::make_unique<SlicObject>("165FreeslaveCompleteAgressor") ;
 	so->AddRecipient(u.GetOwner()) ;
 	so->AddCity(c);
 	so->AddCity(hc) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 
 	return GEV_HD_Continue;
 }
@@ -331,19 +333,19 @@ STDEHANDLER(EstablishEmbassyUnitEvent)
 
 	if(res == ORDER_RESULT_SUCCEEDED)
     {
-        SlicObject *so = new SlicObject("143EmbassyVictim") ;
+        auto so = std::make_unique<SlicObject>("143EmbassyVictim") ;
         so->AddRecipient(c.GetOwner()) ;
         so->AddCivilisation(u.GetOwner());
 		so->AddUnitRecord(u.GetType());
 		so->AddCity(c) ;
-        slicengine_Get()->Execute(so) ;
+        slicengine_Get()->Execute(std::move(so)) ;
 
-        so = new SlicObject("144EmbassyAttacker");
+        so = std::make_unique<SlicObject>("144EmbassyAttacker");
         so->AddRecipient(u.GetOwner()) ;
         so->AddCivilisation(c.GetOwner());
 		so->AddUnitRecord(u.GetType());
 		so->AddCity(c) ;
-        slicengine_Get()->Execute(so) ;
+        slicengine_Get()->Execute(std::move(so)) ;
     }
 	return GEV_HD_Continue;
 }
@@ -359,19 +361,19 @@ STDEHANDLER(ThrowPartyUnitEvent)
 
 	if(res == ORDER_RESULT_SUCCEEDED)
     {
-        SlicObject *so = new SlicObject("149PartyCompleteVictim") ;
+        auto so = std::make_unique<SlicObject>("149PartyCompleteVictim") ;
         so->AddRecipient(c.GetOwner());
         so->AddPlayer(u.GetOwner());
 		so->AddUnitRecord(u.GetType());
 		so->AddCity(c) ;
-        slicengine_Get()->Execute(so) ;
+        slicengine_Get()->Execute(std::move(so)) ;
 
-        so = new SlicObject("150PartyCompleteAttacker");
+        so = std::make_unique<SlicObject>("150PartyCompleteAttacker");
         so->AddRecipient(u.GetOwner()) ;
         so->AddPlayer(c.GetOwner());
 		so->AddUnitRecord(u.GetType());
 		so->AddCity(c) ;
-        slicengine_Get()->Execute(so) ;
+        slicengine_Get()->Execute(std::move(so)) ;
     }
 	return GEV_HD_Continue;
 }
@@ -383,26 +385,26 @@ STDEHANDLER(BioInfectCityUnitEvent)
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
-	SlicObject *so;
+	std::unique_ptr<SlicObject> so;
 
-	so = new SlicObject("33CrisisCityInfected") ;
+	so = std::make_unique<SlicObject>("33CrisisCityInfected") ;
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCity(c) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 
 	DPRINTF(k_DBG_GAMESTATE, ("Bio infection succeeded\n"));
 
-	so = new SlicObject("10iBioInfectComplete") ;
+	so = std::make_unique<SlicObject>("10iBioInfectComplete") ;
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCivilisation(u.GetOwner()) ;
 	so->AddCity(c) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 
-	so = new SlicObject("11iBioInfectComplete") ;
+	so = std::make_unique<SlicObject>("11iBioInfectComplete") ;
 	so->AddRecipient(u.GetOwner()) ;
 	so->AddCivilisation(c.GetOwner()) ;
 	so->AddCity(c) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_BioInfectCity,
 						   GEA_City, c.m_id,
@@ -420,26 +422,26 @@ STDEHANDLER(PlagueCityUnitEvent)
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
-	SlicObject *so;
+	std::unique_ptr<SlicObject> so;
 
-	so = new SlicObject("33CrisisCityInfected") ;
+	so = std::make_unique<SlicObject>("33CrisisCityInfected") ;
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCity(c) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 
 	DPRINTF(k_DBG_GAMESTATE, ("Bio infection succeeded\n"));
 
-	so = new SlicObject("10jPlagueComplete") ;
+	so = std::make_unique<SlicObject>("10jPlagueComplete") ;
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCivilisation(c.GetOwner()) ;
 	so->AddCity(c) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 
-	so = new SlicObject("11jPlagueComplete") ;
+	so = std::make_unique<SlicObject>("11jPlagueComplete") ;
 	so->AddRecipient(u.GetOwner()) ;
 	so->AddCivilisation(u.GetOwner()) ;
 	so->AddCity(c) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_PlagueCity,
 						   GEA_City, c.m_id,
@@ -460,12 +462,12 @@ STDEHANDLER(NanoInfectCityUnitEvent)
 
 	DPRINTF(k_DBG_GAMESTATE, ("Nano infection succeeded"));
 
-	SlicObject *so;
-	so = new SlicObject("911CrisisCityIsNanoInfected") ;
+	std::unique_ptr<SlicObject> so;
+	so = std::make_unique<SlicObject>("911CrisisCityIsNanoInfected") ;
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCivilisation(u.GetOwner()) ;
 	so->AddCity(c) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_NanoInfectCity,
 						   GEA_City, c.m_id,
@@ -501,11 +503,11 @@ STDEHANDLER(ConvertCityUnitEvent)
 	}
 
 	{
-		SlicObject *so = new SlicObject("151ConvertCompleteVictim") ;
+		auto so = std::make_unique<SlicObject>("151ConvertCompleteVictim") ;
 		so->AddRecipient(c.GetOwner()) ;
 		so->AddCity(c) ;
 		so->AddUnitRecord(u.GetType());
-		slicengine_Get()->Execute(so) ;
+		slicengine_Get()->Execute(std::move(so)) ;
 	}
 
 	u.GetArmy()->ActionSuccessful(SPECATTACK_CONVERTCITY, u, c);
@@ -532,10 +534,10 @@ STDEHANDLER(ReformCityUnitEvent)
 
 	u.GetArmy()->ActionSuccessful(SPECATTACK_REFORMCITY, u, c);
 
-	SlicObject *so = new SlicObject("135ReformCity") ;
+	auto so = std::make_unique<SlicObject>("135ReformCity") ;
 	so->AddCity(c);
 	so->AddRecipient(c.GetOwner()) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 	return GEV_HD_Continue;
 }
 
@@ -744,7 +746,7 @@ STDEHANDLER(SetUnloadMovementUnitEvent)
 	u.SetMovementPoints(0.0);
 	if(network_Get().IsHost()) {
 		network_Get().Block(u.GetOwner());
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_MOVEMENT_TO_ZERO, u.m_id));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_MOVEMENT_TO_ZERO, u.m_id).release());
 		network_Get().Unblock(u.GetOwner());
 	}
 	return GEV_HD_Continue;

@@ -35,14 +35,16 @@
 #include "gs/fileio/CivPaths.h"
 
 #include <filesystem>
+#include <memory>
 
 #ifdef WIN32
 #include <shlobj.h>
 #endif
 
-static CivPaths *g_civPaths = nullptr;
-CivPaths * civpaths_Get()        { return g_civPaths; }
-void       civpaths_Set(CivPaths *p) { g_civPaths = p; }
+static std::unique_ptr<CivPaths> g_civPaths;
+CivPaths * civpaths_Get()        { return g_civPaths.get(); }
+// Non-owning assign — same rationale as unit_tree_Set in gameinit.cpp.
+void       civpaths_Set(CivPaths *p) { g_civPaths.release(); g_civPaths.reset(p); }
 
 namespace
 {
@@ -101,15 +103,13 @@ static bool CreateDirectoryRecursive(const char *path)
 
 void CivPaths_InitCivPaths()
 {
-    delete g_civPaths;
-	g_civPaths = new CivPaths;
+	g_civPaths = std::make_unique<CivPaths>();
 }
 
 
 void CivPaths_CleanupCivPaths()
 {
-    delete g_civPaths;
-	g_civPaths = nullptr;
+	g_civPaths.reset();
 }
 
 

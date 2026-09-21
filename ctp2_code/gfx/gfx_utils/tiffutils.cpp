@@ -34,6 +34,18 @@
 #include <tiffio.h>
 #include <vector>
 
+namespace {
+// Owning handle for _TIFFmalloc'd scratch rasters — the libtiff allocator
+// counterpart to TifBuffer (which frees malloc'd return buffers).
+struct TiffRasterDeleter
+{
+	// _TIFFfree takes void*; keep the deleter generic so the smart
+	// pointer can hold the uint32_t element type TIFFReadRGBAImage wants.
+	void operator()(uint32_t *pixels) const { _TIFFfree(pixels); }
+};
+using TiffRaster = std::unique_ptr<uint32_t, TiffRasterDeleter>;
+}
+
 char *tiffutils_LoadTIF(const char *filename, uint16_t *width, uint16_t *height, size_t *size)
 {
 	TIFF * tif = TIFFOpen(filename, "r");
@@ -45,27 +57,24 @@ char *tiffutils_LoadTIF(const char *filename, uint16_t *width, uint16_t *height,
 		TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
 
 		size_t   npixels = w * h;
-		uint32_t * raster  = (uint32_t *) _TIFFmalloc(npixels * sizeof(uint32_t));
+		TiffRaster raster(static_cast<uint32_t *>(_TIFFmalloc(npixels * sizeof(uint32_t))));
 		if (raster)
 		{
-			if (TIFFReadRGBAImage(tif, w, h, raster, 0))
+			if (TIFFReadRGBAImage(tif, w, h, raster.get(), 0))
 			{
-				char * destImage = (char *)malloc(npixels * sizeof(uint32_t));
+				TifBuffer destImage(static_cast<char *>(malloc(npixels * sizeof(uint32_t))));
 				if (!destImage) {
-					_TIFFfree(raster);
 					TIFFClose(tif);
 					return nullptr;
 				}
 				if (size)
 					*size = npixels * sizeof(uint32_t);
-				memcpy(destImage, raster, npixels * sizeof(uint32_t));
-
-				_TIFFfree(raster);
+				memcpy(destImage.get(), raster.get(), npixels * sizeof(uint32_t));
 
 				*width = (uint16_t)w;
 				*height = (uint16_t)h;
 
-				return destImage;
+				return destImage.release();
 			}
 		}
 		TIFFClose(tif);
@@ -76,7 +85,7 @@ char *tiffutils_LoadTIF(const char *filename, uint16_t *width, uint16_t *height,
 
 char *TIF2mem(const char *filename, uint16_t *width, uint16_t *height, size_t *size)
 {
-	char    *image = nullptr;
+	TifBuffer image;
 	uint32_t  w=0;
 	uint32_t  h=0;
 	TIFF    *tif = TIFFOpen(filename, "r");
@@ -87,7 +96,7 @@ char *TIF2mem(const char *filename, uint16_t *width, uint16_t *height, size_t *s
 
 		size_t npixels     = w * h;
 
-		image = (char *)malloc(npixels * sizeof(uint32_t));
+		image.reset(static_cast<char *>(malloc(npixels * sizeof(uint32_t))));
 		if (!image) {
 			TIFFClose(tif);
 			return nullptr;
@@ -96,20 +105,20 @@ char *TIF2mem(const char *filename, uint16_t *width, uint16_t *height, size_t *s
 		if (size)
 			*size = npixels * sizeof(uint32_t);
 
-		char * raster = (char *) _TIFFmalloc(npixels * sizeof(uint32_t));
+		TiffRaster raster(static_cast<uint32_t *>(_TIFFmalloc(npixels * sizeof(uint32_t))));
 		if (raster) {
 			sint32 bytesPerRow = w * 4;
-			if (TIFFReadRGBAImage(tif, w, h, (uint32_t *)raster, 0)) {
-				char * imagePtr  = image;
-				char * rasterPtr = raster + (bytesPerRow * (h-1));
+			if (TIFFReadRGBAImage(tif, w, h, raster.get(), 0)) {
+				char * imagePtr  = image.get();
+				// Walk the raster in uint32_t elements (w per row) so no
+				// cast is needed; memcpy takes the pointer as void*.
+				uint32_t * rasterPtr = raster.get() + (w * (h-1));
 				for (uint32_t row = 0; row < h; row++) {
 					memcpy(imagePtr, rasterPtr, bytesPerRow);
 					imagePtr += bytesPerRow;
-					rasterPtr -= bytesPerRow;
+					rasterPtr -= w;
 				}
 			}
-
-			_TIFFfree(raster);
 		}
 
 		TIFFClose(tif);
@@ -118,7 +127,7 @@ char *TIF2mem(const char *filename, uint16_t *width, uint16_t *height, size_t *s
 	*width = (uint16_t)w;
 	*height = (uint16_t)h;
 
-	return image;
+	return image.release();
 }
 
 int TIFGetMetrics(const char *filename, uint16_t *width, uint16_t *height)
@@ -155,14 +164,14 @@ int TIFLoadIntoBuffer16(const char *filename, uint16_t *width, uint16_t *height,
 
 		sint32  bytesPerRow = w * 4;
 		size_t  npixels     = w * h;
-		char *  raster      = (char *) _TIFFmalloc(npixels * sizeof(uint32_t));
+		TiffRaster raster(static_cast<uint32_t *>(_TIFFmalloc(npixels * sizeof(uint32_t))));
 
         if (raster)
         {
-			if (TIFFReadRGBAImage(tif, w, h, (uint32_t *)raster, 0))
+			if (TIFFReadRGBAImage(tif, w, h, raster.get(), 0))
             {
 				char * imagePtr     = (char *)buffer;
-				char * rasterPtr    = raster + (bytesPerRow * (h-1));
+				char * rasterPtr    = reinterpret_cast<char *>(raster.get() + (w * (h-1)));
 
 				uint32_t *rasterPtrCopy;
 				uint16_t *imagePtrCopy;
@@ -201,7 +210,7 @@ int TIFLoadIntoBuffer16(const char *filename, uint16_t *width, uint16_t *height,
 
 			}
 
-			_TIFFfree(raster);
+			// raster freed by TiffRaster
 		}
 
 		TIFFClose(tif);
@@ -239,17 +248,17 @@ char *StripTIF2Mem(const char *filename, uint16_t *width, uint16_t *height, size
 	tsize_t LineSize    = TIFFScanlineSize(tif);
 	tsize_t stripSize   = TIFFStripSize(tif);
 	std::vector<char> buf(stripSize);
-	char *  outBuf      = (char *)malloc(imageWidth * imageLength * 4);
+	TifBuffer outBuf(static_cast<char *>(malloc(imageWidth * imageLength * 4)));
 	if (size)
 		*size = imageWidth * imageLength * 4;
-	char *  outBufPtr   = outBuf;
+	char *  outBufPtr   = outBuf.get();
 
 	for (uint32_t row = 0; row < imageLength; row += RowsPerStrip)
 	{
 		tsize_t nrow = (row + RowsPerStrip > imageLength ? imageLength - row : RowsPerStrip);
 		if (TIFFReadEncodedStrip(tif, TIFFComputeStrip(tif, row, 0), buf.data(), nrow*LineSize)==-1)
         {
-            /// @todo Check free(buf)?
+            // outBuf freed by TifBuffer on this error path
 			return nullptr;
 		}
         else
@@ -267,7 +276,7 @@ char *StripTIF2Mem(const char *filename, uint16_t *width, uint16_t *height, size
 	*width  = (uint16_t) imageWidth;
 	*height = (uint16_t) imageLength;
 
-	return outBuf;
+	return outBuf.release();
 }
 
 // Out-of-line so consumers of TifBuffer never spell the C deallocator —

@@ -78,7 +78,6 @@ inline void putdouble(uint8* b, double l)
 #define PULLDOUBLE(x) {x = getdouble(&buf[pos]); pos += sizeof(double);}
 #define PULLID(x) { x = (buf[pos] << 8) | (buf[pos+1]); pos += 2;}
 #define PULLSTRING(x) { uint16 l; PULLSHORT(l); if(l > 0) { memcpy(x, &buf[pos], l); (x)[l] = 0; pos += l; }}
-#define PULLNEWSTRING(x) { uint16 l; PULLSHORT(l); if(l > 0) {x = new char[l + 1]; memcpy(x, &buf[pos], l); (x)[l] = 0; pos += l;} else { x = NULL; }}
 
 #else
 

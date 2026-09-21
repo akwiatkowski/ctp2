@@ -32,6 +32,7 @@
 
 #ifndef EDIT_QUEUE_H__
 #define EDIT_QUEUE_H__
+#include <memory>
 
 class ctp2_ListBox;
 class CityData;
@@ -154,7 +155,7 @@ class EditQueue {
 
 	static sint32 CompareUnitItems(ctp2_ListItem *item1, ctp2_ListItem *item2, sint32 column);
 	static sint32 CompareBuildingWonderItems(ctp2_ListItem *item1, ctp2_ListItem *item2, sint32 column);
-	void AddChoiceItem(const MBCHAR *text, EditItemInfo *info, sint32 time, ctp2_ListBox *list);
+	void AddChoiceItem(const MBCHAR *text, std::unique_ptr<EditItemInfo> info, sint32 time, ctp2_ListBox *list);
 	void Update();
 	void UpdateChoiceLists();
 	void UpdateQueueList();

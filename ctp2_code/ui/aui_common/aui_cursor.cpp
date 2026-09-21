@@ -80,7 +80,7 @@ AUI_ERRCODE aui_Cursor::LoadEmpty( sint32 width, sint32 height, sint32 bpp )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	m_surface = aui_Factory::new_Surface(errcode, width, height);
+	m_surface.reset(aui_Factory::new_Surface(errcode, width, height));
 
 	Assert( AUI_NEWOK(m_surface, errcode) );
 	return errcode;

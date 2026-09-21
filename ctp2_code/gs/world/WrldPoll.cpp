@@ -35,6 +35,7 @@
 #include "gs/world/World.h"
 
 #include <vector>
+#include <memory>
 
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/XY_Coordinates.h"
@@ -199,10 +200,10 @@ void World::FloodCity(Cell *c)
 
 	if (u.IsValid())
 	{
-		SlicObject *so = new SlicObject("04CitiesKilledByCalamity");
+		auto so = std::make_unique<SlicObject>("04CitiesKilledByCalamity");
 		so->AddCity(u);
 		so->AddRecipient(u.GetOwner());
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(so.release());
 
 		u.KillUnit(CAUSE_REMOVE_ARMY_POLLUTION, -1);
 	}
@@ -448,7 +449,7 @@ void World::GlobalWarmingEvent(const sint32 phase)
 	if(network_Get().IsHost())
 	{
 		network_Get().SyncRand();
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_GLOBAL_WARMING, phase));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_GLOBAL_WARMING, phase).release());
 	}
 
 	InformPlayersOfFloodingCatastrophe();
@@ -632,8 +633,8 @@ void World::OzoneDepletionEvent()
 	{
 		sint32  phase   = 0;
 		network_Get().SyncRand();
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_OZONE_DEPLETION,
-									  phase));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_OZONE_DEPLETION,
+									  phase).release());
 	}
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)

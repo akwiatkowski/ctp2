@@ -1,4 +1,6 @@
 #include "ctp/c3.h"
+#include <memory>
+
 #include "net/io/net_util.h"
 #include "net/general/net_report.h"
 #include "net/general/network.h"
@@ -36,7 +38,7 @@ void NetReport::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 
 			if(!wasReady && network_Get().ReadyToStart()) {
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ALL_PLAYERS_READY));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ALL_PLAYERS_READY).release());
 			}
 
 			break;

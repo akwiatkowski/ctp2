@@ -1,4 +1,6 @@
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/interface/graphicsresscreen.h"
 
 #include "gs/database/profileDB.h"      // profiledb_Get()
@@ -23,33 +25,30 @@ extern sint32				g_isGridOn;
 extern SpriteGroupList		*g_unitSpriteGroupList;
 extern SpriteGroupList		*g_goodSpriteGroupList;
 
-static ctp2_Button	*s_resScreenButton;
-static c3_PopupWindow *s_graphicsWindow			= nullptr;
-static C3Slider		*s_bright					= nullptr,
-					*s_gamma					= nullptr,
-					*s_color					= nullptr,
-					*s_contrast					= nullptr;
+static std::unique_ptr<ctp2_Button> s_resScreenButton;
+static std::unique_ptr<c3_PopupWindow> s_graphicsWindow;
+static std::unique_ptr<C3Slider> s_bright, s_gamma, s_color, s_contrast;
 
-static c3_Static	*s_unitSpeedN				= nullptr;
-static C3Slider		*s_unitSpeed				= nullptr;
+static std::unique_ptr<c3_Static> s_unitSpeedN;
+static std::unique_ptr<C3Slider> s_unitSpeed;
 
-static aui_Switch	*s_walk						= nullptr,
+static std::unique_ptr<aui_Switch> s_walk,
 
-					*s_trade					= nullptr,
-					*s_wonder					= nullptr,
+					s_trade,
+					s_wonder,
 
-					*s_politicalBorders			= nullptr,
-					*s_tradeRoutes				= nullptr,
+					s_politicalBorders,
+					s_tradeRoutes,
 
-					*s_cityInfluence			= nullptr,
-					*s_grid						= nullptr,
+					s_cityInfluence,
+					s_grid,
 
-					*s_cityNames				= nullptr,
-					*s_civflags					= nullptr,
-					*s_smooth					= nullptr,
-					*s_armyNames				= nullptr,
-					*s_goodAnims				= nullptr,
-					*s_cityProd					= nullptr;
+					s_cityNames,
+					s_civflags,
+					s_smooth,
+					s_armyNames,
+					s_goodAnims,
+					s_cityProd;
 
 static BOOL			s_gridToggled				= FALSE;
 static BOOL			s_cityInfluenceToggled		= FALSE;
@@ -113,9 +112,9 @@ sint32	graphicsscreen_displayMyWindow()
 	sint32 retval=0;
 	if (!s_graphicsWindow) { retval = graphicsscreen_Initialize(); }
 
-	AUI_ERRCODE auiErr  = c3ui_Get()->AddWindow(s_graphicsWindow);
+	AUI_ERRCODE auiErr  = c3ui_Get()->AddWindow(s_graphicsWindow.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
-	keypress_RegisterHandler(s_graphicsWindow);
+	keypress_RegisterHandler(s_graphicsWindow.get());
 
 	s_unitAnimToggled = FALSE;
 	s_goodAnimToggled = FALSE;
@@ -128,7 +127,7 @@ sint32 graphicsscreen_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( s_graphicsWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
-	keypress_RemoveHandler(s_graphicsWindow);
+	keypress_RemoveHandler(s_graphicsWindow.get());
 
 	return 1;
 }
@@ -146,7 +145,7 @@ AUI_ERRCODE graphicsscreen_Initialize( )
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	strlcpy(windowBlock, "GraphicsWindow", sizeof(windowBlock));
-	s_graphicsWindow = new c3_PopupWindow(
+	s_graphicsWindow = std::make_unique<c3_PopupWindow>(
 		&errcode,
 		aui_UniqueId(),
 		windowBlock,
@@ -159,25 +158,25 @@ AUI_ERRCODE graphicsscreen_Initialize( )
 	s_graphicsWindow->SetStronglyModal(TRUE);
 
 
-	s_walk				= spNew_aui_Switch(&errcode,windowBlock,"WalkButton",graphicsscreen_checkPress,&check[GS_WALK]);
-	s_trade				= spNew_aui_Switch(&errcode,windowBlock,"TradeButton",graphicsscreen_checkPress,&check[GS_TRADE]);
-	s_wonder			= spNew_aui_Switch(&errcode,windowBlock,"WonderButton",graphicsscreen_checkPress,&check[GS_WONDER]);
-	s_politicalBorders	= spNew_aui_Switch(&errcode,windowBlock,"PoliticalBordersButton",graphicsscreen_checkPress,&check[GS_POLITICALBORDERS]);
-	s_tradeRoutes		= spNew_aui_Switch(&errcode,windowBlock,"TradeRoutesButton",graphicsscreen_checkPress,&check[GS_TRADEROUTES]);
-	s_cityInfluence		= spNew_aui_Switch(&errcode,windowBlock,"CityInflenceButton",graphicsscreen_checkPress,&check[GS_CITYINFLUENCE]);
-	s_grid				= spNew_aui_Switch(&errcode,windowBlock,"GridButton",graphicsscreen_checkPress,&check[GS_GRID]);
-	s_cityNames			= spNew_aui_Switch(&errcode,windowBlock,"CityNamesButton", graphicsscreen_checkPress, &check[GS_CITYNAMES]);
-	s_armyNames			= spNew_aui_Switch(&errcode,windowBlock,"ArmyNamesButton", graphicsscreen_checkPress, &check[GS_ARMYNAMES]);
-	s_civflags			= spNew_aui_Switch(&errcode,windowBlock,"CivFlagButton", graphicsscreen_checkPress, &check[GS_CIVFLAGS]);
+	s_walk.reset(spNew_aui_Switch(&errcode,windowBlock,"WalkButton",graphicsscreen_checkPress,&check[GS_WALK]));
+	s_trade.reset(spNew_aui_Switch(&errcode,windowBlock,"TradeButton",graphicsscreen_checkPress,&check[GS_TRADE]));
+	s_wonder.reset(spNew_aui_Switch(&errcode,windowBlock,"WonderButton",graphicsscreen_checkPress,&check[GS_WONDER]));
+	s_politicalBorders.reset(spNew_aui_Switch(&errcode,windowBlock,"PoliticalBordersButton",graphicsscreen_checkPress,&check[GS_POLITICALBORDERS]));
+	s_tradeRoutes.reset(spNew_aui_Switch(&errcode,windowBlock,"TradeRoutesButton",graphicsscreen_checkPress,&check[GS_TRADEROUTES]));
+	s_cityInfluence.reset(spNew_aui_Switch(&errcode,windowBlock,"CityInflenceButton",graphicsscreen_checkPress,&check[GS_CITYINFLUENCE]));
+	s_grid.reset(spNew_aui_Switch(&errcode,windowBlock,"GridButton",graphicsscreen_checkPress,&check[GS_GRID]));
+	s_cityNames.reset(spNew_aui_Switch(&errcode,windowBlock,"CityNamesButton", graphicsscreen_checkPress, &check[GS_CITYNAMES]));
+	s_armyNames.reset(spNew_aui_Switch(&errcode,windowBlock,"ArmyNamesButton", graphicsscreen_checkPress, &check[GS_ARMYNAMES]));
+	s_civflags.reset(spNew_aui_Switch(&errcode,windowBlock,"CivFlagButton", graphicsscreen_checkPress, &check[GS_CIVFLAGS]));
 
-	s_resScreenButton	= spNew_ctp2_Button( &errcode, windowBlock, "ResolutionButton", graphicsscreen_selectResolution );
+	s_resScreenButton.reset(spNew_ctp2_Button( &errcode, windowBlock, "ResolutionButton", graphicsscreen_selectResolution ));
 
-	s_smooth			= spNew_aui_Switch(&errcode,windowBlock,"SmoothButton", graphicsscreen_checkPress, &check[GS_SMOOTH]);
-	s_goodAnims			= spNew_aui_Switch(&errcode,windowBlock,"GoodsButton",graphicsscreen_checkPress,&check[GS_GOODANIMS]);
-	s_cityProd			= spNew_aui_Switch(&errcode,windowBlock,"ShowCityProdButton",graphicsscreen_checkPress,&check[GS_CITYPROD]);
+	s_smooth.reset(spNew_aui_Switch(&errcode,windowBlock,"SmoothButton", graphicsscreen_checkPress, &check[GS_SMOOTH]));
+	s_goodAnims.reset(spNew_aui_Switch(&errcode,windowBlock,"GoodsButton",graphicsscreen_checkPress,&check[GS_GOODANIMS]));
+	s_cityProd.reset(spNew_aui_Switch(&errcode,windowBlock,"ShowCityProdButton",graphicsscreen_checkPress,&check[GS_CITYPROD]));
 
-	s_unitSpeed			= spNew_C3Slider(&errcode, windowBlock, "UnitSpeedSlider", graphicsscreen_unitSpeedSlide);
-	s_unitSpeedN		= spNew_c3_Static(&errcode, windowBlock, "UnitSpeedName");
+	s_unitSpeed.reset(spNew_C3Slider(&errcode, windowBlock, "UnitSpeedSlider", graphicsscreen_unitSpeedSlide));
+	s_unitSpeedN.reset(spNew_c3_Static(&errcode, windowBlock, "UnitSpeedName"));
 
 	if(profiledb_Get()) {
 		s_unitSpeed->SetValue(profiledb_Get()->GetUnitSpeed(), 0);
@@ -216,31 +215,28 @@ void graphicsscreen_Cleanup()
 	if (c3ui_Get() && s_graphicsWindow)
     {
     	c3ui_Get()->RemoveWindow(s_graphicsWindow->Id());
-	    keypress_RemoveHandler(s_graphicsWindow);
+	    keypress_RemoveHandler(s_graphicsWindow.get());
     }
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
-	mycleanup(s_walk);
-	mycleanup(s_trade);
-	mycleanup(s_wonder);
-	mycleanup(s_cityInfluence);
-	mycleanup(s_grid);
-	mycleanup(s_politicalBorders);
-	mycleanup(s_tradeRoutes);
-	mycleanup(s_cityNames);
-	mycleanup(s_resScreenButton);
-	mycleanup(s_unitSpeed);
-	mycleanup(s_unitSpeedN);
-	mycleanup(s_graphicsWindow);
-	mycleanup(s_armyNames);
-	mycleanup(s_civflags);
-	mycleanup(s_smooth);
-	mycleanup(s_goodAnims);
-	mycleanup(s_cityProd);
-#undef mycleanup
+	// Same release order the mycleanup macro used.
+	s_walk.reset();
+	s_trade.reset();
+	s_wonder.reset();
+	s_cityInfluence.reset();
+	s_grid.reset();
+	s_politicalBorders.reset();
+	s_tradeRoutes.reset();
+	s_cityNames.reset();
+	s_resScreenButton.reset();
+	s_unitSpeed.reset();
+	s_unitSpeedN.reset();
+	s_graphicsWindow.reset();
+	s_armyNames.reset();
+	s_civflags.reset();
+	s_smooth.reset();
+	s_goodAnims.reset();
+	s_cityProd.reset();
 }
-
-
 
 
 void graphicsscreen_screensizeSelect(aui_Control *control, uint32 action, uint32 data, void *cookie )

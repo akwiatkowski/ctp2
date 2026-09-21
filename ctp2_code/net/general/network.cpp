@@ -138,6 +138,9 @@ extern sint32 g_debugOwner;
 #include "ai/ctpai.h"
 #include "net/general/chatlist.h"
 #include "sound/soundmanager.h"
+#include <memory>
+#include <vector>
+
 
 #if !CTP2_ENABLE_NETWORKING
 // Single-player UI code still asks whether the old lobby exists. Keep that
@@ -249,21 +252,19 @@ Network::Network() :
 
 #if CTP2_ENABLE_NETWORKING
 	if(m_noThread) {
-		m_netIO = new ActivNetIO;
+		m_netIO = std::make_unique<ActivNetIO>();
 		m_netIO->Init(this);
 	} else {
-		m_netIO = new NetThread;
+		m_netIO = std::make_unique<NetThread>();
 		m_netIO->Init(this);
 	}
 #else
 	// Single-player builds have no transport or worker thread.  The legacy
 	// Network facade remains as an inactive compatibility shim for game code.
-	m_netIO = nullptr;
+	m_netIO.reset();
 #endif
 
-	for(auto & i : m_playerData) {
-		i = nullptr;
-	}
+
 	m_transport = 5;
 	m_sessionIndex = -1;
 	m_chatMask = 0xffffffff;
@@ -278,21 +279,21 @@ Network::Network() :
 	m_gameStyle = 0;
 	m_setupMode = FALSE;
 
-	m_newPlayerList = new PointerList<PlayerData>;
-	m_sessionList = new PointerList<SessionData>;
-	m_gameObjects = new NetGameObj();
-	m_deadUnitList = new NetHash;
+	m_newPlayerList = std::make_unique<PointerList<PlayerData>>();
+	m_sessionList = std::make_unique<PointerList<SessionData>>();
+	m_gameObjects = std::make_unique<NetGameObj>();
+	m_deadUnitList = std::make_unique<NetHash>();
 
 	m_launchFromNetFunc = FALSE;
 
-	m_resetCityOwnerHackList = new DynamicArray<Unit>;
-	m_nsPlayerInfo = new PointerList<NSPlayerInfo>;
-	m_nsAIPlayerInfo = new PointerList<NSAIPlayerInfo>;
+	m_resetCityOwnerHackList = std::make_unique<DynamicArray<Unit>>();
+	m_nsPlayerInfo = std::make_unique<PointerList<NSPlayerInfo>>();
+	m_nsAIPlayerInfo = std::make_unique<PointerList<NSAIPlayerInfo>>();
 
 	m_startingAge = 0;
 
 	m_condensePopMoves = FALSE;
-	m_enactedDiplomaticRequests = new DynamicArray<DiplomaticRequest>;
+	m_enactedDiplomaticRequests = std::make_unique<DynamicArray<DiplomaticRequest>>();
 
 #ifdef WIN32
 	char exepath[_MAX_PATH];
@@ -323,7 +324,7 @@ Network::Network() :
 	m_progress = -1;
 	m_extraTimePerCity = 0;
 	m_launchHost = FALSE;
-	m_rememberExclusions = nullptr;
+	m_rememberExclusions.reset();
 	m_teamsEnabled = FALSE;
 	m_waitingOnResync = FALSE;
 	m_wasAttached = FALSE;
@@ -332,47 +333,47 @@ Network::Network() :
 	m_crcError = FALSE;
 	m_sensitiveUIBlocked = false;
 
-	m_chatList = new ChatList;
+	m_chatList = std::make_unique<ChatList>();
 }
 
 Network::~Network()
 {
 	m_deleting = TRUE;
 
-	delete m_netIO;
+	m_netIO.reset();
 
 	for (auto & i : m_playerData)
     {
-		delete i;
+		i.reset();
 	}
 
-	delete m_newPlayerList;
+	m_newPlayerList.reset();
 
 	while (!m_sessionList->IsEmpty())
     {
-	    delete m_sessionList->RemoveHead();
+	    std::unique_ptr<SessionData>(m_sessionList->RemoveHead());
 	}
-	delete m_sessionList;
+	m_sessionList.reset();
 
-	delete m_gameObjects;
-	delete m_deadUnitList;
-	delete m_resetCityOwnerHackList;
+	m_gameObjects.reset();
+	m_deadUnitList.reset();
+	m_resetCityOwnerHackList.reset();
 
 	if (m_nsPlayerInfo)
     {
 		m_nsPlayerInfo->DeleteAll();
-		delete m_nsPlayerInfo;
+		m_nsPlayerInfo.reset();
 	}
 
 	if (m_nsAIPlayerInfo)
     {
 		m_nsAIPlayerInfo->DeleteAll();
-		delete m_nsAIPlayerInfo;
+		m_nsAIPlayerInfo.reset();
 	}
 
-	delete m_enactedDiplomaticRequests;
-	delete m_rememberExclusions;
-	delete m_chatList;
+	m_enactedDiplomaticRequests.reset();
+	m_rememberExclusions.reset();
+	m_chatList.reset();
 }
 
 
@@ -389,16 +390,11 @@ Network::Cleanup()
 	}
 
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(m_playerData[i]) {
-			delete m_playerData[i];
-			m_playerData[i] = nullptr;
-		}
+		m_playerData[i].reset();
 	}
 
-	SessionData* ses;
 	while(!m_sessionList->IsEmpty()) {
-		ses = m_sessionList->RemoveHead();
-		delete ses;
+		std::unique_ptr<SessionData>(m_sessionList->RemoveHead());
 	}
 
 	m_initialized = FALSE;
@@ -446,13 +442,10 @@ Network::Cleanup()
 	m_dynamicJoin = FALSE;
 
 	if(!exclusions_Get()) {
-		exclusions_Set(new Exclusions());
+		exclusions_Set(std::make_unique<Exclusions>().release());
 	}
 
-	if(m_rememberExclusions) {
-		delete m_rememberExclusions;
-		m_rememberExclusions = nullptr;
-	}
+	m_rememberExclusions.reset();
 
 	if(g_networkPlayersScreen) {
 		g_networkPlayersScreen->RemoveWindow();
@@ -477,11 +470,11 @@ void Network::SetLaunchFromNetFunc(BOOL fromSave)
 	m_launchHost = NETFunc::IsHost();
 
 
-	m_rememberExclusions = exclusions_Get();
+	m_rememberExclusions.reset(exclusions_Get());
 	exclusions_Set(nullptr);
 
 	if(!m_noThread) {
-		((NetThread *)m_netIO)->SetDP(netfunc_Get()->GetDP());
+		((NetThread *)m_netIO.get())->SetDP(netfunc_Get()->GetDP());
 	}
 
 	m_newPlayerList->DeleteAll();
@@ -522,21 +515,19 @@ void Network::InitFromNetFunc()
 		SetMaxPlayers(numLegalSlots);
 		if(!exclusions_Get()) {
 
-			exclusions_Set(m_rememberExclusions);
-			m_rememberExclusions = nullptr;
+			exclusions_Set(m_rememberExclusions.release());
 		}
 	} else {
 		if(m_rememberExclusions) {
 			if(exclusions_Get()) {
-				delete exclusions_Get();
+				std::unique_ptr<Exclusions>{exclusions_Get()};
 			}
-			exclusions_Set(m_rememberExclusions);
-			m_rememberExclusions = nullptr;
+			exclusions_Set(m_rememberExclusions.release());
 		}
 	}
 
 	if(m_noThread) {
-		((ActivNetIO *)m_netIO)->SetDP(netfunc_Get()->GetDP());
+		((ActivNetIO *)m_netIO.get())->SetDP(netfunc_Get()->GetDP());
 	} else {
 
 	}
@@ -585,8 +576,8 @@ void Network::SetNSPlayerInfo(uint16 id,
 		m_teamsEnabled = TRUE;
 	}
 
-	m_nsPlayerInfo->AddTail(new NSPlayerInfo(id, name, civ, group, civpoints,
-                                             settlers));
+	m_nsPlayerInfo->AddTail(std::make_unique<NSPlayerInfo>(id, name, civ, group, civpoints,
+                                             settlers).release());
 }
 
 void Network::SetNSAIPlayerInfo(int civ,
@@ -594,7 +585,7 @@ void Network::SetNSAIPlayerInfo(int civ,
                                 int civpoints,
                                 int settlers)
 {
-	m_nsAIPlayerInfo->AddTail(new NSAIPlayerInfo(civ, group, civpoints, settlers));
+	m_nsAIPlayerInfo->AddTail(std::make_unique<NSAIPlayerInfo>(civ, group, civpoints, settlers).release());
 }
 
 NSPlayerInfo *Network::GetNSPlayerInfo(sint32 index)
@@ -605,7 +596,7 @@ NSPlayerInfo *Network::GetNSPlayerInfo(sint32 index)
 		return nullptr;
 	}
 	sint32 c = 0;
-	PointerList<NSPlayerInfo>::Walker walk(m_nsPlayerInfo);
+	PointerList<NSPlayerInfo>::Walker walk(m_nsPlayerInfo.get());
 	while(walk.IsValid()) {
 		if(c == index) {
 			return walk.GetObj();
@@ -619,7 +610,7 @@ NSPlayerInfo *Network::GetNSPlayerInfo(sint32 index)
 
 NSPlayerInfo *Network::GetNSPlayerInfoByID(uint16 id)
 {
-	PointerList<NSPlayerInfo>::Walker walk(m_nsPlayerInfo);
+	PointerList<NSPlayerInfo>::Walker walk(m_nsPlayerInfo.get());
 	while(walk.IsValid()) {
 		if(id == walk.GetObj()->m_id)
 			return walk.GetObj();
@@ -636,7 +627,7 @@ NSAIPlayerInfo *Network::GetNSAIPlayerInfo(sint32 index)
 		return nullptr;
 
 	sint32 i = 0;
-	PointerList<NSAIPlayerInfo>::Walker walk(m_nsAIPlayerInfo);
+	PointerList<NSAIPlayerInfo>::Walker walk(m_nsAIPlayerInfo.get());
 	while(walk.IsValid()) {
 		if(i == index) {
 			return walk.GetObj();
@@ -694,18 +685,14 @@ Network::Process()
 		} else {
 			uint8 buf[512];
 			uint16 size;
-			NetGuid *guid = new NetGuid(GetGuid());
-			guid->AddRef();
+			PacketizerPtr guid = make_packetizer<NetGuid>(GetGuid());
 			guid->Packetize(buf, size);
 			NET_ERR err = m_netIO->Send(m_hostId, TRUE, buf, size);
-			guid->Release();
 			Assert(err == NET_ERR_OK);
 
-			NetReport *report = new NetReport(NET_REPORT_READY_FOR_DATA);
-			report->AddRef();
+			PacketizerPtr report = make_packetizer<NetReport>(NET_REPORT_READY_FOR_DATA);
 			report->Packetize(buf, size);
 			err = m_netIO->Send(m_hostId, TRUE, buf, size);
-			report->Release();
 
 			Assert(err == NET_ERR_OK);
 
@@ -800,7 +787,7 @@ void Network::ProcessSends()
 	for(sint32 pl = 0; pl < k_MAX_PLAYERS; pl++) {
 		if(!player_Get(pl)) continue;
 		if(m_playerData[pl] && !m_playerData[pl]->m_frozen && m_playerData[pl]->m_ready) {
-			PointerList<Packetizer>* packetList = m_playerData[pl]->m_packetList;
+			PointerList<Packetizer>* packetList = m_playerData[pl]->m_packetList.get();
 
 			isBusy = FALSE;
 
@@ -939,7 +926,7 @@ Network::EnumSession(NET_ERR result,
 {
 	if(result == NET_ERR_OK) {
 		DPRINTF(k_DBG_NET, ("Session %d: %s\n", index, sessionName));
-		SessionData* sessionData = new SessionData(index, sessionName);
+		SessionData* sessionData = std::make_unique<SessionData>(index, sessionName).release();
 		m_sessionList->AddTail(sessionData);
 		if(strcmp(sessionName, m_sessionName) == 0) {
 			m_sessionIndex = index;
@@ -965,69 +952,69 @@ Network::GetHandler(uint8* buf,
 {
 	Packetizer *handler = nullptr;
 	switch(MAKE_CIV3_ID(buf[0], buf[1])) {
-		case k_PACKET_CELL_ID:			handler = new NetCellData; break;
-		case k_PACKET_CELL_LIST_ID:		handler = new NetCellList; break;
-		case k_PACKET_UNIT_ID:			handler = new NetUnit; break;
-		case k_PACKET_ACTION_ID:		handler = new NetAction; break;
-		case k_PACKET_INFO_ID:			handler = new NetInfo; break;
-		case k_PACKET_CITY_ID:			handler = new NetCity; break;
-		case k_PACKET_DIFFICULTY_ID:    handler = new NetDifficulty; break;
-		case k_PACKET_PLAYER_ID:        handler = new NetPlayer; break;
-		case k_PACKET_TRADE_ROUTE_ID:   handler = new NetTradeRoute; break;
-		case k_PACKET_TRADE_OFFER_ID:   handler = new NetTradeOffer; break;
-		case k_PACKET_RAND_ID:          handler = new NetRand; break;
-		case k_PACKET_TERRAIN_ID:       handler = new NetTerrainImprovement; break;
-		case k_PACKET_INSTALLATION_ID:  handler = new NetInstallation; break;
-		case k_PACKET_CHAT_ID:          handler = new NetChat; break;
-		case k_PACKET_READINESS_ID:     handler = new NetReadiness; break;
-		case k_PACKET_HAPPY_ID:         handler = new NetHappy; break;
-		case k_PACKET_PLAYER_HAPPY_ID:  handler = new NetPlayerHappy; break;
-		case k_PACKET_REPORT_ID:        handler = new NetReport; break;
-		case k_PACKET_UNIT_MOVE_ID:     handler = new NetUnitMove; break;
-		case k_PACKET_UNIT_ORDER_ID:    handler = new NetOrder; break;
-		case k_PACKET_AGREEMENT_ID:     handler = new NetAgreement; break;
-		case k_PACKET_CIVILIZATION_ID:  handler = new NetCivilization; break;
-		case k_PACKET_CITY_NAME_ID:     handler = new NetCityName; break;
-		case k_PACKET_DIP_PROPOSAL_ID:  handler = new NetDipProposal; break;
-		case k_PACKET_DIP_RESPONSE_ID:  handler = new NetDipResponse; break;
-		case k_PACKET_MESSAGE_ID:       handler = new NetMessage; break;
-		case k_PACKET_CITY2_ID:         handler = new NetCity2; break;
-		case k_PACKET_POLLUTION_ID:     handler = new NetPollution; break;
-		case k_PACKET_CITY_BQ_ID:       handler = new NetCityBuildQueue; break;
-		case k_PACKET_KEYS_ID:          handler = new NetKeys; break;
-		case k_PACKET_GAME_SETTINGS_ID: handler = new NetGameSettings; break;
-		case k_PACKET_NEW_ARMY_ID:      handler = new NetNewArmy; break;
-		case k_PACKET_REMOVE_ARMY_ID:   handler = new NetRemoveArmy; break;
-		case k_PACKET_CRC_ID:           handler = new NetCRC; break;
-		case k_PACKET_ARMY_ID:          handler = new NetArmy; break;
-		case k_PACKET_WONDER_TRACKER_ID: handler= new NetWonderTracker; break;
-		case k_PACKET_ACHIEVEMENT_TRACKER_ID: handler= new NetAchievementTracker; break;
-		case k_PACKET_VISION_ID:        handler = new NetVision; break;
-		case k_PACKET_UNSEEN_CELL_ID:   handler = new NetUnseenCell; break;
-		case k_PACKET_EXCLUSIONS_ID:    handler = new NetExclusions; break;
-		case k_PACKET_RESOURCES_ID:     handler = new NetCityResources; break;
-		case k_PACKET_UNIT_HP_ID:       handler = new NetUnitHP; break;
-		case k_PACKET_CELL_UNIT_ORDER_ID: handler = new NetCellUnitOrder; break;
-		case k_PACKET_ADD_PLAYER_ID:    handler = new NetAddPlayer; break;
-		case k_PACKET_RESEARCH_ID:      handler = new NetResearch; break;
-		case k_PACKET_GUID_ID:          handler = new NetGuid; break;
-		case k_PACKET_STRENGTH_ID:      handler = new NetStrengths; break;
-		case k_PACKET_FULL_STRENGTHS_ID: handler = new NetFullStrengths; break;
-		case k_PACKET_NET_INFO_MESSAGE_ID: handler = new NetInfoMessage; break;
-		case k_PACKET_ENDGAME_ID:       handler = new NetEndGame; break;
-		case k_PACKET_WORMHOLE_ID:      handler = new NetWormhole; break;
-		case k_PACKET_SET_PLAYER_GUID_ID: handler = new NetSetPlayerGuid; break;
-		case k_PACKET_SET_LEADER_NAME_ID: handler = new NetSetLeaderName; break;
-		case k_PACKET_WORLD_ID:           handler = new NetWorld; break;
-		case k_PACKET_DIP_AGREEMENT_MATRIX_ID: handler = new NetAgreementMatrix; break;
-		case k_PACKET_GROUP_REQUEST_ID: handler = new NetGroupRequest; break;
-		case k_PACKET_UNGROUP_REQUEST_ID: handler = new NetUngroupRequest; break;
-		case k_PACKET_SCORES_ID:          handler = new NetScores; break;
+		case k_PACKET_CELL_ID:			handler = std::make_unique<NetCellData>().release(); break;
+		case k_PACKET_CELL_LIST_ID:		handler = std::make_unique<NetCellList>().release(); break;
+		case k_PACKET_UNIT_ID:			handler = std::make_unique<NetUnit>().release(); break;
+		case k_PACKET_ACTION_ID:		handler = std::make_unique<NetAction>().release(); break;
+		case k_PACKET_INFO_ID:			handler = std::make_unique<NetInfo>().release(); break;
+		case k_PACKET_CITY_ID:			handler = std::make_unique<NetCity>().release(); break;
+		case k_PACKET_DIFFICULTY_ID:    handler = std::make_unique<NetDifficulty>().release(); break;
+		case k_PACKET_PLAYER_ID:        handler = std::make_unique<NetPlayer>().release(); break;
+		case k_PACKET_TRADE_ROUTE_ID:   handler = std::make_unique<NetTradeRoute>().release(); break;
+		case k_PACKET_TRADE_OFFER_ID:   handler = std::make_unique<NetTradeOffer>().release(); break;
+		case k_PACKET_RAND_ID:          handler = std::make_unique<NetRand>().release(); break;
+		case k_PACKET_TERRAIN_ID:       handler = std::make_unique<NetTerrainImprovement>().release(); break;
+		case k_PACKET_INSTALLATION_ID:  handler = std::make_unique<NetInstallation>().release(); break;
+		case k_PACKET_CHAT_ID:          handler = std::make_unique<NetChat>().release(); break;
+		case k_PACKET_READINESS_ID:     handler = std::make_unique<NetReadiness>().release(); break;
+		case k_PACKET_HAPPY_ID:         handler = std::make_unique<NetHappy>().release(); break;
+		case k_PACKET_PLAYER_HAPPY_ID:  handler = std::make_unique<NetPlayerHappy>().release(); break;
+		case k_PACKET_REPORT_ID:        handler = std::make_unique<NetReport>().release(); break;
+		case k_PACKET_UNIT_MOVE_ID:     handler = std::make_unique<NetUnitMove>().release(); break;
+		case k_PACKET_UNIT_ORDER_ID:    handler = std::make_unique<NetOrder>().release(); break;
+		case k_PACKET_AGREEMENT_ID:     handler = std::make_unique<NetAgreement>().release(); break;
+		case k_PACKET_CIVILIZATION_ID:  handler = std::make_unique<NetCivilization>().release(); break;
+		case k_PACKET_CITY_NAME_ID:     handler = std::make_unique<NetCityName>().release(); break;
+		case k_PACKET_DIP_PROPOSAL_ID:  handler = std::make_unique<NetDipProposal>().release(); break;
+		case k_PACKET_DIP_RESPONSE_ID:  handler = std::make_unique<NetDipResponse>().release(); break;
+		case k_PACKET_MESSAGE_ID:       handler = std::make_unique<NetMessage>().release(); break;
+		case k_PACKET_CITY2_ID:         handler = std::make_unique<NetCity2>().release(); break;
+		case k_PACKET_POLLUTION_ID:     handler = std::make_unique<NetPollution>().release(); break;
+		case k_PACKET_CITY_BQ_ID:       handler = std::make_unique<NetCityBuildQueue>().release(); break;
+		case k_PACKET_KEYS_ID:          handler = std::make_unique<NetKeys>().release(); break;
+		case k_PACKET_GAME_SETTINGS_ID: handler = std::make_unique<NetGameSettings>().release(); break;
+		case k_PACKET_NEW_ARMY_ID:      handler = std::make_unique<NetNewArmy>().release(); break;
+		case k_PACKET_REMOVE_ARMY_ID:   handler = std::make_unique<NetRemoveArmy>().release(); break;
+		case k_PACKET_CRC_ID:           handler = std::make_unique<NetCRC>().release(); break;
+		case k_PACKET_ARMY_ID:          handler = std::make_unique<NetArmy>().release(); break;
+		case k_PACKET_WONDER_TRACKER_ID: handler= std::make_unique<NetWonderTracker>().release(); break;
+		case k_PACKET_ACHIEVEMENT_TRACKER_ID: handler= std::make_unique<NetAchievementTracker>().release(); break;
+		case k_PACKET_VISION_ID:        handler = std::make_unique<NetVision>().release(); break;
+		case k_PACKET_UNSEEN_CELL_ID:   handler = std::make_unique<NetUnseenCell>().release(); break;
+		case k_PACKET_EXCLUSIONS_ID:    handler = std::make_unique<NetExclusions>().release(); break;
+		case k_PACKET_RESOURCES_ID:     handler = std::make_unique<NetCityResources>().release(); break;
+		case k_PACKET_UNIT_HP_ID:       handler = std::make_unique<NetUnitHP>().release(); break;
+		case k_PACKET_CELL_UNIT_ORDER_ID: handler = std::make_unique<NetCellUnitOrder>().release(); break;
+		case k_PACKET_ADD_PLAYER_ID:    handler = std::make_unique<NetAddPlayer>().release(); break;
+		case k_PACKET_RESEARCH_ID:      handler = std::make_unique<NetResearch>().release(); break;
+		case k_PACKET_GUID_ID:          handler = std::make_unique<NetGuid>().release(); break;
+		case k_PACKET_STRENGTH_ID:      handler = std::make_unique<NetStrengths>().release(); break;
+		case k_PACKET_FULL_STRENGTHS_ID: handler = std::make_unique<NetFullStrengths>().release(); break;
+		case k_PACKET_NET_INFO_MESSAGE_ID: handler = std::make_unique<NetInfoMessage>().release(); break;
+		case k_PACKET_ENDGAME_ID:       handler = std::make_unique<NetEndGame>().release(); break;
+		case k_PACKET_WORMHOLE_ID:      handler = std::make_unique<NetWormhole>().release(); break;
+		case k_PACKET_SET_PLAYER_GUID_ID: handler = std::make_unique<NetSetPlayerGuid>().release(); break;
+		case k_PACKET_SET_LEADER_NAME_ID: handler = std::make_unique<NetSetLeaderName>().release(); break;
+		case k_PACKET_WORLD_ID:           handler = std::make_unique<NetWorld>().release(); break;
+		case k_PACKET_DIP_AGREEMENT_MATRIX_ID: handler = std::make_unique<NetAgreementMatrix>().release(); break;
+		case k_PACKET_GROUP_REQUEST_ID: handler = std::make_unique<NetGroupRequest>().release(); break;
+		case k_PACKET_UNGROUP_REQUEST_ID: handler = std::make_unique<NetUngroupRequest>().release(); break;
+		case k_PACKET_SCORES_ID:          handler = std::make_unique<NetScores>().release(); break;
 
-		case k_PACKET_FEAT_TRACKER_ID:	handler = new NetFeatTracker(); break;
+		case k_PACKET_FEAT_TRACKER_ID:	handler = std::make_unique<NetFeatTracker>().release(); break;
 
 #ifdef _PLAYTEST
-		case k_PACKET_CHEAT_ID:         handler = new NetCheat; break;
+		case k_PACKET_CHEAT_ID:         handler = std::make_unique<NetCheat>().release(); break;
 #endif
 	}
 	if(handler) {
@@ -1064,7 +1051,7 @@ void Network::AddPlayer(uint16 id,
                         char* name)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetAddPlayer(id, name));
+		QueuePacketToAll(std::make_unique<NetAddPlayer>(id, name).release());
 	}
 
 	for(auto & i : m_playerData) {
@@ -1075,7 +1062,7 @@ void Network::AddPlayer(uint16 id,
 		}
 	}
 
-	PointerList<PlayerData>::Walker walk(m_newPlayerList);
+	PointerList<PlayerData>::Walker walk(m_newPlayerList.get());
 	while(walk.IsValid()) {
 		if(walk.GetObj()->m_id == id) {
 			// (Bug fix: format promised three conversions but only `id` and
@@ -1089,7 +1076,7 @@ void Network::AddPlayer(uint16 id,
 		walk.Next();
 	}
 	DPRINTF(k_DBG_NET, ("Adding player %s (id=%d)\n", name, id));
-	m_newPlayerList->AddTail(new PlayerData(name, (uint16)id));
+	m_newPlayerList->AddTail(std::make_unique<PlayerData>(name, (uint16)id).release());
 }
 
 void Network::RemovePlayer(uint16 id)
@@ -1099,8 +1086,7 @@ void Network::RemovePlayer(uint16 id)
 	if(id == m_pid) {
 		SessionLost();
 		// removing object bookkeeping
-		delete m_gameObjects;
-		m_gameObjects = new NetGameObj();
+		m_gameObjects = std::make_unique<NetGameObj>();
 	}
 
 	if(m_deleting)
@@ -1110,7 +1096,7 @@ void Network::RemovePlayer(uint16 id)
 
 	if(index < 0) {
 
-		PointerList<PlayerData>::Walker walk(m_newPlayerList);
+		PointerList<PlayerData>::Walker walk(m_newPlayerList.get());
 		while(walk.IsValid()) {
 			if(walk.GetObj()->m_id == id) {
 				walk.Remove();
@@ -1131,8 +1117,7 @@ void Network::RemovePlayer(uint16 id)
 	if(m_playerData[index]) {
 		std::string name = m_playerData[index]->m_name;
 
-		delete m_playerData[index];
-		m_playerData[index] = nullptr;
+		m_playerData[index].reset();
 
 		if(m_iAmHost && player_Get(index) && !player_Get(index)->m_isDead) {
 			SendLeftMessage(name.c_str(), index);
@@ -1244,9 +1229,9 @@ void Network::ChangeHost(uint16 id)
 void Network::SessionLost()
 {
 	if(slicengine_Get() && m_readyToStart) {
-		SlicObject *so = new SlicObject("355SessionLost");
+		auto so = std::make_unique<SlicObject>("355SessionLost");
 		so->AddRecipient(m_playerIndex);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	} else {
 		civapp_Get()->PostQuitToLobbyAction();
 	}
@@ -1273,23 +1258,23 @@ void Network::SetReady(uint16 id)
 	if(!m_playerData[index])
 		return;
 
-	PlayerData *player = m_playerData[index];
+	PlayerData *player = m_playerData[index].get();
 	m_playerData[index]->m_ready = TRUE;
 
 	MapPoint* size = world_Get()->GetSize();
 
-	QueuePacket(player->m_id, new NetCRC());
+	QueuePacket(player->m_id, std::make_unique<NetCRC>().release());
 
-	QueuePacket(player->m_id, new NetGameSettings(size->x, size->y,
+	QueuePacket(player->m_id, std::make_unique<NetGameSettings>(size->x, size->y,
 						      profiledb_Get()->GetNPlayers(),
 						      m_gameStyle,
 						      m_unitMovesPerSlice,
 						      m_totalStartTime,
 						      m_turnStartTime,
-						      m_extraTimePerCity));
+						      m_extraTimePerCity).release());
 
-	NetInfo* netInfo = new NetInfo(NET_INFO_CODE_PLAYER_INDEX,
-				       index, player->m_id);
+	NetInfo* netInfo = std::make_unique<NetInfo>(NET_INFO_CODE_PLAYER_INDEX,
+				       index, player->m_id).release();
 	QueuePacket(player->m_id, netInfo);
 
 	SetupPlayerFromNSPlayerInfo(player->m_id, index);
@@ -1297,8 +1282,8 @@ void Network::SetReady(uint16 id)
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
 		if(!player_Get(i)) continue;
 		if(m_playerData[i] && i != index) {
-			NetInfo* netInfo2 = new NetInfo(NET_INFO_CODE_PLAYER_INDEX,
-											i, m_playerData[i]->m_id);
+			NetInfo* netInfo2 = std::make_unique<NetInfo>(NET_INFO_CODE_PLAYER_INDEX,
+											i, m_playerData[i]->m_id).release();
 			QueuePacket(player->m_id, netInfo2);
 		}
 	}
@@ -1325,8 +1310,8 @@ void Network::SetReady(uint16 id)
 		return;
 	}
 
-#define PROGRESS(x) { QueuePacket(player->m_id, new NetInfo(NET_INFO_CODE_PROGRESS, x)); }
-#define CPROGRESS(x) { chunkPackets.AddTail(new NetInfo(NET_INFO_CODE_PROGRESS, x)); }
+#define PROGRESS(x) { QueuePacket(player->m_id, std::make_unique<NetInfo>(NET_INFO_CODE_PROGRESS, x).release()); }
+#define CPROGRESS(x) { chunkPackets.AddTail(std::make_unique<NetInfo>(NET_INFO_CODE_PROGRESS, x).release()); }
 
 #define k_CELL_LIST_CELL_SIZE 6
 
@@ -1343,7 +1328,7 @@ void Network::SetReady(uint16 id)
 	for(x = 0; x < size->x; x++) {
 		for(y = 0; y < size->y; y++) {
 			if(!cellList) {
-				cellList = new NetCellList(x,y);
+				cellList = std::make_unique<NetCellList>(x,y).release();
 			}
 			cellList->m_cells++;
 
@@ -1367,25 +1352,23 @@ void Network::SetReady(uint16 id)
 	ChunkList(player->m_id, &chunkPackets);
 	Assert(!chunkPackets.GetHead());
 
-	QueuePacket(player->m_id, new NetInfo(NET_INFO_CODE_MAP_DONE, 0));
+	QueuePacket(player->m_id, std::make_unique<NetInfo>(NET_INFO_CODE_MAP_DONE, 0).release());
 	PROGRESS(50);
 
 	uint8 p;
 	for(p = 0; p < k_MAX_PLAYERS; p++) {
 		if(!player_Get(p)) continue;
-		chunkPackets.AddTail(new NetPlayer(player_Get(p)));
-		chunkPackets.AddTail(new NetResearch(player_Get(p)->m_advances.get()));
-		chunkPackets.AddTail(
-					new NetDifficulty(player_Get(p)->GetDifficulty()));
+		chunkPackets.AddTail(std::make_unique<NetPlayer>(player_Get(p)).release());
+		chunkPackets.AddTail(std::make_unique<NetResearch>(player_Get(p)->m_advances.get()).release());
+		chunkPackets.AddTail(std::make_unique<NetDifficulty>(player_Get(p)->GetDifficulty()).release());
 		Assert(civilisationpool_Get()->IsValid(*player_Get(p)->m_civilisation));
 		if(civilisationpool_Get()->IsValid(*player_Get(p)->m_civilisation)) {
-			chunkPackets.AddTail(
-						new NetCivilization(player_Get(p)->m_civilisation->AccessData()));
+			chunkPackets.AddTail(std::make_unique<NetCivilization>(player_Get(p)->m_civilisation->AccessData()).release());
 		}
 		sint32 r;
 		sint32 n = player_Get(p)->m_strengths->m_strengthRecords[0].Num();
 		for(r = 0; r < n; r += 100) {
-			chunkPackets.AddTail(new NetFullStrengths(p, r, ((r + 99) < n) ? (r+99) : (n - 1)));
+			chunkPackets.AddTail(std::make_unique<NetFullStrengths>(p, r, ((r + 99) < n) ? (r+99) : (n - 1)).release());
 		}
 	}
 
@@ -1393,7 +1376,7 @@ void Network::SetReady(uint16 id)
 	Assert(!chunkPackets.GetHead());
 
 	PROGRESS(55);
-	QueuePacket(player->m_id, new NetInfo(NET_INFO_CODE_START_UNITS, 0));
+	QueuePacket(player->m_id, std::make_unique<NetInfo>(NET_INFO_CODE_START_UNITS, 0).release());
 
 	sint32 numPlayers = 0;
 	for(p = 0; p < k_MAX_PLAYERS; p++) {
@@ -1407,23 +1390,22 @@ void Network::SetReady(uint16 id)
 	for(p = 0; p < k_MAX_PLAYERS; p++) {
 		if(!player_Get(p)) continue;
 
-		chunkPackets.AddTail(new NetSetPlayerGuid(p));
+		chunkPackets.AddTail(std::make_unique<NetSetPlayerGuid>(p).release());
 
 		UnitDynamicArray *unitList = player_Get(p)->GetAllCitiesList();
 		for(n = 0; n < unitList->Num(); n++) {
 			UnitData * unitData =
                 unitpool_Get()->GetUnit(unitList->Get(n).m_id);
 
-			chunkPackets.AddTail(new NetUnit(unitData));
+			chunkPackets.AddTail(std::make_unique<NetUnit>(unitData).release());
 
-			chunkPackets.AddTail(new NetCity(unitData, TRUE));
-			chunkPackets.AddTail(new NetCityName(unitData->GetCityData()));
-			chunkPackets.AddTail(new NetCity2(unitData->GetCityData(), TRUE));
-			chunkPackets.AddTail(new NetCityBuildQueue(unitData->GetCityData()));
-			chunkPackets.AddTail(
-						new NetHappy(unitList->Get(n),
+			chunkPackets.AddTail(std::make_unique<NetCity>(unitData, TRUE).release());
+			chunkPackets.AddTail(std::make_unique<NetCityName>(unitData->GetCityData()).release());
+			chunkPackets.AddTail(std::make_unique<NetCity2>(unitData->GetCityData(), TRUE).release());
+			chunkPackets.AddTail(std::make_unique<NetCityBuildQueue>(unitData->GetCityData()).release());
+			chunkPackets.AddTail(std::make_unique<NetHappy>(unitList->Get(n),
 									 unitData->GetCityData()->GetHappy(),
-									 TRUE));
+									 TRUE).release());
 
 
 
@@ -1433,31 +1415,30 @@ void Network::SetReady(uint16 id)
 
 		unitList = player_Get(p)->GetAllUnitList();
 		for(n = 0; n < unitList->Num(); n++) {
-			chunkPackets.AddTail(new NetUnit(unitpool_Get()->GetUnit(unitList->Get(n).m_id)));
+			chunkPackets.AddTail(std::make_unique<NetUnit>(unitpool_Get()->GetUnit(unitList->Get(n).m_id)).release());
 		}
 
 		for(n = 0; n < player_Get(p)->m_all_armies->Num(); n++) {
 			Army army = player_Get(p)->m_all_armies->Access(n);
-			chunkPackets.AddTail(
-						new NetArmy(armypool_Get()->AccessArmy(army)));
+			chunkPackets.AddTail(std::make_unique<NetArmy>(armypool_Get()->AccessArmy(army)).release());
 
-			chunkPackets.AddTail(new NetInfo(NET_INFO_CODE_ADD_ARMY,
+			chunkPackets.AddTail(std::make_unique<NetInfo>(NET_INFO_CODE_ADD_ARMY,
 												  p,
 												  CAUSE_NEW_ARMY_INITIAL,
-												  player_Get(p)->m_all_armies->Access(n)));
+												  player_Get(p)->m_all_armies->Access(n)).release());
 
 			sint32 m;
 			for(m = 0; m < army.NumOrders(); m++) {
 				const Order *order = army.GetOrder(m);
 				Assert(order);
 				if(order) {
-					chunkPackets.AddTail(new NetOrder(p,
+					chunkPackets.AddTail(std::make_unique<NetOrder>(p,
 														   army,
 														   order->m_order,
-														   order->m_path,
+														   order->m_path.get(),
 														   order->m_point,
 														   order->m_argument,
-														   order->m_eventType));
+														   order->m_eventType).release());
 				}
 			}
 		}
@@ -1467,27 +1448,27 @@ void Network::SetReady(uint16 id)
 		for(n = 0; n < traderList->Num(); n++) {
 			UnitData * unitData =
                 unitpool_Get()->GetUnit(traderList->Get(n).m_id);
-			chunkPackets.AddTail(new NetUnit(unitData));
+			chunkPackets.AddTail(std::make_unique<NetUnit>(unitData).release());
 		}
 
 		n = player_Get(p)->m_terrainImprovements->Num();
 		for(i = 0; i < n; i++) {
-			chunkPackets.AddTail(new NetTerrainImprovement(player_Get(p)->m_terrainImprovements->Access(i).AccessData()));
+			chunkPackets.AddTail(std::make_unique<NetTerrainImprovement>(player_Get(p)->m_terrainImprovements->Access(i).AccessData()).release());
 		}
 
 		n = player_Get(p)->m_allInstallations->Num();
 		for(i = 0; i < n; i++) {
-			chunkPackets.AddTail(new NetInstallation(player_Get(p)->m_allInstallations->Access(i).AccessData()));
+			chunkPackets.AddTail(std::make_unique<NetInstallation>(player_Get(p)->m_allInstallations->Access(i).AccessData()).release());
 		}
 
-		chunkPackets.AddTail( new NetInfo(NET_INFO_CODE_GOLD,
-											  p, player_Get(p)->m_gold->GetLevel()));
+		chunkPackets.AddTail(std::make_unique<NetInfo>(NET_INFO_CODE_GOLD,
+											  p, player_Get(p)->m_gold->GetLevel()).release());
 
-		chunkPackets.AddTail(new NetReadiness(player_Get(p)->m_readiness.get()));
+		chunkPackets.AddTail(std::make_unique<NetReadiness>(player_Get(p)->m_readiness.get()).release());
 
-		chunkPackets.AddTail(new NetPlayerHappy((uint8)p, player_Get(p)->m_global_happiness.get(), TRUE));
+		chunkPackets.AddTail(std::make_unique<NetPlayerHappy>((uint8)p, player_Get(p)->m_global_happiness.get(), TRUE).release());
 
-		chunkPackets.AddTail(new NetCivilization(player_Get(p)->m_civilisation->AccessData()));
+		chunkPackets.AddTail(std::make_unique<NetCivilization>(player_Get(p)->m_civilisation->AccessData()).release());
 
 
 
@@ -1495,17 +1476,17 @@ void Network::SetReady(uint16 id)
 
 		sint32 y;
 		for(y = 0; y < world_Get()->GetYHeight(); y += k_VISION_STEP) {
-			chunkPackets.AddTail(new NetVision(p, static_cast<sint16>(y), k_VISION_STEP));
+			chunkPackets.AddTail(std::make_unique<NetVision>(p, static_cast<sint16>(y), k_VISION_STEP).release());
 		}
 		static DynamicArray<UnseenCellCarton> array;
 		player_Get(p)->m_vision->GetUnseenCellList(array);
 		n = array.Num();
 		for(i = 0; i < n; i++) {
-			chunkPackets.AddTail(new NetUnseenCell(array[i].m_unseenCell,
-                                                               p));
+			chunkPackets.AddTail(std::make_unique<NetUnseenCell>(array[i].m_unseenCell,
+                                                               p).release());
 		}
 
-		chunkPackets.AddTail(new NetEndGame(p));
+		chunkPackets.AddTail(std::make_unique<NetEndGame>(p).release());
 
 		playerPercent += percentPerPlayer;
 		CPROGRESS(55 + static_cast<uint32>(playerPercent * 30));
@@ -1515,19 +1496,19 @@ void Network::SetReady(uint16 id)
 
 	PROGRESS(85);
 
-	chunkPackets.AddTail(new NetWormhole());
+	chunkPackets.AddTail(std::make_unique<NetWormhole>().release());
 
-	chunkPackets.AddTail(new NetPollution());
+	chunkPackets.AddTail(std::make_unique<NetPollution>().release());
 
-	chunkPackets.AddTail(new NetWonderTracker());
-	chunkPackets.AddTail(new NetAchievementTracker());
-	chunkPackets.AddTail(new NetFeatTracker());
-	chunkPackets.AddTail(new NetExclusions());
+	chunkPackets.AddTail(std::make_unique<NetWonderTracker>().release());
+	chunkPackets.AddTail(std::make_unique<NetAchievementTracker>().release());
+	chunkPackets.AddTail(std::make_unique<NetFeatTracker>().release());
+	chunkPackets.AddTail(std::make_unique<NetExclusions>().release());
 
-	chunkPackets.AddTail(new NetWorld());
+	chunkPackets.AddTail(std::make_unique<NetWorld>().release());
 	n = tradepool_Get()->m_all_routes->Num();
 	for(i = 0; i < n; i++) {
-		chunkPackets.AddTail(new NetTradeRoute(tradepool_Get()->m_all_routes->Access(i).AccessData(), false));
+		chunkPackets.AddTail(std::make_unique<NetTradeRoute>(tradepool_Get()->m_all_routes->Access(i).AccessData(), false).release());
 	}
 
 	PROGRESS(90);
@@ -1535,25 +1516,25 @@ void Network::SetReady(uint16 id)
 	for(x = 0; x < world_Get()->GetXWidth(); x++) {
 		for(y = 0; y < world_Get()->GetYHeight(); y++) {
 			if(world_Get()->GetCell(x, y)->GetNumUnits() >= 2) {
-				chunkPackets.AddTail(new NetCellUnitOrder(x, y));
+				chunkPackets.AddTail(std::make_unique<NetCellUnitOrder>(x, y).release());
 			}
 		}
 	}
 
-	chunkPackets.AddTail(new NetInfo(NET_INFO_CODE_END_UNITS,
+	chunkPackets.AddTail(std::make_unique<NetInfo>(NET_INFO_CODE_END_UNITS,
 										  unitpool_Get()->HackGetKey(),
-										  armypool_Get()->HackGetKey()));
+										  armypool_Get()->HackGetKey()).release());
 
 	PROGRESS(95);
 
-	chunkPackets.AddTail(new NetAgreementMatrix);
+	chunkPackets.AddTail(std::make_unique<NetAgreementMatrix>().release());
 
-	chunkPackets.AddTail(new NetRand());
+	chunkPackets.AddTail(std::make_unique<NetRand>().release());
 
-	chunkPackets.AddTail(new NetKeys());
-	chunkPackets.AddTail(new NetInfo(NET_INFO_CODE_YEAR,
+	chunkPackets.AddTail(std::make_unique<NetKeys>().release());
+	chunkPackets.AddTail(std::make_unique<NetInfo>(NET_INFO_CODE_YEAR,
                                          turn_Get()->GetRound(),
-                                         turn_Get()->GetYear()));
+                                         turn_Get()->GetYear()).release());
 
 	ChunkList(player->m_id, &chunkPackets);
 	Assert(!chunkPackets.GetHead());
@@ -1561,47 +1542,47 @@ void Network::SetReady(uint16 id)
 	if(m_setupMode) {
 		sint32 index = IdToIndex(player->m_id);
 		MapPoint center = player_Get(index)->m_setupCenter;
-		QueuePacket(player->m_id, new NetInfo(NET_INFO_CODE_SET_SETUP_MODE,
-	                                              m_setupMode));
-		QueuePacket(player->m_id, new NetInfo(NET_INFO_CODE_SET_SETUP_AREA,
+		QueuePacket(player->m_id, std::make_unique<NetInfo>(NET_INFO_CODE_SET_SETUP_MODE,
+	                                              m_setupMode).release());
+		QueuePacket(player->m_id, std::make_unique<NetInfo>(NET_INFO_CODE_SET_SETUP_AREA,
 						      index,
 						      center.x, center.y,
-						      player_Get(index)->m_setupRadius));
-		QueuePacket(player->m_id, new NetInfo(NET_INFO_CODE_POWER_POINTS,
+						      player_Get(index)->m_setupRadius).release());
+		QueuePacket(player->m_id, std::make_unique<NetInfo>(NET_INFO_CODE_POWER_POINTS,
 						      index,
-						      player_Get(index)->m_powerPoints));
+						      player_Get(index)->m_powerPoints).release());
 	}
 
 	PROGRESS(100);
 
 	SendJoinedMessage(const_cast<MBCHAR *>(player->m_name.c_str()), index);
-	QueuePacket(player->m_id, new NetInfoMessage(NET_MSG_PLAYER_JOINED,
+	QueuePacket(player->m_id, std::make_unique<NetInfoMessage>(NET_MSG_PLAYER_JOINED,
 							     const_cast<MBCHAR *>(m_playerData[m_playerIndex]->m_name.c_str()),
-							     m_playerIndex));
+							     m_playerIndex).release());
 
-	QueuePacket(player->m_id, new NetInfo(NET_INFO_CODE_SET_TURN,
-					      selitem_Get()->GetCurPlayer()));
+	QueuePacket(player->m_id, std::make_unique<NetInfo>(NET_INFO_CODE_SET_TURN,
+					      selitem_Get()->GetCurPlayer()).release());
 
 	if(index == selitem_Get()->GetCurPlayer()) {
 		player->m_ackBeginTurn = TRUE;
 	}
 
 	if(m_readyToStart) {
-		QueuePacket(player->m_id, new NetInfo(NET_INFO_CODE_ALL_PLAYERS_READY));
+		QueuePacket(player->m_id, std::make_unique<NetInfo>(NET_INFO_CODE_ALL_PLAYERS_READY).release());
 	}
 }
 
 void Network::SyncRand()
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetRand());
+		QueuePacketToAll(std::make_unique<NetRand>().release());
 	}
 }
 
 void Network::SyncRand(sint32 index)
 {
 	if(m_iAmHost) {
-		QueuePacket(IndexToId(index), new NetRand());
+		QueuePacket(IndexToId(index), std::make_unique<NetRand>().release());
 	}
 }
 
@@ -1609,7 +1590,7 @@ void
 Network::Enqueue(UnitData* unit)
 {
 	if(m_iAmHost) {
-		NetUnit* netUnit = new NetUnit(unit);
+		NetUnit* netUnit = std::make_unique<NetUnit>(unit).release();
 		QueuePacketToAll(netUnit);
 	}
 }
@@ -1617,7 +1598,7 @@ Network::Enqueue(UnitData* unit)
 void Network::Enqueue(UnitData *unit, Unit useActor)
 {
 	if(m_iAmHost) {
-		NetUnit *netUnit = new NetUnit(unit, useActor);
+		NetUnit *netUnit = std::make_unique<NetUnit>(unit, useActor).release();
 		QueuePacketToAll(netUnit);
 	}
 }
@@ -1627,7 +1608,7 @@ Network::MoveUnit(UnitData *data, const MapPoint &pnt)
 {
 	if(m_iAmHost) {
 		Block(data->GetOwner());
-		QueuePacketToAll(new NetUnitMove(Unit(data->m_id), pnt));
+		QueuePacketToAll(std::make_unique<NetUnitMove>(Unit(data->m_id), pnt).release());
 		Unblock(data->GetOwner());
 	}
 }
@@ -1636,17 +1617,17 @@ void
 Network::Enqueue(UnitData* unit, CityData* city, BOOL isInitial)
 {
 	if(m_iAmHost) {
-		NetCity* netCity = new NetCity(unit, isInitial);
+		NetCity* netCity = std::make_unique<NetCity>(unit, isInitial).release();
 		QueuePacketToAll(netCity);
 
-		NetCity2* netCity2 = new NetCity2(city, static_cast<uint8>(isInitial));
+		NetCity2* netCity2 = std::make_unique<NetCity2>(city, static_cast<uint8>(isInitial)).release();
 		QueuePacketToAll(netCity2);
 
 		Unit u(unit->m_id);
-		QueuePacketToAll(new NetHappy(u, city->GetHappy(), isInitial));
+		QueuePacketToAll(std::make_unique<NetHappy>(u, city->GetHappy(), isInitial).release());
 
 		Block(city->GetOwner());
-		QueuePacketToAll(new NetCityBuildQueue(city));
+		QueuePacketToAll(std::make_unique<NetCityBuildQueue>(city).release());
 		Unblock(city->GetOwner());
 	}
 }
@@ -1654,9 +1635,9 @@ Network::Enqueue(UnitData* unit, CityData* city, BOOL isInitial)
 void Network::SendCityName(CityData *city)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetCityName(city));
+		QueuePacketToAll(std::make_unique<NetCityName>(city).release());
 	} else {
-		QueuePacket(m_hostId, new NetCityName(city));
+		QueuePacket(m_hostId, std::make_unique<NetCityName>(city).release());
 	}
 }
 
@@ -1674,7 +1655,7 @@ Network::Enqueue(Cell* cell,
 {
 	if(m_iAmHost) {
 
-		NetCellData* cellData = new NetCellData(cell, x, y);
+		NetCellData* cellData = std::make_unique<NetCellData>(cell, x, y).release();
 		QueuePacketToAll(cellData);
 	}
 }
@@ -1683,7 +1664,7 @@ void
 Network::Enqueue(TradeRouteData* tradeRoute)
 {
 	if(m_iAmHost) {
-		NetTradeRoute* netTradeRoute = new NetTradeRoute(tradeRoute, true);
+		NetTradeRoute* netTradeRoute = std::make_unique<NetTradeRoute>(tradeRoute, true).release();
 		QueuePacketToAll(netTradeRoute);
 	}
 }
@@ -1692,7 +1673,7 @@ void
 Network::Enqueue(TradeOfferData* offer)
 {
 	if(m_iAmHost) {
-		NetTradeOffer* netTradeOffer = new NetTradeOffer(offer);
+		NetTradeOffer* netTradeOffer = std::make_unique<NetTradeOffer>(offer).release();
 		QueuePacketToAll(netTradeOffer);
 	}
 }
@@ -1707,7 +1688,7 @@ void
 Network::Enqueue(TerrainImprovementData *data)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetTerrainImprovement(data));
+		QueuePacketToAll(std::make_unique<NetTerrainImprovement>(data).release());
 	}
 }
 
@@ -1715,7 +1696,7 @@ void
 Network::Enqueue(InstallationData *data)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetInstallation(data));
+		QueuePacketToAll(std::make_unique<NetInstallation>(data).release());
 	}
 }
 
@@ -1723,8 +1704,8 @@ void
 Network::Enqueue(Gold *gold)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetInfo(NET_INFO_CODE_GOLD,
-									 gold->GetOwner(), gold->GetLevel()));
+		QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_GOLD,
+									 gold->GetOwner(), gold->GetLevel()).release());
 	}
 }
 
@@ -1732,7 +1713,7 @@ void
 Network::Enqueue(MilitaryReadiness *readiness)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetReadiness(readiness));
+		QueuePacketToAll(std::make_unique<NetReadiness>(readiness).release());
 	}
 }
 
@@ -1740,7 +1721,7 @@ void
 Network::Enqueue(uint8 owner, PlayerHappiness *hap)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetPlayerHappy(owner, hap, FALSE));
+		QueuePacketToAll(std::make_unique<NetPlayerHappy>(owner, hap, FALSE).release());
 	}
 }
 
@@ -1748,7 +1729,7 @@ void
 Network::Enqueue(AgreementData *data)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetAgreement(data));
+		QueuePacketToAll(std::make_unique<NetAgreement>(data).release());
 	}
 }
 
@@ -1756,7 +1737,7 @@ void
 Network::MakeAgreement(Agreement &a)
 {
 	if(m_iAmClient) {
-		QueuePacket(m_hostId, new NetClientAgreement(a.AccessData()));
+		QueuePacket(m_hostId, std::make_unique<NetClientAgreement>(a.AccessData()).release());
 	}
 }
 
@@ -1764,7 +1745,7 @@ void
 Network::Enqueue(CivilisationData *data)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetCivilization(data));
+		QueuePacketToAll(std::make_unique<NetCivilization>(data).release());
 	}
 }
 
@@ -1781,7 +1762,7 @@ void
 Network::Enqueue(MessageData *data)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetMessage(data));
+		QueuePacketToAll(std::make_unique<NetMessage>(data).release());
 	}
 }
 
@@ -1789,7 +1770,7 @@ void
 Network::EnqueuePollution()
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetPollution());
+		QueuePacketToAll(std::make_unique<NetPollution>().release());
 	}
 }
 
@@ -1807,7 +1788,7 @@ void
 Network::Enqueue(ArmyData *armyData)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetArmy(armyData));
+		QueuePacketToAll(std::make_unique<NetArmy>(armyData).release());
 	}
 }
 
@@ -1823,7 +1804,7 @@ void
 Network::Enqueue(CityData *cd)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetCityBuildQueue(cd));
+		QueuePacketToAll(std::make_unique<NetCityBuildQueue>(cd).release());
 	}
 }
 
@@ -1834,7 +1815,7 @@ Network::SendBuildQueue(CityData *cd)
 		m_netIO->GetHostId(m_hostId);
 	}
 
-	QueuePacket(m_hostId, new NetCityBuildQueue(cd));
+	QueuePacket(m_hostId, std::make_unique<NetCityBuildQueue>(cd).release());
 }
 
 void
@@ -1843,7 +1824,7 @@ Network::SendMessage(MessageData *data)
 	if(m_hostId == 0) {
 		m_netIO->GetHostId(m_hostId);
 	}
-	QueuePacket(m_hostId, new NetMessage(data));
+	QueuePacket(m_hostId, std::make_unique<NetMessage>(data).release());
 }
 
 #ifdef _PLAYTEST
@@ -1886,9 +1867,9 @@ Network::SendOrder(sint32 owner, const Army &army, UNIT_ORDER_TYPE o,
 		m_netIO->GetHostId(m_hostId);
 	}
 
-	QueuePacket(m_hostId, new NetOrder(owner, army,
+	QueuePacket(m_hostId, std::make_unique<NetOrder>(owner, army,
 					   o, a_path, point,
-					   arg, event));
+					   arg, event).release());
 }
 
 void Network::SendToServer(Packetizer *packet)
@@ -2075,7 +2056,7 @@ Network::IdToIndex(uint16 id)
 	}
 
 #ifdef _DEBUG
-	PointerList<PlayerData>::Walker walk(m_newPlayerList);
+	PointerList<PlayerData>::Walker walk(m_newPlayerList.get());
 	while(walk.IsValid()) {
 		if(walk.GetObj()->m_id == id) {
 			return -1;
@@ -2107,12 +2088,12 @@ void Network::SetPlayerIndex(sint32 index, uint16 id)
 	}
 	m_totalTimeUsed = 0;
 
-	PointerList<PlayerData>::Walker walk(m_newPlayerList);
+	PointerList<PlayerData>::Walker walk(m_newPlayerList.get());
 	while(walk.IsValid()) {
 		PlayerData* pd = (PlayerData*)walk.GetObj();
 		if(pd->m_id == id) {
 			pd->m_index = index;
-			m_playerData[index] = pd;
+			m_playerData[index].reset(pd);
 			m_playerData[index]->m_ready = TRUE;
 			walk.Remove();
 			break;
@@ -2122,7 +2103,7 @@ void Network::SetPlayerIndex(sint32 index, uint16 id)
 
 	if(!m_playerData[index]) {
 		AddPlayer(id, const_cast<char *>("anotherclient"));
-		m_playerData[index] = m_newPlayerList->RemoveTail();
+		m_playerData[index].reset(m_newPlayerList->RemoveTail());
 		m_playerData[index]->m_ready = TRUE;
 	}
 	m_playerData[index]->m_id = id;
@@ -2274,7 +2255,7 @@ Network::ProcessNewPlayer(uint16 id)
 	sint32 newslot = -1;
 	BOOL found = FALSE;
 
-	PointerList<PlayerData>::Walker walk(m_newPlayerList);
+	PointerList<PlayerData>::Walker walk(m_newPlayerList.get());
 
 	while(walk.IsValid() && !found) {
 		PlayerData* player = walk.GetObj();
@@ -2316,7 +2297,7 @@ Network::ProcessNewPlayer(uint16 id)
 		found = TRUE;
 
 
-		m_playerData[newslot] = player;
+		m_playerData[newslot].reset(player);
 
 		if(m_iAmHost) {
 			SetMaxPlayers(CountOpenSlots() + CountTakenSlots());
@@ -2353,13 +2334,13 @@ Network::ProcessNewPlayer(uint16 id)
 
 		player->m_index = newslot;
 
-		NetInfo* netInfo = new NetInfo(NET_INFO_CODE_PLAYER_INDEX,
-									   newslot, player->m_id);
+		NetInfo* netInfo = std::make_unique<NetInfo>(NET_INFO_CODE_PLAYER_INDEX,
+									   newslot, player->m_id).release();
 		QueuePacketToAll(netInfo);
-		QueuePacketToAll(new NetSetPlayerGuid(newslot));
+		QueuePacketToAll(std::make_unique<NetSetPlayerGuid>(newslot).release());
 		if(!player->m_name.empty()) {
 			player_Get(newslot)->m_civilisation->AccessData()->SetLeaderName(player->m_name.c_str());
-			QueuePacketToAll(new NetSetLeaderName(newslot));
+			QueuePacketToAll(std::make_unique<NetSetLeaderName>(newslot).release());
 			if(g_networkPlayersScreen) {
 				g_networkPlayersScreen->UpdateData();
 			}
@@ -2503,7 +2484,7 @@ void Network::SendChatText(MBCHAR *str, sint32 len)
 						dest = atoi(destination);
 					}
 					if(dest > 0 && dest < k_MAX_PLAYERS && player_Get(dest)) {
-						NetChat *chatPacket = new NetChat(1 << dest, c, len - (c - str));
+						NetChat *chatPacket = std::make_unique<NetChat>(1 << dest, c, len - (c - str)).release();
 						if(network_Get().IsHost()) {
 							QueuePacket(IndexToId(dest), chatPacket);
 						} else {
@@ -2520,8 +2501,7 @@ void Network::SendChatText(MBCHAR *str, sint32 len)
 
 	AddChatText(str, len, static_cast<uint8>(selitem_Get()->GetVisiblePlayer()), FALSE);
 
-	NetChat *chatPacket = new NetChat(m_chatMask, str, (sint16)len);
-	chatPacket->AddRef();
+	PacketizerPtr chatPacket = make_packetizer<NetChat>(m_chatMask, str, (sint16)len);
 	if (IsActive()) {
 
 		if(network_Get().IsHost()) {
@@ -2529,35 +2509,34 @@ void Network::SendChatText(MBCHAR *str, sint32 len)
 				if(!player_Get(p)) continue;
 				if(m_chatMask & (1 << p) && !player_Get(p)->IsRobot() &&
 				   m_playerData[p]) {
-					QueuePacket(IndexToId(p), chatPacket);
+					QueuePacket(IndexToId(p), chatPacket.get());
 				}
 			}
 		} else {
-			QueuePacket(m_hostId, chatPacket);
+			QueuePacket(m_hostId, chatPacket.get());
 		}
     }
-	chatPacket->Release();
 }
 
 void Network::AddCivilization(sint32 index, PLAYER_TYPE pt, sint32 civ)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetInfo(NET_INFO_CODE_NEW_CIVILIZATION,
-									 index, pt, civ));
+		QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_NEW_CIVILIZATION,
+									 index, pt, civ).release());
 	} else {
-		QueuePacket(m_hostId, new NetAction(NET_ACTION_CREATED_CIV,
-											index, pt, civ));
+		QueuePacket(m_hostId, std::make_unique<NetAction>(NET_ACTION_CREATED_CIV,
+											index, pt, civ).release());
 	}
 }
 
 void Network::KillPlayer(sint32 p, GAME_OVER reason, sint32 data)
 {
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetInfo(NET_INFO_CODE_KILL_PLAYER, p,
-									 reason, data));
+		QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_KILL_PLAYER, p,
+									 reason, data).release());
 		ClosePlayer(p);
 	} else {
-		QueuePacket(m_hostId, new NetAction(NET_ACTION_KILLED_PLAYER, p));
+		QueuePacket(m_hostId, std::make_unique<NetAction>(NET_ACTION_KILLED_PLAYER, p).release());
 	}
 }
 
@@ -2818,9 +2797,9 @@ PlayerData::PlayerData(char* name, uint16 id) :
 	m_blocked(0),
 	m_ackBeginTurn(FALSE)
 {
-	m_bookmarks = new PointerList<PointerList<Packetizer>::PointerListNode>;
-	m_packetList = new PointerList<Packetizer>;
-	m_createdCities = new UnitDynamicArray;
+	m_bookmarks = std::make_unique<PointerList<PointerList<Packetizer>::PointerListNode>>();
+	m_packetList = std::make_unique<PointerList<Packetizer>>();
+	m_createdCities = std::make_unique<UnitDynamicArray>();
 	memset(&m_guid, 0, sizeof(GUID));
 
 	m_sentResync = FALSE;
@@ -2834,9 +2813,9 @@ PlayerData::~PlayerData()
 		packet->Release();
 	}
 
-	delete m_bookmarks;
-	delete m_packetList;
-	delete m_createdCities;
+	m_bookmarks.reset();
+	m_packetList.reset();
+	m_createdCities.reset();
 }
 
 uint8 Network::GetGameStyle() const
@@ -2909,7 +2888,7 @@ void Network::SetClassicStyle(BOOL fromServer)
 	if(!IsActive() || (m_iAmHost || fromServer)) {
 		m_gameStyle = 0;
 		if(m_iAmHost) {
-			Enqueue(new NetInfo(NET_INFO_CODE_CLASSIC_STYLE));
+			Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CLASSIC_STYLE).release());
 		}
 	}
 }
@@ -2925,7 +2904,7 @@ void Network::SetUnitMovesStyle(BOOL on, sint32 unitMovesPerSlice,
 			m_gameStyle &= ~(k_GAME_STYLE_UNIT_MOVES);
 		}
 		if(m_iAmHost) {
-			Enqueue(new NetInfo(NET_INFO_CODE_UNIT_MOVES_STYLE, on, unitMovesPerSlice));
+			Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_UNIT_MOVES_STYLE, on, unitMovesPerSlice).release());
 		}
 	}
 }
@@ -2954,7 +2933,7 @@ void Network::SetSpeedStyle(BOOL on, sint32 timePerTurn,
 		}
 
 		if(m_iAmHost) {
-			Enqueue(new NetInfo(NET_INFO_CODE_SPEED_STYLE, on, timePerTurn, timePerCity));
+			Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SPEED_STYLE, on, timePerTurn, timePerCity).release());
 		}
 	}
 }
@@ -2973,7 +2952,7 @@ void Network::SetTimedStyle(BOOL on, sint32 timePerGame,
 			m_gameStyle &= ~(k_GAME_STYLE_TOTAL_TIME);
 		}
 		if(m_iAmHost) {
-			Enqueue(new NetInfo(NET_INFO_CODE_TIMED_STYLE, on, timePerGame));
+			Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_TIMED_STYLE, on, timePerGame).release());
 		}
 	}
 }
@@ -2988,7 +2967,7 @@ void Network::SetSimultaneousStyle(BOOL on, BOOL fromServer)
 		}
 
 		if(m_iAmHost) {
-			Enqueue(new NetInfo(NET_INFO_CODE_SIMULTANEOUS_STYLE, on));
+			Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SIMULTANEOUS_STYLE, on).release());
 		}
 	}
 }
@@ -3006,7 +2985,7 @@ void Network::SetCarryoverStyle(BOOL on, BOOL fromServer)
 
 		m_bonusTime = 0;
 		if(m_iAmHost) {
-			Enqueue(new NetInfo(NET_INFO_CODE_CARRYOVER_STYLE, on));
+			Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CARRYOVER_STYLE, on).release());
 		}
 	}
 }
@@ -3141,7 +3120,7 @@ void Network::EnterSetupMode()
 	}
 
 	if(m_iAmHost) {
-		Enqueue(new NetInfo(NET_INFO_CODE_SET_SETUP_MODE, TRUE));
+		Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_SETUP_MODE, TRUE).release());
 	}
 	m_setupMode = TRUE;
 }
@@ -3149,7 +3128,7 @@ void Network::EnterSetupMode()
 void Network::ExitSetupMode()
 {
 	if(m_iAmHost) {
-		Enqueue(new NetInfo(NET_INFO_CODE_SET_SETUP_MODE, FALSE));
+		Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_SETUP_MODE, FALSE).release());
 	}
 	m_setupMode = FALSE;
 }
@@ -3159,7 +3138,7 @@ void Network::SignalSetupDone(PLAYER_INDEX player)
 	player_Get(player)->m_doneSettingUp = TRUE;
 
 	if(m_iAmClient) {
-		SendAction(new NetAction(NET_ACTION_DONE_SETTING_UP));
+		SendAction(std::make_unique<NetAction>(NET_ACTION_DONE_SETTING_UP).release());
 		return;
 	}
 
@@ -3199,9 +3178,9 @@ void Network::SetSetupArea(PLAYER_INDEX player, const MapPoint &center,
 
 	if(m_iAmHost)
 	{
-		Enqueue(new NetInfo(NET_INFO_CODE_SET_SETUP_AREA,
+		Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_SETUP_AREA,
 							player, center.x, center.y,
-							radius));
+							radius).release());
 	}
 }
 
@@ -3222,8 +3201,8 @@ void Network::SetPowerPoints(PLAYER_INDEX player, sint32 points)
 {
 	player_Get(player)->m_powerPoints = points;
 	if(m_iAmHost) {
-		Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
-							player, points));
+		Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_POWER_POINTS,
+							player, points).release());
 	}
 }
 
@@ -3279,7 +3258,7 @@ UnitDynamicArray *Network::GetCreatedCities(PLAYER_INDEX owner)
 	if(!m_playerData[owner])
 		return nullptr;
 
-	return m_playerData[owner]->m_createdCities;
+	return m_playerData[owner]->m_createdCities.get();
 }
 
 void Network::AddResetCityOwnerHack(const Unit &unit)
@@ -3313,7 +3292,7 @@ void Network::SetupPlayerFromNSPlayerInfo(uint16 id, sint32 index)
 	Assert(p);
 	if(p) {
 		NSPlayerInfo *nspi = nullptr;
-		PointerList<NSPlayerInfo>::Walker walk(m_nsPlayerInfo);
+		PointerList<NSPlayerInfo>::Walker walk(m_nsPlayerInfo.get());
 		while(walk.IsValid()) {
 			if(walk.GetObj()->m_id == id) {
 				nspi = walk.GetObj();
@@ -3421,7 +3400,7 @@ void Network::RemoveEnact(DiplomaticRequest &req)
 void Network::SetGuid(uint16 id, GUID *guid)
 {
 	BOOL found = FALSE;
-	PointerList<PlayerData>::Walker walk(m_newPlayerList);
+	PointerList<PlayerData>::Walker walk(m_newPlayerList.get());
 	while(walk.IsValid() && !found) {
 		if(walk.GetObj()->m_id == id) {
 			walk.GetObj()->m_guid = *guid;
@@ -3448,7 +3427,7 @@ void Network::ResetGuid(sint32 player)
 {
 	if(m_playerData[player] && player_Get(player)) {
 		player_Get(player)->m_networkGuid = m_playerData[player]->m_guid;
-		QueuePacketToAll(new NetSetPlayerGuid(player));
+		QueuePacketToAll(std::make_unique<NetSetPlayerGuid>(player).release());
 	}
 }
 
@@ -3594,13 +3573,13 @@ void Network::SetReadyToStart(BOOL ready)
 
 					director_Get()->AddEndTurn();
 				}
-				QueuePacketToAll(new NetSetPlayerGuid(i));
+				QueuePacketToAll(std::make_unique<NetSetPlayerGuid>(i).release());
 			}
 
 
 
 
-			QueuePacketToAll(new NetInfo(NET_INFO_CODE_ALL_PLAYERS_READY));
+			QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_ALL_PLAYERS_READY).release());
 		}
 
 		MainControlPanel::UpdatePlayer(selitem_Get()->GetCurPlayer());
@@ -3610,7 +3589,7 @@ void Network::SetReadyToStart(BOOL ready)
 void Network::SendJoinedMessage(MBCHAR *name, sint32 player)
 {
 	if(slicengine_Get() && player != m_playerIndex && name) {
-		SlicObject *so = new SlicObject("351NetworkPlayerJoined");
+		auto so = std::make_unique<SlicObject>("351NetworkPlayerJoined");
 		so->AddAction(name);
 		so->AddCivilisation(player);
 		so->AddRecipient(m_playerIndex);
@@ -3619,32 +3598,31 @@ void Network::SendJoinedMessage(MBCHAR *name, sint32 player)
 		stringutils_Interpret(stringdb_Get()->GetNameStr("NETWORK_PLAYER_JOINED"), *so, interp);
 		AddChatText(interp, strlen(interp), 0, FALSE);
 
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 	}
 
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetInfoMessage(NET_MSG_PLAYER_JOINED,
-										name, player));
+		QueuePacketToAll(std::make_unique<NetInfoMessage>(NET_MSG_PLAYER_JOINED,
+										name, player).release());
 	}
 }
 
 void Network::SendWrongPlayerJoinedMessage(MBCHAR *name, sint32 player)
 {
 	if(slicengine_Get()) {
-		SlicObject *so = new SlicObject("352DifferentPlayerJoined");
+		auto so = std::make_unique<SlicObject>("352DifferentPlayerJoined");
 		so->AddAction(name);
 		so->AddCivilisation(player);
 		so->AddRecipient(m_playerIndex);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 }
 
 void Network::SendLeftMessage(const MBCHAR *name, sint32 player)
 {
 	if(slicengine_Get()) {
-		SlicObject *so;
-		so = new SlicObject("350NetworkPlayerLeft");
+		auto so = std::make_unique<SlicObject>("350NetworkPlayerLeft");
 		so->AddAction(name);
 
 		so->AddRecipient(m_playerIndex);
@@ -3653,24 +3631,19 @@ void Network::SendLeftMessage(const MBCHAR *name, sint32 player)
 		stringutils_Interpret(stringdb_Get()->GetNameStr("NETWORK_PLAYER_LEFT"), *so, interp);
 		AddChatText(interp, strlen(interp), 0, FALSE);
 
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetInfoMessage(NET_MSG_PLAYER_LEFT,
-										name, player));
+		QueuePacketToAll(std::make_unique<NetInfoMessage>(NET_MSG_PLAYER_LEFT,
+										name, player).release());
 	}
 }
 
 void Network::SendNewHostMessage(MBCHAR *name, sint32 player)
 {
 	if(slicengine_Get()) {
-		SlicObject *so;
-		if(m_iAmHost) {
-			so = new SlicObject("353YouAreNowHost");
-		} else {
-			so = new SlicObject("354NewHost");
-		}
+		auto so = std::make_unique<SlicObject>(m_iAmHost ? "353YouAreNowHost" : "354NewHost");
 		so->AddAction(name);
 		so->AddRecipient(m_playerIndex);
 
@@ -3678,12 +3651,12 @@ void Network::SendNewHostMessage(MBCHAR *name, sint32 player)
 		stringutils_Interpret(stringdb_Get()->GetNameStr("NETWORK_YOU_ARE_NOW_HOST"), *so, interp);
 		AddChatText(interp, strlen(interp), 0, FALSE);
 
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	if(m_iAmHost) {
-		QueuePacketToAll(new NetInfoMessage(NET_MSG_NEW_HOST,
-											name, player));
+		QueuePacketToAll(std::make_unique<NetInfoMessage>(NET_MSG_NEW_HOST,
+											name, player).release());
 	}
 }
 
@@ -3719,7 +3692,7 @@ void Network::Resync(sint32 playerIndex)
 				GEA_End);
 		}
 
-		QueuePacket(id, new NetInfo(NET_INFO_CODE_RESYNC));
+		QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_RESYNC).release());
 		SetReady(id);
 	}
 #ifdef WIN32
@@ -3762,14 +3735,13 @@ void Network::StartResync()
 
 
 
-		delete m_gameObjects;
-		m_gameObjects = new NetGameObj;
+		m_gameObjects = std::make_unique<NetGameObj>();
 	}
 
 	ClearDeadUnits();
 
 	DPRINTF(k_DBG_NET, ("Acknowledging resync\n"));
-	QueuePacket(m_hostId, new NetReport(NET_REPORT_ACK_RESYNC));
+	QueuePacket(m_hostId, std::make_unique<NetReport>(NET_REPORT_ACK_RESYNC).release());
 
 	const char *str = stringdb_Get()->GetNameStr("NETWORK_RESYNCING");
 	char nonConstStr[1024];
@@ -3820,7 +3792,7 @@ void Network::RequestResync(RESYNC_REASON reason)
 	}
 	c3_AbortMessage(nonConstStr, k_UTILITY_PROGRESS_ABORT, network_AbortCallback);
 
-	SendAction(new NetAction(NET_ACTION_REQUEST_RESYNC, reason));
+	SendAction(std::make_unique<NetAction>(NET_ACTION_REQUEST_RESYNC, reason).release());
 
 	m_waitingOnResync = TRUE;
 }
@@ -3914,8 +3886,7 @@ void Network::ChunkList(uint16 id, PointerList<Packetizer> * a_List)
 	if(!a_List)
 		return;
 
-	sint32 mapBufSize = a_List->GetCount() * 258 + 16384;
-	uint8 *mapBuf = new uint8[mapBufSize];
+	std::vector<uint8> mapBuf(a_List->GetCount() * 258 + 16384);
 
 	mapBuf[0] = k_CHUNK_HEAD;
 	mapBuf[1] = k_CHUNK_BODY;
@@ -3923,21 +3894,16 @@ void Network::ChunkList(uint16 id, PointerList<Packetizer> * a_List)
 
 	while(a_List->GetHead()) {
 		uint16 len = 0;
-		Packetizer *packet = a_List->RemoveHead();
 
+		std::unique_ptr<Packetizer> packet(a_List->RemoveHead());
 		// Packetize writes an unknown length (bounded by k_MAX_PACKET_LEN)
 		// before it reports it, so guarantee room for the largest possible
 		// packet before the write. The reactive realloc below keeps the buffer
 		// sized for subsequent packets, but only enforced the invariant via an
 		// Assert that is compiled out in release builds.
 		const sint32 k_MAX_PACKET_LEN = 16384;
-		if(size + 2 + k_MAX_PACKET_LEN > mapBufSize) {
-			sint32 newSize = size + 2 + k_MAX_PACKET_LEN;
-			uint8 *grown = new uint8[newSize];
-			memcpy(grown, mapBuf, size);
-			delete [] mapBuf;
-			mapBuf = grown;
-			mapBufSize = newSize;
+		if(size + 2 + k_MAX_PACKET_LEN > static_cast<sint32>(mapBuf.size())) {
+			mapBuf.resize(size + 2 + k_MAX_PACKET_LEN);
 		}
 
 		packet->Packetize(&mapBuf[size + 2], len);
@@ -3948,18 +3914,13 @@ void Network::ChunkList(uint16 id, PointerList<Packetizer> * a_List)
 
 		if(len >= 256) {
 
-			uint8* newMapBuf = new uint8[mapBufSize + len - 256];
-			memcpy(newMapBuf, mapBuf, size);
-			delete [] mapBuf;
-			mapBuf = newMapBuf;
-			mapBufSize += len - 256;
+			mapBuf.resize(mapBuf.size() + len - 256);
 		}
 
-		delete packet;
+
 	}
 
-	Packetizer *chunk = new Packetizer(mapBuf, size);
-	delete [] mapBuf;
+	Packetizer *chunk = std::make_unique<Packetizer>(mapBuf.data(), size).release();
 	QueuePacket(id, chunk);
 
 }
@@ -4004,7 +3965,7 @@ void Network::SetRobotName(sint32 player)
 	}
 	civ->AccessData()->SetLeaderName(stringdb_Get()->GetNameStr(strId));
 
-	QueuePacketToAll(new NetSetLeaderName(player));
+	QueuePacketToAll(std::make_unique<NetSetLeaderName>(player).release());
 	if(g_networkPlayersScreen) {
 		g_networkPlayersScreen->UpdateData();
 	}
@@ -4012,11 +3973,11 @@ void Network::SetRobotName(sint32 player)
 
 void Network::SendCity(CityData *cd)
 {
-	SendToServer(new NetCity(cd->GetHomeCity().AccessData(), TRUE));
-	SendToServer(new NetCity2(cd, TRUE));
-	SendToServer(new NetCityBuildQueue(cd));
-	SendToServer(new NetHappy(cd->GetHomeCity(),
-							  cd->GetHappy(), TRUE));
+	SendToServer(std::make_unique<NetCity>(cd->GetHomeCity().AccessData(), TRUE).release());
+	SendToServer(std::make_unique<NetCity2>(cd, TRUE).release());
+	SendToServer(std::make_unique<NetCityBuildQueue>(cd).release());
+	SendToServer(std::make_unique<NetHappy>(cd->GetHomeCity(),
+							  cd->GetHappy(), TRUE).release());
 }
 
 void Network::NotifyDiplomacyResponse(Response &response, sint32 p1, sint32 p2)
@@ -4024,9 +3985,9 @@ void Network::NotifyDiplomacyResponse(Response &response, sint32 p1, sint32 p2)
 	if(!network_Get().IsActive()) return;
 
 	if(IsHost()) {
-		QueuePacketToAll(new NetDipResponse(response, p1, p2));
+		QueuePacketToAll(std::make_unique<NetDipResponse>(response, p1, p2).release());
 	} else if(IsLocalPlayer(p1)) {
-		SendToServer(new NetDipResponse(response, p1, p2));
+		SendToServer(std::make_unique<NetDipResponse>(response, p1, p2).release());
 	}
 }
 
@@ -4036,12 +3997,12 @@ void Network::NotifyDiplomacyThreatRejected(Response &response, const Response &
 
 void Network::SendGroupRequest(const CellUnitList &units, const Army &army)
 {
-	SendToServer(new NetGroupRequest(units, army));
+	SendToServer(std::make_unique<NetGroupRequest>(units, army).release());
 }
 
 void Network::SendUngroupRequest(const Army &army, const CellUnitList &units)
 {
-	SendToServer(new NetUngroupRequest(army, units));
+	SendToServer(std::make_unique<NetUngroupRequest>(army, units).release());
 }
 
 void network_VerifyGameData()

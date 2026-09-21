@@ -31,6 +31,7 @@
 #ifndef __SLIC_SEGMENT_H__
 #define __SLIC_SEGMENT_H__
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -85,10 +86,10 @@ private:
 	std::string m_filename;
 
 	std::vector<sint32> m_trigger_symbols_indices;
-	SlicSymbolData **m_trigger_symbols;
+	std::vector<SlicSymbolData *> m_trigger_symbols;
 
 	std::vector<sint32> m_parameter_indices;
-	SlicSymbolData **m_parameter_symbols;
+	std::vector<SlicSymbolData *> m_parameter_symbols;
 
 	int m_poolIndex;
 

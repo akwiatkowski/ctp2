@@ -57,11 +57,13 @@
 #include "WonderRecord.h"       // g_theWonderDB
 #include "gs/world/World.h"              // world_Get()
 
+#include <memory>
+
 
 namespace
 {
 	/// City espionage data and window (singleton)
-	CityEspionage * s_CityEspionage     = nullptr;
+	CityEspionage * s_CityEspionage = nullptr;   // private ctor/dtor — raw
 
 	/// Block name for lookup of elements and layout from the ldl-file
 	MBCHAR const *  LDL_BLOCK           = "CityEspionage";
@@ -147,7 +149,7 @@ CityEspionage::~CityEspionage()
 /// \remarks Can be used as ::UiCleanupCallback
 void CityEspionage::Cleanup()
 {
-	delete s_CityEspionage;
+	delete s_CityEspionage;   // private dtor — raw
 	s_CityEspionage = nullptr;
 }
 
@@ -158,7 +160,7 @@ void CityEspionage::Display(Unit a_City)
 {
 	if (!s_CityEspionage)
 	{
-		s_CityEspionage = new CityEspionage();
+		s_CityEspionage = new CityEspionage();   // private ctor — raw
 		c3ui_Get()->RegisterCleanup(&CityEspionage::Cleanup);
 	}
 
@@ -215,7 +217,7 @@ void CityEspionage::DisplayWindow(Unit a_City)
 					if (item)
 					{
 						item->SetText(g_theBuildingDB->Get(buildIndex)->GetNameText());
-						item->SetUserData(new InventoryItemInfo(true, buildIndex));
+						item->SetUserData(std::make_unique<InventoryItemInfo>(true, buildIndex).release());
 					}
 
 					m_inventoryList->AddItem(item);
@@ -232,7 +234,7 @@ void CityEspionage::DisplayWindow(Unit a_City)
 					if (item)
 					{
 						item->SetText(g_theWonderDB->Get(wonderIndex)->GetNameText());
-						item->SetUserData(new InventoryItemInfo(false, wonderIndex));
+						item->SetUserData(std::make_unique<InventoryItemInfo>(false, wonderIndex).release());
 					}
 
 					m_inventoryList->AddItem(item);

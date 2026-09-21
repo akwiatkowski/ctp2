@@ -38,6 +38,7 @@
 // Library imports
 //----------------------------------------------------------------------------
 
+#include <memory>
 //----------------------------------------------------------------------------
 // Exported names
 //----------------------------------------------------------------------------
@@ -88,7 +89,7 @@ public:
         {
 			PointerListNode * node = m_head;
 			m_head = m_head->m_next;
-			delete node;
+			std::unique_ptr<PointerListNode>{node};
 		}
 	};
 
@@ -98,8 +99,8 @@ public:
         {
 			PointerListNode * node = m_head;
 			m_head = m_head->m_next;
-			delete node->m_obj;
-			delete node;
+			std::unique_ptr<T>{node->m_obj};
+			std::unique_ptr<PointerListNode>{node};
 		}
 		m_tail = nullptr;
 		m_count = 0;
@@ -255,25 +256,27 @@ private:
 
 template <class T> void PointerList<T>::AddTail(T *obj)
 {
-	PointerListNode* node = new PointerListNode(obj);
+	auto node = std::make_unique<PointerListNode>(obj);
 	if(m_tail) {
-		m_tail->m_next = node;
+		m_tail->m_next = node.get();
 		node->m_prev = m_tail;
-		m_tail = node;
+		m_tail = node.get();
 	} else
-		m_tail = m_head = node;
+		m_tail = m_head = node.get();
+	node.release();
 	m_count++;
 }
 
 template <class T> void PointerList<T>::AddHead(T *obj)
 {
-	PointerListNode* node = new PointerListNode(obj);
+	auto node = std::make_unique<PointerListNode>(obj);
 	if(m_head) {
-		m_head->m_prev = node;
+		m_head->m_prev = node.get();
 		node->m_next = m_head;
-		m_head = node;
+		m_head = node.get();
 	} else
-		m_tail = m_head = node;
+		m_tail = m_head = node.get();
+	node.release();
 	m_count++;
 }
 
@@ -293,7 +296,7 @@ template <class T> T* PointerList<T>::RemoveHead()
 		m_tail = nullptr;
 	}
 	T* obj = node->m_obj;
-	delete node;
+	std::unique_ptr<PointerListNode>{node};
 
 	m_count--;
 
@@ -330,7 +333,7 @@ template <class T> T* PointerList<T>::RemoveTail()
 		m_head = nullptr;
 	}
 	T* obj = node->m_obj;
-	delete node;
+	std::unique_ptr<PointerListNode>{node};
 
 	m_count--;
 
@@ -379,25 +382,26 @@ template <class T> void PointerList<T>::Remove(PointerListNode* node)
     }
 
 	m_count--;
-	delete node;
+	std::unique_ptr<PointerListNode>{node};
 }
 
 template <class T> void PointerList<T>::InsertAt(PointerListNode *node, T *obj)
 {
 	if (node)
     {
-	    PointerListNode * newNode = new PointerListNode(obj);
+	    auto newNode = std::make_unique<PointerListNode>(obj);
 		newNode->m_next = node->m_next;
 		newNode->m_prev = node;
         if (node->m_next)
         {
-            node->m_next->m_prev = newNode;
+            node->m_next->m_prev = newNode.get();
         }
         else
         {
-            m_tail      = newNode;
+            m_tail      = newNode.get();
         }
-        node->m_next    = newNode;
+        node->m_next    = newNode.get();
+        newNode.release();
     	m_count++;
 	}
     else
@@ -410,18 +414,19 @@ template <class T> void PointerList<T>::InsertBefore(PointerListNode *node, T *o
 {
     if (node)
     {
-	    PointerListNode * newNode = new PointerListNode(obj);
+	    auto newNode = std::make_unique<PointerListNode>(obj);
 		newNode->m_prev = node->m_prev;
 		newNode->m_next = node;
         if (node->m_prev)
         {
-		    node->m_prev->m_next = newNode;
+		    node->m_prev->m_next = newNode.get();
         }
 		else
         {
-			m_head      = newNode;
+			m_head      = newNode.get();
 		}
-        node->m_prev    = newNode;
+        node->m_prev    = newNode.get();
+        newNode.release();
     	m_count++;
     }
     else

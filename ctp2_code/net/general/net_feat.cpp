@@ -29,6 +29,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"             // general settings
+#include <memory>
+
 #include "net/general/net_feat.h"       // own declarations: consistency check
 
 #include "gs/gameobj/FeatTracker.h"    // feattracker_Get()
@@ -184,7 +186,7 @@ void NetFeatTracker::Unpacketize(uint16 id, uint8 * buf, uint16 size)
 		PULLLONG(player);
 		PULLLONG(turn);
 
-		feattracker_Get()->m_activeList.AddTail(new Feat(featIndex, player, turn));
+		feattracker_Get()->m_activeList.AddTail(std::make_unique<Feat>(featIndex, player, turn).release());
 	}
 
 	Assert(pos == size);

@@ -1,4 +1,6 @@
 #include "ctp/c3.h"
+#include <memory>
+
 #include "net/general/network.h"
 #include "net/general/net_installation.h"
 #include "net/io/net_util.h"
@@ -37,7 +39,7 @@ void NetInstallation::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	network_Get().CheckReceivedObject((uint32)inst);
 
 	if(!installationpool_Get()->IsValid(inst)) {
-		m_data = new InstallationData(inst);
+		m_data = std::make_unique<InstallationData>(inst).release();
 	} else {
 		m_data = installationpool_Get()->AccessInstallation(inst);
 	}

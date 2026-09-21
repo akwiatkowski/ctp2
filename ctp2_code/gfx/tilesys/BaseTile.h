@@ -35,6 +35,7 @@
 #define __BASETILE_H__
 
 #include "gfx/tilesys/tileutils.h"
+#include <memory>
 
 #define k_BTF_TRANSITION0		0x01
 #define k_BTF_TRANSITION1		0x02
@@ -92,12 +93,12 @@ public:
 	uint16	GetTileDataLen() const { return m_tileDataLen; }
 
 	Pixel16 *GetTileData() const { return m_tileData; }
-	void	SetTileData(Pixel16 *data) { m_tileData = data; }
+	void	SetTileData(Pixel16 *data) { m_tileDataOwner.reset(data); m_tileData = data; }
 
 	void	SetHatDataLen(uint16 dataLen) { m_hatDataLen = dataLen; }
 	uint16	GetHatDataLen() const { return m_hatDataLen; }
 
-	void	SetHatData(Pixel16 *hatData) { m_hatData = hatData; }
+	void	SetHatData(Pixel16 *hatData) { m_hatDataOwner.reset(hatData); m_hatData = hatData; }
 	Pixel16	*GetHatData() const { return m_hatData; }
 
 	BOOL	Read(FILE *file);
@@ -114,6 +115,11 @@ private:
 
 	Pixel16		*m_tileData;
 	Pixel16		*m_hatData;
+
+	// Owning storage for the Read()/SetTileData() paths. QuickRead() borrows
+	// into the caller's buffer and leaves these empty.
+	std::unique_ptr<Pixel16[]>	m_tileDataOwner;
+	std::unique_ptr<Pixel16[]>	m_hatDataOwner;
 };
 
 #endif

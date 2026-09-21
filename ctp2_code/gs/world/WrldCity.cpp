@@ -30,6 +30,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
@@ -121,8 +123,8 @@ bool World::InsertCity(const MapPoint &pos, Unit u)
 			c->SetOwner(owner);
 			if(network_Get().IsHost()) {
 				uint32 packpos = network_Get().PackedPos(pos);
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CELL_OWNER,
-											  packpos, owner));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CELL_OWNER,
+											  packpos, owner).release());
 			}
 
 			CityRadiusIterator(pos, this);

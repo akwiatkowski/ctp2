@@ -9,6 +9,7 @@
 #include "gs/gameobj/AgreementPool.h"
 #include "gs/gameobj/player.h"
 #include "gs/utility/AgreementDynArr.h"
+#include <memory>
 
 NetAgreement::NetAgreement(AgreementData *data)
 {
@@ -76,7 +77,7 @@ void NetAgreement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	network_Get().CheckReceivedObject((uint32)ag);
 	if(!agreementpool_Get()->IsValid(ag)) {
-		m_data = new AgreementData(ag);
+		m_data = std::make_unique<AgreementData>(ag).release(); // ownership: agreementpool Insert below
 	} else {
 		m_data = agreementpool_Get()->AccessAgreement(ag);
 	}
@@ -116,7 +117,8 @@ void NetClientAgreement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Agreement ag;
 	PULLLONGTYPE(ag, Agreement);
 
-	m_data = new AgreementData(ID());
+	std::unique_ptr<AgreementData> data = std::make_unique<AgreementData>(ID());
+	m_data = data.get();
 
 	NetAgreement::UnpacketizeData(m_data, buf, pos, size);
 
@@ -128,11 +130,11 @@ void NetClientAgreement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	network_Get().Unblock(network_Get().IdToIndex(id));
 
 	if(createdAgreement == ag) {
-		network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_ACK_OBJECT,
-													  uint32(ag)));
+		network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_ACK_OBJECT,
+													  uint32(ag)).release());
 	} else {
-		network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
-											  uint32(ag), uint32(createdAgreement)));
+		network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_NAK_OBJECT,
+											  uint32(ag), uint32(createdAgreement)).release());
 	}
 
 	AgreementData *cdata = createdAgreement.AccessData();
@@ -148,5 +150,5 @@ void NetClientAgreement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 
 	network_Get().Enqueue(cdata);
-	delete m_data;
+
 }

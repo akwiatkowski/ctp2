@@ -29,6 +29,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/Unit.h"
@@ -97,9 +99,9 @@ STDEHANDLER(CutImprovementsEvent)
 		}
 		if (num_killed > 0)
 		{
-			SlicObject *so = new SlicObject("41IAPillageSuicide");
+			auto so = std::make_unique<SlicObject>("41IAPillageSuicide");
 			so->AddRecipient(unitsOwner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(so.release());
 		}
 	}
 

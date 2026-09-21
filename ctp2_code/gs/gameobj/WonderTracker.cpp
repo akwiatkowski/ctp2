@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/utility/safety.h"
 
@@ -84,9 +85,9 @@ void WonderTracker::AddBuilt(sint32 which)
 {
 	m_builtWonders |= safe_shift_left_u64(which);
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BUILT_WONDERS,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_BUILT_WONDERS,
 									  (uint32)(m_builtWonders & 0xffffffff),
-									  (uint32)(m_builtWonders >> (uint64)32)));
+									  (uint32)(m_builtWonders >> (uint64)32)).release());
 	}
 }
 

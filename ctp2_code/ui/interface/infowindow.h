@@ -39,6 +39,8 @@
 class InfoWindow;
 
 #include "os/include/ctp2_inttypes.h"  // uint32
+#include <memory>
+
 
 class aui_Control;
 class ctp2_Button;
@@ -73,9 +75,9 @@ private:
 
 	ctp2_Window * m_window;
 	ctp2_Button * m_closeButton;
-	RankingTab *  m_ranking_tab;
-	ScoreTab *    m_score_tab;
-	WonderTab *   m_wonder_tab;
+	std::unique_ptr<RankingTab> m_ranking_tab;
+	std::unique_ptr<ScoreTab>   m_score_tab;
+	std::unique_ptr<WonderTab>  m_wonder_tab;
 };
 
 #endif

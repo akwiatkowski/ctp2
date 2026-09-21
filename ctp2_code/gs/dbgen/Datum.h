@@ -35,6 +35,7 @@
 #ifndef DATUM_H__
 #define DATUM_H__
 
+#include <memory>
 #include <memory.h>         // memset
 #include <stdio.h>          // FILE
 #include <string>           // std::string
@@ -59,7 +60,7 @@ public:
 	char *                m_subType;
 	sint32                m_bitNum;
 	struct namelist *     m_groupList;
-	Datum *               m_bitPairDatum;
+	std::unique_ptr<Datum> m_bitPairDatum;
 	bool                  m_required;
 	bool                  m_hasValue;
 	bool                  m_hasDBRefValue;

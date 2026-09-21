@@ -9,6 +9,8 @@
 #include "robot/aibackdoor/dynarr.h"
 
 #include <string>
+#include <memory>
+
 
 class UnitDynamicArray;
 
@@ -26,7 +28,7 @@ public:
 	uint16 m_id;
 	sint32 m_index;
 	sint32 m_group;
-	PointerList<Packetizer> *m_packetList;
+	std::unique_ptr<PointerList<Packetizer>> m_packetList;
 	DynamicArray<Unit> m_createdUnits;
 	DynamicArray<Army> m_createdArmies;
 	GUID m_guid;
@@ -37,7 +39,7 @@ public:
 
 
 
-	PointerList<PointerList<Packetizer>::PointerListNode> *m_bookmarks;
+	std::unique_ptr<PointerList<PointerList<Packetizer>::PointerListNode>> m_bookmarks;
 	BOOL m_ready;
 	sint32 m_blocked;
 
@@ -45,7 +47,7 @@ public:
 
 	BOOL m_ackBeginTurn;
 	BOOL m_sentResync;
-	UnitDynamicArray *m_createdCities;
+	std::unique_ptr<UnitDynamicArray> m_createdCities;
 };
 
 #endif

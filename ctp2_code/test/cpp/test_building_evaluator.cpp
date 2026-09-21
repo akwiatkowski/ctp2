@@ -27,13 +27,14 @@
 #include "BuildingRecord.h"
 #include "WonderRecord.h"
 #include "ctp/civapp.h"
+#include <memory>
 
 struct EvaluatorFixture
 {
     static bool s_dbsLoaded;
-    static CivApp *s_app;
+    static std::unique_ptr<CivApp> s_app;
 
-    Player **stubPlayers = nullptr;
+    std::unique_ptr<Player *[]> stubPlayers;
 
     EvaluatorFixture()
     {
@@ -44,37 +45,35 @@ struct EvaluatorFixture
             CivPaths_InitCivPaths();
             gameinit_InitializeGameFiles();
 
-            profiledb_Set(new ProfileDB());
+            profiledb_Set(std::make_unique<ProfileDB>().release());
             profiledb_Get()->Init(FALSE);
 
-            s_app = new CivApp();
+            s_app = std::make_unique<CivApp>();
             s_app->InitializeAppDB();
 
             // Required for CityData ctor: civapp must be set so trampolines
             // (world_Set, player_arr_Set) route through it.
-            civapp_Set(s_app);
-            world_Set(new World(MapPoint(20, 20), false, false));
+            civapp_Set(s_app.get());
+            world_Set(std::make_unique<World>(MapPoint(20, 20), false, false).release());
 
             s_dbsLoaded = true;
         }
 
-        stubPlayers = new Player *[k_MAX_PLAYERS];
-        for (int i = 0; i < k_MAX_PLAYERS; ++i)
-        {
-            stubPlayers[i] = nullptr;
-        }
-        player_arr_Set(stubPlayers);
+        // Fixture-owned array of empty player slots; player_arr_Set only
+        // publishes the pointer (no Game::NewGame adoption happens here).
+        stubPlayers = std::make_unique<Player *[]>(k_MAX_PLAYERS);
+        player_arr_Set(stubPlayers.get());
     }
 
     ~EvaluatorFixture()
     {
-        delete[] stubPlayers;
+        stubPlayers.reset();
         player_arr_Set(nullptr);
     }
 };
 
 bool EvaluatorFixture::s_dbsLoaded = false;
-CivApp *EvaluatorFixture::s_app = nullptr;
+std::unique_ptr<CivApp> EvaluatorFixture::s_app;
 
 namespace
 {

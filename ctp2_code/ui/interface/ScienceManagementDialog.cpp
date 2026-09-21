@@ -34,6 +34,8 @@
 #include "ctp/c3.h"
 #include "ui/interface/ScienceManagementDialog.h"
 
+#include <memory>
+
 #include "AdvanceRecord.h"
 #include "ui/aui_common/aui_blitter.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -48,7 +50,6 @@
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
 #include "ui/aui_ctp2/c3_listitem.h"
-#include "gs/utility/Globals.h"                // allocated::...
 #include "GovernmentRecord.h"
 #include "ui/interface/greatlibrary.h"           // k_MAX_GL_ENTRY
 #include "IconRecord.h"
@@ -73,11 +74,11 @@ static const sint32 k_SMD_CIVILIZATION_COLUMNS	= 8;
 
 
 
-static ScienceManagementDialog * g_scienceManagementDialog = nullptr;
+static std::unique_ptr<ScienceManagementDialog> g_scienceManagementDialog;
 
 ScienceManagementDialog * sciencemanagementdialog_Get()
 {
-    return g_scienceManagementDialog;
+    return g_scienceManagementDialog.get();
 }
 
 #define	k_SCI_COL_ADVANCE 0
@@ -85,7 +86,7 @@ ScienceManagementDialog * sciencemanagementdialog_Get()
 void ScienceManagementDialog::Open()
 {
 	if(!g_scienceManagementDialog) {
-		g_scienceManagementDialog = new ScienceManagementDialog;
+		g_scienceManagementDialog = std::make_unique<ScienceManagementDialog>();
 	}
 
 	g_scienceManagementDialog->Update();
@@ -105,7 +106,7 @@ void ScienceManagementDialog::Cleanup()
 	   !g_scienceManagementDialog->m_window->IsHidden())
 		g_scienceManagementDialog->Hide();
 
-    allocated::clear(g_scienceManagementDialog);
+    g_scienceManagementDialog.reset();
 }
 
 ScienceManagementDialog::ScienceManagementDialog() :
@@ -332,8 +333,8 @@ void ScienceManagementDialog::UpdateAdvanceList()
 ctp2_ListItem *ScienceManagementDialog::CreateAdvanceItem(const AdvanceRecord *advance)
 {
 
-	ctp2_ListItem *item = static_cast<ctp2_ListItem*>(
-		aui_Ldl::BuildHierarchyFromRoot("ScienceAdvanceListItem"));
+	std::unique_ptr<ctp2_ListItem> item(static_cast<ctp2_ListItem*>(
+		aui_Ldl::BuildHierarchyFromRoot("ScienceAdvanceListItem")));
 
 	Assert(item);
 	if (!item)
@@ -342,13 +343,12 @@ ctp2_ListItem *ScienceManagementDialog::CreateAdvanceItem(const AdvanceRecord *a
 	item->SetUserData(reinterpret_cast<void*>(advance->GetIndex()));
 	item->SetCompareCallback(CompareAdvance);
 
-	if (UpdateAdvanceItem(item, advance))
+	if (UpdateAdvanceItem(item.get(), advance))
 	{
-		return item;
+		return item.release();
 	}
 	else
 	{
-		delete item;
 		return nullptr;
 	}
 }

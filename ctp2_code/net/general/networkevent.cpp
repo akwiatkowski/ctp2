@@ -29,6 +29,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
+
 
 #include "net/general/network.h"
 #include "net/general/net_diplomacy.h"
@@ -72,7 +74,7 @@ STDEHANDLER(NetBeginTurnEvent)
 	}
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(pl)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_ACK_BEGIN_TURN));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_ACK_BEGIN_TURN).release());
 	}
 
 	return GEV_HD_Continue;
@@ -128,11 +130,11 @@ STDEHANDLER(NetStartMovePhaseEvent)
 					UnitData *ud = player_Get(pl)->m_all_cities->Access(i).AccessData();
 					CityData *cd = ud->GetCityData();
 
-					cityPackets.AddTail(new NetCity(ud, FALSE));
-					cityPackets.AddTail(new NetCity2(cd, FALSE));
-					cityPackets.AddTail(new NetHappy(player_Get(pl)->m_all_cities->Access(i), cd->GetHappy(), FALSE));
+					cityPackets.AddTail(std::make_unique<NetCity>(ud, FALSE).release());
+					cityPackets.AddTail(std::make_unique<NetCity2>(cd, FALSE).release());
+					cityPackets.AddTail(std::make_unique<NetHappy>(player_Get(pl)->m_all_cities->Access(i), cd->GetHappy(), FALSE).release());
 
-					buildQueuePackets.AddTail(new NetCityBuildQueue(cd));
+					buildQueuePackets.AddTail(std::make_unique<NetCityBuildQueue>(cd).release());
 
 
 				}
@@ -145,7 +147,7 @@ STDEHANDLER(NetStartMovePhaseEvent)
 			}
 		}
 
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CITIES_DONE, pl));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CITIES_DONE, pl).release());
 	}
 
 	return GEV_HD_Continue;
@@ -160,7 +162,7 @@ STDEHANDLER(NetAIFinishBeginTurnEvent)
 
 
 	if(network_Get().IsHost() && !network_Get().IsLocalPlayer(pl)) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_FINISH_AI_TURN, pl));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_FINISH_AI_TURN, pl).release());
 	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(pl) && player_Get(pl)->IsRobot()) {
 
 	}
@@ -186,10 +188,10 @@ STDEHANDLER(NetNewProposalEvent)
 
 	if(network_Get().IsHost()) {
 		network_Get().Block(prop.senderId);
-		network_Get().QueuePacketToAll(new NetDipProposal(prop));
+		network_Get().QueuePacketToAll(std::make_unique<NetDipProposal>(prop).release());
 		network_Get().Unblock(prop.senderId);
 	} else if(network_Get().IsLocalPlayer(sender)) {
-		network_Get().SendToServer(new NetDipProposal(prop));
+		network_Get().SendToServer(std::make_unique<NetDipProposal>(prop).release());
 	}
 
 	return GEV_HD_Continue;

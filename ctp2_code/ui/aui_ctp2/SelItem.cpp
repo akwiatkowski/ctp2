@@ -44,6 +44,8 @@
 #include "ctp/c3.h"
 #include "ctp/ctp2_utils/c3errors.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_ctp2/c3ui.h"
@@ -142,10 +144,10 @@ void           selitem_Set(SelectedItem *p)   { g_selected_item = p; }
 #include "robot/pathing/CityAstar.h"
 #include "ai/strategy/agents/agent.h"
 
-extern UnitAstar                *g_theUnitAstar;
+extern std::unique_ptr<UnitAstar> g_theUnitAstar;
 
 sint32                           g_tradeSelectedState = 0;
-extern GrabItem                 *g_grabbedItem;
+extern std::unique_ptr<GrabItem> g_grabbedItem;
 
 extern CityAstar                 g_city_astar;
 
@@ -233,16 +235,13 @@ SelectedItem::SelectedItem(sint32 nPlayers)
 	Init();
 }
 
-SelectedItem::~SelectedItem()
-{
-	delete m_good_path;
-}
+SelectedItem::~SelectedItem() = default;
 
 void SelectedItem::Init()
 {
 	m_is_pathing                = false;
 	m_cur_mouse_tile.Set(0,0);
-	m_good_path                 = nullptr;
+	m_good_path.reset();
 	m_bad_path.Clear();
 	m_is_broken_path            = false;
 	m_waypoints.clear();
@@ -1047,7 +1046,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 		// city) — found by the first amphibious conquest over MCP. The UI
 		// refresh is meaningless without a UI; the selection itself is not.
 		if (c3ui_Get())
-			c3ui_Get()->AddAction( new WorkWinUpdateAction );
+			c3ui_Get()->AddAction( std::make_unique<WorkWinUpdateAction>().release() );
 
 		// Focus on city if option is activated
 		if(IsAutoCenterOn())
@@ -1242,11 +1241,7 @@ void SelectedItem::Deselect(PLAYER_INDEX player)
 
 	m_select_state[player] = SELECT_TYPE_NONE;
 
-	if(m_good_path)
-	{
-		delete m_good_path;
-		m_good_path = nullptr;
-	}
+	m_good_path.reset();
 
 	m_bad_path.Clear();
 
@@ -1364,8 +1359,7 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 		double cost;
 		ConstructPath(isCircular, cost);
 
-		goodPath = m_good_path;
-		m_good_path = nullptr;
+		goodPath = m_good_path.release();
 
 		if(goodPath)
 		{
@@ -1650,7 +1644,7 @@ void SelectedItem::SetDrawablePathDest(MapPoint &dest)
 		}
 
 		if(!m_good_path)
-			m_good_path = new Path;
+			m_good_path = std::make_unique<Path>();
 
 		float total_cost;
 		Assert(g_theUnitAstar);
@@ -1683,8 +1677,7 @@ void SelectedItem::SetDrawablePathDest(MapPoint &dest)
 			return;
 		}
 
-		delete m_good_path;
-		m_good_path = nullptr;
+		m_good_path.reset();
 		m_bad_path.Clear();
 
 		bool r;
@@ -1712,7 +1705,7 @@ void SelectedItem::SetDrawablePathDest(MapPoint &dest)
 														alliedCity)
 			){
 				if(!m_good_path)
-					m_good_path = new Path;
+					m_good_path = std::make_unique<Path>();
 				r = g_theUnitAstar->StraightLine(start, dest, *m_good_path);
 			}
 			else
@@ -1745,7 +1738,7 @@ void SelectedItem::SetDrawablePathDest(MapPoint &dest)
 		}
 
 		if(!m_good_path)
-			m_good_path = new Path;
+			m_good_path = std::make_unique<Path>();
 
 		float total_cost;
 		bool r = g_city_astar.FindRoadPath(start, m_cur_mouse_tile,player, *m_good_path, total_cost);
@@ -1762,11 +1755,10 @@ void SelectedItem::ConstructPath(bool &isCircular, double &cost)
 		return;
 
 	PLAYER_INDEX player = GetVisiblePlayer();
-	Path *partialPath = new Path;
+	auto partialPath = std::make_unique<Path>();
 	float partialCost;
 
-	delete m_good_path;
-	m_good_path = nullptr;
+	m_good_path.reset();
 
 	Army a = m_selected_army[player];
 	MapPoint start;
@@ -1776,7 +1768,7 @@ void SelectedItem::ConstructPath(bool &isCircular, double &cost)
 							 *partialPath, m_is_broken_path,
 							 m_bad_path,
 							 partialCost);
-	m_good_path = partialPath;
+	m_good_path = std::move(partialPath);
 
 	if (m_is_broken_path)
 	{
@@ -1803,7 +1795,7 @@ void SelectedItem::ConstructPath(bool &isCircular, double &cost)
 	}
 
 	cost += partialCost;
-	partialPath = new Path;
+	partialPath = std::make_unique<Path>();
 	for(sint32 i = 1; i < static_cast<sint32>(m_waypoints.size()); i++)
 	{
 		g_theUnitAstar->FindPath(a, m_waypoints[i-1],
@@ -1817,7 +1809,6 @@ void SelectedItem::ConstructPath(bool &isCircular, double &cost)
 		}
 		cost += partialCost;
 	}
-	delete partialPath;
 
 	isCircular = start == m_waypoints.back();
 

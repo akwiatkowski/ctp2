@@ -1,4 +1,6 @@
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/aui_common/aui_action.h"
 
 #include "ui/interface/MessageBoxDialog.h"
@@ -29,7 +31,7 @@ void MessageBoxDialog::Information(const MBCHAR *message,
 	CriticalMessagesPrefs *prefs = critical_messages_prefs_Get();
 	if(!prefs)
 	{
-		prefs = new CriticalMessagesPrefs;
+		prefs = std::make_unique<CriticalMessagesPrefs>().release();
 		critical_messages_prefs_Set(prefs);
 	}
 
@@ -59,7 +61,7 @@ void MessageBoxDialog::Query(const MBCHAR *message,
 	CriticalMessagesPrefs *prefs = critical_messages_prefs_Get();
 	if(!prefs)
 	{
-		prefs = new CriticalMessagesPrefs;
+		prefs = std::make_unique<CriticalMessagesPrefs>().release();
 		critical_messages_prefs_Set(prefs);
 	}
 	if(prefs->IsEnabled(id))
@@ -196,11 +198,11 @@ public:
 		uint32			data
 	) override
     {
-        delete  m_dialog;
+        m_dialog.reset();
     };
 
 private:
-	MessageBoxDialog *  m_dialog;
+	std::unique_ptr<MessageBoxDialog>  m_dialog;
 };
 
 void MessageBoxDialog::LeftButtonActionCallback(aui_Control *control,
@@ -222,7 +224,7 @@ void MessageBoxDialog::LeftButtonActionCallback(aui_Control *control,
 
 	static char text[256];
 
-	c3ui_Get()->AddDestructiveAction(new DismissMessageBoxAction(dialog));
+	c3ui_Get()->AddDestructiveAction(std::make_unique<DismissMessageBoxAction>(dialog).release());
 
 	if(dialog->m_callback) {
 		if(dialog->m_isTextQuery) {
@@ -259,7 +261,7 @@ void MessageBoxDialog::RightButtonActionCallback(aui_Control *control,
 
 	static char text[256];
 
-	c3ui_Get()->AddAction(new DismissMessageBoxAction(dialog));
+	c3ui_Get()->AddAction(std::make_unique<DismissMessageBoxAction>(dialog).release());
 
 	if(dialog->m_callback) {
 		if(dialog->m_isTextQuery) {
@@ -297,7 +299,7 @@ void MessageBoxDialog::TextFieldActionCallback(aui_Control *control,
 
 	char text[256];
 
-	c3ui_Get()->AddAction(new DismissMessageBoxAction(dialog));
+	c3ui_Get()->AddAction(std::make_unique<DismissMessageBoxAction>(dialog).release());
 
 	if(dialog->m_callback) {
 		if(dialog->m_isTextQuery) {

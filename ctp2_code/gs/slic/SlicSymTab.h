@@ -1,6 +1,8 @@
 #ifndef __SLIC_SYM_TAB_H__
 #define __SLIC_SYM_TAB_H__
 
+#include <memory>
+
 #include "gs/slic/StringHash.h"
 #include "gs/slic/SlicSymbol.h"
 #include "gs/slic/SlicNamedSymbol.h"
@@ -16,7 +18,7 @@ private:
 	sint32 m_numEntries;
 
 
-	SlicNamedSymbol **m_array;
+	std::unique_ptr<SlicNamedSymbol *[]> m_array;
 
 public:
 	SlicSymTab(sint32 size);

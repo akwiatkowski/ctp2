@@ -29,6 +29,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include "ctp/c3.h"
 #include "ui/interface/battleview.h"
 
@@ -65,8 +66,7 @@ BattleView::BattleView()
 	m_numAttackers              (0),
 	m_numDefenders              (0),
 	m_eventQueue                (nullptr),
-    m_walker                    (new PointerList<BattleEvent>::Walker),
-	m_activeEvent               (nullptr),
+    m_walker                    (std::make_unique<PointerList<BattleEvent>::Walker>()),
 	m_cityBonus                 (0.0),
 	m_citylandattackBonus       (0.0),
 	m_cityairattackBonus        (0.0),
@@ -75,27 +75,23 @@ BattleView::BattleView()
 	m_fortBonus                 (0.0),
 	m_fortifiedBonus            (0.0)
 {
-    std::fill(m_attackers, m_attackers + k_MAX_UNITS_PER_SIDE,
-              (BattleViewActor *) nullptr
-             );
-    std::fill(m_defenders, m_defenders + k_MAX_UNITS_PER_SIDE,
-              (BattleViewActor *) nullptr
-              );
+    // m_attackers/m_defenders are std::array<std::unique_ptr> - default null
 }
 
 
 BattleView::~BattleView()
 {
-	m_walker->SetList(m_eventQueue);
+	m_walker->SetList(m_eventQueue.get());
 	while (m_walker->IsValid())
     {
-		delete m_walker->Remove();
+		// Remove() detaches the node; unique_ptr frees the BattleEvent
+		std::unique_ptr<BattleEvent>{m_walker->Remove()};
 	}
 
 	m_walker->SetList(&m_activeEvents);
 	while (m_walker->IsValid())
     {
-		delete m_walker->Remove();
+		std::unique_ptr<BattleEvent>{m_walker->Remove()};
 	}
 
     if (c3ui_Get())
@@ -107,16 +103,8 @@ BattleView::~BattleView()
 		    c3ui_Get()->UnloadImage(m_cityImage);
     }
 
-	delete m_eventQueue;
-	delete m_activeEvent;
-	delete m_battleSurface;
-	delete m_walker;
-
-	for (int i = 0; i < k_MAX_UNITS_PER_SIDE; i++)
-    {
-		delete m_attackers[i];
-		delete m_defenders[i];
-	}
+	// m_eventQueue, m_battleSurface, m_walker, m_attackers, m_defenders
+	// are unique_ptr members - auto-freed
 }
 
 void BattleView::Initialize(RECT const & battleViewRect)
@@ -126,8 +114,7 @@ void BattleView::Initialize(RECT const & battleViewRect)
 	sint32      height  = battleViewRect.bottom - battleViewRect.top;
 
 	m_battleViewRect    = battleViewRect;
-	delete m_battleSurface;
-	m_battleSurface     = aui_Factory::new_Surface(errcode, width, height);
+	m_battleSurface.reset(aui_Factory::new_Surface(errcode, width, height));
 	Assert(m_battleSurface);
 }
 
@@ -137,13 +124,12 @@ void BattleView::SetBattle(Battle *battle)
 	m_numAttackers = battle->GetNumAttackers();
 	m_numDefenders = battle->GetNumDefenders();
 	for(sint32 index = 0; index < k_MAX_UNITS_PER_SIDE; index++) {
-		m_attackers[index] = battle->GetAttacker(index);
-		m_defenders[index] = battle->GetDefender(index);
+		m_attackers[index].reset(battle->GetAttacker(index));
+		m_defenders[index].reset(battle->GetDefender(index));
 	}
 
 
-	delete m_eventQueue;
-	m_eventQueue = battle->GrabEventQueue();
+	m_eventQueue.reset(battle->GrabEventQueue());
 
 	m_battle = battle;
 }
@@ -151,8 +137,7 @@ void BattleView::SetBattle(Battle *battle)
 void BattleView::UpdateBattle(Battle *battle)
 {
 
-	delete m_eventQueue;
-	m_eventQueue = battle->GrabEventQueue();
+	m_eventQueue.reset(battle->GrabEventQueue());
 }
 
 
@@ -198,17 +183,15 @@ void BattleView::GetDefenderPos(sint32 column, sint32 row, sint32 *x, sint32 *y)
 
 void BattleView::DrawExplosions()
 {
-	PointerList<BattleEvent>::Walker *walker = new PointerList<BattleEvent>::Walker(&m_activeEvents);
+	PointerList<BattleEvent>::Walker walker(&m_activeEvents);
 
-	while (walker->IsValid()) {
-		BattleEvent *event = walker->GetObj();
+	while (walker.IsValid()) {
+		BattleEvent *event = walker.GetObj();
 		if (event) {
-			event->DrawExplosions(m_battleSurface);
+			event->DrawExplosions(m_battleSurface.get());
 		}
-		walker->Next();
+		walker.Next();
 	}
-
-	delete walker;
 }
 
 
@@ -242,13 +225,13 @@ void BattleView::DrawAttackers()
 		m_attackers[i]->GetPixelPos(x, y);
 		sortedAttackers[i].x = x;
 		sortedAttackers[i].y = y;
-		sortedAttackers[i].actor = m_attackers[i];
+		sortedAttackers[i].actor = m_attackers[i].get();
 	}
 
 	qsort((void *)sortedAttackers, m_numAttackers, sizeof(SortedActor), battleview_AttackerSort);
 
 	for (i=0; i<m_numAttackers; i++) {
-		sortedAttackers[i].actor->DrawDirect(m_battleSurface, sortedAttackers[i].x, sortedAttackers[i].y);
+		sortedAttackers[i].actor->DrawDirect(m_battleSurface.get(), sortedAttackers[i].x, sortedAttackers[i].y);
 	}
 
 
@@ -294,13 +277,13 @@ void BattleView::DrawDefenders()
 		m_defenders[i]->GetPixelPos(x, y);
 		sortedDefenders[i].x = x;
 		sortedDefenders[i].y = y;
-		sortedDefenders[i].actor = m_defenders[i];
+		sortedDefenders[i].actor = m_defenders[i].get();
 	}
 
 	qsort((void *)sortedDefenders, m_numDefenders, sizeof(SortedActor), battleview_DefenderSort);
 
 	for (i=0; i<m_numDefenders; i++) {
-		sortedDefenders[i].actor->DrawDirect(m_battleSurface, sortedDefenders[i].x, sortedDefenders[i].y);
+		sortedDefenders[i].actor->DrawDirect(m_battleSurface.get(), sortedDefenders[i].x, sortedDefenders[i].y);
 	}
 
 
@@ -315,13 +298,13 @@ void BattleView::DrawDefenders()
 void BattleView::RemoveAttacker(sint32 index)
 {
 	if(m_battle) {
-		m_battle->RemoveAttacker(m_attackers[index]);
+		m_battle->RemoveAttacker(m_attackers[index].get());
 	}
 
-	delete m_attackers[index];
+	m_attackers[index].reset();
 
 	for(sint32 i = index; i < m_numAttackers - 1; i++) {
-		m_attackers[i] = m_attackers[i + 1];
+		m_attackers[i] = std::move(m_attackers[i + 1]);
 	}
 
 	m_attackers[m_numAttackers-1] = nullptr;
@@ -333,13 +316,13 @@ void BattleView::RemoveAttacker(sint32 index)
 void BattleView::RemoveDefender(sint32 index)
 {
 	if(m_battle) {
-		m_battle->RemoveDefender(m_defenders[index]);
+		m_battle->RemoveDefender(m_defenders[index].get());
 	}
 
-	delete m_defenders[index];
+	m_defenders[index].reset();
 
 	for(sint32 i = index; i < m_numDefenders - 1; i++) {
-		m_defenders[i] = m_defenders[i + 1];
+		m_defenders[i] = std::move(m_defenders[i + 1]);
 	}
 
 	m_defenders[m_numDefenders-1] = nullptr;
@@ -355,7 +338,7 @@ void BattleView::RemoveActor(BattleViewActor *actor)
 	Assert(actor);
 	if (actor == nullptr) return;
 
-	PointerList<BattleEvent>::Walker walk(m_eventQueue);
+	PointerList<BattleEvent>::Walker walk(m_eventQueue.get());
 	for(; walk.IsValid(); walk.Next()) {
 		walk.GetObj()->RemoveDeadActor(actor);
 	}
@@ -365,14 +348,14 @@ void BattleView::RemoveActor(BattleViewActor *actor)
 	}
 
 	for (i=0; i<m_numAttackers; i++) {
-		if (actor == m_attackers[i]) {
+		if (actor == m_attackers[i].get()) {
 			RemoveAttacker(i);
 			return;
 		}
 	}
 
 	for (i=0; i<m_numDefenders; i++) {
-		if (actor == m_defenders[i]) {
+		if (actor == m_defenders[i].get()) {
 			RemoveDefender(i);
 			return;
 		}
@@ -392,7 +375,7 @@ void BattleView::UpdateDisplay()
 					m_backgroundImage->TheSurface()->Width(),
 					m_backgroundImage->TheSurface()->Height()};
 
-	c3ui_Get()->TheBlitter()->Blt(m_battleSurface, 0, 0, m_backgroundImage->TheSurface(),
+	c3ui_Get()->TheBlitter()->Blt(m_battleSurface.get(), 0, 0, m_backgroundImage->TheSurface(),
 							&rect, k_AUI_BLITTER_FLAG_COPY);
 
 	if(m_cityImage) {
@@ -400,7 +383,7 @@ void BattleView::UpdateDisplay()
 				m_cityImage->TheSurface()->Width(),
 				m_cityImage->TheSurface()->Height() };
 
-		c3ui_Get()->TheBlitter()->Blt(m_battleSurface, m_battleSurface->Width() - cityrect.right, 0,
+		c3ui_Get()->TheBlitter()->Blt(m_battleSurface.get(), m_battleSurface->Width() - cityrect.right, 0,
 								  m_cityImage->TheSurface(), &cityrect, k_AUI_BLITTER_FLAG_COPY);
 	}
 
@@ -499,7 +482,8 @@ void BattleView::Process()
 			if (event->IsFinished())
             {
 				m_walker->Remove();
-				delete event;
+				// Remove() detaches the node; unique_ptr frees the BattleEvent
+				std::unique_ptr<BattleEvent>{event};
 
 				if (!IsProcessing() && (!combat_Get() || !combat_Get()->IsDone()))
                 {

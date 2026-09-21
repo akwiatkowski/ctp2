@@ -31,6 +31,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
@@ -54,7 +56,7 @@
 extern SpriteGroupList		*g_unitSpriteGroupList;
 
 
-ProfileEdit *s_profileEdit = nullptr;
+static std::unique_ptr<ProfileEdit> s_profileEdit;
 
 ProfileEdit::ProfileEdit(AUI_ERRCODE *err)
 {
@@ -86,7 +88,7 @@ AUI_ERRCODE ProfileEdit::Initialize()
 		return AUI_ERRCODE_OK;
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	s_profileEdit = new ProfileEdit(&err);
+	s_profileEdit = std::make_unique<ProfileEdit>(&err);
 
 	Assert(err == AUI_ERRCODE_OK);
 
@@ -137,8 +139,7 @@ AUI_ERRCODE ProfileEdit::Cleanup()
 		if(s_profileEdit->m_window) {
 			c3ui_Get()->RemoveWindow(s_profileEdit->m_window->Id());
 		}
-		delete s_profileEdit;
-		s_profileEdit = nullptr;
+		s_profileEdit.reset();
 	}
 	return AUI_ERRCODE_OK;
 }

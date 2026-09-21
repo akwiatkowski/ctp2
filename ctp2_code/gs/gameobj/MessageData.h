@@ -35,6 +35,7 @@
 #define __MESSAGEDATA_H__
 
 #include <nlohmann/json.hpp>
+#include <memory>
 #include <string>
 
 #include "gs/gameobj/GameObj.h"
@@ -106,13 +107,13 @@ class MessageData : public GameObj
 
 
 		std::string	m_text;
-		UnitDynamicArray *m_cityList ;
+		std::unique_ptr<UnitDynamicArray> m_cityList;
 
 		ID	m_request ;
 		ID  m_tradeOffer;
 
-		PointerList<SlicButton> *m_buttonList;
-		PointerList<SlicEyePoint> *m_eyePoints;
+		std::unique_ptr<PointerList<SlicButton>> m_buttonList;
+		std::unique_ptr<PointerList<SlicEyePoint>> m_eyePoints;
 
 		MessageWindow *m_window;
 

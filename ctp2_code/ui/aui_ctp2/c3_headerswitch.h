@@ -2,6 +2,8 @@
 #define __C3_HEADERSWITCH_H__
 
 #include "ui/aui_common/aui_radio.h"
+#include <memory>
+
 #include "ui/aui_ctp2/patternbase.h"
 
 #define k_C3_HEADERSWITCH_DEFAULTNUMSTATES	3
@@ -35,10 +37,12 @@ public:
 		sint32 numStates = k_C3_HEADERSWITCH_DEFAULTNUMSTATES );
 	~c3_HeaderSwitch() override;
 
-	c3_Static *GetImage( ) const { return m_image; }
+	c3_Static *GetImage( ) const { return m_image.get(); }
 
 protected:
-	c3_HeaderSwitch() : aui_Radio() {}
+	// Out-of-line in c3_headerswitch.cpp: unique_ptr<c3_Static> over a
+	// forward-declared type needs the complete type at ctor/dtor instantiation.
+	c3_HeaderSwitch();
 	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
 
@@ -48,7 +52,7 @@ protected:
 		sint32 x = 0,
 		sint32 y = 0 ) override;
 
-	c3_Static *m_image;
+	std::unique_ptr<c3_Static> m_image;
 };
 
 #endif

@@ -29,7 +29,9 @@
 
 #include "ui/aui_ctp2/grabitem.h"
 
-GrabItem	*g_grabbedItem = nullptr;
+#include <memory>
+
+std::unique_ptr<GrabItem> g_grabbedItem;
 
 GrabItem::GrabItem()
 {
@@ -59,17 +61,12 @@ GrabItem::~GrabItem()
 
 void GrabItem::Init()
 {
-	delete g_grabbedItem;
-
-	g_grabbedItem = new GrabItem;
+	g_grabbedItem = std::make_unique<GrabItem>();
 }
 
 void GrabItem::Cleanup()
 {
-	if (g_grabbedItem) {
-		delete g_grabbedItem;
-		g_grabbedItem = nullptr;
-	}
+	g_grabbedItem.reset();
 }
 
 void GrabItem::SetGrabbedItem(Unit *unit)

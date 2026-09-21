@@ -6,11 +6,12 @@
 #include "ctp/c3.h"
 #include "mapgen/PlasmaGen1.h"
 #include <stdlib.h>
+#include <memory>
 
 
 STDAPI CoCreateMapGenerator(IUnknown **obj)
 {
-	PlasmaGenerator1 *gen = new PlasmaGenerator1();
+	PlasmaGenerator1 *gen = std::make_unique<PlasmaGenerator1>().release(); // ownership transfers to caller via refcount
 	gen->AddRef();
 	*obj = (IUnknown *)gen;
 	return S_OK;

@@ -33,6 +33,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include "ctp/c3.h"
 #include "gs/events/GameEventManager.h"
 
@@ -65,7 +66,7 @@ GameEventManager * gevmanager_Get() {
 void gevmanager_Set(GameEventManager *p) {
     CivApp * app = civapp_Get();
     Ctp2::Game * game = app ? app->GetGame() : nullptr;
-    if (game) game->SetEventsPtr(p); else delete p;
+    if (game) game->SetEventsPtr(p); else std::unique_ptr<GameEventManager>{p};
 }
 
 extern BOOL g_eventLog;
@@ -76,7 +77,7 @@ extern BOOL g_eventLog;
 
 void gameEventManager_Initialize()
 {
-	gevmanager_Set(new GameEventManager());  // Set() deletes the previous
+	gevmanager_Set(std::make_unique<GameEventManager>().release());  // Set() deletes the previous
 }
 
 void gameEventManager_Cleanup()
@@ -102,7 +103,7 @@ GameEventManager::GameEventManager()
 	fclose(f);
 #endif
 
-	std::fill(m_hooks, m_hooks + GEV_MAX, (GameEventHook *) nullptr);
+	// m_hooks is std::array<unique_ptr> - default null
 }
 
 GameEventManager::~GameEventManager()
@@ -111,18 +112,14 @@ GameEventManager::~GameEventManager()
 	m_eventList.DeleteAll();
 
 #ifdef _DEBUG
-    for
-    (auto & p : m_eventHistory)
+    for (auto & p : m_eventHistory)
     {
-		delete p;
+		std::unique_ptr<GameEvent>{p};
 	}
     std::list<GameEvent *>().swap(m_eventHistory);
 #endif
 
-	for (auto & m_hook : m_hooks)
-    {
-		delete m_hook;
-	}
+	// m_hooks is std::array<unique_ptr> - frees itself
 }
 
 
@@ -170,11 +167,11 @@ GAME_EVENT_ERR GameEventManager::AddEvent(GAME_EVENT_INSERT insert,
 
 	va_start(vl, type);
 
-	GameEventArgList *argList = new GameEventArgList(&vl, event_type);
+	auto argList = std::make_unique<GameEventArgList>(&vl, event_type);
 
 	va_end(vl);
 
-	return ArglistAddEvent(insert, event_type, argList);
+	return ArglistAddEvent(insert, event_type, argList.release());
 }
 
 GAME_EVENT_ERR GameEventManager::ArglistAddEvent(GAME_EVENT_INSERT insert,
@@ -187,24 +184,24 @@ GAME_EVENT_ERR GameEventManager::ArglistAddEvent(GAME_EVENT_INSERT insert,
 
 	if(!argList->TestArgs(type))
 	{
-		delete argList;
+		std::unique_ptr<GameEventArgList>{argList};
 		return GEV_ERR_ArgsInvalid;
 	}
 
-	GameEvent *newEvent = new GameEvent(type, argList, m_serial++, m_processingEvent);
+	auto newEvent = std::make_unique<GameEvent>(type, argList, m_serial++, m_processingEvent);
 
 	switch(insert) {
 		case GEV_INSERT_Front:
-			m_eventList.AddHead(newEvent);
+			m_eventList.AddHead(newEvent.release());
 			break;
 		case GEV_INSERT_AfterCurrent:
 			if(m_processing)
-				m_eventList.InsertAt(m_eventList.GetHeadNode(), newEvent);
+				m_eventList.InsertAt(m_eventList.GetHeadNode(), newEvent.release());
 			else
-				m_eventList.AddHead(newEvent);
+				m_eventList.AddHead(newEvent.release());
 			break;
 		case GEV_INSERT_Tail:
-			m_eventList.AddTail(newEvent);
+			m_eventList.AddTail(newEvent.release());
 			break;
 		default:
 			return GEV_ERR_BadInsert;
@@ -283,12 +280,12 @@ GAME_EVENT_ERR GameEventManager::ProcessHead()
 		if (m_eventHistory.size() > k_MAX_EVENT_HISTORY)
         {
             // delete the oldest
-			delete m_eventHistory.front();
+			std::unique_ptr<GameEvent>{m_eventHistory.front()};
             m_eventHistory.pop_front();
         }
 #else
         // Release version: delete the handled event immediately
-		delete event;
+		std::unique_ptr<GameEvent>{event};
 #endif
 	}
 
@@ -304,7 +301,7 @@ GAME_EVENT_ERR GameEventManager::AddCallback(GAME_EVENT type,
 		return GEV_ERR_BadEvent;
 
 	if(!m_hooks[type])
-		m_hooks[type] = new GameEventHook(type);
+		m_hooks[type] = std::make_unique<GameEventHook>(type);
 
 	m_hooks[type]->AddCallback(cb, pri);
 	return GEV_ERR_OK;

@@ -53,8 +53,10 @@
 #include "gs/world/World.h"
 #include "ui/interface/citywindow.h"
 
+#include <memory>
 
-static ScienceVictoryDialog *g_scienceVictoryDialog = nullptr;
+
+static std::unique_ptr<ScienceVictoryDialog> g_scienceVictoryDialog;
 
 const sint32 k_SWITCH_CONSTRUCTION		= 0;
 const sint32 k_SWITCH_STATUS			= 1;
@@ -63,7 +65,7 @@ void ScienceVictoryDialog::Open()
 {
 
 	if(!g_scienceVictoryDialog) {
-		g_scienceVictoryDialog = new ScienceVictoryDialog;
+		g_scienceVictoryDialog = std::make_unique<ScienceVictoryDialog>();
 	}
 
 	g_scienceVictoryDialog->Show();
@@ -86,8 +88,7 @@ void ScienceVictoryDialog::Cleanup()
 		!g_scienceVictoryDialog->m_window->IsHidden())
 		g_scienceVictoryDialog->Hide();
 
-	delete g_scienceVictoryDialog;
-	g_scienceVictoryDialog = nullptr;
+	g_scienceVictoryDialog.reset();
 }
 
 ScienceVictoryDialog::ScienceVictoryDialog() :

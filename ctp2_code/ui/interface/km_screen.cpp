@@ -30,6 +30,9 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
+#include <array>
 #include "ui/interface/km_screen.h"
 
 #include "ui/aui_ctp2/c3window.h"
@@ -246,13 +249,13 @@ namespace
 // Variables
 //----------------------------------------------------------------------------
 
-    ctp2_Static  *      s_groupStatic       = nullptr;
-    c3_ListBox  *       s_keyList           = nullptr;
-    c3_PopupWindow *    s_km_screen         = nullptr;
-    ctp2_Button *       s_resetButton       = nullptr;
+    std::unique_ptr<ctp2_Static>    s_groupStatic;
+    std::unique_ptr<c3_ListBox>     s_keyList;
+    std::unique_ptr<c3_PopupWindow> s_km_screen;
+    std::unique_ptr<ctp2_Button>    s_resetButton;
     KM                  s_selected          = KM_BASIC;
-    aui_StringTable *   s_strings           = nullptr;
-    ctp2_Button **      s_switch            = nullptr;
+    std::unique_ptr<aui_StringTable> s_strings;
+    std::array<std::unique_ptr<ctp2_Button>, KM_MAX> s_switch;
 
 //----------------------------------------------------------------------------
 // Function definitions
@@ -320,20 +323,19 @@ void km_screen_loadKeyList()
     {
         AUI_ERRCODE             errcode = AUI_ERRCODE_OK;
         KEY_FUNCTION const &    f       = functionList[i];
-    	KeyListItem *           item    =
-            new KeyListItem(&errcode, f, theKeyMap->get_keycode(f), ldl);
+    	std::unique_ptr<KeyListItem> item =
+            std::make_unique<KeyListItem>(&errcode, f, theKeyMap->get_keycode(f), ldl);
 		Assert(AUI_NEWOK(item, errcode));
 
 		if (AUI_NEWOK(item, errcode))
         {
             if (item->GetName())
             {
-    		    s_keyList->AddItem(item);
+    		    s_keyList->AddItem(item.release());
 			}
             else
             {
                 // Function not supported by this mod
-                delete item;
             }
         }
     }
@@ -372,7 +374,7 @@ AUI_ERRCODE km_screen_Initialize( )
 	strlcpy(windowBlock, "KmScreen", sizeof(windowBlock));
 
 	{
-		s_km_screen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING );
+		s_km_screen = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING );
 		Assert( AUI_NEWOK(s_km_screen, errcode) );
 		if ( !AUI_NEWOK(s_km_screen, errcode) ) return errcode;
 
@@ -387,20 +389,20 @@ AUI_ERRCODE km_screen_Initialize( )
 	s_km_screen->AddTitle( controlBlock );
 
 
-	s_switch = new ctp2_Button*[KM_MAX];
+
 
 	snprintf(groupBlock, sizeof(groupBlock), "%s.%s", windowBlock, "Group" );
 
 
 
 
-	s_groupStatic = new ctp2_Static(&errcode, aui_UniqueId(), groupBlock);
+	s_groupStatic = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), groupBlock);
 	Assert(AUI_NEWOK(s_groupStatic, errcode));
 	if(!AUI_NEWOK(s_groupStatic, errcode)) return errcode;
 
 	for ( i = KM_BASIC;i < KM_MAX;i++ ) {
 		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", groupBlock, TAB[i]->Name);
-		s_switch[i] = new ctp2_Button( &errcode, aui_UniqueId(), controlBlock, km_screen_switchPress );
+		s_switch[i] = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(), controlBlock, km_screen_switchPress );
 		Assert( AUI_NEWOK(s_switch[i], errcode) );
 		if ( !AUI_NEWOK(s_switch[i], errcode) ) return errcode;
 	}
@@ -408,17 +410,17 @@ AUI_ERRCODE km_screen_Initialize( )
 	s_switch[s_selected]->SetToggleState(true);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ResetButton" );
-	s_resetButton = new ctp2_Button( &errcode, aui_UniqueId(), controlBlock, km_screen_resetPress );
+	s_resetButton = std::make_unique<ctp2_Button>( &errcode, aui_UniqueId(), controlBlock, km_screen_resetPress );
 	Assert( AUI_NEWOK(s_resetButton, errcode) );
 	if ( !AUI_NEWOK(s_resetButton, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "KeyList" );
-	s_keyList = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock );
+	s_keyList = std::make_unique<c3_ListBox>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_keyList, errcode) );
 	if ( !AUI_NEWOK(s_keyList, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s", "KeylistStrings" );
-	s_strings = new aui_StringTable( &errcode, controlBlock );
+	s_strings = std::make_unique<aui_StringTable>( &errcode, controlBlock );
 	Assert( AUI_NEWOK(s_strings , errcode) );
 	if ( !AUI_NEWOK(s_strings , errcode) ) return errcode;
 
@@ -451,7 +453,7 @@ sint32 km_screen_displayMyWindow()
 
 	if (c3ui_Get())
 	{
-		AUI_ERRCODE const   auiErr = c3ui_Get()->AddWindow(s_km_screen);
+		AUI_ERRCODE const   auiErr = c3ui_Get()->AddWindow(s_km_screen.get());
 		Assert(auiErr == AUI_ERRCODE_OK);
 		c3ui_Get()->RegisterCleanup(&km_screen_Cleanup);
 	}
@@ -487,7 +489,7 @@ void km_screen_Cleanup()
 {
 	g_isKMScreen    = FALSE;
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
+#define mycleanup(mypointer) { mypointer.reset(); }
 
 	if (c3ui_Get() && s_km_screen)
 	{
@@ -496,14 +498,9 @@ void km_screen_Cleanup()
 
 	mycleanup( s_groupStatic );
 
-	if (s_switch)
+	for (size_t i = 0; i < KM_MAX; ++i)
 	{
-		for (size_t i = 0; i < KM_MAX; ++i)
-		{
-			mycleanup( s_switch[i] );
-		}
-		delete [] s_switch;
-		s_switch = nullptr;
+		mycleanup( s_switch[i] );
 	}
 
 	mycleanup( s_resetButton );
@@ -541,7 +538,7 @@ void km_screen_switchPress(aui_Control *control, uint32 action, uint32 data, voi
 
 		for (size_t i = 0; i < KM_MAX; ++i)
 		{
-			if (control == s_switch[i])
+			if (control == s_switch[i].get())
 			{
 				s_switch[i]->SetToggleState(true);
 				s_selected = static_cast<KM>(i);
@@ -602,11 +599,11 @@ AUI_ERRCODE KeyListItem::InitCommonLdl(sint32 index, uint32 keycode, MBCHAR *ldl
 	c3_Static		*subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Keycode" );
-	subItem = new c3_Static( &retval, aui_UniqueId(), block );
+	subItem = std::make_unique<c3_Static>( &retval, aui_UniqueId(), block ).release();
 	AddChild( subItem );
 
 	Update();

@@ -10,13 +10,15 @@
 
 #include <nlohmann/json.hpp>
 
+#include <memory>
+
 template <class T> class DynamicArray;
 
 class TradeOfferPool : public ObjPool
 {
 private:
 
-	DynamicArray<TradeOffer> *m_all_offers;
+	std::unique_ptr<DynamicArray<TradeOffer>> m_all_offers;
 
 
 public:

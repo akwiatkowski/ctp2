@@ -49,6 +49,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <string>
+#include <memory>
 #if defined(WIN32)
 #include <windows.h>
 #else
@@ -73,7 +74,7 @@ void MemberClass::AddDatum(DATUM_TYPE type, struct namelist *nameInfo,
                            char *subType)
 {
 
-	Datum *dat = new Datum(nameInfo->name, type);
+	Datum *dat = std::make_unique<Datum>(nameInfo->name, type).release();
 	dat->m_akaName = nameInfo->akaName;
 	dat->m_defaultName = nameInfo->defaultName;
 	dat->m_minSize = minSize;
@@ -121,7 +122,7 @@ void MemberClass::AddGroupedBits(char *name, struct namelist *list)
 //Added by Martin G�hmann
 void MemberClass::AddBitPair(struct namelist *nameInfo, sint32 minSize, sint32 maxSize, struct bitpairtype *pairtype)
 {
-	Datum *dat = new Datum(nameInfo->name, DATUM_BIT_PAIR);
+	Datum *dat = std::make_unique<Datum>(nameInfo->name, DATUM_BIT_PAIR).release();
 	dat->m_minSize = minSize;
 	dat->m_maxSize = maxSize;
 	// Added by Martin G�hmann for adding default values
@@ -136,10 +137,10 @@ void MemberClass::AddBitPair(struct namelist *nameInfo, sint32 minSize, sint32 m
 	// Datum copies its name arg into its own m_Name (std::string); the
 	// previous raw malloc here leaked on every bit-pair member.
 	std::string const l_Name = std::string(nameInfo->name) + "Value";
-	Datum * pairDat = new Datum(l_Name, (DATUM_TYPE) pairtype->type);
+	auto pairDat = std::make_unique<Datum>(l_Name, (DATUM_TYPE) pairtype->type);
 	pairDat->m_subType = (char *) pairtype->extraData;
 
-	dat->m_bitPairDatum = pairDat;
+	dat->m_bitPairDatum = std::move(pairDat);
 	m_datumList.AddTail(dat);
 }
 

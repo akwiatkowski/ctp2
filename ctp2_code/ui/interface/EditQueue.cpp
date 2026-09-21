@@ -47,6 +47,8 @@
 
 #include "ctp/c3.h"
 #include "ui/interface/EditQueue.h"
+#include <memory>
+
 
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -94,7 +96,7 @@
 #include "ui/aui_ctp2/ctp2_hypertextbox.h"
 #include "ai/mapanalysis/mapanalysis.h"
 
-static EditQueue *s_editQueue = nullptr;
+static std::unique_ptr<EditQueue> s_editQueue;
 
 static MBCHAR const *s_editQueueBlock = "BuildEditorWindow";
 
@@ -272,7 +274,7 @@ AUI_ERRCODE EditQueue::Initialize()
 		return AUI_ERRCODE_OK;
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	s_editQueue = new EditQueue(&err);
+	s_editQueue = std::make_unique<EditQueue>(&err);
 
 	Assert(err == AUI_ERRCODE_OK);
 	return err;
@@ -361,9 +363,8 @@ AUI_ERRCODE EditQueue::Hide()
 			PointerList<EditQueueCityInfo>::Walker walk(&s_editQueue->m_multiCities);
 
 			while(walk.IsValid()) {
-				EditQueueCityInfo *ci = walk.Remove();
+				std::unique_ptr<EditQueueCityInfo> ci(walk.Remove());
 				CityWindow::DoneEditingQueue(ci->m_cityData);
-				delete ci;
 
 			}
 			s_editQueue->m_multiCities.DeleteAll();
@@ -384,8 +385,7 @@ AUI_ERRCODE EditQueue::Cleanup()
 		EditQueue::Hide();
 	}
 
-	delete s_editQueue;
-	s_editQueue = nullptr;
+	s_editQueue.reset();
 	return AUI_ERRCODE_OK;
 }
 
@@ -523,7 +523,7 @@ sint32 EditQueue::CompareBuildingWonderItems(ctp2_ListItem *item1, ctp2_ListItem
 	return 0;
 }
 
-void EditQueue::AddChoiceItem(const MBCHAR *text, EditItemInfo *userData, sint32 time, ctp2_ListBox *choiceList)
+void EditQueue::AddChoiceItem(const MBCHAR *text, std::unique_ptr<EditItemInfo> userData, sint32 time, ctp2_ListBox *choiceList)
 {
 	ctp2_ListItem *item;
 	if(choiceList == m_unitList) {
@@ -582,13 +582,13 @@ void EditQueue::AddChoiceItem(const MBCHAR *text, EditItemInfo *userData, sint32
 				item->SetCompareCallback(EditQueue::CompareBuildingWonderItems);
 			}
 
-			item->SetUserData(userData);
+			item->SetUserData(userData.release());
 			choiceList->AddItem(item);
 		}
 	}
     else
     {
-        delete userData;
+        // userData is std::unique_ptr, auto-freed
     }
 }
 
@@ -600,8 +600,7 @@ void EditQueue::ClearChoiceList(ctp2_ListBox *choiceList)
 	for(i = 0; i < choiceList->NumItems(); i++) {
 		item = (ctp2_ListItem *)choiceList->GetItemByIndex(i);
 		if(item) {
-			EditItemInfo * info = (EditItemInfo *) item->GetUserData();
-			delete info;
+			std::unique_ptr<EditItemInfo> info((EditItemInfo *) item->GetUserData());
 			item->SetUserData(nullptr);
 		}
 	}
@@ -691,7 +690,7 @@ void EditQueue::UpdateChoiceLists()
 
 			if(m_mode == EDIT_QUEUE_MODE_MULTI) {
 				AddChoiceItem(buf,
-							  new EditItemInfo(k_GAME_OBJ_TYPE_UNIT, i),
+							  std::make_unique<EditItemInfo>(k_GAME_OBJ_TYPE_UNIT, i),
 							  -1,
 							  whichList);
 			} else if(!m_cityData) {
@@ -699,13 +698,13 @@ void EditQueue::UpdateChoiceLists()
 				if(rec->GetCantBuild()) continue;
 
 				AddChoiceItem(buf,
-							  new EditItemInfo(k_GAME_OBJ_TYPE_UNIT, i),
+							  std::make_unique<EditItemInfo>(k_GAME_OBJ_TYPE_UNIT, i),
 							  -1,
 							  whichList);
 			} else if(m_cityData->CanBuildUnit(i)) {
 				prodRemaining = rec->GetShieldCost();
 				AddChoiceItem(buf,
-							  new EditItemInfo(k_GAME_OBJ_TYPE_UNIT, i),
+							  std::make_unique<EditItemInfo>(k_GAME_OBJ_TYPE_UNIT, i),
 							  m_cityData->HowMuchLonger(prodRemaining),
 							  whichList);
 			}
@@ -738,7 +737,7 @@ void EditQueue::UpdateChoiceLists()
 				if(!include)
 					continue;
 				AddChoiceItem(g_theBuildingDB->Get(i)->GetNameText(),
-							  new EditItemInfo(k_GAME_OBJ_TYPE_IMPROVEMENT, i),
+							  std::make_unique<EditItemInfo>(k_GAME_OBJ_TYPE_IMPROVEMENT, i),
 							  -1,
 							  m_buildingList);
 			}
@@ -749,7 +748,7 @@ void EditQueue::UpdateChoiceLists()
 					continue;
 
 				AddChoiceItem(g_theBuildingDB->Get(i)->GetNameText(),
-							  new EditItemInfo(k_GAME_OBJ_TYPE_IMPROVEMENT, i),
+							  std::make_unique<EditItemInfo>(k_GAME_OBJ_TYPE_IMPROVEMENT, i),
 							  -1,
 							  m_buildingList);
 			}
@@ -759,7 +758,7 @@ void EditQueue::UpdateChoiceLists()
 
 				prodRemaining = buildingutil_Get(i, selitem_Get()->GetVisiblePlayer())->GetProductionCost();
 				AddChoiceItem(g_theBuildingDB->Get(i)->GetNameText(),
-							  new EditItemInfo(k_GAME_OBJ_TYPE_IMPROVEMENT, i),
+							  std::make_unique<EditItemInfo>(k_GAME_OBJ_TYPE_IMPROVEMENT, i),
 							  m_cityData->HowMuchLonger(prodRemaining),
 							  m_buildingList);
 			}
@@ -768,7 +767,7 @@ void EditQueue::UpdateChoiceLists()
 		if(player_Get(selitem_Get()->GetVisiblePlayer())->CanBuildCapitalization() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
 			if(m_cityData || m_mode == EDIT_QUEUE_MODE_MULTI || !IsItemInQueueList(k_GAME_OBJ_TYPE_CAPITALIZATION, 0)) {
 				AddChoiceItem(stringdb_Get()->GetNameStr("CAPITALIZATION"),
-							  new EditItemInfo(k_GAME_OBJ_TYPE_CAPITALIZATION, 0),
+							  std::make_unique<EditItemInfo>(k_GAME_OBJ_TYPE_CAPITALIZATION, 0),
 							  -1,
 							  m_buildingList);
 			}
@@ -777,7 +776,7 @@ void EditQueue::UpdateChoiceLists()
 		if(player_Get(selitem_Get()->GetVisiblePlayer())->CanBuildInfrastructure() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
 			if(m_cityData || m_mode == EDIT_QUEUE_MODE_MULTI || !IsItemInQueueList(k_GAME_OBJ_TYPE_INFRASTRUCTURE, 0)) {
 				AddChoiceItem(stringdb_Get()->GetNameStr("INFRASTRUCTURE"),
-							  new EditItemInfo(k_GAME_OBJ_TYPE_INFRASTRUCTURE, 0),
+							  std::make_unique<EditItemInfo>(k_GAME_OBJ_TYPE_INFRASTRUCTURE, 0),
 							  -1,
 							  m_buildingList);
 			}
@@ -810,13 +809,13 @@ void EditQueue::UpdateChoiceLists()
 				if(!include)
 					continue;
 				AddChoiceItem(g_theWonderDB->Get(i)->GetNameText(),
-							  new EditItemInfo(k_GAME_OBJ_TYPE_WONDER, i),
+							  std::make_unique<EditItemInfo>(k_GAME_OBJ_TYPE_WONDER, i),
 							  -1,
 							  m_wonderList);
 			} else if(!m_cityData) {
 				if(!IsItemInQueueList(k_GAME_OBJ_TYPE_WONDER, i)) {
 					AddChoiceItem(g_theWonderDB->Get(i)->GetNameText(),
-								  new EditItemInfo(k_GAME_OBJ_TYPE_WONDER, i),
+								  std::make_unique<EditItemInfo>(k_GAME_OBJ_TYPE_WONDER, i),
 								  -1,
 								  m_wonderList);
 				}
@@ -824,7 +823,7 @@ void EditQueue::UpdateChoiceLists()
 				!m_cityData->GetBuildQueue()->IsItemInQueue(k_GAME_OBJ_TYPE_WONDER, i)) {
 				prodRemaining = wonderutil_Get(i, selitem_Get()->GetVisiblePlayer())->GetProductionCost();
 				AddChoiceItem(g_theWonderDB->Get(i)->GetNameText(),
-							  new EditItemInfo(k_GAME_OBJ_TYPE_WONDER, i),
+							  std::make_unique<EditItemInfo>(k_GAME_OBJ_TYPE_WONDER, i),
 							  m_cityData->HowMuchLonger(prodRemaining),
 							  m_wonderList);
 			}
@@ -1207,7 +1206,7 @@ void EditQueue::SetMultiCities(const UnitDynamicArray &cities)
 	SetMode(EDIT_QUEUE_MODE_MULTI);
 	s_editQueue->m_multiCities.DeleteAll();
 	for(i = 0; i < cities.Num(); i++) {
-		s_editQueue->m_multiCities.AddTail(new EditQueueCityInfo(CityWindow::GetCityData(cities[i])));
+		s_editQueue->m_multiCities.AddTail(std::make_unique<EditQueueCityInfo>(CityWindow::GetCityData(cities[i])).release());
 	}
 	s_editQueue->Update();
 }
@@ -1376,25 +1375,25 @@ void EditQueue::InsertInQueue(EditItemInfo *info, bool insert, bool confirmed, b
 	else// Editing a custom queue or multiple city queues?
 	{
 		Assert(m_mode == EDIT_QUEUE_MODE_CUSTOM || m_mode == EDIT_QUEUE_MODE_MULTI);
-		EditItemInfo *copiedInfo = new EditItemInfo(info->m_category, info->m_type);
+		auto copiedInfo = std::make_unique<EditItemInfo>(info->m_category, info->m_type);
 		if(insIndex < 0) {// Adding to the end of the queue or to empty queue.
 			//if (m_queueList->NumItems() == 0)
 			//{
 
-			m_customBuildList.AddTail(copiedInfo);
+			m_customBuildList.AddTail(copiedInfo.release());
 		} else {
 			PointerList<EditItemInfo>::Walker walk(&m_customBuildList);
 			sint32 idx = 0;
 			while(walk.IsValid()) {
 				if(idx == insIndex) {
-					walk.Insert(copiedInfo);
+					walk.Insert(copiedInfo.release());
 					break;
 				}
 				walk.Next();
 				idx++;
 			}
 			if(!walk.IsValid()) {
-				m_customBuildList.AddTail(copiedInfo);
+				m_customBuildList.AddTail(copiedInfo.release());
 			}
 		}
 	}
@@ -1421,8 +1420,8 @@ void EditQueue::InsertInQueue(EditItemInfo *info, bool insert, bool confirmed, b
 
 			if(cat == iteminfo->m_category && type == iteminfo->m_type) {
 				checkRemoveList->RemoveItem(item->Id());
-				delete item;
-				delete iteminfo;
+				std::unique_ptr<ctp2_ListItem> itemOwner(item);
+				std::unique_ptr<EditItemInfo> infoOwner(iteminfo);
 			}
 		}
 	}
@@ -1477,10 +1476,10 @@ void EditQueue::Suggest(bool insert)
 
 		//EditItemInfo info(cat, type);
 		//InsertInQueue(&info, insert);
-		EditItemInfo *info = new EditItemInfo(cat, type);
+		auto info = std::make_unique<EditItemInfo>(cat, type);
 		Assert(info);
 		if(info) {
-			InsertInQueue(info, insert);
+			InsertInQueue(info.release(), insert);
 		}
 	}
 }
@@ -1546,7 +1545,7 @@ void EditQueue::Remove(bool confirmedSwitch)
 			{
 				if(idx == buildIndex)
 				{
-					delete walk.Remove();
+					std::unique_ptr<EditItemInfo> removed(walk.Remove());
 					break;
 				}
 				walk.Next();
@@ -2357,7 +2356,7 @@ void  EditQueue::LoadCustom(const MBCHAR *loadName)
 				Assert(FALSE);
 				continue;
 		}
-		s_editQueue->m_customBuildList.AddTail(new EditItemInfo(category, type));
+		s_editQueue->m_customBuildList.AddTail(std::make_unique<EditItemInfo>(category, type).release());
 	}
 
 	c3files_fclose(fpQueue);
@@ -2660,7 +2659,7 @@ void EditQueue::SaveNameResponse(bool response, const char *text, void *userData
 {
 	if(response) {
 		if(strlen(text) < 1) {
-			c3ui_Get()->AddAction(new MustEnterNameAction());
+			c3ui_Get()->AddAction(std::make_unique<MustEnterNameAction>().release());
 			return;
 		}
 
@@ -2677,7 +2676,7 @@ void EditQueue::SaveNameResponse(bool response, const char *text, void *userData
 			}
 		} else {
 			c3files_fclose(test);
-			c3ui_Get()->AddAction(new ConfirmOverwriteQueueAction(saveFileName, text));
+			c3ui_Get()->AddAction(std::make_unique<ConfirmOverwriteQueueAction>(saveFileName, text).release());
 		}
 	}
 }
@@ -2740,5 +2739,5 @@ void EditQueue::NotifyCityCaptured(const Unit &c)
 
 EditQueue* EditQueue::GetEditQueueWindow()
 {
-	return s_editQueue;
+	return s_editQueue.get();
 }

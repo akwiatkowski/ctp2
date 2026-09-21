@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -74,10 +75,7 @@ PlayerSelectWindow::PlayerSelectWindow(
 
 AUI_ERRCODE PlayerSelectWindow::InitCommon( )
 {
-	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != nullptr );
-	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
-	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
+	m_controls = std::make_unique<aui_Control *[]>( m_numControls = CONTROL_MAX );
 
 	return AUI_ERRCODE_OK;
 }
@@ -87,125 +85,125 @@ AUI_ERRCODE PlayerSelectWindow::CreateControls( )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 
-	aui_Control *control;
+	std::unique_ptr<aui_Control> control;
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"playerselectwindow.titlestatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_TITLESTATICTEXT ] = control;
+	m_controls[ CONTROL_TITLESTATICTEXT ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"playerselectwindow.currentplayerstatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CURRENTPLAYERSTATICTEXT ] = control;
+	m_controls[ CONTROL_CURRENTPLAYERSTATICTEXT ] = control.release();
 
-	control = new C3TextField(
+	control = std::make_unique<C3TextField>(
 		&errcode,
 		aui_UniqueId(),
 		"playerselectwindow.playernametextfield" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_PLAYERNAMETEXTFIELD ] = control;
+	m_controls[ CONTROL_PLAYERNAMETEXTFIELD ] = control.release();
 
-	control = new ns_PlayerSetupListBox(
+	control = std::make_unique<ns_PlayerSetupListBox>(
 		&errcode,
 		aui_UniqueId(),
 		"playerselectwindow.playernamelistbox" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_PLAYERNAMELISTBOX ] = control;
+	m_controls[ CONTROL_PLAYERNAMELISTBOX ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"playerselectwindow.playernamelistbox.playernamestatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_PLAYERNAMESTATICTEXT ] = control;
+	m_controls[ CONTROL_PLAYERNAMESTATICTEXT ] = control.release();
 
-	control = spNew_ctp2_Button(&errcode,
+	control.reset(spNew_ctp2_Button(&errcode,
 		"playerselectwindow",
-		"newbutton", nullptr);
+		"newbutton", nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_NEWBUTTON ] = control;
+	m_controls[ CONTROL_NEWBUTTON ] = control.release();
 
-	control = spNew_ctp2_Button(&errcode,
+	control.reset(spNew_ctp2_Button(&errcode,
 		"playerselectwindow",
-		"editbutton", nullptr);
+		"editbutton", nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_EDITBUTTON ] = control;
+	m_controls[ CONTROL_EDITBUTTON ] = control.release();
 
-	control = spNew_ctp2_Button(&errcode,
+	control.reset(spNew_ctp2_Button(&errcode,
 		"playerselectwindow",
-		"deletebutton", nullptr);
+		"deletebutton", nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_DELETEBUTTON ] = control;
+	m_controls[ CONTROL_DELETEBUTTON ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"playerselectwindow.okbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_OKBUTTON ] = control;
+	m_controls[ CONTROL_OKBUTTON ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"playerselectwindow.cancelbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CANCELBUTTON ] = control;
+	m_controls[ CONTROL_CANCELBUTTON ] = control.release();
 
 
 	aui_Ldl::SetupHeirarchyFromRoot( "playerselectwindow" );
 
 
-	aui_Action *action;
+	std::unique_ptr<aui_Action> action;
 
-	action = new PlayerNameTextFieldAction;
+	action = std::make_unique<PlayerNameTextFieldAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_PLAYERNAMETEXTFIELD ]->SetAction( action );
+	m_controls[ CONTROL_PLAYERNAMETEXTFIELD ]->SetAction( action.release() );
 
-	action = new NewButtonAction;
+	action = std::make_unique<NewButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_NEWBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_NEWBUTTON ]->SetAction( action.release() );
 
-	action = new EditButtonAction;
+	action = std::make_unique<EditButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_EDITBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_EDITBUTTON ]->SetAction( action.release() );
 
-	action = new DeleteButtonAction;
+	action = std::make_unique<DeleteButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_DELETEBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_DELETEBUTTON ]->SetAction( action.release() );
 
-	action = new OKButtonAction;
+	action = std::make_unique<OKButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_OKBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_OKBUTTON ]->SetAction( action.release() );
 
-	action = new CancelButtonAction;
+	action = std::make_unique<CancelButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action.release() );
 
-	action = new PlayerListBoxAction;
+	action = std::make_unique<PlayerListBoxAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_PLAYERNAMELISTBOX ]->SetAction( action );
+	m_controls[ CONTROL_PLAYERNAMELISTBOX ]->SetAction( action.release() );
 
 		((aui_ListBox *)m_controls[ CONTROL_PLAYERNAMELISTBOX ])->
 		SetForceSelect( TRUE );
@@ -226,13 +224,12 @@ nf_PlayerSetup *PlayerSelectWindow::GetPlayerSetup(NETFunc::Player *player) {
 			return s;
 	}
 
-	s = new nf_PlayerSetup(player);
+	s = std::make_unique<nf_PlayerSetup>(player).release();
 
 	l->InsertItem(s);
 
 	return s;
 }
-
 void PlayerSelectWindow::Update()
 {
 	ns_PlayerSetupListBox *listbox = (ns_PlayerSetupListBox *)(FindControl( PlayerSelectWindow::CONTROL_PLAYERNAMELISTBOX ));
@@ -257,16 +254,14 @@ void PlayerSelectWindow::Update()
 
 AUI_ERRCODE PlayerSelectWindow::Idle( )
 {
-	while (NETFunc::Message * m = netfunc_Get()->GetMessage())
+	while (std::unique_ptr<NETFunc::Message> m{netfunc_Get()->GetMessage()})
     {
-		netfunc_Get()->HandleMessage(m);
+		netfunc_Get()->HandleMessage(m.get());
 
 		if (dp_SESSIONLOST_PACKET_ID == m->GetCode())
 		{
 			passwordscreen_displayMyWindow(PASSWORDSCREEN_MODE_CONNECTIONLOST);
 		}
-
-		delete m;
 	}
 
 	return AUI_ERRCODE_OK;

@@ -5,6 +5,9 @@
 #define __TEXTTABLE_H__
 
 #include "ui/aui_common/aui_listbox.h"
+#include <array>
+#include <memory>
+
 #include "ui/aui_ctp2/patternbase.h"
 
 class aui_Surface;
@@ -80,8 +83,8 @@ protected:
 
 	uint32		m_numItems;
 
-	aui_Static	*m_items[ k_TEXTTABLE_MAXITEMS ];
-	TextSwitch	*m_table_headers[ k_TEXTTABLE_MAXHEADERS ];
+	std::array<std::unique_ptr<aui_Static>, k_TEXTTABLE_MAXITEMS> m_items;
+	std::array<std::unique_ptr<TextSwitch>, k_TEXTTABLE_MAXHEADERS> m_table_headers;
 };
 
 #endif

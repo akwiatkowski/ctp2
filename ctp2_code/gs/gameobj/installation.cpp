@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/installationpool.h"
 
@@ -42,8 +43,8 @@ Installation::RemoveAllReferences()
 	}
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_INSTALLATION,
-									  uint32(*this)));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_KILL_INSTALLATION,
+									  uint32(*this)).release());
 	}
 	installationpool_Get()->Del(*this);
 }

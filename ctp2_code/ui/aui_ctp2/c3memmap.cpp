@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/aui_ctp2/c3memmap.h"
 
 #include "ui/aui_ctp2/c3imageformats.h" // TargaImageFormat, TiffImageFormat
@@ -14,9 +15,9 @@ aui_FileFormat * C3MemMap::GetFileFormat(MBCHAR const * filename)
 	if ( GetFileExtension( filename, extension, sizeof(extension) ) )
 	{
 		if ( !strnicmp( extension, "tga", 3 ) )
-			return new TargaImageFormat;
+			return std::make_unique<TargaImageFormat>().release();
 		if ( !strnicmp( extension, "tif", 3 ) )
-			return new TiffImageFormat;
+			return std::make_unique<TiffImageFormat>().release();
 	}
 
     return aui_MemMap::GetFileFormat(filename);

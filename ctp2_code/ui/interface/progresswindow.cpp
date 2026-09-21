@@ -59,7 +59,7 @@ void ProgressWindow::BeginProgress(
 	if ( !progwin )
 	{
 		AUI_ERRCODE errcode;
-		progwin = new ProgressWindow( &errcode, ldlBlock, x, y );
+		progwin = new ProgressWindow( &errcode, ldlBlock, x, y );   // private dtor: make_unique can't name it; caller owns via out-param
 
 		progwin->m_pbar->SetMaxValue( maxval );
 
@@ -133,7 +133,7 @@ void ProgressWindow::EndProgress( ProgressWindow *&progwin )
 		{
 			c3ui_Get()->RemoveWindow( progwin->Id() );
 
-			delete progwin;
+			delete progwin;   // caller-owned out-param
 			progwin = nullptr;
 
 			c3ui_Get()->DrawAll();
@@ -163,26 +163,26 @@ ProgressWindow::ProgressWindow(
 
 	MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(block, sizeof(block), "%s.progressbar", ldlBlock );
-	m_pbar = new StandardProgressBar(
+	m_pbar = std::make_unique<StandardProgressBar>(
 		retval,
 		aui_UniqueId(),
 		block );
 	Assert( AUI_NEWOK(m_pbar, *retval) );
 	if ( !AUI_NEWOK(m_pbar, *retval) ) return;
 
-	*retval = AddChild( m_pbar );
+	*retval = AddChild( m_pbar.get() );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
 	snprintf(block, sizeof(block), "%s.message", ldlBlock );
-	m_message = new c3_Static(
+	m_message = std::make_unique<c3_Static>(
 		retval,
 		aui_UniqueId(),
 		block );
 	Assert( AUI_NEWOK(m_message, *retval) );
 	if ( !AUI_NEWOK(m_message, *retval) ) return;
 
-	*retval = AddChild( m_message );
+	*retval = AddChild( m_message.get() );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -192,16 +192,18 @@ ProgressWindow::ProgressWindow(
 
 ProgressWindow::~ProgressWindow()
 {
+	// Release in the same order the hand-written teardown used (message
+	// before bar); the aui child list only borrows these pointers.
 	if ( m_message )
 	{
 		RemoveChild( m_message->Id() );
-		delete m_message;
+		m_message.reset();
 	}
 
 	if ( m_pbar )
 	{
 		RemoveChild( m_pbar->Id() );
-		delete m_pbar;
+		m_pbar.reset();
 	}
 }
 

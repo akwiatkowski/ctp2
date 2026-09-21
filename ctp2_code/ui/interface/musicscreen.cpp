@@ -31,6 +31,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/interface/musicscreen.h"
 
 #include "ui/aui_common/aui_stringtable.h"
@@ -46,7 +48,6 @@
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/ctp2_button.h"
-#include "gs/utility/Globals.h"            // allocated::clear
 #include "ui/aui_ctp2/keypress.h"
 #include "ui/interface/musictrackscreen.h"
 #include "gs/database/profileDB.h"          // profiledb_Get()
@@ -55,14 +56,12 @@
 
 extern BOOL     g_musicTrackChosen;
 
-static c3_PopupWindow	*s_musicScreen	= nullptr;
-static ctp2_Button		*s_selectTrack	= nullptr;
+static std::unique_ptr<c3_PopupWindow> s_musicScreen;
+static std::unique_ptr<ctp2_Button> s_selectTrack;
 
-static c3_Switch		*s_autoRepeat	= nullptr,
-						*s_randomOrder	= nullptr,
-						*s_musicOn		= nullptr;
+static std::unique_ptr<c3_Switch> s_autoRepeat, s_randomOrder, s_musicOn;
 
-static aui_StringTable	*s_musicString	= nullptr;
+static std::unique_ptr<aui_StringTable> s_musicString;
 
 static BOOL				s_useAutoRepeat = FALSE;
 static BOOL				s_useRandomOrder = FALSE;
@@ -79,9 +78,9 @@ sint32	musicscreen_displayMyWindow()
 	s_randomOrder->SetState(s_useRandomOrder);
 	s_musicOn->SetState(s_useMusicOn);
 
-	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(s_musicScreen);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(s_musicScreen.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
-	keypress_RegisterHandler(s_musicScreen);
+	keypress_RegisterHandler(s_musicScreen.get());
 
 	return retval;
 }
@@ -91,7 +90,7 @@ sint32 musicscreen_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow(s_musicScreen->Id());
 	Assert( auiErr == AUI_ERRCODE_OK );
-	keypress_RemoveHandler(s_musicScreen);
+	keypress_RemoveHandler(s_musicScreen.get());
 
 	return 1;
 }
@@ -106,7 +105,7 @@ AUI_ERRCODE musicscreen_Initialize( )
 
 	strlcpy(windowBlock, "MusicScreen", sizeof(windowBlock));
 	{
-		s_musicScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
+		s_musicScreen = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
 		Assert( AUI_NEWOK(s_musicScreen, errcode) );
 		if ( !AUI_NEWOK(s_musicScreen, errcode) )
 		{
@@ -122,15 +121,15 @@ AUI_ERRCODE musicscreen_Initialize( )
 	s_musicScreen->AddTitle( "MusicScreen.Name" );
 	s_musicScreen->AddClose( musicscreen_acceptPress );
 
-	s_selectTrack = spNew_ctp2_Button( &errcode, windowBlock, "SelectTrackButton", musicscreen_selectTrackPress );
+	s_selectTrack.reset(spNew_ctp2_Button( &errcode, windowBlock, "SelectTrackButton", musicscreen_selectTrackPress ));
 
-	s_musicString = spNewStringTable( &errcode, "MS_Strings" );
+	s_musicString.reset(spNewStringTable( &errcode, "MS_Strings" ));
 
-	s_autoRepeat	= spNew_c3_Switch(&errcode,windowBlock,"AutoRepeatSwitch",musicscreen_checkPress );
+	s_autoRepeat.reset(spNew_c3_Switch(&errcode,windowBlock,"AutoRepeatSwitch",musicscreen_checkPress ));
 	s_autoRepeat->SetText( s_musicString->GetString(MS_STRING_AUTO_OFF) );
-	s_randomOrder	= spNew_c3_Switch(&errcode,windowBlock,"RandomOrderSwitch",musicscreen_checkPress );
+	s_randomOrder.reset(spNew_c3_Switch(&errcode,windowBlock,"RandomOrderSwitch",musicscreen_checkPress ));
 	s_randomOrder->SetText( s_musicString->GetString(MS_STRING_RANDOM_OFF) );
-	s_musicOn		= spNew_c3_Switch(&errcode,windowBlock,"MusicOnSwitch",musicscreen_checkPress );
+	s_musicOn.reset(spNew_c3_Switch(&errcode,windowBlock,"MusicOnSwitch",musicscreen_checkPress ));
 
 	s_useAutoRepeat		= soundmgr_Get()->IsAutoRepeat();
 	s_useRandomOrder	= (MUSICSTYLE_RANDOM == soundmgr_Get()->GetMusicStyle());
@@ -150,15 +149,15 @@ void musicscreen_Cleanup()
 	if (s_musicScreen)
 	{
 		c3ui_Get()->RemoveWindow(s_musicScreen->Id());
-		keypress_RemoveHandler(s_musicScreen);
+		keypress_RemoveHandler(s_musicScreen.get());
 	}
 
-	allocated::clear(s_musicString);
-	allocated::clear(s_selectTrack);
-	allocated::clear(s_autoRepeat);
-	allocated::clear(s_randomOrder);
-	allocated::clear(s_musicOn);
-	allocated::clear(s_musicScreen);
+	s_musicString.reset();
+	s_selectTrack.reset();
+	s_autoRepeat.reset();
+	s_randomOrder.reset();
+	s_musicOn.reset();
+	s_musicScreen.reset();
 }
 
 void musicscreen_checkPress(aui_Control *control, uint32 action, uint32 data, void *cookie )
@@ -167,29 +166,29 @@ void musicscreen_checkPress(aui_Control *control, uint32 action, uint32 data, vo
 
 	switch ( action ) {
 	case AUI_SWITCH_ACTION_ON:
-		if ( musicSwitch == s_autoRepeat ) {
+		if ( musicSwitch == s_autoRepeat.get() ) {
 			s_autoRepeat->SetText( s_musicString->GetString(MS_STRING_AUTO_ON) );
 			s_useAutoRepeat = TRUE;
 		}
-		else if ( musicSwitch == s_randomOrder ) {
+		else if ( musicSwitch == s_randomOrder.get() ) {
 			s_randomOrder->SetText( s_musicString->GetString(MS_STRING_RANDOM_ON) );
 			s_useRandomOrder = TRUE;
 		}
-		else if ( musicSwitch == s_musicOn ) {
+		else if ( musicSwitch == s_musicOn.get() ) {
 			s_useMusicOn = TRUE;
 		}
 		break;
 
 	case AUI_SWITCH_ACTION_OFF:
-		if ( musicSwitch == s_autoRepeat ) {
+		if ( musicSwitch == s_autoRepeat.get() ) {
 			s_autoRepeat->SetText( s_musicString->GetString(MS_STRING_AUTO_OFF) );
 			s_useAutoRepeat = FALSE;
 		}
-		else if ( musicSwitch == s_randomOrder ) {
+		else if ( musicSwitch == s_randomOrder.get() ) {
 			s_randomOrder->SetText( s_musicString->GetString(MS_STRING_RANDOM_OFF) );
 			s_useRandomOrder = FALSE;
 		}
-		else if ( musicSwitch == s_musicOn ) {
+		else if ( musicSwitch == s_musicOn.get() ) {
 			s_useMusicOn = FALSE;
 		}
 		break;

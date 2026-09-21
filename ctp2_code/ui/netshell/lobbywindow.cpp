@@ -33,6 +33,8 @@
 #include "ctp/c3.h"
 #include "ui/netshell/lobbywindow.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_screen.h"
@@ -99,24 +101,21 @@ AUI_ERRCODE LobbyWindow::InitCommon( )
 {
 	g_lobbyWindow = this;
 
-	m_messageLobbyEnter = new ns_String("strings.system.lobbyenter");
+	m_messageLobbyEnter = std::make_unique<ns_String>("strings.system.lobbyenter");
 	s_startedLeavingAt = 0;
 
 	m_wait = false;
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	m_PPStrings = new aui_StringTable(
+	m_PPStrings = std::make_unique<aui_StringTable>(
 		&errcode,
 		"strings.ppt" );
 	Assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return AUI_ERRCODE_HACK;
 
-	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != nullptr );
-	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
-	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
+	m_controls = std::make_unique<aui_Control *[]>( m_numControls = CONTROL_MAX );
 
-	m_dbActionArray[ 0 ] = new DialogBoxPopDownAction;
+	m_dbActionArray[ 0 ] = std::make_unique<DialogBoxPopDownAction>();
 	Assert( m_dbActionArray[ 0 ] != nullptr );
 	if ( !m_dbActionArray[ 0 ] ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -131,7 +130,7 @@ AUI_ERRCODE LobbyWindow::CreateControls( )
 
 
 
-	aui_Control *control;
+	std::unique_ptr<aui_Control> control;
 
 
 
@@ -141,153 +140,153 @@ AUI_ERRCODE LobbyWindow::CreateControls( )
 
 
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.titlestatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_TITLESTATICTEXT ] = control;
+	m_controls[ CONTROL_TITLESTATICTEXT ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.gamesstatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_GAMESSTATICTEXT ] = control;
+	m_controls[ CONTROL_GAMESSTATICTEXT ] = control.release();
 
-	control = new ns_GameListBox(
+	control = std::make_unique<ns_GameListBox>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.gameslistbox" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_GAMESLISTBOX ] = control;
+	m_controls[ CONTROL_GAMESLISTBOX ] = control.release();
 
-	control = new ns_ChatBox(
+	control = std::make_unique<ns_ChatBox>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.chatbox" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CHATBOX ] = control;
+	m_controls[ CONTROL_CHATBOX ] = control.release();
 
 
-	control = spNew_ctp2_Button(&errcode,
+	control.reset(spNew_ctp2_Button(&errcode,
 		"lobbywindow",
-		"changebutton", nullptr);
+		"changebutton", nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CHANGEBUTTON ] = control;
+	m_controls[ CONTROL_CHANGEBUTTON ] = control.release();
 
-	control = spNew_ctp2_Button(&errcode,
+	control.reset(spNew_ctp2_Button(&errcode,
 		"lobbywindow",
-		"joinbutton", nullptr);
+		"joinbutton", nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_JOINBUTTON ] = control;
+	m_controls[ CONTROL_JOINBUTTON ] = control.release();
 
-	control = spNew_ctp2_Button(&errcode,
+	control.reset(spNew_ctp2_Button(&errcode,
 		"lobbywindow",
-		"createbutton", nullptr);
+		"createbutton", nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CREATEBUTTON ] = control;
+	m_controls[ CONTROL_CREATEBUTTON ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.currentlobbystatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CURRENTLOBBYSTATICTEXT ] = control;
+	m_controls[ CONTROL_CURRENTLOBBYSTATICTEXT ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.currentlobbytextfield" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CURRENTLOBBYTEXTFIELD ] = control;
+	m_controls[ CONTROL_CURRENTLOBBYTEXTFIELD ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.currentserverstatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CURRENTSERVERSTATICTEXT ] = control;
+	m_controls[ CONTROL_CURRENTSERVERSTATICTEXT ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.currentservertextfield" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_CURRENTSERVERTEXTFIELD ] = control;
+	m_controls[ CONTROL_CURRENTSERVERTEXTFIELD ] = control.release();
 
-	control = new ns_PlayerListBox(
+	control = std::make_unique<ns_PlayerListBox>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.playerslistbox" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_PLAYERSLISTBOX ] = control;
+	m_controls[ CONTROL_PLAYERSLISTBOX ] = control.release();
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.playerslistbox.playersstatictext" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_PLAYERSSTATICTEXT ] = control;
+	m_controls[ CONTROL_PLAYERSSTATICTEXT ] = control.release();
 
-	control = spNew_ctp2_Button(&errcode,
+	control.reset(spNew_ctp2_Button(&errcode,
 		"lobbywindow",
-		"infobutton", nullptr);
+		"infobutton", nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_INFOBUTTON ] = control;
+	m_controls[ CONTROL_INFOBUTTON ] = control.release();
 
 
 
 
 
-	control = new ctp2_Switch(
+	control = std::make_unique<ctp2_Switch>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.muteswitch");
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_MUTESWITCH ] = control;
+	m_controls[ CONTROL_MUTESWITCH ] = control.release();
 
 
 
 
 
-	control = new ctp2_Switch(
+	control = std::make_unique<ctp2_Switch>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.whisperswitch");
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_WHISPERSWITCH ] = control;
+	m_controls[ CONTROL_WHISPERSWITCH ] = control.release();
 
-	control = spNew_ctp2_Button(&errcode,
+	control.reset(spNew_ctp2_Button(&errcode,
 		"lobbywindow",
-		"reviewbutton", nullptr);
+		"reviewbutton", nullptr));
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_REVIEWBUTTON ] = control;
+	m_controls[ CONTROL_REVIEWBUTTON ] = control.release();
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
 		"lobbywindow.backbutton" );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
-	m_controls[ CONTROL_BACKBUTTON ] = control;
+	m_controls[ CONTROL_BACKBUTTON ] = control.release();
 
 
 
@@ -297,62 +296,62 @@ AUI_ERRCODE LobbyWindow::CreateControls( )
 
 
 
-	aui_Action *action;
+	std::unique_ptr<aui_Action> action;
 
 
 
 
 
 
-	action = new ChangeButtonAction;
+	action = std::make_unique<ChangeButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_CHANGEBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_CHANGEBUTTON ]->SetAction( action.release() );
 
-	action = new JoinButtonAction;
+	action = std::make_unique<JoinButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_JOINBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_JOINBUTTON ]->SetAction( action.release() );
 
-	action = new CreateButtonAction;
+	action = std::make_unique<CreateButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_CREATEBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_CREATEBUTTON ]->SetAction( action.release() );
 
-	action = new InfoButtonAction;
+	action = std::make_unique<InfoButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_INFOBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_INFOBUTTON ]->SetAction( action.release() );
 
-	action = new MuteSwitchAction;
+	action = std::make_unique<MuteSwitchAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_MUTESWITCH ]->SetAction( action );
+	m_controls[ CONTROL_MUTESWITCH ]->SetAction( action.release() );
 
-	action = new WhisperSwitchAction;
+	action = std::make_unique<WhisperSwitchAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_WHISPERSWITCH ]->SetAction( action );
+	m_controls[ CONTROL_WHISPERSWITCH ]->SetAction( action.release() );
 
-	action = new ReviewButtonAction;
+	action = std::make_unique<ReviewButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_REVIEWBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_REVIEWBUTTON ]->SetAction( action.release() );
 
-	action = new BackButtonAction;
+	action = std::make_unique<BackButtonAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_BACKBUTTON ]->SetAction( action );
+	m_controls[ CONTROL_BACKBUTTON ]->SetAction( action.release() );
 
-	action = new PlayersListBoxAction;
+	action = std::make_unique<PlayersListBoxAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_PLAYERSLISTBOX ]->SetAction( action );
+	m_controls[ CONTROL_PLAYERSLISTBOX ]->SetAction( action.release() );
 
-	action = new GamesListBoxAction;
+	action = std::make_unique<GamesListBoxAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
-	m_controls[ CONTROL_GAMESLISTBOX ]->SetAction( action );
+	m_controls[ CONTROL_GAMESLISTBOX ]->SetAction( action.release() );
 
 
 
@@ -393,23 +392,15 @@ AUI_ERRCODE LobbyWindow::CreateControls( )
 
 LobbyWindow::~LobbyWindow( )
 {
-	sint32 numActions = sizeof( m_dbActionArray ) / sizeof( aui_Action *);
+	sint32 numActions = sizeof( m_dbActionArray ) / sizeof( m_dbActionArray[0] );
 	for ( sint32 i = 0; i < numActions; i++ )
 	{
-		if ( m_dbActionArray[ i ] )
-		{
-			delete m_dbActionArray[ i ];
-			m_dbActionArray[ i ] = nullptr;
-		}
+		m_dbActionArray[ i ].reset();
 	}
 
-	delete m_messageLobbyEnter;
+	m_messageLobbyEnter.reset();
 
-	if ( m_PPStrings )
-	{
-		delete m_PPStrings;
-		m_PPStrings = nullptr;
-	}
+	m_PPStrings.reset();
 
 	g_lobbyWindow = nullptr;
 }
@@ -433,15 +424,17 @@ void LobbyWindow::Update(BOOL init)
 		m_wait = true;
 	}
 }
-
 AUI_ERRCODE LobbyWindow::Idle( )
 {
 	if(m_wait) {
 
 		if ( !s_dbw )
+		{
+			aui_Action *actions[] = { m_dbActionArray[0].get() };
 			s_dbw = DialogBoxWindow::PopUp(
 				"joinlobbydialogboxwindow",
-				m_dbActionArray );
+				actions );
+		}
 
 
 			((aui_Control *)((ns_ChatBox *)FindControl( CONTROL_CHATBOX ))->
@@ -452,10 +445,10 @@ AUI_ERRCODE LobbyWindow::Idle( )
 
 	bool                joinedLobby = false;
 	NETFunc::KeyStruct  lobbyKey;
-	NETFunc::Message *  m           = netfunc_Get()->GetMessage();
+	std::unique_ptr<NETFunc::Message> m(netfunc_Get()->GetMessage());
     while (m)
     {
-		netfunc_Get()->HandleMessage(m);
+		netfunc_Get()->HandleMessage(m.get());
 
 		switch (m->GetCode())
 		{
@@ -494,8 +487,7 @@ AUI_ERRCODE LobbyWindow::Idle( )
             break;
 		}
 
-		delete m;
-        m = netfunc_Get()->GetMessage();
+		m.reset(netfunc_Get()->GetMessage());
 	}
 
 	if(joinedLobby && NETFunc::GetStatus() == NETFunc::OK) {

@@ -127,18 +127,15 @@ size_t ComputeHashIndex(MBCHAR const * id)
 
 
 StringDB::StringDB()
-:	m_all(),
+:	m_records(),
+	m_all(),
 	m_head(STRDB_NUM_HEADS, nullptr)
 {
 }
 
 StringDB::~StringDB()
 {
-	for
-	(auto & p : m_all)
-	{
-		delete p;
-	}
+	// m_records owns all StringRecords; m_head/m_all are non-owning views.
 }
 
 StringRecord const * const & StringDB::GetHead(MBCHAR const * id) const
@@ -263,7 +260,7 @@ bool StringDB::AddStrNode
 	else
 	{
 		// At a leaf: add here.
-		ptr				= new StringRecord();
+		ptr				= &m_records.emplace_back();
 		ptr->m_id		= add_id ? add_id : "";
 		ptr->m_text		= new_text ? new_text : "";
 		AssignIndex(ptr);

@@ -48,7 +48,7 @@ AUI_ERRCODE UITestWindow::InitCommon( void )
 
 	SetDraggable(TRUE);
 
-	m_button1 = new IconButton( &errcode, aui_UniqueId(),
+	m_button1 = std::make_unique<IconButton>( &errcode, aui_UniqueId(),
 								20,
 								37,
 								32,
@@ -59,17 +59,17 @@ AUI_ERRCODE UITestWindow::InitCommon( void )
 	Assert( AUI_NEWOK( m_button1, errcode ));
 	if ( !AUI_NEWOK( m_button1, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	errcode = AddControl( m_button1 );
+	errcode = AddControl( m_button1.get() );
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
-	m_button1Action = new Button1Action( );
-	Assert( m_button1Action != NULL );
-	if ( m_button1Action == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	m_button1Action = std::make_unique<Button1Action>( );
+	Assert( m_button1Action != nullptr );
+	if ( m_button1Action == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_button1->SetAction( m_button1Action );
+	m_button1->SetAction( m_button1Action.get() );
 
-	m_button2 = new IconButton( &errcode, aui_UniqueId(),
+	m_button2 = std::make_unique<IconButton>( &errcode, aui_UniqueId(),
 								54,
 								37,
 								32,
@@ -80,15 +80,15 @@ AUI_ERRCODE UITestWindow::InitCommon( void )
 	Assert( AUI_NEWOK( m_button2, errcode ));
 	if ( !AUI_NEWOK( m_button2, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	errcode = AddControl( m_button2 );
+	errcode = AddControl( m_button2.get() );
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
-	m_button2Action = new Button2Action( );
-	Assert( m_button2Action != NULL );
-	if ( m_button2Action == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	m_button2Action = std::make_unique<Button2Action>( );
+	Assert( m_button2Action != nullptr );
+	if ( m_button2Action == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_button2->SetAction( m_button2Action );
+	m_button2->SetAction( m_button2Action.get() );
 
 	return AUI_ERRCODE_OK;
 }
@@ -153,24 +153,9 @@ AUI_ERRCODE UITestWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 UITestWindow::~UITestWindow( )
 {
-	if ( m_button1 ) {
-		delete m_button1;
-		m_button1 = NULL;
-	}
-
-	if ( m_button1Action ) {
-		delete m_button1Action;
-		m_button1Action = NULL;
-	}
-
-	if ( m_button2 ) {
-		delete m_button2;
-		m_button2 = NULL;
-	}
-
-	if ( m_button2Action ) {
-		delete m_button2Action;
-		m_button2Action = NULL;
-	}
-
+	// unique_ptr members; reset in the original explicit order.
+	m_button1.reset();
+	m_button1Action.reset();
+	m_button2.reset();
+	m_button2Action.reset();
 }

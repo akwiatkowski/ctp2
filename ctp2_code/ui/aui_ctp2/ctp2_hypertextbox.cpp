@@ -271,14 +271,14 @@ void ctp2_HyperTextBox::FormatText
 
 		if (a_IsLink)
 		{
-			ctp2_HyperLink * hl	= new ctp2_HyperLink;
+			auto hl = std::make_unique<ctp2_HyperLink>();
 			hl->m_static		= hs;
 			hl->m_db			= a_Database;
 			hl->m_index			= a_Index;
 			hl->m_frame			= FALSE;
 			hl->m_oldColor		= m_hyperColor;
 			hl->m_selectColor	= RGB(0,0,255);
-			m_hyperLinkList->AddTail(hl);
+			m_hyperLinkList.push_back(std::move(hl));
 		}
 	} // for
 }
@@ -377,9 +377,7 @@ AUI_ERRCODE ctp2_HyperTextBox::InitCommonLdl( MBCHAR const *ldlBlock )
 
 AUI_ERRCODE ctp2_HyperTextBox::InitCommon( )
 {
-	m_hyperLinkList = new tech_WLList<ctp2_HyperLink *>;
-	Assert( m_hyperLinkList != nullptr );
-	if ( !m_hyperLinkList ) return AUI_ERRCODE_MEMALLOCFAILED;
+	// m_hyperLinkList is a vector member, always valid.
 
 	m_hyperColor = RGB(50,50,50);
 
@@ -388,11 +386,7 @@ AUI_ERRCODE ctp2_HyperTextBox::InitCommon( )
 
 ctp2_HyperTextBox::~ctp2_HyperTextBox()
 {
-	if (m_hyperLinkList)
-    {
-		RemoveHyperLinks();
-		delete m_hyperLinkList;
-	}
+	RemoveHyperLinks();
 }
 
 
@@ -642,10 +636,7 @@ AUI_ERRCODE ctp2_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 
 void ctp2_HyperTextBox::RemoveHyperLinks( )
 {
-	for (sint32 i = m_hyperLinkList->L(); i; --i)
-    {
-		delete m_hyperLinkList->RemoveTail();
-    }
+	m_hyperLinkList.clear();
     m_selectedHyperLink = nullptr;
 }
 
@@ -761,9 +752,8 @@ void ctp2_HyperTextBox::MouseLDropInside( aui_MouseEvent *mouseData )
 
 			m_selectedHyperLink = nullptr;
 
-			ListPos lp = m_hyperLinkList->GetHeadPosition();
-			for ( uint32 i = 0;i < m_hyperLinkList->L();i++ ) {
-				ctp2_HyperLink *hl = m_hyperLinkList->GetNext( lp );
+			for ( auto & hlPtr : m_hyperLinkList ) {
+				ctp2_HyperLink *hl = hlPtr.get();
 				RECT rect;
 				rect.left = hl->m_static->X();
 				rect.top = hl->m_static->Y();
@@ -825,9 +815,8 @@ void ctp2_HyperTextBox::MouseLDropOutside( aui_MouseEvent *mouseData )
 
 	m_selectedHyperLink = nullptr;
 
-	ListPos lp = m_hyperLinkList->GetHeadPosition();
-	for ( uint32 i = 0;i < m_hyperLinkList->L();i++ ) {
-		ctp2_HyperLink *hl = m_hyperLinkList->GetNext( lp );
+	for ( auto & hlPtr : m_hyperLinkList ) {
+		ctp2_HyperLink *hl = hlPtr.get();
 
 		hl->m_frame = FALSE;
 		hl->m_static->SetTextColor( hl->m_oldColor );
@@ -865,9 +854,8 @@ void ctp2_HyperTextBox::MouseLGrabInside( aui_MouseEvent *mouseData )
 
 		m_selectedHyperLink = nullptr;
 
-		ListPos lp = m_hyperLinkList->GetHeadPosition();
-		for ( uint32 i = 0;i < m_hyperLinkList->L();i++ ) {
-			ctp2_HyperLink *hl = m_hyperLinkList->GetNext( lp );
+		for ( auto & hlPtr : m_hyperLinkList ) {
+			ctp2_HyperLink *hl = hlPtr.get();
 			RECT rect;
 			rect.left = hl->m_static->X();
 			rect.top = hl->m_static->Y();

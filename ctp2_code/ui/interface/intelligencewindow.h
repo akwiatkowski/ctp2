@@ -10,6 +10,8 @@ class aui_Control;
 class aui_StringTable;
 struct aui_MouseEvent;
 
+#include <memory>
+
 class IntelligenceWindow {
   private:
 	ctp2_Window *m_window;
@@ -19,8 +21,8 @@ class IntelligenceWindow {
 
 	static ctp2_ListBox *sm_list;
 
-	static aui_StringTable *sm_strengthImages;
-	static aui_StringTable *sm_embassyImages;
+	static std::unique_ptr<aui_StringTable> sm_strengthImages;
+	static std::unique_ptr<aui_StringTable> sm_embassyImages;
 
   public:
 	IntelligenceWindow(AUI_ERRCODE *err);

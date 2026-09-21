@@ -32,6 +32,8 @@
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/world/cellunitlist.h"
+#include <memory>
+
 
 // Forward declared in battle_view layer; used by combatevent.cpp's
 // "close previous view" path.
@@ -47,19 +49,14 @@ public:
     {
         // Defensive: if a previous battle never got EndBattle'd, drop it
         // before starting a new one so we don't leak.
-        if (m_battle)
-        {
-            delete m_battle;
-            m_battle = nullptr;
-        }
-        m_battle = new Battle();
+        m_battle = std::make_unique<Battle>();
         m_battle->Initialize(attackers, defenders);
 
         // Open a placement event — populated by subsequent AddPlacement
         // calls and committed by CommitPlacement.
-        m_pendingPlacement = new BattleEvent(BATTLE_EVENT_TYPE_PLACEMENT);
+        m_pendingPlacement = std::make_unique<BattleEvent>(BATTLE_EVENT_TYPE_PLACEMENT);
 
-        if (director_Get()) director_Get()->AddBattle(m_battle);
+        if (director_Get()) director_Get()->AddBattle(m_battle.get());
         return true;
     }
 
@@ -67,48 +64,48 @@ public:
                       sint32 col, sint32 row, bool initial) override
     {
         if (!m_battle || !m_pendingPlacement) return;
-        m_battle->PositionUnit(m_pendingPlacement, isDefender ? TRUE : FALSE,
+        m_battle->PositionUnit(m_pendingPlacement.get(), isDefender ? TRUE : FALSE,
                                unit, col, row, initial);
     }
 
     void CommitPlacement() override
     {
         if (!m_battle || !m_pendingPlacement) return;
-        m_battle->AddEvent(m_pendingPlacement);
+        m_battle->AddEvent(m_pendingPlacement.release());
         // Open the next placement event so callers can populate again on
         // re-balance.  Battle::AddEvent takes ownership of the prior one.
-        m_pendingPlacement = new BattleEvent(BATTLE_EVENT_TYPE_PLACEMENT);
+        m_pendingPlacement = std::make_unique<BattleEvent>(BATTLE_EVENT_TYPE_PLACEMENT);
     }
 
     void AddAttack(const Unit &unit, bool isDefender) override
     {
         if (!m_battle) return;
-        BattleEvent *e = new BattleEvent(BATTLE_EVENT_TYPE_ATTACK);
-        m_battle->AddUnitAttack(e, isDefender ? TRUE : FALSE, unit);
-        m_battle->AddEvent(e);
+        auto e = std::make_unique<BattleEvent>(BATTLE_EVENT_TYPE_ATTACK);
+        m_battle->AddUnitAttack(e.get(), isDefender ? TRUE : FALSE, unit);
+        m_battle->AddEvent(e.release());
     }
 
     void AddDeath(const Unit &unit, bool isDefender) override
     {
         if (!m_battle) return;
-        BattleEvent *e = new BattleEvent(BATTLE_EVENT_TYPE_DEATH);
-        m_battle->AddUnitDeath(e, isDefender ? TRUE : FALSE, unit);
-        m_battle->AddEvent(e);
+        auto e = std::make_unique<BattleEvent>(BATTLE_EVENT_TYPE_DEATH);
+        m_battle->AddUnitDeath(e.get(), isDefender ? TRUE : FALSE, unit);
+        m_battle->AddEvent(e.release());
     }
 
     void AddExplosion(const Unit &unit, bool isDefender) override
     {
         if (!m_battle) return;
-        BattleEvent *e = new BattleEvent(BATTLE_EVENT_TYPE_EXPLODE);
-        m_battle->AddUnitExplosion(e, isDefender ? TRUE : FALSE, unit);
-        m_battle->AddEvent(e);
+        auto e = std::make_unique<BattleEvent>(BATTLE_EVENT_TYPE_EXPLODE);
+        m_battle->AddUnitExplosion(e.get(), isDefender ? TRUE : FALSE, unit);
+        m_battle->AddEvent(e.release());
     }
 
     void UpdateBattle() override
     {
         if (BattleViewWindow *bvw = battleviewwindow_Get(); m_battle && bvw)
         {
-            bvw->UpdateBattle(m_battle);
+            bvw->UpdateBattle(m_battle.get());
         }
     }
 
@@ -116,14 +113,11 @@ public:
     {
         if (!m_battle) return;
         if (BattleViewWindow *bvw = battleviewwindow_Get()) bvw->EndBattle();
-        // Note: any uncommitted m_pendingPlacement is orphaned here.
-        // Battle::~Battle() doesn't iterate uncommitted events, so this
-        // is a minor leak by design — matches the legacy gs/-side
-        // ownership behavior (gs/ also dropped the BattleEvent* on
-        // delete m_battle).  Re-evaluate when revisiting Battle ownership.
-        delete m_battle;
-        m_battle = nullptr;
-        m_pendingPlacement = nullptr;
+        // unique_ptr members; an uncommitted m_pendingPlacement is now
+        // destroyed by reset() rather than orphaned — the legacy gs/-side
+        // path leaked it on delete m_battle.
+        m_battle.reset();
+        m_pendingPlacement.reset();
     }
 
     void CloseBattleView() override
@@ -137,11 +131,11 @@ public:
         }
     }
 
-    Battle *GetCurrentBattle() const { return m_battle; }
+    Battle *GetCurrentBattle() const { return m_battle.get(); }
 
 private:
-    Battle      *m_battle = nullptr;
-    BattleEvent *m_pendingPlacement = nullptr;
+    std::unique_ptr<Battle>      m_battle;
+    std::unique_ptr<BattleEvent> m_pendingPlacement;
 };
 
 BattleObserverAdapter g_battleObserverAdapter;

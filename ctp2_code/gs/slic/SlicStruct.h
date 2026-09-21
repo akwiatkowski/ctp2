@@ -44,6 +44,7 @@
 #ifndef __SLIC_STRUCT_H__
 #define __SLIC_STRUCT_H__ 1
 
+#include <memory>		// std::unique_ptr
 #include <string>		// std::string
 #include <vector>		// std::vector
 
@@ -76,7 +77,7 @@ public:
 		SLIC_SYM m_type;
 		std::string m_name;
 		class SlicStructDescription *m_parent;
-		class SlicStructMemberData *m_symbol;
+		std::unique_ptr<SlicStructMemberData> m_symbol;
 	};
 
 	SlicStructDescription(char const * name, SLIC_BUILTIN type);
@@ -103,15 +104,15 @@ public:
 	SlicSymbolData *CreateInstance();
 
 
-	virtual SlicSymbolData *CreateDataSymbol();
+	virtual std::unique_ptr<SlicSymbolData> CreateDataSymbol();
 
 	friend class SlicStructInstance;
 private:
 	std::string m_name;
 	SLIC_BUILTIN m_type;
-	SlicStructDescription::Member **m_members;
+	std::vector<std::unique_ptr<Member>>	m_members;
 	sint32 m_numMembers;
-	std::vector<Member *>			m_accessors;
+	std::vector<std::unique_ptr<Member>>	m_accessors;
 };
 
 
@@ -151,7 +152,7 @@ public:
 	void SetParent(SlicStructInstance *parent) { m_parent = parent; }
 
 	virtual SlicStructMemberData *MakeCopy(SlicStructInstance *parent) {
-		return new SlicStructMemberData(parent, m_type);
+		return std::make_unique<SlicStructMemberData>(parent, m_type).release();
 	}
 };
 
@@ -173,8 +174,9 @@ private:
 	void CreateMember(sint32 index);
 
 	SlicStructDescription *m_description;
-	SlicStructMemberData **m_members;
+	std::vector<std::unique_ptr<SlicStructMemberData>> m_members;
 	SlicSymbolData *m_dataSymbol;
+	std::unique_ptr<SlicSymbolData> m_ownedData;
 	sint32 m_dataSymbolIndex;
 	bool m_createdData;
 	size_t				m_validIndexCount;	// members + accessors

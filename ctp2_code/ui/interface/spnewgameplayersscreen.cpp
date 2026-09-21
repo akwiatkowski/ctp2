@@ -36,6 +36,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/interface/spnewgameplayersscreen.h"
 
 #include "ui/aui_common/aui_uniqueid.h"
@@ -58,7 +59,7 @@
 namespace
 {
 
-c3_PopupWindow *    s_spNewGamePlayersScreen = nullptr;
+std::unique_ptr<c3_PopupWindow> s_spNewGamePlayersScreen;
 
 //----------------------------------------------------------------------------
 //
@@ -76,26 +77,25 @@ c3_PopupWindow *    s_spNewGamePlayersScreen = nullptr;
 //
 //----------------------------------------------------------------------------
 template <typename T>
-void CleanupControl(T * & a_Control)
+void CleanupControl(std::unique_ptr<T> & a_Control)
 {
 	if (a_Control)
 	{
 		s_spNewGamePlayersScreen->RemoveControl(a_Control->Id());
-		delete a_Control;
-		a_Control = nullptr;
+		a_Control.reset();
 	}
 }
 
 } // namespace
 
 
-static ctp2_Spinner *s_num_player_spinner = nullptr;
-static ctp2_Spinner *s_max_player_spinner = nullptr;
-static ctp2_Spinner *s_player_spinner     = nullptr;
+static std::unique_ptr<ctp2_Spinner> s_num_player_spinner;
+static std::unique_ptr<ctp2_Spinner> s_max_player_spinner;
+static std::unique_ptr<ctp2_Spinner> s_player_spinner;
 
-static c3_Static    *s_num_player         = nullptr;
-static c3_Static    *s_max_player         = nullptr;
-static c3_Static    *s_player             = nullptr;
+static std::unique_ptr<c3_Static>    s_num_player;
+static std::unique_ptr<c3_Static>    s_max_player;
+static std::unique_ptr<c3_Static>    s_player;
 
 static sint32        s_maxPlayers         = 0;
 
@@ -120,10 +120,10 @@ sint32 spnewgameplayersscreen_displayMyWindow()
 	sint32 retval=0;
 	if(!s_spNewGamePlayersScreen) { retval = spnewgameplayersscreen_Initialize(); }
 
-	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(s_spNewGamePlayersScreen);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(s_spNewGamePlayersScreen.get());
 	Assert(auiErr == AUI_ERRCODE_OK);
 
-	keypress_RegisterHandler(s_spNewGamePlayersScreen);
+	keypress_RegisterHandler(s_spNewGamePlayersScreen.get());
 
 	return retval;
 }
@@ -164,7 +164,7 @@ sint32 spnewgameplayersscreen_removeMyWindow(uint32 action)
 	AUI_ERRCODE auiErr;
 
 	auiErr = c3ui_Get()->RemoveWindow( s_spNewGamePlayersScreen->Id() );
-	keypress_RemoveHandler(s_spNewGamePlayersScreen);
+	keypress_RemoveHandler(s_spNewGamePlayersScreen.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -209,7 +209,7 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 	strlcpy(windowBlock, "SPNewGamePlayersScreen", sizeof(windowBlock));
 
 	{
-		s_spNewGamePlayersScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		s_spNewGamePlayersScreen = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(s_spNewGamePlayersScreen, errcode) );
 		if ( !AUI_NEWOK(s_spNewGamePlayersScreen, errcode) ) return errcode;
 
@@ -230,50 +230,50 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "NumPlayerSpinner");
 	if (aui_Ldl::IsValid(controlBlock))
 	{
-		s_num_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, nullptr);
+		s_num_player_spinner = std::make_unique<ctp2_Spinner>(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, nullptr);
 		s_num_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_NumPlayerSpinner, nullptr);
 		s_num_player_spinner->SetValue(profiledb_Get()->GetNPlayers() - 1, 0);
 		if(s_num_player_spinner->GetMaximumX() >= k_MAX_PLAYERS){
 			s_num_player_spinner->SetMaximum(k_MAX_PLAYERS-1, 0);
 		}
-		s_spNewGamePlayersScreen->AddControl(s_num_player_spinner);
+		s_spNewGamePlayersScreen->AddControl(s_num_player_spinner.get());
 
 		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "NumPlayerText");
-		s_num_player = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
-		s_spNewGamePlayersScreen->AddControl(s_num_player);
+		s_num_player = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
+		s_spNewGamePlayersScreen->AddControl(s_num_player.get());
 	}
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "MaxPlayerSpinner");
 	if (aui_Ldl::IsValid(controlBlock))
 	{
-		s_max_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, nullptr);
+		s_max_player_spinner = std::make_unique<ctp2_Spinner>(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, nullptr);
 		s_max_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_MaxPlayerSpinner, nullptr);
 		s_max_player_spinner->SetValue(profiledb_Get()->GetMaxPlayers() - 1, 0);
 		if(s_max_player_spinner->GetMaximumX() >= k_MAX_PLAYERS){
 			s_max_player_spinner->SetMaximum(k_MAX_PLAYERS-1, 0);
 		}
-		s_spNewGamePlayersScreen->AddControl(s_max_player_spinner);
+		s_spNewGamePlayersScreen->AddControl(s_max_player_spinner.get());
 
 		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "MaxPlayerText");
-		s_max_player = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
-		s_spNewGamePlayersScreen->AddControl(s_max_player);
+		s_max_player = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
+		s_spNewGamePlayersScreen->AddControl(s_max_player.get());
 	}
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerSpinner");
 	if (aui_Ldl::IsValid(controlBlock))
 	{
-		s_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock);
+		s_player_spinner = std::make_unique<ctp2_Spinner>(&errcode, aui_UniqueId(), controlBlock);
 		s_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_PlayerSpinner, nullptr);
 		s_player_spinner->SetValue(profiledb_Get()->GetPlayerIndex(), 0);
 		s_player_spinner->SetMaximum(profiledb_Get()->GetNPlayers() - 1, 0);
-		s_spNewGamePlayersScreen->AddControl(s_player_spinner);
+		s_spNewGamePlayersScreen->AddControl(s_player_spinner.get());
 
 		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerText");
-		s_player = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+		s_player = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 		s_player->SetTextColor(colorset_Get()->GetColorRef(colorset_Get()->ComputePlayerColor(profiledb_Get()->GetPlayerIndex())));
 	//	s_player->SetTextShadow(true);
 	//	s_player->SetTextShadowColor(RGB(0,0,0));
-		s_spNewGamePlayersScreen->AddControl(s_player);
+		s_spNewGamePlayersScreen->AddControl(s_player.get());
 	}
 
 	return AUI_ERRCODE_OK;
@@ -315,10 +315,9 @@ void spnewgameplayersscreen_Cleanup()
 		{
 			c3ui_Get()->RemoveWindow(s_spNewGamePlayersScreen->Id());
 		}
-		keypress_RemoveHandler(s_spNewGamePlayersScreen);
+		keypress_RemoveHandler(s_spNewGamePlayersScreen.get());
 
-		delete s_spNewGamePlayersScreen;
-		s_spNewGamePlayersScreen = nullptr;
+		s_spNewGamePlayersScreen.reset();
 	}
 }
 

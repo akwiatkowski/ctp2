@@ -37,6 +37,8 @@ class ldl_datablock;
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "ldl_list.h"
 
+#include <memory>
+
 class ldl;
 class ldl_hash;
 class ldl_attribute;
@@ -82,10 +84,10 @@ class ldl_datablock {
 	}
 
 	void AddAttribute(char const *name, char const *str) {
-		m_attributes.AddTail(new ldl_attributeValue<char const *>(name, ATTRIBUTE_TYPE_STRING, str));
+		m_attributes.AddTail(std::make_unique<ldl_attributeValue<char const *>>(name, ATTRIBUTE_TYPE_STRING, str).release());
 	}
 	void AddAttribute(char const *name, int value) {
-		m_attributes.AddTail(new ldl_attributeValue<int>(name, ATTRIBUTE_TYPE_INT, value));
+		m_attributes.AddTail(std::make_unique<ldl_attributeValue<int>>(name, ATTRIBUTE_TYPE_INT, value).release());
 	}
 
 	void CopyAttributesFrom(ldl_datablock *templ);

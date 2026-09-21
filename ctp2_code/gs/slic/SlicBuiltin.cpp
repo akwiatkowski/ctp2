@@ -79,11 +79,13 @@
 #include "WonderRecord.h"
 #include "gs/gameobj/wonderutil.h"
 
+#include <memory>
+
 #define DEF_MAKECOPY(t) \
 	SlicStructMemberData *MakeCopy(SlicStructInstance *parent) override {\
-		t *n = new t;\
+		auto n = std::make_unique<t>();\
 		n->m_parent = parent;\
-		return n;\
+		return n.release();\
 	}
 
 
@@ -166,12 +168,12 @@ class GlobalSymbol_MaxPlayers : public SlicStructMemberData {
 SlicStruct_Global::SlicStruct_Global() :
 	SlicStructDescription("g", SLIC_BUILTIN_GLOBAL)
 {
-	AddMember("year", new GlobalSymbol_Year);
-	AddMember("year_str", new GlobalSymbol_YearString);
-	AddMember("player", new GlobalSymbol_Player);
-	AddAccessor("num_of_players", new GlobalSymbol_NumOfPlayers);
-	AddAccessor("last_player", new GlobalSymbol_LastPlayer);
-	AddAccessor("max_players", new GlobalSymbol_MaxPlayers);
+	AddMember("year", std::make_unique<GlobalSymbol_Year>().release());
+	AddMember("year_str", std::make_unique<GlobalSymbol_YearString>().release());
+	AddMember("player", std::make_unique<GlobalSymbol_Player>().release());
+	AddAccessor("num_of_players", std::make_unique<GlobalSymbol_NumOfPlayers>().release());
+	AddAccessor("last_player", std::make_unique<GlobalSymbol_LastPlayer>().release());
+	AddAccessor("max_players", std::make_unique<GlobalSymbol_MaxPlayers>().release());
 
 }
 
@@ -298,13 +300,13 @@ class UnitSymbol_Name : public SlicStructMemberData {
 SlicStruct_Unit::SlicStruct_Unit() :
 	SlicStructDescription("unit", SLIC_BUILTIN_UNIT)
 {
-	AddMember("owner", new UnitSymbol_Owner);
-	AddMember("location", new UnitSymbol_Location);
-	AddMember("type", new UnitSymbol_Type);
-	AddMember("hp", new UnitSymbol_HP);
-	AddMember("valid", new UnitSymbol_Valid);
-	AddMember("name", new UnitSymbol_Name);
-	AddAccessor("actualmaxhp", new UnitSymbol_ActualMaxHP);
+	AddMember("owner", std::make_unique<UnitSymbol_Owner>().release());
+	AddMember("location", std::make_unique<UnitSymbol_Location>().release());
+	AddMember("type", std::make_unique<UnitSymbol_Type>().release());
+	AddMember("hp", std::make_unique<UnitSymbol_HP>().release());
+	AddMember("valid", std::make_unique<UnitSymbol_Valid>().release());
+	AddMember("name", std::make_unique<UnitSymbol_Name>().release());
+	AddAccessor("actualmaxhp", std::make_unique<UnitSymbol_ActualMaxHP>().release());
 }
 
 
@@ -527,16 +529,16 @@ class CitySymbol_Valid : public SlicStructMemberData {
 SlicStruct_City::SlicStruct_City() :
 	SlicStructDescription("city", SLIC_BUILTIN_CITY)
 {
-	AddMember("owner", new CitySymbol_Owner);
-	AddMember("location", new CitySymbol_Location);
-	AddMember("name", new CitySymbol_Name);
-	AddMember("population", new CitySymbol_Population);
-	AddMember("happiness", new CitySymbol_Happiness);
-	AddMember("netcitygold", new CitySymbol_NetCityGold);
-	AddMember("goldfromtraderoutes", new CitySymbol_GoldFromTradeRoutes);
-	AddMember("building", new CitySymbol_Building);
-	AddMember("buildingtime", new CitySymbol_BuildingTime);
-	AddMember("buildqueuelength", new CitySymbol_BuildQueueLength);
+	AddMember("owner", std::make_unique<CitySymbol_Owner>().release());
+	AddMember("location", std::make_unique<CitySymbol_Location>().release());
+	AddMember("name", std::make_unique<CitySymbol_Name>().release());
+	AddMember("population", std::make_unique<CitySymbol_Population>().release());
+	AddMember("happiness", std::make_unique<CitySymbol_Happiness>().release());
+	AddMember("netcitygold", std::make_unique<CitySymbol_NetCityGold>().release());
+	AddMember("goldfromtraderoutes", std::make_unique<CitySymbol_GoldFromTradeRoutes>().release());
+	AddMember("building", std::make_unique<CitySymbol_Building>().release());
+	AddMember("buildingtime", std::make_unique<CitySymbol_BuildingTime>().release());
+	AddMember("buildqueuelength", std::make_unique<CitySymbol_BuildQueueLength>().release());
 
 }
 
@@ -1234,36 +1236,36 @@ class PlayerSymbol_PublicWorksLevel : public SlicStructMemberData {
 SlicStruct_Player::SlicStruct_Player() :
 	SlicStructDescription("player", SLIC_BUILTIN_PLAYER)
 {
-	AddMember("owner", new PlayerSymbol_Owner);
-	AddMember("cities", new PlayerSymbol_Cities);
-	AddMember("units", new PlayerSymbol_Units);
-	AddMember("militaryunits", new PlayerSymbol_MilitaryUnits);
-	AddMember("armies", new PlayerSymbol_Armies);
-	AddAccessor("government", new PlayerSymbol_Government);
-	AddMember("totalpopulation", new PlayerSymbol_TotalPopulation);
-	AddMember("totalpollution", new PlayerSymbol_TotalPollution);
-	AddMember("capital", new PlayerSymbol_Capital);
-	AddMember("largestcity", new PlayerSymbol_LargestCity);
-	AddMember("researching", new PlayerSymbol_Researching);
-	AddMember("militarystate", new PlayerSymbol_MilitaryState);
-	AddMember("leaderperonality", new PlayerSymbol_LeaderPersonality);
-	AddMember("govttype", new PlayerSymbol_GovtType);
+	AddMember("owner", std::make_unique<PlayerSymbol_Owner>().release());
+	AddMember("cities", std::make_unique<PlayerSymbol_Cities>().release());
+	AddMember("units", std::make_unique<PlayerSymbol_Units>().release());
+	AddMember("militaryunits", std::make_unique<PlayerSymbol_MilitaryUnits>().release());
+	AddMember("armies", std::make_unique<PlayerSymbol_Armies>().release());
+	AddAccessor("government", std::make_unique<PlayerSymbol_Government>().release());
+	AddMember("totalpopulation", std::make_unique<PlayerSymbol_TotalPopulation>().release());
+	AddMember("totalpollution", std::make_unique<PlayerSymbol_TotalPollution>().release());
+	AddMember("capital", std::make_unique<PlayerSymbol_Capital>().release());
+	AddMember("largestcity", std::make_unique<PlayerSymbol_LargestCity>().release());
+	AddMember("researching", std::make_unique<PlayerSymbol_Researching>().release());
+	AddMember("militarystate", std::make_unique<PlayerSymbol_MilitaryState>().release());
+	AddMember("leaderperonality", std::make_unique<PlayerSymbol_LeaderPersonality>().release());
+	AddMember("govttype", std::make_unique<PlayerSymbol_GovtType>().release());
 
-	AddMember("civ_name_plural", new PlayerSymbol_CivNamePlural);
-	AddMember("civ_name_singular", new PlayerSymbol_CivNameSingular);
-	AddMember("country_name", new PlayerSymbol_CountryName);
-	AddMember("leader_name", new PlayerSymbol_LeaderName);
-	AddMember("he", new PlayerSymbol_HeCap);
-	AddMember("him", new PlayerSymbol_HimCap);
-	AddMember("his", new PlayerSymbol_HisCap);
-	AddMember("he_cap", new PlayerSymbol_HeCap);
-	AddMember("him_cap", new PlayerSymbol_HimCap);
-	AddMember("his_cap", new PlayerSymbol_HisCap);
-	AddMember("sir", new PlayerSymbol_Sir);
-	AddMember("sir_cap", new PlayerSymbol_SirCap);
+	AddMember("civ_name_plural", std::make_unique<PlayerSymbol_CivNamePlural>().release());
+	AddMember("civ_name_singular", std::make_unique<PlayerSymbol_CivNameSingular>().release());
+	AddMember("country_name", std::make_unique<PlayerSymbol_CountryName>().release());
+	AddMember("leader_name", std::make_unique<PlayerSymbol_LeaderName>().release());
+	AddMember("he", std::make_unique<PlayerSymbol_HeCap>().release());
+	AddMember("him", std::make_unique<PlayerSymbol_HimCap>().release());
+	AddMember("his", std::make_unique<PlayerSymbol_HisCap>().release());
+	AddMember("he_cap", std::make_unique<PlayerSymbol_HeCap>().release());
+	AddMember("him_cap", std::make_unique<PlayerSymbol_HimCap>().release());
+	AddMember("his_cap", std::make_unique<PlayerSymbol_HisCap>().release());
+	AddMember("sir", std::make_unique<PlayerSymbol_Sir>().release());
+	AddMember("sir_cap", std::make_unique<PlayerSymbol_SirCap>().release());
 
-	AddMember("publicworkstax", new PlayerSymbol_PublicWorksTax);
-	AddMember("publicworkslevel", new PlayerSymbol_PublicWorksLevel);
+	AddMember("publicworkstax", std::make_unique<PlayerSymbol_PublicWorksTax>().release());
+	AddMember("publicworkslevel", std::make_unique<PlayerSymbol_PublicWorksLevel>().release());
 }
 
 class ArmySymbol_Owner : public SlicStructMemberData {
@@ -1322,9 +1324,9 @@ class ArmySymbol_Size : public SlicStructMemberData {
 SlicStruct_Army::SlicStruct_Army() :
 	SlicStructDescription("army", SLIC_BUILTIN_ARMY)
 {
-	AddMember("owner", new ArmySymbol_Owner);
-	AddMember("location", new ArmySymbol_Location);
-	AddMember("size", new ArmySymbol_Size);
+	AddMember("owner", std::make_unique<ArmySymbol_Owner>().release());
+	AddMember("location", std::make_unique<ArmySymbol_Location>().release());
+	AddMember("size", std::make_unique<ArmySymbol_Size>().release());
 }
 
 
@@ -1373,10 +1375,10 @@ class LocationSymbol_Y : public SlicStructMemberData {
 SlicStruct_Location::SlicStruct_Location() :
 	SlicStructDescription("location", SLIC_BUILTIN_LOCATION)
 {
-	AddMember("location", new LocationSymbol_Location);
+	AddMember("location", std::make_unique<LocationSymbol_Location>().release());
 
-	AddMember("x", new LocationSymbol_X);
-	AddMember("y", new LocationSymbol_Y);
+	AddMember("x", std::make_unique<LocationSymbol_X>().release());
+	AddMember("y", std::make_unique<LocationSymbol_Y>().release());
 }
 
 
@@ -1393,7 +1395,7 @@ class GovernmentSymbol_Type : public SlicStructMemberData {
 SlicStruct_Government::SlicStruct_Government() :
 	SlicStructDescription("government", SLIC_BUILTIN_GOVERNMENT)
 {
-	AddMember("type", new GovernmentSymbol_Type);
+	AddMember("type", std::make_unique<GovernmentSymbol_Type>().release());
 }
 
 
@@ -1434,8 +1436,8 @@ class AdvanceSymbol_Name : public SlicStructMemberData {
 SlicStruct_Advance::SlicStruct_Advance() :
 	SlicStructDescription("advance", SLIC_BUILTIN_ADVANCE)
 {
-	AddMember("type", new AdvanceSymbol_Type);
-	AddMember("name", new AdvanceSymbol_Name);
+	AddMember("type", std::make_unique<AdvanceSymbol_Type>().release());
+	AddMember("name", std::make_unique<AdvanceSymbol_Name>().release());
 }
 
 
@@ -1452,8 +1454,8 @@ class ActionSymbol_Text : public SlicStructMemberData {
 SlicStruct_Action::SlicStruct_Action() :
 	SlicStructDescription("action", SLIC_BUILTIN_ACTION)
 {
-	AddMember("text", new ActionSymbol_Text);
-	AddMember("name", new ActionSymbol_Text);
+	AddMember("text", std::make_unique<ActionSymbol_Text>().release());
+	AddMember("name", std::make_unique<ActionSymbol_Text>().release());
 }
 
 
@@ -1476,7 +1478,7 @@ class ImprovementSymbol_Type : public SlicStructMemberData {
 SlicStruct_Improvement::SlicStruct_Improvement() :
 	SlicStructDescription("improvement", SLIC_BUILTIN_IMPROVEMENT)
 {
-	AddMember("type", new ImprovementSymbol_Type);
+	AddMember("type", std::make_unique<ImprovementSymbol_Type>().release());
 }
 
 
@@ -1493,7 +1495,7 @@ class ValueSymbol_Value : public SlicStructMemberData {
 SlicStruct_Value::SlicStruct_Value() :
 	SlicStructDescription("value", SLIC_BUILTIN_VALUE)
 {
-	AddMember("value", new ValueSymbol_Value);
+	AddMember("value", std::make_unique<ValueSymbol_Value>().release());
 }
 
 
@@ -1537,8 +1539,8 @@ class BuildingSymbol_Type : public SlicStructMemberData {
 SlicStruct_Building::SlicStruct_Building() :
 	SlicStructDescription("building", SLIC_BUILTIN_BUILDING)
 {
-	AddMember("name", new BuildingSymbol_Name);
-	AddMember("type", new BuildingSymbol_Type);
+	AddMember("name", std::make_unique<BuildingSymbol_Name>().release());
+	AddMember("type", std::make_unique<BuildingSymbol_Type>().release());
 }
 
 
@@ -1582,8 +1584,8 @@ class WonderSymbol_Type : public SlicStructMemberData {
 SlicStruct_Wonder::SlicStruct_Wonder() :
 	SlicStructDescription("wonder", SLIC_BUILTIN_WONDER)
 {
-	AddMember("name", new WonderSymbol_Name);
-	AddMember("type", new WonderSymbol_Type);
+	AddMember("name", std::make_unique<WonderSymbol_Name>().release());
+	AddMember("type", std::make_unique<WonderSymbol_Type>().release());
 }
 
 
@@ -1692,12 +1694,12 @@ class UnitRecordSymbol_Movement : public SlicStructMemberData {
 SlicStruct_UnitRecord::SlicStruct_UnitRecord() :
 	SlicStructDescription("unitrecord", SLIC_BUILTIN_UNITRECORD)
 {
-	AddMember("name", new UnitRecordSymbol_Name);
-	AddMember("attack", new UnitRecordSymbol_Attack);
-	AddMember("defense", new UnitRecordSymbol_Defense);
-	AddMember("cost", new UnitRecordSymbol_Cost);
-	AddMember("ranged", new UnitRecordSymbol_Ranged);
-	AddMember("movement", new UnitRecordSymbol_Movement);
+	AddMember("name", std::make_unique<UnitRecordSymbol_Name>().release());
+	AddMember("attack", std::make_unique<UnitRecordSymbol_Attack>().release());
+	AddMember("defense", std::make_unique<UnitRecordSymbol_Defense>().release());
+	AddMember("cost", std::make_unique<UnitRecordSymbol_Cost>().release());
+	AddMember("ranged", std::make_unique<UnitRecordSymbol_Ranged>().release());
+	AddMember("movement", std::make_unique<UnitRecordSymbol_Movement>().release());
 }
 
 
@@ -1714,7 +1716,7 @@ class GoldSymbol_Value : public SlicStructMemberData {
 SlicStruct_Gold::SlicStruct_Gold() :
 	SlicStructDescription("gold", SLIC_BUILTIN_GOLD)
 {
-	AddMember("value", new GoldSymbol_Value);
+	AddMember("value", std::make_unique<GoldSymbol_Value>().release());
 }
 
 
@@ -1749,5 +1751,5 @@ class GoodSymbol_Name : public SlicStructMemberData {
 SlicStruct_Good::SlicStruct_Good() :
 	SlicStructDescription("good", SLIC_BUILTIN_GOOD)
 {
-	AddMember("name", new GoodSymbol_Name);
+	AddMember("name", std::make_unique<GoodSymbol_Name>().release());
 }

@@ -25,9 +25,9 @@ void CityManagerWindow::Open()
 	if (!s_cityManagerWindow)
     {
 	    AUI_ERRCODE err = AUI_ERRCODE_OK;
-		s_cityManagerWindow.reset(new CityManagerWindow(&err,
+		s_cityManagerWindow = std::make_unique<CityManagerWindow>(&err,
 													aui_UniqueId(),
-													const_cast<MBCHAR *>("CITY_MANAGER_WINDOW")));
+													const_cast<MBCHAR *>("CITY_MANAGER_WINDOW"));
 		Assert(err == AUI_ERRCODE_OK);
 
 		c3ui_Get()->AddWindow(s_cityManagerWindow.get());
@@ -94,23 +94,23 @@ AUI_ERRCODE CityManagerWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "OK_BUTTON");
 
 	AUI_ERRCODE ret;
-	m_ok.reset(new ctp2_Button(&ret, aui_UniqueId(), controlBlock,
+	m_ok = std::make_unique<ctp2_Button>(&ret, aui_UniqueId(), controlBlock,
 						   "CTP2_BUTTON_TEXT_RIGHT_LARGE",
 						   386, 414,
 						   100, 20,
 
 						   CityManagerWindowButtonCallback,
-						   this));
+						   this);
 	AddControl(m_ok.get());
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "CANCEL_BUTTON");
-	m_cancel.reset(new ctp2_Button(&ret, aui_UniqueId(), controlBlock,
+	m_cancel = std::make_unique<ctp2_Button>(&ret, aui_UniqueId(), controlBlock,
 							   "CTP2_BUTTON_TEXT_RIGHT_LARGE",
 							   526, 414,
 							   100, 20,
 
 							   CityManagerWindowButtonCallback,
-							   this));
+							   this);
 	AddControl(m_cancel.get());
 
 
@@ -130,7 +130,7 @@ AUI_ERRCODE CityManagerWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y
 {
 	if(IsHidden()) return AUI_ERRCODE_OK;
 
-	if(!surface) surface = m_surface;
+	if(!surface) surface = m_surface.get();
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
 
@@ -148,7 +148,7 @@ AUI_ERRCODE CityManagerWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y
 
 	RECT rect = {0,0,m_width,m_height};
 
-	if(surface == m_surface)
+	if(surface == m_surface.get())
 		AddDirtyRect(&rect);
 
 	return err;

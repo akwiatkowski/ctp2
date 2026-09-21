@@ -30,6 +30,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
+
 
 #include "net/general/net_endgame.h"
 #include "net/general/network.h"
@@ -170,7 +172,7 @@ void NetWormhole::Packetize(uint8 *buf, uint16 &size)
 
 	sint32 numEntries = wh->m_entries->GetCount();
 	PUSHLONG(numEntries);
-	PointerList<EntryRecord>::Walker walk(wh->m_entries);
+	PointerList<EntryRecord>::Walker walk(wh->m_entries.get());
 	while(walk.IsValid()) {
 		PUSHLONG(walk.GetObj()->m_unit.m_id);
 		PUSHLONG(walk.GetObj()->m_round);
@@ -206,7 +208,7 @@ void NetWormhole::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLBYTE(haveWormhole);
 	if(!haveWormhole) {
 		if(Wormhole *wh = wormhole_Get()) {
-			delete wh;
+			std::unique_ptr<Wormhole>{wh};
 			wormhole_Set(nullptr);
 		}
 		return;
@@ -222,7 +224,7 @@ void NetWormhole::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	Wormhole *wh = wormhole_Get();
 	if(!wh) {
-		wh = new Wormhole(discoverer, wpos, turn_Get()->GetRound());
+		wh = std::make_unique<Wormhole>(discoverer, wpos, turn_Get()->GetRound()).release();
 		wormhole_Set(wh);
 	}
 
@@ -243,6 +245,6 @@ void NetWormhole::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	for(i = 0; i < numEntries; i++) {
 		PULLLONG(unit.m_id);
 		PULLLONG(round);
-		wh->m_entries->AddTail(new EntryRecord(unit, round));
+		wh->m_entries->AddTail(std::make_unique<EntryRecord>(unit, round).release());
 	}
 }

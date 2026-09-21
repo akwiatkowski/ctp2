@@ -65,6 +65,9 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
+#include <vector>
 #include "ui/interface/citywindow.h"
 
 #include "ui/aui_ctp2/ctp2_Window.h"
@@ -144,7 +147,7 @@ extern ProjectFile                  *g_GreatLibPF;
 #include "ctp/debugtools/Timer.h"
 
 
-static CityWindow                   *s_cityWindow = nullptr;
+static std::unique_ptr<CityWindow>      s_cityWindow;
 static const MBCHAR                 *s_cityWindowBlock = "CityWindow";
 static const MBCHAR                 *s_cityStatsBlock = "CityStatisticsWindow";//advisor window
 
@@ -429,7 +432,6 @@ CityWindow::~CityWindow()
 	{
 		m_cities->DeleteAll();
 	}
-	delete m_cities;
 
 	if (m_inventoryList)	// container + reference
 	{
@@ -470,7 +472,7 @@ AUI_ERRCODE CityWindow::Initialize()
 		return AUI_ERRCODE_OK;
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	s_cityWindow = new CityWindow(&err);
+	s_cityWindow = std::make_unique<CityWindow>(&err);
 
 	Assert(err == AUI_ERRCODE_OK);
 
@@ -484,8 +486,7 @@ AUI_ERRCODE CityWindow::Cleanup()
 		CityWindow::Hide();
 	}
 
-	delete s_cityWindow;
-	s_cityWindow = nullptr;
+	s_cityWindow.reset();
 	return AUI_ERRCODE_OK;
 }
 
@@ -549,13 +550,13 @@ CityData *CityWindow::GetCityData(const Unit &city)
 	if(!s_cityWindow) return nullptr;
 
 	if(!s_cityWindow->m_cities) {
-		s_cityWindow->m_cities = new PointerList<CityData>;
+		s_cityWindow->m_cities = std::make_unique<PointerList<CityData>>();
 	}
 
 	if(!c3ui_Get()->GetWindow(s_cityWindow->m_window->Id()))
 		CopyCitiesBack();
 
-	PointerList<CityData>::Walker walk(s_cityWindow->m_cities);
+	PointerList<CityData>::Walker walk(s_cityWindow->m_cities.get());
 	while(walk.IsValid()) {
 		if(walk.GetObj()->GetHomeCity().m_id == city.m_id) {
 
@@ -564,7 +565,7 @@ CityData *CityWindow::GetCityData(const Unit &city)
 		walk.Next();
 	}
 
-	s_cityWindow->m_cities->AddTail(new CityData(city.GetData()->GetCityData()));
+	s_cityWindow->m_cities->AddTail(std::make_unique<CityData>(city.GetData()->GetCityData()).release());
 	Project(s_cityWindow->m_cities->GetTail());
 	return s_cityWindow->m_cities->GetTail();
 }
@@ -604,7 +605,7 @@ void CityWindow::Update()
 
 	ctp2_DropDown *cityDD = (ctp2_DropDown *)aui_Ldl::GetObject("CityWindow.CityList.Pulldown");
 	if(cityDD) {
-		UnitDynamicArray *cityList = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities;
+		UnitDynamicArray *cityList = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities.get();
 
 		cityDD->Clear();
 
@@ -907,8 +908,7 @@ void CityWindow::UpdateBuildTabs()
 						snprintf(buf, sizeof(buf), "%d", buildingutil_Get(i, m_cityData->GetOwner())->GetUpkeep());
 						label->SetText(buf);
 					}
-					InventoryItemInfo *info = new InventoryItemInfo(true, i);
-					item->SetUserData(info);
+					item->SetUserData(std::make_unique<InventoryItemInfo>(true, i).release());
 					lb->AddItem(item);
 				}
 			}
@@ -930,8 +930,7 @@ void CityWindow::UpdateBuildTabs()
 							label->SetText("");
 						}
 					}
-					InventoryItemInfo *info = new InventoryItemInfo(false, i);
-					item->SetUserData(info);
+					item->SetUserData(std::make_unique<InventoryItemInfo>(false, i).release());
 					lb->AddItem(item);
 				}
 			}
@@ -1112,22 +1111,21 @@ void CityWindow::CopyCitiesBack()
 
 		if(s_cityWindow->m_cities && s_cityWindow->m_cities->GetCount() > 0) {
 
-			PointerList<CityData>::Walker walk(s_cityWindow->m_cities);
+			PointerList<CityData>::Walker walk(s_cityWindow->m_cities.get());
 			while(walk.IsValid()) {
 
 				if(EditQueue::EditingCity(walk.GetObj())) {
 					walk.Next();
 					continue;
 				}
-				CityData *copiedCityData = walk.Remove();
+				std::unique_ptr<CityData> copiedCityData(walk.Remove());
 				if(copiedCityData->GetHomeCity().IsValid()) {
 					CityData *realCityData = copiedCityData->GetHomeCity().CD();
 
 					// ToDo: Just copy the build queues
-					realCityData->Copy(copiedCityData);
+					realCityData->Copy(copiedCityData.get());
 				}
-				delete copiedCityData;
-				if(s_cityWindow->m_cityData == copiedCityData)
+				if(s_cityWindow->m_cityData == copiedCityData.get())
 					s_cityWindow->m_cityData = nullptr;
 			}
 			if(NationalManagementDialog *nmd = nationalmanagementdialog_Get()) {
@@ -1170,7 +1168,7 @@ void CityWindow::NextCity(aui_Control *control, uint32 action, uint32 data, void
 	if(!s_cityWindow)
 		return;
 
-	UnitDynamicArray *cityList = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities;
+	UnitDynamicArray *cityList = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities.get();
 
 	if(!s_cityWindow->m_cityData) {
 		s_cityWindow->SetCity(cityList->Access(0).CD());
@@ -1204,7 +1202,7 @@ void CityWindow::PreviousCity(aui_Control *control, uint32 action, uint32 data, 
 	if(!s_cityWindow)
 		return;
 
-	UnitDynamicArray *cityList = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities;
+	UnitDynamicArray *cityList = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities.get();
 
 	if(!s_cityWindow->m_cityData) {
 		s_cityWindow->SetCity(cityList->Access(0).CD());
@@ -2095,7 +2093,7 @@ void CityWindow::SetItemDescription(const IconRecord *icon, SlicContext &sc, ctp
 
 		const char *statText = icon->GetStatText();
 		const char *descString = nullptr;
-		char *allocatedText = nullptr;
+		std::vector<MBCHAR> allocatedText;
 		const char *gltext = nullptr;
 		if(strrchr(statText, '.') &&
 		   (!(stricmp(strrchr(statText, '.'), ".txt")))) {
@@ -2106,9 +2104,8 @@ void CityWindow::SetItemDescription(const IconRecord *icon, SlicContext &sc, ctp
 
 			if (fileText)
 			{
-				allocatedText = new MBCHAR[size + 1];
-				memcpy(allocatedText, fileText, size * sizeof(MBCHAR));
-				allocatedText[size] = 0;
+				allocatedText.resize(size + 1);
+				memcpy(allocatedText.data(), fileText, size * sizeof(MBCHAR));
 			}
 
 			g_GreatLibPF->freeData(fileText);
@@ -2116,17 +2113,16 @@ void CityWindow::SetItemDescription(const IconRecord *icon, SlicContext &sc, ctp
 			gltext = glutil_LoadText(statText, sc);
 		}
 
-		if(!allocatedText && !gltext) {
+		if(allocatedText.empty() && !gltext) {
 			descString = stringdb_Get()->GetNameStr(icon->GetStatText());
 		}
 
-		Assert(descString || allocatedText || gltext);
+		Assert(descString || !allocatedText.empty() || gltext);
 		MBCHAR interpText[2048];
 		if(descString) {
 			stringutils_Interpret(descString, sc, interpText);
-		} else if(allocatedText) {
-			stringutils_Interpret(allocatedText, sc, interpText);
-			delete [] allocatedText;
+		} else if(!allocatedText.empty()) {
+			stringutils_Interpret(allocatedText.data(), sc, interpText);
 		} else if(gltext) {
 			strlcpy(interpText, gltext, sizeof(interpText));
 		} else {
@@ -2679,11 +2675,11 @@ void CityWindow::NotifyCityCaptured(const Unit &c)
 	}
 
 	bool update = false;
-	PointerList<CityData>::Walker walk(s_cityWindow->m_cities);
+	PointerList<CityData>::Walker walk(s_cityWindow->m_cities.get());
 	while(walk.IsValid()) {
 		if(walk.GetObj()->GetHomeCity().m_id == c.m_id) {
 			update = true;
-			delete walk.Remove();
+				std::unique_ptr<CityData> removed(walk.Remove());
 		} else {
 			walk.Next();
 		}
@@ -2698,5 +2694,5 @@ void CityWindow::NotifyCityCaptured(const Unit &c)
 
 CityWindow* CityWindow::GetCityWindow()
 {
-	return s_cityWindow;
+	return s_cityWindow.get();
 }

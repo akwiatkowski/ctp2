@@ -1,14 +1,17 @@
+#include <memory>
+
 #include "ctp/c3.h"
 #include "ui/aui_common/aui_control.h"
 #include "ui/aui_ctp2/c3_updateaction.h"
 
 c3_UpdateAction *c3_UpdateAction::CopyMe()
 {
-	c3_UpdateAction *action = new c3_UpdateAction;
+	auto action = std::make_unique<c3_UpdateAction>();
 
-	memcpy((void *)action, (void *)this, sizeof(*this));
+	memcpy(action.get(), this, sizeof(*this));
 
-	return action;
+	return action.release();
+
 }
 
 

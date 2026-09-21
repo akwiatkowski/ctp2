@@ -154,8 +154,9 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
 	size_t const titleChars = lstrlen(szTmp) + lstrlen(szTitleText) +
 	                          lstrlen(fmt) + 33000;
 #if defined(WIN32)
-	if ((szTitle = (LPTSTR)LocalAlloc(LMEM_FIXED, titleChars*sizeof(TCHAR))) == NULL)
-		return;
+	// vector<TCHAR> replaces LocalAlloc/LocalFree — freed on every path
+	std::vector<TCHAR> szTitleBuf(titleChars);
+	szTitle = szTitleBuf.data();
 
    wsprintf(szTitle, szTitleText, szTmp);
 #else
@@ -182,9 +183,7 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
 //	MessageBox(NULL, szFmtTmp, szTitle, MB_OK | MB_ICONEXCLAMATION);
 	sint32 result = MessageBox(nullptr, Tmp, szTitle, MB_YESNO | MB_ICONEXCLAMATION);
 
-#if defined(WIN32)
-	LocalFree(szTitle);
-#endif
+	// szTitleBuf frees itself on both branches
 
 #ifndef _DEBUG
 	extern bool g_autoAltTab;

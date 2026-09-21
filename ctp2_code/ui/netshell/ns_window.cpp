@@ -26,6 +26,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/netshell/ns_window.h"
 
 #include "ui/aui_common/aui_ui.h"
@@ -65,14 +66,14 @@ AUI_ERRCODE ns_Window::InitCommonLdl( MBCHAR *ldlBlock )
 	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
-	MBCHAR *tile = block->GetString( k_NS_WINDOW_TILE_LDL_NAME );
+	MBCHAR const *tile = block->GetString( k_NS_WINDOW_TILE_LDL_NAME );
 	BOOL retired = block->GetBool( k_NS_WINDOW_RETIRED_LDL_NAME );
 
 	return InitCommon(tile, retired);
 }
 
 
-AUI_ERRCODE ns_Window::InitCommon( MBCHAR *tile, BOOL retired )
+AUI_ERRCODE ns_Window::InitCommon( MBCHAR const *tile, BOOL retired )
 {
 	m_numControls = 0;
 	m_controls = nullptr;
@@ -111,16 +112,12 @@ ns_Window::~ns_Window()
 			{
 				if ( !control->GetActionFunc() )
 				{
-					aui_Action *action = control->GetAction();
-					
-						delete action;
+					std::unique_ptr<aui_Action> action( control->GetAction() );
 				}
 
-				delete control;
+				std::unique_ptr<aui_Control>( control ).reset();
 			}
 		}
-
-		delete [] m_controls;
 	}
 }
 
@@ -134,7 +131,7 @@ aui_Control *ns_Window::FindControl( uint32 index )
 }
 
 
-aui_Image *ns_Window::SetTile( MBCHAR *tile )
+aui_Image *ns_Window::SetTile( MBCHAR const *tile )
 {
 	aui_Image *prevTile = m_tile;
 

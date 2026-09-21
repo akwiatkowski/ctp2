@@ -61,6 +61,7 @@
 #include "gs/world/cellunitlist.h"
 
 #include <nlohmann/json.hpp>
+#include <memory>
 #include <string>
 
 class Path;
@@ -116,10 +117,10 @@ private:
     friend void to_json(nlohmann::json &j, ArmyData const &a);
     friend void from_json(nlohmann::json const &j, ArmyData &a);
 
-    UnitDynamicArray          *m_tempKillList;         // Not really used
+    std::unique_ptr<UnitDynamicArray> m_tempKillList;         // Not really used
 
-    UnitDynamicArray          *m_attackedByDefenders;  // Unused but serialized
-    PointerList<Order>        *m_orders;               // Used and serialized
+    std::unique_ptr<UnitDynamicArray> m_attackedByDefenders;  // Unused but serialized
+    std::unique_ptr<PointerList<Order>> m_orders;               // Used and serialized
     PLAYER_INDEX               m_owner;                // Used and serialized
     MapPoint                   m_pos;                  // Used and serialized
     CAUSE_REMOVE_ARMY          m_removeCause;          // Used and serialized (sint32)
@@ -132,7 +133,7 @@ private:
 
     uint8                      m_debugStringColor;     // Unused
 
-    PointerList<KillRecord>   *m_killMeSoon;           // Used
+    std::unique_ptr<PointerList<KillRecord>> m_killMeSoon;           // Used
 
     uint8                      m_dontKillCount;        // Used and serialized
     bool                       m_needToKill;           // Used and serialized (uint8)
@@ -588,7 +589,7 @@ public:
     bool Upgrade();
     bool UpgradeTypeAndCosts(bool & full, sint32 & costs, sint32 & fullCosts, sint8 & numUpgrade, sint8 & numUpgradeAll) const;
 
-    static void DisassociateEventsFromOrdersDB(){ delete[] s_orderDBToEventMap; s_orderDBToEventMap = nullptr; };
+    static void DisassociateEventsFromOrdersDB(){ s_orderDBToEventMap.reset(); };
     static void AssociateEventsWithOrdersDB();
     static sint32 OrderToEvent(sint32 order) { return s_orderDBToEventMap[order]; };
 
@@ -604,7 +605,7 @@ public:
 private:
     size_t CargoCountIf(UnitRecord::BoolAccessor a_Property) const;
 
-    static sint32 *s_orderDBToEventMap;
+    static std::unique_ptr<sint32[]> s_orderDBToEventMap;
 };
 
 #endif

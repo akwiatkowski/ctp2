@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/netshell/dialogboxwindow.h"
 #include "ui/aui_ctp2/c3_button.h"
@@ -48,31 +49,31 @@
 #include "ui/interface/spnewgamewindow.h"
 
 
-static ns_Window *s_passwordScreen	= nullptr;
+static std::unique_ptr<ns_Window>	s_passwordScreen;
 
-static c3_Static	*s_askStatic			= nullptr;
-static c3_Static	*s_joinStatic			= nullptr;
-static aui_SwitchGroup *s_yesnoSwitchGroup	= nullptr;
-static aui_Radio	*s_yesRadio				= nullptr;
-static aui_Radio	*s_noRadio				= nullptr;
-static c3_Static	*s_inputStatic			= nullptr;
-static C3TextField	*s_inputTextField		= nullptr;
+static std::unique_ptr<c3_Static>	s_askStatic;
+static std::unique_ptr<c3_Static>	s_joinStatic;
+static std::unique_ptr<aui_SwitchGroup>	s_yesnoSwitchGroup;
+static std::unique_ptr<aui_Radio>	s_yesRadio;
+static std::unique_ptr<aui_Radio>	s_noRadio;
+static std::unique_ptr<c3_Static>	s_inputStatic;
+static std::unique_ptr<C3TextField>	s_inputTextField;
 
-static aui_Button	*s_okButton				= nullptr;
+static std::unique_ptr<aui_Button>	s_okButton;
 
-static c3_Static	*s_denyStatic			= nullptr;
+static std::unique_ptr<c3_Static>	s_denyStatic;
 
-static c3_Static	*s_fullStatic			= nullptr;
+static std::unique_ptr<c3_Static>	s_fullStatic;
 
-static c3_Static	*s_nolobbyStatic		= nullptr;
+static std::unique_ptr<c3_Static>	s_nolobbyStatic;
 
-static c3_Static	*s_connectionlostStatic	= nullptr;
+static std::unique_ptr<c3_Static>	s_connectionlostStatic;
 
-static c3_Static	*s_nodialupStatic		= nullptr;
+static std::unique_ptr<c3_Static>	s_nodialupStatic;
 
-static c3_Static	*s_connectionerrStatic	= nullptr;
+static std::unique_ptr<c3_Static>	s_connectionerrStatic;
 
-static c3_Static    *s_scenarionotfoundStatic = nullptr;
+static std::unique_ptr<c3_Static>	s_scenarionotfoundStatic;
 
 sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 {
@@ -84,8 +85,8 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 	switch ( m )
 	{
 	case PASSWORDSCREEN_MODE_ASK:
-		s_passwordScreen->AddChild( s_askStatic );
-		s_passwordScreen->AddChild( s_yesnoSwitchGroup );
+		s_passwordScreen->AddChild( s_askStatic.get() );
+		s_passwordScreen->AddChild( s_yesnoSwitchGroup.get() );
 
 		s_yesRadio->SetState( 0 );
 
@@ -93,7 +94,7 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 
 		s_passwordScreen->RemoveChild( s_joinStatic->Id() );
 
-		s_passwordScreen->AddChild( s_okButton );
+		s_passwordScreen->AddChild( s_okButton.get() );
 
 		s_passwordScreen->RemoveChild( s_denyStatic->Id() );
 		s_passwordScreen->RemoveChild( s_fullStatic->Id() );
@@ -114,9 +115,9 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 
 		s_inputTextField->SetFieldText( "" );
 
-		s_passwordScreen->AddChild( s_joinStatic );
+		s_passwordScreen->AddChild( s_joinStatic.get() );
 
-		s_passwordScreen->AddChild( s_okButton );
+		s_passwordScreen->AddChild( s_okButton.get() );
 
 		s_passwordScreen->RemoveChild( s_denyStatic->Id() );
 		s_passwordScreen->RemoveChild( s_fullStatic->Id() );
@@ -135,9 +136,9 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 
 		s_passwordScreen->RemoveChild( s_joinStatic->Id() );
 
-		s_passwordScreen->AddChild( s_okButton );
+		s_passwordScreen->AddChild( s_okButton.get() );
 
-		s_passwordScreen->AddChild( s_denyStatic );
+		s_passwordScreen->AddChild( s_denyStatic.get() );
 		s_passwordScreen->RemoveChild( s_fullStatic->Id() );
 		s_passwordScreen->RemoveChild( s_nolobbyStatic->Id() );
 		s_passwordScreen->RemoveChild( s_connectionlostStatic->Id() );
@@ -154,10 +155,10 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 
 		s_passwordScreen->RemoveChild( s_joinStatic->Id() );
 
-		s_passwordScreen->AddChild( s_okButton );
+		s_passwordScreen->AddChild( s_okButton.get() );
 
 		s_passwordScreen->RemoveChild( s_denyStatic->Id() );
-		s_passwordScreen->AddChild( s_fullStatic );
+		s_passwordScreen->AddChild( s_fullStatic.get() );
 		s_passwordScreen->RemoveChild( s_nolobbyStatic->Id() );
 		s_passwordScreen->RemoveChild( s_connectionlostStatic->Id() );
 		s_passwordScreen->RemoveChild( s_nodialupStatic->Id() );
@@ -173,11 +174,11 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 
 		s_passwordScreen->RemoveChild( s_joinStatic->Id() );
 
-		s_passwordScreen->AddChild( s_okButton );
+		s_passwordScreen->AddChild( s_okButton.get() );
 
 		s_passwordScreen->RemoveChild( s_denyStatic->Id() );
 		s_passwordScreen->RemoveChild( s_fullStatic->Id() );
-		s_passwordScreen->AddChild( s_nolobbyStatic );
+		s_passwordScreen->AddChild( s_nolobbyStatic.get() );
 		s_passwordScreen->RemoveChild( s_connectionlostStatic->Id() );
 		s_passwordScreen->RemoveChild( s_nodialupStatic->Id() );
 		s_passwordScreen->RemoveChild( s_connectionerrStatic->Id() );
@@ -192,12 +193,12 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 
 		s_passwordScreen->RemoveChild( s_joinStatic->Id() );
 
-		s_passwordScreen->AddChild( s_okButton );
+		s_passwordScreen->AddChild( s_okButton.get() );
 
 		s_passwordScreen->RemoveChild( s_denyStatic->Id() );
 		s_passwordScreen->RemoveChild( s_fullStatic->Id() );
 		s_passwordScreen->RemoveChild( s_nolobbyStatic->Id() );
-		s_passwordScreen->AddChild( s_connectionlostStatic );
+		s_passwordScreen->AddChild( s_connectionlostStatic.get() );
 		s_passwordScreen->RemoveChild( s_nodialupStatic->Id() );
 		s_passwordScreen->RemoveChild( s_connectionerrStatic->Id() );
 		s_passwordScreen->RemoveChild( s_scenarionotfoundStatic->Id() );
@@ -211,13 +212,13 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 
 		s_passwordScreen->RemoveChild( s_joinStatic->Id() );
 
-		s_passwordScreen->AddChild( s_okButton );
+		s_passwordScreen->AddChild( s_okButton.get() );
 
 		s_passwordScreen->RemoveChild( s_denyStatic->Id() );
 		s_passwordScreen->RemoveChild( s_fullStatic->Id() );
 		s_passwordScreen->RemoveChild( s_nolobbyStatic->Id() );
 		s_passwordScreen->RemoveChild( s_connectionlostStatic->Id() );
-		s_passwordScreen->AddChild( s_nodialupStatic );
+		s_passwordScreen->AddChild( s_nodialupStatic.get() );
 		s_passwordScreen->RemoveChild( s_connectionerrStatic->Id() );
 		s_passwordScreen->RemoveChild( s_scenarionotfoundStatic->Id() );
 		break;
@@ -230,14 +231,14 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 
 		s_passwordScreen->RemoveChild( s_joinStatic->Id() );
 
-		s_passwordScreen->AddChild( s_okButton );
+		s_passwordScreen->AddChild( s_okButton.get() );
 
 		s_passwordScreen->RemoveChild( s_denyStatic->Id() );
 		s_passwordScreen->RemoveChild( s_fullStatic->Id() );
 		s_passwordScreen->RemoveChild( s_nolobbyStatic->Id() );
 		s_passwordScreen->RemoveChild( s_connectionlostStatic->Id() );
 		s_passwordScreen->RemoveChild( s_nodialupStatic->Id() );
-		s_passwordScreen->AddChild( s_connectionerrStatic );
+		s_passwordScreen->AddChild( s_connectionerrStatic.get() );
 		s_passwordScreen->RemoveChild( s_scenarionotfoundStatic->Id() );
 		break;
 
@@ -249,7 +250,7 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 
 		s_passwordScreen->RemoveChild( s_joinStatic->Id() );
 
-		s_passwordScreen->AddChild( s_okButton );
+		s_passwordScreen->AddChild( s_okButton.get() );
 
 		s_passwordScreen->RemoveChild( s_denyStatic->Id() );
 		s_passwordScreen->RemoveChild( s_fullStatic->Id() );
@@ -257,7 +258,7 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 		s_passwordScreen->RemoveChild( s_connectionlostStatic->Id() );
 		s_passwordScreen->RemoveChild( s_nodialupStatic->Id() );
 		s_passwordScreen->RemoveChild( s_connectionerrStatic->Id() );
-		s_passwordScreen->AddChild( s_scenarionotfoundStatic );
+		s_passwordScreen->AddChild( s_scenarionotfoundStatic.get() );
 		break;
 	default:
 
@@ -265,7 +266,7 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 		break;
 	}
 
-	auiErr = c3ui_Get()->AddWindow( s_passwordScreen );
+	auiErr = c3ui_Get()->AddWindow( s_passwordScreen.get() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	return retval;
@@ -289,7 +290,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( s_passwordScreen ) return AUI_ERRCODE_OK;
 	strlcpy(windowBlock, "passwordscreen", sizeof(windowBlock));
 
-	s_passwordScreen = new ns_Window(
+	s_passwordScreen = std::make_unique<ns_Window>(
 		&errcode,
 		aui_UniqueId(),
 		windowBlock,
@@ -298,16 +299,16 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	Assert( AUI_NEWOK(s_passwordScreen, errcode) );
 	if ( !AUI_NEWOK(s_passwordScreen, errcode) ) errcode;
 
-	s_okButton = spNew_ctp2_Button(
+	s_okButton.reset(spNew_ctp2_Button(
 				&errcode,
 				windowBlock,
 				"button0",
-				PasswordScreenCallback);
+				PasswordScreenCallback));
 	Assert( AUI_NEWOK(s_okButton, errcode) );
 	if ( !AUI_NEWOK(s_okButton, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "askstatic" );
-	s_askStatic = new c3_Static(
+	s_askStatic = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock );
@@ -315,7 +316,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( !AUI_NEWOK(s_askStatic, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "joinstatic" );
-	s_joinStatic = new c3_Static(
+	s_joinStatic = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock );
@@ -323,7 +324,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( !AUI_NEWOK(s_joinStatic, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "yesnoswitchgroup" );
-	s_yesnoSwitchGroup = new aui_SwitchGroup(
+	s_yesnoSwitchGroup = std::make_unique<aui_SwitchGroup>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock );
@@ -331,7 +332,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( !AUI_NEWOK(s_yesnoSwitchGroup, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "yesnoswitchgroup.yesradio" );
-	s_yesRadio = new aui_Radio(
+	s_yesRadio = std::make_unique<aui_Radio>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock,
@@ -340,10 +341,10 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	Assert( AUI_NEWOK(s_yesRadio, errcode) );
 	if ( !AUI_NEWOK(s_yesRadio, errcode) ) return errcode;
 
-	s_yesnoSwitchGroup->AddSwitch( s_yesRadio );
+	s_yesnoSwitchGroup->AddSwitch( s_yesRadio.get() );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "yesnoswitchgroup.noradio" );
-	s_noRadio = new aui_Radio(
+	s_noRadio = std::make_unique<aui_Radio>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock,
@@ -351,10 +352,10 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	Assert( AUI_NEWOK(s_noRadio, errcode) );
 	if ( !AUI_NEWOK(s_noRadio, errcode) ) return errcode;
 
-	s_yesnoSwitchGroup->AddSwitch( s_noRadio );
+	s_yesnoSwitchGroup->AddSwitch( s_noRadio.get() );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "inputstatic" );
-	s_inputStatic = new c3_Static(
+	s_inputStatic = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock );
@@ -364,7 +365,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( !AUI_NEWOK(s_yesnoSwitchGroup, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "inputtextfield" );
-	s_inputTextField = new C3TextField(
+	s_inputTextField = std::make_unique<C3TextField>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock,
@@ -373,7 +374,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( !AUI_NEWOK(s_inputTextField, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "denystatic" );
-	s_denyStatic = new c3_Static(
+	s_denyStatic = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock );
@@ -381,7 +382,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( !AUI_NEWOK(s_denyStatic, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "fullstatic" );
-	s_fullStatic = new c3_Static(
+	s_fullStatic = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock );
@@ -389,7 +390,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( !AUI_NEWOK(s_fullStatic, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "nolobbystatic" );
-	s_nolobbyStatic = new c3_Static(
+	s_nolobbyStatic = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock );
@@ -397,7 +398,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( !AUI_NEWOK(s_nolobbyStatic, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "connectionloststatic" );
-	s_connectionlostStatic = new c3_Static(
+	s_connectionlostStatic = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock );
@@ -405,7 +406,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( !AUI_NEWOK(s_connectionlostStatic, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "nodialupstatic" );
-	s_nodialupStatic = new c3_Static(
+	s_nodialupStatic = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock );
@@ -413,7 +414,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( !AUI_NEWOK(s_nodialupStatic, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "connectionerrstatic" );
-	s_connectionerrStatic = new c3_Static(
+	s_connectionerrStatic = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock );
@@ -421,7 +422,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 	if ( !AUI_NEWOK(s_connectionerrStatic, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "noscenariostatic" );
-	s_scenarionotfoundStatic = new c3_Static(
+	s_scenarionotfoundStatic = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
 		controlBlock );
@@ -433,7 +434,7 @@ AUI_ERRCODE passwordscreen_Initialize( )
 
 AUI_ERRCODE passwordscreen_Cleanup()
 {
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
+#define mycleanup(mypointer) { mypointer.reset(); }
 
 	if ( !s_passwordScreen  ) return AUI_ERRCODE_OK;
 	c3ui_Get()->RemoveWindow( s_passwordScreen->Id() );
@@ -454,8 +455,7 @@ AUI_ERRCODE passwordscreen_Cleanup()
 	mycleanup( s_connectionerrStatic );
 	mycleanup( s_scenarionotfoundStatic );
 
-	delete s_passwordScreen;
-	s_passwordScreen = nullptr;
+	s_passwordScreen.reset();
 
 	return AUI_ERRCODE_OK;
 
@@ -468,16 +468,16 @@ void PasswordScreenCallback(
 	uint32 data,
 	void *cookie )
 {
-	if ( control == s_yesRadio )
+	if ( control == s_yesRadio.get() )
 	{
 		if ( action != (uint32)AUI_SWITCH_ACTION_ON ) return;
 
-		s_passwordScreen->AddChild( s_inputStatic );
-		s_passwordScreen->AddChild( s_inputTextField );
+		s_passwordScreen->AddChild( s_inputStatic.get() );
+		s_passwordScreen->AddChild( s_inputTextField.get() );
 
 		s_inputTextField->SetKeyboardFocus();
 	}
-	else if ( control == s_noRadio )
+	else if ( control == s_noRadio.get() )
 	{
 		if ( action != (uint32)AUI_SWITCH_ACTION_ON ) return;
 
@@ -486,17 +486,17 @@ void PasswordScreenCallback(
 
 		s_inputTextField->SetFieldText( "" );
 	}
-	else if ( control == s_inputTextField )
+	else if ( control == s_inputTextField.get() )
 	{
 		if ( action != (uint32)AUI_TEXTFIELD_ACTION_EXECUTE ) return;
 
 		PasswordScreenCallback(
-			s_okButton,
+			s_okButton.get(),
 			AUI_BUTTON_ACTION_EXECUTE,
 			0,
 			nullptr );
 	}
-	else if ( control == s_okButton )
+	else if ( control == s_okButton.get() )
 	{
 		if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 

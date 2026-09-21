@@ -123,73 +123,73 @@ LoadSaveWindow::LoadSaveWindow(AUI_ERRCODE *retval, uint32 id,
 	AddOk(loadsavescreen_executePress, nullptr, "c3_PopupOk");
 	Ok()->SetText(stringdb_Get()->GetNameStr("str_ldl_CAPS_OK"));
 
-	m_deleteButton = spNew_ctp2_Button(
+	m_deleteButton.reset(spNew_ctp2_Button(
 		retval,
 		ldlBlock,
 		"DeleteButton",
-		loadsavescreen_deletePress );
+		loadsavescreen_deletePress ));
 
-	m_nameString = spNewStringTable(retval, "LSSStringTable");
+	m_nameString.reset(spNewStringTable(retval, "LSSStringTable"));
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "TitlePanel");
-	m_titlePanel = new c3_Static(retval, aui_UniqueId(), block);
+	m_titlePanel = std::make_unique<c3_Static>(retval, aui_UniqueId(), block);
 
-	m_gameText = spNew_c3_Static(retval, block, "GameText");
+	m_gameText.reset(spNew_c3_Static(retval, block, "GameText"));
 
-	m_gameTextBox = spNewTextEntry(retval, block, "GameTextBox");
+	m_gameTextBox.reset(spNewTextEntry(retval, block, "GameTextBox"));
 	m_gameTextBox->SetIsFileName(TRUE);
 
-	m_saveText = spNew_c3_Static(retval, block, "SaveText");
+	m_saveText.reset(spNew_c3_Static(retval, block, "SaveText"));
 
-	m_saveTextBox = spNewTextEntry(retval, block, "SaveTextBox");
+	m_saveTextBox.reset(spNewTextEntry(retval, block, "SaveTextBox"));
 	m_saveTextBox->SetIsFileName(TRUE);
 
-	m_noteText = spNew_c3_Static(retval, block, "NoteText");
+	m_noteText.reset(spNew_c3_Static(retval, block, "NoteText"));
 
-	m_noteTextBox = spNewTextEntry(retval, block, "NoteTextBox");
+	m_noteTextBox.reset(spNewTextEntry(retval, block, "NoteTextBox"));
 	Assert(m_noteTextBox);
 
-	m_playerText = spNew_c3_Static(retval, block, "PlayerText");
+	m_playerText.reset(spNew_c3_Static(retval, block, "PlayerText"));
 
-	m_civText = spNew_c3_Static(retval, block, "CivText");
+	m_civText.reset(spNew_c3_Static(retval, block, "CivText"));
 
-	m_listOne = spNew_c3_ListBox(retval, ldlBlock, "ListOne",
-									loadsavescreen_ListOneHandler, (void *)this);
+	m_listOne.reset(spNew_c3_ListBox(retval, ldlBlock, "ListOne",
+									loadsavescreen_ListOneHandler, (void *)this));
 
-	m_listTwo = spNew_c3_ListBox(retval, ldlBlock, "ListTwo",
-									loadsavescreen_ListTwoHandler, (void *)this);
+	m_listTwo.reset(spNew_c3_ListBox(retval, ldlBlock, "ListTwo",
+									loadsavescreen_ListTwoHandler, (void *)this));
 
 	MBCHAR			tabGroupBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(tabGroupBlock, sizeof(tabGroupBlock), "%s.%s", ldlBlock, "LoadTabGroup" );
 
-	m_tabGroup = new aui_TabGroup(retval, aui_UniqueId(), tabGroupBlock );
+	m_tabGroup = std::make_unique<aui_TabGroup>(retval, aui_UniqueId(), tabGroupBlock );
 	m_tabGroup->SetDrawMask( k_AUI_REGION_DRAWFLAG_UPDATE );
 
 	MBCHAR			tabBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(tabBlock, sizeof(tabBlock), "%s.%s", tabGroupBlock, "InfoTab");
 
-	m_powerTab = new TextTab(retval, aui_UniqueId(), tabBlock, nullptr);
+	m_powerTab = std::make_unique<TextTab>(retval, aui_UniqueId(), tabBlock, nullptr);
 
 	snprintf(block, sizeof(block), "%s.pane.%s", tabBlock, "InfoImage");
-	m_powerTabImage = new c3_Static(retval, aui_UniqueId(), block);
+	m_powerTabImage = std::make_unique<c3_Static>(retval, aui_UniqueId(), block);
 
-	m_powerTabImageBackup = new aui_Image(retval, m_powerTabImage->GetImage()->GetFilename());
+	m_powerTabImageBackup = std::make_unique<aui_Image>(retval, m_powerTabImage->GetImage()->GetFilename());
 	m_powerTabImageBackup->Load();
 
 	snprintf(tabBlock, sizeof(tabBlock), "%s.%s", tabGroupBlock, "MapTab");
-	m_mapTab = new TextTab(retval, aui_UniqueId(), tabBlock, nullptr);
+	m_mapTab = std::make_unique<TextTab>(retval, aui_UniqueId(), tabBlock, nullptr);
 
 	snprintf(block, sizeof(block), "%s.pane.%s", tabBlock, "MapImage");
-	m_mapTabImage = new c3_Static(retval, aui_UniqueId(), block);
+	m_mapTabImage = std::make_unique<c3_Static>(retval, aui_UniqueId(), block);
 
-	m_mapTabImageBackup = new aui_Image(retval, m_mapTabImage->GetImage()->GetFilename());
+	m_mapTabImageBackup = std::make_unique<aui_Image>(retval, m_mapTabImage->GetImage()->GetFilename());
 	m_mapTabImageBackup->Load();
 
 	snprintf(tabBlock, sizeof(tabBlock), "%s.%s", tabGroupBlock, "CivsTab");
-	m_civsTab = new TextTab(retval, aui_UniqueId(), tabBlock, nullptr);
+	m_civsTab = std::make_unique<TextTab>(retval, aui_UniqueId(), tabBlock, nullptr);
 
-	m_civsList = spNew_c3_ListBox(retval, tabGroupBlock, "CivsTab.pane.CivsList",
-									loadsavescreen_CivListHandler, (void *)this);
+	m_civsList.reset(spNew_c3_ListBox(retval, tabGroupBlock, "CivsTab.pane.CivsList",
+									loadsavescreen_CivListHandler, (void *)this));
 	m_civsList->GetHeader()->Enable( FALSE );
 }
 
@@ -217,29 +217,29 @@ LoadSaveWindow::~LoadSaveWindow()
 		m_fileList->DeleteAll();
 	}
 
-	delete m_fileList;
-	delete m_nameString;
-	delete m_titlePanel;
-	delete m_gameText;
-	delete m_gameTextBox;
-	delete m_saveText;
-	delete m_saveTextBox;
-	delete m_noteText;
-	delete m_noteTextBox;
-	delete m_playerText;
-	delete m_civText;
-	delete m_listOne;
-	delete m_listTwo;
-	delete m_tabGroup;
-	delete m_powerTab;
-	delete m_powerTabImage;
-	delete m_powerTabImageBackup;
-	delete m_mapTab;
-	delete m_mapTabImage;
-	delete m_mapTabImageBackup;
-	delete m_civsTab;
-	delete m_civsList;
-	delete m_deleteButton;
+	m_fileList.reset();
+	m_nameString.reset();
+	m_titlePanel.reset();
+	m_gameText.reset();
+	m_gameTextBox.reset();
+	m_saveText.reset();
+	m_saveTextBox.reset();
+	m_noteText.reset();
+	m_noteTextBox.reset();
+	m_playerText.reset();
+	m_civText.reset();
+	m_listOne.reset();
+	m_listTwo.reset();
+	m_tabGroup.reset();
+	m_powerTab.reset();
+	m_powerTabImage.reset();
+	m_powerTabImageBackup.reset();
+	m_mapTab.reset();
+	m_mapTabImage.reset();
+	m_mapTabImageBackup.reset();
+	m_civsTab.reset();
+	m_civsList.reset();
+	m_deleteButton.reset();
 }
 
 void LoadSaveWindow::FillListOne()
@@ -254,13 +254,13 @@ void LoadSaveWindow::FillListOne()
 
     for
     (
-	    PointerList<GameInfo>::Walker walker = PointerList<GameInfo>::Walker(m_fileList);
+	    PointerList<GameInfo>::Walker walker = PointerList<GameInfo>::Walker(m_fileList.get());
         walker.IsValid();
         walker.Next()
     )
     {
 		m_listOne->AddItem
-            (new LSGamesListItem(&errcode, const_cast<MBCHAR *>("LSGamesListItem"), walker.GetObj()));
+            (std::make_unique<LSGamesListItem>(&errcode, const_cast<MBCHAR *>("LSGamesListItem"), walker.GetObj()).release());
 	}
 }
 
@@ -294,13 +294,13 @@ void LoadSaveWindow::FillListTwo(GameInfo *info)
 
         for
         (
-		    PointerList<SaveInfo>::Walker walker = PointerList<SaveInfo>::Walker(info->files);
+		    PointerList<SaveInfo>::Walker walker = PointerList<SaveInfo>::Walker(info->files.get());
             walker.IsValid();
             walker.Next()
         )
         {
 			m_listTwo->AddItem
-                (new LSSavesListItem(&errcode, const_cast<MBCHAR *>("LSSavesListItem"), walker.GetObj()));
+                (std::make_unique<LSSavesListItem>(&errcode, const_cast<MBCHAR *>("LSSavesListItem"), walker.GetObj()).release());
 		}
 	}
 }
@@ -320,7 +320,7 @@ void LoadSaveWindow::FillCivList(SaveInfo *info)
 		for (int i = 0; i < info->numCivs; i++)
         {
 			m_civsList->AddItem
-                (new LSCivsListItem(&errcode, const_cast<MBCHAR *>("LSCivsListItem"), info->civList[i]));
+                (std::make_unique<LSCivsListItem>(&errcode, const_cast<MBCHAR *>("LSCivsListItem"), info->civList[i]).release());
 		}
 	}
 }
@@ -402,8 +402,7 @@ void LoadSaveWindow::SetType(uint32 type)
 			m_fileList->DeleteAll();
 			FillListOne();
 		}
-		delete m_fileList;
-		m_fileList = GameFile::BuildSaveList(C3SAVEDIR_GAME);
+		m_fileList.reset(GameFile::BuildSaveList(C3SAVEDIR_GAME));
 		m_gameInfo = nullptr;
 		break;
 	case LSS_LOAD_MP :
@@ -412,8 +411,7 @@ void LoadSaveWindow::SetType(uint32 type)
 		if (m_fileList) {
 			m_fileList->DeleteAll();
 		}
-		delete m_fileList;
-		m_fileList = GameFile::BuildSaveList(C3SAVEDIR_MP);
+		m_fileList.reset(GameFile::BuildSaveList(C3SAVEDIR_MP));
 		m_gameInfo = nullptr;
 		break;
 	case LSS_LOAD_SCEN :
@@ -423,8 +421,7 @@ void LoadSaveWindow::SetType(uint32 type)
 		if (m_fileList) {
 			m_fileList->DeleteAll();
 		}
-		delete m_fileList;
-		m_fileList = GameFile::BuildSaveList(C3SAVEDIR_SCEN);
+		m_fileList.reset(GameFile::BuildSaveList(C3SAVEDIR_SCEN));
 		m_gameInfo = nullptr;
 		break;
 	}
@@ -434,7 +431,7 @@ void LoadSaveWindow::SetType(uint32 type)
 	if ((m_type == LSS_SAVE_GAME || m_type == LSS_SAVE_MP || m_type == LSS_SAVE_SCEN)) {
 
 		if ( CreateSaveInfoIfNeeded( m_saveInfoRemember ) )
-			m_saveInfo = m_saveInfoRemember;
+			m_saveInfo = m_saveInfoRemember.get();
 
 
 		CreateSaveInfoIfNeeded( m_saveInfoToSave );
@@ -443,7 +440,7 @@ void LoadSaveWindow::SetType(uint32 type)
 			m_gameInfo ? m_gameInfo->name : nullptr,
 			m_saveInfoToSave->fileName);
 
-		FillCivList(m_saveInfoToSave);
+		FillCivList(m_saveInfoToSave.get());
 	} else {
 
 		if ( m_listTwo->NumItems() > 0 && m_listTwo->GetSelectedItem() ) {
@@ -459,16 +456,16 @@ void LoadSaveWindow::SetType(uint32 type)
 
 }
 
-bool LoadSaveWindow::CreateSaveInfoIfNeeded( SaveInfo *&info )
+bool LoadSaveWindow::CreateSaveInfoIfNeeded( std::unique_ptr<SaveInfo> &info )
 {
 	if ( info == nullptr) {
-		info = new SaveInfo();
+		info = std::make_unique<SaveInfo>();
 
-		GameFile::GetExtendedInfoFromProfile(info);
-		GetPowerGraph(info);
-		GetRadarMap(info);
-		SetPowerGraph(info);
-		SetRadarMap(info);
+		GameFile::GetExtendedInfoFromProfile(info.get());
+		GetPowerGraph(info.get());
+		GetRadarMap(info.get());
+		SetPowerGraph(info.get());
+		SetRadarMap(info.get());
 
 		m_tabGroup->ShouldDraw(TRUE);
 
@@ -506,11 +503,9 @@ bool LoadSaveWindow::CreateSaveInfoIfNeeded( SaveInfo *&info )
 
 void LoadSaveWindow::CleanUpSaveInfo( )
 {
-	delete m_saveInfoToSave;
-	m_saveInfoToSave = nullptr;
+	m_saveInfoToSave.reset();
 
-    delete m_saveInfoRemember;
-	m_saveInfoRemember = nullptr;
+    m_saveInfoRemember.reset();
 
 	m_saveInfo = nullptr;
 	m_gameInfo = nullptr;
@@ -560,8 +555,8 @@ void LoadSaveWindow::GetRadarMap(SaveInfo *info)
 	AUI_ERRCODE	    errcode     = AUI_ERRCODE_OK;
 	sint32 const    width       = m_powerTabImage->Width();
 	sint32 const    height      = m_powerTabImage->Height();
-	RadarMap *      radarMap    =
-        new RadarMap(&errcode, aui_UniqueId(), 0, 0, width, height, m_pattern->GetFilename());
+	auto radarMap =
+        std::make_unique<RadarMap>(&errcode, aui_UniqueId(), 0, 0, width, height, m_pattern->GetFilename());
 	aui_Surface	*   surf        = radarMap->GetMapSurface();
 	radarMap->RenderMap(surf);
 
@@ -591,7 +586,6 @@ void LoadSaveWindow::GetRadarMap(SaveInfo *info)
 
 	surf->Unlock(buffer);
 
-	delete radarMap;
 }
 
 
@@ -637,8 +631,8 @@ void LoadSaveWindow::SetPowerGraph(SaveInfo *info)
 	Pixel16 *       buffer;
 
 	if (surface->Lock(nullptr, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) {
-		delete surface;
-		delete image;
+		std::unique_ptr<aui_Surface>{surface};
+		std::unique_ptr<aui_Image>{image};
 		return;
 	}
 
@@ -709,8 +703,8 @@ void LoadSaveWindow::SetRadarMap(SaveInfo *info)
 
 	Pixel16	*       buffer;
 	if (surface->Lock(nullptr, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) {
-		delete surface;
-		delete image;
+		std::unique_ptr<aui_Surface>{surface};
+		std::unique_ptr<aui_Image>{image};
 		return;
 	}
 
@@ -864,10 +858,10 @@ void LoadSaveWindow::SetSaveInfo(SaveInfo *info)
 			SetCivName(m_saveInfoToSave->civName);
 			SetNote(m_saveInfoToSave->note);
 
-			FillCivList(m_saveInfoToSave);
+			FillCivList(m_saveInfoToSave.get());
 
-			SetPowerGraph(m_saveInfoToSave);
-			SetRadarMap(m_saveInfoToSave);
+			SetPowerGraph(m_saveInfoToSave.get());
+			SetRadarMap(m_saveInfoToSave.get());
 			break;
 		}
 	}
@@ -967,7 +961,7 @@ LSCivsListItem::LSCivsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, const MBCH
 	m_myItem(nullptr)
 {
 
-	m_myItem = spNew_c3_Static(retval, ldlBlock, "CivText");
+	m_myItem.reset(spNew_c3_Static(retval, ldlBlock, "CivText"));
 	if(m_myItem) {
 
 		MBCHAR tempName[ _MAX_PATH + 1 ];
@@ -981,7 +975,7 @@ LSCivsListItem::LSCivsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, const MBCH
 			m_myItem->Width() );
 
 		m_myItem->SetText(tempName);
-		AddChild(m_myItem);
+		AddChild(m_myItem.get());
 	}
 }
 
@@ -1003,13 +997,13 @@ LSGamesListItem::LSGamesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, GameInfo
 	m_itemText      (nullptr),
     m_info          (info)
 {
-	m_itemIcon = spNew_c3_Static(retval, ldlBlock, "GamesIcon");
+	m_itemIcon.reset(spNew_c3_Static(retval, ldlBlock, "GamesIcon"));
 	if (m_itemIcon)
     {
-		AddChild(m_itemIcon);
+		AddChild(m_itemIcon.get());
 	}
 
-	m_itemText = spNew_c3_Static(retval, ldlBlock, "GamesText");
+	m_itemText.reset(spNew_c3_Static(retval, ldlBlock, "GamesText"));
 	if (m_itemText)
     {
 		m_itemText->Resize(Width()-m_itemIcon->Width()-5, Height());
@@ -1027,14 +1021,14 @@ LSGamesListItem::LSGamesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, GameInfo
 
 		m_itemText->SetText(name);
 
-		m_itemIcon->AddChild(m_itemText);
+		m_itemIcon->AddChild(m_itemText.get());
 	}
 }
 
 LSGamesListItem::~LSGamesListItem()
 {
-	delete m_itemText;
-	delete m_itemIcon;
+	m_itemText.reset();
+	m_itemIcon.reset();
 
 	m_childList->DeleteAll();
 }
@@ -1054,13 +1048,13 @@ LSSavesListItem::LSSavesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, SaveInfo
 	m_itemText  (nullptr),
     m_info      (info)
 {
-	m_itemIcon = spNew_c3_Static(retval, ldlBlock, "SavesIcon");
+	m_itemIcon.reset(spNew_c3_Static(retval, ldlBlock, "SavesIcon"));
 	if (m_itemIcon)
     {
-		AddChild(m_itemIcon);
+		AddChild(m_itemIcon.get());
 	}
 
-	m_itemText = spNew_c3_Static(retval, ldlBlock, "SavesText");
+	m_itemText.reset(spNew_c3_Static(retval, ldlBlock, "SavesText"));
 	if (m_itemText)
     {
 		m_itemText->Resize(Width()-m_itemIcon->Width()-5, Height());
@@ -1092,15 +1086,15 @@ LSSavesListItem::LSSavesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, SaveInfo
 		}
         // else No action: Keep default color
 
-		m_itemIcon->AddChild(m_itemText);
+		m_itemIcon->AddChild(m_itemText.get());
 
 	}
 }
 
 LSSavesListItem::~LSSavesListItem()
 {
-	delete m_itemIcon;
-	delete m_itemText;
+	m_itemIcon.reset();
+	m_itemText.reset();
 
 	m_childList->DeleteAll();
 }

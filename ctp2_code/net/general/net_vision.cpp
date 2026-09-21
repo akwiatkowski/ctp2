@@ -303,7 +303,7 @@ void NetUnseenCell::Packetize(uint8 *buf, uint16 &size)
 #endif
 	uint8 c = (uint8)m_ucell->m_improvements->GetCount();
 	PUSHBYTE(c);
-	PointerList<UnseenImprovementInfo>::Walker impWalk(m_ucell->m_improvements);
+	PointerList<UnseenImprovementInfo>::Walker impWalk(m_ucell->m_improvements.get());
 	for(; impWalk.IsValid(); impWalk.Next()) {
 		PUSHBYTE((uint8)impWalk.GetObj()->m_type);
 		PUSHBYTE((uint8)impWalk.GetObj()->m_percentComplete);
@@ -311,7 +311,7 @@ void NetUnseenCell::Packetize(uint8 *buf, uint16 &size)
 
 	c = (uint8)m_ucell->m_installations->GetCount();
 	PUSHBYTE(c);
-	PointerList<UnseenInstallationInfo>::Walker instWalk(m_ucell->m_installations);
+	PointerList<UnseenInstallationInfo>::Walker instWalk(m_ucell->m_installations.get());
 	for(; instWalk.IsValid(); instWalk.Next()) {
 		PUSHBYTE((uint8)instWalk.GetObj()->m_type);
 		PUSHLONG(instWalk.GetObj()->m_visibility);
@@ -351,7 +351,8 @@ void NetUnseenCell::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Assert(packid == k_PACKET_UNSEEN_CELL_ID);
 	PULLBYTE(m_owner);
 
-	m_ucell = new UnseenCell;
+	auto ucell = std::make_unique<UnseenCell>();
+	m_ucell = ucell.get();
 
 	PULLLONG(m_ucell->m_env);
 	PULLBYTETYPE(m_ucell->m_terrain_type, TERRAIN_TYPES);
@@ -411,7 +412,7 @@ void NetUnseenCell::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 
 
-		SpriteStatePtr ss(new SpriteState(0));
+		SpriteStatePtr ss = std::make_shared<SpriteState>(0);
 		Unit		unitID;
 
 		uint16 dbIndex;
@@ -454,8 +455,8 @@ void NetUnseenCell::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		PULLBYTE(type);
 		PULLBYTE(percent);
 		m_ucell->m_improvements->AddTail(
-			new UnseenImprovementInfo((TERRAIN_IMPROVEMENT)type,
-									  (sint32)percent));
+			std::make_unique<UnseenImprovementInfo>((TERRAIN_IMPROVEMENT)type,
+									  (sint32)percent).release());
 	}
 
 	PULLBYTE(c);
@@ -464,10 +465,10 @@ void NetUnseenCell::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		uint32 vis;
 		PULLBYTE(type);
 		PULLLONG(vis);
-		m_ucell->m_installations->AddTail(new UnseenInstallationInfo((sint32)type, vis));
+		m_ucell->m_installations->AddTail(std::make_unique<UnseenInstallationInfo>((sint32)type, vis).release());
 	}
 
-	m_ucell->m_tileInfo = new TileInfo;
+	m_ucell->m_tileInfo = std::make_unique<TileInfo>();
 
 	PULLBYTE(m_ucell->m_tileInfo->m_riverPiece);
 	PULLBYTE(m_ucell->m_tileInfo->m_megaInfo);
@@ -479,5 +480,5 @@ void NetUnseenCell::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		PULLBYTE(m_ucell->m_tileInfo->m_transitions[c]);
 	}
 
-	player_Get(m_owner)->m_vision->AddUnseen(m_ucell);
+	player_Get(m_owner)->m_vision->AddUnseen(ucell.release());
 }

@@ -39,6 +39,7 @@
 #include "gs/database/StrDB.h"
 
 #include <vector>
+#include <memory>
 
 sint32 const CTPRecord::INDEX_INVALID;
 
@@ -62,8 +63,8 @@ bool CTPRecord::ParseIntInArray(DBLexer *lex, sint32 **array, sint32 *numElement
 {
 	std::vector<sint32> tmp(*array, *array + *numElements);
 	if(!ParseIntInArray(lex, tmp)) return false;
-	delete [] *array;
-	*array = new sint32[tmp.size()];
+	std::unique_ptr<sint32[]>{*array};
+	*array = std::make_unique<sint32[]>(tmp.size()).release();
 	std::copy(tmp.begin(), tmp.end(), *array);
 	*numElements = static_cast<sint32>(tmp.size());
 	return true;
@@ -86,8 +87,8 @@ bool CTPRecord::ParseFloatInArray(DBLexer *lex, double **array, sint32 *numEleme
 {
 	std::vector<double> tmp(*array, *array + *numElements);
 	if(!ParseFloatInArray(lex, tmp)) return false;
-	delete [] *array;
-	*array = new double[tmp.size()];
+	std::unique_ptr<double[]>{*array};
+	*array = std::make_unique<double[]>(tmp.size()).release();
 	std::copy(tmp.begin(), tmp.end(), *array);
 	*numElements = static_cast<sint32>(tmp.size());
 	return true;
@@ -102,9 +103,9 @@ bool CTPRecord::ParseFileInArray(DBLexer *lex, std::vector<char *> &array)
 	do {
 		lex->GetToken();
 		const char *value = lex->GetTokenText();
-		char *owned = new char[strlen(value) + 1];
-		strlcpy(owned, value, strlen(value) + 1);
-		array.push_back(owned);
+		auto owned = std::make_unique<char[]>(strlen(value) + 1);
+		strlcpy(owned.get(), value, strlen(value) + 1);
+		array.push_back(owned.release());
 	} while(lex->PeekAhead() == k_Token_String);
 	return true;
 }
@@ -113,8 +114,8 @@ bool CTPRecord::ParseFileInArray(DBLexer *lex, char ***array, sint32 *numElement
 {
 	std::vector<char *> tmp(*array, *array + *numElements);
 	if(!ParseFileInArray(lex, tmp)) return false;
-	delete [] *array;
-	*array = new char *[tmp.size()];
+	std::unique_ptr<char *[]>{*array};
+	*array = std::make_unique<char *[]>(tmp.size()).release();
 	std::copy(tmp.begin(), tmp.end(), *array);
 	*numElements = static_cast<sint32>(tmp.size());
 	return true;
@@ -143,8 +144,8 @@ bool CTPRecord::ParseStringIdInArray(DBLexer *lex, sint32 **array, sint32 *numEl
 {
 	std::vector<sint32> tmp(*array, *array + *numElements);
 	if(!ParseStringIdInArray(lex, tmp)) return false;
-	delete [] *array;
-	*array = new sint32[tmp.size()];
+	std::unique_ptr<sint32[]>{*array};
+	*array = std::make_unique<sint32[]>(tmp.size()).release();
 	std::copy(tmp.begin(), tmp.end(), *array);
 	*numElements = static_cast<sint32>(tmp.size());
 	return true;
@@ -208,7 +209,7 @@ bool CTPRecord::ParseFileInArray(DBLexer *lex, char **array, sint32 *numElements
 			return false;
 		}
 		// TODO(phase-2): ownership transfer out of function — needs separate strategy
-		array[*numElements] = new char[strlen(value) + 1];
+		array[*numElements] = std::make_unique<char[]>(strlen(value) + 1).release();
 		strlcpy(array[*numElements], value, strlen(value) + 1);
 		*numElements += 1;
 	}while(lex->PeekAhead() == k_Token_String);

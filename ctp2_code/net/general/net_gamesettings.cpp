@@ -1,4 +1,6 @@
 #include "ctp/c3.h"
+#include <memory>
+
 #include "net/general/net_gamesettings.h"
 #include "net/io/net_util.h"
 #include "net/general/network.h"
@@ -117,9 +119,9 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	}
 	unit_tree_Get()->Clear();
 	installation_tree_Get()->Clear();
-	delete unit_tree_Get();
+	std::unique_ptr<QuadTree<Unit>>{unit_tree_Get()};
 	unit_tree_Set(nullptr);
-	delete installation_tree_Get();
+	std::unique_ptr<InstallationQuadTree>{installation_tree_Get()};
 	installation_tree_Set(nullptr);
 
 	network_Get().ClearDeadUnits();
@@ -141,31 +143,31 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	sint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
 		if(player_Get(i)) {
-			delete player_Get(i);
+			std::unique_ptr<Player>(player_Get(i));
 		}
 	}
-	delete [] player_arr_Get();
+	std::unique_ptr<Player *[]>{player_arr_Get()};
 
-	player_arr_Set(new Player *[k_MAX_PLAYERS]);
+	player_arr_Set(std::make_unique<Player *[]>(k_MAX_PLAYERS).release());
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
 		player_arr_Get()[i] = nullptr;
 	}
 
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
 		if(playerMask & (1 << i)) {
-			player_arr_Get()[i] = new Player(i, 0, PLAYER_TYPE_HUMAN);
+			player_arr_Get()[i] = std::make_unique<Player>(i, 0, PLAYER_TYPE_HUMAN).release();
 		}
 	}
 
-	delete selitem_Get();
-	selitem_Set(new SelectedItem(m_numPlayers));
+	std::unique_ptr<SelectedItem>{selitem_Get()};
+	selitem_Set(std::make_unique<SelectedItem>(m_numPlayers).release());
 
-	unit_tree_Set(new QuadTree<Unit>((sint16)world_Get()->GetXWidth(),
+	unit_tree_Set(std::make_unique<QuadTree<Unit>>((sint16)world_Get()->GetXWidth(),
 									   (sint16)world_Get()->GetYHeight(),
-									   world_Get()->IsYwrap()));
-	installation_tree_Set(new InstallationQuadTree((sint16)world_Get()->GetXWidth(),
+									   world_Get()->IsYwrap()).release());
+	installation_tree_Set(std::make_unique<InstallationQuadTree>((sint16)world_Get()->GetXWidth(),
 													 (sint16)world_Get()->GetYHeight(),
-													 world_Get()->IsYwrap()));
+													 world_Get()->IsYwrap()).release());
 
 	network_Get().SetStyleFromServer(m_gameStyle, m_movesPerSlice, m_totalTime, m_turnTime, m_cityTime);
 

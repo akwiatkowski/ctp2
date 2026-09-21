@@ -89,7 +89,7 @@ AUI_ERRCODE aui_HyperTextBase::InitCommon(
 		m_hyperCurLen = m_hyperText.length();
 	}
 
-	m_hyperStaticList = new tech_WLList<aui_Static *>;
+	m_hyperStaticList = std::make_unique<tech_WLList<aui_Static *>>();
 	Assert( m_hyperStaticList != nullptr );
 	if ( !m_hyperStaticList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -116,7 +116,6 @@ aui_HyperTextBase::~aui_HyperTextBase()
 	if (m_hyperStaticList)
 	{
 		RemoveHyperStatics();
-		delete m_hyperStaticList;
 	}
 }
 
@@ -190,7 +189,7 @@ AUI_ERRCODE aui_HyperTextBase::AddHyperStatics( const MBCHAR *hyperText )
 
 	if ( m_hyperStaticList->L() > k_AUI_HYPERTEXTBOX_LDL_MAXSTATICS )
     {
-		delete m_hyperStaticList->RemoveHead();
+		std::unique_ptr<aui_Static> staticOwner(m_hyperStaticList->RemoveHead());
     }
 
 	return AUI_ERRCODE_OK;
@@ -201,7 +200,7 @@ void aui_HyperTextBase::RemoveHyperStatics()
 {
 	for (sint32 i = m_hyperStaticList->L(); i; --i)
     {
-		delete m_hyperStaticList->RemoveTail();
+		std::unique_ptr<aui_Static> staticOwner(m_hyperStaticList->RemoveTail());
     }
 }
 
@@ -221,7 +220,7 @@ aui_Static *aui_HyperTextBase::CreateHyperStatic(
 {
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	aui_Static *hs = new aui_Static(
+	auto hs = std::make_unique<aui_Static>(
 		&errcode,
 		0,
 		0, 0, 0, 0,
@@ -250,7 +249,7 @@ aui_Static *aui_HyperTextBase::CreateHyperStatic(
 		hs->GetTextFont()->GetStringWidth( hs->GetText() ),
 		hs->GetTextFont()->GetLineSkip() );
 
-	return hs;
+	return hs.release();
 }
 
 AUI_ERRCODE aui_HyperTextBase::DrawThisHyperText(

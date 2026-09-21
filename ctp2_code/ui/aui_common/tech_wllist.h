@@ -34,6 +34,8 @@
 #ifndef __TECH_WLLIST_H__
 #define __TECH_WLLIST_H__
 
+#include <memory>
+
 #include "ui/aui_common/tech_memory.h"
 
 
@@ -117,7 +119,7 @@ protected:
 	Link *m_pHead;
 	Link *m_pTail;
 
-	tech_Memory< Link > *m_memory;
+	std::unique_ptr<tech_Memory< Link >> m_memory;
 };
 
 
@@ -134,19 +136,14 @@ tech_WLList< T >::tech_WLList( size_t blockSize )
 	m_pHead( nullptr ),
 	m_pTail( nullptr )
 {
-	m_memory = new tech_Memory< Link >(
+	m_memory = std::make_unique<tech_Memory< Link >>(
 		blockSize ? blockSize : k_TECH_WLLIST_DEFAULT_BLOCKSIZE );
 }
 
 template< class T >
 tech_WLList< T >::~tech_WLList()
 {
-	if ( m_memory )
-	{
-		delete m_memory;
-		m_memory = nullptr;
-	}
-
+	// m_memory frees itself; links are owned by the tech_Memory pool.
 	m_length = 0;
 	m_pHead = m_pTail = nullptr;
 }

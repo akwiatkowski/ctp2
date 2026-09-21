@@ -39,12 +39,13 @@
 
 #include "mapgen/Crater.h"
 #include <cstdlib>
+#include <memory>
 #include "gs/outcom/IC3Rand.h"
 
 #if defined(USE_COM_REPLACEMENT)
 extern "C" IMapGenerator *CoCreateCraterMapGenerator()
 {
-	IMapGenerator *gen = new Crater();
+	IMapGenerator *gen = std::make_unique<Crater>().release(); // ownership transfers to caller via refcount
 	gen->AddRef();
 	return gen;
 }
@@ -55,7 +56,7 @@ Crater::~Crater()
 #else
 STDAPI CoCreateMapGenerator(IUnknown **obj)
 {
-	Crater *gen = new Crater();
+	Crater *gen = std::make_unique<Crater>().release(); // ownership transfers to caller via refcount
 	gen->AddRef();
 	*obj = (IUnknown *)gen;
 	return S_OK;

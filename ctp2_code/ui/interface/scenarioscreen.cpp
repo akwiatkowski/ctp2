@@ -24,7 +24,7 @@
 
 
 
-extern SPNewGameWindow		*g_spNewGameWindow;
+extern std::unique_ptr<SPNewGameWindow> g_spNewGameWindow;
 
 
 

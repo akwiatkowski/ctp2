@@ -110,10 +110,10 @@ void CriticalMessagesPrefs::SetEnabled(const char *name, bool enable)
 	}
 	else
 	{
-		CriticalMessagesData *newdata=new CriticalMessagesData;
+		auto newdata = std::make_unique<CriticalMessagesData>();
 		newdata->m_messageName = name;
 		newdata->m_messageEnabled=enable;
-		m_messagesList.AddTail(newdata);
+		m_messagesList.AddTail(newdata.release());   // PointerList owns
 		Save();
 	}
 }

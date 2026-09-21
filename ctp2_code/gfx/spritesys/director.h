@@ -165,7 +165,7 @@ class DQItem : std::enable_shared_from_this<DQItem> {
   uint8 m_addedToSavedList;
   sint8 m_owner;
   uint16 m_round;
-  DQAction* m_action;
+  std::unique_ptr<DQAction> m_action;
   DQHandler* m_handler;
 
  private:
@@ -328,10 +328,10 @@ class Director {
   typedef std::deque<std::shared_ptr<UnitActor> > UnitActorList;
   UnitActorList m_activeUnitList;
 
-  typedef std::deque<EffectActor*> EffectActorList;
+  typedef std::deque<std::unique_ptr<EffectActor> > EffectActorList;
   EffectActorList m_activeEffectList;
 
-  typedef std::deque<TradeActor*> TradeActorList;
+  typedef std::deque<std::unique_ptr<TradeActor> > TradeActorList;
   TradeActorList m_tradeActorList;
 
   BOOL m_nextPlayer;

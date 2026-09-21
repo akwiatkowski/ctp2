@@ -3,6 +3,8 @@
 
 class Battle;
 
+#include <memory>
+
 #include "gs/gameobj/Army.h"           // Army
 #include "gs/database/dbtypes.h"
 #include "ui/interface/battleview.h"
@@ -80,7 +82,7 @@ private:
 	BattleViewActor				*m_defenders[k_MAX_UNITS_PER_SIDE];
 	COLOR						m_defendersColor;
 
-	PointerList<BattleEvent>	*m_eventQueue;
+	std::unique_ptr<PointerList<BattleEvent>>	m_eventQueue;
 
 	double						m_cityBonus;
 	double						m_citylandattackBonus;

@@ -72,7 +72,8 @@ aui_Surface::aui_Surface(
 	if (!m_saveBuffer)
 	{
 
-		m_saveBuffer = (uint8 *)(new uint32[ m_size >> 2 ]);
+		m_saveBufferStore = std::make_unique<uint32[]>( m_size >> 2 );
+		m_saveBuffer = (uint8 *)m_saveBufferStore.get();
 		Assert( m_saveBuffer != nullptr );
 
 		if (m_saveBuffer)
@@ -138,8 +139,8 @@ aui_Surface::~aui_Surface()
 {
 	if ( m_allocated )
 	{
-
-		delete[] m_saveBuffer;
+		// m_saveBufferStore frees the heap buffer; m_saveBuffer is a view.
+		m_saveBufferStore.reset();
 		m_saveBuffer = m_buffer = nullptr;
 		m_allocated = FALSE;
 	}

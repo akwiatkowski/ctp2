@@ -29,6 +29,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
+
 #include "net/general/net_terrain.h"
 
 #include "gs/utility/gstypes.h"            // TERRAIN_TYPES
@@ -121,7 +123,7 @@ void NetTerrainImprovement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	network_Get().CheckReceivedObject((uint32)imp);
 
 	if(!terrimprovepool_Get()->IsValid(imp)) {
-		m_data = new TerrainImprovementData(imp);
+		m_data = std::make_unique<TerrainImprovementData>(imp).release();
 	} else {
 		m_data = terrimprovepool_Get()->AccessTerrainImprovement(imp);
 		oldpoint = m_data->m_point;

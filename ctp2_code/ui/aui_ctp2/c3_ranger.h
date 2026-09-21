@@ -5,6 +5,9 @@
 #define __C3_RANGER_H__
 
 #include "ui/aui_common/aui_ranger.h"
+#include <array>
+#include <memory>
+
 #include "ui/aui_ctp2/patternbase.h"
 
 #define k_C3_RANGER_DEFAULTPATTERN		"pattern.tga"
@@ -37,7 +40,9 @@ public:
 	~c3_Ranger() override;
 
 protected:
-	c3_Ranger() : aui_Ranger() {}
+	// Out-of-line in c3_ranger.cpp: unique_ptr<aui_Static> members over a
+	// forward-declared type need the complete type at ctor/dtor instantiation.
+	c3_Ranger();
 	AUI_ERRCODE InitCommonLdl( MBCHAR const *ldlBlock );
 	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateButtonsAndThumb( MBCHAR const *ldlBlock );
@@ -51,7 +56,7 @@ public:
 protected:
 	AUI_ERRCODE RepositionButtons( ) override;
 
-	aui_Static *m_arrows[ 4 ];
+	std::array<std::unique_ptr<aui_Static>, 4> m_arrows;
 };
 
 #endif

@@ -3,6 +3,8 @@
 
 class aui_StringTable;
 
+#include <memory>
+
 class ns_Improvements;
 // g_nsImprovements demoted to file-scope `static` in ns_improvements.cpp.
 // External callers go through nsimprovements_Get() / nsimprovements_Set().
@@ -19,10 +21,10 @@ public:
 	ns_Improvements();
 	virtual ~ns_Improvements();
 
-	aui_StringTable *GetStrings( ) const { return m_stringtable; }
+	aui_StringTable *GetStrings( ) const { return m_stringtable.get(); }
 
 private:
-	aui_StringTable *m_stringtable;
+	std::unique_ptr<aui_StringTable>	m_stringtable;
 };
 
 #endif

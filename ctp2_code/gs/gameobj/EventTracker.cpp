@@ -1,3 +1,4 @@
+#include <memory>
 #include "ctp/c3.h"
 #include "gs/events/GameEventHook.h"
 #include "gs/gameobj/Events.h"
@@ -21,12 +22,12 @@ EventTracker::~EventTracker()
 
 void EventTracker::AddEvent(EVENT_TYPE type, sint32 playerNum, sint32 turn, sint32 dbIndex)
 {
-	EventData *newdata=new EventData;
+	auto newdata = std::make_unique<EventData>();
 	newdata->m_type=type;
 	newdata->m_playerNum=playerNum;
 	newdata->m_turn=turn;
 	newdata->m_dbIndex=dbIndex;
-	m_dataList.AddTail(newdata);
+	m_dataList.AddTail(newdata.release());
 }
 
 void EventTracker::ResetList()

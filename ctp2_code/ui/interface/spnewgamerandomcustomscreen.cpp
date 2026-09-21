@@ -46,15 +46,18 @@
 
 #include "ui/aui_ctp2/keypress.h"
 
-extern SPNewGameWindow *g_spNewGameWindow;
+#include <array>
+#include <memory>
+
+extern std::unique_ptr<SPNewGameWindow> g_spNewGameWindow;
 
 #define k_NUM_RANDOMCUSTOMBOXES	2
 
-static c3_PopupWindow	*s_spNewGameRandomCustomScreen	= nullptr;
+static std::unique_ptr<c3_PopupWindow>	s_spNewGameRandomCustomScreen;
 
 
-static aui_SwitchGroup	*s_group		= nullptr;
-static aui_Radio	**s_checkBox;
+static std::unique_ptr<aui_SwitchGroup>	s_group;
+static std::array<std::unique_ptr<aui_Radio>, k_NUM_RANDOMCUSTOMBOXES> s_checkBox;
 
 static MBCHAR	checknames[k_NUM_RANDOMCUSTOMBOXES][50] = {
 	"Random",
@@ -71,8 +74,8 @@ sint32	spnewgamerandomcustomscreen_displayMyWindow()
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = c3ui_Get()->AddWindow(s_spNewGameRandomCustomScreen);
-	keypress_RegisterHandler(s_spNewGameRandomCustomScreen);
+	auiErr = c3ui_Get()->AddWindow(s_spNewGameRandomCustomScreen.get());
+	keypress_RegisterHandler(s_spNewGameRandomCustomScreen.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -92,7 +95,7 @@ sint32 spnewgamerandomcustomscreen_removeMyWindow(uint32 action)
 	AUI_ERRCODE auiErr;
 
 	auiErr = c3ui_Get()->RemoveWindow( s_spNewGameRandomCustomScreen->Id() );
-	keypress_RemoveHandler(s_spNewGameRandomCustomScreen);
+	keypress_RemoveHandler(s_spNewGameRandomCustomScreen.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -114,7 +117,7 @@ AUI_ERRCODE spnewgamerandomcustomscreen_Initialize(
 	strlcpy(windowBlock, "SPNewGameRandomCustomScreen", sizeof(windowBlock));
 
 	{
-		s_spNewGameRandomCustomScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		s_spNewGameRandomCustomScreen = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(s_spNewGameRandomCustomScreen, errcode) );
 		if ( !AUI_NEWOK(s_spNewGameRandomCustomScreen, errcode) ) return errcode;
 
@@ -130,18 +133,16 @@ AUI_ERRCODE spnewgamerandomcustomscreen_Initialize(
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Group" );
-	s_group = new aui_SwitchGroup( &errcode, aui_UniqueId(), controlBlock );
+	s_group = std::make_unique<aui_SwitchGroup>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_group, errcode) );
 	if ( !AUI_NEWOK(s_group, errcode) ) return errcode;
 
-	s_checkBox = new aui_Radio*[k_NUM_RANDOMCUSTOMBOXES];
-
 	for ( i = 0;i < k_NUM_RANDOMCUSTOMBOXES;i++ ) {
 		snprintf(switchBlock, sizeof(switchBlock), "%s.%s", controlBlock, checknames[i] );
-		s_checkBox[i] = new aui_Radio( &errcode, aui_UniqueId(), switchBlock );
+		s_checkBox[i] = std::make_unique<aui_Radio>( &errcode, aui_UniqueId(), switchBlock );
 		Assert( AUI_NEWOK(s_checkBox[i], errcode) );
 		if ( !AUI_NEWOK(s_checkBox[i], errcode) ) return errcode;
-		s_group->AddSwitch( (aui_Radio *)s_checkBox[i] );
+		s_group->AddSwitch( s_checkBox[i].get() );
 
 	}
 
@@ -154,28 +155,23 @@ AUI_ERRCODE spnewgamerandomcustomscreen_Initialize(
 
 AUI_ERRCODE spnewgamerandomcustomscreen_Cleanup()
 {
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
-
 	if ( !s_spNewGameRandomCustomScreen  ) return AUI_ERRCODE_OK;
 
 	c3ui_Get()->RemoveWindow( s_spNewGameRandomCustomScreen->Id() );
-	keypress_RemoveHandler(s_spNewGameRandomCustomScreen);
+	keypress_RemoveHandler(s_spNewGameRandomCustomScreen.get());
 
 	for (sint32 i = 0;i < k_NUM_RANDOMCUSTOMBOXES;i++ ) {
-		mycleanup( s_checkBox[i] );
+		s_checkBox[i].reset();
 	}
 
-	mycleanup( s_group );
+	s_group.reset();
 
 
 
 
-	delete s_spNewGameRandomCustomScreen;
-	s_spNewGameRandomCustomScreen = nullptr;
+	s_spNewGameRandomCustomScreen.reset();
 
 	return AUI_ERRCODE_OK;
-
-#undef mycleanup
 }
 
 

@@ -29,6 +29,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
+
 #include "gs/utility/Globals.h"
 #include "net/general/net_gameobj.h"
 #include "gs/gameobj/GameObj.h"
@@ -63,19 +65,13 @@ NetGameObj::GameObjRecord::GameObjRecord(GameObj *obj)
 
 NetGameObj::NetGameObj()
 {
-	m_created = new PointerList<GameObjRecord>;
-	m_limbo = new PointerList<LimboID>;
+	m_created = std::make_unique<PointerList<GameObjRecord>>();
+	m_limbo = std::make_unique<PointerList<LimboID>>();
 }
 
 NetGameObj::~NetGameObj()
 {
-	if(m_created) {
-		m_created->DeleteAll();
-		delete m_created;
-	}
-
-	
-		delete m_limbo;
+	m_created->DeleteAll();
 }
 
 
@@ -87,11 +83,11 @@ void NetGameObj::AddCreated(GameObj *obj)
 		// GameObj ids are uint32: print with %x, not %lx.
 		DPRINTF(k_DBG_NET, ("AddCreated: Sending object %x straight to limbo\n",
 							obj->m_id));
-		m_limbo->AddTail(new LimboID(obj->m_id));
+		m_limbo->AddTail(std::make_unique<LimboID>(obj->m_id).release());
 
 	} else {
 		DPRINTF(k_DBG_NET, ("AddCreated: %x\n", obj->m_id));
-		m_created->AddTail(new GameObjRecord(obj));
+		m_created->AddTail(std::make_unique<GameObjRecord>(obj).release());
 		m_createdHash.Add(obj->m_id);
 	}
 }
@@ -113,8 +109,7 @@ void NetGameObj::ACKObject(uint32 id)
 			DPRINTF(k_DBG_NET, ("ACKObject: Found object id %x in limbo\n",
 								id));
 
-			m_limbo->RemoveHead();
-			delete lID;
+			std::unique_ptr<LimboID>(m_limbo->RemoveHead());
 		} else {
 
 			Assert(FALSE);
@@ -125,9 +120,7 @@ void NetGameObj::ACKObject(uint32 id)
 
 	Assert(obj->m_id == id);
 	if(obj->m_id == id) {
-		m_created->RemoveHead();
-
-		delete obj;
+		std::unique_ptr<GameObjRecord>(m_created->RemoveHead());
 		m_createdHash.Remove(id);
 	}
 }
@@ -136,9 +129,8 @@ void NetGameObj::NAKObject(uint32 myId, uint32 realId)
 {
 	TheReaper();
 
-	LimboID *lID = m_limbo->RemoveHead();
+	std::unique_ptr<LimboID> lID(m_limbo->RemoveHead());
 	uint32 id = lID->m_id;
-	delete lID;
 	Assert(id == myId);
 	Assert(((realId & k_ID_KEY_MASK) >> k_ID_MASK_SHIFT) ==
 		   ((id & k_ID_KEY_MASK) >> k_ID_MASK_SHIFT));
@@ -152,12 +144,11 @@ void NetGameObj::TheReaper()
 {
 
 	while(!m_created->IsEmpty()) {
-		GameObjRecord *obj = m_created->RemoveHead();
+		std::unique_ptr<GameObjRecord> obj(m_created->RemoveHead());
 
 		DPRINTF(k_DBG_NET, ("TheReaper: Sending object %x to limbo\n",
 							obj->m_id));
-		m_limbo->AddTail(new LimboID(obj->m_id));
-		delete obj;
+		m_limbo->AddTail(std::make_unique<LimboID>(obj->m_id).release());
 
 	}
 	m_createdHash.Clear();

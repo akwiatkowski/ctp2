@@ -178,11 +178,11 @@ private:
 	uint16 m_battleFlags;
 #endif
 
-	TileInfo *m_tileInfo;
+	std::unique_ptr<TileInfo> m_tileInfo;
 	MapPoint m_point;
 
-	PointerList<UnseenInstallationInfo> *m_installations;
-	PointerList<UnseenImprovementInfo> *m_improvements;
+	std::unique_ptr<PointerList<UnseenInstallationInfo>> m_installations;
+	std::unique_ptr<PointerList<UnseenImprovementInfo>> m_improvements;
 
 	std::string m_cityName;
   std::shared_ptr<UnitActor> m_actor;
@@ -200,6 +200,7 @@ public:
 	UnseenCell(const MapPoint &point);
 	UnseenCell();
 	UnseenCell(UnseenCell *old);
+	UnseenCell &operator=(const UnseenCell &other);
 	~UnseenCell();
 
 
@@ -209,9 +210,9 @@ public:
 #ifdef BATTLE_FLAGS
 	uint16 GetBattleFlags() const { return m_battleFlags; }
 #endif
-	TileInfo *GetTileInfo() const { return m_tileInfo; }
-	PointerList<UnseenInstallationInfo> *GetInstallations() const { return m_installations; }
-	PointerList<UnseenImprovementInfo> *GetImprovements() const { return m_improvements; }
+	TileInfo *GetTileInfo() const { return m_tileInfo.get(); }
+	PointerList<UnseenInstallationInfo> *GetInstallations() const { return m_installations.get(); }
+	PointerList<UnseenImprovementInfo> *GetImprovements() const { return m_improvements.get(); }
 	sint32 GetCityOwner() const { return m_cityOwner; }
 	sint32 GetCitySize() const { return m_citySize; }
 	uint32 GetVisibleCityOwner() const { return m_visibleCityOwner; }

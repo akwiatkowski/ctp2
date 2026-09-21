@@ -7,6 +7,8 @@
 #define k_NET_HASH_TABLE_SIZE 512
 
 #include "ctp/ctp2_utils/pointerlist.h"
+#include <memory>
+
 
 class NetHash
 {
@@ -42,7 +44,7 @@ private:
 		return (id % k_NET_HASH_TABLE_SIZE);
 	}
 
-	PointerList<Entry>* m_table[k_NET_HASH_TABLE_SIZE];
+	std::unique_ptr<PointerList<Entry>> m_table[k_NET_HASH_TABLE_SIZE];
 	uint32 m_numEntries;
 	uint32 m_lowKey, m_highKey;
 };
@@ -52,9 +54,9 @@ NetHash::Add(uint32 id)
 {
 	uint32 key = Key(id);
 	if(!m_table[key]) {
-		m_table[key] = new PointerList<Entry>;
+		m_table[key] = std::make_unique<PointerList<Entry>>();
 	}
-	m_table[key]->AddTail(new Entry(id));
+	m_table[key]->AddTail(std::make_unique<Entry>(id).release()); // PointerList owns
 	if(key < m_lowKey)
 		m_lowKey = key;
 
@@ -77,7 +79,7 @@ NetHash::Remove(uint32 id)
 		return;
 	}
 
-	PointerList<Entry>::Walker walk(m_table[key]);
+	PointerList<Entry>::Walker walk(m_table[key].get());
 
 	while(walk.IsValid()) {
 		if(walk.GetObj()->m_id == id) {
@@ -111,7 +113,7 @@ NetHash::IsPresent(uint32 id)
 	if(!m_table[key]) {
 		return FALSE;
 	}
-	PointerList<Entry>::Walker walk(m_table[key]);
+	PointerList<Entry>::Walker walk(m_table[key].get());
 	while(walk.IsValid()) {
 		if(walk.GetObj()->m_id == id)
 			return TRUE;
@@ -126,12 +128,11 @@ NetHash::Clear()
 	for(uint32 i = m_lowKey; i < m_highKey + 1; i++) {
 		if(m_table[i]) {
 			while(!m_table[i]->IsEmpty()) {
-				Entry* ent = m_table[i]->RemoveHead();
-				delete ent;
+				// RemoveHead detaches; unique_ptr frees the Entry
+				std::unique_ptr<Entry>{m_table[i]->RemoveHead()};
 				m_numEntries--;
 			}
-			delete m_table[i];
-			m_table[i] = nullptr;
+			m_table[i].reset();
 			if(m_numEntries <= 0)
 				break;
 		}

@@ -107,7 +107,7 @@ AUI_ERRCODE C3ListBox::CreateRangers( )
 {
 	AUI_ERRCODE errcode;
 
-	m_verticalRanger = new c3_Ranger(
+	m_verticalRanger = std::make_unique<c3_Ranger>(
 		&errcode,
 		aui_UniqueId(),
 		0, 0, 0, 0,
@@ -118,7 +118,7 @@ AUI_ERRCODE C3ListBox::CreateRangers( )
 		this );
 	if ( !m_verticalRanger ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_horizontalRanger = new c3_Ranger(
+	m_horizontalRanger = std::make_unique<c3_Ranger>(
 		&errcode,
 		aui_UniqueId(),
 		0, 0, 0, 0,
@@ -129,8 +129,8 @@ AUI_ERRCODE C3ListBox::CreateRangers( )
 		this );
 	if ( !m_horizontalRanger ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_verticalRanger );
-	AddChild( m_horizontalRanger );
+	AddChild( m_verticalRanger.get() );
+	AddChild( m_horizontalRanger.get() );
 
 	return RepositionRangers();
 }

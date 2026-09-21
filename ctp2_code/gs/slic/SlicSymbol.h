@@ -5,6 +5,8 @@
 #include "gs/slic/SlicTriggerLists.h"
 #include "gs/slic/SlicStack.h"
 
+#include <memory>
+
 #include <nlohmann/json.hpp>
 
 class SlicSegment;
@@ -53,14 +55,14 @@ public:
 	SlicSymbolDebugInfo(SlicSymbolData *sym);
 	~SlicSymbolDebugInfo();
 
-	PointerList<SlicSymbolWatchCallback> *GetWatchList() { return m_watchList; }
+	PointerList<SlicSymbolWatchCallback> *GetWatchList() { return m_watchList.get(); }
 	void AddWatch(SlicSymbolWatchCallback *watch);
 	void RemoveWatch(SlicSymbolWatchCallback *watch);
 	void NotifyChange(SlicSymbolData *sym);
 
 private:
 	SlicSymbolData *m_symbol;
-	PointerList<SlicSymbolWatchCallback> *m_watchList;
+	std::unique_ptr<PointerList<SlicSymbolWatchCallback>> m_watchList;
 };
 
 class SlicSymbolData {
@@ -87,7 +89,7 @@ protected:
 
 	} m_val;
 
-	SlicSymbolDebugInfo *m_debugInfo;
+	std::unique_ptr<SlicSymbolDebugInfo> m_debugInfo;
 
 public:
 	SlicSymbolData(SLIC_SYM type = SLIC_SYM_UNDEFINED);

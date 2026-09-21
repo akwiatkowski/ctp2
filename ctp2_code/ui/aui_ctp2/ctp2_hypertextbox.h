@@ -36,6 +36,9 @@
 #define __CTP2_HYPERTEXTBOX_H__
 
 #include "ui/aui_common/aui_hypertextbox.h"
+#include <memory>
+#include <vector>
+
 #include "ui/aui_ctp2/patternbase.h"
 
 class aui_Static;
@@ -99,7 +102,7 @@ protected:
 
 	AUI_ERRCODE AddHyperStatics( const MBCHAR *hyperText ) override;
 
-	tech_WLList<ctp2_HyperLink *>	*m_hyperLinkList;
+	std::vector<std::unique_ptr<ctp2_HyperLink>>	m_hyperLinkList;
 
 	ctp2_HyperLink *m_selectedHyperLink;
 

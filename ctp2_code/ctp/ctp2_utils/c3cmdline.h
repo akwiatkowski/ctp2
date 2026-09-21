@@ -4,6 +4,9 @@
 
 #include "os/include/ctp2_config.h"
 
+#include <deque>
+#include <string>
+
 #ifdef _PLAYTEST
 
 #ifndef _C3CMDLINE_H_
@@ -373,6 +376,9 @@ private:
 	sint32 Parse();
 	BOOL PartialMatch(const char* x, const char* y);
 
+	// m_argStorage owns the argument strings; m_argv entries are non-owning
+	// views into it (deque keeps them stable across push_back).
+	std::deque<std::string> m_argStorage;
 	char* m_argv[256];
 	sint32 m_argc;
 

@@ -1,5 +1,6 @@
 #include "ctp/c3.h"
 #include <objbase.h>
+#include <memory>
 #include "gs/outcom/C3Rand.h"
 #include "gs/utility/RandGen.h"
 
@@ -27,7 +28,7 @@ C3Rand::C3Rand(BOOL ownGenerator)
 	m_refCount = 0;
 	m_ownGenerator = ownGenerator;
 	if (m_ownGenerator) {
-		m_rand = new RandomGenerator(*rand_ptr());
+		m_rand = std::make_unique<RandomGenerator>(*rand_ptr()).release();
 	} else {
 		m_rand = rand_ptr();
 	}
@@ -36,7 +37,7 @@ C3Rand::C3Rand(BOOL ownGenerator)
 C3Rand::~C3Rand()
 {
 	if (m_ownGenerator) {
-		delete m_rand;
+		std::unique_ptr<RandomGenerator>{m_rand};
 		m_rand = nullptr;
 	}
 }

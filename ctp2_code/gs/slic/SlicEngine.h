@@ -37,6 +37,7 @@
 #define SLIC_ENGINE_H__
 
 #include <string>       // std::string
+#include <memory>       // std::unique_ptr
 
 class SlicEngine;
 
@@ -117,7 +118,7 @@ public:
 	void PostSerialize();
 
 	SlicSegment *GetSegment(const char *id);
-	SlicSegmentHash *GetSegmentHash() { return m_segmentHash; }
+	SlicSegmentHash *GetSegmentHash() { return m_segmentHash.get(); }
 	SlicFunc *GetFunction(const char *name);
 	SlicNamedSymbol *GetSymbol(sint32 index);
 	SlicNamedSymbol *GetSymbol(const char *name);
@@ -127,6 +128,10 @@ public:
 	SlicObject *GetContext() { return m_context; }
 
 	void Execute(SlicObject *obj);
+	// Owning overload: the engine takes ownership via PushContext/PopContext
+	// (AddRef/Release). Lets call sites write Execute(std::make_unique<...>)
+	// instead of raw new.
+	void Execute(std::unique_ptr<SlicObject> obj) { Execute(obj.release()); }
 
 	void AddBuiltinFunctions();
     bool Load(std::basic_string<MBCHAR> const & a_File, sint32 filenum);
@@ -318,14 +323,14 @@ public:
 private:
 	BOOL m_tutorialActive;
 	PLAYER_INDEX m_tutorialPlayer;
-	Message *m_currentMessage;
+	std::unique_ptr<Message> m_currentMessage;
 
-	SlicSegmentHash *m_segmentHash;
-	StringHash<SlicFunc> *m_functionHash;
-	StringHash<SlicUITrigger> *m_uiHash;
-	StringHash<SlicDBInterface> *m_dbHash;
+	std::unique_ptr<SlicSegmentHash> m_segmentHash;
+	std::unique_ptr<StringHash<SlicFunc>> m_functionHash;
+	std::unique_ptr<StringHash<SlicUITrigger>> m_uiHash;
+	std::unique_ptr<StringHash<SlicDBInterface>> m_dbHash;
 
-	SlicSymTab *m_symTab;
+	std::unique_ptr<SlicSymTab> m_symTab;
 	SlicObject *m_context;
 
 	SlicModFunc *m_modFunc[mod_MAX];
@@ -333,7 +338,7 @@ private:
 	PointerList<SlicSegment> *		m_triggerLists[TRIGGER_LIST_MAX];
 	PointerList<SlicRecord> *		m_records[k_MAX_PLAYERS];
 	sint32                          m_timer[k_NUM_TIMERS];
-	SimpleDynamicArray<sint32> *	m_disabledClasses;
+	std::unique_ptr<SimpleDynamicArray<sint32>>	m_disabledClasses;
 	PointerList<SlicObject> m_uiExecuteObjects;   // held by value; entries stay reference counted
 	Message							m_eyepointMessage;
 
@@ -344,7 +349,7 @@ private:
 	sint32 m_researchOwner;
 	MBCHAR m_researchText[256];
 
-	StringHash<SlicConst> *m_constHash;
+	std::unique_ptr<StringHash<SlicConst>> m_constHash;
 
 	SlicSymbolData const **     m_builtins;
 	SlicStructDescription **m_builtin_desc;

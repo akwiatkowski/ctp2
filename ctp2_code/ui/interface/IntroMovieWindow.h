@@ -4,6 +4,8 @@
 #ifndef __INTROMOVIEWINDOW_H__
 #define __INTROMOVIEWINDOW_H__
 
+#include <memory>
+
 class aui_MovieButton;
 class c3_Static;
 
@@ -42,7 +44,7 @@ public:
 	void SetMovie(MBCHAR *filename);
 
 private:
-	aui_MovieButton		*m_movieButton;
+	std::unique_ptr<aui_MovieButton>	m_movieButton;
 };
 
 #endif

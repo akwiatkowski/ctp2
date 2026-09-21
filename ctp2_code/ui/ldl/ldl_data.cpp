@@ -6,6 +6,8 @@
 
 #include "ui/ldl/ldlif.h"
 
+#include <memory>
+
 ldl_datablock::ldl_datablock(PointerList<char> *templateNames)
 :
 	m_templates     (),
@@ -53,7 +55,7 @@ ldl_datablock::ldl_datablock(ldl_datablock *copy)
 
 	PointerList<ldl_datablock>::Walker bwalk(&copy->m_children);
 	for(; bwalk.IsValid(); bwalk.Next()) {
-		AddChild(new ldl_datablock(bwalk.GetObj()));
+		AddChild(std::make_unique<ldl_datablock>(bwalk.GetObj()).release());
 	}
 
 	for(bwalk.SetList(&copy->m_templates); bwalk.IsValid(); bwalk.Next()) {
@@ -223,10 +225,10 @@ void ldl_datablock::AddTemplateChildrenTo(ldl_datablock *block)
 			}
 		}
 		if(!alreadyHaveIt) {
-			ldl_datablock *newblock = new ldl_datablock(bwalk.GetObj());
-			block->AddChild(newblock);
+			auto newblock = std::make_unique<ldl_datablock>(bwalk.GetObj());
+			block->AddChild(newblock.get());
 			newblock->AddTemplateChildren();
-			ldlif_add_block_to_tree(newblock);
+			ldlif_add_block_to_tree(newblock.release());
 		}
 	}
 }
@@ -252,10 +254,10 @@ void ldl_datablock::CopyAttributesFrom(ldl_datablock *templ)
 			}
 		}
 		if(!foundIt) {
-			ldl_datablock *newblock = new ldl_datablock(tcwalk.GetObj());
+			auto newblock = std::make_unique<ldl_datablock>(tcwalk.GetObj());
 			newblock->CopyAttributesFrom(tcwalk.GetObj());
-			AddChild(newblock);
-			ldlif_add_block_to_tree(newblock);
+			AddChild(newblock.get());
+			ldlif_add_block_to_tree(newblock.release());
 		}
 	}
 }

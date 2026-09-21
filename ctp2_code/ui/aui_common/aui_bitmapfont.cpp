@@ -160,7 +160,7 @@ AUI_ERRCODE aui_BitmapFont::InitCommon( MBCHAR const *descriptor )
 	memset( &m_ttFaceProperties, 0, sizeof( m_ttFaceProperties ) );
 	memset( &m_ttInstanceMetrics, 0, sizeof( m_ttInstanceMetrics ) );
 
-	m_surfaceList = new tech_WLList<aui_Surface *>;
+	m_surfaceList = std::make_unique<tech_WLList<aui_Surface *>>();
 	Assert( m_surfaceList != nullptr );
 	if ( !m_surfaceList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -205,7 +205,7 @@ aui_BitmapFont::~aui_BitmapFont()
 {
 	Unload();
 
-	delete m_surfaceList;
+	// m_surfaceList is a unique_ptr member; its elements were freed by Unload().
 
 	if ( !--s_bitmapFontRefCount )
 	{
@@ -292,7 +292,9 @@ AUI_ERRCODE aui_BitmapFont::Load( )
 AUI_ERRCODE aui_BitmapFont::Unload( )
 {
 	for ( sint32 i = m_surfaceList->L(); i; i-- )
-		delete m_surfaceList->RemoveHead();
+	{
+		std::unique_ptr<aui_Surface> surfaceOwner(m_surfaceList->RemoveHead());
+	}
 
 	memset( m_glyphs, 0, sizeof( m_glyphs ) );
 
@@ -526,9 +528,7 @@ aui_BitmapFont::GlyphInfo *aui_BitmapFont::GetGlyphInfo( MBCHAR c )
 		if ( !m_surfaceList->L()
 		||   nextOffset > k_AUI_BITMAPFONT_SURFACEWIDTH )
 		{
-			aui_Surface *cache;
-
-			cache = new aui_Surface(
+			auto cache = std::make_unique<aui_Surface>(
 				&errcode,
 				k_AUI_BITMAPFONT_SURFACEWIDTH,
 				m_maxHeight,
@@ -536,7 +536,7 @@ aui_BitmapFont::GlyphInfo *aui_BitmapFont::GetGlyphInfo( MBCHAR c )
 			Assert( AUI_NEWOK(cache,errcode) );
 			if ( !AUI_NEWOK(cache,errcode) ) goto Error;
 
-			m_surfaceList->AddTail( cache );
+			m_surfaceList->AddTail( cache.release() );
 
 			nextOffset -= m_curOffset;
 			m_curOffset = 0;
@@ -670,9 +670,7 @@ aui_BitmapFont::GlyphInfo *aui_BitmapFont::GetGlyphInfo( const MBCHAR *pc )
 		if ( !m_surfaceList->L()
 		||   nextOffset > k_AUI_BITMAPFONT_SURFACEWIDTH )
 		{
-			aui_Surface *cache;
-
-			cache = new aui_Surface(
+			auto cache = std::make_unique<aui_Surface>(
 				&errcode,
 				k_AUI_BITMAPFONT_SURFACEWIDTH,
 				m_maxHeight,
@@ -680,7 +678,7 @@ aui_BitmapFont::GlyphInfo *aui_BitmapFont::GetGlyphInfo( const MBCHAR *pc )
 			Assert( AUI_NEWOK(cache,errcode) );
 			if ( !AUI_NEWOK(cache,errcode) ) goto Error;
 
-			m_surfaceList->AddTail( cache );
+			m_surfaceList->AddTail( cache.release() );
 
 			nextOffset -= m_curOffset;
 			m_curOffset = 0;

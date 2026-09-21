@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_static.h"
@@ -59,9 +60,9 @@ ns_ChatBox::ns_ChatBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	m_textstyleSystem = new aui_TextBase("styles.system", (MBCHAR *)nullptr);
-	m_textstyleChat = new aui_TextBase("styles.chat", (MBCHAR *)nullptr);
-	m_textstyleWhisper = new aui_TextBase("styles.whisper", (MBCHAR *)nullptr);
+	m_textstyleSystem = std::make_unique<aui_TextBase>("styles.system", (MBCHAR *)nullptr);
+	m_textstyleChat = std::make_unique<aui_TextBase>("styles.chat", (MBCHAR *)nullptr);
+	m_textstyleWhisper = std::make_unique<aui_TextBase>("styles.whisper", (MBCHAR *)nullptr);
 
 
 	m_textstyleSystem->TextReloadFont();
@@ -134,7 +135,7 @@ AUI_ERRCODE ns_ChatBox::CreateComponents( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	m_inputField = new C3TextField(
+	m_inputField = std::make_unique<C3TextField>(
 		&errcode,
 		aui_UniqueId(),
 		2,
@@ -145,13 +146,13 @@ AUI_ERRCODE ns_ChatBox::CreateComponents( )
 	Assert( AUI_NEWOK(m_inputField,errcode) );
 	if ( !AUI_NEWOK(m_inputField,errcode) ) return errcode;
 
-	AddChild( m_inputField );
+	AddChild( m_inputField.get() );
 
-	aui_Action *action = new InputFieldAction;
+	auto action = std::make_unique<InputFieldAction>();
 	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_inputField->SetAction( action );
+	m_inputField->SetAction( action.release() );
 
 	return AUI_ERRCODE_OK;
 }
@@ -169,13 +170,14 @@ ns_ChatBox::~ns_ChatBox()
 {
 	if (m_inputField)
 	{
-		delete m_inputField->GetAction();
-        delete m_inputField;
+		std::unique_ptr<aui_Action> action( m_inputField->GetAction() );
+		action.reset();
+		m_inputField.reset();
 	}
 
-    delete m_textstyleSystem;
-	delete m_textstyleChat;
-	delete m_textstyleWhisper;
+	m_textstyleSystem.reset();
+	m_textstyleChat.reset();
+	m_textstyleWhisper.reset();
 }
 
 NETFunc::Player *ns_ChatBox::GetPlayer()

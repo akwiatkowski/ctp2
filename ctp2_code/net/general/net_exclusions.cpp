@@ -52,7 +52,7 @@ void NetExclusions::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Assert(packid == k_PACKET_EXCLUSIONS_ID);
 
 	if(!exclusions_Get()) {
-		exclusions_Set(new Exclusions());
+		exclusions_Set(std::make_unique<Exclusions>().release());
 	}
 
 	PULLLONG(exclusions_Get()->m_numUnits);

@@ -30,6 +30,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include "ctp/c3.h"
 #include "gs/gameobj/TradeRouteData.h"
 
@@ -90,7 +91,7 @@ TradeRouteData::TradeRouteData
 	m_selectedWayPoints             (),
 	m_setPath                       (),
 	m_setWayPoints                  (),
-	m_astarPath                     (new Path()),
+	m_astarPath                     (std::make_unique<Path>().release()),
 	m_dontAdjustPointsWhenKilled    (false)
 {
     std::fill(m_passesThrough, m_passesThrough + k_MAX_PLAYERS, FALSE);
@@ -121,19 +122,19 @@ TradeRouteData::TradeRouteData(TradeRouteData* copyme, uint32 new_id)
 	: GameObj(new_id)
 {
 	*this = *copyme;
-	m_astarPath = new Path;
+	m_astarPath = std::make_unique<Path>().release();
 	m_id = new_id;
 }
 
 TradeRouteData::TradeRouteData(const TradeRoute route)
 	: GameObj(route.m_id)
 {
-	m_astarPath = new Path;
+	m_astarPath = std::make_unique<Path>().release();
 }
 
 TradeRouteData::~TradeRouteData()
 {
-	delete m_astarPath;
+	std::unique_ptr<Path>{m_astarPath};
 }
 
 void TradeRouteData::RemoveFromCells()

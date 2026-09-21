@@ -50,6 +50,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_common/aui.h"
 #include "ui/aui_ctp2/pattern.h"
@@ -82,11 +83,11 @@ extern sint32		g_god;
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
 
-static InfoBar *g_infoBar = nullptr;
+static std::unique_ptr<InfoBar> g_infoBar;
 
 InfoBar * infobar_Get()
 {
-	return g_infoBar;
+	return g_infoBar.get();
 }
 
 void InfoBar::Initialize()
@@ -94,7 +95,7 @@ void InfoBar::Initialize()
 	AUI_ERRCODE errcode;
 
 	if(!g_infoBar) {
-		g_infoBar = new InfoBar(&errcode,
+		g_infoBar = std::make_unique<InfoBar>(&errcode,
 								aui_UniqueId(),
 								196,
 								g_ScreenHeight - k_INFOBAR_HEIGHT,
@@ -113,8 +114,7 @@ void InfoBar::Cleanup()
 	if(g_infoBar) {
 		g_infoBar->Hide();
 		c3ui_Get()->RemoveWindow(g_infoBar->Id());
-		delete g_infoBar;
-		g_infoBar = nullptr;
+		g_infoBar.reset();
 	}
 }
 
@@ -144,7 +144,7 @@ AUI_ERRCODE InfoBar::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	RECT rect = { 0, 0, m_width, m_height };
 
-	m_pattern->Draw( m_surface, &rect );
+	m_pattern->Draw( m_surface.get(), &rect );
 
 
 
@@ -164,7 +164,7 @@ AUI_ERRCODE InfoBar::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 AUI_ERRCODE InfoBar::DrawText(aui_Surface *surface,
 							  sint32 x, sint32 y)
 {
-	if(!surface) surface = m_surface;
+	if(!surface) surface = m_surface.get();
 
 	primitives_DropText(surface, 15, 2, m_str, 0x0000, 1);
 
@@ -348,24 +348,21 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 
 				PointerList<UnseenImprovementInfo> *improvements = ucell.m_unseenCell->GetImprovements();
 
-				PointerList<UnseenImprovementInfo>::Walker *walker =
-					new PointerList<UnseenImprovementInfo>::Walker(improvements);
+				PointerList<UnseenImprovementInfo>::Walker walker(improvements);
 
-				while(walker->IsValid()){
-					sint32 type		= walker->GetObj()->m_type;
-					sint32 percent	= walker->GetObj()->m_percentComplete;
+				while(walker.IsValid()){
+					sint32 type		= walker.GetObj()->m_type;
+					sint32 percent	= walker.GetObj()->m_percentComplete;
 					if(percent < 100){
 						break;
 					}
 					Concat(" ");
 					Concat(stringdb_Get()->GetNameStr(g_theTerrainImprovementDB->Get(type)->GetName()));
-					walker->Next();
-					if(walker->IsValid() || cell->HasRiver()){
+					walker.Next();
+					if(walker.IsValid() || cell->HasRiver()){
 						Concat(",");
 					}
 				}
-
-				delete walker;
 			}
 			else{
 				for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {

@@ -209,13 +209,13 @@ AUI_ERRCODE aui_ImageBase::InitCommon(
 		m_stateImageNames.resize(m_numberOfStateImageNames);
 	}
 
-	m_stateImageGroups =
-		new aui_StateImageGroup[ m_numStateImageGroups = numStateImageGroups ];
+	m_stateImageGroups = std::make_unique<aui_StateImageGroup[]>(
+		m_numStateImageGroups = numStateImageGroups );
 	Assert( m_stateImageGroups != nullptr );
 	if ( !m_stateImageGroups ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	memset(
-		m_stateImageGroups,
+		m_stateImageGroups.get(),
 		0,
 		m_numStateImageGroups * sizeof( aui_StateImageGroup ) );
 
@@ -233,7 +233,7 @@ aui_ImageBase::~aui_ImageBase()
 			    if (m_stateImageGroups[ i ][ j ])
 				    aui_ui_Get()->UnloadImage( m_stateImageGroups[ i ][ j ] );
 
-		delete [] m_stateImageGroups;
+		// m_stateImageGroups is a unique_ptr member, auto-freed.
 	}
 }
 

@@ -68,8 +68,8 @@ public:
 		uint32 action, uint32 data, void *cookie);
 
 private:
-	tech_WLList<ctp2_Button *>				*m_messageResponseButton;
-	tech_WLList<MessageResponseAction *>	*m_messageResponseAction;
+	std::unique_ptr<tech_WLList<ctp2_Button *>>				m_messageResponseButton;
+	std::unique_ptr<tech_WLList<MessageResponseAction *>>	m_messageResponseAction;
 
 	std::unique_ptr<ctp2_Button>	m_dontShowButton;
 	std::string		m_identifier;

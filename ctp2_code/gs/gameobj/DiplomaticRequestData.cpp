@@ -296,8 +296,8 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 #endif // _DEBUG
 
 	if(network_Get().IsClient() && !fromCurPlayer) {
-		network_Get().SendAction(new NetAction(NET_ACTION_ENACT_REQUEST,
-										   (uint32)m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_ENACT_REQUEST,
+										   (uint32)m_id).release());
 		DiplomaticRequest me(m_id);
 		if(!network_Get().IsLocalPlayer(player_view::CurPlayer()))
 			network_Get().AddEnact(me);
@@ -307,15 +307,15 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 	} else if(network_Get().IsHost()) {
 		if(!fromCurPlayer && !network_Get().IsLocalPlayer(player_view::CurPlayer())) {
 			network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
-								  new NetInfo(NET_INFO_CODE_ENACT_REQUEST_NEED_ACK,
-											  (uint32)m_id));
+								  std::make_unique<NetInfo>(NET_INFO_CODE_ENACT_REQUEST_NEED_ACK,
+											  (uint32)m_id).release());
 			DiplomaticRequest me(m_id);
 			network_Get().AddEnact(me);
 			return;
 		} else {
 			network_Get().Block(player_view::CurPlayer());
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ENACT_REQUEST,
-										  (uint32)m_id));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ENACT_REQUEST,
+										  (uint32)m_id).release());
 			network_Get().Unblock(player_view::CurPlayer());
 		}
 	}
@@ -335,7 +335,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 			player_Get(m_recipient)->GiveAdvance(m_owner, m_advance, CAUSE_SCI_DIPLOMACY) ;
 			slicengine_Get()->RunDiscoveryTradedTriggers(m_recipient, m_owner, m_advance);
 
-			so.reset(new SlicObject("01dipAcceptDemandAdvance"));
+			so = std::make_unique<SlicObject>("01dipAcceptDemandAdvance");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -347,7 +347,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 #ifdef _DIPLOMATIC_CITY_EXCHANGE
 			player_Get(m_owner)->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_DEMAND_CITY) ;
 			player_Get(m_recipient)->GiveCity(m_owner, m_targetCity) ;
-			so.reset(new SlicObject("01dipAcceptDemandCity"));
+			so = std::make_unique<SlicObject>("01dipAcceptDemandCity");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -359,7 +359,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 		case REQUEST_TYPE_DEMAND_MAP :
 			player_Get(m_owner)->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_DEMAND_MAP) ;
 			player_Get(m_recipient)->GiveMap(m_owner) ;
-			so.reset(new SlicObject("01dipAcceptDemandMaps"));
+			so = std::make_unique<SlicObject>("01dipAcceptDemandMaps");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -369,9 +369,9 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 		case REQUEST_TYPE_DEMAND_GOLD :
 			player_Get(m_owner)->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_DEMAND_GOLD) ;
 			if (player_Get(m_recipient)->GiveGold(m_owner, m_amount))
-                so.reset(new SlicObject("01dipAcceptDemandGold"));
+                so = std::make_unique<SlicObject>("01dipAcceptDemandGold");
 			else
-                so.reset(new SlicObject("01dipRejectDemandGold"));
+                so = std::make_unique<SlicObject>("01dipRejectDemandGold");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner);
 			so->AddCivilisation(m_recipient) ;
@@ -383,7 +383,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 			player_Get(m_owner)->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_DEMAND_STOP_TRADE, m_thirdParty) ;
 			player_Get(m_recipient)->StopTradingWith(m_thirdParty) ;
             tradepool_Get()->BreakOffTrade(m_owner, m_thirdParty);
-			so.reset(new SlicObject("01dipAcceptDemandStoptrade"));
+			so = std::make_unique<SlicObject>("01dipAcceptDemandStoptrade");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -397,7 +397,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 			break ;
 		case REQUEST_TYPE_DEMAND_ATTACK_ENEMY:
 			player_Get(m_owner)->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_DEMAND_ATTACK_ENEMY) ;
-			so.reset(new SlicObject("01dipAcceptDemandAttack"));
+			so = std::make_unique<SlicObject>("01dipAcceptDemandAttack");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -411,7 +411,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 
 		case REQUEST_TYPE_DEMAND_LEAVE_OUR_LANDS :
 			player_Get(m_owner)->MakeLeaveOurLands(m_recipient) ;
-			so.reset(new SlicObject("01dipAcceptDemandLeave"));
+			so = std::make_unique<SlicObject>("01dipAcceptDemandLeave");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -420,7 +420,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 
 		case REQUEST_TYPE_DEMAND_REDUCE_POLLUTION :
 			player_Get(m_owner)->MakeReducePollution(m_recipient) ;
-			so.reset(new SlicObject("01dipAcceptDemandPollution"));
+			so = std::make_unique<SlicObject>("01dipAcceptDemandPollution");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -432,7 +432,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 			player_Get(m_owner)->GiveAdvance(m_recipient, m_advance, CAUSE_SCI_DIPLOMACY) ;
 			slicengine_Get()->RunDiscoveryTradedTriggers(m_owner, m_recipient, m_advance);
 
-			so.reset(new SlicObject("01dipAcceptOfferAdvance"));
+			so = std::make_unique<SlicObject>("01dipAcceptOfferAdvance");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -444,7 +444,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 #ifdef _DIPLOMATIC_CITY_EXCHANGE
 			player_Get(m_owner)->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_OFFER_CITY) ;
 			player_Get(m_owner)->GiveCity(m_recipient, m_targetCity) ;
-			so.reset(new SlicObject("01dipAcceptOfferCity"));
+			so = std::make_unique<SlicObject>("01dipAcceptOfferCity");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -456,7 +456,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 		case REQUEST_TYPE_OFFER_MAP :
 			player_Get(m_owner)->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_OFFER_MAP) ;
 			player_Get(m_owner)->GiveMap(m_recipient) ;
-			so.reset(new SlicObject("01dipAcceptOfferMaps"));
+			so = std::make_unique<SlicObject>("01dipAcceptOfferMaps");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -466,7 +466,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 		case REQUEST_TYPE_OFFER_GOLD :
 			player_Get(m_owner)->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_OFFER_GOLD) ;
 			player_Get(m_owner)->GiveGold(m_recipient, m_amount) ;
-			so.reset(new SlicObject("01dipAcceptOfferGold"));
+			so = std::make_unique<SlicObject>("01dipAcceptOfferGold");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -476,7 +476,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 
 		case REQUEST_TYPE_OFFER_CEASE_FIRE :
 			player_Get(m_owner)->MakeCeaseFire(m_recipient) ;
-			so.reset(new SlicObject("01dipAcceptTreatyCease"));
+			so = std::make_unique<SlicObject>("01dipAcceptTreatyCease");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -485,7 +485,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 
 		case REQUEST_TYPE_OFFER_PERMANENT_ALLIANCE :
 			player_Get(m_owner)->FormAlliance(m_recipient) ;
-			so.reset(new SlicObject("01dipAcceptTreatyAlliance"));
+			so = std::make_unique<SlicObject>("01dipAcceptTreatyAlliance");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -499,13 +499,13 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 		case REQUEST_TYPE_OFFER_PACT_END_POLLUTION :
 		{
 			player_Get(m_owner)->MakeEndPollutionPact(m_recipient) ;
-			so.reset(new SlicObject("01dipAcceptTreatyEco"));
+			so = std::make_unique<SlicObject>("01dipAcceptTreatyEco");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
             so->AddAttitude(GetAttitude(m_recipient, m_owner));
 
-			std::unique_ptr<SlicObject> so2(new SlicObject("01dipAcceptTreatyEco"));
+			auto so2 = std::make_unique<SlicObject>("01dipAcceptTreatyEco");
 
 
 			so2->AddRecipient(m_recipient);
@@ -524,7 +524,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 			slicengine_Get()->RunDiscoveryTradedTriggers(m_owner, m_recipient, m_advance);
 			slicengine_Get()->RunDiscoveryTradedTriggers(m_recipient, m_owner, m_reciprocalAdvance);
 
-			so.reset(new SlicObject("01dipAcceptExchangeAdvance"));
+			so = std::make_unique<SlicObject>("01dipAcceptExchangeAdvance");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -535,7 +535,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 
 		case REQUEST_TYPE_EXCHANGE_CITY :
 #ifdef _DIPLOMATIC_CITY_EXCHANGE
-			so.reset(new SlicObject("01dipAcceptExchangeCity"));
+			so = std::make_unique<SlicObject>("01dipAcceptExchangeCity");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -551,7 +551,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 		case REQUEST_TYPE_EXCHANGE_MAP :
 			player_Get(m_owner)->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_EXCHANGE_MAP) ;
 			player_Get(m_recipient)->ExchangeMap(m_owner) ;
-			so.reset(new SlicObject("01dipAcceptExchangeMaps"));
+			so = std::make_unique<SlicObject>("01dipAcceptExchangeMaps");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -560,7 +560,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 
 		case REQUEST_TYPE_DEMAND_NO_PIRACY :
 			player_Get(m_owner)->MakeNoPiracyPact(m_recipient) ;
-			so.reset(new SlicObject("01dipAcceptDemandPiracy"));
+			so = std::make_unique<SlicObject>("01dipAcceptDemandPiracy");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -630,12 +630,12 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 	std::unique_ptr<SlicObject> so;
 
 	if(network_Get().IsClient() && !fromServer) {
-		network_Get().SendAction(new NetAction(NET_ACTION_REJECT_REQUEST,
-										   (uint32)m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_REJECT_REQUEST,
+										   (uint32)m_id).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_recipient);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REJECT_REQUEST,
-									  (uint32)m_id));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_REJECT_REQUEST,
+									  (uint32)m_id).release());
 		network_Get().Unblock(m_recipient);
 	}
 
@@ -657,7 +657,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_DEMAND_ADVANCE :
-			so.reset(new SlicObject("01dipRejectDemandAdvance"));
+			so = std::make_unique<SlicObject>("01dipRejectDemandAdvance");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -666,7 +666,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_DEMAND_CITY :
-			so.reset(new SlicObject("01dipRejectDemandCity"));
+			so = std::make_unique<SlicObject>("01dipRejectDemandCity");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -675,7 +675,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_DEMAND_MAP :
-			so.reset(new SlicObject("01dipRejectDemandMaps"));
+			so = std::make_unique<SlicObject>("01dipRejectDemandMaps");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -683,7 +683,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_DEMAND_GOLD :
-			so.reset(new SlicObject("01dipRejectDemandGold"));
+			so = std::make_unique<SlicObject>("01dipRejectDemandGold");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -692,7 +692,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_DEMAND_STOP_TRADE :
-			so.reset(new SlicObject("01dipRejectDemandStoptrade"));
+			so = std::make_unique<SlicObject>("01dipRejectDemandStoptrade");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -704,7 +704,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_DEMAND_ATTACK_ENEMY :
-			so.reset(new SlicObject("01dipRejectDemandAttack"));
+			so = std::make_unique<SlicObject>("01dipRejectDemandAttack");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -716,7 +716,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_DEMAND_LEAVE_OUR_LANDS :
-			so.reset(new SlicObject("01dipRejectDemandLeave"));
+			so = std::make_unique<SlicObject>("01dipRejectDemandLeave");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -724,7 +724,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_DEMAND_REDUCE_POLLUTION :
-			so.reset(new SlicObject("01dipRejectDemandPollution"));
+			so = std::make_unique<SlicObject>("01dipRejectDemandPollution");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -732,7 +732,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_OFFER_ADVANCE :
-			so.reset(new SlicObject("01dipRejectOfferAdvance"));
+			so = std::make_unique<SlicObject>("01dipRejectOfferAdvance");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -741,7 +741,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_OFFER_CITY :
-			so.reset(new SlicObject("01dipRejectOfferCity"));
+			so = std::make_unique<SlicObject>("01dipRejectOfferCity");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -750,7 +750,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_OFFER_MAP :
-			so.reset(new SlicObject("01dipRejectOfferMaps"));
+			so = std::make_unique<SlicObject>("01dipRejectOfferMaps");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -758,7 +758,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_OFFER_GOLD :
-			so.reset(new SlicObject("01dipRejectOfferGold"));
+			so = std::make_unique<SlicObject>("01dipRejectOfferGold");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -767,7 +767,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_OFFER_CEASE_FIRE :
-			so.reset(new SlicObject("01dipRejectTreatyCease"));
+			so = std::make_unique<SlicObject>("01dipRejectTreatyCease");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -775,7 +775,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_OFFER_PERMANENT_ALLIANCE :
-			so.reset(new SlicObject("01dipRejectTreatyAlliance"));
+			so = std::make_unique<SlicObject>("01dipRejectTreatyAlliance");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -786,7 +786,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_OFFER_PACT_END_POLLUTION :
-			so.reset(new SlicObject("01dipRejectTreatyEco"));
+			so = std::make_unique<SlicObject>("01dipRejectTreatyEco");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -794,7 +794,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_EXCHANGE_CITY :
-			so.reset(new SlicObject("01dipRejectExchangeCity"));
+			so = std::make_unique<SlicObject>("01dipRejectExchangeCity");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -804,7 +804,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_EXCHANGE_ADVANCE :
-			so.reset(new SlicObject("01dipRejectExchangeAdvance"));
+			so = std::make_unique<SlicObject>("01dipRejectExchangeAdvance");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -814,7 +814,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_EXCHANGE_MAP :
-			so.reset(new SlicObject("01dipRejectExchangeMaps"));
+			so = std::make_unique<SlicObject>("01dipRejectExchangeMaps");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;
@@ -822,7 +822,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 			break ;
 
 		case REQUEST_TYPE_DEMAND_NO_PIRACY :
-			so.reset(new SlicObject("01dipRejectDemandPiracy"));
+			so = std::make_unique<SlicObject>("01dipRejectDemandPiracy");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
 			so->AddCivilisation(m_recipient) ;

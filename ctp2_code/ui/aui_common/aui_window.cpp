@@ -81,24 +81,24 @@ aui_Window::aui_Window(
 
 AUI_ERRCODE aui_Window::InitCommon( sint32 bpp, AUI_WINDOW_TYPE type )
 {
-	m_surface = nullptr;
+	m_surface.reset();
 
 	m_stencil = nullptr;
 
 	m_bpp = bpp ? bpp : aui_ui_Get()->BitsPerPixel();
 	m_type = type;
-	m_surface = nullptr;
+	m_surface.reset();
 	m_isDragging = FALSE;
 	m_opaqueControls = FALSE;
 
-	m_dirtyList = new aui_DirtyList;
+	m_dirtyList = std::make_unique<aui_DirtyList>();
 	Assert( m_dirtyList != nullptr );
 	if ( !m_dirtyList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_grabPoint.x = m_grabPoint.y = 0;
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	m_grabRegion = new aui_Region(
+	m_grabRegion = std::make_unique<aui_Region>(
 		&errcode,
 		aui_UniqueId(),
 		0,
@@ -112,7 +112,7 @@ AUI_ERRCODE aui_Window::InitCommon( sint32 bpp, AUI_WINDOW_TYPE type )
 	m_ogY = m_y;
 
 	m_focusControl = nullptr;
-	m_focusList = new tech_WLList<aui_Region *>;
+	m_focusList = std::make_unique<tech_WLList<aui_Region *>>();
 
 	return errcode;
 }
@@ -124,7 +124,7 @@ AUI_ERRCODE aui_Window::CreateSurface( )
 	Assert( m_surface == nullptr );
 	if ( !m_surface )
 	{
-		m_surface = aui_Factory::new_Surface(errcode, m_width, m_height, nullptr, FALSE, FALSE, FALSE, m_bpp);
+		m_surface.reset(aui_Factory::new_Surface(errcode, m_width, m_height, nullptr, FALSE, FALSE, FALSE, m_bpp));
 
 		Assert( AUI_NEWOK(m_surface,errcode) );
 		if ( !AUI_NEWOK(m_surface,errcode) ) return errcode;
@@ -143,11 +143,14 @@ aui_Window::~aui_Window()
         c3ui_Get()->RemoveWindow(Id());
     }
 
-    delete m_surface;
-    delete m_dirtyList;
-    delete m_grabRegion;
-    delete m_focusControl;
-    delete m_focusList;
+    m_surface.reset();
+    m_dirtyList.reset();
+    m_grabRegion.reset();
+    // m_focusControl is a non-owning pointer into m_focusList / m_childList;
+    // ~aui_Region deletes the children, so an explicit delete here would
+    // double-free the focused control.
+    m_focusControl = nullptr;
+    m_focusList.reset();
 }
 
 AUI_ERRCODE aui_Window::Move( sint32 x, sint32 y )
@@ -209,8 +212,7 @@ AUI_ERRCODE aui_Window::Resize( sint32 width, sint32 height )
 
 		if ( reallocSurface )
 		{
-			delete m_surface;
-			m_surface = nullptr;
+			m_surface.reset();
 
 		}
 	}
@@ -331,8 +333,7 @@ void aui_Window::DeleteSurfaceIfDynamic( )
 {
 	if (IsDynamic())
 	{
-		delete m_surface;
-		m_surface = nullptr;
+		m_surface.reset();
 	}
 }
 
@@ -340,13 +341,13 @@ AUI_ERRCODE aui_Window::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 {
 	if ( IsHidden() ) return AUI_ERRCODE_OK;
 
-	if ( !surface ) surface = m_surface;
+	if ( !surface ) surface = m_surface.get();
 
 	RECT rect = { 0, 0, m_width, m_height };
 
 	aui_ui_Get()->TheBlitter()->ColorBlt( surface, &rect, RGB(0,0,0), 0 );
 
-	if ( surface == m_surface )
+	if ( surface == m_surface.get() )
 		AddDirtyRect( &rect );
 
 	return AUI_ERRCODE_OK;
@@ -526,8 +527,7 @@ uint32 aui_Window::SetDynamic( BOOL dynamic )
 		m_attributes |= k_WINDOW_ATTRIBUTE_DYNAMIC;
 		if (IsHidden())
 		{
-			delete m_surface;
-			m_surface = nullptr;
+			m_surface.reset();
 		}
 	}
 	else

@@ -147,6 +147,7 @@
 #include "gs/core/render_observer.h"
 
 #include <algorithm>                    // std::min
+#include <memory>
 #include <functional>                   // std::mem_fun_ref
 
 #include "ai/diplomacy/AgreementMatrix.h"
@@ -346,7 +347,7 @@ bool IsSolist(Unit const & u)
 
 } // namespace
 
-sint32 * ArmyData::s_orderDBToEventMap = nullptr;
+std::unique_ptr<sint32[]> ArmyData::s_orderDBToEventMap;
 
 
 
@@ -356,8 +357,8 @@ sint32 * ArmyData::s_orderDBToEventMap = nullptr;
 ArmyData::ArmyData(const Army &army, const UnitDynamicArray &units)
 :   GameObj                 (army.m_id),
     m_tempKillList          (nullptr),
-    m_attackedByDefenders   (new UnitDynamicArray),
-    m_orders                (new PointerList<Order>),
+    m_attackedByDefenders   (std::make_unique<UnitDynamicArray>()),
+    m_orders                (std::make_unique<PointerList<Order>>()),
     m_owner                 (-1),
     m_pos                   (),
     m_removeCause           (CAUSE_REMOVE_ARMY_UNKNOWN),
@@ -367,7 +368,7 @@ ArmyData::ArmyData(const Army &army, const UnitDynamicArray &units)
     m_reentryTurn           (-1),
     m_reentryPos            (),
     m_debugStringColor      (0),
-    m_killMeSoon            (new PointerList<KillRecord>),
+    m_killMeSoon            (std::make_unique<PointerList<KillRecord>>()),
     m_dontKillCount         (0),
     m_needToKill            (false)
 {
@@ -380,8 +381,8 @@ ArmyData::ArmyData(const Army &army, const UnitDynamicArray &units)
 ArmyData::ArmyData(const Army &army, const CellUnitList &units)
 :   GameObj                 (army.m_id),
     m_tempKillList          (nullptr),
-    m_attackedByDefenders   (new UnitDynamicArray),
-    m_orders                (new PointerList<Order>),
+    m_attackedByDefenders   (std::make_unique<UnitDynamicArray>()),
+    m_orders                (std::make_unique<PointerList<Order>>()),
     m_owner                 (-1),
     m_pos                   (),
     m_removeCause           (CAUSE_REMOVE_ARMY_UNKNOWN),
@@ -391,7 +392,7 @@ ArmyData::ArmyData(const Army &army, const CellUnitList &units)
     m_reentryTurn           (-1),
     m_reentryPos            (),
     m_debugStringColor      (0),
-    m_killMeSoon            (new PointerList<KillRecord>),
+    m_killMeSoon            (std::make_unique<PointerList<KillRecord>>()),
     m_dontKillCount         (0),
     m_needToKill            (false)
 {
@@ -404,8 +405,8 @@ ArmyData::ArmyData(const Army &army, const CellUnitList &units)
 ArmyData::ArmyData(const Army &army, Unit &u)
 :   GameObj                 (army.m_id),
     m_tempKillList          (nullptr),
-    m_attackedByDefenders   (new UnitDynamicArray),
-    m_orders                (new PointerList<Order>),
+    m_attackedByDefenders   (std::make_unique<UnitDynamicArray>()),
+    m_orders                (std::make_unique<PointerList<Order>>()),
     m_owner                 (-1),
     m_pos                   (),
     m_removeCause           (CAUSE_REMOVE_ARMY_UNKNOWN),
@@ -415,7 +416,7 @@ ArmyData::ArmyData(const Army &army, Unit &u)
     m_reentryTurn           (-1),
     m_reentryPos            (),
     m_debugStringColor      (0),
-    m_killMeSoon            (new PointerList<KillRecord>),
+    m_killMeSoon            (std::make_unique<PointerList<KillRecord>>()),
     m_dontKillCount         (0),
     m_needToKill            (false)
 {
@@ -425,8 +426,8 @@ ArmyData::ArmyData(const Army &army, Unit &u)
 ArmyData::ArmyData(const Army &army)
 :   GameObj                 (army.m_id),
     m_tempKillList          (nullptr),
-    m_attackedByDefenders   (new UnitDynamicArray),
-    m_orders                (new PointerList<Order>),
+    m_attackedByDefenders   (std::make_unique<UnitDynamicArray>()),
+    m_orders                (std::make_unique<PointerList<Order>>()),
     m_owner                 (-1),
     m_pos                   (),
     m_removeCause           (CAUSE_REMOVE_ARMY_UNKNOWN),
@@ -436,7 +437,7 @@ ArmyData::ArmyData(const Army &army)
     m_reentryTurn           (-1),
     m_reentryPos            (),
     m_debugStringColor      (0),
-    m_killMeSoon            (new PointerList<KillRecord>),
+    m_killMeSoon            (std::make_unique<PointerList<KillRecord>>()),
     m_dontKillCount         (0),
     m_needToKill            (false)
 {
@@ -447,16 +448,16 @@ ArmyData::~ArmyData()
     if (m_orders)
     {
         m_orders->DeleteAll();
-        delete m_orders;
+        m_orders.reset();
     }
     if (m_killMeSoon)
     {
         m_killMeSoon->DeleteAll();
-        delete m_killMeSoon;
+        m_killMeSoon.reset();
     }
 
-    delete m_attackedByDefenders;
-    delete m_tempKillList;
+    m_attackedByDefenders.reset();
+    m_tempKillList.reset();
 }
 
 //----------------------------------------------------------------------------
@@ -1577,7 +1578,7 @@ void ArmyData::BeginTurn()
         if(turn_Get()->GetSessionRound() >= m_reentryTurn) {
             if(network_Get().IsHost()) {
                 network_Get().Block(m_owner);
-                network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REENTER, m_id));
+                network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_REENTER, m_id).release());
                 network_Get().Unblock(m_owner);
             }
             gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_Reentry,
@@ -1765,7 +1766,7 @@ ORDER_RESULT ArmyData::StealTechnology(const MapPoint &point)
                     return m_array[i].StealTechnology(c, -1);
                 }
 
-                SlicObject *so = new SlicObject("101StealWhichAdvance");
+                std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("101StealWhichAdvance");
                 so->AddRecipient(m_owner);
                 so->AddUnit(m_array[i]);
                 so->AddCity(c);
@@ -1776,13 +1777,13 @@ ORDER_RESULT ArmyData::StealTechnology(const MapPoint &point)
                         so->AddAdvance(j);
                     }
                 }
-                slicengine_Get()->Execute(so);
+                slicengine_Get()->Execute(std::move(so));
                 return ORDER_RESULT_INCOMPLETE;
             } else {
-                SlicObject *so = new SlicObject("102NoAdvancesToSteal");
+                std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("102NoAdvancesToSteal");
                 so->AddRecipient(m_owner);
                 so->AddCivilisation(c.GetOwner());
-                slicengine_Get()->Execute(so);
+                slicengine_Get()->Execute(std::move(so));
                 return ORDER_RESULT_ILLEGAL;
             }
         }
@@ -1885,20 +1886,18 @@ ORDER_RESULT ArmyData::AssassinateRuler(const MapPoint &point)
 								   GEA_End);
 			Unit u = m_array[i];
 
-			slicengine_Get()->Execute
-			    (new CityReport("911ConductHitCompleteVictim", c));
-			slicengine_Get()->Execute
-			    (new AggressorReport("911ConductHitCompleteAttacker", u, c));
+			slicengine_Get()->Execute(std::make_unique<CityReport>("911ConductHitCompleteVictim", c));
+			slicengine_Get()->Execute(std::make_unique<AggressorReport>("911ConductHitCompleteAttacker", u, c));
 
 			return ORDER_RESULT_INCOMPLETE;
 		}
 	}
 
-	slicengine_Get()->Execute(new CityReport("911ConductHitFailedVictim", c));
-	SlicObject *so = new SlicObject("911ConductHitFailedAttack");
+	slicengine_Get()->Execute(std::make_unique<CityReport>("911ConductHitFailedVictim", c));
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("911ConductHitFailedAttack");
 	so->AddRecipient(m_owner);
 	so->AddCity(c);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	return ORDER_RESULT_ILLEGAL;
 }
@@ -2047,14 +2046,14 @@ ORDER_RESULT ArmyData::Franchise(const MapPoint &point)
 
 		DPRINTF(k_DBG_GAMESTATE, ("Franchise established\n"));
 		ActionSuccessful(SPECATTACK_CREATEFRANCHISE, u, city);
-		slicengine_Get()->Execute(new CityReport("193BranchCompleteVictim", city));
+		slicengine_Get()->Execute(std::make_unique<CityReport>("193BranchCompleteVictim", city));
 		safe_player(city.GetOwner())->ContactMade(m_owner);
 		return ORDER_RESULT_SUCCEEDED;
 	}
 	else
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Franchise attempt failed\n"));
-		slicengine_Get()->Execute(new CityReport("195BranchFailedVictim", city));
+		slicengine_Get()->Execute(std::make_unique<CityReport>("195BranchFailedVictim", city));
 		return ORDER_RESULT_FAILED;
 	}
 }
@@ -2186,15 +2185,15 @@ ORDER_RESULT ArmyData::Sue(const MapPoint &point)
 
 	Unit attacking_unit = m_array[uindex];
 
-	SlicObject *so = new SlicObject("911SueCompleteVictim");
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("911SueCompleteVictim");
 	so->AddRecipient(cell->UnitArmy()->GetOwner());
 	so->AddUnitRecord(m_array[uindex].GetType());
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
-	so = new SlicObject("911SueCompleteAttacker");
+	so = std::make_unique<SlicObject>("911SueCompleteAttacker");
 	so->AddRecipient(attacking_unit.GetOwner());
 	so->AddUnitRecord(m_array[uindex].GetType());
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	return ORDER_RESULT_SUCCEEDED;
 }
@@ -2251,13 +2250,12 @@ ORDER_RESULT ArmyData::SueFranchise(const MapPoint &point)
 						   GEA_City, cell->GetCity(),
 						   GEA_End);
 
-	SlicObject *so = new SlicObject("911SueFranchiseCompleteVictim");
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("911SueFranchiseCompleteVictim");
 	so->AddRecipient(cell->GetCity().GetFranchiseOwner());
 	so->AddCity(cell->GetCity());
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
-	slicengine_Get()->Execute
-        (new AggressorReport("911SueFranchiseCompleteAttacker", u, cell->GetCity()));
+	slicengine_Get()->Execute(std::make_unique<AggressorReport>("911SueFranchiseCompleteAttacker", u, cell->GetCity()));
 
 	return ORDER_RESULT_SUCCEEDED;
 }
@@ -2495,10 +2493,8 @@ ORDER_RESULT ArmyData::CauseUnhappiness(const MapPoint &point,
 	if(civrand().Next(100) >= sint32(chance * 100.0)) {
 
         if (strcmp(unitName, "UNIT_CYBER_NINJA") == 0) {
-            slicengine_Get()->Execute
-                (new CityReport("230TerrorhackFailedVictim", c));
-            slicengine_Get()->Execute
-                (new AggressorReport("229TerrorhackFailedAttacker", u, c));
+            slicengine_Get()->Execute(std::make_unique<CityReport>("230TerrorhackFailedVictim", c));
+            slicengine_Get()->Execute(std::make_unique<AggressorReport>("229TerrorhackFailedAttacker", u, c));
         }
 
         DPRINTF(k_DBG_GAMESTATE, ("Cause unhappiness failed\n"));
@@ -2510,25 +2506,23 @@ ORDER_RESULT ArmyData::CauseUnhappiness(const MapPoint &point,
 
 	if(network_Get().IsHost()) {
 
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_HAPPINESS_ATTACK,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_HAPPINESS_ATTACK,
 									  (uint32)c,
 									  timer,
-									  amount));
+									  amount).release());
 	}
 	c.AddHappyTimer(timer, double(-amount), HAPPY_REASON_HAPPINESS_ATTACK);
 	c.AccessData()->GetCityData()->IndicateHappinessAttacked() ;
 	c.AccessData()->GetCityData()->HappinessAttackedBy(m_owner) ;
 
     if (strcmp(unitName, "UNIT_CYBER_NINJA") == 0) {
-        slicengine_Get()->Execute
-            (new CityReport("228TerrorhackCompleteVictim", c));
-        slicengine_Get()->Execute
-            (new AggressorReport("227TerrorhackCompleteAttacker", u, c)) ;
+        slicengine_Get()->Execute(std::make_unique<CityReport>("228TerrorhackCompleteVictim", c));
+        slicengine_Get()->Execute(std::make_unique<AggressorReport>("227TerrorhackCompleteAttacker", u, c)) ;
 
     } else if (strcmp(unitName, "UNIT_SUBNEURAL_ADS") == 0) {
-        SlicObject * so = new CityReport("197AdvertiseCompleteVictim", c);
+        std::unique_ptr<SlicObject> so = std::make_unique<CityReport>("197AdvertiseCompleteVictim", c);
 		so->AddCivilisation(GetOwner());
-        slicengine_Get()->Execute(so) ;
+        slicengine_Get()->Execute(std::move(so)) ;
 
     }
 
@@ -2678,22 +2672,21 @@ ORDER_RESULT ArmyData::PlantNuke(const MapPoint &point)
 
 		ActionSuccessful(SPECATTACK_PLANTNUKE, u, c);
 
-        slicengine_Get()->Execute(new CityReport("178NukeCompleteVictim", c));
+        slicengine_Get()->Execute(std::make_unique<CityReport>("178NukeCompleteVictim", c));
 
 		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_NukeCity,
 							   GEA_City,    c,
 							   GEA_Player,  m_owner,
 							   GEA_End);
 
-		slicengine_Get()->Execute
-            (new AggressorReport("911NukeCompleteAggressor", u, c));
+		slicengine_Get()->Execute(std::make_unique<AggressorReport>("911NukeCompleteAggressor", u, c));
 
 		return ORDER_RESULT_SUCCEEDED;
 	}
     else
     {
-        slicengine_Get()->Execute(new CityReport("10gNukeFailed", c));
-        slicengine_Get()->Execute(new AggressorReport("11gNukeFailed", u, c));
+        slicengine_Get()->Execute(std::make_unique<CityReport>("10gNukeFailed", c));
+        slicengine_Get()->Execute(std::make_unique<AggressorReport>("11gNukeFailed", u, c));
     }
 	return ORDER_RESULT_FAILED;
 }
@@ -2959,22 +2952,20 @@ ORDER_RESULT ArmyData::SlaveRaid(const MapPoint &point)
 			target_city.AddHappyTimer(timer, -amount, HAPPY_REASON_SLAVES_TAKEN);
 		}
 
-		slicengine_Get()->Execute
-		    (new CityReport("137SlaveCompleteVictim", target_city));
+		slicengine_Get()->Execute(std::make_unique<CityReport>("137SlaveCompleteVictim", target_city));
 
-		SlicObject * so = new SlicObject("137SlaveryCompleteAttacker");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("137SlaveryCompleteAttacker");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(GetOwner());
 		so->AddCity(home_city);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		ActionSuccessful(SPECATTACK_SLAVERAID, m_array[uindex], target_city);
 		return ORDER_RESULT_SUCCEEDED;
 	}
 	else
 	{
-		slicengine_Get()->Execute
-		    (new CityReport("138SlaveFailedVictim", target_city));
+		slicengine_Get()->Execute(std::make_unique<CityReport>("138SlaveFailedVictim", target_city));
 
 		if(civrand().Next(100) < sint32(death * 100.0))
 		{
@@ -2984,30 +2975,29 @@ ORDER_RESULT ArmyData::SlaveRaid(const MapPoint &point)
 				RegisterLostUnits(1, pos, DEATH_EFFECT_CALC);
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_SLAVERAID, -1);
 
-			SlicObject * so = new SlicObject("138SlaveryKilledAttacker");
+			std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("138SlaveryKilledAttacker");
 			so->AddRecipient(GetOwner());
 			so->AddCivilisation(GetOwner());
 			so->AddCity(target_city);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 		else
 		{
-			SlicObject * so = new SlicObject("138SlaveryFailedAttacker");
+			std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("138SlaveryFailedAttacker");
 			so->AddRecipient(GetOwner());
 			so->AddCivilisation(GetOwner());
 			so->AddCity(target_city);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
 		}
 
 		if(slaveryReduction < 1.0)
 		{
-			slicengine_Get()->Execute
-			    (new CityReport("140ProtectedFromSlaveryVictim", target_city));
-			SlicObject * so = new SlicObject("141ProtectedFromSlaveryAttacker");
+			slicengine_Get()->Execute(std::make_unique<CityReport>("140ProtectedFromSlaveryVictim", target_city));
+			std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("141ProtectedFromSlaveryAttacker");
 			so->AddRecipient(GetOwner());
 			so->AddCity(target_city);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
 		}
 
@@ -3203,15 +3193,15 @@ ORDER_RESULT ArmyData::EnslaveSettler(const MapPoint &point, const sint32 uindex
 						   GEA_End);
 	sint32 settlerOwner = cell->AccessUnit(0).GetOwner();
 
-	SlicObject *    so = new SlicObject("139SettlerSlavedVictim");
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("139SettlerSlavedVictim");
 	so->AddRecipient(settlerOwner);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
-	so = new SlicObject("137SlaveryCompleteAttacker");
+	so = std::make_unique<SlicObject>("137SlaveryCompleteAttacker");
 	so->AddRecipient(m_owner);
 	so->AddCivilisation(m_owner);
 	so->AddCity(home_city);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	AddSpecialActionUsed(m_array[uindex]);
 
@@ -3251,7 +3241,7 @@ bool ArmyData::CanUndergroundRailway(double &success, double &death) const
 
 ORDER_RESULT ArmyData::UndergroundRailway(const MapPoint &point)
 {
-	SlicObject *so;
+	std::unique_ptr<SlicObject> so;
 	double success;
 	double death;
 	sint32 uindex;
@@ -3273,10 +3263,10 @@ ORDER_RESULT ArmyData::UndergroundRailway(const MapPoint &point)
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Dammit, there aren't any slaves there."));
 
-		so = new SlicObject("167FreeslaveNoSlavesToFree");
+		so = std::make_unique<SlicObject>("167FreeslaveNoSlavesToFree");
 		so->AddRecipient(GetOwner());
 		so->AddCity(c);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		return ORDER_RESULT_ILLEGAL;
 	}
@@ -3311,12 +3301,12 @@ ORDER_RESULT ArmyData::UndergroundRailway(const MapPoint &point)
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_UNDERGROUND_RR_RAID, -1);
 		}
 
-		slicengine_Get()->Execute(new CityReport("164FreeslaveFailedVictim", c));
+		slicengine_Get()->Execute(std::make_unique<CityReport>("164FreeslaveFailedVictim", c));
 
-		so = new SlicObject("166FreeslaveFailedAgressor");
+		so = std::make_unique<SlicObject>("166FreeslaveFailedAgressor");
 		so->AddRecipient(GetOwner());
 		so->AddCity(c);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		return ORDER_RESULT_FAILED;
 	}
@@ -3336,7 +3326,7 @@ bool ArmyData::CanInciteUprising(sint32 &uindex) const
 
 ORDER_RESULT ArmyData::InciteUprising(const MapPoint &point)
 {
-	SlicObject *so;
+	std::unique_ptr<SlicObject> so;
 	sint32 uindex;
 	if(!CanInciteUprising(uindex))
 		return ORDER_RESULT_ILLEGAL;
@@ -3354,10 +3344,10 @@ ORDER_RESULT ArmyData::InciteUprising(const MapPoint &point)
 
 	if(c.CountSlaves() <= 0)
 	{
-		so = new SlicObject("167FreeslaveNoSlavesToFree");
+		so = std::make_unique<SlicObject>("167FreeslaveNoSlavesToFree");
 		so->AddRecipient(GetOwner());
 		so->AddCity(c);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		return ORDER_RESULT_ILLEGAL;
 	}
@@ -3402,10 +3392,10 @@ ORDER_RESULT ArmyData::InciteUprising(const MapPoint &point)
 						   GEA_End);
 	AddSpecialActionUsed(m_array[uindex]);
 
-	so = new SlicObject("208UprisingCompleteVictim") ;
+	so = std::make_unique<SlicObject>("208UprisingCompleteVictim") ;
 	so->AddRecipient(cityOwner) ;
 	so->AddCity(c) ;
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 
 	ActionSuccessful(SPECATTACK_SLAVEUPRISING, m_array[uindex], c);
 
@@ -3453,7 +3443,7 @@ ORDER_RESULT ArmyData::EstablishEmbassy(const MapPoint &point)
 		return ORDER_RESULT_ILLEGAL;
 
 	if(wonderutil_GetCloseEmbassies(safe_player(c.GetOwner())->m_builtWonders)) {
-		SlicObject *so = new SlicObject("145NoEmbassiesWonder");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("145NoEmbassiesWonder");
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
 		sint32 w;
@@ -3465,11 +3455,9 @@ ORDER_RESULT ArmyData::EstablishEmbassy(const MapPoint &point)
 			}
 		}
 		Assert(w < g_theWonderDB->NumRecords());
-		if(w >= g_theWonderDB->NumRecords()) {
-			delete so;
-		} else {
+		if(w < g_theWonderDB->NumRecords()) {
 			so->AddRecipient(m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 		return ORDER_RESULT_FAILED;
 	}
@@ -3597,20 +3585,20 @@ ORDER_RESULT ArmyData::BioInfect(const MapPoint &point)
 		chance += g_theConstDB->Get(0)->GetEliteTerroristBonus();
 	}
 
-	SlicObject * so = nullptr;
+	std::unique_ptr<SlicObject> so;
 
 	if(c.IsBioImmune())
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Bio infection failed because city immune\n"));
-		so = new CityReport("10iImmuneToBioInfect", c);
+		so = std::make_unique<CityReport>("10iImmuneToBioInfect", c);
 		so->AddCivilisation(c.GetOwner());
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
-		so = new SlicObject("11iImmuneToBioInfect");
+		so = std::make_unique<SlicObject>("11iImmuneToBioInfect");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c) ;
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		return ORDER_RESULT_FAILED;
 	}
@@ -3631,15 +3619,15 @@ ORDER_RESULT ArmyData::BioInfect(const MapPoint &point)
 	else
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Bio infection failed because I said so.\n"));
-		so = new CityReport("10iBioInfectFailed", c);
+		so = std::make_unique<CityReport>("10iBioInfectFailed", c);
 		so->AddCivilisation(GetOwner());
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
-		so = new SlicObject("11iBioInfectFailed");
+		so = std::make_unique<SlicObject>("11iBioInfectFailed");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetBioInfectionTerroristDeathChance() * 100.0))
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
@@ -3677,7 +3665,7 @@ bool ArmyData::CanPlague(double &chance) const
 
 ORDER_RESULT ArmyData::Plague(const MapPoint &point)
 {
-	SlicObject	*so ;
+	std::unique_ptr<SlicObject> so;
 
 	double chance;
 	sint32 uindex;
@@ -3702,15 +3690,15 @@ ORDER_RESULT ArmyData::Plague(const MapPoint &point)
 
 	if(c.IsBioImmune()) {
 		DPRINTF(k_DBG_GAMESTATE, ("Plague failed because city immune\n"));
-		so = new CityReport("10jImmuneToPlague", c);
+		so = std::make_unique<CityReport>("10jImmuneToPlague", c);
 		so->AddCivilisation(GetOwner());
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
-		so = new SlicObject("11jImmuneToPlague");
+		so = std::make_unique<SlicObject>("11jImmuneToPlague");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		return ORDER_RESULT_FAILED;
 	}
@@ -3728,15 +3716,15 @@ ORDER_RESULT ArmyData::Plague(const MapPoint &point)
 		return ORDER_RESULT_SUCCEEDED;
 	} else {
 		DPRINTF(k_DBG_GAMESTATE, ("Plague failed because I said so.\n"));
-		so = new CityReport("10jPlagueFailed", c);
+		so = std::make_unique<CityReport>("10jPlagueFailed", c);
 		so->AddCivilisation(GetOwner());
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
-		so = new SlicObject("11jPlagueFailed");
+		so = std::make_unique<SlicObject>("11jPlagueFailed");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetBioInfectionTerroristDeathChance() * 100.0))
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
@@ -3801,18 +3789,18 @@ ORDER_RESULT ArmyData::NanoInfect(const MapPoint &point)
 
 	AddSpecialActionUsed(m_array[uindex]);
 
-	SlicObject * so = nullptr;
+	std::unique_ptr<SlicObject> so;
 
 	if(c.IsNanoImmune()) {
-		so = new CityReport("10hImmuneToNanoTerror", c);
+		so = std::make_unique<CityReport>("10hImmuneToNanoTerror", c);
 		so->AddCivilisation(GetOwner());
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
-		so = new SlicObject("11hImmuneToNanoTerror");
+		so = std::make_unique<SlicObject>("11hImmuneToNanoTerror");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		DPRINTF(k_DBG_GAMESTATE, ("Nano infection failed: City immune\n"));
 
@@ -3829,23 +3817,23 @@ ORDER_RESULT ArmyData::NanoInfect(const MapPoint &point)
 							   GEA_End);
 		DPRINTF(k_DBG_GAMESTATE, ("Nano Infection: Success\n"));
 
-		so = new CityReport("911CrisisCityIsNanoInfected", c);
+		so = std::make_unique<CityReport>("911CrisisCityIsNanoInfected", c);
 		so->AddCivilisation(c->GetOwner()); // ToDo: Move this into CityReport if possible
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		return ORDER_RESULT_SUCCEEDED;
 	} else {
 		DPRINTF(k_DBG_GAMESTATE, ("Nano infection failed: The world is a safer place.\n"));
 
-		so = new CityReport("10hNanoTerrorFailed", c);
+		so = std::make_unique<CityReport>("10hNanoTerrorFailed", c);
 		so->AddCivilisation(GetOwner());
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
-		so = new SlicObject("11hNanoTerrorFailed");
+		so = std::make_unique<SlicObject>("11hNanoTerrorFailed");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetNanoInfectionTerroristDeathChance() * 100.0))
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
@@ -4003,7 +3991,7 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 		return ORDER_RESULT_ILLEGAL;
 
 	if(city.GetData()->GetCityData()->IsProtectedFromConversion()) {
-		SlicObject *so = new SlicObject("361IAProtectedFromConversionByWonder");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("361IAProtectedFromConversionByWonder");
 		so->AddCity(city);
 		sint32 i;
 		for(i = 0; i < g_theWonderDB->NumRecords(); i++) {
@@ -4019,9 +4007,7 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 		if(i >= g_theWonderDB->NumRecords()) {
 			so->AddCivilisation(city.GetOwner());
 			so->AddRecipient(m_owner);
-			slicengine_Get()->Execute(so);
-		} else {
-			delete so;
+			slicengine_Get()->Execute(std::move(so));
 		}
 		return ORDER_RESULT_ILLEGAL;
 	}
@@ -4091,10 +4077,8 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 	else {
 		DPRINTF(k_DBG_GAMESTATE, ("Conversion failed\n"));
 
-		slicengine_Get()->Execute
-		    (new VictimReport("152ConvertFailedVictim", u, city));
-		slicengine_Get()->Execute
-		    (new AggressorReport("153ConvertFailedAttacker", u, city));
+		slicengine_Get()->Execute(std::make_unique<VictimReport>("152ConvertFailedVictim", u, city));
+		slicengine_Get()->Execute(std::make_unique<AggressorReport>("153ConvertFailedAttacker", u, city));
 
 		if(civrand().Next(100) < sint32(best_death_chance * 100.0)) {
 			DPRINTF(k_DBG_GAMESTATE, ("And cleric died\n"));
@@ -4302,19 +4286,19 @@ ORDER_RESULT ArmyData::IndulgenceSale(const MapPoint &point)
 
 	// Teleevangelist unit may not have index 66 in unit database
 	if(u.GetDBRec()->GetIsTelevangelist()) {
-		slicengine_Get()->Execute(new CityReport("911FaithHealVictim", c));
+		slicengine_Get()->Execute(std::make_unique<CityReport>("911FaithHealVictim", c));
 
-		SlicObject * so  = new SlicObject("911FaithHealAttacker");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("911FaithHealAttacker");
 		so->AddRecipient(u.GetOwner());
 		so->AddCity(c);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	} else {
-		slicengine_Get()->Execute(new CityReport("911IndulgenceCompleteVictim", c));
+		slicengine_Get()->Execute(std::make_unique<CityReport>("911IndulgenceCompleteVictim", c));
 
-		SlicObject * so = new SlicObject("911IndulgenceCompleteAttacker");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("911IndulgenceCompleteAttacker");
 		so->AddRecipient(u.GetOwner());
 		so->AddCity(c);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	ActionSuccessful(SPECATTACK_SELLINDULGENCE, m_array[uindex], c);
@@ -4360,10 +4344,8 @@ ORDER_RESULT ArmyData::Soothsay(const MapPoint &point)
 		Unit c = GetAdjacentCity(point);
 		if (c.IsValid())
         {
-			slicengine_Get()->Execute
-                (new VictimReport("911SoothsayCompleteVictim", u, c));
-			slicengine_Get()->Execute
-                (new AggressorReport("911SoothsayCompleteAttacker", u, c));
+			slicengine_Get()->Execute(std::make_unique<VictimReport>("911SoothsayCompleteVictim", u, c));
+			slicengine_Get()->Execute(std::make_unique<AggressorReport>("911SoothsayCompleteAttacker", u, c));
 		}
 	}
 	return res;
@@ -4406,10 +4388,10 @@ ORDER_RESULT ArmyData::Advertise(const MapPoint &point)
 
 	Unit u = m_array[uindex];
 
-	SlicObject *so = new SlicObject("911AdvertiseCompleteAttacker");
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("911AdvertiseCompleteAttacker");
 	so->AddRecipient(u.GetOwner());
 	so->AddCity(c);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	// establish that building there. Used to spread corporations
 	for (sint32 i = m_nElements - 1; i>= 0; i--) {
@@ -4802,9 +4784,9 @@ ORDER_RESULT ArmyData::CreatePark(const MapPoint &point)
 	ActionSuccessful(SPECATTACK_CREATEPARK, m_array[uindex], c);
 	AddSpecialActionUsed(m_array[uindex]);
 
-	SlicObject * so = new CityReport("911NaniteCleanseCompleteVictim", c);
+	std::unique_ptr<SlicObject> so = std::make_unique<CityReport>("911NaniteCleanseCompleteVictim", c);
 	so->AddCivilisation(c->GetOwner());
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateParkUnit,
 						   GEA_Unit, m_array[uindex].m_id,
@@ -4895,11 +4877,11 @@ ORDER_RESULT ArmyData::Pillage(bool test_ownership)
 	sint32 cellOwner = cell->GetOwner();
 
     if (test_ownership && (cellOwner == m_owner)) {
-        SlicObject *so = new SlicObject("17IAPillageOwnLand") ;
+        std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("17IAPillageOwnLand") ;
 		so->AddRecipient(m_owner) ;
 		so->AddUnit(m_array[0]);
 		so->AddCivilisation(m_owner);
-		slicengine_Get()->Execute(so) ;
+		slicengine_Get()->Execute(std::move(so)) ;
         return ORDER_RESULT_ILLEGAL;
     }
 
@@ -5013,8 +4995,7 @@ ORDER_RESULT ArmyData::Injoin(const MapPoint &point)
 						   GEA_City, c.m_id,
 						   GEA_End);
 	ActionSuccessful(SPECATTACK_INJOIN, u, c);
-	slicengine_Get()->Execute
-	    (new AggressorReport("911InjunctionCompleteAttack", u, c));
+	slicengine_Get()->Execute(std::make_unique<AggressorReport>("911InjunctionCompleteAttack", u, c));
 
 	return ORDER_RESULT_SUCCEEDED;
 }
@@ -5748,14 +5729,14 @@ ORDER_RESULT ArmyData::InterceptTrade()
 						m_owner,
 						PROPOSAL_OFFER_STOP_PIRACY))
 					{
-						SlicObject *so = new SlicObject("12IABreakNoPiracy");
+						std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("12IABreakNoPiracy");
 						so->AddRecipient(m_owner);
 						so->AddCivilisation(m_owner);
 						so->AddCivilisation(route_owner);
 						so->AddUnit(m_array[i]);
 						so->AddLocation(m_pos);
 						so->AddOrder(UNIT_ORDER_INTERCEPT_TRADE);
-						slicengine_Get()->Execute(so);
+						slicengine_Get()->Execute(std::move(so));
 
 						player_view::ForceDirectorSelect(Army(m_id));
 						return ORDER_RESULT_ILLEGAL;
@@ -5833,7 +5814,7 @@ const Order *ArmyData::GetOrder(sint32 index) const
 		return nullptr;
 
 	sint32 c = 0;
-	PointerList<Order>::Walker walk(m_orders);
+	PointerList<Order>::Walker walk(m_orders.get());
 
 	for(; walk.IsValid() && c < index; walk.Next()) {
 		c++;
@@ -5888,7 +5869,7 @@ void ArmyData::AutoAddOrders(UNIT_ORDER_TYPE order, Path *path,
 		ClearOrders();
 	}
 
-	m_orders->AddTail(new Order(order, path, point, argument, turn_Get() ? turn_Get()->GetRound() : 0));
+	m_orders->AddTail(std::make_unique<Order>(order, path, point, argument, turn_Get() ? turn_Get()->GetRound() : 0).release());
 	StopPirating();
 
 	if(m_owner >= 0 && m_owner < k_MAX_PLAYERS && player_Get(m_owner)) {
@@ -5920,7 +5901,7 @@ void ArmyData::AutoAddOrdersWrongTurn(UNIT_ORDER_TYPE order, Path *path,
 {
 	ClearOrders();
 
-	m_orders->AddTail(new Order(order, path, point, argument, turn_Get() ? turn_Get()->GetRound() : 0));
+	m_orders->AddTail(std::make_unique<Order>(order, path, point, argument, turn_Get() ? turn_Get()->GetRound() : 0).release());
 	StopPirating();
 
 	if(m_owner >= 0 && m_owner < k_MAX_PLAYERS && player_Get(m_owner)) {
@@ -5958,7 +5939,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 	   !network_Get().IsMyTurn() && player_view::CurPlayer() == m_owner &&
 	   player_view::VisiblePlayer() == m_owner) {
 		
-			delete path;
+			std::unique_ptr<Path>{path};
 		Assert(false);
 		return;
 	}
@@ -5981,12 +5962,12 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 	    (point.IsNextTo(curOrder->m_path->GetEnd())) ||
 		(point == curOrder->m_path->GetEnd()))) {
 
-		Order *attackOrder = new Order(UNIT_ORDER_ADD_EVENT, nullptr, point, argument, turn_Get() ? turn_Get()->GetRound() : 0);
-		GameEventArgList *args = new GameEventArgList();
+		Order *attackOrder = std::make_unique<Order>(UNIT_ORDER_ADD_EVENT, nullptr, point, argument, turn_Get() ? turn_Get()->GetRound() : 0).release();
+		GameEventArgList *args = std::make_unique<GameEventArgList>().release();
 
-		args->Add(new GameEventArgument(GEA_Army, m_id));
-		args->Add(new GameEventArgument(GEA_MapPoint, point));
-		args->Add(new GameEventArgument(GEA_Int, argument));
+		args->Add(std::make_unique<GameEventArgument>(GEA_Army, m_id).release());
+		args->Add(std::make_unique<GameEventArgument>(GEA_MapPoint, point).release());
+		args->Add(std::make_unique<GameEventArgument>(GEA_Int, argument).release());
 
 		if(order == UNIT_ORDER_ADD_EVENT) {
 			attackOrder->m_eventType = passedEvent;
@@ -5995,7 +5976,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 		}
 		Assert(attackOrder->m_eventType < GEV_MAX && attackOrder->m_eventType >= 0);
 		DPRINTF(k_DBG_GAMESTATE, ("Adding event order for army 0x%x, event = %s, targetPos = (%i, %i)\n", m_id, gevmanager_Get()->GetEventName(attackOrder->m_eventType), point.x, point.y));
-		attackOrder->m_gameEventArgs = args;
+		attackOrder->m_gameEventArgs.reset(args);
 
 		m_orders->AddTail(attackOrder);
 		execute = false;
@@ -6010,16 +5991,16 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 			ClearOrders();
 		}
 
-		m_orders->AddTail(new Order(order, path, point, argument, turn_Get() ? turn_Get()->GetRound() : 0));
+		m_orders->AddTail(std::make_unique<Order>(order, path, point, argument, turn_Get() ? turn_Get()->GetRound() : 0).release());
 		if(order == UNIT_ORDER_ADD_EVENT) {
 			Order *o = m_orders->GetTail();
 			o->m_eventType = passedEvent;
-			GameEventArgList *args = new GameEventArgList();
+			GameEventArgList *args = std::make_unique<GameEventArgList>().release();
 
-			args->Add(new GameEventArgument(GEA_Army, m_id));
-			args->Add(new GameEventArgument(GEA_MapPoint, point));
-			args->Add(new GameEventArgument(GEA_Int, argument));
-			o->m_gameEventArgs = args;
+			args->Add(std::make_unique<GameEventArgument>(GEA_Army, m_id).release());
+			args->Add(std::make_unique<GameEventArgument>(GEA_MapPoint, point).release());
+			args->Add(std::make_unique<GameEventArgument>(GEA_Int, argument).release());
+			o->m_gameEventArgs.reset(args);
 
 			DPRINTF(k_DBG_GAMESTATE, ("Added explicit event order for army 0x%x, event=%d\n", m_id, o->m_eventType));
 		}
@@ -6030,18 +6011,18 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 	Order *o = m_orders->GetTail();
 	if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetOrder(m_owner, Army(m_id),
+		network_Get().Enqueue(std::make_unique<NetOrder>(m_owner, Army(m_id),
 									   o->m_order,
-									   o->m_path,
+									   o->m_path.get(),
 									   o->m_point,
 									   o->m_argument,
-									   o->m_eventType));
+									   o->m_eventType).release());
 		network_Get().Unblock(m_owner);
 	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
 		network_Get().SendOrder(m_owner,
 							Army(m_id),
 							o->m_order,
-							o->m_path,
+							o->m_path.get(),
 							o->m_point,
 							o->m_argument,
 							o->m_eventType);
@@ -6091,14 +6072,14 @@ void ArmyData::ClearOrders()
 		if(network_Get().IsHost())
 		{
 			network_Get().Block(m_owner);
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_CLEAR_ORDERS,
-										  (uint32)m_id));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_CLEAR_ORDERS,
+										  (uint32)m_id).release());
 			network_Get().Unblock(m_owner);
 		}
 		else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner))
 		{
-			network_Get().SendAction(new NetAction(NET_ACTION_CLEAR_ORDERS,
-											   (uint32)m_id));
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CLEAR_ORDERS,
+											   (uint32)m_id).release());
 		}
 		m_orders->DeleteAll();
 	}
@@ -6167,8 +6148,8 @@ bool ArmyData::ExecuteOrders(bool propagate)
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
 		if(propagate) {
-			network_Get().SendAction(new NetAction(NET_ACTION_EXECUTE_ORDERS,
-											   (uint32)m_id));
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_EXECUTE_ORDERS,
+											   (uint32)m_id).release());
 		}
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
@@ -6176,8 +6157,8 @@ bool ArmyData::ExecuteOrders(bool propagate)
 
 		if(propagate) {
 			if(m_orders->GetHead()->m_order != UNIT_ORDER_EXPEL_TO) {
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_EXECUTE_ORDERS,
-											  (uint32)m_id));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_EXECUTE_ORDERS,
+											  (uint32)m_id).release());
 			}
 		}
 	}
@@ -6318,13 +6299,13 @@ bool ArmyData::ExecuteOrders(bool propagate)
 		if (me.IsValid())
 		{
 			if(completedOrder) {
-				delete m_orders->RemoveHead();
+				std::unique_ptr<Order>(m_orders->RemoveHead());
 #ifdef NETWORK_PARANOID
 				if(network_Get().IsClient() && m_nElements > 0 && !m_needToKill) {
-					network_Get().SendAction(new NetAction(NET_ACTION_VERIFY_POS,
+					network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_VERIFY_POS,
 													   m_id,
 													   (sint32)m_pos.x,
-													   (sint32)m_pos.y));
+													   (sint32)m_pos.y).release());
 				}
 #endif
 			}
@@ -6347,7 +6328,7 @@ bool ArmyData::ExecuteOrders(bool propagate)
 		{
 			kill->m_unit.Kill(kill->m_cause, kill->m_who);
 		}
-		delete kill;
+		std::unique_ptr<KillRecord>{kill};
 	}
 
 	if(m_dontKillCount)
@@ -6824,7 +6805,7 @@ bool ArmyData::FinishAttack(Order *order)
 //----------------------------------------------------------------------------
 bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 {
-	SlicObject	*so ;
+	std::unique_ptr<SlicObject> so;
 
 	Unit city = world_Get()->GetCell(pos)->GetCity();
 
@@ -6842,15 +6823,15 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 							return true;
 
 					if(city.SafeFromNukes()) {
-						so = new CityReport("10gSafeFromNukes", city);
+						so = std::make_unique<CityReport>("10gSafeFromNukes", city);
 						so->AddCivilisation(city.GetOwner());
-						slicengine_Get()->Execute(so);
+						slicengine_Get()->Execute(std::move(so));
 
-						so = new SlicObject("11gSafeFromNukes");
+						so = std::make_unique<SlicObject>("11gSafeFromNukes");
 						so->AddRecipient(GetOwner());
 						so->AddCivilisation(city.GetOwner());
 						so->AddCity(city);
-						slicengine_Get()->Execute(so);
+						slicengine_Get()->Execute(std::move(so));
 
 						gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 											   GEA_Unit, m_array[i],
@@ -6862,10 +6843,10 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 					}
 
 					if (slicengine_Get()->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, turn_Get()->GetRound())) {
-						so = new SlicObject("49WorldPollutionNuclearWar") ;
+						so = std::make_unique<SlicObject>("49WorldPollutionNuclearWar") ;
 						so->AddCity(city);
 						so->AddAllRecipients();
-						slicengine_Get()->Execute(so) ;
+						slicengine_Get()->Execute(std::move(so)) ;
 					}
 
 					sint32 pollution;
@@ -6924,9 +6905,9 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 
 
                     if (slicengine_Get()->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, turn_Get()->GetRound())) {
-                        so = new SlicObject("49WorldPollutionNuclearWar") ;
+                        so = std::make_unique<SlicObject>("49WorldPollutionNuclearWar") ;
                         so->AddAllRecipients() ;
-                        slicengine_Get()->Execute(so) ;
+                        slicengine_Get()->Execute(std::move(so)) ;
                     }
 
                     sint32 pollution;
@@ -7186,7 +7167,7 @@ bool ArmyData::VerifyAttack(UNIT_ORDER_TYPE order, const MapPoint &pos,
 	}
 
 	// Modified to catch accidental attacks
-	SlicObject *so;
+	std::unique_ptr<SlicObject> so;
 	if (    network_Get().IsActive()
 	     && network_Get().TeamsEnabled()
 	     && (player_Get(m_owner)->m_networkGroup ==
@@ -7194,11 +7175,11 @@ bool ArmyData::VerifyAttack(UNIT_ORDER_TYPE order, const MapPoint &pos,
 	        )
 	   )
 	{
-		so = new SlicObject("110aCantAttackTeammates");
+		so = std::make_unique<SlicObject>("110aCantAttackTeammates");
 	}
 	else if(!IsEnemy(defense_owner))
 	{
-		so = new SlicObject("110CantAttackAllies");
+		so = std::make_unique<SlicObject>("110CantAttackAllies");
 	}
 	// EMOD - Added Civ2 style Dove Party that prevents war
 	// if you have ParliamentaryVoteChance govt
@@ -7207,11 +7188,11 @@ bool ArmyData::VerifyAttack(UNIT_ORDER_TYPE order, const MapPoint &pos,
 	            ->GetParliamentaryVoteChance()
 	        )
 	{
-		so = new SlicObject("Civ2Doves");
+		so = std::make_unique<SlicObject>("Civ2Doves");
 	}
 	else if (!player_Get(m_owner)->IsRobot())
 	{
-		so = new SlicObject("999AttackWarning");
+		so = std::make_unique<SlicObject>("999AttackWarning");
 	}
 	else
 	{
@@ -7223,7 +7204,7 @@ bool ArmyData::VerifyAttack(UNIT_ORDER_TYPE order, const MapPoint &pos,
 	so->AddUnit(m_array[0]);
 	so->AddLocation(pos);
 	so->AddOrder(order);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 	player_view::ForceDirectorSelect(Army(m_id));
 
 	return false;
@@ -7784,8 +7765,8 @@ void ArmyData::CheckTerrainEvents()
 
 		if(network_Get().IsHost())
 		{
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REMOVE_HUT,
-										  m_pos.x, m_pos.y));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_REMOVE_HUT,
+										  m_pos.x, m_pos.y).release());
 		}
 	}
 }
@@ -8532,13 +8513,13 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 	    )
 	&&   safe_player(defender.GetOwner())->IsHuman()
 	){
-		SlicObject *so = nullptr;
+		std::unique_ptr<SlicObject> so;
 		if (c.IsValid())
 		{
-			so = new SlicObject("410HotseatCityAttacked");
+			so = std::make_unique<SlicObject>("410HotseatCityAttacked");
 			so->AddCity(c);
 		} else {
-			so = new SlicObject("411HotseatArmyAttacked");
+			so = std::make_unique<SlicObject>("411HotseatArmyAttacked");
 		}
 
 		so->AddRecipient(defender.GetOwner());
@@ -8546,7 +8527,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 		so->AddLocation(pos);
 		so->AddUnit(ta);
 		so->AddUnit(td);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 
@@ -8734,12 +8715,12 @@ void ArmyData::GetAdvanceFromCityAssault(const Unit &c,
 			if(canAskFor[i]) {
 				if(checked == which) {
 					player_Get(m_owner)->m_advances->GiveAdvance(i, CAUSE_SCI_COMBAT);
-					SlicObject *so = new SlicObject("99AdvanceFromCapturingCity");
+					std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("99AdvanceFromCapturingCity");
 					so->AddCivilisation(otherPlayer);
 					so->AddRecipient(m_owner);
 					so->AddCity(c);
 					so->AddAdvance(i);
-					slicengine_Get()->Execute(so);
+					slicengine_Get()->Execute(std::move(so));
 					break;
 				}
 				checked++;
@@ -8766,7 +8747,7 @@ void ArmyData::SetKiller(PLAYER_INDEX who)
 void ArmyData::AddDeath(const Unit &unit, CAUSE_REMOVE_ARMY cause,
 						PLAYER_INDEX who)
 {
-	m_killMeSoon->AddTail(new KillRecord(unit, cause, who));
+	m_killMeSoon->AddTail(std::make_unique<KillRecord>(unit, cause, who).release());
 }
 
 void ArmyData::SetUnloadMovementPoints()
@@ -8777,7 +8758,7 @@ void ArmyData::SetUnloadMovementPoints()
 			m_array[i].SetMovementPoints(0.0);
 			if(network_Get().IsHost()) {
 				network_Get().Block(m_owner);
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_MOVEMENT_TO_ZERO, (uint32)m_array[i]));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_MOVEMENT_TO_ZERO, (uint32)m_array[i]).release());
 				network_Get().Unblock(m_owner);
 			}
 		}
@@ -9435,7 +9416,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 			Unit c = GetAdjacentCity(order->m_point);
 			if (c.IsValid())
 			{
-				slicengine_Get()->Execute(new CityReport(sText, c));
+				slicengine_Get()->Execute(std::make_unique<CityReport>(sText, c));
 			}
 		}
 	}
@@ -9705,7 +9686,7 @@ bool ArmyData::DoLeaveOurLandsCheck(const MapPoint &newPos,
 				){
 					char turnBuf[32];
 					snprintf(turnBuf, sizeof(turnBuf), "%d", ag.GetTurns() + 1);
-					SlicObject *so = new SlicObject("13IAEnteringLands");
+					std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("13IAEnteringLands");
 					so->AddCivilisation(m_owner);
 					so->AddCivilisation(cell->GetOwner());
 					so->AddAction(turnBuf);
@@ -9714,7 +9695,7 @@ bool ArmyData::DoLeaveOurLandsCheck(const MapPoint &newPos,
 					so->AddRecipient(m_owner);
 					so->AddUnit(m_array[0]);
 					player_view::ForceDirectorSelect(Army(m_id));
-					slicengine_Get()->Execute(so);
+					slicengine_Get()->Execute(std::move(so));
 					return true;
 				}
 				else
@@ -9737,9 +9718,8 @@ Path *ArmyData::RemovePathedOrder()
 		return nullptr;
 
 	m_orders->RemoveHead();
-	Path *ret = order->m_path;
-	order->m_path = nullptr;
-	delete order;
+	Path *ret = order->m_path.release();
+	std::unique_ptr<Order>{order};
 	return ret;
 }
 
@@ -9939,15 +9919,14 @@ void ArmyData::CheckAddEventOrder()
 		if (order->m_gameEventArgs) {
 			gevmanager_Get()->ArglistAddEvent(GEV_INSERT_AfterCurrent,
 										  order->m_eventType,
-										  order->m_gameEventArgs);
-			order->m_gameEventArgs = nullptr;
+										  order->m_gameEventArgs.release());
 		} else {
 			DPRINTF(k_DBG_GAMESTATE,
 			        ("CheckAddEventOrder: dropping ADD_EVENT order with "
 			         "null args (stale after savegame load), army %x\n",
 			         (uint32)m_id));
 		}
-		delete order;
+		std::unique_ptr<Order>{order};
 	}
 }
 
@@ -9959,7 +9938,7 @@ void ArmyData::IncrementOrderPath()
 		order->m_path->IncDir();
 		if(order->m_path->IsEndDir()) {
 			m_orders->RemoveHead();
-			delete order;
+			std::unique_ptr<Order>{order};
 		}
 	}
 }
@@ -10490,7 +10469,7 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 	if (m_flags & k_CULF_IN_SPACE)
 		return;
 
-	Path *      tmp_path            = new Path(path);
+	auto        tmp_path            = std::make_unique<Path>(path);
 	MapPoint    target_pos;
 
 	if (tmp_path->GetMovesRemaining() > 0)
@@ -10517,7 +10496,7 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 	sint32 min_rge;
 	sint32 max_rge=0;
 	MapPoint move_pos = m_pos;//move_pos will become a position to move to if trying to bombard out of range
-	Path *move_path = tmp_path;//copy tmp_path
+	Path *move_path = tmp_path.get();//copy tmp_path
 	if (strcmp (order_rec->GetEventName(),"BombardOrder") == 0)
 	{
 		if(GetBombardRange(min_rge, max_rge))
@@ -10621,7 +10600,7 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 			gevmanager_Get()->AddEvent(priority,                     // Only for cargo movement
 			                       GEV_MoveOrder,
 			                       GEA_Army, Army(m_id),
-			                       GEA_Path, tmp_path,
+			                       GEA_Path, tmp_path.release(),
 			                       GEA_MapPoint, target_pos,
 			                       GEA_Int, (game_event == -1),
 			                       GEA_End
@@ -10630,7 +10609,7 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 	}
 	else
 	{
-		delete tmp_path;
+		tmp_path.reset();
 	}
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
@@ -10661,8 +10640,7 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 //----------------------------------------------------------------------------
 void ArmyData::AssociateEventsWithOrdersDB()
 {
-	delete [] s_orderDBToEventMap;
-	s_orderDBToEventMap = new sint32[g_theOrderDB->NumRecords()];
+	s_orderDBToEventMap = std::make_unique<sint32[]>(g_theOrderDB->NumRecords());
 
 	for (sint32 order_index = 0; order_index < g_theOrderDB->NumRecords(); order_index++)
 	{
@@ -11144,10 +11122,10 @@ void ArmyData::CheckHostileTerrain()
 					const UnitRecord *urec = m_array[i].GetDBRec();
 					if(!urec->GetImmuneToHostileTerrain()) {
 						m_array[i].DeductHP(hpcost);
-						SlicObject *so = new SlicObject("999HostileTerrain");
+						std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("999HostileTerrain");
 						so->AddRecipient(m_owner);
 						so->AddUnitRecord(m_array[i].GetType());
-						slicengine_Get()->Execute(so);
+						slicengine_Get()->Execute(std::move(so));
 
 						if (m_array[i].GetHP() < 0.999) {
 							m_array[i].Kill(CAUSE_REMOVE_ARMY_DISBANDED, -1);

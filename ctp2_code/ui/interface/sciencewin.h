@@ -4,6 +4,9 @@
 #ifndef __SCIENCEWIN_H__
 #define __SCIENCEWIN_H__
 
+#include <array>
+#include <memory>
+
 #include "ui/aui_ctp2/c3_listitem.h"
 #include "ui/aui_common/aui_stringtable.h"
 #include "ui/aui_ctp2/c3_updateaction.h"
@@ -47,42 +50,42 @@ sint32 sciencewin_Cleanup( );
 
 class ScienceWin : public KeyboardHandler {
 public:
-	C3Window	*m_window;
+	std::unique_ptr<C3Window> m_window;
 
 	ScienceWin( );
 	~ScienceWin( ) override;
 
 	sint32 Initialize( MBCHAR *windowBlock );
 protected:
-	c3_Button		*m_closeButton;
+	std::unique_ptr<c3_Button>		m_closeButton;
 
-	c3_Static		*m_title;
+	std::unique_ptr<c3_Static>		m_title;
 
-	c3_ListBox		*m_advanceList;
+	std::unique_ptr<c3_ListBox>		m_advanceList;
 
-	c3_Button		*m_changeButton;
-	c3_Static		*m_researchBox;
-	Thermometer		*m_researchMeter;
-	c3_Static		*m_researchClock;
-	c3_Static		*m_turnsBox;
-	c3_Static		*m_costLabel;
-	c3_Static		*m_costBox;
-	c3_Button		*m_plusButton;
-	c3_Button		*m_minusButton;
-	c3_Static		*m_percentBox;
-	c3_Static		*m_sciLabel;
-	c3_Static		*m_sciBeaker;
-	c3_Static		*m_sciBox;
-	c3_Button		*m_libraryButton;
+	std::unique_ptr<c3_Button>		m_changeButton;
+	std::unique_ptr<c3_Static>		m_researchBox;
+	std::unique_ptr<Thermometer>	m_researchMeter;
+	std::unique_ptr<c3_Static>		m_researchClock;
+	std::unique_ptr<c3_Static>		m_turnsBox;
+	std::unique_ptr<c3_Static>		m_costLabel;
+	std::unique_ptr<c3_Static>		m_costBox;
+	std::unique_ptr<c3_Button>		m_plusButton;
+	std::unique_ptr<c3_Button>		m_minusButton;
+	std::unique_ptr<c3_Static>		m_percentBox;
+	std::unique_ptr<c3_Static>		m_sciLabel;
+	std::unique_ptr<c3_Static>		m_sciBeaker;
+	std::unique_ptr<c3_Static>		m_sciBox;
+	std::unique_ptr<c3_Button>		m_libraryButton;
 
-	Chart			*m_tree;
+	std::unique_ptr<Chart>			m_tree;
 
-	c3_Static		*m_knownToLabel;
+	std::unique_ptr<c3_Static>		m_knownToLabel;
 
-	c3_Static		**m_playerLabel;
-	c3_Icon			**m_playerFlag;
+	std::array<std::unique_ptr<c3_Static>, k_EXTRA_PLAYERS>	m_playerLabel;
+	std::array<std::unique_ptr<c3_Icon>, k_EXTRA_PLAYERS>		m_playerFlag;
 
-	aui_StringTable	*m_string;
+	std::unique_ptr<aui_StringTable>	m_string;
 
 public:
 	void Display( );
@@ -93,11 +96,11 @@ public:
 	sint32 UpdateData( SCI_UPDATE update );
 	void UpdateList();
 
-	c3_ListBox *AdvanceList( ) { return m_advanceList; }
-	c3_Button *PlusButton( ) { return m_plusButton; }
-	c3_Button *MinusButton( ) { return m_minusButton; }
+	c3_ListBox *AdvanceList( ) { return m_advanceList.get(); }
+	c3_Button *PlusButton( ) { return m_plusButton.get(); }
+	c3_Button *MinusButton( ) { return m_minusButton.get(); }
 
-	Chart *Tree( ) { return m_tree; }
+	Chart *Tree( ) { return m_tree.get(); }
 
 	MBCHAR *GetString( sint32 index ) { return m_string->GetString(index); }
 

@@ -32,6 +32,7 @@
 #include "net/general/network.h"
 #include "net/general/net_unit.h"
 #include "net/io/net_util.h"
+#include <memory>
 
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"           // g_theUnitPool
@@ -228,9 +229,11 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 		sint32 trans_t = 0;
         (void) g_theUnitDB->Get(unitType, player_Get(unitOwner)->GetGovernmentType())->GetTransType(trans_t);
+		// unitData guards the allocation until the unit pool takes ownership.
+		std::unique_ptr<UnitData> unitData;
 		if (m_actorId.m_id != 0)
         {
-			m_unitData = new UnitData(unitType, trans_t, uid, unitOwner,
+			unitData = std::make_unique<UnitData>(unitType, trans_t, uid, unitOwner,
 									  unitPos, Unit(),
 									  m_actorId.AccessData()->m_actor);
 			m_actorId.AccessData()->m_actor = nullptr;
@@ -239,20 +242,21 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
         {
 			if(flags & k_UDF_TEMP_SLAVE_UNIT)
             {
-				m_unitData = new UnitData(unitType, trans_t,
+				unitData = std::make_unique<UnitData>(unitType, trans_t,
 									  uid, unitOwner, unitPos);
             }
             else
             {
-				m_unitData = new UnitData(unitType, trans_t,
+				unitData = std::make_unique<UnitData>(unitType, trans_t,
 									  uid, unitOwner, unitPos, Unit());
 			}
 		}
+		m_unitData = unitData.get();
 
 		UnpacketizeUnit(&buf[pos], unitSize, m_unitData);
 		pos += unitSize;
 
-		unitpool_Get()->Insert(m_unitData);
+		unitpool_Get()->Insert(unitData.release());
 
 
 		if(m_unitData->GetDBRec()->GetHasPopAndCanBuild()) {
@@ -366,7 +370,7 @@ void NetUnit::UnpacketizeUnit(uint8* buf, uint16& size, UnitData* unitData)
 	uint8 canHaveCargo = getbyte(ptr); ptr++;
 	if(canHaveCargo) {
 		if(!unitData->m_cargo_list) {
-			unitData->m_cargo_list.reset(new UnitDynamicArray);
+			unitData->m_cargo_list = std::make_unique<UnitDynamicArray>();
 		}
 		uint8 transportedUnits = getbyte(ptr); ptr++;
 		unitData->m_cargo_list->Clear();

@@ -26,6 +26,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <array>
+#include <memory>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -106,7 +108,7 @@ extern ColorSet				*colorset_Get();
 
 extern aui_Surface			*g_sharedSurface;
 
-KnowledgeWindow		*g_knowledgeWindow = NULL;
+std::unique_ptr<KnowledgeWindow> g_knowledgeWindow;
 
 
 
@@ -114,26 +116,26 @@ KnowledgeWindow		*g_knowledgeWindow = NULL;
 
 
 
-static c3_Button		*s_returnButton;
+static std::unique_ptr<c3_Button>		s_returnButton;
 
-static c3_Button		*s_libraryButton;
+static std::unique_ptr<c3_Button>		s_libraryButton;
 
-static c3_Static		*s_researchBox;
-static c3_Static		*s_researchText;
+static std::unique_ptr<c3_Static>		s_researchBox;
+static std::unique_ptr<c3_Static>		s_researchText;
 
-static c3_Static		*s_turnsText;
-static c3_Static		*s_turnsNumText;
-static Thermometer		*s_barThermometer;
+static std::unique_ptr<c3_Static>		s_turnsText;
+static std::unique_ptr<c3_Static>		s_turnsNumText;
+static std::unique_ptr<Thermometer>		s_barThermometer;
 
-static c3_Button		*s_changeButton;
-static c3_Static		*s_costLabel;
-static c3_Static		*s_costBox;
-static c3_Static		*s_sciLabel;
-static c3_Static		*s_sciBox;
-static c3_Button		*s_plusButton;
-static c3_Button		*s_minusButton;
-static c3_Static		*s_sciPercentLabel;
-static c3_Static		*s_sciPercentBox;
+static std::unique_ptr<c3_Button>		s_changeButton;
+static std::unique_ptr<c3_Static>		s_costLabel;
+static std::unique_ptr<c3_Static>		s_costBox;
+static std::unique_ptr<c3_Static>		s_sciLabel;
+static std::unique_ptr<c3_Static>		s_sciBox;
+static std::unique_ptr<c3_Button>		s_plusButton;
+static std::unique_ptr<c3_Button>		s_minusButton;
+static std::unique_ptr<c3_Static>		s_sciPercentLabel;
+static std::unique_ptr<c3_Static>		s_sciPercentBox;
 
 static sint32			s_scienceTax;
 
@@ -160,7 +162,7 @@ static sint32			s_scienceTax;
 
 
 
-static Chart			*s_scrollingChart;
+static std::unique_ptr<Chart>			s_scrollingChart;
 
 
 
@@ -178,19 +180,19 @@ static Chart			*s_scrollingChart;
 
 
 
-static c3_Static	*s_lt;
-static c3_Static	*s_ct;
-static c3_Static	*s_rt;
-static c3_Static	*s_left;
-static c3_Static	*s_right;
-static c3_Static	*s_bottom;
+static std::unique_ptr<c3_Static>	s_lt;
+static std::unique_ptr<c3_Static>	s_ct;
+static std::unique_ptr<c3_Static>	s_rt;
+static std::unique_ptr<c3_Static>	s_left;
+static std::unique_ptr<c3_Static>	s_right;
+static std::unique_ptr<c3_Static>	s_bottom;
 
-static c3_Static	*s_listtop;
-static c3_Static	*s_listbl;
-static c3_Static	*s_listbc;
-static c3_Static	*s_listbr;
+static std::unique_ptr<c3_Static>	s_listtop;
+static std::unique_ptr<c3_Static>	s_listbl;
+static std::unique_ptr<c3_Static>	s_listbc;
+static std::unique_ptr<c3_Static>	s_listbr;
 
-static c3_Static	*s_titleText;
+static std::unique_ptr<c3_Static>		s_titleText;
 
 
 #define	k_PLAYERS		7
@@ -217,13 +219,15 @@ static MBCHAR			s_flagBlocks[k_PLAYERS][50] = {
 	"FlagSeven"
 };
 
-static c3_HyperTextBox	*s_givesBox;
+static std::unique_ptr<c3_HyperTextBox>	s_givesBox;
 
-static c3_Static		*s_civBox;
-static c3_Static		*s_civText;
-static c3_Switch		**s_playerText;
-static c3_Icon			**s_playerFlag;
-static c3_ListBox		*s_advanceList;
+static std::unique_ptr<c3_Static>		s_civBox;
+static std::unique_ptr<c3_Static>		s_civText;
+// Fixed-size arrays of owned controls — replaces c3_Switch**/c3_Icon**
+// (the old cleanup used scalar delete on new[] arrays: UB).
+static std::array<std::unique_ptr<c3_Switch>, k_PLAYERS>	s_playerText;
+static std::array<std::unique_ptr<c3_Icon>, k_PLAYERS>	s_playerFlag;
+static std::unique_ptr<c3_ListBox>		s_advanceList;
 
 extern sint32			g_modalWindow;
 
@@ -301,7 +305,7 @@ void knowledgewin_SciButtonActionCallback( aui_Control *control, uint32 action, 
 
 	Player *p = player_Get(selitem_Get()->GetVisiblePlayer());
 
-	if ( (c3_Button *)control == s_plusButton ) {
+	if ( (c3_Button *)control == s_plusButton.get() ) {
 
 		s_scienceTax += 10;
 
@@ -313,7 +317,7 @@ void knowledgewin_SciButtonActionCallback( aui_Control *control, uint32 action, 
 
 		knowledgewin_UpdateData(1);
 	}
-	else if ( (c3_Button *)control == s_minusButton ) {
+	else if ( (c3_Button *)control == s_minusButton.get() ) {
 
 		s_scienceTax -= 10;
 
@@ -415,8 +419,7 @@ sint32 knowledgewin_UpdateFromSwitch( void )
 
 			if ( s_playerText[k]->IsOn() ) {
 				if ( player_Get(s_playerSwitch[k])->HasAdvance(i) ) {
-					AdvanceListItem *item = new AdvanceListItem( &errcode, i, ldlBlock );
-					s_advanceList->AddItem( (c3_ListItem *)item );
+					s_advanceList->AddItem( (c3_ListItem *)std::make_unique<AdvanceListItem>( &errcode, i, ldlBlock ).release() );
 					break;
 				}
 			}
@@ -442,15 +445,13 @@ sint32 knowledgewin_UpdateList( void )
 	for ( sint32 i = 0;i < num;i++ ) {
 
 		if ( player_Get(curPlayer)->HasAdvance(i) ) {
-			AdvanceListItem *item = new AdvanceListItem( &errcode, i, ldlBlock );
-			s_advanceList->AddItem( (c3_ListItem *)item );
+			s_advanceList->AddItem( (c3_ListItem *)std::make_unique<AdvanceListItem>( &errcode, i, ldlBlock ).release() );
 		}
 		else {
 			for ( sint32 j = 0;j < k_MAX_PLAYERS;j++ ) {
 				if ( j != curPlayer && player_Get(j)) {
 					if ( player_Get(curPlayer)->HasEmbassyWith(j) && player_Get(j)->HasAdvance(i) ) {
-						AdvanceListItem *item = new AdvanceListItem( &errcode, i, ldlBlock );
-						s_advanceList->AddItem( (c3_ListItem *)item );
+						s_advanceList->AddItem( (c3_ListItem *)std::make_unique<AdvanceListItem>( &errcode, i, ldlBlock ).release() );
 						break;
 					}
 				}
@@ -618,7 +619,7 @@ sint32 knowledgewin_Initialize( void )
 
 	strlcpy(windowBlock, "KnowledgeScreen", sizeof(windowBlock));
 
-	g_knowledgeWindow = new KnowledgeWindow(&errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING );
+	g_knowledgeWindow = std::make_unique<KnowledgeWindow>(&errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING );
 	Assert( AUI_NEWOK(g_knowledgeWindow, errcode) );
 	if ( !AUI_NEWOK(g_knowledgeWindow, errcode) ) return -1;
 
@@ -648,7 +649,7 @@ sint32 knowledgewin_Initialize( void )
 
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "ReturnButton" );
-	s_returnButton = new c3_Button( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_ReturnButtonActionCallback );
+	s_returnButton = std::make_unique<c3_Button>( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_ReturnButtonActionCallback );
 	Assert( AUI_NEWOK(s_returnButton, errcode) );
 	if ( !AUI_NEWOK(s_returnButton, errcode) ) return -2;
 
@@ -660,17 +661,17 @@ sint32 knowledgewin_Initialize( void )
 
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "LibraryButton" );
-	s_libraryButton = new c3_Button( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_LibraryButtonActionCallback );
+	s_libraryButton = std::make_unique<c3_Button>( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_LibraryButtonActionCallback );
 	Assert( AUI_NEWOK(s_libraryButton, errcode) );
 	if ( !AUI_NEWOK(s_libraryButton, errcode) ) return -2;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "ResearchBox" );
-	s_researchBox = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
+	s_researchBox = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_researchBox, errcode) );
 	if ( !AUI_NEWOK(s_researchBox, errcode) ) return -4;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "ResearchText" );
-	s_researchText = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
+	s_researchText = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_researchText, errcode) );
 	if ( !AUI_NEWOK(s_researchText, errcode) ) return -3;
 
@@ -688,62 +689,62 @@ sint32 knowledgewin_Initialize( void )
 
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "TurnsText" );
-	s_turnsText = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
+	s_turnsText = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_turnsText, errcode) );
 	if ( !AUI_NEWOK(s_turnsText, errcode) ) return -3;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "TurnsNumText" );
-	s_turnsNumText = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
+	s_turnsNumText = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_turnsNumText, errcode) );
 	if ( !AUI_NEWOK(s_turnsNumText, errcode) ) return -4;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "BarThermometer" );
-	s_barThermometer = new Thermometer( &errcode, aui_UniqueId(), buttonBlock );
+	s_barThermometer = std::make_unique<Thermometer>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_barThermometer, errcode) );
 	if ( !AUI_NEWOK(s_barThermometer, errcode) ) return -3;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "ChangeButton" );
-	s_changeButton = new c3_Button( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_ChangeButtonActionCallback );
+	s_changeButton = std::make_unique<c3_Button>( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_ChangeButtonActionCallback );
 	Assert( AUI_NEWOK(s_changeButton, errcode) );
 	if ( !AUI_NEWOK(s_changeButton, errcode) ) return -4;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "CostLabel" );
-	s_costLabel = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
+	s_costLabel = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_costLabel, errcode) );
 	if ( !AUI_NEWOK(s_costLabel, errcode) ) return -5;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "CostBox" );
-	s_costBox = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
+	s_costBox = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_costBox, errcode) );
 	if ( !AUI_NEWOK(s_costBox, errcode) ) return -5;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "SciLabel" );
-	s_sciLabel = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
+	s_sciLabel = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_sciLabel, errcode) );
 	if ( !AUI_NEWOK(s_sciLabel, errcode) ) return -5;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "SciBox" );
-	s_sciBox = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
+	s_sciBox = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_sciBox, errcode) );
 	if ( !AUI_NEWOK(s_sciBox, errcode) ) return -5;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "PlusButton" );
-	s_plusButton = new c3_Button( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_SciButtonActionCallback, s_plusButton );
+	s_plusButton = std::make_unique<c3_Button>( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_SciButtonActionCallback, s_plusButton.get() );
 	Assert( AUI_NEWOK(s_plusButton, errcode) );
 	if ( !AUI_NEWOK(s_plusButton, errcode) ) return -4;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "MinusButton" );
-	s_minusButton = new c3_Button( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_SciButtonActionCallback, s_minusButton );
+	s_minusButton = std::make_unique<c3_Button>( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_SciButtonActionCallback, s_minusButton.get() );
 	Assert( AUI_NEWOK(s_minusButton, errcode) );
 	if ( !AUI_NEWOK(s_minusButton, errcode) ) return -4;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "SciPercentLabel" );
-	s_sciPercentLabel = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
+	s_sciPercentLabel = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_sciPercentLabel, errcode) );
 	if ( !AUI_NEWOK(s_sciPercentLabel, errcode) ) return -5;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "SciPercentBox" );
-	s_sciPercentBox = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
+	s_sciPercentBox = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_sciPercentBox, errcode) );
 	if ( !AUI_NEWOK(s_sciPercentBox, errcode) ) return -5;
 
@@ -878,7 +879,7 @@ sint32 knowledgewin_Initialize( void )
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ScrollingChart" );
-	s_scrollingChart = new Chart( &errcode, aui_UniqueId(), controlBlock );
+	s_scrollingChart = std::make_unique<Chart>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_scrollingChart, errcode) );
 	if ( !AUI_NEWOK(s_scrollingChart, errcode) ) return -7;
 	s_scrollingChart->Update(0);
@@ -893,31 +894,30 @@ sint32 knowledgewin_Initialize( void )
 	}
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "GivesBox" );
-	s_givesBox = new c3_HyperTextBox( &errcode, aui_UniqueId(), buttonBlock );
+	s_givesBox = std::make_unique<c3_HyperTextBox>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_givesBox, errcode) );
 	if ( !AUI_NEWOK(s_givesBox, errcode) ) return -4;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "CivBox" );
-	s_civBox = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
+	s_civBox = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_civBox, errcode) );
 	if ( !AUI_NEWOK(s_civBox, errcode) ) return -5;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", buttonBlock, "CivText" );
-	s_civText = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_civText = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_civText, errcode) );
 	if ( !AUI_NEWOK(s_civText, errcode) ) return -6;
 
-	s_playerText = new c3_Switch*[k_PLAYERS];
-	s_playerFlag = new c3_Icon*[k_PLAYERS];
+	// std::array<unique_ptr> members — no allocation needed here
 
 	for ( i = 0;i < k_PLAYERS;i++ ) {
 		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", buttonBlock, s_ldlBlocks[i] );
-		s_playerText[i] = new c3_Switch( &errcode, aui_UniqueId(), controlBlock, knowledgewin_PlayerActionCallback, s_playerText[i] );
+		s_playerText[i] = std::make_unique<c3_Switch>( &errcode, aui_UniqueId(), controlBlock, knowledgewin_PlayerActionCallback, s_playerText[i].get() );
 		Assert( AUI_NEWOK(s_playerText[i], errcode) );
 		if ( !AUI_NEWOK(s_playerText[i], errcode ) ) return -10;
 
 		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", buttonBlock, s_flagBlocks[i] );
-		s_playerFlag[i] = new c3_Icon( &errcode, aui_UniqueId(), controlBlock );
+		s_playerFlag[i] = std::make_unique<c3_Icon>( &errcode, aui_UniqueId(), controlBlock );
 		Assert( AUI_NEWOK(s_playerFlag[i], errcode) );
 		if ( !AUI_NEWOK(s_playerFlag[i], errcode ) ) return -10;
 		s_playerFlag[i]->SetColor((COLOR)i);
@@ -929,12 +929,12 @@ sint32 knowledgewin_Initialize( void )
 
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "AdvanceList" );
-	s_advanceList = new c3_ListBox( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_AdvanceListActionCallback);
+	s_advanceList = std::make_unique<c3_ListBox>( &errcode, aui_UniqueId(), buttonBlock, knowledgewin_AdvanceListActionCallback);
 	Assert( AUI_NEWOK(s_advanceList, errcode) );
 	if ( !AUI_NEWOK(s_advanceList, errcode) ) return -11;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleText" );
-	s_titleText = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_titleText = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_titleText, errcode ) );
 	if ( !AUI_NEWOK(s_titleText, errcode) ) return -23;
 
@@ -959,44 +959,44 @@ sint32 knowledgewin_InitGraphicTrim( MBCHAR *windowBlock )
 	MBCHAR		imageBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "Lt" );
-	s_lt = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
+	s_lt = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_lt, errcode) );
 	if ( !AUI_NEWOK(s_lt, errcode) ) return -10;
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "Ct" );
-	s_ct = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
+	s_ct = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_ct, errcode) );
 	if ( !AUI_NEWOK(s_ct, errcode) ) return -10;
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "Rt" );
-	s_rt = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
+	s_rt = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_rt, errcode) );
 	if ( !AUI_NEWOK(s_rt, errcode) ) return -10;
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "LeftImage" );
-	s_left = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
+	s_left = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_left, errcode) );
 	if ( !AUI_NEWOK(s_left, errcode) ) return -10;
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "RightImage" );
-	s_right = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
+	s_right = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_right, errcode) );
 	if ( !AUI_NEWOK(s_right, errcode) ) return -10;
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "BottomImage" );
-	s_bottom = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
+	s_bottom = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_bottom, errcode) );
 	if ( !AUI_NEWOK(s_bottom, errcode) ) return -10;
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "ListTop" );
-	s_listtop = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
+	s_listtop = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_listtop, errcode) );
 	if ( !AUI_NEWOK(s_listtop, errcode) ) return -10;
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "ListBl" );
-	s_listbl = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
+	s_listbl = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_listbl, errcode) );
 	if ( !AUI_NEWOK(s_listbl, errcode) ) return -10;
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "ListBc" );
-	s_listbc = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
+	s_listbc = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_listbc, errcode) );
 	if ( !AUI_NEWOK(s_listbc, errcode) ) return -10;
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "ListBr" );
-	s_listbr = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
+	s_listbr = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_listbr, errcode) );
 	if ( !AUI_NEWOK(s_listbr, errcode) ) return -10;
 
@@ -1057,51 +1057,35 @@ sint32 knowledgewin_Cleanup( void )
 
 	c3ui_Get()->RemoveWindow( g_knowledgeWindow->Id() );
 
-	delete s_returnButton;
-	s_returnButton = NULL;
+	s_returnButton.reset();
 
 
 
 
-	delete s_libraryButton;
-	s_libraryButton = NULL;
+	s_libraryButton.reset();
 
-	delete s_researchBox;
-	s_researchBox = NULL;
+	s_researchBox.reset();
 
-	delete s_researchText;
-	s_researchText = NULL;
+	s_researchText.reset();
 
 
 
 
-	delete s_turnsText;
-	s_turnsText = NULL;
+	s_turnsText.reset();
 
-	delete s_turnsNumText;
-	s_turnsNumText = NULL;
+	s_turnsNumText.reset();
 
-	delete s_barThermometer;
-	s_barThermometer = NULL;
+	s_barThermometer.reset();
 
-	delete s_changeButton;
-	s_changeButton = NULL;
-	delete s_costLabel;
-	s_costLabel = NULL;
-	delete s_costBox;
-	s_costBox = NULL;
-	delete s_sciLabel;
-	s_sciLabel = NULL;
-	delete s_sciBox;
-	s_sciBox = NULL;
-	delete s_plusButton;
-	s_plusButton = NULL;
-	delete s_minusButton;
-	s_minusButton = NULL;
-	delete s_sciPercentLabel;
-	s_sciPercentLabel = NULL;
-	delete s_sciPercentBox;
-	s_sciPercentBox = NULL;
+	s_changeButton.reset();
+	s_costLabel.reset();
+	s_costBox.reset();
+	s_sciLabel.reset();
+	s_sciBox.reset();
+	s_plusButton.reset();
+	s_minusButton.reset();
+	s_sciPercentLabel.reset();
+	s_sciPercentBox.reset();
 
 
 
@@ -1145,8 +1129,7 @@ sint32 knowledgewin_Cleanup( void )
 
 
 
-	delete s_scrollingChart;
-	s_scrollingChart = NULL;
+	s_scrollingChart.reset();
 
 
 
@@ -1179,60 +1162,39 @@ sint32 knowledgewin_Cleanup( void )
 
 
 
-	delete s_givesBox;
-	s_givesBox = NULL;
-	delete s_civBox;
-	s_civBox = NULL;
+	s_givesBox.reset();
+	s_civBox.reset();
 
-	delete s_civText;
-	s_civText = NULL;
+	s_civText.reset();
 
 	for ( sint32 i = 0;i < k_PLAYERS;i++ ) {
-		delete s_playerText[i];
-		s_playerText[i] = NULL;
+		s_playerText[i].reset();
 	}
 
 	for ( i = 0;i < k_PLAYERS;i++ ) {
-		delete s_playerFlag[i];
-		s_playerFlag[i] = NULL;
+		s_playerFlag[i].reset();
 	}
 
-	delete s_playerText;
-	s_playerText = NULL;
-	delete s_playerFlag;
-	s_playerFlag = NULL;
-	delete s_advanceList;
-	s_advanceList = NULL;
+	// array elements freed by the resets above
+	s_advanceList.reset();
 
-	delete s_titleText;
-	s_titleText = NULL;
+	s_titleText.reset();
 
-	delete s_lt;
-	s_lt = NULL;
-	delete s_ct;
-	s_ct = NULL;
-	delete s_rt;
-	s_rt = NULL;
-	delete s_left;
-	s_left = NULL;
-	delete s_right;
-	s_right = NULL;
-	delete s_bottom;
-	s_bottom = NULL;
+	s_lt.reset();
+	s_ct.reset();
+	s_rt.reset();
+	s_left.reset();
+	s_right.reset();
+	s_bottom.reset();
 
-	delete s_listtop;
-	s_listtop = NULL;
-	delete s_listbl;
-	s_listbl = NULL;
-	delete s_listbc;
-	s_listbc = NULL;
-	delete s_listbr;
-	s_listbr = NULL;
+	s_listtop.reset();
+	s_listbl.reset();
+	s_listbc.reset();
+	s_listbr.reset();
 
 	g_knowledgeWindow->SetSurface( NULL );
 
-	delete g_knowledgeWindow;
-	g_knowledgeWindow = NULL;
+	g_knowledgeWindow.reset();
 
 	return 0;
 }
@@ -1261,7 +1223,7 @@ AUI_ERRCODE KnowledgeListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 	c3_Static		*subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	Update();
@@ -1322,7 +1284,7 @@ AUI_ERRCODE EmbassyListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 	c3_Static		*subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	Update();
@@ -1386,47 +1348,47 @@ AUI_ERRCODE AdvanceListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 	c3_Static		*subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "PlayerFlag");
-	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Icon>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "SymTwo");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "SymThree");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagOne");
-	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Icon>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagTwo");
-	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Icon>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagThree");
-	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Icon>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagFour");
-	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Icon>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagFive");
-	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Icon>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagSix");
-	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Icon>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagSeven");
-	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Icon>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	Update();

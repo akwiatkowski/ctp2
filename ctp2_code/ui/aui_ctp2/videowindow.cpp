@@ -91,16 +91,16 @@ AUI_ERRCODE VideoWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 
 	RECT rect = { 0, 0, m_width, m_height };
 
-	m_pattern->Draw( m_surface, &rect );
+	m_pattern->Draw( m_surface.get(), &rect );
 
-	primitives_BevelRect16( m_surface, &rect, 1, 0, 16, 16 );
+	primitives_BevelRect16( m_surface.get(), &rect, 1, 0, 16, 16 );
 
-	primitives_DropText(m_surface, 5, 3, m_filename, 0xFFFF, TRUE);
+	primitives_DropText(m_surface.get(), 5, 3, m_filename, 0xFFFF, TRUE);
 
 	rect.top += 20;
 
 	InflateRect(&rect, -5, -5);
-	primitives_BevelRect16( m_surface, &rect, 5, 1, 16, 16 );
+	primitives_BevelRect16( m_surface.get(), &rect, 5, 1, 16, 16 );
 
 	m_dirtyList->AddRect( &rect );
 

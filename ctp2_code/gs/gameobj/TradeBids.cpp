@@ -28,6 +28,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/TradeBids.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/gameobj/player.h"
@@ -41,7 +42,7 @@ TradeBids::TradeBids()
 {
 	sint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		m_table[i] = new PointerList<Bid>;
+		m_table[i] = std::make_unique<PointerList<Bid>>();
 		m_nextId[i] = 0;
 	}
 }
@@ -51,7 +52,6 @@ TradeBids::~TradeBids()
 	sint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
 		m_table[i]->DeleteAll();
-		delete m_table[i];
 	}
 }
 
@@ -62,23 +62,23 @@ uint32 TradeBids::AddBid(sint32 owner,
                          sint32 price)
 {
 	uint32 id = (owner << 24) | (m_nextId[owner]++);
-	m_table[owner]->AddTail(new Bid(id,
+	m_table[owner]->AddTail(std::make_unique<Bid>(id,
 	                                owner,
 	                                fromCity,
 	                                resource,
 	                                toCity,
-	                                price));
+	                                price).release());
 	return id;
 }
 
 void TradeBids::Reject(uint32 id)
 {
 	sint32 player = (id & 0xff000000) >> 24;
-	PointerList<Bid>::Walker walk(m_table[player]);
-	Bid *bid = nullptr;
+	PointerList<Bid>::Walker walk(m_table[player].get());
+	std::unique_ptr<Bid> bid;
 	for(; walk.IsValid(); walk.Next()) {
 		if(walk.GetObj()->m_id == id) {
-			bid = walk.Remove();
+			bid.reset(walk.Remove());
 			break;
 		}
 	}
@@ -90,17 +90,16 @@ void TradeBids::Reject(uint32 id)
 									   bid->m_toCity,
 									   bid->m_price);
 	}
-	delete bid;
 }
 
 void TradeBids::Accept(uint32 id)
 {
 	sint32 player = (id & 0xff000000) >> 24;
-	PointerList<Bid>::Walker walk(m_table[player]);
-	Bid *bid = nullptr;
+	PointerList<Bid>::Walker walk(m_table[player].get());
+	std::unique_ptr<Bid> bid;
 	for(; walk.IsValid(); walk.Next()) {
 		if(walk.GetObj()->m_id == id) {
-			bid = walk.Remove();
+			bid.reset(walk.Remove());
 			break;
 		}
 	}
@@ -112,19 +111,18 @@ void TradeBids::Accept(uint32 id)
 									   bid->m_toCity,
 									   bid->m_price);
 	}
-	delete bid;
 }
 
 void TradeBids::CancelBidsFrom(sint32 owner)
 {
 	while(m_table[owner]->GetHead()) {
-		Bid *bid = m_table[owner]->RemoveHead();
+		std::unique_ptr<Bid> bid(m_table[owner]->RemoveHead());
 		if(messagepool_Get()->IsValid(bid->m_message)) {
 			bid->m_message.Kill();
 		}
-		delete bid;
 	}
 }
+
 
 
 
@@ -133,14 +131,14 @@ void TradeBids::CancelBidsWithCity(const Unit &city)
 {
 	sint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		PointerList<Bid>::Walker walk(m_table[i]);
+		PointerList<Bid>::Walker walk(m_table[i].get());
 		while(walk.IsValid()) {
 			if(walk.GetObj()->m_fromCity.m_id == city.m_id ||
 			   walk.GetObj()->m_toCity.m_id == city.m_id) {
 				if(messagepool_Get()->IsValid(walk.GetObj()->m_message)) {
 					walk.GetObj()->m_message.Kill();
 				}
-				delete walk.Remove();
+				std::unique_ptr<Bid>(walk.Remove());
 			} else {
 				walk.Next();
 			}
@@ -151,7 +149,7 @@ void TradeBids::CancelBidsWithCity(const Unit &city)
 void TradeBids::SetMessage(uint32 bidId, const Message &msg)
 {
 	sint32 player = (bidId & 0xff000000) >> 24;
-	PointerList<Bid>::Walker walk(m_table[player]);
+	PointerList<Bid>::Walker walk(m_table[player].get());
 	for(; walk.IsValid(); walk.Next()) {
 		if(walk.GetObj()->m_id == bidId) {
 			walk.GetObj()->m_message = msg;

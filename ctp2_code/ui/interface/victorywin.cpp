@@ -35,6 +35,7 @@
 
 #include <array>
 #include <memory>
+#include <vector>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -277,7 +278,7 @@ sint32 victorywin_Initialize( sint32 type )
 
 	strlcpy(windowBlock, "VictoryWindow", sizeof(windowBlock));
 
-	g_victoryWindow.reset(new VictoryWindow(&errcode));
+	g_victoryWindow = std::make_unique<VictoryWindow>(&errcode);
 	Assert( AUI_NEWOK(g_victoryWindow, errcode) );
 	if ( !AUI_NEWOK(g_victoryWindow, errcode) ) return -1;
 
@@ -292,9 +293,9 @@ sint32 victorywin_Initialize( sint32 type )
 	victorywin_Init_Controls(windowBlock);
 
 
-	s_highScoreWin.reset(new HighScoreWindowPopup(type));
+	s_highScoreWin = std::make_unique<HighScoreWindowPopup>(type);
 
-	s_stringTable.reset(new aui_StringTable( &errcode, "VictoryStrings" ));
+	s_stringTable = std::make_unique<aui_StringTable>( &errcode, "VictoryStrings" );
 	Assert( AUI_NEWOK(s_stringTable, errcode) );
 	if ( !AUI_NEWOK(s_stringTable, errcode) ) return -2;
 
@@ -378,7 +379,7 @@ sint32 victorywin_AddWonders( MBCHAR *windowBlock )
 
 	for ( i = 0; i < k_VICWIN_WONDERICON_MAX; i++ )
 	{
-		item = new ctp2_Static(&errcode, aui_UniqueId(), "VictoryWindow_WonderIcon");
+		item = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), "VictoryWindow_WonderIcon").release();
 		Assert( AUI_NEWOK(item,errcode) );
 		if ( !AUI_NEWOK(item,errcode) ) return - 1;
 
@@ -395,7 +396,7 @@ sint32 victorywin_AddWonders( MBCHAR *windowBlock )
 	{
 		wonderList.GetNext( pos )->AddChild( item );
 
-		item = new ctp2_Static(&errcode, aui_UniqueId(), "VictoryWindow_WonderIcon");
+		item = std::make_unique<ctp2_Static>(&errcode, aui_UniqueId(), "VictoryWindow_WonderIcon").release();
 		Assert( AUI_NEWOK(item,errcode) );
 		if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -733,11 +734,11 @@ AUI_ERRCODE HighScoreListItem::InitCommonLdl(MBCHAR *name, sint32 score, MBCHAR 
 	c3_Static		*subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Rank");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Score");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	Update();
@@ -797,7 +798,7 @@ HighScoreWindowPopup::HighScoreWindowPopup( sint32 type )
 	strlcpy(windowBlock, "HighScoreWindowPopup", sizeof(windowBlock));
 
 	{
-		m_window.reset(new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false));
+		m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -806,7 +807,7 @@ HighScoreWindowPopup::HighScoreWindowPopup( sint32 type )
 		m_window->SetStronglyModal(TRUE);
 	}
 
-	m_highScoreDB.reset(new HighScoreDB());
+	m_highScoreDB = std::make_unique<HighScoreDB>();
 
 	Initialize( windowBlock );
 
@@ -824,7 +825,7 @@ sint32 HighScoreWindowPopup::Initialize( MBCHAR *windowBlock )
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ContinueButton" );
-	m_continueButton.reset(new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, HighScoreWinButtonActionCallback, this));
+	m_continueButton = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), controlBlock, HighScoreWinButtonActionCallback, this);
 
 	Assert( AUI_NEWOK(m_continueButton, errcode) );
 	if ( !AUI_NEWOK(m_continueButton, errcode) ) return -1;
@@ -836,13 +837,13 @@ sint32 HighScoreWindowPopup::Initialize( MBCHAR *windowBlock )
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "QuitButton" );
-	m_quitButton.reset(new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, HighScoreWinButtonActionCallback, this));
+	m_quitButton = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), controlBlock, HighScoreWinButtonActionCallback, this);
 
 	Assert( AUI_NEWOK(m_quitButton, errcode) );
 	if ( !AUI_NEWOK(m_quitButton, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "HighScoreList" );
-	m_list.reset(new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr));
+	m_list = std::make_unique<ctp2_ListBox>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
 
@@ -901,7 +902,7 @@ void HighScoreWindowPopup::RemoveWindow( )
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	g_modalWindow--;
-	c3ui_Get()->AddAction(new CloseVictoryWindowAction);
+	c3ui_Get()->AddAction(std::make_unique<CloseVictoryWindowAction>().release());
 }
 
 sint32 HighScoreWindowPopup::UpdateData( )
@@ -913,15 +914,13 @@ sint32 HighScoreWindowPopup::UpdateData( )
 
 	m_list->Clear();
 	strlcpy(ldlBlock, "HighScoreListItem", sizeof(ldlBlock));
-	HighScoreListItem *item = nullptr;
 	HighScoreInfo *info = nullptr;
 
 	for ( sint32 i = 0; i < m_highScoreDB->m_nHighScores ; i++ )
 	{
 		info = m_highScoreDB->GetHighScoreInfo(i);
 
-		item = new HighScoreListItem(&retval, info->m_name, info->m_score, ldlBlock);
-		m_list->AddItem((ctp2_ListItem *)item);
+		m_list->AddItem((ctp2_ListItem *)std::make_unique<HighScoreListItem>(&retval, info->m_name, info->m_score, ldlBlock).release());
 	}
 
 	return 0;
@@ -959,19 +958,18 @@ sint32 victorywin_LoadGraphData( )
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	MBCHAR strbuf[256];
 
-	double		**graphData;
+	// Owned scratch rows — UpdateGraph fills them, SetLineData copies.
+	std::vector<std::vector<double>> graphData;
 	sint32		 xCount;
 	sint32		 yCount;
 
 	if (!s_graph) return -1;
 
-	graphData = nullptr;
-	infowin_UpdateGraph(s_graph, xCount, yCount, &graphData);
+	infowin_UpdateGraph(s_graph, xCount, yCount, graphData);
 
 
 	s_graphList->Clear();
 	strlcpy(ldlBlock, "VictoryPlayerListItem", sizeof(ldlBlock));
-	InfoPlayerListItem *pItem = nullptr;
 
 
 	sint32 color = 0;
@@ -1001,8 +999,7 @@ sint32 victorywin_LoadGraphData( )
 				strbuf[0] = 0;
 			}
 
-			pItem = new InfoPlayerListItem(&retval, strbuf, color, ldlBlock);
-			s_graphList->AddItem((ctp2_ListItem *)pItem);
+			s_graphList->AddItem((ctp2_ListItem *)std::make_unique<InfoPlayerListItem>(&retval, strbuf, color, ldlBlock).release());
 		}
 	}
 
@@ -1022,8 +1019,7 @@ sint32 victorywin_LoadGraphData( )
 			strbuf[0] = 0;
 		}
 
-		pItem = new InfoPlayerListItem(&retval, strbuf, color, ldlBlock);
-		s_graphList->AddItem((ctp2_ListItem *)pItem);
+		s_graphList->AddItem((ctp2_ListItem *)std::make_unique<InfoPlayerListItem>(&retval, strbuf, color, ldlBlock).release());
 		walk.Next();
 	}
 
@@ -1050,31 +1046,29 @@ sint32 victorywin_LoadScoreData( )
 	s_scoreList->Clear();
 	strlcpy(ldlBlock, "VictoryScoreListItem", sizeof(ldlBlock));
 	InfoScoreListItem *item = nullptr;
-	InfoScoreLabelListItem *label = nullptr;
 
 	sint32 posValue = 0;
 	sint32 negValue = 0;
 
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(2), nullptr, ldlBlock);
-	s_scoreList->AddItem((ctp2_ListItem *)label);
+	s_scoreList->AddItem((ctp2_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(2), nullptr, ldlBlock).release());
 
 
 
 
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_ADVANCES, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_ADVANCES, ldlBlock).release();
 	s_scoreList->AddItem((ctp2_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_WONDERS, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_WONDERS, ldlBlock).release();
 	s_scoreList->AddItem((ctp2_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_POPULATION, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_POPULATION, ldlBlock).release();
 	s_scoreList->AddItem((ctp2_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_FEATS, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_FEATS, ldlBlock).release();
 	s_scoreList->AddItem((ctp2_ListItem *)item);
 	posValue += item->GetValue();
 
@@ -1104,19 +1098,17 @@ sint32 victorywin_LoadScoreData( )
 
 
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_TYPE_OF_VICTORY, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_TYPE_OF_VICTORY, ldlBlock).release();
 	s_scoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
 	snprintf(strbuf, sizeof(strbuf),"%d",posValue);
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(3), strbuf, ldlBlock);
-	s_scoreList->AddItem((ctp2_ListItem *)label);
+	s_scoreList->AddItem((ctp2_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(3), strbuf, ldlBlock).release());
 
-	item = new InfoScoreListItem(&retval, -1, 0, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, -1, 0, ldlBlock).release();
 	s_scoreList->AddItem((ctp2_ListItem *)item);
 
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(4), nullptr, ldlBlock);
-	s_scoreList->AddItem((ctp2_ListItem *)label);
+	s_scoreList->AddItem((ctp2_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(4), nullptr, ldlBlock).release());
 
 
 
@@ -1136,10 +1128,9 @@ sint32 victorywin_LoadScoreData( )
 
 
 	snprintf(strbuf, sizeof(strbuf),"%d",negValue);
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(5), strbuf, ldlBlock);
-	s_scoreList->AddItem((ctp2_ListItem *)label);
+	s_scoreList->AddItem((ctp2_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(5), strbuf, ldlBlock).release());
 
-	item = new InfoScoreListItem(&retval, -1, 0, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, -1, 0, ldlBlock).release();
 	s_scoreList->AddItem((ctp2_ListItem *)item);
 
 	Player *pl = player_Get(curPlayer);
@@ -1159,13 +1150,11 @@ sint32 victorywin_LoadScoreData( )
 	Score *score = pl->m_score.get();
 	sint32 totalValue = score->GetTotalScore();
 	snprintf(strbuf, sizeof(strbuf),"%d",totalValue);
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(6), strbuf, ldlBlock);
-	s_scoreList->AddItem((ctp2_ListItem *)label);
+	s_scoreList->AddItem((ctp2_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(6), strbuf, ldlBlock).release());
 
 	sint32 civScore = infowin_GetCivScore(curPlayer);
 	snprintf(strbuf, sizeof(strbuf),"%d",civScore);
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(7), strbuf, ldlBlock);
-	s_scoreList->AddItem((ctp2_ListItem *)label);
+	s_scoreList->AddItem((ctp2_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(7), strbuf, ldlBlock).release());
 
 	return 0;
 }

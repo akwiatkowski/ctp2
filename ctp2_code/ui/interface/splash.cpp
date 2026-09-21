@@ -1,4 +1,6 @@
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/interface/splash.h"
 #include "gs/core/splash_progress.h"
 
@@ -6,13 +8,12 @@
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "gfx/gfx_utils/colorset.h"               // colorset_Get()
-#include "gs/utility/Globals.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_utils/primitives.h"
 #include "gs/database/profileDB.h"
 
 
-static Splash *        g_splash    = nullptr;
+static std::unique_ptr<Splash> g_splash;
 
 #ifdef _DEBUG
 // SPLASH_STRING macro state — moved from gameinit.cpp so the splash globals
@@ -41,7 +42,7 @@ void UISplashShow(const char *msg)
 
 void Splash::Initialize()
 {
-    allocated::reassign(g_splash, new Splash());
+    g_splash = std::make_unique<Splash>();
 #ifdef _DEBUG
     // Register the SPLASH_STRING callback once the Splash object exists.
     splash_progress::Register(&UISplashShow);
@@ -50,7 +51,7 @@ void Splash::Initialize()
 
 void Splash::Cleanup()
 {
-    allocated::clear(g_splash);
+    g_splash.reset();
 }
 
 Splash::Splash()

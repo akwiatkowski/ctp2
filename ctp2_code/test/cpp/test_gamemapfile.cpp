@@ -4,6 +4,7 @@
 // (the old SerializeJustMap semantics); ValidateGameMapFile fills the
 // caller's SaveMapInfo without touching its path fields.
 
+#include <memory>
 #include "ctp/c3.h"
 #include "doctest.h"
 #include "ctp/civapp.h"
@@ -30,12 +31,12 @@ struct GameMapFixture
 {
     static bool s_dbsLoaded;
 
-    CivApp * app = nullptr;
+    std::unique_ptr<CivApp> app;
 
     GameMapFixture()
     {
-        app = new CivApp();
-        civapp_Set(app);
+        app = std::make_unique<CivApp>();
+        civapp_Set(app.get());
 
         if (!s_dbsLoaded)
         {
@@ -45,7 +46,7 @@ struct GameMapFixture
             CivPaths_InitCivPaths();
             gameinit_InitializeGameFiles();
 
-            profiledb_Set(new ProfileDB());
+            profiledb_Set(std::make_unique<ProfileDB>().release());
             profiledb_Get()->Init(FALSE);
 
             app->InitializeAppDB();
@@ -54,12 +55,12 @@ struct GameMapFixture
             s_dbsLoaded = true;
         }
 
-        world_Set(new World(MapPoint(20, 20), false, false));
+        world_Set(std::make_unique<World>(MapPoint(20, 20), false, false).release());
     }
 
     ~GameMapFixture()
     {
-        delete app;   // ~Game tears down m_world for us
+        app.reset();   // ~Game tears down m_world for us
         civapp_Set(nullptr);
     }
 };

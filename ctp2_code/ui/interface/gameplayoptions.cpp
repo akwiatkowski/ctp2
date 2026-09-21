@@ -36,6 +36,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/c3_popupwindow.h"
 #include "ui/aui_ctp2/c3_button.h"
@@ -58,25 +60,25 @@
 
 
 
-static c3_PopupWindow		*s_gameplayoptionsWindow	= nullptr;
-static aui_Switch			*s_tutorialadvice			= nullptr,
+static std::unique_ptr<c3_PopupWindow> s_gameplayoptionsWindow;
+static std::unique_ptr<aui_Switch> s_tutorialadvice,
 
-							*s_autocycleturn			= nullptr,
-							*s_autocycleunits			= nullptr,
-							*s_battleview				= nullptr,
+							s_autocycleturn,
+							s_autocycleunits,
+							s_battleview,
 
-							*s_enemyMoves				= nullptr,
-							*s_autoCenter				= nullptr,
-							*s_autoTabSelect			= nullptr,
-							*s_battleViewAlways			= nullptr,
-							*s_autoSave					= nullptr,
+							s_enemyMoves,
+							s_autoCenter,
+							s_autoTabSelect,
+							s_battleViewAlways,
+							s_autoSave,
 
-							*s_EnemyHealth				= nullptr, //emod1
+							s_EnemyHealth, //emod1
 
-							*s_leftHandedMouse			= nullptr;
+							s_leftHandedMouse;
 
-static C3Slider				*s_mouseSpeed				= nullptr;
-static c3_Static			*s_mouseSpeedN				= nullptr;
+static std::unique_ptr<C3Slider> s_mouseSpeed;
+static std::unique_ptr<c3_Static> s_mouseSpeedN;
 
 static BOOL					s_leftHandedMouseFlag = FALSE;
 
@@ -164,9 +166,9 @@ sint32	gameplayoptions_displayMyWindow()
 	gameplayoptions_updateData();
 
 	AUI_ERRCODE auiErr;
-	auiErr = c3ui_Get()->AddWindow( s_gameplayoptionsWindow );
+	auiErr = c3ui_Get()->AddWindow( s_gameplayoptionsWindow.get() );
 	Assert( auiErr == AUI_ERRCODE_OK );
-	keypress_RegisterHandler(s_gameplayoptionsWindow);
+	keypress_RegisterHandler(s_gameplayoptionsWindow.get());
 
 	return retval;
 }
@@ -178,7 +180,7 @@ sint32 gameplayoptions_removeMyWindow(uint32 action)
 
 	auiErr = c3ui_Get()->RemoveWindow( s_gameplayoptionsWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
-	keypress_RemoveHandler(s_gameplayoptionsWindow);
+	keypress_RemoveHandler(s_gameplayoptionsWindow.get());
 
 	return 1;
 }
@@ -204,7 +206,7 @@ AUI_ERRCODE gameplayoptions_Initialize( )
 	}
 
 	strlcpy(windowBlock, "GamePlayOptionsWindow", sizeof(windowBlock));
-	s_gameplayoptionsWindow = new c3_PopupWindow(
+	s_gameplayoptionsWindow = std::make_unique<c3_PopupWindow>(
 		&errcode,
 		aui_UniqueId(),
 		windowBlock,
@@ -216,38 +218,38 @@ AUI_ERRCODE gameplayoptions_Initialize( )
 
 	s_gameplayoptionsWindow->SetStronglyModal(TRUE);
 
-	s_tutorialadvice	= spNew_aui_Switch(&errcode,windowBlock,"TutorialButton",
-								gameplayoptions_checkPress,&check[GP_TUTORIALADVICE]);
+	s_tutorialadvice.reset(spNew_aui_Switch(&errcode,windowBlock,"TutorialButton",
+								gameplayoptions_checkPress,&check[GP_TUTORIALADVICE]));
 
-	s_autocycleturn		= spNew_aui_Switch(&errcode,windowBlock,"AutoCycleTurnButton",
-								gameplayoptions_checkPress,&check[GP_AUTOCYCLETURN]);
-	s_autocycleunits	= spNew_aui_Switch(&errcode,windowBlock,"AutoCycleUnitsButton",
-								gameplayoptions_checkPress,&check[GP_AUTOCYCLEUNITS]);
-	s_battleview		= spNew_aui_Switch(&errcode,windowBlock,"BattleViewButton",
-								gameplayoptions_checkPress,&check[GP_BATTLEVIEW]);
+	s_autocycleturn.reset(spNew_aui_Switch(&errcode,windowBlock,"AutoCycleTurnButton",
+								gameplayoptions_checkPress,&check[GP_AUTOCYCLETURN]));
+	s_autocycleunits.reset(spNew_aui_Switch(&errcode,windowBlock,"AutoCycleUnitsButton",
+								gameplayoptions_checkPress,&check[GP_AUTOCYCLEUNITS]));
+	s_battleview.reset(spNew_aui_Switch(&errcode,windowBlock,"BattleViewButton",
+								gameplayoptions_checkPress,&check[GP_BATTLEVIEW]));
 
-	s_enemyMoves		= spNew_aui_Switch(&errcode,windowBlock,"EnemyMovesButton",
-								gameplayoptions_checkPress,&check[GP_ENEMYMOVES]);
-	s_autoCenter		= spNew_aui_Switch(&errcode,windowBlock,"AutoCenterButton",
-								gameplayoptions_checkPress,&check[GP_AUTOCENTER]);
-	s_autoTabSelect		= spNew_aui_Switch(&errcode,windowBlock,"AutoTabSelectButton",
-								gameplayoptions_checkPress,&check[GP_AUTOTABSELECT]);
+	s_enemyMoves.reset(spNew_aui_Switch(&errcode,windowBlock,"EnemyMovesButton",
+								gameplayoptions_checkPress,&check[GP_ENEMYMOVES]));
+	s_autoCenter.reset(spNew_aui_Switch(&errcode,windowBlock,"AutoCenterButton",
+								gameplayoptions_checkPress,&check[GP_AUTOCENTER]));
+	s_autoTabSelect.reset(spNew_aui_Switch(&errcode,windowBlock,"AutoTabSelectButton",
+								gameplayoptions_checkPress,&check[GP_AUTOTABSELECT]));
 
-	s_battleViewAlways	= spNew_aui_Switch(&errcode, windowBlock, "BattleViewAlwaysButton",
-								gameplayoptions_checkPress, &check[GP_BATTLEVIEWALWAYS]);
+	s_battleViewAlways.reset(spNew_aui_Switch(&errcode, windowBlock, "BattleViewAlwaysButton",
+								gameplayoptions_checkPress, &check[GP_BATTLEVIEWALWAYS]));
 
-	s_mouseSpeed		 = spNew_C3Slider(&errcode, windowBlock, "MouseSpeedSlider",
-								gameplayoptions_mouseSlide);
-	s_mouseSpeedN		 = spNew_c3_Static(&errcode, windowBlock, "MouseSpeedName");
+	s_mouseSpeed.reset(spNew_C3Slider(&errcode, windowBlock, "MouseSpeedSlider",
+								gameplayoptions_mouseSlide));
+	s_mouseSpeedN.reset(spNew_c3_Static(&errcode, windowBlock, "MouseSpeedName"));
 
-	s_autoSave			= spNew_aui_Switch(&errcode, windowBlock, "AutoSaveButton",
-								gameplayoptions_checkPress, &check[GP_AUTOSAVE]);
+	s_autoSave.reset(spNew_aui_Switch(&errcode, windowBlock, "AutoSaveButton",
+								gameplayoptions_checkPress, &check[GP_AUTOSAVE]));
 
-	s_leftHandedMouse	= spNew_aui_Switch(&errcode, windowBlock, "LeftHandedMouseButton",
-								gameplayoptions_checkPress, &check[GP_LEFTHANDEDMOUSE]);
+	s_leftHandedMouse.reset(spNew_aui_Switch(&errcode, windowBlock, "LeftHandedMouseButton",
+								gameplayoptions_checkPress, &check[GP_LEFTHANDEDMOUSE]));
 	//emod5
-	s_EnemyHealth		= spNew_aui_Switch(&errcode, windowBlock, "EnemyHealthButton",
-								gameplayoptions_checkPress, &check[GP_ENEMYHEALTH]);
+	s_EnemyHealth.reset(spNew_aui_Switch(&errcode, windowBlock, "EnemyHealthButton",
+								gameplayoptions_checkPress, &check[GP_ENEMYHEALTH]));
 
 
 
@@ -271,35 +273,32 @@ AUI_ERRCODE gameplayoptions_Initialize( )
 
 AUI_ERRCODE gameplayoptions_Cleanup()
 {
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
-
 	if ( !s_gameplayoptionsWindow  ) return AUI_ERRCODE_OK;
 
 	c3ui_Get()->RemoveWindow( s_gameplayoptionsWindow->Id() );
-	keypress_RemoveHandler(s_gameplayoptionsWindow);
+	keypress_RemoveHandler(s_gameplayoptionsWindow.get());
 
-	mycleanup(s_tutorialadvice);
+	// Same release order the mycleanup macro used.
+	s_tutorialadvice.reset();
 
-	mycleanup(s_autocycleturn);
-	mycleanup(s_autocycleunits);
-	mycleanup(s_battleview);
+	s_autocycleturn.reset();
+	s_autocycleunits.reset();
+	s_battleview.reset();
 
-	mycleanup(s_enemyMoves);
-	mycleanup(s_autoCenter);
-	mycleanup(s_autoTabSelect);
+	s_enemyMoves.reset();
+	s_autoCenter.reset();
+	s_autoTabSelect.reset();
 
-	mycleanup(s_battleViewAlways);
-	mycleanup(s_mouseSpeed);
-	mycleanup(s_mouseSpeedN);
-	mycleanup(s_autoSave);
-	mycleanup(s_leftHandedMouse);
-	mycleanup(s_EnemyHealth); //emod 6
+	s_battleViewAlways.reset();
+	s_mouseSpeed.reset();
+	s_mouseSpeedN.reset();
+	s_autoSave.reset();
+	s_leftHandedMouse.reset();
+	s_EnemyHealth.reset(); //emod 6
 
-	delete s_gameplayoptionsWindow;
-	s_gameplayoptionsWindow = nullptr;
+	s_gameplayoptionsWindow.reset();
 
 	return AUI_ERRCODE_OK;
-#undef mycleanup
 }
 
 void gameplayoptions_checkPress(aui_Control *control, uint32 action, uint32 data, void *cookie )

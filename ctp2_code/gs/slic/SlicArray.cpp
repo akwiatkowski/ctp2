@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/slic/slicif.h"
 #include "gs/slic/SlicArray.h"
 #include "gs/slic/SlicEngine.h"
@@ -73,7 +74,7 @@ SlicArray::~SlicArray()
     {
         for (size_t i = 0; i < m_allocatedSize; ++i)
         {
-		    delete m_array[i].m_sym;
+		    std::unique_ptr<SlicSymbolData>{m_array[i].m_sym};
         }
 	}
 }
@@ -84,7 +85,7 @@ void SlicArray::FixSize(sint32 size)
     {
         for (size_t i = 0; i < m_allocatedSize; ++i)
         {
-		    delete m_array[i].m_sym;
+		    std::unique_ptr<SlicSymbolData>{m_array[i].m_sym};
         }
 	}
 
@@ -130,7 +131,7 @@ BOOL SlicArray::Lookup(sint32 index, SS_TYPE &type, SlicStackValue &value)
 		if(m_structTemplate) {
 			m_array[index].m_sym = m_structTemplate->CreateInstance();
 		} else {
-			m_array[index].m_sym = new SlicSymbolData(m_varType);
+			m_array[index].m_sym = std::make_unique<SlicSymbolData>(m_varType).release();
 		}
 	}
 
@@ -224,7 +225,7 @@ BOOL SlicArray::Insert(sint32 untestedIndex, SS_TYPE type, SlicStackValue value)
         {
 			m_array[index].m_sym = (m_structTemplate)
                                    ? m_structTemplate->CreateInstance()
-                                   : new SlicSymbolData(m_varType);
+                                   : std::make_unique<SlicSymbolData>(m_varType).release();
 		}
 
         return m_array[index].m_sym &&
@@ -247,7 +248,7 @@ void SlicArray::Prune(sint32 size)
     {
 		for (sint32 i = size; i < m_arraySize; i++)
         {
-			delete m_array[i].m_sym;
+			std::unique_ptr<SlicSymbolData>{m_array[i].m_sym};
 			m_array[i].m_sym = nullptr;
 		}
 	}

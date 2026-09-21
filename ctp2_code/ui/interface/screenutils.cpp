@@ -88,7 +88,7 @@
 #include "ui/interface/sciencevictorydialog.h"
 
 
-extern ScienceWin           *g_scienceWin;
+extern std::unique_ptr<ScienceWin>  g_scienceWin;
 
 extern DebugWindow          *g_debugWindow;
 

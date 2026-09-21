@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/aui_ctp2/ctp2_Window.h"
 
 #include "ui/aui_common/aui.h"
@@ -94,10 +95,10 @@ AUI_ERRCODE ctp2_Window::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	RECT rect = { 0, 0, m_width, m_height };
 
 	fprintf(stderr, "[C3W] DrawThis: id=%u pattern=%p surface=%p w=%d h=%d\n",
-		Id(), (void*)m_pattern, (void*)m_surface, m_width, m_height);
+		Id(), (void*)m_pattern, (void*)m_surface.get(), m_width, m_height);
 
 	if (m_pattern)
-		m_pattern->Draw( m_surface, &rect );
+		m_pattern->Draw( m_surface.get(), &rect );
 	else
 		fprintf(stderr, "[C3W] DrawThis: id=%u NO PATTERN - will be black\n", Id());
 
@@ -138,7 +139,7 @@ void ctp2_Window::MouseLGrabOutside( aui_MouseEvent *mouseData )
 	{
 
 
-		aui_ui_Get()->AddAction(new WeaklyModalCloseAction(this));
+		aui_ui_Get()->AddAction(std::make_unique<WeaklyModalCloseAction>(this).release());
 
 		bool passEventOn = false;
 		if(m_weaklyModalCancelCallback) {

@@ -45,7 +45,7 @@
 // Library dependencies
 //----------------------------------------------------------------------------
 
-// #include <>
+#include <memory>
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -242,7 +242,7 @@ protected:
 	sint32		m_bold;
 	sint32		m_italic;
 
-	tech_WLList<aui_Surface *> *m_surfaceList;
+	std::unique_ptr<tech_WLList<aui_Surface *>> m_surfaceList;
 
 #if !defined(_JAPANESE)
 	GlyphInfo m_glyphs[ 256 ];

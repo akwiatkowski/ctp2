@@ -31,25 +31,25 @@
 #include "ctp/c3.h"
 #include "robot/utility/RoboInit.h"
 
+#include <memory>
+
 #include "robot/pathing/UnitAstar.h"
 #include "ai/ctpai.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ai/mapanalysis/mapanalysis.h"
 
-UnitAstar * g_theUnitAstar  = nullptr;
+std::unique_ptr<UnitAstar> g_theUnitAstar;
 
 void roboinit_Initalize()
 {
 	Astar_Init();
 
-    delete g_theUnitAstar;
-    g_theUnitAstar = new UnitAstar;
+    g_theUnitAstar = std::make_unique<UnitAstar>();
 }
 
 void roboinit_Cleanup()
 {
-    delete g_theUnitAstar;
-    g_theUnitAstar = nullptr;
+    g_theUnitAstar.reset();
 
 	Astar_Cleanup();
 }

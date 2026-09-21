@@ -68,6 +68,7 @@
 #include "sliccmd.tab.h"
 
 #include "ctp/ctp2_utils/pointerlist.h"
+#include <memory>
 
 
 static WatchList *g_watchList = nullptr;
@@ -79,7 +80,7 @@ void watchlist_Callback(sint32 arg)
 void watchlist_Display()
 {
 	if(!g_watchList) {
-		g_watchList = new WatchList(watchlist_Callback);
+		g_watchList = std::make_unique<WatchList>(watchlist_Callback).release();
 	}
 	g_watchList->DisplayWindow();
 }
@@ -113,7 +114,7 @@ WatchList::WatchList(WatchListCallback callback, MBCHAR *ldlBlock)
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
     strlcpy(windowBlock, ldlBlock ? ldlBlock : "WatchListPopup", sizeof(windowBlock));
 
-		m_window.reset(new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false));
+		m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
 	if (AUI_NEWOK(m_window, errcode))
     {
@@ -198,7 +199,7 @@ sint32 WatchList::Initialize(MBCHAR *windowBlock)
 
 
 	snprintf( controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "WatchList" );
-	m_list.reset(new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, WatchListActionCallback, this));
+	m_list = std::make_unique<c3_ListBox>(&errcode, aui_UniqueId(), controlBlock, WatchListActionCallback, this);
 	m_list->SetAbsorbancy(FALSE);
 	m_list->Clear();
 
@@ -207,13 +208,13 @@ sint32 WatchList::Initialize(MBCHAR *windowBlock)
 		return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "NewButton");
-	m_newButton.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this));
+	m_newButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ClearButton");
-	m_clearButton.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this));
+	m_clearButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton");
-	m_exitButton.reset(new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this));
+	m_exitButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this);
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
 	Assert( AUI_SUCCESS(errcode) );
@@ -260,7 +261,7 @@ sint32 WatchList::UpdateData()
 void WatchList::AddExpression(char *exp)
 {
 	AUI_ERRCODE retval = AUI_ERRCODE_OK;
-	WatchListItem *item = new WatchListItem(&retval, 0, exp, const_cast<MBCHAR *>("WatchListItem"));
+	WatchListItem *item = std::make_unique<WatchListItem>(&retval, 0, exp, const_cast<MBCHAR *>("WatchListItem")).release();
 	m_list->AddItem(item);
 }
 
@@ -282,7 +283,7 @@ WatchListItem::WatchListItem(AUI_ERRCODE *retval, sint32 index,
 	m_break = false;
 
 	strlcpy(m_line, line, sizeof(m_line));
-	m_watching = new PointerList<SlicSymbolData>;
+	m_watching = std::make_unique<PointerList<SlicSymbolData>>().release();
 
 	Assert(AUI_SUCCESS(*retval));
 	if(!AUI_SUCCESS(*retval)) return;
@@ -301,7 +302,7 @@ WatchListItem::~WatchListItem()
 			walk.Next();
 		}
 
-		delete m_watching;
+		std::unique_ptr<PointerList<SlicSymbolData>>{m_watching};
 		m_watching = nullptr;
 	}
 }
@@ -333,17 +334,17 @@ AUI_ERRCODE WatchListItem::InitCommonLdl(MBCHAR *ldlBlock)
 	c3_Static *breakItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Break");
-	breakItem = new c3_Static(&retval, aui_UniqueId(), block);
+	breakItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	breakItem->SetActionFuncAndCookie(WatchBreakItemCallback, this);
 	AddChild(breakItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Expression");
-	expressionItem = new C3TextField(&retval, aui_UniqueId(), block, WatchExpressionItemCallback, this);
+	expressionItem = std::make_unique<C3TextField>(&retval, aui_UniqueId(), block, WatchExpressionItemCallback, this).release();
 	expressionItem->SetFieldText(m_line);
 	AddChild(expressionItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Value");
-	valueItem = new c3_Static(&retval, aui_UniqueId(), block);
+	valueItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(valueItem);
 
 	Update();

@@ -32,6 +32,7 @@
 #include "gs/gameobj/MessageData.h"
 
 #include <vector>
+#include <memory>
 
 #include "ctp/ctp2_utils/c3errors.h"
 
@@ -91,11 +92,11 @@ MessageData::MessageData(const ID id, sint32 currentYear)
 	m_closeDisabled         (false),
 	m_isDiplomaticResponse  (false),
 	m_useDirector           (false),
-	m_cityList              (new UnitDynamicArray),
+	m_cityList              (std::make_unique<UnitDynamicArray>()),
 	m_request               (DiplomaticRequest()),
 	m_tradeOffer            (),
-    m_buttonList            (new PointerList<SlicButton>),
-    m_eyePoints             (new PointerList<SlicEyePoint>),
+    m_buttonList            (std::make_unique<PointerList<SlicButton>>()),
+    m_eyePoints             (std::make_unique<PointerList<SlicEyePoint>>()),
     m_window                (nullptr),
     m_slicSegment           (nullptr)
 {
@@ -126,11 +127,11 @@ MessageData::MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_IND
 	m_closeDisabled         (false),
 	m_isDiplomaticResponse  (false),
 	m_useDirector           (false),
-	m_cityList              (new UnitDynamicArray),
+	m_cityList              (std::make_unique<UnitDynamicArray>()),
 	m_request               (DiplomaticRequest()),
 	m_tradeOffer            (),
-    m_buttonList            (new PointerList<SlicButton>),
-    m_eyePoints             (new PointerList<SlicEyePoint>),
+    m_buttonList            (std::make_unique<PointerList<SlicButton>>()),
+    m_eyePoints             (std::make_unique<PointerList<SlicEyePoint>>()),
     m_window                (nullptr),
     m_slicSegment           (nullptr)
 {
@@ -159,11 +160,11 @@ MessageData::MessageData(const ID id, MessageData *copy)
 	m_closeDisabled         (false),
 	m_isDiplomaticResponse  (false),
 	m_useDirector           (false),
-	m_cityList              (new UnitDynamicArray),
+	m_cityList              (std::make_unique<UnitDynamicArray>()),
 	m_request               (DiplomaticRequest()),
 	m_tradeOffer            (),
-    m_buttonList            (new PointerList<SlicButton>),
-    m_eyePoints             (new PointerList<SlicEyePoint>),
+    m_buttonList            (std::make_unique<PointerList<SlicButton>>()),
+    m_eyePoints             (std::make_unique<PointerList<SlicEyePoint>>()),
     m_window                (nullptr),
     m_slicSegment           (nullptr)
 {
@@ -188,17 +189,17 @@ MessageData::MessageData(const ID id, MessageData *copy)
 	}
 	m_request = copy->m_request;
 
-	PointerList<SlicButton>::Walker bwalk(copy->m_buttonList);
+	PointerList<SlicButton>::Walker bwalk(copy->m_buttonList.get());
 	for ( ; bwalk.IsValid(); bwalk.Next())
     {
-		m_buttonList->AddTail(new SlicButton(bwalk.GetObj()));
+		m_buttonList->AddTail(std::make_unique<SlicButton>(bwalk.GetObj()).release());
 		m_buttonList->GetTail()->SetMessage(Message(m_id));
 	}
 
-	PointerList<SlicEyePoint>::Walker ewalk(copy->m_eyePoints);
+	PointerList<SlicEyePoint>::Walker ewalk(copy->m_eyePoints.get());
 	for ( ; ewalk.IsValid(); ewalk.Next())
     {
-		m_eyePoints->AddTail(new SlicEyePoint(ewalk.GetObj()));
+		m_eyePoints->AddTail(std::make_unique<SlicEyePoint>(ewalk.GetObj()).release());
 		m_eyePoints->GetTail()->SetMessage(Message(m_id));
 	}
 
@@ -233,7 +234,7 @@ extern PointerList<SlicButton> s_deletedButtons;
 
 MessageData::~MessageData()
 {
-	delete m_cityList;
+	m_cityList.reset();
 
 	if (m_buttonList)
     {
@@ -246,13 +247,13 @@ MessageData::~MessageData()
 #else
         m_buttonList->DeleteAll();
 #endif
-		delete m_buttonList;
+		m_buttonList.reset();
 	}
 
 	if (m_eyePoints)
     {
         m_eyePoints->DeleteAll();
-		delete m_eyePoints;
+		m_eyePoints.reset();
 	}
 
 	if (m_window)
@@ -1018,7 +1019,7 @@ void MessageData::AddButton(SlicButton *button)
 
 sint32 MessageData::GetNumButtons() const
 {
-	PointerList<SlicButton>::Walker walk(m_buttonList);
+	PointerList<SlicButton>::Walker walk(m_buttonList.get());
 	sint32 count = 0;
 	while(walk.IsValid()) {
 		if(!walk.GetObj()->IsCloseEvent())
@@ -1033,7 +1034,7 @@ SlicButton *MessageData::GetButton(sint32 index)
 	if(index >= m_buttonList->GetCount())
 		return nullptr;
 
-	PointerList<SlicButton>::Walker walk(m_buttonList);
+	PointerList<SlicButton>::Walker walk(m_buttonList.get());
 	sint32 count = 0;
 	while(walk.IsValid()) {
 		if(!walk.GetObj()->IsCloseEvent()) {
@@ -1049,7 +1050,7 @@ SlicButton *MessageData::GetButton(sint32 index)
 
 SlicButton *MessageData::GetCloseEvent()
 {
-	PointerList<SlicButton>::Walker walk(m_buttonList);
+	PointerList<SlicButton>::Walker walk(m_buttonList.get());
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsCloseEvent()) {
 			return walk.GetObj();
@@ -1069,7 +1070,7 @@ SlicEyePoint *MessageData::GetEyePoint(sint32 index)
 	if(index >= m_eyePoints->GetCount() || index < 0)
 		return nullptr;
 
-	PointerList<SlicEyePoint>::Walker walk(m_eyePoints);
+	PointerList<SlicEyePoint>::Walker walk(m_eyePoints.get());
 	sint32 count = 0;
 	while(walk.IsValid() && count < index) {
 		walk.Next();

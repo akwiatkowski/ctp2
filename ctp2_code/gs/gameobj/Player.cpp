@@ -141,6 +141,7 @@
 #include "gs/core/great_library_db.h"  // GL_DB_* constants mirror DATABASE enum values
 
 #include <deque>            // FindNearestUnexplored BFS frontier
+#include <memory>
 #include <vector>           // FindNearestUnexplored visited bitmap
 
 #include "gs/gameobj/AchievementTracker.h"
@@ -301,33 +302,33 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	   hs_player_setup_buf()[m_owner].isHuman)
 		treatAsRobot = false;
 
-	m_all_armies = new DynamicArray<Army>;
+	m_all_armies = std::make_unique<DynamicArray<Army>>();
 
-	m_all_cities = new UnitDynamicArray;
+	m_all_cities = std::make_unique<UnitDynamicArray>();
 
-	m_all_units = new UnitDynamicArray;
-	m_traderUnits.reset(new UnitDynamicArray);
-	m_capitol.reset(new Unit);
-	m_gold.reset(new Gold(o));
-	m_science.reset(new Science);
-	m_tax_rate.reset(new TaxRate);
-	m_difficulty.reset(new Difficulty(diff,o, !treatAsRobot));
-	m_advances.reset(new Advances(g_theAdvanceDB->NumRecords()));
-	m_tradeOffers.reset(new DynamicArray<TradeOffer>);
-	m_requests.reset(new DynamicArray<DiplomaticRequest>);
-	m_agreed.reset(new DynamicArray<Agreement>);
-	m_messages.reset(new DynamicArray<Message>);
-	m_score.reset(new Score(o));
+	m_all_units = std::make_unique<UnitDynamicArray>();
+	m_traderUnits = std::make_unique<UnitDynamicArray>();
+	m_capitol = std::make_unique<Unit>();
+	m_gold = std::make_unique<Gold>(o);
+	m_science = std::make_unique<Science>();
+	m_tax_rate = std::make_unique<TaxRate>();
+	m_difficulty = std::make_unique<Difficulty>(diff,o, !treatAsRobot);
+	m_advances = std::make_unique<Advances>(g_theAdvanceDB->NumRecords());
+	m_tradeOffers = std::make_unique<DynamicArray<TradeOffer>>();
+	m_requests = std::make_unique<DynamicArray<DiplomaticRequest>>();
+	m_agreed = std::make_unique<DynamicArray<Agreement>>();
+	m_messages = std::make_unique<DynamicArray<Message>>();
+	m_score = std::make_unique<Score>(o);
 
-	m_regard.reset(new Regard());
-	m_strengths.reset(new Strengths(o));
+	m_regard = std::make_unique<Regard>();
+	m_strengths = std::make_unique<Strengths>(o);
 
 	m_goodSalePrices.assign(g_theResourceDB->NumRecords(), 0);
 
 	m_oversea_lost_unit_count = 0;
 	m_home_lost_unit_count = 0;
 
-	m_global_happiness.reset(new PlayerHappiness);
+	m_global_happiness = std::make_unique<PlayerHappiness>();
 
 	m_income_Percent = 0;
 
@@ -363,23 +364,23 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	memset(m_event_pollution, 0, sizeof(m_event_pollution));
 	memset(m_patience, 0, sizeof(m_patience));
 
-	m_vision.reset(new Vision(m_owner));
+	m_vision = std::make_unique<Vision>(m_owner);
 	if (0 == m_owner) {
 		m_vision->SetTheWholeWorldExplored();
 	}
 
-	m_terrainImprovements.reset(new DynamicArray<TerrainImprovement>);
+	m_terrainImprovements = std::make_unique<DynamicArray<TerrainImprovement>>();
 #ifdef BATTLE_FLAGS
-	m_battleFlags = new DynamicArray<MapPoint>;
+	m_battleFlags = std::make_unique<DynamicArray<MapPoint>>();
 #endif
-	m_readiness.reset(new MilitaryReadiness(o));
+	m_readiness = std::make_unique<MilitaryReadiness>(o);
 
-	m_materialPool.reset(new MaterialPool(o));
-	m_allRadarInstallations.reset(new DynamicArray<Installation>);
-	m_allInstallations.reset(new DynamicArray<Installation>);
-	m_civilisation.reset(new Civilisation) ;
+	m_materialPool = std::make_unique<MaterialPool>(o);
+	m_allRadarInstallations = std::make_unique<DynamicArray<Installation>>();
+	m_allInstallations = std::make_unique<DynamicArray<Installation>>();
+	m_civilisation = std::make_unique<Civilisation>() ;
 
-	m_slic_special_city.reset(new Unit);
+	m_slic_special_city = std::make_unique<Unit>();
 
 	m_builtWonders = 0;
 	m_wonderBuildings = 0;
@@ -544,7 +545,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 
 	m_governorPwReserve = -1;
 
-	m_gaiaController = new GaiaController(o);
+	m_gaiaController = std::make_unique<GaiaController>(o);
 
 	for(i = 1; i < g_theGovernmentDB->NumRecords(); i++) {
 		if(m_advances->HasAdvance(g_theGovernmentDB->Get(i)->GetEnableAdvanceIndex())) {
@@ -575,11 +576,11 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 Player::~Player()
 {
 #ifdef BATTLE_FLAGS
-	delete m_battleFlags;
+	m_battleFlags.reset();
 #endif
-	delete m_all_armies;
-	delete m_all_cities;
-	delete m_all_units;
+	m_all_armies.reset();
+	m_all_cities.reset();
+	m_all_units.reset();
 
 	if (m_civilisation)
 	{
@@ -590,7 +591,7 @@ Player::~Player()
 	}
 
 	m_slic_special_city.reset();
-	delete m_gaiaController;
+	m_gaiaController.reset();
 }
 
 //----------------------------------------------------------------------------
@@ -623,7 +624,7 @@ Unit Player::CreateUnitNoPosition(const sint32 t,
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(oldOwner)) {
 		network_Get().AddCreatedObject(u.AccessData());
 
-		network_Get().SendAction(new NetAction(NET_ACTION_CREATED_UNIT, (uint32)u));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CREATED_UNIT, (uint32)u).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(oldOwner);
 		network_Get().Enqueue(u.AccessData());
@@ -680,9 +681,9 @@ Unit Player::CreateUnit(const sint32 t,
 
 		if(network_Get().IsClient()) {
 
-			network_Get().SendAction(new NetAction(NET_ACTION_CREATE_UNIT_CHEAT,
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CREATE_UNIT_CHEAT,
 			                                   t, pos.x, pos.y,
-			                                   (uint32)hc));
+			                                   (uint32)hc).release());
 			return {};
 		}
 	}
@@ -718,7 +719,7 @@ Unit Player::CreateUnit(const sint32 t,
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
 		network_Get().AddCreatedObject(u.AccessData());
-		network_Get().SendAction(new NetAction(NET_ACTION_CREATED_UNIT, (uint32)u));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CREATED_UNIT, (uint32)u).release());
 	} else if(network_Get().IsHost() && IsNetwork() &&
 			  cause != CAUSE_NEW_ARMY_INITIAL && !network_Get().SetupMode()) {
 		network_Get().AddNewUnit(m_owner, u);
@@ -756,24 +757,22 @@ void Player::CreateUnitSoon(sint32 t,
 							bool tempUnit,
 							CAUSE_NEW_ARMY cause)
 {
-	CreateUnitRequest * req = new CreateUnitRequest(t,
+	CreateUnitRequest * req = std::make_unique<CreateUnitRequest>(t,
 													point,
 													hc,
 													tempUnit,
-													cause);
+													cause).release();
 	req->m_next = m_unitRequestList;
 	m_unitRequestList = req;
 }
 
 void Player::DoCreateUnits()
 {
-	CreateUnitRequest *req;
 	while(m_unitRequestList) {
-		req = m_unitRequestList;
+		std::unique_ptr<CreateUnitRequest> req{m_unitRequestList};
 		m_unitRequestList = req->m_next;
 		CreateUnit(req->m_type, req->m_point, req->m_homeCity,
 				   req->m_tempUnit, req->m_cause);
-		delete req;
 	}
 }
 
@@ -844,8 +843,8 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner) &&
 		cause != CAUSE_NEW_ARMY_INITIAL) {
 		network_Get().AddCreatedObject(armypool_Get()->AccessArmy(army));
-		network_Get().SendAction(new NetAction(NET_ACTION_CREATED_ARMY,
-			army.m_id, cause));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CREATED_ARMY,
+			army.m_id, cause).release());
 	}
 
 	gevmanager_Get()->Pause();
@@ -882,11 +881,11 @@ void Player::AddArmy(const Army &army,
 			network_Get().Block(m_owner);
 
 		network_Get().Enqueue(armypool_Get()->AccessArmy(army));
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ADD_ARMY,
 									  (uint32)m_owner,
 									  (uint32)cause,
 									  (uint32)army,
-									  (uint32)whereBuilt));
+									  (uint32)whereBuilt).release());
 		if(cause != CAUSE_NEW_ARMY_INITIAL)
 			network_Get().Unblock(m_owner);
 	}
@@ -1062,8 +1061,8 @@ Unit Player::CreateCity(
 
 		if(network_Get().IsClient())
 		{
-			network_Get().SendAction(new NetAction(NET_ACTION_CREATE_CITY_CHEAT,
-			                                   t, pos.x, pos.y));
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CREATE_CITY_CHEAT,
+			                                   t, pos.x, pos.y).release());
 			return {};
 		}
 	}
@@ -1080,7 +1079,7 @@ Unit Player::CreateCity(
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner))
 	{
-		network_Get().SendAction(new NetAction(NET_ACTION_CREATED_CITY, (uint32)u));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CREATED_CITY, (uint32)u).release());
 	}
 	else if(network_Get().IsHost() && !network_Get().IsLocalPlayer(m_owner))
 	{
@@ -1141,35 +1140,35 @@ Unit Player::CreateCity(
 		world_Get()->IsWater(pos)) {
 		achievementtracker_Get()->AddAchievement(ACHIEVE_UNDERSEA_CITY);
 
-		SlicObject *so;
+		std::unique_ptr<SlicObject> so;
 
-		so = new SlicObject("016SeaCityBuilder");
+		so = std::make_unique<SlicObject>("016SeaCityBuilder");
 		so->AddRecipient(m_owner);
 		so->AddCity(u);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
-		so = new SlicObject("017SeaCityOthers");
+		so = std::make_unique<SlicObject>("017SeaCityOthers");
 		so->AddAllRecipientsBut(m_owner);
 		so->AddCivilisation(player_view::VisiblePlayer());
 		so->AddCivilisation(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	if (!(achievementtracker_Get()->HasAchieved(ACHIEVE_SPACE_CITY)) &&
 		world_Get()->IsSpace(pos)) {
 		achievementtracker_Get()->AddAchievement(ACHIEVE_SPACE_CITY);
 
-		SlicObject *so;
+		std::unique_ptr<SlicObject> so;
 
-		so = new SlicObject("014SpaceCityBuilder");
+		so = std::make_unique<SlicObject>("014SpaceCityBuilder");
 		so->AddRecipient(m_owner);
 		so->AddCity(u);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
-		so = new SlicObject("015SpaceCityOthers");
+		so = std::make_unique<SlicObject>("015SpaceCityOthers");
 		so->AddAllRecipientsBut(m_owner);
 		so->AddCivilisation(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	return u;
@@ -1342,10 +1341,10 @@ void Player::BeginTurnScience()
 					if(count == which) {
 						m_advances->GiveAdvance(j, CAUSE_SCI_WONDER, FALSE);
 
-						SlicObject *so = new SlicObject("116InternetDiscovery");
+						std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("116InternetDiscovery");
 						so->AddRecipient(m_owner);
 						so->AddAdvance(j);
-						slicengine_Get()->Execute(so);
+						slicengine_Get()->Execute(std::move(so));
 						break;
 					}
 					count++;
@@ -1561,8 +1560,8 @@ void Player::BeginTurnEnemyUnits()
 {
 	if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BEGIN_TURN_ENEMY_UNITS,
-									  m_owner));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_BEGIN_TURN_ENEMY_UNITS,
+									  m_owner).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -1857,8 +1856,8 @@ void Player::EndTurn()
 	sint32 n;
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_END_TURN_FOR,
-						              m_owner));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_END_TURN_FOR,
+						              m_owner).release());
 	}
 
 	m_current_round = turn_Get()->GetSessionRound();
@@ -1897,10 +1896,10 @@ void Player::EndTurn()
 	if ((m_gold->GetLevel() < 50) && (m_gold->DeltaThisTurn() < 0) &&
 	    (slicengine_Get()->GetSegment("027NotEnoughGold")->TestLastShown(m_owner, 10, turn_Get()->GetRound())))
 	{
-		SlicObject *so = new SlicObject("027NotEnoughGold") ;
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("027NotEnoughGold") ;
 		so->AddRecipient(m_owner) ;
 		so->AddPlayer(m_owner);
-		slicengine_Get()->Execute(so) ;
+		slicengine_Get()->Execute(std::move(so)) ;
 	}
 
 	if(network_Get().IsHost()) {
@@ -2445,18 +2444,18 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 
 	const GovernmentRecord *grec = g_theGovernmentDB->Get(m_government_type);
 	if(sourceCity.GetOutgoingTrade() >= grec->GetMaxOutgoingTrade()) {
-		SlicObject *so = new SlicObject("30IATooManyTradeRoutes");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("30IATooManyTradeRoutes");
 		so->AddRecipient(m_owner);
 		so->AddCity(sourceCity);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 		return {};
 	}
 
 	if(destCity.GetIncomingTrade() >= grec->GetMaxIncomingTrade()) {
-		SlicObject *so = new SlicObject("30IATooManyTradeRoutes");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("30IATooManyTradeRoutes");
 		so->AddRecipient(m_owner);
 		so->AddCity(destCity);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 		return {};
 	}
 
@@ -2493,14 +2492,14 @@ TradeRoute Player::PayForTrade(TradeRoute &newRoute)
 		sint32 resource;
 		newRoute.GetSourceResource(type, resource);
 		network_Get().AddCreatedObject(newRoute.AccessData());
-		network_Get().SendAction(new NetAction(NET_ACTION_CREATE_TRADE_ROUTE,
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CREATE_TRADE_ROUTE,
 										   (uint32)newRoute.GetSource(),
 										   (uint32)type,
 										   (uint32)resource,
 										   (uint32)newRoute.GetDestination(),
 										   (uint32)newRoute,
 							               (uint32)m_owner,
-										   (uint32)newRoute.GetGoldInReturn()));
+										   (uint32)newRoute.GetGoldInReturn()).release());
 	}
 	return newRoute;
 }
@@ -2524,8 +2523,8 @@ void Player::RemoveTransportPoints(sint32 delta)
 	}
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_PLAYER_TRADE_DATA,
-									  m_owner, m_usedTradeTransportPoints, m_tradeTransportPoints));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_PLAYER_TRADE_DATA,
+									  m_owner, m_usedTradeTransportPoints, m_tradeTransportPoints).release());
 	}
 
 	if (gameobservers_Get()) gameobservers_Get()->NotifyTradeChanged();
@@ -2545,8 +2544,8 @@ void Player::RemoveUsedTransportPoints(sint32 delta)
 {
 	m_usedTradeTransportPoints -= delta;
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_PLAYER_TRADE_DATA,
-									  m_owner, m_usedTradeTransportPoints, m_tradeTransportPoints));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_PLAYER_TRADE_DATA,
+									  m_owner, m_usedTradeTransportPoints, m_tradeTransportPoints).release());
 	}
 	if (gameobservers_Get()) gameobservers_Get()->NotifyTradeChanged();
 }
@@ -2574,8 +2573,8 @@ void Player::CancelTradeRoute(TradeRoute route)
 	}
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_CANCEL_TRADE_ROUTE,
-										(uint32)route));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CANCEL_TRADE_ROUTE,
+										(uint32)route).release());
 	}
 }
 
@@ -2593,8 +2592,8 @@ void Player::InterceptTrade(sint32 army_index)
 	u.InterceptTrade();
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_INTERCEPT_TRADE,
-										   army_index));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_INTERCEPT_TRADE,
+										   army_index).release());
 	}
 }
 
@@ -2627,12 +2626,12 @@ TradeOffer Player::CreateTradeOffer(Unit fromCity,
 
 		if(network_Get().IsClient()) {
 			network_Get().AddCreatedObject(offer.AccessData());
-			network_Get().SendAction(new NetAction(NET_ACTION_CREATE_TRADE_OFFER,
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CREATE_TRADE_OFFER,
 											   (uint32)fromCity,
 											   offerType, offerResource,
 											   askingType, askingResource,
 											   (uint32)toCity,
-											   (uint32)offer));
+											   (uint32)offer).release());
 		} else if(network_Get().IsHost()) {
 			network_Get().Enqueue(offer.AccessData());
 		}
@@ -2666,8 +2665,8 @@ void Player::WithdrawTradeOffer(TradeOffer offer)
 	Assert(offer.GetFromCity().GetOwner() == m_owner);
 	offer.KillOffer();
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_WITHDRAW_TRADE_OFFER,
-										   (uint32)offer));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_WITHDRAW_TRADE_OFFER,
+										   (uint32)offer).release());
 	}
 }
 
@@ -2678,17 +2677,17 @@ void Player::AcceptTradeOffer(TradeOffer offer, Unit &sourceCity, Unit &destCity
 		return;
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_TAKE_TRADE_OFFER,
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_TAKE_TRADE_OFFER,
 										   (uint32)offer,
 										   (uint32)sourceCity,
-										   (uint32)destCity));
+										   (uint32)destCity).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TAKE_TRADE_OFFER,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_TAKE_TRADE_OFFER,
 									  m_owner,
 									  (uint32)offer,
 									  (uint32)sourceCity,
-									  (uint32)destCity));
+									  (uint32)destCity).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -2698,14 +2697,14 @@ void Player::AcceptTradeOffer(TradeOffer offer, Unit &sourceCity, Unit &destCity
 	}
 	else
 	{
-		SlicObject *so = nullptr;
+		std::unique_ptr<SlicObject> so;
 		if(offer.GetOfferType() == ROUTE_TYPE_RESOURCE) {
-			so = new SlicObject("90AcceptTradeOffer");
+			so = std::make_unique<SlicObject>("90AcceptTradeOffer");
 			so->AddGood(offer.GetOfferResource());
 			so->AddGood(offer.GetAskingResource());
 			so->AddGold(offer.GetAskingResource());
 		} else if(offer.GetOfferType() == ROUTE_TYPE_SLAVE) {
-			so = new SlicObject("90bAcceptSlaveTradeOffer");
+			so = std::make_unique<SlicObject>("90bAcceptSlaveTradeOffer");
 			so->AddGold(offer.GetAskingResource());
 		}
 		so->AddRecipient(offer.GetFromCity().GetOwner());
@@ -2716,7 +2715,7 @@ void Player::AcceptTradeOffer(TradeOffer offer, Unit &sourceCity, Unit &destCity
 		so->AddCity(destCity);
 		so->AddCivilisation(m_owner);
 
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 }
@@ -2732,9 +2731,9 @@ void Player::CreateTradeBid(Unit &fromCity, sint32 resource, Unit &toCity)
 
 	if(m_usedTradeTransportPoints >= m_tradeTransportPoints &&
 	   !wonderutil_GetFreeTradeRoutes(m_builtWonders)) {
-		SlicObject *so = new SlicObject("NoTraders");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("NoTraders");
 		so->AddRecipient(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 		return;
 	}
 
@@ -2754,15 +2753,15 @@ void Player::SendTradeBid(const Unit &fromCity, sint32 resource, const Unit &toC
 		return;
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_SEND_TRADE_BID,
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SEND_TRADE_BID,
 										   m_owner,
 										   fromCity.m_id, resource, toCity.m_id,
-										   price));
+										   price).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(toCity.GetOwner());
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SEND_TRADE_BID,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SEND_TRADE_BID,
 									  m_owner,
-									  fromCity, resource, toCity, price));
+									  fromCity, resource, toCity, price).release());
 		network_Get().Unblock(toCity.GetOwner());
 	}
 
@@ -2772,7 +2771,7 @@ void Player::SendTradeBid(const Unit &fromCity, sint32 resource, const Unit &toC
 	                                      toCity,
 	                                      price);
 
-	SlicObject *so = new SlicObject("TradeBid");
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("TradeBid");
 	so->AddRecipient(fromCity.GetOwner());
 	so->AddCivilisation(m_owner);
 	so->AddGood(resource);
@@ -2780,26 +2779,26 @@ void Player::SendTradeBid(const Unit &fromCity, sint32 resource, const Unit &toC
 	so->AddCity(toCity);
 	so->AddGold(price);
 	so->AddTradeBid(bidId);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 }
 
 void Player::AcceptTradeBid(const Unit &fromCity, sint32 resource, const Unit &toCity,
 							sint32 price)
 {
-	SlicObject *so = new SlicObject("TradeBidAccepted");
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("TradeBidAccepted");
 	so->AddRecipient(toCity.GetOwner());
 	so->AddCivilisation(m_owner);
 	so->AddGood(resource);
 	so->AddCity(fromCity);
 	so->AddCity(toCity);
 	so->AddGold(price);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_ACCEPT_TRADE_BID,
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_ACCEPT_TRADE_BID,
 										   m_owner,
 										   fromCity.m_id, resource, toCity.m_id,
-										   price));
+										   price).release());
 	}
 	CreateTradeRoute(fromCity,
 					 ROUTE_TYPE_RESOURCE, resource,
@@ -2811,20 +2810,20 @@ void Player::AcceptTradeBid(const Unit &fromCity, sint32 resource, const Unit &t
 void Player::RejectTradeBid(const Unit &fromCity, sint32 resource, const Unit &toCity,
 							sint32 price)
 {
-	SlicObject *so = new SlicObject("TradeBidRejected");
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("TradeBidRejected");
 	so->AddRecipient(toCity.GetOwner());
 	so->AddCivilisation(m_owner);
 	so->AddGood(resource);
 	so->AddCity(fromCity);
 	so->AddCity(toCity);
 	so->AddGold(price);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_REJECT_TRADE_BID,
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_REJECT_TRADE_BID,
 										   m_owner,
 										   fromCity.m_id, resource, toCity.m_id,
-										   price));
+										   price).release());
 	}
 }
 
@@ -2903,12 +2902,12 @@ void Player::SetMaterialsTax(double m)
 
 	if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_MATERIALS_TAX,
-									  m_owner, (sint32)((m_materialsTax + 0.001) * 100.)));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_MATERIALS_TAX,
+									  m_owner, (sint32)((m_materialsTax + 0.001) * 100.)).release());
 		network_Get().Unblock(m_owner);
 	} else if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_SET_MATERIALS_TAX,
-										   (uint32)((m_materialsTax + 0.001) * 100.)));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SET_MATERIALS_TAX,
+										   (uint32)((m_materialsTax + 0.001) * 100.)).release());
 	}
 
 	slicengine_Get()->RunPublicWorksTaxTriggers(m_owner);
@@ -2958,10 +2957,10 @@ void Player::AddScience(const sint32 delta)
 
 		if (gotRandomAdvance)
 		{
-			SlicObject * so = new SlicObject("115EdisonDiscovery");
+			std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("115EdisonDiscovery");
 			so->AddRecipient(m_owner);
 			so->AddAdvance(advanceIndex);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 }
@@ -2974,17 +2973,17 @@ void Player::SpecialDiscoveryNotices(AdvanceType advance)
 
 void Player::GovernmentDiscoveryNotices(AdvanceType advance)
 {
-	SlicObject	*so;
+	std::unique_ptr<SlicObject> so;
 
 	sint32 numGovs = g_theGovernmentDB->NumRecords();
 	for(sint32 i = 0; i < numGovs; i++)
 	{
 		if (g_theGovernmentDB->Get(i)->GetEnableAdvanceIndex() == advance)
 		{
-			so = new SlicObject("57PlayerDiscoversNewGovernment");
+			so = std::make_unique<SlicObject>("57PlayerDiscoversNewGovernment");
 			so->AddRecipient(GetOwner());
 			so->AddGovernment(i);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			break;
 		}
 	}
@@ -3001,13 +3000,13 @@ void Player::GovernmentDiscoveryNotices(AdvanceType advance)
 
 void Player::ObsoleteNotices(AdvanceType advance)
 {
-	SlicObject  *so;
+	std::unique_ptr<SlicObject> so;
 	const UnitRecord *rec;
 	sint32  i;
 	sint32  j;
 	sint32 num_found=0;
 
-	so = new SlicObject("114UnitObsoleteCivwide");
+	so = std::make_unique<SlicObject>("114UnitObsoleteCivwide");
 	for (i=0; i < g_theUnitDB->NumRecords(); i++)
 	{
 		rec = g_theUnitDB->Get(i, m_government_type);
@@ -3024,14 +3023,13 @@ void Player::ObsoleteNotices(AdvanceType advance)
 
 	if (num_found == 0)
 	{
-		delete so;
 		return;
 	}
 
 	so->AddUnit(Unit());
 	so->AddAdvance(advance);
 	so->AddRecipient(m_owner);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 }
 
 void Player::BuildResearchDialog(AdvanceType advance)
@@ -3116,10 +3114,10 @@ void Player::SetResearching(AdvanceType advance)
 	}
 	m_advances->SetResearching(advance);
 	if(network_Get().IsClient() && m_owner == network_Get().GetPlayerIndex()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_RESEARCH, advance));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_RESEARCH, advance).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_RESEARCH, m_owner, advance));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_RESEARCH, m_owner, advance).release());
 		network_Get().Unblock(m_owner);
 	}
 }
@@ -3432,12 +3430,12 @@ void Player::BreakAlliance(PLAYER_INDEX ally)
 	}
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_BREAK_ALLIANCE,
-										   m_owner, ally));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_BREAK_ALLIANCE,
+										   m_owner, ally).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BREAK_ALLIANCE,
-									  m_owner, ally));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_BREAK_ALLIANCE,
+									  m_owner, ally).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -3445,15 +3443,15 @@ void Player::BreakAlliance(PLAYER_INDEX ally)
 	player_Get(m_owner)->ClearAlliance(ally) ;
 	m_broken_alliances_and_cease_fires++;
 
-	SlicObject *so = new SlicObject("106YouBrokeAlliance");
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("106YouBrokeAlliance");
 	so->AddRecipient(m_owner);
 	so->AddCivilisation(ally);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
-	so = new SlicObject("107AllianceBroken");
+	so = std::make_unique<SlicObject>("107AllianceBroken");
 	so->AddRecipient(ally);
 	so->AddCivilisation(m_owner);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 }
 
 void Player::ExchangeMap(PLAYER_INDEX recipient)
@@ -3553,7 +3551,7 @@ bool Player::FulfillCaptureCityAgreement(Unit city)
 
 	Agreement	agree ;
 
-	SlicObject *so ;
+	std::unique_ptr<SlicObject> so;
 
 	agreedNum = m_agreed->Num() ;
 	for (i=0; i<agreedNum; i++)
@@ -3562,7 +3560,7 @@ bool Player::FulfillCaptureCityAgreement(Unit city)
 		if ((agree.GetAgreement() == AGREEMENT_TYPE_PACT_CAPTURE_CITY) && (agree.GetTarget() == city))
 		{
 
-			so = new SlicObject("85PactFulfilledCityCapturedFirstParty") ;
+			so = std::make_unique<SlicObject>("85PactFulfilledCityCapturedFirstParty") ;
 			so->AddRecipient(m_owner) ;
 			so->AddCity(city) ;
 			so->AddCivilisation(m_owner) ;
@@ -3571,9 +3569,9 @@ bool Player::FulfillCaptureCityAgreement(Unit city)
 			else
 				so->AddCivilisation(agree.GetRecipient()) ;
 
-			slicengine_Get()->Execute(so) ;
+			slicengine_Get()->Execute(std::move(so)) ;
 
-			so = new SlicObject("86PactFulfilledCityCapturedSecondParty") ;
+			so = std::make_unique<SlicObject>("86PactFulfilledCityCapturedSecondParty") ;
 			if (m_owner != agree.GetOwner())
 				so->AddRecipient(agree.GetOwner()) ;
 			else
@@ -3587,7 +3585,7 @@ bool Player::FulfillCaptureCityAgreement(Unit city)
 			else
 				so->AddCivilisation(agree.GetRecipient()) ;
 
-			slicengine_Get()->Execute(so) ;
+			slicengine_Get()->Execute(std::move(so)) ;
 			killList.Insert(agree) ;
 		}
 		else
@@ -3628,7 +3626,7 @@ Agreement Player::MakeLeaveOurLands(PLAYER_INDEX player)
 	DPRINTF(k_DBG_INFO, ("Player #%d agrees to leave the lands of Player #%d\n", player, m_owner)) ;
 
 	if(player_Get(player)) {
-		DynamicArray<Army> *armies = player_Get(player)->m_all_armies;
+		DynamicArray<Army> *armies = player_Get(player)->m_all_armies.get();
 		sint32 i;
 		sint32 n = armies->Num();
         sint32 num_moved = 0;
@@ -3650,21 +3648,21 @@ Agreement Player::MakeLeaveOurLands(PLAYER_INDEX player)
 		}
 
 		if (num_moved > 0 || atLeastOneCouldntBeExpelled) {
-			SlicObject *so;
+			std::unique_ptr<SlicObject> so;
 			if(atLeastOneCouldntBeExpelled) {
-				so = new SlicObject("40IALeftLands") ;
+				so = std::make_unique<SlicObject>("40IALeftLands") ;
 			} else {
-				so = new SlicObject("40IALeftLandsButNotAll");
+				so = std::make_unique<SlicObject>("40IALeftLandsButNotAll");
 			}
 			so->AddRecipient(player) ;
-			slicengine_Get()->Execute(so) ;
+			slicengine_Get()->Execute(std::move(so)) ;
 		}
 
 		if(atLeastOneCouldntBeExpelled) {
-			SlicObject *so = new SlicObject("364AtLeastOneArmyCouldntBeExpelled");
+			std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("364AtLeastOneArmyCouldntBeExpelled");
 			so->AddRecipient(m_owner);
 			so->AddCivilisation(player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 
@@ -3812,12 +3810,12 @@ void Player::MakeCeaseFire(PLAYER_INDEX other_player)
 void Player::BreakCeaseFire(PLAYER_INDEX other_player, bool sendMessages)
 {
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_BREAK_CEASE_FIRE,
-										   m_owner, other_player, sendMessages));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_BREAK_CEASE_FIRE,
+										   m_owner, other_player, sendMessages).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_BREAK_CEASE_FIRE,
-									  m_owner, other_player, sendMessages));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_BREAK_CEASE_FIRE,
+									  m_owner, other_player, sendMessages).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -3833,15 +3831,15 @@ void Player::BreakCeaseFire(PLAYER_INDEX other_player, bool sendMessages)
 
 		if(sendMessages) {
 			sendMessages = false;
-			SlicObject *so = new SlicObject("108YouBrokeCeaseFire");
+			std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("108YouBrokeCeaseFire");
 			so->AddRecipient(m_owner);
 			so->AddCivilisation(other_player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
-			so = new SlicObject("109CeaseFireBroken");
+			so = std::make_unique<SlicObject>("109CeaseFireBroken");
 			so->AddRecipient(other_player);
 			so->AddCivilisation(m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 
 		SetDiplomaticState(other_player, DIPLOMATIC_STATE_WAR);
@@ -3881,7 +3879,7 @@ void Player::BeginTurnAgreements()
 
 		if(agreementpool_Get()->IsValid(ag) &&
 		   ag.GetTurns() == 2) {
-			SlicObject *so = new SlicObject("001TreatyToExpire");
+			std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("001TreatyToExpire");
 			if(ag.GetRecipient() == m_owner) {
 				so->AddRecipient(ag.GetOwner());
 				so->AddCivilisation(ag.GetRecipient());
@@ -3889,7 +3887,7 @@ void Player::BeginTurnAgreements()
 				so->AddRecipient(ag.GetRecipient());
 				so->AddCivilisation(ag.GetOwner());
 			}
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 }
@@ -3940,14 +3938,14 @@ void Player::RequestGreeting(const PLAYER_INDEX recipient)
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestDemandAdvance(const PLAYER_INDEX recipient, AdvanceType advance)
@@ -3958,14 +3956,14 @@ void Player::RequestDemandAdvance(const PLAYER_INDEX recipient, AdvanceType adva
 
 	r.SetAdvance(advance) ;
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	so->AddAdvance(advance) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestDemandCity(const PLAYER_INDEX recipient, Unit &city)
@@ -3976,14 +3974,14 @@ void Player::RequestDemandCity(const PLAYER_INDEX recipient, Unit &city)
 
 	r.SetTarget(city) ;
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	so->AddCity(city) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestDemandMap(const PLAYER_INDEX recipient)
@@ -3993,13 +3991,13 @@ void Player::RequestDemandMap(const PLAYER_INDEX recipient)
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestDemandGold(const PLAYER_INDEX recipient, Gold &amount)
@@ -4011,14 +4009,14 @@ void Player::RequestDemandGold(const PLAYER_INDEX recipient, Gold &amount)
 
 	r.SetGold(amount) ;
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	so->AddGold(amount.GetLevel()) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestDemandStopTrade(const PLAYER_INDEX recipient, const PLAYER_INDEX thirdParty)
@@ -4029,14 +4027,14 @@ void Player::RequestDemandStopTrade(const PLAYER_INDEX recipient, const PLAYER_I
 
 	r.SetThirdParty(thirdParty) ;
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	so->AddCivilisation(thirdParty) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestDemandNoPiracy(const PLAYER_INDEX recipient)
@@ -4046,13 +4044,13 @@ void Player::RequestDemandNoPiracy(const PLAYER_INDEX recipient)
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
 	r.Complete() ;
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestDemandAttackEnemy(const PLAYER_INDEX recipient, const PLAYER_INDEX thirdParty)
@@ -4063,14 +4061,14 @@ void Player::RequestDemandAttackEnemy(const PLAYER_INDEX recipient, const PLAYER
 
 	r.SetThirdParty(thirdParty) ;
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	so->AddCivilisation(thirdParty) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestDemandLeaveOurLands(const PLAYER_INDEX recipient)
@@ -4080,13 +4078,13 @@ void Player::RequestDemandLeaveOurLands(const PLAYER_INDEX recipient)
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestDemandReducePollution(const PLAYER_INDEX recipient)
@@ -4096,13 +4094,13 @@ void Player::RequestDemandReducePollution(const PLAYER_INDEX recipient)
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestOfferAdvance(const PLAYER_INDEX recipient, AdvanceType &advance)
@@ -4113,14 +4111,14 @@ void Player::RequestOfferAdvance(const PLAYER_INDEX recipient, AdvanceType &adva
 
 	r.SetAdvance(advance) ;
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	so->AddAdvance(advance) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestOfferCity(const PLAYER_INDEX recipient, Unit &city)
@@ -4131,7 +4129,7 @@ void Player::RequestOfferCity(const PLAYER_INDEX recipient, Unit &city)
 
 	r.SetTarget(city) ;
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
@@ -4139,7 +4137,7 @@ void Player::RequestOfferCity(const PLAYER_INDEX recipient, Unit &city)
 
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestOfferMap(const PLAYER_INDEX recipient)
@@ -4149,13 +4147,13 @@ void Player::RequestOfferMap(const PLAYER_INDEX recipient)
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestOfferGold(const PLAYER_INDEX recipient, const Gold &amount)
@@ -4166,14 +4164,14 @@ void Player::RequestOfferGold(const PLAYER_INDEX recipient, const Gold &amount)
 
 	r.SetGold(amount) ;
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	so->AddGold(amount.GetLevel()) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestOfferCeaseFire(const PLAYER_INDEX recipient)
@@ -4183,13 +4181,13 @@ void Player::RequestOfferCeaseFire(const PLAYER_INDEX recipient)
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 	slicengine_Get()->RunSentCeaseFireTriggers(m_owner, recipient);
 }
 
@@ -4200,13 +4198,13 @@ void Player::RequestOfferPermanentAlliance(const PLAYER_INDEX recipient)
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestOfferPactCaptureCity(const PLAYER_INDEX recipient, Unit &city)
@@ -4218,14 +4216,14 @@ void Player::RequestOfferPactCaptureCity(const PLAYER_INDEX recipient, Unit &cit
 	r.SetThirdParty(city.GetOwner()) ;
 	r.SetTarget(city) ;
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	so->AddCity(city) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestOfferPactEndPollution(const PLAYER_INDEX recipient)
@@ -4235,13 +4233,13 @@ void Player::RequestOfferPactEndPollution(const PLAYER_INDEX recipient)
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestExchangeAdvance(const PLAYER_INDEX recipient, AdvanceType &advance, AdvanceType &desired_advance)
@@ -4253,7 +4251,7 @@ void Player::RequestExchangeAdvance(const PLAYER_INDEX recipient, AdvanceType &a
 	r.SetAdvance(advance) ;
 	r.SetWanted(desired_advance) ;
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
@@ -4261,7 +4259,7 @@ void Player::RequestExchangeAdvance(const PLAYER_INDEX recipient, AdvanceType &a
 	so->AddAdvance(desired_advance) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestExchangeCity(const PLAYER_INDEX recipient, Unit &offerCity, Unit &wantCity)
@@ -4273,7 +4271,7 @@ void Player::RequestExchangeCity(const PLAYER_INDEX recipient, Unit &offerCity, 
 	r.SetTarget(offerCity) ;
 	r.SetWanted(wantCity) ;
 	r.Complete();
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
@@ -4281,7 +4279,7 @@ void Player::RequestExchangeCity(const PLAYER_INDEX recipient, Unit &offerCity, 
 	so->AddCity(wantCity) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 }
 
 void Player::RequestExchangeMap(const PLAYER_INDEX recipient)
@@ -4292,13 +4290,13 @@ void Player::RequestExchangeMap(const PLAYER_INDEX recipient)
 
 	r.Complete();
 
-	SlicObject *so = new SlicObject(r.GetRequestString()) ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString()) ;
 	so->AddRecipient(recipient) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(recipient) ;
 	Assert(player_Get(recipient));
 	so->AddAttitude(GetAttitude(recipient));
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 
 }
 
@@ -4558,7 +4556,7 @@ void Player::DumpMessages()
 
 void Player::SendTestMessage()
 {
-	SlicObject *so = new SlicObject("pact fulfilled city captured") ;
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("pact fulfilled city captured") ;
 	so->AddCity(m_all_cities->Get(0)) ;
 	so->AddCivilisation(m_owner) ;
 	so->AddCivilisation(m_owner+1) ;
@@ -4745,11 +4743,11 @@ TerrainImprovement Player::CreateImprovement(sint32 dbIndex,
 	if(terrimprovepool_Get()->IsValid(theImprovement.m_id)) {
 		if(network_Get().IsClient()) {
 			network_Get().AddCreatedObject(theImprovement.AccessData());
-			network_Get().SendAction(new NetAction(NET_ACTION_TERRAIN_IMPROVEMENT,
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_TERRAIN_IMPROVEMENT,
 											   dbIndex,
 											   (sint32)point.x, (sint32)point.y,
 											   extraData,
-											   theImprovement.m_id));
+											   theImprovement.m_id).release());
 		}
 		m_terrainImprovements->Insert(theImprovement);
 		if(theImprovement.GetMaterialCost() <= m_materialPool->GetMaterials()) {
@@ -4780,11 +4778,11 @@ TerrainImprovement Player::CreateSpecialImprovement(sint32 dbIndex,
 	if(terrimprovepool_Get()->IsValid(theImprovement.m_id)) {
 		if(network_Get().IsClient()) {
 			network_Get().AddCreatedObject(theImprovement.AccessData());
-			network_Get().SendAction(new NetAction(NET_ACTION_TERRAIN_IMPROVEMENT,
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_TERRAIN_IMPROVEMENT,
 											   dbIndex,
 											   (sint32)point.x, (sint32)point.y,
 											   extraData,
-											   theImprovement.m_id));
+											   theImprovement.m_id).release());
 		}
 		m_terrainImprovements->Insert(theImprovement);
 		if(theImprovement.GetMaterialCost() <= m_materialPool->GetMaterials()) {
@@ -4826,10 +4824,10 @@ Installation Player::CreateInstallation(sint32 type,
 	if (theInst.m_id != 0) {
 		if(network_Get().IsClient()) {
 			network_Get().AddCreatedObject(theInst.AccessData());
-			network_Get().SendAction(new NetAction(NET_ACTION_CREATE_INSTALLATION,
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CREATE_INSTALLATION,
 											   (sint32)type,
 											   point.x, point.y,
-											   (uint32)theInst));
+											   (uint32)theInst).release());
 		}
 	}
 	if(network_Get().IsHost()) {
@@ -4906,7 +4904,7 @@ void Player::SetReadinessLevel(READINESS_LEVEL level, bool immediate)
 {
 	m_readiness->SetLevel(m_government_type, *m_all_armies, level, turn_Get()->GetRound(), immediate);
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_SET_READINESS, (sint32)level, (BOOL)immediate));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SET_READINESS, (sint32)level, (BOOL)immediate).release());
 	}
 }
 
@@ -5046,7 +5044,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 	if(wonder < 64 && wonderutil_GetNukesEliminated((uint64) 1 << wonder)) {
 		sint32 i;
 		sint32 p;
-		SlicObject *so = new SlicObject("251NaniteDefuseEliminatesNukes");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("251NaniteDefuseEliminatesNukes");
 		so->AddWonder(wonder);
 		so->AddCivilisation(m_owner);
 		for(p = 0; p < k_MAX_PLAYERS; p++) {
@@ -5064,7 +5062,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 				}
 			}
 		}
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	if(wonderutil_GetCloseEmbassies(safe_shift_left_u64(wonder))) {
@@ -5187,11 +5185,11 @@ void Player::RemoveWonder(sint32 which, bool destroyed)
 		Unit c;
 		wonder_tracker_Get()->GetCityWithWonder(which, c);
 
-		SlicObject * so = new SlicObject("097WonderDestroyed");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("097WonderDestroyed");
 		so->AddAllRecipientsBut(PLAYER_INDEX_VANDALS);
 		so->AddWonder(which);
 		so->AddCity(c);
-		 slicengine_Get()->Execute(so);
+		 slicengine_Get()->Execute(std::move(so));
 	}
 
 	sint32 buildingIndex;
@@ -5244,7 +5242,7 @@ void Player::Entrench(sint32 army_idx)
 	m_all_armies->Access(army_idx).ClearOrders();
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_ENTRENCH, (uint32)army_idx));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_ENTRENCH, (uint32)army_idx).release());
 	}
 }
 
@@ -5420,12 +5418,12 @@ void Player::SetWorkdayLevel (sint32 w)
 	m_global_happiness->SetWorkdayLevel(w);
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_WORKDAY_LEVEL,
-										   w));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_WORKDAY_LEVEL,
+										   w).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_WORKDAY_LEVEL,
-											   m_owner, w));
+		network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_WORKDAY_LEVEL,
+											   m_owner, w).release());
 		network_Get().Unblock(m_owner);
 	}
 }
@@ -5452,12 +5450,12 @@ void Player::SetWagesLevel (sint32 w)
 {
 	m_global_happiness->SetWagesLevel (w);
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_WAGES_LEVEL,
-										   w));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_WAGES_LEVEL,
+										   w).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_WAGES_LEVEL,
-											   m_owner, w));
+		network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_WAGES_LEVEL,
+											   m_owner, w).release());
 		network_Get().Unblock(m_owner);
 	}
 }
@@ -5470,12 +5468,12 @@ void Player::SetRationsLevel (sint32 w)
 {
 	m_global_happiness->SetRationsLevel (w);
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_RATIONS_LEVEL,
-										   w));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_RATIONS_LEVEL,
+										   w).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_RATIONS_LEVEL,
-											   m_owner, w));
+		network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_RATIONS_LEVEL,
+											   m_owner, w).release());
 		network_Get().Unblock(m_owner);
 	}
 }
@@ -5751,12 +5749,12 @@ bool Player::SetGovernmentType(sint32 type)
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner))
 	{
-		network_Get().SendAction(new NetAction(NET_ACTION_SET_GOVERNMENT, type));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SET_GOVERNMENT, type).release());
 	}
 	else if(network_Get().IsHost())
 	{
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_GOVERNMENT, m_owner, type));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_GOVERNMENT, m_owner, type).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -5788,20 +5786,20 @@ bool Player::ActuallySetGovernment(sint32 type)
 		return true;
 	}
 
-	SlicObject *so;
+	std::unique_ptr<SlicObject> so;
     if (civapp_Get()->IsGameLoaded() && (type != 0) && !civapp_Get()->IsScenarioEditorShown()) {
         if (GetCurRound() > 50) {
-            so = new SlicObject("012CivNewGov") ;
+            so = std::make_unique<SlicObject>("012CivNewGov") ;
             so->AddAllRecipientsBut(m_owner);
             so->AddCivilisation(m_owner);
             so->AddGovernment(type);
-            slicengine_Get()->Execute(so) ;
+            slicengine_Get()->Execute(std::move(so)) ;
         }
 
-        so = new SlicObject("012NewGovEnacted") ;
+        so = std::make_unique<SlicObject>("012NewGovEnacted") ;
         so->AddRecipient(m_owner);
         so->AddGovernment(type);
-        slicengine_Get()->Execute(so) ;
+        slicengine_Get()->Execute(std::move(so)) ;
 		if (gameobservers_Get()) {
 			gameobservers_Get()->NotifyGovernmentChanged(m_owner, type);
 		}
@@ -5810,10 +5808,10 @@ bool Player::ActuallySetGovernment(sint32 type)
 	DPRINTF(k_DBG_GAMESTATE, ("Player[%d]::ActuallySetGovernment to %d.\n", m_owner, type));
 
 	if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_ACTUALLY_SET_GOVERNMENT, type));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_ACTUALLY_SET_GOVERNMENT, type).release());
 	} else if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ACTUALLY_SET_GOVERNMENT, m_owner, type));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ACTUALLY_SET_GOVERNMENT, m_owner, type).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -5857,11 +5855,11 @@ bool Player::ActuallySetGovernment(sint32 type)
 	}
 
 	if (unit_disbanded) {
-		so = new SlicObject("41UnitDisbandedOnGovChange");
+		so = std::make_unique<SlicObject>("41UnitDisbandedOnGovChange");
 		so->AddRecipient(m_owner);
 		so->AddCivilisation(m_owner);
 		so->AddGovernment(type);
-		slicengine_Get()->Execute(so) ;
+		slicengine_Get()->Execute(std::move(so)) ;
 	}
 
 	sint32 p;
@@ -5961,7 +5959,7 @@ void Player::EstablishEmbassy(sint32 player)
 {
 	m_embassies |= (1 << player);
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_EMBASSIES, m_owner, m_embassies));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_EMBASSIES, m_owner, m_embassies).release());
 	}
 }
 
@@ -5969,7 +5967,7 @@ void Player::CloseEmbassy(sint32 player)
 {
 	m_embassies &= ~(1 << player);
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_EMBASSIES, m_owner, m_embassies));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_EMBASSIES, m_owner, m_embassies).release());
 	}
 }
 
@@ -6011,8 +6009,8 @@ void Player::AddProductionFromFranchise(sint32 amt)
 	m_productionFromFranchises += amt;
 	if(network_Get().IsHost()) {
 
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_FRANCHISE_PRODUCTION,
-									  m_owner, m_productionFromFranchises));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_FRANCHISE_PRODUCTION,
+									  m_owner, m_productionFromFranchises).release());
 	}
 }
 
@@ -6281,7 +6279,7 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
 		if(reason == GAME_OVER_WON_OUT_OF_TIME || reason == GAME_OVER_LOST_OUT_OF_TIME) {
 
 		} else {
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_GAME_OVER, reason, m_owner, data));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_GAME_OVER, reason, m_owner, data).release());
 		}
 	}
 
@@ -6325,25 +6323,25 @@ void Player::StartDeath(GAME_OVER reason, sint32 data)
 		network_Get().KillPlayer(m_owner, reason, data);
 	}
 
-    SlicObject *so = new SlicObject("77YouLose") ;
+    std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("77YouLose") ;
     so->AddRecipient(m_owner) ;
 	so->AddPlayer(m_owner);
-    slicengine_Get()->Execute(so) ;
+    slicengine_Get()->Execute(std::move(so)) ;
 
     if (reason == GAME_OVER_LOST_CONQUERED && data != m_owner) {
-        so = new SlicObject("76PlayerDefeatedBy") ;
+        so = std::make_unique<SlicObject>("76PlayerDefeatedBy") ;
         so->AddCivilisation(m_owner) ;
         so->AddCivilisation(data) ;
         so->AddAllRecipientsBut(m_owner);
-        slicengine_Get()->Execute(so) ;
+        slicengine_Get()->Execute(std::move(so)) ;
 		if(player_Get(data)) {
 			player_Get(data)->m_score->AddOpponentConquered();
 		}
     } else {
-        so = new SlicObject("75PlayerDefeated") ;
+        so = std::make_unique<SlicObject>("75PlayerDefeated") ;
         so->AddCivilisation(m_owner) ;
         so->AddAllRecipientsBut(m_owner);
-        slicengine_Get()->Execute(so) ;
+        slicengine_Get()->Execute(std::move(so)) ;
     }
 
 	m_isDead = TRUE;
@@ -6385,7 +6383,7 @@ void Player::StartDeath(GAME_OVER reason, sint32 data)
 void Player::RemoveDeadPlayers()
 {
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REMOVE_DEAD_PLAYERS));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_REMOVE_DEAD_PLAYERS).release());
 	}
 
 	sint32 i;
@@ -6440,7 +6438,7 @@ void Player::RemoveDeadPlayers()
 #endif
 
 			if(!g_deadPlayer) {
-				g_deadPlayer = new PointerList<Player>;
+				g_deadPlayer = std::make_unique<PointerList<Player>>().release();   // raw global, extern'd in ui files
 			}
 			g_deadPlayer->AddHead(player_Get(i));
 			player_Get(i)->m_score->SetFinalScore(player_Get(i)->m_score->GetTotalScore());
@@ -6559,7 +6557,7 @@ sint32 Player::GetTotalResources()
 void Player::BeginTurnMonopoly()  //EMOD add back in but grant a feat?
 	{
 #ifdef CTP1_TRADE
-	SlicObject	*so ;
+	std::unique_ptr<SlicObject> so;
 
 	sint32	p, i, j,
 			cities,
@@ -6576,7 +6574,7 @@ void Player::BeginTurnMonopoly()  //EMOD add back in but grant a feat?
 
 			if (resourceCount > g_theConstDB->GetMonopolyThreshold())
 				{
-				so = new SlicObject("26MonopolyDetected") ;
+				so = std::make_unique<SlicObject>("26MonopolyDetected") ;
 				for (p=0; p<k_MAX_PLAYERS; p++)
 					if(player_Get(i) && (p != m_owner) && !player_Get(i)->m_isDead)
 						so->AddRecipient(p) ;
@@ -6584,7 +6582,7 @@ void Player::BeginTurnMonopoly()  //EMOD add back in but grant a feat?
 				so->AddCivilisation(m_owner) ;
 				so->AddGood(i) ;
 				so->AddCity(m_all_cities->Get(j)) ;
-				slicengine_Get()->Execute(so) ;
+				slicengine_Get()->Execute(std::move(so)) ;
 
 				break;
 				}
@@ -6932,7 +6930,7 @@ bool Player::IsTurnOver() const
 
 void Player::BuildDiplomaticSlicMessage(DiplomaticRequest &r)
 {
-	SlicObject *so = new SlicObject(r.GetRequestString());
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>(r.GetRequestString());
 	so->AddRecipient(r.GetRecipient());
 	so->AddCivilisation(r.GetOwner());
 	so->AddCivilisation(r.GetRecipient());
@@ -6999,7 +6997,7 @@ void Player::BuildDiplomaticSlicMessage(DiplomaticRequest &r)
 			Assert(false);
 			break;
 	}
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 }
 
@@ -7014,8 +7012,8 @@ sint32 Player::DeductPoints(sint32 p)
 	if(m_powerPoints >= p)
 		m_powerPoints -= p;
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
-									  m_owner, m_powerPoints));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_POWER_POINTS,
+									  m_owner, m_powerPoints).release());
 	}
 	return m_powerPoints;
 }
@@ -7024,8 +7022,8 @@ sint32 Player::AddPoints(sint32 p)
 {
 	m_powerPoints += p;
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
-									  m_owner, m_powerPoints));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_POWER_POINTS,
+									  m_owner, m_powerPoints).release());
 	}
 	return m_powerPoints;
 }
@@ -7033,8 +7031,8 @@ sint32 Player::AddPoints(sint32 p)
 sint32 Player::SetPoints(sint32 p)
 {
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
-									  m_owner, m_powerPoints));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_POWER_POINTS,
+									  m_owner, m_powerPoints).release());
 	}
 	return(m_powerPoints = p);
 }
@@ -7050,8 +7048,8 @@ void Player::TradeUnitsForPoints(const MapPoint &pnt)
 		return;
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_SELL_UNITS,
-										   pnt.x, pnt.y));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SELL_UNITS,
+										   pnt.x, pnt.y).release());
 		return;
 	}
 
@@ -7087,8 +7085,8 @@ void Player::TradeUnitForPoints(Unit &unit)
 		return;
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_SELL_ONE_UNIT,
-										   (uint32)unit));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SELL_ONE_UNIT,
+										   (uint32)unit).release());
 		return;
 	}
 
@@ -7123,8 +7121,8 @@ void Player::TradeImprovementsForPoints(const MapPoint &pnt)
 		return;
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_SELL_IMPROVEMENTS,
-										   pnt.x, pnt.y));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SELL_IMPROVEMENTS,
+										   pnt.x, pnt.y).release());
 		return;
 	}
 
@@ -7215,7 +7213,7 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
     sint32 i;
     sint32 o;
     sint32 player_idx;
-    SlicObject *so;
+    std::unique_ptr<SlicObject> so;
 
     for(i = 0; i < g_theWonderDB->NumRecords(); i++) {
         const WonderRecord *wrec = wonderutil_Get(i, m_owner);
@@ -7240,11 +7238,11 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
                     (GetCurRound() > 1)) {
 
                     // Send the player a message, that the wonder he builds is obsolete
-                    so = new SlicObject("097aWonderObsolete");
+                    so = std::make_unique<SlicObject>("097aWonderObsolete");
                     so->AddRecipient(player_idx);
                     so->AddAdvance(advance);
                     so->AddWonder(i);
-                    slicengine_Get()->Execute(so);
+                    slicengine_Get()->Execute(std::move(so));
                 }
             }
 
@@ -7284,15 +7282,15 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
 
             if(network_Get().IsHost() && !network_Get().IsLocalPlayer(wowner)) {
                 network_Get().QueuePacket(network_Get().IndexToId(wowner),
-                                      new NetInfo(NET_INFO_CODE_WONDER_OBSOLETE,
-                                                  advance, i));
+                                      std::make_unique<NetInfo>(NET_INFO_CODE_WONDER_OBSOLETE,
+                                                  advance, i).release());
             }
 
-            SlicObject *so = new SlicObject("097aWonderObsolete");
+            std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("097aWonderObsolete");
             so->AddRecipient(wowner);
             so->AddAdvance(advance);
             so->AddWonder(i);
-            slicengine_Get()->Execute(so);
+            slicengine_Get()->Execute(std::move(so));
         }
     }
 }
@@ -7327,19 +7325,19 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 
 	if(advance == foo)
 	{
-		SlicObject *so = new SlicObject("GCDiscoveredSolarisProjectUs");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("GCDiscoveredSolarisProjectUs");
 		so->AddRecipient(m_owner);
 		so->AddPlayer(m_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 
 		for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 		{
 			if(player_Get(i) && i != m_owner)
 			{
-				SlicObject *so = new SlicObject("GCDiscoveredSolarisProjectThem");
+				std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("GCDiscoveredSolarisProjectThem");
 				so->AddRecipient(i);
 				so->AddPlayer(m_owner);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 		}
 	}
@@ -7425,9 +7423,9 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 
 			if(network_Get().IsHost() && !network_Get().IsLocalPlayer(m_owner))
 			{
-				network_Get().QueuePacketToAll(new NetResearch(m_advances.get()));
+				network_Get().QueuePacketToAll(std::make_unique<NetResearch>(m_advances.get()).release());
 				network_Get().QueuePacket(network_Get().IndexToId(m_owner),
-									  new NetInfo(NET_INFO_CODE_CHOOSE_RESEARCH, advance));
+									  std::make_unique<NetInfo>(NET_INFO_CODE_CHOOSE_RESEARCH, advance).release());
 			}
 			if(!network_Get().IsActive() || (network_Get().IsHost() && network_Get().IsLocalPlayer(m_owner)))
 			{
@@ -7812,10 +7810,10 @@ void Player::RemoveEmptyCities(CAUSE_REMOVE_ARMY cause)
         {
             if (cause == CAUSE_REMOVE_ARMY_FLOOD)
             {
-                SlicObject *so = new SlicObject("04CitiesKilledByCalamity");
+                std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("04CitiesKilledByCalamity");
                 so->AddRecipient(m_owner);
                 so->AddCity(city);
-                slicengine_Get()->Execute(so);
+                slicengine_Get()->Execute(std::move(so));
             }
 
             city.Kill(cause, -1);
@@ -7877,8 +7875,8 @@ void Player::RecoveredProbe(const Unit &city)
 {
 	if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_RECOVERED_PROBE,
-									  m_owner, city.m_id));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_RECOVERED_PROBE,
+									  m_owner, city.m_id).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -7887,10 +7885,10 @@ void Player::RecoveredProbe(const Unit &city)
 
 
 
-	SlicObject *so = new SlicObject("306EndGameRecoveredProbe");
+	std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("306EndGameRecoveredProbe");
 	so->AddRecipient(m_owner);
 
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 }
 
 void Player::RecreateMessageIcons()
@@ -7922,11 +7920,11 @@ void Player::SetDiplomaticState(const PLAYER_INDEX p, const DIPLOMATIC_STATE s)
 	} else if(s != DIPLOMATIC_STATE_WAR &&
 			  player_Get(p)->GetDiplomaticState(m_owner) == DIPLOMATIC_STATE_WAR &&
 			  GetDiplomaticState(p) == DIPLOMATIC_STATE_WAR) {
-		SlicObject *so = new SlicObject("401WarOver");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("401WarOver");
 		so->AddCivilisation(m_owner);
 		so->AddCivilisation(p);
 		so->AddAllRecipients();
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	Assert(player_Get(p));
@@ -7939,12 +7937,12 @@ void Player::SetDiplomaticState(const PLAYER_INDEX p, const DIPLOMATIC_STATE s)
 
 	if(network_Get().IsHost()) {
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_DIP_STATE,
-									  m_owner, p, realState));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_DIP_STATE,
+									  m_owner, p, realState).release());
 		network_Get().Unblock(m_owner);
 	} else if(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner)) {
-		network_Get().SendAction(new NetAction(NET_ACTION_SET_DIP_STATE,
-										   p, realState));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_SET_DIP_STATE,
+										   p, realState).release());
 	}
 }
 
@@ -7961,11 +7959,11 @@ void Player::ThisMeansWAR(PLAYER_INDEX defense_owner)
 	if(!player_Get(attack_owner)->HasWarWith(defense_owner))
 	{
 
-		SlicObject *so = new SlicObject("128CivStartedWar");
+		std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("128CivStartedWar");
 		so->AddCivilisation(attack_owner);
 		so->AddCivilisation(defense_owner);
 		so->AddAllRecipientsBut(attack_owner);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 //	sint32 oldBrokenAlliances = m_broken_alliances_and_cease_fires;
@@ -8037,8 +8035,8 @@ void player_ActivateSpaceButton(sint32 owner)
 	player_Get(owner)->m_can_use_space_button = TRUE;
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ACTIVATE_SPACE_BUTTON,
-									  owner));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ACTIVATE_SPACE_BUTTON,
+									  owner).release());
 	}
 }
 
@@ -8193,7 +8191,7 @@ void Player::AddCargoCapacity(const sint16 delta_cargo_slots)
 
 GaiaController *Player::GetGaiaController()
 {
-	return m_gaiaController;
+	return m_gaiaController.get();
 }
 
 void Player::EnterNewAge(sint32 age)
@@ -8205,9 +8203,9 @@ void Player::EnterNewAge(sint32 age)
 	if(!network_Get().IsNetworkLaunch() && player_Get(player_view::CurPlayer())) {
 		if(!network_Get().IsActive() || network_Get().ReadyToStart()) {
 
-			SlicObject *so = new SlicObject((char *)rec->GetSlicObject());
+			std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>((char *)rec->GetSlicObject());
 			so->AddRecipient(m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 	sint32 i;
@@ -8370,16 +8368,16 @@ void Player::SetPlayerType(PLAYER_TYPE pt)
 		{
 			if(m_owner != network_Get().GetPlayerIndex())
 			{
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ATTACH_ROBOT, m_owner));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ATTACH_ROBOT, m_owner).release());
 			}
 			else
 			{
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_DETACH_ROBOT, m_owner));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_DETACH_ROBOT, m_owner).release());
 			}
 		}
 		else
 		{
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_DETACH_ROBOT, m_owner));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_DETACH_ROBOT, m_owner).release());
 		}
 	}
 }
@@ -8665,15 +8663,15 @@ void Player::CreateLeader()
 		{
 			ldr.ClearFlag(k_UDF_FIRST_MOVE);
 			ldr.SetMovementPoints(0);
-			SlicObject *so = new SlicObject("999GreatLeaderSpawn");
+			std::unique_ptr<SlicObject> so = std::make_unique<SlicObject>("999GreatLeaderSpawn");
 			so->AddUnit(Unit(leader));
 			so->AddRecipient(m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
 			if (network_Get().IsHost())
 			{
 				network_Get().Block(ldr.GetOwner());
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, ldr.m_id));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ADD_ARMY, ldr.m_id).release());
 				network_Get().Unblock(ldr.GetOwner());
 			}
 		}

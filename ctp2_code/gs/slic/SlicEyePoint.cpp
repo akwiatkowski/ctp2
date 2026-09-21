@@ -28,6 +28,7 @@
 #include "ctp/c3.h"
 #include "gs/slic/SlicEyePoint.h"
 
+#include <memory>
 #include <vector>
 #include "gs/gameobj/message.h"
 #include "gs/core/tiledmap_observer.h"
@@ -44,7 +45,7 @@ PointerList<SlicEyePoint> s_deletedEyepoints;
 
 SlicEyePoint::SlicEyePoint()
 :   m_point     (),
-    m_message   (new Message()),
+    m_message   (std::make_unique<Message>()),
     m_data      (0),
     m_unit      (),
     m_recipient (PLAYER_INDEX_INVALID),
@@ -60,7 +61,7 @@ SlicEyePoint::SlicEyePoint(const MapPoint &point, const MBCHAR *name,
 						   SlicSegment *segment)
 :   m_point     (point),
     m_name      (name ? name : ""),
-    m_message   (new Message()),
+    m_message   (std::make_unique<Message>()),
     m_data      (data),
     m_unit      (unit),
     m_recipient (recipient),
@@ -72,7 +73,7 @@ SlicEyePoint::SlicEyePoint(const MapPoint &point, const MBCHAR *name,
 SlicEyePoint::SlicEyePoint(SlicEyePoint *copy)
 :   m_point     (copy->m_point),
     m_name      (copy->m_name),
-    m_message   (new Message(*copy->m_message)),
+    m_message   (std::make_unique<Message>(*copy->m_message)),
     m_data      (copy->m_data),
     m_unit      (copy->m_unit),
     m_recipient (copy->m_recipient),
@@ -88,7 +89,7 @@ SlicEyePoint::~SlicEyePoint()
 #endif
 
 	
-		delete m_message;
+		// m_message is unique_ptr — frees itself
 }
 
 void SlicEyePoint::SetMessage(const Message &message)
@@ -107,10 +108,10 @@ Message SlicEyePoint::GetMessage() const
 
 void SlicEyePoint::Callback()
 {
-	SlicObject * obj = nullptr;
+	std::unique_ptr<SlicObject> obj;
 	if (m_segment)
     {
-		obj = new SlicObject(m_segment);
+		obj = std::make_unique<SlicObject>(m_segment);
 		obj->AddRecipient(m_recipient);
         obj->AddPlayer(m_recipient);
 	}
@@ -152,7 +153,7 @@ void SlicEyePoint::Callback()
 	if(obj) {
 		Message oldMsg = slicengine_Get()->GetEyepointMessage();
 		slicengine_Get()->SetEyepointMessage(*m_message);
-		slicengine_Get()->Execute(obj);
+		slicengine_Get()->Execute(std::move(obj));
 
 		slicengine_Get()->SetEyepointMessage(oldMsg);
 	}

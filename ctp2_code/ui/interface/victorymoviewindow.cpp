@@ -77,16 +77,7 @@ C3Window( retval, id, x, y, width, height, bpp, pattern, type )
 }
 
 
-VictoryMovieWindow::~VictoryMovieWindow()
-{
-	
-		delete m_movieButton;
-
-
-
-
-
-}
+VictoryMovieWindow::~VictoryMovieWindow() = default;
 
 
 
@@ -97,12 +88,12 @@ AUI_ERRCODE VictoryMovieWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "MovieButton");
-	m_movieButton = new aui_MovieButton(&errcode, aui_UniqueId(), buttonBlock, victorymoviewin_MovieButtonCallback);
+	m_movieButton = std::make_unique<aui_MovieButton>(&errcode, aui_UniqueId(), buttonBlock, victorymoviewin_MovieButtonCallback);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
 	m_movieButton->SetFullScreen(true);
 
-	AddControl(m_movieButton);
+	AddControl(m_movieButton.get());
 
 
 

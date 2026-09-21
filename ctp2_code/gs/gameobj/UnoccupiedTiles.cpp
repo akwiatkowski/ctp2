@@ -23,7 +23,7 @@ UnoccupiedTiles::UnoccupiedTiles(void)
 	m_numBestTradeTiles = 0 ;
 	for (i=0; i<CITY_TILE_SIZE; i++)
 		{
-		m_unordered[i] = NULL ;
+		// m_unordered entries are unique_ptr — default-constructed null
 		m_bestFoodTiles[i] = -1 ;
 		m_bestProductionTiles[i] = -1 ;
 		m_bestGoldTiles[i] = -1 ;
@@ -51,12 +51,7 @@ void UnoccupiedTiles::ClearList(void)
 
 	for (i=0; i<CITY_TILE_SIZE; i++)
 		{
-		if (m_unordered[i])
-			{
-
-			delete m_unordered[i] ;
-			m_unordered[i] = NULL ;
-			}
+		m_unordered[i].reset() ;
 
 		m_bestFoodTiles[i] = -1 ;
 		m_bestProductionTiles[i] = -1 ;
@@ -136,7 +131,7 @@ sint32 UnoccupiedTiles::InsertTileIntoUnorderedList(const EmptyTile &tile)
 
 	m_numTilesFound++ ;
 
-	m_unordered[m_insertPos] = new EmptyTile(tile) ;
+	m_unordered[m_insertPos] = std::make_unique<EmptyTile>(tile) ;
 
 	return (m_insertPos) ;
 	}
@@ -497,10 +492,9 @@ BOOL UnoccupiedTiles::RemoveTile(const sint32 tileIdx, EmptyTile &tile)
 		return (FALSE) ;
 		}
 
-	tile = m_unordered[tileIdx] ;
+	tile = *m_unordered[tileIdx] ;
 
-	delete m_unordered[tileIdx] ;
-	m_unordered[tileIdx] = NULL ;
+	m_unordered[tileIdx].reset() ;
 
 	m_numUnoccupiedTiles-- ;
 
@@ -594,7 +588,7 @@ BOOL UnoccupiedTiles::GetTile(const sint32 tileIdx, EmptyTile &tile)
 
 	if (!m_unordered[tileIdx]) return FALSE;
 
-	tile = m_unordered[tileIdx] ;
+	tile = *m_unordered[tileIdx] ;
 
 	return (TRUE) ;
 	}
@@ -719,8 +713,6 @@ void UnoccupiedTiles::BuildListOfCityTiles(const Unit city)
 	{
 	TileValue	openTile[CITY_TILE_SIZE] ;
 
-	EmptyTile	*tile ;
-
 	sint32	tiles,
 			i ;
 
@@ -733,13 +725,11 @@ void UnoccupiedTiles::BuildListOfCityTiles(const Unit city)
 
 	for (i=0; i<tiles; i++)		{
 
-		tile = new EmptyTile(openTile[i].pos, openTile[i].food, openTile[i].production, openTile[i].gold) ;
+		// Stack value: InsertTile copies it into m_unordered; the old
+		// heap-allocated EmptyTile here was leaked on every iteration.
+		EmptyTile tile(openTile[i].pos, openTile[i].food, openTile[i].production, openTile[i].gold) ;
 
-		if (tile != NULL)
-			{
-
-			InsertTile(*tile) ;
-			}
+		InsertTile(tile) ;
 
 		}
 

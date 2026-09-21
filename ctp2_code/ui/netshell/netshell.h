@@ -7,6 +7,8 @@
 
 class NetShell;
 
+#include <array>
+#include <memory>
 #include "ui/aui_common/aui_shell.h"
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_common/aui_ui.h"
@@ -134,17 +136,17 @@ protected:
 	void MoveButton(aui_Window *window, const MBCHAR *parentBlock, const MBCHAR *regionBlock, BOOL left);
 
 private:
-	aui_Screen *m_screens[ SCREEN_MAX ];
-	aui_Window *m_windows[ WINDOW_MAX ];
+	std::array<std::unique_ptr<aui_Screen>, SCREEN_MAX> m_screens;
+	std::array<std::unique_ptr<aui_Window>, WINDOW_MAX> m_windows;
 
 	BOOL m_wasMinimizing;
 
-	ns_String *m_truebmp;
+	std::unique_ptr<ns_String> m_truebmp;
 
-	ns_Tribes *m_tribes;
+	std::unique_ptr<ns_Tribes> m_tribes;
 	ns_Wonders *m_wonders;
 
-	aui_Control *m_bg;
+	std::unique_ptr<aui_Control> m_bg;
 };
 
 #endif

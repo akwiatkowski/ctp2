@@ -41,6 +41,7 @@
 #include "gfx/spritesys/Sprite.h"
 #include "gs/database/StrDB.h"                  // stringdb_Get()
 #include "gfx/spritesys/UnitSpriteGroup.h"
+#include <memory>
 
 extern ProgressWindow * g_theProgressWindow;
 
@@ -52,14 +53,14 @@ SpriteGroupList	*       g_citySpriteGroupList   = nullptr;
 
 void spritegrouplist_Initialize()
 {
-    delete g_unitSpriteGroupList;
-    g_unitSpriteGroupList = new SpriteGroupList();
-    delete g_effectSpriteGroupList;
-    g_effectSpriteGroupList = new SpriteGroupList();
-    delete g_goodSpriteGroupList;
-    g_goodSpriteGroupList = new SpriteGroupList();
-    delete g_citySpriteGroupList;
-    g_citySpriteGroupList = new SpriteGroupList();
+    allocated::clear(g_unitSpriteGroupList);
+    g_unitSpriteGroupList = std::make_unique<SpriteGroupList>().release();
+    allocated::clear(g_effectSpriteGroupList);
+    g_effectSpriteGroupList = std::make_unique<SpriteGroupList>().release();
+    allocated::clear(g_goodSpriteGroupList);
+    g_goodSpriteGroupList = std::make_unique<SpriteGroupList>().release();
+    allocated::clear(g_citySpriteGroupList);
+    g_citySpriteGroupList = std::make_unique<SpriteGroupList>().release();
 }
 
 void spritegrouplist_Cleanup()
@@ -91,7 +92,7 @@ SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE
 	{
     case GROUPTYPE_UNIT :
 	    if(newSpriteGroup==nullptr)
-		    newSpriteGroup = new UnitSpriteGroup(type);
+		    newSpriteGroup = std::make_unique<UnitSpriteGroup>(type).release();
 
         // A unit sprite file may have 3 or 2 digits in the name.
         snprintf(inFile, sizeof(inFile), "GU%.3d.SPR", index);
@@ -110,18 +111,18 @@ SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE
 
 	case GROUPTYPE_EFFECT :
 		 if(newSpriteGroup==nullptr)
-		    newSpriteGroup = new EffectSpriteGroup(type);
+		    newSpriteGroup = std::make_unique<EffectSpriteGroup>(type).release();
 		 snprintf(inFile, sizeof(inFile), "GX%.2d.SPR", index);
 
 		 break;
 	case GROUPTYPE_CITY:
 		 if(newSpriteGroup==nullptr)
-		    newSpriteGroup = new UnitSpriteGroup(type);
+		    newSpriteGroup = std::make_unique<UnitSpriteGroup>(type).release();
 		 snprintf(inFile, sizeof(inFile), "GC%.3d.SPR", index);
 		 break;
 	case GROUPTYPE_GOOD:
 		 if(newSpriteGroup==nullptr)
-		    newSpriteGroup = new GoodSpriteGroup(type);
+		    newSpriteGroup = std::make_unique<GoodSpriteGroup>(type).release();
 		 snprintf(inFile, sizeof(inFile), "GG%.3d.SPR", index);
 		 break;
 	default:

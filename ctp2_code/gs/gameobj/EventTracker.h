@@ -2,6 +2,7 @@
 #define EVENT_TRACKER_H
 
 #include "ctp/ctp2_utils/pointerlist.h"
+#include <memory>
 
 #include <nlohmann/json.hpp>
 
@@ -80,9 +81,9 @@ inline void from_json(nlohmann::json const &j, EventTracker &t)
 	t.m_dataList.DeleteAll();
 	for (auto const &entry : j.at("events"))
 	{
-		EventData *e = new EventData;
+		auto e = std::make_unique<EventData>();
 		entry.get_to(*e);
-		t.m_dataList.AddTail(e);
+		t.m_dataList.AddTail(e.release());
 	}
 }
 

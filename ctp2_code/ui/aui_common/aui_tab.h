@@ -32,6 +32,8 @@
 #ifndef __AUI_TAB_H__
 #define __AUI_TAB_H__
 
+#include <memory>
+
 #include "ui/aui_common/aui_radio.h"
 
 
@@ -68,7 +70,7 @@ protected:
 public:
 	sint32 SetState( sint32 state ) override;
 
-	aui_Control	*GetPane( ) const { return m_pane; }
+	aui_Control	*GetPane( ) const { return m_pane.get(); }
 
 	AUI_ERRCODE	AddPaneControl( aui_Control *control );
 	AUI_ERRCODE RemovePaneControl( uint32 controlId );
@@ -78,7 +80,7 @@ public:
 	AUI_ERRCODE	Show( ) override;
 
 protected:
-	aui_Control		*m_pane;
+	std::unique_ptr<aui_Control>	m_pane;
 
 	void	MouseLDragOver(aui_MouseEvent * mouseData) override;
 	void	MouseLDragAway(aui_MouseEvent * mouseData) override;

@@ -31,6 +31,8 @@
 #ifndef __AUI_WIN_H__
 #define __AUI_WIN_H__
 
+#include <memory>
+
 #include "ui/aui_common/aui_control.h"
 
 
@@ -88,7 +90,7 @@ protected:
 	HBITMAP			m_hbitmap;
 	HBITMAP			m_hbitmapOld;
 
-	static tech_WLList<aui_Win *> *m_winList;
+	static std::unique_ptr<tech_WLList<aui_Win *>> m_winList;
 
 	void			WinMouseMove(aui_MouseEvent * mouseData);
 	void			WinMouseLDrag(aui_MouseEvent * mouseData);

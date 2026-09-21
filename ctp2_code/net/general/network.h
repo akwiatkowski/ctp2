@@ -114,6 +114,8 @@ class CellUnitList;
 #include "gs/gameobj/player.h" // PLAYER_INDEX
 
 #include <string>
+#include <memory>
+
 
 #ifdef _DEBUG
 class aui_Surface;
@@ -436,7 +438,7 @@ public:
 	void SetSensitiveUIBlocked(bool block)  { m_sensitiveUIBlocked = block; }
 	bool GetSensitiveUIBlocked() { return m_sensitiveUIBlocked; }
 
-	ChatList *GetChatList() { return m_chatList; }
+	ChatList *GetChatList() { return m_chatList.get(); }
 
 	void SendGroupRequest(const CellUnitList &units, const Army &army);
 	void SendUngroupRequest(const Army &army, const CellUnitList &units);
@@ -467,7 +469,7 @@ private:
 	BOOL m_launchFromNetFunc;
 
 	NETSTATE m_state;
-	NetIO* m_netIO;
+	std::unique_ptr<NetIO> m_netIO;
 	uint16 m_pid;
 	uint16 m_hostId;
 	BOOL   m_iAmHost;
@@ -475,17 +477,17 @@ private:
 	sint32 m_initialized;
 	BOOL   m_deleting;
 
-	PlayerData *m_playerData[k_MAX_PLAYERS];
-	PointerList<PlayerData> *m_newPlayerList;
-	PointerList<SessionData> *m_sessionList;
-	PointerList<NSPlayerInfo> *m_nsPlayerInfo;
-	PointerList<NSAIPlayerInfo> *m_nsAIPlayerInfo;
+	std::unique_ptr<PlayerData> m_playerData[k_MAX_PLAYERS];
+	std::unique_ptr<PointerList<PlayerData>> m_newPlayerList;
+	std::unique_ptr<PointerList<SessionData>> m_sessionList;
+	std::unique_ptr<PointerList<NSPlayerInfo>> m_nsPlayerInfo;
+	std::unique_ptr<PointerList<NSAIPlayerInfo>> m_nsAIPlayerInfo;
 
-	DynamicArray<Unit> *m_resetCityOwnerHackList;
+	std::unique_ptr<DynamicArray<Unit>> m_resetCityOwnerHackList;
 
-	NetHash *m_deadUnitList;
+	std::unique_ptr<NetHash> m_deadUnitList;
 
-	NetGameObj *m_gameObjects;
+	std::unique_ptr<NetGameObj> m_gameObjects;
 
 	uint32 m_transport;
 	char   m_sessionName[256];
@@ -523,9 +525,9 @@ private:
 
 	sint32 m_progress;
 
-	Exclusions *m_rememberExclusions;
+	std::unique_ptr<Exclusions> m_rememberExclusions;
 
-	DynamicArray<DiplomaticRequest> *m_enactedDiplomaticRequests;
+	std::unique_ptr<DynamicArray<DiplomaticRequest>> m_enactedDiplomaticRequests;
 
 	GUID m_guid;
 	BOOL m_launchHost;
@@ -544,7 +546,7 @@ private:
 	MBCHAR m_chatStr[k_MAX_CHAT_LEN * 2];
 	uint32 m_chatMask;
 
-	ChatList *m_chatList;
+	std::unique_ptr<ChatList> m_chatList;
 
 	time_t m_battleViewOpenedTime;
 	time_t m_battleViewOriginalEndTime;

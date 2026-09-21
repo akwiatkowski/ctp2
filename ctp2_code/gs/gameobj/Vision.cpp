@@ -39,6 +39,7 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Vision.h"
 
+#include <memory>
 #include "gs/gameobj/Army.h"
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
@@ -246,7 +247,7 @@ void Vision::MergeMap(Vision *src)
 				{
 					if(m_unseenCells->RemoveAt(point, ucell))
 					{
-						delete ucell.m_unseenCell;
+						std::unique_ptr<UnseenCell>{ucell.m_unseenCell};
 					}
 					Cell* cell = world_Get()->GetCell(point);
 					sint32 n = cell->GetNumUnits();
@@ -264,7 +265,7 @@ void Vision::MergeMap(Vision *src)
 					if(cell->GetCity().m_id != 0)
 						cell->GetCity().SetVisible(m_owner);
 
-					ucell.m_unseenCell = new UnseenCell(point);
+					ucell.m_unseenCell = std::make_unique<UnseenCell>(point).release();
 					m_unseenCells->Insert(ucell);
 				}
 				else
@@ -302,7 +303,7 @@ void Vision::MergeMap(Vision *src)
 					if(src->m_unseenCells->GetAt(point, ucell))
 					{
 						UnseenCellCarton newUnseen(
-							new UnseenCell(ucell.m_unseenCell));
+							std::make_unique<UnseenCell>(ucell.m_unseenCell).release());
 
 						m_unseenCells->Insert(newUnseen);
 					}
@@ -326,7 +327,7 @@ void Vision::ModifyPoint(Vision *src, sint32 x, sint32 y)
 			UnseenCellCarton ucell2;
 			if(m_unseenCells->RemoveAt(pnt, ucell2))
 			{
-				delete ucell2.m_unseenCell;
+				std::unique_ptr<UnseenCell>{ucell2.m_unseenCell};
 			}
 			if(src->m_array[x][y] & k_VISIBLE_REFERENCE_MASK)
 			{
@@ -337,7 +338,7 @@ void Vision::ModifyPoint(Vision *src, sint32 x, sint32 y)
 				UnseenCellCarton ucell;
 				if(src->m_unseenCells->GetAt(pnt, ucell))
 				{
-					ucell2.m_unseenCell = new UnseenCell(ucell.m_unseenCell);
+					ucell2.m_unseenCell = std::make_unique<UnseenCell>(ucell.m_unseenCell).release();
 					m_unseenCells->Insert(ucell2);
 				}
 			}
@@ -354,7 +355,7 @@ void Vision::ModifyPoint(Vision *src, sint32 x, sint32 y)
 			{
 				UnseenCellCarton ucell2;
 
-				ucell2.m_unseenCell = new UnseenCell(ucell.m_unseenCell);
+				ucell2.m_unseenCell = std::make_unique<UnseenCell>(ucell.m_unseenCell).release();
 				m_unseenCells->Insert(ucell2);
 			}
 		}
@@ -383,7 +384,7 @@ bool Vision::MergePoint(sint32 x, sint32 y)
 			UnseenCellCarton ucell;
 			if(m_unseenCells->RemoveAt(point, ucell))
 			{
-				delete ucell.m_unseenCell;
+				std::unique_ptr<UnseenCell>{ucell.m_unseenCell};
 			}
 			return true;
 		}
@@ -400,7 +401,7 @@ bool Vision::MergePoint(sint32 x, sint32 y)
 			if(m_mergeFrom->m_unseenCells->GetAt(point, ucell))
 			{
 				UnseenCellCarton newUnseen(
-					new UnseenCell(ucell.m_unseenCell));
+					std::make_unique<UnseenCell>(ucell.m_unseenCell).release());
 
 				m_unseenCells->Insert(newUnseen);
 			}
@@ -545,7 +546,7 @@ void Vision::DoFillCircleOp(const MapPoint &posRC, CIRCLE_OP op,
 				UnseenCellCarton ucell;
 				if(m_unseenCells->RemoveAt(iso, ucell))
 				{
-					delete ucell.m_unseenCell;
+					std::unique_ptr<UnseenCell>{ucell.m_unseenCell};
 				}
 			}
 
@@ -631,11 +632,11 @@ void Vision::AddUnseen(const MapPoint &point)
 		}
 		if(network_Get().IsHost())
 		{
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADD_UNSEEN,
-										  m_owner, network_Get().PackedPos(point)));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ADD_UNSEEN,
+										  m_owner, network_Get().PackedPos(point)).release());
 		}
 
-		UnseenCellCarton unseen(new UnseenCell(point)); // Memory leak?
+		UnseenCellCarton unseen(std::make_unique<UnseenCell>(point).release()); // Memory leak?
 		m_unseenCells->Insert(unseen);
 	}
 }
@@ -659,7 +660,7 @@ void Vision::Copy(const Vision *copy)
 	sint32 n = array.Num();
 	for (int i = 0; i < n; i++)
 	{
-		UnseenCellCarton newUnseen(new UnseenCell(array[i].m_unseenCell));
+		UnseenCellCarton newUnseen(std::make_unique<UnseenCell>(array[i].m_unseenCell).release());
 		m_unseenCells->Insert(newUnseen);
 	}
 }
@@ -677,7 +678,7 @@ void Vision::DeleteUnseenCells()
 
 	for (int i = 0; i < array.Num(); i++)
 	{
-		delete array[i].m_unseenCell;
+		std::unique_ptr<UnseenCell>{array[i].m_unseenCell};
 	}
 }
 

@@ -32,6 +32,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include <vector>
 
 #include "ctp/c3.h"
@@ -109,10 +110,7 @@ TileSet::TileSet()
 		}
 	}
 
-	// Data from the tile file
-	for (i=0; i<k_MAX_BASE_TILES; i++) {
-		m_baseTiles[i] = nullptr;
-	}
+	// m_baseTiles is an array of unique_ptr, default-null
 
 	// Data from the tile file
 	for (i=0; i<k_MAX_IMPROVEMENTS; i++) {
@@ -150,18 +148,14 @@ void TileSet::CleanupQuick()
 
 	for (i=0; i<k_MAX_BASE_TILES; i++)
 	{
-		delete m_baseTiles[i];
-		m_baseTiles[i] = nullptr;
+		m_baseTiles[i].reset();
 	}
 
-	for (i=0; i < g_theMapIconDB->NumRecords(); i++)
-	{
-		delete m_mapIcons[i];
-	}
+	// m_mapIcons is a vector of unique_ptr, auto-freed by clear()
 	m_mapIcons.clear();
 	m_mapIconDimensions.clear();
 
-	delete[] m_tileSetData;
+	m_tileSetDataOwner.reset();   // heap path only; mmap path uses CleanupMapped
 	m_tileSetData = nullptr;
 }
 
@@ -178,14 +172,10 @@ void TileSet::CleanupMapped()
 
 	for (i=0; i<k_MAX_BASE_TILES; i++)
 	{
-		delete m_baseTiles[i];
-		m_baseTiles[i] = nullptr;
+		m_baseTiles[i].reset();
 	}
 
-	for (i=0; i < g_theMapIconDB->NumRecords(); i++)
-	{
-		delete m_mapIcons[i];
-	}
+	// m_mapIcons is a vector of unique_ptr, auto-freed by clear()
 	m_mapIcons.clear();
 	m_mapIconDimensions.clear();
 
@@ -216,46 +206,28 @@ void TileSet::Cleanup()
 	    sint32		 j;
 	    sint32		 k;
 
-		if (!m_transforms.empty())
-        {
-			for (i = 0; i < m_numTransforms; i++)
-            {
-				delete [] m_transforms[i];
-			}
-			m_transforms.clear();
-			m_numTransforms = 0;
-		}
+		m_transforms.clear();
+		m_transformOwners.clear();
+		m_numTransforms = 0;
 
 
-		if (!m_riverTransforms.empty())
-        {
-			for (i = 0; i<m_numRiverTransforms; i++)
-            {
-				delete [] m_riverTransforms[i];
-				delete [] m_riverData[i];
-			}
-
-			m_riverTransforms.clear();
-			m_numRiverTransforms = 0;
-
-			m_riverData.clear();
-		}
+		m_riverTransforms.clear();
+		m_riverTransformOwners.clear();
+		m_riverData.clear();
+		m_riverDataOwners.clear();
+		m_numRiverTransforms = 0;
 
 		for (i=0; i<TERRAIN_MAX; i++) {
 			for (j=0; j<TERRAIN_MAX; j++) {
-				if (m_transitions[i][j][0]) {
-					for(k=0; k < k_TRANSITIONS_PER_TILE; k++) {
-						delete [] m_transitions[i][j][k];
-						m_transitions[i][j][k] = nullptr;
-					}
+				for(k=0; k < k_TRANSITIONS_PER_TILE; k++) {
+					m_transitions[i][j][k] = nullptr;
 				}
 			}
 		}
 
 		for (i=0; i<k_MAX_BASE_TILES; i++)
         {
-			delete m_baseTiles[i];
-			m_baseTiles[i] = nullptr;
+			m_baseTiles[i].reset();
 		}
 	}
 }
@@ -267,14 +239,13 @@ void TileSet::LoadBaseTiles(FILE *file)
 
 	for (uint32 i = 0; i < baseTileCount; ++i)
 	{
-		BaseTile *  baseTile = new BaseTile();
+		auto baseTile = std::make_unique<BaseTile>();
 		baseTile->Read(file);
 		sint32 const tileNum = baseTile->GetTileNum();
 		if (tileNum < 0 || tileNum >= k_MAX_BASE_TILES) {
-			delete baseTile;
 			continue;
 		}
-		m_baseTiles[tileNum] = baseTile;
+		m_baseTiles[tileNum] = std::move(baseTile);
 	}
 }
 
@@ -304,12 +275,11 @@ void TileSet::LoadTransitions(FILE *file)
 
 		for (size_t k = 0; k < k_TRANSITIONS_PER_TILE; ++k)
         {
-			// TODO(phase-2): ownership transfer out of function — needs separate strategy
-	        Pixel16	* xData = new Pixel16[transitionSize/2];
-			count = c3files_fread(xData, 1, transitionSize, file);
+	        auto xData = std::make_unique<Pixel16[]>(transitionSize/2);
+			count = c3files_fread(xData.get(), 1, transitionSize, file);
 			if (count != transitionSize) goto Error;
 
-			m_transitions[from][to][k] = xData;
+			m_transitions[from][to][k] = xData.release();
 		}
 	}
 
@@ -332,10 +302,10 @@ void TileSet::LoadTransforms(FILE *file)
 
 		for (uint16 i = 0; i < numTransforms; ++i)
         {
-			// TODO(phase-2): ownership transfer out of function — needs separate strategy
-	        sint16 * transform = new sint16[k_TRANSFORM_SIZE];
-			c3files_fread(transform, 1, sizeof(sint16)*k_TRANSFORM_SIZE, file);
-			m_transforms[i] = transform;
+	        auto transform = std::make_unique<sint16[]>(k_TRANSFORM_SIZE);
+			c3files_fread(transform.get(), 1, sizeof(sint16)*k_TRANSFORM_SIZE, file);
+			m_transforms[i] = transform.get();
+			m_transformOwners.push_back(std::move(transform));
 		}
 	}
 }
@@ -354,20 +324,20 @@ void TileSet::LoadRiverTransforms(FILE *file)
 
 			for (uint16 i = 0; i < numRiverTransforms; ++i)
             {
-				// TODO(phase-2): ownership transfer out of function — needs separate strategy
-	            sint16 *    transform = new sint16[k_RIVER_TRANSFORM_SIZE];
-				c3files_fread(transform, 1, sizeof(sint16)*k_RIVER_TRANSFORM_SIZE, file);
-				m_riverTransforms[i] = transform;
+	            auto transform = std::make_unique<sint16[]>(k_RIVER_TRANSFORM_SIZE);
+				c3files_fread(transform.get(), 1, sizeof(sint16)*k_RIVER_TRANSFORM_SIZE, file);
+				m_riverTransforms[i] = transform.get();
+				m_riverTransformOwners.push_back(std::move(transform));
 
 	            uint32		len = 0;
 				c3files_fread(&len, 1, sizeof(uint32), file);
 
 				if (len > 0)
                 {
-                	// TODO(phase-2): ownership transfer out of function — needs separate strategy
-                	Pixel16	* riverData = new Pixel16[len/2];
-					c3files_fread(riverData, 1, len, file);
-					m_riverData[i] = riverData;
+                	auto riverData = std::make_unique<Pixel16[]>(len/2);
+					c3files_fread(riverData.get(), 1, len, file);
+					m_riverData[i] = riverData.get();
+					m_riverDataOwners.push_back(std::move(riverData));
 				}
                 else
                 {
@@ -395,10 +365,9 @@ void TileSet::LoadImprovements(FILE *file)
 
 			if (len > 0)
             {
-				// TODO(phase-2): ownership transfer out of function — needs separate strategy
-				Pixel16	*   impData = new Pixel16[len/2];
-				c3files_fread(impData, 1, len, file);
-				m_improvementData[impNum] = impData;
+				auto impData = std::make_unique<Pixel16[]>(len/2);
+				c3files_fread(impData.get(), 1, len, file);
+				m_improvementData[impNum] = impData.release();
 			}
             else
             {
@@ -451,10 +420,11 @@ void TileSet::LoadMapIcons()
 	uint16		 width;
 	uint16		 height;
 	uint32		len;
-	Pixel16		*tga;
-	Pixel16		*data;
+	std::unique_ptr<Pixel16[]>	tga;
+	std::unique_ptr<Pixel16[]>	data;
 
-	m_mapIcons.assign(g_theMapIconDB->NumRecords(), nullptr);
+	m_mapIcons.clear();
+	m_mapIcons.resize(g_theMapIconDB->NumRecords());
 	m_mapIconDimensions.resize(g_theMapIconDB->NumRecords());
 	for (sint32 i = 0; i < g_theMapIconDB->NumRecords(); ++i)
 	{
@@ -487,30 +457,29 @@ void TileSet::LoadMapIcons()
 			width = rhead->width;
 			height = rhead->height;
 			Pixel16 *   image = (Pixel16 *)(buf + sizeof(RIMHeader));
-			data = (Pixel16 *)tileutils_EncodeTile16(image, width, height, &len, rhead->pitch);
+			data.reset((Pixel16 *)tileutils_EncodeTile16(image, width, height, &len, rhead->pitch));
 			if (data) {
-				m_mapIcons[i] = data;
 				POINT pt = {width, height};
 				m_mapIconDimensions[i] = pt;
 
-				tileutils_ConvertPixelFormatFrom555(data);
+				tileutils_ConvertPixelFormatFrom555(data.get());
+				m_mapIcons[i] = std::move(data);
 			}
 			continue;
 		}
 
-		tga = tileutils_TGA2mem(path, &width, &height);
+		tga.reset(tileutils_TGA2mem(path, &width, &height));
 		if (tga) {
-			data = (Pixel16 *)tileutils_EncodeTile16(tga, width, height, &len);
-			delete[] tga;
-			tga = nullptr;
+			data.reset((Pixel16 *)tileutils_EncodeTile16(tga.get(), width, height, &len));
+			tga.reset();
 
 			if (data) {
 
-				tileutils_ConvertPixelFormatFrom555(data);
+				tileutils_ConvertPixelFormatFrom555(data.get());
 
-				m_mapIcons[i] = data;
 				POINT pt = {width, height};
 				m_mapIconDimensions[i] = pt;
+				m_mapIcons[i] = std::move(data);
 			}
 		}
 
@@ -560,7 +529,7 @@ Pixel16 TileSet::ConvertMapIcons(const MBCHAR *name)  //EMOD
 		tga = tileutils_TGA2mem(path, &width, &height);
 		if (tga) {
 			data = (Pixel16 *)tileutils_EncodeTile16(tga, width, height, &len);
-			delete[] tga;
+			delete[] tga;   // tileutils_TGA2mem returns malloc'd — not unique_ptr
 			tga = NULL;
 
 			if (data) {
@@ -606,7 +575,7 @@ void TileSet::QuickLoadTransforms(uint8 **dataPtr)
 
 		for (uint16 i = 0; i < m_numTransforms; ++i)
         {
-			m_transforms[i] = (sint16 *)(*dataPtr);
+			m_transforms[i] = (sint16 *)(*dataPtr);   // borrowed into m_tileSetData
 			(*dataPtr) += sizeof(sint16)*k_TRANSFORM_SIZE;
 		}
 	}
@@ -638,7 +607,7 @@ void TileSet::QuickLoadTransitions(uint8 **dataPtr)
 
 		for (size_t k = 0; k < k_TRANSITIONS_PER_TILE; ++k)
         {
-			m_transitions[from][to][k] = (Pixel16 *)(*dataPtr);
+			m_transitions[from][to][k] = (Pixel16 *)(*dataPtr);   // borrowed into m_tileSetData
 			(*dataPtr) += transitionSize;
 		}
 	}
@@ -652,15 +621,14 @@ void TileSet::QuickLoadBaseTiles(uint8 **dataPtr)
 
 	for (uint32 i = 0; i < baseTileCount; ++i)
     {
-	    BaseTile * baseTile = new BaseTile();
+	    auto baseTile = std::make_unique<BaseTile>();
 		baseTile->QuickRead(dataPtr, m_mapped);
 
 		sint32 const tileNum = baseTile->GetTileNum();
 		if (tileNum < 0 || tileNum >= k_MAX_BASE_TILES) {
-			delete baseTile;
 			continue;
 		}
-		m_baseTiles[tileNum] = baseTile;
+		m_baseTiles[tileNum] = std::move(baseTile);
 	}
 }
 
@@ -678,7 +646,7 @@ void TileSet::QuickLoadRiverTransforms(uint8 **dataPtr)
 
 		for (uint16 i = 0; i < numRiverTransforms; ++i)
         {
-			m_riverTransforms[i] = (sint16 *)(*dataPtr);
+			m_riverTransforms[i] = (sint16 *)(*dataPtr);   // borrowed into m_tileSetData
 			(*dataPtr) += (sizeof(sint16)*k_RIVER_TRANSFORM_SIZE);
 
 			uint32		len;
@@ -688,7 +656,7 @@ void TileSet::QuickLoadRiverTransforms(uint8 **dataPtr)
 
 			if (len > 0)
             {
-				m_riverData[i] = (Pixel16 *)(*dataPtr);
+				m_riverData[i] = (Pixel16 *)(*dataPtr);   // borrowed into m_tileSetData
 				(*dataPtr) += len;
 			}
             else
@@ -773,7 +741,8 @@ void TileSet::QuickLoad()
 			if (c3files_fseek(file, 0, SEEK_SET)) goto Error;
 
 			// TODO(phase-2): class-member buffer — wave 3 migration
-			m_tileSetData = new uint8[fileSize];
+			m_tileSetDataOwner = std::make_unique<uint8[]>(fileSize);
+			m_tileSetData = m_tileSetDataOwner.get();
 		}
         else
         {
@@ -807,7 +776,7 @@ Error:
 	if (file != nullptr)
 		fclose(file);
 
-	delete [] m_tileSetData;
+	m_tileSetDataOwner.reset();
     m_tileSetData = nullptr;
 
 	c3errors_FatalDialog("Tile Set", "Unable to load tileset.");

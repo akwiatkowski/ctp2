@@ -35,6 +35,8 @@
 #include "ctp/c3.h"
 #include "gs/utility/Globals.h"
 
+#include <memory>
+
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "gs/gameobj/pollution.h"
@@ -98,7 +100,7 @@ Pollution::~Pollution()
 //----------------------------------------------------------------------------
 void Pollution::WarnPlayers()
 {
-	SlicObject *	so	= new SlicObject("911ImminentFlood");
+	auto		so	= std::make_unique<SlicObject>("911ImminentFlood");
 	SlicSegment *	seg	= slicengine_Get()->GetSegment("911ImminentFlood");
 
 	// Start at 1: skip the barbarians.
@@ -115,11 +117,7 @@ void Pollution::WarnPlayers()
 
 	if (so->GetNumRecipients())
 	{
-		slicengine_Get()->Execute(so);
-	}
-	else
-	{
-		delete so;
+		slicengine_Get()->Execute(std::move(so));
 	}
 }
 

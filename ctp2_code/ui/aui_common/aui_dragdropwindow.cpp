@@ -57,7 +57,7 @@ AUI_ERRCODE aui_DragDropWindow::DrawThis(
 
 	if ( IsHidden() ) return AUI_ERRCODE_OK;
 
-	if ( !surface ) surface = m_surface;
+	if ( !surface ) surface = m_surface.get();
 
 	RECT rect = { 0, 0, m_width, m_height };
 
@@ -76,7 +76,7 @@ AUI_ERRCODE aui_DragDropWindow::DrawThis(
 		if ( wasHidden ) m_dragDropItem->Hide();
 	}
 
-	if ( surface == m_surface )
+	if ( surface == m_surface.get() )
 		AddDirtyRect( &rect );
 
 	return AUI_ERRCODE_OK;

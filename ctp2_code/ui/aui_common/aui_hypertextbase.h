@@ -1,6 +1,7 @@
 #ifndef __AUI_HYPERTEXTBASE_H__
 #define __AUI_HYPERTEXTBASE_H__
 
+#include <memory>
 #include <string>
 
 #include "ui/aui_common/tech_wllist.h"
@@ -71,7 +72,7 @@ protected:
 	uint32	m_hyperMaxLen;
 	uint32	m_hyperCurLen;
 
-	tech_WLList<aui_Static *>	*m_hyperStaticList;
+	std::unique_ptr<tech_WLList<aui_Static *>>	m_hyperStaticList;
 
 	MBCHAR		m_hyperTtffile[ MAX_PATH + 1 ];
 	sint32		m_hyperPointSize;

@@ -36,6 +36,8 @@
 
 #include "ctp/c3.h"
 #include "gs/utility/safety.h"
+
+#include <memory>
 #include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/Readiness.h"
 #include "gs/database/DB.h"
@@ -264,7 +266,7 @@ void MilitaryReadiness::SetLevel(sint32 gov, DynamicArray<Army> &all_armies,
 void MilitaryReadiness::RecalcCost()
 {
 	m_cost = 0.0;
-	DynamicArray<Army> *all_armies = player_Get(m_owner)->m_all_armies;
+	DynamicArray<Army> *all_armies = player_Get(m_owner)->m_all_armies.get();
 
 	int const   n = all_armies->Num();
 	for(sint32 i = 0; i < n; i++)
@@ -288,7 +290,7 @@ sint32 MilitaryReadiness::TotalUnitGoldSupport()
 //based on RecalcCost, this coade (renamed from RecalcCostGold) gets all support gold hunger from units * govt coefficient * readiness
 
 	m_costGold = 0;
-	DynamicArray<Army> *all_armies = player_Get(m_owner)->m_all_armies;
+	DynamicArray<Army> *all_armies = player_Get(m_owner)->m_all_armies.get();
 	sint32 i;
 	sint32 j;
 	sint32 const n = all_armies->Num();
@@ -388,9 +390,9 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 
 		if (0 != m_owner) {
 			if (slicengine_Get()->GetSegment("120NoSupport")->TestLastShown(m_owner, 1, turn_Get()->GetSessionRound())) {
-				SlicObject *so = new SlicObject("120NoSupport");
+				auto so = std::make_unique<SlicObject>("120NoSupport");
 				so->AddRecipient(m_owner);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 
 			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
@@ -424,9 +426,9 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 			m_cost -= prof_units[i].cost;
 
 			if (slicengine_Get()->GetSegment("120NoSupport")->TestLastShown(m_owner, 1, turn_Get()->GetSessionRound())) {
-				SlicObject *so = new SlicObject("120NoSupport");
+				auto so = std::make_unique<SlicObject>("120NoSupport");
 				so->AddRecipient(m_owner);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 
 			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,

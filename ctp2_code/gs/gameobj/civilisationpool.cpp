@@ -126,7 +126,7 @@ Civilisation CivilisationPool::Create(const PLAYER_INDEX owner, sint32 requiredC
 		gender = (GENDER)(rand_ptr()->Next() % 2);
 	}
 
-	CivilisationData *	newData = new CivilisationData(newCivilisation, owner, civ, gender);
+	auto newData = std::make_unique<CivilisationData>(newCivilisation, owner, civ, gender);
 
 	m_usedCivs->Insert(civ);
 
@@ -148,11 +148,11 @@ Civilisation CivilisationPool::Create(const PLAYER_INDEX owner, sint32 requiredC
 
 	newData->SetCityStyle(g_theCivilisationDB->Get(civ)->GetCityStyleIndex());
 
-	Insert(newData);
+	Insert(newData.release());
 	DPRINTF(k_DBG_INFO, ("Civilisation %d is in use\n", civ));
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(newData);
+		network_Get().Enqueue(newData.get());
 	}
 
 	return (newCivilisation);

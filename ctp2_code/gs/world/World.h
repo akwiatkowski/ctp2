@@ -138,17 +138,20 @@ class World : public CityRadiusCallback
 
     sint16 m_water_continent_max;
     sint16 m_land_continent_max;
-    DynamicArray<DAsint32> *m_water_next_too_land;
-    DynamicArray<DAsint32> *m_land_next_too_water;
-    DynamicArray<sint32> *m_water_size;
-    DynamicArray<sint32> *m_land_size;
+    std::unique_ptr<DynamicArray<DAsint32>> m_water_next_too_land;
+    std::unique_ptr<DynamicArray<DAsint32>> m_land_next_too_water;
+    std::unique_ptr<DynamicArray<sint32>> m_water_size;
+    std::unique_ptr<DynamicArray<sint32>> m_land_size;
 
-    Cell		*m_cellArray;
-    CellYarray	*m_tmpx;
+    std::unique_ptr<Cell[]>		m_cellArray;
+    std::unique_ptr<CellYarray[]>	m_tmpx;
+    // Owns the per-row CellPtr arrays; m_map[x] points into these
+    // (offset by k_MAP_WRAPAROUND when y-wrapped).
+    std::vector<std::unique_ptr<CellPtr[]>> m_mapRows;
 
     sint32			m_player_start_list[8][2];
-    TileInfo		*m_tileInfoStorage;
-    double          *m_goodValue;
+    std::unique_ptr<TileInfo[]>	m_tileInfoStorage;
+    std::unique_ptr<double[]>     m_goodValue;
 
 
 
@@ -202,7 +205,7 @@ public:
 	void SetCapitolDistanceDirtyFlags(uint32 flags) {m_capitolDistanceDirtyFlags |= flags;}
 
     XY_Coordinates XY_Coords;
-	A_Star_Heuristic_Cost * A_star_heuristic;
+	std::unique_ptr<A_Star_Heuristic_Cost> A_star_heuristic;
 
     World(const MapPoint & m, const int xw, const int yw);
     void CreateTheWorld(MapPoint player_start_list[k_MAX_PLAYERS],

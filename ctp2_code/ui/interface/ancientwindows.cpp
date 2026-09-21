@@ -18,6 +18,9 @@
 
 #include "ui/interface/ancientwindows.h"
 
+
+#include <memory>
+
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
 
@@ -57,8 +60,8 @@ sint32 ancientwindows_GetControlPieceHeight( )
 }
 
 
-BevelLessWindow		*s_controlPanelLeftHat=nullptr;
-BevelLessWindow		*s_controlPanelRightHat=nullptr;
+std::unique_ptr<BevelLessWindow>	s_controlPanelLeftHat;
+std::unique_ptr<BevelLessWindow>	s_controlPanelRightHat;
 
 int AncientWindows_Initialize( )
 {
@@ -71,11 +74,11 @@ int AncientWindows_Cleanup( )
 
 	if (s_controlPanelLeftHat) {
 		c3ui_Get()->RemoveWindow(s_controlPanelLeftHat->Id());
-		delete s_controlPanelLeftHat;
+		s_controlPanelLeftHat.reset();
 	}
 	if (s_controlPanelRightHat) {
 		c3ui_Get()->RemoveWindow(s_controlPanelRightHat->Id());
-		delete s_controlPanelRightHat;
+		s_controlPanelRightHat.reset();
 	}
 
 return 0;

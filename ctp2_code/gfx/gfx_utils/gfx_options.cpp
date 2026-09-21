@@ -36,11 +36,12 @@
 #include "gs/utility/Globals.h"
 #include "ai/ctpaidebug.h"
 #include "gfx/gfx_utils/gfx_options_observer_adapter.h"  // RegisterGraphicsOptionsObserverAdapter
+#include <memory>
 
-static GraphicsOptions * g_graphicsOptions = nullptr;
+static std::unique_ptr<GraphicsOptions> g_graphicsOptions;
 
-GraphicsOptions * graphicsoptions_Get()             { return g_graphicsOptions; }
-void              graphicsoptions_Set(GraphicsOptions *p) { g_graphicsOptions = p; }
+GraphicsOptions * graphicsoptions_Get()             { return g_graphicsOptions.get(); }
+void              graphicsoptions_Set(GraphicsOptions *p) { g_graphicsOptions.reset(p); }
 
 namespace
 {
@@ -66,8 +67,7 @@ GraphicsOptions::GraphicsOptions()
 
 void GraphicsOptions::Initialize()
 {
-	delete g_graphicsOptions;
-	g_graphicsOptions = new GraphicsOptions();
+	g_graphicsOptions = std::make_unique<GraphicsOptions>();
 
 	// Bridge g_graphicsOptions → gfx_options_observer interface so gs/
 	// and ai/ code can call gfx_options_observer::AddTextToCell(...)
@@ -78,7 +78,7 @@ void GraphicsOptions::Initialize()
 
 void GraphicsOptions::Cleanup()
 {
-	allocated::clear(g_graphicsOptions);
+	g_graphicsOptions.reset();
 }
 
 // ArmyName added by E

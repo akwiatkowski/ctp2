@@ -31,6 +31,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/player.h"
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/PlayerEvent.h"
@@ -99,7 +100,7 @@ void Player::BeginTurn()
 	if(network_Get().IsHost())
 	{
 		network_Get().Block(m_owner);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_SET_ROUND, m_owner, m_current_round));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_SET_ROUND, m_owner, m_current_round).release());
 		network_Get().Unblock(m_owner);
 	}
 
@@ -208,8 +209,8 @@ void Player::BeginTurn()
 		if(network_Get().IsHost())
 		{
 			network_Get().Block(m_owner);
-			network_Get().QueuePacketToAll(new NetStrengths(m_owner));
-			network_Get().QueuePacketToAll(new NetScores(m_owner));
+			network_Get().QueuePacketToAll(std::make_unique<NetStrengths>(m_owner).release());
+			network_Get().QueuePacketToAll(std::make_unique<NetScores>(m_owner).release());
 			network_Get().Unblock(m_owner);
 		}
 	}

@@ -474,7 +474,7 @@ AvlNode<KeyType>::Insert(Comparable<KeyType> *   item,
 
     if (root == nullptr) {
 
-        root.reset(new AvlNode<KeyType>(item));
+        root = std::make_unique<AvlNode<KeyType>>(item);
         change  = HEIGHT_CHANGE;
         return  nullptr;
     }

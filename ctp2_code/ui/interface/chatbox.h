@@ -7,6 +7,7 @@
 #include "ui/aui_utils/primitives.h"
 #include "gfx/gfx_utils/colorset.h"
 #include "ui/aui_ctp2/c3window.h"
+#include <memory>
 
 #define k_CHATBOX_LINE_LENGTH			60
 
@@ -58,8 +59,8 @@ public:
 
 	BOOL CheckForEasterEggs(MBCHAR *s);
 
-	c3_HyperTextBox	*   GetTextBox() const { return m_textBox; }
-	C3TextField	*       GetTextField() const { return m_textField; }
+	c3_HyperTextBox	*   GetTextBox() const { return m_textBox.get(); }
+	C3TextField	*       GetTextField() const { return m_textField.get(); }
 	ChatBox	*           GetChatBox() const { return m_chatBox; }
 
 	void				ColorizeString(MBCHAR *destString, size_t destSize, MBCHAR *srcString, COLORREF colorRef);
@@ -67,8 +68,8 @@ public:
 	static void ChatCallback(aui_Control *control, uint32 action, uint32 data, void *cookie) ;
 
 private:
-	c3_HyperTextBox		*m_textBox;
-	C3TextField			*m_textField;
+	std::unique_ptr<c3_HyperTextBox>	m_textBox;
+	std::unique_ptr<C3TextField>		m_textField;
 	ChatBox				*m_chatBox;
 };
 
@@ -88,7 +89,7 @@ public:
 
 private:
 
-	ChatWindow			*m_chatWindow;
+	std::unique_ptr<ChatWindow>	m_chatWindow;
 	BOOL				m_active;
 };
 

@@ -34,6 +34,7 @@
 #include "ctp/c3.h"
 #include "ui/aui_common/aui_control.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 #ifndef WIN32
@@ -96,7 +97,6 @@ aui_Control::aui_Control
 	aui_Region              (retval, id, ldlBlock),
 	aui_SoundBase           (ldlBlock),
 	m_stringTable           (nullptr),
-	m_allocatedTip          (false),
 	m_statusText            (nullptr),
 	m_numberOfLayers        (0),
 	m_imagesPerLayer        (0),
@@ -128,7 +128,6 @@ aui_Control::aui_Control
 	aui_Region              (retval, id, x, y, width, height),
 	aui_SoundBase           ((MBCHAR const **) nullptr),
 	m_stringTable           (nullptr),
-	m_allocatedTip          (false),
 	m_statusText            (nullptr),
 	m_numberOfLayers        (0),
 	m_imagesPerLayer        (0),
@@ -159,21 +158,18 @@ AUI_ERRCODE aui_Control::InitCommonLdl(
 
 	MBCHAR const *tip = block->GetString(k_AUI_CONTROL_LDL_TIPWINDOW);
 	if (tip) {
-		m_tip = new aui_TipWindow(&errcode, aui_UniqueId(), "DefaultTipWindow");
+		m_ownedTip = std::make_unique<aui_TipWindow>(&errcode, aui_UniqueId(), "DefaultTipWindow");
+		m_tip = m_ownedTip.get();
 		Assert( AUI_NEWOK(m_tip,errcode) );
 		if ( !AUI_NEWOK(m_tip,errcode) ) return errcode;
 
 		aui_Ldl::Remove( m_tip );
-
-		m_allocatedTip = TRUE;
 
 		StringId	id;
 		if (stringdb_Get()->GetStringID(tip, id)) {
 			const MBCHAR *text = stringdb_Get()->GetNameStr(id);
 			((aui_TipWindow*)m_tip)->SetTipText((MBCHAR *)text);
 		}
-
-		SetTipWindow( m_tip );
 	}
 
 	MBCHAR const *shortcut = block->GetString(k_AUI_CONTROL_SHORTCUT);
@@ -208,7 +204,7 @@ AUI_ERRCODE aui_Control::InitCommonLdl(
     ldl_datablock *ldlblock = aui_Ldl::GetLdl()->FindDataBlock( stblock );
 	if ( ldlblock )
 	{
-		m_stringTable = new aui_StringTable( &errcode, stblock );
+		m_stringTable = std::make_unique<aui_StringTable>( &errcode, stblock );
 		Assert( AUI_NEWOK(m_stringTable,errcode) );
 		if ( !AUI_NEWOK(m_stringTable,errcode) )
 			return AUI_ERRCODE_MEMALLOCFAILED;
@@ -234,7 +230,6 @@ AUI_ERRCODE aui_Control::InitCommon(
 	void *cookie )
 {
     m_window = nullptr,
-	m_allocatedTip = FALSE,
 	m_tip = nullptr,
 	m_showingTip = FALSE,
 	m_startWaitTime = 0,
@@ -252,19 +247,35 @@ AUI_ERRCODE aui_Control::InitCommon(
 }
 
 
+aui_Control::aui_Control()
+:	aui_ImageBase       (),
+	aui_TextBase        (),
+	aui_Region          (),
+	aui_SoundBase       (),
+	m_stringTable       (nullptr),
+	m_statusText        (nullptr),
+	m_numberOfLayers    (0),
+	m_imagesPerLayer    (0),
+	m_imageLayerList    (nullptr),
+	m_renderFlags       (k_AUI_CONTROL_LAYER_FLAG_ALWAYS)
+	// m_statusTextCopy default constructed (empty)
+	// m_layerRenderFlags default constructed (empty)
+{
+}
+
+
 aui_Control::~aui_Control()
 {
 	ReleaseKeyboardFocus();
 	ReleaseMouseOwnership();
 
-	delete m_stringTable;
+	m_stringTable.reset();
 
-	if (m_allocatedTip)
-	{
-		delete m_tip;
-	}
+	// m_ownedTip frees the tip window only when this control allocated it;
+	// externally supplied tip windows (SetTipWindow) are never owned.
+	m_ownedTip.reset();
 
-	delete m_imageLayerList;
+	m_imageLayerList.reset();
 	// m_layerRenderFlags is std::vector, auto-freed
 	// m_statusText: reference only
 	// m_statusTextCopy is std::string, auto-freed
@@ -486,12 +497,14 @@ BOOL aui_Control::ShowTipWindow( aui_MouseEvent *mouseData )
 
 aui_Window *aui_Control::SetTipWindow( aui_Window *window )
 {
+	// The argument is never owned by this control. If the previous tip was
+	// self-allocated (LDL path), detach it from m_ownedTip so the caller can
+	// take over — messageiconwindow.cpp wraps the return in unique_ptr.
 	aui_Window *prevTip = m_tip;
+	if (m_ownedTip && prevTip == m_ownedTip.get())
+		m_ownedTip.release();
 
 	m_tip = window;
-
-	if (window != nullptr)
-		m_allocatedTip = TRUE;
 
 	return prevTip;
 }
@@ -989,8 +1002,7 @@ AUI_ERRCODE	aui_Control::Resize(sint32 width, sint32 height)
 
 		if(ldlBlock) {
 
-			delete m_imageLayerList;
-			m_imageLayerList = nullptr;
+			m_imageLayerList.reset();
 
 
 
@@ -1108,7 +1120,7 @@ bool aui_Control::AllocateImageLayers(ldl_datablock *theBlock)
 		ATTRIBUTE_TYPE_INT)
 		m_imagesPerLayer = theBlock->GetInt(k_AUI_CONTROL_IMAGES_PER_LAYER);
 
-	m_imageLayerList = new aui_ImageList(m_numberOfLayers, m_imagesPerLayer);
+	m_imageLayerList = std::make_unique<aui_ImageList>(m_numberOfLayers, m_imagesPerLayer);
 
 	m_layerRenderFlags.resize(m_numberOfLayers);
 

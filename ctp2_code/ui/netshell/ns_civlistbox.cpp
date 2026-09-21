@@ -26,6 +26,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/netshell/ns_civlistbox.h"
 
 #include "ui/aui_common/aui_ui.h"
@@ -170,21 +171,20 @@ AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 		if ( m_header )
 		{
 			RemoveChild( m_header->Id() );
-			delete m_header;
-			m_header = nullptr;
+			m_header.reset();
 		}
 
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_HEADER );
 
 		if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
-			m_header = new ns_Header(
+			m_header = std::make_unique<ns_Header>(
 				&errcode,
 				aui_UniqueId(),
 				block );
 	}
 
 	if ( !m_header )
-		m_header = new ns_Header(
+		m_header = std::make_unique<ns_Header>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0 );
@@ -192,7 +192,7 @@ AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 	Assert( AUI_NEWOK(m_header,errcode) );
 	if ( !AUI_NEWOK(m_header,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_header );
+	AddChild( m_header.get() );
 
 	ListPos position = m_header->ChildList()->GetHeadPosition();
 	for ( sint32 i = m_header->ChildList()->L(); i; i-- )
@@ -204,7 +204,7 @@ AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERY );
 
         if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
-			m_verticalRanger = new c3_Ranger(
+			m_verticalRanger = std::make_unique<c3_Ranger>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -213,7 +213,7 @@ AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 	}
 
 	if ( !m_verticalRanger )
-		m_verticalRanger = new c3_Ranger(
+		m_verticalRanger = std::make_unique<c3_Ranger>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -227,14 +227,14 @@ AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 	if ( !AUI_NEWOK(m_verticalRanger,errcode) )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_verticalRanger );
+	AddChild( m_verticalRanger.get() );
 
 	if ( ldlBlock )
 	{
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERX );
 
         if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
-			m_horizontalRanger = new c3_Ranger(
+			m_horizontalRanger = std::make_unique<c3_Ranger>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -243,7 +243,7 @@ AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 	}
 
 	if ( !m_horizontalRanger )
-		m_horizontalRanger = new c3_Ranger(
+		m_horizontalRanger = std::make_unique<c3_Ranger>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -257,7 +257,7 @@ AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 	if ( !AUI_NEWOK(m_horizontalRanger,errcode) )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_horizontalRanger );
+	AddChild( m_horizontalRanger.get() );
 
 	sint32 maxRangerSize =
         std::max(m_verticalRanger->Width(), m_horizontalRanger->Height());
@@ -462,7 +462,7 @@ ns_HPlayerListBox::~ns_HPlayerListBox()
 	for ( sint32 i = m_pane->ChildList()->L(); i; i-- )
 	{
 		aui_Item *item = (aui_Item *)m_pane->ChildList()->GetNext( position );
-		delete item;
+		std::unique_ptr<aui_Item>( item ).reset();
 	}
 	m_pane->ChildList()->DeleteAll();
 }

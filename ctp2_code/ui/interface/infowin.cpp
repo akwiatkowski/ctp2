@@ -33,6 +33,7 @@
 #include "ui/interface/infowin.h"
 
 #include <vector>
+#include <memory>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_stringtable.h"
@@ -115,57 +116,59 @@ ctp2_Window                     *g_infoWindow = nullptr;
 static sint32                   s_infoSetting;
 static sint32                   s_infoDataSetting;
 
-static aui_StringTable          *s_stringTable;
+static std::unique_ptr<aui_StringTable> s_stringTable;
 
 static sint32                   s_infoXCount;
 static sint32                   s_infoYCount;
-static double                   **s_infoGraphData;
+// Graph rows are scratch for SetLineData (which copies) — owned vectors,
+// no manual delete[] (the old code used scalar delete on new[] rows: UB).
+static std::vector<std::vector<double>> s_infoGraphData;
 
 static sint32                   s_pollutionXCount;
 static sint32                   s_pollutionYCount;
-static double                   **s_pollutionGraphData;
+static std::vector<std::vector<double>> s_pollutionGraphData;
 
-static c3_Static                *s_civNameLabel;
-static c3_Static                *s_turnsLabel;
-static c3_Static                *s_foundedLabel;
-static c3_Static                *s_pollutionLabel;
+static std::unique_ptr<c3_Static>       s_civNameLabel;
+static std::unique_ptr<c3_Static>       s_turnsLabel;
+static std::unique_ptr<c3_Static>       s_foundedLabel;
+static std::unique_ptr<c3_Static>       s_pollutionLabel;
 
-static c3_Static                *s_civNameBox;
-static c3_Static                *s_turnsBox;
-static c3_Static                *s_foundedBox;
-static c3_Static                *s_pollutionBox;
+static std::unique_ptr<c3_Static>       s_civNameBox;
+static std::unique_ptr<c3_Static>       s_turnsBox;
+static std::unique_ptr<c3_Static>       s_foundedBox;
+static std::unique_ptr<c3_Static>       s_pollutionBox;
 
-static c3_Static                *s_titleBox;
+static std::unique_ptr<c3_Static>       s_titleBox;
 
-static c3_ListBox               *s_infoBigList;
-static c3_ListBox               *s_infoWonderList;
-static c3_ListBox               *s_infoPlayerList;
-static c3_ListBox               *s_infoScoreList;
-static c3_ListBox               *s_pollutionList;
+static std::unique_ptr<c3_ListBox>      s_infoBigList;
+static std::unique_ptr<c3_ListBox>      s_infoWonderList;
+static std::unique_ptr<c3_ListBox>      s_infoPlayerList;
+static std::unique_ptr<c3_ListBox>      s_infoScoreList;
+static std::unique_ptr<c3_ListBox>      s_pollutionList;
 
-static LineGraph                *s_infoGraph;
-static LineGraph                *s_pollutionGraph;
+static std::unique_ptr<LineGraph>       s_infoGraph;
+static std::unique_ptr<LineGraph>       s_pollutionGraph;
 
-static Thermometer              *s_pollutionTherm;
+static std::unique_ptr<Thermometer>     s_pollutionTherm;
 
 
-static c3_Button                *s_bigButton;
-static c3_Button                *s_wonderButton;
-static c3_Button                *s_strengthButton;
-static c3_Button                *s_scoreButton;
-static c3_Button                *s_pollutionButton;
+static std::unique_ptr<c3_Button>       s_bigButton;
+static std::unique_ptr<c3_Button>       s_wonderButton;
+static std::unique_ptr<c3_Button>       s_strengthButton;
+static std::unique_ptr<c3_Button>       s_scoreButton;
+static std::unique_ptr<c3_Button>       s_pollutionButton;
 
-static c3_Button                *s_eventsInfoButton[17];
-static c3_Button                *s_eventsInfoButtonLeft,*s_eventsInfoButtonRight;
+static std::unique_ptr<c3_Button>       s_eventsInfoButton[17];
+static std::unique_ptr<c3_Button>       s_eventsInfoButtonLeft,s_eventsInfoButtonRight;
 static sint32                   s_currentWonderDisplay;
 
-static c3_Button                *s_labButton;
-static c3_Button                *s_throneButton;
+static std::unique_ptr<c3_Button>       s_labButton;
+static std::unique_ptr<c3_Button>       s_throneButton;
 
 static RadarMap                 *s_infoRadar;
 
-static c3_Static                *s_bottomRightBox;
-static c3_Static                *s_bottomRightImage;
+static std::unique_ptr<c3_Static>       s_bottomRightBox;
+static std::unique_ptr<c3_Static>       s_bottomRightImage;
 
 static sint32                   s_minRound = 0;
 
@@ -199,23 +202,23 @@ void InfoButtonActionCallback( aui_Control *control, uint32 action, uint32 data,
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	if ((c3_Button*)control == s_bigButton)
+	if ((c3_Button*)control == s_bigButton.get())
 	{
 		infowin_ChangeSetting(k_INFOWIN_BIG_SETTING);
 	}
-	else if ((c3_Button*)control == s_wonderButton)
+	else if ((c3_Button*)control == s_wonderButton.get())
 	{
 		infowin_ChangeSetting(k_INFOWIN_WONDER_SETTING);
 	}
-	else if ((c3_Button*)control == s_strengthButton)
+	else if ((c3_Button*)control == s_strengthButton.get())
 	{
 		infowin_ChangeSetting(k_INFOWIN_STRENGTH_SETTING);
 	}
-	else if ((c3_Button*)control == s_scoreButton)
+	else if ((c3_Button*)control == s_scoreButton.get())
 	{
 		infowin_ChangeSetting(k_INFOWIN_SCORE_SETTING);
 	}
-	else if ((c3_Button*)control == s_pollutionButton)
+	else if ((c3_Button*)control == s_pollutionButton.get())
 	{
 		infowin_ChangeSetting(k_INFOWIN_POLLUTION_SETTING);
 	}
@@ -226,7 +229,7 @@ void EventsInfoButtonActionCallback( aui_Control *control, uint32 action, uint32
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	if ((c3_Button*)control == s_eventsInfoButtonLeft)
+	if ((c3_Button*)control == s_eventsInfoButtonLeft.get())
 	{
 		s_currentWonderDisplay--;
 		if(s_currentWonderDisplay<0)
@@ -234,7 +237,7 @@ void EventsInfoButtonActionCallback( aui_Control *control, uint32 action, uint32
 		s_infoGraph->RenderGraph(s_currentWonderDisplay);
 		s_infoGraph->ShouldDraw(TRUE);
 	}
-	else if ((c3_Button*)control == s_eventsInfoButtonRight)
+	else if ((c3_Button*)control == s_eventsInfoButtonRight.get())
 	{
 		s_currentWonderDisplay++;
 		EventTracker *et = eventtracker_Get();
@@ -249,7 +252,7 @@ void InfoExitButtonActionCallback( aui_Control *control, uint32 action, uint32 d
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	c3ui_Get()->AddAction(new InfoCleanupAction());
+	c3ui_Get()->AddAction(std::make_unique<InfoCleanupAction>().release());
 }
 
 void InfoBigListCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )
@@ -299,54 +302,38 @@ void infowin_Cleanup()
 
 void infowin_Cleanup_Controls()
 {
-    allocated::clear(s_titleBox);
-    allocated::clear(s_bottomRightBox);
-	allocated::clear(s_bottomRightImage);
-	allocated::clear(s_civNameBox);
-	allocated::clear(s_turnsBox);
-	allocated::clear(s_foundedBox);
-	allocated::clear(s_pollutionBox);
-	allocated::clear(s_civNameLabel);
-	allocated::clear(s_turnsLabel);
-	allocated::clear(s_foundedLabel);
-	allocated::clear(s_pollutionLabel);
-	allocated::clear(s_pollutionTherm);
-	allocated::clear(s_infoPlayerList);
-	allocated::clear(s_infoBigList);
-	allocated::clear(s_infoScoreList);
-	allocated::clear(s_infoWonderList);
-	allocated::clear(s_pollutionList);
-	allocated::clear(s_infoGraph);
-	allocated::clear(s_pollutionGraph);
+    s_titleBox.reset();
+    s_bottomRightBox.reset();
+	s_bottomRightImage.reset();
+	s_civNameBox.reset();
+	s_turnsBox.reset();
+	s_foundedBox.reset();
+	s_pollutionBox.reset();
+	s_civNameLabel.reset();
+	s_turnsLabel.reset();
+	s_foundedLabel.reset();
+	s_pollutionLabel.reset();
+	s_pollutionTherm.reset();
+	s_infoPlayerList.reset();
+	s_infoBigList.reset();
+	s_infoScoreList.reset();
+	s_infoWonderList.reset();
+	s_pollutionList.reset();
+	s_infoGraph.reset();
+	s_pollutionGraph.reset();
 
-	if (s_infoGraphData)
-	{
-		for( sint32 i = 0 ; i < s_infoYCount ; i++ )
-		{
-			delete s_infoGraphData[i];
-		}
-		delete [] s_infoGraphData;
-		s_infoGraphData = nullptr;
-	}
+	s_infoGraphData.clear();
+	s_pollutionGraphData.clear();
 
-	if (s_pollutionGraphData)
-	{
-		for( sint32 i = 0 ; i < s_pollutionYCount ; i++ )
-		{
-			delete s_pollutionGraphData[i];
-		}
-		delete [] s_pollutionGraphData;
-		s_pollutionGraphData = nullptr;
-	}
 
-	allocated::clear(s_bigButton);
-	allocated::clear(s_wonderButton);
-	allocated::clear(s_strengthButton);
-	allocated::clear(s_scoreButton);
-	allocated::clear(s_labButton);
-	allocated::clear(s_throneButton);
-	allocated::clear(s_pollutionButton);
-    allocated::clear(s_stringTable);
+	s_bigButton.reset();
+	s_wonderButton.reset();
+	s_strengthButton.reset();
+	s_scoreButton.reset();
+	s_labButton.reset();
+	s_throneButton.reset();
+	s_pollutionButton.reset();
+    s_stringTable.reset();
 }
 
 sint32 infowin_Init_Controls( MBCHAR *windowBlock )
@@ -357,19 +344,19 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	MBCHAR			controlSubBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleBox" );
-	s_titleBox = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	s_titleBox = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_titleBox, errcode) );
 	if ( !AUI_NEWOK(s_titleBox, errcode) ) return -1;
 	s_titleBox->SetBlindness( TRUE );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "BottomRightBox" );
-	s_bottomRightBox = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	s_bottomRightBox = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_bottomRightBox, errcode) );
 	if ( !AUI_NEWOK(s_bottomRightBox, errcode) ) return -1;
 
 	strlcpy(controlSubBlock, controlBlock, sizeof(controlSubBlock));
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", controlSubBlock, "BottomRightImage" );
-	s_bottomRightImage = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	s_bottomRightImage = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_bottomRightImage, errcode) );
 	if ( !AUI_NEWOK(s_bottomRightImage, errcode) ) return -1;
 
@@ -379,12 +366,12 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", controlSubBlock, "TurnsBox" );
-	s_turnsBox = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	s_turnsBox = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_turnsBox, errcode) );
 	if ( !AUI_NEWOK(s_turnsBox, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", controlSubBlock, "FoundedBox" );
-	s_foundedBox = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	s_foundedBox = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_foundedBox, errcode) );
 	if ( !AUI_NEWOK(s_foundedBox, errcode) ) return -1;
 
@@ -394,53 +381,53 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", controlSubBlock, "TurnsLabel" );
-	s_turnsLabel = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	s_turnsLabel = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_turnsLabel, errcode) );
 	if ( !AUI_NEWOK(s_turnsLabel, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", controlSubBlock, "FoundedLabel" );
-	s_foundedLabel = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	s_foundedLabel = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_foundedLabel, errcode) );
 	if ( !AUI_NEWOK(s_foundedLabel, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionBox" );
-	s_pollutionBox = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	s_pollutionBox = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_pollutionBox, errcode) );
 	if ( !AUI_NEWOK(s_pollutionBox, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionLabel" );
-	s_pollutionLabel = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	s_pollutionLabel = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_pollutionLabel, errcode) );
 	if ( !AUI_NEWOK(s_pollutionLabel, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionTherm" );
-	s_pollutionTherm = new Thermometer(&errcode, aui_UniqueId(), controlBlock);
+	s_pollutionTherm = std::make_unique<Thermometer>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_pollutionTherm, errcode) );
 	if ( !AUI_NEWOK(s_pollutionTherm, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionList" );
-	s_pollutionList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
+	s_pollutionList = std::make_unique<c3_ListBox>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_pollutionList, errcode) );
 	if ( !AUI_NEWOK(s_pollutionList, errcode) ) return -1;
 
 	s_pollutionList->GetHeader()->Enable( FALSE );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoPlayerList" );
-	s_infoPlayerList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
+	s_infoPlayerList = std::make_unique<c3_ListBox>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_infoPlayerList, errcode) );
 	if ( !AUI_NEWOK(s_infoPlayerList, errcode) ) return -1;
 
 	s_infoPlayerList->GetHeader()->Enable( FALSE );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoBigList" );
-	s_infoBigList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, InfoBigListCallback, nullptr);
+	s_infoBigList = std::make_unique<c3_ListBox>(&errcode, aui_UniqueId(), controlBlock, InfoBigListCallback, nullptr);
 	Assert( AUI_NEWOK(s_infoBigList, errcode) );
 	if ( !AUI_NEWOK(s_infoBigList, errcode) ) return -1;
 
 	s_infoBigList->GetHeader()->Enable( FALSE );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoScoreList" );
-	s_infoScoreList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
+	s_infoScoreList = std::make_unique<c3_ListBox>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_infoScoreList, errcode) );
 	if ( !AUI_NEWOK(s_infoScoreList, errcode) ) return -1;
 
@@ -450,12 +437,12 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	s_infoScoreListRanger->Enable(TRUE);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoWonderList" );
-	s_infoWonderList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
+	s_infoWonderList = std::make_unique<c3_ListBox>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_infoWonderList, errcode) );
 	if ( !AUI_NEWOK(s_infoWonderList, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoGraph" );
-	s_infoGraph = new LineGraph(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr, eventtracker_Get());
+	s_infoGraph = std::make_unique<LineGraph>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr, eventtracker_Get());
 	Assert( AUI_NEWOK(s_infoGraph, errcode) );
 	if ( !AUI_NEWOK(s_infoGraph, errcode) ) return -1;
 
@@ -463,18 +450,18 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	for(int i=0; i<17; i++)
 	{
 		snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s%i", controlBlock, "EventsInfoButton",i+1 );
-		s_eventsInfoButton[i] = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, EventsInfoButtonActionCallback);
+		s_eventsInfoButton[i] = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), buttonBlock, EventsInfoButtonActionCallback);
 		Assert( AUI_NEWOK(s_eventsInfoButton[i], errcode) );
 		if ( !AUI_NEWOK(s_eventsInfoButton[i], errcode) ) return -1;
 	}
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "EventsInfoButtonLeft");
-	s_eventsInfoButtonLeft = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, EventsInfoButtonActionCallback);
+	s_eventsInfoButtonLeft = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), buttonBlock, EventsInfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_eventsInfoButtonLeft, errcode) );
 	if ( !AUI_NEWOK(s_eventsInfoButtonLeft, errcode) ) return -1;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "EventsInfoButtonRight");
-	s_eventsInfoButtonRight = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, EventsInfoButtonActionCallback);
+	s_eventsInfoButtonRight = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), buttonBlock, EventsInfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_eventsInfoButtonRight, errcode) );
 	if ( !AUI_NEWOK(s_eventsInfoButtonRight, errcode) ) return -1;
 
@@ -482,7 +469,7 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	s_infoGraph->EnablePrecision(FALSE);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionGraph" );
-	s_pollutionGraph = new LineGraph(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
+	s_pollutionGraph = std::make_unique<LineGraph>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_pollutionGraph, errcode) );
 	if ( !AUI_NEWOK(s_pollutionGraph, errcode) ) return -1;
 
@@ -490,37 +477,37 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	s_pollutionGraph->EnablePrecision(FALSE);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "BigButton" );
-	s_bigButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
+	s_bigButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_bigButton, errcode) );
 	if ( !AUI_NEWOK(s_bigButton, errcode) ) return -1;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "WonderButton" );
-	s_wonderButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
+	s_wonderButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_wonderButton, errcode) );
 	if ( !AUI_NEWOK(s_wonderButton, errcode) ) return -1;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "StrengthButton" );
-	s_strengthButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
+	s_strengthButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_strengthButton, errcode) );
 	if ( !AUI_NEWOK(s_strengthButton, errcode) ) return -1;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "ScoreButton" );
-	s_scoreButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
+	s_scoreButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_scoreButton, errcode) );
 	if ( !AUI_NEWOK(s_scoreButton, errcode) ) return -1;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "LabButton" );
-	s_labButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
+	s_labButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_labButton, errcode) );
 	if ( !AUI_NEWOK(s_labButton, errcode) ) return -1;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "ThroneButton" );
-	s_throneButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
+	s_throneButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_throneButton, errcode) );
 	if ( !AUI_NEWOK(s_throneButton, errcode) ) return -1;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "PollutionButton" );
-	s_pollutionButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
+	s_pollutionButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_pollutionButton, errcode) );
 	if ( !AUI_NEWOK(s_pollutionButton, errcode) ) return -1;
 
@@ -537,10 +524,10 @@ sint32 infowin_LoadData( )
 	infowin_UpdateBigList();
 	infowin_UpdateScoreList();
 	infowin_UpdateWonderList();
-	infowin_UpdateGraph(s_infoGraph, s_infoXCount, s_infoYCount, &s_infoGraphData);
+	infowin_UpdateGraph(s_infoGraph.get(), s_infoXCount, s_infoYCount, s_infoGraphData);
 	infowin_UpdatePlayerList();
 	infowin_UpdateCivData();
-	infowin_UpdatePollutionGraph(s_pollutionGraph, s_pollutionXCount, s_pollutionYCount, &s_pollutionGraphData);
+	infowin_UpdatePollutionGraph(s_pollutionGraph.get(), s_pollutionXCount, s_pollutionYCount, s_pollutionGraphData);
 	infowin_UpdatePollutionData();
 
 	if (!infowin_LabReady()) s_labButton->Hide();
@@ -607,8 +594,7 @@ sint32 infowin_UpdateBigList( )
 		Unit unit = topten_Get()->GetBiggestCity(i);
 		if ( unitpool_Get()->IsValid(unit) )
 		{
-			c3_ListItem* bItem = new InfoBigListItem(&retval, &unit, i, ldlBlock);
-			s_infoBigList->AddItem(bItem);
+			s_infoBigList->AddItem(std::make_unique<InfoBigListItem>(&retval, &unit, i, ldlBlock).release());
 		}
 	}
 
@@ -645,84 +631,80 @@ sint32 infowin_UpdateScoreList( )
 	sint32 posValue = 0;
 	sint32 negValue = 0;
 
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(0), nullptr, ldlBlock);
-	s_infoScoreList->AddItem((c3_ListItem *)label);
+	s_infoScoreList->AddItem((c3_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(0), nullptr, ldlBlock).release());
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_CELEBRATIONS, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_CELEBRATIONS, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_ADVANCES, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_ADVANCES, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_WONDERS, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_WONDERS, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_POPULATION, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_POPULATION, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_CITIES, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_CITIES, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_YEARS_AT_PEACE, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_YEARS_AT_PEACE, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_YEAR_OF_VICTORY, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_YEAR_OF_VICTORY, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_DIFFICULTY_BONUS, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_DIFFICULTY_BONUS, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_MAP_SIZE, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_MAP_SIZE, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_NUMBER_OF_OPPONENTS, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_NUMBER_OF_OPPONENTS, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_TYPE_OF_VICTORY, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_TYPE_OF_VICTORY, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
 	snprintf(strbuf, sizeof(strbuf),"%d",posValue);
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(1), strbuf, ldlBlock);
-	s_infoScoreList->AddItem((c3_ListItem *)label);
+	s_infoScoreList->AddItem((c3_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(1), strbuf, ldlBlock).release());
 
-	item = new InfoScoreListItem(&retval, -1, 0, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, -1, 0, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(2), nullptr, ldlBlock);
-	s_infoScoreList->AddItem((c3_ListItem *)label);
+	s_infoScoreList->AddItem((c3_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(2), nullptr, ldlBlock).release());
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_UNITS_LOST, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_UNITS_LOST, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	negValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_RIOTS, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_RIOTS, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	negValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_REVOLUTIONS, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_REVOLUTIONS, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	negValue += item->GetValue();
 
-	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_POLLUTION, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, curPlayer, SCORE_CAT_POLLUTION, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	negValue += item->GetValue();
 
 	snprintf(strbuf, sizeof(strbuf),"%d",negValue);
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(3), strbuf, ldlBlock);
-	s_infoScoreList->AddItem((c3_ListItem *)label);
+	s_infoScoreList->AddItem((c3_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(3), strbuf, ldlBlock).release());
 
-	item = new InfoScoreListItem(&retval, -1, 0, ldlBlock);
+	item = std::make_unique<InfoScoreListItem>(&retval, -1, 0, ldlBlock).release();
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 
 	Score *score = nullptr;
@@ -742,13 +724,11 @@ sint32 infowin_UpdateScoreList( )
 		strlcpy(strbuf, "0", sizeof(strbuf));
 	}
 
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(4), strbuf, ldlBlock);
-	s_infoScoreList->AddItem((c3_ListItem *)label);
+	s_infoScoreList->AddItem((c3_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(4), strbuf, ldlBlock).release());
 
 	sint32 civScore = infowin_GetCivScore(curPlayer);
 	snprintf(strbuf, sizeof(strbuf),"%d%%",civScore);
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(5), strbuf, ldlBlock);
-	s_infoScoreList->AddItem((c3_ListItem *)label);
+	s_infoScoreList->AddItem((c3_ListItem *)std::make_unique<InfoScoreLabelListItem>(&retval, s_stringTable->GetString(5), strbuf, ldlBlock).release());
 
 	return 0;
 }
@@ -774,8 +754,7 @@ sint32 infowin_UpdateWonderList( )
 			if (thePlayer != PLAYER_INDEX_INVALID)
 			{
 
-				wItem = new InfoWonderListItem(&retval, thePlayer, i, ldlBlock);
-				s_infoWonderList->AddItem((c3_ListItem *)wItem);
+				s_infoWonderList->AddItem((c3_ListItem *)std::make_unique<InfoWonderListItem>(&retval, thePlayer, i, ldlBlock).release());
 			}
 		}
 	}
@@ -789,7 +768,7 @@ sint32 infowin_UpdateWonderList( )
 sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 							sint32 &infoXCount,
 							sint32 &infoYCount,
-							double ***infoGraphData)
+							std::vector<std::vector<double>> &infoGraphData)
 {
 	if (!infoGraph) return 0;
 
@@ -811,7 +790,7 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	if (!s_stringTable) {
-		s_stringTable = new aui_StringTable( &errcode, "InfoStrings" );
+		s_stringTable = std::make_unique<aui_StringTable>( &errcode, "InfoStrings" );
 		Assert( AUI_NEWOK(s_stringTable, errcode) );
 		if ( !AUI_NEWOK(s_stringTable, errcode) ) return -2;
 
@@ -860,13 +839,10 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
     infoXCount = std::max<sint32>(infoXCount, 1);
     infoYCount = std::max<sint32>(infoYCount, 1);
 
-	Assert(!*infoGraphData);
-	*infoGraphData = new double *[infoYCount];
-	for (i = 0 ; i < infoYCount ; ++i)
-    {
-		(*infoGraphData)[i] = new double[infoXCount];
-        std::fill((*infoGraphData)[i], (*infoGraphData)[i] + infoXCount, 0.0);
-    }
+	Assert(infoGraphData.empty());
+	// Owned rows; SetLineData copies them, so a vector grid suffices.
+	infoGraphData.assign(static_cast<size_t>(infoYCount),
+	                     std::vector<double>(infoXCount, 0.0));
 
 	sint32 playerCount = 0;
 	for ( i = 0 ; i < k_MAX_PLAYERS ; i++ )
@@ -876,7 +852,7 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 			for (sint32 round = 0 ; round < infoXCount ; ++round)
 			{
                 sint32 strValue = GetCombinedStrength(*player_Get(i)->m_strengths, round);
-				(*infoGraphData)[playerCount][round] = strValue;
+				infoGraphData[playerCount][round] = strValue;
 
 				while (strValue > maxPower)
 					maxPower += 10.0;
@@ -896,7 +872,7 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 		for (sint32 round = 0 ; round < infoXCount ; ++round)
 		{
 			sint32 strValue = GetCombinedStrength(*walk2.GetObj()->m_strengths, round);
-			(*infoGraphData)[playerCount][round] = strValue;
+			infoGraphData[playerCount][round] = strValue;
 
 			while (strValue > maxPower)
 				maxPower += 10.0;
@@ -907,13 +883,16 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 
 	Assert(playerCount == infoYCount);
 
-	infoGraph->SetLineData(infoYCount, infoXCount, (*infoGraphData), color.data());
+	std::vector<double *> graphRows(static_cast<size_t>(infoYCount));
+	for (i = 0; i < infoYCount; ++i)
+		graphRows[static_cast<size_t>(i)] = infoGraphData[static_cast<size_t>(i)].data();
+	infoGraph->SetLineData(infoYCount, infoXCount, graphRows.data(), color.data());
 	infoGraph->SetGraphBounds(minRound, curRound, minPower, maxPower);
 	infoGraph->RenderGraph();
 
 	if (dumpStrings)
     {
-        allocated::clear(s_stringTable);
+        s_stringTable.reset();
 	}
 
 	return 0;
@@ -925,7 +904,7 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 sint32 infowin_UpdatePollutionGraph( LineGraph *infoGraph,
 							sint32 &infoXCount,
 							sint32 &infoYCount,
-							double ***infoGraphData)
+							std::vector<std::vector<double>> &infoGraphData)
 {
 	if (!infoGraph) return 0;
 
@@ -963,13 +942,10 @@ sint32 infowin_UpdatePollutionGraph( LineGraph *infoGraph,
 		return 0;
 	}
 
-	Assert(!*infoGraphData);
-	*infoGraphData = new double *[infoYCount];
-	for (i = 0 ; i < infoYCount ; ++i)
-    {
-		(*infoGraphData)[i] = new double[infoXCount];
-        std::fill((*infoGraphData)[i], (*infoGraphData)[i] + infoXCount, 0.0);
-	}
+	Assert(infoGraphData.empty());
+	// Owned rows; SetLineData copies them, so a vector grid suffices.
+	infoGraphData.assign(static_cast<size_t>(infoYCount),
+	                     std::vector<double>(infoXCount, 0.0));
 
 	sint32 playerCount = 0;
 	for ( i = 0 ; i < k_MAX_PLAYERS ; i++ )
@@ -980,7 +956,7 @@ sint32 infowin_UpdatePollutionGraph( LineGraph *infoGraph,
 			{
 				sint32 pollutionValue =
                     player_Get(i)->m_pollution_history[(infoXCount - 1) - j];
-				(*infoGraphData)[playerCount][j] = pollutionValue;
+				infoGraphData[playerCount][j] = pollutionValue;
 
                 while (pollutionValue > maxPower)
 					maxPower += 10.0;
@@ -992,7 +968,10 @@ sint32 infowin_UpdatePollutionGraph( LineGraph *infoGraph,
 
 	Assert(playerCount == infoYCount);
 
-	infoGraph->SetLineData(infoYCount, infoXCount, (*infoGraphData), color);
+	std::vector<double *> graphRows(static_cast<size_t>(infoYCount));
+	for (i = 0; i < infoYCount; ++i)
+		graphRows[static_cast<size_t>(i)] = infoGraphData[static_cast<size_t>(i)].data();
+	infoGraph->SetLineData(infoYCount, infoXCount, graphRows.data(), color);
 	infoGraph->SetGraphBounds(minRound, curRound, minPower, maxPower);
 	infoGraph->RenderGraph();
 
@@ -1031,7 +1010,7 @@ sint32 infowin_UpdatePlayerList( )
 				civ->GetSingularCivName(strbuf);
 
 				s_infoPlayerList->AddItem
-                    ((c3_ListItem *) new InfoPlayerListItem(&retval, strbuf, color, ldlBlock));
+                    ((c3_ListItem *)std::make_unique<InfoPlayerListItem>(&retval, strbuf, color, ldlBlock).release());
 			}
 		}
 	}
@@ -1062,7 +1041,7 @@ sint32 infowin_UpdatePlayerList( )
 				civ->GetSingularCivName(strbuf);
 
 				s_infoPlayerList->AddItem
-                    ((c3_ListItem *) new InfoPlayerListItem(&retval, strbuf, color, ldlBlock));
+                    ((c3_ListItem *)std::make_unique<InfoPlayerListItem>(&retval, strbuf, color, ldlBlock).release());
 			}
 		}
 	}
@@ -1100,7 +1079,7 @@ sint32 infowin_UpdatePollutionData( )
 			civ->GetSingularCivName(strbuf);
 
 			s_pollutionList->AddItem
-                ((c3_ListItem *) new InfoPlayerListItem(&retval, strbuf, color, ldlBlock));
+                ((c3_ListItem *)std::make_unique<InfoPlayerListItem>(&retval, strbuf, color, ldlBlock).release());
 		}
 	}
 
@@ -1390,10 +1369,10 @@ InfoBigListItem::~InfoBigListItem()
 			ListPos	subPos = subControl->ChildList()->GetHeadPosition();
 
 			for (sint32 j = subControl->ChildList()->L(); j; j--) {
-				delete subControl->ChildList()->GetNext(subPos);
+				std::unique_ptr<aui_Region>{subControl->ChildList()->GetNext(subPos)};
 			}
 		}
-		delete subControl;
+		std::unique_ptr<aui_Region>{subControl};
 	}
 
 	m_childList->DeleteAll();
@@ -1427,60 +1406,60 @@ AUI_ERRCODE InfoBigListItem::InitCommonLdl(Unit *city, sint32 index, MBCHAR *ldl
 	c3_Static		*iconItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "CityName");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "CivName");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "PopSize");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "WonderBlock");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	strlcpy(subBlock, block, sizeof(subBlock));
 	snprintf(block, sizeof(block), "%s.%s", subBlock, "CountBlock1");
-	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
+	iconItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->AddChild(iconItem);
 
 	snprintf(block, sizeof(block), "%s.%s", subBlock, "IconBlock1");
-	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
+	iconItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->AddChild(iconItem);
 
 	snprintf(block, sizeof(block), "%s.%s", subBlock, "CountBlock2");
-	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
+	iconItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->AddChild(iconItem);
 
 	snprintf(block, sizeof(block), "%s.%s", subBlock, "IconBlock2");
-	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
+	iconItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->AddChild(iconItem);
 
 	snprintf(block, sizeof(block), "%s.%s", subBlock, "CountBlock3");
-	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
+	iconItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->AddChild(iconItem);
 
 	snprintf(block, sizeof(block), "%s.%s", subBlock, "IconBlock3");
-	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
+	iconItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->AddChild(iconItem);
 
 	snprintf(block, sizeof(block), "%s.%s", subBlock, "CountBlock4");
-	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
+	iconItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->AddChild(iconItem);
 
 	snprintf(block, sizeof(block), "%s.%s", subBlock, "IconBlock4");
-	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
+	iconItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->AddChild(iconItem);
 
 	snprintf(block, sizeof(block), "%s.%s", subBlock, "CountBlock5");
-	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
+	iconItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->AddChild(iconItem);
 
 	snprintf(block, sizeof(block), "%s.%s", subBlock, "IconBlock5");
-	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
+	iconItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->AddChild(iconItem);
 
 	Update();
@@ -1602,15 +1581,15 @@ AUI_ERRCODE InfoWonderListItem::InitCommonLdl(sint32 player, sint32 index, MBCHA
 	c3_Static		*subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "WonderName");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "CivName");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "CityName");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	Update();
@@ -1699,11 +1678,11 @@ AUI_ERRCODE InfoScoreListItem::InitCommonLdl(sint32 player, sint32 index, MBCHAR
 	c3_Static		*subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ScoreCategory");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ScoreValue");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	Update();
@@ -1779,11 +1758,11 @@ AUI_ERRCODE InfoScoreLabelListItem::InitCommonLdl(MBCHAR *label, MBCHAR *text, M
 	c3_Static		*subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ScoreCategory");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ScoreValue");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	Update();
@@ -1839,7 +1818,7 @@ AUI_ERRCODE InfoPlayerListItem::InitCommonLdl(MBCHAR *name, sint32 index, MBCHAR
 	c3_Static		*subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Civilization");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	Update();

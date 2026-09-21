@@ -32,7 +32,8 @@
 #include "ctp/c3.h"
 #include "gs/world/TileInfo.h"
 
-#include <algorithm>        // std::fill
+#include <algorithm>        // std::fill, std::copy
+#include <memory>           // std::make_unique
 #include "gfx/spritesys/GoodActor.h"
 #include "gs/database/profileDB.h"      // profiledb_Get()
 
@@ -52,17 +53,27 @@ TileInfo::TileInfo()
 TileInfo::TileInfo(TileInfo *copy)
 {
 	*this = *copy;
+}
 
-	if (copy->m_goodActor)
-    {
-		m_goodActor = new GoodActor(*copy->m_goodActor);
-	}
-    // else: already set in *this = *copy;
+TileInfo &TileInfo::operator=(const TileInfo &other)
+{
+	if (this == &other) return *this;
+
+	m_riverPiece  = other.m_riverPiece;
+	m_megaInfo    = other.m_megaInfo;
+	m_terrainType = other.m_terrainType;
+	m_transform   = other.m_transform;
+	m_tileNum     = other.m_tileNum;
+	std::copy(other.m_transitions, other.m_transitions + k_NUM_TRANSITIONS,
+	          m_transitions);
+	m_goodActor   = other.m_goodActor
+	                ? std::make_unique<GoodActor>(*other.m_goodActor)
+	                : nullptr;
+	return *this;
 }
 
 TileInfo::~TileInfo()
 {
-	delete m_goodActor;
 }
 
 TILEINDEX TileInfo::GetTileNum()
@@ -72,8 +83,7 @@ TILEINDEX TileInfo::GetTileNum()
 
 void TileInfo::SetGoodActor(sint32 index, MapPoint const & pos)
 {
-    delete m_goodActor;
-	m_goodActor = new GoodActor(index, pos);
+	m_goodActor = std::make_unique<GoodActor>(index, pos);
 
 	if (profiledb_Get()->IsGoodAnim())
 	{
@@ -83,8 +93,7 @@ void TileInfo::SetGoodActor(sint32 index, MapPoint const & pos)
 
 void TileInfo::DeleteGoodActor()
 {
-	delete m_goodActor;
-	m_goodActor = nullptr;
+	m_goodActor.reset();
 }
 
 

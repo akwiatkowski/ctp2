@@ -69,7 +69,7 @@ AUI_ERRCODE c3_HyperTipWindow::InitCommonLdl( MBCHAR const *ldlBlock )
 
 	if (aui_Ldl::GetLdl()->FindDataBlock( tipBlock ) )
 	{
-		m_hyperTip = new aui_HyperTextBox(
+		m_hyperTip = std::make_unique<aui_HyperTextBox>(
 			&errcode,
 			aui_UniqueId(),
 			tipBlock );
@@ -80,9 +80,9 @@ AUI_ERRCODE c3_HyperTipWindow::InitCommonLdl( MBCHAR const *ldlBlock )
 
 		m_hyperTip->TextReloadFont();
 
-		aui_Ldl::Remove( m_hyperTip );
+		aui_Ldl::Remove( m_hyperTip.get() );
 		m_allocatedHyperTip = TRUE;
-		AddChild( m_hyperTip );
+		AddChild( m_hyperTip.get() );
 		m_hyperTip->Move( 0, 0 );
 		m_hyperTip->Resize( m_width-5, m_height-10 );
 	}
@@ -120,9 +120,11 @@ AUI_ERRCODE c3_HyperTipWindow::InitCommon( )
 
 c3_HyperTipWindow::~c3_HyperTipWindow()
 {
-	if ( m_allocatedHyperTip)
+	// m_allocatedHyperTip distinguishes our own tip from one supplied
+	// externally; only release the one we allocated.
+	if ( m_allocatedHyperTip )
 	{
-		delete m_hyperTip;
+		m_hyperTip.reset();
 	}
 }
 
@@ -131,7 +133,7 @@ AUI_ERRCODE c3_HyperTipWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 
 
 	if ( IsHidden() ) return AUI_ERRCODE_OK;
 
-	if ( !surface ) surface = m_surface;
+	if ( !surface ) surface = m_surface.get();
 
 	RECT rect = { 0, 0, m_width, m_height };
 
@@ -139,7 +141,7 @@ AUI_ERRCODE c3_HyperTipWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 
 
 	primitives_FrameRect16(surface, &rect, colorset_Get()->GetColor(COLOR_GREEN));
 
-	if ( surface == m_surface )
+	if ( surface == m_surface.get() )
 		AddDirtyRect( &rect );
 
 	return AUI_ERRCODE_OK;

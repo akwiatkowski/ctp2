@@ -58,6 +58,13 @@
 aui_DragDropWindow *aui_ListBox::m_dragDropWindow = nullptr;
 aui_ListBox *aui_ListBox::ms_mouseFocusListBox = nullptr;
 
+aui_ListBox::aui_ListBox()
+:
+	aui_Control()
+{
+}
+
+
 aui_ListBox::aui_ListBox(
 	AUI_ERRCODE *retval,
 	uint32 id,
@@ -177,33 +184,33 @@ AUI_ERRCODE aui_ListBox::InitCommon( )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 	m_pane =
-		new aui_Static( &errcode, aui_UniqueId(), 0, 0, m_width, m_height );
+		std::make_unique<aui_Static>( &errcode, aui_UniqueId(), 0, 0, m_width, m_height );
 	Assert( AUI_NEWOK(m_pane,errcode) );
 	if ( !AUI_NEWOK(m_pane,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_pane->SetBlindness( TRUE );
 
-	AddChild( m_pane );
+	AddChild( m_pane.get() );
 
-	m_header = new aui_Header( &errcode, aui_UniqueId(), 0, 0, m_width, 0 );
+	m_header = std::make_unique<aui_Header>( &errcode, aui_UniqueId(), 0, 0, m_width, 0 );
 	Assert( AUI_NEWOK(m_header,errcode) );
 	if ( !AUI_NEWOK(m_header,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_header );
+	AddChild( m_header.get() );
 
-	m_widthList = new tech_WLList<sint32>;
+	m_widthList = std::make_unique<tech_WLList<sint32>>();
 	Assert( m_widthList != nullptr );
 	if ( !m_widthList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_selectedList = new tech_WLList<sint32>;
+	m_selectedList = std::make_unique<tech_WLList<sint32>>();
 	Assert( m_selectedList != nullptr );
 	if ( !m_selectedList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_selectedListLastTime = new tech_WLList<sint32>;
+	m_selectedListLastTime = std::make_unique<tech_WLList<sint32>>();
 	Assert( m_selectedListLastTime != nullptr );
 	if ( !m_selectedListLastTime ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_visualSelectedList = new tech_WLList<sint32>;
+	m_visualSelectedList = std::make_unique<tech_WLList<sint32>>();
 	Assert( m_visualSelectedList != nullptr );
 	if ( !m_visualSelectedList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -223,21 +230,20 @@ AUI_ERRCODE aui_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 		if ( m_header )
 		{
 			RemoveChild( m_header->Id() );
-			delete m_header;
-			m_header = nullptr;
+			m_header.reset();
 		}
 
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_HEADER );
 
 		if (aui_Ldl::GetLdl()->FindDataBlock(block))
-			m_header = new aui_Header(
+			m_header = std::make_unique<aui_Header>(
 				&errcode,
 				aui_UniqueId(),
 				block );
 	}
 
 	if ( !m_header )
-		m_header = new aui_Header(
+		m_header = std::make_unique<aui_Header>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, m_width, 0 );
@@ -245,7 +251,7 @@ AUI_ERRCODE aui_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 	Assert( AUI_NEWOK(m_header,errcode) );
 	if ( !AUI_NEWOK(m_header,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_header );
+	AddChild( m_header.get() );
 
 	ListPos position = m_header->ChildList()->GetHeadPosition();
 	for ( sint32 i = m_header->ChildList()->L(); i; i-- )
@@ -257,7 +263,7 @@ AUI_ERRCODE aui_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERY );
 
         if (aui_Ldl::GetLdl()->FindDataBlock(block))
-			m_verticalRanger = new aui_Ranger(
+			m_verticalRanger = std::make_unique<aui_Ranger>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -266,7 +272,7 @@ AUI_ERRCODE aui_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 	}
 
 	if ( !m_verticalRanger )
-		m_verticalRanger = new aui_Ranger(
+		m_verticalRanger = std::make_unique<aui_Ranger>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -279,14 +285,14 @@ AUI_ERRCODE aui_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 	if ( !AUI_NEWOK(m_verticalRanger,errcode) )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_verticalRanger );
+	AddChild( m_verticalRanger.get() );
 
 	if ( ldlBlock )
 	{
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERX );
 
 		if (aui_Ldl::GetLdl()->FindDataBlock(block))
-			m_horizontalRanger = new aui_Ranger(
+			m_horizontalRanger = std::make_unique<aui_Ranger>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -295,7 +301,7 @@ AUI_ERRCODE aui_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 	}
 
 	if ( !m_horizontalRanger )
-		m_horizontalRanger = new aui_Ranger(
+		m_horizontalRanger = std::make_unique<aui_Ranger>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -308,7 +314,7 @@ AUI_ERRCODE aui_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 	if ( !AUI_NEWOK(m_horizontalRanger,errcode) )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
-	AddChild( m_horizontalRanger );
+	AddChild( m_horizontalRanger.get() );
 
 	sint32 maxRangerSize = m_verticalRanger->Width();
 	if ( m_horizontalRanger->Height() > maxRangerSize )
@@ -328,14 +334,14 @@ AUI_ERRCODE aui_ListBox::CreateRangersAndHeader( MBCHAR const *ldlBlock )
 
 aui_ListBox::~aui_ListBox()
 {
-	delete m_pane;
-	delete m_header;
-	delete m_verticalRanger;
-	delete m_horizontalRanger;
-	delete m_widthList;
-	delete m_selectedList;
-	delete m_selectedListLastTime;
-	delete m_visualSelectedList;
+	m_pane.reset();
+	m_header.reset();
+	m_verticalRanger.reset();
+	m_horizontalRanger.reset();
+	m_widthList.reset();
+	m_selectedList.reset();
+	m_selectedListLastTime.reset();
+	m_visualSelectedList.reset();
 
 	if (m_dragDropWindow)
 	{
@@ -690,8 +696,8 @@ void aui_ListBox::RemoveItems( BOOL destroy, BOOL destroyAction )
 	{
 		aui_Item *item = (aui_Item *)m_pane->ChildList()->GetHead();
 		RemoveItem( item->Id() );
-		if ( destroyAction && item->GetAction() ) delete item->GetAction();
-		if ( destroy ) delete item;
+		if ( destroyAction && item->GetAction() ) { std::unique_ptr<aui_Action> actionOwner(item->GetAction()); }
+		if ( destroy ) { std::unique_ptr<aui_Item> itemOwner(item); }
 	}
 }
 
@@ -1124,7 +1130,7 @@ aui_DragDropWindow *aui_ListBox::CreateDragDropWindow( aui_Control *dragDropItem
 	dragDropItem->ToWindow( &itemPoint );
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	aui_DragDropWindow *ddw = new aui_DragDropWindow(
+	auto ddw = std::make_unique<aui_DragDropWindow>(
 		&errcode,
 		dragDropItem,
 		this,
@@ -1135,9 +1141,9 @@ aui_DragDropWindow *aui_ListBox::CreateDragDropWindow( aui_Control *dragDropItem
 	Assert( AUI_NEWOK(ddw,errcode) );
 	if ( !AUI_NEWOK(ddw,errcode) ) return nullptr;
 
-	aui_ui_Get()->AddChild( ddw );
+	aui_ui_Get()->AddChild( ddw.get() );
 
-	return ddw;
+	return ddw.release();
 }
 
 
@@ -1186,7 +1192,7 @@ void aui_ListBox::SendSelectCallback(
 {
 	if ( !data && (action == AUI_LISTBOX_ACTION_SELECT
 		|| action == AUI_LISTBOX_ACTION_RMOUSESELECT))
-		data = (uintptr_t)m_selectedList;
+		data = (uintptr_t)m_selectedList.get();
 
 	m_selectedList->DeleteAll();
 
@@ -2081,21 +2087,21 @@ void ListBoxRangerActionCallback(
 aui_Item *aui_ListBox::ConstructAndAddTextItem(const MBCHAR *ldlblock, const MBCHAR *text, void *userData)
 {
 	/// @ToDo: An aui_ListBox should not know anything about a ctp2_ListItem
-	ctp2_ListItem *item = (ctp2_ListItem *)aui_Ldl::BuildHierarchyFromRoot((MBCHAR *)ldlblock);
+	std::unique_ptr<ctp2_ListItem> item((ctp2_ListItem *)aui_Ldl::BuildHierarchyFromRoot((MBCHAR *)ldlblock));
 	Assert(item);
 	if(!item) return nullptr;
 
 	aui_Static *box = (aui_Static *)item->GetChildByIndex(0);
 	Assert(box);
 	if(!box) {
-		delete item;
 		return nullptr;
 	}
 
 	box->SetText(text);
 	item->SetUserData(userData);
-	AddItem(item);
-	return item;
+	aui_Item *result = item.get();
+	AddItem(item.release());
+	return result;
 
 }
 

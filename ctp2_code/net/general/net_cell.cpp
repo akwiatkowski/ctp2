@@ -48,6 +48,7 @@
 #include "gs/world/TileInfo.h"
 #include "gs/utility/TradeDynArr.h"
 #include "gs/world/World.h"
+#include <memory>
 
 #define SEND_MOVE_COST
 
@@ -102,8 +103,7 @@ void NetCellData::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 	uint8 numObjects;
 	PULLBYTE(numObjects);
-	delete m_cell->m_objects;
-	m_cell->m_objects = (numObjects > 0) ? new DynamicArray<ID> : nullptr;
+	m_cell->m_objects = (numObjects > 0) ? std::make_unique<DynamicArray<ID>>() : nullptr;
 
 	for (uint8 i = 0; i < numObjects; ++i)
 	{
@@ -231,13 +231,11 @@ void NetCellList::Unpacketize(uint16 id, uint8* buf, uint16 len)
 			MapPoint mp(x,y);
 			Cell* cell = world_Get()->AccessCell(mp);
 
-			delete cell->m_unit_army;
-			cell->m_unit_army = nullptr;
+			cell->m_unit_army.reset();
 
 			cell->SetCity(Unit());
 
-			delete cell->m_objects;
-			cell->m_objects = nullptr;
+			cell->m_objects.reset();
 
 			PULLLONG(cell->m_env);
 
@@ -251,19 +249,19 @@ void NetCellList::Unpacketize(uint16 id, uint8* buf, uint16 len)
 
 			PULLLONG(cell->m_city.m_id);
 
-			delete cell->m_jabba;
+			cell->m_jabba.reset();
 			if (terrainPlusFlags & 0x40)
 			{
 				uint8 tmp;
 				PULLBYTE(tmp);
 				uint16 value;
 				PULLSHORT(value);
-				cell->m_jabba = new GoodyHut(tmp & 0x7f, (uint32) value);
+				cell->m_jabba = std::make_unique<GoodyHut>(tmp & 0x7f, (uint32) value);
 				Assert(cell->m_jabba->m_value >= 0 && cell->m_jabba->m_value < k_VALUE_RANGE);
 			}
 			else
 			{
-				cell->m_jabba = nullptr;
+				cell->m_jabba.reset();
 			}
 
 #ifdef SEND_MOVE_COST
@@ -273,8 +271,7 @@ void NetCellList::Unpacketize(uint16 id, uint8* buf, uint16 len)
 
 			uint8 numObjects;
 			PULLBYTE(numObjects);
-			delete cell->m_objects;
-			cell->m_objects = (numObjects > 0) ? new DynamicArray<ID> : nullptr;
+			cell->m_objects = (numObjects > 0) ? std::make_unique<DynamicArray<ID>>() : nullptr;
 
 			for (uint8 i = 0; i < numObjects; i++)
 			{
@@ -287,8 +284,7 @@ void NetCellList::Unpacketize(uint16 id, uint8* buf, uint16 len)
 
 			if (world_Get()->GetTileInfo(mp))
 			{
-				delete world_Get()->GetTileInfo(mp)->m_goodActor;
-				world_Get()->GetTileInfo(mp)->m_goodActor = nullptr;
+				world_Get()->GetTileInfo(mp)->m_goodActor.reset();
 			}
 
 			cells++;

@@ -33,6 +33,7 @@
 #include "ui/netshell/netshell.h"
 
 #include <algorithm>
+#include <memory>
 #include "ui/netshell/allinonewindow.h"
 #include "ui/aui_common/aui_button.h"
 #include "ui/aui_common/aui_screen.h"
@@ -78,12 +79,12 @@ AUI_ERRCODE NetShell::Enter( uint32 flags )
 	{
 		if ( !g_netfunc )
 		{
-			g_netfunc = new NETFunc();
+			g_netfunc = std::make_unique<NETFunc>().release();
 		}
 
 		if ( !g_netshell )
 		{
-			g_netshell = new NetShell();
+			g_netshell = std::make_unique<NetShell>().release();
 		}
 	}
 
@@ -91,7 +92,7 @@ AUI_ERRCODE NetShell::Enter( uint32 flags )
 
 	aui_ui_Get()->SetBackgroundColor( RGB(0,0,0) );
 
-	if (aui_Control * bg = g_netshell->m_bg)
+	if (aui_Control * bg = g_netshell->m_bg.get())
 	{
 		aui_Image * image    = aui_ui_Get()->LoadImage(bg->GetImage()->GetFilename());
 		aui_Image *	oldImage = aui_ui_Get()->SetBackgroundImage
@@ -174,7 +175,7 @@ void NetShell::Leave( uint32 flags, BOOL safe )
 
 	if ( flags & k_NS_FLAGS_MAINMENU ) {
 		if(safe) {
-			aui_ui_Get()->AddAction(new EnterMainMenuAction);
+			aui_ui_Get()->AddAction(std::make_unique<EnterMainMenuAction>().release());
 		} else {
 			EnterMainMenu();
 		}
@@ -187,7 +188,7 @@ void NetShell::Leave( uint32 flags, BOOL safe )
 	{
 		if ( safe )
 		{
-			aui_ui_Get()->AddAction(new DestroyAction);
+			aui_ui_Get()->AddAction(std::make_unique<DestroyAction>().release());
 		}
 		else
 		{
@@ -206,19 +207,13 @@ NetShell::NetShell()
 :
     aui_Shell            (),
     m_wasMinimizing      (false),
-    m_truebmp            (nullptr),
-    m_tribes             (nullptr),
-    m_wonders            (nullptr),
-    m_bg                 (nullptr)
+    m_wonders            (nullptr)
 {
-	std::fill(m_screens, m_screens + SCREEN_MAX, (aui_Screen *) nullptr);
-	std::fill(m_windows, m_windows + WINDOW_MAX, (aui_Window *) nullptr);
-
-	m_truebmp = new ns_String( "strings.truebmp" );
-	m_tribes  = new ns_Tribes;
+	m_truebmp = std::make_unique<ns_String>( "strings.truebmp" );
+	m_tribes  = std::make_unique<ns_Tribes>();
 
 	AUI_ERRCODE	errcode = AUI_ERRCODE_OK;
-	m_bg      = new aui_Control(&errcode, aui_UniqueId(), "nsbackground");
+	m_bg      = std::make_unique<aui_Control>(&errcode, aui_UniqueId(), "nsbackground");
 	Assert( AUI_NEWOK(m_bg, errcode) );
 
 	errcode = CreateScreens();
@@ -228,9 +223,9 @@ NetShell::NetShell()
 	{
 		g_netshell = this;
 		/// @todo Check next 4 lines
-		nsunits_Set(new ns_Units);
-		nsimprovements_Set(new ns_Improvements);
-		nswonders_Set(new ns_Wonders);
+		nsunits_Set(std::make_unique<ns_Units>().release());
+		nsimprovements_Set(std::make_unique<ns_Improvements>().release());
+		nswonders_Set(std::make_unique<ns_Wonders>().release());
 		strlcpy( g_serverName, "", sizeof(g_serverName) );
 	}
 
@@ -241,124 +236,124 @@ AUI_ERRCODE NetShell::CreateScreens( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	aui_Screen *screen;
+	std::unique_ptr<aui_Screen> screen;
 
-	screen = new aui_Screen( &errcode, SCREEN_PLAYERSELECT );
+	screen = std::make_unique<aui_Screen>( &errcode, SCREEN_PLAYERSELECT );
 	Assert( AUI_NEWOK(screen,errcode) );
 	if ( !AUI_NEWOK(screen,errcode) ) return errcode;
-	m_screens[ SCREEN_PLAYERSELECT ] = screen;
+	m_screens[ SCREEN_PLAYERSELECT ] = std::move(screen);
 
 	{
-		m_windows[ WINDOW_PLAYERSELECT ] = new PlayerSelectWindow( &errcode );
+		m_windows[ WINDOW_PLAYERSELECT ] = std::make_unique<PlayerSelectWindow>( &errcode );
 		m_screens[ SCREEN_PLAYERSELECT ]->
-			AddWindow( m_windows[ WINDOW_PLAYERSELECT ] );
+			AddWindow( m_windows[ WINDOW_PLAYERSELECT ].get() );
 	}
 
-	screen = new aui_Screen( &errcode, SCREEN_CONNECTIONSELECT );
+	screen = std::make_unique<aui_Screen>( &errcode, SCREEN_CONNECTIONSELECT );
 	Assert( AUI_NEWOK(screen,errcode) );
 	if ( !AUI_NEWOK(screen,errcode) ) return errcode;
-	m_screens[ SCREEN_CONNECTIONSELECT ] = screen;
+	m_screens[ SCREEN_CONNECTIONSELECT ] = std::move(screen);
 
 	{
-		ConnectionSelectWindow * window = new ConnectionSelectWindow( &errcode );
+		std::unique_ptr<ConnectionSelectWindow> window = std::make_unique<ConnectionSelectWindow>( &errcode );
 		Assert( AUI_NEWOK(window,errcode) );
 		if ( !AUI_NEWOK(window,errcode) ) return errcode;
-		m_windows[ WINDOW_CONNECTIONSELECT ] = window;
+		m_windows[ WINDOW_CONNECTIONSELECT ] = std::move(window);
 
-		MoveButton(window, "connectionselectwindow", "cancelbutton", true);
-		MoveButton(window, "connectionselectwindow", "okbutton", false);
+		MoveButton(static_cast<ConnectionSelectWindow *>(m_windows[ WINDOW_CONNECTIONSELECT ].get()), "connectionselectwindow", "cancelbutton", true);
+		MoveButton(static_cast<ConnectionSelectWindow *>(m_windows[ WINDOW_CONNECTIONSELECT ].get()), "connectionselectwindow", "okbutton", false);
 
 		m_screens[ SCREEN_CONNECTIONSELECT ]->
-			AddWindow( m_windows[ WINDOW_CONNECTIONSELECT ] );
+			AddWindow( m_windows[ WINDOW_CONNECTIONSELECT ].get() );
 	}
 
-	screen = new aui_Screen( &errcode, SCREEN_SERVERSELECT );
+	screen = std::make_unique<aui_Screen>( &errcode, SCREEN_SERVERSELECT );
 	Assert( AUI_NEWOK(screen,errcode) );
 	if ( !AUI_NEWOK(screen,errcode) ) return errcode;
-	m_screens[ SCREEN_SERVERSELECT ] = screen;
+	m_screens[ SCREEN_SERVERSELECT ] = std::move(screen);
 	{
-		m_windows[ WINDOW_SERVERSELECT ] = new ServerSelectWindow( &errcode );
+		m_windows[ WINDOW_SERVERSELECT ] = std::make_unique<ServerSelectWindow>( &errcode );
 		m_screens[ SCREEN_SERVERSELECT ]->
-			AddWindow( m_windows[ WINDOW_SERVERSELECT ] );
+			AddWindow( m_windows[ WINDOW_SERVERSELECT ].get() );
 	}
 
-	screen = new aui_Screen( &errcode, SCREEN_PLAYEREDIT );
+	screen = std::make_unique<aui_Screen>( &errcode, SCREEN_PLAYEREDIT );
 	Assert( AUI_NEWOK(screen,errcode) );
 	if ( !AUI_NEWOK(screen,errcode) ) return errcode;
-	m_screens[ SCREEN_PLAYEREDIT ] = screen;
+	m_screens[ SCREEN_PLAYEREDIT ] = std::move(screen);
 	{
-		m_windows[ WINDOW_PLAYEREDIT ] = new PlayerEditWindow( &errcode );
+		m_windows[ WINDOW_PLAYEREDIT ] = std::make_unique<PlayerEditWindow>( &errcode );
 		m_screens[ SCREEN_PLAYEREDIT ]->
-			AddWindow( m_windows[ WINDOW_PLAYEREDIT ] );
+			AddWindow( m_windows[ WINDOW_PLAYEREDIT ].get() );
 	}
 
-	screen = new aui_Screen( &errcode, SCREEN_LOBBY );
+	screen = std::make_unique<aui_Screen>( &errcode, SCREEN_LOBBY );
 	Assert( AUI_NEWOK(screen,errcode) );
 	if ( !AUI_NEWOK(screen,errcode) ) return errcode;
-	m_screens[ SCREEN_LOBBY ] = screen;
+	m_screens[ SCREEN_LOBBY ] = std::move(screen);
 	{
-		LobbyWindow * window = new LobbyWindow( &errcode );
+		std::unique_ptr<LobbyWindow> window = std::make_unique<LobbyWindow>( &errcode );
 		Assert( AUI_NEWOK(window,errcode) );
 		if ( !AUI_NEWOK(window,errcode) ) return errcode;
-		m_windows[ WINDOW_LOBBY ] = window;
+		m_windows[ WINDOW_LOBBY ] = std::move(window);
 
-		MoveButton(window, "lobbywindow", "backbutton", true);
-		MoveButton(window, "lobbywindow", "closebutton", false);
+		MoveButton(static_cast<LobbyWindow *>(m_windows[ WINDOW_LOBBY ].get()), "lobbywindow", "backbutton", true);
+		MoveButton(static_cast<LobbyWindow *>(m_windows[ WINDOW_LOBBY ].get()), "lobbywindow", "closebutton", false);
 
 		m_screens[ SCREEN_LOBBY ]->
-			AddWindow( m_windows[ WINDOW_LOBBY ] );
+			AddWindow( m_windows[ WINDOW_LOBBY ].get() );
 	}
 
-	screen = new aui_Screen( &errcode, SCREEN_LOBBYCHANGE );
+	screen = std::make_unique<aui_Screen>( &errcode, SCREEN_LOBBYCHANGE );
 	Assert( AUI_NEWOK(screen,errcode) );
 	if ( !AUI_NEWOK(screen,errcode) ) return errcode;
-	m_screens[ SCREEN_LOBBYCHANGE ] = screen;
+	m_screens[ SCREEN_LOBBYCHANGE ] = std::move(screen);
 	{
-		m_windows[ WINDOW_LOBBYCHANGE ] = new LobbyChangeWindow( &errcode) ;
+		m_windows[ WINDOW_LOBBYCHANGE ] = std::make_unique<LobbyChangeWindow>( &errcode );
 		m_screens[ SCREEN_LOBBYCHANGE ]->
-			AddWindow( m_windows[ WINDOW_LOBBYCHANGE ] );
+			AddWindow( m_windows[ WINDOW_LOBBYCHANGE ].get() );
 	}
 
 
 
 
-	screen = new aui_Screen( &errcode, SCREEN_GAMESELECT );
+	screen = std::make_unique<aui_Screen>( &errcode, SCREEN_GAMESELECT );
 	Assert( AUI_NEWOK(screen,errcode) );
 	if ( !AUI_NEWOK(screen,errcode) ) return errcode;
-	m_screens[ SCREEN_GAMESELECT ] = screen;
+	m_screens[ SCREEN_GAMESELECT ] = std::move(screen);
 	{
-		m_windows[ WINDOW_GAMESELECT ] = new GameSelectWindow( &errcode );
+		m_windows[ WINDOW_GAMESELECT ] = std::make_unique<GameSelectWindow>( &errcode );
 		m_screens[ SCREEN_GAMESELECT ]->
-			AddWindow( m_windows[ WINDOW_GAMESELECT ] );
+			AddWindow( m_windows[ WINDOW_GAMESELECT ].get() );
 	}
 
 
 
 
-	screen = new aui_Screen( &errcode, SCREEN_STARTSELECTING );
+	screen = std::make_unique<aui_Screen>( &errcode, SCREEN_STARTSELECTING );
 	Assert( AUI_NEWOK(screen,errcode) );
 	if ( !AUI_NEWOK(screen,errcode) ) return errcode;
-	m_screens[ SCREEN_STARTSELECTING ] = screen;
+	m_screens[ SCREEN_STARTSELECTING ] = std::move(screen);
 	{
-		StartSelectingWindow * window = new StartSelectingWindow( &errcode );
+		std::unique_ptr<StartSelectingWindow> window = std::make_unique<StartSelectingWindow>( &errcode );
 		Assert( AUI_NEWOK(window,errcode) );
 		if ( !AUI_NEWOK(window,errcode) ) return errcode;
-		m_windows[ WINDOW_STARTSELECTING ] = window;
+		m_windows[ WINDOW_STARTSELECTING ] = std::move(window);
 
-		MoveButton(window, "startselectingwindow", "cancelbutton", true);
+		MoveButton(static_cast<StartSelectingWindow *>(m_windows[ WINDOW_STARTSELECTING ].get()), "startselectingwindow", "cancelbutton", true);
 
 		m_screens[ SCREEN_STARTSELECTING ]->
-			AddWindow( m_windows[ WINDOW_STARTSELECTING ] );
+			AddWindow( m_windows[ WINDOW_STARTSELECTING ].get() );
 	}
 
-	screen = new aui_Screen( &errcode, SCREEN_ALLINONE );
+	screen = std::make_unique<aui_Screen>( &errcode, SCREEN_ALLINONE );
 	Assert( AUI_NEWOK(screen,errcode) );
 	if ( !AUI_NEWOK(screen,errcode) ) return errcode;
-	m_screens[ SCREEN_ALLINONE ] = screen;
+	m_screens[ SCREEN_ALLINONE ] = std::move(screen);
 	{
-		m_windows[ WINDOW_ALLINONE ] = new AllinoneWindow( &errcode );
+		m_windows[ WINDOW_ALLINONE ] = std::make_unique<AllinoneWindow>( &errcode );
 		m_screens[ SCREEN_ALLINONE ]->
-			AddWindow( m_windows[ WINDOW_ALLINONE ] );
+			AddWindow( m_windows[ WINDOW_ALLINONE ].get() );
 	}
 
 	passwordscreen_Initialize();
@@ -371,21 +366,21 @@ NetShell::~NetShell()
 {
 	DestroyScreens();
 
-	delete m_truebmp;
-	delete m_tribes;
+	m_truebmp.reset();
+	m_tribes.reset();
 
 	if ( m_bg )
 	{
 		aui_Image *	mpBackgroundImage = aui_ui_Get()->SetBackgroundImage(nullptr);
 		aui_ui_Get()->UnloadImage(mpBackgroundImage);
-		delete m_bg;
+		m_bg.reset();
 	}
 
     if (g_netshell == this)
     {
-        delete nsunits_Get();        nsunits_Set(nullptr);
-        delete nsimprovements_Get(); nsimprovements_Set(nullptr);
-        delete nswonders_Get();      nswonders_Set(nullptr);
+        std::unique_ptr<ns_Units>(nsunits_Get()).reset();              nsunits_Set(nullptr);
+        std::unique_ptr<ns_Improvements>(nsimprovements_Get()).reset(); nsimprovements_Set(nullptr);
+        std::unique_ptr<ns_Wonders>(nswonders_Get()).reset();          nswonders_Set(nullptr);
 
         g_netshell = nullptr;
     }
@@ -404,14 +399,12 @@ void NetShell::DestroyScreens( )
 	int i;
 	for ( i = 0; i < SCREEN_MAX; i++ )
 	{
-		delete m_screens[ i ];
-		m_screens[i] = nullptr;
+		m_screens[ i ].reset();
 	}
 
 	for ( i = 0; i < WINDOW_MAX; i++ )
 	{
-		delete m_windows[ i ];
-		m_windows[i] = nullptr;
+		m_windows[ i ].reset();
 	}
 
 	passwordscreen_Cleanup();
@@ -443,13 +436,13 @@ void NetShell::DestroyNETFunc( )
 aui_Screen *NetShell::FindScreen( uint32 id )
 {
 	Assert(id < (uint32)SCREEN_MAX);
-	return (id < (uint32)SCREEN_MAX) ? m_screens[id] : nullptr;
+	return (id < (uint32)SCREEN_MAX) ? m_screens[id].get() : nullptr;
 }
 
 aui_Window *NetShell::FindWindow( uint32 id )
 {
 	Assert(id < (uint32)WINDOW_MAX);
-	return (id < (uint32)WINDOW_MAX) ? m_windows[id] : nullptr;
+	return (id < (uint32)WINDOW_MAX) ? m_windows[id].get() : nullptr;
 }
 
 void NetShell::DestroyAction::Execute(

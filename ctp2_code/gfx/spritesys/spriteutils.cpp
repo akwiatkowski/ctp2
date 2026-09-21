@@ -31,6 +31,7 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
 #include <vector>
 
 #include "gfx/gfx_utils/pixelutils.h"
@@ -399,7 +400,7 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, Pixel32 *shadowBuf, uint16 wi
 	Pixel32             *srcPixel = buf;
 
 	std::vector<Pixel16> outBuf((1+height+width*height)*8);
-	Pixel16             *returnBuf = nullptr;
+	std::unique_ptr<Pixel16[]> returnBuf;
 	uint16              *table = (uint16 *)outBuf.data();
 	Pixel16             *startOfData;
 	Pixel16             *dataPtr;
@@ -438,13 +439,13 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, Pixel32 *shadowBuf, uint16 wi
 
 
 
-	returnBuf = new Pixel16[resultSize];
+	returnBuf = std::make_unique<Pixel16[]>(resultSize);
 
-	memcpy(returnBuf, outBuf.data(), resultSize * sizeof(Pixel16));
+	memcpy(returnBuf.get(), outBuf.data(), resultSize * sizeof(Pixel16));
 	if (size)
 		*size = resultSize * sizeof(Pixel16);
 
-	return returnBuf;
+	return returnBuf.release();
 }
 
 Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, uint16 width, uint16 height, size_t *size)
@@ -452,7 +453,7 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, uint16 width, uint16 height, 
 	Pixel32             *srcPixel = buf;
 
 	std::vector<Pixel16> outBuf((1+height+width*height)*8);
-	Pixel16             *returnBuf = nullptr;
+	std::unique_ptr<Pixel16[]> returnBuf;
 	uint16              *table = (uint16 *)outBuf.data();
 	Pixel16             *startOfData;
 	Pixel16             *dataPtr;
@@ -485,13 +486,13 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, uint16 width, uint16 height, 
 
 
 
-	returnBuf = new Pixel16[resultSize];
+	returnBuf = std::make_unique<Pixel16[]>(resultSize);
 
-	memcpy(returnBuf, outBuf.data(), resultSize * sizeof(Pixel16));
+	memcpy(returnBuf.get(), outBuf.data(), resultSize * sizeof(Pixel16));
 	if (size)
 		*size = resultSize * sizeof(Pixel16);
 
-	return returnBuf;
+	return returnBuf.release();
 }
 
 void spriteutils_DecodeToBuffer(Pixel16 *data, sint32 width, sint32 height)

@@ -42,15 +42,13 @@ ns_Improvements * nsimprovements_Get()                { return g_nsImprovements;
 void              nsimprovements_Set(ns_Improvements *p)  { g_nsImprovements = p; }
 
 ns_Improvements::ns_Improvements()
-:
-    m_stringtable   (nullptr)
 {
 	Assert(g_theBuildingDB->NumRecords() <= k_IMPROVEMENTS_MAX );
 	sint32      numImprovements =
         std::min<sint32>(k_IMPROVEMENTS_MAX, g_theBuildingDB->NumRecords());
 
 	AUI_ERRCODE errcode         = AUI_ERRCODE_OK;
-	m_stringtable = new aui_StringTable( &errcode, numImprovements );
+	m_stringtable = std::make_unique<aui_StringTable>( &errcode, numImprovements );
 	Assert( AUI_NEWOK(m_stringtable,errcode) );
 	if ( !AUI_NEWOK(m_stringtable,errcode) ) return;
 
@@ -63,5 +61,5 @@ ns_Improvements::ns_Improvements()
 
 ns_Improvements::~ns_Improvements()
 {
-	delete m_stringtable;
+	m_stringtable.reset();
 }

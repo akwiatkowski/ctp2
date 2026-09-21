@@ -3,6 +3,8 @@
 
 #include "ldl_attr.hpp"
 
+#include <memory>
+
 class ldl_attributelist {
   public:
 	ldl_attribute *m_head;
@@ -17,12 +19,11 @@ class ldl_attributelist {
 		ldl_attribute *next;
 		while(del) {
 			next = del->m_next;
-			delete del;
+			std::unique_ptr<ldl_attribute> deleter(del);
 			del = next;
 		}
 		m_head = m_tail = nullptr;
 	}
-
 	ldl_attribute *GetHead() { return m_head; }
 	ldl_attribute *GetTail() { return m_tail; }
 	ldl_attribute *GetNext(ldl_attribute *att) { return att->m_next; }

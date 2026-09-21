@@ -33,6 +33,7 @@
 #include "gs/gameobj/GameObj.h"
 
 #include "ctp/ctp2_utils/c3errors.h"
+#include <memory>
 
 GameObj::GameObj(uint32 i)
 :
@@ -46,8 +47,8 @@ GameObj::GameObj(uint32 i)
 
 GameObj::~GameObj()
 {
-	delete m_lesser;
-	delete m_greater;
+	std::unique_ptr<GameObj>{m_lesser};
+	std::unique_ptr<GameObj>{m_greater};
 }
 
 void GameObj::operator delete(void *ptr)
@@ -198,7 +199,7 @@ void GameObj_Delete(GameObj **p, uint32 id)
          }
 		 tmp->m_greater = nullptr;
 		 tmp->m_lesser = nullptr;
-         delete tmp;
+         std::unique_ptr<GameObj>{tmp};
       }
    }
 }

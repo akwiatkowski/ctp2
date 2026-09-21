@@ -87,7 +87,7 @@ void dh_move(DQAction* itemAction,
   sint32 speed = profiledb_Get()->GetUnitSpeed();
   BOOL visible = FALSE;
 
-  ActionPtr actionObj(new Action());
+  ActionPtr actionObj = std::make_shared<Action>();
 
   MapPoint oldP = action->move_oldPos;
   MapPoint newP = action->move_newPos;
@@ -259,7 +259,7 @@ void dh_attack(DQAction* itemAction,
 
   sint32 facingIndex = spriteutils_DeltaToFacing(deltax, deltay);
 
-  ActionPtr ActionObj(new Action());
+  ActionPtr ActionObj = std::make_shared<Action>();
 
   ActionObj->SetSequence(seq);
   seq->AddRef();
@@ -352,7 +352,7 @@ void dh_specialAttack(DQAction* itemAction,
   }
 
   if (attackerCanAttack) {
-    ActionPtr AttackerActionObj(new Action());
+    ActionPtr AttackerActionObj = std::make_shared<Action>();
 
     AttackerActionObj->SetStartMapPoint(action->attacker_Pos);
     AttackerActionObj->SetEndMapPoint(action->attacker_Pos);
@@ -380,7 +380,7 @@ void dh_specialAttack(DQAction* itemAction,
   }
 
   if (defenderIsAttackable) {
-    ActionPtr DefenderActionObj(new Action());
+    ActionPtr DefenderActionObj = std::make_shared<Action>();
 
     DefenderActionObj->SetStartMapPoint(action->defender_Pos);
     DefenderActionObj->SetEndMapPoint(action->defender_Pos);
@@ -471,8 +471,8 @@ void dh_death(DQAction* itemAction,
     theDead->SetHealthPercent(-1.0);
     theDead->SetTempStackSize(0);
 
-    ActionPtr deadActionObj(
-        new Action((UNITACTION)deathActionType, ACTIONEND_ANIMEND));
+    ActionPtr deadActionObj = std::make_shared<Action>(
+        (UNITACTION)deathActionType, ACTIONEND_ANIMEND);
     Assert(deadActionObj != nullptr);
     if (deadActionObj == nullptr) {
       c3errors_ErrorDialog("Director",
@@ -528,8 +528,8 @@ void dh_death(DQAction* itemAction,
     if (theVictor->HasDeath() || victorAnim == nullptr) {
       theVictor->ActionQueueUpIdle();
     } else {
-      ActionPtr victorActionObj(
-          new Action((UNITACTION)victorActionType, ACTIONEND_ANIMEND));
+      ActionPtr victorActionObj = std::make_shared<Action>(
+          (UNITACTION)victorActionType, ACTIONEND_ANIMEND);
       if (victorActionObj == nullptr) {
         c3errors_ErrorDialog("Director",
                              "Internal Failure to create victory action");
@@ -659,7 +659,7 @@ void dh_work(DQAction* itemAction,
   if (!actor)
     return;
 
-  ActionPtr actionObj(new Action(UNITACTION_WORK, ACTIONEND_ANIMEND));
+  ActionPtr actionObj = std::make_shared<Action>(UNITACTION_WORK, ACTIONEND_ANIMEND);
 
   Assert(actionObj);
   if (actionObj)
@@ -827,8 +827,9 @@ void dh_combatflash(DQAction* itemAction,
 
   DQActionCombatFlash* action = (DQActionCombatFlash*)itemAction;
 
-  SpriteStatePtr ss(new SpriteState(99));
-  EffectActor* flash = new EffectActor(ss, action->flash_pos);
+  SpriteStatePtr ss = std::make_shared<SpriteState>(99);
+  // unique_ptr until ActiveEffectAdd takes ownership — covers the !anim path
+  std::unique_ptr<EffectActor> flash = std::make_unique<EffectActor>(ss, action->flash_pos);
 
   std::unique_ptr<Anim> anim = flash->CreateAnim(EFFECTACTION_PLAY);
   if (anim == nullptr) {
@@ -837,10 +838,10 @@ void dh_combatflash(DQAction* itemAction,
   }
 
   if (anim) {
-    ActionPtr actionObj(new Action(EFFECTACTION_FLASH, ACTIONEND_PATHEND));
+    ActionPtr actionObj = std::make_shared<Action>(EFFECTACTION_FLASH, ACTIONEND_PATHEND);
     actionObj->SetAnim(std::move(anim));
     flash->AddAction(std::move(actionObj));
-    director_Get()->ActiveEffectAdd(flash);
+    director_Get()->ActiveEffectAdd(flash.release());
   }
 
   director_Get()->ActionFinished(seq);
@@ -1045,8 +1046,8 @@ void dh_faceoff(DQAction* itemAction,
 
   ActionPtr AttackedActionObj;
 
-  ActionPtr AttackerActionObj(
-      new Action(UNITACTION_FACE_OFF, ACTIONEND_INTERRUPT));
+  ActionPtr AttackerActionObj = std::make_shared<Action>(
+      UNITACTION_FACE_OFF, ACTIONEND_INTERRUPT);
 
   AttackerActionObj->SetSequence(SequenceWeakPtr());
 
@@ -1225,16 +1226,17 @@ void dh_speceffect(DQAction* itemAction,
     return;
   }
 
-  SpriteStatePtr ss(new SpriteState(spriteID));
-  EffectActor* effectActor = new EffectActor(ss, pos);
+  SpriteStatePtr ss = std::make_shared<SpriteState>(spriteID);
+  // unique_ptr until ActiveEffectAdd takes ownership — covers the !anim path
+  std::unique_ptr<EffectActor> effectActor = std::make_unique<EffectActor>(ss, pos);
 
   std::unique_ptr<Anim> anim = effectActor->CreateAnim(EFFECTACTION_PLAY);
 
   if (anim) {
-    ActionPtr actionObj(new Action(EFFECTACTION_PLAY, ACTIONEND_PATHEND));
+    ActionPtr actionObj = std::make_shared<Action>(EFFECTACTION_PLAY, ACTIONEND_PATHEND);
     actionObj->SetAnim(std::move(anim));
     effectActor->AddAction(std::move(actionObj));
-    director_Get()->ActiveEffectAdd(effectActor);
+    director_Get()->ActiveEffectAdd(effectActor.release());
 
     if (soundmgr_Get()) {
       soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0, soundID, pos.x, pos.y);
@@ -1263,10 +1265,10 @@ void dh_attackpos(DQAction* itemAction,
     director_Get()->ActionFinished(seq);
     return;
   }
-  ActionPtr AttackerActionObj(new Action(
+  ActionPtr AttackerActionObj = std::make_shared<Action>(
       UNITACTION_ATTACK, ACTIONEND_ANIMEND,
       theAttacker->GetHoldingCurAnimPos(UNITACTION_ATTACK),
-      theAttacker->GetHoldingCurAnimSpecialDelayProcess(UNITACTION_ATTACK)));
+      theAttacker->GetHoldingCurAnimSpecialDelayProcess(UNITACTION_ATTACK));
 
   AttackerActionObj->SetSequence(seq);
   seq->AddRef();
@@ -1390,7 +1392,7 @@ void dh_beginScheduler(DQAction* itemAction,
 
   if (network_Get().IsHost()) {
     network_Get().Enqueue(
-        new NetInfo(NET_INFO_CODE_BEGIN_SCHEDULER, action->player));
+        std::make_unique<NetInfo>(NET_INFO_CODE_BEGIN_SCHEDULER, action->player).release());
   }
 
   Assert(director_Get()->m_holdSchedulerSequence.expired());

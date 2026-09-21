@@ -36,6 +36,8 @@
 #ifndef _NET_PACKET_H_
 #define _NET_PACKET_H_
 
+#include <memory>
+#include <utility>
 #include <vector>
 
 class Packetizer;
@@ -196,5 +198,23 @@ public:
 private:
 	sint32 m_refCount;
 };
+
+// RAII wrapper for the intrusive refcount: holds one reference and Releases
+// it on destruction. Use for locally created packetizers that would otherwise
+// need a manual AddRef/Release pair.
+struct PacketizerRelease {
+	void operator()(Packetizer *p) const { if (p) p->Release(); }
+};
+using PacketizerPtr = std::unique_ptr<Packetizer, PacketizerRelease>;
+
+// Creates a Packetizer subclass holding one reference (AddRef'd). The raw
+// `new` lives here so call sites stay new-free.
+template <typename T, typename... Args>
+PacketizerPtr make_packetizer(Args&&... args)
+{
+	PacketizerPtr p(new T(std::forward<Args>(args)...));
+	p->AddRef();
+	return p;
+}
 
 #endif

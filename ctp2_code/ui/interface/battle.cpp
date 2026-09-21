@@ -33,6 +33,8 @@
 #include "ctp/c3.h"
 #include "ui/interface/battle.h"
 
+#include <memory>
+
 #include "gs/gameobj/Army.h"
 #include "gs/world/World.h"                  // world_Get()
 #include "gs/world/Cell.h"
@@ -56,7 +58,7 @@
 
 
 Battle::Battle() :
-m_eventQueue(new PointerList<BattleEvent>),
+m_eventQueue(std::make_unique<PointerList<BattleEvent>>()),
 m_cityBonus(0.0),
 m_citylandattackBonus(0.0),
 m_cityairattackBonus(0.0),
@@ -79,7 +81,7 @@ m_fortifiedBonus(0.0)
 
 Battle::~Battle()
 {
-    delete m_eventQueue;
+
 }
 
 
@@ -90,9 +92,9 @@ Battle::~Battle()
 PointerList<BattleEvent> *Battle::GrabEventQueue()
 {
 
-	PointerList<BattleEvent> *eventQueue = m_eventQueue;
+	PointerList<BattleEvent> *eventQueue = m_eventQueue.release();
 
-	m_eventQueue = new PointerList<BattleEvent>;
+	m_eventQueue = std::make_unique<PointerList<BattleEvent>>();
 
 	return(eventQueue);
 }
@@ -262,8 +264,8 @@ void Battle::MakeAttackers(sint32 numAttackers, Army const &attackers)
 	pos.x = pos.y = 0;
 
 	for (i=0; i<numAttackers; i++) {
-		m_attackers[i] = new BattleViewActor(attackers[i].GetSpriteState(), attackers[i],
-										attackers[i].GetType(), pos,  attackers[i].GetOwner());
+		m_attackers[i] = std::make_unique<BattleViewActor>(attackers[i].GetSpriteState(), attackers[i],
+										attackers[i].GetType(), pos,  attackers[i].GetOwner()).release();
 		m_attackers[i]->SetFacing(k_BATTLEVIEW_DEFAULT_ATTACKER_FACING);
 
 		DPRINTF(k_DBG_FIX, ("MakeAttackers: Actor with Unit id: %.8x\n", m_attackers[i]->GetUnitID().m_id));
@@ -279,8 +281,8 @@ void Battle::MakeDefenders(sint32 numDefenders, CellUnitList const & defenders)
 	pos.x = pos.y = 0;
 
 	for (i=0; i<numDefenders; i++) {
-		m_defenders[i] = new BattleViewActor(defenders[i].GetSpriteState(), defenders[i],
-										defenders[i].GetType(), pos,  defenders[i].GetOwner());
+		m_defenders[i] = std::make_unique<BattleViewActor>(defenders[i].GetSpriteState(), defenders[i],
+										defenders[i].GetType(), pos,  defenders[i].GetOwner()).release();
 		m_defenders[i]->SetFacing(k_BATTLEVIEW_DEFAULT_DEFENDER_FACING);
 		m_defenders[i]->SetFortified(defenders[i].IsEntrenched());
 		DPRINTF(k_DBG_FIX, ("MakeDefenders: Actor with Unit id: %.8x\n", m_defenders[i]->GetUnitID().m_id));
@@ -379,13 +381,13 @@ void Battle::AddUnitExplosion(BattleEvent *event, BOOL isDefender, Unit theUnit)
 
 
 	EffectActor		*explodeActor = nullptr;
-	SpriteStatePtr explosionState(new SpriteState(
-      g_theSpecialEffectDB->Get(g_theSpecialEffectDB->FindTypeIndex("SPECEFFECT_EXPLOSION_LAND_1"))->GetValue()));
+	SpriteStatePtr explosionState = std::make_shared<SpriteState>(
+      g_theSpecialEffectDB->Get(g_theSpecialEffectDB->FindTypeIndex("SPECEFFECT_EXPLOSION_LAND_1"))->GetValue());
 
 	if (explosionState && explosionState->GetIndex() != -1) {
 		MapPoint		pos = theUnit.RetPos();
 
-		explodeActor = new EffectActor(explosionState, pos);
+		explodeActor = std::make_unique<EffectActor>(explosionState, pos).release();
 	}
 
 	event->AddExplosionData(actor, explodeActor, gamesounds_GetGameSoundID(GAMESOUNDS_EXPLOSION),
@@ -450,12 +452,12 @@ void Battle::ShowEvent(BattleEvent *event)
 
 	PointerList<BattleEventData>	*list = event->GetDataList();
 
-	PointerList<BattleEventData>::Walker *walker = new PointerList<BattleEventData>::Walker(list);
+	PointerList<BattleEventData>::Walker walker(list);
 
 	DPRINTF(k_DBG_FIX, ("  %d data elements.\n", list->GetCount()));
 	sint32		index = 0;
-	while (walker->IsValid()) {
-		BattleEventData		*data = walker->GetObj();
+	while (walker.IsValid()) {
+		BattleEventData		*data = walker.GetObj();
 		DPRINTF(k_DBG_FIX, ("    Data element %d:\n", index));
 
 		switch (event->GetType()) {
@@ -489,7 +491,7 @@ void Battle::ShowEvent(BattleEvent *event)
 		}
 		DPRINTF(k_DBG_FIX, ("--\n"));
 
-		walker->Next();
+		walker.Next();
 
 		index++;
 	}

@@ -2,6 +2,8 @@
 #define __TESTWINDOW_H__
 
 #include "ui/aui_ctp2/c3window.h"
+#include <memory>
+
 
 class IconButton;
 
@@ -33,11 +35,11 @@ public:
 		sint32 y = 0 );
 
 protected:
-	IconButton				*m_button1;
-	IconButton				*m_button2;
+	std::unique_ptr<IconButton>		m_button1;
+	std::unique_ptr<IconButton>		m_button2;
 
-	Button1Action			*m_button1Action;
-	Button2Action			*m_button2Action;
+	std::unique_ptr<Button1Action>	m_button1Action;
+	std::unique_ptr<Button2Action>	m_button2Action;
 };
 
 #endif

@@ -34,6 +34,7 @@
 #include "ctp/c3.h"
 
 #include <chrono>
+#include <memory>
 #include <thread>
 #include <vector>
 
@@ -61,11 +62,13 @@ TPacketData::TPacketData(uint16 id, sint32 flags, uint8 *buf, sint32 len,
 	   buf[1] == k_SPLIT_PACKET_START) {
 		sint32 realLen = getlong(&buf[2]);
 		m_totalLen = realLen;
-		m_buf = new uint8[m_totalLen + 6];
+		m_actualBuf = std::make_unique<uint8[]>(m_totalLen + 6);
+		m_buf = m_actualBuf.get();
 		memcpy(m_buf, buf, len);
 		len -= 6;
 	} else if(buf) {
-		m_buf = new uint8[len];
+		m_actualBuf = std::make_unique<uint8[]>(len);
+		m_buf = m_actualBuf.get();
 		memcpy(m_buf, buf, len);
 	} else {
 		m_buf = nullptr;
@@ -78,8 +81,8 @@ TPacketData::TPacketData(uint16 id, sint32 flags, uint8 *buf,sint32 len,
 {
 	m_id = id;
 	m_flags = flags;
-	m_actualBuf = nullptr;
-	m_buf = new uint8[len + headerLen];
+	m_actualBuf = std::make_unique<uint8[]>(len + headerLen);
+	m_buf = m_actualBuf.get();
 	memcpy(m_buf, header, headerLen);
 	memcpy(m_buf + headerLen, buf, len);
 	m_len = len + headerLen;
@@ -87,8 +90,7 @@ TPacketData::TPacketData(uint16 id, sint32 flags, uint8 *buf,sint32 len,
 
 TPacketData::~TPacketData()
 {
-	delete [] m_actualBuf;
-	delete [] m_buf;
+	m_actualBuf.reset();
 }
 
 void TPacketData::Append(uint8 *buf, sint32 len)
@@ -106,7 +108,6 @@ void TPacketData::RemoveSplitInfo()
 	Assert(m_buf[0] == k_SPLIT_PACKET_HEAD);
 	Assert(m_len == m_totalLen);
 	Assert(m_totalLen > 0);
-	m_actualBuf = m_buf;
 	m_buf = m_buf + 6;
 }
 
@@ -126,10 +127,7 @@ NET_ERR NetThread::Reset()
 	m_incoming->DeleteAll();
 	sint32 i;
 	for(i = 0; i < k_MAX_NETWORK_PLAYERS; i++) {
-		if(m_outgoing[i]) {
-			delete m_outgoing[i];
-			m_outgoing[i] = nullptr;
-		}
+		m_outgoing[i].reset();
 		m_ids[i] = 0;
 	}
 
@@ -151,16 +149,13 @@ NetThread::~NetThread()
 		dpSetActiveThread(m_origDP);
 	}
 	m_incoming->DeleteAll();
-	delete m_incoming;
+	m_incoming.reset();
 	sint32 i;
 	for(i = 0; i < k_MAX_NETWORK_PLAYERS; i++) {
-		if(m_outgoing[i]) {
-			delete m_outgoing[i];
-			m_outgoing[i] = nullptr;
-		}
+		m_outgoing[i].reset();
 	}
 	
-		delete m_kickPlayers;
+		m_kickPlayers.reset();
 	
 }
 
@@ -186,8 +181,8 @@ NetThread::NetThread()
 		m_outgoing[i] = nullptr;
 		m_ids[i] = 0;
 	}
-	m_incoming = new PointerList<TPacketData>;
-	m_anet = nullptr;
+	m_incoming = std::make_unique<PointerList<TPacketData>>();
+	m_anet.reset();
 	m_exit = m_exited = FALSE;
 
 #ifdef USE_SDL
@@ -196,7 +191,7 @@ NetThread::NetThread()
 	InitializeCriticalSection(&m_mutex);
 #endif
 	m_setMaxPlayers = -1;
-	m_kickPlayers = new SimpleDynamicArray<uint16>;
+	m_kickPlayers = std::make_unique<SimpleDynamicArray<uint16>>();
 }
 
 NET_ERR NetThread::Init(NetIOResponse *response)
@@ -254,7 +249,7 @@ void NetThread::Run()
 			sint32 p;
 			for(p = 0; p < k_MAX_NETWORK_PLAYERS; p++) {
 				Lock();
-				PointerList<TPacketData> *outgoing = m_outgoing[p];
+				PointerList<TPacketData> *outgoing = m_outgoing[p].get();
 				if(!outgoing) {
 					Unlock();
 					continue;
@@ -266,7 +261,7 @@ void NetThread::Run()
 						static uint8 buf[dp_MAXLEN_UNRELIABLE * 2];
 						if(packet->m_len > dp_MAXLEN_UNRELIABLE * 2) {
 							Assert(packet->m_len <= dp_MAXLEN_UNRELIABLE * 2);
-							delete packet;
+							std::unique_ptr<TPacketData>{packet};
 							continue;
 						}
 						memcpy(buf, packet->m_buf, packet->m_len);
@@ -277,7 +272,7 @@ void NetThread::Run()
 												   packet->m_len);
 						switch(err) {
 							case NET_ERR_OK:
-								delete packet;
+								std::unique_ptr<TPacketData>{packet};
 								break;
 							case NET_ERR_WOULDBLOCK:
 								busy = TRUE;
@@ -299,8 +294,8 @@ void NetThread::Run()
 		m_anet->GetMyId(myId);
 		m_anet->KickPlayer(myId);
 		m_anet->SetDP(nullptr);
-		delete m_anet;
-		m_anet = nullptr;
+		m_anet.reset();
+		m_anet.reset();
 	}
 	m_exited = TRUE;
 }
@@ -326,7 +321,7 @@ void NetThread::Unlock()
 void NetThread::SetDP(dp_t *dp)
 {
 	Lock();
-	m_anet = new ActivNetIO;
+	m_anet = std::make_unique<ActivNetIO>();
 	m_anet->Init(this);
 	m_dp = dp;
 	Unlock();
@@ -393,7 +388,7 @@ NET_ERR NetThread::Send(uint16 id, sint32 flags, uint8* buf, sint32 len)
 		return NET_ERR_INVALIDADDR;
 	}
 
-	PointerList<TPacketData> *outgoing = m_outgoing[idx];
+	PointerList<TPacketData> *outgoing = m_outgoing[idx].get();
 	Assert(outgoing);
 	if(!outgoing) {
 		Unlock();
@@ -406,8 +401,8 @@ NET_ERR NetThread::Send(uint16 id, sint32 flags, uint8* buf, sint32 len)
 		header[0] = k_SPLIT_PACKET_HEAD;
 		header[1] = k_SPLIT_PACKET_START;
 		putlong(&header[2], len);
-		outgoing->AddTail(new TPacketData(id, flags, buf, k_SPLIT_LEN - 1,
-											header, 6));
+		outgoing->AddTail(std::make_unique<TPacketData>(id, flags, buf, k_SPLIT_LEN - 1,
+											header, 6).release());
 		added = k_SPLIT_LEN - 1;
 		while(added < len) {
 			sint32 left = len - added;
@@ -421,13 +416,13 @@ NET_ERR NetThread::Send(uint16 id, sint32 flags, uint8* buf, sint32 len)
 				toSend = k_SPLIT_LEN - 1;
 			}
 
-			outgoing->AddTail(new TPacketData(id, flags, buf + added, toSend,
-												header, 2));
+			outgoing->AddTail(std::make_unique<TPacketData>(id, flags, buf + added, toSend,
+												header, 2).release());
 			added += toSend;
 		}
 		Assert(added == len);
 	} else {
-		outgoing->AddTail(new TPacketData(id, flags, buf, len, TRUE));
+		outgoing->AddTail(std::make_unique<TPacketData>(id, flags, buf, len, TRUE).release());
 	}
 
 	Unlock();
@@ -505,7 +500,7 @@ NET_ERR NetThread::Idle()
 			if(packet->m_buf[0] == k_COMPRESSED_PACKET) {
 				if(packet->m_len < 5) {
 					Assert(packet->m_len >= 5);
-					delete packet;
+					std::unique_ptr<TPacketData>{packet};
 					continue;
 				}
 				uLongf uSize = getlong(&packet->m_buf[1]);
@@ -521,7 +516,7 @@ NET_ERR NetThread::Idle()
 				m_response->PacketReady(packet->m_id, packet->m_buf, packet->m_len);
 			}
 		}
-		delete packet;
+		std::unique_ptr<TPacketData>{packet};
 		Lock();
 		hackPackets++;
 		if(hackPackets >= 1000)
@@ -568,17 +563,17 @@ void NetThread::SessionReady(NET_ERR result,
 				  void* sessionData)
 {
 	Lock();
-	m_incoming->AddTail(new TPacketData(k_RPC_ID,
+	m_incoming->AddTail(std::make_unique<TPacketData>(k_RPC_ID,
 										k_RPC_SESSION_READY,
 										nullptr,
 										0,
-										TRUE));
+										TRUE).release());
 	Unlock();
 }
 
 TPacketData *NetThread::FindSplitStart(uint16 from)
 {
-	PointerList<TPacketData>::Walker walk(m_incoming);
+	PointerList<TPacketData>::Walker walk(m_incoming.get());
 	for(; walk.IsValid(); walk.Next()) {
 		if(walk.GetObj()->m_id == from && walk.GetObj()->m_buf[0] == k_SPLIT_PACKET_HEAD) {
 			Assert(walk.GetObj()->m_buf[1] == k_SPLIT_PACKET_START);
@@ -596,7 +591,7 @@ void NetThread::PacketReady(sint32 from, uint8* buf, sint32 size)
 		TPacketData *splitStart = FindSplitStart((uint16)from);
 		if(!splitStart) {
 			Assert(buf[1] == k_SPLIT_PACKET_START);
-			m_incoming->AddTail(new TPacketData((uint16)from, 0, buf, size, FALSE));
+			m_incoming->AddTail(std::make_unique<TPacketData>((uint16)from, 0, buf, size, FALSE).release());
 		} else {
 			Assert(buf[1] != k_SPLIT_PACKET_START);
 			splitStart->Append(&buf[2], size - 2);
@@ -624,7 +619,7 @@ void NetThread::PacketReady(sint32 from, uint8* buf, sint32 size)
 
 
 
-		m_incoming->AddTail(new TPacketData((uint16)from, 0, buf, size, FALSE));
+		m_incoming->AddTail(std::make_unique<TPacketData>((uint16)from, 0, buf, size, FALSE).release());
 	}
 	Unlock();
 }
@@ -634,11 +629,11 @@ void NetThread::AddPlayer(uint16 id, char* name)
 	Lock();
 	DPRINTF(k_DBG_NET, ("AddPlayer(%d, %s)\n", id, name));
 
-	TPacketData *packet = new TPacketData(k_RPC_ID,
+	TPacketData *packet = std::make_unique<TPacketData>(k_RPC_ID,
 										  k_RPC_ADD_PLAYER,
 										  (uint8*)name,
 										  strlen(name) + 1 + sizeof(uint16),
-										  TRUE);
+										  TRUE).release();
 	putshort(&packet->m_buf[strlen(name) + 1], id);
 	m_incoming->AddTail(packet);
 
@@ -646,7 +641,7 @@ void NetThread::AddPlayer(uint16 id, char* name)
 	for(i = 0; i < k_MAX_NETWORK_PLAYERS; i++) {
 		if(m_ids[i] == 0) {
 			m_ids[i] = id;
-			m_outgoing[i] = new PointerList<TPacketData>;
+			m_outgoing[i] = std::make_unique<PointerList<TPacketData>>();
 			break;
 		}
 	}
@@ -657,12 +652,12 @@ void NetThread::AddPlayer(uint16 id, char* name)
 void NetThread::RemovePlayer(uint16 id)
 {
 	Lock();
-	TPacketData *packet = new TPacketData(k_RPC_ID,
+	TPacketData *packet = std::make_unique<TPacketData>(k_RPC_ID,
 										  k_RPC_REMOVE_PLAYER,
 										  nullptr,
 										  sizeof(uint16),
-										  TRUE);
-	packet->m_buf = new uint8[sizeof(uint16)];
+										  TRUE).release();
+	packet->m_buf = std::make_unique<uint8[]>(sizeof(uint16)).release();
 	putshort(packet->m_buf, id);
 	m_incoming->AddTail(packet);
 
@@ -671,18 +666,17 @@ void NetThread::RemovePlayer(uint16 id)
 		if(m_ids[i] == id) {
 			m_ids[i] = 0;
 			if(m_outgoing[i]) {
-				delete m_outgoing[i];
-				m_outgoing[i] = nullptr;
+				m_outgoing[i].reset();
 				break;
 			}
 		}
 	}
 
 
-	PointerList<TPacketData>::Walker walk(m_incoming);
+	PointerList<TPacketData>::Walker walk(m_incoming.get());
 	while(walk.IsValid()) {
 		if(walk.GetObj()->m_id == id) {
-			delete walk.Remove();
+			std::unique_ptr<TPacketData>(walk.Remove());
 		} else {
 			walk.Next();
 		}
@@ -695,22 +689,22 @@ void NetThread::RemovePlayer(uint16 id)
 void NetThread::SetToHost()
 {
 	Lock();
-	m_incoming->AddTail(new TPacketData(k_RPC_ID,
+	m_incoming->AddTail(std::make_unique<TPacketData>(k_RPC_ID,
 										k_RPC_SET_TO_HOST,
 										nullptr,
 										0,
-										TRUE));
+										TRUE).release());
 	Unlock();
 }
 
 void NetThread::ChangeHost(uint16 id)
 {
 	Lock();
-	TPacketData *packet = new TPacketData(k_RPC_ID,
+	TPacketData *packet = std::make_unique<TPacketData>(k_RPC_ID,
 										  k_RPC_CHANGE_HOST,
 										  (uint8 *)&id,
 										  sizeof(uint16),
-										  TRUE);
+										  TRUE).release();
 	m_incoming->AddTail(packet);
 	Unlock();
 }
@@ -733,11 +727,11 @@ NET_ERR NetThread::KickPlayer(uint16 player)
 void NetThread::SessionLost()
 {
 	Lock();
-	TPacketData *packet = new TPacketData(k_RPC_ID,
+	TPacketData *packet = std::make_unique<TPacketData>(k_RPC_ID,
 										  k_RPC_SESSION_LOST,
 										  nullptr,
 										  0,
-										  TRUE);
+										  TRUE).release();
 
 
 	m_incoming->DeleteAll();

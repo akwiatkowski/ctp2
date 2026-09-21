@@ -34,6 +34,7 @@
 
 #include <algorithm>          // std::fill, std::max, std::min
 #include <cstring>
+#include <new>                // ::operator new / ::operator delete
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_common/aui_dirtylist.h"
 #include "ui/aui_common/aui_pixel.h"
@@ -2641,7 +2642,7 @@ aui_Stencil *aui_CreateStencil(aui_Surface *pSurface)
 
 	sint32 structMemory = sizeof(aui_Stencil) + (height - 1) * sizeof(spanIndex);
 
-	aui_Stencil *pBuffer = (aui_Stencil *)malloc(structMemory + numSpans * sizeof(aui_StencilSpan));
+	aui_Stencil *pBuffer = static_cast<aui_Stencil *>(::operator new(structMemory + numSpans * sizeof(aui_StencilSpan)));
 
 	pBuffer->spans = (aui_StencilSpan *)(((uint8 *)pBuffer) + structMemory);
 
@@ -2669,7 +2670,7 @@ void aui_DestroyStencil(aui_Stencil *pStencil)
 {
 	// Paired with aui_CreateStencil — the stencil is a single flexible
 	// allocation (struct + trailing spans), so it is released as one block.
-	free(pStencil);
+	::operator delete(pStencil);   // placement new counterpart
 }
 
 AUI_ERRCODE aui_Blitter::StencilMixBlt16(

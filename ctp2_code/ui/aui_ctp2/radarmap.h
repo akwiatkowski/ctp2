@@ -41,6 +41,7 @@
 #define ___BMH_RADAR_MAP_HEADER
 
 #include <vector>
+#include <memory>
 
 #include "ui/aui_common/aui_control.h"
 #include "gs/world/MapPoint.h"
@@ -107,7 +108,7 @@ public:
 	void		RedrawTile( const MapPoint *point );
 	void		SetSelectedCity( Unit city ) { m_selectedCity = city; };
 
-	aui_Surface *GetMapSurface() const { return m_mapSurface; }
+	aui_Surface *GetMapSurface() const { return m_mapSurface.get(); }
 
 	AUI_ERRCODE			DrawThis(aui_Surface *surface, sint32 x, sint32 y) override;
 
@@ -220,13 +221,13 @@ private:
 
 	bool		m_isInteractive;
 
-	aui_Surface	*m_mapSurface;
+	std::unique_ptr<aui_Surface>	m_mapSurface;
 	MapPoint	*m_mapSize;
 	std::vector<COLOR>		m_mapOverlay;
 	MapPoint	m_clickedCell;
 	double		m_tilePixelWidth,
 				m_tilePixelHeight;
-	aui_Surface *m_tempSurface;
+	std::unique_ptr<aui_Surface> m_tempSurface;
 	// Pixel backing for m_tempSurface (owned here; the surface borrows a
 	// pointer into it). Sized/zeroed by CalculateMetrics on every map-size
 	// change.

@@ -29,6 +29,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include "ctp/c3.h"
 #include "ui/interface/MainControlPanel.h"
 
@@ -49,11 +50,11 @@
 #include "ui/interface/UnitControlPanel.h"
 #include "ui/interface/ZoomPad.h"
 
-static MainControlPanel *g_mainControlPanel = nullptr;
+static std::unique_ptr<MainControlPanel> g_mainControlPanel;
 
 MainControlPanel * maincontrolpanel_Get()
 {
-	return g_mainControlPanel;
+	return g_mainControlPanel.get();
 }
 
 static aui_ProgressBar * s_progressBar;
@@ -78,7 +79,7 @@ void MainControlPanel::Initialize(MBCHAR const *ldlBlock)
 {
 	if (!g_mainControlPanel)
 	{
-		g_mainControlPanel = new MainControlPanel(ldlBlock);
+		g_mainControlPanel = std::make_unique<MainControlPanel>(ldlBlock);
 	}
 }
 
@@ -108,7 +109,7 @@ void MainControlPanel::Blank()
 
 void MainControlPanel::CleanUp()
 {
-	allocated::clear(g_mainControlPanel);
+	g_mainControlPanel.reset();
 }
 
 void MainControlPanel::Update()
@@ -174,11 +175,11 @@ aui_ProgressBar* MainControlPanel::GetProgressBar()
 
 MainControlPanel::MainControlPanel(MBCHAR const *ldlBlock)
 :
-    m_controlTabPanel   (new ControlTabPanel(ldlBlock)),
-    m_endTurnButton     (new EndTurnButton(ldlBlock)),
-    m_shortcutPad       (new ShortcutPad(ldlBlock)),
-    m_statusBar         (new StatusBar(ldlBlock)),
-    m_turnYearStatus    (new TurnYearStatus(ldlBlock))
+    m_controlTabPanel   (std::make_unique<ControlTabPanel>(ldlBlock)),
+    m_endTurnButton     (std::make_unique<EndTurnButton>(ldlBlock)),
+    m_shortcutPad       (std::make_unique<ShortcutPad>(ldlBlock)),
+    m_statusBar         (std::make_unique<StatusBar>(ldlBlock)),
+    m_turnYearStatus    (std::make_unique<TurnYearStatus>(ldlBlock))
 {
 	TurnYearStatus::BuildTurnLengthOverride();
 }

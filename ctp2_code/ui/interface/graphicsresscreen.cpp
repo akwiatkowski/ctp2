@@ -52,11 +52,13 @@
 #include "ui/interface/graphicsscreen.h"
 #include "ui/interface/graphicsresscreen.h"
 
+#include <memory>
 
-static c3_PopupWindow	*s_graphicsResScreen= nullptr;
 
-static c3_ListBox		*s_resList			= nullptr;
-static c3_Static		*s_warning			= nullptr;
+static std::unique_ptr<c3_PopupWindow>	s_graphicsResScreen;
+
+static std::unique_ptr<c3_ListBox>		s_resList;
+static std::unique_ptr<c3_Static>		s_warning;
 static sint32			s_currentResIndex	= 0;
 static CTPDisplayMode	*s_selectedDisplayMode = nullptr;
 
@@ -74,7 +76,7 @@ sint32	graphicsresscreen_displayMyWindow()
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = c3ui_Get()->AddWindow(s_graphicsResScreen);
+	auiErr = c3ui_Get()->AddWindow(s_graphicsResScreen.get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	return retval;
@@ -125,7 +127,7 @@ AUI_ERRCODE graphicsresscreen_Initialize( )
 
 	strlcpy(windowBlock, "ScreenResScreen", sizeof(windowBlock));
 	{
-		s_graphicsResScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
+		s_graphicsResScreen = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false );
 		Assert( AUI_NEWOK(s_graphicsResScreen, errcode) );
 		if ( !AUI_NEWOK(s_graphicsResScreen, errcode) ) return errcode;
 
@@ -138,12 +140,12 @@ AUI_ERRCODE graphicsresscreen_Initialize( )
 	s_graphicsResScreen->AddClose( graphicsresscreen_acceptPress );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ResList" );
-	s_resList = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, ScreenResListCallback, nullptr);
+	s_resList = std::make_unique<c3_ListBox>( &errcode, aui_UniqueId(), controlBlock, ScreenResListCallback, nullptr);
 	Assert( AUI_NEWOK(s_resList, errcode) );
 	if ( !AUI_NEWOK(s_resList, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Warning");
-	s_warning = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	s_warning = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_warning, errcode) );
 	if ( !AUI_NEWOK(s_warning, errcode) ) return errcode;
 
@@ -164,8 +166,8 @@ AUI_ERRCODE graphicsresscreen_Initialize( )
 	while (node) {
 		CTPDisplayMode *mode = node->GetObj();
 		if (mode) {
-			ScreenResListItem		*item = new ScreenResListItem(&errcode, mode, controlBlock);
-			s_resList->AddItem((aui_Item *)item);
+			auto item = std::make_unique<ScreenResListItem>(&errcode, mode, controlBlock);
+			s_resList->AddItem((aui_Item *)item.release());
 			if (mode->width == g_ScreenWidth && mode->height == g_ScreenHeight) {
 
 				s_currentResIndex = i;
@@ -186,21 +188,16 @@ AUI_ERRCODE graphicsresscreen_Initialize( )
 
 AUI_ERRCODE graphicsresscreen_Cleanup()
 {
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
-
 	if ( !s_graphicsResScreen  ) return AUI_ERRCODE_OK;
 
 	c3ui_Get()->RemoveWindow( s_graphicsResScreen->Id() );
 
-	mycleanup(s_resList);
-	mycleanup(s_warning);
+	s_resList.reset();
+	s_warning.reset();
 
-	delete s_graphicsResScreen;
-	s_graphicsResScreen = nullptr;
+	s_graphicsResScreen.reset();
 
 	return AUI_ERRCODE_OK;
-
-#undef mycleanup
 }
 
 
@@ -246,17 +243,17 @@ AUI_ERRCODE ScreenResListItem::InitCommonLdl(CTPDisplayMode *mode, MBCHAR *ldlBl
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		retval;
 
-	c3_Static		*subItem;
+	std::unique_ptr<c3_Static>	subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ScreenRes");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block);
 	Assert(subItem);
 
 	MBCHAR resName[80];
 	snprintf(resName, sizeof(resName), "%d x %d", mode->width, mode->height);
 	subItem->SetText(resName);
 
-	AddChild(subItem);
+	AddChild(subItem.release());
 
 	m_mode = mode;
 	return AUI_ERRCODE_OK;

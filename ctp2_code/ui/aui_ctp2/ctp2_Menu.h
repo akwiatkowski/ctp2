@@ -2,6 +2,7 @@
 #define CTP2_MENU_H__
 
 #include <string>
+#include <memory>
 
 #include "ui/aui_ctp2/ctp2_listitem.h"
 
@@ -40,7 +41,7 @@ class ctp2_Menu {
 
 	ctp2_Window *m_window;
 	ctp2_ListBox *m_list;
-	PointerList<Item> *m_items;
+	std::unique_ptr<PointerList<Item>> m_items;
 	sint32 m_maxTextWidth;
 	sint32 m_maxIconWidth;
 	sint32 m_maxShortcutWidth;

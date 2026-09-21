@@ -1,6 +1,8 @@
 #ifndef __DIALOGBOXWINDOW_H__
 #define __DIALOGBOXWINDOW_H__
 
+#include <memory>
+#include <vector>
 #include "ui/netshell/ns_window.h"
 #include "ui/aui_common/aui_action.h"
 
@@ -49,13 +51,12 @@ public:
 		CONTROL_MAX = CONTROL_LAST - CONTROL_FIRST
 	};
 
-	aui_Button *GetButton( sint32 i ) const { return m_buttons[ i ]; }
+	aui_Button *GetButton( sint32 i ) const { return m_buttons[ i ].get(); }
 
 protected:
 	DialogBoxWindow()
 	:	ns_Window		(),
-	   	m_numButtons	(0),
-		m_buttons		(nullptr)
+	   	m_numButtons	(0)
 	{ ; };
 
 	AUI_ERRCODE	InitCommon( ) override;
@@ -64,7 +65,7 @@ protected:
 		aui_Action **actions );
 
 	sint32		m_numButtons;
-	aui_Button	**m_buttons;
+	std::vector<std::unique_ptr<aui_Button>> m_buttons;
 
 	class SafeDeleteAction : public aui_Action
 	{
@@ -73,7 +74,7 @@ protected:
         :   aui_Action  (),
             m_dbw       (dbw)
         { ; };
-		~SafeDeleteAction() override { ; };
+	~SafeDeleteAction() override;
 
 	    void	Execute
 	    (
@@ -83,7 +84,7 @@ protected:
 	    ) override;
 
 	protected:
-		DialogBoxWindow *   m_dbw;
+	std::unique_ptr<DialogBoxWindow>   m_dbw;
 	};
 };
 

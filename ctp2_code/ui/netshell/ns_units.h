@@ -2,6 +2,7 @@
 #define __NS_UNITS_H__
 
 #include <vector>
+#include <memory>
 
 class aui_StringTable;
 
@@ -23,12 +24,12 @@ public:
 	ns_Units();
 	virtual ~ns_Units();
 
-	aui_StringTable *GetStrings( ) const { return m_stringtable; }
+	aui_StringTable *GetStrings( ) const { return m_stringtable.get(); }
 
 	std::vector<sint32>		m_noIndex;
 
 private:
-	aui_StringTable *m_stringtable;
+	std::unique_ptr<aui_StringTable>	m_stringtable;
 };
 
 #endif

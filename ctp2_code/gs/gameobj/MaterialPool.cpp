@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/MaterialPool.h"
 #include "net/general/network.h"
 #include "net/general/net_action.h"
@@ -60,13 +61,13 @@ void MaterialPool::CheatAddMaterials(sint32 amt)
 		owner->DeductPoints(pointCost);
 
 		if(network_Get().IsHost()) {
-			network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
-										  m_owner, owner->GetPoints()));
+			network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_POWER_POINTS,
+										  m_owner, owner->GetPoints()).release());
 		}
 	}
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_CHEAT_ADD_MATERIALS,
-										   amt));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CHEAT_ADD_MATERIALS,
+										   amt).release());
 	}
 	AddMaterials(amt);
 }
@@ -79,14 +80,14 @@ sint32 MaterialPool::CheatSubtractMaterials(sint32 amt)
 			owner->AddPoints(pointCost);
 
 			if(network_Get().IsHost()) {
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
-											  m_owner, owner->GetPoints()));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_POWER_POINTS,
+											  m_owner, owner->GetPoints()).release());
 			}
 		}
 	}
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_CHEAT_SUB_MATERIALS,
-										   amt));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CHEAT_SUB_MATERIALS,
+										   amt).release());
 	}
 	SubtractMaterials(amt);
 	return amt;

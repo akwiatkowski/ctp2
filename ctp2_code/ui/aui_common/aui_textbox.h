@@ -1,6 +1,9 @@
 #ifndef __AUI_TEXTBOX_H__
 #define __AUI_TEXTBOX_H__
 
+#include <array>
+#include <memory>
+
 #include "ui/aui_common/aui_listbox.h"
 
 class aui_Static;
@@ -63,7 +66,7 @@ protected:
 
 	sint32		m_numItems;
 	sint32		m_curItem;
-	aui_Static	*m_items[ k_AUI_TEXTBOX_MAXITEMS ];
+	std::array<std::unique_ptr<aui_Static>, k_AUI_TEXTBOX_MAXITEMS> m_items;
 
 	COLORREF	m_curColor;
 	sint32		m_curBold;

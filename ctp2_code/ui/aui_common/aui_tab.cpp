@@ -92,7 +92,7 @@ AUI_ERRCODE aui_Tab::InitCommon( MBCHAR const *ldlBlock )
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "pane" );
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	m_pane = new aui_Static( &errcode, aui_UniqueId(), block );
+	m_pane = std::make_unique<aui_Static>( &errcode, aui_UniqueId(), block );
 	Assert( AUI_NEWOK(m_pane,errcode) );
 	if ( !AUI_NEWOK(m_pane,errcode) ) return AUI_ERRCODE_OK; // Returnin OK?
 
@@ -100,7 +100,7 @@ AUI_ERRCODE aui_Tab::InitCommon( MBCHAR const *ldlBlock )
 
 	m_pane->Move( 0, m_height );
 
-	AddChild( m_pane );
+	AddChild( m_pane.get() );
 
 	return AUI_ERRCODE_OK; // Why not errcode?
 }
@@ -114,7 +114,7 @@ AUI_ERRCODE aui_Tab::InitCommon( sint32 paneWidth, sint32 paneHeight )
 
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	m_pane = new aui_Static(
+	m_pane = std::make_unique<aui_Static>(
 		&errcode,
 		aui_UniqueId(),
 		0,
@@ -126,7 +126,7 @@ AUI_ERRCODE aui_Tab::InitCommon( sint32 paneWidth, sint32 paneHeight )
 
 	m_pane->SetBlindness( TRUE );
 
-	AddChild( m_pane );
+	AddChild( m_pane.get() );
 
 	return AUI_ERRCODE_OK;
 }
@@ -134,11 +134,7 @@ AUI_ERRCODE aui_Tab::InitCommon( sint32 paneWidth, sint32 paneHeight )
 
 aui_Tab::~aui_Tab()
 {
-	if ( m_pane )
-	{
-		delete m_pane;
-		m_pane = nullptr;
-	}
+	m_pane.reset();
 }
 
 

@@ -32,6 +32,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -78,7 +79,7 @@
 #include "gs/database/StrDB.h"
 #include "gs/database/profileDB.h"
 
-extern c3_PopupWindow		*g_scorewarn;
+extern std::unique_ptr<c3_PopupWindow>	g_scorewarn;
 
 
 
@@ -87,6 +88,9 @@ extern sint32				g_modalWindow;
 
 extern BOOL g_launchIntoCheatMode;
 
+// Owned by s_optionsWindowOwner; g_optionsWindow stays raw because it is
+// extern'd in keypress.cpp.
+static std::unique_ptr<OptionsWindow> s_optionsWindowOwner;
 OptionsWindow				*g_optionsWindow		= nullptr;
 static sint32			s_return = 0;
 
@@ -200,7 +204,8 @@ AUI_ERRCODE optionsscreen_Initialize( )
 
 	strlcpy(windowBlock, "OptionsWindow", sizeof(windowBlock));
 
-	g_optionsWindow= new OptionsWindow(&errcode, aui_UniqueId(), windowBlock, 16,AUI_WINDOW_TYPE_FLOATING,false );
+	s_optionsWindowOwner = std::make_unique<OptionsWindow>(&errcode, aui_UniqueId(), windowBlock, 16,AUI_WINDOW_TYPE_FLOATING,false );
+	g_optionsWindow = s_optionsWindowOwner.get();
 	Assert( AUI_NEWOK(g_optionsWindow, errcode) );
 	if ( !AUI_NEWOK(g_optionsWindow, errcode) ) return errcode;
 
@@ -228,7 +233,8 @@ void optionsscreen_Cleanup()
 	{
 		c3ui_Get()->RemoveWindow( g_optionsWindow->Id() );
 	//	g_optionsWindow->SetSurface(NULL); // Surface is created for the g_optionsWindow only
-		allocated::clear(g_optionsWindow);
+		s_optionsWindowOwner.reset();
+		g_optionsWindow = nullptr;
 	}
 }
 

@@ -2,6 +2,7 @@
 #define __SERVERSELECTWINDOW_H__
 
 #include "ui/netshell/ns_window.h"
+#include <memory>
 #include "ui/aui_common/aui_action.h"
 
 
@@ -37,7 +38,7 @@ public:
 
 protected:
 
-	aui_Action *m_dbActionArray[ 1 ];
+	std::unique_ptr<aui_Action>	m_dbActionArray[ 1 ];
 
 	AUI_ACTION_BASIC(OKButtonAction);
     AUI_ACTION_BASIC(CancelButtonAction);

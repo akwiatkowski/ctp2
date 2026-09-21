@@ -37,6 +37,7 @@
 
 #ifndef __CONTROLPANELWINDOW_H__
 #define __CONTROLPANELWINDOW_H__
+#include <memory>
 
 //----------------------------------------------------------------------------
 // Library dependencies
@@ -357,7 +358,7 @@ private:
 
 	ctp2_Window     *m_mainWindow;
 
-	ctp2_Menu       *m_contextMenu;
+	std::unique_ptr<ctp2_Menu> m_contextMenu;
 
 	float   m_widthRatio;
 

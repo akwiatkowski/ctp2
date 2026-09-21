@@ -144,22 +144,22 @@ public:
 	void SetSaveMapInfo(SaveMapInfo *info);
 
 	void CleanUpSaveMapInfo( );
-	SaveMapInfo *GetSaveMapInfoToSave( ) const { return m_saveMapInfoToSave; }
+	SaveMapInfo *GetSaveMapInfoToSave( ) const { return m_saveMapInfoToSave.get(); }
 
 	void BuildDefaultSaveMapName(MBCHAR *gameMapName, MBCHAR *name);
 
 	C3TextField* GetTextField() { return m_gameMapTextBox.get(); }
 
-	c3_Button *GetDeleteButton( ) { return m_deleteButton; }
+	c3_Button *GetDeleteButton( ) { return m_deleteButton.get(); }
 	ctp2_Button *GetOkButton( ) { return Ok(); }
 	c3_Static *GetMapStatic( ) { return m_mapTabImage.get(); }
 
-	c3_ListBox *GetListOne( ) const { return m_listOne; }
-	c3_ListBox *GetListTwo( ) const { return m_listTwo; }
+	c3_ListBox *GetListOne( ) const { return m_listOne.get(); }
+	c3_ListBox *GetListTwo( ) const { return m_listTwo.get(); }
 
 private:
 
-	BOOL CreateSaveMapInfoIfNeeded( SaveMapInfo *&info );
+	BOOL CreateSaveMapInfoIfNeeded( std::unique_ptr<SaveMapInfo> &info );
 
 	uint32			 m_type;
 	std::unique_ptr<aui_StringTable>	m_nameString;
@@ -168,8 +168,8 @@ private:
 	SaveMapInfo		*m_saveMapInfo;
 
 
-	SaveMapInfo		*m_saveMapInfoRemember;
-	SaveMapInfo		*m_saveMapInfoToSave;
+	std::unique_ptr<SaveMapInfo>	m_saveMapInfoRemember;
+	std::unique_ptr<SaveMapInfo>	m_saveMapInfoToSave;
 
 	PointerList<GameMapInfo> *m_fileList;
 
@@ -184,16 +184,16 @@ private:
 	std::unique_ptr<c3_Static>	m_noteText;
 	std::unique_ptr<C3TextField>	m_noteTextBox;
 
-	c3_ListBox		*m_listOne;
-	c3_ListBox		*m_listTwo;
+	std::unique_ptr<c3_ListBox>	m_listOne;
+	std::unique_ptr<c3_ListBox>	m_listTwo;
 
-	aui_TabGroup	*m_tabGroup;
+	std::unique_ptr<aui_TabGroup>	m_tabGroup;
 
-	TextTab			*m_mapTab;
+	std::unique_ptr<TextTab>		m_mapTab;
 	std::unique_ptr<c3_Static>	m_mapTabImage;
-	aui_Image		*m_mapTabImageBackup;
+	std::unique_ptr<aui_Image>	m_mapTabImageBackup;
 
-	c3_Button		*m_deleteButton;
+	std::unique_ptr<c3_Button>	m_deleteButton;
 };
 
 

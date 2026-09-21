@@ -94,6 +94,7 @@
 #include <algorithm>
 #include <set>
 #include <string>
+#include <memory>
 
 #include "gs/dbgen/ctpdb.h"
 #include "gs/dbgen/RecordDescription.h"
@@ -130,11 +131,11 @@ void RecordDescription::SetBaseType(DATUM_TYPE type)
 {
 	m_baseType = type;
 
-	Datum * l_Value     = new Datum("Value", type);
+	Datum * l_Value     = std::make_unique<Datum>("Value", type).release();
 	l_Value->m_required = true;
 	m_datumList.AddTail(l_Value);
 
-	m_datumList.AddTail(new Datum("NameText", DATUM_STRING));
+	m_datumList.AddTail(std::make_unique<Datum>("NameText", DATUM_STRING).release());
 }
 
 void RecordDescription::ExportHeader(FILE *outfile)
@@ -310,7 +311,7 @@ void RecordDescription::AddDatum(DATUM_TYPE type, struct namelist *nameInfo,
 		return;
 	}
 
-	Datum *dat = new Datum(nameInfo->name, type);
+	Datum *dat = std::make_unique<Datum>(nameInfo->name, type).release();
 	dat->m_akaName = nameInfo->akaName;
 	dat->m_defaultName = nameInfo->defaultName;
 	dat->m_minSize = minSize;
@@ -363,7 +364,7 @@ void RecordDescription::AddGroupedBits(char *groupName, struct namelist *list)
 		return;
 	}
 
-	Datum *dat = new Datum(groupName, DATUM_BIT_GROUP);
+	Datum *dat = std::make_unique<Datum>(groupName, DATUM_BIT_GROUP).release();
 	dat->m_groupList = list;
 	m_datumList.AddTail(dat);
 }
@@ -378,7 +379,7 @@ void RecordDescription::AddBitPair(struct namelist *nameInfo, sint32 minSize, si
 		return;
 	}
 
-	Datum *dat = new Datum(nameInfo->name, DATUM_BIT_PAIR);
+	Datum *dat = std::make_unique<Datum>(nameInfo->name, DATUM_BIT_PAIR).release();
 	dat->m_minSize = minSize;
 	dat->m_maxSize = maxSize;
 	// Added to have default values
@@ -398,16 +399,16 @@ void RecordDescription::AddBitPair(struct namelist *nameInfo, sint32 minSize, si
 	// Datum's ctor takes std::string by const ref and copies into m_Name;
 	// the raw malloc'd buffer that used to live here leaked on every bit-pair.
 	std::string const nameValue = std::string(nameInfo->name) + "Value";
-	Datum *pairDat = new Datum(nameValue, (DATUM_TYPE) pairtype->type);
+	auto pairDat = std::make_unique<Datum>(nameValue, (DATUM_TYPE) pairtype->type);
 	pairDat->m_subType = (char *)pairtype->extraData;
 
-	dat->m_bitPairDatum = pairDat;
+	dat->m_bitPairDatum = std::move(pairDat);
 	m_datumList.AddTail(dat);
 }
 
 void RecordDescription::StartMemberClass(char const * name)
 {
-	m_memberClasses.AddTail(new MemberClass(name));
+	m_memberClasses.AddTail(std::make_unique<MemberClass>(name).release());
 	m_addingToMemberClass = true;
 }
 

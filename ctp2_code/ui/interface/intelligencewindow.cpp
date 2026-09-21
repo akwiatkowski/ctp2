@@ -67,15 +67,17 @@
 #include "gs/database/StrDB.h"
 #include "gs/utility/stringutils.h"
 
+#include <memory>
 
-static IntelligenceWindow   *s_intelligenceWindow = nullptr;
+
+static std::unique_ptr<IntelligenceWindow> s_intelligenceWindow;
 static const MBCHAR           *s_intelligenceBlock = "IntelligenceWindow";
 static const MBCHAR           *s_intelligenceAdviceBlock = "IntelligenceAdvice";
 ctp2_ListBox                *IntelligenceWindow::sm_list = nullptr;
 
 
-aui_StringTable             *IntelligenceWindow::sm_strengthImages = nullptr;
-aui_StringTable             *IntelligenceWindow::sm_embassyImages = nullptr;
+std::unique_ptr<aui_StringTable> IntelligenceWindow::sm_strengthImages;
+std::unique_ptr<aui_StringTable> IntelligenceWindow::sm_embassyImages;
 
 ctp2_Window                 *IntelligenceWindow::sm_showTreatyDetail = nullptr;
 
@@ -135,7 +137,7 @@ AUI_ERRCODE IntelligenceWindow::Initialize()
 	}
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	s_intelligenceWindow = new IntelligenceWindow(&err);
+	s_intelligenceWindow = std::make_unique<IntelligenceWindow>(&err);
 	Assert(err == AUI_ERRCODE_OK);
 
 	return err;
@@ -146,7 +148,7 @@ AUI_ERRCODE IntelligenceWindow::Cleanup()
 	if(s_intelligenceWindow) {
 		Hide();
 
-        allocated::clear(s_intelligenceWindow);
+        s_intelligenceWindow.reset();
 	}
 
 	if(sm_showTreatyDetail) {
@@ -158,8 +160,8 @@ AUI_ERRCODE IntelligenceWindow::Cleanup()
 		sm_showTreatyDetail = nullptr;
 	}
 
-    allocated::clear(sm_strengthImages);
-    allocated::clear(sm_embassyImages);
+    sm_strengthImages.reset();
+    sm_embassyImages.reset();
 
 	return AUI_ERRCODE_OK;
 }
@@ -712,11 +714,11 @@ void IntelligenceWindow::InitImageTables()
 {
 	AUI_ERRCODE err;
 	if(!sm_strengthImages) {
-		sm_strengthImages = new aui_StringTable(&err, "StrengthImages");
+		sm_strengthImages = std::make_unique<aui_StringTable>(&err, "StrengthImages");
 	}
 
 	if(!sm_embassyImages) {
-		sm_embassyImages = new aui_StringTable(&err, "EmbassyImages");
+		sm_embassyImages = std::make_unique<aui_StringTable>(&err, "EmbassyImages");
 	}
 }
 
@@ -745,7 +747,7 @@ void intelligence_DeclareWarCallback(bool response, void *cookie)
 {
 	if(response) {
 		if(network_Get().IsClient()) {
-			network_Get().SendAction(new NetAction(NET_ACTION_DECLARE_WAR, (intptr_t)cookie));
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_DECLARE_WAR, (intptr_t)cookie).release());
 		}
 		Diplomat::GetDiplomat(selitem_Get()->GetVisiblePlayer()).DeclareWar((intptr_t)cookie);
 		DiplomacyWindow::EnableButtons(TRUE, reinterpret_cast<intptr_t>(cookie));

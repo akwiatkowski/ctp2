@@ -37,6 +37,7 @@
 #include "ui/interface/unitmanager.h"
 
 #include <vector>
+#include <memory>
 
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
@@ -78,7 +79,7 @@
 #include "gs/world/World.h"
 
 
-static UnitManager *s_unitManager = nullptr;
+static std::unique_ptr<UnitManager> s_unitManager;
 static MBCHAR const *s_unitManagerBlock = "UnitManager";
 static MBCHAR const *s_unitManagerAdviceBlock = "UnitManagerAdviceWindow";
 bool UnitManager::sm_statsTabVisible = true;
@@ -208,7 +209,7 @@ AUI_ERRCODE UnitManager::Initialize()
 	}
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	s_unitManager = new UnitManager(&err);
+	s_unitManager = std::make_unique<UnitManager>(&err);
 	Assert(err == AUI_ERRCODE_OK);
 
 	return err;
@@ -217,7 +218,7 @@ AUI_ERRCODE UnitManager::Initialize()
 void UnitManager::Cleanup()
 {
 	Hide();
-	allocated::clear(s_unitManager);
+	s_unitManager.reset();
 }
 
 AUI_ERRCODE UnitManager::Display()
@@ -412,7 +413,7 @@ void UnitManager::UpdateTacticalList()
 	if(!m_tacticalList) return;
 	m_tacticalList->Clear();
 
-	UnitDynamicArray *units = pl->m_all_units;
+	UnitDynamicArray *units = pl->m_all_units.get();
 	Assert(units);
 	if(!units) return;
 
@@ -515,10 +516,10 @@ void UnitManager::UpdateAdvice()
 
 		if(!walk.IsValid()) {
 
-			UnitManagerCategoryInfo *info = new UnitManagerCategoryInfo;
+			auto info = std::make_unique<UnitManagerCategoryInfo>();
 			info->stringId = cat;
 			info->numUnits = 1;
-			m_unitCategories.AddTail(info);
+			m_unitCategories.AddTail(info.release());
 		}
 	}
 
@@ -1021,7 +1022,7 @@ void UnitManager::DisbandSelected()
 
 			m_lastDisbandedUnit = u.m_id;
 			if(network_Get().IsClient()) {
-				network_Get().SendAction(new NetAction(NET_ACTION_DISBAND_UNIT, u.m_id));
+				network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_DISBAND_UNIT, u.m_id).release());
 			}
 			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisbandUnit,
 								   GEA_Unit, u.m_id,
@@ -1040,7 +1041,7 @@ void UnitManager::DisbandSelected()
 
 					m_lastDisbandedUnit = u.m_id;
 					if(network_Get().IsClient()) {
-						network_Get().SendAction(new NetAction(NET_ACTION_DISBAND_UNIT, u.m_id));
+						network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_DISBAND_UNIT, u.m_id).release());
 					}
 					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisbandUnit,
 										   GEA_Unit, u.m_id,

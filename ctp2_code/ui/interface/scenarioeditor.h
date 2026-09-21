@@ -40,6 +40,7 @@ class ctp2_Window;
 class ctp2_Switch;
 class ctp2_ListBox;
 #include <memory>
+#include <vector>
 
 class MapCopyBuffer;
 class FileDialog;
@@ -115,8 +116,8 @@ enum TILEPAD_TYPE {
 class ScenarioEditor {
   private:
 	ctp2_Window *m_window;
-	ctp2_Switch **m_terrainSwitches;
-	ctp2_Switch **m_terrainImpSwitches;
+	std::vector<ctp2_Switch *> m_terrainSwitches;
+	std::vector<ctp2_Switch *> m_terrainImpSwitches;
 	ctp2_Window *m_addStuffWindow;
 	ctp2_Switch *m_otherMapSwitch[k_NUM_OTHER_MAP_SWITCHES];
 

@@ -28,6 +28,7 @@ enum {
 #include "ui/aui_common/aui_action.h"     // AUI_ACTION_BASIC
 #include "ui/aui_ctp2/c3_listitem.h"    // c3_ListItem
 #include "gs/gameobj/Unit.h"           // Unit
+#include <vector>
 
 class LineGraph;
 
@@ -201,12 +202,12 @@ sint32 infowin_UpdatePollutionData( );
 sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 							sint32 &infoXCount,
 							sint32 &infoYCount,
-							double ***infoGraphData);
+							std::vector<std::vector<double>> &infoGraphData);
 
 sint32 infowin_UpdatePollutionGraph( LineGraph *infoGraph,
 							sint32 &infoXCount,
 							sint32 &infoYCount,
-							double ***infoGraphData);
+							std::vector<std::vector<double>> &infoGraphData);
 
 sint32 infowin_ChangeSetting( sint32 type );
 sint32 infowin_ChangeDataSetting( sint32 type );

@@ -145,7 +145,7 @@ sint32 Strengths::GetTotalUnitCost() const
 {
 	sint32 i;
 	sint32 c = 0;
-	UnitDynamicArray *units = player_Get(m_owner)->m_all_units;
+	UnitDynamicArray *units = player_Get(m_owner)->m_all_units.get();
 	for(i = units->Num() - 1; i >= 0; i--) {
 		c += units->Access(i).GetDBRec()->GetShieldCost();
 	}
@@ -157,7 +157,7 @@ sint32 Strengths::GetTotalBuildingCost() const
 	sint32 i;
 	sint32 j;
 	sint32 c = 0;
-	UnitDynamicArray *cities = player_Get(m_owner)->m_all_cities;
+	UnitDynamicArray *cities = player_Get(m_owner)->m_all_cities.get();
 	for(i = cities->Num() - 1; i >= 0; i--) {
 		uint64 builtImprovements = cities->Access(i).GetImprovements();
 		for(j = g_theBuildingDB->NumRecords() - 1; j >= 0; j--) {
@@ -185,7 +185,7 @@ sint32 Strengths::GetTotalProduction() const
 {
 	sint32 i;
 	sint32 c = 0;
-	UnitDynamicArray *cities = player_Get(m_owner)->m_all_cities;
+	UnitDynamicArray *cities = player_Get(m_owner)->m_all_cities.get();
 	for(i = cities->Num() - 1; i >= 0; i--) {
 		c += cities->Access(i).GetData()->GetCityData()->GetNetCityProduction();
 	}

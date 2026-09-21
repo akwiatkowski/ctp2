@@ -64,6 +64,7 @@
 // -Added display relations options (7-Jan-10 EPW)
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include "ctp/c3.h"
 #include "gs/database/profileDB.h"
 
@@ -688,8 +689,8 @@ void ProfileDB::SetDiplmacyLog(BOOL b)
 	}
 	else
 	{
-		delete g_theDiplomacyLog;
-		g_theDiplomacyLog       = b ? new Diplomacy_Log : nullptr;
+		std::unique_ptr<Diplomacy_Log>{g_theDiplomacyLog};
+		g_theDiplomacyLog       = b ? std::make_unique<Diplomacy_Log>().release() : nullptr;
 		m_is_diplomacy_log_on   = b;
 	}
 }
@@ -733,11 +734,11 @@ void ProfileDB::SetDifficulty(uint32 x)
 			{
 				if (player_Get(p))
 				{
-					player_Get(p)->m_difficulty.reset(
-					    new Difficulty(x,
+					player_Get(p)->m_difficulty =
+					    std::make_unique<Difficulty>(x,
 					                   p,
 					                   !player_Get(p)->IsRobot()
-					                  ));
+					                  );
 				}
 			}
 		}
@@ -747,7 +748,7 @@ void ProfileDB::SetDifficulty(uint32 x)
 void ProfileDB::Var(const char *name, PROF_VAR_TYPE type, sint32 *numValue,
                     char *stringValue, bool visible)
 {
-	m_vars.AddTail(new ProfileVar(name, type, numValue, stringValue, visible));
+	m_vars.AddTail(std::make_unique<ProfileVar>(name, type, numValue, stringValue, visible).release());
 }
 
 void ProfileDB::Save()

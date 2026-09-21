@@ -5,6 +5,7 @@
 #ifndef __C3_UTILITYDIALOGBOX_H__
 #define __C3_UTILITYDIALOGBOX_H__
 
+#include <memory>
 #include <string>
 
 #include "ui/aui_ctp2/c3_listitem.h"
@@ -57,12 +58,12 @@ public:
 	c3_UtilityCityListPopup( c3_UtilityCityListCallback *callback, MBCHAR const *ldlBlock = nullptr );
 	~c3_UtilityCityListPopup( );
 
-	c3_PopupWindow	*m_window;
+	std::unique_ptr<c3_PopupWindow>	m_window;
 
-	c3_Static		*m_title_label;
-	ctp2_ListBox	*m_list;
-	c3_Button		*m_ok;
-	c3_Button		*m_cancel;
+	std::unique_ptr<c3_Static>	m_title_label;
+	std::unique_ptr<ctp2_ListBox>	m_list;
+	std::unique_ptr<c3_Button>	m_ok;
+	std::unique_ptr<c3_Button>	m_cancel;
 
 	c3_UtilityCityListCallback *m_callback;
 
@@ -87,12 +88,12 @@ public:
 	c3_PiracyPopup( c3_PiracyCallback *callback, MBCHAR const *ldlBlock = nullptr );
 	~c3_PiracyPopup( );
 
-	c3_PopupWindow	*m_window;
+	std::unique_ptr<c3_PopupWindow>	m_window;
 
-	c3_Static		*m_title_label;
-	ctp2_ListBox	*m_list;
-	c3_Button		*m_pirate;
-	c3_Button		*m_cancel;
+	std::unique_ptr<c3_Static>	m_title_label;
+	std::unique_ptr<ctp2_ListBox>	m_list;
+	std::unique_ptr<c3_Button>	m_pirate;
+	std::unique_ptr<c3_Button>	m_cancel;
 
 	c3_PiracyCallback *m_callback;
 
@@ -117,12 +118,12 @@ public:
 	c3_ExpelPopup( c3_ExpelCallback *callback, MBCHAR const *ldlBlock = nullptr );
 	~c3_ExpelPopup( );
 
-	c3_PopupWindow	*m_window;
+	std::unique_ptr<c3_PopupWindow>	m_window;
 
-	c3_Static		*m_title_label;
-	c3_Button		*m_attack;
-	c3_Button		*m_expel;
-	c3_Button		*m_cancel;
+	std::unique_ptr<c3_Static>	m_title_label;
+	std::unique_ptr<c3_Button>	m_attack;
+	std::unique_ptr<c3_Button>	m_expel;
+	std::unique_ptr<c3_Button>	m_cancel;
 
 	c3_ExpelCallback *m_callback;
 
@@ -148,19 +149,19 @@ public:
 							  bool wantEmpties = false);
 	~c3_UtilityTextFieldPopup( );
 
-	c3_PopupWindow	*m_window;
+	std::unique_ptr<c3_PopupWindow>	m_window;
 
-	c3_Static		*m_title_label;
+	std::unique_ptr<c3_Static>	m_title_label;
 	c3_Static		*m_message_label;
 
-	C3TextField		*m_text;
+	std::unique_ptr<C3TextField>	m_text;
 
 	std::string		m_default_text;
 	std::string		m_title_text;
 	std::string		m_message_text;
 
-	c3_Button		*m_ok;
-	c3_Button		*m_cancel;
+	std::unique_ptr<c3_Button>	m_ok;
+	std::unique_ptr<c3_Button>	m_cancel;
 
 	c3_UtilityTextFieldCallback *m_callback;
 
@@ -206,18 +207,18 @@ public:
 	void RemoveWindow( );
 	void DisplayWindow( MBCHAR const *text );
 
-	c3_PopupWindow	*m_window;
+	std::unique_ptr<c3_PopupWindow>	m_window;
 	c3_UtilityTextMessageCallback *m_callback;
 	sint32			m_type;
 
 private:
 	sint32 Initialize ( MBCHAR const *ldlBlock );
 
-	c3_Static		*m_title_label;
-	c3_Static		*m_text;
+	std::unique_ptr<c3_Static>	m_title_label;
+	std::unique_ptr<c3_Static>	m_text;
 
-	c3_Button		*m_ok;
-	c3_Button		*m_cancel;
+	std::unique_ptr<c3_Button>	m_ok;
+	std::unique_ptr<c3_Button>	m_cancel;
 };
 
 AUI_ACTION_BASIC(c3_UtilityTextMessageCleanupAction);
@@ -265,12 +266,12 @@ public:
 	c3_UtilityAbortPopup( MBCHAR const *text, sint32 type, c3_UtilityTextMessageCallback *callback = nullptr, MBCHAR const *ldlBlock = nullptr );
 	~c3_UtilityAbortPopup( ) override;
 
-	c3_PopupWindow	*m_window;
+	std::unique_ptr<c3_PopupWindow>	m_window;
 
-	c3_Static		*m_text;
-	Thermometer		*m_meter;
+	std::unique_ptr<c3_Static>	m_text;
+	std::unique_ptr<Thermometer>	m_meter;
 
-	ctp2_Button		*m_abort;
+	std::unique_ptr<ctp2_Button>	m_abort;
 
 	sint32			m_type;
 
@@ -305,14 +306,14 @@ public:
 	c3_UtilityPlayerListPopup( c3_UtilityPlayerListCallback *callback = nullptr, MBCHAR const *ldlBlock = nullptr );
 	~c3_UtilityPlayerListPopup( ) override;
 
-	c3_PopupWindow	*m_window;
+	std::unique_ptr<c3_PopupWindow>	m_window;
 
-	ctp2_ListBox	*m_list;
-	ctp2_Button		*m_abort;
+	std::unique_ptr<ctp2_ListBox>	m_list;
+	std::unique_ptr<ctp2_Button>	m_abort;
 
-	ctp2_Button		*m_kick;
-	ctp2_Button		*m_open;
-	ctp2_Button		*m_close;
+	std::unique_ptr<ctp2_Button>	m_kick;
+	std::unique_ptr<ctp2_Button>	m_open;
+	std::unique_ptr<ctp2_Button>	m_close;
 
 	c3_UtilityPlayerListCallback *m_callback;
 

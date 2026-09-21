@@ -76,6 +76,7 @@
 #include "gs/gameobj/terrainutil.h"
 #include "gs/core/tiledmap_observer.h"
 #include "gs/world/TileInfo.h"
+#include <memory>
 #include <vector>
 #include "gs/world/WorldDistance.h"
 #include "gs/gameobj/tradeutil.h"              // constutil_GetMapSizeMapPoint
@@ -101,7 +102,7 @@ extern MapPoint g_mp_size;
 
 
 static C3Rand *                 s_randomGenerator   = nullptr;
-static DynamicArray<MapPoint> * s_visited           = nullptr;
+static std::unique_ptr<DynamicArray<MapPoint>> s_visited;
 
 void TemperatureFilter(sint8 *map, sint32 *histogram);
 
@@ -143,7 +144,7 @@ World::World(const MapPoint & m, const int xw, const int yw)
     g_mp_size = m_size;
     if (!s_randomGenerator)
     {
-        s_randomGenerator   = new C3Rand();
+        s_randomGenerator   = std::make_unique<C3Rand>().release();
     }
     (void) s_randomGenerator->AddRef();
 }
@@ -162,8 +163,7 @@ void World::CreateTheWorld(MapPoint player_start_list[k_MAX_PLAYERS],
 
 		XY_Coords.Init(m_size.y, m_size.x);
 
-        delete A_star_heuristic;
-		A_star_heuristic = new A_Star_Heuristic_Cost
+		A_star_heuristic = std::make_unique<A_Star_Heuristic_Cost>
 								(m_size.y,
 								 m_size.x,
 								 m_isYwrap ? true : false,
@@ -229,9 +229,6 @@ World::~World()
 	FreeMap();  // m_map, m_tmpx, m_cellArray, m_water_next_too_land,
                 // m_land_next_too_water, m_water_size, m_land_size,
                 // m_tileInfoStorage
-	delete A_star_heuristic;
-
-	delete [] m_goodValue;
 
 	if (m_current_plugin)
 	{
@@ -246,34 +243,19 @@ World::~World()
 
 void World::FreeMap()
 {
-	for (int x = 0; x < m_size.x; x++)
-    {
-		if (m_isYwrap)
-        {
-			delete [] (CellPtr*)(m_map[x] - k_MAP_WRAPAROUND);
-        }
-		else
-        {
-			delete [] m_map[x];
-        }
-	}
-
-	delete [] m_tmpx;
-    m_tmpx      = nullptr;
-	delete [] m_cellArray;
-	m_cellArray = nullptr;
+	// m_map is a non-owning view into m_tmpx/m_mapRows; the owning
+	// members release the storage.
+	m_mapRows.clear();
+	m_tmpx.reset();
+	m_cellArray.reset();
 
 	DisposeTileInfoStorage();
 	m_map       = nullptr;
 
-    delete m_water_next_too_land;
-    m_water_next_too_land = nullptr;
-    delete m_land_next_too_water;
-    m_land_next_too_water = nullptr;
-    delete m_water_size;
-    m_water_size = nullptr;
-    delete m_land_size;
-    m_land_size = nullptr;
+	m_water_next_too_land.reset();
+	m_land_next_too_water.reset();
+	m_water_size.reset();
+	m_land_size.reset();
 }
 
 void World::Reset(sint16 sx, sint16 sy, BOOL yWrap, BOOL xWrap)
@@ -292,33 +274,32 @@ void World::AllocateMap()
 {
     AllocateTileInfoStorage();
 
-    delete [] m_cellArray;
-	// TODO(phase-2): class-member array — deferred to wave 3
-	m_cellArray = new Cell[m_size.x * m_size.y];
+	m_cellArray = std::make_unique<Cell[]>(m_size.x * m_size.y);
 
     Assert (2 * k_MAP_WRAPAROUND <= m_size.x);
     Assert (2 * k_MAP_WRAPAROUND <= m_size.y);
 
-	// TODO(phase-2): CellYarray nested array — skipped per file rule
-    CellYarray *    tmpx = new CellYarray[m_size.x + 2 * k_MAP_WRAPAROUND];
-	m_tmpx = tmpx;
+	m_tmpx = std::make_unique<CellYarray[]>(m_size.x + 2 * k_MAP_WRAPAROUND);
 
-	m_map = &(tmpx[k_MAP_WRAPAROUND]);
+	m_map = &m_tmpx[k_MAP_WRAPAROUND];
 	Assert(m_map);
+
+	m_mapRows.clear();
 
     sint32 x;
 	for (x = 0; x < m_size.x; x++)
     {
 		if (m_isYwrap)
         {
-			// TODO(phase-2): CellPtr nested array — skipped per file rule
-			CellPtr * tmpy = new CellPtr[m_size.y + 2 * k_MAP_WRAPAROUND];
-			m_map[x] = &(tmpy[k_MAP_WRAPAROUND]);
+			auto tmpy = std::make_unique<CellPtr[]>(m_size.y + 2 * k_MAP_WRAPAROUND);
+			m_map[x] = &tmpy[k_MAP_WRAPAROUND];
+			m_mapRows.push_back(std::move(tmpy));
 		}
         else
         {
-			// TODO(phase-2): CellPtr nested array + class-member assignment — skipped per file rule
-			m_map[x] = new CellPtr[m_size.y];
+			auto tmpy = std::make_unique<CellPtr[]>(m_size.y);
+			m_map[x] = tmpy.get();
+			m_mapRows.push_back(std::move(tmpy));
 		}
 
 		for (sint32 y = 0; y < m_size.y; y++)
@@ -345,10 +326,10 @@ void World::AllocateMap()
 		}
 	}
 
-    m_water_next_too_land = new DynamicArray<DAsint32>;
-    m_land_next_too_water = new DynamicArray<DAsint32>;
-    m_water_size = new DynamicArray<sint32>;
-    m_land_size = new DynamicArray<sint32>;
+    m_water_next_too_land = std::make_unique<DynamicArray<DAsint32>>();
+    m_land_next_too_water = std::make_unique<DynamicArray<DAsint32>>();
+    m_water_size = std::make_unique<DynamicArray<sint32>>();
+    m_land_size = std::make_unique<DynamicArray<sint32>>();
 }
 
 
@@ -377,12 +358,11 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 	sint32 numSettings;
 	const MapRecord *mapRec     = worldutils_FindBestMapSizeMatch(m_size.x, m_size.y);
 	sint32          whichSet    = static_cast<sint32>(profiledb_Get()->PercentContinent() * 10);
-	double *        settings    = worldutils_CreateSettings(mapRec, whichSet, numSettings);
+	auto            settings    = worldutils_CreateSettings(mapRec, whichSet, numSettings);
 
-	GetHeightMap(firstPass, map_ptr, settings, numSettings);
+	GetHeightMap(firstPass, map_ptr, settings.get(), numSettings);
 	firstPass->Release();
 	FreeMapPlugin();
-	worldutils_DeleteSettings(settings);
 
 #ifdef DUMP_TERRAIN_HEIGHT_MAPS
 	MapDump ("logs" FILE_SEP "HeightMap.bmp", map.data(), m_size.x, m_size.y);
@@ -830,15 +810,13 @@ void World::ComputeGoodsValues()
 
     sint32 newGoodCount = g_theResourceDB->NumRecords();
 
-    delete [] m_goodValue;
     if (newGoodCount > 0)
     {
-        // TODO(phase-2): class-member array — deferred to wave 3
-        m_goodValue = new double[newGoodCount];
+        m_goodValue = std::make_unique<double[]>(newGoodCount);
     }
     else
     {
-        m_goodValue = nullptr;
+        m_goodValue.reset();
         return;
     }
 
@@ -1928,15 +1906,12 @@ void World::AllocateTileInfoStorage()
 	sint32			width = m_size.x;
 	sint32			height = m_size.y;
 
-	delete [] m_tileInfoStorage;
-	// TODO(phase-2): class-member array — deferred to wave 3
-	m_tileInfoStorage = new TileInfo[width*height];
+	m_tileInfoStorage = std::make_unique<TileInfo[]>(width*height);
 }
 
 void World::DisposeTileInfoStorage()
 {
-	delete [] m_tileInfoStorage;
-	m_tileInfoStorage = nullptr;
+	m_tileInfoStorage.reset();
 }
 
 TileInfo *World::GetTileInfoStoragePtr(const MapPoint &pos)
@@ -1983,7 +1958,7 @@ void World::GenerateGoodyHuts()
 				Cell * cell = GetCell(cellx, celly);
 				if(cell->m_env & (k_BIT_MOVEMENT_TYPE_LAND)) {
 
-					cell->m_jabba = new GoodyHut();
+					cell->m_jabba = std::make_unique<GoodyHut>();
 
 				}
 			}
@@ -1995,24 +1970,24 @@ static IMapGenerator *CreateBuiltinMapGenerator(const char *name)
 {
 	// Match generator by name (handles both short names and full Windows paths)
 	if (strstr(name, "geometric") || strstr(name, "Geometric")) {
-		IMapGenerator *gen = new Geometric();
+		auto gen = std::make_unique<Geometric>();
 		gen->AddRef();
-		return gen;
+		return gen.release();
 	}
 	if (strstr(name, "crater") || strstr(name, "Crater")) {
-		IMapGenerator *gen = new Crater();
+		auto gen = std::make_unique<Crater>();
 		gen->AddRef();
-		return gen;
+		return gen.release();
 	}
 	if (strstr(name, "fault") || strstr(name, "Fault")) {
-		IMapGenerator *gen = new FaultGenerator();
+		auto gen = std::make_unique<FaultGenerator>();
 		gen->AddRef();
-		return gen;
+		return gen.release();
 	}
 	if (strstr(name, "plasma2") || strstr(name, "Plasma2") || strstr(name, "plasma")) {
-		IMapGenerator *gen = new PlasmaGenerator2();
+		auto gen = std::make_unique<PlasmaGenerator2>();
 		gen->AddRef();
-		return gen;
+		return gen.release();
 	}
 	return nullptr;
 }
@@ -2193,7 +2168,7 @@ bool World::IsNextToOldRiver
 
 void World::NewGenerateRivers(sint8 *map, sint8 *wetmap)
 {
-	s_visited = new DynamicArray<MapPoint>;
+	s_visited = std::make_unique<DynamicArray<MapPoint>>();
 	sint32 x;
 	sint32 y;
 	sint32 maxheight;
@@ -2359,7 +2334,7 @@ void World::NewGenerateRivers(sint8 *map, sint8 *wetmap)
 		}
 	}
 
-	delete s_visited;
+	s_visited.reset();
 }
 
 void TemperatureFilter(sint8 *map, sint32 *histogram)
@@ -2968,7 +2943,7 @@ void World::WholePlayerLandArea(int * a_Array) const
     std::fill(a_Array, a_Array + k_MAX_PLAYERS + 1, 0);
 
 	Cell* const pLastCell = &m_cellArray[m_size.x * m_size.y - 1];
-	for (Cell * pCurCell = m_cellArray; pCurCell <= pLastCell; ++pCurCell)
+	for (Cell * pCurCell = m_cellArray.get(); pCurCell <= pLastCell; ++pCurCell)
     {
 		a_Array[pCurCell->GetOwner() + 1]++;
 	}
@@ -2981,9 +2956,7 @@ void World::RebuildPathing()
     // AllocateMap replaces cells, but the heuristic also stores dimensions and
     // wrapping topology. Rebuild both after loading a different world.
     XY_Coords.Init(m_size.y, m_size.x);
-    auto heuristic = std::make_unique<A_Star_Heuristic_Cost>(
+    A_star_heuristic = std::make_unique<A_Star_Heuristic_Cost>(
         m_size.y, m_size.x, m_isYwrap, m_isXwrap);
-    delete A_star_heuristic;
-    A_star_heuristic = heuristic.release();
     if (world_Get() == this) A_star_heuristic->Update();
 }

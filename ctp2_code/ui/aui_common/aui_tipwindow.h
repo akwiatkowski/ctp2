@@ -1,6 +1,8 @@
 #ifndef __AUI_TIPWINDOW_H__
 #define __AUI_TIPWINDOW_H__
 
+#include <memory>
+
 #include "ui/aui_common/aui_window.h"
 
 class aui_Static;
@@ -33,7 +35,7 @@ protected:
 
 public:
 
-	aui_Static *GetStatic( ) const { return m_staticTip; }
+	aui_Static *GetStatic( ) const { return m_staticTip.get(); }
 	AUI_ERRCODE SetTipText(MBCHAR const *text);
 
 	AUI_ERRCODE DrawThis(
@@ -42,8 +44,9 @@ public:
 		sint32 y = 0 ) override;
 
 protected:
-	BOOL		m_allocatedTip;
-	aui_Static	*m_staticTip;
+	// Owned here: the static is aui_Ldl::Remove()'d at creation, so the LDL
+	// leaf pass never sees it; child list is non-owning.
+	std::unique_ptr<aui_Static>	m_staticTip;
 };
 
 #endif

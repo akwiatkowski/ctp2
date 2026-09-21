@@ -17,13 +17,14 @@
 #include <algorithm>
 #include "mapgen/FaultGen.h"
 #include <cstdlib>
+#include <memory>
 #include "gs/outcom/IC3Rand.h"
 
 #ifndef GEOMETRIC
 #if !defined(USE_COM_REPLACEMENT)
 STDAPI CoCreateMapGenerator(IUnknown **obj)
 {
-	FaultGenerator *gen = new FaultGenerator();
+	FaultGenerator *gen = std::make_unique<FaultGenerator>().release(); // ownership transfers to caller via refcount
 	gen->AddRef();
 	*obj = (IUnknown *)gen;
 	return S_OK;
@@ -32,7 +33,7 @@ STDAPI CoCreateMapGenerator(IUnknown **obj)
 #else
 extern "C" IMapGenerator *CoCreateFaultMapGenerator()
 {
-	IMapGenerator *gen = new FaultGenerator();
+	IMapGenerator *gen = std::make_unique<FaultGenerator>().release(); // ownership transfers to caller via refcount
 	gen->AddRef();
 	return gen;
 }

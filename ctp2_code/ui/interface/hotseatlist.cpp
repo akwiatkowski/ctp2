@@ -90,7 +90,7 @@ HotseatList * hotseatlist_Get()
 void hotseatlist_DisplayWindow(HotseatListCallback *callback)
 {
     if (!g_hotseatList) {
-        g_hotseatList.reset(new HotseatList(callback));
+        g_hotseatList = std::make_unique<HotseatList>(callback);
     }
     g_hotseatList->DisplayWindow();
 }
@@ -161,7 +161,7 @@ HotseatList::HotseatList( HotseatListCallback *callback, MBCHAR *ldlBlock )
 	else strlcpy(windowBlock, "HotseatListPopup", sizeof(windowBlock));
 
 	{
-		m_window.reset(new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false));
+		m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(m_window, errcode) );
 		if ( !AUI_NEWOK(m_window, errcode) ) return;
 
@@ -192,7 +192,7 @@ sint32 HotseatList::Initialize( MBCHAR *windowBlock )
 	m_window->AddOk(HotseatListButtonActionCallback);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerList" );
-	m_list.reset(new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr));
+	m_list = std::make_unique<c3_ListBox>(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	m_list->SetAbsorbancy(FALSE);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
@@ -312,7 +312,7 @@ sint32 HotseatList::UpdateData( )
 		}
 		// HotseatListItem still takes MBCHAR* (header owned elsewhere);
 		// empty-string default is read-only here.
-		item = new HotseatListItem(&retval, i, civ, i == 0, const_cast<MBCHAR *>(""), ldlBlock);
+		item = std::make_unique<HotseatListItem>(&retval, i, civ, i == 0, const_cast<MBCHAR *>(""), ldlBlock).release();
 		m_list->AddItem((c3_ListItem *)item);
 		m_items[i] = item;
 	}
@@ -450,18 +450,18 @@ AUI_ERRCODE HotseatListItem::InitCommonLdl(sint32 civ,
 
 	SetBlindness(TRUE);
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Civ");
-	subButton = new c3_Button(&retval, aui_UniqueId(), block,
-							HotseatCivCallback, this);
+	subButton = std::make_unique<c3_Button>(&retval, aui_UniqueId(), block,
+							HotseatCivCallback, this).release();
 	AddChild(subButton);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "AIOrHuman");
-	subButton = new c3_Button(&retval, aui_UniqueId(), block,
-							  HotseatAIToggleCallback, this);
+	subButton = std::make_unique<c3_Button>(&retval, aui_UniqueId(), block,
+							  HotseatAIToggleCallback, this).release();
 	AddChild(subButton);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
-	subText = new C3TextField(&retval, aui_UniqueId(), block,
-							  HotseatNameCallback,  this);
+	subText = std::make_unique<C3TextField>(&retval, aui_UniqueId(), block,
+							  HotseatNameCallback,  this).release();
 	if(m_index == 0) {
 		subText->SetFieldText(profiledb_Get()->GetLeaderName());
 	}
@@ -469,8 +469,8 @@ AUI_ERRCODE HotseatListItem::InitCommonLdl(sint32 civ,
 	AddChild(subText);
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Email");
-	subText = new C3TextField(&retval, aui_UniqueId(), block,
-							  HotseatEmailCallback, this);
+	subText = std::make_unique<C3TextField>(&retval, aui_UniqueId(), block,
+							  HotseatEmailCallback, this).release();
 	AddChild(subText);
 
 	Update();

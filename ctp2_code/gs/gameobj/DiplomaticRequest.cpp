@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/utility/safety.h"
 
 #include "gs/gameobj/player.h"
@@ -39,8 +40,8 @@ void DiplomaticRequest::RemoveAllReferences()
 	{
 	if(network_Get().IsHost())
 		{
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_DIP_REQUEST,
-									  (uint32)m_id));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_KILL_DIP_REQUEST,
+									  (uint32)m_id).release());
 		}
     sint32 r = GetRecipient();
 

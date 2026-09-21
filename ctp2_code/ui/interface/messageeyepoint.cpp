@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_ctp2/c3ui.h"
@@ -55,7 +56,7 @@ AUI_ERRCODE MessageEyePointListItem::InitCommonLdl(MBCHAR const *name, sint32 in
 	c3_Static		*subItem;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "name");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	subItem->TextFlags() = k_AUI_BITMAPFONT_DRAWFLAG_JUSTCENTER;
 	AddChild(subItem);
 
@@ -121,11 +122,11 @@ AUI_ERRCODE MessageEyePointStandard::InitCommon( MBCHAR const *ldlBlock, Message
 	MBCHAR		buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardEyeButton" );
-	m_button.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
+	m_button = std::make_unique<aui_Button>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_button, errcode ));
 	if ( !AUI_NEWOK( m_button, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_action.reset(new MessageStandardEyePointAction( window ));
+	m_action = std::make_unique<MessageStandardEyePointAction>( window );
 
 	m_button->SetAction( m_action.get() );
 
@@ -147,11 +148,11 @@ AUI_ERRCODE MessageEyePointStandard::InitCommon( MBCHAR const *ldlBlock, Message
 	MBCHAR		buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardEyeButton" );
-	m_button.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
+	m_button = std::make_unique<aui_Button>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_button, errcode ));
 	if ( !AUI_NEWOK( m_button, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_action.reset(new MessageStandardEyePointAction( nullptr, window ));
+	m_action = std::make_unique<MessageStandardEyePointAction>( nullptr, window );
 
 	m_button->SetAction( m_action.get() );
 
@@ -218,13 +219,13 @@ AUI_ERRCODE MessageEyePointDropdown::InitCommonCommon
 	MBCHAR		buttonBlock[k_AUI_LDL_MAXBLOCK + 1];
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardEyeButton");
-	m_button.reset(new aui_Button(&errcode, aui_UniqueId(), buttonBlock));
+	m_button = std::make_unique<aui_Button>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(AUI_NEWOK(m_button, errcode));
 	if (!AUI_NEWOK(m_button, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
     m_button->TextReloadFont();
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardEyePointDropdown");
-	m_dropdown.reset(new c3_DropDown(&errcode, aui_UniqueId(), buttonBlock));
+	m_dropdown = std::make_unique<c3_DropDown>(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(AUI_NEWOK(m_dropdown, errcode));
 	if (!AUI_NEWOK(m_dropdown, errcode)) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -238,7 +239,7 @@ AUI_ERRCODE MessageEyePointDropdown::InitCommonCommon
 	while (MBCHAR const * text = a_Message->GetEyePointName(i++))
     {
 		MessageEyePointListItem	* item =
-            new MessageEyePointListItem(&errcode, text, i, buttonBlock);
+            std::make_unique<MessageEyePointListItem>(&errcode, text, i, buttonBlock).release();
 
 		if (item)
 			m_dropdown->AddItem((aui_Item *) item);
@@ -252,7 +253,7 @@ AUI_ERRCODE MessageEyePointDropdown::InitCommon(MBCHAR const * ldlBlock, Message
 	AUI_ERRCODE errcode = InitCommonCommon(ldlBlock, window->GetMessage()->AccessData());
     if (AUI_ERRCODE_OK != errcode) return errcode;
 
-	m_action.reset(new MessageDropdownEyePointAction(window));
+	m_action = std::make_unique<MessageDropdownEyePointAction>(window);
 
 	m_action->SetDropdown(m_dropdown.get());
 	m_button->SetAction(m_action.get());
@@ -267,7 +268,7 @@ AUI_ERRCODE MessageEyePointDropdown::InitCommon(MBCHAR const * ldlBlock, Message
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
 
-	m_dropaction.reset(new MessageDropdownAction( window, m_dropdown.get() ));
+	m_dropaction = std::make_unique<MessageDropdownAction>( window, m_dropdown.get() );
 	Assert( m_dropaction != nullptr );
 
 	m_dropdown->SetAction( m_dropaction.get() );
@@ -288,7 +289,7 @@ AUI_ERRCODE MessageEyePointDropdown::InitCommon(MBCHAR const *ldlBlock, MessageM
 	AUI_ERRCODE     errcode = InitCommonCommon(ldlBlock, window->GetMessage()->AccessData());
     if (AUI_ERRCODE_OK != errcode) return errcode;
 
-	m_action.reset(new MessageDropdownEyePointAction( nullptr, window ));
+	m_action = std::make_unique<MessageDropdownEyePointAction>( nullptr, window );
 
 	m_action->SetDropdown(m_dropdown.get());
 	m_button->SetAction(m_action.get());
@@ -298,7 +299,7 @@ AUI_ERRCODE MessageEyePointDropdown::InitCommon(MBCHAR const *ldlBlock, MessageM
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
 
-	m_dropaction.reset(new MessageDropdownAction( nullptr, m_dropdown.get(), window ));
+	m_dropaction = std::make_unique<MessageDropdownAction>( nullptr, m_dropdown.get(), window );
 
 	m_dropdown->SetAction( m_dropaction.get() );
 
@@ -366,11 +367,11 @@ AUI_ERRCODE MessageEyePointListbox::InitCommon(MBCHAR const * ldlBlock, MessageW
 	sint32 count = window->GetMessage()->AccessData()->GetNumEyePoints( );
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "EyeLeftButton" );
-	m_buttonLeft.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
+	m_buttonLeft = std::make_unique<aui_Button>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_buttonLeft, errcode ));
 	if ( !AUI_NEWOK( m_buttonLeft, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_actionLeft.reset(new MessageListboxEyePointAction( window, 0, -1, 0, count ));
+	m_actionLeft = std::make_unique<MessageListboxEyePointAction>( window, 0, -1, 0, count );
 
 	m_buttonLeft->SetAction( m_actionLeft.get() );
 
@@ -383,11 +384,11 @@ AUI_ERRCODE MessageEyePointListbox::InitCommon(MBCHAR const * ldlBlock, MessageW
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "EyeRightButton" );
-	m_buttonRight.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
+	m_buttonRight = std::make_unique<aui_Button>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_buttonRight, errcode ));
 	if ( !AUI_NEWOK( m_buttonRight, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_actionRight.reset(new MessageListboxEyePointAction( window, 0, 1, 0, count ));
+	m_actionRight = std::make_unique<MessageListboxEyePointAction>( window, 0, 1, 0, count );
 
 	m_buttonRight->SetAction( m_actionRight.get() );
 
@@ -417,11 +418,11 @@ AUI_ERRCODE MessageEyePointListbox::InitCommon(MBCHAR const * ldlBlock, MessageM
 	sint32 count = window->GetMessage()->AccessData()->GetNumEyePoints( );
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "EyeLeftButton" );
-	m_buttonLeft.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
+	m_buttonLeft = std::make_unique<aui_Button>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_buttonLeft, errcode ));
 	if ( !AUI_NEWOK( m_buttonLeft, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_actionLeft.reset(new MessageListboxEyePointAction( nullptr, 0, -1, 0, count, window ));
+	m_actionLeft = std::make_unique<MessageListboxEyePointAction>( nullptr, 0, -1, 0, count, window );
 
 	m_buttonLeft->SetAction( m_actionLeft.get() );
 
@@ -430,11 +431,11 @@ AUI_ERRCODE MessageEyePointListbox::InitCommon(MBCHAR const * ldlBlock, MessageM
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "EyeRightButton" );
-	m_buttonRight.reset(new aui_Button( &errcode, aui_UniqueId(), buttonBlock ));
+	m_buttonRight = std::make_unique<aui_Button>( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_buttonRight, errcode ));
 	if ( !AUI_NEWOK( m_buttonRight, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_actionRight.reset(new MessageListboxEyePointAction( nullptr, 0, 1, 0, count, window ));
+	m_actionRight = std::make_unique<MessageListboxEyePointAction>( nullptr, 0, 1, 0, count, window );
 
 	m_buttonRight->SetAction( m_actionRight.get() );
 

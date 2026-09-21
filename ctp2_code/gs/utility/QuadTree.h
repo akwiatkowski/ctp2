@@ -13,6 +13,7 @@ enum QUADRANT {
 };
 
 #include "robot/aibackdoor/dynarr.h"
+#include <memory>
 
 
 
@@ -47,10 +48,10 @@ private:
 	DynamicArray<T> m_array;
 	sint16 m_x, m_y;
 	sint16 m_width, m_height;
-	QuadTreeNode<T>* m_ne;
-	QuadTreeNode<T>* m_se;
-	QuadTreeNode<T>* m_sw;
-	QuadTreeNode<T>* m_nw;
+	std::unique_ptr<QuadTreeNode<T>> m_ne;
+	std::unique_ptr<QuadTreeNode<T>> m_se;
+	std::unique_ptr<QuadTreeNode<T>> m_sw;
+	std::unique_ptr<QuadTreeNode<T>> m_nw;
 	QuadTreeNode<T>* m_parent;
 	BOOL m_isLeaf;
 
@@ -106,17 +107,14 @@ public:
 
 	QuadTree()
     :
-        m_top               (NULL),
+        m_top               (nullptr),
         m_width             (0),
 		m_height            (0),
         m_isYWrap           (FALSE),
         m_degenerateCount   (0)
 	{};
 
-	virtual ~QuadTree()
-	{
-		delete m_top;
-	}
+	virtual ~QuadTree() = default;
 
 	void Insert(T obj);
 	void Remove(T obj);
@@ -134,8 +132,7 @@ public:
 	void BuildList(DynamicArray<T> &array, uint32 mask = 0xffffffff) const;
 	void RemoveTop()
 	{
-		delete m_top;
-		m_top = nullptr;
+		m_top.reset();
 	}
 
 
@@ -153,7 +150,7 @@ public:
 	friend class QuadTreeNode<T>;
 
 private:
-	QuadTreeNode<T>* m_top;
+	std::unique_ptr<QuadTreeNode<T>> m_top;
 	sint16 m_width, m_height;
 	BOOL m_isYWrap;
 	sint32 m_degenerateCount;
@@ -202,10 +199,6 @@ QuadTreeNode<T>::QuadTreeNode(QuadTree<T> *tree,
 template <class T>
 QuadTreeNode<T>::~QuadTreeNode()
 {
-	delete m_ne;
-	delete m_se;
-	delete m_sw;
-	delete m_nw;
 }
 
 template <class T> QUADRANT
@@ -232,21 +225,25 @@ QuadTreeNode<T>::AddLeaf(QUADRANT quad, T obj)
 	m_isLeaf = FALSE;
 	switch(quad) {
 		case QUADRANT_NE:
-			return m_ne = new QuadTreeNode<T>(m_tree,
+			m_ne = std::make_unique<QuadTreeNode<T>>(m_tree,
 											  this, obj, QCX, m_y,
 											  neww + ((m_width%2) ? 1 : 0), newh);
+			return m_ne.get();
 		case QUADRANT_SE:
-			return m_se = new QuadTreeNode<T>(m_tree,
+			m_se = std::make_unique<QuadTreeNode<T>>(m_tree,
 											  this, obj, QCX, QCY,
 											  neww + ((m_width%2) ? 1 : 0),
 											  newh + ((m_height%2) ? 1 : 0));
+			return m_se.get();
 		case QUADRANT_SW:
-			return m_sw = new QuadTreeNode<T>(m_tree,
+			m_sw = std::make_unique<QuadTreeNode<T>>(m_tree,
 											  this, obj, m_x, QCY, neww,
 											  newh + ((m_height%2) ? 1 : 0));
+			return m_sw.get();
 		case QUADRANT_NW:
-			return m_nw = new QuadTreeNode<T>(m_tree,
+			m_nw = std::make_unique<QuadTreeNode<T>>(m_tree,
 											  this, obj, m_x, m_y, neww, newh);
+			return m_nw.get();
 		case QUADRANT_ERROR:
 			break;
 	}
@@ -262,21 +259,25 @@ QuadTreeNode<T>::AddLeaf(QUADRANT quad, DynamicArray<T> &a_List)
 	m_isLeaf = FALSE;
 	switch(quad) {
 		case QUADRANT_NE:
-			return m_ne = new QuadTreeNode<T>(m_tree,
+			m_ne = std::make_unique<QuadTreeNode<T>>(m_tree,
 											  this, a_List, QCX, m_y,
 											  neww + ((m_width%2) ? 1 : 0), newh);
+			return m_ne.get();
 		case QUADRANT_SE:
-			return m_se = new QuadTreeNode<T>(m_tree,
+			m_se = std::make_unique<QuadTreeNode<T>>(m_tree,
 											  this, a_List, QCX, QCY,
 											  neww + ((m_width%2) ? 1 : 0),
 											  newh + ((m_height%2) ? 1 : 0));
+			return m_se.get();
 		case QUADRANT_SW:
-			return m_sw = new QuadTreeNode<T>(m_tree,
+			m_sw = std::make_unique<QuadTreeNode<T>>(m_tree,
 											  this, a_List, m_x, QCY, neww,
 											  newh + ((m_height%2) ? 1 : 0));
+			return m_sw.get();
 		case QUADRANT_NW:
-			return m_nw = new QuadTreeNode<T>(m_tree,
+			m_nw = std::make_unique<QuadTreeNode<T>>(m_tree,
 											  this, a_List, m_x, m_y, neww, newh);
+			return m_nw.get();
 		case QUADRANT_ERROR:
 			break;
 	}
@@ -402,7 +403,7 @@ QuadTreeNode<T>::RemoveObject(T obj)
 			if(m_parent) {
 				m_parent->RemoveBranch(this);
 			} else {
-				Assert(m_tree->m_top == this);
+				Assert(m_tree->m_top.get() == this);
 				m_tree->RemoveTop();
 			}
 		}
@@ -573,7 +574,7 @@ QuadTreeNode<T>::RemoveAt(const MapPoint &point, T &removedObj)
 			}
             else
             {
-				Assert(m_tree->m_top == this);
+				Assert(m_tree->m_top.get() == this);
 				m_tree->RemoveTop();
 			}
 		}
@@ -615,7 +616,7 @@ QuadTreeNode<T>::RemoveAt(const MapPoint &point, DynamicArray<T> & a_Array)
 		}
         else
         {
-			Assert(m_tree->m_top == this);
+			Assert(m_tree->m_top.get() == this);
 			m_tree->RemoveTop();
 		}
 		return true;
@@ -642,18 +643,14 @@ QuadTreeNode<T>::RemoveAt(const MapPoint &point, DynamicArray<T> & a_Array)
 template <class T> void
 QuadTreeNode<T>::RemoveBranch(QuadTreeNode<T> *node, BOOL recurse)
 {
-	if(m_ne == node) {
-		delete m_ne;
-		m_ne = nullptr;
-	} else if(m_se == node) {
-		delete m_se;
-		m_se = nullptr;
-	} else if(m_sw == node) {
-		delete m_sw;
-		m_sw = nullptr;
-	} else if(m_nw == node) {
-		delete m_nw;
-		m_nw = nullptr;
+	if(m_ne.get() == node) {
+		m_ne.reset();
+	} else if(m_se.get() == node) {
+		m_se.reset();
+	} else if(m_sw.get() == node) {
+		m_sw.reset();
+	} else if(m_nw.get() == node) {
+		m_nw.reset();
 	} else {
 		Assert(FALSE);
 	}
@@ -676,7 +673,7 @@ QuadTreeNode<T>::RemoveBranch(QuadTreeNode<T> *node, BOOL recurse)
 		if(m_parent != nullptr) {
 			m_parent->RemoveBranch(this);
 		} else {
-			Assert(m_tree->m_top == this);
+			Assert(m_tree->m_top.get() == this);
 			m_tree->RemoveTop();
 		}
 	} else if(count == 1) {
@@ -813,7 +810,7 @@ QuadTreeNode<T>::RemoveDegenerate(DynamicArray<T> &rebuildList)
 		if(m_parent) {
 			m_parent->RemoveBranch(this, FALSE);
 		} else {
-			Assert(m_tree->m_top == this);
+			Assert(m_tree->m_top.get() == this);
 			m_tree->RemoveTop();
 		}
 	} else if(count > 1) {
@@ -837,7 +834,7 @@ template <class T> void QuadTree<T>::Insert(T newObj)
 	if(m_top) {
 		m_top->AddObject(newObj);
 	} else {
-		m_top = new QuadTreeNode<T>(this, nullptr, newObj, 0, 0, m_width, m_height);
+		m_top = std::make_unique<QuadTreeNode<T>>(this, nullptr, newObj, 0, 0, m_width, m_height);
 	}
 }
 
@@ -902,8 +899,7 @@ template <class T> size_t QuadTree<T>::GetCount(MapPoint const &point) const
 
 template <class T> void QuadTree<T>::Clear()
 {
-	delete m_top;
-	m_top = nullptr;
+	m_top.reset();
 }
 
 template <class T> void

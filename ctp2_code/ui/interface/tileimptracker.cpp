@@ -32,6 +32,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/interface/tileimptracker.h"
 
 #include "ui/aui_common/aui.h"
@@ -59,19 +60,19 @@ namespace
     COLOR               s_trackerBorderColor    = COLOR_GREEN;
 }
 
-TileimpTrackerWindow    *g_tileImpTrackerWindow = nullptr;
-static c3_Static        *s_trackerTimeN         = nullptr;
-static c3_Static        *s_trackerTimeV         = nullptr;
-static c3_Static        *s_trackerMatN          = nullptr;
-static c3_Static        *s_trackerMatV          = nullptr;
+std::unique_ptr<TileimpTrackerWindow> g_tileImpTrackerWindow;
+static std::unique_ptr<c3_Static> s_trackerTimeN;
+static std::unique_ptr<c3_Static> s_trackerTimeV;
+static std::unique_ptr<c3_Static> s_trackerMatN;
+static std::unique_ptr<c3_Static> s_trackerMatV;
 
-static c3_Static        *s_trackerFoodN         = nullptr;
-static c3_Static        *s_trackerFoodV         = nullptr;
-static c3_Static        *s_trackerProductionN   = nullptr;
-static c3_Static        *s_trackerProductionV   = nullptr;
-static c3_Static        *s_trackerGoldN         = nullptr;
-static c3_Static        *s_trackerGoldV         = nullptr;
-static c3_Static        *s_trackerBackground    = nullptr;
+static std::unique_ptr<c3_Static> s_trackerFoodN;
+static std::unique_ptr<c3_Static> s_trackerFoodV;
+static std::unique_ptr<c3_Static> s_trackerProductionN;
+static std::unique_ptr<c3_Static> s_trackerProductionV;
+static std::unique_ptr<c3_Static> s_trackerGoldN;
+static std::unique_ptr<c3_Static> s_trackerGoldV;
+static std::unique_ptr<c3_Static> s_trackerBackground;
 
 static sint32 s_tileImprovementNum = -1;
 
@@ -98,62 +99,62 @@ sint32 tileimptracker_Initialize()
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 	strlcpy( textBlock, "cp_tileimp_tracker", sizeof(textBlock));
-	g_tileImpTrackerWindow = new TileimpTrackerWindow( &errcode, aui_UniqueId(), textBlock, 16);
+	g_tileImpTrackerWindow = std::make_unique<TileimpTrackerWindow>( &errcode, aui_UniqueId(), textBlock, 16);
 	Assert( AUI_NEWOK(g_tileImpTrackerWindow, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "TimeN");
-	s_trackerTimeN = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_trackerTimeN = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerTimeN, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "TimeV");
-	s_trackerTimeV = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_trackerTimeV = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerTimeV, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "MatN");
-	s_trackerMatN = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_trackerMatN = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerMatN, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "MatV");
-	s_trackerMatV = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_trackerMatV = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerMatV, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "FoodN");
-	s_trackerFoodN = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_trackerFoodN = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerFoodN, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "FoodV");
-	s_trackerFoodV = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_trackerFoodV = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerFoodV, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "ProductionN");
-	s_trackerProductionN = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_trackerProductionN = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerProductionN, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "ProductionV");
-	s_trackerProductionV = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_trackerProductionV = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerProductionV, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "GoldN");
-	s_trackerGoldN = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_trackerGoldN = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerGoldN, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "GoldV");
-	s_trackerGoldV = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
+	s_trackerGoldV = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerGoldV, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "Background");
-	s_trackerBackground = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
+	s_trackerBackground = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert(AUI_NEWOK(s_trackerBackground, errcode));
 	if(!AUI_SUCCESS(errcode)) return -1;
 
@@ -324,7 +325,7 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 			{
 				s_trackerBorderColor = COLOR_RED;
 			}
-			c3ui_Get()->AddWindow(g_tileImpTrackerWindow);
+			c3ui_Get()->AddWindow(g_tileImpTrackerWindow.get());
 		}
 		else
 		{
@@ -336,8 +337,8 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 	}
 }
 
-static void mycleanup(c3_Static * & mypointer)
-{ delete mypointer; mypointer = nullptr; }
+static void mycleanup(std::unique_ptr<c3_Static> & mypointer)
+{ mypointer.reset(); }
 
 //----------------------------------------------------------------------------
 //
@@ -375,8 +376,7 @@ void tileimptracker_Cleanup()
 	mycleanup(s_trackerGoldN);
 	mycleanup(s_trackerGoldV);
 
-	delete g_tileImpTrackerWindow;
-	g_tileImpTrackerWindow = nullptr;
+	g_tileImpTrackerWindow.reset();
 }
 
 //----------------------------------------------------------------------------
@@ -398,7 +398,7 @@ void tileimptracker_Cleanup()
 //----------------------------------------------------------------------------
 AUI_ERRCODE TileimpTrackerWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 {
-	if(!surface) surface = m_surface;
+	if(!surface) surface = m_surface.get();
 
 	RECT rect = { 0, 0, m_width, m_height };
 

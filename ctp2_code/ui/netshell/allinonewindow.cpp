@@ -40,6 +40,7 @@
 #include "ui/netshell/allinonewindow.h"
 
 #include <algorithm>
+#include <memory>
 #include <chrono>
 #include <thread>
 
@@ -164,19 +165,18 @@ AUI_ERRCODE AllinoneWindow::InitCommon( )
 	    g_allinoneWindow = this;
     }
 	m_numControls = CONTROL_MAX;
-	m_controls = new aui_Control *[CONTROL_MAX];
-	std::fill(m_controls, m_controls + CONTROL_MAX, (aui_Control *) nullptr);
+	m_controls = std::make_unique<aui_Control *[]>( CONTROL_MAX );
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	g_rulesWindow = new DialogBoxWindow(
+	g_rulesWindow = std::make_unique<DialogBoxWindow>(
 		&errcode,
 		"ruleswindow",
-		nullptr );
+		nullptr ).release();
 
-	g_exclusionsWindow = new DialogBoxWindow(
+	g_exclusionsWindow = std::make_unique<DialogBoxWindow>(
 		&errcode,
 		"exclusionswindow",
-		nullptr );
+		nullptr ).release();
 
 	memset( m_lname, 0, sizeof( m_lname ) );
 
@@ -195,31 +195,31 @@ AUI_ERRCODE AllinoneWindow::InitCommon( )
 
 	m_tickGame = m_tickPlayer = m_tickAIPlayer = GetTickCount();
 
-	m_aiplayerList = new tech_WLList<nf_AIPlayer *>;
+	m_aiplayerList = std::make_unique<tech_WLList<nf_AIPlayer *>>();
 
-	m_messageRequestDenied.reset(new ns_String("strings.system.requestdenied"));
-	m_messageKicked.reset(new ns_String("strings.system.kicked"));
-	m_messageGameSetup.reset(new ns_String("strings.system.gamesetup"));
-	m_messageGameEnter.reset(new ns_String("strings.system.gameenter"));
-	m_messageGameHost.reset(new ns_String("strings.system.gamehost"));
-	m_messageGameCreate.reset(new ns_String("strings.system.gamecreate"));
-	m_messageLaunched.reset(new ns_String("strings.system.launched"));
+	m_messageRequestDenied = std::make_unique<ns_String>("strings.system.requestdenied");
+	m_messageKicked = std::make_unique<ns_String>("strings.system.kicked");
+	m_messageGameSetup = std::make_unique<ns_String>("strings.system.gamesetup");
+	m_messageGameEnter = std::make_unique<ns_String>("strings.system.gameenter");
+	m_messageGameHost = std::make_unique<ns_String>("strings.system.gamehost");
+	m_messageGameCreate = std::make_unique<ns_String>("strings.system.gamecreate");
+	m_messageLaunched = std::make_unique<ns_String>("strings.system.launched");
 
 	m_receivedGuids = false;
 
-	m_playStyleValueStrings.reset(new aui_StringTable(
+	m_playStyleValueStrings = std::make_unique<aui_StringTable>(
 		&errcode,
-		"strings.playstylevalues" ));
+		"strings.playstylevalues" );
 	Assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return AUI_ERRCODE_HACK;
 
-	m_PPTStrings.reset(new aui_StringTable(
+	m_PPTStrings = std::make_unique<aui_StringTable>(
 		&errcode,
-		"strings.ppt" ));
+		"strings.ppt" );
 	Assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return AUI_ERRCODE_HACK;
 
-	m_dbActionArray[ 0 ] = new DialogBoxPopDownAction;
+	m_dbActionArray[ 0 ] = std::make_unique<DialogBoxPopDownAction>();
 
 	agesscreen_Initialize( AllinoneAgesCallback );
 	spnewgamemapsizescreen_Initialize( AllinoneMapSizeCallback );
@@ -257,74 +257,74 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 
 
 
-	control = new ns_ChatBox(
+	control = std::make_unique<ns_ChatBox>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.chatbox" );
+		"allinonewindow.chatbox" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_CHATBOX ] = control;
 
-	control = new aui_Static(
+	control = std::make_unique<aui_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.playerssheet" );
+		"allinonewindow.playerssheet" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_PLAYERSSHEET ] = control;
 
-	control = new aui_Static(
+	control = std::make_unique<aui_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.playerssheet.titlestatictext" );
+		"allinonewindow.playerssheet.titlestatictext" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_PLAYERSTITLESTATICTEXT ] = control;
 
-	control = new aui_Static(
+	control = std::make_unique<aui_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.playerssheet.gamenamestatictext" );
+		"allinonewindow.playerssheet.gamenamestatictext" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_GAMENAMESTATICTEXT ] = control;
 
-	control = new C3TextField(
+	control = std::make_unique<C3TextField>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.playerssheet.gamenametextfield" );
+		"allinonewindow.playerssheet.gamenametextfield" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_GAMENAMETEXTFIELD ] = control;
 
-	control = new aui_Static(
+	control = std::make_unique<aui_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.playerssheet.playstylestatictext" );
+		"allinonewindow.playerssheet.playstylestatictext" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_PLAYSTYLESTATICTEXT ] = control;
 
-	control = new ctp2_DropDown(
+	control = std::make_unique<ctp2_DropDown>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.playerssheet.playstyledropdown" );
+		"allinonewindow.playerssheet.playstyledropdown" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_PLAYSTYLEDROPDOWN ] = control;
 
-	control = new aui_Static(
+	control = std::make_unique<aui_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.playerssheet.playstylevaluestatictext" );
+		"allinonewindow.playerssheet.playstylevaluestatictext" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_PLAYSTYLEVALUESTATICTEXT ] = control;
 
-	control = new ctp2_Spinner(
+	control = std::make_unique<ctp2_Spinner>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.playerssheet.playstylevaluespinner" );
+		"allinonewindow.playerssheet.playstylevaluespinner" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_PLAYSTYLEVALUESPINNER ] = control;
@@ -338,10 +338,10 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_REVIEWBUTTON ] = control;
 
-	control = new ctp2_Switch(
+	control = std::make_unique<ctp2_Switch>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.lockswitch" );
+		"allinonewindow.lockswitch" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_LOCKSWITCH ] = control;
@@ -373,36 +373,36 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_EXCLUSIONSBUTTON ] = control;
 
-	control = new ns_HPlayerListBox(
+	control = std::make_unique<ns_HPlayerListBox>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.playerssheet.hplayerslistbox" );
+		"allinonewindow.playerssheet.hplayerslistbox" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_HPLAYERSLISTBOX ] = control;
 
-	control = new ns_GPlayerListBox(
+	control = std::make_unique<ns_GPlayerListBox>(
 		&errcode,
 		aui_UniqueId(),
 		"hack.aiplayerslistbox",
-		(ns_HPlayerListBox *)m_controls[ CONTROL_HPLAYERSLISTBOX ] );
+		(ns_HPlayerListBox *)m_controls[ CONTROL_HPLAYERSLISTBOX ] ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_GPLAYERSLISTBOX ] = control;
 
-	control = new ns_AIPlayerListBox(
+	control = std::make_unique<ns_AIPlayerListBox>(
 		&errcode,
 		aui_UniqueId(),
 		"hack.aiplayerslistbox",
-		(ns_HPlayerListBox *)m_controls[ CONTROL_HPLAYERSLISTBOX ] );
+		(ns_HPlayerListBox *)m_controls[ CONTROL_HPLAYERSLISTBOX ] ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_AIPLAYERSLISTBOX ] = control;
 
-	control = new ctp2_Switch(
+	control = std::make_unique<ctp2_Switch>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.publicprivateteamswitch" );
+		"allinonewindow.publicprivateteamswitch" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_PPTSWITCH ] = control;
@@ -425,34 +425,34 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_INFOBUTTON ] = control;
 
-	control = new aui_Static(
+	control = std::make_unique<aui_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"ruleswindow.rulessheet" );
+		"ruleswindow.rulessheet" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_RULESSHEET ] = control;
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
-		"ruleswindow.rulesokbutton" );
+		"ruleswindow.rulesokbutton" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_RULESOKBUTTON ] = control;
 
-	control = new aui_Static(
+	control = std::make_unique<aui_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"ruleswindow.rulessheet.titlestatictext" );
+		"ruleswindow.rulessheet.titlestatictext" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_RULESTITLESTATICTEXT ] = control;
 
-	control = new aui_Static(
+	control = std::make_unique<aui_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"ruleswindow.rulessheet.titlestatictext2" );
+		"ruleswindow.rulessheet.titlestatictext2" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_RULESTITLESTATICTEXT2 ] = control;
@@ -503,167 +503,167 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_DIFFICULTYBUTTON ] = control;
 
-	control = new aui_Switch(
+	control = std::make_unique<aui_Switch>(
 		&errcode,
 		aui_UniqueId(),
-		"ruleswindow.rulessheet.dynamicjoinswitch" );
+		"ruleswindow.rulessheet.dynamicjoinswitch" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_DYNAMICJOINSWITCH ] = control;
 
-	control = new aui_Switch(
+	control = std::make_unique<aui_Switch>(
 		&errcode,
 		aui_UniqueId(),
-		"ruleswindow.rulessheet.handicappingswitch" );
+		"ruleswindow.rulessheet.handicappingswitch" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_HANDICAPPINGSWITCH ] = control;
 
-	control = new aui_Switch(
+	control = std::make_unique<aui_Switch>(
 		&errcode,
 		aui_UniqueId(),
-		"ruleswindow.rulessheet.bloodlustswitch" );
+		"ruleswindow.rulessheet.bloodlustswitch" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_BLOODLUSTSWITCH ] = control;
 
-	control = new aui_Switch(
+	control = std::make_unique<aui_Switch>(
 		&errcode,
 		aui_UniqueId(),
-		"ruleswindow.rulessheet.pollutionswitch" );
+		"ruleswindow.rulessheet.pollutionswitch" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_POLLUTIONSWITCH ] = control;
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"ruleswindow.rulessheet.goldstatictext" );
+		"ruleswindow.rulessheet.goldstatictext" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_GOLDSTATICTEXT ] = control;
 
-	control = new c3_EditButton(
+	control = std::make_unique<c3_EditButton>(
 		&errcode,
 		aui_UniqueId(),
 		"ruleswindow.rulessheet.civpointsbutton",
 		nullptr,
-		new CivPointsButtonAction );
+		std::make_unique<CivPointsButtonAction>().release()).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_CIVPOINTSBUTTON ] = control;
 
-	control = new c3_Static(
+	control = std::make_unique<c3_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"ruleswindow.rulessheet.pwstatictext" );
+		"ruleswindow.rulessheet.pwstatictext" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_PWSTATICTEXT ] = control;
 
-	control = new c3_EditButton(
+	control = std::make_unique<c3_EditButton>(
 		&errcode,
 		aui_UniqueId(),
 		"ruleswindow.rulessheet.pwpointsbutton",
 		nullptr,
-		new PwPointsButtonAction );
+		std::make_unique<PwPointsButtonAction>().release()).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_PWPOINTSBUTTON ] = control;
 
-	control = new aui_Static(
+	control = std::make_unique<aui_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"exclusionswindow.exclusionssheet" );
+		"exclusionswindow.exclusionssheet" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_EXCLUSIONSSHEET ] = control;
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
-		"exclusionswindow.exclusionsokbutton" );
+		"exclusionswindow.exclusionsokbutton" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_EXCLUSIONSOKBUTTON ] = control;
 
-	control = new aui_Static(
+	control = std::make_unique<aui_Static>(
 		&errcode,
 		aui_UniqueId(),
-		"exclusionswindow.exclusionssheet.titlestatictext" );
+		"exclusionswindow.exclusionssheet.titlestatictext" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_EXCLUSIONSTITLESTATICTEXT ] = control;
 
-	control = new aui_TabGroup(
+	control = std::make_unique<aui_TabGroup>(
 		&errcode,
 		aui_UniqueId(),
-		"exclusionswindow.exclusionssheet.smallnastytabgroup" );
+		"exclusionswindow.exclusionssheet.smallnastytabgroup" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_SMALLNASTYTABGROUP ] = control;
 
-	control = new aui_Tab(
+	control = std::make_unique<aui_Tab>(
 		&errcode,
 		aui_UniqueId(),
-		"exclusionswindow.exclusionssheet.smallnastytabgroup.unitstab" );
+		"exclusionswindow.exclusionssheet.smallnastytabgroup.unitstab" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_UNITSTAB ] = control;
 
-	control = new ns_CivListBox(
+	control = std::make_unique<ns_CivListBox>(
 		&errcode,
 		aui_UniqueId(),
-		"exclusionswindow.exclusionssheet.smallnastytabgroup.unitstab.pane.unitslistbox" );
+		"exclusionswindow.exclusionssheet.smallnastytabgroup.unitstab.pane.unitslistbox" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_UNITSLISTBOX ] = control;
 
-	control = new aui_Tab(
+	control = std::make_unique<aui_Tab>(
 		&errcode,
 		aui_UniqueId(),
-		"exclusionswindow.exclusionssheet.smallnastytabgroup.improvementstab" );
+		"exclusionswindow.exclusionssheet.smallnastytabgroup.improvementstab" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_IMPROVEMENTSTAB ] = control;
 
-	control = new ns_CivListBox(
+	control = std::make_unique<ns_CivListBox>(
 		&errcode,
 		aui_UniqueId(),
-		"exclusionswindow.exclusionssheet.smallnastytabgroup.improvementstab.pane.improvementslistbox" );
+		"exclusionswindow.exclusionssheet.smallnastytabgroup.improvementstab.pane.improvementslistbox" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_IMPROVEMENTSLISTBOX ] = control;
 
-	control = new aui_Tab(
+	control = std::make_unique<aui_Tab>(
 		&errcode,
 		aui_UniqueId(),
-		"exclusionswindow.exclusionssheet.smallnastytabgroup.wonderstab" );
+		"exclusionswindow.exclusionssheet.smallnastytabgroup.wonderstab" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_WONDERSTAB ] = control;
 
-	control = new ns_CivListBox(
+	control = std::make_unique<ns_CivListBox>(
 		&errcode,
 		aui_UniqueId(),
-		"exclusionswindow.exclusionssheet.smallnastytabgroup.wonderstab.pane.wonderslistbox" );
+		"exclusionswindow.exclusionssheet.smallnastytabgroup.wonderstab.pane.wonderslistbox" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_WONDERSLISTBOX ] = control;
 
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.okbutton" );
+		"allinonewindow.okbutton" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_OKBUTTON ] = control;
 
-	control = new aui_Button(
+	control = std::make_unique<aui_Button>(
 		&errcode,
 		aui_UniqueId(),
-		"allinonewindow.cancelbutton" );
+		"allinonewindow.cancelbutton" ).release();
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_CANCELBUTTON ] = control;
@@ -672,33 +672,33 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 	aui_Ldl::SetupHeirarchyFromRoot( "ruleswindow" );
 	aui_Ldl::SetupHeirarchyFromRoot( "exclusionswindow" );
 
-	m_controls[ CONTROL_GAMENAMETEXTFIELD ]->SetAction(new GameNameTextFieldAction);
-	m_controls[ CONTROL_PPTSWITCH ]->SetAction(new PPTSwitchAction);
-	m_controls[ CONTROL_KICKBUTTON ]->SetAction(new KickButtonAction);
-	m_controls[ CONTROL_INFOBUTTON ]->SetAction(new InfoButtonAction);
-	m_controls[ CONTROL_OKBUTTON ]->SetAction(new OKButtonAction);
-	m_controls[ CONTROL_REVIEWBUTTON ]->SetAction(new ReviewButtonAction);
-	m_controls[ CONTROL_RULESBUTTON ]->SetAction(new RulesButtonAction);
-	m_controls[ CONTROL_EXCLUSIONSBUTTON ]->SetAction(new ExclusionsButtonAction);
-	m_controls[ CONTROL_RULESOKBUTTON ]->SetAction(new RulesOKButtonAction);
-	m_controls[ CONTROL_EXCLUSIONSOKBUTTON ]->SetAction(new ExclusionsOKButtonAction);
-	m_controls[ CONTROL_LOCKSWITCH ]->SetAction(new LockSwitchAction);
-	m_controls[ CONTROL_ADDAIBUTTON ]->SetAction(new AddAIButtonAction);
-	m_controls[ CONTROL_CANCELBUTTON ]->SetAction(new CancelButtonAction);
-	m_controls[ CONTROL_HPLAYERSLISTBOX ]->SetAction(new PlayersListBoxAction);
-	m_controls[ CONTROL_PLAYSTYLEDROPDOWN ]->SetAction(new PlayStyleDropDownAction);
+	m_controls[ CONTROL_GAMENAMETEXTFIELD ]->SetAction(std::make_unique<GameNameTextFieldAction>().release());
+	m_controls[ CONTROL_PPTSWITCH ]->SetAction(std::make_unique<PPTSwitchAction>().release());
+	m_controls[ CONTROL_KICKBUTTON ]->SetAction(std::make_unique<KickButtonAction>().release());
+	m_controls[ CONTROL_INFOBUTTON ]->SetAction(std::make_unique<InfoButtonAction>().release());
+	m_controls[ CONTROL_OKBUTTON ]->SetAction(std::make_unique<OKButtonAction>().release());
+	m_controls[ CONTROL_REVIEWBUTTON ]->SetAction(std::make_unique<ReviewButtonAction>().release());
+	m_controls[ CONTROL_RULESBUTTON ]->SetAction(std::make_unique<RulesButtonAction>().release());
+	m_controls[ CONTROL_EXCLUSIONSBUTTON ]->SetAction(std::make_unique<ExclusionsButtonAction>().release());
+	m_controls[ CONTROL_RULESOKBUTTON ]->SetAction(std::make_unique<RulesOKButtonAction>().release());
+	m_controls[ CONTROL_EXCLUSIONSOKBUTTON ]->SetAction(std::make_unique<ExclusionsOKButtonAction>().release());
+	m_controls[ CONTROL_LOCKSWITCH ]->SetAction(std::make_unique<LockSwitchAction>().release());
+	m_controls[ CONTROL_ADDAIBUTTON ]->SetAction(std::make_unique<AddAIButtonAction>().release());
+	m_controls[ CONTROL_CANCELBUTTON ]->SetAction(std::make_unique<CancelButtonAction>().release());
+	m_controls[ CONTROL_HPLAYERSLISTBOX ]->SetAction(std::make_unique<PlayersListBoxAction>().release());
+	m_controls[ CONTROL_PLAYSTYLEDROPDOWN ]->SetAction(std::make_unique<PlayStyleDropDownAction>().release());
 
 	((ctp2_Spinner *)m_controls[CONTROL_PLAYSTYLEVALUESPINNER])->SetSpinnerCallback(PlayStyleValueSpinnerCallback, nullptr);
 
-	m_controls[ CONTROL_DYNAMICJOINSWITCH ]->SetAction(new DynamicJoinSwitchAction);
-	m_controls[ CONTROL_HANDICAPPINGSWITCH ]->SetAction(new HandicappingSwitchAction);
-	m_controls[ CONTROL_BLOODLUSTSWITCH ]->SetAction(new BloodlustSwitchAction);
-	m_controls[ CONTROL_POLLUTIONSWITCH ]->SetAction(new PollutionSwitchAction);
-	m_controls[ CONTROL_AGESBUTTON ]->SetAction(new AgesButtonAction);
-	m_controls[ CONTROL_MAPSIZEBUTTON ]->SetAction(new MapSizeButtonAction);
-	m_controls[ CONTROL_WORLDTYPEBUTTON ]->SetAction(new WorldTypeButtonAction);
-	m_controls[ CONTROL_WORLDSHAPEBUTTON ]->SetAction(new WorldShapeButtonAction);
-	m_controls[ CONTROL_DIFFICULTYBUTTON ]->SetAction(new DifficultyButtonAction);
+	m_controls[ CONTROL_DYNAMICJOINSWITCH ]->SetAction(std::make_unique<DynamicJoinSwitchAction>().release());
+	m_controls[ CONTROL_HANDICAPPINGSWITCH ]->SetAction(std::make_unique<HandicappingSwitchAction>().release());
+	m_controls[ CONTROL_BLOODLUSTSWITCH ]->SetAction(std::make_unique<BloodlustSwitchAction>().release());
+	m_controls[ CONTROL_POLLUTIONSWITCH ]->SetAction(std::make_unique<PollutionSwitchAction>().release());
+	m_controls[ CONTROL_AGESBUTTON ]->SetAction(std::make_unique<AgesButtonAction>().release());
+	m_controls[ CONTROL_MAPSIZEBUTTON ]->SetAction(std::make_unique<MapSizeButtonAction>().release());
+	m_controls[ CONTROL_WORLDTYPEBUTTON ]->SetAction(std::make_unique<WorldTypeButtonAction>().release());
+	m_controls[ CONTROL_WORLDSHAPEBUTTON ]->SetAction(std::make_unique<WorldShapeButtonAction>().release());
+	m_controls[ CONTROL_DIFFICULTYBUTTON ]->SetAction(std::make_unique<DifficultyButtonAction>().release());
 
 	((aui_ListBox *)m_controls[ CONTROL_HPLAYERSLISTBOX ])->GetHeader()->
 		Enable( FALSE );
@@ -729,10 +729,10 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 
 	for ( sint32 i = 0; i < numStyles; i++ )
 	{
-		ns_ListItem *item = new ns_ListItem(
+		ns_ListItem *item = std::make_unique<ns_ListItem>(
 			&errcode,
 			st.GetString( i ),
-			"listitems.playstyleitem" );
+			"listitems.playstyleitem" ).release();
 		Assert( AUI_NEWOK(item,errcode) );
 		if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -767,11 +767,11 @@ AllinoneWindow::~AllinoneWindow()
     allocated::clear(g_rulesWindow);
     allocated::clear(g_exclusionsWindow);
 
-	sint32 numActions = sizeof( m_dbActionArray ) / sizeof( aui_Action *);
+	sint32 numActions = sizeof( m_dbActionArray ) / sizeof( m_dbActionArray[0] );
 	sint32 i;
 	for ( i = 0; i < numActions; i++ )
 	{
-		delete m_dbActionArray[i];
+		m_dbActionArray[i].reset();
 	}
 
 	((aui_DropDown *)m_controls[ CONTROL_PLAYSTYLEDROPDOWN ])->
@@ -790,12 +790,12 @@ AllinoneWindow::~AllinoneWindow()
 		{
 			aui_Item *subitem = (aui_Item *)item->ChildList()->GetNext( pos );
 
-            delete subitem->GetAction();
-			delete subitem;
+            std::unique_ptr<aui_Action>( subitem->GetAction() ).reset();
+			std::unique_ptr<aui_Item>( subitem ).reset();
 		}
 
-		delete item->GetAction();
-		delete item;
+		std::unique_ptr<aui_Action>( item->GetAction() ).reset();
+		std::unique_ptr<aui_Item>( item ).reset();
 	}
 
 	listbox =
@@ -810,12 +810,12 @@ AllinoneWindow::~AllinoneWindow()
 		{
 			aui_Item *subitem = (aui_Item *)item->ChildList()->GetNext( pos );
 
-			delete subitem->GetAction();
-			delete subitem;
+			std::unique_ptr<aui_Action>( subitem->GetAction() ).reset();
+			std::unique_ptr<aui_Item>( subitem ).reset();
 		}
 
-		delete item->GetAction();
-		delete item;
+		std::unique_ptr<aui_Action>( item->GetAction() ).reset();
+		std::unique_ptr<aui_Item>( item ).reset();
 	}
 
 	listbox =
@@ -830,15 +830,15 @@ AllinoneWindow::~AllinoneWindow()
 		{
 			aui_Item *subitem = (aui_Item *)item->ChildList()->GetNext( pos );
 
-			delete subitem->GetAction();
-			delete subitem;
+			std::unique_ptr<aui_Action>( subitem->GetAction() ).reset();
+			std::unique_ptr<aui_Item>( subitem ).reset();
 		}
 
-		delete item->GetAction();
-		delete item;
+		std::unique_ptr<aui_Action>( item->GetAction() ).reset();
+		std::unique_ptr<aui_Item>( item ).reset();
 	}
 
-	delete m_aiplayerList;
+	m_aiplayerList.reset();
 
 	agesscreen_Cleanup();
 	spnewgamemapsizescreen_Cleanup();
@@ -883,12 +883,12 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( )
 				aui_Item *subitem =
 					(aui_Item *)item->ChildList()->GetNext( pos );
 
-				delete subitem->GetAction();
-				delete subitem;
+				std::unique_ptr<aui_Action>( subitem->GetAction() ).reset();
+				std::unique_ptr<aui_Item>( subitem ).reset();
 			}
 
-			delete item->GetAction();
-			delete item;
+			std::unique_ptr<aui_Action>( item->GetAction() ).reset();
+			std::unique_ptr<aui_Item>( item ).reset();
 		}
 
 		listbox =
@@ -904,12 +904,12 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( )
 				aui_Item *subitem =
 					(aui_Item *)item->ChildList()->GetNext( pos );
 
-				delete subitem->GetAction();
-				delete subitem;
+				std::unique_ptr<aui_Action>( subitem->GetAction() ).reset();
+				std::unique_ptr<aui_Item>( subitem ).reset();
 			}
 
-			delete item->GetAction();
-			delete item;
+			std::unique_ptr<aui_Action>( item->GetAction() ).reset();
+			std::unique_ptr<aui_Item>( item ).reset();
 		}
 
 		listbox =
@@ -925,12 +925,12 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( )
 				aui_Item *subitem =
 					(aui_Item *)item->ChildList()->GetNext( pos );
 
-				delete subitem->GetAction();
-				delete subitem;
+				std::unique_ptr<aui_Action>( subitem->GetAction() ).reset();
+				std::unique_ptr<aui_Item>( subitem ).reset();
 			}
 
-			delete item->GetAction();
-			delete item;
+			std::unique_ptr<aui_Action>( item->GetAction() ).reset();
+			std::unique_ptr<aui_Item>( item ).reset();
 		}
 
 		m_numAvailUnits = 0;
@@ -959,15 +959,15 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( )
 	{
 		if ( !nsunits_Get()->m_noIndex[ i ] )
 		{
-			item = new aui_Switch(
+			item = std::make_unique<aui_Switch>(
 				&errcode,
 				aui_UniqueId(),
-				"listitems.exclusioncheckbox" );
+				"listitems.exclusioncheckbox" ).release();
 			Assert( AUI_NEWOK(item,errcode) );
 			if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 			item->SetText( nsunits_Get()->GetStrings()->GetString( i ) );
-			item->SetAction(new UnitExclusionAction(i));
+			item->SetAction(std::make_unique<UnitExclusionAction>(i).release());
 
 			m_units[ i ] = item;
 
@@ -986,15 +986,15 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( )
 		{
 			unitList.GetNext( pos )->AddChild( item );
 
-			item = new aui_Switch(
+			item = std::make_unique<aui_Switch>(
 				&errcode,
 				aui_UniqueId(),
-				"listitems.exclusioncheckbox" );
+				"listitems.exclusioncheckbox" ).release();
 			Assert( AUI_NEWOK(item,errcode) );
 			if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 			item->SetText( nsunits_Get()->GetStrings()->GetString( i ) );
-			item->SetAction(new UnitExclusionAction(i));
+			item->SetAction(std::make_unique<UnitExclusionAction>(i).release());
 
 			m_units[ i ] = item;
 
@@ -1021,15 +1021,15 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( )
 	gamesetup_Get().SetNumAvailImprovements( m_numAvailImprovements );
 	for ( i = 0; i < m_numAvailImprovements; i++ )
 	{
-		item = new aui_Switch(
+		item = std::make_unique<aui_Switch>(
 			&errcode,
 			aui_UniqueId(),
-			"listitems.exclusioncheckbox" );
+			"listitems.exclusioncheckbox" ).release();
 		Assert( AUI_NEWOK(item,errcode) );
 		if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		item->SetText( nsimprovements_Get()->GetStrings()->GetString( i ) );
-		item->SetAction(new ImprovementExclusionAction(i));
+		item->SetAction(std::make_unique<ImprovementExclusionAction>(i).release());
 
 		m_improvements[ i ] = item;
 
@@ -1045,15 +1045,15 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( )
 	{
 		improvementList.GetNext( pos )->AddChild( item );
 
-		item = new aui_Switch(
+		item = std::make_unique<aui_Switch>(
 			&errcode,
 			aui_UniqueId(),
-			"listitems.exclusioncheckbox" );
+			"listitems.exclusioncheckbox" ).release();
 		Assert( AUI_NEWOK(item,errcode) );
 		if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		item->SetText( nsimprovements_Get()->GetStrings()->GetString( i ) );
-		item->SetAction(new ImprovementExclusionAction(i));
+		item->SetAction(std::make_unique<ImprovementExclusionAction>(i).release());
 
 		m_improvements[ i ] = item;
 
@@ -1079,15 +1079,15 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( )
 	gamesetup_Get().SetNumAvailWonders( m_numAvailWonders );
 	for ( i = 0; i < m_numAvailWonders; i++ )
 	{
-		item = new aui_Switch(
+		item = std::make_unique<aui_Switch>(
 			&errcode,
 			aui_UniqueId(),
-			"listitems.exclusioncheckbox" );
+			"listitems.exclusioncheckbox" ).release();
 		Assert( AUI_NEWOK(item,errcode) );
 		if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		item->SetText( nswonders_Get()->GetStrings()->GetString( i ) );
-		item->SetAction(new WonderExclusionAction(i));
+		item->SetAction(std::make_unique<WonderExclusionAction>(i).release());
 
 		m_wonders[ i ] = item;
 
@@ -1103,15 +1103,15 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( )
 	{
 		wonderList.GetNext( pos )->AddChild( item );
 
-		item = new aui_Switch(
+		item = std::make_unique<aui_Switch>(
 			&errcode,
 			aui_UniqueId(),
-			"listitems.exclusioncheckbox" );
+			"listitems.exclusioncheckbox" ).release();
 		Assert( AUI_NEWOK(item,errcode) );
 		if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		item->SetText( nswonders_Get()->GetStrings()->GetString( i ) );
-		item->SetAction(new WonderExclusionAction(i));
+		item->SetAction(std::make_unique<WonderExclusionAction>(i).release());
 
 		m_wonders[ i ] = item;
 
@@ -2034,7 +2034,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 					 netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 				 }
 			}
-			delete m;
+			std::unique_ptr<NETFunc::Message>( m ).reset();
 		} else
 			n = false;
 	}
@@ -2059,9 +2059,9 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 		((aui_TextField *)(FindControl(CONTROL_GAMENAMETEXTFIELD)))->
 			SetFieldText(netfunc_Get()->GetSession()->GetName());
 
-        delete nsunits_Get();        nsunits_Set(new ns_Units());
-        delete nsimprovements_Get(); nsimprovements_Set(new ns_Improvements());
-        delete nswonders_Get();      nswonders_Set(new ns_Wonders());
+        std::unique_ptr<ns_Units>(nsunits_Get()).reset();              nsunits_Set(std::make_unique<ns_Units>().release());
+        std::unique_ptr<ns_Improvements>(nsimprovements_Get()).reset(); nsimprovements_Set(std::make_unique<ns_Improvements>().release());
+        std::unique_ptr<ns_Wonders>(nswonders_Get()).reset();          nswonders_Set(std::make_unique<ns_Wonders>().release());
 
 		CreateExclusions();
 
@@ -2128,7 +2128,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 
 				BOOL haveScenario = SetScenarioInfo(info);
 				if(deleteIt)
-					delete info;
+					std::unique_ptr<SaveInfo>( info ).reset();
 				if(!haveScenario) {
 					if(netfunc_Get()->GetTransport()) {
 
@@ -2495,7 +2495,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 					netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 				}
 			}
-			delete m;
+			std::unique_ptr<NETFunc::Message>( m ).reset();
 		} else
 			n = false;
 		if(becameHost)
@@ -2571,9 +2571,9 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 
 		didntdoyet = false;
 
-        delete nsunits_Get();        nsunits_Set(new ns_Units());
-        delete nsimprovements_Get(); nsimprovements_Set(new ns_Improvements());
-        delete nswonders_Get();      nswonders_Set(new ns_Wonders());
+        std::unique_ptr<ns_Units>(nsunits_Get()).reset();              nsunits_Set(std::make_unique<ns_Units>().release());
+        std::unique_ptr<ns_Improvements>(nsimprovements_Get()).reset(); nsimprovements_Set(std::make_unique<ns_Improvements>().release());
+        std::unique_ptr<ns_Wonders>(nswonders_Get()).reset();          nswonders_Set(std::make_unique<ns_Wonders>().release());
 
 		CreateExclusions();
 
@@ -2626,7 +2626,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 
 
 
-		nf_GameSetup *newGS = new nf_GameSetup( gamesetup_Get() );
+		nf_GameSetup *newGS = std::make_unique<nf_GameSetup>( gamesetup_Get() ).release();
 		if ( newGS )
 		{
 			ns_GameSetupListBox *gslb = (ns_GameSetupListBox *)
@@ -3214,7 +3214,7 @@ void AllinoneWindow::AddAIPlayer( sint32 curCount )
 		key.len++;
 	key.buf[ key.len - 1 ]++;
 
-	nf_AIPlayer *aiplayer = new nf_AIPlayer;
+	nf_AIPlayer *aiplayer = std::make_unique<nf_AIPlayer>().release();
 	aiplayer->SetKey( &key );
 	aiplayer->SetName( "--" );
 
@@ -3243,20 +3243,21 @@ void AllinoneWindow::Update()
 
 	if ( !s_dbw )
 	{
+		aui_Action *actions[] = { m_dbActionArray[0].get() };
 		switch ( m_mode )
 		{
 		case CREATE:
 		case CONTINUE_CREATE:
 			s_dbw = DialogBoxWindow::PopUp(
 				"createdialogboxwindow",
-				m_dbActionArray );
+				actions );
 			break;
 
 		case JOIN:
 		case CONTINUE_JOIN:
 			s_dbw = DialogBoxWindow::PopUp(
 				"joindialogboxwindow",
-				m_dbActionArray );
+				actions );
 			break;
 
 		default:

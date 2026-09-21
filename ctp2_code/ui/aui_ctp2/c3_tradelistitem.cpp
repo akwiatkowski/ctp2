@@ -3,6 +3,7 @@
 #endif
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_item.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -44,23 +45,17 @@ AUI_ERRCODE c3_TradeListItem::InitCommonLdl(TradeRoute *route, sint32 gold, sint
 	m_gold = gold;
 	m_resIndex = resIndex;
 
-	c3_Static		*subItem;
-
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "goodsName");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
-	AddChild(subItem);
+	AddChild(std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release());
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "cityFrom");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
-	AddChild(subItem);
+	AddChild(std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release());
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "cityTo");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
-	AddChild(subItem);
+	AddChild(std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release());
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "goodsValue");
-	subItem = new c3_Static(&retval, aui_UniqueId(), block);
-	AddChild(subItem);
+	AddChild(std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release());
 
 	Update();
 

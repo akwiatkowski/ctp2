@@ -105,7 +105,7 @@ DQItem::DQItem(DQITEM_TYPE type, DQAction* action, DQHandler* handler)
 DQItemPtr DQItem::CreatePtr(DQITEM_TYPE type,
                             DQAction* action,
                             DQHandler* handler) {
-  DQItemPtr item(new DQItem(type, action, handler));
+  DQItemPtr item(new DQItem(type, action, handler));   // private ctor: make_shared can't name it; DQItemPtr is shared_ptr
 
   if (director_Get()) {
     item->m_sequence = director_Get()->NewSequence();
@@ -115,10 +115,7 @@ DQItemPtr DQItem::CreatePtr(DQITEM_TYPE type,
   return item;
 }
 
-DQItem::~DQItem() {
-  // DPRINTF(k_DBG_GAMESTATE, ("Deleting item @ %lx, type=%d\n", this, m_type));
-  delete m_action;
-}
+DQItem::~DQItem() = default;
 
 SequenceWeakPtr DQItem::getSequence() {
   return m_sequence;
@@ -181,14 +178,14 @@ void Director::FastKill(UnitActorPtr actor) {
 
 void Director::FastKill(EffectActor* actor) {
   EffectActorList::iterator actorIt =
-      std::find(m_activeEffectList.begin(), m_activeEffectList.end(), actor);
+      std::find_if(m_activeEffectList.begin(), m_activeEffectList.end(),
+                   [&](std::unique_ptr<EffectActor>& a) { return a.get() == actor; });
 
   if (actorIt != m_activeEffectList.end()) {
     if (m_processingActiveEffects) {
       actor->SetKillNow();
     } else {
       m_activeEffectList.erase(actorIt);
-      delete actor;
     }
   }
 }
@@ -256,7 +253,7 @@ void Director::PauseDirector(BOOL pause) {
 void Director::DumpItem(DQItem* item) {
   switch (item->m_type) {
     case DQITEM_MOVE: {
-      DQActionMove* action = (DQActionMove*)item->m_action;
+      DQActionMove* action = (DQActionMove*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Move\n"));
       DPRINTF(k_DBG_UI, ("  move_actor         :%#.8lx\n", action->move_actor));
@@ -285,7 +282,7 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("  move_soundID       :%d\n", action->move_soundID));
     } break;
     case DQITEM_MOVEPROJECTILE: {
-      DQActionMoveProjectile* action = (DQActionMoveProjectile*)item->m_action;
+      DQActionMoveProjectile* action = (DQActionMoveProjectile*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Move Projectile\n"));
       DPRINTF(k_DBG_UI,
@@ -303,7 +300,7 @@ void Director::DumpItem(DQItem* item) {
               ("  projectile_path    :%d\n", action->projectile_path));
     } break;
     case DQITEM_SPECEFFECT: {
-      DQActionSpecialEffect* action = (DQActionSpecialEffect*)item->m_action;
+      DQActionSpecialEffect* action = (DQActionSpecialEffect*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Special Effect\n"));
       DPRINTF(k_DBG_UI, ("  speceffect_pos       :%d,%d\n",
@@ -314,7 +311,7 @@ void Director::DumpItem(DQItem* item) {
               ("  speceffect_soundID    :%d\n", action->speceffect_soundID));
     } break;
     case DQITEM_ATTACK: {
-      DQActionAttack* action = (DQActionAttack*)item->m_action;
+      DQActionAttack* action = (DQActionAttack*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Attack\n"));
       DPRINTF(k_DBG_UI,
@@ -329,7 +326,7 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("  defender_soundID  :%d\n", action->defender_ID));
     } break;
     case DQITEM_ATTACKPOS: {
-      DQActionAttackPos* action = (DQActionAttackPos*)item->m_action;
+      DQActionAttackPos* action = (DQActionAttackPos*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Attack Pos\n"));
       DPRINTF(k_DBG_UI, ("  attackpos_attacker     :%#.8lx\n",
@@ -344,7 +341,7 @@ void Director::DumpItem(DQItem* item) {
               ("  attackpos_soundID      :%d\n", action->attackpos_soundID));
     } break;
     case DQITEM_SPECATTACK: {
-      DQActionAttack* action = (DQActionAttack*)item->m_action;
+      DQActionAttack* action = (DQActionAttack*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Special Attack\n"));
       DPRINTF(k_DBG_UI, ("  sa_attacker        ::%#.8lx\n", action->attacker));
@@ -357,7 +354,7 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("  sa_spriteID        ::%d\n", action->defender_ID));
     } break;
     case DQITEM_DEATH: {
-      DQActionDeath* action = (DQActionDeath*)item->m_action;
+      DQActionDeath* action = (DQActionDeath*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Death\n"));
       DPRINTF(k_DBG_UI, ("  death_dead         :%#.8lx\n", action->death_dead));
@@ -371,7 +368,7 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("  victor_soundID     :%d\n", action->victor_soundID));
     } break;
     case DQITEM_MORPH: {
-      DQActionMorph* action = (DQActionMorph*)item->m_action;
+      DQActionMorph* action = (DQActionMorph*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Morph\n"));
       DPRINTF(k_DBG_UI,
@@ -383,7 +380,7 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("  id                 :%#.8x\n", action->id.m_id));
     } break;
     case DQITEM_HIDE: {
-      DQActionHideShow* action = (DQActionHideShow*)item->m_action;
+      DQActionHideShow* action = (DQActionHideShow*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Hide\n"));
       DPRINTF(k_DBG_UI,
@@ -392,7 +389,7 @@ void Director::DumpItem(DQItem* item) {
                          action->hiding_pos.y));
     } break;
     case DQITEM_SHOW: {
-      DQActionHideShow* action = (DQActionHideShow*)item->m_action;
+      DQActionHideShow* action = (DQActionHideShow*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Show\n"));
       DPRINTF(k_DBG_UI,
@@ -401,7 +398,7 @@ void Director::DumpItem(DQItem* item) {
                          action->hiding_pos.y));
     } break;
     case DQITEM_WORK: {
-      DQActionWork* action = (DQActionWork*)item->m_action;
+      DQActionWork* action = (DQActionWork*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Work\n"));
       DPRINTF(k_DBG_UI,
@@ -412,7 +409,7 @@ void Director::DumpItem(DQItem* item) {
               ("  working_soundID    :%d\n", action->working_soundID));
     } break;
     case DQITEM_FASTKILL: {
-      DQActionFastKill* action = (DQActionFastKill*)item->m_action;
+      DQActionFastKill* action = (DQActionFastKill*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Fast Kill\n"));
       DPRINTF(k_DBG_UI,
@@ -420,7 +417,7 @@ void Director::DumpItem(DQItem* item) {
                reinterpret_cast<uintptr_t>(action->dead.get())));
     } break;
     case DQITEM_ADDVISION: {
-      DQActionVision* action = (DQActionVision*)item->m_action;
+      DQActionVision* action = (DQActionVision*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Add Vision\n"));
       DPRINTF(k_DBG_UI, ("  vision_pos         :%d,%d\n", action->vision_pos.x,
@@ -429,7 +426,7 @@ void Director::DumpItem(DQItem* item) {
               ("  vision_range       :%#.2f\n", action->vision_range));
     } break;
     case DQITEM_REMOVEVISION: {
-      DQActionVision* action = (DQActionVision*)item->m_action;
+      DQActionVision* action = (DQActionVision*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Remove Vision\n"));
       DPRINTF(k_DBG_UI, ("  vision_pos         :%d,%d\n", action->vision_pos.x,
@@ -438,7 +435,7 @@ void Director::DumpItem(DQItem* item) {
               ("  vision_range       :%#.2f\n", action->vision_range));
     } break;
     case DQITEM_SETOWNER: {
-      DQActionSetOwner* action = (DQActionSetOwner*)item->m_action;
+      DQActionSetOwner* action = (DQActionSetOwner*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Set Owner\n"));
       DPRINTF(k_DBG_UI,
@@ -446,7 +443,7 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("  owner              :%d\n", action->owner));
     } break;
     case DQITEM_SETVISIBILITY: {
-      DQActionSetVisibility* action = (DQActionSetVisibility*)item->m_action;
+      DQActionSetVisibility* action = (DQActionSetVisibility*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Set Visibility\n"));
       DPRINTF(k_DBG_UI,
@@ -455,7 +452,7 @@ void Director::DumpItem(DQItem* item) {
               ("  owner              :%#.8x\n", action->visibilityFlag));
     } break;
     case DQITEM_SETVISIONRANGE: {
-      DQActionSetVisionRange* action = (DQActionSetVisionRange*)item->m_action;
+      DQActionSetVisionRange* action = (DQActionSetVisionRange*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Set Vision Range\n"));
       DPRINTF(k_DBG_UI,
@@ -463,14 +460,14 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("  visibilityFlag     :%#.2f\n", action->range));
     } break;
     case DQITEM_COMBATFLASH: {
-      DQActionCombatFlash* action = (DQActionCombatFlash*)item->m_action;
+      DQActionCombatFlash* action = (DQActionCombatFlash*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Combat Flash\n"));
       DPRINTF(k_DBG_UI, ("  flash_pos         :%d,%d\n", action->flash_pos.x,
                          action->flash_pos.y));
     } break;
     case DQITEM_TELEPORT: {
-      DQActionMove* action = (DQActionMove*)item->m_action;
+      DQActionMove* action = (DQActionMove*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Move\n"));
       DPRINTF(k_DBG_UI,
@@ -504,14 +501,14 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("Copy Vision from Gamestate\n"));
     } break;
     case DQITEM_CENTERMAP: {
-      DQActionCenterMap* action = (DQActionCenterMap*)item->m_action;
+      DQActionCenterMap* action = (DQActionCenterMap*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Center Map\n"));
       DPRINTF(k_DBG_UI, ("  centerMap_pos    :%d,%d\n", action->centerMap_pos.x,
                          action->centerMap_pos.y));
     } break;
     case DQITEM_SELECTUNIT: {
-      DQActionUnitSelection* action = (DQActionUnitSelection*)item->m_action;
+      DQActionUnitSelection* action = (DQActionUnitSelection*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Select Unit\n"));
       DPRINTF(k_DBG_UI, ("  flags     :%#.8x\n", action->flags));
@@ -529,7 +526,7 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("Battle\n"));
     } break;
     case DQITEM_PLAYSOUND: {
-      DQActionPlaySound* action = (DQActionPlaySound*)item->m_action;
+      DQActionPlaySound* action = (DQActionPlaySound*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Play Sound\n"));
       DPRINTF(k_DBG_UI,
@@ -539,7 +536,7 @@ void Director::DumpItem(DQItem* item) {
     } break;
     case DQITEM_PLAYWONDERMOVIE: {
       DQActionPlayWonderMovie* action =
-          (DQActionPlayWonderMovie*)item->m_action;
+          (DQActionPlayWonderMovie*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Play Wonder Movie\n"));
       DPRINTF(k_DBG_UI,
@@ -547,7 +544,7 @@ void Director::DumpItem(DQItem* item) {
     } break;
     case DQITEM_PLAYVICTORYMOVIE: {
       DQActionPlayVictoryMovie* action =
-          (DQActionPlayVictoryMovie*)item->m_action;
+          (DQActionPlayVictoryMovie*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Play Victory Movie\n"));
       // GAME_OVER is an enum whose underlying type is unsigned: cast for %x.
@@ -561,7 +558,7 @@ void Director::DumpItem(DQItem* item) {
       DPRINTF(k_DBG_UI, ("Message from Gamestate\n"));
     } break;
     case DQITEM_FACEOFF: {
-      DQActionFaceoff* action = (DQActionFaceoff*)item->m_action;
+      DQActionFaceoff* action = (DQActionFaceoff*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Faceoff\n"));
       DPRINTF(k_DBG_UI,
@@ -577,13 +574,13 @@ void Director::DumpItem(DQItem* item) {
     } break;
     case DQITEM_TERMINATE_FACEOFF: {
       DQActionTerminateFaceOff* action =
-          (DQActionTerminateFaceOff*)item->m_action;
+          (DQActionTerminateFaceOff*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Terminate Faceoff\n"));
       DPRINTF(k_DBG_UI, ("  faceroffer   :%#.8lx\n", action->faceroffer));
     } break;
     case DQITEM_TERMINATE_SOUND: {
-      DQActionTerminateSound* action = (DQActionTerminateSound*)item->m_action;
+      DQActionTerminateSound* action = (DQActionTerminateSound*)item->m_action.get();
 
       DPRINTF(k_DBG_UI, ("Terminate Sound\n"));
       DPRINTF(k_DBG_UI, ("  terminate_sound_unit    :%#.8x\n",
@@ -591,7 +588,7 @@ void Director::DumpItem(DQItem* item) {
       break;
     }
     case DQITEM_BEGIN_SCHEDULER: {
-      DQActionBeginScheduler* action = (DQActionBeginScheduler*)item->m_action;
+      DQActionBeginScheduler* action = (DQActionBeginScheduler*)item->m_action.get();
       DPRINTF(k_DBG_UI, ("Begin Scheduler\n"));
       DPRINTF(k_DBG_UI, ("  player: %d\n", action->player));
       break;
@@ -667,7 +664,7 @@ void Director::HandleNextAction() {
     }
 
     Assert(item->m_handler != nullptr);
-    item->m_handler(item->m_action, item->getSequence(), executeType);
+    item->m_handler(item->m_action.get(), item->getSequence(), executeType);
 
     if (item->m_type == DQITEM_ADDVISION || item->m_type == DQITEM_REMOVEVISION)
       HandleNextAction();
@@ -742,7 +739,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
 
   switch (item->m_type) {
     case DQITEM_MOVE: {
-      DQActionMove* action = (DQActionMove*)item->m_action;
+      DQActionMove* action = (DQActionMove*)item->m_action.get();
       if (removePrimaryFromActiveList)
         if (action && !action->move_actor.expired()) {
           ActiveUnitRemove(action->move_actor.lock());
@@ -752,7 +749,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
         }
     } break;
     case DQITEM_ATTACKPOS: {
-      DQActionAttackPos* action = (DQActionAttackPos*)item->m_action;
+      DQActionAttackPos* action = (DQActionAttackPos*)item->m_action.get();
       if (removePrimaryFromActiveList)
         if (action && !action->attackpos_attacker.expired()) {
           ActiveUnitRemove(action->attackpos_attacker.lock());
@@ -762,7 +759,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
         }
     } break;
     case DQITEM_SPECATTACK: {
-      DQActionAttack* action = (DQActionAttack*)item->m_action;
+      DQActionAttack* action = (DQActionAttack*)item->m_action.get();
       if (removePrimaryFromActiveList) {
         if (action && !action->attacker.expired()) {
           ActiveUnitRemove(action->attacker.lock());
@@ -781,7 +778,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
       }
     } break;
     case DQITEM_DEATH: {
-      DQActionDeath* action = (DQActionDeath*)item->m_action;
+      DQActionDeath* action = (DQActionDeath*)item->m_action.get();
       if (removePrimaryFromActiveList) {
         if (action && action->death_dead) {
           ActiveUnitRemove(action->death_dead);
@@ -800,7 +797,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
       }
     } break;
     case DQITEM_WORK: {
-      DQActionWork* action = (DQActionWork*)item->m_action;
+      DQActionWork* action = (DQActionWork*)item->m_action.get();
       if (removePrimaryFromActiveList)
         if (action && !action->working_actor.expired()) {
           ActiveUnitRemove(action->working_actor.lock());
@@ -858,7 +855,7 @@ void Director::GarbageCollectItems() {
 }
 
 void Director::ProcessImmediately(DQItemPtr item) {
-  item->m_handler(item->m_action, item->getSequence(), DHEXECUTE_IMMEDIATE);
+  item->m_handler(item->m_action.get(), item->getSequence(), DHEXECUTE_IMMEDIATE);
 }
 
 void Director::CatchUp() {
@@ -878,7 +875,7 @@ void Director::CatchUp() {
     m_dispatchedItems.push_back(item);
 
     Assert(item->m_handler != nullptr);
-    item->m_handler(item->m_action, item->getSequence(), DHEXECUTE_IMMEDIATE);
+    item->m_handler(item->m_action.get(), item->getSequence(), DHEXECUTE_IMMEDIATE);
   }
 
   m_activeUnitList.erase(
@@ -945,15 +942,18 @@ void Director::ActiveUnitRemove(UnitActorPtr unitActor) {
 void Director::ActiveEffectAdd(EffectActor* effectActor) {
   Assert(effectActor);
 
-  if (std::find(m_activeEffectList.begin(), m_activeEffectList.end(),
-                effectActor) == m_activeEffectList.end()) {
-    m_activeEffectList.push_front(effectActor);
+  if (std::find_if(m_activeEffectList.begin(), m_activeEffectList.end(),
+                   [&](const std::unique_ptr<EffectActor>& e) {
+                     return e.get() == effectActor;
+                   }) == m_activeEffectList.end()) {
+    m_activeEffectList.emplace_front(effectActor);
   }
 }
 
 void Director::ActiveEffectRemove(EffectActor* effectActor) {
-  EffectActorList::const_iterator it = std::find(
-      m_activeEffectList.begin(), m_activeEffectList.end(), effectActor);
+  EffectActorList::const_iterator it = std::find_if(
+      m_activeEffectList.begin(), m_activeEffectList.end(),
+      [&](const std::unique_ptr<EffectActor>& e) { return e.get() == effectActor; });
   if (it != m_activeEffectList.end()) {
     m_activeEffectList.erase(it);
   }
@@ -961,20 +961,19 @@ void Director::ActiveEffectRemove(EffectActor* effectActor) {
 
 void Director::TradeActorCreate(TradeRoute newRoute) {
   if (std::find_if(m_tradeActorList.begin(), m_tradeActorList.end(),
-                   [&](TradeActor* t) {
+                   [&](const std::unique_ptr<TradeActor>& t) {
                      return t->GetRouteID() == newRoute;
                    }) == m_tradeActorList.end()) {
-    m_tradeActorList.push_front(new TradeActor(newRoute));
+    m_tradeActorList.push_front(std::make_unique<TradeActor>(newRoute));
   }
 }
 
 void Director::TradeActorDestroy(TradeRoute routeToDestroy) {
   TradeActorList::const_iterator removeIt = std::find_if(
       m_tradeActorList.begin(), m_tradeActorList.end(),
-      [&](TradeActor* t) { return t->GetRouteID() == routeToDestroy; });
+      [&](const std::unique_ptr<TradeActor>& t) { return t->GetRouteID() == routeToDestroy; });
 
   if (removeIt != m_tradeActorList.end()) {
-    delete (*removeIt);
     m_tradeActorList.erase(removeIt);
   }
 }
@@ -1015,7 +1014,7 @@ uint32 Director::ProcessActiveEffects() {
 
   m_processingActiveEffects = TRUE;
 
-  for (EffectActor* eActor : m_activeEffectList) {
+  for (const std::unique_ptr<EffectActor>& eActor : m_activeEffectList) {
     eActor->Process();
   }
 
@@ -1023,12 +1022,7 @@ uint32 Director::ProcessActiveEffects() {
 
   EffectActorList::iterator toRemoveIt =
       std::remove_if(m_activeEffectList.begin(), m_activeEffectList.end(),
-                     [](EffectActor* e) { return e->GetKillNow(); });
-
-  for (EffectActorList::iterator i = toRemoveIt; i != m_activeEffectList.end();
-       ++i) {
-    delete *i;
-  }
+                     [](const std::unique_ptr<EffectActor>& e) { return e->GetKillNow(); });
 
   m_activeEffectList.erase(toRemoveIt, m_activeEffectList.end());
 
@@ -1039,7 +1033,7 @@ void Director::ProcessTradeRouteAnimations() {
   if (!profiledb_Get()->IsTradeAnim())
     return;
 
-  for (TradeActor* tActor : m_tradeActorList) {
+  for (const std::unique_ptr<TradeActor>& tActor : m_tradeActorList) {
     tActor->Process();
   }
 }
@@ -1052,23 +1046,20 @@ void Director::OffsetActiveUnits(sint32 deltaX, sint32 deltaY) {
 }
 
 void Director::OffsetActiveEffects(sint32 deltaX, sint32 deltaY) {
-  for (EffectActor* eActor : m_activeEffectList) {
+  for (const std::unique_ptr<EffectActor>& eActor : m_activeEffectList) {
     eActor->SetX(eActor->GetX() + deltaX);
     eActor->SetY(eActor->GetY() + deltaY);
   }
 }
 
 void Director::OffsetTradeRouteAnimations(sint32 deltaX, sint32 deltaY) {
-  for (TradeActor* tActor : m_tradeActorList) {
+  for (const std::unique_ptr<TradeActor>& tActor : m_tradeActorList) {
     tActor->SetX(tActor->GetX() + deltaX);
     tActor->SetY(tActor->GetY() + deltaY);
   }
 }
 
 uint32 Director::KillAllActiveEffects() {
-  for (EffectActor* eActor : m_activeEffectList) {
-    delete eActor;
-  }
   m_activeEffectList.clear();
 
   return 0;
@@ -1102,7 +1093,7 @@ void Director::NextPlayer(BOOL forcedUpdate) {
     m_dispatchedItems.push_back(item);
 
     Assert(item->m_handler != nullptr);
-    item->m_handler(item->m_action, item->getSequence(), DHEXECUTE_NORMAL);
+    item->m_handler(item->m_action.get(), item->getSequence(), DHEXECUTE_NORMAL);
   }
 
   if (!network_Get().IsActive() || forcedUpdate) {
@@ -1147,18 +1138,14 @@ void Director::DrawActiveUnits(RECT* paintRect, sint32 layer) {
 
 void Director::DrawActiveEffects(RECT* paintRect, sint32 layer) {
   EffectActorList::iterator toRemoveIt = std::remove_if(
-      m_activeEffectList.begin(), m_activeEffectList.end(), [](EffectActor* e) {
+      m_activeEffectList.begin(), m_activeEffectList.end(),
+      [](const std::unique_ptr<EffectActor>& e) {
         return e->GetActionQueueNumItems() <= 0 && e->GetKillNow();
       });
 
-  for (EffectActorList::iterator i = toRemoveIt; i != m_activeEffectList.end();
-       ++i) {
-    delete *i;
-  }
-
   m_activeEffectList.erase(toRemoveIt, m_activeEffectList.end());
 
-  for (EffectActor* actor : m_activeEffectList) {
+  for (const std::unique_ptr<EffectActor>& actor : m_activeEffectList) {
     MapPoint pos = actor->GetPos();
     sint32 tileX = 0;
 
@@ -1168,7 +1155,7 @@ void Director::DrawActiveEffects(RECT* paintRect, sint32 layer) {
       continue;
 
     if (actor->GetCurAction())
-      tiledmap_Get()->PaintEffectActor(actor);
+      tiledmap_Get()->PaintEffectActor(actor.get());
   }
 }
 
@@ -1176,7 +1163,7 @@ void Director::DrawTradeRouteAnimations(RECT* paintRect, sint32 layer) {
   if (!profiledb_Get()->IsTradeAnim())
     return;
 
-  for (TradeActor* tActor : m_tradeActorList) {
+  for (const std::unique_ptr<TradeActor>& tActor : m_tradeActorList) {
     MapPoint pos = tActor->GetCurrentPos();
     sint32 tileX = 0;
 
@@ -1185,7 +1172,7 @@ void Director::DrawTradeRouteAnimations(RECT* paintRect, sint32 layer) {
     if (!maputils_TilePointInTileRect(tileX, pos.y, paintRect))
       continue;
 
-    tiledmap_Get()->PaintTradeActor(tActor);
+    tiledmap_Get()->PaintTradeActor(tActor.get());
 
     RECT tempRect;
     tActor->GetBoundingRect(&tempRect);
@@ -1255,7 +1242,7 @@ void Director::AddMove(Unit mover,
     actor->SetIsTransported(k_TRANSPORTADDONLY);
   }
 
-  DQActionMove* action = new DQActionMove;
+  DQActionMove* action = std::make_unique<DQActionMove>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_MOVE, action, dh_move));
 
   item->SetOwner(mover.GetOwner());
@@ -1278,7 +1265,7 @@ void Director::AddTeleport(Unit top,
                            MapPoint const& newPos,
                            const UnitActorVec& revealedActors,
                            const UnitActorVec& moveActors) {
-  DQActionMove* action = new DQActionMove;
+  DQActionMove* action = std::make_unique<DQActionMove>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_TELEPORT, action, dh_teleport));
   item->SetOwner(top.GetOwner());
 
@@ -1296,7 +1283,7 @@ void Director::AddProjectileAttack(Unit shooting,
                                    SpriteStatePtr projectile_state,
                                    SpriteStatePtr projectileEnd_state,
                                    sint32 projectile_Path) {
-  DQActionMoveProjectile* action = new DQActionMoveProjectile;
+  DQActionMoveProjectile* action = std::make_unique<DQActionMoveProjectile>().release();
   DQItemPtr item(
       DQItem::CreatePtr(DQITEM_MOVEPROJECTILE, action, dh_projectileMove));
   item->SetOwner(shooting.GetOwner());
@@ -1315,7 +1302,7 @@ void Director::AddProjectileAttack(Unit shooting,
 void Director::AddSpecialEffect(MapPoint& pos,
                                 sint32 spriteID,
                                 sint32 soundID) {
-  DQActionSpecialEffect* action = new DQActionSpecialEffect;
+  DQActionSpecialEffect* action = std::make_unique<DQActionSpecialEffect>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_SPECEFFECT, action, dh_speceffect));
 
   action->speceffect_pos = pos;
@@ -1326,7 +1313,7 @@ void Director::AddSpecialEffect(MapPoint& pos,
 }
 
 void Director::AddCombatFlash(MapPoint const& pos) {
-  DQActionCombatFlash* action = new DQActionCombatFlash;
+  DQActionCombatFlash* action = std::make_unique<DQActionCombatFlash>().release();
   action->flash_pos = pos;
 
   DQItemPtr item(DQItem::CreatePtr(DQITEM_COMBATFLASH, action, dh_combatflash));
@@ -1334,7 +1321,7 @@ void Director::AddCombatFlash(MapPoint const& pos) {
 }
 
 void Director::AddCopyVision() {
-  DQActionCopyVision* action = new DQActionCopyVision;
+  DQActionCopyVision* action = std::make_unique<DQActionCopyVision>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_COPYVISION, action, dh_copyVision));
 
   action->copyVision = TRUE;
@@ -1343,7 +1330,7 @@ void Director::AddCopyVision() {
 }
 
 void Director::AddCenterMap(const MapPoint& pos) {
-  DQActionCenterMap* action = new DQActionCenterMap;
+  DQActionCenterMap* action = std::make_unique<DQActionCenterMap>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_CENTERMAP, action, dh_centerMap));
 
   action->centerMap_pos = pos;
@@ -1352,7 +1339,7 @@ void Director::AddCenterMap(const MapPoint& pos) {
 }
 
 void Director::AddSelectUnit(uint32 flags) {
-  DQActionUnitSelection* action = new DQActionUnitSelection;
+  DQActionUnitSelection* action = std::make_unique<DQActionUnitSelection>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_SELECTUNIT, action, dh_selectUnit));
 
   action->flags = flags;
@@ -1423,7 +1410,7 @@ void Director::AddEndTurn() {
     lastRound = -1;
   }
 
-  DQActionEndTurn* action = new DQActionEndTurn;
+  DQActionEndTurn* action = std::make_unique<DQActionEndTurn>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_ENDTURN, action, dh_endTurn));
 
   action->endTurn = TRUE;
@@ -1435,7 +1422,7 @@ void Director::AddAttack(Unit attacker, Unit defender) {
   UnitActorPtr attackerActor;
   UnitActorPtr defenderActor;
 
-  DQActionAttack* action = new DQActionAttack;
+  DQActionAttack* action = std::make_unique<DQActionAttack>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_ATTACK, action, dh_attack));
   item->SetOwner(attacker.GetOwner());
 
@@ -1492,7 +1479,7 @@ void Director::AddAttack(Unit attacker, Unit defender) {
 }
 
 void Director::AddAttackPos(Unit attacker, MapPoint const& pos) {
-  DQActionAttackPos* action = new DQActionAttackPos;
+  DQActionAttackPos* action = std::make_unique<DQActionAttackPos>().release();
   action->attackpos_attacker = attacker.GetActor();
   action->attackpos_attacker_pos = attacker.RetPos();
   action->attackpos_target_pos = pos;
@@ -1520,7 +1507,7 @@ void Director::AddSpecialAttack(Unit attacker,
   UnitActorPtr attackerActor = attacker.IsValid() ? attacker.GetActor() : nullptr;
   UnitActorPtr defenderActor = attacked.IsValid() ? attacked.GetActor() : nullptr;
 
-  DQActionAttack* action = new DQActionAttack;
+  DQActionAttack* action = std::make_unique<DQActionAttack>().release();
   action->attacker = attackerActor;
   action->defender = defenderActor;
   action->attacker_Pos = attacker.RetPos();
@@ -1548,7 +1535,7 @@ void Director::AddWinnerLoser(Unit victor, Unit dead) {
   Assert(victor.GetActor());
   Assert(dead.GetActor());
 
-  DQActionDeath* action = new DQActionDeath;
+  DQActionDeath* action = std::make_unique<DQActionDeath>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_DEATH, action, dh_death));
   item->SetOwner(victor.GetOwner());
 
@@ -1568,7 +1555,7 @@ void Director::AddWinnerLoser(Unit victor, Unit dead) {
 void Director::AddDeath(Unit dead) {
   Assert(dead.GetActor());
 
-  DQActionDeath* action = new DQActionDeath;
+  DQActionDeath* action = std::make_unique<DQActionDeath>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_DEATH, action, dh_death));
   item->SetOwner(dead.GetOwner());
 
@@ -1589,7 +1576,7 @@ void Director::AddDeath(Unit dead) {
 void Director::AddDeathWithSound(Unit dead, sint32 soundID) {
   Assert(dead.GetActor());
 
-  DQActionDeath* action = new DQActionDeath;
+  DQActionDeath* action = std::make_unique<DQActionDeath>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_DEATH, action, dh_death));
   item->SetOwner(dead.GetOwner());
 
@@ -1612,7 +1599,7 @@ void Director::AddMorphUnit(UnitActorPtr morphingActor,
   if (morphingActor == nullptr)
     return;
 
-  DQActionMorph* action = new DQActionMorph;
+  DQActionMorph* action = std::make_unique<DQActionMorph>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_MORPH, action, dh_morphUnit));
 
   action->morphing_actor = morphingActor;
@@ -1629,7 +1616,7 @@ void Director::AddHide(Unit hider) {
   if (!actor)
     return;
 
-  DQActionHideShow* action = new DQActionHideShow;
+  DQActionHideShow* action = std::make_unique<DQActionHideShow>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_HIDE, action, dh_hide));
 
   action->hiding_actor = actor;
@@ -1644,7 +1631,7 @@ void Director::AddShow(Unit hider) {
   if (!actor)
     return;
 
-  DQActionHideShow* action = new DQActionHideShow;
+  DQActionHideShow* action = std::make_unique<DQActionHideShow>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_SHOW, action, dh_show));
 
   action->hiding_actor = actor;
@@ -1659,7 +1646,7 @@ void Director::AddWork(Unit worker) {
   if (!actor)
     return;
 
-  DQActionWork* action = new DQActionWork;
+  DQActionWork* action = std::make_unique<DQActionWork>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_WORK, action, dh_work));
   item->SetOwner(worker.GetOwner());
 
@@ -1676,7 +1663,7 @@ void Director::AddFastKill(Unit dead) {
   if (!actor)
     return;
 
-  DQActionFastKill* action = new DQActionFastKill;
+  DQActionFastKill* action = std::make_unique<DQActionFastKill>().release();
   DQItemPtr item(DQItem::CreatePtr(DQITEM_FASTKILL, action, dh_fastkill));
 
   action->dead = actor;
@@ -1686,7 +1673,7 @@ void Director::AddFastKill(Unit dead) {
 }
 
 void Director::AddRemoveVision(const MapPoint& pos, double range) {
-  DQActionVision* action = new DQActionVision;
+  DQActionVision* action = std::make_unique<DQActionVision>().release();
   DQItemPtr item(
       DQItem::CreatePtr(DQITEM_REMOVEVISION, action, dh_removeVision));
 
@@ -1697,7 +1684,7 @@ void Director::AddRemoveVision(const MapPoint& pos, double range) {
 }
 
 void Director::AddAddVision(const MapPoint& pos, double range) {
-  DQActionVision* action = new DQActionVision;
+  DQActionVision* action = std::make_unique<DQActionVision>().release();
   action->vision_pos = pos;
   action->vision_range = range;
 
@@ -1710,7 +1697,7 @@ void Director::AddSetVisibility(UnitActorPtr actor, uint32 visibility) {
   if (!actor)
     return;
 
-  DQActionSetVisibility* action = new DQActionSetVisibility;
+  DQActionSetVisibility* action = std::make_unique<DQActionSetVisibility>().release();
   action->setvisibility_actor = actor;
   action->visibilityFlag = visibility;
 
@@ -1723,7 +1710,7 @@ void Director::AddSetOwner(UnitActorPtr actor, sint32 owner) {
   if (!actor)
     return;
 
-  DQActionSetOwner* action = new DQActionSetOwner;
+  DQActionSetOwner* action = std::make_unique<DQActionSetOwner>().release();
   action->setowner_actor = actor;
   action->owner = owner;
 
@@ -1736,7 +1723,7 @@ void Director::AddSetVisionRange(UnitActorPtr actor, double range) {
   if (!actor)
     return;
 
-  DQActionSetVisionRange* action = new DQActionSetVisionRange;
+  DQActionSetVisionRange* action = std::make_unique<DQActionSetVisionRange>().release();
   action->setvisionrange_actor = actor;
   action->range = range;
 
@@ -1749,7 +1736,7 @@ void Director::AddBattle(Battle* battle) {
   if (!battle)
     return;
 
-  DQActionBattle* action = new DQActionBattle;
+  DQActionBattle* action = std::make_unique<DQActionBattle>().release();
   action->battle = battle;
 
   m_itemQueue.push_back(DQItem::CreatePtr(DQITEM_BATTLE, action, dh_battle));
@@ -1759,7 +1746,7 @@ void Director::AddPlaySound(sint32 soundID, MapPoint const& pos) {
   if (soundID <= 0)
     return;
 
-  DQActionPlaySound* action = new DQActionPlaySound;
+  DQActionPlaySound* action = std::make_unique<DQActionPlaySound>().release();
   action->playsound_soundID = soundID;
   action->playsound_pos = pos;
 
@@ -1776,7 +1763,7 @@ void Director::AddPlayWonderMovie(sint32 which) {
   if (which < 0)
     return;
 
-  DQActionPlayWonderMovie* action = new DQActionPlayWonderMovie;
+  DQActionPlayWonderMovie* action = std::make_unique<DQActionPlayWonderMovie>().release();
   action->playwondermovie_which = which;
 
   m_itemQueue.push_back(
@@ -1794,7 +1781,7 @@ void Director::AddPlayVictoryMovie(GAME_OVER reason,
     }
   }
 
-  DQActionPlayVictoryMovie* action = new DQActionPlayVictoryMovie;
+  DQActionPlayVictoryMovie* action = std::make_unique<DQActionPlayVictoryMovie>().release();
   action->playvictorymovie_reason = reason;
 
   m_itemQueue.push_back(
@@ -1802,14 +1789,14 @@ void Director::AddPlayVictoryMovie(GAME_OVER reason,
 }
 
 void Director::AddMessage(const Message& message) {
-  DQActionMessage* action = new DQActionMessage;
+  DQActionMessage* action = std::make_unique<DQActionMessage>().release();
   action->message = message;
 
   m_itemQueue.push_back(DQItem::CreatePtr(DQITEM_MESSAGE, action, dh_message));
 }
 
 void Director::AddFaceoff(Unit& attacker, Unit& defender) {
-  DQActionFaceoff* action = new DQActionFaceoff;
+  DQActionFaceoff* action = std::make_unique<DQActionFaceoff>().release();
 
   if (attacker.IsValid()) {
     action->faceoff_attacker = attacker.GetActor();
@@ -1825,7 +1812,7 @@ void Director::AddFaceoff(Unit& attacker, Unit& defender) {
 }
 
 void Director::AddTerminateFaceoff(Unit& faceroffer) {
-  DQActionTerminateFaceOff* action = new DQActionTerminateFaceOff;
+  DQActionTerminateFaceOff* action = std::make_unique<DQActionTerminateFaceOff>().release();
   DQItemPtr item(
       DQItem::CreatePtr(DQITEM_TERMINATE_FACEOFF, action, dh_terminateFaceoff));
 
@@ -1839,7 +1826,7 @@ void Director::AddTerminateFaceoff(Unit& faceroffer) {
 
 void Director::AddTerminateSound(Unit& unit) {
   if (unit.IsValid()) {
-    DQActionTerminateSound* action = new DQActionTerminateSound;
+    DQActionTerminateSound* action = std::make_unique<DQActionTerminateSound>().release();
     action->terminate_sound_unit = unit;
 
     m_itemQueue.push_back(
@@ -1848,14 +1835,14 @@ void Director::AddTerminateSound(Unit& unit) {
 }
 
 void Director::AddInvokeThroneRoom() {
-  DQActionInvokeThroneRoom* action = new DQActionInvokeThroneRoom;
+  DQActionInvokeThroneRoom* action = std::make_unique<DQActionInvokeThroneRoom>().release();
 
   m_itemQueue.push_back(DQItem::CreatePtr(DQITEM_INVOKE_THRONE_ROOM, action,
                                           dh_invokeThroneRoom));
 }
 
 void Director::AddInvokeResearchAdvance(MBCHAR* message) {
-  DQActionInvokeResearchAdvance* action = new DQActionInvokeResearchAdvance;
+  DQActionInvokeResearchAdvance* action = std::make_unique<DQActionInvokeResearchAdvance>().release();
   if (message) {
     action->message = message;  // std::string copies the text
   }
@@ -1871,7 +1858,7 @@ void Director::AddBeginScheduler(sint32 player) {
 
   DPRINTF(k_DBG_GAMESTATE, ("Director::AddBeginScheduler(%d)\n", player));
 
-  DQActionBeginScheduler* action = new DQActionBeginScheduler;
+  DQActionBeginScheduler* action = std::make_unique<DQActionBeginScheduler>().release();
   action->player = player;
 
   m_itemQueue.push_back(
@@ -1883,7 +1870,7 @@ BOOL Director::TileWillBeCompletelyVisible(sint32 x, sint32 y) {
 
   for (DQItemPtr item : m_itemQueue) {
     if (item->m_type == DQITEM_CENTERMAP) {
-      DQActionCenterMap* action = (DQActionCenterMap*)item->m_action;
+      DQActionCenterMap* action = (DQActionCenterMap*)item->m_action.get();
       if (action) {
         MapPoint pos = action->centerMap_pos;
         radar_map_Get()->ComputeCenteredMap(pos, &tempViewRect);

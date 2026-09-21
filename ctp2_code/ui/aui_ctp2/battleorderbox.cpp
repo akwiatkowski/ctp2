@@ -51,6 +51,7 @@
 #include "ui/aui_ctp2/c3_coloredstatic.h"
 #include "ui/aui_ctp2/controlsheet.h"
 #include "ui/aui_ctp2/textbutton.h"
+#include <memory>
 #include "ui/aui_ctp2/c3_coloriconbutton.h"
 #include "ui/aui_ctp2/unittabbutton.h"
 
@@ -132,11 +133,11 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR const *ldlBlock)
 			m_unitRect[index] = iconRect;
 
 
-			UnitTabButton * button = new UnitTabButton
+			UnitTabButton * button = std::make_unique<UnitTabButton>
                 (&errcode, aui_UniqueId(), iconRect.left, iconRect.top,
 				 (iconRect.right-iconRect.left), (iconRect.bottom-iconRect.top),
                  "upba0119.tga"
-                );
+                ).release();
 
 			Assert(button);
 			if (!button) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -146,7 +147,7 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR const *ldlBlock)
 
 
 
-			BobButtonAction	*   buttonAction = new BobButtonAction(this);
+			BobButtonAction	*   buttonAction = std::make_unique<BobButtonAction>(this).release();
 			Assert(buttonAction);
 			if (!buttonAction) continue;
 
@@ -173,14 +174,14 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR const *ldlBlock)
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitImageButton");
-	m_unitImage.reset(new c3_ColorIconButton(&errcode, aui_UniqueId(), controlBlock));
+	m_unitImage = std::make_unique<c3_ColorIconButton>(&errcode, aui_UniqueId(), controlBlock);
 
 	Assert( AUI_NEWOK(m_unitImage, errcode) );
 	if ( !AUI_NEWOK(m_unitImage, errcode) ) return errcode;
 
 	m_unitImage->ShrinkToFit( TRUE );
 
-	BobButtonAction *buttonAction = new BobButtonAction(this);
+	BobButtonAction *buttonAction = std::make_unique<BobButtonAction>(this).release();
 	Assert(buttonAction);
 	if (!buttonAction) return AUI_ERRCODE(-1);
 
@@ -188,14 +189,14 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR const *ldlBlock)
 
 
 	snprintf(fortifyBlock, sizeof(fortifyBlock), "%s.%s", controlBlock, "UnitF" );
-	m_unitFortify.reset(new c3_Static( &errcode, aui_UniqueId(), fortifyBlock ));
+	m_unitFortify = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), fortifyBlock );
 	Assert( AUI_NEWOK( m_unitFortify, errcode) );
 	if ( !AUI_NEWOK( m_unitFortify, errcode ) ) return errcode;
 
 	m_unitFortify->SetBlindness( TRUE );
 
 	snprintf(fortifyBlock, sizeof(fortifyBlock), "%s.%s", controlBlock, "UnitV" );
-	m_unitVeteran.reset(new c3_Static( &errcode, aui_UniqueId(), fortifyBlock ));
+	m_unitVeteran = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), fortifyBlock );
 	Assert( AUI_NEWOK( m_unitVeteran, errcode) );
 	if ( !AUI_NEWOK( m_unitVeteran, errcode ) ) return errcode;
 
@@ -205,7 +206,7 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR const *ldlBlock)
 	snprintf(coloredBlock, sizeof(coloredBlock), "%s.%s", controlBlock, "Cargo" );
 
 	for ( i = 0;i < k_CARGO_CAPACITY;i++ ) {
-		m_cargo[i] = new c3_ColoredStatic( &errcode, aui_UniqueId(), coloredBlock );
+		m_cargo[i] = std::make_unique<c3_ColoredStatic>( &errcode, aui_UniqueId(), coloredBlock ).release();
 		Assert( AUI_NEWOK( m_cargo[i], errcode) );
 		if ( !AUI_NEWOK(m_cargo[i], errcode) ) return errcode;
 
@@ -221,52 +222,52 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR const *ldlBlock)
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitARDText");
-	m_unitARDText.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
+	m_unitARDText = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_unitARDText, errcode) );
 	if ( !AUI_NEWOK(m_unitARDText, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitARD");
-	m_unitARD.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
+	m_unitARD = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_unitARD, errcode) );
 	if ( !AUI_NEWOK(m_unitARD, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitMText");
-	m_unitMText.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
+	m_unitMText = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_unitMText, errcode) );
 	if ( !AUI_NEWOK(m_unitMText, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitMovement");
-	m_unitMovement.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
+	m_unitMovement = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_unitMovement, errcode) );
 	if ( !AUI_NEWOK(m_unitMovement, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "ActiveDefenseIcon");
-	m_activeDefenseIcon.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
+	m_activeDefenseIcon = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_activeDefenseIcon, errcode) );
 	if ( !AUI_NEWOK(m_activeDefenseIcon, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "VeteranIcon");
-	m_veteranIcon.reset(new c3_Static(&errcode, aui_UniqueId(), controlBlock));
+	m_veteranIcon = std::make_unique<c3_Static>(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_veteranIcon, errcode) );
 	if ( !AUI_NEWOK(m_veteranIcon, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitHealthBar" );
-	m_unitHealthBar = new Thermometer( &errcode, aui_UniqueId(), controlBlock );
+	m_unitHealthBar = std::make_unique<Thermometer>( &errcode, aui_UniqueId(), controlBlock ).release();
 	Assert( AUI_NEWOK(m_unitHealthBar, errcode) );
 	if ( !AUI_NEWOK(m_unitHealthBar, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "FuelLabel" );
-	m_fuelLabel.reset(new c3_Static( &errcode, aui_UniqueId(), controlBlock ));
+	m_fuelLabel = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(m_fuelLabel, errcode) );
 	if ( !AUI_NEWOK(m_fuelLabel, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "FuelBox" );
-	m_fuelBox.reset(new c3_Static( &errcode, aui_UniqueId(), controlBlock ));
+	m_fuelBox = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(m_fuelBox, errcode) );
 	if ( !AUI_NEWOK(m_fuelBox, errcode) ) return errcode;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitName" );
-	m_unitName.reset(new c3_Static( &errcode, aui_UniqueId(), controlBlock ));
+	m_unitName = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(m_unitName, errcode) );
 	if ( !AUI_NEWOK(m_unitName, errcode) ) return errcode;
 
@@ -297,8 +298,8 @@ BattleOrderBox::~BattleOrderBox()
 		if (m_unitControls[i] != nullptr) {
 			action = (BobButtonAction *)m_unitControls[i]->IconButton()->GetAction();
 			Assert(action);
-			delete action;
-			delete m_unitControls[i];
+			std::unique_ptr<BobButtonAction>{action};
+			std::unique_ptr<UnitTabButton>{m_unitControls[i]};
 			m_unitControls[i] = nullptr;
 
 		}
@@ -307,7 +308,7 @@ BattleOrderBox::~BattleOrderBox()
 	action = (BobButtonAction *)m_unitImage->GetAction();
 
 	Assert(action);
-	delete action;
+	std::unique_ptr<BobButtonAction>{action};
 
 
 

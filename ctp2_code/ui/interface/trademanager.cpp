@@ -30,6 +30,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <memory>
 #include "ui/interface/trademanager.h"
 
 #include "ui/aui_common/aui.h"
@@ -75,7 +77,7 @@
 #include "net/general/net_action.h"
 #include "gfx/tilesys/tiledmap.h"
 
-static TradeManager *   s_tradeManager      = nullptr;
+static std::unique_ptr<TradeManager> s_tradeManager;
 static MBCHAR const *   s_tradeManagerBlock = "TradeManager";
 static MBCHAR const *   s_tradeAdviceBlock  = "TradeAdvice";
 
@@ -177,7 +179,7 @@ AUI_ERRCODE TradeManager::Initialize()
 		return AUI_ERRCODE_OK;
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	s_tradeManager = new TradeManager(&err);
+	s_tradeManager = std::make_unique<TradeManager>(&err);
 	Assert(err == AUI_ERRCODE_OK);
 
 	return err;
@@ -188,8 +190,7 @@ AUI_ERRCODE TradeManager::Cleanup()
 	if(s_tradeManager) {
 		Hide();
 
-		delete s_tradeManager;
-		s_tradeManager = nullptr;
+		s_tradeManager.reset();
 	}
 
 	return AUI_ERRCODE_OK;
@@ -419,7 +420,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 						if(!item)
 							break;
 
-						CreateListData *data = new CreateListData;
+						auto data = std::make_unique<CreateListData>();
 						data->m_source = city;
 						data->m_resource = g;
 						data->m_destination = maxCity[i];
@@ -427,8 +428,9 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 						data->m_caravans = tradeutil_GetAccurateTradeDistance(city, maxCity[i]);
 						data->m_curDestination.m_id = curDestCity.m_id;
 
-						m_createData.AddTail(data);
-						item->SetUserData(data);
+						m_createData.AddTail(data.get());
+						item->SetUserData(data.get());
+						data.release();
 
 						if (ctp2_Static * origin = (ctp2_Static *)item->GetChildByIndex(k_CITY_COL_INDEX))
                         {
@@ -823,8 +825,8 @@ void TradeManager::CreateRoute(aui_Control *control, uint32 action, uint32 uidat
 							   GEA_End);
 
 		if(network_Get().IsClient()) {
-			network_Get().SendAction(new NetAction(NET_ACTION_CANCEL_TRADE_ROUTE,
-											   (uint32)route));
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_CANCEL_TRADE_ROUTE,
+											   (uint32)route).release());
 		}
 	}
 }
@@ -1131,7 +1133,7 @@ STDEHANDLER(TradeManagerKillRouteEvent)
 	   (route.GetDestination().IsValid() && route.GetDestination().GetOwner() == selitem_Get()->GetVisiblePlayer())) {
 
 
-		c3ui_Get()->AddAction(new UpdateTradeAction);
+		c3ui_Get()->AddAction(std::make_unique<UpdateTradeAction>());
 	}
 	return GEV_HD_Continue;
 }

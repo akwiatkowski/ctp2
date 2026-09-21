@@ -39,6 +39,8 @@
 #include "ui/aui_common/aui_hypertextbox.h"
 #include "ui/aui_ctp2/patternbase.h"
 
+#include <memory>
+
 class aui_Static;
 
 struct c3_HyperLink {
@@ -102,7 +104,7 @@ protected:
 
 	AUI_ERRCODE AddHyperStatics( const MBCHAR *hyperText ) override;
 
-	tech_WLList<c3_HyperLink *>	*m_hyperLinkList;
+	std::unique_ptr<tech_WLList<c3_HyperLink *>>	m_hyperLinkList;
 
 	c3_HyperLink *m_selectedHyperLink;
 

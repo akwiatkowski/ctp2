@@ -8,6 +8,8 @@
 class GoodActor;
 template <class T> class PointerList;
 
+#include <memory>
+
 class EntryRecord {
 public:
 	EntryRecord(const Unit &unit, sint32 round)
@@ -36,7 +38,7 @@ private:
 
 
 
-	PointerList<EntryRecord> *m_entries;
+	std::unique_ptr<PointerList<EntryRecord>> m_entries;
 	void Move();
 
 	friend class NetWormhole;

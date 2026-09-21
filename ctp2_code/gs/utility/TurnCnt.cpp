@@ -88,6 +88,8 @@
 #include "UnitRecord.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"                  // world_Get()
+#include <memory>
+
 
 extern Diplomacy_Log *  g_theDiplomacyLog;
 
@@ -147,23 +149,23 @@ void TurnCount::InformNetwork()
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
-		                                          new NetRand());
+		                                          std::make_unique<NetRand>().release());
 		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
-		                                          new NetInfo(NET_INFO_CODE_GOLD,
+		                                          std::make_unique<NetInfo>(NET_INFO_CODE_GOLD,
 		                                          player_view::CurPlayer(),
-		                                          player_Get(player_view::CurPlayer())->m_gold->GetLevel()));
+		                                          player_Get(player_view::CurPlayer())->m_gold->GetLevel()).release());
 		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
-		                                          new NetReadiness(player_Get(player_view::CurPlayer())->m_readiness.get()));
+		                                          std::make_unique<NetReadiness>(player_Get(player_view::CurPlayer())->m_readiness.get()).release());
 			// propagate PW each turn update
 		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
-		                                          new NetInfo(NET_INFO_CODE_MATERIALS,
+		                                          std::make_unique<NetInfo>(NET_INFO_CODE_MATERIALS,
 		                                          player_view::CurPlayer(),
-		                                          player_Get(player_view::CurPlayer())->m_materialPool->GetMaterials()));
+		                                          player_Get(player_view::CurPlayer())->m_materialPool->GetMaterials()).release());
 		}
 		network_Get().BeginTurn(player_view::CurPlayer());
-		NetInfo* netInfo = new NetInfo(NET_INFO_CODE_BEGIN_TURN,
+		auto netInfo = std::make_unique<NetInfo>(NET_INFO_CODE_BEGIN_TURN,
 		                               player_view::CurPlayer());
-		network_Get().QueuePacketToAll(netInfo);
+		network_Get().QueuePacketToAll(netInfo.release());
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 			network_Get().SetMyTurn(FALSE);
@@ -186,10 +188,10 @@ void TurnCount::SliceInformNetwork()
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 			network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
-													  new NetRand());
+													  std::make_unique<NetRand>().release());
 		}
-		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_SLICE,
-											   player_view::CurPlayer()));
+		network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_BEGIN_SLICE,
+											   player_view::CurPlayer()).release());
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 			network_Get().SetMyTurn(FALSE);
@@ -287,7 +289,7 @@ void TurnCount::BeginNewRound()
 
 	RunNewYearMessages() ;
 	if(network_Get().IsHost()) {
-		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_YEAR, m_round, m_year));
+		network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_YEAR, m_round, m_year).release());
 	}
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
 		if(player_Get(i))
@@ -505,10 +507,10 @@ BOOL TurnCount::BeginNewSlice()
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 		network_Get().QueuePacket(network_Get().IndexToId(player_view::CurPlayer()),
-												  new NetRand());
+												  std::make_unique<NetRand>().release());
 		}
-		network_Get().QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_SLICE,
-											   player_view::CurPlayer()));
+		network_Get().QueuePacketToAll(std::make_unique<NetInfo>(NET_INFO_CODE_BEGIN_SLICE,
+											   player_view::CurPlayer()).release());
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 			network_Get().SetMyTurn(FALSE);
@@ -521,7 +523,7 @@ BOOL TurnCount::BeginNewSlice()
 		{
 			network_Get().QueuePacket(network_Get().IndexToId(
 				player_view::CurPlayer()),
-								  new NetInfo(NET_INFO_CODE_REQUEST_SLICE));
+								  std::make_unique<NetInfo>(NET_INFO_CODE_REQUEST_SLICE).release());
 		}
 
 	}
@@ -536,7 +538,7 @@ BOOL TurnCount::BeginNewSlice()
 void TurnCount::EndThisSliceBeginNewSlice()
 {
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_END_SLICE));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_END_SLICE).release());
 		network_Get().SetMyTurn(FALSE);
 		return;
 	}
@@ -566,7 +568,7 @@ void TurnCount::QueueSliceFor(sint32 player)
 	if(network_Get().IsHost()) {
 		network_Get().QueuePacket(network_Get().IndexToId(
 			player_view::CurPlayer()),
-			new NetInfo(NET_INFO_CODE_REQUEST_SLICE));
+			std::make_unique<NetInfo>(NET_INFO_CODE_REQUEST_SLICE).release());
 	}
 }
 
@@ -606,10 +608,10 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 			if(unit->AccessData()->CheckForRefuel())
 				continue;
 			if (unit->NeedsRefueling()) {
-				SlicObject *so = new SlicObject("16IAOutOfFuel");
+				auto so = std::make_unique<SlicObject>("16IAOutOfFuel");
 				so->AddRecipient(player->m_owner);
 				so->AddCivilisation(player->m_owner);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 				return(FALSE);
 			}
 		}
@@ -630,10 +632,10 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 			if ((city->GetProducedFood() < city->GetConsumedFood()) &&
 				((fudge * (city->GetStoredCityFood() + city->GetProducedFood())) <
 				 city->GetConsumedFood())) {
-				SlicObject *so = new SlicObject("23IACityWillStarve") ;
+				auto so = std::make_unique<SlicObject>("23IACityWillStarve") ;
 				so->AddRecipient(player->m_owner) ;
 				so->AddCity(*unit) ;
-				slicengine_Get()->Execute(so) ;
+				slicengine_Get()->Execute(std::move(so)) ;
 				return(FALSE);
 			}
 		}
@@ -642,10 +644,10 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 	if (slicengine_Get()->GetSegment("21IACannotAffordMaintenance")->TestLastShown(player->m_owner, 1, turn_Get()->GetRound())) {
 		if (player->m_gold->BankruptcyImminent() &&
 			(player->CalcTotalBuildingUpkeep() > 0)) {
-			SlicObject *so = new SlicObject("21IACannotAffordMaintenance");
+			auto so = std::make_unique<SlicObject>("21IACannotAffordMaintenance");
 			so->AddRecipient(player->m_owner);
 			so->AddCivilisation(player->m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			return(FALSE);
 		}
 	}
@@ -665,10 +667,10 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 		prod_total *= fudge;
 		if (!(player->m_first_city) &&
 			(prod_total < player->m_readiness->GetCost())) {
-			SlicObject *so = new SlicObject("22IACannotAffordSupport");
+			auto so = std::make_unique<SlicObject>("22IACannotAffordSupport");
 			so->AddRecipient(player->m_owner);
 			so->AddCivilisation(player->m_owner);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			return(FALSE);
 		}
 	}
@@ -687,7 +689,7 @@ void TurnCount::NetworkEndTurn(BOOL force)
 		return;
 
 	if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_END_TURN));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_END_TURN).release());
 		network_Get().SetMyTurn(FALSE);
 		return;
 	} else if(network_Get().IsHost()) {
@@ -723,8 +725,8 @@ void TurnCount::RunNewYearMessages()
 				}
 			}
 			if(network_Get().IsHost()) {
-				network_Get().Enqueue(new NetInfo(NET_INFO_CODE_GAME_OVER_OUT_OF_TIME,
-				                              highPlayer));
+				network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_GAME_OVER_OUT_OF_TIME,
+				                              highPlayer).release());
 			}
 
 			for(i = 0; i < k_MAX_PLAYERS; i++) {
@@ -746,7 +748,7 @@ void TurnCount::SendMsgEndOfGameEarlyWarning()
 {
 	SendMsgToAllPlayers(const_cast<MBCHAR *>("73EndOfGameTimeIsRunningOut")) ;
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_TIMES_ALMOST_UP));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_TIMES_ALMOST_UP).release());
 	}
 }
 
@@ -754,7 +756,7 @@ void TurnCount::SendMsgToAllPlayers(MBCHAR *s)
 	{
 	sint32	i ;
 
-	SlicObject *so = new SlicObject(s) ;
+	auto so = std::make_unique<SlicObject>(s) ;
 
 	for(i=0; i<k_MAX_PLAYERS; i++)
 		{
@@ -763,7 +765,7 @@ void TurnCount::SendMsgToAllPlayers(MBCHAR *s)
 
 		}
 
-	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->Execute(std::move(so)) ;
 	}
 
 void TurnCount::CountActivePlayers()
@@ -1090,13 +1092,13 @@ void TurnCount::SendNextPlayerMessageEvent()
 		GameFile::SaveGame(fullPath, nullptr);
 	}
 
-	SlicObject * so =
-	    new SlicObject(m_isHotSeat ? "104NextHotSeatPlayer" : "105NextEmailPlayer");
+	auto so =
+	    std::make_unique<SlicObject>(m_isHotSeat ? "104NextHotSeatPlayer" : "105NextEmailPlayer");
 	so->AddRecipient(player);
 	so->AddCivilisation(player);
 	if(m_isEmail)
 		so->AddAction(player_Get(player)->m_email.c_str());
 
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 }

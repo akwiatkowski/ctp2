@@ -84,7 +84,7 @@ AUI_ERRCODE StaticPicture::InitCommon( MBCHAR const *picture )
 	if (civpaths_Get()->FindFile(C3DIR_PICTURES, picture, filename))
     {
 	    AUI_ERRCODE errcode;
-		m_picture = new Picture(&errcode, filename);
+		m_picture = std::make_unique<Picture>(&errcode, filename);
 	} else {
 		m_picture = nullptr;
 	}
@@ -95,10 +95,7 @@ AUI_ERRCODE StaticPicture::InitCommon( MBCHAR const *picture )
 }
 
 
-StaticPicture::~StaticPicture()
-{
-	delete m_picture;
-}
+StaticPicture::~StaticPicture() = default;
 
 
 AUI_ERRCODE StaticPicture::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
@@ -129,11 +126,11 @@ void StaticPicture::SetPicture(MBCHAR *picture)
 {
 	MBCHAR filename[_MAX_PATH];
 
-    delete m_picture;
+    m_picture.reset();
 	if (civpaths_Get()->FindFile(C3DIR_PICTURES, picture, filename))
     {
 	    AUI_ERRCODE errcode;
-		m_picture = new Picture(&errcode, filename);
+		m_picture = std::make_unique<Picture>(&errcode, filename);
 	}
     else
     {

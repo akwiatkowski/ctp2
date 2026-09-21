@@ -265,7 +265,7 @@ void RankingTab::UpdatePlayerList( )
 			{
 				civ->GetSingularCivName(strbuf);
 				m_infoPlayerList->AddItem
-				    (new InfoPlayerListItem(&retval, strbuf, color, ldlBlock));
+				    (std::make_unique<InfoPlayerListItem>(&retval, strbuf, color, ldlBlock).release());
 			}
 		}
 	}
@@ -294,7 +294,7 @@ void RankingTab::UpdatePlayerList( )
 			{
 				civ->GetSingularCivName(strbuf);
 				m_infoPlayerList->AddItem
-				    (new InfoPlayerListItem(&retval, strbuf, color, ldlBlock));
+				    (std::make_unique<InfoPlayerListItem>(&retval, strbuf, color, ldlBlock).release());
 			}
 		}
 	}

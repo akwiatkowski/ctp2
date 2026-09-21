@@ -41,6 +41,7 @@
 #include "gs/core/audio_observer.h"
 #include "gs/gameobj/ArmyEvent.h"
 
+#include <memory>
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Army.h"
@@ -679,10 +680,10 @@ STDEHANDLER(ArmyGetExpelledOrderEvent)
 
 	a->AutoAddOrdersWrongTurn(UNIT_ORDER_EXPEL_TO, nullptr, pos, 0);
 
-	SlicObject *so = new SlicObject("42UnitExpelled");
+	auto so = std::make_unique<SlicObject>("42UnitExpelled");
 	so->AddCivilisation(player);
 	so->AddRecipient(victim);
-	slicengine_Get()->Execute(so);
+	slicengine_Get()->Execute(std::move(so));
 
 	return GEV_HD_Continue;
 }
@@ -1028,7 +1029,7 @@ STDEHANDLER(AftermathEvent)
 	Assert(!fromARealBattle || combat_Get());
 	if (combat_Get())
 	{
-		delete combat_Get();
+		std::unique_ptr<CTP2Combat>{combat_Get()};
 		combat_Set(nullptr);
 	}
 
@@ -1310,22 +1311,22 @@ STDEHANDLER(MoveUnitsEvent)
 		{
 			if(!a->IsEnemy(city_owner))
 			{
-				SlicObject *so;
+				std::unique_ptr<SlicObject> so;
 				if(network_Get().IsActive()
 				&& network_Get().TeamsEnabled()
 				&& player_Get(a->GetOwner())->m_networkGroup == player_Get(city_owner)->m_networkGroup
 				){
-					so = new SlicObject("110aCantAttackTeammates");
+					so = std::make_unique<SlicObject>("110aCantAttackTeammates");
 				}
 				else
 				{
-					so = new SlicObject("110CantAttackAllies");
+					so = std::make_unique<SlicObject>("110CantAttackAllies");
 				}
 				so->AddRecipient(a->GetOwner());
 				so->AddCivilisation(city_owner);
 				so->AddUnit(a[0]);
 				so->AddLocation(to);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 			else
 			{
@@ -1346,16 +1347,16 @@ STDEHANDLER(MoveUnitsEvent)
 						{
 							//civil war code didnt work here either  EMOD
 
-							SlicObject *so = new SlicObject("127CapitalCityCapturedVictim");
+							auto so = std::make_unique<SlicObject>("127CapitalCityCapturedVictim");
 							so->AddRecipient(originalOwner);
 							so->AddCity(c);
-							slicengine_Get()->Execute(so);
+							slicengine_Get()->Execute(std::move(so));
 
-							so = new SlicObject("126CapitalCityCapturedAttacker");
+							so = std::make_unique<SlicObject>("126CapitalCityCapturedAttacker");
 							so->AddRecipient(a->GetOwner());
 							so->AddCivilisation(originalOwner);
 							so->AddCity(c);
-							slicengine_Get()->Execute(so);
+							slicengine_Get()->Execute(std::move(so));
 						}
 						else if (c.GetData()->GetCityData()->PopCount() >= 1)
 						{
@@ -1456,11 +1457,11 @@ STDEHANDLER(LawsuitEvent)
 	a->AddSpecialActionUsed(lawyer);
 
 	if(utype >= 0) {
-		SlicObject *so = new SlicObject("161SueCompleteVictim");
+		auto so = std::make_unique<SlicObject>("161SueCompleteVictim");
 		so->AddRecipient(victim);
 		so->AddLocation(a->RetPos());
 		so->AddUnitRecord(utype);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	return GEV_HD_Continue;

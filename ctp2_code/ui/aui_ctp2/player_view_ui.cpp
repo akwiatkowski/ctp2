@@ -31,10 +31,14 @@
 #include "gs/gameobj/BldQue.h"                  // BuildQueue::GetHead
 #include "gs/world/cellunitlist.h"              // CellUnitList
 #include "ui/aui_ctp2/c3ui.h"            // c3ui_Get — headless gate
+#include <memory>
 
-extern MessageModal *g_modalMessage;
+extern std::unique_ptr<MessageModal> g_modalMessage;
 
 namespace {
+
+
+
 
 sint32 UIVisiblePlayer()
 {
@@ -53,13 +57,13 @@ sint32 UIPlayerAfter(sint32 p)
 
 void UIInit(sint32 nPlayers)
 {
-	selitem_Set(new SelectedItem(nPlayers));
+	selitem_Set(std::make_unique<SelectedItem>(nPlayers).release());
 }
 
 
 void UICleanup()
 {
-	delete selitem_Get(); selitem_Set(nullptr);
+	std::unique_ptr<SelectedItem>{selitem_Get()}; selitem_Set(nullptr);
 }
 
 void UISetCurrentPlayer(sint32 player)

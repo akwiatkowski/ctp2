@@ -146,6 +146,7 @@
 #include "ui/interface/statswindow.h"
 #include "ui/aui_ctp2/statuswindow.h"
 #include "gs/database/StrDB.h"                      // stringdb_Get()
+#include <memory>                       // std::make_unique
 #include <string>                       // std::basic_string
 #include <vector>                       // std::vector
 #include "TerrainRecord.h"
@@ -424,7 +425,7 @@ int ui_Initialize()
 	MBCHAR ldlfile[_MAX_PATH];
 	civpaths_Get()->FindFile(C3DIR_LAYOUT, k_LDLName, ldlfile);
 
-	g_c3ui = new C3UI(
+	g_c3ui = std::make_unique<C3UI>(
 		&auiErr,
 		gHInstance,
 		gHwnd,
@@ -432,7 +433,7 @@ int ui_Initialize()
 		g_ScreenHeight,
 		16,
 		ldlfile,
-		g_exclusiveMode );
+		g_exclusiveMode ).release();
 	Assert( AUI_NEWOK(g_c3ui,auiErr) );
 	if ( !AUI_NEWOK(g_c3ui,auiErr) ) return 10;
 
@@ -450,8 +451,8 @@ int ui_Initialize()
 
 	SPLASH_STRING("Creating Blitter...");
 
-	g_c3ui->RegisterObject(new C3Blitter);
-	g_c3ui->RegisterObject(new C3MemMap);
+	g_c3ui->RegisterObject(std::make_unique<C3Blitter>().release());
+	g_c3ui->RegisterObject(std::make_unique<C3MemMap>().release());
 
 	SPLASH_STRING("Initializing Paths...");
 
@@ -1270,11 +1271,11 @@ void sharedsurface_Cleanup( )
 
 int sprite_Initialize()
 {
-	g_screenManager = new ScreenManager();
+	g_screenManager = std::make_unique<ScreenManager>().release();
 
 	spritegrouplist_Initialize();
 
-	g_director = new Director();
+	g_director = std::make_unique<Director>().release();
 
 	// Bridge g_director → render_observer interface so gs/ and ai/ code
 	// can call render_observer::AddMove(...) etc. without depending on
@@ -1311,7 +1312,7 @@ void ZoomPad_ZoomCallback()
 
 int tile_Initialize(BOOL isRestoring)
 {
-	g_tiledMap = new TiledMap(*world_Get()->GetSize());
+	g_tiledMap = std::make_unique<TiledMap>(*world_Get()->GetSize()).release();
 
 	ZoomPad_ZoomCallback();
 	g_tiledMap->SetZoomCallback(ZoomPad_ZoomCallback);
@@ -1932,7 +1933,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	ParseCommandLine(szCmdLine);
 #endif
 
-	allocated::reassign(g_civApp, new CivApp());
+	allocated::reassign(g_civApp, std::make_unique<CivApp>().release());
 
 	if (g_cmdline_load) {
 		g_civApp->InitializeApp(hInstance, iCmdShow);

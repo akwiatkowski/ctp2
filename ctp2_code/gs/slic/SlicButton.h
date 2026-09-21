@@ -4,6 +4,7 @@
 #ifndef __SLIC_BUTTON_H__
 #define __SLIC_BUTTON_H__
 
+#include <memory>
 #include <string>
 #include <nlohmann/json.hpp>
 
@@ -21,7 +22,7 @@ private:
 	sint32 m_codeOffset;
 
 
-	Message *m_message;
+	std::unique_ptr<Message> m_message;
 	SlicObject *m_context;
 	SlicSegment *m_segment;
 	std::string m_segmentName;

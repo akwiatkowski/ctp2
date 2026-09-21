@@ -34,6 +34,7 @@
 #include "ctp/c3.h"
 #include "gfx/spritesys/SpriteFile.h"
 
+#include <memory>
 #include <vector>
 
 #include "gfx/gfx_utils/pixelutils.h"
@@ -61,7 +62,7 @@
 #ifdef __MAKESPR__
 unsigned char g_compression_buff[COM_BUFF_SIZE];
 #else
-unsigned char *g_compression_buff=nullptr;
+std::unique_ptr<unsigned char[]> g_compression_buff;
 #endif
 
 SpriteFile::SpriteFile(MBCHAR const * name)
@@ -116,7 +117,7 @@ void SpriteFile::WriteSpriteData(Sprite *s)
 		spriteutils_ConvertPixelFormatForFile(s->GetFrameData(i), s->GetWidth(), s->GetHeight(), s->GetFrameDataSize(i));
 
 		size_t          size            = s->GetFrameDataSize(i);
-		uint8 *         CompressedData  = CompressData(s->GetFrameData(i), size);
+		std::unique_ptr<uint8[]> CompressedData(CompressData(s->GetFrameData(i), size));
         size_t const    compressed_size = size;
 
 	    if (m_version>k_SPRITEFILE_VERSION1)
@@ -125,10 +126,10 @@ void SpriteFile::WriteSpriteData(Sprite *s)
 			WriteData((uint32)normal_ssizes[i]);
 		}
 
-		WriteData(CompressedData, compressed_size);
+		WriteData(CompressedData.get(), compressed_size);
 		compressed_ssizes[i] = compressed_size;
 
-		delete [] CompressedData;
+		// CompressedData is a unique_ptr, auto-freed
 	}
 
 	if(m_version>k_SPRITEFILE_VERSION1)
@@ -187,17 +188,17 @@ void SpriteFile::WriteFacedSpriteData(FacedSprite *s)
 												s->GetWidth(), s->GetHeight(), normal_ssizes[j][i]);
 
 			size_t  size            = normal_ssizes[j][i];
-		    uint8 * CompressedData  = CompressData(s->GetFrameData(j,i),size);
+		    std::unique_ptr<uint8[]> CompressedData(CompressData(s->GetFrameData(j,i),size));
 			size_t  compressed_size = size;
 
 			if(m_version>k_SPRITEFILE_VERSION1)
 			   WriteData((uint32)normal_ssizes[j][i]);
 
-			WriteData(CompressedData, compressed_size);
+			WriteData(CompressedData.get(), compressed_size);
 
 		    compressed_ssizes[j][i] = size;
 
-			delete [] CompressedData;
+			// CompressedData is a unique_ptr, auto-freed
 		}
 
 		for (i=0; i<num_frames; i++) {
@@ -515,7 +516,9 @@ void SpriteFile::ReadGeneral(Sprite **sprite, bool basic)
     uint16 type;
     ReadData(&type, sizeof(type));
     RequireSprite(type == SPRITETYPE_NORMAL || type == SPRITETYPE_FACED, "invalid sprite type");
-    std::unique_ptr<Sprite> parsed(type == SPRITETYPE_NORMAL ? new Sprite : new FacedSprite);
+    std::unique_ptr<Sprite> parsed = type == SPRITETYPE_NORMAL
+        ? std::unique_ptr<Sprite>(std::make_unique<Sprite>())
+        : std::unique_ptr<Sprite>(std::make_unique<FacedSprite>());
     parsed->SetType(type);
     ReadFrames(parsed.get(), type == SPRITETYPE_FACED, false, basic);
     *sprite = parsed.release(); // Group's setter releases the prior owned sprite.
@@ -1411,12 +1414,11 @@ SpriteFile::DeCompressData(void *Data, size_t CompressedLen, size_t ActualLen)
 uint8 *
 SpriteFile::CompressData_Default  (void *Data, size_t &DataLen)
 {
-	// TODO(phase-2): ownership transfer out of function — needs separate strategy
-	uint8 *ReturnVal = new uint8[DataLen];
+	auto ReturnVal = std::make_unique<uint8[]>(DataLen);
 
-	memcpy(ReturnVal,Data,DataLen);
+	memcpy(ReturnVal.get(),Data,DataLen);
 
-  return ReturnVal;
+  return ReturnVal.release();
 }
 
 uint8 *
@@ -1433,7 +1435,7 @@ uint8 *
 SpriteFile::CompressData_LZW1(void *Data, size_t &DataLen)
 {
  uint8  *p_src_first=(uint8 *)Data;
- uint8  *p_dst_first=(uint8 *)g_compression_buff;
+ uint8  *p_dst_first=(uint8 *)g_compression_buff.get();
 
  size_t  src_len=DataLen;
  uint32     p_dst_len=COM_BUFF_SIZE;
@@ -1535,12 +1537,11 @@ overrun: memcpy(p_dst_first+LZW1_FLAG_BYTES,p_src_first,src_len);
 
 end_of_compression:
 
-    // TODO(phase-2): ownership transfer out of function — needs separate strategy
-    uint8 * retval  = new uint8[p_dst_len];
+    auto retval = std::make_unique<uint8[]>(p_dst_len);
     DataLen = p_dst_len;
-    memcpy(retval, g_compression_buff, DataLen);
+    memcpy(retval.get(), g_compression_buff.get(), DataLen);
 
-    return retval;
+    return retval.release();
 }
 
 

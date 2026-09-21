@@ -1,4 +1,6 @@
 #include "ctp/c3.h"
+#include <memory>
+
 #include "net/general/network.h"
 #include "net/general/net_traderoute.h"
 #include "net/io/net_util.h"
@@ -80,7 +82,7 @@ void NetTradeRoute::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	network_Get().CheckReceivedObject((uint32)route);
 
 	if(!tradepool_Get()->IsValid(route)) {
-		m_routeData = new TradeRouteData(route);
+		m_routeData = std::make_unique<TradeRouteData>(route).release();
 	} else {
 		m_routeData = tradepool_Get()->AccessTradeRoute(route);
 	}

@@ -30,6 +30,8 @@
 
 #include "ctp/c3.h"
 #include "gs/events/GameEventArgument.h"
+
+#include <memory>
 #include "ctp/ctp2_utils/civlog.h"
 
 #include "gs/gameobj/Unit.h"
@@ -145,12 +147,10 @@ void GameEventArgument::Init(GAME_EVENT_ARGUMENT type, va_list *vl, bool isAlway
 
 GameEventArgument::~GameEventArgument()
 {
-	Path *path;
 
 	switch(m_type) {
 		case GEA_Path:
-			path = (Path *)m_data.m_ptr;
-			delete path;
+			std::unique_ptr<Path>{static_cast<Path *>(m_data.m_ptr)};
 			break;
 		default:
 			break;
@@ -212,7 +212,7 @@ bool GameEventArgument::GetPath(Path *&path) const
 	if(m_type != GEA_Path)
 		return false;
 
-	path = new Path((Path *)m_data.m_ptr);
+	path = std::make_unique<Path>(static_cast<Path *>(m_data.m_ptr)).release();
 	return true;
 }
 

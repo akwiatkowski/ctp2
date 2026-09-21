@@ -10,6 +10,9 @@ class aui_Control;
 class DiplomacyProposalRecord;
 class SlicObject;
 class Unit;
+class aui_StringTable;
+
+#include <memory>
 
 #include "ui/aui_ctp2/ctp2_Menu.h"
 
@@ -24,8 +27,8 @@ class DiplomacyDetails
 
 	static ctp2_Button *m_cancelButton;
 	static ctp2_ListBox *sm_list;
-	static aui_StringTable *sm_strengthImages;
-	static aui_StringTable *sm_embassyImages;
+	static std::unique_ptr<aui_StringTable> sm_strengthImages;
+	static std::unique_ptr<aui_StringTable> sm_embassyImages;
 
   public:
 	DiplomacyDetails(AUI_ERRCODE *err);

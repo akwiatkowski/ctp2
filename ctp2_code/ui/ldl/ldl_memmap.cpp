@@ -2,11 +2,12 @@
 
 #include "ui/ldl/ldl_memmap.h"
 
+#include <memory>
+
 
 unsigned char *ldl_MemMap::GetFileBits( char *filename, unsigned long *junk )
 {
 	unsigned int filesize;
-	unsigned char *bits;
 	FILE *f = fopen( filename, "rb" );
 
 	if ( !f )
@@ -24,22 +25,17 @@ unsigned char *ldl_MemMap::GetFileBits( char *filename, unsigned long *junk )
 		return nullptr;
 	}
 
-	bits = new unsigned char[filesize];
+	// Caller owns the returned buffer and frees it via ReleaseFileBits.
+	auto bits = std::make_unique<unsigned char[]>(filesize);
 
-	if (!bits) {
-		fclose(f);
-		return nullptr;
-	}
-
-	if ( fread( bits, 1, filesize, f ) != filesize ) {
-		delete[] bits;
+	if ( fread( bits.get(), 1, filesize, f ) != filesize ) {
 		fclose(f);
 		return nullptr;
 	}
 
 	fclose(f);
 
-	return bits;
+	return bits.release();
 
 }
 
@@ -47,7 +43,7 @@ unsigned char *ldl_MemMap::GetFileBits( char *filename, unsigned long *junk )
 void ldl_MemMap::ReleaseFileBits( unsigned char *&bits )
 {
 	if ( bits ) {
-		delete[] bits;
+		std::unique_ptr<unsigned char[]> deleter(bits);
 		bits = nullptr;
 	}
 }

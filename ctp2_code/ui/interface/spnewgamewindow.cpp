@@ -359,7 +359,7 @@ SPProfileBox::SPProfileBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock )
 		while(i<numClans) {
 			aui_Item	*item = nullptr;
 			const MBCHAR *cName = stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(i)->GetPluralCivName());
-			item = (aui_Item*)new SPDropDownListItem(retval, "SPDropDownListItem", "Clan", cName);
+			item = (aui_Item*)std::make_unique<SPDropDownListItem>(retval, "SPDropDownListItem", "Clan", cName).release(); // AddItem sink
 			if (item)
 				m_spClan->AddItem(item );
 			i++;
@@ -461,7 +461,7 @@ SPWorldBox::SPWorldBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock )
 		for(uint32 i=3; i<=16; i++) {
 			MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 			snprintf(textBlock, sizeof(textBlock), "%d",i);
-			c3_ListItem *myitem = new SPDropDownListItem(retval,"SPDropDownListItem","Opponent", textBlock);
+			c3_ListItem *myitem = std::make_unique<SPDropDownListItem>(retval,"SPDropDownListItem","Opponent", textBlock).release(); // AddItem sink
 			if(myitem) m_opponent->AddItem(myitem);
 		}
 

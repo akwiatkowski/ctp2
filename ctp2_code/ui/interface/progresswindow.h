@@ -36,6 +36,8 @@
 #include "ui/aui_ctp2/c3_popupwindow.h"
 #include "ui/aui_common/aui_progressbar.h"
 #include "ui/aui_common/tech_wllist.h"
+#include <memory>
+
 
 class ProgressWindow : public c3_PopupWindow
 {
@@ -65,8 +67,8 @@ private:
 		sint32 x = -1, sint32 y = -1);
 	~ProgressWindow() override;
 
-	c3_Static *m_message;
-	aui_ProgressBar *m_pbar;
+	std::unique_ptr<c3_Static> m_message;
+	std::unique_ptr<aui_ProgressBar> m_pbar;
 
 	tech_WLList<sint32> m_prevValList;
 	tech_WLList<sint32> m_nextValList;

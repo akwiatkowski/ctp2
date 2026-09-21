@@ -10,7 +10,7 @@
 BOOL aui_Win::m_registered = FALSE;
 MBCHAR *aui_Win::m_windowClass = const_cast<MBCHAR *>("aui_Win");
 sint32 aui_Win::m_winRefCount = 0;
-tech_WLList<aui_Win *> *aui_Win::m_winList = nullptr;
+std::unique_ptr<tech_WLList<aui_Win *>> aui_Win::m_winList;
 aui_Win *g_winFocus = nullptr;
 
 aui_Win::aui_Win(
@@ -84,7 +84,7 @@ AUI_ERRCODE aui_Win::InitCommon( )
 	{
 		SetRect( &playground, 0, 0, aui_ui_Get()->Width(), aui_ui_Get()->Height() );
 
-		m_winList = new tech_WLList<aui_Win *>;
+		m_winList = std::make_unique<tech_WLList<aui_Win *>>();
 		Assert( m_winList != nullptr );
 		if ( !m_winList ) return AUI_ERRCODE_MEMALLOCFAILED;
 	}
@@ -118,11 +118,7 @@ aui_Win::~aui_Win()
 	if ( !--m_winRefCount )
 	{
 
-		if ( m_winList )
-		{
-			delete m_winList;
-			m_winList = nullptr;
-		}
+		m_winList.reset();
 	}
 }
 

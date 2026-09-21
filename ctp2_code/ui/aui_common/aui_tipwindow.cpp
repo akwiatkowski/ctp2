@@ -1,3 +1,4 @@
+#include <memory>
 #include "ctp/c3.h"
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -61,7 +62,7 @@ AUI_ERRCODE aui_TipWindow::InitCommonLdl( MBCHAR const *ldlBlock )
 
     if (aui_Ldl::FindDataBlock(tipBlock))
 	{
-		m_staticTip = new aui_Static(
+		m_staticTip = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
 			tipBlock );
@@ -72,9 +73,8 @@ AUI_ERRCODE aui_TipWindow::InitCommonLdl( MBCHAR const *ldlBlock )
 
 		m_staticTip->TextReloadFont();
 
-		aui_Ldl::Remove( m_staticTip );
-		m_allocatedTip = TRUE;
-		AddChild( m_staticTip );
+		aui_Ldl::Remove( m_staticTip.get() );
+		AddChild( m_staticTip.get() );
 		m_staticTip->Move( 0, 0 );
 		m_staticTip->Resize( m_width, m_height );
 	}
@@ -105,9 +105,6 @@ AUI_ERRCODE aui_TipWindow::SetTipText(MBCHAR const *text)
 
 AUI_ERRCODE aui_TipWindow::InitCommon( )
 {
-	m_allocatedTip = FALSE;
-	m_staticTip = nullptr;
-
 	SetDynamic( TRUE );
 
 	return AUI_ERRCODE_OK;
@@ -116,12 +113,8 @@ AUI_ERRCODE aui_TipWindow::InitCommon( )
 
 aui_TipWindow::~aui_TipWindow()
 {
-	if ( m_allocatedTip && m_staticTip )
-	{
-		delete m_staticTip;
-		m_staticTip = nullptr;
-		m_allocatedTip = FALSE;
-	}
+	// m_staticTip is unique_ptr, auto-freed. It is aui_Ldl::Remove()'d at
+	// creation so the LDL leaf pass never double-deletes it.
 }
 
 AUI_ERRCODE aui_TipWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
@@ -129,7 +122,7 @@ AUI_ERRCODE aui_TipWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	if ( IsHidden() ) return AUI_ERRCODE_OK;
 
-	if ( !surface ) surface = m_surface;
+	if ( !surface ) surface = m_surface.get();
 
 	RECT rect = { 0, 0, m_width, m_height };
 
@@ -137,7 +130,7 @@ AUI_ERRCODE aui_TipWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	primitives_FrameRect16(surface, &rect, colorset_Get()->GetColor(COLOR_GRAY));
 
-	if ( surface == m_surface )
+	if ( surface == m_surface.get() )
 		AddDirtyRect( &rect );
 
 	return AUI_ERRCODE_OK;

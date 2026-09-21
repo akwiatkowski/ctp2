@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/interface/messagemodal.h"
 
 #include "ui/aui_common/aui.h"
@@ -26,7 +27,7 @@
 
 extern sint32 g_ScreenHeight;
 
-MessageModal		*g_modalMessage = nullptr;
+std::unique_ptr<MessageModal>	g_modalMessage;
 
 int messagemodal_CreateModalMessage( Message data )
 {
@@ -41,7 +42,7 @@ int messagemodal_CreateModalMessage( Message data )
 
 	strlcpy( windowBlock, "ModalWindow", sizeof(windowBlock) );
 
-	g_modalMessage = new MessageModal( &errcode, aui_UniqueId(),
+	g_modalMessage = std::make_unique<MessageModal>( &errcode, aui_UniqueId(),
 										windowBlock, 16, data );
 	Assert( AUI_NEWOK( g_modalMessage, errcode ));
 	if ( !AUI_NEWOK( g_modalMessage, errcode )) return -1;
@@ -51,7 +52,7 @@ int messagemodal_CreateModalMessage( Message data )
 		g_modalMessage->Move(0, 228);
 	}
 
-	c3ui_Get()->AddWindow( g_modalMessage );
+	c3ui_Get()->AddWindow( g_modalMessage.get() );
 
 	g_modalMessage->AddBordersToUI();
 
@@ -60,7 +61,7 @@ int messagemodal_CreateModalMessage( Message data )
 
 void messagemodal_PrepareDestroyWindow()
 {
-	c3ui_Get()->AddDestructiveAction( new MessageModalDestroyAction());
+	c3ui_Get()->AddDestructiveAction( std::make_unique<MessageModalDestroyAction>().release());
 }
 
 void messagemodal_DestroyModalMessage( )
@@ -71,9 +72,7 @@ void messagemodal_DestroyModalMessage( )
 			c3ui_Get()->RemoveWindow( g_modalMessage->Id() );
 
 		g_modalMessage->RemoveBordersFromUI();
-
-		delete g_modalMessage;
-		g_modalMessage = nullptr;
+		g_modalMessage.reset();
 
 
 		if(player_arr_Get() && player_Get(selitem_Get()->GetVisiblePlayer())) {
@@ -185,7 +184,7 @@ AUI_ERRCODE MessageModal::CreateStandardTextBox( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlBlock, "MessageTextBox" );
-	m_messageText.reset(new aui_HyperTextBox( &errcode, aui_UniqueId(), textBlock ));
+	m_messageText = std::make_unique<aui_HyperTextBox>( &errcode, aui_UniqueId(), textBlock );
 	Assert( AUI_NEWOK( m_messageText, errcode ));
 	if ( !AUI_NEWOK( m_messageText, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -222,7 +221,7 @@ AUI_ERRCODE MessageModal::CreateStandardEyePointBox( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_eyePointStandard.reset(new MessageEyePointStandard( &errcode, ldlBlock, this ));
+	m_eyePointStandard = std::make_unique<MessageEyePointStandard>( &errcode, ldlBlock, this );
 	Assert( AUI_NEWOK( m_eyePointStandard, errcode ));
 	if ( !AUI_NEWOK( m_eyePointStandard, errcode ))
 	{
@@ -238,7 +237,7 @@ AUI_ERRCODE MessageModal::CreateDropdownEyePointBox( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_eyePointDropdown.reset(new MessageEyePointDropdown( &errcode, ldlBlock, this ));
+	m_eyePointDropdown = std::make_unique<MessageEyePointDropdown>( &errcode, ldlBlock, this );
 	Assert( AUI_NEWOK( m_eyePointDropdown, errcode ));
 	if ( !AUI_NEWOK( m_eyePointDropdown, errcode ))
 	{
@@ -254,7 +253,7 @@ AUI_ERRCODE MessageModal::CreateListboxEyePointBox( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_eyePointListbox.reset(new MessageEyePointListbox( &errcode, ldlBlock, this ));
+	m_eyePointListbox = std::make_unique<MessageEyePointListbox>( &errcode, ldlBlock, this );
 	Assert( AUI_NEWOK( m_eyePointListbox, errcode ));
 	if ( !AUI_NEWOK( m_eyePointListbox, errcode ))
 	{
@@ -275,7 +274,7 @@ AUI_ERRCODE MessageModal::CreateResponses( MBCHAR *ldlBlock )
 
 	while (SlicButton * sButton = m_message.AccessData()->GetButton(responseCount))
     {
-		std::unique_ptr<ctp2_Button> button(new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock));
+		std::unique_ptr<ctp2_Button> button = std::make_unique<ctp2_Button>(&errcode, aui_UniqueId(), buttonBlock);
 		Assert( AUI_NEWOK( button, errcode ));
 		if ( !AUI_NEWOK( button, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -299,8 +298,8 @@ AUI_ERRCODE MessageModal::CreateResponses( MBCHAR *ldlBlock )
 			button->Move(Width() - button->Width() - k_MODAL_BUTTON_SPACING - button->GetDim()->HorizontalPositionData(), button->Y());
 		}
 
-		std::unique_ptr<MessageModalResponseAction> action(
-			new MessageModalResponseAction( &m_message, responseCount ));
+		std::unique_ptr<MessageModalResponseAction> action =
+			std::make_unique<MessageModalResponseAction>( &m_message, responseCount );
 
 		button->SetAction( action.get() );
 

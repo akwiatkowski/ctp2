@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 #include "ui/netshell/dialogboxwindow.h"
 
 #include "ui/aui_common/aui_ldl.h"
@@ -59,8 +60,7 @@ DialogBoxWindow::DialogBoxWindow(
 				 0,
 				 AUI_WINDOW_TYPE_FLOATING
 				),
-	m_numButtons	(0),
-	m_buttons		(nullptr)
+	m_numButtons	(0)
 {
 	if ( !AUI_SUCCESS(*retval) ) return;
 	*retval = InitCommon();
@@ -70,10 +70,7 @@ DialogBoxWindow::DialogBoxWindow(
 
 AUI_ERRCODE DialogBoxWindow::InitCommon( )
 {
-	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != nullptr );
-	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
-	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
+	m_controls = std::make_unique<aui_Control *[]>( m_numControls = CONTROL_MAX );
 
 	return AUI_ERRCODE_OK;
 }
@@ -93,10 +90,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.titlestatictext", ldlBlock );
 	if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_Static(
+		control = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -107,10 +104,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.titlebox", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_Static(
+		control = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -121,10 +118,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.lefttopcorner", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_Static(
+		control = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -135,10 +132,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.righttopcorner", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_Static(
+		control = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -149,10 +146,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.leftbottomcorner", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_Static(
+		control = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -163,10 +160,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.rightbottomcorner", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_Static(
+		control = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -177,10 +174,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.leftedge", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_Static(
+		control = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -191,10 +188,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.rightedge", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_Static(
+		control = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -205,10 +202,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.topedge", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_Static(
+		control = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -219,10 +216,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.bottomedge", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_Static(
+		control = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -233,10 +230,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.descriptionstatictext", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_Static(
+		control = std::make_unique<aui_Static>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -247,10 +244,10 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	snprintf(block, sizeof(block), "%s.progressbar", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
-		control = new aui_ProgressBar(
+		control = std::make_unique<aui_ProgressBar>(
 			&errcode,
 			aui_UniqueId(),
-			block );
+			block ).release();
 		Assert( AUI_NEWOK(control,errcode) );
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
@@ -271,22 +268,20 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 
 	if ( m_numButtons )
 	{
-		m_buttons = new aui_Button *[ m_numButtons ];
-		Assert( m_buttons != nullptr );
-		if ( !m_buttons ) return AUI_ERRCODE_MEMALLOCFAILED;
-
-		memset( m_buttons, 0, m_numButtons * sizeof( aui_Button * ) );
+		m_buttons.resize( m_numButtons );
+		Assert( !m_buttons.empty() );
+		if ( m_buttons.empty() ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		for ( sint32 i = 0; i < m_numButtons; i++ )
 		{
 
 			snprintf(block, sizeof(block), "button%d", i );
 
-			m_buttons[ i ] = spNew_ctp2_Button(
+			m_buttons[ i ].reset( spNew_ctp2_Button(
 				&errcode,
 				ldlBlock,
 				block,
-				nullptr);
+				nullptr) );
 
 			Assert( AUI_NEWOK(m_buttons[i],errcode) );
 			if ( !AUI_NEWOK(m_buttons[i],errcode) )
@@ -304,17 +299,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	return AUI_ERRCODE_OK;
 }
 
-DialogBoxWindow::~DialogBoxWindow()
-{
-	if (m_buttons)
-	{
-		for (sint32 i = 0; i < m_numButtons; ++i)
-		{
-			delete m_buttons[i];
-		}
-		delete[] m_buttons;
-	}
-}
+DialogBoxWindow::~DialogBoxWindow() = default;
 
 DialogBoxWindow *DialogBoxWindow::PopUp(
 	MBCHAR *ldlBlock,
@@ -322,22 +307,21 @@ DialogBoxWindow *DialogBoxWindow::PopUp(
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	DialogBoxWindow *dbw = new DialogBoxWindow(
+	auto dbw = std::make_unique<DialogBoxWindow>(
 		&errcode,
 		ldlBlock,
 		actions );
 	Assert( AUI_NEWOK(dbw,errcode) );
 	if ( !AUI_NEWOK(dbw,errcode) )
 	{
-		delete dbw;
-		dbw = nullptr;
+		dbw.reset();
 	}
 
 	aui_Screen *screen = netshell_Get()->GetCurrentScreen();
 	if ( screen )
-		screen->AddWindow( dbw, TRUE );
+		screen->AddWindow( dbw.get(), TRUE );
 
-	return dbw;
+	return dbw.release();
 }
 
 void DialogBoxWindow::PopDown( DialogBoxWindow *dbw, aui_Button *button )
@@ -355,14 +339,15 @@ void DialogBoxWindow::PopDown( DialogBoxWindow *dbw, aui_Button *button )
 			AUI_BUTTON_ACTION_EXECUTE,
 			0 );
 
-	aui_ui_Get()->AddAction( new SafeDeleteAction( dbw ) );
+	aui_ui_Get()->AddAction( std::make_unique<SafeDeleteAction>( dbw ).release());
 }
+
+DialogBoxWindow::SafeDeleteAction::~SafeDeleteAction() = default;
 
 void DialogBoxWindow::SafeDeleteAction::Execute(
 	aui_Control *control,
 	uint32 action,
 	uint32 data )
 {
-	delete m_dbw;
-	m_dbw = nullptr;
+	m_dbw.reset();
 }

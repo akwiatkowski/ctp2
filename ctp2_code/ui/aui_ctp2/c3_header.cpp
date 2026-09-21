@@ -30,6 +30,8 @@
 
 #include "ctp/c3.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -132,8 +134,8 @@ AUI_ERRCODE c3_Header::CreateSwitches( MBCHAR const *ldlBlock )
 
 
 
-	aui_Switch		*dummyItemControl = new aui_Switch(&errcode, aui_UniqueId(), 0, 0, 0, m_height);
-	AddChild( dummyItemControl );
+	auto dummyItemControl = std::make_unique<aui_Switch>(&errcode, aui_UniqueId(), 0, 0, 0, m_height);
+	AddChild( dummyItemControl.release() );
 
 	static MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
 
@@ -147,7 +149,7 @@ AUI_ERRCODE c3_Header::CreateSwitches( MBCHAR const *ldlBlock )
             if ( !aui_Ldl::FindDataBlock( block ) )
 				break;
 
-			aui_Switch *theSwitch = new c3_HeaderSwitch(
+			auto theSwitch = std::make_unique<c3_HeaderSwitch>(
 				&errcode,
 				aui_UniqueId(),
 				block );
@@ -155,13 +157,13 @@ AUI_ERRCODE c3_Header::CreateSwitches( MBCHAR const *ldlBlock )
 			if ( !AUI_NEWOK(theSwitch,errcode) )
 				return AUI_ERRCODE_MEMALLOCFAILED;
 
-			aui_Action *action = new aui_HeaderSwitchAction( i );
+			auto action = std::make_unique<aui_HeaderSwitchAction>( i );
 			Assert( action != nullptr );
 			if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-			theSwitch->SetAction( action );
+			theSwitch->SetAction( action.release() );
 
-			AddChild( theSwitch );
+			AddChild( theSwitch.release() );
 
 			i++;
 

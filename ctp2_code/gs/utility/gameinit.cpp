@@ -98,6 +98,7 @@ auto gameinit_log = civlog::Get("gameinit");
 #include "gs/gameobj/installationtree.h"
 #include <ios>
 #include <iostream>
+#include <memory>
 #include <vector>
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/MessagePool.h"
@@ -176,7 +177,7 @@ extern sint32 g_cheat_age;
     void SETTER(TYPE *p) {                                              \
         CivApp * app = civapp_Get();                                    \
         Ctp2::Game * game = app ? app->GetGame() : nullptr;             \
-        if (game) game->Set##GAME_METHOD##Ptr(p); else delete p;        \
+        if (game) game->Set##GAME_METHOD##Ptr(p); else { std::unique_ptr<TYPE> guard(p); } \
     }
 
 GAME_TRAMPOLINE(gamesettings_Get, gamesettings_Set, Settings, GameSettings)
@@ -210,11 +211,15 @@ ArmyPool * armypool_Set(ArmyPool *p) {
     // live caller uses the return value, but preserve the shape.
     CivApp * app = civapp_Get();
     Ctp2::Game * game = app ? app->GetGame() : nullptr;
-    if (!game) { delete p; return nullptr; }
+    if (!game) { std::unique_ptr<ArmyPool> guard(p); return nullptr; }
     ArmyPool * prev = game->GetArmiesPtr();
     game->SetArmiesPtr(p);
     return prev;
 }
+// Raw alias — Game owns the array after NewGame adopts it; the alias
+// stays valid for the session so player_Get keeps working.  Ownership
+// before adoption sits with the creating function (leak on early exit
+// matches pre-refactor semantics).
 static Player               **g_player=nullptr;
 
 Player *  player_Get(sint32 i)                { return g_player ? g_player[i] : nullptr; }
@@ -224,10 +229,12 @@ PointerList<Player>         *g_deadPlayer = nullptr;
 GAME_TRAMPOLINE(rand_ptr, rand_ptr_Set, Rand, RandomGenerator)
 GAME_TRAMPOLINE(tradepool_Get,      tradepool_Set,      Trades,      TradePool)
 GAME_TRAMPOLINE(tradeofferpool_Get, tradeofferpool_Set, TradeOffers, TradeOfferPool)
-static QuadTree<Unit>       *g_theUnitTree = nullptr;
+static std::unique_ptr<QuadTree<Unit>> g_theUnitTree;
 
-QuadTree<Unit> * unit_tree_Get()              { return g_theUnitTree; }
-void             unit_tree_Set(QuadTree<Unit> *p) { g_theUnitTree = p; }
+QuadTree<Unit> * unit_tree_Get()              { return g_theUnitTree.get(); }
+// Non-owning assign: net_gamesettings deletes the old tree itself before
+// calling Set(nullptr), so release the old slot instead of deleting it.
+void             unit_tree_Set(QuadTree<Unit> *p) { g_theUnitTree.release(); g_theUnitTree.reset(p); }
 GAME_TRAMPOLINE(pollution_Get, pollution_Set, Pollution, Pollution)
 GAME_TRAMPOLINE(diplomaticrequestpool_Get, diplomaticrequestpool_Set, DiplomaticRequests,  DiplomaticRequestPool)
 GAME_TRAMPOLINE(messagepool_Get,           messagepool_Set,           Messages,            MessagePool)
@@ -235,10 +242,11 @@ GAME_TRAMPOLINE(civilisationpool_Get,      civilisationpool_Set,      Civilisati
 GAME_TRAMPOLINE(agreementpool_Get,         agreementpool_Set,         Agreements,          AgreementPool)
 GAME_TRAMPOLINE(terrimprovepool_Get,       terrimprovepool_Set,       TerrainImprovements, TerrainImprovementPool)
 GAME_TRAMPOLINE(installationpool_Get,      installationpool_Set,      Installations,       InstallationPool)
-static InstallationQuadTree *g_theInstallationTree = nullptr;
+static std::unique_ptr<InstallationQuadTree> g_theInstallationTree;
 
-InstallationQuadTree * installation_tree_Get()              { return g_theInstallationTree; }
-void                   installation_tree_Set(InstallationQuadTree *p) { g_theInstallationTree = p; }
+InstallationQuadTree * installation_tree_Get()              { return g_theInstallationTree.get(); }
+// Non-owning assign — same rationale as unit_tree_Set.
+void                   installation_tree_Set(InstallationQuadTree *p) { g_theInstallationTree.release(); g_theInstallationTree.reset(p); }
 GAME_TRAMPOLINE(topten_Get, topten_Set, TopTen, TopTen)
 
 GAME_TRAMPOLINE(turn_Get, turn_Set, Turn, TurnCount)
@@ -258,10 +266,11 @@ GAME_TRAMPOLINE(eventtracker_Get,   eventtracker_Set,   EventTracker, EventTrack
 GAME_TRAMPOLINE(feattracker_Get, feattracker_Set, Feats, FeatTracker)
 GAME_TRAMPOLINE(tradebids_Get,          tradebids_Set,          TradeBids,    TradeBids)
 GAME_TRAMPOLINE(achievementtracker_Get, achievementtracker_Set, Achievements, AchievementTracker)
-static CriticalMessagesPrefs *g_theCriticalMessagesPrefs=nullptr;
+static std::unique_ptr<CriticalMessagesPrefs> g_theCriticalMessagesPrefs;
 
-CriticalMessagesPrefs * critical_messages_prefs_Get() { return g_theCriticalMessagesPrefs; }
-void critical_messages_prefs_Set(CriticalMessagesPrefs *p) { g_theCriticalMessagesPrefs = p; }
+CriticalMessagesPrefs * critical_messages_prefs_Get() { return g_theCriticalMessagesPrefs.get(); }
+// Non-owning assign — same rationale as unit_tree_Set.
+void critical_messages_prefs_Set(CriticalMessagesPrefs *p) { g_theCriticalMessagesPrefs.release(); g_theCriticalMessagesPrefs.reset(p); }
 
 MapPoint g_player_start_list[k_MAX_PLAYERS];
 sint32 g_player_start_score[k_MAX_PLAYERS];
@@ -403,16 +412,16 @@ void CreateBarbarians(sint32 const diff)
 	if (g_theProfileDB->IsAIOn())
 	{
 		g_player[PLAYER_INDEX_VANDALS]      =
-		    new Player(PLAYER_INDEX_VANDALS, diff, PLAYER_TYPE_ROBOT,
+		    std::make_unique<Player>(PLAYER_INDEX_VANDALS, diff, PLAYER_TYPE_ROBOT,
 		               CIV_INDEX_VANDALS, GENDER_MALE
-		              );
+		              ).release();
 	}
 	else
 	{
 		g_player[PLAYER_INDEX_VANDALS]      =
-		    new Player(PLAYER_INDEX_VANDALS, diff, PLAYER_TYPE_HUMAN,
+		    std::make_unique<Player>(PLAYER_INDEX_VANDALS, diff, PLAYER_TYPE_HUMAN,
 		               CIV_INDEX_RANDOM, GENDER_RANDOM
-		              );
+		              ).release();
 	}
 
 	s_networkSettlers[PLAYER_INDEX_VANDALS] = 0;
@@ -451,9 +460,9 @@ void CreateInitialHuman
 	                      ? g_theProfileDB->GetCivIndex()
 	                      : requestedCiv;
 
-	g_player[index]     = new Player(index, diff, PLAYER_TYPE_HUMAN, civ,
+	g_player[index]     = std::make_unique<Player>(index, diff, PLAYER_TYPE_HUMAN, civ,
 	                                 g_theProfileDB->GetGender()
-	                                );
+	                                ).release();
 
 	// Set the selected player so that the game starts with the first turn
 	// and the correct player.
@@ -1157,8 +1166,8 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	sint32 nPlayers = g_theProfileDB->GetNPlayers();
 
-	g_theOrderPond	= new Pool<Order>(INITIAL_CHUNK_LIST_SIZE);
-	g_theUnseenPond	= new Pool<UnseenCell>(INITIAL_CHUNK_LIST_SIZE);
+	g_theOrderPond	= std::make_unique<Pool<Order>>(INITIAL_CHUNK_LIST_SIZE).release();
+	g_theUnseenPond	= std::make_unique<Pool<UnseenCell>>(INITIAL_CHUNK_LIST_SIZE).release();
 
 	g_theProfileDB->SetTutorialAdvice(FALSE);
 
@@ -1170,7 +1179,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	uint32 seed = g_oldRandSeed ? g_oldRandSeed : GetTickCount();
 	srand(seed);
-	rand_ptr_Set(new RandomGenerator(seed));
+	rand_ptr_Set(std::make_unique<RandomGenerator>(seed).release());
 
 
 
@@ -1184,7 +1193,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 
 
-	gamesettings_Set(new GameSettings());
+	gamesettings_Set(std::make_unique<GameSettings>().release());
 
 	SPLASH_STRING("Initializing the Map...");
 
@@ -1196,9 +1205,9 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 	MapPoint	mapSize;
 	constutil_GetMapSizeMapPoint(g_theProfileDB->GetMapSize(), mapSize);
 
-	world_Set(new World(mapSize,
+	world_Set(std::make_unique<World>(mapSize,
 	                       g_theProfileDB->IsXWrap(),
-	                       g_theProfileDB->IsYWrap()));
+	                       g_theProfileDB->IsYWrap()).release());
 
 	world_Get()->CreateTheWorld(g_player_start_list,
 	                           g_player_start_score);
@@ -1215,8 +1224,8 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	Assert(world_Get());
 
-	turn_Set(new TurnCount(g_theProfileDB->GetNPlayers(),
-		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)));
+	turn_Set(std::make_unique<TurnCount>(g_theProfileDB->GetNPlayers(),
+		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)).release());
 
 	player_view::Init(nPlayers);
 
@@ -1229,31 +1238,31 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	SPLASH_STRING("Allocating Object Pools...");
 
-	g_theUnitTree = new QuadTree<Unit>(sint16(world_Get()->GetXWidth()),
+	g_theUnitTree = std::make_unique<QuadTree<Unit>>(sint16(world_Get()->GetXWidth()),
 	                                   sint16(world_Get()->GetYHeight()),
 	                                   world_Get()->IsYwrap());
 
-	g_theInstallationTree = new InstallationQuadTree(sint16(world_Get()->GetXWidth()),
+	g_theInstallationTree = std::make_unique<InstallationQuadTree>(sint16(world_Get()->GetXWidth()),
 	                                                 sint16(world_Get()->GetYHeight()),
 	                                                 world_Get()->IsYwrap());
 
 	// Trade pool before unit pool — same re-init ordering rationale as
 	// gameinit_Initialize (route kills must run while old units live).
-	tradepool_Set(new TradePool());
+	tradepool_Set(std::make_unique<TradePool>().release());
 
-	unitpool_Set(new UnitPool());
+	unitpool_Set(std::make_unique<UnitPool>().release());
 	Assert(unitpool_Get());
 
-	armypool_Set(new ArmyPool());
+	armypool_Set(std::make_unique<ArmyPool>().release());
 	Assert(armypool_Get());
 
-	tradeofferpool_Set(new TradeOfferPool());
+	tradeofferpool_Set(std::make_unique<TradeOfferPool>().release());
 	Assert(tradeofferpool_Get());
 
-	pollution_Set(new Pollution());
+	pollution_Set(std::make_unique<Pollution>().release());
 	Assert(pollution_Get());
 
-	topten_Set(new TopTen());
+	topten_Set(std::make_unique<TopTen>().release());
 	Assert(topten_Get());
 
 
@@ -1279,37 +1288,36 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	SPLASH_STRING("Initializing Object Pools...");
 
-	terrimprovepool_Set(new TerrainImprovementPool());
+	terrimprovepool_Set(std::make_unique<TerrainImprovementPool>().release());
 	Assert(terrimprovepool_Get()) ;
 
-	diplomaticrequestpool_Set(new DiplomaticRequestPool()) ;
+	diplomaticrequestpool_Set(std::make_unique<DiplomaticRequestPool>().release()) ;
 	Assert(diplomaticrequestpool_Get()) ;
 
-	civilisationpool_Set(new CivilisationPool()) ;
+	civilisationpool_Set(std::make_unique<CivilisationPool>().release()) ;
 	Assert(civilisationpool_Get()) ;
 
-	agreementpool_Set(new AgreementPool()) ;
+	agreementpool_Set(std::make_unique<AgreementPool>().release()) ;
 	Assert(agreementpool_Get()) ;
 
-	messagepool_Set(new MessagePool()) ;
+	messagepool_Set(std::make_unique<MessagePool>().release()) ;
 	Assert(messagepool_Get()) ;
 
-	delete g_theCriticalMessagesPrefs;
-	g_theCriticalMessagesPrefs = new CriticalMessagesPrefs();
+	g_theCriticalMessagesPrefs = std::make_unique<CriticalMessagesPrefs>();
 	Assert(g_theCriticalMessagesPrefs) ;
 
-	installationpool_Set(new InstallationPool());
+	installationpool_Set(std::make_unique<InstallationPool>().release());
 	Assert(installationpool_Get()) ;
 
 	installationpool_Get()->RebuildQuadTree();
 
 	g_wormhole = nullptr;
 
-	wonder_tracker_Set(new WonderTracker());
+	wonder_tracker_Set(std::make_unique<WonderTracker>().release());
 
-	achievementtracker_Set(new AchievementTracker());
+	achievementtracker_Set(std::make_unique<AchievementTracker>().release());
 
-	tradebids_Set(new TradeBids());
+	tradebids_Set(std::make_unique<TradeBids>().release());
 
 
 
@@ -1317,11 +1325,10 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	SPLASH_STRING("Setting Up Players...");
 
-	g_player = new Player*[k_MAX_PLAYERS];
+	g_player = std::make_unique<Player *[]>(k_MAX_PLAYERS).release();
 	Assert(g_player);
-    std::fill(g_player, g_player + k_MAX_PLAYERS, (Player *) nullptr);
 
-	g_deadPlayer = new PointerList<Player>;
+	g_deadPlayer = std::make_unique<PointerList<Player>>().release();
 
 	sint32 diff = g_theProfileDB->GetDifficulty();
 
@@ -1331,11 +1338,11 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	// TODO: check if the fixed index 1 is correct here,
 	//       and whether the start/stop player have to be set.
-	g_player[1] = new Player(PLAYER_INDEX(1),
+	g_player[1] = std::make_unique<Player>(PLAYER_INDEX(1),
 							 diff,
 							 PLAYER_TYPE_HUMAN,
 							 civ,
-							 g_theProfileDB->GetGender());
+							 g_theProfileDB->GetGender()).release();
 
 	s_networkSettlers[1] = 1;
 	if ( strlen(g_theProfileDB->GetLeaderName()) > 0)
@@ -1352,15 +1359,15 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 		{
 
 
-			g_player[i] = new Player(PLAYER_INDEX(i),
+			g_player[i] = std::make_unique<Player>(PLAYER_INDEX(i),
 									 diff,
 									 PLAYER_TYPE_ROBOT,
 									 CIV_INDEX_RANDOM,
-									 GENDER_RANDOM);
+									 GENDER_RANDOM).release();
 		}
 	else
 	{
-			g_player[i] = new Player(PLAYER_INDEX(i), diff, PLAYER_TYPE_HUMAN, CIV_INDEX_RANDOM, GENDER_RANDOM);
+			g_player[i] = std::make_unique<Player>(PLAYER_INDEX(i), diff, PLAYER_TYPE_HUMAN, CIV_INDEX_RANDOM, GENDER_RANDOM).release();
 		}
 		s_networkSettlers[i] = 1;
 	}
@@ -1368,7 +1375,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 #ifdef _DEBUG
 	if (g_theProfileDB->IsDiplomacyLogOn())
     {
-		g_theDiplomacyLog = new Diplomacy_Log;
+		g_theDiplomacyLog = std::make_unique<Diplomacy_Log>().release();
 	}
 
     verifyYwrap();
@@ -1542,8 +1549,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 	sint32 nPlayers = g_theProfileDB->GetNPlayers();
 	Assert(2 <= nPlayers);
 
-	g_theOrderPond = new Pool<Order>(INITIAL_CHUNK_LIST_SIZE);
-	g_theUnseenPond = new Pool<UnseenCell>(INITIAL_CHUNK_LIST_SIZE);
+	g_theOrderPond = std::make_unique<Pool<Order>>(INITIAL_CHUNK_LIST_SIZE).release();
+	g_theUnseenPond = std::make_unique<Pool<UnseenCell>>(INITIAL_CHUNK_LIST_SIZE).release();
 
 	if(network_Get().IsActive()
 	|| network_Get().IsNetworkLaunch()
@@ -1583,7 +1590,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 
 	srand(seed);
 
-	rand_ptr_Set(new RandomGenerator(seed));
+	rand_ptr_Set(std::make_unique<RandomGenerator>(seed).release());
 
 
 
@@ -1596,7 +1603,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 
 
 
-		gamesettings_Set(new GameSettings());
+		gamesettings_Set(std::make_unique<GameSettings>().release());
 
 	SPLASH_STRING("Initializing the Map...");
 
@@ -1610,9 +1617,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 		MapPoint	mapSize;
 		constutil_GetMapSizeMapPoint(g_theProfileDB->GetMapSize(), mapSize);
 
-		world_Set(new World(mapSize,
+		world_Set(std::make_unique<World>(mapSize,
 		                       g_theProfileDB->IsXWrap(),
-		                       g_theProfileDB->IsYWrap()));
+		                       g_theProfileDB->IsYWrap()).release());
 
 		world_Get()->CreateTheWorld(g_player_start_list,
 		                           g_player_start_score);
@@ -1641,8 +1648,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 	Assert(world_Get());
 
 	gameinit_log->debug("step: post-World, before TurnCount");
-		turn_Set(new TurnCount(g_theProfileDB->GetNPlayers(),
-			diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)));
+		turn_Set(std::make_unique<TurnCount>(g_theProfileDB->GetNPlayers(),
+			diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)).release());
 		if(network_Get().IsActive() || network_Get().IsNetworkLaunch()) {
 			sint32 startAge = network_Get().GetStartingAge();
 			if(startAge != 0) {
@@ -1662,11 +1669,11 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 
 	SPLASH_STRING("Allocating Object Pools...");
 
-	g_theUnitTree = new QuadTree<Unit>(sint16(world_Get()->GetXWidth()),
+	g_theUnitTree = std::make_unique<QuadTree<Unit>>(sint16(world_Get()->GetXWidth()),
 	                                   sint16(world_Get()->GetYHeight()),
 	                                   world_Get()->IsYwrap());
 
-	g_theInstallationTree = new InstallationQuadTree(sint16(world_Get()->GetXWidth()),
+	g_theInstallationTree = std::make_unique<InstallationQuadTree>(sint16(world_Get()->GetXWidth()),
 	                                                 sint16(world_Get()->GetYHeight()),
 	                                                 world_Get()->IsYwrap());
 
@@ -1678,22 +1685,22 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 	// on any save with live trade routes (deep-state save/load soak).
 	// Note: Game::Set*Ptr uses unique_ptr::reset, so the NEW pool is
 	// already current while the OLD pool's dtor runs.
-	tradepool_Set(new TradePool());
+	tradepool_Set(std::make_unique<TradePool>().release());
 
-		unitpool_Set(new UnitPool());
+		unitpool_Set(std::make_unique<UnitPool>().release());
 	Assert(unitpool_Get());
 
-		armypool_Set(new ArmyPool());
+		armypool_Set(std::make_unique<ArmyPool>().release());
 	Assert(armypool_Get());
 
     // 55 is probably the last save game version for CTP1
-		tradeofferpool_Set(new TradeOfferPool());
+		tradeofferpool_Set(std::make_unique<TradeOfferPool>().release());
 	Assert(tradeofferpool_Get());
 
-		pollution_Set(new Pollution());
+		pollution_Set(std::make_unique<Pollution>().release());
 	Assert(pollution_Get());
 
-		topten_Set(new TopTen());
+		topten_Set(std::make_unique<TopTen>().release());
 	Assert(topten_Get());
 
 	SPLASH_STRING("Initializing SLIC Engine...");
@@ -1728,43 +1735,42 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 
 	SPLASH_STRING("Initializing Object Pools...");
 
-		terrimprovepool_Set(new TerrainImprovementPool());
+		terrimprovepool_Set(std::make_unique<TerrainImprovementPool>().release());
 	Assert(terrimprovepool_Get()) ;
 
-		diplomaticrequestpool_Set(new DiplomaticRequestPool()) ;
+		diplomaticrequestpool_Set(std::make_unique<DiplomaticRequestPool>().release()) ;
 	Assert(diplomaticrequestpool_Get()) ;
 
-		civilisationpool_Set(new CivilisationPool()) ;
+		civilisationpool_Set(std::make_unique<CivilisationPool>().release()) ;
 	Assert(civilisationpool_Get()) ;
 
-		agreementpool_Set(new AgreementPool()) ;
+		agreementpool_Set(std::make_unique<AgreementPool>().release()) ;
 	Assert(agreementpool_Get()) ;
 
-		messagepool_Set(new MessagePool()) ;
+		messagepool_Set(std::make_unique<MessagePool>().release()) ;
 	Assert(messagepool_Get()) ;
 
-	delete g_theCriticalMessagesPrefs;
-	g_theCriticalMessagesPrefs = new CriticalMessagesPrefs() ;
+	g_theCriticalMessagesPrefs = std::make_unique<CriticalMessagesPrefs>() ;
 	Assert(g_theCriticalMessagesPrefs) ;
 
-		installationpool_Set(new InstallationPool());
+		installationpool_Set(std::make_unique<InstallationPool>().release());
 	Assert(installationpool_Get()) ;
 
 	installationpool_Get()->RebuildQuadTree();
 
 		g_wormhole = nullptr;
 
-		wonder_tracker_Set(new WonderTracker());
+		wonder_tracker_Set(std::make_unique<WonderTracker>().release());
 
-		achievementtracker_Set(new AchievementTracker());
+		achievementtracker_Set(std::make_unique<AchievementTracker>().release());
 
 	    // Exclusions not used
 
-		feattracker_Set(new FeatTracker());
+		feattracker_Set(std::make_unique<FeatTracker>().release());
 
-		tradebids_Set(new TradeBids());
+		tradebids_Set(std::make_unique<TradeBids>().release());
 
-		eventtracker_Set(new EventTracker());
+		eventtracker_Set(std::make_unique<EventTracker>().release());
 
 		// Fresh game starts with an empty Action Log — otherwise a new game
 		// within one process would inherit the prior game's ledger (the tap's
@@ -1773,9 +1779,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 
 	SPLASH_STRING("Setting Up Players...");
 
-	g_player = new Player *[k_MAX_PLAYERS];
-    std::fill(g_player, g_player + k_MAX_PLAYERS, (Player *) nullptr);
-	g_deadPlayer = new PointerList<Player>;
+	g_player = std::make_unique<Player *[]>(k_MAX_PLAYERS).release();
+	g_deadPlayer = std::make_unique<PointerList<Player>>().release();
 
 	sint32 diff = gamesettings_Get()->GetDifficulty();
 
@@ -1840,29 +1845,29 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 					nsaipi = network_Get().GetNSAIPlayerInfo(i - firstRobot);
 				}
 				if(nsaipi) {
-					g_player[i] = new Player(PLAYER_INDEX(i),
+					g_player[i] = std::make_unique<Player>(PLAYER_INDEX(i),
 											 diff,
 											 PLAYER_TYPE_ROBOT,
 											 nsaipi->m_civ,
-											 GENDER_RANDOM);
+											 GENDER_RANDOM).release();
 					g_player[i]->m_networkGroup = nsaipi->m_group;
 					g_player[i]->m_gold->SetLevel(nsaipi->m_civpoints);
 					s_networkSettlers[i] = nsaipi->m_settlers;
 				}
 	else
 	{
-					g_player[i] = new Player(PLAYER_INDEX(i),
+					g_player[i] = std::make_unique<Player>(PLAYER_INDEX(i),
 											 diff,
 											 PLAYER_TYPE_ROBOT,
 											 CIV_INDEX_RANDOM,
-											 GENDER_RANDOM);
+											 GENDER_RANDOM).release();
 					s_networkSettlers[i] = 1;
 				}
 			}
 	else
 	{
 				if(!network_Get().IsLaunchHost()) {
-					g_player[i] = new Player(PLAYER_INDEX(i), diff, PLAYER_TYPE_HUMAN, CIV_INDEX_RANDOM, GENDER_RANDOM);
+					g_player[i] = std::make_unique<Player>(PLAYER_INDEX(i), diff, PLAYER_TYPE_HUMAN, CIV_INDEX_RANDOM, GENDER_RANDOM).release();
 					s_networkSettlers[i] = 1;
 				}
 	else
@@ -1872,11 +1877,11 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 					civ = nspi ? nspi->m_civ : CIV_INDEX_RANDOM;
 
 
-					g_player[i] = new Player(PLAYER_INDEX(i),
+					g_player[i] = std::make_unique<Player>(PLAYER_INDEX(i),
 											 diff,
 											 PLAYER_TYPE_HUMAN,
 											 civ,
-											 GENDER_RANDOM);
+											 GENDER_RANDOM).release();
 					if(nspi) {
 						g_player[i]->m_networkId = nspi->m_id;
 						g_player[i]->m_networkGroup = nspi->m_group;
@@ -1920,7 +1925,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 #ifdef _DEBUG
 	if (g_theProfileDB->IsDiplomacyLogOn())
 	{
-		g_theDiplomacyLog = new Diplomacy_Log;
+		g_theDiplomacyLog = std::make_unique<Diplomacy_Log>().release();
 	}
 
 	verifyYwrap();
@@ -1992,7 +1997,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 		if(numPlaced < g_theProfileDB->GetNPlayers() - 1) {
 			for (sint32 n = numPlaced; n < k_MAX_PLAYERS; n++)
             {
-				delete g_player[n];
+				std::unique_ptr<Player>{g_player[n]};
 				g_player[n] = nullptr;
 			}
 		}
@@ -2140,7 +2145,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight)
 
 	// Clean good old -> new good table
 	// Created in CityData if the good database was changed in size.
-	delete [] g_newGoods;
+	std::unique_ptr<sint32[]>{g_newGoods};
 	g_newGoods = nullptr;
 
 	return 1;
@@ -2199,31 +2204,31 @@ void gameinit_Cleanup()
 
 sint32 gameinit_ResetForNetwork()
 {
-	installationpool_Set(new InstallationPool());
+	installationpool_Set(std::make_unique<InstallationPool>().release());
 
-	agreementpool_Set(new AgreementPool());
+	agreementpool_Set(std::make_unique<AgreementPool>().release());
 
-	civilisationpool_Set(new CivilisationPool());
+	civilisationpool_Set(std::make_unique<CivilisationPool>().release());
 
-	diplomaticrequestpool_Set(new DiplomaticRequestPool());
+	diplomaticrequestpool_Set(std::make_unique<DiplomaticRequestPool>().release());
 
-	terrimprovepool_Set(new TerrainImprovementPool());
+	terrimprovepool_Set(std::make_unique<TerrainImprovementPool>().release());
 
-	tradepool_Set(new TradePool());
+	tradepool_Set(std::make_unique<TradePool>().release());
 
-	unitpool_Set(new UnitPool);  // Set() deletes the previous instance
+	unitpool_Set(std::make_unique<UnitPool>().release());  // Set() deletes the previous instance
 
-	tradepool_Set(new TradePool());
+	tradepool_Set(std::make_unique<TradePool>().release());
 
-	tradeofferpool_Set(new TradeOfferPool());
+	tradeofferpool_Set(std::make_unique<TradeOfferPool>().release());
 
-	armypool_Set(new ArmyPool);
+	armypool_Set(std::make_unique<ArmyPool>().release());
 
-    delete g_theOrderPond;
-	g_theOrderPond = new Pool<Order>(INITIAL_CHUNK_LIST_SIZE);
+    std::unique_ptr<Pool<Order>>{g_theOrderPond};
+	g_theOrderPond = std::make_unique<Pool<Order>>(INITIAL_CHUNK_LIST_SIZE).release();
 
-    delete g_theUnseenPond;
-	g_theUnseenPond = new Pool<UnseenCell>(INITIAL_CHUNK_LIST_SIZE);
+    std::unique_ptr<Pool<UnseenCell>>{g_theUnseenPond};
+	g_theUnseenPond = std::make_unique<Pool<UnseenCell>>(INITIAL_CHUNK_LIST_SIZE).release();
 
 	return 0;
 }
@@ -2240,41 +2245,39 @@ void gameinit_ResetMapSize()
     {
 		if (g_player[i])
         {
-			g_player[i]->m_vision.reset(new Vision(i));
+			g_player[i]->m_vision = std::make_unique<Vision>(i);
 		}
 	}
 
 	world_Get()->NumberContinents();
 
-    delete g_theUnitTree;
     g_theUnitTree =
-        new QuadTree<Unit>(mapsize.x, mapsize.y, world_Get()->IsYwrap());
+        std::make_unique<QuadTree<Unit>>(mapsize.x, mapsize.y, world_Get()->IsYwrap());
 
-    delete g_theInstallationTree;
     g_theInstallationTree =
-        new InstallationQuadTree(mapsize.x, mapsize.y, world_Get()->IsYwrap());
+        std::make_unique<InstallationQuadTree>(mapsize.x, mapsize.y, world_Get()->IsYwrap());
 
-    installationpool_Set(new InstallationPool());
+    installationpool_Set(std::make_unique<InstallationPool>().release());
 
-    agreementpool_Set(new AgreementPool());
+    agreementpool_Set(std::make_unique<AgreementPool>().release());
 
-    diplomaticrequestpool_Set(new DiplomaticRequestPool());
+    diplomaticrequestpool_Set(std::make_unique<DiplomaticRequestPool>().release());
 
-    terrimprovepool_Set(new TerrainImprovementPool());
+    terrimprovepool_Set(std::make_unique<TerrainImprovementPool>().release());
 
-    tradepool_Set(new TradePool());
+    tradepool_Set(std::make_unique<TradePool>().release());
 
-    unitpool_Set(new UnitPool);
+    unitpool_Set(std::make_unique<UnitPool>().release());
 
-    tradepool_Set(new TradePool());
+    tradepool_Set(std::make_unique<TradePool>().release());
 
-    armypool_Set(new ArmyPool);
+    armypool_Set(std::make_unique<ArmyPool>().release());
 
-    delete g_theOrderPond;
-    g_theOrderPond = new Pool<Order>(INITIAL_CHUNK_LIST_SIZE);
+    std::unique_ptr<Pool<Order>>{g_theOrderPond};
+    g_theOrderPond = std::make_unique<Pool<Order>>(INITIAL_CHUNK_LIST_SIZE).release();
 
-    delete g_theUnseenPond;
-    g_theUnseenPond = new Pool<UnseenCell>(INITIAL_CHUNK_LIST_SIZE);
+    std::unique_ptr<Pool<UnseenCell>>{g_theUnseenPond};
+    g_theUnseenPond = std::make_unique<Pool<UnseenCell>>(INITIAL_CHUNK_LIST_SIZE).release();
 
     CtpAi::Initialize();
 

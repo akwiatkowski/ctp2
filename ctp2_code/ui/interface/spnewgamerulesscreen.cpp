@@ -52,6 +52,8 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
+
 #include "ctp/c3.h"
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/c3_popupwindow.h"
@@ -78,24 +80,24 @@
 #include "net/general/network.h"
 
 
-static c3_PopupWindow	*s_spNewGameRulesScreen	= nullptr;
-static aui_Switch		*s_genocide			= nullptr,
-						*s_pollution		= nullptr,
-						*s_citycapture		= nullptr,
-						*s_onecity			= nullptr,
-						*s_revoltinsurgent  = nullptr,
-						*s_revoltcasualty   = nullptr,
-						*s_barbspawn		= nullptr,
-						*s_NonRandomCivs	= nullptr,
-						*s_Upgrade			= nullptr,
-						*s_NewCombat		= nullptr,
-						*s_NoGoodyHuts		= nullptr,
-						*s_UNITGOLD			= nullptr,
-						*s_CITYGOLD			= nullptr,
-						*s_NOCITYLIMIT		= nullptr;
-ctp2_Button				*s_ages				= nullptr;
-static c3_Static		*m_ruleDetails		= nullptr;
-static aui_StringTable	*m_ruleDetailsStrings = nullptr;
+static std::unique_ptr<c3_PopupWindow>	s_spNewGameRulesScreen;
+static std::unique_ptr<aui_Switch>		s_genocide,
+						s_pollution,
+						s_citycapture,
+						s_onecity,
+						s_revoltinsurgent,
+						s_revoltcasualty,
+						s_barbspawn,
+						s_NonRandomCivs,
+						s_Upgrade,
+						s_NewCombat,
+						s_NoGoodyHuts,
+						s_UNITGOLD,
+						s_CITYGOLD,
+						s_NOCITYLIMIT;
+std::unique_ptr<ctp2_Button>			s_ages;
+static std::unique_ptr<c3_Static>		m_ruleDetails;
+static std::unique_ptr<aui_StringTable>	m_ruleDetailsStrings;
 
 enum
 {
@@ -167,8 +169,8 @@ sint32	spnewgamerulesscreen_displayMyWindow()
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = c3ui_Get()->AddWindow(s_spNewGameRulesScreen);
-	keypress_RegisterHandler(s_spNewGameRulesScreen);
+	auiErr = c3ui_Get()->AddWindow(s_spNewGameRulesScreen.get());
+	keypress_RegisterHandler(s_spNewGameRulesScreen.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -181,7 +183,7 @@ sint32 spnewgamerulesscreen_removeMyWindow(uint32 action)
 	AUI_ERRCODE auiErr;
 
 	auiErr = c3ui_Get()->RemoveWindow( s_spNewGameRulesScreen->Id() );
-	keypress_RemoveHandler(s_spNewGameRulesScreen);
+	keypress_RemoveHandler(s_spNewGameRulesScreen.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -200,7 +202,7 @@ AUI_ERRCODE spnewgamerulesscreen_Initialize( )
 
 	strlcpy(windowBlock, "SPNewGameRulesScreen", sizeof(windowBlock));
 
-	s_spNewGameRulesScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+	s_spNewGameRulesScreen = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(s_spNewGameRulesScreen, errcode) );
 		if ( !AUI_NEWOK(s_spNewGameRulesScreen, errcode) ) return errcode;
 
@@ -208,27 +210,27 @@ AUI_ERRCODE spnewgamerulesscreen_Initialize( )
 		s_spNewGameRulesScreen->GrabRegion()->Resize(s_spNewGameRulesScreen->Width(),s_spNewGameRulesScreen->Height());
 		s_spNewGameRulesScreen->SetStronglyModal(TRUE);
 
-	s_genocide			= spNew_aui_Switch(&errcode, windowBlock, "RuleOne",             spnewgamerulesscreen_checkPress, &check[R_GENOCIDE     ]);
-	s_pollution			= spNew_aui_Switch(&errcode, windowBlock, "RuleTwo",             spnewgamerulesscreen_checkPress, &check[R_POLLUTION    ]);
-	s_citycapture		= spNew_aui_Switch(&errcode, windowBlock, "CityCapture",         spnewgamerulesscreen_checkPress, &check[GP_CITYCAPTURE ]); //emod5
-	s_onecity			= spNew_aui_Switch(&errcode, windowBlock, "OneCity",             spnewgamerulesscreen_checkPress, &check[R_ONECITY      ]); //emod5
-	s_revoltinsurgent	= spNew_aui_Switch(&errcode, windowBlock, "RevoltInsurgents",    spnewgamerulesscreen_checkPress, &check[R_INSURGENT    ]); //emod5
-	s_revoltcasualty	= spNew_aui_Switch(&errcode, windowBlock, "RevoltCasualties",    spnewgamerulesscreen_checkPress, &check[R_CASUALTY     ]); //emod5
-	s_barbspawn			= spNew_aui_Switch(&errcode, windowBlock, "BarbSpawn",           spnewgamerulesscreen_checkPress, &check[R_BARBSPAWN    ]); //emod5
-	s_NonRandomCivs		= spNew_aui_Switch(&errcode, windowBlock, "NonRandomCivs",       spnewgamerulesscreen_checkPress, &check[R_NonRandomCivs]); //emod5
-	s_Upgrade			= spNew_aui_Switch(&errcode, windowBlock, "Upgrade",             spnewgamerulesscreen_checkPress, &check[R_UPGRADE      ]); //emod5
-	s_NewCombat			= spNew_aui_Switch(&errcode, windowBlock, "NewCombat",           spnewgamerulesscreen_checkPress, &check[R_NEWCOMBAT    ]);
-	s_NoGoodyHuts		= spNew_aui_Switch(&errcode, windowBlock, "NoGoodyHuts",         spnewgamerulesscreen_checkPress, &check[R_NOGOODYHUTS  ]);
-	s_UNITGOLD			= spNew_aui_Switch(&errcode, windowBlock, "UnitGold",            spnewgamerulesscreen_checkPress, &check[R_UNITGOLD     ]); //emod5
-	s_CITYGOLD			= spNew_aui_Switch(&errcode, windowBlock, "CityGold",            spnewgamerulesscreen_checkPress, &check[R_CITYGOLD     ]); //emod5
-	s_NOCITYLIMIT		= spNew_aui_Switch(&errcode, windowBlock, "NoCityLimit",         spnewgamerulesscreen_checkPress, &check[R_NOCITYLIMIT  ]); //emod5
+	s_genocide			.reset(spNew_aui_Switch(&errcode, windowBlock, "RuleOne",             spnewgamerulesscreen_checkPress, &check[R_GENOCIDE     ]));
+	s_pollution			.reset(spNew_aui_Switch(&errcode, windowBlock, "RuleTwo",             spnewgamerulesscreen_checkPress, &check[R_POLLUTION    ]));
+	s_citycapture		.reset(spNew_aui_Switch(&errcode, windowBlock, "CityCapture",         spnewgamerulesscreen_checkPress, &check[GP_CITYCAPTURE ])); //emod5
+	s_onecity			.reset(spNew_aui_Switch(&errcode, windowBlock, "OneCity",             spnewgamerulesscreen_checkPress, &check[R_ONECITY      ])); //emod5
+	s_revoltinsurgent	.reset(spNew_aui_Switch(&errcode, windowBlock, "RevoltInsurgents",    spnewgamerulesscreen_checkPress, &check[R_INSURGENT    ])); //emod5
+	s_revoltcasualty	.reset(spNew_aui_Switch(&errcode, windowBlock, "RevoltCasualties",    spnewgamerulesscreen_checkPress, &check[R_CASUALTY     ])); //emod5
+	s_barbspawn			.reset(spNew_aui_Switch(&errcode, windowBlock, "BarbSpawn",           spnewgamerulesscreen_checkPress, &check[R_BARBSPAWN    ])); //emod5
+	s_NonRandomCivs		.reset(spNew_aui_Switch(&errcode, windowBlock, "NonRandomCivs",       spnewgamerulesscreen_checkPress, &check[R_NonRandomCivs])); //emod5
+	s_Upgrade			.reset(spNew_aui_Switch(&errcode, windowBlock, "Upgrade",             spnewgamerulesscreen_checkPress, &check[R_UPGRADE      ])); //emod5
+	s_NewCombat			.reset(spNew_aui_Switch(&errcode, windowBlock, "NewCombat",           spnewgamerulesscreen_checkPress, &check[R_NEWCOMBAT    ]));
+	s_NoGoodyHuts		.reset(spNew_aui_Switch(&errcode, windowBlock, "NoGoodyHuts",         spnewgamerulesscreen_checkPress, &check[R_NOGOODYHUTS  ]));
+	s_UNITGOLD			.reset(spNew_aui_Switch(&errcode, windowBlock, "UnitGold",            spnewgamerulesscreen_checkPress, &check[R_UNITGOLD     ])); //emod5
+	s_CITYGOLD			.reset(spNew_aui_Switch(&errcode, windowBlock, "CityGold",            spnewgamerulesscreen_checkPress, &check[R_CITYGOLD     ])); //emod5
+	s_NOCITYLIMIT		.reset(spNew_aui_Switch(&errcode, windowBlock, "NoCityLimit",         spnewgamerulesscreen_checkPress, &check[R_NOCITYLIMIT  ])); //emod5
 
-	s_ages				= spNew_ctp2_Button(&errcode, windowBlock, "AgesButton", spnewgamerulesscreen_agesPress);
+	s_ages				.reset(spNew_ctp2_Button(&errcode, windowBlock, "AgesButton", spnewgamerulesscreen_agesPress));
 
-	m_ruleDetails		= spNew_c3_Static(&errcode,windowBlock, "RuleDetail");
+	m_ruleDetails		.reset(spNew_c3_Static(&errcode,windowBlock, "RuleDetail"));
 
 	//AUI_ERRCODE	errcode = AUI_ERRCODE_OK;
-	m_ruleDetailsStrings = new aui_StringTable(&errcode, "RuleDetailsStringTable");
+	m_ruleDetailsStrings = std::make_unique<aui_StringTable>(&errcode, "RuleDetailsStringTable");
 	//Assert(errcode == AUI_ERRCODE_OK);
 
 	spnewgamerulesscreen_updateData();
@@ -246,37 +248,33 @@ AUI_ERRCODE spnewgamerulesscreen_Initialize( )
 
 AUI_ERRCODE spnewgamerulesscreen_Cleanup()
 {
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
-
 	if ( !s_spNewGameRulesScreen  ) return AUI_ERRCODE_OK;
 
 	c3ui_Get()->RemoveWindow( s_spNewGameRulesScreen->Id() );
-	keypress_RemoveHandler(s_spNewGameRulesScreen);
+	keypress_RemoveHandler(s_spNewGameRulesScreen.get());
 
-	mycleanup(s_genocide);
-	mycleanup(s_pollution);
-	mycleanup(s_citycapture);
-	mycleanup(s_onecity);
-	mycleanup(s_revoltinsurgent);
-	mycleanup(s_revoltcasualty);
-	mycleanup(s_barbspawn);
-	mycleanup(s_NonRandomCivs);
-	mycleanup(s_Upgrade);
-	mycleanup(s_NewCombat);
-	mycleanup(s_NoGoodyHuts);
-	mycleanup(s_UNITGOLD);
-	mycleanup(s_CITYGOLD);
-	mycleanup(s_NOCITYLIMIT);
-	mycleanup(s_ages);
-	mycleanup(m_ruleDetails);
+	// unique_ptr statics; reset in the original explicit order.
+	s_genocide.reset();
+	s_pollution.reset();
+	s_citycapture.reset();
+	s_onecity.reset();
+	s_revoltinsurgent.reset();
+	s_revoltcasualty.reset();
+	s_barbspawn.reset();
+	s_NonRandomCivs.reset();
+	s_Upgrade.reset();
+	s_NewCombat.reset();
+	s_NoGoodyHuts.reset();
+	s_UNITGOLD.reset();
+	s_CITYGOLD.reset();
+	s_NOCITYLIMIT.reset();
+	s_ages.reset();
+	m_ruleDetails.reset();
 
-    delete m_ruleDetailsStrings;
-	delete s_spNewGameRulesScreen;
-    m_ruleDetailsStrings = nullptr;
-	s_spNewGameRulesScreen = nullptr;
+	m_ruleDetailsStrings.reset();
+	s_spNewGameRulesScreen.reset();
 
 	return AUI_ERRCODE_OK;
-#undef mycleanup
 }
 
 void spnewgamerulesscreen_agesPress(aui_Control *control, uint32 action, uint32 data, void *cookie )

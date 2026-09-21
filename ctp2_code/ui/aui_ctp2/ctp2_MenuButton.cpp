@@ -18,7 +18,7 @@ ctp2_MenuButton::ctp2_MenuButton(AUI_ERRCODE *retval,
 	aui_ImageBase( ldlBlock ),
 	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	c3_Button( retval, id, ldlBlock, ActionFunc, cookie ),
-	m_menu(nullptr),
+	m_menu(),
 	m_rightNeighbor(nullptr),
 	m_leftNeighbor(nullptr)
 {
@@ -31,7 +31,7 @@ ctp2_MenuButton::ctp2_MenuButton(AUI_ERRCODE *retval,
 
 ctp2_MenuButton::~ctp2_MenuButton()
 {
-	delete m_menu;
+	// m_menu is a std::unique_ptr; it destroys the attached menu automatically.
 }
 
 void ctp2_MenuButton::MouseLGrabInside( aui_MouseEvent *mouseData )

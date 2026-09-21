@@ -29,6 +29,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui.h"
 
@@ -97,10 +98,10 @@ void Background::MouseLGrabInside(aui_MouseEvent *data)
 	data->position.x -= X();
 	data->position.y -= Y();
 
-	SavedMouseEvent *ev = new SavedMouseEvent;
+	auto ev = std::make_unique<SavedMouseEvent>();
 	memcpy(&ev->event, data, sizeof(aui_MouseEvent));
 	ev->type = SEV_LGRAB;
-	s_savedEvents.AddTail(ev);
+	s_savedEvents.AddTail(ev.release());
 
 
     m_lbutton_isdown = TRUE;
@@ -132,10 +133,10 @@ void Background::MouseRGrabInside(aui_MouseEvent *data)
 	data->position.x -= X();
 	data->position.y -= Y();
 
-	SavedMouseEvent *ev = new SavedMouseEvent;
+	auto ev = std::make_unique<SavedMouseEvent>();
 	memcpy(&ev->event, data, sizeof(aui_MouseEvent));
 	ev->type = SEV_RGRAB;
-	s_savedEvents.AddTail(ev);
+	s_savedEvents.AddTail(ev.release());
 
 
 
@@ -166,10 +167,10 @@ void Background::MouseLDropInside(aui_MouseEvent *data)
 	data->position.x -= X();
 	data->position.y -= Y();
 
-	SavedMouseEvent *ev = new SavedMouseEvent;
+	auto ev = std::make_unique<SavedMouseEvent>();
 	memcpy(&ev->event, data, sizeof(aui_MouseEvent));
 	ev->type = SEV_LDROP;
-	s_savedEvents.AddTail(ev);
+	s_savedEvents.AddTail(ev.release());
 
 
     m_lbutton_isdown = FALSE;
@@ -233,10 +234,10 @@ void Background::MouseLDragInside( aui_MouseEvent *data )
 
     if (tiledmap_Get() && tiledmap_Get()->GetMouseTilePos(tmp)){
 		if (m_current_mouse_tile != tmp) {
-			SavedMouseEvent *ev = new SavedMouseEvent;
+			auto ev = std::make_unique<SavedMouseEvent>();
 			memcpy(&ev->event, data, sizeof(aui_MouseEvent));
 			ev->type = SEV_LDRAG;
-			s_savedEvents.AddTail(ev);
+			s_savedEvents.AddTail(ev.release());
 
 
 		}
@@ -411,7 +412,7 @@ AUI_ERRCODE Background::Idle()
 				tiledmap_Get()->Click(&ev->event, TRUE);
 				break;
 		}
-		delete s_savedEvents.RemoveHead();
+		std::unique_ptr<SavedMouseEvent>{s_savedEvents.RemoveHead()};
 	}
 
 	return AUI_ERRCODE_OK;
@@ -436,10 +437,10 @@ void Background::MouseLDoubleClickInside(aui_MouseEvent *data)
 			ev->type = SEV_LDOUBLE;
 			memcpy(&ev->event, data, sizeof(aui_MouseEvent));
 		} else {
-			ev = new SavedMouseEvent;
-			memcpy(&ev->event, data, sizeof(aui_MouseEvent));
-			ev->type = SEV_LDOUBLE;
-			s_savedEvents.AddTail(ev);
+			auto newEv = std::make_unique<SavedMouseEvent>();
+			memcpy(&newEv->event, data, sizeof(aui_MouseEvent));
+			newEv->type = SEV_LDOUBLE;
+			s_savedEvents.AddTail(newEv.release());
 		}
 	} else {
 		tiledmap_Get()->Click(data, TRUE);

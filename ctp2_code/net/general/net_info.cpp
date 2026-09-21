@@ -34,6 +34,8 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <memory>
+
 #include "ui/interface/backgroundwin.h"
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/world/Cell.h"
@@ -381,7 +383,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					selitem_Get()->Refresh();
 				} else {
 
-					network_Get().SendAction(new NetAction(NET_ACTION_NAK_BEGIN_TURN));
+					network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_NAK_BEGIN_TURN).release());
 				}
 			} else {
 				network_Get().SetMyTurn(FALSE);
@@ -403,12 +405,12 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			c3ui_Get()->RemoveWindow(radarwindow_Get()->Id());
 			radarwindow_Cleanup();
 
-			delete tiledmap_Get();
+			std::unique_ptr<TiledMap>{tiledmap_Get()};
 			tiledmap_Set(nullptr);
 
 			MapPoint mapsize(world_Get()->GetXWidth(),
 							 world_Get()->GetYHeight());
-			tiledmap_Set(new TiledMap(mapsize));
+			tiledmap_Set(std::make_unique<TiledMap>(mapsize).release());
 			tiledmap_Get()->LoadTileset();
 
 			RECT rect =
@@ -658,7 +660,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(player_Get(m_data)) {
 
 			} else {
-				player_arr_Get()[m_data] = new Player(PLAYER_INDEX(m_data), 0, PLAYER_TYPE(m_data2));
+				player_arr_Get()[m_data] = std::make_unique<Player>(PLAYER_INDEX(m_data), 0, PLAYER_TYPE(m_data2)).release();
 				selitem_Get()->AddPlayer(PLAYER_INDEX(m_data));
 
 
@@ -824,7 +826,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_REQUEST_SLICE:
 			Assert(selitem_Get()->GetCurPlayer() == network_Get().GetPlayerIndex());
 			network_Get().SetMyTurn(FALSE);
-			network_Get().SendAction(new NetAction(NET_ACTION_END_SLICE));
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_END_SLICE).release());
 			break;
 		case NET_INFO_CODE_SET_GOVERNMENT:
 			DPRINTF(k_DBG_NET, ("Server: Player %d's governement is now %d\n",
@@ -841,8 +843,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			network_Get().RemoveEnact(req);
 
 			if(m_type == NET_INFO_CODE_ENACT_REQUEST_NEED_ACK) {
-				network_Get().SendAction(new NetAction(NET_ACTION_ACK_ENACT,
-												   req.m_id));
+				network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_ACK_ENACT,
+												   req.m_id).release());
 			}
 			if(!diplomaticrequestpool_Get()->IsValid(req))
 				break;
@@ -1276,13 +1278,13 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Unit src(m_data);
 			Unit dest(m_data2);
 			if(unitpool_Get()->IsValid(src) && unitpool_Get()->IsValid(dest)) {
-				SlicObject *so = new SlicObject("363TradeOfferAccepted");
+				auto so = std::make_unique<SlicObject>("363TradeOfferAccepted");
 				so->AddRecipient(dest.GetOwner());
 				so->AddCivilisation(src.GetOwner());
 				so->AddCity(src);
 				so->AddCity(dest);
 				so->AddGood(m_data3);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 			break;
 		}
@@ -1351,8 +1353,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(unitpool_Get()->IsValid(city)) {
 				city.GetData()->GetCityData()->GetBuildQueue()->RemoveIllegalItems();
 			}
-			network_Get().SendAction(new NetAction(NET_ACTION_ACK_REMOVE_ILLEGAL,
-											   m_data));
+			network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_ACK_REMOVE_ILLEGAL,
+											   m_data).release());
 			break;
 		}
 		case NET_INFO_CODE_MAKE_UNIT_PERMANENT:
@@ -1401,12 +1403,11 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Wonder %d started by player %d\n",
 								m_data2, m_data));
 			if(player_Get(m_data)) {
-				SlicObject *so;
-				so = new SlicObject("44WonderStarted");
+				auto so = std::make_unique<SlicObject>("44WonderStarted");
 				so->AddCivilisation(m_data);
 				so->AddWonder(m_data2);
 				so->AddRecipient(network_Get().GetPlayerIndex());
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 			break;
 		}
@@ -1414,11 +1415,11 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Wonder %d obsoleted by advance %d\n",
 								m_data2, m_data));
-			SlicObject *so = new SlicObject("097aWonderObsolete");
+			auto so = std::make_unique<SlicObject>("097aWonderObsolete");
 			so->AddRecipient(network_Get().GetPlayerIndex());
 			so->AddAdvance(m_data);
 			so->AddWonder(m_data2);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			break;
 		}
 		case NET_INFO_CODE_BEGIN_TURN_ENEMY_UNITS:
@@ -1435,23 +1436,23 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Wonder %d almost finished by %d at %x\n",
 								m_data2, m_data, m_data3));
 			if(unitpool_Get()->IsValid(m_data3)) {
-				SlicObject *so = new SlicObject("45WonderAlmostFinished");
+				auto so = std::make_unique<SlicObject>("45WonderAlmostFinished");
 				so->AddAllRecipientsBut(m_data);
 				so->AddWonder(m_data2);
 				so->AddCivilisation(m_data);
 				so->AddCity(Unit(m_data3));
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 			break;
 		}
 		case NET_INFO_CODE_WONDER_STOPPED:
 		{
 			DPRINTF(k_DBG_NET, ("Wonder %d stopped by %d\n", m_data2, m_data));
-			SlicObject *so = new SlicObject("44aWonderStopped");
+			auto so = std::make_unique<SlicObject>("44aWonderStopped");
 			so->AddCivilisation(m_data);
 			so->AddWonder(m_data2);
 			so->AddAllRecipientsBut(m_data);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			break;
 		}
 		case NET_INFO_CODE_ALL_PLAYERS_READY:
@@ -1473,20 +1474,20 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								m_data, m_data3, m_data2, m_data4));
 			Unit city(m_data3);
 			if(unitpool_Get()->IsValid(city)) {
-				SlicObject *so = new SlicObject("010NewCiv");
+				auto so = std::make_unique<SlicObject>("010NewCiv");
 				so->AddAllRecipients();
 				so->AddCivilisation(m_data);
 				so->AddCivilisation(m_data2);
 				so->AddCity(city);
-				slicengine_Get()->Execute(so) ;
+				slicengine_Get()->Execute(std::move(so)) ;
 
 				if (m_data4) {
-					so = new SlicObject("011CityJoinedYourCiv");
+					so = std::make_unique<SlicObject>("011CityJoinedYourCiv");
 					so->AddRecipient(m_data2);
 					so->AddCivilisation(m_data);
 					so->AddCivilisation(m_data2);
 					so->AddCity(city);
-					slicengine_Get()->Execute(so) ;
+					slicengine_Get()->Execute(std::move(so)) ;
 				}
 			}
 			break;
@@ -1504,10 +1505,10 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_OFFER_REJECTED_MESSAGE:
 		{
 			if(player_Get(m_data) && player_Get(m_data2)) {
-				SlicObject *so = new SlicObject("91OfferRejected");
+				auto so = std::make_unique<SlicObject>("91OfferRejected");
 				so->AddRecipient(m_data);
 				so->AddCivilisation(m_data2);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 			}
 			break;
 		}
@@ -1515,10 +1516,10 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("%d won the alien end game.\n", m_data));
 
-			SlicObject *so = new SlicObject("309EndGameWon");
+			auto so = std::make_unique<SlicObject>("309EndGameWon");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
 			if(player_Get(m_data)) {
 				player_Get(m_data)->GameOver(GAME_OVER_WON_SCIENCE, -1);
@@ -1544,42 +1545,42 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_OTHER_CIV_LAB_MSG:
 		{
-			SlicObject *so = new SlicObject("302EndGameOtherCivBuiltLab");
+			auto so = std::make_unique<SlicObject>("302EndGameOtherCivBuiltLab");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			break;
 		}
 		case NET_INFO_CODE_OTHER_CIV_SEQUENCE_MSG:
 		{
-			SlicObject *so = new SlicObject("303EndGameOtherCivStartedSequence");
+			auto so = std::make_unique<SlicObject>("303EndGameOtherCivStartedSequence");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			break;
 		}
 		case NET_INFO_CODE_ALIEN_ALMOST_DONE_OTHERS_MSG:
 		{
-			SlicObject *so = new SlicObject("054AlienAlmostDoneOthers");
+			auto so = std::make_unique<SlicObject>("054AlienAlmostDoneOthers");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			break;
 		}
 		case NET_INFO_CODE_ALIEN_SCRAPPED_OWNER:
 		{
-			SlicObject *so = new SlicObject("058AlienScrappedOwner");
+			auto so = std::make_unique<SlicObject>("058AlienScrappedOwner");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			break;
 		}
 		case NET_INFO_CODE_CATACLYSM_OTHER:
 		{
-			SlicObject *so = new SlicObject("301EndGameCataclysmOtherCiv");
+			auto so = std::make_unique<SlicObject>("301EndGameCataclysmOtherCiv");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 			break;
 		}
 		case NET_INFO_CODE_GAME_OVER_OUT_OF_TIME:

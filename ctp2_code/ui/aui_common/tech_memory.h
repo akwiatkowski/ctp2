@@ -32,6 +32,7 @@
 #ifndef __TECH_MEMORY_H__
 #define __TECH_MEMORY_H__
 
+#include <memory>
 #include <vector>
 
 #define k_TECH_MEMORY_DEFAULT_BLOCKSIZE		20
@@ -79,7 +80,7 @@ protected:
 		{
 		};
 
-		Block *                 pNext;
+		std::unique_ptr<Block>  pNext;
 		size_t                  usedSize;
 		std::vector<unsigned>   used;
 		size_t                  dataSize;
@@ -91,7 +92,7 @@ protected:
 	void UnuseElement( T *t );
 
 	size_t m_blockSize;
-	Block *m_pFirst;
+	std::unique_ptr<Block> m_pFirst;
 	Block *m_pLast;
 };
 
@@ -112,14 +113,14 @@ tech_Memory< T >::tech_Memory( size_t blockSize )
 template< class T >
 tech_Memory< T >::~tech_Memory()
 {
-	Block *pNextBlock;
-	for ( Block *pBlock = m_pFirst; pBlock; pBlock = pNextBlock )
+	// Iterative teardown: unique_ptr chains destroy recursively, which could
+	// overflow the stack for very long block chains.
+	for (std::unique_ptr<Block> pBlock = std::move(m_pFirst); pBlock; )
 	{
-		pNextBlock = pBlock->pNext;
-		delete pBlock;
+		pBlock = std::move(pBlock->pNext);
 	}
 
-	m_pFirst = m_pLast = nullptr;
+	m_pLast = nullptr;
 }
 
 
@@ -135,10 +136,11 @@ T *tech_Memory< T >::New( )
 			return t;
 		}
 
-		m_pLast->pNext = new Block(m_blockSize);
-		m_pLast = m_pLast->pNext;
+		m_pLast->pNext = std::make_unique<Block>(m_blockSize);
+		m_pLast = m_pLast->pNext.get();
 	} else {
-		m_pLast = m_pFirst = new Block(m_blockSize);
+		m_pFirst = std::make_unique<Block>(m_blockSize);
+		m_pLast = m_pFirst.get();
 	}
 
 	m_pLast->used[0] |= 1;
@@ -156,8 +158,7 @@ void tech_Memory< T >::Delete( T *t )
 template< class T >
 T *tech_Memory< T >::UseFreeElement( )
 {
-
-	for ( Block *pBlock = m_pFirst; pBlock; pBlock = pBlock->pNext )
+	for ( Block *pBlock = m_pFirst.get(); pBlock; pBlock = pBlock->pNext.get() )
 	{
 		T *t = pBlock->data.data();
 		T *stopT = t + m_blockSize;
@@ -197,8 +198,8 @@ void tech_Memory< T >::UnuseElement( T *t )
 	if ( !t ) return;
 
 	size_t offset = 0;
-	Block *			pBlock = m_pFirst;
-	for ( ; pBlock ; pBlock = pBlock->pNext )
+	Block *			pBlock = m_pFirst.get();
+	for ( ; pBlock ; pBlock = pBlock->pNext.get() )
 	{
 		offset = t - pBlock->data.data();
 		if ( offset < m_blockSize )

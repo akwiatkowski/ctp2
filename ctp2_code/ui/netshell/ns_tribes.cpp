@@ -59,7 +59,7 @@ ns_Tribes::ns_Tribes()
 			numCivs = k_TRIBES_MAX - 1;
 
 		AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-		m_stringtable = new aui_StringTable( &errcode, numCivs + 1 );
+		m_stringtable = std::make_unique<aui_StringTable>( &errcode, numCivs + 1 );
 		Assert( AUI_NEWOK(m_stringtable,errcode) );
 		if ( !AUI_NEWOK(m_stringtable,errcode) ) return;
 
@@ -82,11 +82,7 @@ ns_Tribes::ns_Tribes()
 
 ns_Tribes::~ns_Tribes()
 {
-	if ( m_stringtable )
-	{
-		delete m_stringtable;
-		m_stringtable = nullptr;
-	}
+	m_stringtable.reset();
 
 	g_nsTribes = nullptr;
 }
@@ -117,14 +113,14 @@ ns_TribesDropDown::ns_TribesDropDown(
 	{
 		MBCHAR *name = g_nsTribes->GetStrings()->GetString( i );
 
-		ns_ListItem *item = new ns_ListItem(
+		auto item = std::make_unique<ns_ListItem>(
 			retval,
 			name,
 			"listitems.tribeitem" );
 		Assert( AUI_NEWOK(item,*retval) );
 		if ( !AUI_NEWOK(item,*retval) ) return;
 
-		AddItem( (aui_Item *)item );
+		AddItem( (aui_Item *)item.release() );
 	}
 }
 

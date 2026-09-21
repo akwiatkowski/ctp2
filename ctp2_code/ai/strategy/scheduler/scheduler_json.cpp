@@ -178,7 +178,7 @@ void from_json(nlohmann::json const &j, Scheduler &destination)
     for (auto const &v : savedAgents) {
         // The default constructor does not dereference the army: dead agents can
         // legitimately remain until Process_Agent_Changes on the next turn.
-        auto ptr = std::unique_ptr<Agent>(new Agent());
+        auto ptr = std::unique_ptr<Agent>(new Agent());   // private ctor: make_unique can't name it
         auto &a = *ptr;
         strength(v.at("squad_strength"), a.m_squad_strength);
         v.at("army").get_to(a.m_army);

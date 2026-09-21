@@ -23,6 +23,13 @@ static const MBCHAR *k_AUI_RANGER_LDL_AUTO_INCX		= "autoincx";
 static const MBCHAR *k_AUI_RANGER_LDL_AUTO_DECY		= "autodecy";
 static const MBCHAR *k_AUI_RANGER_LDL_AUTO_INCY		= "autoincy";
 
+aui_Ranger::aui_Ranger()
+:
+	aui_Control()
+{
+}
+
+
 aui_Ranger::aui_Ranger(
 	AUI_ERRCODE *retval,
 	uint32 id,
@@ -203,20 +210,20 @@ AUI_ERRCODE aui_Ranger::InitCommon(
 	return AUI_ERRCODE_OK;
 }
 
-aui_Button *aui_Ranger::CreateArrowButton(const MBCHAR *ldlBlock,
+std::unique_ptr<aui_Button> aui_Ranger::CreateArrowButton(const MBCHAR *ldlBlock,
 										  const MBCHAR *autoLdlName,
 										  const MBCHAR *ldlName)
 {
 	static MBCHAR block[k_AUI_LDL_MAXBLOCK + 1];
 
 	AUI_ERRCODE     errcode     = AUI_ERRCODE_OK;
-	aui_Button *    arrowButton = nullptr;
+	std::unique_ptr<aui_Button> arrowButton;
 
 	if(ldlBlock) {
 
-		arrowButton = (aui_Button *)aui_Ldl::BuildHierarchyFromRoot(const_cast<MBCHAR*>(
+		arrowButton.reset((aui_Button *)aui_Ldl::BuildHierarchyFromRoot(const_cast<MBCHAR*>(
 			std::string(ldlBlock).append(".").append(
-			autoLdlName).c_str()));
+			autoLdlName).c_str())));
 
 		if(arrowButton) {
 
@@ -227,19 +234,19 @@ aui_Button *aui_Ranger::CreateArrowButton(const MBCHAR *ldlBlock,
 			snprintf(block, sizeof(block), "%s.%s", ldlBlock, ldlName);
 
             if (aui_Ldl::FindDataBlock(block))
-				arrowButton = new aui_Button(&errcode, aui_UniqueId(),
+				arrowButton = std::make_unique<aui_Button>(&errcode, aui_UniqueId(),
 				block, RangerButtonActionCallback, this);
 		}
 	}
 
 	if(!arrowButton)
-		arrowButton = new aui_Button(&errcode, aui_UniqueId(),
+		arrowButton = std::make_unique<aui_Button>(&errcode, aui_UniqueId(),
 		0, 0, 0, 0, RangerButtonActionCallback, this);
 
 	Assert(arrowButton);
 
 	if(arrowButton)
-		AddChild(arrowButton);
+		AddChild(arrowButton.get());
 
 	return arrowButton;
 }
@@ -252,9 +259,9 @@ AUI_ERRCODE aui_Ranger::CreateButtonsAndThumb(MBCHAR const *ldlBlock)
 
 	if(ldlBlock) {
 
-		m_rangeContainer = (aui_Control *)aui_Ldl::BuildHierarchyFromRoot(const_cast<MBCHAR*>(
+		m_rangeContainer.reset((aui_Control *)aui_Ldl::BuildHierarchyFromRoot(const_cast<MBCHAR*>(
 			std::string(ldlBlock).append(".").append(
-			k_AUI_RANGER_LDL_AUTO_DISPLAY).c_str()));
+			k_AUI_RANGER_LDL_AUTO_DISPLAY).c_str())));
 
 
 
@@ -262,13 +269,13 @@ AUI_ERRCODE aui_Ranger::CreateButtonsAndThumb(MBCHAR const *ldlBlock)
 		if(!m_rangeContainer) {
 			snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_DISPLAY);
             if (aui_Ldl::FindDataBlock(block))
-				m_rangeContainer = new aui_Static(&errcode,
+				m_rangeContainer = std::make_unique<aui_Static>(&errcode,
 				aui_UniqueId(), block);
 		}
 	}
 
 	if(m_rangeContainer)
-		AddChild(m_rangeContainer);
+		AddChild(m_rangeContainer.get());
 
 	if((m_type == AUI_RANGER_TYPE_SLIDER) ||
 		(m_type == AUI_RANGER_TYPE_SCROLLER)) {
@@ -277,19 +284,19 @@ AUI_ERRCODE aui_Ranger::CreateButtonsAndThumb(MBCHAR const *ldlBlock)
 			snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_THUMB );
 
             if (aui_Ldl::FindDataBlock(block))
-				m_thumb = new aui_Thumb(&errcode, aui_UniqueId(), block,
+				m_thumb = std::make_unique<aui_Thumb>(&errcode, aui_UniqueId(), block,
 				RangerThumbActionCallback, this);
 		}
 
 		if(!m_thumb)
-			m_thumb = new aui_Thumb(&errcode, aui_UniqueId(),
+			m_thumb = std::make_unique<aui_Thumb>(&errcode, aui_UniqueId(),
 				0, 0, 0, 0, RangerThumbActionCallback, this);
 
 		Assert(AUI_NEWOK(m_thumb,errcode));
 		if(!AUI_NEWOK(m_thumb,errcode))
 			return AUI_ERRCODE_MEMALLOCFAILED;
 
-		AddChild(m_thumb);
+		AddChild(m_thumb.get());
 
 		RepositionThumb(false);
 	}
@@ -336,15 +343,7 @@ AUI_ERRCODE aui_Ranger::CreateButtonsAndThumb(MBCHAR const *ldlBlock)
 }
 
 
-aui_Ranger::~aui_Ranger()
-{
-	delete m_thumb;
-	delete m_incXButton;
-	delete m_incYButton;
-	delete m_decXButton;
-	delete m_decYButton;
-	delete m_rangeContainer;
-}
+aui_Ranger::~aui_Ranger() = default;
 
 
 AUI_ERRCODE aui_Ranger::Show( )
@@ -856,7 +855,7 @@ void aui_Ranger::MouseMoveInside( aui_MouseEvent *mouseData )
 {
 	if (IsDisabled()) return;
 
-	if ( GetWhichSeesMouse() && GetWhichSeesMouse() != this && GetWhichSeesMouse() != m_thumb )
+	if ( GetWhichSeesMouse() && GetWhichSeesMouse() != this && GetWhichSeesMouse() != m_thumb.get() )
 		MouseMoveAway( mouseData );
 	else if ( !IsActive() )
 		MouseMoveOver( mouseData );
@@ -867,7 +866,7 @@ void aui_Ranger::MouseMoveOver( aui_MouseEvent *mouseData )
 {
 	if (IsDisabled()) return;
 
-	if ( !GetWhichSeesMouse() || GetWhichSeesMouse() == this || GetWhichSeesMouse() == m_thumb )
+	if ( !GetWhichSeesMouse() || GetWhichSeesMouse() == this || GetWhichSeesMouse() == m_thumb.get() )
 	{
 		if ( !GetWhichSeesMouse() )
 			SetWhichSeesMouse( this );
@@ -986,7 +985,7 @@ void aui_Ranger::MouseLDropInside( aui_MouseEvent *mouseData )
 
 	if ( !m_thumb ) return;
 
-	if ( GetWhichSeesMouse() == m_thumb ) m_sliding = FALSE;
+	if ( GetWhichSeesMouse() == m_thumb.get() ) m_sliding = FALSE;
 	else if ( !GetWhichSeesMouse() || GetWhichSeesMouse() == this)
 	{
 		SetWhichSeesMouse( this );

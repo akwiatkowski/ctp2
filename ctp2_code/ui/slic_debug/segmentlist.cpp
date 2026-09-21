@@ -64,6 +64,8 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSegment.h"
 
+#include <memory>
+
 static SegmentList *g_segmentList = nullptr;
 
 void segmentlist_Callback(sint32 arg)
@@ -73,7 +75,7 @@ void segmentlist_Callback(sint32 arg)
 void segmentlist_Display()
 {
 	if(!g_segmentList) {
-		g_segmentList = new SegmentList(segmentlist_Callback);
+		g_segmentList = std::make_unique<SegmentList>(segmentlist_Callback).release();
 	}
 	g_segmentList->DisplayWindow();
 }
@@ -86,11 +88,7 @@ void segmentlist_Remove()
 }
 
 SegmentList::SegmentList(SegmentListCallback *callback, MBCHAR *ldlBlock)
-:   KeyboardHandler     (),
-    m_window            (nullptr),
-	m_list              (nullptr),
-	m_watchButton       (nullptr),
-	m_exitButton        (nullptr)
+:   KeyboardHandler     ()
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -99,9 +97,9 @@ SegmentList::SegmentList(SegmentListCallback *callback, MBCHAR *ldlBlock)
 	else strlcpy(windowBlock,"SegmentListPopup", sizeof(windowBlock));
 
 	{
-		m_window = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
-		Assert( AUI_NEWOK(m_window, errcode) );
-		if ( !AUI_NEWOK(m_window, errcode) ) return;
+	m_window = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+	Assert( AUI_NEWOK(m_window.get(), errcode) );
+	if ( !AUI_NEWOK(m_window.get(), errcode) ) return;
 
 		m_window->Resize(m_window->Width(),m_window->Height());
 		m_window->GrabRegion()->Resize(m_window->Width(),m_window->Height());
@@ -116,17 +114,17 @@ SegmentList::SegmentList(SegmentListCallback *callback, MBCHAR *ldlBlock)
 SegmentList::~SegmentList()
 {
     // m_callback not deleted: reference only
-	delete m_exitButton;
-	delete m_watchButton;
+	m_exitButton.reset();
+	m_watchButton.reset();
 
     if (m_list)
     {
         m_list->Clear();
-    	delete m_list;
+    	m_list.reset();
     }
 
     RemoveWindow();
-	delete m_window;
+	m_window.reset();
 }
 
 void SegmentListActionCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -159,11 +157,11 @@ void SegmentListButtonCallback(aui_Control *control, uint32 action, uint32 data,
 		if(!g_segmentList)
 			return;
 
-		if(control == g_segmentList->m_watchButton) {
+		if(control == g_segmentList->m_watchButton.get()) {
 			watchlist_Display();
 		}
 
-		if(control == g_segmentList->m_exitButton) {
+		if(control == g_segmentList->m_exitButton.get()) {
 			segmentlist_Remove();
 		}
 
@@ -179,20 +177,20 @@ sint32 SegmentList::Initialize(MBCHAR *windowBlock)
 
 
 	snprintf( controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "SegmentList" );
-	m_list = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, SegmentListActionCallback, this);
+m_list = std::make_unique<c3_ListBox>(&errcode, aui_UniqueId(), controlBlock, SegmentListActionCallback, this);
 
-	Assert( AUI_NEWOK(m_list, errcode) );
-	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
+	Assert( AUI_NEWOK(m_list.get(), errcode) );
+	if ( !AUI_NEWOK(m_list.get(), errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "WatchButton");
-	m_watchButton = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SegmentListButtonCallback, this);
-	Assert(AUI_NEWOK(m_watchButton, errcode));
-	if(!AUI_NEWOK(m_watchButton, errcode)) return -1;
+	m_watchButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, SegmentListButtonCallback, this);
+	Assert(AUI_NEWOK(m_watchButton.get(), errcode));
+	if(!AUI_NEWOK(m_watchButton.get(), errcode)) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton");
-	m_exitButton = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SegmentListButtonCallback, this);
-	Assert(AUI_NEWOK(m_exitButton, errcode));
-	if(!AUI_NEWOK(m_exitButton, errcode)) return -1;
+	m_exitButton = std::make_unique<c3_Button>(&errcode, aui_UniqueId(), controlBlock, SegmentListButtonCallback, this);
+	Assert(AUI_NEWOK(m_exitButton.get(), errcode));
+	if(!AUI_NEWOK(m_exitButton.get(), errcode)) return -1;
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
 	Assert( AUI_SUCCESS(errcode) );
@@ -203,7 +201,7 @@ sint32 SegmentList::Initialize(MBCHAR *windowBlock)
 void SegmentList::DisplayWindow()
 {
 	UpdateData();
-	AUI_ERRCODE const auiErr = c3ui_Get()->AddWindow(m_window);
+	AUI_ERRCODE const auiErr = c3ui_Get()->AddWindow(m_window.get());
 	Assert(auiErr == AUI_ERRCODE_OK);
 	keypress_RegisterHandler(this);
 }
@@ -236,7 +234,7 @@ sint32 SegmentList::UpdateData()
         {
             AUI_ERRCODE         retval = AUI_ERRCODE_OK;
 		    SegmentListItem *   item    =
-                new SegmentListItem(&retval, i, hash->m_segments[i], ldlBlock);
+                std::make_unique<SegmentListItem>(&retval, i, hash->m_segments[i], ldlBlock).release();
 		m_list->AddItem((c3_ListItem *)item);
 	}
     }
@@ -269,7 +267,7 @@ AUI_ERRCODE SegmentListItem::InitCommonLdl(SlicSegment *segment,
 	AUI_ERRCODE		retval;
 
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Segment");
-	c3_Static * subItem = new c3_Static(&retval, aui_UniqueId(), block);
+	c3_Static * subItem = std::make_unique<c3_Static>(&retval, aui_UniqueId(), block).release();
 	AddChild(subItem);
 
 	Update();

@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/gameobj/AchievementTracker.h"
 #include "gs/utility/safety.h"
 #include "gs/gameobj/player.h"
@@ -20,8 +21,8 @@ void AchievementTracker::AddAchievement(sint32 which)
 {
 	m_achievements |= safe_shift_left_u64(which);
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ACHIEVEMENTS,
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ACHIEVEMENTS,
 									  (uint32)(m_achievements & 0xffffffff),
-									  (uint32)(m_achievements >> 32)));
+									  (uint32)(m_achievements >> 32)).release());
 	}
 }

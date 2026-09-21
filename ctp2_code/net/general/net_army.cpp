@@ -10,6 +10,7 @@
 #include "gs/gameobj/ArmyData.h"
 #include "ai/ctpai.h"
 #include "net/general/net_info.h"
+#include <memory>
 
 NetNewArmy::NetNewArmy(PLAYER_INDEX player, const ArmyList &army,
 					   sint32 armyIndex, CAUSE_NEW_ARMY cause)
@@ -77,7 +78,7 @@ void NetArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(armypool_Get()->IsValid(army)) {
 		m_data = armypool_Get()->AccessArmy(army);
 	} else {
-		m_data = new ArmyData(army);
+		m_data = std::make_unique<ArmyData>(army).release(); // ownership: armypool Insert below
 	}
 
 	uint8 c;
@@ -146,7 +147,7 @@ void NetGroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		theArmy.m_id = m_armyId;
 	} else {
 		theArmy = player_Get(pl)->GetNewArmy(CAUSE_NEW_ARMY_REMOTE_GROUPING);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, pl, CAUSE_NEW_ARMY_REMOTE_GROUPING, theArmy.m_id));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ADD_ARMY, pl, CAUSE_NEW_ARMY_REMOTE_GROUPING, theArmy.m_id).release());
 	}
 
 	uint8 n;
@@ -158,7 +159,7 @@ void NetGroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		PULLLONG(uid);
 		m_units.Insert(uid);
 		theArmy->GroupUnit(m_units[i]);
-		network_Get().QueuePacket(id, new NetInfo(NET_INFO_CODE_REMOTE_GROUP, theArmy, m_units[i].m_id));
+		network_Get().QueuePacket(id, std::make_unique<NetInfo>(NET_INFO_CODE_REMOTE_GROUP, theArmy, m_units[i].m_id).release());
 	}
 }
 
@@ -205,12 +206,12 @@ void NetUngroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLBYTE(n);
 	for(i = 0; i < n; i++) {
 		Army newArmy = player_Get(pl)->GetNewArmy(CAUSE_NEW_ARMY_REMOTE_UNGROUPING);
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, pl, CAUSE_NEW_ARMY_REMOTE_UNGROUPING, newArmy.m_id));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_ADD_ARMY, pl, CAUSE_NEW_ARMY_REMOTE_UNGROUPING, newArmy.m_id).release());
 
 		uint32 unitId;
 		PULLLONG(unitId);
 		m_units.Insert(Unit(unitId));
 		m_units[i].ChangeArmy(newArmy, CAUSE_NEW_ARMY_REMOTE_UNGROUPING);
 	}
-	network_Get().Enqueue(new NetInfo(NET_INFO_CODE_REMOTE_UNGROUP, theArmy, pl));
+	network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_REMOTE_UNGROUP, theArmy, pl).release());
 }

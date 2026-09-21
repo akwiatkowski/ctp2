@@ -67,37 +67,39 @@
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/player.h"
 
+#include <memory>
+
 extern sint32		g_fog_toggle;
 extern sint32		g_god;
 
 
 
-c3_PopupWindow					*g_helpTileWindow = nullptr;
+static std::unique_ptr<c3_PopupWindow>	g_helpTileWindow;
 
-static c3_Static			*s_tileFood			= nullptr;
-static c3_Static			*s_tileFoodV		= nullptr;
-static c3_Static			*s_tileProd			= nullptr;
-static c3_Static			*s_tileProdV		= nullptr;
-static c3_Static			*s_tileMove			= nullptr;
-static c3_Static			*s_tileMoveV		= nullptr;
-static c3_Static			*s_tileGood			= nullptr;
-static c3_Static			*s_tileGoodV		= nullptr;
-static c3_Static			*s_tileSale			= nullptr;
-static c3_Static			*s_tileSaleV		= nullptr;
-static c3_Static			*s_tileGold			= nullptr;
-static c3_Static			*s_tileGoldV		= nullptr;
+static std::unique_ptr<c3_Static>	s_tileFood;
+static std::unique_ptr<c3_Static>	s_tileFoodV;
+static std::unique_ptr<c3_Static>	s_tileProd;
+static std::unique_ptr<c3_Static>	s_tileProdV;
+static std::unique_ptr<c3_Static>	s_tileMove;
+static std::unique_ptr<c3_Static>	s_tileMoveV;
+static std::unique_ptr<c3_Static>	s_tileGood;
+static std::unique_ptr<c3_Static>	s_tileGoodV;
+static std::unique_ptr<c3_Static>	s_tileSale;
+static std::unique_ptr<c3_Static>	s_tileSaleV;
+static std::unique_ptr<c3_Static>	s_tileGold;
+static std::unique_ptr<c3_Static>	s_tileGoldV;
 
-static aui_StringTable		*s_stringTable		= nullptr;
+static std::unique_ptr<aui_StringTable>	s_stringTable;
 
 enum { STR_SALE_VALUE=0,STR_NONE=1 };
 
-static TileControl			*s_tileImage		= nullptr;
-static c3_Static			*s_tileITop			= nullptr;
-static c3_Static			*s_tileIBottom		= nullptr;
-static c3_Static			*s_tileITL			= nullptr;
-static c3_Static			*s_tileITR			= nullptr;
-static c3_Static			*s_tileIBL			= nullptr;
-static c3_Static			*s_tileIBR			= nullptr;
+static std::unique_ptr<TileControl>	s_tileImage;
+static std::unique_ptr<c3_Static>	s_tileITop;
+static std::unique_ptr<c3_Static>	s_tileIBottom;
+static std::unique_ptr<c3_Static>	s_tileITL;
+static std::unique_ptr<c3_Static>	s_tileITR;
+static std::unique_ptr<c3_Static>	s_tileIBL;
+static std::unique_ptr<c3_Static>	s_tileIBR;
 
 #define IMPROVEMENT_LISTBOXldl "TileImprovementListBox"
 #define HELPTILE_WINDOWldl "HelpTileWindow"
@@ -105,14 +107,14 @@ static void bExitPress( aui_Control *control, uint32 action, uint32 data, void *
 static
 sint32 removeMyWindow(uint32);
 
-static AUI_ERRCODE newC3Static(MBCHAR const *parent,MBCHAR const *name,c3_Static **mystatic)
+static AUI_ERRCODE newC3Static(MBCHAR const *parent,MBCHAR const *name,std::unique_ptr<c3_Static> &mystatic)
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", parent, name );
-	*mystatic = new c3_Static( &errcode, aui_UniqueId(), textBlock );
-	Assert( AUI_NEWOK(*mystatic, errcode) );
+	mystatic = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), textBlock );
+	Assert( AUI_NEWOK(mystatic, errcode) );
 	return errcode;
 }
 
@@ -127,7 +129,7 @@ sint32 helptile_Initialize( )
 	}
 
 	strlcpy(windowBlock, HELPTILE_WINDOWldl, sizeof(windowBlock));
-	g_helpTileWindow = new c3_PopupWindow(
+	g_helpTileWindow = std::make_unique<c3_PopupWindow>(
 		&errcode,
 		aui_UniqueId(),
 		windowBlock,
@@ -140,32 +142,32 @@ sint32 helptile_Initialize( )
 	g_helpTileWindow->AddClose( bExitPress );
 	g_helpTileWindow->AddTitle();
 
-	if(newC3Static(windowBlock,"FoodN",&s_tileFood)) return -1;
-	if(newC3Static(windowBlock,"ProdN",&s_tileProd)) return -1;
-	if(newC3Static(windowBlock,"MoveN",&s_tileMove)) return -1;
-	if(newC3Static(windowBlock,"GoodN",&s_tileGood)) return -1;
-	if(newC3Static(windowBlock,"SaleN",&s_tileSale)) return -1;
-	if(newC3Static(windowBlock,"FoodV",&s_tileFoodV)) return -1;
-	if(newC3Static(windowBlock,"ProdV",&s_tileProdV)) return -1;
-	if(newC3Static(windowBlock,"MoveV",&s_tileMoveV)) return -1;
-	if(newC3Static(windowBlock,"GoodV",&s_tileGoodV)) return -1;
-	if(newC3Static(windowBlock,"SaleV",&s_tileSaleV)) return -1;
+	if(newC3Static(windowBlock,"FoodN",s_tileFood)) return -1;
+	if(newC3Static(windowBlock,"ProdN",s_tileProd)) return -1;
+	if(newC3Static(windowBlock,"MoveN",s_tileMove)) return -1;
+	if(newC3Static(windowBlock,"GoodN",s_tileGood)) return -1;
+	if(newC3Static(windowBlock,"SaleN",s_tileSale)) return -1;
+	if(newC3Static(windowBlock,"FoodV",s_tileFoodV)) return -1;
+	if(newC3Static(windowBlock,"ProdV",s_tileProdV)) return -1;
+	if(newC3Static(windowBlock,"MoveV",s_tileMoveV)) return -1;
+	if(newC3Static(windowBlock,"GoodV",s_tileGoodV)) return -1;
+	if(newC3Static(windowBlock,"SaleV",s_tileSaleV)) return -1;
 
-	if(newC3Static(windowBlock,"GoldN",&s_tileGold)) return -1;
-	if(newC3Static(windowBlock,"GoldV",&s_tileGoldV)) return -1;
+	if(newC3Static(windowBlock,"GoldN",s_tileGold)) return -1;
+	if(newC3Static(windowBlock,"GoldV",s_tileGoldV)) return -1;
 
-	s_stringTable = spNewStringTable(&errcode, "HelpTileStringTable");
+	s_stringTable.reset(spNewStringTable(&errcode, "HelpTileStringTable"));
 	if (!s_stringTable) return -1;
 
-	if(newC3Static(windowBlock,"TileITop",&s_tileITop)) return -1;
-	if(newC3Static(windowBlock,"TileITL",&s_tileITL)) return -1;
-	if(newC3Static(windowBlock,"TileITR",&s_tileITR)) return -1;
-	if(newC3Static(windowBlock,"TileIBL",&s_tileIBL)) return -1;
-	if(newC3Static(windowBlock,"TileIBR",&s_tileIBR)) return -1;
-	if(newC3Static(windowBlock,"TileIBottom",&s_tileIBottom)) return -1;
+	if(newC3Static(windowBlock,"TileITop",s_tileITop)) return -1;
+	if(newC3Static(windowBlock,"TileITL",s_tileITL)) return -1;
+	if(newC3Static(windowBlock,"TileITR",s_tileITR)) return -1;
+	if(newC3Static(windowBlock,"TileIBL",s_tileIBL)) return -1;
+	if(newC3Static(windowBlock,"TileIBR",s_tileIBR)) return -1;
+	if(newC3Static(windowBlock,"TileIBottom",s_tileIBottom)) return -1;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "TileImage" );
-	s_tileImage = new TileControl( &errcode, aui_UniqueId(), buttonBlock);
+	s_tileImage = std::make_unique<TileControl>( &errcode, aui_UniqueId(), buttonBlock);
 	Assert( AUI_NEWOK(s_tileImage, errcode) );
 	if ( !AUI_NEWOK(s_tileImage, errcode) ) return -1;
 
@@ -176,9 +178,7 @@ sint32 helptile_Initialize( )
 	return 0;
 }
 
-template <typename T>
-static void mycleanup(T * & mypointer)
-{ delete mypointer; mypointer = nullptr; }
+
 
 void helptile_Cleanup( )
 {
@@ -187,27 +187,27 @@ void helptile_Cleanup( )
 		c3ui_Get()->RemoveWindow(g_helpTileWindow->Id());
 	}
 
-	mycleanup(s_tileFood);
-	mycleanup(s_tileProd);
-	mycleanup(s_tileGood);
-	mycleanup(s_tileMove);
-	mycleanup(s_tileSale);
-	mycleanup(s_tileFoodV);
-	mycleanup(s_tileProdV);
-	mycleanup(s_tileGoodV);
-	mycleanup(s_tileMoveV);
-	mycleanup(s_tileSaleV);
-	mycleanup(s_tileGold);
-	mycleanup(s_tileGoldV);
-	mycleanup(s_stringTable);
-	mycleanup(s_tileImage);
-	mycleanup(s_tileITop);
-	mycleanup(s_tileIBottom);
-	mycleanup(s_tileITL);
-	mycleanup(s_tileITR);
-	mycleanup(s_tileIBL);
-	mycleanup(s_tileIBR);
-	mycleanup(g_helpTileWindow);
+	s_tileFood.reset();
+	s_tileProd.reset();
+	s_tileGood.reset();
+	s_tileMove.reset();
+	s_tileSale.reset();
+	s_tileFoodV.reset();
+	s_tileProdV.reset();
+	s_tileGoodV.reset();
+	s_tileMoveV.reset();
+	s_tileSaleV.reset();
+	s_tileGold.reset();
+	s_tileGoldV.reset();
+	s_stringTable.reset();
+	s_tileImage.reset();
+	s_tileITop.reset();
+	s_tileIBottom.reset();
+	s_tileITL.reset();
+	s_tileITR.reset();
+	s_tileIBL.reset();
+	s_tileIBR.reset();
+	g_helpTileWindow.reset();
 }
 
 void helptile_displayData(const MapPoint &p)
@@ -310,7 +310,7 @@ void helptile_displayData(const MapPoint &p)
 	}
 	else
 	{
-		c3ui_Get()->AddWindow(g_helpTileWindow);
+		c3ui_Get()->AddWindow(g_helpTileWindow.get());
 	}
 }
 

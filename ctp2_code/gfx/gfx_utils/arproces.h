@@ -7,14 +7,15 @@
 
 #include "os/include/ctp2_inttypes.h"  // sint32, uint32
 #include "gfx/gfx_utils/pixeltypes.h"     // Pixel32
+#include <memory>
 
-sint32 RealConvolution(Pixel32 *InImage,
+// Returns the convolved image, or nullptr on failure (bad args / OOM throws).
+std::unique_ptr<Pixel32[]> RealConvolution(Pixel32 *InImage,
 							   uint32 Col, uint32 Row,
 							   uint32 Width, uint32 Height,
 							   double *Kernel, uint32 KernelCols,
 							   uint32 KernelRows, uint32 Scale,
-							   uint32 Absolute,
-							   Pixel32 **OutImageBufPtr);
+							   uint32 Absolute);
 
 void AdjImageBrightness(Pixel32 *image, sint16 BrightnessFactor,
 							uint32 Width, uint32 Height,

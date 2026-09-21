@@ -19,13 +19,12 @@ void PutPixelInImage(Pixel32 *image, uint32 width, uint32 height, uint32 col, ui
 
 #define MINPIXELVALUE		20
 
-sint32 RealConvolution(Pixel32 *InImage,
+std::unique_ptr<Pixel32[]> RealConvolution(Pixel32 *InImage,
 							   uint32 Width, uint32 Height,
 							   uint32 Col, uint32 Row,
 							   double *Kernel, uint32 KernelCols,
 							   uint32 KernelRows, uint32 Scale,
-							   uint32 Absolute,
-							   Pixel32 **OutImageBufPtr)
+							   uint32 Absolute)
 {
 	uint32		 ColExtent;
 	uint32		 RowExtent;
@@ -37,7 +36,7 @@ sint32 RealConvolution(Pixel32 *InImage,
 	uint32		 RowOffset;
 	uint32		 TempCol;
 	uint32		 TempRow;
-	Pixel32		*OutputImageBuffer;
+	std::unique_ptr<Pixel32[]> OutputImageBuffer;
 	double		 rSum;
 	double		 gSum;
 	double		 bSum;
@@ -50,15 +49,8 @@ sint32 RealConvolution(Pixel32 *InImage,
 	if (Width >= KernelCols && Height >= KernelRows)
 	{
 
-		OutputImageBuffer = (Pixel32 *)malloc(Width*Height*sizeof(Pixel32));
-
-		if (OutputImageBuffer == nullptr) {
-			printf("Error Not enough memory for convolution output buffer\n");
-			return (-1);
-		}
-		memset(OutputImageBuffer, 0, Width*Height*sizeof(Pixel32));
-
-		*OutImageBufPtr = OutputImageBuffer;
+		// make_unique value-initializes — replaces malloc + memset
+		OutputImageBuffer = std::make_unique<Pixel32[]>(Width*Height);
 
 		ColOffset = KernelCols/2;
 		RowOffset = KernelRows/2;
@@ -141,15 +133,15 @@ sint32 RealConvolution(Pixel32 *InImage,
 					bSum = (bSum > MAXSAMPLEVAL) ? MAXSAMPLEVAL:bSum;
 
 					pix32 = ComponentsToRGB32((Pixel16)rSum, (Pixel16)gSum, (Pixel16)bSum, a);
-					PutPixelInImage(OutputImageBuffer, Width, Height, ImageCol, ImageRow, pix32);
+					PutPixelInImage(OutputImageBuffer.get(), Width, Height, ImageCol, ImageRow, pix32);
 				}
 			}
 		}
 	}
 	else
-		return(-1);
+		return nullptr;
 
-	return(0);
+	return OutputImageBuffer;
 }
 
 #define MAXQUANTLEVELS			256

@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/utility/safety.h"
 
 #include "gs/gameobj/Gold.h"
@@ -47,11 +48,11 @@ void Agreement::RemoveAllReferences()
 	}
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_KILL_AGREEMENT,
-									  m_id));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_KILL_AGREEMENT,
+									  m_id).release());
 	} else if(network_Get().IsClient()) {
-		network_Get().SendAction(new NetAction(NET_ACTION_KILL_AGREEMENT,
-										   m_id));
+		network_Get().SendAction(std::make_unique<NetAction>(NET_ACTION_KILL_AGREEMENT,
+										   m_id).release());
 	}
 
 	agreementpool_Get()->Del(*this) ;

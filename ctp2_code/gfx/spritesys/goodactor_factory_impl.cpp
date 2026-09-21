@@ -4,15 +4,16 @@
 // gs/core/goodactor_factory.cpp.
 
 #include "ctp/c3.h"
+#include <memory>
 #include "gs/core/goodactor_factory.h"
 #include "gfx/spritesys/GoodActor.h"   // GoodActor, full type
 
 GoodActor *goodactor_factory_create(sint32 id, MapPoint const &pos)
 {
-    return new GoodActor(id, pos);
+    return std::make_unique<GoodActor>(id, pos).release();
 }
 
 void goodactor_factory_destroy(GoodActor *actor)
 {
-    delete actor;
+    std::unique_ptr<GoodActor>(actor).reset();
 }

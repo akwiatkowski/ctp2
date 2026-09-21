@@ -46,6 +46,13 @@
 #include "ui/ldl/ldl_data.hpp"
 #include "ui/ldl/ldl_file.hpp"
 
+aui_DropDown::aui_DropDown()
+:
+	aui_Control()
+{
+}
+
+
 aui_DropDown::aui_DropDown(
 	AUI_ERRCODE *retval,
 	uint32 id,
@@ -147,7 +154,7 @@ AUI_ERRCODE aui_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 
 		if (aui_Ldl::GetLdl()->FindDataBlock(block))
 		{
-			m_staticPane = new aui_Static(
+			m_staticPane = std::make_unique<aui_Static>(
 				&errcode,
 				aui_UniqueId(),
 				block );
@@ -165,7 +172,7 @@ AUI_ERRCODE aui_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 
 		if (aui_Ldl::GetLdl()->FindDataBlock(block))
 		{
-			m_button = new aui_Button(
+			m_button = std::make_unique<aui_Button>(
 				&errcode,
 				aui_UniqueId(),
 				block,
@@ -177,7 +184,7 @@ AUI_ERRCODE aui_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 	}
 
 	if ( !m_button )
-		m_button = new aui_Button(
+		m_button = std::make_unique<aui_Button>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -192,14 +199,14 @@ AUI_ERRCODE aui_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 
 		if (aui_Ldl::GetLdl()->FindDataBlock(block))
 		{
-			m_listBoxWindow = new aui_Window(
+			m_listBoxWindow = std::make_unique<aui_Window>(
 				&errcode,
 				aui_UniqueId(),
 				block,
 				aui_ui_Get()->BitsPerPixel(), AUI_WINDOW_TYPE_POPUP );
 
 
-			aui_Ldl::Remove( m_listBoxWindow );
+			aui_Ldl::Remove( m_listBoxWindow.get() );
 
 			if ( m_listBoxWindow )
 			{
@@ -210,7 +217,7 @@ AUI_ERRCODE aui_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 			snprintf(block, sizeof(block), "%s.%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_WINDOW, k_AUI_DROPDOWN_LDL_LISTBOX );
 
 			if (aui_Ldl::GetLdl()->FindDataBlock(block))
-				m_listBox = new aui_ListBox(
+				m_listBox = std::make_unique<aui_ListBox>(
 					&errcode,
 					aui_UniqueId(),
 					block,
@@ -219,7 +226,7 @@ AUI_ERRCODE aui_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 	}
 
 	if ( !m_listBoxWindow )
-		m_listBoxWindow = new aui_Window(
+		m_listBoxWindow = std::make_unique<aui_Window>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, m_width + m_buttonSize, m_windowSize,
@@ -229,7 +236,7 @@ AUI_ERRCODE aui_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 	if ( !AUI_NEWOK(m_listBoxWindow,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	if ( !m_listBox )
-		m_listBox = new aui_ListBox(
+		m_listBox = std::make_unique<aui_ListBox>(
 			&errcode,
 			aui_UniqueId(),
 			0, 0, 0, 0,
@@ -240,10 +247,10 @@ AUI_ERRCODE aui_DropDown::CreateComponents( MBCHAR const *ldlBlock )
 
 	m_listBox->SetForceSelect( TRUE );
 
-	if ( m_staticPane ) AddChild( m_staticPane );
-	AddChild( m_button );
+	if ( m_staticPane ) AddChild( m_staticPane.get() );
+	AddChild( m_button.get() );
 
-	m_listBoxWindow->AddChild( m_listBox );
+	m_listBoxWindow->AddChild( m_listBox.get() );
 
 	RepositionButton();
 	RepositionListBoxWindow();
@@ -258,10 +265,12 @@ aui_DropDown::~aui_DropDown()
 		aui_ui_Get()->RemoveWindow( m_listBoxWindow->Id() );
 	}
 
-	delete m_listBoxWindow;
-    delete m_listBox;
-	delete m_button;
-	delete m_staticPane;
+	// Members are owned by this object (child lists are non-owning);
+	// reset in the original teardown order.
+	m_listBoxWindow.reset();
+    m_listBox.reset();
+	m_button.reset();
+	m_staticPane.reset();
 }
 
 
@@ -394,7 +403,7 @@ AUI_ERRCODE aui_DropDown::ShowListBoxWindow( BOOL showIt )
 		&&   !aui_ui_Get()->GetWindow( m_listBoxWindow->Id() ) )
 		{
 			RepositionListBoxWindow();
-			aui_ui_Get()->AddWindow( m_listBoxWindow );
+			aui_ui_Get()->AddWindow( m_listBoxWindow.get() );
 
 
 		}
@@ -419,7 +428,7 @@ AUI_ERRCODE aui_DropDown::ToggleListBoxWindow( )
 		if ( m_alwaysPopup || m_listBox->NumItems() > 1 )
 		{
 			RepositionListBoxWindow();
-			aui_ui_Get()->AddWindow( m_listBoxWindow );
+			aui_ui_Get()->AddWindow( m_listBoxWindow.get() );
 
 
 		}

@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include <memory>
 
 #include "ui/aui_common/aui_ui.h"
 
@@ -28,7 +29,7 @@ void EnterMainMenu( )
 void LeaveMainMenu( )
 {
 
-	aui_ui_Get()->AddAction( new DestroyInitialPlayScreenAction );
+	aui_ui_Get()->AddAction( std::make_unique<DestroyInitialPlayScreenAction>().release() );
 }
 
 

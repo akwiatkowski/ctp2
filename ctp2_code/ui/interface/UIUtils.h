@@ -6,12 +6,10 @@
 // parent and hid a delete behind it. Members that own their control should use
 // std::unique_ptr and reset() instead of this.
 //
-// Do NOT reuse this name for a method. aui_Window::RemoveControl(uint32) and
-// AttractWindow::RemoveControl(MBCHAR *) detach a child without freeing it, and
-// they keep that name deliberately. A function-like macro expands wherever the
-// name is followed by "(", so a method sharing it breaks in any translation
-// unit that includes this header first.
-#define DeleteControl(p) { if (p) delete p ; p = NULL ; }
+// Do NOT reuse this name for a method that detaches without freeing:
+// aui_Window::RemoveControl(uint32) and AttractWindow::RemoveControl(MBCHAR *)
+// detach a child without freeing it, and they keep that name deliberately.
+template<class T> void DeleteControl(T *&p) { delete p; p = nullptr; }
 
 extern void BlockPush(MBCHAR *path, MBCHAR *addition) ;
 extern void BlockPop(MBCHAR *path) ;

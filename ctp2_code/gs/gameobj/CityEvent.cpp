@@ -40,6 +40,8 @@
 #include "ctp/c3.h"
 #include "gs/utility/TurnCnt.h"
 
+#include <memory>
+
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/CityEvent.h"
 #include "gs/events/GameEventUser.h"
@@ -152,10 +154,10 @@ STDEHANDLER(CaptureCityEvent)
 
 		if (city.AccessData()->CountSlaves() > 0)
 		{
-			SlicObject *	so = new SlicObject("20IAFreeSlaves");
+			auto so = std::make_unique<SlicObject>("20IAFreeSlaves");
 			so->AddRecipient(newOwner);
 			so->AddCity(city);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
 			// The AI frees slaves if it has no slaves or any units that can catch slaves
 			if(player_Get(newOwner)->IsRobot())
@@ -207,20 +209,20 @@ STDEHANDLER(CaptureCityEvent)
 //EMOD Capture city options
             /// @todo Check impact: this could be considered a human cheat.
             ///       The AI is unable to select raze (when over the city cap).
-		    SlicObject *	so = new SlicObject("999CITYCAPTUREOPTIONS");
+		    auto so = std::make_unique<SlicObject>("999CITYCAPTUREOPTIONS");
 		    so->AddRecipient(newOwner);
 		    so->AddCity(city);
-		    slicengine_Get()->Execute(so);
+		    slicengine_Get()->Execute(std::move(so));
 //END EMOD
         }
         else
         {
-            SlicObject *	so = new SlicObject("911CityNewOwner");
+            auto so = std::make_unique<SlicObject>("911CityNewOwner");
             so->AddRecipient(originalOwner);
             so->AddPlayer(originalOwner);
             so->AddPlayer(newOwner);
             so->AddCity(city);
-            slicengine_Get()->Execute(so);
+            slicengine_Get()->Execute(std::move(so));
         }
 
 		if(civrand().Next(100) <
@@ -242,21 +244,21 @@ STDEHANDLER(CaptureCityEvent)
 					if(canSteal[i]) {
 						if(which == count) {
 							player_Get(newOwner)->m_advances->GiveAdvance(i, CAUSE_SCI_COMBAT);
-							SlicObject * so = new SlicObject("99AdvanceFromCapturingCity");
+							auto so = std::make_unique<SlicObject>("99AdvanceFromCapturingCity");
 							so->AddCivilisation(newOwner);
 							so->AddCivilisation(originalOwner);
 							so->AddRecipient(newOwner);
 							so->AddCity(city);
 							so->AddAdvance(i);
-							slicengine_Get()->Execute(so);
+							slicengine_Get()->Execute(std::move(so));
 
-							so = new SlicObject("99aAdvanceFromCapturingCityVictim");
+							so = std::make_unique<SlicObject>("99aAdvanceFromCapturingCityVictim");
 							so->AddCivilisation(originalOwner);
 							so->AddCivilisation(newOwner);
 							so->AddRecipient(originalOwner);
 							so->AddCity(city);
 							so->AddAdvance(i);
-							slicengine_Get()->Execute(so);
+							slicengine_Get()->Execute(std::move(so));
 
 							break;
 						}
@@ -329,21 +331,21 @@ STDEHANDLER(CityBuildFrontEvent)
 
 	// EMOD for popcoststo build attempt to fix 6-01-2006 works but you must have that pop number to build then disband
 	if (city.CD()->GetBuildQueue()->m_popcoststobuild_pending) {
-		SlicObject *so = new SlicObject("111BuildingSettlerCityOfOne");
+		auto so = std::make_unique<SlicObject>("111BuildingSettlerCityOfOne");
 		so->AddCity(city);
 		so->AddUnitRecord(city.CD()->GetBuildQueue()->GetHead()->m_type);
 		so->AddRecipient(city.GetOwner());
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 	// End EMOD
 
 	if (city.CD()->GetBuildQueue()->m_settler_pending) {
 		if (city.CD()->PopCount() == 1) {  //Isn't this already reflected in bldque.cpp(407)?
-			SlicObject *so = new SlicObject("111BuildingSettlerCityOfOne");
+			auto so = std::make_unique<SlicObject>("111BuildingSettlerCityOfOne");
 			so->AddCity(city);
 			so->AddUnitRecord(city.CD()->GetBuildQueue()->GetHead()->m_type);
 			so->AddRecipient(city.GetOwner());
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 
@@ -678,7 +680,7 @@ STDEHANDLER(CreateBuildingEvent)
 	Unit c;
 	sint32		building;
 	sint32		player;
-	SlicObject *so;
+	std::unique_ptr<SlicObject> so;
 	SlicSegment *seg;
 
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
@@ -696,10 +698,10 @@ STDEHANDLER(CreateBuildingEvent)
 	if(player_Get(player)->GetGaiaController()->HasMaxSatsBuilt()) {
 		seg = slicengine_Get()->GetSegment("GCMaxSatsReached");
 		if(seg && !seg->TestLastShown(player, 10000, turn_Get()->GetRound())) {
-			so = new SlicObject("GCMaxSatsReached");
+			so = std::make_unique<SlicObject>("GCMaxSatsReached");
 			so->AddRecipient(player);
 			so->AddPlayer(player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 
@@ -707,15 +709,15 @@ STDEHANDLER(CreateBuildingEvent)
 		seg = slicengine_Get()->GetSegment("GCMinSatsReachedUs");
 		if (seg && !seg->TestLastShown(player, 10000, turn_Get()->GetRound()))
 		{
-			so = new SlicObject("GCMinSatsReachedUs");
+			so = std::make_unique<SlicObject>("GCMinSatsReachedUs");
 			so->AddPlayer(player);
 			so->AddRecipient(player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
-			so	= new SlicObject("GCMinSatsReachedThem");
+			so	= std::make_unique<SlicObject>("GCMinSatsReachedThem");
 			so->AddPlayer(player);
 			so->AddAllRecipientsBut(player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 
@@ -723,15 +725,15 @@ STDEHANDLER(CreateBuildingEvent)
 		seg = slicengine_Get()->GetSegment("GCMinCoresReachedUs");
 		if (seg && !seg->TestLastShown(player, 10000, turn_Get()->GetRound()))
 		{
-			so = new SlicObject("GCMinCoresReachedUs");
+			so = std::make_unique<SlicObject>("GCMinCoresReachedUs");
 			so->AddRecipient(player);
 			so->AddPlayer(player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
-			so = new SlicObject("GCMinCoresReachedThem");
+			so = std::make_unique<SlicObject>("GCMinCoresReachedThem");
 			so->AddPlayer(player);
 			so->AddAllRecipientsBut(player);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 		}
 	}
 
@@ -759,20 +761,20 @@ STDEHANDLER(CreateWonderEvent)
 	}
 	if(network_Get().IsHost()) {
 		network_Get().Block(c.GetOwner());
-		network_Get().Enqueue(new NetInfo(NET_INFO_CODE_WONDER_BUILT,
-									  c.CD()->GetBuildQueue()->GetHead()->m_type, (uint32)c.m_id));
+		network_Get().Enqueue(std::make_unique<NetInfo>(NET_INFO_CODE_WONDER_BUILT,
+									  c.CD()->GetBuildQueue()->GetHead()->m_type, (uint32)c.m_id).release());
 		network_Get().Unblock(c.GetOwner());
 	}
 
 	Unit u;
 	c.CD()->GetBuildQueue()->FinishBuildFront(u);
-	SlicObject *so;
+	std::unique_ptr<SlicObject> so;
 
 	if(wonder == wonderutil_GetFobCityIndex()) {
-		so = new SlicObject("911ForbiddenCityPeace");
+		so = std::make_unique<SlicObject>("911ForbiddenCityPeace");
 		so->AddRecipient(c.GetOwner());
 		so->AddCity(c);
-		slicengine_Get()->Execute(so);
+		slicengine_Get()->Execute(std::move(so));
 	}
 
 	if(wonder == wonderutil_GetGaiaIndex()) {
@@ -782,11 +784,11 @@ STDEHANDLER(CreateWonderEvent)
 		{
 			if (player_Get(i) && !player_Get(i)->IsDead() && (i != c.GetOwner()))
 			{
-				SlicObject * so	= new SlicObject("GCMustDiscoverGaiaController");
+				auto so = std::make_unique<SlicObject>("GCMustDiscoverGaiaController");
 				so->AddRecipient(i);
 				so->AddPlayer(i);
 				so->AddPlayer(c.GetOwner());
-				slicengine_Get()->Execute(so);	// will delete so after handling
+				slicengine_Get()->Execute(std::move(so));	// will delete so after handling
 			}
 		}
 	}

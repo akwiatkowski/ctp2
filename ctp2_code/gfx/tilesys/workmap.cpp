@@ -103,21 +103,12 @@ WorkMap::~WorkMap()
 {
 
 	for (auto & i : m_worker) {
-		if (i != nullptr) {
-			delete i;
-			i = nullptr;
-		}
+		i.reset();
 	}
 
-	if (m_updateAction) {
-		delete m_updateAction;
-		m_updateAction = nullptr;
-	}
+	m_updateAction.reset();
 
-	if (m_surface) {
-		delete m_surface;
-		m_surface = nullptr;
-	}
+	m_surface.reset();
 }
 
 void WorkMap::InitCommonLdl(MBCHAR *ldlBlock)
@@ -143,18 +134,16 @@ void WorkMap::InitCommon( sint32 scale)
 
 	m_unit = Unit();
 
-	m_updateAction = nullptr;
+	m_updateAction.reset();
 
-	for (auto & i : m_worker) {
-		i = nullptr;
-	}
+	// m_worker is an array of unique_ptr, default-null
 	m_numWorkers = 0;
 
-	m_surface = aui_Factory::new_Surface(errcode, m_width, m_height);
+	m_surface.reset(aui_Factory::new_Surface(errcode, m_width, m_height));
 	Assert( m_surface != nullptr );
 	if ( !m_surface ) return;
 
-	m_string = new aui_StringTable( &errcode, "WorkMapStrings" );
+	m_string = std::make_unique<aui_StringTable>( &errcode, "WorkMapStrings" );
 	Assert( m_string );
 	if ( !m_string ) return;
 }
@@ -248,7 +237,7 @@ sint32 WorkMap::DrawSurface()
 	sint32 height = m_surface->Height();
 
 	RECT rect = {0,0,width,height};
-	primitives_PaintRect16(m_surface,&rect,0x0000);
+	primitives_PaintRect16(m_surface.get(),&rect,0x0000);
 
 	MapPoint pos;
 	MapPoint newpos;
@@ -317,16 +306,13 @@ sint32 WorkMap::DrawSurface()
 	m_topEdge = topEdge;
 
 	for (i=0; i<k_MAX_WORKERS; i++) {
-		if (m_worker[i] != nullptr) {
-			delete m_worker[i];
-			m_worker[i] = nullptr;
-		}
+		m_worker[i].reset();
 	}
 	m_numWorkers = 0;
 
-	tiledmap_Get()->LockThisSurface(m_surface);
+	tiledmap_Get()->LockThisSurface(m_surface.get());
 
-	DrawWorkMapThing(m_surface, DrawATile);
+	DrawWorkMapThing(m_surface.get(), DrawATile);
 
 	tiledmap_Get()->UnlockSurface();
 
@@ -1098,7 +1084,7 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 sint32 WorkMap::UpdateFromSurface(aui_Surface *destSurface, RECT *destRect)
 {
 	RECT rect = {0,0,m_surface->Width(),m_surface->Height()};
-	c3ui_Get()->TheBlitter()->Blt(destSurface, destRect->left, destRect->top, m_surface, &rect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(destSurface, destRect->left, destRect->top, m_surface.get(), &rect, k_AUI_BLITTER_FLAG_COPY);
 	return 0;
 }
 

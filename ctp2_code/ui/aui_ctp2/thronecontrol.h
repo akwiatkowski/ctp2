@@ -32,6 +32,9 @@
 #include "ui/aui_ctp2/patternbase.h"
 #include "ui/aui_common/aui_control.h"
 
+#include <array>
+#include <memory>
+
 #define k_THRONE_LDL_BLENDSPEED		"blendspeed"
 
 #define k_THRONE_LDL_BACKGROUND		"background"
@@ -103,7 +106,7 @@ public:
 	sint32		GetHilightedImage( ) const { return m_hilightedImage; }
 	void		SetHilightedImage( sint32 hilightedImage ) { m_hilightedImage = hilightedImage; }
 
-	aui_Surface *GetThroneSurface( ) const { return m_throneSurface; }
+	aui_Surface *GetThroneSurface( ) const { return m_throneSurface.get(); }
 
 	sint32		RenderThrone( aui_Surface *surf );
 	sint32		RepaintFrames( aui_Surface *surf );
@@ -112,7 +115,7 @@ public:
 
 	void		SetDrawOrder( sint8 a, sint8 b, sint8 c, sint8 d, sint8 e );
 
-	aui_Surface *InitializeNewBG( MBCHAR *filename );
+	std::unique_ptr<aui_Surface> InitializeNewBG( MBCHAR *filename );
 	void		CrossFadeImage( MBCHAR *filename );
 
 	void		DisplayZoomedImage( MBCHAR *filename );
@@ -128,32 +131,35 @@ public:
 	void		SetZoomedMode( BOOL on );
 
 protected:
-	ThroneControl() : aui_Control() {}
+	// Out-of-line in thronecontrol.cpp: unique_ptr members over
+	// forward-declared types need the complete type at ctor/dtor
+	// instantiation.
+	ThroneControl();
 	void InitCommonLdl( MBCHAR const *ldlBlock );
 	void InitCommon(  );
 
 private:
-	aui_Surface	*m_throneSurface;
+	std::unique_ptr<aui_Surface>	m_throneSurface;
 
-	c3_Image	*m_background;
-	c3_Image	*m_upgradeImage[k_THRONE_IMAGES];
+	std::unique_ptr<c3_Image>	m_background;
+	std::array<std::unique_ptr<c3_Image>, k_THRONE_IMAGES>	m_upgradeImage;
 
-	c3_Button	*m_zoomedImage;
+	std::unique_ptr<c3_Button>	m_zoomedImage;
 	BOOL		m_isZoomed;
 
 	RECT		m_upgradeRect[k_THRONE_IMAGES];
 	sint8		m_drawOrder[k_THRONE_IMAGES];
 
-	c3_Static	*m_messageText;
-	c3_Static	*m_currentText[ k_THRONE_IMAGES ];
-	c3_Static	*m_upgradeText[ k_THRONE_IMAGES ];
+	std::unique_ptr<c3_Static>	m_messageText;
+	std::array<std::unique_ptr<c3_Static>, k_THRONE_IMAGES>	m_currentText;
+	std::array<std::unique_ptr<c3_Static>, k_THRONE_IMAGES>	m_upgradeText;
 
 	sint32		m_selectedImage;
 	sint32		m_hilightedImage;
 	sint32		m_wasHilighted;
 
-	aui_Surface *m_oldCutout;
-	aui_Surface *m_newCutout;
+	std::unique_ptr<aui_Surface> m_oldCutout;
+	std::unique_ptr<aui_Surface> m_newCutout;
 
 	BOOL		m_isCrossFade;
 	sint32		m_blendVal;

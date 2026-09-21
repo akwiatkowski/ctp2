@@ -51,6 +51,7 @@ FILE *debuglog = nullptr;
 #include <cstring>
 #include <cstdarg>
 #include <cstdio>
+#include <memory>
 #include <vector>
 
 #include "gs/slic/SlicEngine.h"
@@ -96,7 +97,7 @@ namespace
     char const NAME_STRUCT_INVALID[]    = "*invalid struct*";
 } // namespace
 
-static unsigned char * s_code = nullptr;
+static std::unique_ptr<unsigned char[]> s_code;
 static int s_allocated_code = 0;
 static unsigned char *s_code_ptr;
 static int s_trigger_symbols[k_MAX_TRIGGER_SYMBOLS];
@@ -190,8 +191,7 @@ void slicif_init()
 void slicif_cleanup()
 {
 	slicif_init();
-	delete [] s_code;
-	s_code				= nullptr;
+	s_code.reset();
 	s_code_ptr			= nullptr;
 	s_allocated_code	= 0;
 }
@@ -213,10 +213,10 @@ void slicif_start()
 	s_argMemberIndex = -1;
 	s_parenLevel = 0;
 	if(!s_code) {
-		s_code = new unsigned char[1000];
+		s_code = std::make_unique<unsigned char[]>(1000);
 		s_allocated_code = 1000;
 	}
-	s_code_ptr = s_code;
+	s_code_ptr = s_code.get();
 }
 
 void slicif_set_start(int symStart)
@@ -234,9 +234,9 @@ void slicif_add_object(struct PSlicObject *obj)
 	}
 
 	slicif_add_op(SOP_STOP);
-	obj->m_code          = (unsigned char *)malloc(s_code_ptr - s_code);
-	memcpy(obj->m_code, s_code, s_code_ptr - s_code);
-	obj->m_codeSize      = s_code_ptr - s_code;
+	obj->m_code          = (unsigned char *)malloc(s_code_ptr - s_code.get());
+	memcpy(obj->m_code, s_code.get(), s_code_ptr - s_code.get());
+	obj->m_codeSize      = s_code_ptr - s_code.get();
 	obj->m_from_file     = s_file_num;
 	const char *filename = slicif_get_filename();
 	obj->m_filename      = (char *)malloc(strlen(filename) + 1);
@@ -281,7 +281,7 @@ void slicif_add_object(struct PSlicObject *obj)
 	}
 
 #ifdef _DEBUG
-	slicif_dump_code(s_code, s_code_ptr - s_code);
+	slicif_dump_code(s_code.get(), s_code_ptr - s_code.get());
 #endif
 
 	slicif_start();
@@ -309,7 +309,7 @@ void slicif_declare_sym(char *name, SLIC_SYM type)
 			SlicStructDescription *desc = slicengine_Get()->GetStructDescription(type);
 			if(desc) {
 				sym->SetType(SLIC_SYM_STRUCT);
-				sym->SetStruct(new SlicStructInstance(desc));
+				sym->SetStruct(std::make_unique<SlicStructInstance>(desc).release());
 			} else {
 				sym->SetType(type);
 			}
@@ -408,27 +408,26 @@ void slicif_add_op(int op, ...)
 
 	va_start(vl, op);
 
-	if(s_code_ptr - s_code > (s_allocated_code - 40)) {
+	if(s_code_ptr - s_code.get() > (s_allocated_code - 40)) {
 
-		unsigned char *newcode = new unsigned char[s_allocated_code * 2];
+		auto newcode = std::make_unique<unsigned char[]>(s_allocated_code * 2);
 		s_allocated_code *= 2;
-		memcpy(newcode, s_code, s_code_ptr - s_code);
-		s_code_ptr = newcode + (s_code_ptr - s_code);
+		memcpy(newcode.get(), s_code.get(), s_code_ptr - s_code.get());
+		s_code_ptr = newcode.get() + (s_code_ptr - s_code.get());
 
 		sint32 i;
 		sint32 j;
 		for(i = 0; i <= s_level; i++) {
-			s_block_ptr[i] = newcode + (s_block_ptr[i] - s_code);
+			s_block_ptr[i] = newcode.get() + (s_block_ptr[i] - s_code.get());
 		}
 
 		for(i = 0; i <= s_if_level; i++) {
 			for(j = 0; j < s_if_stack[i].count; j++) {
-				s_if_stack[i].array[j] = newcode + (s_if_stack[i].array[j] - s_code);
+				s_if_stack[i].array[j] = newcode.get() + (s_if_stack[i].array[j] - s_code.get());
 			}
 		}
 
-		delete [] s_code;
-		s_code = newcode;
+		s_code = std::move(newcode);
 	}
 
 	*s_code_ptr++ = (unsigned char)op;
@@ -677,20 +676,20 @@ void slicif_add_op(int op, ...)
 
 			slicif_emit(s_code_ptr, (int)(-1));
 
-			offset = s_code_ptr - s_code;
+			offset = s_code_ptr - s_code.get();
 			slicif_store(s_block_ptr[ival], (int)offset);
 			s_block_ptr[ival][-1] = SOP_JMP;
 
 			break;
 		case SOP_BUTN:
-			offset = s_block_ptr[s_level] - s_code;
+			offset = s_block_ptr[s_level] - s_code.get();
 			slicif_emit(s_code_ptr, (int)(offset + sizeof(int)));
 
 			ival = va_arg(vl, int);
 			slicif_emit(s_code_ptr, (int)ival);
 			break;
 		case SOP_OCLS:
-			offset = s_block_ptr[s_level] - s_code;
+			offset = s_block_ptr[s_level] - s_code.get();
 			slicif_emit(s_code_ptr, (int)(offset + sizeof(int)));
 			break;
 		case SOP_BNT:
@@ -699,7 +698,7 @@ void slicif_add_op(int op, ...)
 			sptr = (char *)(s_block_ptr[s_level] - 1);
 			*sptr = static_cast<char>(op);
 			sptr++;
-			slicif_store(sptr, (int)((int)(s_code_ptr - s_code) - 1));
+			slicif_store(sptr, (int)((int)(s_code_ptr - s_code.get()) - 1));
 
 
 			s_block_ptr[s_level] = s_code_ptr - 5;
@@ -1084,7 +1083,7 @@ void slicif_end_if()
 {
 	int i;
 	for(i = 0; i < s_if_stack[s_if_level].count; i++) {
-		slicif_store(s_if_stack[s_if_level].array[i], (int)(s_code_ptr - s_code));
+		slicif_store(s_if_stack[s_if_level].array[i], (int)(s_code_ptr - s_code.get()));
 	}
 	--s_if_level;
 }
@@ -1092,7 +1091,7 @@ void slicif_end_if()
 void slicif_start_while()
 {
 	++s_while_level;
-	s_while_stack[s_while_level].expression = s_code_ptr - s_code;
+	s_while_stack[s_while_level].expression = s_code_ptr - s_code.get();
 	s_while_stack[s_while_level].increment = -1;
 }
 
@@ -1108,7 +1107,7 @@ void slicif_end_while()
 	sptr = (char *)(s_block_ptr[s_level] - 1);
 	*sptr = SOP_BNT;
 	sptr++;
-	slicif_store(sptr, (int)((int)(s_code_ptr - s_code)));
+	slicif_store(sptr, (int)((int)(s_code_ptr - s_code.get())));
 
 	s_while_level--;
 }
@@ -1690,7 +1689,7 @@ void slicif_add_parameter(SLIC_SYM type, char *name)
 		SlicStructDescription *desc = slicengine_Get()->GetStructDescription(type);
 		if(desc) {
 			psym->SetType(SLIC_SYM_STRUCT);
-			psym->SetStruct(new SlicStructInstance(desc, psym));
+			psym->SetStruct(std::make_unique<SlicStructInstance>(desc, psym).release());
 		} else {
 			psym->SetType(type);
 		}
@@ -1734,7 +1733,7 @@ void slicif_start_for()
 void slicif_for_expression()
 {
 	++s_while_level;
-	s_while_stack[s_while_level].expression = s_code_ptr - s_code;
+	s_while_stack[s_while_level].expression = s_code_ptr - s_code.get();
 	s_while_stack[s_while_level].increment = -1;
 }
 
@@ -1742,7 +1741,7 @@ void slicif_for_continue()
 {
 
 	slicif_add_op(SOP_JMP, -1);
-	s_while_stack[s_while_level].increment = s_code_ptr - s_code;
+	s_while_stack[s_while_level].increment = s_code_ptr - s_code.get();
 }
 
 void slicif_start_for_body()
@@ -1760,11 +1759,11 @@ void slicif_end_for()
 	char * sptr = (char *)(s_block_ptr[s_level] - 1);
 	*sptr = SOP_BNT;
 	sptr++;
-	slicif_store(sptr, (int)((int)(s_code_ptr - s_code)));
+	slicif_store(sptr, (int)((int)(s_code_ptr - s_code.get())));
 
-	sptr = (char*)(s_code +  s_while_stack[s_while_level].increment - 5);
+	sptr = (char*)(s_code.get() +  s_while_stack[s_while_level].increment - 5);
 	sptr++;
-	slicif_store(sptr, (int)((int)(s_block_ptr[s_level] - 1 - s_code)));
+	slicif_store(sptr, (int)((int)(s_block_ptr[s_level] - 1 - s_code.get())));
 
 	s_while_level--;
 }
@@ -1895,9 +1894,8 @@ void slicif_check_arg_symbol(SLIC_SYM type, const char *typeName)
 		if(s_argSymbol->GetArray()->GetType() == SS_TYPE_INT) {
 			symType = SLIC_SYM_IVAR;
 		} else {
-			SlicSymbolData *structDataSym = s_argSymbol->GetArray()->GetStructTemplate()->CreateDataSymbol();
+			auto structDataSym = s_argSymbol->GetArray()->GetStructTemplate()->CreateDataSymbol();
 			symType = structDataSym->GetType();
-			delete structDataSym;
 		}
 	} else if(s_argSymbol->GetType() == SLIC_SYM_STRUCT) {
 		if(s_argMemberIndex < 0) {

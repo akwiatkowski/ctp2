@@ -39,13 +39,12 @@
 #include "ui/aui_ctp2/ctp2_Tab.h"
 #include "ui/aui_ctp2/ctp2_TabGroup.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
-#include "gs/utility/Globals.h"            // allocated::clear
 #include "ui/interface/rankingtab.h"
 #include "ui/interface/scoretab.h"
 #include "ui/interface/WonderTab.h"
 
 
-static InfoWindow * s_InfoWindow = nullptr;
+static std::unique_ptr<InfoWindow> s_InfoWindow;
 
 InfoWindow::InfoWindow()
 :
@@ -54,13 +53,13 @@ InfoWindow::InfoWindow()
                     ),
 	m_closeButton   (nullptr),
 	m_ranking_tab   (nullptr),
-    m_score_tab     (new ScoreTab()),
+    m_score_tab     (std::make_unique<ScoreTab>()),
     m_wonder_tab    (nullptr)
 {
 	Assert(m_window);
 
-    m_ranking_tab   = new RankingTab(m_window);
-	m_wonder_tab    = new WonderTab(m_window);
+    m_ranking_tab   = std::make_unique<RankingTab>(m_window);
+	m_wonder_tab    = std::make_unique<WonderTab>(m_window);
 
     m_closeButton   = static_cast<ctp2_Button*>
                         (aui_Ldl::GetObject("InfoDialog.CloseButton"));
@@ -73,9 +72,10 @@ InfoWindow::InfoWindow()
 
 InfoWindow::~InfoWindow()
 {
-    delete m_ranking_tab;
-    delete m_score_tab;
-    delete m_wonder_tab;
+    // unique_ptr members; reset in the original explicit order.
+    m_ranking_tab.reset();
+    m_score_tab.reset();
+    m_wonder_tab.reset();
 
     if (m_window)
     {
@@ -106,8 +106,8 @@ void InfoWindow::SelectScoreTab()
 
 void InfoWindow::Open()
 {
-	if (s_InfoWindow==nullptr)
-		s_InfoWindow = new InfoWindow();
+	if (!s_InfoWindow)
+		s_InfoWindow = std::make_unique<InfoWindow>();
 
 	c3ui_Get()->AddWindow(s_InfoWindow->m_window);
 	s_InfoWindow->Show();
@@ -183,5 +183,5 @@ void InfoWindow::CloseButtonActionCallback
 void InfoWindow::Cleanup()
 {
 	Close();
-    allocated::clear(s_InfoWindow);
+    s_InfoWindow.reset();
 }

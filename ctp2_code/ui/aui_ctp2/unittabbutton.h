@@ -4,6 +4,7 @@
 #ifndef __UNITTABBUTTON_H__
 #define __UNITTABBUTTON_H__
 
+#include <array>
 #include <memory>
 #include "ui/aui_common/aui_control.h"
 #include "ui/aui_ctp2/patternbase.h"
@@ -59,7 +60,7 @@ private:
 	std::unique_ptr<c3_Static>	m_fortify;
 	std::unique_ptr<c3_Static>	m_veteran;
 	std::unique_ptr<c3_Static>	m_arrow;
-	c3_ColoredStatic	*m_cargo[ k_CARGO_CAPACITY ];
+	std::array<std::unique_ptr<c3_ColoredStatic>, k_CARGO_CAPACITY> m_cargo;
 
 	sint32	m_barHeight;
 

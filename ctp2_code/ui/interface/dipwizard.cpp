@@ -89,7 +89,7 @@
 #include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 
 
-static DipWizard  *s_dipWizard;
+static std::unique_ptr<DipWizard> s_dipWizard;
 // UI callbacks transport small IDs as opaque cookies; callbacks decode them
 // through intptr_t, so preserve that width rather than truncating to void*.
 static void *cookie_from_value(intptr_t value)
@@ -124,8 +124,8 @@ ctp2_DropDown     *DipWizard::m_nations = nullptr;
 ctp2_ListBox      *DipWizard::m_propList[DIP_WIZ_PROP_TAB_MAX];
 ctp2_ListBox      *DipWizard::m_exchList[DIP_WIZ_PROP_TAB_MAX];
 ctp2_ListBox      *DipWizard::m_threatList;
-ctp2_Menu         *DipWizard::m_curMenu = nullptr,
-                  *DipWizard::m_threatMenu = nullptr;
+std::unique_ptr<ctp2_Menu> DipWizard::m_curMenu;
+std::unique_ptr<ctp2_Menu> DipWizard::m_threatMenu;
 ctp2_Window       *DipWizard::m_goldRequestWindow = nullptr;
 ctp2_Window       *DipWizard::m_pollutionRequestWindow = nullptr;
 ctp2_Window       *DipWizard::m_percentRequestWindow = nullptr;
@@ -316,7 +316,7 @@ DipWizard::~DipWizard()
 		m_percentRequestWindow = nullptr;
 	}
 
-	delete m_curMenu;
+	// m_curMenu is std::unique_ptr, auto-freed
 }
 
 AUI_ERRCODE DipWizard::Initialize()
@@ -326,7 +326,7 @@ AUI_ERRCODE DipWizard::Initialize()
 		return AUI_ERRCODE_OK;
 
 	AUI_ERRCODE err = AUI_ERRCODE_OK;
-	s_dipWizard = new DipWizard(&err);
+	s_dipWizard = std::make_unique<DipWizard>(&err);
 
 	Assert(err == AUI_ERRCODE_OK);
 
@@ -338,8 +338,7 @@ AUI_ERRCODE DipWizard::Cleanup()
 	if(s_dipWizard) {
 		Hide();
 
-		delete s_dipWizard;
-		s_dipWizard = nullptr;
+		s_dipWizard.reset();
 	}
 	return AUI_ERRCODE_OK;
 }
@@ -1899,8 +1898,8 @@ void DipWizard::ProcessMenuCancel()
 
 void DipWizard::MenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIndex, void *cookie)
 {
-	Assert(menu == m_curMenu);
-	if(menu != m_curMenu)
+	Assert(menu == m_curMenu.get());
+	if(menu != m_curMenu.get())
 		return;
 
 	if(action == CTP2_MENU_ACTION_SELECT) {
@@ -1909,8 +1908,7 @@ void DipWizard::MenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 it
 		ProcessMenuCancel();
 	}
 
-	delete m_curMenu;
-	m_curMenu = nullptr;
+	m_curMenu.reset();
 
 	m_menuProposal = -1;
 	m_menuExchange = -1;
@@ -1922,7 +1920,7 @@ bool DipWizard::ProposalContextMenu(sint32 proposal)
 	Assert(!m_curMenu);
 	
 
-		delete m_curMenu;
+		m_curMenu.reset();
 	
 
 	const DiplomacyProposalRecord *rec = g_theDiplomacyProposalDB->Get(proposal);
@@ -1931,13 +1929,13 @@ bool DipWizard::ProposalContextMenu(sint32 proposal)
 		return false;
 
 	bool needItems = true;
-	m_curMenu = new ctp2_Menu(true, DipWizard::MenuCallback);
+	m_curMenu = std::make_unique<ctp2_Menu>(true, DipWizard::MenuCallback);
 	switch(rec->GetArg1()) {
 		case k_DiplomacyProposal_Arg1_OwnCity_Bit:
-			AddCityItems(m_curMenu, selitem_Get()->GetVisiblePlayer());
+			AddCityItems(m_curMenu.get(), selitem_Get()->GetVisiblePlayer());
 			break;
 		case k_DiplomacyProposal_Arg1_HisCity_Bit:
-			AddCityItems(m_curMenu, m_recipient);
+			AddCityItems(m_curMenu.get(), m_recipient);
 			break;
 		case k_DiplomacyProposal_Arg1_OwnArmy_Bit:
 
@@ -1949,16 +1947,16 @@ bool DipWizard::ProposalContextMenu(sint32 proposal)
 
 			break;
 		case k_DiplomacyProposal_Arg1_OwnAdvance_Bit:
-			AddAdvanceItems(m_curMenu, selitem_Get()->GetVisiblePlayer(), m_recipient);
+			AddAdvanceItems(m_curMenu.get(), selitem_Get()->GetVisiblePlayer(), m_recipient);
 			break;
 		case k_DiplomacyProposal_Arg1_HisAdvance_Bit:
-			AddAdvanceItems(m_curMenu, m_recipient, selitem_Get()->GetVisiblePlayer());
+			AddAdvanceItems(m_curMenu.get(), m_recipient, selitem_Get()->GetVisiblePlayer());
 			break;
 		case k_DiplomacyProposal_Arg1_OwnStopResearch_Bit:
-			AddStopResearchItems(m_curMenu, selitem_Get()->GetVisiblePlayer());
+			AddStopResearchItems(m_curMenu.get(), selitem_Get()->GetVisiblePlayer());
 			break;
 		case k_DiplomacyProposal_Arg1_HisStopResearch_Bit:
-			AddStopResearchItems(m_curMenu, m_recipient);
+			AddStopResearchItems(m_curMenu.get(), m_recipient);
 			break;
 		case k_DiplomacyProposal_Arg1_OwnUnitType_Bit:
 
@@ -1978,7 +1976,7 @@ bool DipWizard::ProposalContextMenu(sint32 proposal)
 			needItems = false;
 			break;
 		case k_DiplomacyProposal_Arg1_ThirdParty_Bit:
-			AddThirdPartyItems(m_curMenu, selitem_Get()->GetVisiblePlayer(), m_recipient);
+			AddThirdPartyItems(m_curMenu.get(), selitem_Get()->GetVisiblePlayer(), m_recipient);
 			break;
 		case k_DiplomacyProposal_Arg1_OwnPollution_Bit:
 			RequestPollutionValue(selitem_Get()->GetVisiblePlayer());
@@ -2000,8 +1998,7 @@ bool DipWizard::ProposalContextMenu(sint32 proposal)
 	}
 
 	if(m_curMenu->GetNumItems() < 1) {
-		delete m_curMenu;
-		m_curMenu = nullptr;
+		m_curMenu.reset();
 		if(needItems) {
 
 			return false;
@@ -2408,7 +2405,7 @@ void DipWizard::ThreatMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sin
 	   (action != CTP2_MENU_ACTION_SELECT))
 		return;
 
-	Assert(m_threatMenu && (m_threatMenu == menu));
+	Assert(m_threatMenu && (m_threatMenu.get() == menu));
 	if(m_threatMenu) {
 		if(action == CTP2_MENU_ACTION_CANCEL) {
 			SetThreat(-1);
@@ -2448,8 +2445,7 @@ void DipWizard::ThreatMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sin
 			}
 		}
 
-		delete m_threatMenu;
-		m_threatMenu = nullptr;
+		m_threatMenu.reset();
 	}
 }
 
@@ -2458,7 +2454,7 @@ bool DipWizard::ThreatContextMenu(sint32 threat)
 	Assert(!m_threatMenu);
 	
 
-		delete m_threatMenu;
+		m_threatMenu.reset();
 	
 
 	const DiplomacyThreatRecord *rec = g_theDiplomacyThreatDB->Get(threat);
@@ -2467,17 +2463,17 @@ bool DipWizard::ThreatContextMenu(sint32 threat)
 		return false;
 
 	bool needItems = true;
-	m_threatMenu = new ctp2_Menu(true, DipWizard::ThreatMenuCallback);
+	m_threatMenu = std::make_unique<ctp2_Menu>(true, DipWizard::ThreatMenuCallback);
 	switch(rec->GetArg1()) {
 		case k_DiplomacyThreat_Arg1_HisCity_Bit:
 		case k_DiplomacyThreat_Arg1_SpecialAttack_Bit:
-			AddCityItems(m_threatMenu, m_viewRecipient);
+			AddCityItems(m_threatMenu.get(), m_viewRecipient);
 			break;
 		case k_DiplomacyThreat_Arg1_ThirdParty_Bit:
-			AddThirdPartyItems(m_threatMenu, selitem_Get()->GetVisiblePlayer(), m_viewRecipient);
+			AddThirdPartyItems(m_threatMenu.get(), selitem_Get()->GetVisiblePlayer(), m_viewRecipient);
 			break;
 		case k_DiplomacyThreat_Arg1_AgreementId_Bit:
-			AddAgreementItems(m_threatMenu, m_viewRecipient);
+			AddAgreementItems(m_threatMenu.get(), m_viewRecipient);
 			break;
 		default:
 			needItems = false;
@@ -2485,8 +2481,7 @@ bool DipWizard::ThreatContextMenu(sint32 threat)
 	}
 
 	if(m_threatMenu->GetNumItems() < 1) {
-		delete m_threatMenu;
-		m_threatMenu = nullptr;
+		m_threatMenu.reset();
 
 		if(needItems) {
 			return false;

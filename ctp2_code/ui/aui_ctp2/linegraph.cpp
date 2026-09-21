@@ -178,7 +178,7 @@ LineGraph::LineGraph
 	m_indicatorValue    (0.0),
 	// m_xAxisName default constructed (empty)
 	// m_yAxisName default constructed (empty)
-    m_surface           (nullptr),
+    // m_surface default constructed (empty)
 //  RECT m_graphRect
 //  RECT m_surfaceRect
 	// m_data default constructed (empty)
@@ -217,7 +217,7 @@ LineGraph::LineGraph
 	m_indicatorValue    (0.0),
 	// m_xAxisName default constructed (empty)
 	// m_yAxisName default constructed (empty)
-    m_surface           (nullptr),
+    // m_surface default constructed (empty)
 //  RECT m_graphRect
 //  RECT m_surfaceRect
 	// m_data default constructed (empty)
@@ -246,22 +246,14 @@ LineGraph::LineGraph
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-LineGraph::~LineGraph()
-{
-	delete m_surface;
-
-	for (sint32 i = 0; i < m_numLines * 3; i++)
-	{
-		delete [] m_lineData[i];
-	}
-}
+LineGraph::~LineGraph() = default;
 
 void LineGraph::InitCommon()
 {
 	AUI_ERRCODE			errcode = AUI_ERRCODE_OK;
 
-	m_surface = aui_Factory::new_Surface(errcode, m_width, m_height);
-	Assert( AUI_NEWOK(m_surface, errcode) );
+	m_surface.reset(aui_Factory::new_Surface(errcode, m_width, m_height));
+	Assert( AUI_NEWOK(m_surface.get(), errcode) );
 
 	SetRect(&m_surfaceRect, 0, 0, m_width, m_height);
 
@@ -299,7 +291,7 @@ void LineGraph::UpdateGraph(aui_Surface * surface, sint32 x, sint32 y)
 {
 	RECT		rect = {0, 0, m_width, m_height};
 
-    c3ui_Get()->TheBlitter()->Blt(surface, x, y, m_surface, &rect, k_AUI_BLITTER_FLAG_COPY);
+    c3ui_Get()->TheBlitter()->Blt(surface, x, y, m_surface.get(), &rect, k_AUI_BLITTER_FLAG_COPY);
 }
 
 void LineGraph::LabelAxes()
@@ -311,21 +303,21 @@ void LineGraph::LabelAxes()
 		if (m_enablePrecision) snprintf(s, sizeof(s), "%#.3f", m_xmin);
 		else snprintf(s, sizeof(s), "%d", (sint32)m_xmin);
 
-		primitives_DrawText(m_surface, m_graphRect.left, m_graphRect.bottom + (m_events?20:0),
+		primitives_DrawText(m_surface.get(), m_graphRect.left, m_graphRect.bottom + (m_events?20:0),
 								s, colorset_Get()->GetColorRef(COLOR_WHITE), TRUE);
 
 		if (m_enablePrecision) snprintf(s, sizeof(s), "%#.3f", m_xmax);
 		else snprintf(s, sizeof(s), "%d", (sint32)m_xmax);
 
-        primitives_DrawText(m_surface, std::max(0L, m_graphRect.right-35L), m_graphRect.bottom + (m_events?20:0),
+        primitives_DrawText(m_surface.get(), std::max(0L, m_graphRect.right-35L), m_graphRect.bottom + (m_events?20:0),
 								s, colorset_Get()->GetColorRef(COLOR_WHITE), TRUE);
 	}
 
 	if (m_enableXLabel)
 	{
-		sint32 len = textutils_GetWidth(m_surface, m_xAxisName.c_str());
+		sint32 len = textutils_GetWidth(m_surface.get(), m_xAxisName.c_str());
 		sint32 xpos = m_graphRect.left + (m_graphRect.right - m_graphRect.left) / 2 - len / 2;
-		primitives_DrawText(m_surface, xpos, m_graphRect.bottom + 2 + (m_events?20:0), m_xAxisName.c_str(),	colorset_Get()->GetColorRef(COLOR_WHITE), TRUE);
+		primitives_DrawText(m_surface.get(), xpos, m_graphRect.bottom + 2 + (m_events?20:0), m_xAxisName.c_str(),	colorset_Get()->GetColorRef(COLOR_WHITE), TRUE);
 	}
 
 	if (m_enableYNumber)
@@ -333,7 +325,7 @@ void LineGraph::LabelAxes()
 		if (m_enablePrecision) snprintf(s, sizeof(s), "%#.1f", m_ymin);
 		else snprintf(s, sizeof(s), "%d", (sint32)m_ymin);
 
-        primitives_DrawText(m_surface,
+        primitives_DrawText(m_surface.get(),
                             std::max(0L, m_graphRect.left-45L),
                             std::max(0L, m_graphRect.bottom-15L),
 							s,
@@ -344,7 +336,7 @@ void LineGraph::LabelAxes()
 		if (m_enablePrecision) snprintf(s, sizeof(s), "%#.1f", m_ymax);
 		else snprintf(s, sizeof(s), "%d", (sint32)m_ymax);
 
-        primitives_DrawText(m_surface,
+        primitives_DrawText(m_surface.get(),
                             std::max(0L, m_graphRect.left-45L),
                             m_graphRect.top,
 							s,
@@ -362,13 +354,13 @@ void LineGraph::DrawIndicator()
     double xnorm = (m_indicatorValue - m_xmin) / (m_xmax - m_xmin);
 	xpos = sint32(m_graphRect.left + xnorm * (m_graphRect.right-m_graphRect.left));
 
-	primitives_DrawLine16(m_surface, xpos, m_graphRect.top + 1,
+	primitives_DrawLine16(m_surface.get(), xpos, m_graphRect.top + 1,
 							xpos, m_graphRect.bottom - 1,
 							colorset_Get()->GetColor(COLOR_YELLOW));
 
 	snprintf(s, sizeof(s), "%#.3f", m_indicatorValue);
-	sint32 len = textutils_GetWidth(m_surface, s);
-	primitives_DrawText(m_surface, xpos - (len/2), m_graphRect.top+15, s, colorset_Get()->GetColorRef(COLOR_YELLOW), TRUE);
+	sint32 len = textutils_GetWidth(m_surface.get(), s);
+	primitives_DrawText(m_surface.get(), xpos - (len/2), m_graphRect.top+15, s, colorset_Get()->GetColorRef(COLOR_YELLOW), TRUE);
 }
 
 void LineGraph::DrawLines(int eventsOfset)
@@ -402,12 +394,12 @@ void LineGraph::DrawLines(int eventsOfset)
 
                 if (first)
                 {
-					primitives_DrawLine16(m_surface, xpos, ypos, xpos, ypos, colorset_Get()->GetColor((COLOR) l_Color));
+					primitives_DrawLine16(m_surface.get(), xpos, ypos, xpos, ypos, colorset_Get()->GetColor((COLOR) l_Color));
 					first = false;
 				}
                 else
                 {
-					primitives_DrawLine16(m_surface, oldxpos, oldypos, xpos, ypos, colorset_Get()->GetColor((COLOR) l_Color));
+					primitives_DrawLine16(m_surface.get(), oldxpos, oldypos, xpos, ypos, colorset_Get()->GetColor((COLOR) l_Color));
 				}
 
                 oldxpos = xpos;
@@ -442,7 +434,7 @@ void LineGraph::DrawLines(int eventsOfset)
 				ypos = (sint32)(m_graphRect.top + top * height);
 				ypos2 = (sint32)(m_graphRect.top + bottom * height);
 
-				primitives_DrawLine16(m_surface, xpos, ypos, xpos, ypos2, colorset_Get()->GetColor((COLOR)m_data[i].color));
+				primitives_DrawLine16(m_surface.get(), xpos, ypos, xpos, ypos2, colorset_Get()->GetColor((COLOR)m_data[i].color));
 			}
 
 			color++;
@@ -462,11 +454,11 @@ void LineGraph::DrawLines(int eventsOfset)
 				ypos=((sint32)((m_data[curData->m_playerNum-1].bottomArray[curData->m_turn-1] +
 					m_data[curData->m_playerNum-1].topArray[curData->m_turn-1])/2.0)*height)+
 					m_graphRect.top;
-				primitives_DrawLine16(m_surface, xpos-1, ypos-1, xpos+1, ypos+1, colorset_Get()->GetColor((COLOR)(m_data[curData->m_playerNum].color+1)));
-				primitives_DrawLine16(m_surface, xpos+1, ypos-1, xpos-1, ypos+1, colorset_Get()->GetColor((COLOR)(m_data[curData->m_playerNum].color+1)));
+				primitives_DrawLine16(m_surface.get(), xpos-1, ypos-1, xpos+1, ypos+1, colorset_Get()->GetColor((COLOR)(m_data[curData->m_playerNum].color+1)));
+				primitives_DrawLine16(m_surface.get(), xpos+1, ypos-1, xpos-1, ypos+1, colorset_Get()->GetColor((COLOR)(m_data[curData->m_playerNum].color+1)));
 				if((currentEventNum-eventsOfset)>=0 && (currentEventNum-eventsOfset)<=17)
 				{
-					primitives_DrawLine16(m_surface, xpos, ypos, m_graphRect.left+18+(currentEventNum-eventsOfset)*20, m_graphRect.bottom, colorset_Get()->GetColor(COLOR_GRAY));
+					primitives_DrawLine16(m_surface.get(), xpos, ypos, m_graphRect.left+18+(currentEventNum-eventsOfset)*20, m_graphRect.bottom, colorset_Get()->GetColor(COLOR_GRAY));
 				}
 				currentEventNum++;
 			}
@@ -480,13 +472,13 @@ void LineGraph::DrawLines(int eventsOfset)
 
 void LineGraph::RenderGraph(int eventsOfset)
 {
-	primitives_PaintRect16(m_surface, &m_surfaceRect, colorset_Get()->GetColor(COLOR_BLACK));
-	primitives_FrameRect16(m_surface, &m_surfaceRect, colorset_Get()->GetColor(COLOR_WHITE));
-	primitives_FrameRect16(m_surface, &m_graphRect, colorset_Get()->GetColor(COLOR_WHITE));
+	primitives_PaintRect16(m_surface.get(), &m_surfaceRect, colorset_Get()->GetColor(COLOR_BLACK));
+	primitives_FrameRect16(m_surface.get(), &m_surfaceRect, colorset_Get()->GetColor(COLOR_WHITE));
+	primitives_FrameRect16(m_surface.get(), &m_graphRect, colorset_Get()->GetColor(COLOR_WHITE));
 
 	DrawThisStateImage(
 		0,
-		m_surface,
+		m_surface.get(),
 		&m_surfaceRect );
 
 	LabelAxes();
@@ -501,11 +493,8 @@ void LineGraph::SetLineData(sint32 numLines, sint32 numSamples, double **data, s
 	double		 sum;
 	double		 curYPos;
 
-	for (i = 0; i < (m_numLines * 3); i++)
-	{
-		delete [] m_lineData[i];
-	}
-	m_lineData.assign(numLines * 3, nullptr);
+	m_lineData.clear();
+	m_lineData.resize(numLines * 3);
 	m_numLines	= numLines;
 
 	m_data.assign(numLines, LineGraphData());
@@ -513,18 +502,18 @@ void LineGraph::SetLineData(sint32 numLines, sint32 numSamples, double **data, s
 	sint32 defaultColor = (sint32)COLOR_RED;
 
 	for (i=0; i<numLines; i++) {
-		m_lineData[i] = new double[numSamples];
-		m_lineData[i+numLines] = new double[numSamples];
-		m_lineData[i+numLines*2] = new double[numSamples];
+		m_lineData[i] = std::make_unique<double[]>(numSamples);
+		m_lineData[i+numLines] = std::make_unique<double[]>(numSamples);
+		m_lineData[i+numLines*2] = std::make_unique<double[]>(numSamples);
 
-		m_data[i].array = m_lineData[i];
-		m_data[i].topArray = m_lineData[i+numLines];
-		m_data[i].bottomArray = m_lineData[i+numLines*2];
+		m_data[i].array = m_lineData[i].get();
+		m_data[i].topArray = m_lineData[i+numLines].get();
+		m_data[i].bottomArray = m_lineData[i+numLines*2].get();
 		m_data[i].index = i;
 		if (color) m_data[i].color = color[i];
 		else m_data[i].color = defaultColor++;
 
-		memcpy(m_lineData[i], data[i], sizeof(double) * numSamples);
+		memcpy(m_lineData[i].get(), data[i], sizeof(double) * numSamples);
 	}
 
 	for(i=0; i<numSamples; i++)

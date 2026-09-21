@@ -11,12 +11,14 @@
 #include "net/general/network.h"
 #include "ui/aui_ctp2/ctp2_TabGroup.h"
 
+#include <memory>
 
-static DomesticManagementDialog * g_domesticManagementDialog = nullptr;
+
+static std::unique_ptr<DomesticManagementDialog> g_domesticManagementDialog;
 
 DomesticManagementDialog * domesticmanagementdialog_Get()
 {
-    return g_domesticManagementDialog;
+    return g_domesticManagementDialog.get();
 }
 
 void DomesticManagementDialog::Open()
@@ -25,7 +27,7 @@ void DomesticManagementDialog::Open()
 		return;
 
 	if(!g_domesticManagementDialog) {
-		g_domesticManagementDialog = new DomesticManagementDialog;
+		g_domesticManagementDialog = std::make_unique<DomesticManagementDialog>();
 	}
 
 	g_domesticManagementDialog->Show();
@@ -50,9 +52,9 @@ m_window(static_cast<ctp2_Window*>(
 		 aui_Ldl::BuildHierarchyFromRoot("DomesticDialog"))),
 m_closeButton(static_cast<ctp2_Button*>(aui_Ldl::GetObject(
 			  "DomesticDialog.CloseButton"))),
-m_causeAndEffectTab(new CauseAndEffectTab(
+m_causeAndEffectTab(std::make_unique<CauseAndEffectTab>(
 					const_cast<MBCHAR *>("DomesticDialog.TabGroup.Tab1.TabPanel"))),
-m_governmentTab(new GovernmentTab(
+m_governmentTab(std::make_unique<GovernmentTab>(
 				const_cast<MBCHAR *>("DomesticDialog.TabGroup.Tab2.TabPanel")))
 {
 
@@ -81,8 +83,7 @@ void DomesticManagementDialog::Cleanup()
 		}
 	}
 
-	delete g_domesticManagementDialog;
-	g_domesticManagementDialog = nullptr;
+	g_domesticManagementDialog.reset();
 }
 
 void DomesticManagementDialog::Show()

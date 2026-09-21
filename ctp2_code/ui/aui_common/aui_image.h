@@ -3,6 +3,7 @@
 
 #include "ui/aui_common/aui_base.h"
 #include "ui/aui_common/aui_memmap.h"
+#include <memory>
 
 #define  k_DEFAULT_CHROMA_RED	255
 #define  k_DEFAULT_CHROMA_GREEN	0
@@ -41,7 +42,9 @@ public:
 	void SetChromakey(sint32 r, sint32 g, sint32 b);
 
 protected:
-	aui_Image() : aui_Base() {}
+	// Out-of-line in aui_image.cpp: unique_ptr<aui_Surface> over a
+	// forward-declared type needs the complete type at ctor/dtor instantiation.
+	aui_Image();
 	AUI_ERRCODE InitCommon( MBCHAR const * filename );
 
 public:
@@ -55,7 +58,7 @@ public:
                                 sint32 bpp, sint32 pitch,
                                 uint8 *buffer );
 
-	aui_Surface	*TheSurface( ) const { return m_surface; }
+	aui_Surface	*TheSurface( ) const { return m_surface.get(); }
 	MBCHAR		*GetFilename( ) const { return (MBCHAR *)m_filename; }
 
 	AUI_ERRCODE	SetFilename( MBCHAR const *filename );
@@ -64,7 +67,7 @@ protected:
 	MBCHAR			m_filename[ MAX_PATH + 1 ];
 
 	aui_ImageFormat	*m_format;
-	aui_Surface		*m_surface;
+	std::unique_ptr<aui_Surface> m_surface;
 };
 
 

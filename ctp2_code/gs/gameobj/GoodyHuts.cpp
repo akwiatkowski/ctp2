@@ -35,6 +35,7 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/GoodyHuts.h"
 
+#include <memory>
 #include <vector>
 
 #include "ctp/ctp2_utils/c3math.h"         // AsPercentage
@@ -407,14 +408,14 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 
 void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 {
-	SlicObject *so ;
+	std::unique_ptr<SlicObject> so;
 
 	switch(ChooseType(owner)) {
 		case GOODY_BOGUS:
 		{
-			so = new SlicObject("93BesetByNothing");
+			so = std::make_unique<SlicObject>("93BesetByNothing");
 			so->AddRecipient(owner) ;
-			slicengine_Get()->Execute(so) ;
+			slicengine_Get()->Execute(std::move(so)) ;
 			DPRINTF(k_DBG_GAMESTATE, ("No soup for you!\n"));
 
 			if (player_view::VisiblePlayer() == owner) {
@@ -437,10 +438,10 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			break;
 		}
 		case GOODY_GOLD:
-			so = new SlicObject("83DiscoveredAncientTreasure") ;
+			so = std::make_unique<SlicObject>("83DiscoveredAncientTreasure") ;
 			so->AddRecipient(owner) ;
 			so->AddGold(m_value) ;
-			slicengine_Get()->Execute(so) ;
+			slicengine_Get()->Execute(std::move(so)) ;
 			DPRINTF(k_DBG_GAMESTATE, ("You get %d gold!\n", m_value));
 			player_Get(owner)->AddGold(m_value);
 			if (owner == player_view::VisiblePlayer())
@@ -456,13 +457,13 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			}
 			break;
 		case GOODY_ADVANCE:
-			so = new SlicObject("79DiscoveredRemnantsOfAncientCivilisation") ;
+			so = std::make_unique<SlicObject>("79DiscoveredRemnantsOfAncientCivilisation") ;
 			DPRINTF(k_DBG_GAMESTATE, ("You find advance %d\n", m_value));
 
             player_Get(owner)->m_advances->GiveAdvance(m_value, CAUSE_SCI_GOODY);
 			so->AddRecipient(owner);
 			so->AddAdvance(m_value);
-			slicengine_Get()->Execute(so);
+			slicengine_Get()->Execute(std::move(so));
 
 			if (player_view::VisiblePlayer() == owner) {
 				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
@@ -474,12 +475,12 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 		case GOODY_UNIT:
 		{
 			if (g_theUnitDB->Get(m_value, player_Get(owner)->GetGovernmentType())->GetSettle())
-				so = new SlicObject("81NomadsHaveJoinedYourCivilisation") ;
+				so = std::make_unique<SlicObject>("81NomadsHaveJoinedYourCivilisation") ;
 			else
-				so = new SlicObject("82MercenariesHaveJoinedYourCivilisation") ;
+				so = std::make_unique<SlicObject>("82MercenariesHaveJoinedYourCivilisation") ;
 
 			so->AddRecipient(owner) ;
-			slicengine_Get()->Execute(so) ;
+			slicengine_Get()->Execute(std::move(so)) ;
 			DPRINTF(k_DBG_GAMESTATE, ("You get unit %d\n", m_value));
 			player_Get(owner)->CreateUnit(m_value,
 										 point,
@@ -504,9 +505,9 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 		}
 		case GOODY_BARBARIANS:
 			if(Barbarians::AddBarbarians(point, owner, TRUE, turn_Get()->GetRound())) {
-				so = new SlicObject("84BesetByVandals") ;
+				so = std::make_unique<SlicObject>("84BesetByVandals") ;
 				so->AddRecipient(owner);
-				slicengine_Get()->Execute(so);
+				slicengine_Get()->Execute(std::move(so));
 
 				if (player_view::VisiblePlayer() == owner) {
 					audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
@@ -515,9 +516,9 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 											 point.y);
 				}
 			} else {
-				so = new SlicObject("93BesetByNothing");
+				so = std::make_unique<SlicObject>("93BesetByNothing");
 				so->AddRecipient(owner) ;
-				slicengine_Get()->Execute(so) ;
+				slicengine_Get()->Execute(std::move(so)) ;
 				DPRINTF(k_DBG_GAMESTATE, ("No soup for you!\n"));
 
 				if (player_view::VisiblePlayer() == owner) {

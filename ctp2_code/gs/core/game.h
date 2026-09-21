@@ -80,9 +80,9 @@ public:
 
     // Raw access to the adopted Player** array (matches legacy g_player
     // shape).  Returns nullptr before NewGame.
-    void AdoptPlayers(Player **players) { m_playerArr = players; }
-    Player **       GetPlayerArray()       { return m_playerArr; }
-    Player * const* GetPlayerArray() const { return m_playerArr; }
+    void AdoptPlayers(Player **players) { m_playerArr.reset(players); }
+    Player **       GetPlayerArray()       { return m_playerArr.get(); }
+    Player * const* GetPlayerArray() const { return m_playerArr.get(); }
 
     UnitPool& GetUnits() { return *m_unitPool; }
     ArmyPool& GetArmies() { return *m_armyPool; }
@@ -167,7 +167,7 @@ private:
     // a heap-allocated array of k_MAX_PLAYERS slots, each holding a raw
     // Player* (null when the slot is empty).  Game adopts the legacy
     // pointer in NewGame and tears down inner Players + array in Cleanup.
-    ::Player ** m_playerArr = nullptr;
+    ::std::unique_ptr<::Player *[]> m_playerArr;
 
     std::unique_ptr<UnitPool> m_unitPool;
     std::unique_ptr<ArmyPool> m_armyPool;

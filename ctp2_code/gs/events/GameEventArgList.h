@@ -43,6 +43,8 @@ class GameEventArgument;
 #include "gs/gameobj/ID.h"
 #include "gs/world/MapPoint.h"
 
+#include <memory>
+
 class Unit;
 class MapPoint;
 class Army;
@@ -84,7 +86,7 @@ public:
 
 private:
 
-	PointerList<GameEventArgument> *m_argLists[GEA_End];
+	std::unique_ptr<PointerList<GameEventArgument>> m_argLists[GEA_End];
 };
 
 #endif

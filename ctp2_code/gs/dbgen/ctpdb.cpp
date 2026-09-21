@@ -44,6 +44,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include "os/include/ctp2_config.h"
 #include "os/include/ctp2_inttypes.h"
 #include "gs/dbgen/ctpdb.h"
@@ -67,7 +68,7 @@
 
 #include "gs/dbgen/RecordDescription.h"
 
-RecordDescription * g_record = nullptr;
+static std::unique_ptr<RecordDescription> g_record;
 
 #if !defined(PATH_MAX)
 #if defined(_MAX_PATH)
@@ -210,14 +211,12 @@ static const char *db_get_code_directory()
 
 void db_start_record(char *name)
 {
-	delete g_record;
-	g_record = new RecordDescription(name);
+	g_record = std::make_unique<RecordDescription>(name);
 }
 
 void db_start_record_allows_single(char *name)
 {
-	delete g_record;
-	g_record = new RecordDescription(name, true);
+	g_record = std::make_unique<RecordDescription>(name, true);
 }
 
 FILE *db_open_file(const char *filename)
@@ -371,8 +370,7 @@ void db_end_record(char *name)
 		fclose(stamp);
 	}
 
-	delete g_record;
-	g_record = nullptr;
+	g_record.reset();
 }
 
 void db_make_int_db(char *name)

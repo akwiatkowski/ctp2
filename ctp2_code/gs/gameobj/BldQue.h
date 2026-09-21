@@ -76,6 +76,7 @@ template <class T> class PointerList;
 #include "gs/gameobj/Unit.h"   // Unit
 
 #include <nlohmann/json.hpp>
+#include <memory>
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -95,7 +96,7 @@ struct BuildNode
 class BuildQueue
 {
 private:
-	PointerList<BuildNode> *    m_list;
+	std::unique_ptr<PointerList<BuildNode>> m_list;
 
 //----------------------------------------------------------------------------
 // Do not change anything in the types or order of the following variable
@@ -170,7 +171,7 @@ public:
 	void ReplaceHead(sint32 cat, sint32 item_type, sint32 cost);
 
 	BuildNode *GetHead();
-	PointerList<BuildNode> *GetList() const { return m_list; }
+	PointerList<BuildNode> *GetList() const { return m_list.get(); }
 
 	void ResetOwner(sint32 new_owner);
 	void RemoveHead();

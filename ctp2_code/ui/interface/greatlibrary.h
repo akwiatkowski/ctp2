@@ -48,6 +48,7 @@
 //----------------------------------------------------------------------------
 
 #include <vector>	// std::vector
+#include <memory>	// std::unique_ptr
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -169,7 +170,7 @@ public:
 		char const *    object_name
 	);
 
-	static Text_Hasher<char *> * s_great_library_info;
+	static std::unique_ptr<Text_Hasher<char *>> s_great_library_info;
 
 	void Back();
 	void Forward();
@@ -241,7 +242,7 @@ private:
 
 	ctp2_Button		*m_setGoalButton;
 
-	Chart *m_techTree;
+	std::unique_ptr<Chart> m_techTree;
 
 	ctp2_HyperTextBox	*m_techRequirementsText;
 	ctp2_HyperTextBox	*m_techVariablesText;
@@ -251,7 +252,7 @@ private:
 #endif
 	ctp2_Static		*m_techStillShot;
 
-	aui_StringTable	*m_string;
+	std::unique_ptr<aui_StringTable>	m_string;
 
 	LIB_STRING		m_buttonString;
 
@@ -304,7 +305,7 @@ private:
 
 	int m_history_position;
 
-	GreatLibraryWindow	*m_window;
+	std::unique_ptr<GreatLibraryWindow>	m_window;
 };
 
 const MBCHAR *  glutil_LoadText(const char * filename, SlicContext & so);

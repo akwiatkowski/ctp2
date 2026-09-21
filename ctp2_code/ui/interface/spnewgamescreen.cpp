@@ -82,7 +82,7 @@ extern c3_PopupWindow       *g_spNewGameTribeScreen;
 extern MBCHAR               g_slic_filename[_MAX_PATH];
 extern MBCHAR               g_civilisation_filename[_MAX_PATH];
 
-SPNewGameWindow             *g_spNewGameWindow      = nullptr;
+std::unique_ptr<SPNewGameWindow> g_spNewGameWindow;
 
 BOOL                        g_launchIntoCheatMode = FALSE;
 
@@ -121,7 +121,7 @@ sint32 spnewgamescreen_displayMyWindow()
 		}
 
 		g_spNewGameWindow->Update();
-		c3ui_Get()->AddWindow(g_spNewGameWindow);
+		c3ui_Get()->AddWindow(g_spNewGameWindow.get());
 	}
 
 	return retval;
@@ -149,7 +149,7 @@ AUI_ERRCODE spnewgamescreen_Initialize( )
 		MBCHAR windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 		strlcpy(windowBlock, "SPNewGameWindow", sizeof(windowBlock));
 
-		g_spNewGameWindow= new SPNewGameWindow(&errcode, aui_UniqueId(), windowBlock, 16 );
+		g_spNewGameWindow = std::make_unique<SPNewGameWindow>(&errcode, aui_UniqueId(), windowBlock, 16 );
 		Assert(AUI_NEWOK(g_spNewGameWindow, errcode));
 		if (AUI_NEWOK(g_spNewGameWindow, errcode))
 		{
@@ -196,7 +196,7 @@ void spnewgamescreen_Cleanup()
 	if (g_spNewGameWindow)
 	{
 		c3ui_Get()->RemoveWindow(g_spNewGameWindow->Id());
-		allocated::clear(g_spNewGameWindow);
+		g_spNewGameWindow.reset();
 	}
 }
 
@@ -395,20 +395,18 @@ void spnewgamescreen_scenarioExitCallback(aui_Control *control, uint32 action, u
 		if(!c3files_HasLegalCD())
 			exit(0);
 
-		SaveInfo *saveInfo = new SaveInfo;
+		SaveInfo saveInfo;
 
-		strlcpy(saveInfo->fileName, k_SCENARIO_DEFAULT_SAVED_GAME_NAME, sizeof(saveInfo->fileName));
+		strlcpy(saveInfo.fileName, k_SCENARIO_DEFAULT_SAVED_GAME_NAME, sizeof(saveInfo.fileName));
 
-		strlcpy(saveInfo->pathName, tempPath, sizeof(saveInfo->pathName));
+		strlcpy(saveInfo.pathName, tempPath, sizeof(saveInfo.pathName));
 
-		if (GameFile::FetchExtendedSaveInfo(tempPath, saveInfo)) {
+		if (GameFile::FetchExtendedSaveInfo(tempPath, &saveInfo)) {
 			MBCHAR scenPath[_MAX_PATH];
 			strlcpy(scenPath, civpaths_Get()->GetCurScenarioPath(), sizeof(scenPath));
-			start_info_type_Set(saveInfo->startInfoType);
-			loadsavescreen_BeginLoadProcess(saveInfo, scenPath);
+			start_info_type_Set(saveInfo.startInfoType);
+			loadsavescreen_BeginLoadProcess(&saveInfo, scenPath);
 		}
-
-		delete saveInfo;
 
 		return;
 	}
@@ -613,7 +611,7 @@ c3_Button* spNew_c3_Button(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR 
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
-	return new c3_Button(errcode, aui_UniqueId(), textBlock, callback);
+	return std::make_unique<c3_Button>(errcode, aui_UniqueId(), textBlock, callback).release();
 }
 
 ctp2_Button* spNew_ctp2_Button(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR const *ldlMe,
@@ -622,7 +620,7 @@ ctp2_Button* spNew_ctp2_Button(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBC
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
-	return new ctp2_Button(errcode, aui_UniqueId(), textBlock, callback);
+	return std::make_unique<ctp2_Button>(errcode, aui_UniqueId(), textBlock, callback).release();
 }
 
 
@@ -643,14 +641,14 @@ spNew_ctp2_Button(AUI_ERRCODE *errcode,
 	else
 		snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
-	return new ctp2_Button
+	return std::make_unique<ctp2_Button>
         (errcode, aui_UniqueId(), textBlock,
          buttonFlavor,
          500, 10,
          100, 20,
          nullptr,
          reinterpret_cast<void *>(callback)
-        );
+        ).release();
 }
 
 
@@ -660,7 +658,7 @@ c3_Switch* spNew_c3_Switch(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR 
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
-	return new c3_Switch( errcode, aui_UniqueId(), textBlock, callback, cookie );
+	return std::make_unique<c3_Switch>( errcode, aui_UniqueId(), textBlock, callback, cookie ).release();
 }
 
 aui_Switch* spNew_aui_Switch(
@@ -672,7 +670,7 @@ aui_Switch* spNew_aui_Switch(
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
-	return new aui_Switch( errcode, aui_UniqueId(), textBlock, callback, cookie );
+	return std::make_unique<aui_Switch>( errcode, aui_UniqueId(), textBlock, callback, cookie ).release();
 }
 
 c3_ListBox* spNew_c3_ListBox(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR const *ldlMe,
@@ -682,7 +680,7 @@ c3_ListBox* spNew_c3_ListBox(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHA
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
-	return new c3_ListBox(errcode,aui_UniqueId(), textBlock, callback,cookie );
+	return std::make_unique<c3_ListBox>(errcode,aui_UniqueId(), textBlock, callback,cookie ).release();
 }
 
 c3_DropDown* spNew_c3_DropDown(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR const *ldlMe,
@@ -691,15 +689,15 @@ c3_DropDown* spNew_c3_DropDown(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBC
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe);
 
-	c3_DropDown * myDropDown = new c3_DropDown( errcode, aui_UniqueId(), textBlock);
-	myDropDown->GetListBox()->SetActionFuncAndCookie(callback,myDropDown);
+	auto myDropDown = std::make_unique<c3_DropDown>( errcode, aui_UniqueId(), textBlock);
+	myDropDown->GetListBox()->SetActionFuncAndCookie(callback,myDropDown.get());
 
-	return myDropDown;
+	return myDropDown.release();
 }
 
 aui_StringTable* spNewStringTable(AUI_ERRCODE *errcode, MBCHAR const *ldlme)
 {
-	return new aui_StringTable(errcode, ldlme);
+	return std::make_unique<aui_StringTable>(errcode, ldlme).release();
 }
 
 void spFillDropDown(AUI_ERRCODE *retval, c3_DropDown *mydrop, aui_StringTable *mytable, MBCHAR const *listitemparent, MBCHAR const *listitemme)
@@ -707,9 +705,9 @@ void spFillDropDown(AUI_ERRCODE *retval, c3_DropDown *mydrop, aui_StringTable *m
 	for (sint32 i = 0; i < mytable->GetNumStrings(); ++i)
     {
 		mydrop->AddItem
-            (new SPDropDownListItem
+            (std::make_unique<SPDropDownListItem>
                 (retval, listitemparent, listitemme, mytable->GetString(i))
-            );
+            .release());
 	}
 }
 void spFillListBox(AUI_ERRCODE *retval, c3_ListBox *mylist, aui_StringTable *mytable, MBCHAR *listitemparent, MBCHAR *listitemme)
@@ -717,9 +715,9 @@ void spFillListBox(AUI_ERRCODE *retval, c3_ListBox *mylist, aui_StringTable *myt
 	for (sint32 i = 0; i < mytable->GetNumStrings(); i++)
 		{
 		mylist->AddItem
-		    (new SPDropDownListItem
+		    (std::make_unique<SPDropDownListItem>
 		        (retval, listitemparent, listitemme, mytable->GetString(i))
-		    );
+		    .release());
 	}
 }
 
@@ -728,7 +726,7 @@ c3_Static* spNew_c3_Static(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR 
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
-	return new c3_Static(errcode, aui_UniqueId(), textBlock);
+	return std::make_unique<c3_Static>(errcode, aui_UniqueId(), textBlock).release();
 }
 
 C3TextField* spNewTextEntry(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR const *ldlMe,
@@ -738,7 +736,7 @@ C3TextField* spNewTextEntry(AUI_ERRCODE *errcode, MBCHAR const *ldlParent,MBCHAR
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
-	return new C3TextField( errcode, aui_UniqueId(), textBlock, callback, cookie);
+	return std::make_unique<C3TextField>( errcode, aui_UniqueId(), textBlock, callback, cookie).release();
 }
 
 TwoChoiceButton* spNewTwoChoiceButton(AUI_ERRCODE *errcode, MBCHAR* ldlParent, MBCHAR const *ldlMe,
@@ -748,15 +746,12 @@ TwoChoiceButton* spNewTwoChoiceButton(AUI_ERRCODE *errcode, MBCHAR* ldlParent, M
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	MBCHAR *c0= nullptr;
 	MBCHAR *c1= nullptr;
-	aui_StringTable * choices = spNewStringTable(errcode,ldlstringtable);
+	auto choices = std::unique_ptr<aui_StringTable>(spNewStringTable(errcode,ldlstringtable));
 	if(choices && choices->GetNumStrings()==2)
 	{ c0 = choices->GetString(0); c1 = choices->GetString(1); }
 
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
-	TwoChoiceButton * mybutton = new TwoChoiceButton(errcode,aui_UniqueId(),textBlock,c0,c1,state,callback);
-
-	delete choices;
-	return mybutton;
+	return std::make_unique<TwoChoiceButton>(errcode,aui_UniqueId(),textBlock,c0,c1,state,callback).release();
 }
 
 C3Slider* spNew_C3Slider(AUI_ERRCODE *errcode, MBCHAR const *ldlParent, MBCHAR const *ldlMe,
@@ -765,7 +760,7 @@ C3Slider* spNew_C3Slider(AUI_ERRCODE *errcode, MBCHAR const *ldlParent, MBCHAR c
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
-    return new C3Slider(errcode, aui_UniqueId(), textBlock, callback);
+    return std::make_unique<C3Slider>(errcode, aui_UniqueId(), textBlock, callback).release();
 }
 c3_CheckBox* spNew_c3_CheckBox(AUI_ERRCODE *errcode, MBCHAR* ldlParent, MBCHAR const *ldlMe,
 					uint32 state, void (*callback)(aui_Control*,uint32,uint32,void*), void*cookie)
@@ -773,17 +768,17 @@ c3_CheckBox* spNew_c3_CheckBox(AUI_ERRCODE *errcode, MBCHAR* ldlParent, MBCHAR c
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
-	c3_CheckBox * mycheck = new c3_CheckBox(errcode,aui_UniqueId(),textBlock,callback,cookie);
+	auto mycheck = std::make_unique<c3_CheckBox>(errcode,aui_UniqueId(),textBlock,callback,cookie);
 	mycheck->SetState(state);
 
-	return mycheck;
+	return mycheck.release();
 }
 aui_SwitchGroup* spNew_aui_SwitchGroup( AUI_ERRCODE *errcode, MBCHAR const *ldlParent, MBCHAR const *ldlMe )
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
-	return new aui_SwitchGroup(errcode, aui_UniqueId(), textBlock);
+	return std::make_unique<aui_SwitchGroup>(errcode, aui_UniqueId(), textBlock).release();
 }
 
 void spnewgamescreen_HotseatCallback(sint32 launch, sint32 player,

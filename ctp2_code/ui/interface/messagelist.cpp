@@ -50,8 +50,7 @@ MessageList::~MessageList( )
 
 				if ( c3ui_Get()->GetWindow( window->Id( )))
 					window->ShowWindow( FALSE );
-
-				delete window;
+				// iconEntry.reset() below frees the window via unique_ptr
 			}
 
 			iconEntry.reset();
@@ -64,12 +63,12 @@ AUI_ERRCODE MessageList::CreateMessage( Message data )
 	AUI_ERRCODE			errcode = AUI_ERRCODE_OK;
 	MBCHAR				windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	std::unique_ptr<MessageIconWindow> createdIcon(new MessageIconWindow( &errcode,
+	std::unique_ptr<MessageIconWindow> createdIcon = std::make_unique<MessageIconWindow>( &errcode,
 										 aui_UniqueId(),
 										 const_cast<MBCHAR *>("MessageIconWindow"),
 										 data,
 										 16,
-										 this ));
+										 this );
 	Assert( AUI_NEWOK( createdIcon, errcode ));
 	if ( !AUI_NEWOK( createdIcon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -78,15 +77,12 @@ AUI_ERRCODE MessageList::CreateMessage( Message data )
 
 	strlcpy( windowBlock, "StandardMessageWindow", sizeof(windowBlock) );
 
-	std::unique_ptr<MessageWindow> createdWindow(new MessageWindow( &errcode, aui_UniqueId(), windowBlock,
-								 16, data, mIconWindow ));
+	std::unique_ptr<MessageWindow> createdWindow = std::make_unique<MessageWindow>( &errcode, aui_UniqueId(), windowBlock,
+								 16, data, mIconWindow );
 	Assert( AUI_NEWOK( createdWindow, errcode ));
 	if ( !AUI_NEWOK( createdWindow, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	mIconWindow->SetWindow( createdWindow.get() );
-	// Ownership of the window passes to this list; it is released ahead of
-	// the icon window in the destructor and in Remove().
-	createdWindow.release();
+	mIconWindow->SetWindow( createdWindow.release() );
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
 	Assert( AUI_SUCCESS(errcode) );
@@ -229,7 +225,7 @@ void MessageList::Remove( MessageIconWindow *iconWindow,
 		count++;
 	}
 
-	delete window;
+	// removedIcon dtor frees the window via unique_ptr
 	removedIcon.reset();
 
 	CheckVisibleMessages();

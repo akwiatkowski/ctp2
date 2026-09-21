@@ -47,6 +47,7 @@
 // Library dependencies
 //----------------------------------------------------------------------------
 
+#include <deque>        // std::deque
 #include <vector>       // std::vector
 
 //----------------------------------------------------------------------------
@@ -133,6 +134,9 @@ public:
 	void Export(MBCHAR * file);
 
 private:
+	// Owning store for all records; deque keeps pointers stable across
+	// insertions, so m_head/m_all can stay non-owning raw pointers.
+	std::deque<StringRecord>	m_records;
 	std::vector<StringRecord *>	m_all;	// a flattened list version of m_head
 	std::vector<StringRecord *> m_head;
 		// hash vector of B-trees of lexicographically ordered strings

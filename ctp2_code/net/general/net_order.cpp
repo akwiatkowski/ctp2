@@ -20,9 +20,7 @@ NetOrder::NetOrder(sint32 owner, const Army &army,
 	m_army = army;
 	m_order = o;
 	if(a_path)
-		m_path = new Path(a_path);
-	else
-		m_path = nullptr;
+		m_path = std::make_unique<Path>(a_path);
 
 	m_point = point;
 	m_argument = arg;
@@ -60,11 +58,7 @@ static void net_order_AppendDirTag(char *buf, size_t bufSize, sint32 dir)
 }
 #endif
 
-NetOrder::~NetOrder()
-{
-	
-		delete m_path;
-}
+NetOrder::~NetOrder() = default;
 
 void NetOrder::Packetize(uint8 *buf, uint16 &size)
 {
@@ -161,9 +155,9 @@ void NetOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	uint16 n;
 	PULLSHORT(n);
 
-	Path *path = nullptr;
+	std::unique_ptr<Path> path;
 	if(n & 0x8000) {
-		path = new Path;
+		path = std::make_unique<Path>();
 		PULLSHORT(path->m_start.x);
 		PULLSHORT(path->m_start.y);
 		PULLSHORT(path->m_current.x);
@@ -206,7 +200,7 @@ void NetOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	bool needInput = gevmanager_Get()->NeedUserInput();
 	gevmanager_Get()->SetNeedUserInput();
-	m_army->AddOrders(m_order, path, m_point, m_argument, m_event);
+	m_army->AddOrders(m_order, path.release(), m_point, m_argument, m_event);
 	if(!needInput) {
 		gevmanager_Get()->GotUserInput();
 	}

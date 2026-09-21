@@ -57,7 +57,7 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 	MBCHAR			iconDataBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_messageWindow = nullptr;
+	m_messageWindow.reset();
 	m_isMoving = FALSE;
 	m_currentY = 0;
 	m_targetY = 0;
@@ -75,7 +75,7 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 		m_prev->SetNext( this );
 
 	snprintf(iconDataBlock, sizeof(iconDataBlock), "%s.%s", ldlBlock, "icon" );
-	m_icon.reset(new MessageIconButton( &errcode, aui_UniqueId(), iconDataBlock ));
+	m_icon = std::make_unique<MessageIconButton>( &errcode, aui_UniqueId(), iconDataBlock );
 	Assert( AUI_NEWOK( m_icon, errcode ));
 	if ( !AUI_NEWOK( m_icon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -104,7 +104,7 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 		SetupAnimation( pos - messagelist->GetOffset( ));
 	}
 
-	m_messageOpenAction.reset(new MessageOpenAction( this ));
+	m_messageOpenAction = std::make_unique<MessageOpenAction>( this );
 
 	m_icon->SetAction( m_messageOpenAction.get() );
 
@@ -155,8 +155,8 @@ void MessageIconWindow::SetTipWindowText( MBCHAR *text )
 
 	if ( !strlen( text )) {
 
-		delete ((aui_TipWindow *)m_icon->GetTipWindow());
-		m_icon->SetTipWindow( nullptr );
+		// SetTipWindow returns the old tip; unique_ptr frees it
+		std::unique_ptr<aui_Window>{m_icon->SetTipWindow( nullptr )};
 	} else {
 		((aui_TipWindow *)m_icon->GetTipWindow())->GetStatic()->SetText( text );
 	}

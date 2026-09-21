@@ -29,6 +29,8 @@
 #include "ctp/c3.h"
 #include "ui/aui_common/aui_Factory.h"
 
+#include <memory>
+
 
 #include "ui/aui_sdl/aui_sdlsurface.h"
 #include "ui/aui_sdl/aui_sdlmouse.h"
@@ -51,13 +53,11 @@ aui_Factory::new_Surface(AUI_ERRCODE &retval,
 	// bpp == 0 -> follow the global display depth (historic behaviour).
 	sint32 const surfaceBpp = (bpp > 0) ? bpp : c3ui_Get()->BitsPerPixel();
 
-	aui_SDLSurface *surface = nullptr;
-
-	surface = new aui_SDLSurface(&retval, width, height, surfaceBpp, C3UI::DD(),
+	auto surface = std::make_unique<aui_SDLSurface>(&retval, width, height, surfaceBpp, C3UI::DD(),
 	                             isPrimary, useVideoMemory, takeOwnership);
 	Assert( AUI_NEWOK(surface, retval) );
 
-	return surface;
+	return surface.release();
 }
 
 aui_Mouse *
@@ -66,21 +66,17 @@ aui_Factory::new_Mouse(AUI_ERRCODE &retval,
                        const BOOL  &useExclusiveMode
                       )
 {
-	aui_SDLMouse *mouse = nullptr;
-
-	mouse = new aui_SDLMouse(&retval, ldlBlock, useExclusiveMode);
+	auto mouse = std::make_unique<aui_SDLMouse>(&retval, ldlBlock, useExclusiveMode);
 	Assert( AUI_NEWOK(mouse, retval) );
 
-	return mouse;
+	return mouse.release();
 }
 
 aui_Keyboard *
 aui_Factory::new_Keyboard(AUI_ERRCODE &retval)
 {
-	aui_SDLKeyboard *keyboard = nullptr;
-
-	keyboard = new aui_SDLKeyboard(&retval);
+	auto keyboard = std::make_unique<aui_SDLKeyboard>(&retval);
 	Assert( AUI_NEWOK(keyboard, retval) );
 
-	return keyboard;
+	return keyboard.release();
 }

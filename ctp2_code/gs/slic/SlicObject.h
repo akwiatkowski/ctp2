@@ -33,8 +33,10 @@
 #define __SLIC_OBJECT_H__
 
 #include "gs/slic/SlicContext.h"
-#include <nlohmann/json.hpp>
+#include <memory>
 #include <string>
+
+#include <nlohmann/json.hpp>
 
 class ID;
 class SlicButton;
@@ -51,12 +53,12 @@ private:
 
 	std::string m_id;
 	SlicSegment *m_segment;
-	SlicFrame *m_frame;
+	std::unique_ptr<SlicFrame> m_frame;
 	sint32 m_seconds;
 
-	sint32 *m_recipientList;
+	std::unique_ptr<sint32[]> m_recipientList;
 	sint32 m_numRecipients;
-	ID *m_request;
+	std::unique_ptr<ID> m_request;
 
 	sint32 m_defaultAdvanceSet;
 	sint32 m_defaultAdvance;
@@ -142,7 +144,7 @@ public:
 	sint32 GetResult() { return m_result; }
 
 	void SetFrame(SlicFrame *frame);
-	SlicFrame *GetFrame() { return m_frame; }
+	SlicFrame *GetFrame() { return m_frame.get(); }
 
 	void Continue();
 	void Finish();

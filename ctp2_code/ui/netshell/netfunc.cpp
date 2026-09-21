@@ -51,6 +51,7 @@
 #endif
 
 #include <algorithm>
+#include <memory>
 
 namespace
 {
@@ -196,9 +197,9 @@ int adialup_willdial()
 char *NETFunc::StringDup(char *s) {
     if (!s) return nullptr;
     size_t const len = strlen(s) + 1;
-    char *dup = new char[len];
-    strlcpy(dup, s, len);
-    return dup;
+    auto dup = std::make_unique<char[]>(len);
+    strlcpy(dup.get(), s, len);
+    return dup.release();
 }
 
 
@@ -255,8 +256,8 @@ int NETFunc::MessageHandler::hCount = 0;
 
 
 NETFunc::Message::Message(CODE c, void *p, size_t s) {
-	newbody = true;
-	body = new char[s + sizeof(CODE)];
+	bodyOwner = std::make_unique<char[]>(s + sizeof(CODE));
+	body = bodyOwner.get();
 	*(CODE *)body = c;
 	memcpy(body + sizeof(CODE), p, s);
 	size = s + sizeof(CODE);
@@ -264,17 +265,17 @@ NETFunc::Message::Message(CODE c, void *p, size_t s) {
 }
 
 NETFunc::Message::Message(CODE c) {
-	newbody = true;
-	body = new char[sizeof(CODE)];
+	bodyOwner = std::make_unique<char[]>(sizeof(CODE));
+	body = bodyOwner.get();
 	*(CODE *)body = c;
 	size = sizeof(CODE);
 	sender = dp_ID_NAMESERVER;
 }
 
 NETFunc::Message::Message(void *p, size_t s, dpid_t id, bool b) {
-	newbody = b;
-	if(newbody) {
-		body = new char[s];
+	if(b) {
+		bodyOwner = std::make_unique<char[]>(s);
+		body = bodyOwner.get();
 		memcpy(body, p, s);
 	} else
 		body = (char *)p;
@@ -283,14 +284,11 @@ NETFunc::Message::Message(void *p, size_t s, dpid_t id, bool b) {
 }
 
 NETFunc::Message::Message() {
-	newbody = false;
+	body = nullptr;
 	size = 0;
 }
 
-NETFunc::Message::~Message() {
-	if(newbody)
-		delete [] body;
-}
+NETFunc::Message::~Message() = default;
 
 dp_packetType_t *NETFunc::Message::Get() {
 	return (dp_packetType_t *)body;
@@ -376,7 +374,7 @@ NETFunc::STATUS NETFunc::EnumServers(bool b) {
 	key.buf[0] = dp_KEY_SERVERPINGS;
 	key.len = 1;
 	if(!b)
-		PushMessage(new Message(Message::RESET, &key, sizeof(KeyStruct)));
+		PushMessage(std::make_unique<Message>(Message::RESET, &key, sizeof(KeyStruct)).release());
 
 	key.buf[1] = (char) dpGETSHORT_FIRSTBYTE(GameType);
 	key.buf[2] = (char) dpGETSHORT_SECONDBYTE(GameType);
@@ -390,7 +388,7 @@ NETFunc::STATUS NETFunc::EnumSessions(bool b) {
 	key.buf[0] = dp_KEY_SESSIONS;
 	key.len = 1;
 	if(!b)
-		PushMessage(new Message(Message::RESET, &key, sizeof(KeyStruct)));
+		PushMessage(std::make_unique<Message>(Message::RESET, &key, sizeof(KeyStruct)).release());
 
 	NETFunc::STATUS s = dpRequestObjectDeltas(dp, b, &key.buf[0], key.len) == dp_RES_OK ? OK : ERR;
 
@@ -484,7 +482,7 @@ bool NETFunc::ListHandler<NETFunc::Server>::Handle(Message *m) {
 					if(Find(&t) != end())
 						Change(Chg(&t));
 					else
-						Insert(Add(new Server(t)));
+						Insert(Add(std::make_unique<Server>(t).release()));
 
 				return true;
 
@@ -510,33 +508,28 @@ void NETFunc::ListHandler<NETFunc::Server>::SetKey() {
 
 
 NETFunc::Contact::Contact(char *n, char *p) {
-	name = NETFunc::StringDup(n);
-	number = NETFunc::StringDup(p);
+	name.reset(NETFunc::StringDup(n));
+	number.reset(NETFunc::StringDup(p));
 }
 
 NETFunc::Contact::Contact() = default;
 
-NETFunc::Contact::~Contact() {
-	delete name;
-	delete number;
-}
+NETFunc::Contact::~Contact() = default;
 
 char *NETFunc::Contact::GetName() {
-	return name;
+	return name.get();
 }
 
 char *NETFunc::Contact::GetNumber() {
-	return number;
+	return number.get();
 }
 
 void NETFunc::Contact::SetName(char *n) {
-	delete name;
-	name = NETFunc::StringDup(n);
+	name.reset(NETFunc::StringDup(n));
 }
 
 void NETFunc::Contact::SetNumber(char *p) {
-	delete number;
-	number = NETFunc::StringDup(p);
+	number.reset(NETFunc::StringDup(p));
 }
 
 
@@ -592,7 +585,7 @@ NETFunc::PortList::PortList(Transport *t)
     {
         for (int i = 0; i < portCount; i++)
         {
-            push_back(new Port(&portName[i], 0, ""));
+            push_back(std::make_unique<Port>(&portName[i], 0, "").release());
         }
     }
 }
@@ -721,18 +714,14 @@ NETFunc::TransportSetup::TransportSetup(Transport *t) {
 	transport = *t->GetTransport();
 	parameters = *t->GetParams();
 	status = t->GetStatus();
-	parameters.modeministr = StringDup(t->GetParams()->modeministr);
-	parameters.phonenum = StringDup(t->GetParams()->phonenum);
+	m_modeminit.reset(StringDup(t->GetParams()->modeministr));
+	m_phonenum.reset(StringDup(t->GetParams()->phonenum));
+	parameters.modeministr = m_modeminit.get();
+	parameters.phonenum = m_phonenum.get();
 	type = t->GetType();
 }
 
-NETFunc::TransportSetup::~TransportSetup() {
-
-	
-		delete [] parameters.modeministr;
-	
-		delete [] parameters.phonenum;
-}
+NETFunc::TransportSetup::~TransportSetup() = default;
 
 NETFunc::STATUS NETFunc::TransportSetup::GetStatus() {
 	return status;
@@ -750,7 +739,7 @@ commInitReq_t *NETFunc::TransportSetup::GetParams() {
 	return &parameters;
 }
 
-NETFunc::TransportSetup *NETFunc::transport = nullptr;
+std::unique_ptr<NETFunc::TransportSetup> NETFunc::transport;
 
 
 NETFunc::Transport::TYPE NETFunc::GetTransportType(const comm_driverInfo_t *c) {
@@ -786,16 +775,16 @@ NETFunc::TransportList::CallBack(const dp_transport_t *t, const comm_driverInfo_
 
 		switch(GetTransportType(d)) {
 		case Transport::INTERNET:
-			((TransportList *)context)->Add(new Internet(d, t, k));
+			((TransportList *)context)->Add(std::make_unique<Internet>(d, t, k).release());
 		break;
 		case Transport::IPX:
-			((TransportList *)context)->Add(new IPX(d, t, k));
+			((TransportList *)context)->Add(std::make_unique<IPX>(d, t, k).release());
 		break;
 		case Transport::MODEM:
-			((TransportList *)context)->Add(new Modem(d, t, k));
+			((TransportList *)context)->Add(std::make_unique<Modem>(d, t, k).release());
 		break;
 		case Transport::NULLMODEM:
-			((TransportList *)context)->Add(new NullModem(d, t, k));
+			((TransportList *)context)->Add(std::make_unique<NullModem>(d, t, k).release());
 		break;
 		default:
 		break;
@@ -971,7 +960,7 @@ bool NETFunc::AIPlayers::Handle(Message *m) {
 	} else if(m->GetCode() == Message::ADDAIPLAYER) {
 		t.Set(m->GetBodySize(), m->GetBody());
 
-		Add(new AIPlayer(t));
+		Add(std::make_unique<AIPlayer>(t).release());
 		return true;
 	} else if(m->GetCode() == Message::DELAIPLAYER) {
 		t.Set(m->GetBodySize(), m->GetBody());
@@ -1143,7 +1132,7 @@ bool NETFunc::ListHandler<NETFunc::Player>::Handle(Message *m) {
 				if(Find(&t) != end())
 					Change(Chg(&t));
 				else
-					Insert(Add(new Player(t)));
+					Insert(Add(std::make_unique<Player>(t).release()));
 				return true;
 
 			case dp_RES_DELETED:
@@ -1270,7 +1259,7 @@ void NETFunc::PlayerStats::Left(dpid_t id) {
 		t.SetLeft(true);
 		Chg(&t);
 		if(status != RESET)
-			PushMessage(new Message(Message::CHGPLAYERSTAT, t.GetBody(), t.GetSize()));
+			PushMessage(std::make_unique<Message>(Message::CHGPLAYERSTAT, t.GetBody(), t.GetSize()).release());
 	}
 }
 
@@ -1285,7 +1274,7 @@ bool NETFunc::PlayerStats::Handle(Message *m) {
 
 		if(Find(&t) == end())
 
-			Add(new PlayerStat(t));
+			Add(std::make_unique<PlayerStat>(t).release());
 		else {
 
 			Chg(&t);
@@ -1542,7 +1531,7 @@ bool NETFunc::ListHandler<NETFunc::Session>::Handle(Message *m) {
 				if(Find(&t) != end())
 					Change(Chg(&t));
 				else
-					Insert(Add(new Session(t)));
+					Insert(Add(std::make_unique<Session>(t).release()));
 				return true;
 
 			case dp_RES_DELETED:
@@ -1639,7 +1628,7 @@ bool NETFunc::ListHandler<NETFunc::Lobby>::Handle(Message *m) {
 				if(Find(&t) != end())
 					Change(Chg(&t));
 				else
-					Insert(Add(new Lobby(t)));
+					Insert(Add(std::make_unique<Lobby>(t).release()));
 				return true;
 
 			case dp_RES_DELETED:
@@ -1689,7 +1678,7 @@ bool NETFunc::ListHandler<NETFunc::Game>::Handle(Message *m) {
 				if(Find(&t) != end())
 					Change(Chg(&t));
 				else
-					Insert(Add(new Game(t)));
+					Insert(Add(std::make_unique<Game>(t).release()));
 				return true;
 
 			case dp_RES_DELETED:
@@ -1714,14 +1703,13 @@ void NETFunc::ListHandler<NETFunc::Game>::SetKey() {
 NETFunc::PlayerList::PlayerList() {
 	count++;
 	if(!players)
-		players = new Players();
+		players = std::make_unique<Players>();
 }
 
 NETFunc::PlayerList::~PlayerList() {
 	count--;
 	if(!count) {
-		delete players;
-		players = nullptr;
+		players.reset();
 	}
 }
 
@@ -1738,7 +1726,7 @@ NETFunc::Player *NETFunc::PlayerList::FindPlayer(dpid_t id) {
 	return nullptr;
 };
 
-NETFunc::PlayerList::Players *NETFunc::PlayerList::players = nullptr;
+std::unique_ptr<NETFunc::PlayerList::Players> NETFunc::PlayerList::players;
 int NETFunc::PlayerList::count = 0;
 
 
@@ -2016,7 +2004,7 @@ bool NETFunc::Players::Handle(Message *m) {
 				switch(p->status) {
 
 				case dp_RES_CREATED:
-					Add(new Player(t));
+					Add(std::make_unique<Player>(t).release());
 
 
 
@@ -2053,7 +2041,7 @@ bool NETFunc::Players::Handle(Message *m) {
 						if(i->Equals(&t) && i->IsHost()) {
 							for(auto & j : *this)
 								((PlayerSetup *)j)->SetReadyToLaunch(false);
-							PushMessage(new Message(Message::UNLAUNCH));
+							PushMessage(std::make_unique<Message>(Message::UNLAUNCH).release());
 							break;
 						}
 					Del(&t);
@@ -2138,8 +2126,8 @@ NETFunc::Mutes NETFunc::mutes = Mutes();
 
 NETFunc::NETFunc() {
 	transport = nullptr;
-	playerStats = new PlayerStats();
-	aiPlayers = new AIPlayers();
+	playerStats = std::make_unique<PlayerStats>();
+	aiPlayers = std::make_unique<AIPlayers>();
 	connected = false;
 	reconnected = true;
 	playerset = false;
@@ -2175,7 +2163,7 @@ NETFunc::STATUS NETFunc::Connect(char *file) {
 	k.len = 0;
 
 	Transport trans = Transport(&i, &t, &k);
-	transport = new TransportSetup(&trans);
+	transport = std::make_unique<TransportSetup>(&trans);
 
 	connected = true;
 
@@ -2216,18 +2204,16 @@ NETFunc::~NETFunc() {
 	Quit();
 
 	while(GetStatus() != NETFunc::START) {
-		Message *m = GetMessage();
-		
-			delete m;
+		std::unique_ptr<Message> m(GetMessage());
 	}
 
 	messages.clear();
-	
-		delete transport;
-	
-		delete playerStats;
-	
-		delete aiPlayers;
+
+		transport.reset();
+
+		playerStats.reset();
+
+		aiPlayers.reset();
 }
 
 NETFunc::STATUS NETFunc::GetStatus() {
@@ -2251,16 +2237,16 @@ NETFunc::Player *NETFunc::GetPlayer() {
 }
 
 NETFunc::TransportSetup *NETFunc::GetTransport() {
-	return transport;
+	return transport.get();
 }
 
 NETFunc::STATUS NETFunc::SetTransport(Transport *t) {
 	if(status == START) {
 		
-			delete transport;
+			transport.reset();
 		if(t->GetType() == Transport::INTERNET && adialup_willdial())
 			return BUSSY;
-		transport = new TransportSetup(t);
+		transport = std::make_unique<TransportSetup>(t);
 		if(transport->GetType() == Transport::INTERNET) {
 			userId = dp_UID_NONE;
 			nextStatus = PRECONNECT;
@@ -2270,9 +2256,9 @@ NETFunc::STATUS NETFunc::SetTransport(Transport *t) {
 		}
 		cancelDial = 0;
 #ifdef USE_SDL
-		threadHandle = SDL_CreateThread(ConnectThread, "ConnectThread", (void *)transport);
+		threadHandle = SDL_CreateThread(ConnectThread, "ConnectThread", (void *)transport.get());
 #else
-		threadHandle = CreateThread(0, 0, ConnectThread, (void *)transport, 0, &threadId);
+		threadHandle = CreateThread(0, 0, ConnectThread, (void *)transport.get(), 0, &threadId);
 #endif
 		if(threadHandle) {
 			status = CONNECT;
@@ -2332,7 +2318,7 @@ NETFunc::STATUS NETFunc::GetPlayerSetupPacket(Player *p) {
 
 
 		if(dpGetPlayerData(dp, p->GetId(), PlayerSetupPacketKey, buffer, &size, 0) == dp_RES_OK) {
-			PushMessage(new Message(Message::PLAYERPACKET, buffer, size));
+			PushMessage(std::make_unique<Message>(Message::PLAYERPACKET, buffer, size).release());
 			return OK;
 		}
 	}
@@ -2372,7 +2358,7 @@ NETFunc::STATUS NETFunc::SetRemotePlayerRecord(PlayerSetup *p) {
 	if(!host && (!playerset || !playerSetup.GetGroup() || playerSetup.GetGroup() != p->GetGroup() || player.IsGroupMaster()))
 		return ERR;
 	if(p->GetId() == player.GetId()) {
-		PushMessage(new Message(Message::SETPLAYERRECORD, &p->player, sizeof(dp_playerId_t)));
+		PushMessage(std::make_unique<Message>(Message::SETPLAYERRECORD, &p->player, sizeof(dp_playerId_t)).release());
 	} else {
 		Message message = Message(Message::SETPLAYERRECORD, &p->player, sizeof(dp_playerId_t));
 		if(Send(dp, &message, p->GetId()) != OK)
@@ -2434,7 +2420,7 @@ NETFunc::STATUS NETFunc::SetGameSetupSession(GameSetup *g) {
 		return OK;
 	if(dpSetSessionDesc(dp, &g->session, 0) != dp_RES_OK)
 		return ERR;
-	Message *m = new Message(Message::GAMESESSION, &g->session, sizeof(dp_session_t));
+	Message *m = std::make_unique<Message>(Message::GAMESESSION, &g->session, sizeof(dp_session_t)).release();
 
 	PushMessage(m);
 	if(Send(dp, m, dp_ID_BROADCAST) != OK)
@@ -2449,7 +2435,7 @@ NETFunc::STATUS NETFunc::InsertAIPlayer(AIPlayer *p) {
 	AIPlayer aip(*p);
 	aiPlayers->NextKey();
 	aip.key = aiPlayers->curkey;
-	Message *m = new Message(Message::ADDAIPLAYER, aip.GetBody(), aip.GetSize());
+	Message *m = std::make_unique<Message>(Message::ADDAIPLAYER, aip.GetBody(), aip.GetSize()).release();
 	PushMessage(m);
 	if(Send(dp, m, dp_ID_BROADCAST) != OK)
 		return ERR;
@@ -2459,7 +2445,7 @@ NETFunc::STATUS NETFunc::InsertAIPlayer(AIPlayer *p) {
 NETFunc::STATUS NETFunc::DeleteAIPlayer(AIPlayer *p) {
 	if(!aiPlayers)
 		return ERR;
-	Message *m = new Message(Message::DELAIPLAYER, p->GetBody(), p->GetSize());
+	Message *m = std::make_unique<Message>(Message::DELAIPLAYER, p->GetBody(), p->GetSize()).release();
 	PushMessage(m);
 	if(Send(dp, m, dp_ID_BROADCAST) != OK)
 		return ERR;
@@ -2469,7 +2455,7 @@ NETFunc::STATUS NETFunc::DeleteAIPlayer(AIPlayer *p) {
 NETFunc::STATUS NETFunc::ChangeAIPlayer(AIPlayer *p) {
 	if(!aiPlayers)
 		return ERR;
-	Message *m = new Message(Message::CHGAIPLAYER, p->GetBody(), p->GetSize());
+	Message *m = std::make_unique<Message>(Message::CHGAIPLAYER, p->GetBody(), p->GetSize()).release();
 	PushMessage(m);
 	if(Send(dp, m, dp_ID_BROADCAST) != OK)
 		return ERR;
@@ -2490,14 +2476,14 @@ NETFunc::STATUS NETFunc::Launch() {
 			SetGameSetupSession(&gameSetup);
 		}
 		launched = true;
-		PushMessage(new Message(Message::GAMELAUNCH));
+		PushMessage(std::make_unique<Message>(Message::GAMELAUNCH).release());
 		return OK;
 	}
 	return ERR;
 }
 
 NETFunc::STATUS NETFunc::UnLaunchAll() {
-	Message *m = new Message(Message::UNLAUNCH);
+	Message *m = std::make_unique<Message>(Message::UNLAUNCH).release();
 	PushMessage(m);
 	if(NETFunc::Send(dp, m, dp_ID_BROADCAST) != OK)
 		return ERR;
@@ -2507,7 +2493,7 @@ NETFunc::STATUS NETFunc::UnLaunchAll() {
 NETFunc::STATUS NETFunc::Login(char *username, char *password) {
 	if(status == LOGIN) {
 		if(userId != dp_UID_NONE || !strlen(username)) {
-			PushMessage(new Message(Message::LOGINOK));
+			PushMessage(std::make_unique<Message>(Message::LOGINOK).release());
 		} else if(dpAccountLogin(dp, username, password) != dp_RES_OK)
 			return ERR;
 		return OK;
@@ -2546,9 +2532,7 @@ NETFunc::STATUS NETFunc::DoUpdate() {
 			Quit();
 
 			while(GetStatus() != NETFunc::START) {
-				Message *m = GetMessage();
-				
-					delete m;
+				std::unique_ptr<Message> m(GetMessage());
 			}
 
 			result = dpDownloadUpdate(dp, &appParam);
@@ -2597,11 +2581,11 @@ void NETFunc::Mute(Key *p, bool m) {
 	memcpy(&keys[1], &p->key, sizeof(KeyStruct));
 	if(m) {
 		if(mutes.Find(p) == mutes.end())
-			mutes.Add(new Key(*p));
+			mutes.Add(std::make_unique<Key>(*p).release());
 	} else
 		mutes.Del(p);
 
-	PushMessage(new Message(Message::UPDATE, &keys[0], (sizeof(KeyStruct)<<1)));
+	PushMessage(std::make_unique<Message>(Message::UPDATE, &keys[0], (sizeof(KeyStruct)<<1)).release());
 }
 
 NETFunc::STATUS NETFunc::Connect() {
@@ -2640,11 +2624,11 @@ NETFunc::STATUS NETFunc::Connect(dp_t *d, PlayerStats *stats, bool h) {
 	strlcpy(session.session.sessionName, sessionname, sizeof(session.session.sessionName));
 
 	if(stats) {
-		playerStats = new PlayerStats();
+		playerStats = std::make_unique<PlayerStats>();
 
 		PlayerStats::iterator i;
 		for(i=stats->begin(); i!=stats->end(); i++)
-			PushMessage(new Message(Message::ADDPLAYERSTAT, (*i)->GetBody(), (*i)->GetSize()));
+			PushMessage(std::make_unique<Message>(Message::ADDPLAYERSTAT, (*i)->GetBody(), (*i)->GetSize()).release());
 	}
 
 	status = READY;
@@ -2666,7 +2650,7 @@ NETFunc::STATUS NETFunc::Connect(dp_t *d, PlayerStats *stats, bool h) {
 	case Transport::INTERNET:
 		{
 			Internet internet = Internet(&i, &t, &k);
-			transport = new TransportSetup(&internet);
+			transport = std::make_unique<TransportSetup>(&internet);
 		}
 		if(dpSetGameServerEx(dp, servername, GameType) != dp_RES_OK)
 			return ERR;
@@ -2674,25 +2658,25 @@ NETFunc::STATUS NETFunc::Connect(dp_t *d, PlayerStats *stats, bool h) {
 	case Transport::IPX:
 		{
 			IPX ipx = IPX(&i, &t, &k);
-			transport = new TransportSetup(&ipx);
+			transport = std::make_unique<TransportSetup>(&ipx);
 		}
 	break;
 	case Transport::MODEM:
 		{
 			Modem modem = Modem(&i, &t, &k);
-			transport = new TransportSetup(&modem);
+			transport = std::make_unique<TransportSetup>(&modem);
 		}
 	break;
 	case Transport::NULLMODEM:
 		{
 			NullModem nullModem = NullModem(&i, &t, &k);
-			transport = new TransportSetup(&nullModem);
+			transport = std::make_unique<TransportSetup>(&nullModem);
 		}
 	break;
 	default:
 		{
 			Transport trans = Transport(&i, &t, &k);
-			transport = new TransportSetup(&trans);
+			transport = std::make_unique<TransportSetup>(&trans);
 		}
 		break;
 	}
@@ -2931,9 +2915,9 @@ bool NETFunc::Handle(Message *m) {
 		dp_account_packet_t *p = (dp_account_packet_t *)m->GetBody();
 		userId = p->uid;
 		if(p->reason == dp_RES_OK && status == LOGIN) {
-			PushMessage(new Message(Message::LOGINOK));
+			PushMessage(std::make_unique<Message>(Message::LOGINOK).release());
 		} else {
-			PushMessage(new Message(Message::LOGINERR));
+			PushMessage(std::make_unique<Message>(Message::LOGINERR).release());
 		}
 		return true;
 	} else if(m->GetCode() == Message::LOGINOK) {
@@ -2954,7 +2938,7 @@ bool NETFunc::Handle(Message *m) {
 		host = true;
 		if(!gameSetup.IsSyncLaunch())
 			canlaunch = true;
-		PushMessage(new Message(Message::GAMEHOST));
+		PushMessage(std::make_unique<Message>(Message::GAMEHOST).release());
 		return true;
 	} else if(m->GetCode() == Message::UNLAUNCH) {
 		launch = false;
@@ -2966,7 +2950,7 @@ bool NETFunc::Handle(Message *m) {
 		status = CLOSE;
 		nextStatus = OPENLOBBY;
 
-		PushMessage(new Message(Message::SESSIONERR));
+		PushMessage(std::make_unique<Message>(Message::SESSIONERR).release());
 		return true;
 	} else if(m->GetCode() == Message::GAMESESSION || m->GetCode() == Message::GAMEPACKET) {
 		if(gameSetup.IsLaunched() && GotGameSetup())
@@ -2988,7 +2972,7 @@ bool NETFunc::Handle(Message *m) {
 
 
 
-		PushMessage(new Message(Message::PLAYERKICK));
+		PushMessage(std::make_unique<Message>(Message::PLAYERKICK).release());
 
 		Leave();
 	} else if(m->GetCode() == dp_OBJECTDELTA_PACKET_ID) {
@@ -3003,7 +2987,7 @@ bool NETFunc::Handle(Message *m) {
 				switch(p->status) {
 
 				case dp_RES_CREATED:
-					lobbies.Add(new Lobby(l));
+					lobbies.Add(std::make_unique<Lobby>(l).release());
 					break;
 
 				case dp_RES_DELETED:
@@ -3051,7 +3035,7 @@ bool NETFunc::Handle(Message *m) {
 					if(status == READY) {
 						status = OK;
 
-						PushMessage(new Message(Message::ENTERGAME, session.GetKey(), sizeof(KeyStruct)));
+						PushMessage(std::make_unique<Message>(Message::ENTERGAME, session.GetKey(), sizeof(KeyStruct)).release());
 					}
 					if(p->status == dp_RES_CREATED) {
 						Message message = Message(Message::PLAYERENTER, &player.player, sizeof(dp_playerId_t));
@@ -3095,7 +3079,7 @@ void NETFunc::Execute() {
 			if(dw) {
 				status = START;
 
-				PushMessage(new Message(Message::NETWORKERR));
+				PushMessage(std::make_unique<Message>(Message::NETWORKERR).release());
 			} else {
 
 				dpSetActiveThread(dp);
@@ -3145,7 +3129,7 @@ void NETFunc::Execute() {
 		break;
 	case OPENLOBBY:
 		if(timeout.Finished() || retries == 0) {
-			PushMessage(new Message(Message::NETWORKERR));
+			PushMessage(std::make_unique<Message>(Message::NETWORKERR).release());
 			status = READY;
 			break;
 		} else
@@ -3178,7 +3162,7 @@ void NETFunc::Execute() {
 		if(dpOpen(dp, &session.session, SessionCallBack, this) != dp_RES_OK) {
 			status = OPENLOBBY;
 
-			PushMessage(new Message(Message::SESSIONERR));
+			PushMessage(std::make_unique<Message>(Message::SESSIONERR).release());
 		}
 		break;
 	case CREATEPLAYER:
@@ -3189,7 +3173,7 @@ void NETFunc::Execute() {
 			status = CLOSE;
 			nextStatus = OPENLOBBY;
 
-			PushMessage(new Message(Message::SESSIONERR));
+			PushMessage(std::make_unique<Message>(Message::SESSIONERR).release());
 		} else if(status == CREATEPLAYER)
 			status = BUSSY;
 		break;
@@ -3251,7 +3235,7 @@ NETFunc::SessionCallBack(dp_session_t *s, long *pTimeout, long flags, void *cont
 		}
 		NETFunc::status = OPENLOBBY;
 
-		PushMessage(new Message(Message::SESSIONERR));
+		PushMessage(std::make_unique<Message>(Message::SESSIONERR).release());
 	}
 	return 0;
 }
@@ -3269,14 +3253,14 @@ NETFunc::PlayerCallBack(dpid_t id, dp_char_t *n, long flags, void *context) {
 		strlcpy(playername, n, sizeof(playername));
 
 		if(NETFunc::session.IsLobby())
-			PushMessage(new Message(Message::ENTERLOBBY, NETFunc::session.GetKey(), sizeof(KeyStruct)));
+			PushMessage(std::make_unique<Message>(Message::ENTERLOBBY, NETFunc::session.GetKey(), sizeof(KeyStruct)).release());
 		else
-			PushMessage(new Message(Message::ENTERGAME, NETFunc::session.GetKey(), sizeof(KeyStruct)));
+			PushMessage(std::make_unique<Message>(Message::ENTERGAME, NETFunc::session.GetKey(), sizeof(KeyStruct)).release());
 	} else {
 		NETFunc::status = CLOSE;
 		((NETFunc *)context)->nextStatus = OPENLOBBY;
 
-		PushMessage(new Message(Message::SESSIONERR));
+		PushMessage(std::make_unique<Message>(Message::SESSIONERR).release());
 	}
 }
 
@@ -3355,7 +3339,7 @@ void NETFunc::Receive() {
 	size = 0;
 	source = dp_ID_NONE;
 	destination = dp_ID_NONE;
-	Message *m;
+	std::unique_ptr<Message> m;
 	if(connected) do {
 
 		size = dpio_MAXLEN_UNRELIABLE;
@@ -3364,10 +3348,9 @@ void NETFunc::Receive() {
 		case dp_RES_EMPTY:
 		break;
 		case dp_RES_OK:
-			m = nullptr;
-			m = new Message(buffer, size, source);
+			m = std::make_unique<Message>(buffer, size, source);
 			if(m && ((char)m->GetCode() == dp_PACKET_INITIALBYTE || (char)m->GetCode() == nf_PACKET_INITIALBYTE || (char)m->GetCode() == ns_PACKET_INITIALBYTE) || m->GetCode() == Message::CHAT)
-				PushMessage(m);
+				PushMessage(m.release());
 		break;
 
 		case dp_RES_BUG:
@@ -3380,7 +3363,7 @@ void NETFunc::Receive() {
 
 		case dp_RES_HOST_NOT_RESPONDING:
 			;
-			PushMessage(new Message(Message::NETWORKERR));
+			PushMessage(std::make_unique<Message>(Message::NETWORKERR).release());
 			dpDestroy(dp, 1);
 			connected = false;
 			status = START;
@@ -3412,7 +3395,7 @@ void NETFunc::PushChatMessage(char *m) {
 	*(Chat::TYPE *)buffer = Chat::SYSTEM;
 	memcpy(buffer + sizeof(Chat::TYPE), m , size);
 	size += sizeof(Chat::TYPE);
-	PushMessage(new Message(Message::CHAT, buffer, size));
+	PushMessage(std::make_unique<Message>(Message::CHAT, buffer, size).release());
 }
 
 void NETFunc::PushMessage(Message *m) {

@@ -86,7 +86,7 @@ AUI_ERRCODE ns_HeaderSwitch::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE ns_HeaderSwitch::InitCommon( MBCHAR *icon )
+AUI_ERRCODE ns_HeaderSwitch::InitCommon( MBCHAR const *icon )
 {
 	m_icon = nullptr;
 
@@ -108,7 +108,7 @@ ns_HeaderSwitch::~ns_HeaderSwitch()
 }
 
 
-AUI_ERRCODE ns_HeaderSwitch::SetIcon( MBCHAR *icon )
+AUI_ERRCODE ns_HeaderSwitch::SetIcon( MBCHAR const *icon )
 {
 	Assert( icon != nullptr );
 	if ( !icon ) return AUI_ERRCODE_INVALIDPARAM;

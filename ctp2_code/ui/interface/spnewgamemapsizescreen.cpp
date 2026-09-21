@@ -53,12 +53,15 @@
 
 #include "gs/utility/Globals.h"
 
+#include <array>
+#include <memory>
 
-static c3_PopupWindow	*s_spNewGameMapSizeScreen	= nullptr;
+
+static std::unique_ptr<c3_PopupWindow>	s_spNewGameMapSizeScreen;
 
 
-static aui_SwitchGroup	*s_group		= nullptr;
-static aui_Radio	**s_checkBox;
+static std::unique_ptr<aui_SwitchGroup>	s_group;
+static std::array<std::unique_ptr<aui_Radio>, k_NUM_MAPSIZEBOXES> s_checkBox;
 
 static MBCHAR	checknames[k_NUM_MAPSIZEBOXES][50] = {
 	"MapSizeOne",
@@ -130,8 +133,8 @@ sint32	spnewgamemapsizescreen_displayMyWindow(BOOL viewMode, sint32 useMode)
 
 	s_useMode = useMode;
 
-	auiErr = c3ui_Get()->AddWindow(s_spNewGameMapSizeScreen);
-	keypress_RegisterHandler(s_spNewGameMapSizeScreen);
+	auiErr = c3ui_Get()->AddWindow(s_spNewGameMapSizeScreen.get());
+	keypress_RegisterHandler(s_spNewGameMapSizeScreen.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -154,7 +157,7 @@ sint32 spnewgamemapsizescreen_removeMyWindow(uint32 action)
 	AUI_ERRCODE auiErr;
 
 	auiErr = c3ui_Get()->RemoveWindow( s_spNewGameMapSizeScreen->Id() );
-	keypress_RemoveHandler(s_spNewGameMapSizeScreen);
+	keypress_RemoveHandler(s_spNewGameMapSizeScreen.get());
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 
@@ -181,7 +184,7 @@ AUI_ERRCODE spnewgamemapsizescreen_Initialize( aui_Control::ControlActionCallbac
 	strlcpy(windowBlock, "SPNewGameMapSizeScreen", sizeof(windowBlock));
 
 	{
-		s_spNewGameMapSizeScreen = new c3_PopupWindow( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
+		s_spNewGameMapSizeScreen = std::make_unique<c3_PopupWindow>( &errcode, aui_UniqueId(), windowBlock, 16, AUI_WINDOW_TYPE_FLOATING, false);
 		Assert( AUI_NEWOK(s_spNewGameMapSizeScreen, errcode) );
 		if ( !AUI_NEWOK(s_spNewGameMapSizeScreen, errcode) ) return errcode;
 
@@ -198,18 +201,16 @@ AUI_ERRCODE spnewgamemapsizescreen_Initialize( aui_Control::ControlActionCallbac
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Group" );
-	s_group = new aui_SwitchGroup( &errcode, aui_UniqueId(), controlBlock );
+	s_group = std::make_unique<aui_SwitchGroup>( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_group, errcode) );
 	if ( !AUI_NEWOK(s_group, errcode) ) return errcode;
 
-	s_checkBox = new aui_Radio*[k_NUM_MAPSIZEBOXES];
-
 	for ( i = 0;i < k_NUM_MAPSIZEBOXES;i++ ) {
 		snprintf(switchBlock, sizeof(switchBlock), "%s.%s", controlBlock, checknames[i] );
-		s_checkBox[i] = new aui_Radio( &errcode, aui_UniqueId(), switchBlock );
+		s_checkBox[i] = std::make_unique<aui_Radio>( &errcode, aui_UniqueId(), switchBlock );
 		Assert( AUI_NEWOK(s_checkBox[i], errcode) );
 		if ( !AUI_NEWOK(s_checkBox[i], errcode) ) return errcode;
-		s_group->AddSwitch( (aui_Radio *)s_checkBox[i] );
+		s_group->AddSwitch( s_checkBox[i].get() );
 
 	}
 
@@ -276,20 +277,15 @@ AUI_ERRCODE spnewgamemapsizescreen_Cleanup()
 	if (s_spNewGameMapSizeScreen)
 	{
 		c3ui_Get()->RemoveWindow(s_spNewGameMapSizeScreen->Id());
-		keypress_RemoveHandler(s_spNewGameMapSizeScreen);
+		keypress_RemoveHandler(s_spNewGameMapSizeScreen.get());
 
 		for (sint32 i = 0; i < k_NUM_MAPSIZEBOXES; ++i)
 		{
-			delete s_checkBox[i];
-			// NULLing unnecessary: deleting container next
+			s_checkBox[i].reset();
 		}
-		delete [] s_checkBox;
-		s_checkBox = nullptr;
 
-#define mycleanup(mypointer) { delete mypointer; mypointer = nullptr; }
-		mycleanup(s_group);
-		mycleanup(s_spNewGameMapSizeScreen);
-#undef mycleanup
+		s_group.reset();
+		s_spNewGameMapSizeScreen.reset();
 	}
 
 	return AUI_ERRCODE_OK;

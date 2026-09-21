@@ -36,7 +36,7 @@
 // Library dependencies
 //----------------------------------------------------------------------------
 
-// None
+#include <memory>
 
 //----------------------------------------------------------------------------
 // Export overview
@@ -100,6 +100,17 @@ template <typename T> void reassign(T * & a_Pointer, T * a_NewPointer)
     a_Pointer = a_NewPointer;
 }
 
+/// Reassign an allocated object (unique_ptr overload)
+/// \param      a_Pointer	Pointer to reassign to
+/// \param      a_NewPointer  New value to assign
+/// \remarks    unique_ptr counterpart of reassign(T*&, T*); deletes the old
+///             object and adopts the new one.
+template <typename T> void reassign(T * & a_Pointer, std::unique_ptr<T> a_NewPointer)
+{
+    delete a_Pointer;
+    a_Pointer = a_NewPointer.release();
+}
+
 /// Clear an allocated object
 /// \param      a_Pointer	Pointer to clear
 /// \remarks    The pointer shall have been allocated with new (or be
@@ -108,6 +119,14 @@ template <typename T> void clear(T * & a_Pointer)
 {
     delete a_Pointer;
     a_Pointer = nullptr;
+}
+
+/// Clear an allocated object held by unique_ptr
+/// \param      a_Pointer	unique_ptr to clear
+/// \remarks    unique_ptr counterpart of clear(T*&); resets to nullptr.
+template <typename T> void clear(std::unique_ptr<T> & a_Pointer)
+{
+    a_Pointer.reset();
 }
 
 /// Delete items from a container containing pointers

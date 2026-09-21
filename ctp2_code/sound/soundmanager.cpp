@@ -38,6 +38,7 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
 #include "ctp/c3.h"
 #include "gs/utility/safety.h"
 #include "sound/soundmanager.h"
@@ -55,10 +56,10 @@ extern HWND			gHwnd;
 
 extern PlayListDB	*g_thePlayListDB;
 
-static SoundManager *g_soundManager = nullptr;
+static std::unique_ptr<SoundManager> g_soundManager;
 
-SoundManager * soundmgr_Get()         { return g_soundManager; }
-void           soundmgr_Set(SoundManager *p) { g_soundManager = p; }
+SoundManager * soundmgr_Get()         { return g_soundManager.get(); }
+void           soundmgr_Set(SoundManager *p) { g_soundManager.reset(p); }
 
 namespace
 {
@@ -71,8 +72,7 @@ namespace
 
 void SoundManager::Initialize()
 {
-    delete g_soundManager;
-    g_soundManager = new SoundManager();
+    g_soundManager = std::make_unique<SoundManager>();
 
     // Bridge g_soundManager → audio_observer interface so gs/ and ai/ code
     // can call audio_observer::AddSound(...) etc. without depending on
@@ -82,8 +82,7 @@ void SoundManager::Initialize()
 
 void SoundManager::Cleanup()
 {
-    delete g_soundManager;
-    g_soundManager = nullptr;
+    g_soundManager.reset();
 }
 
 SoundManager::SoundManager()
@@ -118,7 +117,7 @@ SoundManager::SoundManager()
     m_SDLInitFlags |= SDL_INIT_NOPARACHUTE;
 #endif
 
-	m_soundWalker   = new PointerList<CivSound>::Walker;
+	m_soundWalker   = std::make_unique<PointerList<CivSound>::Walker>();
 
 	InitSoundDriver();
 }
@@ -128,7 +127,7 @@ SoundManager::~SoundManager()
     DumpAllSounds();
     CleanupSoundDriver();
 
-    delete m_soundWalker;
+    m_soundWalker.reset();
 }
 
 void SoundManager::DumpAllSounds()
@@ -221,8 +220,7 @@ void SoundManager::Process(const uint32 &target_milliseconds,
                 if ((-1 == sound->GetChannel()) ||
                     (!Mix_Playing(sound->GetChannel()))) {
 #endif
-					m_soundWalker->Remove();
-					delete sound;
+					std::unique_ptr<CivSound>{m_soundWalker->Remove()};
 				} else {
 					m_soundWalker->Next();
 				}
@@ -252,8 +250,7 @@ void SoundManager::Process(const uint32 &target_milliseconds,
                 if ((-1 == sound->GetChannel()) ||
                     (!Mix_Playing(sound->GetChannel()))) {
 #endif
-					m_soundWalker->Remove();
-					delete sound;
+					std::unique_ptr<CivSound>{m_soundWalker->Remove()};
 				} else {
 					m_soundWalker->Next();
 				}
@@ -306,7 +303,7 @@ SoundManager::AddSound(const SOUNDTYPE &type,
 	}
 
     bool        found   = false;
-    CivSound *  sound   = new CivSound(associatedObject, soundID);
+    auto  sound   = std::make_unique<CivSound>(associatedObject, soundID);
 
 	switch (type)
     {
@@ -319,7 +316,7 @@ SoundManager::AddSound(const SOUNDTYPE &type,
 		found = FindSoundinList(&m_sfxSounds, soundID);
 		if (!found)
 		{
-			m_sfxSounds.AddTail(sound);
+			m_sfxSounds.AddTail(sound.release());
 		}
 		break;
 
@@ -328,7 +325,7 @@ SoundManager::AddSound(const SOUNDTYPE &type,
 		found = FindSoundinList(&m_voiceSounds, soundID);
 		if (!found)
 		{
-			m_voiceSounds.AddTail(sound);
+			m_voiceSounds.AddTail(sound.release());
 		}
 		break;
 	}
@@ -336,7 +333,7 @@ SoundManager::AddSound(const SOUNDTYPE &type,
 	if (found)
     {
         // This sound was already being played
-        delete sound;
+        sound.reset();
     }
     else
 	{
@@ -367,22 +364,22 @@ SoundManager::AddLoopingSound(const SOUNDTYPE &type,
 
 	if (existingSound && (existingSound->GetSoundID() == soundID)) return;
 
-	CivSound *  sound           = new CivSound(associatedObject, soundID);
+	auto  sound           = std::make_unique<CivSound>(associatedObject, soundID);
 
 	switch (type)
     {
     default:
-        delete sound;
+        sound.reset();
         return;
 
 	case SOUNDTYPE_SFX:
 		sound->SetVolume(m_sfxVolume);
-		m_sfxSounds.AddTail(sound);
+		m_sfxSounds.AddTail(sound.release());
 		break;
 
 	case SOUNDTYPE_VOICE:
 		sound->SetVolume(m_voiceVolume);
-		m_voiceSounds.AddTail(sound);
+		m_voiceSounds.AddTail(sound.release());
 		break;
 	}
 

@@ -148,11 +148,12 @@ Civilisation CivilisationPool::Create(const PLAYER_INDEX owner, sint32 requiredC
 
 	newData->SetCityStyle(g_theCivilisationDB->Get(civ)->GetCityStyleIndex());
 
+	CivilisationData * const newDataPtr = newData.get();
 	Insert(newData.release());
 	DPRINTF(k_DBG_INFO, ("Civilisation %d is in use\n", civ));
 
 	if(network_Get().IsHost()) {
-		network_Get().Enqueue(newData.get());
+		network_Get().Enqueue(newDataPtr);
 	}
 
 	return (newCivilisation);

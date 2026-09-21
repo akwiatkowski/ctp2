@@ -253,9 +253,11 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 
 	auto theFeat = std::make_unique<Feat>(type, player, round);
 	m_activeList.AddTail(theFeat.get());
-	theFeat.release();
-
+	// Effect lists need the raw pointer; call before release() nulls the
+	// unique_ptr.  Capture the round now too — theFeat is null after release.
 	AddFeatToEffectLists(theFeat.get());
+	const sint32 featRound = theFeat->GetRound();
+	theFeat.release();
 
 	const MBCHAR *slicMessage;
 	std::unique_ptr<SlicObject> so;
@@ -277,7 +279,7 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 		p->m_score->AddFeat();
 	}
 
-	eventtracker_Get()->AddEvent(EVENT_TYPE_FEAT, player, theFeat->GetRound(), type);
+	eventtracker_Get()->AddEvent(EVENT_TYPE_FEAT, player, featRound, type);
 
 	sint32 hpBonus;
 	if(rec->GetEffectIncreaseHitPoints(hpBonus))

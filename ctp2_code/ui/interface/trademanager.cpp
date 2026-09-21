@@ -430,7 +430,8 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 
 						m_createData.AddTail(data.get());
 						item->SetUserData(data.get());
-						data.release();
+						// Ownership transfers at the end of the block: data is
+						// still read below (m_caravans, m_destination).
 
 						if (ctp2_Static * origin = (ctp2_Static *)item->GetChildByIndex(k_CITY_COL_INDEX))
                         {
@@ -491,6 +492,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 						item->SetCompareCallback(CompareCreateItems);
 
 						m_createList->AddItem(item);
+						data.release();
 					}
 				}
 			}

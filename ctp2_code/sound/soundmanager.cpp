@@ -304,6 +304,9 @@ SoundManager::AddSound(const SOUNDTYPE &type,
 
     bool        found   = false;
     auto  sound   = std::make_unique<CivSound>(associatedObject, soundID);
+    // The list takes ownership via release() below; keep a raw alias for the
+    // post-switch play calls (unique_ptr is null after release).
+    CivSound * const rawSound = sound.get();
 
 	switch (type)
     {
@@ -330,7 +333,7 @@ SoundManager::AddSound(const SOUNDTYPE &type,
 		break;
 	}
 
-	if (found)
+    if (found)
     {
         // This sound was already being played
         sound.reset();
@@ -338,12 +341,12 @@ SoundManager::AddSound(const SOUNDTYPE &type,
     else
 	{
 #if !defined(USE_SDL)
-		AIL_quick_play(sound->GetHAudio(), 1);
+		AIL_quick_play(rawSound->GetHAudio(), 1);
 #else
-        int channel = Mix_PlayChannel(-1, sound->GetAudio(), 0);
-        sound->SetChannel(channel);
+        int channel = Mix_PlayChannel(-1, rawSound->GetAudio(), 0);
+        rawSound->SetChannel(channel);
 #endif
-		sound->SetIsPlaying(TRUE);
+		rawSound->SetIsPlaying(TRUE);
 	}
 }
 
@@ -365,6 +368,9 @@ SoundManager::AddLoopingSound(const SOUNDTYPE &type,
 	if (existingSound && (existingSound->GetSoundID() == soundID)) return;
 
 	auto  sound           = std::make_unique<CivSound>(associatedObject, soundID);
+	// List takes ownership via release() in the switch; keep a raw alias for
+	// the play calls below (unique_ptr is null after release).
+	CivSound * const rawSound = sound.get();
 
 	switch (type)
     {
@@ -384,14 +390,14 @@ SoundManager::AddLoopingSound(const SOUNDTYPE &type,
 	}
 
 #if !defined(USE_SDL)
-	AIL_quick_play(sound->GetHAudio(), 0);
+	AIL_quick_play(rawSound->GetHAudio(), 0);
 #else
-    int channel = Mix_PlayChannel(-1, sound->GetAudio(), -1);
-    sound->SetChannel(channel);
+    int channel = Mix_PlayChannel(-1, rawSound->GetAudio(), -1);
+    rawSound->SetChannel(channel);
 #endif
 
-	sound->SetIsLooping(TRUE);
-	sound->SetIsPlaying(TRUE);
+	rawSound->SetIsLooping(TRUE);
+	rawSound->SetIsPlaying(TRUE);
 }
 
 void

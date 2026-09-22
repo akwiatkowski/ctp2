@@ -1751,6 +1751,26 @@ unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + active_game_cor
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
 )
 
+# Isolated frontend process: reuse compiled production objects, not the other
+# tests' global fixtures. SDL's dummy/software backend needs no desktop.
+menu_test_exe = executable('ctp2_menu_tests',
+  ['test/cpp/main.cpp', 'test/cpp/test_menu_ui.cpp'],
+  objects : unit_test_exe.extract_objects(active_game_core_sources,
+    'ctp/civ3_main.cpp', 'test/smoketest_server.cpp'),
+  include_directories : [incdir, doctest_incdir],
+  dependencies : [cdb_header, freetype, main_dependencies] + network_dependencies,
+  cpp_args : ['-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DUNIT_TEST_BUILD'],
+  link_args : [use_ld],
+  link_with : [gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys],
+)
+test('ui-menu', menu_test_exe,
+  env : ['SDL_VIDEO_DRIVER=dummy', 'SDL_RENDER_DRIVER=software',
+    'CTP2_MENU_ARTIFACTS=' + join_paths(meson.project_build_root(), 'ui-menu')],
+  timeout : 60,
+  is_parallel : false,
+  workdir : cwd_for_tests,
+)
+
 test('unit', unit_test_exe,
   # Default unit run excludes the headless-subprocess "integration" suite
   # (test_headless_*.cpp + test_save_load.cpp) which runs real game turns
@@ -1821,6 +1841,16 @@ test('worldmap-load-renders',
   priority : -1,
   workdir : cwd_for_tests,
   suite : 'integration',
+)
+
+# Full application + world, driven through real pointer events. SDL dummy
+# video/audio makes this an integration check that needs assets, not a desktop.
+test('ui-offscreen', python3,
+  args : [files('test/ui_offscreen.py'), join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 180,
+  is_parallel : false,
+  workdir : cwd_for_tests,
+  suite : 'ui-integration',
 )
 
 test('smoke',

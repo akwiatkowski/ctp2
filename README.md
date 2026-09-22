@@ -239,11 +239,46 @@ instead of guessing. Notes from real sessions live in
 ## Tests
 
 ```sh
-make test           # ratchets + fast + unit  (~4s, run before every commit)
+mise exec -- make test  # ratchets + fast + unit + isolated menu interactions
+mise exec -- make test-ui-integration  # full game, synthetic input, no visible window/audio
 make test-full      # the long suite: integration, smoke, scenarios (~20-30 min)
 make test-render    # 15 renderer pixel oracles (needs a desktop session)
 make ubsan-smoke    # UndefinedBehaviorSanitizer tier
 ```
+
+`ui-menu` runs the real menu layouts, mouse hit-testing, queued actions, and
+dirty-window compositing on SDL's dummy/software backend. It checks New Game,
+Back/reopen, difficulty selection/persistence, and exactly one launch request
+with the selected settings. No desktop, audio, session scripts, world generation,
+or AI is started; installed game assets are still required. Run it alone with
+`mise exec -- meson test -C build ui-menu --print-errorlogs`. Passive software
+frame captures are saved under `build/ui-menu/`; they do not force a redraw and
+do not claim to verify native GPU presentation or the game map.
+
+`ui-offscreen` is the full-game integration tier. It boots the real application
+with a fixed seed, clicks New Game and Launch, hovers terrain, and clicks distant
+minimap positions before returning to explored terrain. SDL dummy video/audio
+and the software renderer keep it windowless and silent. It checks camera
+movement, responsiveness, and terrain pixels outside the HUD; no callbacks,
+debug reveal, or forced-repaint screenshots substitute for player input.
+Artifacts (frames, state trace, game log) are retained under
+`build/ui-offscreen-*/`. The focused cursor test in `ui-menu` additionally uses
+guarded overlay memory to detect offscreen writes even when they do not crash.
+
+For additional scripts, use `Ctp2Client` in UI mode with `SDL_VIDEO_DRIVER=dummy`,
+`SDL_RENDER_DRIVER=software`, `SDL_AUDIO_DRIVER=dummy`, and
+`CTP2_CAPTURE_FRAMES=1`. The smoke-mode commands are:
+
+| Command | Behavior |
+|---|---|
+| `ui_control_bounds <LDL path>` | Screen rectangle, effective visibility, and enabled state |
+| `ui_pointer <x> <y> <down>` | Real pointer dispatch; `down` is 0 or 1; use 0 → 1 → 0 to click |
+| `ui_prepare_game <seed> <players>` | Pin setup before clicking Launch |
+| `screenshot_frame <path>` | Save the last normal pre-present frame with its sequence number |
+
+Frame capture is opt-in and passive: it never invalidates, redraws, or presents
+on request. These checks cover real SDL rendering in memory, not Metal-specific
+behavior or native macOS input translation.
 
 The renderer tests are the unusual ones: they drive the real game, read back the
 presented frame, and compare it pixel-by-pixel against the CPU reference path.

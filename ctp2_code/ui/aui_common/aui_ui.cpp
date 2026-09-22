@@ -1453,13 +1453,13 @@ BOOL aui_UI::MinimizeOnAltTabOut( BOOL minimize )
 	return wasMinimizing;
 }
 
-
-AUI_ERRCODE aui_UI::Process( )
+AUI_ERRCODE aui_UI::Process(sint32 numEvents, aui_MouseEvent *events)
 {
 	// Teardown drain (CivApp::CleanupGame): flush queued actions without
 	// running idle handlers, input, or the draw pass -- those all reach
 	// into game state that is already gone.
-	if (m_drainOnly) {
+	if (m_drainOnly)
+	{
 		HandleActions();
 		HandleDestructiveActions();
 		return AUI_ERRCODE_OK;
@@ -1467,28 +1467,40 @@ AUI_ERRCODE aui_UI::Process( )
 
 	IdleAll();
 
-	// Scan human interface devices - when available
-	// On SDL, mouse input is processed on the main thread (the mouse thread
-	// was removed to avoid SDL event queue race conditions). We need to
-	// pump input, update cursor animation, and blit the cursor here.
-	if (m_mouse) {
-		m_mouse->HandleAnim();
-		m_mouse->GetInput();  // read SDL mouse events into m_data
-		m_mouse->ReactToInput();  // blit cursor
-		m_mouse->ManipulateInputs(m_mouse->GetLatestMouseEvent(), TRUE);
+	if (events)
+	{
+		HandleMouseEvents(numEvents, events);
 	}
-	if (m_mouse)    HandleMouseEvents();
-	if (m_keyboard) HandleKeyboardEvents();
-	if (m_joystick) HandleJoystickEvents();
+	else
+	{
+
+		// Scan human interface devices - when available
+		// On SDL, mouse input is processed on the main thread (the mouse thread
+		// was removed to avoid SDL event queue race conditions). We need to
+		// pump input, update cursor animation, and blit the cursor here.
+		if (m_mouse)
+		{
+			m_mouse->HandleAnim();
+			m_mouse->GetInput();     // read SDL mouse events into m_data
+			m_mouse->ReactToInput(); // blit cursor
+			m_mouse->ManipulateInputs(m_mouse->GetLatestMouseEvent(), TRUE);
+		}
+		if (m_mouse)
+			HandleMouseEvents();
+		if (m_keyboard)
+			HandleKeyboardEvents();
+		if (m_joystick)
+			HandleJoystickEvents();
+	}
 	HandleActions();
 	HandleDestructiveActions();
 	Draw();
 
-	return AUI_ERRCODE_OK;
+	// Draw updates window surfaces; composite their dirty rectangles every
+	// frame, including idle menus where no camera movement or software cursor
+	// presents.
+	return DrawAll();
 }
-
-
-
 
 void aui_UI::HandleActions( )
 {

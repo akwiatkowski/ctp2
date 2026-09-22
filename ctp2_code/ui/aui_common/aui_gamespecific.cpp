@@ -13,7 +13,8 @@ BOOL HandleGameSpecificLeftClick( void *control )
 	BOOL handled = FALSE;
 
 	aui_Ldl *ldl = aui_ui_Get()->GetLdl();
-	if ( ldl )
+	// Menu-only UI has no session scripts; its normal control callbacks still run.
+	if ( ldl && slicengine_Get() )
 	{
 
 
@@ -32,7 +33,7 @@ BOOL HandleGameSpecificRightClick( void *control )
 	BOOL handled = FALSE;
 
 	aui_Ldl *ldl = aui_ui_Get()->GetLdl();
-	if ( ldl )
+	if ( ldl && slicengine_Get() )
 	{
 		if (g_helpMode) {
 

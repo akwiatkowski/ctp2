@@ -422,6 +422,7 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 						q.mirror );
 				}
 				CTP2_SDL_RenderTexture( m_renderer, aui_SDL::UiTexture() );
+				aui_SDL::CaptureFrameBeforePresent();
 				SDL_RenderPresent( m_renderer );
 
 				// Record what this present showed, for the redundancy check above.
@@ -449,6 +450,7 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 				}
 				SDL_RenderClear( m_renderer );
 				CTP2_SDL_RenderTexture( m_renderer, m_screenTexture );
+				aui_SDL::CaptureFrameBeforePresent();
 				SDL_RenderPresent( m_renderer );
 			}
 		}

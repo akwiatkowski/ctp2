@@ -72,7 +72,7 @@ class CivApp
 {
 public:
 	CivApp();
-	~CivApp();
+	virtual ~CivApp();
 
 	// Non-copyable, non-movable: there's only one CivApp per process,
 	// and it owns large session state via Ctp2::Game.
@@ -158,7 +158,8 @@ public:
         m_inBackground = in;
     }
 	sint32		StartSpriteEditor();
-	sint32		StartGame();
+	// Session-launch boundary: menu tests consume the request without creating a world.
+	virtual sint32 StartGame();
 	void		StopKeyboardScrolling(sint32 key);
 
 private:

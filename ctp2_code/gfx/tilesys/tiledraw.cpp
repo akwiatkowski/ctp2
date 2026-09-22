@@ -526,6 +526,9 @@ void TiledMap::DrawHitMask(aui_Surface *surf, const MapPoint &pos)
 	// Tile art (both paths) starts a headroom below the mapping vertex: the
 	// diamond spans vertex+headroom .. vertex+headroom+tileHeight.
 	y += (sint32) ((double)k_TILE_PIXEL_HEADROOM * m_scale);
+	// A minimap jump can leave the previous hover tile left/above this surface.
+	// Reject it before deriving pixel addresses, as the other hit-mask paths do.
+	if (x < 0 || y < 0) return;
 
 	sint32 width = GetZoomTilePixelWidth();
 	sint32 height = GetZoomTilePixelHeight();

@@ -196,17 +196,22 @@ modernization-ratchet-update:
 	@echo "Updating C++ modernization ratchet baseline..."
 	mise exec -- python3 tools/modernization/ratchet.py --update-baseline
 
-# Pre-commit loop — fast + unit (excludes integration / smoke).
-# ~4 seconds total.  Should be run before every commit.
+# Pre-commit loop — fast + unit + isolated menus (excludes integration / smoke).
+# Menu tests use SDL dummy video: licensed assets required, no desktop or game.
 #   - fast:  ratchets + observer dispatch tests + small unit cases
 #   - unit:  all other test_*.cpp except the headless integration set
 #            (test_headless_*.cpp and test_save_load.cpp are tagged
 #            doctest::test_suite("integration") and excluded here)
 test: modernization-ratchet
 	@echo "Building fast + unit tests..."
-	meson compile -C build ctp2_fast_tests ctp2_unit_tests
-	@echo "Running fast + unit tests (no integration)..."
-	meson test -C build fast unit
+	meson compile -C build ctp2_fast_tests ctp2_unit_tests ctp2_menu_tests
+	@echo "Running fast + unit + isolated menu tests (no integration)..."
+	meson test -C build fast unit ui-menu
+
+# Full-game UI integration without a desktop; keeps real simulation/rendering.
+test-ui-integration:
+	meson compile -C build ctp2
+	meson test -C build --no-rebuild ui-offscreen --print-errorlogs
 
 # One-command crash/behavior repro. Boots serve mode, optionally loads a
 # save (path or test/fixtures name), runs a ';'-separated command script.

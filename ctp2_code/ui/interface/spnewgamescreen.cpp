@@ -68,7 +68,6 @@
 #include "gs/database/profileDB.h"                      // profiledb_Get()
 #include "ui/interface/scenariowindow.h"
 #include "ui/interface/scorewarn.h"
-#include "gs/slic/SlicEngine.h"
 #include "ui/interface/spnewgamediffscreen.h"
 #include "ui/interface/spnewgamemapshapescreen.h"
 #include "ui/interface/spnewgamemapsizescreen.h"
@@ -79,7 +78,6 @@
 #include "ui/interface/TurnYearStatus.h"
 
 extern c3_PopupWindow       *g_spNewGameTribeScreen;
-extern MBCHAR               g_slic_filename[_MAX_PATH];
 extern MBCHAR               g_civilisation_filename[_MAX_PATH];
 
 std::unique_ptr<SPNewGameWindow> g_spNewGameWindow;
@@ -114,11 +112,8 @@ sint32 spnewgamescreen_displayMyWindow()
 		profiledb_Get()->DefaultSettings();
 		g_spNewGameWindow->m_useCustomMap=false;
 		civpaths_Get()->ClearCurScenarioPath();
+		// StartMessageSystem owns Slic reloads; reloading here destroys live menu state.
 
-		if (slicengine_Get())
-		{
-			SlicEngine::Reload(g_slic_filename);
-		}
 
 		g_spNewGameWindow->Update();
 		c3ui_Get()->AddWindow(g_spNewGameWindow.get());

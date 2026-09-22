@@ -74,6 +74,21 @@ uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
 uint32 aui_SDL::m_spriteListVersion = 0;
 sint32 aui_SDL::m_SDLRefCount = 0;
 
+void aui_SDL::CaptureFrameBeforePresent()
+{
+	if (!m_captureFrames)
+		return;
+
+	// SDL's backbuffer is undefined after RenderPresent. Keep only the last
+	// normal composite; screenshot_frame must not redraw or bind a target.
+	SDL_Surface *frame = SDL_RenderReadPixels(m_renderer, nullptr);
+	if (!frame)
+		return;
+	SDL_DestroySurface(m_capturedFrame);
+	m_capturedFrame = frame;
+	++m_capturedFrameSequence;
+}
+
 bool aui_SDL::GpuLayersEnabled()
 {
 	// DEFAULT ON (P11, ADR-001/ADR-002 "flip last"): the two-layer GPU
@@ -978,6 +993,10 @@ AUI_ERRCODE aui_SDL::InitCommon(BOOL useExclusiveMode)
 aui_SDL::~aui_SDL()
 {
 	if (! --m_SDLRefCount) {
+		SDL_DestroySurface(m_capturedFrame);
+		m_capturedFrame = nullptr;
+		m_capturedFrameSequence = 0;
+		m_captureFrames = false;
 		for (auto &entry : m_spriteAtlasTextures)
 			SDL_DestroyTexture(entry.second);
 		m_spriteAtlasTextures.clear();

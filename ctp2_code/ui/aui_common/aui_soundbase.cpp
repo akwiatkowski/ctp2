@@ -112,6 +112,8 @@ aui_Sound *aui_SoundBase::SetSound(
 
 AUI_ERRCODE aui_SoundBase::PlaySound( AUI_SOUNDBASE_SOUND sound )
 {
+	// UI interaction does not require an audio device or a sound manager.
+	if (!soundmgr_Get()) return AUI_ERRCODE_OK;
 
 
 

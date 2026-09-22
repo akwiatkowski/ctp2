@@ -291,6 +291,23 @@ void aui_Button::MouseLGrabInside( aui_MouseEvent *mouseData )
 }
 
 
+void aui_Button::Activate()
+{
+	if (IsDisabled()) {
+		soundmgr_Get()->AddGameSound(GAMESOUNDS_DISABLED);
+		return;
+	}
+
+	PlaySound(AUI_SOUNDBASE_SOUND_EXECUTE);
+	if (!HandleGameSpecificLeftClick(this)) {
+		if (m_ActionFunc)
+			m_ActionFunc(this, AUI_BUTTON_ACTION_EXECUTE, 0, m_cookie);
+		else if (m_action)
+			m_action->Execute(this, AUI_BUTTON_ACTION_EXECUTE, 0);
+	}
+}
+
+
 void aui_Button::MouseLDropInside( aui_MouseEvent *mouseData )
 {
 	if (IsDisabled()) {
@@ -306,7 +323,6 @@ void aui_Button::MouseLDropInside( aui_MouseEvent *mouseData )
 
 			ReleaseMouseOwnership();
 
-			PlaySound( AUI_SOUNDBASE_SOUND_EXECUTE );
 
 			m_mouseCode = AUI_ERRCODE_HANDLEDEXCLUSIVE;
 
@@ -325,13 +341,7 @@ void aui_Button::MouseLDropInside( aui_MouseEvent *mouseData )
 				SetAttract(false, 0);
 			}
 
-			if ( !HandleGameSpecificLeftClick( this ) )
-			{ // else below binds to if ( m_ActionFunc ), not to this if
-			if ( m_ActionFunc )
-				m_ActionFunc( this, AUI_BUTTON_ACTION_EXECUTE, 0, m_cookie );
-			else if ( m_action )
-				m_action->Execute( this, AUI_BUTTON_ACTION_EXECUTE, 0 );
-			}
+			Activate();
 		}
 		else
 		{

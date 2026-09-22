@@ -31,8 +31,8 @@ START=$(date +%s)
 
 (
     echo "=== tier-b $TS (HEAD $HEAD_SHA) ==="
-    echo "=== ninja -C build ctp2 ctp2_headless ctp2_unit_tests ctp2_fast_tests ==="
-    mise exec -- ninja -C build ctp2 ctp2_headless ctp2_unit_tests ctp2_fast_tests
+    echo "=== ninja -C build ctp2 ctp2_headless ctp2_unit_tests ctp2_fast_tests ctp2_menu_tests ==="
+    mise exec -- ninja -C build ctp2 ctp2_headless ctp2_unit_tests ctp2_fast_tests ctp2_menu_tests
     BUILD_RC=$?
     if [[ $BUILD_RC -ne 0 ]]; then
         echo "BUILD FAILED rc=$BUILD_RC"
@@ -47,7 +47,7 @@ START=$(date +%s)
     mise exec -- meson test -C build --no-rebuild --print-errorlogs \
         --suite scenario --no-suite marathon || exit $?
     mise exec -- meson test -C build --no-rebuild --print-errorlogs \
-        fast asset-installer client-harness ci-results cli-save-resume cli-save-replay cli-save-replay-long
+        fast ui-menu ui-offscreen asset-installer client-harness ci-results cli-save-resume cli-save-replay cli-save-replay-long
     SCENARIO_RC=$?
     if [[ $UNIT_RC -ne 0 || $SCENARIO_RC -ne 0 ]]; then
         exit 1

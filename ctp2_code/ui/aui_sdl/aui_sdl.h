@@ -41,6 +41,11 @@ public:
 	// presented-frame readback (screenshot_presented).
 	static SDL_Renderer *Renderer() { return m_renderer; }
 	static SDL_Texture *ScreenTexture() { return m_screenTexture; }
+	// Smoke-test-only readback of the normal frame, immediately before present.
+	static void EnableFrameCapture() { m_captureFrames = true; }
+	static void CaptureFrameBeforePresent();
+	static SDL_Surface *CapturedFrame() { return m_capturedFrame; }
+	static Uint64 CapturedFrameSequence() { return m_capturedFrameSequence; }
 	// P11 Stage 2 D: per-layer GPU compositing. Default-on; CTP2_GPU_LAYERS=0 opts out.
 	static bool GpuLayersEnabled();
 	static SDL_Texture *WorldTexture() { return m_worldTexture; }
@@ -406,6 +411,9 @@ protected:
 
 	static uint32 m_spriteListVersion;
 private:
+	static inline bool m_captureFrames = false;
+	static inline SDL_Surface *m_capturedFrame = nullptr;
+	static inline Uint64 m_capturedFrameSequence = 0;
 	static sint32		m_SDLRefCount;
 protected:
 	static uint32           m_SDLClassId;

@@ -25,6 +25,8 @@ AUI_ERRCODE
 aui_SDLMouse::GetInput()
 {
    m_data.time = SDL_GetTicks();
+   if (m_syntheticInput)
+      return AUI_ERRCODE_NOINPUT;
    bool haveMoves = false;
 
    for ( sint32 numInputs = 200; numInputs; numInputs-- ) {

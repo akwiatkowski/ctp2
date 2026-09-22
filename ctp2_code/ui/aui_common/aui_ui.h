@@ -463,7 +463,8 @@ public:
 		UINT message,
 		WPARAM wParam,
 		LPARAM lParam );
-	virtual AUI_ERRCODE Process( );
+	// Supplied events replace device polling; all dispatch, actions and drawing stay real.
+	virtual AUI_ERRCODE Process(sint32 numEvents = 0, aui_MouseEvent *events = nullptr);
 
 	// Teardown mode for CivApp::CleanupGame: Process() then runs only the
 	// action drain. Idle handlers, input, and the draw pass all assume a

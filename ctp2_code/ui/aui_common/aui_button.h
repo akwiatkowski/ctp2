@@ -78,6 +78,8 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 ) override;
 
+	void Activate();
+
 protected:
 	aui_Button()
     :

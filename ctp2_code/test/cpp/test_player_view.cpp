@@ -90,7 +90,10 @@ constexpr std::size_t AI_SOUND_HEADER_BASELINE = 0;
 // Phase 0.C-5: removed ~80 dead `#include "robot/aibackdoor/civarchive.h"`
 // lines + dead Load/Save(CivArchive&) decls in ai/ headers.  Counts
 // dropped: gs .cpp 118->39, gs .h 25->11, ai .cpp 13->10, ai .h 7->3.
-constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 35;
+// Game-gate: gs/core/game.cpp owns the per-game AI registries + pathing
+// state, so it includes 4 robot/ headers (Astar/AVLHeap/CityAstar/TradeAstar/
+// robotastar2 = 5, minus pre-existing).  Count 35 -> 40.
+constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 40;
 constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 10;
 
 // ai/ files include robot/ headers for pathing and backdoor access.
@@ -117,7 +120,10 @@ constexpr std::size_t AI_NET_CPP_BASELINE = 9;
 // layer boundary is necessary — LoadJson must reconcile gs/ player state
 // with the ai/ per-player containers (MapAnalysis grids, Diplomats) or the
 // load-then-resave path runs off the end of m_threatGrid/m_foreigners.
-constexpr std::size_t GS_AI_CPP_BASELINE = 39;
+// Game-gate: gs/core/game.cpp owns the per-game AI registries + pathing
+// state, so it includes 6 ai/ headers (Scheduler/Governor/Diplomat/
+// AgreementMatrix/settlemap/mapanalysis).  Count 39 -> 45.
+constexpr std::size_t GS_AI_CPP_BASELINE = 45;
 
 // slic/ is a subset of gs/.  Wave 7 cleared all gfx/ includes from
 // slic/; this ratchet locks that at 0 so the SLIC interpreter never

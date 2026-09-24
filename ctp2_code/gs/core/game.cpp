@@ -1,5 +1,6 @@
 #include "ctp/c3.h"
 #include "gs/core/game.h"
+#include "ctp/civapp.h" // civapp_Get fallback in GetActive (pre-NewGame init order)
 
 #include "gs/gameobj/player.h"  // player_arr_Get / player_arr_Set, k_MAX_PLAYERS via c3.h
 #include "gs/gameobj/ArmyPool.h"
@@ -65,6 +66,11 @@ Game::Game(Game&&) noexcept = default;
 Game& Game::operator=(Game&&) noexcept = default;
 
 void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
+    // Publish as the active game: all legacy static shims (AstarPathing(),
+    // Scheduler::GetScheduler(), ...) route here until callers migrate to
+    // an explicit Game&. Sequential games re-point on their own NewGame,
+    // so the second never reads the first's registries/finders.
+    SetActive(this);
     // All session subsystems trampoline through Ctp2::Game.  Production
     // gameinit calls foo_Set(new X(...)) BEFORE NewGame runs, which
     // populates the m_x unique_ptrs through the trampoline.  In
@@ -130,6 +136,8 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
 // json_save.cpp.
 
 void Game::Cleanup() {
+    if (GetActive() == this) SetActive(nullptr);
+
     // Reverse-dependency-order destruction.
     //
     // We clear the legacy global pointer BEFORE destroying via unique_ptr.
@@ -261,7 +269,14 @@ Game *& Game::ActiveRef()
 
 Game * Game::GetActive()
 {
-	return ActiveRef();
+	// Explicit active (published by NewGame) wins. Before any NewGame —
+	// e.g. Astar_Init during gameinit_Initialize, which runs before the
+	// CivApp NewGame call — fall back to CivApp's owned Game so early
+	// subsystem init still reaches per-game storage instead of crashing.
+	if (Game * active = ActiveRef())
+		return active;
+	CivApp * app = civapp_Get();
+	return app ? app->GetGame() : nullptr;
 }
 
 void Game::SetActive(Game * game)
@@ -269,16 +284,19 @@ void Game::SetActive(Game * game)
 	ActiveRef() = game;
 }
 
-SchedulerRegistry & Game::GetSchedulers() { return *m_schedulers; }
-GovernorRegistry & Game::GetGovernors() { return *m_governors; }
-DiplomatRegistry & Game::GetDiplomats() { return *m_diplomats; }
-AgreementMatrix & Game::GetAgreementsAI() { return *m_agreementsAI; }
-SettleMap & Game::GetSettleMap() { return *m_settleMap; }
-MapAnalysis & Game::GetMapAnalysisAI() { return *m_mapAnalysis; }
-PathingContext & Game::GetPathing() { return *m_pathing; }
-CityAstar & Game::GetCityPather() { return *m_cityPather; }
-TradeAstar & Game::GetTradePather() { return *m_tradePather; }
-RobotAstar2 & Game::GetAiPather() { return *m_aiPather; }
+// Ensure-on-access: subsystem init (Astar_Init, CtpAi::Initialize, ...) can
+// run before NewGame populates members. First access creates; NewGame's
+// ensure() keeps; Cleanup destroys. Any order is safe.
+SchedulerRegistry & Game::GetSchedulers() { if (!m_schedulers) m_schedulers = std::make_unique<SchedulerRegistry>(); return *m_schedulers; }
+GovernorRegistry & Game::GetGovernors() { if (!m_governors) m_governors = std::make_unique<GovernorRegistry>(); return *m_governors; }
+DiplomatRegistry & Game::GetDiplomats() { if (!m_diplomats) m_diplomats = std::make_unique<DiplomatRegistry>(); return *m_diplomats; }
+AgreementMatrix & Game::GetAgreementsAI() { if (!m_agreementsAI) m_agreementsAI = std::make_unique<AgreementMatrix>(); return *m_agreementsAI; }
+SettleMap & Game::GetSettleMap() { if (!m_settleMap) m_settleMap = std::make_unique<SettleMap>(); return *m_settleMap; }
+MapAnalysis & Game::GetMapAnalysisAI() { if (!m_mapAnalysis) m_mapAnalysis = std::make_unique<MapAnalysis>(); return *m_mapAnalysis; }
+PathingContext & Game::GetPathing() { if (!m_pathing) m_pathing = std::make_unique<PathingContext>(); return *m_pathing; }
+CityAstar & Game::GetCityPather() { if (!m_cityPather) m_cityPather = std::make_unique<CityAstar>(); return *m_cityPather; }
+TradeAstar & Game::GetTradePather() { if (!m_tradePather) m_tradePather = std::make_unique<TradeAstar>(); return *m_tradePather; }
+RobotAstar2 & Game::GetAiPather() { if (!m_aiPather) m_aiPather = std::make_unique<RobotAstar2>(); return *m_aiPather; }
 bool Game::NeedAnotherMatchCycle() const { return m_needAnotherMatchCycle; }
 void Game::SetNeedAnotherMatchCycle(bool needed) { m_needAnotherMatchCycle = needed; }
 

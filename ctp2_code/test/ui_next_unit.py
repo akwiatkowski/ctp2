@@ -5,51 +5,47 @@ The promoted turn-1 checkpoint has Rome plus one settler. Replaying two real
 Next button clicks must remain responsive and produce a subsequent normal frame.
 """
 
-import os
 from pathlib import Path
 import sys
 import time
-import tempfile
 
 from PIL import Image, ImageChops
-from ctp2_client import Ctp2Client, fixture_save
+from ctp2_client import fixture_save
+import ui_scenario
 
 
 binary = Path(sys.argv[1]).resolve()
-out = Path(tempfile.mkdtemp(prefix="ui-next-unit-", dir=binary.parent))
-socket = f"/tmp/ctp2-next-unit-{os.getpid()}.sock"
-profile = Path(__file__).with_name("testprofile.txt").read_text()
-profile = profile.replace("ShowCityNames=No", "ShowCityNames=Yes")
-(out / "profile.txt").write_text(profile)
-env = dict(os.environ, SDL_VIDEO_DRIVER="dummy", SDL_AUDIO_DRIVER="dummy",
-           SDL_RENDER_DRIVER="software", CTP2_CAPTURE_FRAMES="1",
-           CTP2_PROFILE=str(out / "profile.txt"), CTP2_SMOKE_SOCKET=socket)
+scenario = ui_scenario.launch(binary, "ui-next-unit",
+                              settings={"ShowCityNames": "Yes"})
+out = scenario.out
 print(f"Next Unit artifacts: {out}", flush=True)
 
-with Ctp2Client(str(binary), "ui", env=env, socket_path=socket,
-                log_path=str(out / "game.log"), timeout=5) as client:
+
+def click(client, path):
+    bounds = client.result("ui_control_bounds", path)
+    assert bounds["visible"] and bounds["enabled"], (path, bounds)
+    x = bounds["x"] + bounds["width"] // 2
+    y = bounds["y"] + bounds["height"] // 2
+    for down in (0, 1, 0):
+        client.expect_ok("ui_pointer", x, y, down)
+
+
+with scenario.connect(timeout=5) as ui:
+    client = ui.client
     client.expect_ok("load_game", fixture_save("next-unit-freeze"))
     client.wait_game_loaded()
 
-    def click(path):
-        bounds = client.result("ui_control_bounds", path)
-        assert bounds["visible"] and bounds["enabled"], (path, bounds)
-        x = bounds["x"] + bounds["width"] // 2
-        y = bounds["y"] + bounds["height"] // 2
-        for down in (0, 1, 0):
-            client.expect_ok("ui_pointer", x, y, down)
-
     started = time.monotonic()
-    click("ControlPanelWindow.ControlPanel.ControlTabPanel.UnitTab.TabButton")
+    click(client, "ControlPanelWindow.ControlPanel.ControlTabPanel.UnitTab.TabButton")
     baseline_elapsed = time.monotonic() - started
     next_button = "ControlPanelWindow.ControlPanel.ControlTabPanel.UnitTab.TabPanel.UnitSelectionDisplay.UnitSelect.Next"
-    click("ControlPanelWindow.ControlPanel.ControlTabPanel.UnitTab.TabPanel.UnitOrderButtonGrid.Order0")
+    click(client, "ControlPanelWindow.ControlPanel.ControlTabPanel.UnitTab.TabPanel.UnitOrderButtonGrid.Order0")
     before = client.result("screenshot_frame", out / "before.bmp")
     started = time.monotonic()
-    click(next_button)
+    click(client, next_button)
     first_elapsed = time.monotonic() - started
     started = time.monotonic()
-    click(next_button)
+    click(client, next_button)
     second_elapsed = time.monotonic() - started
     print(f"Tab baseline: {baseline_elapsed:.3f}s; Next Unit: "
           f"{first_elapsed:.3f}s, {second_elapsed:.3f}s", flush=True)
@@ -57,16 +53,16 @@ with Ctp2Client(str(binary), "ui", env=env, socket_path=socket,
     after = client.result("screenshot_frame", out / "after.bmp")
     assert after["frame_sequence"] > before["frame_sequence"], (before, after)
 
-with Ctp2Client(str(binary), "ui", env=env, socket_path=socket,
-                log_path=str(out / "hoplite.log"), timeout=5) as client:
+with scenario.connect(timeout=5, log_name="hoplite.log") as ui:
+    client = ui.client
     client.expect_ok("load_game", fixture_save("hoplite-move-freeze"))
     client.wait_game_loaded()
     vision = client.result("debug_vision_stats", 16, 60, 20)
     assert vision["fog_snapshots"]["present"] > 0, vision
     assert vision["fog_snapshots"]["tile_mismatches"] == 0, vision
     hoplite = client.result("query_armies")["armies"][0]
-    click("ControlPanelWindow.ControlPanel.ControlTabPanel.UnitTab.TabButton")
-    click(next_button)
+    click(client, "ControlPanelWindow.ControlPanel.ControlTabPanel.UnitTab.TabButton")
+    click(client, next_button)
     assert hoplite["pos"] == {"x": 17, "y": 57}, hoplite
     hoplite_before = client.result("screenshot_frame", out / "hoplite-before.bmp")
     client.expect_ok("debug_set_grid", 1)
@@ -89,7 +85,7 @@ with Ctp2Client(str(binary), "ui", env=env, socket_path=socket,
     assert hoplite_frame["frame_sequence"] > hoplite_before["frame_sequence"]
     client.result("query_turn")
     client.expect_ok("debug_select_city", 0)
-    click("ControlPanelWindow.ControlPanel.ControlTabPanel.CityTab.TabButton")
+    click(client, "ControlPanelWindow.ControlPanel.ControlTabPanel.CityTab.TabButton")
     build = client.result(
         "ui_control_bounds",
         "ControlPanelWindow.ControlPanel.ControlTabPanel.CityTab.TabPanel.BuildProgress.IconBorder.IconButton")

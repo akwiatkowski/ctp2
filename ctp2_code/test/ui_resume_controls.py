@@ -6,24 +6,20 @@ never executed. Queue native SDL down/up events, prove button-down reaches the
 real TurnButton, then require the normal pipeline to advance round 1 to 2.
 """
 
-import os
 from pathlib import Path
 import sys
-import tempfile
 
-from ctp2_client import Ctp2Client, fixture_save
+from ctp2_client import fixture_save
+import ui_scenario
 
 
 binary = Path(sys.argv[1]).resolve()
-out = Path(tempfile.mkdtemp(prefix="ui-resume-controls-", dir=binary.parent))
-socket = f"/tmp/ctp2-resume-controls-{os.getpid()}.sock"
-env = dict(os.environ, SDL_VIDEO_DRIVER="dummy", SDL_AUDIO_DRIVER="dummy",
-           SDL_RENDER_DRIVER="software", CTP2_CAPTURE_FRAMES="1",
-           CTP2_SMOKE_SOCKET=socket)
+scenario = ui_scenario.launch(binary, "ui-resume-controls")
+out = scenario.out
 print(f"Resume control artifacts: {out}", flush=True)
 
-with Ctp2Client(str(binary), "ui", env=env, socket_path=socket,
-                log_path=str(out / "game.log"), timeout=10) as client:
+with scenario.connect(timeout=10) as ui:
+    client = ui.client
     client.expect_ok("load_game", fixture_save("next-unit-freeze"))
     client.wait_game_loaded()
 

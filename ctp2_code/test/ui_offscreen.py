@@ -8,20 +8,13 @@ in a unique ui-offscreen-* directory beside the binary, including on failure.
 import argparse
 import json
 import math
-import os
 from pathlib import Path
 import sys
-import tempfile
-import uuid
 
 from PIL import Image
 
-from ctp2_client import Ctp2Client
-
-
-NEW_GAME = "InitPlayWindow.NewGameButton"
-START = "SPNewGameWindow.StartButton"
-RADAR = "RadarWindow.RadarMap"
+import ui_scenario
+from ui_scenario import NEW_GAME, RADAR, START
 
 # Reuse the sampled-content scale from worldmap_load_renders.py, but only
 # inside the map ROI. Require texture variation too, not a solid bright panel.
@@ -36,20 +29,11 @@ def run():
     parser.add_argument("binary", type=Path)
     args = parser.parse_args()
     binary = args.binary.resolve()
-    root = Path(__file__).resolve().parents[2]
-    out = Path(tempfile.mkdtemp(prefix="ui-offscreen-", dir=binary.parent))
-    socket = f"/tmp/ctp2-offscreen-{uuid.uuid4().hex[:16]}.sock"
-    seed, players = 42, 4
-    env = dict(os.environ, SDL_VIDEO_DRIVER="dummy", SDL_RENDER_DRIVER="software",
-               SDL_AUDIO_DRIVER="dummy", SDL_VIDEODRIVER="dummy",
-               SDL_AUDIODRIVER="dummy", CTP2_CAPTURE_FRAMES="1",
-               CTP2_PROFILE=str(Path(__file__).with_name("testprofile.txt")),
-               CTP2_SMOKE_SOCKET=socket)
     # An inherited developer opt-out must not silently select a legacy renderer.
-    for key in env:
-        if key.startswith("CTP2_GPU_") or key == "CTP2_MODERN_SPRITES":
-            env[key] = ""
-    env["CTP2_GPU_WORLDMAP"] = "1"
+    scenario = ui_scenario.launch(binary, "ui-offscreen", scrub_gpu=True,
+                                  extra_env={"CTP2_GPU_WORLDMAP": "1"})
+    out = scenario.out
+    seed, players = 42, 4
     trace = []
     sequence = 0
     step = "startup"
@@ -60,38 +44,11 @@ def run():
         (out / "state.json").write_text(json.dumps(trace, indent=2) + "\n")
 
     record(step, binary=str(binary), seed=seed, players=players,
-           profile=env["CTP2_PROFILE"], socket=socket)
+           profile=scenario.env["CTP2_PROFILE"], socket=scenario.socket)
     try:
-        with Ctp2Client(str(binary), "ui", seed=seed, players=players,
-                        cwd=str(root), env=env, socket_path=socket,
-                        log_path=str(out / "game.log")) as client:
-            def control(path):
-                bounds = {}
-
-                def ready():
-                    nonlocal bounds
-                    response = client.command("ui_control_bounds", path)
-                    bounds = response.get("result", {})
-                    return (response.get("status") == "ok"
-                            and bounds.get("visible") and bounds.get("enabled")
-                            and bounds.get("width", 0) > 0
-                            and bounds.get("height", 0) > 0)
-
-                client.wait_until(ready, timeout=30, interval=0.05,
-                                  desc=f"visible enabled {path}")
-                record("control", path=path, bounds=bounds)
-                return bounds
-
-            def click(x, y):
-                record("click", x=x, y=y)
-                client.expect_ok("ui_pointer", x, y, 0)
-                client.expect_ok("ui_pointer", x, y, 1)
-                client.expect_ok("ui_pointer", x, y, 0)
-
-            def click_control(path):
-                bounds = control(path)
-                click(bounds["x"] + bounds["width"] // 2,
-                      bounds["y"] + bounds["height"] // 2)
+        with scenario.connect(seed=seed, players=players) as ui:
+            client = ui.client
+            ui.record = record
 
             def capture(name, terrain=False):
                 nonlocal sequence
@@ -157,15 +114,15 @@ def run():
             try:
                 step = "new-game menu click"
                 capture("main-menu")
-                click_control(NEW_GAME)
+                ui.click_control(NEW_GAME)
                 step = "start-game setup click"
-                control(START)
+                ui.control(START)
                 client.expect_ok("ui_prepare_game", seed, players)
                 capture("setup")
-                click_control(START)
+                ui.click_control(START)
                 client.wait_game_loaded(timeout=120)
-                radar = control(RADAR)
-                radar_window = control("RadarWindow")
+                radar = ui.control(RADAR)
+                radar_window = ui.control("RadarWindow")
                 world = client.result("query_world")
                 armies = client.result("query_armies")["armies"]
                 assert armies, "new game has no human starting armies"
@@ -199,8 +156,8 @@ def run():
                     # inside it fires MouseMoveInside and enables the tile cursor.
                     client.expect_ok("ui_pointer", visible["hover"][0] + 1, visible["hover"][1], 0)
                     capture(f"{index}-hover")
-                    click(radar["x"] + int(fx * radar["width"]),
-                          radar["y"] + int(fy * radar["height"]))
+                    ui.click(radar["x"] + int(fx * radar["width"]),
+                             radar["y"] + int(fy * radar["height"]))
                     client.wait_until(lambda: client.result("query_gpu_world")["view_rect"] != before,
                                       timeout=10, interval=0.05,
                                       desc=f"minimap {index} changes view")
@@ -209,7 +166,7 @@ def run():
                     shifted_down |= away[1] - before[1] > span_y // 2
                     capture(f"{index}-away")  # Black unexplored fog is legitimate.
                     step = f"minimap return {index}"
-                    click(*home)
+                    ui.click(*home)
                     client.wait_until(lambda: client.result("query_gpu_world")["view_rect"] != away,
                                       timeout=10, interval=0.05,
                                       desc=f"minimap {index} returns to visible map")
@@ -239,7 +196,7 @@ def run():
               file=sys.stderr, flush=True)
         raise
     finally:
-        Path(socket).unlink(missing_ok=True)
+        Path(scenario.socket).unlink(missing_ok=True)
     print(f"PASS offscreen full-game UI: real clicks and passive terrain frames; {out}")
 
 

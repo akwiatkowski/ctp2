@@ -7,38 +7,25 @@ Uses SDL's windowless software renderer and only passive screenshot_frame reads.
 
 import argparse
 import json
-import os
 from pathlib import Path
-import tempfile
 import time
-import uuid
 
 from PIL import Image
 
-from ctp2_client import Ctp2Client
-from ui_offscreen import NEW_GAME, RADAR, START
+import ui_scenario
+from ui_scenario import NEW_GAME, RADAR, START
 
 
 def run():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("binary", type=Path)
     binary = parser.parse_args().binary.resolve()
-    root = Path(__file__).resolve().parents[2]
-    out = Path(tempfile.mkdtemp(prefix="ui-sprite-clicks-", dir=binary.parent))
     # Keep real unit animation enabled. Only terrain must be stationary so
     # animated actor pixels can be distinguished from the empty-tile reference.
-    profile = Path(__file__).with_name("testprofile.txt").read_text()
-    for key in ("WaterAnim", "AutoCenter"):
-        profile = profile.replace(f"{key}=Yes", f"{key}=No")
-    (out / "profile.txt").write_text(profile)
-    socket = f"/tmp/ctp2-sprite-clicks-{uuid.uuid4().hex[:16]}.sock"
-    env = dict(os.environ, SDL_VIDEO_DRIVER="dummy", SDL_VIDEODRIVER="dummy",
-               SDL_AUDIO_DRIVER="dummy", SDL_AUDIODRIVER="dummy",
-               SDL_RENDER_DRIVER="software", CTP2_CAPTURE_FRAMES="1",
-               CTP2_PROFILE=str(out / "profile.txt"), CTP2_SMOKE_SOCKET=socket)
-    for key in env:
-        if key.startswith("CTP2_GPU_") or key == "CTP2_MODERN_SPRITES":
-            env[key] = ""
+    scenario = ui_scenario.launch(
+        binary, "ui-sprite-clicks",
+        settings={"WaterAnim": "No", "AutoCenter": "No"}, scrub_gpu=True)
+    out = scenario.out
     trace, sequence = [], 0
     step = "startup"
     print(f"Sprite click artifacts: {out}", flush=True)
@@ -48,31 +35,9 @@ def run():
         (out / "state.json").write_text(json.dumps(trace, indent=2) + "\n")
 
     try:
-        with Ctp2Client(str(binary), "ui", seed=42, players=4, cwd=str(root),
-                        env=env, socket_path=socket,
-                        log_path=str(out / "game.log")) as client:
-            def control(path):
-                bounds = {}
-
-                def ready():
-                    nonlocal bounds
-                    response = client.command("ui_control_bounds", path)
-                    bounds = response.get("result", {})
-                    return (response.get("status") == "ok"
-                            and bounds.get("visible") and bounds.get("enabled"))
-
-                client.wait_until(ready, timeout=30, interval=0.05, desc=path)
-                return bounds
-
-            def click(x, y):
-                record("click", during=step, x=x, y=y)
-                for pressed in (0, 1, 0):
-                    client.expect_ok("ui_pointer", x, y, pressed)
-
-            def click_control(path):
-                bounds = control(path)
-                click(bounds["x"] + bounds["width"] // 2,
-                      bounds["y"] + bounds["height"] // 2)
+        with scenario.connect(seed=42, players=4) as ui:
+            client = ui.client
+            ui.record = lambda event, **values: record(event, during=step, **values)
 
             def capture(name):
                 nonlocal sequence
@@ -148,16 +113,12 @@ def run():
                 return image, gpu
 
             step = "real menu startup"
-            click_control(NEW_GAME)
-            control(START)
-            client.expect_ok("ui_prepare_game", 42, 4)
-            click_control(START)
-            client.wait_game_loaded(timeout=120)
+            ui.start_new_game(seed=42, players=4)
             # Once loaded, a hung click must fail promptly rather than beachball
             # for the client's normal two-minute startup/turn allowance.
             client.sock.settimeout(10)
-            radar = control(RADAR)
-            radar_window = control("RadarWindow")
+            radar = ui.control(RADAR)
+            radar_window = ui.control("RadarWindow")
             world = client.result("query_world")
             armies = client.result("query_armies")["armies"]
             army = next(a for a in armies if a["can_settle"] and a["moves_left"] > 0)
@@ -174,10 +135,10 @@ def run():
             # upper half of the unobscured map rather than underneath the HUD.
             center_x = (source["x"] + source["y"] // 2) % world["width"]
             center_y = min(world["height"] - 1, source["y"] + span_y // 4)
-            click(radar["x"] + round((center_x - 0.25 + (center_y & 1) / 2)
-                                    * radar["width"] / world["width"]),
-                  radar["y"] + round((center_y + 0.5)
-                                    * radar["height"] / world["height"]))
+            ui.click(radar["x"] + round((center_x - 0.25 + (center_y & 1) / 2)
+                                        * radar["width"] / world["width"]),
+                     radar["y"] + round((center_y + 0.5)
+                                        * radar["height"] / world["height"]))
             candidates = [((source["x"] + dx) % world["width"], source["y"] + dy)
                           for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1),
                                          (1, -1), (-1, 1), (1, -2), (-1, 2))]
@@ -228,7 +189,7 @@ def run():
                 step = f"map selection {index}"
                 image, gpu = check_unit(f"{index}-before-click")
                 x, y = tile_origin(destination, gpu, image.size)
-                click(x + 48, y + 48)
+                ui.click(x + 48, y + 48)
                 # Background::Idle defers a single click by doubleClickTimeout.
                 # Observe the entire interval, not just the pre-click frame.
                 deadline, sample = time.monotonic() + 1, 0
@@ -237,12 +198,12 @@ def run():
                     sample += 1
                     time.sleep(0.05)
                 step = f"minimap excursion {index}"
-                click(radar["x"] + int(fx * radar["width"]),
-                      radar["y"] + int(fy * radar["height"]))
+                ui.click(radar["x"] + int(fx * radar["width"]),
+                         radar["y"] + int(fy * radar["height"]))
                 away, away_gpu = capture(f"{index}-away")
                 assert away_gpu["view_rect"] != gpu["view_rect"], away_gpu
                 step = f"minimap return {index}"
-                click(*home)
+                ui.click(*home)
                 check_unit(f"{index}-returned")
                 for sample in range(3):
                     check_unit(f"{index}-returned-{sample}")
@@ -252,7 +213,7 @@ def run():
         record("failed", during=step, error=repr(error))
         raise
     finally:
-        Path(socket).unlink(missing_ok=True)
+        Path(scenario.socket).unlink(missing_ok=True)
     print(f"PASS actual clicks preserve passive actor pixels; {out}", flush=True)
 
 

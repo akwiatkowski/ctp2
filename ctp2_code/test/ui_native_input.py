@@ -1,24 +1,19 @@
 #!/usr/bin/env python3
 """Native button transitions must not starve behind mouse-motion backlog."""
 
-import os
 from pathlib import Path
 import sys
-import tempfile
 
-from ctp2_client import Ctp2Client
+import ui_scenario
 
 
 binary = Path(sys.argv[1]).resolve()
-out = Path(tempfile.mkdtemp(prefix="ui-native-input-", dir=binary.parent))
-socket = f"/tmp/ctp2-native-input-{os.getpid()}.sock"
-env = dict(os.environ, SDL_VIDEO_DRIVER="dummy", SDL_AUDIO_DRIVER="dummy",
-           SDL_RENDER_DRIVER="software", CTP2_CAPTURE_FRAMES="1",
-           CTP2_SMOKE_SOCKET=socket)
+scenario = ui_scenario.launch(binary, "ui-native-input")
+out = scenario.out
 print(f"Native input artifacts: {out}", flush=True)
 
-with Ctp2Client(str(binary), "ui", env=env, socket_path=socket,
-                log_path=str(out / "game.log"), timeout=5) as client:
+with scenario.connect(timeout=5) as ui:
+    client = ui.client
     path = "InitPlayWindow.NewGameButton"
     bounds = client.result("ui_control_bounds", path)
     x = bounds["x"] + bounds["width"] // 2

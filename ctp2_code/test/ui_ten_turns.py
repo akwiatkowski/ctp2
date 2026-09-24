@@ -8,20 +8,17 @@ in a unique ui-ten-turns-* directory beside the binary, even on failure.
 """
 import argparse
 import json
-import os
 from pathlib import Path
 import socket
 import subprocess
 import sys
-import tempfile
 import time
-import uuid
 
-from ctp2_client import Ctp2Client
+import ui_scenario
 
 
-NEW_GAME = "InitPlayWindow.NewGameButton"
-LAUNCH = "SPNewGameWindow.StartButton"
+NEW_GAME = ui_scenario.NEW_GAME
+LAUNCH = ui_scenario.START
 NEXT_TURN = "ControlPanelWindow.ControlPanel.TurnButton"
 ROUNDS = 10
 # RC coordinates, not Cartesian tiles: see MapPoint::NormalizedSubtract.
@@ -36,10 +33,6 @@ def run():
     args = parser.parse_args()
     assert 0 < args.seed <= 2147483647, "seed must be positive signed 32-bit"
     binary = args.binary.resolve()
-    root = Path(__file__).resolve().parents[2]
-    out = Path(tempfile.mkdtemp(prefix="ui-ten-turns-", dir=binary.parent))
-    socket_path = f"/tmp/ctp2-ten-{uuid.uuid4().hex[:16]}.sock"
-
     # Ordinary New Game settings, never modified game data. Beginner supplies
     # the second starting settler (diffdb.txt EXTRA_SETTLER_CHANCE=1000000),
     # +40% human food and citysize0.txt's 75 growth coefficient. Disable huts so
@@ -53,17 +46,10 @@ def run():
         "AutoSave": "No", "RunInBackground": "Yes",
         "XWrap": "Yes", "YWrap": "No",
     }
-    profile = out / "profile.txt"
-    lines = Path(__file__).with_name("testprofile.txt").read_text().splitlines()
-    lines = [line for line in lines if line.split("=", 1)[0] not in settings]
-    profile.write_text("\n".join(lines + [f"{k}={v}" for k, v in settings.items()]) + "\n")
-    env = dict(os.environ, SDL_VIDEO_DRIVER="dummy", SDL_VIDEODRIVER="dummy",
-               SDL_AUDIO_DRIVER="dummy", SDL_AUDIODRIVER="dummy",
-               SDL_RENDER_DRIVER="software", CTP2_CAPTURE_FRAMES="1",
-               CTP2_PROFILE=str(profile), CTP2_SMOKE_SOCKET=socket_path)
-    for key in env:
-        if key.startswith("CTP2_GPU_") or key == "CTP2_MODERN_SPRITES":
-            env[key] = ""
+    scenario = ui_scenario.launch(binary, "ui-ten-turns", settings=settings,
+                                  scrub_gpu=True)
+    out = scenario.out
+    socket_path = scenario.socket
     trace = []
     step = "startup"
     last_command = None
@@ -78,9 +64,8 @@ def run():
     record("configuration", binary=str(binary), seed=args.seed, settings=settings,
            socket=socket_path, rounds=ROUNDS, turn_driver="real UI pointer; no RunRound")
     try:
-        with Ctp2Client(str(binary), "ui", seed=args.seed, players=4,
-                        cwd=str(root), env=env, socket_path=socket_path,
-                        log_path=str(out / "game.log"), timeout=30) as client:
+        with scenario.connect(seed=args.seed, players=4, timeout=30) as ui:
+            client = ui.client
             def command(verb, *values, allow_error=False):
                 nonlocal last_command
                 last_command = " ".join(map(str, (verb, *values)))

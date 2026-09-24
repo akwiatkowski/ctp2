@@ -1,29 +1,16 @@
 #!/usr/bin/env python3
 """Edge scrolling must yield to the main loop and accept subsequent input."""
-import os
 from pathlib import Path
 import sys
-import tempfile
-from ctp2_client import Ctp2Client
+import ui_scenario
 
 binary = Path(sys.argv[1]).resolve()
-out = Path(tempfile.mkdtemp(prefix="ui-edge-scroll-", dir=binary.parent))
-socket = f"/tmp/ctp2-edge-{os.getpid()}.sock"
-env = dict(os.environ, SDL_VIDEO_DRIVER="dummy", SDL_AUDIO_DRIVER="dummy",
-           SDL_RENDER_DRIVER="software", CTP2_CAPTURE_FRAMES="1", CTP2_SMOKE_SOCKET=socket)
+scenario = ui_scenario.launch(binary, "ui-edge-scroll")
+out = scenario.out
 print(f"Edge scroll artifacts: {out}", flush=True)
-with Ctp2Client(str(binary), "ui", env=env, socket_path=socket,
-                log_path=str(out / "game.log")) as client:
-    def click(path):
-        b = client.result("ui_control_bounds", path)
-        assert b["visible"] and b["enabled"], b
-        for down in (0, 1, 0):
-            client.expect_ok("ui_pointer", b["x"] + b["width"] // 2,
-                             b["y"] + b["height"] // 2, down)
-    click("InitPlayWindow.NewGameButton")
-    client.expect_ok("ui_prepare_game", 42, 4)
-    click("SPNewGameWindow.StartButton")
-    client.wait_game_loaded()
+with scenario.connect() as ui:
+    client = ui.client
+    ui.start_new_game(seed=42, players=4)
     client.sock.settimeout(5)  # A main-loop input round trip must not monopolize a frame.
     before = client.result("query_gpu_world")
     frame = client.result("screenshot_frame", out / "before.bmp")

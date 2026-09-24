@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """Moving a real unit must repaint newly visible terrain without camera input."""
 
-import os
 from pathlib import Path
 import sys
-import tempfile
 
 from PIL import Image
 
-from ctp2_client import Ctp2Client, fixture_save
+from ctp2_client import fixture_save
+import ui_scenario
 
 
 PIXEL_SAMPLE_STEP = 4
@@ -16,15 +15,13 @@ PIXEL_SAMPLE_STEP = 4
 MIN_REVEALED_SAMPLES = 5
 
 binary = Path(sys.argv[1]).resolve()
-out = Path(tempfile.mkdtemp(prefix="ui-move-visibility-", dir=binary.parent))
-socket = f"/tmp/ctp2-move-visibility-{os.getpid()}.sock"
-env = dict(os.environ, SDL_VIDEO_DRIVER="dummy", SDL_AUDIO_DRIVER="dummy",
-           SDL_RENDER_DRIVER="software", CTP2_CAPTURE_FRAMES="1",
-           CTP2_GPU_WORLDMAP="1", CTP2_SMOKE_SOCKET=socket)
+scenario = ui_scenario.launch(binary, "ui-move-visibility",
+                              extra_env={"CTP2_GPU_WORLDMAP": "1"})
+out = scenario.out
 print(f"Move visibility artifacts: {out}", flush=True)
 
-with Ctp2Client(str(binary), "ui", env=env, socket_path=socket,
-                log_path=str(out / "game.log"), timeout=10) as client:
+with scenario.connect(timeout=10) as ui:
+    client = ui.client
     client.expect_ok("load_game", fixture_save("next-unit-freeze"))
     client.wait_game_loaded()
     world_before = client.result("query_map")

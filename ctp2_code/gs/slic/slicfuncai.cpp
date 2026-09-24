@@ -551,7 +551,7 @@ SFN_ERROR Slic_HasAgreementWithAnyone::Call(SlicArgList *args)
 	Assert(agreement_type < PROPOSAL_MAX);
 
 	m_result.m_int =
-		AgreementMatrix::s_agreements.HasAgreement( player, (PROPOSAL_TYPE) agreement_type);
+		AgreementMatrix::Active().HasAgreement( player, (PROPOSAL_TYPE) agreement_type);
 
 	return SFN_ERROR_OK;
 }
@@ -577,7 +577,7 @@ SFN_ERROR Slic_HasAgreement::Call(SlicArgList *args)
 	Assert(agreement_type > 0);
 	Assert(agreement_type < PROPOSAL_MAX);
 
-	m_result.m_int = AgreementMatrix::s_agreements.HasAgreement( player, foreigner,
+	m_result.m_int = AgreementMatrix::Active().HasAgreement( player, foreigner,
 		(PROPOSAL_TYPE) agreement_type);
 
 	return SFN_ERROR_OK;
@@ -607,7 +607,7 @@ SFN_ERROR Slic_CancelAgreement::Call(SlicArgList *args)
 	Assert(agreement_type > 0);
 	Assert(agreement_type < PROPOSAL_MAX);
 
-	AgreementMatrix::s_agreements.CancelAgreement( player, foreigner, (PROPOSAL_TYPE) agreement_type);
+	AgreementMatrix::Active().CancelAgreement( player, foreigner, (PROPOSAL_TYPE) agreement_type);
 
 	return SFN_ERROR_OK;
 }
@@ -628,7 +628,7 @@ SFN_ERROR Slic_TurnsSinceLastWar::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	m_result.m_int =
-		AgreementMatrix::s_agreements.TurnsSinceLastWar( player, foreigner);
+		AgreementMatrix::Active().TurnsSinceLastWar( player, foreigner);
 
 	return SFN_ERROR_OK;
 }
@@ -649,7 +649,7 @@ SFN_ERROR Slic_TurnsAtWar::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	m_result.m_int =
-		AgreementMatrix::s_agreements.TurnsAtWar( player, foreigner);
+		AgreementMatrix::Active().TurnsAtWar( player, foreigner);
 
 	return SFN_ERROR_OK;
 }
@@ -1573,7 +1573,7 @@ SFN_ERROR Slic_GetAgreementDuration::Call(SlicArgList *args)
     if(!args->GetInt(argNum++, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-	m_result.m_int = AgreementMatrix::s_agreements.GetAgreementDuration(player, foreigner, (const enum PROPOSAL_TYPE)type);
+	m_result.m_int = AgreementMatrix::Active().GetAgreementDuration(player, foreigner, (const enum PROPOSAL_TYPE)type);
 
 	DPRINTF(k_DBG_SLIC, ("Slic_GetAgreementDuration:player %d, foreigner %d, type %d, returns %d\n",player,foreigner,type, m_result.m_int));
 

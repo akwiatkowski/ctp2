@@ -30,6 +30,21 @@ class AchievementTracker;
 class TradeBids;
 class SlicEngine;
 class GameEventManager;
+// Per-game AI + pathing state. Forward-declared here so game.h stays free
+// of ai/ and robot/ include chains; full types only in game.cpp.
+class Scheduler;
+class SchedulerRegistry;
+class Governor;
+class GovernorRegistry;
+class Diplomat;
+class DiplomatRegistry;
+class AgreementMatrix;
+class SettleMap;
+class MapAnalysis;
+class PathingContext;
+class CityAstar;
+class TradeAstar;
+class RobotAstar2;
 
 namespace Ctp2 {
 
@@ -157,6 +172,32 @@ public:
     void               SetEventsPtr(GameEventManager *p);
     FeatTracker * GetFeatsPtr();
     void          SetFeatsPtr(FeatTracker *p);
+    // Per-game AI + pathing state. Registries own the per-player vectors
+    // (replacing Scheduler::Schedulers()/Governor::Governors()/Diplomat
+    // statics); finders + PathingContext replace the file-scope singletons
+    // (AstarPathing()/CityPathing()/TradePathing()/AiPathing()). Bodies in
+    // game.cpp, where the full types are visible.
+    SchedulerRegistry & GetSchedulers();
+    GovernorRegistry &  GetGovernors();
+    DiplomatRegistry &  GetDiplomats();
+    AgreementMatrix & GetAgreementsAI();
+    SettleMap &       GetSettleMap();
+    MapAnalysis &     GetMapAnalysisAI();
+    PathingContext &  GetPathing();
+    CityAstar &       GetCityPather();
+    TradeAstar &      GetTradePather();
+    RobotAstar2 &     GetAiPather();
+    bool              NeedAnotherMatchCycle() const;
+    void              SetNeedAnotherMatchCycle(bool needed);
+    // Active-game routing for the legacy static shims (AstarPathing(),
+    // CityPathing(), Scheduler::GetScheduler(), ...). Single process-wide
+    // pointer set by gameinit/CivApp on NewGame; two sequential games each
+    // re-point it, so the second never reads the first's state. True
+    // concurrent games must hold their own Game& instead (callers migrate
+    // to game.GetX() slice by slice).
+    static Game *& ActiveRef();
+    static Game * GetActive();
+    static void SetActive(Game * game);
 
 private:
     std::unique_ptr<TurnCount> m_turn;
@@ -192,6 +233,22 @@ private:
 
     std::unique_ptr<SlicEngine> m_slic;
     std::unique_ptr<GameEventManager> m_events;
+    // Per-game AI registries + pathing state (see accessors above).
+    // Schedulers/Governors/Diplomats hold the Registry-by-value members;
+    // AgreementMatrix/SettleMap/MapAnalysis are values; finders are values
+    // (they reset per-call state up front). m_needAnotherMatchCycle replaces
+    // Scheduler::s_needAnotherCycle.
+    std::unique_ptr<SchedulerRegistry> m_schedulers;
+    std::unique_ptr<GovernorRegistry>  m_governors;
+    std::unique_ptr<DiplomatRegistry> m_diplomats;
+    std::unique_ptr<AgreementMatrix> m_agreementsAI;
+    std::unique_ptr<SettleMap>       m_settleMap;
+    std::unique_ptr<MapAnalysis>     m_mapAnalysis;
+    std::unique_ptr<PathingContext>  m_pathing;
+    std::unique_ptr<CityAstar>       m_cityPather;
+    std::unique_ptr<TradeAstar>      m_tradePather;
+    std::unique_ptr<RobotAstar2>     m_aiPather;
+    bool m_needAnotherMatchCycle = false;
 };
 
 } // namespace Ctp2

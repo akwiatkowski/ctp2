@@ -2013,7 +2013,7 @@ Utility Goal::Compute_Raw_Priority()
 	if ( goal_rec->GetTargetTypeSettleLand() ||
 		 goal_rec->GetTargetTypeSettleSea() )
 	{
-		cell_value += SettleMap::s_settleMap.GetValue(target_pos);
+		cell_value += SettleMap::Ref().GetValue(target_pos);
 
 #if defined(_DEBUG) || defined(USE_LOGGING)
 		report_cell_Settle    = cell_value - report_cell_lastvalue;
@@ -2399,7 +2399,7 @@ bool Goal::Get_Totally_Complete() const
 	{
 		const WonderRecord *wonder_rec = goal_record->GetTargetProtectionWonderPtr();
 
-		if ((AgreementMatrix::s_agreements.TurnsAtWar(m_playerId, target_owner) < 0) &&
+		if ((AgreementMatrix::Active().TurnsAtWar(m_playerId, target_owner) < 0) &&
 			player_Get(target_owner) &&
 			(player_Get(target_owner)->GetBuiltWonders() & ((uint64)1 << (uint64)(wonder_rec->GetIndex()))))
 			return true;
@@ -2795,7 +2795,7 @@ bool Goal::Get_Invalid() const
 	if(goal_record->GetTargetTypeSettleLand()
 	|| goal_record->GetTargetTypeSettleSea()
 	){
-		if(!SettleMap::s_settleMap.CanSettlePos(Get_Target_Pos()))
+		if(!SettleMap::Ref().CanSettlePos(Get_Target_Pos()))
 			return true;
 
 		if(world_Get()->HasCity(Get_Target_Pos()))

@@ -211,7 +211,7 @@ STDEHANDLER(CtpAi_CreateCityEvent)
 	}
 	CtpAi::AddOwnerGoalsForCity(city, city.GetOwner());
 
-	SettleMap::s_settleMap.HandleCityGrowth(city);
+	SettleMap::Ref().HandleCityGrowth(city);
 
 	return GEV_HD_Continue;
 }
@@ -290,7 +290,7 @@ STDEHANDLER(CtpAi_GrowCityEvent)
 	if(!args->GetCity(0, city))
 		return GEV_HD_Continue;
 
-	SettleMap::s_settleMap.HandleCityGrowth(city);
+	SettleMap::Ref().HandleCityGrowth(city);
 
 	return GEV_HD_Continue;
 }
@@ -309,7 +309,7 @@ STDEHANDLER(CtpAi_KillCityEvent)
 	if(!args->GetPlayer(0, killer))
 		killer = -1;
 
-	SettleMap::s_settleMap.SetCanSettlePos(u.RetPos(), true);
+	SettleMap::Ref().SetCanSettlePos(u.RetPos(), true);
 
 	for (sint32 playerId = 1; playerId < CtpAi::s_maxPlayers; playerId++)
 	{
@@ -364,7 +364,7 @@ STDEHANDLER(CtpAi_NukeCityUnit)
 
 	if (population <= 0)
 	{
-		SettleMap::s_settleMap.SetCanSettlePos(city.RetPos(), true);
+		SettleMap::Ref().SetCanSettlePos(city.RetPos(), true);
 
 		for (sint32 playerId = 1; playerId < CtpAi::s_maxPlayers; playerId++)
 		{
@@ -593,7 +593,7 @@ STDEHANDLER(CtpAi_ConsiderNuclearWar)
 	PLAYER_INDEX enemy_to_nuke = diplomat.ComputeNuclearLaunchTarget();
 
 	bool fire_now = (enemy_to_nuke != -1) &&
-		          (AgreementMatrix::s_agreements.TurnsAtWar(playerId, enemy_to_nuke) > 15);
+		          (AgreementMatrix::Active().TurnsAtWar(playerId, enemy_to_nuke) > 15);
 
 	diplomat.TargetNuclearAttack(enemy_to_nuke, fire_now);
 
@@ -950,7 +950,7 @@ void CtpAi::CleanupEvents()
 void CtpAi::Cleanup()
 {
 	Scheduler::CleanupAll();
-	SettleMap::s_settleMap.Cleanup();
+	SettleMap::Ref().Cleanup();
 	Governor::Cleanup();
 	Diplomat::CleanupAll();
 	MapAnalysis::GetMapAnalysis().Cleanup();
@@ -961,7 +961,7 @@ void CtpAi::Initialize(bool initDiplomat)
 {
 	Resize();
 
-	SettleMap::s_settleMap.Initialize();
+	SettleMap::Ref().Initialize();
 
 	GaiaController::InitializeStatics();
 
@@ -1057,7 +1057,7 @@ void CtpAi::RemovePlayer(const PLAYER_INDEX deadPlayerId)
 		Diplomat::GetDiplomat(player).InitForeigner(deadPlayerId);
 	}
 
-	AgreementMatrix::s_agreements.ClearAgreementsInvolving(deadPlayerId);
+	AgreementMatrix::Active().ClearAgreementsInvolving(deadPlayerId);
 	Diplomat::GetDiplomat(deadPlayerId).Cleanup();
 
 	if (deadPlayerId + 1 >= s_maxPlayers)
@@ -1636,7 +1636,7 @@ void CtpAi::Resize()
     Scheduler::ResizeAll(s_maxPlayers);
 #endif
 
-	AgreementMatrix::s_agreements.Resize(s_maxPlayers);
+	AgreementMatrix::Active().Resize(s_maxPlayers);
 
 	sint16 resolution = 10;
 	MapAnalysis::GetMapAnalysis().Resize( s_maxPlayers,
@@ -1716,7 +1716,7 @@ void CtpAi::AddSettleTargets(const PLAYER_INDEX playerId)
 		return;
 
 	SettleMap::SettleTargetList targets;
-	SettleMap::s_settleMap.GetSettleTargets(playerId, targets);
+	SettleMap::Ref().GetSettleTargets(playerId, targets);
 	if (targets.empty())
 	{
 		return;
@@ -2182,7 +2182,7 @@ void CtpAi::SetResearch(const PLAYER_INDEX player)
 					continue;
 
 				const ai::Agreement	& agreement =
-					AgreementMatrix::s_agreements.GetAgreement(player, foreignerId, PROPOSAL_OFFER_STOP_RESEARCH);
+					AgreementMatrix::Active().GetAgreement(player, foreignerId, PROPOSAL_OFFER_STOP_RESEARCH);
 
 				if (agreement.start != -1 && agreement.end == -1)
 				{
@@ -2197,7 +2197,7 @@ void CtpAi::SetResearch(const PLAYER_INDEX player)
 			if (stop_research)
 			{
 				sint32 duration =
-					AgreementMatrix::s_agreements.GetAgreementDuration(player, foreignerId, PROPOSAL_OFFER_STOP_RESEARCH);
+					AgreementMatrix::Active().GetAgreementDuration(player, foreignerId, PROPOSAL_OFFER_STOP_RESEARCH);
 
 				if (Diplomat::GetDiplomat(player).GetPersonality()->GetTrustworthinessChaotic())
 					break;

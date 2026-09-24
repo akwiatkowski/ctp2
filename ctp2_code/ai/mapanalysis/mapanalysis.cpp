@@ -36,6 +36,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include "ai/mapanalysis/mapanalysis.h"
 
 #include "gs/gameobj/Army.h"
@@ -60,14 +71,14 @@
 #include <vector>
 #include <limits>
 
-template<class T>
-typename MapGrid<T>::MapGridArray MapGrid<T>::s_scratch;
+// (removed) MapGrid<T>::s_scratch — Relax() uses a call-local buffer now.
 
-MapAnalysis MapAnalysis::s_mapAnalysis;
+// (removed) MapAnalysis::s_mapAnalysis now lives in Ctp2::Game
+// (m_mapAnalysis), reached via MapAnalysis::GetMapAnalysis() below.
 
 MapAnalysis & MapAnalysis::GetMapAnalysis()
 {
-	return s_mapAnalysis;
+	return game_GetActive().GetMapAnalysisAI();
 }
 
 void MapAnalysis::Resize
@@ -1106,7 +1117,7 @@ void MapAnalysis::ComputeAllianceSize(const PLAYER_INDEX playerId, PLAYER_INDEX 
             continue;
 
         if (foreignerId == playerId ||
-        AgreementMatrix::s_agreements.HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
+        AgreementMatrix::Active().HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
         {
             alliance_population += m_totalPopulation[foreignerId];
             alliance_land += m_landArea[foreignerId];

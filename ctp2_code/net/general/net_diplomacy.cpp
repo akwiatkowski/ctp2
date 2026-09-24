@@ -235,7 +235,7 @@ void NetAgreementMatrix::Packetize(uint8 *buf, uint16 &size)
 	size = 0;
 
 	PUSHID(k_PACKET_DIP_AGREEMENT_MATRIX_ID);
-	PUSHSHORT(AgreementMatrix::s_agreements.GetMaxPlayers());
+	PUSHSHORT(AgreementMatrix::Active().GetMaxPlayers());
 
 	for (uint8 p1 = 0; p1 < k_MAX_PLAYERS; p1++)
 	{
@@ -251,7 +251,7 @@ void NetAgreementMatrix::Packetize(uint8 *buf, uint16 &size)
 
 			for (uint8 prop = PROPOSAL_NONE + 1; prop <PROPOSAL_MAX; ++prop)
 			{
-				ai::Agreement ag = AgreementMatrix::s_agreements.GetAgreement(p1, p2, (PROPOSAL_TYPE)prop);
+				ai::Agreement ag = AgreementMatrix::Active().GetAgreement(p1, p2, (PROPOSAL_TYPE)prop);
 				if (ag != AgreementMatrix::s_badAgreement)
 				{
 					PUSHBYTE(p1);
@@ -283,9 +283,9 @@ void NetAgreementMatrix::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	sint16  maxPlayers;
 	PULLSHORT(maxPlayers);
-	if (maxPlayers != AgreementMatrix::s_agreements.GetMaxPlayers())
+	if (maxPlayers != AgreementMatrix::Active().GetMaxPlayers())
     {
-		AgreementMatrix::s_agreements.Resize(maxPlayers);
+		AgreementMatrix::Active().Resize(maxPlayers);
 	}
 
     uint8   p1; // player, or end marker
@@ -308,9 +308,9 @@ void NetAgreementMatrix::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		PULLLONG(ag.explainStrId);
 		PULLLONG(ag.newsStrId);
 
-        size_t const    agIndex = AgreementMatrix::s_agreements.AgreementIndex
+        size_t const    agIndex = AgreementMatrix::Active().AgreementIndex
                                     (p1, p2, static_cast<PROPOSAL_TYPE>(prop));
-        AgreementMatrix::s_agreements.SetAgreementFast(agIndex, ag);
+        AgreementMatrix::Active().SetAgreementFast(agIndex, ag);
 
         PULLBYTE(p1);
 	}

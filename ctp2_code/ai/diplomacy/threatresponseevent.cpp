@@ -215,7 +215,7 @@ STDEHANDLER(DeclareWarAccept_ThreatResponseEvent)
 		(-1 * receiver_result.production) +
 		(-1 * receiver_result.science);
 
-	sint32 turns_at_peace = (AgreementMatrix::s_agreements.TurnsSinceLastWar(sender,receiver));
+	sint32 turns_at_peace = (AgreementMatrix::Active().TurnsSinceLastWar(sender,receiver));
 	bool peace_time = (turns_at_peace < 0 || turns_at_peace > 5);
 	bool lost_respect = (receiver_diplomat.GetTrust(sender) < HOTWAR_REGARD / 2);
 

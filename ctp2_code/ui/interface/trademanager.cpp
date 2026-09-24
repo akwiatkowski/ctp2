@@ -368,13 +368,13 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 					if(m_showCities == TRADE_CITIES_OWN && op != selitem_Get()->GetVisiblePlayer()) continue;
 					if ((m_showCities == TRADE_CITIES_ALL)			&&
 						(op != selitem_Get()->GetVisiblePlayer()) &&
-						(AgreementMatrix::s_agreements.TurnsAtWar(player_id, op) >= 0)
+						(AgreementMatrix::Active().TurnsAtWar(player_id, op) >= 0)
 					   )
 						continue;
 
 					if ((m_showCities == TRADE_CITIES_FRIENDLY)		&&
 						(op != selitem_Get()->GetVisiblePlayer()) &&
-						(!AgreementMatrix::s_agreements.HasAgreement
+						(!AgreementMatrix::Active().HasAgreement
 							(player_id, op, PROPOSAL_TREATY_PEACE)
 						)
 					   )

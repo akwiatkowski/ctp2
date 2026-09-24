@@ -626,7 +626,7 @@ AUI_ERRCODE IntelligenceWindow::DrawTreaties(ctp2_Static *control,
 			if (!Diplomat::GetDiplomat(p).GetEmbargo(visP))
 				continue;
 		}
-		else if(!AgreementMatrix::s_agreements.HasAgreement(visP, p, (PROPOSAL_TYPE)ag))
+		else if(!AgreementMatrix::Active().HasAgreement(visP, p, (PROPOSAL_TYPE)ag))
 			continue;
 
 		aui_Image *image = c3ui_Get()->LoadImage((char *)rec->GetImage());

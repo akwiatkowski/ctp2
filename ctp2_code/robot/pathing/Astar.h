@@ -35,6 +35,7 @@
 #define ASTAR_H 1
 
 #include <memory>
+#include <unordered_map>
 #include "robot/pathing/astarpnt.h"
 #include "robot/aibackdoor/priorityqueue.h"
 
@@ -46,18 +47,33 @@ class AVLHeap;
 /// Owns the per-search shared pathing state (node pool + search epoch).
 /// Replaces the file-scope g_astar_mem / g_search_count globals so A* users
 /// can instantiate and test pathing without hidden global state.
+class Cell;
+
+/// Owns the per-search shared pathing state (node pool + per-cell visit map).
+/// Replaces the file-scope g_astar_mem / g_search_count globals AND the
+/// Cell::m_search_count / Cell::m_point scratch writes, so two live games
+/// (or threads) can path without sharing visited-state. The epoch counter is
+/// kept for stats/compat; visited membership lives in m_visited (per search).
 class PathingContext {
 public:
 	PathingContext();
 
 	AVLHeap & GetHeap() { return *m_heap; }
-	sint32 NextSearchEpoch() { return ++m_searchEpoch; }
+	sint32 NextSearchEpoch();
 	sint32 CurrentSearchEpoch() const { return m_searchEpoch; }
 	void Reset();
 
+	// Per-search visited map. FindPath clears it on entry; the epoch key
+	// lets stale entries from an aborted search stay harmless.
+	void BeginSearch(sint32 epoch) { m_visited.clear(); m_visitEpoch = epoch; }
+	AstarPoint * GetVisited(Cell const * cell) const;
+	void SetVisited(Cell const * cell, AstarPoint * point);
+
 private:
 	std::unique_ptr<AVLHeap> m_heap;
-	sint32 m_searchEpoch;
+	sint32 m_searchEpoch = 1;
+	sint32 m_visitEpoch = 0;
+	std::unordered_map<Cell const *, AstarPoint *> m_visited;
 };
 
 // Shared instance backing the legacy Astar_Init/Cleanup lifecycle.

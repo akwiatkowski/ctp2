@@ -32,6 +32,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include "ai/diplomacy/AgreementMatrix.h"
 
 #include <vector>
@@ -47,7 +58,8 @@
 #include "gs/core/game_observer.h"
 
 ai::Agreement       AgreementMatrix::s_badAgreement;
-AgreementMatrix     AgreementMatrix::s_agreements;
+// (removed) s_agreements now lives in Ctp2::Game (m_agreementsAI), reached
+// via game_GetActive().GetAgreementsAI().
 
 AgreementMatrix::AgreementMatrix()
 :
@@ -401,7 +413,15 @@ void AgreementMatrix::ClearAgreementsInvolving(const PLAYER_INDEX playerId)
 	}
 }
 
+// Process-wide handle to the active game's matrix. All read/write users
+// (AgreementMatrix::Active().*) route here; per-game state lives in
+// Ctp2::Game so sequential games never share diplomacy.
+AgreementMatrix & AgreementMatrix::Active()
+{
+	return game_GetActive().GetAgreementsAI();
+}
+
 void AgreementMatrix::Cleanup()
 {
-	AgreementVector().swap(s_agreements.m_agreements);
+	AgreementVector().swap(Active().m_agreements);
 }

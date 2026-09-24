@@ -91,7 +91,7 @@ STDEHANDLER(KillUnitRegardEvent)
 
 	CellUnitList army;
 	world_Get()->GetArmy(u.RetPos(), army);
-	bool not_at_war = (AgreementMatrix::s_agreements.TurnsAtWar(killer, u.GetOwner()) < 1);
+	bool not_at_war = (AgreementMatrix::Active().TurnsAtWar(killer, u.GetOwner()) < 1);
 
 	if (u.GetDBRec()->GetCivilian())
 	{
@@ -139,10 +139,10 @@ STDEHANDLER(BorderIncursionRegardEvent)
 
 	Diplomat & owner_diplomat = Diplomat::GetDiplomat(border_owner);
 
-	sint32 turns_since_withdraw_troops_agreement = 	AgreementMatrix::s_agreements.
+	sint32 turns_since_withdraw_troops_agreement = 	AgreementMatrix::Active().
 		GetAgreementDuration(border_owner, army_owner,PROPOSAL_REQUEST_WITHDRAW_TROOPS);
 	if ((turns_since_withdraw_troops_agreement >= 20) &&
-		(!AgreementMatrix::s_agreements.HasAgreement(border_owner, army_owner, PROPOSAL_TREATY_ALLIANCE)) &&
+		(!AgreementMatrix::Active().HasAgreement(border_owner, army_owner, PROPOSAL_TREATY_ALLIANCE)) &&
 		(!owner_diplomat.GetBorderIncursionBy(army_owner)))
 	{
 
@@ -190,10 +190,10 @@ STDEHANDLER(InvaderMovementRegardEvent)
 		!player_Get(new_cell_owner)->HasContactWith(army_owner))
 		return GEV_HD_Continue;
 
-	if (AgreementMatrix::s_agreements.HasAgreement(new_cell_owner, army_owner, PROPOSAL_REQUEST_WITHDRAW_TROOPS))
+	if (AgreementMatrix::Active().HasAgreement(new_cell_owner, army_owner, PROPOSAL_REQUEST_WITHDRAW_TROOPS))
 	{
 		ai::Agreement agreement =
-			AgreementMatrix::s_agreements.GetAgreement(new_cell_owner, army_owner, PROPOSAL_REQUEST_WITHDRAW_TROOPS);
+			AgreementMatrix::Active().GetAgreement(new_cell_owner, army_owner, PROPOSAL_REQUEST_WITHDRAW_TROOPS);
 		if (agreement.start + 5 > turn_Get()->GetSessionRound())
 			return GEV_HD_Continue;
 	}
@@ -292,32 +292,32 @@ STDEHANDLER(NeighborHatredRegardEvent)
 		if (MapAnalysis::GetMapAnalysis().ShareContinent(playerId, foreignerId) == false)
 			continue;
 
-		if (AgreementMatrix::s_agreements.
+		if (AgreementMatrix::Active().
 			HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 			continue;
 
-		if (AgreementMatrix::s_agreements.
+		if (AgreementMatrix::Active().
 				HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE) ||
-			AgreementMatrix::s_agreements.
+			AgreementMatrix::Active().
 				HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT))
 			continue;
 
 		sint32 cost;
 		diplomat.GetCurrentDiplomacy(foreignerId).GetShareContinentRegardCost(cost);
 
-		if (AgreementMatrix::s_agreements.
+		if (AgreementMatrix::Active().
 			HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_PEACE))
 		{
 			cost /= 2;
 		}
 
-		if (AgreementMatrix::s_agreements.
+		if (AgreementMatrix::Active().
 			HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_TRADE_PACT))
 		{
 			cost /= 2;
 		}
 
-		if (AgreementMatrix::s_agreements.
+		if (AgreementMatrix::Active().
 			HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT))
 		{
 			cost /= 2;

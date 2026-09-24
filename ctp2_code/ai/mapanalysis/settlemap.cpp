@@ -37,6 +37,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include "ai/mapanalysis/settlemap.h"
 
 #include <algorithm>
@@ -62,10 +73,15 @@ namespace
     double const    VALUE_NEAR_EDGE_OF_WORLD    = -1.0;
 }
 
-SettleMap SettleMap::s_settleMap;
+// (removed) SettleMap::Ref() now lives in Ctp2::Game (m_settleMap),
+// reached via SettleMap::Ref() below.
 
-template<class T>
-typename MapGrid<T>::MapGridArray MapGrid<T>::s_scratch;
+SettleMap & SettleMap::Ref()
+{
+	return game_GetActive().GetSettleMap();
+}
+
+// (removed) MapGrid<T>::s_scratch — Relax() uses a call-local buffer now.
 
 SettleMap::SettleMap()
 :

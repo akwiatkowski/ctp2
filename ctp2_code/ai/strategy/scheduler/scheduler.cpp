@@ -54,6 +54,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include "ai/strategy/scheduler/Scheduler.h"
 
 #include "ai/profileai.h"
@@ -112,35 +123,36 @@ namespace
 
 // (removed) s_max_match_list_cycles was write-only; see Scheduler.h.
 
-// (removed) s_theSchedulers now lives in Scheduler::Registry (Schedulers()).
+// (removed) s_theSchedulers now lives in SchedulerRegistry (Scheduler::Schedulers()).
 
 // Per-instance regard/contact caches now live on each Scheduler (default
 // member initializers in Scheduler.h); no static definitions needed.
 
-bool Scheduler::s_needAnotherCycle = false;
+// (removed) s_needAnotherCycle now lives in Game::m_needAnotherMatchCycle.
 
 bool Scheduler::NeedAnotherCycle()
 {
-	return s_needAnotherCycle;
+	return game_GetActive().NeedAnotherMatchCycle();
 }
 
 void Scheduler::SetNeedAnotherCycle(bool needed)
 {
-	s_needAnotherCycle = needed;
+	game_GetActive().SetNeedAnotherMatchCycle(needed);
 }
 
 void Scheduler::ClearNeedAnotherCycle()
 {
-	s_needAnotherCycle = false;
+	game_GetActive().SetNeedAnotherMatchCycle(false);
 }
 
-Scheduler::Registry & Scheduler::Schedulers()
+SchedulerRegistry & Scheduler::Schedulers()
 {
-	static Registry instance;
-	return instance;
+	// Per-game: the Registry object lives in Ctp2::Game; this accessor
+	// exposes the active game's registry to legacy static callers.
+	return game_GetActive().GetSchedulers();
 }
 
-void Scheduler::Registry::Resize(const PLAYER_INDEX & newMaxPlayerId)
+void SchedulerRegistry::Resize(const PLAYER_INDEX & newMaxPlayerId)
 {
 	m_schedulers.resize(newMaxPlayerId);
 
@@ -150,12 +162,12 @@ void Scheduler::Registry::Resize(const PLAYER_INDEX & newMaxPlayerId)
 	}
 }
 
-void Scheduler::Registry::Clear()
+void SchedulerRegistry::Clear()
 {
-	Scheduler_Vector().swap(m_schedulers);
+	Scheduler::Scheduler_Vector().swap(m_schedulers);
 }
 
-Scheduler & Scheduler::Registry::Get(const sint32 & playerId)
+Scheduler & SchedulerRegistry::Get(const sint32 & playerId)
 {
 	Assert(playerId >= 0);
 	Assert(static_cast<size_t>(playerId) < m_schedulers.size());
@@ -166,6 +178,11 @@ Scheduler & Scheduler::Registry::Get(const sint32 & playerId)
 void Scheduler::ResizeAll(const PLAYER_INDEX & newMaxPlayerId)
 {
 	Schedulers().Resize(newMaxPlayerId);
+}
+
+size_t Scheduler::Count()
+{
+	return Schedulers().Size();
 }
 Scheduler & Scheduler::GetScheduler(const sint32 & playerId)
 {
@@ -1672,7 +1689,7 @@ void Scheduler::SetIsNeutralRegardCache(sint32 player)
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(player);
 
-	for(sint32 i = 0; i < AgreementMatrix::s_agreements.GetMaxPlayers(); ++i)
+	for(sint32 i = 0; i < AgreementMatrix::Active().GetMaxPlayers(); ++i)
 	{
 		if(diplomat.TestEffectiveRegard(i, NEUTRAL_REGARD))
 		{
@@ -1711,7 +1728,7 @@ void Scheduler::SetIsAllyRegardCache(sint32 player)
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(player);
 
-	for(sint32 i = 0; i < AgreementMatrix::s_agreements.GetMaxPlayers(); ++i)
+	for(sint32 i = 0; i < AgreementMatrix::Active().GetMaxPlayers(); ++i)
 	{
 		if(diplomat.TestAlliedRegard(i))
 		{

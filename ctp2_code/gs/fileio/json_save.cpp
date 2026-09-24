@@ -26,6 +26,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // Ctp2::Game::GetActive guard in ctpai_state_to_json
 #include "ctp/ctp2_utils/bounded_json.h"
 #include "gs/fileio/json_save.h"
 
@@ -5151,7 +5152,7 @@ void from_json(nlohmann::json const &j, MessagePool &p)
 // --- CtpAi composite bridge (Phase F-18) --------------------------------
 //
 // CtpAi::Save(archive) is a thin wrapper over Diplomat::SaveAll, which
-// writes three things: s_nextId, AgreementMatrix::s_agreements, and the
+// writes three things: s_nextId, AgreementMatrix::Active(), and the
 // per-player Diplomat vector.  All three already have JSON bridges; this
 // helper composes them into a single "ai_state" sub-object so SaveJson /
 // LoadJson stay flat.
@@ -5165,8 +5166,16 @@ nlohmann::json ctpai_state_to_json()
 {
     nlohmann::json j;
     json_save::SaveAiHistory(j);
+    // Fixture-free unit tests (no live game) skip per-game AI state;
+    // SaveAiHistory above already emitted empty defaults in that case.
+    if (!Ctp2::Game::GetActive()) {
+        j["diplomat_next_id"] = 0;
+        j["agreements"] = nlohmann::json::object();
+        j["diplomats"] = nlohmann::json::array();
+        return j;
+    }
     j["diplomat_next_id"] = Diplomat::PeekNextId();
-    j["agreements"]       = AgreementMatrix::s_agreements;
+    j["agreements"]       = AgreementMatrix::Active();
 
     nlohmann::json diplomats = nlohmann::json::array();
     size_t const   count     = Diplomat::Count();
@@ -5479,8 +5488,9 @@ bool LoadJson(char const *path)
         }
 
         // AI state (CtpAi::Save mirror): Resize the diplomat vector to
-        // the saved count, then per-slot from_json.
-        if (doc.contains("ai_state"))
+        // the saved count, then per-slot from_json. Skipped with no live
+        // game (fixture-free unit tests save empty AI defaults above).
+        if (doc.contains("ai_state") && Ctp2::Game::GetActive())
         {
             auto const &ai = doc.at("ai_state");
             if (ai.contains("diplomats") && ai["diplomats"].is_array())
@@ -5498,7 +5508,7 @@ bool LoadJson(char const *path)
                     ai["diplomat_next_id"].get<sint32>());
             }
             if (ai.contains("agreements"))
-                ai["agreements"].get_to(AgreementMatrix::s_agreements);
+                ai["agreements"].get_to(AgreementMatrix::Active());
         }
 
         // Re-sync per-player AI structures with the post-load g_player
@@ -5519,8 +5529,10 @@ bool LoadJson(char const *path)
             CtpAi::Resize();
 
         // Restore history after Resize, which can copy schedulers and discard
-        // their pointer relationships.
-        RestoreAiHistory(doc.value("ai_state", nlohmann::json::object()));
+        // their pointer relationships. Skipped with no live game (the
+        // fixture-free header test has no AI state to restore).
+        if (Ctp2::Game::GetActive())
+            RestoreAiHistory(doc.value("ai_state", nlohmann::json::object()));
 
         // Units/cities were restored without gfx state (UnitData's
         // from_json intentionally leaves m_actor null).  Recreate the

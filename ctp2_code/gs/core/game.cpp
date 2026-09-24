@@ -1,5 +1,6 @@
 #include "ctp/c3.h"
 #include "gs/core/game.h"
+#include "ctp/civapp.h" // civapp_Get fallback in GetActive (pre-NewGame init order)
 
 #include "gs/gameobj/player.h"  // player_arr_Get / player_arr_Set, k_MAX_PLAYERS via c3.h
 #include "gs/gameobj/ArmyPool.h"
@@ -30,6 +31,20 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/events/GameEventManager.h"
 
+// Per-game AI + pathing state. game.h forward-declares these so the header
+// stays free of ai/ and robot/ include chains; the complete types live here.
+#include "ai/strategy/scheduler/Scheduler.h"
+#include "ai/CityManagement/governor.h"
+#include "ai/diplomacy/Diplomat.h"
+#include "ai/diplomacy/AgreementMatrix.h"
+#include "ai/mapanalysis/settlemap.h"
+#include "ai/mapanalysis/mapanalysis.h"
+#include "robot/pathing/Astar.h"
+#include "robot/pathing/AVLHeap.h"
+#include "robot/pathing/CityAstar.h"
+#include "robot/pathing/TradeAstar.h"
+#include "robot/pathing/robotastar2.h"
+
 extern PointerList<Player> *g_deadPlayer;
 
 namespace Ctp2 {
@@ -51,6 +66,11 @@ Game::Game(Game&&) noexcept = default;
 Game& Game::operator=(Game&&) noexcept = default;
 
 void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
+    // Publish as the active game: all legacy static shims (AstarPathing(),
+    // Scheduler::GetScheduler(), ...) route here until callers migrate to
+    // an explicit Game&. Sequential games re-point on their own NewGame,
+    // so the second never reads the first's registries/finders.
+    SetActive(this);
     // All session subsystems trampoline through Ctp2::Game.  Production
     // gameinit calls foo_Set(new X(...)) BEFORE NewGame runs, which
     // populates the m_x unique_ptrs through the trampoline.  In
@@ -82,6 +102,21 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     ensure(m_achievementTracker,     []{ return std::make_unique<AchievementTracker>();     });
     ensure(m_tradeBids,              []{ return std::make_unique<TradeBids>();              });
 
+    // Per-game AI registries + pathing state. Scheduler/Governor/Diplomat
+    // registries size to the player count via their ResizeAll-style APIs
+    // once players exist; here we only ensure the owner objects exist.
+    // Finders + PathingContext are values with no-arg ctors.
+    ensure(m_schedulers,              []{ return std::make_unique<SchedulerRegistry>();              });
+    ensure(m_governors,               []{ return std::make_unique<GovernorRegistry>();               });
+    ensure(m_diplomats,               []{ return std::make_unique<DiplomatRegistry>();                });
+    ensure(m_agreementsAI,            []{ return std::make_unique<AgreementMatrix>();        });
+    ensure(m_settleMap,               []{ return std::make_unique<SettleMap>();               });
+    ensure(m_mapAnalysis,             []{ return std::make_unique<MapAnalysis>();             });
+    ensure(m_pathing,                 []{ return std::make_unique<PathingContext>();          });
+    ensure(m_cityPather,              []{ return std::make_unique<CityAstar>();               });
+    ensure(m_tradePather,             []{ return std::make_unique<TradeAstar>();              });
+    ensure(m_aiPather,                []{ return std::make_unique<RobotAstar2>();              });
+
     // World is trampoline-routed; m_world is already populated by
     // gameinit's world_Set or by tests' direct civapp_Get()->GetGame()
     // SetWorldPtr.  Nothing to do here.
@@ -101,6 +136,8 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
 // json_save.cpp.
 
 void Game::Cleanup() {
+    if (GetActive() == this) SetActive(nullptr);
+
     // Reverse-dependency-order destruction.
     //
     // We clear the legacy global pointer BEFORE destroying via unique_ptr.
@@ -169,6 +206,19 @@ void Game::Cleanup() {
 
     m_world.reset();
 
+    // Per-game AI + pathing teardown. Registries release their per-player
+    // vectors; finders + pathing pool hold no cross-game state.
+    m_aiPather.reset();
+    m_tradePather.reset();
+    m_cityPather.reset();
+    m_pathing.reset();
+    m_mapAnalysis.reset();
+    m_settleMap.reset();
+    m_agreementsAI.reset();
+    m_diplomats.reset();
+    m_governors.reset();
+    m_schedulers.reset();
+
     m_rand.reset();
 
     m_turn.reset();
@@ -205,6 +255,50 @@ GAME_PTR_ACCESSORS(Slic,                 SlicEngine,             m_slic)
 GAME_PTR_ACCESSORS(Events,               GameEventManager,       m_events)
 
 #undef GAME_PTR_ACCESSORS
+
+// Per-game AI + pathing accessors. The Registry classes own the per-player
+// vectors, so Game holds one owner object each; callers reach players via
+// these refs instead of process-wide statics.
+// Active-game routing. Owns nothing; NewGame/Cleanup publishers set it.
+// (gameinit + CivApp set this when a game becomes current; see step-3 wiring.)
+Game *& Game::ActiveRef()
+{
+	static Game * active = nullptr;
+	return active;
+}
+
+Game * Game::GetActive()
+{
+	// Explicit active (published by NewGame) wins. Before any NewGame —
+	// e.g. Astar_Init during gameinit_Initialize, which runs before the
+	// CivApp NewGame call — fall back to CivApp's owned Game so early
+	// subsystem init still reaches per-game storage instead of crashing.
+	if (Game * active = ActiveRef())
+		return active;
+	CivApp * app = civapp_Get();
+	return app ? app->GetGame() : nullptr;
+}
+
+void Game::SetActive(Game * game)
+{
+	ActiveRef() = game;
+}
+
+// Ensure-on-access: subsystem init (Astar_Init, CtpAi::Initialize, ...) can
+// run before NewGame populates members. First access creates; NewGame's
+// ensure() keeps; Cleanup destroys. Any order is safe.
+SchedulerRegistry & Game::GetSchedulers() { if (!m_schedulers) m_schedulers = std::make_unique<SchedulerRegistry>(); return *m_schedulers; }
+GovernorRegistry & Game::GetGovernors() { if (!m_governors) m_governors = std::make_unique<GovernorRegistry>(); return *m_governors; }
+DiplomatRegistry & Game::GetDiplomats() { if (!m_diplomats) m_diplomats = std::make_unique<DiplomatRegistry>(); return *m_diplomats; }
+AgreementMatrix & Game::GetAgreementsAI() { if (!m_agreementsAI) m_agreementsAI = std::make_unique<AgreementMatrix>(); return *m_agreementsAI; }
+SettleMap & Game::GetSettleMap() { if (!m_settleMap) m_settleMap = std::make_unique<SettleMap>(); return *m_settleMap; }
+MapAnalysis & Game::GetMapAnalysisAI() { if (!m_mapAnalysis) m_mapAnalysis = std::make_unique<MapAnalysis>(); return *m_mapAnalysis; }
+PathingContext & Game::GetPathing() { if (!m_pathing) m_pathing = std::make_unique<PathingContext>(); return *m_pathing; }
+CityAstar & Game::GetCityPather() { if (!m_cityPather) m_cityPather = std::make_unique<CityAstar>(); return *m_cityPather; }
+TradeAstar & Game::GetTradePather() { if (!m_tradePather) m_tradePather = std::make_unique<TradeAstar>(); return *m_tradePather; }
+RobotAstar2 & Game::GetAiPather() { if (!m_aiPather) m_aiPather = std::make_unique<RobotAstar2>(); return *m_aiPather; }
+bool Game::NeedAnotherMatchCycle() const { return m_needAnotherMatchCycle; }
+void Game::SetNeedAnotherMatchCycle(bool needed) { m_needAnotherMatchCycle = needed; }
 
 Player* Game::GetPlayer(sint32 idx) {
     if (!m_playerArr || idx < 0 || idx >= k_MAX_PLAYERS) return nullptr;

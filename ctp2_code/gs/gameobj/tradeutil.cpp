@@ -64,7 +64,7 @@ sint32 tradeutil_GetTradeValue(const sint32 owner, Unit const & destination, sin
     PLAYER_INDEX const  tradePartner    = destination.GetOwner();
 
     if (    (owner != tradePartner)
-         && AgreementMatrix::s_agreements.HasAgreement
+         && AgreementMatrix::Active().HasAgreement
                 (owner, tradePartner, PROPOSAL_TREATY_TRADE_PACT)
        )
     {

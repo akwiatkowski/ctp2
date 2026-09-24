@@ -40,7 +40,7 @@ sint32 Science::ComputeScienceFromResearchPact(const sint32 playerId, const sint
 		return 0;
 
 	ai::Agreement research_pact =
-		AgreementMatrix::s_agreements.GetAgreement(playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT);
+		AgreementMatrix::Active().GetAgreement(playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT);
 	sint32 research_pact_science = 0;
 
 	if (research_pact.start != -1 && research_pact.end == -1)

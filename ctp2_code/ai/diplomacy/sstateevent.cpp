@@ -163,9 +163,9 @@ STDEHANDLER(FullAttack_NextSStateEvent)
 	{
 		bool invaded = false;
 
-		for(sint32 i = 1; i < AgreementMatrix::s_agreements.GetMaxPlayers(); i++)
+		for(sint32 i = 1; i < AgreementMatrix::Active().GetMaxPlayers(); i++)
 		{
-			if(AgreementMatrix::s_agreements.HasAgreement(playerId, i, PROPOSAL_TREATY_DECLARE_WAR))
+			if(AgreementMatrix::Active().HasAgreement(playerId, i, PROPOSAL_TREATY_DECLARE_WAR))
 			{
 				if((turn_Get()->GetSessionRound() - diplomat.GetLastBorderIncursionBy(i)) < 15 /*|| diplomat.HasUnitsInOurTerritory(i)*/)
 				{

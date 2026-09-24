@@ -1,6 +1,7 @@
 // Persistent scheduler graph. Indices preserve identity and ordering without
 // putting process addresses into saves; matches and committed agents share nodes.
 #include "ctp/c3.h"
+#include "gs/core/game.h" // Ctp2::Game::GetActive guard in SaveAiHistory
 #include "ai/strategy/scheduler/Scheduler.h"
 #include "ai/strategy/agents/agent.h"
 #include "gs/fileio/json_save.h"
@@ -374,8 +375,18 @@ void from_json(nlohmann::json const &j, MapAnalysis &m)
 
 void json_save::SaveAiHistory(nlohmann::json &j)
 {
+    // Fixture-free unit tests call SaveJson with no live game (no CivApp,
+    // no NewGame). Old statics always existed; now guard and emit empty
+    // defaults so the header round-trip stays fixture-free. LoadJson
+    // already tolerates missing keys.
+    if (!Ctp2::Game::GetActive()) {
+        j["empire_bounds"] = nlohmann::json::object();
+        j["settle_map"] = nlohmann::json::object();
+        j["schedulers"] = nlohmann::json::array();
+        return;
+    }
     j["empire_bounds"] = MapAnalysis::GetMapAnalysis();
-    j["settle_map"] = SettleMap::s_settleMap;
+    j["settle_map"] = SettleMap::Ref();
     j["schedulers"] = nlohmann::json::array();
     for (size_t i = 0; i < Scheduler::Count(); ++i)
         j["schedulers"].push_back(Scheduler::GetScheduler(static_cast<sint32>(i)));
@@ -386,9 +397,9 @@ void json_save::RestoreAiHistory(nlohmann::json const &j)
     if (j.contains("empire_bounds"))
         j["empire_bounds"].get_to(MapAnalysis::GetMapAnalysis());
     if (j.contains("settle_map"))
-        j["settle_map"].get_to(SettleMap::s_settleMap);
+        j["settle_map"].get_to(SettleMap::Ref());
     else if (world_Get())
-        SettleMap::s_settleMap.Initialize(); // Older saves lack settlement history.
+        SettleMap::Ref().Initialize(); // Older saves lack settlement history.
     if (j.contains("schedulers")) {
         auto const &schedulers = j["schedulers"];
         if (!schedulers.is_array() || schedulers.size() != Scheduler::Count())

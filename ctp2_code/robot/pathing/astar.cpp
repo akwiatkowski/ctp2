@@ -32,6 +32,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/utility/Globals.h"
 
@@ -49,33 +60,48 @@
 #include "robot/aibackdoor/priorityqueue.h"
 #include "robot/pathing/A_Star_Heuristic_Cost.h"
 
-// PathingContext owns the node pool + search epoch that used to live in
-// file-scope g_astar_mem / g_search_count globals. One shared instance backs
-// the legacy Astar_Init/Cleanup entry points; new code can instantiate its
-// own PathingContext (e.g. per-thread) and reach it via AstarPathing().
-static PathingContext s_pathingStorage;
+// PathingContext lives in Ctp2::Game (per-game). This shim routes the
+// legacy entry points to the active game; direct Game::GetPathing() is
+// preferred in new code.
 
 PathingContext::PathingContext()
 :
-	m_heap      (std::make_unique<AVLHeap>()),
-	m_searchEpoch(1)
+	m_heap      (std::make_unique<AVLHeap>())
 { ; }
+
+sint32 PathingContext::NextSearchEpoch()
+{
+	return ++m_searchEpoch;
+}
 
 void PathingContext::Reset()
 {
 	m_heap = std::make_unique<AVLHeap>();
 	m_searchEpoch = 1;
+	m_visited.clear();
+	m_visitEpoch = 0;
+}
+
+AstarPoint * PathingContext::GetVisited(Cell const * cell) const
+{
+	auto it = m_visited.find(cell);
+	return it != m_visited.end() ? it->second : nullptr;
+}
+
+void PathingContext::SetVisited(Cell const * cell, AstarPoint * point)
+{
+	m_visited[cell] = point;
 }
 
 PathingContext & AstarPathing()
 {
-	return s_pathingStorage;
+	return game_GetActive().GetPathing();
 }
 
 void Astar_Init()
 
 {
-	s_pathingStorage.Reset();
+	game_GetActive().GetPathing().Reset();
 }
 
 void Astar_Cleanup()
@@ -86,8 +112,8 @@ void Astar_Cleanup()
 
 #define k_MIN_MOVE_COST 10.0
 
-float g_cost_factor = k_MIN_MOVE_COST;
-
+// (removed) g_cost_factor was write-only dead (no readers); the live
+// heuristic scale is computed per-call in EstimateFutureCost.
 #ifdef _DEBUG
 
 
@@ -335,7 +361,12 @@ bool Astar::FindPath
 #endif
 
 	m_priority_queue.Clear();
-	sint32 const searchEpoch = AstarPathing().NextSearchEpoch();
+	PathingContext & pathing = AstarPathing();
+	sint32 const searchEpoch = pathing.NextSearchEpoch();
+	// Visited state lives in the context (not Cell::m_search_count/m_point),
+	// so concurrent games sharing nothing but their own Game-owned context
+	// cannot observe each other's searches.
+	pathing.BeginSearch(searchEpoch);
 
 	AstarPoint *    best        = nullptr;
 	AstarPoint *    cost_tree   = nullptr;
@@ -357,15 +388,15 @@ bool Astar::FindPath
 	g_nodes_opened++;
 #endif
 
-	c->m_point = AstarPathing().GetHeap().GetNew();
-	c->m_search_count = searchEpoch;
+	AstarPoint * startPoint = pathing.GetHeap().GetNew();
+	pathing.SetVisited(c, startPoint);
 
-	if (!InitPoint(nullptr, c->m_point, start, 0.0, dest))
+	if (!InitPoint(nullptr, startPoint, start, 0.0, dest))
 	{
 		return Cleanup(dest, a_path, total_cost, isunit, best, cost_tree);
 	}
 
-	best = c->m_point;
+	best = startPoint;
 
 	sint32  loop_count  = 0;
 
@@ -390,7 +421,7 @@ bool Astar::FindPath
 
 			c = world_Get()->GetCell(next_pos);
 
-			if (c->m_point && (c->m_search_count == searchEpoch))
+			if (AstarPoint * known = pathing.GetVisited(c))
 			{
 				// When c has already been examined, we have to compute the G
 				// value from the path via best, and check whether it is lower
@@ -401,15 +432,15 @@ bool Astar::FindPath
 				ASTAR_ENTRY_TYPE	bType;		// entry type from best
 				if (EntryCost(best->m_pos, next_pos, bMove, bZoc, bType))
 				{
-					DecayOrtho(best, c->m_point, bMove);
+					DecayOrtho(best, known, bMove);
 
 					float const		oldG	=
-						c->m_point->m_past_cost + c->m_point->m_entry_cost;
+						known->m_past_cost + known->m_entry_cost;
 					float const		bestG	= past_cost + bMove;
 
 					if (bestG < oldG)
 					{
-						if (c->m_point->GetExpanded())
+						if (known->GetExpanded())
 						{
 							// The node has already been expanded: propagate the
 							// change.
@@ -419,15 +450,15 @@ bool Astar::FindPath
 							// automatically.
 							// Have to think about efficiency later.
 
-							InitPoint(best, c->m_point, next_pos, past_cost, dest);
-							m_priority_queue.Insert(c->m_point);
+							InitPoint(best, known, next_pos, past_cost, dest);
+							m_priority_queue.Insert(known);
 #ifdef TRACK_ASTAR_NODES
 							--g_closed_nodes;
 #endif
 						}
 						else
 						{
-							sint32 const	iList	= c->m_point->GetPriorityQueueIndex();
+							sint32 const	iList	= known->GetPriorityQueueIndex();
 
 							if (iList >= 0)
 							{
@@ -445,8 +476,8 @@ bool Astar::FindPath
 							}
 
 							// Insert at the new - better - position.
-							InitPoint(best, c->m_point, next_pos, past_cost, dest);
-							m_priority_queue.Insert(c->m_point);
+							InitPoint(best, known, next_pos, past_cost, dest);
+							m_priority_queue.Insert(known);
 						}
 					}
 					else
@@ -463,18 +494,18 @@ bool Astar::FindPath
 				g_nodes_opened++;
 
 #endif
-				c->m_point = AstarPathing().GetHeap().GetNew();
-				c->m_search_count = searchEpoch;
+				AstarPoint * fresh = pathing.GetHeap().GetNew();
+				pathing.SetVisited(c, fresh);
 
-				if (InitPoint(best, c->m_point, next_pos, past_cost, dest))
+				if (InitPoint(best, fresh, next_pos, past_cost, dest))
 				{
 #ifdef TRACK_ASTAR_NODES
 					g_nodes_inserted++;
 #endif
 
-					if (c->m_point->GetEntry() == ASTAR_CAN_ENTER)
+					if (fresh->GetEntry() == ASTAR_CAN_ENTER)
 					{
-						m_priority_queue.Insert(c->m_point);
+						m_priority_queue.Insert(fresh);
 					}
 				}
 			}

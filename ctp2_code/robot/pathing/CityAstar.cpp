@@ -44,6 +44,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include "robot/pathing/CityAstar.h"
 
 #include "ai/diplomacy/AgreementMatrix.h"    // Allow alliance checking
@@ -62,8 +73,7 @@
 
 CityAstar & CityPathing()
 {
-	static CityAstar instance;
-	return instance;
+	return game_GetActive().GetCityPather();
 }
 
 namespace
@@ -137,7 +147,7 @@ bool CityAstar::EntryCost
 			cost *= 10000.0; // Should be calculated from most expensive tile improvement + 20 percent
 		}
 		else if (  (entryCell->GetOwner() != m_owner)
-		        && !AgreementMatrix::s_agreements.HasAgreement(m_owner, entryCell->GetOwner(), PROPOSAL_TREATY_ALLIANCE)
+		        && !AgreementMatrix::Active().HasAgreement(m_owner, entryCell->GetOwner(), PROPOSAL_TREATY_ALLIANCE)
 		        )
 		{
 			// "Hostile" territory

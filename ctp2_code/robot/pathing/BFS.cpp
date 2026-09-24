@@ -110,7 +110,10 @@ BOOL BestFirstSearch::InitPoint(const sint32 player_idx, AstarPoint *parent, Ast
 void BestFirstSearch::FindMoveCostToCitiesZ(const sint32 player_idx, const sint32 z_height,
     const double max_cost, const double min_cost)
 {
-    sint32 const searchEpoch = AstarPathing().NextSearchEpoch();
+    PathingContext & pathing = AstarPathing();
+    sint32 const searchEpoch = pathing.NextSearchEpoch();
+    // Visited state lives in the context, not Cell scratch (see astar.cpp).
+    pathing.BeginSearch(searchEpoch);
 
     BOOL searching = TRUE;
     sint32 num_cities_found = 0;
@@ -126,10 +129,11 @@ void BestFirstSearch::FindMoveCostToCitiesZ(const sint32 player_idx, const sint3
     start_cost = -world_Get()->GetCell(start_pos)->GetMoveCost() + ((start_pos.z != z_height) ? 1000.0 : 0) ;
     start_pos.z = z_height;
     Cell *neighbor_cell = world_Get()->GetCell(start_pos);
-    neighbor_cell->m_search_count = searchEpoch;
-    InitPoint(player_idx, nullptr, neighbor_cell->m_point, start_pos, start_cost, max_cost);
+    AstarPoint * startPoint = pathing.GetHeap().GetNew();
+    pathing.SetVisited(neighbor_cell, startPoint);
+    InitPoint(player_idx, nullptr, startPoint, start_pos, start_cost, max_cost);
     sint32 nodes_opened = 1;
-    AstarPoint* best = neighbor_cell->m_point;
+    AstarPoint* best = startPoint;
     double past_cost;
 
     sint32 i;
@@ -148,19 +152,20 @@ void BestFirstSearch::FindMoveCostToCitiesZ(const sint32 player_idx, const sint3
             if (!best->m_pos.GetNeighborPosition(WORLD_DIRECTION(i), neighbor_pos)) continue;
             neighbor_cell = world_Get()->GetCell(neighbor_pos);
 
-            if (neighbor_cell->m_search_count == searchEpoch)
+            if (pathing.GetVisited(neighbor_cell))
                 continue;
 
-            if (InitPoint(player_idx, best, neighbor_cell->m_point, neighbor_pos, past_cost, max_cost)) {
+            AstarPoint * fresh = pathing.GetHeap().GetNew();
+            pathing.SetVisited(neighbor_cell, fresh);
+            if (InitPoint(player_idx, best, fresh, neighbor_pos, past_cost, max_cost)) {
 
 world_Get()->SetColor(neighbor_pos, int(past_cost));
                 nodes_opened++;
-                neighbor_cell->m_search_count = searchEpoch;
                 a_city = neighbor_cell->GetCity();
                 if (a_city.m_id != 0) {
                     if (a_city.GetOwner() == player_idx) {
 
-                        dist_cost = max(0.0, neighbor_cell->m_point->m_total_cost - min_cost);
+                        dist_cost = max(0.0, fresh->m_total_cost - min_cost);
                         a_city.AccessData()->GetCityData()->GetHappy()->SetDistToCapitol(dist_cost);
                         num_cities_found++;
                         if (num_cities_found == num_cities_out_there) {
@@ -169,7 +174,7 @@ world_Get()->SetColor(neighbor_pos, int(past_cost));
                         }
                     }
                 }
-                m_priority_queue.Insert(neighbor_cell->m_point);
+                m_priority_queue.Insert(fresh);
             }
         }
 
@@ -182,7 +187,7 @@ world_Get()->SetColor(neighbor_pos, int(past_cost));
     } while (searching);
 
 
-    AstarPathing().GetHeap().MassDelete(FALSE);
+    pathing.GetHeap().MassDelete(FALSE);
 }
 
 void BestFirstSearch::CalcDistToCapitol(const sint32 player_idx)

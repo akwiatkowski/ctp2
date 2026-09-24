@@ -173,6 +173,8 @@ double s_zoomTileScale[k_MAX_ZOOM_LEVELS] =			{0.50526, 0.58947, 0.71578, 0.8, 0
 namespace
 {
     RECT const          RECT_INVISIBLE      = {0, 0, 0, 0};
+    // Deliberately distinct from unexplored black without competing with terrain.
+    COLORREF const       OUT_OF_MAP_COLOR    = RGB(6, 12, 18);
 
     struct OverlayScratch
     {
@@ -2046,6 +2048,8 @@ void TiledMap::GenerateHitMask()
 
 void TiledMap::SetHiliteMouseTile(MapPoint &pos)
 {
+	if (m_drawHilite && m_hiliteMouseTile.IsValid() && m_hiliteMouseTile != pos)
+		RedrawTile(&m_hiliteMouseTile);
 	m_hiliteMouseTile = pos;
 }
 
@@ -3881,11 +3885,18 @@ if (y >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 
 bool TiledMap::GpuFogActive() const
 {
-	return c3ui_Get() && c3ui_Get()->GpuFog();
+	return c3ui_Get() && c3ui_Get()->GpuFog() && !aui_SDL::GpuWorldmapEnabled();
+}
+
+void TiledMap::RefreshIfPending()
+{
+	if (m_refreshPending)
+		Refresh();
 }
 
 sint32 TiledMap::Refresh()
 {
+	m_refreshPending = false;
 	// Fresh view windowing even when the build below aborts early (no tileset
 	// or vision yet): the present must never sample a stale region.
 	PublishWorldmapOrigin();
@@ -3893,17 +3904,27 @@ sint32 TiledMap::Refresh()
 	// Refresh is purely a render-pass; no game state lives here.
 	if (!m_surface) return AUI_ERRCODE_OK;
 
+	if (!c3ui_Get() || !c3ui_Get()->TheBlitter()) {
 	LPVOID      buffer;
 	AUI_ERRCODE errcode = m_surface->Lock(nullptr, &buffer, 0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if ( errcode == AUI_ERRCODE_OK )
 	{
-		memset( buffer, 0x00, m_surface->Size() );
+		memset(buffer, 0, m_surface->Size());
 		m_surface->Unlock( buffer );
 	} else {
 		return AUI_ERRCODE_SURFACELOCKFAILED;
 	}
+	}
 
+	// The surface outside world bounds is a dark neutral backdrop; unexplored
+	// in-map tiles remain opaque black through BlackTile.
+	if (c3ui_Get() && c3ui_Get()->TheBlitter()) {
+		RECT bounds = {0, 0, m_surface->Width(), m_surface->Height()};
+		AUI_ERRCODE const filled = c3ui_Get()->TheBlitter()->ColorBlt(
+			m_surface, &bounds, OUT_OF_MAP_COLOR, 0);
+		if (filled != AUI_ERRCODE_OK) return filled;
+	}
 	LockSurface();
 
 	if (SmoothScrollAligned())
@@ -3954,6 +3975,9 @@ sint32 TiledMap::Refresh()
 		SubmitOverlayQuads();
 	}
 
+	// Refresh clears the entire surface, including out-of-map backdrop pixels.
+	// Publish that entire surface to the mix, not just repainted tile diamonds.
+	InvalidateMap();
 	return 0;
 }
 
@@ -4458,7 +4482,8 @@ int TiledMap::BuildWorldmapQuads()
 			// Raster terrain, then reuse the existing improvement/border rules
 			// to emit cached overlay quads. Failed entries reject the whole cell.
 			bool rastered = false;
-			if (aui_SDL::GpuRasterEnabled() && m_zoomLevel == k_ZOOM_LARGEST)
+			if (aui_SDL::GpuRasterEnabled() && m_zoomLevel == k_ZOOM_LARGEST
+			    && !WorldmapCellFogged(pos))
 			{
 				uint8_t const trans[4] = {
 					(uint8_t) tileInfo->GetTransition(0),
@@ -4553,7 +4578,10 @@ int TiledMap::BuildWorldmapQuads()
 							DrawBlendedTile(m_gpuScratchTile.get(), pos, 0, 0,
 								k_FOW_COLOR, k_FOW_BLEND_VALUE);
 						else
+						{
+							DrawTransitionTile(m_gpuScratchTile.get(), pos, 0, 0);
 							DrawDitheredTile(m_gpuScratchTile.get(), 0, 0, k_FOW_COLOR);
+						}
 					}
 					else
 					{
@@ -4565,9 +4593,12 @@ int TiledMap::BuildWorldmapQuads()
 								GetZoomTilePixelWidth(), GetZoomTilePixelHeight(),
 								k_FOW_COLOR, k_FOW_BLEND_VALUE);
 						else
+						{
+							DrawTransitionTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
+								GetZoomTilePixelWidth(), GetZoomTilePixelHeight());
 							DrawDitheredTileScaled(m_gpuScratchTile.get(), pos, 0, 0,
-								GetZoomTilePixelWidth(), GetZoomTilePixelHeight(),
-								k_FOW_COLOR);
+								GetZoomTilePixelWidth(), GetZoomTilePixelHeight(), k_FOW_COLOR);
+						}
 					}
 
 					// P13 step 3: the per-cell overlays, in the order the CPU
@@ -4704,6 +4735,13 @@ void TiledMap::BuildTerrainQuads()
 
 	sint32 mapWidth, mapHeight;
 	GetMapMetrics(&mapWidth, &mapHeight);
+	// The default view uses the CPU backdrop at non-wrapping edges. Explicit
+	// GPU tests/opt-in runs keep their requested quad path for parity checks.
+	char const *quadOverride = getenv("CTP2_GPU_QUADS");
+	if (!aui_SDL::GpuWorldmapEnabled() && (!quadOverride || !quadOverride[0])
+	    && ((!world_Get()->IsYwrap() && (m_mapViewRect.top < 0 || m_mapViewRect.bottom > mapHeight))
+	        || (!world_Get()->IsXwrap() && (m_mapViewRect.left < 0 || m_mapViewRect.right > mapWidth))))
+		aui_SDL::MarkQuadFrameIncomplete("world-edge");
 
 	sint32 baseX;
 	sint32 baseY = m_mapViewRect.top;
@@ -4874,7 +4912,7 @@ void TiledMap::ScrollPixels(sint32 deltaX, sint32 deltaY, aui_Surface *surf)
 			}
 		}
 	}
-	else if (deltaY)
+	if (deltaY)
 	{
 		sint32 const rowBytes = w * bpp;
 		if (deltaY > 0)                         // content moves up; expose the bottom rows
@@ -5053,6 +5091,9 @@ bool TiledMap::ScrollMap(sint32 deltaX, sint32 deltaY)
 	InvalidateMix();
 
 	RepaintSprites(m_surface, &tempRect, true);
+	// Partial cache shifts may retain pixels outside the new view; rebuild the
+	// complete world surface before presenting the recentered frame.
+	Refresh();
 
 	return true;
 }

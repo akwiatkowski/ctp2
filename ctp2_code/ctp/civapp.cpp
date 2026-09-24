@@ -99,6 +99,7 @@
 #include "gs/core/game.h"     // Ctp2::Game (owned by CivApp)
 #include "gs/gameobj/Diffcly.h"  // diffutil_GetYearFromTurn
 #include "ctp/ctp2_utils/civlog.h"
+#include "ctp/playtest_recorder.h"
 #include "gs/core/game_observer.h"     // gameobservers_Get() init in InitializeEngine
 #include "gs/core/game_observer_registration.h"  // RegisterUIGameObserver + RegisterUIPlayerView
 #include "gs/gameobj/MovePath.h"                // army_QueueMovePath (move_unit console cmd)
@@ -321,6 +322,7 @@ extern BOOL                 g_no_shell;
 extern BOOL                 g_no_timeslice;
 extern BOOL                 g_runInBackground;
 extern BOOL                 g_smokeTest;
+extern BOOL                 g_playRecord;
 extern sint32               g_scenarioUsePlayerNumber;
 extern BOOL                 g_use_profile_process;
 extern BOOL                 g_useIntroMovie;
@@ -1556,14 +1558,16 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 
 	m_appLoaded = true;
 
-	if (g_smokeTest) {
-		smoke_log->info("Smoke test mode enabled, starting command server");
+	if (g_smokeTest || g_playRecord)
+	{
+		smoke_log->info("{} mode enabled, starting command server",
+		                g_playRecord ? "Play-record" : "Smoke-test");
 		smoketest_server_init();
-		#ifdef __AUI_USE_SDL__
+#ifdef __AUI_USE_SDL__
 		char const *captureFrames = getenv("CTP2_CAPTURE_FRAMES");
 		if (captureFrames && strcmp(captureFrames, "1") == 0)
 			aui_SDL::EnableFrameCapture();
-		#endif
+#endif
 	}
 
 	return 0;
@@ -1725,7 +1729,7 @@ void CivApp::CleanupApp()
 		display_Cleanup();
 	}
 
-	if (g_smokeTest) {
+	if (g_smokeTest || g_playRecord) {
 		smoketest_server_shutdown();
 	}
 
@@ -2575,40 +2579,9 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 
 		if (m_gameLoaded && !g_modalWindow) {
 			if (!netGameLoading && ui_CheckForScroll()) {
-				uint32 scroll_loop_last_tick = Os::GetTicks();
-				// Use while (not do-while) so ui_CheckForScroll runs FIRST each
-				// iteration. If the user moves the mouse away, we exit immediately
-				// without another heavy ScrollMap + RepaintTiles pass.
-				while (ui_CheckForScroll()) {
-					// Frame-limit scroll loop: cap at ~20 fps (50 ms) to give
-					// ScrollMap / RepaintTiles more time on unexplored terrain.
-					uint32 scroll_loop_now = Os::GetTicks();
-					uint32 scroll_loop_elapsed = scroll_loop_now - scroll_loop_last_tick;
-					if (scroll_loop_elapsed < 50) {
-						Os::Sleep(50 - scroll_loop_elapsed);
-					}
-					scroll_loop_last_tick = Os::GetTicks();
-
-					tiledmap_Get()->CopyMixDirtyRects(background_Get()->GetDirtyList());
-
-					// Pump SDL keyboard events so KEYUP gets processed while
-					// we're in this loop. Without this, keyboard scroll state
-					// never updates because CivMain's SDL_PeepEvents isn't running.
-					#ifdef __AUI_USE_SDL__
-					SDL_PumpEvents();
-					SDL_Event sdlEvent;
-					while (SDL_PeepEvents(&sdlEvent, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_KEYUP) > 0) {
-						aui_sdlkbd_PushQueueEvent(sdlEvent);
-					}
-					#endif
-
-					c3ui_Get()->Process();
-
-					uint32 target_milliseconds=30;
-					uint32 used_milliseconds;
-
-					ProcessNet(target_milliseconds, used_milliseconds);
-				}
+				// One scroll step per main-loop tick: camera easing and all input
+				// dispatch live in CivMain and must run before the next step.
+				tiledmap_Get()->CopyMixDirtyRects(background_Get()->GetDirtyList());
 
 				tiledmap_Get()->RetargetTileSurface(nullptr);
 				tiledmap_Get()->Refresh();
@@ -2618,6 +2591,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
             else
             {
 				if(tiledmap_Get()) {
+					tiledmap_Get()->RefreshIfPending();
 					tiledmap_Get()->RestoreMixFromMap(background_Get()->TheSurface());
 				}
 				if(background_Get())
@@ -2638,8 +2612,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 			director_Get()->Process();
 	}
 
-	// Smoke test command dispatch
-	if (g_smokeTest) {
+	if (g_smokeTest || g_playRecord) {
 		char cmd[256];
 		if (smoketest_poll_command(cmd, sizeof(cmd))) {
 			smoke_log->info("Executing command: {}", cmd);
@@ -2665,90 +2638,223 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 			// would wedge the server forever.
 			bool gc_handled = false;
 			std::string gc_resp = game_controller::DispatchSafe(cmd, gc_handled);
-			if (gc_handled) {
+			if (gc_handled)
+			{
 				smoketest_send_json(gc_resp.c_str());
 			}
-			else if (strcmp(cmd, "ui_control_bounds") == 0 || strncmp(cmd, "ui_control_bounds ", 18) == 0) {
+			else if (strcmp(cmd, "ui_control_bounds") == 0 ||
+			         strncmp(cmd, "ui_control_bounds ", 18) == 0)
+			{
 				char path[256], extra;
-				if (sscanf(cmd + 17, "%255s %c", path, &extra) != 1) {
+				if (sscanf(cmd + 17, "%255s %c", path, &extra) != 1)
+				{
 					smoketest_send_response("error", "ui_control_bounds", "bad_args");
-				} else {
+				}
+				else
+				{
 					aui_Region *control = static_cast<aui_Region *>(aui_Ldl::GetObject(path));
-					if (!control) {
+					if (!control)
+					{
 						smoketest_send_response("error", "ui_control_bounds", "control_not_found");
-					} else {
+					}
+					else
+					{
 						int x = 0, y = 0;
 						bool visible = true, enabled = true;
 						aui_Region *parent = control;
-						for (; parent && parent != c3ui_Get(); parent = parent->GetParent()) {
+						for (; parent && parent != c3ui_Get(); parent = parent->GetParent())
+						{
 							x += parent->X();
 							y += parent->Y();
 							visible = visible && !parent->IsHidden();
 							enabled = enabled && !parent->IsDisabled();
 						}
 						visible = visible && parent == c3ui_Get();
+						bool down = false;
+						if (auto *uiControl = dynamic_cast<aui_Control *>(control))
+							down = uiControl->IsDown();
 						char response[256];
 						snprintf(response, sizeof(response),
 						         "{\"status\":\"ok\",\"cmd\":\"ui_control_bounds\",\"result\":"
-						         "{\"x\":%d,\"y\":%d,\"width\":%d,\"height\":%d,\"visible\":%s,\"enabled\":%s}}",
+						         "{\"x\":%d,\"y\":%d,\"width\":%d,\"height\":%d,\"visible\":%s,"
+						         "\"enabled\":%s,\"down\":%s}}",
 						         x, y, control->Width(), control->Height(),
-						         visible ? "true" : "false", enabled ? "true" : "false");
+						         visible ? "true" : "false", enabled ? "true" : "false",
+						         down ? "true" : "false");
 						smoketest_send_json(response);
 					}
 				}
 			}
-			else if (strcmp(cmd, "ui_pointer") == 0 || strncmp(cmd, "ui_pointer ", 11) == 0) {
+			else if (strcmp(cmd, "ui_pointer") == 0 || strncmp(cmd, "ui_pointer ", 11) == 0)
+			{
 				int values[3];
-				if (!parseIntegers(cmd + 10, values, 3) || values[2] < 0 || values[2] > 1) {
+				if (!parseIntegers(cmd + 10, values, 3) || values[2] < 0 || values[2] > 1)
+				{
 					smoketest_send_response("error", "ui_pointer", "bad_args");
-				} else if (!c3ui_Get() || values[0] < 0 || values[0] >= c3ui_Get()->Width()
-				           || values[1] < 0 || values[1] >= c3ui_Get()->Height()) {
+				}
+				else if (!c3ui_Get() || values[0] < 0 || values[0] >= c3ui_Get()->Width() ||
+				         values[1] < 0 || values[1] >= c3ui_Get()->Height())
+				{
 					smoketest_send_response("error", "ui_pointer", "pointer_out_of_bounds");
-				} else {
-					#ifdef __AUI_USE_SDL__
+				}
+				else
+				{
+#ifdef __AUI_USE_SDL__
 					auto *mouse = dynamic_cast<aui_SDLMouse *>(c3ui_Get()->TheMouse());
-					if (!mouse) {
+					if (!mouse)
+					{
 						smoketest_send_response("error", "ui_pointer", "no_mouse");
-					} else {
+					}
+					else
+					{
 						aui_MouseEvent event{};
 						event.position.x = values[0];
 						event.position.y = values[1];
 						event.lbutton = values[2];
 						event.time = Os::GetTicks();
+						playtest_recorder::RecordInput("synthetic_pointer", event.time, values[0],
+						                               values[1], values[2], 0, true);
 						mouse->SetSyntheticInput(event);
 						AUI_ERRCODE result = c3ui_Get()->Process(1, &event);
-						smoketest_send_response(AUI_SUCCESS(result) ? "ok" : "error",
-						                       "ui_pointer", AUI_SUCCESS(result) ? nullptr : "ui_process_failed");
+						smoketest_send_response(AUI_SUCCESS(result) ? "ok" : "error", "ui_pointer",
+						                        AUI_SUCCESS(result) ? nullptr
+						                                            : "ui_process_failed");
 					}
-					#else
+#else
 					smoketest_send_response("error", "ui_pointer", "not_sdl");
-					#endif
+#endif
 				}
 			}
-			else if (strcmp(cmd, "ui_prepare_game") == 0 || strncmp(cmd, "ui_prepare_game ", 16) == 0) {
+			else if (strcmp(cmd, "ui_native_pointer") == 0 ||
+			         strncmp(cmd, "ui_native_pointer ", 18) == 0)
+			{
+				int values[3];
+				if (!parseIntegers(cmd + 17, values, 3) || values[2] < 0 || values[2] > 1)
+				{
+					smoketest_send_response("error", "ui_native_pointer", "bad_args");
+				}
+				else if (!c3ui_Get() || values[0] < 0 || values[0] >= c3ui_Get()->Width() ||
+				         values[1] < 0 || values[1] >= c3ui_Get()->Height())
+				{
+					smoketest_send_response("error", "ui_native_pointer", "pointer_out_of_bounds");
+				}
+				else
+				{
+#ifdef __AUI_USE_SDL__
+					SDL_Window *window = aui_SDL::Window();
+					SDL_Renderer *renderer = aui_SDL::Renderer();
+					if (!window || !renderer)
+					{
+						smoketest_send_response("error", "ui_native_pointer", "no_window");
+					}
+					else
+					{
+						float windowX = 0.0f, windowY = 0.0f;
+						CTP2_SDL_RenderLogicalToWindow(renderer, values[0], values[1], &windowX,
+						                               &windowY);
+						static bool pointerDown = false;
+						SDL_Event motion{};
+						motion.type = SDL_MOUSEMOTION;
+						motion.motion.windowID = SDL_GetWindowID(window);
+						motion.motion.x = windowX;
+						motion.motion.y = windowY;
+						motion.motion.state = values[2] ? SDL_BUTTON_LMASK : 0;
+						bool queued = SDL_PushEvent(&motion);
+						if (pointerDown != (values[2] != 0))
+						{
+							SDL_Event button{};
+							button.type = values[2] ? SDL_MOUSEBUTTONDOWN : SDL_MOUSEBUTTONUP;
+							button.button.windowID = SDL_GetWindowID(window);
+							button.button.button = SDL_BUTTON_LEFT;
+							button.button.x = windowX;
+							button.button.y = windowY;
+							queued = SDL_PushEvent(&button) && queued;
+							pointerDown = values[2] != 0;
+						}
+						smoketest_send_response(queued ? "ok" : "error", "ui_native_pointer",
+						                        queued ? nullptr : "push_failed");
+					}
+#else
+					smoketest_send_response("error", "ui_native_pointer", "not_sdl");
+#endif
+				}
+			}
+			else if (strcmp(cmd, "ui_native_motion_burst") == 0 ||
+			         strncmp(cmd, "ui_native_motion_burst ", 23) == 0)
+			{
+				int values[3];
+				if (!parseIntegers(cmd + 22, values, 3) || values[2] < 1 || values[2] > 500)
+				{
+					smoketest_send_response("error", "ui_native_motion_burst", "bad_args");
+				}
+				else
+				{
+#ifdef __AUI_USE_SDL__
+					SDL_Window *window = aui_SDL::Window();
+					SDL_Renderer *renderer = aui_SDL::Renderer();
+					if (!window || !renderer)
+					{
+						smoketest_send_response("error", "ui_native_motion_burst", "no_window");
+					}
+					else
+					{
+						float windowX = 0.0f, windowY = 0.0f;
+						CTP2_SDL_RenderLogicalToWindow(renderer, values[0], values[1], &windowX,
+						                               &windowY);
+						bool queued = true;
+						for (int i = 0; i < values[2]; ++i)
+						{
+							SDL_Event motion{};
+							motion.type = SDL_MOUSEMOTION;
+							motion.motion.windowID = SDL_GetWindowID(window);
+							motion.motion.x = windowX;
+							motion.motion.y = windowY;
+							queued = SDL_PushEvent(&motion) && queued;
+						}
+						smoketest_send_response(queued ? "ok" : "error", "ui_native_motion_burst",
+						                        queued ? nullptr : "push_failed");
+					}
+#else
+					smoketest_send_response("error", "ui_native_motion_burst", "not_sdl");
+#endif
+				}
+			}
+			else if (strcmp(cmd, "ui_prepare_game") == 0 ||
+			         strncmp(cmd, "ui_prepare_game ", 16) == 0)
+			{
 				int values[2];
-				if (!parseIntegers(cmd + 15, values, 2) || values[0] <= 0
-				    || values[1] < 2 || values[1] > k_MAX_PLAYERS) {
+				if (!parseIntegers(cmd + 15, values, 2) || values[0] <= 0 || values[1] < 2 ||
+				    values[1] > k_MAX_PLAYERS)
+				{
 					smoketest_send_response("error", "ui_prepare_game", "bad_seed_or_players");
-				} else if (!m_appLoaded || m_gameLoaded || !profiledb_Get()) {
+				}
+				else if (!m_appLoaded || m_gameLoaded || !profiledb_Get())
+				{
 					smoketest_send_response("error", "ui_prepare_game", "not_on_setup");
-				} else {
+				}
+				else
+				{
 					g_oldRandSeed = values[0];
 					profiledb_Get()->SetNPlayers(values[1]);
 					smoketest_send_response("ok", "ui_prepare_game", nullptr);
 				}
 			}
-			else if (strcmp(cmd, "new_game") == 0) {
-				if (m_appLoaded && !m_gameLoaded) {
+			else if (strcmp(cmd, "new_game") == 0)
+			{
+				if (m_appLoaded && !m_gameLoaded)
+				{
 					aui_Button *newGameButton = static_cast<aui_Button *>(
-						aui_Ldl::GetObject("InitPlayWindow", "NewGameButton"));
-					if (!newGameButton) {
+					    aui_Ldl::GetObject("InitPlayWindow", "NewGameButton"));
+					if (!newGameButton)
+					{
 						smoketest_send_response("error", cmd, "new_game_button_missing");
 						return 0;
 					}
 					newGameButton->Activate();
 					smoketest_send_response("ok", cmd, nullptr);
-				} else {
+				}
+				else
+				{
 					smoketest_send_response("error", cmd, "not_on_main_menu");
 				}
 			}
@@ -4141,21 +4247,22 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 	fclose(fin);
 	civapp_log->info("LoadSavedGame: file '{}' exists and is readable", name);
 
-	ProgressTo( 20 );
+	ProgressTo(20);
 
-	if (m_gameLoaded) {
+	if (m_gameLoaded)
+	{
 		civapp_log->info("LoadSavedGame: cleaning up current game before load");
 		CleanupGame(true);
 
-		ProgressTo( 30 );
+		ProgressTo(30);
 
 		CleanupAppDB();
 
-		ProgressTo( 550 );
+		ProgressTo(550);
 
 		InitializeAppDB();
 
-		ProgressTo( 560 );
+		ProgressTo(560);
 
 		greatlibrary_Cleanup();
 		GreatLibrary::Initialize_Great_Library_Data();
@@ -4190,10 +4297,19 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
         // InitializeGame queued view work before JSON restored the world.
         // Finish that work, then establish a selection in the restored session.
         director_Get()->CatchUp();
+        director_Get()->NotifyResync();
         selitem_Get()->SelectFirstUnit();
+        MainControlPanel::UpdateCityList();
+        MainControlPanel::UpdatePlayer(selitem_Get()->GetCurPlayer());
         tiledmap_Get()->CopyVision();
-        if (radar_map_Get()) radar_map_Get()->CenterMap(selitem_Get()->GetCurSelectPos());
+        MapPoint center = selitem_Get()->GetCurSelectPos();
+        Army selectedArmy;
+        if (selitem_Get()->GetSelectedArmy(selectedArmy) && selectedArmy.IsValid())
+            selectedArmy.GetPos(center);
+        if (radar_map_Get()) radar_map_Get()->CenterMap(center);
+        tiledmap_Get()->InvalidateWorldmap();
         tiledmap_Get()->Refresh();
+        aui_SDL::ResetPan();
         tiledmap_Get()->InvalidateMix();
 	}
 

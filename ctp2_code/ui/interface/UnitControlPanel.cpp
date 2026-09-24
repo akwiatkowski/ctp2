@@ -414,8 +414,6 @@ void UnitControlPanel::SetSelectionMode(UnitSelectionMode mode)
 		break;
 	}
 
-	if(selitem_Get())
-		Update();
 }
 
 void UnitControlPanel::UpdateSingleSelectionDisplay()

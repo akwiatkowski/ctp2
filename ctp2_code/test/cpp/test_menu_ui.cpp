@@ -6,22 +6,29 @@
 #include "ctp/ctp2_utils/appstrings.h"
 #include "ctp/ctp2_utils/civlog.h"
 #include "doctest.h"
+#include "gfx/spritesys/SpriteGroupList.h"
+#include "gfx/spritesys/SpriteState.h"
+#include "gfx/spritesys/UnitActor.h"
+#include "gfx/spritesys/director.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/core/tiledmap_observer.h"
 #include "gs/database/profileDB.h"
 #include "gs/fileio/CivPaths.h"
 #include "gs/fileio/prjfile.h"
+#include "gs/fileio/gamefile.h"
 #include "gs/utility/gameinit.h"
 #include "gs/world/World.h"
 #include "ui/aui_common/aui_control.h"
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_mouse.h"
+#include "ui/aui_ctp2/SelItem.h"
 #include "ui/aui_ctp2/c3_popupwindow.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"
 #include "ui/aui_sdl/aui_sdlsurface.h"
 #include "ui/interface/initialplaywindow.h"
+#include "ui/interface/loadsavewindow.h"
 #include "ui/interface/splash.h"
 #include "ui/interface/spnewgamewindow.h"
 #include <algorithm>
@@ -32,6 +39,8 @@
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
 extern ProjectFile *g_ImageMapPF;
+extern SpriteGroupList *g_unitSpriteGroupList;
+extern bool g_showHeralds;
 void InitializeImageMaps();
 
 namespace {
@@ -234,6 +243,32 @@ TEST_CASE_FIXTURE(MenuFixture, "menu: mouse navigation and selected settings rea
     frame();
     CHECK(app.launches == 1);
 }
+TEST_CASE_FIXTURE(MenuFixture, "save dialog: nested list-item teardown stays valid") {
+    // The Save screen rebuilds its three list types while switching games;
+    // repeated destruction caught the reported double-owned child crash.
+    AUI_ERRCODE error = AUI_ERRCODE_OK;
+    for (int i = 0; i < 3; ++i) {
+        auto item = std::make_unique<LSCivsListItem>(
+            &error, const_cast<MBCHAR *>("LSCivsListItem"), "Rome");
+        REQUIRE(error == AUI_ERRCODE_OK);
+        REQUIRE(item->GetChildByIndex(0) != nullptr);
+    }
+    GameInfo game;
+    strlcpy(game.name, "Rome", sizeof(game.name));
+    SaveInfo save;
+    strlcpy(save.fileName, "turn-19", sizeof(save.fileName));
+    for (int i = 0; i < 3; ++i) {
+        AUI_ERRCODE gameError = AUI_ERRCODE_OK;
+        auto gameItem = std::make_unique<LSGamesListItem>(
+            &gameError, const_cast<MBCHAR *>("LSGamesListItem"), &game);
+        REQUIRE(gameError == AUI_ERRCODE_OK);
+        AUI_ERRCODE saveError = AUI_ERRCODE_OK;
+        auto saveItem = std::make_unique<LSSavesListItem>(
+            &saveError, const_cast<MBCHAR *>("LSSavesListItem"), &save);
+        REQUIRE(saveError == AUI_ERRCODE_OK);
+    }
+}
+
 
 TEST_CASE_FIXTURE(MenuFixture, "tile cursor: viewport jumps do not write outside the overlay") {
     // An empty World supplies projection dimensions; no map generation or AI.
@@ -292,4 +327,138 @@ TEST_CASE_FIXTURE(MenuFixture, "tile cursor: viewport jumps do not write outside
         CHECK(std::all_of(backing.begin() + 2 * bytes, backing.end(),
                           [](uint8 byte) { return byte == kUntouched; }));
     }
+}
+
+TEST_CASE_FIXTURE(MenuFixture, "map scroll: diagonal shift clears both exposed edges") {
+    MapPoint extent(32, 32);
+    world_Set(std::make_unique<World>(extent, false, false).release());
+    auto *previousObserver = tiledmap_observer::Get();
+    TiledMap map(extent);
+    struct RestoreWorld {
+        tiledmap_observer::Impl *observer;
+        ~RestoreWorld() { tiledmap_observer::Register(observer); world_Set(nullptr); }
+    } restore{previousObserver};
+    constexpr int side = 4; // Four distinct rows and columns expose both axes.
+    uint16 pixels[side * side];
+    for (int i = 0; i < side * side; ++i) pixels[i] = static_cast<uint16>(i + 1);
+    SDL_Surface *native = SDL_CreateSurfaceFrom(side, side, SDL_PIXELFORMAT_RGB565,
+                                                pixels, side * sizeof(uint16));
+    REQUIRE(native);
+    AUI_ERRCODE error = AUI_ERRCODE_OK;
+    aui_SDLSurface surface(&error, side, side, 16, native, FALSE, FALSE, TRUE);
+    REQUIRE(error == AUI_ERRCODE_OK);
+    map.ScrollPixels(1, 1, &surface);
+    CHECK(pixels[0] == 6);
+    CHECK(pixels[1] == 7);
+    CHECK(pixels[2] == 8);
+    CHECK(pixels[3] == 0);
+    CHECK(pixels[side * (side - 1)] == 0);
+}
+
+TEST_CASE_FIXTURE(MenuFixture, "sprite: idle art survives action queue cleanup on GPU") {
+    // Real sprite resources, but no player/session simulation. EndTurnProcess
+    // uses DumpAllActions; CPU drawing intentionally retains the last pose in
+    // that interval before the Director installs another idle action.
+    MapPoint extent(32, 32);
+    world_Set(std::make_unique<World>(extent, false, false).release());
+    auto *previousObserver = tiledmap_observer::Get();
+    TiledMap map(extent);
+    Director director;
+    SelectedItem selection(2);
+    SpriteGroupList sprites;
+    struct RestoreRendererState {
+        TiledMap *map = tiledmap_Get();
+        tiledmap_observer::Impl *observer;
+        Director *director = director_Get();
+        SelectedItem *selection = selitem_Get();
+        SpriteGroupList *sprites = g_unitSpriteGroupList;
+        bool heralds = g_showHeralds;
+        ~RestoreRendererState() {
+            aui_SDL::BeginSpriteFrame();
+            tiledmap_Set(map);
+            tiledmap_observer::Register(observer);
+            world_Set(nullptr);
+            director_Set(director);
+            selitem_Set(selection);
+            g_unitSpriteGroupList = sprites;
+            g_showHeralds = heralds;
+        }
+    } restore{tiledmap_Get(), previousObserver};
+    tiledmap_Set(&map);
+    director_Set(&director);
+    selitem_Set(&selection);
+    g_unitSpriteGroupList = &sprites;
+    g_showHeralds = false;
+
+    // SpriteID.txt maps the real settler to Gu002.spr; its IDLE has seven
+    // frames. This is a renderer actor, not a fabricated gs/Unit.
+    UnitActor actor(std::make_shared<SpriteState>(2), Unit(), 0, MapPoint(0, 0),
+                    PLAYER_INDEX_INVALID, TRUE, 0, CTPRecord::INDEX_INVALID);
+    REQUIRE(actor.SetRenderPose(UNITACTION_IDLE, 0, 3, 15, false) > 0);
+    constexpr int width = 160, height = 128;
+    constexpr int actorX = 32, actorY = 32;
+    AUI_ERRCODE error = AUI_ERRCODE_OK;
+    aui_SDLSurface cpu(&error, width, height, 16);
+    REQUIRE(error == AUI_ERRCODE_OK);
+    auto *renderer = aui_SDL::Renderer();
+    REQUIRE(renderer);
+    std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> target(
+        SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, width,
+                          height),
+        SDL_DestroyTexture);
+    REQUIRE(target);
+    struct RestoreTarget {
+        SDL_Renderer *renderer;
+        SDL_Texture *target;
+        ~RestoreTarget() { SDL_SetRenderTarget(renderer, target); }
+    } restoreTarget{renderer, SDL_GetRenderTarget(renderer)};
+
+    auto requireVisibleParity =
+        [&]() {
+            REQUIRE(cpu.Blank(0) == AUI_ERRCODE_OK);
+            actor.DrawDirect(&cpu, actorX, actorY, 1.0);
+            aui_SDL::BeginSpriteFrame();
+            const bool submitted = actor.AddGpuSpriteQuad(actorX, actorY, 1.0);
+            INFO("GPU submission: "
+                 << submitted << ", reason: "
+                 << (actor.GpuSpriteFallbackReason() ? actor.GpuSpriteFallbackReason() : ""));
+            REQUIRE(SDL_SetRenderTarget(renderer, target.get()));
+            REQUIRE(SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255));
+            REQUIRE(SDL_RenderClear(renderer));
+            for (const auto &quad : aui_SDL::SpriteDrawList()) {
+                SDL_SetTextureBlendMode(quad.texture, SDL_BLENDMODE_BLEND);
+                SDL_SetTextureColorMod(quad.texture, quad.red, quad.green, quad.blue);
+                SDL_SetTextureAlphaMod(quad.texture, quad.alpha);
+                CTP2_SDL_RenderTextureSrcDstFlip(renderer, quad.texture, quad.sx, quad.sy, quad.sw,
+                                                 quad.sh, quad.dx, quad.dy, quad.dw, quad.dh,
+                                                 quad.mirror);
+            }
+            std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)> gpu(
+                SDL_RenderReadPixels(renderer, nullptr), SDL_DestroySurface);
+            REQUIRE(gpu);
+            REQUIRE(gpu->w == width);
+            REQUIRE(gpu->h == height);
+            int bodyPixels = 0, matchingPixels = 0;
+            for (int y = 0; y < height; ++y) {
+                for (int x = 0; x < width; ++x) {
+                    Uint8 r, g, b, alpha;
+                    REQUIRE(SDL_ReadSurfacePixel(cpu.DDS(), x, y, &r, &g, &b, &alpha));
+                    if (r + g + b <= 40)
+                        continue;
+                    ++bodyPixels;
+                    Uint8 gr, gg, gb;
+                    REQUIRE(SDL_ReadSurfacePixel(gpu.get(), x, y, &gr, &gg, &gb, &alpha));
+                    // RGB565 CPU quantization differs by at most eight from atlas RGB.
+                    matchingPixels += std::abs(int(r) - gr) <= 8 && std::abs(int(g) - gg) <= 8 &&
+                                      std::abs(int(b) - gb) <= 8;
+                }
+            }
+            REQUIRE_MESSAGE(bodyPixels > 100, "CPU must draw actual settler body pixels");
+            CHECK_MESSAGE(matchingPixels >= bodyPixels * 95 / 100, "GPU retained ", matchingPixels,
+                          "/", bodyPixels, " CPU actor pixels");
+        };
+
+    requireVisibleParity(); // Proves the real asset and renderer work first.
+    actor.DumpAllActions();
+    requireVisibleParity(); // No Process/AddIdle or redraw may repair the gap.
 }

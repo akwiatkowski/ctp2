@@ -252,6 +252,8 @@ public:
 	sint32			RepaintEdgeX(RECT *repaintRect);
 	sint32			RepaintEdgeY(RECT *repaintRect);
 	sint32			Refresh();
+	void			RequestRefresh() { m_refreshPending = true; }
+	void			RefreshIfPending();
 
 	sint32			DrawCityRadius(const MapPoint &cpos, COLOR color,sint32 size=1);
 	sint32			DrawCityRadius1(const MapPoint &cpos, COLOR color);
@@ -643,6 +645,8 @@ protected:
 	// dimming) while UNEXPLORED tiles stay black — i.e. "the world as this
 	// player has discovered it". Set only during RenderPlayerView.
 	bool			m_renderExploredAsVisible;
+	// Vision changes queue one whole-map rebuild for the next UI frame.
+	bool			m_refreshPending = false;
 
 	RECT			m_displayRect;
 	RECT			m_surfaceRect;

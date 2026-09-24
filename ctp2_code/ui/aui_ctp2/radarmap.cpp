@@ -46,36 +46,38 @@
 
 #include "ctp/c3.h"
 
-#include <memory>
-#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
+#include "gfx/gfx_utils/colorset.h" // colorset_Get()
 #include "ui/aui_ctp2/radarmap.h"
+#include <memory>
 
 #include <algorithm>
+#include <cmath>
 
-#include "ui/aui_common/aui.h"
-#include "ui/aui_common/aui_Factory.h"
-#include "ui/aui_common/aui_blitter.h"
-#include "ui/aui_common/aui_window.h"
-#include "ui/aui_common/aui_ldl.h"
-#include "ui/aui_common/aui_action.h"
-#include "ui/aui_ctp2/c3ui.h"
-#include "gs/gameobj/player.h"                 // Player, player_Get
-#include "gs/world/World.h"                  // world_Get()
-#include "gs/world/Cell.h"
-#include "gs/world/UnseenCell.h"
-#include "gs/gameobj/citydata.h"
-#include "gs/gameobj/Unit.h"
-#include "gs/gameobj/UnitData.h"
+#include "ai/strategy/scheduler/Scheduler.h"
+#include "ctp/ctp2_utils/pointerlist.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
-#include "gfx/tilesys/tiledmap.h"               // tiledmap_Get()
 #include "gfx/spritesys/director.h"
 #include "gfx/tilesys/maputils.h"
-#include "ui/aui_utils/primitives.h"
-#include "gs/database/profileDB.h"              // profiledb_Get()
-#include "ctp/ctp2_utils/pointerlist.h"
+#include "gfx/tilesys/tiledmap.h"  // tiledmap_Get()
+#include "gs/database/profileDB.h" // profiledb_Get()
+#include "gs/gameobj/Unit.h"
+#include "gs/gameobj/UnitData.h"
+#include "gs/gameobj/citydata.h"
+#include "gs/gameobj/player.h" // Player, player_Get
 #include "gs/gameobj/terrainutil.h"
-#include "ai/strategy/scheduler/Scheduler.h"
+#include "gs/world/Cell.h"
+#include "gs/world/UnseenCell.h"
+#include "gs/world/World.h" // world_Get()
+#include "ui/aui_common/aui.h"
+#include "ui/aui_common/aui_Factory.h"
+#include "ui/aui_common/aui_action.h"
+#include "ui/aui_common/aui_blitter.h"
+#include "ui/aui_common/aui_ldl.h"
+#include "ui/aui_common/aui_window.h"
+#include "ui/aui_ctp2/SelItem.h" // selitem_Get()
+#include "ui/aui_ctp2/c3ui.h"
+#include "ui/aui_sdl/aui_sdl.h"
+#include "ui/aui_utils/primitives.h"
 
 extern PointerList<Player> *g_deadPlayer;
 
@@ -999,25 +1001,31 @@ void RadarMap::RenderMap(aui_Surface *surface)
 //    the main tile map.
 //
 //---------------------------------------------------------------------------
-void RadarMap::RenderViewRect
-(
-	aui_Surface *surf,
-	sint32 x,
-	sint32 y
-)
+void RadarMap::RenderViewRect(aui_Surface *surf, sint32 x, sint32 y)
 {
-    RECT offsetRect = {0, 0, 0, 0};
+	RECT offsetRect = {0, 0, 0, 0};
 
 	if (tiledmap_Get())
-    {
-		RECT *  temp        = tiledmap_Get()->GetMapViewRect();
+	{
+		RECT *temp = tiledmap_Get()->GetMapViewRect();
 
-        m_mapViewRect = *temp;
+		m_mapViewRect = *temp;
+		if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture())
+		{
+			sint32 const tileW = tiledmap_Get()->GetZoomTilePixelWidth();
+			sint32 const halfTileH = tiledmap_Get()->GetZoomTilePixelHeight() / 2;
+			if (tileW > 0 && halfTileH > 0)
+			{
+				OffsetRect(&m_mapViewRect,
+				           static_cast<sint32>(std::lround(-aui_SDL::CameraOffX() / tileW)),
+				           static_cast<sint32>(std::lround(-aui_SDL::CameraOffY() / halfTileH)));
+			}
+		}
 
-		if(!tiledmap_Get()->ReadyToDraw())
+		if (!tiledmap_Get()->ReadyToDraw())
 			return;
 
-	    sint32  nrplayer    = selitem_Get()->GetVisiblePlayer();
+		sint32 nrplayer = selitem_Get()->GetVisiblePlayer();
 
 		offsetRect.bottom = m_mapViewRect.bottom;
 		offsetRect.top = m_mapViewRect.top;
@@ -1040,7 +1048,6 @@ void RadarMap::RenderViewRect
 			offsetRect.right -= m_mapSize->x;
 		}
 	}
-
 
 	sint32 x1;
 	sint32 x2;
@@ -1212,10 +1219,10 @@ MapPoint RadarMap::ComputeCenteredMap(MapPoint const & pos, RECT *viewRect)
 	sint32 tileX;
 	maputils_MapX2TileX(pos.x, pos.y, &tileX);
 
-	viewRect->left      = tileX - (w>>1);
-	viewRect->top       = (pos.y - (h>>1)) & (~1);
-	viewRect->right     = viewRect->left + w;
-	viewRect->bottom    = viewRect->top + h;
+	viewRect->left = tileX - (w >> 1);
+	viewRect->top = (pos.y - (h >> 1)) & (~1);
+	viewRect->right = viewRect->left + w;
+	viewRect->bottom = viewRect->top + h;
 
 	return pos;
 }
@@ -1228,13 +1235,15 @@ MapPoint RadarMap::ComputeCenteredMap(MapPoint const & pos, RECT *viewRect)
 //  - Used to focus the RadarMap to a specific point
 //
 //---------------------------------------------------------------------------
-MapPoint RadarMap::CenterMap(MapPoint const & pos)
+MapPoint RadarMap::CenterMap(MapPoint const &pos)
 {
 	MapPoint LastPT = m_lastCenteredPoint;
-	if(!LastPT.IsValid())
+	if (!LastPT.IsValid())
 		LastPT = pos;
 
 	m_lastCenteredPoint = pos;
+	if (this == radar_map_Get())
+		aui_SDL::ResetPan();
 
 	RECT *mapViewRect = tiledmap_Get()->GetMapViewRect();
 
@@ -1244,7 +1253,6 @@ MapPoint RadarMap::CenterMap(MapPoint const & pos)
 
 	return LastPT;
 }
-
 
 //---------------------------------------------------------------------------
 //
@@ -1465,35 +1473,40 @@ AUI_ERRCODE RadarMap::DrawThis(aui_Surface *surface, sint32 x,	sint32 y )
 void RadarMap::MouseLGrabInside(aui_MouseEvent *data)
 {
 
-	if(IsDisabled() || !IsInteractive())
+	if (IsDisabled() || !IsInteractive())
 		return;
 
-	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
+	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this)
+		return;
 	SetWhichSeesMouse(this);
 
 	Assert(tiledmap_Get() != nullptr);
-	if (tiledmap_Get() == nullptr) return;
+	if (tiledmap_Get() == nullptr)
+		return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
 
 	RECT mapRect = {0, 0, Width(), Height()};
-	if ( !PtInRect(&mapRect, data->position) ) return;
+	if (!PtInRect(&mapRect, data->position))
+		return;
+	if (this == radar_map_Get())
+		aui_SDL::ResetPan();
 
-	tiledmap_Get()->SetSmoothScrollOffsets(0,0);
+	tiledmap_Get()->SetSmoothScrollOffsets(0, 0);
 
-	sint32		 mapWidth;
-	sint32		 mapHeight;
+	sint32 mapWidth;
+	sint32 mapHeight;
 	tiledmap_Get()->GetMapMetrics(&mapWidth, &mapHeight);
 
-	sint32  tileY   = (sint32) (data->position.y / m_tilePixelHeight);
-    double  nudge   = (tileY & 1) ? m_tilePixelWidth / 2.0 : 0.0;
-    sint32  tileX   = (sint32) ( ceil(((double)(data->position.x - nudge) / m_tilePixelWidth)) );
+	sint32 tileY = (sint32)(data->position.y / m_tilePixelHeight);
+	double nudge = (tileY & 1) ? m_tilePixelWidth / 2.0 : 0.0;
+	sint32 tileX = (sint32)(ceil(((double)(data->position.x - nudge) / m_tilePixelWidth)));
 
-	tileX = (sint32) ((tileX - m_displayOffset[selitem_Get()->GetVisiblePlayer()].x
-									+ m_mapSize->x) % m_mapSize->x);
-	tileY = (sint32) ((tileY - m_displayOffset[selitem_Get()->GetVisiblePlayer()].y
-									+ m_mapSize->y) % m_mapSize->y);
+	tileX = (sint32)((tileX - m_displayOffset[selitem_Get()->GetVisiblePlayer()].x + m_mapSize->x) %
+	                 m_mapSize->x);
+	tileY = (sint32)((tileY - m_displayOffset[selitem_Get()->GetVisiblePlayer()].y + m_mapSize->y) %
+	                 m_mapSize->y);
 
 	sint32 width = m_mapViewRect.right - m_mapViewRect.left;
 	sint32 height = m_mapViewRect.bottom - m_mapViewRect.top;
@@ -1503,7 +1516,7 @@ void RadarMap::MouseLGrabInside(aui_MouseEvent *data)
 	m_mapViewRect.top = (tileY - (height / 2)) & ~0x01;
 	m_mapViewRect.bottom = m_mapViewRect.top + height;
 
-	RECT *  realMapViewRect = tiledmap_Get()->GetMapViewRect();
+	RECT *realMapViewRect = tiledmap_Get()->GetMapViewRect();
 	*realMapViewRect = m_mapViewRect;
 
 	tiledmap_Get()->Refresh();

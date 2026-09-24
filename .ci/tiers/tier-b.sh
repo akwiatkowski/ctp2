@@ -47,7 +47,7 @@ START=$(date +%s)
     mise exec -- meson test -C build --no-rebuild --print-errorlogs \
         --suite scenario --no-suite marathon || exit $?
     mise exec -- meson test -C build --no-rebuild --print-errorlogs \
-        fast ui-menu ui-offscreen asset-installer client-harness ci-results cli-save-resume cli-save-replay cli-save-replay-long
+        fast ui-menu ui-offscreen ui-edge-scroll ui-sprite-clicks ui-ten-turns ui-next-unit ui-resume-controls ui-resume-map ui-native-input ui-move-visibility play-record-smoke asset-installer client-harness ci-results cli-save-resume cli-save-replay cli-save-replay-long
     SCENARIO_RC=$?
     if [[ $UNIT_RC -ne 0 || $SCENARIO_RC -ne 0 ]]; then
         exit 1

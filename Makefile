@@ -211,7 +211,7 @@ test: modernization-ratchet
 # Full-game UI integration without a desktop; keeps real simulation/rendering.
 test-ui-integration:
 	meson compile -C build ctp2
-	meson test -C build --no-rebuild ui-offscreen --print-errorlogs
+	meson test -C build --no-rebuild --suite ui-integration --print-errorlogs
 
 # One-command crash/behavior repro. Boots serve mode, optionally loads a
 # save (path or test/fixtures name), runs a ';'-separated command script.
@@ -328,6 +328,20 @@ run: build
 	@echo "Starting CTP2 at 1920x1080..."
 	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
 	@./build/ctp2 --resolution 1920x1080
+
+# Visible human play with automatic seed/session recording. The sidecar keeps
+# turn checkpoints, passive frames, native input and watchdog diagnostics.
+play-record: build
+	@mise exec -- python3 ctp2_code/test/play_record.py record --binary build/ctp2 $(PLAY_ARGS)
+
+# Mark the active recording. The monitor captures state/checkpoint/frame; if
+# the game is hung this falls back to the last frame plus a process sample.
+play-mark:
+	@mise exec -- python3 ctp2_code/test/play_record.py mark --note '$(or $(NOTE),reported bug)'
+
+# Continue from the newest turn checkpoint in the latest recorded session.
+play-resume: build
+	@mise exec -- python3 ctp2_code/test/play_record.py resume --binary build/ctp2
 
 # Run the game at Full HD (1920x1080) with crash logging via run_game.sh
 run-hd: build-sanitized

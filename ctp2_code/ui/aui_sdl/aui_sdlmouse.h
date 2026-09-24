@@ -17,19 +17,16 @@ public:
 	aui_SDLMouse(AUI_ERRCODE *retval, MBCHAR *ldlBlock,
 	             BOOL useExclusiveMode = FALSE);
 	~aui_SDLMouse() override;
-	// Smoke-test pointer state survives idle ticks without a real SDL mouse.
-	void SetSyntheticInput(aui_MouseEvent const &event)
-	{
-		m_data = event;
-		m_syntheticInput = true;
-	}
+	// Pointer state persists in m_data until later synthetic or real SDL input.
+	void SetSyntheticInput(aui_MouseEvent const &event) { m_data = event; m_hasPointerInput = true; }
+	bool HasPointerInput() const { return m_hasPointerInput; }
 
 protected:
 	aui_SDLMouse();
 	AUI_ERRCODE GetInput() override;
 
 private:
-	bool m_syntheticInput = false;
+	bool m_hasPointerInput = false;
 };
 
 typedef aui_SDLMouse aui_NativeMouse;

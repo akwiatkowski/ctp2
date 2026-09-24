@@ -92,6 +92,7 @@ public:
 
     // Composited refresh + invalidations.
     virtual void Refresh() = 0;
+    virtual void RequestRefresh() = 0;
     virtual void InvalidateMap() = 0;
     virtual void InvalidateMix() = 0;
 
@@ -123,6 +124,7 @@ void PostProcessMap();
 void RecreateGoodActors();
 
 void Refresh();
+void RequestRefresh();
 void InvalidateMap();
 void InvalidateMix();
 

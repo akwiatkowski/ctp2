@@ -1,0 +1,23 @@
+{
+  "name": "resume-controls",
+  "source_session": "20260923T170854Z-808af02f-38e3",
+  "source_commit": "808af02f",
+  "resumed_from": "next-unit-freeze turn 1",
+  "symptom": "After make play-resume, UI controls such as Next Turn appeared not to work.",
+  "diagnosis": {
+    "before_click": {
+      "director_pending": 1,
+      "end_turn_requested": false,
+      "round": 1
+    },
+    "after_click": {
+      "director_pending": 1,
+      "end_turn_requested": true,
+      "round": 1
+    },
+    "cause": "JSON restoration recreated presentation actors that incremented Director pending actions, but no matching action remained to decrement the transient counter."
+  },
+  "fix": "CivApp::LoadSavedGame calls Director::NotifyResync after restored UI setup to clear transient pending/end-turn state.",
+  "regression": "ui-resume-controls injects SDL mouse motion/down/up, asserts TurnButton down state, and requires round 1 to advance to round 2.",
+  "shared_fixture": "next-unit-freeze.json.gz"
+}

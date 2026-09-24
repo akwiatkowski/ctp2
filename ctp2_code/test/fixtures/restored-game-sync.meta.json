@@ -1,0 +1,26 @@
+{
+  "name": "restored-game-sync",
+  "source_session": "20260923T182729Z-808af02f-7f72",
+  "source_commit": "808af02f",
+  "visibility_source_session": "20260923T190950Z-808af02f-e1d5/bugs/bug-20260923T191347Z",
+  "dead_input_source_session": "20260923T195102Z-808af02f-abc5/bugs/bug-20260923T195154Z",
+  "symptoms": [
+    "Minimap clicks did not appear to move the world view.",
+    "GPU camera movement did not move the minimap view rectangle.",
+    "Unit movement changed vision state but did not repaint newly visible terrain until later camera movement.",
+    "Native UI clicks were intermittently delayed or appeared lost."
+  ],
+  "findings": {
+    "native_input": "aui_SDLMouse::GetInput returned after one motion event, allowing motion backlog to starve later button-down/up transitions.",
+    "synthetic_native_handoff": "SetSyntheticInput permanently made aui_SDLMouse::GetInput reject real motion and button events after automated game setup; wheel input bypassed that guard and remained functional.",
+    "minimap": "Whole-map GPU pan changes camera offset without changing TiledMap::m_mapViewRect; RadarMap drew only the raw engine rectangle.",
+    "vision": "Vision mutations updated resources through sprite submission, but no deferred TiledMap::Refresh rebuilt the whole-map terrain texture; the terrain stayed black until camera movement."
+  },
+  "regressions": [
+    "ui-native-input",
+    "ui-edge-scroll",
+    "ui-resume-map",
+    "ui-move-visibility"
+  ],
+  "shared_fixture": "next-unit-freeze.json.gz"
+}

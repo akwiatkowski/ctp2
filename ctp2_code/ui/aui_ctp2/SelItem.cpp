@@ -562,8 +562,7 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 										   GEA_End);
 
 					if(!armypool_Get()->IsValid(selectArmy) ||
-					   !CanAutoSelect(selectArmy)
-					   || selectArmy.NumOrders() > 0)
+					   !CanAutoSelect(selectArmy))
 					{
 						Deselect(player);
 						director_Get()->AddSelectUnit(isFirst ? k_UNIT_SELECT_IS_FIRST : 0);
@@ -1166,12 +1165,11 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 				}
 			}
 		}
-		// A new selection can move the view (director CenterMap) and always
-		// changes what the map shows (vision, hilite): re-render, mirroring
-		// the keyboard-select path. Mouse selection never did this, so the
-		// whole-map texture kept the previous selection's content.
+		// Selection changes hilites/vision and may queue camera centering.
+		// Defer the expensive map rebuild to the next normal frame; rebuilding
+		// synchronously here blocks the input callback and can beachball Next Unit.
 		if (tiledmap_Get())
-			tiledmap_Get()->Refresh();
+			tiledmap_Get()->InvalidateMap();
 		return;
 	}
 

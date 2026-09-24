@@ -1635,10 +1635,8 @@ bool UnitActor::AddGpuSpriteQuad(sint32 x, sint32 y, double scale, bool fogged) 
     return true;
   if (!m_unitSpriteGroup)
     return fail("unit-no-sprite-group");
-  if (!m_curAction)
-    GetNextAction();
-  if (!m_curAction)
-    return fail("unit-no-action");
+  // Action cleanup retains a drawable pose until Process installs idle.
+  // Match CPU Draw: rendering neither advances actions nor hides that pose.
 
   uint16 flags = k_DRAWFLAGS_NORMAL;
   if (m_transparency < 15)

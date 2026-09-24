@@ -167,6 +167,7 @@ class UnitActor;
 #include "gs/core/audio_observer.h"
 #include "gs/core/audio_types.h"               // SOUNDTYPE / GAMESOUNDS enums
 #include "gs/core/game_observer.h"            // gameobservers_Get()
+#include "gs/core/tiledmap_observer.h"
 #include "gs/core/player_view.h"              // player_view::*
 
 extern bool UnitCanCarry(sint32 dest, sint32 src, sint32 government);
@@ -477,9 +478,11 @@ void UnitData::SetPosAndNothingElse(const MapPoint &p)
 
 void UnitData::SetPos(const MapPoint &p, bool &left_map)
 {
-	if(Flag(k_UDF_IS_ENTRENCHED)) {
+	if (Flag(k_UDF_IS_ENTRENCHED))
+	{
 		ClearFlag(k_UDF_IS_ENTRENCHED);
 	}
+	MapPoint const oldPos = m_pos;
 
 	RemoveUnitVision();
 
@@ -488,25 +491,33 @@ void UnitData::SetPos(const MapPoint &p, bool &left_map)
 
 	m_roundTheWorldMask->SetBit(m_pos.x);
 	const UnitRecord *rec = GetDBRec();
-	if(m_roundTheWorldMask->AllBitsSet() && (rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater())) {
+	if (m_roundTheWorldMask->AllBitsSet() &&
+	    (rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater()))
+	{
 		feattracker_Get()->AddFeat("FEAT_SAILED_AROUND_WORLD", m_owner);
 	}
 
-	if(Wormhole *wh = wormhole_Get(); wh && wh->CheckEnter(Unit(m_id), turn_Get()->GetRound())) {
+	if (Wormhole *wh = wormhole_Get(); wh && wh->CheckEnter(Unit(m_id), turn_Get()->GetRound()))
+	{
 		left_map = true;
 		SetFlag(k_UDF_HAS_LEFT_MAP);
 		SetFlag(k_UDF_IN_WORMHOLE);
 		player_Get(m_owner)->m_readiness->UnsupportUnit(Unit(m_id),
-													  player_Get(m_owner)->m_government_type);
+		                                                player_Get(m_owner)->m_government_type);
 		player_Get(m_owner)->RecoveredProbe(Unit());
-	} else {
+	}
+	else
+	{
 		left_map = false;
 		AddUnitVision();
 
 		Cell *cell = world_Get()->GetCell(p);
-		if(wormhole_Get()) {
-			if(GetDBRec()->GetWormholeProbe() && Flag(k_UDF_RETURNED_FROM_WORMHOLE)) {
-				if(cell->GetCity().m_id != 0) {
+		if (wormhole_Get())
+		{
+			if (GetDBRec()->GetWormholeProbe() && Flag(k_UDF_RETURNED_FROM_WORMHOLE))
+			{
+				if (cell->GetCity().m_id != 0)
+				{
 					player_Get(m_owner)->RecoveredProbe(cell->GetCity());
 				}
 			}
@@ -514,6 +525,19 @@ void UnitData::SetPos(const MapPoint &p, bool &left_map)
 	}
 	Assert(player_Get(m_owner));
 	player_Get(m_owner)->RegisterYourArmyWasMoved(m_army, m_pos);
+	if (oldPos != m_pos)
+	{
+		if (gameobservers_Get())
+		{
+			gameobservers_Get()->NotifyRadarMapRedrawTile(oldPos);
+			gameobservers_Get()->NotifyRadarMapRedrawTile(m_pos);
+			gameobservers_Get()->NotifyRadarMapUpdate(m_owner);
+		}
+		if (m_owner == player_view::VisiblePlayer())
+		{
+			tiledmap_observer::InvalidateMap();
+		}
+	}
 }
 
 //----------------------------------------------------------------------------

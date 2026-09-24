@@ -1,0 +1,10 @@
+{
+  "name": "city-tab-selection",
+  "source_session": "20260923T201240Z-808af02f-5088",
+  "source_bug": "bug-20260923T201820Z",
+  "source_commit": "808af02f",
+  "symptom": "Selecting a city and activating the bottom City tab left build-order controls disabled while the full City Manager still worked.",
+  "finding": "The compact City panel activated with an empty city dropdown after restore. Activation now rebuilds the city list, synchronizes the globally selected city, and updates build controls without opening City Manager.",
+  "regression": "ui-next-unit",
+  "shared_fixture": "hoplite-move-freeze.json.gz"
+}

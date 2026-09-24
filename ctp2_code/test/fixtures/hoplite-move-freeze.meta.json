@@ -1,0 +1,10 @@
+{
+  "name": "hoplite-move-freeze",
+  "source_session": "20260923T195537Z-808af02f-142e",
+  "source_bug": "bug-20260923T195910Z",
+  "source_commit": "808af02f",
+  "round": 19,
+  "symptom": "Moving the selected Hoplite made the UI unresponsive.",
+  "finding": "Director auto-selection synchronously refreshed UnitControlPanel during movement, then requeued selection solely because the army still had a multi-turn order; the repeated selection cycle reached 5.6 GB and starved the UI.",
+  "regression": "ui-next-unit"
+}

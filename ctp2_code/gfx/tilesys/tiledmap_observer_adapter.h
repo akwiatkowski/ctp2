@@ -15,6 +15,7 @@ public:
     void PostProcessMap() override;
     void RecreateGoodActors() override;
     void Refresh() override;
+    void RequestRefresh() override;
     void InvalidateMap() override;
     void InvalidateMix() override;
     bool TileIsVisible(sint32 mapX, sint32 mapY) override;

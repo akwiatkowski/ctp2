@@ -186,6 +186,9 @@ void NewTurnCount::StartNextPlayer(bool stop)
 
 	if (next_player == 0)
 	{
+		// The frontend advances player clocks; keep the serialized session clock
+		// in sync at the same round boundary used by the headless turn runner.
+		turn_Get()->SkipToRound(next_round);
 		NewTurnCount::StartNewYear();
 	}
 

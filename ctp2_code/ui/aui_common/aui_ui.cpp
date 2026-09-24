@@ -43,6 +43,7 @@
 #include <memory>
 #include "ctp/c3.h"             // Precompiled header
 #include "ui/aui_common/aui_ui.h"         // Own declarations
+#include "ctp/playtest_recorder.h"
 
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_common/aui_blitter.h"
@@ -1255,59 +1256,57 @@ AUI_ERRCODE aui_UI::HandleMouseEvents(
 	static aui_MouseEvent mouseEvents[ k_MOUSE_MAXINPUT ];
 	if ( !numEvents && !events )
 	{
-		numEvents = m_mouse->ManipulateInputs( mouseEvents, FALSE );
+		numEvents = m_mouse->ManipulateInputs(mouseEvents, FALSE);
 		curEvent = mouseEvents;
 	}
 
-	TagMouseEvents( numEvents, curEvent );
-
-	for ( sint32 k = numEvents; k; k--, curEvent++ )
+	TagMouseEvents(numEvents, curEvent);
+	auto recordTarget = []()
 	{
-		SetWhichSeesMouse( nullptr );
+		aui_Region *target = GetWhichSeesMouse();
+		playtest_recorder::RecordTarget(target ? aui_Ldl::GetBlock(target) : nullptr);
+	};
+
+	for (sint32 k = numEvents; k; k--, curEvent++)
+	{
+		SetWhichSeesMouse(nullptr);
 
 		ListPos position = m_childList->GetHeadPosition();
-		for ( sint32 i = m_childList->L(); i; i-- )
+		for (sint32 i = m_childList->L(); i; i--)
 		{
-			aui_Window *window = (aui_Window *)m_childList->GetNext( position );
+			aui_Window *window = (aui_Window *)m_childList->GetNext(position);
 
-			if ( !window->IsHidden() && window->Type() != AUI_WINDOW_TYPE_TIP )
+			if (!window->IsHidden() && window->Type() != AUI_WINDOW_TYPE_TIP)
 			{
-				errcode = window->HandleMouseEvent(
-					curEvent,
-					!window->IgnoringEvents() );
+				errcode = window->HandleMouseEvent(curEvent, !window->IgnoringEvents());
 
-
-
-
-
-
-				if ( m_childListChanged || errcode == AUI_ERRCODE_HANDLEDEXCLUSIVE)
+				if (m_childListChanged || errcode == AUI_ERRCODE_HANDLEDEXCLUSIVE)
 				{
 
 					m_childListChanged = FALSE;
 
 					position = m_childList->GetHeadPosition();
-					for ( i = m_childList->L(); i; i-- )
+					for (i = m_childList->L(); i; i--)
 					{
-						window = (aui_Window *)m_childList->GetNext( position );
-						if ( !window->IsHidden() && window->Type() != AUI_WINDOW_TYPE_TIP )
+						window = (aui_Window *)m_childList->GetNext(position);
+						if (!window->IsHidden() && window->Type() != AUI_WINDOW_TYPE_TIP)
 						{
-							window->HandleMouseEvent(
-								curEvent,
-								FALSE );
+							window->HandleMouseEvent(curEvent, FALSE);
 						}
 					}
 
-					if ( k > 1 ) return HandleMouseEvents( k - 1, curEvent + 1 );
+					recordTarget();
+					if (k > 1)
+						return HandleMouseEvents(k - 1, curEvent + 1);
 					return errcode;
 				}
 			}
 		}
+		recordTarget();
 	}
 
 	return errcode;
 }
-
 
 AUI_ERRCODE aui_UI::HandleKeyboardEvents( )
 {

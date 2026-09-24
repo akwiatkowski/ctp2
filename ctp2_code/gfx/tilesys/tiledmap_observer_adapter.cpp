@@ -35,6 +35,11 @@ void TiledMapObserverAdapter::Refresh()
 {
     if (tiledmap_Get()) tiledmap_Get()->Refresh();
 }
+void TiledMapObserverAdapter::RequestRefresh()
+{
+    if (tiledmap_Get()) tiledmap_Get()->RequestRefresh();
+}
+
 
 void TiledMapObserverAdapter::InvalidateMap()
 {

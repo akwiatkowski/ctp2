@@ -49,6 +49,7 @@ def run():
     for key in env:
         if key.startswith("CTP2_GPU_") or key == "CTP2_MODERN_SPRITES":
             env[key] = ""
+    env["CTP2_GPU_WORLDMAP"] = "1"
     trace = []
     sequence = 0
     step = "startup"

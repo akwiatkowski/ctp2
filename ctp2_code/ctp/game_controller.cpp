@@ -40,6 +40,7 @@
 #include "gs/world/World.h"                   // world_Get(), GetCell
 #include "gs/world/Cell.h"                    // Cell terrain / city / units
 #include "gs/world/TileInfo.h"                // debug_set_terrain fixture cleanup
+#include "gs/world/UnseenCell.h"               // restored fog snapshot diagnostics
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 #include "gs/fileio/action_log.h"             // action_log::Get / Count / Clear
@@ -87,6 +88,7 @@
 #include "gs/database/profileDB.h"            // profiledb_Get()->IsAIOn()
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
 #include "ui/aui_sdl/aui_sdl.h"               // GPU world diagnostics
+#include "ui/aui_ctp2/radarmap.h"              // radar view diagnostics
 #include "gfx/tilesys/tiledmap.h"             // debug terrain-overlay fallback
 #include "gfx/tilesys/tileset.h"              // debug_tileset_stats (GPU raster probe)
 #include "gfx/tilesys/BaseTile.h"             // debug_tileset_stats (GPU raster probe)
@@ -775,6 +777,7 @@ std::string CmdDebugVisionStats(const char * args)
 	sint32 cells = 0;
 	sint32 humanExplored = 0, humanVisible = 0;
 	sint32 localExplored = 0, localVisible = 0;
+	sint32 fogSnapshots = 0, fogSnapshotTileMismatches = 0;
 	for (sint32 dy = -radius; dy <= radius; ++dy)
 	{
 		for (sint32 dx = -radius; dx <= radius; ++dx)
@@ -790,6 +793,19 @@ std::string CmdDebugVisionStats(const char * args)
 			{
 				if (local->IsExplored(pos)) ++localExplored;
 				if (local->IsVisible(pos))  ++localVisible;
+				if (local->IsExplored(pos) && !local->IsVisible(pos))
+				{
+					UnseenCellCarton snapshot;
+					if (local->GetLastSeen(pos, snapshot) && snapshot.m_unseenCell)
+					{
+						++fogSnapshots;
+						TileInfo *remembered = snapshot.m_unseenCell->GetTileInfo();
+						TileInfo *actual = w->GetTileInfo(pos);
+						if (!remembered || !actual
+						    || remembered->GetTileNum() != actual->GetTileNum())
+							++fogSnapshotTileMismatches;
+					}
+				}
 			}
 		}
 	}
@@ -801,6 +817,10 @@ std::string CmdDebugVisionStats(const char * args)
 	                     {"present", local != nullptr} };
 	// The cells that should render fogged.
 	result["fogged"] = localExplored - localVisible;
+	result["fog_snapshots"] = {
+		{"present", fogSnapshots},
+		{"tile_mismatches", fogSnapshotTileMismatches}
+	};
 	return Ok("debug_vision_stats", result);
 }
 
@@ -1290,6 +1310,18 @@ std::string CmdDebugDeselect()
 		tiledmap_Get()->BuildTerrainQuads();
 	return Ok("debug_deselect");
 }
+std::string CmdDebugSelectCity(const char *args)
+{
+	int index = -1;
+	Player *human = HumanPlayer();
+	UnitDynamicArray *cities = human ? human->GetAllCitiesList() : nullptr;
+	if (!args || sscanf(args, "%d", &index) != 1 || !cities
+	    || index < 0 || index >= cities->Num() || !selitem_Get())
+		return Err("debug_select_city", "bad_city");
+	selitem_Get()->SetSelectCity(cities->Access(index));
+	return Ok("debug_select_city");
+}
+
 
 // Selection and visibility transitions deliberately do not force a terrain refresh.
 std::string CmdDebugActorState(const char *args)
@@ -1934,6 +1966,7 @@ std::string QueryArmies()
             Unit unit = ad->Access(u);
             if (!unit.IsValid()) continue;
             json j;
+            j["id"]   = unit.m_id;
             j["type"] = unit.GetType();
             j["name"] = ToUtf8(unit.GetName());
             j["hp"]   = unit.GetHP();
@@ -1951,6 +1984,7 @@ std::string QueryArmies()
 
         json a;
         a["index"]      = i;
+        a["id"]         = army.m_id;
         a["pos"]        = { {"x", pos.x}, {"y", pos.y} };
         a["moves_left"] = moves;
         a["can_settle"] = army.CanSettle();
@@ -2102,6 +2136,7 @@ const char * TerrainImpClass(const TerrainImprovementRecord * r)
 json CityJson(sint32 owner, sint32 city_idx, const Unit & u)
 {
     json c;
+    c["id"] = u.m_id; // Stable across index changes when another city is added/lost.
     c["owner"] = owner;
     c["index"] = city_idx;
     MapPoint pos;
@@ -2385,6 +2420,7 @@ std::string QueryUnits()
             MapPoint pos;
             u.GetPos(pos);
             json j;
+            j["id"]      = u.m_id;
             j["owner"]   = p;
             j["type"]    = u.GetType();
             j["name"]    = ToUtf8(u.GetName());
@@ -4172,32 +4208,45 @@ std::string QueryPlayer(const char * args)
 // idle window in which this query runs.
 std::string QueryTurn()
 {
-    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
-        return Err("query_turn", "game_not_loaded");
+	if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+		return Err("query_turn", "game_not_loaded");
 
-    json result;
-    // GetYear() == NewTurnCount::GetCurrentYear(), derived from the LIVE round.
-    // GetSessionYear() returns TurnCount::m_year, which is only seeded to
-    // 4000 BC at game start and refreshed solely on the serve/load SetRound
-    // path — so a plain end_turn loop (autoplay, headless) leaves it frozen at
-    // 4000 BC even at round 300. Same bug class as the UI fix in a83a851f.
-    sint32 const year = turn_Get() ? turn_Get()->GetYear() : 0;
-    result["round"] = turn_Get() ? turn_Get()->GetSessionRound() : 0;
-    result["year"]  = year;
-    // The game's scored deadline: at end_of_game_year (default 2300 AD) the
-    // "out of time" end-game fires and the highest score wins.  Headless does
-    // NOT stop at the deadline — it keeps running in UNSCORED overtime, which
-    // is why no victory flag appears past it.  Surface the deadline so a driver
-    // knows whether the game is still live or already decided on score.
-    const ConstRecord * cr = g_theConstDB ? g_theConstDB->Get(0) : nullptr;
-    if (cr) {
-        sint32 const end_year  = cr->GetEndOfGameYear();
-        sint32 const warn_year = cr->GetEndOfGameYearEarlyWarning();
+	json result;
+	// GetYear() == NewTurnCount::GetCurrentYear(), derived from the LIVE round.
+	// GetSessionYear() returns TurnCount::m_year, which is only seeded to
+	// 4000 BC at game start and refreshed solely on the serve/load SetRound
+	// path — so a plain end_turn loop (autoplay, headless) leaves it frozen at
+	// 4000 BC even at round 300. Same bug class as the UI fix in a83a851f.
+	sint32 const year = turn_Get() ? turn_Get()->GetYear() : 0;
+	result["round"] = turn_Get() ? turn_Get()->GetSessionRound() : 0;
+	result["year"] = year;
+	result["current_player"] = player_view::CurPlayer();
+	result["visible_player"] = player_view::VisiblePlayer();
+	result["stop_player"] = NewTurnCount::GetStopPlayer();
+	result["modal_message_active"] = player_view::IsModalMessageActive();
+	if (director_Get())
+	{
+		result["director"] = {{"queued", director_Get()->m_itemQueue.size()},
+		                      {"pending", director_Get()->m_pendingGameActions},
+		                      {"end_turn_requested", director_Get()->m_endTurnRequested},
+		                      {"paused", director_Get()->m_paused != FALSE},
+		                      {"action_finished", director_Get()->m_actionFinished != FALSE}};
+	}
+	// The game's scored deadline: at end_of_game_year (default 2300 AD) the
+	// "out of time" end-game fires and the highest score wins.  Headless does
+	// NOT stop at the deadline — it keeps running in UNSCORED overtime, which
+	// is why no victory flag appears past it.  Surface the deadline so a driver
+	// knows whether the game is still live or already decided on score.
+	const ConstRecord *cr = g_theConstDB ? g_theConstDB->Get(0) : nullptr;
+	if (cr)
+	{
+		sint32 const end_year = cr->GetEndOfGameYear();
+		sint32 const warn_year = cr->GetEndOfGameYearEarlyWarning();
         result["end_of_game_year"]         = end_year;
         result["end_of_game_warning_year"] = warn_year;
         result["past_deadline"]            = year >= end_year;  // true => unscored overtime
-    }
-    return Ok("query_turn", result);
+	}
+	return Ok("query_turn", result);
 }
 
 // query_player_cities <player_id> — ALL cities of one player (no fog filter).
@@ -4361,72 +4410,86 @@ std::string QueryNames()
 
 std::string QueryGpuWorld()
 {
-    json result;
-    result["enabled"] = aui_SDL::GpuQuadsEnabled();
-    // Reported separately from "enabled": the whole-map target is opt-in and
-    // implies quads, so a parity test that only checked "enabled" could not
-    // tell the P13 path from the ADR-002 one and would silently compare a
-    // path against itself.
-    result["worldmap"] = aui_SDL::GpuWorldmapEnabled();
-    // The flag alone does NOT mean the frame came from the whole-map target:
-    // the present falls back to the ADR-002 window mirror whenever the texture
-    // is absent (aui_sdlsurface.cpp, "Falls back ... if the target is not
-    // ready"). A parity test that checks only the flag passes that fallback as
-    // if it had measured the P13 path.
-    result["worldmap_texture"] = aui_SDL::WorldmapTexture() != nullptr;
-    result["complete"] = aui_SDL::QuadFrameComplete();
-    char const *reason = aui_SDL::QuadFrameIncompleteReason();
-    result["fallback_reason"] = reason ? reason : "";
-    { result["goods"] = { {"cells", s_goodCellsSeen}, {"no_actor", s_goodNoActor},
-                          {"declined", s_goodDeclined}, {"emitted", s_goodEmitted},
-                          {"reason", s_goodReason} }; }   // PROBE
-    result["terrain_quads"] = aui_SDL::QuadDrawList().size();
-    result["sprite_quads"] = aui_SDL::SpriteDrawList().size();
-    result["sprite_fallback_reason"] = aui_SDL::SpriteFrameIncompleteReason() ? aui_SDL::SpriteFrameIncompleteReason() : "";
-    if (tiledmap_Get()) {
-        result["last_terrain_build"] = {
-            {"submitted_quads", tiledmap_Get()->LastWorldmapRedrawCount()},
-            {"gpu_raster", tiledmap_Get()->LastWorldmapRasterCount()},
-            {"cpu_composited", tiledmap_Get()->m_worldmapCpuCells},
-            {"uploads", tiledmap_Get()->m_worldmapUploads}};
-    }
-    // The exact inputs to the present's source rect. Reported so a parity run
-    // can compare the two paths' geometry directly instead of inferring it by
-    // correlating presented pixels — tile art is periodic, so a correlation
-    // peak can sit a whole tile off and still look convincing.
-    result["worldmap_origin"] = { aui_SDL::WorldmapOriginX(), aui_SDL::WorldmapOriginY() };
-    // Terrain, sprites and picking must all agree on where the view's top-left
-    // sits in the whole-map texture. Picking inverts through the origin; sprites
-    // are placed through the sprite base. Any difference between these two is
-    // exactly the "click the unit, select its neighbour" error, in texture
-    // pixels, so report it rather than leaving it to be inferred from pixels.
-    result["worldmap_sprite_base"] = { aui_SDL::WorldmapSpriteBaseX(), aui_SDL::WorldmapSpriteBaseY() };
-    result["worldmap_size"] = { aui_SDL::WorldmapW(), aui_SDL::WorldmapH() };
-    result["world_content_off"] = { aui_SDL::WorldContentOffX(), aui_SDL::WorldContentOffY() };
-    if (tiledmap_Get()) {
-        RECT const *vr = tiledmap_Get()->GetMapViewRect();
-        result["view_rect"] = {vr->left, vr->top, vr->right, vr->bottom};
-        sint32 sox = 0, soy = 0;
-        tiledmap_Get()->GetSmoothScrollOffsets(sox, soy);
-        result["smooth_offset"] = {sox, soy};
-        result["zoom_level"] = tiledmap_Get()->GetZoomLevel();
-        result["zoom_tile_wh"] = {tiledmap_Get()->GetZoomTilePixelWidth(),
-                                  tiledmap_Get()->GetZoomTilePixelHeight()};
-        result["worldmap_margin"] = {aui_SDL::WorldmapMarginX(), aui_SDL::WorldmapMarginY()};
-    }
-    result["camera"] = { {"zoom", aui_SDL::CameraZoom()},
-                         {"off_x", aui_SDL::CameraOffX()},
-                         {"off_y", aui_SDL::CameraOffY()} };
-    return Ok("query_gpu_world", result);
+	json result;
+	result["enabled"] = aui_SDL::GpuQuadsEnabled();
+	// Reported separately from "enabled": the whole-map target is opt-in and
+	// implies quads, so a parity test that only checked "enabled" could not
+	// tell the P13 path from the ADR-002 one and would silently compare a
+	// path against itself.
+	result["worldmap"] = aui_SDL::GpuWorldmapEnabled();
+	// The flag alone does NOT mean the frame came from the whole-map target:
+	// the present falls back to the ADR-002 window mirror whenever the texture
+	// is absent (aui_sdlsurface.cpp, "Falls back ... if the target is not
+	// ready"). A parity test that checks only the flag passes that fallback as
+	// if it had measured the P13 path.
+	result["worldmap_texture"] = aui_SDL::WorldmapTexture() != nullptr;
+	result["complete"] = aui_SDL::QuadFrameComplete();
+	char const *reason = aui_SDL::QuadFrameIncompleteReason();
+	result["fallback_reason"] = reason ? reason : "";
+	{
+		result["goods"] = {{"cells", s_goodCellsSeen},
+		                   {"no_actor", s_goodNoActor},
+		                   {"declined", s_goodDeclined},
+		                   {"emitted", s_goodEmitted},
+		                   {"reason", s_goodReason}};
+	} // PROBE
+	result["terrain_quads"] = aui_SDL::QuadDrawList().size();
+	result["sprite_quads"] = aui_SDL::SpriteDrawList().size();
+	result["sprite_fallback_reason"] =
+	    aui_SDL::SpriteFrameIncompleteReason() ? aui_SDL::SpriteFrameIncompleteReason() : "";
+	if (tiledmap_Get())
+	{
+		result["last_terrain_build"] = {
+		    {"submitted_quads", tiledmap_Get()->LastWorldmapRedrawCount()},
+		    {"gpu_raster", tiledmap_Get()->LastWorldmapRasterCount()},
+		    {"cpu_composited", tiledmap_Get()->m_worldmapCpuCells},
+		    {"uploads", tiledmap_Get()->m_worldmapUploads}};
+	}
+	// The exact inputs to the present's source rect. Reported so a parity run
+	// can compare the two paths' geometry directly instead of inferring it by
+	// correlating presented pixels — tile art is periodic, so a correlation
+	// peak can sit a whole tile off and still look convincing.
+	result["worldmap_origin"] = {aui_SDL::WorldmapOriginX(), aui_SDL::WorldmapOriginY()};
+	// Terrain, sprites and picking must all agree on where the view's top-left
+	// sits in the whole-map texture. Picking inverts through the origin; sprites
+	// are placed through the sprite base. Any difference between these two is
+	// exactly the "click the unit, select its neighbour" error, in texture
+	// pixels, so report it rather than leaving it to be inferred from pixels.
+	result["worldmap_sprite_base"] = {aui_SDL::WorldmapSpriteBaseX(),
+	                                  aui_SDL::WorldmapSpriteBaseY()};
+	result["worldmap_size"] = {aui_SDL::WorldmapW(), aui_SDL::WorldmapH()};
+	result["world_content_off"] = {aui_SDL::WorldContentOffX(), aui_SDL::WorldContentOffY()};
+	if (tiledmap_Get())
+	{
+		RECT const *vr = tiledmap_Get()->GetMapViewRect();
+		result["view_rect"] = {vr->left, vr->top, vr->right, vr->bottom};
+		sint32 sox = 0, soy = 0;
+		tiledmap_Get()->GetSmoothScrollOffsets(sox, soy);
+		result["smooth_offset"] = {sox, soy};
+		result["zoom_level"] = tiledmap_Get()->GetZoomLevel();
+		result["zoom_tile_wh"] = {tiledmap_Get()->GetZoomTilePixelWidth(),
+		                          tiledmap_Get()->GetZoomTilePixelHeight()};
+		result["worldmap_margin"] = {aui_SDL::WorldmapMarginX(), aui_SDL::WorldmapMarginY()};
+	}
+	if (radar_map_Get())
+	{
+		RECT const &rr = radar_map_Get()->ViewRect();
+		result["radar_view_rect"] = {rr.left, rr.top, rr.right, rr.bottom};
+	}
+	result["camera"] = {{"zoom", aui_SDL::CameraZoom()},
+	                    {"off_x", aui_SDL::CameraOffX()},
+	                    {"off_y", aui_SDL::CameraOffY()}};
+	return Ok("query_gpu_world", result);
 }
 
-}  // namespace
+} // namespace
 
-namespace game_controller {
-
-std::string Dispatch(const std::string & line, bool & handled)
+namespace game_controller
 {
-    handled = true;
+
+std::string Dispatch(const std::string &line, bool &handled)
+{
+	handled = true;
 
     if (line == "build_city")                                  return CmdBuildCity();
     if (line == "enable_autoplay")                             return CmdEnableAutoplay();
@@ -4460,6 +4523,7 @@ std::string Dispatch(const std::string & line, bool & handled)
     if (line.rfind("debug_place_improvement ", 0) == 0)          return CmdDebugPlaceImprovement(line.c_str() + 24);
 #endif
     if (line == "debug_deselect")                               return CmdDebugDeselect();
+    if (line.rfind("debug_select_city ", 0) == 0)               return CmdDebugSelectCity(line.c_str() + 18);
     if (line.rfind("debug_actor_state ", 0) == 0)              return CmdDebugActorState(line.c_str() + 18);
 #ifdef RENDER_TOOL_BUILD
     if (line.rfind("debug_sprite_pose ", 0) == 0)              return CmdDebugSpritePose(line.c_str() + 18);
@@ -4557,4 +4621,4 @@ std::string DispatchSafe(const std::string & line, bool & handled)
     return Err(verb.c_str(), "exception");
 }
 
-}  // namespace game_controller
+} // namespace game_controller

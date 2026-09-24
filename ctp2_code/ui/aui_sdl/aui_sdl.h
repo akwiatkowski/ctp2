@@ -40,6 +40,7 @@ public:
 	// Read-only access to the GPU present layer, for the test API's
 	// presented-frame readback (screenshot_presented).
 	static SDL_Renderer *Renderer() { return m_renderer; }
+	static SDL_Window *Window() { return m_window; }
 	static SDL_Texture *ScreenTexture() { return m_screenTexture; }
 	// Smoke-test-only readback of the normal frame, immediately before present.
 	static void EnableFrameCapture() { m_captureFrames = true; }
@@ -142,12 +143,31 @@ public:
 	// decoupled from the bursty (large-delta) trackpad event stream. On a whole-tile
 	// recenter, ShiftPan slides BOTH the displayed offset and the target by the same
 	// pixels so the ease continues seamlessly across the ScrollMap.
-	static void AddPanTarget(float dx, float dy) { m_panTargetX += dx; m_panTargetY += dy; }
-	static void SetPanTarget(float x, float y)   { m_panTargetX = x;  m_panTargetY = y; }
+	static void AddPanTarget(float dx, float dy)
+	{
+		m_panTargetX += dx;
+		m_panTargetY += dy;
+	}
+	static void SetPanTarget(float x, float y)
+	{
+		m_panTargetX = x;
+		m_panTargetY = y;
+	}
 	static void ShiftPan(float dx, float dy)
-	{ m_cameraOffX += dx; m_cameraOffY += dy; m_panTargetX += dx; m_panTargetY += dy; }
+	{
+		m_cameraOffX += dx;
+		m_cameraOffY += dy;
+		m_panTargetX += dx;
+		m_panTargetY += dy;
+	}
 	static float PanTargetX() { return m_panTargetX; }
 	static float PanTargetY() { return m_panTargetY; }
+	static void ResetPan()
+	{
+		m_cameraOffX = m_cameraOffY = 0.0f;
+		m_panTargetX = m_panTargetY = 0.0f;
+		m_panVelX = m_panVelY = 0.0f;
+	}
 	// P11 Stage 2 F — momentum camera physics. Input adds velocity impulses;
 	// TickCamera integrates them each frame. Pan glides to rest under friction
 	// and stays put; zoom is spring-loaded toward the "home" zoom so it eases

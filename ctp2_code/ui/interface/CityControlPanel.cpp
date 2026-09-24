@@ -810,10 +810,7 @@ void CityControlPanel::SelectedCity()
 
 	CityData *oldCityData = GetSelectedCity();
 	if(oldCityData && oldCityData->GetHomeCity().m_id == newCity.m_id) {
-
-		if(!network_Get().IsClient()) {
-			CityWindow::Project(oldCityData);
-		}
+		Update();
 		return;
 	}
 
@@ -834,13 +831,16 @@ void CityControlPanel::SelectedCity()
 
 void CityControlPanel::Activated()
 {
-	Unit city;
-	if(selitem_Get()->GetSelectedCity(city))
-		return;
-
-
 	if(!selitem_Get())
 		return;
+	UpdateCityList();
+	Unit city;
+	if(selitem_Get()->GetSelectedCity(city)) {
+		SelectedCity();
+		return;
+	}
+
+
 
 	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 

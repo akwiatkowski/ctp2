@@ -405,6 +405,15 @@ inline bool CTP2_SDL_RenderWindowToLogical(
 {
 	return SDL_RenderCoordinatesFromWindow(renderer, windowX, windowY, logicalX, logicalY);
 }
+inline bool CTP2_SDL_RenderLogicalToWindow(
+	SDL_Renderer *renderer,
+	float logicalX,
+	float logicalY,
+	float *windowX,
+	float *windowY)
+{
+	return SDL_RenderCoordinatesToWindow(renderer, logicalX, logicalY, windowX, windowY);
+}
 // Backing-store scale for HiDPI (ctp2-078): logical points vs physical
 // pixels. SDL3 reports it directly; SDL2 derives it from drawable size.
 inline float CTP2_SDL_GetWindowDisplayScale(SDL_Window *window)

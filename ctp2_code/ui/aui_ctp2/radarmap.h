@@ -109,6 +109,7 @@ public:
 	void		SetSelectedCity( Unit city ) { m_selectedCity = city; };
 
 	aui_Surface *GetMapSurface() const { return m_mapSurface.get(); }
+	RECT const &ViewRect() const { return m_mapViewRect; }
 
 	AUI_ERRCODE			DrawThis(aui_Surface *surface, sint32 x, sint32 y) override;
 

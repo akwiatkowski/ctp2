@@ -24,6 +24,7 @@ void PostProcessMap()                                 { DISPATCH_VOID(PostProces
 void RecreateGoodActors()                             { DISPATCH_VOID(RecreateGoodActors); }
 
 void Refresh()                                        { DISPATCH_VOID(Refresh); }
+void RequestRefresh()                                 { DISPATCH_VOID(RequestRefresh); }
 void InvalidateMap()                                  { DISPATCH_VOID(InvalidateMap); }
 void InvalidateMix()                                  { DISPATCH_VOID(InvalidateMix); }
 

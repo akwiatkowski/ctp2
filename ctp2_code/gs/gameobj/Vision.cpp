@@ -164,6 +164,8 @@ void Vision::AddVisible(MapPoint pos, double radius,
 						DynamicArray<MapPoint> *removeadd)
 {
 	FillCircle(pos, radius, CIRCLE_OP_ADD, removeadd);
+	if (m_amOnScreen)
+		tiledmap_observer::RequestRefresh();
 
 	if(removeadd)
 	{
@@ -182,6 +184,8 @@ void Vision::RemoveVisible(MapPoint pos, double radius,
 						   DynamicArray<MapPoint> *removeadd)
 {
 	FillCircle(pos, radius, CIRCLE_OP_SUBTRACT, removeadd);
+	if (m_amOnScreen)
+		tiledmap_observer::RequestRefresh();
 }
 
 void Vision::AddRadar(MapPoint pos, double radius)

@@ -1,0 +1,18 @@
+{
+  "name": "next-unit-freeze",
+  "source_session": "20260923T163745Z-808af02f-370f",
+  "source_commit": "808af02f",
+  "seed": 1225742841,
+  "checkpoint_round": 1,
+  "symptom": "Clicking Next Unit produced a macOS beachball and made the game unresponsive.",
+  "recorded_input_sequence": [372, 383],
+  "control": "ControlPanelWindow.ControlPanel.ControlTabPanel.UnitTab.TabPanel.UnitSelectionDisplay.UnitSelect.Next",
+  "watchdog_stack": [
+    "SelectedItem::NextUnmovedUnit",
+    "SelectedItem::SetSelectUnit",
+    "TiledMap::Refresh",
+    "TiledMap::SubmitOverlayQuads"
+  ],
+  "regression": "ui-next-unit loads the checkpoint, replays two real control clicks, requires responsive queries and a newer normal frame.",
+  "backend_limit": "The original freeze occurred on the native macOS renderer; SDL dummy/software replay remained responsive even before the deferred-refresh fix."
+}

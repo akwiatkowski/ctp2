@@ -1,0 +1,21 @@
+{
+  "name": "restored-map-fog",
+  "source_session": "20260923T201240Z-808af02f-5088",
+  "source_bugs": [
+    "bug-20260923T201638Z",
+    "bug-20260923T201910Z"
+  ],
+  "source_commit": "808af02f",
+  "symptoms": [
+    "Fogged terrain rendered as repeated diagonal ocean and beach bands.",
+    "Incremental visibility updates left disconnected terrain patches.",
+    "The restored view initially sampled black terrain until interaction."
+  ],
+  "finding": "JSON restoration constructed every UnseenCell at (0,0) before applying its saved position, so omitted TileInfo, improvements, and installations all copied tile (0,0). Restore now constructs snapshots at their serialized positions. Recorded sessions also suppress edge scrolling until real pointer input; the experimental whole-map renderer is opt-in.",
+  "regressions": [
+    "worldmap-fog",
+    "ui-resume-map",
+    "ui-next-unit"
+  ],
+  "shared_fixture": "hoplite-move-freeze.json.gz"
+}

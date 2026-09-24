@@ -52,6 +52,11 @@ struct RecordingSpy : tiledmap_observer::Impl {
     void Refresh() override {
         ++refreshCalls;
     }
+    int requestRefreshCalls = 0;
+    void RequestRefresh() override {
+        ++requestRefreshCalls;
+    }
+
 
     int invalidateMapCalls = 0;
     void InvalidateMap() override {
@@ -177,6 +182,14 @@ TEST_CASE("tiledmap_observer::Refresh dispatches to Impl")
     tiledmap_observer::Refresh();
     CHECK(spy.refreshCalls == 1);
 }
+TEST_CASE("tiledmap_observer::RequestRefresh dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    tiledmap_observer::RequestRefresh();
+    CHECK(spy.requestRefreshCalls == 1);
+}
+
 
 TEST_CASE("tiledmap_observer::InvalidateMap dispatches to Impl")
 {

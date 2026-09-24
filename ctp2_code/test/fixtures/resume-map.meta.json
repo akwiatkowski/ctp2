@@ -1,0 +1,16 @@
+{
+  "name": "resume-map",
+  "source_session": "20260923T173534Z-808af02f-acc3",
+  "source_commit": "808af02f",
+  "resumed_from": "resume-controls turn 1",
+  "symptom": "After play-resume, the map was mostly black and terrain appeared as a thin strip above the control panel.",
+  "recorded_state": {
+    "camera_offset": [-224.0, 1488.0],
+    "worldmap_origin": [3456, 1488],
+    "view_rect": [36, 62, 48, 98]
+  },
+  "cause": "Radar and programmatic recentering changed the tile view rectangle but retained GPU camera offset, target and velocity, so the whole-map texture remained displaced.",
+  "fix": "Reset GPU pan offset, target and velocity whenever the main RadarMap explicitly centers or handles a valid left click.",
+  "regression": "ui-resume-map creates a camera offset through real edge input, clicks the radar map, and requires both camera offsets to return to zero before a fresh passive frame.",
+  "shared_fixture": "next-unit-freeze.json.gz"
+}

@@ -163,6 +163,49 @@ Runtime switches, all optional:
 | `CTP2_MODERN_SPRITES=0` | Force the original `.SPR` sprites over the atlases |
 | `CIVLOG_LEVEL` | Log verbosity (`trace`…`error`) |
 
+### Recorded human playtests
+
+```sh
+mise exec -- make play-record
+```
+
+No session name or seed is required. The launcher generates both, opens the
+normal visible game, and writes to `build/playtests/<timestamp>-<commit>-<id>/`;
+`build/playtests/latest` points at the active/latest run. It copies the current
+profile instead of modifying it and records the commit, dirty state, seed,
+profile hash, asset fingerprint, native input, resolved LDL targets, game log,
+passive last frame, per-turn JSON saves and state snapshots.
+
+When a problem appears, report it immediately. While the game is responsive the
+assistant can run:
+
+```sh
+mise exec -- make play-mark NOTE="sprites disappeared after clicking the map"
+```
+
+This addresses the active session automatically and stores a checkpoint, frame,
+queries and note under its `bugs/` directory. If the game is frozen, the
+recorder retains the last flushed input/frame and captures a macOS process
+sample without requiring the game to answer. Keep the recorder terminal open
+until the game exits.
+
+After a fix, continue from the newest checkpoint (a marked bug checkpoint takes
+priority over its earlier turn checkpoint) without naming a session:
+
+```sh
+mise exec -- make play-resume
+```
+
+This starts a new recorded session linked to the previous checkpoint and reuses
+the copied profile; the original evidence remains immutable.
+
+The bug bundle is evidence, not automatically a good assertion. The repair
+workflow is: reproduce from the nearest turn checkpoint, retain the shortest
+reliable input suffix, add an observable oracle for the reported symptom, prove
+it fails before the fix, then add that replay as a permanent offscreen full-UI
+test. A general replay/minimizer is intentionally deferred until real recorded
+bugs establish which UI context must be restored.
+
 If the game crashes, [`run_game.sh`](run_game.sh) runs the sanitized build and
 captures stdout plus a backtrace into `test/crashes/` — attach that to a bug
 report. Note that AddressSanitizer binaries currently hang before `main` on
@@ -265,14 +308,46 @@ Artifacts (frames, state trace, game log) are retained under
 `build/ui-offscreen-*/`. The focused cursor test in `ui-menu` additionally uses
 guarded overlay memory to detect offscreen writes even when they do not crash.
 
+`make test-ui-integration` runs the full `ui-integration` suite:
+`ui-offscreen`, `ui-sprite-clicks`, `ui-edge-scroll`, `ui-ten-turns`,
+`ui-next-unit`, `ui-resume-controls`, `ui-resume-map`, `ui-native-input`,
+`ui-move-visibility`, and `play-record-smoke`. The sprite scenario checks
+animated actor pixels after map/minimap clicks. The edge-scroll scenario
+requires camera progress and updates the minimap view rectangle.
+`ui-next-unit` is the first regression promoted from a recorded human session:
+it loads the captured turn-1 checkpoint and replays the exact Next Unit control
+twice, requiring prompt responses and a subsequent normal frame.
+`ui-resume-controls` queues native SDL motion/button-down/button-up events after
+loading that checkpoint, proves the button-down reaches the real TurnButton,
+and requires the normal Director pipeline to advance the round.
+`ui-resume-map` reproduces accumulated camera pan after loading a checkpoint,
+clicks the real radar map, and requires the camera offset to reset before the
+next passive frame.
+`ui-native-input` queues a 200-motion backlog before SDL button transitions and
+requires the press to reach the control within half a second. `ui-move-visibility`
+moves the recorded settler into fog and requires newly visible terrain/resource
+pixels in the next passive frame without camera movement.
+
+`ui-ten-turns` completes exactly ten rounds using the real Next Turn button
+(not the synchronous automation round runner). It tracks stable starting-unit
+IDs, founds Rome, moves the original second settler to found Pompeii, enables
+the Growth governor, and checks population growth plus autonomous production
+continuing afterward. A private Beginner profile supplies two starting settlers;
+ordinary farmer assignments prioritize food until population grows. No units,
+food, population, production, or turns are granted by debug commands. Per-round
+state and passive frames are kept under `build/ui-ten-turns-*/`; failure reports
+include a process sample on macOS. Query city/army/unit `id` fields remain stable
+when list indices change.
+
 For additional scripts, use `Ctp2Client` in UI mode with `SDL_VIDEO_DRIVER=dummy`,
 `SDL_RENDER_DRIVER=software`, `SDL_AUDIO_DRIVER=dummy`, and
 `CTP2_CAPTURE_FRAMES=1`. The smoke-mode commands are:
 
 | Command | Behavior |
 |---|---|
-| `ui_control_bounds <LDL path>` | Screen rectangle, effective visibility, and enabled state |
-| `ui_pointer <x> <y> <down>` | Real pointer dispatch; `down` is 0 or 1; use 0 → 1 → 0 to click |
+| `ui_control_bounds <LDL path>` | Screen rectangle, effective visibility/enabled state, and pressed (`down`) state |
+| `ui_pointer <x> <y> <down>` | Direct AUI pointer dispatch; `down` is 0 or 1 |
+| `ui_native_pointer <x> <y> <down>` | Queue SDL motion and button-down/up events; use 0 → 1 → 0 to click |
 | `ui_prepare_game <seed> <players>` | Pin setup before clicking Launch |
 | `screenshot_frame <path>` | Save the last normal pre-present frame with its sequence number |
 

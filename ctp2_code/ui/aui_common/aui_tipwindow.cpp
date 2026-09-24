@@ -113,6 +113,9 @@ AUI_ERRCODE aui_TipWindow::InitCommon( )
 
 aui_TipWindow::~aui_TipWindow()
 {
+	// Base window removal calls Reset on remaining children after members die.
+	// Detach our owned text first so that traversal cannot visit freed memory.
+	if (m_staticTip) RemoveChild(m_staticTip->Id());
 	// m_staticTip is unique_ptr, auto-freed. It is aui_Ldl::Remove()'d at
 	// creation so the LDL leaf pass never double-deletes it.
 }

@@ -176,8 +176,8 @@ AUI_ERRCODE aui_SDLSurface::Unlock( LPVOID buffer )
 
 AUI_ERRCODE aui_SDLSurface::Blank(const uint32 &color)
 {
-	int errcode = SDL_FillRect(m_lpdds, nullptr, color);
-	if (errcode == 0)
+	bool success = SDL_FillRect(m_lpdds, nullptr, color); // SDL3 returns true on success.
+	if (success)
 		return AUI_ERRCODE_OK;
 
 	return AUI_ERRCODE_BLTFAILED;
@@ -359,7 +359,8 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 				// the world and UI copies so it darkens ONLY the world (fogged
 				// terrain), leaving UI/radar/city-text overlays unfogged.
 				aui_SDLSurface * const fogSurf =
-					(ui->GpuFog()) ? static_cast<aui_SDLSurface *>(ui->FogSurface()) : nullptr;
+					(ui->GpuFog() && !aui_SDL::GpuWorldmapEnabled())
+						? static_cast<aui_SDLSurface *>(ui->FogSurface()) : nullptr;
 				bool const fogged = aui_SDL::FogTexture() && fogSurf && fogSurf->DDS();
 				if (fogged)
 				{
@@ -407,11 +408,18 @@ void aui_SDLSurface::Flip(RECT const *dirty)
 					// to the ADR-002 window mirror if the target is not ready.
 					aui_SDL::PresentWorldFrame(m_renderer, W, H, z, offX, offY);
 					if (fogged)
-						presentWindowed( aui_SDL::FogTexture(), 0.0f, 0.0f );
+					{
+						if (aui_SDL::GpuWorldmapEnabled() && aui_SDL::WorldmapTexture())
+							CTP2_SDL_RenderTextureWindow(m_renderer, aui_SDL::FogTexture(),
+								0.0f, 0.0f, W, H, 0.0f, 0.0f, W, H);
+						else
+							presentWindowed(aui_SDL::FogTexture(), 0.0f, 0.0f);
+					}
 				}
 				for (aui_SDL::GpuSpriteQuad const & q : aui_SDL::SpriteDrawList())
 				{
-					if (!q.screen_space)
+					if (!q.screen_space
+					    || (!quads && !aui_SDL::WholeMapReady()))
 						continue;
 					SDL_SetTextureBlendMode(q.texture, q.additive ? SDL_BLENDMODE_ADD : SDL_BLENDMODE_BLEND);
 					SDL_SetTextureColorMod(q.texture, q.red, q.green, q.blue);

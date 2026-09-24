@@ -980,7 +980,10 @@ LSCivsListItem::LSCivsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, const MBCH
 }
 
 LSCivsListItem::~LSCivsListItem()
-= default;
+{
+	if (m_myItem)
+		RemoveChild(m_myItem->Id());
+}
 
 sint32 LSCivsListItem::Compare(c3_ListItem *item2, uint32 column)
 {
@@ -1027,10 +1030,10 @@ LSGamesListItem::LSGamesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, GameInfo
 
 LSGamesListItem::~LSGamesListItem()
 {
-	m_itemText.reset();
-	m_itemIcon.reset();
-
-	m_childList->DeleteAll();
+	if (m_itemIcon && m_itemText)
+		m_itemIcon->RemoveChild(m_itemText->Id());
+	if (m_itemIcon)
+		RemoveChild(m_itemIcon->Id());
 }
 
 sint32 LSGamesListItem::Compare(c3_ListItem *item2, uint32 column)
@@ -1093,10 +1096,10 @@ LSSavesListItem::LSSavesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, SaveInfo
 
 LSSavesListItem::~LSSavesListItem()
 {
-	m_itemIcon.reset();
-	m_itemText.reset();
-
-	m_childList->DeleteAll();
+	if (m_itemIcon && m_itemText)
+		m_itemIcon->RemoveChild(m_itemText->Id());
+	if (m_itemIcon)
+		RemoveChild(m_itemIcon->Id());
 }
 
 sint32 LSSavesListItem::Compare(c3_ListItem *item2, uint32 column)

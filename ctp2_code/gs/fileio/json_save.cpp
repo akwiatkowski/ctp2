@@ -2633,12 +2633,12 @@ void from_json(nlohmann::json const &j, Vision &v)
     v.m_unseenCells = std::make_unique<UnseenCellQuadTree>(v.m_width, v.m_height, v.m_isYwrap);
     for (auto const &entry : j.at("unseen_cells"))
     {
-        auto uc = std::make_unique<UnseenCell>(MapPoint(0, 0));
-        entry.get_to(*uc);
         MapPoint pos;
-        uc->GetPos(pos);
+        entry.at("position").get_to(pos);
         if (pos.x < 0 || pos.y < 0 || pos.x >= width || pos.y >= height)
             throw nlohmann::json::other_error::create(501, "unseen cell outside Vision grid", &entry);
+        auto uc = std::make_unique<UnseenCell>(pos);
+        entry.get_to(*uc);
         UnseenCellCarton carton(uc.get());
         v.m_unseenCells->Insert(carton);
         uc.release();

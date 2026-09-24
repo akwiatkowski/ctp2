@@ -149,6 +149,7 @@
 #include <memory>                       // std::make_unique
 #include <string>                       // std::basic_string
 #include <vector>                       // std::vector
+#include "ctp/playtest_recorder.h"
 #include "TerrainRecord.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/gameobj/TradePool.h"
@@ -176,6 +177,7 @@
 #include "os/osx/osx_pinch_monitor.h"     // P11 pinch zoom (macOS magnify)
 #include "ui/aui_sdl/aui_sdlmixercompat.h"
 #include "ui/aui_sdl/aui_sdlkeyboard.h"
+#include "ui/aui_sdl/aui_sdlmouse.h"
 #endif
 #ifdef HAVE_X11
 #include <X11/Xlib.h>
@@ -306,6 +308,8 @@ BOOL g_noAssertDialogs = FALSE;
 BOOL g_runInBackground = FALSE;
 BOOL g_eventLog = FALSE;
 BOOL g_smokeTest = FALSE;
+BOOL g_playRecord = FALSE;
+extern sint32 g_oldRandSeed;
 
 
 BOOL g_use_profile_process = FALSE;
@@ -987,11 +991,13 @@ bool ui_CheckForScroll()
 {
 	if (!g_tiledMap) return false;
 
-	// Smoke-test sessions have no human at the controls: the SDL mouse sits
-	// at (0,0) forever, which reads as permanent edge-scroll-up-left and
-	// silently drags the view to the map corner (fighting any programmatic
-	// centering a harness does). No real input, no scroll.
-	if (g_smokeTest) return false;
+	// Automated and recorded sessions start before SDL has reported a pointer.
+	// Treating the default (0,0) as real input edge-scrolls to the map corner.
+	// Synthetic or native pointer input enables the normal scrolling path.
+	auto *testMouse = (g_smokeTest || g_playRecord) && g_c3ui
+		? dynamic_cast<aui_SDLMouse *>(g_c3ui->TheMouse()) : nullptr;
+	if ((g_smokeTest || g_playRecord) && (!testMouse || !testMouse->HasPointerInput()))
+		return false;
 
 	sint32		tileStepX = g_tiledMap->GetZoomTilePixelWidth();
 	sint32		halfRowStepY = g_tiledMap->GetZoomTilePixelHeight()/2;
@@ -1229,12 +1235,8 @@ int ui_Process()
 
 	if (ui_CheckForScroll())
     {
-		do
-        {
-			g_tiledMap->CopyMixDirtyRects(background_Get()->GetDirtyList());
-			g_c3ui->DrawAll();
-		}
-        while (ui_CheckForScroll());
+		g_tiledMap->CopyMixDirtyRects(background_Get()->GetDirtyList());
+		g_c3ui->DrawAll();
 
 		g_tiledMap->RetargetTileSurface(nullptr);
 		g_tiledMap->Refresh();
@@ -1524,13 +1526,25 @@ void ParseCommandLine(PSTR szCmdLine)
 	g_no_exit_action = (nullptr != strstr(szCmdLine, "noexitaction"));
 	g_exclusiveMode = !(nullptr != strstr(szCmdLine, "nonexclusive"));
 	g_hideTaskBar = (nullptr != strstr(szCmdLine, "hidetaskbar"));
-	if(!g_cmdline_load)
+	if (!g_cmdline_load)
 		g_useIntroMovie = !(nullptr != strstr(szCmdLine, "nointromovie"));
 	g_noAssertDialogs = (nullptr != strstr(szCmdLine, "noassertdialogs"));
 	g_runInBackground = (nullptr != strstr(szCmdLine, "runinbackground"));
 
 	g_eventLog = (nullptr != strstr(szCmdLine, "eventlog"));
 	g_smokeTest = (nullptr != strstr(szCmdLine, "smoke-test"));
+	g_playRecord = (nullptr != strstr(szCmdLine, "--play-record"));
+	if (g_playRecord)
+		g_useIntroMovie = FALSE;
+	if (char *seedArg = strstr(szCmdLine, "--play-seed"))
+	{
+		seedArg += strlen("--play-seed");
+		while (*seedArg == ' ')
+			++seedArg;
+		sint32 seed = 0;
+		if (sscanf(seedArg, "%d", &seed) == 1 && seed > 0)
+			g_oldRandSeed = seed;
+	}
 
 	// Parse --resolution WxH (e.g., --resolution 1920x1080)
 	{
@@ -1936,6 +1950,8 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 #else
 	ParseCommandLine(szCmdLine);
 #endif
+	if (g_playRecord)
+		playtest_recorder::Initialize();
 
 	allocated::reassign(g_civApp, std::make_unique<CivApp>().release());
 
@@ -2031,9 +2047,12 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		// so mouse events (handled by the mouse thread) are not stolen.
 
 		// Process quit events
-		while (true) {
+		while (true)
+		{
 			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_QUIT, SDL_QUIT);
-			if (n <= 0) break;
+			if (n <= 0)
+				break;
+			playtest_recorder::RecordInput("quit", SDL_GetTicks(), 0, 0, 0, 0, true);
 			gDone = TRUE;
 			DoFinalCleanup(0);
 		}
@@ -2143,6 +2162,7 @@ void DoFinalCleanup(int exitCode)
 
 		sliccmd_clear_symbols();
 		SlicSegment::Cleanup();
+		playtest_recorder::Shutdown();
 		appstrings_Cleanup();
 	}
 
@@ -2161,30 +2181,71 @@ int SDLMessageHandler(const SDL_Event &event)
 	// unchanged ui_HandleKeypress(wParam, lParam)
 
 	static bool swallowNextChar = false;
-//could not find ui_HandleKeypress(wParam, lParm)! Could this mean this code was under reconstruction in trunk when the clone for linux was made???
-
-	switch(event.type) {
+	// could not find ui_HandleKeypress(wParam, lParm)! Could this mean this code was under
+	// reconstruction in trunk when the clone for linux was made???
+	std::uint64_t const recordTime = SDL_GetTicks();
+	switch (event.type)
+	{
 	case SDL_KEYDOWN:
-		{
-			SDL_Keycode key = CTP2_SDL_GetKeycode(event.key);
-			SDL_Keymod mod = CTP2_SDL_GetKeymod(event.key);
-			// macOS conventions: Cmd+Q quits (the window-close box is not
-			// always reachable in fullscreen/borderless play). Ctrl+Q left alone.
-			if (key == SDLK_q && (mod & KMOD_GUI) && !(mod & KMOD_CTRL)) {
-				gDone = TRUE;
-				DoFinalCleanup(0);
-				return 0;
-			}
-			// Cmd+S reuses the keymap's ^s (SAVE_WORLD, quicksave) binding,
-			// so rebinding Ctrl+S remaps Cmd+S too. Control code, not 's'.
-			if (key == SDLK_s && (mod & KMOD_GUI) && !(mod & KMOD_CTRL)) {
-				ui_HandleKeypress('s' - 'a' + 1, 0);
-				return 0;
-			}
-			WPARAM wp = '\0';
-			switch (key) {
+	case SDL_KEYUP:
+		playtest_recorder::RecordInput(event.type == SDL_KEYDOWN ? "key_down" : "key_up",
+		                               recordTime,
+		                               static_cast<std::int32_t>(CTP2_SDL_GetKeycode(event.key)),
+		                               static_cast<std::int32_t>(CTP2_SDL_GetKeymod(event.key)),
+		                               event.key.repeat ? 1 : 0, 0, true);
+		break;
+	case SDL_TEXTINPUT:
+		playtest_recorder::RecordText("text_input", recordTime, event.text.text, true);
+		break;
+	case SDL_MOUSEWHEEL:
+		playtest_recorder::RecordInput(
+		    "mouse_wheel", recordTime, static_cast<std::int32_t>(event.wheel.x * 1000.0f),
+		    static_cast<std::int32_t>(event.wheel.y * 1000.0f), 0, 0, true);
+		break;
+	case SDL_FINGERDOWN:
+	case SDL_FINGERUP:
+	case SDL_FINGERMOTION:
+		playtest_recorder::RecordInput(event.type == SDL_FINGERDOWN ? "finger_down"
+		                               : event.type == SDL_FINGERUP ? "finger_up"
+		                                                            : "finger_motion",
+		                               recordTime,
+		                               static_cast<std::int32_t>(event.tfinger.x * 1000000.0f),
+		                               static_cast<std::int32_t>(event.tfinger.y * 1000000.0f), 0,
+		                               0, event.type != SDL_FINGERMOTION);
+		break;
+	case SDL_QUIT:
+		playtest_recorder::RecordInput("quit", recordTime, 0, 0, 0, 0, true);
+		break;
+	default:
+		break;
+	}
 
-//for the keys below check swallowNextChar if char should be ignored
+	switch (event.type)
+	{
+	case SDL_KEYDOWN:
+	{
+		SDL_Keycode key = CTP2_SDL_GetKeycode(event.key);
+		SDL_Keymod mod = CTP2_SDL_GetKeymod(event.key);
+		// macOS conventions: Cmd+Q quits (the window-close box is not
+		// always reachable in fullscreen/borderless play). Ctrl+Q left alone.
+		if (key == SDLK_q && (mod & KMOD_GUI) && !(mod & KMOD_CTRL))
+		{
+			gDone = TRUE;
+			DoFinalCleanup(0);
+			return 0;
+		}
+		// Cmd+S reuses the keymap's ^s (SAVE_WORLD, quicksave) binding,
+		// so rebinding Ctrl+S remaps Cmd+S too. Control code, not 's'.
+		if (key == SDLK_s && (mod & KMOD_GUI) && !(mod & KMOD_CTRL))
+		{
+			ui_HandleKeypress('s' - 'a' + 1, 0);
+			return 0;
+		}
+		WPARAM wp = '\0';
+		switch (key)
+		{
+
+			// for the keys below check swallowNextChar if char should be ignored
 
 #define SDLKCONV(sdl_name, char) \
 			case (sdl_name): \
@@ -2389,7 +2450,7 @@ int SDLMessageHandler(const SDL_Event &event)
 //                             ui_HandleKeypress(wp, 0);
 // 			}
 			break;
-		}
+	}
 	case SDL_TEXTINPUT:
 		// Composed text for city names/chat. ASCII (<0x80) is owned by the
 		// KEYDOWN macros above — feeding it here too would double every
@@ -2458,7 +2519,7 @@ int SDLMessageHandler(const SDL_Event &event)
              break;
 	}
 
-        //lynx: is a last default handling missing here??? DefWindowProc()
+	    //lynx: is a last default handling missing here??? DefWindowProc()
 
 	return 0;
 }

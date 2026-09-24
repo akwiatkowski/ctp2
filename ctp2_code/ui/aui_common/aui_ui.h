@@ -220,15 +220,11 @@ public:
 				RECT whole = { 0, 0, srcSurf->Width(), srcSurf->Height() };
 				m_blitter->Blt(m_worldSurface.get(), 0, 0, srcSurf, &whole, flags);
 				++m_worldContentVersion;
-				// Punch a transparent hole in the UI layer (screen coords): in
-				// z-order the world is the bottom-most window, so a world write
-				// means whatever the UI layer held here (a closed window, a
-				// fill) is stale — anything genuinely above will be re-blitted
-				// right after by its own window in the same composite pass.
-				// Without this, closed windows ghost forever over the world.
-				EraseUiLayerRect(destx, desty,
-				                 destx + (srcRect->right - srcRect->left),
-				                 desty + (srcRect->bottom - srcRect->top));
+				// The world mirror copies the whole window, not only srcRect.
+				// Clear the whole UI layer too: a stale opaque pixel outside
+				// the dirty rect otherwise hides the freshly cleared map edge.
+				// UI windows sit above the world and are reblitted afterward.
+				EraseUiLayerRect(0, 0, m_uiSurface->Width(), m_uiSurface->Height());
 				++m_uiContentVersion;
 			}
 			else

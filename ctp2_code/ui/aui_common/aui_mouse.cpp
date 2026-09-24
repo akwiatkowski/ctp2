@@ -923,7 +923,7 @@ AUI_ERRCODE	aui_Mouse::BltWindowToPrimary( aui_Window *window )
 			screenDirtyRect.top,
 			windowSurface,
 			windowDirtyRect,
-			k_AUI_BLITTER_FLAG_COPY );
+			k_AUI_BLITTER_FLAG_COPY, window );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK )
 		{
@@ -1100,7 +1100,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 				screenDirtyRect.top,
 				windowSurface,
 				windowDirtyRect,
-				blitFlags );
+				blitFlags, window );
 			Assert( errcode == AUI_ERRCODE_OK );
 			if ( errcode != AUI_ERRCODE_OK )
 			{

@@ -1853,7 +1853,7 @@ test('ui-offscreen', python3,
   workdir : cwd_for_tests,
   suite : 'ui-integration',
 )
-foreach ui_scenario : ['ui-edge-scroll', 'ui-sprite-clicks', 'ui-ten-turns', 'ui-next-unit', 'ui-resume-controls', 'ui-resume-map', 'ui-native-input', 'ui-move-visibility']
+foreach ui_scenario : ['ui-edge-scroll', 'ui-sprite-clicks', 'ui-ten-turns', 'ui-next-unit', 'ui-resume-controls', 'ui-resume-map', 'ui-native-input', 'ui-move-visibility', 'ui-tile-improvement', 'ui-auto-explore']
   test(ui_scenario, python3,
     args : [files('test/' + ui_scenario.replace('-', '_') + '.py'),
       join_paths(meson.project_build_root(), 'ctp2')],
@@ -1914,11 +1914,12 @@ test('slice-ui',
 
 # P11 GPU camera pixel-proof: boots the UI build with CTP2_GPU_LAYERS +
 # CTP2_GPU_CAMERA, gets real terrain on screen, forces a 50px camera offset
-# and asserts the presented pixels actually shift. This is the only test that
-# exercises the layered present with a non-identity camera — slice-ui's
-# oracle runs the default single-texture path. One launch: the map is random
-# (no --seed in the UI build) but the camera point is chosen and revealed
-# deterministically, so it no longer depends on where the settler spawned.
+# and asserts the presented pixels actually shift. The slice-ui test checks
+# gameplay/save state; the layered GPU view and legacy software primary differ
+# outside the map, so their old whole-screen equality oracle was invalid.
+# One launch: the map is random (no --seed in the UI build) but the camera
+# point is chosen and revealed deterministically, so the test does not depend
+# on where the settler spawned.
 test('pan-pixel-proof',
   find_program('test/pan_pixel_proof.py'),
   args : [join_paths(meson.project_build_root(), 'ctp2')],
@@ -2209,6 +2210,15 @@ explore_test = find_program('test/explore.py')
 test('explore-headless',
   explore_test,
   args : [join_paths(meson.project_build_root(), 'ctp2_headless')],
+  timeout : 300,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
+  suite : 'integration',
+)
+
+test('explore-contact-headless', python3,
+  args : [files('test/explore_contact.py'), join_paths(meson.project_build_root(), 'ctp2_headless')],
   timeout : 300,
   is_parallel : false,
   priority : -1,

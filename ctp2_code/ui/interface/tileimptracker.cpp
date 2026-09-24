@@ -102,6 +102,9 @@ sint32 tileimptracker_Initialize()
 	g_tileImpTrackerWindow = std::make_unique<TileimpTrackerWindow>( &errcode, aui_UniqueId(), textBlock, 16);
 	Assert( AUI_NEWOK(g_tileImpTrackerWindow, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
+	// This hover-only preview overlaps the tile being clicked. Let map input
+	// pass through to Background while keeping the cost/yield preview visible.
+	g_tileImpTrackerWindow->IgnoreEvents(TRUE);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "TimeN");
 	s_trackerTimeN = std::make_unique<c3_Static>( &errcode, aui_UniqueId(), controlBlock );

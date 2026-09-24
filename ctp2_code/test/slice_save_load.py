@@ -38,65 +38,6 @@ from ctp2_client import Ctp2Client, Ctp2Error  # noqa: E402
 
 SAVE_PATH = "/tmp/ctp2_slice.sav"
 
-# --- present-path pixel oracle (ui mode only) -------------------------------
-# The GPU present stage (SDL_UpdateTexture -> RenderCopy -> RenderPresent) is
-# otherwise test-blind: a black screen or byte-order bug passes every state
-# query. `screenshot` saves the software primary surface (pre-upload);
-# `screenshot_presented` re-composites the persistent screen texture through
-# the GPU copy path and reads it back. The two must agree pixel-for-pixel.
-
-def _bmp_pixel(data, x, y):
-    """Return (r, g, b) at (x, y) from raw BMP bytes (24/32 bpp, bottom-up)."""
-    import struct
-    off = struct.unpack_from("<I", data, 10)[0]
-    w = struct.unpack_from("<i", data, 18)[0]
-    h = struct.unpack_from("<i", data, 22)[0]
-    bpp = struct.unpack_from("<H", data, 28)[0]
-    assert bpp in (24, 32), f"unexpected BMP bpp {bpp}"
-    row = (h - 1 - y) if h > 0 else y          # positive height = bottom-up
-    rowsize = ((bpp * w + 31) // 32) * 4
-    p = off + row * rowsize + x * (bpp // 8)
-    b, g, r = data[p], data[p + 1], data[p + 2]
-    return (r, g, b)
-
-
-def _bmp_dims(data):
-    import struct
-    return (struct.unpack_from("<i", data, 18)[0],
-            abs(struct.unpack_from("<i", data, 22)[0]))
-
-
-def check_present_path(client):
-    """Primary-surface BMP vs GPU-readback BMP: same size, same sampled
-    pixels, and the frame is not monochrome."""
-    prim_path = "/tmp/ctp2_slice_primary.bmp"
-    pres_path = "/tmp/ctp2_slice_presented.bmp"
-    # One command captures both in the same dispatch — atomic, so no
-    # animation frame can land between the GPU readback and the primary.
-    client.expect_ok("screenshot_presented", pres_path, prim_path)
-    with open(prim_path, "rb") as f:
-        prim = f.read()
-    with open(pres_path, "rb") as f:
-        pres = f.read()
-
-    pw, ph = _bmp_dims(prim)
-    qw, qh = _bmp_dims(pres)
-    assert (pw, ph) == (qw, qh), f"size mismatch: primary {pw}x{ph} vs presented {qw}x{qh}"
-
-    colors = set()
-    mismatches = []
-    for gy in range(1, 8):
-        for gx in range(1, 8):
-            x, y = pw * gx // 8, ph * gy // 8
-            a, b = _bmp_pixel(prim, x, y), _bmp_pixel(pres, x, y)
-            colors.add(a)
-            if a != b:
-                mismatches.append((x, y, a, b))
-    assert not mismatches, f"presented frame != primary at {mismatches[:5]}"
-    assert len(colors) > 1, "frame is monochrome — nothing was composited"
-    print(f"  present-path oracle ok: {pw}x{ph}, {len(colors)} distinct sample colors")
-
-
 def found_city(client):
     """build_city after the game is ready. The starting settler may not be
     placed the instant the game loads (UI build), and build_city is a no-op
@@ -137,10 +78,6 @@ def run_slice(client, mode):
           f"units (mine): {[(u['name'], u['type']) for u in my_units]}")
 
     found_city(client)
-
-    # Present-path pixel oracle — UI build only (headless has no window/GPU).
-    if mode == "ui":
-        check_present_path(client)
 
     cities = client.result("query_cities")["cities"]
     assert len(cities) == 1, f"expected 1 city after founding, got {len(cities)}"

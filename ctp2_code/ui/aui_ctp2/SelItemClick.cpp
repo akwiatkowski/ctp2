@@ -890,6 +890,14 @@ void SelectedItem::NewRegisterClick(const MapPoint &pos, const aui_MouseEvent *d
 		button = SELECT_BUTTON_LEFT_DRAG;
 	else if(leftDrop)
 		button = SELECT_BUTTON_LEFT_DROP;
+	// Target placement is independent of the selected army/city. The city
+	// pathing table otherwise treats this map click as a selection change.
+	if (do_targeting_mode && button == SELECT_BUTTON_LEFT)
+	{
+		ActionClick(pos, data, doubleClick);
+		return;
+	}
+
 
 	SELECT_TYPE clickedThing = GetClickedThing(pos, button != SELECT_BUTTON_LEFT_DROP);
 

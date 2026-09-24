@@ -2643,6 +2643,7 @@ aui_Stencil *aui_CreateStencil(aui_Surface *pSurface)
 	sint32 structMemory = sizeof(aui_Stencil) + (height - 1) * sizeof(spanIndex);
 
 	aui_Stencil *pBuffer = static_cast<aui_Stencil *>(::operator new(structMemory + numSpans * sizeof(aui_StencilSpan)));
+	pBuffer->height = height;
 
 	pBuffer->spans = (aui_StencilSpan *)(((uint8 *)pBuffer) + structMemory);
 
@@ -2671,6 +2672,55 @@ void aui_DestroyStencil(aui_Stencil *pStencil)
 	// Paired with aui_CreateStencil — the stencil is a single flexible
 	// allocation (struct + trailing spans), so it is released as one block.
 	::operator delete(pStencil);   // placement new counterpart
+}
+
+AUI_ERRCODE aui_Blitter::BltStencilForeground(
+	aui_Surface *destSurf, sint32 destx, sint32 desty,
+	aui_Surface *srcSurf, RECT *srcRect,
+	const aui_Stencil *stencil, uint32 flags)
+{
+	// Merge equal stencil rows into one rectangular blit per foreground run:
+	// the flat HUD panel would otherwise issue hundreds of one-pixel blits.
+	auto sameRow = [stencil](sint32 a, sint32 b) {
+		spanIndex ai = stencil->rowStart[a], bi = stencil->rowStart[b];
+		while (ai != kSpanNull && bi != kSpanNull)
+		{
+			if (stencil->spans[ai].length != stencil->spans[bi].length)
+				return false;
+			ai = stencil->spans[ai].next;
+			bi = stencil->spans[bi].next;
+		}
+		return ai == bi;
+	};
+	for (sint32 y = srcRect->top; y < srcRect->bottom && y < stencil->height;)
+	{
+		sint32 bottom = y + 1;
+		while (bottom < srcRect->bottom && bottom < stencil->height
+		       && sameRow(y, bottom)) ++bottom;
+		sint32 x = 0;
+		bool foreground = false; // Stencil rows start with a background run.
+		for (spanIndex index = stencil->rowStart[y];
+		     index != kSpanNull && x < srcRect->right;
+		     index = stencil->spans[index].next)
+		{
+			sint32 const end = x + stencil->spans[index].length;
+			if (foreground)
+			{
+				RECT span = {std::max(x, srcRect->left), y,
+				             std::min(end, srcRect->right), bottom};
+				if (span.left < span.right)
+				{
+					AUI_ERRCODE const rc = Blt(destSurf, destx + span.left - srcRect->left,
+					                            desty + y - srcRect->top, srcSurf, &span, flags);
+					if (rc != AUI_ERRCODE_OK) return rc;
+				}
+			}
+			x = end;
+			foreground = !foreground;
+		}
+		y = bottom;
+	}
+	return AUI_ERRCODE_OK;
 }
 
 AUI_ERRCODE aui_Blitter::StencilMixBlt16(

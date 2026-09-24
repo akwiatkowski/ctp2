@@ -184,6 +184,13 @@ public:
 		aui_Stencil *stencil,
 		RECT *stencilRect);
 
+	// Copy only stencil foreground spans into the ARGB UI layer. The
+	// background spans in transparent window surfaces contain old world pixels.
+	AUI_ERRCODE BltStencilForeground(
+		aui_Surface *destSurf, sint32 destx, sint32 desty,
+		aui_Surface *srcSurf, RECT *srcRect,
+		const aui_Stencil *stencil, uint32 flags);
+
 
 
 

@@ -284,9 +284,9 @@ instead of guessing. Notes from real sessions live in
 ```sh
 mise exec -- make test  # ratchets + fast + unit + isolated menu interactions
 mise exec -- make test-ui-integration  # full game, synthetic input, no visible window/audio
-make test-full      # the long suite: integration, smoke, scenarios (~20-30 min)
-make test-render    # 15 renderer pixel oracles (needs a desktop session)
-make ubsan-smoke    # UndefinedBehaviorSanitizer tier
+mise exec -- make test-full    # long suite: integration, smoke, scenarios
+mise exec -- make test-render  # 15 renderer parity, pixel and UI slice gates
+mise exec -- make ubsan-smoke  # UndefinedBehaviorSanitizer tier
 ```
 
 `ui-menu` runs the real menu layouts, mouse hit-testing, queued actions, and
@@ -308,10 +308,11 @@ Artifacts (frames, state trace, game log) are retained under
 `build/ui-offscreen-*/`. The focused cursor test in `ui-menu` additionally uses
 guarded overlay memory to detect offscreen writes even when they do not crash.
 
-`make test-ui-integration` runs the full `ui-integration` suite:
+`mise exec -- make test-ui-integration` runs the full `ui-integration` suite:
 `ui-offscreen`, `ui-sprite-clicks`, `ui-edge-scroll`, `ui-ten-turns`,
 `ui-next-unit`, `ui-resume-controls`, `ui-resume-map`, `ui-native-input`,
-`ui-move-visibility`, and `play-record-smoke`. The sprite scenario checks
+`ui-move-visibility`, `ui-tile-improvement`, `ui-auto-explore`, and
+`play-record-smoke`. The sprite scenario checks
 animated actor pixels after map/minimap clicks. The edge-scroll scenario
 requires camera progress and updates the minimap view rectangle.
 `ui-next-unit` is the first regression promoted from a recorded human session:
@@ -327,6 +328,14 @@ next passive frame.
 requires the press to reach the control within half a second. `ui-move-visibility`
 moves the recorded settler into fog and requires newly visible terrain/resource
 pixels in the next passive frame without camera movement.
+`ui-next-unit` also checks that the control-panel stencil leaves its upper
+world-view hole transparent while the HUD artwork remains visible after a
+north-edge pan. `ui-tile-improvement` clicks an affordable sea Net through its
+hover preview with a city selected, then checks the Public Works debit.
+`ui-auto-explore` captures the army's right-click menu (`Auto-Explore [ON]`)
+and verifies that the Move (`m`) hotkey immediately cancels exploration.
+`explore-contact-headless` drives a real frontier reveal: sighting a non-allied
+unit cancels the order, while sighting an allied unit leaves it active.
 
 `ui-ten-turns` completes exactly ten rounds using the real Next Turn button
 (not the synchronous automation round runner). It tracks stable starting-unit
@@ -346,7 +355,8 @@ For additional scripts, use `Ctp2Client` in UI mode with `SDL_VIDEO_DRIVER=dummy
 | Command | Behavior |
 |---|---|
 | `ui_control_bounds <LDL path>` | Screen rectangle, effective visibility/enabled state, and pressed (`down`) state |
-| `ui_pointer <x> <y> <down>` | Direct AUI pointer dispatch; `down` is 0 or 1 |
+| `ui_pointer <x> <y> <left> [right]` | Direct AUI pointer dispatch; button states are 0 or 1 (right is optional) |
+| `ui_key <character>` | Dispatch one printable key through the configured game keymap (`m` is Move) |
 | `ui_native_pointer <x> <y> <down>` | Queue SDL motion and button-down/up events; use 0 → 1 → 0 to click |
 | `ui_prepare_game <seed> <players>` | Pin setup before clicking Launch |
 | `screenshot_frame <path>` | Save the last normal pre-present frame with its sequence number |

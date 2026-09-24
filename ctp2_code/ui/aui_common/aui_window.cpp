@@ -698,24 +698,29 @@ void aui_Window::SetStencilFromImage(const MBCHAR *imageFileName)
 	if(!image)
 		return;
 
-	aui_Surface tempSurface(
-		&errcode,
-		m_surface->Width(),
-		m_surface->Height(),
-		16 );
+	std::unique_ptr<aui_Surface> tempSurface(aui_Factory::new_Surface(
+		errcode, m_surface->Width(), m_surface->Height(),
+		nullptr, FALSE, FALSE, FALSE, 16));
+	if (!tempSurface) {
+		aui_ui_Get()->UnloadImage(image);
+		return;
+	}
 
 	RECT imageRect = {
 		0, 0,
 		image->TheSurface()->Width(), image->TheSurface()->Height()
 	};
-	aui_ui_Get()->TheBlitter()->Blt(&tempSurface, 0, 0,
-							image->TheSurface(),
-							&imageRect,
-							k_AUI_BLITTER_FLAG_COPY);
+	errcode = aui_ui_Get()->TheBlitter()->Blt(tempSurface.get(), 0, 0,
+	                                           image->TheSurface(), &imageRect,
+	                                           k_AUI_BLITTER_FLAG_COPY);
+	if (errcode != AUI_ERRCODE_OK) {
+		aui_ui_Get()->UnloadImage(image);
+		return;
+	}
 
 	aui_ui_Get()->UnloadImage(image);
 
-	m_stencil.reset(aui_CreateStencil(&tempSurface));
+	m_stencil.reset(aui_CreateStencil(tempSurface.get()));
 
 	m_surface->SetChromaKey(255,0,255);
 }

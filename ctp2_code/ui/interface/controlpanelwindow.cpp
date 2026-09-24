@@ -1691,6 +1691,22 @@ ControlPanelWindow::BeginOrderDelivery(OrderRecord *rec)
 
 	if (data==nullptr)
 		return;
+	// Choosing Move overrides automation immediately, even if the player has
+	// not clicked a destination yet. Do not let the old explore path resume.
+	if (rec == selitem_Get()->GetMoveOrder())
+	{
+		bool exploring = false;
+		for (sint32 i = 0; i < data->Num(); ++i)
+		{
+			UnitData *unit = data->Access(i).AccessData();
+			if (unit && unit->IsExploring())
+			{
+				unit->SetExploring(false);
+				exploring = true;
+			}
+		}
+		if (exploring) data->ClearOrders();
+	}
 
 	ORDER_TEST test=data->TestOrderHere(rec,pos);
 
@@ -2845,6 +2861,12 @@ ControlPanelWindow::BuildUnitList ()
 
 		ArmyData *  data = army.AccessData();
         Assert(data);
+		bool exploring = false;
+		for (sint32 member = 0; member < data->Num(); ++member)
+		{
+			UnitData *unit = data->Access(member).AccessData();
+			exploring |= unit && unit->IsExploring();
+		}
 		Cell *      cell = world_Get()->GetCell(data->RetPos());
 		if(cell->GetNumUnits() != data->Num()) {
 
@@ -2884,6 +2906,8 @@ ControlPanelWindow::BuildUnitList ()
 				MBCHAR order[k_MAX_NAME_LEN];
 			strlcpy(order, "  ", sizeof(order));
 			strlcat(order, stringdb_Get()->GetNameStr(string_index), sizeof(order));
+				if (exploring && stricmp(rec->GetIDText(), "ORDER_EXPLORE") == 0)
+					strlcat(order, " [ON]", sizeof(order));
 
 				m_contextMenu->AddItem(order, nullptr,reinterpret_cast<void *>(static_cast<intptr_t>(i)));
 			}

@@ -2685,10 +2685,29 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					}
 				}
 			}
+			else if (strncmp(cmd, "ui_key ", sizeof("ui_key ") - 1) == 0)
+			{
+				// One printable key through the same mapping as native SDL input;
+				// keymap.txt binds 'm' to MOVE_ORDER.
+				constexpr size_t prefix = sizeof("ui_key ") - 1;
+				if (strlen(cmd) != prefix + 1 || cmd[prefix] < '!'
+				    || cmd[prefix] > '~')
+					smoketest_send_response("error", "ui_key", "bad_key");
+				else if (!m_gameLoaded)
+					smoketest_send_response("error", "ui_key", "game_not_loaded");
+				else
+				{
+					ui_HandleKeypress(static_cast<unsigned char>(cmd[prefix]), 0);
+					smoketest_send_response("ok", "ui_key", nullptr);
+				}
+			}
 			else if (strcmp(cmd, "ui_pointer") == 0 || strncmp(cmd, "ui_pointer ", 11) == 0)
 			{
-				int values[3];
-				if (!parseIntegers(cmd + 10, values, 3) || values[2] < 0 || values[2] > 1)
+				int values[4] = {};
+				if ((!parseIntegers(cmd + 10, values, 3)
+				     && !parseIntegers(cmd + 10, values, 4))
+				    || values[2] < 0 || values[2] > 1
+				    || values[3] < 0 || values[3] > 1)
 				{
 					smoketest_send_response("error", "ui_pointer", "bad_args");
 				}
@@ -2711,9 +2730,10 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						event.position.x = values[0];
 						event.position.y = values[1];
 						event.lbutton = values[2];
+						event.rbutton = values[3];
 						event.time = Os::GetTicks();
 						playtest_recorder::RecordInput("synthetic_pointer", event.time, values[0],
-						                               values[1], values[2], 0, true);
+						                               values[1], values[2], values[3], true);
 						mouse->SetSyntheticInput(event);
 						AUI_ERRCODE result = c3ui_Get()->Process(1, &event);
 						smoketest_send_response(AUI_SUCCESS(result) ? "ok" : "error", "ui_pointer",
@@ -3314,6 +3334,13 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 							if (c3ui_Get()) {
 								c3ui_Get()->Invalidate(nullptr);
 								c3ui_Get()->DrawAll();
+								// Layered present skips the normal primary mirror. Copy
+								// the current software composite without a second Flip.
+								RECT full = {0, 0, c3ui_Get()->SecondaryWidth(),
+								                 c3ui_Get()->SecondaryHeight()};
+								ok = c3ui_Get()->TheBlitter()->Blt(c3ui_Get()->Primary(), 0, 0,
+									c3ui_Get()->Secondary(), &full, k_AUI_BLITTER_FLAG_COPY)
+									== AUI_ERRCODE_OK;
 							}
 							aui_SDLSurface *prim = static_cast<aui_SDLSurface*>(c3ui_Get()->Primary());
 							ok = prim && prim->DDS()

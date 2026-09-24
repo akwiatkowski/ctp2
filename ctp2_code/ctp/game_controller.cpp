@@ -1962,6 +1962,7 @@ std::string QueryArmies()
         json units = json::array();
         json cargo = json::array();
         sint32 capacity = 0;
+        bool exploring = false;
         for (sint32 u = 0; u < ad->Num(); ++u) {
             Unit unit = ad->Access(u);
             if (!unit.IsValid()) continue;
@@ -1972,6 +1973,7 @@ std::string QueryArmies()
             j["hp"]   = unit.GetHP();
             units.push_back(j);
             if (UnitData * ud = unit.AccessData()) {
+                exploring |= ud->IsExploring();
                 capacity += ud->GetMaxCargoCapacity();
                 if (UnitDynamicArray * cl = ud->GetCargoList()) {
                     for (sint32 ci = 0; ci < cl->Num(); ++ci) {
@@ -1987,6 +1989,7 @@ std::string QueryArmies()
         a["id"]         = army.m_id;
         a["pos"]        = { {"x", pos.x}, {"y", pos.y} };
         a["moves_left"] = moves;
+        a["exploring"] = exploring;
         a["can_settle"] = army.CanSettle();
         a["units"]      = units;
         a["cargo"]          = cargo;     // units riding in this army's transports
@@ -2113,6 +2116,39 @@ std::string CmdAutoExplore(const char * args)
 
     gc_log->info("auto_explore: army {}", idx);
     return Ok("auto_explore");
+}
+
+// Test a queued explorer's real movement/vision event without advancing AI turns.
+std::string CmdDebugStepExplore(const char *args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("debug_step_explore", "game_not_loaded");
+    int idx = -1;
+    if (sscanf(args, "%d", &idx) != 1)
+        return Err("debug_step_explore", "bad_args");
+    Player *human = HumanPlayer();
+    auto *armies = human ? human->GetAllArmiesList() : nullptr;
+    if (!armies || idx < 0 || idx >= armies->Num() || !gevmanager_Get())
+        return Err("debug_step_explore", "bad_army");
+    Army army = armies->Access(idx);
+    if (!army.IsValid())
+        return Err("debug_step_explore", "invalid_army");
+    for (sint32 i = 0; i < army.Num(); ++i)
+        army.Access(i).ResetMovement();
+    // The real turn first re-targets idle explorers, then executes their
+    // queued orders. Dispatch both existing handlers without AI diplomacy.
+    for (sint32 i = 0; i < army.Num(); ++i)
+        gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginTurnUnit,
+                                   GEA_Unit, army.Access(i), GEA_End);
+    gevmanager_Get()->Process();
+    // BeginTurnUnit may already walk the newly seeded path and consume it.
+    if (army.NumOrders()) {
+        gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginTurnExecute,
+                                   GEA_Army, army, GEA_End);
+        gevmanager_Get()->Process();
+    }
+    MapPoint pos = army->RetPos();
+    return Ok("debug_step_explore", {{"pos", {{"x", pos.x}, {"y", pos.y}}}});
 }
 
 // ---- queries ------------------------------------------------------------
@@ -2830,6 +2866,52 @@ std::string CmdUngroupArmy(const char * args)
         gevmanager_Get()->Process();
     }
     return Ok("ungroup_army");
+}
+
+// Test setup: establish a real reciprocal alliance without AI proposal timing.
+std::string CmdDebugFormAlliance(const char *args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("debug_form_alliance", "game_not_loaded");
+    Player *human = HumanPlayer();
+    int other = -1;
+    if (sscanf(args, "%d", &other) != 1 || !human
+        || other < 0 || other >= k_MAX_PLAYERS || !player_Get(other)
+        || other == human->GetOwner())
+        return Err("debug_form_alliance", "bad_player");
+
+    ai::Agreement agreement;
+    agreement.senderId = human->GetOwner();
+    agreement.receiverId = other;
+    agreement.start = static_cast<sint16>(turn_Get()->GetSessionRound());
+    agreement.end = -1; // Open-ended, like Diplomat::DeclareWar agreements.
+    agreement.proposal.first_type = PROPOSAL_TREATY_ALLIANCE;
+    AgreementMatrix::s_agreements.SetAgreement(agreement);
+    return Ok("debug_form_alliance");
+}
+
+// Test setup: put a normal enemy/allied warrior just beyond an explorer's fog.
+std::string CmdDebugSpawnContact(const char *args)
+{
+    if (!civapp_Get() || !civapp_Get()->IsGameLoaded())
+        return Err("debug_spawn_contact", "game_not_loaded");
+    int owner = -1, x = -1, y = -1;
+    if (sscanf(args, "%d %d %d", &owner, &x, &y) != 3)
+        return Err("debug_spawn_contact", "bad_args");
+    World *world = world_Get();
+    Player *player = owner >= 0 && owner < k_MAX_PLAYERS ? player_Get(owner) : nullptr;
+    if (!world || !player || !HumanPlayer() || owner == HumanPlayer()->GetOwner()
+        || x < 0 || y < 0 || x >= world->GetXWidth() || y >= world->GetYHeight())
+        return Err("debug_spawn_contact", "bad_position_or_owner");
+    MapPoint pos(x, y);
+    if (world->GetCell(pos)->GetNumUnits() || world->GetCity(pos).IsValid())
+        return Err("debug_spawn_contact", "occupied");
+    sint32 type = ResolveUnitType("UNIT_WARRIOR");
+    if (type < 0) return Err("debug_spawn_contact", "unit_unavailable");
+    Unit unit = player->CreateUnit(type, pos, Unit(), false, CAUSE_NEW_ARMY_INITIAL);
+    if (!unit.IsValid()) return Err("debug_spawn_contact", "create_failed");
+    unit.Sleep(); // Keep the planted contact stationary until discovered.
+    return Ok("debug_spawn_contact", {{"unit_id", unit.m_id}, {"owner", owner}});
 }
 
 // declare_war <player_id> — formal war declaration via the diplomacy layer
@@ -4547,6 +4629,7 @@ std::string Dispatch(const std::string &line, bool &handled)
     if (line == "query_armies")                                 return QueryArmies();
     if (line.rfind("move_army ", 0) == 0)                       return CmdMoveArmy(line.c_str() + 10);
     if (line.rfind("auto_explore ", 0) == 0)                    return CmdAutoExplore(line.c_str() + 13);
+    if (line.rfind("debug_step_explore ", 0) == 0)              return CmdDebugStepExplore(line.c_str() + 19);
     if (line.rfind("render_camera_pose ", 0) == 0)                return CmdRenderCameraPose(line.c_str() + 19);
     if (line == "query_map")                                    return QueryMap();
     if (line == "query_world")                                  return QueryWorld();
@@ -4570,6 +4653,8 @@ std::string Dispatch(const std::string &line, bool &handled)
     if (line.rfind("render_add_unit_sprite ", 0) == 0)        return CmdRenderAddUnitSprite(line.c_str() + 23);
     if (line.rfind("render_set_tile ", 0) == 0)               return CmdRenderSetTile(line.c_str() + 16);
     if (line.rfind("render_set_fog ", 0) == 0)                return CmdRenderSetFog(line.c_str() + 15);
+    if (line.rfind("debug_form_alliance ", 0) == 0)             return CmdDebugFormAlliance(line.c_str() + 20);
+    if (line.rfind("debug_spawn_contact ", 0) == 0)            return CmdDebugSpawnContact(line.c_str() + 20);
     if (line.rfind("declare_war ", 0) == 0)                     return CmdDeclareWar(line.c_str() + 12);
     if (line.rfind("attack ", 0) == 0)                          return CmdAttack(line.c_str() + 7);
     if (line.rfind("bombard ", 0) == 0)                         return CmdBombard(line.c_str() + 8);

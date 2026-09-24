@@ -2530,6 +2530,25 @@ ORDER_RESULT UnitData::InterceptTrade()
 	}
 }
 
+static void StopExploringOnEnemyContact(UnitData *explorer, PLAYER_INDEX seenOwner)
+{
+	if (!explorer->IsExploring() || explorer->GetOwner() == seenOwner ||
+	    AgreementMatrix::s_agreements.HasAgreement(explorer->GetOwner(), seenOwner,
+	                                              PROPOSAL_TREATY_ALLIANCE))
+		return;
+
+	Army army = explorer->GetArmy();
+	if (!army.IsValid()) {
+		explorer->SetExploring(false);
+		return;
+	}
+	for (sint32 i = 0; i < army.Num(); ++i) {
+		if (UnitData *unit = army[i].AccessData())
+			unit->SetExploring(false);
+	}
+	army->ClearOrders();
+}
+
 void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 {
 	DynamicArray<Unit> array;
@@ -2614,6 +2633,13 @@ void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 				}
 			}
 		}
+
+		// Contact belongs to the observer that just gained sight of the
+		// other unit, whether this unit moved or the other one did.
+		if (runContactMe)
+			StopExploringOnEnemyContact(this, him->m_owner);
+		if (runContactHim)
+			StopExploringOnEnemyContact(him, m_owner);
 
 		if(runContactMe || runContactHim)
 		{

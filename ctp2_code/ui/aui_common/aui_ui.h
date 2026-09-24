@@ -188,7 +188,8 @@ public:
 	                           sint32       desty,
 	                           aui_Surface *srcSurf,
 	                           RECT        *srcRect,
-	                           uint32       flags
+	                           uint32       flags,
+	                           aui_Window  *sourceWindow = nullptr
 	                          )
 	{
 		Assert(m_secondary);
@@ -238,6 +239,15 @@ public:
 					    && win->TheSurface())
 					{
 						RECT wr = { 0, 0, win->Width(), win->Height() };
+						// Stencil holes contain world pixels baked into the
+						// window surface; leave those holes transparent in UI.
+						if (win->GetStencil())
+						{
+							m_blitter->BltStencilForeground(m_uiSurface.get(),
+								win->X(), win->Y(), win->TheSurface(), &wr,
+								win->GetStencil(), flags);
+							continue;
+						}
 						m_blitter->Blt(m_uiSurface.get(),
 						               win->X(), win->Y(),
 						               win->TheSurface(), &wr, flags);
@@ -247,7 +257,11 @@ public:
 			}
 			else
 			{
-				m_blitter->Blt(m_uiSurface.get(), destx, desty, srcSurf, srcRect, flags);
+				if (sourceWindow && sourceWindow->GetStencil())
+					m_blitter->BltStencilForeground(m_uiSurface.get(), destx, desty,
+						srcSurf, srcRect, sourceWindow->GetStencil(), flags);
+				else
+					m_blitter->Blt(m_uiSurface.get(), destx, desty, srcSurf, srcRect, flags);
 				// Stamp the write so the present can tell "UI pixels changed"
 				// from "identical frame" (see the content versions below).
 				++m_uiContentVersion;

@@ -107,5 +107,15 @@ with scenario.connect(timeout=5, log_name="hoplite.log") as ui:
     # At this radar north-edge pose, y=80 is below the 30px menu but above row 0.
     backdrop = north_frame.getpixel((north_frame.width // 2, 80))
     assert 0 < sum(backdrop) < 60, (backdrop, client.result("query_gpu_world"))
+    client.expect_ok("camera_debug_layers", out / "north-world.bmp", out / "north-ui.bmp")
+    ui_layer = Image.open(out / "north-ui.bmp").convert("RGBA")
+    # The top of the control-panel rectangle is above its visible chrome.
+    # In the pinned 1024x768 layout, (700,585) is a stencil hole: only the
+    # world layer may supply pixels there, even after moving the view north.
+    assert ui_layer.getpixel((700, 585))[3] == 0, (
+        "map pixels baked into transparent control-panel UI", out / "north-ui.bmp")
+    # Just below that hole the panel artwork must remain opaque and visible.
+    chrome = ui_layer.getpixel((700, 620))
+    assert chrome[3] == 255 and sum(chrome[:3]) > 200, ("missing HUD", chrome)
 
 print("PASS recorded Next Unit sequence remains responsive", flush=True)

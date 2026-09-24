@@ -30,6 +30,20 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/events/GameEventManager.h"
 
+// Per-game AI + pathing state. game.h forward-declares these so the header
+// stays free of ai/ and robot/ include chains; the complete types live here.
+#include "ai/strategy/scheduler/Scheduler.h"
+#include "ai/CityManagement/governor.h"
+#include "ai/diplomacy/Diplomat.h"
+#include "ai/diplomacy/AgreementMatrix.h"
+#include "ai/mapanalysis/settlemap.h"
+#include "ai/mapanalysis/mapanalysis.h"
+#include "robot/pathing/Astar.h"
+#include "robot/pathing/AVLHeap.h"
+#include "robot/pathing/CityAstar.h"
+#include "robot/pathing/TradeAstar.h"
+#include "robot/pathing/robotastar2.h"
+
 extern PointerList<Player> *g_deadPlayer;
 
 namespace Ctp2 {
@@ -81,6 +95,21 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     ensure(m_eventTracker,           []{ return std::make_unique<EventTracker>();           });
     ensure(m_achievementTracker,     []{ return std::make_unique<AchievementTracker>();     });
     ensure(m_tradeBids,              []{ return std::make_unique<TradeBids>();              });
+
+    // Per-game AI registries + pathing state. Scheduler/Governor/Diplomat
+    // registries size to the player count via their ResizeAll-style APIs
+    // once players exist; here we only ensure the owner objects exist.
+    // Finders + PathingContext are values with no-arg ctors.
+    ensure(m_schedulers,              []{ return std::make_unique<Scheduler>();              });
+    ensure(m_governors,               []{ return std::make_unique<Governor>();               });
+    ensure(m_diplomats,               []{ return std::make_unique<Diplomat>();                });
+    ensure(m_agreementsAI,            []{ return std::make_unique<AgreementMatrix>();        });
+    ensure(m_settleMap,               []{ return std::make_unique<SettleMap>();               });
+    ensure(m_mapAnalysis,             []{ return std::make_unique<MapAnalysis>();             });
+    ensure(m_pathing,                 []{ return std::make_unique<PathingContext>();          });
+    ensure(m_cityPather,              []{ return std::make_unique<CityAstar>();               });
+    ensure(m_tradePather,             []{ return std::make_unique<TradeAstar>();              });
+    ensure(m_aiPather,                []{ return std::make_unique<RobotAstar2>();              });
 
     // World is trampoline-routed; m_world is already populated by
     // gameinit's world_Set or by tests' direct civapp_Get()->GetGame()
@@ -169,6 +198,19 @@ void Game::Cleanup() {
 
     m_world.reset();
 
+    // Per-game AI + pathing teardown. Registries release their per-player
+    // vectors; finders + pathing pool hold no cross-game state.
+    m_aiPather.reset();
+    m_tradePather.reset();
+    m_cityPather.reset();
+    m_pathing.reset();
+    m_mapAnalysis.reset();
+    m_settleMap.reset();
+    m_agreementsAI.reset();
+    m_diplomats.reset();
+    m_governors.reset();
+    m_schedulers.reset();
+
     m_rand.reset();
 
     m_turn.reset();
@@ -205,6 +247,22 @@ GAME_PTR_ACCESSORS(Slic,                 SlicEngine,             m_slic)
 GAME_PTR_ACCESSORS(Events,               GameEventManager,       m_events)
 
 #undef GAME_PTR_ACCESSORS
+
+// Per-game AI + pathing accessors. The Registry classes own the per-player
+// vectors, so Game holds one owner object each; callers reach players via
+// these refs instead of process-wide statics.
+Scheduler & Game::GetSchedulers() { return *m_schedulers; }
+Governor & Game::GetGovernors() { return *m_governors; }
+Diplomat & Game::GetDiplomats() { return *m_diplomats; }
+AgreementMatrix & Game::GetAgreementsAI() { return *m_agreementsAI; }
+SettleMap & Game::GetSettleMap() { return *m_settleMap; }
+MapAnalysis & Game::GetMapAnalysisAI() { return *m_mapAnalysis; }
+PathingContext & Game::GetPathing() { return *m_pathing; }
+CityAstar & Game::GetCityPather() { return *m_cityPather; }
+TradeAstar & Game::GetTradePather() { return *m_tradePather; }
+RobotAstar2 & Game::GetAiPather() { return *m_aiPather; }
+bool Game::NeedAnotherMatchCycle() const { return m_needAnotherMatchCycle; }
+void Game::SetNeedAnotherMatchCycle(bool needed) { m_needAnotherMatchCycle = needed; }
 
 Player* Game::GetPlayer(sint32 idx) {
     if (!m_playerArr || idx < 0 || idx >= k_MAX_PLAYERS) return nullptr;

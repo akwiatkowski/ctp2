@@ -50,10 +50,15 @@ class MapAnalysis;
 #include <nlohmann/json.hpp>
 class MapAnalysis;
 
+namespace Ctp2 { class Game; }
+
 class MapAnalysis
 {
     friend void to_json(nlohmann::json &j, MapAnalysis const &m);
     friend void from_json(nlohmann::json const &j, MapAnalysis &m);
+    // Per-game owner: Ctp2::Game holds the instance (was file-static
+    // s_mapAnalysis). Only Game may construct (ctor is private).
+    friend class Ctp2::Game;
 public:
 
     typedef std::vector<MapGrid<sint32> > MapGridVector;
@@ -290,6 +295,9 @@ private:
 
 	void ComputeHandicapRatios();
 
+public:
+	// Game-owned (was file-static s_mapAnalysis). Public so Ctp2::Game can
+	// hold it; do not instantiate elsewhere.
 	MapAnalysis();
 
 	MapGridVector m_threatGrid;

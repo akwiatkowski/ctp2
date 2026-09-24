@@ -50,10 +50,15 @@ size_t const    k_targets_per_continent     = 25;
 #include "gs/gameobj/player.h"
 #include "gs/gameobj/Unit.h"
 
+namespace Ctp2 { class Game; }
+
 class SettleMap
 {
     friend void to_json(nlohmann::json &j, SettleMap const &s);
     friend void from_json(nlohmann::json const &j, SettleMap &s);
+    // Per-game owner: Ctp2::Game holds the instance (was file-static
+    // s_settleMap). Ctor public so Game can own it; do not instantiate
+    // elsewhere.
 public:
 	struct SettleTarget
 	{
@@ -89,7 +94,8 @@ public:
 
 	double GetValue(const MapPoint & rc_pos) const;
 
-private:
+	// Game-owned (was file-static s_settleMap). Public so Ctp2::Game can
+	// hold it; do not instantiate elsewhere.
 	SettleMap();
 
 	double ComputeSettleValue(const MapPoint & pos) const;

@@ -149,7 +149,7 @@ extern std::unique_ptr<UnitAstar> g_theUnitAstar;
 sint32                           g_tradeSelectedState = 0;
 extern std::unique_ptr<GrabItem> g_grabbedItem;
 
-extern CityAstar                 g_city_astar;
+// Shared finder via CityPathing() (CityAstar.h).
 
 #define k_UNIT_SELECT_IS_FIRST  0x00000001
 
@@ -1739,7 +1739,7 @@ void SelectedItem::SetDrawablePathDest(MapPoint &dest)
 			m_good_path = std::make_unique<Path>();
 
 		float total_cost;
-		bool r = g_city_astar.FindRoadPath(start, m_cur_mouse_tile,player, *m_good_path, total_cost);
+		bool r = CityPathing().FindRoadPath(start, m_cur_mouse_tile,player, *m_good_path, total_cost);
 
 		m_is_pathing = r;
 	}

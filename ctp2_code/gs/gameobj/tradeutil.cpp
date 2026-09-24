@@ -46,7 +46,7 @@
 #include "ConstRecord.h"
 #include "gs/world/World.h"
 
-extern TradeAstar g_theTradeAstar;
+// Shared finder via TradePathing() (TradeAstar.h).
 
 sint32 tradeutil_GetTradeValue(const sint32 owner, Unit const & destination, sint32 resource)
 {
@@ -79,7 +79,7 @@ sint32 tradeutil_GetAccurateTradeDistance(Unit &source, Unit &destination)
 	Path    path;
 	float   cost;
 
-	if (g_theTradeAstar.FindPath
+	if (TradePathing().FindPath
             (source.GetOwner(), source.RetPos(), destination.RetPos(), path, cost, FALSE)
        )
     {

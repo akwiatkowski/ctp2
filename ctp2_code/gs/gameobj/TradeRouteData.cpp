@@ -52,7 +52,7 @@
 #include "gs/gameobj/tradeutil.h"
 
 
-extern TradeAstar g_theTradeAstar;
+// Shared finder via TradePathing() (TradeAstar.h).
 
 TradeRouteData::TradeRouteData
 (
@@ -220,7 +220,7 @@ bool TradeRouteData::GeneratePath()
     {
 		if (wp == 0)
         {
-			if (!g_theTradeAstar.FindPath
+			if (!TradePathing().FindPath
                     (m_payingFor, m_wayPoints[wp], m_wayPoints[wp + 1],
 					 *m_astarPath, cost, FALSE
                     )
@@ -232,7 +232,7 @@ bool TradeRouteData::GeneratePath()
         else
         {
 	        Path    partialAstarPath;
-			if (g_theTradeAstar.FindPath
+			if (TradePathing().FindPath
                     (m_payingFor, m_wayPoints[wp], m_wayPoints[wp + 1],
 					 partialAstarPath, cost, FALSE
                     )
@@ -331,11 +331,11 @@ void TradeRouteData::ReturnPath
     {
 		if (wp == 0)
         {
-			r = g_theTradeAstar.FindPath(owner, waypoints[wp], waypoints[wp + 1],
+			r = TradePathing().FindPath(owner, waypoints[wp], waypoints[wp + 1],
 			                             *m_astarPath, partialcost, FALSE);
 			Assert(r);
 		} else {
-			r = g_theTradeAstar.FindPath(owner, waypoints[wp], waypoints[wp + 1],
+			r = TradePathing().FindPath(owner, waypoints[wp], waypoints[wp + 1],
 								  partialAstarPath, partialcost, FALSE);
 			Assert(r);
 			m_astarPath->Concat(partialAstarPath);

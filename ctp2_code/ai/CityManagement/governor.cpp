@@ -186,7 +186,7 @@
 #include "ctp/debugtools/Timer.h"
 #endif
 
-extern CityAstar    g_city_astar;
+// Shared finder via CityPathing() (CityAstar.h).
 
 namespace
 {
@@ -196,10 +196,9 @@ namespace
 		std::numeric_limits<double>::max();
 }
 
-Governor const &            Governor::INVALID           = UniqueInvalidGovernor;
-Governor::GovernorVector    Governor::s_theGovernors;
-Governor::CityDistQueue     Governor::s_CityDistQueue;
-Governor::CityPairList      Governor::s_CityPairList;
+// (removed) s_theGovernors now lives in Governor::Registry (Governors()).
+// (removed) s_CityDistQueue is now per-instance m_cityDistQueue.
+// (removed) s_CityPairList is now per-instance m_cityPairList.
 
 //----------------------------------------------------------------------------
 //
@@ -216,61 +215,40 @@ Governor::CityPairList      Governor::s_CityPairList;
 // Remark(s)  : static function
 //
 //----------------------------------------------------------------------------
-void Governor::ResizeAll(const PLAYER_INDEX & newMaxPlayerId)
+Governor::Registry & Governor::Governors()
 {
-	size_t const	old_size = s_theGovernors.size();
+	static Registry instance;
+	return instance;
+}
 
-	s_theGovernors.resize(newMaxPlayerId);
+void Governor::Registry::Resize(const PLAYER_INDEX & newMaxPlayerId)
+{
+	size_t const old_size = m_governors.size();
+
+	m_governors.resize(newMaxPlayerId);
 
 	for (size_t i = old_size; i < static_cast<size_t>(newMaxPlayerId); ++i)
 	{
-		s_theGovernors[i].SetPlayerId(i);
+		m_governors[i].SetPlayerId(i);
 	}
 }
 
-//----------------------------------------------------------------------------
-//
-// Name       : Governor::Cleanup
-//
-// Description: Release the memory of the Governor data.
-//
-// Parameters : -
-//
-// Globals    : s_theGovernors
-//
-// Returns    : -
-//
-// Remark(s)  : static function
-//
-//----------------------------------------------------------------------------
-void Governor::Cleanup()
+void Governor::Registry::Clear()
 {
-	GovernorVector().swap(s_theGovernors);
-    CityPairList  ().swap(s_CityPairList);
-    CityDistQueue ().swap(s_CityDistQueue);
+	GovernorVector().swap(m_governors);
 }
 
-//----------------------------------------------------------------------------
-//
-// Name       : Governor::GetGovernor
-//
-// Description: Return a reference to the Governor of a player.
-//
-// Parameters : playerId        : player to govern
-//
-// Globals    : s_theGovernors
-//
-// Returns    : Governor &      : governor of the player
-//
-// Remark(s)  : static function
-//
-//----------------------------------------------------------------------------
-Governor & Governor::GetGovernor(PLAYER_INDEX const & playerId)
+Governor & Governor::Registry::Get(PLAYER_INDEX const & playerId)
 {
 	Assert(playerId >= 0);
-	Assert(static_cast<size_t>(playerId) < s_theGovernors.size());
+	Assert(static_cast<size_t>(playerId) < m_governors.size());
 
-	return s_theGovernors[playerId];
+	return m_governors[playerId];
+}
+
+void Governor::ResizeAll(const PLAYER_INDEX & newMaxPlayerId)
+{
+	Governors().Resize(newMaxPlayerId);
 }
 
 //----------------------------------------------------------------------------
@@ -288,38 +266,32 @@ Governor & Governor::GetGovernor(PLAYER_INDEX const & playerId)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
+void Governor::Cleanup()
+{
+	Governors().Clear();
+}
+Governor & Governor::GetGovernor(PLAYER_INDEX const & playerId)
+{
+	return Governors().Get(playerId);
+}
 Governor::Governor(PLAYER_INDEX const & playerId)
 :
 	m_maximumUnitShieldCost     (0),
 	m_currentUnitShieldCost     (0),
 	m_playerId                  (playerId),
+	m_buildUnitList             (),
 	m_currentUnitCount          (),
 	m_neededFreight             (0.0),
 	m_tileImprovementGoals      (),
 	m_canBuildLandSettlers      (false),
 	m_canBuildSeaSettlers       (false)
 { ; }
-
-//----------------------------------------------------------------------------
-//
-// Name       : Governor::Governor
-//
-// Description: Copy-Constructor
-//
-// Parameters : copyme      : Governor to copy
-//
-// Globals    : -
-//
-// Returns    : -
-//
-// Remark(s)  : -
-//
-//----------------------------------------------------------------------------
 Governor::Governor(Governor const & copyme)
 :
 	m_maximumUnitShieldCost     (copyme.m_maximumUnitShieldCost),
 	m_currentUnitShieldCost     (copyme.m_currentUnitShieldCost),
 	m_playerId                  (copyme.m_playerId),
+	m_buildUnitList             (copyme.m_buildUnitList),
 	m_currentUnitCount          (),
 	m_neededFreight             (copyme.m_neededFreight),
 	m_tileImprovementGoals      (),
@@ -1448,7 +1420,7 @@ void Governor::ComputeRoadPriorities()
 
 	world_Get()->ResetAllTmpFutureMoveCosts();
 
-	s_CityPairList.clear();
+	m_cityPairList.clear();
 
 	const StrategyRecord & strategy = Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy();
 	sint32 max_eval = strategy.GetBuildRoadsToClosestCities();
@@ -1465,7 +1437,7 @@ void Governor::ComputeRoadPriorities()
 		threat_rank *= (1.0 - baseRoadPriority);
 		threat_rank += baseRoadPriority;
 
-		s_CityDistQueue.clear();
+		m_cityDistQueue.clear();
 
 		for (sint32 neighbor_index = 0; neighbor_index < num_cities; neighbor_index++)
 		{
@@ -1477,23 +1449,23 @@ void Governor::ComputeRoadPriorities()
 
 			if(!IsInCityPairList(city_index, neighbor_index))
 			{
-				s_CityDistQueue.emplace_back(neighbor_unit, neighbor_dist);
-				s_CityPairList.emplace_back(city_index, neighbor_index);
+				m_cityDistQueue.emplace_back(neighbor_unit, neighbor_dist);
+				m_cityPairList.emplace_back(city_index, neighbor_index);
 			}
 		}
 
-		if (s_CityDistQueue.size() == 0)
+		if (m_cityDistQueue.size() == 0)
 			continue;
 
-		CityDistQueue::iterator max_iter = s_CityDistQueue.begin() + std::min(static_cast<size_t>(max_eval),
-																	  s_CityDistQueue.size()
+		CityDistQueue::iterator max_iter = m_cityDistQueue.begin() + std::min(static_cast<size_t>(max_eval),
+																	  m_cityDistQueue.size()
 																	 );
 
-		std::partial_sort(s_CityDistQueue.begin(), max_iter, s_CityDistQueue.end(), std::less<CityDist>());
+		std::partial_sort(m_cityDistQueue.begin(), max_iter, m_cityDistQueue.end(), std::less<CityDist>());
 
 		for
 		(
-			CityDistQueue::const_iterator iter = s_CityDistQueue.begin();
+			CityDistQueue::const_iterator iter = m_cityDistQueue.begin();
 			iter != max_iter;
 			++iter
 		)
@@ -1503,7 +1475,7 @@ void Governor::ComputeRoadPriorities()
 
 			Unit    min_neighbor_unit = iter->m_city;
 
-			if (g_city_astar.FindRoadPath(city_unit.RetPos(), min_neighbor_unit.RetPos(),
+			if (CityPathing().FindRoadPath(city_unit.RetPos(), min_neighbor_unit.RetPos(),
 				m_playerId,
 				found_path,
 				total_cost ))
@@ -1514,15 +1486,15 @@ void Governor::ComputeRoadPriorities()
 			}
 		}
 
-		s_CityDistQueue.clear();
+		m_cityDistQueue.clear();
 	}
 
-	s_CityPairList.clear();
+	m_cityPairList.clear();
 }
 
 bool Governor::IsInCityPairList(sint32 city, sint32 neighborCity) const
 {
-	for(auto cityPair : s_CityPairList)
+	for(auto cityPair : m_cityPairList)
 	{
 			if( (cityPair.m_city         == city
 		&&   cityPair.m_neighborCity == neighborCity

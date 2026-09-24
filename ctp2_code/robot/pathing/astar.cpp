@@ -49,21 +49,39 @@
 #include "robot/aibackdoor/priorityqueue.h"
 #include "robot/pathing/A_Star_Heuristic_Cost.h"
 
-sint32 g_search_count;
+// PathingContext owns the node pool + search epoch that used to live in
+// file-scope g_astar_mem / g_search_count globals. One shared instance backs
+// the legacy Astar_Init/Cleanup entry points; new code can instantiate its
+// own PathingContext (e.g. per-thread) and reach it via AstarPathing().
+static PathingContext s_pathingStorage;
 
-AVLHeap g_astar_mem;
+PathingContext::PathingContext()
+:
+	m_heap      (std::make_unique<AVLHeap>()),
+	m_searchEpoch(1)
+{ ; }
+
+void PathingContext::Reset()
+{
+	m_heap = std::make_unique<AVLHeap>();
+	m_searchEpoch = 1;
+}
+
+PathingContext & AstarPathing()
+{
+	return s_pathingStorage;
+}
 
 void Astar_Init()
 
 {
-    g_astar_mem.InitHeap();
-    g_search_count = 1;
+	s_pathingStorage.Reset();
 }
 
 void Astar_Cleanup()
 
 {
-	g_astar_mem.CleanUp();
+	AstarPathing().GetHeap().CleanUp();
 }
 
 #define k_MIN_MOVE_COST 10.0
@@ -317,7 +335,7 @@ bool Astar::FindPath
 #endif
 
 	m_priority_queue.Clear();
-	g_search_count++;
+	sint32 const searchEpoch = AstarPathing().NextSearchEpoch();
 
 	AstarPoint *    best        = nullptr;
 	AstarPoint *    cost_tree   = nullptr;
@@ -339,8 +357,8 @@ bool Astar::FindPath
 	g_nodes_opened++;
 #endif
 
-	c->m_point = g_astar_mem.GetNew();
-	c->m_search_count = g_search_count;
+	c->m_point = AstarPathing().GetHeap().GetNew();
+	c->m_search_count = searchEpoch;
 
 	if (!InitPoint(nullptr, c->m_point, start, 0.0, dest))
 	{
@@ -365,14 +383,14 @@ bool Astar::FindPath
 
 		for (sint32 i = 0; i <= max_dir; ++i)
 		{
-			static MapPoint next_pos;
+			MapPoint next_pos;
 			if (!best->m_pos.GetNeighborPosition(WORLD_DIRECTION(i), next_pos)) continue;
 
 			if(m_maxSquaredDistance > -1 && MapPoint::GetSquaredDistance(start, next_pos) > m_maxSquaredDistance) continue;
 
 			c = world_Get()->GetCell(next_pos);
 
-			if (c->m_point && (c->m_search_count == g_search_count))
+			if (c->m_point && (c->m_search_count == searchEpoch))
 			{
 				// When c has already been examined, we have to compute the G
 				// value from the path via best, and check whether it is lower
@@ -445,8 +463,8 @@ bool Astar::FindPath
 				g_nodes_opened++;
 
 #endif
-				c->m_point = g_astar_mem.GetNew();
-				c->m_search_count = g_search_count;
+				c->m_point = AstarPathing().GetHeap().GetNew();
+				c->m_search_count = searchEpoch;
 
 				if (InitPoint(best, c->m_point, next_pos, past_cost, dest))
 				{
@@ -538,14 +556,14 @@ bool Astar::Cleanup(const MapPoint &dest,
        total_cost = 0.0;
 
        a_path.Clear();
-       g_astar_mem.MassDelete(isunit);
+       AstarPathing().GetHeap().MassDelete(isunit);
        return false;
     }
     else
     {
        total_cost = best->m_past_cost + best->m_entry_cost;
        a_path.FlattenAstarList(best);
-       g_astar_mem.MassDelete(isunit);
+       AstarPathing().GetHeap().MassDelete(isunit);
 
        return true;
     }

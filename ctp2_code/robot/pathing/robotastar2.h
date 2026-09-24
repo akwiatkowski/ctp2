@@ -45,7 +45,10 @@ public:
 		PATH_TYPE_DEFENSIVE
 	};
 
-	static RobotAstar2 s_aiPathing;
+	/// Shared AI pather. FindPath() resets all request state up front, so
+	/// sharing one instance preserves behavior; prefer a local RobotAstar2
+	/// in new code (the finder itself is now re-entrant per call).
+	static RobotAstar2 & AiPathing();
 
 	RobotAstar2();
 

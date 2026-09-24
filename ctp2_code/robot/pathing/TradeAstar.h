@@ -51,5 +51,9 @@ public:
 		const MapPoint &dest, Path &a_path, float &total_cost,
 		const bool isunit);
 };
+// Shared TradeAstar instance. The finder keeps no cross-call state (only
+// m_owner, reset on every FindPath), so sharing one instance removes the
+// file-scope g_theTradeAstar global without changing behavior.
+TradeAstar & TradePathing();
 
 #endif

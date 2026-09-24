@@ -71,6 +71,26 @@ AUI_ERRCODE aui_DirtyList::AddRect(
 
 	if ( left < right && top < bottom )
 	{
+		// Cap unbounded growth: when flush is rare (e.g. DrawAll early-outs
+		// while Process->Draw re-dirties every window each frame), the list
+		// grows without bound and Minimize's pairwise consolidation becomes
+		// O(n^2) per pass — the observed hang. Collapse to the bounding union,
+		// which is always a correct dirty superset.
+		constexpr sint32 kMaxDirtyRects = 64;
+		if ( L() >= kMaxDirtyRects )
+		{
+			ListPos pos = GetHeadPosition();
+			for ( sint32 i = L(); i; i-- )
+			{
+				RECT *r = GetNext( pos );
+				if ( r->left   < left   ) left   = r->left;
+				if ( r->top    < top    ) top    = r->top;
+				if ( r->right  > right  ) right  = r->right;
+				if ( r->bottom > bottom ) bottom = r->bottom;
+			}
+			Flush();
+		}
+
 		RECT *rect = m_rectMemory.New();
 		Assert( rect != nullptr );
 		if ( !rect ) return AUI_ERRCODE_MEMALLOCFAILED;

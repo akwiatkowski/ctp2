@@ -123,6 +123,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"                 // Pre-compiled header
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include <memory>
 #include "ai/CityManagement/governor.h"           // Own declarations: consistency check
 
@@ -215,13 +226,14 @@ namespace
 // Remark(s)  : static function
 //
 //----------------------------------------------------------------------------
-Governor::Registry & Governor::Governors()
+GovernorRegistry & Governor::Governors()
 {
-	static Registry instance;
-	return instance;
+	// Per-game: the Registry object lives in Ctp2::Game; this accessor
+	// exposes the active game's registry to legacy static callers.
+	return game_GetActive().GetGovernors();
 }
 
-void Governor::Registry::Resize(const PLAYER_INDEX & newMaxPlayerId)
+void GovernorRegistry::Resize(const PLAYER_INDEX & newMaxPlayerId)
 {
 	size_t const old_size = m_governors.size();
 
@@ -233,12 +245,12 @@ void Governor::Registry::Resize(const PLAYER_INDEX & newMaxPlayerId)
 	}
 }
 
-void Governor::Registry::Clear()
+void GovernorRegistry::Clear()
 {
-	GovernorVector().swap(m_governors);
+	Governor::GovernorVector().swap(m_governors);
 }
 
-Governor & Governor::Registry::Get(PLAYER_INDEX const & playerId)
+Governor & GovernorRegistry::Get(PLAYER_INDEX const & playerId)
 {
 	Assert(playerId >= 0);
 	Assert(static_cast<size_t>(playerId) < m_governors.size());
@@ -5020,7 +5032,7 @@ void Governor::ManageGoodsTradeRoutes()
 						if (!player_ptr->HasContactWith(op))
 							continue;
 
-						if (AgreementMatrix::s_agreements.TurnsAtWar(m_playerId, op) >= 0)
+						if (AgreementMatrix::Active().TurnsAtWar(m_playerId, op) >= 0)
 							continue;
 
 						if (Diplomat::GetDiplomat(op).GetEmbargo(m_playerId))

@@ -72,6 +72,7 @@
 //----------------------------------------------------------------------------
 
 class Governor;
+class GovernorRegistry;
 
 //----------------------------------------------------------------------------
 // Project dependencies
@@ -108,16 +109,8 @@ public:
 	// Explicit registry owning all per-player governors. Replaces direct
 	// use of the s_theGovernors static; the static accessors below forward
 	// here so existing callers keep working while lifetime is explicit.
-	class Registry {
-	public:
-		void Resize(const PLAYER_INDEX & newMaxPlayerId);
-		void Clear();
-		Governor & Get(const PLAYER_INDEX & playerId);
-		size_t Size() const { return m_governors.size(); }
-	private:
-		GovernorVector m_governors;
-	};
-	static Registry & Governors();
+	static GovernorRegistry & Governors();
+	using Registry = GovernorRegistry;
 
 
 
@@ -480,6 +473,20 @@ private:
 	TiGoalQueue         m_tileImprovementGoals;
 	bool                m_canBuildLandSettlers;
 	bool                m_canBuildSeaSettlers;
+};
+
+// Explicit registry owning all per-player governors. Replaces the old
+// s_theGovernors static; Governor::Governors() forwards here (via the
+// active Game) so existing callers keep working while lifetime is explicit
+// and per-game.
+class GovernorRegistry {
+public:
+	void Resize(const PLAYER_INDEX & newMaxPlayerId);
+	void Clear();
+	Governor & Get(const PLAYER_INDEX & playerId);
+	size_t Size() const { return m_governors.size(); }
+private:
+	Governor::GovernorVector m_governors;
 };
 
 #endif

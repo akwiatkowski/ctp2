@@ -100,9 +100,9 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     // registries size to the player count via their ResizeAll-style APIs
     // once players exist; here we only ensure the owner objects exist.
     // Finders + PathingContext are values with no-arg ctors.
-    ensure(m_schedulers,              []{ return std::make_unique<Scheduler>();              });
-    ensure(m_governors,               []{ return std::make_unique<Governor>();               });
-    ensure(m_diplomats,               []{ return std::make_unique<Diplomat>();                });
+    ensure(m_schedulers,              []{ return std::make_unique<SchedulerRegistry>();              });
+    ensure(m_governors,               []{ return std::make_unique<GovernorRegistry>();               });
+    ensure(m_diplomats,               []{ return std::make_unique<DiplomatRegistry>();                });
     ensure(m_agreementsAI,            []{ return std::make_unique<AgreementMatrix>();        });
     ensure(m_settleMap,               []{ return std::make_unique<SettleMap>();               });
     ensure(m_mapAnalysis,             []{ return std::make_unique<MapAnalysis>();             });
@@ -251,9 +251,27 @@ GAME_PTR_ACCESSORS(Events,               GameEventManager,       m_events)
 // Per-game AI + pathing accessors. The Registry classes own the per-player
 // vectors, so Game holds one owner object each; callers reach players via
 // these refs instead of process-wide statics.
-Scheduler & Game::GetSchedulers() { return *m_schedulers; }
-Governor & Game::GetGovernors() { return *m_governors; }
-Diplomat & Game::GetDiplomats() { return *m_diplomats; }
+// Active-game routing. Owns nothing; NewGame/Cleanup publishers set it.
+// (gameinit + CivApp set this when a game becomes current; see step-3 wiring.)
+Game *& Game::ActiveRef()
+{
+	static Game * active = nullptr;
+	return active;
+}
+
+Game * Game::GetActive()
+{
+	return ActiveRef();
+}
+
+void Game::SetActive(Game * game)
+{
+	ActiveRef() = game;
+}
+
+SchedulerRegistry & Game::GetSchedulers() { return *m_schedulers; }
+GovernorRegistry & Game::GetGovernors() { return *m_governors; }
+DiplomatRegistry & Game::GetDiplomats() { return *m_diplomats; }
 AgreementMatrix & Game::GetAgreementsAI() { return *m_agreementsAI; }
 SettleMap & Game::GetSettleMap() { return *m_settleMap; }
 MapAnalysis & Game::GetMapAnalysisAI() { return *m_mapAnalysis; }

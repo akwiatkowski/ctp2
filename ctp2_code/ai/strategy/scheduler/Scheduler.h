@@ -53,6 +53,7 @@
 
 class GoalRecord;
 class Scheduler;
+class SchedulerRegistry;
 class Army;
 
 #include <nlohmann/json.hpp>
@@ -112,24 +113,12 @@ public:
 	// budget comes from ConstDB GetMaxMatchListCycles (ctpai.cpp).
 
 	static void ResizeAll(const PLAYER_INDEX & newMaxPlayerId);
-	static size_t Count() { return Schedulers().Size(); }
+	static size_t Count();
 	static Scheduler & GetScheduler(const sint32 & playerId);
 	static void CleanupAll();
 
-	// Explicit registry owning all per-player schedulers. Replaces direct
-	// use of the s_theSchedulers static; the static accessors below forward
-	// here so existing callers keep working while lifetime is explicit and
-	// independently testable.
-	class Registry {
-	public:
-		void Resize(const PLAYER_INDEX & newMaxPlayerId);
-		void Clear();
-		Scheduler & Get(const sint32 & playerId);
-		size_t Size() const { return m_schedulers.size(); }
-	private:
-		Scheduler_Vector m_schedulers;
-	};
-	static Registry & Schedulers();
+	static SchedulerRegistry & Schedulers();
+	using Registry = SchedulerRegistry;
 
 
 	void       SetContactCache         (sint32 player);
@@ -214,8 +203,6 @@ public:
 	static bool NeedAnotherCycle();
 	static void SetNeedAnotherCycle(bool needed);
 	static void ClearNeedAnotherCycle();
-private:
-	static bool s_needAnotherCycle;
 
 protected:
 
@@ -258,6 +245,20 @@ private:
 	uint32 m_neutralRegardCache = 0;
 	sint32 m_allyRegardCachedPlayer = -1;
 	uint32 m_allyRegardCache = 0;
+};
+
+// Explicit registry owning all per-player schedulers. Replaces the old
+// s_theSchedulers static; Scheduler::Schedulers() forwards here (via the
+// active Game) so existing callers keep working while lifetime is explicit,
+// per-game, and independently testable.
+class SchedulerRegistry {
+public:
+	void Resize(const PLAYER_INDEX & newMaxPlayerId);
+	void Clear();
+	Scheduler & Get(const sint32 & playerId);
+	size_t Size() const { return m_schedulers.size(); }
+private:
+	Scheduler::Scheduler_Vector m_schedulers;
 };
 
 #endif

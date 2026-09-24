@@ -32,6 +32,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include "robot/pathing/robotastar2.h"
 
 #include "gs/utility/Globals.h"
@@ -57,8 +68,7 @@ uint32 const    INCURSION_PERMISSION_ALL    = 0xffffffffu;
 
 RobotAstar2 & RobotAstar2::AiPathing()
 {
-	static RobotAstar2 instance;
-	return instance;
+	return game_GetActive().GetAiPather();
 }
 
 RobotAstar2::RobotAstar2()

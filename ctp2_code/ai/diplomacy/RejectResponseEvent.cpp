@@ -77,7 +77,7 @@ STDEHANDLER(ThreatenAlliedInvasion_RejectResponseEvent)
 	PLAYER_INDEX allyId = -1;
 	for (foreignerId = 0; foreignerId < CtpAi::s_maxPlayers; foreignerId++)
 	{
-		if (AgreementMatrix::s_agreements.HasAgreement(sender, foreignerId,
+		if (AgreementMatrix::Active().HasAgreement(sender, foreignerId,
 				PROPOSAL_TREATY_ALLIANCE) )
 				allyId = foreignerId;
 	}
@@ -138,7 +138,7 @@ STDEHANDLER(ThreatenAttackCity_RejectResponseEvent)
 
 		if (
 
-			(AgreementMatrix::s_agreements.HasAgreement(
+			(AgreementMatrix::Active().HasAgreement(
 				sender,
 				receiver,
 				PROPOSAL_TREATY_DECLARE_WAR)) &&

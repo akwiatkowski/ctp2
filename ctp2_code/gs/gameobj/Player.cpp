@@ -1981,9 +1981,9 @@ void Player::EndTurnPollution()
 
 			foreigner_pollution = player_Get(foreignerId)->GetPollutionLevel();
 
-			if (AgreementMatrix::s_agreements.HasAgreement(m_owner, foreignerId, PROPOSAL_OFFER_REDUCE_POLLUTION))
+			if (AgreementMatrix::Active().HasAgreement(m_owner, foreignerId, PROPOSAL_OFFER_REDUCE_POLLUTION))
 			{
-				pollution_agreement = AgreementMatrix::s_agreements.GetAgreement(m_owner, foreignerId, PROPOSAL_OFFER_REDUCE_POLLUTION);
+				pollution_agreement = AgreementMatrix::Active().GetAgreement(m_owner, foreignerId, PROPOSAL_OFFER_REDUCE_POLLUTION);
 				target_pollution = 0;
 				if ((pollution_agreement.senderId == m_owner &&
 					 pollution_agreement.proposal.first_type == PROPOSAL_OFFER_REDUCE_POLLUTION) ||
@@ -2009,9 +2009,9 @@ void Player::EndTurnPollution()
 				}
 			}
 
-			if (AgreementMatrix::s_agreements.HasAgreement(m_owner, foreignerId, PROPOSAL_TREATY_POLLUTION_PACT))
+			if (AgreementMatrix::Active().HasAgreement(m_owner, foreignerId, PROPOSAL_TREATY_POLLUTION_PACT))
 			{
-				pollution_agreement = AgreementMatrix::s_agreements.GetAgreement(m_owner, foreignerId, PROPOSAL_TREATY_POLLUTION_PACT);
+				pollution_agreement = AgreementMatrix::Active().GetAgreement(m_owner, foreignerId, PROPOSAL_TREATY_POLLUTION_PACT);
 
 				target_pollution = 0;
 				if (pollution_agreement.proposal.first_type == PROPOSAL_TREATY_POLLUTION_PACT)
@@ -6102,7 +6102,7 @@ bool player_isAlly(PLAYER_INDEX me, PLAYER_INDEX him)
 
 bool player_isEnemy(PLAYER_INDEX me, PLAYER_INDEX him)
 {
-	return !AgreementMatrix::s_agreements.HasAgreement(me, him, PROPOSAL_TREATY_ALLIANCE);
+	return !AgreementMatrix::Active().HasAgreement(me, him, PROPOSAL_TREATY_ALLIANCE);
 }
 
 
@@ -7984,7 +7984,7 @@ bool Player::HasWarWith(PLAYER_INDEX otherPlayer) const
 	return      m_owner <= 0
 	    ||  otherPlayer <= 0
 	    || (player_Get(otherPlayer) != nullptr
-	    && AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_DECLARE_WAR));
+	    && AgreementMatrix::Active().HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_DECLARE_WAR));
 }
 
 bool Player::HasAllianceWith(PLAYER_INDEX otherPlayer) const
@@ -7997,7 +7997,7 @@ bool Player::HasAllianceWith(PLAYER_INDEX otherPlayer) const
 	return      m_owner > 0
 	    &&  otherPlayer > 0
 	    &&  player_Get(otherPlayer) != nullptr
-	    && AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_ALLIANCE);
+	    && AgreementMatrix::Active().HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_ALLIANCE);
 }
 
 bool Player::HasPeaceTreatyWith(PLAYER_INDEX otherPlayer) const
@@ -8010,7 +8010,7 @@ bool Player::HasPeaceTreatyWith(PLAYER_INDEX otherPlayer) const
 	return      m_owner > 0
 	    &&  otherPlayer > 0
 	    &&  player_Get(otherPlayer) != nullptr
-	    && AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_PEACE);
+	    && AgreementMatrix::Active().HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_PEACE);
 }
 //True if player has at least one of trade/military/research/pollution pact with other player
 bool Player::HasAnyPactWith(PLAYER_INDEX otherPlayer) const
@@ -8023,10 +8023,10 @@ bool Player::HasAnyPactWith(PLAYER_INDEX otherPlayer) const
 	return      m_owner > 0
 	    &&  otherPlayer > 0
 	    &&  player_Get(otherPlayer) != nullptr
-	    && (AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_TRADE_PACT)
-		|| AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_RESEARCH_PACT)
-		|| AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_MILITARY_PACT)
-		|| AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_POLLUTION_PACT));
+	    && (AgreementMatrix::Active().HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_TRADE_PACT)
+		|| AgreementMatrix::Active().HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_RESEARCH_PACT)
+		|| AgreementMatrix::Active().HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_MILITARY_PACT)
+		|| AgreementMatrix::Active().HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_POLLUTION_PACT));
 
 }
 

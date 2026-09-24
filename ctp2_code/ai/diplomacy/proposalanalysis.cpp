@@ -242,7 +242,7 @@ void ProposalAnalysis::ComputeResult( const PLAYER_INDEX &sender,
 	if (receiver_ptr == nullptr || sender_ptr == nullptr)
 		return;
 
-	const AgreementMatrix & agreements = AgreementMatrix::s_agreements;
+	const AgreementMatrix & agreements = AgreementMatrix::Active();
 
 	sint32 turns_since_last_agreed
 		= agreements.GetAgreementDuration(sender, receiver, proposal_type);
@@ -766,7 +766,7 @@ void ProposalAnalysis::AcceptTreatyCondition(const PLAYER_INDEX playerId,
 	bool has_embargo = (Diplomat::GetDiplomat(foreignerId).GetEmbargo(playerId));
 
 	bool has_alliance =
-		AgreementMatrix::s_agreements.HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE);
+		AgreementMatrix::Active().HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE);
 
 	double regard_ratio = 1.0;
 	if (not_friend)
@@ -989,8 +989,8 @@ bool ProposalAnalysis::PlayerGetsEnoughValue(const PLAYER_INDEX playerId,
 
 	ai::Regard regard = diplomat.GetEffectiveRegard(receiverId);
 	if (regard > ALLIED_REGARD ||
-		AgreementMatrix::s_agreements.HasAgreement(senderId, receiverId, PROPOSAL_TREATY_RESEARCH_PACT) ||
-		AgreementMatrix::s_agreements.HasAgreement(senderId, receiverId, PROPOSAL_TREATY_ALLIANCE))
+		AgreementMatrix::Active().HasAgreement(senderId, receiverId, PROPOSAL_TREATY_RESEARCH_PACT) ||
+		AgreementMatrix::Active().HasAgreement(senderId, receiverId, PROPOSAL_TREATY_ALLIANCE))
 	{
 
 		min_delta_gold_percent *= 2;

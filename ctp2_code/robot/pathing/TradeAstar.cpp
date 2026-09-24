@@ -29,6 +29,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include "gs/utility/Globals.h"
 #include "robot/pathing/TradeAstar.h"
 #include "gs/gameobj/XY_Coordinates.h"
@@ -40,8 +51,7 @@
 
 TradeAstar & TradePathing()
 {
-	static TradeAstar instance;
-	return instance;
+	return game_GetActive().GetTradePather();
 }
 
 bool TradeAstar::EntryCost(const MapPoint &prev, const MapPoint &pos,

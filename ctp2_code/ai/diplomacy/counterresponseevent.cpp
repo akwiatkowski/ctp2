@@ -68,12 +68,12 @@ STDEHANDLER(ThreatenAttackCity_CounterResponseEvent)
 //	const NewProposal & proposal = sender_diplomat.GetMyLastNewProposal(receiver);
 	const Response & response = receiver_diplomat.GetMyLastResponse(sender);
 
-	if ( AgreementMatrix::s_agreements.HasAgreement(sender,
+	if ( AgreementMatrix::Active().HasAgreement(sender,
 													receiver,
 													PROPOSAL_TREATY_DECLARE_WAR) )
 		return GEV_HD_Continue;
 
-	if ( AgreementMatrix::s_agreements.HasAgreement(sender,
+	if ( AgreementMatrix::Active().HasAgreement(sender,
 													receiver,
 													PROPOSAL_TREATY_PEACE) )
 		return GEV_HD_Continue;
@@ -440,7 +440,7 @@ STDEHANDLER(ActionForValue_CounterResponseEvent)
 	const NewProposal & sender_proposal = sender_diplomat.GetMyLastNewProposal(receiver);
 	const Response & receiver_response = receiver_diplomat.GetMyLastResponse(sender);
 
-	sint32 turns_since_last_war = AgreementMatrix::s_agreements.TurnsSinceLastWar(sender, receiver);
+	sint32 turns_since_last_war = AgreementMatrix::Active().TurnsSinceLastWar(sender, receiver);
 	if (turns_since_last_war >= 0 && turns_since_last_war < 10)
 		return GEV_HD_Continue;
 

@@ -33,8 +33,11 @@ class GameEventManager;
 // Per-game AI + pathing state. Forward-declared here so game.h stays free
 // of ai/ and robot/ include chains; full types only in game.cpp.
 class Scheduler;
+class SchedulerRegistry;
 class Governor;
+class GovernorRegistry;
 class Diplomat;
+class DiplomatRegistry;
 class AgreementMatrix;
 class SettleMap;
 class MapAnalysis;
@@ -174,9 +177,9 @@ public:
     // statics); finders + PathingContext replace the file-scope singletons
     // (AstarPathing()/CityPathing()/TradePathing()/AiPathing()). Bodies in
     // game.cpp, where the full types are visible.
-    Scheduler &       GetSchedulers();
-    Governor &        GetGovernors();
-    Diplomat &        GetDiplomats();
+    SchedulerRegistry & GetSchedulers();
+    GovernorRegistry &  GetGovernors();
+    DiplomatRegistry &  GetDiplomats();
     AgreementMatrix & GetAgreementsAI();
     SettleMap &       GetSettleMap();
     MapAnalysis &     GetMapAnalysisAI();
@@ -186,6 +189,15 @@ public:
     RobotAstar2 &     GetAiPather();
     bool              NeedAnotherMatchCycle() const;
     void              SetNeedAnotherMatchCycle(bool needed);
+    // Active-game routing for the legacy static shims (AstarPathing(),
+    // CityPathing(), Scheduler::GetScheduler(), ...). Single process-wide
+    // pointer set by gameinit/CivApp on NewGame; two sequential games each
+    // re-point it, so the second never reads the first's state. True
+    // concurrent games must hold their own Game& instead (callers migrate
+    // to game.GetX() slice by slice).
+    static Game *& ActiveRef();
+    static Game * GetActive();
+    static void SetActive(Game * game);
 
 private:
     std::unique_ptr<TurnCount> m_turn;
@@ -226,9 +238,9 @@ private:
     // AgreementMatrix/SettleMap/MapAnalysis are values; finders are values
     // (they reset per-call state up front). m_needAnotherMatchCycle replaces
     // Scheduler::s_needAnotherCycle.
-    std::unique_ptr<Scheduler>       m_schedulers;
-    std::unique_ptr<Governor>        m_governors;
-    std::unique_ptr<Diplomat>        m_diplomats;
+    std::unique_ptr<SchedulerRegistry> m_schedulers;
+    std::unique_ptr<GovernorRegistry>  m_governors;
+    std::unique_ptr<DiplomatRegistry> m_diplomats;
     std::unique_ptr<AgreementMatrix> m_agreementsAI;
     std::unique_ptr<SettleMap>       m_settleMap;
     std::unique_ptr<MapAnalysis>     m_mapAnalysis;

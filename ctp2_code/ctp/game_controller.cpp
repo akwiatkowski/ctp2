@@ -3173,7 +3173,7 @@ std::string CmdProposePeace(const char * args)
 
     // The AI's verdict: an accepted treaty lands in the agreement matrix
     // and ends the war state immediately; a rejection leaves both intact.
-    bool treaty = AgreementMatrix::s_agreements.HasAgreement(
+    bool treaty = AgreementMatrix::Active().HasAgreement(
                       human->GetOwner(), id, PROPOSAL_TREATY_PEACE);
     json result;
     result["target"]       = id;
@@ -3849,7 +3849,7 @@ std::string CmdPropose(const char * args)
     // For treaty clauses, an accepted deal shows up in the agreement matrix.
     if (pt == PROPOSAL_TREATY_PEACE || pt == PROPOSAL_TREATY_CEASEFIRE ||
         pt == PROPOSAL_TREATY_ALLIANCE) {
-        result["agreement"] = AgreementMatrix::s_agreements.HasAgreement(
+        result["agreement"] = AgreementMatrix::Active().HasAgreement(
                                   human->GetOwner(), target, pt);
     }
     gc_log->info("propose: {} -> {} type {} arg {}", (int)human->GetOwner(), target, ptype, arg);

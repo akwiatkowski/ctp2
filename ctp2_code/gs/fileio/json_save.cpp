@@ -5151,7 +5151,7 @@ void from_json(nlohmann::json const &j, MessagePool &p)
 // --- CtpAi composite bridge (Phase F-18) --------------------------------
 //
 // CtpAi::Save(archive) is a thin wrapper over Diplomat::SaveAll, which
-// writes three things: s_nextId, AgreementMatrix::s_agreements, and the
+// writes three things: s_nextId, AgreementMatrix::Active(), and the
 // per-player Diplomat vector.  All three already have JSON bridges; this
 // helper composes them into a single "ai_state" sub-object so SaveJson /
 // LoadJson stay flat.
@@ -5166,7 +5166,7 @@ nlohmann::json ctpai_state_to_json()
     nlohmann::json j;
     json_save::SaveAiHistory(j);
     j["diplomat_next_id"] = Diplomat::PeekNextId();
-    j["agreements"]       = AgreementMatrix::s_agreements;
+    j["agreements"]       = AgreementMatrix::Active();
 
     nlohmann::json diplomats = nlohmann::json::array();
     size_t const   count     = Diplomat::Count();
@@ -5498,7 +5498,7 @@ bool LoadJson(char const *path)
                     ai["diplomat_next_id"].get<sint32>());
             }
             if (ai.contains("agreements"))
-                ai["agreements"].get_to(AgreementMatrix::s_agreements);
+                ai["agreements"].get_to(AgreementMatrix::Active());
         }
 
         // Re-sync per-player AI structures with the post-load g_player

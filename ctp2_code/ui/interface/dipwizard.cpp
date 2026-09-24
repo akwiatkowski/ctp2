@@ -2046,7 +2046,7 @@ void DipWizard::AddAgreementItems(ctp2_Menu *menu, sint32 player)
 
 	sint32 visplayer = selitem_Get()->GetVisiblePlayer();
 
-	const AgreementMatrix & agreement_matrix = AgreementMatrix::s_agreements;
+	const AgreementMatrix & agreement_matrix = AgreementMatrix::Active();
 	ai::Agreement tmp_agreement;
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_PEACE))
 	{
@@ -2187,7 +2187,7 @@ bool DipWizard::AddThreatData(SlicObject &so, sint32 threat, const DiplomacyArg 
 	case k_DiplomacyThreat_Arg1_AgreementId_Bit:
 	    {
 	        ai::Agreement agreement =
-                AgreementMatrix::s_agreements.GetAgreement
+                AgreementMatrix::Active().GetAgreement
                     (m_viewRecipient,
                      selitem_Get()->GetVisiblePlayer(),
                      static_cast<PROPOSAL_TYPE>(arg.agreementId)

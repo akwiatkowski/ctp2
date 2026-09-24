@@ -892,7 +892,7 @@ AUI_ERRCODE DiplomacyDetails::DrawTreaties(ctp2_Static *control,
 				slot -= 3;
 		}
 
-		if(AgreementMatrix::s_agreements.HasAgreement(detailPlayer, p, (PROPOSAL_TYPE)ag)) {
+		if(AgreementMatrix::Active().HasAgreement(detailPlayer, p, (PROPOSAL_TYPE)ag)) {
 			aui_Image *image = c3ui_Get()->LoadImage((char *)rec->GetImage());
 			Assert(image);
 			if(!image)

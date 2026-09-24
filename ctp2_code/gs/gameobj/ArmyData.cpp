@@ -5724,7 +5724,7 @@ ORDER_RESULT ArmyData::InterceptTrade()
 				for (sint32 j = 0; j < cell->GetNumTradeRoutes(); j++)
 				{
 					sint32 route_owner = cell->GetTradeRoute(j).GetOwner();
-					if (AgreementMatrix::s_agreements.HasAgreement(
+					if (AgreementMatrix::Active().HasAgreement(
 						route_owner,
 						m_owner,
 						PROPOSAL_OFFER_STOP_PIRACY))

@@ -36,6 +36,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include "ai/mapanalysis/mapanalysis.h"
 
 #include "gs/gameobj/Army.h"
@@ -1106,7 +1117,7 @@ void MapAnalysis::ComputeAllianceSize(const PLAYER_INDEX playerId, PLAYER_INDEX 
             continue;
 
         if (foreignerId == playerId ||
-        AgreementMatrix::s_agreements.HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
+        AgreementMatrix::Active().HasAgreement(playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
         {
             alliance_population += m_totalPopulation[foreignerId];
             alliance_land += m_landArea[foreignerId];

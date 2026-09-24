@@ -51,6 +51,7 @@
 //----------------------------------------------------------------------------
 
 class Diplomat;
+class DiplomatRegistry;
 
 //----------------------------------------------------------------------------
 // Project dependencies
@@ -149,6 +150,9 @@ public:
 	static Diplomat & GetDiplomat(const PLAYER_INDEX & playerId);
 	static bool HasDiplomat(const PLAYER_INDEX & playerId);
 
+	static DiplomatRegistry & Diplomats();
+	using Registry = DiplomatRegistry;
+
 	static void ResizeAll(const PLAYER_INDEX & newMaxPlayers);
 
 
@@ -168,15 +172,14 @@ public:
 
 	void SetNextId(const sint32 & id);
 
-	// Read-only peek at s_nextId — used by the JSON savegame path to
-	// emit the next-id counter without bumping it (GetNextId() is a
-	// post-increment).  Mirror Diplomat::SaveAll's archive << s_nextId.
-	static sint32 PeekNextId() { return s_nextId; }
+	// Read-only peek at the next-id counter — used by the JSON savegame
+	// path to emit it without bumping (GetNextId() post-increments).
+	static sint32 PeekNextId();
 
 	// Number of per-player Diplomat slots — equals CtpAi::s_maxPlayers
 	// after ResizeAll.  Exposed here so gs/ code (JSON save path) can
 	// iterate without including ai/ctpai.h.
-	static size_t Count() { return s_theDiplomats.size(); }
+	static size_t Count();
 
 
 
@@ -594,8 +597,8 @@ public:
 
 private:
 
-	static sint32 s_nextId;
-	static Diplomat::DiplomatVector s_theDiplomats;
+	// (removed) s_nextId / s_theDiplomats now live in Diplomat::Registry
+	// (Diplomats()), owned per-game by Ctp2::Game.
 
 	void RemoveBestMotivation();
 
@@ -701,6 +704,28 @@ private:
 	};
 
 	mutable cEffectiveRegardEntry m_effectiveRegardCache[k_MAX_PLAYERS];
+};
+
+// Explicit registry owning all per-player diplomats. Replaces the old
+// s_theDiplomats static; Diplomat::Diplomats() forwards here (via the
+// active Game) so existing callers keep working while lifetime is explicit
+// and per-game.
+class DiplomatRegistry {
+public:
+	void Resize(const PLAYER_INDEX & newMaxPlayers);
+	void Clear();
+	void InitializeAll();
+	Diplomat & Get(const PLAYER_INDEX & playerId);
+	bool Has(const PLAYER_INDEX & playerId) const;
+	size_t Size() const { return m_diplomats.size(); }
+	sint32 NextId() { return m_nextId++; }
+	void SetNextId(sint32 id) { m_nextId = id; }
+	sint32 PeekNextId() const { return m_nextId; }
+	Diplomat::DiplomatVector & All() { return m_diplomats; }
+	Diplomat::DiplomatVector const & All() const { return m_diplomats; }
+private:
+	Diplomat::DiplomatVector m_diplomats;
+	sint32 m_nextId = 0;
 };
 
 #endif // __DIPLOMAT_H__

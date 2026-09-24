@@ -1674,7 +1674,7 @@ bool UnitAstar::CheckIsDangerForPos(const MapPoint & pos)
 			if (m_owner != owner)
 			{
 				baseRegard = diplomat.GetBaseRegard(owner);
-				sint32 turnsatwar = AgreementMatrix::s_agreements.TurnsAtWar(m_owner, owner);
+				sint32 turnsatwar = AgreementMatrix::Active().TurnsAtWar(m_owner, owner);
 				if (baseRegard <= NEUTRAL_REGARD || turnsatwar >= 0)
 				{
 					if((isCivilian && isVisible) || (!m_army_strength.HasEnough(Squad_Strength(neighbor)) && isVisible) || the_army->CanBombardTargetType(*m_army.GetData()))

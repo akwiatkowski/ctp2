@@ -74,7 +74,8 @@ class AgreementMatrix
 public:
 
     static ai::Agreement s_badAgreement;
-	static AgreementMatrix s_agreements;
+	// (removed) s_agreements now lives in Ctp2::Game. Use Active().
+	static AgreementMatrix & Active();
 
 	typedef std::vector<ai::Agreement> AgreementVector;
 

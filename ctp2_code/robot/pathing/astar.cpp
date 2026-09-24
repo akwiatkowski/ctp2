@@ -32,6 +32,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/utility/Globals.h"
 
@@ -49,11 +60,9 @@
 #include "robot/aibackdoor/priorityqueue.h"
 #include "robot/pathing/A_Star_Heuristic_Cost.h"
 
-// PathingContext owns the node pool + search epoch that used to live in
-// file-scope g_astar_mem / g_search_count globals. One shared instance backs
-// the legacy Astar_Init/Cleanup entry points; new code can instantiate its
-// own PathingContext (e.g. per-thread) and reach it via AstarPathing().
-static PathingContext s_pathingStorage;
+// PathingContext lives in Ctp2::Game (per-game). This shim routes the
+// legacy entry points to the active game; direct Game::GetPathing() is
+// preferred in new code.
 
 PathingContext::PathingContext()
 :
@@ -86,13 +95,13 @@ void PathingContext::SetVisited(Cell const * cell, AstarPoint * point)
 
 PathingContext & AstarPathing()
 {
-	return s_pathingStorage;
+	return game_GetActive().GetPathing();
 }
 
 void Astar_Init()
 
 {
-	s_pathingStorage.Reset();
+	game_GetActive().GetPathing().Reset();
 }
 
 void Astar_Cleanup()

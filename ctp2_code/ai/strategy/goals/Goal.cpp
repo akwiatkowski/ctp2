@@ -2399,7 +2399,7 @@ bool Goal::Get_Totally_Complete() const
 	{
 		const WonderRecord *wonder_rec = goal_record->GetTargetProtectionWonderPtr();
 
-		if ((AgreementMatrix::s_agreements.TurnsAtWar(m_playerId, target_owner) < 0) &&
+		if ((AgreementMatrix::Active().TurnsAtWar(m_playerId, target_owner) < 0) &&
 			player_Get(target_owner) &&
 			(player_Get(target_owner)->GetBuiltWonders() & ((uint64)1 << (uint64)(wonder_rec->GetIndex()))))
 			return true;

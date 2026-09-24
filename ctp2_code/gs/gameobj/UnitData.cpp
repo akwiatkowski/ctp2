@@ -2388,7 +2388,7 @@ bool UnitData::CanInterceptTrade() const
 		if(player_Get(m_owner)->IsRobot() &&
 		   !(network_Get().IsClient() && network_Get().IsLocalPlayer(m_owner))) {
 
-			if(AgreementMatrix::s_agreements.HasAgreement(
+			if(AgreementMatrix::Active().HasAgreement(
 				m_owner,
 				source_owner,
 				PROPOSAL_OFFER_STOP_PIRACY))

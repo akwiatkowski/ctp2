@@ -212,7 +212,7 @@ STDEHANDLER(LeaveOurBorders_NewProposalEvent) {
 		return GEV_HD_Continue;
 
 	sint16 duration =
-		AgreementMatrix::s_agreements.GetAgreementDuration(sender, receiver, PROPOSAL_REQUEST_WITHDRAW_TROOPS);
+		AgreementMatrix::Active().GetAgreementDuration(sender, receiver, PROPOSAL_REQUEST_WITHDRAW_TROOPS);
 
 	if (duration >= 0 && duration < 25)
 		return GEV_HD_Continue;
@@ -312,17 +312,17 @@ STDEHANDLER(ExchangeMaps_NewProposalEvent) {
 	if (sender_diplomat.TestPublicRegard(receiver, COLDWAR_REGARD))
 		return GEV_HD_Continue;
 
-	if (AgreementMatrix::s_agreements.HasAgreement(sender,receiver,PROPOSAL_TREATY_DECLARE_WAR) )
+	if (AgreementMatrix::Active().HasAgreement(sender,receiver,PROPOSAL_TREATY_DECLARE_WAR) )
 		return GEV_HD_Continue;
 
 	sint32 want_map_turns;
 	sender_diplomat.GetCurrentDiplomacy(receiver).GetWantMapTurns(want_map_turns);
 
 	ai::Agreement found;
-	found = AgreementMatrix::s_agreements.GetAgreement(sender,receiver, PROPOSAL_OFFER_MAP);
+	found = AgreementMatrix::Active().GetAgreement(sender,receiver, PROPOSAL_OFFER_MAP);
 
 	sint32 sender_saw_map =
-		AgreementMatrix::s_agreements.GetAgreementDuration(sender, receiver, PROPOSAL_REQUEST_MAP);
+		AgreementMatrix::Active().GetAgreementDuration(sender, receiver, PROPOSAL_REQUEST_MAP);
 
 
 	if (sender_saw_map == -1 ||	sender_saw_map > want_map_turns)
@@ -640,10 +640,10 @@ STDEHANDLER(HonorPollutionAgreement_NewProposalEvent)
 		return GEV_HD_Continue;
 
 	ai::Agreement agreement =
-		AgreementMatrix::s_agreements.GetAgreement(sender, receiver, PROPOSAL_TREATY_POLLUTION_PACT);
+		AgreementMatrix::Active().GetAgreement(sender, receiver, PROPOSAL_TREATY_POLLUTION_PACT);
 
 	if (agreement == AgreementMatrix::s_badAgreement)
-		agreement = AgreementMatrix::s_agreements.GetAgreement(sender, receiver, PROPOSAL_REQUEST_REDUCE_POLLUTION);
+		agreement = AgreementMatrix::Active().GetAgreement(sender, receiver, PROPOSAL_REQUEST_REDUCE_POLLUTION);
 
 	if (agreement == AgreementMatrix::s_badAgreement)
 		return GEV_HD_Continue;
@@ -723,7 +723,7 @@ STDEHANDLER(TradePact_NewProposalEvent)
 	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);
 	Diplomat & receiver_diplomat = Diplomat::GetDiplomat(receiver);
 
-	if (AgreementMatrix::s_agreements.HasAgreement(sender, receiver, PROPOSAL_TREATY_TRADE_PACT))
+	if (AgreementMatrix::Active().HasAgreement(sender, receiver, PROPOSAL_TREATY_TRADE_PACT))
 		return GEV_HD_Continue;
 
 
@@ -880,7 +880,7 @@ STDEHANDLER(PollutionPact_NewProposalEvent)
 	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);
 //	Diplomat & receiver_diplomat = Diplomat::GetDiplomat(receiver);
 
-	if (AgreementMatrix::s_agreements.HasAgreement(sender, receiver, PROPOSAL_TREATY_POLLUTION_PACT))
+	if (AgreementMatrix::Active().HasAgreement(sender, receiver, PROPOSAL_TREATY_POLLUTION_PACT))
 		return GEV_HD_Continue;
 
 	sint32 priority =
@@ -975,7 +975,7 @@ STDEHANDLER(Alliance_NewProposalEvent)
 	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);
 //	Diplomat & receiver_diplomat = Diplomat::GetDiplomat(receiver);
 
-	if (AgreementMatrix::s_agreements.HasAgreement(sender, receiver, PROPOSAL_TREATY_ALLIANCE))
+	if (AgreementMatrix::Active().HasAgreement(sender, receiver, PROPOSAL_TREATY_ALLIANCE))
 		return GEV_HD_Continue;
 
 
@@ -1139,7 +1139,7 @@ STDEHANDLER(StopPiracy_NewProposalEvent)
 		sender_diplomat.GetNewProposalPriority(receiver, PROPOSAL_REQUEST_STOP_PIRACY);
 
 
-	sint32 turns_since_last_war = AgreementMatrix::s_agreements.TurnsSinceLastWar(sender, receiver);
+	sint32 turns_since_last_war = AgreementMatrix::Active().TurnsSinceLastWar(sender, receiver);
 	if ( (map.GetPiracyIncomeByPlayer(receiver, sender) > 0) &&
 		  ((turns_since_last_war > 0) || (turns_since_last_war == -1)))
 	{
@@ -1194,8 +1194,8 @@ STDEHANDLER(BegForGold_NewProposalEvent)
 	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);
 
 	bool allied =
-		AgreementMatrix::s_agreements.HasAgreement(sender,receiver,PROPOSAL_TREATY_MILITARY_PACT) ||
-		AgreementMatrix::s_agreements.HasAgreement(sender,receiver,PROPOSAL_TREATY_ALLIANCE);
+		AgreementMatrix::Active().HasAgreement(sender,receiver,PROPOSAL_TREATY_MILITARY_PACT) ||
+		AgreementMatrix::Active().HasAgreement(sender,receiver,PROPOSAL_TREATY_ALLIANCE);
 
 	if (!receiver_diplomat.TestPublicRegard(sender, FRIEND_REGARD) && !allied)
 		return GEV_HD_Continue;
@@ -1351,13 +1351,13 @@ STDEHANDLER(BreakAgreementWithEnemy_NewProposalEvent)
 		if (receiver_diplomat.GetPublicRegard(cold_war_enemy) < FRIEND_REGARD)
 			continue;
 
-		agreement = AgreementMatrix::s_agreements.GetAgreement(receiver, cold_war_enemy, PROPOSAL_TREATY_TRADE_PACT);
+		agreement = AgreementMatrix::Active().GetAgreement(receiver, cold_war_enemy, PROPOSAL_TREATY_TRADE_PACT);
 
 		if (agreement == AgreementMatrix::s_badAgreement)
-			agreement = AgreementMatrix::s_agreements.GetAgreement(receiver, cold_war_enemy, PROPOSAL_TREATY_RESEARCH_PACT);
+			agreement = AgreementMatrix::Active().GetAgreement(receiver, cold_war_enemy, PROPOSAL_TREATY_RESEARCH_PACT);
 
 		if (agreement == AgreementMatrix::s_badAgreement)
-			agreement = AgreementMatrix::s_agreements.GetAgreement(receiver, cold_war_enemy, PROPOSAL_TREATY_MILITARY_PACT);
+			agreement = AgreementMatrix::Active().GetAgreement(receiver, cold_war_enemy, PROPOSAL_TREATY_MILITARY_PACT);
 
 		if (agreement == AgreementMatrix::s_badAgreement)
 			continue;
@@ -1742,7 +1742,7 @@ STDEHANDLER(RequestCity_NewProposalEvent)
 	if (sender_diplomat.GetPublicRegard(receiver) >= COLDWAR_REGARD)
 		return GEV_HD_Continue;
 
-	if (AgreementMatrix::s_agreements.HasAgreement(sender,receiver,PROPOSAL_TREATY_DECLARE_WAR) )
+	if (AgreementMatrix::Active().HasAgreement(sender,receiver,PROPOSAL_TREATY_DECLARE_WAR) )
 		return GEV_HD_Continue;
 
 	if (!sender_diplomat.DesireWarWith(receiver))
@@ -1807,8 +1807,8 @@ STDEHANDLER(RequestHonorMilitaryAgeement_NewProposalEvent)
 	if (!args->GetPlayer(1, receiver))
 		return GEV_HD_Continue;
 
-	if (!AgreementMatrix::s_agreements.HasAgreement(sender, receiver, PROPOSAL_TREATY_MILITARY_PACT) &&
-		!AgreementMatrix::s_agreements.HasAgreement(sender, receiver, PROPOSAL_TREATY_ALLIANCE))
+	if (!AgreementMatrix::Active().HasAgreement(sender, receiver, PROPOSAL_TREATY_MILITARY_PACT) &&
+		!AgreementMatrix::Active().HasAgreement(sender, receiver, PROPOSAL_TREATY_ALLIANCE))
 		return GEV_HD_Continue;
 
 	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);
@@ -1827,10 +1827,10 @@ STDEHANDLER(RequestHonorMilitaryAgeement_NewProposalEvent)
 		if (player_Get(hot_war_enemy) == nullptr)
 			continue;
 
-		if (AgreementMatrix::s_agreements.TurnsAtWar(sender, hot_war_enemy) < 10)
+		if (AgreementMatrix::Active().TurnsAtWar(sender, hot_war_enemy) < 10)
 			continue;
 
-		if (AgreementMatrix::s_agreements.HasAgreement(receiver, hot_war_enemy, PROPOSAL_TREATY_DECLARE_WAR))
+		if (AgreementMatrix::Active().HasAgreement(receiver, hot_war_enemy, PROPOSAL_TREATY_DECLARE_WAR))
 			continue;
 
 		if (!player_Get(receiver)->HasContactWith(hot_war_enemy))

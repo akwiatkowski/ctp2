@@ -54,6 +54,17 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/game.h" // game_GetActive: static->Game shims
+
+// Active-game routing: legacy static shims forward here. Set by NewGame
+// publisher (see Game::SetActive wiring); Assert fires if a shim runs with
+// no live game, matching the old null-deref crash semantics loudly.
+static Ctp2::Game & game_GetActive()
+{
+	Ctp2::Game * game = Ctp2::Game::GetActive();
+	Assert(game != nullptr);
+	return *game;
+}
 #include "ai/diplomacy/Diplomat.h"
 #include "gs/core/diplomacy_observer.h"
 #include "gs/fileio/gamefile.h"        // save_file_version_Get
@@ -198,8 +209,8 @@ NewProposal Diplomat::s_badNewProposal;
 Motivation Diplomat::s_badMotivation;
 ai::Agreement Diplomat::s_badAgreement;
 
-sint32 Diplomat::s_nextId = 0;
-Diplomat::DiplomatVector Diplomat::s_theDiplomats;
+// (removed) s_nextId / s_theDiplomats now live in Diplomat::Registry
+// (Diplomats()), owned per-game by Ctp2::Game.
 sint32 Diplomat::s_proposalTypeToElemIndex[PROPOSAL_MAX];
 
 
@@ -207,32 +218,22 @@ sint32 Diplomat::s_proposalTypeToElemIndex[PROPOSAL_MAX];
 
 
 #define RELDBG(x) { FILE *f = fopen("reldbg.txt", "a"); fprintf x; fclose(f); }
-Diplomat & Diplomat::GetDiplomat(const PLAYER_INDEX & playerId)
+DiplomatRegistry & Diplomat::Diplomats()
 {
-	Assert(playerId >= 0);
-	Assert(static_cast<size_t>(playerId) < s_theDiplomats.size());
-	Assert(playerId == s_theDiplomats[playerId].GetPlayerId());
-
-	return s_theDiplomats[playerId];
+	// Per-game: the Registry object lives in Ctp2::Game; this accessor
+	// exposes the active game's registry to legacy static callers.
+	return game_GetActive().GetDiplomats();
 }
 
-bool Diplomat::HasDiplomat(const PLAYER_INDEX & playerId)
+void DiplomatRegistry::Resize(const PLAYER_INDEX & newMaxPlayers)
 {
-	return (playerId >= 0
-	&&      static_cast<size_t>(playerId) < s_theDiplomats.size()
-	&&      player_Get(playerId) != nullptr
-	&&      playerId == s_theDiplomats[playerId].GetPlayerId());
-}
-
-void Diplomat::ResizeAll(const PLAYER_INDEX & newMaxPlayers)
-{
-	sint32 old_size = s_theDiplomats.size();
-	s_theDiplomats.resize(newMaxPlayers);
+	sint32 old_size = m_diplomats.size();
+	m_diplomats.resize(newMaxPlayers);
 
 	for (sint32 playerId = 0; playerId < newMaxPlayers; playerId++)
 	{
-		s_theDiplomats[playerId].SetPlayerId(playerId);
-		s_theDiplomats[playerId].Resize(newMaxPlayers);
+		m_diplomats[playerId].SetPlayerId(playerId);
+		m_diplomats[playerId].Resize(newMaxPlayers);
 
 		if (playerId < old_size)
 		{
@@ -240,41 +241,93 @@ void Diplomat::ResizeAll(const PLAYER_INDEX & newMaxPlayers)
 			{
 				if (foreignerId >= old_size || player_Get(foreignerId) == nullptr)
 				{
-					s_theDiplomats[playerId].InitForeigner(foreignerId);
+					m_diplomats[playerId].InitForeigner(foreignerId);
 				}
 			}
 		}
 		else
 		{
-			s_theDiplomats[playerId].Initialize();
+			m_diplomats[playerId].Initialize();
 		}
 	}
 }
 
-void Diplomat::CleanupAll()
+void DiplomatRegistry::Clear()
 {
-	for (auto & s_theDiplomat : s_theDiplomats)
+	for (auto & diplomat : m_diplomats)
 	{
-		s_theDiplomat.Cleanup();
+		diplomat.Cleanup();
 	}
 
-	s_theDiplomats.clear();
-	DiplomatVector().swap(s_theDiplomats);
+	m_diplomats.clear();
+	Diplomat::DiplomatVector().swap(m_diplomats);
+}
+
+void DiplomatRegistry::InitializeAll()
+{
+	for (auto & diplomat : m_diplomats)
+	{
+		diplomat.Initialize();
+	}
+}
+
+Diplomat & DiplomatRegistry::Get(const PLAYER_INDEX & playerId)
+{
+	Assert(playerId >= 0);
+	Assert(static_cast<size_t>(playerId) < m_diplomats.size());
+	Assert(playerId == m_diplomats[playerId].GetPlayerId());
+
+	return m_diplomats[playerId];
+}
+
+bool DiplomatRegistry::Has(const PLAYER_INDEX & playerId) const
+{
+	return (playerId >= 0
+	&&      static_cast<size_t>(playerId) < m_diplomats.size()
+	&&      player_Get(playerId) != nullptr
+	&&      playerId == m_diplomats[playerId].GetPlayerId());
+}
+
+Diplomat & Diplomat::GetDiplomat(const PLAYER_INDEX & playerId)
+{
+	return Diplomats().Get(playerId);
+}
+
+bool Diplomat::HasDiplomat(const PLAYER_INDEX & playerId)
+{
+	return Diplomats().Has(playerId);
+}
+
+void Diplomat::ResizeAll(const PLAYER_INDEX & newMaxPlayers)
+{
+	Diplomats().Resize(newMaxPlayers);
+}
+
+void Diplomat::CleanupAll()
+{
+	Diplomats().Clear();
 }
 
 void Diplomat::InitializeAll()
 {
-	for (auto & s_theDiplomat : s_theDiplomats)
-	{
-		s_theDiplomat.Initialize();
-	}
+	Diplomats().InitializeAll();
+}
+
+sint32 Diplomat::PeekNextId()
+{
+	return Diplomats().PeekNextId();
+}
+
+size_t Diplomat::Count()
+{
+	return Diplomats().Size();
 }
 
 
 
 void Diplomat::DebugStatusAll()
 {
-	for (size_t playerId = 1; playerId < s_theDiplomats.size(); ++playerId)
+	for (size_t playerId = 1; playerId < Diplomats().All().size(); ++playerId)
     {
 		if (player_Get(playerId) && !player_Get(playerId)->IsDead())
 		{
@@ -321,17 +374,17 @@ void Diplomat::ExecuteDelayedNegotiations(const sint32 receiverID)
 	{
 		if(player_Get(i))
 		{
-			s_theDiplomats[i].m_foreigners[receiverID].ExecuteDelayedNegotiations();
+			Diplomats().All()[i].m_foreigners[receiverID].ExecuteDelayedNegotiations();
 		}
 	}
 }
 
 sint32 Diplomat::GetNextId() {
-	return s_nextId++;
+	return Diplomats().NextId();
 }
 
 void Diplomat::SetNextId(const sint32 & id) {
-	s_nextId = id;
+	Diplomats().SetNextId(id);
 }
 
 Diplomat::Diplomat()
@@ -968,7 +1021,7 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 		return;
 	}
 
-	if (AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, proposal_type))
+	if (AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, proposal_type))
 	{
 
 		sint32 regard_cost = GetViolationRegardCost(foreignerId, proposal_type);
@@ -999,20 +1052,20 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 
 		UpdateRegard( foreignerId );
 
-		AgreementMatrix::s_agreements.CancelAgreement(m_playerId, foreignerId, proposal_type);
-		AgreementMatrix::s_agreements.CancelAgreement(foreignerId, m_playerId, proposal_type);
+		AgreementMatrix::Active().CancelAgreement(m_playerId, foreignerId, proposal_type);
+		AgreementMatrix::Active().CancelAgreement(foreignerId, m_playerId, proposal_type);
 	}
 
 	bool war_declared =
-		AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR);
+		AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR);
 
 	sint32 turnsatwar =
-		AgreementMatrix::s_agreements.TurnsAtWar(m_playerId, foreignerId);
+		AgreementMatrix::Active().TurnsAtWar(m_playerId, foreignerId);
 
 	if (act_of_war)
 	{
 
-		ai::Agreement war_agreement = AgreementMatrix::s_agreements.GetAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR);
+		ai::Agreement war_agreement = AgreementMatrix::Active().GetAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR);
 		if (!war_declared || (turnsatwar == 0 && war_agreement.senderId != m_playerId))
 		{
 			sint32 regard_cost;
@@ -1053,22 +1106,22 @@ const ai::Regard Diplomat::GetPublicRegard( const PLAYER_INDEX & foreignerId,
 		return MIN_REGARD;
 
 	if ((regard > HOTWAR_REGARD) &&
-		AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
+		AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 	{
 		regard = HOTWAR_REGARD;
 	}
 
 	else if ((regard <= HOTWAR_REGARD) &&
-		AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_PEACE))
+		AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_PEACE))
 	{
 
 		regard = HOTWAR_REGARD + 1;
 	}
 
 	else if ((regard <= COLDWAR_REGARD) &&
-		(AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE) ||
-		 AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT) ||
-		 AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT)))
+		(AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE) ||
+		 AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT) ||
+		 AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT)))
 	{
 
 		regard = COLDWAR_REGARD + 1;
@@ -1103,11 +1156,11 @@ void Diplomat::ApplyGlobalTrustChange(const PLAYER_INDEX & foreignerId, const ai
 	}
 #endif
 
-	for (size_t i = 1; i < s_theDiplomats.size(); i++)
+	for (size_t i = 1; i < Diplomats().All().size(); i++)
     {
 		if (static_cast<PLAYER_INDEX>(i) != foreignerId)
         {
-			s_theDiplomats[i].ApplyTrustChange(foreignerId, trust_delta, nullptr);
+			Diplomats().All()[i].ApplyTrustChange(foreignerId, trust_delta, nullptr);
         }
 	}
 }
@@ -1144,17 +1197,17 @@ void Diplomat::SetTrust(const PLAYER_INDEX & foreignerId, const ai::Regard &trus
 
 ai::Regard Diplomat::GetBaseRegard(const PLAYER_INDEX foreignerId) const
 {
-	if (AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
+	if (AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
 	{
 		return ALLIED_REGARD;
 	}
-	else if (AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT) ||
-		AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT) ||
-		AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_TRADE_PACT))
+	else if (AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT) ||
+		AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT) ||
+		AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_TRADE_PACT))
 	{
 		return FRIEND_REGARD;
 	}
-	else if (!AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_PEACE))
+	else if (!AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_PEACE))
 	{
 		return COLDWAR_REGARD;
 	}
@@ -1292,7 +1345,7 @@ sint32 Diplomat::AddAgreement(const PLAYER_INDEX & foreignerId)
 	if (Execute_Agreement( agreement ))
 	{
 
-		AgreementMatrix::s_agreements.SetAgreement( agreement );
+		AgreementMatrix::Active().SetAgreement( agreement );
 	}
 
 	return agreement.id;
@@ -1455,11 +1508,11 @@ void Diplomat::Execute_Proposal( const PLAYER_INDEX & sender,
 		break;
 	case PROPOSAL_OFFER_BREAK_AGREEMENT:
 
-		AgreementMatrix::s_agreements.BreakAgreements(sender, proposal_arg.playerId);
+		AgreementMatrix::Active().BreakAgreements(sender, proposal_arg.playerId);
 		break;
 	case PROPOSAL_REQUEST_BREAK_AGREEMENT:
 
-		AgreementMatrix::s_agreements.BreakAgreements(receiver, proposal_arg.playerId);
+		AgreementMatrix::Active().BreakAgreements(receiver, proposal_arg.playerId);
 		break;
 	case PROPOSAL_OFFER_STOP_RESEARCH:
 
@@ -1584,7 +1637,7 @@ void Diplomat::Execute_Proposal( const PLAYER_INDEX & sender,
 
 		if(player_Get(sender)->HasWarWith(receiver))
 		{
-			AgreementMatrix::s_agreements.
+			AgreementMatrix::Active().
 				CancelAgreement(sender, receiver, PROPOSAL_TREATY_DECLARE_WAR);
 
 			// Maybe add to CancelAgreement as message from DB
@@ -1635,7 +1688,7 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 		}
 	}
 
-	if (AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
+	if (AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 		return;
 
 	if (m_playerId != 0 && foreignerId != 0)
@@ -1676,27 +1729,27 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 	agreement.end = -1;
 	agreement.proposal.first_type = PROPOSAL_TREATY_DECLARE_WAR;
 
-	AgreementMatrix::s_agreements.SetAgreement(agreement);
+	AgreementMatrix::Active().SetAgreement(agreement);
 
-	AgreementMatrix::s_agreements.
+	AgreementMatrix::Active().
 		CancelAgreement(m_playerId, foreignerId, PROPOSAL_OFFER_WITHDRAW_TROOPS);
 
-	AgreementMatrix::s_agreements.
+	AgreementMatrix::Active().
 		CancelAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_PEACE);
 
-	AgreementMatrix::s_agreements.
+	AgreementMatrix::Active().
 		CancelAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_CEASEFIRE);
 
-	AgreementMatrix::s_agreements.
+	AgreementMatrix::Active().
 		CancelAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_TRADE_PACT);
 
-	AgreementMatrix::s_agreements.
+	AgreementMatrix::Active().
 		CancelAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT);
 
-	AgreementMatrix::s_agreements.
+	AgreementMatrix::Active().
 		CancelAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT);
 
-	AgreementMatrix::s_agreements.
+	AgreementMatrix::Active().
 		CancelAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE);
 
 	if(network_Get().IsHost()) {
@@ -1750,7 +1803,7 @@ void Diplomat::SetEmbargo(const PLAYER_INDEX foreignerId, const bool state)
 bool Diplomat::GetEmbargo(const PLAYER_INDEX foreignerId) const
 {
 
-	if (AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
+	if (AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 		return true;
 	return m_foreigners[foreignerId].GetEmbargo();
 }
@@ -1776,11 +1829,11 @@ void Diplomat::AddRejection(const PLAYER_INDEX & foreignerId)
 	if (sender_proposal.detail.first_type == PROPOSAL_REQUEST_HONOR_MILITARY_AGREEMENT ||
 		sender_proposal.detail.second_type == PROPOSAL_REQUEST_HONOR_MILITARY_AGREEMENT)
 	{
-		if (AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
+		if (AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
 		{
 			LogViolationEvent(foreignerId, PROPOSAL_TREATY_ALLIANCE);
 		}
-		else if (AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT))
+		else if (AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT))
 		{
 			LogViolationEvent(foreignerId, PROPOSAL_TREATY_MILITARY_PACT);
 		}
@@ -2037,7 +2090,7 @@ bool Diplomat::ComputeThreatResponse(const PLAYER_INDEX foreignerId, Response & 
 		}
 
 	const MapAnalysis & map_analysis = MapAnalysis::GetMapAnalysis();
-	const AgreementMatrix & agreements = AgreementMatrix::s_agreements;
+	const AgreementMatrix & agreements = AgreementMatrix::Active();
 
 	ai::Agreement pact;
 
@@ -2223,7 +2276,7 @@ bool Diplomat::ComputeThreatResponse(const PLAYER_INDEX foreignerId, Response & 
 
 bool Diplomat::GetAgreementToBreak(const PLAYER_INDEX foreignerId, ai::Agreement & pact) const
 {
-	const AgreementMatrix & agreements = AgreementMatrix::s_agreements;
+	const AgreementMatrix & agreements = AgreementMatrix::Active();
 
 	if (agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
 	{
@@ -2414,7 +2467,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 		&& player_view::VisiblePlayer() != sender
 		){
 			NegotiationEvent negotiation_event;
-			negotiation_event.proposal = s_theDiplomats[sender].GetMyLastNewProposal(receiver);
+			negotiation_event.proposal = Diplomats().All()[sender].GetMyLastNewProposal(receiver);
 			negotiation_event.response = response;
 			negotiation_event.response.threat = Diplomat::GetDiplomat(sender).GetMyLastResponse(receiver).threat;
 			negotiation_event.round = -1;
@@ -2424,7 +2477,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 		&&      player_view::VisiblePlayer() != receiver
 		){
 			NegotiationEvent negotiation_event;
-			negotiation_event.proposal = s_theDiplomats[sender].GetMyLastNewProposal(receiver);
+			negotiation_event.proposal = Diplomats().All()[sender].GetMyLastNewProposal(receiver);
 			negotiation_event.response = response;
 			negotiation_event.response.counter = Diplomat::GetDiplomat(receiver).GetMyLastResponse(sender).counter;
 			negotiation_event.round = -1;
@@ -2906,28 +2959,28 @@ bool Diplomat::InvalidNewProposal(const PLAYER_INDEX & foreignerId, const Diplom
 		return true;
 
 	if (rec->GetHasHotwar() &&
-		!AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
+		!AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 		return true;
 
 	if (rec->GetNoHotwar() &&
-		AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
+		AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 		return true;
 
 	if (rec->GetHasPeaceTreaty() &&
-		!AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_PEACE))
+		!AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_PEACE))
 		return true;
 
 	if (rec->GetHasAlliance() &&
-		!AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
+		!AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
 		return true;
 
 	if (rec->GetHasMilitaryAgreement() &&
-		!AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT) &&
-		!AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
+		!AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT) &&
+		!AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
 		return true;
 
 	if (rec->GetHasPollutionAgreement() &&
-		!AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_POLLUTION_PACT))
+		!AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_POLLUTION_PACT))
 		return true;
 
 	if (rec->GetClassTreaty())
@@ -2936,37 +2989,37 @@ bool Diplomat::InvalidNewProposal(const PLAYER_INDEX & foreignerId, const Diplom
 
 		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_CEASEFIRE]);
 		if (elem && (rec == elem->GetProposal()) &&
-			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_CEASEFIRE))
+			AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_CEASEFIRE))
 			return true;
 
 		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_PEACE]);
 		if (elem && (rec == elem->GetProposal()) &&
-			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_PEACE))
+			AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_PEACE))
 			return true;
 
 		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_TRADE_PACT]);
 		if (elem && (rec == elem->GetProposal()) &&
-			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_TRADE_PACT))
+			AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_TRADE_PACT))
 			return true;
 
 		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_MILITARY_PACT]);
 		if (elem && (rec == elem->GetProposal()) &&
-			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT))
+			AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT))
 			return true;
 
 		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_RESEARCH_PACT]);
 		if (elem && (rec == elem->GetProposal()) &&
-			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT))
+			AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT))
 			return true;
 
 		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_POLLUTION_PACT]);
 		if (elem && (rec == elem->GetProposal()) &&
-			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_POLLUTION_PACT))
+			AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_POLLUTION_PACT))
 			return true;
 
 		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_ALLIANCE]);
 		if (elem && (rec == elem->GetProposal()) &&
-			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
+			AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
 			return true;
 	}
 
@@ -2976,7 +3029,7 @@ bool Diplomat::InvalidNewProposal(const PLAYER_INDEX & foreignerId, const Diplom
 	{
 
 		if (rec->GetHasAlly() &&
-			!AgreementMatrix::s_agreements.HasAgreement(foreignerId, PROPOSAL_TREATY_ALLIANCE))
+			!AgreementMatrix::Active().HasAgreement(foreignerId, PROPOSAL_TREATY_ALLIANCE))
 			return true;
 
 		if (rec->GetHasBorderIncursion() &&
@@ -3007,7 +3060,7 @@ bool Diplomat::InvalidNewProposal(const PLAYER_INDEX & foreignerId, const Diplom
 	{
 
 		if (rec->GetHasAlly() &&
-			!AgreementMatrix::s_agreements.HasAgreement(m_playerId, PROPOSAL_TREATY_ALLIANCE))
+			!AgreementMatrix::Active().HasAgreement(m_playerId, PROPOSAL_TREATY_ALLIANCE))
 			return true;
 
 
@@ -3621,12 +3674,12 @@ void Diplomat::NextDiplomaticState( const PLAYER_INDEX & foreignerId )
         {
             PROPOSAL_TYPE const prop_type   = static_cast<PROPOSAL_TYPE>(prop_index);
 
-	        if (AgreementMatrix::s_agreements.HasAgreement
+	        if (AgreementMatrix::Active().HasAgreement
                     (m_playerId, foreignerId, prop_type)
                )
             {
 			    sint32 const    duration        =
-                    AgreementMatrix::s_agreements.GetAgreementDuration
+                    AgreementMatrix::Active().GetAgreementDuration
                         (m_playerId, foreignerId, prop_type);
 
                 sint32 const    expiryTurn      =
@@ -3634,7 +3687,7 @@ void Diplomat::NextDiplomaticState( const PLAYER_INDEX & foreignerId )
 
                 if (duration == expiryTurn)
                 {
-                    AgreementMatrix::s_agreements.CancelAgreement
+                    AgreementMatrix::Active().CancelAgreement
                         (m_playerId, foreignerId, prop_type);
 			    }
 			    else if ((expiryTurn > 2 * WARN_EXPIRY_TURN_COUNT) &&
@@ -3683,13 +3736,13 @@ void Diplomat::SetDiplomaticState(const PLAYER_INDEX & foreignerId, const AiStat
 	  )
 	{
 		bool declare_war = true;
-		if (!AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
+		if (!AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 		{
 			declare_war = false;
 
 
 			sint32 turns_since_last_war =
-				AgreementMatrix::s_agreements.TurnsSinceLastWar(m_playerId, foreignerId);
+				AgreementMatrix::Active().TurnsSinceLastWar(m_playerId, foreignerId);
 
 			declare_war = TestPublicRegard(foreignerId, HOTWAR_REGARD);
 
@@ -3930,7 +3983,7 @@ StringId Diplomat::GetScienceAdvice(SlicContext & sc, StringId & advance_advice)
 
 	sint32 stop_researching_adv;
 	uint32 foreignerId;
-	for (foreignerId = 1; foreignerId < s_theDiplomats.size(); ++foreignerId)
+	for (foreignerId = 1; foreignerId < Diplomats().All().size(); ++foreignerId)
 	{
 		if (TestEffectiveRegard(foreignerId, ALLIED_REGARD))
 			continue;
@@ -3989,7 +4042,7 @@ StringId Diplomat::GetScienceAdvice(SlicContext & sc, StringId & advance_advice)
 		}
 
 		ai::Regard regard;
-		for (foreignerId = 1; foreignerId < s_theDiplomats.size(); foreignerId++)
+		for (foreignerId = 1; foreignerId < Diplomats().All().size(); foreignerId++)
 		{
 			regard = GetEffectiveRegard(foreignerId);
 
@@ -4102,7 +4155,7 @@ sint32 Diplomat::AtWarCount() const
     {
         PLAYER_INDEX const  foreignerId  = static_cast<PLAYER_INDEX>(foreigner);
         if (    (foreignerId != m_playerId)
-             && AgreementMatrix::s_agreements.HasAgreement
+             && AgreementMatrix::Active().HasAgreement
                     (m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR)
            )
         {
@@ -4195,7 +4248,7 @@ bool Diplomat::ComputeEffectiveRegard(const PLAYER_INDEX & foreignerId, const ai
 {
 	ai::Regard regard = m_foreigners[foreignerId].GetEffectiveRegard();
 
-	if (AgreementMatrix::s_agreements.HasAgreement
+	if (AgreementMatrix::Active().HasAgreement
             (m_playerId,
 		     foreignerId,
 		     PROPOSAL_TREATY_DECLARE_WAR
@@ -4212,12 +4265,12 @@ bool Diplomat::ComputeEffectiveRegard(const PLAYER_INDEX & foreignerId, const ai
 			if (!DesireWarWith(foreignerId))
 			{
 
-				if (AgreementMatrix::s_agreements.HasAgreement(m_playerId,
+				if (AgreementMatrix::Active().HasAgreement(m_playerId,
 					foreignerId,
 					PROPOSAL_TREATY_CEASEFIRE))
 					return false;
 
-				if (AgreementMatrix::s_agreements.HasAgreement(m_playerId,
+				if (AgreementMatrix::Active().HasAgreement(m_playerId,
 					foreignerId,
 					PROPOSAL_TREATY_PEACE))
 					return false;
@@ -4234,7 +4287,7 @@ bool Diplomat::ComputeEffectiveRegard(const PLAYER_INDEX & foreignerId, const ai
 			if (!DesireWarWith(foreignerId))
 			{
 
-				if (AgreementMatrix::s_agreements.HasAgreement(m_playerId,
+				if (AgreementMatrix::Active().HasAgreement(m_playerId,
 					foreignerId,
 					PROPOSAL_TREATY_PEACE))
 					return false;
@@ -4261,8 +4314,8 @@ bool Diplomat::TestAlliedRegard(const PLAYER_INDEX & foreignerId) const
 
 	return  foreignerId == m_playerId ||
 		 diplomat.TestEffectiveRegard(foreignerId, ALLIED_REGARD) ||
-		 AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE) ||
-		 AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT);
+		 AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE) ||
+		 AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT);
 }
 
 
@@ -4338,27 +4391,27 @@ void Diplomat::UpdateAttributes()
 			continue;
 
 		if (m_foreigners[foreigner].GetEffectiveRegard() <= COLDWAR_REGARD ||
-			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
+			AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 		{
 			m_enemyCount++;
 			m_enemyThreat += MapAnalysis::GetMapAnalysis().TotalThreat(foreignerId);
 		}
 		else if (m_foreigners[foreigner].GetEffectiveRegard() >= FRIEND_REGARD ||
-			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE) ||
-			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT))
+			AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE) ||
+			AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT))
 		{
 			m_friendCount++;
 			m_friendPower += MapAnalysis::GetMapAnalysis().TotalThreat(foreignerId);
 		}
 
 		sint32 add_trust;
-		if (AgreementMatrix::s_agreements.
+		if (AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT) ||
-			AgreementMatrix::s_agreements.
+			AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_POLLUTION_PACT) ||
-			AgreementMatrix::s_agreements.
+			AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT) ||
-			AgreementMatrix::s_agreements.
+			AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
 		{
 			if (GetCurrentDiplomacy(foreignerId).GetHasPactTrustBonus(add_trust))
@@ -4370,9 +4423,9 @@ void Diplomat::UpdateAttributes()
 			}
 		}
 
-		if (AgreementMatrix::s_agreements.
+		if (AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_CEASEFIRE) ||
-			AgreementMatrix::s_agreements.
+			AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_PEACE))
 		{
 			if (GetCurrentDiplomacy(foreignerId).GetNoWarTrustBonus(add_trust))
@@ -4387,11 +4440,11 @@ void Diplomat::UpdateAttributes()
 			}
 		}
 
-		if (AgreementMatrix::s_agreements.
+		if (AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_WITHDRAW_TROOPS))
 		{
 			sint16 duration =
-				AgreementMatrix::s_agreements.GetAgreementDuration(m_playerId, foreignerId, PROPOSAL_REQUEST_WITHDRAW_TROOPS);
+				AgreementMatrix::Active().GetAgreementDuration(m_playerId, foreignerId, PROPOSAL_REQUEST_WITHDRAW_TROOPS);
 
 			if ((duration > 20) &&
 				GetCurrentDiplomacy(foreignerId).GetFollowThroughTrustBonus(add_trust)
@@ -4401,10 +4454,10 @@ void Diplomat::UpdateAttributes()
 			}
 		}
 
-		if (AgreementMatrix::s_agreements.
+		if (AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_STOP_PIRACY))
 		{
-			const ai::Agreement & agreement = AgreementMatrix::s_agreements.
+			const ai::Agreement & agreement = AgreementMatrix::Active().
 				GetAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_STOP_PIRACY);
 
 			if ((turn_Get()->GetSessionRound() - agreement.start == 20) &&
@@ -4415,10 +4468,10 @@ void Diplomat::UpdateAttributes()
 			}
 		}
 
-		if (AgreementMatrix::s_agreements.
+		if (AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_REDUCE_POLLUTION))
 		{
-			const ai::Agreement & agreement = AgreementMatrix::s_agreements.
+			const ai::Agreement & agreement = AgreementMatrix::Active().
 				GetAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_REDUCE_POLLUTION);
 
 			if ((turn_Get()->GetSessionRound() - agreement.start == 20) &&
@@ -4429,10 +4482,10 @@ void Diplomat::UpdateAttributes()
 			}
 		}
 
-		if (AgreementMatrix::s_agreements.
+		if (AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_STOP_RESEARCH))
 		{
-			const ai::Agreement & agreement = AgreementMatrix::s_agreements.
+			const ai::Agreement & agreement = AgreementMatrix::Active().
 				GetAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_STOP_RESEARCH);
 
 			if ((turn_Get()->GetSessionRound() - agreement.start == 20) &&
@@ -4449,15 +4502,15 @@ void Diplomat::UpdateAttributes()
 			continue;
 		}
 
-		if ( AgreementMatrix::s_agreements.
+		if ( AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR) )
 			continue;
 
-		if ( AgreementMatrix::s_agreements.
+		if ( AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT) )
 			continue;
 
-		if ( AgreementMatrix::s_agreements.
+		if ( AgreementMatrix::Active().
 			HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE) )
 			continue;
 
@@ -4495,7 +4548,7 @@ bool Diplomat::GetTradeRoutePiracyRisk(const Unit & source_city, const Unit & de
 	{
 		if ((piracy_iter.m_sourceCity == source_city) &&
 			(piracy_iter.m_destinationCity == dest_city) &&
-			!AgreementMatrix::s_agreements.HasAgreement(piracy_iter.m_piratingPlayer,
+			!AgreementMatrix::Active().HasAgreement(piracy_iter.m_piratingPlayer,
 													   m_playerId, PROPOSAL_OFFER_STOP_PIRACY)
            )
 		{
@@ -4592,7 +4645,7 @@ bool Diplomat::GetTradeRoutePiracyRisk(const PLAYER_INDEX foreignerId) const
     (const auto & piracy_iter : m_piracyHistory)
 	{
 		if ((piracy_iter.m_piratingPlayer == foreignerId) &&
-			!AgreementMatrix::s_agreements.HasAgreement
+			!AgreementMatrix::Active().HasAgreement
                 (piracy_iter.m_piratingPlayer, m_playerId, PROPOSAL_OFFER_STOP_PIRACY)
            )
 		{
@@ -4620,12 +4673,12 @@ void Diplomat::ComputeIncursionPermission()
 
 	Player *                player_ptr = player_Get(m_playerId);
 	Assert(player_ptr);
-	AgreementMatrix const & agreements = AgreementMatrix::s_agreements;
+	AgreementMatrix const & agreements = AgreementMatrix::Active();
 
 	for
 	(
 	    size_t  foreignerIndex = 1;
-	    foreignerIndex < s_theDiplomats.size();
+	    foreignerIndex < Diplomats().All().size();
 	    ++foreignerIndex
 	)
 	{
@@ -4742,7 +4795,7 @@ PLAYER_INDEX Diplomat::ComputeNuclearLaunchTarget()
 	for
     (
         size_t foreignerIndex = 1;
-        foreignerIndex < s_theDiplomats.size();
+        foreignerIndex < Diplomats().All().size();
         ++foreignerIndex
     )
 	{
@@ -4949,7 +5002,7 @@ void Diplomat::ComputeNukeTargets(NukeTargetList & city_list, const PLAYER_INDEX
 	for
     (
         size_t foreignerIndex = 0;
-        foreignerIndex < s_theDiplomats.size();
+        foreignerIndex < Diplomats().All().size();
         ++foreignerIndex
     )
 	{
@@ -5116,7 +5169,7 @@ void Diplomat::DisbandNanoWeapons(const double percent)
 
 void Diplomat::ExecutePersistantAgreements()
 {
-	AgreementMatrix & agreements = AgreementMatrix::s_agreements;
+	AgreementMatrix & agreements = AgreementMatrix::Active();
 
 	for
 	(
@@ -5205,7 +5258,7 @@ void Diplomat::SendGreeting(const PLAYER_INDEX & foreignerId)
 {
 	m_foreigners[foreignerId].SetGreetingTurn();
 
-	if (AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
+	if (AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR))
 		return;
 
 	DIPLOMATIC_STRENGTH sender_strength =
@@ -5247,9 +5300,9 @@ bool Diplomat::ComputeDesireWarWith(const PLAYER_INDEX foreignerId) const
 	if (!player_Get(m_playerId))
 		return false;
 	sint32 const		turns_at_peace		=
-		AgreementMatrix::s_agreements.TurnsSinceLastWar(m_playerId, foreignerId);
+		AgreementMatrix::Active().TurnsSinceLastWar(m_playerId, foreignerId);
 	sint32 const		turns_at_war		=
-		AgreementMatrix::s_agreements.TurnsAtWar(m_playerId, foreignerId);
+		AgreementMatrix::Active().TurnsAtWar(m_playerId, foreignerId);
 	DIPLOMATIC_STRENGTH relative_strength =
 		player_Get(m_playerId)->GetRelativeStrength(foreignerId);
 
@@ -5413,15 +5466,15 @@ bool Diplomat::CanFormAlliance(const PLAYER_INDEX foreignerId)
 			!foreigner_ptr->HasContactWith(thirdpartyId))
 			continue;
 
-		if ((AgreementMatrix::s_agreements.HasAgreement(m_playerId, thirdpartyId, PROPOSAL_TREATY_PEACE) ||
-			 AgreementMatrix::s_agreements.HasAgreement(m_playerId, thirdpartyId, PROPOSAL_TREATY_ALLIANCE) ||
-			 AgreementMatrix::s_agreements.HasAgreement(m_playerId, thirdpartyId, PROPOSAL_TREATY_MILITARY_PACT)) &&
-			AgreementMatrix::s_agreements.HasAgreement(foreignerId, thirdpartyId, PROPOSAL_TREATY_DECLARE_WAR))
+		if ((AgreementMatrix::Active().HasAgreement(m_playerId, thirdpartyId, PROPOSAL_TREATY_PEACE) ||
+			 AgreementMatrix::Active().HasAgreement(m_playerId, thirdpartyId, PROPOSAL_TREATY_ALLIANCE) ||
+			 AgreementMatrix::Active().HasAgreement(m_playerId, thirdpartyId, PROPOSAL_TREATY_MILITARY_PACT)) &&
+			AgreementMatrix::Active().HasAgreement(foreignerId, thirdpartyId, PROPOSAL_TREATY_DECLARE_WAR))
 			return false;
 
-		if ((AgreementMatrix::s_agreements.HasAgreement(foreignerId, thirdpartyId, PROPOSAL_TREATY_ALLIANCE) ||
-			 AgreementMatrix::s_agreements.HasAgreement(foreignerId, thirdpartyId, PROPOSAL_TREATY_MILITARY_PACT)) &&
-			AgreementMatrix::s_agreements.HasAgreement(m_playerId, thirdpartyId, PROPOSAL_TREATY_DECLARE_WAR))
+		if ((AgreementMatrix::Active().HasAgreement(foreignerId, thirdpartyId, PROPOSAL_TREATY_ALLIANCE) ||
+			 AgreementMatrix::Active().HasAgreement(foreignerId, thirdpartyId, PROPOSAL_TREATY_MILITARY_PACT)) &&
+			AgreementMatrix::Active().HasAgreement(m_playerId, thirdpartyId, PROPOSAL_TREATY_DECLARE_WAR))
 			return false;
 
 	}
@@ -5523,7 +5576,7 @@ bool Diplomat::FearNukesFrom(const PLAYER_INDEX foreignerId) const
 
 	bool hate_us = (Diplomat::GetDiplomat(foreignerId).GetPublicRegard(foreignerId) <= COLDWAR_REGARD);
 
-	bool at_war = AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR);
+	bool at_war = AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR);
 
 	DIPLOMATIC_STRENGTH our_strength =
 		player_Get(m_playerId)->GetRelativeStrength(foreignerId);
@@ -5546,7 +5599,7 @@ bool Diplomat::FearNanoAttackFrom(const PLAYER_INDEX foreignerId) const
 
 	bool hate_us = (Diplomat::GetDiplomat(foreignerId).GetPublicRegard(foreignerId) <= COLDWAR_REGARD);
 
-	bool at_war = AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR);
+	bool at_war = AgreementMatrix::Active().HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR);
 
 	DIPLOMATIC_STRENGTH our_strength =
 		player_Get(m_playerId)->GetRelativeStrength(foreignerId);
@@ -5615,7 +5668,7 @@ bool Diplomat::FirstTurnOfWar() const
 		if (player_Get(foreignerId) == nullptr)
 			continue;
 
-		duration = AgreementMatrix::s_agreements.GetAgreementDuration(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR);
+		duration = AgreementMatrix::Active().GetAgreementDuration(m_playerId, foreignerId, PROPOSAL_TREATY_DECLARE_WAR);
 
 		if (duration > 1)
 			return false;

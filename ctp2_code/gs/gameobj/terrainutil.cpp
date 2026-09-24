@@ -709,7 +709,7 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 	if(cell->GetOwner() >= 0 && cell->GetOwner() != pl)
 	{
 		bool const haveAlliance	=
-			AgreementMatrix::s_agreements.HasAgreement(pl, cell->GetOwner(), PROPOSAL_TREATY_ALLIANCE);
+			AgreementMatrix::Active().HasAgreement(pl, cell->GetOwner(), PROPOSAL_TREATY_ALLIANCE);
 		if(cell->GetOwner() > 0 && haveAlliance) {
 			if(rec->GetClassRoad() ||               //Why only build roads in allied territory?
 				(player_Get(pl)->GetGaiaController() && player_Get(pl)->GetGaiaController()->GaiaControllerTileImp(rec->GetIndex()))
@@ -927,7 +927,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(const TerrainImprovementRecord *rec, si
 	if(cell->GetOwner() >= 0 && cell->GetOwner() != pl)
 	{
 		bool const haveAlliance	=
-			AgreementMatrix::s_agreements.HasAgreement(pl, cell->GetOwner(), PROPOSAL_TREATY_ALLIANCE);
+			AgreementMatrix::Active().HasAgreement(pl, cell->GetOwner(), PROPOSAL_TREATY_ALLIANCE);
 		if(cell->GetOwner() > 0 && haveAlliance) {
 			if(rec->GetClassRoad() ||
 				(player_Get(pl)->GetGaiaController() && player_Get(pl)->GetGaiaController()->GaiaControllerTileImp(rec->GetIndex()))) {
@@ -1620,7 +1620,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(sint32 impType, sint32 pl, const MapPoi
 	if(cell->GetOwner() >= 0 && cell->GetOwner() != pl)
 	{
 		bool const haveAlliance	=
-			AgreementMatrix::s_agreements.HasAgreement(pl, cell->GetOwner(), PROPOSAL_TREATY_ALLIANCE);
+			AgreementMatrix::Active().HasAgreement(pl, cell->GetOwner(), PROPOSAL_TREATY_ALLIANCE);
 		if(cell->GetOwner() > 0 && haveAlliance) {
 			if(rec->GetClassRoad() ||
 				(player_Get(pl)->GetGaiaController() && player_Get(pl)->GetGaiaController()->GaiaControllerTileImp(rec->GetIndex()))) {

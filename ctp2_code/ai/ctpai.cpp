@@ -593,7 +593,7 @@ STDEHANDLER(CtpAi_ConsiderNuclearWar)
 	PLAYER_INDEX enemy_to_nuke = diplomat.ComputeNuclearLaunchTarget();
 
 	bool fire_now = (enemy_to_nuke != -1) &&
-		          (AgreementMatrix::s_agreements.TurnsAtWar(playerId, enemy_to_nuke) > 15);
+		          (AgreementMatrix::Active().TurnsAtWar(playerId, enemy_to_nuke) > 15);
 
 	diplomat.TargetNuclearAttack(enemy_to_nuke, fire_now);
 
@@ -1057,7 +1057,7 @@ void CtpAi::RemovePlayer(const PLAYER_INDEX deadPlayerId)
 		Diplomat::GetDiplomat(player).InitForeigner(deadPlayerId);
 	}
 
-	AgreementMatrix::s_agreements.ClearAgreementsInvolving(deadPlayerId);
+	AgreementMatrix::Active().ClearAgreementsInvolving(deadPlayerId);
 	Diplomat::GetDiplomat(deadPlayerId).Cleanup();
 
 	if (deadPlayerId + 1 >= s_maxPlayers)
@@ -1636,7 +1636,7 @@ void CtpAi::Resize()
     Scheduler::ResizeAll(s_maxPlayers);
 #endif
 
-	AgreementMatrix::s_agreements.Resize(s_maxPlayers);
+	AgreementMatrix::Active().Resize(s_maxPlayers);
 
 	sint16 resolution = 10;
 	MapAnalysis::GetMapAnalysis().Resize( s_maxPlayers,
@@ -2182,7 +2182,7 @@ void CtpAi::SetResearch(const PLAYER_INDEX player)
 					continue;
 
 				const ai::Agreement	& agreement =
-					AgreementMatrix::s_agreements.GetAgreement(player, foreignerId, PROPOSAL_OFFER_STOP_RESEARCH);
+					AgreementMatrix::Active().GetAgreement(player, foreignerId, PROPOSAL_OFFER_STOP_RESEARCH);
 
 				if (agreement.start != -1 && agreement.end == -1)
 				{
@@ -2197,7 +2197,7 @@ void CtpAi::SetResearch(const PLAYER_INDEX player)
 			if (stop_research)
 			{
 				sint32 duration =
-					AgreementMatrix::s_agreements.GetAgreementDuration(player, foreignerId, PROPOSAL_OFFER_STOP_RESEARCH);
+					AgreementMatrix::Active().GetAgreementDuration(player, foreignerId, PROPOSAL_OFFER_STOP_RESEARCH);
 
 				if (Diplomat::GetDiplomat(player).GetPersonality()->GetTrustworthinessChaotic())
 					break;

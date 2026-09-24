@@ -2886,7 +2886,7 @@ std::string CmdDebugFormAlliance(const char *args)
     agreement.start = static_cast<sint16>(turn_Get()->GetSessionRound());
     agreement.end = -1; // Open-ended, like Diplomat::DeclareWar agreements.
     agreement.proposal.first_type = PROPOSAL_TREATY_ALLIANCE;
-    AgreementMatrix::s_agreements.SetAgreement(agreement);
+    AgreementMatrix::Active().SetAgreement(agreement);
     return Ok("debug_form_alliance");
 }
 

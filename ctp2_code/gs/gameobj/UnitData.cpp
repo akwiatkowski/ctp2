@@ -2533,7 +2533,7 @@ ORDER_RESULT UnitData::InterceptTrade()
 static void StopExploringOnEnemyContact(UnitData *explorer, PLAYER_INDEX seenOwner)
 {
 	if (!explorer->IsExploring() || explorer->GetOwner() == seenOwner ||
-	    AgreementMatrix::s_agreements.HasAgreement(explorer->GetOwner(), seenOwner,
+	    AgreementMatrix::Active().HasAgreement(explorer->GetOwner(), seenOwner,
 	                                              PROPOSAL_TREATY_ALLIANCE))
 		return;
 

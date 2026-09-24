@@ -112,8 +112,8 @@ void Astar_Cleanup()
 
 #define k_MIN_MOVE_COST 10.0
 
-float g_cost_factor = k_MIN_MOVE_COST;
-
+// (removed) g_cost_factor was write-only dead (no readers); the live
+// heuristic scale is computed per-call in EstimateFutureCost.
 #ifdef _DEBUG
 
 

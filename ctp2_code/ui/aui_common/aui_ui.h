@@ -225,6 +225,24 @@ public:
 				// the dirty rect otherwise hides the freshly cleared map edge.
 				// UI windows sit above the world and are reblitted afterward.
 				EraseUiLayerRect(0, 0, m_uiSurface->Width(), m_uiSurface->Height());
+				// The erase also wipes UI chrome (menus, panels). Repaint every
+				// visible non-world window now — otherwise they stay hidden
+				// until their next dirty pass, which during cursor motion is
+				// never reached before the next world blit wipes them again.
+				for (ListPos pos = m_childList->GetTailPosition();
+				     pos; )
+				{
+					aui_Window *win =
+						(aui_Window *)m_childList->GetPrev(pos);
+					if (win && !win->IsHidden() && win != m_worldWindow
+					    && win->TheSurface())
+					{
+						RECT wr = { 0, 0, win->Width(), win->Height() };
+						m_blitter->Blt(m_uiSurface.get(),
+						               win->X(), win->Y(),
+						               win->TheSurface(), &wr, flags);
+					}
+				}
 				++m_uiContentVersion;
 			}
 			else

@@ -3778,8 +3778,8 @@ void Governor::FillEmptyBuildQueues(bool noWarChange)
 	RebuildCapitol();
 	ComputeDesiredUnits();
 
-	m_canBuildLandSettlers = SettleMap::s_settleMap.HasSettleTargets(m_playerId, false);
-	m_canBuildSeaSettlers  = SettleMap::s_settleMap.HasSettleTargets(m_playerId, true );
+	m_canBuildLandSettlers = SettleMap::Ref().HasSettleTargets(m_playerId, false);
+	m_canBuildSeaSettlers  = SettleMap::Ref().HasSettleTargets(m_playerId, true );
 
 	if (network_Get().IsActive() && !network_Get().IsLocalPlayer(m_playerId))
 		return;

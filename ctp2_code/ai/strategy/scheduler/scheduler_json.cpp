@@ -375,7 +375,7 @@ void from_json(nlohmann::json const &j, MapAnalysis &m)
 void json_save::SaveAiHistory(nlohmann::json &j)
 {
     j["empire_bounds"] = MapAnalysis::GetMapAnalysis();
-    j["settle_map"] = SettleMap::s_settleMap;
+    j["settle_map"] = SettleMap::Ref();
     j["schedulers"] = nlohmann::json::array();
     for (size_t i = 0; i < Scheduler::Count(); ++i)
         j["schedulers"].push_back(Scheduler::GetScheduler(static_cast<sint32>(i)));
@@ -386,9 +386,9 @@ void json_save::RestoreAiHistory(nlohmann::json const &j)
     if (j.contains("empire_bounds"))
         j["empire_bounds"].get_to(MapAnalysis::GetMapAnalysis());
     if (j.contains("settle_map"))
-        j["settle_map"].get_to(SettleMap::s_settleMap);
+        j["settle_map"].get_to(SettleMap::Ref());
     else if (world_Get())
-        SettleMap::s_settleMap.Initialize(); // Older saves lack settlement history.
+        SettleMap::Ref().Initialize(); // Older saves lack settlement history.
     if (j.contains("schedulers")) {
         auto const &schedulers = j["schedulers"];
         if (!schedulers.is_array() || schedulers.size() != Scheduler::Count())

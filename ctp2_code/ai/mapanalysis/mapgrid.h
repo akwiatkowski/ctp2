@@ -61,7 +61,7 @@ public:
 
 	~MapGrid()
 	{
-		s_scratch.resize(0);
+		// (was s_scratch.resize(0): swap buffer is now call-local, nothing global to free)
 	}
 
 	void Resize(const sint32 & xSize,
@@ -151,9 +151,13 @@ public:
 		if (cycles <= 0) return;
 
 		MapGridArray *map_from_ptr = &m_values;
-		MapGridArray *map_to_ptr = &s_scratch;
+		// Local swap buffer (was template-static s_scratch shared across
+		// all grids/games — now call-local, so concurrent Relax calls on
+		// different games cannot alias).
+		MapGridArray local_scratch;
+		MapGridArray *map_to_ptr = &local_scratch;
 
-		s_scratch.resize(m_xGridSize*m_yGridSize);
+		local_scratch.resize(m_xGridSize*m_yGridSize);
 
 		while(cycles-- > 0)
 		{
@@ -341,7 +345,8 @@ private:
 
 	sint32 m_resolution;
 
-	static MapGridArray s_scratch;
+	// (removed) static MapGridArray s_scratch — Relax() now uses a
+	// call-local buffer, so grids are per-game safe.
 
 	MapGridArray m_values;
 

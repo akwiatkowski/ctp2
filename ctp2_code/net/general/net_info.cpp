@@ -482,7 +482,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				sint32 j;
 				for(j = 0; j < player_Get(i)->m_all_cities->Num(); j++) {
 					player_Get(i)->m_all_cities->Access(j).GetData()->GetCityData()->UpdateSprite();
-					SettleMap::s_settleMap.HandleCityGrowth(player_Get(i)->m_all_cities->Access(j));
+					SettleMap::Ref().HandleCityGrowth(player_Get(i)->m_all_cities->Access(j));
 				}
 			}
 

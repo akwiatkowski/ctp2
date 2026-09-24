@@ -287,7 +287,7 @@ public:
 	void CalcEmpireCenter(const PLAYER_INDEX playerId);
 
 private:
-	static MapAnalysis s_mapAnalysis;
+	// (removed) s_mapAnalysis now lives in Ctp2::Game (m_mapAnalysis).
 
 	void AddPiracyIncome( const PLAYER_INDEX playerId,
 						  const PLAYER_INDEX victimId,

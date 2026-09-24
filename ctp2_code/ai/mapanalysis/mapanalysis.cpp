@@ -71,14 +71,14 @@ static Ctp2::Game & game_GetActive()
 #include <vector>
 #include <limits>
 
-template<class T>
-typename MapGrid<T>::MapGridArray MapGrid<T>::s_scratch;
+// (removed) MapGrid<T>::s_scratch — Relax() uses a call-local buffer now.
 
-MapAnalysis MapAnalysis::s_mapAnalysis;
+// (removed) MapAnalysis::s_mapAnalysis now lives in Ctp2::Game
+// (m_mapAnalysis), reached via MapAnalysis::GetMapAnalysis() below.
 
 MapAnalysis & MapAnalysis::GetMapAnalysis()
 {
-	return s_mapAnalysis;
+	return game_GetActive().GetMapAnalysisAI();
 }
 
 void MapAnalysis::Resize

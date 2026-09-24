@@ -322,8 +322,8 @@ public:
 	void ManageGoodsTradeRoutes();
 	void ComputeNextBuildItem(CityData *city, sint32 & cat, sint32 & type)
 	{
-		m_canBuildLandSettlers = SettleMap::s_settleMap.HasSettleTargets(m_playerId, false);
-		m_canBuildSeaSettlers  = SettleMap::s_settleMap.HasSettleTargets(m_playerId, true );
+		m_canBuildLandSettlers = SettleMap::Ref().HasSettleTargets(m_playerId, false);
+		m_canBuildSeaSettlers  = SettleMap::Ref().HasSettleTargets(m_playerId, true );
 		sint32 list_num = BUILD_UNIT_LIST_MAX;
 		ComputeNextBuildItem(city, cat, type, list_num);
 	};

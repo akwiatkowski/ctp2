@@ -73,10 +73,15 @@ namespace
     double const    VALUE_NEAR_EDGE_OF_WORLD    = -1.0;
 }
 
-SettleMap SettleMap::s_settleMap;
+// (removed) SettleMap::Ref() now lives in Ctp2::Game (m_settleMap),
+// reached via SettleMap::Ref() below.
 
-template<class T>
-typename MapGrid<T>::MapGridArray MapGrid<T>::s_scratch;
+SettleMap & SettleMap::Ref()
+{
+	return game_GetActive().GetSettleMap();
+}
+
+// (removed) MapGrid<T>::s_scratch — Relax() uses a call-local buffer now.
 
 SettleMap::SettleMap()
 :

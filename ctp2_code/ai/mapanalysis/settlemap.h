@@ -76,7 +76,8 @@ public:
 
 	typedef std::list<SettleTarget > SettleTargetList;
 
-	static SettleMap s_settleMap;
+	// (removed) s_settleMap now lives in Ctp2::Game. Use Ref().
+	static SettleMap & Ref();
 
 	void Cleanup();
 	void Initialize();

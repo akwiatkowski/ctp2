@@ -211,7 +211,7 @@ STDEHANDLER(CtpAi_CreateCityEvent)
 	}
 	CtpAi::AddOwnerGoalsForCity(city, city.GetOwner());
 
-	SettleMap::s_settleMap.HandleCityGrowth(city);
+	SettleMap::Ref().HandleCityGrowth(city);
 
 	return GEV_HD_Continue;
 }
@@ -290,7 +290,7 @@ STDEHANDLER(CtpAi_GrowCityEvent)
 	if(!args->GetCity(0, city))
 		return GEV_HD_Continue;
 
-	SettleMap::s_settleMap.HandleCityGrowth(city);
+	SettleMap::Ref().HandleCityGrowth(city);
 
 	return GEV_HD_Continue;
 }
@@ -309,7 +309,7 @@ STDEHANDLER(CtpAi_KillCityEvent)
 	if(!args->GetPlayer(0, killer))
 		killer = -1;
 
-	SettleMap::s_settleMap.SetCanSettlePos(u.RetPos(), true);
+	SettleMap::Ref().SetCanSettlePos(u.RetPos(), true);
 
 	for (sint32 playerId = 1; playerId < CtpAi::s_maxPlayers; playerId++)
 	{
@@ -364,7 +364,7 @@ STDEHANDLER(CtpAi_NukeCityUnit)
 
 	if (population <= 0)
 	{
-		SettleMap::s_settleMap.SetCanSettlePos(city.RetPos(), true);
+		SettleMap::Ref().SetCanSettlePos(city.RetPos(), true);
 
 		for (sint32 playerId = 1; playerId < CtpAi::s_maxPlayers; playerId++)
 		{
@@ -950,7 +950,7 @@ void CtpAi::CleanupEvents()
 void CtpAi::Cleanup()
 {
 	Scheduler::CleanupAll();
-	SettleMap::s_settleMap.Cleanup();
+	SettleMap::Ref().Cleanup();
 	Governor::Cleanup();
 	Diplomat::CleanupAll();
 	MapAnalysis::GetMapAnalysis().Cleanup();
@@ -961,7 +961,7 @@ void CtpAi::Initialize(bool initDiplomat)
 {
 	Resize();
 
-	SettleMap::s_settleMap.Initialize();
+	SettleMap::Ref().Initialize();
 
 	GaiaController::InitializeStatics();
 
@@ -1716,7 +1716,7 @@ void CtpAi::AddSettleTargets(const PLAYER_INDEX playerId)
 		return;
 
 	SettleMap::SettleTargetList targets;
-	SettleMap::s_settleMap.GetSettleTargets(playerId, targets);
+	SettleMap::Ref().GetSettleTargets(playerId, targets);
 	if (targets.empty())
 	{
 		return;

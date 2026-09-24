@@ -191,7 +191,7 @@ float UnitAstar::ComputeValidMovCost(const MapPoint &pos, Cell *the_pos_cell)
 
 bool UnitAstar::CanMoveIntoTransports(const MapPoint &pos)
 {
-	static CellUnitList tmp_transports;
+	CellUnitList tmp_transports;
 	if (m_army.m_id == (0))
 	{
 		return false;
@@ -910,7 +910,7 @@ void UnitAstar::InitSearch(const MapPoint &start, const PLAYER_INDEX owner,
 
 bool UnitAstar::EnterPathPoints(Path &a_path, MapPoint &old)
 {
-    static MapPoint pos;
+    MapPoint pos;
     float cost;
     bool is_zoc;
 	ASTAR_ENTRY_TYPE entry;
@@ -942,7 +942,7 @@ bool UnitAstar::EnterPathPoints(Path &a_path, MapPoint &old)
 
 bool UnitAstar::FindVisionEdge(Path &a_path, MapPoint &old)
 {
-    static MapPoint pos;
+    MapPoint pos;
 
     a_path.Start(old);
     a_path.Next(pos);
@@ -999,7 +999,7 @@ bool UnitAstar::FindBrokenPath(const MapPoint &start, const MapPoint &dest,
        return false;
     }
 
-    static MapPoint no_enter_pos;
+    MapPoint no_enter_pos;
     if (EnterPathPoints(bad_path, no_enter_pos))
     {
         good_path = bad_path;
@@ -1049,13 +1049,13 @@ bool UnitAstar::FindStraightPath(const MapPoint &start, const MapPoint &dest,
 {
     StraightLine(start, dest, good_path);
 
-    static MapPoint no_enter_pos;
+    MapPoint no_enter_pos;
     if (EnterPathPoints(good_path, no_enter_pos)) {
        return true;
     }
 
     bool r;
-    static MapPoint  tmp_point;
+    MapPoint  tmp_point;
 
     if (player_Get(m_owner)->IsExplored(dest) &&
         world_Get()->CanEnter(dest, m_move_intersection))
@@ -1115,7 +1115,7 @@ bool UnitAstar::FindStraightPath(const MapPoint &start, const MapPoint &dest,
        is_broken_path = true;
        StraightLine(start, dest, bad_path);
 
-       static MapPoint  vision_edge;
+       MapPoint  vision_edge;
        FindVisionEdge(bad_path, vision_edge);
        EnterPathPoints(bad_path, no_enter_pos);
 
@@ -1478,11 +1478,11 @@ bool UnitAstar::FindPath(Army army,
         }
     }
 
-    static MapPoint pos;
-    static MapPoint old;
-    static MapPoint tmpa;
-    static MapPoint tmpb;
-    static MapPoint no_enter_pos;
+    MapPoint pos;
+    MapPoint old;
+    MapPoint tmpa;
+    MapPoint tmpb;
+    MapPoint no_enter_pos;
 
     bool r;
 

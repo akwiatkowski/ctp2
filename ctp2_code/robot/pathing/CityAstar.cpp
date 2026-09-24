@@ -60,7 +60,11 @@
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/world/World.h"              // world_Get()
 
-CityAstar g_city_astar;
+CityAstar & CityPathing()
+{
+	static CityAstar instance;
+	return instance;
+}
 
 namespace
 {

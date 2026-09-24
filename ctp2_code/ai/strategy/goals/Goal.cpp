@@ -143,7 +143,7 @@ const Utility Goal::MAX_UTILITY =  99999999;
 
 #include "ai/ctpaidebug.h"
 
-extern CityAstar g_city_astar;
+// Shared finder via CityPathing() (CityAstar.h).
 
 Goal::Goal()
 :

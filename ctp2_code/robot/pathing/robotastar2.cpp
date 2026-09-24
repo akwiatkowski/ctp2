@@ -55,7 +55,11 @@
 
 uint32 const    INCURSION_PERMISSION_ALL    = 0xffffffffu;
 
-RobotAstar2 RobotAstar2::s_aiPathing;
+RobotAstar2 & RobotAstar2::AiPathing()
+{
+	static RobotAstar2 instance;
+	return instance;
+}
 
 RobotAstar2::RobotAstar2()
 {

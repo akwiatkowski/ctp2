@@ -3,8 +3,7 @@
 #include "robot/pathing/BFS.h"
 
 #include "robot/pathing/astarpnt.h"
-#include "robot/pathing/AVLHeap.h"
-extern AVLHeap g_astar_mem;
+#include "robot/pathing/Astar.h"
 
 #include "gs/world/MapPoint.h"
 
@@ -21,7 +20,7 @@ extern AVLHeap g_astar_mem;
 #include "gs/gameobj/ArmyData.h"
 #include "GovernmentRecord.h"
 
-extern uint32 g_search_count;
+ // Search epoch + node pool now come from AstarPathing() (PathingContext).
 
 BestFirstSearch::BestFirstSearch()
 {
@@ -91,7 +90,7 @@ BOOL BestFirstSearch::InitPoint(const sint32 player_idx, AstarPoint *parent, Ast
 
 
 
-    node = g_astar_mem.GetNew();
+    node = AstarPathing().GetHeap().GetNew();
 
     node->m_is_zoc = FALSE;
     node->m_parent = parent;
@@ -111,7 +110,7 @@ BOOL BestFirstSearch::InitPoint(const sint32 player_idx, AstarPoint *parent, Ast
 void BestFirstSearch::FindMoveCostToCitiesZ(const sint32 player_idx, const sint32 z_height,
     const double max_cost, const double min_cost)
 {
-    g_search_count++;
+    sint32 const searchEpoch = AstarPathing().NextSearchEpoch();
 
     BOOL searching = TRUE;
     sint32 num_cities_found = 0;
@@ -127,7 +126,7 @@ void BestFirstSearch::FindMoveCostToCitiesZ(const sint32 player_idx, const sint3
     start_cost = -world_Get()->GetCell(start_pos)->GetMoveCost() + ((start_pos.z != z_height) ? 1000.0 : 0) ;
     start_pos.z = z_height;
     Cell *neighbor_cell = world_Get()->GetCell(start_pos);
-    neighbor_cell->m_search_count = g_search_count;
+    neighbor_cell->m_search_count = searchEpoch;
     InitPoint(player_idx, nullptr, neighbor_cell->m_point, start_pos, start_cost, max_cost);
     sint32 nodes_opened = 1;
     AstarPoint* best = neighbor_cell->m_point;
@@ -149,14 +148,14 @@ void BestFirstSearch::FindMoveCostToCitiesZ(const sint32 player_idx, const sint3
             if (!best->m_pos.GetNeighborPosition(WORLD_DIRECTION(i), neighbor_pos)) continue;
             neighbor_cell = world_Get()->GetCell(neighbor_pos);
 
-            if (neighbor_cell->m_search_count == g_search_count)
+            if (neighbor_cell->m_search_count == searchEpoch)
                 continue;
 
             if (InitPoint(player_idx, best, neighbor_cell->m_point, neighbor_pos, past_cost, max_cost)) {
 
 world_Get()->SetColor(neighbor_pos, int(past_cost));
                 nodes_opened++;
-                neighbor_cell->m_search_count = g_search_count;
+                neighbor_cell->m_search_count = searchEpoch;
                 a_city = neighbor_cell->GetCity();
                 if (a_city.m_id != 0) {
                     if (a_city.GetOwner() == player_idx) {
@@ -183,7 +182,7 @@ world_Get()->SetColor(neighbor_pos, int(past_cost));
     } while (searching);
 
 
-    g_astar_mem.MassDelete(FALSE);
+    AstarPathing().GetHeap().MassDelete(FALSE);
 }
 
 void BestFirstSearch::CalcDistToCapitol(const sint32 player_idx)

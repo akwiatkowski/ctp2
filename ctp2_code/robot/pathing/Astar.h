@@ -34,13 +34,37 @@
 #ifndef ASTAR_H
 #define ASTAR_H 1
 
+#include <memory>
 #include "robot/pathing/astarpnt.h"
 #include "robot/aibackdoor/priorityqueue.h"
 
 class MapPoint;
 class AstarPoint;
 
+class AVLHeap;
+
+/// Owns the per-search shared pathing state (node pool + search epoch).
+/// Replaces the file-scope g_astar_mem / g_search_count globals so A* users
+/// can instantiate and test pathing without hidden global state.
+class PathingContext {
+public:
+	PathingContext();
+
+	AVLHeap & GetHeap() { return *m_heap; }
+	sint32 NextSearchEpoch() { return ++m_searchEpoch; }
+	sint32 CurrentSearchEpoch() const { return m_searchEpoch; }
+	void Reset();
+
+private:
+	std::unique_ptr<AVLHeap> m_heap;
+	sint32 m_searchEpoch;
+};
+
+// Shared instance backing the legacy Astar_Init/Cleanup lifecycle.
+// New code may instead own a PathingContext directly (e.g. per-thread).
+PathingContext & AstarPathing();
 const float k_ASTAR_BIG = 7654321.0f;
+
 
 class Astar
 {

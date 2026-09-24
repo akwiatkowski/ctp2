@@ -541,7 +541,7 @@ uint8 RadarMap::RadarTileBorder(const Player *player, const MapPoint &position)
 
 	if(owner != player->m_owner
 	&& !player->m_hasGlobalRadar
-	&& !Scheduler::CachedHasContactWithExceptSelf(player->m_owner, owner)
+	&& !Scheduler::StaticCachedHasContactWithExceptSelf(player->m_owner, owner)
 	&& !g_fog_toggle // Don't forget if fog of war is off
 	&& !g_god
 	)

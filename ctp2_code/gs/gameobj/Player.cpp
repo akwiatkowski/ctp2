@@ -267,7 +267,7 @@ extern BOOL                     g_powerPointsMode;
 extern sint32                   g_tileImprovementMode;
 extern sint32                   g_isTileImpPadOn;
 extern sint32                   g_isCheatModeOn;
-extern CityAstar                g_city_astar;
+// Shared finder via CityPathing() (CityAstar.h).
 #ifdef _DEBUG
 extern BOOL                     g_ai_revolt;
 #endif
@@ -8937,7 +8937,7 @@ bool Player::IsConnected(MapPoint const & center, sint32 maxSquaredDistance, sin
 			sint32 newDistance = std::numeric_limits<sint32>::max();
 			if
 			  (
-			       g_city_astar.IsConnected(m_owner, center, m_all_cities->Get(i)->GetPos(), cost, newDistance, maxSquaredDistance, isLandOnly)
+			       CityPathing().IsConnected(m_owner, center, m_all_cities->Get(i)->GetPos(), cost, newDistance, maxSquaredDistance, isLandOnly)
 			    && newDistance < distance
 			)
 			{
@@ -8974,7 +8974,7 @@ MapPoint Player::CalcEmpireCenter() const
 		float costs = 0.0f;
 		Path path;
 
-		g_city_astar.FindSimpleDistancePath(empireCenter, m_all_cities->Get(i)->GetPos(), m_owner, path, costs);
+		CityPathing().FindSimpleDistancePath(empireCenter, m_all_cities->Get(i)->GetPos(), m_owner, path, costs);
 
 		path.RestoreIndexAndCurrentPos(path.Num()/cityNum);
 		path.GetCurrentPoint(empireCenter);

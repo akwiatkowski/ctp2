@@ -71,7 +71,7 @@
 #include "ai/strategy/goals/Goal.h"
 
 extern MapPoint  g_mp_size;
-extern CityAstar g_city_astar;
+// Shared finder via CityPathing() (CityAstar.h).
 
 Agent::Agent()
 :
@@ -329,7 +329,7 @@ bool Agent::FindPathToBoard(const uint32 & move_intersection, const MapPoint & d
 	double trans_max_r = 100.0 / move_points;
 	sint32 cont = world_Get()->GetContinent(dest_pos);
 
-	if (RobotAstar2::s_aiPathing.FindPath( RobotAstar2::PATH_TYPE_TRANSPORT,
+	if (RobotAstar2::AiPathing().FindPath( RobotAstar2::PATH_TYPE_TRANSPORT,
 										   m_army,
 										   move_intersection,
 										   start_pos,
@@ -400,7 +400,7 @@ bool Agent::FindPath(const Army & army, const MapPoint & target_pos, const bool 
 		path_type = RobotAstar2::PATH_TYPE_DEFENSIVE;
 	}
 
-	if (RobotAstar2::s_aiPathing.FindPath( path_type,
+	if (RobotAstar2::AiPathing().FindPath( path_type,
 										   army,
 										   move_union,
 										   start_pos,

@@ -64,6 +64,7 @@
 // Library dependencies
 //----------------------------------------------------------------------------
 
+#include <array>
 #include <vector>
 
 //----------------------------------------------------------------------------
@@ -101,10 +102,23 @@ public:
 
 	static void ResizeAll(const PLAYER_INDEX & newMaxPlayerId);
 	static void Cleanup();
-
 	static Governor & GetGovernor(const PLAYER_INDEX & playerId);
-
 	static Governor const &         INVALID;
+
+	// Explicit registry owning all per-player governors. Replaces direct
+	// use of the s_theGovernors static; the static accessors below forward
+	// here so existing callers keep working while lifetime is explicit.
+	class Registry {
+	public:
+		void Resize(const PLAYER_INDEX & newMaxPlayerId);
+		void Clear();
+		Governor & Get(const PLAYER_INDEX & playerId);
+		size_t Size() const { return m_governors.size(); }
+	private:
+		GovernorVector m_governors;
+	};
+	static Registry & Governors();
+
 
 
 	enum BUILD_UNIT_LIST {
@@ -323,7 +337,7 @@ public:
 
 private:
 
-	static GovernorVector s_theGovernors;
+	// (removed) s_theGovernors now lives in Governor::Registry (Governors()).
 
 
 
@@ -428,19 +442,17 @@ private:
 	};
 
 	typedef std::vector<CityDist> CityDistQueue;
-	/// @todo Check whether this causes the same kind of problems as s_tiQueue did
-	static CityDistQueue s_CityDistQueue;
-
 	struct CityPair
 	{
 		CityPair(sint32 city, sint32 neighborCity) : m_city(city), m_neighborCity(neighborCity) {}
 		sint32 m_city;
 		sint32 m_neighborCity;
 	};
-
 	typedef std::vector<CityPair> CityPairList;
-	/// @todo Check whether this causes the same kind of problems as s_tiQueue did
-	static CityPairList s_CityPairList;
+	/// Scratch buffers for ComputeRoadPriorities. Per-instance (not static)
+	/// so governors no longer share hidden global state; cleared on entry.
+	CityDistQueue m_cityDistQueue;
+	CityPairList m_cityPairList;
 	bool IsInCityPairList(sint32 city, sint32 neighborCity) const;
 
 	bool FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32 &bonusFood, sint32 &bonusProduction, sint32 &bonusCommerce) const;
@@ -461,7 +473,7 @@ private:
 	const UnitRecord * GetDBUnitRec(sint32 type) const;
 
 	PLAYER_INDEX        m_playerId;
-	BuildUnitList       m_buildUnitList[BUILD_UNIT_LIST_MAX];
+	std::array<BuildUnitList, BUILD_UNIT_LIST_MAX> m_buildUnitList;
 	UnitCountVector     m_currentUnitCount;
 	double              m_neededFreight;
 	/// Currently considered tile improvements

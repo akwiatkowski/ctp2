@@ -650,7 +650,7 @@ STDEHANDLER(CtpAi_BeginSchedulerEvent)
 	scheduler.Sort_Goals();
 	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
-	Scheduler::s_needAnotherCycle = false;
+	Scheduler::ClearNeedAnotherCycle();
 	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ProcessMatches,
 						   GEA_Player, playerId,
 						   GEA_Int, 0,
@@ -707,9 +707,9 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", static_cast<sint32>(GetTickCount() - t1)));
 
 	// Modified by Martin Gï¿½hmann so that this can be exposed to const.txt
-	if ( cycle < g_theConstDB->Get(0)->GetMaxMatchListCycles() + diff_cycles || Scheduler::s_needAnotherCycle)
+	if ( cycle < g_theConstDB->Get(0)->GetMaxMatchListCycles() + diff_cycles || Scheduler::NeedAnotherCycle())
 	{
-		Scheduler::s_needAnotherCycle = false;
+		Scheduler::ClearNeedAnotherCycle();
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ProcessMatches,
 							   GEA_Player, playerId,
 							   GEA_Int, cycle,
@@ -2024,7 +2024,7 @@ void CtpAi::RefuelAirplane(const Army & army)
 	float const trans_max_r = 0.8f;
 	Path new_path;
 	float total_cost;
-	if (! RobotAstar2::s_aiPathing.FindPath(RobotAstar2::PATH_TYPE_DEFAULT,
+	if (! RobotAstar2::AiPathing().FindPath(RobotAstar2::PATH_TYPE_DEFAULT,
 		army,
 		army->GetMovementType(),
 		start_pos,

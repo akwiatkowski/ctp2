@@ -7691,7 +7691,7 @@ void ArmyData::MoveUnits(const MapPoint &pos)
 				else if(player_Get(m_owner)->IsRobot())
 				{
 					ClearOrders();
-					Scheduler::s_needAnotherCycle = true;
+					Scheduler::SetNeedAnotherCycle(true);
 				}
 			}
 

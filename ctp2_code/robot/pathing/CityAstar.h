@@ -87,5 +87,10 @@ private:
 	MapPoint m_start;
 	MapPoint m_dest;
 };
+// Shared CityAstar instance. All public methods reset the finder state
+// (m_owner/m_start/m_dest/mode flags) before searching, so sharing one
+// instance removes the file-scope g_city_astar global without changing
+// behavior; a future step can pass instances per call site instead.
+CityAstar & CityPathing();
 
 #endif

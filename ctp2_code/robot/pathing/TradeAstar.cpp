@@ -38,7 +38,11 @@
 
 
 
-TradeAstar g_theTradeAstar;
+TradeAstar & TradePathing()
+{
+	static TradeAstar instance;
+	return instance;
+}
 
 bool TradeAstar::EntryCost(const MapPoint &prev, const MapPoint &pos,
      float &cost, bool &is_zoc, ASTAR_ENTRY_TYPE &entry)

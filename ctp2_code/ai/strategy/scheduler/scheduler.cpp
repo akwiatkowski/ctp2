@@ -110,55 +110,71 @@ namespace
 
 } // namespace
 
-sint32 Scheduler::s_max_match_list_cycles = 6;
+// (removed) s_max_match_list_cycles was write-only; see Scheduler.h.
 
-Scheduler::Scheduler_Vector Scheduler::s_theSchedulers;
+// (removed) s_theSchedulers now lives in Scheduler::Registry (Schedulers()).
 
-sint32 Scheduler::m_contactCachedPlayer       = -1;
-uint32 Scheduler::m_contactCache              =  0;
-sint32 Scheduler::m_neutralRegardCachedPlayer = -1;
-uint32 Scheduler::m_neutralRegardCache        =  0;
-sint32 Scheduler::m_allyRegardCachedPlayer    = -1;
-uint32 Scheduler::m_allyRegardCache           =  0;
+// Per-instance regard/contact caches now live on each Scheduler (default
+// member initializers in Scheduler.h); no static definitions needed.
 
-bool   Scheduler::s_needAnotherCycle          =  false;
+bool Scheduler::s_needAnotherCycle = false;
 
-void Scheduler::ResizeAll(const PLAYER_INDEX & newMaxPlayerId)
+bool Scheduler::NeedAnotherCycle()
 {
-	s_theSchedulers.resize(newMaxPlayerId);
+	return s_needAnotherCycle;
+}
+
+void Scheduler::SetNeedAnotherCycle(bool needed)
+{
+	s_needAnotherCycle = needed;
+}
+
+void Scheduler::ClearNeedAnotherCycle()
+{
+	s_needAnotherCycle = false;
+}
+
+Scheduler::Registry & Scheduler::Schedulers()
+{
+	static Registry instance;
+	return instance;
+}
+
+void Scheduler::Registry::Resize(const PLAYER_INDEX & newMaxPlayerId)
+{
+	m_schedulers.resize(newMaxPlayerId);
 
 	for(sint32 i = 0; i < newMaxPlayerId; ++i)
 	{
-		s_theSchedulers[i].SetPlayerId(i);
+		m_schedulers[i].SetPlayerId(i);
 	}
 }
 
-/*
-// no longer used "Reason: should be able to regenerate state from game objects."
+void Scheduler::Registry::Clear()
+{
+	Scheduler_Vector().swap(m_schedulers);
+}
 
-// no longer used "Reason: should be able to regenerate state from game objects."
-*/
-
-//////////////////////////////
-//
-// used mainly in ctpai to get the player's scheduler
-//
-// also in Governor::ComputeDesiredUnits
-//         Governor::GetTacticalAdvice
-//         ThreatenedCity_MotivationEvent
-//
-//////////////////////////////
-Scheduler & Scheduler::GetScheduler(const sint32 & playerId)
+Scheduler & Scheduler::Registry::Get(const sint32 & playerId)
 {
 	Assert(playerId >= 0);
-	Assert(static_cast<size_t>(playerId) < s_theSchedulers.size());
+	Assert(static_cast<size_t>(playerId) < m_schedulers.size());
 
-	return s_theSchedulers[playerId];
+	return m_schedulers[playerId];
+}
+
+void Scheduler::ResizeAll(const PLAYER_INDEX & newMaxPlayerId)
+{
+	Schedulers().Resize(newMaxPlayerId);
+}
+Scheduler & Scheduler::GetScheduler(const sint32 & playerId)
+{
+	return Schedulers().Get(playerId);
 }
 
 void Scheduler::CleanupAll()
 {
-	Scheduler_Vector().swap(s_theSchedulers);
+	Schedulers().Clear();
 }
 
 Scheduler::Scheduler()
@@ -1723,6 +1739,32 @@ bool Scheduler::CachedIsAllyRegard(sint32 player, sint32 ally)
 	Diplomat & diplomat = Diplomat::GetDiplomat(player);
 	return diplomat.TestAlliedRegard(ally);
 }
+bool Scheduler::StaticCachedHasContactWithExceptSelf(sint32 player1, sint32 player2)
+{
+	if (player1 >= 0 && static_cast<size_t>(player1) < Schedulers().Size())
+		return Schedulers().Get(player1).CachedHasContactWithExceptSelf(player1, player2);
+	if (player_Get(player1) == nullptr)
+		return false;
+	if (player1 == player2) return false;
+	return player_Get(player1)->HasContactWith(player2);
+}
+
+bool Scheduler::StaticCachedIsNeutralRegard(sint32 player, sint32 opponent)
+{
+	if (player >= 0 && static_cast<size_t>(player) < Schedulers().Size())
+		return Schedulers().Get(player).CachedIsNeutralRegard(player, opponent);
+	Diplomat & diplomat = Diplomat::GetDiplomat(player);
+	return diplomat.TestEffectiveRegard(opponent, NEUTRAL_REGARD);
+}
+
+bool Scheduler::StaticCachedIsAllyRegard(sint32 player, sint32 ally)
+{
+	if (player >= 0 && static_cast<size_t>(player) < Schedulers().Size())
+		return Schedulers().Get(player).CachedIsAllyRegard(player, ally);
+	Diplomat & diplomat = Diplomat::GetDiplomat(player);
+	return diplomat.TestAlliedRegard(ally);
+}
+
 
 void Scheduler::Recompute_Goal_Strength()
 {

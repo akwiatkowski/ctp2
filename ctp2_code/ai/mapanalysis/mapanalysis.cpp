@@ -468,7 +468,7 @@ sint32 MapAnalysis::GetAlliedGrid(const MapGridVector & gridVector, const sint32
 
 	for(sint32 i = gridVector.size() - 1; i >= 0; i--)
 	{
-		if(Scheduler::CachedIsAllyRegard(player, i))
+		if(Scheduler::StaticCachedIsAllyRegard(player, i))
 		{
 			value += gridVector[i].GetGridValue(pos);
 		}
@@ -483,7 +483,7 @@ sint32 MapAnalysis::GetMaxAlliedGrid(const MapGridVector & gridVector, const sin
 
 	for(sint32 i = gridVector.size() - 1; i >= 0; i--)
 	{
-		if(Scheduler::CachedIsAllyRegard(player, i))
+		if(Scheduler::StaticCachedIsAllyRegard(player, i))
 		{
 			value += gridVector[i].GetMaxGridValue();
 		}
@@ -501,7 +501,7 @@ sint32 MapAnalysis::GetEnemyGrid(const MapGridVector & gridVector, const sint32 
 		if
 		  (
 		        player != i
-		    && !Scheduler::CachedIsNeutralRegard(player, i)
+		    && !Scheduler::StaticCachedIsNeutralRegard(player, i)
 		  )
 		{
 			value += gridVector[i].GetGridValue(pos);
@@ -520,7 +520,7 @@ sint32 MapAnalysis::GetMaxEnemyGrid(const MapGridVector & gridVector, const sint
 		if
 		  (
 		        player != i
-		    && !Scheduler::CachedIsNeutralRegard(player, i)
+		    && !Scheduler::StaticCachedIsNeutralRegard(player, i)
 		  )
 		{
 			value += gridVector[i].GetMaxGridValue();
@@ -539,13 +539,13 @@ sint32 MapAnalysis::GetThreat(const PLAYER_INDEX & player, const MapPoint & pos)
 	for(sint32 opponent = m_threatGrid.size() - 1; opponent >= 0; opponent--)
 	{
 		if (    (player == opponent)
-		     || !Scheduler::CachedHasContactWithExceptSelf(player, opponent)
+		     || !Scheduler::StaticCachedHasContactWithExceptSelf(player, opponent)
 		   )
 		{
 			continue;
 		}
 
-		if (!Scheduler::CachedIsNeutralRegard(player, opponent))
+		if (!Scheduler::StaticCachedIsNeutralRegard(player, opponent))
 			threat += m_threatGrid[opponent].GetGridValue(pos);
 	}
 
@@ -559,7 +559,7 @@ sint32 MapAnalysis::GetMaxThreat(const PLAYER_INDEX & player) const
 	for (int opponent = m_threatGrid.size() - 1; opponent >= 0; opponent--)
 	{
 		if (opponent != player &&
-		    !Scheduler::CachedIsNeutralRegard(player, opponent)
+		    !Scheduler::StaticCachedIsNeutralRegard(player, opponent)
 		   )
 		{
 			threat += m_threatGrid[opponent].GetMaxGridValue();
@@ -574,7 +574,7 @@ sint32 MapAnalysis::GetPower(const PLAYER_INDEX & player, const MapPoint & pos) 
 
 	for (int ally = m_threatGrid.size() - 1; ally >= 0; ally--)
 	{
-		if (Scheduler::CachedIsAllyRegard(player, ally))
+		if (Scheduler::StaticCachedIsAllyRegard(player, ally))
 		{
 			power += m_threatGrid[ally].GetGridValue(pos);
 		}
@@ -588,7 +588,7 @@ sint32 MapAnalysis::GetMaxPower(const PLAYER_INDEX & player) const
 
 	for (int ally = m_threatGrid.size() - 1; ally >= 0; ally--)
 	{
-		if (Scheduler::CachedIsAllyRegard(player, ally))
+		if (Scheduler::StaticCachedIsAllyRegard(player, ally))
 		{
 			power += m_threatGrid[ally].GetMaxGridValue();
 		}
@@ -603,7 +603,7 @@ sint32 MapAnalysis::GetAlliedValue(const PLAYER_INDEX & player, const MapPoint &
 
 	for (int ally = m_threatGrid.size() - 1; ally >= 0; ally--)
 	{
-		if (Scheduler::CachedIsAllyRegard(player, ally))
+		if (Scheduler::StaticCachedIsAllyRegard(player, ally))
 		{
 			value += m_valueGrid[ally].GetGridValue(pos);
 		}
@@ -618,7 +618,7 @@ sint32 MapAnalysis::GetMaxAlliedValue(const PLAYER_INDEX & player) const
 
 	for (int ally = m_threatGrid.size() - 1; ally >= 0; ally--)
 	{
-		if (Scheduler::CachedIsAllyRegard(player, ally))
+		if (Scheduler::StaticCachedIsAllyRegard(player, ally))
 			value += m_threatGrid[ally].GetMaxGridValue();
 	}
 
@@ -631,7 +631,7 @@ sint32 MapAnalysis::GetEnemyValue(const PLAYER_INDEX & player, const MapPoint & 
 
 	for (int opponent = m_valueGrid.size() - 1; opponent >= 0; opponent--)
 	{
-		if (!Scheduler::CachedIsNeutralRegard(player, opponent))
+		if (!Scheduler::StaticCachedIsNeutralRegard(player, opponent))
 			value += m_valueGrid[opponent].GetGridValue(pos);
 
 	}
@@ -645,7 +645,7 @@ sint32 MapAnalysis::GetMaxEnemyValue(const PLAYER_INDEX & player) const
 
 	for (int opponent = m_threatGrid.size() - 1; opponent >= 0; opponent--)
 	{
-		if (!Scheduler::CachedIsNeutralRegard(player, opponent))
+		if (!Scheduler::StaticCachedIsNeutralRegard(player, opponent))
 			value += m_threatGrid[opponent].GetMaxGridValue();
 	}
 

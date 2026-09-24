@@ -108,24 +108,47 @@ public:
 	typedef std::vector<Scheduler>                                           Scheduler_Vector;
 #endif
 
-	static sint32 s_max_match_list_cycles;
+	// (removed) s_max_match_list_cycles was write-only; the live cycle
+	// budget comes from ConstDB GetMaxMatchListCycles (ctpai.cpp).
 
 	static void ResizeAll(const PLAYER_INDEX & newMaxPlayerId);
-
-	static size_t Count() { return s_theSchedulers.size(); }
-
+	static size_t Count() { return Schedulers().Size(); }
 	static Scheduler & GetScheduler(const sint32 & playerId);
-
 	static void CleanupAll();
 
-	static void       SetContactCache         (sint32 player);
-	static bool CachedHasContactWithExceptSelf(sint32 player1, sint32 player2);
+	// Explicit registry owning all per-player schedulers. Replaces direct
+	// use of the s_theSchedulers static; the static accessors below forward
+	// here so existing callers keep working while lifetime is explicit and
+	// independently testable.
+	class Registry {
+	public:
+		void Resize(const PLAYER_INDEX & newMaxPlayerId);
+		void Clear();
+		Scheduler & Get(const sint32 & playerId);
+		size_t Size() const { return m_schedulers.size(); }
+	private:
+		Scheduler_Vector m_schedulers;
+	};
+	static Registry & Schedulers();
 
-	static void    SetIsNeutralRegardCache(sint32 player);
-	static bool CachedIsNeutralRegard     (sint32 player, sint32 opponent);
 
-	static void    SetIsAllyRegardCache(sint32 player);
-	static bool CachedIsAllyRegard     (sint32 player, sint32 ally);
+	void       SetContactCache         (sint32 player);
+	bool CachedHasContactWithExceptSelf(sint32 player1, sint32 player2);
+
+	void    SetIsNeutralRegardCache(sint32 player);
+	bool CachedIsNeutralRegard     (sint32 player, sint32 opponent);
+
+	void    SetIsAllyRegardCache(sint32 player);
+	bool CachedIsAllyRegard     (sint32 player, sint32 ally);
+
+	// Static read shims for non-scheduler callers (mapanalysis threat
+	// grids, radarmap borders). These forward to the owning player's
+	// per-instance cache, which Process_Goal_Changes refreshes each turn;
+	// outside that window they fall back to live diplomacy lookups, exactly
+	// as the old static cache did on a miss.
+	static bool StaticCachedHasContactWithExceptSelf(sint32 player1, sint32 player2);
+	static bool StaticCachedIsNeutralRegard(sint32 player, sint32 opponent);
+	static bool StaticCachedIsAllyRegard(sint32 player, sint32 ally);
 
 	Scheduler();
 
@@ -185,7 +208,14 @@ public:
 	void Assign_Garrison();
 	void ResetTransport();
 
-	static bool                  s_needAnotherCycle;
+	/// Cross-turn "run another match cycle" flag. Single-threaded turn loop
+	/// sets it from ArmyData and drains it in ctpai; accessor keeps the
+	/// storage private to the registry owner.
+	static bool NeedAnotherCycle();
+	static void SetNeedAnotherCycle(bool needed);
+	static void ClearNeedAnotherCycle();
+private:
+	static bool s_needAnotherCycle;
 
 protected:
 
@@ -213,7 +243,7 @@ protected:
 
 private:
 
-	static Scheduler_Vector      s_theSchedulers;
+	// (removed) s_theSchedulers now lives in Scheduler::Registry (Schedulers()).
 
 	Sorted_Goal_List_Vector      m_goals_of_type;
 	Agent_Owning_List            m_agents;
@@ -222,12 +252,12 @@ private:
 	Goal_List                    m_goals;
 	Goal_Vector                  m_generic_goals;
 
-	static sint32 m_contactCachedPlayer;
-	static uint32 m_contactCache;
-	static sint32 m_neutralRegardCachedPlayer;
-	static uint32 m_neutralRegardCache;
-	static sint32 m_allyRegardCachedPlayer;
-	static uint32 m_allyRegardCache;
+	sint32 m_contactCachedPlayer = -1;
+	uint32 m_contactCache = 0;
+	sint32 m_neutralRegardCachedPlayer = -1;
+	uint32 m_neutralRegardCache = 0;
+	sint32 m_allyRegardCachedPlayer = -1;
+	uint32 m_allyRegardCache = 0;
 };
 
 #endif
